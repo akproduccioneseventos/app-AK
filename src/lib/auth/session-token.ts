@@ -1,12 +1,11 @@
 import crypto from 'crypto';
-
-export const SESSION_COOKIE_NAME = 'ak_session';
+import { SESSION_COOKIE_NAME } from '@/lib/auth/session-constants';
 
 const SESSION_VERSION = 'v1';
 const DEFAULT_MAX_AGE_SECONDS = 60 * 60 * 24 * 7;
 const NO_PRIVATE_SECRET_MAX_AGE_SECONDS = 60 * 60 * 24;
 
-const FALLBACK_SECRET = 'AIzaSyDk_9nYp-WZIxMx4TbzS41_9uVmb3Q3Xnc';
+let localDevelopmentSecret: string | undefined;
 
 export interface SessionUserData {
   email: string;
@@ -31,11 +30,12 @@ function getSigningSecret() {
     process.env.AUTH_SECRET;
 
   if (!secret) {
-    const isBuild = process.env.npm_lifecycle_event === 'build' || process.env.NEXT_PHASE === 'phase-production-build';
-    if (!isBuild && process.env.NODE_ENV === 'production') {
-      console.warn('[session-token] WARNING: Using hardcoded fallback session secret in production. Please configure AK_SESSION_SECRET.');
+    if (process.env.NODE_ENV === 'production') {
+      throw new Error('Falta configurar AK_SESSION_SECRET para firmar las sesiones.');
     }
-    return FALLBACK_SECRET;
+
+    localDevelopmentSecret ||= crypto.randomBytes(32).toString('hex');
+    return localDevelopmentSecret;
   }
 
   return secret;

@@ -47,9 +47,9 @@ const sectionIcons: Record<WorldExperienceSection['id'], typeof Sparkles> = {
 };
 
 type PageProps = {
-  params: {
+  params: Promise<{
     id: string;
-  };
+  }>;
 };
 
 function ScorePill({ score }: { score: number }) {
@@ -182,7 +182,8 @@ function MissingFiesta() {
   );
 }
 
-export default async function CierreMundialPage({ params }: PageProps) {
+export default async function CierreMundialPage(props: PageProps) {
+  const params = await props.params;
   const fiesta = await getFiestaById(params.id);
 
   if (!fiesta) return <MissingFiesta />;

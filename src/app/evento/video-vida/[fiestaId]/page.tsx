@@ -1,7 +1,7 @@
 
 'use client';
 
-import React, { useState, useEffect, useCallback, type ChangeEvent } from 'react';
+import React, { useState, useEffect, useCallback, type ChangeEvent, use } from 'react';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { Camera, Loader2, AlertTriangle, Upload, CheckCircle, PartyPopper } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
@@ -196,7 +196,8 @@ function VideoVidaClientPageContent({ fiestaId }: { fiestaId: string | null }) {
 }
 
 
-export default function VideoVidaPage({ params }: { params: { fiestaId: string } }) {
-    const fiestaId = params.fiestaId;
-    return <VideoVidaClientPageContent fiestaId={fiestaId} />;
+export default function VideoVidaPage(props: { params: Promise<{ fiestaId: string }> }) {
+  const params = use(props.params);
+  const fiestaId = params.fiestaId;
+  return <VideoVidaClientPageContent fiestaId={fiestaId} />;
 }

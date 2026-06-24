@@ -135,6 +135,14 @@ describe('generarPlanPagos', () => {
 
     expect(plan.mesesLimiteAntesFecha).toBe(5);
   });
+
+  it('never schedules more money than the contract total', () => {
+    const fechaEvento = new Date();
+    fechaEvento.setFullYear(fechaEvento.getFullYear() + 4);
+    const plan = generarPlanPagos(fechaEvento.toISOString(), 20000, 5000);
+
+    expect(plan.cuotas.reduce((sum, cuota) => sum + cuota.montoMinimo, 0)).toBe(20000);
+  });
 });
 
 // ─────────────────────────────────────────────────────────────────────────────
@@ -162,6 +170,16 @@ describe('recalcularEstadoCuotas', () => {
 
     const allCompleted = updated.cuotas.every(c => c.estado === 'completada');
     expect(allCompleted).toBe(true);
+  });
+
+  it('treats the key percentage as a cumulative target', () => {
+    const fechaEvento = new Date();
+    fechaEvento.setMonth(fechaEvento.getMonth() + 18);
+    const plan = generarPlanPagos(fechaEvento.toISOString(), 100000);
+    const updated = recalcularEstadoCuotas(plan, [makePago(30000)]);
+    const clave = updated.cuotas.find(c => c.esCuotaClave);
+
+    expect(clave?.estado).toBe('completada');
   });
 
   it('does not count pending_confirmacion payments', () => {

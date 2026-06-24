@@ -10,7 +10,7 @@ import { CLIENT_PORTAL_VIP_AREAS } from '@/lib/client-portal-vip-ux';
 import { getAkFinalPremiumReadinessByArea } from '@/lib/design/ak-final-premium-readiness';
 import type { FiestaEnPlanificacion } from '@/types/fiesta';
 
-type PageProps = { searchParams?: { fiestaId?: string } | Promise<{ fiestaId?: string }> };
+type PageProps = { searchParams?: Promise<{ fiestaId?: string }> };
 
 type JourneyItem = {
   title: string;
@@ -43,8 +43,8 @@ function StatusBadge({ state }: { state: 'listo' | 'revisar' }) {
     : <Badge className="bg-amber-100 text-amber-700 hover:bg-amber-100">Revisar</Badge>;
 }
 
-export default async function ClientPortalWorldClassPage({ searchParams }: PageProps) {
-  const params = await Promise.resolve(searchParams ?? {});
+export default async function ClientPortalWorldClassPage(props: PageProps) {
+  const params = (await props.searchParams) ?? {};
   const fiestaId = params.fiestaId;
 
   if (!fiestaId) {

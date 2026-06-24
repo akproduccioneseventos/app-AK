@@ -6,7 +6,7 @@ import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { POST445_RELEASE_GROUPS, POST445_RELEASE_PRS, countPost445PrsByGroup, getPost445PrsByGroup } from '@/lib/post445/post445-release-map';
 
-type PageProps = { searchParams?: { fiestaId?: string } | Promise<{ fiestaId?: string }> };
+type PageProps = { searchParams?: Promise<{ fiestaId?: string }> };
 
 function withFiesta(route: string | undefined, fiestaId?: string): string | undefined {
   if (!route) return undefined;
@@ -21,8 +21,8 @@ function stateLabel(state: string): string {
   return 'Motor base';
 }
 
-export default async function Post445IntegrationPage({ searchParams }: PageProps) {
-  const params = await Promise.resolve(searchParams ?? {});
+export default async function Post445IntegrationPage(props: PageProps) {
+  const params = (await props.searchParams) ?? {};
   const fiestaId = params.fiestaId;
   const total = POST445_RELEASE_PRS.length;
   const motorCount = POST445_RELEASE_PRS.filter(pr => pr.originalState === 'motor_base').length;

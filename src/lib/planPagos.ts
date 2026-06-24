@@ -49,13 +49,27 @@ export function generarPlanPagos(
 ): PlanPagos {
   const hoy = new Date();
   const evento = new Date(fechaEvento);
-  const totalContratoSeguro = roundMoney(totalContrato);
+  if (!Number.isFinite(evento.getTime())) {
+    throw new Error('La fecha del evento no es valida.');
+  }
 
-  const diffMs = evento.getTime() - hoy.getTime();
-  const fechaLimite = new Date(hoy.getTime() + diffMs * 0.75);
+  const totalContratoSeguro = Math.max(0, roundMoney(totalContrato));
+  const pagoMinimoSeguro = Math.max(0, roundMoney(pagoMinimoTrimestral));
+  const porcentajeMinimoSeguro = Math.min(100, Math.max(0, porcentajeMinimo));
+  const mesesHastaEvento = diferenciaMeses(hoy, evento);
+  const mesesLimite = calcularMesesLimite(mesesHastaEvento);
+
+  const fechaLimiteCalculada = new Date(evento);
+  fechaLimiteCalculada.setMonth(fechaLimiteCalculada.getMonth() - mesesLimite);
   const fechaSaldoFinal = new Date(evento.getTime() - 15 * 24 * 60 * 60 * 1000);
+  const claveDate = fechaLimiteCalculada > hoy
+    ? fechaLimiteCalculada
+    : new Date(hoy.getTime() + 24 * 60 * 60 * 1000);
 
-  const montoObjetivo30 = Math.round(totalContratoSeguro * (porcentajeMinimo / 100));
+  const montoObjetivo30 = Math.min(
+    totalContratoSeguro,
+    roundMoney(totalContratoSeguro * (porcentajeMinimoSeguro / 100)),
+  );
 
   const cuotas: CuotaPlanPagoContrato[] = [];
 
@@ -66,32 +80,42 @@ export function generarPlanPagos(
   let index = 1;
   let accumulatedTarget = 0;
 
-  // Add trimestral cuotas until we reach 3/4 of the way to the event
-  while (cursor < fechaLimite && cursor < fechaSaldoFinal) {
+  // Cuotas anteriores al hito porcentual.
+  while (
+    cursor < claveDate &&
+    cursor < fechaSaldoFinal &&
+    accumulatedTarget < totalContratoSeguro
+  ) {
+    const montoCuota = Math.min(
+      pagoMinimoSeguro,
+      totalContratoSeguro - accumulatedTarget,
+    );
     cuotas.push({
       id: `cuota_${index}`,
       descripcion: `Pago mínimo trimestral #${index}`,
       fechaVencimiento: cursor.toISOString(),
-      montoMinimo: pagoMinimoTrimestral,
+      montoMinimo: montoCuota,
       esCuotaClave: false,
       estado: 'pendiente',
       pagosAplicados: [],
       montoAcumulado: 0,
     });
-    accumulatedTarget += pagoMinimoTrimestral;
+    accumulatedTarget += montoCuota;
     index++;
 
     cursor = new Date(cursor);
     cursor.setMonth(cursor.getMonth() + 3);
   }
 
-  // Add Cuota Clave (30%) at fechaLimite
-  const targetClave = Math.max(0, montoObjetivo30 - accumulatedTarget);
-  const claveDate = fechaLimite > hoy ? fechaLimite : new Date(hoy.getTime() + 24 * 60 * 60 * 1000);
+  // La cuota clave completa el objetivo acumulado, no vuelve a cobrarlo.
+  const targetClave = Math.min(
+    totalContratoSeguro - accumulatedTarget,
+    Math.max(0, montoObjetivo30 - accumulatedTarget),
+  );
   
   cuotas.push({
     id: `cuota_clave`,
-    descripcion: `Cuota clave ${porcentajeMinimo}% — ${formatDateISO(claveDate)}`,
+    descripcion: `Cuota clave ${porcentajeMinimoSeguro}% — ${formatDateISO(claveDate)}`,
     fechaVencimiento: claveDate.toISOString(),
     montoMinimo: targetClave,
     montoObjetivo: montoObjetivo30,
@@ -108,21 +132,25 @@ export function generarPlanPagos(
   cursorPost.setDate(1);
 
   let postIndex = 1;
-  while (cursorPost < fechaSaldoFinal) {
+  while (cursorPost < fechaSaldoFinal && accumulatedTarget < totalContratoSeguro) {
     const diffDays = (fechaSaldoFinal.getTime() - cursorPost.getTime()) / (1000 * 60 * 60 * 24);
     if (diffDays < 15) break;
 
+    const montoCuota = Math.min(
+      pagoMinimoSeguro,
+      totalContratoSeguro - accumulatedTarget,
+    );
     cuotas.push({
       id: `cuota_post_${postIndex}`,
       descripcion: `Pago mínimo trimestral post-clave #${postIndex}`,
       fechaVencimiento: cursorPost.toISOString(),
-      montoMinimo: pagoMinimoTrimestral,
+      montoMinimo: montoCuota,
       esCuotaClave: false,
       estado: 'pendiente',
       pagosAplicados: [],
       montoAcumulado: 0,
     });
-    accumulatedTarget += pagoMinimoTrimestral;
+    accumulatedTarget += montoCuota;
     postIndex++;
 
     cursorPost = new Date(cursorPost);
@@ -147,14 +175,10 @@ export function generarPlanPagos(
   // Sort cuotas chronologically
   cuotas.sort((a, b) => new Date(a.fechaVencimiento).getTime() - new Date(b.fechaVencimiento).getTime());
 
-  // Recalculate months limits for the plan configuration
-  const diffMonths = Math.max(1, Math.round(diffMs / (1000 * 60 * 60 * 24 * 30)));
-  const mesesLimite = Math.round(diffMonths * 0.25);
-
   return {
     activo: true,
-    pagoMinimoTrimestral,
-    porcentajeMinimoAntesFecha: porcentajeMinimo,
+    pagoMinimoTrimestral: pagoMinimoSeguro,
+    porcentajeMinimoAntesFecha: porcentajeMinimoSeguro,
     mesesLimiteAntesFecha: mesesLimite,
     fechaLimite30Porciento: claveDate.toISOString(),
     montoObjetivo30Porciento: montoObjetivo30,
@@ -194,10 +218,16 @@ export function recalcularEstadoCuotas(
     pagosOrdenados.map(p => [p.id, p.monto]),
   );
 
+  let objetivoProgramadoAcumulado = 0;
   const cuotasActualizadas: CuotaPlanPagoContrato[] = plan.cuotas.map(cuota => {
     const montoObjetivo = cuota.esCuotaClave
-      ? (cuota.montoObjetivo ?? plan.montoObjetivo30Porciento)
-      : cuota.montoMinimo;
+      ? Math.max(
+          0,
+          (cuota.montoObjetivo ?? plan.montoObjetivo30Porciento) -
+            objetivoProgramadoAcumulado,
+        )
+      : Math.max(0, cuota.montoMinimo);
+    objetivoProgramadoAcumulado += montoObjetivo;
 
     const montoAplicado = Math.min(montoPendienteDistribuir, montoObjetivo);
     montoPendienteDistribuir -= montoAplicado;

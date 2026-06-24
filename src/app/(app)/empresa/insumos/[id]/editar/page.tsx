@@ -1,7 +1,7 @@
 
 'use client';
 
-import React, { useState, useEffect, useCallback, type FormEvent } from 'react';
+import React, { useState, useEffect, useCallback, type FormEvent, use } from 'react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle, CardFooter } from '@/components/ui/card';
@@ -27,18 +27,19 @@ import {
 } from "@/components/ui/alert-dialog";
 
 
-export default function EditarInsumoPage({ params }: { params: { id: string } }) {
+export default function EditarInsumoPage(props: { params: Promise<{ id: string }> }) {
+  const params = use(props.params);
   const router = useRouter();
   const { toast } = useToast();
-  
+
   const [item, setItem] = useState<ServicioEmpresa | null>(null);
   const [formData, setFormData] = useState<Partial<ServicioEmpresa>>({});
-  
+
   const [isLoading, setIsLoading] = useState(true);
   const [isSaving, setIsSaving] = useState(false);
   const [isDeleting, setIsDeleting] = useState(false);
   const [notFound, setNotFound] = useState(false);
-  
+
   const itemIdFromParams = params.id;
 
   const loadItem = useCallback(async () => {
@@ -63,7 +64,7 @@ export default function EditarInsumoPage({ params }: { params: { id: string } })
       setIsLoading(false);
     }
   }, [itemIdFromParams, toast]);
-  
+
   useEffect(() => {
     if (itemIdFromParams) {
       loadItem();
@@ -80,7 +81,7 @@ export default function EditarInsumoPage({ params }: { params: { id: string } })
       setFormData(prev => ({ ...prev, [field]: value }));
     }
   };
-  
+
   const handleCategoryChange = (value: AnyCategoria | '') => {
     setFormData(prev => ({...prev, categoria: value as AnyCategoria }));
   }

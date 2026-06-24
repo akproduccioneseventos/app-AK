@@ -1,7 +1,7 @@
 
 'use client';
 
-import React, { useState, useEffect, useCallback, type FormEvent } from 'react';
+import React, { useState, useEffect, useCallback, type FormEvent, use } from 'react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle, CardFooter } from '@/components/ui/card';
@@ -29,7 +29,8 @@ import {
   AlertDialogTrigger,
 } from "@/components/ui/alert-dialog";
 
-export default function EditarPresupuestoPage({ params }: { params: { id: string } }) {
+export default function EditarPresupuestoPage(props: { params: Promise<{ id: string }> }) {
+  const params = use(props.params);
   const router = useRouter();
   const presupuestoId = params.id as string;
   const { toast } = useToast();
@@ -48,18 +49,18 @@ export default function EditarPresupuestoPage({ params }: { params: { id: string
   const [nombreEmpresa, setNombreEmpresa] = useState('');
   const [notas, setNotas] = useState('');
   const [estado, setEstado] = useState<Presupuesto['estado']>('Borrador');
-  
+
   // Discount fields
   const [nombrePromocion, setNombrePromocion] = useState('');
   const [descuentoTipo, setDescuentoTipo] = useState<Presupuesto['descuentoTipo']>(undefined);
-  const [descuentoValor, setDescuentoValor] = useState<string>(''); 
+  const [descuentoValor, setDescuentoValor] = useState<string>('');
   const [vigenciaPromocion, setVigenciaPromocion] = useState('');
-  
+
   const [isLoading, setIsLoading] = useState(true);
   const [isSaving, setIsSaving] = useState(false);
   const [isRecalculating, setIsRecalculating] = useState(false);
   const [notFound, setNotFound] = useState(false);
-  
+
   const [isGeneratingPitch, setIsGeneratingPitch] = useState(false);
   const [pitchText, setPitchText] = useState('');
 
@@ -113,7 +114,7 @@ export default function EditarPresupuestoPage({ params }: { params: { id: string
     if (newTipoEvento !== 'Boda') setProtagonista2Nombre('');
     if (newTipoEvento === 'Evento corporativo' || newTipoEvento === 'Boda') setProtagonista1Nombre('');
   };
-  
+
   const finalEventType = eventoTipo.trim();
   const showCustomTipoInput = eventoTipoEnSelect === "Otro" || (finalEventType && !ALL_TIPOS_EVENTO.includes(finalEventType as TipoEvento));
 

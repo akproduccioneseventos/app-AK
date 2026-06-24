@@ -27,10 +27,8 @@ function isUrlAllowed(urlStr: string): boolean {
   }
 }
 
-export async function GET(
-  request: Request,
-  { params }: { params: { fiestaId: string } }
-) {
+export async function GET(request: Request, props: { params: Promise<{ fiestaId: string }> }) {
+  const params = await props.params;
   const { fiestaId } = params;
 
   if (!fiestaId) {

@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState, useEffect, useCallback, useMemo, Suspense } from 'react';
+import React, { useState, useEffect, useCallback, useMemo, Suspense, use } from 'react';
 import Link from 'next/link';
 import { useSearchParams } from 'next/navigation';
 import {
@@ -589,7 +589,8 @@ function ReciboContratoContent({ params }: { params: { id: string } }) {
   );
 }
 
-export default function ReciboContratoPage({ params }: { params: { id: string } }) {
+export default function ReciboContratoPage(props: { params: Promise<{ id: string }> }) {
+  const params = use(props.params);
   return (
     <Suspense
       fallback={

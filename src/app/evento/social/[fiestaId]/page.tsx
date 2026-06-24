@@ -1,6 +1,15 @@
 'use client';
 
-import React, { useState, useEffect, useCallback, useMemo, type FormEvent, useRef, type ChangeEvent } from 'react';
+import React, {
+  useState,
+  useEffect,
+  useCallback,
+  useMemo,
+  type FormEvent,
+  useRef,
+  type ChangeEvent,
+  use,
+} from 'react';
 import { useToast } from '@/hooks/use-toast';
 import { getPublicSocialPosts, uploadSocialPost, addLikeToPost, addCommentToPost, deleteSocialPost, clearGallery, getChatMessages, addChatMessage, highlightComment, moderateSocialPost, saveSocialGallerySettings } from '@/app/actions/social-gallery';
 import { addDedication, addSongRequest, getPublicDedications, getSongRequests, getActivePoll, createPoll, votePoll, closePoll, highlightDedication, uploadDedicationAudio } from '@/app/actions/social-interactive';
@@ -343,9 +352,10 @@ const PostCard: React.FC<{
 };
 
 
-export default function SocialGalleryPage({ params }: { params: { fiestaId: string } }) {
+export default function SocialGalleryPage(props: { params: Promise<{ fiestaId: string }> }) {
+  const params = use(props.params);
   const { toast } = useToast();
-  
+
   const [fiesta, setFiesta] = useState<FiestaEnPlanificacion | null>(null);
   const [posts, setPosts] = useState<SocialGalleryPost[]>([]);
   const [chatMessages, setChatMessages] = useState<ChatMessage[]>([]);
@@ -384,7 +394,7 @@ export default function SocialGalleryPage({ params }: { params: { fiestaId: stri
       try { setLikedPosts(new Set(JSON.parse(raw))); } catch (_) { /* ignore invalid JSON */ }
     }
   }, [params.fiestaId]);
-  
+
   const [authorName, setAuthorName] = useState('');
   const [tempAuthorName, setTempAuthorName] = useState('');
   const [isNameModalOpen, setIsNameModalOpen] = useState(false);
@@ -401,7 +411,7 @@ export default function SocialGalleryPage({ params }: { params: { fiestaId: stri
   const [isClearing, setIsClearing] = useState(false);
   const [isDownloadingAndClearing, setIsDownloadingAndClearing] = useState(false);
   const [isSavingSettings, setIsSavingSettings] = useState(false);
-  
+
   const [companyLogoUrl, setCompanyLogoUrl] = useState<string | null>(null);
   const [whatsappNumber, setWhatsappNumber] = useState<string | null>(null);
   const [instagramUrl, setInstagramUrl] = useState<string | null>(null);
@@ -433,7 +443,7 @@ export default function SocialGalleryPage({ params }: { params: { fiestaId: stri
   const [uploadPreview, setUploadPreview] = useState<string | null>(null);
   const [isSettingsDialogOpen, setIsSettingsDialogOpen] = useState(false);
   const [isFlyerDialogOpen, setIsFlyerDialogOpen] = useState(false);
-  
+
   // Projection mode state
   const [projectionMode, setProjectionMode] = useState(false);
   const [currentSlide, setCurrentSlide] = useState(0);
@@ -525,7 +535,7 @@ export default function SocialGalleryPage({ params }: { params: { fiestaId: stri
       if(showLoadingIndicator) setIsLoading(false);
     }
   }, [params.fiestaId]);
-  
+
   useEffect(() => {
     if (typeof window === 'undefined') return;
     const savedName = sessionStorage.getItem(`socialWallAuthor_${params.fiestaId}`);
@@ -558,7 +568,7 @@ export default function SocialGalleryPage({ params }: { params: { fiestaId: stri
   const visiblePosts = useMemo(() => posts.filter(isPostVisibleForAudience), [posts]);
   const galleryPosts = isAdminView ? posts : visiblePosts;
   const screenPosts = visiblePosts;
-  
+
   useEffect(() => {
     if (projectionMode && screenPosts.length > 0) {
         const timer = setInterval(() => {
@@ -571,7 +581,7 @@ export default function SocialGalleryPage({ params }: { params: { fiestaId: stri
   useEffect(() => {
     if (screenPosts.length > 0 && currentSlide >= screenPosts.length) setCurrentSlide(0);
   }, [currentSlide, screenPosts.length]);
-  
+
   useEffect(() => {
     chatEndRef.current?.scrollIntoView({ behavior: 'smooth' });
   }, [chatMessages]);
@@ -606,7 +616,7 @@ export default function SocialGalleryPage({ params }: { params: { fiestaId: stri
       return null;
     }
   };
-  
+
   const handleSetAuthorName = (e: FormEvent) => {
     e.preventDefault();
     if(tempAuthorName.trim()) {
@@ -666,7 +676,7 @@ export default function SocialGalleryPage({ params }: { params: { fiestaId: stri
       setIsUploading(false);
     }
   };
-  
+
   const handleLike = async (postId: string) => {
     if (localSettings.allowLikes === false) return;
     if (likedPosts.has(postId)) return; // prevent double-like
@@ -699,7 +709,7 @@ export default function SocialGalleryPage({ params }: { params: { fiestaId: stri
       revertLike();
     }
   };
-  
+
   const handleComment = async (postId: string, text: string) => {
     if (localSettings.allowComments === false) return;
     const result = await addCommentToPost(postId, text, authorName || 'Anónimo');
@@ -992,7 +1002,7 @@ export default function SocialGalleryPage({ params }: { params: { fiestaId: stri
           setIsSavingSettings(false);
       }
   };
-  
+
   const handleDownloadChat = async () => {
     let content = `Historial del Chat - ${fiesta?.configuracion.nombreEvento || 'Evento'}\n`;
     content += `Generado el: ${new Date().toLocaleString('es-ES')}\n\n`;

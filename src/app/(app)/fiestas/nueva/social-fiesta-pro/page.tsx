@@ -12,7 +12,7 @@ import { buildPresetGameSet, getReadyPromptsForPreset, type FiestaEventPreset } 
 import { buildModerationSummary } from '@/lib/social-fiesta/operator-moderation-panel';
 import type { FiestaEnPlanificacion } from '@/types/fiesta';
 
-type PageProps = { searchParams?: { fiestaId?: string } | Promise<{ fiestaId?: string }> };
+type PageProps = { searchParams?: Promise<{ fiestaId?: string }> };
 
 function buildEventName(fiesta?: FiestaEnPlanificacion | null): string {
   return fiesta?.configuracion?.nombreEvento || fiesta?.configuracion?.tipoCelebracion || 'Evento AK';
@@ -36,8 +36,8 @@ function linkFor(path: string, fiestaId: string): string {
   return `${path}?fiestaId=${encodeURIComponent(fiestaId)}`;
 }
 
-export default async function SocialFiestaProPage({ searchParams }: PageProps) {
-  const params = await Promise.resolve(searchParams ?? {});
+export default async function SocialFiestaProPage(props: PageProps) {
+  const params = (await props.searchParams) ?? {};
   const fiestaId = params.fiestaId;
 
   if (!fiestaId) {

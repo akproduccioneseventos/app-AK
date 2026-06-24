@@ -1,14 +1,31 @@
 import { cookies } from 'next/headers';
-import { createHmac, timingSafeEqual } from 'crypto';
+import { createHmac, randomBytes, timingSafeEqual } from 'crypto';
 
 const SESSION_COOKIE_NAME = 'ak_portal_session';
-const JWT_SECRET = process.env.JWT_SECRET || 'ak_producciones_eventos_secret_key_stable_fallback_2026';
+let localDevelopmentSecret: string | undefined;
 
 // Session expires in 12 hours.
 const SESSION_DURATION_MS = 12 * 60 * 60 * 1000;
 
+function getPortalSecret(): string {
+  const configuredSecret =
+    process.env.JWT_SECRET ||
+    process.env.AK_SESSION_SECRET ||
+    process.env.AUTH_SESSION_SECRET ||
+    process.env.SESSION_SECRET ||
+    process.env.AUTH_SECRET;
+
+  if (configuredSecret) return configuredSecret;
+  if (process.env.NODE_ENV === 'production') {
+    throw new Error('Falta configurar AK_SESSION_SECRET para el portal del cliente.');
+  }
+
+  localDevelopmentSecret ||= randomBytes(32).toString('hex');
+  return localDevelopmentSecret;
+}
+
 function calculateSignature(data: string): string {
-  return createHmac('sha256', JWT_SECRET).update(data).digest('hex');
+  return createHmac('sha256', getPortalSecret()).update(data).digest('hex');
 }
 
 export function createPortalSession(fiestaId: string, accessKey: string): string {
@@ -18,10 +35,11 @@ export function createPortalSession(fiestaId: string, accessKey: string): string
   return `${payload}.${signature}`;
 }
 
-export function setPortalSessionCookie(fiestaId: string, accessKey: string) {
+export async function setPortalSessionCookie(fiestaId: string, accessKey: string) {
   const session = createPortalSession(fiestaId, accessKey);
   try {
-    cookies().set(SESSION_COOKIE_NAME, session, {
+    const cookieStore = await cookies();
+    cookieStore.set(SESSION_COOKIE_NAME, session, {
       httpOnly: true,
       secure: process.env.NODE_ENV === 'production',
       sameSite: 'lax',
@@ -34,9 +52,9 @@ export function setPortalSessionCookie(fiestaId: string, accessKey: string) {
   }
 }
 
-export function verifyPortalSession(fiestaId: string): boolean {
+export async function verifyPortalSession(fiestaId: string): Promise<boolean> {
   try {
-    const cookieStore = cookies();
+    const cookieStore = await cookies();
     const cookieValue = cookieStore.get(SESSION_COOKIE_NAME)?.value;
     if (!cookieValue) return false;
 

@@ -2,10 +2,10 @@ import { redirect, notFound } from 'next/navigation';
 import { getFiestaById } from '@/app/actions/fiesta/fiesta.actions';
 
 type Props = {
-  params: {
+  params: Promise<{
     fiestaId: string;
     module: string;
-  };
+  }>;
 };
 
 const moduleRedirects: Record<string, string> = {
@@ -16,7 +16,8 @@ const moduleRedirects: Record<string, string> = {
   'fotografia': '/fiestas/nueva/fotografia',
 };
 
-export default async function LegacyPortalModuleRedirectPage({ params }: Props) {
+export default async function LegacyPortalModuleRedirectPage(props: Props) {
+  const params = await props.params;
   const destination = moduleRedirects[params.module];
   if (destination) {
     redirect(`${destination}?fiestaId=${params.fiestaId}`);

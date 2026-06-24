@@ -27,16 +27,17 @@ import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 
 type PageProps = {
-  params: {
+  params: Promise<{
     fiestaId: string;
-  };
+  }>;
 };
 
 function isVideoPost(post: any) {
   return post.mediaType === 'video' || /\.(mp4|webm|ogg|mov)(\?|$)/i.test(post.imageUrl);
 }
 
-export default async function PostFiestaPage({ params }: PageProps) {
+export default async function PostFiestaPage(props: PageProps) {
+  const params = await props.params;
   const fiesta = await getFiestaById(params.fiestaId);
   if (!fiesta) notFound();
 

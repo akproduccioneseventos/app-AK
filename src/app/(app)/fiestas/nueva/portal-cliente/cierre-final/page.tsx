@@ -17,7 +17,7 @@ const iconByArea: Record<ClientFinalAreaId, typeof Smartphone> = {
   post_evento: CheckCircle2,
 };
 
-type PageProps = { searchParams?: { fiestaId?: string } | Promise<{ fiestaId?: string }> };
+type PageProps = { searchParams?: Promise<{ fiestaId?: string }> };
 
 function withFiesta(route: string, fiestaId: string): string {
   return `${route}?fiestaId=${encodeURIComponent(fiestaId)}`;
@@ -27,8 +27,8 @@ function portalPublicHref(accessKey?: string): string | undefined {
   return accessKey ? `/portal/c/${encodeURIComponent(accessKey)}` : undefined;
 }
 
-export default async function ClienteCierreFinalPage({ searchParams }: PageProps) {
-  const params = await Promise.resolve(searchParams ?? {});
+export default async function ClienteCierreFinalPage(props: PageProps) {
+  const params = (await props.searchParams) ?? {};
   const fiestaId = params.fiestaId;
 
   if (!fiestaId) {

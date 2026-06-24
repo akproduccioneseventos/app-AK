@@ -1,7 +1,7 @@
 
 'use client';
 
-import React, { useState, useEffect, useCallback, type FormEvent } from 'react';
+import React, { useState, useEffect, useCallback, type FormEvent, use } from 'react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle, CardFooter } from '@/components/ui/card';
@@ -19,7 +19,8 @@ import { getInvoiceById, saveInvoice as updateInvoiceAction } from '@/app/action
 import { getCustomers } from '@/app/actions/customers'; // To fetch customers for dropdown
 import type { Customer } from '@/types/customer'; // Main Customer type
 
-export default function EditInvoicePage({ params }: { params: { id: string } }) {
+export default function EditInvoicePage(props: { params: Promise<{ id: string }> }) {
+  const params = use(props.params);
   const router = useRouter();
   const invoiceId = params.id;
   const { toast } = useToast();
@@ -34,7 +35,7 @@ export default function EditInvoicePage({ params }: { params: { id: string } }) 
   const [notes, setNotes] = useState('');
   const [currency, setCurrency] = useState('');
   const [taxRate, setTaxRate] = useState<number>(0);
-  
+
   const [allCustomers, setAllCustomers] = useState<Customer[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [isSaving, setIsSaving] = useState(false);

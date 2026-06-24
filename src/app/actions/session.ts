@@ -1,7 +1,8 @@
 'use server';
 
 import { cookies } from 'next/headers';
-import { SESSION_COOKIE_NAME, verifySession } from '@/lib/auth/session-token';
+import { SESSION_COOKIE_NAME } from '@/lib/auth/session-constants';
+import { verifySession } from '@/lib/auth/session-token';
 
 export async function getSessionStatus(): Promise<boolean> {
   return (await verifySession()).success;

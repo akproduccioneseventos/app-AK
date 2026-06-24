@@ -31,9 +31,10 @@ const iconByArea: Record<Ak100AreaId, typeof Sparkles> = {
   instalacion: Download,
 };
 
-type PageProps = { params: { id: string } };
+type PageProps = { params: Promise<{ id: string }> };
 
-export default async function Ak100Page({ params }: PageProps) {
+export default async function Ak100Page(props: PageProps) {
+  const params = await props.params;
   const fiesta = await getFiestaById(params.id);
 
   if (!fiesta) {

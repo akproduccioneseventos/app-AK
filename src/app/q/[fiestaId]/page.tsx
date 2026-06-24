@@ -20,12 +20,12 @@ import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
 
 type PageProps = {
-  params: {
+  params: Promise<{
     fiestaId: string;
-  };
-  searchParams?: {
+  }>;
+  searchParams?: Promise<{
     modo?: string;
-  };
+  }>;
 };
 
 const audienceIcon = {
@@ -36,7 +36,9 @@ const audienceIcon = {
   barra: GlassWater,
 };
 
-export default async function SmartQrPage({ params, searchParams }: PageProps) {
+export default async function SmartQrPage(props: PageProps) {
+  const searchParams = await props.searchParams;
+  const params = await props.params;
   const fiesta = await getFiestaById(params.fiestaId);
   if (!fiesta) notFound();
 

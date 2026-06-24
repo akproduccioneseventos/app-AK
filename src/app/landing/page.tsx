@@ -54,10 +54,11 @@ export async function generateMetadata(): Promise<Metadata> {
 }
 
 interface LandingPageProps {
-  searchParams?: Record<string, string | string[] | undefined>;
+  searchParams?: Promise<Record<string, string | string[] | undefined>>;
 }
 
 export default async function LandingPage({ searchParams }: LandingPageProps) {
+  const resolvedSearchParams = await searchParams;
   const [promo, galeriaData, landingSettings, catalogoFotos, youtubeVideos, testimonialData] = await Promise.all([
     getPromoActiva(),
     getGaleriaItems(),
@@ -93,7 +94,7 @@ export default async function LandingPage({ searchParams }: LandingPageProps) {
   const fotosCombinadas = [...fotos, ...catalogoComoGaleria];
 
   const whatsapp = landingSettings.whatsappNumber || '59898355530';
-  const attribution = commercialAttributionFromRecord(searchParams, 'landing');
+  const attribution = commercialAttributionFromRecord(resolvedSearchParams, 'landing');
   const approvedTestimonials = testimonialData
     .filter((testimonial) => testimonial.isApproved)
     .map((testimonial, index) => {

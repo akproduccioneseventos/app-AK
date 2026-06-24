@@ -1,7 +1,7 @@
 import { NextResponse } from 'next/server';
 import type { NextRequest } from 'next/server';
 import { BUDGET_VIEW_REGEX, PUBLIC_EXACT_PATHS, isPublicPathPrefix } from '@/lib/auth/public-paths';
-import { SESSION_COOKIE_NAME } from '@/lib/auth/session-token';
+import { SESSION_COOKIE_NAME } from '@/lib/auth/session-constants';
 
 function isPublicPath(pathname: string): boolean {
   if (PUBLIC_EXACT_PATHS.has(pathname)) return true;

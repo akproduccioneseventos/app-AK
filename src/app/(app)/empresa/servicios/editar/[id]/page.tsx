@@ -1,7 +1,7 @@
 
 'use client';
 
-import React, { useState, useEffect, useCallback, type FormEvent } from 'react';
+import React, { useState, useEffect, useCallback, type FormEvent, use } from 'react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle, CardFooter } from '@/components/ui/card';
@@ -29,19 +29,20 @@ import {
 } from "@/components/ui/alert-dialog";
 import { Separator } from '@/components/ui/separator';
 
-export default function EditarServicioPage({ params }: { params: { id: string } }) {
+export default function EditarServicioPage(props: { params: Promise<{ id: string }> }) {
+  const params = use(props.params);
   const router = useRouter();
   const { toast } = useToast();
-  
+
   const [item, setItem] = useState<ServicioEmpresa | null>(null);
   const [formData, setFormData] = useState<Partial<ServicioEmpresa>>({});
   const [proveedores, setProveedores] = useState<Proveedor[]>([]);
-  
+
   const [isLoading, setIsLoading] = useState(true);
   const [isSaving, setIsSaving] = useState(false);
   const [isDeleting, setIsDeleting] = useState(false);
   const [notFound, setNotFound] = useState(false);
-  
+
   const itemId = params.id;
 
   const loadItem = useCallback(async () => {
@@ -69,7 +70,7 @@ export default function EditarServicioPage({ params }: { params: { id: string } 
       setIsLoading(false);
     }
   }, [itemId, toast]);
-  
+
   useEffect(() => {
     if (itemId) loadItem();
   }, [itemId, loadItem]);
@@ -116,7 +117,7 @@ export default function EditarServicioPage({ params }: { params: { id: string } 
       setIsSaving(false);
     }
   };
-  
+
   const handleDelete = async () => {
     if (!item) return;
     setIsDeleting(true);
@@ -137,7 +138,7 @@ export default function EditarServicioPage({ params }: { params: { id: string } 
 
   if (isLoading) return <div className="flex justify-center p-8"><Loader2 className="w-8 h-8 animate-spin"/></div>;
   if (notFound) return <div className="text-center p-4"><AlertTriangle className="mx-auto w-8 h-8 text-destructive"/>Servicio no encontrado.</div>;
-  
+
   return (
     <div className="max-w-2xl mx-auto space-y-6">
       <div className="flex items-center justify-between">
