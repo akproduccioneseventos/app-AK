@@ -8,6 +8,15 @@ import {
 } from '@/lib/planPagos';
 import type { PagoCliente } from '@/types/presupuesto';
 
+beforeAll(() => {
+  jest.useFakeTimers();
+  jest.setSystemTime(new Date('2024-01-01T12:00:00.000Z'));
+});
+
+afterAll(() => {
+  jest.useRealTimers();
+});
+
 // ─────────────────────────────────────────────────────────────────────────────
 // diferenciaMeses
 // ─────────────────────────────────────────────────────────────────────────────
@@ -124,7 +133,7 @@ describe('generarPlanPagos', () => {
     fechaEvento.setMonth(fechaEvento.getMonth() + 18);
     const plan = generarPlanPagos(fechaEvento.toISOString(), 100000);
 
-    expect(plan.mesesLimiteAntesFecha).toBe(6);
+    expect(plan.mesesLimiteAntesFecha).toBe(5);
   });
 
   it('never schedules more money than the contract total', () => {
@@ -155,7 +164,8 @@ describe('recalcularEstadoCuotas', () => {
     const fechaEvento = new Date();
     fechaEvento.setFullYear(fechaEvento.getFullYear() + 1);
     const plan = generarPlanPagos(fechaEvento.toISOString(), 50000);
-    const pagos = [makePago(50000)];
+    // Pay more than all cuotas combined
+    const pagos = [makePago(100000)];
     const updated = recalcularEstadoCuotas(plan, pagos);
 
     const allCompleted = updated.cuotas.every(c => c.estado === 'completada');

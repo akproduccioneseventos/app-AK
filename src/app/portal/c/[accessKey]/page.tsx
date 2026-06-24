@@ -33,6 +33,7 @@ function mapFiestaToPortalDTO(fiesta: any): any {
     clientPortalSettings: fiesta.clientPortalSettings ? {
       enabled: fiesta.clientPortalSettings.enabled,
       accessKey: fiesta.clientPortalSettings.accessKey,
+      clientPassword: fiesta.clientPortalSettings.clientPassword,
       musica: fiesta.clientPortalSettings.musica,
       videoVida: fiesta.clientPortalSettings.videoVida,
       fotografiaYFilmacion: fiesta.clientPortalSettings.fotografiaYFilmacion,

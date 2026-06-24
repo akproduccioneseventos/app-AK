@@ -33,7 +33,7 @@ import {
   Wallet,
   X,
 } from 'lucide-react';
-import { addClientMusicSuggestion, initializePortalSession, submitClientMenuChangeRequest, submitClientPayment, submitClientServiceAddRequest, updateClientePortalExperience } from '@/app/actions/fiesta/portal.actions';
+import { addClientMusicSuggestion, initializePortalSession, submitClientMenuChangeRequest, submitClientPayment, submitClientServiceAddRequest, updateClientePortalExperience, checkDateAvailability, cancelServicesOrParty, changeEventDate } from '@/app/actions/fiesta/portal.actions';
 import { defaultFaq } from '@/lib/fiesta-defaults';
 import { PublicFooter } from '@/components/public-footer';
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '@/components/ui/accordion';
@@ -41,6 +41,7 @@ import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
+import { Label } from '@/components/ui/label';
 import {
   buildWhatsAppHref,
   estimateGuestIncrease,
@@ -644,6 +645,150 @@ export default function PublicPortalClientExperience({ fiesta, companyContact, c
   const activeGuestRequests = (fiesta?.clientMenuChangeRequests ?? []).filter((request: any) => request.status === 'pendiente');
   const activeServiceRequests = (fiesta?.clientServiceChangeRequests ?? []).filter((request: any) => request.status === 'pendiente');
 
+  // Cancellation and Date Change states
+  const [cancelarModalOpen, setCancelarModalOpen] = useState(false);
+  const [cancellationMode, setCancellationMode] = useState<'partial' | 'all'>('partial');
+  const [selectedServicesToCancel, setSelectedServicesToCancel] = useState<string[]>([]);
+  
+  const [cambioFechaModalOpen, setCambioFechaModalOpen] = useState(false);
+  const [newProposedDate, setNewProposedDate] = useState('');
+  const [dateChecking, setDateChecking] = useState(false);
+  const [dateAvailabilityResult, setDateAvailabilityResult] = useState<{ available: boolean; suggestions?: string[]; error?: string } | null>(null);
+
+  const [pinVerificationOpen, setPinVerificationOpen] = useState(false);
+  const [pinActionType, setPinActionType] = useState<'cancelar' | 'cambiar_fecha' | null>(null);
+  const [pinInput, setPinInput] = useState('');
+  const [pinError, setPinError] = useState('');
+  const [actionProcessing, setActionProcessing] = useState(false);
+  const [actionSuccessData, setActionSuccessData] = useState<{ fileName: string; refundAmount?: number; pendingDue?: number; penaltyAmount?: number; newBalance?: number } | null>(null);
+
+  const getCancellationImpact = () => {
+    const signingYear = fiesta.contratoDatos?.fechaFirmaContrato 
+      ? new Date(fiesta.contratoDatos.fechaFirmaContrato).getFullYear() 
+      : new Date().getFullYear();
+    const currentYear = new Date().getFullYear();
+    const yearsDiff = Math.max(0, currentYear - signingYear);
+    const porcentajeAjuste = fiesta.contratoDatos?.ajusteAnualPorcentaje ?? presupuesto?.ajusteAnualPorcentaje ?? 15;
+    const factorAjuste = Math.pow(1 + (porcentajeAjuste / 100), yearsDiff);
+
+    const originalTotal = paymentSummary.total;
+    const paid = paymentSummary.paid;
+
+    if (cancellationMode === 'all') {
+      const adjustedTotal = originalTotal * factorAjuste;
+      const penalty = Math.round(adjustedTotal * 0.3);
+      const newTotal = penalty;
+      const refund = paid > newTotal ? (paid - newTotal) : 0;
+      const owed = newTotal > paid ? (newTotal - paid) : 0;
+
+      return { adjustedTotal, penalty, newTotal, refund, owed, factorAjuste, yearsDiff };
+    } else {
+      // Partial cancellation
+      let cancelledOriginalSum = 0;
+      const cancelledItems = lineItems.filter((item: any) => selectedServicesToCancel.includes(item.idServicioCatalogo));
+      for (const item of cancelledItems) {
+        cancelledOriginalSum += item.costoTotalItem || 0;
+      }
+
+      const adjustedCancelled = cancelledOriginalSum * factorAjuste;
+      const penalty = Math.round(adjustedCancelled * 0.3);
+      const newTotal = (originalTotal - cancelledOriginalSum) + penalty;
+      const refund = paid > newTotal ? (paid - newTotal) : 0;
+      const owed = newTotal > paid ? (newTotal - paid) : 0;
+
+      return { 
+        adjustedTotal: adjustedCancelled, 
+        penalty, 
+        newTotal, 
+        refund, 
+        owed, 
+        factorAjuste, 
+        yearsDiff,
+        cancelledOriginalSum
+      };
+    }
+  };
+
+  const getDateChangeImpact = () => {
+    const originalTotal = paymentSummary.total;
+    const paid = paymentSummary.paid;
+    const penalty = Math.round(originalTotal * 0.1);
+    const newTotal = originalTotal + penalty;
+    const newBalance = Math.max(0, newTotal - paid);
+    return { penalty, newTotal, newBalance };
+  };
+
+  const handleCheckDate = async (date: string) => {
+    setNewProposedDate(date);
+    if (!date) {
+      setDateAvailabilityResult(null);
+      return;
+    }
+    setDateChecking(true);
+    setDateAvailabilityResult(null);
+    try {
+      const res = await checkDateAvailability(fiesta.id, date);
+      if (res.success) {
+        setDateAvailabilityResult({ available: res.available, suggestions: res.suggestions });
+      } else {
+        setDateAvailabilityResult({ available: false, error: res.error || 'Error al validar fecha' });
+      }
+    } catch {
+      setDateAvailabilityResult({ available: false, error: 'Error de red al comprobar fecha.' });
+    } finally {
+      setDateChecking(false);
+    }
+  };
+
+  const handleConfirmCancellation = async () => {
+    setPinError('');
+    setActionProcessing(true);
+    try {
+      const res = await cancelServicesOrParty(fiesta.id, {
+        servicesToCancel: selectedServicesToCancel,
+        cancelAll: cancellationMode === 'all',
+        passwordInput: pinInput
+      });
+      if (res.success) {
+        setActionSuccessData({
+          fileName: res.fileName || '',
+          refundAmount: res.refundAmount,
+          pendingDue: res.pendingDue
+        });
+      } else {
+        setPinError(res.error || 'Error al procesar cancelación.');
+      }
+    } catch (e: any) {
+      setPinError('Error de conexión.');
+    } finally {
+      setActionProcessing(false);
+    }
+  };
+
+  const handleConfirmDateChange = async () => {
+    setPinError('');
+    setActionProcessing(true);
+    try {
+      const res = await changeEventDate(fiesta.id, {
+        newDate: newProposedDate,
+        passwordInput: pinInput
+      });
+      if (res.success) {
+        setActionSuccessData({
+          fileName: res.fileName || '',
+          penaltyAmount: res.penaltyAmount,
+          newBalance: res.newBalance
+        });
+      } else {
+        setPinError(res.error || 'Error al procesar cambio de fecha.');
+      }
+    } catch (e: any) {
+      setPinError('Error de conexión.');
+    } finally {
+      setActionProcessing(false);
+    }
+  };
+
   const [paymentModalOpen, setPaymentModalOpen] = useState(false);
   const [paymentAmount, setPaymentAmount] = useState('');
   const [paymentNote, setPaymentNote] = useState('');
@@ -1209,6 +1354,30 @@ export default function PublicPortalClientExperience({ fiesta, companyContact, c
                 </div>
               </div>
 
+              <div className="rounded-lg border p-4 bg-slate-50/50 mt-2">
+                <div className="mb-3 flex items-center justify-between">
+                  <div className="flex items-center gap-3">
+                    <IconBlock icon={AlertTriangle} color="#e11d48" />
+                    <div>
+                      <p className="font-black text-slate-800">Modificaciones y Cancelaciones</p>
+                      <p className="text-xs text-slate-500">Solicitudes y reprogramaciones de servicios o evento</p>
+                    </div>
+                  </div>
+                  <InfoBadge tone="action">Cliente participa</InfoBadge>
+                </div>
+                <p className="text-xs text-slate-600 mb-3 leading-relaxed">
+                  Podés solicitar la reprogramación de fecha del evento o la cancelación de uno o más servicios contratados de forma directa. Estas acciones requieren verificación de tu PIN/Contraseña y generarán el documento de adenda correspondiente para firma manual.
+                </p>
+                <div className="flex flex-wrap gap-2 text-sm">
+                  <Button variant="outline" size="sm" className="text-xs border-rose-200 text-rose-700 hover:bg-rose-50" onClick={() => { setCancelarModalOpen(true); setSelectedServicesToCancel([]); setCancellationMode('partial'); }}>
+                    Cancelar servicios o fiesta
+                  </Button>
+                  <Button variant="outline" size="sm" className="text-xs border-amber-200 text-amber-700 hover:bg-amber-50" onClick={() => { setCambioFechaModalOpen(true); setNewProposedDate(''); setDateAvailabilityResult(null); }}>
+                    Cambiar fecha del evento
+                  </Button>
+                </div>
+              </div>
+
               <div className="rounded-lg border p-4">
                 <div className="mb-3 flex items-center gap-3">
                   <IconBlock icon={Receipt} color={eventColor} />
@@ -1471,21 +1640,369 @@ export default function PublicPortalClientExperience({ fiesta, companyContact, c
           </div>
         </div>
       )}
-      
-      {paymentModalOpen && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 p-4 backdrop-blur-sm">
-          <div className="w-full max-w-md rounded-lg bg-white shadow-2xl">
-            <div className="flex items-center justify-between border-b p-4">
-              <div><p className="text-lg font-black">Informar pago</p><p className="text-sm text-slate-500">AK lo confirma después de revisarlo.</p></div>
-              <Button variant="ghost" size="icon" aria-label="Cerrar" onClick={() => setPaymentModalOpen(false)}><X className="h-4 w-4" /></Button>
+      {/* ── MODAL DE CANCELACIÓN DE SERVICIOS O FIESTA ── */}
+      {cancelarModalOpen && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 p-4 backdrop-blur-sm overflow-y-auto">
+          <div className="w-full max-w-lg rounded-2xl bg-white shadow-2xl overflow-hidden animate-in fade-in zoom-in-95 duration-200">
+            <div className="flex items-center justify-between border-b p-4 bg-rose-50">
+              <div>
+                <p className="text-lg font-black text-rose-950 flex items-center gap-2">
+                  <AlertTriangle className="h-5 w-5 text-rose-600" /> Cancelar Servicios o Fiesta
+                </p>
+                <p className="text-xs text-rose-800/80">Recargo por penalización del 30% según contrato</p>
+              </div>
+              <Button variant="ghost" size="icon" className="rounded-full" aria-label="Cerrar" onClick={() => setCancelarModalOpen(false)}>
+                <X className="h-4 w-4" />
+              </Button>
             </div>
-            <div className="space-y-3 p-4">
-              <Input type="number" min={0} value={paymentAmount} onChange={event => setPaymentAmount(event.target.value)} placeholder="Monto pagado" />
-              <Textarea value={paymentNote} onChange={event => setPaymentNote(event.target.value)} placeholder="Nota opcional" />
-              <input ref={fileInputRef} type="file" accept="image/*,.pdf" className="hidden" onChange={event => handlePaymentFile(event.target.files?.[0])} />
-              <Button variant="outline" className="w-full justify-start" onClick={() => fileInputRef.current?.click()}><Upload className="h-4 w-4" /> {paymentFile ? paymentFile.name : 'Subir comprobante'}</Button>
-              <Button className="w-full" onClick={submitPayment} disabled={paymentLoading} style={{ background: eventColor }}><Send className="h-4 w-4" /> {paymentLoading ? 'Enviando' : 'Enviar pago'}</Button>
-              {paymentNotice && <NoticeBox notice={paymentNotice} />}
+            
+            <div className="p-5 space-y-4 max-h-[70vh] overflow-y-auto">
+              <div className="flex gap-4 p-1 bg-slate-100 rounded-xl">
+                <button
+                  type="button"
+                  className={`flex-1 text-xs font-bold py-2 rounded-lg transition-colors ${cancellationMode === 'partial' ? 'bg-white text-rose-800 shadow-sm' : 'text-slate-600 hover:text-slate-900'}`}
+                  onClick={() => setCancellationMode('partial')}
+                >
+                  Cancelar algunos servicios
+                </button>
+                <button
+                  type="button"
+                  className={`flex-1 text-xs font-bold py-2 rounded-lg transition-colors ${cancellationMode === 'all' ? 'bg-white text-rose-800 shadow-sm' : 'text-slate-600 hover:text-slate-900'}`}
+                  onClick={() => { setCancellationMode('all'); setSelectedServicesToCancel([]); }}
+                >
+                  Cancelar fiesta completa
+                </button>
+              </div>
+
+              {cancellationMode === 'partial' ? (
+                <div className="space-y-2">
+                  <p className="text-xs font-bold text-slate-500 uppercase tracking-wider">Seleccioná los servicios a quitar:</p>
+                  <div className="border rounded-xl divide-y max-h-[200px] overflow-y-auto bg-slate-50/50">
+                    {lineItems.filter((item: any) => item.idServicioCatalogo !== 'multa_cancelacion_total' && !item.idServicioCatalogo.startsWith('multa_cancelacion_') && !item.idServicioCatalogo.startsWith('multa_cambio_fecha_')).map((item: any) => {
+                      const isChecked = selectedServicesToCancel.includes(item.idServicioCatalogo);
+                      return (
+                        <label key={item.idServicioCatalogo} className="flex items-center gap-3 px-3 py-2.5 hover:bg-slate-100 cursor-pointer text-xs">
+                          <input
+                            type="checkbox"
+                            checked={isChecked}
+                            onChange={() => {
+                              setSelectedServicesToCancel(prev =>
+                                isChecked
+                                  ? prev.filter(id => id !== item.idServicioCatalogo)
+                                  : [...prev, item.idServicioCatalogo]
+                              );
+                            }}
+                            className="rounded border-slate-300 text-rose-600 focus:ring-rose-500 h-4 w-4"
+                          />
+                          <div className="flex-1 min-w-0">
+                            <p className="font-semibold text-slate-800 truncate">{item.nombreServicio}</p>
+                            <p className="text-slate-500 text-[10px]">
+                              Cantidad: {item.cantidad ?? 1} {item.unidad ? ` ${item.unidad}` : ''} · Precio: {formatPortalMoney(item.costoTotalItem)}
+                            </p>
+                          </div>
+                        </label>
+                      );
+                    })}
+                  </div>
+                </div>
+              ) : (
+                <div className="rounded-xl border border-rose-100 bg-rose-50/40 p-4 text-xs space-y-2 text-rose-900 leading-relaxed">
+                  <p className="font-bold flex items-center gap-1.5"><AlertTriangle className="h-4 w-4 shrink-0 text-rose-600" /> ATENCIÓN: CANCELACIÓN TOTAL</p>
+                  <p>
+                    Se cancelará la fiesta en su totalidad. Esta acción es definitiva y dará de baja el evento, generando el contrato de rescisión y la liquidación del 30% de penalización sobre el presupuesto total.
+                  </p>
+                </div>
+              )}
+
+              {/* IMPACTO FINANCIERO */}
+              {(() => {
+                const impact = getCancellationImpact();
+                const hasSelections = cancellationMode === 'all' || selectedServicesToCancel.length > 0;
+                if (!hasSelections) return <p className="text-xs text-slate-500 text-center py-4 bg-slate-50 rounded-xl">Seleccioná al menos un servicio para ver el impacto financiero.</p>;
+
+                return (
+                  <div className="border rounded-2xl p-4 bg-slate-50 text-xs space-y-2.5">
+                    <p className="font-bold text-slate-800 uppercase tracking-wider text-[10px]">Simulación de impacto financiero:</p>
+                    <div className="flex justify-between">
+                      <span className="text-slate-600">Total original del contrato:</span>
+                      <span className="font-bold">{formatPortalMoney(paymentSummary.total)}</span>
+                    </div>
+                    {cancellationMode === 'partial' && (
+                      <div className="flex justify-between">
+                        <span className="text-slate-600">Valor de servicios a cancelar:</span>
+                        <span className="font-bold text-rose-600">-{formatPortalMoney(impact.cancelledOriginalSum || 0)}</span>
+                      </div>
+                    )}
+                    {impact.yearsDiff > 0 && (
+                      <div className="flex justify-between text-slate-500 text-[10px] italic">
+                        <span>Ajuste acumulado ({impact.yearsDiff} años):</span>
+                        <span>x{impact.factorAjuste.toFixed(3)}</span>
+                      </div>
+                    )}
+                    <div className="flex justify-between">
+                      <span className="text-slate-600 font-semibold">Multa (30% de lo cancelado ajustado):</span>
+                      <span className="font-bold text-rose-700">+{formatPortalMoney(impact.penalty)}</span>
+                    </div>
+                    <div className="border-t my-1" />
+                    <div className="flex justify-between text-sm">
+                      <span className="font-black text-slate-800">Nuevo total del contrato:</span>
+                      <span className="font-black text-slate-900">{formatPortalMoney(impact.newTotal)}</span>
+                    </div>
+                    <div className="flex justify-between">
+                      <span className="text-slate-600">Total ya abonado por vos:</span>
+                      <span className="font-bold text-emerald-700">{formatPortalMoney(paymentSummary.paid)}</span>
+                    </div>
+                    
+                    <div className={`p-3 rounded-xl border flex items-center justify-between text-sm ${impact.refund > 0 ? 'bg-emerald-50 border-emerald-200 text-emerald-800' : 'bg-amber-50 border-amber-200 text-amber-800'}`}>
+                      <span className="font-black flex items-center gap-1.5">
+                        {impact.refund > 0 ? <CheckCircle2 className="h-4.5 w-4.5 animate-none" /> : <AlertTriangle className="h-4.5 w-4.5 animate-none" />}
+                        {impact.refund > 0 ? 'SE TE DEVOLVERÁ:' : 'RESTAS DEBER DE MULTA:'}
+                      </span>
+                      <span className="font-black text-base">
+                        {impact.refund > 0 ? formatPortalMoney(impact.refund) : formatPortalMoney(impact.owed)}
+                      </span>
+                    </div>
+                  </div>
+                );
+              })()}
+            </div>
+
+            <div className="flex items-center justify-end gap-2 border-t p-4 bg-slate-50">
+              <Button variant="ghost" className="rounded-xl" onClick={() => setCancelarModalOpen(false)}>Cancelar</Button>
+              <Button
+                disabled={cancellationMode === 'partial' && selectedServicesToCancel.length === 0}
+                onClick={() => {
+                  setCancelarModalOpen(false);
+                  setPinActionType('cancelar');
+                  setPinInput('');
+                  setPinError('');
+                  setActionSuccessData(null);
+                  setPinVerificationOpen(true);
+                }}
+                className="rounded-xl font-bold bg-rose-600 hover:bg-rose-500 text-white"
+              >
+                Aceptar y Continuar
+              </Button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* ── MODAL DE CAMBIO DE FECHA ── */}
+      {cambioFechaModalOpen && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 p-4 backdrop-blur-sm overflow-y-auto">
+          <div className="w-full max-w-md rounded-2xl bg-white shadow-2xl overflow-hidden animate-in fade-in zoom-in-95 duration-200">
+            <div className="flex items-center justify-between border-b p-4 bg-amber-50">
+              <div>
+                <p className="text-lg font-black text-amber-950 flex items-center gap-2">
+                  <Calendar className="h-5 w-5 text-amber-600" /> Cambiar Fecha del Evento
+                </p>
+                <p className="text-xs text-amber-800/80">Recargo del 10% por cambio de fecha</p>
+              </div>
+              <Button variant="ghost" size="icon" className="rounded-full" aria-label="Cerrar" onClick={() => setCambioFechaModalOpen(false)}>
+                <X className="h-4 w-4" />
+              </Button>
+            </div>
+            
+            <div className="p-5 space-y-4">
+              <div className="space-y-2">
+                <Label htmlFor="proposed-new-date" className="text-xs font-bold text-slate-500 uppercase tracking-wider">Elegí la nueva fecha solicitada:</Label>
+                <Input
+                  id="proposed-new-date"
+                  type="date"
+                  value={newProposedDate ? newProposedDate.split('T')[0] : ''}
+                  onChange={e => handleCheckDate(e.target.value)}
+                  className="rounded-xl h-11"
+                />
+              </div>
+
+              {dateChecking && (
+                <div className="flex items-center justify-center gap-2 text-slate-500 text-xs py-4">
+                  <Loader2 className="h-4 w-4 animate-spin text-primary" /> Validando disponibilidad de la fecha...
+                </div>
+              )}
+
+              {dateAvailabilityResult && (
+                <div className="space-y-3">
+                  {dateAvailabilityResult.available ? (
+                    <div className="rounded-xl border border-emerald-200 bg-emerald-50/50 p-3 text-xs text-emerald-800 space-y-2">
+                      <p className="font-bold flex items-center gap-1.5"><CheckCircle2 className="h-4 w-4 text-emerald-600" /> ¡Fecha disponible!</p>
+                      <p>La fecha elegida no tiene eventos asignados y está libre para agendar.</p>
+                    </div>
+                  ) : (
+                    <div className="rounded-xl border border-rose-200 bg-rose-50/50 p-3 text-xs text-rose-800 space-y-2.5">
+                      <p className="font-bold flex items-center gap-1.5"><AlertTriangle className="h-4 w-4 text-rose-600" /> Fecha no disponible</p>
+                      <p>Lamentablemente ya hay otra fiesta agendada para esa fecha. Te sugerimos las siguientes opciones libres cercanas:</p>
+                      
+                      {dateAvailabilityResult.suggestions && dateAvailabilityResult.suggestions.length > 0 ? (
+                        <div className="grid grid-cols-2 gap-2 mt-1">
+                          {dateAvailabilityResult.suggestions.map((sugDate) => {
+                            const dateObj = new Date(sugDate);
+                            const formatted = dateObj.toLocaleDateString('es-UY', { weekday: 'short', day: 'numeric', month: 'short' });
+                            return (
+                              <button
+                                key={sugDate}
+                                type="button"
+                                onClick={() => handleCheckDate(sugDate)}
+                                className="px-2 py-2 rounded-lg border border-amber-200 bg-amber-50 hover:bg-amber-100 text-[11px] font-bold text-amber-900 transition-colors text-center"
+                              >
+                                {formatted}
+                              </button>
+                            );
+                          })}
+                        </div>
+                      ) : (
+                        <p className="text-[10px] text-rose-700 italic">No se encontraron alternativas libres automáticas. Probá otra fecha.</p>
+                      )}
+                    </div>
+                  )}
+
+                  {dateAvailabilityResult.available && (() => {
+                    const impact = getDateChangeImpact();
+                    return (
+                      <div className="border rounded-2xl p-4 bg-slate-50 text-xs space-y-2.5">
+                        <p className="font-bold text-slate-800 uppercase tracking-wider text-[10px]">Impacto financiero del cambio:</p>
+                        <div className="flex justify-between">
+                          <span className="text-slate-600">Total original del contrato:</span>
+                          <span className="font-bold">{formatPortalMoney(paymentSummary.total)}</span>
+                        </div>
+                        <div className="flex justify-between">
+                          <span className="text-slate-600">Multa por reprogramación (10%):</span>
+                          <span className="font-bold text-amber-700">+{formatPortalMoney(impact.penalty)}</span>
+                        </div>
+                        <div className="border-t my-1" />
+                        <div className="flex justify-between text-sm">
+                          <span className="font-black text-slate-800">Nuevo total del contrato:</span>
+                          <span className="font-black text-slate-900">{formatPortalMoney(impact.newTotal)}</span>
+                        </div>
+                        <div className="flex justify-between">
+                          <span className="text-slate-600">Total ya abonado por vos:</span>
+                          <span className="font-bold text-emerald-700">{formatPortalMoney(paymentSummary.paid)}</span>
+                        </div>
+                        <div className="flex justify-between text-sm border-t pt-1">
+                          <span className="font-black text-slate-800">Nuevo saldo pendiente a pagar:</span>
+                          <span className="font-black text-amber-700">{formatPortalMoney(impact.newBalance)}</span>
+                        </div>
+                        <p className="text-[10px] text-slate-500 italic leading-relaxed pt-1 border-t">
+                          * Nota: Si reprogramás para otro año diferente al original, se sumará el ajuste por inflación anual estipulado al momento del cobro.
+                        </p>
+                      </div>
+                    );
+                  })()}
+                </div>
+              )}
+            </div>
+
+            <div className="flex items-center justify-end gap-2 border-t p-4 bg-slate-50">
+              <Button variant="ghost" className="rounded-xl" onClick={() => setCambioFechaModalOpen(false)}>Cancelar</Button>
+              <Button
+                disabled={!newProposedDate || !dateAvailabilityResult || !dateAvailabilityResult.available}
+                onClick={() => {
+                  setCambioFechaModalOpen(false);
+                  setPinActionType('cambiar_fecha');
+                  setPinInput('');
+                  setPinError('');
+                  setActionSuccessData(null);
+                  setPinVerificationOpen(true);
+                }}
+                className="rounded-xl font-bold bg-amber-500 hover:bg-amber-600 text-black"
+              >
+                Aceptar y Continuar
+              </Button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* ── MODAL DE VERIFICACIÓN DE PIN Y CONTRASEÑA ── */}
+      {pinVerificationOpen && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 p-4 backdrop-blur-sm">
+          <div className="w-full max-w-md rounded-2xl bg-white shadow-2xl overflow-hidden animate-in fade-in zoom-in-95 duration-200">
+            <div className="flex items-center justify-between border-b p-4 bg-slate-50">
+              <div>
+                <p className="text-lg font-black text-slate-800">Autorizar Operación Especial</p>
+                <p className="text-xs text-slate-500">Ingresá tu PIN/Contraseña para validar la acción</p>
+              </div>
+              <Button variant="ghost" size="icon" className="rounded-full" aria-label="Cerrar" onClick={() => setPinVerificationOpen(false)} disabled={actionProcessing}>
+                <X className="h-4 w-4" />
+              </Button>
+            </div>
+            
+            <div className="p-5 space-y-4">
+              {!actionSuccessData ? (
+                <>
+                  <p className="text-xs text-slate-600 leading-relaxed">
+                    Para confirmar el cambio e iniciar la generación del contrato/adenda de firma manual, necesitás ingresar la contraseña de operaciones VIP que te fue entregada.
+                  </p>
+                  <div className="space-y-1.5">
+                    <Label htmlFor="operations-pin-code" className="text-xs font-bold text-slate-500 uppercase tracking-wider">PIN / Contraseña de Operaciones:</Label>
+                    <Input
+                      id="operations-pin-code"
+                      type="password"
+                      placeholder="Ej: ******"
+                      value={pinInput}
+                      onChange={e => setPinInput(e.target.value)}
+                      className="rounded-xl h-11 text-center font-mono text-lg tracking-widest animate-none"
+                      maxLength={12}
+                    />
+                  </div>
+
+                  {pinError && (
+                    <p className="text-xs font-semibold text-rose-600 bg-rose-50 border border-rose-100 rounded-xl p-3 text-center">
+                      ⚠️ {pinError}
+                    </p>
+                  )}
+
+                  <Button
+                    className="w-full h-11 rounded-xl font-bold text-white flex items-center justify-center gap-1.5"
+                    disabled={!pinInput || actionProcessing}
+                    style={{ background: eventColor }}
+                    onClick={pinActionType === 'cancelar' ? handleConfirmCancellation : handleConfirmDateChange}
+                  >
+                    {actionProcessing ? (
+                      <Loader2 className="h-4 w-4 animate-spin text-white" />
+                    ) : (
+                      'Confirmar y Generar Contrato'
+                    )}
+                  </Button>
+                </>
+              ) : (
+                <div className="flex flex-col items-center gap-4 py-4 text-center">
+                  <div className="h-16 w-16 bg-emerald-50 rounded-full flex items-center justify-center border border-emerald-100">
+                    <CheckCircle2 className="h-10 w-10 text-emerald-600" />
+                  </div>
+                  <div>
+                    <p className="font-black text-xl text-slate-800">¡Acción Autorizada con Éxito!</p>
+                    <p className="text-xs text-slate-500 mt-1">
+                      El presupuesto se actualizó y se generó el contrato en PDF/Texto para firmar.
+                    </p>
+                  </div>
+
+                  <div className="border border-emerald-100 bg-emerald-50/30 rounded-xl p-4 w-full text-xs text-emerald-900 leading-relaxed text-left space-y-2">
+                    <p className="font-bold flex items-center gap-1.5">📢 INSTRUCCIONES DE ACCIÓN REQUERIDA:</p>
+                    <p>
+                      1. Descargá el documento de rescisión/adenda generado haciendo clic en el botón de abajo.
+                    </p>
+                    <p>
+                      2. Imprimilo y **firmalo manualmente**.
+                    </p>
+                    <p>
+                      3. **Comunicate de inmediato con nosotros** informándonos de tu decisión para coordinar la entrega física/digital y concretar los saldos correspondientes.
+                    </p>
+                  </div>
+
+                  <div className="flex flex-col gap-2 w-full mt-2">
+                    <Button className="w-full h-12 rounded-xl font-bold bg-emerald-600 hover:bg-emerald-500 text-white flex items-center justify-center gap-2" asChild>
+                      <a href={documentHref(fiesta.id, actionSuccessData.fileName)} download target="_blank" rel="noopener noreferrer">
+                        <Download className="h-4.5 w-4.5" /> Descargar Contrato (.txt)
+                      </a>
+                    </Button>
+                    <Button variant="ghost" className="w-full rounded-xl text-slate-500 animate-none" onClick={() => { setPinVerificationOpen(false); window.location.reload(); }}>
+                      Cerrar y Recargar Portal
+                    </Button>
+                  </div>
+                </div>
+              )}
             </div>
           </div>
         </div>
