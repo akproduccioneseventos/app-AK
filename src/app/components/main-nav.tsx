@@ -79,13 +79,13 @@ export function MainNav() {
         <SidebarMenu>
           <SidebarMenuItem>
             <Link href="/">
-              <SidebarMenuButton 
-                isActive={isExactly("/")} 
+              <SidebarMenuButton
+                isActive={isExactly("/")}
                 tooltip="Dashboard Principal"
                 className={cn(
                     "h-14 rounded-2xl transition-all duration-500 font-black uppercase text-[10px] tracking-[0.2em]",
-                    isExactly("/") 
-                      ? "bg-primary text-white shadow-xl shadow-primary/30 scale-[1.02]" 
+                    isExactly("/")
+                      ? "bg-primary text-white shadow-xl shadow-primary/30 scale-[1.02]"
                       : "hover:bg-slate-50 text-slate-400 hover:text-primary"
                 )}
               >
@@ -102,12 +102,12 @@ export function MainNav() {
             <SidebarMenu className="gap-2">
               <SidebarMenuItem>
                 <Link href="/eventos">
-                  <SidebarMenuButton 
+                  <SidebarMenuButton
                     isActive={isActive("/eventos") || isActive("/fiestas/nueva")}
                     className={cn(
                         "h-12 rounded-xl transition-all duration-300 font-bold text-xs",
-                        (isActive("/eventos") || isActive("/fiestas/nueva")) 
-                          ? "bg-slate-50 text-primary shadow-sm" 
+                        (isActive("/eventos") || isActive("/fiestas/nueva"))
+                          ? "bg-slate-50 text-primary shadow-sm"
                           : "text-slate-500 hover:bg-slate-50 hover:text-primary"
                     )}
                   >
@@ -118,7 +118,7 @@ export function MainNav() {
               </SidebarMenuItem>
               <SidebarMenuItem>
                 <Link href="/calendario">
-                  <SidebarMenuButton 
+                  <SidebarMenuButton
                     isActive={isActive("/calendario")}
                     className={cn(
                         "h-12 rounded-xl transition-all duration-300 font-bold text-xs",
@@ -187,6 +187,13 @@ export function MainNav() {
                     <Link href="/proveedores">
                       <SidebarMenuSubButton isActive={isActive("/proveedores")} className="rounded-lg h-9 font-semibold text-[11px] uppercase tracking-tighter">
                         Proveedores
+                      </SidebarMenuSubButton>
+                    </Link>
+                  </SidebarMenuSubItem>
+                  <SidebarMenuSubItem>
+                    <Link href="/empresa/red-social-eventos">
+                      <SidebarMenuSubButton isActive={isActive("/empresa/red-social-eventos")} className="rounded-lg h-9 font-semibold text-[11px] uppercase tracking-tighter text-rose-600">
+                        Muro Social
                       </SidebarMenuSubButton>
                     </Link>
                   </SidebarMenuSubItem>
@@ -324,7 +331,7 @@ export function MainNav() {
         <SidebarMenu>
           <SidebarMenuItem>
             <Link href="/settings">
-              <SidebarMenuButton 
+              <SidebarMenuButton
                 isActive={isActive("/settings")}
                 className={cn(
                     "h-14 rounded-2xl transition-all duration-500 font-black uppercase text-[10px] tracking-[0.2em]",

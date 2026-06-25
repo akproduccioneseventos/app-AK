@@ -433,12 +433,13 @@ export default function PortalClientePage() {
 
         {/* ── Feature Navigation Cards (hidden in simplicityMode) ─── */}
         {!simplicityMode && (
-        <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
+        <div className="grid grid-cols-2 sm:grid-cols-5 gap-3">
           {[
             { label: 'Menú', emoji: '🍽️', href: `/portal-cliente/${fiestaId}/menu`, desc: 'Confirmá tu selección' },
             { label: 'Música', emoji: '🎵', href: `/portal-cliente/${fiestaId}/musica`, desc: 'Tu lista de canciones' },
+            { label: 'Muro Social', emoji: '💬', href: `/portal-cliente/${fiestaId}/muro-social`, desc: 'Red social del evento' },
             { label: 'Fotos & Video', emoji: '📸', href: `/portal-cliente/${fiestaId}/fotos-video`, desc: 'Archivos y entregables' },
-            { label: 'Invitados', emoji: '👥', href: `/portal-cliente/${fiestaId}/confirmar-invitados`, desc: 'Estado de confirmaciones' },
+            { label: 'Invitados', emoji: '👥', href: `/portal-cliente/${fiestaId}/confirmar-invitados`, desc: 'Confirmaciones' },
           ].map((item, i) => (
             <a key={i} href={item.href} className="block">
               <div className="rounded-2xl border border-slate-100 bg-white p-4 text-center hover:shadow-md hover:border-purple-200 transition-all cursor-pointer space-y-1">

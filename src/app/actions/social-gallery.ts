@@ -197,9 +197,9 @@ export async function uploadSocialPost(
     if (isImage) {
       safetyResult = await checkImageSafety(buffer);
       if (!safetyResult.safe) {
-        return { 
-          success: false, 
-          error: 'Archivo bloqueado por riesgo de contenido adulto o inapropiado.' 
+        return {
+          success: false,
+          error: 'Archivo bloqueado por riesgo de contenido adulto o inapropiado.'
         };
       }
     }
@@ -504,5 +504,45 @@ export async function addChatMessage(
     return { success: true, message: newMessage };
   } catch (error: any) {
     return { success: false, error: 'No se pudo guardar el mensaje en el chat.' };
+  }
+}
+
+export async function saveSocialSettingsByClient(
+  fiestaId: string,
+  accessKey: string,
+  settings: Partial<SocialGallerySettings>,
+  mobileControlCoverUrl?: string
+): Promise<{ success: boolean; error?: string }> {
+  try {
+    const fiesta = await getFiestaById(fiestaId);
+    if (!fiesta) return { success: false, error: 'Evento no encontrado.' };
+    if (fiesta.clientPortalSettings?.accessKey !== accessKey) {
+      return { success: false, error: 'Código de acceso incorrecto.' };
+    }
+    const updatedSettings = {
+      ...(fiesta.socialGallerySettings || {
+        enabled: true,
+        allowLikes: true,
+        allowComments: true,
+        uploadsActive: true,
+        chatEnabled: true,
+        showSongRequests: true,
+        showDedications: true
+      }),
+      ...settings
+    } as SocialGallerySettings;
+    const updatedFiesta = {
+      ...fiesta,
+      socialGallerySettings: updatedSettings
+    };
+    if (mobileControlCoverUrl !== undefined) {
+      updatedSettings.mobileControlCoverUrl = mobileControlCoverUrl;
+    }
+    const result = await saveFiesta(updatedFiesta);
+    return result.success
+      ? { success: true }
+      : { success: false, error: result.error || 'No se pudieron guardar los ajustes.' };
+  } catch (error: any) {
+    return { success: false, error: error.message || 'Error al guardar.' };
   }
 }
