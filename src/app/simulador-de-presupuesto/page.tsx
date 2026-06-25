@@ -2135,7 +2135,7 @@ function SimuladorContent() {
                                         <p className="text-xs font-black uppercase tracking-[0.2em] text-fuchsia-700">
                                             {budgetSettings?.serviciosAdicionalesVisibles !== undefined && budgetSettings?.serviciosAdicionalesVisibles !== null
                                                 ? "Servicios Adicionales Disponibles"
-                                                : "Tecnologia AK configurable"}
+                                                : "Tecnología AK configurable"}
                                         </p>
                                         <h3 className="text-xl font-black text-slate-900">Hace visible el impacto de tu fiesta</h3>
                                         <p className="max-w-3xl text-xs leading-5 text-slate-500 font-semibold">
