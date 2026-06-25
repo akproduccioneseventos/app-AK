@@ -79,7 +79,7 @@ export const defaultLandingSettings: LandingSettings = {
     subheadline:
       'Bodas, XV Años, Cumpleaños y más — producción integral con calidad premium en Uruguay.',
     backgroundImageUrl:
-      'https://images.unsplash.com/photo-1519741497674-611481863552?w=1920&q=85&auto=format&fit=crop',
+      '/media/catalogo-servicios/salon-discoteca-ak-01.jpeg',
     badgeText: 'Producción Integral de Eventos',
     ctaLabel: 'Cotizá tu evento ahora',
     ctaUrl: '/simulador-de-presupuesto',
@@ -113,7 +113,7 @@ export const defaultLandingSettings: LandingSettings = {
     description:
       'Producción integral de eventos en Uruguay. Bodas, XV años, cumpleaños y eventos corporativos. ¡Cotizá hoy y hacé realidad tu celebración soñada!',
     ogImageUrl:
-      'https://images.unsplash.com/photo-1519741497674-611481863552?w=1200&q=85&auto=format&fit=crop',
+      '/media/catalogo-servicios/boda-decoracion-dorada-01.jpeg',
   },
   faqs: [
     {
