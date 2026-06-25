@@ -103,6 +103,7 @@ const navGroups: NavGroup[] = [
       { title: "Catálogo de Servicios", href: "/empresa/servicios", icon: Package },
       { title: "Empleados", href: "/empleados", icon: Briefcase },
       { title: "Proveedores", href: "/proveedores", icon: Building2 },
+      { title: "Muro Social General", href: "/empresa/red-social-eventos", icon: PartyPopper },
       { title: "Seguridad", href: "/settings/account", icon: ShieldCheck },
     ],
   },
