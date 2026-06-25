@@ -35,7 +35,7 @@ const DEFAULT_DYNAMIC_SERVICE_FEATURES = [
   'Producción integral',
   'Soporte dedicado',
 ];
-const DEFAULT_DYNAMIC_SERVICE_IMAGE = 'https://images.unsplash.com/photo-1519225421980-715cb0215aed?w=1000&q=80&auto=format&fit=crop';
+const DEFAULT_DYNAMIC_SERVICE_IMAGE = '/media/catalogo-servicios/boda-decoracion-dorada-01.jpeg';
 
 export async function generateMetadata(): Promise<Metadata> {
   const settings = await getLandingSettings();
@@ -112,6 +112,7 @@ export default async function HomePage({ searchParams }: LandingPageProps) {
         text: testimonial.testimonialText,
         avatarInitials: initials || 'AK',
         avatarColor: colors[index % colors.length],
+        rating: 5,
       };
     });
 
