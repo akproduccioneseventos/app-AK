@@ -17,9 +17,9 @@ import {
     DialogFooter
 } from "@/components/ui/dialog";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { 
-    ArrowLeft, ArrowRight, Wand2, Loader2, PartyPopper, Users, 
-    Save, Clock, CalendarDays, Search, Check, Info, TrendingUp, 
+import {
+    ArrowLeft, ArrowRight, Wand2, Loader2, PartyPopper, Users,
+    Save, Clock, CalendarDays, Search, Check, Info, TrendingUp,
     Share2, Printer, Gift, ListPlus, ShieldCheck, Zap, Star, Percent,
     Building2,
     CheckCircle2,
@@ -31,7 +31,13 @@ import {
     Utensils,
     UserMinus,
     X,
-    MessageSquare
+    MessageSquare,
+    Sparkles,
+    Laptop,
+    HeartHandshake,
+    Settings2,
+    Plus,
+    Trash2
 } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { captureSimulatorLeadProgress, getArmadoRapidoConfig, generateBudgetAndLeadFromSimulator, getPublicBudgetsByPhone } from '@/app/actions/armado-rapido';
@@ -93,7 +99,7 @@ const DURATION_OPTIONS = [
     { value: 5, title: 'Mas de 4 horas', subtitle: 'Fiesta grande', detail: '2 entradas habilitadas' },
 ] as const;
 
-const STEP_LABELS = ['Contacto', 'Evento', 'Menú', 'Paquete', 'Resumen'] as const;
+const STEP_LABELS = ['Presentación', 'Datos', 'Menú', 'Paquete', 'Edición'] as const;
 
 const menuItemToServicioEmpresa = (item: MenuItem & { precioVenta: number }): ServicioEmpresa => {
     return {
@@ -190,7 +196,7 @@ function SimuladorContent() {
     const [allMenus, setAllMenus] = useState<FullMenu[]>([]);
     const [whatsappNumber, setWhatsappNumber] = useState<string>('');
     const [logoUrl, setLogoUrl] = useState<string | null>(null);
-    
+
     const [clienteNombre, setClienteNombre] = useState(prefillName);
     const [clienteContacto, setClienteContacto] = useState('');
     const [marketingConsent, setMarketingConsent] = useState(true);
@@ -207,8 +213,10 @@ function SimuladorContent() {
     const [excludedPackageServiceIds, setExcludedPackageServiceIds] = useState<string[]>([]);
     const [dateSuggestions, setDateSuggestions] = useState<string[]>([]);
     const [dateWarning, setDateWarning] = useState('');
-    
+
     const [gastronomiaSearchTerm, setGastronomiaSearchTerm] = useState('');
+    const [serviceSearchTerm, setServiceSearchTerm] = useState('');
+    const [isSearchFocused, setIsSearchFocused] = useState(false);
 
     const [isLoading, setIsLoading] = useState(true);
     const [isGenerating, setIsGenerating] = useState(false);
@@ -229,18 +237,18 @@ function SimuladorContent() {
             ? crypto.randomUUID()
             : `visual_${Date.now()}_${Math.random().toString(36).slice(2, 10)}`
     );
-    
+
     const maxEntradas = useMemo(() => (duracionHoras > 4 ? 2 : 1), [duracionHoras]);
 
     const { entradasDisponibles, principalesDisponibles, menusNinoDisponibles } = useMemo(() => {
         if (!config || !allMenus.length) {
             return { entradasDisponibles: [], principalesDisponibles: [], menusNinoDisponibles: [] };
         }
-        
+
         const getPlatoSettings = (platoId: string) => {
             return config.platosVisibles?.find(p => p.id === platoId) || { id: platoId, visible: true, recommended: false };
         };
-        
+
         const sortDishes = (a: ServicioEmpresa, b: ServicioEmpresa) => {
             const setA = getPlatoSettings(a.id);
             const setB = getPlatoSettings(b.id);
@@ -252,7 +260,7 @@ function SimuladorContent() {
             const pB = b.precioPorPersona || b.precioVenta || 0;
             return pB - pA;
         };
-    
+
         const allDishes = Array.from(
             allMenus.flatMap(menu => (menu.items || []).map(dish => ({
                 ...dish,
@@ -265,23 +273,23 @@ function SimuladorContent() {
             }, new Map<string, MenuItem>())
             .values()
         );
-        
+
         const visibleDishes = allDishes.filter(d => getPlatoSettings(d.id).visible);
         const lowerCaseSearch = gastronomiaSearchTerm.toLowerCase();
         const filteredDishes = gastronomiaSearchTerm.trim() === '' ? visibleDishes : visibleDishes.filter(d => d.name.toLowerCase().includes(lowerCaseSearch));
-        
+
         const enhancedDishes = filteredDishes.map(item => ({
             ...item,
             precioVenta: item.suggestedSellingPrice ?? ((item.totalDishCost || 0) * (1 + (item.profitMargin ?? 120) / 100)),
         }));
 
-        return { 
-            entradasDisponibles: enhancedDishes.filter(item => item.type === 'Entrada').map(menuItemToServicioEmpresa).sort(sortDishes), 
-            principalesDisponibles: enhancedDishes.filter(item => item.type === 'Plato Principal').map(menuItemToServicioEmpresa).sort(sortDishes), 
+        return {
+            entradasDisponibles: enhancedDishes.filter(item => item.type === 'Entrada').map(menuItemToServicioEmpresa).sort(sortDishes),
+            principalesDisponibles: enhancedDishes.filter(item => item.type === 'Plato Principal').map(menuItemToServicioEmpresa).sort(sortDishes),
             menusNinoDisponibles: enhancedDishes.filter(item => item.type === 'Menú Infantil/Adolescente' || item.type === 'Menú Infantil').map(menuItemToServicioEmpresa).sort(sortDishes)
         };
     }, [config, allMenus, gastronomiaSearchTerm]);
-    
+
     useEffect(() => {
         const loadInitialData = async () => {
             setIsLoading(true);
@@ -371,7 +379,7 @@ function SimuladorContent() {
         const secs = seconds % 60;
         return `${mins.toString().padStart(2, '0')}:${secs.toString().padStart(2, '0')}`;
     };
-    
+
     const handleEntradaChange = (servicioId: string, checked: boolean) => {
         if (checked) {
             if (selectedEntradas.length >= maxEntradas) {
@@ -392,7 +400,7 @@ function SimuladorContent() {
       setFormData(prev => {
         const newSelected = new Map(prev.serviciosSeleccionados);
         const allDishes = [...entradasDisponibles, ...principalesDisponibles, ...menusNinoDisponibles];
-        
+
         if (type === 'entradas') {
             const currentEntradas = Array.from(newSelected.keys()).filter(id => entradasDisponibles.some(e => e.id === id));
             const removedEntradas = currentEntradas.filter(id => !selectedIds.includes(id));
@@ -402,7 +410,7 @@ function SimuladorContent() {
         } else if (type === 'infantil') {
             menusNinoDisponibles.forEach(item => newSelected.delete(item.id));
         }
-        
+
         const idsToAdd = Array.isArray(selectedIds) ? selectedIds : [selectedIds];
         idsToAdd.forEach(id => {
             const dishToAdd = allDishes.find(d => d.id === id);
@@ -414,7 +422,7 @@ function SimuladorContent() {
         return { ...prev, serviciosSeleccionados: newSelected };
       });
     };
-    
+
     const allSimuladorServices = useMemo(() => {
         return [...entradasDisponibles, ...principalesDisponibles, ...menusNinoDisponibles, ...serviciosCatalogo];
     }, [entradasDisponibles, principalesDisponibles, menusNinoDisponibles, serviciosCatalogo]);
@@ -496,7 +504,7 @@ function SimuladorContent() {
             currentYear,
         });
     }, [config, allSimuladorServices, adultos, ninosYAdolescentes, selectedPaqueteId, formData.serviciosSeleccionados, excludedPackageServiceIds, clubUruguaySyntheticService, eventoFecha, currentYear, budgetSettings.annualAdjustmentPercentage]);
-    
+
     const saveProgress = async (includeEventDetails: boolean) => {
         setIsSavingProgress(true);
         try {
@@ -520,6 +528,11 @@ function SimuladorContent() {
 
     const handleNext = async () => {
         if (step === 1) {
+            setStep(2);
+            return;
+        }
+
+        if (step === 2) {
             if (clienteNombre.trim().length < 3 || !isValidUruguayMobile(clienteContacto)) {
                 toast({
                     title: "Revisá tus datos",
@@ -528,16 +541,6 @@ function SimuladorContent() {
                 });
                 return;
             }
-            try {
-                await saveProgress(false);
-                setStep(2);
-            } catch (error: any) {
-                toast({ title: "No pudimos guardar tus datos", description: error.message, variant: "destructive" });
-            }
-            return;
-        }
-
-        if (step === 2) {
             if (adultos <= 0 || !eventoFecha || !salonChoice) {
                 toast({
                     title: "Completá los datos del evento",
@@ -576,12 +579,16 @@ function SimuladorContent() {
             return;
         }
 
-        if (step === 4 && !selectedPaqueteId) {
-            toast({ title: "Paquete requerido", description: "Elegí un paquete de servicios para continuar.", variant: "destructive" });
+        if (step === 4) {
+            if (!selectedPaqueteId) {
+                toast({ title: "Paquete requerido", description: "Elegí un paquete de servicios para continuar.", variant: "destructive" });
+                return;
+            }
+            setStep(5);
             return;
         }
 
-        if (step === 4) {
+        if (step === 5) {
             setIsGenerating(true);
             const selectedPackageName = config?.paquetes.find(p => p.id === selectedPaqueteId)?.nombre;
             const data = {
@@ -614,7 +621,7 @@ function SimuladorContent() {
                 if (result.success && result.presupuestoId) {
                     setGeneratedPresupuestoId(result.presupuestoId);
                     if (result.token) setGeneratedToken(result.token);
-                    setStep(5);
+                    setStep(6);
                 } else throw new Error(result.error || "Error al generar.");
             } catch (e: any) {
                 toast({ title: "Error", description: e.message, variant: "destructive" });
@@ -822,9 +829,9 @@ function SimuladorContent() {
         setIsGenerating(true);
         setSelectedPaqueteId(paqueteId);
         setExcludedPackageServiceIds([]);
-        
+
         const newPackageName = config.paquetes.find(p => p.id === paqueteId)?.nombre;
-        
+
         // Calculate new pricing stats
         const newStats = calculateSimulatorPricing({
             config,
@@ -884,7 +891,7 @@ function SimuladorContent() {
     const handleToggleExcludedService = async (serviceId: string, remove: boolean) => {
         if (!config || !selectedPaqueteId) return;
         setIsGenerating(true);
-        
+
         let newExcluded = [...excludedPackageServiceIds];
         if (remove) {
             if (!newExcluded.includes(serviceId)) {
@@ -893,7 +900,7 @@ function SimuladorContent() {
         } else {
             newExcluded = newExcluded.filter(id => id !== serviceId);
         }
-        
+
         setExcludedPackageServiceIds(newExcluded);
 
         // Compute updated stats
@@ -982,11 +989,41 @@ function SimuladorContent() {
             })
     ), [adultos, excludedPackageServiceIds, ninosYAdolescentes, removablePackageServices, stats.discountPercentage]);
 
+    const packageServicesRemovable = useMemo(() => {
+        if (!selectedPackage) return [];
+        return (selectedPackage.serviciosIncluidos || [])
+            .map(s => s ? allSimuladorServices.find(os => os.id === s.id) : undefined)
+            .filter((s): s is ServicioEmpresa => Boolean(s) && removablePackageServices.some(rps => rps.id === s.id));
+    }, [selectedPackage, allSimuladorServices, removablePackageServices]);
+
+    const manuallyAddedServices = useMemo(() => {
+        return Array.from(formData.serviciosSeleccionados.entries())
+            .map(([id, data]) => {
+                const service = allSimuladorServices.find(os => os.id === id);
+                return service ? { service, data } : null;
+            })
+            .filter((s): s is { service: ServicioEmpresa; data: ServicioSeleccionadoValue } => Boolean(s));
+    }, [formData.serviciosSeleccionados, allSimuladorServices]);
+
+    const filteredSearchServices = useMemo(() => {
+        if (serviceSearchTerm.trim() === '') return [];
+        const term = serviceSearchTerm.toLowerCase();
+        return allSimuladorServices.filter(service => {
+            const isActive = formData.serviciosSeleccionados.has(service.id) ||
+                             (selectedPackage?.serviciosIncluidos.some(s => s.id === service.id) && !excludedPackageServiceIds.includes(service.id));
+            if (isActive) return false;
+
+            return service.nombre.toLowerCase().includes(term) ||
+                   (service.categoria || '').toLowerCase().includes(term) ||
+                   (service.subcategoria || '').toLowerCase().includes(term);
+        }).slice(0, 5);
+    }, [serviceSearchTerm, allSimuladorServices, formData.serviciosSeleccionados, selectedPackage, excludedPackageServiceIds]);
+
     const isServiceRemovable = useCallback((item: SimulatorDetailedService) => {
         const isActive = (id: string) => {
             return stats.detallados.some(s => s.id === id);
         };
-        const isRequiredDependency = config?.serviceDependencies?.some(dep => 
+        const isRequiredDependency = config?.serviceDependencies?.some(dep =>
             dep.requiredServiceId === item.id && isActive(dep.triggerServiceId)
         );
         if (isRequiredDependency) return false;
@@ -1065,12 +1102,12 @@ function SimuladorContent() {
             </main>
         );
     }
-    
-    if (step === 5 && generatedPresupuestoId) {
+
+    if (step === 6 && generatedPresupuestoId) {
         return (
             <div className="min-h-screen bg-slate-50 flex flex-col items-center py-10 px-2 sm:px-4 print:bg-white print:p-0">
                 <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.6 }} className="w-full max-w-3xl space-y-8">
-                    
+
                     <div className="flex justify-center mb-2 print:hidden">
                       <CompanyLogo size="sm" src={logoUrl || undefined} className="opacity-40" />
                     </div>
@@ -1113,7 +1150,7 @@ function SimuladorContent() {
                                     <p className="text-xs font-bold text-red-800">El tiempo de tu reserva ha expirado. Podés contactar a un asesor de ventas para consultar disponibilidad de fecha.</p>
                                 </div>
                             )}
-                            
+
                             <div className="w-full grid grid-cols-1 md:grid-cols-3 gap-3">
                                 <Button
                                     onClick={handleShareBudgetWhatsApp}
@@ -1257,7 +1294,7 @@ function SimuladorContent() {
                                     </TableBody>
                                 </Table>
                             </div>
-                            
+
                             <div className="w-full max-w-sm ml-auto space-y-3 py-6 px-8 bg-slate-50 text-slate-900 rounded-[1.5rem] border border-slate-200 shadow-sm">
                                 {(budgetSettings.showIndividualPrices ?? true) && (
                                    <div className="flex justify-between items-center text-[10px] font-black uppercase text-slate-500 tracking-widest">
@@ -1456,15 +1493,83 @@ function SimuladorContent() {
                         <Progress value={(step / 5) * 100} className="h-2 bg-slate-200" />
                     </div>
                 </CardHeader>
-                
+
                 <CardContent className="p-6 sm:p-10">
                     {step === 1 && (
-                        <div className="space-y-6 animate-in fade-in slide-in-from-bottom-4 duration-500">
-                            <div>
-                                <h2 className="text-xl font-black text-slate-900">{budgetSettings?.simulatorWelcomeTitle || "Ingresá tus datos de contacto"}</h2>
-                                <p className="mt-1 text-sm text-slate-500">{budgetSettings?.simulatorWelcomeSubtitle || "Guardamos tu avance para que el equipo pueda ayudarte si no terminás la simulación."}</p>
+                        <div className="space-y-8 animate-in fade-in slide-in-from-bottom-4 duration-500 max-w-2xl mx-auto py-4">
+                            <div className="text-center space-y-4">
+                                <div className="p-4 bg-primary/10 rounded-full inline-block">
+                                    <Sparkles className="w-10 h-10 text-primary animate-pulse" />
+                                </div>
+                                <h2 className="text-3xl font-black text-slate-900 tracking-tight">¿Quiénes somos?</h2>
+                                <p className="text-lg font-bold text-primary">Ofrecemos una solución: organizamos tu fiesta por completo.</p>
                             </div>
-                            <div className="grid gap-5 md:grid-cols-2">
+
+                            <div className="grid gap-6 md:grid-cols-2 pt-4">
+                                <div className="p-6 bg-slate-50 rounded-3xl border border-slate-100 flex items-start gap-4 text-left">
+                                    <div className="p-3 bg-violet-100 text-violet-700 rounded-2xl shrink-0">
+                                        <PartyPopper className="w-6 h-6" />
+                                    </div>
+                                    <div>
+                                        <h4 className="font-black text-slate-800 uppercase text-xs tracking-wider mb-1">Todos los Servicios</h4>
+                                        <p className="text-xs leading-relaxed text-slate-600 font-semibold">Catering completo, barra de tragos, discoteca, iluminación, decoración y más. Todo en un solo lugar.</p>
+                                    </div>
+                                </div>
+
+                                <div className="p-6 bg-slate-50 rounded-3xl border border-slate-100 flex items-start gap-4 text-left">
+                                    <div className="p-3 bg-fuchsia-100 text-fuchsia-700 rounded-2xl shrink-0">
+                                        <Users className="w-6 h-6" />
+                                    </div>
+                                    <div>
+                                        <h4 className="font-black text-slate-800 uppercase text-xs tracking-wider mb-1">Equipo de Organización</h4>
+                                        <p className="text-xs leading-relaxed text-slate-600 font-semibold">Un equipo profesional a cargo de coordinar y planificar cada detalle de tu evento de principio a fin.</p>
+                                    </div>
+                                </div>
+
+                                <div className="p-6 bg-slate-50 rounded-3xl border border-slate-100 flex items-start gap-4 text-left">
+                                    <div className="p-3 bg-blue-100 text-blue-700 rounded-2xl shrink-0">
+                                        <Laptop className="w-6 h-6" />
+                                    </div>
+                                    <div>
+                                        <h4 className="font-black text-slate-800 uppercase text-xs tracking-wider mb-1">Tecnología de Organización</h4>
+                                        <p className="text-xs leading-relaxed text-slate-600 font-semibold">Plataforma digital para la gestión de invitados, control de accesos por QR y herramientas interactivas.</p>
+                                    </div>
+                                </div>
+
+                                <div className="p-6 bg-slate-50 rounded-3xl border border-slate-100 flex items-start gap-4 text-left">
+                                    <div className="p-3 bg-emerald-100 text-emerald-700 rounded-2xl shrink-0">
+                                        <HeartHandshake className="w-6 h-6" />
+                                    </div>
+                                    <div>
+                                        <h4 className="font-black text-slate-800 uppercase text-xs tracking-wider mb-1">Experiencia del Cliente e Invitado</h4>
+                                        <p className="text-xs leading-relaxed text-slate-600 font-semibold">Nos enfocamos en crear momentos inolvidables tanto para vos como para cada uno de tus invitados.</p>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div className="p-6 bg-gradient-to-r from-slate-900 to-slate-800 text-white rounded-3xl border shadow-xl flex flex-col sm:flex-row items-center gap-5 justify-between text-left">
+                                <div className="flex items-center gap-4">
+                                    <div className="p-3 bg-white/10 rounded-2xl">
+                                        <MapPin className="w-7 h-7 text-yellow-300" />
+                                    </div>
+                                    <div>
+                                        <h4 className="font-black text-yellow-300 uppercase text-[10px] tracking-wider">Locación Exclusiva</h4>
+                                        <h3 className="font-black text-lg">Salón de Fiestas: Club Uruguay</h3>
+                                        <p className="text-xs text-white/70 font-semibold">El salón más distinguido con servicio integral.</p>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    )}
+                    {step === 2 && (
+                        <div className="space-y-8 animate-in fade-in slide-in-from-right-4 duration-500 text-left">
+                            <div>
+                                <h2 className="text-xl font-black text-slate-900">Ingresá tus datos y los del evento</h2>
+                                <p className="mt-1 text-sm text-slate-500">Guardamos tu avance de forma segura y calculamos los precios según la locación y cantidad de invitados.</p>
+                            </div>
+
+                            {/* Datos de Contacto */}
+                            <div className="grid gap-5 md:grid-cols-2 p-6 bg-slate-50 rounded-3xl border border-slate-100">
                                 <div className="space-y-2">
                                     <Label htmlFor="simulator-name">Nombre completo</Label>
                                     <Input id="simulator-name" value={clienteNombre} onChange={e => setClienteNombre(e.target.value)} placeholder="Ej: Ana García" className="h-12 rounded-md bg-white text-slate-900" />
@@ -1472,7 +1577,7 @@ function SimuladorContent() {
                                 <div className="space-y-2">
                                     <Label htmlFor="simulator-phone">WhatsApp</Label>
                                     <Input id="simulator-phone" type="tel" value={clienteContacto} onChange={e => setClienteContacto(e.target.value)} placeholder="099 123 456 o +598 99 123 456" className="h-12 rounded-md bg-white text-slate-900" />
-                                    <p className="text-xs text-slate-500">Acepta número uruguayo con espacios, guiones o prefijo +598.</p>
+                                    <p className="text-[10px] text-slate-500 font-semibold">Acepta número uruguayo con espacios, guiones o prefijo +598.</p>
                                 </div>
                             </div>
 
@@ -1512,15 +1617,9 @@ function SimuladorContent() {
                                     </div>
                                 </div>
                             )}
-                        </div>
-                    )}
-                    {step === 2 && (
-                        <div className="space-y-8 animate-in fade-in slide-in-from-right-4 duration-500">
-                            <div>
-                                <h2 className="text-xl font-black text-slate-900">Contanos cómo será el evento</h2>
-                                <p className="mt-1 text-sm text-slate-500">La cantidad, duración, fecha y salón definen los servicios y precios aplicables.</p>
-                            </div>
-                            <div className="grid gap-5 md:grid-cols-2">
+
+                            {/* Detalles del Evento */}
+                            <div className="grid gap-5 md:grid-cols-2 pt-4">
                                 <div className="space-y-2">
                                     <Label>Tipo de evento</Label>
                                     <Select value={eventoTipo} onValueChange={setEventoTipo}>
@@ -1545,8 +1644,9 @@ function SimuladorContent() {
                                     </div>
                                 </div>
                             </div>
+
                             <div className="space-y-3">
-                                <Label>Duración</Label>
+                                <Label>Duración del evento</Label>
                                 <div className="grid gap-3 sm:grid-cols-2">
                                     {DURATION_OPTIONS.map(option => (
                                         <button
@@ -1554,43 +1654,49 @@ function SimuladorContent() {
                                             type="button"
                                             onClick={() => setDuracionHoras(option.value)}
                                             className={cn(
-                                                'rounded-md border p-4 text-left transition',
-                                                duracionHoras === option.value ? 'border-red-500 bg-red-50' : 'border-slate-200 bg-white hover:border-slate-400'
+                                                'rounded-2xl border p-4 text-left transition flex flex-col justify-between h-20',
+                                                duracionHoras === option.value ? 'border-primary bg-primary/5' : 'border-slate-200 bg-white hover:border-slate-400'
                                             )}
                                         >
-                                            <span className="flex items-center justify-between gap-3 text-sm font-black text-slate-900">
+                                            <span className="flex items-center justify-between gap-3 text-sm font-black text-slate-900 w-full">
                                                 {option.title}
-                                                {duracionHoras === option.value && <Check className="h-5 w-5 text-red-600" />}
+                                                {duracionHoras === option.value && <Check className="h-5 w-5 text-primary" />}
                                             </span>
-                                            <span className="mt-1 block text-xs text-slate-500">{option.detail}</span>
+                                            <span className="block text-xs text-slate-500 font-semibold">{option.detail}</span>
                                         </button>
                                     ))}
                                 </div>
                             </div>
+
                             <div className="space-y-3">
-                                <Label>Salón</Label>
+                                <Label>Salón de fiestas</Label>
                                 <div className="grid gap-3 sm:grid-cols-2">
-                                    <button type="button" onClick={() => setSalonChoice('propio')} className={cn('rounded-md border p-4 text-left', salonChoice === 'propio' ? 'border-red-500 bg-red-50' : 'border-slate-200 bg-white')}>
-                                        <MapPin className="h-5 w-5 text-red-600" />
-                                        <p className="mt-3 text-sm font-black text-slate-900">Tengo salón o locación propia</p>
-                                        <p className="mt-1 text-xs text-slate-500">No suma alquiler de Club Uruguay.</p>
+                                    <button type="button" onClick={() => setSalonChoice('propio')} className={cn('rounded-2xl border p-5 text-left transition flex flex-col h-32 justify-between', salonChoice === 'propio' ? 'border-primary bg-primary/5 shadow-sm' : 'border-slate-200 bg-white hover:border-slate-300')}>
+                                        <MapPin className="h-6 w-6 text-primary" />
+                                        <div>
+                                            <p className="text-sm font-black text-slate-900">Tengo salón o locación propia</p>
+                                            <p className="mt-1 text-xs text-slate-400 font-semibold">No se adiciona costo por locación.</p>
+                                        </div>
                                     </button>
-                                    <button type="button" onClick={() => setSalonChoice('club')} disabled={!config?.clubUruguayConfig?.activo} className={cn('rounded-md border p-4 text-left disabled:opacity-50', salonChoice === 'club' ? 'border-red-500 bg-red-50' : 'border-slate-200 bg-white')}>
-                                        <Building2 className="h-5 w-5 text-red-600" />
-                                        <p className="mt-3 text-sm font-black text-slate-900">Quiero Club Uruguay</p>
-                                        <p className="mt-1 text-xs text-slate-500">{formatCurrency(config?.clubUruguayConfig?.precio || 0)} agregado de forma transparente.</p>
+                                    <button type="button" onClick={() => setSalonChoice('club')} disabled={!config?.clubUruguayConfig?.activo} className={cn('rounded-2xl border p-5 text-left disabled:opacity-50 transition flex flex-col h-32 justify-between', salonChoice === 'club' ? 'border-primary bg-primary/5 shadow-sm' : 'border-slate-200 bg-white hover:border-slate-300')}>
+                                        <Building2 className="h-6 w-6 text-primary" />
+                                        <div>
+                                            <p className="text-sm font-black text-slate-900">Quiero Club Uruguay</p>
+                                            <p className="mt-1 text-xs text-slate-400 font-semibold">{formatCurrency(config?.clubUruguayConfig?.precio || 0)} agregados al presupuesto.</p>
+                                        </div>
                                     </button>
                                 </div>
                             </div>
+
                             <div className="space-y-2">
                                 <Label>Fecha del evento</Label>
-                                <DatePickerDemo selectedDate={eventoFecha} onDateChange={handleEventoFechaChange} className="h-12 rounded-md bg-white text-slate-900" />
+                                <DatePickerDemo selectedDate={eventoFecha} onDateChange={handleEventoFechaChange} className="h-12 rounded-xl bg-white text-slate-900 border-slate-200" />
                                 {dateWarning && (
-                                    <div className="rounded-md border border-amber-300 bg-amber-50 p-4">
+                                    <div className="rounded-2xl border border-amber-300 bg-amber-50 p-4">
                                         <p className="text-sm font-bold text-amber-900">{dateWarning}</p>
                                         <div className="mt-3 flex flex-wrap gap-2">
                                             {dateSuggestions.map(date => (
-                                                <button key={date} type="button" className="rounded-md bg-white px-3 py-2 text-xs font-bold text-amber-900 shadow-sm" onClick={() => handleEventoFechaChange(new Date(`${date}T12:00:00`))}>
+                                                <button key={date} type="button" className="rounded-md bg-white px-3 py-2 text-xs font-bold text-amber-900 shadow-sm border" onClick={() => handleEventoFechaChange(new Date(`${date}T12:00:00`))}>
                                                     {new Intl.DateTimeFormat('es-UY').format(new Date(`${date}T12:00:00`))}
                                                 </button>
                                             ))}
@@ -1606,7 +1712,7 @@ function SimuladorContent() {
                                 <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-slate-400"/>
                                 <Input placeholder="Busca tu plato favorito..." value={gastronomiaSearchTerm} onChange={e => setGastronomiaSearchTerm(e.target.value)} className="pl-12 h-14 rounded-2xl bg-slate-50 border-none shadow-inner text-lg font-bold text-slate-900"/>
                             </div>
-                            
+
                             <div className="space-y-6">
                                 <Label className="text-xs font-black uppercase tracking-[0.2em] text-primary flex items-center gap-3">
                                     <div className="w-2 h-6 bg-primary rounded-full"></div> ENTRADAS (Elige {maxEntradas})
@@ -1713,7 +1819,7 @@ function SimuladorContent() {
                         </div>
                     )}
                     {step === 4 && (
-                        <div className="space-y-8 animate-in fade-in slide-in-from-right-4 duration-700">
+                        <div className="space-y-8 animate-in fade-in slide-in-from-right-4 duration-700 text-left">
                             <h3 className="font-black text-xl text-slate-800 uppercase tracking-tighter text-center">Selecciona tu Paquete de Servicios</h3>
                             <RadioGroup
                                 value={selectedPaqueteId}
@@ -1752,13 +1858,13 @@ function SimuladorContent() {
                                                 </div>
                                                 <RadioGroupItem value={p.id} className="h-6 w-6"/>
                                             </div>
-                                            
+
                                             <div className="space-y-3">
                                                 <Label className="text-[9px] font-black uppercase tracking-widest text-slate-400 flex items-center gap-2">
                                                     <ListPlus className="w-3 h-3"/> Servicios Incluidos:
                                                 </Label>
                                                 <ScrollArea className="h-48 pr-3 border rounded-2xl bg-white shadow-inner p-2">
-                                                    <ul className="text-[10px] space-y-2 text-slate-500 font-bold uppercase tracking-tight">
+                                                    <ul className="text-[10px] space-y-2 text-slate-500 font-bold uppercase tracking-tight animate-in fade-in">
                                                         {sortedIncluded.map(s => {
                                                             const serv = allSimuladorServices.find(os => os.id === s.id);
                                                             return serv && (
@@ -1767,7 +1873,7 @@ function SimuladorContent() {
                                                                     s.esRegalo ? "bg-emerald-50 border-emerald-100 text-emerald-700" : "bg-slate-50 border-slate-100 text-slate-600"
                                                                 )}>
                                                                     <div className="flex items-center gap-2 min-w-0">
-                                                                        {s.esRegalo ? <Gift className="w-3.5 h-3.5 shrink-0"/> : <Check className="w-3.5 h-3.5 opacity-40 shrink-0"/>} 
+                                                                        {s.esRegalo ? <Gift className="w-3.5 h-3.5 shrink-0"/> : <Check className="w-3.5 h-3.5 opacity-40 shrink-0"/>}
                                                                         <span className="truncate">{serv.nombre}</span>
                                                                     </div>
                                                                     {s.esRegalo && <Badge className="bg-emerald-600 text-white border-none font-black text-[8px] px-1.5 h-4">REGALO</Badge>}
@@ -1786,17 +1892,254 @@ function SimuladorContent() {
                                 <p className="text-center text-sm text-slate-500">No hay paquetes aplicables para el tipo de evento seleccionado.</p>
                             )}
 
+                            <div className="rounded-2xl border border-blue-100 bg-blue-50 p-4 text-sm text-blue-900">
+                              <strong>Precios {currentYear}</strong>
+                              {stats.annualProjection.applies
+                                ? <> — Ajuste anual proyectado del <strong>{stats.annualProjection.adjustmentPct}%</strong> para eventos en {stats.annualProjection.eventYear}.</>
+                                : <> — El total mostrado corresponde al precio vigente.</>}
+                            </div>
+                        </div>
+                    )}
+                    {step === 5 && (
+                        <div className="space-y-8 animate-in fade-in slide-in-from-right-4 duration-700 text-left">
+                            <div>
+                                <h2 className="text-xl font-black text-slate-900">Personalizá tu presupuesto</h2>
+                                <p className="mt-1 text-sm text-slate-500">Agregá o quitá servicios opcionales, buscá adicionales en el catálogo o cambiá de paquete directamente.</p>
+                            </div>
+
+                            {/* Selector rápido de paquete en el paso 5 */}
+                            <div className="flex flex-col gap-4 p-6 bg-slate-50 border border-slate-100 rounded-3xl">
+                                <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+                                    <div>
+                                        <span className="text-[10px] font-black text-slate-400 uppercase tracking-widest">Paquete Seleccionado</span>
+                                        <h3 className="text-2xl font-black text-slate-800 uppercase tracking-tight">{selectedPackage?.nombre}</h3>
+                                        <p className="text-xs text-slate-500 font-semibold">Si cambiás de paquete, se reiniciarán las ediciones personalizadas de esta pantalla.</p>
+                                    </div>
+                                    <div className="flex flex-wrap gap-2">
+                                        {sortedPaquetes.map(p => (
+                                            <Button
+                                                key={p.id}
+                                                variant={selectedPaqueteId === p.id ? "default" : "outline"}
+                                                size="sm"
+                                                onClick={() => {
+                                                    setSelectedPaqueteId(p.id);
+                                                    setExcludedPackageServiceIds([]);
+                                                }}
+                                                className={cn(
+                                                    "rounded-xl font-bold uppercase tracking-wider text-[9px] h-9 px-4 transition-all",
+                                                    selectedPaqueteId === p.id ? "bg-primary text-white border-primary shadow-sm" : "border-slate-200 text-slate-700 hover:bg-slate-100"
+                                                )}
+                                            >
+                                                {p.nombre}
+                                            </Button>
+                                        ))}
+                                    </div>
+                                </div>
+                            </div>
+
+                            {/* Opcionales del Paquete (Quitar/Agregar) */}
+                            {packageServicesRemovable.length > 0 && (
+                                <div className="space-y-4">
+                                    <h4 className="font-black text-slate-800 uppercase text-xs tracking-wider flex items-center gap-2">
+                                        <Settings2 className="w-4.5 h-4.5 text-slate-500"/> Servicios del paquete que podés quitar
+                                    </h4>
+                                    <div className="grid gap-4 md:grid-cols-2">
+                                        {packageServicesRemovable.map(service => {
+                                            const isExcluded = excludedPackageServiceIds.includes(service.id);
+                                            const calculated = getSimulatorServiceCalculatedData(service, adultos, ninosYAdolescentes);
+                                            return (
+                                                <div
+                                                    key={service.id}
+                                                    className={cn(
+                                                        'flex items-start justify-between gap-4 rounded-2xl border-2 p-5 transition-all duration-300',
+                                                        isExcluded
+                                                            ? 'border-dashed border-slate-200 bg-slate-50/50 opacity-60'
+                                                            : 'border-slate-200 bg-white hover:border-slate-300 shadow-sm'
+                                                    )}
+                                                >
+                                                    <div className="min-w-0 flex-1">
+                                                        <span className={cn("block font-black text-slate-900 text-sm", isExcluded && "line-through text-slate-400")}>
+                                                            {service.nombre}
+                                                        </span>
+                                                        <span className="mt-1 block text-[10px] font-semibold text-slate-400 uppercase tracking-tight">
+                                                            {service.notas || service.subcategoria || service.categoria || 'Servicio incluido'}
+                                                        </span>
+                                                        {!isExcluded && (
+                                                            <span className="mt-2 block text-xs font-black text-slate-500">
+                                                                Valor incluido: {formatCurrency(calculated.total)}
+                                                            </span>
+                                                        )}
+                                                    </div>
+
+                                                    {isExcluded ? (
+                                                        <Button
+                                                            type="button"
+                                                            size="sm"
+                                                            variant="outline"
+                                                            onClick={() => {
+                                                                setExcludedPackageServiceIds(prev => prev.filter(id => id !== service.id));
+                                                            }}
+                                                            className="rounded-xl border-emerald-200 text-emerald-700 hover:bg-emerald-50 text-[10px] font-black uppercase tracking-widest shrink-0"
+                                                        >
+                                                            <Plus className="w-3.5 h-3.5 mr-1"/> Incluir
+                                                        </Button>
+                                                    ) : (
+                                                        <Button
+                                                            type="button"
+                                                            size="sm"
+                                                            variant="outline"
+                                                            onClick={() => {
+                                                                setExcludedPackageServiceIds(prev => [...prev, service.id]);
+                                                            }}
+                                                            className="rounded-xl border-red-100 text-red-600 hover:bg-red-50 hover:border-red-200 text-[10px] font-black uppercase tracking-widest shrink-0"
+                                                        >
+                                                            <Trash2 className="w-3.5 h-3.5 mr-1"/> Quitar
+                                                        </Button>
+                                                    )}
+                                                </div>
+                                            );
+                                        })}
+                                    </div>
+                                </div>
+                            )}
+
+                            {/* Buscador de Servicios del Catálogo */}
+                            <div className="space-y-4 pt-6 border-t border-slate-200">
+                                <h4 className="font-black text-slate-800 uppercase text-xs tracking-wider flex items-center gap-2">
+                                    <Search className="w-4.5 h-4.5 text-slate-500"/> ¿Querés agregar otro servicio?
+                                </h4>
+                                <div className="relative">
+                                    <div className="relative flex-1">
+                                        <Search className="absolute left-4 top-3.5 h-5 w-5 text-slate-400" />
+                                        <Input
+                                            type="text"
+                                            placeholder="Buscá por nombre de servicio (ej: cabina, plataforma, buffet, barra)..."
+                                            value={serviceSearchTerm}
+                                            onChange={e => setServiceSearchTerm(e.target.value)}
+                                            onFocus={() => setIsSearchFocused(true)}
+                                            onBlur={() => {
+                                                setTimeout(() => setIsSearchFocused(false), 200);
+                                            }}
+                                            className="h-12 pl-12 rounded-xl border-slate-200 bg-white text-slate-900"
+                                        />
+                                        {serviceSearchTerm && (
+                                            <button
+                                                type="button"
+                                                onClick={() => setServiceSearchTerm('')}
+                                                className="absolute right-4 top-3.5 text-slate-400 hover:text-slate-600"
+                                            >
+                                                <X className="w-5 h-5" />
+                                            </button>
+                                        )}
+                                    </div>
+
+                                    {/* Dropdown de resultados de búsqueda */}
+                                    {isSearchFocused && filteredSearchServices.length > 0 && (
+                                        <div className="absolute left-0 right-0 z-50 mt-2 bg-white border border-slate-200 rounded-2xl shadow-2xl overflow-hidden animate-in fade-in slide-in-from-top-2 duration-200">
+                                            <div className="p-3 bg-slate-50 border-b text-[10px] font-black text-slate-400 uppercase tracking-widest">
+                                                Servicios encontrados ({filteredSearchServices.length})
+                                            </div>
+                                            <div className="divide-y divide-slate-100 max-h-64 overflow-y-auto">
+                                                {filteredSearchServices.map(service => {
+                                                    const calculated = getSimulatorServiceCalculatedData(service, adultos, ninosYAdolescentes);
+                                                    return (
+                                                        <button
+                                                            key={service.id}
+                                                            type="button"
+                                                            onMouseDown={(e) => {
+                                                                e.preventDefault();
+                                                            }}
+                                                            onClick={() => {
+                                                                toggleTechnologyService(service, true);
+                                                                setServiceSearchTerm('');
+                                                                setIsSearchFocused(false);
+                                                                toast({
+                                                                    title: "Servicio agregado",
+                                                                    description: `${service.nombre} se agregó al presupuesto.`,
+                                                                });
+                                                            }}
+                                                            className="w-full p-4 text-left hover:bg-slate-50 flex items-center justify-between gap-4 transition"
+                                                        >
+                                                            <div>
+                                                                <span className="block font-black text-sm text-slate-800">{service.nombre}</span>
+                                                                <span className="block text-[10px] text-slate-400 font-semibold uppercase mt-0.5">
+                                                                    {service.categoria} {service.subcategoria ? `· ${service.subcategoria}` : ''}
+                                                                </span>
+                                                            </div>
+                                                            <div className="text-right shrink-0">
+                                                                <span className="block font-black text-sm text-primary">{formatCurrency(calculated.total)}</span>
+                                                                <span className="block text-[9px] text-primary font-bold uppercase tracking-wider mt-0.5">Agregar +</span>
+                                                            </div>
+                                                        </button>
+                                                    );
+                                                })}
+                                            </div>
+                                        </div>
+                                    )}
+
+                                    {isSearchFocused && serviceSearchTerm.trim() !== '' && filteredSearchServices.length === 0 && (
+                                        <div className="absolute left-0 right-0 z-50 mt-2 bg-white border border-slate-200 rounded-2xl shadow-xl p-6 text-center text-sm text-slate-500">
+                                            No encontramos servicios que coincidan con tu búsqueda.
+                                        </div>
+                                    )}
+                                </div>
+                            </div>
+
+                            {/* Adicionales Agregados Manualmente */}
+                            {manuallyAddedServices.length > 0 && (
+                                <div className="space-y-4 pt-6 border-t border-slate-200">
+                                    <h4 className="font-black text-slate-800 uppercase text-xs tracking-wider flex items-center gap-2">
+                                        <CheckCircle2 className="w-4.5 h-4.5 text-emerald-600"/> Servicios adicionales que agregaste
+                                    </h4>
+                                    <div className="grid gap-4 md:grid-cols-2">
+                                        {manuallyAddedServices.map(({ service }) => {
+                                            const calculated = getSimulatorServiceCalculatedData(service, adultos, ninosYAdolescentes);
+                                            return (
+                                                <div
+                                                    key={service.id}
+                                                    className="flex items-start justify-between gap-4 rounded-2xl border border-emerald-100 bg-emerald-50/20 p-5 shadow-sm"
+                                                >
+                                                    <div className="min-w-0 flex-1">
+                                                        <span className="block font-black text-slate-900 text-sm">
+                                                            {service.nombre}
+                                                        </span>
+                                                        <span className="mt-1 block text-xs font-semibold text-slate-400">
+                                                            {service.categoria} · Adicional agregado
+                                                        </span>
+                                                        <span className="mt-2 block text-sm font-black text-emerald-700">
+                                                            {formatCurrency(calculated.total)}
+                                                        </span>
+                                                    </div>
+                                                    <Button
+                                                        type="button"
+                                                        size="sm"
+                                                        variant="ghost"
+                                                        onClick={() => {
+                                                            toggleTechnologyService(service, false);
+                                                        }}
+                                                        className="rounded-full text-slate-400 hover:text-red-600 hover:bg-red-50 p-2 shrink-0 h-8 w-8 transition-colors"
+                                                    >
+                                                        <X className="w-4 h-4"/>
+                                                    </Button>
+                                                </div>
+                                            );
+                                        })}
+                                    </div>
+                                </div>
+                            )}
+
+                            {/* Tecnología AK / Adicionales Sugeridos del Catálogo */}
                             {technologyServices.length > 0 && (
-                                <section className="space-y-5 border-t border-slate-200 pt-8">
+                                <section className="space-y-5 border-t border-slate-200 pt-6">
                                     <div className="flex flex-col gap-2">
                                         <p className="text-xs font-black uppercase tracking-[0.2em] text-fuchsia-700">
                                             {budgetSettings?.serviciosAdicionalesVisibles !== undefined && budgetSettings?.serviciosAdicionalesVisibles !== null
                                                 ? "Servicios Adicionales Disponibles"
                                                 : "Tecnologia AK configurable"}
                                         </p>
-                                        <h3 className="text-2xl font-black text-slate-900">Hace visible el impacto de tu fiesta</h3>
-                                        <p className="max-w-3xl text-sm leading-6 text-slate-600">
-                                            Estas opciones salen del catalogo real de AK. Al activarlas se agregan al calculo y al presupuesto para que el equipo pueda validarlas.
+                                        <h3 className="text-xl font-black text-slate-900">Hace visible el impacto de tu fiesta</h3>
+                                        <p className="max-w-3xl text-xs leading-5 text-slate-500 font-semibold">
+                                            Estas opciones salen del catálogo real de AK. Al activarlas se agregan al cálculo y al presupuesto final.
                                         </p>
                                     </div>
                                     <div className="grid gap-4 md:grid-cols-2">
@@ -1807,9 +2150,9 @@ function SimuladorContent() {
                                                 <label
                                                     key={service.id}
                                                     className={cn(
-                                                        'flex cursor-pointer items-start gap-4 rounded-2xl border-2 p-5 transition',
+                                                        'flex cursor-pointer items-start gap-4 rounded-2xl border-2 p-5 transition-all',
                                                         selected
-                                                            ? 'border-fuchsia-500 bg-fuchsia-50 shadow-lg shadow-fuchsia-100'
+                                                            ? 'border-fuchsia-500 bg-fuchsia-50/55 shadow-sm shadow-fuchsia-100'
                                                             : 'border-slate-200 bg-white hover:border-fuchsia-200'
                                                     )}
                                                 >
@@ -1819,9 +2162,9 @@ function SimuladorContent() {
                                                         className="mt-1 h-6 w-6"
                                                     />
                                                     <span className="min-w-0 flex-1">
-                                                        <span className="block font-black text-slate-900">{service.nombre}</span>
-                                                        <span className="mt-1 block text-xs font-semibold text-slate-500">
-                                                            {service.notas || service.subcategoria || service.categoria || 'Experiencia tecnologica AK'}
+                                                        <span className="block font-black text-sm text-slate-900">{service.nombre}</span>
+                                                        <span className="mt-1 block text-[10px] font-semibold text-slate-500 uppercase tracking-tight">
+                                                            {service.notas || service.subcategoria || service.categoria || 'Experiencia tecnológica AK'}
                                                         </span>
                                                         <span className="mt-3 block text-sm font-black text-fuchsia-700">
                                                             {formatCurrency(calculated.total)}
@@ -1843,14 +2186,14 @@ function SimuladorContent() {
                         </div>
                     )}
                 </CardContent>
-                
+
                 <CardFooter className="p-6 sm:p-10 border-t bg-slate-50 flex flex-col-reverse sm:flex-row justify-between items-center gap-6">
                     <Button variant="ghost" onClick={handlePrev} disabled={step === 1 || isSavingProgress || isGenerating} className="w-full sm:w-auto rounded-md h-12 px-7 font-bold text-slate-500">Anterior</Button>
                     <div className="flex flex-col items-center sm:items-end gap-3 w-full sm:w-auto">
                         <Button onClick={handleNext} disabled={isGenerating || isSavingProgress} className="w-full sm:w-auto rounded-md h-14 px-10 font-black text-base">
                             {(isGenerating || isSavingProgress) ? <Loader2 className="animate-spin mr-3"/> : null}
-                            {step === 4 ? "Generar presupuesto" : "Continuar"}
-                            {step < 4 && <ArrowRight className="ml-3 w-5 h-5"/>}
+                            {step === 5 ? "Generar presupuesto" : "Continuar"}
+                            {step < 5 && <ArrowRight className="ml-3 w-5 h-5"/>}
                         </Button>
                         <div className="flex items-center gap-3 bg-white px-4 py-2 rounded-md border">
                             <p className="text-[10px] font-black uppercase text-slate-500 tracking-widest">Total vigente:</p>

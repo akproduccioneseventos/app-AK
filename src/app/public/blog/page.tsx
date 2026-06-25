@@ -4,7 +4,8 @@ import { ArrowRight, BookOpen, MessageSquare, Sparkles } from 'lucide-react';
 import { PublicNavbar } from '@/components/public/PublicNavbar';
 import { PublicFooter } from '@/components/public-footer';
 import { CompanyLogo } from '@/components/company-logo';
-import { blogPosts } from '@/data/blog-posts';
+import * as Lucide from 'lucide-react';
+import { getBlogPosts } from '@/app/actions/blog';
 
 export const metadata: Metadata = {
   title: 'Consejos para organizar eventos | Blog AK Producciones',
@@ -15,10 +16,30 @@ export const metadata: Metadata = {
 const WHATSAPP_NUMBER = '59898355530';
 const WHATSAPP_MESSAGE = 'Hola AK Producciones, lei el blog y quiero asesoramiento para organizar mi evento.';
 
-export default function BlogPage() {
+function getIconComponent(name: string) {
+  const IconComp = (Lucide as any)[name];
+  return IconComp || Lucide.BookOpen;
+}
+
+export default async function BlogPage() {
+  const blogPosts = await getBlogPosts();
+
+  if (!blogPosts || blogPosts.length === 0) {
+    return (
+      <div className="min-h-screen bg-white font-body text-slate-900">
+        <PublicNavbar whatsappNumber={WHATSAPP_NUMBER} whatsappMessage={WHATSAPP_MESSAGE} />
+        <main className="flex min-h-[50vh] flex-col items-center justify-center space-y-4">
+          <BookOpen className="h-12 w-12 text-slate-300" />
+          <h1 className="text-xl font-bold">No hay artículos publicados todavía.</h1>
+        </main>
+        <PublicFooter variant="light" />
+      </div>
+    );
+  }
+
   const featured = blogPosts[0];
   const latest = blogPosts.slice(1);
-  const FeaturedIcon = featured.icon;
+  const FeaturedIcon = getIconComponent(featured.icon);
 
   return (
     <div className="min-h-screen bg-white font-body text-slate-900">
@@ -101,7 +122,7 @@ export default function BlogPage() {
 
             <div className="grid gap-5 md:grid-cols-2 lg:grid-cols-3">
               {latest.map((post) => {
-                const Icon = post.icon;
+                const Icon = getIconComponent(post.icon);
                 return (
                   <Link
                     key={post.slug}

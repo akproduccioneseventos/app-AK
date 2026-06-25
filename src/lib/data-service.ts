@@ -27,9 +27,11 @@ async function scheduleAutoBackupAfterWrite(normalizedFilePath: string, options?
     .catch((err) => logger.warn('[data-service] Auto-backup trigger failed:', err));
 
   try {
-    const { after } = await import('next/server');
-    after(backupTask);
-    return;
+    const nextServer = (await import('next/server')) as any;
+    if (typeof nextServer.after === 'function') {
+      nextServer.after(backupTask);
+      return;
+    }
   } catch (error) {
     logger.warn('[data-service] Post-response context unavailable for auto-backup:', error);
   }
@@ -197,7 +199,7 @@ export async function updateDataPartial<T extends Record<string, any>>(
   try {
     // 1. Sincronización a Firestore (firebase-sync ya utiliza { merge: true } para documentos individuales)
     await syncToFirestore(normalizedFilePath, partialData);
-    
+
     // 2. Actualización local JSON (Merge manual)
     if (isSafeTopLevelJsonFile(normalizedFilePath)) {
       const existing = await readGenericJsonFile(normalizedFilePath) as Record<string, any> || {};

@@ -1,11 +1,11 @@
 import type { Metadata } from 'next';
 import Link from 'next/link';
 import { notFound } from 'next/navigation';
-import { ArrowLeft, ArrowRight, CheckCircle2, MessageSquare, Timer } from 'lucide-react';
 import { PublicNavbar } from '@/components/public/PublicNavbar';
 import { PublicFooter } from '@/components/public-footer';
 import { CompanyLogo } from '@/components/company-logo';
-import { blogPosts, getBlogPostBySlug, getRelatedPosts } from '@/data/blog-posts';
+import * as Lucide from 'lucide-react';
+import { getBlogPosts, getBlogPostBySlug, getRelatedPosts } from '@/app/actions/blog';
 
 interface Props {
   params: Promise<{ slug: string }>;
@@ -13,13 +13,19 @@ interface Props {
 
 const WHATSAPP_NUMBER = '59898355530';
 
+function getIconComponent(name: string) {
+  const IconComp = (Lucide as any)[name];
+  return IconComp || Lucide.BookOpen;
+}
+
 export async function generateStaticParams() {
-  return blogPosts.map((post) => ({ slug: post.slug }));
+  const posts = await getBlogPosts();
+  return posts.map((post) => ({ slug: post.slug }));
 }
 
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const { slug } = await params;
-  const post = getBlogPostBySlug(slug);
+  const post = await getBlogPostBySlug(slug);
   if (!post) return { title: 'Blog AK Producciones' };
 
   return {
@@ -30,12 +36,12 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
 
 export default async function BlogPostPage({ params }: Props) {
   const { slug } = await params;
-  const post = getBlogPostBySlug(slug);
+  const post = await getBlogPostBySlug(slug);
 
   if (!post) notFound();
 
-  const Icon = post.icon;
-  const related = getRelatedPosts(post);
+  const Icon = getIconComponent(post.icon);
+  const related = await getRelatedPosts(post);
   const whatsappMessage = `Hola AK Producciones, lei el articulo "${post.title}" y quiero asesoramiento para mi evento.`;
 
   return (
@@ -49,7 +55,7 @@ export default async function BlogPostPage({ params }: Props) {
               href="/public/blog"
               className="mb-8 inline-flex items-center gap-2 rounded-full border border-white/20 px-4 py-2 text-xs font-black uppercase tracking-wider text-white/90 transition hover:bg-white/10"
             >
-              <ArrowLeft className="h-4 w-4" />
+              <Lucide.ArrowLeft className="h-4 w-4" />
               Volver al blog
             </Link>
 
@@ -58,7 +64,7 @@ export default async function BlogPostPage({ params }: Props) {
                 <div className="inline-flex items-center gap-2 rounded-full bg-white/15 px-4 py-2 text-[11px] font-black uppercase tracking-[0.22em]">
                   {post.category}
                   <span className="h-1 w-1 rounded-full bg-white/50" />
-                  <Timer className="h-3.5 w-3.5" />
+                  <Lucide.Timer className="h-3.5 w-3.5" />
                   {post.readTime}
                 </div>
                 <h1 className="text-4xl font-black leading-tight sm:text-5xl">{post.title}</h1>
@@ -98,7 +104,7 @@ export default async function BlogPostPage({ params }: Props) {
                   <ul className="mt-5 space-y-3">
                     {post.checklist.map((item) => (
                       <li key={item} className="flex gap-3 text-sm leading-7 text-slate-700">
-                        <CheckCircle2 className="mt-0.5 h-5 w-5 shrink-0 text-emerald-600" />
+                        <Lucide.CheckCircle2 className="mt-0.5 h-5 w-5 shrink-0 text-emerald-600" />
                         <span>{item}</span>
                       </li>
                     ))}
@@ -120,7 +126,7 @@ export default async function BlogPostPage({ params }: Props) {
                   rel="noopener noreferrer"
                   className="mt-5 inline-flex w-full items-center justify-center gap-2 rounded-2xl bg-[#25D366] px-4 py-3 text-xs font-black uppercase tracking-wider text-white transition hover:bg-[#1eb356]"
                 >
-                  <MessageSquare className="h-4 w-4" />
+                  <Lucide.MessageSquare className="h-4 w-4" />
                   WhatsApp
                 </a>
               </div>
@@ -146,7 +152,7 @@ export default async function BlogPostPage({ params }: Props) {
               </div>
               <div className="grid gap-4 md:grid-cols-2">
                 {related.map((item) => {
-                  const RelatedIcon = item.icon;
+                  const RelatedIcon = getIconComponent(item.icon);
                   return (
                     <Link
                       key={item.slug}
@@ -161,7 +167,7 @@ export default async function BlogPostPage({ params }: Props) {
                         <h3 className="mt-1 font-black leading-snug text-slate-950 group-hover:text-purple-700">{item.title}</h3>
                         <span className="mt-3 inline-flex items-center gap-1 text-xs font-black uppercase tracking-wider text-purple-700">
                           Leer
-                          <ArrowRight className="h-3.5 w-3.5" />
+                          <Lucide.ArrowRight className="h-3.5 w-3.5" />
                         </span>
                       </div>
                     </Link>
