@@ -993,7 +993,7 @@ function SimuladorContent() {
         if (!selectedPackage) return [];
         return (selectedPackage.serviciosIncluidos || [])
             .map(s => s ? allSimuladorServices.find(os => os.id === s.id) : undefined)
-            .filter((s): s is ServicioEmpresa => Boolean(s) && removablePackageServices.some(rps => rps.id === s.id));
+            .filter((s): s is ServicioEmpresa => s !== undefined && removablePackageServices.some(rps => rps.id === s.id));
     }, [selectedPackage, allSimuladorServices, removablePackageServices]);
 
     const manuallyAddedServices = useMemo(() => {

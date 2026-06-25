@@ -6,6 +6,7 @@ import { PublicFooter } from '@/components/public-footer';
 import { CompanyLogo } from '@/components/company-logo';
 import * as Lucide from 'lucide-react';
 import { getBlogPosts } from '@/app/actions/blog';
+import { BlogInteractiveList } from '@/components/public/BlogInteractiveList';
 
 export const metadata: Metadata = {
   title: 'Consejos para organizar eventos | Blog AK Producciones',
@@ -116,43 +117,11 @@ export default async function BlogPage() {
                 <h2 className="mt-2 text-3xl font-black text-slate-950">Contenido para decidir mejor</h2>
               </div>
               <p className="max-w-xl text-sm leading-7 text-slate-600">
-                Cada articulo esta pensado para responder dudas frecuentes y convertir una consulta en una reunion mas clara.
+                Cada artículo está pensado para responder dudas frecuentes y ayudarte a tomar decisiones inteligentes antes de tu evento.
               </p>
             </div>
 
-            <div className="grid gap-5 md:grid-cols-2 lg:grid-cols-3">
-              {latest.map((post) => {
-                const Icon = getIconComponent(post.icon);
-                return (
-                  <Link
-                    key={post.slug}
-                    href={`/public/blog/${post.slug}`}
-                    className="group flex min-h-[320px] flex-col justify-between rounded-3xl border border-slate-200 bg-white p-6 shadow-sm transition hover:-translate-y-1 hover:border-purple-200 hover:shadow-xl"
-                  >
-                    <div className="space-y-5">
-                      <div className={`flex h-14 w-14 items-center justify-center rounded-2xl bg-gradient-to-br ${post.accent} text-white shadow-lg`}>
-                        <Icon className="h-7 w-7" />
-                      </div>
-                      <div className="space-y-3">
-                        <div className="flex items-center gap-2 text-[10px] font-black uppercase tracking-[0.18em] text-slate-500">
-                          <span>{post.category}</span>
-                          <span className="h-1 w-1 rounded-full bg-slate-300" />
-                          <span>{post.readTime}</span>
-                        </div>
-                        <h3 className="text-xl font-black leading-tight text-slate-950 group-hover:text-purple-700">
-                          {post.title}
-                        </h3>
-                        <p className="text-sm leading-7 text-slate-600">{post.excerpt}</p>
-                      </div>
-                    </div>
-                    <span className="mt-6 inline-flex items-center gap-2 text-xs font-black uppercase tracking-wider text-purple-700">
-                      Leer consejo
-                      <ArrowRight className="h-4 w-4 transition group-hover:translate-x-1" />
-                    </span>
-                  </Link>
-                );
-              })}
-            </div>
+            <BlogInteractiveList posts={blogPosts} />
           </div>
         </section>
 

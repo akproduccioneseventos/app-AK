@@ -54,6 +54,19 @@ const FALLBACK_IMAGES: Record<string, string[]> = {
   ]
 };
 
+const TOPIC_SEEDS = [
+  'tendencias en barras de tragos y coctelería para eventos nocturnos en Salto',
+  'cómo calcular el presupuesto de catering para una fiesta de 15 años sin sorpresas',
+  'el rol de la iluminación robotizada y pantallas LED en la atmósfera de un casamiento',
+  'ideas originales de animación y cabinas de fotos (espejo mágico, plataforma 360) para divertir a los invitados',
+  'checklist de las 10 cosas clave para coordinar la semana previa a la fiesta',
+  'menú formal versus islas de finger food: ventajas del catering moderno',
+  'consejos de seguridad, potencia eléctrica y acústica al elegir tu salón en Uruguay',
+  'cómo armar la distribución de mesas para que todos los invitados se sientan cómodos',
+  'ideas creativas de cotillón tecnológico e iluminación fluorescente (Neon Party)',
+  'cómo planificar las tandas de baile y los momentos emotivos para mantener la energía alta toda la noche'
+];
+
 export async function GET(request: Request) {
   return handleCron(request);
 }
@@ -73,12 +86,19 @@ async function handleCron(request: Request) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
 
-    // 2. Query Gemini AI using Genkit to generate the structured blog post
-    const prompt = `Generá un artículo de blog educativo y valioso sobre organización de eventos, catering, planificación de presupuesto, bodas o fiestas de XV años en Uruguay.
-    El artículo debe estar pensado para ayudar al cliente a tomar decisiones inteligentes y evitar errores costosos.
+    // 2. Select a topic seed based on day + month + year to vary content 3x per week
+    const date = new Date();
+    const daySeed = date.getDate() + date.getMonth() * 31 + (date.getFullYear() % 100) * 365;
+    const topicIndex = daySeed % TOPIC_SEEDS.length;
+    const selectedTopic = TOPIC_SEEDS[topicIndex];
+
+    // 3. Query Gemini AI using Genkit to generate the structured blog post
+    const prompt = `Generá un artículo de blog educativo y sumamente interesante enfocado en el siguiente tema de eventos: "${selectedTopic}".
+    El artículo debe estar pensado para ayudar al cliente a tomar decisiones inteligentes y evitar errores costosos en su fiesta en Uruguay (especialmente Salto).
+    Redactalo en español rioplatense (cercano y natural, usando palabras como "tenés", "salon", "quinceañera", "bodas", "barra").
     Incluí palabras clave de búsqueda SEO para posicionamiento en Salto, Uruguay.
     Al final del contenido, incluí una llamada a la acción clara animando al cliente a usar nuestro "Simulador de Presupuestos de AK Producciones" para diseñar su fiesta gratis.
-    Firmá sutilmente el post integrando mención al branding y logo de "nanobanana" como sello de garantía.
+    Firmá sutilmente el post integrando mención al branding y logo de "nanobanana" como sello de garantía y diseño estético de primer nivel.
 
     Es OBLIGATORIO que el resultado respete el esquema JSON especificado.`;
 

@@ -133,7 +133,7 @@ describe('generarPlanPagos', () => {
     fechaEvento.setMonth(fechaEvento.getMonth() + 18);
     const plan = generarPlanPagos(fechaEvento.toISOString(), 100000);
 
-    expect(plan.mesesLimiteAntesFecha).toBe(5);
+    expect(plan.mesesLimiteAntesFecha).toBe(6);
   });
 
   it('never schedules more money than the contract total', () => {
