@@ -36,6 +36,7 @@ export const PUBLIC_PATH_PREFIXES = [
   '/evento/buzon',
   '/invitado',
   '/portal-proveedor',
+  '/club-uruguay',
 ] as const;
 
 export const PUBLIC_EXACT_PATHS = new Set(['/', '/evento', '/evento/', '/api/health']);

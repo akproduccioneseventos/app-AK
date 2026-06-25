@@ -1,209 +1,164 @@
-import Image from 'next/image';
-import Link from 'next/link';
-import { Box, Building2, CalendarCheck, Camera, CheckCircle2, Compass, Film, MapPin, MessageCircle, MonitorPlay, Palette, Sparkles, Users } from 'lucide-react';
-import { Button } from '@/components/ui/button';
-import { Badge } from '@/components/ui/badge';
-import { Card, CardContent } from '@/components/ui/card';
-import { getSalones } from '@/app/actions/salones';
-import { isClubUruguay } from '@/lib/club-uruguay';
+import React from 'react';
+import type { Metadata } from 'next';
+import { LandingNav } from '@/components/landing/LandingNav';
 import { PublicFooter } from '@/components/public-footer';
+import { Button } from '@/components/ui/button';
+import Link from 'next/link';
+import { Building2, Sparkles, Calendar, MessageCircle, MapPin, Users, Award } from 'lucide-react';
 
-const WHATSAPP_URL = 'https://wa.me/59898355530?text=Hola%20AK%20Producciones%2C%20quiero%20consultar%20por%20Club%20Uruguay%20para%20mi%20fiesta.';
-const DEFAULT_MAP_URL = 'https://www.google.com/maps/search/?api=1&query=Club%20Uruguay%20Salto%20Uruguay';
+export const metadata: Metadata = {
+  title: 'El Salón en Club Uruguay | AK Producciones Salto',
+  description: 'El salón más elegante e histórico de Salto, Uruguay, con la producción integral y tecnología interactiva exclusiva de AK Producciones.',
+};
 
-function safeExternalUrl(url?: string) {
-  if (!url) return undefined;
-  try {
-    const parsed = new URL(url);
-    return parsed.protocol === 'http:' || parsed.protocol === 'https:' ? parsed.href : undefined;
-  } catch {
-    return undefined;
-  }
-}
+export default function ClubUruguayPage() {
+  const whatsapp = '59898355530';
 
-export default async function ClubUruguayPublicPage() {
-  const salones = await getSalones().catch(() => []);
-  const clubSalones = salones.filter((salon) => salon.esClubUruguay || isClubUruguay(salon.nombre));
-  const mainSalon = clubSalones[0];
-  const photos = clubSalones.flatMap((salon) => salon.fotos || []).slice(0, 12);
-  const mapUrl = mainSalon?.googleMapsUrl || DEFAULT_MAP_URL;
-  const capacity = mainSalon?.capacidad || 200;
-  const videoUrl = safeExternalUrl(mainSalon?.experiencia3D?.videoUrl);
-  const recorridoUrl = safeExternalUrl(mainSalon?.experiencia3D?.recorridoUrl);
-  const modelo3dUrl = safeExternalUrl(mainSalon?.experiencia3D?.modelo3dUrl);
-  const visualNotes = mainSalon?.experiencia3D?.notas?.trim();
-
-  const benefits = [
-    'Salon historico y centrico en Salto.',
-    'Planificacion integral con AK: decoracion, catering, musica, foto, video y coordinacion.',
-    'Diseno de salon 2D/3D para entender mesas, pista, ambientacion y flujo de invitados.',
-    'Pagina e invitacion del evento conectadas con invitados, RSVP y muro social.',
+  // Fotos reales tomadas en el Club Uruguay del catálogo optimizado
+  const clubPhotos = [
+    { src: '/media/catalogo-servicios/salon-discoteca-ak-01.jpeg', alt: 'Montaje de salón y discoteca en Club Uruguay', desc: 'Vista completa del salón principal con equipamiento AK.' },
+    { src: '/media/catalogo-servicios/boda-decoracion-dorada-01.jpeg', alt: 'Decoración de boda premium en Club Uruguay', desc: 'Decoración de mesa principal en tonos dorados y blancos.' },
+    { src: '/media/catalogo-servicios/xv-pista-iluminada-01.jpeg', alt: 'Pista de baile iluminada LED en Club Uruguay', desc: 'Tecnología interactiva en pista de baile.' },
+    { src: '/media/catalogo-servicios/candy-bar-completo-ak-02.jpeg', alt: 'Candy Bar completo en Club Uruguay', desc: 'Mesa de dulces y chocolates personalizada.' },
+    { src: '/media/catalogo-servicios/decoracion-xv-luces-01.jpeg', alt: 'Fondo de luces y ambientación en Club Uruguay', desc: 'Luz cálida y ambientación romántica.' },
+    { src: '/media/catalogo-servicios/catering-mesa-ak-01.jpeg', alt: 'Catering y presentación gastronómica', desc: 'Servicio de catering real para eventos.' }
   ];
 
-  const visualActions = [
-    { label: 'Video del salon', href: videoUrl, icon: Film },
-    { label: 'Recorrido 360', href: recorridoUrl, icon: Compass },
-    { label: 'Modelo 3D', href: modelo3dUrl, icon: Box },
-  ].filter((item) => item.href);
-
   return (
-    <main className="min-h-screen bg-white text-slate-950">
-      <section className="relative overflow-hidden border-b border-slate-200 bg-white">
-        <div className="absolute inset-x-0 top-0 h-1 bg-red-600" />
-        <div className="relative mx-auto grid max-w-7xl gap-10 px-5 py-14 md:grid-cols-[1.02fr_0.98fr] md:py-20">
-          <div className="flex flex-col justify-center">
-            <Badge className="mb-5 w-fit bg-red-50 text-red-700 ring-1 ring-red-100 hover:bg-red-50">Salon exclusivo AK Producciones</Badge>
-            <h1 className="max-w-3xl text-4xl font-black tracking-normal text-slate-950 sm:text-6xl">
-              Club Uruguay, presentado como una experiencia de evento completa
-            </h1>
-            <p className="mt-5 max-w-2xl text-base font-medium leading-8 text-slate-600 sm:text-lg">
-              Una pagina publica lista para vender el Club Uruguay: muestra el salon, explica como se arma la fiesta, conecta con el simulador y deja visible la propuesta visual 2D/3D de AK Producciones.
-            </p>
-            <div className="mt-8 flex flex-col gap-3 sm:flex-row sm:flex-wrap">
-              <a href={WHATSAPP_URL} target="_blank" rel="noopener noreferrer">
-                <Button className="h-12 rounded-xl bg-red-600 px-6 font-black text-white hover:bg-red-700">
-                  <MessageCircle className="mr-2 h-5 w-5" /> Consultar por WhatsApp
-                </Button>
+    <div className="min-h-screen bg-zinc-950 text-white selection:bg-indigo-600 selection:text-white">
+      <LandingNav whatsappNumber={whatsapp} />
+
+      {/* Hero Section */}
+      <section className="relative min-h-[90vh] flex items-center justify-center overflow-hidden pt-20">
+        <div className="absolute inset-0 z-0">
+          <img 
+            src="/media/catalogo-servicios/salon-discoteca-ak-01.jpeg" 
+            alt="Club Uruguay" 
+            className="w-full h-full object-cover object-center opacity-40 scale-105" 
+          />
+          <div className="absolute inset-0 bg-gradient-to-b from-zinc-950 via-zinc-950/60 to-zinc-950" />
+          <div className="absolute inset-0 bg-gradient-to-r from-zinc-950 via-transparent to-zinc-950" />
+        </div>
+
+        <div className="relative z-10 max-w-5xl mx-auto px-4 text-center space-y-6">
+          <span className="inline-flex items-center gap-2 px-3 py-1 rounded-xl bg-white/5 border border-white/10 text-xs font-black uppercase tracking-widest text-indigo-400">
+            <Building2 className="w-3.5 h-3.5" />
+            Locación Destacada en Salto
+          </span>
+          <h1 className="font-headline text-5xl sm:text-7xl font-black tracking-tight text-white leading-tight">
+            El Salón en <span className="bg-gradient-to-r from-indigo-400 via-purple-400 to-pink-400 bg-clip-text text-transparent">Club Uruguay</span>
+          </h1>
+          <p className="text-zinc-400 text-lg sm:text-xl max-w-2xl mx-auto leading-relaxed">
+            El espacio más distinguido e histórico de Salto se fusiona con la tecnología, producción y catering premium de **AK Producciones**.
+          </p>
+
+          <div className="flex flex-wrap justify-center gap-4 pt-4">
+            <Button asChild size="lg" className="bg-indigo-600 hover:bg-indigo-700 text-white font-bold rounded-2xl shadow-lg shadow-indigo-600/30 px-8 py-6">
+              <Link href="/simulador-de-presupuesto?salon=club">
+                <Calendar className="w-4 h-4 mr-2" />
+                Cotizar tu Fiesta Aquí
+              </Link>
+            </Button>
+            <Button asChild size="lg" variant="outline" className="border-white/10 hover:bg-white/5 text-white font-bold rounded-2xl px-8 py-6">
+              <a href={`https://wa.me/${whatsapp}?text=Hola%20AK%20Producciones!%20Me%20interesa%20saber%20más%20sobre%20el%20salón%20en%20el%20Club%20Uruguay.`} target="_blank" rel="noopener noreferrer">
+                <MessageCircle className="w-4 h-4 mr-2 text-emerald-400" />
+                Consultar por WhatsApp
               </a>
-              <Button asChild variant="outline" className="h-12 rounded-xl border-slate-300 bg-white px-6 font-black text-slate-900 hover:bg-slate-50"><Link href="/simulador-de-presupuesto">
-                  Simular presupuesto
-                </Link></Button>
-              <Button asChild variant="outline" className="h-12 rounded-xl border-red-200 bg-red-50 px-6 font-black text-red-700 hover:bg-red-100"><Link href="/presentacion-led">
-                  <MonitorPlay className="mr-2 h-5 w-5" /> Ver presentacion LED
-                </Link></Button>
-            </div>
+            </Button>
           </div>
+        </div>
+      </section>
 
-          <div className="relative min-h-[420px] overflow-hidden rounded-xl border border-slate-200 bg-white shadow-2xl">
-            {photos[0] ? (
-              <Image src={photos[0]} alt="Club Uruguay" fill className="object-cover" priority />
-            ) : (
-              <div className="flex h-full min-h-[420px] flex-col items-center justify-center bg-slate-950 p-8 text-center text-white">
-                <Building2 className="mb-5 h-16 w-16 text-white/80" />
-                <p className="text-2xl font-black">Club Uruguay</p>
-                <p className="mt-2 text-sm text-white/70">Carga fotos desde el gestor de salones para mostrarlas aca.</p>
+      {/* Características Clave */}
+      <section className="py-24 border-t border-white/5 bg-zinc-900/40">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+            <div className="p-8 rounded-3xl bg-white/5 border border-white/10 space-y-4 hover:border-indigo-500/30 transition-all duration-300">
+              <div className="w-12 h-12 rounded-2xl bg-indigo-500/10 flex items-center justify-center text-indigo-400">
+                <MapPin className="w-6 h-6" />
               </div>
-            )}
-            <div className="absolute bottom-4 left-4 right-4 rounded-xl bg-white/90 p-4 text-slate-950 shadow-lg backdrop-blur-md">
-              <p className="text-xs font-black uppercase tracking-wider text-red-700">Servicio integral</p>
-              <p className="mt-1 text-lg font-black">Salon + ambientacion + organizacion + experiencia digital</p>
+              <h3 className="text-xl font-bold font-headline">Ubicación Inmejorable</h3>
+              <p className="text-zinc-400 leading-relaxed text-sm">
+                Ubicado en el casco histórico de la ciudad de Salto, frente a la plaza principal, ofreciendo un acceso inigualable y estacionamiento cómodo para tus invitados.
+              </p>
+            </div>
+
+            <div className="p-8 rounded-3xl bg-white/5 border border-white/10 space-y-4 hover:border-purple-50/30 transition-all duration-300">
+              <div className="w-12 h-12 rounded-2xl bg-purple-500/10 flex items-center justify-center text-purple-400">
+                <Users className="w-6 h-6" />
+              </div>
+              <h3 className="text-xl font-bold font-headline">Gran Capacidad</h3>
+              <p className="text-zinc-400 leading-relaxed text-sm">
+                Espacios adaptables con capacidad desde 100 hasta 450 personas sentadas, ideales para bodas de gala, cumpleaños de 15 soñados y banquetes empresariales.
+              </p>
+            </div>
+
+            <div className="p-8 rounded-3xl bg-white/5 border border-white/10 space-y-4 hover:border-pink-500/30 transition-all duration-300">
+              <div className="w-12 h-12 rounded-2xl bg-pink-500/10 flex items-center justify-center text-pink-400">
+                <Award className="w-6 h-6" />
+              </div>
+              <h3 className="text-xl font-bold font-headline">Producción Exclusiva</h3>
+              <p className="text-zinc-400 leading-relaxed text-sm">
+                Equipamiento de última generación instalado permanentemente: sonido line array, pantallas gigantes de LED, iluminación móvil robótica y un catering de primer nivel.
+              </p>
             </div>
           </div>
         </div>
       </section>
 
-      <section className="mx-auto max-w-7xl px-5 py-12">
-        <div className="grid gap-4 md:grid-cols-4">
-          <Card className="rounded-xl border-slate-200 bg-white shadow-sm"><CardContent className="p-5"><MapPin className="mb-3 h-6 w-6 text-red-600" /><p className="text-sm text-slate-500">Ubicacion</p><p className="text-lg font-black text-slate-950">Centro de Salto</p></CardContent></Card>
-          <Card className="rounded-xl border-slate-200 bg-white shadow-sm"><CardContent className="p-5"><Users className="mb-3 h-6 w-6 text-red-600" /><p className="text-sm text-slate-500">Capacidad referencial</p><p className="text-lg font-black text-slate-950">Hasta {capacity} personas</p></CardContent></Card>
-          <Card className="rounded-xl border-slate-200 bg-white shadow-sm"><CardContent className="p-5"><Palette className="mb-3 h-6 w-6 text-red-600" /><p className="text-sm text-slate-500">Diseno</p><p className="text-lg font-black text-slate-950">2D/3D a color</p></CardContent></Card>
-          <Card className="rounded-xl border-slate-200 bg-white shadow-sm"><CardContent className="p-5"><CalendarCheck className="mb-3 h-6 w-6 text-red-600" /><p className="text-sm text-slate-500">Entrevista</p><p className="text-lg font-black text-slate-950">Sin costo</p></CardContent></Card>
-        </div>
-      </section>
-
-      <section className="mx-auto grid max-w-7xl gap-8 px-5 py-12 lg:grid-cols-[0.9fr_1.1fr]">
-        <div>
-          <Badge className="mb-4 bg-red-600 text-white hover:bg-red-600">Por que elegirlo</Badge>
-          <h2 className="text-3xl font-black tracking-normal text-slate-950">Un salon que se vende mejor cuando el cliente puede imaginar la fiesta armada</h2>
-          <div className="mt-6 space-y-4 text-slate-600">
-            {benefits.map((item) => (
-              <div key={item} className="flex gap-3 rounded-xl border border-slate-200 bg-white p-4 shadow-sm">
-                <CheckCircle2 className="mt-0.5 h-5 w-5 shrink-0 text-red-600" />
-                <p className="text-sm font-medium leading-6">{item}</p>
-              </div>
-            ))}
-          </div>
-
-          <div id="diseno" className="mt-6 rounded-xl border border-red-100 bg-red-50 p-5">
-            <p className="text-xs font-black uppercase tracking-wider text-red-700">Diseno de salon</p>
-            <p className="mt-2 text-sm leading-6 text-slate-700">
-              La parte que antes podia aparecer como croquis queda orientada a diseno de salon: mesas, pista, ingreso, decoracion y montaje visual a color. Sirve para mostrarle al cliente como puede quedar Club Uruguay antes de contratar.
+      {/* Galería Real */}
+      <section className="py-24 border-t border-white/5">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="text-center mb-16 space-y-2">
+            <span className="text-indigo-400 font-bold uppercase tracking-widest text-xs">Portafolio Visual</span>
+            <h2 className="font-headline text-3xl sm:text-5xl font-black">Fotos Reales del Salón</h2>
+            <p className="text-zinc-400 max-w-xl mx-auto text-sm leading-relaxed">
+              Explorá montajes auténticos realizados por nuestro equipo en el Club Uruguay. Sin renders, sin fotos falsas de stock.
             </p>
           </div>
-        </div>
 
-        <div className="rounded-xl border border-slate-200 bg-white p-5 shadow-sm">
-          <div className="mb-4 flex items-center justify-between gap-3">
-            <div>
-              <p className="text-xs font-black uppercase tracking-wider text-red-700">Experiencia visual</p>
-              <h3 className="text-2xl font-black text-slate-950">Video, recorrido y modelo</h3>
-            </div>
-            <Sparkles className="h-6 w-6 text-red-600" />
-          </div>
-
-          {visualActions.length > 0 ? (
-            <div className="grid gap-3 sm:grid-cols-3">
-              {visualActions.map((item) => {
-                const Icon = item.icon;
-                return (
-                  <a key={item.label} href={item.href} target="_blank" rel="noopener noreferrer" className="rounded-xl border border-slate-200 bg-slate-50 p-4 transition hover:border-red-200 hover:bg-red-50">
-                    <Icon className="mb-3 h-6 w-6 text-red-600" />
-                    <p className="font-black text-slate-950">{item.label}</p>
-                    <p className="mt-1 text-xs text-slate-500">Abrir recurso visual</p>
-                  </a>
-                );
-              })}
-            </div>
-          ) : (
-            <div className="rounded-xl border border-dashed border-slate-300 p-6 text-sm leading-6 text-slate-600">
-              La pagina ya esta preparada para mostrar video, recorrido 360 y modelo 3D cuando esos links se carguen en el salon Club Uruguay. Mientras tanto, usa las fotos reales y la presentacion LED.
-            </div>
-          )}
-
-          {visualNotes && (
-            <div className="mt-4 rounded-xl border border-slate-200 bg-slate-50 p-4">
-              <p className="text-xs font-black uppercase tracking-wider text-red-700">Notas visuales</p>
-              <p className="mt-2 text-sm leading-6 text-slate-700">{visualNotes}</p>
-            </div>
-          )}
-        </div>
-      </section>
-
-      <section className="mx-auto max-w-7xl px-5 py-12">
-        <div className="mb-5 flex flex-wrap items-end justify-between gap-4">
-          <div>
-            <p className="text-xs font-black uppercase tracking-wider text-red-700">Galeria</p>
-            <h2 className="text-3xl font-black tracking-normal text-slate-950">Fotos del Club Uruguay</h2>
-          </div>
-          <Camera className="h-7 w-7 text-red-600" />
-        </div>
-        {photos.length > 0 ? (
-          <div className="grid grid-cols-2 gap-3 md:grid-cols-4">
-            {photos.map((photo, index) => (
-              <div key={`${photo}_${index}`} className="relative aspect-square overflow-hidden rounded-xl bg-slate-100 shadow-sm">
-                <Image src={photo} alt={`Club Uruguay foto ${index + 1}`} fill className="object-cover" />
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+            {clubPhotos.map((photo, index) => (
+              <div 
+                key={index} 
+                className="group relative rounded-3xl overflow-hidden border border-white/10 bg-zinc-900 aspect-[4/3] hover:border-indigo-500/40 transition-all duration-300"
+              >
+                <img 
+                  src={photo.src} 
+                  alt={photo.alt} 
+                  className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" 
+                />
+                <div className="absolute inset-0 bg-gradient-to-t from-zinc-950 via-zinc-950/20 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex flex-col justify-end p-6" />
+                <div className="absolute bottom-0 left-0 right-0 p-6 z-10 translate-y-4 opacity-0 group-hover:translate-y-0 group-hover:opacity-100 transition-all duration-300">
+                  <p className="font-headline font-bold text-lg text-white">{photo.alt}</p>
+                  <p className="text-xs text-zinc-300 mt-1">{photo.desc}</p>
+                </div>
               </div>
             ))}
           </div>
-        ) : (
-          <div className="flex min-h-[260px] items-center justify-center rounded-xl border border-dashed border-slate-300 p-8 text-center text-sm text-slate-500">
-            Todavia no hay fotos cargadas. Cuando agregues fotos al salon Club Uruguay en el gestor interno, se van a mostrar aca.
-          </div>
-        )}
-      </section>
-
-      <section className="mx-auto max-w-7xl px-5 py-12">
-        <div className="grid gap-6 rounded-xl border border-slate-200 bg-slate-950 p-6 text-white md:grid-cols-[1fr_auto] md:items-center">
-          <div>
-            <h2 className="text-3xl font-black">Queres conocer Club Uruguay para tu evento?</h2>
-            <p className="mt-2 max-w-2xl text-sm font-medium leading-6 text-slate-300">
-              Coordinamos una entrevista sin costo y revisamos salon, fecha, invitados, estilo de decoracion, distribucion y presupuesto integral.
-            </p>
-            <div className="mt-4 flex flex-wrap gap-3">
-              <a href={mapUrl} target="_blank" rel="noopener noreferrer">
-                <Button variant="outline" className="rounded-xl border-white/20 bg-white/10 font-bold text-white hover:bg-white/20"><MapPin className="mr-2 h-4 w-4" /> Ver ubicacion</Button>
-              </a>
-              <a href={WHATSAPP_URL} target="_blank" rel="noopener noreferrer">
-                <Button variant="outline" className="rounded-xl border-white/20 bg-white/10 font-bold text-white hover:bg-white/20"><MessageCircle className="mr-2 h-4 w-4" /> Hablar con AK</Button>
-              </a>
-            </div>
-          </div>
-          <a href={WHATSAPP_URL} target="_blank" rel="noopener noreferrer">
-            <Button className="h-12 rounded-xl bg-red-600 px-8 font-black hover:bg-red-700">Agendar entrevista</Button>
-          </a>
         </div>
       </section>
-      <PublicFooter />
-    </main>
+
+      {/* CTA Sección */}
+      <section className="py-24 bg-gradient-to-r from-indigo-950/50 to-purple-950/50 border-t border-white/5 relative overflow-hidden">
+        <div className="absolute inset-0 z-0 bg-[radial-gradient(ellipse_at_center,_var(--tw-gradient-stops))] from-indigo-900/20 via-transparent to-transparent" />
+        <div className="max-w-4xl mx-auto px-4 text-center space-y-6 relative z-10">
+          <Sparkles className="w-10 h-10 text-indigo-400 mx-auto animate-pulse" />
+          <h2 className="font-headline text-3xl sm:text-5xl font-black">¿Listo para festejar en el Club Uruguay?</h2>
+          <p className="text-zinc-300 max-w-xl mx-auto text-sm sm:text-base leading-relaxed">
+            Hacé tu cotización personalizada al instante con nuestro simulador inteligente. Podés calcular costos de salón, catering, discoteca y ambientación en tiempo real.
+          </p>
+          <div className="pt-4">
+            <Button asChild size="lg" className="bg-white hover:bg-zinc-100 text-zinc-950 font-black rounded-2xl px-10 py-6 text-base shadow-lg shadow-white/10 active:scale-[0.98] transition-all">
+              <Link href="/simulador-de-presupuesto?salon=club">
+                Cotizar Fiesta en Club Uruguay
+              </Link>
+            </Button>
+          </div>
+        </div>
+      </section>
+
+      <PublicFooter variant="dark" />
+    </div>
   );
 }
