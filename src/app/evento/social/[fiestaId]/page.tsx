@@ -151,10 +151,10 @@ const GuestFeatureButton: React.FC<{
   </motion.button>
 );
 
-const PostCard: React.FC<{ 
-  post: SocialGalleryPost; 
-  onLike: (postId: string) => void; 
-  onComment: (postId: string, text: string) => Promise<void>; 
+const PostCard: React.FC<{
+  post: SocialGalleryPost;
+  onLike: (postId: string) => void;
+  onComment: (postId: string, text: string) => Promise<void>;
   onDelete?: (postId: string) => void;
   onModerate?: (postId: string, status: 'pending' | 'approved' | 'hidden') => Promise<void>;
   onHighlightComment?: (postId: string, commentId: string, highlighted: boolean) => Promise<void>;
@@ -170,7 +170,7 @@ const PostCard: React.FC<{
   const heartIdRef = useRef(0);
   const moderationStatus = getPostModerationStatus(post);
   const moderationLabel = moderationStatus === 'pending' ? 'Pendiente' : moderationStatus === 'hidden' ? 'Oculto' : 'Aprobado';
-  
+
   const handleCommentSubmit = async (e: FormEvent) => {
     e.preventDefault();
     if (!commentText.trim()) return;
@@ -322,7 +322,7 @@ const PostCard: React.FC<{
                     {post.comments.length > 0 ? post.comments.map(c => (
                         <div key={c.id} className={cn("flex items-start gap-1.5 rounded-xl border p-2.5", c.highlighted ? "bg-amber-50 border-amber-300" : "bg-slate-50 border-slate-100/50")}>
                             <div className="flex-1 min-w-0">
-                                <span className="font-black text-slate-700 text-xs mr-1">{c.authorName}:</span> 
+                                <span className="font-black text-slate-700 text-xs mr-1">{c.authorName}:</span>
                                 <span className="text-slate-600 leading-relaxed">{c.text}</span>
                             </div>
                             {isAdminView && onHighlightComment && (
@@ -350,6 +350,174 @@ const PostCard: React.FC<{
     </motion.div>
   );
 };
+
+
+const AdCard: React.FC<{
+  ad: {
+    title: string;
+    description: string;
+    imageUrl: string;
+    ctaText: string;
+    ctaUrl: string;
+  };
+  accentColor: string;
+}> = ({ ad, accentColor }) => {
+  return (
+    <motion.div
+      initial={{ opacity: 0, y: 20 }}
+      animate={{ opacity: 1, y: 0 }}
+      transition={{ duration: 0.5 }}
+    >
+      <Card className="overflow-hidden rounded-3xl border border-rose-100 bg-gradient-to-b from-white to-rose-50/20 shadow-md">
+        <CardHeader className="flex flex-row items-center justify-between gap-3 p-4">
+          <div className="flex items-center gap-3">
+            <div className="w-10 h-10 rounded-full flex items-center justify-center text-white font-bold text-sm bg-gradient-to-tr from-rose-500 to-rose-600 shadow-inner">
+              AK
+            </div>
+            <div>
+              <p className="font-black text-sm text-slate-800 flex items-center gap-1.5">
+                AK Producciones
+                <span className="bg-slate-100 text-slate-500 font-bold text-[9px] px-1.5 py-0.5 rounded uppercase tracking-wider scale-90">
+                  Patrocinado
+                </span>
+              </p>
+              <p className="text-[10px] text-muted-foreground">Recomendación para tu evento</p>
+            </div>
+          </div>
+        </CardHeader>
+        <CardContent className="p-0">
+          <div className="relative w-full bg-slate-100" style={{ aspectRatio: '16 / 10' }}>
+            <NextImage
+              src={ad.imageUrl}
+              alt={ad.title}
+              fill
+              className="object-cover"
+              unoptimized
+            />
+          </div>
+          <div className="p-5 space-y-3">
+            <h3 className="font-black text-base text-slate-900 tracking-tight leading-tight">
+              {ad.title}
+            </h3>
+            <p className="text-xs text-slate-600 leading-relaxed">
+              {ad.description}
+            </p>
+          </div>
+        </CardContent>
+        <CardFooter className="p-4 pt-0">
+          <a href={ad.ctaUrl} className="w-full">
+            <Button
+              className="w-full h-11 rounded-xl text-xs font-bold text-white shadow-md transition-transform active:scale-95"
+              style={{ backgroundColor: accentColor }}
+            >
+              {ad.ctaText}
+            </Button>
+          </a>
+        </CardFooter>
+      </Card>
+    </motion.div>
+  );
+};
+
+function SocialCountdownScreen({
+  fiesta,
+  accentColor,
+  coverUrl,
+  title
+}: {
+  fiesta: FiestaEnPlanificacion;
+  accentColor: string;
+  coverUrl?: string;
+  title?: string;
+}) {
+  const eventDate = useMemo(() => new Date(fiesta.configuracion.fechaEvento || ''), [fiesta.configuracion.fechaEvento]);
+  const [timeLeft, setTimeLeft] = useState({ days: 0, hours: 0, minutes: 0, seconds: 0 });
+
+  useEffect(() => {
+    const updateCountdown = () => {
+      const now = new Date();
+      const diff = eventDate.getTime() - now.getTime();
+      if (diff <= 0) {
+        setTimeLeft({ days: 0, hours: 0, minutes: 0, seconds: 0 });
+        return;
+      }
+      const days = Math.floor(diff / (1000 * 60 * 60 * 24));
+      const hours = Math.floor((diff % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+      const minutes = Math.floor((diff % (1000 * 60 * 60)) / (1000 * 60));
+      const seconds = Math.floor((diff % (1000 * 60)) / 1000);
+      setTimeLeft({ days, hours, minutes, seconds });
+    };
+
+    updateCountdown();
+    const interval = setInterval(updateCountdown, 1000);
+    return () => clearInterval(interval);
+  }, [eventDate]);
+
+  const targetDateFormatted = eventDate.toLocaleDateString('es-ES', {
+    day: 'numeric',
+    month: 'long',
+    year: 'numeric'
+  });
+
+  return (
+    <div className="min-h-screen relative flex flex-col items-center justify-center p-6 overflow-hidden text-white">
+      {coverUrl ? (
+        <div className="absolute inset-0 z-0">
+          <NextImage src={coverUrl} alt="Portada" fill className="object-cover scale-110 blur-2xl opacity-40" />
+          <div className="absolute inset-0 bg-gradient-to-b from-slate-950/80 via-slate-900/90 to-slate-950" />
+        </div>
+      ) : (
+        <div className="absolute inset-0 z-0 bg-gradient-to-br from-slate-950 via-slate-900 to-slate-950" />
+      )}
+
+      <motion.div
+        initial={{ opacity: 0, y: 30 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.8 }}
+        className="z-10 w-full max-w-md text-center space-y-8 bg-slate-900/50 backdrop-blur-xl p-8 rounded-[2.5rem] border border-white/10 shadow-2xl"
+      >
+        <div className="space-y-3">
+          <div className="inline-flex p-4 bg-white/5 rounded-3xl border border-white/10 text-rose-500 animate-bounce mb-2">
+            <Heart className="w-8 h-8 fill-current" />
+          </div>
+          <h1 className="text-3xl font-black tracking-tight leading-tight">
+            {title || fiesta.configuracion.nombreEvento}
+          </h1>
+          <p className="text-sm text-slate-400 font-medium">Muro Social Privado del Evento</p>
+        </div>
+
+        <div className="space-y-2">
+          <p className="text-xs uppercase tracking-widest font-black text-slate-500">La red social se activará en</p>
+
+          <div className="grid grid-cols-4 gap-3 pt-2">
+            {[
+              { label: 'Días', val: timeLeft.days },
+              { label: 'Horas', val: timeLeft.hours },
+              { label: 'Minutos', val: timeLeft.minutes },
+              { label: 'Segundos', val: timeLeft.seconds },
+            ].map((unit, idx) => (
+              <div key={idx} className="bg-white/5 border border-white/5 rounded-2xl p-3 flex flex-col items-center">
+                <span className="text-2xl font-black font-mono tracking-tight" style={{ color: accentColor }}>
+                  {String(unit.val).padStart(2, '0')}
+                </span>
+                <span className="text-[9px] uppercase tracking-wider font-bold text-slate-400 mt-1">{unit.label}</span>
+              </div>
+            ))}
+          </div>
+        </div>
+
+        <div className="pt-4 border-t border-white/5 space-y-2">
+          <p className="text-xs text-slate-400 leading-relaxed">
+            Faltan más de 30 días para la gran fiesta. Se habilitará el muro social automáticamente 30 días antes del evento.
+          </p>
+          <p className="text-sm font-bold" style={{ color: accentColor }}>
+            Fecha del Evento: {targetDateFormatted}
+          </p>
+        </div>
+      </motion.div>
+    </div>
+  );
+}
 
 
 export default function SocialGalleryPage(props: { params: Promise<{ fiestaId: string }> }) {
@@ -552,22 +720,86 @@ export default function SocialGalleryPage(props: { params: Promise<{ fiestaId: s
   }, [params.fiestaId]);
 
 
+  const [hasBypass, setHasBypass] = useState(false);
+  useEffect(() => {
+    if (typeof window === 'undefined' || !fiesta) return;
+    const portalAuth = sessionStorage.getItem(`portal_auth_${params.fiestaId}`);
+    const clientKey = fiesta.clientPortalSettings?.accessKey;
+    if (portalAuth && clientKey && portalAuth === clientKey) {
+      setHasBypass(true);
+    }
+  }, [fiesta, params.fiestaId]);
+
   const fechaEvento = fiesta?.configuracion?.fechaEvento;
   const windowInfo = isEventInActiveWindow(fechaEvento);
   const isEventPast30Days = !windowInfo.isActive && windowInfo.phase === 'after';
+  const isEventFuture30Days = !windowInfo.isActive && windowInfo.phase === 'before';
 
   useEffect(() => {
     fetchData();
-    if (isEventPast30Days) return;
+    if (isEventPast30Days && !hasBypass) return;
     const interval = setInterval(() => {
         fetchData(false, false);
     }, 3000);
     return () => clearInterval(interval);
-  }, [fetchData, isEventPast30Days]);
+  }, [fetchData, isEventPast30Days, hasBypass]);
 
   const visiblePosts = useMemo(() => posts.filter(isPostVisibleForAudience), [posts]);
   const galleryPosts = isAdminView ? posts : visiblePosts;
   const screenPosts = visiblePosts;
+
+  const defaultAds = useMemo(() => [
+    {
+      isAd: true,
+      id: 'ad-plataforma-360',
+      title: 'Plataforma 360° Premium',
+      description: '¡Hacé que tus invitados se lleven un video espectacular en cámara lenta! Reservá la plataforma 360 de AK Producciones para tu fiesta.',
+      imageUrl: 'https://images.unsplash.com/photo-1516450360452-9312f5e86fc7?auto=format&fit=crop&w=600&q=80',
+      ctaText: 'Cotizar en mi Simulador',
+      ctaUrl: '/simulador-ak'
+    },
+    {
+      isAd: true,
+      id: 'ad-robot-led',
+      title: 'Robot LED Show',
+      description: 'Megatron y show de luces LED robotizado para hacer explotar la tanda de baile de tu evento. ¡Diversión garantizada!',
+      imageUrl: 'https://images.unsplash.com/photo-1508700115892-45ecd05ae2ad?auto=format&fit=crop&w=600&q=80',
+      ctaText: 'Ver Servicios en Simulador',
+      ctaUrl: '/simulador-ak'
+    },
+    {
+      isAd: true,
+      id: 'ad-espejo-magico',
+      title: 'Espejo Mágico de Fotos',
+      description: 'Un espejo táctil interactivo que saca fotos de cuerpo entero y las imprime al instante como souvenir premium para tus invitados.',
+      imageUrl: 'https://images.unsplash.com/photo-1541140111813-8222e9d90981?auto=format&fit=crop&w=600&q=80',
+      ctaText: 'Cotizar Souvenirs',
+      ctaUrl: '/simulador-ak'
+    },
+    {
+      isAd: true,
+      id: 'ad-pistas-led',
+      title: 'Pistas LED de Baile',
+      description: 'Pistas de baile iluminadas que cambian de color al ritmo de la música. Elevá la estética visual de tu evento al máximo.',
+      imageUrl: 'https://images.unsplash.com/photo-1470225620780-dba8ba36b745?auto=format&fit=crop&w=600&q=80',
+      ctaText: 'Diseñar mi Pista',
+      ctaUrl: '/simulador-ak'
+    }
+  ], []);
+
+  const itemsWithAds = useMemo(() => {
+    const items: any[] = [];
+    let adIndex = 0;
+    galleryPosts.forEach((post, index) => {
+      items.push(post);
+      if ((index + 1) % 4 === 0) {
+        const ad = defaultAds[adIndex % defaultAds.length];
+        items.push({ ...ad, id: `${ad.id}-${index}` });
+        adIndex++;
+      }
+    });
+    return items;
+  }, [galleryPosts, defaultAds]);
 
   useEffect(() => {
     if (projectionMode && screenPosts.length > 0) {
@@ -733,7 +965,7 @@ export default function SocialGalleryPage(props: { params: Promise<{ fiestaId: s
     };
     setChatMessages(prev => [...prev, optimisticMessage]);
     setNewChatMessage('');
-    
+
     try {
       const result = await addChatMessage(params.fiestaId, newChatMessage, authorName || 'Anónimo');
       if (!result.success) {
@@ -1076,12 +1308,14 @@ export default function SocialGalleryPage(props: { params: Promise<{ fiestaId: s
       ════════════════════════════════════════════════════════════════ */}
       {!isAdminView && (
         <>
-          {isEventPast30Days && fiesta ? (
+          {isEventPast30Days && fiesta && !hasBypass ? (
             <PostEventMemoryHub fiesta={fiesta} posts={posts} dedications={dedications} />
+          ) : isEventFuture30Days && fiesta && !hasBypass && localSettings.enabled !== true ? (
+            <SocialCountdownScreen fiesta={fiesta} accentColor={accentColor} coverUrl={localSettings.mobileControlCoverUrl} title={localSettings.title} />
           ) : (
             <>
               {/* Wall disabled by organizer */}
-              {localSettings.enabled === false && (
+              {localSettings.enabled === false && !hasBypass && (
                 <div className="min-h-screen flex flex-col items-center justify-center text-center p-8" style={{ backgroundColor: localSettings.backgroundColor || '#f1f5f9' }}>
                   <div className="text-6xl mb-4">🎉</div>
                   <h2 className="text-xl font-bold text-slate-700">El muro social no está disponible en este momento</h2>
@@ -1089,8 +1323,8 @@ export default function SocialGalleryPage(props: { params: Promise<{ fiestaId: s
                 </div>
               )}
 
-              {/* Normal guest UI — only shown when the wall is enabled */}
-              {localSettings.enabled !== false && (<>
+              {/* Normal guest UI — only shown when the wall is enabled, or if bypassed by client */}
+              {(localSettings.enabled !== false || hasBypass) && (<>
           {/* Upload dialog for guests (standalone, no trigger button needed here) */}
           <Dialog open={isUploadDialogOpen} onOpenChange={setIsUploadDialogOpen}>
             <DialogContent className="rounded-3xl border-none">
@@ -1200,7 +1434,51 @@ export default function SocialGalleryPage(props: { params: Promise<{ fiestaId: s
             </header>
 
             {/* Guest main content */}
-            <main className="flex-1 max-w-lg mx-auto w-full px-4 pb-10">
+            <div className="max-w-7xl mx-auto w-full px-4 lg:grid lg:grid-cols-[280px_1fr_280px] lg:gap-6 pt-6 flex-grow">
+
+              {/* Sidebar Izquierdo: Info del evento y cuenta regresiva/portada */}
+              <aside className="hidden lg:flex flex-col gap-4 self-start sticky top-24">
+                <Card className="rounded-3xl border-none shadow-md overflow-hidden bg-white/70 backdrop-blur-lg">
+                  {localSettings.mobileControlCoverUrl && (
+                    <div className="relative h-32 w-full">
+                      <NextImage src={localSettings.mobileControlCoverUrl} alt="Portada" fill className="object-cover blur-sm opacity-90 scale-105" />
+                      <div className="absolute inset-0 bg-slate-950/20" />
+                    </div>
+                  )}
+                  <CardContent className="p-5 space-y-4 text-slate-900">
+                    <div className="space-y-1">
+                      <p className="text-xs font-black uppercase tracking-wider text-rose-600 font-headline">Evento Privado</p>
+                      <h2 className="text-lg font-black text-slate-800 leading-tight">
+                        {localSettings.title || fiesta?.configuracion.nombreEvento}
+                      </h2>
+                    </div>
+                    <Separator className="bg-slate-100" />
+                    <div className="space-y-2.5 text-xs text-slate-600">
+                      <div className="flex justify-between">
+                        <span className="font-medium text-slate-400">Fecha:</span>
+                        <span className="font-bold">{fechaEvento ? new Date(fechaEvento).toLocaleDateString('es-ES') : '-'}</span>
+                      </div>
+                      <div className="flex justify-between">
+                        <span className="font-medium text-slate-400">Invitado:</span>
+                        <span className="font-bold truncate max-w-[120px]">{authorName || 'Anónimo'}</span>
+                      </div>
+                    </div>
+                  </CardContent>
+                </Card>
+
+                <Card className="rounded-3xl border-none shadow-md p-5 bg-white/70 backdrop-blur-lg space-y-3">
+                  <p className="text-xs font-black uppercase tracking-widest text-slate-400">¡Sumá tus fotos!</p>
+                  <p className="text-xs text-slate-500 leading-relaxed">
+                    Escaneá el código QR del evento con tu celular para subir fotos y videos directamente desde tu galería.
+                  </p>
+                  <div className="bg-white p-3 rounded-2xl flex justify-center border border-slate-100">
+                    <QRCodeStylized value={typeof window !== 'undefined' ? `${window.location.origin}/evento/social/${params.fiestaId}` : ''} size={120} />
+                  </div>
+                </Card>
+              </aside>
+
+              {/* Central Column */}
+              <main className="w-full max-w-lg mx-auto pb-10">
               <AnimatePresence mode="wait">
 
                 {/* ── Home: feature button grid ── */}
@@ -1407,20 +1685,31 @@ export default function SocialGalleryPage(props: { params: Promise<{ fiestaId: s
                       <div className="text-center py-16 text-slate-400">No hay fotos aún.</div>
                     ) : (
                       <div className="grid grid-cols-1 gap-4">
-                        {galleryPosts.map(post => (
-                          <PostCard
-                            key={post.id}
-                            post={post}
-                            onLike={handleLike}
-                            onComment={handleComment}
-                            isAdminView={false}
-                            authorName={authorName}
-                            accentColor={accentColor}
-                            allowLikes={localSettings.allowLikes !== false}
-                            allowComments={localSettings.allowComments !== false}
-                            hasLiked={likedPosts.has(post.id)}
-                          />
-                        ))}
+                        {itemsWithAds.map((item) => {
+                          if (item.isAd) {
+                            return (
+                              <AdCard
+                                key={item.id}
+                                ad={item}
+                                accentColor={accentColor}
+                              />
+                            );
+                          }
+                          return (
+                            <PostCard
+                              key={item.id}
+                              post={item}
+                              onLike={handleLike}
+                              onComment={handleComment}
+                              isAdminView={false}
+                              authorName={authorName}
+                              accentColor={accentColor}
+                              allowLikes={localSettings.allowLikes !== false}
+                              allowComments={localSettings.allowComments !== false}
+                              hasLiked={likedPosts.has(item.id)}
+                            />
+                          );
+                        })}
                       </div>
                     )}
                   </motion.div>
@@ -1463,21 +1752,21 @@ export default function SocialGalleryPage(props: { params: Promise<{ fiestaId: s
                             {localSettings.privateDedicationsMode ? "🔐 Buzón 100% Privado" : "💌 Dedicatorias"}
                           </h3>
                           <p className="text-xs text-slate-500 leading-normal">
-                            {localSettings.privateDedicationsMode 
-                              ? "Tus palabras y audios irán directo a los anfitriones de forma privada." 
+                            {localSettings.privateDedicationsMode
+                              ? "Tus palabras y audios irán directo a los anfitriones de forma privada."
                               : "Envía saludos y felicitaciones para compartir en el evento."}
                           </p>
                         </div>
                         <form onSubmit={handleDedicationSubmit} className="space-y-3">
-                          <Textarea 
-                            value={newDedication} 
-                            onChange={e => setNewDedication(e.target.value)} 
-                            placeholder={localSettings.privateDedicationsMode ? "Escribe un mensaje privado..." : "Escribe tu dedicatoria aquí..."} 
-                            rows={3} 
-                            className="rounded-2xl border-slate-200 resize-none" 
-                            disabled={isSendingDedication} 
+                          <Textarea
+                            value={newDedication}
+                            onChange={e => setNewDedication(e.target.value)}
+                            placeholder={localSettings.privateDedicationsMode ? "Escribe un mensaje privado..." : "Escribe tu dedicatoria aquí..."}
+                            rows={3}
+                            className="rounded-2xl border-slate-200 resize-none"
+                            disabled={isSendingDedication}
                           />
-                          
+
                           {/* Audio voice notes recorder */}
                           <div className="flex flex-col gap-3 p-3 bg-indigo-50/50 rounded-2xl border border-indigo-100/50">
                             <p className="text-xs font-bold text-indigo-950 flex items-center gap-1.5">
@@ -1486,20 +1775,20 @@ export default function SocialGalleryPage(props: { params: Promise<{ fiestaId: s
                             </p>
                             <div className="flex items-center gap-2">
                               {!isRecording && !audioUrl && (
-                                <Button 
-                                  type="button" 
-                                  variant="outline" 
+                                <Button
+                                  type="button"
+                                  variant="outline"
                                   onClick={startRecording}
                                   className="flex-1 h-10 rounded-xl text-xs flex items-center justify-center gap-1.5 border-indigo-200 text-indigo-700 bg-white hover:bg-indigo-50"
                                 >
                                   <Mic className="w-4 h-4" /> Empezar a grabar
                                 </Button>
                               )}
-                              
+
                               {isRecording && (
-                                <Button 
-                                  type="button" 
-                                  variant="destructive" 
+                                <Button
+                                  type="button"
+                                  variant="destructive"
                                   onClick={stopRecording}
                                   className="flex-1 h-10 rounded-xl text-xs flex items-center justify-center gap-1.5 animate-pulse"
                                 >
@@ -1511,9 +1800,9 @@ export default function SocialGalleryPage(props: { params: Promise<{ fiestaId: s
                                 <div className="flex flex-col gap-2 w-full">
                                   <audio src={audioUrl} controls className="w-full h-8" />
                                   <div className="flex gap-2">
-                                    <Button 
-                                      type="button" 
-                                      variant="outline" 
+                                    <Button
+                                      type="button"
+                                      variant="outline"
                                       onClick={cancelRecording}
                                       className="flex-1 h-8 rounded-lg text-xs"
                                     >
@@ -1526,7 +1815,7 @@ export default function SocialGalleryPage(props: { params: Promise<{ fiestaId: s
                           </div>
 
                           <Button type="submit" disabled={(!newDedication.trim() && !audioBlob) || isSendingDedication} className="w-full h-12 rounded-2xl font-bold shadow-lg transition-transform active:scale-95" style={{ backgroundColor: accentColor }}>
-                            {isSendingDedication ? <Loader2 className="w-4 h-4 mr-2 animate-spin" /> : <Send className="w-4 h-4 mr-2" />} 
+                            {isSendingDedication ? <Loader2 className="w-4 h-4 mr-2 animate-spin" /> : <Send className="w-4 h-4 mr-2" />}
                             {localSettings.privateDedicationsMode ? "Enviar mensaje privado" : "Enviar dedicatoria"}
                           </Button>
                         </form>
@@ -1773,13 +2062,48 @@ export default function SocialGalleryPage(props: { params: Promise<{ fiestaId: s
                 </div>
               </div>
             )}
+
+              {/* Sidebar Derecho: Publicidades y contacto fijo */}
+              <aside className="hidden lg:flex flex-col gap-4 self-start sticky top-24">
+                <p className="text-xs font-black uppercase tracking-widest text-slate-400 px-1">Servicios de AK Producciones</p>
+
+                {defaultAds.slice(0, 2).map((ad, idx) => (
+                  <Card key={idx} className="rounded-3xl border-none shadow-md overflow-hidden bg-white/70 backdrop-blur-lg hover:shadow-lg transition-all duration-300">
+                    <div className="relative h-28 w-full bg-slate-100">
+                      <NextImage src={ad.imageUrl} alt={ad.title} fill className="object-cover" />
+                    </div>
+                    <CardContent className="p-4 space-y-2 text-slate-900">
+                      <h4 className="font-black text-sm text-slate-800 leading-tight">{ad.title}</h4>
+                      <p className="text-[11px] text-slate-500 leading-normal">{ad.description}</p>
+                      <a href={ad.ctaUrl} className="block pt-1">
+                        <Button size="sm" className="w-full h-8 rounded-lg text-[10px] font-black uppercase tracking-wider text-white" style={{ backgroundColor: accentColor }}>
+                          {ad.ctaText}
+                        </Button>
+                      </a>
+                    </CardContent>
+                  </Card>
+                ))}
+
+                {whatsappNumber && (
+                  <Card className="rounded-3xl border-none shadow-md p-4 bg-gradient-to-tr from-slate-900 to-slate-950 text-white space-y-3">
+                    <p className="text-[10px] font-black uppercase tracking-wider text-rose-500">¿Dudas o Consultas?</p>
+                    <p className="text-xs text-slate-400 leading-normal">Contactate con nuestro equipo comercial para reservar fechas o cotizar packs promocionales.</p>
+                    <a href={`https://wa.me/${whatsappNumber}`} target="_blank" rel="noopener noreferrer" className="block">
+                      <Button size="sm" variant="outline" className="w-full h-9 rounded-xl border-white/10 bg-white/5 hover:bg-white/10 hover:text-white font-bold text-xs text-white">
+                        Escribir por WhatsApp
+                      </Button>
+                    </a>
+                  </Card>
+                )}
+              </aside>
+            </div>
           </div>
           </>
         )}
         </>
       )}
-    </>
-  )}
+      </>
+    )}
 
       {/* ── Name modal (shared) ──────────────────────────────────────── */}
       {/* ════════════════════════════════════════════════════════════════
@@ -1956,7 +2280,7 @@ export default function SocialGalleryPage(props: { params: Promise<{ fiestaId: s
                 ))}
             </AnimatePresence>
         </div>
-        
+
         {galleryPosts.length === 0 && !isLoading && (
             <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="text-center py-24 flex flex-col items-center gap-6">
                 <div className="w-24 h-24 bg-white rounded-[2.5rem] flex items-center justify-center shadow-xl shadow-slate-200">
@@ -2007,20 +2331,20 @@ export default function SocialGalleryPage(props: { params: Promise<{ fiestaId: s
                     {localSettings.privateDedicationsMode ? "🔐 Buzón 100% Privado" : <><MicVocal className="w-5 h-5" style={{ color: accentColor }} /> Dedicatorias</>}
                   </CardTitle>
                   <CardDescription>
-                    {localSettings.privateDedicationsMode 
-                      ? "Tus palabras y audios irán directo a los anfitriones de forma privada." 
+                    {localSettings.privateDedicationsMode
+                      ? "Tus palabras y audios irán directo a los anfitriones de forma privada."
                       : "Envía un mensaje para que se vea en el control del evento."}
                   </CardDescription>
                 </CardHeader>
                 <CardContent className="space-y-4">
                   <form onSubmit={handleDedicationSubmit} className="space-y-3">
-                    <Textarea 
-                      value={newDedication} 
-                      onChange={e => setNewDedication(e.target.value)} 
-                      placeholder={localSettings.privateDedicationsMode ? "Escribe un mensaje privado..." : "Escribe tu dedicatoria..."} 
-                      rows={3} 
+                    <Textarea
+                      value={newDedication}
+                      onChange={e => setNewDedication(e.target.value)}
+                      placeholder={localSettings.privateDedicationsMode ? "Escribe un mensaje privado..." : "Escribe tu dedicatoria..."}
+                      rows={3}
                     />
-                    
+
                     {/* Audio voice notes recorder */}
                     <div className="flex flex-col gap-3 p-3 bg-indigo-50/50 rounded-2xl border border-indigo-100/50">
                       <p className="text-xs font-bold text-indigo-950 flex items-center gap-1.5">
@@ -2029,20 +2353,20 @@ export default function SocialGalleryPage(props: { params: Promise<{ fiestaId: s
                       </p>
                       <div className="flex items-center gap-2">
                         {!isRecording && !audioUrl && (
-                          <Button 
-                            type="button" 
-                            variant="outline" 
+                          <Button
+                            type="button"
+                            variant="outline"
                             onClick={startRecording}
                             className="flex-1 h-10 rounded-xl text-xs flex items-center justify-center gap-1.5 border-indigo-200 text-indigo-700 bg-white hover:bg-indigo-50"
                           >
                             <Mic className="w-4 h-4" /> Empezar a grabar
                           </Button>
                         )}
-                        
+
                         {isRecording && (
-                          <Button 
-                            type="button" 
-                            variant="destructive" 
+                          <Button
+                            type="button"
+                            variant="destructive"
                             onClick={stopRecording}
                             className="flex-1 h-10 rounded-xl text-xs flex items-center justify-center gap-1.5 animate-pulse"
                           >
@@ -2054,9 +2378,9 @@ export default function SocialGalleryPage(props: { params: Promise<{ fiestaId: s
                           <div className="flex flex-col gap-2 w-full">
                             <audio src={audioUrl} controls className="w-full h-8" />
                             <div className="flex gap-2">
-                              <Button 
-                                type="button" 
-                                variant="outline" 
+                              <Button
+                                type="button"
+                                variant="outline"
                                 onClick={cancelRecording}
                                 className="flex-1 h-8 rounded-lg text-xs"
                               >
@@ -2069,7 +2393,7 @@ export default function SocialGalleryPage(props: { params: Promise<{ fiestaId: s
                     </div>
 
                     <Button type="submit" disabled={(!newDedication.trim() && !audioBlob) || isSendingDedication} className="w-full h-10 rounded-xl font-bold flex items-center justify-center gap-2" style={{ backgroundColor: accentColor }}>
-                      <Send className="w-4 h-4" /> 
+                      <Send className="w-4 h-4" />
                       {localSettings.privateDedicationsMode ? "Enviar mensaje privado" : "Enviar dedicatoria"}
                     </Button>
                   </form>
@@ -2176,7 +2500,7 @@ export default function SocialGalleryPage(props: { params: Promise<{ fiestaId: s
         )}
 
 
-        
+
         {localSettings.chatEnabled !== false && (
             <Card className="shadow-2xl border-none rounded-[1.5rem] overflow-hidden bg-white/90 backdrop-blur-md max-w-lg mx-auto">
                 <CardHeader className="p-4 border-b border-slate-100 flex flex-row items-center gap-3">
@@ -2213,7 +2537,8 @@ export default function SocialGalleryPage(props: { params: Promise<{ fiestaId: s
             </Card>
         )}
       </main>
-      
+
+
       {projectionMode && (
         <div className="fixed inset-0 bg-black z-50 flex flex-col md:flex-row p-4 gap-4">
             <Button onClick={() => setProjectionMode(false)} variant="ghost" size="icon" className="absolute top-4 right-4 z-50 bg-black/50 hover:bg-black/80 text-white hover:text-white h-10 w-10"><X className="w-6 h-6"/></Button>

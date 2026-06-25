@@ -19,6 +19,8 @@ import {
 import type { CatalogoSettings, PresentacionLedSettings } from '@/types/contenido-publico';
 import { useAutoSave } from '@/hooks/use-auto-save';
 import { AutoSaveIndicator } from '@/components/ui/auto-save-indicator';
+import { getBlogPosts, saveBlogPost, deleteBlogPost } from '@/app/actions/blog';
+import type { BlogPost, BlogCategory } from '@/types/blog';
 
 const CATALOG_TYPES = ['bodas', 'xv-anos', 'cumpleanos', 'fiestas', 'corporativos', 'aniversarios'];
 
@@ -37,6 +39,75 @@ export default function ContenidoPublicoSettingsPage() {
   const [tipoCatalogo, setTipoCatalogo] = useState('bodas');
   const [presentacion, setPresentacion] = useState<PresentacionLedSettings | null>(null);
   const [catalogo, setCatalogo] = useState<CatalogoSettings | null>(null);
+  const [blogPosts, setBlogPosts] = useState<BlogPost[]>([]);
+  const [editingPost, setEditingPost] = useState<BlogPost | null>(null);
+  const [blogActionLoading, setBlogActionLoading] = useState(false);
+
+  const loadBlog = async () => {
+    try {
+      const posts = await getBlogPosts();
+      setBlogPosts(posts);
+    } catch {
+      toast({ title: 'Error', description: 'No se pudieron cargar los artículos del blog.', variant: 'destructive' });
+    }
+  };
+
+  const handleSavePost = async (post: BlogPost) => {
+    setBlogActionLoading(true);
+    try {
+      const res = await saveBlogPost(post);
+      if (res.success) {
+        toast({ title: 'Éxito', description: 'Artículo guardado correctamente.' });
+        setEditingPost(null);
+        await loadBlog();
+      } else {
+        toast({ title: 'Error', description: res.error || 'No se pudo guardar el artículo.', variant: 'destructive' });
+      }
+    } catch {
+      toast({ title: 'Error', description: 'Error al conectar con el servidor.', variant: 'destructive' });
+    } finally {
+      setBlogActionLoading(false);
+    }
+  };
+
+  const handleDeletePost = async (slug: string) => {
+    if (!confirm('¿Estás seguro de que querés eliminar este artículo?')) return;
+    setBlogActionLoading(true);
+    try {
+      const res = await deleteBlogPost(slug);
+      if (res.success) {
+        toast({ title: 'Éxito', description: 'Artículo eliminado correctamente.' });
+        if (editingPost?.slug === slug) setEditingPost(null);
+        await loadBlog();
+      } else {
+        toast({ title: 'Error', description: res.error || 'No se pudo eliminar el artículo.', variant: 'destructive' });
+      }
+    } catch {
+      toast({ title: 'Error', description: 'Error al conectar con el servidor.', variant: 'destructive' });
+    } finally {
+      setBlogActionLoading(false);
+    }
+  };
+
+  const handleNewPost = () => {
+    setEditingPost({
+      slug: '',
+      title: '',
+      excerpt: '',
+      category: 'Organizacion',
+      readTime: '5 min',
+      publishedAt: new Date().toISOString().split('T')[0],
+      accent: 'from-purple-700 to-slate-950',
+      icon: 'BookOpen',
+      takeaway: '',
+      sections: [{ heading: '', body: [''] }],
+      checklist: [''],
+    });
+  };
+
+  useEffect(() => {
+    loadBlog();
+  }, [toast]);
 
   useEffect(() => {
     const load = async () => {
@@ -190,6 +261,252 @@ export default function ContenidoPublicoSettingsPage() {
             ))}
             <Button type="button" variant="outline" onClick={() => setCatalogo((c) => c ? ({ ...c, galeria: [...c.galeria, { url: '', alt: '' }] }) : c)}><PlusCircle className="w-4 h-4 mr-2" />Agregar foto</Button>
           </div>
+        </CardContent>
+      </Card>
+
+      <Card>
+        <CardHeader className="flex flex-row items-center justify-between">
+          <div>
+            <CardTitle>Blog Corporativo</CardTitle>
+            <CardDescription>Publicá y editá artículos de valor para tus clientes.</CardDescription>
+          </div>
+          <Button onClick={handleNewPost} variant="outline" size="sm">
+            <PlusCircle className="w-4 h-4 mr-2" />
+            Nuevo artículo
+          </Button>
+        </CardHeader>
+        <CardContent className="space-y-6">
+          {/* List of articles */}
+          <div className="border rounded-lg divide-y bg-slate-50/50">
+            {blogPosts.map((post) => (
+              <div key={post.slug} className="p-4 flex items-center justify-between gap-4">
+                <div>
+                  <h4 className="font-bold text-slate-900">{post.title}</h4>
+                  <p className="text-xs text-muted-foreground">
+                    URL: /public/blog/{post.slug} | Categoría: <span className="font-semibold">{post.category}</span>
+                  </p>
+                </div>
+                <div className="flex items-center gap-2">
+                  <Button onClick={() => setEditingPost(post)} variant="outline" size="sm">
+                    Editar
+                  </Button>
+                  <Button onClick={() => handleDeletePost(post.slug)} variant="destructive" size="icon">
+                    <Trash2 className="w-4 h-4" />
+                  </Button>
+                </div>
+              </div>
+            ))}
+            {blogPosts.length === 0 && (
+              <div className="p-6 text-center text-sm text-muted-foreground">
+                No hay artículos de blog creados. Hacé clic en "Nuevo artículo" para comenzar.
+              </div>
+            )}
+          </div>
+
+          {/* Post editor form */}
+          {editingPost && (
+            <div className="border p-6 rounded-2xl bg-white space-y-6 shadow-sm">
+              <h3 className="text-lg font-bold text-slate-950">
+                {editingPost.slug ? 'Editar Artículo' : 'Nuevo Artículo'}
+              </h3>
+
+              <div className="grid md:grid-cols-2 gap-4">
+                <div className="space-y-2">
+                  <Label>Título del Artículo</Label>
+                  <Input
+                    value={editingPost.title}
+                    onChange={(e) => setEditingPost({ ...editingPost, title: e.target.value })}
+                    placeholder="Ej: Cómo elegir el menú para tu boda"
+                  />
+                </div>
+                <div className="space-y-2">
+                  <Label>Slug de la URL (único)</Label>
+                  <Input
+                    value={editingPost.slug}
+                    onChange={(e) => setEditingPost({ ...editingPost, slug: e.target.value.toLowerCase().replace(/[^a-z0-9-]/g, '-') })}
+                    placeholder="ej-como-elegir-el-menu"
+                    disabled={!!blogPosts.find(p => p.slug === editingPost.slug) && editingPost.slug !== (blogPosts.find(p => p.slug === editingPost.slug)?.slug || '')}
+                  />
+                </div>
+                <div className="space-y-2">
+                  <Label>Categoría</Label>
+                  <Select
+                    value={editingPost.category}
+                    onValueChange={(val: BlogCategory) => setEditingPost({ ...editingPost, category: val })}
+                  >
+                    <SelectTrigger><SelectValue /></SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="Organizacion">Organización</SelectItem>
+                      <SelectItem value="Presupuesto">Presupuesto</SelectItem>
+                      <SelectItem value="Catering">Catering</SelectItem>
+                      <SelectItem value="XV anos">XV años</SelectItem>
+                      <SelectItem value="Bodas">Bodas</SelectItem>
+                      <SelectItem value="Checklists">Checklists</SelectItem>
+                    </SelectContent>
+                  </Select>
+                </div>
+                <div className="space-y-2">
+                  <Label>Tiempo de lectura</Label>
+                  <Input
+                    value={editingPost.readTime}
+                    onChange={(e) => setEditingPost({ ...editingPost, readTime: e.target.value })}
+                    placeholder="Ej: 5 min"
+                  />
+                </div>
+                <div className="space-y-2">
+                  <Label>Color de acento (Tailwind Gradient)</Label>
+                  <Input
+                    value={editingPost.accent}
+                    onChange={(e) => setEditingPost({ ...editingPost, accent: e.target.value })}
+                    placeholder="from-purple-700 to-slate-950"
+                  />
+                </div>
+                <div className="space-y-2">
+                  <Label>Icono (Nombre de icono Lucide)</Label>
+                  <Input
+                    value={editingPost.icon}
+                    onChange={(e) => setEditingPost({ ...editingPost, icon: e.target.value })}
+                    placeholder="CalendarCheck, Utensils, Heart, BookOpen..."
+                  />
+                </div>
+                <div className="space-y-2 md:col-span-2">
+                  <Label>Resumen (Excerpt)</Label>
+                  <Textarea
+                    value={editingPost.excerpt}
+                    onChange={(e) => setEditingPost({ ...editingPost, excerpt: e.target.value })}
+                    placeholder="Breve introducción del artículo..."
+                  />
+                </div>
+                <div className="space-y-2 md:col-span-2">
+                  <Label>Conclusión clave (Takeaway)</Label>
+                  <Textarea
+                    value={editingPost.takeaway}
+                    onChange={(e) => setEditingPost({ ...editingPost, takeaway: e.target.value })}
+                    placeholder="Idea central o consejo clave..."
+                  />
+                </div>
+              </div>
+
+              {/* Sections */}
+              <div className="space-y-4 border-t pt-4">
+                <div className="flex items-center justify-between">
+                  <Label className="text-base font-semibold text-slate-800">Secciones de Contenido</Label>
+                  <Button
+                    type="button"
+                    variant="outline"
+                    size="sm"
+                    onClick={() => setEditingPost({
+                      ...editingPost,
+                      sections: [...(editingPost.sections || []), { heading: '', body: [''] }]
+                    })}
+                  >
+                    <PlusCircle className="w-4 h-4 mr-2" /> Agregar sección
+                  </Button>
+                </div>
+
+                {(editingPost.sections || []).map((sec, sIdx) => (
+                  <div key={sIdx} className="p-4 border rounded-xl bg-slate-50 space-y-3 relative">
+                    <Button
+                      type="button"
+                      variant="destructive"
+                      size="icon"
+                      className="absolute top-2 right-2 h-7 w-7"
+                      onClick={() => setEditingPost({
+                        ...editingPost,
+                        sections: editingPost.sections.filter((_, i) => i !== sIdx)
+                      })}
+                    >
+                      <Trash2 className="w-4 h-4" />
+                    </Button>
+                    <div className="space-y-2 pr-8">
+                      <Label>Subtítulo de la Sección</Label>
+                      <Input
+                        value={sec.heading}
+                        onChange={(e) => setEditingPost({
+                          ...editingPost,
+                          sections: editingPost.sections.map((s, i) => i === sIdx ? { ...s, heading: e.target.value } : s)
+                        })}
+                        placeholder="Ej: Empezar con un plan claro"
+                      />
+                    </div>
+                    <div className="space-y-2">
+                      <Label>Cuerpo de la Sección (Párrafos, uno por línea)</Label>
+                      <Textarea
+                        value={sec.body.join('\n')}
+                        onChange={(e) => setEditingPost({
+                          ...editingPost,
+                          sections: editingPost.sections.map((s, i) => i === sIdx ? { ...s, body: e.target.value.split('\n').filter(Boolean) } : s)
+                        })}
+                        rows={4}
+                        placeholder="Escribí los párrafos. Cada salto de línea creará un párrafo separado..."
+                      />
+                    </div>
+                  </div>
+                ))}
+              </div>
+
+              {/* Checklist */}
+              <div className="space-y-3 border-t pt-4">
+                <div className="flex items-center justify-between">
+                  <Label className="text-base font-semibold text-slate-800">Checklist recomendada</Label>
+                  <Button
+                    type="button"
+                    variant="outline"
+                    size="sm"
+                    onClick={() => setEditingPost({
+                      ...editingPost,
+                      checklist: [...(editingPost.checklist || []), '']
+                    })}
+                  >
+                    <PlusCircle className="w-4 h-4 mr-2" /> Agregar ítem
+                  </Button>
+                </div>
+
+                {(editingPost.checklist || []).map((item, cIdx) => (
+                  <div key={cIdx} className="flex gap-2 items-center">
+                    <Input
+                      value={item}
+                      onChange={(e) => setEditingPost({
+                        ...editingPost,
+                        checklist: editingPost.checklist?.map((x, i) => i === cIdx ? e.target.value : x)
+                      })}
+                      placeholder="Ej: Definir la cantidad de invitados"
+                    />
+                    <Button
+                      type="button"
+                      variant="destructive"
+                      size="icon"
+                      onClick={() => setEditingPost({
+                        ...editingPost,
+                        checklist: editingPost.checklist?.filter((_, i) => i !== cIdx)
+                      })}
+                    >
+                      <Trash2 className="w-4 h-4" />
+                    </Button>
+                  </div>
+                ))}
+              </div>
+
+              {/* Editor buttons */}
+              <div className="flex justify-end gap-3 pt-4 border-t">
+                <Button
+                  onClick={() => setEditingPost(null)}
+                  variant="outline"
+                  disabled={blogActionLoading}
+                >
+                  Cancelar
+                </Button>
+                <Button
+                  onClick={() => handleSavePost(editingPost)}
+                  disabled={blogActionLoading || !editingPost.title || !editingPost.slug}
+                  className="min-w-32"
+                >
+                  {blogActionLoading ? <Loader2 className="w-4 h-4 mr-2 animate-spin" /> : <Save className="w-4 h-4 mr-2" />}
+                  Guardar
+                </Button>
+              </div>
+            </div>
+          )}
         </CardContent>
       </Card>
 

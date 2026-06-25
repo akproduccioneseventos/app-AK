@@ -361,6 +361,28 @@ function GuestPortalContent() {
             )}
           </div>
 
+          {/* ðŸ“¸ Red Social de la Fiesta Banner */}
+          {gps.showMural !== false && (
+            <motion.a
+              href={`/evento/social/${fiestaId}`}
+              whileHover={{ scale: 1.02 }}
+              whileTap={{ scale: 0.98 }}
+              className="mt-5 w-full max-w-sm flex items-center gap-4 p-4 rounded-3xl bg-gradient-to-r from-pink-600 via-rose-500 to-amber-500 text-white border border-white/10 shadow-xl relative overflow-hidden group"
+            >
+              <div className="absolute -right-4 -bottom-4 w-24 h-24 bg-white/10 rounded-full blur-xl group-hover:scale-120 transition-transform duration-500" />
+              <div className="w-12 h-12 rounded-2xl bg-white/10 backdrop-blur-md flex items-center justify-center text-2xl shrink-0 shadow-inner">
+                📷
+              </div>
+              <div className="text-left min-w-0">
+                <p className="font-black text-sm uppercase tracking-wide font-headline">Red Social de la Fiesta</p>
+                <p className="text-[11px] text-white/80 mt-0.5 leading-normal">
+                  Chatea, pide canciones y sube fotos/videos en tiempo real.
+                </p>
+              </div>
+              <span className="ml-auto text-lg shrink-0 font-bold">âžœ</span>
+            </motion.a>
+          )}
+
           {/* 🎉 Zona Digital AK */}
           <div className="mt-6 w-full max-w-sm">
             <p className="text-xs font-bold uppercase tracking-widest text-zinc-300 mb-3">🎉 Zona Digital AK</p>
@@ -374,8 +396,8 @@ function GuestPortalContent() {
                 <span className="text-xs font-black uppercase tracking-wide text-center">Hub del Evento</span>
               </a>
               <a href={`/evento/social/${fiestaId}`} className={`flex flex-col items-center justify-center gap-1.5 p-3 rounded-2xl bg-gradient-to-br from-pink-600 to-rose-500 text-white shadow-lg hover:scale-105 transition-transform border border-white/10 ${gps.showBuzon !== false ? '' : 'col-span-2 flex-row gap-2'}`}>
-                <span className="text-2xl">🎬</span>
-                <span className={`${gps.showBuzon !== false ? 'text-xs' : 'text-sm'} font-black uppercase tracking-wide text-center`}>Mural en Vivo</span>
+                <span className="text-2xl">📱</span>
+                <span className={`${gps.showBuzon !== false ? 'text-xs' : 'text-sm'} font-black uppercase tracking-wide text-center`}>Red Social</span>
               </a>
               {gps.showBuzon !== false && (
                 <a href={`/evento/buzon/${fiestaId}`} className="flex flex-col items-center justify-center gap-1.5 p-3 rounded-2xl bg-gradient-to-br from-violet-600 to-fuchsia-600 text-white shadow-lg hover:scale-105 transition-transform border border-white/10">

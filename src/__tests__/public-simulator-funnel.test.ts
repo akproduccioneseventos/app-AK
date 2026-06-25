@@ -12,7 +12,7 @@ describe('public simulator sales funnel', () => {
   );
 
   it('uses a five-step public funnel with a separate commercial entry', () => {
-    expect(source).toContain("const STEP_LABELS = ['Contacto', 'Evento', 'Menú', 'Paquete', 'Resumen']");
+    expect(source).toContain("const STEP_LABELS = ['Presentación', 'Datos', 'Menú', 'Paquete', 'Edición']");
     expect(source).toContain('const [hasStarted, setHasStarted] = useState(false)');
     expect(source).toContain('Paso {step} de 5');
   });
