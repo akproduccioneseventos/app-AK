@@ -16,6 +16,7 @@ import { CommercialJourneySection } from '@/components/landing/CommercialJourney
 import { PublicFooter } from '@/components/public-footer';
 import { BlogSection } from '@/components/landing/BlogSection';
 import { FloatingActions } from '@/components/public/FloatingActions';
+import { SalonDestacadoSection } from '@/components/landing/SalonDestacadoSection';
 import { getPromoActiva } from '@/app/actions/promos';
 import { getGaleriaItems } from '@/app/actions/galeria';
 import { getLandingSettings } from '@/app/actions/landing-editor';
@@ -180,6 +181,7 @@ export default async function HomePage({ searchParams }: LandingPageProps) {
       <CommercialJourneySection attribution={attribution} whatsappNumber={whatsapp} />
       <ServicesSection whatsappNumber={whatsapp} services={servicesForLanding} />
       <TechnologyExperienceSection whatsappNumber={whatsapp} />
+      <SalonDestacadoSection />
       <AkTeamStorySection />
       <ProcessSection />
       <GallerySection galeriaFotos={fotosCombinadas} />

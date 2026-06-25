@@ -22,8 +22,10 @@ export function LandingNav({ whatsappNumber = '59899123456' }: LandingNavProps) 
     const handleScroll = () => setIsScrolled(window.scrollY > 20);
     window.addEventListener('scroll', handleScroll, { passive: true });
     return () => window.removeEventListener('scroll', handleScroll);
-  }, []);  const navLinks = [
+  }, []);
+  const navLinks = [
     { label: 'Servicios', href: '#servicios', isExternal: false },
+    { label: 'Club Uruguay', href: '/club-uruguay', isExternal: true },
     { label: 'Galería', href: '#galeria', isExternal: false },
     { label: 'Videos', href: '#videos', isExternal: false },
     { label: 'Testimonios', href: '#testimonios', isExternal: false },
@@ -55,7 +57,7 @@ export function LandingNav({ whatsappNumber = '59899123456' }: LandingNavProps) 
           </Link>
 
           <nav className="hidden md:flex items-center gap-2 rounded-2xl border border-white/10 bg-white/10 px-2 py-1 backdrop-blur-md">
-            {navLinks.map((link) => 
+            {navLinks.map((link) =>
               link.isExternal ? (
                 <Link
                   key={link.href}
@@ -125,7 +127,7 @@ export function LandingNav({ whatsappNumber = '59899123456' }: LandingNavProps) 
       {isMenuOpen && (
         <div className="md:hidden bg-white border-b border-slate-200 shadow-xl">
           <div className="px-4 py-4 space-y-2">
-            {navLinks.map((link) => 
+            {navLinks.map((link) =>
               link.isExternal ? (
                 <Link
                   key={link.href}
