@@ -18,8 +18,11 @@ const COMPANY_ADDRESS_LINE2 = '50000 Salto';
 const COMPANY_EMAIL = 'akproduccionessalto@gmail.com';
 const COMPANY_WEBSITE = 'www.akproduccioneseventos.com';
 const BUDGET_VALIDITY_DAYS = 30;
-const FORMAL_BOOKING_NOTE =
-  'El presupuesto es válido por 30 días. La reserva de la fecha se realiza mediante una seña correspondiente al 30% del total final ({SEÑA}). Los eventos programados para años posteriores al vigente tendrán un ajuste anual proyectado del 15% de acuerdo a lo establecido en el contrato.';
+const BOOKING_NOTE_WITH_ADJUSTMENT =
+  'El presupuesto es válido por 30 días para mantener el precio de la promoción y los regalos incluidos. La reserva de la fecha y de los servicios se realiza con una seña de $ 5.000. Los eventos programados para años posteriores al vigente tendrán un ajuste anual proyectado del 15% de acuerdo a lo establecido en el contrato.';
+
+const BOOKING_NOTE_CURRENT_YEAR =
+  'El presupuesto es válido por 30 días para mantener el precio de la promoción y los regalos incluidos. La reserva de la fecha y de los servicios se realiza con una seña de $ 5.000. El precio total mostrado corresponde al precio vigente del corriente año.';
 
 // ── Helpers ───────────────────────────────────────────────────────────────────
 function formatCurrency(amount?: number): string {
@@ -563,7 +566,9 @@ export default function BudgetDocument({
         {/* Footer */}
         <footer className="mt-6 pt-4 border-t border-slate-300 text-xs print:text-[8pt] text-slate-500 space-y-3">
           <p className="font-semibold text-slate-700 print:text-black">
-            {FORMAL_BOOKING_NOTE.replace('{SEÑA}', formatCurrency(totalFinal * 0.3))}
+            {presupuesto.ajusteAnualActivo || projectionRows.length > 0
+              ? BOOKING_NOTE_WITH_ADJUSTMENT
+              : BOOKING_NOTE_CURRENT_YEAR}
           </p>
 
           {showSignatures ? (

@@ -862,7 +862,7 @@ function SimuladorContent() {
             `Armé mi presupuesto formal para un ${eventoTipo} el ${eventDateLabel}.`,
             `Total vigente: ${formatCurrency(stats.totalFinal)}`,
             stats.precioPorPersona > 0 ? `Valor por persona: ${formatCurrency(stats.precioPorPersona)}` : '',
-            `Quiero solicitar la reserva de la fecha y conocer las condiciones de la seña del 30% (${formatCurrency(stats.totalFinal * 0.3)}).`,
+            `Quiero solicitar la reserva de la fecha y conocer las condiciones de la seña de $5.000.`,
             `Ver presupuesto: ${url}`,
         ].filter(Boolean).join('\n');
         const destination = toWhatsAppNumber(whatsappNumber);
@@ -1244,7 +1244,7 @@ function SimuladorContent() {
                                         <p className="text-sm font-black uppercase text-amber-900 tracking-wider">¡Asegurá tu Bonificación Especial del {stats.discountPercentage}%!</p>
                                     </div>
                                     <p className="text-xs text-slate-600 font-bold leading-relaxed">
-                                        Congelá los precios vigentes y tu descuento señando con el 30% ({formatCurrency(stats.totalFinal * 0.3)}) antes de que expire la reserva.
+                                        Congelá los precios vigentes y tu descuento señando con $5.000 antes de que expire la reserva.
                                     </p>
                                     <div className="text-3xl font-black text-amber-600 font-mono tracking-widest bg-white/80 py-2 rounded-xl inline-block px-5 border">
                                         {formatTime(timeLeft)}
@@ -1466,7 +1466,11 @@ function SimuladorContent() {
                             <div className="bg-blue-50 p-6 rounded-3xl border border-blue-100 w-full">
                                 <h4 className="text-[10px] font-black uppercase text-blue-800 tracking-widest mb-2 flex items-center gap-2"><Info className="w-4 h-4"/> Condiciones de Reserva</h4>
                                 <p className="text-xs text-blue-800 leading-relaxed font-semibold">
-                                    Con una seña del 30% ({formatCurrency(stats.totalFinal * 0.3)}) podés solicitar la reserva de la fecha. La confirmación de disponibilidad, los precios aplicables y las condiciones finales quedan establecidas en el contrato.
+                                    {stats.annualProjection.applies ? (
+                                        <>Con una seña de $5.000 podés solicitar la reserva de la fecha y del servicio. El presupuesto es válido por 30 días para mantener el precio de la promoción y los regalos incluidos. Los eventos programados para años posteriores al vigente tendrán un ajuste anual proyectado del 15% de acuerdo a lo establecido en el contrato.</>
+                                    ) : (
+                                        <>Con una seña de $5.000 podés solicitar la reserva de la fecha y del servicio. El presupuesto es válido por 30 días para mantener el precio de la promoción y los regalos incluidos. El precio total mostrado corresponde al precio vigente del corriente año.</>
+                                    )}
                                 </p>
                                 {budgetSettings.bookingTerms && (
                                     <p className="mt-2 text-xs text-blue-700 leading-relaxed">{budgetSettings.bookingTerms}</p>
