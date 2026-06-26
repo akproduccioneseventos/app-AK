@@ -71,15 +71,15 @@ export function buildInvitacionConfigFromFiesta(
   return {
     ...defaultInvitacionConfig,
     ...existing,
-    nombreHomenajeada: existing?.nombreHomenajeada || config.protagonista1Nombre || config.nombreEvento || '',
-    nombreHomenajeado2: existing?.nombreHomenajeado2 ?? config.protagonista2Nombre ?? '',
+    nombreHomenajeada: config.protagonista1Nombre || existing?.nombreHomenajeada || config.nombreEvento || '',
+    nombreHomenajeado2: config.protagonista2Nombre ?? existing?.nombreHomenajeado2 ?? '',
     tipoEvento: existing?.tipoEvento || tipoMap[config.tipoCelebracion || ''] || 'otro',
-    fechaEvento: existing?.fechaEvento || config.fechaEvento || '',
-    horaEvento: existing?.horaEvento || config.horaInicio || '',
-    nombreSalon: existing?.nombreSalon || config.nombreLugar || '',
-    direccionSalon: existing?.direccionSalon || config.direccionLugar || '',
-    linkMaps: existing?.linkMaps || config.googleMapsUrl || '',
-    colorPrincipal: existing?.colorPrincipal || config.primaryColor || defaultInvitacionConfig.colorPrincipal,
+    fechaEvento: config.fechaEvento || existing?.fechaEvento || '',
+    horaEvento: config.horaInicio || existing?.horaEvento || '',
+    nombreSalon: config.nombreLugar || existing?.nombreSalon || '',
+    direccionSalon: config.direccionLugar || existing?.direccionSalon || '',
+    linkMaps: config.googleMapsUrl || existing?.linkMaps || '',
+    colorPrincipal: config.primaryColor || existing?.colorPrincipal || defaultInvitacionConfig.colorPrincipal,
   };
 }
 
