@@ -19,7 +19,7 @@ const COMPANY_EMAIL = 'akproduccionessalto@gmail.com';
 const COMPANY_WEBSITE = 'www.akproduccioneseventos.com';
 const BUDGET_VALIDITY_DAYS = 30;
 const FORMAL_BOOKING_NOTE =
-  'El presupuesto es valido por 30 dias. Durante este mes podes reservar la fecha con una sena de $ 5.000; la contratacion final se confirma con el contrato correspondiente.';
+  'El presupuesto es válido por 30 días. La reserva de la fecha se realiza mediante una seña correspondiente al 30% del total final ({SEÑA}). Los eventos programados para años posteriores al vigente tendrán un ajuste anual proyectado del 15% de acuerdo a lo establecido en el contrato.';
 
 // ── Helpers ───────────────────────────────────────────────────────────────────
 function formatCurrency(amount?: number): string {
@@ -563,7 +563,7 @@ export default function BudgetDocument({
         {/* Footer */}
         <footer className="mt-6 pt-4 border-t border-slate-300 text-xs print:text-[8pt] text-slate-500 space-y-3">
           <p className="font-semibold text-slate-700 print:text-black">
-            {FORMAL_BOOKING_NOTE.replace('$ 5.000', formatCurrency(bookingDepositAmount))}
+            {FORMAL_BOOKING_NOTE.replace('{SEÑA}', formatCurrency(totalFinal * 0.3))}
           </p>
 
           {showSignatures ? (
@@ -602,7 +602,7 @@ export default function BudgetDocument({
         @media print {
           @page {
             size: A4 portrait;
-            margin: 1.5cm 1cm;
+            margin: 1cm;
           }
           body {
             background: white !important;
@@ -622,6 +622,15 @@ export default function BudgetDocument({
             border: none !important;
             padding: 0 !important;
             box-shadow: none !important;
+            font-size: 8.5pt !important;
+            line-height: 1.25 !important;
+          }
+          .budget-formal-print-template table {
+            font-size: 8pt !important;
+          }
+          .budget-formal-print-template th,
+          .budget-formal-print-template td {
+            padding: 4px 6px !important;
           }
           .budget-formal-print-template section,
           .budget-print-avoid-break,

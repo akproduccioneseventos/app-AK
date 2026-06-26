@@ -485,6 +485,106 @@ function SimuladorContent() {
         });
     }, [adultos, ninosYAdolescentes]);
 
+    const suggestedServices = useMemo(() => {
+        if (!config || !selectedPaqueteId) return [];
+        const currentPackage = config.paquetes.find(p => p.id === selectedPaqueteId);
+        const otherPackages = config.paquetes.filter(p => p.id !== selectedPaqueteId);
+        
+        const otherServicesIds = new Set<string>();
+        otherPackages.forEach(p => {
+            p.serviciosIncluidos?.forEach(s => otherServicesIds.add(s.id));
+        });
+        
+        if (currentPackage) {
+            currentPackage.serviciosIncluidos?.forEach(s => otherServicesIds.delete(s.id));
+        }
+        
+        const currentSelectedIds = new Set([
+            ...Array.from(formData.serviciosSeleccionados.keys()),
+            ...selectedEntradas,
+            ...(selectedPrincipal ? [selectedPrincipal] : []),
+            ...(selectedInfantil ? [selectedInfantil] : []),
+        ]);
+        
+        currentSelectedIds.forEach(id => otherServicesIds.delete(id));
+        
+        const suggested = serviciosCatalogo.filter(s => otherServicesIds.has(s.id));
+        
+        if (suggested.length < 3) {
+            const popularIds = ['serv_barra_tragos', 'serv_pista_led', 'serv_plataforma_360', 'serv_cabina_fotos'];
+            popularIds.forEach(id => {
+                if (!currentSelectedIds.has(id) && !suggested.some(s => s.id === id)) {
+                    const serv = serviciosCatalogo.find(s => s.id === id);
+                    if (serv) suggested.push(serv);
+                }
+            });
+        }
+        
+        return suggested.slice(0, 4);
+    }, [config, selectedPaqueteId, serviciosCatalogo, selectedEntradas, selectedPrincipal, selectedInfantil, formData.serviciosSeleccionados]);
+
+    const handleToggleServiceInBudget = useCallback((serviceId: string, action: 'include' | 'exclude') => {
+        const packageItem = config?.paquetes.find(p => p.id === selectedPaqueteId);
+        const isFromPackage = packageItem?.serviciosIncluidos.some(s => s.id === serviceId);
+
+        if (action === 'exclude') {
+            if (isFromPackage) {
+                if (!excludedPackageServiceIds.includes(serviceId)) {
+                    setExcludedPackageServiceIds(prev => [...prev, serviceId]);
+                }
+            } else {
+                if (formData.serviciosSeleccionados.has(serviceId)) {
+                    setFormData(prev => {
+                        const newMap = new Map(prev.serviciosSeleccionados);
+                        newMap.delete(serviceId);
+                        return { ...prev, serviciosSeleccionados: newMap };
+                    });
+                }
+                if (selectedEntradas.includes(serviceId)) {
+                    setSelectedEntradas(prev => prev.filter(id => id !== serviceId));
+                }
+                if (selectedPrincipal === serviceId) {
+                    setSelectedPrincipal('');
+                }
+                if (selectedInfantil === serviceId) {
+                    setSelectedInfantil('');
+                }
+            }
+        } else { // 'include'
+            if (isFromPackage) {
+                setExcludedPackageServiceIds(prev => prev.filter(id => id !== serviceId));
+            } else {
+                const service = allSimuladorServices.find(s => s.id === serviceId);
+                if (service) {
+                    if (service.subcategoria === 'Entrada') {
+                        if (selectedEntradas.length < maxEntradas) {
+                            setSelectedEntradas(prev => [...prev, serviceId]);
+                        }
+                    } else if (service.subcategoria === 'Plato Principal') {
+                        setSelectedPrincipal(serviceId);
+                    } else if (service.subcategoria === 'Menú Infantil/Adolescente' || service.subcategoria === 'Menú Infantil') {
+                        setSelectedInfantil(serviceId);
+                    } else {
+                        setFormData(prev => {
+                            const newMap = new Map(prev.serviciosSeleccionados);
+                            newMap.set(serviceId, {
+                                cantidad: adultos + ninosYAdolescentes,
+                                precioUnitarioOriginal: service.precioPorPersona || service.precioVenta || 0,
+                                precioUnitarioPresupuesto: service.precioPorPersona || service.precioVenta || 0,
+                                nombreServicio: service.nombre,
+                                esRegalo: false,
+                                calculationMethod: service.calculationMethod,
+                                categoriaServicio: service.categoria,
+                                subcategoria: service.subcategoria,
+                            });
+                            return { ...prev, serviciosSeleccionados: newMap };
+                        });
+                    }
+                }
+            }
+        }
+    }, [config, selectedPaqueteId, excludedPackageServiceIds, formData.serviciosSeleccionados, selectedEntradas, selectedPrincipal, selectedInfantil, allSimuladorServices, adultos, ninosYAdolescentes, maxEntradas]);
+
     const stats = useMemo(() => {
         const pricingConfig = config || { menus: [], paquetes: [], descuentoGeneral: 15 };
         return calculateSimulatorPricing({
@@ -762,7 +862,7 @@ function SimuladorContent() {
             `Armé mi presupuesto formal para un ${eventoTipo} el ${eventDateLabel}.`,
             `Total vigente: ${formatCurrency(stats.totalFinal)}`,
             stats.precioPorPersona > 0 ? `Valor por persona: ${formatCurrency(stats.precioPorPersona)}` : '',
-            `Quiero solicitar la reserva de la fecha y conocer las condiciones de la seña de $5.000.`,
+            `Quiero solicitar la reserva de la fecha y conocer las condiciones de la seña del 30% (${formatCurrency(stats.totalFinal * 0.3)}).`,
             `Ver presupuesto: ${url}`,
         ].filter(Boolean).join('\n');
         const destination = toWhatsAppNumber(whatsappNumber);
@@ -805,7 +905,7 @@ function SimuladorContent() {
         }
     };
 
-    const calculatePackageEstimatedPrice = (paquete: PaqueteArmadoRapido) => {
+    const calculatePackageEstimatedPrice = useCallback((paquete: PaqueteArmadoRapido) => {
         if (!config || !allSimuladorServices.length) return 0;
 
         return calculateSimulatorPricing({
@@ -823,7 +923,17 @@ function SimuladorContent() {
             annualAdjustmentPercentage: budgetSettings.annualAdjustmentPercentage ?? DEFAULT_ANNUAL_ADJUSTMENT_PERCENTAGE,
             currentYear,
         }).totalFinal;
-    };
+    }, [config, allSimuladorServices, adultos, ninosYAdolescentes, formData.serviciosSeleccionados, clubUruguaySyntheticService, eventoFecha, budgetSettings.annualAdjustmentPercentage, currentYear]);
+
+    const packageSummaries = useMemo(() => {
+        const summaries = new Map<string, { total: number }>();
+        if (!config) return summaries;
+        config.paquetes.forEach(p => {
+            const total = calculatePackageEstimatedPrice(p);
+            summaries.set(p.id, { total });
+        });
+        return summaries;
+    }, [config, calculatePackageEstimatedPrice]);
 
     const handleSwitchPackage = async (paqueteId: string) => {
         if (!config) return;
@@ -1134,7 +1244,7 @@ function SimuladorContent() {
                                         <p className="text-sm font-black uppercase text-amber-900 tracking-wider">¡Asegurá tu Bonificación Especial del {stats.discountPercentage}%!</p>
                                     </div>
                                     <p className="text-xs text-slate-600 font-bold leading-relaxed">
-                                        Congelá los precios vigentes y tu descuento señando con $5.000 antes de que expire la reserva.
+                                        Congelá los precios vigentes y tu descuento señando con el 30% ({formatCurrency(stats.totalFinal * 0.3)}) antes de que expire la reserva.
                                     </p>
                                     <div className="text-3xl font-black text-amber-600 font-mono tracking-widest bg-white/80 py-2 rounded-xl inline-block px-5 border">
                                         {formatTime(timeLeft)}
@@ -1351,93 +1461,12 @@ function SimuladorContent() {
                                     </p>
                                 </div>
                             )}
-
-                            {selectedPackage && removablePackageServices.length > 0 && (
-                                <div className="rounded-3xl border border-slate-200 bg-white p-6 space-y-4 print:hidden text-left mb-6">
-                                    <div className="flex items-start justify-between gap-4">
-                                        <div>
-                                            <h4 className="text-sm font-black text-slate-900 uppercase tracking-tight">Personalización del paquete</h4>
-                                            <p className="mt-1 text-xs text-slate-500 font-semibold leading-relaxed">
-                                                Podés quitar servicios opcionales de tu paquete contratado para adaptar el presupuesto a tu gusto. El total se actualizará automáticamente:
-                                            </p>
-                                        </div>
-                                        <ShieldCheck className="h-5 w-5 shrink-0 text-emerald-600" />
-                                    </div>
-                                    <div className="mt-4 space-y-2">
-                                        {removablePackageServices.map(service => {
-                                            const removed = excludedPackageServiceIds.includes(service.id);
-                                            const calculated = getSimulatorServiceCalculatedData(service, adultos, ninosYAdolescentes);
-                                            const deduction = Math.round(calculated.total * (1 - stats.discountPercentage / 100));
-                                            return (
-                                                <label key={service.id} className={cn("flex cursor-pointer items-center justify-between gap-4 rounded-xl border p-3 hover:bg-slate-50 transition-all", removed ? "border-red-200 bg-red-50/20" : "border-slate-200 bg-white")}>
-                                                    <span className="flex min-w-0 items-center gap-3">
-                                                        <Checkbox
-                                                            checked={removed}
-                                                            disabled={isGenerating}
-                                                            onCheckedChange={value => {
-                                                                handleToggleExcludedService(service.id, Boolean(value));
-                                                            }}
-                                                        />
-                                                        <span className="min-w-0">
-                                                            <span className={cn("block truncate text-xs font-black uppercase tracking-tight", removed ? "text-red-700 line-through" : "text-slate-700")}>Retirar {service.nombre}</span>
-                                                            <span className="block text-[10px] font-semibold text-slate-400">Se registrará como retirado de tu propuesta.</span>
-                                                        </span>
-                                                    </span>
-                                                    <span className="shrink-0 text-xs font-black text-red-600">-{formatCurrency(deduction)}</span>
-                                                </label>
-                                            );
-                                        })}
-                                    </div>
-                                </div>
-                            )}
-
-                            {sortedPaquetes.filter(p => p.id !== selectedPaqueteId).length > 0 && (
-                                <div className="rounded-3xl border border-slate-200 bg-slate-50 p-6 space-y-4 print:hidden">
-                                    <h4 className="text-[10px] font-black uppercase tracking-widest text-slate-500 flex items-center gap-2">
-                                        ¿Querés comparar con otros paquetes para esta misma configuración?
-                                    </h4>
-                                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                                        {sortedPaquetes
-                                            .filter(p => p.id !== selectedPaqueteId)
-                                            .map(p => {
-                                                const estimatedPrice = calculatePackageEstimatedPrice(p);
-                                                const totalGuests = adultos + ninosYAdolescentes;
-                                                const difference = estimatedPrice - stats.totalFinal;
-                                                const differencePerPerson = difference > 0 && totalGuests > 0
-                                                    ? Math.ceil(difference / totalGuests)
-                                                    : 0;
-                                                return (
-                                                    <div key={p.id} className="flex flex-col justify-between p-4 bg-white border border-slate-200/60 rounded-2xl shadow-sm hover:shadow-md transition-all">
-                                                        <div className="space-y-1">
-                                                            <span className="text-[10px] font-black text-slate-400 uppercase tracking-widest">{p.nombre}</span>
-                                                            <p className="text-lg font-black text-slate-800">{formatCurrency(estimatedPrice)}</p>
-                                                            {differencePerPerson > 0 && (
-                                                                <p className="mt-1 text-xs font-bold text-emerald-700">
-                                                                    Mejorá por {formatCurrency(differencePerPerson)} más por persona
-                                                                </p>
-                                                            )}
-                                                        </div>
-                                                        <Button
-                                                            variant="outline"
-                                                            size="sm"
-                                                            disabled={isGenerating}
-                                                            onClick={() => handleSwitchPackage(p.id)}
-                                                            className="mt-3 w-full rounded-xl font-bold uppercase tracking-wider text-[10px] border-primary text-primary hover:bg-primary/5 h-10"
-                                                        >
-                                                            {isGenerating ? <Loader2 className="w-3.5 h-3.5 animate-spin text-slate-500"/> : `Cambiar a ${p.nombre}`}
-                                                        </Button>
-                                                    </div>
-                                                );
-                                            })}
-                                    </div>
-                                </div>
-                            )}
                         </CardContent>
                         <CardFooter className="bg-slate-50 p-8 border-t flex flex-col items-center gap-4">
                             <div className="bg-blue-50 p-6 rounded-3xl border border-blue-100 w-full">
                                 <h4 className="text-[10px] font-black uppercase text-blue-800 tracking-widest mb-2 flex items-center gap-2"><Info className="w-4 h-4"/> Condiciones de Reserva</h4>
                                 <p className="text-xs text-blue-800 leading-relaxed font-semibold">
-                                    Con una seña de $5.000 podés solicitar la reserva de la fecha. La confirmación de disponibilidad, los precios aplicables y las condiciones finales quedan establecidas en el contrato.
+                                    Con una seña del 30% ({formatCurrency(stats.totalFinal * 0.3)}) podés solicitar la reserva de la fecha. La confirmación de disponibilidad, los precios aplicables y las condiciones finales quedan establecidas en el contrato.
                                 </p>
                                 {budgetSettings.bookingTerms && (
                                     <p className="mt-2 text-xs text-blue-700 leading-relaxed">{budgetSettings.bookingTerms}</p>
@@ -1904,285 +1933,260 @@ function SimuladorContent() {
                     {step === 5 && (
                         <div className="space-y-8 animate-in fade-in slide-in-from-right-4 duration-700 text-left">
                             <div>
-                                <h2 className="text-xl font-black text-slate-900">Personalizá tu presupuesto</h2>
-                                <p className="mt-1 text-sm text-slate-500">Agregá o quitá servicios opcionales, buscá adicionales en el catálogo o cambiá de paquete directamente.</p>
+                                <h2 className="text-xl font-black text-slate-900">Personalización del paquete</h2>
+                                <p className="mt-1 text-sm text-slate-500">Podés quitar servicios opcionales de tu paquete contratado para adaptar el presupuesto a tu gusto. El total se actualizará automáticamente:</p>
                             </div>
 
-                            {/* Selector rápido de paquete en el paso 5 */}
-                            <div className="flex flex-col gap-4 p-6 bg-slate-50 border border-slate-100 rounded-3xl">
-                                <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
-                                    <div>
-                                        <span className="text-[10px] font-black text-slate-400 uppercase tracking-widest">Paquete Seleccionado</span>
-                                        <h3 className="text-2xl font-black text-slate-800 uppercase tracking-tight">{selectedPackage?.nombre}</h3>
-                                        <p className="text-xs text-slate-500 font-semibold">Si cambiás de paquete, se reiniciarán las ediciones personalizadas de esta pantalla.</p>
-                                    </div>
-                                    <div className="flex flex-wrap gap-2">
-                                        {sortedPaquetes.map(p => (
+                            {/* 1. TODO EL PRESUPUESTO EDITABLE ELEGIDO */}
+                            <div className="grid gap-4 md:grid-cols-2">
+                                {stats.detallados.map(item => {
+                                    const isExcluded = excludedPackageServiceIds.includes(item.id);
+                                    return (
+                                        <div
+                                            key={item.id}
+                                            className={cn(
+                                                "flex items-start justify-between gap-4 rounded-2xl border-2 p-5 transition-all duration-300 bg-white",
+                                                isExcluded 
+                                                    ? "border-dashed border-slate-200 bg-slate-50/50 opacity-60" 
+                                                    : "border-slate-200 hover:border-slate-350 shadow-sm"
+                                            )}
+                                        >
+                                            <div className="min-w-0 flex-1">
+                                                <span className={cn("block font-black text-slate-900 text-sm", isExcluded && "line-through text-slate-400")}>
+                                                    {item.nombre}
+                                                </span>
+                                                <span className="mt-1 block text-[10px] font-semibold text-slate-400 uppercase tracking-tight">
+                                                    {item.esRegalo ? "Regalo incluido" : (item.servicio?.subcategoria || item.servicio?.categoria || 'Servicio seleccionado')}
+                                                </span>
+                                                <span className={cn("mt-2 block text-xs font-black", isExcluded ? "text-slate-400" : "text-slate-500")}>
+                                                    {isExcluded ? "Retirado" : `Costo total: ${formatCurrency(item.costoTotal)}`}
+                                                </span>
+                                            </div>
+                                            
+                                            {!item.esRegalo && (
+                                                <Button
+                                                    type="button"
+                                                    size="sm"
+                                                    variant="outline"
+                                                    onClick={() => handleToggleServiceInBudget(item.id, 'exclude')}
+                                                    className="rounded-xl border-red-100 text-red-600 hover:bg-red-50 hover:border-red-200 text-[10px] font-black uppercase tracking-widest shrink-0"
+                                                >
+                                                    <Trash2 className="w-3.5 h-3.5 mr-1"/> Retirar
+                                                </Button>
+                                            )}
+                                        </div>
+                                    );
+                                })}
+
+                                {/* Mostrar también los servicios del paquete que actualmente están excluidos */}
+                                {excludedPackageServiceIds.map(excludedId => {
+                                    const service = allSimuladorServices.find(s => s.id === excludedId);
+                                    if (!service) return null;
+                                    const calculated = getSimulatorServiceCalculatedData(service, adultos, ninosYAdolescentes);
+                                    return (
+                                        <div
+                                            key={excludedId}
+                                            className="flex items-start justify-between gap-4 rounded-2xl border-2 border-dashed border-slate-200 bg-slate-50/50 p-5 opacity-60 transition-all duration-300"
+                                        >
+                                            <div className="min-w-0 flex-1">
+                                                <span className="block font-black text-slate-400 line-through text-sm">
+                                                    {service.nombre}
+                                                </span>
+                                                <span className="mt-1 block text-[10px] font-semibold text-slate-400 uppercase tracking-tight">
+                                                    {service.notas || service.subcategoria || service.categoria || 'Servicio retirado'}
+                                                </span>
+                                                <span className="mt-2 block text-xs font-bold text-slate-400">
+                                                    Retirado de la propuesta (-{formatCurrency(calculated.total)})
+                                                </span>
+                                            </div>
                                             <Button
-                                                key={p.id}
-                                                variant={selectedPaqueteId === p.id ? "default" : "outline"}
+                                                type="button"
                                                 size="sm"
-                                                onClick={() => {
-                                                    setSelectedPaqueteId(p.id);
-                                                    setExcludedPackageServiceIds([]);
-                                                }}
-                                                className={cn(
-                                                    "rounded-xl font-bold uppercase tracking-wider text-[9px] h-9 px-4 transition-all",
-                                                    selectedPaqueteId === p.id ? "bg-primary text-white border-primary shadow-sm" : "border-slate-200 text-slate-700 hover:bg-slate-100"
-                                                )}
+                                                variant="outline"
+                                                onClick={() => handleToggleServiceInBudget(excludedId, 'include')}
+                                                className="rounded-xl border-emerald-200 text-emerald-700 hover:bg-emerald-50 text-[10px] font-black uppercase tracking-widest shrink-0"
                                             >
-                                                {p.nombre}
+                                                <Plus className="w-3.5 h-3.5 mr-1"/> Incluir
                                             </Button>
-                                        ))}
-                                    </div>
-                                </div>
+                                        </div>
+                                    );
+                                })}
                             </div>
 
-                            {/* Opcionales del Paquete (Quitar/Agregar) */}
-                            {packageServicesRemovable.length > 0 && (
+                            {/* 2. SERVICIOS SUGERIDOS Y EL BUSCADOR */}
+                            <div className="space-y-6 pt-6 border-t border-slate-200">
                                 <div className="space-y-4">
                                     <h4 className="font-black text-slate-800 uppercase text-xs tracking-wider flex items-center gap-2">
-                                        <Settings2 className="w-4.5 h-4.5 text-slate-500"/> Servicios del paquete que podés quitar
+                                        <Search className="w-4.5 h-4.5 text-slate-500"/> ¿Querés agregar otro servicio?
                                     </h4>
-                                    <div className="grid gap-4 md:grid-cols-2">
-                                        {packageServicesRemovable.map(service => {
-                                            const isExcluded = excludedPackageServiceIds.includes(service.id);
-                                            const calculated = getSimulatorServiceCalculatedData(service, adultos, ninosYAdolescentes);
-                                            return (
-                                                <div
-                                                    key={service.id}
-                                                    className={cn(
-                                                        'flex items-start justify-between gap-4 rounded-2xl border-2 p-5 transition-all duration-300',
-                                                        isExcluded
-                                                            ? 'border-dashed border-slate-200 bg-slate-50/50 opacity-60'
-                                                            : 'border-slate-200 bg-white hover:border-slate-300 shadow-sm'
-                                                    )}
+                                    <div className="relative">
+                                        <div className="relative flex-1">
+                                            <Search className="absolute left-4 top-3.5 h-5 w-5 text-slate-400" />
+                                            <Input
+                                                type="text"
+                                                placeholder="Buscá por nombre de servicio (ej: cabina, plataforma, buffet, barra)..."
+                                                value={serviceSearchTerm}
+                                                onChange={e => setServiceSearchTerm(e.target.value)}
+                                                onFocus={() => setIsSearchFocused(true)}
+                                                onBlur={() => {
+                                                    setTimeout(() => setIsSearchFocused(false), 200);
+                                                }}
+                                                className="h-12 pl-12 rounded-xl border-slate-200 bg-white text-slate-900"
+                                            />
+                                            {serviceSearchTerm && (
+                                                <button
+                                                    type="button"
+                                                    onClick={() => setServiceSearchTerm('')}
+                                                    className="absolute right-4 top-3.5 text-slate-400 hover:text-slate-600"
                                                 >
-                                                    <div className="min-w-0 flex-1">
-                                                        <span className={cn("block font-black text-slate-900 text-sm", isExcluded && "line-through text-slate-400")}>
-                                                            {service.nombre}
-                                                        </span>
-                                                        <span className="mt-1 block text-[10px] font-semibold text-slate-400 uppercase tracking-tight">
-                                                            {service.notas || service.subcategoria || service.categoria || 'Servicio incluido'}
-                                                        </span>
-                                                        {!isExcluded && (
-                                                            <span className="mt-2 block text-xs font-black text-slate-500">
-                                                                Valor incluido: {formatCurrency(calculated.total)}
-                                                            </span>
-                                                        )}
-                                                    </div>
+                                                    <X className="w-5 h-5" />
+                                                </button>
+                                            )}
+                                        </div>
 
-                                                    {isExcluded ? (
-                                                        <Button
-                                                            type="button"
-                                                            size="sm"
-                                                            variant="outline"
-                                                            onClick={() => {
-                                                                setExcludedPackageServiceIds(prev => prev.filter(id => id !== service.id));
-                                                            }}
-                                                            className="rounded-xl border-emerald-200 text-emerald-700 hover:bg-emerald-50 text-[10px] font-black uppercase tracking-widest shrink-0"
-                                                        >
-                                                            <Plus className="w-3.5 h-3.5 mr-1"/> Incluir
-                                                        </Button>
-                                                    ) : (
-                                                        <Button
-                                                            type="button"
-                                                            size="sm"
-                                                            variant="outline"
-                                                            onClick={() => {
-                                                                setExcludedPackageServiceIds(prev => [...prev, service.id]);
-                                                            }}
-                                                            className="rounded-xl border-red-100 text-red-600 hover:bg-red-50 hover:border-red-200 text-[10px] font-black uppercase tracking-widest shrink-0"
-                                                        >
-                                                            <Trash2 className="w-3.5 h-3.5 mr-1"/> Quitar
-                                                        </Button>
-                                                    )}
+                                        {/* Dropdown de resultados de búsqueda */}
+                                        {isSearchFocused && filteredSearchServices.length > 0 && (
+                                            <div className="absolute left-0 right-0 z-50 mt-2 bg-white border border-slate-200 rounded-2xl shadow-2xl overflow-hidden animate-in fade-in slide-in-from-top-2 duration-200">
+                                                <div className="p-3 bg-slate-50 border-b text-[10px] font-black text-slate-400 uppercase tracking-widest">
+                                                    Servicios encontrados ({filteredSearchServices.length})
                                                 </div>
-                                            );
-                                        })}
-                                    </div>
-                                </div>
-                            )}
-
-                            {/* Buscador de Servicios del Catálogo */}
-                            <div className="space-y-4 pt-6 border-t border-slate-200">
-                                <h4 className="font-black text-slate-800 uppercase text-xs tracking-wider flex items-center gap-2">
-                                    <Search className="w-4.5 h-4.5 text-slate-500"/> ¿Querés agregar otro servicio?
-                                </h4>
-                                <div className="relative">
-                                    <div className="relative flex-1">
-                                        <Search className="absolute left-4 top-3.5 h-5 w-5 text-slate-400" />
-                                        <Input
-                                            type="text"
-                                            placeholder="Buscá por nombre de servicio (ej: cabina, plataforma, buffet, barra)..."
-                                            value={serviceSearchTerm}
-                                            onChange={e => setServiceSearchTerm(e.target.value)}
-                                            onFocus={() => setIsSearchFocused(true)}
-                                            onBlur={() => {
-                                                setTimeout(() => setIsSearchFocused(false), 200);
-                                            }}
-                                            className="h-12 pl-12 rounded-xl border-slate-200 bg-white text-slate-900"
-                                        />
-                                        {serviceSearchTerm && (
-                                            <button
-                                                type="button"
-                                                onClick={() => setServiceSearchTerm('')}
-                                                className="absolute right-4 top-3.5 text-slate-400 hover:text-slate-600"
-                                            >
-                                                <X className="w-5 h-5" />
-                                            </button>
+                                                <div className="divide-y divide-slate-100 max-h-64 overflow-y-auto">
+                                                    {filteredSearchServices.map(service => {
+                                                        const calculated = getSimulatorServiceCalculatedData(service, adultos, ninosYAdolescentes);
+                                                        return (
+                                                            <button
+                                                                key={service.id}
+                                                                type="button"
+                                                                onMouseDown={(e) => {
+                                                                    e.preventDefault();
+                                                                }}
+                                                                onClick={() => {
+                                                                    handleToggleServiceInBudget(service.id, 'include');
+                                                                    setServiceSearchTerm('');
+                                                                    setIsSearchFocused(false);
+                                                                    toast({
+                                                                        title: "Servicio agregado",
+                                                                        description: `${service.nombre} se agregó al presupuesto.`,
+                                                                    });
+                                                                }}
+                                                                className="w-full p-4 text-left hover:bg-slate-50 flex items-center justify-between gap-4 transition"
+                                                            >
+                                                                <div>
+                                                                    <span className="block font-black text-sm text-slate-800">{service.nombre}</span>
+                                                                    <span className="block text-[10px] text-slate-400 font-semibold uppercase mt-0.5">
+                                                                        {service.categoria} {service.subcategoria ? `· ${service.subcategoria}` : ''}
+                                                                    </span>
+                                                                </div>
+                                                                <div className="text-right shrink-0">
+                                                                    <span className="block font-black text-sm text-primary">{formatCurrency(calculated.total)}</span>
+                                                                    <span className="block text-[9px] text-primary font-bold uppercase tracking-wider mt-0.5">Agregar +</span>
+                                                                </div>
+                                                            </button>
+                                                        );
+                                                    })}
+                                                </div>
+                                            </div>
                                         )}
                                     </div>
+                                </div>
 
-                                    {/* Dropdown de resultados de búsqueda */}
-                                    {isSearchFocused && filteredSearchServices.length > 0 && (
-                                        <div className="absolute left-0 right-0 z-50 mt-2 bg-white border border-slate-200 rounded-2xl shadow-2xl overflow-hidden animate-in fade-in slide-in-from-top-2 duration-200">
-                                            <div className="p-3 bg-slate-50 border-b text-[10px] font-black text-slate-400 uppercase tracking-widest">
-                                                Servicios encontrados ({filteredSearchServices.length})
-                                            </div>
-                                            <div className="divide-y divide-slate-100 max-h-64 overflow-y-auto">
-                                                {filteredSearchServices.map(service => {
-                                                    const calculated = getSimulatorServiceCalculatedData(service, adultos, ninosYAdolescentes);
-                                                    return (
-                                                        <button
-                                                            key={service.id}
+                                {/* SERVICIOS SUGERIDOS */}
+                                {suggestedServices.length > 0 && (
+                                    <div className="space-y-4">
+                                        <h4 className="font-black text-slate-800 uppercase text-[10px] tracking-widest flex items-center gap-2">
+                                            <Sparkles className="w-4 h-4 text-amber-500 animate-pulse"/> Adicionales sugeridos para vos
+                                        </h4>
+                                        <div className="grid gap-4 md:grid-cols-2">
+                                            {suggestedServices.map(service => {
+                                                const calculated = getSimulatorServiceCalculatedData(service, adultos, ninosYAdolescentes);
+                                                return (
+                                                    <div
+                                                        key={service.id}
+                                                        className="flex items-start justify-between gap-4 rounded-2xl border border-slate-200 bg-amber-50/10 hover:bg-amber-50/20 p-5 shadow-sm transition-all"
+                                                    >
+                                                        <div className="min-w-0 flex-1">
+                                                            <span className="block font-black text-slate-900 text-sm">{service.nombre}</span>
+                                                            <span className="block text-[10px] text-slate-400 font-semibold uppercase mt-0.5">
+                                                                {service.categoria}
+                                                            </span>
+                                                            <span className="mt-2 block text-sm font-black text-primary">
+                                                                {formatCurrency(calculated.total)}
+                                                            </span>
+                                                        </div>
+                                                        <Button
                                                             type="button"
-                                                            onMouseDown={(e) => {
-                                                                e.preventDefault();
-                                                            }}
+                                                            size="sm"
                                                             onClick={() => {
-                                                                toggleTechnologyService(service, true);
-                                                                setServiceSearchTerm('');
-                                                                setIsSearchFocused(false);
+                                                                handleToggleServiceInBudget(service.id, 'include');
                                                                 toast({
                                                                     title: "Servicio agregado",
                                                                     description: `${service.nombre} se agregó al presupuesto.`,
                                                                 });
                                                             }}
-                                                            className="w-full p-4 text-left hover:bg-slate-50 flex items-center justify-between gap-4 transition"
+                                                            className="rounded-xl bg-primary text-white text-[10px] font-black uppercase tracking-widest shrink-0 px-4"
                                                         >
-                                                            <div>
-                                                                <span className="block font-black text-sm text-slate-800">{service.nombre}</span>
-                                                                <span className="block text-[10px] text-slate-400 font-semibold uppercase mt-0.5">
-                                                                    {service.categoria} {service.subcategoria ? `· ${service.subcategoria}` : ''}
-                                                                </span>
-                                                            </div>
-                                                            <div className="text-right shrink-0">
-                                                                <span className="block font-black text-sm text-primary">{formatCurrency(calculated.total)}</span>
-                                                                <span className="block text-[9px] text-primary font-bold uppercase tracking-wider mt-0.5">Agregar +</span>
-                                                            </div>
-                                                        </button>
-                                                    );
-                                                })}
-                                            </div>
+                                                            Agregar
+                                                        </Button>
+                                                    </div>
+                                                );
+                                            })}
                                         </div>
-                                    )}
-
-                                    {isSearchFocused && serviceSearchTerm.trim() !== '' && filteredSearchServices.length === 0 && (
-                                        <div className="absolute left-0 right-0 z-50 mt-2 bg-white border border-slate-200 rounded-2xl shadow-xl p-6 text-center text-sm text-slate-500">
-                                            No encontramos servicios que coincidan con tu búsqueda.
-                                        </div>
-                                    )}
-                                </div>
+                                    </div>
+                                )}
                             </div>
 
-                            {/* Adicionales Agregados Manualmente */}
-                            {manuallyAddedServices.length > 0 && (
-                                <div className="space-y-4 pt-6 border-t border-slate-200">
-                                    <h4 className="font-black text-slate-800 uppercase text-xs tracking-wider flex items-center gap-2">
-                                        <CheckCircle2 className="w-4.5 h-4.5 text-emerald-600"/> Servicios adicionales que agregaste
-                                    </h4>
-                                    <div className="grid gap-4 md:grid-cols-2">
-                                        {manuallyAddedServices.map(({ service }) => {
-                                            const calculated = getSimulatorServiceCalculatedData(service, adultos, ninosYAdolescentes);
+                            {/* 3. COMPARADOR DE PAQUETES */}
+                            <div className="space-y-4 pt-6 border-t border-slate-200">
+                                <h4 className="font-black text-slate-800 uppercase text-xs tracking-wider">
+                                    ¿Querés comparar con otros paquetes para esta misma configuración?
+                                </h4>
+                                <div className="grid gap-4 sm:grid-cols-2">
+                                    {config.paquetes
+                                        .filter(p => p.id !== selectedPaqueteId)
+                                        .map(p => {
+                                            const totalInvitados = adultos + ninosYAdolescentes;
+                                            const precioActual = stats.totalFinal;
+                                            const precioAlternativo = packageSummaries.get(p.id)?.total || 0;
+                                            const diffTotal = precioAlternativo - precioActual;
+                                            const diffPorPersona = Math.round(Math.abs(diffTotal) / (totalInvitados || 1));
+                                            const esMejora = diffTotal > 0;
+                                            
                                             return (
-                                                <div
-                                                    key={service.id}
-                                                    className="flex items-start justify-between gap-4 rounded-2xl border border-emerald-100 bg-emerald-50/20 p-5 shadow-sm"
-                                                >
-                                                    <div className="min-w-0 flex-1">
-                                                        <span className="block font-black text-slate-900 text-sm">
-                                                            {service.nombre}
-                                                        </span>
-                                                        <span className="mt-1 block text-xs font-semibold text-slate-400">
-                                                            {service.categoria} · Adicional agregado
-                                                        </span>
-                                                        <span className="mt-2 block text-sm font-black text-emerald-700">
-                                                            {formatCurrency(calculated.total)}
-                                                        </span>
+                                                <div key={p.id} className="p-6 bg-slate-50 border border-slate-100 rounded-3xl flex flex-col justify-between gap-4">
+                                                    <div>
+                                                        <span className="text-[10px] font-black text-slate-400 uppercase tracking-widest">Paquete disponible</span>
+                                                        <h5 className="text-lg font-black text-slate-800 uppercase tracking-tight">{p.nombre}</h5>
+                                                        <p className="mt-2 text-xl font-black text-primary">{formatCurrency(precioAlternativo)}</p>
+                                                        <p className="mt-1 text-xs text-slate-500 font-bold">
+                                                            {esMejora 
+                                                                ? `Mejorá por ${formatCurrency(diffPorPersona)} más por persona` 
+                                                                : `Ahorrás ${formatCurrency(diffPorPersona)} por persona`}
+                                                        </p>
                                                     </div>
                                                     <Button
-                                                        type="button"
-                                                        size="sm"
-                                                        variant="ghost"
                                                         onClick={() => {
-                                                            toggleTechnologyService(service, false);
+                                                            setSelectedPaqueteId(p.id);
+                                                            setExcludedPackageServiceIds([]);
+                                                            toast({
+                                                                title: "Paquete cambiado",
+                                                                description: `Cambiado a ${p.nombre} con éxito.`
+                                                            });
                                                         }}
-                                                        className="rounded-full text-slate-400 hover:text-red-600 hover:bg-red-50 p-2 shrink-0 h-8 w-8 transition-colors"
+                                                        className="rounded-xl font-bold uppercase tracking-wider text-[10px] h-10 w-full"
                                                     >
-                                                        <X className="w-4 h-4"/>
+                                                        Cambiar a Paquete {p.nombre}
                                                     </Button>
                                                 </div>
                                             );
                                         })}
-                                    </div>
                                 </div>
-                            )}
-
-                            {/* Tecnología AK / Adicionales Sugeridos del Catálogo */}
-                            {technologyServices.length > 0 && (
-                                <section className="space-y-5 border-t border-slate-200 pt-6">
-                                    <div className="flex flex-col gap-2">
-                                        <p className="text-xs font-black uppercase tracking-[0.2em] text-fuchsia-700">
-                                            {budgetSettings?.serviciosAdicionalesVisibles !== undefined && budgetSettings?.serviciosAdicionalesVisibles !== null
-                                                ? "Servicios Adicionales Disponibles"
-                                                : "Tecnología AK configurable"}
-                                        </p>
-                                        <h3 className="text-xl font-black text-slate-900">Hace visible el impacto de tu fiesta</h3>
-                                        <p className="max-w-3xl text-xs leading-5 text-slate-500 font-semibold">
-                                            Estas opciones salen del catálogo real de AK. Al activarlas se agregan al cálculo y al presupuesto final.
-                                        </p>
-                                    </div>
-                                    <div className="grid gap-4 md:grid-cols-2">
-                                        {technologyServices.map(service => {
-                                            const selected = formData.serviciosSeleccionados.has(service.id);
-                                            const calculated = getSimulatorServiceCalculatedData(service, adultos, ninosYAdolescentes);
-                                            return (
-                                                <label
-                                                    key={service.id}
-                                                    className={cn(
-                                                        'flex cursor-pointer items-start gap-4 rounded-2xl border-2 p-5 transition-all',
-                                                        selected
-                                                            ? 'border-fuchsia-500 bg-fuchsia-50/55 shadow-sm shadow-fuchsia-100'
-                                                            : 'border-slate-200 bg-white hover:border-fuchsia-200'
-                                                    )}
-                                                >
-                                                    <Checkbox
-                                                        checked={selected}
-                                                        onCheckedChange={value => toggleTechnologyService(service, Boolean(value))}
-                                                        className="mt-1 h-6 w-6"
-                                                    />
-                                                    <span className="min-w-0 flex-1">
-                                                        <span className="block font-black text-sm text-slate-900">{service.nombre}</span>
-                                                        <span className="mt-1 block text-[10px] font-semibold text-slate-500 uppercase tracking-tight">
-                                                            {service.notas || service.subcategoria || service.categoria || 'Experiencia tecnológica AK'}
-                                                        </span>
-                                                        <span className="mt-3 block text-sm font-black text-fuchsia-700">
-                                                            {formatCurrency(calculated.total)}
-                                                        </span>
-                                                    </span>
-                                                </label>
-                                            );
-                                        })}
-                                    </div>
-                                </section>
-                            )}
+                            </div>
 
                             <div className="rounded-2xl border border-blue-100 bg-blue-50 p-4 text-sm text-blue-900">
-                              <strong>Precios {currentYear}</strong>
-                              {stats.annualProjection.applies
-                                ? <> — Ajuste anual proyectado del <strong>{stats.annualProjection.adjustmentPct}%</strong> para eventos en {stats.annualProjection.eventYear}.</>
-                                : <> — El total mostrado corresponde al precio vigente.</>}
+                                <strong>Precios {currentYear}</strong>
+                                {stats.annualProjection.applies
+                                    ? <> — El presupuesto lleva un ajuste anual proyectado del <strong>{stats.annualProjection.adjustmentPct}%</strong> para eventos en {stats.annualProjection.eventYear}.</>
+                                    : <> — El total mostrado corresponde al precio vigente.</>}
                             </div>
                         </div>
                     )}
