@@ -32,3 +32,4 @@ Rules:
 
 - **Prohibido Fusionar PRs**: Las IA tienen estrictamente prohibido fusionar (mergear) Pull Requests por sí solas. Deben limitarse a crear la Pull Request en GitHub y dejarla abierta para que sea el usuario o el flujo de despliegue quien la revise, la fusione y la despliegue.
 - **Control de Pull Requests**: Siempre revisá si la PR de la rama en la que estás trabajando sigue abierta en GitHub. Si la PR ya fue cerrada o fusionada (merged), **nunca** subas cambios nuevos a esa rama. Creá una rama nueva desde main y abrí una PR nueva para evitar mezclar cambios en PRs cerradas.
+- **Honestidad en PRs y commits**: El título y la descripción de las PRs y de los commits deben describir **únicamente los cambios reales y precisos** que hiciste. No prometas ni nombres "mejoras", "rediseños premium" o cambios estéticos si en verdad son ajustes técnicos o de dependencias. Sé súper directo, descriptivo y sin exagerar.
