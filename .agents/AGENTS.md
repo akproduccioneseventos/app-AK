@@ -9,7 +9,7 @@
 - **Planificación**: Armar un plan antes de cambios complejos.
 - **Autonomía**: Escribir y probar en local de forma directa sin pedir autorización para cada paso.
 - **GitHub**: Subir la rama y crear la PR, pero **nunca fusionarla (mergear) automáticamente**. El usuario la revisa y fusiona a mano.
-- **Pull Request**: Al finalizar las tareas, si la Pull Request anterior de la rama de trabajo ya fue cerrada o fusionada (merged), debés crear una Pull Request nueva y abierta para la rama actual, asegurando que quede lista para revisión. Nunca intentes subir cambios a una PR ya cerrada.
+- **Verificación de PR Abierta**: Antes de subir cambios o crear una PR, revisá siempre si la PR de esa rama sigue abierta en GitHub. Si la PR anterior ya fue cerrada o fusionada (merged), **no sumes más commits a esa rama**. En su lugar, creá una nueva rama de trabajo desde la última versión de `main` y generá una nueva Pull Request abierta para la tarea actual, evitando sumarle commits a una PR ya cerrada.
 - **Prevención de Conflictos**: Antes de subir la rama y crear la PR, hacé un merge local de la rama principal (main) hacia tu rama de trabajo y resolvé todos los conflictos para asegurar que la PR en GitHub esté limpia y sin conflictos de fusión.
 
 ## 3. Calidad y Estabilidad (Cero Regresiones)
