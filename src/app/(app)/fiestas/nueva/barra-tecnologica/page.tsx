@@ -39,6 +39,7 @@ function BarraTecnologicaContent() {
   const [origin, setOrigin] = useState('');
   const [isLoading, setIsLoading] = useState(true);
   const [isSaving, setIsSaving] = useState(false);
+  const [error, setError] = useState<string | null>(null);
 
   const loadData = useCallback(async () => {
     if (!fiestaId) {
@@ -50,7 +51,9 @@ function BarraTecnologicaContent() {
     if (result.success && result.data) {
       setDashboard(result.data);
       setSettings(result.data.settings);
+      setError(null);
     } else {
+      setError(result.error || 'No se pudo cargar la barra tecnológica.');
       toast({ title: 'No se pudo cargar', description: result.error, variant: 'destructive' });
     }
     setIsLoading(false);
@@ -100,7 +103,27 @@ function BarraTecnologicaContent() {
     toast({ title: 'Link copiado' });
   };
 
-  if (isLoading || !dashboard || !settings) {
+  if (isLoading) {
+    return <div className="flex h-screen items-center justify-center"><Loader2 className="h-10 w-10 animate-spin text-primary" /></div>;
+  }
+
+  if (error) {
+    return (
+      <div className="flex h-screen flex-col items-center justify-center gap-4 bg-slate-50 p-6 text-center">
+        <div className="rounded-full bg-red-100 p-4 text-red-600">
+          <Martini className="h-12 w-12" />
+        </div>
+        <h2 className="text-2xl font-black text-slate-900">¡Ups! Ocurrió un error</h2>
+        <p className="max-w-md font-semibold text-slate-500">{error}</p>
+        <div className="flex gap-3">
+          <Button className="rounded-2xl" onClick={loadData}>Reintentar</Button>
+          <Button variant="outline" className="rounded-2xl" asChild><Link href="/eventos">Volver a eventos</Link></Button>
+        </div>
+      </div>
+    );
+  }
+
+  if (!dashboard || !settings) {
     return <div className="flex h-screen items-center justify-center"><Loader2 className="h-10 w-10 animate-spin text-primary" /></div>;
   }
 
