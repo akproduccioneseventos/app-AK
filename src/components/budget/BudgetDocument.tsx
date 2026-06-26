@@ -22,7 +22,7 @@ const BOOKING_NOTE_WITH_ADJUSTMENT =
   'El presupuesto es válido por 30 días para mantener el precio de la promoción y los regalos incluidos. La reserva de la fecha y de los servicios se realiza con una seña de $ 5.000. Los eventos programados para años posteriores al vigente tendrán un ajuste anual proyectado del 15% de acuerdo a lo establecido en el contrato.';
 
 const BOOKING_NOTE_CURRENT_YEAR =
-  'El presupuesto es válido por 30 días para mantener el precio de la promoción y los regalos incluidos. La reserva de la fecha y de los servicios se realiza con una seña de $ 5.000. El precio total mostrado corresponde al precio vigente del corriente año.';
+  'El presupuesto es válido por 30 días para mantener el precio de la promoción y los regalos incluidos. La reserva de la fecha y de los servicios se realiza con una seña de $ 5.000. El total mostrado corresponde al precio vigente del año {AÑO}.';
 
 // ── Helpers ───────────────────────────────────────────────────────────────────
 function formatCurrency(amount?: number): string {
@@ -568,7 +568,7 @@ export default function BudgetDocument({
           <p className="font-semibold text-slate-700 print:text-black">
             {presupuesto.ajusteAnualActivo || projectionRows.length > 0
               ? BOOKING_NOTE_WITH_ADJUSTMENT
-              : BOOKING_NOTE_CURRENT_YEAR}
+              : BOOKING_NOTE_CURRENT_YEAR.replace('{AÑO}', String(new Date(presupuesto.timestamp).getFullYear()))}
           </p>
 
           {showSignatures ? (
