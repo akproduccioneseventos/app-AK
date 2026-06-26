@@ -1118,6 +1118,7 @@ export interface ModulosContratados {
   videoVida: boolean;
   reuniones: boolean;
   muroSocial: boolean;
+  redSocial?: boolean;
   regalos: boolean;
   feedback: boolean;
   menuMesa: boolean;
@@ -1754,3 +1755,4 @@ export interface SocialScreenConfig {
   customTitle?: string;
   visibleNetworks: ('instagram' | 'tiktok' | 'facebook' | 'whatsapp')[];
 }
+

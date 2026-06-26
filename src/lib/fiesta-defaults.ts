@@ -320,7 +320,7 @@ export const defaultCartaTragosData: CartaTragosData = {
 export const defaultModulosContratados: ModulosContratados = {
     tareas: true, invitados: true, paginaWeb: true, decoracion: true, catering: true, musica: true, personal: true,
     itinerario: true, documentos: true, costos: true, cargaOperativa: true, fotografia: true, videoVida: true,
-    reuniones: true, muroSocial: true, regalos: false, feedback: false, menuMesa: false,
+    reuniones: true, muroSocial: true, redSocial: true, regalos: false, feedback: false, menuMesa: false,
     checkin: false, resumenImprimible: false, configuracion: true, disenoSalon: true, listaCompras: true, portalCliente: true,
     numerosMesa: true, mesasCliente: true, resumenPlanificacion: true, enVivo: true, entretenimiento: true, pantallasTotem: true, barraTecnologica: true, zonaDigital: true, carteleria: true
 };

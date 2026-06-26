@@ -86,6 +86,7 @@ const modules: ModuleDefinition[] = [
   // 5. EXPERIENCIA DEL INVITADO VIP
   { id: 'paginaWeb', title: "Invitación Web", href: "pagina-web", icon: Globe, description: "Web pública interactiva para invitados.", category: 'EXPERIENCIA DEL INVITADO VIP', color: "bg-blue-100 text-blue-600", badge: 'Invitado' },
   { id: 'moduloInvitado', title: "Portal Invitado", href: "modulo-invitado", icon: Users, description: "Controla qué ve cada invitado en su portal.", category: 'EXPERIENCIA DEL INVITADO VIP', color: "bg-violet-100 text-violet-700", badge: 'Invitado' },
+  { id: 'redSocial', title: "Red Social de la Fiesta", href: "social-fiesta-pro", icon: Monitor, description: "Red social privada que funciona 30 días antes con interacción de invitados y feeds.", category: 'EXPERIENCIA DEL INVITADO VIP', color: "bg-fuchsia-100 text-fuchsia-700", badge: 'VIP' },
   { id: 'checkin', title: "QR / Check-in", href: "invitados/checkin-scanner", icon: QrCode, description: "Ingreso con QR y recepción de invitados.", category: 'EXPERIENCIA DEL INVITADO VIP', color: "bg-green-100 text-green-600", badge: 'Invitado' },
   { id: 'disenoSalon', title: "Mesas Asignadas", href: "invitados/layout", icon: LayoutDashboard, description: "Plano de mesas y asignación de invitados.", category: 'EXPERIENCIA DEL INVITADO VIP', color: "bg-indigo-100 text-indigo-600", badge: 'Invitado' },
 
@@ -160,7 +161,7 @@ const quickModes: { id: QuickMode; label: string; icon: React.ElementType; color
   { id: 'dia-evento',  label: 'Día del Evento',  icon: Zap,       color: 'bg-primary text-white',             moduleIds: ['centroTotal', 'enVivo', 'missionControl', 'itinerario', 'checkin', 'cargaOperativa', 'readiness', 'fiestaLista', 'muroSocial', 'zonaDigital', 'pantallasTotem', 'entretenimiento', 'barraTecnologica'] },
   { id: 'preparacion', label: 'Preparación',     icon: ListChecks, color: 'bg-teal-600 text-white',           moduleIds: ['centroTotal', 'fiestaLista', 'tareas', 'portalCliente', 'invitados', 'decoracion', 'catering', 'carteleria'] },
   { id: 'cliente',     label: 'Vista Cliente',   icon: KeyRound,  color: 'bg-amber-500 text-white',           moduleIds: ['portalCliente', 'itinerario', 'videoVida', 'invitados', 'musica', 'planPagos'] },
-  { id: 'tecnologia',  label: 'Tecnología AK',   icon: Monitor,   color: 'bg-indigo-600 text-white',          moduleIds: ['centroTotal', 'paginaWeb', 'moduloInvitado', 'muroSocial', 'zonaDigital', 'pantallasTotem', 'entretenimiento', 'barraTecnologica', 'enVivo', 'checkin'] },
+  { id: 'tecnologia',  label: 'Tecnología AK',   icon: Monitor,   color: 'bg-indigo-600 text-white',          moduleIds: ['centroTotal', 'paginaWeb', 'moduloInvitado', 'redSocial', 'muroSocial', 'zonaDigital', 'pantallasTotem', 'entretenimiento', 'barraTecnologica', 'enVivo', 'checkin'] },
 ];
 
 // Module IDs that are always visible regardless of modulosContratados
