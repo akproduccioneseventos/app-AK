@@ -1960,7 +1960,7 @@ function SimuladorContent() {
                                                     {item.nombre}
                                                 </span>
                                                 <span className="mt-1 block text-[10px] font-semibold text-slate-400 uppercase tracking-tight">
-                                                    {item.esRegalo ? "Regalo incluido" : (item.servicio?.subcategoria || item.servicio?.categoria || 'Servicio seleccionado')}
+                                                    {item.esRegalo ? "Regalo incluido" : (item.subcategoria || item.categoria || 'Servicio seleccionado')}
                                                 </span>
                                                 <span className={cn("mt-2 block text-xs font-black", isExcluded ? "text-slate-400" : "text-slate-500")}>
                                                     {isExcluded ? "Retirado" : `Costo total: ${formatCurrency(item.costoTotal)}`}
@@ -2145,8 +2145,8 @@ function SimuladorContent() {
                                     ¿Querés comparar con otros paquetes para esta misma configuración?
                                 </h4>
                                 <div className="grid gap-4 sm:grid-cols-2">
-                                    {config.paquetes
-                                        .filter(p => p.id !== selectedPaqueteId)
+                                    {config?.paquetes
+                                        ?.filter(p => p.id !== selectedPaqueteId)
                                         .map(p => {
                                             const totalInvitados = adultos + ninosYAdolescentes;
                                             const precioActual = stats.totalFinal;
