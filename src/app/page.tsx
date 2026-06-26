@@ -40,6 +40,68 @@ const DEFAULT_DYNAMIC_SERVICE_FEATURES = [
 ];
 const DEFAULT_DYNAMIC_SERVICE_IMAGE = '/media/catalogo-servicios/boda-decoracion-dorada-01.jpeg';
 
+function getDefaultServiceImage(title: string): string {
+  const lower = title.toLowerCase();
+  if (lower.includes('boda') || lower.includes('casamiento')) {
+    return '/media/catalogo-servicios/boda-decoracion-dorada-01.jpeg';
+  }
+  if (lower.includes('15') || lower.includes('quince')) {
+    return '/media/catalogo-servicios/decoracion-xv-lila-01.jpeg';
+  }
+  if (lower.includes('corporat') || lower.includes('empres')) {
+    return '/media/catalogo-servicios/recepcion-display-evento-01.jpeg';
+  }
+  if (lower.includes('cumple') || lower.includes('social')) {
+    return '/media/catalogo-servicios/xv-pista-iluminada-01.jpeg';
+  }
+  if (lower.includes('disco') || lower.includes('música') || lower.includes('dj') || lower.includes('sonido')) {
+    return '/media/catalogo-servicios/salon-discoteca-ak-01.jpeg';
+  }
+  if (lower.includes('decor') || lower.includes('ambient')) {
+    return '/media/catalogo-servicios/boda-decoracion-dorada-01.jpeg';
+  }
+  if (lower.includes('bar') || lower.includes('trago') || lower.includes('bebida')) {
+    return '/media/catalogo-servicios/barra-tragos-ak-01.jpeg';
+  }
+  if (lower.includes('catering') || lower.includes('comida') || lower.includes('menú')) {
+    return '/media/catalogo-servicios/catering-mesa-ak-01.jpeg';
+  }
+  return '/media/catalogo-servicios/salon-discoteca-ak-01.jpeg';
+}
+
+function getDefaultServiceFeatures(title: string): string[] {
+  const lower = title.toLowerCase();
+  if (lower.includes('boda') || lower.includes('casamiento')) {
+    return ['Coordinación del gran día', 'Decoración y flores premium', 'Comida y discoteca a medida'];
+  }
+  if (lower.includes('15') || lower.includes('quince')) {
+    return ['Show de luces y pistas LED', 'Torta y mesa dulce personalizada', 'Cabinas y recuerdos en vivo'];
+  }
+  if (lower.includes('club uruguay')) {
+    return ['Ubicación céntrica tradicional', 'Estructura clásica elegante', 'Servicios y personal incluidos'];
+  }
+  if (lower.includes('tecnología') || lower.includes('interact')) {
+    return ['Invitación web digital con QR', 'Muro Social interactivo en pantalla', 'Acceso al Portal del Cliente'];
+  }
+  if (lower.includes('cumple') || lower.includes('social')) {
+    return ['Música para todas las edades', 'Animación y juegos integrados', 'Decoración temática adaptada'];
+  }
+  if (lower.includes('corporat') || lower.includes('empres')) {
+    return ['Conferencias y lanzamientos', 'Proyectores y micrófonos pro', 'Livings y recepción formal'];
+  }
+  if (lower.includes('disco') || lower.includes('música') || lower.includes('dj') || lower.includes('sonido')) {
+    return ['Sonido HD para pistas exigentes', 'Robóticas y efectos especiales', 'DJs profesionales en vivo'];
+  }
+  if (lower.includes('decor') || lower.includes('ambient')) {
+    return ['Centros de mesa únicos', 'Fondos para fotos e ingresos', 'Iluminación ambiental decorativa'];
+  }
+  if (lower.includes('comida') || lower.includes('catering')) {
+    return ['Platos principales servidos', 'Bocados para la recepción', 'Opciones vegetarianas y celíacas'];
+  }
+  return ['Producción profesional', 'Todo en un solo lugar', 'Atención cercana en Salto'];
+}
+
+
 export async function generateMetadata(): Promise<Metadata> {
   const settings = await getLandingSettings();
   return {
@@ -127,8 +189,8 @@ export default async function HomePage({ searchParams }: LandingPageProps) {
       title: service.title,
       subtitle: DEFAULT_DYNAMIC_SERVICE_SUBTITLE,
       description: service.description,
-      features: DEFAULT_DYNAMIC_SERVICE_FEATURES,
-      imageUrl: service.imageUrl || DEFAULT_DYNAMIC_SERVICE_IMAGE,
+      features: getDefaultServiceFeatures(service.title),
+      imageUrl: service.imageUrl || getDefaultServiceImage(service.title),
       imageHint: 'event service',
       accentColor: 'bg-primary',
       emoji: service.icon || '✨',

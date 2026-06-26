@@ -34,79 +34,65 @@ const PARTY_TYPES = [
   { title: 'Corporativos', emoji: '🏢', desc: 'Lanzamientos, cenas empresariales y conferencias.' },
 ];
 
-const DETAILED_SERVICES: ServiceDetail[] = [
+const DEFAULT_SERVICES: ServiceItem[] = [
   {
-    id: 'discoteca-dj',
-    title: 'Discoteca & Luces Inteligentes',
-    description: 'Sonido envolvente de alta definición y show de luces robotizadas programadas en vivo por nuestros DJs.',
-    imageUrl: '/media/catalogo-servicios/salon-discoteca-ak-01.jpeg',
-    emoji: '🎧',
-    features: ['Estructura reticulada premium', 'Efectos especiales en pista', 'Sincronización de sonido'],
-  },
-  {
-    id: 'decoracion-ambientacion',
-    title: 'Decoración & Ambientación',
-    description: 'Centros de mesa, arreglos florales, livings premium y diseños temáticos completos adaptados a tu estilo.',
+    id: 'bodas',
+    title: 'Bodas',
+    subtitle: 'El día más especial',
+    description: 'Convertimos tu boda en una experiencia única. Desde la decoración floral hasta la pista de baile, coordinamos cada detalle.',
+    features: ['Coordinación integral del evento', 'Decoración y flores personalizadas', 'Catering y menú a medida'],
     imageUrl: '/media/catalogo-servicios/boda-decoracion-dorada-01.jpeg',
-    emoji: '✨',
-    features: ['Centros de mesa únicos', 'Fondos para fotos e ingresos', 'Mobiliario de living premium'],
+    imageHint: 'wedding ceremony',
+    accentColor: 'bg-indigo-500',
+    emoji: '💍',
+    whatsappMessage: '¡Hola AK Producciones! Me gustaría cotizar el paquete de Boda.',
   },
   {
-    id: 'catering-premium',
-    title: 'Catering & Menús a Medida',
-    description: 'Gastronomía premium, bocados calientes en recepción, plato principal servido e islas temáticas.',
-    imageUrl: '/media/catalogo-servicios/catering-mesa-ak-01.jpeg',
-    emoji: '🍽️',
-    features: ['Ingredientes frescos de calidad', 'Opciones celiacas/vegetarianas', 'Devolución de comida sobrante'],
+    id: 'xv-anos',
+    title: 'XV Años',
+    subtitle: 'Una noche de ensueño',
+    description: 'Los 15 años merecen la mejor producción. Creamos ambientes mágicos, luces impactantes y momentos que durarán siempre.',
+    features: ['Temática y ambientación exclusiva', 'Pista LED y efectos especiales', 'Fotografía y video premium'],
+    imageUrl: '/media/catalogo-servicios/decoracion-xv-lila-01.jpeg',
+    imageHint: 'quinceañera party',
+    accentColor: 'bg-fuchsia-500',
+    emoji: '👑',
+    whatsappMessage: '¡Hola AK Producciones! Me gustaría cotizar el paquete de XV Años.',
   },
   {
-    id: 'barra-tragos',
-    title: 'Barra de Tragos & Coctelería',
-    description: 'Barras móviles iluminadas con tragos clásicos y de autor, jugos naturales y coctelería sin alcohol.',
-    imageUrl: '/media/catalogo-servicios/barra-tragos-ak-01.jpeg',
-    emoji: '🍹',
-    features: ['Barman profesionales', 'Insumos de primera línea', 'Variedad de mocktails'],
-  },
-  {
-    id: 'fotografia-video',
-    title: 'Fotografía, Video & Cabinas',
-    description: 'Captura profesional de los mejores momentos y cabinas interactivas para que tus invitados se lleven recuerdos.',
-    imageUrl: '/media/catalogo-servicios/fotografia_cabina_img_221_p21_x1613.jpeg',
-    emoji: '📸',
-    features: ['Cobertura previa y en vivo', 'Descarga directa digital', 'Cabina de fotos interactiva'],
-  },
-  {
-    id: 'pantallas-led',
-    title: 'Pantallas LED Gigantes',
-    description: 'Proyección de retrospectivas, videos emotivos y transmisión del Muro Social en vivo.',
+    id: 'cumpleanos',
+    title: 'Cumpleaños & Sociales',
+    subtitle: 'Celebraciones sin límites',
+    description: 'Festejos de cumpleaños, aniversarios y reuniones sociales adaptadas a tu medida con la mejor música y diversión.',
+    features: ['Discoteca y luces inteligentes', 'Mesa dulce y torta decorada', 'Animación y barras de tragos'],
     imageUrl: '/media/catalogo-servicios/xv-pista-iluminada-01.jpeg',
-    emoji: '📺',
-    features: ['Paneles de alta definición', 'Contenido personalizado', 'Integrado a la cabina de DJ'],
+    imageHint: 'birthday party lights',
+    accentColor: 'bg-indigo-500',
+    emoji: '🎉',
+    whatsappMessage: '¡Hola AK Producciones! Me gustaría cotizar un cumpleaños.',
   },
   {
-    id: 'glitter-bar',
-    title: 'Glitter & Makeup Bar',
-    description: 'Puesto interactivo de maquillaje brillante, apliques y luces para encender la diversión en la pista de baile.',
-    imageUrl: '/media/catalogo-servicios/glitter-bar-01.jpeg',
-    emoji: '✨',
-    features: ['Variedad de brillos y gemas', 'Espejos con luces led', 'Staff de animación dedicado'],
-  },
-  {
-    id: 'candy-bar',
-    title: 'Candy Bar & Torta Principal',
-    description: 'Repostería fina personalizada combinada con la temática y colores de la ambientación del salón.',
-    imageUrl: '/media/catalogo-servicios/candy-bar-completo-ak-02.jpeg',
-    emoji: '🍰',
-    features: ['Torta de boda o XV decorada', 'Mesa de dulces variados', 'Arreglos decorativos dulces'],
+    id: 'corporativos',
+    title: 'Eventos Corporativos',
+    subtitle: 'Imagen corporativa premium',
+    description: 'Lanzamientos de marcas, cenas empresariales, conferencias y eventos institucionales con todo resuelto.',
+    features: ['Planificación y logística completa', 'Pantallas LED y microfonía', 'Catering y livings premium'],
+    imageUrl: '/media/catalogo-servicios/recepcion-display-evento-01.jpeg',
+    imageHint: 'corporate event',
+    accentColor: 'bg-slate-800',
+    emoji: '🏢',
+    whatsappMessage: '¡Hola AK Producciones! Me gustaría cotizar un evento corporativo.',
   },
 ];
 
 interface ServicesSectionProps {
   whatsappNumber?: string;
-  services?: any; // Ignored as we render detailed list
+  services?: ServiceItem[];
 }
 
-export function ServicesSection({ whatsappNumber = '59898355530' }: ServicesSectionProps) {
+export function ServicesSection({ whatsappNumber = '59898355530', services }: ServicesSectionProps) {
+  const displayServices = services && services.length > 0 ? services : DEFAULT_SERVICES;
+
   const containerVariants = {
     hidden: {},
     visible: {
@@ -179,7 +165,7 @@ export function ServicesSection({ whatsappNumber = '59898355530' }: ServicesSect
             viewport={{ once: true, margin: '-100px' }}
             className="grid gap-8 md:grid-cols-2 lg:grid-cols-3"
           >
-            {DETAILED_SERVICES.map((service) => {
+            {displayServices.map((service) => {
               const waHref = `https://wa.me/${whatsappNumber}?text=${encodeURIComponent(
                 `👋 ¡Hola AK Producciones! Me gustaría consultar por el servicio de ${service.title} para mi evento.`
               )}`;
