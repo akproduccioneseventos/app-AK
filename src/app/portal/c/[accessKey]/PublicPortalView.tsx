@@ -648,6 +648,7 @@ export default function PublicPortalView({
                     src={config.protagonistaFotoUrl || portalExperience.heroImageUrl}
                     alt={config.protagonista1Nombre || displayEventName}
                     className="w-full h-full object-cover"
+                    decoding="async"
                   />
                 </div>
                 <div className="absolute -bottom-1 -right-1 bg-yellow-400 rounded-full p-1 shadow-lg">
@@ -1175,6 +1176,8 @@ export default function PublicPortalView({
                       src={`https://api.qrserver.com/v1/create-qr-code/?size=120x120&data=${encodeURIComponent(typeof window !== 'undefined' ? (window.location.origin + (fiesta.invitacionSlug ? '/i/' + fiesta.invitacionSlug : '/invitacion/' + fiesta.id)) : '')}`}
                       alt="QR del evento"
                       className="w-24 h-24 rounded-xl"
+                      loading="lazy"
+                      decoding="async"
                     />
                   </div>
                 )}
@@ -1922,6 +1925,7 @@ export default function PublicPortalView({
                       src={pagoFilePreview}
                       alt="Comprobante"
                       className="w-full max-h-40 object-cover"
+                      decoding="async"
                     />
                   ) : (
                     <div className="flex items-center gap-2 p-3 bg-slate-50">
@@ -2132,7 +2136,7 @@ export default function PublicPortalView({
                             <div key={item.id} className="rounded-2xl border border-slate-100 overflow-hidden bg-white shadow-sm">
                               {item.url && (
                                 /* eslint-disable-next-line @next/next/no-img-element */
-                                <img src={item.url} alt={item.description || 'Moodboard'} className="w-full h-28 object-cover" />
+                                <img src={item.url} alt={item.description || 'Moodboard'} className="w-full h-28 object-cover" loading="lazy" decoding="async" />
                               )}
                               <div className="p-2.5 flex items-start justify-between gap-2">
                                 {item.description && (
@@ -2399,7 +2403,7 @@ export default function PublicPortalView({
                             >
                               {item.url && (
                                 /* eslint-disable-next-line @next/next/no-img-element */
-                                <img src={item.url} alt={item.description || 'Moodboard'} className="w-full h-24 object-cover" />
+                                <img src={item.url} alt={item.description || 'Moodboard'} className="w-full h-24 object-cover" loading="lazy" decoding="async" />
                               )}
                               <div className={`p-2 flex items-center justify-between gap-1 ${isLiked ? 'bg-red-50' : 'bg-white'}`}>
                                 {item.description && <p className="text-xs text-slate-700 leading-snug flex-1 truncate">{item.description}</p>}

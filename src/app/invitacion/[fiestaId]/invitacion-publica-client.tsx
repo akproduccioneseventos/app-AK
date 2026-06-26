@@ -1179,7 +1179,7 @@ export function InvitacionPublicaClient({ config, fiestaId, socialConnections = 
             whileTap={{ scale: 0.98 }}
             className="aspect-square rounded-xl overflow-hidden shadow-md cursor-pointer relative group"
           >
-            <img src={url} alt={`Foto ${i + 1}`} className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105" loading="lazy" />
+            <img src={url} alt={`Foto ${i + 1}`} className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105" loading="lazy" decoding="async" />
             <div className="absolute inset-0 bg-black/20 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
               <Sparkles className="text-white w-6 h-6 animate-pulse" />
             </div>
@@ -1392,6 +1392,7 @@ export function InvitacionPublicaClient({ config, fiestaId, socialConnections = 
             onError={() => setHeroImageError(true)}
             animate={{ scale: [1, 1.06, 1] }}
             transition={{ duration: 24, ease: 'easeInOut', repeat: Infinity }}
+            decoding="async"
           />
         ) : (
           <div className="absolute inset-0" style={{ background: `linear-gradient(135deg, ${config.colorPrincipal}, ${config.colorSecundario})` }} />

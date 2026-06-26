@@ -477,7 +477,7 @@ export function MenuForm({ existingMenu }: { existingMenu?: FullMenu }) {
               <div className="h-16 w-16 rounded-xl border bg-white overflow-hidden shrink-0 flex items-center justify-center">
                 {sanitizeImageUrl(getCateringMenuImage(menu as FullMenu)) ? (
                   // eslint-disable-next-line @next/next/no-img-element
-                  <img src={sanitizeImageUrl(getCateringMenuImage(menu as FullMenu))} alt={menu.name || 'MenÃº'} className="h-full w-full object-cover" />
+                  <img src={sanitizeImageUrl(getCateringMenuImage(menu as FullMenu))} alt={menu.name || 'MenÃº'} className="h-full w-full object-cover" loading="lazy" decoding="async" />
                 ) : (
                   <ImageIcon className="h-6 w-6 text-slate-300" />
                 )}
@@ -534,7 +534,7 @@ export function MenuForm({ existingMenu }: { existingMenu?: FullMenu }) {
                     {itemImageUrl && (
                       <div className="h-14 w-14 rounded-2xl border bg-white overflow-hidden shrink-0 flex items-center justify-center shadow-sm">
                         {/* eslint-disable-next-line @next/next/no-img-element */}
-                        <img src={itemImageUrl} alt={item.name || 'Plato'} className="h-full w-full object-cover" onError={(e) => { (e.target as HTMLImageElement).style.display='none'; }} />
+                        <img src={itemImageUrl} alt={item.name || 'Plato'} className="h-full w-full object-cover" onError={(e) => { (e.target as HTMLImageElement).style.display='none'; }} loading="lazy" decoding="async" />
                       </div>
                     )}
                     <span className="text-3xl">{DISH_TYPE_EMOJI[item.type || ''] || '🍴'}</span>
@@ -608,7 +608,7 @@ export function MenuForm({ existingMenu }: { existingMenu?: FullMenu }) {
                       <div className="flex items-center justify-center sm:justify-start h-20 w-20 rounded-lg border bg-muted/40 overflow-hidden shrink-0">
                         {itemImageUrl ? (
                           // eslint-disable-next-line @next/next/no-img-element
-                          <img src={itemImageUrl} alt={item.name} className="w-full h-full object-cover" onError={(e) => { (e.target as HTMLImageElement).style.display='none'; }} />
+                           <img src={itemImageUrl} alt={item.name} className="w-full h-full object-cover" onError={(e) => { (e.target as HTMLImageElement).style.display='none'; }} loading="lazy" decoding="async" />
                         ) : (
                           <span className="text-3xl">{DISH_TYPE_EMOJI[item.type || ''] || '🍴'}</span>
                         )}

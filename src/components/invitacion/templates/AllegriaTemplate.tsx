@@ -534,6 +534,8 @@ export const AllegriaTemplate: React.FC<TemplateProps> = ({
                                         src={post.imageUrl}
                                         alt={`Foto de ${post.authorName}`}
                                         className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500"
+                                        loading="lazy"
+                                        decoding="async"
                                     />
                                     {post.authorName !== 'Anónimo' && (
                                         <div className="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black/60 to-transparent p-2">

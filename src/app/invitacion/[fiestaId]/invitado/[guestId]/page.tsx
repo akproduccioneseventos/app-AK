@@ -106,6 +106,7 @@ function SocialPhotosPreview({ fiestaId, accentColor }: { fiestaId: string; acce
             alt={`Foto compartida por ${photo.authorName}`}
             className="w-full h-full object-cover hover:scale-110 transition-transform duration-300"
             loading="lazy"
+            decoding="async"
           />
         </div>
       ))}
@@ -282,6 +283,7 @@ function GuestPortalContent() {
             src={heroImage}
             alt={config?.nombreEvento || 'Evento'}
             className="absolute inset-0 w-full h-full object-cover"
+            decoding="async"
           />
         ) : (
           <div
