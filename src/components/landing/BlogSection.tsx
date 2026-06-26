@@ -3,8 +3,15 @@
 import React from 'react';
 import Link from 'next/link';
 import { ArrowRight, BookOpen } from 'lucide-react';
+import * as Lucide from 'lucide-react';
 import { motion } from 'framer-motion';
 import { blogPosts } from '@/data/blog-posts';
+
+function getIconComponent(name: string) {
+  const IconComp = (Lucide as any)[name];
+  return IconComp || Lucide.BookOpen;
+}
+
 
 export function BlogSection() {
   // Show the latest 3 blog posts
@@ -57,7 +64,7 @@ export function BlogSection() {
           className="grid gap-8 md:grid-cols-3"
         >
           {postsToShow.map((post) => {
-            const Icon = post.icon;
+            const Icon = getIconComponent(post.icon);
             return (
               <motion.div key={post.slug} variants={cardVariants} className="h-full">
                 <Link
@@ -66,7 +73,7 @@ export function BlogSection() {
                 >
                   {/* Subtle top light glow on hover */}
                   <div className="absolute top-0 left-0 right-0 h-px bg-gradient-to-r from-transparent via-indigo-500/50 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
-                  
+
                   <div className="space-y-6">
                     <div className={`flex h-12 w-12 items-center justify-center rounded-2xl bg-gradient-to-br ${post.accent} text-white shadow-lg`}>
                       <Icon className="h-6 w-6" />
@@ -83,7 +90,7 @@ export function BlogSection() {
                       </p>
                     </div>
                   </div>
-                  
+
                   <div className="mt-8 pt-4 border-t border-white/5 flex items-center gap-2 text-xs font-black uppercase tracking-wider text-indigo-400 group-hover:text-white transition-colors">
                     <span>Leer artículo</span>
                     <ArrowRight className="h-3.5 w-3.5 transition-transform duration-300 group-hover:translate-x-1" />

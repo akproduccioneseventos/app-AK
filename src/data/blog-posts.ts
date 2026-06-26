@@ -1,25 +1,4 @@
-import type { LucideIcon } from 'lucide-react';
-import { CalendarCheck, ClipboardCheck, CreditCard, Heart, PartyPopper, Utensils } from 'lucide-react';
-
-export type BlogCategory = 'Organizacion' | 'Presupuesto' | 'Catering' | 'XV anos' | 'Bodas' | 'Checklists';
-
-export interface BlogPost {
-  slug: string;
-  title: string;
-  excerpt: string;
-  category: BlogCategory;
-  readTime: string;
-  publishedAt: string;
-  accent: string;
-  icon: LucideIcon;
-  takeaway: string;
-  sections: Array<{
-    heading: string;
-    body: string[];
-  }>;
-  checklist?: string[];
-  relatedSlugs?: string[];
-}
+import type { BlogPost } from '@/types/blog';
 
 export const blogPosts: BlogPost[] = [
   {
@@ -30,7 +9,7 @@ export const blogPosts: BlogPost[] = [
     readTime: '5 min',
     publishedAt: '2026-06-01',
     accent: 'from-purple-700 to-slate-950',
-    icon: CalendarCheck,
+    icon: 'CalendarCheck',
     takeaway: 'Primero se define fecha, cantidad de invitados y prioridades. Despues se habla de decoracion, musica y extras.',
     sections: [
       {
@@ -71,7 +50,7 @@ export const blogPosts: BlogPost[] = [
     readTime: '6 min',
     publishedAt: '2026-06-01',
     accent: 'from-slate-900 to-emerald-800',
-    icon: CreditCard,
+    icon: 'CreditCard',
     takeaway: 'Un presupuesto profesional no solo dice el total: explica servicios, cantidades, regalos, seña, saldo y validez.',
     sections: [
       {
@@ -112,7 +91,7 @@ export const blogPosts: BlogPost[] = [
     readTime: '5 min',
     publishedAt: '2026-06-01',
     accent: 'from-amber-700 to-red-800',
-    icon: Utensils,
+    icon: 'Utensils',
     takeaway: 'El menu se elige por tipo de evento, horario, duracion, publico y presupuesto. No solo por el plato que mas gusta.',
     sections: [
       {
@@ -153,7 +132,7 @@ export const blogPosts: BlogPost[] = [
     readTime: '4 min',
     publishedAt: '2026-06-01',
     accent: 'from-fuchsia-700 to-purple-950',
-    icon: PartyPopper,
+    icon: 'PartyPopper',
     takeaway: 'Una fiesta de XV funciona mejor cuando el estilo, la musica, la entrada y los detalles cuentan algo de la quinceanera.',
     sections: [
       {
@@ -194,7 +173,7 @@ export const blogPosts: BlogPost[] = [
     readTime: '5 min',
     publishedAt: '2026-06-01',
     accent: 'from-rose-700 to-slate-900',
-    icon: Heart,
+    icon: 'Heart',
     takeaway: 'La boda necesita un plan operativo, no solo una lista de deseos. Horarios, responsables y pagos deben estar cerrados.',
     sections: [
       {
@@ -235,7 +214,7 @@ export const blogPosts: BlogPost[] = [
     readTime: '4 min',
     publishedAt: '2026-06-01',
     accent: 'from-blue-800 to-slate-950',
-    icon: ClipboardCheck,
+    icon: 'ClipboardCheck',
     takeaway: 'La semana previa no es para inventar la fiesta: es para confirmar que todo lo prometido esta listo.',
     sections: [
       {
@@ -282,4 +261,22 @@ export function getRelatedPosts(post: BlogPost) {
 
   if (related.length > 0) return related;
   return blogPosts.filter((item) => item.slug !== post.slug && item.category === post.category).slice(0, 2);
+}
+
+const postImages: Record<string, string> = {
+  'como-calcular-bebida-evento-salto': '/media/catalogo-servicios/barra-tragos-ak-01.jpeg',
+  'catering-tradicional-vs-islas-quinceanos': '/media/catalogo-servicios/catering-mesa-ak-01.jpeg',
+  'tecnologias-iluminacion-pantallas-quince': '/media/catalogo-servicios/xv-pista-iluminada-01.jpeg',
+  'checklist-12-meses-boda-uruguay': '/media/catalogo-servicios/decoracion-boda-mesa-01.jpeg',
+  'quince-tradicional-vs-viaje-como-elegir': '/media/catalogo-servicios/decoracion-xv-lila-01.jpeg',
+  'como-empezar-a-organizar-una-fiesta-sin-estres': '/media/catalogo-servicios/xv-decoracion-equipo-ak-01.jpeg',
+  'presupuesto-de-fiesta-que-debe-incluir': '/media/catalogo-servicios/recepcion-display-evento-01.jpeg',
+  'como-elegir-el-menu-para-un-evento': '/media/catalogo-servicios/catering-mesa-ak-01.jpeg',
+  'ideas-para-fiesta-de-xv-en-salto': '/media/catalogo-servicios/decoracion-xv-lila-01.jpeg',
+  'errores-comunes-al-organizar-una-boda': '/media/catalogo-servicios/decoracion-boda-mesa-01.jpeg',
+  'checklist-final-antes-del-evento': '/media/catalogo-servicios/candy-bar-completo-ak-02.jpeg',
+};
+
+export function getPostImage(slug: string): string {
+  return postImages[slug] || '/media/catalogo-servicios/salon-discoteca-ak-01.jpeg';
 }

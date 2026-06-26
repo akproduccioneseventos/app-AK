@@ -17,7 +17,8 @@ import {
   X,
   CheckCircle,
 } from 'lucide-react';
-import { blogPosts, type BlogPost, type BlogCategory } from '@/data/blog-posts';
+import { blogPosts } from '@/data/blog-posts';
+import type { BlogPost, BlogCategory } from '@/types/blog';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Badge } from '@/components/ui/badge';
@@ -61,7 +62,7 @@ export default function BlogPage() {
         readTime: '3 min',
         publishedAt: new Date().toISOString().split('T')[0],
         accent: 'from-blue-600 to-indigo-950',
-        icon: Sparkles,
+        icon: 'Sparkles',
         takeaway: 'La organización local y los detalles del catering son indispensables en el litoral.',
         sections: [
           {

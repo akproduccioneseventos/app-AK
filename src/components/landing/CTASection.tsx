@@ -48,7 +48,7 @@ export function CTASection({
     >
       <div className="relative z-10 max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
         {/* Badge */}
-        <div className="mb-8 inline-flex items-center gap-2 border-l-2 border-red-500 bg-white/5 px-4 py-2 text-xs font-black uppercase tracking-widest text-white">
+        <div className="mb-8 inline-flex items-center gap-2 border-l-2 border-indigo-500 bg-white/5 px-4 py-2 text-xs font-black uppercase tracking-widest text-white">
           <span className="h-2 w-2 rounded-full bg-green-400" />
           Disponible ahora
         </div>
@@ -60,7 +60,7 @@ export function CTASection({
               key={i}
               className={cn(
                 'block',
-                i === 1 && 'text-red-300'
+                i === 1 && 'text-indigo-300'
               )}
             >
               {line}

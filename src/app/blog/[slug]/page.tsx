@@ -13,7 +13,15 @@ import {
   ChevronRight,
   BookHeart,
 } from 'lucide-react';
-import { blogPosts, type BlogPost } from '@/data/blog-posts';
+import * as Lucide from 'lucide-react';
+
+function getIconComponent(name: any) {
+  if (typeof name !== 'string') return name || Lucide.BookOpen;
+  const IconComp = (Lucide as any)[name];
+  return IconComp || Lucide.BookOpen;
+}
+import { blogPosts } from '@/data/blog-posts';
+import type { BlogPost } from '@/types/blog';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Card, CardContent } from '@/components/ui/card';
@@ -27,7 +35,7 @@ const MOCK_IMPORTED_POST: BlogPost = {
   readTime: '3 min',
   publishedAt: new Date().toISOString().split('T')[0],
   accent: 'from-blue-600 to-indigo-950',
-  icon: Sparkles,
+  icon: 'Sparkles',
   takeaway: 'La organización local y los detalles del catering son indispensables en el litoral.',
   sections: [
     {
@@ -75,7 +83,7 @@ export default function BlogPostPage() {
     );
   }
 
-  const PostIcon = post.icon || BookOpen;
+  const PostIcon = getIconComponent(post.icon);
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-950 via-indigo-950 to-slate-900 text-white font-sans pb-24">

@@ -1,8 +1,18 @@
 'use client';
 
 import Image from 'next/image';
-import { MessageSquare } from 'lucide-react';
+import { MessageSquare, Calendar, ChevronRight } from 'lucide-react';
 import { cn } from '@/lib/utils';
+import { motion } from 'framer-motion';
+
+export interface ServiceDetail {
+  id: string;
+  title: string;
+  description: string;
+  imageUrl: string;
+  emoji: string;
+  features: string[];
+}
 
 export interface ServiceItem {
   id: string;
@@ -14,193 +24,230 @@ export interface ServiceItem {
   imageHint: string;
   accentColor: string;
   emoji: string;
-  whatsappMessage: string;
+  whatsappMessage?: string;
 }
 
-interface ServiceCardProps {
-  service: ServiceItem;
-  whatsappNumber?: string;
-  reverse?: boolean;
-}
+const PARTY_TYPES = [
+  { title: 'Bodas', emoji: '💍', desc: 'Producción integral de ceremonias y fiestas.' },
+  { title: '15 Años', emoji: '👑', desc: 'Pistas LED, cabinas interactivas y temáticas exclusivas.' },
+  { title: 'Cumpleaños & Sociales', emoji: '🎉', desc: 'Aniversarios y festejos familiares únicos.' },
+  { title: 'Corporativos', emoji: '🏢', desc: 'Lanzamientos, cenas empresariales y conferencias.' },
+];
 
-export function ServiceCard({ service, whatsappNumber = '59899123456', reverse = false }: ServiceCardProps) {
-  const waHref = `https://wa.me/${whatsappNumber}?text=${encodeURIComponent(service.whatsappMessage)}`;
-
-  return (
-    <div
-      className={cn(
-        'flex flex-col gap-8 items-center',
-        reverse ? 'lg:flex-row-reverse' : 'lg:flex-row'
-      )}
-    >
-      {/* Image */}
-      <div className="w-full lg:w-1/2 relative">
-        <div className={cn('absolute inset-0 rounded-3xl blur-2xl opacity-30 -z-10', service.accentColor)} />
-        <div className="relative rounded-3xl overflow-hidden aspect-[4/3] shadow-2xl group">
-          <Image
-            src={service.imageUrl}
-            alt={service.title}
-            fill
-            className="object-cover transition-transform duration-700 group-hover:scale-105"
-            sizes="(max-width: 768px) 100vw, 50vw"
-            data-ai-hint={service.imageHint}
-          />
-          {/* Emoji badge */}
-          <div className="absolute top-4 left-4 w-14 h-14 rounded-2xl bg-white/90 backdrop-blur-sm flex items-center justify-center text-3xl shadow-lg">
-            {service.emoji}
-          </div>
-        </div>
-      </div>
-
-      {/* Content */}
-      <div className="w-full lg:w-1/2 space-y-6">
-        <div>
-          <p className="text-xs font-black uppercase tracking-[0.3em] text-primary mb-2">{service.subtitle}</p>
-          <h3 className="font-headline text-4xl sm:text-5xl font-black text-slate-800 leading-tight">{service.title}</h3>
-        </div>
-        <p className="text-slate-600 text-lg leading-relaxed">{service.description}</p>
-
-        {/* Features */}
-        <ul className="space-y-3">
-          {service.features.map((feature) => (
-            <li key={feature} className="flex items-start gap-3">
-              <span className={cn('w-6 h-6 rounded-full flex items-center justify-center shrink-0 mt-0.5', service.accentColor)}>
-                <svg className="w-3 h-3 text-white" viewBox="0 0 12 12" fill="none">
-                  <path d="M2 6l3 3 5-5" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
-                </svg>
-              </span>
-              <span className="text-slate-700 font-medium">{feature}</span>
-            </li>
-          ))}
-        </ul>
-
-        {/* CTA */}
-        <a
-          href={waHref}
-          target="_blank"
-          rel="noopener noreferrer"
-          className={cn(
-            'inline-flex items-center gap-3 px-6 py-3 rounded-2xl',
-            'bg-[#25D366] hover:bg-[#1eb356]',
-            'text-white font-black text-sm uppercase tracking-widest',
-            'shadow-lg shadow-green-900/20',
-            'transition-all duration-300 hover:scale-105 active:scale-95'
-          )}
-        >
-          <MessageSquare className="w-5 h-5 shrink-0" />
-          Consultar este paquete
-        </a>
-      </div>
-    </div>
-  );
-}
-
-// ─── ServicesSection ────────────────────────────────────────────────────────
-
-const DEFAULT_SERVICES: ServiceItem[] = [
+const DETAILED_SERVICES: ServiceDetail[] = [
   {
-    id: 'bodas',
-    title: 'Bodas',
-    subtitle: 'El día más especial',
-    description:
-      'Convertimos tu boda en una experiencia única e irrepetible. Desde la decoración floral hasta la pista de baile, coordinamos cada detalle para que solo te preocupes por disfrutar.',
-    features: [
-      'Coordinación integral del evento',
-      'Decoración y flores personalizadas',
-      'Fotografía y filmación profesional',
-      'Catering y menú a medida',
-      'Animación y DJ',
-      'Vestimenta y tocado',
-    ],
-    imageUrl:
-      'https://images.unsplash.com/photo-1519225421980-715cb0215aed?w=800&q=80&auto=format&fit=crop',
-    imageHint: 'wedding ceremony',
-    accentColor: 'bg-pink-500',
-    emoji: '💍',
-    whatsappMessage: '¡Hola AK Producciones! Me gustaría cotizar el paquete de Boda.',
+    id: 'discoteca-dj',
+    title: 'Discoteca & Luces Inteligentes',
+    description: 'Sonido envolvente de alta definición y show de luces robotizadas programadas en vivo por nuestros DJs.',
+    imageUrl: '/media/catalogo-servicios/salon-discoteca-ak-01.jpeg',
+    emoji: '🎧',
+    features: ['Estructura reticulada premium', 'Efectos especiales en pista', 'Sincronización de sonido'],
   },
   {
-    id: 'xv-anos',
-    title: 'XV Años',
-    subtitle: 'Una noche de ensueño',
-    description:
-      'Los 15 años de tu princesa merecen la mejor producción. Creamos ambientes mágicos, coordinamos cada momento y logramos recuerdos que durarán para siempre.',
-    features: [
-      'Temática y ambientación exclusiva',
-      'Vestido y tocado de la quinceañera',
-      'Vals y coreografías ensayadas',
-      'Mesa dulce y torta personalizada',
-      'Cobertura fotográfica y video',
-      'Invitaciones digitales premium',
-    ],
-    imageUrl:
-      'https://images.unsplash.com/photo-1464366400600-7168b8af9bc3?w=800&q=80&auto=format&fit=crop',
-    imageHint: 'quinceañera party dress',
-    accentColor: 'bg-fuchsia-500',
-    emoji: '👑',
-    whatsappMessage: '¡Hola AK Producciones! Me gustaría cotizar el paquete de XV Años.',
+    id: 'decoracion-ambientacion',
+    title: 'Decoración & Ambientación',
+    description: 'Centros de mesa, arreglos florales, livings premium y diseños temáticos completos adaptados a tu estilo.',
+    imageUrl: '/media/catalogo-servicios/boda-decoracion-dorada-01.jpeg',
+    emoji: '✨',
+    features: ['Centros de mesa únicos', 'Fondos para fotos e ingresos', 'Mobiliario de living premium'],
   },
   {
-    id: 'fiestas',
-    title: 'Fiestas & Eventos',
-    subtitle: 'Celebraciones sin límites',
-    description:
-      'Cumpleaños, aniversarios, baby showers, eventos corporativos y más. Adaptamos nuestra producción a cualquier escala y presupuesto, sin perder calidad ni creatividad.',
-    features: [
-      'Planificación y logística completa',
-      'Decoración temática personalizada',
-      'Catering variado y buffet',
-      'Animación infantil y adultos',
-      'Sonido, luces y DJ profesional',
-      'Cobertura fotográfica',
-    ],
-    imageUrl:
-      'https://images.unsplash.com/photo-1504196606672-aef5c9cefc92?w=800&q=80&auto=format&fit=crop',
-    imageHint: 'colorful party celebration',
-    accentColor: 'bg-purple-500',
-    emoji: '🎉',
-    whatsappMessage: '¡Hola AK Producciones! Me gustaría cotizar un evento/fiesta.',
+    id: 'catering-premium',
+    title: 'Catering & Menús a Medida',
+    description: 'Gastronomía premium, bocados calientes en recepción, plato principal servido e islas temáticas.',
+    imageUrl: '/media/catalogo-servicios/catering-mesa-ak-01.jpeg',
+    emoji: '🍽️',
+    features: ['Ingredientes frescos de calidad', 'Opciones celiacas/vegetarianas', 'Devolución de comida sobrante'],
+  },
+  {
+    id: 'barra-tragos',
+    title: 'Barra de Tragos & Coctelería',
+    description: 'Barras móviles iluminadas con tragos clásicos y de autor, jugos naturales y coctelería sin alcohol.',
+    imageUrl: '/media/catalogo-servicios/barra-tragos-ak-01.jpeg',
+    emoji: '🍹',
+    features: ['Barman profesionales', 'Insumos de primera línea', 'Variedad de mocktails'],
+  },
+  {
+    id: 'fotografia-video',
+    title: 'Fotografía, Video & Cabinas',
+    description: 'Captura profesional de los mejores momentos y cabinas interactivas para que tus invitados se lleven recuerdos.',
+    imageUrl: '/media/catalogo-servicios/fotografia_cabina_img_221_p21_x1613.jpeg',
+    emoji: '📸',
+    features: ['Cobertura previa y en vivo', 'Descarga directa digital', 'Cabina de fotos interactiva'],
+  },
+  {
+    id: 'pantallas-led',
+    title: 'Pantallas LED Gigantes',
+    description: 'Proyección de retrospectivas, videos emotivos y transmisión del Muro Social en vivo.',
+    imageUrl: '/media/catalogo-servicios/xv-pista-iluminada-01.jpeg',
+    emoji: '📺',
+    features: ['Paneles de alta definición', 'Contenido personalizado', 'Integrado a la cabina de DJ'],
+  },
+  {
+    id: 'glitter-bar',
+    title: 'Glitter & Makeup Bar',
+    description: 'Puesto interactivo de maquillaje brillante, apliques y luces para encender la diversión en la pista de baile.',
+    imageUrl: '/media/catalogo-servicios/glitter-bar-01.jpeg',
+    emoji: '✨',
+    features: ['Variedad de brillos y gemas', 'Espejos con luces led', 'Staff de animación dedicado'],
+  },
+  {
+    id: 'candy-bar',
+    title: 'Candy Bar & Torta Principal',
+    description: 'Repostería fina personalizada combinada con la temática y colores de la ambientación del salón.',
+    imageUrl: '/media/catalogo-servicios/candy-bar-completo-ak-02.jpeg',
+    emoji: '🍰',
+    features: ['Torta de boda o XV decorada', 'Mesa de dulces variados', 'Arreglos decorativos dulces'],
   },
 ];
 
 interface ServicesSectionProps {
-  services?: ServiceItem[];
   whatsappNumber?: string;
+  services?: any; // Ignored as we render detailed list
 }
 
-export function ServicesSection({ services = DEFAULT_SERVICES, whatsappNumber }: ServicesSectionProps) {
+export function ServicesSection({ whatsappNumber = '59898355530' }: ServicesSectionProps) {
+  const containerVariants = {
+    hidden: {},
+    visible: {
+      transition: {
+        staggerChildren: 0.05,
+      },
+    },
+  };
+
+  const cardVariants = {
+    hidden: { opacity: 0, y: 15 },
+    visible: { opacity: 1, y: 0, transition: { duration: 0.4, ease: 'easeOut' } },
+  };
+
   return (
-    <section id="servicios" data-testid="services-section" className="py-24 bg-gradient-to-b from-white to-purple-50/50">
+    <section id="servicios" className="py-24 bg-gradient-to-b from-white to-slate-50 border-b border-slate-200">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+
         {/* Header */}
         <div className="text-center mb-20">
-          <p className="text-xs font-black uppercase tracking-[0.4em] text-primary mb-4">
-            Lo que hacemos
-          </p>
-          <h2 className="font-headline text-5xl sm:text-6xl font-black text-slate-800 leading-tight mb-6">
-            Nuestros Servicios
+          <span className="inline-flex items-center gap-2 px-3 py-1 rounded-xl bg-purple-50 border border-purple-100 text-xs font-black uppercase tracking-widest text-purple-700 mb-4">
+            🔥 Todo en un solo lugar
+          </span>
+          <h2 className="font-headline text-5xl sm:text-6xl font-black text-slate-900 leading-tight mb-5">
+            Nuestros Servicios & Fiestas
           </h2>
-          <p className="text-slate-500 text-lg max-w-xl mx-auto">
-            Producción integral de eventos en Uruguay. Cada celebración, un mundo único.
+          <p className="text-slate-550 text-lg max-w-xl mx-auto leading-relaxed">
+            Coordinamos y ejecutamos cada elemento para que tu fiesta sea espectacular, transparente y sin sorpresas de costos.
           </p>
-          <div className="mt-6 flex items-center justify-center gap-2">
-            <div className="h-px w-16 bg-gradient-to-r from-transparent to-primary" />
-            <div className="w-3 h-3 rounded-full bg-primary" />
-            <div className="h-px w-16 bg-gradient-to-l from-transparent to-primary" />
+        </div>
+
+        {/* ── SECTION: TIPOS DE FIESTA ──────────────────────── */}
+        <div className="mb-24">
+          <div className="mb-8">
+            <h3 className="text-2xl font-black text-slate-900 flex items-center gap-2">
+              <Calendar className="w-6 h-6 text-indigo-650" /> Tipos de Fiesta que Hacemos
+            </h3>
+            <p className="text-slate-500 text-sm mt-1">Soluciones diseñadas a medida según el tipo de celebración.</p>
+          </div>
+
+          <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-4">
+            {PARTY_TYPES.map((party) => (
+              <div
+                key={party.title}
+                className="p-6 rounded-3xl bg-white border border-slate-200 shadow-sm hover:shadow-xl transition-all duration-300 hover:-translate-y-1"
+              >
+                <span className="text-4xl block mb-4">{party.emoji}</span>
+                <h4 className="text-lg font-black text-slate-800">{party.title}</h4>
+                <p className="text-xs font-medium text-slate-500 mt-2 leading-relaxed">{party.desc}</p>
+              </div>
+            ))}
           </div>
         </div>
 
-        {/* Service cards */}
-        <div className="space-y-28">
-          {services.map((service, index) => (
-            <ServiceCard
-              key={service.id}
-              service={service}
-              whatsappNumber={whatsappNumber}
-              reverse={index % 2 !== 0}
-            />
-          ))}
+        {/* ── SECTION: SERVICIOS DETALLADOS ───────────────────── */}
+        <div>
+          <div className="mb-10">
+            <h3 className="text-2xl font-black text-slate-900">
+              ¿Qué incluye la producción integral?
+            </h3>
+            <p className="text-slate-500 text-sm mt-1">
+              Desde el armado de la pista hasta la mesa dulce, nos encargamos de todo bajo un mismo control.
+            </p>
+          </div>
+
+          <motion.div
+            variants={containerVariants}
+            initial="hidden"
+            whileInView="visible"
+            viewport={{ once: true, margin: '-100px' }}
+            className="grid gap-8 md:grid-cols-2 lg:grid-cols-3"
+          >
+            {DETAILED_SERVICES.map((service) => {
+              const waHref = `https://wa.me/${whatsappNumber}?text=${encodeURIComponent(
+                `👋 ¡Hola AK Producciones! Me gustaría consultar por el servicio de ${service.title} para mi evento.`
+              )}`;
+              return (
+                <motion.div
+                  key={service.id}
+                  variants={cardVariants}
+                  className="group flex flex-col justify-between rounded-3xl border border-slate-200 bg-white shadow-sm hover:shadow-2xl transition-all duration-300 overflow-hidden"
+                >
+                  <div>
+                    {/* Image Area */}
+                    <div className="relative aspect-[4/3] w-full overflow-hidden bg-slate-100 border-b border-slate-100">
+                      <Image
+                        src={service.imageUrl}
+                        alt={service.title}
+                        fill
+                        className="object-cover transition-transform duration-500 group-hover:scale-103"
+                        sizes="(max-width: 768px) 100vw, 30vw"
+                      />
+                      <div className="absolute top-4 left-4 w-11 h-11 rounded-2xl bg-white/90 backdrop-blur-sm flex items-center justify-center text-xl shadow-md">
+                        {service.emoji}
+                      </div>
+                    </div>
+
+                    {/* Content Area */}
+                    <div className="p-6 space-y-4">
+                      <h4 className="text-xl font-black text-slate-900 group-hover:text-indigo-650 transition-colors">
+                        {service.title}
+                      </h4>
+                      <p className="text-sm text-slate-550 leading-relaxed font-medium">
+                        {service.description}
+                      </p>
+
+                      {/* Features mini list */}
+                      <ul className="space-y-2 pt-2">
+                        {service.features.map((feat) => (
+                          <li key={feat} className="flex items-center gap-2 text-xs font-semibold text-slate-600">
+                            <span className="h-1.5 w-1.5 rounded-full bg-indigo-500" />
+                            <span>{feat}</span>
+                          </li>
+                        ))}
+                      </ul>
+                    </div>
+                  </div>
+
+                  {/* Actions Area */}
+                  <div className="p-6 pt-0 mt-auto border-t border-slate-50">
+                    <a
+                      href={waHref}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className={cn(
+                        'flex items-center justify-center gap-2 w-full mt-4 px-4 py-3 rounded-2xl',
+                        'bg-slate-50 hover:bg-green-50 hover:text-green-700 text-slate-700 font-black text-xs uppercase tracking-wider',
+                        'border border-slate-200 hover:border-green-300 transition-all duration-200'
+                      )}
+                    >
+                      <MessageSquare className="w-4 h-4 shrink-0" />
+                      Consultar Servicio
+                      <ChevronRight className="w-3.5 h-3.5" />
+                    </a>
+                  </div>
+                </motion.div>
+              );
+            })}
+          </motion.div>
         </div>
+
       </div>
     </section>
   );

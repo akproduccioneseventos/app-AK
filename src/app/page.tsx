@@ -12,8 +12,10 @@ import { CTASection } from '@/components/landing/CTASection';
 import { FAQSection } from '@/components/landing/FAQSection';
 import { StatsSection } from '@/components/landing/StatsSection';
 import { ProcessSection } from '@/components/landing/ProcessSection';
-import { CommercialJourneySection } from '@/components/landing/CommercialJourneySection';
 import { PublicFooter } from '@/components/public-footer';
+import defaultTestimonials from '@/data/testimonials.json';
+import defaultGaleriaPublica from '@/data/galeria-publica.json';
+import defaultCatalogoFotos from '@/data/catalogo-fotos.json';
 import { BlogSection } from '@/components/landing/BlogSection';
 import { FloatingActions } from '@/components/public/FloatingActions';
 import { SalonDestacadoSection } from '@/components/landing/SalonDestacadoSection';
@@ -69,8 +71,8 @@ export default async function HomePage({ searchParams }: LandingPageProps) {
     getTestimonials().catch(() => []),
   ]);
 
-  const fotos = galeriaData?.fotos ?? [];
-  const videos = galeriaData?.videos ?? [];
+  const fotos = (galeriaData?.fotos && galeriaData.fotos.length > 0) ? (galeriaData.fotos as GaleriaFoto[]) : (defaultGaleriaPublica.fotos as GaleriaFoto[]);
+  const videos = (galeriaData?.videos && galeriaData.videos.length > 0) ? (galeriaData.videos as any[]) : (defaultGaleriaPublica.videos as any[]);
   const videoIds = new Set(videos.map((video) => video.youtubeId));
   const videosCombinados = [
     ...videos,
@@ -78,9 +80,10 @@ export default async function HomePage({ searchParams }: LandingPageProps) {
   ];
 
   const galeriaUrls = new Set(fotos.map(f => f.url));
-  const catalogoComoGaleria: GaleriaFoto[] = catalogoFotos
-    .filter(f => !galeriaUrls.has(f.url))
-    .map((f) => ({
+  const safeCatalogoFotos = (catalogoFotos && catalogoFotos.length > 0) ? catalogoFotos : defaultCatalogoFotos;
+  const catalogoComoGaleria: GaleriaFoto[] = (safeCatalogoFotos as any)
+    .filter((f: any) => !galeriaUrls.has(f.url))
+    .map((f: any) => ({
       id: f.id,
       tipo: 'foto' as const,
       url: f.url,
@@ -95,14 +98,15 @@ export default async function HomePage({ searchParams }: LandingPageProps) {
 
   const whatsapp = '59898355530'; // Usar el número real de contacto de la empresa
   const attribution = commercialAttributionFromRecord(resolvedSearchParams, 'landing');
-  const approvedTestimonials = testimonialData
-    .filter((testimonial) => testimonial.isApproved)
-    .map((testimonial, index) => {
+  const safeTestimonialData = (testimonialData && testimonialData.length > 0) ? testimonialData : defaultTestimonials;
+  const approvedTestimonials = (safeTestimonialData as any)
+    .filter((testimonial: any) => testimonial.isApproved)
+    .map((testimonial: any, index: number) => {
       const initials = testimonial.clientName
         .split(/\s+/)
         .filter(Boolean)
         .slice(0, 2)
-        .map((part) => part.charAt(0).toUpperCase())
+        .map((part: any) => part.charAt(0).toUpperCase())
         .join('');
       const colors = ['bg-red-600', 'bg-emerald-600', 'bg-blue-600', 'bg-amber-600'];
       return {
@@ -178,7 +182,6 @@ export default async function HomePage({ searchParams }: LandingPageProps) {
       />
       <StatsSection stats={landingSettings.stats.length > 0 ? landingSettings.stats : undefined} />
       <AkDifferenceSection />
-      <CommercialJourneySection attribution={attribution} whatsappNumber={whatsapp} />
       <ServicesSection whatsappNumber={whatsapp} services={servicesForLanding} />
       <TechnologyExperienceSection whatsappNumber={whatsapp} />
       <SalonDestacadoSection />
