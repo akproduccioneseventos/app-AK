@@ -406,7 +406,7 @@ export async function updateBarDrinkOrderStatus(
         await ref.update({ status, updatedAt });
         const snapshot = await ref.get();
         const orderData = snapshot.data() as BarDrinkOrder;
-        
+
         if (status === 'entregado') {
           const fiesta = await getFiestaById(fiestaId);
           if (fiesta) {
@@ -415,7 +415,7 @@ export async function updateBarDrinkOrderStatus(
             if (drink) await descontarStock(drink);
           }
         }
-        
+
         return { success: true, order: orderData };
       } catch (error) {
         logger.warn('[barra-tecnologica] firestore status update failed, using fallback:', error);
@@ -430,13 +430,13 @@ export async function updateBarDrinkOrderStatus(
     ));
     await saveFallbackOrders(fiesta, orders);
     const updatedOrder = orders.find((order) => order.id === orderId);
-    
+
     if (status === 'entregado' && updatedOrder) {
       const drinks = await getBarDrinks(fiesta);
       const drink = drinks.find(d => d.id === updatedOrder.drinkId);
       if (drink) await descontarStock(drink);
     }
-    
+
     return { success: true, order: updatedOrder };
   } catch (error: any) {
     return { success: false, error: error.message || 'No se pudo actualizar el pedido.' };
@@ -470,9 +470,9 @@ export async function uploadBarMagicPhoto(formData: FormData): Promise<{ success
     const storagePath = `bar-tech/${fiestaId}/${mediaId}${extension}`;
     const bytes = await file.arrayBuffer();
     const url = await uploadToStorage(Buffer.from(bytes), storagePath, file.type || 'image/jpeg', true);
-    
-    const baseCaption = drinkName 
-      ? `Disfrutando de un ${drinkName} en la barra interactiva` 
+
+    const baseCaption = drinkName
+      ? `Disfrutando de un ${drinkName} en la barra interactiva`
       : (caption || 'Mi foto en la barra tecnologica AK');
     const shareText = `${baseCaption} ${settings.hashtag} ${settings.instagramHandle}`.trim();
 
