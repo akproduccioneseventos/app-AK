@@ -51,6 +51,8 @@ export interface BarTechnologyDashboard {
   drinks: Trago[];
   settings: BarTechnologySettings;
   orders: BarDrinkOrder[];
+  backgroundImageUrl?: string;
+  protagonistaFotoUrl?: string;
 }
 
 export interface CreateBarDrinkOrderInput {
