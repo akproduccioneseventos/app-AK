@@ -489,27 +489,27 @@ function SimuladorContent() {
         if (!config || !selectedPaqueteId) return [];
         const currentPackage = config.paquetes.find(p => p.id === selectedPaqueteId);
         const otherPackages = config.paquetes.filter(p => p.id !== selectedPaqueteId);
-        
+
         const otherServicesIds = new Set<string>();
         otherPackages.forEach(p => {
             p.serviciosIncluidos?.forEach(s => otherServicesIds.add(s.id));
         });
-        
+
         if (currentPackage) {
             currentPackage.serviciosIncluidos?.forEach(s => otherServicesIds.delete(s.id));
         }
-        
+
         const currentSelectedIds = new Set([
             ...Array.from(formData.serviciosSeleccionados.keys()),
             ...selectedEntradas,
             ...(selectedPrincipal ? [selectedPrincipal] : []),
             ...(selectedInfantil ? [selectedInfantil] : []),
         ]);
-        
+
         currentSelectedIds.forEach(id => otherServicesIds.delete(id));
-        
+
         const suggested = serviciosCatalogo.filter(s => otherServicesIds.has(s.id));
-        
+
         if (suggested.length < 3) {
             const popularIds = ['serv_barra_tragos', 'serv_pista_led', 'serv_plataforma_360', 'serv_cabina_fotos'];
             popularIds.forEach(id => {
@@ -519,7 +519,7 @@ function SimuladorContent() {
                 }
             });
         }
-        
+
         return suggested.slice(0, 4);
     }, [config, selectedPaqueteId, serviciosCatalogo, selectedEntradas, selectedPrincipal, selectedInfantil, formData.serviciosSeleccionados]);
 
@@ -1950,8 +1950,8 @@ function SimuladorContent() {
                                             key={item.id}
                                             className={cn(
                                                 "flex items-start justify-between gap-4 rounded-2xl border-2 p-5 transition-all duration-300 bg-white",
-                                                isExcluded 
-                                                    ? "border-dashed border-slate-200 bg-slate-50/50 opacity-60" 
+                                                isExcluded
+                                                    ? "border-dashed border-slate-200 bg-slate-50/50 opacity-60"
                                                     : "border-slate-200 hover:border-slate-350 shadow-sm"
                                             )}
                                         >
@@ -1966,7 +1966,7 @@ function SimuladorContent() {
                                                     {isExcluded ? "Retirado" : `Costo total: ${formatCurrency(item.costoTotal)}`}
                                                 </span>
                                             </div>
-                                            
+
                                             {!item.esRegalo && (
                                                 <Button
                                                     type="button"
@@ -2154,7 +2154,7 @@ function SimuladorContent() {
                                             const diffTotal = precioAlternativo - precioActual;
                                             const diffPorPersona = Math.round(Math.abs(diffTotal) / (totalInvitados || 1));
                                             const esMejora = diffTotal > 0;
-                                            
+
                                             return (
                                                 <div key={p.id} className="p-6 bg-slate-50 border border-slate-100 rounded-3xl flex flex-col justify-between gap-4">
                                                     <div>
@@ -2162,8 +2162,8 @@ function SimuladorContent() {
                                                         <h5 className="text-lg font-black text-slate-800 uppercase tracking-tight">{p.nombre}</h5>
                                                         <p className="mt-2 text-xl font-black text-primary">{formatCurrency(precioAlternativo)}</p>
                                                         <p className="mt-1 text-xs text-slate-500 font-bold">
-                                                            {esMejora 
-                                                                ? `Mejorá por ${formatCurrency(diffPorPersona)} más por persona` 
+                                                            {esMejora
+                                                                ? `Mejorá por ${formatCurrency(diffPorPersona)} más por persona`
                                                                 : `Ahorrás ${formatCurrency(diffPorPersona)} por persona`}
                                                         </p>
                                                     </div>
