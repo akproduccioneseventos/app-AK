@@ -1767,7 +1767,7 @@ function SimuladorContent() {
                                                 {imageUrl && (
                                                   <div className="h-20 w-24 rounded-2xl overflow-hidden border bg-white shrink-0">
                                                     {/* eslint-disable-next-line @next/next/no-img-element */}
-                                                    <img src={imageUrl} alt={s.nombre} className="h-full w-full object-cover" />
+                                                    <img src={imageUrl} alt={s.nombre} loading="lazy" decoding="async" className="h-full w-full object-cover" />
                                                   </div>
                                                 )}
                                                 <Checkbox checked={selectedEntradas.includes(s.id)} onCheckedChange={v => handleEntradaChange(s.id, !!v)} className="h-6 w-6 rounded-lg"/>
@@ -1801,7 +1801,7 @@ function SimuladorContent() {
                                                 {imageUrl && (
                                                   <div className="h-20 w-24 rounded-2xl overflow-hidden border bg-white shrink-0">
                                                     {/* eslint-disable-next-line @next/next/no-img-element */}
-                                                    <img src={imageUrl} alt={s.nombre} className="h-full w-full object-cover" />
+                                                    <img src={imageUrl} alt={s.nombre} loading="lazy" decoding="async" className="h-full w-full object-cover" />
                                                   </div>
                                                 )}
                                                 <RadioGroupItem value={s.id} className="h-6 w-6"/>
@@ -1836,7 +1836,7 @@ function SimuladorContent() {
                                                     {imageUrl && (
                                                       <div className="h-20 w-24 rounded-2xl overflow-hidden border bg-white shrink-0">
                                                         {/* eslint-disable-next-line @next/next/no-img-element */}
-                                                        <img src={imageUrl} alt={s.nombre} className="h-full w-full object-cover" />
+                                                        <img src={imageUrl} alt={s.nombre} loading="lazy" decoding="async" className="h-full w-full object-cover" />
                                                       </div>
                                                     )}
                                                     <RadioGroupItem value={s.id} className="h-6 w-6 border-purple-300"/>
