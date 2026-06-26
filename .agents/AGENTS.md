@@ -11,7 +11,7 @@
 - **Uso Obligatorio de Graphify**: Antes de empezar una tarea, usá `graphify` para entender la arquitectura y relaciones entre componentes.
 - **Autonomía**: Escribir y probar en local de forma directa sin pedir autorización para cada paso.
 - **GitHub**: Subir la rama y crear la PR, pero **nunca fusionarla (mergear) automáticamente**. El usuario la revisa y fusiona a mano.
-- **Verificación de PR Abierta**: Antes de subir cambios o crear una PR, revisá siempre si la PR de esa rama sigue abierta en GitHub. Si la PR anterior ya fue cerrada o fusionada (merged), **no sumes más commits a esa rama**. En su lugar, creá una nueva rama de trabajo desde la última versión de `main` y generá una nueva Pull Request abierta para la tarea actual.
+- **Verificación de PR Abierta (OBLIGATORIO)**: Antes de empezar una tarea, crear una rama o subir commits, es obligatorio verificar en GitHub qué Pull Requests están abiertas y sus estados. Si la PR de la rama actual ya fue cerrada, archivada o fusionada, **está estrictamente prohibido seguir subiendo cambios a esa rama**. En su lugar, debés sincronizarte localmente con `main` actualizado, crear una rama nueva y limpia, y generar una nueva PR abierta para la tarea actual, asegurando así un despliegue limpio sin mezclar código viejo.
 - **Honestidad Absoluta (0 Humo)**: Los títulos y descripciones de commits y PRs deben describir **únicamente los cambios reales y precisos** que hiciste. Cero falsas promesas de rediseños o mejoras que no estén realmente implementadas.
 - **Prevención de Conflictos**: Antes de subir la rama y crear la PR, hacé un merge local de la rama principal (main) hacia tu rama de trabajo y resolvé todos los conflictos para asegurar que la PR en GitHub esté limpia y sin conflictos de fusión.
 
