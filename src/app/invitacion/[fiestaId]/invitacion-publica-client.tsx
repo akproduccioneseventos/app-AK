@@ -667,7 +667,9 @@ function BackgroundMusicPlayer({ src, splashDone }: { src?: string; splashDone: 
   return (
     <div className="fixed top-6 right-6 z-[99]">
       <motion.button
+        type="button"
         onClick={togglePlay}
+        aria-label={playing ? 'Pausar musica' : 'Reproducir musica'}
         className="w-12 h-12 rounded-full bg-white/80 backdrop-blur-md border shadow-lg flex items-center justify-center relative hover:scale-105 active:scale-95 transition-transform duration-300 focus:outline-none"
         style={{ borderColor: 'var(--inv-primary)' }}
         animate={playing ? { rotate: 360 } : {}}
@@ -1416,8 +1418,8 @@ export function InvitacionPublicaClient({ config, fiestaId, socialConnections = 
           >
             <p className="text-sm sm:text-base tracking-[0.3em] uppercase mb-4 opacity-80">{tipoLabel}</p>
             <h1 
-              className={cn(config.typography?.lineHeight || 'leading-tight', 'mb-6 break-words max-w-full px-4', styles.fontHeading)}
-              style={{ fontSize: 'clamp(2.25rem, 8vw, 4.5rem)' }}
+              className={cn(getHeroTitleClass(config.typography), config.typography?.lineHeight || 'leading-tight', 'mb-6 break-words max-w-full px-4', styles.fontHeading)}
+              style={{ overflowWrap: 'anywhere' }}
             >
               {isEditorMode && onConfigChange ? (
                 <>
