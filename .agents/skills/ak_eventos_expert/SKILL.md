@@ -1,60 +1,82 @@
-# Habilidad Experta: Desarrollo y Diseño para AK Producciones
+---
+name: ak-eventos-expert
+description: Especialista en diseño, desarrollo web, CRM, presupuestos y landing page comercial pública para AK Producciones en Salto, Uruguay.
+---
 
-Esta guía de habilidades define las directrices obligatorias de diseño, desarrollo de software y lógica de negocio para la aplicación central de **AK Producciones Eventos** (Salto, Uruguay). Debe ser leída y aplicada en cada iteración del código.
+# Habilidad Experta: Desarrollo, Diseño y Marketing para AK Producciones
+
+Esta guía de habilidades consolida las especificaciones técnicas del proyecto, los requerimientos comerciales generados por ChatGPT, los comentarios de la web pública de la productora, y las reglas operativas del negocio de eventos. Debe ser respetada e implementada en cada iteración del código.
 
 ---
 
-## 1. Directrices de Diseño y Experiencia de Usuario (UI/UX)
+## 1. Reglas de Diseño, Experiencia de Usuario (UI/UX) y Landing Pública
 
-* **Paleta de Colores Corporativa:** Exclusivamente Indigo/Slate de nivel Premium. Está prohibido el uso de la paleta roja conflictiva anterior.
-* **Prohibido el uso de `!important`:** No se deben inyectar estilos CSS con `!important` que rompan la cascada y la responsividad de Radix UI / Tailwind.
-* **Optimización de Media (LCP):** Está prohibido el uso de etiquetas de imagen nativas `<img>` para renderizar contenido del catálogo o de decoración. Se debe utilizar siempre el componente `<Image />` de `next/image` con tamaños (`sizes`) optimizados para dispositivos móviles (los clientes en Salto acceden mayoritariamente desde celulares).
-* **Tono Local y Lenguaje:** El lenguaje debe ser directo, uruguayo, humano y profesional.
+* **Separación de Entornos (Público vs. Privado):**
+  * La página pública/landing de marketing debe abrir siempre en el root `/` sin requerir ningún tipo de login o autenticación del visitante.
+  * El sistema privado y paneles interactivos deben quedar estrictamente separados en las siguientes rutas protegidas: `/login`, `/dashboard`, `/app`, `/admin`, `/clientes`, `/presupuestos`, `/eventos`.
+  * Nunca se debe bloquear la página de inicio principal con un login obligatorio.
+* **Paleta de Colores Corporativa:** Exclusivamente colores Indigo y Slate con estética Premium, vibrante y moderna. Está terminantemente prohibido el uso de la paleta roja conflictiva anterior en cualquier elemento visual de la landing o de la aplicación.
+* **Prohibido el uso de `!important`:** No se deben inyectar estilos CSS utilizando `!important` que rompan la cascada nativa y la flexibilidad responsiva de Radix UI o TailwindCSS.
+* **Optimización de Medios (LCP):** Está prohibido el uso de la etiqueta HTML nativa `<img>` para renderizar imágenes del catálogo o de decoración. Se debe usar siempre el componente `<Image />` de `next/image` con la propiedad `sizes` optimizada para dispositivos móviles (los clientes de Salto acceden mayoritariamente desde smartphones).
+* **Salón Club Uruguay y Módulo de Tecnología:**
+  * Destacar el **Salón Club Uruguay** como el salón preferencial y exclusivo de la productora en Salto, integrado con servicios completos de fiesta.
+  * Promocionar activamente el **Módulo de Tecnología Interactiva** (pistas de luces LED, pantallas gigantes, fotocabinas 360, muro social interactivo en tiempo real) como diferenciador principal.
+
+---
+
+## 2. Vocabulario y Copy Comercial Estricto (Reglas de la Productora)
+
+* **Idioma y Tono:** Comunicación en español rioplatense uruguayo usando modismos naturales ("vos", "bo", "che").
+* **Vocabulario Comercial Obligatorio:**
   * Usar siempre **"comida"**, nunca "catering".
-  * Usar siempre **"discoteca"**, nunca "DJ".
-  * Resaltar el **Club Uruguay Salto** como salón preferencial integrado con servicio completo.
+  * Usar siempre **"discoteca"**, nunca "DJ" ni "disc jockey".
+  * Destacar en textos, títulos y banners las frases clave: **"servicio integral"**, **"fiesta completa"** y **"todo en un solo lugar"**.
+* **Copys Principales del Hero de la Web:**
+  * Título: `"Organizá tu fiesta completa en Salto con AK Producciones"`
+  * Subtítulo: `"Salón, comida, discoteca, decoración, fotografía, filmación, barra y coordinación en un solo lugar."`
+  * Botones de Acción: Limitar a dos llamadas a la acción principales: "Simular Presupuesto" (redirige al simulador interactivo público) y "Contacto por WhatsApp".
 
 ---
 
-## 2. Reglas del Motor Financiero y Operativo
+## 3. Reglas del Motor Financiero y de Presupuestos
 
-* **Duración de Eventos:** Lógica simplificada:
-  * Menos de 4 horas: Fiesta chica / Habilita máximo 1 entrada de comida.
-  * 4 horas o más: Fiesta grande / Habilita máximo 2 entradas de comida.
+* **Duración de Eventos:**
+  * Menos de 4 horas: Se considera fiesta chica y habilita un máximo de 1 entrada de comida.
+  * 4 horas o más: Se considera fiesta grande y habilita hasta 2 entradas de comida.
 * **Cálculo de Invitados por Categoría:**
   * Comida infantil/menores: Suma estricta de Niños + Adolescentes.
   * Platos adultos: Suma estricta de Adultos.
-  * Servicios generales (Salón, Luces, Pantallas, Discoteca): Suma de Adultos + Niños + Adolescentes.
+  * Servicios generales (Salón, Luces, Pantallas, Discoteca): Suma total de Adultos + Niños + Adolescentes.
 * **Cálculo de Ajuste Inflacionario Anual (Fórmula Continua):**
-  * Prohibido calcular la diferencia en años enteros simples (`event.getFullYear() - created.getFullYear()`).
-  * Debe calcularse de forma fraccionaria continua basada en la diferencia real de días entre la fecha de creación y el evento:
+  * Está prohibido calcular la inflación basándose únicamente en años enteros simples (`event.getFullYear() - created.getFullYear()`).
+  * Debe calcularse de forma fraccionaria continua basada en la diferencia real de días entre la fecha de creación del presupuesto y la fecha del evento:
     ```typescript
     const timeDiff = event.getTime() - created.getTime();
     const yearsDiff = Math.max(0, timeDiff / (1000 * 60 * 60 * 24 * 365.25));
     ```
 * **Validación de Pagos y Guardrails:**
-  * Prohibido registrar pagos por montos mayores al saldo restante del presupuesto.
-  * Los pagos pendientes o rechazados no deben sumarse a los ingresos confirmados del negocio.
-  * Validar siempre contra `validatePaymentAgainstBudget()` en `financial-guardrails.ts`.
+  * Prohibido registrar pagos por montos superiores al saldo restante del presupuesto del cliente.
+  * Los pagos pendientes o rechazados no deben sumarse a los ingresos confirmados del negocio en los dashboards analytics.
+  * Validar siempre contra la función `validatePaymentAgainstBudget()` en `financial-guardrails.ts`.
 
 ---
 
-## 3. Arquitectura del Backend y Base de Datos
+## 4. Arquitectura del Backend, Seguridad y Firebase
 
-* **Escritura Dual Resistente a Fallos:**
-  * Firestore es el origen de la verdad.
-  * En Server Actions, si falla la comunicación de red con Firestore, el flujo no debe colapsar la experiencia del usuario final; debe registrar un warning y utilizar la colección genérica de respaldo (`json_documents`).
-  * **Regla de Sincronización y Despliegue en Firebase:** Cada vez que hagas una PR nueva y antes de su confirmación, es obligatorio verificar rigurosamente que los cambios no introduzcan errores de compilación y que se pueda lanzar sin fallas en Firebase App Hosting. Cualquier llamada a `writeData`, `syncToFirestore` o funciones de persistencia debe tener manejo de errores (`try/catch` o `.catch()`) para que los fallos no afecten la usabilidad.
-* **Seguridad de Sesiones:**
-  * Respetar los parámetros de cifrado `scrypt` con sal (salt) y verificación contra ataques de tiempo en `simple-auth.ts`.
-  * Mantener el bloqueo preventivo (`LOCKOUT_MS`) de 15 minutos tras 5 intentos fallidos de login o recuperación.
-
-## 4. Estilo de Comunicación con el Cliente
-
-* **Absoluta Concreción e Integridad:** Hablar siempre de forma clara, directa y concreta. Sin divagar, alucinar ni inventar datos.
-* **Transparencia Total:** Si algo no está listo, tiene errores o no se puede lograr, se debe reportar explícitamente y con honestidad al cliente.
-* **Sin Código en el Chat:** Está terminantemente prohibido incluir bloques de código de programación en la conversación del chat. Toda la lógica y cambios técnicos deben quedar guardados en los archivos del proyecto y explicados funcionalmente.
-* **Foco en el Negocio y la Estética:** Mantener siempre el criterio de experto en estética premium (indigo/slate, transiciones fluidas, responsividad móvil) y en las necesidades reales del negocio de eventos.
+* **Escritura Dual y Tolerancia a Fallos:**
+  * Firestore de Firebase es la única fuente de la verdad para todos los entornos.
+  * Al realizar escrituras en Server Actions, si se detecta un fallo de red o conexión con Firestore, no se debe colapsar la experiencia del usuario; el sistema debe registrar un warning interno y guardar la información en la colección genérica de respaldo (`json_documents`).
+  * Toda llamada a `writeData`, `syncToFirestore` o persistencia debe envolverse en bloques `try/catch` o `.catch()` para evitar excepciones no controladas.
+* **Seguridad de Sesión y Lockout:**
+  * Las contraseñas y accesos deben validarse utilizando el cifrado `scrypt` con sal (salt) y comprobación temporal resistente a ataques de sincronización en `simple-auth.ts`.
+  * Mantener el bloqueo preventivo (`LOCKOUT_MS`) de 15 minutos tras 5 intentos consecutivos fallidos de inicio de sesión o recuperación de credenciales.
+* **Compatibilidad de Despliegue en Firebase App Hosting:**
+  * Antes de proponer o subir cualquier cambio, es obligatorio validar que Next.js compile en producción ejecutando la compilación local (`npm run build`) con un límite de heap configurado si es necesario (`NODE_OPTIONS="--max-old-space-size=4096"`).
 
 ---
-*(Habilidad Experta cargada y activa en el sistema).*
+
+## 5. Criterios de Comunicación del Asistente
+
+* **Perfil del Usuario:** El usuario no es programador. Evitá tecnicismos de bajo nivel o explicaciones complejas de la estructura de base de datos.
+* **Respuestas Cortas e Informativas:** Sé directo, breve y conciso en tus respuestas. Ve directo al grano.
+* **Sin Bloques de Código en el Chat:** Está prohibido incluir fragmentos o bloques de código de programación (TypeScript, CSS, HTML) en los mensajes del chat de respuesta directa al usuario. Todas las implementaciones técnicas deben guardarse directamente en los archivos correspondientes del repositorio y explicarse al usuario de forma funcional.
