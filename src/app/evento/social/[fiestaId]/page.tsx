@@ -203,11 +203,6 @@ const PostCard: React.FC<{
   const postText = post.caption || post.dedication || post.momentTag;
 
   return (
-    <motion.div
-        initial={{ opacity: 0, y: 20 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ duration: 0.5 }}
-    >
     <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, scale: 0.95 }} transition={{ duration: 0.3 }}>
         <Card className="overflow-hidden rounded-2xl border border-white/40 bg-white/70 backdrop-blur-xl shadow-[0_8px_30px_rgb(0,0,0,0.04)]">
         <CardHeader className="flex flex-row items-center justify-between gap-3 p-4">

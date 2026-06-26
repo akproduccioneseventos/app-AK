@@ -39,7 +39,7 @@ const formatDate = (dateString?: string) => {
   } catch (e) { return "Fecha inválida"; }
 };
 
-type ModuleBadge = 'Cliente' | 'Invitado' | 'Operativo' | 'Pantalla' | 'Interno' | 'Impresión';
+type ModuleBadge = 'Cliente' | 'Invitado' | 'Operativo' | 'Pantalla' | 'Interno' | 'Impresión' | 'VIP';
 
 interface ModuleDefinition {
   id: string;
@@ -138,7 +138,7 @@ const categoryMeta: Record<string, { icon: React.ElementType; color: string; des
   'OPERATIVA Y LOGÍSTICA':             { icon: Truck,           color: 'text-amber-700 bg-amber-100',   description: 'Lista de carga, logística, proveedores y personal.' },
   'EXPERIENCIA DEL CLIENTE VIP':       { icon: KeyRound,        color: 'text-amber-600 bg-amber-50',    description: 'Portal VIP, itinerario, música, video de vida e invitados.' },
   'PRODUCCIÓN MULTIMEDIA':             { icon: Camera,          color: 'text-purple-700 bg-purple-100', description: 'Foto, video, regalos y material del evento.' },
-  'EXPERIENCIA DEL INVITADO VIP':      { icon: Globe,           color: 'text-blue-700 bg-blue-100',     description: 'Invitación web, portal, QR, check-in y mesas.' },
+  'EXPERIENCIA DEL INVITADO VIP':      { icon: Globe,           color: 'text-blue-700 bg-blue-100',     description: 'Invitación web, portal, red social, QR, check-in y mesas.' },
   'PANTALLA GIGANTE AK':               { icon: Tv,              color: 'text-indigo-700 bg-indigo-100', description: 'Evento en vivo, muro social, playlist, mission control y readiness.' },
   'DISEÑO, SALÓN Y AMBIENTACIÓN':      { icon: Palette,         color: 'text-pink-700 bg-pink-100',     description: 'Decoración, moodboard y ambientación del salón.' },
   'GASTRONOMÍA Y SERVICIO':            { icon: UtensilsCrossed, color: 'text-orange-700 bg-orange-100', description: 'Catering, menú, alergias, lista de compras y tragos.' },
@@ -153,6 +153,7 @@ const badgeColors: Record<ModuleBadge, string> = {
   Pantalla:  'bg-indigo-100 text-indigo-700 border-indigo-200',
   Interno:   'bg-slate-100 text-slate-600 border-slate-200',
   Impresión: 'bg-violet-100 text-violet-700 border-violet-200',
+  VIP:        'bg-fuchsia-100 text-fuchsia-700 border-fuchsia-200',
 };
 
 type QuickMode = 'dia-evento' | 'preparacion' | 'cliente' | 'tecnologia' | null;
@@ -165,7 +166,7 @@ const quickModes: { id: QuickMode; label: string; icon: React.ElementType; color
 ];
 
 // Module IDs that are always visible regardless of modulosContratados
-const alwaysVisibleIds = ['enVivo', 'missionControl', 'readiness', 'fiestaLista', 'centroTotal', 'proveedoresPortal', 'configuracion', 'entretenimiento', 'zonaDigital', 'pantallasTotem', 'barraTecnologica'];
+const alwaysVisibleIds = ['enVivo', 'missionControl', 'readiness', 'fiestaLista', 'centroTotal', 'proveedoresPortal', 'configuracion', 'entretenimiento', 'redSocial', 'zonaDigital', 'pantallasTotem', 'barraTecnologica'];
 
 function PlannerDashboardContent() {
   const { toast } = useToast();
