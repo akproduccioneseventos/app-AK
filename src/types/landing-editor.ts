@@ -75,20 +75,22 @@ export interface LandingSettings {
 export const defaultLandingSettings: LandingSettings = {
   whatsappNumber: '59898355530',
   hero: {
-    headline: 'Hacemos Realidad\ntu Celebración',
+    headline: 'Organizá tu fiesta completa\nen Salto con AK Producciones',
     subheadline:
-      'Bodas, XV Años, Cumpleaños y más — producción integral con calidad premium en Uruguay.',
+      'Salón, comida, discoteca, decoración, fotografía, filmación, barra y coordinación en un solo lugar.',
     backgroundImageUrl:
       '/media/catalogo-servicios/salon-discoteca-ak-01.jpeg',
     badgeText: 'Producción Integral de Eventos',
-    ctaLabel: 'Cotizá tu evento ahora',
-    ctaUrl: '/simulador-de-presupuesto',
+    ctaLabel: 'Consultar fecha por WhatsApp',
+    ctaUrl: 'https://wa.me/59898355530',
   },
   services: [
-    { id: 'svc_1', icon: '💍', title: 'Bodas', description: 'Producción integral de bodas civiles y religiosas.' },
-    { id: 'svc_2', icon: '🎂', title: 'XV Años', description: 'Celebraciones únicas y memorables.' },
-    { id: 'svc_3', icon: '🎉', title: 'Cumpleaños', description: 'Fiestas personalizadas para todas las edades.' },
-    { id: 'svc_4', icon: '🏢', title: 'Eventos Corporativos', description: 'Lanzamientos, conferencias y team buildings.' },
+    { id: 'svc_1', icon: '💍', title: 'Bodas', description: 'Planificación y producción integral de bodas con todo resuelto.' },
+    { id: 'svc_2', icon: '👑', title: 'XV Años', description: 'Celebraciones modernas, coreografías y pistas LED espectaculares.' },
+    { id: 'svc_3', icon: '🎉', title: 'Cumpleaños & Sociales', description: 'Aniversarios y festejos familiares únicos.' },
+    { id: 'svc_4', icon: '🏢', title: 'Eventos Corporativos', description: 'Lanzamientos de marcas, cenas empresariales y conferencias.' },
+    { id: 'svc_5', icon: '🏛️', title: 'Salón Club Uruguay', description: 'Producción exclusiva en el salón clásico más elegante de Salto.' },
+    { id: 'svc_6', icon: '📱', title: 'Tecnología Interactiva', description: 'Portal del cliente, invitación QR y muro social en pantalla gigante en vivo.' },
   ],
   stats: [
     { value: '+500', label: 'Eventos Realizados', icon: '🎉' },
@@ -118,23 +120,33 @@ export const defaultLandingSettings: LandingSettings = {
   faqs: [
     {
       id: 'faq_1',
-      question: '¿Cuánto cuesta organizar una fiesta?',
-      answer: 'El precio varía según el tipo de evento, la cantidad de invitados y los servicios incluidos. Podés usar nuestro simulador de presupuesto para obtener una cotización personalizada en minutos.',
+      question: '¿Cómo reservo mi fecha?',
+      answer: 'Coordinamos una entrevista sin costo (presencial o por videollamada) para ver los detalles básicos de tu fiesta completa. La reserva de la fecha se asegura mediante una seña.',
     },
     {
       id: 'faq_2',
-      question: '¿Con cuánta anticipación debo reservar?',
-      answer: 'Recomendamos reservar con al menos 3 a 6 meses de anticipación, especialmente para fechas de alta demanda (fines de semana en temporada alta). Igual, no dudes en consultarnos aunque sea con menos tiempo.',
+      question: '¿Qué incluye el servicio integral?',
+      answer: 'Es una fiesta completa con todo en un solo lugar: salón, comida, discoteca, decoración, fotografía, filmación, barra y la coordinación general antes y durante el evento.',
     },
     {
       id: 'faq_3',
-      question: '¿Qué incluye el servicio de AK Producciones?',
-      answer: 'Ofrecemos producción integral: catering, ambientación y decoración, discoteca e iluminación, coordinación del evento y mucho más. Cada paquete es personalizable según tus necesidades.',
+      question: '¿Puedo contratar solo algunos servicios?',
+      answer: 'Sí, totalmente. Aunque nos especializamos en darte el servicio integral para tu tranquilidad, podés contratar por separado módulos específicos como discoteca, fotografía o la cabina de fotos.',
     },
     {
       id: 'faq_4',
-      question: '¿Puedo ver el salón antes de reservar?',
-      answer: 'Por supuesto. Podés agendar una visita sin costo para conocer el espacio y hablar con nuestro equipo. Escribinos por WhatsApp o usá el simulador para dar el primer paso.',
+      question: '¿Trabajan con Club Uruguay?',
+      answer: 'Sí, somos especialistas en realizar eventos en el Salón Club Uruguay de Salto. Nos encargamos de coordinar todo el armado clásico, comida, discoteca y personal en ese espacio.',
+    },
+    {
+      id: 'faq_5',
+      question: '¿Cómo pido presupuesto?',
+      answer: 'Podés usar el simulador de presupuesto en esta web para tener un precio estimado según tu cantidad de invitados y los servicios que elijas, o pedirlo directamente por WhatsApp.',
+    },
+    {
+      id: 'faq_6',
+      question: '¿Hacen fiestas de 15, bodas y cumpleaños?',
+      answer: 'Sí, producimos de forma integral fiestas de 15 años, bodas, aniversarios, cumpleaños familiares y eventos empresariales en Salto.',
     },
   ],
 };

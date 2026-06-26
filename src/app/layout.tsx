@@ -51,7 +51,7 @@ const dancingScript = localFont({
 });
 
 export const viewport: Viewport = {
-  themeColor: '#d71920',
+  themeColor: '#4f46e5',
   width: 'device-width',
   initialScale: 1,
 };

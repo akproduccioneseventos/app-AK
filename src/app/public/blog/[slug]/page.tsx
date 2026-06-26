@@ -1,5 +1,6 @@
 import type { Metadata } from 'next';
 import Link from 'next/link';
+import Image from 'next/image';
 import { notFound } from 'next/navigation';
 import { PublicNavbar } from '@/components/public/PublicNavbar';
 import { PublicFooter } from '@/components/public-footer';
@@ -7,6 +8,7 @@ import { CompanyLogo } from '@/components/company-logo';
 import * as Lucide from 'lucide-react';
 import { getBlogPosts, getBlogPostBySlug, getRelatedPosts } from '@/app/actions/blog';
 import { BlogFaq } from '@/components/public/BlogFaq';
+import { blogPosts as defaultBlogPosts, getPostImage } from '@/data/blog-posts';
 
 interface Props {
   params: Promise<{ slug: string }>;
@@ -14,19 +16,24 @@ interface Props {
 
 const WHATSAPP_NUMBER = '59898355530';
 
-function getIconComponent(name: string) {
+function getIconComponent(name: any) {
+  if (typeof name !== 'string') return name || Lucide.BookOpen;
   const IconComp = (Lucide as any)[name];
   return IconComp || Lucide.BookOpen;
 }
 
 export async function generateStaticParams() {
-  const posts = await getBlogPosts();
+  const postsFromDb = await getBlogPosts();
+  const posts = (postsFromDb && postsFromDb.length > 0) ? postsFromDb : defaultBlogPosts;
   return posts.map((post) => ({ slug: post.slug }));
 }
 
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const { slug } = await params;
-  const post = await getBlogPostBySlug(slug);
+  let post = await getBlogPostBySlug(slug);
+  if (!post) {
+    post = defaultBlogPosts.find(p => p.slug === slug) || null;
+  }
   if (!post) return { title: 'Blog AK Producciones' };
 
   return {
@@ -37,12 +44,24 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
 
 export default async function BlogPostPage({ params }: Props) {
   const { slug } = await params;
-  const post = await getBlogPostBySlug(slug);
+  let post = await getBlogPostBySlug(slug);
+  if (!post) {
+    post = defaultBlogPosts.find(p => p.slug === slug) || null;
+  }
 
   if (!post) notFound();
 
   const Icon = getIconComponent(post.icon);
-  const related = await getRelatedPosts(post);
+  
+  // Get related posts
+  let relatedFromDb = await getRelatedPosts(post);
+  if (!relatedFromDb || relatedFromDb.length === 0) {
+    // Local fallback for related posts
+    relatedFromDb = defaultBlogPosts
+      .filter((item) => item.slug !== post!.slug && item.category === post!.category)
+      .slice(0, 2);
+  }
+
   const whatsappMessage = `Hola AK Producciones, lei el articulo "${post.title}" y quiero asesoramiento para mi evento.`;
 
   return (
@@ -50,25 +69,32 @@ export default async function BlogPostPage({ params }: Props) {
       <PublicNavbar whatsappNumber={WHATSAPP_NUMBER} whatsappMessage={whatsappMessage} />
 
       <main>
-        <section className={`relative overflow-hidden bg-gradient-to-br ${post.accent} text-white`}>
-          {/* Overlay de cuadrícula estética y brillo */}
-          <div className="absolute inset-0 bg-[linear-gradient(rgba(255,255,255,0.03)_1px,transparent_1px),linear-gradient(90deg,rgba(255,255,255,0.03)_1px,transparent_1px)] bg-[size:30px_30px] opacity-50" />
-          <div className="absolute -top-40 -right-40 h-96 w-96 rounded-full bg-white/5 blur-3xl" />
+        <section className="relative overflow-hidden bg-zinc-950 text-white py-12 lg:py-16 border-b border-white/5">
+          {/* Real image background with custom overlay */}
+          <Image
+            src={getPostImage(post.slug)}
+            alt={post.title}
+            fill
+            className="object-cover opacity-30"
+            sizes="100vw"
+            priority
+          />
+          <div className="absolute inset-0 bg-gradient-to-br from-zinc-950 via-zinc-900/85 to-zinc-950/45" />
+          <div className="absolute inset-0 bg-[linear-gradient(rgba(255,255,255,0.02)_1px,transparent_1px),linear-gradient(90deg,rgba(255,255,255,0.02)_1px,transparent_1px)] bg-[size:30px_30px] opacity-35" />
           
-          <div className="relative z-10 mx-auto max-w-4xl px-4 py-12 lg:py-16">
+          <div className="relative z-10 mx-auto max-w-4xl px-4">
             <div className="flex items-center justify-between mb-8">
               <Link
                 href="/public/blog"
-                className="inline-flex items-center gap-2 rounded-full border border-white/20 bg-white/5 px-4 py-2 text-xs font-black uppercase tracking-wider text-white/90 transition hover:bg-white/15"
+                className="inline-flex items-center gap-2 rounded-full border border-white/20 bg-white/5 px-4 py-2 text-xs font-black uppercase tracking-wider text-white/95 transition hover:bg-white/15"
               >
                 <Lucide.ArrowLeft className="h-4 w-4" />
                 Volver al blog
               </Link>
               
-              {/* Sello de nanobanana AI en cabecera */}
               <div className="flex items-center gap-1.5 rounded-full bg-white/10 backdrop-blur-md border border-white/15 px-3 py-1.5 text-[9px] font-black uppercase tracking-[0.18em] text-white">
-                <span className="h-1.5 w-1.5 rounded-full bg-cyan-400 animate-ping" />
-                nanobanana AI
+                <span className="h-1.5 w-1.5 rounded-full bg-indigo-400 animate-pulse" />
+                AK Staff
               </div>
             </div>
  
@@ -83,8 +109,8 @@ export default async function BlogPostPage({ params }: Props) {
                 <h1 className="text-4xl font-black leading-tight sm:text-5xl">{post.title}</h1>
                 <p className="text-lg leading-8 text-white/85">{post.excerpt}</p>
               </div>
-              <div className="flex h-24 w-24 shrink-0 items-center justify-center rounded-[2rem] border border-white/20 bg-white/15 backdrop-blur-sm shadow-xl">
-                <Icon className="h-12 w-12" />
+              <div className="flex h-20 w-20 shrink-0 items-center justify-center rounded-2xl border border-white/20 bg-white/10 backdrop-blur-sm shadow-xl text-indigo-300">
+                <Icon className="h-10 w-10" />
               </div>
             </div>
           </div>
@@ -93,8 +119,8 @@ export default async function BlogPostPage({ params }: Props) {
         <section className="border-b border-slate-200 bg-white px-4 py-10">
           <div className="mx-auto grid max-w-5xl gap-8 lg:grid-cols-[1fr_280px]">
             <article className="space-y-10">
-              <div className="rounded-3xl border border-purple-100 bg-purple-50 p-6">
-                <p className="text-[11px] font-black uppercase tracking-[0.22em] text-purple-700">Idea principal</p>
+              <div className="rounded-3xl border border-indigo-50 bg-indigo-50/50 p-6">
+                <p className="text-[11px] font-black uppercase tracking-[0.22em] text-indigo-600">Idea principal</p>
                 <p className="mt-3 text-xl font-black leading-8 text-slate-950">{post.takeaway}</p>
               </div>
 
@@ -103,7 +129,7 @@ export default async function BlogPostPage({ params }: Props) {
                   <h2 className="text-2xl font-black text-slate-950">{section.heading}</h2>
                   <div className="space-y-4">
                     {section.body.map((paragraph) => (
-                      <p key={paragraph} className="text-base leading-8 text-slate-700">
+                      <p key={paragraph} className="text-base leading-8 text-slate-750 font-medium">
                         {paragraph}
                       </p>
                     ))}
@@ -113,10 +139,10 @@ export default async function BlogPostPage({ params }: Props) {
 
               {post.checklist && (
                 <section className="rounded-3xl border border-slate-200 bg-slate-50 p-6">
-                  <h2 className="text-2xl font-black text-slate-950">Checklist practico</h2>
+                  <h2 className="text-2xl font-black text-slate-950">Checklist práctico</h2>
                   <ul className="mt-5 space-y-3">
                     {post.checklist.map((item) => (
-                      <li key={item} className="flex gap-3 text-sm leading-7 text-slate-700">
+                      <li key={item} className="flex gap-3 text-sm leading-7 text-slate-700 font-medium">
                         <Lucide.CheckCircle2 className="mt-0.5 h-5 w-5 shrink-0 text-emerald-600" />
                         <span>{item}</span>
                       </li>
@@ -134,7 +160,7 @@ export default async function BlogPostPage({ params }: Props) {
                 </div>
                 <div>
                   <h2 className="text-lg font-black text-slate-950">¿Lo vemos juntos?</h2>
-                  <p className="mt-2 text-sm leading-6 text-slate-600">
+                  <p className="mt-2 text-sm leading-6 text-slate-650 font-medium">
                     Mandanos tu fecha tentativa, invitados y tipo de evento. Te ayudamos a ordenar opciones al instante.
                   </p>
                 </div>
@@ -164,7 +190,7 @@ export default async function BlogPostPage({ params }: Props) {
                   <h2 className="text-xl font-black leading-tight text-slate-950 group-hover:text-purple-700 transition-colors duration-200">
                     Probá el simulador de presupuestos
                   </h2>
-                  <p className="text-xs leading-5 text-slate-600">
+                  <p className="text-xs leading-5 text-slate-600 font-medium">
                     Calculá una base exacta jugando con los servicios y la comida, y ajustala después profesionalmente con nosotros.
                   </p>
                   <div className="pt-2 flex items-center gap-1.5 text-xs font-black uppercase tracking-wider text-purple-700">
@@ -174,21 +200,21 @@ export default async function BlogPostPage({ params }: Props) {
                 </div>
               </Link>
 
-              {/* Acordeón de FAQs Cliente */}
+              {/* FAQs Accordion */}
               <BlogFaq />
             </aside>
           </div>
         </section>
 
-        {related.length > 0 && (
+        {relatedFromDb.length > 0 && (
           <section className="bg-slate-50 px-4 py-12">
             <div className="mx-auto max-w-5xl space-y-6">
               <div>
-                <p className="text-[11px] font-black uppercase tracking-[0.22em] text-purple-700">Seguir leyendo</p>
+                <p className="text-[11px] font-black uppercase tracking-[0.22em] text-indigo-600">Seguir leyendo</p>
                 <h2 className="mt-2 text-2xl font-black text-slate-950">Consejos relacionados</h2>
               </div>
               <div className="grid gap-4 md:grid-cols-2">
-                {related.map((item) => {
+                {relatedFromDb.map((item) => {
                   const RelatedIcon = getIconComponent(item.icon);
                   return (
                     <Link
@@ -196,13 +222,22 @@ export default async function BlogPostPage({ params }: Props) {
                       href={`/public/blog/${item.slug}`}
                       className="group flex gap-4 rounded-3xl border border-slate-200 bg-white p-5 shadow-sm transition hover:-translate-y-1 hover:border-purple-200 hover:shadow-lg"
                     >
-                      <div className={`flex h-14 w-14 shrink-0 items-center justify-center rounded-2xl bg-gradient-to-br ${item.accent} text-white`}>
-                        <RelatedIcon className="h-7 w-7" />
+                      <div className="relative h-14 w-14 shrink-0 rounded-2xl overflow-hidden bg-slate-950 text-white flex items-center justify-center">
+                        <Image
+                          src={getPostImage(item.slug)}
+                          alt={item.title}
+                          fill
+                          className="object-cover opacity-50"
+                          sizes="56px"
+                        />
+                        <div className="relative z-10 text-white">
+                          <RelatedIcon className="h-5 w-5" />
+                        </div>
                       </div>
                       <div className="min-w-0">
-                        <p className="text-[10px] font-black uppercase tracking-[0.18em] text-slate-500">{item.category}</p>
-                        <h3 className="mt-1 font-black leading-snug text-slate-950 group-hover:text-purple-700">{item.title}</h3>
-                        <span className="mt-3 inline-flex items-center gap-1 text-xs font-black uppercase tracking-wider text-purple-700">
+                        <p className="text-[10px] font-black uppercase tracking-[0.18em] text-slate-450">{item.category}</p>
+                        <h3 className="mt-1 font-black leading-snug text-slate-950 group-hover:text-indigo-600 truncate" title={item.title}>{item.title}</h3>
+                        <span className="mt-2 inline-flex items-center gap-1 text-xs font-black uppercase tracking-wider text-indigo-600">
                           Leer
                           <Lucide.ArrowRight className="h-3.5 w-3.5" />
                         </span>

@@ -29,7 +29,7 @@ export function PublicNavbar({
     >
       <div className="max-w-6xl mx-auto px-4 h-16 flex items-center justify-between">
         {/* Logo + Brand */}
-        <Link href="/public" className="flex items-center gap-3 group">
+        <Link href="/" className="flex items-center gap-3 group">
           <CompanyLogo size="sm" className="group-hover:scale-110 transition-transform duration-200" />
           <span className="text-sm font-black uppercase tracking-widest text-slate-800 hidden sm:block">
             AK Producciones
@@ -37,7 +37,7 @@ export function PublicNavbar({
         </Link>
 
         <nav className="hidden items-center gap-5 text-[11px] font-black uppercase tracking-[0.18em] text-slate-600 md:flex">
-          <Link href="/public" className="transition hover:text-purple-700">
+          <Link href="/" className="transition hover:text-purple-700">
             Inicio
           </Link>
           <Link href="/public/blog" className="transition hover:text-purple-700">

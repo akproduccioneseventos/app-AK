@@ -22,12 +22,12 @@ export function HeroSection({
   whatsappNumber = '59899123456',
   headline = 'Hacemos Realidad\ntu Celebración',
   subheadline = 'Bodas, XV Años, cumpleaños y eventos empresariales con producción integral, atención cercana y una experiencia digital simple para tus invitados.',
-  backgroundImageUrl = 'https://images.unsplash.com/photo-1519741497674-611481863552?w=1920&q=85&auto=format&fit=crop',
+  backgroundImageUrl = '/media/catalogo-servicios/xv-pista-iluminada-01.jpeg',
   promoActiva,
   whatsappMessage = 'Hola AK Producciones, vi su pagina y me gustaria cotizar mi evento.',
-  ctaLabel = 'Cotiza tu evento',
+  ctaLabel = 'Consultar por WhatsApp',
   simulatorHref = '/simulador-de-presupuesto',
-  simulatorLabel = 'Probar Simulador',
+  simulatorLabel = 'Simular Presupuesto',
 }: HeroSectionProps) {
   const waHref = `https://wa.me/${whatsappNumber}?text=${encodeURIComponent(whatsappMessage)}`;
 
@@ -48,10 +48,10 @@ export function HeroSection({
   return (
     <section data-testid="hero-section" className="relative min-h-screen flex items-center overflow-hidden bg-zinc-950">
       <div
-        className="absolute inset-0 scale-105 bg-cover bg-center bg-no-repeat opacity-40"
+        className="absolute inset-0 scale-105 bg-cover bg-center bg-no-repeat opacity-70"
         style={{ backgroundImage: `url('${backgroundImageUrl}')` }}
       />
-      <div className="absolute inset-0 bg-[linear-gradient(105deg,rgba(2,6,23,0.95)_0%,rgba(9,9,11,0.90)_52%,rgba(24,24,27,0.70)_100%)]" />
+      <div className="absolute inset-0 bg-[linear-gradient(105deg,rgba(2,6,23,0.75)_0%,rgba(9,9,11,0.65)_52%,rgba(24,24,27,0.40)_100%)]" />
       <div className="absolute inset-0 bg-[radial-gradient(circle_at_22%_24%,rgba(99,102,241,0.15),transparent_20rem),radial-gradient(circle_at_76%_18%,rgba(139,92,246,0.12),transparent_22rem)]" />
       <div
         className="absolute inset-0 opacity-15"
@@ -109,23 +109,6 @@ export function HeroSection({
             variants={itemVariants}
             className="flex flex-col sm:flex-row items-stretch sm:items-center gap-4"
           >
-            <a
-              href={waHref}
-              target="_blank"
-              rel="noopener noreferrer"
-              data-testid="hero-cta-button"
-              className={cn(
-                'flex items-center gap-3 px-8 py-4 rounded-2xl',
-                'bg-white hover:bg-slate-100',
-                'text-slate-950 font-black text-base uppercase tracking-widest',
-                'shadow-2xl shadow-slate-950/40',
-                'transition-all duration-300 hover:scale-[1.02] active:scale-95',
-                'min-w-[220px] justify-center'
-              )}
-            >
-              <MessageSquare className="w-6 h-6 shrink-0 text-indigo-600" />
-              {ctaLabel}
-            </a>
             <Link
               href={simulatorHref}
               className={cn(
@@ -139,6 +122,22 @@ export function HeroSection({
               {simulatorLabel}
               <ArrowRight className="w-5 h-5 shrink-0" />
             </Link>
+            <a
+              href={waHref}
+              target="_blank"
+              rel="noopener noreferrer"
+              data-testid="hero-cta-button"
+              className={cn(
+                'flex items-center gap-3 px-8 py-4 rounded-2xl',
+                'bg-white/5 backdrop-blur-md border border-white/10 hover:bg-white/10 hover:border-white/20',
+                'text-white font-black text-base uppercase tracking-widest',
+                'transition-all duration-300 hover:scale-[1.02] active:scale-95',
+                'min-w-[220px] justify-center'
+              )}
+            >
+              <MessageSquare className="w-6 h-6 shrink-0 text-indigo-400" />
+              {ctaLabel}
+            </a>
           </motion.div>
 
           <motion.div variants={itemVariants} className="mt-14 grid grid-cols-3 gap-3 max-w-lg">
