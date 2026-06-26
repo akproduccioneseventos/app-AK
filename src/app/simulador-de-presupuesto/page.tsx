@@ -101,7 +101,7 @@ const DURATION_OPTIONS = [
 
 const STEP_LABELS = ['Presentación', 'Datos', 'Menú', 'Paquete', 'Edición'] as const;
 
-const menuItemToServicioEmpresa = (item: MenuItem & { precioVenta: number }): ServicioEmpresa => {
+const menuItemToServicioEmpresa = (item: MenuItem & { precioVenta: number; imageUrl?: string }): ServicioEmpresa => {
     return {
         id: item.id,
         nombre: item.name,
@@ -113,7 +113,7 @@ const menuItemToServicioEmpresa = (item: MenuItem & { precioVenta: number }): Se
         precioVenta: item.precioVenta,
         precioBase: item.precioVenta,
         valorUnitarioEstimado: item.totalDishCost,
-        imageUrl: getCateringDishImage(item),
+        imageUrl: item.imageUrl || getCateringDishImage(item),
         isFeatured: item.isFeatured,
     };
 };
@@ -643,6 +643,7 @@ function SimuladorContent() {
         const availability = await checkDateAvailability(date.toISOString());
         if (availability.isOccupied) {
             setDateWarning('⚠️ Fecha no disponible. Te sugerimos estas fechas cercanas:');
+            setDateSuggestions(availability.suggestions || []);
         } else {
             setDateWarning('');
             setDateSuggestions([]);
