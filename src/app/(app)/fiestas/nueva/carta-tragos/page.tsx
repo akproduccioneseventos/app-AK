@@ -38,7 +38,7 @@ function CartaTragosContent() {
   const [isUploading, setIsUploading] = useState(false);
   const [isSyncingMaster, setIsSyncingMaster] = useState(false);
   const [error, setError] = useState<string | null>(null);
-  
+
   const printRef = useRef<HTMLDivElement>(null);
 
 
@@ -63,13 +63,13 @@ function CartaTragosContent() {
       if (!fiestaData) throw new Error("Fiesta no encontrada");
       setFiesta(fiestaData);
       setMasterItems(masterItems);
-      
+
       const mergedData = { ...defaultCartaTragosData, ...(fiestaData.cartaTragos || {}) };
       if (!mergedData.protagonistaNombre) mergedData.protagonistaNombre = fiestaData.configuracion.protagonista1Nombre || 'La Agasajada';
       if (!mergedData.titulo) mergedData.titulo = 'CARTA DE TRAGOS';
       if (!mergedData.numeroPrincipal) mergedData.numeroPrincipal = fiestaData.configuracion.tipoCelebracion === 'XV años' ? 'Mis XV' : 'Nuestra Boda';
       mergedData.items = mergeMasterTragosWithFiesta(masterItems, mergedData.items || []);
-      
+
       setCartaTragos(mergedData);
 
     } catch (e: any) {
@@ -87,7 +87,7 @@ function CartaTragosContent() {
   const handleUpdate = (field: keyof CartaTragosData, value: any) => {
     setCartaTragos(prev => ({ ...prev, [field]: value }));
   };
-  
+
   const handleColorChange = (colorType: 'primary' | 'secondary' | 'accent' | 'background', value: string) => {
     setCartaTragos(prev => ({
         ...prev,
@@ -179,7 +179,7 @@ function CartaTragosContent() {
     if (!printRef.current) return;
     toast({ title: "Generando imagen...", description: "Por favor, espera un momento."});
     try {
-        const canvas = await html2canvas(printRef.current, { 
+        const canvas = await html2canvas(printRef.current, {
             scale: 2, // Increase resolution
             useCORS: true, // For external images
             backgroundColor: '#ffffff',
@@ -201,7 +201,7 @@ function CartaTragosContent() {
     setFileToUpload(null);
     setIsEditModalOpen(true);
   };
-  
+
   const handleUpdateItem = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!editingItem) return;
@@ -235,20 +235,20 @@ function CartaTragosContent() {
     }
 
     finalItem.imageUrl = finalImageUrl;
-    
+
     setCartaTragos(prev => ({
       ...prev,
       items: prev.items.map(item =>
         item.id === finalItem.id ? finalItem : item
       ),
     }));
-    
+
     setIsEditModalOpen(false);
     setEditingItem(null);
     setFileToUpload(null);
     setPreviewUrl(null);
   };
-  
+
   const handleFileChange = (e: ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (file) {
@@ -258,14 +258,13 @@ function CartaTragosContent() {
   };
 
   const handleAddCustomDrink = () => {
-    const protagonist = fiesta?.configuracion.protagonista1Nombre || 'la Agasajada';
     const newDrink: Trago = {
       id: `custom_${Date.now()}_${Math.random().toString(36).slice(2, 6)}`,
-      nombre: `Trago Especial de ${protagonist}`,
-      imageUrl: '',
-      descripcion: `Un trago creado especialmente para celebrar el evento de ${protagonist}.`,
-      ingredientes: ['Jugo de frutas', 'Garnitura especial'],
-      stockDisponible: 99,
+      nombre: 'Destornillador',
+      imageUrl: 'https://images.unsplash.com/photo-1513558161293-cdaf765ed2fd?q=80&w=600&auto=format&fit=crop',
+      descripcion: 'El clásico trago de Vodka con Jugo de Naranja, fresco y enérgico.',
+      ingredientes: ['Vodka', 'Jugo de Naranja', 'Hielo'],
+      stockDisponible: 120,
     };
     setCartaTragos((prev) => ({
       ...prev,
@@ -280,7 +279,7 @@ function CartaTragosContent() {
   if (error) {
     return <div className="p-8 max-w-4xl mx-auto text-center">{error}</div>;
   }
-  
+
   return (
     <div className="bg-gray-100 min-h-screen pb-10 print:bg-white print:pb-0">
         <Dialog open={isEditModalOpen} onOpenChange={setIsEditModalOpen}>
@@ -418,7 +417,7 @@ function CartaTragosContent() {
                </div>
             </div>
         </div>
-        
+
         <div className="flex flex-col items-center py-10 print:py-0">
           <Card className="p-0 border-none shadow-2xl print:shadow-none bg-white">
             <div ref={printRef} className="w-[15cm] h-[10cm] bg-white print:mx-auto">
@@ -436,9 +435,9 @@ function CartaTragosContent() {
          @media print {
             body { -webkit-print-color-adjust: exact; color-adjust: exact; background: white !important; }
             .sidebar, header, nav, button, .no-print, .notifications-hub, .sidebar-inset > header { display: none !important ; }
-            @page { 
+            @page {
                 size: 15cm 10cm landscape;
-                margin: 0; 
+                margin: 0;
             }
             main { padding: 0 !important; margin: 0 !important; }
             .print-main-override { padding: 0 !important; }
