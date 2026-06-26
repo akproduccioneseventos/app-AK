@@ -28,8 +28,11 @@ Rules:
 - Do not make Knip findings a blocking CI check until the existing baseline has been reviewed.
 - Keep test tools in devDependencies; they must not be imported by production application code.
 
-## Pull Requests y Despliegues
+## Directivas de Comunicación y Calidad para IAs
 
-- **Prohibido Fusionar PRs**: Las IA tienen estrictamente prohibido fusionar (mergear) Pull Requests por sí solas. Deben limitarse a crear la Pull Request en GitHub y dejarla abierta para que sea el usuario o el flujo de despliegue quien la revise, la fusione y la despliegue.
-- **Control de Pull Requests**: Siempre revisá si la PR de la rama en la que estás trabajando sigue abierta en GitHub. Si la PR ya fue cerrada o fusionada (merged), **nunca** subas cambios nuevos a esa rama. Creá una rama nueva desde main y abrí una PR nueva para evitar mezclar cambios en PRs cerradas.
-- **Honestidad en PRs y commits**: El título y la descripción de las PRs y de los commits deben describir **únicamente los cambios reales y precisos** que hiciste. No prometas ni nombres "mejoras", "rediseños premium" o cambios estéticos si en verdad son ajustes técnicos o de dependencias. Sé súper directo, descriptivo y sin exagerar.
+- **Perfil del Usuario (No Programador)**: El usuario **no es programador**. Todos los planes de implementación, explicaciones y respuestas deben estar redactados en un lenguaje sumamente sencillo, directo, claro y libre de tecnicismos complejos de bajo nivel.
+- **Prohibido Alucinar**: Queda estrictamente prohibido alucinar o inventar código, variables, APIs, archivos, rutas o dependencias que no existan. Si no tenés certeza absoluta sobre algo, debés investigarlo en el código o consultarlo. Todo lo programado debe ser 100% real y funcional.
+- **Uso Obligatorio de Graphify**: Antes de iniciar cualquier tarea o responder sobre la arquitectura del código, debés usar `graphify` para mapear el codebase y entender perfectamente las relaciones entre archivos para evitar roturas.
+- **Control de PRs y Builds sin errores**: Antes de empezar una tarea, verificá en GitHub que la PR anterior no esté cerrada o fusionada (si lo está, siempre creá una rama nueva desde `main` limpio). Asegurá también que no haya errores de build o de lanzamiento en Firebase App Hosting.
+- **Prohibido Fusionar PRs**: Las IA tienen estrictamente prohibido fusionar (mergear) Pull Requests por sí solas. Deben crear la PR en GitHub y dejarla abierta para que el usuario la revise y fusione a mano.
+- **Honestidad Absoluta (0 Humo)**: El título y la descripción de las PRs y de los commits deben describir **únicamente los cambios reales y precisos** que hiciste. No prometas mejoras estéticas, rediseños premium ni optimizaciones que no estén implementadas concretamente. Cero promesas que no sean reales.
