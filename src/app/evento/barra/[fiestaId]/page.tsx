@@ -216,15 +216,34 @@ export default function BarraTecnologicaTouchPage() {
 
   const startRecording = () => {
     if (!streamRef.current) return;
-    const mediaRecorder = new MediaRecorder(streamRef.current, { mimeType: 'video/webm' });
+
+    let mediaRecorder: MediaRecorder;
+    try {
+      const preferredMimeType = MediaRecorder.isTypeSupported('video/webm') ? 'video/webm' : '';
+      mediaRecorder = preferredMimeType
+        ? new MediaRecorder(streamRef.current, { mimeType: preferredMimeType })
+        : new MediaRecorder(streamRef.current);
+    } catch {
+      toast({ title: 'Error', description: 'Este dispositivo no permite grabar video desde el navegador.', variant: 'destructive' });
+      return;
+    }
+
     mediaRecorderRef.current = mediaRecorder;
 
     const chunks: Blob[] = [];
     mediaRecorder.ondataavailable = (e) => { if (e.data.size > 0) chunks.push(e.data); };
     mediaRecorder.onstop = () => {
-      const blob = new Blob(chunks, { type: 'video/webm' });
-      const url = URL.createObjectURL(blob);
-      setCapturedDataUrl(url);
+      const blob = new Blob(chunks, { type: mediaRecorder.mimeType || 'video/webm' });
+      const reader = new FileReader();
+      reader.onloadend = () => {
+        if (typeof reader.result === 'string') {
+          setCapturedDataUrl(reader.result);
+        }
+      };
+      reader.onerror = () => {
+        toast({ title: 'Error', description: 'No se pudo preparar el video para subirlo.', variant: 'destructive' });
+      };
+      reader.readAsDataURL(blob);
     };
 
     mediaRecorder.start();
