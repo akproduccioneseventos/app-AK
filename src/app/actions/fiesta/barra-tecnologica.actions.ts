@@ -112,7 +112,15 @@ async function getDb(): Promise<Firestore | null> {
 async function getBarDrinks(fiesta: FiestaEnPlanificacion): Promise<Trago[]> {
   const masterItems = await getCartaTragosMaster().catch(() => defaultCartaTragosData.items);
   const fiestaItems = fiesta.cartaTragos?.items || defaultCartaTragosData.items;
-  return mergeMasterTragosWithFiesta(masterItems, fiestaItems)
+  const merged = mergeMasterTragosWithFiesta(masterItems, fiestaItems);
+
+  const sorted = [...merged].sort((a, b) => {
+    const aCustom = a.id?.startsWith('custom_') ? 1 : 0;
+    const bCustom = b.id?.startsWith('custom_') ? 1 : 0;
+    return bCustom - aCustom;
+  });
+
+  return sorted
     .filter((drink) => drink && drink.nombre)
     .map((drink) => ({
       ...drink,
@@ -190,6 +198,8 @@ export async function getBarraTecnologicaDashboard(fiestaId: string): Promise<{ 
         settings: stored.settings,
         drinks,
         orders,
+        backgroundImageUrl: fiesta.cartaTragos?.backgroundImageUrl || '',
+        protagonistaFotoUrl: fiesta.cartaTragos?.protagonistaFotoUrl || '',
       },
     };
   } catch (error: any) {
@@ -306,7 +316,7 @@ export async function createBarmanManualOrder(input: CreateBarDrinkOrderInput): 
       drinkId: drink.id,
       drinkName: drink.nombre,
       guestName: 'Barman',
-      status: 'entregado',
+      status: 'nuevo',
       createdAt: now,
       updatedAt: now,
       source: 'staff',
@@ -323,8 +333,6 @@ export async function createBarmanManualOrder(input: CreateBarDrinkOrderInput): 
     } else {
       await saveFallbackOrders(fiesta, [order, ...(stored.orders || [])]);
     }
-
-    await descontarStock(drink);
 
     return { success: true, order };
   } catch (error: any) {
