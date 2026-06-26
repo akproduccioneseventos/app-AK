@@ -244,7 +244,7 @@ function RsvpSection({ fiestaId, texto, typography, onSuccess }: { fiestaId: str
   }
 
   return (
-    <div className="space-y-6 max-w-md mx-auto bg-white p-6 sm:p-8 rounded-3xl border border-gray-150 shadow-xl">
+    <div className="space-y-6 max-w-md mx-auto bg-white/75 backdrop-blur-lg p-6 sm:p-8 rounded-[2rem] border border-white/40 shadow-xl">
       {texto && step === 1 && <p className="text-center text-xs sm:text-sm text-gray-500 leading-relaxed mb-4">{texto}</p>}
 
       {/* Progress Bar */}
@@ -502,10 +502,10 @@ function CopyButton({ text }: { text: string }) {
 const Section: React.FC<{ children: React.ReactNode; className?: string; id?: string; typography?: InvitacionTypographyConfig }> = ({ children, className, id, typography }) => (
   <motion.section
     id={id}
-    initial={{ opacity: 0, y: 30 }}
+    initial={{ opacity: 0, y: 40 }}
     whileInView={{ opacity: 1, y: 0 }}
-    viewport={{ once: true, margin: '-50px' }}
-    transition={{ duration: 0.6, ease: 'easeOut' }}
+    viewport={{ once: true, margin: '-60px' }}
+    transition={{ duration: 0.85, ease: [0.16, 1, 0.3, 1] }}
     className={cn('px-4 sm:px-8', getSectionSpacingClass(typography), className)}
   >
     {children}
@@ -665,27 +665,38 @@ function BackgroundMusicPlayer({ src, splashDone }: { src?: string; splashDone: 
   };
 
   return (
-    <div className="fixed top-6 right-6 z-[99] flex items-center gap-2 bg-black/55 backdrop-blur-md px-3.5 py-2 rounded-full border border-white/20 shadow-2xl select-none">
-      {playing && (
-        <div className="flex gap-[3.5px] items-end h-3.5 w-6 px-0.5">
-          {[...Array(4)].map((_, i) => (
-            <motion.span
-              key={i}
-              animate={{ height: [4, 14, 4] }}
-              transition={{
-                duration: 0.55 + i * 0.12,
-                repeat: Infinity,
-                ease: 'easeInOut',
-              }}
-              className="w-[3px] bg-white rounded-full"
-            />
-          ))}
-        </div>
-      )}
-      <button onClick={togglePlay} className="text-white hover:text-opacity-80 transition-opacity flex items-center gap-1.5 font-medium text-xs">
-        {playing ? <Volume2 className="w-4.5 h-4.5" /> : <VolumeX className="w-4.5 h-4.5" />}
-        <span className="sr-only">Música</span>
-      </button>
+    <div className="fixed top-6 right-6 z-[99]">
+      <motion.button
+        type="button"
+        onClick={togglePlay}
+        aria-label={playing ? 'Pausar musica' : 'Reproducir musica'}
+        className="w-12 h-12 rounded-full bg-white/80 backdrop-blur-md border shadow-lg flex items-center justify-center relative hover:scale-105 active:scale-95 transition-transform duration-300 focus:outline-none"
+        style={{ borderColor: 'var(--inv-primary)' }}
+        animate={playing ? { rotate: 360 } : {}}
+        transition={playing ? { duration: 12, repeat: Infinity, ease: 'linear' } : {}}
+      >
+        {playing ? (
+          <div className="absolute inset-0 flex items-center justify-center">
+            <div className="flex gap-[2.5px] items-end h-3.5">
+              {[...Array(3)].map((_, i) => (
+                <motion.span
+                  key={i}
+                  animate={{ height: [3, 12, 3] }}
+                  transition={{
+                    duration: 0.5 + i * 0.15,
+                    repeat: Infinity,
+                    ease: 'easeInOut',
+                  }}
+                  className="w-[2px] rounded-full"
+                  style={{ backgroundColor: 'var(--inv-primary)' }}
+                />
+              ))}
+            </div>
+          </div>
+        ) : (
+          <VolumeX className="w-5 h-5" style={{ color: 'var(--inv-primary)' }} />
+        )}
+      </motion.button>
     </div>
   );
 }
@@ -777,7 +788,7 @@ function StoryTimeline({ hitos, colorPrincipal, colorSecundario }: { hitos: Hito
                 "w-full sm:w-[45%] pl-10 sm:pl-0",
                 isEven ? "sm:text-right sm:pr-8" : "sm:pl-8"
               )}>
-                <div className="bg-white rounded-2xl p-5 border border-gray-150 shadow-sm hover:shadow-md transition-shadow relative overflow-hidden">
+                <div className="bg-white/75 backdrop-blur-md rounded-2xl p-5 border border-white/40 shadow-sm hover:shadow-md transition-shadow relative overflow-hidden">
                   <div className="absolute top-0 left-0 right-0 h-1" style={{ backgroundColor: colorPrincipal }} />
                   {hito.fecha && (
                     <span className="inline-block text-xs font-bold px-2.5 py-1 rounded-full mb-3 shadow-sm text-white" style={{ backgroundColor: colorPrincipal }}>
@@ -813,7 +824,7 @@ function LogisticaCards({ hospedajes, colorPrincipal, colorSecundario }: { hospe
     <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 max-w-2xl mx-auto">
       {hospedajes.map((hotel, i) => (
         <TiltCard key={i}>
-          <div className="bg-white rounded-2xl p-5 border border-gray-150 h-full flex flex-col justify-between shadow-sm relative overflow-hidden">
+          <div className="bg-white/75 backdrop-blur-md rounded-2xl p-5 border border-white/40 h-full flex flex-col justify-between shadow-sm relative overflow-hidden">
             <div>
               <div className="w-10 h-10 rounded-full flex items-center justify-center mb-4" style={{ backgroundColor: colorSecundario }}>
                 <Hotel className="w-5 h-5" style={{ color: colorPrincipal }} />
@@ -851,8 +862,8 @@ function getTemplateStyles(plantillaId: string): {
   switch (plantillaId) {
     case 'XV_NeonParty':
       return {
-        fontHeading: 'font-sans font-extrabold tracking-wider uppercase',
-        fontBody: 'font-mono text-gray-200 bg-slate-950',
+        fontHeading: 'font-body font-black tracking-widest uppercase',
+        fontBody: 'font-body text-gray-200 bg-slate-950',
         heroOverlay: 'from-slate-950 via-slate-950/60 to-transparent',
         sectionAltBg: 'bg-slate-900 border-y border-fuchsia-500/25',
         borderStyle: 'border-fuchsia-500/30',
@@ -860,17 +871,17 @@ function getTemplateStyles(plantillaId: string): {
       };
     case 'XV_PrincesaClasica':
       return {
-        fontHeading: 'font-serif italic tracking-wide',
-        fontBody: 'font-serif text-slate-800 bg-rose-50/10',
-        heroOverlay: 'from-rose-950/45 via-rose-100/10 to-transparent',
-        sectionAltBg: 'bg-rose-50/40',
-        borderStyle: 'border-rose-200',
-        badgeClass: 'bg-rose-100 text-rose-800 border border-rose-200',
+        fontHeading: 'font-playfair italic tracking-wide font-medium',
+        fontBody: 'font-body text-zinc-800 bg-[#fff9f9]',
+        heroOverlay: 'from-rose-950/40 via-rose-100/5 to-transparent',
+        sectionAltBg: 'bg-[#fff4f4] border-y border-rose-100',
+        borderStyle: 'border-rose-100',
+        badgeClass: 'bg-rose-50 text-rose-700 border border-rose-100',
       };
     case 'XV_GlowInTheDark':
       return {
-        fontHeading: 'font-sans font-black tracking-widest uppercase',
-        fontBody: 'font-sans text-gray-100 bg-purple-950',
+        fontHeading: 'font-body font-black tracking-widest uppercase',
+        fontBody: 'font-body text-gray-100 bg-purple-950',
         heroOverlay: 'from-purple-950 via-purple-900/50 to-transparent',
         sectionAltBg: 'bg-purple-900/60 border-y border-purple-500/20',
         borderStyle: 'border-lime-400/35',
@@ -878,57 +889,57 @@ function getTemplateStyles(plantillaId: string): {
       };
     case 'XV_MinimalChic':
       return {
-        fontHeading: 'font-sans font-light tracking-[0.2em] uppercase',
-        fontBody: 'font-sans font-light text-neutral-800 bg-neutral-50/10',
-        heroOverlay: 'from-neutral-900/45 via-neutral-100/10 to-transparent',
-        sectionAltBg: 'bg-neutral-50',
+        fontHeading: 'font-body font-light tracking-[0.25em] uppercase',
+        fontBody: 'font-body font-light text-neutral-800 bg-neutral-50/10',
+        heroOverlay: 'from-neutral-900/40 via-neutral-100/5 to-transparent',
+        sectionAltBg: 'bg-neutral-50 border-y border-neutral-100',
         borderStyle: 'border-neutral-200',
-        badgeClass: 'bg-neutral-100 text-neutral-800 border border-neutral-300',
+        badgeClass: 'bg-neutral-100 text-neutral-800 border border-neutral-200',
       };
     case 'EleganteDorado':
       return {
-        fontHeading: 'font-serif',
-        fontBody: 'font-sans',
-        heroOverlay: 'from-black/60 via-black/30 to-transparent',
-        sectionAltBg: 'bg-gradient-to-b from-amber-50/50 to-white',
-        borderStyle: 'border-amber-200',
-        badgeClass: 'bg-amber-100 text-amber-800',
+        fontHeading: 'font-playfair font-bold tracking-wide',
+        fontBody: 'font-body text-zinc-800 bg-[#fdfbf7]',
+        heroOverlay: 'from-black/55 via-black/20 to-transparent',
+        sectionAltBg: 'bg-gradient-to-b from-[#fbf8f2] to-[#fdfbf7] border-y border-amber-100/60',
+        borderStyle: 'border-amber-100/70',
+        badgeClass: 'bg-amber-50 text-amber-800 border border-amber-100/40',
       };
     case 'ModernoMinimalista':
       return {
-        fontHeading: 'font-sans',
-        fontBody: 'font-sans',
-        heroOverlay: 'from-black/50 to-transparent',
-        sectionAltBg: 'bg-gray-50',
+        fontHeading: 'font-body font-medium tracking-normal',
+        fontBody: 'font-body text-gray-800 bg-white',
+        heroOverlay: 'from-black/45 to-transparent',
+        sectionAltBg: 'bg-gray-50 border-y border-gray-100',
         borderStyle: 'border-gray-200',
-        badgeClass: 'bg-gray-100 text-gray-700',
+        badgeClass: 'bg-gray-100 text-gray-700 border border-gray-200',
       };
     case 'RomanticoFloral':
       return {
-        fontHeading: 'font-serif italic',
-        fontBody: 'font-sans',
-        heroOverlay: 'from-pink-900/50 via-rose-800/30 to-transparent',
-        sectionAltBg: 'bg-gradient-to-b from-rose-50/50 to-white',
-        borderStyle: 'border-pink-200',
-        badgeClass: 'bg-pink-100 text-pink-800',
+        fontHeading: 'font-dancing text-3xl sm:text-4xl font-semibold',
+        fontBody: 'font-body text-zinc-800 bg-[#fffbfc]',
+        heroOverlay: 'from-pink-950/40 via-rose-800/10 to-transparent',
+        sectionAltBg: 'bg-gradient-to-b from-[#fff5f7] to-white border-y border-pink-100',
+        borderStyle: 'border-pink-100',
+        badgeClass: 'bg-pink-50 text-pink-700 border border-pink-100',
       };
     case 'FiestaVibrante':
       return {
-        fontHeading: 'font-sans font-black',
-        fontBody: 'font-sans',
-        heroOverlay: 'from-purple-900/60 via-indigo-800/30 to-transparent',
-        sectionAltBg: 'bg-gradient-to-br from-indigo-50/50 to-purple-50/50',
-        borderStyle: 'border-purple-200',
-        badgeClass: 'bg-purple-100 text-purple-800',
+        fontHeading: 'font-body font-black tracking-tight',
+        fontBody: 'font-body text-gray-800 bg-white',
+        heroOverlay: 'from-purple-950/50 via-indigo-900/10 to-transparent',
+        sectionAltBg: 'bg-gradient-to-br from-indigo-50/30 to-purple-50/30 border-y border-purple-100/50',
+        borderStyle: 'border-purple-100',
+        badgeClass: 'bg-purple-50 text-purple-700 border border-purple-100/40',
       };
     default:
       return {
-        fontHeading: 'font-serif',
-        fontBody: 'font-sans',
-        heroOverlay: 'from-black/60 via-black/30 to-transparent',
-        sectionAltBg: 'bg-gray-50',
+        fontHeading: 'font-playfair font-bold tracking-wide',
+        fontBody: 'font-body text-gray-800 bg-white',
+        heroOverlay: 'from-black/50 via-black/15 to-transparent',
+        sectionAltBg: 'bg-gray-50 border-y border-gray-100',
         borderStyle: 'border-gray-200',
-        badgeClass: 'bg-gray-100 text-gray-700',
+        badgeClass: 'bg-gray-100 text-gray-700 border border-gray-200',
       };
   }
 }
@@ -1116,7 +1127,7 @@ export function InvitacionPublicaClient({ config, fiestaId, socialConnections = 
 
   addSectionEntry('ubicacion', hasLocation, (
     <Section key="ubicacion" className={cn('text-center', styles.sectionAltBg)} typography={config.typography}>
-      <TiltCard className="max-w-md mx-auto bg-white p-8 rounded-3xl border border-gray-150 shadow-xl">
+      <TiltCard className="max-w-md mx-auto bg-white/75 backdrop-blur-lg p-8 rounded-[2rem] border border-white/40 shadow-xl">
         <MapPin className="w-8 h-8 mx-auto mb-4 animate-bounce" style={{ color: 'var(--inv-primary)' }} />
         <h2 className={cn(getSectionTitleClass(config.typography), 'mb-2 font-bold', styles.fontHeading)} style={{ color: 'var(--inv-primary)' }}>
           {config.nombreSalon || 'Ubicación'}
@@ -1142,7 +1153,7 @@ export function InvitacionPublicaClient({ config, fiestaId, socialConnections = 
 
   addSectionEntry('dressCode', hasDressCode, (
     <Section key="dressCode" className="text-center max-w-lg mx-auto" typography={config.typography}>
-      <TiltCard className="bg-white p-8 rounded-3xl border border-gray-150 shadow-xl">
+      <TiltCard className="bg-white/75 backdrop-blur-lg p-8 rounded-[2rem] border border-white/40 shadow-xl">
         <Shirt className="w-8 h-8 mx-auto mb-4" style={{ color: 'var(--inv-primary)' }} />
         <h2 className={cn(getSectionTitleClass(config.typography), 'mb-4 font-bold', styles.fontHeading)} style={{ color: 'var(--inv-primary)' }}>
           Dress Code
@@ -1406,7 +1417,10 @@ export function InvitacionPublicaClient({ config, fiestaId, socialConnections = 
             transition={{ duration: 1, delay: 0.3 }}
           >
             <p className="text-sm sm:text-base tracking-[0.3em] uppercase mb-4 opacity-80">{tipoLabel}</p>
-            <h1 className={cn(getHeroTitleClass(config.typography), config.typography?.lineHeight || 'leading-tight', 'mb-6 break-words max-w-full px-4', styles.fontHeading)}>
+            <h1 
+              className={cn(getHeroTitleClass(config.typography), config.typography?.lineHeight || 'leading-tight', 'mb-6 break-words max-w-full px-4', styles.fontHeading)}
+              style={{ overflowWrap: 'anywhere' }}
+            >
               {isEditorMode && onConfigChange ? (
                 <>
                   <EditableText

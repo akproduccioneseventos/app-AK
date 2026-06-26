@@ -59,6 +59,7 @@ export function buildInvitacionConfigFromFiesta(
   existing?: Partial<InvitacionDigitalConfig>
 ): InvitacionDigitalConfig {
   const config = fiesta.configuracion;
+  const saved = existing ?? fiesta.invitacionConfig;
   const tipoMap: Record<string, InvitacionDigitalConfig['tipoEvento']> = {
     'XV años': '15',
     'XV Años': '15',
@@ -70,16 +71,16 @@ export function buildInvitacionConfigFromFiesta(
 
   return {
     ...defaultInvitacionConfig,
-    ...existing,
-    nombreHomenajeada: existing?.nombreHomenajeada || config.protagonista1Nombre || config.nombreEvento || '',
-    nombreHomenajeado2: existing?.nombreHomenajeado2 ?? config.protagonista2Nombre ?? '',
-    tipoEvento: existing?.tipoEvento || tipoMap[config.tipoCelebracion || ''] || 'otro',
-    fechaEvento: existing?.fechaEvento || config.fechaEvento || '',
-    horaEvento: existing?.horaEvento || config.horaInicio || '',
-    nombreSalon: existing?.nombreSalon || config.nombreLugar || '',
-    direccionSalon: existing?.direccionSalon || config.direccionLugar || '',
-    linkMaps: existing?.linkMaps || config.googleMapsUrl || '',
-    colorPrincipal: existing?.colorPrincipal || config.primaryColor || defaultInvitacionConfig.colorPrincipal,
+    ...saved,
+    nombreHomenajeada: saved?.nombreHomenajeada || config.protagonista1Nombre || config.nombreEvento || '',
+    nombreHomenajeado2: saved?.nombreHomenajeado2 ?? config.protagonista2Nombre ?? '',
+    tipoEvento: saved?.tipoEvento || tipoMap[config.tipoCelebracion || ''] || 'otro',
+    fechaEvento: config.fechaEvento || saved?.fechaEvento || '',
+    horaEvento: config.horaInicio || saved?.horaEvento || '',
+    nombreSalon: config.nombreLugar || saved?.nombreSalon || '',
+    direccionSalon: config.direccionLugar || saved?.direccionSalon || '',
+    linkMaps: config.googleMapsUrl || saved?.linkMaps || '',
+    colorPrincipal: saved?.colorPrincipal || config.primaryColor || defaultInvitacionConfig.colorPrincipal,
   };
 }
 

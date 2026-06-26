@@ -22,8 +22,9 @@ import {
   DEFAULT_TYPOGRAPHY_CONFIG,
   DEFAULT_SECTIONS_CONFIG,
   defaultInvitacionConfig,
+  buildInvitacionConfigFromFiesta,
 } from '@/lib/invitacion-config-defaults';
-import type { InvitacionTypographyConfig, InvitacionSectionConfig, InvitacionSectionId, SocialGalleryBrand } from '@/types/fiesta';
+import type { ConfigEventoDataStorage, InvitacionTypographyConfig, InvitacionSectionConfig, InvitacionSectionId, SocialGalleryBrand } from '@/types/fiesta';
 import type { CrmTimelineEventType } from '@/types/crm';
 
 // ─────────────────────────────────────────────────────────────────────────────
@@ -245,6 +246,51 @@ describe('defaultInvitacionConfig includes typography and sectionsConfig', () =>
     expect(defaultInvitacionConfig.sectionsConfig).toBeDefined();
     expect(Array.isArray(defaultInvitacionConfig.sectionsConfig)).toBe(true);
     expect((defaultInvitacionConfig.sectionsConfig ?? []).length).toBeGreaterThan(0);
+  });
+});
+
+describe('buildInvitacionConfigFromFiesta', () => {
+  const baseFiestaConfig: ConfigEventoDataStorage = {
+    nombreEvento: 'XV Claudia',
+    tipoCelebracion: 'XV',
+    fechaEvento: '2027-10-16',
+    horaInicio: '21:00',
+    horaFin: '05:00',
+    nombreLugar: 'Club Uruguay',
+    direccionLugar: 'Uruguay 123',
+    googleMapsUrl: 'https://maps.example/club',
+    invitadosEstimados: 120,
+    presupuestoEstimado: 100000,
+    notesAdicionales: '',
+    protagonista1Nombre: 'Claudia Flores',
+    protagonista2Nombre: 'Mateo',
+    primaryColor: '#123456',
+  };
+
+  it('keeps invitation-specific title and color while syncing event logistics', () => {
+    const config = buildInvitacionConfigFromFiesta({
+      configuracion: baseFiestaConfig,
+      invitacionConfig: {
+        ...defaultInvitacionConfig,
+        nombreHomenajeada: 'Clau - Mi noche',
+        nombreHomenajeado2: 'Invitado especial',
+        colorPrincipal: '#abcdef',
+        fechaEvento: '2026-01-01',
+        horaEvento: '19:00',
+        nombreSalon: 'Salon anterior',
+        direccionSalon: 'Direccion anterior',
+        linkMaps: 'https://maps.example/old',
+      },
+    });
+
+    expect(config.nombreHomenajeada).toBe('Clau - Mi noche');
+    expect(config.nombreHomenajeado2).toBe('Invitado especial');
+    expect(config.colorPrincipal).toBe('#abcdef');
+    expect(config.fechaEvento).toBe('2027-10-16');
+    expect(config.horaEvento).toBe('21:00');
+    expect(config.nombreSalon).toBe('Club Uruguay');
+    expect(config.direccionSalon).toBe('Uruguay 123');
+    expect(config.linkMaps).toBe('https://maps.example/club');
   });
 });
 
