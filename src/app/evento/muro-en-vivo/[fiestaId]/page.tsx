@@ -51,6 +51,31 @@ export default function MuroEnVivoPage() {
 
   const [posts, setPosts] = useState<SocialGalleryPost[]>([]);
   const [eventName, setEventName] = useState<string>('');
+  const [staticBranding, setStaticBranding] = useState<{
+    companyInfo: any;
+    templateSettings: any;
+    connections: any[];
+  } | null>(null);
+
+  useEffect(() => {
+    async function loadStaticBranding() {
+      try {
+        const [info, template, conns] = await Promise.all([
+          getCompanyInfo(),
+          getInvoiceTemplateSettings(),
+          getSocialConnections(),
+        ]);
+        setStaticBranding({
+          companyInfo: info,
+          templateSettings: template,
+          connections: conns || [],
+        });
+      } catch (err) {
+        console.error('Failed to load static branding:', err);
+      }
+    }
+    loadStaticBranding();
+  }, []);
   const [settings, setSettings] = useState<SocialGallerySettings>({
     enabled: true,
     allowLikes: true,
@@ -82,7 +107,7 @@ export default function MuroEnVivoPage() {
   const footerSocials = useMemo(() => {
     const brand = settings.brand;
     const list = [];
-    
+
     // Instagram
     const ig = brand?.instagramHandle?.trim() || '@akproducciones';
     list.push({
@@ -90,7 +115,7 @@ export default function MuroEnVivoPage() {
       handle: ig,
       url: `https://instagram.com/${ig.replace('@', '')}`
     });
-    
+
     // Facebook
     const fb = brand?.facebookHandle?.trim() || 'akproducciones';
     list.push({
@@ -98,7 +123,7 @@ export default function MuroEnVivoPage() {
       handle: fb,
       url: `https://facebook.com/${fb}`
     });
-    
+
     // TikTok
     const tt = brand?.tiktokHandle?.trim() || '@akproducciones';
     list.push({
@@ -106,7 +131,7 @@ export default function MuroEnVivoPage() {
       handle: tt,
       url: `https://tiktok.com/${tt}`
     });
-    
+
     // WhatsApp (Fijo)
     const wa = brand?.whatsappNumber?.trim();
     list.push({
@@ -114,7 +139,7 @@ export default function MuroEnVivoPage() {
       handle: wa || 'Teléfono no configurado',
       url: wa ? `https://wa.me/${wa}` : '#'
     });
-    
+
     return list;
   }, [settings.brand]);
 
@@ -145,13 +170,10 @@ export default function MuroEnVivoPage() {
   const fetchData = useCallback(async () => {
     if (!fiestaId) return;
     try {
-      const [fetchedPosts, fiestaData, pollData, companyInfo, templateSettings, connections, dedicationsData, chatData, songData] = await Promise.all([
+      const [fetchedPosts, fiestaData, pollData, dedicationsData, chatData, songData] = await Promise.all([
         getSocialPosts(fiestaId),
         getFiestaById(fiestaId),
         getActivePoll(fiestaId),
-        getCompanyInfo(),
-        getInvoiceTemplateSettings(),
-        getSocialConnections(),
         getDedications(fiestaId),
         getChatMessages(fiestaId).catch((err) => { console.warn('[MuroEnVivo] getChatMessages failed:', err); return []; }),
         getSongRequests(fiestaId).catch((err) => { console.warn('[MuroEnVivo] getSongRequests failed:', err); return []; }),
@@ -247,6 +269,11 @@ export default function MuroEnVivoPage() {
         ).slice(0, 3);
         setHighlightedComments(recent);
       }
+
+      const companyInfo = staticBranding?.companyInfo;
+      const templateSettings = staticBranding?.templateSettings;
+      const connections = staticBranding?.connections || [];
+
       setCompanyMarketingText(
         companyInfo?.companyName
           ? `Seguinos y etiquetanos · ${companyInfo.companyName}${companyInfo.companyContact ? ` · ${companyInfo.companyContact}` : ''}`
@@ -298,7 +325,7 @@ export default function MuroEnVivoPage() {
     } finally {
       if (!isLoaded) setIsLoaded(true);
     }
-  }, [fiestaId, eventName, isLoaded]);
+  }, [fiestaId, eventName, isLoaded, staticBranding]);
 
   // Initial load and polling
   useEffect(() => {
@@ -312,7 +339,14 @@ export default function MuroEnVivoPage() {
   // we treat the playlist as active so existing behaviour is preserved (opt-out semantics).
   // New events can explicitly set enabled=false to disable the playlist.
   const enabledPlaylist = settings.screenMode?.enabled !== false
-    ? (settings.screenMode?.playlist ?? []).filter((item) => item.enabled)
+    ? (settings.screenMode?.playlist ?? []).filter((item) => {
+        if (!item.enabled) return false;
+        if (item.type === 'canciones' && settings.showSongRequests === false) return false;
+        if (item.type === 'dedicaciones' && settings.showDedications === false) return false;
+        if (item.type === 'chat' && settings.chatEnabled === false) return false;
+        if (item.type === 'juego' && settings.showPolls === false) return false;
+        return true;
+      })
     : [];
   const activeScreenItem: ScreenPlaylistItem | null = enabledPlaylist.length > 0
     ? enabledPlaylist[localPlaylistIndex % enabledPlaylist.length]
@@ -345,7 +379,7 @@ export default function MuroEnVivoPage() {
     (activePoll !== null && settings.showPolls !== false && !activeGame);
 
   return (
-    <div className={`fixed inset-0 overflow-hidden select-none flex flex-col ${settings.screenDarkMode !== false ? 'ak-live-stage' : 'bg-white'}`}>
+    <div className={`fixed inset-0 overflow-hidden select-none flex flex-col ${settings.screenDarkMode !== false ? 'ak-live-stage-animated text-white' : 'ak-live-stage-light-animated text-slate-800'}`}>
       {/* Ambient gradient background */}
       {settings.screenDarkMode !== false ? (
         <div className="absolute inset-0 pointer-events-none bg-[radial-gradient(ellipse_at_top_left,rgba(120,60,200,0.15),transparent_60%),radial-gradient(ellipse_at_bottom_right,rgba(20,100,200,0.12),transparent_60%)]" />
@@ -413,7 +447,7 @@ export default function MuroEnVivoPage() {
           )}
 
           {/* Private Greetings Mailbox Mode ("PALABRAS Y AUDIOS PARA SIEMPRE") */}
-          {isLoaded && settings.privateDedicationsMode === true && 
+          {isLoaded && settings.privateDedicationsMode === true &&
             (!activeScreenItem || ['mural', 'dedicaciones', 'chat'].includes(activeScreenItem.type)) && (
               <div className="absolute inset-0 flex flex-col items-center justify-center p-12 overflow-hidden bg-gradient-to-br from-indigo-950 via-slate-900 to-purple-950 text-white animate-fade-in">
                 <div className="absolute inset-0 bg-[radial-gradient(circle_at_center,rgba(99,102,241,0.15),transparent_60%)] animate-pulse" />
@@ -430,7 +464,7 @@ export default function MuroEnVivoPage() {
                       🔒
                     </div>
                   </div>
-                  
+
                   <div className="space-y-4">
                     <span className="inline-flex items-center gap-1.5 rounded-full px-4 py-1.5 font-bold text-xs bg-indigo-500/20 text-indigo-300 border border-indigo-500/30 tracking-[0.2em] uppercase">
                       Palabras y Audios Para Siempre
@@ -939,6 +973,21 @@ export default function MuroEnVivoPage() {
           0% { transform: translateX(0%); }
           100% { transform: translateX(-50%); }
         }
+        @keyframes gradientBG {
+          0% { background-position: 0% 50%; }
+          50% { background-position: 100% 50%; }
+          100% { background-position: 0% 50%; }
+        }
+        .ak-live-stage-animated {
+          background: linear-gradient(-45deg, #090514, #120c24, #050b1c, #140512);
+          background-size: 400% 400%;
+          animation: gradientBG 20s ease infinite;
+        }
+        .ak-live-stage-light-animated {
+          background: linear-gradient(-45deg, #fafafa, #f5f5f5, #faf0f5, #f0faf5);
+          background-size: 400% 400%;
+          animation: gradientBG 20s ease infinite;
+        }
       `}</style>
       <KioskUnlockButton />
     </div>
@@ -1270,70 +1319,94 @@ function SlideshowLayout({ posts }: { posts: SocialGalleryPost[] }) {
 
   const post = posts[currentIndex] ?? posts[0];
   const isVideo = post.mediaType === 'video' || isVideoUrl(post.imageUrl);
+  const captionText = post.dedication || post.caption;
 
   return (
-    <div className="absolute inset-0 bg-black">
-      <AnimatePresence mode="wait">
-        <motion.div
-          key={post.id}
-          initial={{ opacity: 0 }}
-          animate={{ opacity: 1 }}
-          exit={{ opacity: 0 }}
-          transition={{ duration: 0.9, ease: 'easeInOut' }}
-          className="absolute inset-0 flex items-center justify-center"
-        >
-          {isVideo ? (
-            <video src={post.imageUrl} className="h-full w-full object-contain" autoPlay muted loop playsInline />
-          ) : (
-            <>
-          {/* Blurred background fill (handles portrait photos on landscape screen) */}
+    <div className="absolute inset-0 flex items-center justify-center overflow-hidden">
+      {/* Dynamic blurred background fill */}
+      <div className="absolute inset-0 pointer-events-none overflow-hidden select-none">
+        {isVideo ? (
+          <video src={post.imageUrl} className="h-full w-full object-cover scale-110 blur-2xl opacity-30" autoPlay muted loop playsInline />
+        ) : (
           <NextImage
             src={post.imageUrl}
             alt=""
             fill
-            className="object-cover scale-110 blur-2xl opacity-40"
+            className="object-cover scale-110 blur-2xl opacity-30"
             unoptimized
             aria-hidden={true}
           />
-          {/* Main photo — contained so it's never cropped */}
-          <NextImage
-            src={post.imageUrl}
-            alt={post.authorName}
-            fill
-            className="object-contain relative"
-            unoptimized
-            priority
-          />
-            </>
-          )}
-          {/* Drink badge (if post has a drink) */}
+        )}
+      </div>
+
+      <AnimatePresence mode="wait">
+        <motion.div
+          key={post.id}
+          initial={{ opacity: 0, scale: 0.92, rotate: -2 }}
+          animate={{ opacity: 1, scale: 1, rotate: 0.5 }}
+          exit={{ opacity: 0, scale: 0.92, rotate: 2 }}
+          transition={{ duration: 0.7, ease: [0.25, 1, 0.5, 1] }}
+          className="relative h-[78vh] aspect-[3/4] bg-[#fcfbf9] p-5 pb-6 rounded-sm shadow-[0_30px_90px_rgba(0,0,0,0.85)] border border-white/40 flex flex-col justify-between items-center"
+        >
+          {/* Drink badge centered overlapping top border */}
           {post.drinkName && (
-            <div className="absolute top-16 left-1/2 -translate-x-1/2 flex items-center gap-2 rounded-full bg-rose-600/90 px-5 py-2 backdrop-blur-sm border border-rose-400 shadow-[0_0_15px_rgba(244,63,94,0.6)] animate-pulse">
-              <Martini className="h-5 w-5 text-white" />
-              <span className="text-base font-black tracking-wider text-white">Tomando: {post.drinkName}</span>
+            <div className="absolute -top-5 left-1/2 -translate-x-1/2 z-30 flex items-center gap-2 rounded-full bg-rose-600 px-5 py-2 border border-rose-400 shadow-lg animate-pulse">
+              <Martini className="h-4.5 w-4.5 text-white" />
+              <span className="text-xs font-black tracking-widest text-white uppercase">Tomando: {post.drinkName}</span>
             </div>
           )}
-          {/* Author badge */}
-          <div className="absolute bottom-12 left-1/2 -translate-x-1/2 rounded-full bg-black/60 px-5 py-1.5 backdrop-blur-sm border border-white/20">
-            <span className="text-sm font-bold text-white/90">{post.authorName}</span>
+
+          {/* Polaroid photo square area */}
+          <div className="w-full aspect-square relative overflow-hidden rounded-sm bg-slate-900 border border-slate-200/20 shadow-inner">
+            {isVideo ? (
+              <video src={post.imageUrl} className="h-full w-full object-cover" autoPlay muted loop playsInline />
+            ) : (
+              <NextImage
+                src={post.imageUrl}
+                alt={post.authorName}
+                fill
+                className="object-cover"
+                unoptimized
+                priority
+              />
+            )}
           </div>
-          {/* Slide counter dots — only shown when posts fit within the dot limit */}
-          {posts.length > 1 && posts.length <= 12 && (
-            <div className="absolute bottom-5 left-0 right-0 flex justify-center gap-1.5 pointer-events-none">
-              {posts.map((_, i) => (
-                <div
-                  key={i}
-                  className={`h-1.5 rounded-full transition-all duration-300 ${
-                    i === currentIndex
-                      ? 'w-6 bg-white'
-                      : 'w-1.5 bg-white/40'
-                  }`}
-                />
-              ))}
-            </div>
-          )}
+
+          {/* Polaroid handwriting caption section */}
+          <div className="w-full flex-1 flex flex-col items-center justify-center text-center px-4 pt-4">
+            {captionText ? (
+              <div className="space-y-1">
+                <p className="text-3xl text-slate-800 font-normal leading-relaxed tracking-wide" style={{ fontFamily: 'var(--font-dancing_script)' }}>
+                  "{captionText}"
+                </p>
+                <p className="text-[10px] font-black tracking-[0.25em] text-slate-400 uppercase mt-1">
+                  — {post.authorName}
+                </p>
+              </div>
+            ) : (
+              <p className="text-4xl text-slate-800 font-normal tracking-wide" style={{ fontFamily: 'var(--font-dancing_script)' }}>
+                {post.authorName}
+              </p>
+            )}
+          </div>
         </motion.div>
       </AnimatePresence>
+
+      {/* Slide counter dots outside the card container */}
+      {posts.length > 1 && posts.length <= 12 && (
+        <div className="absolute bottom-4 left-0 right-0 flex justify-center gap-1.5 pointer-events-none z-10">
+          {posts.map((_, i) => (
+            <div
+              key={i}
+              className={`h-1.5 rounded-full transition-all duration-300 ${
+                i === currentIndex
+                  ? 'w-6 bg-white'
+                  : 'w-1.5 bg-white/40'
+              }`}
+            />
+          ))}
+        </div>
+      )}
     </div>
   );
 }
