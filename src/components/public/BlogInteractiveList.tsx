@@ -41,7 +41,7 @@ export function BlogInteractiveList({ posts }: Props) {
                     src={getPostImage(post.slug)}
                     alt={post.title}
                     fill
-                    className="object-cover opacity-60 transition-transform duration-500 group-hover:scale-103"
+                    className="object-cover opacity-60 transition-transform duration-500 group-hover:scale-[1.03]"
                     sizes="(max-width: 768px) 100vw, 30vw"
                   />
                   <div className="absolute inset-0 bg-gradient-to-t from-slate-950 via-slate-950/20 to-transparent" />
@@ -65,14 +65,14 @@ export function BlogInteractiveList({ posts }: Props) {
                 {/* Contenido */}
                 <div className="flex-1 p-6 flex flex-col justify-between space-y-4">
                   <div className="space-y-3">
-                    <h3 className="text-xl font-black leading-tight text-slate-950 group-hover:text-indigo-650 transition-colors duration-300">
+                    <h3 className="text-xl font-black leading-tight text-slate-950 group-hover:text-indigo-600 transition-colors duration-300">
                       {post.title}
                     </h3>
                     <p className="text-sm leading-relaxed text-slate-500 font-medium line-clamp-3">{post.excerpt}</p>
                   </div>
 
                   <div className="flex items-center justify-between border-t border-slate-100 pt-4 mt-auto">
-                    <span className="inline-flex items-center gap-2 text-xs font-black uppercase tracking-wider text-indigo-650 group-hover:text-slate-950 transition-colors">
+                    <span className="inline-flex items-center gap-2 text-xs font-black uppercase tracking-wider text-indigo-600 group-hover:text-slate-950 transition-colors">
                       Leer Guía
                       <Lucide.ArrowRight className="h-4 w-4 transition duration-300 group-hover:translate-x-1.5" />
                     </span>

@@ -1,5 +1,6 @@
 import React from 'react';
 import type { Metadata } from 'next';
+import Image from 'next/image';
 import { LandingNav } from '@/components/landing/LandingNav';
 import { PublicFooter } from '@/components/public-footer';
 import { Button } from '@/components/ui/button';
@@ -8,7 +9,7 @@ import { Building2, Sparkles, Calendar, MessageCircle, MapPin, CheckCircle2, Shi
 
 export const metadata: Metadata = {
   title: 'Servicio Integral en el Salón del Club Uruguay | AK Producciones',
-  description: 'Organización integral, catering premium, discoteca y ambientación personalizada en el histórico Salón del Club Uruguay de Salto.',
+  description: 'Organización integral, comida premium, discoteca y ambientación personalizada en el histórico Salón del Club Uruguay de Salto.',
 };
 
 export default function ClubUruguayPage() {
@@ -28,10 +29,13 @@ export default function ClubUruguayPage() {
       {/* Hero Section */}
       <section className="relative min-h-[85vh] flex items-center justify-center overflow-hidden pt-20">
         <div className="absolute inset-0 z-0">
-          <img
+          <Image
             src="/media/catalogo-servicios/salon-discoteca-ak-01.jpeg"
             alt="Salón Club Uruguay"
-            className="w-full h-full object-cover object-center opacity-40 scale-105"
+            fill
+            priority
+            sizes="100vw"
+            className="object-cover object-center opacity-40 scale-105"
           />
           <div className="absolute inset-0 bg-gradient-to-b from-zinc-950 via-zinc-950/60 to-zinc-950" />
           <div className="absolute inset-0 bg-gradient-to-r from-zinc-950 via-transparent to-zinc-950" />
@@ -46,7 +50,7 @@ export default function ClubUruguayPage() {
             El Salón en <span className="bg-gradient-to-r from-indigo-400 via-purple-400 to-pink-400 bg-clip-text text-transparent">Club Uruguay</span>
           </h1>
           <p className="text-zinc-400 text-lg sm:text-xl max-w-2xl mx-auto leading-relaxed font-medium">
-            El salón más elegante e histórico de Salto, con la producción integral, catering premium y tecnología exclusiva de **AK Producciones**.
+            El salón más elegante e histórico de Salto, con la producción integral, comida premium y tecnología exclusiva de **AK Producciones**.
           </p>
 
           <div className="flex flex-wrap justify-center gap-4 pt-4">
@@ -73,7 +77,7 @@ export default function ClubUruguayPage() {
             <span className="text-indigo-400 font-bold uppercase tracking-widest text-xs">Propuesta de Valor</span>
             <h2 className="font-headline text-3xl sm:text-5xl font-black">Servicio Integral en el Salón</h2>
             <p className="text-zinc-400 max-w-xl mx-auto text-sm leading-relaxed">
-              Planificación integral con AK Producciones: decoración, catering, música, foto, video y coordinación en un solo lugar.
+              Planificación integral con AK Producciones: decoración, comida, discoteca, foto, video y coordinación en un solo lugar.
             </p>
           </div>
 
@@ -130,10 +134,12 @@ export default function ClubUruguayPage() {
                 key={index}
                 className="group relative rounded-3xl overflow-hidden border border-white/10 bg-zinc-900 aspect-[4/3]"
               >
-                <img
+                <Image
                   src={photo.src}
                   alt={photo.alt}
-                  className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
+                  fill
+                  sizes="(max-width: 768px) 100vw, 33vw"
+                  className="object-cover group-hover:scale-105 transition-transform duration-500"
                 />
                 <div className="absolute inset-0 bg-gradient-to-t from-zinc-950 via-zinc-950/20 to-transparent p-6 flex flex-col justify-end" />
                 <div className="absolute bottom-0 left-0 right-0 p-6 z-10">
@@ -153,7 +159,7 @@ export default function ClubUruguayPage() {
           <Sparkles className="w-10 h-10 text-indigo-400 mx-auto" />
           <h2 className="font-headline text-3xl sm:text-5xl font-black">¿Querés que organicemos tu fiesta?</h2>
           <p className="text-zinc-300 max-w-xl mx-auto text-sm sm:text-base leading-relaxed">
-            Hacé tu cotización personalizada al instante con nuestro simulador. Podés calcular costos del salón en Club Uruguay, catering, discoteca y ambientación en tiempo real.
+            Hacé tu cotización personalizada al instante con nuestro simulador. Podés calcular costos del salón en Club Uruguay, comida, discoteca y ambientación en tiempo real.
           </p>
           <div className="pt-4">
             <Button asChild size="lg" className="bg-white hover:bg-zinc-100 text-zinc-950 font-black rounded-2xl px-10 py-6 text-base shadow-lg shadow-white/10 active:scale-[0.98] transition-all">

@@ -90,7 +90,7 @@ function getDefaultServiceFeatures(title: string): string[] {
     return ['Conferencias y lanzamientos', 'Proyectores y micrófonos pro', 'Livings y recepción formal'];
   }
   if (lower.includes('disco') || lower.includes('música') || lower.includes('dj') || lower.includes('sonido')) {
-    return ['Sonido HD para pistas exigentes', 'Robóticas y efectos especiales', 'DJs profesionales en vivo'];
+    return ['Sonido HD para pistas exigentes', 'Robóticas y efectos especiales', 'Discoteca profesional en vivo'];
   }
   if (lower.includes('decor') || lower.includes('ambient')) {
     return ['Centros de mesa únicos', 'Fondos para fotos e ingresos', 'Iluminación ambiental decorativa'];
@@ -106,7 +106,7 @@ export async function generateMetadata(): Promise<Metadata> {
   const settings = await getLandingSettings();
   return {
     title: `${settings.seo.title || 'AK Producciones'} | Organización Integral de Eventos en Salto`,
-    description: settings.seo.description || 'Organización completa de bodas, fiestas de 15 años y eventos empresariales en Salto, Uruguay. Discoteca, catering premium, fotografía, decoración y salones de fiesta en un solo lugar con tecnología interactiva.',
+    description: settings.seo.description || 'Organización completa de bodas, fiestas de 15 años y eventos empresariales en Salto, Uruguay. Discoteca, comida premium, fotografía, decoración y salones de fiesta en un solo lugar con tecnología interactiva.',
     openGraph: {
       title: settings.seo.title,
       description: settings.seo.description,
@@ -221,7 +221,7 @@ export default async function HomePage({ searchParams }: LandingPageProps) {
       'https://www.facebook.com/akproduccionessalto',
       'https://www.instagram.com/akproduccionessalto',
     ],
-    'description': 'Organización integral de eventos en Salto, Uruguay. Discoteca, catering premium, fotografía, decoración y salones de fiesta en un solo lugar con tecnología interactiva.',
+    'description': 'Organización integral de eventos en Salto, Uruguay. Discoteca, comida premium, fotografía, decoración y salones de fiesta en un solo lugar con tecnología interactiva.',
   };
 
   return (

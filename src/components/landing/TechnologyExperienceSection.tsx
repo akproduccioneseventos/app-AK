@@ -107,7 +107,7 @@ export default function TechnologyExperienceSection({
                     <Icon className="h-6 w-6" />
                   </div>
                   <h3 className="mb-3 text-lg font-black text-white">{feature.title}</h3>
-                  <p className="text-sm leading-relaxed text-zinc-450 font-medium">{feature.description}</p>
+                  <p className="text-sm leading-relaxed text-zinc-400 font-medium">{feature.description}</p>
                 </div>
               </motion.div>
             );
@@ -129,7 +129,7 @@ export default function TechnologyExperienceSection({
             <Button
               asChild
               size="lg"
-              className="h-13 w-full rounded-2xl bg-indigo-650 hover:bg-indigo-550 text-white font-black text-sm uppercase tracking-wider shadow-lg px-8 transition-transform duration-200 hover:scale-[1.02]"
+              className="h-13 w-full rounded-2xl bg-indigo-600 hover:bg-indigo-500 text-white font-black text-sm uppercase tracking-wider shadow-lg px-8 transition-transform duration-200 hover:scale-[1.02]"
             >
               <Link href="/simulador-de-presupuesto" className="w-full sm:w-auto">
                 Probar Simulador

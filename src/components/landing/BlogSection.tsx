@@ -44,7 +44,7 @@ export function BlogSection() {
               Contenido para planificar tu evento sin estrés
             </h2>
             <p className="text-zinc-400 text-lg mt-4 leading-relaxed">
-              Leé guías simples redactadas por nuestros coordinadores sobre presupuesto, catering, XV años, bodas y checklists de organización.
+              Leé guías simples redactadas por nuestros coordinadores sobre presupuesto, comida, XV años, bodas y checklists de organización.
             </p>
           </div>
           <Link
