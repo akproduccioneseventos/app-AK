@@ -40,7 +40,7 @@ const DEFAULT_SERVICES: ServiceItem[] = [
     title: 'Bodas',
     subtitle: 'El día más especial',
     description: 'Convertimos tu boda en una experiencia única. Desde la decoración floral hasta la pista de baile, coordinamos cada detalle.',
-    features: ['Coordinación integral del evento', 'Decoración y flores personalizadas', 'Catering y menú a medida'],
+    features: ['Coordinación integral del evento', 'Decoración y flores personalizadas', 'Comida y menu a medida'],
     imageUrl: '/media/catalogo-servicios/boda-decoracion-dorada-01.jpeg',
     imageHint: 'wedding ceremony',
     accentColor: 'bg-indigo-500',
@@ -76,7 +76,7 @@ const DEFAULT_SERVICES: ServiceItem[] = [
     title: 'Eventos Corporativos',
     subtitle: 'Imagen corporativa premium',
     description: 'Lanzamientos de marcas, cenas empresariales, conferencias y eventos institucionales con todo resuelto.',
-    features: ['Planificación y logística completa', 'Pantallas LED y microfonía', 'Catering y livings premium'],
+    features: ['Planificación y logística completa', 'Pantallas LED y microfonía', 'Comida y livings premium'],
     imageUrl: '/media/catalogo-servicios/recepcion-display-evento-01.jpeg',
     imageHint: 'corporate event',
     accentColor: 'bg-slate-800',
@@ -128,7 +128,7 @@ export function ServicesSection({ whatsappNumber = '59898355530', services }: Se
         <div className="mb-24">
           <div className="mb-8">
             <h3 className="text-2xl font-black text-slate-900 flex items-center gap-2">
-              <Calendar className="w-6 h-6 text-indigo-650" /> Tipos de Fiesta que Hacemos
+              <Calendar className="w-6 h-6 text-indigo-600" /> Tipos de Fiesta que Hacemos
             </h3>
             <p className="text-slate-500 text-sm mt-1">Soluciones diseñadas a medida según el tipo de celebración.</p>
           </div>
@@ -182,7 +182,7 @@ export function ServicesSection({ whatsappNumber = '59898355530', services }: Se
                         src={service.imageUrl}
                         alt={service.title}
                         fill
-                        className="object-cover transition-transform duration-500 group-hover:scale-103"
+                        className="object-cover transition-transform duration-500 group-hover:scale-[1.03]"
                         sizes="(max-width: 768px) 100vw, 30vw"
                       />
                       <div className="absolute top-4 left-4 w-11 h-11 rounded-2xl bg-white/90 backdrop-blur-sm flex items-center justify-center text-xl shadow-md">
@@ -192,7 +192,7 @@ export function ServicesSection({ whatsappNumber = '59898355530', services }: Se
 
                     {/* Content Area */}
                     <div className="p-6 space-y-4">
-                      <h4 className="text-xl font-black text-slate-900 group-hover:text-indigo-650 transition-colors">
+                      <h4 className="text-xl font-black text-slate-900 group-hover:text-indigo-600 transition-colors">
                         {service.title}
                       </h4>
                       <p className="text-sm text-slate-550 leading-relaxed font-medium">

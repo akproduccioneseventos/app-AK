@@ -15,7 +15,7 @@ import {
     ArrowLeft, Clock, FileSignature, FileText, Receipt, FileX, ChevronDown, Bell,
     Activity, ShieldCheck, Users2, Search, Music, Package, Truck, UserCheck,
     Monitor, Tv, Gamepad2, Sparkles, UtensilsCrossed, Wine, CreditCard,
-    BookOpen, Image, Hash, Lock, X, CheckCircle2, Mic
+    BookOpen, Image, Hash, Lock, X, CheckCircle2, Mic, Smartphone
 } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { getFiestaById, updateModulosContratadosFiestaActual } from '@/app/actions/fiesta-actual';
@@ -39,7 +39,7 @@ const formatDate = (dateString?: string) => {
   } catch (e) { return "Fecha inválida"; }
 };
 
-type ModuleBadge = 'Cliente' | 'Invitado' | 'Operativo' | 'Pantalla' | 'Interno' | 'Impresión';
+type ModuleBadge = 'Cliente' | 'Invitado' | 'Operativo' | 'Pantalla' | 'Interno' | 'Impresión' | 'VIP';
 
 interface ModuleDefinition {
   id: string;
@@ -86,6 +86,7 @@ const modules: ModuleDefinition[] = [
   // 5. EXPERIENCIA DEL INVITADO VIP
   { id: 'paginaWeb', title: "Invitación Web", href: "pagina-web", icon: Globe, description: "Web pública interactiva para invitados.", category: 'EXPERIENCIA DEL INVITADO VIP', color: "bg-blue-100 text-blue-600", badge: 'Invitado' },
   { id: 'moduloInvitado', title: "Portal Invitado", href: "modulo-invitado", icon: Users, description: "Controla qué ve cada invitado en su portal.", category: 'EXPERIENCIA DEL INVITADO VIP', color: "bg-violet-100 text-violet-700", badge: 'Invitado' },
+  { id: 'redSocial', title: "Red Social de la Fiesta", href: "social-fiesta-pro", icon: Smartphone, description: "Red social privada que funciona 30 días antes con interacción de invitados y feeds.", category: 'EXPERIENCIA DEL INVITADO VIP', color: "bg-fuchsia-100 text-fuchsia-700", badge: 'VIP' },
   { id: 'checkin', title: "QR / Check-in", href: "invitados/checkin-scanner", icon: QrCode, description: "Ingreso con QR y recepción de invitados.", category: 'EXPERIENCIA DEL INVITADO VIP', color: "bg-green-100 text-green-600", badge: 'Invitado' },
   { id: 'disenoSalon', title: "Mesas Asignadas", href: "invitados/layout", icon: LayoutDashboard, description: "Plano de mesas y asignación de invitados.", category: 'EXPERIENCIA DEL INVITADO VIP', color: "bg-indigo-100 text-indigo-600", badge: 'Invitado' },
 
@@ -137,7 +138,7 @@ const categoryMeta: Record<string, { icon: React.ElementType; color: string; des
   'OPERATIVA Y LOGÍSTICA':             { icon: Truck,           color: 'text-amber-700 bg-amber-100',   description: 'Lista de carga, logística, proveedores y personal.' },
   'EXPERIENCIA DEL CLIENTE VIP':       { icon: KeyRound,        color: 'text-amber-600 bg-amber-50',    description: 'Portal VIP, itinerario, música, video de vida e invitados.' },
   'PRODUCCIÓN MULTIMEDIA':             { icon: Camera,          color: 'text-purple-700 bg-purple-100', description: 'Foto, video, regalos y material del evento.' },
-  'EXPERIENCIA DEL INVITADO VIP':      { icon: Globe,           color: 'text-blue-700 bg-blue-100',     description: 'Invitación web, portal, QR, check-in y mesas.' },
+  'EXPERIENCIA DEL INVITADO VIP':      { icon: Globe,           color: 'text-blue-700 bg-blue-100',     description: 'Invitación web, portal, red social, QR, check-in y mesas.' },
   'PANTALLA GIGANTE AK':               { icon: Tv,              color: 'text-indigo-700 bg-indigo-100', description: 'Evento en vivo, muro social, playlist, mission control y readiness.' },
   'DISEÑO, SALÓN Y AMBIENTACIÓN':      { icon: Palette,         color: 'text-pink-700 bg-pink-100',     description: 'Decoración, moodboard y ambientación del salón.' },
   'GASTRONOMÍA Y SERVICIO':            { icon: UtensilsCrossed, color: 'text-orange-700 bg-orange-100', description: 'Catering, menú, alergias, lista de compras y tragos.' },
@@ -152,6 +153,7 @@ const badgeColors: Record<ModuleBadge, string> = {
   Pantalla:  'bg-indigo-100 text-indigo-700 border-indigo-200',
   Interno:   'bg-slate-100 text-slate-600 border-slate-200',
   Impresión: 'bg-violet-100 text-violet-700 border-violet-200',
+  VIP:        'bg-fuchsia-100 text-fuchsia-700 border-fuchsia-200',
 };
 
 type QuickMode = 'dia-evento' | 'preparacion' | 'cliente' | 'tecnologia' | null;
@@ -160,11 +162,11 @@ const quickModes: { id: QuickMode; label: string; icon: React.ElementType; color
   { id: 'dia-evento',  label: 'Día del Evento',  icon: Zap,       color: 'bg-primary text-white',             moduleIds: ['centroTotal', 'enVivo', 'missionControl', 'itinerario', 'checkin', 'cargaOperativa', 'readiness', 'fiestaLista', 'muroSocial', 'zonaDigital', 'pantallasTotem', 'entretenimiento', 'barraTecnologica'] },
   { id: 'preparacion', label: 'Preparación',     icon: ListChecks, color: 'bg-teal-600 text-white',           moduleIds: ['centroTotal', 'fiestaLista', 'tareas', 'portalCliente', 'invitados', 'decoracion', 'catering', 'carteleria'] },
   { id: 'cliente',     label: 'Vista Cliente',   icon: KeyRound,  color: 'bg-amber-500 text-white',           moduleIds: ['portalCliente', 'itinerario', 'videoVida', 'invitados', 'musica', 'planPagos'] },
-  { id: 'tecnologia',  label: 'Tecnología AK',   icon: Monitor,   color: 'bg-indigo-600 text-white',          moduleIds: ['centroTotal', 'paginaWeb', 'moduloInvitado', 'muroSocial', 'zonaDigital', 'pantallasTotem', 'entretenimiento', 'barraTecnologica', 'enVivo', 'checkin'] },
+  { id: 'tecnologia',  label: 'Tecnología AK',   icon: Monitor,   color: 'bg-indigo-600 text-white',          moduleIds: ['centroTotal', 'paginaWeb', 'moduloInvitado', 'redSocial', 'muroSocial', 'zonaDigital', 'pantallasTotem', 'entretenimiento', 'barraTecnologica', 'enVivo', 'checkin'] },
 ];
 
 // Module IDs that are always visible regardless of modulosContratados
-const alwaysVisibleIds = ['enVivo', 'missionControl', 'readiness', 'fiestaLista', 'centroTotal', 'proveedoresPortal', 'configuracion', 'entretenimiento', 'zonaDigital', 'pantallasTotem', 'barraTecnologica'];
+const alwaysVisibleIds = ['enVivo', 'missionControl', 'readiness', 'fiestaLista', 'centroTotal', 'proveedoresPortal', 'configuracion', 'entretenimiento', 'redSocial', 'zonaDigital', 'pantallasTotem', 'barraTecnologica'];
 
 function PlannerDashboardContent() {
   const { toast } = useToast();

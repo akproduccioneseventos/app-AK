@@ -2,6 +2,7 @@
 
 import React from 'react';
 import Link from 'next/link';
+import Image from 'next/image';
 import { Button } from '@/components/ui/button';
 import { Building2, Sparkles, CheckCircle2, ArrowRight } from 'lucide-react';
 
@@ -61,7 +62,7 @@ export function SalonDestacadoSection() {
               <li className="flex items-start gap-3">
                 <CheckCircle2 className="w-5 h-5 text-indigo-400 shrink-0 mt-0.5" />
                 <span className="text-zinc-300 text-sm font-medium">
-                  <strong>Servicio Integral de AK:</strong> ambientación premium, catering abundante con devolución de sobrantes y pantallas gigantes.
+                  <strong>Servicio Integral de AK:</strong> ambientación premium, comida abundante con devolución de sobrantes y pantallas gigantes.
                 </span>
               </li>
               <li className="flex items-start gap-3">
@@ -91,10 +92,12 @@ export function SalonDestacadoSection() {
           <div className="lg:col-span-7 grid grid-cols-1 sm:grid-cols-12 gap-4 h-full">
             {/* Foto principal grande */}
             <div className="sm:col-span-8 group relative rounded-3xl overflow-hidden border border-white/10 aspect-[4/3] sm:aspect-square lg:aspect-[4/3] shadow-2xl">
-              <img
+              <Image
                 src={photos[0].src}
                 alt={photos[0].alt}
-                className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700"
+                fill
+                sizes="(max-width: 1024px) 100vw, 58vw"
+                className="object-cover group-hover:scale-105 transition-transform duration-700"
               />
               <div className="absolute inset-0 bg-gradient-to-t from-zinc-950 via-transparent to-transparent p-5 flex flex-col justify-end" />
               <div className="absolute bottom-5 left-5 right-5 z-10">
@@ -114,10 +117,12 @@ export function SalonDestacadoSection() {
                   key={i}
                   className="group relative rounded-3xl overflow-hidden border border-white/10 aspect-[4/3] sm:flex-1 shadow-xl"
                 >
-                  <img
+                  <Image
                     src={photo.src}
                     alt={photo.alt}
-                    className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700"
+                    fill
+                    sizes="(max-width: 1024px) 100vw, 28vw"
+                    className="object-cover group-hover:scale-105 transition-transform duration-700"
                   />
                   <div className="absolute inset-0 bg-gradient-to-t from-zinc-950/80 via-transparent to-transparent p-4 flex flex-col justify-end" />
                   <div className="absolute bottom-4 left-4 right-4 z-10">

@@ -116,16 +116,17 @@ const GuestFeatureButton: React.FC<{
   pulse?: boolean;
 }> = ({ icon, label, sublabel, color, onClick, primary, wide, pulse }) => (
   <motion.button
-    whileTap={{ scale: 0.96 }}
+    whileTap={{ scale: 0.94 }}
+    whileHover={{ y: -2, scale: 1.02 }}
     onClick={onClick}
     className={cn(
-      'relative flex min-h-24 flex-col items-center justify-center gap-2 rounded-lg border border-slate-200 p-4 text-center shadow-sm focus:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 select-none',
+      'relative flex min-h-[100px] flex-col items-center justify-center gap-2 rounded-2xl border p-4 text-center shadow-sm transition-all focus:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 select-none overflow-hidden',
       wide ? 'col-span-2' : '',
       primary
-        ? 'border-transparent text-white'
-        : 'bg-white text-slate-700 hover:bg-slate-50',
+        ? 'border-transparent text-white shadow-md'
+        : 'border-slate-200/60 bg-white/70 backdrop-blur-md text-slate-700 hover:bg-white/90 hover:shadow-md hover:border-slate-300/80',
     )}
-    style={primary ? { backgroundColor: color } : { '--tw-ring-color': color } as React.CSSProperties}
+    style={primary ? { background: `linear-gradient(135deg, ${color}, ${color}dd)` } : { '--tw-ring-color': color } as React.CSSProperties}
   >
     {pulse && (
       <span className="absolute top-3 right-3 flex h-2.5 w-2.5">
@@ -141,9 +142,9 @@ const GuestFeatureButton: React.FC<{
     )}
     <div style={!primary ? { color } : {}}>{icon}</div>
     <div>
-      <p className="font-black text-sm leading-tight">{label}</p>
+      <p className="font-black text-sm tracking-tight leading-tight">{label}</p>
       {sublabel && (
-        <p className={cn('text-[11px] mt-0.5 leading-tight', primary ? 'text-white/70' : 'text-slate-400')}>
+        <p className={cn('text-[11px] mt-1 font-medium leading-tight', primary ? 'text-white/80' : 'text-slate-500')}>
           {sublabel}
         </p>
       )}
@@ -202,12 +203,8 @@ const PostCard: React.FC<{
   const postText = post.caption || post.dedication || post.momentTag;
 
   return (
-    <motion.div
-        initial={{ opacity: 0, y: 20 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ duration: 0.5 }}
-    >
-        <Card className="overflow-hidden rounded-lg border border-slate-200 bg-white shadow-sm">
+    <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, scale: 0.95 }} transition={{ duration: 0.3 }}>
+        <Card className="overflow-hidden rounded-2xl border border-white/40 bg-white/70 backdrop-blur-xl shadow-[0_8px_30px_rgb(0,0,0,0.04)]">
         <CardHeader className="flex flex-row items-center justify-between gap-3 p-4">
             <div className="flex items-center gap-3">
             <div className="w-10 h-10 rounded-full flex items-center justify-center text-white font-bold text-lg shadow-inner" style={{ backgroundColor: accentColor }}>
@@ -2111,17 +2108,17 @@ export default function SocialGalleryPage(props: { params: Promise<{ fiestaId: s
       ════════════════════════════════════════════════════════════════ */}
       {isAdminView && (
         <>
-      <header className="sticky top-0 z-20 bg-white/80 backdrop-blur-xl border-b border-slate-200/50 shadow-sm px-4">
+      <header className="sticky top-0 z-20 bg-white/70 backdrop-blur-2xl border-b border-white/20 shadow-sm px-4">
         <div className="max-w-6xl mx-auto h-20 flex justify-between items-center gap-4">
           <div className="flex items-center gap-4 min-w-0">
-            <div className="p-2.5 rounded-2xl hidden sm:flex" style={{ backgroundColor: `${accentColor}15` }}>
-                <PartyPopper className="w-6 h-6" style={{ color: accentColor }}/>
-            </div>
+            <motion.div initial={{ rotate: -10, scale: 0.9 }} animate={{ rotate: 0, scale: 1 }} transition={{ duration: 0.5 }} className="p-3 rounded-2xl hidden sm:flex shadow-inner" style={{ backgroundColor: accentColor }}>
+                <PartyPopper className="w-6 h-6 text-white" />
+            </motion.div>
             <div className="min-w-0">
-                <h1 className="text-xl font-black font-headline text-slate-800 truncate">
-                    {localSettings.title || fiesta?.configuracion.nombreEvento || 'Muro Social'}
+                <h1 className="text-xl font-black font-headline text-slate-800 truncate tracking-tight">
+                    {localSettings.title || fiesta?.configuracion.nombreEvento || 'Red Social'}
                 </h1>
-                <p className="text-xs font-medium text-slate-400 truncate uppercase tracking-tighter">
+                <p className="text-[10px] font-bold text-slate-500 truncate uppercase tracking-widest mt-0.5">
                     {localSettings.subtitle || 'Subí tus fotos y participá en vivo'}
                 </p>
             </div>

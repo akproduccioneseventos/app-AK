@@ -84,7 +84,7 @@ export default async function BlogPage() {
                   src={getPostImage(featured.slug)}
                   alt={featured.title}
                   fill
-                  className="object-cover opacity-60 transition-transform duration-500 group-hover:scale-103"
+                  className="object-cover opacity-60 transition-transform duration-500 group-hover:scale-[1.03]"
                   sizes="(max-width: 768px) 100vw, 50vw"
                   priority
                 />
@@ -95,10 +95,10 @@ export default async function BlogPage() {
                 </div>
               </div>
               <div className="space-y-4 p-6">
-                <p className="text-[11px] font-black uppercase tracking-[0.2em] text-indigo-650">
+                <p className="text-[11px] font-black uppercase tracking-[0.2em] text-indigo-600">
                   Artículo destacado
                 </p>
-                <h2 className="text-2xl font-black leading-tight group-hover:text-indigo-650 transition-colors">
+                <h2 className="text-2xl font-black leading-tight group-hover:text-indigo-600 transition-colors">
                   {featured.title}
                 </h2>
                 <p className="text-sm leading-7 text-slate-600 font-medium line-clamp-3">{featured.excerpt}</p>
@@ -115,7 +115,7 @@ export default async function BlogPage() {
           <div className="mx-auto max-w-6xl space-y-8">
             <div className="flex flex-col gap-3 md:flex-row md:items-end md:justify-between">
               <div>
-                <p className="text-[11px] font-black uppercase tracking-[0.24em] text-indigo-650">Guías prácticas</p>
+                <p className="text-[11px] font-black uppercase tracking-[0.24em] text-indigo-600">Guías prácticas</p>
                 <h2 className="mt-2 text-3xl font-black text-slate-950">Contenido para decidir mejor</h2>
               </div>
               <p className="max-w-xl text-sm leading-7 text-slate-500 font-medium">

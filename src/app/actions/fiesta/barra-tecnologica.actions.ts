@@ -112,7 +112,15 @@ async function getDb(): Promise<Firestore | null> {
 async function getBarDrinks(fiesta: FiestaEnPlanificacion): Promise<Trago[]> {
   const masterItems = await getCartaTragosMaster().catch(() => defaultCartaTragosData.items);
   const fiestaItems = fiesta.cartaTragos?.items || defaultCartaTragosData.items;
-  return mergeMasterTragosWithFiesta(masterItems, fiestaItems)
+  const merged = mergeMasterTragosWithFiesta(masterItems, fiestaItems);
+
+  const sorted = [...merged].sort((a, b) => {
+    const aCustom = a.id?.startsWith('custom_') ? 1 : 0;
+    const bCustom = b.id?.startsWith('custom_') ? 1 : 0;
+    return bCustom - aCustom;
+  });
+
+  return sorted
     .filter((drink) => drink && drink.nombre)
     .map((drink) => ({
       ...drink,
@@ -190,6 +198,8 @@ export async function getBarraTecnologicaDashboard(fiestaId: string): Promise<{ 
         settings: stored.settings,
         drinks,
         orders,
+        backgroundImageUrl: fiesta.cartaTragos?.backgroundImageUrl || '',
+        protagonistaFotoUrl: fiesta.cartaTragos?.protagonistaFotoUrl || '',
       },
     };
   } catch (error: any) {
@@ -306,7 +316,7 @@ export async function createBarmanManualOrder(input: CreateBarDrinkOrderInput): 
       drinkId: drink.id,
       drinkName: drink.nombre,
       guestName: 'Barman',
-      status: 'entregado',
+      status: 'nuevo',
       createdAt: now,
       updatedAt: now,
       source: 'staff',
@@ -323,8 +333,6 @@ export async function createBarmanManualOrder(input: CreateBarDrinkOrderInput): 
     } else {
       await saveFallbackOrders(fiesta, [order, ...(stored.orders || [])]);
     }
-
-    await descontarStock(drink);
 
     return { success: true, order };
   } catch (error: any) {
@@ -398,7 +406,7 @@ export async function updateBarDrinkOrderStatus(
         await ref.update({ status, updatedAt });
         const snapshot = await ref.get();
         const orderData = snapshot.data() as BarDrinkOrder;
-        
+
         if (status === 'entregado') {
           const fiesta = await getFiestaById(fiestaId);
           if (fiesta) {
@@ -407,7 +415,7 @@ export async function updateBarDrinkOrderStatus(
             if (drink) await descontarStock(drink);
           }
         }
-        
+
         return { success: true, order: orderData };
       } catch (error) {
         logger.warn('[barra-tecnologica] firestore status update failed, using fallback:', error);
@@ -422,13 +430,13 @@ export async function updateBarDrinkOrderStatus(
     ));
     await saveFallbackOrders(fiesta, orders);
     const updatedOrder = orders.find((order) => order.id === orderId);
-    
+
     if (status === 'entregado' && updatedOrder) {
       const drinks = await getBarDrinks(fiesta);
       const drink = drinks.find(d => d.id === updatedOrder.drinkId);
       if (drink) await descontarStock(drink);
     }
-    
+
     return { success: true, order: updatedOrder };
   } catch (error: any) {
     return { success: false, error: error.message || 'No se pudo actualizar el pedido.' };
@@ -462,9 +470,9 @@ export async function uploadBarMagicPhoto(formData: FormData): Promise<{ success
     const storagePath = `bar-tech/${fiestaId}/${mediaId}${extension}`;
     const bytes = await file.arrayBuffer();
     const url = await uploadToStorage(Buffer.from(bytes), storagePath, file.type || 'image/jpeg', true);
-    
-    const baseCaption = drinkName 
-      ? `Disfrutando de un ${drinkName} en la barra interactiva` 
+
+    const baseCaption = drinkName
+      ? `Disfrutando de un ${drinkName} en la barra interactiva`
       : (caption || 'Mi foto en la barra tecnologica AK');
     const shareText = `${baseCaption} ${settings.hashtag} ${settings.instagramHandle}`.trim();
 

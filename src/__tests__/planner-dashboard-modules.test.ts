@@ -49,6 +49,7 @@ const MODULES: TestModule[] = [
   // EXPERIENCIA DEL INVITADO VIP
   { id: 'paginaWeb',           href: 'pagina-web',                      category: 'EXPERIENCIA DEL INVITADO VIP',             badge: 'Invitado' },
   { id: 'moduloInvitado',      href: 'modulo-invitado',                 category: 'EXPERIENCIA DEL INVITADO VIP',             badge: 'Invitado' },
+  { id: 'redSocial',           href: 'social-fiesta-pro',                category: 'EXPERIENCIA DEL INVITADO VIP',             badge: 'VIP' },
   { id: 'checkin',             href: 'invitados/checkin-scanner',        category: 'EXPERIENCIA DEL INVITADO VIP',             badge: 'Invitado' },
   { id: 'disenoSalon',         href: 'invitados/layout',                category: 'EXPERIENCIA DEL INVITADO VIP',             badge: 'Invitado' },
 
@@ -97,10 +98,10 @@ const QUICK_MODES: Record<string, string[]> = {
   'dia-evento':  ['enVivo', 'missionControl', 'itinerario', 'checkin', 'cargaOperativa', 'readiness', 'muroSocial', 'zonaDigital', 'pantallasTotem', 'entretenimiento', 'barraTecnologica'],
   'preparacion': ['tareas', 'portalCliente', 'invitados', 'decoracion', 'catering', 'carteleria'],
   'cliente':     ['portalCliente', 'itinerario', 'videoVida', 'invitados', 'musica', 'planPagos'],
-  'tecnologia':  ['paginaWeb', 'moduloInvitado', 'muroSocial', 'zonaDigital', 'pantallasTotem', 'entretenimiento', 'barraTecnologica', 'enVivo', 'checkin'],
+  'tecnologia':  ['paginaWeb', 'moduloInvitado', 'redSocial', 'muroSocial', 'zonaDigital', 'pantallasTotem', 'entretenimiento', 'barraTecnologica', 'enVivo', 'checkin'],
 };
 
-const ALWAYS_VISIBLE = ['enVivo', 'missionControl', 'readiness', 'proveedoresPortal', 'configuracion', 'entretenimiento', 'zonaDigital', 'pantallasTotem', 'barraTecnologica'];
+const ALWAYS_VISIBLE = ['enVivo', 'missionControl', 'readiness', 'proveedoresPortal', 'configuracion', 'entretenimiento', 'redSocial', 'zonaDigital', 'pantallasTotem', 'barraTecnologica'];
 
 describe('Planificador de Fiestas — Centro de Producción Premium', () => {
   describe('Estructura de categorías', () => {
@@ -163,6 +164,10 @@ describe('Planificador de Fiestas — Centro de Producción Premium', () => {
       expect(getModule('moduloInvitado')?.href).toBe('modulo-invitado');
     });
 
+    it('red social privada sigue accesible y separada del muro', () => {
+      expect(getModule('redSocial')?.href).toBe('social-fiesta-pro');
+    });
+
     it('muro social sigue accesible', () => {
       expect(getModule('muroSocial')?.href).toBe('muro-social');
     });
@@ -199,6 +204,10 @@ describe('Planificador de Fiestas — Centro de Producción Premium', () => {
       expect(getModule('muroSocial')?.category).toBe('PANTALLA GIGANTE AK');
     });
 
+    it('red social privada está en EXPERIENCIA DEL INVITADO VIP', () => {
+      expect(getModule('redSocial')?.category).toBe('EXPERIENCIA DEL INVITADO VIP');
+    });
+
     it('zona digital esta en PANTALLA GIGANTE AK', () => {
       expect(getModule('zonaDigital')?.category).toBe('PANTALLA GIGANTE AK');
     });
@@ -209,7 +218,7 @@ describe('Planificador de Fiestas — Centro de Producción Premium', () => {
   });
 
   describe('Badges por módulo', () => {
-    const validBadges = ['Cliente', 'Invitado', 'Operativo', 'Pantalla', 'Interno', 'Impresión'];
+    const validBadges = ['Cliente', 'Invitado', 'Operativo', 'Pantalla', 'Interno', 'Impresión', 'VIP'];
 
     it('todos los módulos con badge usan un badge válido', () => {
       MODULES.filter(m => m.badge).forEach(m => {
@@ -263,9 +272,10 @@ describe('Planificador de Fiestas — Centro de Producción Premium', () => {
       expect(ids).toContain('musica');
     });
 
-    it('modo tecnología AK incluye paginaWeb, muroSocial y entretenimiento', () => {
+    it('modo tecnología AK incluye paginaWeb, redSocial, muroSocial y entretenimiento', () => {
       const ids = QUICK_MODES['tecnologia'];
       expect(ids).toContain('paginaWeb');
+      expect(ids).toContain('redSocial');
       expect(ids).toContain('muroSocial');
       expect(ids).toContain('pantallasTotem');
       expect(ids).toContain('entretenimiento');
@@ -305,6 +315,10 @@ describe('Planificador de Fiestas — Centro de Producción Premium', () => {
 
     it('barra tecnologica es siempre visible', () => {
       expect(ALWAYS_VISIBLE).toContain('barraTecnologica');
+    });
+
+    it('red social privada es siempre visible aunque el evento sea viejo', () => {
+      expect(ALWAYS_VISIBLE).toContain('redSocial');
     });
   });
 

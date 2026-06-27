@@ -120,7 +120,7 @@ export default async function BlogPostPage({ params }: Props) {
           <div className="mx-auto grid max-w-5xl gap-8 lg:grid-cols-[1fr_280px]">
             <article className="space-y-10">
               <div className="rounded-3xl border border-indigo-50 bg-indigo-50/50 p-6">
-                <p className="text-[11px] font-black uppercase tracking-[0.22em] text-indigo-650">Idea principal</p>
+                <p className="text-[11px] font-black uppercase tracking-[0.22em] text-indigo-600">Idea principal</p>
                 <p className="mt-3 text-xl font-black leading-8 text-slate-950">{post.takeaway}</p>
               </div>
 
@@ -210,7 +210,7 @@ export default async function BlogPostPage({ params }: Props) {
           <section className="bg-slate-50 px-4 py-12">
             <div className="mx-auto max-w-5xl space-y-6">
               <div>
-                <p className="text-[11px] font-black uppercase tracking-[0.22em] text-indigo-650">Seguir leyendo</p>
+                <p className="text-[11px] font-black uppercase tracking-[0.22em] text-indigo-600">Seguir leyendo</p>
                 <h2 className="mt-2 text-2xl font-black text-slate-950">Consejos relacionados</h2>
               </div>
               <div className="grid gap-4 md:grid-cols-2">
@@ -236,8 +236,8 @@ export default async function BlogPostPage({ params }: Props) {
                       </div>
                       <div className="min-w-0">
                         <p className="text-[10px] font-black uppercase tracking-[0.18em] text-slate-450">{item.category}</p>
-                        <h3 className="mt-1 font-black leading-snug text-slate-950 group-hover:text-indigo-650 truncate" title={item.title}>{item.title}</h3>
-                        <span className="mt-2 inline-flex items-center gap-1 text-xs font-black uppercase tracking-wider text-indigo-650">
+                        <h3 className="mt-1 font-black leading-snug text-slate-950 group-hover:text-indigo-600 truncate" title={item.title}>{item.title}</h3>
+                        <span className="mt-2 inline-flex items-center gap-1 text-xs font-black uppercase tracking-wider text-indigo-600">
                           Leer
                           <Lucide.ArrowRight className="h-3.5 w-3.5" />
                         </span>

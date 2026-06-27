@@ -12,7 +12,7 @@ const benefits = [
   },
   {
     title: 'Todos los servicios conectados',
-    text: 'Decoración, catering, DJ, fotos y pantallas LED trabajan bajo una misma planificación, evitando fallas de comunicación.',
+    text: 'Decoración, comida, discoteca, fotos y pantallas LED trabajan bajo una misma planificación, evitando fallas de comunicación.',
     icon: Sparkles,
   },
   {
@@ -74,7 +74,7 @@ export function AkDifferenceSection() {
                   </div>
                   <div>
                     <h3 className="text-lg font-black text-white">{benefit.title}</h3>
-                    <p className="mt-2 text-sm text-zinc-450 leading-relaxed font-medium">{benefit.text}</p>
+                    <p className="mt-2 text-sm text-zinc-400 leading-relaxed font-medium">{benefit.text}</p>
                   </div>
                 </motion.div>
               );
@@ -100,7 +100,7 @@ export function AkDifferenceSection() {
             </div>
           </div>
 
-          <div className="flex items-center gap-4 p-5 rounded-2xl bg-indigo-650/10 border border-indigo-500/15 text-indigo-300">
+          <div className="flex items-center gap-4 p-5 rounded-2xl bg-indigo-600/10 border border-indigo-500/15 text-indigo-300">
             <CalendarCheck className="h-6 w-6 shrink-0" />
             <p className="text-sm font-semibold leading-relaxed">
               Tranquilidad desde el primer día: fecha, salón, servicios y un plan de pagos claro, todo definido desde la primera reunión.
