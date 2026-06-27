@@ -291,7 +291,7 @@ function SimuladorContent() {
         return {
             entradasDisponibles: enhancedDishes.filter(item => item.type === 'Entrada').map(menuItemToServicioEmpresa).sort(sortDishes),
             principalesDisponibles: enhancedDishes.filter(item => item.type === 'Plato Principal').map(menuItemToServicioEmpresa).sort(sortDishes),
-            menusNinoDisponibles: enhancedDishes.filter(item => item.type === 'MenÃº Infantil/Adolescente' || item.type === 'MenÃº Infantil').map(menuItemToServicioEmpresa).sort(sortDishes)
+            menusNinoDisponibles: enhancedDishes.filter(item => item.type === 'Menú Infantil/Adolescente' || item.type === 'Menú Infantil').map(menuItemToServicioEmpresa).sort(sortDishes)
         };
     }, [config, allMenus, gastronomiaSearchTerm]);
 
