@@ -101,6 +101,11 @@ const DURATION_OPTIONS = [
 
 const STEP_LABELS = ['Presentación', 'Datos', 'Menú', 'Paquete', 'Edición'] as const;
 
+const formatCategoriaText = (cat?: string): string => {
+    if (!cat) return '';
+    return cat === 'Servicio de catering' ? 'Servicio de comida' : cat;
+};
+
 const menuItemToServicioEmpresa = (item: MenuItem & { precioVenta: number; imageUrl?: string }): ServicioEmpresa => {
     return {
         id: item.id,
@@ -1546,7 +1551,7 @@ function SimuladorContent() {
                                     </div>
                                     <div>
                                         <h4 className="font-black text-slate-800 uppercase text-xs tracking-wider mb-1">Todos los Servicios</h4>
-                                        <p className="text-xs leading-relaxed text-slate-600 font-semibold">Catering completo, barra de tragos, discoteca, iluminación, decoración y más. Todo en un solo lugar.</p>
+                                        <p className="text-xs leading-relaxed text-slate-600 font-semibold">Comida completa, barra de tragos, discoteca, iluminación, decoración y más. Todo en un solo lugar.</p>
                                     </div>
                                 </div>
 
@@ -1960,7 +1965,7 @@ function SimuladorContent() {
                                                     {item.nombre}
                                                 </span>
                                                 <span className="mt-1 block text-[10px] font-semibold text-slate-400 uppercase tracking-tight">
-                                                    {item.esRegalo ? "Regalo incluido" : (item.subcategoria || item.categoria || 'Servicio seleccionado')}
+                                                    {item.esRegalo ? "Regalo incluido" : (item.subcategoria || formatCategoriaText(item.categoria) || 'Servicio seleccionado')}
                                                 </span>
                                                 <span className={cn("mt-2 block text-xs font-black", isExcluded ? "text-slate-400" : "text-slate-500")}>
                                                     {isExcluded ? "Retirado" : `Costo total: ${formatCurrency(item.costoTotal)}`}
@@ -1997,7 +2002,7 @@ function SimuladorContent() {
                                                     {service.nombre}
                                                 </span>
                                                 <span className="mt-1 block text-[10px] font-semibold text-slate-400 uppercase tracking-tight">
-                                                    {service.notas || service.subcategoria || service.categoria || 'Servicio retirado'}
+                                                    {service.notas || service.subcategoria || formatCategoriaText(service.categoria) || 'Servicio retirado'}
                                                 </span>
                                                 <span className="mt-2 block text-xs font-bold text-slate-400">
                                                     Retirado de la propuesta (-{formatCurrency(calculated.total)})
@@ -2078,7 +2083,7 @@ function SimuladorContent() {
                                                                 <div>
                                                                     <span className="block font-black text-sm text-slate-800">{service.nombre}</span>
                                                                     <span className="block text-[10px] text-slate-400 font-semibold uppercase mt-0.5">
-                                                                        {service.categoria} {service.subcategoria ? `· ${service.subcategoria}` : ''}
+                                                                        {formatCategoriaText(service.categoria)} {service.subcategoria ? `· ${service.subcategoria}` : ''}
                                                                     </span>
                                                                 </div>
                                                                 <div className="text-right shrink-0">
@@ -2111,7 +2116,7 @@ function SimuladorContent() {
                                                         <div className="min-w-0 flex-1">
                                                             <span className="block font-black text-slate-900 text-sm">{service.nombre}</span>
                                                             <span className="block text-[10px] text-slate-400 font-semibold uppercase mt-0.5">
-                                                                {service.categoria}
+                                                                {formatCategoriaText(service.categoria)}
                                                             </span>
                                                             <span className="mt-2 block text-sm font-black text-primary">
                                                                 {formatCurrency(calculated.total)}

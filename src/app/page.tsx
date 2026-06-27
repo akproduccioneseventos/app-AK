@@ -106,7 +106,7 @@ export async function generateMetadata(): Promise<Metadata> {
   const settings = await getLandingSettings();
   return {
     title: `${settings.seo.title || 'AK Producciones'} | Organización Integral de Eventos en Salto`,
-    description: settings.seo.description || 'Organización completa de bodas, fiestas de 15 años y eventos empresariales en Salto, Uruguay. Discoteca, catering premium, fotografía, decoración y salones de fiesta en un solo lugar con tecnología interactiva.',
+    description: settings.seo.description || 'Organización completa de bodas, fiestas de 15 años y eventos empresariales en Salto, Uruguay. Discoteca, comida de primer nivel, fotografía, decoración y salones de fiesta en un solo lugar con tecnología interactiva.',
     openGraph: {
       title: settings.seo.title,
       description: settings.seo.description,
@@ -221,7 +221,7 @@ export default async function HomePage({ searchParams }: LandingPageProps) {
       'https://www.facebook.com/akproduccionessalto',
       'https://www.instagram.com/akproduccionessalto',
     ],
-    'description': 'Organización integral de eventos en Salto, Uruguay. Discoteca, catering premium, fotografía, decoración y salones de fiesta en un solo lugar con tecnología interactiva.',
+    'description': 'Organización integral de eventos en Salto, Uruguay. Discoteca, comida de primer nivel, fotografía, decoración y salones de fiesta en un solo lugar con tecnología interactiva.',
   };
 
   return (
