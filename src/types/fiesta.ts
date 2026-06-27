@@ -22,7 +22,7 @@ export interface Notificacion {
 
 // --- INVITADOS ---
 export type RsvpStatus = 'Pendiente' | 'Confirmado' | 'Rechazado' | 'Tal vez';
-export type CategoriaInvitado = 'Adulto' | 'NiÃ±o/Adolescente';
+export type CategoriaInvitado = 'Adulto' | 'Niño/Adolescente';
 
 export type DietaryRestriction = 'Ninguna' | 'Celiaco' | 'Vegetariano' | 'Vegano' | 'Sin Gluten' | 'Sin Lactosa' | 'Alergia Mariscos' | 'Alergia Frutos Secos' | 'Otro';
 
@@ -550,7 +550,7 @@ export interface InvitacionDigitalConfig {
 
 export interface InvitacionDigitalData {
   name?: string;
-  category?: 'Boda' | 'XV AÃ±os' | 'CumpleaÃ±os' | 'General' | 'Infantil';
+  category?: 'Boda' | 'XV Años' | 'Cumpleaños' | 'General' | 'Infantil';
   plantilla: 'Grazia' | 'Allegria';
   musicaFondoUrl?: string;
   secciones: SeccionInvitacion[];
@@ -1563,7 +1563,7 @@ export interface EventoEnVivoData {
 }
 
 // --- FOTOGRAFÃA Y FILMACIÃ“N ---
-export type EntregaMaterialEstado = 'Pendiente' | 'En ediciÃ³n' | 'En revisiÃ³n' | 'Entregado parcial' | 'Entregado completo';
+export type EntregaMaterialEstado = 'Pendiente' | 'En edición' | 'En revisión' | 'Entregado parcial' | 'Entregado completo';
 
 export interface ServicioFotografia {
   id: string;
@@ -1603,7 +1603,7 @@ export type DocumentoTipo =
   | 'presupuesto_firmado'
   | 'contrato_cambio_fecha'
   | 'cambio-fecha'
-  | 'seÃ±a_pago'
+  | 'seña_pago'
   | 'recibo_pago'
   | 'contrato_catering'
   | 'cancelacion'
