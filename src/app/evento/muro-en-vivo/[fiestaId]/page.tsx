@@ -103,6 +103,26 @@ export default function MuroEnVivoPage() {
   const [isLoaded, setIsLoaded] = useState(false);
   const [localPlaylistIndex, setLocalPlaylistIndex] = useState(0);
   const [playlistTick, setPlaylistTick] = useState<number>(Date.now());
+  const [qrUrl, setQrUrl] = useState<string>('');
+  const [showCameraFlash, setShowCameraFlash] = useState(false);
+  const prevPostsCountRef = useRef(0);
+
+  useEffect(() => {
+    if (typeof window !== 'undefined') {
+      setQrUrl(`${window.location.origin}/evento/social/${fiestaId}`);
+    }
+  }, [fiestaId]);
+
+  useEffect(() => {
+    if (isLoaded && posts.length > 0) {
+      if (prevPostsCountRef.current > 0 && posts.length > prevPostsCountRef.current) {
+        setShowCameraFlash(true);
+        const timer = setTimeout(() => setShowCameraFlash(false), 500);
+        return () => clearTimeout(timer);
+      }
+      prevPostsCountRef.current = posts.length;
+    }
+  }, [posts.length, isLoaded]);
 
   const footerSocials = useMemo(() => {
     const brand = settings.brand;
@@ -489,15 +509,15 @@ export default function MuroEnVivoPage() {
 
           {/* Mural / photo slideshow — only shown when wall is enabled */}
           {isLoaded && settings.privateDedicationsMode !== true && settings.enabled !== false && (!activeScreenItem || activeScreenItem.type === 'mural') && posts.length > 0 && (
-            <SlideshowLayout posts={posts} />
+            <SlideshowLayout posts={posts} qrUrl={qrUrl} settings={settings} />
           )}
 
           {/* Juego slide */}
           {isLoaded && activeScreenItem?.type === 'juego' && (
             activeGame
-              ? <GameSlide game={activeGame} posts={posts} />
+              ? <GameSlide game={activeGame} posts={posts} qrUrl={qrUrl} settings={settings} />
               : posts.length > 0 && settings.privateDedicationsMode !== true
-                ? <SlideshowLayout posts={posts} />
+                ? <SlideshowLayout posts={posts} qrUrl={qrUrl} settings={settings} />
                 : (
                   <div className="absolute inset-0 flex flex-col items-center justify-center gap-6">
                     <div className="text-9xl">🎮</div>
@@ -509,18 +529,18 @@ export default function MuroEnVivoPage() {
 
           {/* Video slide */}
           {isLoaded && activeScreenItem?.type === 'video' && (
-            <ScreenMediaSlide item={activeScreenItem} fallbackPosts={posts} />
+            <ScreenMediaSlide item={activeScreenItem} fallbackPosts={posts} qrUrl={qrUrl} settings={settings} />
           )}
 
           {/* Pauta publicitaria slide */}
           {isLoaded && activeScreenItem?.type === 'pauta' && (
-            <ScreenMediaSlide item={activeScreenItem} fallbackPosts={posts} />
+            <ScreenMediaSlide item={activeScreenItem} fallbackPosts={posts} qrUrl={qrUrl} settings={settings} />
           )}
 
           {/* Redes slide */}
           {isLoaded && activeScreenItem?.type === 'redes' && (
             posts.length > 0 ? (
-              <SlideshowLayout posts={posts} />
+              <SlideshowLayout posts={posts} qrUrl={qrUrl} settings={settings} />
             ) : (
               <div className="absolute inset-0 flex flex-col items-center justify-center gap-6">
                 <div className="text-8xl opacity-20">📸</div>
@@ -734,7 +754,11 @@ export default function MuroEnVivoPage() {
           >
             <div
               className={`whitespace-nowrap text-2xl font-black uppercase tracking-wider ${LED_MARQUEE_ANIMATION_CLASS}`}
-              style={{ color: settings.ledMarqueeColor || '#f0abfc' }}
+              style={{
+                color: settings.ledMarqueeColor || '#f0abfc',
+                willChange: 'transform',
+                transform: 'translateZ(0)'
+              }}
             >
               {renderMarqueeText(settings.ledMarqueeText)}
             </div>
@@ -752,7 +776,11 @@ export default function MuroEnVivoPage() {
           >
             <div
               className={`whitespace-nowrap text-lg font-bold ${MARKETING_MARQUEE_ANIMATION_CLASS}`}
-              style={{ color: settings.marketingTickerColor || '#e0f2fe' }}
+              style={{
+                color: settings.marketingTickerColor || '#e0f2fe',
+                willChange: 'transform',
+                transform: 'translateZ(0)'
+              }}
             >
               {renderMarqueeText(settings.marketingTickerText || companyMarketingText)}
             </div>
@@ -883,8 +911,11 @@ export default function MuroEnVivoPage() {
                 <div
                   className="w-80 h-80 rounded-full border-[10px] border-yellow-400 shadow-[0_0_40px_rgba(234,179,8,0.4)]"
                   style={{
-                    transform: `rotate(${sorteoSpinWheelAngle}deg)`,
-                    transition: 'transform 7s cubic-bezier(0.08, 0.82, 0.17, 1)',
+                    transform: `rotate(${sorteoSpinWheelAngle}deg) translateZ(0)`,
+                    transition: sorteoSpinActive
+                      ? 'transform 7s cubic-bezier(0.08, 0.82, 0.17, 1)'
+                      : 'none',
+                    willChange: 'transform',
                     background: SORTEO_WHEEL_GRADIENT,
                   }}
                 />
@@ -965,6 +996,19 @@ export default function MuroEnVivoPage() {
               🏆 ¡Felicitaciones! 🏆
             </motion.p>
           </motion.div>
+        )}
+      </AnimatePresence>
+
+      {/* Flash de cámara de fotos */}
+      <AnimatePresence>
+        {showCameraFlash && (
+          <motion.div
+            initial={{ opacity: 1 }}
+            animate={{ opacity: 0 }}
+            exit={{ opacity: 0 }}
+            transition={{ duration: 0.5, ease: 'easeOut' }}
+            className="fixed inset-0 bg-white z-[100] pointer-events-none"
+          />
         )}
       </AnimatePresence>
 
@@ -1199,11 +1243,27 @@ function renderMarqueeText(text: string) {
   ));
 }
 
-function ScreenMediaSlide({ item, fallbackPosts }: { item: ScreenPlaylistItem; fallbackPosts: SocialGalleryPost[] }) {
+function ScreenMediaSlide({
+  item,
+  fallbackPosts,
+  qrUrl = '',
+  settings = { enabled: true }
+}: {
+  item: ScreenPlaylistItem;
+  fallbackPosts: SocialGalleryPost[];
+  qrUrl?: string;
+  settings?: any;
+}) {
+  const [mediaLoaded, setMediaLoaded] = useState(false);
+
+  useEffect(() => {
+    setMediaLoaded(false);
+  }, [item.mediaUrl]);
+
   if (!item.mediaUrl) {
     // No media uploaded: show slideshow if there are posts, otherwise a placeholder
     if (fallbackPosts.length > 0) {
-      return <SlideshowLayout posts={fallbackPosts} />;
+      return <SlideshowLayout posts={fallbackPosts} qrUrl={qrUrl} settings={settings} />;
     }
     return (
       <div className="absolute inset-0 flex flex-col items-center justify-center gap-4">
@@ -1218,6 +1278,14 @@ function ScreenMediaSlide({ item, fallbackPosts }: { item: ScreenPlaylistItem; f
   const portrait = item.layout === 'portrait';
   return (
     <div className="absolute inset-0 flex items-center justify-center bg-black">
+      {!mediaLoaded && (
+        <div className="absolute inset-0 z-10 flex items-center justify-center bg-black/90 text-white/50">
+          <div className="space-y-3 text-center">
+            <div className="w-12 h-12 mx-auto rounded-full border-4 border-white/10 border-t-indigo-500 animate-spin" />
+            <p className="text-xs font-black uppercase tracking-[0.25em] text-white/40">Cargando diapositiva…</p>
+          </div>
+        </div>
+      )}
       {isVideo ? (
         <video
           src={item.mediaUrl}
@@ -1225,6 +1293,9 @@ function ScreenMediaSlide({ item, fallbackPosts }: { item: ScreenPlaylistItem; f
           muted
           loop
           playsInline
+          preload="auto"
+          onPlay={() => setMediaLoaded(true)}
+          onLoadedData={() => setMediaLoaded(true)}
           className={portrait ? 'h-full w-auto max-w-full object-cover' : 'w-full h-full object-cover'}
         />
       ) : (
@@ -1232,6 +1303,7 @@ function ScreenMediaSlide({ item, fallbackPosts }: { item: ScreenPlaylistItem; f
         <img
           src={item.mediaUrl}
           alt={item.title}
+          onLoad={() => setMediaLoaded(true)}
           className={portrait ? 'h-full w-auto max-w-full object-cover' : 'w-full h-full object-cover'}
         />
       )}
@@ -1294,9 +1366,49 @@ function SocialTemplateSlide({ item, eventName, brand }: { item: ScreenPlaylistI
 
 const SLIDESHOW_DURATION_MS = 6000;
 
-function SlideshowLayout({ posts }: { posts: SocialGalleryPost[] }) {
+function QRFloatingCard({ qrUrl, settings }: { qrUrl: string; settings: any }) {
+  if (!qrUrl) return null;
+  const brand = settings?.brand;
+  const instagram = brand?.instagramHandle?.trim() || '@akproducciones';
+
+  return (
+    <div className="absolute bottom-6 right-6 z-30 flex items-center gap-4 rounded-3xl border border-white/10 bg-black/45 p-4 text-white shadow-2xl backdrop-blur-xl animate-fade-in">
+      <div className="bg-white p-2 rounded-2xl">
+        <QRCodeSVG value={qrUrl} size={90} includeMargin={false} />
+      </div>
+      <div className="max-w-[160px] text-left flex flex-col justify-center">
+        <div className="flex items-center gap-1.5 text-amber-300">
+          <Camera className="h-3.5 w-3.5 animate-pulse" />
+          <span className="text-[10px] font-black uppercase tracking-[0.2em]">Subí tu foto</span>
+        </div>
+        <p className="mt-1 text-xs font-bold leading-snug text-white/90">Escaneá para salir en la pantalla en vivo</p>
+        {instagram && (
+          <p className="mt-1.5 text-[10px] font-bold text-amber-300/75 truncate">{instagram}</p>
+        )}
+      </div>
+    </div>
+  );
+}
+
+const SLIDESHOW_DURATION_MS = 6000;
+
+function SlideshowLayout({
+  posts,
+  qrUrl = '',
+  settings = { enabled: true }
+}: {
+  posts: SocialGalleryPost[];
+  qrUrl?: string;
+  settings?: any;
+}) {
   const [currentIndex, setCurrentIndex] = useState(0);
+  const [mediaLoaded, setMediaLoaded] = useState(false);
   const prevLengthRef = useRef(posts.length);
+
+  // Reset loading state when image/video changes
+  useEffect(() => {
+    setMediaLoaded(false);
+  }, [currentIndex, posts]);
 
   // When a new post arrives (length increases), jump to the newest photo (index 0)
   useEffect(() => {
@@ -1342,10 +1454,15 @@ function SlideshowLayout({ posts }: { posts: SocialGalleryPost[] }) {
       <AnimatePresence mode="wait">
         <motion.div
           key={post.id}
-          initial={{ opacity: 0, scale: 0.92, rotate: -2 }}
+          initial={{ opacity: 0, scale: 0.88, rotate: -3 }}
           animate={{ opacity: 1, scale: 1, rotate: 0.5 }}
-          exit={{ opacity: 0, scale: 0.92, rotate: 2 }}
-          transition={{ duration: 0.7, ease: [0.25, 1, 0.5, 1] }}
+          exit={{ opacity: 0, scale: 0.88, rotate: 3 }}
+          transition={{
+            type: 'spring',
+            stiffness: 85,
+            damping: 15,
+            mass: 0.8
+          }}
           className="relative h-[78vh] aspect-[3/4] bg-[#fcfbf9] p-5 pb-6 rounded-sm shadow-[0_30px_90px_rgba(0,0,0,0.85)] border border-white/40 flex flex-col justify-between items-center"
         >
           {/* Drink badge centered overlapping top border */}
@@ -1358,8 +1475,26 @@ function SlideshowLayout({ posts }: { posts: SocialGalleryPost[] }) {
 
           {/* Polaroid photo square area */}
           <div className="w-full aspect-square relative overflow-hidden rounded-sm bg-slate-900 border border-slate-200/20 shadow-inner">
+            {!mediaLoaded && (
+              <div className="absolute inset-0 z-10 flex items-center justify-center bg-slate-950/90 text-white/50">
+                <div className="space-y-3 text-center">
+                  <div className="w-8 h-8 mx-auto rounded-full border-2 border-white/20 border-t-amber-400 animate-spin" />
+                  <p className="text-[10px] font-black uppercase tracking-[0.25em] text-white/40">Cargando media…</p>
+                </div>
+              </div>
+            )}
             {isVideo ? (
-              <video src={post.imageUrl} className="h-full w-full object-cover" autoPlay muted loop playsInline />
+              <video
+                src={post.imageUrl}
+                className="h-full w-full object-cover"
+                autoPlay
+                muted
+                loop
+                playsInline
+                preload="auto"
+                onPlay={() => setMediaLoaded(true)}
+                onLoadedData={() => setMediaLoaded(true)}
+              />
             ) : (
               <NextImage
                 src={post.imageUrl}
@@ -1368,6 +1503,7 @@ function SlideshowLayout({ posts }: { posts: SocialGalleryPost[] }) {
                 className="object-cover"
                 unoptimized
                 priority
+                onLoad={() => setMediaLoaded(true)}
               />
             )}
           </div>
@@ -1392,6 +1528,9 @@ function SlideshowLayout({ posts }: { posts: SocialGalleryPost[] }) {
         </motion.div>
       </AnimatePresence>
 
+      {/* QR de participación permanente flotante */}
+      {qrUrl && <QRFloatingCard qrUrl={qrUrl} settings={settings} />}
+
       {/* Slide counter dots outside the card container */}
       {posts.length > 1 && posts.length <= 12 && (
         <div className="absolute bottom-4 left-0 right-0 flex justify-center gap-1.5 pointer-events-none z-10">
@@ -1411,7 +1550,15 @@ function SlideshowLayout({ posts }: { posts: SocialGalleryPost[] }) {
   );
 }
 
-function MasonryLayout({ posts }: { posts: SocialGalleryPost[] }) {
+function MasonryLayout({
+  posts,
+  qrUrl = '',
+  settings = { enabled: true }
+}: {
+  posts: SocialGalleryPost[];
+  qrUrl?: string;
+  settings?: any;
+}) {
   const numCols = Math.min(posts.length, 3);
 
   // For 1 or 2 posts use a simple non-scrolling layout; for 3+ use the scrolling masonry.
@@ -1426,6 +1573,7 @@ function MasonryLayout({ posts }: { posts: SocialGalleryPost[] }) {
             <MasonryCard key={post.id} post={post} index={i} />
           ))}
         </div>
+        {qrUrl && <QRFloatingCard qrUrl={qrUrl} settings={settings} />}
       </div>
     );
   }
@@ -1456,6 +1604,7 @@ function MasonryLayout({ posts }: { posts: SocialGalleryPost[] }) {
           </div>
         ))}
       </div>
+      {qrUrl && <QRFloatingCard qrUrl={qrUrl} settings={settings} />}
       <style>{`
         @keyframes scrollUp {
           0% { transform: translateY(0); }
@@ -1551,14 +1700,24 @@ const GAME_TYPE_META: Record<string, { emoji: string; label: string; bg: string 
 const MAX_GAME_OPTIONS_PER_ROW = 2;
 
 /** Full-screen game slide for 'juego' playlist items */
-function GameSlide({ game, posts }: { game: ActiveGameData; posts: SocialGalleryPost[] }) {
+function GameSlide({
+  game,
+  posts,
+  qrUrl = '',
+  settings = { enabled: true }
+}: {
+  game: ActiveGameData;
+  posts: SocialGalleryPost[];
+  qrUrl?: string;
+  settings?: any;
+}) {
   const meta = GAME_TYPE_META[game.type] ?? { emoji: '🎮', label: 'Juego', bg: 'from-slate-900 to-slate-800' };
 
   // baileLibre: show a fun full-screen dance overlay with photo wall behind
   if (game.type === 'baileLibre') {
     return (
       <div className="absolute inset-0">
-        {posts.length > 0 && <MasonryLayout posts={posts} />}
+        {posts.length > 0 && <MasonryLayout posts={posts} qrUrl={qrUrl} settings={settings} />}
         <div className="absolute inset-0 bg-black/60 flex flex-col items-center justify-center gap-6 overflow-hidden">
           {/* Pulsing colored lights */}
           {[...Array(6)].map((_, i) => (
