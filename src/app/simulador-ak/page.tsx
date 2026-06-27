@@ -8,7 +8,7 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { Separator } from '@/components/ui/separator';
 import { Checkbox } from '@/components/ui/checkbox';
-import { 
+import {
   Loader2, ArrowRight, Sparkles,
   Printer, Info, Share2, Send
 } from 'lucide-react';
@@ -118,7 +118,7 @@ function SimuladorAKContent() {
     entryPath: searchParams.get('entry') || '/simulador-ak',
     simulatorMode: 'assistant' as const,
   }), [searchParams]);
-  
+
   // App Config States
   const [config, setConfig] = useState<ArmadoRapidoConfig>(SIMULATOR_FALLBACK_CONFIG);
   const [serviciosCatalogo, setServiciosCatalogo] = useState<ServicioEmpresa[]>([]);
@@ -364,7 +364,7 @@ function SimuladorAKContent() {
     if (!text) return;
 
     if (!textToSend) setInputMessage('');
-    
+
     // Add user bubble
     const userMsgKey = `user_${Date.now()}`;
     setChatHistory(prev => [...prev, { role: 'user', text, key: userMsgKey }]);
@@ -385,7 +385,7 @@ function SimuladorAKContent() {
       if (!/^\d{9}$/.test(cleanedPhone)) {
         setIsAiLoading(false);
         const botMsgKey = `bot_err_${Date.now()}`;
-        setChatHistory(prev => [...prev, 
+        setChatHistory(prev => [...prev,
           { role: 'assistant', text: 'Por favor, ingresá un número de teléfono móvil uruguayo de 9 dígitos (ej: 099123456).', key: botMsgKey }
         ]);
         return;
@@ -401,7 +401,7 @@ function SimuladorAKContent() {
         if (isNaN(parsedDate.getTime())) {
           setIsAiLoading(false);
           const botMsgKey = `bot_err_${Date.now()}`;
-          setChatHistory(prev => [...prev, 
+          setChatHistory(prev => [...prev,
             { role: 'assistant', text: 'Por favor, elegí la fecha usando el calendario o ingresala en formato AAAA-MM-DD.', key: botMsgKey }
           ]);
           return;
@@ -420,11 +420,11 @@ function SimuladorAKContent() {
       else if (lower.includes('infantil') || lower.includes('nene') || lower.includes('🧒')) matchedType = 'cumpleanosInfantil';
       else if (lower.includes('cumple') || lower.includes('🎂')) matchedType = 'cumpleanos';
       else if (lower.includes('empresa') || lower.includes('corporativo') || lower.includes('🏢')) matchedType = 'empresarial';
-      
+
       if (!matchedType) {
         setIsAiLoading(false);
         const botMsgKey = `bot_err_${Date.now()}`;
-        setChatHistory(prev => [...prev, 
+        setChatHistory(prev => [...prev,
           { role: 'assistant', text: 'Por favor, seleccioná uno de los tipos de evento válidos.', key: botMsgKey }
         ]);
         return;
@@ -438,7 +438,7 @@ function SimuladorAKContent() {
       if (isNaN(num) || num <= 0) {
         setIsAiLoading(false);
         const botMsgKey = `bot_err_${Date.now()}`;
-        setChatHistory(prev => [...prev, 
+        setChatHistory(prev => [...prev,
           { role: 'assistant', text: 'Por favor, ingresá una cantidad de adultos válida mayor a 0.', key: botMsgKey }
         ]);
         return;
@@ -466,7 +466,7 @@ function SimuladorAKContent() {
       if (!chosen && !selectedPrincipal) {
         setIsAiLoading(false);
         const botMsgKey = `bot_err_${Date.now()}`;
-        setChatHistory(prev => [...prev, 
+        setChatHistory(prev => [...prev,
           { role: 'assistant', text: 'Por favor, seleccioná uno de los menús disponibles.', key: botMsgKey }
         ]);
         return;
@@ -489,7 +489,7 @@ function SimuladorAKContent() {
       if (!chosenPkg && !selectedPaqueteId) {
         setIsAiLoading(false);
         const botMsgKey = `bot_err_${Date.now()}`;
-        setChatHistory(prev => [...prev, 
+        setChatHistory(prev => [...prev,
           { role: 'assistant', text: 'Por favor, elegí uno de los paquetes cerrados.', key: botMsgKey }
         ]);
         return;
@@ -630,13 +630,13 @@ function SimuladorAKContent() {
     setIsAiLoading(true);
     setSelectedPaqueteId(paqueteId);
     setGeneratedId(null); // Clear ID to force regenerations
-    
+
     const pkg = config?.paquetes.find(p => p.id === paqueteId);
     const textToSend = `Quiero cambiar al paquete ${pkg?.nombre || 'básico'}`;
 
     // Temporarily trigger message update
     const botMsgKey = `bot_switch_${Date.now()}`;
-    setChatHistory(prev => [...prev, 
+    setChatHistory(prev => [...prev,
       { role: 'user', text: textToSend, key: `user_switch_${Date.now()}` }
     ]);
 
@@ -691,13 +691,13 @@ function SimuladorAKContent() {
 *Total estimado:* ${totalEst}
 *Presupuesto:* #${generatedId || 'A generar'}
 ${generatedId ? `*Link:* ${window.location.origin}/presupuestos/${generatedId}/ver?cliente=1&token=${token || ''}` : ''}`;
-    
+
     return `https://wa.me/${empresaPhone}?text=${encodeURIComponent(text)}`;
   };
 
   return (
-    <div className="relative flex min-h-screen flex-col bg-zinc-950 font-sans text-zinc-100 selection:bg-red-500/30">
-      
+    <div className="relative flex min-h-screen flex-col bg-zinc-950 font-sans text-zinc-100 selection:bg-indigo-500/30">
+
       <div className="pointer-events-none absolute inset-0 z-0 bg-[radial-gradient(ellipse_at_top,rgba(127,29,29,0.24)_0%,#09090b_62%)]" />
 
       {/* HEADER */}
@@ -706,7 +706,7 @@ ${generatedId ? `*Link:* ${window.location.origin}/presupuestos/${generatedId}/v
           <CompanyLogo className="h-9 w-auto shrink-0 sm:h-10 brightness-0 invert" />
           <div className="min-w-0">
             <h1 className="flex items-center gap-1.5 text-base font-black uppercase tracking-wider text-white sm:text-xl">
-              <Sparkles className="w-5 h-5 text-red-400" />
+              <Sparkles className="w-5 h-5 text-indigo-400" />
               Asistente Inteligente AK
             </h1>
             <p className="hidden text-xs text-slate-400 sm:block">Chateá con Sofía y armá tu presupuesto de fiesta ideal al instante</p>
@@ -735,13 +735,13 @@ ${generatedId ? `*Link:* ${window.location.origin}/presupuestos/${generatedId}/v
   function ChatWindow() {
     return (
       <div className="flex flex-col h-full overflow-hidden">
-        
+
         {/* MESSAGES LIST */}
         <div className="flex-1 overflow-y-auto p-4 space-y-5 scrollbar-thin">
           {chatHistory.map((msg) => {
             const isUser = msg.role === 'user';
             return (
-              <div 
+              <div
                 key={msg.key}
                 className={cn(
                   "flex w-full items-end gap-2",
@@ -749,15 +749,15 @@ ${generatedId ? `*Link:* ${window.location.origin}/presupuestos/${generatedId}/v
                 )}
               >
                 {!isUser && (
-                  <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full border border-red-500/20 bg-red-500/10">
-                    <Sparkles className="w-4 h-4 text-red-400" />
+                  <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full border border-indigo-500/20 bg-indigo-500/10">
+                    <Sparkles className="w-4 h-4 text-indigo-400" />
                   </div>
                 )}
-                <div 
+                <div
                   className={cn(
                     "px-4 py-3 rounded-2xl text-xs max-w-[85%] leading-relaxed shadow-lg font-medium",
-                    isUser 
-                      ? "bg-red-700 text-white rounded-br-none shadow-red-950/30"
+                    isUser
+                      ? "bg-indigo-700 text-white rounded-br-none shadow-indigo-950/30"
                       : "bg-zinc-800/80 border border-white/5 text-zinc-100 rounded-bl-none"
                   )}
                 >
@@ -766,19 +766,19 @@ ${generatedId ? `*Link:* ${window.location.origin}/presupuestos/${generatedId}/v
               </div>
             );
           })}
-          
+
           {isAiLoading && (
             <div className="flex w-full items-end gap-2 justify-start">
-              <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full border border-red-500/20 bg-red-500/10">
-                <Sparkles className="w-4 h-4 text-red-400" />
+              <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full border border-indigo-500/20 bg-indigo-500/10">
+                <Sparkles className="w-4 h-4 text-indigo-400" />
               </div>
               <div className="bg-zinc-800/80 border border-white/5 text-zinc-200 px-4 py-3 rounded-2xl rounded-bl-none text-xs leading-relaxed shadow-lg flex items-center gap-1.5">
-                <Loader2 className="w-3.5 h-3.5 animate-spin text-red-400" />
+                <Loader2 className="w-3.5 h-3.5 animate-spin text-indigo-400" />
                 <span>Sofía está escribiendo</span>
                 <span className="flex gap-0.5 ml-1">
-                  <span className="h-1 w-1 animate-pulse rounded-full bg-red-400" />
-                  <span className="h-1 w-1 animate-pulse rounded-full bg-red-400 [animation-delay:160ms]" />
-                  <span className="h-1 w-1 animate-pulse rounded-full bg-red-400 [animation-delay:320ms]" />
+                  <span className="h-1 w-1 animate-pulse rounded-full bg-indigo-400" />
+                  <span className="h-1 w-1 animate-pulse rounded-full bg-indigo-400 [animation-delay:160ms]" />
+                  <span className="h-1 w-1 animate-pulse rounded-full bg-indigo-400 [animation-delay:320ms]" />
                 </span>
               </div>
             </div>
@@ -787,7 +787,7 @@ ${generatedId ? `*Link:* ${window.location.origin}/presupuestos/${generatedId}/v
           {/* INLINE INTERACTIVE WIDGETS */}
           {!isAiLoading && (
             <div className="pl-10 space-y-4">
-              
+
               {/* DATE PICKER WIDGET */}
               {currentChatStep === 'date' && (
                 <div className="flex flex-col gap-3 p-4 bg-zinc-900/60 border border-white/10 rounded-3xl max-w-sm mt-2 shadow-xl">
@@ -819,7 +819,7 @@ ${generatedId ? `*Link:* ${window.location.origin}/presupuestos/${generatedId}/v
                   {eventoFecha && (
                     <Button
                       onClick={() => handleSendMessage(eventoFecha.toISOString().split('T')[0])}
-                      className="h-10 w-full rounded-xl bg-red-700 text-xs font-bold text-white hover:bg-red-600"
+                      className="h-10 w-full rounded-xl bg-indigo-700 text-xs font-bold text-white hover:bg-indigo-600"
                     >
                       Confirmar Fecha <ArrowRight className="w-4 h-4 ml-1.5" />
                     </Button>
@@ -857,7 +857,7 @@ ${generatedId ? `*Link:* ${window.location.origin}/presupuestos/${generatedId}/v
                   </div>
                   <Button
                     onClick={() => handleSendMessage(`Son ${adultos} adultos`)}
-                    className="h-10 w-full rounded-xl bg-red-700 text-xs font-bold text-white hover:bg-red-600"
+                    className="h-10 w-full rounded-xl bg-indigo-700 text-xs font-bold text-white hover:bg-indigo-600"
                   >
                     Confirmar Cantidad <ArrowRight className="w-4 h-4 ml-1.5" />
                   </Button>
@@ -875,7 +875,7 @@ ${generatedId ? `*Link:* ${window.location.origin}/presupuestos/${generatedId}/v
                   </div>
                   <Button
                     onClick={() => handleSendMessage(`Son ${ninosYAdolescentes} niños y adolescentes`)}
-                    className="h-10 w-full rounded-xl bg-red-700 text-xs font-bold text-white hover:bg-red-600"
+                    className="h-10 w-full rounded-xl bg-indigo-700 text-xs font-bold text-white hover:bg-indigo-600"
                   >
                     Confirmar Cantidad <ArrowRight className="w-4 h-4 ml-1.5" />
                   </Button>
@@ -910,12 +910,12 @@ ${generatedId ? `*Link:* ${window.location.origin}/presupuestos/${generatedId}/v
                       <div key={m.id} className="min-w-[220px] max-w-[240px] p-4 bg-zinc-900/60 border border-white/10 rounded-3xl flex flex-col justify-between gap-3 shadow-md shrink-0">
                         <div>
                           <span className="text-xs font-black text-white uppercase tracking-wider">{m.name}</span>
-                          <p className="text-[10px] text-slate-400 mt-1 leading-normal line-clamp-3">{m.description || 'Catering para todo tipo de eventos'}</p>
+                          <p className="text-[10px] text-slate-400 mt-1 leading-normal line-clamp-3">{m.description || 'Comida para todo tipo de eventos'}</p>
                         </div>
                         <Button
                           size="sm"
                           onClick={() => handleSendMessage(m.name)}
-                          className="h-8 w-full rounded-xl bg-red-700 text-[10px] font-bold uppercase tracking-widest text-white hover:bg-red-600"
+                          className="h-8 w-full rounded-xl bg-indigo-700 text-[10px] font-bold uppercase tracking-widest text-white hover:bg-indigo-600"
                         >
                           Elegir {m.name}
                         </Button>
@@ -923,7 +923,7 @@ ${generatedId ? `*Link:* ${window.location.origin}/presupuestos/${generatedId}/v
                     ))
                   ) : (
                     <div className="flex min-w-[240px] items-center gap-2 rounded-xl border border-white/10 bg-zinc-900/70 p-4 text-xs text-zinc-300">
-                      {isReferenceDataLoading && <Loader2 className="h-4 w-4 animate-spin text-red-400" />}
+                      {isReferenceDataLoading && <Loader2 className="h-4 w-4 animate-spin text-indigo-400" />}
                       <span>{isReferenceDataLoading ? 'Preparando los menús disponibles...' : 'Los menús se confirman con el equipo AK.'}</span>
                     </div>
                   )}
@@ -962,12 +962,12 @@ ${generatedId ? `*Link:* ${window.location.origin}/presupuestos/${generatedId}/v
                             <span className="text-xs font-black text-white uppercase tracking-wider truncate">{p.nombre}</span>
                           </div>
                           <p className="text-[10px] text-slate-400 mt-1 leading-normal line-clamp-3">{p.descripcion}</p>
-                          <p className="mt-2 text-sm font-black text-red-400">{formatCurrency(price)}</p>
+                          <p className="mt-2 text-sm font-black text-indigo-400">{formatCurrency(price)}</p>
                         </div>
                         <Button
                           size="sm"
                           onClick={() => handleSendMessage(p.nombre)}
-                          className="h-8 w-full rounded-xl bg-red-700 text-[10px] font-bold uppercase tracking-widest text-white hover:bg-red-600"
+                          className="h-8 w-full rounded-xl bg-indigo-700 text-[10px] font-bold uppercase tracking-widest text-white hover:bg-indigo-600"
                         >
                           Seleccionar
                         </Button>
@@ -975,7 +975,7 @@ ${generatedId ? `*Link:* ${window.location.origin}/presupuestos/${generatedId}/v
                     );
                   }) : (
                     <div className="flex min-w-[240px] items-center gap-2 rounded-xl border border-white/10 bg-zinc-900/70 p-4 text-xs text-zinc-300">
-                      {isReferenceDataLoading && <Loader2 className="h-4 w-4 animate-spin text-red-400" />}
+                      {isReferenceDataLoading && <Loader2 className="h-4 w-4 animate-spin text-indigo-400" />}
                       <span>{isReferenceDataLoading ? 'Preparando los paquetes...' : 'Podemos armar una propuesta a medida.'}</span>
                     </div>
                   )}
@@ -1009,14 +1009,14 @@ ${generatedId ? `*Link:* ${window.location.origin}/presupuestos/${generatedId}/v
                       );
                     }) : (
                       <div className="flex items-center gap-2 rounded-xl border border-white/10 bg-zinc-950/30 p-3 text-xs text-zinc-400">
-                        {isReferenceDataLoading && <Loader2 className="h-4 w-4 animate-spin text-red-400" />}
+                        {isReferenceDataLoading && <Loader2 className="h-4 w-4 animate-spin text-indigo-400" />}
                         <span>{isReferenceDataLoading ? 'Cargando servicios...' : 'Los servicios se personalizan con el equipo AK.'}</span>
                       </div>
                     )}
                   </div>
                   <Button
                     onClick={() => handleSendMessage("Confirmar selección de servicios")}
-                    className="h-10 w-full rounded-xl bg-red-700 text-xs font-bold uppercase tracking-widest text-white hover:bg-red-600"
+                    className="h-10 w-full rounded-xl bg-indigo-700 text-xs font-bold uppercase tracking-widest text-white hover:bg-indigo-600"
                   >
                     Confirmar Selección ({selectedServices.length})
                   </Button>
@@ -1026,7 +1026,7 @@ ${generatedId ? `*Link:* ${window.location.origin}/presupuestos/${generatedId}/v
               {/* BUDGET SUMMARY CARD AT THE END */}
               {currentChatStep === 'budget_ready' && priceStats && (
                 <div className="max-w-2xl mt-4 space-y-6">
-                  
+
                   {/* DETAIL SHEET */}
                   <Card className="border-white/10 shadow-2xl rounded-[2rem] overflow-hidden bg-zinc-900/60 text-white backdrop-blur-md">
                     <CardHeader className="text-center bg-zinc-950/40 p-6 border-b border-white/5">
@@ -1083,7 +1083,7 @@ ${generatedId ? `*Link:* ${window.location.origin}/presupuestos/${generatedId}/v
                         <Separator className="bg-white/10" />
                         <div className="flex justify-between items-center pt-1">
                           <span className="text-xs font-black uppercase text-white">Total Final:</span>
-                          <span className="text-xl font-black text-red-400">{formatCurrency(priceStats.totalFinal)}</span>
+                          <span className="text-xl font-black text-indigo-400">{formatCurrency(priceStats.totalFinal)}</span>
                         </div>
                       </div>
 
@@ -1154,7 +1154,7 @@ ${generatedId ? `*Link:* ${window.location.origin}/presupuestos/${generatedId}/v
           <div className="px-4 py-2 bg-zinc-900/80 border-t border-white/5 flex items-center justify-start shrink-0">
             <button
               onClick={() => handleSendMessage(suggestionPill.messageToSubmit)}
-              className="rounded-full border border-red-500/35 bg-red-600/20 px-4 py-1.5 text-xs font-bold tracking-wide text-red-100 shadow-md transition-all hover:bg-red-600/35"
+              className="rounded-full border border-indigo-500/35 bg-indigo-600/20 px-4 py-1.5 text-xs font-bold tracking-wide text-indigo-100 shadow-md transition-all hover:bg-indigo-600/35"
             >
               ✨ {suggestionPill.label}
             </button>
@@ -1177,7 +1177,7 @@ ${generatedId ? `*Link:* ${window.location.origin}/presupuestos/${generatedId}/v
             size="icon"
             onClick={() => handleSendMessage()}
             disabled={isAiLoading || !inputMessage.trim()}
-            className="h-10 w-10 shrink-0 rounded-xl bg-red-700 text-white hover:bg-red-600 disabled:opacity-40"
+            className="h-10 w-10 shrink-0 rounded-xl bg-indigo-700 text-white hover:bg-indigo-600 disabled:opacity-40"
           >
             <Send className="w-4 h-4" />
           </Button>
