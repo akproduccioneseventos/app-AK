@@ -32,6 +32,15 @@ Required working order for code tasks:
 
 These skills are local Codex production tools. They must not be imported into application runtime code, added as app dependencies, or exposed to clients, guests, or Firebase.
 
+## Herramientas Locales de Programación (Codex)
+
+Todos los agentes y chats de este proyecto deben utilizar las siguientes herramientas de trabajo configuradas en el entorno local para agilizar el desarrollo sin complicar el código ni el despliegue de la app:
+- **Graphify**: Genera un mapa general de toda la aplicación y analiza relaciones entre archivos.
+- **Serena**: Búsqueda inteligente por funciones, componentes y referencias cruzadas.
+- **Repomix**: Mide qué archivos consumen más tokens para evitar procesar archivos gigantes de forma innecesaria.
+
+Estas herramientas son de uso local exclusivo para el análisis del código. No deben agregarse al `package.json`, no deben cambiar el comportamiento del sitio web, no deben desplegarse a Firebase y son invisibles para los clientes e invitados.
+
 ## Shared quality commands
 
 These commands are the same for Codex, Gemini, Copilot, Claude, and human contributors:
