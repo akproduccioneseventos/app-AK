@@ -14,7 +14,7 @@ import { getSocialConnections } from '@/app/actions/social-connections';
 import type { ActiveGameData, AudioRhythmSettings, ScreenPlaylistItem, SocialGallerySettings, SocialGalleryBrand } from '@/types/fiesta';
 import { DEFAULT_MARKETING_TICKER_TEXT } from '@/lib/social-wall-defaults';
 import type { SocialConnection } from '@/types/settings';
-import { Facebook, Instagram, MessageCircle, Music2, Maximize, Martini } from 'lucide-react';
+import { Facebook, Instagram, MessageCircle, Music2, Maximize, Martini, Camera } from 'lucide-react';
 import { getSongRequests } from '@/app/actions/social-interactive';
 import type { SongRequest } from '@/types/social-gallery';
 import { KioskUnlockButton } from '@/components/kiosk/kiosk-unlock-button';
@@ -118,6 +118,7 @@ export default function MuroEnVivoPage() {
       if (prevPostsCountRef.current > 0 && posts.length > prevPostsCountRef.current) {
         setShowCameraFlash(true);
         const timer = setTimeout(() => setShowCameraFlash(false), 500);
+        prevPostsCountRef.current = posts.length;
         return () => clearTimeout(timer);
       }
       prevPostsCountRef.current = posts.length;
@@ -1363,8 +1364,6 @@ function SocialTemplateSlide({ item, eventName, brand }: { item: ScreenPlaylistI
     </div>
   );
 }
-
-const SLIDESHOW_DURATION_MS = 6000;
 
 function QRFloatingCard({ qrUrl, settings }: { qrUrl: string; settings: any }) {
   if (!qrUrl) return null;
