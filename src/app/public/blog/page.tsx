@@ -13,7 +13,7 @@ import { blogPosts as defaultBlogPosts, getPostImage } from '@/data/blog-posts';
 export const metadata: Metadata = {
   title: 'Consejos para organizar eventos | Blog AK Producciones',
   description:
-    'Guias practicas para organizar fiestas, XV anos, bodas, comida y presupuestos sin estres en Salto, Uruguay.',
+    'Guías prácticas para organizar fiestas, XV años, bodas, comida y presupuestos sin estrés en Salto, Uruguay.',
 };
 
 const WHATSAPP_NUMBER = '59898355530';
