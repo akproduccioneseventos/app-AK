@@ -1,6 +1,9 @@
 import type { Trago } from '@/types/fiesta';
+import type { BarTechnologySettings } from '@/types/barra-tecnologica';
 
 type DrinkMarketingFields = Pick<Trago, 'nombre' | 'ingredientes' | 'descripcion' | 'description' | 'videoUrl'>;
+
+const BAR_TIME_PATTERN = /^([01]\d|2[0-3]):([0-5]\d)$/;
 
 export function getDrinkDescription(drink: DrinkMarketingFields): string {
   const customDescription = (drink.descripcion || drink.description || '').trim();
@@ -45,4 +48,65 @@ export function buildInstagramUrl(handle?: string): string {
 
 export function isTruthyFollowConfirmation(value: FormDataEntryValue | null): boolean {
   return value === 'true' || value === '1' || value === 'yes' || value === 'on';
+}
+
+export function normalizeBarTime(value?: string): string | undefined {
+  const match = String(value || '').trim().match(BAR_TIME_PATTERN);
+  if (!match) return undefined;
+  return `${match[1]}:${match[2]}`;
+}
+
+export function getMontevideoMinutes(date = new Date()): number {
+  const parts = new Intl.DateTimeFormat('en-GB', {
+    timeZone: 'America/Montevideo',
+    hour: '2-digit',
+    minute: '2-digit',
+    hour12: false,
+  }).formatToParts(date);
+
+  const hour = Number(parts.find((part) => part.type === 'hour')?.value || '0') % 24;
+  const minute = Number(parts.find((part) => part.type === 'minute')?.value || '0');
+  return hour * 60 + minute;
+}
+
+function timeToMinutes(time?: string): number | null {
+  const normalized = normalizeBarTime(time);
+  if (!normalized) return null;
+  const [hour, minute] = normalized.split(':').map(Number);
+  return hour * 60 + minute;
+}
+
+export function getBarScheduleError(
+  settings: Pick<BarTechnologySettings, 'openingTime' | 'closingTime'>,
+  nowMinutes = getMontevideoMinutes(),
+): string | null {
+  const openingTime = normalizeBarTime(settings.openingTime);
+  const closingTime = normalizeBarTime(settings.closingTime);
+  const openingMinutes = timeToMinutes(openingTime);
+  const closingMinutes = timeToMinutes(closingTime);
+
+  if (openingMinutes === null && closingMinutes === null) return null;
+
+  if (openingMinutes !== null && closingMinutes !== null) {
+    if (openingMinutes === closingMinutes) return null;
+
+    const isSameDayWindow = openingMinutes < closingMinutes;
+    const isOpen = isSameDayWindow
+      ? nowMinutes >= openingMinutes && nowMinutes <= closingMinutes
+      : nowMinutes >= openingMinutes || nowMinutes <= closingMinutes;
+
+    if (isOpen) return null;
+    if (nowMinutes < openingMinutes) return `La barra abre a las ${openingTime} hs.`;
+    return 'La barra esta cerrada por hoy.';
+  }
+
+  if (openingMinutes !== null && nowMinutes < openingMinutes) {
+    return `La barra abre a las ${openingTime} hs.`;
+  }
+
+  if (closingMinutes !== null && nowMinutes > closingMinutes) {
+    return 'La barra esta cerrada por hoy.';
+  }
+
+  return null;
 }

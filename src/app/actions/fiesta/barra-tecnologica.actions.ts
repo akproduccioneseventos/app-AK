@@ -17,12 +17,13 @@ import { getCartaTragosMaster } from '@/app/actions/carta-tragos-master.actions'
 import { getFiestaById, saveFiesta } from './fiesta.actions';
 import { uploadToStorage } from '@/lib/firebase/storage';
 import { createSocialMediaPostFromUrl } from '@/app/actions/social-gallery';
-import { isTruthyFollowConfirmation } from '@/lib/barra-tecnologica';
+import { getBarScheduleError, isTruthyFollowConfirmation, normalizeBarTime } from '@/lib/barra-tecnologica';
 import { getInsumoById, saveInsumo } from '@/app/actions/insumos';
 import * as logger from '@/lib/logger';
 
 const BAR_ORDERS_COLLECTION = 'bar_drink_orders';
-const MAX_BAR_PHOTO_SIZE = 10 * 1024 * 1024;
+const MAX_BAR_IMAGE_SIZE = 10 * 1024 * 1024;
+const MAX_BAR_VIDEO_SIZE = 60 * 1024 * 1024;
 
 const DEFAULT_BAR_SETTINGS: BarTechnologySettings = {
   enabled: true,
@@ -88,6 +89,8 @@ function normalizeSettings(settings: Partial<BarTechnologySettings> | undefined,
     showDrinkDescription: settings?.showDrinkDescription ?? defaults.showDrinkDescription,
     showDrinkVideo: settings?.showDrinkVideo ?? defaults.showDrinkVideo,
     requireSocialFollowForPhotos: settings?.requireSocialFollowForPhotos ?? defaults.requireSocialFollowForPhotos,
+    openingTime: normalizeBarTime(settings?.openingTime),
+    closingTime: normalizeBarTime(settings?.closingTime),
   };
 }
 
@@ -246,16 +249,8 @@ export async function createBarDrinkOrder(input: CreateBarDrinkOrderInput): Prom
     const stored = getStoredBarData(fiesta);
     if (!stored.settings.enabled) return { success: false, error: 'La barra tecnologica esta pausada.' };
 
-    const { openingTime, closingTime } = stored.settings;
-    if (openingTime || closingTime) {
-      const nowTime = new Date().toLocaleTimeString('es-UY', { hour: '2-digit', minute: '2-digit', timeZone: 'America/Montevideo', hour12: false });
-      if (openingTime && nowTime < openingTime) {
-        return { success: false, error: `La barra abrirá a las ${openingTime} hs.` };
-      }
-      if (closingTime && nowTime > closingTime) {
-        return { success: false, error: `La barra está cerrada por hoy.` };
-      }
-    }
+    const scheduleError = getBarScheduleError(stored.settings);
+    if (scheduleError) return { success: false, error: scheduleError };
 
     const drinks = await getBarDrinks(fiesta);
     const drink = drinks.find((item) => item.id === input.drinkId);
@@ -453,8 +448,19 @@ export async function uploadBarMagicPhoto(formData: FormData): Promise<{ success
   const drinkName = formData.get('drinkName') ? String(formData.get('drinkName')) : undefined;
 
   if (!fiestaId || !file) return { success: false, error: 'Faltan datos para subir la foto.' };
-  if (!file.type.startsWith('image/')) return { success: false, error: 'Solo se aceptan fotos.' };
-  if (file.size > MAX_BAR_PHOTO_SIZE) return { success: false, error: 'La foto no puede superar 10MB.' };
+
+  const isVideo = file.type.startsWith('video/');
+  if (!file.type.startsWith('image/') && !isVideo) {
+    return { success: false, error: 'Solo se aceptan fotos o videos.' };
+  }
+
+  const maxSize = isVideo ? MAX_BAR_VIDEO_SIZE : MAX_BAR_IMAGE_SIZE;
+  if (file.size > maxSize) {
+    return {
+      success: false,
+      error: isVideo ? 'El video no puede superar los 60MB.' : 'La imagen no puede superar los 10MB.',
+    };
+  }
 
   try {
     const fiesta = await getFiestaById(fiestaId);
@@ -462,25 +468,27 @@ export async function uploadBarMagicPhoto(formData: FormData): Promise<{ success
     const settings = getStoredBarData(fiesta).settings;
     if (!settings.allowPhotoCapture) return { success: false, error: 'La captura de fotos esta pausada.' };
     if (settings.requireSocialFollowForPhotos && !followConfirmed) {
-      return { success: false, error: 'Para subir la foto primero confirma que seguis las redes de AK Producciones.' };
+      return { success: false, error: 'Para subir el archivo primero confirma que seguis las redes de AK Producciones.' };
     }
 
-    const extension = path.extname(file.name || '') || '.jpg';
+    const defaultExt = isVideo ? '.webm' : '.jpg';
+    const extension = path.extname(file.name || '') || defaultExt;
     const mediaId = `bar_photo_${Date.now()}_${Math.random().toString(36).slice(2, 8)}`;
     const storagePath = `bar-tech/${fiestaId}/${mediaId}${extension}`;
     const bytes = await file.arrayBuffer();
-    const url = await uploadToStorage(Buffer.from(bytes), storagePath, file.type || 'image/jpeg', true);
+    const url = await uploadToStorage(Buffer.from(bytes), storagePath, file.type || (isVideo ? 'video/webm' : 'image/jpeg'), true);
 
+    const defaultCaption = isVideo ? 'Grabando un saludo en la barra interactiva' : 'Mi foto en la barra tecnologica AK';
     const baseCaption = drinkName
       ? `Disfrutando de un ${drinkName} en la barra interactiva`
-      : (caption || 'Mi foto en la barra tecnologica AK');
+      : (caption || defaultCaption);
     const shareText = `${baseCaption} ${settings.hashtag} ${settings.instagramHandle}`.trim();
 
     if (settings.autoPublishPhotos) {
       await createSocialMediaPostFromUrl({
         fiestaId,
         mediaUrl: url,
-        mediaType: 'image',
+        mediaType: isVideo ? 'video' : 'image',
         authorName,
         caption: shareText,
         source: 'bar-tech',
@@ -488,12 +496,12 @@ export async function uploadBarMagicPhoto(formData: FormData): Promise<{ success
         momentTag: 'Barra de tragos',
         drinkId,
         drinkName,
-      } as any);
+      });
     }
 
     return { success: true, url, shareText };
   } catch (error: any) {
-    logger.error('[barra-tecnologica] upload photo failed', error);
-    return { success: false, error: error.message || 'No se pudo subir la foto.' };
+    logger.error('[barra-tecnologica] upload file failed', error);
+    return { success: false, error: error.message || 'No se pudo subir el archivo.' };
   }
 }
