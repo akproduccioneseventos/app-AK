@@ -22,13 +22,13 @@ export interface Notificacion {
 
 // --- INVITADOS ---
 export type RsvpStatus = 'Pendiente' | 'Confirmado' | 'Rechazado' | 'Tal vez';
-export type CategoriaInvitado = 'Adulto' | 'Niño/Adolescente';
+export type CategoriaInvitado = 'Adulto' | 'NiÃ±o/Adolescente';
 
 export type DietaryRestriction = 'Ninguna' | 'Celiaco' | 'Vegetariano' | 'Vegano' | 'Sin Gluten' | 'Sin Lactosa' | 'Alergia Mariscos' | 'Alergia Frutos Secos' | 'Otro';
 
 // Phase 3.9: Personalized Guest Experience - Guest profile segments
 export type PerfilInvitado = 'General' | 'VIP' | 'Familia' | 'Necesidades Especiales';
-/** Alias for PerfilInvitado — used in segmentation views and reports */
+/** Alias for PerfilInvitado â€” used in segmentation views and reports */
 export type SegmentoInvitado = PerfilInvitado;
 
 export interface GuestExperienceStats {
@@ -136,11 +136,11 @@ export interface LiveEventState {
     staffCheckIn: Record<string, { llego: boolean, hora?: string }>;
 }
 
-// --- CONFIGURACIÓN ---
+// --- CONFIGURACIÃ“N ---
 export interface ConfigEventoDataStorage {
   nombreEvento: string;
   tipoCelebracion: TipoEvento | string;
-  fechaEvento?: string; 
+  fechaEvento?: string;
   horaInicio: string;
   horaFin: string;
   nombreLugar: string;
@@ -152,9 +152,9 @@ export interface ConfigEventoDataStorage {
   invitadosAdolescentes?: number;
   presupuestoEstimado: number;
   notesAdicionales: string;
-  clienteId?: string; 
-  protagonista1Nombre?: string; 
-  protagonista2Nombre?: string; 
+  clienteId?: string;
+  protagonista1Nombre?: string;
+  protagonista2Nombre?: string;
   protagonistaFotoUrl?: string;
   // Legacy / extended optional fields
   nombreAgasajado?: string;
@@ -172,7 +172,7 @@ export interface ConfigEventoDataStorage {
 
 export interface PersonalAsignadoDetalleStorage {
   empleadoId: string;
-  rolId: string; 
+  rolId: string;
   eventSalary: number;
 }
 
@@ -185,10 +185,10 @@ export interface ReunionChecklistItem {
 export interface Reunion {
   id: string;
   titulo: string;
-  fecha?: string; 
+  fecha?: string;
   notas: string;
-  acuerdos?: string; 
-  checklist?: ReunionChecklistItem[]; 
+  acuerdos?: string;
+  checklist?: ReunionChecklistItem[];
   fiestaId?: string;
 }
 
@@ -284,7 +284,7 @@ export interface DecoItem {
   imageUrl?: string;
 }
 
-/** Una zona de diseño con su propio lienzo visual */
+/** Una zona de diseÃ±o con su propio lienzo visual */
 export interface ZonaDiseno {
   id: string;
   nombre: string;
@@ -312,7 +312,7 @@ export interface DecoChecklistItem {
 export interface DecoracionData {
   tema?: string;
   paletaColores?: ColorPalette;
-  moodboardItems?: MoodboardItem[]; 
+  moodboardItems?: MoodboardItem[];
   moodboardImageUrl?: string;
   colorCubremantel?: string;
   colorGlobos?: string;
@@ -331,7 +331,7 @@ export interface DecoracionData {
   salonElements?: LayoutElement[];
   generalNotesSalonLayout?: string;
   layoutTemplateName?: string;
-  pixelsPerMeter?: number; 
+  pixelsPerMeter?: number;
   seatingMode?: 'numerada' | 'mixta' | 'libre';
   vistaDecorativa?: {
     elementos: ElementoDecorativo[];
@@ -348,7 +348,7 @@ export interface DecoracionData {
   itemsDecoracion?: DecoItem[];
   moodboardImages?: string[];
   zonas?: DecoZona[];
-  /** Zonas de diseño con su propio lienzo visual */
+  /** Zonas de diseÃ±o con su propio lienzo visual */
   zonasDiseno?: ZonaDiseno[];
   presupuestoDecoracion?: number;
   checklistDecoracion?: DecoChecklistItem[];
@@ -365,24 +365,24 @@ export interface GiftItem {
   imageUrl?: string;
   dataAiHint?: string;
   isClaimed: boolean;
-  claimedBy?: string; 
+  claimedBy?: string;
 }
 
 export interface ProgramaEventoItem {
   id: string;
-  hora: string; 
+  hora: string;
   titulo: string;
   descripcion?: string;
   descripcionCliente?: string;
   visibleParaCliente?: boolean;
-  icono?: string; 
+  icono?: string;
   completado?: boolean;
 }
 
 export interface TextStyle {
     fontFamily?: 'Belleza' | 'Inter' | 'Playfair_Display' | 'Dancing_Script';
-    fontSize?: string; 
-    color?: string; 
+    fontSize?: string;
+    color?: string;
 }
 
 export interface TextWithStyle {
@@ -404,10 +404,10 @@ export interface DetalleEventoEspecifico {
 export interface SeccionInvitacion {
   id: string;
   tipo: 'cabecera' | 'bienvenida' | 'cuentaRegresiva' | 'detallesEvento' | 'itinerario' | 'dressCode' | 'galeria' | 'historia' | 'regalos' | 'confirmacion' | 'despedida' | 'footer' | 'redesSociales' | 'musica';
-  data: any; 
+  data: any;
 }
 
-// --- INVITACIÓN DIGITAL CONFIG (Simplified central configuration) ---
+// --- INVITACIÃ“N DIGITAL CONFIG (Simplified central configuration) ---
 
 export interface InvitacionDigitalDressCode {
   tipo: 'formal' | 'semi-formal' | 'casual' | 'personalizado';
@@ -433,12 +433,12 @@ export interface InvitacionDigitalCronograma {
   icono?: string;
 }
 
-export type InvitacionPlantillaId = 
-  | 'EleganteDorado' 
-  | 'ModernoMinimalista' 
-  | 'RomanticoFloral' 
-  | 'FiestaVibrante' 
-  | 'Grazia' 
+export type InvitacionPlantillaId =
+  | 'EleganteDorado'
+  | 'ModernoMinimalista'
+  | 'RomanticoFloral'
+  | 'FiestaVibrante'
+  | 'Grazia'
   | 'Allegria'
   | 'XV_NeonParty'
   | 'XV_PrincesaClasica'
@@ -549,8 +549,8 @@ export interface InvitacionDigitalConfig {
 }
 
 export interface InvitacionDigitalData {
-  name?: string; 
-  category?: 'Boda' | 'XV Años' | 'Cumpleaños' | 'General' | 'Infantil';
+  name?: string;
+  category?: 'Boda' | 'XV AÃ±os' | 'CumpleaÃ±os' | 'General' | 'Infantil';
   plantilla: 'Grazia' | 'Allegria';
   musicaFondoUrl?: string;
   secciones: SeccionInvitacion[];
@@ -781,7 +781,7 @@ export interface SocialGallerySettings {
   /** Currently displayed sorteo winner on the giant screen (TTL: ~20s) */
   activeSorteoWinner?: string;
   activeSorteoTimestamp?: string;
-  /** Timestamp when a sorteo spin was started — triggers wheel animation on the big screen */
+  /** Timestamp when a sorteo spin was started â€” triggers wheel animation on the big screen */
   sorteoSpinStartedAt?: string;
   /** When true, the raffle wheel is displayed statically on the big screen before spinning */
   sorteoOnScreen?: boolean;
@@ -904,10 +904,10 @@ export interface ScreenModeSettings {
 export interface MusicaFiesta {
   cancionEntrada?: string;
   cancionVals?: string;
-  cancionesTortaBrindis?: string[]; 
+  cancionesTortaBrindis?: string[];
   playlistFiesta?: string;
   listaNoReproducir?: string;
-  sugerenciasInvitados?: string; 
+  sugerenciasInvitados?: string;
 }
 
 export interface Trago {
@@ -965,7 +965,7 @@ export interface ReposteriaItem {
   imagenReferenciaUrl?: string;
   dataAiHint?: string;
   notas?: string;
-  origenId?: string; 
+  origenId?: string;
   proveedor?: string;
 }
 
@@ -986,10 +986,10 @@ export interface ReposteriaData {
 export interface BebidaItem {
   id: string;
   nombre: string;
-  cantidadNecesaria?: number; 
-  unidadCantidad?: string; 
-  costoUnitario?: number; 
-  costoTotal?: number; 
+  cantidadNecesaria?: number;
+  unidadCantidad?: string;
+  costoUnitario?: number;
+  costoTotal?: number;
   proveedorHabitual?: string;
   notas?: string;
   origenId?: string;
@@ -1014,9 +1014,9 @@ export interface Tarea {
   texto: string;
   descripcion?: string;
   completada: boolean;
-  fechaLimite?: string; 
-  horaVencimiento?: string; 
-  recordatorio?: string; 
+  fechaLimite?: string;
+  horaVencimiento?: string;
+  recordatorio?: string;
   asignadaA?: 'Cliente' | 'Organizador';
   esPredeterminada?: boolean;
 }
@@ -1030,7 +1030,7 @@ export interface ClientTarea {
 export interface CargaOperativaItem {
   id: string;
   nombre: string;
-  cantidad: string; 
+  cantidad: string;
   cargado: boolean;
   retornado?: boolean;
   cargadoAt?: string;
@@ -1040,16 +1040,16 @@ export interface CargaOperativaItem {
   actualizadoAt?: string;
   actualizadoPor?: string;
   notas?: string;
-  origenId?: string; 
+  origenId?: string;
   unidad?: string;
   unit?: string; // alias for unidad (legacy)
-  hasConflict?: boolean; 
-  availableStockAtDate?: number; 
+  hasConflict?: boolean;
+  availableStockAtDate?: number;
 }
 
 export interface CargaOperativaCategoria {
-  id: string; 
-  nombre: string; 
+  id: string;
+  nombre: string;
   items: CargaOperativaItem[];
 }
 
@@ -1072,16 +1072,16 @@ export interface CostoItem {
 
 export interface PagoProveedor {
   id: string;
-  costoAsociadoId: string; 
-  fecha: string; 
+  costoAsociadoId: string;
+  fecha: string;
   monto: number;
-  metodoPago?: string; 
+  metodoPago?: string;
   notas?: string;
 }
 
 export interface GestionCostosData {
   costosItems: CostoItem[];
-  ingresosTotalesEstimados: number; 
+  ingresosTotalesEstimados: number;
   notasGeneralesCostos?: string;
   others?: Record<string, number>;
 }
@@ -1098,8 +1098,8 @@ export interface OtroDocumento {
   id: string;
   nombre: string;
   tipo: string;
-  fileName: string; 
-  timestamp: string; 
+  fileName: string;
+  timestamp: string;
 }
 
 export interface ModulosContratados {
@@ -1152,7 +1152,7 @@ export type PlanPagoEstadoCuota = 'pendiente' | 'pagado' | 'vencido' | 'parcial'
 
 export interface CuotaPlanPago {
   id: string;
-  descripcion: string; // e.g. "Seña", "Cuota 1", "Saldo Final"
+  descripcion: string; // e.g. "SeÃ±a", "Cuota 1", "Saldo Final"
   monto: number;
   fechaVencimiento: string; // ISO date
   estado: PlanPagoEstadoCuota;
@@ -1394,7 +1394,7 @@ export interface FiestaEnPlanificacion {
   decoracion?: DecoracionData;
   invitados?: Invitado[];
   clientChecklist?: ClientTarea[];
-  clientNotes?: string; 
+  clientNotes?: string;
   invitacionDigital?: InvitacionDigitalData;
   invitacionConfig?: InvitacionDigitalConfig;
   menuMesa?: MenuMesaData;
@@ -1419,7 +1419,7 @@ export interface FiestaEnPlanificacion {
   pagosProveedores?: PagoProveedor[];
   others?: any;
   estadosCompra?: CompraProveedorEstado[];
-  generadoDesdeHistorico?: boolean; 
+  generadoDesdeHistorico?: boolean;
   liveState?: LiveEventState;
   planDePagos?: PlanDePagos;
   eventoEnVivo?: EventoEnVivoData;
@@ -1452,6 +1452,7 @@ export interface BuzonConfig {
   welcomeAudioUrl?: string;
   welcomeAudioPath?: string;
   enabled?: boolean;
+  videoFrameTemplate?: string;
 }
 
 export interface ContratoFirmaInfo {
@@ -1480,7 +1481,7 @@ export interface PlanPagos {
   activo: boolean;
   pagoMinimoTrimestral: number; // default 5000
   porcentajeMinimoAntesFecha: number; // default 30
-  mesesLimiteAntesFecha: number; // calculado automáticamente
+  mesesLimiteAntesFecha: number; // calculado automÃ¡ticamente
   fechaLimite30Porciento: string; // ISO date calculada
   montoObjetivo30Porciento: number; // totalContrato * 0.30
   cuotas: CuotaPlanPagoContrato[];
@@ -1560,8 +1561,8 @@ export interface EventoEnVivoData {
   captaciones?: CaptacionInvitadoEnVivo[];
 }
 
-// --- FOTOGRAFÍA Y FILMACIÓN ---
-export type EntregaMaterialEstado = 'Pendiente' | 'En edición' | 'En revisión' | 'Entregado parcial' | 'Entregado completo';
+// --- FOTOGRAFÃA Y FILMACIÃ“N ---
+export type EntregaMaterialEstado = 'Pendiente' | 'En ediciÃ³n' | 'En revisiÃ³n' | 'Entregado parcial' | 'Entregado completo';
 
 export interface ServicioFotografia {
   id: string;
@@ -1601,7 +1602,7 @@ export type DocumentoTipo =
   | 'presupuesto_firmado'
   | 'contrato_cambio_fecha'
   | 'cambio-fecha'
-  | 'seña_pago'
+  | 'seÃ±a_pago'
   | 'recibo_pago'
   | 'contrato_catering'
   | 'cancelacion'
