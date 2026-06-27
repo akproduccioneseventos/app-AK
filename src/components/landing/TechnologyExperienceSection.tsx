@@ -3,7 +3,6 @@
 import Link from 'next/link';
 import Image from 'next/image';
 import {
-  ArrowRight,
   Bot,
   LayoutDashboard,
   Smartphone,
@@ -101,7 +100,7 @@ export default function TechnologyExperienceSection({
                     variants={cardVariants}
                     className="group flex gap-4 p-5 rounded-2xl bg-white/[0.02] border border-white/5 hover:bg-white/[0.04] hover:border-white/10 transition-all duration-300"
                   >
-                    <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-xl bg-indigo-650/10 border border-indigo-500/20 text-indigo-400 group-hover:text-white group-hover:bg-indigo-600 transition-all duration-300">
+                    <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-xl bg-indigo-600/10 border border-indigo-500/20 text-indigo-400 group-hover:text-white group-hover:bg-indigo-600 transition-all duration-300">
                       <Icon className="h-6 w-6" />
                     </div>
                     <div>
@@ -119,7 +118,7 @@ export default function TechnologyExperienceSection({
                 <h3 className="text-lg font-black text-white">
                   Tecnología incluida en todos los paquetes.
                 </h3>
-                <p className="text-zinc-450 text-xs leading-relaxed font-medium mt-1">
+                <p className="text-zinc-400 text-xs leading-relaxed font-medium mt-1">
                   No pagás licencias extra ni programas externos. Tu fiesta queda integrada al sistema.
                 </p>
               </div>
@@ -172,7 +171,5 @@ export default function TechnologyExperienceSection({
         </div>
       </div>
     </section>
-  );
-}tion>
   );
 }

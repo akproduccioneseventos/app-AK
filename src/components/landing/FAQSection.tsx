@@ -3,6 +3,7 @@
 import { useState } from 'react';
 import { ChevronDown, ChevronUp } from 'lucide-react';
 import { cn } from '@/lib/utils';
+import { motion, AnimatePresence } from 'framer-motion';
 import type { LandingFaqItem } from '@/types/landing-editor';
 
 const DEFAULT_FAQS: LandingFaqItem[] = [
@@ -53,7 +54,6 @@ const DEFAULT_FAQS: LandingFaqItem[] = [
   },
 ];
 
-import { motion, AnimatePresence } from 'framer-motion';
 
 interface FAQSectionProps {
   faqs?: LandingFaqItem[];
@@ -126,7 +126,7 @@ export function FAQSection({ faqs }: FAQSectionProps) {
                     exit={{ height: 0, opacity: 0 }}
                     transition={{ duration: 0.25, ease: 'easeInOut' }}
                   >
-                    <div className="px-6 pb-5 text-slate-650 text-sm leading-relaxed border-t border-slate-100/80 pt-3">
+                    <div className="px-6 pb-5 text-slate-600 text-sm leading-relaxed border-t border-slate-100/80 pt-3">
                       {faq.answer}
                     </div>
                   </motion.div>

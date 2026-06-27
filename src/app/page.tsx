@@ -27,18 +27,11 @@ import { getTestimonials } from '@/app/actions/feedback';
 import type { GaleriaFoto } from '@/types/galeria';
 import type { ServiceItem } from '@/components/landing/ServicesSection';
 import { getAkYoutubeVideos, AK_YOUTUBE_CHANNEL_URL } from '@/lib/youtube/ak-channel';
-import { commercialAttributionFromRecord } from '@/lib/commercial/acquisition';
 import { PromoWidget } from '@/components/promo/PromoWidget';
 
 export const revalidate = 300;
 
 const DEFAULT_DYNAMIC_SERVICE_SUBTITLE = 'Servicio AK';
-const DEFAULT_DYNAMIC_SERVICE_FEATURES = [
-  'Atención personalizada',
-  'Producción integral',
-  'Soporte dedicado',
-];
-const DEFAULT_DYNAMIC_SERVICE_IMAGE = '/media/catalogo-servicios/boda-decoracion-dorada-01.jpeg';
 
 function getDefaultServiceImage(title: string): string {
   const lower = title.toLowerCase();
@@ -159,7 +152,6 @@ export default async function HomePage({ searchParams }: LandingPageProps) {
   const fotosCombinadas = [...fotos, ...catalogoComoGaleria];
 
   const whatsapp = '59898355530'; // Usar el número real de contacto de la empresa
-  const attribution = commercialAttributionFromRecord(resolvedSearchParams, 'landing');
   const safeTestimonialData = (testimonialData && testimonialData.length > 0) ? testimonialData : defaultTestimonials;
   const approvedTestimonials = (safeTestimonialData as any)
     .filter((testimonial: any) => testimonial.isApproved)

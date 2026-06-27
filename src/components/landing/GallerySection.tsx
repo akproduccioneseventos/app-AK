@@ -2,7 +2,7 @@
 
 import { useMemo, useState } from 'react';
 import Image from 'next/image';
-import { Camera, X, ZoomIn, ChevronLeft, ChevronRight, Share2, Star } from 'lucide-react';
+import { Camera, X, ZoomIn, ChevronLeft, ChevronRight, Share2 } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { cn } from '@/lib/utils';
 import type { GaleriaFoto } from '@/types/galeria';
@@ -254,7 +254,7 @@ export function GallerySection({ images, galeriaFotos }: GallerySectionProps) {
           <div className="mt-12 text-center">
             <button
               onClick={() => setShowAll(!showAll)}
-              className="inline-flex items-center gap-2 rounded-2xl bg-white/5 border border-white/10 hover:bg-white/10 hover:border-white/20 px-8 py-4 text-xs font-black uppercase tracking-widest text-white transition-all shadow-md hover:scale-[1.02] active:scale-98"
+              className="inline-flex items-center gap-2 rounded-2xl bg-white/5 border border-white/10 hover:bg-white/10 hover:border-white/20 px-8 py-4 text-xs font-black uppercase tracking-widest text-white transition-all shadow-md hover:scale-[1.02] active:scale-[0.98]"
             >
               {showAll ? 'Ver menos fotos' : 'Ver Galería Completa'}
               <ChevronRight className={cn("w-4 h-4 transition-transform", showAll ? "rotate-90" : "")} />

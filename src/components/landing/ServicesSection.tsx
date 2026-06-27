@@ -119,7 +119,7 @@ export function ServicesSection({ whatsappNumber = '59898355530', services }: Se
           <h2 className="font-headline text-5xl sm:text-6xl font-black text-slate-900 leading-tight mb-5">
             Todos los servicios en un solo lugar
           </h2>
-          <p className="text-slate-550 text-lg max-w-xl mx-auto leading-relaxed">
+          <p className="text-slate-500 text-lg max-w-xl mx-auto leading-relaxed">
             Una solución integral todo en uno. Nos encargamos de coordinar y ejecutar cada detalle para que disfrutes de tu fiesta como un invitado más.
           </p>
         </div>
@@ -195,7 +195,7 @@ export function ServicesSection({ whatsappNumber = '59898355530', services }: Se
                       <h4 className="text-xl font-black text-slate-900 group-hover:text-indigo-600 transition-colors">
                         {service.title}
                       </h4>
-                      <p className="text-sm text-slate-550 leading-relaxed font-medium">
+                      <p className="text-sm text-slate-500 leading-relaxed font-medium">
                         {service.description}
                       </p>
 

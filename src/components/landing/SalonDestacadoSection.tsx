@@ -4,7 +4,7 @@ import React from 'react';
 import Link from 'next/link';
 import Image from 'next/image';
 import { Button } from '@/components/ui/button';
-import { Building2, Sparkles, CheckCircle2, ArrowRight } from 'lucide-react';
+import { Building2, ArrowRight } from 'lucide-react';
 
 export function SalonDestacadoSection() {
   const photos = [
@@ -49,7 +49,7 @@ export function SalonDestacadoSection() {
             </h2>
 
             <p className="text-zinc-400 leading-relaxed font-medium">
-              El primer salón de fiestas de Salto, con 150 años de historia. Ubicado en pleno centro frente a la plaza principal, te ofrece elegancia histórica y terraza amplia, junto a la producción integral de **AK Producciones**.
+              El primer salón de fiestas de Salto, con 150 años de historia. Ubicado en pleno centro frente a la plaza principal, te ofrece elegancia histórica y terraza amplia, junto a la producción integral de <strong>AK Producciones</strong>.
             </p>
 
             {/* Opciones de Salón - Anclaje de Precios (Neuroventas) */}
