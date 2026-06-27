@@ -5,15 +5,6 @@ import { MessageSquare, Calendar, ChevronRight } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { motion } from 'framer-motion';
 
-export interface ServiceDetail {
-  id: string;
-  title: string;
-  description: string;
-  imageUrl: string;
-  emoji: string;
-  features: string[];
-}
-
 export interface ServiceItem {
   id: string;
   title: string;

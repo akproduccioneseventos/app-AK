@@ -264,11 +264,6 @@ export function getRelatedPosts(post: BlogPost) {
 }
 
 const postImages: Record<string, string> = {
-  'como-calcular-bebida-evento-salto': '/media/catalogo-servicios/blog_bebidas.png',
-  'catering-tradicional-vs-islas-quinceanos': '/media/catalogo-servicios/blog_comida.png',
-  'tecnologias-iluminacion-pantallas-quince': '/media/catalogo-servicios/blog_iluminacion.png',
-  'checklist-12-meses-boda-uruguay': '/media/catalogo-servicios/boda_persuasiva.png',
-  'quince-tradicional-vs-viaje-como-elegir': '/media/catalogo-servicios/quinceanera_hero.png',
   'como-empezar-a-organizar-una-fiesta-sin-estres': '/media/catalogo-servicios/blog_presupuesto.png',
   'presupuesto-de-fiesta-que-debe-incluir': '/media/catalogo-servicios/blog_presupuesto.png',
   'como-elegir-el-menu-para-un-evento': '/media/catalogo-servicios/blog_comida.png',
