@@ -4,27 +4,27 @@ import { ArrowRight, BookOpen, Camera, HeartHandshake, Sparkles } from 'lucide-r
 
 const storyCards = [
   {
-    title: 'Organizador principal',
-    text: 'Un responsable ordena la reunion, escucha la idea, baja el presupuesto a tierra y transforma deseos en pasos concretos.',
-    image: '/media/catalogo-servicios/recepcion-display-evento-01.jpeg',
+    title: 'Planificación Profesional',
+    text: 'Un organizador experto escucha tu idea, proyecta el presupuesto y planifica cada paso de forma ordenada.',
+    image: '/media/catalogo-servicios/organizador_equipo.png',
   },
   {
-    title: 'Equipo de montaje',
-    text: 'La decoracion, la pista, la mesa principal, el catering y la tecnologia se preparan con una mirada integral.',
-    image: '/media/catalogo-servicios/xv-mesa-principal-ak-02.jpeg',
+    title: 'Coordinación y Montaje',
+    text: 'Nuestro equipo monta la decoración, la gastronomía, la discoteca y la tecnología bajo un control estricto.',
+    image: '/media/catalogo-servicios/montaje_equipo.png',
   },
   {
-    title: 'Experiencia visible',
-    text: 'La familia no solo compra una lista: ve salon, fotos, demos, pantalla, portal y recuerdos posibles.',
-    image: '/media/catalogo-servicios/candy-bar-completo-ak-02.jpeg',
+    title: 'Festejo en Familia',
+    text: 'Creamos la puesta en escena perfecta para que tu familia disfrute sin estrés, guardando recuerdos inolvidables.',
+    image: '/media/catalogo-servicios/familia_feliz_evento.png',
   },
 ];
 
 const blogIdeas = [
-  'Como organizar una fiesta sin estres',
-  'Que mirar antes de reservar salon',
-  'Como vender una experiencia con pantalla LED',
-  'Que preguntas hacer antes de cerrar un paquete',
+  'Cómo organizar una fiesta sin estrés',
+  'Qué mirar antes de reservar el salón',
+  'Cómo crear una experiencia digital',
+  'Qué preguntas hacer antes de contratar',
 ];
 
 export function AkTeamStorySection() {
@@ -33,19 +33,19 @@ export function AkTeamStorySection() {
       <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
         <div className="grid gap-10 lg:grid-cols-[.8fr_1.2fr] lg:items-end">
           <div>
-            <p className="mb-4 text-xs font-black uppercase tracking-[0.35em] text-primary">Quienes organizan</p>
-            <h2 className="text-4xl font-black leading-tight text-slate-950 sm:text-6xl">
-              Detras de una buena fiesta hay metodo, equipo y criterio
+            <p className="mb-4 text-xs font-black uppercase tracking-[0.35em] text-primary">Quiénes organizan</p>
+            <h2 className="text-4xl font-black leading-tight text-slate-950 sm:text-6xl font-headline">
+              Detrás de una buena fiesta hay método, equipo y criterio
             </h2>
             <p className="mt-5 text-lg font-semibold leading-relaxed text-slate-500">
-              La web debe mostrar que AK no improvisa: hay una forma de vender, planificar, montar, acompañar y cerrar cada evento.
+              Planificamos y ejecutamos cada detalle de tu evento con un método probado que garantiza tranquilidad, orden y un resultado espectacular.
             </p>
           </div>
           <div className="grid gap-3 sm:grid-cols-3">
             {[
-              { icon: HeartHandshake, label: 'Acompanamiento real' },
+              { icon: HeartHandshake, label: 'Acompañamiento real' },
               { icon: Camera, label: 'Fotos y recuerdos' },
-              { icon: Sparkles, label: 'Tecnologia propia' },
+              { icon: Sparkles, label: 'Tecnología propia' },
             ].map((item) => {
               const Icon = item.icon;
               return (
@@ -65,7 +65,7 @@ export function AkTeamStorySection() {
                 <Image src={card.image} alt={card.title} fill className="object-cover" sizes="(max-width: 1024px) 100vw, 33vw" />
               </div>
               <div className="p-5">
-                <h3 className="text-xl font-black text-slate-950">{card.title}</h3>
+                <h3 className="text-xl font-black text-slate-950 font-headline">{card.title}</h3>
                 <p className="mt-2 text-sm font-semibold leading-relaxed text-slate-500">{card.text}</p>
               </div>
             </article>
@@ -77,9 +77,9 @@ export function AkTeamStorySection() {
             <div className="mb-4 inline-flex rounded-2xl bg-white/10 p-3">
               <BookOpen className="h-6 w-6 text-amber-200" />
             </div>
-            <h3 className="text-3xl font-black">Blog y consejos que ayudan a vender</h3>
+            <h3 className="text-3xl font-black font-headline">Guías útiles y consejos prácticos</h3>
             <p className="mt-3 text-sm font-semibold leading-relaxed text-white/60">
-              El blog puede explicar beneficios, ordenar dudas frecuentes y llevar a WhatsApp con mejor contexto.
+              Descubrí nuestras guías completas para sacarte todas las dudas sobre presupuestos, distribución de mesas, comida e iluminación.
             </p>
           </div>
           <div className="grid gap-3 sm:grid-cols-2">
@@ -88,8 +88,8 @@ export function AkTeamStorySection() {
                 {idea}
               </div>
             ))}
-            <Link href="/landing/eventos" className="inline-flex min-h-12 items-center justify-center gap-2 rounded-2xl border border-white/15 bg-white/10 px-4 text-sm font-black uppercase tracking-widest text-white transition hover:bg-white/15 sm:col-span-2">
-              Ver contenido publico
+            <Link href="/public/blog" className="inline-flex min-h-12 items-center justify-center gap-2 rounded-2xl border border-white/15 bg-white/10 px-4 text-sm font-black uppercase tracking-widest text-white transition hover:bg-white/15 sm:col-span-2">
+              Ver contenido público
               <ArrowRight className="h-4 w-4" />
             </Link>
           </div>

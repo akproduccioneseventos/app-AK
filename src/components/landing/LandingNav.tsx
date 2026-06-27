@@ -10,7 +10,7 @@ interface LandingNavProps {
   whatsappNumber?: string;
 }
 
-export function LandingNav({ whatsappNumber = '59899123456' }: LandingNavProps) {
+export function LandingNav({ whatsappNumber = '59898355530' }: LandingNavProps) {
   const [isScrolled, setIsScrolled] = useState(false);
   const [isMenuOpen, setIsMenuOpen] = useState(false);
 
@@ -56,7 +56,10 @@ export function LandingNav({ whatsappNumber = '59899123456' }: LandingNavProps) 
             </span>
           </Link>
 
-          <nav className="hidden md:flex items-center gap-2 rounded-2xl border border-white/10 bg-white/10 px-2 py-1 backdrop-blur-md">
+          <nav className={cn(
+            "hidden md:flex items-center gap-2 rounded-2xl px-2 py-1 backdrop-blur-md border transition-all duration-300",
+            isScrolled ? "border-slate-200 bg-slate-50/40" : "border-white/10 bg-white/10"
+          )}>
             {navLinks.map((link) =>
               link.isExternal ? (
                 <Link

@@ -23,7 +23,7 @@ const FALLBACK_SOCIAL = [
   },
   {
     platform: 'WhatsApp',
-    profileUrl: 'https://wa.me/59899123456',
+    profileUrl: 'https://wa.me/59898355530',
     icon: MessageSquare,
     bgClass: 'bg-[#25D366]',
     shadowClass: 'hover:shadow-green-400/60',
