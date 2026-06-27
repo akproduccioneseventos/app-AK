@@ -6,13 +6,14 @@ import { motion, AnimatePresence } from 'framer-motion';
 import {
   Mic, Video, Play, Pause, Trash2, Send, ArrowLeft, Loader2, CheckCircle2,
   Volume2, Sparkles, AlertCircle, RefreshCw, Upload, Phone, PhoneOff, Camera, VideoOff,
-  ChevronRight
+  ChevronRight, Square
 } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { uploadBuzonMessage } from '@/app/actions/buzon';
 import { getPublicEntertainmentEvent } from '@/app/actions/fiesta/entretenimiento.actions';
 import type { PublicEntertainmentEvent } from '@/lib/entertainment/station-config';
 import { KioskUnlockButton } from '@/components/kiosk/kiosk-unlock-button';
+import { cn } from '@/lib/utils';
 
 export default function GuestBuzonPage() {
   const params = useParams();
