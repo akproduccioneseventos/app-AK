@@ -455,8 +455,15 @@ export async function uploadBarMagicPhoto(formData: FormData): Promise<{ success
   const drinkName = formData.get('drinkName') ? String(formData.get('drinkName')) : undefined;
 
   if (!fiestaId || !file) return { success: false, error: 'Faltan datos para subir la foto.' };
-  if (!file.type.startsWith('image/')) return { success: false, error: 'Solo se aceptan fotos.' };
-  if (file.size > MAX_BAR_PHOTO_SIZE) return { success: false, error: 'La foto no puede superar 10MB.' };
+
+  const isVideo = file.type.startsWith('video/');
+  if (!file.type.startsWith('image/') && !isVideo) {
+    return { success: false, error: 'Solo se aceptan fotos o videos.' };
+  }
+
+  if (file.size > MAX_BAR_PHOTO_SIZE) {
+    return { success: false, error: `El archivo es demasiado grande (máximo ${MAX_BAR_PHOTO_SIZE / (1024 * 1024)}MB).` };
+  }
 
   try {
     const fiesta = await getFiestaById(fiestaId);
@@ -464,25 +471,27 @@ export async function uploadBarMagicPhoto(formData: FormData): Promise<{ success
     const settings = getStoredBarData(fiesta).settings;
     if (!settings.allowPhotoCapture) return { success: false, error: 'La captura de fotos esta pausada.' };
     if (settings.requireSocialFollowForPhotos && !followConfirmed) {
-      return { success: false, error: 'Para subir la foto primero confirma que seguis las redes de AK Producciones.' };
+      return { success: false, error: 'Para subir el archivo primero confirma que seguis las redes de AK Producciones.' };
     }
 
-    const extension = path.extname(file.name || '') || '.jpg';
+    const defaultExt = isVideo ? '.webm' : '.jpg';
+    const extension = path.extname(file.name || '') || defaultExt;
     const mediaId = `bar_photo_${Date.now()}_${Math.random().toString(36).slice(2, 8)}`;
     const storagePath = `bar-tech/${fiestaId}/${mediaId}${extension}`;
     const bytes = await file.arrayBuffer();
-    const url = await uploadToStorage(Buffer.from(bytes), storagePath, file.type || 'image/jpeg', true);
+    const url = await uploadToStorage(Buffer.from(bytes), storagePath, file.type || (isVideo ? 'video/webm' : 'image/jpeg'), true);
 
+    const defaultCaption = isVideo ? 'Grabando un saludo en la barra interactiva' : 'Mi foto en la barra tecnologica AK';
     const baseCaption = drinkName
       ? `Disfrutando de un ${drinkName} en la barra interactiva`
-      : (caption || 'Mi foto en la barra tecnologica AK');
+      : (caption || defaultCaption);
     const shareText = `${baseCaption} ${settings.hashtag} ${settings.instagramHandle}`.trim();
 
     if (settings.autoPublishPhotos) {
       await createSocialMediaPostFromUrl({
         fiestaId,
         mediaUrl: url,
-        mediaType: 'image',
+        mediaType: isVideo ? 'video' : 'image',
         authorName,
         caption: shareText,
         source: 'bar-tech',
@@ -495,7 +504,7 @@ export async function uploadBarMagicPhoto(formData: FormData): Promise<{ success
 
     return { success: true, url, shareText };
   } catch (error: any) {
-    logger.error('[barra-tecnologica] upload photo failed', error);
-    return { success: false, error: error.message || 'No se pudo subir la foto.' };
+    logger.error('[barra-tecnologica] upload file failed', error);
+    return { success: false, error: error.message || 'No se pudo subir el archivo.' };
   }
 }
