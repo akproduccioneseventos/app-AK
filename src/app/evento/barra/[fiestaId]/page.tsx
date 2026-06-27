@@ -16,12 +16,10 @@ import {
   Wine,
   X,
   Instagram,
-  Phone,
   Sparkles,
   Share2,
   Copy,
   User,
-  RotateCcw,
   Palette
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
@@ -67,7 +65,6 @@ export default function BarraTecnologicaTouchPage() {
   const [isShuffling, setIsShuffling] = useState(false);
 
   // Camera & Recording State
-  const [isCameraOpen, setIsCameraOpen] = useState(false);
   const [capturedDataUrl, setCapturedDataUrl] = useState<string | null>(null);
   const [isUploadingMedia, setIsUploadingMedia] = useState(false);
   const videoRef = useRef<HTMLVideoElement | null>(null);
@@ -315,7 +312,6 @@ export default function BarraTecnologicaTouchPage() {
         ctx.fillStyle = '#ffffff';
         ctx.font = '300 42px sans-serif';
         ctx.textAlign = 'center';
-        ctx.letterSpacing = '4px';
         ctx.fillText(eventName.toUpperCase(), w / 2, h - 95);
 
         ctx.fillStyle = '#999999';
@@ -399,7 +395,6 @@ export default function BarraTecnologicaTouchPage() {
   const stopCamera = useCallback(() => {
     streamRef.current?.getTracks().forEach(t => t.stop());
     streamRef.current = null;
-    setIsCameraOpen(false);
     if (isRecording) {
       mediaRecorderRef.current?.stop();
       setIsRecording(false);
@@ -422,7 +417,6 @@ export default function BarraTecnologicaTouchPage() {
         videoRef.current.srcObject = stream;
         await videoRef.current.play();
       }
-      setIsCameraOpen(true);
     } catch {
       toast({ title: 'Error de Cámara', description: 'No se pudo acceder a la cámara del dispositivo.', variant: 'destructive' });
     }
@@ -580,8 +574,15 @@ export default function BarraTecnologicaTouchPage() {
 
   // Botón "Sugerir Trago Al Azar 🎲" animado
   const handleRandomDrink = () => {
-    const drinksList = dashboard?.drinks?.length ? dashboard.drinks : templates.map((_, i) => ({ id: `default_${i}`, nombre: `Trago fallback ${i}` }));
-    if (!drinksList.length) return;
+    const drinksList = dashboard?.drinks || [];
+    if (!drinksList.length) {
+      toast({
+        title: 'Sin tragos cargados',
+        description: 'Primero carga la carta de tragos para poder sugerir uno al azar.',
+        variant: 'destructive',
+      });
+      return;
+    }
 
     setIsShuffling(true);
     let count = 0;
