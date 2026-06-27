@@ -1596,8 +1596,8 @@ function SimuladorContent() {
                                 <div className="p-4 bg-primary/10 rounded-full inline-block">
                                     <Sparkles className="w-10 h-10 text-primary animate-pulse" />
                                 </div>
-                                <h2 className="text-3xl font-black text-slate-900 tracking-tight">Â¿QuiÃ©nes somos?</h2>
-                                <p className="text-lg font-bold text-primary">Ofrecemos una soluciÃ³n: organizamos tu fiesta por completo.</p>
+                                <h2 className="text-3xl font-black text-slate-900 tracking-tight">La fiesta de tus sueños, planificada sin estrés</h2>
+                                <p className="text-lg font-bold text-primary">Elegí lo que te gusta, calculá el costo al instante y armá una experiencia inolvidable.</p>
                             </div>
 
                             <div className="grid gap-6 md:grid-cols-2 pt-4">
@@ -1773,11 +1773,18 @@ function SimuladorContent() {
                                             <p className="mt-1 text-xs text-slate-400 font-semibold">No se adiciona costo por locaciÃ³n.</p>
                                         </div>
                                     </button>
-                                    <button type="button" onClick={() => setSalonChoice('club')} disabled={!config?.clubUruguayConfig?.activo} className={cn('rounded-2xl border p-5 text-left disabled:opacity-50 transition flex flex-col h-32 justify-between', salonChoice === 'club' ? 'border-primary bg-primary/5 shadow-sm' : 'border-slate-200 bg-white hover:border-slate-300')}>
+                                    <button type="button" onClick={() => setSalonChoice('club')} disabled={!config?.clubUruguayConfig?.activo} className={cn('rounded-2xl border p-5 text-left disabled:opacity-50 transition flex flex-col h-32 justify-between relative', salonChoice === 'club' ? 'border-primary bg-primary/5 shadow-sm' : 'border-slate-200 bg-white hover:border-slate-300')}>
+                                        <div className="absolute top-3 right-3 bg-amber-500 text-white text-[8px] font-black px-2 py-0.5 rounded-full shadow-sm">
+                                            50% OFF
+                                        </div>
                                         <Building2 className="h-6 w-6 text-primary" />
                                         <div>
                                             <p className="text-sm font-black text-slate-900">Quiero Club Uruguay</p>
-                                            <p className="mt-1 text-xs text-slate-400 font-semibold">{formatCurrency(config?.clubUruguayConfig?.precio || 0)} agregados al presupuesto.</p>
+                                            <p className="mt-1 text-[10px] text-slate-400 font-semibold leading-normal">
+                                                <span className="line-through mr-1">{formatCurrency((config?.clubUruguayConfig?.precio || 20000) * 2)}</span>
+                                                <span className="font-bold text-amber-600">{formatCurrency(config?.clubUruguayConfig?.precio || 0)}</span>
+                                                <span className="ml-1">agregados.</span>
+                                            </p>
                                         </div>
                                     </button>
                                 </div>
@@ -2070,7 +2077,14 @@ function SimuladorContent() {
                                                     {!item.esRegalo && (
                                                         <>
                                                             <span>•</span>
-                                                            <span className="text-slate-500 font-bold">{formatCurrency(item.costoTotal)}</span>
+                                                            {item.id === 'serv_salon_club_uruguay' ? (
+                                                                <span className="text-slate-500 font-bold">
+                                                                    <span className="line-through text-slate-400 mr-1">{formatCurrency(item.costoTotal * 2)}</span>
+                                                                    <span className="text-amber-600 font-black">{formatCurrency(item.costoTotal)} (50% OFF)</span>
+                                                                </span>
+                                                            ) : (
+                                                                <span className="text-slate-500 font-bold">{formatCurrency(item.costoTotal)}</span>
+                                                            )}
                                                         </>
                                                     )}
                                                 </div>
@@ -2307,7 +2321,14 @@ function SimuladorContent() {
                 </CardContent>
 
                 <CardFooter className="p-6 sm:p-10 border-t bg-slate-50 flex flex-col-reverse sm:flex-row justify-between items-center gap-6">
-                    <Button variant="ghost" onClick={handlePrev} disabled={step === 1 || isSavingProgress || isGenerating} className="w-full sm:w-auto rounded-md h-12 px-7 font-bold text-slate-500">Anterior</Button>
+                    <div className="flex flex-col sm:flex-row items-center gap-4 w-full sm:w-auto justify-between sm:justify-start">
+                        <Button variant="ghost" onClick={handlePrev} disabled={step === 1 || isSavingProgress || isGenerating} className="w-full sm:w-auto rounded-md h-12 px-7 font-bold text-slate-500">Anterior</Button>
+                        {stats.ahorroRegalos > 0 && (
+                            <span className="bg-emerald-50 text-emerald-700 text-[10px] font-black px-4 py-2 rounded-full border border-emerald-100 flex items-center gap-1.5 shadow-sm animate-pulse shrink-0">
+                                🎁 ¡Ahorrás {formatCurrency(stats.ahorroRegalos)} en regalos incluidos!
+                            </span>
+                        )}
+                    </div>
                     <div className="flex flex-col items-center sm:items-end gap-3 w-full sm:w-auto">
                         <Button onClick={handleNext} disabled={isGenerating || isSavingProgress} className="w-full sm:w-auto rounded-md h-14 px-10 font-black text-base">
                             {(isGenerating || isSavingProgress) ? <Loader2 className="animate-spin mr-3"/> : null}

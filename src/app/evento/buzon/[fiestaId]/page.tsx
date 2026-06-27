@@ -1019,7 +1019,7 @@ export default function GuestBuzonPage() {
                       {/* Animación de ondas de audio */}
                       <div className="flex items-end justify-center gap-1.5 h-20">
                         {[40, 70, 45, 90, 50, 100, 65, 80, 55, 30].map((h, i) => (
-                          <motion.div 
+                          <motion.div
                             key={i}
                             animate={{ height: [`${h/3}%`, `${h}%`, `${h/3}%`] }}
                             transition={{ duration: 1, repeat: Infinity, delay: i * 0.1, ease: "easeInOut" }}
@@ -1027,18 +1027,18 @@ export default function GuestBuzonPage() {
                           />
                         ))}
                       </div>
-                      
+
                       <div className="space-y-2">
                         <p className="text-5xl font-black tracking-wider text-white tabular-nums drop-shadow-lg">
                           0:{recordingSeconds.toString().padStart(2, '0')}
                         </p>
                         <p className="text-[11px] text-indigo-300 font-bold uppercase tracking-widest animate-pulse">Grabando tu saludo...</p>
                       </div>
-                      
+
                       {/* Barra de progreso */}
                       <div className="w-full h-1.5 bg-indigo-950/50 rounded-full overflow-hidden border border-indigo-500/20">
-                        <motion.div 
-                          className="h-full bg-gradient-to-r from-indigo-500 to-rose-500" 
+                        <motion.div
+                          className="h-full bg-gradient-to-r from-indigo-500 to-rose-500"
                           initial={{ width: 0 }}
                           animate={{ width: `${(recordingSeconds / 60) * 100}%` }}
                         />
@@ -1056,7 +1056,7 @@ export default function GuestBuzonPage() {
                   {phoneState === 'review' && audioUrl && (
                     <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} className="w-full p-6 bg-gradient-to-br from-indigo-900/40 to-indigo-950/40 border border-indigo-500/30 rounded-3xl flex flex-col items-center gap-5 text-center shadow-2xl backdrop-blur-md">
                       <p className="text-[10px] text-indigo-200 font-black uppercase tracking-widest bg-indigo-950/50 px-3 py-1 rounded-full border border-indigo-500/20">Revisá tu saludo</p>
-                      
+
                       <div className="flex items-center gap-4 w-full">
                         <button
                           onClick={togglePlayRecording}
@@ -1064,7 +1064,7 @@ export default function GuestBuzonPage() {
                         >
                           {isPlayingRecording ? <Pause className="w-6 h-6 fill-white" /> : <Play className="w-6 h-6 fill-white ml-1" />}
                         </button>
-                        
+
                         <div className="flex-1 text-left">
                           <p className="text-sm font-black text-white uppercase tracking-wide">Mensaje de voz</p>
                           <div className="flex items-center gap-2 mt-1">
@@ -1074,7 +1074,7 @@ export default function GuestBuzonPage() {
                             <p className="text-[10px] text-indigo-300 font-bold tabular-nums shrink-0">{recordingSeconds}s</p>
                           </div>
                         </div>
-                        
+
                         <button onClick={resetAudioRecording} className="p-3 text-rose-400 hover:text-rose-300 transition hover:bg-rose-950/30 rounded-full border border-transparent hover:border-rose-500/30">
                           <Trash2 className="w-5 h-5" />
                         </button>
