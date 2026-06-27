@@ -5,15 +5,6 @@ import { MessageSquare, Calendar, ChevronRight } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { motion } from 'framer-motion';
 
-export interface ServiceDetail {
-  id: string;
-  title: string;
-  description: string;
-  imageUrl: string;
-  emoji: string;
-  features: string[];
-}
-
 export interface ServiceItem {
   id: string;
   title: string;
@@ -39,9 +30,9 @@ const DEFAULT_SERVICES: ServiceItem[] = [
     id: 'bodas',
     title: 'Bodas',
     subtitle: 'El día más especial',
-    description: 'Convertimos tu boda en una experiencia única. Desde la decoración floral hasta la pista de baile, coordinamos cada detalle.',
-    features: ['Coordinación integral del evento', 'Decoración y flores personalizadas', 'Comida y menu a medida'],
-    imageUrl: '/media/catalogo-servicios/boda-decoracion-dorada-01.jpeg',
+    description: 'Tranquilidad total en el día más importante, con un diseño floral y gastronómico coordinado.',
+    features: ['Gastronomía premium', 'Decoración y flores exclusivas', 'Coordinación integral del día'],
+    imageUrl: '/media/catalogo-servicios/boda_persuasiva.png',
     imageHint: 'wedding ceremony',
     accentColor: 'bg-indigo-500',
     emoji: '💍',
@@ -51,9 +42,9 @@ const DEFAULT_SERVICES: ServiceItem[] = [
     id: 'xv-anos',
     title: 'XV Años',
     subtitle: 'Una noche de ensueño',
-    description: 'Los 15 años merecen la mejor producción. Creamos ambientes mágicos, luces impactantes y momentos que durarán siempre.',
-    features: ['Temática y ambientación exclusiva', 'Pista LED y efectos especiales', 'Fotografía y video premium'],
-    imageUrl: '/media/catalogo-servicios/decoracion-xv-lila-01.jpeg',
+    description: 'Hacemos realidad la fiesta que soñaste con shows de luces interactivos y la tecnología que divierte a tus amigos.',
+    features: ['Pistas LED interactivas', 'Cabinas y recuerdos en vivo', 'Ambientación temática a medida'],
+    imageUrl: '/media/catalogo-servicios/quinceanera_persuasiva.png',
     imageHint: 'quinceañera party',
     accentColor: 'bg-fuchsia-500',
     emoji: '👑',
@@ -63,9 +54,9 @@ const DEFAULT_SERVICES: ServiceItem[] = [
     id: 'cumpleanos',
     title: 'Cumpleaños & Sociales',
     subtitle: 'Celebraciones sin límites',
-    description: 'Festejos de cumpleaños, aniversarios y reuniones sociales adaptadas a tu medida con la mejor música y diversión.',
-    features: ['Discoteca y luces inteligentes', 'Mesa dulce y torta decorada', 'Animación y barras de tragos'],
-    imageUrl: '/media/catalogo-servicios/xv-pista-iluminada-01.jpeg',
+    description: 'El festejo familiar perfecto con la mejor discoteca, barra de tragos y ambientación a tu medida.',
+    features: ['Discoteca y luces pro', 'Animación y barras exclusivas', 'Organización de tiempos y sorpresas'],
+    imageUrl: '/media/catalogo-servicios/social_persuasivo.png',
     imageHint: 'birthday party lights',
     accentColor: 'bg-indigo-500',
     emoji: '🎉',
@@ -75,9 +66,9 @@ const DEFAULT_SERVICES: ServiceItem[] = [
     id: 'corporativos',
     title: 'Eventos Corporativos',
     subtitle: 'Imagen corporativa premium',
-    description: 'Lanzamientos de marcas, cenas empresariales, conferencias y eventos institucionales con todo resuelto.',
-    features: ['Planificación y logística completa', 'Pantallas LED y microfonía', 'Comida y livings premium'],
-    imageUrl: '/media/catalogo-servicios/recepcion-display-evento-01.jpeg',
+    description: 'La imagen de tu empresa con logística de vanguardia, sonido profesional y pantallas de alta definición.',
+    features: ['Pantallas LED gigantes', 'Sonido y microfonía de fidelidad', 'Recepción y livings premium'],
+    imageUrl: '/media/catalogo-servicios/corporativo_persuasivo.png',
     imageHint: 'corporate event',
     accentColor: 'bg-slate-800',
     emoji: '🏢',
@@ -117,10 +108,10 @@ export function ServicesSection({ whatsappNumber = '59898355530', services }: Se
             🔥 Todo en un solo lugar
           </span>
           <h2 className="font-headline text-5xl sm:text-6xl font-black text-slate-900 leading-tight mb-5">
-            Nuestros Servicios & Fiestas
+            Todos los servicios en un solo lugar
           </h2>
-          <p className="text-slate-550 text-lg max-w-xl mx-auto leading-relaxed">
-            Coordinamos y ejecutamos cada elemento para que tu fiesta sea espectacular, transparente y sin sorpresas de costos.
+          <p className="text-slate-500 text-lg max-w-xl mx-auto leading-relaxed">
+            Una solución integral todo en uno. Nos encargamos de coordinar y ejecutar cada detalle para que disfrutes de tu fiesta como un invitado más.
           </p>
         </div>
 
@@ -195,7 +186,7 @@ export function ServicesSection({ whatsappNumber = '59898355530', services }: Se
                       <h4 className="text-xl font-black text-slate-900 group-hover:text-indigo-600 transition-colors">
                         {service.title}
                       </h4>
-                      <p className="text-sm text-slate-550 leading-relaxed font-medium">
+                      <p className="text-sm text-slate-500 leading-relaxed font-medium">
                         {service.description}
                       </p>
 

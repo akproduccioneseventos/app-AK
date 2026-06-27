@@ -1,11 +1,10 @@
-import React from 'react';
 import type { Metadata } from 'next';
 import Image from 'next/image';
 import { LandingNav } from '@/components/landing/LandingNav';
 import { PublicFooter } from '@/components/public-footer';
 import { Button } from '@/components/ui/button';
 import Link from 'next/link';
-import { Building2, Sparkles, Calendar, MessageCircle, MapPin, CheckCircle2, ShieldCheck, HelpCircle } from 'lucide-react';
+import { Building2, Calendar, MessageCircle } from 'lucide-react';
 
 export const metadata: Metadata = {
   title: 'Servicio Integral en el Salón del Club Uruguay | AK Producciones',
@@ -50,7 +49,7 @@ export default function ClubUruguayPage() {
             El Salón en <span className="bg-gradient-to-r from-indigo-400 via-purple-400 to-pink-400 bg-clip-text text-transparent">Club Uruguay</span>
           </h1>
           <p className="text-zinc-400 text-lg sm:text-xl max-w-2xl mx-auto leading-relaxed font-medium">
-            El salón más elegante e histórico de Salto, con la producción integral, comida premium y tecnología exclusiva de **AK Producciones**.
+            El primer salón de fiestas de Salto, con 150 años de historia. Ubicado en pleno centro, cuenta con terraza amplia, patio grande y la producción integral de <strong>AK Producciones</strong>.
           </p>
 
           <div className="flex flex-wrap justify-center gap-4 pt-4">
@@ -83,34 +82,34 @@ export default function ClubUruguayPage() {
 
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
             <div className="p-8 rounded-3xl bg-white/5 border border-white/10 space-y-4">
-              <span className="text-indigo-400 font-black text-xs uppercase tracking-wider">Ubicación</span>
-              <h3 className="text-xl font-bold font-headline">Centro de Salto</h3>
+              <span className="text-indigo-400 font-black text-xs uppercase tracking-wider">Salón Chico</span>
+              <h3 className="text-xl font-bold font-headline">$8.900 <span className="text-xs text-zinc-400 line-through">$17.800</span></h3>
               <p className="text-zinc-400 leading-relaxed text-xs">
-                Ubicado en calle Uruguay al 700, frente a la plaza principal. Un salón histórico de fácil acceso para todos tus invitados.
+                Hasta 50 personas. Ideal para íntimos. Cuenta con patio grande, terraza, freezer, heladera y servicio de limpieza incluido.
               </p>
             </div>
 
             <div className="p-8 rounded-3xl bg-white/5 border border-white/10 space-y-4">
-              <span className="text-indigo-400 font-black text-xs uppercase tracking-wider">Capacidad</span>
-              <h3 className="text-xl font-bold font-headline">Hasta 200 Personas</h3>
+              <span className="text-indigo-400 font-black text-xs uppercase tracking-wider">Salón Grande</span>
+              <h3 className="text-xl font-bold font-headline">$16.900 <span className="text-xs text-zinc-400 line-through">$33.800</span></h3>
               <p className="text-zinc-400 leading-relaxed text-xs">
-                Capacidad referencial ideal para bodas y fiestas de XV años íntimas y elegantes, con distribución optimizada de mesas.
+                Hasta 200 personas. El salón señorial de dos plantas completo con la mejor acústica e iluminación robótica.
               </p>
             </div>
 
             <div className="p-8 rounded-3xl bg-white/5 border border-white/10 space-y-4">
-              <span className="text-indigo-400 font-black text-xs uppercase tracking-wider">Tecnología</span>
-              <h3 className="text-xl font-bold font-headline">Diseño 2D / 3D</h3>
+              <span className="text-indigo-400 font-black text-xs uppercase tracking-wider">Historia</span>
+              <h3 className="text-xl font-bold font-headline">150 Años</h3>
               <p className="text-zinc-400 leading-relaxed text-xs">
-                Diseñamos el plano de tu fiesta a color en 2D y 3D para que imagines la distribución de mesas, pista LED y discoteca antes del evento.
+                El salón de fiestas pionero y más elegante de Salto. Un marco clásico inigualable frente a la plaza principal.
               </p>
             </div>
 
             <div className="p-8 rounded-3xl bg-white/5 border border-white/10 space-y-4">
-              <span className="text-indigo-400 font-black text-xs uppercase tracking-wider">Atención</span>
-              <h3 className="text-xl font-bold font-headline">Entrevista Sin Costo</h3>
+              <span className="text-indigo-400 font-black text-xs uppercase tracking-wider">Producción</span>
+              <h3 className="text-xl font-bold font-headline">Todo en 1</h3>
               <p className="text-zinc-400 leading-relaxed text-xs">
-                Coordiná tu reunión para resolver todo de una sola vez. Disfrutá de tu fiesta como un invitado más sin el estrés de organizar.
+                Olvidate de coordinar proveedores. Decoración, comida, discoteca, fotos y coordinación general en un solo lugar.
               </p>
             </div>
           </div>
