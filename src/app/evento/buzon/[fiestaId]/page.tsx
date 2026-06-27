@@ -27,6 +27,7 @@ export default function GuestBuzonPage() {
   const [authorName, setAuthorName] = useState('');
   const [showCelebration, setShowCelebration] = useState(false);
   const [selectedMode, setSelectedMode] = useState<'vhs_record' | 'vhs_upload' | 'audio_record' | 'audio_retro' | 'audio_upload' | null>(null);
+  const [countdown, setCountdown] = useState<number | null>(null);
 
   const handleSelectMode = (mode: typeof selectedMode) => {
     setSelectedMode(mode);
@@ -425,9 +426,9 @@ export default function GuestBuzonPage() {
       setVideoDuration(duration);
       URL.revokeObjectURL(tempUrl);
 
-      if (duration > 15) {
+      if (duration > 16.5 || duration === Infinity) {
         toast({
-          title: 'Duración excedida',
+          title: 'Duración excedida o desconocida',
           description: 'El video no debe durar más de 15 segundos.',
           variant: 'destructive',
         });
@@ -540,6 +541,19 @@ export default function GuestBuzonPage() {
     };
 
     render();
+  };
+
+  const handleStartVideoWithCountdown = () => {
+    setCountdown(3);
+    const countInterval = setInterval(() => {
+      setCountdown((prev) => {
+        if (prev && prev > 1) return prev - 1;
+        clearInterval(countInterval);
+        setCountdown(null);
+        startLiveVideoRecording();
+        return null;
+      });
+    }, 1000);
   };
 
   const startLiveVideoRecording = async () => {
@@ -782,96 +796,51 @@ export default function GuestBuzonPage() {
               </p>
             </div>
 
-            <div className="flex flex-col gap-3.5 mt-2">
-              {/* Option 1: Grabar Video VHS */}
-              <button
+            <div className="flex flex-col gap-4 mt-2">
+              {/* Opción 1: Grabar Video */}
+              <motion.button
+                whileHover={{ scale: 1.02, y: -2 }}
+                whileTap={{ scale: 0.98 }}
                 onClick={() => { handleSelectMode('vhs_record'); startCamera(); }}
-                className="group relative py-4 px-5 rounded-2xl border border-rose-500/20 bg-rose-950/10 hover:bg-rose-950/20 hover:border-rose-500/40 transition-all duration-300 text-left flex items-center justify-between active:scale-[0.98] shadow-md"
+                className="group relative w-full overflow-hidden rounded-3xl border border-rose-500/30 bg-gradient-to-br from-rose-950/40 to-rose-900/10 p-6 text-left shadow-2xl backdrop-blur-md transition-all duration-300 hover:shadow-[0_0_30px_rgba(244,63,94,0.3)]"
               >
-                <div className="flex items-center gap-3.5">
-                  <div className="p-3 rounded-xl bg-rose-500/10 text-rose-400 group-hover:scale-105 transition-transform shrink-0">
-                    <Video className="w-6 h-6" />
+                <div className="absolute inset-0 bg-gradient-to-r from-rose-500/0 via-rose-500/10 to-rose-500/0 opacity-0 group-hover:opacity-100 group-hover:animate-shimmer" />
+                <div className="relative flex items-center gap-5">
+                  <div className="flex h-14 w-14 shrink-0 items-center justify-center rounded-2xl bg-rose-500/20 text-rose-400 shadow-inner ring-1 ring-rose-500/50 transition-transform group-hover:scale-110">
+                    <Video className="h-7 w-7" />
                   </div>
-                  <div>
-                    <div className="flex items-center gap-1.5">
-                      <p className="text-xs font-black text-white uppercase tracking-wider">Grabar Video VHS</p>
-                      <span className="inline-flex items-center px-1.5 py-0.5 rounded-full text-[8px] font-black tracking-widest bg-red-500/20 text-red-400 border border-red-500/30 animate-pulse">
+                  <div className="flex-1">
+                    <div className="flex items-center gap-2">
+                      <p className="text-base font-black text-white uppercase tracking-widest">Grabar Video</p>
+                      <span className="inline-flex items-center px-2 py-0.5 rounded-full text-[9px] font-black tracking-widest bg-rose-500 text-white animate-pulse shadow-[0_0_10px_rgba(244,63,94,0.5)]">
                         REC
                       </span>
                     </div>
-                    <p className="text-[11px] text-zinc-300 mt-0.5">Graba tu video analógico en vivo. Máx. 15s.</p>
+                    <p className="mt-1 text-xs text-rose-200/70 font-medium">Dejá un recuerdo inolvidable en video (15s).</p>
                   </div>
+                  <ChevronRight className="h-6 w-6 text-rose-500/50 transition-transform group-hover:translate-x-1 group-hover:text-rose-400" />
                 </div>
-                <ChevronRight className="w-4 h-4 text-zinc-500 group-hover:translate-x-0.5 transition-transform" />
-              </button>
+              </motion.button>
 
-              {/* Option 2: Subir Video */}
-              <button
-                onClick={() => handleSelectMode('vhs_upload')}
-                className="group relative py-4 px-5 rounded-2xl border border-indigo-500/20 bg-indigo-950/10 hover:bg-indigo-950/20 hover:border-indigo-500/40 transition-all duration-300 text-left flex items-center justify-between active:scale-[0.98] shadow-md"
-              >
-                <div className="flex items-center gap-3.5">
-                  <div className="p-3 rounded-xl bg-indigo-500/10 text-indigo-400 group-hover:scale-105 transition-transform shrink-0">
-                    <Upload className="w-6 h-6" />
-                  </div>
-                  <div>
-                    <p className="text-xs font-black text-white uppercase tracking-wider">Subir Video de Galería</p>
-                    <p className="text-[11px] text-zinc-300 mt-0.5">Cargá un video desde tu celular. Máx. 15s.</p>
-                  </div>
-                </div>
-                <ChevronRight className="w-4 h-4 text-zinc-500 group-hover:translate-x-0.5 transition-transform" />
-              </button>
-
-              {/* Option 3: Grabar Audio Directo */}
-              <button
+              {/* Opción 2: Grabar Audio Directo */}
+              <motion.button
+                whileHover={{ scale: 1.02, y: -2 }}
+                whileTap={{ scale: 0.98 }}
                 onClick={() => handleSelectMode('audio_record')}
-                className="group relative py-4 px-5 rounded-2xl border border-violet-500/20 bg-violet-950/10 hover:bg-violet-950/20 hover:border-violet-500/40 transition-all duration-300 text-left flex items-center justify-between active:scale-[0.98] shadow-md"
+                className="group relative w-full overflow-hidden rounded-3xl border border-indigo-500/30 bg-gradient-to-br from-indigo-950/40 to-indigo-900/10 p-6 text-left shadow-2xl backdrop-blur-md transition-all duration-300 hover:shadow-[0_0_30px_rgba(99,102,241,0.3)]"
               >
-                <div className="flex items-center gap-3.5">
-                  <div className="p-3 rounded-xl bg-violet-500/10 text-violet-400 group-hover:scale-105 transition-transform shrink-0">
-                    <Mic className="w-6 h-6" />
+                <div className="absolute inset-0 bg-gradient-to-r from-indigo-500/0 via-indigo-500/10 to-indigo-500/0 opacity-0 group-hover:opacity-100 group-hover:animate-shimmer" />
+                <div className="relative flex items-center gap-5">
+                  <div className="flex h-14 w-14 shrink-0 items-center justify-center rounded-2xl bg-indigo-500/20 text-indigo-400 shadow-inner ring-1 ring-indigo-500/50 transition-transform group-hover:scale-110">
+                    <Mic className="h-7 w-7" />
                   </div>
-                  <div>
-                    <p className="text-xs font-black text-white uppercase tracking-wider">Grabar Audio Directo</p>
-                    <p className="text-[11px] text-zinc-300 mt-0.5">Dejá una nota de voz con tu micrófono.</p>
+                  <div className="flex-1">
+                    <p className="text-base font-black text-white uppercase tracking-widest">Mensaje de Audio</p>
+                    <p className="mt-1 text-xs text-indigo-200/70 font-medium">Dejá una nota de voz con tus mejores deseos (60s).</p>
                   </div>
+                  <ChevronRight className="h-6 w-6 text-indigo-500/50 transition-transform group-hover:translate-x-1 group-hover:text-indigo-400" />
                 </div>
-                <ChevronRight className="w-4 h-4 text-zinc-500 group-hover:translate-x-0.5 transition-transform" />
-              </button>
-
-              {/* Option 4: Cabina Telefónica Retro */}
-              <button
-                onClick={() => handleSelectMode('audio_retro')}
-                className="group relative py-4 px-5 rounded-2xl border border-amber-500/20 bg-amber-950/10 hover:bg-amber-950/20 hover:border-amber-500/40 transition-all duration-300 text-left flex items-center justify-between active:scale-[0.98] shadow-md"
-              >
-                <div className="flex items-center gap-3.5">
-                  <div className="p-3 rounded-xl bg-amber-500/10 text-amber-400 group-hover:scale-105 transition-transform shrink-0">
-                    <Phone className="w-6 h-6" />
-                  </div>
-                  <div>
-                    <p className="text-xs font-black text-white uppercase tracking-wider">Cabina Telefónica Retro</p>
-                    <p className="text-[11px] text-zinc-300 mt-0.5">Simulación interactiva de teléfono antiguo.</p>
-                  </div>
-                </div>
-                <ChevronRight className="w-4 h-4 text-zinc-500 group-hover:translate-x-0.5 transition-transform" />
-              </button>
-
-              {/* Option 5: Subir Archivo de Audio */}
-              <button
-                onClick={() => handleSelectMode('audio_upload')}
-                className="group relative py-4 px-5 rounded-2xl border border-zinc-800 bg-zinc-900/10 hover:bg-zinc-900/20 hover:border-zinc-700 transition-all duration-300 text-left flex items-center justify-between active:scale-[0.98] shadow-md"
-              >
-                <div className="flex items-center gap-3.5">
-                  <div className="p-3 rounded-xl bg-zinc-800 text-zinc-400 group-hover:scale-105 transition-transform shrink-0">
-                    <Volume2 className="w-6 h-6" />
-                  </div>
-                  <div>
-                    <p className="text-xs font-black text-white uppercase tracking-wider">Subir Archivo de Audio</p>
-                    <p className="text-[11px] text-zinc-300 mt-0.5">Cargá audios grabados. MP3, WAV, M4A o WEBM.</p>
-                  </div>
-                </div>
-                <ChevronRight className="w-4 h-4 text-zinc-500 group-hover:translate-x-0.5 transition-transform" />
-              </button>
+              </motion.button>
             </div>
           </div>
         ) : (
@@ -905,52 +874,104 @@ export default function GuestBuzonPage() {
                 </p>
               </div>
 
-              {/* ── MODE: VHS RECORD ── */}
+              {/* 🔴 MODE: VHS RECORD 🔴 */}
               {selectedMode === 'vhs_record' && (
                 <div className="w-full">
                   {videoState === 'idle' && (
-                    <div className="flex flex-col items-center text-center space-y-4 w-full">
-                      <div className="w-32 h-32 rounded-full bg-rose-500/5 border border-rose-500/10 flex items-center justify-center text-rose-400">
-                        <Camera className="w-12 h-12" />
+                    <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} className="flex flex-col items-center text-center space-y-6 w-full">
+                      <div className="relative w-40 h-40 flex items-center justify-center">
+                        <div className="absolute inset-0 bg-rose-500/20 rounded-full animate-ping opacity-75" style={{ animationDuration: '3s' }} />
+                        <div className="absolute inset-4 bg-rose-500/20 rounded-full animate-pulse" />
+                        <div className="relative z-10 w-24 h-24 bg-gradient-to-br from-rose-500 to-rose-700 rounded-full flex items-center justify-center shadow-[0_0_40px_rgba(244,63,94,0.5)] border border-rose-400/50">
+                          <Camera className="w-10 h-10 text-white drop-shadow-md" />
+                        </div>
                       </div>
-                      <p className="text-xs text-zinc-300">Inicia la cámara para poder grabar tu recuerdo.</p>
+                      <div className="space-y-2">
+                        <p className="text-sm font-bold text-rose-100 uppercase tracking-widest">Preparado para video</p>
+                        <p className="text-xs text-rose-200/70 max-w-[240px] leading-relaxed mx-auto">Acomodate y prepará tu mejor sonrisa.</p>
+                      </div>
                       <button
                         onClick={startCamera}
-                        className="px-5 py-3 bg-rose-600 hover:bg-rose-700 text-white rounded-xl text-xs font-black uppercase tracking-wider transition-all"
+                        className="w-full py-4 bg-rose-600 hover:bg-rose-700 text-white rounded-3xl font-black text-sm uppercase tracking-wider transition-all flex items-center justify-center gap-2 shadow-[0_0_30px_rgba(244,63,94,0.5)] active:scale-95"
                       >
-                        Activar Cámara
+                        <Camera className="w-5 h-5" /> Activar Cámara
                       </button>
-                    </div>
+                    </motion.div>
                   )}
 
                   {videoState === 'recording' && (
-                    <div className="relative w-full flex flex-col items-center space-y-4">
+                    <motion.div initial={{ opacity: 0, scale: 0.95 }} animate={{ opacity: 1, scale: 1 }} className="relative w-full flex flex-col items-center space-y-4">
                       <video ref={videoRef} autoPlay playsInline muted className="hidden" />
+
+                      {/* Video y Overlays */}
                       <div className="w-full aspect-[4/3] rounded-3xl overflow-hidden border-2 border-rose-500/30 bg-black relative shadow-2xl">
                         <canvas ref={vhsCanvasRef} className="w-full h-full object-cover" />
+
+                        {/* Overlay VHS Effect */}
                         <div className="absolute inset-0 bg-[linear-gradient(rgba(18,16,16,0)_50%,rgba(0,0,0,0.25)_50%),linear-gradient(90deg,rgba(255,0,0,0.06),rgba(0,255,0,0.02),rgba(0,0,255,0.06))] pointer-events-none bg-[size:100%_4px,3px_100%]" />
+
+                        {/* Marco CSS Personalizado */}
+                        {fiesta?.buzonConfig?.videoFrameTemplate && fiesta.buzonConfig.videoFrameTemplate !== 'default' && (
+                          <div className={cn(
+                            "absolute inset-0 pointer-events-none z-10 border-[12px] rounded-2xl",
+                            fiesta.buzonConfig.videoFrameTemplate === 'neon' ? 'border-fuchsia-500 shadow-[inset_0_0_20px_rgba(217,70,239,0.8)]' : '',
+                            fiesta.buzonConfig.videoFrameTemplate === 'elegante' ? 'border-amber-200/80 shadow-[inset_0_0_15px_rgba(253,230,138,0.5)]' : '',
+                            fiesta.buzonConfig.videoFrameTemplate === 'cumple-infantil' ? 'border-sky-400 border-dashed border-[16px]' : '',
+                            fiesta.buzonConfig.videoFrameTemplate === 'quince' ? 'border-pink-300 border-double border-[16px]' : '',
+                            fiesta.buzonConfig.videoFrameTemplate === 'vintage' ? 'border-[#8B4513] opacity-80 mix-blend-overlay' : '',
+                            fiesta.buzonConfig.videoFrameTemplate === 'glamour' ? 'border-yellow-500/90 shadow-[inset_0_0_30px_rgba(234,179,8,0.4)]' : '',
+                            fiesta.buzonConfig.videoFrameTemplate === 'floral' ? 'border-emerald-200 border-[16px] border-dotted' : '',
+                            fiesta.buzonConfig.videoFrameTemplate === 'urbano' ? 'border-zinc-800 border-[20px] shadow-[inset_0_0_15px_#000]' : '',
+                            fiesta.buzonConfig.videoFrameTemplate === 'minimalista' ? 'border-white border-[8px]' : ''
+                          )} />
+                        )}
+
+                        {/* Cuenta regresiva Overlay */}
+                        {countdown !== null && (
+                          <div className="absolute inset-0 z-20 flex items-center justify-center bg-black/60 backdrop-blur-sm">
+                            <motion.span
+                              key={countdown}
+                              initial={{ scale: 0.5, opacity: 0 }}
+                              animate={{ scale: 1.5, opacity: 1 }}
+                              exit={{ scale: 2, opacity: 0 }}
+                              className="text-8xl font-black text-white drop-shadow-[0_0_30px_rgba(255,255,255,0.8)]"
+                            >
+                              {countdown}
+                            </motion.span>
+                          </div>
+                        )}
+
+                        {/* Tiempo de Grabación */}
+                        {vhsRecorderRef.current?.state === 'recording' && (
+                          <div className="absolute top-4 right-4 z-20 bg-black/60 backdrop-blur-md px-3 py-1.5 rounded-full flex items-center gap-2 border border-white/20">
+                            <span className="w-2.5 h-2.5 rounded-full bg-red-500 animate-pulse" />
+                            <span className="text-white text-xs font-bold font-mono">{videoDuration}s / 15s</span>
+                          </div>
+                        )}
                       </div>
 
+                      {/* Botones de control */}
                       {vhsRecorderRef.current?.state === 'recording' ? (
                         <button
                           onClick={stopLiveVideoRecording}
-                          className="px-6 py-3.5 bg-red-600 hover:bg-red-700 text-white rounded-2xl font-black text-xs uppercase tracking-wider flex items-center gap-2 shadow-lg shadow-red-950/20"
+                          className="w-full py-4 bg-red-600 hover:bg-red-700 text-white rounded-3xl font-black text-sm uppercase tracking-wider flex items-center justify-center gap-2 shadow-[0_0_30px_rgba(220,38,38,0.4)] transition-transform active:scale-95"
                         >
-                          <VideoOff className="w-4 h-4" /> Detener Grabación ({videoDuration}s)
+                          <VideoOff className="w-5 h-5" /> Detener Grabación
                         </button>
                       ) : (
                         <button
-                          onClick={startLiveVideoRecording}
-                          className="px-6 py-3.5 bg-rose-600 hover:bg-rose-700 text-white rounded-2xl font-black text-xs uppercase tracking-wider flex items-center gap-2 shadow-lg shadow-rose-950/20 animate-pulse"
+                          onClick={handleStartVideoWithCountdown}
+                          disabled={countdown !== null}
+                          className="w-full py-4 bg-rose-600 hover:bg-rose-700 text-white rounded-3xl font-black text-sm uppercase tracking-wider flex items-center justify-center gap-2 shadow-[0_0_30px_rgba(244,63,94,0.4)] transition-transform active:scale-95 disabled:opacity-50"
                         >
-                          <Video className="w-4 h-4" /> Grabar VHS (Máx. 15s)
+                          <Video className="w-5 h-5" /> {countdown !== null ? 'Preparando...' : 'Comenzar a Grabar'}
                         </button>
                       )}
-                    </div>
+                    </motion.div>
                   )}
 
                   {videoState === 'review' && videoUrl && (
-                    <div className="w-full flex flex-col items-center gap-4 text-center">
+                    <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} className="w-full flex flex-col items-center gap-4 text-center">
                       <div className="w-full aspect-[4/3] rounded-3xl overflow-hidden bg-black border border-white/10 relative shadow-2xl">
                         <video src={videoUrl} controls className="w-full h-full object-contain" />
                       </div>
@@ -963,7 +984,102 @@ export default function GuestBuzonPage() {
                           <RefreshCw className="w-3.5 h-3.5" /> Grabar de nuevo
                         </button>
                       </div>
-                    </div>
+                    </motion.div>
+                  )}
+                </div>
+              )}
+
+                {/* 🎤 MODE: AUDIO RECORD */}
+              {selectedMode === 'audio_record' && (
+                <div className="w-full flex flex-col items-center justify-center">
+                  {phoneState === 'hung_up' && (
+                    <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} className="flex flex-col items-center text-center space-y-6 w-full">
+                      <div className="relative w-40 h-40 flex items-center justify-center">
+                        <div className="absolute inset-0 bg-indigo-500/20 rounded-full animate-ping opacity-75" style={{ animationDuration: '3s' }} />
+                        <div className="absolute inset-4 bg-indigo-500/20 rounded-full animate-pulse" />
+                        <div className="relative z-10 w-24 h-24 bg-gradient-to-br from-indigo-500 to-indigo-700 rounded-full flex items-center justify-center shadow-[0_0_40px_rgba(99,102,241,0.5)] border border-indigo-400/50">
+                          <Mic className="w-10 h-10 text-white drop-shadow-md" />
+                        </div>
+                      </div>
+                      <div className="space-y-2">
+                        <p className="text-sm font-bold text-indigo-100 uppercase tracking-widest">Preparado para grabar</p>
+                        <p className="text-xs text-indigo-200/70 max-w-[240px] leading-relaxed mx-auto">Presioná el botón de abajo cuando estés listo para dejar tu mensaje de voz (Max 60s).</p>
+                      </div>
+                      <button
+                        onClick={startDirectAudioRecording}
+                        className="w-full py-4 bg-indigo-600 hover:bg-indigo-700 text-white rounded-3xl font-black text-sm uppercase tracking-wider transition-all flex items-center justify-center gap-2 shadow-[0_0_30px_rgba(79,70,229,0.5)] active:scale-95"
+                      >
+                        <Mic className="w-5 h-5" /> Comenzar a Grabar
+                      </button>
+                    </motion.div>
+                  )}
+
+                  {phoneState === 'recording' && (
+                    <motion.div initial={{ opacity: 0, scale: 0.95 }} animate={{ opacity: 1, scale: 1 }} className="flex flex-col items-center text-center space-y-8 w-full py-4">
+                      {/* Animación de ondas de audio */}
+                      <div className="flex items-end justify-center gap-1.5 h-20">
+                        {[40, 70, 45, 90, 50, 100, 65, 80, 55, 30].map((h, i) => (
+                          <motion.div
+                            key={i}
+                            animate={{ height: [`${h/3}%`, `${h}%`, `${h/3}%`] }}
+                            transition={{ duration: 1, repeat: Infinity, delay: i * 0.1, ease: "easeInOut" }}
+                            className="w-2 bg-indigo-500 rounded-full shadow-[0_0_10px_rgba(99,102,241,0.8)]"
+                          />
+                        ))}
+                      </div>
+
+                      <div className="space-y-2">
+                        <p className="text-5xl font-black tracking-wider text-white tabular-nums drop-shadow-lg">
+                          0:{recordingSeconds.toString().padStart(2, '0')}
+                        </p>
+                        <p className="text-[11px] text-indigo-300 font-bold uppercase tracking-widest animate-pulse">Grabando tu saludo...</p>
+                      </div>
+
+                      {/* Barra de progreso */}
+                      <div className="w-full h-1.5 bg-indigo-950/50 rounded-full overflow-hidden border border-indigo-500/20">
+                        <motion.div
+                          className="h-full bg-gradient-to-r from-indigo-500 to-rose-500"
+                          initial={{ width: 0 }}
+                          animate={{ width: `${(recordingSeconds / 60) * 100}%` }}
+                        />
+                      </div>
+
+                      <button
+                        onClick={stopDirectAudioRecording}
+                        className="w-full py-4 bg-rose-600 hover:bg-rose-700 text-white rounded-3xl font-black text-sm uppercase tracking-wider transition-all flex items-center justify-center gap-2 shadow-[0_0_30px_rgba(244,63,94,0.4)] active:scale-95"
+                      >
+                        <Square className="w-5 h-5 fill-white" /> Finalizar Grabación
+                      </button>
+                    </motion.div>
+                  )}
+
+                  {phoneState === 'review' && audioUrl && (
+                    <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} className="w-full p-6 bg-gradient-to-br from-indigo-900/40 to-indigo-950/40 border border-indigo-500/30 rounded-3xl flex flex-col items-center gap-5 text-center shadow-2xl backdrop-blur-md">
+                      <p className="text-[10px] text-indigo-200 font-black uppercase tracking-widest bg-indigo-950/50 px-3 py-1 rounded-full border border-indigo-500/20">Revisá tu saludo</p>
+
+                      <div className="flex items-center gap-4 w-full">
+                        <button
+                          onClick={togglePlayRecording}
+                          className="w-14 h-14 rounded-full flex items-center justify-center bg-indigo-500 text-white shrink-0 shadow-[0_0_20px_rgba(99,102,241,0.6)] transition-transform hover:scale-105 active:scale-95"
+                        >
+                          {isPlayingRecording ? <Pause className="w-6 h-6 fill-white" /> : <Play className="w-6 h-6 fill-white ml-1" />}
+                        </button>
+
+                        <div className="flex-1 text-left">
+                          <p className="text-sm font-black text-white uppercase tracking-wide">Mensaje de voz</p>
+                          <div className="flex items-center gap-2 mt-1">
+                            <div className="w-full h-1 bg-indigo-950 rounded-full overflow-hidden">
+                              <motion.div className="h-full bg-indigo-400" initial={{ width: "100%" }} />
+                            </div>
+                            <p className="text-[10px] text-indigo-300 font-bold tabular-nums shrink-0">{recordingSeconds}s</p>
+                          </div>
+                        </div>
+
+                        <button onClick={resetAudioRecording} className="p-3 text-rose-400 hover:text-rose-300 transition hover:bg-rose-950/30 rounded-full border border-transparent hover:border-rose-500/30">
+                          <Trash2 className="w-5 h-5" />
+                        </button>
+                      </div>
+                    </motion.div>
                   )}
                 </div>
               )}
@@ -1000,152 +1116,6 @@ export default function GuestBuzonPage() {
                         </div>
                       </div>
                     )
-                  )}
-                </div>
-              )}
-
-              {/* ── MODE: AUDIO RECORD ── */}
-              {selectedMode === 'audio_record' && (
-                <div className="w-full flex flex-col items-center justify-center">
-                  {phoneState === 'hung_up' && (
-                    <div className="flex flex-col items-center text-center space-y-4 w-full">
-                      <div className="w-32 h-32 border border-violet-500/10 rounded-full flex items-center justify-center bg-violet-500/5 relative shadow-lg">
-                        <Mic className="w-12 h-12 text-violet-400" />
-                        <div className="absolute inset-0 border border-violet-400/25 rounded-full animate-ping opacity-25" style={{ animationDuration: '3s' }} />
-                      </div>
-                      <p className="text-xs text-zinc-200 max-w-xs leading-relaxed">Presiona el botón de abajo para empezar a grabar tu mensaje directamente desde tu micrófono.</p>
-                      <button
-                        onClick={startDirectAudioRecording}
-                        className="px-5 py-3 bg-violet-600 hover:bg-violet-700 text-white rounded-xl font-black text-xs uppercase tracking-wider transition-all flex items-center gap-2 shadow-lg shadow-violet-950/20"
-                      >
-                        <Mic className="w-3.5 h-3.5" /> Iniciar Grabador
-                      </button>
-                    </div>
-                  )}
-
-                  {phoneState === 'recording' && (
-                    <div className="flex flex-col items-center text-center space-y-6">
-                      <div className="flex items-center justify-center gap-1.5 h-16 my-2">
-                        <span className="w-1.5 h-6 bg-red-500 rounded-full animate-[pulse_1s_infinite_100ms]" style={{ height: '24px' }} />
-                        <span className="w-1.5 h-12 bg-red-500 rounded-full animate-[pulse_1s_infinite_300ms]" style={{ height: '48px' }} />
-                        <span className="w-1.5 h-16 bg-red-500 rounded-full animate-[pulse_1s_infinite_500ms]" style={{ height: '64px' }} />
-                        <span className="w-1.5 h-10 bg-red-500 rounded-full animate-[pulse_1s_infinite_700ms]" style={{ height: '40px' }} />
-                        <span className="w-1.5 h-4 bg-red-500 rounded-full animate-[pulse_1s_infinite_900ms]" style={{ height: '16px' }} />
-                      </div>
-                      <div className="space-y-1">
-                        <p className="text-3xl font-black tracking-wider text-red-500 tabular-nums">
-                          0:{recordingSeconds.toString().padStart(2, '0')}
-                        </p>
-                        <p className="text-[10px] text-zinc-300 font-bold uppercase tracking-widest">Grabando tu saludo...</p>
-                      </div>
-                      <button
-                        onClick={stopDirectAudioRecording}
-                        className="px-6 py-3.5 bg-red-600 hover:bg-red-700 text-white rounded-2xl font-black text-xs uppercase tracking-wider transition-all flex items-center gap-2"
-                      >
-                        <Mic className="w-4 h-4" /> Finalizar Grabación
-                      </button>
-                    </div>
-                  )}
-
-                  {phoneState === 'review' && audioUrl && (
-                    <div className="w-full p-5 bg-white/5 border border-white/10 rounded-2xl flex flex-col items-center gap-4 text-center">
-                      <p className="text-[10px] text-zinc-200 font-bold uppercase tracking-widest">Escuchá tu saludo grabado</p>
-                      <div className="flex items-center gap-4 w-full">
-                        <button
-                          onClick={togglePlayRecording}
-                          className="w-12 h-12 rounded-full flex items-center justify-center bg-white/10 hover:bg-white/20 transition text-white shrink-0"
-                        >
-                          {isPlayingRecording ? <Pause className="w-5 h-5 fill-white" /> : <Play className="w-5 h-5 fill-white ml-0.5" />}
-                        </button>
-                        <div className="flex-1 text-left">
-                          <p className="text-xs font-bold text-white uppercase tracking-wide">Mensaje de voz</p>
-                          <p className="text-[10px] text-zinc-300 font-bold mt-0.5">Duración: {recordingSeconds}s</p>
-                        </div>
-                        <button onClick={resetAudioRecording} className="p-3 text-zinc-500 hover:text-red-400 transition">
-                          <Trash2 className="w-5 h-5" />
-                        </button>
-                      </div>
-                    </div>
-                  )}
-                </div>
-              )}
-
-              {/* ── MODE: AUDIO RETRO ── */}
-              {selectedMode === 'audio_retro' && (
-                <div className="w-full flex flex-col items-center justify-center">
-                  {phoneState === 'hung_up' && (
-                    <div className="flex flex-col items-center text-center space-y-4 w-full">
-                      <div className="w-32 h-32 border border-amber-500/10 rounded-full flex items-center justify-center bg-amber-500/5 relative">
-                        <Phone className="w-12 h-12 text-amber-400" />
-                        <div className="absolute inset-0 border-[4px] border-dashed border-amber-400/20 rounded-full animate-[spin_40s_linear_infinite]" />
-                      </div>
-                      <p className="text-xs text-zinc-200 max-w-xs leading-relaxed">Descolgá el auricular del teléfono antiguo para escuchar el pitido e iniciar la grabación de voz.</p>
-                      <button
-                        onClick={handlePickUpHandset}
-                        className="px-5 py-3 bg-amber-600 hover:bg-amber-700 text-white rounded-xl font-black text-xs uppercase tracking-wider transition-all flex items-center gap-2 shadow-lg shadow-amber-950/20"
-                      >
-                        <Phone className="w-3.5 h-3.5" /> Descolgar Auricular
-                      </button>
-                    </div>
-                  )}
-
-                  {phoneState === 'off_hook' && (
-                    <div className="text-center space-y-4 py-4">
-                      <Loader2 className="w-10 h-10 text-amber-400 animate-spin mx-auto" />
-                      <p className="text-xs font-black uppercase tracking-widest text-amber-300">Descolgando auricular...</p>
-                    </div>
-                  )}
-
-                  {phoneState === 'beeping' && (
-                    <div className="text-center space-y-4 py-4">
-                      <div className="w-12 h-12 bg-red-600 rounded-full animate-ping mx-auto" />
-                      <p className="text-xs font-black uppercase tracking-widest text-red-500 animate-pulse mt-4">Escuchá el pitido...</p>
-                    </div>
-                  )}
-
-                  {phoneState === 'recording' && (
-                    <div className="flex flex-col items-center text-center space-y-6">
-                      <div className="flex items-center justify-center gap-1.5 h-16 my-2">
-                        <span className="w-1.5 h-6 bg-red-500 rounded-full animate-[pulse_1s_infinite_100ms]" style={{ height: '24px' }} />
-                        <span className="w-1.5 h-12 bg-red-500 rounded-full animate-[pulse_1s_infinite_300ms]" style={{ height: '48px' }} />
-                        <span className="w-1.5 h-16 bg-red-500 rounded-full animate-[pulse_1s_infinite_500ms]" style={{ height: '64px' }} />
-                        <span className="w-1.5 h-10 bg-red-500 rounded-full animate-[pulse_1s_infinite_700ms]" style={{ height: '40px' }} />
-                        <span className="w-1.5 h-4 bg-red-500 rounded-full animate-[pulse_1s_infinite_900ms]" style={{ height: '16px' }} />
-                      </div>
-                      <div className="space-y-1">
-                        <p className="text-3xl font-black tracking-wider text-red-500 tabular-nums">
-                          0:{recordingSeconds.toString().padStart(2, '0')}
-                        </p>
-                        <p className="text-[10px] text-zinc-300 font-bold uppercase tracking-widest">Grabando desde cabina...</p>
-                      </div>
-                      <button
-                        onClick={handleHangUpHandset}
-                        className="px-6 py-3.5 bg-red-600 hover:bg-red-700 text-white rounded-2xl font-black text-xs uppercase tracking-wider transition-all flex items-center gap-2"
-                      >
-                        <PhoneOff className="w-4 h-4" /> Colgar Auricular
-                      </button>
-                    </div>
-                  )}
-
-                  {phoneState === 'review' && audioUrl && (
-                    <div className="w-full p-5 bg-white/5 border border-white/10 rounded-2xl flex flex-col items-center gap-4 text-center">
-                      <p className="text-[10px] text-zinc-200 font-bold uppercase tracking-widest">Escuchá tu saludo grabado</p>
-                      <div className="flex items-center gap-4 w-full">
-                        <button
-                          onClick={togglePlayRecording}
-                          className="w-12 h-12 rounded-full flex items-center justify-center bg-white/10 hover:bg-white/20 transition text-white shrink-0"
-                        >
-                          {isPlayingRecording ? <Pause className="w-5 h-5 fill-white" /> : <Play className="w-5 h-5 fill-white ml-0.5" />}
-                        </button>
-                        <div className="flex-1 text-left">
-                          <p className="text-xs font-bold text-white uppercase tracking-wide">Mensaje cabina retro</p>
-                          <p className="text-[10px] text-zinc-300 font-bold mt-0.5">Duración: {recordingSeconds}s</p>
-                        </div>
-                        <button onClick={resetAudioRecording} className="p-3 text-zinc-500 hover:text-red-400 transition">
-                          <Trash2 className="w-5 h-5" />
-                        </button>
-                      </div>
-                    </div>
                   )}
                 </div>
               )}

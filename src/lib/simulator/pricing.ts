@@ -139,6 +139,7 @@ export function calculateSimulatorPricing(input: CalculateSimulatorPricingInput)
 
   let subtotalBruto = 0;
   let subtotalVenta = 0;
+  let subtotalDescontable = 0;
   let ahorroRegalos = 0;
   const detallados: SimulatorDetailedService[] = [];
 
@@ -149,8 +150,14 @@ export function calculateSimulatorPricing(input: CalculateSimulatorPricingInput)
       input.ninosYAdolescentes,
     );
     subtotalBruto += calculated.total;
-    if (esRegalo) ahorroRegalos += calculated.total;
-    else subtotalVenta += calculated.total;
+    if (esRegalo) {
+      ahorroRegalos += calculated.total;
+    } else {
+      subtotalVenta += calculated.total;
+      if (servicio.id !== 'serv_salon_club_uruguay') {
+        subtotalDescontable += calculated.total;
+      }
+    }
 
     detallados.push({
       id: servicio.id,
@@ -173,7 +180,7 @@ export function calculateSimulatorPricing(input: CalculateSimulatorPricingInput)
   });
 
   const discountPercentage = Math.max(0, Number(input.config.descuentoGeneral ?? 15) || 0);
-  const descPromo = Math.round(subtotalVenta * (discountPercentage / 100));
+  const descPromo = Math.round(subtotalDescontable * (discountPercentage / 100));
   const totalFinal = Math.max(0, Math.round(subtotalVenta - descPromo));
   const annualProjection = buildAnnualAdjustmentProjection({
     baseTotal: totalFinal,
