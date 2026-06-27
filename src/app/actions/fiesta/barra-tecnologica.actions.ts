@@ -88,6 +88,8 @@ function normalizeSettings(settings: Partial<BarTechnologySettings> | undefined,
     showDrinkDescription: settings?.showDrinkDescription ?? defaults.showDrinkDescription,
     showDrinkVideo: settings?.showDrinkVideo ?? defaults.showDrinkVideo,
     requireSocialFollowForPhotos: settings?.requireSocialFollowForPhotos ?? defaults.requireSocialFollowForPhotos,
+    openingTime: settings?.openingTime ? sanitizeText(settings.openingTime) : undefined,
+    closingTime: settings?.closingTime ? sanitizeText(settings.closingTime) : undefined,
   };
 }
 
