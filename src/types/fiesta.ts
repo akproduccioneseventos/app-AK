@@ -1137,6 +1137,7 @@ export interface ModulosContratados {
   pantallasTotem?: boolean;
   zonaDigital?: boolean;
   carteleria?: boolean;
+  buzon?: boolean;
 }
 
 export interface CompraProveedorEstado {
