@@ -2,12 +2,12 @@
 
 import { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { X, Sparkles, Instagram, Flame, Gift } from 'lucide-react';
+import { X, Sparkles, Instagram, Flame, Gift, type LucideIcon } from 'lucide-react';
 import Link from 'next/link';
 
 interface OfferWidget {
   id: number;
-  icon: any;
+  icon: LucideIcon;
   title: string;
   description: string;
   ctaText: string;

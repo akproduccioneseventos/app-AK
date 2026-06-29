@@ -2,8 +2,7 @@
 
 import { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { ArrowLeft, Sparkles, LayoutGrid, CheckCircle } from 'lucide-react';
-import { cn } from '@/lib/utils';
+import { ArrowLeft, Sparkles } from 'lucide-react';
 
 interface LandingSpaContainerProps {
   hero: React.ReactNode;
@@ -88,7 +87,7 @@ export function LandingSpaContainer({
     return (
       <div className="relative group/section w-full">
         {component}
-        <div className="absolute bottom-6 right-6 z-30 opacity-0 group-hover/section:opacity-100 transition-opacity duration-300 pointer-events-none md:pointer-events-auto">
+        <div className="absolute bottom-6 right-6 z-30 md:opacity-0 md:group-hover/section:opacity-100 transition-opacity duration-300">
           <button
             onClick={() => setActiveSection(sectionId)}
             className="inline-flex items-center gap-2 rounded-2xl bg-indigo-650 hover:bg-indigo-600 text-white font-black text-xs uppercase tracking-wider px-6 py-3.5 shadow-xl shadow-indigo-900/30 hover:scale-105 transition-all pointer-events-auto active:scale-95 border border-indigo-500/30"

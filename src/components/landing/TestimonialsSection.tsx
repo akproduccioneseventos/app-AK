@@ -4,7 +4,6 @@ import { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Star, Quote, Sparkles, MessageSquare, X, ShieldCheck, HeartHandshake } from 'lucide-react';
 import Image from 'next/image';
-import { cn } from '@/lib/utils';
 
 export interface Testimonial {
   id: string;
