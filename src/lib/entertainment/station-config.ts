@@ -1,4 +1,4 @@
-import type { FiestaEnPlanificacion, BuzonConfig } from '@/types/fiesta';
+import type { BuzonConfig, FiestaEnPlanificacion } from '@/types/fiesta';
 
 export type EntertainmentModuleId =
   | 'fotocabina'
@@ -43,12 +43,12 @@ export interface PublicEntertainmentEvent {
   coverImageUrl: string;
   showBuzon: boolean;
   welcomeAudioUrl?: string;
+  buzonConfig?: BuzonConfig;
   socialLinks: {
     instagram?: string;
     facebook?: string;
   };
   station: EntertainmentStationRuntimeConfig;
-  buzonConfig?: BuzonConfig;
 }
 
 const TITLES: Record<EntertainmentModuleId, string> = {
@@ -142,6 +142,7 @@ export function getPublicEntertainmentEvent(
       '',
     showBuzon: fiesta.guestPortalSettings?.showBuzon !== false,
     welcomeAudioUrl: fiesta.buzonConfig?.welcomeAudioUrl || '',
+    buzonConfig: fiesta.buzonConfig,
     socialLinks: {
       instagram: fiesta.guestExperienceSettings?.instagramUrl,
       facebook: fiesta.guestExperienceSettings?.facebookUrl,

@@ -81,7 +81,7 @@ export default async function BlogPage() {
             >
               <div className="relative h-48 bg-slate-950 p-6 text-white flex flex-col justify-between overflow-hidden">
                 <Image
-                  src={getPostImage(featured.slug)}
+                  src={getPostImage(featured.slug, featured.title, featured.category)}
                   alt={featured.title}
                   fill
                   className="object-cover opacity-60 transition-transform duration-500 group-hover:scale-[1.03]"
