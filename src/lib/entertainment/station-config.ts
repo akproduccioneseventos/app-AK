@@ -148,6 +148,7 @@ export function getPublicEntertainmentEvent(
       facebook: fiesta.guestExperienceSettings?.facebookUrl,
     },
     station: getEntertainmentStationConfig(fiesta, moduleId),
+    buzonConfig: fiesta.buzonConfig,
   };
 }
 
