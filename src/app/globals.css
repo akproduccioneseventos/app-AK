@@ -449,3 +449,76 @@
   .print-signature-area { display: flex !important; justify-content: space-between !important; margin-top: 30pt !important; padding-top: 6pt !important; }
   .print-signature-block { text-align: center !important; width: 38% !important; border-top: 1px solid #666666 !important; padding-top: 4pt !important; font-size: 8pt !important; color: #444444 !important; }
 }
+
+/* ────────────────────────────────────────────────────────
+   SOCIAL WALL - PANTALLA GIGANTE - EFECTOS PREMIUM
+   ──────────────────────────────────────────────────────── */
+
+/* Fondo oscuro animado premium (gradiente que fluye lentamente) */
+.ak-live-stage-animated {
+  background: linear-gradient(125deg, #020617, #0f172a, #1e1b4b, #311042, #020617);
+  background-size: 400% 400%;
+  animation: akGradientFlow 20s ease infinite;
+  position: relative;
+  will-change: background-position;
+}
+
+/* Fondo claro animado premium */
+.ak-live-stage-light-animated {
+  background: linear-gradient(125deg, #f8fafc, #f1f5f9, #e2e8f0, #fae8ff, #f8fafc);
+  background-size: 400% 400%;
+  animation: akGradientFlow 20s ease infinite;
+  position: relative;
+  will-change: background-position;
+}
+
+@keyframes akGradientFlow {
+  0% { background-position: 0% 50%; }
+  50% { background-position: 100% 50%; }
+  100% { background-position: 0% 50%; }
+}
+
+/* Partícula flotante CSS */
+.ak-bg-particle {
+  position: absolute;
+  border-radius: 50%;
+  filter: blur(40px);
+  opacity: 0.15;
+  pointer-events: none;
+  animation: akFloatParticle 25s infinite ease-in-out;
+  will-change: transform;
+}
+
+@keyframes akFloatParticle {
+  0%, 100% { transform: translateY(0) translateX(0) scale(1); }
+  33% { transform: translateY(-50px) translateX(30px) scale(1.15); }
+  66% { transform: translateY(40px) translateX(-40px) scale(0.9); }
+}
+
+/* Destello de cámara instantáneo en pantalla completa */
+.ak-live-flash-overlay {
+  position: fixed;
+  inset: 0;
+  background: #ffffff;
+  z-index: 9999;
+  pointer-events: none;
+  animation: akCameraFlash 0.6s cubic-bezier(0.08, 0.82, 0.17, 1) forwards;
+}
+
+@keyframes akCameraFlash {
+  0% { opacity: 0; }
+  10% { opacity: 1; }
+  100% { opacity: 0; }
+}
+
+/* Borde polaroid glowing animado para fotos recién subidas */
+.ak-fresh-polaroid-glow {
+  box-shadow: 0 0 35px rgba(251, 191, 36, 0.4), 0 30px 90px rgba(0, 0, 0, 0.85) !important;
+  animation: akPolaroidPulse 2.5s infinite ease-in-out;
+}
+
+@keyframes akPolaroidPulse {
+  0%, 100% { border-color: rgba(255, 255, 255, 0.95); }
+  50% { border-color: rgba(251, 191, 36, 0.95); }
+}
+

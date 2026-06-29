@@ -369,7 +369,10 @@ export default function MuroEnVivoPage() {
         return true;
       })
     : [];
-  const activeScreenItem: ScreenPlaylistItem | null = enabledPlaylist.length > 0
+  // Remote forced item overrides the auto playlist rotation
+  const activeScreenItem: ScreenPlaylistItem | null = settings.forcedScreenItem
+    ? { id: 'forced_item', type: settings.forcedScreenItem, durationSeconds: 15, enabled: true }
+    : enabledPlaylist.length > 0
     ? enabledPlaylist[localPlaylistIndex % enabledPlaylist.length]
     : null;
 
@@ -381,6 +384,8 @@ export default function MuroEnVivoPage() {
 
   useEffect(() => {
     if (!settings.screenMode?.isPlaying) return;
+    if (settings.playlistPlaying === false) return; // Operator paused the playlist
+    if (settings.forcedScreenItem) return; // Fixed screen mode, do not advance
     if (!activeScreenItem || enabledPlaylist.length === 0) return;
     const timeoutMs = Math.max(5, activeScreenItem.durationSeconds || 15) * 1000;
     const timeout = setTimeout(() => {
@@ -392,7 +397,7 @@ export default function MuroEnVivoPage() {
       setPlaylistTick(Date.now());
     }, timeoutMs);
     return () => clearTimeout(timeout);
-  }, [activeScreenItem, enabledPlaylist.length, settings.screenMode?.isPlaying, settings.screenMode?.loop, playlistTick]);
+  }, [activeScreenItem, enabledPlaylist.length, settings.screenMode?.isPlaying, settings.screenMode?.loop, playlistTick, settings.playlistPlaying, settings.forcedScreenItem]);
 
   // Whether to show a right side panel (poll or game overlay)
   const hasSidePanel =
@@ -401,12 +406,18 @@ export default function MuroEnVivoPage() {
 
   return (
     <div className={`fixed inset-0 overflow-hidden select-none flex flex-col ${settings.screenDarkMode !== false ? 'ak-live-stage-animated text-white' : 'ak-live-stage-light-animated text-slate-800'}`}>
-      {/* Ambient gradient background */}
-      {settings.screenDarkMode !== false ? (
-        <div className="absolute inset-0 pointer-events-none bg-[radial-gradient(ellipse_at_top_left,rgba(120,60,200,0.15),transparent_60%),radial-gradient(ellipse_at_bottom_right,rgba(20,100,200,0.12),transparent_60%)]" />
-      ) : (
-        <div className="absolute inset-0 pointer-events-none bg-[radial-gradient(ellipse_at_top_left,rgba(120,60,200,0.05),transparent_60%),radial-gradient(ellipse_at_bottom_right,rgba(20,100,200,0.05),transparent_60%)]" />
-      )}
+
+      {/* Efecto destello cámara en pantalla completa al entrar foto nueva */}
+      {showCameraFlash && <div className="ak-live-flash-overlay" />}
+
+      {/* Orbes/partículas flotantes de luz 3D (fireflies) */}
+      <div className="absolute inset-0 overflow-hidden pointer-events-none z-0">
+        <div className="ak-bg-particle bg-indigo-500 w-[450px] h-[450px]" style={{ top: '-10%', left: '10%', animationDuration: '30s', opacity: settings.screenDarkMode !== false ? 0.15 : 0.05 }} />
+        <div className="ak-bg-particle bg-purple-600 w-[350px] h-[350px]" style={{ bottom: '15%', right: '15%', animationDuration: '25s', animationDelay: '-5s', opacity: settings.screenDarkMode !== false ? 0.15 : 0.05 }} />
+        <div className="ak-bg-particle bg-pink-500 w-[300px] h-[300px]" style={{ top: '35%', left: '40%', animationDuration: '35s', animationDelay: '-12s', opacity: settings.screenDarkMode !== false ? 0.12 : 0.04 }} />
+        <div className="ak-bg-particle bg-amber-500 w-[200px] h-[200px]" style={{ bottom: '-5%', left: '15%', animationDuration: '20s', animationDelay: '-3s', opacity: settings.screenDarkMode !== false ? 0.08 : 0.02 }} />
+        <div className="ak-bg-particle bg-cyan-500 w-[250px] h-[250px]" style={{ top: '15%', right: '20%', animationDuration: '28s', animationDelay: '-8s', opacity: settings.screenDarkMode !== false ? 0.08 : 0.02 }} />
+      </div>
 
       {/* Header bar — in flow so it doesn't float over content */}
       <header className={`relative z-20 shrink-0 flex items-center justify-between px-8 py-3 ${settings.screenDarkMode !== false ? 'ak-live-header' : 'bg-white/90 border-b border-slate-200'}`}>
@@ -510,7 +521,9 @@ export default function MuroEnVivoPage() {
 
           {/* Mural / photo slideshow — only shown when wall is enabled */}
           {isLoaded && settings.privateDedicationsMode !== true && settings.enabled !== false && (!activeScreenItem || activeScreenItem.type === 'mural') && posts.length > 0 && (
-            <SlideshowLayout posts={posts} qrUrl={qrUrl} settings={settings} />
+            settings.currentLayout === 'masonry'
+              ? <MasonryLayout posts={posts} qrUrl={qrUrl} settings={settings} />
+              : <SlideshowLayout posts={posts} qrUrl={qrUrl} settings={settings} />
           )}
 
           {/* Juego slide */}
@@ -518,7 +531,11 @@ export default function MuroEnVivoPage() {
             activeGame
               ? <GameSlide game={activeGame} posts={posts} qrUrl={qrUrl} settings={settings} />
               : posts.length > 0 && settings.privateDedicationsMode !== true
-                ? <SlideshowLayout posts={posts} qrUrl={qrUrl} settings={settings} />
+                ? (
+                    settings.currentLayout === 'masonry'
+                      ? <MasonryLayout posts={posts} qrUrl={qrUrl} settings={settings} />
+                      : <SlideshowLayout posts={posts} qrUrl={qrUrl} settings={settings} />
+                  )
                 : (
                   <div className="absolute inset-0 flex flex-col items-center justify-center gap-6">
                     <div className="text-9xl">🎮</div>
@@ -1431,6 +1448,7 @@ function SlideshowLayout({
   const post = posts[currentIndex] ?? posts[0];
   const isVideo = post.mediaType === 'video' || isVideoUrl(post.imageUrl);
   const captionText = post.dedication || post.caption;
+  const isFresh = Date.now() - new Date(post.timestamp).getTime() < FRESH_POST_POLAROID_DURATION_MS;
 
   return (
     <div className="absolute inset-0 flex items-center justify-center overflow-hidden">
@@ -1462,7 +1480,9 @@ function SlideshowLayout({
             damping: 15,
             mass: 0.8
           }}
-          className="relative h-[78vh] aspect-[3/4] bg-[#fcfbf9] p-5 pb-6 rounded-sm shadow-[0_30px_90px_rgba(0,0,0,0.85)] border border-white/40 flex flex-col justify-between items-center"
+          className={`relative h-[78vh] aspect-[3/4] bg-[#fcfbf9] p-5 pb-6 rounded-sm shadow-[0_30px_90px_rgba(0,0,0,0.85)] border border-white/40 flex flex-col justify-between items-center ${
+            isFresh ? 'ak-fresh-polaroid-glow' : ''
+          }`}
         >
           {/* Drink badge centered overlapping top border */}
           {post.drinkName && (

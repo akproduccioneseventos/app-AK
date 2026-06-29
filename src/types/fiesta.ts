@@ -803,6 +803,9 @@ export interface SocialGallerySettings {
   totemScreens?: TotemScreenSettings[];
   /** Audio-reactive dance visual mode used by the live social wall */
   audioRhythm?: AudioRhythmSettings;
+  playlistPlaying?: boolean;
+  currentLayout?: 'slideshow' | 'masonry';
+  forcedScreenItem?: 'mural' | 'juego' | 'chat' | 'canciones' | 'dedicaciones' | 'pauta' | 'video' | 'sorteo' | null;
 }
 
 export interface SocialGalleryBrand {
