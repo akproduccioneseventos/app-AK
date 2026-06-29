@@ -31,10 +31,12 @@ async function handleCron(request: Request) {
       force: searchParams.get('force') === '1',
     });
 
+    const { success, ...rest } = result;
+
     return NextResponse.json({
       success: true,
       message: result.message,
-      ...result,
+      ...rest,
     });
   } catch (error: any) {
     console.error('[cron-blog] Error running blog generation cron:', error);
