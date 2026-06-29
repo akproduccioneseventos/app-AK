@@ -1,5 +1,6 @@
 import { NextResponse } from 'next/server';
 import { dbAdmin } from '@/lib/firebase/server';
+import { verifySession } from '@/lib/auth/session-token';
 
 const REPLACEMENTS = [
   { bad: 'Ã¡', good: 'á' },
@@ -84,14 +85,48 @@ const COLLECTIONS_TO_CLEAN = [
   'cupones'
 ];
 
+async function isAuthorized(request: Request, secret: string | null) {
+  const maintenanceSecret = process.env.CLEAN_DB_SECRET || process.env.ADMIN_MAINTENANCE_SECRET;
+  const bearerSecret = request.headers.get('Authorization')?.replace('Bearer ', '') || null;
+
+  if (maintenanceSecret && (secret === maintenanceSecret || bearerSecret === maintenanceSecret)) {
+    return true;
+  }
+
+  const session = await verifySession();
+  return session.success && session.user?.role === 'admin';
+}
+
 export async function GET(request: Request) {
+  return handleCleanDb(request);
+}
+
+export async function POST(request: Request) {
+  return handleCleanDb(request);
+}
+
+async function handleCleanDb(request: Request) {
   const { searchParams } = new URL(request.url);
   const secret = searchParams.get('secret');
-  const dryRun = searchParams.get('dryRun') !== '0';
+  const requestedWrite = searchParams.get('dryRun') === '0';
+  const dryRun = request.method === 'GET' || !requestedWrite;
 
-  const expectedSecret = process.env.APP_PASSWORD || 'SOydocenTE2124.';
-  if (secret !== expectedSecret) {
+  if (!(await isAuthorized(request, secret))) {
     return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+  }
+
+  if (requestedWrite && request.method !== 'POST') {
+    return NextResponse.json(
+      { error: 'Para modificar datos usa POST con dryRun=0 y confirm=clean-mojibake.' },
+      { status: 405 }
+    );
+  }
+
+  if (!dryRun && searchParams.get('confirm') !== 'clean-mojibake') {
+    return NextResponse.json(
+      { error: 'Falta confirm=clean-mojibake para ejecutar cambios reales.' },
+      { status: 400 }
+    );
   }
 
   if (!dbAdmin) {
@@ -124,7 +159,7 @@ export async function GET(request: Request) {
               ...cleanedData,
               updatedAt: new Date().toISOString(),
               _cleanedAt: new Date().toISOString(),
-            }, { merge: false });
+            }, { merge: true });
           }
         }
       }
