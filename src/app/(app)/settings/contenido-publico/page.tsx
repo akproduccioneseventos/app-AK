@@ -19,7 +19,7 @@ import {
 import type { CatalogoSettings, PresentacionLedSettings } from '@/types/contenido-publico';
 import { useAutoSave } from '@/hooks/use-auto-save';
 import { AutoSaveIndicator } from '@/components/ui/auto-save-indicator';
-import { getBlogPosts, saveBlogPost, deleteBlogPost } from '@/app/actions/blog';
+import { getBlogPosts, saveBlogPost, deleteBlogPost, generateAIBlogPostFromAdmin } from '@/app/actions/blog';
 import type { BlogPost, BlogCategory } from '@/types/blog';
 
 const CATALOG_TYPES = ['bodas', 'xv-anos', 'cumpleanos', 'fiestas', 'corporativos', 'aniversarios'];
@@ -47,15 +47,12 @@ export default function ContenidoPublicoSettingsPage() {
   const handleGenerateAIPost = async () => {
     setGeneratingAI(true);
     try {
-      const res = await fetch('/api/cron/generate-blog-post?secret=nanobanana-secret-key-123', {
-        method: 'POST',
-      });
-      const data = await res.json();
-      if (res.ok && data.success) {
-        toast({ title: 'Éxito', description: `Artículo "${data.blogPost.title}" generado por IA y publicado correctamente.` });
+      const result = await generateAIBlogPostFromAdmin();
+      if (result.success) {
+        toast({ title: 'Éxito', description: `Artículo "${result.blogPost?.title ?? 'nuevo'}" generado por IA y publicado correctamente.` });
         await loadBlog();
       } else {
-        toast({ title: 'Error', description: data.error || 'No se pudo generar el artículo.', variant: 'destructive' });
+        toast({ title: 'Error', description: result.error || 'No se pudo generar el artículo.', variant: 'destructive' });
       }
     } catch {
       toast({ title: 'Error', description: 'Error al conectar con el servicio de IA.', variant: 'destructive' });

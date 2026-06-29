@@ -257,7 +257,7 @@ export function GallerySection({ images, galeriaFotos }: GallerySectionProps) {
                 className={cn(
                   'px-3 py-1.5 rounded-lg text-[10px] font-black uppercase tracking-widest transition-all duration-200',
                   activeSubCategory === subCat
-                    ? 'bg-indigo-650 text-white shadow'
+                    ? 'bg-indigo-600 text-white shadow'
                     : 'bg-transparent text-zinc-500 hover:bg-white/5 hover:text-white'
                 )}
               >

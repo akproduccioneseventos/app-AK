@@ -219,7 +219,7 @@ export default async function HomePage({ searchParams }: LandingPageProps) {
   };
 
   return (
-    <div className="bg-zinc-950 min-h-screen text-white selection:bg-indigo-650 selection:text-white">
+    <div className="bg-zinc-950 min-h-screen text-white selection:bg-indigo-600 selection:text-white">
       {/* Inject JSON-LD Schema for SEO */}
       <script
         type="application/ld+json"

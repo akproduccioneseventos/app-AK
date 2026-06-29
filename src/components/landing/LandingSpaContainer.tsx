@@ -1,7 +1,7 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import { motion, AnimatePresence } from 'framer-motion';
+import { motion, AnimatePresence, useReducedMotion } from 'framer-motion';
 import { ArrowLeft, Sparkles } from 'lucide-react';
 
 interface LandingSpaContainerProps {
@@ -54,30 +54,40 @@ export function LandingSpaContainer({
   winSech,
 }: LandingSpaContainerProps) {
   const [activeSection, setActiveSection] = useState<string | null>(null);
+  const reduceMotion = useReducedMotion();
 
   // Scroll to top when active section changes to make navigation clean
   useEffect(() => {
     window.scrollTo({ top: 0, behavior: 'smooth' });
   }, [activeSection]);
 
+  const revealProps = reduceMotion
+    ? {}
+    : {
+        initial: { opacity: 0, y: 28 },
+        whileInView: { opacity: 1, y: 0 },
+        viewport: { once: false, amount: 0.25 },
+        transition: { duration: 0.55, ease: [0.22, 1, 0.36, 1] as const },
+      };
+
   const renderSectionHeader = () => {
     if (!activeSection) return null;
     return (
-      <header className="fixed top-0 left-0 right-0 z-50 bg-zinc-950/90 backdrop-blur-md border-b border-white/10 px-6 py-4 flex items-center justify-between shadow-lg shadow-black/40">
-        <div className="flex items-center gap-3">
+      <header className="fixed top-0 left-0 right-0 z-50 bg-zinc-950/92 backdrop-blur-md border-b border-white/10 px-4 sm:px-6 py-3 sm:py-4 flex items-center justify-between gap-3 shadow-lg shadow-black/40">
+        <div className="flex min-w-0 items-center gap-2 sm:gap-3">
           <div className="h-2.5 w-2.5 rounded-full bg-indigo-500 animate-pulse" />
-          <span className="text-xs font-black uppercase tracking-widest text-zinc-400">AK Producciones</span>
-          <span className="text-zinc-600">/</span>
-          <h2 className="text-sm font-black uppercase tracking-wider text-white font-headline">
+          <span className="hidden sm:inline text-xs font-black uppercase tracking-widest text-zinc-400">AK Producciones</span>
+          <span className="hidden sm:inline text-zinc-600">/</span>
+          <h2 className="truncate text-xs sm:text-sm font-black uppercase tracking-wider text-white font-headline">
             {SECTION_LABELS[activeSection]}
           </h2>
         </div>
         <button
           onClick={() => setActiveSection(null)}
-          className="inline-flex items-center gap-2 rounded-2xl bg-white/10 border border-white/10 hover:bg-white/20 hover:border-white/20 px-5 py-2.5 text-xs font-black uppercase tracking-wider text-white transition-all shadow-md active:scale-95 shrink-0"
+          className="inline-flex items-center gap-2 rounded-2xl bg-white/10 border border-white/10 hover:bg-white/20 hover:border-white/20 px-3 sm:px-5 py-2.5 text-[10px] sm:text-xs font-black uppercase tracking-wider text-white transition-all shadow-md active:scale-95 shrink-0"
         >
           <ArrowLeft className="w-4 h-4 shrink-0 text-indigo-400" />
-          Volver al Inicio
+          Volver
         </button>
       </header>
     );
@@ -85,23 +95,42 @@ export function LandingSpaContainer({
 
   const wrapWithExpander = (sectionId: string, label: string, component: React.ReactNode) => {
     return (
-      <div className="relative group/section w-full">
+      <motion.div {...revealProps} className="relative group/section w-full">
         {component}
         <div className="absolute bottom-6 right-6 z-30 md:opacity-0 md:group-hover/section:opacity-100 transition-opacity duration-300">
-          <button
+          <motion.button
+            type="button"
             onClick={() => setActiveSection(sectionId)}
-            className="inline-flex items-center gap-2 rounded-2xl bg-indigo-650 hover:bg-indigo-600 text-white font-black text-xs uppercase tracking-wider px-6 py-3.5 shadow-xl shadow-indigo-900/30 hover:scale-105 transition-all pointer-events-auto active:scale-95 border border-indigo-500/30"
+            whileHover={reduceMotion ? undefined : { y: -2, scale: 1.03 }}
+            whileTap={reduceMotion ? undefined : { scale: 0.97 }}
+            className="inline-flex items-center gap-2 rounded-2xl bg-indigo-600 hover:bg-indigo-500 text-white font-black text-xs uppercase tracking-wider px-5 sm:px-6 py-3.5 shadow-xl shadow-indigo-900/30 transition-all pointer-events-auto border border-indigo-500/30"
           >
-            <Sparkles className="w-4 h-4 text-indigo-300 animate-pulse" />
+            <Sparkles className="w-4 h-4 text-indigo-200" />
             Ver {label} Completo
-          </button>
+          </motion.button>
         </div>
-      </div>
+      </motion.div>
     );
   };
 
+  const dashboardSection = (
+    key: string,
+    children: React.ReactNode,
+    justify: 'center' | 'between' = 'center'
+  ) => (
+    <motion.section
+      key={key}
+      {...revealProps}
+      className={`w-full md:snap-start md:min-h-screen md:flex md:flex-col relative overflow-hidden ${
+        justify === 'between' ? 'md:justify-between' : 'md:justify-center'
+      }`}
+    >
+      {children}
+    </motion.section>
+  );
+
   return (
-    <div className="min-h-screen bg-zinc-950 text-white selection:bg-indigo-650 selection:text-white">
+    <div className="min-h-screen bg-zinc-950 text-white selection:bg-indigo-600 selection:text-white">
       {renderSectionHeader()}
 
       <AnimatePresence mode="wait">
@@ -113,73 +142,38 @@ export function LandingSpaContainer({
             exit={{ opacity: 0 }}
             className="ak-landing-experience md:h-screen md:overflow-y-auto md:snap-y md:snap-mandatory md:scroll-smooth bg-zinc-950"
           >
-            {/* Slide 1: Hero & Stats */}
-            <div className="w-full md:snap-start md:min-h-screen md:flex md:flex-col md:justify-between relative">
-              {hero}
-              {stats}
-            </div>
-
-            {/* Slide 2: Diferenciales */}
-            <div className="w-full md:snap-start md:min-h-screen md:flex md:flex-col md:justify-center relative">
-              {difference}
-            </div>
-
-            {/* Slide 3: Servicios */}
-            <div className="w-full md:snap-start md:min-h-screen md:flex md:flex-col md:justify-center relative">
-              {wrapWithExpander('servicios', 'servicios', services)}
-            </div>
-
-            {/* Slide 4: Tecnología */}
-            <div className="w-full md:snap-start md:min-h-screen md:flex md:flex-col md:justify-center relative">
-              {wrapWithExpander('tecnologia', 'tecnología', technology)}
-            </div>
-
-            {/* Slide 5: Salón Club Uruguay */}
-            <div className="w-full md:snap-start md:min-h-screen md:flex md:flex-col md:justify-center relative">
-              {wrapWithExpander('salon', 'salón', salon)}
-            </div>
-
-            {/* Slide 6: Equipo & Proceso */}
-            <div className="w-full md:snap-start md:min-h-screen md:flex md:flex-col md:justify-center relative">
+            {dashboardSection('hero', <>{hero}{stats}</>, 'between')}
+            {dashboardSection('difference', difference)}
+            {dashboardSection('services', wrapWithExpander('servicios', 'servicios', services))}
+            {dashboardSection('technology', wrapWithExpander('tecnologia', 'tecnología', technology))}
+            {dashboardSection('salon', wrapWithExpander('salon', 'salón', salon))}
+            {dashboardSection('team-process',
               <div className="w-full">
                 {team}
                 {process}
               </div>
-            </div>
-
-            {/* Slide 7: Galería Interactiva */}
-            <div className="w-full md:snap-start md:min-h-screen md:flex md:flex-col md:justify-center relative">
-              {wrapWithExpander('galeria', 'galería', gallery)}
-            </div>
-
-            {/* Slide 8: Blog y Videos */}
-            <div className="w-full md:snap-start md:min-h-screen md:flex md:flex-col md:justify-center relative">
+            )}
+            {dashboardSection('gallery', wrapWithExpander('galeria', 'galería', gallery))}
+            {dashboardSection('blog-video',
               <div className="w-full">
                 {wrapWithExpander('blog', 'blog', blog)}
                 {video}
               </div>
-            </div>
-
-            {/* Slide 9: Testimonios & FAQ */}
-            <div className="w-full md:snap-start md:min-h-screen md:flex md:flex-col md:justify-center relative">
+            )}
+            {dashboardSection('testimonials-faq',
               <div className="w-full">
                 {wrapWithExpander('testimonios', 'testimonios', testimonials)}
                 {wrapWithExpander('faq', 'FAQ', faq)}
               </div>
-            </div>
-
-            {/* Slide 10: CTA & Footer */}
-            <div className="w-full md:snap-start md:min-h-screen md:flex md:flex-col md:justify-between relative">
-              {cta}
-              {footer}
-            </div>
+            )}
+            {dashboardSection('cta-footer', <>{cta}{footer}</>, 'between')}
           </motion.div>
         ) : (
           <motion.div
-            key="focused-section"
-            initial={{ opacity: 0, y: 15 }}
+            key={`focused-${activeSection}`}
+            initial={reduceMotion ? { opacity: 1 } : { opacity: 0, y: 18 }}
             animate={{ opacity: 1, y: 0 }}
-            exit={{ opacity: 0, y: -15 }}
+            exit={reduceMotion ? { opacity: 0 } : { opacity: 0, y: -18 }}
             transition={{ duration: 0.35, ease: 'easeOut' }}
             className="pt-24 min-h-screen bg-zinc-950 w-full flex flex-col justify-between"
           >
