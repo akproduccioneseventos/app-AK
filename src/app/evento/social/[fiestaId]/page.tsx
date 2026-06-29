@@ -1764,54 +1764,7 @@ export default function SocialGalleryPage(props: { params: Promise<{ fiestaId: s
                             disabled={isSendingDedication}
                           />
 
-                          {/* Audio voice notes recorder */}
-                          <div className="flex flex-col gap-3 p-3 bg-indigo-50/50 rounded-2xl border border-indigo-100/50">
-                            <p className="text-xs font-bold text-indigo-950 flex items-center gap-1.5">
-                              <span>🎙️</span>
-                              <span>{localSettings.privateDedicationsMode ? "Grabar audio privado" : "Grabar audio de felicitación"}</span>
-                            </p>
-                            <div className="flex items-center gap-2">
-                              {!isRecording && !audioUrl && (
-                                <Button
-                                  type="button"
-                                  variant="outline"
-                                  onClick={startRecording}
-                                  className="flex-1 h-10 rounded-xl text-xs flex items-center justify-center gap-1.5 border-indigo-200 text-indigo-700 bg-white hover:bg-indigo-50"
-                                >
-                                  <Mic className="w-4 h-4" /> Empezar a grabar
-                                </Button>
-                              )}
-
-                              {isRecording && (
-                                <Button
-                                  type="button"
-                                  variant="destructive"
-                                  onClick={stopRecording}
-                                  className="flex-1 h-10 rounded-xl text-xs flex items-center justify-center gap-1.5 animate-pulse"
-                                >
-                                  <StopCircle className="w-4 h-4" /> Detener {recordingSeconds}s
-                                </Button>
-                              )}
-
-                              {audioUrl && (
-                                <div className="flex flex-col gap-2 w-full">
-                                  <audio src={audioUrl} controls className="w-full h-8" />
-                                  <div className="flex gap-2">
-                                    <Button
-                                      type="button"
-                                      variant="outline"
-                                      onClick={cancelRecording}
-                                      className="flex-1 h-8 rounded-lg text-xs"
-                                    >
-                                      Eliminar audio
-                                    </Button>
-                                  </div>
-                                </div>
-                              )}
-                            </div>
-                          </div>
-
-                          <Button type="submit" disabled={(!newDedication.trim() && !audioBlob) || isSendingDedication} className="w-full h-12 rounded-2xl font-bold shadow-lg transition-transform active:scale-95" style={{ backgroundColor: accentColor }}>
+                          <Button type="submit" disabled={!newDedication.trim() || isSendingDedication} className="w-full h-12 rounded-2xl font-bold shadow-lg transition-transform active:scale-95" style={{ backgroundColor: accentColor }}>
                             {isSendingDedication ? <Loader2 className="w-4 h-4 mr-2 animate-spin" /> : <Send className="w-4 h-4 mr-2" />}
                             {localSettings.privateDedicationsMode ? "Enviar mensaje privado" : "Enviar dedicatoria"}
                           </Button>
@@ -2342,54 +2295,7 @@ export default function SocialGalleryPage(props: { params: Promise<{ fiestaId: s
                       rows={3}
                     />
 
-                    {/* Audio voice notes recorder */}
-                    <div className="flex flex-col gap-3 p-3 bg-indigo-50/50 rounded-2xl border border-indigo-100/50">
-                      <p className="text-xs font-bold text-indigo-950 flex items-center gap-1.5">
-                        <span>🎙️</span>
-                        <span>{localSettings.privateDedicationsMode ? "Grabar audio privado" : "Grabar audio de felicitación"}</span>
-                      </p>
-                      <div className="flex items-center gap-2">
-                        {!isRecording && !audioUrl && (
-                          <Button
-                            type="button"
-                            variant="outline"
-                            onClick={startRecording}
-                            className="flex-1 h-10 rounded-xl text-xs flex items-center justify-center gap-1.5 border-indigo-200 text-indigo-700 bg-white hover:bg-indigo-50"
-                          >
-                            <Mic className="w-4 h-4" /> Empezar a grabar
-                          </Button>
-                        )}
-
-                        {isRecording && (
-                          <Button
-                            type="button"
-                            variant="destructive"
-                            onClick={stopRecording}
-                            className="flex-1 h-10 rounded-xl text-xs flex items-center justify-center gap-1.5 animate-pulse"
-                          >
-                            <StopCircle className="w-4 h-4" /> Detener {recordingSeconds}s
-                          </Button>
-                        )}
-
-                        {audioUrl && (
-                          <div className="flex flex-col gap-2 w-full">
-                            <audio src={audioUrl} controls className="w-full h-8" />
-                            <div className="flex gap-2">
-                              <Button
-                                type="button"
-                                variant="outline"
-                                onClick={cancelRecording}
-                                className="flex-1 h-8 rounded-lg text-xs"
-                              >
-                                Eliminar audio
-                              </Button>
-                            </div>
-                          </div>
-                        )}
-                      </div>
-                    </div>
-
-                    <Button type="submit" disabled={(!newDedication.trim() && !audioBlob) || isSendingDedication} className="w-full h-10 rounded-xl font-bold flex items-center justify-center gap-2" style={{ backgroundColor: accentColor }}>
+                    <Button type="submit" disabled={!newDedication.trim() || isSendingDedication} className="w-full h-10 rounded-xl font-bold flex items-center justify-center gap-2" style={{ backgroundColor: accentColor }}>
                       <Send className="w-4 h-4" />
                       {localSettings.privateDedicationsMode ? "Enviar mensaje privado" : "Enviar dedicatoria"}
                     </Button>
