@@ -22,13 +22,13 @@ export interface Notificacion {
 
 // --- INVITADOS ---
 export type RsvpStatus = 'Pendiente' | 'Confirmado' | 'Rechazado' | 'Tal vez';
-export type CategoriaInvitado = 'Adulto' | 'NiÃ±o/Adolescente';
+export type CategoriaInvitado = 'Adulto' | 'Niño/Adolescente';
 
 export type DietaryRestriction = 'Ninguna' | 'Celiaco' | 'Vegetariano' | 'Vegano' | 'Sin Gluten' | 'Sin Lactosa' | 'Alergia Mariscos' | 'Alergia Frutos Secos' | 'Otro';
 
 // Phase 3.9: Personalized Guest Experience - Guest profile segments
 export type PerfilInvitado = 'General' | 'VIP' | 'Familia' | 'Necesidades Especiales';
-/** Alias for PerfilInvitado â€” used in segmentation views and reports */
+/** Alias for PerfilInvitado — used in segmentation views and reports */
 export type SegmentoInvitado = PerfilInvitado;
 
 export interface GuestExperienceStats {
@@ -136,7 +136,7 @@ export interface LiveEventState {
     staffCheckIn: Record<string, { llego: boolean, hora?: string }>;
 }
 
-// --- CONFIGURACIÃ“N ---
+// --- CONFIGURACIÓN ---
 export interface ConfigEventoDataStorage {
   nombreEvento: string;
   tipoCelebracion: TipoEvento | string;
@@ -284,7 +284,7 @@ export interface DecoItem {
   imageUrl?: string;
 }
 
-/** Una zona de diseÃ±o con su propio lienzo visual */
+/** Una zona de diseño con su propio lienzo visual */
 export interface ZonaDiseno {
   id: string;
   nombre: string;
@@ -348,7 +348,7 @@ export interface DecoracionData {
   itemsDecoracion?: DecoItem[];
   moodboardImages?: string[];
   zonas?: DecoZona[];
-  /** Zonas de diseÃ±o con su propio lienzo visual */
+  /** Zonas de diseño con su propio lienzo visual */
   zonasDiseno?: ZonaDiseno[];
   presupuestoDecoracion?: number;
   checklistDecoracion?: DecoChecklistItem[];
@@ -407,7 +407,7 @@ export interface SeccionInvitacion {
   data: any;
 }
 
-// --- INVITACIÃ“N DIGITAL CONFIG (Simplified central configuration) ---
+// --- INVITACIÓN DIGITAL CONFIG (Simplified central configuration) ---
 
 export interface InvitacionDigitalDressCode {
   tipo: 'formal' | 'semi-formal' | 'casual' | 'personalizado';
@@ -550,7 +550,7 @@ export interface InvitacionDigitalConfig {
 
 export interface InvitacionDigitalData {
   name?: string;
-  category?: 'Boda' | 'XV AÃ±os' | 'CumpleaÃ±os' | 'General' | 'Infantil';
+  category?: 'Boda' | 'XV Años' | 'Cumpleaños' | 'General' | 'Infantil';
   plantilla: 'Grazia' | 'Allegria';
   musicaFondoUrl?: string;
   secciones: SeccionInvitacion[];
@@ -781,7 +781,7 @@ export interface SocialGallerySettings {
   /** Currently displayed sorteo winner on the giant screen (TTL: ~20s) */
   activeSorteoWinner?: string;
   activeSorteoTimestamp?: string;
-  /** Timestamp when a sorteo spin was started â€” triggers wheel animation on the big screen */
+  /** Timestamp when a sorteo spin was started — triggers wheel animation on the big screen */
   sorteoSpinStartedAt?: string;
   /** When true, the raffle wheel is displayed statically on the big screen before spinning */
   sorteoOnScreen?: boolean;
@@ -1153,7 +1153,7 @@ export type PlanPagoEstadoCuota = 'pendiente' | 'pagado' | 'vencido' | 'parcial'
 
 export interface CuotaPlanPago {
   id: string;
-  descripcion: string; // e.g. "SeÃ±a", "Cuota 1", "Saldo Final"
+  descripcion: string; // e.g. "Seña", "Cuota 1", "Saldo Final"
   monto: number;
   fechaVencimiento: string; // ISO date
   estado: PlanPagoEstadoCuota;
@@ -1482,7 +1482,7 @@ export interface PlanPagos {
   activo: boolean;
   pagoMinimoTrimestral: number; // default 5000
   porcentajeMinimoAntesFecha: number; // default 30
-  mesesLimiteAntesFecha: number; // calculado automÃ¡ticamente
+  mesesLimiteAntesFecha: number; // calculado automáticamente
   fechaLimite30Porciento: string; // ISO date calculada
   montoObjetivo30Porciento: number; // totalContrato * 0.30
   cuotas: CuotaPlanPagoContrato[];
@@ -1562,8 +1562,8 @@ export interface EventoEnVivoData {
   captaciones?: CaptacionInvitadoEnVivo[];
 }
 
-// --- FOTOGRAFÃA Y FILMACIÃ“N ---
-export type EntregaMaterialEstado = 'Pendiente' | 'En ediciÃ³n' | 'En revisiÃ³n' | 'Entregado parcial' | 'Entregado completo';
+// --- FOTOGRAFÍA Y FILMACIÓN ---
+export type EntregaMaterialEstado = 'Pendiente' | 'En edición' | 'En revisión' | 'Entregado parcial' | 'Entregado completo';
 
 export interface ServicioFotografia {
   id: string;
@@ -1603,7 +1603,7 @@ export type DocumentoTipo =
   | 'presupuesto_firmado'
   | 'contrato_cambio_fecha'
   | 'cambio-fecha'
-  | 'seÃ±a_pago'
+  | 'seña_pago'
   | 'recibo_pago'
   | 'contrato_catering'
   | 'cancelacion'

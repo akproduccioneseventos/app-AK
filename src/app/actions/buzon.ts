@@ -59,7 +59,7 @@ export async function uploadBuzonMessage(
 ): Promise<{ success: boolean; message?: BuzonMessage; error?: string }> {
   const fiestaId = formData.get('fiestaId') as string;
   const file = formData.get('file') as File;
-  const authorName = (formData.get('authorName') as string) || 'AnÃ³nimo';
+  const authorName = (formData.get('authorName') as string) || 'Anónimo';
   const mediaType = formData.get('mediaType') as 'audio' | 'video';
   const durationSeconds = Number(formData.get('durationSeconds')) || 0;
 
@@ -78,7 +78,7 @@ export async function uploadBuzonMessage(
   if (file.size > limitSize) {
     return {
       success: false,
-      error: `El archivo supera el lÃ­mite permitido (${isAudio ? '15MB' : '40MB'}).`,
+      error: `El archivo supera el límite permitido (${isAudio ? '15MB' : '40MB'}).`,
     };
   }
 
@@ -115,8 +115,8 @@ export async function uploadBuzonMessage(
 
     // Notify the screen visually by adding a system chat message
     const alertText = isAudio
-      ? 'ðŸŽ™ï¸ DejÃ³ un saludo de voz en el buzÃ³n'
-      : 'ðŸ“¹ SubiÃ³ un video al buzÃ³n';
+      ? 'ðŸŽ™ï¸ Dejó un saludo de voz en el buzón'
+      : 'ðŸ“¹ Subió un video al buzón';
 
     await addChatMessage(fiestaId, alertText, authorName).catch((err) => {
       logger.warn('[buzon] Failed to send chat notification:', err);
@@ -252,7 +252,7 @@ export async function deleteWelcomeAudio(
 
     const result = await saveFiesta(updatedFiesta);
     if (!result.success) {
-      return { success: false, error: result.error || 'Error al actualizar configuraciÃ³n.' };
+      return { success: false, error: result.error || 'Error al actualizar configuración.' };
     }
 
     return { success: true };
