@@ -407,13 +407,24 @@
     "unidad": "Unidad"
   },
   {
-    "id": "serv_espejo_magico",
-    "nombre": "Espejo mágico",
+    "id": "serv_espejo_magico_classic",
+    "nombre": "Espejo Mágico Classic (Táctil, Firmas & Emojis)",
     "tipoItem": "Servicio",
     "categoria": "Servicio de entretenimiento",
     "valorUnitarioEstimado": 1800,
     "tipoCosto": "Proveedor",
     "precioVenta": 3490,
+    "calculationMethod": "fijo",
+    "unidad": "Unidad"
+  },
+  {
+    "id": "serv_espejo_magico_ia",
+    "nombre": "Face Swap IA (Avatares, Reemplazo de Rostros & Estilos Artísticos)",
+    "tipoItem": "Servicio",
+    "categoria": "Servicio de entretenimiento",
+    "valorUnitarioEstimado": 2500,
+    "tipoCosto": "Proveedor",
+    "precioVenta": 4990,
     "calculationMethod": "fijo",
     "unidad": "Unidad"
   },
