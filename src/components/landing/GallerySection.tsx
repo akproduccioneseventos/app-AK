@@ -22,6 +22,47 @@ function isNextJsOptimizableUrl(url: string): boolean {
   }
 }
 
+function canUseNextImage(url: string): boolean {
+  return url.startsWith('/') || isNextJsOptimizableUrl(url);
+}
+
+function GalleryMedia({
+  src,
+  alt,
+  className,
+  sizes,
+  priority,
+}: {
+  src: string;
+  alt: string;
+  className: string;
+  sizes: string;
+  priority?: boolean;
+}) {
+  if (canUseNextImage(src)) {
+    return (
+      <Image
+        src={src}
+        alt={alt}
+        fill
+        className={className}
+        sizes={sizes}
+        priority={priority}
+        unoptimized={!isNextJsOptimizableUrl(src) && !src.startsWith('/')}
+      />
+    );
+  }
+
+  return (
+    <img
+      src={src}
+      alt={alt}
+      loading={priority ? 'eager' : 'lazy'}
+      className={`h-full w-full ${className}`}
+    />
+  );
+}
+
 export interface GalleryImage {
   id?: string;
   src: string;
@@ -257,7 +298,7 @@ export function GallerySection({ images, galeriaFotos }: GallerySectionProps) {
                 className={cn(
                   'px-3 py-1.5 rounded-lg text-[10px] font-black uppercase tracking-widest transition-all duration-200',
                   activeSubCategory === subCat
-                    ? 'bg-indigo-650 text-white shadow'
+                    ? 'bg-indigo-600 text-white shadow'
                     : 'bg-transparent text-zinc-500 hover:bg-white/5 hover:text-white'
                 )}
               >
@@ -282,13 +323,11 @@ export function GallerySection({ images, galeriaFotos }: GallerySectionProps) {
               onClick={() => openLightbox(index)}
               className="relative rounded-3xl overflow-hidden group focus:outline-none focus:ring-2 focus:ring-indigo-500 bg-zinc-900 border border-white/5 aspect-square text-left shadow-lg hover:shadow-2xl transition-all duration-300"
             >
-              <Image
+              <GalleryMedia
                 src={image.src}
                 alt={image.alt}
-                fill
                 className="object-cover transition-transform duration-500 group-hover:scale-103"
                 sizes="(max-width: 768px) 50vw, 25vw"
-                unoptimized={!isNextJsOptimizableUrl(image.src)}
               />
               <div className="absolute inset-0 bg-gradient-to-t from-zinc-950/90 via-zinc-950/20 to-transparent" />
 
@@ -369,14 +408,12 @@ export function GallerySection({ images, galeriaFotos }: GallerySectionProps) {
             onClick={(e) => e.stopPropagation()}
           >
             <div className="relative flex-1 rounded-2xl overflow-hidden bg-zinc-950 border border-white/10">
-              <Image
+              <GalleryMedia
                 src={displayedImages[lightboxIndex].src}
                 alt={displayedImages[lightboxIndex].alt}
-                fill
                 className="object-contain"
                 sizes="100vw"
                 priority
-                unoptimized={!isNextJsOptimizableUrl(displayedImages[lightboxIndex].src)}
               />
             </div>
             {(displayedImages[lightboxIndex].titulo || (displayedImages[lightboxIndex].categorias && displayedImages[lightboxIndex].categorias.length > 0) || displayedImages[lightboxIndex].descripcion) && (

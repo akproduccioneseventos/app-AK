@@ -31,6 +31,7 @@ interface SuccessStory {
   image: string;
   servicios: string[];
   whatsappMessage: string;
+  rating?: number;
 }
 
 const SUCCESS_STORIES: SuccessStory[] = [
@@ -72,18 +73,52 @@ const SUCCESS_STORIES: SuccessStory[] = [
   },
 ];
 
+const TESTIMONIAL_IMAGES = [
+  '/media/catalogo-servicios/quinceanera_persuasiva.png',
+  '/media/catalogo-servicios/boda_persuasiva.png',
+  '/media/catalogo-servicios/social_persuasivo.png',
+  '/media/catalogo-servicios/familia_feliz_evento.png',
+];
+
+function testimonialToStory(testimonial: Testimonial, index: number): SuccessStory {
+  const eventType = testimonial.eventType || 'Evento AK';
+  return {
+    id: `testimonial-${testimonial.id}`,
+    title: `La experiencia de ${testimonial.name}`,
+    text: testimonial.text,
+    clientName: testimonial.name,
+    role: testimonial.role || 'Cliente AK',
+    eventType,
+    logro: `Evento ${eventType.toLowerCase()} acompañado por el equipo de AK Producciones.`,
+    image: TESTIMONIAL_IMAGES[index % TESTIMONIAL_IMAGES.length],
+    servicios: ['Producción integral AK', eventType, 'Coordinación y seguimiento'],
+    whatsappMessage: `Hola AK Producciones, vi el testimonio de ${testimonial.name} y quiero consultar una propuesta para mi evento.`,
+    rating: testimonial.rating ?? 5,
+  };
+}
+
 export function TestimonialsSection({ testimonials = [] }: TestimonialsSectionProps) {
   const [selectedStory, setSelectedStory] = useState<SuccessStory | null>(null);
+  const stories = [
+    ...testimonials.map(testimonialToStory),
+    ...SUCCESS_STORIES,
+  ];
 
   return (
     <section id="testimonios" className="py-24 bg-zinc-950 text-white relative overflow-hidden border-t border-white/5">
-      {/* Glow de fondo */}
-      <div className="absolute top-1/4 left-1/2 -translate-x-1/2 w-[500px] h-[500px] bg-indigo-500/5 rounded-full blur-3xl pointer-events-none" />
+      <div className="absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-indigo-400/40 to-transparent pointer-events-none" />
+      <div className="absolute inset-x-0 bottom-0 h-px bg-gradient-to-r from-transparent via-white/10 to-transparent pointer-events-none" />
 
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
 
         {/* Header de Venta */}
-        <div className="text-center mb-16">
+        <motion.div
+          initial={{ opacity: 0, y: 18 }}
+          whileInView={{ opacity: 1, y: 0 }}
+          viewport={{ once: true, amount: 0.4 }}
+          transition={{ duration: 0.55, ease: 'easeOut' }}
+          className="text-center mb-16"
+        >
           <span className="inline-flex items-center gap-2 px-3 py-1 rounded-xl bg-indigo-500/10 border border-indigo-500/20 text-xs font-black uppercase tracking-widest text-indigo-400 mb-4">
             <HeartHandshake className="w-3.5 h-3.5" />
             Casos de Éxito Reales
@@ -94,15 +129,18 @@ export function TestimonialsSection({ testimonials = [] }: TestimonialsSectionPr
           <p className="text-zinc-400 text-lg max-w-xl mx-auto leading-relaxed">
             Descubrí cómo organizamos eventos espectaculares y sin estrés en Salto, contados por sus propios protagonistas.
           </p>
-        </div>
+        </motion.div>
 
         {/* Grilla de Casos de Éxito */}
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-          {SUCCESS_STORIES.map((story) => (
+          {stories.map((story, index) => (
             <motion.div
               key={story.id}
+              initial={{ opacity: 0, y: 28 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              viewport={{ once: true, amount: 0.25 }}
+              transition={{ duration: 0.45, delay: Math.min(index * 0.06, 0.24), ease: 'easeOut' }}
               whileHover={{ y: -6, scale: 1.01 }}
-              transition={{ duration: 0.3 }}
               onClick={() => setSelectedStory(story)}
               className="flex flex-col justify-between rounded-3xl bg-white/[0.02] border border-white/10 overflow-hidden cursor-pointer shadow-xl hover:shadow-[0_10px_35px_rgba(99,102,241,0.15)] group transition-all"
             >
@@ -118,7 +156,7 @@ export function TestimonialsSection({ testimonials = [] }: TestimonialsSectionPr
                 <div className="absolute inset-0 bg-gradient-to-t from-zinc-950 via-zinc-950/30 to-transparent" />
 
                 {/* Badge de tipo de fiesta */}
-                <span className="absolute bottom-4 left-4 z-10 px-3 py-1 rounded-lg bg-indigo-650/80 backdrop-blur-sm border border-indigo-400/20 text-[9px] font-black uppercase tracking-widest text-white">
+                <span className="absolute bottom-4 left-4 z-10 px-3 py-1 rounded-lg bg-indigo-600/80 backdrop-blur-sm border border-indigo-400/20 text-[9px] font-black uppercase tracking-widest text-white">
                   {story.eventType}
                 </span>
               </div>
@@ -127,7 +165,7 @@ export function TestimonialsSection({ testimonials = [] }: TestimonialsSectionPr
               <div className="p-6 flex-1 flex flex-col justify-between gap-6 text-left">
                 <div className="space-y-3">
                   <div className="flex gap-0.5">
-                    {[...Array(5)].map((_, i) => (
+                    {Array.from({ length: Math.max(1, Math.min(story.rating ?? 5, 5)) }).map((_, i) => (
                       <Star key={i} className="w-4 h-4 text-amber-400 fill-amber-400" />
                     ))}
                   </div>
@@ -200,7 +238,7 @@ export function TestimonialsSection({ testimonials = [] }: TestimonialsSectionPr
                 />
                 <div className="absolute inset-0 bg-gradient-to-t from-slate-900 via-slate-900/30 to-transparent" />
                 <div className="absolute bottom-6 left-6 right-6">
-                  <span className="px-3 py-1 rounded-lg bg-indigo-650 text-[10px] font-black uppercase tracking-widest text-white border border-indigo-400/20">
+                  <span className="px-3 py-1 rounded-lg bg-indigo-600 text-[10px] font-black uppercase tracking-widest text-white border border-indigo-400/20">
                     {selectedStory.eventType}
                   </span>
                   <h3 className="font-headline font-black text-2xl sm:text-3xl text-white mt-3">
@@ -251,7 +289,7 @@ export function TestimonialsSection({ testimonials = [] }: TestimonialsSectionPr
                     href={`https://wa.me/59898355530?text=${encodeURIComponent(selectedStory.whatsappMessage)}`}
                     target="_blank"
                     rel="noopener noreferrer"
-                    className="inline-flex items-center gap-2 rounded-2xl bg-indigo-650 hover:bg-indigo-600 text-white text-xs font-black uppercase tracking-widest px-6 py-4 shadow-lg shadow-indigo-900/30 transition-all hover:scale-[1.02] active:scale-98 shrink-0 w-full sm:w-auto justify-center"
+                    className="inline-flex items-center gap-2 rounded-2xl bg-indigo-600 hover:bg-indigo-500 text-white text-xs font-black uppercase tracking-widest px-6 py-4 shadow-lg shadow-indigo-900/30 transition-all hover:scale-[1.02] active:scale-[0.98] shrink-0 w-full sm:w-auto justify-center"
                   >
                     <MessageSquare className="w-4 h-4 text-indigo-300" />
                     Quiero esta propuesta

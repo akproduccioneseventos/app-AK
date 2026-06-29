@@ -1747,20 +1747,29 @@ export default function SocialGalleryPage(props: { params: Promise<{ fiestaId: s
                       <div className="text-center py-16 text-slate-400">No hay fotos aún.</div>
                     ) : (
                       <div className="grid grid-cols-1 gap-4">
-                        {itemsWithAds.map((item) => {
-                          if (item.isAd) {
+                        {unifiedTimeline.map((item) => {
+                          if (item.type === 'ad') {
                             return (
                               <AdCard
-                                key={item.id}
-                                ad={item}
+                                key={item.data.id}
+                                ad={item.data}
+                                accentColor={accentColor}
+                              />
+                            );
+                          }
+                          if (item.type === 'dedication') {
+                            return (
+                              <DedicationCard
+                                key={item.data.id}
+                                dedication={item.data}
                                 accentColor={accentColor}
                               />
                             );
                           }
                           return (
                             <PostCard
-                              key={item.id}
-                              post={item}
+                              key={item.data.id}
+                              post={item.data}
                               onLike={handleLike}
                               onComment={handleComment}
                               isAdminView={false}
@@ -1768,7 +1777,7 @@ export default function SocialGalleryPage(props: { params: Promise<{ fiestaId: s
                               accentColor={accentColor}
                               allowLikes={localSettings.allowLikes !== false}
                               allowComments={localSettings.allowComments !== false}
-                              hasLiked={likedPosts.has(item.id)}
+                              hasLiked={likedPosts.has(item.data.id)}
                             />
                           );
                         })}

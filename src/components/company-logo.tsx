@@ -1,7 +1,6 @@
 'use client';
 
 import { useState } from 'react';
-import Image from 'next/image';
 import { cn } from '@/lib/utils';
 
 const SIZE_MAP = {
@@ -40,12 +39,12 @@ export function CompanyLogo({ size = 'md', className, src }: CompanyLogoProps) {
 
   return (
     <div className={cn('relative shrink-0', container, className)}>
-      <Image
+      <img
         src={imgSrc}
         alt="AK Producciones"
-        fill
-        className="object-contain"
-        sizes={`${pixels}px`}
+        width={pixels}
+        height={pixels}
+        className="h-full w-full object-contain"
         onError={() => setHasError(true)}
       />
     </div>

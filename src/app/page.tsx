@@ -30,10 +30,23 @@ import { getAkYoutubeVideos, AK_YOUTUBE_CHANNEL_URL } from '@/lib/youtube/ak-cha
 import { PromoWidget } from '@/components/promo/PromoWidget';
 import { LandingSpaContainer } from '@/components/landing/LandingSpaContainer';
 import { WinSechWidgets } from '@/components/landing/WinSechWidgets';
+import { InstagramSyncStrip, type InstagramSyncItem } from '@/components/landing/InstagramSyncStrip';
+import { getSocialConnections } from '@/app/actions/social-connections';
 
 export const revalidate = 300;
 
 const DEFAULT_DYNAMIC_SERVICE_SUBTITLE = 'Servicio AK';
+const DEFAULT_INSTAGRAM_URL = 'https://www.instagram.com/akproduccioneseventos/';
+
+function getInstagramHandle(profileUrl?: string, username?: string) {
+  const raw = username || profileUrl || '@akproduccioneseventos';
+  const cleaned = raw
+    .replace(/^https?:\/\/(www\.)?instagram\.com\//i, '')
+    .replace(/[/?#].*$/g, '')
+    .replace(/^@/, '')
+    .trim();
+  return `@${cleaned || 'akproduccioneseventos'}`;
+}
 
 function getDefaultServiceImage(title: string): string {
   const lower = title.toLowerCase();
@@ -119,13 +132,14 @@ interface LandingPageProps {
 
 export default async function HomePage({ searchParams }: LandingPageProps) {
   const resolvedSearchParams = await searchParams;
-  const [promo, galeriaData, landingSettings, catalogoFotos, youtubeVideos, testimonialData] = await Promise.all([
+  const [promo, galeriaData, landingSettings, catalogoFotos, youtubeVideos, testimonialData, socialConnections] = await Promise.all([
     getPromoActiva(),
     getGaleriaItems(),
     getLandingSettings(),
     getCatalogoFotos().catch(() => []),
     getAkYoutubeVideos(),
     getTestimonials().catch(() => []),
+    getSocialConnections().catch(() => []),
   ]);
 
   const fotos = (galeriaData?.fotos && galeriaData.fotos.length > 0) ? (galeriaData.fotos as GaleriaFoto[]) : (defaultGaleriaPublica.fotos as GaleriaFoto[]);
@@ -152,6 +166,38 @@ export default async function HomePage({ searchParams }: LandingPageProps) {
       createdAt: f.createdAt,
     }));
   const fotosCombinadas = [...fotos, ...catalogoComoGaleria];
+  const instagramConnection = (socialConnections as any[]).find((connection) => connection.platform === 'Instagram' && connection.isConnected);
+  const instagramProfileUrl = instagramConnection?.profileUrl || DEFAULT_INSTAGRAM_URL;
+  const instagramHandle = getInstagramHandle(instagramProfileUrl, instagramConnection?.username);
+  const instagramPhotoItems: InstagramSyncItem[] = (safeCatalogoFotos as any[])
+    .filter((foto) => foto.source === 'instagram' || String(foto.titulo || '').toLowerCase().startsWith('instagram'))
+    .map((foto) => ({
+      id: foto.id,
+      type: 'photo' as const,
+      imageUrl: foto.url,
+      title: foto.titulo || 'Foto sincronizada de Instagram',
+      category: foto.categoriaServicio,
+    }));
+  const instagramVideoItems: InstagramSyncItem[] = videosCombinados
+    .filter((video: any) => String(video.youtubeUrl || '').includes('instagram.com') || String(video.youtubeId || '').startsWith('ig_'))
+    .map((video: any) => ({
+      id: video.id || video.youtubeId,
+      type: 'video' as const,
+      imageUrl: video.thumbnailUrl || '/media/catalogo-servicios/xv-pista-iluminada-01.jpeg',
+      title: video.titulo || 'Reel sincronizado de Instagram',
+      category: video.categoria,
+      href: video.youtubeUrl,
+    }));
+  const fallbackInstagramItems: InstagramSyncItem[] = instagramPhotoItems.length + instagramVideoItems.length > 0
+    ? []
+    : (safeCatalogoFotos as any[]).slice(0, 4).map((foto) => ({
+        id: `fallback-${foto.id}`,
+        type: 'photo' as const,
+        imageUrl: foto.url,
+        title: foto.titulo || 'Produccion AK en redes',
+        category: foto.categoriaServicio,
+      }));
+  const instagramItems = [...instagramVideoItems, ...instagramPhotoItems, ...fallbackInstagramItems].slice(0, 8);
 
   const whatsapp = '59898355530'; // Usar el número real de contacto de la empresa
   const safeTestimonialData = (testimonialData && testimonialData.length > 0) ? testimonialData : defaultTestimonials;
@@ -213,13 +259,13 @@ export default async function HomePage({ searchParams }: LandingPageProps) {
     'url': 'https://akproducciones.uy',
     'sameAs': [
       'https://www.facebook.com/akproduccionessalto',
-      'https://www.instagram.com/akproduccionessalto',
+      instagramProfileUrl,
     ],
     'description': 'Organización integral de eventos en Salto, Uruguay. Discoteca, comida premium, fotografía, decoración y salones de fiesta en un solo lugar con tecnología interactiva.',
   };
 
   return (
-    <div className="bg-zinc-950 min-h-screen text-white selection:bg-indigo-650 selection:text-white">
+    <div className="bg-zinc-950 min-h-screen text-white selection:bg-indigo-600 selection:text-white">
       {/* Inject JSON-LD Schema for SEO */}
       <script
         type="application/ld+json"
@@ -250,6 +296,7 @@ export default async function HomePage({ searchParams }: LandingPageProps) {
         team={<AkTeamStorySection />}
         process={<ProcessSection />}
         gallery={<GallerySection galeriaFotos={fotosCombinadas} />}
+        instagram={<InstagramSyncStrip handle={instagramHandle} profileUrl={instagramProfileUrl} items={instagramItems} />}
         blog={<BlogSection />}
         video={<VideoSection galeriaVideos={videosCombinados} channelUrl={AK_YOUTUBE_CHANNEL_URL} />}
         testimonials={<TestimonialsSection testimonials={approvedTestimonials} />}
@@ -260,11 +307,12 @@ export default async function HomePage({ searchParams }: LandingPageProps) {
             headline={landingSettings.cta.headline}
             subheadline={landingSettings.cta.subheadline}
             ctaLabel={landingSettings.cta.ctaLabel}
+            instagramUrl={instagramProfileUrl}
           />
         }
         footer={<PublicFooter variant="dark" />}
         floatingActions={<FloatingActions whatsappNumber={whatsapp} />}
-        winSech={<WinSechWidgets />}
+        winSech={<WinSechWidgets instagramUrl={instagramProfileUrl} instagramHandle={instagramHandle} />}
       />
     </div>
   );

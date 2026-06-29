@@ -1,7 +1,7 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import { motion, AnimatePresence } from 'framer-motion';
+import { motion, AnimatePresence, useReducedMotion } from 'framer-motion';
 import { X, Sparkles, Instagram, Flame, Gift, type LucideIcon } from 'lucide-react';
 import Link from 'next/link';
 
@@ -45,33 +45,41 @@ const OFFERS: OfferWidget[] = [
   },
 ];
 
-export function WinSechWidgets() {
+interface WinSechWidgetsProps {
+  instagramUrl?: string;
+  instagramHandle?: string;
+}
+
+export function WinSechWidgets({
+  instagramUrl = 'https://instagram.com/akproduccioneseventos',
+  instagramHandle = '@akproduccioneseventos',
+}: WinSechWidgetsProps) {
   const [currentIdx, setCurrentIdx] = useState(0);
   const [isVisible, setIsVisible] = useState(false);
   const [isClosed, setIsClosed] = useState(false);
+  const [isPaused, setIsPaused] = useState(false);
+  const reduceMotion = useReducedMotion();
 
   useEffect(() => {
-    if (isClosed) return;
+    if (isClosed || isPaused) return;
 
-    // Show initial widget after 4 seconds
     const showTimeout = setTimeout(() => {
       setIsVisible(true);
-    }, 4000);
+    }, 2200);
 
-    // Rotate widgets every 12 seconds
     const interval = setInterval(() => {
       setIsVisible(false);
       setTimeout(() => {
         setCurrentIdx((prev) => (prev + 1) % OFFERS.length);
         setIsVisible(true);
-      }, 500);
+      }, reduceMotion ? 0 : 420);
     }, 12000);
 
     return () => {
       clearTimeout(showTimeout);
       clearInterval(interval);
     };
-  }, [isClosed]);
+  }, [isClosed, isPaused, reduceMotion]);
 
   const handleClose = () => {
     setIsVisible(false);
@@ -79,29 +87,49 @@ export function WinSechWidgets() {
   };
 
   const current = OFFERS[currentIdx];
-  const Icon = current?.icon || Sparkles;
+  const currentOffer = current.id === 2
+    ? {
+        ...current,
+        description: `Mira contenido real y novedades en ${instagramHandle}. La web se sincroniza con lo mejor del perfil.`,
+        ctaUrl: instagramUrl,
+      }
+    : current;
+  const Icon = currentOffer?.icon || Sparkles;
 
   return (
     <AnimatePresence>
       {isVisible && !isClosed && (
         <motion.div
-          initial={{ x: -100, opacity: 0, scale: 0.9 }}
+          key={currentOffer.id}
+          initial={reduceMotion ? { opacity: 0 } : { x: -42, opacity: 0, scale: 0.97 }}
           animate={{ x: 0, opacity: 1, scale: 1 }}
-          exit={{ x: -100, opacity: 0, scale: 0.9 }}
+          exit={reduceMotion ? { opacity: 0 } : { x: -42, opacity: 0, scale: 0.97 }}
           transition={{ duration: 0.4, ease: 'easeOut' }}
-          className="fixed bottom-24 left-6 z-[80] max-w-sm w-[21rem] bg-slate-900/90 border border-slate-700/50 backdrop-blur-md rounded-3xl p-5 shadow-[0_10px_35px_rgba(99,102,241,0.25)] text-white flex flex-col gap-3"
+          onMouseEnter={() => setIsPaused(true)}
+          onMouseLeave={() => setIsPaused(false)}
+          className="fixed bottom-5 left-4 right-4 sm:left-auto sm:right-6 sm:bottom-8 z-[80] w-auto sm:w-[20rem] overflow-hidden rounded-2xl border border-white/10 bg-zinc-950/88 p-4 text-white shadow-[0_18px_45px_rgba(0,0,0,0.45)] backdrop-blur-md"
         >
+          {!reduceMotion && (
+            <motion.div
+              key={`progress-${currentOffer.id}`}
+              initial={{ scaleX: 0 }}
+              animate={{ scaleX: 1 }}
+              transition={{ duration: 12, ease: 'linear' }}
+              className="absolute left-0 top-0 h-0.5 w-full origin-left bg-gradient-to-r from-indigo-400 via-fuchsia-300 to-amber-300"
+            />
+          )}
+
           {/* Header */}
-          <div className="flex items-start justify-between gap-2">
+          <div className="flex items-start justify-between gap-3">
             <div className="flex items-center gap-2.5">
-              <div className="w-9 h-9 rounded-2xl bg-white/10 flex items-center justify-center shrink-0">
-                <Icon className={`w-5 h-5 ${current.iconColor} animate-pulse`} />
+              <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl bg-white/10">
+                <Icon className={`w-5 h-5 ${currentOffer.iconColor}`} />
               </div>
-              <p className="font-headline font-black text-sm uppercase tracking-wider text-slate-100">{current.title}</p>
+              <p className="font-headline text-sm font-black uppercase tracking-wider text-slate-100">{currentOffer.title}</p>
             </div>
             <button
               onClick={handleClose}
-              className="text-slate-400 hover:text-white hover:bg-white/10 w-7 h-7 rounded-xl flex items-center justify-center transition-all shrink-0"
+              className="flex h-8 w-8 shrink-0 items-center justify-center rounded-xl text-slate-400 transition-all hover:bg-white/10 hover:text-white"
               aria-label="Cerrar oferta"
             >
               <X className="w-4 h-4" />
@@ -110,31 +138,31 @@ export function WinSechWidgets() {
 
           {/* Description */}
           <p className="text-xs font-semibold text-slate-300 leading-relaxed">
-            {current.description}
+            {currentOffer.description}
           </p>
 
           {/* CTA Link */}
-          {current.ctaUrl.startsWith('http') ? (
+          {currentOffer.ctaUrl.startsWith('http') ? (
             <a
-              href={current.ctaUrl}
+              href={currentOffer.ctaUrl}
               target="_blank"
               rel="noopener noreferrer"
-              className="inline-flex items-center justify-center gap-2 rounded-2xl bg-indigo-600 hover:bg-indigo-500 text-white text-xs font-black uppercase tracking-wider h-10 transition-transform duration-200 hover:scale-[1.02] active:scale-98 shadow-md"
+              className="inline-flex h-10 items-center justify-center gap-2 rounded-xl bg-indigo-600 text-xs font-black uppercase tracking-wider text-white shadow-md transition-transform duration-200 hover:scale-[1.02] hover:bg-indigo-500 active:scale-[0.98]"
             >
-              {current.ctaText}
+              {currentOffer.ctaText}
             </a>
           ) : (
             <Link
-              href={current.ctaUrl}
+              href={currentOffer.ctaUrl}
               onClick={() => {
                 // If it's a hash link, let it scroll smoothly
-                if (current.ctaUrl.startsWith('#')) {
+                if (currentOffer.ctaUrl.startsWith('#')) {
                   setIsVisible(false);
                 }
               }}
-              className="inline-flex items-center justify-center gap-2 rounded-2xl bg-indigo-600 hover:bg-indigo-500 text-white text-xs font-black uppercase tracking-wider h-10 transition-transform duration-200 hover:scale-[1.02] active:scale-98 shadow-md"
+              className="inline-flex h-10 items-center justify-center gap-2 rounded-xl bg-indigo-600 text-xs font-black uppercase tracking-wider text-white shadow-md transition-transform duration-200 hover:scale-[1.02] hover:bg-indigo-500 active:scale-[0.98]"
             >
-              {current.ctaText}
+              {currentOffer.ctaText}
             </Link>
           )}
         </motion.div>

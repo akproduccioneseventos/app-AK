@@ -9,6 +9,7 @@ interface CTASectionProps {
   subheadline?: string;
   ctaLabel?: string;
   whatsappMessage?: string;
+  instagramUrl?: string;
 }
 
 export function CTASection({
@@ -17,13 +18,14 @@ export function CTASection({
   subheadline = 'Escribinos hoy y recibí una cotización personalizada sin costo. Estamos listos para hacer realidad tu celebración.',
   ctaLabel = '¡Cotizá tu evento!',
   whatsappMessage = 'Hola AK Producciones, me gustaria cotizar mi evento.',
+  instagramUrl = 'https://instagram.com/akproduccioneseventos',
 }: CTASectionProps) {
   const waHref = `https://wa.me/${whatsappNumber}?text=${encodeURIComponent(whatsappMessage)}`;
 
   const socialLinks = [
     {
       platform: 'Instagram',
-      href: 'https://instagram.com/akproduccioneseventos',
+      href: instagramUrl,
       icon: Instagram,
       bgClass: 'bg-gradient-to-br from-purple-500 via-pink-500 to-orange-400',
     },
