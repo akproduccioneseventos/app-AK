@@ -4,7 +4,7 @@ import { LandingNav } from '@/components/landing/LandingNav';
 import { PublicFooter } from '@/components/public-footer';
 import { Button } from '@/components/ui/button';
 import Link from 'next/link';
-import { Building2, Calendar, MessageCircle } from 'lucide-react';
+import { Building2, Calendar, MessageCircle, Sparkles } from 'lucide-react';
 
 export const metadata: Metadata = {
   title: 'Servicio Integral en el Salón del Club Uruguay | AK Producciones',
