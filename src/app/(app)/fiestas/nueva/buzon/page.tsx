@@ -72,13 +72,13 @@ function BuzonAdminContent() {
       setMessages(mData);
       toast({
         title: "Sincronizado",
-        description: "Se actualizaron los mensajes del buzÃ³n.",
+        description: "Se actualizaron los mensajes del buzón.",
       });
     } catch (err) {
       console.error(err);
       toast({
         title: "Error al actualizar",
-        description: "No se pudieron traer los Ãºltimos saludos.",
+        description: "No se pudieron traer los últimos saludos.",
         variant: "destructive"
       });
     } finally {
@@ -89,7 +89,7 @@ function BuzonAdminContent() {
   useEffect(() => {
     loadData();
 
-    // Polling automÃ¡tico cada 15 segundos para mantenerlo sincronizado sin recargar
+    // Polling automático cada 15 segundos para mantenerlo sincronizado sin recargar
     const interval = setInterval(() => {
       if (fiestaId) {
         getBuzonMessages(fiestaId)
@@ -153,8 +153,8 @@ function BuzonAdminContent() {
       }, 1000);
     } catch (e) {
       toast({
-        title: 'Error de micrÃ³fono',
-        description: 'Permite el acceso al micrÃ³fono para grabar tu saludo.',
+        title: 'Error de micrófono',
+        description: 'Permite el acceso al micrófono para grabar tu saludo.',
         variant: 'destructive'
       });
     }
@@ -177,7 +177,7 @@ function BuzonAdminContent() {
     try {
       const res = await uploadWelcomeAudio(formData);
       if (res.success) {
-        toast({ title: 'Bienvenida guardada', description: 'El audio se cargÃ³ con Ã©xito.' });
+        toast({ title: 'Bienvenida guardada', description: 'El audio se cargó con éxito.' });
         setAudioBlob(null);
         setAudioUrl(null);
         welcomeAudioRef.current = null; // force reload
@@ -202,7 +202,7 @@ function BuzonAdminContent() {
     try {
       const res = await uploadWelcomeAudio(formData);
       if (res.success) {
-        toast({ title: 'Bienvenida guardada', description: 'El archivo de audio se cargÃ³ con Ã©xito.' });
+        toast({ title: 'Bienvenida guardada', description: 'El archivo de audio se cargó con éxito.' });
         welcomeAudioRef.current = null;
         await loadData();
       } else {
@@ -217,7 +217,7 @@ function BuzonAdminContent() {
 
   const handleDeleteWelcome = async () => {
     if (!fiestaId) return;
-    if (!confirm('Â¿Seguro que deseas eliminar el audio de bienvenida?')) return;
+    if (!confirm('¿Seguro que deseas eliminar el audio de bienvenida?')) return;
     setIsWelcomeSaving(true);
     try {
       const res = await deleteWelcomeAudio(fiestaId);
@@ -285,7 +285,7 @@ function BuzonAdminContent() {
 
   // Delete Guest Message
   const handleDeleteMessage = async (id: string) => {
-    if (!confirm('Â¿Seguro que deseas eliminar este saludo del buzÃ³n? Esta acciÃ³n no se puede deshacer.')) return;
+    if (!confirm('¿Seguro que deseas eliminar este saludo del buzón? Esta acción no se puede deshacer.')) return;
     setIsDeleting(id);
     try {
       const res = await deleteBuzonMessage(id);
@@ -319,7 +319,7 @@ function BuzonAdminContent() {
   if (!fiestaId || !fiesta) {
     return (
       <div className="mx-auto max-w-3xl p-6 text-center">
-        <h1 className="text-2xl font-black">No se encontrÃ³ la fiesta</h1>
+        <h1 className="text-2xl font-black">No se encontró la fiesta</h1>
         <Button asChild className="mt-4"><Link href="/eventos">Volver a eventos</Link></Button>
       </div>
     );
@@ -342,7 +342,7 @@ function BuzonAdminContent() {
             <div>
               <Badge className="mb-3 border-purple-200 bg-purple-50 text-purple-700">Multimedia</Badge>
               <h1 className="text-4xl font-black tracking-tight sm:text-5xl">
-                BuzÃ³n de Recuerdos
+                Buzón de Recuerdos
               </h1>
               <p className="mt-2 text-slate-600">
                 Audios y videos de felicitaciones grabados por tus invitados desde sus celulares.
@@ -371,7 +371,7 @@ function BuzonAdminContent() {
                     variant="ghost"
                     size="icon"
                     className="h-8 w-8 rounded-full text-slate-400 hover:text-purple-600 hover:bg-purple-50"
-                    title="Actualizar buzÃ³n"
+                    title="Actualizar buzón"
                   >
                     <RefreshCw className={cn("h-4 w-4", isRefreshing && "animate-spin")} />
                   </Button>
@@ -381,7 +381,7 @@ function BuzonAdminContent() {
                 </Badge>
               </CardTitle>
               <CardDescription>
-                HacÃ© click para escuchar audios o visualizar videos de los invitados.
+                Hacé click para escuchar audios o visualizar videos de los invitados.
               </CardDescription>
             </CardHeader>
             <CardContent className="flex-1 p-6">
@@ -390,8 +390,8 @@ function BuzonAdminContent() {
                 <div className="flex flex-col items-center justify-center h-full text-center py-12 text-slate-400 gap-3">
                   <Info className="w-12 h-12 text-slate-300" />
                   <div>
-                    <p className="font-bold text-slate-600">AÃºn no hay saludos grabados</p>
-                    <p className="text-sm">Comparte el cÃ³digo QR o el link de la Zona Digital para que los invitados dejen su recuerdo.</p>
+                    <p className="font-bold text-slate-600">Aún no hay saludos grabados</p>
+                    <p className="text-sm">Comparte el código QR o el link de la Zona Digital para que los invitados dejen su recuerdo.</p>
                   </div>
                 </div>
               ) : (
@@ -448,20 +448,20 @@ function BuzonAdminContent() {
                   Marco de Video (Overlay)
                 </CardTitle>
                 <CardDescription>
-                  ElegÃ­ la plantilla que aparecerÃ¡ superpuesta en los videos de los invitados.
+                  Elegí la plantilla que aparecerá superpuesta en los videos de los invitados.
                 </CardDescription>
               </CardHeader>
               <CardContent className="p-6 space-y-4">
                 <div className="grid grid-cols-2 sm:grid-cols-3 gap-3">
                   {[
                     { id: 'default', label: 'Sin Marco' },
-                    { id: 'neon', label: 'NeÃ³n Party' },
+                    { id: 'neon', label: 'Neón Party' },
                     { id: 'elegante', label: 'Boda Elegante' },
                     { id: 'cumple-infantil', label: 'Cumple Infantil' },
                     { id: 'quince', label: 'Mis 15' },
                     { id: 'vintage', label: 'Retro Vintage' },
                     { id: 'glamour', label: 'VIP Glamour' },
-                    { id: 'floral', label: 'RomÃ¡ntico Floral' },
+                    { id: 'floral', label: 'Romántico Floral' },
                     { id: 'urbano', label: 'Urbano Trap' },
                     { id: 'minimalista', label: 'Minimalista Blanco' },
                   ].map(t => (
@@ -496,7 +496,7 @@ function BuzonAdminContent() {
                   Audio de Bienvenida
                 </CardTitle>
                 <CardDescription>
-                  Este audio se reproducirÃ¡ en el telÃ©fono de los invitados cuando entren a dejar un saludo.
+                  Este audio se reproducirá en el teléfono de los invitados cuando entren a dejar un saludo.
                 </CardDescription>
               </CardHeader>
               <CardContent className="p-6 space-y-6">
@@ -536,7 +536,7 @@ function BuzonAdminContent() {
                   </div>
                 ) : (
                   <div className="rounded-2xl border border-dashed border-slate-200 p-4 text-center text-slate-500 text-xs py-6">
-                    No hay ningÃºn audio de bienvenida activo. El sistema de grabaciÃ³n funcionarÃ¡ directamente sin saludo previo.
+                    No hay ningún audio de bienvenida activo. El sistema de grabación funcionará directamente sin saludo previo.
                   </div>
                 )}
 
@@ -545,7 +545,7 @@ function BuzonAdminContent() {
 
                   {/* Option 1: Record from Web */}
                   <div className="space-y-3">
-                    <p className="text-xs font-bold text-slate-500 uppercase tracking-wider">OpciÃ³n A: Grabar con micrÃ³fono</p>
+                    <p className="text-xs font-bold text-slate-500 uppercase tracking-wider">Opción A: Grabar con micrófono</p>
 
                     {!audioUrl ? (
                       <div className="flex items-center gap-3">
@@ -567,7 +567,7 @@ function BuzonAdminContent() {
                       </div>
                     ) : (
                       <div className="flex items-center gap-3 rounded-xl border p-2 bg-slate-50">
-                        <span className="text-xs font-bold text-slate-600 pl-2">GrabaciÃ³n de prueba</span>
+                        <span className="text-xs font-bold text-slate-600 pl-2">Grabación de prueba</span>
                         <div className="ml-auto flex gap-2">
                           <Button
                             size="sm"
@@ -592,7 +592,7 @@ function BuzonAdminContent() {
 
                   {/* Option 2: Upload File */}
                   <div className="space-y-3 border-t pt-4">
-                    <p className="text-xs font-bold text-slate-500 uppercase tracking-wider">OpciÃ³n B: Subir archivo de audio</p>
+                    <p className="text-xs font-bold text-slate-500 uppercase tracking-wider">Opción B: Subir archivo de audio</p>
 
                     <input
                       type="file"
@@ -627,7 +627,7 @@ function BuzonAdminContent() {
                 </div>
                 <h3 className="text-lg font-bold">Acceso Seguro del Invitado</h3>
                 <p className="text-sm text-slate-400 leading-relaxed">
-                  Para probar la experiencia del invitado, asegÃºrate de activar el toggle de "BuzÃ³n de Mensajes" en la secciÃ³n de **Portal Invitado**. Esto mostrarÃ¡ el acceso directo a sus celulares.
+                  Para probar la experiencia del invitado, asegúrate de activar el toggle de "Buzón de Mensajes" en la sección de **Portal Invitado**. Esto mostrará el acceso directo a sus celulares.
                 </p>
                 <Button asChild variant="ghost" className="border border-white/20 bg-transparent text-white hover:bg-white/10 rounded-full w-full justify-between">
                   <Link href={`/evento/buzon/${fiestaId}`} target="_blank">
@@ -683,7 +683,7 @@ function BuzonAdminContent() {
                   </Button>
                   <div className="flex-1 min-w-0">
                     <p className="text-xs font-bold text-slate-600">Mensaje de audio</p>
-                    <p className="text-[10px] text-slate-400">DuraciÃ³n: {msg.durationSeconds}s</p>
+                    <p className="text-[10px] text-slate-400">Duración: {msg.durationSeconds}s</p>
                   </div>
                 </div>
               ) : (

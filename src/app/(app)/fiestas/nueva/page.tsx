@@ -301,7 +301,7 @@ function PlannerDashboardContent() {
                 );
 
                 return alerta.accionUrl ? (
-                  <Link
+                      <Link
                     key={alerta.id}
                     href={alerta.accionUrl}
                     className="flex min-h-14 items-center gap-3 rounded-xl border border-slate-200 bg-slate-50 px-3 py-2 transition-colors hover:border-primary/40 hover:bg-primary/5"
@@ -558,7 +558,7 @@ function PlannerDashboardContent() {
                     const active = isModuleActive(module.id);
                     return (
                       <motion.div key={module.id} whileHover={{ y: -6, scale: 1.01 }} whileTap={{ scale: 0.99 }}>
-                        <Link 
+                        <Link
                           href={module.href.startsWith('/') ? `${module.href}?fiestaId=${fiesta.id}` : `/fiestas/nueva/${module.href}?fiestaId=${fiesta.id}`}
                           onClick={() => {
                             if (!active) {
@@ -568,13 +568,13 @@ function PlannerDashboardContent() {
                         >
                           <Card className={cn(
                             "h-full border border-slate-100 transition-all duration-500 cursor-pointer flex flex-col group rounded-[2rem] overflow-hidden bg-white/80 backdrop-blur-md hover:shadow-2xl",
-                            active 
-                              ? "hover:shadow-primary/10" 
+                              active
+                                ? "hover:shadow-primary/10"
                               : "hover:shadow-slate-400/10"
                           )}>
                             <CardHeader className="flex-row items-center gap-4 space-y-0 pb-3 p-5 sm:p-6">
                               <div className={cn(
-                                "p-3 rounded-2xl group-hover:rotate-12 transition-all duration-500 shadow-inner shrink-0", 
+                                "p-3 rounded-2xl group-hover:rotate-12 transition-all duration-500 shadow-inner shrink-0",
                                 active ? module.color : "bg-slate-100 text-slate-400"
                               )}>
                                 <module.icon className="w-5 h-5 sm:w-6 sm:h-6" />
@@ -585,7 +585,7 @@ function PlannerDashboardContent() {
                                 </CardTitle>
                                 {module.badge && (
                                   <span className={cn(
-                                    "inline-block mt-1 text-[9px] font-black tracking-widest uppercase px-2 py-0.5 rounded-full border", 
+                                    "inline-block mt-1 text-[9px] font-black tracking-widest uppercase px-2 py-0.5 rounded-full border",
                                     active ? badgeColors[module.badge] : "bg-slate-50 text-slate-400 border-slate-100"
                                   )}>
                                     {module.badge}
@@ -611,13 +611,13 @@ function PlannerDashboardContent() {
                                   Inactivo
                                 </span>
                               )}
-                              <Button 
-                                variant="ghost" 
-                                size="sm" 
+                              <Button
+                                variant="ghost"
+                                size="sm"
                                 className={cn(
                                   "font-black text-[10px] uppercase tracking-[0.2em] rounded-xl px-3 h-7 transition-all",
-                                  active 
-                                    ? "text-primary group-hover:bg-primary group-hover:text-white" 
+                                  active
+                                    ? "text-primary group-hover:bg-primary group-hover:text-white"
                                     : "text-slate-400 group-hover:bg-slate-200 group-hover:text-slate-700"
                                 )}
                               >
