@@ -1,8 +1,8 @@
 'use client';
 
-import { useEffect, useState, useMemo } from 'react';
+import { useCallback, useEffect, useRef, useState, useMemo } from 'react';
 import Link from 'next/link';
-import { ArrowLeft, ExternalLink, PlusCircle, Trash2, ArrowUp, ArrowDown, Save, Loader2 } from 'lucide-react';
+import { ArrowLeft, ExternalLink, PlusCircle, Trash2, ArrowUp, ArrowDown, Save, Loader2, RefreshCw, CheckCircle2, Clock } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
@@ -20,6 +20,7 @@ import type { CatalogoSettings, PresentacionLedSettings } from '@/types/contenid
 import { useAutoSave } from '@/hooks/use-auto-save';
 import { AutoSaveIndicator } from '@/components/ui/auto-save-indicator';
 import { getBlogPosts, saveBlogPost, deleteBlogPost } from '@/app/actions/blog';
+import { runMarketingAutomationFromAdmin } from '@/app/actions/marketing-automation';
 import type { BlogPost, BlogCategory } from '@/types/blog';
 
 const CATALOG_TYPES = ['bodas', 'xv-anos', 'cumpleanos', 'fiestas', 'corporativos', 'aniversarios'];
@@ -35,6 +36,7 @@ function moveItem<T>(list: T[], index: number, direction: -1 | 1): T[] {
 
 export default function ContenidoPublicoSettingsPage() {
   const { toast } = useToast();
+  const autoMarketingStarted = useRef(false);
   const [loading, setLoading] = useState(true);
   const [tipoCatalogo, setTipoCatalogo] = useState('bodas');
   const [presentacion, setPresentacion] = useState<PresentacionLedSettings | null>(null);
@@ -42,15 +44,45 @@ export default function ContenidoPublicoSettingsPage() {
   const [blogPosts, setBlogPosts] = useState<BlogPost[]>([]);
   const [editingPost, setEditingPost] = useState<BlogPost | null>(null);
   const [blogActionLoading, setBlogActionLoading] = useState(false);
+  const [generatingAI, setGeneratingAI] = useState(false);
+  const [automationStatus, setAutomationStatus] = useState<{
+    success?: boolean;
+    skipped?: boolean;
+    ranSeo?: boolean;
+    ranInstagram?: boolean;
+    message?: string;
+    error?: string;
+  } | null>(null);
 
-  const loadBlog = async () => {
+  const handleRunMarketingAutomation = async (force = true) => {
+    setGeneratingAI(true);
+    try {
+      const result = await runMarketingAutomationFromAdmin({ force });
+      setAutomationStatus(result);
+      if (result.success) {
+        if (result.ranSeo) await loadBlog();
+        toast({
+          title: result.skipped ? 'Marketing automatico al dia' : 'Automatizacion ejecutada',
+          description: result.message || 'SEO e Instagram revisados correctamente.',
+        });
+      } else {
+        toast({ title: 'Error', description: result.error || 'No se pudo ejecutar la automatizacion.', variant: 'destructive' });
+      }
+    } catch {
+      toast({ title: 'Error', description: 'Error al conectar con el servicio de IA.', variant: 'destructive' });
+    } finally {
+      setGeneratingAI(false);
+    }
+  };
+
+  const loadBlog = useCallback(async () => {
     try {
       const posts = await getBlogPosts();
       setBlogPosts(posts);
     } catch {
       toast({ title: 'Error', description: 'No se pudieron cargar los artículos del blog.', variant: 'destructive' });
     }
-  };
+  }, [toast]);
 
   const handleSavePost = async (post: BlogPost) => {
     setBlogActionLoading(true);
@@ -107,7 +139,14 @@ export default function ContenidoPublicoSettingsPage() {
 
   useEffect(() => {
     loadBlog();
-  }, [toast]);
+  }, [loadBlog]);
+
+  useEffect(() => {
+    if (autoMarketingStarted.current) return;
+    autoMarketingStarted.current = true;
+    handleRunMarketingAutomation(false);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
   useEffect(() => {
     const load = async () => {
@@ -268,14 +307,52 @@ export default function ContenidoPublicoSettingsPage() {
         <CardHeader className="flex flex-row items-center justify-between">
           <div>
             <CardTitle>Blog Corporativo</CardTitle>
-            <CardDescription>Publicá y editá artículos de valor para tus clientes.</CardDescription>
+            <CardDescription>SEO automatico: revisa Instagram cada 6 horas y crea articulos de valor semanalmente.</CardDescription>
           </div>
-          <Button onClick={handleNewPost} variant="outline" size="sm">
-            <PlusCircle className="w-4 h-4 mr-2" />
-            Nuevo artículo
-          </Button>
+          <div className="flex items-center gap-2">
+            <Button
+              onClick={() => handleRunMarketingAutomation(true)}
+              disabled={generatingAI}
+              variant="outline"
+              size="sm"
+              className="border-indigo-200 hover:bg-indigo-50 text-indigo-700 hover:text-indigo-800"
+            >
+              {generatingAI ? (
+                <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+              ) : (
+                <RefreshCw className="w-4 h-4 mr-2 text-indigo-500" />
+              )}
+              Actualizar ahora
+            </Button>
+            <Button onClick={handleNewPost} variant="outline" size="sm">
+              <PlusCircle className="w-4 h-4 mr-2" />
+              Nuevo artículo
+            </Button>
+          </div>
         </CardHeader>
         <CardContent className="space-y-6">
+          <div className="grid gap-3 rounded-2xl border border-indigo-100 bg-indigo-50/60 p-4 text-sm md:grid-cols-[1fr_auto] md:items-center">
+            <div className="space-y-1">
+              <div className="flex items-center gap-2 font-bold text-indigo-950">
+                {generatingAI ? (
+                  <Loader2 className="h-4 w-4 animate-spin text-indigo-600" />
+                ) : automationStatus?.success === false ? (
+                  <Clock className="h-4 w-4 text-amber-600" />
+                ) : (
+                  <CheckCircle2 className="h-4 w-4 text-emerald-600" />
+                )}
+                Marketing automatico activo
+              </div>
+              <p className="text-xs text-indigo-900/75">
+                {automationStatus?.message || 'La app revisa Instagram hasta cada 6 horas y genera contenido SEO semanal cuando corresponde.'}
+              </p>
+            </div>
+            <div className="flex flex-wrap gap-2 text-[11px] font-black uppercase tracking-wider text-indigo-800">
+              <span className="rounded-full bg-white px-3 py-1 shadow-sm">Instagram {automationStatus?.ranInstagram ? 'sincronizado' : 'programado'}</span>
+              <span className="rounded-full bg-white px-3 py-1 shadow-sm">SEO {automationStatus?.ranSeo ? 'generado' : 'programado'}</span>
+            </div>
+          </div>
+
           {/* List of articles */}
           <div className="border rounded-lg divide-y bg-slate-50/50">
             {blogPosts.map((post) => (

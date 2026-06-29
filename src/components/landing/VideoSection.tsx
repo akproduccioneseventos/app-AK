@@ -15,11 +15,40 @@ export interface VideoItem {
   thumbnailUrl: string;
   youtubeId?: string;
   embedUrl?: string;
+  externalUrl?: string;
   categoria?: string;
+}
+
+function canUseNextImage(url: string) {
+  if (url.startsWith('/')) return true;
+  try {
+    const { hostname } = new URL(url);
+    return ['images.unsplash.com', 'img.youtube.com', 'placehold.co', 'picsum.photos', 'i.imgur.com', 'storage.googleapis.com'].includes(hostname);
+  } catch {
+    return false;
+  }
+}
+
+function VideoThumbnail({ src, alt }: { src: string; alt: string }) {
+  if (canUseNextImage(src)) {
+    return (
+      <Image
+        src={src}
+        alt={alt}
+        fill
+        sizes="(max-width: 768px) 100vw, 33vw"
+        unoptimized
+        className="h-full w-full object-cover transition-transform duration-500 group-hover:scale-105"
+      />
+    );
+  }
+
+  return <img src={src} alt={alt} loading="lazy" className="h-full w-full object-cover transition-transform duration-500 group-hover:scale-105" />;
 }
 
 function galeriaVideoToVideoItem(video: GaleriaVideo): VideoItem {
   const isDirectVideo = DIRECT_VIDEO_PATTERN.test(video.youtubeUrl);
+  const isInstagram = video.youtubeUrl?.includes('instagram.com');
   const embedUrl = video.embedUrl
     || (video.plataforma === 'vimeo' ? `https://player.vimeo.com/video/${video.youtubeId}` : undefined)
     || (isDirectVideo ? video.youtubeUrl : undefined);
@@ -28,8 +57,9 @@ function galeriaVideoToVideoItem(video: GaleriaVideo): VideoItem {
     title: video.titulo,
     description: video.descripcion ?? '',
     thumbnailUrl: video.thumbnailUrl,
-    youtubeId: video.plataforma === 'youtube' || !video.plataforma ? video.youtubeId : undefined,
+    youtubeId: (video.plataforma === 'youtube' || (!video.plataforma && !isInstagram && !isDirectVideo)) ? video.youtubeId : undefined,
     embedUrl,
+    externalUrl: isInstagram ? video.youtubeUrl : undefined,
     categoria: video.categoria,
   };
 }
@@ -44,14 +74,7 @@ function VideoCard({ video, onPlay }: VideoCardProps) {
     <div className="group relative rounded-3xl overflow-hidden bg-slate-800 shadow-2xl cursor-pointer" onClick={() => onPlay(video)}>
       {/* Thumbnail */}
       <div className="relative aspect-video overflow-hidden">
-        <Image
-          src={video.thumbnailUrl}
-          alt={video.title}
-          fill
-          sizes="(max-width: 768px) 100vw, 33vw"
-          unoptimized
-          className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
-        />
+        <VideoThumbnail src={video.thumbnailUrl} alt={video.title} />
         {/* Overlay */}
         <div className="absolute inset-0 bg-black/40 group-hover:bg-black/50 transition-colors duration-300" />
         {/* Play button */}
@@ -131,6 +154,14 @@ export function VideoSection({ videos, galeriaVideos, channelUrl }: VideoSection
     ? sortedVideos
     : sortedVideos.filter((v) => v.categoria === activeCategory);
 
+  const handlePlay = (video: VideoItem) => {
+    if (!video.youtubeId && !video.embedUrl && video.externalUrl) {
+      window.open(video.externalUrl, '_blank', 'noopener,noreferrer');
+      return;
+    }
+    setActiveVideo(video);
+  };
+
   const embedSrc = activeVideo?.youtubeId
     ? `https://www.youtube.com/embed/${activeVideo.youtubeId}?autoplay=1&rel=0`
     : activeVideo?.embedUrl ?? '';
@@ -173,7 +204,7 @@ export function VideoSection({ videos, galeriaVideos, channelUrl }: VideoSection
         {/* Video grid */}
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
           {filtered.map((video) => (
-            <VideoCard key={video.id} video={video} onPlay={setActiveVideo} />
+            <VideoCard key={video.id} video={video} onPlay={handlePlay} />
           ))}
         </div>
 
