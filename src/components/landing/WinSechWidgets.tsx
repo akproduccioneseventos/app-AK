@@ -45,7 +45,15 @@ const OFFERS: OfferWidget[] = [
   },
 ];
 
-export function WinSechWidgets() {
+interface WinSechWidgetsProps {
+  instagramUrl?: string;
+  instagramHandle?: string;
+}
+
+export function WinSechWidgets({
+  instagramUrl = 'https://instagram.com/akproduccioneseventos',
+  instagramHandle = '@akproduccioneseventos',
+}: WinSechWidgetsProps) {
   const [currentIdx, setCurrentIdx] = useState(0);
   const [isVisible, setIsVisible] = useState(false);
   const [isClosed, setIsClosed] = useState(false);
@@ -79,13 +87,20 @@ export function WinSechWidgets() {
   };
 
   const current = OFFERS[currentIdx];
-  const Icon = current?.icon || Sparkles;
+  const currentOffer = current.id === 2
+    ? {
+        ...current,
+        description: `Mira contenido real y novedades en ${instagramHandle}. La web se sincroniza con lo mejor del perfil.`,
+        ctaUrl: instagramUrl,
+      }
+    : current;
+  const Icon = currentOffer?.icon || Sparkles;
 
   return (
     <AnimatePresence>
       {isVisible && !isClosed && (
         <motion.div
-          key={current.id}
+          key={currentOffer.id}
           initial={reduceMotion ? { opacity: 0 } : { x: -42, opacity: 0, scale: 0.97 }}
           animate={{ x: 0, opacity: 1, scale: 1 }}
           exit={reduceMotion ? { opacity: 0 } : { x: -42, opacity: 0, scale: 0.97 }}
@@ -96,7 +111,7 @@ export function WinSechWidgets() {
         >
           {!reduceMotion && (
             <motion.div
-              key={`progress-${current.id}`}
+              key={`progress-${currentOffer.id}`}
               initial={{ scaleX: 0 }}
               animate={{ scaleX: 1 }}
               transition={{ duration: 12, ease: 'linear' }}
@@ -108,9 +123,9 @@ export function WinSechWidgets() {
           <div className="flex items-start justify-between gap-3">
             <div className="flex items-center gap-2.5">
               <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl bg-white/10">
-                <Icon className={`w-5 h-5 ${current.iconColor}`} />
+                <Icon className={`w-5 h-5 ${currentOffer.iconColor}`} />
               </div>
-              <p className="font-headline text-sm font-black uppercase tracking-wider text-slate-100">{current.title}</p>
+              <p className="font-headline text-sm font-black uppercase tracking-wider text-slate-100">{currentOffer.title}</p>
             </div>
             <button
               onClick={handleClose}
@@ -123,31 +138,31 @@ export function WinSechWidgets() {
 
           {/* Description */}
           <p className="text-xs font-semibold text-slate-300 leading-relaxed">
-            {current.description}
+            {currentOffer.description}
           </p>
 
           {/* CTA Link */}
-          {current.ctaUrl.startsWith('http') ? (
+          {currentOffer.ctaUrl.startsWith('http') ? (
             <a
-              href={current.ctaUrl}
+              href={currentOffer.ctaUrl}
               target="_blank"
               rel="noopener noreferrer"
               className="inline-flex h-10 items-center justify-center gap-2 rounded-xl bg-indigo-600 text-xs font-black uppercase tracking-wider text-white shadow-md transition-transform duration-200 hover:scale-[1.02] hover:bg-indigo-500 active:scale-[0.98]"
             >
-              {current.ctaText}
+              {currentOffer.ctaText}
             </a>
           ) : (
             <Link
-              href={current.ctaUrl}
+              href={currentOffer.ctaUrl}
               onClick={() => {
                 // If it's a hash link, let it scroll smoothly
-                if (current.ctaUrl.startsWith('#')) {
+                if (currentOffer.ctaUrl.startsWith('#')) {
                   setIsVisible(false);
                 }
               }}
               className="inline-flex h-10 items-center justify-center gap-2 rounded-xl bg-indigo-600 text-xs font-black uppercase tracking-wider text-white shadow-md transition-transform duration-200 hover:scale-[1.02] hover:bg-indigo-500 active:scale-[0.98]"
             >
-              {current.ctaText}
+              {currentOffer.ctaText}
             </Link>
           )}
         </motion.div>

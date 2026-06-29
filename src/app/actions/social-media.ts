@@ -11,11 +11,75 @@ const DATA_DIR = path.join(process.cwd(), 'src', 'data');
 const ASSETS_DIR_NAME = 'social-media-assets';
 const assetsDirectoryPath = path.join(DATA_DIR, ASSETS_DIR_NAME);
 
+type InstagramFeedPost = {
+  id: string;
+  mediaType: 'image' | 'video';
+  mediaUrl: string;
+  videoUrl?: string;
+  text: string;
+  likes: number;
+};
+
 async function ensureDataDirectoriesExist() {
   try { await fs.access(DATA_DIR); } catch { await fs.mkdir(DATA_DIR, { recursive: true }); }
   try { await fs.access(assetsDirectoryPath); } catch { await fs.mkdir(assetsDirectoryPath, { recursive: true }); }
 }
 ensureDataDirectoriesExist();
+
+async function fetchInstagramGraphFeed(profileUrl?: string): Promise<InstagramFeedPost[] | null> {
+  const accessToken = process.env.INSTAGRAM_ACCESS_TOKEN || process.env.META_INSTAGRAM_ACCESS_TOKEN;
+  const accountId = process.env.INSTAGRAM_BUSINESS_ACCOUNT_ID || process.env.INSTAGRAM_USER_ID;
+
+  if (!accessToken || !accountId) return null;
+
+  const apiVersion = process.env.INSTAGRAM_GRAPH_API_VERSION || 'v25.0';
+  const fields = [
+    'id',
+    'caption',
+    'media_type',
+    'media_url',
+    'thumbnail_url',
+    'permalink',
+    'timestamp',
+    'like_count',
+    'comments_count',
+  ].join(',');
+
+  try {
+    const response = await fetch(
+      `https://graph.facebook.com/${apiVersion}/${accountId}/media?fields=${encodeURIComponent(fields)}&limit=12&access_token=${encodeURIComponent(accessToken)}`,
+      { cache: 'no-store' }
+    );
+
+    if (!response.ok) {
+      console.warn(`[Instagram Sync] Graph API respondio ${response.status}. Se usa fallback local.`);
+      return null;
+    }
+
+    const payload = await response.json();
+    const items = Array.isArray(payload?.data) ? payload.data : [];
+
+    return items
+      .map((item: any): InstagramFeedPost | null => {
+        const isVideo = String(item.media_type || '').toUpperCase().includes('VIDEO') || String(item.media_type || '').toUpperCase().includes('REEL');
+        const mediaUrl = item.thumbnail_url || item.media_url;
+        if (!item.id || !mediaUrl) return null;
+
+        return {
+          id: `ig_${item.id}`,
+          mediaType: isVideo ? 'video' : 'image',
+          mediaUrl,
+          videoUrl: item.permalink || profileUrl,
+          text: item.caption || 'Contenido reciente de Instagram AK Producciones.',
+          likes: Number(item.like_count || item.comments_count || 0),
+        };
+      })
+      .filter(Boolean) as InstagramFeedPost[];
+  } catch (error: any) {
+    console.warn('[Instagram Sync] No se pudo leer Instagram Graph API. Se usa fallback local:', error.message || error);
+    return null;
+  }
+}
 
 export async function getSocialPosts(): Promise<SocialPost[]> {
   return readData<SocialPost[]>(POSTS_FILE, []);
@@ -113,17 +177,17 @@ export async function deleteSocialPost(postId: string): Promise<{ success: boole
  *  - Clasifica las fotos en el catálogo público usando expresiones regulares.
  *  - Inserta los reels/videos en la sección de videos de la Galería pública junto a los de YouTube.
  */
-export async function syncInstagramPosts(): Promise<{ success: boolean; photosCount: number; videosCount: number; error?: string }> {
+export async function syncInstagramPosts(): Promise<{ success: boolean; photosCount: number; videosCount: number; plannerCount: number; error?: string }> {
   try {
     // 1. Obtener la conexión de Instagram si está configurada (fallback a posts por defecto)
     const connections = await readData<any[]>('social-connections.json', []);
-    const instagramConn = connections.find(c => c.platform === 'Instagram');
+    const instagramConn = connections.find(c => c.platform === 'Instagram' && c.isConnected);
     
     // 2. Definir publicaciones representativas de Instagram del feed real
-    const mockInstagramFeed = [
+    const fallbackInstagramFeed: InstagramFeedPost[] = [
       {
         id: 'ig_post_001',
-        mediaType: 'video' as const,
+        mediaType: 'video',
         mediaUrl: '/media/catalogo-servicios/xv-pista-iluminada-01.jpeg', // Para visualización en la galería
         videoUrl: 'https://www.instagram.com/p/C_Reel_Discoteca_LED/',
         text: '¡Increíble noche de XV Años en Salto! Pista de luces LED activa y diversión asegurada al 100% 💫🎉 #xv #fiestas #discoteca #luces #akproducciones',
@@ -131,21 +195,21 @@ export async function syncInstagramPosts(): Promise<{ success: boolean; photosCo
       },
       {
         id: 'ig_post_002',
-        mediaType: 'image' as const,
+        mediaType: 'image',
         mediaUrl: '/media/catalogo-servicios/barra-tragos-ak-01.jpeg',
         text: 'Nuestra barra premium lista para recibir a los invitados. Tragos de autor, jugos naturales y barra libre toda la noche 🍹✨ #barra #catering #bebidas',
         likes: 219
       },
       {
         id: 'ig_post_003',
-        mediaType: 'image' as const,
+        mediaType: 'image',
         mediaUrl: '/media/catalogo-servicios/candy-bar-completo-ak-02.jpeg',
         text: 'Los detalles hacen la diferencia. Candy bar personalizado para la boda de Sofía & Juan 💍🍬 #candybar #decoracion #bodas #torta',
         likes: 185
       },
       {
         id: 'ig_post_004',
-        mediaType: 'video' as const,
+        mediaType: 'video',
         mediaUrl: '/media/catalogo-servicios/photobooth-vogue-01.jpeg',
         videoUrl: 'https://www.instagram.com/p/C_Reel_Cabina_360/',
         text: '¡Diversión en el Muro Social! Capturamos sonrisas en tiempo real con nuestra fotocabina interactiva 📸🥳 #fotocabina #invitados #diversion #plataforma #360',
@@ -153,7 +217,7 @@ export async function syncInstagramPosts(): Promise<{ success: boolean; photosCo
       },
       {
         id: 'ig_post_005',
-        mediaType: 'image' as const,
+        mediaType: 'image',
         mediaUrl: '/media/catalogo-servicios/catering-mesa-ak-01.jpeg',
         text: 'Servicio de plato principal premium para bodas civiles. Lomo relleno con papas rústicas 🍽️🥩 #catering #comida #recepcion #bodas',
         likes: 284
@@ -185,12 +249,17 @@ export async function syncInstagramPosts(): Promise<{ success: boolean; photosCo
     // 3. Cargar bases de datos actuales
     const catalogoFotos = await readData<any[]>('catalogo-fotos.json', []);
     const galeriaData = await readData<{ fotos: any[]; videos: any[] }>('galeria-publica.json', { fotos: [], videos: [] });
+    const socialPosts = await readData<SocialPost[]>(POSTS_FILE, []);
 
     let addedPhotosCount = 0;
     let addedVideosCount = 0;
+    let addedPlannerCount = 0;
 
-    for (const post of mockInstagramFeed) {
+    const instagramFeed = await fetchInstagramGraphFeed(instagramConn?.profileUrl) || fallbackInstagramFeed;
+
+    for (const post of instagramFeed) {
       const category = guessCategoryFromText(post.text);
+      const now = new Date().toISOString();
 
       if (post.mediaType === 'video') {
         // Es un reel/video -> colocar en la sección de videos de la galería
@@ -208,7 +277,7 @@ export async function syncInstagramPosts(): Promise<{ success: boolean; photosCo
             categoria: category,
             destacada: true,
             orden: galeriaData.videos.length,
-            createdAt: new Date().toISOString()
+            createdAt: now
           });
           addedVideosCount++;
         }
@@ -225,10 +294,32 @@ export async function syncInstagramPosts(): Promise<{ success: boolean; photosCo
             destacada: true,
             orden: catalogoFotos.length,
             source: 'instagram',
-            createdAt: new Date().toISOString()
+            createdAt: now
           });
           addedPhotosCount++;
         }
+      }
+
+      const plannerId = `ig_sync_${post.id}`;
+      if (!socialPosts.some(item => item.id === plannerId)) {
+        socialPosts.push({
+          id: plannerId,
+          platform: 'Instagram',
+          isGeneralCampaign: true,
+          publishDate: now,
+          text: post.text,
+          link: post.videoUrl || instagramConn?.profileUrl,
+          mediaUrl: post.mediaUrl,
+          mediaType: post.mediaType === 'video' ? 'video' : 'image',
+          status: 'Publicado',
+          performance: {
+            likes: post.likes,
+            interactions: post.likes,
+          },
+          createdAt: now,
+          updatedAt: now,
+        });
+        addedPlannerCount++;
       }
     }
 
@@ -239,11 +330,14 @@ export async function syncInstagramPosts(): Promise<{ success: boolean; photosCo
     if (addedVideosCount > 0) {
       await writeData('galeria-publica.json', galeriaData);
     }
+    if (addedPlannerCount > 0) {
+      await writeData(POSTS_FILE, socialPosts, (a, b) => new Date(b.publishDate).getTime() - new Date(a.publishDate).getTime());
+    }
 
-    console.log(`[Instagram Sync] Proceso de sincronización completado. Fotos: +${addedPhotosCount}, Reels/Videos: +${addedVideosCount}`);
-    return { success: true, photosCount: addedPhotosCount, videosCount: addedVideosCount };
+    console.log(`[Instagram Sync] Proceso de sincronización completado. Fotos: +${addedPhotosCount}, Reels/Videos: +${addedVideosCount}, Planner: +${addedPlannerCount}`);
+    return { success: true, photosCount: addedPhotosCount, videosCount: addedVideosCount, plannerCount: addedPlannerCount };
   } catch (error: any) {
     console.error('[Instagram Sync] Error en la sincronización:', error.message || error);
-    return { success: false, photosCount: 0, videosCount: 0, error: error.message };
+    return { success: false, photosCount: 0, videosCount: 0, plannerCount: 0, error: error.message };
   }
 }

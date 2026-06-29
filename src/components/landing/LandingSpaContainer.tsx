@@ -1,7 +1,7 @@
 'use client';
 
-import { useState, useEffect } from 'react';
-import { motion, AnimatePresence, useReducedMotion } from 'framer-motion';
+import { useRef, useState, useEffect } from 'react';
+import { motion, AnimatePresence, useReducedMotion, useScroll, useSpring } from 'framer-motion';
 import { ArrowLeft, Sparkles } from 'lucide-react';
 
 interface LandingSpaContainerProps {
@@ -14,6 +14,7 @@ interface LandingSpaContainerProps {
   team: React.ReactNode;
   process: React.ReactNode;
   gallery: React.ReactNode;
+  instagram: React.ReactNode;
   blog: React.ReactNode;
   video: React.ReactNode;
   testimonials: React.ReactNode;
@@ -29,6 +30,7 @@ const SECTION_LABELS: Record<string, string> = {
   tecnologia: 'Tecnología Interactiva',
   salon: 'Salón Club Uruguay',
   galeria: 'Galería de Recuerdos',
+  instagram: 'Instagram Sincronizado',
   blog: 'Blog & Consejos SEO',
   testimonios: 'Casos de Éxito Reales',
   faq: 'Preguntas Frecuentes',
@@ -44,6 +46,7 @@ export function LandingSpaContainer({
   team,
   process,
   gallery,
+  instagram,
   blog,
   video,
   testimonials,
@@ -54,7 +57,10 @@ export function LandingSpaContainer({
   winSech,
 }: LandingSpaContainerProps) {
   const [activeSection, setActiveSection] = useState<string | null>(null);
+  const dashboardRef = useRef<HTMLDivElement>(null);
   const reduceMotion = useReducedMotion();
+  const { scrollYProgress } = useScroll({ container: dashboardRef });
+  const progressScale = useSpring(scrollYProgress, { stiffness: 120, damping: 28, mass: 0.25 });
 
   // Scroll to top when active section changes to make navigation clean
   useEffect(() => {
@@ -119,6 +125,7 @@ export function LandingSpaContainer({
     justify: 'center' | 'between' = 'center'
   ) => (
     <motion.section
+      id={`landing-${key}`}
       key={key}
       {...revealProps}
       className={`w-full md:snap-start md:min-h-screen md:flex md:flex-col relative overflow-hidden ${
@@ -129,13 +136,51 @@ export function LandingSpaContainer({
     </motion.section>
   );
 
+  const navItems = [
+    ['hero', 'Inicio'],
+    ['services', 'Servicios'],
+    ['technology', 'Tecnologia'],
+    ['gallery', 'Galeria'],
+    ['instagram', 'Instagram'],
+    ['blog-video', 'Blog'],
+    ['cta-footer', 'Contacto'],
+  ];
+
+  const scrollToSection = (key: string) => {
+    const element = document.getElementById(`landing-${key}`);
+    element?.scrollIntoView({ behavior: reduceMotion ? 'auto' : 'smooth', block: 'start' });
+  };
+
   return (
     <div className="min-h-screen bg-zinc-950 text-white selection:bg-indigo-600 selection:text-white">
       {renderSectionHeader()}
+      {!activeSection && (
+        <>
+          <motion.div
+            style={{ scaleX: progressScale }}
+            className="fixed left-0 top-0 z-[70] h-1 w-full origin-left bg-gradient-to-r from-indigo-400 via-pink-300 to-amber-200"
+          />
+          <nav className="fixed right-4 top-1/2 z-[60] hidden -translate-y-1/2 flex-col gap-2 rounded-2xl border border-white/10 bg-zinc-950/70 p-2 shadow-2xl shadow-black/30 backdrop-blur-md xl:flex">
+            {navItems.map(([key, label]) => (
+              <button
+                key={key}
+                type="button"
+                onClick={() => scrollToSection(key)}
+                className="group flex items-center gap-2 rounded-xl px-2.5 py-2 text-left text-[10px] font-black uppercase tracking-wider text-zinc-400 transition-all hover:bg-white/10 hover:text-white"
+                title={label}
+              >
+                <span className="h-1.5 w-1.5 rounded-full bg-zinc-600 transition-all group-hover:w-5 group-hover:bg-indigo-300" />
+                <span className="max-w-0 overflow-hidden whitespace-nowrap transition-all group-hover:max-w-24">{label}</span>
+              </button>
+            ))}
+          </nav>
+        </>
+      )}
 
       <AnimatePresence mode="wait">
         {!activeSection ? (
           <motion.div
+            ref={dashboardRef}
             key="dashboard"
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
@@ -154,6 +199,7 @@ export function LandingSpaContainer({
               </div>
             )}
             {dashboardSection('gallery', wrapWithExpander('galeria', 'galería', gallery))}
+            {dashboardSection('instagram', wrapWithExpander('instagram', 'Instagram', instagram))}
             {dashboardSection('blog-video',
               <div className="w-full">
                 {wrapWithExpander('blog', 'blog', blog)}
@@ -182,6 +228,7 @@ export function LandingSpaContainer({
               {activeSection === 'tecnologia' && technology}
               {activeSection === 'salon' && salon}
               {activeSection === 'galeria' && gallery}
+              {activeSection === 'instagram' && instagram}
               {activeSection === 'blog' && (
                 <div className="space-y-12">
                   {blog}

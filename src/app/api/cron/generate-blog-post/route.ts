@@ -1,5 +1,5 @@
 import { NextResponse } from 'next/server';
-import { generateBlogPostAndSocialDraft } from '@/lib/blog-ai-generator';
+import { runMarketingAutomation } from '@/lib/marketing-automation';
 
 export async function GET(request: Request) {
   return handleCron(request);
@@ -26,11 +26,14 @@ async function handleCron(request: Request) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
 
-    const result = await generateBlogPostAndSocialDraft();
+    const result = await runMarketingAutomation({
+      source: 'cron',
+      force: searchParams.get('force') === '1',
+    });
 
     return NextResponse.json({
       success: true,
-      message: 'Post de blog y borrador de redes sociales generados correctamente por IA.',
+      message: result.message,
       ...result,
     });
   } catch (error: any) {
