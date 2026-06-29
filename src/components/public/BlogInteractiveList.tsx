@@ -38,7 +38,7 @@ export function BlogInteractiveList({ posts }: Props) {
                 {/* Portada con Imagen Real */}
                 <div className="relative h-48 w-full bg-slate-950 overflow-hidden text-white flex flex-col justify-between p-5">
                   <Image
-                    src={getPostImage(post.slug)}
+                    src={getPostImage(post.slug, post.title, post.category)}
                     alt={post.title}
                     fill
                     className="object-cover opacity-60 transition-transform duration-500 group-hover:scale-[1.03]"

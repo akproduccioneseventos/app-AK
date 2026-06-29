@@ -28,6 +28,8 @@ import type { GaleriaFoto } from '@/types/galeria';
 import type { ServiceItem } from '@/components/landing/ServicesSection';
 import { getAkYoutubeVideos, AK_YOUTUBE_CHANNEL_URL } from '@/lib/youtube/ak-channel';
 import { PromoWidget } from '@/components/promo/PromoWidget';
+import { LandingSpaContainer } from '@/components/landing/LandingSpaContainer';
+import { WinSechWidgets } from '@/components/landing/WinSechWidgets';
 
 export const revalidate = 300;
 
@@ -217,84 +219,53 @@ export default async function HomePage({ searchParams }: LandingPageProps) {
   };
 
   return (
-    <div className="ak-landing-experience md:h-screen md:overflow-y-auto md:snap-y md:snap-mandatory md:scroll-smooth bg-white">
+    <div className="bg-zinc-950 min-h-screen text-white selection:bg-indigo-650 selection:text-white">
       {/* Inject JSON-LD Schema for SEO */}
       <script
         type="application/ld+json"
         dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
       />
       {promo && <PromoWidget promo={promo} />}
-      <LandingNav whatsappNumber={whatsapp} />
 
-      {/* Slide 1: Hero & Stats */}
-      <div className="w-full md:snap-start md:min-h-screen md:flex md:flex-col md:justify-between relative">
-        <HeroSection
-          whatsappNumber={whatsapp}
-          promoActiva={promo}
-          headline={landingSettings.hero.headline}
-          subheadline={landingSettings.hero.subheadline}
-          backgroundImageUrl={landingSettings.hero.backgroundImageUrl}
-          simulatorHref="/simulador-de-presupuesto"
-          simulatorLabel="Cotizá tu Fiesta"
-        />
-        <StatsSection stats={landingSettings.stats.length > 0 ? landingSettings.stats : undefined} />
-      </div>
-
-      {/* Slide 2: Diferenciales */}
-      <div className="w-full md:snap-start md:min-h-screen md:flex md:flex-col md:justify-center relative">
-        <AkDifferenceSection />
-      </div>
-
-      {/* Slide 3: Servicios */}
-      <div className="w-full md:snap-start md:min-h-screen md:flex md:flex-col md:justify-center relative">
-        <ServicesSection whatsappNumber={whatsapp} services={servicesForLanding} />
-      </div>
-
-      {/* Slide 4: Tecnología */}
-      <div className="w-full md:snap-start md:min-h-screen md:flex md:flex-col md:justify-center relative">
-        <TechnologyExperienceSection whatsappNumber={whatsapp} />
-      </div>
-
-      {/* Slide 5: Salón Club Uruguay */}
-      <div className="w-full md:snap-start md:min-h-screen md:flex md:flex-col md:justify-center relative">
-        <SalonDestacadoSection />
-      </div>
-
-      {/* Slide 6: Equipo & Proceso */}
-      <div className="w-full md:snap-start md:min-h-screen md:flex md:flex-col md:justify-center relative">
-        <AkTeamStorySection />
-        <ProcessSection />
-      </div>
-
-      {/* Slide 7: Galería Interactiva */}
-      <div className="w-full md:snap-start md:min-h-screen md:flex md:flex-col md:justify-center relative">
-        <GallerySection galeriaFotos={fotosCombinadas} />
-      </div>
-
-      {/* Slide 8: Blog y Videos */}
-      <div className="w-full md:snap-start md:min-h-screen md:flex md:flex-col md:justify-center relative">
-        <BlogSection />
-        <VideoSection galeriaVideos={videosCombinados} channelUrl={AK_YOUTUBE_CHANNEL_URL} />
-      </div>
-
-      {/* Slide 9: Testimonios & FAQ */}
-      <div className="w-full md:snap-start md:min-h-screen md:flex md:flex-col md:justify-center relative">
-        <TestimonialsSection testimonials={approvedTestimonials} />
-        <FAQSection faqs={landingSettings.faqs} />
-      </div>
-
-      {/* Slide 10: CTA & Footer */}
-      <div className="w-full md:snap-start md:min-h-screen md:flex md:flex-col md:justify-between relative">
-        <CTASection
-          whatsappNumber={whatsapp}
-          headline={landingSettings.cta.headline}
-          subheadline={landingSettings.cta.subheadline}
-          ctaLabel={landingSettings.cta.ctaLabel}
-        />
-        <PublicFooter variant="dark" />
-      </div>
-
-      <FloatingActions whatsappNumber={whatsapp} />
+      <LandingSpaContainer
+        hero={
+          <div className="w-full flex flex-col justify-between min-h-screen">
+            <LandingNav whatsappNumber={whatsapp} />
+            <HeroSection
+              whatsappNumber={whatsapp}
+              promoActiva={promo}
+              headline={landingSettings.hero.headline}
+              subheadline={landingSettings.hero.subheadline}
+              backgroundImageUrl="/media/catalogo-servicios/quinceanera_hero.png"
+              simulatorHref="/simulador-de-presupuesto"
+              simulatorLabel="Cotizá tu Fiesta"
+            />
+          </div>
+        }
+        stats={<StatsSection stats={landingSettings.stats.length > 0 ? landingSettings.stats : undefined} />}
+        difference={<AkDifferenceSection />}
+        services={<ServicesSection whatsappNumber={whatsapp} services={servicesForLanding} />}
+        technology={<TechnologyExperienceSection whatsappNumber={whatsapp} />}
+        salon={<SalonDestacadoSection />}
+        team={<AkTeamStorySection />}
+        process={<ProcessSection />}
+        gallery={<GallerySection galeriaFotos={fotosCombinadas} />}
+        blog={<BlogSection />}
+        video={<VideoSection galeriaVideos={videosCombinados} channelUrl={AK_YOUTUBE_CHANNEL_URL} />}
+        testimonials={<TestimonialsSection testimonials={approvedTestimonials} />}
+        faq={<FAQSection faqs={landingSettings.faqs} />}
+        cta={
+          <CTASection
+            whatsappNumber={whatsapp}
+            headline={landingSettings.cta.headline}
+            subheadline={landingSettings.cta.subheadline}
+            ctaLabel={landingSettings.cta.ctaLabel}
+          />
+        }
+        footer={<PublicFooter variant="dark" />}
+        floatingActions={<FloatingActions whatsappNumber={whatsapp} />}
+        winSech={<WinSechWidgets />}
+      />
     </div>
   );
 }

@@ -272,6 +272,32 @@ const postImages: Record<string, string> = {
   'checklist-final-antes-del-evento': '/media/catalogo-servicios/tecnologia_fiesta.png',
 };
 
-export function getPostImage(slug: string): string {
-  return postImages[slug] || '/media/catalogo-servicios/blog_salon.png';
+export function getPostImage(slug: string, title?: string, category?: string): string {
+  if (postImages[slug]) return postImages[slug];
+
+  const text = `${slug} ${title || ''} ${category || ''}`.toLowerCase();
+
+  if (text.includes('trago') || text.includes('barra') || text.includes('bebida') || text.includes('coctel') || text.includes('coctelería')) {
+    return '/media/catalogo-servicios/blog_bebidas.png';
+  }
+  if (text.includes('catering') || text.includes('comida') || text.includes('plato') || text.includes('menú') || text.includes('finger') || text.includes('gastro')) {
+    return '/media/catalogo-servicios/blog_comida.png';
+  }
+  if (text.includes('luz') || text.includes('luces') || text.includes('pantalla') || text.includes('led') || text.includes('robotizada') || text.includes('disco') || text.includes('pista')) {
+    return '/media/catalogo-servicios/blog_iluminacion.png';
+  }
+  if (text.includes('salón') || text.includes('salon') || text.includes('club') || text.includes('uruguay') || text.includes('lugar') || text.includes('espacio') || text.includes('acústica')) {
+    return '/media/catalogo-servicios/blog_salon.png';
+  }
+  if (text.includes('presupuesto') || text.includes('planific') || text.includes('calcular') || text.includes('estrés') || text.includes('organizar') || text.includes('checklist') || text.includes('semana') || text.includes('costo')) {
+    return '/media/catalogo-servicios/blog_presupuesto.png';
+  }
+  if (text.includes('boda') || text.includes('casamiento') || text.includes('novia')) {
+    return '/media/catalogo-servicios/boda_persuasiva.png';
+  }
+  if (text.includes('15') || text.includes('quince') || text.includes('xv')) {
+    return '/media/catalogo-servicios/quinceanera_persuasiva.png';
+  }
+
+  return '/media/catalogo-servicios/blog_salon.png';
 }

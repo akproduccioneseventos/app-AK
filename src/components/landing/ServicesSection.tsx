@@ -99,40 +99,43 @@ export function ServicesSection({ whatsappNumber = '59898355530', services }: Se
   };
 
   return (
-    <section id="servicios" className="py-24 bg-gradient-to-b from-white to-slate-50 border-b border-slate-200">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+    <section id="servicios" className="py-24 bg-zinc-950 text-white border-y border-white/5 relative overflow-hidden">
+      {/* Glow de fondo */}
+      <div className="absolute top-1/3 right-1/4 -translate-y-1/2 w-96 h-96 bg-indigo-500/5 rounded-full blur-3xl pointer-events-none" />
+
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
 
         {/* Header */}
         <div className="text-center mb-20">
-          <span className="inline-flex items-center gap-2 px-3 py-1 rounded-xl bg-purple-50 border border-purple-100 text-xs font-black uppercase tracking-widest text-purple-700 mb-4">
+          <span className="inline-flex items-center gap-2 px-3 py-1 rounded-xl bg-indigo-500/10 border border-indigo-500/20 text-xs font-black uppercase tracking-widest text-indigo-400 mb-4">
             🔥 Todo en un solo lugar
           </span>
-          <h2 className="font-headline text-5xl sm:text-6xl font-black text-slate-900 leading-tight mb-5">
-            Todos los servicios en un solo lugar
+          <h2 className="font-headline text-5xl sm:text-6xl font-black text-white leading-tight mb-5">
+            Solución Integral para tu Fiesta
           </h2>
-          <p className="text-slate-500 text-lg max-w-xl mx-auto leading-relaxed">
-            Una solución integral todo en uno. Nos encargamos de coordinar y ejecutar cada detalle para que disfrutes de tu fiesta como un invitado más.
+          <p className="text-zinc-400 text-lg max-w-xl mx-auto leading-relaxed">
+            Coordinamos y ejecutamos cada detalle: comida, decoración, luces y fotos bajo un mismo equipo para que disfrutes sin estrés.
           </p>
         </div>
 
         {/* ── SECTION: TIPOS DE FIESTA ──────────────────────── */}
         <div className="mb-24">
           <div className="mb-8">
-            <h3 className="text-2xl font-black text-slate-900 flex items-center gap-2">
-              <Calendar className="w-6 h-6 text-indigo-600" /> Tipos de Fiesta que Hacemos
+            <h3 className="text-2xl font-black text-white flex items-center gap-2 font-headline">
+              <Calendar className="w-6 h-6 text-indigo-400" /> Celebraciones que Producimos
             </h3>
-            <p className="text-slate-500 text-sm mt-1">Soluciones diseñadas a medida según el tipo de celebración.</p>
+            <p className="text-zinc-400 text-sm mt-1">Hacemos realidad el evento de tus sueños según tu estilo.</p>
           </div>
 
           <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-4">
             {PARTY_TYPES.map((party) => (
               <div
                 key={party.title}
-                className="p-6 rounded-3xl bg-white border border-slate-200 shadow-sm hover:shadow-xl transition-all duration-300 hover:-translate-y-1"
+                className="p-6 rounded-3xl bg-white/[0.02] border border-white/10 shadow-lg hover:shadow-indigo-500/5 transition-all duration-300 hover:-translate-y-1"
               >
                 <span className="text-4xl block mb-4">{party.emoji}</span>
-                <h4 className="text-lg font-black text-slate-800">{party.title}</h4>
-                <p className="text-xs font-medium text-slate-500 mt-2 leading-relaxed">{party.desc}</p>
+                <h4 className="text-lg font-black text-white font-headline">{party.title}</h4>
+                <p className="text-xs font-semibold text-zinc-400 mt-2 leading-relaxed">{party.desc}</p>
               </div>
             ))}
           </div>
@@ -141,11 +144,11 @@ export function ServicesSection({ whatsappNumber = '59898355530', services }: Se
         {/* ── SECTION: SERVICIOS DETALLADOS ───────────────────── */}
         <div>
           <div className="mb-10">
-            <h3 className="text-2xl font-black text-slate-900">
+            <h3 className="text-2xl font-black text-white font-headline">
               ¿Qué incluye la producción integral?
             </h3>
-            <p className="text-slate-500 text-sm mt-1">
-              Desde el armado de la pista hasta la mesa dulce, nos encargamos de todo bajo un mismo control.
+            <p className="text-zinc-400 text-sm mt-1">
+              Todo resuelto bajo un estricto control de calidad, sin lidiar con diez proveedores diferentes.
             </p>
           </div>
 
@@ -164,11 +167,11 @@ export function ServicesSection({ whatsappNumber = '59898355530', services }: Se
                 <motion.div
                   key={service.id}
                   variants={cardVariants}
-                  className="group flex flex-col justify-between rounded-3xl border border-slate-200 bg-white shadow-sm hover:shadow-2xl transition-all duration-300 overflow-hidden"
+                  className="group flex flex-col justify-between rounded-3xl border border-white/10 bg-white/[0.01] shadow-xl hover:shadow-[0_10px_35px_rgba(99,102,241,0.15)] transition-all duration-300 overflow-hidden"
                 >
                   <div>
                     {/* Image Area */}
-                    <div className="relative aspect-[4/3] w-full overflow-hidden bg-slate-100 border-b border-slate-100">
+                    <div className="relative aspect-[4/3] w-full overflow-hidden bg-zinc-900 border-b border-white/5">
                       <Image
                         src={service.imageUrl}
                         alt={service.title}
@@ -176,25 +179,25 @@ export function ServicesSection({ whatsappNumber = '59898355530', services }: Se
                         className="object-cover transition-transform duration-500 group-hover:scale-[1.03]"
                         sizes="(max-width: 768px) 100vw, 30vw"
                       />
-                      <div className="absolute top-4 left-4 w-11 h-11 rounded-2xl bg-white/90 backdrop-blur-sm flex items-center justify-center text-xl shadow-md">
+                      <div className="absolute top-4 left-4 w-11 h-11 rounded-2xl bg-zinc-950/80 backdrop-blur-sm border border-white/10 flex items-center justify-center text-xl shadow-md">
                         {service.emoji}
                       </div>
                     </div>
 
                     {/* Content Area */}
-                    <div className="p-6 space-y-4">
-                      <h4 className="text-xl font-black text-slate-900 group-hover:text-indigo-600 transition-colors">
+                    <div className="p-6 space-y-4 text-left">
+                      <h4 className="text-xl font-black text-white group-hover:text-indigo-400 transition-colors font-headline">
                         {service.title}
                       </h4>
-                      <p className="text-sm text-slate-500 leading-relaxed font-medium">
+                      <p className="text-sm text-zinc-400 leading-relaxed font-semibold">
                         {service.description}
                       </p>
 
                       {/* Features mini list */}
                       <ul className="space-y-2 pt-2">
                         {service.features.map((feat) => (
-                          <li key={feat} className="flex items-center gap-2 text-xs font-semibold text-slate-600">
-                            <span className="h-1.5 w-1.5 rounded-full bg-indigo-500" />
+                          <li key={feat} className="flex items-center gap-2 text-xs font-semibold text-zinc-300">
+                            <span className="h-1.5 w-1.5 rounded-full bg-indigo-500 animate-pulse" />
                             <span>{feat}</span>
                           </li>
                         ))}
@@ -203,18 +206,18 @@ export function ServicesSection({ whatsappNumber = '59898355530', services }: Se
                   </div>
 
                   {/* Actions Area */}
-                  <div className="p-6 pt-0 mt-auto border-t border-slate-50">
+                  <div className="p-6 pt-0 mt-auto border-t border-white/5">
                     <a
                       href={waHref}
                       target="_blank"
                       rel="noopener noreferrer"
                       className={cn(
-                        'flex items-center justify-center gap-2 w-full mt-4 px-4 py-3 rounded-2xl',
-                        'bg-slate-50 hover:bg-green-50 hover:text-green-700 text-slate-700 font-black text-xs uppercase tracking-wider',
-                        'border border-slate-200 hover:border-green-300 transition-all duration-200'
+                        'flex items-center justify-center gap-2 w-full mt-4 px-4 py-3.5 rounded-2xl',
+                        'bg-white/5 hover:bg-indigo-650 hover:text-white text-zinc-300 font-black text-xs uppercase tracking-wider',
+                        'border border-white/10 hover:border-indigo-500/35 transition-all duration-200 shadow-md active:scale-98'
                       )}
                     >
-                      <MessageSquare className="w-4 h-4 shrink-0" />
+                      <MessageSquare className="w-4 h-4 shrink-0 text-indigo-400 group-hover:text-white transition-colors" />
                       Consultar Servicio
                       <ChevronRight className="w-3.5 h-3.5" />
                     </a>

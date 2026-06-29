@@ -6,24 +6,11 @@ import Image from 'next/image';
 import { Button } from '@/components/ui/button';
 import { Building2, ArrowRight } from 'lucide-react';
 
+import { getDynamicSalonPhotos } from '@/lib/salon-helper';
+
 export function SalonDestacadoSection() {
-  const photos = [
-    {
-      src: '/media/catalogo-servicios/salon-discoteca-ak-01.jpeg',
-      alt: 'Salón Club Uruguay decorado',
-      title: 'Montaje de Gala',
-    },
-    {
-      src: '/media/catalogo-servicios/discoteca-salon-ak-02.jpeg',
-      alt: 'Sonido y pantallas gigantes de AK',
-      title: 'Discoteca y Escenario',
-    },
-    {
-      src: '/media/catalogo-servicios/xv-pista-iluminada-01.jpeg',
-      alt: 'Pista de baile LED en salón clásico',
-      title: 'Pista LED Interactiva',
-    },
-  ];
+  const allPhotos = getDynamicSalonPhotos();
+  const photos = allPhotos.slice(0, 3);
 
   return (
     <section className="py-24 bg-zinc-950 text-white relative overflow-hidden">

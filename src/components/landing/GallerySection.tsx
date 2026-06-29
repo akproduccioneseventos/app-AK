@@ -41,36 +41,69 @@ interface LandingGalleryItem {
   titulo?: string;
   descripcion?: string;
   destacada?: boolean;
-  servicio: string;
+  categorias: string[];
+  subCategoria?: string;
 }
 
 const CATEGORY_FILTERS = [
   'Todos',
-  'Salón',
+  'Discoteca',
+  'Catering',
   'Decoración',
-  'Gastronomía',
-  'Discoteca & Luces',
+  'Barra de Tragos',
+  'Fotocabina',
+  'Repostería',
   'Fotografía',
+  'Salón',
 ];
 
-function getGrupoCategoria(servicio: string): string {
-  const lower = servicio.toLowerCase();
-  if (lower.includes('salon') || lower.includes('salón') || lower.includes('club')) {
-    return 'Salón';
+function getCategoriasAsociadas(titulo: string, descripcion: string, categoriaOriginal: string): string[] {
+  const text = `${titulo || ''} ${descripcion || ''} ${categoriaOriginal || ''}`.toLowerCase();
+  const cats: string[] = [];
+
+  if (text.includes('salon') || text.includes('salón') || text.includes('club') || text.includes('uruguay')) {
+    cats.push('Salón');
   }
-  if (lower.includes('decor') || lower.includes('ambient') || lower.includes('candy') || lower.includes('mesa principal') || lower.includes('glitter')) {
-    return 'Decoración';
+  if (text.includes('decor') || text.includes('ambient') || text.includes('mesa principal') || text.includes('velas')) {
+    cats.push('Decoración');
   }
-  if (lower.includes('comida') || lower.includes('catering') || lower.includes('menu') || lower.includes('menú') || lower.includes('gastro') || lower.includes('trago') || lower.includes('bebida') || lower.includes('bar')) {
-    return 'Gastronomía';
+  if (text.includes('comida') || text.includes('catering') || text.includes('menu') || text.includes('menú') || text.includes(' finger ') || text.includes('gastro') || text.includes('plato') || text.includes('bocado') || text.includes('recepcion') || text.includes('recepción')) {
+    cats.push('Catering');
   }
-  if (lower.includes('disco') || lower.includes('luz') || lower.includes('luces') || lower.includes('pantalla') || lower.includes('led') || lower.includes('dj') || lower.includes('sonido') || lower.includes('pista')) {
-    return 'Discoteca & Luces';
+  if (text.includes('trago') || text.includes('bebida') || text.includes('bar ') || text.includes('barra')) {
+    cats.push('Barra de Tragos');
   }
-  if (lower.includes('foto') || lower.includes('video') || lower.includes('exteriores') || lower.includes('film') || lower.includes('bogue') || lower.includes('espejo') || lower.includes('cabina') || lower.includes('plataforma') || lower.includes('touchpix')) {
-    return 'Fotografía';
+  if (text.includes('cabina') || text.includes('espejo') || text.includes('plataforma') || text.includes('touchpix') || text.includes('fotocabina') || text.includes('fotobina') || text.includes('totem') || text.includes('tótem')) {
+    cats.push('Fotocabina');
   }
-  return 'General';
+  if (text.includes('torta') || text.includes('dulce') || text.includes('candy') || text.includes('postre') || text.includes('reposteria') || text.includes('repostería')) {
+    cats.push('Repostería');
+  }
+  if (text.includes('disco') || text.includes('luz') || text.includes('luces') || text.includes('pantalla') || text.includes('led') || text.includes('dj') || text.includes('sonido') || text.includes('pista') || text.includes('baile') || text.includes('valz') || text.includes('vals')) {
+    cats.push('Discoteca');
+  }
+  if (text.includes('foto') || text.includes('video') || text.includes('film') || text.includes('bogue') || text.includes('exteriores') || text.includes('civil') || text.includes('iglesia') || text.includes('pintada') || text.includes('sesion') || text.includes('sesión') || text.includes('retrato')) {
+    cats.push('Fotografía');
+  }
+
+  if (cats.length === 0) {
+    if (text.includes('boda') || text.includes('casamiento')) {
+      cats.push('Fotografía');
+    } else {
+      cats.push('Decoración');
+    }
+  }
+
+  return cats;
+}
+
+function getSubCategoriaFotografia(titulo: string, descripcion: string, categoriaOriginal: string): string {
+  const text = `${titulo || ''} ${descripcion || ''} ${categoriaOriginal || ''}`.toLowerCase();
+  if (text.includes('pintada') || text.includes('bogue')) return 'Pintada';
+  if (text.includes('civil')) return 'Civil';
+  if (text.includes('exteriores') || text.includes('campo') || text.includes('jardin') || text.includes('jardín') || text.includes('exterior')) return 'Exteriores';
+  if (text.includes('iglesia') || text.includes('templo') || text.includes('ceremonia')) return 'Iglesia';
+  return 'Fiestas';
 }
 
 interface GallerySectionProps {
@@ -80,33 +113,47 @@ interface GallerySectionProps {
 
 export function GallerySection({ images, galeriaFotos }: GallerySectionProps) {
   const [activeCategory, setActiveCategory] = useState<string>('Todos');
+  const [activeSubCategory, setActiveSubCategory] = useState<string>('Todas');
   const [showAll, setShowAll] = useState<boolean>(false);
   const [lightboxIndex, setLightboxIndex] = useState<number | null>(null);
 
   const allImages = useMemo<LandingGalleryItem[]>(() => {
     const source = (galeriaFotos?.length ?? 0) > 0
-      ? galeriaFotos!.map((foto) => ({
-          id: foto.id,
-          src: foto.url,
-          alt: foto.titulo ?? foto.categoria ?? 'Imagen de galería',
-          hint: foto.categoria ?? 'event gallery',
-          titulo: foto.titulo,
-          descripcion: foto.descripcion,
-          destacada: foto.destacada,
-          servicio: getGrupoCategoria(foto.categoria || foto.servicio || 'General'),
-        }))
-      : (images ?? []).map((image, index) => ({
-          id: image.id ?? `img-${index}`,
-          src: image.src,
-          alt: image.alt,
-          hint: image.hint,
-          titulo: image.titulo,
-          descripcion: image.descripcion,
-          destacada: image.destacada,
-          servicio: getGrupoCategoria(image.category || 'General'),
-        }));
+      ? galeriaFotos!.map((foto) => {
+          const cats = getCategoriasAsociadas(foto.titulo || '', foto.descripcion || '', foto.categoria || foto.servicio || '');
+          const subCat = cats.includes('Fotografía')
+            ? getSubCategoriaFotografia(foto.titulo || '', foto.descripcion || '', foto.categoria || foto.servicio || '')
+            : undefined;
+          return {
+            id: foto.id,
+            src: foto.url,
+            alt: foto.titulo ?? foto.categoria ?? 'Imagen de galería',
+            hint: foto.categoria ?? 'event gallery',
+            titulo: foto.titulo,
+            descripcion: foto.descripcion,
+            destacada: foto.destacada,
+            categorias: cats,
+            subCategoria: subCat,
+          };
+        })
+      : (images ?? []).map((image, index) => {
+          const cats = getCategoriasAsociadas(image.titulo || '', image.descripcion || '', image.category || '');
+          const subCat = cats.includes('Fotografía')
+            ? getSubCategoriaFotografia(image.titulo || '', image.descripcion || '', image.category || '')
+            : undefined;
+          return {
+            id: image.id ?? `img-${index}`,
+            src: image.src,
+            alt: image.alt,
+            hint: image.hint,
+            titulo: image.titulo,
+            descripcion: image.descripcion,
+            destacada: image.destacada,
+            categorias: cats,
+            subCategoria: subCat,
+          };
+        });
 
-    // Evitar duplicados basados en el URL de la imagen
     const seenUrls = new Set<string>();
     const uniqueSource = source.filter((item) => {
       if (seenUrls.has(item.src)) return false;
@@ -118,11 +165,16 @@ export function GallerySection({ images, galeriaFotos }: GallerySectionProps) {
   }, [galeriaFotos, images]);
 
   const filtered = useMemo(() => {
-    if (activeCategory === 'Todos') return allImages;
-    return allImages.filter((img) => img.servicio === activeCategory);
-  }, [allImages, activeCategory]);
+    let list = allImages;
+    if (activeCategory !== 'Todos') {
+      list = list.filter((img) => img.categorias.includes(activeCategory));
+    }
+    if (activeCategory === 'Fotografía' && activeSubCategory !== 'Todas') {
+      list = list.filter((img) => img.subCategoria === activeSubCategory);
+    }
+    return list;
+  }, [allImages, activeCategory, activeSubCategory]);
 
-  // Limitar a las primeras 8 fotos destacadas si no se expandió
   const displayedImages = useMemo(() => {
     if (showAll) return filtered;
     return filtered.slice(0, 8);
@@ -134,7 +186,8 @@ export function GallerySection({ images, galeriaFotos }: GallerySectionProps) {
   const nextImage = () => setLightboxIndex((i) => (i === null ? null : (i + 1) % displayedImages.length));
 
   const handleShareWhatsApp = (image: LandingGalleryItem) => {
-    const text = encodeURIComponent(`¡Mirá esta foto de ${image.servicio} de AK Producciones! ${image.src}`);
+    const mainCat = image.categorias[0] || 'Evento';
+    const text = encodeURIComponent(`¡Mirá esta foto de ${mainCat} de AK Producciones! ${image.src}`);
     window.open(`https://wa.me/?text=${text}`, '_blank');
   };
 
@@ -191,6 +244,29 @@ export function GallerySection({ images, galeriaFotos }: GallerySectionProps) {
           ))}
         </div>
 
+        {/* Sub-filtros para Fotografía */}
+        {activeCategory === 'Fotografía' && (
+          <div className="flex flex-wrap justify-center gap-1.5 mb-10 p-1 rounded-xl bg-white/[0.01] border border-white/5 max-w-lg mx-auto">
+            {['Todas', 'Pintada', 'Civil', 'Fiestas', 'Exteriores', 'Iglesia'].map((subCat) => (
+              <button
+                key={subCat}
+                onClick={() => {
+                  setActiveSubCategory(subCat);
+                  setShowAll(false);
+                }}
+                className={cn(
+                  'px-3 py-1.5 rounded-lg text-[10px] font-black uppercase tracking-widest transition-all duration-200',
+                  activeSubCategory === subCat
+                    ? 'bg-indigo-650 text-white shadow'
+                    : 'bg-transparent text-zinc-500 hover:bg-white/5 hover:text-white'
+                )}
+              >
+                {subCat}
+              </button>
+            ))}
+          </div>
+        )}
+
         {/* Snap Grid: aspect-square responsivo sin recortes extraños */}
         <motion.div
           variants={containerVariants}
@@ -222,7 +298,7 @@ export function GallerySection({ images, galeriaFotos }: GallerySectionProps) {
                 </div>
               )}
               <div className="absolute top-4 right-4 bg-zinc-950/80 border border-white/10 text-white text-[9px] font-black px-3 py-1 rounded-xl shadow-md uppercase tracking-wider">
-                {image.servicio}
+                {image.categorias[0] || 'Evento'}
               </div>
 
               <div className="absolute inset-x-0 bottom-0 p-4">
@@ -303,14 +379,14 @@ export function GallerySection({ images, galeriaFotos }: GallerySectionProps) {
                 unoptimized={!isNextJsOptimizableUrl(displayedImages[lightboxIndex].src)}
               />
             </div>
-            {(displayedImages[lightboxIndex].titulo || displayedImages[lightboxIndex].servicio || displayedImages[lightboxIndex].descripcion) && (
+            {(displayedImages[lightboxIndex].titulo || (displayedImages[lightboxIndex].categorias && displayedImages[lightboxIndex].categorias.length > 0) || displayedImages[lightboxIndex].descripcion) && (
               <div className="bg-zinc-950/90 border border-white/10 text-white p-4 rounded-2xl mt-3 flex items-center justify-between gap-3">
                 <div className="min-w-0">
                   {displayedImages[lightboxIndex].titulo && (
                     <p className="font-black text-base truncate">{displayedImages[lightboxIndex].titulo}</p>
                   )}
-                  {displayedImages[lightboxIndex].servicio && (
-                    <p className="text-xs text-indigo-400 font-bold uppercase tracking-widest mt-1">{displayedImages[lightboxIndex].servicio}</p>
+                  {displayedImages[lightboxIndex].categorias && displayedImages[lightboxIndex].categorias.length > 0 && (
+                    <p className="text-xs text-indigo-400 font-bold uppercase tracking-widest mt-1">{displayedImages[lightboxIndex].categorias[0]}</p>
                   )}
                   {displayedImages[lightboxIndex].descripcion && (
                     <p className="text-xs text-zinc-400 mt-1 line-clamp-2">{displayedImages[lightboxIndex].descripcion}</p>

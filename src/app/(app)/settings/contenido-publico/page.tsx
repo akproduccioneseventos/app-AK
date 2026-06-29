@@ -2,7 +2,7 @@
 
 import { useEffect, useState, useMemo } from 'react';
 import Link from 'next/link';
-import { ArrowLeft, ExternalLink, PlusCircle, Trash2, ArrowUp, ArrowDown, Save, Loader2 } from 'lucide-react';
+import { ArrowLeft, ExternalLink, PlusCircle, Trash2, ArrowUp, ArrowDown, Save, Loader2, Sparkles } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
@@ -42,6 +42,27 @@ export default function ContenidoPublicoSettingsPage() {
   const [blogPosts, setBlogPosts] = useState<BlogPost[]>([]);
   const [editingPost, setEditingPost] = useState<BlogPost | null>(null);
   const [blogActionLoading, setBlogActionLoading] = useState(false);
+  const [generatingAI, setGeneratingAI] = useState(false);
+
+  const handleGenerateAIPost = async () => {
+    setGeneratingAI(true);
+    try {
+      const res = await fetch('/api/cron/generate-blog-post?secret=nanobanana-secret-key-123', {
+        method: 'POST',
+      });
+      const data = await res.json();
+      if (res.ok && data.success) {
+        toast({ title: 'Éxito', description: `Artículo "${data.blogPost.title}" generado por IA y publicado correctamente.` });
+        await loadBlog();
+      } else {
+        toast({ title: 'Error', description: data.error || 'No se pudo generar el artículo.', variant: 'destructive' });
+      }
+    } catch {
+      toast({ title: 'Error', description: 'Error al conectar con el servicio de IA.', variant: 'destructive' });
+    } finally {
+      setGeneratingAI(false);
+    }
+  };
 
   const loadBlog = async () => {
     try {
@@ -270,10 +291,26 @@ export default function ContenidoPublicoSettingsPage() {
             <CardTitle>Blog Corporativo</CardTitle>
             <CardDescription>Publicá y editá artículos de valor para tus clientes.</CardDescription>
           </div>
-          <Button onClick={handleNewPost} variant="outline" size="sm">
-            <PlusCircle className="w-4 h-4 mr-2" />
-            Nuevo artículo
-          </Button>
+          <div className="flex items-center gap-2">
+            <Button
+              onClick={handleGenerateAIPost}
+              disabled={generatingAI}
+              variant="outline"
+              size="sm"
+              className="border-indigo-200 hover:bg-indigo-50 text-indigo-700 hover:text-indigo-800"
+            >
+              {generatingAI ? (
+                <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+              ) : (
+                <Sparkles className="w-4 h-4 mr-2 text-indigo-500 fill-indigo-500/20" />
+              )}
+              Forzar Bot SEO (IA)
+            </Button>
+            <Button onClick={handleNewPost} variant="outline" size="sm">
+              <PlusCircle className="w-4 h-4 mr-2" />
+              Nuevo artículo
+            </Button>
+          </div>
         </CardHeader>
         <CardContent className="space-y-6">
           {/* List of articles */}

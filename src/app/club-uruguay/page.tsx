@@ -5,6 +5,7 @@ import { PublicFooter } from '@/components/public-footer';
 import { Button } from '@/components/ui/button';
 import Link from 'next/link';
 import { Building2, Calendar, MessageCircle, Sparkles } from 'lucide-react';
+import { getDynamicSalonPhotos } from '@/lib/salon-helper';
 
 export const metadata: Metadata = {
   title: 'Servicio Integral en el Salón del Club Uruguay | AK Producciones',
@@ -15,11 +16,23 @@ export default function ClubUruguayPage() {
   const whatsapp = '59898355530';
 
   // Fotos reales tomadas en el Club Uruguay por AK Producciones
-  const clubPhotos = [
+  const basePhotos = [
     { src: '/media/catalogo-servicios/salon-discoteca-ak-01.jpeg', alt: 'Pista y Discoteca en Club Uruguay', desc: 'Montaje de discoteca y sonido profesional en el salón clásico.' },
     { src: '/media/catalogo-servicios/discoteca-salon-ak-02.jpeg', alt: 'Pantallas y Sonido de Vanguardia', desc: 'Decoración e iluminación robótica integrada en el evento.' },
     { src: '/media/catalogo-servicios/xv-pista-iluminada-01.jpeg', alt: 'Pista de Luces LED Activa', desc: 'Pista LED interactiva, un diferencial único de nuestras fiestas.' }
   ];
+
+  const dynamicPhotos = getDynamicSalonPhotos();
+  const baseUrls = new Set(basePhotos.map(p => p.src));
+  const additionalPhotos = dynamicPhotos
+    .filter(p => !baseUrls.has(p.src))
+    .map(p => ({
+      src: p.src,
+      alt: p.alt,
+      desc: p.description || 'Montaje real de eventos de AK Producciones.'
+    }));
+
+  const clubPhotos = [...basePhotos, ...additionalPhotos];
 
   return (
     <div className="min-h-screen bg-zinc-950 text-white selection:bg-indigo-600 selection:text-white">
@@ -127,7 +140,7 @@ export default function ClubUruguayPage() {
             </p>
           </div>
 
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 md:gap-8">
             {clubPhotos.map((photo, index) => (
               <div
                 key={index}
