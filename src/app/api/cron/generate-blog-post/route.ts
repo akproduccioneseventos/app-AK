@@ -31,7 +31,7 @@ async function handleCron(request: Request) {
       force: searchParams.get('force') === '1',
     });
 
-    const { success, ...rest } = result;
+    const { success, message, ...rest } = result;
 
     return NextResponse.json({
       success: true,

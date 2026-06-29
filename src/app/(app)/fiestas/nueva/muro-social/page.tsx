@@ -994,7 +994,7 @@ function MuroSocialContent() {
           </div>
           <div className="flex flex-wrap gap-2">
             <Button asChild variant="outline">
-              <Link href={`/evento/social/${fiestaId}`} target="_blank">
+              <Link href={`/evento/social/${fiestaId}?bypass=true`} target="_blank">
                 <Eye className="mr-2 h-4 w-4" />
                 Vista de invitados
               </Link>
@@ -1218,7 +1218,7 @@ function MuroSocialContent() {
               />
             </div>
             <div className="sm:col-span-2 flex gap-2 pt-1 flex-wrap">
-              <Button asChild variant="outline"><Link href={`/evento/social/${fiestaId}`} target="_blank"><QrCode className="w-4 h-4 mr-2" />Abrir Muro/Control móvil</Link></Button>
+              <Button asChild variant="outline"><Link href={`/evento/social/${fiestaId}?bypass=true`} target="_blank"><QrCode className="w-4 h-4 mr-2" />Abrir Muro/Control móvil</Link></Button>
               <Button asChild variant="outline"><Link href={`/evento/muro-en-vivo/${fiestaId}`} target="_blank">Abrir Pantalla</Link></Button>
               <Button asChild variant="outline"><Link href={`/fiestas/nueva/pantallas-totem?fiestaId=${fiestaId}`}>Pantallas Totem</Link></Button>
               <Button
