@@ -22,7 +22,7 @@ export function HeroSection({
   whatsappNumber = '59899123456',
   headline = 'Hacemos Realidad\ntu Celebración',
   subheadline = 'Bodas, XV Años, cumpleaños y eventos empresariales con producción integral, atención cercana y una experiencia digital simple para tus invitados.',
-  backgroundImageUrl = '/media/catalogo-servicios/xv-pista-iluminada-01.jpeg',
+  backgroundImageUrl = '/media/catalogo-servicios/quinceanera_hero.png',
   promoActiva,
   whatsappMessage = 'Hola AK Producciones, vi su pagina y me gustaria cotizar mi evento.',
   ctaLabel = 'Consultar por WhatsApp',
