@@ -20,8 +20,8 @@ interface HeroSectionProps {
 
 export function HeroSection({
   whatsappNumber = '59899123456',
-  headline = 'Hacemos Realidad\ntu Celebración',
-  subheadline = 'Bodas, XV Años, cumpleaños y eventos empresariales con producción integral, atención cercana y una experiencia digital simple para tus invitados.',
+  headline = 'Disfrutá tu Fiesta,\nNosotros nos Encargamos del Resto',
+  subheadline = 'La paz mental de saber que tu evento está en manos expertas. Desde el catering premium hasta la tecnología interactiva, coordinamos cada detalle para que vos solo te dediques a vivir el momento.',
   backgroundImageUrl = '/media/catalogo-servicios/quinceanera_hero.png',
   promoActiva,
   whatsappMessage = 'Hola AK Producciones, vi su pagina y me gustaria cotizar mi evento.',
@@ -54,7 +54,7 @@ export function HeroSection({
         animate={reduceMotion ? undefined : { scale: [1.04, 1.09, 1.04], backgroundPosition: ['50% 50%', '54% 47%', '50% 50%'] }}
         transition={{ duration: 22, repeat: Infinity, ease: 'easeInOut' }}
       />
-      <div className="absolute inset-0 bg-[linear-gradient(105deg,rgba(2,6,23,0.75)_0%,rgba(9,9,11,0.65)_52%,rgba(24,24,27,0.40)_100%)]" />
+      <div className="absolute inset-0 bg-[linear-gradient(105deg,rgba(2,6,23,0.85)_0%,rgba(9,9,11,0.70)_52%,rgba(24,24,27,0.50)_100%)]" />
       <motion.div
         className="absolute inset-0 opacity-15"
         style={{
@@ -64,6 +64,9 @@ export function HeroSection({
         animate={reduceMotion ? undefined : { backgroundPosition: ['0px 0px', '96px 48px'] }}
         transition={{ duration: 26, repeat: Infinity, ease: 'linear' }}
       />
+      
+      {/* Resplandor cinemático de fondo (Glow) */}
+      <div className="absolute top-1/2 left-0 -translate-y-1/2 w-[800px] h-[800px] bg-indigo-500/10 rounded-full blur-[120px] pointer-events-none" />
 
       <div className="relative z-10 w-full max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-24 pb-20">
         <motion.div
