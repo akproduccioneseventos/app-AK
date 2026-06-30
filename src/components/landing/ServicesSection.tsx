@@ -206,18 +206,18 @@ export function ServicesSection({ whatsappNumber = '59898355530', services }: Se
                   </div>
 
                   {/* Actions Area */}
-                  <div className="p-6 pt-0 mt-auto border-t border-white/5">
+                  <div className="p-6 pt-0 mt-auto border-t border-slate-100">
                     <a
                       href={waHref}
                       target="_blank"
                       rel="noopener noreferrer"
                       className={cn(
                         'flex items-center justify-center gap-2 w-full mt-4 px-4 py-3.5 rounded-2xl',
-                        'bg-white/5 hover:bg-indigo-600 hover:text-white text-zinc-300 font-black text-xs uppercase tracking-wider',
-                        'border border-white/10 hover:border-indigo-500/35 transition-all duration-200 shadow-md active:scale-[0.98]'
+                        'bg-indigo-50 hover:bg-indigo-600 hover:text-white text-indigo-700 font-black text-xs uppercase tracking-wider',
+                        'border border-indigo-200 hover:border-indigo-500/35 transition-all duration-200 shadow-sm active:scale-[0.98]'
                       )}
                     >
-                      <MessageSquare className="w-4 h-4 shrink-0 text-indigo-400 group-hover:text-white transition-colors" />
+                      <MessageSquare className="w-4 h-4 shrink-0" />
                       Consultar Servicio
                       <ChevronRight className="w-3.5 h-3.5" />
                     </a>

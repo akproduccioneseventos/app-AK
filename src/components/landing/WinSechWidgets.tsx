@@ -147,7 +147,7 @@ export function WinSechWidgets({
               href={currentOffer.ctaUrl}
               target="_blank"
               rel="noopener noreferrer"
-              className="inline-flex h-10 items-center justify-center gap-2 rounded-xl bg-indigo-600 text-xs font-black uppercase tracking-wider text-white shadow-md transition-transform duration-200 hover:scale-[1.02] hover:bg-indigo-500 active:scale-[0.98]"
+              className="inline-flex h-10 items-center justify-center gap-2 rounded-xl bg-white text-xs font-black uppercase tracking-wider text-indigo-700 shadow-md transition-transform duration-200 hover:scale-[1.02] hover:bg-indigo-50 active:scale-[0.98]"
             >
               {currentOffer.ctaText}
             </a>
@@ -160,7 +160,7 @@ export function WinSechWidgets({
                   setIsVisible(false);
                 }
               }}
-              className="inline-flex h-10 items-center justify-center gap-2 rounded-xl bg-indigo-600 text-xs font-black uppercase tracking-wider text-white shadow-md transition-transform duration-200 hover:scale-[1.02] hover:bg-indigo-500 active:scale-[0.98]"
+              className="inline-flex h-10 items-center justify-center gap-2 rounded-xl bg-white text-xs font-black uppercase tracking-wider text-indigo-700 shadow-md transition-transform duration-200 hover:scale-[1.02] hover:bg-indigo-50 active:scale-[0.98]"
             >
               {currentOffer.ctaText}
             </Link>

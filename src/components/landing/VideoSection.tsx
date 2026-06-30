@@ -113,7 +113,7 @@ interface VideoSectionProps {
 export function VideoSection({ videos, galeriaVideos, channelUrl }: VideoSectionProps) {
   const dynamicVideos: VideoItem[] = galeriaVideos?.map(galeriaVideoToVideoItem) ?? [];
   const allVideos: VideoItem[] = dynamicVideos.length > 0 ? dynamicVideos : videos ?? [];
-  
+
   // Deduplicate by title
   const seenTitles = new Set<string>();
   const uniqueVideos: VideoItem[] = [];
@@ -140,7 +140,7 @@ export function VideoSection({ videos, galeriaVideos, channelUrl }: VideoSection
   ) as string[];
   const categories = ['Todos', ...uniqueCategories];
 
-  if (allVideos.length === 0) {
+  if (uniqueVideos.length === 0) {
     return (
       <section id="videos" data-testid="video-section" className="py-24 bg-gradient-to-b from-slate-900 to-slate-800">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">

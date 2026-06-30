@@ -30,7 +30,6 @@ const SECTION_LABELS: Record<string, string> = {
   tecnologia: 'Tecnología Interactiva',
   salon: 'Salón Club Uruguay',
   galeria: 'Galería de Recuerdos',
-  instagram: 'Instagram Sincronizado',
   blog: 'Blog & Consejos SEO',
   testimonios: 'Casos de Éxito Reales',
   faq: 'Preguntas Frecuentes',
@@ -141,7 +140,6 @@ export function LandingSpaContainer({
     ['services', 'Servicios'],
     ['technology', 'Tecnologia'],
     ['gallery', 'Galeria'],
-    ['instagram', 'Instagram'],
     ['blog-video', 'Blog'],
     ['cta-footer', 'Contacto'],
   ];
@@ -152,7 +150,7 @@ export function LandingSpaContainer({
   };
 
   return (
-    <div className="min-h-screen selection:bg-indigo-600 selection:text-white">
+    <div className="min-h-screen text-white selection:bg-indigo-600 selection:text-white">
       {renderSectionHeader()}
       {!activeSection && (
         <>
@@ -199,7 +197,7 @@ export function LandingSpaContainer({
               </div>
             )}
             {dashboardSection('gallery', wrapWithExpander('galeria', 'galería', gallery))}
-            {dashboardSection('instagram', wrapWithExpander('instagram', 'Instagram', instagram))}
+            {instagram && dashboardSection('instagram', wrapWithExpander('instagram', 'Instagram', instagram))}
             {dashboardSection('blog-video',
               <div className="w-full">
                 {wrapWithExpander('blog', 'blog', blog)}

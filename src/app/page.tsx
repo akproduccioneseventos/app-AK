@@ -169,7 +169,6 @@ export default async function HomePage({ searchParams }: LandingPageProps) {
   const instagramProfileUrl = instagramConnection?.profileUrl || DEFAULT_INSTAGRAM_URL;
   const instagramHandle = getInstagramHandle(instagramProfileUrl, instagramConnection?.username);
 
-
   const whatsapp = '59898355530'; // Usar el número real de contacto de la empresa
   const safeTestimonialData = (testimonialData && testimonialData.length > 0) ? testimonialData : defaultTestimonials;
   const approvedTestimonials = (safeTestimonialData as any)
