@@ -670,7 +670,7 @@ export default function TouchpixPage() {
             </button>
             <div className="text-center">
               <p className="text-xs font-bold uppercase tracking-widest text-fuchsia-400">Operador IA</p>
-              <h1 className="text-lg font-black">{fiesta?.eventName || 'Fotocabina IA'}</h1>
+              <h1 className="text-lg font-black">{fiesta?.eventName || 'Espejo Magico IA'}</h1>
             </div>
             <a
               href={displayHref}

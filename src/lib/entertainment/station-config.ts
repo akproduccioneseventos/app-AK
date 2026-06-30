@@ -57,7 +57,7 @@ const TITLES: Record<EntertainmentModuleId, string> = {
   bogue: 'Bogue',
   espejoMagicoFoto: 'Espejo Magico Foto',
   espejoMagicoFirma: 'Espejo Magico Firma',
-  espejoMagicoIA: 'Fotocabina IA',
+  espejoMagicoIA: 'Espejo Magico IA',
   totems: 'Totem Interactivo',
   capsulaTiempo: 'Capsula del Tiempo',
 };

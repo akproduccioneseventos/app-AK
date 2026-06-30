@@ -99,7 +99,7 @@ const DURATION_OPTIONS = [
     { value: 5, title: 'Mas de 4 horas', subtitle: 'Fiesta grande', detail: '2 entradas habilitadas' },
 ] as const;
 
-const STEP_LABELS = ['PresentaciÃ³n', 'Datos', 'MenÃº', 'Paquete', 'EdiciÃ³n'] as const;
+const STEP_LABELS = ['Presentación', 'Datos', 'Menú', 'Paquete', 'Edición'] as const;
 
 const formatCategoriaText = (cat?: string): string => {
     if (!cat) return '';
@@ -160,7 +160,7 @@ function esCategoriaGastronomica(categoria: string, calculationMethod?: string):
   return (
     lower.includes('gastronom') ||
     lower.includes('catering') ||
-    lower.includes('menÃº') ||
+    lower.includes('menú') ||
     lower.includes('menu') ||
     lower.includes('comida') ||
     lower.includes('bebida') ||
@@ -173,11 +173,11 @@ function esCategoriaGastronomica(categoria: string, calculationMethod?: string):
 
 function normalizePrefillEventType(type?: string | null): string {
     const normalizedType = (type || '').normalize('NFD').replace(/[\u0300-\u036f]/g, '').toLowerCase();
-    if (normalizedType.includes('15') || normalizedType.includes('xv') || normalizedType.includes('quince')) return '15 aÃ±os';
+    if (normalizedType.includes('15') || normalizedType.includes('xv') || normalizedType.includes('quince')) return '15 años';
     if (normalizedType.includes('boda') || normalizedType.includes('casamiento')) return 'Boda';
-    if (normalizedType.includes('infantil')) return 'CumpleaÃ±os infantil';
+    if (normalizedType.includes('infantil')) return 'Cumpleaños infantil';
     if (normalizedType.includes('empresa') || normalizedType.includes('corporativo')) return 'Evento empresarial';
-    return 'CumpleaÃ±os';
+    return 'Cumpleaños';
 }
 
 function SimuladorContent() {
@@ -388,7 +388,7 @@ function SimuladorContent() {
     const handleEntradaChange = (servicioId: string, checked: boolean) => {
         if (checked) {
             if (selectedEntradas.length >= maxEntradas) {
-                toast({ title: "LÃ­mite alcanzado", description: `Puedes seleccionar hasta ${maxEntradas} entrada(s).` });
+                toast({ title: "Límite alcanzado", description: `Puedes seleccionar hasta ${maxEntradas} entrada(s).` });
                 return;
             }
             const newSelected = [...selectedEntradas, servicioId];
@@ -438,7 +438,7 @@ function SimuladorContent() {
         return [{
             servicio: {
                 id: 'serv_salon_club_uruguay',
-                nombre: 'SalÃ³n Club Uruguay',
+                nombre: 'Salón Club Uruguay',
                 tipoItem: 'Servicio' as const,
                 categoria: 'Otros servicios' as const,
                 precioVenta: Number(club.precio) || 0,
@@ -455,7 +455,7 @@ function SimuladorContent() {
                 .filter(service => visibleIds.has(service.id))
                 .sort((a, b) => Number(Boolean(b.isFeatured)) - Number(Boolean(a.isFeatured)) || a.nombre.localeCompare(b.nombre));
         }
-        const technologyPattern = /\b(led|pantalla|totem|t[oÃ³]tem|360|fotocabina|foto cabina|espejo|muro social|plataforma)\b/i;
+        const technologyPattern = /\b(led|pantalla|totem|t[oó]tem|360|fotocabina|foto cabina|espejo|muro social|plataforma)\b/i;
         return serviciosCatalogo
             .filter(service =>
                 technologyPattern.test(`${service.nombre} ${service.categoria || ''} ${service.subcategoria || ''} ${service.notas || ''}`)
@@ -567,7 +567,7 @@ function SimuladorContent() {
                         }
                     } else if (service.subcategoria === 'Plato Principal') {
                         setSelectedPrincipal(serviceId);
-                    } else if (service.subcategoria === 'MenÃº Infantil/Adolescente' || service.subcategoria === 'MenÃº Infantil') {
+                    } else if (service.subcategoria === 'Menú Infantil/Adolescente' || service.subcategoria === 'Menú Infantil') {
                         setSelectedInfantil(serviceId);
                     } else {
                         setFormData(prev => {
@@ -620,7 +620,7 @@ function SimuladorContent() {
                 eventoFecha: includeEventDetails && eventoFecha ? eventoFecha.toISOString() : undefined,
                 invitados: includeEventDetails ? adultos + ninosYAdolescentes : undefined,
                 salonFiestas: includeEventDetails
-                    ? salonChoice === 'club' ? 'Club Uruguay' : 'LocaciÃ³n propia'
+                    ? salonChoice === 'club' ? 'Club Uruguay' : 'Locación propia'
                     : undefined,
                 acquisition,
                 marketingConsent,
@@ -640,24 +640,24 @@ function SimuladorContent() {
         if (step === 2) {
             if (clienteNombre.trim().length < 3 || !isValidUruguayMobile(clienteContacto)) {
                 toast({
-                    title: "RevisÃ¡ tus datos",
-                    description: "IngresÃ¡ tu nombre y un celular uruguayo vÃ¡lido para continuar.",
+                    title: "Revisá tus datos",
+                    description: "Ingresá tu nombre y un celular uruguayo válido para continuar.",
                     variant: "destructive",
                 });
                 return;
             }
             if (adultos <= 0 || !eventoFecha || !salonChoice) {
                 toast({
-                    title: "CompletÃ¡ los datos del evento",
-                    description: "IndicÃ¡ invitados, fecha y si ya tenÃ©s salÃ³n o querÃ©s Club Uruguay.",
+                    title: "Completá los datos del evento",
+                    description: "Indicá invitados, fecha y si ya tenés salón o querés Club Uruguay.",
                     variant: "destructive",
                 });
                 return;
             }
             if (dateWarning) {
                 toast({
-                    title: "ElegÃ­ una fecha disponible",
-                    description: "La fecha seleccionada ya estÃ¡ ocupada. PodÃ©s elegir una alternativa sugerida.",
+                    title: "Elegí una fecha disponible",
+                    description: "La fecha seleccionada ya está ocupada. Podés elegir una alternativa sugerida.",
                     variant: "destructive",
                 });
                 return;
@@ -673,11 +673,11 @@ function SimuladorContent() {
 
         if (step === 3) {
             if (!selectedPrincipal || selectedEntradas.length !== maxEntradas) {
-                toast({ title: "SelecciÃ³n incompleta", description: `ElegÃ­ plato principal y exactamente ${maxEntradas} entrada(s).`, variant: "destructive" });
+                toast({ title: "Selección incompleta", description: `Elegí plato principal y exactamente ${maxEntradas} entrada(s).`, variant: "destructive" });
                 return;
             }
             if (ninosYAdolescentes > 0 && !selectedInfantil) {
-                toast({ title: "MenÃº infantil requerido", description: "ElegÃ­ un menÃº para niÃ±os y adolescentes.", variant: "destructive" });
+                toast({ title: "Menú infantil requerido", description: "Elegí un menú para niños y adolescentes.", variant: "destructive" });
                 return;
             }
             setStep(4);
@@ -686,7 +686,7 @@ function SimuladorContent() {
 
         if (step === 4) {
             if (sortedPaquetes.length > 0 && !selectedPaqueteId) {
-                toast({ title: "Paquete requerido", description: "ElegÃ­ un paquete de servicios para continuar.", variant: "destructive" });
+                toast({ title: "Paquete requerido", description: "Elegí un paquete de servicios para continuar.", variant: "destructive" });
                 return;
             }
             setStep(5);
@@ -712,7 +712,7 @@ function SimuladorContent() {
                 selectedServiceIds: Array.from(formData.serviciosSeleccionados.keys()),
                 excludedPackageServiceIds,
                 paqueteId: selectedPaqueteId,
-                paqueteNombre: selectedPackageName ? `${selectedPackageName} â€” ${eventoTipo}` : undefined,
+                paqueteNombre: selectedPackageName ? `${selectedPackageName} — ${eventoTipo}` : undefined,
                 includeClubUruguay: salonChoice === 'club',
                 items: simulatorDetailsToBudgetItems(stats.detallados),
             };
@@ -721,7 +721,7 @@ function SimuladorContent() {
                     source: 'simulator_common',
                     eventoTipo,
                     acquisition,
-                    salonFiestas: salonChoice === 'club' ? 'Club Uruguay' : 'LocaciÃ³n propia',
+                    salonFiestas: salonChoice === 'club' ? 'Club Uruguay' : 'Locación propia',
                 });
                 if (result.success && result.presupuestoId) {
                     setGeneratedPresupuestoId(result.presupuestoId);
@@ -826,7 +826,7 @@ function SimuladorContent() {
             selectedServiceIds: Array.from(newSelectedServicesMap.keys()),
             excludedPackageServiceIds: newExcluded,
             paqueteId: selectedPaqueteId,
-            paqueteNombre: selectedPackageName ? `${selectedPackageName} â€” ${eventoTipo}` : undefined,
+            paqueteNombre: selectedPackageName ? `${selectedPackageName} — ${eventoTipo}` : undefined,
             includeClubUruguay: salonChoice === 'club',
             items: simulatorDetailsToBudgetItems(newStats.detallados),
         };
@@ -836,7 +836,7 @@ function SimuladorContent() {
                 source: 'simulator_common',
                 eventoTipo,
                 acquisition,
-                salonFiestas: salonChoice === 'club' ? 'Club Uruguay' : 'LocaciÃ³n propia',
+                salonFiestas: salonChoice === 'club' ? 'Club Uruguay' : 'Locación propia',
             });
             if (result.success && result.presupuestoId) {
                 setGeneratedPresupuestoId(result.presupuestoId);
@@ -852,7 +852,7 @@ function SimuladorContent() {
 
     const handleWhatsAppQuickConsult = () => {
         const destination = toWhatsAppNumber(whatsappNumber);
-        const texto = `Â¡Hola AK Producciones! Soy ${clienteNombre}. Quiero coordinar una reuniÃ³n para revisar el presupuesto de mi ${eventoTipo}.`;
+        const texto = `¡Hola AK Producciones! Soy ${clienteNombre}. Quiero coordinar una reunión para revisar el presupuesto de mi ${eventoTipo}.`;
         window.open(`https://wa.me/${destination}?text=${encodeURIComponent(texto)}`, '_blank');
     };
 
@@ -863,11 +863,11 @@ function SimuladorContent() {
             ? new Intl.DateTimeFormat('es-UY').format(eventoFecha)
             : 'a confirmar';
         const texto = [
-            `Â¡Hola AK Producciones! Soy ${clienteNombre}.`,
-            `ArmÃ© mi presupuesto formal para un ${eventoTipo} el ${eventDateLabel}.`,
+            `¡Hola AK Producciones! Soy ${clienteNombre}.`,
+            `Armé mi presupuesto formal para un ${eventoTipo} el ${eventDateLabel}.`,
             `Total vigente: ${formatCurrency(stats.totalFinal)}`,
             stats.precioPorPersona > 0 ? `Valor por persona: ${formatCurrency(stats.precioPorPersona)}` : '',
-            `Quiero solicitar la reserva de la fecha y conocer las condiciones de la seÃ±a de $5.000.`,
+            `Quiero solicitar la reserva de la fecha y conocer las condiciones de la seña de $5.000.`,
             `Ver presupuesto: ${url}`,
         ].filter(Boolean).join('\n');
         const destination = toWhatsAppNumber(whatsappNumber);
@@ -896,13 +896,13 @@ function SimuladorContent() {
                 pdf.setPage(page);
                 pdf.setFontSize(8);
                 pdf.setTextColor(100);
-                pdf.text(`PÃ¡gina ${page} de ${totalPages}`, 198, 285, { align: 'right' });
+                pdf.text(`Página ${page} de ${totalPages}`, 198, 285, { align: 'right' });
             }
             pdf.save(`presupuesto-ak-${generatedPresupuestoId}.pdf`);
         } catch (error: any) {
             toast({
                 title: 'No pudimos descargar el PDF',
-                description: error.message || 'IntentÃ¡ nuevamente.',
+                description: error.message || 'Intentá nuevamente.',
                 variant: 'destructive',
             });
         } finally {
@@ -981,7 +981,7 @@ function SimuladorContent() {
             selectedServiceIds: Array.from(formData.serviciosSeleccionados.keys()),
             excludedPackageServiceIds: [],
             paqueteId,
-            paqueteNombre: newPackageName ? `${newPackageName} â€” ${eventoTipo}` : undefined,
+            paqueteNombre: newPackageName ? `${newPackageName} — ${eventoTipo}` : undefined,
             items: simulatorDetailsToBudgetItems(newStats.detallados)
         };
 
@@ -990,12 +990,12 @@ function SimuladorContent() {
                 source: 'simulator_common',
                 eventoTipo,
                 acquisition,
-                salonFiestas: salonChoice === 'club' ? 'Club Uruguay' : 'LocaciÃ³n propia',
+                salonFiestas: salonChoice === 'club' ? 'Club Uruguay' : 'Locación propia',
             });
             if (result.success && result.presupuestoId) {
                 setGeneratedPresupuestoId(result.presupuestoId);
                 if (result.token) setGeneratedToken(result.token);
-                toast({ title: "Presupuesto actualizado", description: `Se ha cambiado al paquete ${newPackageName} con Ã©xito.` });
+                toast({ title: "Presupuesto actualizado", description: `Se ha cambiado al paquete ${newPackageName} con éxito.` });
             } else throw new Error(result.error || "Error al generar.");
         } catch (e: any) {
             toast({ title: "Error", description: e.message, variant: "destructive" });
@@ -1054,7 +1054,7 @@ function SimuladorContent() {
             selectedServiceIds: Array.from(formData.serviciosSeleccionados.keys()),
             excludedPackageServiceIds: newExcluded,
             paqueteId: selectedPaqueteId,
-            paqueteNombre: selectedPackageName ? `${selectedPackageName} â€” ${eventoTipo}` : undefined,
+            paqueteNombre: selectedPackageName ? `${selectedPackageName} — ${eventoTipo}` : undefined,
             includeClubUruguay: salonChoice === 'club',
             items: simulatorDetailsToBudgetItems(newStats.detallados),
         };
@@ -1064,7 +1064,7 @@ function SimuladorContent() {
                 source: 'simulator_common',
                 eventoTipo,
                 acquisition,
-                salonFiestas: salonChoice === 'club' ? 'Club Uruguay' : 'LocaciÃ³n propia',
+                salonFiestas: salonChoice === 'club' ? 'Club Uruguay' : 'Locación propia',
             });
             if (result.success && result.presupuestoId) {
                 setGeneratedPresupuestoId(result.presupuestoId);
@@ -1188,7 +1188,7 @@ function SimuladorContent() {
                 selectedServiceIds: Array.from(formData.serviciosSeleccionados.keys()),
                 excludedPackageServiceIds,
                 paqueteId: selectedPaqueteId,
-                paqueteNombre: selectedPackageName ? `${selectedPackageName} â€” ${eventoTipo}` : undefined,
+                paqueteNombre: selectedPackageName ? `${selectedPackageName} — ${eventoTipo}` : undefined,
                 includeClubUruguay: salonChoice === 'club',
                 items: simulatorDetailsToBudgetItems(stats.detallados),
             };
@@ -1198,7 +1198,7 @@ function SimuladorContent() {
                     source: 'simulator_common',
                     eventoTipo,
                     acquisition,
-                    salonFiestas: salonChoice === 'club' ? 'Club Uruguay' : 'LocaciÃ³n propia',
+                    salonFiestas: salonChoice === 'club' ? 'Club Uruguay' : 'Locación propia',
                 });
             } catch (e) {
                 console.error("Failed to auto-sync budget changes:", e);
@@ -1240,7 +1240,7 @@ function SimuladorContent() {
                                 Presupuesto para tu evento
                             </h1>
                             <p className="mt-5 max-w-2xl text-base leading-7 text-white/85 sm:text-xl">
-                                ArmÃ¡ una propuesta con gastronomÃ­a, salÃ³n, tecnologÃ­a y servicios reales de AK Producciones. Vas a ver el precio vigente, el valor por persona y la proyecciÃ³n para la fecha elegida.
+                                Armá una propuesta con gastronomía, salón, tecnología y servicios reales de AK Producciones. Vas a ver el precio vigente, el valor por persona y la proyección para la fecha elegida.
                             </p>
                             <Button
                                 onClick={() => setHasStarted(true)}
@@ -1255,9 +1255,9 @@ function SimuladorContent() {
                 <section className="border-t border-white/10 bg-white text-slate-900">
                     <div className="mx-auto grid max-w-6xl grid-cols-2 gap-px bg-slate-200 sm:grid-cols-4">
                         {[
-                            [PackageCheck, 'OrganizaciÃ³n integral', 'Un solo equipo para coordinar todo.'],
-                            [Utensils, 'GastronomÃ­a real', 'MenÃºs configurados desde el catÃ¡logo AK.'],
-                            [Zap, 'TecnologÃ­a y diversiÃ³n', 'Experiencias para invitados y clientes.'],
+                            [PackageCheck, 'Organización integral', 'Un solo equipo para coordinar todo.'],
+                            [Utensils, 'Gastronomía real', 'Menús configurados desde el catálogo AK.'],
+                            [Zap, 'Tecnología y diversión', 'Experiencias para invitados y clientes.'],
                             [ShieldCheck, 'Trayectoria y respaldo', 'Presupuesto registrado y revisable.'],
                         ].map(([Icon, title, description]) => {
                             const BenefitIcon = Icon as typeof PackageCheck;
@@ -1290,7 +1290,7 @@ function SimuladorContent() {
                             </div>
                             <div className="space-y-3">
                                 <h2 className="text-3xl sm:text-4xl font-black font-headline tracking-tighter text-slate-900 uppercase">
-                                    Â¡Tu presupuesto estÃ¡ listo!
+                                    ¡Tu presupuesto está listo!
                                 </h2>
                                 <p className="text-slate-500 font-medium max-w-md mx-auto leading-relaxed mb-6">
                                     {budgetSettings.successMessage}
@@ -1302,10 +1302,10 @@ function SimuladorContent() {
                                 <div className="w-full bg-amber-500/10 border border-amber-500/20 rounded-3xl p-6 text-center space-y-4 max-w-lg mx-auto">
                                     <div className="flex flex-col items-center justify-center gap-2">
                                         <Clock className="w-8 h-8 text-amber-600 animate-pulse"/>
-                                        <p className="text-sm font-black uppercase text-amber-900 tracking-wider">Â¡AsegurÃ¡ tu BonificaciÃ³n Especial del {stats.discountPercentage}%!</p>
+                                        <p className="text-sm font-black uppercase text-amber-900 tracking-wider">¡Asegurá tu Bonificación Especial del {stats.discountPercentage}%!</p>
                                     </div>
                                     <p className="text-xs text-slate-600 font-bold leading-relaxed">
-                                        CongelÃ¡ los precios vigentes y tu descuento seÃ±ando con $5.000 antes de que expire la reserva.
+                                        Congelá los precios vigentes y tu descuento señando con $5.000 antes de que expire la reserva.
                                     </p>
                                     <div className="text-3xl font-black text-amber-600 font-mono tracking-widest bg-white/80 py-2 rounded-xl inline-block px-5 border">
                                         {formatTime(timeLeft)}
@@ -1319,7 +1319,7 @@ function SimuladorContent() {
                                 </div>
                             ) : (
                                 <div className="w-full bg-red-50 border border-red-100 rounded-3xl p-5 text-center max-w-lg mx-auto">
-                                    <p className="text-xs font-bold text-red-800">El tiempo de tu reserva ha expirado. PodÃ©s contactar a un asesor de ventas para consultar disponibilidad de fecha.</p>
+                                    <p className="text-xs font-bold text-red-800">El tiempo de tu reserva ha expirado. Podés contactar a un asesor de ventas para consultar disponibilidad de fecha.</p>
                                 </div>
                             )}
 
@@ -1335,7 +1335,7 @@ function SimuladorContent() {
                                     onClick={handleWhatsAppQuickConsult}
                                     className="h-12 rounded-xl border-emerald-200 text-emerald-700 hover:bg-emerald-50 font-bold text-[11px] sm:text-xs uppercase tracking-wide px-2 flex items-center justify-center gap-1.5 w-full"
                                 >
-                                    <MessageSquare className="w-4 h-4 shrink-0"/> <span className="truncate">Coordinar una ReuniÃ³n</span>
+                                    <MessageSquare className="w-4 h-4 shrink-0"/> <span className="truncate">Coordinar una Reunión</span>
                                 </Button>
                                 <Button
                                   variant="outline"
@@ -1358,14 +1358,14 @@ function SimuladorContent() {
                               <CompanyLogo size="sm" src={logoUrl || undefined} className="print:brightness-100" />
                             </div>
                             <CardTitle className="font-headline text-2xl sm:text-3xl font-black uppercase tracking-tighter text-slate-800">Presupuesto Estimado</CardTitle>
-                            <p className="text-slate-500 font-semibold text-sm mt-2">AK Producciones Eventos â€” Salto, Uruguay</p>
+                            <p className="text-slate-500 font-semibold text-sm mt-2">AK Producciones Eventos — Salto, Uruguay</p>
                         </CardHeader>
                         <CardContent className="p-4 sm:p-10 print:p-2 space-y-10">
                             <div className="border border-slate-200 rounded-[2rem] overflow-x-auto print:border-slate-300">
                                 <Table>
                                     <TableHeader className="bg-slate-50">
                                         <TableRow className="border-slate-200">
-                                            <TableHead className="font-black text-[10px] uppercase pl-8 py-4 min-w-[200px] text-slate-600">Servicio / CategorÃ­a</TableHead>
+                                            <TableHead className="font-black text-[10px] uppercase pl-8 py-4 min-w-[200px] text-slate-600">Servicio / Categoría</TableHead>
                                             {(budgetSettings.showIndividualPrices ?? true) && (
                                               <>
                                                 <TableHead className="text-center font-black text-[10px] uppercase text-slate-600">Cant.</TableHead>
@@ -1455,7 +1455,7 @@ function SimuladorContent() {
                                                         </TableCell>
                                                         {(budgetSettings.showIndividualPrices ?? true) && (
                                                             <>
-                                                                <TableCell className="text-center text-sm text-slate-400">â€”</TableCell>
+                                                                <TableCell className="text-center text-sm text-slate-400">—</TableCell>
                                                                 <TableCell className="pr-8 text-right text-sm font-black text-red-600">-{formatCurrency(item.deduction)}</TableCell>
                                                             </>
                                                         )}
@@ -1482,7 +1482,7 @@ function SimuladorContent() {
                                  )}
                                  {stats.descPromo > 0 && (
                                      <div className="flex justify-between items-center text-[10px] font-black uppercase text-amber-600 tracking-widest">
-                                         <span>BonificaciÃ³n Especial ({stats.discountPercentage}%):</span>
+                                         <span>Bonificación Especial ({stats.discountPercentage}%):</span>
                                          <span>-{formatCurrency(stats.descPromo)}</span>
                                      </div>
                                  )}
@@ -1528,9 +1528,9 @@ function SimuladorContent() {
                                 <h4 className="text-[10px] font-black uppercase text-blue-800 tracking-widest mb-2 flex items-center gap-2"><Info className="w-4 h-4"/> Condiciones de Reserva</h4>
                                 <p className="text-xs text-blue-800 leading-relaxed font-semibold">
                                     {stats.annualProjection.applies ? (
-                                        <>Con una seÃ±a de $5.000 podÃ©s solicitar la reserva de la fecha y del servicio. El presupuesto es vÃ¡lido por 30 dÃ­as para mantener el precio de la promociÃ³n y los regalos incluidos. Los eventos programados para aÃ±os posteriores al vigente tendrÃ¡n un ajuste anual proyectado del 15% de acuerdo a lo establecido en el contrato.</>
+                                        <>Con una seña de $5.000 podés solicitar la reserva de la fecha y del servicio. El presupuesto es válido por 30 días para mantener el precio de la promoción y los regalos incluidos. Los eventos programados para años posteriores al vigente tendrán un ajuste anual proyectado del 15% de acuerdo a lo establecido en el contrato.</>
                                     ) : (
-                                        <>Con una seÃ±a de $5.000 podÃ©s solicitar la reserva de la fecha y del servicio. El presupuesto es vÃ¡lido por 30 dÃ­as para mantener el precio de la promociÃ³n y los regalos incluidos. El total mostrado corresponde al precio vigente del aÃ±o {currentYear}.</>
+                                        <>Con una seña de $5.000 podés solicitar la reserva de la fecha y del servicio. El presupuesto es válido por 30 días para mantener el precio de la promoción y los regalos incluidos. El total mostrado corresponde al precio vigente del año {currentYear}.</>
                                     )}
                                 </p>
                                 {budgetSettings.bookingTerms && (
@@ -1538,7 +1538,7 @@ function SimuladorContent() {
                                 )}
                             </div>
                             <div className="flex flex-col sm:flex-row items-center gap-3 print:hidden">
-                              <Button variant="ghost" onClick={() => setStep(1)} className="rounded-xl text-slate-400 font-bold uppercase tracking-widest text-[10px]">Iniciar Nueva SimulaciÃ³n</Button>
+                              <Button variant="ghost" onClick={() => setStep(1)} className="rounded-xl text-slate-400 font-bold uppercase tracking-widest text-[10px]">Iniciar Nueva Simulación</Button>
                               <a
                                 href="https://akproduccioneseventos.com/#faq"
                                 target="_blank"
@@ -1564,7 +1564,7 @@ function SimuladorContent() {
                   <div className="flex items-center gap-3">
                     <MessageSquare className="w-6 h-6 shrink-0 text-yellow-300" />
                     <div>
-                      <p className="font-black text-sm">TambiÃ©n podÃ©s armarlo con el Asistente AK</p>
+                      <p className="font-black text-sm">También podés armarlo con el Asistente AK</p>
                       <p className="text-xs text-white/70">La IA usa los mismos paquetes, servicios y precios de este simulador manual</p>
                     </div>
                   </div>
@@ -1580,7 +1580,7 @@ function SimuladorContent() {
                     <div className="flex justify-center mb-4">
                       <CompanyLogo size="sm" src={logoUrl || undefined} className="opacity-50" />
                     </div>
-                    <CardTitle className="text-2xl font-black text-slate-900 sm:text-3xl">ArmÃ¡ tu presupuesto</CardTitle>
+                    <CardTitle className="text-2xl font-black text-slate-900 sm:text-3xl">Armá tu presupuesto</CardTitle>
                     <CardDescription className="mt-2 text-sm font-bold text-slate-500">
                         Paso {step} de 5 Â· {STEP_LABELS[step - 1]}
                     </CardDescription>
@@ -1616,7 +1616,7 @@ function SimuladorContent() {
                                         <Users className="w-6 h-6" />
                                     </div>
                                     <div>
-                                        <h4 className="font-black text-slate-800 uppercase text-xs tracking-wider mb-1">Equipo de OrganizaciÃ³n</h4>
+                                        <h4 className="font-black text-slate-800 uppercase text-xs tracking-wider mb-1">Equipo de Organización</h4>
                                         <p className="text-xs leading-relaxed text-slate-600 font-semibold">Un equipo profesional a cargo de coordinar y planificar cada detalle de tu evento de principio a fin.</p>
                                     </div>
                                 </div>
@@ -1626,8 +1626,8 @@ function SimuladorContent() {
                                         <Laptop className="w-6 h-6" />
                                     </div>
                                     <div>
-                                        <h4 className="font-black text-slate-800 uppercase text-xs tracking-wider mb-1">TecnologÃ­a de OrganizaciÃ³n</h4>
-                                        <p className="text-xs leading-relaxed text-slate-600 font-semibold">Plataforma digital para la gestiÃ³n de invitados, control de accesos por QR y herramientas interactivas.</p>
+                                        <h4 className="font-black text-slate-800 uppercase text-xs tracking-wider mb-1">Tecnología de Organización</h4>
+                                        <p className="text-xs leading-relaxed text-slate-600 font-semibold">Plataforma digital para la gestión de invitados, control de accesos por QR y herramientas interactivas.</p>
                                     </div>
                                 </div>
 
@@ -1648,9 +1648,9 @@ function SimuladorContent() {
                                         <MapPin className="w-7 h-7 text-yellow-300" />
                                     </div>
                                     <div>
-                                        <h4 className="font-black text-yellow-300 uppercase text-[10px] tracking-wider">LocaciÃ³n Exclusiva</h4>
-                                        <h3 className="font-black text-lg">SalÃ³n de Fiestas: Club Uruguay</h3>
-                                        <p className="text-xs text-white/70 font-semibold">El salÃ³n mÃ¡s distinguido con servicio integral.</p>
+                                        <h4 className="font-black text-yellow-300 uppercase text-[10px] tracking-wider">Locación Exclusiva</h4>
+                                        <h3 className="font-black text-lg">Salón de Fiestas: Club Uruguay</h3>
+                                        <p className="text-xs text-white/70 font-semibold">El salón más distinguido con servicio integral.</p>
                                     </div>
                                 </div>
                             </div>
@@ -1659,20 +1659,20 @@ function SimuladorContent() {
                     {step === 2 && (
                         <div className="space-y-8 animate-in fade-in slide-in-from-right-4 duration-500 text-left">
                             <div>
-                                <h2 className="text-xl font-black text-slate-900">IngresÃ¡ tus datos y los del evento</h2>
-                                <p className="mt-1 text-sm text-slate-500">Guardamos tu avance de forma segura y calculamos los precios segÃºn la locaciÃ³n y cantidad de invitados.</p>
+                                <h2 className="text-xl font-black text-slate-900">Ingresá tus datos y los del evento</h2>
+                                <p className="mt-1 text-sm text-slate-500">Guardamos tu avance de forma segura y calculamos los precios según la locación y cantidad de invitados.</p>
                             </div>
 
                             {/* Datos de Contacto */}
                             <div className="grid gap-5 md:grid-cols-2 p-6 bg-slate-50 rounded-3xl border border-slate-100">
                                 <div className="space-y-2">
                                     <Label htmlFor="simulator-name">Nombre completo</Label>
-                                    <Input id="simulator-name" value={clienteNombre} onChange={e => setClienteNombre(e.target.value)} placeholder="Ej: Ana GarcÃ­a" className="h-12 rounded-md bg-white text-slate-900" />
+                                    <Input id="simulator-name" value={clienteNombre} onChange={e => setClienteNombre(e.target.value)} placeholder="Ej: Ana García" className="h-12 rounded-md bg-white text-slate-900" />
                                 </div>
                                 <div className="space-y-2">
                                     <Label htmlFor="simulator-phone">WhatsApp</Label>
                                     <Input id="simulator-phone" type="tel" value={clienteContacto} onChange={e => setClienteContacto(e.target.value)} placeholder="099 123 456 o +598 99 123 456" className="h-12 rounded-md bg-white text-slate-900" />
-                                    <p className="text-[10px] text-slate-500 font-semibold">Acepta nÃºmero uruguayo con espacios, guiones o prefijo +598.</p>
+                                    <p className="text-[10px] text-slate-500 font-semibold">Acepta número uruguayo con espacios, guiones o prefijo +598.</p>
                                 </div>
                             </div>
 
@@ -1688,9 +1688,9 @@ function SimuladorContent() {
                                 <div className="rounded-2xl border border-emerald-100 bg-emerald-50/50 p-5 space-y-3 text-left">
                                     <div className="flex items-center gap-2 text-emerald-800">
                                         <CheckCircle2 className="w-5 h-5 text-emerald-600 shrink-0"/>
-                                        <p className="text-sm font-black uppercase tracking-tight">Â¡Encontramos presupuestos anteriores asociados a tu celular!</p>
+                                        <p className="text-sm font-black uppercase tracking-tight">¡Encontramos presupuestos anteriores asociados a tu celular!</p>
                                     </div>
-                                    <p className="text-xs text-slate-600 font-semibold">Detectamos que ya habÃ­as simulado. PodÃ©s continuar con la simulaciÃ³n actual o hacer click en cualquier presupuesto para reabrirlo:</p>
+                                    <p className="text-xs text-slate-600 font-semibold">Detectamos que ya habías simulado. Podés continuar con la simulación actual o hacer click en cualquier presupuesto para reabrirlo:</p>
                                     <div className="grid gap-2 max-h-48 overflow-y-auto pr-1">
                                         {existingBudgets.map((b) => {
                                             const formattedDate = b.eventoFecha ? new Intl.DateTimeFormat('es-UY').format(new Date(b.eventoFecha)) : 'A confirmar';
@@ -1720,9 +1720,9 @@ function SimuladorContent() {
                                     <Select value={eventoTipo} onValueChange={setEventoTipo}>
                                         <SelectTrigger className="h-12 rounded-md bg-white text-slate-900"><SelectValue /></SelectTrigger>
                                         <SelectContent>
-                                            <SelectItem value="CumpleaÃ±os">CumpleaÃ±os</SelectItem>
-                                            <SelectItem value="CumpleaÃ±os infantil">CumpleaÃ±os infantil</SelectItem>
-                                            <SelectItem value="15 aÃ±os">15 aÃ±os</SelectItem>
+                                            <SelectItem value="Cumpleaños">Cumpleaños</SelectItem>
+                                            <SelectItem value="Cumpleaños infantil">Cumpleaños infantil</SelectItem>
+                                            <SelectItem value="15 años">15 años</SelectItem>
                                             <SelectItem value="Boda">Boda</SelectItem>
                                             <SelectItem value="Evento empresarial">Empresarial</SelectItem>
                                         </SelectContent>
@@ -1734,14 +1734,14 @@ function SimuladorContent() {
                                         <Input type="number" min={1} value={adultos} onChange={e => setAdultos(Math.max(0, Number(e.target.value)))} className="h-12 rounded-md bg-white text-slate-900" />
                                     </div>
                                     <div className="space-y-2">
-                                        <Label>NiÃ±os y adolescentes</Label>
+                                        <Label>Niños y adolescentes</Label>
                                         <Input type="number" min={0} value={ninosYAdolescentes} onChange={e => setNinosYAdolescentes(Math.max(0, Number(e.target.value)))} className="h-12 rounded-md bg-white text-slate-900" />
                                     </div>
                                 </div>
                             </div>
 
                             <div className="space-y-3">
-                                <Label>DuraciÃ³n del evento</Label>
+                                <Label>Duración del evento</Label>
                                 <div className="grid gap-3 sm:grid-cols-2">
                                     {DURATION_OPTIONS.map(option => (
                                         <button
@@ -1764,13 +1764,13 @@ function SimuladorContent() {
                             </div>
 
                             <div className="space-y-3">
-                                <Label>SalÃ³n de fiestas</Label>
+                                <Label>Salón de fiestas</Label>
                                 <div className="grid gap-3 sm:grid-cols-2">
                                     <button type="button" onClick={() => setSalonChoice('propio')} className={cn('rounded-2xl border p-5 text-left transition flex flex-col h-32 justify-between', salonChoice === 'propio' ? 'border-primary bg-primary/5 shadow-sm' : 'border-slate-200 bg-white hover:border-slate-300')}>
                                         <MapPin className="h-6 w-6 text-primary" />
                                         <div>
-                                            <p className="text-sm font-black text-slate-900">Tengo salÃ³n o locaciÃ³n propia</p>
-                                            <p className="mt-1 text-xs text-slate-400 font-semibold">No se adiciona costo por locaciÃ³n.</p>
+                                            <p className="text-sm font-black text-slate-900">Tengo salón o locación propia</p>
+                                            <p className="mt-1 text-xs text-slate-400 font-semibold">No se adiciona costo por locación.</p>
                                         </div>
                                     </button>
                                     <button type="button" onClick={() => setSalonChoice('club')} disabled={!config?.clubUruguayConfig?.activo} className={cn('rounded-2xl border p-5 text-left disabled:opacity-50 transition flex flex-col h-32 justify-between relative', salonChoice === 'club' ? 'border-primary bg-primary/5 shadow-sm' : 'border-slate-200 bg-white hover:border-slate-300')}>
@@ -1886,7 +1886,7 @@ function SimuladorContent() {
                             {ninosYAdolescentes > 0 && (
                                 <div className="space-y-6 animate-in zoom-in-95 duration-500">
                                     <Label className="text-xs font-black uppercase tracking-[0.2em] text-purple-600 flex items-center gap-3">
-                                        <div className="w-2 h-6 bg-purple-500 rounded-full"></div> MENÃš INFANTIL
+                                        <div className="w-2 h-6 bg-purple-500 rounded-full"></div> MENÚ INFANTIL
                                     </Label>
                                     <RadioGroup value={selectedInfantil} onValueChange={v => { setSelectedInfantil(v); handleGastronomicSelectionChange('infantil', v); }} className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                                         {menusNinoDisponibles.map(s => {
@@ -1997,22 +1997,22 @@ function SimuladorContent() {
                             <div className="rounded-2xl border border-blue-100 bg-blue-50 p-4 text-sm text-blue-900">
                               <strong>Precios {currentYear}</strong>
                               {stats.annualProjection.applies
-                                ? <> â€” Ajuste anual proyectado del <strong>{stats.annualProjection.adjustmentPct}%</strong> para eventos en {stats.annualProjection.eventYear}.</>
-                                : <> â€” El total mostrado corresponde al precio vigente.</>}
+                                ? <> — Ajuste anual proyectado del <strong>{stats.annualProjection.adjustmentPct}%</strong> para eventos en {stats.annualProjection.eventYear}.</>
+                                : <> — El total mostrado corresponde al precio vigente.</>}
                             </div>
                         </div>
                     )}
                     {step === 5 && (
                         <div className="space-y-8 animate-in fade-in slide-in-from-right-4 duration-700 text-left">
                             <div>
-                                <h2 className="text-xl font-black text-slate-900">PersonalizaciÃ³n del paquete</h2>
-                                <p className="mt-1 text-sm text-slate-500">PodÃ©s cambiar la fecha e invitados, y quitar servicios opcionales de tu paquete contratado para adaptar el presupuesto a tu gusto. El total se actualizarÃ¡ automÃ¡ticamente:</p>
+                                <h2 className="text-xl font-black text-slate-900">Personalización del paquete</h2>
+                                <p className="mt-1 text-sm text-slate-500">Podés cambiar la fecha e invitados, y quitar servicios opcionales de tu paquete contratado para adaptar el presupuesto a tu gusto. El total se actualizará automáticamente:</p>
                             </div>
 
                             {/* EDITOR RÃPIDO DE FECHA E INVITADOS */}
                             <div className="p-5 bg-slate-50 border border-slate-100 rounded-3xl space-y-4">
                                 <h3 className="text-xs font-black uppercase tracking-wider text-slate-400 flex items-center gap-2">
-                                    <CalendarDays className="w-4 h-4 text-slate-500"/> InformaciÃ³n General del Evento
+                                    <CalendarDays className="w-4 h-4 text-slate-500"/> Información General del Evento
                                 </h3>
                                 <div className="grid gap-4 sm:grid-cols-3 items-end">
                                     <div className="space-y-2">
@@ -2030,7 +2030,7 @@ function SimuladorContent() {
                                         />
                                     </div>
                                     <div className="space-y-2">
-                                        <Label className="text-xs font-bold text-slate-600">NiÃ±os y Adolescentes</Label>
+                                        <Label className="text-xs font-bold text-slate-600">Niños y Adolescentes</Label>
                                         <Input
                                             type="number"
                                             min={0}
@@ -2106,7 +2106,7 @@ function SimuladorContent() {
                                     );
                                 })}
 
-                                {/* Mostrar tambiÃ©n los servicios del paquete que actualmente estÃ¡n excluidos */}
+                                {/* Mostrar también los servicios del paquete que actualmente están excluidos */}
                                 {excludedPackageServiceIds.map(excludedId => {
                                     const service = allSimuladorServices.find(s => s.id === excludedId);
                                     if (!service) return null;
@@ -2145,14 +2145,14 @@ function SimuladorContent() {
                             <div className="space-y-6 pt-6 border-t border-slate-200">
                                 <div className="space-y-4">
                                     <h4 className="font-black text-slate-800 uppercase text-xs tracking-wider flex items-center gap-2">
-                                        <Search className="w-4.5 h-4.5 text-slate-500"/> Â¿QuerÃ©s agregar otro servicio?
+                                        <Search className="w-4.5 h-4.5 text-slate-500"/> ¿Querés agregar otro servicio?
                                     </h4>
                                     <div className="relative">
                                         <div className="relative flex-1">
                                             <Search className="absolute left-4 top-3.5 h-5 w-5 text-slate-400" />
                                             <Input
                                                 type="text"
-                                                placeholder="BuscÃ¡ por nombre de servicio (ej: cabina, plataforma, buffet, barra)..."
+                                                placeholder="Buscá por nombre de servicio (ej: cabina, plataforma, buffet, barra)..."
                                                 value={serviceSearchTerm}
                                                 onChange={e => setServiceSearchTerm(e.target.value)}
                                                 onFocus={() => setIsSearchFocused(true)}
@@ -2172,7 +2172,7 @@ function SimuladorContent() {
                                             )}
                                         </div>
 
-                                        {/* Dropdown de resultados de bÃºsqueda */}
+                                        {/* Dropdown de resultados de búsqueda */}
                                         {isSearchFocused && filteredSearchServices.length > 0 && (
                                             <div className="absolute left-0 right-0 z-50 mt-2 bg-white border border-slate-200 rounded-2xl shadow-2xl overflow-hidden animate-in fade-in slide-in-from-top-2 duration-200">
                                                 <div className="p-3 bg-slate-50 border-b text-[10px] font-black text-slate-400 uppercase tracking-widest">
@@ -2194,7 +2194,7 @@ function SimuladorContent() {
                                                                     setIsSearchFocused(false);
                                                                     toast({
                                                                         title: "Servicio agregado",
-                                                                        description: `${service.nombre} se agregÃ³ al presupuesto.`,
+                                                                        description: `${service.nombre} se agregó al presupuesto.`,
                                                                     });
                                                                 }}
                                                                 className="w-full p-4 text-left hover:bg-slate-50 flex items-center justify-between gap-4 transition"
@@ -2248,7 +2248,7 @@ function SimuladorContent() {
                                                                 handleToggleServiceInBudget(service.id, 'include');
                                                                 toast({
                                                                     title: "Servicio agregado",
-                                                                    description: `${service.nombre} se agregÃ³ al presupuesto.`,
+                                                                    description: `${service.nombre} se agregó al presupuesto.`,
                                                                 });
                                                             }}
                                                             className="rounded-xl bg-primary text-white text-[10px] font-black uppercase tracking-widest shrink-0 px-4"
@@ -2266,7 +2266,7 @@ function SimuladorContent() {
                             {/* 3. COMPARADOR DE PAQUETES */}
                             <div className="space-y-4 pt-6 border-t border-slate-200">
                                 <h4 className="font-black text-slate-800 uppercase text-xs tracking-wider">
-                                    Â¿QuerÃ©s comparar con otros paquetes para esta misma configuraciÃ³n?
+                                    ¿Querés comparar con otros paquetes para esta misma configuración?
                                 </h4>
                                 <div className="grid gap-4 sm:grid-cols-2">
                                     {config?.paquetes
@@ -2287,8 +2287,8 @@ function SimuladorContent() {
                                                         <p className="mt-2 text-xl font-black text-primary">{formatCurrency(precioAlternativo)}</p>
                                                         <p className="mt-1 text-xs text-slate-500 font-bold">
                                                             {esMejora
-                                                                ? `MejorÃ¡ por ${formatCurrency(diffPorPersona)} mÃ¡s por persona`
-                                                                : `AhorrÃ¡s ${formatCurrency(diffPorPersona)} por persona`}
+                                                                ? `Mejorá por ${formatCurrency(diffPorPersona)} más por persona`
+                                                                : `Ahorrás ${formatCurrency(diffPorPersona)} por persona`}
                                                         </p>
                                                     </div>
                                                     <Button
@@ -2297,7 +2297,7 @@ function SimuladorContent() {
                                                             setExcludedPackageServiceIds([]);
                                                             toast({
                                                                 title: "Paquete cambiado",
-                                                                description: `Cambiado a ${p.nombre} con Ã©xito.`
+                                                                description: `Cambiado a ${p.nombre} con éxito.`
                                                             });
                                                         }}
                                                         className="rounded-xl font-bold uppercase tracking-wider text-[10px] h-10 w-full"
@@ -2313,8 +2313,8 @@ function SimuladorContent() {
                             <div className="rounded-2xl border border-blue-100 bg-blue-50 p-4 text-sm text-blue-900">
                                 <strong>Precios {currentYear}</strong>
                                 {stats.annualProjection.applies
-                                    ? <> â€” El presupuesto lleva un ajuste anual proyectado del <strong>{stats.annualProjection.adjustmentPct}%</strong> para eventos en {stats.annualProjection.eventYear}.</>
-                                    : <> â€” El total mostrado corresponde al precio vigente.</>}
+                                    ? <> — El presupuesto lleva un ajuste anual proyectado del <strong>{stats.annualProjection.adjustmentPct}%</strong> para eventos en {stats.annualProjection.eventYear}.</>
+                                    : <> — El total mostrado corresponde al precio vigente.</>}
                             </div>
                         </div>
                     )}
@@ -2348,10 +2348,10 @@ function SimuladorContent() {
                 <DialogContent className="sm:max-w-md rounded-2xl">
                     <DialogHeader>
                         <DialogTitle className="text-slate-900 font-black uppercase text-base flex items-center gap-2">
-                            âš ï¸ Â¿Eliminar servicio?
+                            âš ï¸ ¿Eliminar servicio?
                         </DialogTitle>
                         <DialogDescription className="text-slate-600 text-sm font-semibold">
-                            Â¿EstÃ¡s seguro de que deseas eliminar el servicio <span className="text-rose-600 font-bold">"{serviceToDelete?.nombre}"</span> de tu presupuesto?
+                            ¿Estás seguro de que deseas eliminar el servicio <span className="text-rose-600 font-bold">"{serviceToDelete?.nombre}"</span> de tu presupuesto?
                         </DialogDescription>
                     </DialogHeader>
                     <DialogFooter className="mt-4 flex gap-2 justify-end">
