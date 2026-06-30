@@ -407,8 +407,8 @@
     "unidad": "Unidad"
   },
   {
-    "id": "serv_espejo_magico_classic",
-    "nombre": "Espejo Mágico Classic (Táctil, Firmas & Emojis)",
+    "id": "serv_espejo_magico",
+    "nombre": "Espejo Magico Classic (tactil, firmas y stickers)",
     "tipoItem": "Servicio",
     "categoria": "Servicio de entretenimiento",
     "valorUnitarioEstimado": 1800,
@@ -419,7 +419,7 @@
   },
   {
     "id": "serv_espejo_magico_ia",
-    "nombre": "Face Swap IA (Avatares, Reemplazo de Rostros & Estilos Artísticos)",
+    "nombre": "Face Swap IA (avatares, reemplazo de rostros y estilos artisticos)",
     "tipoItem": "Servicio",
     "categoria": "Servicio de entretenimiento",
     "valorUnitarioEstimado": 2500,

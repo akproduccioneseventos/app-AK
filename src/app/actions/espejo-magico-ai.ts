@@ -1,19 +1,9 @@
 'use server';
 
-/**
- * Espejo Mágico AI — Face Swap IA & Template Transformations.
- *
- * Uses Genkit + Gemini to perform high-fidelity face swapping with dynamic landmark mapping.
- * Includes 20 curated templates categorized for different event types.
- */
-
 import { ai } from '@/ai/genkit';
-import { uploadSocialPost } from '@/app/actions/social-gallery';
 import { getFiestaById } from '@/app/actions/fiesta/fiesta.actions';
 import { hasEntertainmentControlAccess } from '@/lib/auth/entertainment-token';
 import * as logger from '@/lib/logger';
-
-// ──────────────────── Categories & Templates ────────────────────
 
 export type FaceSwapCategoryId =
   | 'showbiz'
@@ -45,7 +35,7 @@ export interface EspejoTemplateDefinition {
 }
 
 export const ESPEJO_TEMPLATES: Record<string, EspejoTemplateDefinition> = {
-  // 🌟 Estrellas & Farándula
+  // Estrellas & farandula
   kpop_stars: {
     id: 'kpop_stars',
     categoryId: 'showbiz',
@@ -75,7 +65,7 @@ export const ESPEJO_TEMPLATES: Record<string, EspejoTemplateDefinition> = {
       'a professional electronic music DJ wearing cool headphones around the neck, standing behind a glowing high-tech Pioneer DJ deck and mixer setup in a premium nightclub with laser beams and dancing crowd in background',
   },
 
-  // 🎬 Cine & Acción
+  // Cine & accion
   movie_poster: {
     id: 'movie_poster',
     categoryId: 'cinema',
@@ -105,7 +95,7 @@ export const ESPEJO_TEMPLATES: Record<string, EspejoTemplateDefinition> = {
       'a futuristic cyberpunk mercenary with glowing blue cybernetic implants on the face and arms, wearing a technical high-collar jacket, standing on a rainy neo-tokyo street filled with neon signs and flying vehicles',
   },
 
-  // 🏰 Fantasía e Historia
+  // Fantasia e historia
   medieval_legends: {
     id: 'medieval_legends',
     categoryId: 'fantasy',
@@ -142,7 +132,7 @@ export const ESPEJO_TEMPLATES: Record<string, EspejoTemplateDefinition> = {
       'a classical renaissance oil painting portrait, showing rich brush strokes, fine canvas texture, warm Rembrandt-style chiascuro lighting, rich classical clothing, making the person look like a masterpiece hanging in a museum',
   },
 
-  // 👔 Estilo de Vida & Pro
+  // Estilo de vida & pro
   space_commander: {
     id: 'space_commander',
     categoryId: 'corporate',
@@ -172,7 +162,7 @@ export const ESPEJO_TEMPLATES: Record<string, EspejoTemplateDefinition> = {
       'a professional racing car driver wearing a detailed red racing suit covered in sponsor patches, holding a helmet under one arm, standing in the pit lane of a race track with garage and F1 car blurred in background',
   },
 
-  // 🤪 Divertidos & Niños
+  // Divertidos & ninos
   tiny_pirate: {
     id: 'tiny_pirate',
     categoryId: 'fun',
@@ -195,8 +185,6 @@ export const ESPEJO_TEMPLATES: Record<string, EspejoTemplateDefinition> = {
       'a classic comic book illustration with bold black outlines, high contrast pop art colors (bright cyan, yellow, magenta), retro dot halftone pattern background, speech bubble next to the person with party sparkles',
   },
 };
-
-// ──────────────────── Core Backend Logic ────────────────────
 
 const MAX_IMAGE_SIZE = 10 * 1024 * 1024; // 10 MB
 const ESPEJO_AI_TIMEOUT_MS = 60_000;
@@ -277,6 +265,10 @@ function stripDataUri(dataUri: string): string | null {
   return commaIndex !== -1 ? dataUri.substring(commaIndex + 1) : null;
 }
 
+function isLikelyBase64Image(value: string) {
+  return value.length > 500 && /^[A-Za-z0-9+/\n\r]+=*$/.test(value.trim());
+}
+
 function extractImageFromResult(result: any): string | null {
   try {
     const topMedia = typeof result.media === 'function' ? result.media() : result.media;
@@ -284,7 +276,7 @@ function extractImageFromResult(result: any): string | null {
       if (topMedia.url.startsWith('data:')) {
         return stripDataUri(topMedia.url);
       }
-      if (/^[A-Za-z0-9+/]/.test(topMedia.url) && topMedia.url.length > 500) {
+      if (isLikelyBase64Image(topMedia.url)) {
         return topMedia.url;
       }
     }
@@ -296,7 +288,7 @@ function extractImageFromResult(result: any): string | null {
           if (part.media.url.startsWith('data:')) {
             return stripDataUri(part.media.url);
           }
-          return part.media.url;
+          if (isLikelyBase64Image(part.media.url)) return part.media.url;
         }
       }
     }
@@ -310,7 +302,7 @@ function extractImageFromResult(result: any): string | null {
             if (part.media?.url && typeof part.media.url === 'string') {
               const url = part.media.url;
               if (url.startsWith('data:')) return stripDataUri(url);
-              return url;
+              if (isLikelyBase64Image(url)) return url;
             }
             if (part.inlineData?.data && typeof part.inlineData.data === 'string') {
               return part.inlineData.data;
@@ -323,8 +315,7 @@ function extractImageFromResult(result: any): string | null {
     const text = typeof result.text === 'function' ? result.text() : result.text;
     if (
       typeof text === 'string' &&
-      text.length > 1000 &&
-      /^[A-Za-z0-9+/\n\r]+=*$/.test(text.trim())
+      isLikelyBase64Image(text)
     ) {
       return text.trim();
     }

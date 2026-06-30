@@ -281,9 +281,13 @@ export default function EspejoMagicoPage() {
   };
 
   const loadAiImageToCanvas = (base64Url: string): Promise<void> => {
-    return new Promise((resolve) => {
+    return new Promise((resolve, reject) => {
       const img = new Image();
+      const timer = setTimeout(() => {
+        reject(new Error('Tiempo de carga de imagen agotado.'));
+      }, 10_000);
       img.onload = () => {
+        clearTimeout(timer);
         if (canvasRef.current) {
           canvasRef.current.width = img.width;
           canvasRef.current.height = img.height;
@@ -293,6 +297,10 @@ export default function EspejoMagicoPage() {
           }
         }
         resolve();
+      };
+      img.onerror = () => {
+        clearTimeout(timer);
+        reject(new Error('No se pudo cargar la imagen de IA.'));
       };
       img.src = base64Url;
     });
@@ -793,6 +801,14 @@ export default function EspejoMagicoPage() {
                       className="absolute inset-0 w-full h-full object-cover"
                       alt="Después"
                     />
+                  </div>
+
+                  {/* Before / After labels */}
+                  <div className="absolute top-4 left-4 z-30 px-2 py-1 rounded-full bg-cyan-500/90 text-[9px] font-black uppercase tracking-wider text-white">
+                    IA
+                  </div>
+                  <div className="absolute top-4 right-4 z-30 px-2 py-1 rounded-full bg-zinc-700/90 text-[9px] font-black uppercase tracking-wider text-white">
+                    ANTES
                   </div>
 
                   {/* Slider line handle */}
