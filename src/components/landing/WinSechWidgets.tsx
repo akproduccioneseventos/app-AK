@@ -107,7 +107,7 @@ export function WinSechWidgets({
           transition={{ duration: 0.4, ease: 'easeOut' }}
           onMouseEnter={() => setIsPaused(true)}
           onMouseLeave={() => setIsPaused(false)}
-          className="fixed bottom-5 left-4 right-4 sm:left-auto sm:right-6 sm:bottom-8 z-[80] w-auto sm:w-[20rem] overflow-hidden rounded-2xl border border-white/10 bg-zinc-950/88 p-4 text-white shadow-[0_18px_45px_rgba(0,0,0,0.45)] backdrop-blur-md"
+          className="fixed bottom-5 left-4 right-4 sm:left-auto sm:right-6 sm:bottom-8 z-[80] w-auto sm:w-[20rem] overflow-hidden rounded-2xl border border-white/20 bg-gradient-to-r from-indigo-600 to-purple-600 p-4 text-white shadow-[0_18px_45px_rgba(79,70,229,0.45)] backdrop-blur-md"
         >
           {!reduceMotion && (
             <motion.div
@@ -122,10 +122,10 @@ export function WinSechWidgets({
           {/* Header */}
           <div className="flex items-start justify-between gap-3">
             <div className="flex items-center gap-2.5">
-              <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl bg-white/10">
-                <Icon className={`w-5 h-5 ${currentOffer.iconColor}`} />
+              <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl bg-white/20">
+                <Icon className={`w-5 h-5 text-white`} />
               </div>
-              <p className="font-headline text-sm font-black uppercase tracking-wider text-slate-100">{currentOffer.title}</p>
+              <p className="font-headline text-sm font-black uppercase tracking-wider text-white">{currentOffer.title}</p>
             </div>
             <button
               onClick={handleClose}
@@ -137,7 +137,7 @@ export function WinSechWidgets({
           </div>
 
           {/* Description */}
-          <p className="text-xs font-semibold text-slate-300 leading-relaxed">
+          <p className="text-xs font-semibold text-white/90 leading-relaxed">
             {currentOffer.description}
           </p>
 

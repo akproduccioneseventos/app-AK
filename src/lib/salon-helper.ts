@@ -54,22 +54,22 @@ export function getDynamicSalonPhotos(): SalonPhoto[] {
   if (salonPhotos.length === 0) {
     return [
       {
-        src: '/media/catalogo-servicios/salon-discoteca-ak-01.jpeg',
-        alt: 'Pista y Discoteca en Club Uruguay',
-        title: 'Montaje de Gala',
-        description: 'Montaje de discoteca y sonido profesional en el salón clásico.',
+        src: '/media/catalogo-servicios/recepcion-display-evento-01.jpeg',
+        alt: 'Recepción en Club Uruguay',
+        title: 'Recepción Elegante',
+        description: 'Montaje formal e ingreso al salón clásico.',
       },
       {
-        src: '/media/catalogo-servicios/discoteca-salon-ak-02.jpeg',
-        alt: 'Pantallas y Sonido de Vanguardia',
-        title: 'Discoteca y Escenario',
-        description: 'Decoración e iluminación robótica integrada en el evento.',
+        src: '/media/catalogo-servicios/decoracion-boda-mesa-01.jpeg',
+        alt: 'Decoración en Club Uruguay',
+        title: 'Salón Principal',
+        description: 'Decoración integral y mesas dispuestas para la cena.',
       },
       {
-        src: '/media/catalogo-servicios/xv-pista-iluminada-01.jpeg',
-        alt: 'Pista de Luces LED Activa',
-        title: 'Pista LED Interactiva',
-        description: 'Pista LED interactiva, un diferencial único de nuestras fiestas.',
+        src: '/media/catalogo-servicios/boda_persuasiva.png',
+        alt: 'Mesa Principal y Ambiente',
+        title: 'Arquitectura y Diseño',
+        description: 'Ambiente señorial adaptado con las últimas tendencias.',
       },
     ];
   }

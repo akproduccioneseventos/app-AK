@@ -128,7 +128,7 @@ export function LandingSpaContainer({
       id={`landing-${key}`}
       key={key}
       {...revealProps}
-      className={`w-full md:snap-start md:min-h-screen md:flex md:flex-col relative overflow-hidden ${
+      className={`w-full md:flex md:flex-col relative overflow-hidden ${
         justify === 'between' ? 'md:justify-between' : 'md:justify-center'
       }`}
     >
@@ -152,7 +152,7 @@ export function LandingSpaContainer({
   };
 
   return (
-    <div className="min-h-screen bg-zinc-950 text-white selection:bg-indigo-600 selection:text-white">
+    <div className="min-h-screen selection:bg-indigo-600 selection:text-white">
       {renderSectionHeader()}
       {!activeSection && (
         <>
@@ -185,7 +185,7 @@ export function LandingSpaContainer({
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
-            className="ak-landing-experience md:h-screen md:overflow-y-auto md:snap-y md:snap-mandatory md:scroll-smooth bg-zinc-950"
+            className="ak-landing-experience"
           >
             {dashboardSection('hero', <>{hero}{stats}</>, 'between')}
             {dashboardSection('difference', difference)}
