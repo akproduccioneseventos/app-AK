@@ -42,11 +42,11 @@ export function CommercialJourneySection({
     <section id="simuladores" className="bg-white py-20 sm:py-24">
       <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
         <div className="max-w-3xl">
-          <p className="mb-4 text-xs font-black uppercase tracking-[0.28em] text-red-600">
-            Tu fiesta empieza aca
+          <p className="mb-4 text-xs font-black uppercase tracking-[0.28em] text-indigo-600">
+            Tu evento a medida
           </p>
-          <h2 className="text-4xl font-black leading-tight text-slate-950 sm:text-6xl">
-            Elegi como queres imaginarla
+          <h2 className="text-4xl font-black leading-tight text-slate-950 sm:text-6xl font-headline">
+            Diseñá tu fiesta en minutos
           </h2>
           <p className="mt-5 max-w-2xl text-lg leading-relaxed text-slate-600">
             Los dos simuladores usan los servicios y precios configurados por AK. Cambia la forma de recorrerlos:
@@ -57,11 +57,11 @@ export function CommercialJourneySection({
         <div className="mt-12 grid gap-6 lg:grid-cols-2">
           <article className="flex min-h-[420px] flex-col justify-between overflow-hidden rounded-lg bg-slate-950 p-7 text-white sm:p-10">
             <div>
-              <div className="mb-8 flex h-14 w-14 items-center justify-center rounded-lg bg-fuchsia-500 text-white">
+              <div className="mb-8 flex h-14 w-14 items-center justify-center rounded-lg bg-indigo-600 text-white">
                 <Bot className="h-7 w-7" />
               </div>
-              <p className="text-xs font-black uppercase tracking-[0.24em] text-fuchsia-300">Conversacion IA</p>
-              <h3 className="mt-3 text-3xl font-black sm:text-4xl">Habla con Sofia</h3>
+              <p className="text-xs font-black uppercase tracking-[0.24em] text-indigo-300">Asistente IA</p>
+              <h3 className="mt-3 text-3xl font-black sm:text-4xl font-headline">Hablá con Sofía</h3>
               <p className="mt-4 text-base leading-relaxed text-slate-300">
                 Sofia pregunta fecha, tipo de fiesta, invitados, duracion, menu y servicios. Al final arma una
                 referencia de presupuesto que podes descargar.
@@ -74,19 +74,19 @@ export function CommercialJourneySection({
             </div>
             <Link
               href={assistantHref}
-              className="mt-10 inline-flex min-h-14 items-center justify-center gap-3 rounded-lg bg-white px-6 text-sm font-black uppercase tracking-widest text-slate-950 transition hover:bg-fuchsia-100"
+              className="mt-10 inline-flex min-h-14 items-center justify-center gap-3 rounded-lg bg-white px-6 text-sm font-black uppercase tracking-widest text-slate-950 transition hover:bg-indigo-50"
             >
-              Conversar con Sofia <ArrowRight className="h-5 w-5" />
+              Conversar con Sofía <ArrowRight className="h-5 w-5" />
             </Link>
           </article>
 
           <article className="flex min-h-[420px] flex-col justify-between overflow-hidden rounded-lg border border-slate-200 bg-slate-50 p-7 text-slate-950 sm:p-10">
             <div>
-              <div className="mb-8 flex h-14 w-14 items-center justify-center rounded-lg bg-red-600 text-white">
+              <div className="mb-8 flex h-14 w-14 items-center justify-center rounded-lg bg-purple-600 text-white">
                 <Calculator className="h-7 w-7" />
               </div>
-              <p className="text-xs font-black uppercase tracking-[0.24em] text-red-600">Recorrido visual</p>
-              <h3 className="mt-3 text-3xl font-black sm:text-4xl">Arma tu propuesta</h3>
+              <p className="text-xs font-black uppercase tracking-[0.24em] text-purple-600">Cotizador visual</p>
+              <h3 className="mt-3 text-3xl font-black sm:text-4xl font-headline">Armá tu propuesta</h3>
               <p className="mt-4 text-base leading-relaxed text-slate-600">
                 Recorre menus, paquetes y servicios con controles visuales. Ves como cambia la propuesta y comparas
                 alternativas antes de descargarla.
@@ -99,9 +99,9 @@ export function CommercialJourneySection({
             </div>
             <Link
               href={visualHref}
-              className="mt-10 inline-flex min-h-14 items-center justify-center gap-3 rounded-lg bg-red-600 px-6 text-sm font-black uppercase tracking-widest text-white transition hover:bg-red-700"
+              className="mt-10 inline-flex min-h-14 items-center justify-center gap-3 rounded-lg bg-purple-600 px-6 text-sm font-black uppercase tracking-widest text-white transition hover:bg-purple-700 shadow-md shadow-purple-600/20"
             >
-              Usar simulador visual <ArrowRight className="h-5 w-5" />
+              Usar cotizador visual <ArrowRight className="h-5 w-5" />
             </Link>
           </article>
         </div>

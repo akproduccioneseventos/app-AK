@@ -20,7 +20,7 @@ function StatCard({ value, label, icon, active }: LandingStatItem & { active: bo
   useEffect(() => {
     if (!active || numValue === null) return;
     let start = 0;
-    const duration = 1800;
+    const duration = 2400; // Animación más suave y prolongada
     const step = numValue / (duration / 16);
     const timer = setInterval(() => {
       start += step;
@@ -71,8 +71,11 @@ export function StatsSection({ stats }: StatsSectionProps) {
   }, []);
 
   return (
-    <section className="py-20 bg-gradient-to-br from-purple-900 via-fuchsia-900 to-indigo-900" id="stats">
-      <div ref={ref} className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8">
+    <section className="py-24 relative overflow-hidden bg-slate-950" id="stats">
+      {/* Premium Glow */}
+      <div className="absolute top-0 left-1/2 -translate-x-1/2 w-full h-full max-w-4xl bg-indigo-500/10 blur-[100px] pointer-events-none rounded-full" />
+      
+      <div ref={ref} className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
         <div className="text-center mb-12">
           <h2 className="text-3xl sm:text-4xl font-black text-white mb-3">
             Números que Hablan

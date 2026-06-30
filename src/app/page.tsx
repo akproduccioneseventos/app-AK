@@ -30,7 +30,6 @@ import { getAkYoutubeVideos, AK_YOUTUBE_CHANNEL_URL } from '@/lib/youtube/ak-cha
 import { PromoWidget } from '@/components/promo/PromoWidget';
 import { LandingSpaContainer } from '@/components/landing/LandingSpaContainer';
 import { WinSechWidgets } from '@/components/landing/WinSechWidgets';
-import { InstagramSyncStrip, type InstagramSyncItem } from '@/components/landing/InstagramSyncStrip';
 import { getSocialConnections } from '@/app/actions/social-connections';
 
 export const revalidate = 300;
@@ -51,7 +50,7 @@ function getInstagramHandle(profileUrl?: string, username?: string) {
 function getDefaultServiceImage(title: string): string {
   const lower = title.toLowerCase();
   if (lower.includes('boda') || lower.includes('casamiento')) {
-    return '/media/catalogo-servicios/boda-decoracion-dorada-01.jpeg';
+    return '/media/catalogo-servicios/boda_persuasiva.png';
   }
   if (lower.includes('15') || lower.includes('quince')) {
     return '/media/catalogo-servicios/decoracion-xv-lila-01.jpeg';
@@ -66,7 +65,7 @@ function getDefaultServiceImage(title: string): string {
     return '/media/catalogo-servicios/salon-discoteca-ak-01.jpeg';
   }
   if (lower.includes('decor') || lower.includes('ambient')) {
-    return '/media/catalogo-servicios/boda-decoracion-dorada-01.jpeg';
+    return '/media/catalogo-servicios/boda_persuasiva.png';
   }
   if (lower.includes('bar') || lower.includes('trago') || lower.includes('bebida')) {
     return '/media/catalogo-servicios/barra-tragos-ak-01.jpeg';
@@ -169,35 +168,6 @@ export default async function HomePage({ searchParams }: LandingPageProps) {
   const instagramConnection = (socialConnections as any[]).find((connection) => connection.platform === 'Instagram' && connection.isConnected);
   const instagramProfileUrl = instagramConnection?.profileUrl || DEFAULT_INSTAGRAM_URL;
   const instagramHandle = getInstagramHandle(instagramProfileUrl, instagramConnection?.username);
-  const instagramPhotoItems: InstagramSyncItem[] = (safeCatalogoFotos as any[])
-    .filter((foto) => foto.source === 'instagram' || String(foto.titulo || '').toLowerCase().startsWith('instagram'))
-    .map((foto) => ({
-      id: foto.id,
-      type: 'photo' as const,
-      imageUrl: foto.url,
-      title: foto.titulo || 'Foto sincronizada de Instagram',
-      category: foto.categoriaServicio,
-    }));
-  const instagramVideoItems: InstagramSyncItem[] = videosCombinados
-    .filter((video: any) => String(video.youtubeUrl || '').includes('instagram.com') || String(video.youtubeId || '').startsWith('ig_'))
-    .map((video: any) => ({
-      id: video.id || video.youtubeId,
-      type: 'video' as const,
-      imageUrl: video.thumbnailUrl || '/media/catalogo-servicios/xv-pista-iluminada-01.jpeg',
-      title: video.titulo || 'Reel sincronizado de Instagram',
-      category: video.categoria,
-      href: video.youtubeUrl,
-    }));
-  const fallbackInstagramItems: InstagramSyncItem[] = instagramPhotoItems.length + instagramVideoItems.length > 0
-    ? []
-    : (safeCatalogoFotos as any[]).slice(0, 4).map((foto) => ({
-        id: `fallback-${foto.id}`,
-        type: 'photo' as const,
-        imageUrl: foto.url,
-        title: foto.titulo || 'Produccion AK en redes',
-        category: foto.categoriaServicio,
-      }));
-  const instagramItems = [...instagramVideoItems, ...instagramPhotoItems, ...fallbackInstagramItems].slice(0, 8);
 
   const whatsapp = '59898355530'; // Usar el número real de contacto de la empresa
   const safeTestimonialData = (testimonialData && testimonialData.length > 0) ? testimonialData : defaultTestimonials;
@@ -296,7 +266,7 @@ export default async function HomePage({ searchParams }: LandingPageProps) {
         team={<AkTeamStorySection />}
         process={<ProcessSection />}
         gallery={<GallerySection galeriaFotos={fotosCombinadas} />}
-        instagram={<InstagramSyncStrip handle={instagramHandle} profileUrl={instagramProfileUrl} items={instagramItems} />}
+        instagram={null}
         blog={<BlogSection />}
         video={<VideoSection galeriaVideos={videosCombinados} channelUrl={AK_YOUTUBE_CHANNEL_URL} />}
         testimonials={<TestimonialsSection testimonials={approvedTestimonials} />}

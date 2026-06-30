@@ -72,23 +72,23 @@ export function AkTeamStorySection() {
           ))}
         </div>
 
-        <div className="mt-10 grid gap-5 rounded-[2rem] bg-slate-950 p-5 text-white shadow-2xl lg:grid-cols-[.7fr_1.3fr] lg:p-7">
+        <div className="mt-10 grid gap-5 rounded-[2rem] bg-indigo-50 border border-indigo-100 p-5 text-slate-900 shadow-xl lg:grid-cols-[.7fr_1.3fr] lg:p-7">
           <div>
-            <div className="mb-4 inline-flex rounded-2xl bg-white/10 p-3">
-              <BookOpen className="h-6 w-6 text-amber-200" />
+            <div className="mb-4 inline-flex rounded-2xl bg-indigo-100 p-3">
+              <BookOpen className="h-6 w-6 text-indigo-600" />
             </div>
             <h3 className="text-3xl font-black font-headline">Guías útiles y consejos prácticos</h3>
-            <p className="mt-3 text-sm font-semibold leading-relaxed text-white/60">
+            <p className="mt-3 text-sm font-semibold leading-relaxed text-slate-600">
               Descubrí nuestras guías completas para sacarte todas las dudas sobre presupuestos, distribución de mesas, comida e iluminación.
             </p>
           </div>
           <div className="grid gap-3 sm:grid-cols-2">
             {blogIdeas.map((idea) => (
-              <div key={idea} className="rounded-2xl bg-white px-4 py-3 text-sm font-black text-slate-950">
+              <div key={idea} className="rounded-2xl bg-white border border-slate-200 px-4 py-3 text-sm font-black text-slate-900">
                 {idea}
               </div>
             ))}
-            <Link href="/public/blog" className="inline-flex min-h-12 items-center justify-center gap-2 rounded-2xl border border-white/15 bg-white/10 px-4 text-sm font-black uppercase tracking-widest text-white transition hover:bg-white/15 sm:col-span-2">
+            <Link href="/public/blog" className="inline-flex min-h-12 items-center justify-center gap-2 rounded-2xl bg-indigo-600 px-4 text-sm font-black uppercase tracking-widest text-white transition hover:bg-indigo-700 sm:col-span-2 shadow-md">
               Ver contenido público
               <ArrowRight className="h-4 w-4" />
             </Link>

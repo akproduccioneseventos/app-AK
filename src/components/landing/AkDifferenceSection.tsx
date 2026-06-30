@@ -6,18 +6,18 @@ import { motion } from 'framer-motion';
 
 const benefits = [
   {
-    title: 'Organizamos la fiesta por vos',
-    text: 'AK coordina salón, servicios, tiempos y proveedores para que tu familia solo se dedique a disfrutar como un invitado más.',
+    title: 'Disfrutá, nosotros nos encargamos',
+    text: 'AK coordina el salón, los tiempos, el staff y los detalles para que tu única responsabilidad sea divertirte como un invitado más.',
     icon: ClipboardList,
   },
   {
-    title: 'Todos los servicios conectados',
-    text: 'Decoración, comida, discoteca, fotos y pantallas LED trabajan bajo una misma planificación, evitando fallas de comunicación.',
+    title: 'Cero sorpresas ni intermediarios',
+    text: 'Desde la gastronomía gourmet hasta la discoteca y pantallas LED, todo funciona bajo una misma visión integral. Menos proveedores, cero fallas.',
     icon: Sparkles,
   },
   {
-    title: 'Salón y producción integral',
-    text: 'Un único presupuesto transparente que cubre todo, desde el salón clásico del Club Uruguay hasta el último detalle de la barra.',
+    title: 'Presupuesto claro y completo',
+    text: 'Un precio transparente que cubre todo lo que realmente necesitás, sin costos ocultos de último momento ni dolores de cabeza.',
     icon: Gem,
   },
 ];
@@ -38,19 +38,19 @@ export function AkDifferenceSection() {
   };
 
   return (
-    <section className="overflow-hidden bg-zinc-950 py-24 text-white border-y border-white/5">
+    <section className="overflow-hidden bg-slate-50 py-24 text-slate-900 border-y border-slate-200">
       <div className="mx-auto grid max-w-7xl gap-12 px-4 sm:px-6 lg:grid-cols-[1fr_1.1fr] lg:px-8 items-center">
         {/* Left Side: Copy and list */}
         <div className="space-y-8">
           <div>
-            <span className="inline-flex items-center gap-2 px-3 py-1 rounded-xl bg-white/5 border border-white/10 text-xs font-black uppercase tracking-widest text-indigo-400 mb-4">
-              ✨ La Experiencia AK
+            <span className="inline-flex items-center gap-2 px-3 py-1 rounded-xl bg-indigo-50 border border-indigo-100 text-xs font-black uppercase tracking-widest text-indigo-600 mb-4 shadow-sm">
+              ✨ El Valor de la Tranquilidad
             </span>
-            <h2 className="font-headline text-4xl sm:text-5xl font-black text-white leading-tight">
-              No vendemos servicios sueltos: resolvemos la fiesta completa
+            <h2 className="font-headline text-4xl sm:text-5xl font-black text-slate-900 leading-tight">
+              No vendemos luces ni sonido: diseñamos tu tranquilidad
             </h2>
-            <p className="mt-5 max-w-xl text-zinc-400 text-lg leading-relaxed">
-              El diferencial de AK es que no tenés que perseguir proveedores, comparar presupuestos incompletos ni llegar al día de tu evento con dudas o estrés.
+            <p className="mt-5 max-w-xl text-slate-600 text-lg leading-relaxed font-medium">
+              El verdadero lujo es llegar al día de tu evento sin estrés. Olvidate de perseguir proveedores o comparar presupuestos incompletos.
             </p>
           </div>
 
@@ -59,7 +59,7 @@ export function AkDifferenceSection() {
             initial="hidden"
             whileInView="visible"
             viewport={{ once: true, margin: '-100px' }}
-            className="space-y-6"
+            className="space-y-5"
           >
             {benefits.map((benefit) => {
               const Icon = benefit.icon;
@@ -67,14 +67,14 @@ export function AkDifferenceSection() {
                 <motion.div
                   key={benefit.title}
                   variants={itemVariants}
-                  className="flex gap-4 p-5 rounded-2xl bg-white/[0.02] border border-white/5 hover:bg-white/[0.04] hover:border-white/10 transition-all duration-300"
+                  className="flex gap-4 p-5 rounded-2xl bg-white border border-slate-100 hover:border-indigo-100 hover:shadow-lg hover:shadow-indigo-500/5 transition-all duration-300 group"
                 >
-                  <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-xl bg-indigo-600/10 border border-indigo-500/20 text-indigo-400">
+                  <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-xl bg-indigo-50 border border-indigo-100 text-indigo-600 group-hover:scale-110 transition-transform">
                     <Icon className="h-6 w-6" />
                   </div>
                   <div>
-                    <h3 className="text-lg font-black text-white">{benefit.title}</h3>
-                    <p className="mt-2 text-sm text-zinc-400 leading-relaxed font-medium">{benefit.text}</p>
+                    <h3 className="text-lg font-black text-slate-900">{benefit.title}</h3>
+                    <p className="mt-1.5 text-sm text-slate-600 leading-relaxed font-medium">{benefit.text}</p>
                   </div>
                 </motion.div>
               );
@@ -84,7 +84,7 @@ export function AkDifferenceSection() {
 
         {/* Right Side: Single high impact image */}
         <div className="space-y-6">
-          <div className="relative overflow-hidden rounded-[2.5rem] border border-white/10 bg-white/5 shadow-2xl aspect-[4/3] w-full">
+          <div className="relative overflow-hidden rounded-[2.5rem] border border-slate-200 bg-white shadow-2xl aspect-[4/3] w-full">
             <Image
               src="/media/catalogo-servicios/xv-decoracion-equipo-ak-01.jpeg"
               alt="Equipo de organización AK Producciones"
@@ -93,17 +93,19 @@ export function AkDifferenceSection() {
               sizes="(max-width: 768px) 100vw, 45vw"
               priority
             />
-            <div className="absolute inset-0 bg-gradient-to-t from-zinc-950/80 via-zinc-950/20 to-transparent" />
+            <div className="absolute inset-0 bg-gradient-to-t from-slate-950/80 via-slate-900/20 to-transparent" />
             <div className="absolute inset-x-0 bottom-0 p-8">
-              <span className="text-[10px] font-black uppercase tracking-[0.25em] text-indigo-400">Cero Preocupaciones</span>
-              <p className="mt-2 text-2xl sm:text-3xl font-black text-white leading-tight">Personas reales cuidando cada detalle real</p>
+              <span className="text-[10px] font-black uppercase tracking-[0.25em] text-indigo-300 drop-shadow-md">Seguridad Absoluta</span>
+              <p className="mt-2 text-2xl sm:text-3xl font-black text-white leading-tight drop-shadow-lg">Personas reales cuidando cada detalle real</p>
             </div>
           </div>
 
-          <div className="flex items-center gap-4 p-5 rounded-2xl bg-indigo-600/10 border border-indigo-500/15 text-indigo-300">
-            <CalendarCheck className="h-6 w-6 shrink-0" />
+          <div className="flex items-center gap-4 p-5 rounded-2xl bg-white border border-slate-200 text-slate-700 shadow-sm">
+            <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-indigo-50 text-indigo-600">
+              <CalendarCheck className="h-5 w-5 shrink-0" />
+            </div>
             <p className="text-sm font-semibold leading-relaxed">
-              Tranquilidad desde el primer día: fecha, salón, servicios y un plan de pagos claro, todo definido desde la primera reunión.
+              Reserva de fecha garantizada, plan de pagos claro y un equipo entero a tu disposición.
             </p>
           </div>
         </div>
