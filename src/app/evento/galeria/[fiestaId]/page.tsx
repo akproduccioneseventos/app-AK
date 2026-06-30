@@ -58,7 +58,15 @@ export default function GaleriaPage() {
     if (activeTab === 'todas') return posts;
     if (activeTab === 'fotocabina') return posts.filter(p => p.sourceModule === 'fotocabina');
     if (activeTab === '360') return posts.filter(p => p.sourceModule === 'plataforma360' || p.sourceModule === 'plataforma_360');
-    if (activeTab === 'espejo') return posts.filter(p => p.sourceModule === 'espejoMagico' || p.sourceModule === 'espejo_magico');
+    if (activeTab === 'espejo') {
+      return posts.filter(p =>
+        p.sourceModule === 'espejoMagico' ||
+        p.sourceModule === 'espejo_magico' ||
+        p.sourceModule === 'espejoMagicoFoto' ||
+        p.sourceModule === 'espejoMagicoFirma' ||
+        p.sourceModule === 'espejoMagicoIA'
+      );
+    }
     if (activeTab === 'invitados') return posts.filter(p => p.source === 'guest');
     return posts;
   }, [posts, activeTab]);
