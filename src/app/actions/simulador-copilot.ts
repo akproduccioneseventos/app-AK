@@ -366,8 +366,12 @@ function getStaticFallbackResponse(input: CopilotInput, config: ArmadoRapidoConf
 
   // Fallback 3: Package information request
   if (msg.includes('paquete') || msg.includes('premium') || msg.includes('platino') || msg.includes('oro')) {
-    const selectedPackage = (config?.paquetes || []).find((pkg) => pkg.id === input.currentState.selectedPaqueteId);
-    const recommendedPackage = selectedPackage
+    const matchedPackage = (config?.paquetes || []).find((pkg) => {
+      const pkgName = pkg.nombre.normalize('NFD').replace(/[\u0300-\u036f]/g, '').toLowerCase();
+      return msg.includes(pkgName);
+    });
+    const recommendedPackage = matchedPackage
+      || (config?.paquetes || []).find((pkg) => pkg.id === input.currentState.selectedPaqueteId)
       || (config?.paquetes || []).find((pkg) => pkg.recommended)
       || config?.paquetes?.[0];
     const includedCount = recommendedPackage?.serviciosIncluidos.length || 0;

@@ -34,6 +34,21 @@ jest.mock('@/app/actions/simulador-v2', () => ({
 }));
 
 describe('Simulador IA Copilot Flow', () => {
+  let originalLocalJsonEnv: string | undefined;
+
+  beforeAll(() => {
+    originalLocalJsonEnv = process.env.AK_USE_LOCAL_JSON_ONLY;
+    process.env.AK_USE_LOCAL_JSON_ONLY = 'true';
+  });
+
+  afterAll(() => {
+    if (originalLocalJsonEnv === undefined) {
+      delete process.env.AK_USE_LOCAL_JSON_ONLY;
+    } else {
+      process.env.AK_USE_LOCAL_JSON_ONLY = originalLocalJsonEnv;
+    }
+  });
+
   const defaultState = {
     eventoTipo: '',
     adultos: 80,
