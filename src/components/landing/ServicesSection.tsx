@@ -1,4 +1,4 @@
-﻿'use client';
+'use client';
 
 import Image from 'next/image';
 import { MessageSquare, Calendar, ChevronRight } from 'lucide-react';
@@ -178,6 +178,7 @@ export function ServicesSection({ whatsappNumber = '59898355530', services }: Se
                         fill
                         className="object-cover transition-transform duration-500 group-hover:scale-[1.03]"
                         sizes="(max-width: 768px) 100vw, 30vw"
+                        unoptimized={true}
                       />
                       <div className="absolute top-4 left-4 w-11 h-11 rounded-2xl bg-zinc-950/80 backdrop-blur-sm border border-white/10 flex items-center justify-center text-xl shadow-md">
                         {service.emoji}

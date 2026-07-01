@@ -1,4 +1,4 @@
-﻿'use client';
+'use client';
 
 import { useMemo, useState } from 'react';
 import Image from 'next/image';
@@ -49,7 +49,7 @@ function GalleryMedia({
         className={className}
         sizes={sizes}
         priority={priority}
-        unoptimized={!isNextJsOptimizableUrl(src) && !src.startsWith('/')}
+        unoptimized={true}
       />
     );
   }
