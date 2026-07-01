@@ -2,7 +2,6 @@
 
 import { useState, useEffect, useRef } from 'react';
 import { useParams, useRouter, useSearchParams } from 'next/navigation';
-import Link from 'next/link';
 import { motion, AnimatePresence } from 'framer-motion';
 import {
   Camera,
@@ -11,7 +10,6 @@ import {
   Send,
   ArrowLeft,
   Loader2,
-  PartyPopper,
   RefreshCw,
   SmilePlus,
   X,
@@ -20,7 +18,6 @@ import {
   FileImage,
   Radio,
   Zap,
-  Check,
 } from 'lucide-react';
 import { QRCodeSVG } from 'qrcode.react';
 import { uploadSocialPost } from '@/app/actions/social-gallery';
@@ -30,18 +27,10 @@ import {
   startEntertainmentSession,
   updateEntertainmentSessionStatus,
   resetEntertainmentSession,
-  EntertainmentSession,
+  type EntertainmentSession,
 } from '@/app/actions/fiesta/sesion-entretenimiento';
 import type { PublicEntertainmentEvent } from '@/lib/entertainment/station-config';
 import { KioskUnlockButton } from '@/components/kiosk/kiosk-unlock-button';
-
-const FILTERS = [
-  { id: 'normal', label: 'Sin filtro', css: 'none' },
-  { id: 'glamour', label: 'Glamour', css: 'brightness(1.1) contrast(1.05) saturate(1.2)' },
-  { id: 'vintage', label: 'Vintage', css: 'sepia(0.6) contrast(1.1) brightness(0.9)' },
-  { id: 'neon', label: 'Neón', css: 'hue-rotate(270deg) saturate(2) brightness(1.1)' },
-  { id: 'bw', label: 'B&W', css: 'grayscale(1) contrast(1.4)' },
-];
 import {
   ESPEJO_TEMPLATES,
   FACESWAP_CATEGORIES,
@@ -49,14 +38,57 @@ import {
   type FaceSwapCategoryId,
 } from '@/app/actions/espejo-magico-ai';
 
-const STICKERS_LIST = ['🎉', '🎊', '🥂', '💫', '⭐', '🎈', '💖', '🔥', '👑', '🌟', '🎆', '🏆'];
+const FILTERS = [
+  { id: 'normal', label: 'Sin filtro', css: 'none' },
+  { id: 'glamour', label: 'Glamour', css: 'brightness(1.1) contrast(1.05) saturate(1.2)' },
+  { id: 'vintage', label: 'Vintage', css: 'sepia(0.6) contrast(1.1) brightness(0.9)' },
+  { id: 'neon', label: 'Neon', css: 'hue-rotate(270deg) saturate(2) brightness(1.1)' },
+  { id: 'bw', label: 'B&W', css: 'grayscale(1) contrast(1.4)' },
+];
+
+const STICKERS_LIST = ['★', '♡', '✦', '✧', 'AK', '15', 'VIP', 'Love', 'Party', 'Smile', 'Wow', 'Gold'];
+
+const MODE_COPY = {
+  foto: {
+    eyebrow: 'Foto limpia',
+    title: 'Espejo Magico Foto',
+    start: 'Tocar para foto',
+    subtitle: 'Captura rapida, filtro elegante y subida automatica al muro.',
+    operatorCta: 'Disparar foto',
+    doneLabel: 'Foto lista',
+    author: 'Espejo Magico Foto',
+    review: 'La foto se envia automaticamente al muro de la fiesta.',
+  },
+  firma: {
+    eyebrow: 'Firma y stickers',
+    title: 'Espejo Magico Firma',
+    start: 'Tocar para firmar',
+    subtitle: 'Captura, firma en pantalla, stickers y QR final.',
+    operatorCta: 'Disparar captura',
+    doneLabel: 'Foto firmada',
+    author: 'Espejo Magico Firma',
+    review: 'Firma o dibuja sobre la foto y despues subila al muro.',
+  },
+  ia: {
+    eyebrow: 'Face Swap IA',
+    title: 'Espejo Magico IA',
+    start: 'Crear avatar IA',
+    subtitle: 'Elegis un estilo, la app captura el rostro y genera el retrato.',
+    operatorCta: 'Disparar IA',
+    doneLabel: 'Avatar listo',
+    author: 'Face Swap IA',
+    review: 'Podes firmar el resultado o subirlo directo al muro.',
+  },
+} as const;
 
 export default function EspejoMagicoPage() {
   const params = useParams();
   const router = useRouter();
   const searchParams = useSearchParams();
   const fiestaId = params.fiestaId as string;
-  const mode = searchParams.get('mode') || 'firma'; // 'foto' | 'firma' | 'ia'
+  const requestedMode = searchParams.get('mode') || 'firma';
+  const mode = requestedMode === 'foto' || requestedMode === 'ia' ? requestedMode : 'firma';
+  const modeCopy = MODE_COPY[mode];
   const role = searchParams.get('role') || 'display'; // 'display' | 'operator'
   const accessToken = searchParams.get('access') || undefined;
 
@@ -94,7 +126,6 @@ export default function EspejoMagicoPage() {
   const [capturedImage, setCapturedImage] = useState<string | null>(null);
 
   const [isUploading, setIsUploading] = useState(false);
-  const [showSuccess, setShowSuccess] = useState(false);
   const [errorMsg, setErrorMsg] = useState<string | null>(null);
 
   const [fiesta, setFiesta] = useState<PublicEntertainmentEvent | null>(null);
@@ -192,12 +223,12 @@ export default function EspejoMagicoPage() {
   useEffect(() => {
     if (role === 'display' && localStatus === 'idle' && !capturedImage) {
       if (mode === 'ia') {
-        speak("¡Hola! Elegí tu Face Swap IA en la pantalla y prepará tu mejor pose.");
+        speak('Hola. Elegi tu estilo de IA y prepara tu mejor pose.');
       } else {
-        speak("¡Hola! Toca la pantalla para comenzar.");
+        speak(`Hola. ${modeCopy.start}.`);
       }
     }
-  }, [localStatus, capturedImage, mode, role]);
+  }, [localStatus, capturedImage, mode, modeCopy.start, role]);
 
   const startCamera = async () => {
     stopCamera();
@@ -252,7 +283,11 @@ export default function EspejoMagicoPage() {
 
         setCapturedImage(fullBase64);
         setAiStep('idle');
-        speak("¡Listo! Mira tu avatar de IA. Podés firmarlo si querés.");
+        if (result.faceSwapApplied === false) {
+          speak('Modo prueba. Se muestra la foto original.');
+        } else {
+          speak('Listo. Mira tu avatar de IA. Podes firmarlo si queres.');
+        }
       } else {
         throw new Error(result.error || 'Error al procesar la IA.');
       }
@@ -425,7 +460,7 @@ export default function EspejoMagicoPage() {
         clearInterval(interval);
         setCountdown(null);
         playBeep(1200, 0.3);
-        speak("¡Sonríe!");
+        speak('Sonrie');
         captureToCanvas();
       }
     }, 1000);
@@ -530,11 +565,11 @@ export default function EspejoMagicoPage() {
       // If photo mode, directly upload
       setLocalStatus('processing');
       await updateEntertainmentSessionStatus(fiestaId, moduleId, 'processing', {}, accessToken);
-      await handleUpload();
+      await handleUpload(dataUrl);
     } else {
       // Firma mode gives drawing screen first
       setLocalStatus('recording'); // keeps drawing controls visible
-      speak("¡Perfecto! Firma tu foto en la pantalla y presiona Subir.");
+      speak('Perfecto. Firma tu foto en la pantalla y presiona subir.');
     }
   };
 
@@ -552,8 +587,8 @@ export default function EspejoMagicoPage() {
     document.body.removeChild(a);
   };
 
-  const handleUpload = async () => {
-    if (!capturedImage || !canvasRef.current) return;
+  const handleUpload = async (imageOverride?: string) => {
+    if (!canvasRef.current || (!capturedImage && !imageOverride)) return;
 
     setIsUploading(true);
     setLocalStatus('processing');
@@ -571,7 +606,7 @@ export default function EspejoMagicoPage() {
       const formData = new FormData();
       formData.append('fiestaId', fiestaId);
       formData.append('file', file);
-      formData.append('authorName', mode === 'foto' ? 'Espejo Mágico Foto' : mode === 'ia' ? 'Face Swap IA' : 'Espejo Mágico Firma');
+      formData.append('authorName', modeCopy.author);
       formData.append('source', 'entertainment');
       formData.append('sourceModule', moduleId);
 
@@ -587,12 +622,10 @@ export default function EspejoMagicoPage() {
           { mediaUrl },
           accessToken
         );
-        speak("¡Listo! Foto enviada al muro");
-        setShowSuccess(true);
+        speak('Listo. Foto enviada al muro.');
 
         // Auto reset after 12s
         setTimeout(() => {
-          setShowSuccess(false);
           retake();
           resetEntertainmentSession(fiestaId, moduleId, accessToken);
         }, 12000);
@@ -625,50 +658,124 @@ export default function EspejoMagicoPage() {
     }
   };
 
+  const openDisplayScreen = () => {
+    const params = new URLSearchParams({ mode });
+    if (accessToken) params.set('access', accessToken);
+    window.open(`/evento/espejo-magico/${fiestaId}?${params.toString()}`, '_blank', 'noopener,noreferrer');
+  };
+
+  const handleOperatorStart = async () => {
+    setErrorMsg(null);
+    const now = new Date().toISOString();
+    const result = await startEntertainmentSession(
+      fiestaId,
+      moduleId,
+      { mode, operatorName: fiesta?.station.operatorName, stationTitle: modeCopy.title },
+      accessToken
+    );
+
+    if (result.success) {
+      setSession({
+        fiestaId,
+        moduleId,
+        status: 'countdown',
+        timestamp: now,
+        lastUpdated: now,
+        settings: { mode, operatorName: fiesta?.station.operatorName, stationTitle: modeCopy.title },
+      });
+    } else {
+      setErrorMsg(result.error || 'No se pudo disparar el espejo.');
+    }
+  };
+
+  const handleOperatorReset = async () => {
+    setErrorMsg(null);
+    const now = new Date().toISOString();
+    const result = await resetEntertainmentSession(fiestaId, moduleId, accessToken);
+    if (result.success) {
+      setSession({
+        fiestaId,
+        moduleId,
+        status: 'idle',
+        timestamp: now,
+        lastUpdated: now,
+      });
+    } else {
+      setErrorMsg(result.error || 'No se pudo reiniciar el espejo.');
+    }
+  };
+
   // 5. Operator View
   if (role === 'operator') {
     return (
-      <div className="min-h-screen bg-[radial-gradient(ellipse_at_top,_#18181b_0%,_#09090b_70%)] text-white p-6">
-        <div className="max-w-md mx-auto space-y-6">
+      <div className="min-h-screen bg-[radial-gradient(ellipse_at_top,_#18181b_0%,_#09090b_70%)] text-white p-4 sm:p-6">
+        <div className="mx-auto max-w-2xl space-y-5">
           <div className="flex items-center justify-between border-b border-white/10 pb-4">
             <button onClick={() => router.push(`/evento/hub/${fiestaId}`)} className="p-2 bg-white/5 rounded-full hover:bg-white/10 transition">
               <ArrowLeft className="w-5 h-5" />
             </button>
-            <h1 className="text-lg font-black tracking-widest text-rose-500 uppercase flex items-center gap-2">
-              <Radio className="w-5 h-5 animate-pulse text-rose-500" /> Operador Espejo Mágico
-            </h1>
+            <div className="text-center">
+              <p className="text-[10px] font-black uppercase tracking-[0.28em] text-zinc-500">Cabina operador</p>
+              <h1 className="text-lg font-black tracking-widest text-rose-500 uppercase flex items-center gap-2">
+                <Radio className="w-5 h-5 animate-pulse text-rose-500" /> {modeCopy.title}
+              </h1>
+            </div>
             <div className="w-9" />
           </div>
 
-          <div className="bg-white/5 border border-white/10 rounded-3xl p-6 shadow-2xl space-y-6">
-            <div>
-              <p className="text-xs font-bold text-slate-400 uppercase tracking-widest mb-1">Estado de la Pantalla</p>
-              <div className="flex items-center gap-3 bg-black/40 px-4 py-3 rounded-2xl border border-white/5">
-                <Radio className={`w-5 h-5 ${session?.status === 'idle' ? 'text-slate-500' : 'text-rose-500 animate-pulse'}`} />
-                <span className="font-bold capitalize text-sm">{session?.status || 'Desconectado'}</span>
+          <div className="rounded-[2rem] border border-white/10 bg-white/[0.04] p-5 shadow-2xl sm:p-6">
+            <div className="grid gap-3 sm:grid-cols-3">
+              <div className="rounded-2xl border border-white/10 bg-black/30 p-4">
+                <p className="text-[10px] font-black uppercase tracking-widest text-zinc-500">Evento</p>
+                <p className="mt-1 text-sm font-bold text-white">{fiesta?.eventName || 'Evento AK'}</p>
+              </div>
+              <div className="rounded-2xl border border-white/10 bg-black/30 p-4">
+                <p className="text-[10px] font-black uppercase tracking-widest text-zinc-500">Modo</p>
+                <p className="mt-1 text-sm font-bold text-white">{modeCopy.eyebrow}</p>
+              </div>
+              <div className="rounded-2xl border border-white/10 bg-black/30 p-4">
+                <p className="text-[10px] font-black uppercase tracking-widest text-zinc-500">Pantalla</p>
+                <div className="mt-1 flex items-center gap-2">
+                  <Radio className={`h-4 w-4 ${session?.status && session.status !== 'idle' ? 'text-rose-500 animate-pulse' : 'text-slate-500'}`} />
+                  <span className="text-sm font-bold capitalize text-white">{session?.status || 'Sin conectar'}</span>
+                </div>
               </div>
             </div>
 
-            <div className="space-y-3 pt-2">
+            <div className="mt-5 rounded-2xl border border-rose-500/20 bg-rose-500/10 p-4">
+              <p className="text-sm font-semibold text-rose-100">{modeCopy.subtitle}</p>
+              <p className="mt-2 text-xs text-rose-100/70">
+                Pantalla: {fiesta?.station.deviceName || 'sin dispositivo'} | Ubicacion: {fiesta?.station.location || 'sin asignar'}
+              </p>
+            </div>
+
+            {errorMsg && (
+              <div className="mt-4 rounded-2xl border border-red-500/30 bg-red-500/10 p-3 text-sm font-semibold text-red-100">
+                {errorMsg}
+              </div>
+            )}
+
+            <div className="mt-5 grid gap-3 sm:grid-cols-[1fr_1fr]">
               <button
-                onClick={() =>
-                  startEntertainmentSession(
-                    fiestaId,
-                    moduleId,
-                    { mode, operatorName: fiesta?.station.operatorName },
-                    accessToken
-                  )
-                }
+                onClick={handleOperatorStart}
                 disabled={session?.status && session.status !== 'idle' && session.status !== 'done'}
-                className="w-full h-16 rounded-2xl bg-gradient-to-r from-rose-500 to-pink-600 hover:from-rose-600 hover:to-pink-700 text-white font-black text-lg shadow-xl shadow-rose-500/20 flex items-center justify-center gap-2 disabled:opacity-50 disabled:pointer-events-none active:scale-98 transition-all"
+                className="h-16 rounded-2xl bg-gradient-to-r from-rose-500 to-pink-600 text-white font-black text-base uppercase tracking-wide shadow-xl shadow-rose-500/20 flex items-center justify-center gap-2 disabled:opacity-50 disabled:pointer-events-none active:scale-[0.98] transition-all"
               >
                 <Zap className="w-6 h-6 fill-white" />
-                DISPARAR REMOTO
+                {modeCopy.operatorCta}
               </button>
 
               <button
-                onClick={() => resetEntertainmentSession(fiestaId, moduleId, accessToken)}
-                className="w-full h-12 rounded-xl bg-white/5 hover:bg-white/10 text-slate-300 font-bold text-sm border border-white/5 transition flex items-center justify-center gap-2"
+                onClick={openDisplayScreen}
+                className="h-16 rounded-2xl border border-white/10 bg-white/5 text-white font-black text-base uppercase tracking-wide transition hover:bg-white/10 active:scale-[0.98] flex items-center justify-center gap-2"
+              >
+                <Camera className="h-5 w-5" />
+                Abrir pantalla
+              </button>
+
+              <button
+                onClick={handleOperatorReset}
+                className="h-12 rounded-xl bg-white/5 hover:bg-white/10 text-slate-300 font-bold text-sm border border-white/5 transition flex items-center justify-center gap-2 sm:col-span-2"
               >
                 <RefreshCw className="w-4 h-4" />
                 Reiniciar Espejo
@@ -691,7 +798,8 @@ export default function EspejoMagicoPage() {
           <ArrowLeft className="w-6 h-6" />
         </button>
         <div className="text-center">
-          <h1 className="text-sm font-black uppercase tracking-widest text-rose-500">Espejo Mágico</h1>
+          <p className="text-[10px] font-black uppercase tracking-[0.28em] text-zinc-500">{modeCopy.eyebrow}</p>
+          <h1 className="text-sm font-black uppercase tracking-widest text-rose-500">{modeCopy.title}</h1>
           {fiesta && <p className="text-xs font-semibold text-zinc-300">{fiesta.eventName}</p>}
         </div>
         <div className="flex items-center gap-2">
@@ -742,26 +850,32 @@ export default function EspejoMagicoPage() {
             />
 
             <div className="absolute inset-0 flex flex-col items-center justify-center text-center p-6 bg-gradient-to-t from-zinc-950 via-zinc-950/30 to-zinc-950/80">
-              <div className="absolute w-80 h-80 rounded-full border border-rose-500/20 animate-[spin_20s_linear_infinite]" />
+              <div className="absolute h-80 w-80 rounded-full border border-rose-500/20 animate-[spin_20s_linear_infinite]" />
 
               <div className="relative z-10 space-y-6 max-w-sm">
                 <button
                   onClick={takePhoto}
-                  className="w-48 h-48 rounded-full bg-gradient-to-tr from-rose-500 to-amber-500 hover:from-rose-600 hover:to-amber-600 text-white font-black text-2xl uppercase tracking-widest transition shadow-2xl flex flex-col items-center justify-center gap-2 border-[6px] border-white/20 animate-pulse"
+                  className="mx-auto h-48 w-48 rounded-full bg-gradient-to-tr from-rose-500 to-amber-500 text-white font-black uppercase tracking-widest transition shadow-2xl shadow-rose-950/40 flex flex-col items-center justify-center gap-2 border-[6px] border-white/20 hover:from-rose-600 hover:to-amber-600 active:scale-[0.98]"
                 >
-                  <span className="text-sm opacity-80 font-bold tracking-widest">Toca el Espejo</span>
-                  <span className="text-xs font-semibold opacity-60">Para comenzar</span>
+                  <Camera className="h-9 w-9" />
+                  <span className="px-4 text-center text-sm font-black leading-tight">{modeCopy.start}</span>
                 </button>
 
-                <div className="pt-2 text-xs text-zinc-400">
-                  O espera el disparo remoto del operador de cabina
+                <div className="space-y-3 text-zinc-300">
+                  <p className="text-sm font-semibold leading-relaxed">{modeCopy.subtitle}</p>
+                  <div className="grid grid-cols-3 gap-2 text-[10px] font-black uppercase tracking-wider text-zinc-400">
+                    <span className="rounded-full border border-white/10 bg-white/5 px-2 py-2">1 Posate</span>
+                    <span className="rounded-full border border-white/10 bg-white/5 px-2 py-2">2 Captura</span>
+                    <span className="rounded-full border border-white/10 bg-white/5 px-2 py-2">3 Guarda</span>
+                  </div>
+                  <p className="text-xs text-zinc-500">Tambien puede dispararlo el operador de cabina.</p>
                 </div>
               </div>
             </div>
           </div>
         ) : (
           <>
-            {videoRef.current && !capturedImage && (
+            {!capturedImage && (
               <video
                 ref={videoRef}
                 autoPlay
@@ -821,7 +935,7 @@ export default function EspejoMagicoPage() {
                     }}
                   >
                     <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-8 h-8 rounded-full bg-cyan-400 border-2 border-white flex items-center justify-center shadow-lg">
-                      <span className="text-[10px] text-zinc-950 font-black">↔</span>
+                      <span className="text-[10px] text-zinc-950 font-black">&lt;-&gt;</span>
                     </div>
                   </div>
                 </div>
@@ -833,7 +947,7 @@ export default function EspejoMagicoPage() {
             {capturedImage && localStatus !== 'done' && mode !== 'foto' && (
               <canvas
                 ref={drawingCanvasRef}
-                className="absolute inset-0 w-full h-full z-15 touch-none bg-transparent"
+                className="absolute inset-0 w-full h-full z-[15] touch-none bg-transparent"
                 onPointerDown={startDrawing}
                 onPointerMove={draw}
                 onPointerUp={endDrawing}
@@ -845,7 +959,7 @@ export default function EspejoMagicoPage() {
 
         {/* State: AI Processing Loader */}
         {aiProcessing && (
-          <div className="absolute inset-0 z-45 bg-zinc-950/95 backdrop-blur-xl flex flex-col items-center justify-center p-6">
+          <div className="absolute inset-0 z-[45] bg-zinc-950/95 backdrop-blur-xl flex flex-col items-center justify-center p-6">
             <div className="relative w-72 aspect-[9/16] bg-black rounded-3xl overflow-hidden border border-cyan-500/30 shadow-[0_0_30px_rgba(6,182,212,0.2)] mb-6">
               {/* Laser scanning overlay line */}
               <motion.div
@@ -869,10 +983,10 @@ export default function EspejoMagicoPage() {
                     exit={{ opacity: 0, y: -10 }}
                     className="text-xs text-zinc-300 font-bold tracking-wide uppercase leading-normal"
                   >
-                    {aiStep === 'detecting' && '🔍 Detectando rostro y contorno facial...'}
-                    {aiStep === 'aligning' && '🧬 Mapeando puntos de referencia (Landmark Mapping)...'}
-                    {aiStep === 'gemini' && '🔮 Fusionando iluminación y sombras con Gemini...'}
-                    {aiStep === 'rendering' && '🎨 Renderizando retrato digital en alta definición...'}
+                    {aiStep === 'detecting' && 'Detectando rostro y contorno facial...'}
+                    {aiStep === 'aligning' && 'Mapeando puntos de referencia...'}
+                    {aiStep === 'gemini' && 'Fusionando iluminacion y sombras con Gemini...'}
+                    {aiStep === 'rendering' && 'Renderizando retrato digital en alta definicion...'}
                   </motion.p>
                 </AnimatePresence>
               </div>
@@ -933,15 +1047,15 @@ export default function EspejoMagicoPage() {
             <div className="relative w-full max-w-sm aspect-[9/16] bg-black rounded-3xl overflow-hidden border border-white/10 shadow-2xl">
               <img src={canvasRef.current?.toDataURL('image/jpeg', 0.9) || capturedImage} className="w-full h-full object-cover" alt="Espejo Final" />
               <div className="absolute top-4 left-4 bg-rose-500 text-white text-[10px] font-black uppercase px-3 py-1 rounded-full tracking-wider">
-                Foto Firmada
+                {modeCopy.doneLabel}
               </div>
             </div>
 
             {/* QR sharing code */}
             <div className="flex flex-col items-center text-center space-y-6 max-w-xs">
               <div className="space-y-2">
-                <h3 className="text-2xl font-black text-white">¡Escanea tu Foto!</h3>
-                <p className="text-sm text-zinc-400">Escanea este código QR con tu celular para descargar tu foto firmada.</p>
+                <h3 className="text-2xl font-black text-white">Escanea tu recuerdo</h3>
+                <p className="text-sm text-zinc-400">Usa este codigo QR con tu celular para descargarlo o compartirlo.</p>
               </div>
 
               {/* QR Container */}
@@ -1095,6 +1209,7 @@ export default function EspejoMagicoPage() {
         ) : capturedImage && localStatus !== 'done' ? (
           /* Drawing / Review Controls */
           <div className="flex flex-col gap-3 px-6 pb-6 pt-2">
+            <p className="text-center text-xs font-semibold text-zinc-400">{modeCopy.review}</p>
             {/* Color Palette Selector for Drawing */}
             {mode !== 'foto' && (
               <div className="flex justify-center items-center gap-4 py-2 border-b border-zinc-900">
@@ -1129,7 +1244,7 @@ export default function EspejoMagicoPage() {
               </button>
 
               <button
-                onClick={handleUpload}
+                onClick={() => handleUpload()}
                 disabled={isUploading}
                 className="flex flex-col items-center gap-2 text-white hover:text-rose-400 transition"
               >
