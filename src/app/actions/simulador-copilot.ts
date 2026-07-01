@@ -1,4 +1,4 @@
-'use server';
+﻿'use server';
 
 import { ai, geminiModel } from '@/ai/genkit';
 import { z } from 'genkit';
@@ -38,7 +38,7 @@ export async function saveCopilotConfig(
     return { success: true };
   } catch (error: any) {
     logger.error('[copilot] Error saving copilot config:', error);
-    return { success: false, error: error.message || 'No se pudo guardar la configuración de la IA.' };
+    return { success: false, error: error.message || 'No se pudo guardar la configuraciÃ³n de la IA.' };
   }
 }
 
@@ -85,7 +85,7 @@ const GenkitCopilotInputSchema = z.object({
 });
 
 const CopilotOutputSchema = z.object({
-  response: z.string().describe('Texto conversacional de respuesta en español rioplatense (uruguayo: vos, dale, bárbaro).'),
+  response: z.string().describe('Texto conversacional de respuesta en espaÃ±ol rioplatense (uruguayo: vos, dale, bÃ¡rbaro).'),
   action: z.object({
     type: z.enum(['none', 'apply_changes', 'check_availability']),
     reason: z.string().optional(),
@@ -109,8 +109,8 @@ const CopilotOutputSchema = z.object({
     }).optional(),
   }).nullish(),
   suggestionPill: z.object({
-    label: z.string().describe('Texto del botón (máximo 4 palabras, ej: "Cambiar a Oro y Ahorrar")'),
-    messageToSubmit: z.string().describe('Mensaje de texto a enviar al chat cuando se pulse el botón'),
+    label: z.string().describe('Texto del botÃ³n (mÃ¡ximo 4 palabras, ej: "Cambiar a Oro y Ahorrar")'),
+    messageToSubmit: z.string().describe('Mensaje de texto a enviar al chat cuando se pulse el botÃ³n'),
   }).optional(),
 });
 
@@ -179,7 +179,7 @@ function sanitizeCopilotOutput(
 const SYSTEM_PROMPT = `{{{copilotSystemPrompt}}}
 
 ## BASE DE CONOCIMIENTO Y FAQs (PREGUNTAS FRECUENTES):
-Utilizá las siguientes FAQs para responder cualquier duda del usuario:
+UtilizÃ¡ las siguientes FAQs para responder cualquier duda del usuario:
 {{{faqsJson}}}`;
 
 // Define prompt with Genkit
@@ -189,7 +189,7 @@ const copilotPrompt = ai.definePrompt({
   input: { schema: GenkitCopilotInputSchema },
   output: { schema: CopilotOutputSchema },
   system: SYSTEM_PROMPT,
-  prompt: `## INFORMACIÓN DE LA EMPRESA (PAQUETES Y SERVICIOS DISPONIBLES):
+  prompt: `## INFORMACIÃ“N DE LA EMPRESA (PAQUETES Y SERVICIOS DISPONIBLES):
 {{{businessContext}}}
 
 ## ESTADO ACTUAL DEL SIMULADOR DEL CLIENTE:
@@ -216,7 +216,7 @@ export async function chatWithBudgetCopilot(
   const normalizedInput = normalizeCopilotInput(input);
   if (!normalizedInput?.message) {
     return {
-      response: 'Contame brevemente qué tipo de fiesta querés organizar y te ayudo a armarla.',
+      response: 'Contame brevemente quÃ© tipo de fiesta querÃ©s organizar y te ayudo a armarla.',
       action: { type: 'none' },
     };
   }
@@ -283,7 +283,7 @@ export async function chatWithBudgetCopilot(
     } as any);
 
     if (!output) {
-      throw new Error('Gemini no retornó una respuesta válida.');
+      throw new Error('Gemini no retornÃ³ una respuesta vÃ¡lida.');
     }
 
     // 3. Process check_availability custom tool logic on server side
@@ -291,14 +291,14 @@ export async function chatWithBudgetCopilot(
       try {
         const dateCheck = await checkDateAvailability(output.action.changes.eventoFecha);
         if (!dateCheck.isOccupied) {
-          output.response = `¡Buenas noticias! Estuve revisando el calendario y la fecha del ${output.action.changes.eventoFecha} está libre para tu evento 🎉. ¿Querés que la guardemos en el simulador?`;
+          output.response = `Â¡Buenas noticias! Estuve revisando el calendario y la fecha del ${output.action.changes.eventoFecha} estÃ¡ libre para tu evento ðŸŽ‰. Â¿QuerÃ©s que la guardemos en el simulador?`;
           output.suggestionPill = {
             label: 'Guardar esta fecha',
-            messageToSubmit: `Sí, guardar fecha ${output.action.changes.eventoFecha}`
+            messageToSubmit: `SÃ­, guardar fecha ${output.action.changes.eventoFecha}`
           };
           output.action.type = 'apply_changes';
         } else {
-          output.response = `Estuve chequeando y la fecha del ${output.action.changes.eventoFecha} ya está ocupada o reservada 😔. ¿Querés probar con otra fecha cercana?`;
+          output.response = `Estuve chequeando y la fecha del ${output.action.changes.eventoFecha} ya estÃ¡ ocupada o reservada ðŸ˜”. Â¿QuerÃ©s probar con otra fecha cercana?`;
           output.action.type = 'none';
           output.action.changes = undefined;
         }
@@ -335,7 +335,7 @@ function getStaticFallbackResponse(input: CopilotInput, config: ArmadoRapidoConf
   if (dateMatch) {
     const matchedDate = dateMatch[0];
     return {
-      response: `Dale, para ver si el ${matchedDate} está disponible te sugiero usar el calendario interactivo a la izquierda. Ahí podés elegir el día y ver en tiempo real si el salón está libre.`,
+      response: `Dale, para ver si el ${matchedDate} estÃ¡ disponible te sugiero usar el calendario interactivo a la izquierda. AhÃ­ podÃ©s elegir el dÃ­a y ver en tiempo real si el salÃ³n estÃ¡ libre.`,
       action: { type: 'none' as const }
     };
   }
@@ -352,8 +352,8 @@ function getStaticFallbackResponse(input: CopilotInput, config: ArmadoRapidoConf
 
     return {
       response: lowerPackage
-        ? `¡Dale, te ayudo a ahorrar! Podemos probar el paquete ${lowerPackage.nombre} y revisar los servicios adicionales.`
-        : '¡Dale, te ayudo a ahorrar! Revisemos los servicios adicionales y dejemos solamente lo esencial para tu fiesta.',
+        ? `Â¡Dale, te ayudo a ahorrar! Podemos probar el paquete ${lowerPackage.nombre} y revisar los servicios adicionales.`
+        : 'Â¡Dale, te ayudo a ahorrar! Revisemos los servicios adicionales y dejemos solamente lo esencial para tu fiesta.',
       action: lowerPackage
         ? { type: 'apply_changes' as const, changes: { selectedPaqueteId: lowerPackage.id } }
         : { type: 'none' as const },
@@ -365,16 +365,28 @@ function getStaticFallbackResponse(input: CopilotInput, config: ArmadoRapidoConf
   }
 
   // Fallback 3: Package information request
-  if (msg.includes('paquete') || msg.includes('premium') || msg.includes('platino') || msg.includes('oro')) {
-    const selectedPackage = (config?.paquetes || []).find((pkg) => pkg.id === input.currentState.selectedPaqueteId);
-    const recommendedPackage = selectedPackage
+  if (msg.includes('paquete') || msg.includes('premium') || msg.includes('platino') || msg.includes('oro') || msg.includes('plata') || msg.includes('bronce') || msg.includes('basico') || msg.includes('bÃ¡sico')) {
+    const foundPkg = (config?.paquetes || []).find((pkg) => {
+      const normalizedName = pkg.nombre
+        .normalize('NFD')
+        .replace(/[\u0300-\u036f]/g, '')
+        .toLowerCase();
+      const normalizedId = pkg.id
+        .normalize('NFD')
+        .replace(/[\u0300-\u036f]/g, '')
+        .toLowerCase();
+      return msg.includes(normalizedName) || msg.includes(normalizedId);
+    });
+
+    const recommendedPackage = foundPkg
+      || (config?.paquetes || []).find((pkg) => pkg.id === input.currentState.selectedPaqueteId)
       || (config?.paquetes || []).find((pkg) => pkg.recommended)
       || config?.paquetes?.[0];
     const includedCount = recommendedPackage?.serviciosIncluidos.length || 0;
     return {
       response: recommendedPackage
-        ? `Para tu configuración te conviene revisar ${recommendedPackage.nombre}. Tiene ${includedCount} servicios configurados y ahora podés ver cada inclusión y el total estimado directamente en su tarjeta.`
-        : 'Todavía no hay paquetes configurados para este tipo de evento. Podés armar una propuesta a medida con los servicios disponibles.',
+        ? `Para tu configuraciÃ³n te conviene revisar ${recommendedPackage.nombre}. Tiene ${includedCount} servicios configurados y ahora podÃ©s ver cada inclusiÃ³n y el total estimado directamente en su tarjeta.`
+        : 'TodavÃ­a no hay paquetes configurados para este tipo de evento. PodÃ©s armar una propuesta a medida con los servicios disponibles.',
       action: recommendedPackage
         ? { type: 'apply_changes' as const, changes: { selectedPaqueteId: recommendedPackage.id } }
         : { type: 'none' as const },
@@ -383,7 +395,7 @@ function getStaticFallbackResponse(input: CopilotInput, config: ArmadoRapidoConf
 
   // Generic conversational fallback
   return {
-    response: `¡Hola! Soy Sofía. En este momento estoy con intermitencias en mi conexión inteligente 📡, pero podés ajustar los invitados, menús o paquetes directamente a la izquierda y el presupuesto se calculará al instante. ¡Armá tu fiesta ahí!`,
+    response: `Â¡Hola! Soy SofÃ­a. En este momento estoy con intermitencias en mi conexiÃ³n inteligente ðŸ“¡, pero podÃ©s ajustar los invitados, menÃºs o paquetes directamente a la izquierda y el presupuesto se calcularÃ¡ al instante. Â¡ArmÃ¡ tu fiesta ahÃ­!`,
     action: { type: 'none' as const }
   };
 }
