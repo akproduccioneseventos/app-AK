@@ -1,4 +1,4 @@
-'use client';
+﻿'use client';
 
 import { useMemo, useState } from 'react';
 import Image from 'next/image';
@@ -23,6 +23,7 @@ function isNextJsOptimizableUrl(url: string): boolean {
 }
 
 function canUseNextImage(url: string): boolean {
+  if (!url) return false;
   return url.startsWith('/') || isNextJsOptimizableUrl(url);
 }
 
@@ -48,7 +49,7 @@ function GalleryMedia({
         className={className}
         sizes={sizes}
         priority={priority}
-        unoptimized={!isNextJsOptimizableUrl(src) && !src.startsWith('/')}
+        unoptimized={true}
       />
     );
   }
@@ -90,48 +91,48 @@ const CATEGORY_FILTERS = [
   'Todos',
   'Discoteca',
   'Catering',
-  'Decoración',
+  'DecoraciÃ³n',
   'Barra de Tragos',
   'Fotocabina',
-  'Repostería',
-  'Fotografía',
-  'Salón',
+  'ReposterÃ­a',
+  'FotografÃ­a',
+  'SalÃ³n',
 ];
 
 function getCategoriasAsociadas(titulo: string, descripcion: string, categoriaOriginal: string): string[] {
   const text = `${titulo || ''} ${descripcion || ''} ${categoriaOriginal || ''}`.toLowerCase();
   const cats: string[] = [];
 
-  if (text.includes('salon') || text.includes('salón') || text.includes('club') || text.includes('uruguay')) {
-    cats.push('Salón');
+  if (text.includes('salon') || text.includes('salÃ³n') || text.includes('club') || text.includes('uruguay')) {
+    cats.push('SalÃ³n');
   }
   if (text.includes('decor') || text.includes('ambient') || text.includes('mesa principal') || text.includes('velas')) {
-    cats.push('Decoración');
+    cats.push('DecoraciÃ³n');
   }
-  if (text.includes('comida') || text.includes('catering') || text.includes('menu') || text.includes('menú') || text.includes(' finger ') || text.includes('gastro') || text.includes('plato') || text.includes('bocado') || text.includes('recepcion') || text.includes('recepción')) {
+  if (text.includes('comida') || text.includes('catering') || text.includes('menu') || text.includes('menÃº') || text.includes(' finger ') || text.includes('gastro') || text.includes('plato') || text.includes('bocado') || text.includes('recepcion') || text.includes('recepciÃ³n')) {
     cats.push('Catering');
   }
   if (text.includes('trago') || text.includes('bebida') || text.includes('bar ') || text.includes('barra')) {
     cats.push('Barra de Tragos');
   }
-  if (text.includes('cabina') || text.includes('espejo') || text.includes('plataforma') || text.includes('touchpix') || text.includes('fotocabina') || text.includes('fotobina') || text.includes('totem') || text.includes('tótem')) {
+  if (text.includes('cabina') || text.includes('espejo') || text.includes('plataforma') || text.includes('touchpix') || text.includes('fotocabina') || text.includes('fotobina') || text.includes('totem') || text.includes('tÃ³tem')) {
     cats.push('Fotocabina');
   }
-  if (text.includes('torta') || text.includes('dulce') || text.includes('candy') || text.includes('postre') || text.includes('reposteria') || text.includes('repostería')) {
-    cats.push('Repostería');
+  if (text.includes('torta') || text.includes('dulce') || text.includes('candy') || text.includes('postre') || text.includes('reposteria') || text.includes('reposterÃ­a')) {
+    cats.push('ReposterÃ­a');
   }
   if (text.includes('disco') || text.includes('luz') || text.includes('luces') || text.includes('pantalla') || text.includes('led') || text.includes('dj') || text.includes('sonido') || text.includes('pista') || text.includes('baile') || text.includes('valz') || text.includes('vals')) {
     cats.push('Discoteca');
   }
-  if (text.includes('foto') || text.includes('video') || text.includes('film') || text.includes('bogue') || text.includes('exteriores') || text.includes('civil') || text.includes('iglesia') || text.includes('pintada') || text.includes('sesion') || text.includes('sesión') || text.includes('retrato')) {
-    cats.push('Fotografía');
+  if (text.includes('foto') || text.includes('video') || text.includes('film') || text.includes('bogue') || text.includes('exteriores') || text.includes('civil') || text.includes('iglesia') || text.includes('pintada') || text.includes('sesion') || text.includes('sesiÃ³n') || text.includes('retrato')) {
+    cats.push('FotografÃ­a');
   }
 
   if (cats.length === 0) {
     if (text.includes('boda') || text.includes('casamiento')) {
-      cats.push('Fotografía');
+      cats.push('FotografÃ­a');
     } else {
-      cats.push('Decoración');
+      cats.push('DecoraciÃ³n');
     }
   }
 
@@ -142,7 +143,7 @@ function getSubCategoriaFotografia(titulo: string, descripcion: string, categori
   const text = `${titulo || ''} ${descripcion || ''} ${categoriaOriginal || ''}`.toLowerCase();
   if (text.includes('pintada') || text.includes('bogue')) return 'Pintada';
   if (text.includes('civil')) return 'Civil';
-  if (text.includes('exteriores') || text.includes('campo') || text.includes('jardin') || text.includes('jardín') || text.includes('exterior')) return 'Exteriores';
+  if (text.includes('exteriores') || text.includes('campo') || text.includes('jardin') || text.includes('jardÃ­n') || text.includes('exterior')) return 'Exteriores';
   if (text.includes('iglesia') || text.includes('templo') || text.includes('ceremonia')) return 'Iglesia';
   return 'Fiestas';
 }
@@ -162,13 +163,13 @@ export function GallerySection({ images, galeriaFotos }: GallerySectionProps) {
     const source = (galeriaFotos?.length ?? 0) > 0
       ? galeriaFotos!.map((foto) => {
           const cats = getCategoriasAsociadas(foto.titulo || '', foto.descripcion || '', foto.categoria || foto.servicio || '');
-          const subCat = cats.includes('Fotografía')
+          const subCat = cats.includes('FotografÃ­a')
             ? getSubCategoriaFotografia(foto.titulo || '', foto.descripcion || '', foto.categoria || foto.servicio || '')
             : undefined;
           return {
             id: foto.id,
             src: foto.url,
-            alt: foto.titulo ?? foto.categoria ?? 'Imagen de galería',
+            alt: foto.titulo ?? foto.categoria ?? 'Imagen de galerÃ­a',
             hint: foto.categoria ?? 'event gallery',
             titulo: foto.titulo,
             descripcion: foto.descripcion,
@@ -179,7 +180,7 @@ export function GallerySection({ images, galeriaFotos }: GallerySectionProps) {
         })
       : (images ?? []).map((image, index) => {
           const cats = getCategoriasAsociadas(image.titulo || '', image.descripcion || '', image.category || '');
-          const subCat = cats.includes('Fotografía')
+          const subCat = cats.includes('FotografÃ­a')
             ? getSubCategoriaFotografia(image.titulo || '', image.descripcion || '', image.category || '')
             : undefined;
           return {
@@ -197,6 +198,7 @@ export function GallerySection({ images, galeriaFotos }: GallerySectionProps) {
 
     const seenUrls = new Set<string>();
     const uniqueSource = source.filter((item) => {
+      if (!item.src) return false;
       if (seenUrls.has(item.src)) return false;
       seenUrls.add(item.src);
       return true;
@@ -210,7 +212,7 @@ export function GallerySection({ images, galeriaFotos }: GallerySectionProps) {
     if (activeCategory !== 'Todos') {
       list = list.filter((img) => img.categorias.includes(activeCategory));
     }
-    if (activeCategory === 'Fotografía' && activeSubCategory !== 'Todas') {
+    if (activeCategory === 'FotografÃ­a' && activeSubCategory !== 'Todas') {
       list = list.filter((img) => img.subCategoria === activeSubCategory);
     }
     return list;
@@ -228,7 +230,7 @@ export function GallerySection({ images, galeriaFotos }: GallerySectionProps) {
 
   const handleShareWhatsApp = (image: LandingGalleryItem) => {
     const mainCat = image.categorias[0] || 'Evento';
-    const text = encodeURIComponent(`¡Mirá esta foto de ${mainCat} de AK Producciones! ${image.src}`);
+    const text = encodeURIComponent(`Â¡MirÃ¡ esta foto de ${mainCat} de AK Producciones! ${image.src}`);
     window.open(`https://wa.me/?text=${text}`, '_blank');
   };
 
@@ -257,10 +259,10 @@ export function GallerySection({ images, galeriaFotos }: GallerySectionProps) {
             Nuestros Trabajos
           </span>
           <h2 className="font-headline text-5xl sm:text-6xl font-black text-white leading-tight mb-4">
-            Galería de Fotos
+            GalerÃ­a de Fotos
           </h2>
           <p className="text-zinc-400 text-lg max-w-xl mx-auto leading-relaxed">
-            Una selección de momentos reales, montajes de gala, ambientaciones y tecnología en las fiestas que producimos.
+            Una selecciÃ³n de momentos reales, montajes de gala, ambientaciones y tecnologÃ­a en las fiestas que producimos.
           </p>
         </div>
 
@@ -285,8 +287,8 @@ export function GallerySection({ images, galeriaFotos }: GallerySectionProps) {
           ))}
         </div>
 
-        {/* Sub-filtros para Fotografía */}
-        {activeCategory === 'Fotografía' && (
+        {/* Sub-filtros para FotografÃ­a */}
+        {activeCategory === 'FotografÃ­a' && (
           <div className="flex flex-wrap justify-center gap-1.5 mb-10 p-1 rounded-xl bg-white/[0.01] border border-white/5 max-w-lg mx-auto">
             {['Todas', 'Pintada', 'Civil', 'Fiestas', 'Exteriores', 'Iglesia'].map((subCat) => (
               <button
@@ -308,7 +310,7 @@ export function GallerySection({ images, galeriaFotos }: GallerySectionProps) {
           </div>
         )}
 
-        {/* Snap Grid: aspect-square responsivo sin recortes extraños */}
+        {/* Snap Grid: aspect-square responsivo sin recortes extraÃ±os */}
         <motion.div
           variants={containerVariants}
           initial="hidden"
@@ -333,7 +335,7 @@ export function GallerySection({ images, galeriaFotos }: GallerySectionProps) {
 
               {image.destacada && (
                 <div className="absolute top-4 left-4 bg-gradient-to-r from-violet-600 to-indigo-600 text-white text-[9px] font-black px-3 py-1 rounded-xl shadow-md uppercase tracking-wider">
-                  ★ Destacada
+                  â˜… Destacada
                 </div>
               )}
               <div className="absolute top-4 right-4 bg-zinc-950/80 border border-white/10 text-white text-[9px] font-black px-3 py-1 rounded-xl shadow-md uppercase tracking-wider">
@@ -360,18 +362,18 @@ export function GallerySection({ images, galeriaFotos }: GallerySectionProps) {
         {displayedImages.length === 0 && (
           <div className="text-center py-16 text-zinc-400 bg-white/[0.01] border border-white/5 rounded-3xl max-w-xl mx-auto">
             <Camera className="w-10 h-10 mx-auto mb-3 opacity-55 text-indigo-400" />
-            No hay fotos cargadas bajo esta categoría todavía.
+            No hay fotos cargadas bajo esta categorÃ­a todavÃ­a.
           </div>
         )}
 
-        {/* Botón de Expansión ("Ver Galería Completa") */}
+        {/* BotÃ³n de ExpansiÃ³n ("Ver GalerÃ­a Completa") */}
         {filtered.length > 8 && (
           <div className="mt-12 text-center">
             <button
               onClick={() => setShowAll(!showAll)}
               className="inline-flex items-center gap-2 rounded-2xl bg-white/5 border border-white/10 hover:bg-white/10 hover:border-white/20 px-8 py-4 text-xs font-black uppercase tracking-widest text-white transition-all shadow-md hover:scale-[1.02] active:scale-[0.98]"
             >
-              {showAll ? 'Ver menos fotos' : 'Ver Galería Completa'}
+              {showAll ? 'Ver menos fotos' : 'Ver GalerÃ­a Completa'}
               <ChevronRight className={cn("w-4 h-4 transition-transform", showAll ? "rotate-90" : "")} />
             </button>
           </div>
@@ -392,7 +394,7 @@ export function GallerySection({ images, galeriaFotos }: GallerySectionProps) {
           <button
             onClick={(e) => { e.stopPropagation(); closeLightbox(); }}
             className="absolute top-4 right-4 w-11 h-11 rounded-xl bg-white/10 flex items-center justify-center text-white hover:bg-white/20 transition-colors"
-            aria-label="Cerrar galería"
+            aria-label="Cerrar galerÃ­a"
           >
             <X className="w-5 h-5" />
           </button>

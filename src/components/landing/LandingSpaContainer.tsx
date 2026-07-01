@@ -1,4 +1,4 @@
-'use client';
+﻿'use client';
 
 import { useRef, useState, useEffect } from 'react';
 import { motion, AnimatePresence, useReducedMotion, useScroll, useSpring } from 'framer-motion';
@@ -27,11 +27,11 @@ interface LandingSpaContainerProps {
 
 const SECTION_LABELS: Record<string, string> = {
   servicios: 'Servicios Integrales',
-  tecnologia: 'Tecnología Interactiva',
-  salon: 'Salón Club Uruguay',
-  galeria: 'Galería de Recuerdos',
+  tecnologia: 'TecnologÃ­a Interactiva',
+  salon: 'SalÃ³n Club Uruguay',
+  galeria: 'GalerÃ­a de Recuerdos',
   blog: 'Blog & Consejos SEO',
-  testimonios: 'Casos de Éxito Reales',
+  testimonios: 'Casos de Ã‰xito Reales',
   faq: 'Preguntas Frecuentes',
 };
 
@@ -71,7 +71,7 @@ export function LandingSpaContainer({
     : {
         initial: { opacity: 0, y: 28 },
         whileInView: { opacity: 1, y: 0 },
-        viewport: { once: false, amount: 0.25 },
+        viewport: { once: true, amount: 0.15 },
         transition: { duration: 0.55, ease: [0.22, 1, 0.36, 1] as const },
       };
 
@@ -188,15 +188,15 @@ export function LandingSpaContainer({
             {dashboardSection('hero', <>{hero}{stats}</>, 'between')}
             {dashboardSection('difference', difference)}
             {dashboardSection('services', wrapWithExpander('servicios', 'servicios', services))}
-            {dashboardSection('technology', wrapWithExpander('tecnologia', 'tecnología', technology))}
-            {dashboardSection('salon', wrapWithExpander('salon', 'salón', salon))}
+            {dashboardSection('technology', wrapWithExpander('tecnologia', 'tecnologÃ­a', technology))}
+            {dashboardSection('salon', wrapWithExpander('salon', 'salÃ³n', salon))}
             {dashboardSection('team-process',
               <div className="w-full">
                 {team}
                 {process}
               </div>
             )}
-            {dashboardSection('gallery', wrapWithExpander('galeria', 'galería', gallery))}
+            {dashboardSection('gallery', wrapWithExpander('galeria', 'galerÃ­a', gallery))}
             {instagram && dashboardSection('instagram', wrapWithExpander('instagram', 'Instagram', instagram))}
             {dashboardSection('blog-video',
               <div className="w-full">
