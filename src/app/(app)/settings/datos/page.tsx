@@ -7,7 +7,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { Input } from '@/components/ui/input';
 import { Separator } from '@/components/ui/separator';
 import { useToast } from '@/hooks/use-toast';
-import { Loader2, Trash2, RotateCcw, ArrowLeft, Database, AlertTriangle } from 'lucide-react';
+import { Loader2, Trash2, RotateCcw, ArrowLeft, Database, AlertTriangle, Sparkles } from 'lucide-react';
 import {
   AlertDialog,
   AlertDialogAction,
@@ -32,6 +32,7 @@ export default function AdminDatosPage() {
   const [isArchivingFiestas, setIsArchivingFiestas] = useState(false);
   const [isDeletingFiestas, setIsDeletingFiestas] = useState(false);
   const [isResettingAll, setIsResettingAll] = useState(false);
+  const [isCleaningDb, setIsCleaningDb] = useState(false);
   const [resetConfirmText, setResetConfirmText] = useState('');
   const [resetDialogOpen, setResetDialogOpen] = useState(false);
 
@@ -131,6 +132,32 @@ export default function AdminDatosPage() {
     setResetDialogOpen(open);
     if (!open) setResetConfirmText('');
   }, []);
+
+  const handleCleanMojibake = useCallback(async () => {
+    setIsCleaningDb(true);
+    try {
+      const res = await fetch('/api/admin/clean-db?dryRun=0&confirm=clean-mojibake', {
+        method: 'POST',
+      });
+      const data = await res.json();
+      if (data.success) {
+        toast({
+          title: 'Base de datos corregida',
+          description: `Se escanearon ${data.totalScanned} registros y se corrigieron ${data.totalModified} con textos rotos (Mojibake).`,
+        });
+      } else {
+        toast({
+          title: 'Error',
+          description: data.error || 'No se pudo limpiar la base de datos.',
+          variant: 'destructive',
+        });
+      }
+    } catch (e: any) {
+      toast({ title: 'Error', description: e.message, variant: 'destructive' });
+    } finally {
+      setIsCleaningDb(false);
+    }
+  }, [toast]);
 
   return (
     <div className="max-w-3xl mx-auto space-y-8 p-4">
@@ -262,6 +289,40 @@ export default function AdminDatosPage() {
                 <AlertDialogCancel>Cancelar</AlertDialogCancel>
                 <AlertDialogAction onClick={handleDeleteAllFiestas} className="bg-destructive hover:bg-destructive/90">
                   Sí, eliminar todo permanentemente
+                </AlertDialogAction>
+              </AlertDialogFooter>
+            </AlertDialogContent>
+          </AlertDialog>
+        </CardContent>
+      </Card>
+
+      {/* LIMPIEZA DE MOJIBAKE */}
+      <Card>
+        <CardHeader>
+          <CardTitle className="flex items-center gap-2 text-lg">✨ Limpieza de Acentos y Caracteres (Mojibake)</CardTitle>
+          <CardDescription>
+            Corrige automáticamente textos corruptos en Firestore (como <code>Ã±</code> por <code>ñ</code>, <code>Ã¡</code> por <code>á</code>, etc.) en prospectos, clientes, presupuestos y eventos.
+          </CardDescription>
+        </CardHeader>
+        <CardContent>
+          <AlertDialog>
+            <AlertDialogTrigger asChild>
+              <Button variant="outline" className="text-indigo-700 border-indigo-700 hover:bg-indigo-50" disabled={isCleaningDb}>
+                {isCleaningDb ? <Loader2 className="w-4 h-4 mr-2 animate-spin" /> : <Sparkles className="w-4 h-4 mr-2" />}
+                Corregir textos de la base de datos
+              </Button>
+            </AlertDialogTrigger>
+            <AlertDialogContent>
+              <AlertDialogHeader>
+                <AlertDialogTitle>¿Corregir textos y acentos en la base de datos?</AlertDialogTitle>
+                <AlertDialogDescription>
+                  Esta acción escaneará Firestore y corregirá todos los caracteres rotos (Mojibake) en las colecciones del CRM, clientes, presupuestos y eventos. Los datos legibles se guardarán correctamente.
+                </AlertDialogDescription>
+              </AlertDialogHeader>
+              <AlertDialogFooter>
+                <AlertDialogCancel>Cancelar</AlertDialogCancel>
+                <AlertDialogAction onClick={handleCleanMojibake} className="bg-indigo-600 hover:bg-indigo-700 text-white">
+                  Sí, corregir textos
                 </AlertDialogAction>
               </AlertDialogFooter>
             </AlertDialogContent>
