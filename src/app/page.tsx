@@ -1,4 +1,4 @@
-﻿import type { Metadata } from 'next';
+import type { Metadata } from 'next';
 import { LandingNav } from '@/components/landing/LandingNav';
 import { HeroSection } from '@/components/landing/HeroSection';
 import { ServicesSection } from '@/components/landing/ServicesSection';
@@ -64,16 +64,16 @@ function getDefaultServiceImage(title: string): string {
   if (lower.includes('tecnolog') || lower.includes('interact') || lower.includes('web') || lower.includes('digital') || lower.includes('portal') || lower.includes('muro')) {
     return '/media/catalogo-servicios/tecnologia_fiesta.png';
   }
-  if (lower.includes('salon') || lower.includes('salÃ³n') || lower.includes('club') || lower.includes('uruguay') || lower.includes('decor') || lower.includes('ambient')) {
+  if (lower.includes('salon') || lower.includes('salón') || lower.includes('club') || lower.includes('uruguay') || lower.includes('decor') || lower.includes('ambient')) {
     return '/media/catalogo-servicios/blog_salon.png';
   }
-  if (lower.includes('disco') || lower.includes('mÃºsica') || lower.includes('dj') || lower.includes('sonido') || lower.includes('iluminac')) {
+  if (lower.includes('disco') || lower.includes('música') || lower.includes('dj') || lower.includes('sonido') || lower.includes('iluminac')) {
     return '/media/catalogo-servicios/blog_iluminacion.png';
   }
   if (lower.includes('bar') || lower.includes('trago') || lower.includes('bebida')) {
     return '/media/catalogo-servicios/blog_bebidas.png';
   }
-  if (lower.includes('catering') || lower.includes('comida') || lower.includes('menÃº') || lower.includes('menus')) {
+  if (lower.includes('catering') || lower.includes('comida') || lower.includes('menú') || lower.includes('menus')) {
     return '/media/catalogo-servicios/blog_comida.png';
   }
   return '/media/catalogo-servicios/blog_presupuesto.png';
@@ -82,41 +82,41 @@ function getDefaultServiceImage(title: string): string {
 function getDefaultServiceFeatures(title: string): string[] {
   const lower = title.toLowerCase();
   if (lower.includes('boda') || lower.includes('casamiento')) {
-    return ['CoordinaciÃ³n del gran dÃ­a', 'DecoraciÃ³n y flores premium', 'Comida y discoteca a medida'];
+    return ['Coordinación del gran día', 'Decoración y flores premium', 'Comida y discoteca a medida'];
   }
   if (lower.includes('15') || lower.includes('quince')) {
     return ['Show de luces y pistas LED', 'Torta y mesa dulce personalizada', 'Cabinas y recuerdos en vivo'];
   }
   if (lower.includes('club uruguay')) {
-    return ['UbicaciÃ³n cÃ©ntrica tradicional', 'Estructura clÃ¡sica elegante', 'Servicios y personal incluidos'];
+    return ['Ubicación céntrica tradicional', 'Estructura clásica elegante', 'Servicios y personal incluidos'];
   }
-  if (lower.includes('tecnologÃ­a') || lower.includes('interact')) {
-    return ['InvitaciÃ³n web digital con QR', 'Muro Social interactivo en pantalla', 'Acceso al Portal del Cliente'];
+  if (lower.includes('tecnología') || lower.includes('interact')) {
+    return ['Invitación web digital con QR', 'Muro Social interactivo en pantalla', 'Acceso al Portal del Cliente'];
   }
   if (lower.includes('cumple') || lower.includes('social')) {
-    return ['MÃºsica para todas las edades', 'AnimaciÃ³n y juegos integrados', 'DecoraciÃ³n temÃ¡tica adaptada'];
+    return ['Música para todas las edades', 'Animación y juegos integrados', 'Decoración temática adaptada'];
   }
   if (lower.includes('corporat') || lower.includes('empres')) {
-    return ['Conferencias y lanzamientos', 'Proyectores y micrÃ³fonos pro', 'Livings y recepciÃ³n formal'];
+    return ['Conferencias y lanzamientos', 'Proyectores y micrófonos pro', 'Livings y recepción formal'];
   }
-  if (lower.includes('disco') || lower.includes('mÃºsica') || lower.includes('dj') || lower.includes('sonido')) {
-    return ['Sonido HD para pistas exigentes', 'RobÃ³ticas y efectos especiales', 'Discoteca profesional en vivo'];
+  if (lower.includes('disco') || lower.includes('música') || lower.includes('dj') || lower.includes('sonido')) {
+    return ['Sonido HD para pistas exigentes', 'Robóticas y efectos especiales', 'Discoteca profesional en vivo'];
   }
   if (lower.includes('decor') || lower.includes('ambient')) {
-    return ['Centros de mesa Ãºnicos', 'Fondos para fotos e ingresos', 'IluminaciÃ³n ambiental decorativa'];
+    return ['Centros de mesa únicos', 'Fondos para fotos e ingresos', 'Iluminación ambiental decorativa'];
   }
   if (lower.includes('comida') || lower.includes('catering')) {
-    return ['Platos principales servidos', 'Bocados para la recepciÃ³n', 'Opciones vegetarianas y celÃ­acas'];
+    return ['Platos principales servidos', 'Bocados para la recepción', 'Opciones vegetarianas y celíacas'];
   }
-  return ['ProducciÃ³n profesional', 'Todo en un solo lugar', 'AtenciÃ³n cercana en Salto'];
+  return ['Producción profesional', 'Todo en un solo lugar', 'Atención cercana en Salto'];
 }
 
 
 export async function generateMetadata(): Promise<Metadata> {
   const settings = await getLandingSettings();
   return {
-    title: `${settings.seo.title || 'AK Producciones'} | OrganizaciÃ³n Integral de Eventos en Salto`,
-    description: settings.seo.description || 'OrganizaciÃ³n completa de bodas, fiestas de 15 aÃ±os y eventos empresariales en Salto, Uruguay. Discoteca, comida premium, fotografÃ­a, decoraciÃ³n y salones de fiesta en un solo lugar con tecnologÃ­a interactiva.',
+    title: `${settings.seo.title || 'AK Producciones'} | Organización Integral de Eventos en Salto`,
+    description: settings.seo.description || 'Organización completa de bodas, fiestas de 15 años y eventos empresariales en Salto, Uruguay. Discoteca, comida premium, fotografía, decoración y salones de fiesta en un solo lugar con tecnología interactiva.',
     openGraph: {
       title: settings.seo.title,
       description: settings.seo.description,
@@ -172,7 +172,7 @@ export default async function HomePage({ searchParams }: LandingPageProps) {
   const instagramProfileUrl = instagramConnection?.profileUrl || DEFAULT_INSTAGRAM_URL;
   const instagramHandle = getInstagramHandle(instagramProfileUrl, instagramConnection?.username);
 
-  const whatsapp = '59898355530'; // Usar el nÃºmero real de contacto de la empresa
+  const whatsapp = '59898355530'; // Usar el número real de contacto de la empresa
   const safeTestimonialData = (testimonialData && testimonialData.length > 0) ? testimonialData : defaultTestimonials;
   const approvedTestimonials = (safeTestimonialData as any)
     .filter((testimonial: any) => testimonial.isApproved)
@@ -206,8 +206,8 @@ export default async function HomePage({ searchParams }: LandingPageProps) {
       imageUrl: service.imageUrl || getDefaultServiceImage(service.title),
       imageHint: 'event service',
       accentColor: 'bg-primary',
-      emoji: service.icon || 'âœ¨',
-      whatsappMessage: `Â¡Hola AK Producciones! Me gustarÃ­a cotizar el servicio de ${service.title}.`,
+      emoji: service.icon || 'AK',
+      whatsappMessage: `¡Hola AK Producciones! Me gustaría cotizar el servicio de ${service.title}.`,
     }))
     : undefined;
 
@@ -234,7 +234,7 @@ export default async function HomePage({ searchParams }: LandingPageProps) {
       'https://www.facebook.com/akproduccionessalto',
       instagramProfileUrl,
     ],
-    'description': 'OrganizaciÃ³n integral de eventos en Salto, Uruguay. Discoteca, comida premium, fotografÃ­a, decoraciÃ³n y salones de fiesta en un solo lugar con tecnologÃ­a interactiva.',
+    'description': 'Organización integral de eventos en Salto, Uruguay. Discoteca, comida premium, fotografía, decoración y salones de fiesta en un solo lugar con tecnología interactiva.',
   };
 
   return (
@@ -257,7 +257,7 @@ export default async function HomePage({ searchParams }: LandingPageProps) {
               subheadline={landingSettings.hero.subheadline}
               backgroundImageUrl="/media/catalogo-servicios/quinceanera_hero.png"
               simulatorHref="/simulador-de-presupuesto"
-              simulatorLabel="CotizÃ¡ tu Fiesta"
+              simulatorLabel="Cotizá tu Fiesta"
             />
           </div>
         }

@@ -98,9 +98,9 @@ export function HeroSection({
             variants={itemVariants}
             className="font-headline text-5xl sm:text-6xl md:text-7xl lg:text-8xl font-black text-white leading-none mb-6 drop-shadow-2xl"
           >
-            {headline.split('\n').map((line, i) => (
+            {headline.split('\n').map((line, i, lines) => (
               <span key={i} className={cn('block', i === 1 && 'text-white/90')}>
-                {line}
+                {line}{i < lines.length - 1 ? ' ' : ''}
               </span>
             ))}
           </motion.h1>

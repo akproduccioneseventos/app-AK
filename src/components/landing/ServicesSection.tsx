@@ -1,7 +1,16 @@
-﻿'use client';
+'use client';
 
 import Image from 'next/image';
-import { MessageSquare, Calendar, ChevronRight } from 'lucide-react';
+import {
+  Building2,
+  Calendar,
+  ChevronRight,
+  Crown,
+  Heart,
+  MessageSquare,
+  Sparkles,
+  type LucideIcon,
+} from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { motion } from 'framer-motion';
 
@@ -16,63 +25,68 @@ export interface ServiceItem {
   accentColor: string;
   emoji: string;
   whatsappMessage?: string;
+  icon?: LucideIcon;
 }
 
-const PARTY_TYPES = [
-  { title: 'Bodas', emoji: 'ðŸ’', desc: 'ProducciÃ³n integral de ceremonias y fiestas.' },
-  { title: '15 AÃ±os', emoji: 'ðŸ‘‘', desc: 'Pistas LED, cabinas interactivas y temÃ¡ticas exclusivas.' },
-  { title: 'CumpleaÃ±os & Sociales', emoji: 'ðŸŽ‰', desc: 'Aniversarios y festejos familiares Ãºnicos.' },
-  { title: 'Corporativos', emoji: 'ðŸ¢', desc: 'Lanzamientos, cenas empresariales y conferencias.' },
+const PARTY_TYPES: Array<{ title: string; icon: LucideIcon; desc: string }> = [
+  { title: 'Bodas', icon: Heart, desc: 'Producción integral de ceremonias y fiestas.' },
+  { title: '15 Años', icon: Crown, desc: 'Pistas LED, cabinas interactivas y temáticas exclusivas.' },
+  { title: 'Cumpleaños & Sociales', icon: Sparkles, desc: 'Aniversarios y festejos familiares únicos.' },
+  { title: 'Corporativos', icon: Building2, desc: 'Lanzamientos, cenas empresariales y conferencias.' },
 ];
 
 const DEFAULT_SERVICES: ServiceItem[] = [
   {
     id: 'bodas',
     title: 'Bodas',
-    subtitle: 'El dÃ­a mÃ¡s especial',
-    description: 'Tranquilidad total en el dÃ­a mÃ¡s importante, con un diseÃ±o floral y gastronÃ³mico coordinado.',
-    features: ['GastronomÃ­a premium', 'DecoraciÃ³n y flores exclusivas', 'CoordinaciÃ³n integral del dÃ­a'],
+    subtitle: 'El día más especial',
+    description: 'Tranquilidad total en el día más importante, con un diseño floral y gastronómico coordinado.',
+    features: ['Gastronomía premium', 'Decoración y flores exclusivas', 'Coordinación integral del día'],
     imageUrl: '/media/catalogo-servicios/boda_persuasiva.png',
     imageHint: 'wedding ceremony',
     accentColor: 'bg-indigo-500',
-    emoji: 'ðŸ’',
-    whatsappMessage: 'Â¡Hola AK Producciones! Me gustarÃ­a cotizar el paquete de Boda.',
+    emoji: 'AK',
+    whatsappMessage: '¡Hola AK Producciones! Me gustaría cotizar el paquete de Boda.',
+    icon: Heart,
   },
   {
     id: 'xv-anos',
-    title: 'XV AÃ±os',
-    subtitle: 'Una noche de ensueÃ±o',
-    description: 'Hacemos realidad la fiesta que soÃ±aste con shows de luces interactivos y la tecnologÃ­a que divierte a tus amigos.',
-    features: ['Pistas LED interactivas', 'Cabinas y recuerdos en vivo', 'AmbientaciÃ³n temÃ¡tica a medida'],
+    title: 'XV Años',
+    subtitle: 'Una noche de ensueño',
+    description: 'Hacemos realidad la fiesta que soñaste con shows de luces interactivos y la tecnología que divierte a tus amigos.',
+    features: ['Pistas LED interactivas', 'Cabinas y recuerdos en vivo', 'Ambientación temática a medida'],
     imageUrl: '/media/catalogo-servicios/quinceanera_persuasiva.png',
-    imageHint: 'quinceaÃ±era party',
+    imageHint: 'quinceañera party',
     accentColor: 'bg-fuchsia-500',
-    emoji: 'ðŸ‘‘',
-    whatsappMessage: 'Â¡Hola AK Producciones! Me gustarÃ­a cotizar el paquete de XV AÃ±os.',
+    emoji: 'XV',
+    whatsappMessage: '¡Hola AK Producciones! Me gustaría cotizar el paquete de XV Años.',
+    icon: Crown,
   },
   {
     id: 'cumpleanos',
-    title: 'CumpleaÃ±os & Sociales',
-    subtitle: 'Celebraciones sin lÃ­mites',
-    description: 'El festejo familiar perfecto con la mejor discoteca, barra de tragos y ambientaciÃ³n a tu medida.',
-    features: ['Discoteca y luces pro', 'AnimaciÃ³n y barras exclusivas', 'OrganizaciÃ³n de tiempos y sorpresas'],
+    title: 'Cumpleaños & Sociales',
+    subtitle: 'Celebraciones sin límites',
+    description: 'El festejo familiar perfecto con la mejor discoteca, barra de tragos y ambientación a tu medida.',
+    features: ['Discoteca y luces pro', 'Animación y barras exclusivas', 'Organización de tiempos y sorpresas'],
     imageUrl: '/media/catalogo-servicios/social_persuasivo.png',
     imageHint: 'birthday party lights',
     accentColor: 'bg-indigo-500',
-    emoji: 'ðŸŽ‰',
-    whatsappMessage: 'Â¡Hola AK Producciones! Me gustarÃ­a cotizar un cumpleaÃ±os.',
+    emoji: 'AK',
+    whatsappMessage: '¡Hola AK Producciones! Me gustaría cotizar un cumpleaños.',
+    icon: Sparkles,
   },
   {
     id: 'corporativos',
     title: 'Eventos Corporativos',
     subtitle: 'Imagen corporativa premium',
-    description: 'La imagen de tu empresa con logÃ­stica de vanguardia, sonido profesional y pantallas de alta definiciÃ³n.',
-    features: ['Pantallas LED gigantes', 'Sonido y microfonÃ­a de fidelidad', 'RecepciÃ³n y livings premium'],
+    description: 'La imagen de tu empresa con logística de vanguardia, sonido profesional y pantallas de alta definición.',
+    features: ['Pantallas LED gigantes', 'Sonido y microfonía de fidelidad', 'Recepción y livings premium'],
     imageUrl: '/media/catalogo-servicios/corporativo_persuasivo.png',
     imageHint: 'corporate event',
     accentColor: 'bg-slate-800',
-    emoji: 'ðŸ¢',
-    whatsappMessage: 'Â¡Hola AK Producciones! Me gustarÃ­a cotizar un evento corporativo.',
+    emoji: 'AK',
+    whatsappMessage: '¡Hola AK Producciones! Me gustaría cotizar un evento corporativo.',
+    icon: Building2,
   },
 ];
 
@@ -99,56 +113,56 @@ export function ServicesSection({ whatsappNumber = '59898355530', services }: Se
   };
 
   return (
-    <section id="servicios" className="py-24 bg-gradient-to-b from-zinc-950 via-zinc-900 to-zinc-950 text-white border-y border-white/5 relative overflow-hidden">
-      {/* Glow de fondo */}
-      <div className="absolute top-1/3 right-1/4 -translate-y-1/2 w-96 h-96 bg-indigo-500/5 rounded-full blur-3xl pointer-events-none" />
-
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
-
-        {/* Header */}
-        <div className="text-center mb-20">
-          <span className="inline-flex items-center gap-2 px-3 py-1 rounded-xl bg-indigo-500/10 border border-indigo-500/20 text-xs font-black uppercase tracking-widest text-indigo-400 mb-4">
-            ðŸ”¥ Todo en un solo lugar
+    <section id="servicios" className="border-y border-slate-200 bg-white py-24 text-slate-950">
+      <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
+        <div className="mb-16 max-w-3xl">
+          <span className="mb-4 inline-flex items-center gap-2 rounded-md border border-indigo-200 bg-indigo-50 px-3 py-1 text-xs font-black uppercase tracking-widest text-indigo-700">
+            <Sparkles className="h-3.5 w-3.5" />
+            Todo en un solo lugar
           </span>
-          <h2 className="font-headline text-5xl sm:text-6xl font-black text-white leading-tight mb-5">
-            SoluciÃ³n Integral para tu Fiesta
+          <h2 className="font-headline text-4xl font-black leading-tight text-slate-950 sm:text-5xl">
+            Producción integral para fiestas bien organizadas
           </h2>
-          <p className="text-zinc-300 text-lg max-w-xl mx-auto leading-relaxed">
-            Coordinamos y ejecutamos cada detalle: comida, decoraciÃ³n, luces y fotos bajo un mismo equipo para que disfrutes sin estrÃ©s.
+          <p className="mt-5 max-w-2xl text-lg leading-relaxed text-slate-600">
+            Coordinamos comida, decoración, luces, fotos y logística con un equipo único. El cliente ve una propuesta clara y AK controla cada detalle.
           </p>
         </div>
 
-        {/* â”€â”€ SECTION: TIPOS DE FIESTA â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */}
-        <div className="mb-24">
-          <div className="mb-8">
-            <h3 className="text-2xl font-black text-white flex items-center gap-2 font-headline">
-              <Calendar className="w-6 h-6 text-indigo-400" /> Celebraciones que Producimos
-            </h3>
-            <p className="text-zinc-400 text-sm mt-1">Hacemos realidad el evento de tus sueÃ±os segÃºn tu estilo.</p>
+        <div className="mb-20">
+          <div className="mb-8 flex items-center gap-3">
+            <Calendar className="h-6 w-6 text-indigo-600" />
+            <div>
+              <h3 className="font-headline text-2xl font-black text-slate-950">Celebraciones que producimos</h3>
+              <p className="mt-1 text-sm font-medium text-slate-500">Cada tipo de evento conserva su estética, tiempos y prioridades.</p>
+            </div>
           </div>
 
-          <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-4">
-            {PARTY_TYPES.map((party) => (
-              <div
-                key={party.title}
-                className="p-6 rounded-3xl bg-zinc-900/40 border border-white/10 shadow-lg hover:shadow-indigo-500/5 transition-all duration-300 hover:-translate-y-1"
-              >
-                <span className="text-4xl block mb-4">{party.emoji}</span>
-                <h4 className="text-lg font-black text-white font-headline">{party.title}</h4>
-                <p className="text-xs font-semibold text-zinc-400 mt-2 leading-relaxed">{party.desc}</p>
-              </div>
-            ))}
+          <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
+            {PARTY_TYPES.map((party) => {
+              const Icon = party.icon;
+              return (
+                <div
+                  key={party.title}
+                  className="rounded-lg border border-slate-200 bg-slate-50 p-5 transition-all duration-300 hover:-translate-y-1 hover:border-indigo-200 hover:bg-white hover:shadow-lg"
+                >
+                  <div className="mb-4 flex h-11 w-11 items-center justify-center rounded-md border border-indigo-100 bg-white text-indigo-600">
+                    <Icon className="h-5 w-5" />
+                  </div>
+                  <h4 className="font-headline text-lg font-black text-slate-950">{party.title}</h4>
+                  <p className="mt-2 text-sm font-medium leading-relaxed text-slate-600">{party.desc}</p>
+                </div>
+              );
+            })}
           </div>
         </div>
 
-        {/* â”€â”€ SECTION: SERVICIOS DETALLADOS â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */}
         <div>
           <div className="mb-10">
-            <h3 className="text-2xl font-black text-white font-headline">
-              Â¿QuÃ© incluye la producciÃ³n integral?
+            <h3 className="font-headline text-2xl font-black text-slate-950">
+              Servicios principales
             </h3>
-            <p className="text-zinc-300 text-sm mt-1">
-              Todo resuelto bajo un estricto control de calidad, sin lidiar con diez proveedores diferentes.
+            <p className="mt-1 text-sm font-medium text-slate-600">
+              La propuesta muestra beneficios concretos y deja un camino directo para consultar por WhatsApp.
             </p>
           </div>
 
@@ -157,21 +171,22 @@ export function ServicesSection({ whatsappNumber = '59898355530', services }: Se
             initial="hidden"
             whileInView="visible"
             viewport={{ once: true, margin: '-100px' }}
-            className="grid gap-8 md:grid-cols-2 lg:grid-cols-3"
+            className="grid gap-6 md:grid-cols-2 lg:grid-cols-3"
           >
             {displayServices.map((service) => {
               const waHref = `https://wa.me/${whatsappNumber}?text=${encodeURIComponent(
-                `ðŸ‘‹ Â¡Hola AK Producciones! Me gustarÃ­a consultar por el servicio de ${service.title} para mi evento.`
+                service.whatsappMessage || `¡Hola AK Producciones! Me gustaría consultar por el servicio de ${service.title} para mi evento.`
               )}`;
+              const Icon = service.icon;
+
               return (
-                <motion.div
+                <motion.article
                   key={service.id}
                   variants={cardVariants}
-                  className="group flex flex-col justify-between rounded-3xl border border-white/10 bg-zinc-900/40 backdrop-blur-md shadow-xl hover:shadow-[0_10px_35px_rgba(99,102,241,0.2)] hover:border-indigo-500/20 transition-all duration-300 overflow-hidden"
+                  className="group flex flex-col justify-between overflow-hidden rounded-lg border border-slate-200 bg-white shadow-sm transition-all duration-300 hover:-translate-y-1 hover:border-indigo-200 hover:shadow-xl"
                 >
                   <div>
-                    {/* Image Area */}
-                    <div className="relative aspect-[4/3] w-full overflow-hidden bg-zinc-900 border-b border-white/5">
+                    <div className="relative aspect-[4/3] w-full overflow-hidden bg-slate-100">
                       <Image
                         src={service.imageUrl}
                         alt={service.title}
@@ -180,25 +195,27 @@ export function ServicesSection({ whatsappNumber = '59898355530', services }: Se
                         sizes="(max-width: 768px) 100vw, 30vw"
                         unoptimized={true}
                       />
-                      <div className="absolute top-4 left-4 w-11 h-11 rounded-2xl bg-zinc-950/80 backdrop-blur-sm border border-white/10 flex items-center justify-center text-xl shadow-md">
-                        {service.emoji}
+                      <div className="absolute inset-0 bg-gradient-to-t from-slate-950/35 to-transparent" />
+                      <div className="absolute left-4 top-4 flex h-11 w-11 items-center justify-center rounded-md border border-white/40 bg-white/90 text-sm font-black text-indigo-700 shadow-sm backdrop-blur">
+                        {Icon ? <Icon className="h-5 w-5" /> : service.emoji}
                       </div>
                     </div>
 
-                    {/* Content Area */}
-                    <div className="p-6 space-y-4 text-left">
-                      <h4 className="text-xl font-black text-white group-hover:text-indigo-400 transition-colors font-headline">
-                        {service.title}
-                      </h4>
-                      <p className="text-sm text-zinc-300 leading-relaxed font-semibold">
+                    <div className="space-y-4 p-6 text-left">
+                      <div>
+                        <p className="text-xs font-black uppercase tracking-widest text-indigo-600">{service.subtitle}</p>
+                        <h4 className="mt-2 font-headline text-xl font-black text-slate-950">
+                          {service.title}
+                        </h4>
+                      </div>
+                      <p className="text-sm font-medium leading-relaxed text-slate-600">
                         {service.description}
                       </p>
 
-                      {/* Features mini list */}
-                      <ul className="space-y-2 pt-2">
+                      <ul className="space-y-2 pt-1">
                         {service.features.map((feat) => (
-                          <li key={feat} className="flex items-center gap-2 text-xs font-semibold text-zinc-400">
-                            <span className="h-1.5 w-1.5 rounded-full bg-indigo-500 animate-pulse" />
+                          <li key={feat} className="flex items-start gap-2 text-sm font-medium text-slate-700">
+                            <span className="mt-2 h-1.5 w-1.5 shrink-0 rounded-full bg-indigo-500" />
                             <span>{feat}</span>
                           </li>
                         ))}
@@ -206,29 +223,27 @@ export function ServicesSection({ whatsappNumber = '59898355530', services }: Se
                     </div>
                   </div>
 
-                  {/* Actions Area */}
-                  <div className="p-6 pt-0 mt-auto border-t border-white/5">
+                  <div className="border-t border-slate-100 p-6 pt-0">
                     <a
                       href={waHref}
                       target="_blank"
                       rel="noopener noreferrer"
                       className={cn(
-                        'flex items-center justify-center gap-2 w-full mt-4 px-4 py-3.5 rounded-2xl',
-                        'bg-white/5 hover:bg-indigo-600 hover:text-white text-zinc-300 font-black text-xs uppercase tracking-wider',
-                        'border border-white/10 hover:border-indigo-500/35 transition-all duration-200 shadow-md active:scale-[0.98]'
+                        'mt-5 flex w-full items-center justify-center gap-2 rounded-md px-4 py-3.5',
+                        'border border-indigo-200 bg-indigo-50 text-xs font-black uppercase tracking-wider text-indigo-700',
+                        'shadow-sm transition-all duration-200 hover:border-indigo-600 hover:bg-indigo-600 hover:text-white active:scale-[0.98]'
                       )}
                     >
-                      <MessageSquare className="w-4 h-4 shrink-0 text-indigo-400 group-hover:text-white transition-colors" />
-                      Consultar Servicio
-                      <ChevronRight className="w-3.5 h-3.5" />
+                      <MessageSquare className="h-4 w-4 shrink-0" />
+                      Consultar servicio
+                      <ChevronRight className="h-3.5 w-3.5" />
                     </a>
                   </div>
-                </motion.div>
+                </motion.article>
               );
             })}
           </motion.div>
         </div>
-
       </div>
     </section>
   );

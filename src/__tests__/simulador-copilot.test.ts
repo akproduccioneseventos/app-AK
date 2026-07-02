@@ -1,11 +1,11 @@
-﻿import { chatWithBudgetCopilot, type CopilotInput } from '@/app/actions/simulador-copilot';
+import { chatWithBudgetCopilot, type CopilotInput } from '@/app/actions/simulador-copilot';
 
 // Mock getArmadoRapidoConfig to prevent dependencies on Firestore in tests
 jest.mock('@/app/actions/armado-rapido', () => ({
   getArmadoRapidoConfig: jest.fn().mockResolvedValue({
     descuentoGeneral: 15,
     paquetes: [
-      { id: 'pkg_basico', nombre: 'BÃ¡sico', descripcion: 'Paquete de base', serviciosIncluidos: [] },
+      { id: 'pkg_basico', nombre: 'Básico', descripcion: 'Paquete de base', serviciosIncluidos: [] },
       { id: 'pkg_oro', nombre: 'Oro', descripcion: 'Paquete premium de oro', serviciosIncluidos: [] }
     ],
     menus: [],
@@ -56,28 +56,28 @@ describe('Simulador IA Copilot Flow', () => {
 
   it('advances from name step to phone step', async () => {
     const input: CopilotInput = {
-      message: 'Juan PÃ©rez',
-      history: [{ role: 'assistant', content: 'Contame, Â¿cuÃ¡l es tu nombre completo?' }],
+      message: 'Juan Pérez',
+      history: [{ role: 'assistant', content: 'Contame, ¿cuál es tu nombre completo?' }],
       currentState: { ...defaultState, currentChatStep: 'name' }
     };
 
     const res = await chatWithBudgetCopilot(input);
     expect(res.response).toBeDefined();
-    // In fallback mode, it defaults to SofÃ­a's rule-based flow response
-    expect(res.response).toContain('SofÃ­a');
+    // In fallback mode, it defaults to Sofía's rule-based flow response
+    expect(res.response).toContain('Sofía');
   });
 
   it('rejects invalid Uruguayan phone numbers', async () => {
     const input: CopilotInput = {
       message: '12345', // invalid length
       history: [
-        { role: 'assistant', content: 'Contame, Â¿cuÃ¡l es tu nombre completo?' },
-        { role: 'user', content: 'Juan PÃ©rez' }
+        { role: 'assistant', content: 'Contame, ¿cuál es tu nombre completo?' },
+        { role: 'user', content: 'Juan Pérez' }
       ],
       currentState: {
         ...defaultState,
         currentChatStep: 'phone',
-        clienteNombre: 'Juan PÃ©rez'
+        clienteNombre: 'Juan Pérez'
       }
     };
 
@@ -92,7 +92,7 @@ describe('Simulador IA Copilot Flow', () => {
       currentState: {
         ...defaultState,
         currentChatStep: 'budget_ready',
-        clienteNombre: 'Juan PÃ©rez',
+        clienteNombre: 'Juan Pérez',
         clienteContacto: '099123456',
         eventoFecha: '2026-12-25',
         eventoTipo: 'boda'
