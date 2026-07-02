@@ -36,6 +36,10 @@ export const revalidate = 300;
 
 const DEFAULT_DYNAMIC_SERVICE_SUBTITLE = 'Servicio AK';
 const DEFAULT_INSTAGRAM_URL = 'https://www.instagram.com/akproduccioneseventos/';
+const SITE_URL = 'https://akproducciones.uy';
+const DEFAULT_SEO_TITLE = 'AK Producciones Eventos';
+const DEFAULT_SEO_DESCRIPTION = 'Organización completa de bodas, fiestas de 15 años y eventos empresariales en Salto, Uruguay. Discoteca, comida premium, fotografía, decoración y salones de fiesta en un solo lugar con tecnología interactiva.';
+const DEFAULT_OG_IMAGE = '/media/catalogo-servicios/quinceanera_hero.png';
 
 function getInstagramHandle(profileUrl?: string, username?: string) {
   const raw = username || profileUrl || '@akproduccioneseventos';
@@ -114,16 +118,35 @@ function getDefaultServiceFeatures(title: string): string[] {
 
 export async function generateMetadata(): Promise<Metadata> {
   const settings = await getLandingSettings();
+  const title = `${settings.seo.title || DEFAULT_SEO_TITLE} | Organización Integral de Eventos en Salto`;
+  const description = settings.seo.description || DEFAULT_SEO_DESCRIPTION;
+  const ogImage = settings.seo.ogImageUrl || DEFAULT_OG_IMAGE;
+
   return {
-    title: `${settings.seo.title || 'AK Producciones'} | Organización Integral de Eventos en Salto`,
-    description: settings.seo.description || 'Organización completa de bodas, fiestas de 15 años y eventos empresariales en Salto, Uruguay. Discoteca, comida premium, fotografía, decoración y salones de fiesta en un solo lugar con tecnología interactiva.',
+    metadataBase: new URL(SITE_URL),
+    title,
+    description,
+    alternates: {
+      canonical: '/',
+    },
     openGraph: {
-      title: settings.seo.title,
-      description: settings.seo.description,
+      title,
+      description,
       type: 'website',
-      images: settings.seo.ogImageUrl
-        ? [{ url: settings.seo.ogImageUrl, width: 1200, height: 630, alt: 'AK Producciones Eventos' }]
-        : [],
+      url: SITE_URL,
+      siteName: 'AK Producciones Eventos',
+      locale: 'es_UY',
+      images: [{ url: ogImage, width: 1200, height: 630, alt: 'AK Producciones Eventos' }],
+    },
+    twitter: {
+      card: 'summary_large_image',
+      title,
+      description,
+      images: [ogImage],
+    },
+    robots: {
+      index: true,
+      follow: true,
     },
   };
 }
