@@ -327,7 +327,10 @@ export async function chatWithBudgetCopilot(
  * Deterministic rule-based fallback response if Gemini fails.
  */
 function getStaticFallbackResponse(input: CopilotInput, config: ArmadoRapidoConfig | null): CopilotOutput {
-  const msg = input.message.toLowerCase();
+  const msg = input.message
+    .normalize('NFD')
+    .replace(/[\u0300-\u036f]/g, '')
+    .toLowerCase();
 
   // Fallback 1: Date check request
   const dateRegex = /(\d{4})[-/](\d{2})[-/](\d{2})/;
