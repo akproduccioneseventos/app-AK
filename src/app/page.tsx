@@ -31,11 +31,16 @@ import { PromoWidget } from '@/components/promo/PromoWidget';
 import { LandingSpaContainer } from '@/components/landing/LandingSpaContainer';
 import { WinSechWidgets } from '@/components/landing/WinSechWidgets';
 import { getSocialConnections } from '@/app/actions/social-connections';
+import { InstagramSyncStrip, type InstagramSyncItem } from '@/components/landing/InstagramSyncStrip';
 
 export const revalidate = 300;
 
 const DEFAULT_DYNAMIC_SERVICE_SUBTITLE = 'Servicio AK';
 const DEFAULT_INSTAGRAM_URL = 'https://www.instagram.com/akproduccioneseventos/';
+const SITE_URL = 'https://akproducciones.uy';
+const DEFAULT_SEO_TITLE = 'AK Producciones Eventos';
+const DEFAULT_SEO_DESCRIPTION = 'Organización completa de bodas, fiestas de 15 años y eventos empresariales en Salto, Uruguay. Discoteca, comida premium, fotografía, decoración y salones de fiesta en un solo lugar con tecnología interactiva.';
+const DEFAULT_OG_IMAGE = '/media/catalogo-servicios/quinceanera_hero.png';
 
 function getInstagramHandle(profileUrl?: string, username?: string) {
   const raw = username || profileUrl || '@akproduccioneseventos';
@@ -53,27 +58,30 @@ function getDefaultServiceImage(title: string): string {
     return '/media/catalogo-servicios/boda_persuasiva.png';
   }
   if (lower.includes('15') || lower.includes('quince')) {
-    return '/media/catalogo-servicios/decoracion-xv-lila-01.jpeg';
+    return '/media/catalogo-servicios/quinceanera_persuasiva.png';
   }
   if (lower.includes('corporat') || lower.includes('empres')) {
-    return '/media/catalogo-servicios/recepcion-display-evento-01.jpeg';
+    return '/media/catalogo-servicios/corporativo_persuasivo.png';
   }
   if (lower.includes('cumple') || lower.includes('social')) {
-    return '/media/catalogo-servicios/xv-pista-iluminada-01.jpeg';
+    return '/media/catalogo-servicios/social_persuasivo.png';
   }
-  if (lower.includes('disco') || lower.includes('música') || lower.includes('dj') || lower.includes('sonido')) {
-    return '/media/catalogo-servicios/salon-discoteca-ak-01.jpeg';
+  if (lower.includes('tecnolog') || lower.includes('interact') || lower.includes('web') || lower.includes('digital') || lower.includes('portal') || lower.includes('muro')) {
+    return '/media/catalogo-servicios/tecnologia_fiesta.png';
   }
-  if (lower.includes('decor') || lower.includes('ambient')) {
-    return '/media/catalogo-servicios/boda_persuasiva.png';
+  if (lower.includes('salon') || lower.includes('salón') || lower.includes('club') || lower.includes('uruguay') || lower.includes('decor') || lower.includes('ambient')) {
+    return '/media/catalogo-servicios/blog_salon.png';
+  }
+  if (lower.includes('disco') || lower.includes('música') || lower.includes('dj') || lower.includes('sonido') || lower.includes('iluminac')) {
+    return '/media/catalogo-servicios/blog_iluminacion.png';
   }
   if (lower.includes('bar') || lower.includes('trago') || lower.includes('bebida')) {
-    return '/media/catalogo-servicios/barra-tragos-ak-01.jpeg';
+    return '/media/catalogo-servicios/blog_bebidas.png';
   }
-  if (lower.includes('catering') || lower.includes('comida') || lower.includes('menú')) {
-    return '/media/catalogo-servicios/catering-mesa-ak-01.jpeg';
+  if (lower.includes('catering') || lower.includes('comida') || lower.includes('menú') || lower.includes('menus')) {
+    return '/media/catalogo-servicios/blog_comida.png';
   }
-  return '/media/catalogo-servicios/salon-discoteca-ak-01.jpeg';
+  return '/media/catalogo-servicios/blog_presupuesto.png';
 }
 
 function getDefaultServiceFeatures(title: string): string[] {
@@ -111,16 +119,35 @@ function getDefaultServiceFeatures(title: string): string[] {
 
 export async function generateMetadata(): Promise<Metadata> {
   const settings = await getLandingSettings();
+  const title = `${settings.seo.title || DEFAULT_SEO_TITLE} | Organización Integral de Eventos en Salto`;
+  const description = settings.seo.description || DEFAULT_SEO_DESCRIPTION;
+  const ogImage = settings.seo.ogImageUrl || DEFAULT_OG_IMAGE;
+
   return {
-    title: `${settings.seo.title || 'AK Producciones'} | Organización Integral de Eventos en Salto`,
-    description: settings.seo.description || 'Organización completa de bodas, fiestas de 15 años y eventos empresariales en Salto, Uruguay. Discoteca, comida premium, fotografía, decoración y salones de fiesta en un solo lugar con tecnología interactiva.',
+    metadataBase: new URL(SITE_URL),
+    title,
+    description,
+    alternates: {
+      canonical: '/',
+    },
     openGraph: {
-      title: settings.seo.title,
-      description: settings.seo.description,
+      title,
+      description,
       type: 'website',
-      images: settings.seo.ogImageUrl
-        ? [{ url: settings.seo.ogImageUrl, width: 1200, height: 630, alt: 'AK Producciones Eventos' }]
-        : [],
+      url: SITE_URL,
+      siteName: 'AK Producciones Eventos',
+      locale: 'es_UY',
+      images: [{ url: ogImage, width: 1200, height: 630, alt: 'AK Producciones Eventos' }],
+    },
+    twitter: {
+      card: 'summary_large_image',
+      title,
+      description,
+      images: [ogImage],
+    },
+    robots: {
+      index: true,
+      follow: true,
     },
   };
 }
@@ -168,6 +195,24 @@ export default async function HomePage({ searchParams }: LandingPageProps) {
   const instagramConnection = (socialConnections as any[]).find((connection) => connection.platform === 'Instagram' && connection.isConnected);
   const instagramProfileUrl = instagramConnection?.profileUrl || DEFAULT_INSTAGRAM_URL;
   const instagramHandle = getInstagramHandle(instagramProfileUrl, instagramConnection?.username);
+  const instagramItems: InstagramSyncItem[] = [
+    ...fotosCombinadas.slice(0, 6).map((foto) => ({
+      id: `foto-${foto.id}`,
+      type: 'photo' as const,
+      imageUrl: foto.url,
+      title: foto.titulo || foto.descripcion || 'Evento AK Producciones',
+      category: foto.categoria || 'Galería AK',
+      href: instagramProfileUrl,
+    })),
+    ...videosCombinados.slice(0, 2).map((video: any) => ({
+      id: `video-${video.id || video.youtubeId || video.youtubeUrl}`,
+      type: 'video' as const,
+      imageUrl: video.thumbnailUrl || video.thumbnail || (video.youtubeId ? `https://img.youtube.com/vi/${video.youtubeId}/hqdefault.jpg` : DEFAULT_OG_IMAGE),
+      title: video.title || video.titulo || 'Video de evento AK',
+      category: 'Video',
+      href: video.youtubeUrl || (video.youtubeId ? `https://www.youtube.com/watch?v=${video.youtubeId}` : instagramProfileUrl),
+    })),
+  ].slice(0, 8);
 
   const whatsapp = '59898355530'; // Usar el número real de contacto de la empresa
   const safeTestimonialData = (testimonialData && testimonialData.length > 0) ? testimonialData : defaultTestimonials;
@@ -203,7 +248,7 @@ export default async function HomePage({ searchParams }: LandingPageProps) {
       imageUrl: service.imageUrl || getDefaultServiceImage(service.title),
       imageHint: 'event service',
       accentColor: 'bg-primary',
-      emoji: service.icon || '✨',
+      emoji: service.icon || 'AK',
       whatsappMessage: `¡Hola AK Producciones! Me gustaría cotizar el servicio de ${service.title}.`,
     }))
     : undefined;
@@ -266,7 +311,7 @@ export default async function HomePage({ searchParams }: LandingPageProps) {
         team={<AkTeamStorySection />}
         process={<ProcessSection />}
         gallery={<GallerySection galeriaFotos={fotosCombinadas} />}
-        instagram={null}
+        instagram={<InstagramSyncStrip handle={instagramHandle} profileUrl={instagramProfileUrl} items={instagramItems} />}
         blog={<BlogSection />}
         video={<VideoSection galeriaVideos={videosCombinados} channelUrl={AK_YOUTUBE_CHANNEL_URL} />}
         testimonials={<TestimonialsSection testimonials={approvedTestimonials} />}

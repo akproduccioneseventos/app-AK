@@ -49,7 +49,7 @@ export function InstagramSyncStrip({ handle, profileUrl, items }: InstagramSyncS
               className="mb-4 inline-flex items-center gap-2 rounded-xl border border-pink-300/20 bg-pink-500/10 px-3 py-1 text-xs font-black uppercase tracking-widest text-pink-200"
             >
               <RefreshCw className="h-3.5 w-3.5" />
-              Instagram sincronizado
+              Instagram conectado
             </motion.span>
             <motion.h2
               initial={reduceMotion ? false : { opacity: 0, y: 18 }}
@@ -58,10 +58,10 @@ export function InstagramSyncStrip({ handle, profileUrl, items }: InstagramSyncS
               transition={{ duration: 0.5, ease: 'easeOut' }}
               className="font-headline text-4xl font-black leading-tight sm:text-6xl"
             >
-              Lo que se mueve en redes tambien alimenta la web
+              La web muestra material listo para redes
             </motion.h2>
             <p className="mt-4 max-w-2xl text-sm font-medium leading-relaxed text-zinc-400 sm:text-base">
-              La galeria toma contenido sincronizado de Instagram para mantener fotos, reels y prueba social frescos sin cargarlo dos veces.
+              La galería pública toma fotos y videos aprobados de la app y los vincula con el perfil conectado para mantener prueba social fresca sin duplicar cargas.
             </p>
           </div>
 
@@ -127,9 +127,9 @@ export function InstagramSyncStrip({ handle, profileUrl, items }: InstagramSyncS
         </motion.div>
 
         <div className="mt-8 flex flex-col gap-3 rounded-2xl border border-white/10 bg-white/[0.03] p-4 text-sm text-zinc-300 sm:flex-row sm:items-center sm:justify-between">
-          <span>La sincronizacion evita que la web quede quieta cuando Instagram ya tiene material nuevo.</span>
+          <span>Al actualizar la galería o la conexión social, esta sección acompaña el cambio automáticamente.</span>
           <a href={profileUrl} target="_blank" rel="noopener noreferrer" className="inline-flex items-center gap-2 font-black uppercase tracking-wider text-pink-200 hover:text-pink-100">
-            Ver mas en Instagram
+            Ver más en Instagram
             <ArrowRight className="h-4 w-4" />
           </a>
         </div>

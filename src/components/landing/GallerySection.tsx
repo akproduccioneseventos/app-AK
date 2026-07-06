@@ -23,6 +23,7 @@ function isNextJsOptimizableUrl(url: string): boolean {
 }
 
 function canUseNextImage(url: string): boolean {
+  if (!url) return false;
   return url.startsWith('/') || isNextJsOptimizableUrl(url);
 }
 
@@ -48,7 +49,7 @@ function GalleryMedia({
         className={className}
         sizes={sizes}
         priority={priority}
-        unoptimized={!isNextJsOptimizableUrl(src) && !src.startsWith('/')}
+        unoptimized={true}
       />
     );
   }
@@ -197,6 +198,7 @@ export function GallerySection({ images, galeriaFotos }: GallerySectionProps) {
 
     const seenUrls = new Set<string>();
     const uniqueSource = source.filter((item) => {
+      if (!item.src) return false;
       if (seenUrls.has(item.src)) return false;
       seenUrls.add(item.src);
       return true;
@@ -333,7 +335,7 @@ export function GallerySection({ images, galeriaFotos }: GallerySectionProps) {
 
               {image.destacada && (
                 <div className="absolute top-4 left-4 bg-gradient-to-r from-violet-600 to-indigo-600 text-white text-[9px] font-black px-3 py-1 rounded-xl shadow-md uppercase tracking-wider">
-                  ★ Destacada
+                  Destacada
                 </div>
               )}
               <div className="absolute top-4 right-4 bg-zinc-950/80 border border-white/10 text-white text-[9px] font-black px-3 py-1 rounded-xl shadow-md uppercase tracking-wider">

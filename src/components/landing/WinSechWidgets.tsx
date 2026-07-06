@@ -19,9 +19,9 @@ const OFFERS: OfferWidget[] = [
   {
     id: 1,
     icon: Flame,
-    title: '50% OFF en Salones',
-    description: 'Reservando esta semana: Salón Chico por $8.900 (50 invitados) y Salón Grande por $16.900 (200 invitados).',
-    ctaText: 'Cotizar salón ahora',
+    title: 'Promo de salón',
+    description: 'Consultá disponibilidad y armá una referencia de precio con salón, comida y servicios en el simulador.',
+    ctaText: 'Simular ahora',
     ctaUrl: '/simulador-de-presupuesto?salon=club',
     iconColor: 'text-amber-400',
   },
@@ -37,8 +37,8 @@ const OFFERS: OfferWidget[] = [
   {
     id: 3,
     icon: Gift,
-    title: 'Discoteca Incluida',
-    description: 'Contratando el servicio completo te regalamos los efectos especiales de chispa fría para el vals.',
+    title: 'Producción integral',
+    description: 'Un solo equipo coordina salón, discoteca, comida, decoración y tiempos del evento.',
     ctaText: 'Ver servicios',
     ctaUrl: '#servicios',
     iconColor: 'text-emerald-400',
@@ -65,7 +65,7 @@ export function WinSechWidgets({
 
     const showTimeout = setTimeout(() => {
       setIsVisible(true);
-    }, 2200);
+    }, 8500);
 
     const interval = setInterval(() => {
       setIsVisible(false);
@@ -73,7 +73,7 @@ export function WinSechWidgets({
         setCurrentIdx((prev) => (prev + 1) % OFFERS.length);
         setIsVisible(true);
       }, reduceMotion ? 0 : 420);
-    }, 12000);
+    }, 18000);
 
     return () => {
       clearTimeout(showTimeout);
@@ -90,7 +90,7 @@ export function WinSechWidgets({
   const currentOffer = current.id === 2
     ? {
         ...current,
-        description: `Mira contenido real y novedades en ${instagramHandle}. La web se sincroniza con lo mejor del perfil.`,
+        description: `Mirá contenido real y novedades en ${instagramHandle}. La web toma lo mejor del perfil sin duplicar cargas.`,
         ctaUrl: instagramUrl,
       }
     : current;
@@ -107,7 +107,7 @@ export function WinSechWidgets({
           transition={{ duration: 0.4, ease: 'easeOut' }}
           onMouseEnter={() => setIsPaused(true)}
           onMouseLeave={() => setIsPaused(false)}
-          className="fixed bottom-5 left-4 right-4 sm:left-auto sm:right-6 sm:bottom-8 z-[80] w-auto sm:w-[20rem] overflow-hidden rounded-2xl border border-white/20 bg-gradient-to-r from-indigo-600 to-purple-600 p-4 text-white shadow-[0_18px_45px_rgba(79,70,229,0.45)] backdrop-blur-md"
+          className="fixed bottom-5 left-4 right-4 z-[80] w-auto overflow-hidden rounded-lg border border-slate-200/80 bg-white/95 p-4 text-slate-950 shadow-[0_16px_44px_rgba(15,23,42,0.20)] backdrop-blur-md sm:bottom-8 sm:left-auto sm:right-6 sm:w-[19rem]"
         >
           {!reduceMotion && (
             <motion.div
@@ -115,21 +115,21 @@ export function WinSechWidgets({
               initial={{ scaleX: 0 }}
               animate={{ scaleX: 1 }}
               transition={{ duration: 12, ease: 'linear' }}
-              className="absolute left-0 top-0 h-0.5 w-full origin-left bg-gradient-to-r from-indigo-400 via-fuchsia-300 to-amber-300"
+              className="absolute left-0 top-0 h-0.5 w-full origin-left bg-indigo-600"
             />
           )}
 
           {/* Header */}
           <div className="flex items-start justify-between gap-3">
             <div className="flex items-center gap-2.5">
-              <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl bg-white/20">
-                <Icon className={`w-5 h-5 text-white`} />
+              <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-md bg-indigo-50 text-indigo-700">
+                <Icon className="h-5 w-5" />
               </div>
-              <p className="font-headline text-sm font-black uppercase tracking-wider text-white">{currentOffer.title}</p>
+              <p className="font-headline text-sm font-black uppercase tracking-wider text-slate-950">{currentOffer.title}</p>
             </div>
             <button
               onClick={handleClose}
-              className="flex h-8 w-8 shrink-0 items-center justify-center rounded-xl text-slate-400 transition-all hover:bg-white/10 hover:text-white"
+              className="flex h-8 w-8 shrink-0 items-center justify-center rounded-md text-slate-400 transition-all hover:bg-slate-100 hover:text-slate-700"
               aria-label="Cerrar oferta"
             >
               <X className="w-4 h-4" />
@@ -137,7 +137,7 @@ export function WinSechWidgets({
           </div>
 
           {/* Description */}
-          <p className="text-xs font-semibold text-white/90 leading-relaxed">
+          <p className="mt-3 text-xs font-semibold leading-relaxed text-slate-600">
             {currentOffer.description}
           </p>
 
@@ -147,7 +147,7 @@ export function WinSechWidgets({
               href={currentOffer.ctaUrl}
               target="_blank"
               rel="noopener noreferrer"
-              className="inline-flex h-10 items-center justify-center gap-2 rounded-xl bg-white text-xs font-black uppercase tracking-wider text-indigo-700 shadow-md transition-transform duration-200 hover:scale-[1.02] hover:bg-indigo-50 active:scale-[0.98]"
+              className="mt-4 inline-flex h-10 items-center justify-center gap-2 rounded-md bg-indigo-600 px-4 text-xs font-black uppercase tracking-wider text-white shadow-sm transition-transform duration-200 hover:scale-[1.02] hover:bg-indigo-700 active:scale-[0.98]"
             >
               {currentOffer.ctaText}
             </a>
@@ -160,7 +160,7 @@ export function WinSechWidgets({
                   setIsVisible(false);
                 }
               }}
-              className="inline-flex h-10 items-center justify-center gap-2 rounded-xl bg-white text-xs font-black uppercase tracking-wider text-indigo-700 shadow-md transition-transform duration-200 hover:scale-[1.02] hover:bg-indigo-50 active:scale-[0.98]"
+              className="mt-4 inline-flex h-10 items-center justify-center gap-2 rounded-md bg-indigo-600 px-4 text-xs font-black uppercase tracking-wider text-white shadow-sm transition-transform duration-200 hover:scale-[1.02] hover:bg-indigo-700 active:scale-[0.98]"
             >
               {currentOffer.ctaText}
             </Link>

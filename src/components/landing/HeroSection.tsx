@@ -64,10 +64,6 @@ export function HeroSection({
         animate={reduceMotion ? undefined : { backgroundPosition: ['0px 0px', '96px 48px'] }}
         transition={{ duration: 26, repeat: Infinity, ease: 'linear' }}
       />
-      
-      {/* Resplandor cinemático de fondo (Glow) */}
-      <div className="absolute top-1/2 left-0 -translate-y-1/2 w-[800px] h-[800px] bg-indigo-500/10 rounded-full blur-[120px] pointer-events-none" />
-
       <div className="relative z-10 w-full max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-24 pb-20">
         <motion.div
           variants={containerVariants}
@@ -98,9 +94,9 @@ export function HeroSection({
             variants={itemVariants}
             className="font-headline text-5xl sm:text-6xl md:text-7xl lg:text-8xl font-black text-white leading-none mb-6 drop-shadow-2xl"
           >
-            {headline.split('\n').map((line, i) => (
+            {headline.split('\n').map((line, i, lines) => (
               <span key={i} className={cn('block', i === 1 && 'text-white/90')}>
-                {line}
+                {line}{i < lines.length - 1 ? ' ' : ''}
               </span>
             ))}
           </motion.h1>

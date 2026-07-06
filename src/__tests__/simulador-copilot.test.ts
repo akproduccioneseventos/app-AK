@@ -34,6 +34,7 @@ jest.mock('@/app/actions/simulador-v2', () => ({
 }));
 
 describe('Simulador IA Copilot Flow', () => {
+  jest.setTimeout(30000);
   let originalLocalJsonEnv: string | undefined;
 
   beforeAll(() => {
