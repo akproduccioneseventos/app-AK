@@ -31,6 +31,7 @@ import { PromoWidget } from '@/components/promo/PromoWidget';
 import { LandingSpaContainer } from '@/components/landing/LandingSpaContainer';
 import { WinSechWidgets } from '@/components/landing/WinSechWidgets';
 import { getSocialConnections } from '@/app/actions/social-connections';
+import { InstagramSyncStrip, type InstagramSyncItem } from '@/components/landing/InstagramSyncStrip';
 
 export const revalidate = 300;
 
@@ -194,6 +195,24 @@ export default async function HomePage({ searchParams }: LandingPageProps) {
   const instagramConnection = (socialConnections as any[]).find((connection) => connection.platform === 'Instagram' && connection.isConnected);
   const instagramProfileUrl = instagramConnection?.profileUrl || DEFAULT_INSTAGRAM_URL;
   const instagramHandle = getInstagramHandle(instagramProfileUrl, instagramConnection?.username);
+  const instagramItems: InstagramSyncItem[] = [
+    ...fotosCombinadas.slice(0, 6).map((foto) => ({
+      id: `foto-${foto.id}`,
+      type: 'photo' as const,
+      imageUrl: foto.url,
+      title: foto.titulo || foto.descripcion || 'Evento AK Producciones',
+      category: foto.categoria || 'Galería AK',
+      href: instagramProfileUrl,
+    })),
+    ...videosCombinados.slice(0, 2).map((video: any) => ({
+      id: `video-${video.id || video.youtubeId || video.youtubeUrl}`,
+      type: 'video' as const,
+      imageUrl: video.thumbnailUrl || video.thumbnail || (video.youtubeId ? `https://img.youtube.com/vi/${video.youtubeId}/hqdefault.jpg` : DEFAULT_OG_IMAGE),
+      title: video.title || video.titulo || 'Video de evento AK',
+      category: 'Video',
+      href: video.youtubeUrl || (video.youtubeId ? `https://www.youtube.com/watch?v=${video.youtubeId}` : instagramProfileUrl),
+    })),
+  ].slice(0, 8);
 
   const whatsapp = '59898355530'; // Usar el número real de contacto de la empresa
   const safeTestimonialData = (testimonialData && testimonialData.length > 0) ? testimonialData : defaultTestimonials;
@@ -292,7 +311,7 @@ export default async function HomePage({ searchParams }: LandingPageProps) {
         team={<AkTeamStorySection />}
         process={<ProcessSection />}
         gallery={<GallerySection galeriaFotos={fotosCombinadas} />}
-        instagram={null}
+        instagram={<InstagramSyncStrip handle={instagramHandle} profileUrl={instagramProfileUrl} items={instagramItems} />}
         blog={<BlogSection />}
         video={<VideoSection galeriaVideos={videosCombinados} channelUrl={AK_YOUTUBE_CHANNEL_URL} />}
         testimonials={<TestimonialsSection testimonials={approvedTestimonials} />}

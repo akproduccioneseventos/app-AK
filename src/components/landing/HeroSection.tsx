@@ -64,10 +64,6 @@ export function HeroSection({
         animate={reduceMotion ? undefined : { backgroundPosition: ['0px 0px', '96px 48px'] }}
         transition={{ duration: 26, repeat: Infinity, ease: 'linear' }}
       />
-      
-      {/* Resplandor cinemático de fondo (Glow) */}
-      <div className="absolute top-1/2 left-0 -translate-y-1/2 w-[800px] h-[800px] bg-indigo-500/10 rounded-full blur-[120px] pointer-events-none" />
-
       <div className="relative z-10 w-full max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-24 pb-20">
         <motion.div
           variants={containerVariants}
