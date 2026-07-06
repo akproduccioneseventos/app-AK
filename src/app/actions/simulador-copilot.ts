@@ -327,7 +327,10 @@ export async function chatWithBudgetCopilot(
  * Deterministic rule-based fallback response if Gemini fails.
  */
 function getStaticFallbackResponse(input: CopilotInput, config: ArmadoRapidoConfig | null): CopilotOutput {
-  const msg = input.message.toLowerCase();
+  const msg = input.message
+    .normalize('NFD')
+    .replace(/[\u0300-\u036f]/g, '')
+    .toLowerCase();
 
   // Fallback 1: Date check request
   const dateRegex = /(\d{4})[-/](\d{2})[-/](\d{2})/;
@@ -366,8 +369,12 @@ function getStaticFallbackResponse(input: CopilotInput, config: ArmadoRapidoConf
 
   // Fallback 3: Package information request
   if (msg.includes('paquete') || msg.includes('premium') || msg.includes('platino') || msg.includes('oro')) {
-    const selectedPackage = (config?.paquetes || []).find((pkg) => pkg.id === input.currentState.selectedPaqueteId);
-    const recommendedPackage = selectedPackage
+    const matchedPackage = (config?.paquetes || []).find((pkg) => {
+      const pkgName = pkg.nombre.normalize('NFD').replace(/[\u0300-\u036f]/g, '').toLowerCase();
+      return msg.includes(pkgName);
+    });
+    const recommendedPackage = matchedPackage
+      || (config?.paquetes || []).find((pkg) => pkg.id === input.currentState.selectedPaqueteId)
       || (config?.paquetes || []).find((pkg) => pkg.recommended)
       || config?.paquetes?.[0];
     const includedCount = recommendedPackage?.serviciosIncluidos.length || 0;

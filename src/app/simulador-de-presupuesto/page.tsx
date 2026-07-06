@@ -747,7 +747,7 @@ function SimuladorContent() {
         }
         const availability = await checkDateAvailability(date.toISOString());
         if (availability.isOccupied) {
-            setDateWarning('âš ï¸ Fecha no disponible. Te sugerimos estas fechas cercanas:');
+            setDateWarning('⚠️ Fecha no disponible. Te sugerimos estas fechas cercanas:');
             setDateSuggestions(availability.suggestions || []);
         } else {
             setDateWarning('');
@@ -1569,7 +1569,7 @@ function SimuladorContent() {
                     </div>
                   </div>
                   <div className="shrink-0 bg-white/20 group-hover:bg-white/30 rounded-xl px-3 py-1.5 text-xs font-black uppercase tracking-widest transition-colors">
-                    Probar IA â†’
+                    Probar IA →
                   </div>
                 </div>
               </Link>
@@ -1582,7 +1582,7 @@ function SimuladorContent() {
                     </div>
                     <CardTitle className="text-2xl font-black text-slate-900 sm:text-3xl">Armá tu presupuesto</CardTitle>
                     <CardDescription className="mt-2 text-sm font-bold text-slate-500">
-                        Paso {step} de 5 Â· {STEP_LABELS[step - 1]}
+                        Paso {step} de 5 · {STEP_LABELS[step - 1]}
                     </CardDescription>
                     <div className="mt-6">
                         <Progress value={(step / 5) * 100} className="h-2 bg-slate-200" />
@@ -1698,7 +1698,7 @@ function SimuladorContent() {
                                                 <div key={b.id} className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 p-3 bg-white border border-emerald-100 rounded-xl hover:shadow-md transition-all">
                                                     <div className="space-y-0.5 text-left">
                                                         <span className="text-[10px] font-black text-slate-400 uppercase tracking-widest">Presupuesto #{b.numero}</span>
-                                                        <p className="text-xs font-black text-slate-700 uppercase tracking-tight">{b.eventoTipo} Â· {formattedDate}</p>
+                                                        <p className="text-xs font-black text-slate-700 uppercase tracking-tight">{b.eventoTipo} · {formattedDate}</p>
                                                         <p className="text-xs font-black text-emerald-700">{formatCurrency(b.totalConDescuento)}</p>
                                                     </div>
                                                     <Link href={`/presupuestos/${b.id}/ver?cliente=1&token=${b.token}`} target="_blank" className="shrink-0">
@@ -1950,7 +1950,7 @@ function SimuladorContent() {
                                         )}>
                                             {p.recommended && (
                                                 <div className="absolute top-3 right-3 bg-primary text-white text-[8px] sm:text-[9px] font-black uppercase tracking-[0.2em] px-4 py-1.5 rounded-full shadow-2xl z-10 animate-pulse">
-                                                    MÃS ELEGIDO
+                                                    MÁS ELEGIDO
                                                 </div>
                                             )}
                                             <div className="flex items-start justify-between">
@@ -2009,7 +2009,7 @@ function SimuladorContent() {
                                 <p className="mt-1 text-sm text-slate-500">Podés cambiar la fecha e invitados, y quitar servicios opcionales de tu paquete contratado para adaptar el presupuesto a tu gusto. El total se actualizará automáticamente:</p>
                             </div>
 
-                            {/* EDITOR RÃPIDO DE FECHA E INVITADOS */}
+                            {/* EDITOR RÁPIDO DE FECHA E INVITADOS */}
                             <div className="p-5 bg-slate-50 border border-slate-100 rounded-3xl space-y-4">
                                 <h3 className="text-xs font-black uppercase tracking-wider text-slate-400 flex items-center gap-2">
                                     <CalendarDays className="w-4 h-4 text-slate-500"/> Información General del Evento
@@ -2348,7 +2348,7 @@ function SimuladorContent() {
                 <DialogContent className="sm:max-w-md rounded-2xl">
                     <DialogHeader>
                         <DialogTitle className="text-slate-900 font-black uppercase text-base flex items-center gap-2">
-                            âš ï¸ ¿Eliminar servicio?
+                            ⚠️ ¿Eliminar servicio?
                         </DialogTitle>
                         <DialogDescription className="text-slate-600 text-sm font-semibold">
                             ¿Estás seguro de que deseas eliminar el servicio <span className="text-rose-600 font-bold">"{serviceToDelete?.nombre}"</span> de tu presupuesto?
