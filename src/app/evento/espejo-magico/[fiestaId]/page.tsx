@@ -51,33 +51,33 @@ const STICKERS_LIST = ['★', '♡', '✦', '✧', 'AK', '15', 'VIP', 'Love', 'P
 const MODE_COPY = {
   foto: {
     eyebrow: 'Foto limpia',
-    title: 'Espejo Magico Foto',
+    title: 'Espejo Mágico Foto',
     start: 'Tocar para foto',
-    subtitle: 'Captura rapida, filtro elegante y subida automatica al muro.',
+    subtitle: 'Captura rápida, filtro elegante y subida automática al muro.',
     operatorCta: 'Disparar foto',
     doneLabel: 'Foto lista',
-    author: 'Espejo Magico Foto',
-    review: 'La foto se envia automaticamente al muro de la fiesta.',
+    author: 'Espejo Mágico Foto',
+    review: 'La foto se envía automáticamente al muro de la fiesta.',
   },
   firma: {
     eyebrow: 'Firma y stickers',
-    title: 'Espejo Magico Firma',
+    title: 'Espejo Mágico Firma',
     start: 'Tocar para firmar',
     subtitle: 'Captura, firma en pantalla, stickers y QR final.',
     operatorCta: 'Disparar captura',
     doneLabel: 'Foto firmada',
-    author: 'Espejo Magico Firma',
-    review: 'Firma o dibuja sobre la foto y despues subila al muro.',
+    author: 'Espejo Mágico Firma',
+    review: 'Firma o dibujá sobre la foto y después subila al muro.',
   },
   ia: {
     eyebrow: 'Face Swap IA',
-    title: 'Espejo Magico IA',
+    title: 'Espejo Mágico IA',
     start: 'Crear avatar IA',
-    subtitle: 'Elegis un estilo, la app captura el rostro y genera el retrato.',
+    subtitle: 'Elegís un estilo, la app captura el rostro y genera el retrato.',
     operatorCta: 'Disparar IA',
     doneLabel: 'Avatar listo',
     author: 'Face Swap IA',
-    review: 'Podes firmar el resultado o subirlo directo al muro.',
+    review: 'Podés firmar el resultado o subirlo directo al muro.',
   },
 } as const;
 
@@ -91,6 +91,7 @@ export default function EspejoMagicoPage() {
   const modeCopy = MODE_COPY[mode];
   const role = searchParams.get('role') || 'display'; // 'display' | 'operator'
   const accessToken = searchParams.get('access') || undefined;
+  const showKioskUnlock = searchParams.get('kiosk') === '1';
 
   // Choose Firestore module Id based on mode
   const moduleId = mode === 'foto' ? 'espejoMagicoFoto' : mode === 'ia' ? 'espejoMagicoIA' : 'espejoMagicoFirma';
@@ -223,7 +224,7 @@ export default function EspejoMagicoPage() {
   useEffect(() => {
     if (role === 'display' && localStatus === 'idle' && !capturedImage) {
       if (mode === 'ia') {
-        speak('Hola. Elegi tu estilo de IA y prepara tu mejor pose.');
+        speak('Hola. Elegí tu estilo de IA y prepará tu mejor pose.');
       } else {
         speak(`Hola. ${modeCopy.start}.`);
       }
@@ -286,7 +287,7 @@ export default function EspejoMagicoPage() {
         if (result.faceSwapApplied === false) {
           speak('Modo prueba. Se muestra la foto original.');
         } else {
-          speak('Listo. Mira tu avatar de IA. Podes firmarlo si queres.');
+          speak('Listo. Mirá tu avatar de IA. Podés firmarlo si querés.');
         }
       } else {
         throw new Error(result.error || 'Error al procesar la IA.');
@@ -460,7 +461,7 @@ export default function EspejoMagicoPage() {
         clearInterval(interval);
         setCountdown(null);
         playBeep(1200, 0.3);
-        speak('Sonrie');
+        speak('Sonreí');
         captureToCanvas();
       }
     }, 1000);
@@ -637,7 +638,7 @@ export default function EspejoMagicoPage() {
       setQrCodeUrl(window.location.href);
       setLocalStatus('done');
       await updateEntertainmentSessionStatus(fiestaId, moduleId, 'done', {}, accessToken);
-      speak("No se pudo subir, pero puedes escanear el QR");
+      speak('No se pudo subir, pero podés escanear el QR.');
     } finally {
       setIsUploading(false);
     }
@@ -661,6 +662,7 @@ export default function EspejoMagicoPage() {
   const openDisplayScreen = () => {
     const params = new URLSearchParams({ mode });
     if (accessToken) params.set('access', accessToken);
+    params.set('kiosk', '1');
     window.open(`/evento/espejo-magico/${fiestaId}?${params.toString()}`, '_blank', 'noopener,noreferrer');
   };
 
@@ -745,7 +747,7 @@ export default function EspejoMagicoPage() {
             <div className="mt-5 rounded-2xl border border-rose-500/20 bg-rose-500/10 p-4">
               <p className="text-sm font-semibold text-rose-100">{modeCopy.subtitle}</p>
               <p className="mt-2 text-xs text-rose-100/70">
-                Pantalla: {fiesta?.station.deviceName || 'sin dispositivo'} | Ubicacion: {fiesta?.station.location || 'sin asignar'}
+                Pantalla: {fiesta?.station.deviceName || 'sin dispositivo'} | Ubicación: {fiesta?.station.location || 'sin asignar'}
               </p>
             </div>
 
@@ -864,11 +866,11 @@ export default function EspejoMagicoPage() {
                 <div className="space-y-3 text-zinc-300">
                   <p className="text-sm font-semibold leading-relaxed">{modeCopy.subtitle}</p>
                   <div className="grid grid-cols-3 gap-2 text-[10px] font-black uppercase tracking-wider text-zinc-400">
-                    <span className="rounded-full border border-white/10 bg-white/5 px-2 py-2">1 Posate</span>
+                    <span className="rounded-full border border-white/10 bg-white/5 px-2 py-2">1 Posá</span>
                     <span className="rounded-full border border-white/10 bg-white/5 px-2 py-2">2 Captura</span>
                     <span className="rounded-full border border-white/10 bg-white/5 px-2 py-2">3 Guarda</span>
                   </div>
-                  <p className="text-xs text-zinc-500">Tambien puede dispararlo el operador de cabina.</p>
+                  <p className="text-xs text-zinc-500">También puede dispararlo el operador de cabina.</p>
                 </div>
               </div>
             </div>
@@ -1055,7 +1057,7 @@ export default function EspejoMagicoPage() {
             <div className="flex flex-col items-center text-center space-y-6 max-w-xs">
               <div className="space-y-2">
                 <h3 className="text-2xl font-black text-white">Escanea tu recuerdo</h3>
-                <p className="text-sm text-zinc-400">Usa este codigo QR con tu celular para descargarlo o compartirlo.</p>
+                <p className="text-sm text-zinc-400">Usá este código QR con tu celular para descargarlo o compartirlo.</p>
               </div>
 
               {/* QR Container */}
@@ -1265,7 +1267,7 @@ export default function EspejoMagicoPage() {
         ) : null}
       </div>
 
-      <KioskUnlockButton />
+      {showKioskUnlock && <KioskUnlockButton />}
     </div>
   );
 }
