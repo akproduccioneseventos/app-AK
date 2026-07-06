@@ -327,7 +327,10 @@ export async function chatWithBudgetCopilot(
  * Deterministic rule-based fallback response if Gemini fails.
  */
 function getStaticFallbackResponse(input: CopilotInput, config: ArmadoRapidoConfig | null): CopilotOutput {
-  const msg = input.message.toLowerCase();
+  const msg = input.message
+    .normalize('NFD')
+    .replace(/[\u0300-\u036f]/g, '')
+    .toLowerCase();
 
   // Fallback 1: Date check request
   const dateRegex = /(\d{4})[-/](\d{2})[-/](\d{2})/;
@@ -365,7 +368,7 @@ function getStaticFallbackResponse(input: CopilotInput, config: ArmadoRapidoConf
   }
 
   // Fallback 3: Package information request
-  if (msg.includes('paquete') || msg.includes('premium') || msg.includes('platino') || msg.includes('oro') || msg.includes('plata') || msg.includes('bronce') || msg.includes('basico') || msg.includes('básico')) {
+  if (msg.includes('paquete') || msg.includes('premium') || msg.includes('platino') || msg.includes('oro') || msg.includes('plata') || msg.includes('bronce') || msg.includes('basico')) {
     const foundPkg = (config?.paquetes || []).find((pkg) => {
       const normalizedName = pkg.nombre
         .normalize('NFD')
