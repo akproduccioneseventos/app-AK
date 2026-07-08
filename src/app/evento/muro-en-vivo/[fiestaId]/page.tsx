@@ -244,7 +244,12 @@ export default function MuroEnVivoPage() {
           // Reset wheel angle to 0 so the new spin starts fresh
           setSorteoSpinWheelAngle(0);
           setSorteoSpinActive(true);
-          setTimeout(() => setSorteoSpinActive(false), 6500);
+          // Trigger spin rotation to a large random angle after a brief layout transition
+          setTimeout(() => {
+            const randomOffset = Math.floor(Math.random() * 360);
+            setSorteoSpinWheelAngle(1800 + randomOffset); // 5 full spins + offset
+          }, 50);
+          setTimeout(() => setSorteoSpinActive(false), 6800);
         }
       }
       if (pollData) {
