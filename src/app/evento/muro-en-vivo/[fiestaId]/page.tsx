@@ -1404,6 +1404,10 @@ function SlideshowLayout({
   const [mediaLoaded, setMediaLoaded] = useState(false);
   const prevLengthRef = useRef(posts.length);
 
+  const post = posts[currentIndex] ?? posts[0];
+  const isVideo = post ? (post.mediaType === 'video' || isVideoUrl(post.imageUrl)) : false;
+  const captionText = post ? (post.dedication || post.caption) : '';
+
   // Reset loading state when image/video changes
   useEffect(() => {
     setMediaLoaded(false);
@@ -1417,20 +1421,23 @@ function SlideshowLayout({
     prevLengthRef.current = posts.length;
   }, [posts.length]);
 
-  // Auto-advance slideshow
-  useEffect(() => {
+  const advance = useCallback(() => {
     if (posts.length <= 1) return;
-    const timer = setInterval(() => {
-      setCurrentIndex((prev) => (prev + 1) % posts.length);
-    }, SLIDESHOW_DURATION_MS);
-    return () => clearInterval(timer);
+    setCurrentIndex((prev) => (prev + 1) % posts.length);
   }, [posts.length]);
 
-  if (posts.length === 0) return null;
+  // Auto-advance slideshow (dinámico si es video o imagen)
+  useEffect(() => {
+    if (posts.length <= 1) return;
 
-  const post = posts[currentIndex] ?? posts[0];
-  const isVideo = post.mediaType === 'video' || isVideoUrl(post.imageUrl);
-  const captionText = post.dedication || post.caption;
+    // Si es video, dejamos un tiempo de resguardo más largo (35s) para que avance si el video falla
+    const duration = isVideo ? 35000 : SLIDESHOW_DURATION_MS;
+
+    const timer = setTimeout(advance, duration);
+    return () => clearTimeout(timer);
+  }, [posts.length, currentIndex, isVideo, advance]);
+
+  if (posts.length === 0) return null;
 
   return (
     <div className="absolute inset-0 flex items-center justify-center overflow-hidden">
@@ -1488,11 +1495,11 @@ function SlideshowLayout({
                 className="h-full w-full object-cover"
                 autoPlay
                 muted
-                loop
                 playsInline
                 preload="auto"
                 onPlay={() => setMediaLoaded(true)}
                 onLoadedData={() => setMediaLoaded(true)}
+                onEnded={advance}
               />
             ) : (
               <NextImage
