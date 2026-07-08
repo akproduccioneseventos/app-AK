@@ -274,6 +274,7 @@ export function buildCompanyCalendarEvent(
         : '- Todavia no hay personal asignado.',
       '',
       'Este evento fue sincronizado desde AK Producciones.',
+      `AK_FIESTA_ID: ${fiesta.id}`,
     ]),
   };
 }
@@ -303,6 +304,7 @@ export function buildEmployeeCalendarEvent(
       cfg.googleMapsUrl ? `Mapa: ${cfg.googleMapsUrl}` : undefined,
       '',
       'Cualquier cambio queda registrado en tu pagina personal de AK.',
+      `AK_FIESTA_ID: ${fiesta.id}`,
     ]),
   };
 }
@@ -422,4 +424,56 @@ export function buildGoogleCalendarTemplateUrl(input: GoogleWorkspaceEventInput)
   url.searchParams.set('dates', `${googleCalendarDate(new Date(input.startIso))}/${googleCalendarDate(new Date(input.endIso))}`);
   if (input.location) url.searchParams.set('location', input.location);
   return url.toString();
+}
+
+export async function findExistingGoogleCalendarEvent(
+  account: GoogleWorkspaceAccount,
+  dateStr: string,
+  queryText: string,
+  fiestaId: string
+): Promise<string | null> {
+  try {
+    const calendarId = encodeURIComponent(account.calendarId || 'primary');
+    // Cover the full day in Uruguay time zone (-03:00)
+    const timeMin = encodeURIComponent(new Date(`${dateStr}T00:00:00-03:00`).toISOString());
+    const timeMax = encodeURIComponent(new Date(`${dateStr}T23:59:59-03:00`).toISOString());
+
+    const url = `${GOOGLE_CALENDAR_API}/calendars/${calendarId}/events?timeMin=${timeMin}&timeMax=${timeMax}&singleEvents=true`;
+    const response = await fetch(url, {
+      headers: {
+        Authorization: `Bearer ${account.accessToken}`,
+      },
+    });
+
+    if (!response.ok) {
+      console.warn('[findExistingGoogleCalendarEvent] Google Calendar API error:', await response.text());
+      return null;
+    }
+
+    const data = await response.json() as { items?: Array<{ id: string; summary?: string; description?: string }> };
+    if (!data.items || data.items.length === 0) return null;
+
+    // 1. First priority: exact match on AK_FIESTA_ID in description
+    for (const item of data.items) {
+      if (item.description?.includes(`AK_FIESTA_ID: ${fiestaId}`)) {
+        return item.id;
+      }
+    }
+
+    // 2. Second priority: match on queryText (protagonist/client name) in summary
+    const cleanQuery = queryText.trim().toLowerCase();
+    if (cleanQuery) {
+      for (const item of data.items) {
+        const summary = (item.summary || '').toLowerCase();
+        if (summary.includes(cleanQuery)) {
+          return item.id;
+        }
+      }
+    }
+
+    return null;
+  } catch (error) {
+    console.error('[findExistingGoogleCalendarEvent] Exception:', error);
+    return null;
+  }
 }
