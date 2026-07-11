@@ -1,9 +1,9 @@
 'use client';
 
-import { useEffect, useState, useCallback } from 'react';
+import { useEffect, useState, useCallback, useRef } from 'react';
 import { useParams, useRouter } from 'next/navigation';
 import { getFiestaById } from '@/app/actions/fiesta/fiesta.actions';
-import { saveSocialSettingsByClient, getSocialPosts, moderateSocialPostByClient } from '@/app/actions/social-gallery';
+import { saveSocialSettingsByClient, getSocialPostsByClient, moderateSocialPostByClient } from '@/app/actions/social-gallery';
 import type { FiestaEnPlanificacion, SocialGallerySettings } from '@/types/fiesta';
 import type { SocialGalleryPost } from '@/types/social-gallery';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription, CardFooter } from '@/components/ui/card';
@@ -76,7 +76,7 @@ export default function ClientMuroSocialPage() {
   // Control Remoto States
   const [playlistPlaying, setPlaylistPlaying] = useState(true);
   const [currentLayout, setCurrentLayout] = useState<'slideshow' | 'masonry'>('slideshow');
-  const [forcedScreenItem, setForcedScreenItem] = useState<'mural' | 'juego' | 'chat' | 'canciones' | 'dedicaciones' | 'pauta' | 'video' | null>(null);
+  const [forcedScreenItem, setForcedScreenItem] = useState<'mural' | 'juego' | 'chat' | 'canciones' | 'dedicaciones' | 'pauta' | 'video' | 'sorteo' | null>(null);
   const [ledMarqueeText, setLedMarqueeText] = useState('');
   const [ledMarqueeEnabled, setLedMarqueeEnabled] = useState(false);
 
@@ -91,6 +91,7 @@ export default function ClientMuroSocialPage() {
   const [posts, setPosts] = useState<SocialGalleryPost[]>([]);
   const [moderationMode, setModerationMode] = useState<'pending' | 'approved' | 'hidden'>('pending');
   const [moderatingId, setModeratingId] = useState<string | null>(null);
+  const sorteoRevealTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
   // Configuración General Form States
   const [enabled, setEnabled] = useState(true);
@@ -110,14 +111,19 @@ export default function ClientMuroSocialPage() {
   const [coverUrl, setCoverUrl] = useState('');
 
   // Fetch posts for Moderation Express
-  const loadPosts = useCallback(async () => {
+  const loadPosts = useCallback(async (key = accessKey) => {
+    if (!key) return;
     try {
-      const fetchedPosts = await getSocialPosts(fiestaId);
-      setPosts(fetchedPosts);
+      const result = await getSocialPostsByClient(fiestaId, key);
+      if (result.success) {
+        setPosts(result.posts || []);
+      } else {
+        setError(result.error || 'No se pudieron cargar las publicaciones.');
+      }
     } catch (e) {
       console.error('Error al cargar posts para moderación', e);
     }
-  }, [fiestaId]);
+  }, [accessKey, fiestaId]);
 
   // Load initial settings
   const loadData = useCallback(async (key: string) => {
@@ -159,7 +165,7 @@ export default function ClientMuroSocialPage() {
       setSorteoOnScreen(settings.sorteoOnScreen ?? false);
       setSorteoWinner(settings.activeSorteoWinner || null);
 
-      await loadPosts();
+      await loadPosts(key);
     } catch {
       setError('Error al cargar la información del evento.');
     } finally {
@@ -186,6 +192,14 @@ export default function ClientMuroSocialPage() {
     }, 4000);
     return () => clearInterval(interval);
   }, [isLoading, accessKey, loadPosts]);
+
+  useEffect(() => {
+    return () => {
+      if (sorteoRevealTimeoutRef.current) {
+        clearTimeout(sorteoRevealTimeoutRef.current);
+      }
+    };
+  }, []);
 
   // Quick save helper for remote commands
   const sendRemoteCommand = async (newSettings: Partial<SocialGallerySettings>) => {
@@ -278,6 +292,11 @@ export default function ClientMuroSocialPage() {
 
   // Sorteo actions
   const triggerSorteo = async () => {
+    if (sorteoRevealTimeoutRef.current) {
+      clearTimeout(sorteoRevealTimeoutRef.current);
+      sorteoRevealTimeoutRef.current = null;
+    }
+
     let winner = customWinnerName.trim();
     
     if (!winner) {
@@ -313,7 +332,8 @@ export default function ClientMuroSocialPage() {
     });
 
     // 2. Wait 7 seconds (raffle wheel animation length) to reveal winner
-    setTimeout(async () => {
+    sorteoRevealTimeoutRef.current = setTimeout(async () => {
+      sorteoRevealTimeoutRef.current = null;
       const winnerTimestamp = new Date().toISOString();
       setSorteoWinner(winner);
       setIsSpinning(false);
@@ -333,6 +353,10 @@ export default function ClientMuroSocialPage() {
   };
 
   const clearSorteo = async () => {
+    if (sorteoRevealTimeoutRef.current) {
+      clearTimeout(sorteoRevealTimeoutRef.current);
+      sorteoRevealTimeoutRef.current = null;
+    }
     setSorteoWinner(null);
     setIsSpinning(false);
     setCustomWinnerName('');
