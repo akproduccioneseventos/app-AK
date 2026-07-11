@@ -34,6 +34,22 @@ jest.mock('@/app/actions/simulador-v2', () => ({
 }));
 
 describe('Simulador IA Copilot Flow', () => {
+  jest.setTimeout(30000);
+  let originalLocalJsonEnv: string | undefined;
+
+  beforeAll(() => {
+    originalLocalJsonEnv = process.env.AK_USE_LOCAL_JSON_ONLY;
+    process.env.AK_USE_LOCAL_JSON_ONLY = 'true';
+  });
+
+  afterAll(() => {
+    if (originalLocalJsonEnv === undefined) {
+      delete process.env.AK_USE_LOCAL_JSON_ONLY;
+    } else {
+      process.env.AK_USE_LOCAL_JSON_ONLY = originalLocalJsonEnv;
+    }
+  });
+
   const defaultState = {
     eventoTipo: '',
     adultos: 80,
@@ -103,5 +119,27 @@ describe('Simulador IA Copilot Flow', () => {
     expect(res.action?.type).toBe('apply_changes');
     expect(res.action?.changes?.selectedPaqueteId).toBe('pkg_oro');
     expect(res.response).toContain('Oro');
+  });
+
+  it('matches package names with accents in fallback mode', async () => {
+    const input: CopilotInput = {
+      message: 'Quiero el paquete Básico',
+      history: [],
+      currentState: {
+        ...defaultState,
+        currentChatStep: 'budget_ready',
+        clienteNombre: 'Juan Pérez',
+        clienteContacto: '099123456',
+        eventoFecha: '2026-12-25',
+        eventoTipo: 'boda'
+      }
+    };
+
+    const res = await chatWithBudgetCopilot(input);
+
+    expect(res.action).toBeDefined();
+    expect(res.action?.type).toBe('apply_changes');
+    expect(res.action?.changes?.selectedPaqueteId).toBe('pkg_basico');
+    expect(res.response).toContain('Básico');
   });
 });

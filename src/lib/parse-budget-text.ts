@@ -94,6 +94,8 @@ export interface ParsedBudget {
   senaCondicion: number; // Percentage for deposit (default 20)
   notas: string;
   warnings: string[];
+  protagonista1Nombre?: string;
+  protagonista2Nombre?: string;
 }
 
 /**

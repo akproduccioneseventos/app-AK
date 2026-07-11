@@ -82,7 +82,7 @@ const blocks: TechBlock[] = [
     whatExists: 'La app ya tiene módulos de planificación y salones/espacios vinculados a la organización de fiesta.',
     whatToConnect: 'Crear ficha comercial de Club White/Club Uruguay con fotos, ubicación, capacidad, medidas, documentos y vínculo al planificador.',
     nextAction: 'Hacer página pública + ficha interna + plantilla de salón para mesas y distribución.',
-    href: '/salones',
+    href: '/empresa/salones',
   },
   {
     title: 'Planificador visual del salón',

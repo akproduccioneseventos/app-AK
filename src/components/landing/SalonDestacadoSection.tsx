@@ -4,26 +4,13 @@ import React from 'react';
 import Link from 'next/link';
 import Image from 'next/image';
 import { Button } from '@/components/ui/button';
-import { Building2, Sparkles, CheckCircle2, ArrowRight } from 'lucide-react';
+import { Building2, ArrowRight } from 'lucide-react';
+
+import { getDynamicSalonPhotos } from '@/lib/salon-helper';
 
 export function SalonDestacadoSection() {
-  const photos = [
-    {
-      src: '/media/catalogo-servicios/salon-discoteca-ak-01.jpeg',
-      alt: 'Salón Club Uruguay decorado',
-      title: 'Montaje de Gala',
-    },
-    {
-      src: '/media/catalogo-servicios/discoteca-salon-ak-02.jpeg',
-      alt: 'Sonido y pantallas gigantes de AK',
-      title: 'Discoteca y Escenario',
-    },
-    {
-      src: '/media/catalogo-servicios/xv-pista-iluminada-01.jpeg',
-      alt: 'Pista de baile LED en salón clásico',
-      title: 'Pista LED Interactiva',
-    },
-  ];
+  const allPhotos = getDynamicSalonPhotos();
+  const photos = allPhotos.slice(0, 3);
 
   return (
     <section className="py-24 bg-zinc-950 text-white relative overflow-hidden">
@@ -49,31 +36,35 @@ export function SalonDestacadoSection() {
             </h2>
 
             <p className="text-zinc-400 leading-relaxed font-medium">
-              El salón más elegante e histórico en pleno centro de Salto. Junto a **AK Producciones**, te ofrecemos una solución completa con todo resuelto en una sola reunión.
+              El primer salón de fiestas de Salto, con 150 años de historia. Ubicado en pleno centro frente a la plaza principal, te ofrece elegancia histórica y terraza amplia, junto a la producción integral de <strong>AK Producciones</strong>.
             </p>
 
-            <ul className="space-y-3.5 pt-2">
-              <li className="flex items-start gap-3">
-                <CheckCircle2 className="w-5 h-5 text-indigo-400 shrink-0 mt-0.5" />
-                <span className="text-zinc-300 text-sm font-medium">
-                  <strong>Capacidad hasta 200 personas</strong> en banquetes y bailes.
-                </span>
-              </li>
-              <li className="flex items-start gap-3">
-                <CheckCircle2 className="w-5 h-5 text-indigo-400 shrink-0 mt-0.5" />
-                <span className="text-zinc-300 text-sm font-medium">
-                  <strong>Servicio Integral de AK:</strong> ambientación premium, comida abundante con devolución de sobrantes y pantallas gigantes.
-                </span>
-              </li>
-              <li className="flex items-start gap-3">
-                <CheckCircle2 className="w-5 h-5 text-indigo-400 shrink-0 mt-0.5" />
-                <span className="text-zinc-300 text-sm font-medium">
-                  <strong>Pista LED interactiva de última generación</strong> incluida en el armado.
-                </span>
-              </li>
-            </ul>
+            {/* Opciones de Salón - Anclaje de Precios (Neuroventas) */}
+            <div className="space-y-4 pt-2">
+              <div className="p-4 rounded-2xl border border-white/5 bg-white/[0.02] hover:bg-white/[0.04] transition-all">
+                <div className="flex items-center justify-between">
+                  <h3 className="text-sm font-black uppercase text-indigo-400">Salón Chico (Hasta 50 invitados)</h3>
+                  <span className="text-[10px] font-black uppercase bg-emerald-600/20 text-emerald-400 px-2 py-0.5 rounded">50% OFF</span>
+                </div>
+                <p className="text-zinc-400 text-xs mt-1">Ideal para fiestas íntimas. Cuenta con patio grande, terraza, freezer, heladera y servicio de limpieza incluido.</p>
+                <p className="text-sm font-black mt-2 text-white">
+                  Cotización: <span className="text-zinc-500 line-through text-xs font-semibold">$17.800</span> <span className="text-lg text-emerald-400">$8.900</span>
+                </p>
+              </div>
 
-            <div className="flex flex-wrap gap-4 pt-4">
+              <div className="p-4 rounded-2xl border border-white/5 bg-white/[0.02] hover:bg-white/[0.04] transition-all">
+                <div className="flex items-center justify-between">
+                  <h3 className="text-sm font-black uppercase text-indigo-400">Salón Grande (Hasta 200 invitados)</h3>
+                  <span className="text-[10px] font-black uppercase bg-emerald-600/20 text-emerald-400 px-2 py-0.5 rounded">50% OFF</span>
+                </div>
+                <p className="text-zinc-400 text-xs mt-1">Para grandes fiestas de gala. Salón señorial de dos plantas y máxima comodidad.</p>
+                <p className="text-sm font-black mt-2 text-white">
+                  Cotización: <span className="text-zinc-500 line-through text-xs font-semibold">$33.800</span> <span className="text-lg text-emerald-400">$16.900</span>
+                </p>
+              </div>
+            </div>
+
+            <div className="flex flex-wrap gap-4 pt-2">
               <Button asChild size="lg" className="bg-indigo-600 hover:bg-indigo-500 text-white font-bold rounded-2xl shadow-lg shadow-indigo-600/35 px-8">
                 <Link href="/club-uruguay">
                   Ver Detalles del Salón

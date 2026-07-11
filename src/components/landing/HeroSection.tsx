@@ -1,7 +1,7 @@
 'use client';
 
 import Link from 'next/link';
-import { motion } from 'framer-motion';
+import { motion, useReducedMotion } from 'framer-motion';
 import { ArrowRight, MessageSquare, ChevronDown, Zap } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import type { PromoActiva } from '@/types/promo';
@@ -20,9 +20,9 @@ interface HeroSectionProps {
 
 export function HeroSection({
   whatsappNumber = '59899123456',
-  headline = 'Hacemos Realidad\ntu Celebración',
-  subheadline = 'Bodas, XV Años, cumpleaños y eventos empresariales con producción integral, atención cercana y una experiencia digital simple para tus invitados.',
-  backgroundImageUrl = '/media/catalogo-servicios/xv-pista-iluminada-01.jpeg',
+  headline = 'Disfrutá tu Fiesta,\nNosotros nos Encargamos del Resto',
+  subheadline = 'La paz mental de saber que tu evento está en manos expertas. Desde el catering premium hasta la tecnología interactiva, coordinamos cada detalle para que vos solo te dediques a vivir el momento.',
+  backgroundImageUrl = '/media/catalogo-servicios/quinceanera_hero.png',
   promoActiva,
   whatsappMessage = 'Hola AK Producciones, vi su pagina y me gustaria cotizar mi evento.',
   ctaLabel = 'Consultar por WhatsApp',
@@ -30,6 +30,7 @@ export function HeroSection({
   simulatorLabel = 'Simular Presupuesto',
 }: HeroSectionProps) {
   const waHref = `https://wa.me/${whatsappNumber}?text=${encodeURIComponent(whatsappMessage)}`;
+  const reduceMotion = useReducedMotion();
 
   const containerVariants = {
     hidden: {},
@@ -47,20 +48,22 @@ export function HeroSection({
 
   return (
     <section data-testid="hero-section" className="relative min-h-screen flex items-center overflow-hidden bg-zinc-950">
-      <div
+      <motion.div
         className="absolute inset-0 scale-105 bg-cover bg-center bg-no-repeat opacity-70"
         style={{ backgroundImage: `url('${backgroundImageUrl}')` }}
+        animate={reduceMotion ? undefined : { scale: [1.04, 1.09, 1.04], backgroundPosition: ['50% 50%', '54% 47%', '50% 50%'] }}
+        transition={{ duration: 22, repeat: Infinity, ease: 'easeInOut' }}
       />
-      <div className="absolute inset-0 bg-[linear-gradient(105deg,rgba(2,6,23,0.75)_0%,rgba(9,9,11,0.65)_52%,rgba(24,24,27,0.40)_100%)]" />
-      <div className="absolute inset-0 bg-[radial-gradient(circle_at_22%_24%,rgba(99,102,241,0.15),transparent_20rem),radial-gradient(circle_at_76%_18%,rgba(139,92,246,0.12),transparent_22rem)]" />
-      <div
+      <div className="absolute inset-0 bg-[linear-gradient(105deg,rgba(2,6,23,0.85)_0%,rgba(9,9,11,0.70)_52%,rgba(24,24,27,0.50)_100%)]" />
+      <motion.div
         className="absolute inset-0 opacity-15"
         style={{
           backgroundImage:
-            'repeating-linear-gradient(90deg, rgba(255,255,255,0.1) 0 1px, transparent 1px 96px)',
+            'repeating-linear-gradient(90deg, rgba(255,255,255,0.16) 0 1px, transparent 1px 96px), repeating-linear-gradient(0deg, rgba(255,255,255,0.08) 0 1px, transparent 1px 96px)',
         }}
+        animate={reduceMotion ? undefined : { backgroundPosition: ['0px 0px', '96px 48px'] }}
+        transition={{ duration: 26, repeat: Infinity, ease: 'linear' }}
       />
-
       <div className="relative z-10 w-full max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-24 pb-20">
         <motion.div
           variants={containerVariants}
@@ -91,9 +94,9 @@ export function HeroSection({
             variants={itemVariants}
             className="font-headline text-5xl sm:text-6xl md:text-7xl lg:text-8xl font-black text-white leading-none mb-6 drop-shadow-2xl"
           >
-            {headline.split('\n').map((line, i) => (
+            {headline.split('\n').map((line, i, lines) => (
               <span key={i} className={cn('block', i === 1 && 'text-white/90')}>
-                {line}
+                {line}{i < lines.length - 1 ? ' ' : ''}
               </span>
             ))}
           </motion.h1>
@@ -146,10 +149,14 @@ export function HeroSection({
               { value: '12+', label: 'Años' },
               { value: '24/7', label: 'Acompañamiento' },
             ].map((stat) => (
-              <div key={stat.label} className="rounded-2xl border border-white/5 bg-white/[0.02] backdrop-blur-md px-4 py-3.5 text-center">
+              <motion.div
+                key={stat.label}
+                whileHover={reduceMotion ? undefined : { y: -4, borderColor: 'rgba(255,255,255,0.22)' }}
+                className="rounded-2xl border border-white/5 bg-white/[0.02] backdrop-blur-md px-4 py-3.5 text-center"
+              >
                 <div className="text-2xl sm:text-3xl font-black text-white drop-shadow">{stat.value}</div>
                 <div className="text-[9px] font-black text-zinc-500 uppercase tracking-widest mt-1">{stat.label}</div>
-              </div>
+              </motion.div>
             ))}
           </motion.div>
         </motion.div>

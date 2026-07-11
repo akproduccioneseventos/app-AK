@@ -470,14 +470,14 @@ export function MenuForm({ existingMenu }: { existingMenu?: FullMenu }) {
               <Textarea id="menu-description" rows={2} value={menu.description || ''} onChange={(e) => handleMenuChange('description', e.target.value)} placeholder="Describe el estilo y propuesta del menú..." />
             </div>
             <div className="space-y-2">
-              <Label htmlFor="menu-image" className="flex items-center gap-1"><ImageIcon className="w-4 h-4" />URL Foto del MenÃº</Label>
+              <Label htmlFor="menu-image" className="flex items-center gap-1"><ImageIcon className="w-4 h-4" />URL Foto del Menú</Label>
               <Input id="menu-image" value={menu.imageUrl || ''} onChange={(e) => handleMenuChange('imageUrl', e.target.value)} placeholder="https://... o /catering/menus/..." />
             </div>
             <div className="flex items-center gap-4 rounded-2xl border bg-slate-50 p-3">
               <div className="h-16 w-16 rounded-xl border bg-white overflow-hidden shrink-0 flex items-center justify-center">
                 {sanitizeImageUrl(getCateringMenuImage(menu as FullMenu)) ? (
                   // eslint-disable-next-line @next/next/no-img-element
-                  <img src={sanitizeImageUrl(getCateringMenuImage(menu as FullMenu))} alt={menu.name || 'MenÃº'} className="h-full w-full object-cover" loading="lazy" decoding="async" />
+                  <img src={sanitizeImageUrl(getCateringMenuImage(menu as FullMenu))} alt={menu.name || 'Menú'} className="h-full w-full object-cover" loading="lazy" decoding="async" />
                 ) : (
                   <ImageIcon className="h-6 w-6 text-slate-300" />
                 )}

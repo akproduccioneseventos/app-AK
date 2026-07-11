@@ -4,7 +4,7 @@
   "private": true,
   "scripts": {
     "dev": "next dev",
-    "build": "node scripts/generate-firebase-messaging-sw.mjs && next build",
+    "build": "node scripts/generate-firebase-messaging-sw.mjs && node scripts/build-next-with-memory.mjs",
     "start": "next start",
     "lint": "next lint",
     "typecheck": "node ./node_modules/typescript/bin/tsc --noEmit",

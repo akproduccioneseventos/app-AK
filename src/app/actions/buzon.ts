@@ -115,9 +115,9 @@ export async function uploadBuzonMessage(
 
     // Notify the screen visually by adding a system chat message
     const alertText = isAudio
-      ? '🎙️ Dejó un saludo de voz en el buzón'
-      : '📹 Subió un video al buzón';
-    
+      ? 'ðŸŽ™ï¸ Dejó un saludo de voz en el buzón'
+      : 'ðŸ“¹ Subió un video al buzón';
+
     await addChatMessage(fiestaId, alertText, authorName).catch((err) => {
       logger.warn('[buzon] Failed to send chat notification:', err);
     });
@@ -259,5 +259,24 @@ export async function deleteWelcomeAudio(
   } catch (error: any) {
     logger.warn('[buzon] deleteWelcomeAudio failed:', error);
     return { success: false, error: error.message || 'Error al borrar audio de bienvenida.' };
+  }
+}
+export async function updateBuzonFrameTemplate(fiestaId: string, template: string): Promise<{ success: boolean; error?: string }> {
+  try {
+    const fiesta = await getFiestaById(fiestaId);
+    if (!fiesta) return { success: false, error: 'Fiesta no encontrada.' };
+
+    const updatedFiesta = {
+      ...fiesta,
+      buzonConfig: {
+        ...fiesta.buzonConfig,
+        videoFrameTemplate: template,
+      }
+    };
+
+    const result = await saveFiesta(updatedFiesta);
+    return result.success ? { success: true } : { success: false, error: result.error };
+  } catch (err: any) {
+    return { success: false, error: err.message };
   }
 }

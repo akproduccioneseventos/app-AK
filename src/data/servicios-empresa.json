@@ -408,12 +408,23 @@
   },
   {
     "id": "serv_espejo_magico",
-    "nombre": "Espejo mágico",
+    "nombre": "Espejo Magico Classic (tactil, firmas y stickers)",
     "tipoItem": "Servicio",
     "categoria": "Servicio de entretenimiento",
     "valorUnitarioEstimado": 1800,
     "tipoCosto": "Proveedor",
     "precioVenta": 3490,
+    "calculationMethod": "fijo",
+    "unidad": "Unidad"
+  },
+  {
+    "id": "serv_espejo_magico_ia",
+    "nombre": "Face Swap IA (avatares, reemplazo de rostros y estilos artisticos)",
+    "tipoItem": "Servicio",
+    "categoria": "Servicio de entretenimiento",
+    "valorUnitarioEstimado": 2500,
+    "tipoCosto": "Proveedor",
+    "precioVenta": 4990,
     "calculationMethod": "fijo",
     "unidad": "Unidad"
   },

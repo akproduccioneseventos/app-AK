@@ -649,6 +649,7 @@ export default function BarraTecnologicaTouchPage() {
   const handleLogout = () => {
     localStorage.removeItem(`bar_guest_name_${fiestaId}`);
     setGuestName('');
+    stopCamera();
     setCurrentScreen('HOME');
     toast({ title: 'Sesión Cerrada', description: 'Ya podés registrar otra persona.' });
   };

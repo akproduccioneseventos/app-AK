@@ -1,7 +1,6 @@
 'use client';
 
 import { useState } from 'react';
-import Image from 'next/image';
 import { cn } from '@/lib/utils';
 
 const SIZE_MAP = {
@@ -20,34 +19,34 @@ interface CompanyLogoProps {
 
 export function CompanyLogo({ size = 'md', className, src }: CompanyLogoProps) {
   const [hasError, setHasError] = useState(false);
+  const [isLoaded, setIsLoaded] = useState(false);
   const { container, text, pixels } = SIZE_MAP[size];
   const imgSrc = src || '/logo_ak_producciones.png';
 
-  if (hasError) {
-    return (
-      <div
-        className={cn(
-          container,
-          'rounded-xl bg-gradient-to-br from-purple-600 to-indigo-600 flex items-center justify-center text-white font-black shrink-0',
-          text,
-          className
-        )}
-      >
-        AK
-      </div>
-    );
-  }
-
   return (
     <div className={cn('relative shrink-0', container, className)}>
-      <Image
-        src={imgSrc}
-        alt="AK Producciones"
-        fill
-        className="object-contain"
-        sizes={`${pixels}px`}
-        onError={() => setHasError(true)}
-      />
+      {(!isLoaded || hasError) && (
+        <div
+          aria-hidden="true"
+          className={cn(
+            'absolute inset-0 flex items-center justify-center rounded-full bg-red-600 font-black text-white',
+            text
+          )}
+        >
+          AK
+        </div>
+      )}
+      {!hasError && (
+        <img
+          src={imgSrc}
+          alt="AK Producciones"
+          width={pixels}
+          height={pixels}
+          className={cn('h-full w-full object-contain transition-opacity duration-200', isLoaded ? 'opacity-100' : 'opacity-0')}
+          onLoad={() => setIsLoaded(true)}
+          onError={() => setHasError(true)}
+        />
+      )}
     </div>
   );
 }

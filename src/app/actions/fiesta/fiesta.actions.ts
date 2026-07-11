@@ -166,6 +166,12 @@ export async function getFiestaById(fiestaId: string): Promise<FiestaEnPlanifica
     }
 
     if (fiesta) {
+        if (fiesta.modulosContratados) {
+            fiesta.modulosContratados = {
+                ...defaultModulosContratados,
+                ...fiesta.modulosContratados,
+            };
+        }
         const { verifySession } = await import('@/lib/auth/session-token');
         const sessionAuth = await verifySession();
         if (!sessionAuth.success) {

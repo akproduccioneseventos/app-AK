@@ -79,7 +79,7 @@ export const defaultLandingSettings: LandingSettings = {
     subheadline:
       'Salón, comida, discoteca, decoración, fotografía, filmación, barra y coordinación en un solo lugar.',
     backgroundImageUrl:
-      '/media/catalogo-servicios/salon-discoteca-ak-01.jpeg',
+      '/media/catalogo-servicios/quinceanera_hero.png',
     badgeText: 'Producción Integral de Eventos',
     ctaLabel: 'Consultar fecha por WhatsApp',
     ctaUrl: 'https://wa.me/59898355530',

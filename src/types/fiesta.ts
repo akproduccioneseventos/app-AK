@@ -140,7 +140,7 @@ export interface LiveEventState {
 export interface ConfigEventoDataStorage {
   nombreEvento: string;
   tipoCelebracion: TipoEvento | string;
-  fechaEvento?: string; 
+  fechaEvento?: string;
   horaInicio: string;
   horaFin: string;
   nombreLugar: string;
@@ -152,9 +152,9 @@ export interface ConfigEventoDataStorage {
   invitadosAdolescentes?: number;
   presupuestoEstimado: number;
   notesAdicionales: string;
-  clienteId?: string; 
-  protagonista1Nombre?: string; 
-  protagonista2Nombre?: string; 
+  clienteId?: string;
+  protagonista1Nombre?: string;
+  protagonista2Nombre?: string;
   protagonistaFotoUrl?: string;
   // Legacy / extended optional fields
   nombreAgasajado?: string;
@@ -172,7 +172,7 @@ export interface ConfigEventoDataStorage {
 
 export interface PersonalAsignadoDetalleStorage {
   empleadoId: string;
-  rolId: string; 
+  rolId: string;
   eventSalary: number;
 }
 
@@ -185,10 +185,10 @@ export interface ReunionChecklistItem {
 export interface Reunion {
   id: string;
   titulo: string;
-  fecha?: string; 
+  fecha?: string;
   notas: string;
-  acuerdos?: string; 
-  checklist?: ReunionChecklistItem[]; 
+  acuerdos?: string;
+  checklist?: ReunionChecklistItem[];
   fiestaId?: string;
 }
 
@@ -312,7 +312,7 @@ export interface DecoChecklistItem {
 export interface DecoracionData {
   tema?: string;
   paletaColores?: ColorPalette;
-  moodboardItems?: MoodboardItem[]; 
+  moodboardItems?: MoodboardItem[];
   moodboardImageUrl?: string;
   colorCubremantel?: string;
   colorGlobos?: string;
@@ -331,7 +331,7 @@ export interface DecoracionData {
   salonElements?: LayoutElement[];
   generalNotesSalonLayout?: string;
   layoutTemplateName?: string;
-  pixelsPerMeter?: number; 
+  pixelsPerMeter?: number;
   seatingMode?: 'numerada' | 'mixta' | 'libre';
   vistaDecorativa?: {
     elementos: ElementoDecorativo[];
@@ -365,24 +365,24 @@ export interface GiftItem {
   imageUrl?: string;
   dataAiHint?: string;
   isClaimed: boolean;
-  claimedBy?: string; 
+  claimedBy?: string;
 }
 
 export interface ProgramaEventoItem {
   id: string;
-  hora: string; 
+  hora: string;
   titulo: string;
   descripcion?: string;
   descripcionCliente?: string;
   visibleParaCliente?: boolean;
-  icono?: string; 
+  icono?: string;
   completado?: boolean;
 }
 
 export interface TextStyle {
     fontFamily?: 'Belleza' | 'Inter' | 'Playfair_Display' | 'Dancing_Script';
-    fontSize?: string; 
-    color?: string; 
+    fontSize?: string;
+    color?: string;
 }
 
 export interface TextWithStyle {
@@ -404,7 +404,7 @@ export interface DetalleEventoEspecifico {
 export interface SeccionInvitacion {
   id: string;
   tipo: 'cabecera' | 'bienvenida' | 'cuentaRegresiva' | 'detallesEvento' | 'itinerario' | 'dressCode' | 'galeria' | 'historia' | 'regalos' | 'confirmacion' | 'despedida' | 'footer' | 'redesSociales' | 'musica';
-  data: any; 
+  data: any;
 }
 
 // --- INVITACIÓN DIGITAL CONFIG (Simplified central configuration) ---
@@ -433,12 +433,12 @@ export interface InvitacionDigitalCronograma {
   icono?: string;
 }
 
-export type InvitacionPlantillaId = 
-  | 'EleganteDorado' 
-  | 'ModernoMinimalista' 
-  | 'RomanticoFloral' 
-  | 'FiestaVibrante' 
-  | 'Grazia' 
+export type InvitacionPlantillaId =
+  | 'EleganteDorado'
+  | 'ModernoMinimalista'
+  | 'RomanticoFloral'
+  | 'FiestaVibrante'
+  | 'Grazia'
   | 'Allegria'
   | 'XV_NeonParty'
   | 'XV_PrincesaClasica'
@@ -549,7 +549,7 @@ export interface InvitacionDigitalConfig {
 }
 
 export interface InvitacionDigitalData {
-  name?: string; 
+  name?: string;
   category?: 'Boda' | 'XV Años' | 'Cumpleaños' | 'General' | 'Infantil';
   plantilla: 'Grazia' | 'Allegria';
   musicaFondoUrl?: string;
@@ -907,10 +907,10 @@ export interface ScreenModeSettings {
 export interface MusicaFiesta {
   cancionEntrada?: string;
   cancionVals?: string;
-  cancionesTortaBrindis?: string[]; 
+  cancionesTortaBrindis?: string[];
   playlistFiesta?: string;
   listaNoReproducir?: string;
-  sugerenciasInvitados?: string; 
+  sugerenciasInvitados?: string;
 }
 
 export interface Trago {
@@ -968,7 +968,7 @@ export interface ReposteriaItem {
   imagenReferenciaUrl?: string;
   dataAiHint?: string;
   notas?: string;
-  origenId?: string; 
+  origenId?: string;
   proveedor?: string;
 }
 
@@ -989,10 +989,10 @@ export interface ReposteriaData {
 export interface BebidaItem {
   id: string;
   nombre: string;
-  cantidadNecesaria?: number; 
-  unidadCantidad?: string; 
-  costoUnitario?: number; 
-  costoTotal?: number; 
+  cantidadNecesaria?: number;
+  unidadCantidad?: string;
+  costoUnitario?: number;
+  costoTotal?: number;
   proveedorHabitual?: string;
   notas?: string;
   origenId?: string;
@@ -1017,9 +1017,9 @@ export interface Tarea {
   texto: string;
   descripcion?: string;
   completada: boolean;
-  fechaLimite?: string; 
-  horaVencimiento?: string; 
-  recordatorio?: string; 
+  fechaLimite?: string;
+  horaVencimiento?: string;
+  recordatorio?: string;
   asignadaA?: 'Cliente' | 'Organizador';
   esPredeterminada?: boolean;
 }
@@ -1033,7 +1033,7 @@ export interface ClientTarea {
 export interface CargaOperativaItem {
   id: string;
   nombre: string;
-  cantidad: string; 
+  cantidad: string;
   cargado: boolean;
   retornado?: boolean;
   cargadoAt?: string;
@@ -1043,16 +1043,16 @@ export interface CargaOperativaItem {
   actualizadoAt?: string;
   actualizadoPor?: string;
   notas?: string;
-  origenId?: string; 
+  origenId?: string;
   unidad?: string;
   unit?: string; // alias for unidad (legacy)
-  hasConflict?: boolean; 
-  availableStockAtDate?: number; 
+  hasConflict?: boolean;
+  availableStockAtDate?: number;
 }
 
 export interface CargaOperativaCategoria {
-  id: string; 
-  nombre: string; 
+  id: string;
+  nombre: string;
   items: CargaOperativaItem[];
 }
 
@@ -1075,16 +1075,16 @@ export interface CostoItem {
 
 export interface PagoProveedor {
   id: string;
-  costoAsociadoId: string; 
-  fecha: string; 
+  costoAsociadoId: string;
+  fecha: string;
   monto: number;
-  metodoPago?: string; 
+  metodoPago?: string;
   notas?: string;
 }
 
 export interface GestionCostosData {
   costosItems: CostoItem[];
-  ingresosTotalesEstimados: number; 
+  ingresosTotalesEstimados: number;
   notasGeneralesCostos?: string;
   others?: Record<string, number>;
 }
@@ -1101,8 +1101,8 @@ export interface OtroDocumento {
   id: string;
   nombre: string;
   tipo: string;
-  fileName: string; 
-  timestamp: string; 
+  fileName: string;
+  timestamp: string;
 }
 
 export interface ModulosContratados {
@@ -1140,6 +1140,7 @@ export interface ModulosContratados {
   pantallasTotem?: boolean;
   zonaDigital?: boolean;
   carteleria?: boolean;
+  buzon?: boolean;
 }
 
 export interface CompraProveedorEstado {
@@ -1397,7 +1398,7 @@ export interface FiestaEnPlanificacion {
   decoracion?: DecoracionData;
   invitados?: Invitado[];
   clientChecklist?: ClientTarea[];
-  clientNotes?: string; 
+  clientNotes?: string;
   invitacionDigital?: InvitacionDigitalData;
   invitacionConfig?: InvitacionDigitalConfig;
   menuMesa?: MenuMesaData;
@@ -1422,7 +1423,7 @@ export interface FiestaEnPlanificacion {
   pagosProveedores?: PagoProveedor[];
   others?: any;
   estadosCompra?: CompraProveedorEstado[];
-  generadoDesdeHistorico?: boolean; 
+  generadoDesdeHistorico?: boolean;
   liveState?: LiveEventState;
   planDePagos?: PlanDePagos;
   eventoEnVivo?: EventoEnVivoData;
@@ -1455,6 +1456,7 @@ export interface BuzonConfig {
   welcomeAudioUrl?: string;
   welcomeAudioPath?: string;
   enabled?: boolean;
+  videoFrameTemplate?: string;
 }
 
 export interface ContratoFirmaInfo {

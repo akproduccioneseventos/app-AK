@@ -166,7 +166,7 @@ const quickModes: { id: QuickMode; label: string; icon: React.ElementType; color
 ];
 
 // Module IDs that are always visible regardless of modulosContratados
-const alwaysVisibleIds = ['enVivo', 'missionControl', 'readiness', 'fiestaLista', 'centroTotal', 'proveedoresPortal', 'configuracion', 'entretenimiento', 'redSocial', 'zonaDigital', 'pantallasTotem', 'barraTecnologica'];
+const alwaysVisibleIds = modules.map(m => m.id);
 
 function PlannerDashboardContent() {
   const { toast } = useToast();
@@ -301,7 +301,7 @@ function PlannerDashboardContent() {
                 );
 
                 return alerta.accionUrl ? (
-                  <Link
+                      <Link
                     key={alerta.id}
                     href={alerta.accionUrl}
                     className="flex min-h-14 items-center gap-3 rounded-xl border border-slate-200 bg-slate-50 px-3 py-2 transition-colors hover:border-primary/40 hover:bg-primary/5"
@@ -538,10 +538,6 @@ function PlannerDashboardContent() {
             const allCategoryModules = filteredModules.filter(m => m.category === category);
             if (allCategoryModules.length === 0) return null;
 
-            // Split into active and inactive
-            const activeModules   = allCategoryModules.filter(m => isModuleActive(m.id));
-            const inactiveModules = allCategoryModules.filter(m => !isModuleActive(m.id));
-
             return (
               <motion.div key={category} initial={{ opacity: 0, y: 20 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} className="space-y-5">
                 {/* Category header */}
@@ -556,21 +552,42 @@ function PlannerDashboardContent() {
                   <div className="h-px bg-gradient-to-r from-slate-200 to-transparent flex-grow hidden sm:block" />
                 </div>
 
-                {/* Active modules */}
-                {activeModules.length > 0 && (
-                  <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 sm:gap-6">
-                    {activeModules.map((module) => (
-                      <motion.div key={module.id} whileHover={{ y: -6 }}>
-                        <Link href={module.href.startsWith('/') ? `${module.href}?fiestaId=${fiesta.id}` : `/fiestas/nueva/${module.href}?fiestaId=${fiesta.id}`}>
-                          <Card className="h-full border-none premium-shadow hover:shadow-primary/10 transition-all duration-500 cursor-pointer flex flex-col group rounded-[2rem] overflow-hidden bg-white">
+                {/* Modules Grid */}
+                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 sm:gap-6">
+                  {allCategoryModules.map((module) => {
+                    const active = isModuleActive(module.id);
+                    return (
+                      <motion.div key={module.id} whileHover={{ y: -6, scale: 1.01 }} whileTap={{ scale: 0.99 }}>
+                        <Link
+                          href={module.href.startsWith('/') ? `${module.href}?fiestaId=${fiesta.id}` : `/fiestas/nueva/${module.href}?fiestaId=${fiesta.id}`}
+                          onClick={() => {
+                            if (!active) {
+                              handleModuleToggle(module.id as keyof ModulosContratados, true);
+                            }
+                          }}
+                        >
+                          <Card className={cn(
+                            "h-full border border-slate-100 transition-all duration-500 cursor-pointer flex flex-col group rounded-[2rem] overflow-hidden bg-white/80 backdrop-blur-md hover:shadow-2xl",
+                              active
+                                ? "hover:shadow-primary/10"
+                              : "hover:shadow-slate-400/10"
+                          )}>
                             <CardHeader className="flex-row items-center gap-4 space-y-0 pb-3 p-5 sm:p-6">
-                              <div className={cn("p-3 rounded-2xl group-hover:rotate-12 transition-all duration-500 shadow-inner shrink-0", module.color)}>
+                              <div className={cn(
+                                "p-3 rounded-2xl group-hover:rotate-12 transition-all duration-500 shadow-inner shrink-0",
+                                active ? module.color : "bg-slate-100 text-slate-400"
+                              )}>
                                 <module.icon className="w-5 h-5 sm:w-6 sm:h-6" />
                               </div>
                               <div className="min-w-0 flex-1">
-                                <CardTitle className="text-sm sm:text-base font-black text-slate-800 leading-tight">{module.title}</CardTitle>
+                                <CardTitle className={cn("text-sm sm:text-base font-black leading-tight transition-colors", active ? "text-slate-800" : "text-slate-500")}>
+                                  {module.title}
+                                </CardTitle>
                                 {module.badge && (
-                                  <span className={cn("inline-block mt-1 text-[9px] font-black tracking-widest uppercase px-2 py-0.5 rounded-full border", badgeColors[module.badge])}>
+                                  <span className={cn(
+                                    "inline-block mt-1 text-[9px] font-black tracking-widest uppercase px-2 py-0.5 rounded-full border",
+                                    active ? badgeColors[module.badge] : "bg-slate-50 text-slate-400 border-slate-100"
+                                  )}>
                                     {module.badge}
                                   </span>
                                 )}
@@ -580,56 +597,39 @@ function PlannerDashboardContent() {
                               <p className="text-[10px] sm:text-xs text-slate-400 font-medium line-clamp-2">{module.description}</p>
                             </CardContent>
                             <CardFooter className="bg-slate-50/50 p-3 flex justify-between items-center px-5 sm:px-6 border-t border-slate-50">
-                              <span className="flex items-center gap-1 text-[9px] font-black uppercase tracking-widest text-emerald-600">
-                                <CheckCircle2 className="w-3 h-3" /> Activo
-                              </span>
-                              <Button variant="ghost" size="sm" className="text-primary font-black text-[10px] uppercase tracking-[0.2em] group-hover:bg-primary group-hover:text-white rounded-xl px-3 h-7 transition-all">
-                                Abrir <ArrowRight className="w-3 h-3 ml-1.5 group-hover:translate-x-1 transition-transform"/>
+                              {active ? (
+                                <span className="flex items-center gap-1.5 text-[9px] font-black uppercase tracking-widest text-emerald-600">
+                                  <span className="relative flex h-2 w-2">
+                                    <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75"></span>
+                                    <span className="relative inline-flex rounded-full h-2 w-2 bg-emerald-500"></span>
+                                  </span>
+                                  Activo
+                                </span>
+                              ) : (
+                                <span className="flex items-center gap-1.5 text-[9px] font-black uppercase tracking-widest text-slate-400">
+                                  <span className="h-2 w-2 rounded-full bg-slate-300"></span>
+                                  Inactivo
+                                </span>
+                              )}
+                              <Button
+                                variant="ghost"
+                                size="sm"
+                                className={cn(
+                                  "font-black text-[10px] uppercase tracking-[0.2em] rounded-xl px-3 h-7 transition-all",
+                                  active
+                                    ? "text-primary group-hover:bg-primary group-hover:text-white"
+                                    : "text-slate-400 group-hover:bg-slate-200 group-hover:text-slate-700"
+                                )}
+                              >
+                                {active ? "Abrir" : "Activar y Abrir"} <ArrowRight className="w-3 h-3 ml-1.5 group-hover:translate-x-1 transition-transform"/>
                               </Button>
                             </CardFooter>
                           </Card>
                         </Link>
                       </motion.div>
-                    ))}
-                  </div>
-                )}
-
-                {/* Inactive / "disponible para activar" modules */}
-                {inactiveModules.length > 0 && (
-                  <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 sm:gap-6">
-                    {inactiveModules.map((module) => (
-                      <div key={module.id} className="relative group">
-                        <Card className="h-full border border-dashed border-slate-200 transition-all duration-300 flex flex-col rounded-[2rem] overflow-hidden bg-slate-50/50 opacity-70 hover:opacity-90">
-                          <CardHeader className="flex-row items-center gap-4 space-y-0 pb-3 p-5 sm:p-6">
-                            <div className="p-3 rounded-2xl bg-slate-100 text-slate-400 shrink-0">
-                              <module.icon className="w-5 h-5 sm:w-6 sm:h-6" />
-                            </div>
-                            <div className="min-w-0 flex-1">
-                              <CardTitle className="text-sm sm:text-base font-black text-slate-500 leading-tight">{module.title}</CardTitle>
-                              <span className="inline-block mt-1 text-[9px] font-black tracking-widest uppercase px-2 py-0.5 rounded-full bg-slate-100 text-slate-400 border border-slate-200">
-                                Sin activar
-                              </span>
-                            </div>
-                          </CardHeader>
-                          <CardContent className="flex-grow pt-0 px-5 sm:px-6 pb-4">
-                            <p className="text-[10px] sm:text-xs text-slate-400 font-medium line-clamp-2">{module.description}</p>
-                          </CardContent>
-                          <CardFooter className="bg-slate-50 p-3 flex justify-between items-center px-5 sm:px-6 border-t border-slate-100">
-                            <span className="text-[9px] font-black uppercase tracking-widest text-slate-400">Disponible para activar</span>
-                            <Button
-                              variant="outline"
-                              size="sm"
-                              className="text-primary border-primary/30 hover:bg-primary hover:text-white font-black text-[10px] uppercase tracking-widest rounded-xl px-3 h-7 transition-all"
-                              onClick={() => handleModuleToggle(module.id as keyof ModulosContratados, true)}
-                            >
-                              Activar
-                            </Button>
-                          </CardFooter>
-                        </Card>
-                      </div>
-                    ))}
-                  </div>
-                )}
+                    );
+                  })}
+                </div>
               </motion.div>
             );
           })}

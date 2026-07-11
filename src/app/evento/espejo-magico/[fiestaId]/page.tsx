@@ -2,7 +2,6 @@
 
 import { useState, useEffect, useRef } from 'react';
 import { useParams, useRouter, useSearchParams } from 'next/navigation';
-import Link from 'next/link';
 import { motion, AnimatePresence } from 'framer-motion';
 import {
   Camera,
@@ -11,7 +10,6 @@ import {
   Send,
   ArrowLeft,
   Loader2,
-  PartyPopper,
   RefreshCw,
   SmilePlus,
   X,
@@ -20,7 +18,6 @@ import {
   FileImage,
   Radio,
   Zap,
-  Check,
 } from 'lucide-react';
 import { QRCodeSVG } from 'qrcode.react';
 import { uploadSocialPost } from '@/app/actions/social-gallery';
@@ -30,32 +27,74 @@ import {
   startEntertainmentSession,
   updateEntertainmentSessionStatus,
   resetEntertainmentSession,
-  EntertainmentSession,
+  type EntertainmentSession,
 } from '@/app/actions/fiesta/sesion-entretenimiento';
 import type { PublicEntertainmentEvent } from '@/lib/entertainment/station-config';
 import { KioskUnlockButton } from '@/components/kiosk/kiosk-unlock-button';
+import {
+  ESPEJO_TEMPLATES,
+  FACESWAP_CATEGORIES,
+  applyEspejoFaceSwap,
+  type FaceSwapCategoryId,
+} from '@/app/actions/espejo-magico-ai';
 
 const FILTERS = [
   { id: 'normal', label: 'Sin filtro', css: 'none' },
   { id: 'glamour', label: 'Glamour', css: 'brightness(1.1) contrast(1.05) saturate(1.2)' },
   { id: 'vintage', label: 'Vintage', css: 'sepia(0.6) contrast(1.1) brightness(0.9)' },
-  { id: 'neon', label: 'Neón', css: 'hue-rotate(270deg) saturate(2) brightness(1.1)' },
+  { id: 'neon', label: 'Neon', css: 'hue-rotate(270deg) saturate(2) brightness(1.1)' },
   { id: 'bw', label: 'B&W', css: 'grayscale(1) contrast(1.4)' },
 ];
 
-const STICKERS_LIST = ['🎉', '🎊', '🥂', '💫', '⭐', '🎈', '💖', '🔥', '👑', '🌟', '🎆', '🏆'];
+const STICKERS_LIST = ['★', '♡', '✦', '✧', 'AK', '15', 'VIP', 'Love', 'Party', 'Smile', 'Wow', 'Gold'];
+
+const MODE_COPY = {
+  foto: {
+    eyebrow: 'Foto limpia',
+    title: 'Espejo Mágico Foto',
+    start: 'Tocar para foto',
+    subtitle: 'Captura rápida, filtro elegante y subida automática al muro.',
+    operatorCta: 'Disparar foto',
+    doneLabel: 'Foto lista',
+    author: 'Espejo Mágico Foto',
+    review: 'La foto se envía automáticamente al muro de la fiesta.',
+  },
+  firma: {
+    eyebrow: 'Firma y stickers',
+    title: 'Espejo Mágico Firma',
+    start: 'Tocar para firmar',
+    subtitle: 'Captura, firma en pantalla, stickers y QR final.',
+    operatorCta: 'Disparar captura',
+    doneLabel: 'Foto firmada',
+    author: 'Espejo Mágico Firma',
+    review: 'Firma o dibujá sobre la foto y después subila al muro.',
+  },
+  ia: {
+    eyebrow: 'Face Swap IA',
+    title: 'Espejo Mágico IA',
+    start: 'Crear avatar IA',
+    subtitle: 'Elegís un estilo, la app captura el rostro y genera el retrato.',
+    operatorCta: 'Disparar IA',
+    doneLabel: 'Avatar listo',
+    author: 'Face Swap IA',
+    review: 'Podés firmar el resultado o subirlo directo al muro.',
+  },
+} as const;
 
 export default function EspejoMagicoPage() {
   const params = useParams();
   const router = useRouter();
   const searchParams = useSearchParams();
   const fiestaId = params.fiestaId as string;
-  const mode = searchParams.get('mode') || 'firma'; // 'foto' | 'firma'
+  const requestedMode = searchParams.get('mode') || 'firma';
+  const mode = requestedMode === 'foto' || requestedMode === 'ia' ? requestedMode : 'firma';
+  const modeCopy = MODE_COPY[mode];
   const role = searchParams.get('role') || 'display'; // 'display' | 'operator'
   const accessToken = searchParams.get('access') || undefined;
-  
+  const showKioskUnlock = searchParams.get('kiosk') === '1';
+
   // Choose Firestore module Id based on mode
-  const moduleId = mode === 'foto' ? 'espejoMagicoFoto' : 'espejoMagicoFirma';
+  const moduleId = mode === 'foto' ? 'espejoMagicoFoto' : mode === 'ia' ? 'espejoMagicoIA' : 'espejoMagicoFirma';
 
   const videoRef = useRef<HTMLVideoElement>(null);
   const canvasRef = useRef<HTMLCanvasElement>(null);
@@ -65,10 +104,20 @@ export default function EspejoMagicoPage() {
   const [stream, setStream] = useState<MediaStream | null>(null);
   const [facingMode, setFacingMode] = useState<'user' | 'environment'>('user');
   const [selectedFilter, setSelectedFilter] = useState(FILTERS[0]);
-  
+
   const [stickers, setStickers] = useState<{ id: string; emoji: string; x: number; y: number }[]>([]);
   const [draggingId, setDraggingId] = useState<string | null>(null);
   const [showStickerPanel, setShowStickerPanel] = useState(false);
+
+  // AI Face Swap IA States
+  const [selectedTemplateId, setSelectedTemplateId] = useState<string>('kpop_stars');
+  const [selectedCategory, setSelectedCategory] = useState<FaceSwapCategoryId>('showbiz');
+  const [originalPhotoUrl, setOriginalPhotoUrl] = useState<string | null>(null);
+  const [aiImageBase64, setAiImageBase64] = useState<string | null>(null);
+  const [aiProcessing, setAiProcessing] = useState<boolean>(false);
+  const [aiStep, setAiStep] = useState<string>('idle'); // 'idle' | 'detecting' | 'aligning' | 'gemini' | 'rendering'
+  const [sliderPosition, setSliderPosition] = useState<number>(50);
+  const [isDraggingSlider, setIsDraggingSlider] = useState<boolean>(false);
 
   // Sync state
   const [session, setSession] = useState<EntertainmentSession | null>(null);
@@ -76,9 +125,8 @@ export default function EspejoMagicoPage() {
   const [countdown, setCountdown] = useState<number | null>(null);
   const [flash, setFlash] = useState(false);
   const [capturedImage, setCapturedImage] = useState<string | null>(null);
-  
+
   const [isUploading, setIsUploading] = useState(false);
-  const [showSuccess, setShowSuccess] = useState(false);
   const [errorMsg, setErrorMsg] = useState<string | null>(null);
 
   const [fiesta, setFiesta] = useState<PublicEntertainmentEvent | null>(null);
@@ -172,6 +220,17 @@ export default function EspejoMagicoPage() {
     }
   }, [facingMode, localStatus, role]);
 
+  // Welcome Speech Cues
+  useEffect(() => {
+    if (role === 'display' && localStatus === 'idle' && !capturedImage) {
+      if (mode === 'ia') {
+        speak('Hola. Elegí tu estilo de IA y prepará tu mejor pose.');
+      } else {
+        speak(`Hola. ${modeCopy.start}.`);
+      }
+    }
+  }, [localStatus, capturedImage, mode, modeCopy.start, role]);
+
   const startCamera = async () => {
     stopCamera();
     setErrorMsg(null);
@@ -196,6 +255,93 @@ export default function EspejoMagicoPage() {
     }
   };
 
+  const runFaceSwapIA = async (originalPhotoUrl: string) => {
+    setAiProcessing(true);
+    setLocalStatus('recording');
+    setAiStep('detecting');
+    speak("Procesando tu rostro con Inteligencia Artificial. Por favor, aguarda.");
+
+    const stepTimer1 = setTimeout(() => setAiStep('aligning'), 2000);
+    const stepTimer2 = setTimeout(() => setAiStep('gemini'), 4500);
+    const stepTimer3 = setTimeout(() => setAiStep('rendering'), 7500);
+
+    try {
+      const file = dataURLtoFile(originalPhotoUrl, 'source.jpg');
+
+      const formData = new FormData();
+      formData.append('fiestaId', fiestaId);
+      if (accessToken) formData.append('accessToken', accessToken);
+      formData.append('templateId', selectedTemplateId);
+      formData.append('sourceFile', file);
+
+      const result = await applyEspejoFaceSwap(formData);
+
+      if (result.success && result.imageBase64) {
+        const fullBase64 = `data:image/jpeg;base64,${result.imageBase64}`;
+        setAiImageBase64(fullBase64);
+
+        await loadAiImageToCanvas(fullBase64);
+
+        setCapturedImage(fullBase64);
+        setAiStep('idle');
+        if (result.faceSwapApplied === false) {
+          speak('Modo prueba. Se muestra la foto original.');
+        } else {
+          speak('Listo. Mirá tu avatar de IA. Podés firmarlo si querés.');
+        }
+      } else {
+        throw new Error(result.error || 'Error al procesar la IA.');
+      }
+    } catch (err: any) {
+      console.error(err);
+      setErrorMsg(err.message || 'La IA no pudo procesar tu avatar. Mostrando foto original.');
+      speak("Ocurrió un inconveniente, pero aquí está tu foto original.");
+    } finally {
+      clearTimeout(stepTimer1);
+      clearTimeout(stepTimer2);
+      clearTimeout(stepTimer3);
+      setAiProcessing(false);
+    }
+  };
+
+  const dataURLtoFile = (dataurl: string, filename: string): File => {
+    const arr = dataurl.split(',');
+    const mime = arr[0].match(/:(.*?);/)![1];
+    const bstr = atob(arr[1]);
+    let n = bstr.length;
+    const u8arr = new Uint8Array(n);
+    while (n--) {
+      u8arr[n] = bstr.charCodeAt(n);
+    }
+    return new File([u8arr], filename, { type: mime });
+  };
+
+  const loadAiImageToCanvas = (base64Url: string): Promise<void> => {
+    return new Promise((resolve, reject) => {
+      const img = new Image();
+      const timer = setTimeout(() => {
+        reject(new Error('Tiempo de carga de imagen agotado.'));
+      }, 10_000);
+      img.onload = () => {
+        clearTimeout(timer);
+        if (canvasRef.current) {
+          canvasRef.current.width = img.width;
+          canvasRef.current.height = img.height;
+          const ctx = canvasRef.current.getContext('2d');
+          if (ctx) {
+            ctx.drawImage(img, 0, 0);
+          }
+        }
+        resolve();
+      };
+      img.onerror = () => {
+        clearTimeout(timer);
+        reject(new Error('No se pudo cargar la imagen de IA.'));
+      };
+      img.src = base64Url;
+    });
+  };
+
   // Canvas Drawing
   const startDrawing = (e: React.PointerEvent<HTMLCanvasElement>) => {
     e.preventDefault();
@@ -203,16 +349,16 @@ export default function EspejoMagicoPage() {
     if (!canvas) return;
     const ctx = canvas.getContext('2d');
     if (!ctx) return;
-    
+
     ctx.lineJoin = 'round';
     ctx.lineCap = 'round';
     ctx.lineWidth = 14;
     ctx.strokeStyle = drawColor;
-    
+
     // Pincel de Neon: shadowBlur + shadowColor matches current brush stroke
     ctx.shadowBlur = 15;
     ctx.shadowColor = drawColor;
-    
+
     const rect = canvas.getBoundingClientRect();
     const x = e.clientX - rect.left;
     const y = e.clientY - rect.top;
@@ -252,7 +398,7 @@ export default function EspejoMagicoPage() {
     const drawCanvas = drawingCanvasRef.current;
     const ctx = baseCanvas.getContext('2d');
     if (!ctx) return;
-    
+
     // Scale drawing coordinates back to canvas original size
     ctx.drawImage(drawCanvas, 0, 0, baseCanvas.width, baseCanvas.height);
   };
@@ -298,12 +444,12 @@ export default function EspejoMagicoPage() {
       await updateEntertainmentSessionStatus(fiestaId, moduleId, 'countdown', {}, accessToken);
     }
     setShowStickerPanel(false);
-    
+
     let currentCount = fiesta?.station.countdownSeconds || 4;
     setCountdown(currentCount);
     playBeep();
     speak("Tres");
-    
+
     const interval = setInterval(() => {
       currentCount -= 1;
       if (currentCount > 0) {
@@ -315,7 +461,7 @@ export default function EspejoMagicoPage() {
         clearInterval(interval);
         setCountdown(null);
         playBeep(1200, 0.3);
-        speak("¡Sonríe!");
+        speak('Sonreí');
         captureToCanvas();
       }
     }, 1000);
@@ -323,7 +469,7 @@ export default function EspejoMagicoPage() {
 
   const drawWatermark = (ctx: CanvasRenderingContext2D, w: number, h: number) => {
     if (!watermarkEnabled) return;
-    
+
     const eventName = fiesta?.eventName || 'Nuestra Fiesta';
     const rawDate = fiesta?.eventDate;
     let eventDateStr = '';
@@ -341,18 +487,18 @@ export default function EspejoMagicoPage() {
     grad.addColorStop(0, 'rgba(0, 0, 0, 0)');
     grad.addColorStop(0.3, 'rgba(0, 0, 0, 0.6)');
     grad.addColorStop(1, 'rgba(0, 0, 0, 0.85)');
-    
+
     ctx.fillStyle = grad;
     ctx.fillRect(0, h - bannerHeight, w, bannerHeight);
 
     ctx.fillStyle = '#ffffff';
     ctx.textAlign = 'center';
     ctx.textBaseline = 'middle';
-    
+
     if (eventDateStr) {
       ctx.font = `bold ${Math.max(16, h * 0.022)}px sans-serif`;
       ctx.fillText(eventName, w / 2, h - bannerHeight * 0.58);
-      
+
       ctx.fillStyle = 'rgba(255, 255, 255, 0.8)';
       ctx.font = `${Math.max(12, h * 0.016)}px sans-serif`;
       ctx.fillText(eventDateStr, w / 2, h - bannerHeight * 0.28);
@@ -364,7 +510,7 @@ export default function EspejoMagicoPage() {
 
   const captureToCanvas = async () => {
     if (!videoRef.current || !canvasRef.current || !containerRef.current) return;
-    
+
     setLocalStatus('recording');
     await updateEntertainmentSessionStatus(fiestaId, moduleId, 'recording', {}, accessToken);
 
@@ -378,7 +524,7 @@ export default function EspejoMagicoPage() {
 
     const contW = containerRef.current.clientWidth;
     const contH = containerRef.current.clientHeight;
-    
+
     canvas.width = video.videoWidth;
     canvas.height = video.videoHeight;
 
@@ -391,7 +537,7 @@ export default function EspejoMagicoPage() {
       ctx.translate(canvas.width, 0);
       ctx.scale(-1, 1);
     }
-    
+
     ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
     ctx.setTransform(1, 0, 0, 1, 0, 0);
     ctx.filter = 'none';
@@ -400,7 +546,7 @@ export default function EspejoMagicoPage() {
     ctx.textAlign = 'center';
     ctx.textBaseline = 'middle';
     ctx.font = `${80 * Math.max(scaleX, scaleY)}px sans-serif`;
-    
+
     stickers.forEach(s => {
       const drawX = (s.x + 40) * scaleX;
       const drawY = (s.y + 40) * scaleY;
@@ -410,18 +556,21 @@ export default function EspejoMagicoPage() {
     drawWatermark(ctx, canvas.width, canvas.height);
 
     const dataUrl = canvas.toDataURL('image/jpeg', 0.9);
+    setOriginalPhotoUrl(dataUrl);
     setCapturedImage(dataUrl);
     stopCamera();
 
-    if (mode === 'foto') {
+    if (mode === 'ia') {
+      await runFaceSwapIA(dataUrl);
+    } else if (mode === 'foto') {
       // If photo mode, directly upload
       setLocalStatus('processing');
       await updateEntertainmentSessionStatus(fiestaId, moduleId, 'processing', {}, accessToken);
-      await handleUpload();
+      await handleUpload(dataUrl);
     } else {
       // Firma mode gives drawing screen first
       setLocalStatus('recording'); // keeps drawing controls visible
-      speak("¡Perfecto! Firma tu foto en la pantalla y presiona Subir.");
+      speak('Perfecto. Firma tu foto en la pantalla y presiona subir.');
     }
   };
 
@@ -439,9 +588,9 @@ export default function EspejoMagicoPage() {
     document.body.removeChild(a);
   };
 
-  const handleUpload = async () => {
-    if (!capturedImage || !canvasRef.current) return;
-    
+  const handleUpload = async (imageOverride?: string) => {
+    if (!canvasRef.current || (!capturedImage && !imageOverride)) return;
+
     setIsUploading(true);
     setLocalStatus('processing');
     await updateEntertainmentSessionStatus(fiestaId, moduleId, 'processing', {}, accessToken);
@@ -453,15 +602,15 @@ export default function EspejoMagicoPage() {
       }
       const blob = await new Promise<Blob | null>(resolve => canvasRef.current!.toBlob(resolve, 'image/jpeg', 0.9));
       if (!blob) throw new Error('Error al procesar');
-      
+
       const file = new File([blob], `espejo-${Date.now()}.jpg`, { type: 'image/jpeg' });
       const formData = new FormData();
       formData.append('fiestaId', fiestaId);
       formData.append('file', file);
-      formData.append('authorName', mode === 'foto' ? 'Espejo Mágico Foto' : 'Espejo Mágico Firma');
+      formData.append('authorName', modeCopy.author);
       formData.append('source', 'entertainment');
       formData.append('sourceModule', moduleId);
-      
+
       const res = await uploadSocialPost(formData);
       if (res.success) {
         const mediaUrl = res.post?.imageUrl || '';
@@ -474,12 +623,10 @@ export default function EspejoMagicoPage() {
           { mediaUrl },
           accessToken
         );
-        speak("¡Listo! Foto enviada al muro");
-        setShowSuccess(true);
-        
+        speak('Listo. Foto enviada al muro.');
+
         // Auto reset after 12s
         setTimeout(() => {
-          setShowSuccess(false);
           retake();
           resetEntertainmentSession(fiestaId, moduleId, accessToken);
         }, 12000);
@@ -491,7 +638,7 @@ export default function EspejoMagicoPage() {
       setQrCodeUrl(window.location.href);
       setLocalStatus('done');
       await updateEntertainmentSessionStatus(fiestaId, moduleId, 'done', {}, accessToken);
-      speak("No se pudo subir, pero puedes escanear el QR");
+      speak('No se pudo subir, pero podés escanear el QR.');
     } finally {
       setIsUploading(false);
     }
@@ -501,56 +648,136 @@ export default function EspejoMagicoPage() {
     setCapturedImage(null);
     setStickers([]);
     setQrCodeUrl('');
+    setOriginalPhotoUrl(null);
+    setAiImageBase64(null);
+    setAiProcessing(false);
+    setAiStep('idle');
+    setSliderPosition(50);
     setLocalStatus('idle');
     if (role === 'display') {
       startCamera();
     }
   };
 
+  const openDisplayScreen = () => {
+    const params = new URLSearchParams({ mode });
+    if (accessToken) params.set('access', accessToken);
+    params.set('kiosk', '1');
+    window.open(`/evento/espejo-magico/${fiestaId}?${params.toString()}`, '_blank', 'noopener,noreferrer');
+  };
+
+  const handleOperatorStart = async () => {
+    setErrorMsg(null);
+    const now = new Date().toISOString();
+    const result = await startEntertainmentSession(
+      fiestaId,
+      moduleId,
+      { mode, operatorName: fiesta?.station.operatorName, stationTitle: modeCopy.title },
+      accessToken
+    );
+
+    if (result.success) {
+      setSession({
+        fiestaId,
+        moduleId,
+        status: 'countdown',
+        timestamp: now,
+        lastUpdated: now,
+        settings: { mode, operatorName: fiesta?.station.operatorName, stationTitle: modeCopy.title },
+      });
+    } else {
+      setErrorMsg(result.error || 'No se pudo disparar el espejo.');
+    }
+  };
+
+  const handleOperatorReset = async () => {
+    setErrorMsg(null);
+    const now = new Date().toISOString();
+    const result = await resetEntertainmentSession(fiestaId, moduleId, accessToken);
+    if (result.success) {
+      setSession({
+        fiestaId,
+        moduleId,
+        status: 'idle',
+        timestamp: now,
+        lastUpdated: now,
+      });
+    } else {
+      setErrorMsg(result.error || 'No se pudo reiniciar el espejo.');
+    }
+  };
+
   // 5. Operator View
   if (role === 'operator') {
     return (
-      <div className="min-h-screen bg-[radial-gradient(ellipse_at_top,_#18181b_0%,_#09090b_70%)] text-white p-6">
-        <div className="max-w-md mx-auto space-y-6">
+      <div className="min-h-screen bg-[radial-gradient(ellipse_at_top,_#18181b_0%,_#09090b_70%)] text-white p-4 sm:p-6">
+        <div className="mx-auto max-w-2xl space-y-5">
           <div className="flex items-center justify-between border-b border-white/10 pb-4">
             <button onClick={() => router.push(`/evento/hub/${fiestaId}`)} className="p-2 bg-white/5 rounded-full hover:bg-white/10 transition">
               <ArrowLeft className="w-5 h-5" />
             </button>
-            <h1 className="text-lg font-black tracking-widest text-rose-500 uppercase flex items-center gap-2">
-              <Radio className="w-5 h-5 animate-pulse text-rose-500" /> Operador Espejo Mágico
-            </h1>
+            <div className="text-center">
+              <p className="text-[10px] font-black uppercase tracking-[0.28em] text-zinc-500">Cabina operador</p>
+              <h1 className="text-lg font-black tracking-widest text-rose-500 uppercase flex items-center gap-2">
+                <Radio className="w-5 h-5 animate-pulse text-rose-500" /> {modeCopy.title}
+              </h1>
+            </div>
             <div className="w-9" />
           </div>
 
-          <div className="bg-white/5 border border-white/10 rounded-3xl p-6 shadow-2xl space-y-6">
-            <div>
-              <p className="text-xs font-bold text-slate-400 uppercase tracking-widest mb-1">Estado de la Pantalla</p>
-              <div className="flex items-center gap-3 bg-black/40 px-4 py-3 rounded-2xl border border-white/5">
-                <Radio className={`w-5 h-5 ${session?.status === 'idle' ? 'text-slate-500' : 'text-rose-500 animate-pulse'}`} />
-                <span className="font-bold capitalize text-sm">{session?.status || 'Desconectado'}</span>
+          <div className="rounded-[2rem] border border-white/10 bg-white/[0.04] p-5 shadow-2xl sm:p-6">
+            <div className="grid gap-3 sm:grid-cols-3">
+              <div className="rounded-2xl border border-white/10 bg-black/30 p-4">
+                <p className="text-[10px] font-black uppercase tracking-widest text-zinc-500">Evento</p>
+                <p className="mt-1 text-sm font-bold text-white">{fiesta?.eventName || 'Evento AK'}</p>
+              </div>
+              <div className="rounded-2xl border border-white/10 bg-black/30 p-4">
+                <p className="text-[10px] font-black uppercase tracking-widest text-zinc-500">Modo</p>
+                <p className="mt-1 text-sm font-bold text-white">{modeCopy.eyebrow}</p>
+              </div>
+              <div className="rounded-2xl border border-white/10 bg-black/30 p-4">
+                <p className="text-[10px] font-black uppercase tracking-widest text-zinc-500">Pantalla</p>
+                <div className="mt-1 flex items-center gap-2">
+                  <Radio className={`h-4 w-4 ${session?.status && session.status !== 'idle' ? 'text-rose-500 animate-pulse' : 'text-slate-500'}`} />
+                  <span className="text-sm font-bold capitalize text-white">{session?.status || 'Sin conectar'}</span>
+                </div>
               </div>
             </div>
 
-            <div className="space-y-3 pt-2">
+            <div className="mt-5 rounded-2xl border border-rose-500/20 bg-rose-500/10 p-4">
+              <p className="text-sm font-semibold text-rose-100">{modeCopy.subtitle}</p>
+              <p className="mt-2 text-xs text-rose-100/70">
+                Pantalla: {fiesta?.station.deviceName || 'sin dispositivo'} | Ubicación: {fiesta?.station.location || 'sin asignar'}
+              </p>
+            </div>
+
+            {errorMsg && (
+              <div className="mt-4 rounded-2xl border border-red-500/30 bg-red-500/10 p-3 text-sm font-semibold text-red-100">
+                {errorMsg}
+              </div>
+            )}
+
+            <div className="mt-5 grid gap-3 sm:grid-cols-[1fr_1fr]">
               <button
-                onClick={() =>
-                  startEntertainmentSession(
-                    fiestaId,
-                    moduleId,
-                    { mode, operatorName: fiesta?.station.operatorName },
-                    accessToken
-                  )
-                }
+                onClick={handleOperatorStart}
                 disabled={session?.status && session.status !== 'idle' && session.status !== 'done'}
-                className="w-full h-16 rounded-2xl bg-gradient-to-r from-rose-500 to-pink-600 hover:from-rose-600 hover:to-pink-700 text-white font-black text-lg shadow-xl shadow-rose-500/20 flex items-center justify-center gap-2 disabled:opacity-50 disabled:pointer-events-none active:scale-98 transition-all"
+                className="h-16 rounded-2xl bg-gradient-to-r from-rose-500 to-pink-600 text-white font-black text-base uppercase tracking-wide shadow-xl shadow-rose-500/20 flex items-center justify-center gap-2 disabled:opacity-50 disabled:pointer-events-none active:scale-[0.98] transition-all"
               >
                 <Zap className="w-6 h-6 fill-white" />
-                DISPARAR REMOTO
+                {modeCopy.operatorCta}
               </button>
 
               <button
-                onClick={() => resetEntertainmentSession(fiestaId, moduleId, accessToken)}
-                className="w-full h-12 rounded-xl bg-white/5 hover:bg-white/10 text-slate-300 font-bold text-sm border border-white/5 transition flex items-center justify-center gap-2"
+                onClick={openDisplayScreen}
+                className="h-16 rounded-2xl border border-white/10 bg-white/5 text-white font-black text-base uppercase tracking-wide transition hover:bg-white/10 active:scale-[0.98] flex items-center justify-center gap-2"
+              >
+                <Camera className="h-5 w-5" />
+                Abrir pantalla
+              </button>
+
+              <button
+                onClick={handleOperatorReset}
+                className="h-12 rounded-xl bg-white/5 hover:bg-white/10 text-slate-300 font-bold text-sm border border-white/5 transition flex items-center justify-center gap-2 sm:col-span-2"
               >
                 <RefreshCw className="w-4 h-4" />
                 Reiniciar Espejo
@@ -566,27 +793,28 @@ export default function EspejoMagicoPage() {
   return (
     <div className="fixed inset-0 bg-zinc-950 text-white flex flex-col overflow-hidden select-none touch-none">
       <canvas ref={canvasRef} className="hidden" />
-      
+
       {/* HEADER */}
       <div className="absolute top-0 left-0 right-0 z-20 p-4 flex justify-between items-center bg-gradient-to-b from-zinc-950/90 to-transparent pb-8 pt-safe">
         <button onClick={() => router.back()} className="p-2 bg-white/10 rounded-full backdrop-blur-md hover:bg-white/20 transition">
           <ArrowLeft className="w-6 h-6" />
         </button>
         <div className="text-center">
-          <h1 className="text-sm font-black uppercase tracking-widest text-rose-500">Espejo Mágico</h1>
+          <p className="text-[10px] font-black uppercase tracking-[0.28em] text-zinc-500">{modeCopy.eyebrow}</p>
+          <h1 className="text-sm font-black uppercase tracking-widest text-rose-500">{modeCopy.title}</h1>
           {fiesta && <p className="text-xs font-semibold text-zinc-300">{fiesta.eventName}</p>}
         </div>
         <div className="flex items-center gap-2">
           {localStatus === 'idle' && !capturedImage && (
             <>
-              <button 
-                onClick={() => setVoiceEnabled(v => !v)} 
+              <button
+                onClick={() => setVoiceEnabled(v => !v)}
                 className={`p-2 rounded-full backdrop-blur-md transition ${voiceEnabled ? 'bg-amber-400/20 text-amber-400 border border-amber-400/30' : 'bg-white/10 text-white'}`}
               >
                 {voiceEnabled ? <Volume2 className="w-5 h-5" /> : <VolumeX className="w-5 h-5" />}
               </button>
-              <button 
-                onClick={() => setWatermarkEnabled(w => !w)} 
+              <button
+                onClick={() => setWatermarkEnabled(w => !w)}
                 className={`p-2 rounded-full backdrop-blur-md transition ${watermarkEnabled ? 'bg-amber-400/20 text-amber-400 border border-amber-400/30' : 'bg-white/10 text-white'}`}
               >
                 <FileImage className="w-5 h-5" />
@@ -602,7 +830,7 @@ export default function EspejoMagicoPage() {
       {flash && <div className="absolute inset-0 bg-white z-50 animate-pulse" />}
 
       {/* VIEWPORT */}
-      <div 
+      <div
         className="flex-1 relative w-full h-full bg-zinc-900 border-[8px] border-zinc-800 rounded-[2.5rem] overflow-hidden m-2 shadow-[inset_0_0_50px_rgba(0,0,0,0.8)]"
         ref={containerRef}
         onPointerMove={handlePointerMove}
@@ -615,52 +843,113 @@ export default function EspejoMagicoPage() {
           </div>
         ) : localStatus === 'idle' && !capturedImage ? (
           <div className="relative w-full h-full">
-            <video 
-              ref={videoRef} 
-              autoPlay 
-              playsInline 
-              muted 
+            <video
+              ref={videoRef}
+              autoPlay
+              playsInline
+              muted
               className={`absolute inset-0 w-full h-full object-cover opacity-40 ${facingMode === 'user' ? 'scale-x-[-1]' : ''}`}
             />
-            
+
             <div className="absolute inset-0 flex flex-col items-center justify-center text-center p-6 bg-gradient-to-t from-zinc-950 via-zinc-950/30 to-zinc-950/80">
-              <div className="absolute w-80 h-80 rounded-full border border-rose-500/20 animate-[spin_20s_linear_infinite]" />
-              
+              <div className="absolute h-80 w-80 rounded-full border border-rose-500/20 animate-[spin_20s_linear_infinite]" />
+
               <div className="relative z-10 space-y-6 max-w-sm">
                 <button
                   onClick={takePhoto}
-                  className="w-48 h-48 rounded-full bg-gradient-to-tr from-rose-500 to-amber-500 hover:from-rose-600 hover:to-amber-600 text-white font-black text-2xl uppercase tracking-widest transition shadow-2xl flex flex-col items-center justify-center gap-2 border-[6px] border-white/20 animate-pulse"
+                  className="mx-auto h-48 w-48 rounded-full bg-gradient-to-tr from-rose-500 to-amber-500 text-white font-black uppercase tracking-widest transition shadow-2xl shadow-rose-950/40 flex flex-col items-center justify-center gap-2 border-[6px] border-white/20 hover:from-rose-600 hover:to-amber-600 active:scale-[0.98]"
                 >
-                  <span className="text-sm opacity-80 font-bold tracking-widest">Toca el Espejo</span>
-                  <span className="text-xs font-semibold opacity-60">Para comenzar</span>
+                  <Camera className="h-9 w-9" />
+                  <span className="px-4 text-center text-sm font-black leading-tight">{modeCopy.start}</span>
                 </button>
 
-                <div className="pt-2 text-xs text-zinc-400">
-                  O espera el disparo remoto del operador de cabina
+                <div className="space-y-3 text-zinc-300">
+                  <p className="text-sm font-semibold leading-relaxed">{modeCopy.subtitle}</p>
+                  <div className="grid grid-cols-3 gap-2 text-[10px] font-black uppercase tracking-wider text-zinc-400">
+                    <span className="rounded-full border border-white/10 bg-white/5 px-2 py-2">1 Posá</span>
+                    <span className="rounded-full border border-white/10 bg-white/5 px-2 py-2">2 Captura</span>
+                    <span className="rounded-full border border-white/10 bg-white/5 px-2 py-2">3 Guarda</span>
+                  </div>
+                  <p className="text-xs text-zinc-500">También puede dispararlo el operador de cabina.</p>
                 </div>
               </div>
             </div>
           </div>
         ) : (
           <>
-            {videoRef.current && !capturedImage && (
-              <video 
-                ref={videoRef} 
-                autoPlay 
-                playsInline 
-                muted 
+            {!capturedImage && (
+              <video
+                ref={videoRef}
+                autoPlay
+                playsInline
+                muted
                 className={`absolute inset-0 w-full h-full object-cover ${facingMode === 'user' ? 'scale-x-[-1]' : ''}`}
                 style={{ filter: selectedFilter.css }}
               />
             )}
             {capturedImage && (
-              // eslint-disable-next-line @next/next/no-img-element
-              <img src={capturedImage} className="absolute inset-0 w-full h-full object-cover" alt="Captura" />
+              mode === 'ia' && aiImageBase64 && originalPhotoUrl ? (
+                <div
+                  className="absolute inset-0 w-full h-full select-none overflow-hidden touch-none"
+                  onPointerMove={(e) => {
+                    if (isDraggingSlider) {
+                      const rect = e.currentTarget.getBoundingClientRect();
+                      const x = Math.max(0, Math.min(100, ((e.clientX - rect.left) / rect.width) * 100));
+                      setSliderPosition(x);
+                    }
+                  }}
+                  onPointerUp={() => setIsDraggingSlider(false)}
+                  onPointerLeave={() => setIsDraggingSlider(false)}
+                >
+                  {/* Base: Original captured image */}
+                  <img
+                    src={originalPhotoUrl}
+                    className="absolute inset-0 w-full h-full object-cover opacity-80"
+                    alt="Antes"
+                  />
+                  {/* Top Layer: AI Image with clipPath */}
+                  <div
+                    className="absolute inset-0 w-full h-full"
+                    style={{ clipPath: `polygon(0 0, ${sliderPosition}% 0, ${sliderPosition}% 100%, 0 100%)` }}
+                  >
+                    <img
+                      src={aiImageBase64}
+                      className="absolute inset-0 w-full h-full object-cover"
+                      alt="Después"
+                    />
+                  </div>
+
+                  {/* Before / After labels */}
+                  <div className="absolute top-4 left-4 z-30 px-2 py-1 rounded-full bg-cyan-500/90 text-[9px] font-black uppercase tracking-wider text-white">
+                    IA
+                  </div>
+                  <div className="absolute top-4 right-4 z-30 px-2 py-1 rounded-full bg-zinc-700/90 text-[9px] font-black uppercase tracking-wider text-white">
+                    ANTES
+                  </div>
+
+                  {/* Slider line handle */}
+                  <div
+                    className="absolute top-0 bottom-0 w-1 bg-cyan-400 cursor-ew-resize z-20 shadow-[0_0_10px_#22d3ee]"
+                    style={{ left: `${sliderPosition}%` }}
+                    onPointerDown={(e) => {
+                      e.preventDefault();
+                      setIsDraggingSlider(true);
+                    }}
+                  >
+                    <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-8 h-8 rounded-full bg-cyan-400 border-2 border-white flex items-center justify-center shadow-lg">
+                      <span className="text-[10px] text-zinc-950 font-black">&lt;-&gt;</span>
+                    </div>
+                  </div>
+                </div>
+              ) : (
+                // eslint-disable-next-line @next/next/no-img-element
+                <img src={capturedImage} className="absolute inset-0 w-full h-full object-cover" alt="Captura" />
+              )
             )}
             {capturedImage && localStatus !== 'done' && mode !== 'foto' && (
               <canvas
                 ref={drawingCanvasRef}
-                className="absolute inset-0 w-full h-full z-15 touch-none bg-transparent"
+                className="absolute inset-0 w-full h-full z-[15] touch-none bg-transparent"
                 onPointerDown={startDrawing}
                 onPointerMove={draw}
                 onPointerUp={endDrawing}
@@ -670,20 +959,57 @@ export default function EspejoMagicoPage() {
           </>
         )}
 
+        {/* State: AI Processing Loader */}
+        {aiProcessing && (
+          <div className="absolute inset-0 z-[45] bg-zinc-950/95 backdrop-blur-xl flex flex-col items-center justify-center p-6">
+            <div className="relative w-72 aspect-[9/16] bg-black rounded-3xl overflow-hidden border border-cyan-500/30 shadow-[0_0_30px_rgba(6,182,212,0.2)] mb-6">
+              {/* Laser scanning overlay line */}
+              <motion.div
+                animate={{ top: ['0%', '100%', '0%'] }}
+                transition={{ duration: 2, repeat: Infinity, ease: 'easeInOut' }}
+                className="absolute inset-x-0 h-1 bg-cyan-400 shadow-[0_0_15px_#22d3ee] z-20"
+              />
+              <img src={originalPhotoUrl || ''} className="w-full h-full object-cover opacity-60 filter grayscale" alt="Escaneo" />
+            </div>
+
+            <div className="space-y-4 max-w-xs text-center">
+              <Loader2 className="w-12 h-12 text-cyan-500 animate-spin mx-auto mb-2" />
+              <h3 className="text-xl font-black uppercase text-cyan-400 tracking-wider">Procesando Face Swap IA</h3>
+
+              <div className="h-10 flex items-center justify-center">
+                <AnimatePresence mode="wait">
+                  <motion.p
+                    key={aiStep}
+                    initial={{ opacity: 0, y: 10 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    exit={{ opacity: 0, y: -10 }}
+                    className="text-xs text-zinc-300 font-bold tracking-wide uppercase leading-normal"
+                  >
+                    {aiStep === 'detecting' && 'Detectando rostro y contorno facial...'}
+                    {aiStep === 'aligning' && 'Mapeando puntos de referencia...'}
+                    {aiStep === 'gemini' && 'Fusionando iluminacion y sombras con Gemini...'}
+                    {aiStep === 'rendering' && 'Renderizando retrato digital en alta definicion...'}
+                  </motion.p>
+                </AnimatePresence>
+              </div>
+            </div>
+          </div>
+        )}
+
         {/* STICKERS LAYER */}
         {stickers.map(s => (
           <div
             key={s.id}
             onPointerDown={(e) => handlePointerDown(s.id, e)}
             className="absolute text-[80px] leading-none select-none cursor-move z-10 touch-none flex items-center justify-center w-[80px] h-[80px]"
-            style={{ 
+            style={{
               transform: `translate(${s.x}px, ${s.y}px)`,
               filter: capturedImage ? 'none' : 'drop-shadow(0 4px 8px rgba(0,0,0,0.5))'
             }}
           >
             {s.emoji}
             {!capturedImage && (
-              <button 
+              <button
                 onClick={(e) => { e.stopPropagation(); removeSticker(s.id); }}
                 className="absolute -top-2 -right-2 bg-red-500 rounded-full p-1 shadow-lg"
               >
@@ -723,15 +1049,15 @@ export default function EspejoMagicoPage() {
             <div className="relative w-full max-w-sm aspect-[9/16] bg-black rounded-3xl overflow-hidden border border-white/10 shadow-2xl">
               <img src={canvasRef.current?.toDataURL('image/jpeg', 0.9) || capturedImage} className="w-full h-full object-cover" alt="Espejo Final" />
               <div className="absolute top-4 left-4 bg-rose-500 text-white text-[10px] font-black uppercase px-3 py-1 rounded-full tracking-wider">
-                Foto Firmada
+                {modeCopy.doneLabel}
               </div>
             </div>
 
             {/* QR sharing code */}
             <div className="flex flex-col items-center text-center space-y-6 max-w-xs">
               <div className="space-y-2">
-                <h3 className="text-2xl font-black text-white">¡Escanea tu Foto!</h3>
-                <p className="text-sm text-zinc-400">Escanea este código QR con tu celular para descargar tu foto firmada.</p>
+                <h3 className="text-2xl font-black text-white">Escanea tu recuerdo</h3>
+                <p className="text-sm text-zinc-400">Usá este código QR con tu celular para descargarlo o compartirlo.</p>
               </div>
 
               {/* QR Container */}
@@ -793,47 +1119,99 @@ export default function EspejoMagicoPage() {
       {/* BOTTOM CONTROLS */}
       <div className="h-[200px] shrink-0 pb-safe z-20 flex flex-col justify-end bg-zinc-950">
         {localStatus === 'idle' && !capturedImage ? (
-          <>
-            {/* Filter Selector */}
-            <div className="flex overflow-x-auto gap-3 px-4 py-3 hide-scrollbar">
-              {FILTERS.map(f => (
+          mode === 'ia' ? (
+            <div className="flex flex-col gap-3 px-4 pb-4 w-full h-[180px] justify-between">
+              {/* Category tabs */}
+              <div className="flex gap-2 justify-start border-b border-zinc-800/60 pb-2 overflow-x-auto hide-scrollbar shrink-0">
+                {FACESWAP_CATEGORIES.map(cat => (
+                  <button
+                    key={cat.id}
+                    onClick={() => setSelectedCategory(cat.id)}
+                    className={`px-3 py-1.5 rounded-full text-[10px] font-black uppercase tracking-wider transition whitespace-nowrap border flex items-center gap-1.5
+                      ${selectedCategory === cat.id ? 'border-cyan-500 bg-cyan-500/20 text-cyan-400' : 'border-zinc-800 bg-zinc-900 text-zinc-400'}`}
+                  >
+                    <span>{cat.emoji}</span>
+                    <span>{cat.label}</span>
+                  </button>
+                ))}
+              </div>
+
+              {/* Template list */}
+              <div className="flex overflow-x-auto gap-3 py-1 hide-scrollbar flex-1 items-center">
+                {Object.values(ESPEJO_TEMPLATES)
+                  .filter(t => t.categoryId === selectedCategory)
+                  .map(t => (
+                    <button
+                      key={t.id}
+                      onClick={() => {
+                        setSelectedTemplateId(t.id);
+                        playBeep(600, 0.05);
+                      }}
+                      className={`shrink-0 px-4 py-2.5 rounded-2xl border transition-all flex flex-col items-center justify-center gap-1 text-center w-28 h-12
+                        ${selectedTemplateId === t.id ? 'border-cyan-400 bg-cyan-500/10 shadow-[0_0_12px_rgba(6,182,212,0.3)] scale-105' : 'border-zinc-800 bg-zinc-900/60 hover:border-zinc-700 text-zinc-400'}`}
+                    >
+                      <span className="text-[10px] font-black tracking-tight leading-none uppercase truncate w-full">{t.label}</span>
+                    </button>
+                  ))}
+              </div>
+
+              {/* Action Bar */}
+              <div className="flex items-center justify-center pb-2 shrink-0">
                 <button
-                  key={f.id}
-                  onClick={() => setSelectedFilter(f)}
-                  className={`shrink-0 px-4 py-2 rounded-full text-xs font-bold transition whitespace-nowrap border
-                    ${selectedFilter.id === f.id ? 'border-rose-500 bg-rose-500/20 text-rose-400' : 'border-zinc-800 bg-zinc-900 text-zinc-400'}`}
+                  onClick={takePhoto}
+                  disabled={countdown !== null || !!errorMsg}
+                  className="w-14 h-14 rounded-full bg-gradient-to-tr from-cyan-500 to-indigo-500 p-1 shadow-[0_0_20px_rgba(6,182,212,0.3)] transition-transform active:scale-95 disabled:opacity-50"
                 >
-                  {f.label}
+                  <div className="w-full h-full rounded-full bg-white flex items-center justify-center text-cyan-500">
+                    <Camera className="w-6 h-6" />
+                  </div>
                 </button>
-              ))}
+              </div>
             </div>
+          ) : (
+            <>
+              {/* Filter Selector */}
+              <div className="flex overflow-x-auto gap-3 px-4 py-3 hide-scrollbar">
+                {FILTERS.map(f => (
+                  <button
+                    key={f.id}
+                    onClick={() => setSelectedFilter(f)}
+                    className={`shrink-0 px-4 py-2 rounded-full text-xs font-bold transition whitespace-nowrap border
+                      ${selectedFilter.id === f.id ? 'border-rose-500 bg-rose-500/20 text-rose-400' : 'border-zinc-800 bg-zinc-900 text-zinc-400'}`}
+                  >
+                    {f.label}
+                  </button>
+                ))}
+              </div>
 
-            {/* Actions Bar */}
-            <div className="flex items-center justify-between px-8 pb-6">
-              <button
-                onClick={() => setShowStickerPanel(true)}
-                disabled={countdown !== null}
-                className="w-14 h-14 rounded-full bg-zinc-800 flex items-center justify-center text-zinc-300 hover:bg-zinc-700 transition animate-pulse"
-              >
-                <SmilePlus className="w-6 h-6 text-rose-400" />
-              </button>
+              {/* Actions Bar */}
+              <div className="flex items-center justify-between px-8 pb-6">
+                <button
+                  onClick={() => setShowStickerPanel(true)}
+                  disabled={countdown !== null}
+                  className="w-14 h-14 rounded-full bg-zinc-800 flex items-center justify-center text-zinc-300 hover:bg-zinc-700 transition animate-pulse"
+                >
+                  <SmilePlus className="w-6 h-6 text-rose-400" />
+                </button>
 
-              <button
-                onClick={takePhoto}
-                disabled={countdown !== null || !!errorMsg}
-                className="w-20 h-20 rounded-full bg-gradient-to-tr from-rose-500 to-amber-500 p-1.5 shadow-[0_0_30px_rgba(244,63,94,0.2)] transition-transform active:scale-95 disabled:opacity-50"
-              >
-                <div className="w-full h-full rounded-full bg-white flex items-center justify-center text-rose-500">
-                  <Camera className="w-8 h-8" />
-                </div>
-              </button>
+                <button
+                  onClick={takePhoto}
+                  disabled={countdown !== null || !!errorMsg}
+                  className="w-20 h-20 rounded-full bg-gradient-to-tr from-rose-500 to-amber-500 p-1.5 shadow-[0_0_30px_rgba(244,63,94,0.2)] transition-transform active:scale-95 disabled:opacity-50"
+                >
+                  <div className="w-full h-full rounded-full bg-white flex items-center justify-center text-rose-500">
+                    <Camera className="w-8 h-8" />
+                  </div>
+                </button>
 
-              <div className="w-14" />
-            </div>
-          </>
+                <div className="w-14" />
+              </div>
+            </>
+          )
         ) : capturedImage && localStatus !== 'done' ? (
           /* Drawing / Review Controls */
           <div className="flex flex-col gap-3 px-6 pb-6 pt-2">
+            <p className="text-center text-xs font-semibold text-zinc-400">{modeCopy.review}</p>
             {/* Color Palette Selector for Drawing */}
             {mode !== 'foto' && (
               <div className="flex justify-center items-center gap-4 py-2 border-b border-zinc-900">
@@ -867,8 +1245,8 @@ export default function EspejoMagicoPage() {
                 <span className="text-xs font-bold">Repetir</span>
               </button>
 
-              <button 
-                onClick={handleUpload}
+              <button
+                onClick={() => handleUpload()}
                 disabled={isUploading}
                 className="flex flex-col items-center gap-2 text-white hover:text-rose-400 transition"
               >
@@ -889,7 +1267,7 @@ export default function EspejoMagicoPage() {
         ) : null}
       </div>
 
-      <KioskUnlockButton />
+      {showKioskUnlock && <KioskUnlockButton />}
     </div>
   );
 }

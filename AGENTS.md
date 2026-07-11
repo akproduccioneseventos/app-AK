@@ -11,6 +11,36 @@ Rules:
 - Read graphify-out/GRAPH_REPORT.md only for broad architecture review or when query/path/explain do not surface enough context.
 - After modifying code, run `graphify update .` to keep the graph current (AST-only, no API cost).
 
+## AK expert skills
+
+All Codex chats working on this project must use the AK expert skills when available.
+
+Required skill routing:
+- Use `ak-expertos-produccion` for AK Producciones product work: programming, PR review, launch readiness, marketing, sales, simulator, client/invited experiences, entertainment modules, accounting, payments, budgets, and business-quality finishing.
+- Use only the expert reference needed for the task: programming, finalizacion/publicacion, marketing, ventas/simulador, experiencia clientes/invitados, or contable/negocio.
+- Use `ak-codebase-navigator` for code navigation, architecture questions, PR fixes, audits, and token-efficient investigation.
+
+Required working order for code tasks:
+1. Load the relevant AK expert reference.
+2. Use Graphify for the first scoped map of the module or bug.
+3. Use Serena symbol/reference tools when available.
+4. Use `rg` for exact text searches.
+5. Read only focused file ranges.
+6. Edit only the necessary files.
+7. Validate with the best available tests/checks.
+8. Run `graphify update .` after meaningful code changes.
+
+These skills are local Codex production tools. They must not be imported into application runtime code, added as app dependencies, or exposed to clients, guests, or Firebase.
+
+## Herramientas Locales de Programación (Codex)
+
+Todos los agentes y chats de este proyecto deben utilizar las siguientes herramientas de trabajo configuradas en el entorno local para agilizar el desarrollo sin complicar el código ni el despliegue de la app:
+- **Graphify**: Genera un mapa general de toda la aplicación y analiza relaciones entre archivos.
+- **Serena**: Búsqueda inteligente por funciones, componentes y referencias cruzadas.
+- **Repomix**: Mide qué archivos consumen más tokens para evitar procesar archivos gigantes de forma innecesaria.
+
+Estas herramientas son de uso local exclusivo para el análisis del código. No deben agregarse al `package.json`, no deben cambiar el comportamiento del sitio web, no deben desplegarse a Firebase y son invisibles para los clientes e invitados.
+
 ## Shared quality commands
 
 These commands are the same for Codex, Gemini, Copilot, Claude, and human contributors:

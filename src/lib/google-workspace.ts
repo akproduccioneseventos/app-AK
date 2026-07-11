@@ -274,6 +274,7 @@ export function buildCompanyCalendarEvent(
         : '- Todavia no hay personal asignado.',
       '',
       'Este evento fue sincronizado desde AK Producciones.',
+      `AK_FIESTA_ID: ${fiesta.id}`,
     ]),
   };
 }
@@ -303,6 +304,7 @@ export function buildEmployeeCalendarEvent(
       cfg.googleMapsUrl ? `Mapa: ${cfg.googleMapsUrl}` : undefined,
       '',
       'Cualquier cambio queda registrado en tu pagina personal de AK.',
+      `AK_FIESTA_ID: ${fiesta.id}`,
     ]),
   };
 }
@@ -422,4 +424,91 @@ export function buildGoogleCalendarTemplateUrl(input: GoogleWorkspaceEventInput)
   url.searchParams.set('dates', `${googleCalendarDate(new Date(input.startIso))}/${googleCalendarDate(new Date(input.endIso))}`);
   if (input.location) url.searchParams.set('location', input.location);
   return url.toString();
+}
+
+type GoogleCalendarListItem = {
+  id: string;
+  summary?: string;
+  description?: string;
+  location?: string;
+  start?: { dateTime?: string; date?: string };
+  end?: { dateTime?: string; date?: string };
+};
+
+function normalizeCalendarIdentityText(value?: string) {
+  return (value || '')
+    .normalize('NFD')
+    .replace(/[\u0300-\u036f]/g, '')
+    .toLowerCase()
+    .replace(/\s+/g, ' ')
+    .trim();
+}
+
+function calendarPointMatches(point: GoogleCalendarListItem['start'], expectedIso?: string) {
+  if (!expectedIso || !point) return false;
+  const actual = point.dateTime || (point.date ? `${point.date}T00:00:00-03:00` : '');
+  if (!actual) return false;
+  const actualTime = new Date(actual).getTime();
+  const expectedTime = new Date(expectedIso).getTime();
+  if (!Number.isFinite(actualTime) || !Number.isFinite(expectedTime)) return false;
+  return Math.abs(actualTime - expectedTime) < 60_000;
+}
+
+function calendarLocationMatches(actual?: string, expected?: string) {
+  if (!expected) return true;
+  return normalizeCalendarIdentityText(actual) === normalizeCalendarIdentityText(expected);
+}
+
+export async function findExistingGoogleCalendarEvent(
+  account: GoogleWorkspaceAccount,
+  dateStr: string,
+  queryText: string,
+  fiestaId: string,
+  expectedEvent?: Pick<GoogleWorkspaceEventInput, 'summary' | 'startIso' | 'endIso' | 'location'>
+): Promise<string | null> {
+  try {
+    const calendarId = encodeURIComponent(account.calendarId || 'primary');
+    const timeMin = encodeURIComponent(new Date(`${dateStr}T00:00:00-03:00`).toISOString());
+    const timeMax = encodeURIComponent(new Date(`${dateStr}T23:59:59-03:00`).toISOString());
+
+    const url = `${GOOGLE_CALENDAR_API}/calendars/${calendarId}/events?timeMin=${timeMin}&timeMax=${timeMax}&singleEvents=true`;
+    const response = await fetch(url, {
+      headers: {
+        Authorization: `Bearer ${account.accessToken}`,
+      },
+    });
+
+    if (!response.ok) {
+      console.warn('[findExistingGoogleCalendarEvent] Google Calendar API error:', await response.text());
+      return null;
+    }
+
+    const data = await response.json() as { items?: GoogleCalendarListItem[] };
+    if (!data.items || data.items.length === 0) return null;
+
+    for (const item of data.items) {
+      if (item.description?.includes(`AK_FIESTA_ID: ${fiestaId}`)) {
+        return item.id;
+      }
+    }
+
+    const expectedSummary = normalizeCalendarIdentityText(expectedEvent?.summary || queryText);
+    if (!expectedSummary || !expectedEvent?.startIso) {
+      return null;
+    }
+
+    for (const item of data.items) {
+      const summaryMatches = normalizeCalendarIdentityText(item.summary) === expectedSummary;
+      if (!summaryMatches) continue;
+      if (!calendarPointMatches(item.start, expectedEvent.startIso)) continue;
+      if (expectedEvent.endIso && !calendarPointMatches(item.end, expectedEvent.endIso)) continue;
+      if (!calendarLocationMatches(item.location, expectedEvent.location)) continue;
+      return item.id;
+    }
+
+    return null;
+  } catch (error) {
+    console.error('[findExistingGoogleCalendarEvent] Exception:', error);
+    return null;
+  }
 }

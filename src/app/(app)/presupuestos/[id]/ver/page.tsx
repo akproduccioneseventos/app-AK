@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState, useEffect, useCallback, useMemo, Suspense, use } from 'react';
+import React, { useState, useEffect, useCallback, useMemo, Suspense, use, useRef } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import Link from 'next/link';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription, CardFooter } from '@/components/ui/card';
@@ -91,6 +91,7 @@ function VerPresupuestoContent({ params }: { params: { id: string } }) {
   const { toast } = useToast();
 
   const [presupuesto, setPresupuesto] = useState<Presupuesto | null>(null);
+  const budgetDocumentRef = useRef<HTMLDivElement>(null);
   const [cliente, setCliente] = useState<Customer | null>(null);
   const [displaySettings, setDisplaySettings] = useState<BudgetDisplaySettings | null>(null);
   const [companyInfo, setCompanyInfo] = useState<CompanyInfo | null>(null);
@@ -243,8 +244,44 @@ function VerPresupuestoContent({ params }: { params: { id: string } }) {
     };
   }, [presupuesto, adjustmentPct]);
 
-  const handlePrint = () => {
-    window.print();
+  const handlePrint = async () => {
+    if (!presupuesto || !budgetDocumentRef.current || isDownloading) return;
+    setIsDownloading(true);
+    try {
+      const { jsPDF } = await import('jspdf');
+      const pdf = new jsPDF({ orientation: 'portrait', unit: 'mm', format: 'a4' });
+      await pdf.html(budgetDocumentRef.current, {
+        autoPaging: 'text',
+        margin: [12, 12, 16, 12],
+        width: 186,
+        windowWidth: 1024,
+        html2canvas: {
+          backgroundColor: '#ffffff',
+          scale: 0.8,
+          useCORS: true,
+        },
+      });
+      const totalPages = pdf.getNumberOfPages();
+      for (let page = 1; page <= totalPages; page += 1) {
+        pdf.setPage(page);
+        pdf.setFontSize(8);
+        pdf.setTextColor(100);
+        pdf.text(`Página ${page} de ${totalPages}`, 198, 285, { align: 'right' });
+      }
+      pdf.save(`presupuesto-ak-${presupuesto.numero || presupuesto.id}.pdf`);
+      toast({
+        title: 'Descarga exitosa',
+        description: 'El archivo PDF de tu presupuesto se ha descargado correctamente.',
+      });
+    } catch (error: any) {
+      toast({
+        title: 'No pudimos descargar el PDF',
+        description: error.message || 'Intentá nuevamente.',
+        variant: 'destructive',
+      });
+    } finally {
+      setIsDownloading(false);
+    }
   };
 
   const handleAudit = () => {
@@ -299,12 +336,18 @@ function VerPresupuestoContent({ params }: { params: { id: string } }) {
 
   const handleSharePublicBudget = () => {
     if (!presupuesto) return;
-    const url = `${window.location.origin}/presupuestos/${presupuesto.id}/ver?cliente=1`;
+    const currentToken = searchParams.get('token') || (presupuesto as any).token || '';
+    const nameParam = encodeURIComponent(presupuesto.clienteNombre.trim().replace(/\s+/g, '_'));
+    const url = `${window.location.origin}/presupuestos/${presupuesto.id}/ver?cliente=1&token=${currentToken}&para=${nameParam}`;
     const text = [
-      'Hola! Te comparto el presupuesto formal de AK Producciones.',
-      `Cliente: ${presupuesto.clienteNombre}`,
-      `Total vigente: ${formatCurrency(calculatedValues.totalFinal)}`,
-      `Ver presupuesto: ${url}`,
+      `📄 *Presupuesto de AK Producciones para ${presupuesto.clienteNombre}*`,
+      `-----------------`,
+      `¡Hola! Te compartimos el detalle formal de tu presupuesto.`,
+      ``,
+      `*Evento:* ${presupuesto.eventoTipo || 'Social'}`,
+      `*Total Vigente:* ${formatCurrency(calculatedValues.totalFinal)}`,
+      ``,
+      `👉 *Ver presupuesto online:* ${url}`
     ].join('\n');
     window.open(`https://wa.me/?text=${encodeURIComponent(text)}`, '_blank');
   };
@@ -977,7 +1020,7 @@ function VerPresupuestoContent({ params }: { params: { id: string } }) {
                 </Card>
             </motion.div>
 
-            <div id="budget-print-area-wrapper">
+            <div id="budget-print-area-wrapper" ref={budgetDocumentRef}>
               <BudgetDocument
                 presupuesto={presupuesto}
                 logoUrl={logoUrl}

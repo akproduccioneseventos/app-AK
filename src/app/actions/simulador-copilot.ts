@@ -291,14 +291,14 @@ export async function chatWithBudgetCopilot(
       try {
         const dateCheck = await checkDateAvailability(output.action.changes.eventoFecha);
         if (!dateCheck.isOccupied) {
-          output.response = `¡Buenas noticias! Estuve revisando el calendario y la fecha del ${output.action.changes.eventoFecha} está libre para tu evento 🎉. ¿Querés que la guardemos en el simulador?`;
+          output.response = `¡Buenas noticias! Estuve revisando el calendario y la fecha del ${output.action.changes.eventoFecha} está libre para tu evento. ¿Querés que la guardemos en el simulador?`;
           output.suggestionPill = {
             label: 'Guardar esta fecha',
             messageToSubmit: `Sí, guardar fecha ${output.action.changes.eventoFecha}`
           };
           output.action.type = 'apply_changes';
         } else {
-          output.response = `Estuve chequeando y la fecha del ${output.action.changes.eventoFecha} ya está ocupada o reservada 😔. ¿Querés probar con otra fecha cercana?`;
+          output.response = `Estuve chequeando y la fecha del ${output.action.changes.eventoFecha} ya está ocupada o reservada. ¿Querés probar con otra fecha cercana?`;
           output.action.type = 'none';
           output.action.changes = undefined;
         }
@@ -327,7 +327,10 @@ export async function chatWithBudgetCopilot(
  * Deterministic rule-based fallback response if Gemini fails.
  */
 function getStaticFallbackResponse(input: CopilotInput, config: ArmadoRapidoConfig | null): CopilotOutput {
-  const msg = input.message.toLowerCase();
+  const msg = input.message
+    .normalize('NFD')
+    .replace(/[\u0300-\u036f]/g, '')
+    .toLowerCase();
 
   // Fallback 1: Date check request
   const dateRegex = /(\d{4})[-/](\d{2})[-/](\d{2})/;
@@ -365,9 +368,21 @@ function getStaticFallbackResponse(input: CopilotInput, config: ArmadoRapidoConf
   }
 
   // Fallback 3: Package information request
-  if (msg.includes('paquete') || msg.includes('premium') || msg.includes('platino') || msg.includes('oro')) {
-    const selectedPackage = (config?.paquetes || []).find((pkg) => pkg.id === input.currentState.selectedPaqueteId);
-    const recommendedPackage = selectedPackage
+  if (msg.includes('paquete') || msg.includes('premium') || msg.includes('platino') || msg.includes('oro') || msg.includes('plata') || msg.includes('bronce') || msg.includes('basico')) {
+    const foundPkg = (config?.paquetes || []).find((pkg) => {
+      const normalizedName = pkg.nombre
+        .normalize('NFD')
+        .replace(/[\u0300-\u036f]/g, '')
+        .toLowerCase();
+      const normalizedId = pkg.id
+        .normalize('NFD')
+        .replace(/[\u0300-\u036f]/g, '')
+        .toLowerCase();
+      return msg.includes(normalizedName) || msg.includes(normalizedId);
+    });
+
+    const recommendedPackage = foundPkg
+      || (config?.paquetes || []).find((pkg) => pkg.id === input.currentState.selectedPaqueteId)
       || (config?.paquetes || []).find((pkg) => pkg.recommended)
       || config?.paquetes?.[0];
     const includedCount = recommendedPackage?.serviciosIncluidos.length || 0;
@@ -383,7 +398,7 @@ function getStaticFallbackResponse(input: CopilotInput, config: ArmadoRapidoConf
 
   // Generic conversational fallback
   return {
-    response: `¡Hola! Soy Sofía. En este momento estoy con intermitencias en mi conexión inteligente 📡, pero podés ajustar los invitados, menús o paquetes directamente a la izquierda y el presupuesto se calculará al instante. ¡Armá tu fiesta ahí!`,
+    response: `¡Hola! Soy Sofía. En este momento estoy funcionando en modo asistente básico, pero podés ajustar invitados, menús o paquetes directamente a la izquierda y el presupuesto se calculará al instante. ¡Armá tu fiesta ahí!`,
     action: { type: 'none' as const }
   };
 }

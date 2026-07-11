@@ -1,4 +1,4 @@
-import type { FiestaEnPlanificacion } from '@/types/fiesta';
+import type { BuzonConfig, FiestaEnPlanificacion } from '@/types/fiesta';
 
 export type EntertainmentModuleId =
   | 'fotocabina'
@@ -43,6 +43,7 @@ export interface PublicEntertainmentEvent {
   coverImageUrl: string;
   showBuzon: boolean;
   welcomeAudioUrl?: string;
+  buzonConfig?: BuzonConfig;
   socialLinks: {
     instagram?: string;
     facebook?: string;
@@ -56,7 +57,7 @@ const TITLES: Record<EntertainmentModuleId, string> = {
   bogue: 'Bogue',
   espejoMagicoFoto: 'Espejo Magico Foto',
   espejoMagicoFirma: 'Espejo Magico Firma',
-  espejoMagicoIA: 'Fotocabina IA',
+  espejoMagicoIA: 'Espejo Magico IA',
   totems: 'Totem Interactivo',
   capsulaTiempo: 'Capsula del Tiempo',
 };
@@ -141,6 +142,7 @@ export function getPublicEntertainmentEvent(
       '',
     showBuzon: fiesta.guestPortalSettings?.showBuzon !== false,
     welcomeAudioUrl: fiesta.buzonConfig?.welcomeAudioUrl || '',
+    buzonConfig: fiesta.buzonConfig,
     socialLinks: {
       instagram: fiesta.guestExperienceSettings?.instagramUrl,
       facebook: fiesta.guestExperienceSettings?.facebookUrl,

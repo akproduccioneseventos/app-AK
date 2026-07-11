@@ -3,8 +3,8 @@
 import React, { Suspense, useEffect, useState, useRef } from 'react';
 import Link from 'next/link';
 import { useSearchParams } from 'next/navigation';
-import { 
-  ArrowLeft, Mic, Video, Play, Pause, Trash2, Download, Upload, Loader2, 
+import {
+  ArrowLeft, Mic, Video, Play, Pause, Trash2, Download, Upload, Loader2,
   Volume2, ShieldCheck, Info, FileAudio, ExternalLink, Calendar, Users, Square,
   RefreshCw
 } from 'lucide-react';
@@ -30,7 +30,7 @@ function BuzonAdminContent() {
   const [isRefreshing, setIsRefreshing] = useState(false);
   const [isWelcomeSaving, setIsWelcomeSaving] = useState(false);
   const [isDeleting, setIsDeleting] = useState<string | null>(null);
-  
+
   // Welcome Audio Recording
   const [isRecording, setIsRecording] = useState(false);
   const [recordingSeconds, setRecordingSeconds] = useState(0);
@@ -39,7 +39,7 @@ function BuzonAdminContent() {
   const mediaRecorderRef = useRef<MediaRecorder | null>(null);
   const recordingIntervalRef = useRef<NodeJS.Timeout | null>(null);
   const fileInputRef = useRef<HTMLInputElement | null>(null);
-  
+
   // Players State
   const [isWelcomePlaying, setIsWelcomePlaying] = useState(false);
   const welcomeAudioRef = useRef<HTMLAudioElement | null>(null);
@@ -88,7 +88,7 @@ function BuzonAdminContent() {
 
   useEffect(() => {
     loadData();
-    
+
     // Polling automático cada 15 segundos para mantenerlo sincronizado sin recargar
     const interval = setInterval(() => {
       if (fiestaId) {
@@ -236,6 +236,33 @@ function BuzonAdminContent() {
     }
   };
 
+  const [frameTemplate, setFrameTemplate] = useState<string>('');
+  const [isFrameSaving, setIsFrameSaving] = useState(false);
+
+  useEffect(() => {
+    if (fiesta?.buzonConfig?.videoFrameTemplate) {
+      setFrameTemplate(fiesta.buzonConfig.videoFrameTemplate);
+    }
+  }, [fiesta]);
+
+  const handleSaveFrameTemplate = async () => {
+    if (!fiestaId) return;
+    setIsFrameSaving(true);
+    try {
+      const { updateBuzonFrameTemplate } = await import('@/app/actions/buzon');
+      const res = await updateBuzonFrameTemplate(fiestaId, frameTemplate);
+      if (res.success) {
+        toast({ title: 'Marco actualizado correctamente' });
+      } else {
+        toast({ title: 'Error al actualizar marco', description: res.error, variant: 'destructive' });
+      }
+    } catch {
+      toast({ title: 'Error de red', variant: 'destructive' });
+    } finally {
+      setIsFrameSaving(false);
+    }
+  };
+
   // Guest Messages Playback
   const handlePlayMessage = (msg: BuzonMessage) => {
     if (playingMsgId === msg.id) {
@@ -305,7 +332,7 @@ function BuzonAdminContent() {
   return (
     <main className="min-h-screen bg-[radial-gradient(circle_at_top_left,rgba(147,51,234,0.08),transparent_35%),linear-gradient(180deg,#ffffff,#f8fafc)] px-4 py-6 text-slate-950 sm:px-6 lg:px-10">
       <div className="mx-auto max-w-6xl space-y-6">
-        
+
         {/* HEADER */}
         <div>
           <Button asChild variant="ghost" className="mb-3 -ml-3">
@@ -331,7 +358,7 @@ function BuzonAdminContent() {
 
         {/* TWO COLUMN GRID */}
         <div className="grid gap-6 lg:grid-cols-[1.1fr_0.9fr]">
-          
+
           {/* COLUMN 1: RECEIVED GREETINGS */}
           <Card className="border-none shadow-xl flex flex-col min-h-[500px]">
             <CardHeader className="border-b bg-slate-50/50">
@@ -358,7 +385,7 @@ function BuzonAdminContent() {
               </CardDescription>
             </CardHeader>
             <CardContent className="flex-1 p-6">
-              
+
               {messages.length === 0 ? (
                 <div className="flex flex-col items-center justify-center h-full text-center py-12 text-slate-400 gap-3">
                   <Info className="w-12 h-12 text-slate-300" />
@@ -412,7 +439,55 @@ function BuzonAdminContent() {
 
           {/* COLUMN 2: WELCOME AUDIO MANAGEMENT */}
           <div className="space-y-6">
-            
+
+            {/* FRAME SETTINGS */}
+            <Card className="border-none shadow-xl mb-6">
+              <CardHeader className="bg-slate-50/50 border-b">
+                <CardTitle className="flex items-center gap-2 text-xl font-bold">
+                  <Square className="h-5 w-5 text-indigo-600" />
+                  Marco de Video (Overlay)
+                </CardTitle>
+                <CardDescription>
+                  Elegí la plantilla que aparecerá superpuesta en los videos de los invitados.
+                </CardDescription>
+              </CardHeader>
+              <CardContent className="p-6 space-y-4">
+                <div className="grid grid-cols-2 sm:grid-cols-3 gap-3">
+                  {[
+                    { id: 'default', label: 'Sin Marco' },
+                    { id: 'neon', label: 'Neón Party' },
+                    { id: 'elegante', label: 'Boda Elegante' },
+                    { id: 'cumple-infantil', label: 'Cumple Infantil' },
+                    { id: 'quince', label: 'Mis 15' },
+                    { id: 'vintage', label: 'Retro Vintage' },
+                    { id: 'glamour', label: 'VIP Glamour' },
+                    { id: 'floral', label: 'Romántico Floral' },
+                    { id: 'urbano', label: 'Urbano Trap' },
+                    { id: 'minimalista', label: 'Minimalista Blanco' },
+                  ].map(t => (
+                    <button
+                      key={t.id}
+                      onClick={() => setFrameTemplate(t.id)}
+                      className={cn(
+                        "p-3 text-sm font-bold rounded-xl border-2 transition-all",
+                        frameTemplate === t.id ? "border-indigo-600 bg-indigo-50 text-indigo-700" : "border-slate-200 text-slate-600 hover:border-slate-300 hover:bg-slate-50"
+                      )}
+                    >
+                      {t.label}
+                    </button>
+                  ))}
+                </div>
+                <Button
+                  onClick={handleSaveFrameTemplate}
+                  disabled={isFrameSaving || frameTemplate === (fiesta?.buzonConfig?.videoFrameTemplate || '')}
+                  className="w-full sm:w-auto"
+                >
+                  {isFrameSaving ? <Loader2 className="w-4 h-4 animate-spin mr-2" /> : null}
+                  Guardar Plantilla
+                </Button>
+              </CardContent>
+            </Card>
+
             {/* WELCOME SETTINGS */}
             <Card className="border-none shadow-xl">
               <CardHeader className="bg-slate-50/50 border-b">
@@ -425,7 +500,7 @@ function BuzonAdminContent() {
                 </CardDescription>
               </CardHeader>
               <CardContent className="p-6 space-y-6">
-                
+
                 {hasWelcome ? (
                   <div className="rounded-2xl border border-slate-200 bg-slate-50 p-4 space-y-4">
                     <div className="flex items-center justify-between">
@@ -467,14 +542,14 @@ function BuzonAdminContent() {
 
                 <div className="border-t pt-6 space-y-4">
                   <h3 className="font-bold text-sm text-slate-700">Establecer nuevo mensaje de bienvenida</h3>
-                  
+
                   {/* Option 1: Record from Web */}
                   <div className="space-y-3">
                     <p className="text-xs font-bold text-slate-500 uppercase tracking-wider">Opción A: Grabar con micrófono</p>
-                    
+
                     {!audioUrl ? (
                       <div className="flex items-center gap-3">
-                        <Button 
+                        <Button
                           onClick={isRecording ? stopRecording : startRecording}
                           variant={isRecording ? 'destructive' : 'outline'}
                           className="rounded-full px-5 flex items-center gap-2"
@@ -494,17 +569,17 @@ function BuzonAdminContent() {
                       <div className="flex items-center gap-3 rounded-xl border p-2 bg-slate-50">
                         <span className="text-xs font-bold text-slate-600 pl-2">Grabación de prueba</span>
                         <div className="ml-auto flex gap-2">
-                          <Button 
-                            size="sm" 
-                            variant="outline" 
-                            onClick={saveRecordedWelcome} 
+                          <Button
+                            size="sm"
+                            variant="outline"
+                            onClick={saveRecordedWelcome}
                             disabled={isWelcomeSaving}
                           >
                             {isWelcomeSaving ? <Loader2 className="w-3.5 h-3.5 animate-spin" /> : 'Guardar y Activar'}
                           </Button>
-                          <Button 
-                            size="sm" 
-                            variant="ghost" 
+                          <Button
+                            size="sm"
+                            variant="ghost"
                             className="text-red-500 hover:text-red-600"
                             onClick={() => { setAudioBlob(null); setAudioUrl(null); }}
                           >
@@ -518,17 +593,17 @@ function BuzonAdminContent() {
                   {/* Option 2: Upload File */}
                   <div className="space-y-3 border-t pt-4">
                     <p className="text-xs font-bold text-slate-500 uppercase tracking-wider">Opción B: Subir archivo de audio</p>
-                    
-                    <input 
-                      type="file" 
-                      accept="audio/*" 
+
+                    <input
+                      type="file"
+                      accept="audio/*"
                       ref={fileInputRef}
                       onChange={handleFileUpload}
                       className="hidden"
                     />
 
-                    <Button 
-                      variant="outline" 
+                    <Button
+                      variant="outline"
                       onClick={() => fileInputRef.current?.click()}
                       disabled={isWelcomeSaving}
                       className="flex items-center gap-2 rounded-full"
@@ -584,13 +659,13 @@ function BuzonAdminContent() {
               <div>
                 <p className="font-black text-sm text-slate-800 line-clamp-1">{msg.authorName}</p>
                 <p className="text-[10px] text-slate-400 font-bold mt-0.5">
-                  {new Date(msg.timestamp).toLocaleString('es-ES', { 
-                    day: 'numeric', month: 'short', hour: '2-digit', minute: '2-digit' 
+                  {new Date(msg.timestamp).toLocaleString('es-ES', {
+                    day: 'numeric', month: 'short', hour: '2-digit', minute: '2-digit'
                   })}
                 </p>
               </div>
               <Badge variant="secondary" className="text-[9px] font-black uppercase tracking-wider">
-                {isAudio ? '🎙️ Voz' : '📹 Video'}
+                {isAudio ? 'ðŸŽ™ï¸ Voz' : 'ðŸ“¹ Video'}
               </Badge>
             </div>
 
@@ -613,10 +688,10 @@ function BuzonAdminContent() {
                 </div>
               ) : (
                 <div className="rounded-xl overflow-hidden bg-black aspect-[4/3] relative border group">
-                  <video 
-                    src={msg.mediaUrl} 
-                    controls 
-                    className="w-full h-full object-cover" 
+                  <video
+                    src={msg.mediaUrl}
+                    controls
+                    className="w-full h-full object-cover"
                     preload="none"
                   />
                 </div>

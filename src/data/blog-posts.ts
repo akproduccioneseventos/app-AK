@@ -3,7 +3,7 @@ import type { BlogPost } from '@/types/blog';
 export const blogPosts: BlogPost[] = [
   {
     slug: 'como-empezar-a-organizar-una-fiesta-sin-estres',
-    title: 'Como empezar a organizar una fiesta sin estres',
+    title: 'Cómo empezar a organizar una fiesta sin estrés',
     excerpt: 'El orden correcto para pasar de una idea suelta a una fiesta posible, con fecha, invitados, prioridades y presupuesto claro.',
     category: 'Organizacion',
     readTime: '5 min',
@@ -44,7 +44,7 @@ export const blogPosts: BlogPost[] = [
   },
   {
     slug: 'presupuesto-de-fiesta-que-debe-incluir',
-    title: 'Que debe incluir un presupuesto de fiesta bien hecho',
+    title: 'Qué debe incluir un presupuesto de fiesta bien hecho',
     excerpt: 'Los puntos que tienen que estar claros para comparar propuestas sin caer en precios incompletos o sorpresas de ultimo momento.',
     category: 'Presupuesto',
     readTime: '6 min',
@@ -85,7 +85,7 @@ export const blogPosts: BlogPost[] = [
   },
   {
     slug: 'como-elegir-el-menu-para-un-evento',
-    title: 'Como elegir el menu para un evento sin equivocarte',
+    title: 'Cómo elegir el menú para un evento sin equivocarte',
     excerpt: 'Una guia simple para elegir comida abundante, ordenada y acorde al tipo de fiesta, sin perder control del costo.',
     category: 'Catering',
     readTime: '5 min',
@@ -264,19 +264,40 @@ export function getRelatedPosts(post: BlogPost) {
 }
 
 const postImages: Record<string, string> = {
-  'como-calcular-bebida-evento-salto': '/media/catalogo-servicios/barra-tragos-ak-01.jpeg',
-  'catering-tradicional-vs-islas-quinceanos': '/media/catalogo-servicios/catering-mesa-ak-01.jpeg',
-  'tecnologias-iluminacion-pantallas-quince': '/media/catalogo-servicios/xv-pista-iluminada-01.jpeg',
-  'checklist-12-meses-boda-uruguay': '/media/catalogo-servicios/decoracion-boda-mesa-01.jpeg',
-  'quince-tradicional-vs-viaje-como-elegir': '/media/catalogo-servicios/decoracion-xv-lila-01.jpeg',
-  'como-empezar-a-organizar-una-fiesta-sin-estres': '/media/catalogo-servicios/xv-decoracion-equipo-ak-01.jpeg',
-  'presupuesto-de-fiesta-que-debe-incluir': '/media/catalogo-servicios/recepcion-display-evento-01.jpeg',
-  'como-elegir-el-menu-para-un-evento': '/media/catalogo-servicios/catering-mesa-ak-01.jpeg',
-  'ideas-para-fiesta-de-xv-en-salto': '/media/catalogo-servicios/decoracion-xv-lila-01.jpeg',
-  'errores-comunes-al-organizar-una-boda': '/media/catalogo-servicios/decoracion-boda-mesa-01.jpeg',
-  'checklist-final-antes-del-evento': '/media/catalogo-servicios/candy-bar-completo-ak-02.jpeg',
+  'como-empezar-a-organizar-una-fiesta-sin-estres': '/media/catalogo-servicios/blog_presupuesto.png',
+  'presupuesto-de-fiesta-que-debe-incluir': '/media/catalogo-servicios/blog_presupuesto.png',
+  'como-elegir-el-menu-para-un-evento': '/media/catalogo-servicios/blog_comida.png',
+  'ideas-para-fiesta-de-xv-en-salto': '/media/catalogo-servicios/quinceanera_persuasiva.png',
+  'errores-comunes-al-organizar-una-boda': '/media/catalogo-servicios/boda_persuasiva.png',
+  'checklist-final-antes-del-evento': '/media/catalogo-servicios/tecnologia_fiesta.png',
 };
 
-export function getPostImage(slug: string): string {
-  return postImages[slug] || '/media/catalogo-servicios/salon-discoteca-ak-01.jpeg';
+export function getPostImage(slug: string, title?: string, category?: string): string {
+  if (postImages[slug]) return postImages[slug];
+
+  const text = `${slug} ${title || ''} ${category || ''}`.toLowerCase();
+
+  if (text.includes('trago') || text.includes('barra') || text.includes('bebida') || text.includes('coctel') || text.includes('coctelería')) {
+    return '/media/catalogo-servicios/blog_bebidas.png';
+  }
+  if (text.includes('catering') || text.includes('comida') || text.includes('plato') || text.includes('menú') || text.includes('finger') || text.includes('gastro')) {
+    return '/media/catalogo-servicios/blog_comida.png';
+  }
+  if (text.includes('luz') || text.includes('luces') || text.includes('pantalla') || text.includes('led') || text.includes('robotizada') || text.includes('disco') || text.includes('pista')) {
+    return '/media/catalogo-servicios/blog_iluminacion.png';
+  }
+  if (text.includes('salón') || text.includes('salon') || text.includes('club') || text.includes('uruguay') || text.includes('lugar') || text.includes('espacio') || text.includes('acústica')) {
+    return '/media/catalogo-servicios/blog_salon.png';
+  }
+  if (text.includes('presupuesto') || text.includes('planific') || text.includes('calcular') || text.includes('estrés') || text.includes('organizar') || text.includes('checklist') || text.includes('semana') || text.includes('costo')) {
+    return '/media/catalogo-servicios/blog_presupuesto.png';
+  }
+  if (text.includes('boda') || text.includes('casamiento') || text.includes('novia')) {
+    return '/media/catalogo-servicios/boda_persuasiva.png';
+  }
+  if (text.includes('15') || text.includes('quince') || text.includes('xv')) {
+    return '/media/catalogo-servicios/quinceanera_persuasiva.png';
+  }
+
+  return '/media/catalogo-servicios/blog_salon.png';
 }
