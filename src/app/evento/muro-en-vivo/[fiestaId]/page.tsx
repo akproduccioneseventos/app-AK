@@ -11,7 +11,7 @@ import { getFiestaById } from '@/app/actions/fiesta/fiesta.actions';
 import { getActivePoll, getDedications } from '@/app/actions/social-interactive';
 import { getCompanyInfo, getInvoiceTemplateSettings } from '@/app/actions/settings';
 import { getSocialConnections } from '@/app/actions/social-connections';
-import type { ActiveGameData, AudioRhythmSettings, ScreenPlaylistItem, SocialGallerySettings, SocialGalleryBrand } from '@/types/fiesta';
+import type { ActiveGameData, AudioRhythmSettings, ScreenPlaylistItem, ScreenPlaylistItemType, SocialGallerySettings, SocialGalleryBrand } from '@/types/fiesta';
 import { DEFAULT_MARKETING_TICKER_TEXT } from '@/lib/social-wall-defaults';
 import type { SocialConnection } from '@/types/settings';
 import { Facebook, Instagram, MessageCircle, Music2, Maximize, Martini, Camera } from 'lucide-react';
@@ -375,11 +375,19 @@ export default function MuroEnVivoPage() {
       })
     : [];
   // Remote forced item overrides the auto playlist rotation
-  const activeScreenItem: ScreenPlaylistItem | null = settings.forcedScreenItem
-    ? { id: 'forced_item', type: settings.forcedScreenItem, durationSeconds: 15, enabled: true }
-    : enabledPlaylist.length > 0
-    ? enabledPlaylist[localPlaylistIndex % enabledPlaylist.length]
-    : null;
+  const activeScreenItem = useMemo<ScreenPlaylistItem | null>(() => {
+    return settings.forcedScreenItem
+      ? {
+          id: 'forced_item',
+          type: settings.forcedScreenItem as ScreenPlaylistItemType,
+          title: 'Forced Item',
+          durationSeconds: 15,
+          enabled: true
+        }
+      : enabledPlaylist.length > 0
+      ? enabledPlaylist[localPlaylistIndex % enabledPlaylist.length]
+      : null;
+  }, [settings.forcedScreenItem, enabledPlaylist, localPlaylistIndex]);
 
   useEffect(() => {
     if (typeof settings.screenMode?.currentItemIndex === 'number') {
@@ -575,8 +583,8 @@ export default function MuroEnVivoPage() {
             )
           )}
 
-          {/* Dedicaciones full-screen slide */}
-          {isLoaded && settings.privateDedicationsMode !== true && activeScreenItem?.type === 'dedicaciones' && (
+          {/* Dedicaciones full-screen slide - Omitted as memories go in a separate module */}
+          {false && isLoaded && settings.privateDedicationsMode !== true && activeScreenItem?.type === 'dedicaciones' && (
             <div className="absolute inset-0 flex flex-col items-center justify-center gap-8 p-12 overflow-hidden">
               <p className="text-[11px] font-black uppercase tracking-[0.4em] text-amber-400 mb-2">💌 Dedicatorias</p>
               {highlightedDedications.length > 0 ? (
@@ -651,8 +659,8 @@ export default function MuroEnVivoPage() {
             />
           )}
 
-          {/* Dedications overlay — always shown when no side panel takes up the left column */}
-          {isLoaded && settings.privateDedicationsMode !== true && highlightedDedications.length > 0 && !activePoll && (
+          {/* Dedications overlay - Omitted as memories go in a separate module */}
+          {false && isLoaded && settings.privateDedicationsMode !== true && highlightedDedications.length > 0 && !activePoll && (
             <div className={`absolute left-6 top-6 z-10 space-y-3 ${hasSidePanel ? 'w-[28vw] max-w-xs' : 'w-[32vw] max-w-sm'}`}>
               {highlightedDedications.slice(0, 3).map(d => (
                 <div key={d.id} className="ak-live-panel px-5 py-4">
