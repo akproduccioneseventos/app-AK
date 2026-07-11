@@ -19,16 +19,16 @@ const packageItem: PaqueteArmadoRapido = {
 };
 
 describe('simulator package customization', () => {
-  it('allows only commercial optional services to be removed', () => {
+  it('allows all non-required package services to be removed', () => {
     expect(getRemovablePackageServices(packageItem, services, {
       serviceDependencies: [{ id: 'dep', triggerServiceId: 'torta', requiredServiceId: 'postres' }],
-    }).map(service => service.id)).toEqual(['torta']);
+    }).map(service => service.id)).toEqual(['torta', 'mozos']);
   });
 
-  it('does not expose deductions for premium packages', () => {
+  it('allows removing services even for premium packages', () => {
     expect(isPremiumSimulatorPackage('Premium total')).toBe(true);
     expect(getRemovablePackageServices({ ...packageItem, nombre: 'Premium' }, services, {
       serviceDependencies: [],
-    })).toEqual([]);
+    })).toEqual([services[0], services[1], services[2]]);
   });
 });

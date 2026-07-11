@@ -1090,7 +1090,7 @@ ${generatedId ? `*Link:* ${window.location.origin}/presupuestos/${generatedId}/v
                       {/* RESERVATION BANNER */}
                       <div className="w-full space-y-1 rounded-xl border border-white/10 bg-zinc-950/70 p-4 text-xs text-zinc-300">
                         <h4 className="font-black uppercase tracking-widest text-[9px] flex items-center gap-1.5"><Info className="w-3.5 h-3.5"/> Información de Contratación</h4>
-                        <p className="leading-relaxed">Seña para congelar fecha: **{formatCurrency(priceStats.totalFinal * 0.3)}** (30% del total).</p>
+                        <p className="leading-relaxed">Seña para asegurar la fecha: **{formatCurrency(priceStats.totalFinal * 0.3)}** (30% del total).</p>
                         <p className="leading-relaxed">El saldo restante se financia en cuotas fijas o reajustables hasta el día de la fiesta.</p>
                       </div>
 

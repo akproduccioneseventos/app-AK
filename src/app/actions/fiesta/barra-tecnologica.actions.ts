@@ -132,21 +132,30 @@ async function getBarDrinks(fiesta: FiestaEnPlanificacion): Promise<Trago[]> {
     }));
 }
 
+let stockPromiseChain = Promise.resolve();
+
 async function descontarStock(drink: Trago) {
-  if (!drink.recetaIngredientes) return;
-  for (const ing of drink.recetaIngredientes) {
-    if (!ing.insumoId) continue;
-    try {
-      const insumo = await getInsumoById(ing.insumoId);
-      if (insumo && insumo.cantidadDisponible !== undefined) {
-        insumo.cantidadDisponible -= ing.cantidad;
-        if (insumo.cantidadDisponible < 0) insumo.cantidadDisponible = 0;
-        await saveInsumo(insumo);
+  const nextPromise = stockPromiseChain.then(async () => {
+    if (!drink.recetaIngredientes) return;
+    for (const ing of drink.recetaIngredientes) {
+      if (!ing.insumoId) continue;
+      try {
+        const insumo = await getInsumoById(ing.insumoId);
+        if (insumo && insumo.cantidadDisponible !== undefined) {
+          insumo.cantidadDisponible -= ing.cantidad;
+          if (insumo.cantidadDisponible < 0) insumo.cantidadDisponible = 0;
+          await saveInsumo(insumo);
+        }
+      } catch (error) {
+        logger.error(`[barra-tecnologica] error al descontar stock del insumo ${ing.insumoId}`, error);
       }
-    } catch (error) {
-      logger.error(`[barra-tecnologica] error al descontar stock del insumo ${ing.insumoId}`, error);
     }
-  }
+  }).catch((err) => {
+    logger.error(`[barra-tecnologica] stockPromiseChain error`, err);
+  });
+
+  stockPromiseChain = nextPromise;
+  await nextPromise;
 }
 
 async function getFirestoreOrders(fiestaId: string): Promise<BarDrinkOrder[] | null> {
@@ -311,7 +320,7 @@ export async function createBarmanManualOrder(input: CreateBarDrinkOrderInput): 
       drinkId: drink.id,
       drinkName: drink.nombre,
       guestName: 'Barman',
-      status: 'nuevo',
+      status: 'entregado',
       createdAt: now,
       updatedAt: now,
       source: 'staff',
@@ -328,6 +337,8 @@ export async function createBarmanManualOrder(input: CreateBarDrinkOrderInput): 
     } else {
       await saveFallbackOrders(fiesta, [order, ...(stored.orders || [])]);
     }
+
+    await descontarStock(drink);
 
     return { success: true, order };
   } catch (error: any) {

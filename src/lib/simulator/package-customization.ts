@@ -12,16 +12,12 @@ export function getRemovablePackageServices(
   services: ServicioEmpresa[],
   config: Pick<ArmadoRapidoConfig, 'serviceDependencies'>,
 ): ServicioEmpresa[] {
-  if (!packageItem || isPremiumSimulatorPackage(packageItem.nombre)) return [];
+  if (!packageItem) return [];
   const requiredIds = new Set((config.serviceDependencies || []).map(dependency => dependency.requiredServiceId));
   const serviceById = new Map(services.map(service => [service.id, service]));
 
   return packageItem.serviciosIncluidos
     .filter(item => !item.esRegalo && !requiredIds.has(item.id))
     .map(item => serviceById.get(item.id))
-    .filter((service): service is ServicioEmpresa => Boolean(
-      service && REMOVABLE_PACKAGE_SERVICE_PATTERN.test(
-        `${service.nombre} ${service.categoria || ''} ${service.subcategoria || ''}`,
-      ),
-    ));
+    .filter((service): service is ServicioEmpresa => Boolean(service));
 }
