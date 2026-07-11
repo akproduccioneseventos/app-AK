@@ -1,6 +1,6 @@
 'use server';
 
-import type { Presupuesto, ItemPresupuestado, PagoCliente, EstadoPago, PresupuestoSource } from '@/types/presupuesto'; 
+import type { Presupuesto, ItemPresupuestado, PagoCliente, EstadoPago, PresupuestoSource } from '@/types/presupuesto';
 import { readData, writeData } from '@/lib/data-service';
 import { getInvoiceById, saveInvoice } from './invoices';
 import type { Invoice, InvoiceItem } from '@/types/invoice';
@@ -27,6 +27,33 @@ const PRESUPUESTOS_FILE = 'presupuestos.json';
 
 function shouldDedupePaymentReference(referencia?: string): boolean {
   return !!referencia && referencia.includes('Pago verificado desde Portal VIP');
+}
+
+function getFiestaSubjectName(input: {
+  protagonista1Nombre?: string;
+  protagonista2Nombre?: string;
+  clienteNombre?: string;
+  eventoTipo?: string;
+}) {
+  const protagonista1 = input.protagonista1Nombre?.trim();
+  const protagonista2 = input.protagonista2Nombre?.trim();
+  const cliente = input.clienteNombre?.trim();
+  if (protagonista1 && protagonista2) return `${protagonista1} y ${protagonista2}`;
+  if (protagonista1) return protagonista1;
+  if (cliente) return cliente;
+  if (input.eventoTipo === 'XV años') return 'la Quinceañera';
+  if (input.eventoTipo === 'Boda') return 'los Novios';
+  return 'el Agasajado';
+}
+
+function buildFiestaNameFromBudget(input: {
+  protagonista1Nombre?: string;
+  protagonista2Nombre?: string;
+  clienteNombre?: string;
+  eventoTipo?: string;
+}) {
+  const tipo = input.eventoTipo?.trim() || 'Evento';
+  return `${tipo} de ${getFiestaSubjectName(input)}`;
 }
 
 /** Returns all presupuestos. Pass includeArchived=true to include soft-deleted ones. */
@@ -130,10 +157,10 @@ export async function savePresupuesto(
   const auth = await verifySession();
   if (!auth.success) return { success: false, error: auth.error };
   let presupuestos = await getPresupuestos(true);
-  
+
   const maxNumero = presupuestos.reduce((max, p) => Math.max(max, p.numero || 0), 0);
   const nuevoNumero = maxNumero + 1;
-  
+
   const adultos = presupuestoData.invitadosAdultos || 0;
   const adolescentes = presupuestoData.invitadosAdolescentes || 0;
   const ninos = presupuestoData.invitadosNinos || 0;
@@ -182,7 +209,7 @@ export async function savePresupuesto(
   } catch (crmError: any) {
     console.warn(`CRM Sync error during save: ${crmError.message}`);
   }
-  
+
   presupuestos.push(nuevoPresupuesto);
   try {
     await writeData(PRESUPUESTOS_FILE, presupuestos);
@@ -191,7 +218,7 @@ export async function savePresupuesto(
     logger.error('[Presupuesto] Error al guardar:', writeError.message || writeError);
     return { success: false, error: 'No se pudo guardar el presupuesto. Intentá de nuevo.' };
   }
-  
+
   await syncLinkedFiesta(nuevoPresupuesto);
 
   // Notificación de negocio: nuevo presupuesto creado
@@ -236,7 +263,7 @@ function hasBudgetStructureChanged(oldBudget: Presupuesto, newBudget: Presupuest
   if (oldBudget.invitadosAdolescentes !== newBudget.invitadosAdolescentes) return true;
   if (oldBudget.descuentoTipo !== newBudget.descuentoTipo) return true;
   if (oldBudget.descuentoValor !== newBudget.descuentoValor) return true;
-  
+
   const oldItems = oldBudget.itemsPresupuestados || [];
   const newItems = newBudget.itemsPresupuestados || [];
   if (oldItems.length !== newItems.length) return true;
@@ -276,11 +303,11 @@ export async function updatePresupuesto(presupuestoData: Presupuesto): Promise<{
     }));
 
     const subtotal = validItems.filter(item => !item.esRegalo).reduce((sum, item) => sum + item.costoTotalItem, 0);
-    
+
     let totalConDescuento = subtotal;
     if (presupuestoData.descuentoTipo && presupuestoData.descuentoValor) {
-        const desc = presupuestoData.descuentoTipo === 'porcentaje' 
-            ? (subtotal * presupuestoData.descuentoValor) / 100 
+        const desc = presupuestoData.descuentoTipo === 'porcentaje'
+            ? (subtotal * presupuestoData.descuentoValor) / 100
             : presupuestoData.descuentoValor;
         totalConDescuento = subtotal - desc;
     }
@@ -306,7 +333,7 @@ export async function updatePresupuesto(presupuestoData: Presupuesto): Promise<{
       console.error("Error updating presupuesto:", writeError);
       return { success: false, error: writeError.message || "Error al actualizar el presupuesto." };
     }
-    
+
     await syncLinkedFiesta(updated);
 
     return { success: true, id: updated.id, presupuesto: updated };
@@ -450,7 +477,7 @@ export async function recalculatePresupuestoFromCatalog(presupuestoId: string): 
   if (!auth.success) return { success: false, error: auth.error };
   const presupuesto = await getPresupuestoById(presupuestoId);
   if (!presupuesto) return { success: false, error: 'No encontrado' };
-  
+
   const catalogServices = await getServiciosEmpresa();
   const updatedItems = presupuesto.itemsPresupuestados.map(item => {
     const catalogItem = catalogServices.find(s => s.id === item.idServicioCatalogo);
@@ -654,7 +681,7 @@ export async function importarPresupuestoDesdeTexto(
         estado: 'En Planificación',
         configuracion: {
           ...initialFiestaActualData.configuracion,
-          nombreEvento: `${parsed.eventoTipo || 'Evento'} de ${parsed.clienteNombre}`,
+          nombreEvento: buildFiestaNameFromBudget(parsed),
           tipoCelebracion: parsed.eventoTipo || 'Otro',
           fechaEvento: eventoFecha,
           invitadosEstimados: parsed.invitadosCantidad,
@@ -714,7 +741,7 @@ export async function createFiestaFromPresupuesto(
     estado: 'En Planificación',
     configuracion: {
       ...initialFiestaActualData.configuracion,
-      nombreEvento: `${presupuesto.eventoTipo} de ${presupuesto.clienteNombre}`,
+      nombreEvento: buildFiestaNameFromBudget(presupuesto),
       tipoCelebracion: presupuesto.eventoTipo,
       fechaEvento: presupuesto.eventoFecha || '',
       invitadosEstimados: presupuesto.invitadosCantidad,

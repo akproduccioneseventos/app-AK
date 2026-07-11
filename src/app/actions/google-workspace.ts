@@ -20,6 +20,7 @@ import {
   getRoleName,
   sendGoogleGmailMessage,
   upsertGoogleCalendarEvent,
+  findExistingGoogleCalendarEvent,
 } from '@/lib/google-workspace';
 import type { Empleado } from '@/types/empleado';
 import type { FiestaEnPlanificacion, PersonalAsignadoDetalleStorage } from '@/types/fiesta';
@@ -226,7 +227,18 @@ export async function syncFiestaToGoogleWorkspace(
   if (freshCompany?.status === 'connected') {
     try {
       const companyEvent = buildCompanyCalendarEvent(fiesta, assignments);
-      const result = await upsertGoogleCalendarEvent(freshCompany, companyEvent, record.companyCalendarEventId);
+
+      let existingCompanyEventId = record.companyCalendarEventId;
+      if (!existingCompanyEventId && fiesta.configuracion?.fechaEvento) {
+        const dateStr = new Date(fiesta.configuracion.fechaEvento).toISOString().split('T')[0];
+        const queryText = getFiestaTitle(fiesta);
+        const foundId = await findExistingGoogleCalendarEvent(freshCompany, dateStr, queryText, fiesta.id, companyEvent);
+        if (foundId) {
+          existingCompanyEventId = foundId;
+        }
+      }
+
+      const result = await upsertGoogleCalendarEvent(freshCompany, companyEvent, existingCompanyEventId);
       record = { ...record, companyCalendarEventId: result.id };
     } catch (error: any) {
       warnings.push(`No se pudo actualizar el calendario general de AK: ${error?.message || String(error)}`);
@@ -246,10 +258,21 @@ export async function syncFiestaToGoogleWorkspace(
     if (freshEmployee?.status === 'connected') {
       try {
         const employeeEvent = buildEmployeeCalendarEvent(fiesta, assignment.employee, assignment.roleName, assignment.item);
+
+        let existingEmployeeEventId = record.employeeCalendarEventIds[assignment.employee.id];
+        if (!existingEmployeeEventId && fiesta.configuracion?.fechaEvento) {
+          const dateStr = new Date(fiesta.configuracion.fechaEvento).toISOString().split('T')[0];
+          const queryText = `${assignment.roleName} - ${getFiestaTitle(fiesta)}`;
+          const foundId = await findExistingGoogleCalendarEvent(freshEmployee, dateStr, queryText, fiesta.id, employeeEvent);
+          if (foundId) {
+            existingEmployeeEventId = foundId;
+          }
+        }
+
         const result = await upsertGoogleCalendarEvent(
           freshEmployee,
           employeeEvent,
-          record.employeeCalendarEventIds[assignment.employee.id]
+          existingEmployeeEventId
         );
         record = {
           ...record,
