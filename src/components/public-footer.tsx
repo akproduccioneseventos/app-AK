@@ -5,6 +5,7 @@ import { Facebook, Instagram, Music, MessageSquare, Building2 } from 'lucide-rea
 import { CompanyLogo } from '@/components/company-logo';
 import { getSocialConnections } from '@/app/actions/social-connections';
 import { cn } from '@/lib/utils';
+import { AK_WHATSAPP_NUMBER } from '@/lib/public-contact';
 
 const FALLBACK_SOCIAL = [
   {
@@ -23,7 +24,7 @@ const FALLBACK_SOCIAL = [
   },
   {
     platform: 'WhatsApp',
-    profileUrl: 'https://wa.me/59898355530',
+    profileUrl: `https://wa.me/${AK_WHATSAPP_NUMBER}`,
     icon: MessageSquare,
     bgClass: 'bg-[#25D366]',
     shadowClass: 'hover:shadow-green-400/60',

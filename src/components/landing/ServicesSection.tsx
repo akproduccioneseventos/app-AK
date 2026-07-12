@@ -13,6 +13,7 @@ import {
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { motion } from 'framer-motion';
+import { AK_WHATSAPP_NUMBER } from '@/lib/public-contact';
 
 export interface ServiceItem {
   id: string;
@@ -95,7 +96,7 @@ interface ServicesSectionProps {
   services?: ServiceItem[];
 }
 
-export function ServicesSection({ whatsappNumber = '59898355530', services }: ServicesSectionProps) {
+export function ServicesSection({ whatsappNumber = AK_WHATSAPP_NUMBER, services }: ServicesSectionProps) {
   const displayServices = services && services.length > 0 ? services : DEFAULT_SERVICES;
 
   const containerVariants = {

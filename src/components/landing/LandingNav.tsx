@@ -5,12 +5,13 @@ import Link from 'next/link';
 import { Menu, X } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { CompanyLogo } from '@/components/company-logo';
+import { AK_WHATSAPP_NUMBER } from '@/lib/public-contact';
 
 interface LandingNavProps {
   whatsappNumber?: string;
 }
 
-export function LandingNav({ whatsappNumber = '59898355530' }: LandingNavProps) {
+export function LandingNav({ whatsappNumber = AK_WHATSAPP_NUMBER }: LandingNavProps) {
   const [isScrolled, setIsScrolled] = useState(false);
   const [isMenuOpen, setIsMenuOpen] = useState(false);
 

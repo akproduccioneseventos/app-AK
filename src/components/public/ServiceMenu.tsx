@@ -3,6 +3,7 @@
 import { Check, Star } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import type { ServiceItem } from '@/types/public-landing';
+import { AK_WHATSAPP_NUMBER } from '@/lib/public-contact';
 
 interface ServiceMenuProps {
   services: ServiceItem[];
@@ -13,7 +14,7 @@ interface ServiceMenuProps {
 
 export function ServiceMenu({
   services,
-  whatsappNumber = '59899123456',
+  whatsappNumber = AK_WHATSAPP_NUMBER,
   whatsappMessage = '¡Hola! Quiero consultar sobre sus paquetes.',
   className,
 }: ServiceMenuProps) {

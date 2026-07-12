@@ -4,6 +4,7 @@ import React, { useState, useEffect } from 'react';
 import { MessageCircle, Calculator, ChevronUp } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { cn } from '@/lib/utils';
+import { AK_WHATSAPP_NUMBER } from '@/lib/public-contact';
 
 interface FloatingActionsProps {
   whatsappNumber?: string;
@@ -12,7 +13,7 @@ interface FloatingActionsProps {
 }
 
 export function FloatingActions({
-  whatsappNumber = '59898355530',
+  whatsappNumber = AK_WHATSAPP_NUMBER,
   whatsappMessage = '👋 ¡Hola! Me gustaría cotizar y obtener información sobre los servicios de AK Producciones.',
   simulatorHref = '/simulador-de-presupuesto',
 }: FloatingActionsProps) {
