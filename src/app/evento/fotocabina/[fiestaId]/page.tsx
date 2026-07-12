@@ -20,8 +20,10 @@ import {
   Check,
 } from 'lucide-react';
 import { QRCodeSVG } from 'qrcode.react';
-import { uploadSocialPost } from '@/app/actions/social-gallery';
-import { getPublicEntertainmentEvent } from '@/app/actions/fiesta/entretenimiento.actions';
+import {
+  getPublicEntertainmentEvent,
+  uploadEntretenimientoMedia,
+} from '@/app/actions/fiesta/entretenimiento.actions';
 import {
   getEntertainmentSession,
   startEntertainmentSession,
@@ -31,6 +33,7 @@ import {
 } from '@/app/actions/fiesta/sesion-entretenimiento';
 import type { PublicEntertainmentEvent } from '@/lib/entertainment/station-config';
 import { KioskUnlockButton } from '@/components/kiosk/kiosk-unlock-button';
+import { isVideoFrameReady } from '@/lib/entertainment/camera-readiness';
 
 const FRAMES = [
   { id: 'none', label: 'Sin Marco', bg: 'transparent' },
@@ -100,16 +103,19 @@ export default function FotocabinaPage() {
 
   // 1. Load details and set Firestore Polling
   useEffect(() => {
-    getPublicEntertainmentEvent(fiestaId, 'fotocabina')
-      .then((result) => setFiesta(result.success ? result.event || null : null))
-      .catch(() => {});
+    getPublicEntertainmentEvent(fiestaId, 'fotocabina', accessToken)
+      .then((result) => {
+        if (result.success && result.event) setFiesta(result.event);
+        else setErrorMsg(result.error || 'No se pudo abrir esta estacion.');
+      })
+      .catch(() => setErrorMsg('No se pudo abrir esta estacion.'));
     
     let pollInFlight = false;
     const interval = setInterval(async () => {
       if (pollInFlight) return;
       pollInFlight = true;
       try {
-        const s = await getEntertainmentSession(fiestaId, 'fotocabina');
+        const s = await getEntertainmentSession(fiestaId, 'fotocabina', accessToken);
         setSession(s);
 
         if (role === 'display' && s && s.status !== localStatus) {
@@ -130,16 +136,16 @@ export default function FotocabinaPage() {
       clearInterval(interval);
       stopCamera();
     };
-  }, [fiestaId, role, localStatus]);
+  }, [accessToken, fiestaId, role, localStatus]);
 
   // 2. Camera controller for display
   useEffect(() => {
-    if (role === 'display' && (localStatus === 'idle' || localStatus === 'countdown' || localStatus === 'recording')) {
+    if (fiesta && role === 'display' && (localStatus === 'idle' || localStatus === 'countdown' || localStatus === 'recording')) {
       startCamera();
     } else {
       stopCamera();
     }
-  }, [facingMode, localStatus, role]);
+  }, [facingMode, fiesta, localStatus, role]);
 
   const startCamera = async () => {
     stopCamera();
@@ -199,6 +205,11 @@ export default function FotocabinaPage() {
 
   const captureToCanvas = async () => {
     if (!videoRef.current || !canvasRef.current) return;
+    if (!isVideoFrameReady(videoRef.current)) {
+      setErrorMsg('La camara todavia se esta preparando. Intenta nuevamente en un instante.');
+      setLocalStatus('idle');
+      return;
+    }
     
     setLocalStatus('recording');
     await updateEntertainmentSessionStatus(fiestaId, 'fotocabina', 'recording', {}, accessToken);
@@ -336,13 +347,13 @@ export default function FotocabinaPage() {
       formData.append('fiestaId', fiestaId);
       formData.append('file', file);
       formData.append('authorName', 'Fotocabina AK');
-      formData.append('source', 'entertainment');
-      formData.append('sourceModule', 'fotocabina');
+      formData.append('moduleId', 'fotocabina');
+      if (accessToken) formData.append('accessToken', accessToken);
       
-      const res = await uploadSocialPost(formData);
+      const res = await uploadEntretenimientoMedia(formData);
       if (res.success) {
-        const mediaUrl = res.post?.imageUrl || '';
-        setQrCodeUrl(mediaUrl || window.location.href);
+        const mediaUrl = res.media?.url || '';
+        setQrCodeUrl(mediaUrl);
         setLocalStatus('done');
         await updateEntertainmentSessionStatus(
           fiestaId,
@@ -365,7 +376,8 @@ export default function FotocabinaPage() {
       }
     } catch (err) {
       console.error(err);
-      setQrCodeUrl(window.location.href);
+      setQrCodeUrl('');
+      setErrorMsg((err as Error).message || 'No se pudo subir la foto. Puedes descargarla en este dispositivo.');
       setLocalStatus('done');
       await updateEntertainmentSessionStatus(
         fiestaId,
@@ -399,6 +411,27 @@ export default function FotocabinaPage() {
     if (role === 'display') {
       startCamera();
     }
+  };
+
+  const handleOperatorStart = async () => {
+    setErrorMsg(null);
+    const result = await startEntertainmentSession(
+      fiestaId,
+      'fotocabina',
+      {
+        frameId: selectedFrame,
+        countdownSeconds: fiesta?.station.countdownSeconds || 4,
+        operatorName: fiesta?.station.operatorName,
+      },
+      accessToken
+    );
+    if (!result.success) setErrorMsg(result.error || 'No se pudo disparar la fotocabina.');
+  };
+
+  const handleOperatorReset = async () => {
+    setErrorMsg(null);
+    const result = await resetEntertainmentSession(fiestaId, 'fotocabina', accessToken);
+    if (!result.success) setErrorMsg(result.error || 'No se pudo reiniciar la fotocabina.');
   };
 
   // 4. Operator view
@@ -449,18 +482,7 @@ export default function FotocabinaPage() {
             {/* Shutter / reset */}
             <div className="space-y-3 pt-2">
               <button
-                onClick={() =>
-                  startEntertainmentSession(
-                    fiestaId,
-                    'fotocabina',
-                    {
-                      frameId: selectedFrame,
-                      countdownSeconds: fiesta?.station.countdownSeconds || 4,
-                      operatorName: fiesta?.station.operatorName,
-                    },
-                    accessToken
-                  )
-                }
+                onClick={handleOperatorStart}
                 disabled={session?.status && session.status !== 'idle' && session.status !== 'done'}
                 className="w-full h-16 rounded-2xl bg-gradient-to-r from-amber-400 to-orange-500 hover:from-amber-500 hover:to-orange-600 text-zinc-950 font-black text-lg shadow-xl shadow-amber-400/20 flex items-center justify-center gap-2 disabled:opacity-50 disabled:pointer-events-none active:scale-98 transition-all"
               >
@@ -469,12 +491,13 @@ export default function FotocabinaPage() {
               </button>
 
               <button
-                onClick={() => resetEntertainmentSession(fiestaId, 'fotocabina', accessToken)}
+                onClick={handleOperatorReset}
                 className="w-full h-12 rounded-xl bg-white/5 hover:bg-white/10 text-slate-300 font-bold text-sm border border-white/5 transition flex items-center justify-center gap-2"
               >
                 <RefreshCw className="w-4 h-4" />
                 Reiniciar Cabina
               </button>
+              {errorMsg && <p className="text-center text-xs font-bold text-rose-400">{errorMsg}</p>}
             </div>
           </div>
         </div>
@@ -663,7 +686,7 @@ export default function FotocabinaPage() {
                     Aceptar y compartir
                   </button>
                 )}
-                {(fiesta?.station.allowGuestRetake !== false || qrCodeUrl) && (
+                {fiesta?.station.allowGuestRetake && fiesta.station.maxRetakes > 0 && (
                   <button
                     onClick={retake}
                     className="w-full h-12 rounded-xl bg-white/5 hover:bg-white/10 text-white font-bold text-sm border border-white/10 transition flex items-center justify-center gap-2"

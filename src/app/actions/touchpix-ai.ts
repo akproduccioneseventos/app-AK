@@ -16,7 +16,8 @@
 import { ai } from '@/ai/genkit';
 import { uploadSocialPost } from '@/app/actions/social-gallery';
 import { getFiestaById } from '@/app/actions/fiesta/fiesta.actions';
-import { hasEntertainmentControlAccess } from '@/lib/auth/entertainment-token';
+import { hasEntertainmentGuestAccess } from '@/lib/auth/entertainment-token';
+import { getEntertainmentStationConfig } from '@/lib/entertainment/station-config';
 import * as logger from '@/lib/logger';
 
 // ──────────────────── Theme Definitions ────────────────────
@@ -138,7 +139,7 @@ export const TOUCHPIX_IMAGE_MODEL =
   process.env.GEMINI_IMAGE_MODEL?.trim() || 'googleai/gemini-3.1-flash-image-preview';
 
 async function ensureTouchpixAccess(fiestaId: string, accessToken?: string): Promise<void> {
-  const authorized = await hasEntertainmentControlAccess(
+  const authorized = await hasEntertainmentGuestAccess(
     fiestaId,
     'espejoMagicoIA',
     accessToken
@@ -146,6 +147,9 @@ async function ensureTouchpixAccess(fiestaId: string, accessToken?: string): Pro
   if (!authorized) throw new Error('Acceso de cabina IA no autorizado.');
   const fiesta = await getFiestaById(fiestaId);
   if (!fiesta) throw new Error('Evento no encontrado.');
+  if (!getEntertainmentStationConfig(fiesta, 'espejoMagicoIA').enabled) {
+    throw new Error('La cabina IA esta desactivada.');
+  }
 }
 
 async function generateTouchpixImage(options: Parameters<typeof ai.generate>[0]): Promise<any> {
@@ -311,6 +315,9 @@ export async function applyTouchpixTheme(
   if (!themeId || !fiestaId) {
     return { success: false, error: 'Faltan datos requeridos (themeId o fiestaId).' };
   }
+  if (formData.get('consentAccepted') !== 'true') {
+    return { success: false, error: 'Debes aceptar el procesamiento temporal con IA.' };
+  }
 
   try {
     await ensureTouchpixAccess(fiestaId, accessToken || undefined);
@@ -427,6 +434,9 @@ export async function applyFaceSwap(
   // ── Validate ──
   if (!fiestaId) {
     return { success: false, error: 'Falta el ID de fiesta.' };
+  }
+  if (formData.get('consentAccepted') !== 'true') {
+    return { success: false, error: 'Debes aceptar el procesamiento temporal con IA.' };
   }
 
   try {

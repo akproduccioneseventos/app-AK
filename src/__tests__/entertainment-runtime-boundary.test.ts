@@ -16,10 +16,49 @@ describe('entertainment runtime boundaries', () => {
     expect(source).toContain('streamRef.current.getTracks().forEach');
   });
 
-  it('requires an app session for internal entertainment configuration and uploads', () => {
+  it('keeps configuration administrative while public uploads require scoped station access', () => {
     const source = read('src/app/actions/fiesta/entretenimiento.actions.ts');
     const protectedCalls = source.match(/await requireAppSession\(\);/g) ?? [];
 
-    expect(protectedCalls.length).toBeGreaterThanOrEqual(4);
+    expect(protectedCalls.length).toBeGreaterThanOrEqual(3);
+    expect(source).toContain('hasEntertainmentGuestAccess(fiestaId, moduleId, accessToken)');
+    expect(source).toContain("formData.get('accessToken')");
+  });
+
+  it('does not expose a universal kiosk PIN or an unauthenticated storage reset', () => {
+    const unlockSource = read('src/components/kiosk/kiosk-unlock-button.tsx');
+
+    expect(unlockSource).not.toContain("savedPin || '1234'");
+    expect(unlockSource).not.toContain('localStorage.clear()');
+  });
+
+  it('uses the live 360 stream and applies the operator Bogue frame', () => {
+    const platformSource = read('src/app/evento/plataforma-360/[fiestaId]/page.tsx');
+    const bogueSource = read('src/app/evento/bogue/[fiestaId]/page.tsx');
+
+    expect(platformSource).toContain('const currentStream = streamRef.current');
+    expect(platformSource).toContain('new MediaRecorder(currentStream');
+    expect(bogueSource).toContain('const requestedFrame = s.settings?.frameId');
+    expect(bogueSource).toContain('setSelectedFrame(requestedFrame)');
+  });
+
+  it('requires explicit consent in both AI server actions', () => {
+    const touchpixSource = read('src/app/actions/touchpix-ai.ts');
+    const mirrorSource = read('src/app/actions/espejo-magico-ai.ts');
+
+    expect(touchpixSource.match(/formData\.get\('consentAccepted'\) !== 'true'/g)).toHaveLength(2);
+    expect(mirrorSource).toContain("formData.get('consentAccepted') !== 'true'");
+  });
+
+  it.each([
+    'src/app/evento/fotocabina/[fiestaId]/page.tsx',
+    'src/app/evento/plataforma-360/[fiestaId]/page.tsx',
+    'src/app/evento/bogue/[fiestaId]/page.tsx',
+    'src/app/evento/espejo-magico/[fiestaId]/page.tsx',
+  ])('uses the scoped entertainment upload without a fake station QR in %s', (file) => {
+    const source = read(file);
+
+    expect(source).toContain('uploadEntretenimientoMedia(formData)');
+    expect(source).not.toContain('setQrCodeUrl(window.location.href)');
   });
 });

@@ -20,8 +20,10 @@ import {
   Zap,
 } from 'lucide-react';
 import { QRCodeSVG } from 'qrcode.react';
-import { uploadSocialPost } from '@/app/actions/social-gallery';
-import { getPublicEntertainmentEvent } from '@/app/actions/fiesta/entretenimiento.actions';
+import {
+  getPublicEntertainmentEvent,
+  uploadEntretenimientoMedia,
+} from '@/app/actions/fiesta/entretenimiento.actions';
 import {
   getEntertainmentSession,
   startEntertainmentSession,
@@ -31,6 +33,7 @@ import {
 } from '@/app/actions/fiesta/sesion-entretenimiento';
 import type { PublicEntertainmentEvent } from '@/lib/entertainment/station-config';
 import { KioskUnlockButton } from '@/components/kiosk/kiosk-unlock-button';
+import { isVideoFrameReady } from '@/lib/entertainment/camera-readiness';
 import {
   ESPEJO_TEMPLATES,
   FACESWAP_CATEGORIES,
@@ -128,6 +131,7 @@ export default function EspejoMagicoPage() {
 
   const [isUploading, setIsUploading] = useState(false);
   const [errorMsg, setErrorMsg] = useState<string | null>(null);
+  const [consentAccepted, setConsentAccepted] = useState(false);
 
   const [fiesta, setFiesta] = useState<PublicEntertainmentEvent | null>(null);
   const [voiceEnabled, setVoiceEnabled] = useState(true);
@@ -173,16 +177,19 @@ export default function EspejoMagicoPage() {
 
   // 1. Initial configuration load + Firestore synchronization polling
   useEffect(() => {
-    getPublicEntertainmentEvent(fiestaId, moduleId)
-      .then((result) => setFiesta(result.success ? result.event || null : null))
-      .catch(() => {});
+    getPublicEntertainmentEvent(fiestaId, moduleId, accessToken)
+      .then((result) => {
+        if (result.success && result.event) setFiesta(result.event);
+        else setErrorMsg(result.error || 'No se pudo abrir esta estacion.');
+      })
+      .catch(() => setErrorMsg('No se pudo abrir esta estacion.'));
 
     let pollInFlight = false;
     const interval = setInterval(async () => {
       if (pollInFlight) return;
       pollInFlight = true;
       try {
-        const s = await getEntertainmentSession(fiestaId, moduleId);
+        const s = await getEntertainmentSession(fiestaId, moduleId, accessToken);
         setSession(s);
 
         if (role === 'display' && s && s.status !== localStatus) {
@@ -201,7 +208,7 @@ export default function EspejoMagicoPage() {
       clearInterval(interval);
       stopCamera();
     };
-  }, [fiestaId, role, localStatus, moduleId]);
+  }, [accessToken, fiestaId, role, localStatus, moduleId]);
 
   // Set drawing canvas dimensions when capturedImage changes
   useEffect(() => {
@@ -213,12 +220,12 @@ export default function EspejoMagicoPage() {
 
   // Camera hooks
   useEffect(() => {
-    if (role === 'display' && (localStatus === 'idle' || localStatus === 'countdown' || localStatus === 'recording')) {
+    if (fiesta && role === 'display' && (localStatus === 'idle' || localStatus === 'countdown' || localStatus === 'recording')) {
       startCamera();
     } else {
       stopCamera();
     }
-  }, [facingMode, localStatus, role]);
+  }, [facingMode, fiesta, localStatus, role]);
 
   // Welcome Speech Cues
   useEffect(() => {
@@ -271,6 +278,7 @@ export default function EspejoMagicoPage() {
       const formData = new FormData();
       formData.append('fiestaId', fiestaId);
       if (accessToken) formData.append('accessToken', accessToken);
+      formData.append('consentAccepted', String(consentAccepted));
       formData.append('templateId', selectedTemplateId);
       formData.append('sourceFile', file);
 
@@ -439,6 +447,11 @@ export default function EspejoMagicoPage() {
 
   // Photo Shoot countdown
   const takePhoto = async () => {
+    if (mode === 'ia' && fiesta?.station.consentRequired && !consentAccepted) {
+      setErrorMsg('Debes aceptar el uso de IA antes de iniciar la captura.');
+      return;
+    }
+    setErrorMsg(null);
     setLocalStatus('countdown');
     if (role === 'display') {
       await updateEntertainmentSessionStatus(fiestaId, moduleId, 'countdown', {}, accessToken);
@@ -510,6 +523,11 @@ export default function EspejoMagicoPage() {
 
   const captureToCanvas = async () => {
     if (!videoRef.current || !canvasRef.current || !containerRef.current) return;
+    if (!isVideoFrameReady(videoRef.current)) {
+      setErrorMsg('La camara todavia se esta preparando. Intenta nuevamente en un instante.');
+      setLocalStatus('idle');
+      return;
+    }
 
     setLocalStatus('recording');
     await updateEntertainmentSessionStatus(fiestaId, moduleId, 'recording', {}, accessToken);
@@ -608,13 +626,13 @@ export default function EspejoMagicoPage() {
       formData.append('fiestaId', fiestaId);
       formData.append('file', file);
       formData.append('authorName', modeCopy.author);
-      formData.append('source', 'entertainment');
-      formData.append('sourceModule', moduleId);
+      formData.append('moduleId', moduleId);
+      if (accessToken) formData.append('accessToken', accessToken);
 
-      const res = await uploadSocialPost(formData);
+      const res = await uploadEntretenimientoMedia(formData);
       if (res.success) {
-        const mediaUrl = res.post?.imageUrl || '';
-        setQrCodeUrl(mediaUrl || window.location.href);
+        const mediaUrl = res.media?.url || '';
+        setQrCodeUrl(mediaUrl);
         setLocalStatus('done');
         await updateEntertainmentSessionStatus(
           fiestaId,
@@ -635,7 +653,8 @@ export default function EspejoMagicoPage() {
       }
     } catch (err) {
       console.error(err);
-      setQrCodeUrl(window.location.href);
+      setQrCodeUrl('');
+      setErrorMsg((err as Error).message || 'No se pudo subir la foto. Puedes descargarla en este dispositivo.');
       setLocalStatus('done');
       await updateEntertainmentSessionStatus(fiestaId, moduleId, 'done', {}, accessToken);
       speak('No se pudo subir, pero podés escanear el QR.');
@@ -1078,12 +1097,14 @@ export default function EspejoMagicoPage() {
                 >
                   <Download className="w-4 h-4" /> Guardar Foto
                 </button>
-                <button
-                  onClick={retake}
-                  className="w-full h-12 rounded-xl bg-white/5 hover:bg-white/10 text-white font-bold text-sm border border-white/10 transition flex items-center justify-center gap-2"
-                >
-                  <RefreshCw className="w-4 h-4" /> Tomar Otra Foto
-                </button>
+                {fiesta?.station.allowGuestRetake && fiesta.station.maxRetakes > 0 && (
+                  <button
+                    onClick={retake}
+                    className="w-full h-12 rounded-xl bg-white/5 hover:bg-white/10 text-white font-bold text-sm border border-white/10 transition flex items-center justify-center gap-2"
+                  >
+                    <RefreshCw className="w-4 h-4" /> Tomar Otra Foto
+                  </button>
+                )}
               </div>
             </div>
           </div>
@@ -1155,11 +1176,27 @@ export default function EspejoMagicoPage() {
                   ))}
               </div>
 
+              {fiesta?.station.consentRequired && (
+                <label className="flex items-center justify-center gap-2 text-[10px] text-zinc-300">
+                  <input
+                    type="checkbox"
+                    checked={consentAccepted}
+                    onChange={(event) => setConsentAccepted(event.target.checked)}
+                    className="h-4 w-4 accent-cyan-500"
+                  />
+                  Acepto el procesamiento temporal de mi foto con IA.
+                </label>
+              )}
+
               {/* Action Bar */}
               <div className="flex items-center justify-center pb-2 shrink-0">
                 <button
                   onClick={takePhoto}
-                  disabled={countdown !== null || !!errorMsg}
+                  disabled={
+                    countdown !== null ||
+                    !!errorMsg ||
+                    Boolean(fiesta?.station.consentRequired && !consentAccepted)
+                  }
                   className="w-14 h-14 rounded-full bg-gradient-to-tr from-cyan-500 to-indigo-500 p-1 shadow-[0_0_20px_rgba(6,182,212,0.3)] transition-transform active:scale-95 disabled:opacity-50"
                 >
                   <div className="w-full h-full rounded-full bg-white flex items-center justify-center text-cyan-500">

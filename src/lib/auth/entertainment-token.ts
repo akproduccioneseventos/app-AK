@@ -5,9 +5,11 @@ import crypto from 'crypto';
 import { hasAppSession } from '@/lib/auth/require-session';
 import type { EntertainmentModuleId } from '@/lib/entertainment/station-config';
 
-const TOKEN_VERSION = 'ent-v1';
+const TOKEN_VERSION = 'ent-v2';
 const DEFAULT_MAX_AGE_SECONDS = 60 * 60 * 18;
 let localDevelopmentSecret: string | undefined;
+
+export type EntertainmentAccessScope = 'guest' | 'operator';
 
 function getSecret() {
   const configuredSecret =
@@ -42,6 +44,7 @@ function signaturesMatch(received: string, expected: string) {
 export function createEntertainmentAccessToken(
   fiestaId: string,
   moduleId: EntertainmentModuleId,
+  scope: EntertainmentAccessScope,
   maxAgeSeconds = DEFAULT_MAX_AGE_SECONDS
 ) {
   const payload = Buffer.from(
@@ -49,6 +52,7 @@ export function createEntertainmentAccessToken(
       version: TOKEN_VERSION,
       fiestaId,
       moduleId,
+      scope,
       expiresAt: Date.now() + maxAgeSeconds * 1000,
       nonce: crypto.randomUUID(),
     })
@@ -60,7 +64,8 @@ export function createEntertainmentAccessToken(
 export function verifyEntertainmentAccessToken(
   token: string | null | undefined,
   fiestaId: string,
-  moduleId: string
+  moduleId: string,
+  expectedScope: EntertainmentAccessScope
 ) {
   if (!token) return false;
   const separator = token.lastIndexOf('.');
@@ -76,6 +81,8 @@ export function verifyEntertainmentAccessToken(
       parsed.version === TOKEN_VERSION &&
       parsed.fiestaId === fiestaId &&
       parsed.moduleId === moduleId &&
+      (parsed.scope === expectedScope ||
+        (expectedScope === 'guest' && parsed.scope === 'operator')) &&
       Number(parsed.expiresAt) > Date.now()
     );
   } catch {
@@ -89,5 +96,14 @@ export async function hasEntertainmentControlAccess(
   token?: string | null
 ) {
   if (await hasAppSession()) return true;
-  return verifyEntertainmentAccessToken(token, fiestaId, moduleId);
+  return verifyEntertainmentAccessToken(token, fiestaId, moduleId, 'operator');
+}
+
+export async function hasEntertainmentGuestAccess(
+  fiestaId: string,
+  moduleId: string,
+  token?: string | null
+) {
+  if (await hasAppSession()) return true;
+  return verifyEntertainmentAccessToken(token, fiestaId, moduleId, 'guest');
 }
