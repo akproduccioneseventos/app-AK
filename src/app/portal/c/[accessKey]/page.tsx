@@ -11,7 +11,7 @@ interface PageProps {
   params: Promise<{ accessKey: string }>;
 }
 
-function mapFiestaToPortalDTO(fiesta: any): any {
+function mapFiestaToPortalDTO(fiesta: any, routeAccessKey: string): any {
   if (!fiesta) return null;
   return {
     id: fiesta.id,
@@ -32,8 +32,7 @@ function mapFiestaToPortalDTO(fiesta: any): any {
     } : {},
     clientPortalSettings: fiesta.clientPortalSettings ? {
       enabled: fiesta.clientPortalSettings.enabled,
-      accessKey: fiesta.clientPortalSettings.accessKey,
-      clientPassword: fiesta.clientPortalSettings.clientPassword,
+      accessKey: routeAccessKey,
       musica: fiesta.clientPortalSettings.musica,
       videoVida: fiesta.clientPortalSettings.videoVida,
       fotografiaYFilmacion: fiesta.clientPortalSettings.fotografiaYFilmacion,
@@ -186,7 +185,7 @@ export default async function PublicPortalPage(props: PageProps) {
       }))).catch(() => []),
   ]);
 
-  const portalFiesta = mapFiestaToPortalDTO(fiesta);
+  const portalFiesta = mapFiestaToPortalDTO(fiesta, accessKey);
   const portalPresupuesto = mapPresupuestoToPortalDTO(presupuesto, budgetToken);
 
   return (

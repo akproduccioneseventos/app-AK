@@ -5,6 +5,9 @@ import fs from 'fs/promises';
 import path from 'path';
 import JSZip from 'jszip';
 import { getFiestaActual } from '@/app/actions/fiesta/fiesta.actions';
+import { hasAppSession } from '@/lib/auth/require-session';
+import { verifyPortalSession } from '@/lib/security/portal-session';
+import { getFiestaByIdRaw } from '@/lib/fiesta/get-fiesta-raw';
 
 const DOCS_DIR = path.resolve(process.cwd(), 'src', 'data', 'documentos-varios-fiesta');
 
@@ -23,8 +26,15 @@ export async function GET(request: NextRequest, props: { params: Promise<{ parts
   const params = await props.params;
   const [fiestaId, filename] = params.parts;
 
+  const hasAdminAccess = await hasAppSession();
+  const hasClientAccess = fiestaId ? await verifyPortalSession(fiestaId) : false;
+  if (!hasAdminAccess && !hasClientAccess) {
+    return new NextResponse('Unauthorized', { status: 401 });
+  }
+
   // Handle the special 'download-all' command
   if (filename === 'download-all.zip') {
+    if (!hasAdminAccess) return new NextResponse('Forbidden', { status: 403 });
     try {
       const fiesta = await getFiestaActual();
       if (fiesta.id !== fiestaId) {
@@ -66,6 +76,23 @@ export async function GET(request: NextRequest, props: { params: Promise<{ parts
   const safeFilename = path.basename(filename);
   if (safeFiestaId !== fiestaId || safeFilename !== filename) {
     return new NextResponse('Invalid path segments', { status: 400 });
+  }
+
+  if (!hasAdminAccess) {
+    const fiesta = await getFiestaByIdRaw(safeFiestaId);
+    const legacyFiesta = fiesta as typeof fiesta & {
+      documentos?: Array<{ fileName?: string }>;
+      otrosDocumentos?: Array<{ fileName?: string }>;
+    };
+    const allowedDocuments = [
+      ...(legacyFiesta?.documentos ?? []),
+      ...(legacyFiesta?.otrosDocumentos ?? []),
+      ...(fiesta?.othersDocumentos ?? []),
+    ];
+    const isClientDocument = allowedDocuments.some(doc => doc.fileName === safeFilename);
+    if (!fiesta?.clientPortalSettings?.enabled || !isClientDocument) {
+      return new NextResponse('Forbidden', { status: 403 });
+    }
   }
 
   const filePath = path.join(DOCS_DIR, safeFiestaId, safeFilename);
