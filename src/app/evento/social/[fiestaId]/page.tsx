@@ -1441,13 +1441,13 @@ export default function SocialGalleryPage(props: { params: Promise<{ fiestaId: s
               </div>
             )}
             {/* Guest header */}
-            <header className="sticky top-0 z-20 border-b border-slate-200 bg-white/95 shadow-sm backdrop-blur-xl">
+            <header className="sticky top-0 z-20 border-b border-slate-200 bg-white shadow-sm">
               <div className="max-w-lg mx-auto h-16 px-4 flex items-center gap-3">
                 {guestSection !== null ? (
                   <>
                     <button
                       onClick={() => setGuestSection(null)}
-                      className="h-10 w-10 rounded-2xl flex items-center justify-center text-slate-600 hover:bg-slate-100 active:bg-slate-200 transition-colors shrink-0"
+                      className="h-10 w-10 rounded-lg flex items-center justify-center text-slate-600 hover:bg-slate-100 active:bg-slate-200 transition-colors shrink-0"
                       aria-label="Volver al inicio"
                     >
                       <ArrowLeft className="w-5 h-5" />
@@ -1476,7 +1476,7 @@ export default function SocialGalleryPage(props: { params: Promise<{ fiestaId: s
                         <p className="text-[11px] text-slate-400 leading-tight">Hola, {authorName || '...'} 👋</p>
                       </div>
                     </div>
-                    <Button variant="ghost" size="icon" onClick={() => fetchData(true)} disabled={isLoading} className="h-10 w-10 rounded-2xl shrink-0" aria-label="Actualizar">
+                    <Button variant="ghost" size="icon" onClick={() => fetchData(true)} disabled={isLoading} className="h-10 w-10 rounded-lg shrink-0" aria-label="Actualizar">
                       <RefreshCw className={`w-4 h-4 text-slate-400 ${isLoading ? 'animate-spin' : ''}`} />
                     </Button>
                   </>
@@ -1489,7 +1489,7 @@ export default function SocialGalleryPage(props: { params: Promise<{ fiestaId: s
 
               {/* Sidebar Izquierdo: Info del evento y cuenta regresiva/portada */}
               <aside className="hidden lg:flex flex-col gap-4 self-start sticky top-24">
-                <Card className="rounded-3xl border-none shadow-md overflow-hidden bg-white/70 backdrop-blur-lg">
+                <Card className="rounded-lg border border-slate-200 shadow-sm overflow-hidden bg-white">
                   {localSettings.mobileControlCoverUrl && (
                     <div className="relative h-32 w-full">
                       <NextImage src={localSettings.mobileControlCoverUrl} alt="Portada" fill className="object-cover blur-sm opacity-90 scale-105" />
@@ -1517,12 +1517,12 @@ export default function SocialGalleryPage(props: { params: Promise<{ fiestaId: s
                   </CardContent>
                 </Card>
 
-                <Card className="rounded-3xl border-none shadow-md p-5 bg-white/70 backdrop-blur-lg space-y-3">
+                <Card className="rounded-lg border border-slate-200 shadow-sm p-5 bg-white space-y-3">
                   <p className="text-xs font-black uppercase tracking-widest text-slate-400">¡Sumá tus fotos!</p>
                   <p className="text-xs text-slate-500 leading-relaxed">
                     Escaneá el código QR del evento con tu celular para subir fotos y videos directamente desde tu galería.
                   </p>
-                  <div className="bg-white p-3 rounded-2xl flex justify-center border border-slate-100">
+                  <div className="bg-slate-50 p-3 rounded-lg flex justify-center border border-slate-200">
                     <QRCodeStylized value={typeof window !== 'undefined' ? `${window.location.origin}/evento/social/${params.fiestaId}` : ''} size={120} />
                   </div>
                 </Card>
@@ -1547,7 +1547,7 @@ export default function SocialGalleryPage(props: { params: Promise<{ fiestaId: s
                         key={tab.id === null ? 'feed' : tab.id}
                         onClick={() => setGuestSection(tab.id as any)}
                         className={cn(
-                          "flex items-center gap-1.5 px-4 py-2.5 rounded-full text-xs font-black uppercase tracking-wider whitespace-nowrap transition-all duration-200 border shrink-0",
+                          "flex items-center gap-1.5 px-4 py-2.5 rounded-lg text-xs font-bold whitespace-nowrap transition-all duration-200 border shrink-0",
                           isActive
                             ? "bg-slate-900 text-white border-slate-900 shadow-md animate-none"
                             : "bg-white text-slate-600 border-slate-200 hover:bg-slate-50"
@@ -1567,7 +1567,7 @@ export default function SocialGalleryPage(props: { params: Promise<{ fiestaId: s
                 {guestSection === null && (
                   <motion.div key="feed" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} className="pt-2 space-y-4">
                     {/* Caja de publicación rápida tipo Facebook */}
-                    <Card className="rounded-3xl border border-slate-100 bg-white shadow-md">
+                    <Card className="rounded-lg border border-slate-200 bg-white shadow-sm">
                       <CardContent className="p-4">
                         <div className="flex items-center gap-3">
                           <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-full text-sm font-black text-white" style={{ backgroundColor: accentColor }}>
@@ -1577,24 +1577,24 @@ export default function SocialGalleryPage(props: { params: Promise<{ fiestaId: s
                             type="button"
                             onClick={() => setIsUploadDialogOpen(true)}
                             disabled={!authorName || !localSettings.uploadsActive}
-                            className="min-h-11 flex-1 rounded-full bg-slate-100 px-4 text-left text-sm font-semibold text-slate-500 transition hover:bg-slate-200 disabled:cursor-not-allowed disabled:opacity-60"
+                            className="min-h-11 flex-1 rounded-lg bg-slate-100 px-4 text-left text-sm font-semibold text-slate-500 transition hover:bg-slate-200 disabled:cursor-not-allowed disabled:opacity-60"
                           >
                             {localSettings.uploadsActive ? '¿Qué querés compartir hoy?' : 'Las publicaciones están pausadas'}
                           </button>
                         </div>
                         <div className="mt-3 flex items-center justify-around border-t border-slate-100 pt-3 text-xs font-bold text-slate-500">
-                          <button type="button" onClick={() => setIsUploadDialogOpen(true)} disabled={!localSettings.uploadsActive} className="flex items-center gap-1.5 rounded-xl px-3 py-2 transition hover:bg-slate-50 disabled:opacity-50">
+                          <button type="button" onClick={() => setIsUploadDialogOpen(true)} disabled={!localSettings.uploadsActive} className="flex items-center gap-1.5 rounded-lg px-3 py-2 transition hover:bg-slate-50 disabled:opacity-50">
                             <CameraIcon className="h-4 w-4" style={{ color: accentColor }} />
                             Subir Foto/Video
                           </button>
                           {localSettings.showDedications !== false && (
-                            <button type="button" onClick={() => setGuestSection('dedication')} className="flex items-center gap-1.5 rounded-xl px-3 py-2 transition hover:bg-slate-50">
+                            <button type="button" onClick={() => setGuestSection('dedication')} className="flex items-center gap-1.5 rounded-lg px-3 py-2 transition hover:bg-slate-50">
                               <Heart className="h-4 w-4" style={{ color: accentColor }} />
                               Dejar Dedicatoria
                             </button>
                           )}
                           {localSettings.chatEnabled !== false && (
-                            <button type="button" onClick={() => setGuestSection('chat')} className="flex items-center gap-1.5 rounded-xl px-3 py-2 transition hover:bg-slate-50">
+                            <button type="button" onClick={() => setGuestSection('chat')} className="flex items-center gap-1.5 rounded-lg px-3 py-2 transition hover:bg-slate-50">
                               <MessageSquare className="h-4 w-4" style={{ color: accentColor }} />
                               Chat Vivo
                             </button>
@@ -1607,11 +1607,11 @@ export default function SocialGalleryPage(props: { params: Promise<{ fiestaId: s
                     {isLoading ? (
                       <div className="grid grid-cols-2 gap-3">
                         {Array.from({ length: 4 }).map((_, i) => (
-                          <div key={i} className="aspect-square bg-slate-100 animate-pulse rounded-3xl" />
+                          <div key={i} className="aspect-square bg-slate-100 animate-pulse rounded-lg" />
                         ))}
                       </div>
                     ) : unifiedTimeline.length === 0 ? (
-                      <div className="text-center py-16 text-slate-400 bg-white rounded-3xl p-6 border border-slate-100 shadow-sm">
+                      <div className="text-center py-16 text-slate-400 bg-white rounded-lg p-6 border border-slate-200 shadow-sm">
                         <p className="text-lg font-bold text-slate-500">El feed está en silencio...</p>
                         <p className="text-xs text-slate-400 mt-1">Sé el primero en subir un momento o dejar una dedicatoria.</p>
                       </div>
@@ -1656,7 +1656,7 @@ export default function SocialGalleryPage(props: { params: Promise<{ fiestaId: s
 
                     {/* ── Social follow banner (shown when Instagram or Facebook is configured) ── */}
                     {(instagramUrl || facebookUrl) && (
-                      <div className="mt-6 rounded-3xl border border-slate-100 bg-white shadow-md p-5 space-y-3">
+                      <div className="mt-6 rounded-lg border border-slate-200 bg-white shadow-sm p-5 space-y-3">
                         <p className="text-xs font-black uppercase tracking-widest text-slate-400 text-center">Seguinos en redes 📲</p>
                         <div className={`grid gap-3 ${instagramUrl && facebookUrl ? 'grid-cols-2' : 'grid-cols-1'}`}>
                           {instagramUrl && (
