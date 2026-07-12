@@ -294,7 +294,7 @@ export default function InvitadoPage() {
     },
     gps.showRegalos && {
       icon: Gift, label: 'Regalos', color: 'text-rose-600', bg: 'bg-rose-50 border-rose-100',
-      href: `/portal-cliente/${fiestaId}/regalos`, external: false,
+      href: `${invitacionUrl}#regalos`, external: true,
     },
     gps.showCheckin && {
       icon: QrCode, label: 'Check-in', color: 'text-teal-600', bg: 'bg-teal-50 border-teal-100',

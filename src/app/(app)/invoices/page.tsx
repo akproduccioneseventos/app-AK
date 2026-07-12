@@ -76,11 +76,8 @@ export default function InvoicesListPage() {
     const handleDelete = async (id: string, invoiceNumber?: string) => {
         setDeletingId(id);
         try {
-            // Also remove from fiestaActual if assigned
-            if (fiestaActual && invoices.find(inv => inv.id === id && fiestaActual.invoiceIds?.includes(id))) {
-                await removeInvoiceIdFromFiestaActual(fiestaActual.id, id);
-            }
-            const result = await deleteInvoiceAction(id);
+            const linkedFiestaId = fiestaActual?.invoiceIds?.includes(id) ? fiestaActual.id : undefined;
+            const result = await deleteInvoiceAction(id, linkedFiestaId);
             if (result.success) {
                 toast({ title: "Factura Eliminada" });
                 fetchData();

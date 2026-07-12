@@ -1201,7 +1201,7 @@ export function InvitacionPublicaClient({ config, fiestaId, socialConnections = 
   ), true);
 
   addSectionEntry('regalos', hasGifts, (
-    <Section key="regalos" className="max-w-lg mx-auto" typography={config.typography}>
+    <Section key="regalos" id="regalos" className="max-w-lg mx-auto" typography={config.typography}>
       <TiltCard className="bg-white p-8 rounded-3xl border border-gray-150 shadow-xl text-center">
         <div className="mb-6">
           {(config.regalos.tipo === 'dinero' || config.regalos.tipo === 'ambos')

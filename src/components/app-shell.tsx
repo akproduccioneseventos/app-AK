@@ -111,8 +111,7 @@ const getPageTitle = (pathname: string): string => {
   if (pathname === '/fiestas/nueva/en-vivo') return 'Evento en Vivo (Táctico)';
   if (pathname === '/fiestas/nueva/readiness') return 'Readiness Score & Riesgos';
   if (pathname === '/fiestas/nueva/mission-control') return 'Mission Control - Día del Evento';
-  if (pathname === '/fiestas/nueva/proveedores-portal') return 'Portal de Proveedores';
-  if (pathname === '/planner-costo-fiesta') return 'Planificador Gastronómico Integral';
+  if (pathname === '/fiestas/nueva/planner-costo-fiesta') return 'Planificador Gastronómico Integral';
 
   if (pathname === '/multiagente') return 'Multiagente AK';
   if (pathname === '/playbooks') return 'Playbooks Inteligentes';
@@ -134,7 +133,6 @@ const getPageTitle = (pathname: string): string => {
   if (pathname === '/settings/feedback') return 'Feedback y Testimonios';
   if (pathname === '/admin/usuarios') return 'Gestión de Usuarios';
   if (pathname === '/perfil') return 'Mi Perfil';
-  if (pathname === '/admin/aaiff-fiesta') return 'Análisis de Evento con IA';
   if (pathname === '/admin/asistente-ak') return 'Asistente de Marketing IA';
   if (pathname === '/settings/backup') return 'Backup y Restauración';
   if (pathname === '/settings/whatsapp-business') return 'WhatsApp Business Bot';
@@ -194,7 +192,7 @@ const getPageIcon = (pathname: string): React.ElementType | null => {
     if (pathname === '/fiestas/nueva/resumen-imprimible') return Printer;
     if (pathname === '/fiestas/nueva/pagina-web') return Globe;
     if (pathname === '/fiestas/nueva/en-vivo') return Zap;
-    if (pathname === '/planner-costo-fiesta') return Calculator;
+    if (pathname === '/fiestas/nueva/planner-costo-fiesta') return Calculator;
     return PartyPopper;
   }
 
@@ -233,7 +231,6 @@ const getPageIcon = (pathname: string): React.ElementType | null => {
   if (pathname === '/settings/notifications') return BellRing;
   if (pathname === '/settings/account') return UserCog;
   if (pathname === '/settings/feedback') return Star;
-  if (pathname === '/admin/aaiff-fiesta') return PartyPopper;
   if (pathname === '/settings/backup') return HardDriveDownload;
   if (pathname === '/settings/whatsapp-business') return Bot;
   if (pathname === '/settings/whatsapp-business/conversations') return MessageSquareText;
@@ -282,7 +279,7 @@ export function AppShell({ children }: { children: ReactNode }) {
 
   // Define public-facing paths that should not have the main AppShell (header, etc.)
   const isAuthPage = pathname === '/login';
-  const isPublicEventPage = pathname === '/evento' || pathname === '/evento/' || pathname.startsWith('/evento/actual') || pathname.startsWith('/evento/social') || pathname.startsWith('/evento/barra') || pathname.startsWith('/evento/totem') || pathname.startsWith('/evento/accesos') || pathname.startsWith('/evento/muro-en-vivo') || pathname.startsWith('/evento/logistica') || pathname.startsWith('/invitacion') || pathname.startsWith('/video-vida') || pathname.startsWith('/feedback') || pathname.startsWith('/acceso-personal') || pathname.startsWith('/portal') || pathname.startsWith('/landing') || pathname.startsWith('/public') || pathname.startsWith('/portal-cliente') || pathname.startsWith('/simulador') || pathname.startsWith('/simulador-ak') || pathname.startsWith('/proveedor') || pathname.startsWith('/evento/mi-mesa') || pathname.startsWith('/evento/en-vivo') || pathname.startsWith('/presentacion-led') || pathname.startsWith('/invitado') || pathname.startsWith('/portal-proveedor') || pathname.startsWith('/evento/dj');
+  const isPublicEventPage = pathname === '/evento' || pathname === '/evento/' || pathname.startsWith('/evento/actual') || pathname.startsWith('/evento/social') || pathname.startsWith('/evento/barra') || pathname.startsWith('/evento/totem') || pathname.startsWith('/evento/accesos') || pathname.startsWith('/evento/muro-en-vivo') || pathname.startsWith('/evento/logistica') || pathname.startsWith('/invitacion') || pathname.startsWith('/video-vida') || pathname.startsWith('/feedback') || pathname.startsWith('/acceso-personal') || pathname.startsWith('/portal') || pathname.startsWith('/landing') || pathname.startsWith('/public') || pathname.startsWith('/portal-cliente') || pathname.startsWith('/simulador') || pathname.startsWith('/simulador-ak') || pathname.startsWith('/proveedor') || pathname.startsWith('/evento/mi-mesa') || pathname.startsWith('/evento/en-vivo') || pathname.startsWith('/presentacion-led') || pathname.startsWith('/invitado') || pathname.startsWith('/evento/dj');
   const isClientFacingTool = pathname === '/simulador-de-presupuesto';
 
   // Define pages that are printable views and should not have the shell.

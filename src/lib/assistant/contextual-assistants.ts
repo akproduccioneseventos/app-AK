@@ -33,7 +33,7 @@ export const ASSISTANT_PERSONAS: AssistantPersona[] = [
     shortName: 'Sofia',
     role: 'Secretaria, agenda y recordatorios',
     color: '#2563eb',
-    routeMatchers: ['/customers', '/contabilidad/crm', '/calendario', '/agenda', '/fiestas/nueva/reuniones', '/settings/google-workspace'],
+    routeMatchers: ['/customers', '/contabilidad/crm', '/calendario', '/contabilidad/crm/agenda', '/fiestas/nueva/reuniones', '/settings/google-workspace'],
     focus: ['clientes', 'reuniones', 'Google Calendar', 'Gmail', 'seguimiento', 'mensajes'],
   },
   {
@@ -69,7 +69,7 @@ export const ASSISTANT_PERSONAS: AssistantPersona[] = [
     shortName: 'Clara',
     role: 'Experiencia del cliente',
     color: '#7c3aed',
-    routeMatchers: ['/portal', '/portal-cliente', '/fiestas/nueva/portal-cliente', '/fiestas/nueva/cliente', '/settings/sincronizaciones'],
+    routeMatchers: ['/portal', '/portal-cliente', '/fiestas/nueva/portal-cliente', '/settings/sincronizaciones'],
     focus: ['portal cliente', 'documentos', 'pagos', 'reuniones', 'tareas del cliente', 'uso desde celular'],
   },
   {

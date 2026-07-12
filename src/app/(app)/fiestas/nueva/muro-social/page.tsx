@@ -519,16 +519,17 @@ function MuroSocialContent() {
   const handlePlay = async () => {
     if (!fiestaId) return;
     setIsPlayAction(true);
-    // Save current settings (including playlist) to Firestore FIRST so the live wall
-    // can find the playlist items when playback starts.
-    await updateSocialGallerySettingsFiestaActual(fiestaId, settingsRef.current);
-    const result = await playScreenPlaylist(fiestaId);
-    setIsPlayAction(false);
-    if (result.success) {
+    try {
+      const saveResult = await updateSocialGallerySettingsFiestaActual(fiestaId, settingsRef.current);
+      if (!saveResult.success) throw new Error(saveResult.error || 'No se pudo guardar la playlist.');
+      const result = await playScreenPlaylist(fiestaId);
+      if (!result.success) throw new Error(result.error || 'No se pudo iniciar la reproducción.');
       toast({ title: 'Reproducción iniciada ▶' });
       await loadData();
-    } else {
-      toast({ title: 'Error', description: result.error, variant: 'destructive' });
+    } catch (playError: any) {
+      toast({ title: 'Error', description: playError.message, variant: 'destructive' });
+    } finally {
+      setIsPlayAction(false);
     }
   };
 
@@ -954,7 +955,8 @@ function MuroSocialContent() {
     if (!window.confirm(`¿Borrar todas las ${postCount ?? 0} fotos del muro? Esta acción no se puede deshacer.`)) return;
     setIsClearingOnly(true);
     try {
-      await clearGallery(fiestaId);
+      const result = await clearGallery(fiestaId);
+      if (!result.success) throw new Error(result.error || 'No se pudo borrar la galería.');
       setPostCount(0);
       toast({ title: 'Galería borrada ✓', description: 'Todas las fotos fueron eliminadas del muro.' });
     } catch (e: any) {

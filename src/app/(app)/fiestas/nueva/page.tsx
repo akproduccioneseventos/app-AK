@@ -194,11 +194,19 @@ function PlannerDashboardContent() {
   }, [fiestaId, router]);
 
   const handleModuleToggle = async (moduleId: keyof ModulosContratados, checked: boolean) => {
+    const previousModules = modulosContratados;
     const updatedModules = { ...modulosContratados, [moduleId]: checked };
     setModulosContratados(updatedModules);
     try {
-      if(fiesta) await updateModulosContratadosFiestaActual(fiesta.id, updatedModules);
-    } catch(e: any) { toast({ title: "Error al guardar", variant: "destructive"}); }
+      if (!fiesta) throw new Error('No hay un evento cargado.');
+      const result = await updateModulosContratadosFiestaActual(fiesta.id, updatedModules);
+      if (!result.success) throw new Error(result.error || 'No se pudo actualizar el módulo.');
+      return true;
+    } catch(e: any) {
+      setModulosContratados(previousModules);
+      toast({ title: "Error al guardar", description: e.message, variant: "destructive"});
+      return false;
+    }
   };
 
   const isModuleActive = (moduleId: string) =>
@@ -554,13 +562,16 @@ function PlannerDashboardContent() {
                 <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 sm:gap-6">
                   {allCategoryModules.map((module) => {
                     const active = isModuleActive(module.id);
+                    const moduleHref = module.href.startsWith('/') ? `${module.href}?fiestaId=${fiesta.id}` : `/fiestas/nueva/${module.href}?fiestaId=${fiesta.id}`;
                     return (
                       <motion.div key={module.id} whileHover={{ y: -6, scale: 1.01 }} whileTap={{ scale: 0.99 }}>
                         <Link
-                          href={module.href.startsWith('/') ? `${module.href}?fiestaId=${fiesta.id}` : `/fiestas/nueva/${module.href}?fiestaId=${fiesta.id}`}
-                          onClick={() => {
+                          href={moduleHref}
+                          onClick={async event => {
                             if (!active) {
-                              handleModuleToggle(module.id as keyof ModulosContratados, true);
+                              event.preventDefault();
+                              const saved = await handleModuleToggle(module.id as keyof ModulosContratados, true);
+                              if (saved) router.push(moduleHref);
                             }
                           }}
                         >
