@@ -628,7 +628,7 @@ function BackgroundMusicPlayer({ src, splashDone }: { src?: string; splashDone: 
           console.log("Autoplay blocked, waiting for user click.");
         });
     }
-  }, [splashDone]);
+  }, [splashDone, playing]);
 
   useEffect(() => {
     const unlockAudio = () => {

@@ -41,6 +41,7 @@ function getStoredEntertainment(fiesta: any) {
 
 export async function getEntretenimientoFiesta(fiestaId: string) {
   try {
+    await requireAppSession();
     const fiesta = await getFiestaById(fiestaId);
     if (!fiesta) throw new Error('Fiesta no encontrada');
 
@@ -92,6 +93,7 @@ export async function getEntertainmentLaunchToken(
 
 export async function saveEntretenimientoFiesta(fiestaId: string, entretenimiento: any) {
   try {
+    await requireAppSession();
     const fiesta = await getFiestaById(fiestaId);
     if (!fiesta) throw new Error('Fiesta no encontrada');
 
@@ -137,6 +139,7 @@ export async function uploadEntretenimientoMedia(formData: FormData) {
   }
 
   try {
+    await requireAppSession();
     const fiesta = await getFiestaById(fiestaId);
     if (!fiesta) throw new Error('Fiesta no encontrada');
 

@@ -51,9 +51,9 @@ export default function BoguePage() {
 
   const videoRef = useRef<HTMLVideoElement>(null);
   const displayCanvasRef = useRef<HTMLCanvasElement>(null);
+  const streamRef = useRef<MediaStream | null>(null);
 
   const [fiesta, setFiesta] = useState<PublicEntertainmentEvent | null>(null);
-  const [stream, setStream] = useState<MediaStream | null>(null);
   const [facingMode, setFacingMode] = useState<'user' | 'environment'>('user');
   
   // Real-time Firestore sync
@@ -163,7 +163,7 @@ export default function BoguePage() {
         video: { facingMode, width: { ideal: 1080 }, height: { ideal: 1920 } },
         audio: false,
       });
-      setStream(mediaStream);
+      streamRef.current = mediaStream;
       if (videoRef.current) {
         videoRef.current.srcObject = mediaStream;
       }
@@ -173,9 +173,9 @@ export default function BoguePage() {
   };
 
   const stopCamera = () => {
-    if (stream) {
-      stream.getTracks().forEach(track => track.stop());
-      setStream(null);
+    if (streamRef.current) {
+      streamRef.current.getTracks().forEach(track => track.stop());
+      streamRef.current = null;
     }
   };
 

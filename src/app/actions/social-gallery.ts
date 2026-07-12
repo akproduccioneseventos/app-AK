@@ -27,11 +27,13 @@ import type { Firestore, QueryDocumentSnapshot, Transaction } from 'firebase-adm
 import admin from 'firebase-admin';
 import path from 'path';
 import { getFiestaById, saveFiesta } from '@/app/actions/fiesta/fiesta.actions';
+import { getFiestaByAccessKey } from '@/app/actions/fiesta/portal.actions';
 import * as logger from '@/lib/logger';
 import { reviewSocialContent, sanitizeSocialText } from '@/lib/social-fiesta/content-review';
 import { checkImageSafety } from '@/lib/social-fiesta/content-safety-ai';
 import { hasAppSession, requireAppSession } from '@/lib/auth/require-session';
 import { isSharedKioskUpload, shouldQueueForManualReview } from '@/lib/social-fiesta/guardrails';
+import { toPublicSocialEvent, type PublicSocialEvent } from '@/lib/social-fiesta/public-event';
 
 // Firestore collection names
 const GALLERY_COLLECTION = 'social_gallery_posts';
@@ -82,6 +84,19 @@ export async function getSocialPosts(fiestaId: string): Promise<SocialGalleryPos
 export async function getPublicSocialPosts(fiestaId: string): Promise<SocialGalleryPost[]> {
   const posts = await getSocialPosts(fiestaId);
   return posts.filter((post) => (post.moderationStatus ?? 'approved') === 'approved');
+}
+
+export async function getPublicSocialEvent(
+  fiestaId: string,
+  accessKey?: string,
+): Promise<PublicSocialEvent | null> {
+  const normalizedKey = accessKey?.trim();
+  const fiesta = normalizedKey
+    ? await getFiestaByAccessKey(normalizedKey)
+    : await getFiestaById(fiestaId);
+  if (!fiesta || fiesta.id !== fiestaId) return null;
+
+  return toPublicSocialEvent(fiesta, Boolean(normalizedKey));
 }
 
 export async function getSocialPostsByClient(

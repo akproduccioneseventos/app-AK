@@ -47,6 +47,7 @@ export default function Plataforma360Page() {
 
   const videoRef = useRef<HTMLVideoElement>(null);
   const mediaRecorderRef = useRef<MediaRecorder | null>(null);
+  const streamRef = useRef<MediaStream | null>(null);
 
   const [fiesta, setFiesta] = useState<PublicEntertainmentEvent | null>(null);
   const [stream, setStream] = useState<MediaStream | null>(null);
@@ -157,6 +158,7 @@ export default function Plataforma360Page() {
         video: { facingMode, width: { ideal: 1080 }, height: { ideal: 1920 } },
         audio: true, // we want sound for 360 videos
       });
+      streamRef.current = mediaStream;
       setStream(mediaStream);
       if (videoRef.current) {
         videoRef.current.srcObject = mediaStream;
@@ -167,8 +169,9 @@ export default function Plataforma360Page() {
   };
 
   const stopCamera = () => {
-    if (stream) {
-      stream.getTracks().forEach(track => track.stop());
+    if (streamRef.current) {
+      streamRef.current.getTracks().forEach(track => track.stop());
+      streamRef.current = null;
       setStream(null);
     }
   };

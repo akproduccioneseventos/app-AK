@@ -67,6 +67,44 @@ export async function initializePortalSession(fiestaId: string, accessKey: strin
   }
 }
 
+export async function getFiestaForPortalSession(fiestaId: string): Promise<FiestaEnPlanificacion | null> {
+  if (!(await verifyPortalSession(fiestaId))) return null;
+  const fiesta = await getFiestaByIdRaw(fiestaId);
+  if (!fiesta?.clientPortalSettings?.enabled) return null;
+
+  return {
+    ...fiesta,
+    clientPortalSettings: {
+      ...fiesta.clientPortalSettings,
+      accessKey: undefined as any,
+    },
+  };
+}
+
+export async function updateClientGuestTable(
+  fiestaId: string,
+  guestId: string,
+  tableNumber?: string,
+): Promise<{ success: boolean; error?: string }> {
+  if (!(await verifyPortalSession(fiestaId))) return { success: false, error: 'Sesión no autorizada.' };
+  return updateFiestaData(fiestaId, data => ({
+    ...data,
+    invitados: (data.invitados ?? []).map(guest => (
+      guest.id === guestId
+        ? { ...guest, tableNumber: tableNumber?.trim() || undefined }
+        : guest
+    )),
+  }));
+}
+
+export async function updateClientPackingList(
+  fiestaId: string,
+  items: import('@/types/fiesta').ClienteDebeLlevarItem[],
+): Promise<{ success: boolean; error?: string }> {
+  if (!(await verifyPortalSession(fiestaId))) return { success: false, error: 'Sesión no autorizada.' };
+  return updateFiestaData(fiestaId, data => ({ ...data, clienteDebeLlevar: items }));
+}
+
 
 export async function updateClientChecklist(fiestaId: string, checklist: ClientTarea[]) {
   if (!(await verifyPortalSession(fiestaId))) return { success: false, error: 'Sesión no autorizada.' };

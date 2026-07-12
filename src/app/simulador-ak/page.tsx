@@ -164,6 +164,7 @@ function SimuladorAKContent() {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [generatedId, setGeneratedId] = useState<string | null>(null);
   const [token, setToken] = useState<string | null>(null);
+  const autoSaveAttemptRef = useRef<string | null>(null);
 
   // Load configuration
   useEffect(() => {
@@ -216,13 +217,6 @@ function SimuladorAKContent() {
   useEffect(() => {
     chatEndRef.current?.scrollIntoView({ behavior: 'smooth' });
   }, [chatHistory, isAiLoading, currentChatStep]);
-
-  // Save budget automatically when budget_ready is reached
-  useEffect(() => {
-    if (currentChatStep === 'budget_ready' && priceStats && !isSubmitting && !generatedId) {
-      handleSaveBudget();
-    }
-  }, [currentChatStep]);
 
   // Extract menus dynamically
   const { entradasDisponibles, principalesDisponibles, menusNinoDisponibles } = useMemo(() => {
@@ -625,6 +619,22 @@ function SimuladorAKContent() {
       setIsSubmitting(false);
     }
   };
+
+  useEffect(() => {
+    if (currentChatStep !== 'budget_ready' || !priceStats || isSubmitting || generatedId) return;
+    const attemptKey = [
+      selectedPaqueteId || 'custom',
+      priceStats.totalFinal,
+      adultos,
+      ninosYAdolescentes,
+      eventoFecha?.toISOString() || 'no-date',
+    ].join(':');
+    if (autoSaveAttemptRef.current === attemptKey) return;
+    autoSaveAttemptRef.current = attemptKey;
+    void handleSaveBudget();
+    // handleSaveBudget intentionally uses the latest simulator snapshot from this render.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [currentChatStep, priceStats, isSubmitting, generatedId, selectedPaqueteId, adultos, ninosYAdolescentes, eventoFecha]);
 
   const handleSwitchPackage = async (paqueteId: string) => {
     setIsAiLoading(true);

@@ -15,7 +15,10 @@ describe('social wall guest and admin boundary', () => {
     expect(guestPage).not.toContain('getSocialAdminAccess');
     expect(guestPage).toContain('const isAdminView = false');
     expect(guestPage).toContain('getPublicSocialPosts');
+    expect(guestPage).toContain('getPublicSocialEvent');
     expect(guestPage).toContain('getPublicDedications');
+    expect(guestPage).not.toContain("getFiestaById(params.fiestaId)");
+    expect(guestPage).not.toContain("urlParams.get('bypass')");
   });
 
   it('opens the guest action menu before any individual module', () => {

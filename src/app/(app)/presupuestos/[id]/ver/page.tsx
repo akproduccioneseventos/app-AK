@@ -129,13 +129,14 @@ function VerPresupuestoContent({ params }: { params: { id: string } }) {
   const [isAuditing, setIsAuditing] = useState(false);
   const [auditResult, setAuditResult] = useState<AuditResult | null>(null);
   const [showAudit, setShowAudit] = useState(false);
+  const publicToken = searchParams.get('token') || undefined;
 
   const fetchPresupuestoAndSettings = useCallback(async () => {
     if (!presupuestoId) return;
     setIsLoading(true);
     try {
       const [fetchedPresupuesto, fetchedSettings, templateSettings, socialConnections, fetchedCompanyInfo] = await Promise.all([
-        getPresupuestoById(presupuestoId, searchParams.get('token') || undefined),
+        getPresupuestoById(presupuestoId, publicToken),
         getBudgetDisplaySettings(),
         getInvoiceTemplateSettings(),
         getSocialConnections(),
@@ -168,7 +169,7 @@ function VerPresupuestoContent({ params }: { params: { id: string } }) {
     } finally {
       setIsLoading(false);
     }
-  }, [presupuestoId]);
+  }, [presupuestoId, publicToken]);
 
   useEffect(() => { fetchPresupuestoAndSettings(); }, [fetchPresupuestoAndSettings]);
   useEffect(() => {
