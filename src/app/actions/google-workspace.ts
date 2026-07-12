@@ -33,6 +33,7 @@ import type {
   PublicGoogleWorkspaceAccount,
 } from '@/types/google-workspace';
 import type { Rol } from '@/types/rol';
+import { requireAppSession } from '@/lib/auth/require-session';
 
 const ACCOUNTS_FILE = '_google-workspace-accounts.json';
 const SYNC_FILE = '_google-workspace-sync.json';
@@ -143,6 +144,7 @@ export async function saveGoogleWorkspaceAccountFromOAuth(input: {
   employeeId?: string;
   token: GoogleTokenResponse;
 }) {
+  await requireAppSession();
   const accounts = await readAccounts();
   const existing = accounts.find((account) =>
     input.kind === 'company' ? account.kind === 'company' : account.kind === 'employee' && account.employeeId === input.employeeId

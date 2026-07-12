@@ -1,6 +1,7 @@
 import { NextResponse } from 'next/server';
 import JSZip from 'jszip';
 import { getLifeStoryVideoPhotos } from '@/app/actions/fiesta/video-vida.actions';
+import { hasAppSession } from '@/lib/auth/require-session';
 
 const MAX_TOTAL_SIZE = 50 * 1024 * 1024; // 50MB
 const ALLOWED_DOMAINS = [
@@ -23,6 +24,7 @@ function isUrlAllowed(urlStr: string): boolean {
 }
 
 export async function GET(request: Request, props: { params: Promise<{ fiestaId: string }> }) {
+  if (!(await hasAppSession())) return new NextResponse('Unauthorized', { status: 401 });
   const params = await props.params;
   const { fiestaId } = params;
 

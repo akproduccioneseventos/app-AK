@@ -16,6 +16,7 @@ import { sanitizeActionError } from '@/lib/utils';
 import { uploadToStorage } from '@/lib/firebase/storage';
 import { requireAppSession } from '@/lib/auth/require-session';
 import { transitionPaymentNotification } from '@/lib/client-portal/payment-notifications';
+import { mapFiestaToClientPortal } from '@/lib/client-portal/public-fiesta';
 
 
 const MUSIC_LIST_KEYS = ['imprescindibles', 'siEsPosible', 'noQuiero'] as const;
@@ -71,14 +72,7 @@ export async function getFiestaForPortalSession(fiestaId: string): Promise<Fiest
   if (!(await verifyPortalSession(fiestaId))) return null;
   const fiesta = await getFiestaByIdRaw(fiestaId);
   if (!fiesta?.clientPortalSettings?.enabled) return null;
-
-  return {
-    ...fiesta,
-    clientPortalSettings: {
-      ...fiesta.clientPortalSettings,
-      accessKey: undefined as any,
-    },
-  };
+  return mapFiestaToClientPortal(fiesta);
 }
 
 export async function updateClientGuestTable(
@@ -209,7 +203,7 @@ export async function getFiestaByAccessKey(accessKey: string): Promise<FiestaEnP
       if (!snapshot.empty) {
         const data = snapshot.docs[0].data();
         delete data._syncedAt;
-        return data as FiestaEnPlanificacion;
+        return mapFiestaToClientPortal(data as FiestaEnPlanificacion);
       }
     }
   } catch {
@@ -218,11 +212,12 @@ export async function getFiestaByAccessKey(accessKey: string): Promise<FiestaEnP
 
   try {
     const fiestas = await getFiestas(false);
-    return fiestas.find(
+    const fiesta = fiestas.find(
       f =>
         f.clientPortalSettings?.enabled === true &&
         f.clientPortalSettings?.accessKey === safeAccessKey
     ) ?? null;
+    return mapFiestaToClientPortal(fiesta);
   } catch {
     return null;
   }
@@ -743,7 +738,7 @@ export async function checkDateAvailability(
   targetDateStr: string
 ): Promise<{ success: boolean; available: boolean; suggestions?: string[]; error?: string }> {
   const { verifyPortalSession } = await import('@/lib/security/portal-session');
-  if (!verifyPortalSession(fiestaId)) return { success: false, available: false, error: 'Sesión no autorizada.' };
+  if (!(await verifyPortalSession(fiestaId))) return { success: false, available: false, error: 'Sesión no autorizada.' };
   try {
     const allFiestas = await getFiestas(false);
     const targetDate = new Date(targetDateStr).toISOString().split('T')[0];
@@ -790,7 +785,7 @@ export async function cancelServicesOrParty(
   }
 ): Promise<{ success: boolean; error?: string; fileName?: string; refundAmount?: number; pendingDue?: number }> {
   const { verifyPortalSession } = await import('@/lib/security/portal-session');
-  if (!verifyPortalSession(fiestaId)) return { success: false, error: 'Sesión no autorizada.' };
+  if (!(await verifyPortalSession(fiestaId))) return { success: false, error: 'Sesión no autorizada.' };
   try {
     const fiesta = await getFiestaById(fiestaId);
     if (!fiesta) return { success: false, error: 'Evento no encontrado.' };
@@ -1059,7 +1054,7 @@ export async function changeEventDate(
   }
 ): Promise<{ success: boolean; error?: string; fileName?: string; penaltyAmount?: number; newBalance?: number }> {
   const { verifyPortalSession } = await import('@/lib/security/portal-session');
-  if (!verifyPortalSession(fiestaId)) return { success: false, error: 'Sesión no autorizada.' };
+  if (!(await verifyPortalSession(fiestaId))) return { success: false, error: 'Sesión no autorizada.' };
   try {
     const fiesta = await getFiestaById(fiestaId);
     if (!fiesta) return { success: false, error: 'Evento no encontrado.' };

@@ -1,9 +1,13 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { buildGoogleAuthUrl, getPublicAppOrigin } from '@/lib/google-workspace';
+import { hasAppSession } from '@/lib/auth/require-session';
 
 export const runtime = 'nodejs';
 
 export async function GET(request: NextRequest) {
+  if (!(await hasAppSession())) {
+    return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+  }
   const { searchParams, origin } = new URL(request.url);
   const kind = searchParams.get('kind') === 'employee' ? 'employee' : 'company';
   const employeeId = searchParams.get('employeeId') || undefined;
