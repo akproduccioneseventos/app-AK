@@ -4,7 +4,7 @@ import type { Invoice, InvoiceItem, Payment } from '@/types/invoice';
 import type { MetodoPago, Presupuesto } from '@/types/presupuesto';
 import { readData, writeData } from '@/lib/data-service';
 import { addPagoToPresupuesto, markPresupuestoAsFacturado } from './presupuestos';
-import { addInvoiceId } from './fiesta/fiesta.actions';
+import { addInvoiceId, removeInvoiceId } from './fiesta/fiesta.actions';
 import * as logger from '@/lib/logger';
 import { uploadToStorage } from '@/lib/firebase/storage';
 import { verifySession } from '@/lib/auth/session-token';
@@ -304,19 +304,36 @@ export async function registerBookingDeposit(data: {
   }
 }
 
-export async function deleteInvoice(id: string): Promise<{ success: boolean; error?: string }> {
+export async function deleteInvoice(id: string, linkedFiestaId?: string): Promise<{ success: boolean; error?: string }> {
   const auth = await verifySession();
   if (!auth.success) return { success: false, error: auth.error };
-  let invoices = await getInvoices();
-  const initialLength = invoices.length;
-  invoices = invoices.filter(inv => inv.id !== id);
+  const originalInvoices = await getInvoices();
+  const initialLength = originalInvoices.length;
+  const invoices = originalInvoices.filter(inv => inv.id !== id);
   if (invoices.length === initialLength) {
     return { success: false, error: `Factura con ID ${id} no encontrada para eliminar.` };
   }
+  let deletionPersisted = false;
   try {
     await writeData(INVOICES_FILE, invoices);
+    deletionPersisted = true;
+    if (linkedFiestaId) {
+      const unlinkResult = await removeInvoiceId(linkedFiestaId, id);
+      if (!unlinkResult.success) {
+        await writeData(INVOICES_FILE, originalInvoices);
+        return { success: false, error: 'No se pudo desvincular la factura del evento. La eliminación fue revertida.' };
+      }
+    }
   } catch (writeError: any) {
     console.error('Error deleting invoice:', writeError);
+    if (deletionPersisted) {
+      try {
+        await writeData(INVOICES_FILE, originalInvoices);
+      } catch (rollbackError) {
+        console.error('Error restoring invoice after unlink failure:', rollbackError);
+        return { success: false, error: 'La factura quedó en un estado inconsistente. Recargá y no repitas la operación.' };
+      }
+    }
     return { success: false, error: writeError.message || 'Error al eliminar la factura.' };
   }
   return { success: true };

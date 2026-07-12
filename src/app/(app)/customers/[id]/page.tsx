@@ -13,7 +13,7 @@ import type { FiestaEnPlanificacion } from '@/types/fiesta';
 import type { Presupuesto } from '@/types/presupuesto';
 import type { Invoice } from '@/types/invoice';
 import { getCustomerById } from '@/app/actions/customers';
-import { getHistorialFiestas, getFiestaActual } from '@/app/actions/fiesta/fiesta.actions';
+import { createFiestaVacia, getHistorialFiestas, getFiestaActual } from '@/app/actions/fiesta/fiesta.actions';
 import { getPresupuestoById } from '@/app/actions/presupuestos';
 import { getInvoiceById } from '@/app/actions/invoices';
 import { Separator } from '@/components/ui/separator';
@@ -58,8 +58,28 @@ export default function CustomerDetailsPage(props: { params: Promise<{ id: strin
   const [customer, setCustomer] = useState<Customer | null>(null);
   const [eventPaymentHistory, setEventPaymentHistory] = useState<EventPaymentDetails[]>([]);
   const [isLoading, setIsLoading] = useState(true);
+  const [isCreatingEvent, setIsCreatingEvent] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [notFound, setNotFound] = useState(false);
+
+  const handleCreateEvent = async () => {
+    if (!customer || isCreatingEvent) return;
+    setIsCreatingEvent(true);
+    try {
+      const result = await createFiestaVacia(customer.id, customer.name);
+      if (!result.success || !result.newFiestaId) {
+        throw new Error(result.error || 'No se pudo crear el evento.');
+      }
+      router.push(`/fiestas/nueva/configuracion?fiestaId=${result.newFiestaId}`);
+    } catch (createError: any) {
+      toast({
+        title: 'No se pudo crear el evento',
+        description: createError.message,
+        variant: 'destructive',
+      });
+      setIsCreatingEvent(false);
+    }
+  };
 
   const loadCustomerData = useCallback(async () => {
     if (!customerId) {
@@ -386,8 +406,9 @@ export default function CustomerDetailsPage(props: { params: Promise<{ id: strin
           <Card className="p-6 text-center bg-muted/30">
             <Info className="w-10 h-10 mx-auto text-muted-foreground/50 mb-3"/>
             <p className="text-muted-foreground">Este cliente no tiene eventos registrados en el sistema.</p>
-             <Button asChild className="mt-4">
-                <Link href="/fiestas/nueva/configuracion">Crear Nuevo Evento</Link>
+             <Button className="mt-4" onClick={handleCreateEvent} disabled={isCreatingEvent}>
+                {isCreatingEvent ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : null}
+                {isCreatingEvent ? 'Creando evento...' : 'Crear Nuevo Evento'}
              </Button>
           </Card>
         )}

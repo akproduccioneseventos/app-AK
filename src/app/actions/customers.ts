@@ -188,7 +188,7 @@ export async function saveCustomer(
     createNotification({
       titulo: 'Nuevo Cliente',
       mensaje: `Nuevo cliente registrado: ${(customerToSave as Customer).name}.`,
-      href: `/clientes`,
+      href: `/customers`,
       icono: 'KanbanSquare',
       tipo: 'info',
       entidadRelacionadaId: customerId,

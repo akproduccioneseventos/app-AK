@@ -130,14 +130,17 @@ function PlannerGastronomicoFiestaContent() {
     loadData();
   }, [loadData]);
 
-   const handleSaveMenu = async (menuId: string | undefined) => {
+    const handleSaveMenu = async (menuId: string | undefined) => {
         if (!fiestaId) return;
+        const previousMenuId = selectedMenuId;
         setIsSaving(true);
         setSelectedMenuId(menuId);
         try {
-            await updateMenuAsignadoFiestaActual(fiestaId, menuId);
+            const result = await updateMenuAsignadoFiestaActual(fiestaId, menuId);
+            if (!result.success) throw new Error(result.error || 'No se pudo guardar el menú.');
             toast({ title: "Menú actualizado automáticamente" });
         } catch(e: any) {
+            setSelectedMenuId(previousMenuId);
             toast({ title: "Error al guardar menú", description: e.message, variant: "destructive"});
         } finally {
             setIsSaving(false);
@@ -146,11 +149,14 @@ function PlannerGastronomicoFiestaContent() {
 
     const handleSaveReposteria = async (data: ReposteriaData) => {
         if (!fiestaId) return;
+        const previousData = reposteriaData;
         setIsSaving(true);
         setReposteriaData(data);
         try {
-            await updateReposteriaFiestaActual(fiestaId, data);
+            const result = await updateReposteriaFiestaActual(fiestaId, data);
+            if (!result.success) throw new Error(result.error || 'No se pudo guardar repostería.');
         } catch(e: any) {
+            setReposteriaData(previousData);
             toast({ title: "Error en auto-guardado", description: e.message, variant: "destructive"});
         } finally {
             setIsSaving(false);
@@ -159,11 +165,14 @@ function PlannerGastronomicoFiestaContent() {
 
     const handleSaveBebidas = async (data: BebidasData) => {
         if (!fiestaId) return;
+        const previousData = bebidasData;
         setIsSaving(true);
         setBebidasData(data);
         try {
-            await updateBebidasFiestaActual(fiestaId, data);
+            const result = await updateBebidasFiestaActual(fiestaId, data);
+            if (!result.success) throw new Error(result.error || 'No se pudieron guardar las bebidas.');
         } catch(e: any) {
+            setBebidasData(previousData);
             toast({ title: "Error en auto-guardado", description: e.message, variant: "destructive"});
         } finally {
             setIsSaving(false);
