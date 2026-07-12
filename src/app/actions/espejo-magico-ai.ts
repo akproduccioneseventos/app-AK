@@ -2,7 +2,8 @@
 
 import { ai } from '@/ai/genkit';
 import { getFiestaById } from '@/app/actions/fiesta/fiesta.actions';
-import { hasEntertainmentControlAccess } from '@/lib/auth/entertainment-token';
+import { hasEntertainmentGuestAccess } from '@/lib/auth/entertainment-token';
+import { getEntertainmentStationConfig } from '@/lib/entertainment/station-config';
 import * as logger from '@/lib/logger';
 
 export type FaceSwapCategoryId =
@@ -192,7 +193,7 @@ export const ESPEJO_IMAGE_MODEL =
   process.env.GEMINI_IMAGE_MODEL?.trim() || 'googleai/gemini-3.1-flash-image-preview';
 
 async function ensureEspejoAccess(fiestaId: string, accessToken?: string): Promise<void> {
-  const authorized = await hasEntertainmentControlAccess(
+  const authorized = await hasEntertainmentGuestAccess(
     fiestaId,
     'espejoMagicoIA',
     accessToken
@@ -200,6 +201,9 @@ async function ensureEspejoAccess(fiestaId: string, accessToken?: string): Promi
   if (!authorized) throw new Error('Acceso de cabina Face Swap IA no autorizado.');
   const fiesta = await getFiestaById(fiestaId);
   if (!fiesta) throw new Error('Evento no encontrado.');
+  if (!getEntertainmentStationConfig(fiesta, 'espejoMagicoIA').enabled) {
+    throw new Error('La cabina Face Swap IA esta desactivada.');
+  }
 }
 
 async function generateEspejoImage(options: Parameters<typeof ai.generate>[0]): Promise<any> {
@@ -348,6 +352,9 @@ export async function applyEspejoFaceSwap(
 
   if (!fiestaId) {
     return { success: false, error: 'Falta el ID de fiesta.' };
+  }
+  if (formData.get('consentAccepted') !== 'true') {
+    return { success: false, error: 'Debes aceptar el procesamiento temporal con IA.' };
   }
 
   try {

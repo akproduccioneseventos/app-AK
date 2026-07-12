@@ -19,8 +19,11 @@ import {
   Check,
 } from 'lucide-react';
 import { QRCodeSVG } from 'qrcode.react';
-import { uploadSocialPost, getSocialPosts } from '@/app/actions/social-gallery';
-import { getPublicEntertainmentEvent } from '@/app/actions/fiesta/entretenimiento.actions';
+import { getSocialPosts } from '@/app/actions/social-gallery';
+import {
+  getPublicEntertainmentEvent,
+  uploadEntretenimientoMedia,
+} from '@/app/actions/fiesta/entretenimiento.actions';
 import {
   getEntertainmentSession,
   startEntertainmentSession,
@@ -68,6 +71,8 @@ export default function Plataforma360Page() {
   const [isUploading, setIsUploading] = useState(false);
   const [progress, setProgress] = useState(0);
   const [progressMsg, setProgressMsg] = useState('');
+  const [operatorError, setOperatorError] = useState<string | null>(null);
+  const [loadError, setLoadError] = useState<string | null>(null);
   const [selectedDuration, setSelectedDuration] = useState(15);
   const [voiceEnabled, setVoiceEnabled] = useState(true);
 
@@ -106,14 +111,16 @@ export default function Plataforma360Page() {
 
   // 1. Initial Load & Firestore polling
   useEffect(() => {
-    getPublicEntertainmentEvent(fiestaId, 'plataforma360')
+    getPublicEntertainmentEvent(fiestaId, 'plataforma360', accessToken)
       .then((result) => {
         if (result.success && result.event) {
           setFiesta(result.event);
           setSelectedDuration(result.event.station.recordingDurationSeconds);
+        } else {
+          setLoadError(result.error || 'No se pudo abrir esta estacion.');
         }
       })
-      .catch(() => {});
+      .catch(() => setLoadError('No se pudo abrir esta estacion.'));
     loadRecentVideos();
 
     let pollInFlight = false;
@@ -121,7 +128,7 @@ export default function Plataforma360Page() {
       if (pollInFlight) return;
       pollInFlight = true;
       try {
-        const s = await getEntertainmentSession(fiestaId, 'plataforma360');
+        const s = await getEntertainmentSession(fiestaId, 'plataforma360', accessToken);
         setSession(s);
 
         if (role === 'display' && s && s.status !== localStatus) {
@@ -140,16 +147,16 @@ export default function Plataforma360Page() {
       clearInterval(interval);
       stopCamera();
     };
-  }, [fiestaId, role, localStatus]);
+  }, [accessToken, fiestaId, role, localStatus]);
 
   // 2. Camera feed management for Display
   useEffect(() => {
-    if (role === 'display' && (localStatus === 'idle' || localStatus === 'countdown' || localStatus === 'recording')) {
+    if (fiesta && role === 'display' && (localStatus === 'idle' || localStatus === 'countdown' || localStatus === 'recording')) {
       startCamera();
     } else {
       stopCamera();
     }
-  }, [facingMode, localStatus, role]);
+  }, [facingMode, fiesta, localStatus, role]);
 
   const startCamera = async () => {
     stopCamera();
@@ -244,7 +251,12 @@ export default function Plataforma360Page() {
   };
 
   const recordVideoDuration = async (durationSec: number) => {
-    if (!stream) return;
+    const currentStream = streamRef.current;
+    if (!currentStream) {
+      setProgressMsg('La camara aun no esta lista. Intenta nuevamente.');
+      setLocalStatus('idle');
+      return;
+    }
 
     setLocalStatus('recording');
     await updateEntertainmentSessionStatus(
@@ -267,7 +279,7 @@ export default function Plataforma360Page() {
     }
 
     const chunks: Blob[] = [];
-    const mediaRecorder = new MediaRecorder(stream, { mimeType, videoBitsPerSecond: 3000000 });
+    const mediaRecorder = new MediaRecorder(currentStream, { mimeType, videoBitsPerSecond: 3000000 });
     mediaRecorderRef.current = mediaRecorder;
 
     mediaRecorder.ondataavailable = (e) => {
@@ -326,16 +338,16 @@ export default function Plataforma360Page() {
       formData.append('fiestaId', fiestaId);
       formData.append('file', file);
       formData.append('authorName', 'Plataforma 360');
-      formData.append('source', 'entertainment');
-      formData.append('sourceModule', 'plataforma360');
+      formData.append('moduleId', 'plataforma360');
+      if (accessToken) formData.append('accessToken', accessToken);
 
-      const res = await uploadSocialPost(formData);
+      const res = await uploadEntretenimientoMedia(formData);
       
       if (res.success) {
-        const mediaUrl = res.post?.imageUrl || '';
+        const mediaUrl = res.media?.url || '';
         setProgress(100);
         setUploadedPostUrl(mediaUrl);
-        setQrCodeUrl(mediaUrl || window.location.href);
+        setQrCodeUrl(mediaUrl);
         setLocalStatus('done');
         await updateEntertainmentSessionStatus(
           fiestaId,
@@ -357,8 +369,8 @@ export default function Plataforma360Page() {
       }
     } catch (err) {
       console.error(err);
-      setProgressMsg('Error al subir. Mostrando QR local...');
-      setQrCodeUrl(window.location.href);
+      setProgressMsg('No se pudo subir el video. Conservamos la vista previa para reintentar.');
+      setQrCodeUrl('');
       setLocalStatus('done');
       await updateEntertainmentSessionStatus(
         fiestaId,
@@ -374,7 +386,8 @@ export default function Plataforma360Page() {
 
   // 4. Operator Handlers
   const handleOperatorStart = async () => {
-    await startEntertainmentSession(
+    setOperatorError(null);
+    const result = await startEntertainmentSession(
       fiestaId,
       'plataforma360',
       {
@@ -384,11 +397,18 @@ export default function Plataforma360Page() {
       },
       accessToken
     );
+    if (!result.success) setOperatorError(result.error || 'No se pudo iniciar la plataforma 360.');
   };
 
   const handleOperatorReset = async () => {
-    await resetEntertainmentSession(fiestaId, 'plataforma360', accessToken);
+    setOperatorError(null);
+    const result = await resetEntertainmentSession(fiestaId, 'plataforma360', accessToken);
+    if (!result.success) setOperatorError(result.error || 'No se pudo reiniciar la plataforma 360.');
   };
+
+  if (loadError) {
+    return <div className="flex min-h-screen items-center justify-center bg-zinc-950 p-6 text-center font-bold text-rose-300">{loadError}</div>;
+  }
 
   // Operator view UI
   if (role === 'operator') {
@@ -445,6 +465,7 @@ export default function Plataforma360Page() {
                 <Zap className="w-6 h-6 fill-white" />
                 DISPARAR 360°
               </button>
+              {operatorError && <p className="text-center text-xs font-bold text-rose-400">{operatorError}</p>}
 
               <button
                 onClick={handleOperatorReset}
@@ -668,12 +689,14 @@ export default function Plataforma360Page() {
               </div>
 
               <div className="space-y-3 w-full">
-                <button
-                  onClick={resetLocalState}
-                  className="w-full h-12 rounded-xl bg-white/5 hover:bg-white/10 text-white font-bold text-sm border border-white/10 transition flex items-center justify-center gap-2"
-                >
-                  <RefreshCw className="w-4 h-4" /> Hacer Otro Video
-                </button>
+                {fiesta?.station.allowGuestRetake && fiesta.station.maxRetakes > 0 && (
+                  <button
+                    onClick={resetLocalState}
+                    className="w-full h-12 rounded-xl bg-white/5 hover:bg-white/10 text-white font-bold text-sm border border-white/10 transition flex items-center justify-center gap-2"
+                  >
+                    <RefreshCw className="w-4 h-4" /> Hacer Otro Video
+                  </button>
+                )}
               </div>
             </div>
 

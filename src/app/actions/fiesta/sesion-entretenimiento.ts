@@ -1,8 +1,15 @@
 'use server';
 
 import { Firestore } from 'firebase-admin/firestore';
-import { hasEntertainmentControlAccess } from '@/lib/auth/entertainment-token';
-import { isEntertainmentModuleId } from '@/lib/entertainment/station-config';
+import {
+  hasEntertainmentControlAccess,
+  hasEntertainmentGuestAccess,
+} from '@/lib/auth/entertainment-token';
+import {
+  getEntertainmentStationConfig,
+  isEntertainmentModuleId,
+} from '@/lib/entertainment/station-config';
+import { getFiestaById } from './fiesta.actions';
 
 const SESIONES_COLLECTION = 'entretenimiento_sesiones';
 
@@ -10,6 +17,12 @@ async function getDb(): Promise<Firestore> {
   const { dbAdmin } = await import('@/lib/firebase/server');
   if (!dbAdmin) throw new Error('Firestore no disponible.');
   return dbAdmin as Firestore;
+}
+
+async function isStationEnabled(fiestaId: string, moduleId: string) {
+  if (!isEntertainmentModuleId(moduleId)) return false;
+  const fiesta = await getFiestaById(fiestaId);
+  return Boolean(fiesta && getEntertainmentStationConfig(fiesta, moduleId).enabled);
 }
 
 export interface EntertainmentSession {
@@ -29,10 +42,13 @@ export interface EntertainmentSession {
 
 export async function getEntertainmentSession(
   fiestaId: string,
-  moduleId: string
+  moduleId: string,
+  accessToken?: string
 ): Promise<EntertainmentSession | null> {
   try {
     if (!fiestaId || fiestaId.length > 160 || !isEntertainmentModuleId(moduleId)) return null;
+    if (!(await hasEntertainmentGuestAccess(fiestaId, moduleId, accessToken))) return null;
+    if (!(await isStationEnabled(fiestaId, moduleId))) return null;
     const db = await getDb();
     const docId = `${fiestaId}_${moduleId}`;
     const snap = await db.collection(SESIONES_COLLECTION).doc(docId).get();
@@ -56,6 +72,9 @@ export async function startEntertainmentSession(
     }
     if (!(await hasEntertainmentControlAccess(fiestaId, moduleId, accessToken))) {
       return { success: false, error: 'Acceso de operador no autorizado.' };
+    }
+    if (!(await isStationEnabled(fiestaId, moduleId))) {
+      return { success: false, error: 'Esta estacion esta desactivada.' };
     }
     const db = await getDb();
     const docId = `${fiestaId}_${moduleId}`;
@@ -86,8 +105,11 @@ export async function updateEntertainmentSessionStatus(
     if (!fiestaId || fiestaId.length > 160 || !isEntertainmentModuleId(moduleId)) {
       return { success: false, error: 'Modulo de entretenimiento no valido.' };
     }
-    if (!(await hasEntertainmentControlAccess(fiestaId, moduleId, accessToken))) {
-      return { success: false, error: 'Acceso de operador no autorizado.' };
+    if (!(await hasEntertainmentGuestAccess(fiestaId, moduleId, accessToken))) {
+      return { success: false, error: 'Acceso de estacion no autorizado.' };
+    }
+    if (!(await isStationEnabled(fiestaId, moduleId))) {
+      return { success: false, error: 'Esta estacion esta desactivada.' };
     }
     const db = await getDb();
     const docId = `${fiestaId}_${moduleId}`;
@@ -121,8 +143,11 @@ export async function resetEntertainmentSession(
     if (!fiestaId || fiestaId.length > 160 || !isEntertainmentModuleId(moduleId)) {
       return { success: false, error: 'Modulo de entretenimiento no valido.' };
     }
-    if (!(await hasEntertainmentControlAccess(fiestaId, moduleId, accessToken))) {
-      return { success: false, error: 'Acceso de operador no autorizado.' };
+    if (!(await hasEntertainmentGuestAccess(fiestaId, moduleId, accessToken))) {
+      return { success: false, error: 'Acceso de estacion no autorizado.' };
+    }
+    if (!(await isStationEnabled(fiestaId, moduleId))) {
+      return { success: false, error: 'Esta estacion esta desactivada.' };
     }
     const db = await getDb();
     const docId = `${fiestaId}_${moduleId}`;

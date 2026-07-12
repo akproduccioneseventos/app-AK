@@ -42,9 +42,10 @@ export function KioskSetup({ defaultRole }: KioskSetupProps) {
     // 1. Check if device is already locked in localStorage
     const savedFiestaId = localStorage.getItem('kiosk_locked_fiesta_id');
     const savedRole = localStorage.getItem('kiosk_role');
+    const savedPin = localStorage.getItem('kiosk_pin');
     const savedTotemId = localStorage.getItem('kiosk_totem_id') || 'totem-1';
 
-    if (savedFiestaId && savedRole) {
+    if (savedFiestaId && savedRole && /^\d{4}$/.test(savedPin || '')) {
       setStatus('redirecting');
       navigateToRole(savedRole, savedFiestaId, savedTotemId);
       return;
@@ -54,13 +55,7 @@ export function KioskSetup({ defaultRole }: KioskSetupProps) {
     async function checkTodayEvent() {
       try {
         const result = await getFiestaActivaDeHoy();
-        if (result.success && result.fiestaId) {
-          setStatus('redirecting');
-          navigateToRole(defaultRole, result.fiestaId, totemId);
-        } else {
-          // No event scheduled for today, enter setup mode
-          loadFiestaOptions();
-        }
+        await loadFiestaOptions(result.success ? result.fiestaId : undefined);
       } catch (err) {
         console.error('Error auto-detecting today\'s event:', err);
         loadFiestaOptions();
@@ -70,7 +65,7 @@ export function KioskSetup({ defaultRole }: KioskSetupProps) {
     checkTodayEvent();
   }, [defaultRole]);
 
-  const loadFiestaOptions = async () => {
+  const loadFiestaOptions = async (preferredFiestaId?: string) => {
     try {
       const allFiestas = await getFiestas(false);
       // Sort by date descending
@@ -80,7 +75,11 @@ export function KioskSetup({ defaultRole }: KioskSetupProps) {
       );
       setFiestas(sorted);
       if (sorted.length > 0) {
-        setSelectedFiestaId(sorted[0].id);
+        setSelectedFiestaId(
+          sorted.some((fiesta) => fiesta.id === preferredFiestaId)
+            ? preferredFiestaId || sorted[0].id
+            : sorted[0].id
+        );
       }
       setStatus('setup');
     } catch (err) {
