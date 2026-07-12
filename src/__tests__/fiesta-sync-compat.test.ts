@@ -1,4 +1,4 @@
-import { mergeClientPortalSettingsForSync, applyLaundryCosts } from '@/lib/fiesta-sync-utils';
+import { applyLaundryCosts, deriveBudgetModulesForSync, mergeClientPortalSettingsForSync } from '@/lib/fiesta-sync-utils';
 import { defaultClientPortalSettings } from '@/lib/fiesta-defaults';
 import type { CostoItem } from '@/types/fiesta';
 import type { ItemPresupuestado } from '@/types/presupuesto';
@@ -44,5 +44,32 @@ describe('syncFiestaFromBudget compatibility helpers', () => {
     expect(updated.find(i => i.nombre === 'Lavado Mantel ($50)')?.montoEstimado).toBe(500);
     expect(updated.find(i => i.nombre === 'Lavado Cubre ($18)')?.montoEstimado).toBe(180);
     expect(updated.find(i => i.nombre === 'Lavado Cubre Silla ($18)')?.montoEstimado).toBe(1440);
+  });
+
+  it('activa tecnologia y entretenimiento contratados con nombres normalizados', () => {
+    const modules = deriveBudgetModulesForSync([
+      { nombreServicio: 'Muro Social Interactivo' } as ItemPresupuestado,
+      { nombreServicio: 'Plataforma 360' } as ItemPresupuestado,
+      { nombreServicio: 'Pantalla Tótem personalizada' } as ItemPresupuestado,
+      { nombreServicio: 'Invitación Digital' } as ItemPresupuestado,
+    ]);
+
+    expect(modules.muroSocial).toBe(true);
+    expect(modules.entretenimiento).toBe(true);
+    expect(modules.pantallasTotem).toBe(true);
+    expect(modules.paginaWeb).toBe(true);
+  });
+
+  it('no confunde pantallas comunes ni bebidas con tecnologia contratada', () => {
+    const modules = deriveBudgetModulesForSync([
+      { nombreServicio: 'Pantalla y proyector' } as ItemPresupuestado,
+      { nombreServicio: 'Barra de bebidas sin alcohol' } as ItemPresupuestado,
+      { nombreServicio: 'Menú adolescente' } as ItemPresupuestado,
+    ]);
+
+    expect(modules.muroSocial).toBe(false);
+    expect(modules.pantallasTotem).toBe(false);
+    expect(modules.barraTecnologica).toBe(false);
+    expect(modules.zonaDigital).toBe(false);
   });
 });

@@ -37,7 +37,7 @@ import {
     defaultDecoracion,
     defaultGestionCostos,
 } from '@/lib/fiesta-defaults';
-import { mergeClientPortalSettingsForSync, normalizeBudgetItemsForSync } from '@/lib/fiesta-sync-utils';
+import { deriveBudgetModulesForSync, mergeClientPortalSettingsForSync, normalizeBudgetItemsForSync } from '@/lib/fiesta-sync-utils';
 import { readData, writeData, updateDataPartial } from '@/lib/data-service';
 import path from 'path';
 import fs from 'fs/promises';
@@ -668,6 +668,7 @@ export async function syncFiestaFromBudget(fiestaId: string) {
     modulos.fotografia = hasItem('foto') || hasItem('film') || hasItem('video') || items.some(i => ['Servicio de filmación', 'Servicio de fotografía'].includes(i.categoriaServicio || ''));
     modulos.decoracion = items.some(i => i.categoriaServicio === 'Servicio de decoración') || hasItem('decorac') || hasItem('ambientac');
     modulos.regalos = true; // Siempre activo para coordinar
+    Object.assign(modulos, deriveBudgetModulesForSync(items));
     
     updatedFiesta.modulosContratados = modulos;
 

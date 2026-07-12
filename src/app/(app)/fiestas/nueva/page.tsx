@@ -25,6 +25,7 @@ import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/
 import { Label } from '@/components/ui/label';
 import { Switch } from '@/components/ui/switch';
 import { defaultModulosContratados } from '@/lib/fiesta-defaults';
+import { ALWAYS_VISIBLE_PLANNER_MODULE_IDS } from '@/lib/planner-modules';
 import { cn } from '@/lib/utils';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Badge } from '@/components/ui/badge';
@@ -165,9 +166,6 @@ const quickModes: { id: QuickMode; label: string; icon: React.ElementType; color
   { id: 'tecnologia',  label: 'Tecnología AK',   icon: Monitor,   color: 'bg-indigo-600 text-white',          moduleIds: ['centroTotal', 'paginaWeb', 'moduloInvitado', 'redSocial', 'muroSocial', 'zonaDigital', 'pantallasTotem', 'entretenimiento', 'barraTecnologica', 'enVivo', 'checkin'] },
 ];
 
-// Module IDs that are always visible regardless of modulosContratados
-const alwaysVisibleIds = modules.map(m => m.id);
-
 function PlannerDashboardContent() {
   const { toast } = useToast();
   const router = useRouter();
@@ -204,7 +202,7 @@ function PlannerDashboardContent() {
   };
 
   const isModuleActive = (moduleId: string) =>
-    alwaysVisibleIds.includes(moduleId) || !!modulosContratados[moduleId as keyof ModulosContratados];
+    ALWAYS_VISIBLE_PLANNER_MODULE_IDS.some(id => id === moduleId) || !!modulosContratados[moduleId as keyof ModulosContratados];
 
   const filteredModules = useMemo(() => {
     if (activeMode) {
