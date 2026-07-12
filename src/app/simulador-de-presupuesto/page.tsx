@@ -1287,7 +1287,7 @@ function SimuladorContent() {
 
     if (step === 6 && generatedPresupuestoId) {
         return (
-            <div className="min-h-screen bg-slate-50 flex flex-col items-center py-10 px-2 sm:px-4 print:bg-white print:p-0">
+            <div className="ak-public-page flex min-h-screen flex-col items-center px-2 py-10 sm:px-4 print:bg-white print:p-0">
                 <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.6 }} className="w-full max-w-3xl space-y-8">
 
                     <div className="flex justify-center mb-2 print:hidden">
@@ -1566,13 +1566,13 @@ function SimuladorContent() {
     }
 
     return (
-        <div className="min-h-screen bg-slate-100 flex flex-col items-center justify-center p-2 sm:p-6 lg:p-8 gap-4">
+        <div className="ak-public-page flex min-h-screen flex-col items-center justify-center gap-4 p-2 sm:p-6 lg:p-8">
             {/* Chat Simulator Banner */}
             <div className="w-full max-w-3xl print:hidden">
               <Link href="/simulador-ak">
-                <div className="flex items-center justify-between gap-3 bg-gradient-to-r from-violet-600 to-primary text-white rounded-2xl px-5 py-4 shadow-lg hover:shadow-xl hover:from-violet-500 hover:to-primary/90 transition-all cursor-pointer group">
+                <div className="group flex cursor-pointer items-center justify-between gap-3 rounded-lg border border-slate-800 bg-slate-950 px-5 py-4 text-white shadow-lg transition-all hover:bg-slate-900">
                   <div className="flex items-center gap-3">
-                    <MessageSquare className="w-6 h-6 shrink-0 text-yellow-300" />
+                    <MessageSquare className="h-6 w-6 shrink-0 text-emerald-300" />
                     <div>
                       <p className="font-black text-sm">También podés armarlo con el Asistente AK</p>
                       <p className="text-xs text-white/70">La IA usa los mismos paquetes, servicios y precios de este simulador manual</p>

@@ -44,7 +44,7 @@ const DEFAULT_SERVICES: ServiceItem[] = [
     features: ['Gastronomía premium', 'Decoración y flores exclusivas', 'Coordinación integral del día'],
     imageUrl: '/media/catalogo-servicios/boda_persuasiva.png',
     imageHint: 'wedding ceremony',
-    accentColor: 'bg-indigo-500',
+    accentColor: 'bg-red-600',
     emoji: 'AK',
     whatsappMessage: '¡Hola AK Producciones! Me gustaría cotizar el paquete de Boda.',
     icon: Heart,
@@ -57,7 +57,7 @@ const DEFAULT_SERVICES: ServiceItem[] = [
     features: ['Pistas LED interactivas', 'Cabinas y recuerdos en vivo', 'Ambientación temática a medida'],
     imageUrl: '/media/catalogo-servicios/quinceanera_persuasiva.png',
     imageHint: 'quinceañera party',
-    accentColor: 'bg-fuchsia-500',
+    accentColor: 'bg-emerald-600',
     emoji: 'XV',
     whatsappMessage: '¡Hola AK Producciones! Me gustaría cotizar el paquete de XV Años.',
     icon: Crown,
@@ -70,7 +70,7 @@ const DEFAULT_SERVICES: ServiceItem[] = [
     features: ['Discoteca y luces pro', 'Animación y barras exclusivas', 'Organización de tiempos y sorpresas'],
     imageUrl: '/media/catalogo-servicios/social_persuasivo.png',
     imageHint: 'birthday party lights',
-    accentColor: 'bg-indigo-500',
+    accentColor: 'bg-red-600',
     emoji: 'AK',
     whatsappMessage: '¡Hola AK Producciones! Me gustaría cotizar un cumpleaños.',
     icon: Sparkles,
@@ -116,7 +116,7 @@ export function ServicesSection({ whatsappNumber = '59898355530', services }: Se
     <section id="servicios" className="border-y border-slate-200 bg-white py-24 text-slate-950">
       <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
         <div className="mb-16 max-w-3xl">
-          <span className="mb-4 inline-flex items-center gap-2 rounded-md border border-indigo-200 bg-indigo-50 px-3 py-1 text-xs font-black uppercase tracking-widest text-indigo-700">
+          <span className="mb-4 inline-flex items-center gap-2 rounded-md border border-red-200 bg-red-50 px-3 py-1 text-xs font-bold text-red-700">
             <Sparkles className="h-3.5 w-3.5" />
             Todo en un solo lugar
           </span>
@@ -130,7 +130,7 @@ export function ServicesSection({ whatsappNumber = '59898355530', services }: Se
 
         <div className="mb-20">
           <div className="mb-8 flex items-center gap-3">
-            <Calendar className="h-6 w-6 text-indigo-600" />
+            <Calendar className="h-6 w-6 text-red-700" />
             <div>
               <h3 className="font-headline text-2xl font-black text-slate-950">Celebraciones que producimos</h3>
               <p className="mt-1 text-sm font-medium text-slate-500">Cada tipo de evento conserva su estética, tiempos y prioridades.</p>
@@ -143,9 +143,9 @@ export function ServicesSection({ whatsappNumber = '59898355530', services }: Se
               return (
                 <div
                   key={party.title}
-                  className="rounded-lg border border-slate-200 bg-slate-50 p-5 transition-all duration-300 hover:-translate-y-1 hover:border-indigo-200 hover:bg-white hover:shadow-lg"
+                  className="rounded-lg border border-slate-200 bg-slate-50 p-5 transition-all duration-300 hover:-translate-y-1 hover:border-red-200 hover:bg-white hover:shadow-lg"
                 >
-                  <div className="mb-4 flex h-11 w-11 items-center justify-center rounded-md border border-indigo-100 bg-white text-indigo-600">
+                  <div className="mb-4 flex h-11 w-11 items-center justify-center rounded-md border border-emerald-100 bg-emerald-50 text-emerald-700">
                     <Icon className="h-5 w-5" />
                   </div>
                   <h4 className="font-headline text-lg font-black text-slate-950">{party.title}</h4>
@@ -183,7 +183,7 @@ export function ServicesSection({ whatsappNumber = '59898355530', services }: Se
                 <motion.article
                   key={service.id}
                   variants={cardVariants}
-                  className="group flex flex-col justify-between overflow-hidden rounded-lg border border-slate-200 bg-white shadow-sm transition-all duration-300 hover:-translate-y-1 hover:border-indigo-200 hover:shadow-xl"
+                  className="group flex flex-col justify-between overflow-hidden rounded-lg border border-slate-200 bg-white shadow-sm transition-all duration-300 hover:-translate-y-1 hover:border-red-200 hover:shadow-xl"
                 >
                   <div>
                     <div className="relative aspect-[4/3] w-full overflow-hidden bg-slate-100">
@@ -195,15 +195,15 @@ export function ServicesSection({ whatsappNumber = '59898355530', services }: Se
                         sizes="(max-width: 768px) 100vw, 30vw"
                         unoptimized={true}
                       />
-                      <div className="absolute inset-0 bg-gradient-to-t from-slate-950/35 to-transparent" />
-                      <div className="absolute left-4 top-4 flex h-11 w-11 items-center justify-center rounded-md border border-white/40 bg-white/90 text-sm font-black text-indigo-700 shadow-sm backdrop-blur">
+                      <div className="absolute inset-0 bg-slate-950/25" />
+                      <div className="absolute left-4 top-4 flex h-11 w-11 items-center justify-center rounded-md border border-white/40 bg-white/90 text-sm font-black text-red-700 shadow-sm">
                         {Icon ? <Icon className="h-5 w-5" /> : service.emoji}
                       </div>
                     </div>
 
                     <div className="space-y-4 p-6 text-left">
                       <div>
-                        <p className="text-xs font-black uppercase tracking-widest text-indigo-600">{service.subtitle}</p>
+                        <p className="text-xs font-bold text-red-700">{service.subtitle}</p>
                         <h4 className="mt-2 font-headline text-xl font-black text-slate-950">
                           {service.title}
                         </h4>
@@ -215,7 +215,7 @@ export function ServicesSection({ whatsappNumber = '59898355530', services }: Se
                       <ul className="space-y-2 pt-1">
                         {service.features.map((feat) => (
                           <li key={feat} className="flex items-start gap-2 text-sm font-medium text-slate-700">
-                            <span className="mt-2 h-1.5 w-1.5 shrink-0 rounded-full bg-indigo-500" />
+                            <span className="mt-2 h-1.5 w-1.5 shrink-0 rounded-full bg-emerald-600" />
                             <span>{feat}</span>
                           </li>
                         ))}
@@ -230,8 +230,8 @@ export function ServicesSection({ whatsappNumber = '59898355530', services }: Se
                       rel="noopener noreferrer"
                       className={cn(
                         'mt-5 flex w-full items-center justify-center gap-2 rounded-md px-4 py-3.5',
-                        'border border-indigo-200 bg-indigo-50 text-xs font-black uppercase tracking-wider text-indigo-700',
-                        'shadow-sm transition-all duration-200 hover:border-indigo-600 hover:bg-indigo-600 hover:text-white active:scale-[0.98]'
+                        'border border-red-200 bg-red-50 text-xs font-bold text-red-700',
+                        'shadow-sm transition-all duration-200 hover:border-red-700 hover:bg-red-700 hover:text-white active:scale-[0.98]'
                       )}
                     >
                       <MessageSquare className="h-4 w-4 shrink-0" />

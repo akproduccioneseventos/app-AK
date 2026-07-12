@@ -89,13 +89,13 @@ export function LandingSpaContainer({
   );
 
   return (
-    <div className="min-h-screen text-white selection:bg-indigo-600 selection:text-white">
+    <div className="min-h-screen text-white selection:bg-red-700 selection:text-white">
       <motion.div
         style={{ scaleX: progressScale }}
-        className="fixed left-0 top-0 z-[70] h-1 w-full origin-left bg-indigo-500"
+        className="fixed left-0 top-0 z-[70] h-1 w-full origin-left bg-red-600"
       />
 
-      <nav className="fixed right-4 top-1/2 z-[60] hidden -translate-y-1/2 flex-col gap-2 rounded-lg border border-white/10 bg-zinc-950/78 p-2 shadow-xl shadow-black/25 backdrop-blur-md xl:flex">
+      <nav className="hidden">
         {NAV_ITEMS.map(([key, label]) => (
           <button
             key={key}
