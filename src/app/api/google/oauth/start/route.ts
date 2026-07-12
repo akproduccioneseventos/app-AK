@@ -3,6 +3,7 @@ import { buildGoogleAuthUrl, getPublicAppOrigin } from '@/lib/google-workspace';
 import { hasAppSession } from '@/lib/auth/require-session';
 
 export const runtime = 'nodejs';
+export const dynamic = 'force-dynamic';
 
 export async function GET(request: NextRequest) {
   if (!(await hasAppSession())) {
