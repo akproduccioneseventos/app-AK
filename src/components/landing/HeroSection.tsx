@@ -5,6 +5,7 @@ import { motion, useReducedMotion } from 'framer-motion';
 import { ArrowRight, MessageSquare, ChevronDown, Zap } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import type { PromoActiva } from '@/types/promo';
+import { AK_WHATSAPP_NUMBER } from '@/lib/public-contact';
 
 interface HeroSectionProps {
   whatsappNumber?: string;
@@ -19,7 +20,7 @@ interface HeroSectionProps {
 }
 
 export function HeroSection({
-  whatsappNumber = '59899123456',
+  whatsappNumber = AK_WHATSAPP_NUMBER,
   headline = 'Disfrutá tu Fiesta,\nNosotros nos Encargamos del Resto',
   subheadline = 'La paz mental de saber que tu evento está en manos expertas. Desde el catering premium hasta la tecnología interactiva, coordinamos cada detalle para que vos solo te dediques a vivir el momento.',
   backgroundImageUrl = '/media/catalogo-servicios/quinceanera_hero.png',
@@ -30,6 +31,11 @@ export function HeroSection({
   simulatorLabel = 'Simular Presupuesto',
 }: HeroSectionProps) {
   const waHref = `https://wa.me/${whatsappNumber}?text=${encodeURIComponent(whatsappMessage)}`;
+  const configuredPromoHref = promoActiva?.ctaUrl?.trim() || '';
+  const promoHref =
+    /^https?:\/\//i.test(configuredPromoHref) || configuredPromoHref.startsWith('/')
+      ? configuredPromoHref
+      : waHref;
   const reduceMotion = useReducedMotion();
 
   const containerVariants = {
@@ -65,7 +71,9 @@ export function HeroSection({
           {promoActiva && (
             <motion.a
               variants={itemVariants}
-              href="#promo"
+              href={promoHref}
+              target={promoHref.startsWith('http') ? '_blank' : undefined}
+              rel={promoHref.startsWith('http') ? 'noopener noreferrer' : undefined}
               className="mb-4 inline-flex items-center gap-2 rounded-md border border-white/30 bg-black/20 px-4 py-2 text-xs font-bold text-white transition-colors hover:bg-black/40"
             >
               <Zap className="w-3.5 h-3.5 text-amber-200" />

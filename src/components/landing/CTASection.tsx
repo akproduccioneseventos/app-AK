@@ -2,6 +2,7 @@
 
 import { MessageSquare, Phone, Instagram, Facebook, Music } from 'lucide-react';
 import { cn } from '@/lib/utils';
+import { AK_WHATSAPP_NUMBER } from '@/lib/public-contact';
 
 interface CTASectionProps {
   whatsappNumber?: string;
@@ -13,7 +14,7 @@ interface CTASectionProps {
 }
 
 export function CTASection({
-  whatsappNumber = '59898355530',
+  whatsappNumber = AK_WHATSAPP_NUMBER,
   headline = '¿Listo para tu\nEvento Soñado?',
   subheadline = 'Escribinos hoy y recibí una cotización personalizada sin costo. Estamos listos para hacer realidad tu celebración.',
   ctaLabel = '¡Cotizá tu evento!',
