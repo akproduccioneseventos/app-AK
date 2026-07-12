@@ -25,16 +25,16 @@ const steps = [
 
 export function ProcessSection() {
   return (
-    <section className="py-24 bg-white" id="proceso">
+    <section className="py-24 bg-zinc-950" id="proceso">
       <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="text-center mb-16">
-          <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-slate-100 text-slate-700 text-xs font-black uppercase tracking-widest mb-6">
+          <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-white/5 border border-white/10 text-indigo-300 text-xs font-black uppercase tracking-widest mb-6 backdrop-blur">
             🚀 Cómo Trabajamos
           </div>
-          <h2 className="text-4xl sm:text-5xl font-black text-slate-900 mb-4">
+          <h2 className="text-4xl sm:text-5xl font-black text-white mb-4">
             Proceso de Trabajo
           </h2>
-          <p className="text-slate-500 text-lg max-w-xl mx-auto">
+          <p className="text-zinc-400 text-lg max-w-xl mx-auto">
             Simple, transparente y enfocado en hacerte la vida más fácil
           </p>
         </div>
@@ -42,7 +42,7 @@ export function ProcessSection() {
         {/* Desktop: horizontal timeline */}
         <div className="hidden md:flex items-start justify-between relative">
           {/* Connector line */}
-          <div className="absolute top-10 left-[16.66%] right-[16.66%] h-0.5 bg-gradient-to-r from-purple-300 via-blue-300 to-amber-300" />
+          <div className="absolute top-10 left-[16.66%] right-[16.66%] h-0.5 bg-gradient-to-r from-purple-500/40 via-indigo-500/40 to-amber-500/40" />
 
           {steps.map((step, i) => (
             <div key={i} className="flex flex-col items-center text-center w-1/3 px-6 relative">
@@ -53,11 +53,11 @@ export function ProcessSection() {
               )}>
                 {step.icon}
               </div>
-              <div className="absolute -top-2 -right-2 w-7 h-7 rounded-full bg-white border-2 border-purple-300 flex items-center justify-center text-xs font-black text-purple-600 z-10">
+              <div className="absolute -top-2 -right-2 w-7 h-7 rounded-full bg-zinc-950 border-2 border-indigo-500/40 flex items-center justify-center text-xs font-black text-indigo-300 z-10">
                 {i + 1}
               </div>
-              <h3 className="text-lg font-black text-slate-900 mb-2">{step.title}</h3>
-              <p className="text-slate-500 text-sm leading-relaxed">{step.description}</p>
+              <h3 className="text-lg font-black text-white mb-2">{step.title}</h3>
+              <p className="text-zinc-400 text-sm leading-relaxed">{step.description}</p>
             </div>
           ))}
         </div>
@@ -75,15 +75,15 @@ export function ProcessSection() {
                   {step.icon}
                 </div>
                 {i < steps.length - 1 && (
-                  <div className="w-0.5 flex-1 bg-gradient-to-b from-purple-300 to-amber-300 my-2 min-h-[2rem]" />
+                  <div className="w-0.5 flex-1 bg-gradient-to-b from-purple-500/30 to-amber-500/30 my-2 min-h-[2rem]" />
                 )}
               </div>
               <div className="pt-2 pb-4">
                 <div className="flex items-center gap-2 mb-1">
-                  <span className="text-xs font-black text-purple-600 uppercase tracking-widest">Paso {i + 1}</span>
+                  <span className="text-xs font-black text-indigo-400 uppercase tracking-widest">Paso {i + 1}</span>
                 </div>
-                <h3 className="text-base font-black text-slate-900 mb-1">{step.title}</h3>
-                <p className="text-slate-500 text-sm leading-relaxed">{step.description}</p>
+                <h3 className="text-base font-black text-white mb-1">{step.title}</h3>
+                <p className="text-zinc-400 text-sm leading-relaxed">{step.description}</p>
               </div>
             </div>
           ))}
