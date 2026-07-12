@@ -13,8 +13,13 @@
 
 'use server';
 
-import type { MetodoPago } from '@/types/presupuesto';
-import { roundMoney, sumConfirmedClientPayments, validatePaymentAgainstBudget } from '@/lib/budget/financial-guardrails';
+import type { MetodoPago, Presupuesto } from '@/types/presupuesto';
+import {
+  findMatchingClientPayment,
+  roundMoney,
+  sumConfirmedClientPayments,
+  validatePaymentAgainstBudget,
+} from '@/lib/budget/financial-guardrails';
 
 export interface DepositInput {
   /** ID de la fiesta (obligatorio para vincular la factura al evento) */
@@ -46,13 +51,22 @@ export async function registerContractDeposit(input: DepositInput): Promise<Depo
 
   if (!fiestaId) return { success: false, error: 'fiestaId es requerido.' };
   if (!normalizedAmount || normalizedAmount <= 0) return { success: false, error: 'El monto debe ser mayor a cero.' };
+  const parsedDate = new Date(date);
+  if (Number.isNaN(parsedDate.getTime())) return { success: false, error: 'La fecha de la seña no es válida.' };
+  const paymentDay = parsedDate.toISOString().slice(0, 10);
+  const paymentReference = referencia || `Seña contrato:${fiestaId}:${paymentDay}:${normalizedAmount}`;
 
   try {
+    let existingBudget: Presupuesto | null = null;
+    let existingPayment = false;
     if (presupuestoId) {
       const { getPresupuestoById } = await import('@/app/actions/presupuestos');
-      const presupuesto = await getPresupuestoById(presupuestoId);
-      if (presupuesto) {
-        const validation = validatePaymentAgainstBudget(presupuesto, normalizedAmount, { includePendingForLimit: true });
+      existingBudget = await getPresupuestoById(presupuestoId);
+      if (existingBudget) {
+        existingPayment = Boolean(findMatchingClientPayment(existingBudget.pagosCliente, normalizedAmount, date));
+        const validation = existingPayment
+          ? { ok: true as const }
+          : validatePaymentAgainstBudget(existingBudget, normalizedAmount, { includePendingForLimit: true });
         if (!validation.ok) return { success: false, error: validation.error };
       }
     }
@@ -73,15 +87,15 @@ export async function registerContractDeposit(input: DepositInput): Promise<Depo
     // 2. Si tenemos presupuestoId, actualizar presupuesto.pagosCliente y senia/saldo
     if (presupuestoId) {
       const { getPresupuestoById, updatePresupuesto } = await import('@/app/actions/presupuestos');
-      const presupuesto = await getPresupuestoById(presupuestoId);
+      const presupuesto = existingBudget ?? await getPresupuestoById(presupuestoId);
 
-      if (presupuesto) {
+      if (presupuesto && !existingPayment) {
         const newPago = {
           id: `pago_dep_${presupuestoId}_${Date.now()}`,
           fecha: date,
           monto: normalizedAmount,
           metodoPago: method as MetodoPago,
-          referencia: referencia || 'Seña inicial de contratación',
+          referencia: paymentReference,
           estadoPago: 'confirmado' as const,
         };
 

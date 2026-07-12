@@ -8,7 +8,7 @@ import { subMonths, format, isBefore, startOfToday, addDays, isSameDay, addMonth
 import { es } from 'date-fns/locale';
 import { getCrmLeadsForDashboard } from './crm';
 import { getRoles } from './roles';
-import { calculateFinancialLedger, getReconciledSalePayments } from '@/lib/commercial-flow/ledger-service';
+import { calculateFinancialLedger, getReconciledSalePayments, isFirmSalesInvoice } from '@/lib/commercial-flow/ledger-service';
 import { getPrioridadesDescartadas } from './alertas.actions';
 import { getBudgetPaymentSummary } from '@/lib/budget/financial-guardrails';
 import { verifySession } from '@/lib/auth/session-token';
@@ -293,7 +293,10 @@ export async function getCashFlowProjection() {
       projectionMonths.push({ month: getMonthKey(date), income: 0, expenses: 0, balance: 0 });
     }
 
-    const invoicedPresupuestoIds = new Set(presupuestos.filter(p => p.invoiceId).map(p => p.id));
+    const firmInvoiceIds = new Set(invoices.filter(isFirmSalesInvoice).map(invoice => invoice.id));
+    const invoicedPresupuestoIds = new Set(
+      presupuestos.filter(p => p.invoiceId && firmInvoiceIds.has(p.invoiceId)).map(p => p.id)
+    );
 
     const linkedBudgetByInvoiceId = new Map(
       presupuestos
@@ -302,6 +305,7 @@ export async function getCashFlowProjection() {
     );
 
     invoices.forEach(inv => {
+      if (!isFirmSalesInvoice(inv)) return;
       if (inv.status === 'Paid') return;
       const reconciledPayments = getReconciledSalePayments(inv, linkedBudgetByInvoiceId.get(inv.id));
       const paidAmount = reconciledPayments.reduce((sum, p) => sum + p.amount, 0);

@@ -1015,6 +1015,7 @@ export async function duplicateFiesta(fiestaId: string): Promise<{ success: bool
 export async function addInvoiceId(fiestaId: string, invoiceId: string) {
   const f = await getFiestaById(fiestaId);
   if (!f) return { success: false };
+  if ((f.invoiceIds || []).includes(invoiceId)) return { success: true };
   return await saveFiesta({ ...f, invoiceIds: [...(f.invoiceIds || []), invoiceId] });
 }
 

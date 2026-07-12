@@ -9,7 +9,7 @@
 
 import { buildContractData, buildContractDataFromPresupuesto } from '@/lib/commercial-flow/contract-builder';
 import { auditPresupuestoTotals } from '@/lib/commercial-flow/budget-audit';
-import { calculateFinancialLedger } from '@/lib/commercial-flow/ledger-service';
+import { calculateFinancialLedger, findExistingDepositReceipt, isDepositReceiptInvoice } from '@/lib/commercial-flow/ledger-service';
 import type { Presupuesto } from '@/types/presupuesto';
 import type { Invoice } from '@/types/invoice';
 
@@ -284,6 +284,72 @@ describe('auditPresupuestoTotals', () => {
 // ─────────────────────────────────────────────────────────────────────────────
 
 describe('calculateFinancialLedger', () => {
+
+  it('recognizes current and legacy deposit receipts', () => {
+    expect(isDepositReceiptInvoice(makeInvoice({ documentKind: 'deposit_receipt' }))).toBe(true);
+    expect(isDepositReceiptInvoice(makeInvoice({ invoiceNumber: 'SEÑA-12345' }))).toBe(true);
+    expect(isDepositReceiptInvoice(makeInvoice({ invoiceNumber: 'F-001' }))).toBe(false);
+  });
+
+  it('reuses the same event deposit receipt on a network retry', () => {
+    const receipt = makeInvoice({
+      id: 'receipt_retry',
+      invoiceNumber: 'SEÑA-00002',
+      documentKind: 'deposit_receipt',
+      sourceFiestaId: 'fiesta_1',
+      payments: [
+        { id: 'pay_retry', paymentDate: '2025-02-01T15:00:00.000Z', amount: 20000, method: 'Transferencia' },
+      ],
+    });
+
+    expect(findExistingDepositReceipt([receipt], {
+      fiestaId: 'fiesta_1',
+      amount: 20000,
+      date: '2025-02-01T18:00:00.000Z',
+    })?.id).toBe('receipt_retry');
+  });
+
+  it('does not duplicate a deposit receipt mirrored in the accepted budget', () => {
+    const presupuestos = [
+      makePresupuesto({
+        id: 'p_deposit',
+        pagosCliente: [
+          { id: 'pg1', fecha: '2025-02-01', monto: 20000, metodoPago: 'Transferencia Bancaria', estadoPago: 'confirmado' },
+        ],
+      }),
+    ];
+    const invoices = [
+      makeInvoice({
+        id: 'deposit_receipt',
+        invoiceNumber: 'SEÑA-00001',
+        documentKind: 'deposit_receipt',
+        sourcePresupuestoId: 'p_deposit',
+        totalAmount: 20000,
+        status: 'Paid',
+        payments: [
+          { id: 'pay1', paymentDate: '2025-02-01', amount: 20000, method: 'Transferencia' },
+        ],
+      }),
+    ];
+
+    const ledger = calculateFinancialLedger(presupuestos, invoices);
+
+    expect(ledger.ventasTotales).toBe(70000);
+    expect(ledger.totalCobrado).toBe(20000);
+    expect(ledger.saldoPendiente).toBe(50000);
+    expect(ledger.cantidadFacturas).toBe(0);
+  });
+
+  it('uses an accepted budget while its linked sales invoice is still a draft', () => {
+    const presupuestos = [makePresupuesto({ id: 'p_draft', invoiceId: 'inv_draft' })];
+    const invoices = [makeInvoice({ id: 'inv_draft', status: 'Draft' })];
+
+    const ledger = calculateFinancialLedger(presupuestos, invoices);
+
+    expect(ledger.ventasTotales).toBe(70000);
+    expect(ledger.presupuestosAceptadosSinFactura).toBe(1);
+    expect(ledger.cantidadFacturas).toBe(0);
+  });
   it('suma ventas de facturas y presupuestos aceptados sin factura', () => {
     const presupuestos = [
       makePresupuesto({ id: 'p1', estado: 'Aceptado', invoiceId: undefined, totalConDescuento: 70000 }),
