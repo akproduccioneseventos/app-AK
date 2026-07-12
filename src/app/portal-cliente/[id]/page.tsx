@@ -248,13 +248,13 @@ export default function PortalClientePage() {
   // ── Login ────────────────────────────────────────────────────
   if (!isAuthenticated) {
     return (
-      <div className="flex items-center justify-center min-h-screen bg-gradient-to-br from-purple-50 to-white p-4">
-        <Card className="max-w-sm w-full shadow-2xl">
+      <div className="ak-public-page flex min-h-screen items-center justify-center p-4">
+        <Card className="w-full max-w-sm rounded-lg border-slate-200 shadow-xl">
           <CardHeader className="text-center space-y-3">
             <div className="relative w-14 h-14 mx-auto opacity-80">
               <CompanyLogo size="md" className="mx-auto" />
             </div>
-            <KeyRound className="w-10 h-10 mx-auto text-purple-600" />
+            <KeyRound className="w-10 h-10 mx-auto text-red-700" />
             <CardTitle className="text-xl font-black">Portal del Cliente</CardTitle>
             <CardDescription>Ingresá la contraseña que te dio tu organizador.</CardDescription>
           </CardHeader>
@@ -274,7 +274,7 @@ export default function PortalClientePage() {
               {authError && <p className="text-sm text-red-600 text-center">{authError}</p>}
             </CardContent>
             <CardFooter>
-              <Button type="submit" className="w-full bg-purple-700 hover:bg-purple-800">
+              <Button type="submit" className="w-full bg-red-700 hover:bg-red-800">
                 <LogIn className="w-4 h-4 mr-2" /> Ingresar
               </Button>
             </CardFooter>
@@ -341,7 +341,7 @@ export default function PortalClientePage() {
     .slice(0, 10);
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-purple-50 via-white to-pink-50">
+    <div className="ak-public-page">
       {/* Header */}
       <header className="bg-white border-b border-slate-100 shadow-sm sticky top-0 z-40">
         <div className="max-w-4xl mx-auto px-4 h-14 flex items-center gap-3">
@@ -352,7 +352,7 @@ export default function PortalClientePage() {
             <p className="text-sm font-black text-slate-900 truncate">{config.nombreEvento}</p>
             <p className="text-xs text-slate-500">{config.tipoCelebracion} · {formatDate(config.fechaEvento)}</p>
           </div>
-          <Badge variant="outline" className="text-purple-700 border-purple-200 bg-purple-50 shrink-0">
+          <Badge variant="outline" className="shrink-0 border-red-200 bg-red-50 text-red-700">
             Portal VIP
           </Badge>
         </div>
@@ -362,9 +362,9 @@ export default function PortalClientePage() {
       {heroImageUrl && (
         <div
           className="relative w-full overflow-hidden"
-          style={{ minHeight: 220, background: primaryColor ? `${primaryColor}22` : 'linear-gradient(135deg,#6d28d9 0%,#db2777 100%)' }}
+          style={{ minHeight: 220, background: primaryColor ?? '#991b1b' }}
         >
-          <div className="absolute inset-0 bg-gradient-to-b from-black/20 via-transparent to-black/60" />
+          <div className="absolute inset-0 bg-slate-950/55" />
           <NextImage
             src={heroImageUrl}
             alt={config.protagonista1Nombre ?? 'Protagonista'}
@@ -392,14 +392,14 @@ export default function PortalClientePage() {
 
         {/* ── Mensaje de Bienvenida personalizado ──────── */}
         {welcomeMsg && (
-          <div className="rounded-2xl p-4 text-center border border-purple-100 bg-purple-50/60">
-            <p className="text-sm font-semibold text-purple-800">{welcomeMsg}</p>
+          <div className="rounded-lg border border-red-100 bg-red-50 p-4 text-center">
+            <p className="text-sm font-semibold text-red-800">{welcomeMsg}</p>
           </div>
         )}
 
         {/* ── Mensaje del Organizador ───────────────────── */}
         {organizerMsg && (
-          <div className="rounded-2xl p-4 border border-amber-100 bg-amber-50/60 flex gap-3 items-start">
+          <div className="flex items-start gap-3 rounded-lg border border-amber-100 bg-amber-50 p-4">
             <span className="text-2xl shrink-0">💬</span>
             <div>
               <p className="text-xs font-black uppercase tracking-widest text-amber-700 mb-1">Mensaje de tu Organizador</p>
@@ -409,7 +409,7 @@ export default function PortalClientePage() {
         )}
 
         {isEventPast && (
-          <div className="rounded-3xl p-5 border border-indigo-100 bg-indigo-50/50 flex flex-col sm:flex-row gap-4 items-center justify-between shadow-sm">
+          <div className="flex flex-col items-center justify-between gap-4 rounded-lg border border-emerald-100 bg-emerald-50 p-5 shadow-sm sm:flex-row">
             <div className="flex gap-3.5 items-start">
               <span className="text-3xl shrink-0">✨</span>
               <div className="text-left">
@@ -421,7 +421,7 @@ export default function PortalClientePage() {
               </div>
             </div>
             <Link href={`/portal-cliente/${fiestaId}/fotos-video`} className="w-full sm:w-auto shrink-0">
-              <Button className="w-full sm:w-auto bg-indigo-600 hover:bg-indigo-700 text-white rounded-xl font-bold px-5 h-11">
+              <Button className="h-11 w-full rounded-lg bg-emerald-700 px-5 font-bold text-white hover:bg-emerald-800 sm:w-auto">
                 Acceder a Recuerdos
               </Button>
             </Link>
@@ -442,7 +442,7 @@ export default function PortalClientePage() {
             { label: 'Invitados', emoji: '👥', href: `/portal-cliente/${fiestaId}/confirmar-invitados`, desc: 'Confirmaciones' },
           ].map((item, i) => (
             <a key={i} href={item.href} className="block">
-              <div className="rounded-2xl border border-slate-100 bg-white p-4 text-center hover:shadow-md hover:border-purple-200 transition-all cursor-pointer space-y-1">
+              <div className="cursor-pointer space-y-1 rounded-lg border border-slate-200 bg-white p-4 text-center transition-all hover:border-red-200 hover:shadow-md">
                 <span className="text-3xl block">{item.emoji}</span>
                 <p className="font-black text-sm text-slate-800">{item.label}</p>
                 <p className="text-xs text-slate-400">{item.desc}</p>
@@ -466,7 +466,7 @@ export default function PortalClientePage() {
           const label = isBoda ? 'Ver Catálogo Completo de Bodas' : isXV ? 'Ver Catálogo Completo de XV Años' : 'Ver Catálogo Completo de Fiestas';
           return (
             <Link href={catalogoPath} className="block">
-              <div className="flex items-center justify-between p-4 rounded-2xl bg-primary/5 border border-primary/10 hover:bg-primary/10 transition-colors cursor-pointer">
+              <div className="flex cursor-pointer items-center justify-between rounded-lg border border-red-100 bg-red-50 p-4 transition-colors hover:bg-red-100">
                 <div className="flex items-center gap-3">
                   <span className="text-2xl">{emoji}</span>
                   <div>
