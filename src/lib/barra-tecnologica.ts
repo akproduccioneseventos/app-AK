@@ -1,9 +1,17 @@
 import type { Trago } from '@/types/fiesta';
+import type { BarDrinkOrderStatus } from '@/types/barra-tecnologica';
 import type { BarTechnologySettings } from '@/types/barra-tecnologica';
 
 type DrinkMarketingFields = Pick<Trago, 'nombre' | 'ingredientes' | 'descripcion' | 'description' | 'videoUrl'>;
 
 const BAR_TIME_PATTERN = /^([01]\d|2[0-3]):([0-5]\d)$/;
+
+export function shouldDiscountBarStock(
+  previousStatus: BarDrinkOrderStatus,
+  nextStatus: BarDrinkOrderStatus,
+): boolean {
+  return nextStatus === 'entregado' && previousStatus !== 'entregado';
+}
 
 export function getDrinkDescription(drink: DrinkMarketingFields): string {
   const customDescription = (drink.descripcion || drink.description || '').trim();
