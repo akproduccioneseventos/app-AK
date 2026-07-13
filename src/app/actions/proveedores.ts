@@ -3,6 +3,7 @@
 
 import type { Proveedor, NuevoProveedorFormData } from '@/types/proveedor';
 import { readData, writeData } from '@/lib/data-service';
+import { requireAppSession } from '@/lib/auth/require-session';
 
 const PROVEEDORES_FILE = 'proveedores.json';
 
@@ -18,6 +19,7 @@ export async function getProveedorById(id: string): Promise<Proveedor | null> {
 export async function saveProveedor(
   proveedorData: NuevoProveedorFormData | Proveedor
 ): Promise<{ success: boolean; id?: string; proveedor?: Proveedor; error?: string }> {
+  await requireAppSession();
   let proveedores = await getProveedores();
   let finalProveedorData: Proveedor;
   let proveedorId: string;
@@ -64,6 +66,7 @@ export async function saveProveedor(
 }
 
 export async function deleteProveedor(id: string): Promise<{ success: boolean; error?: string }> {
+  await requireAppSession();
   let proveedores = await getProveedores();
   const initialLength = proveedores.length;
   proveedores = proveedores.filter(p => p.id !== id);

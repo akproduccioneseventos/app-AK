@@ -3,6 +3,7 @@
 
 import { readData, writeData } from '@/lib/data-service';
 import type { Rol, NuevoRolFormData } from '@/types/rol';
+import { requireAppSession } from '@/lib/auth/require-session';
 
 const ROLES_FILE = 'roles.json';
 
@@ -18,6 +19,7 @@ export async function getRolById(id: string): Promise<Rol | null> {
 export async function saveRol(
   rolData: Rol | NuevoRolFormData
 ): Promise<{ success: boolean; id?: string; rol?: Rol; error?: string }> {
+  await requireAppSession();
   if (!rolData.nombre?.trim()) {
     return { success: false, error: "El nombre del rol es obligatorio." };
   }
@@ -64,6 +66,7 @@ export async function saveRol(
 }
 
 export async function deleteRol(id: string): Promise<{ success: boolean; error?: string }> {
+  await requireAppSession();
   let roles = await getRoles();
   const initialLength = roles.length;
   roles = roles.filter(r => r.id !== id);

@@ -2,6 +2,7 @@
 
 import { readData, writeData } from '@/lib/data-service';
 import type { PromoActiva } from '@/types/promo';
+import { requireAppSession } from '@/lib/auth/require-session';
 
 const PROMOS_FILE = 'promos.json';
 
@@ -21,6 +22,7 @@ export async function getPromoActiva(): Promise<PromoActiva | null> {
 export async function savePromo(
   data: Omit<PromoActiva, 'id' | 'creadoEn' | 'actualizadoEn'> & { id?: string }
 ): Promise<{ success: boolean; error?: string; promo?: PromoActiva }> {
+  await requireAppSession();
   try {
     const promos = await getPromos();
     const now = new Date().toISOString();
@@ -48,6 +50,7 @@ export async function savePromo(
 }
 
 export async function deletePromo(id: string): Promise<{ success: boolean; error?: string }> {
+  await requireAppSession();
   try {
     const promos = await getPromos();
     const filtered = promos.filter((p) => p.id !== id);
@@ -60,6 +63,7 @@ export async function deletePromo(id: string): Promise<{ success: boolean; error
 }
 
 export async function togglePromo(id: string): Promise<{ success: boolean; error?: string }> {
+  await requireAppSession();
   try {
     const promos = await getPromos();
     const idx = promos.findIndex((p) => p.id === id);
