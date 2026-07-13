@@ -19,10 +19,10 @@ Este documento evita repetir auditorias y evita declarar como aprobado algo que 
 | MONEY-01 | Senas, pagos, facturas, flujo de caja, costos y rentabilidad por evento | APROBADO_LOCAL | PR #746; pruebas financieras focalizadas y suite completa |
 | PLANNER-01 | Activacion y sincronizacion de modulos contratados | APROBADO_LOCAL | PR #746; pruebas del mapa de modulos |
 | PUBLIC-01 | Simulador publico, portal cliente y muro social publico | APROBADO_LOCAL | PR #746; Playwright escritorio/movil y pruebas funcionales de portal |
-| SECURITY-01 | Sesiones, portal, documentos, OAuth y acciones administrativas | APROBADO_LOCAL | PR #747 integrada; 135 operaciones sensibles protegidas, rutas dinamicas, TypeScript, pruebas y build aprobados |
+| SECURITY-01 | Sesiones, portal, documentos, OAuth y acciones administrativas | APROBADO_LOCAL | PR #747 integrada; 0 escrituras exportadas sin clasificar, rutas dinamicas, TypeScript, pruebas y build aprobados |
 | FLOW-01 | Enlaces inexistentes, creacion de evento, confirmaciones falsas de guardado y borrado de factura | APROBADO_LOCAL | PR #748 integrada; pruebas de regresion y suite conjunta aprobadas |
 | API-01 | Clasificacion completa de rutas API y firmas de webhooks Meta/Twilio | APROBADO_LOCAL | PR #747; todas las rutas clasificadas, Twilio form-urlencoded y HMAC Meta/Twilio probados |
-| COMBINED-01 | PR #747, #748, #749 y #750 aplicadas sobre la base #746 | APROBADO_LOCAL | 944 pruebas Jest, 4 reglas Firestore, 13 Playwright PC/movil, TypeScript, lint sin errores y build 258/258 paginas estaticas |
+| COMBINED-01 | PR #747, #748, #749 y #750 aplicadas sobre la base #746 | APROBADO_LOCAL | 958 pruebas Jest, 4 reglas Firestore, 13 Playwright PC/movil, TypeScript, lint sin errores y build 258/258 paginas estaticas |
 
 ## Cobertura pendiente, sin declarar aprobada
 
