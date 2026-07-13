@@ -10,6 +10,7 @@ import {
 } from 'lucide-react';
 import { motion, useReducedMotion } from 'framer-motion';
 import { Button } from '@/components/ui/button';
+import { AK_WHATSAPP_NUMBER } from '@/lib/public-contact';
 
 interface TechnologyExperienceSectionProps {
   whatsappNumber?: string;
@@ -34,7 +35,7 @@ const techFeatures = [
 ];
 
 export default function TechnologyExperienceSection({
-  whatsappNumber = '59898355530',
+  whatsappNumber = AK_WHATSAPP_NUMBER,
 }: TechnologyExperienceSectionProps) {
   const reduceMotion = useReducedMotion();
   const waHref = `https://wa.me/${whatsappNumber}?text=${encodeURIComponent(

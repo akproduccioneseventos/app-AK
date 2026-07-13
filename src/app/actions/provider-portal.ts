@@ -2,10 +2,13 @@
 
 import { readData, writeData } from '@/lib/data-service';
 import type { ProveedorPortalAccess, EstadoProveedorPortal } from '@/types/provider-portal';
+import { randomUUID } from 'crypto';
+import { requireAppSession } from '@/lib/auth/require-session';
 
 const DATA_PATH = 'proveedor-portal.json';
 
 export async function getProveedoresPortal(fiestaId: string): Promise<{ success: boolean; data?: ProveedorPortalAccess[]; error?: string }> {
+  await requireAppSession();
   try {
     const all = await readData<ProveedorPortalAccess[]>(DATA_PATH, []);
     return { success: true, data: all.filter(p => p.fiestaId === fiestaId) };
@@ -17,12 +20,13 @@ export async function getProveedoresPortal(fiestaId: string): Promise<{ success:
 export async function createProveedorAcceso(
   data: Omit<ProveedorPortalAccess, 'id' | 'token' | 'createdAt'>,
 ): Promise<{ success: boolean; data?: ProveedorPortalAccess; error?: string }> {
+  await requireAppSession();
   try {
     const all = await readData<ProveedorPortalAccess[]>(DATA_PATH, []);
     const newRecord: ProveedorPortalAccess = {
       ...data,
       id: `prov-${Date.now()}`,
-      token: `${Date.now()}_${Math.random().toString(36).substr(2, 9)}`,
+      token: randomUUID(),
       createdAt: new Date().toISOString(),
     };
     await writeData(DATA_PATH, [...all, newRecord]);
@@ -45,6 +49,8 @@ export async function getProveedorByToken(token: string): Promise<{ success: boo
 
 export async function updateProveedorEstado(token: string, estado: EstadoProveedorPortal): Promise<{ success: boolean; error?: string }> {
   try {
+    const access = await getProveedorByToken(token);
+    if (!access.success) return { success: false, error: access.error };
     const all = await readData<ProveedorPortalAccess[]>(DATA_PATH, []);
     const updated = all.map(p => p.token === token ? { ...p, estadoActual: estado } : p);
     await writeData(DATA_PATH, updated);
@@ -56,6 +62,8 @@ export async function updateProveedorEstado(token: string, estado: EstadoProveed
 
 export async function confirmarLlegada(token: string): Promise<{ success: boolean; error?: string }> {
   try {
+    const access = await getProveedorByToken(token);
+    if (!access.success) return { success: false, error: access.error };
     const all = await readData<ProveedorPortalAccess[]>(DATA_PATH, []);
     const updated = all.map(p =>
       p.token === token
@@ -71,6 +79,8 @@ export async function confirmarLlegada(token: string): Promise<{ success: boolea
 
 export async function confirmarPartida(token: string): Promise<{ success: boolean; error?: string }> {
   try {
+    const access = await getProveedorByToken(token);
+    if (!access.success) return { success: false, error: access.error };
     const all = await readData<ProveedorPortalAccess[]>(DATA_PATH, []);
     const updated = all.map(p =>
       p.token === token
@@ -86,6 +96,8 @@ export async function confirmarPartida(token: string): Promise<{ success: boolea
 
 export async function toggleTareaProveedor(token: string, tareaId: string): Promise<{ success: boolean; error?: string }> {
   try {
+    const access = await getProveedorByToken(token);
+    if (!access.success) return { success: false, error: access.error };
     const all = await readData<ProveedorPortalAccess[]>(DATA_PATH, []);
     const updated = all.map(p => {
       if (p.token !== token) return p;
@@ -105,6 +117,9 @@ export async function toggleTareaProveedor(token: string, tareaId: string): Prom
 
 export async function addNotaProveedor(token: string, nota: string): Promise<{ success: boolean; error?: string }> {
   try {
+    const access = await getProveedorByToken(token);
+    if (!access.success) return { success: false, error: access.error };
+    if (nota.length > 2000) return { success: false, error: 'La nota es demasiado extensa.' };
     const all = await readData<ProveedorPortalAccess[]>(DATA_PATH, []);
     const updated = all.map(p => p.token === token ? { ...p, notas: nota } : p);
     await writeData(DATA_PATH, updated);

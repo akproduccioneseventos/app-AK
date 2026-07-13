@@ -13,6 +13,8 @@ import type { Notificacion } from '@/types/fiesta';
 import type { Presupuesto } from '@/types/presupuesto';
 import { getFiestas } from './fiesta/fiesta.actions';
 import { differenceInDays, isToday, startOfToday, isFuture, parseISO } from 'date-fns';
+import { hasAppSession, requireAppSession } from '@/lib/auth/require-session';
+import { NOTIFICATION_INTERNAL_TOKEN } from '@/lib/notifications/internal-token';
 
 const NOTIFICATIONS_FILE = 'notifications.json';
 const PRESUPUESTOS_FILE = 'presupuestos.json';
@@ -42,7 +44,7 @@ function isRecentDuplicateNotification(existing: Notificacion[], data: Omit<Noti
 // CORE CRUD – Firestore primary, local-file fallback
 // ============================================================
 
-export async function getNotifications(): Promise<Notificacion[]> {
+async function getNotificationsInternal(): Promise<Notificacion[]> {
   try {
     // Try Firestore first
     const result = await getAllDocuments<Notificacion>(COLLECTIONS.NOTIFICACIONES, {
@@ -68,11 +70,20 @@ export async function getNotifications(): Promise<Notificacion[]> {
   }
 }
 
+export async function getNotifications(): Promise<Notificacion[]> {
+  await requireAppSession();
+  return getNotificationsInternal();
+}
+
 export async function createNotification(
-  data: Omit<Notificacion, 'id' | 'fecha' | 'leida'>
+  data: Omit<Notificacion, 'id' | 'fecha' | 'leida'>,
+  internalToken?: symbol
 ): Promise<{ success: boolean; notification?: Notificacion; error?: string }> {
+  if (internalToken !== NOTIFICATION_INTERNAL_TOKEN && !(await hasAppSession())) {
+    throw new Error('Creacion de notificacion no autorizada.');
+  }
   try {
-    const existing = isRecentDuplicateNotification(await getNotifications(), data);
+    const existing = isRecentDuplicateNotification(await getNotificationsInternal(), data);
     if (existing) return { success: true, notification: existing };
   } catch {
     // If duplicate lookup fails, continue with the normal create path.
@@ -123,6 +134,7 @@ export async function createNotification(
 export async function markNotificationAsRead(
   notificationId: string
 ): Promise<{ success: boolean; error?: string }> {
+  await requireAppSession();
   try {
     const result = await updateDocument<Notificacion>(COLLECTIONS.NOTIFICACIONES, notificationId, { leida: true });
     if (result.success) return { success: true };
@@ -145,6 +157,7 @@ export async function markNotificationAsRead(
 }
 
 export async function markAllNotificationsAsRead(): Promise<{ success: boolean; error?: string }> {
+  await requireAppSession();
   try {
     const unreadResult = await getAllDocuments<Notificacion>(COLLECTIONS.NOTIFICACIONES, {
       where: [{ field: 'leida', op: '==', value: false }],
@@ -180,6 +193,7 @@ export async function markAllNotificationsAsRead(): Promise<{ success: boolean; 
 export async function deleteNotification(
   notificationId: string
 ): Promise<{ success: boolean; error?: string }> {
+  await requireAppSession();
   try {
     const result = await deleteDocument(COLLECTIONS.NOTIFICACIONES, notificationId);
     if (result.success) return { success: true };
@@ -211,6 +225,7 @@ async function getNotificationsFromLocal(): Promise<Notificacion[]> {
 
 
 export async function checkAndCreateTaskReminders(): Promise<{ success: boolean; created: number }> {
+  await requireAppSession();
     try {
         const fiestasActivas = await getFiestas(false); // Fetch all active events
         if (!fiestasActivas || fiestasActivas.length === 0) {
@@ -257,6 +272,7 @@ export async function checkAndCreateTaskReminders(): Promise<{ success: boolean;
 }
 
 export async function checkAndCreateReunionReminders(): Promise<{ success: boolean; created: number }> {
+  await requireAppSession();
     try {
         const fiestasActivas = await getFiestas(false);
         if (!fiestasActivas || fiestasActivas.length === 0) {
@@ -302,6 +318,7 @@ export async function checkAndCreateReunionReminders(): Promise<{ success: boole
 }
 
 export async function checkAndCreateEventAlerts(): Promise<{ success: boolean; created: number }> {
+  await requireAppSession();
     try {
         const fiestasActivas = await getFiestas(false);
         if (!fiestasActivas || fiestasActivas.length === 0) {
@@ -366,6 +383,7 @@ export async function checkAndCreateEventAlerts(): Promise<{ success: boolean; c
 }
 
 export async function checkAndCreatePendingBalanceAlerts(): Promise<{ success: boolean; created: number }> {
+  await requireAppSession();
     try {
         const presupuestos = await readData<Presupuesto[]>(PRESUPUESTOS_FILE, []);
         if (!presupuestos || presupuestos.length === 0) {
@@ -424,6 +442,7 @@ export async function checkAndCreatePendingBalanceAlerts(): Promise<{ success: b
 }
 
 export async function generateAllSmartNotifications(): Promise<{ success: boolean; totalCreated: number }> {
+    await requireAppSession();
     try {
         const [tasks, meetings, events, balances] = await Promise.all([
             checkAndCreateTaskReminders(),
@@ -445,6 +464,7 @@ export async function generateAllSmartNotifications(): Promise<{ success: boolea
  * This is a destructive admin-only operation and requires explicit confirmation in the UI.
  */
 export async function resetAllNotifications(): Promise<{ success: boolean; deletedCount?: number; error?: string }> {
+  await requireAppSession();
   try {
     const { dbAdmin } = await import('@/lib/firebase/server');
     let deletedCount = 0;

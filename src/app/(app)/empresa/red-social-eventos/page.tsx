@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState, useEffect, startTransition } from 'react';
+import React, { useState, useEffect, useCallback, startTransition } from 'react';
 import { useToast } from '@/hooks/use-toast';
 import { getSocialGlobalSettings, saveSocialGlobalSettings, getSocialFeedsAdmin, toggleFeedOverrideAdmin, type GlobalAdItem, type AdminSocialFeedInfo, type SocialGlobalSettings } from '@/app/actions/social-admin';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
@@ -23,7 +23,7 @@ export default function RedSocialEventosPage() {
     ads: []
   });
 
-  const fetchData = async () => {
+  const fetchData = useCallback(async () => {
     setIsLoading(true);
     try {
       const [settingsRes, feedsRes] = await Promise.all([
@@ -41,11 +41,11 @@ export default function RedSocialEventosPage() {
     } finally {
       setIsLoading(false);
     }
-  };
+  }, [toast]);
 
   useEffect(() => {
     fetchData();
-  }, []);
+  }, [fetchData]);
 
   const handleSaveSettings = async () => {
     setIsSaving(true);

@@ -1,6 +1,6 @@
 'use client';
 
-import React, { Suspense, useEffect, useState, useRef } from 'react';
+import React, { Suspense, useEffect, useState, useRef, useCallback } from 'react';
 import Link from 'next/link';
 import { useSearchParams } from 'next/navigation';
 import {
@@ -47,7 +47,7 @@ function BuzonAdminContent() {
   const msgAudioRef = useRef<HTMLAudioElement | null>(null);
 
   // Load Data
-  const loadData = async (silent = false) => {
+  const loadData = useCallback(async (silent = false) => {
     if (!fiestaId) return;
     if (!silent) setIsLoading(true);
     try {
@@ -62,7 +62,7 @@ function BuzonAdminContent() {
     } finally {
       if (!silent) setIsLoading(false);
     }
-  };
+  }, [fiestaId]);
 
   const handleRefresh = async () => {
     if (!fiestaId) return;
@@ -99,7 +99,7 @@ function BuzonAdminContent() {
     }, 15000);
 
     return () => clearInterval(interval);
-  }, [fiestaId]);
+  }, [fiestaId, loadData]);
 
   // Clean up recording preview URL on unmount
   useEffect(() => {

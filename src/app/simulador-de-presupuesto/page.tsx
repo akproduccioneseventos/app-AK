@@ -94,6 +94,26 @@ const safeImageUrl = (url?: string): string | undefined => {
     }
 };
 
+async function withFallbackTimeout<T>(
+    promise: Promise<T>,
+    fallback: T,
+    timeoutMs = 12000,
+): Promise<T> {
+    let timeout: ReturnType<typeof setTimeout> | undefined;
+    try {
+        return await Promise.race([
+            promise,
+            new Promise<T>((resolve) => {
+                timeout = setTimeout(() => resolve(fallback), timeoutMs);
+            }),
+        ]);
+    } catch {
+        return fallback;
+    } finally {
+        if (timeout) clearTimeout(timeout);
+    }
+}
+
 const DURATION_OPTIONS = [
     { value: 3, title: 'Menos de 4 horas', subtitle: 'Fiesta chica', detail: '1 entrada habilitada' },
     { value: 5, title: 'Mas de 4 horas', subtitle: 'Fiesta grande', detail: '2 entradas habilitadas' },
@@ -300,12 +320,12 @@ function SimuladorContent() {
             setIsLoading(true);
             try {
                 const [armadoConfig, bSettings, serviciosData, socialConnections, templateSettings, menuData] = await Promise.all([
-                    getArmadoRapidoConfig().catch(() => null),
-                    getBudgetDisplaySettings().catch(() => defaultBudgetDisplaySettings),
-                    getServiciosEmpresa().catch(() => []),
-                    getSocialConnections().catch(() => []),
-                    getInvoiceTemplateSettings().catch(() => ({ logoUrl: null } as any)),
-                    getMenus().catch(() => []),
+                    withFallbackTimeout(getArmadoRapidoConfig(), null),
+                    withFallbackTimeout(getBudgetDisplaySettings(), defaultBudgetDisplaySettings),
+                    withFallbackTimeout(getServiciosEmpresa(), []),
+                    withFallbackTimeout(getSocialConnections(), []),
+                    withFallbackTimeout(getInvoiceTemplateSettings(), { logoUrl: null } as any),
+                    withFallbackTimeout(getMenus(), []),
                 ]);
                 setConfig(armadoConfig);
                 setBudgetSettings(bSettings);
@@ -1233,8 +1253,6 @@ function SimuladorContent() {
         acquisition,
     ]);
 
-    if (isLoading) return <div className="min-h-screen flex items-center justify-center bg-slate-100"><Loader2 className="w-12 h-12 animate-spin text-primary"/></div>;
-
     if (!hasStarted) {
         return (
             <main className="min-h-screen bg-slate-950 text-white">
@@ -1255,9 +1273,13 @@ function SimuladorContent() {
                             <Button
                                 onClick={() => setHasStarted(true)}
                                 className="mt-8 h-14 rounded-md bg-red-600 px-8 text-base font-black text-white hover:bg-red-700"
+                                disabled={isLoading}
                             >
-                                Comenzar mi presupuesto
-                                <ArrowRight className="ml-2 h-5 w-5" />
+                                {isLoading ? (
+                                    <><Loader2 className="mr-2 h-5 w-5 animate-spin" /> Preparando catálogo...</>
+                                ) : (
+                                    <>Comenzar mi presupuesto <ArrowRight className="ml-2 h-5 w-5" /></>
+                                )}
                             </Button>
                         </div>
                     </div>
@@ -1284,6 +1306,8 @@ function SimuladorContent() {
             </main>
         );
     }
+
+    if (isLoading) return <div className="min-h-screen flex items-center justify-center bg-slate-100"><Loader2 className="w-12 h-12 animate-spin text-primary"/></div>;
 
     if (step === 6 && generatedPresupuestoId) {
         return (

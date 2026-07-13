@@ -1,8 +1,9 @@
 'use client';
 
-import React, { useState, useEffect, useCallback, use } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import Link from 'next/link';
 import NextImage from 'next/image';
+import { useParams } from 'next/navigation';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Loader2, ArrowLeft, Wand2, Heart, UploadCloud, Info } from 'lucide-react';
@@ -14,8 +15,8 @@ import { UploadButton } from '@/components/invitacion/edit/UploadButton';
 import { motion, AnimatePresence } from 'framer-motion';
 import { cn } from '@/lib/utils';
 
-export default function ClientMoodboardPage({ params }: { params: Promise<{ fiestaId: string }> }) {
-  const resolvedParams = use(params);
+export default function ClientMoodboardPage() {
+  const resolvedParams = useParams<{ fiestaId: string }>();
   const fiestaId = resolvedParams.fiestaId;
   const { toast } = useToast();
   

@@ -1,10 +1,13 @@
 'use client';
 
 import Link from 'next/link';
+import Image from 'next/image';
 import { motion, useReducedMotion } from 'framer-motion';
 import { ArrowRight, MessageSquare, ChevronDown, Zap } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import type { PromoActiva } from '@/types/promo';
+import { AK_WHATSAPP_NUMBER } from '@/lib/public-contact';
+import { canUseNextImage } from '@/lib/next-image-url';
 
 interface HeroSectionProps {
   whatsappNumber?: string;
@@ -19,7 +22,7 @@ interface HeroSectionProps {
 }
 
 export function HeroSection({
-  whatsappNumber = '59899123456',
+  whatsappNumber = AK_WHATSAPP_NUMBER,
   headline = 'Disfrutá tu Fiesta,\nNosotros nos Encargamos del Resto',
   subheadline = 'La paz mental de saber que tu evento está en manos expertas. Desde el catering premium hasta la tecnología interactiva, coordinamos cada detalle para que vos solo te dediques a vivir el momento.',
   backgroundImageUrl = '/media/catalogo-servicios/quinceanera_hero.png',
@@ -30,6 +33,11 @@ export function HeroSection({
   simulatorLabel = 'Simular Presupuesto',
 }: HeroSectionProps) {
   const waHref = `https://wa.me/${whatsappNumber}?text=${encodeURIComponent(whatsappMessage)}`;
+  const configuredPromoHref = promoActiva?.ctaUrl?.trim() || '';
+  const promoHref =
+    /^https?:\/\//i.test(configuredPromoHref) || configuredPromoHref.startsWith('/')
+      ? configuredPromoHref
+      : waHref;
   const reduceMotion = useReducedMotion();
 
   const containerVariants = {
@@ -49,11 +57,27 @@ export function HeroSection({
   return (
     <section data-testid="hero-section" className="relative flex min-h-[78svh] items-center overflow-hidden bg-zinc-950">
       <motion.div
-        className="absolute inset-0 scale-105 bg-cover bg-center bg-no-repeat opacity-75"
-        style={{ backgroundImage: `url('${backgroundImageUrl}')` }}
-        animate={reduceMotion ? undefined : { scale: [1.04, 1.09, 1.04], backgroundPosition: ['50% 50%', '54% 47%', '50% 50%'] }}
+        className="absolute inset-0 scale-105 opacity-75"
+        animate={reduceMotion ? undefined : { scale: [1.04, 1.09, 1.04] }}
         transition={{ duration: 22, repeat: Infinity, ease: 'easeInOut' }}
-      />
+      >
+        {canUseNextImage(backgroundImageUrl) ? (
+          <Image
+            src={backgroundImageUrl}
+            alt="Celebración producida por AK Producciones"
+            fill
+            priority
+            sizes="100vw"
+            quality={82}
+            className="object-cover object-center"
+          />
+        ) : (
+          <div
+            className="absolute inset-0 bg-cover bg-center bg-no-repeat"
+            style={{ backgroundImage: `url('${backgroundImageUrl}')` }}
+          />
+        )}
+      </motion.div>
       <div className="absolute inset-0 bg-slate-950/70" />
       <div className="relative z-10 w-full max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-24 pb-20">
         <motion.div
@@ -65,7 +89,9 @@ export function HeroSection({
           {promoActiva && (
             <motion.a
               variants={itemVariants}
-              href="#promo"
+              href={promoHref}
+              target={promoHref.startsWith('http') ? '_blank' : undefined}
+              rel={promoHref.startsWith('http') ? 'noopener noreferrer' : undefined}
               className="mb-4 inline-flex items-center gap-2 rounded-md border border-white/30 bg-black/20 px-4 py-2 text-xs font-bold text-white transition-colors hover:bg-black/40"
             >
               <Zap className="w-3.5 h-3.5 text-amber-200" />

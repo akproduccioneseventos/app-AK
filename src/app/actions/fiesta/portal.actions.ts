@@ -5,7 +5,7 @@
 import type { FiestaEnPlanificacion, ClientTarea, ClientPortalSettings, ClientPaymentNotification, TimelineHito, MenuSeleccionPortal, ListaMusicaPortal, SocialGallerySettings } from '@/types/fiesta';
 import { getFiestaById, saveFiesta, getFiestas } from './fiesta.actions';
 import { addPagoToPresupuesto, getPresupuestoById, updatePresupuesto } from '../presupuestos';
-import { createNotification } from '../notifications';
+import { createNotification } from '@/lib/notifications/create-notification';
 import {
   notifyClientPaymentApproved,
   notifyClientPaymentRejected,
@@ -16,6 +16,7 @@ import { sanitizeActionError } from '@/lib/utils';
 import { uploadToStorage } from '@/lib/firebase/storage';
 import { requireAppSession } from '@/lib/auth/require-session';
 import { transitionPaymentNotification } from '@/lib/client-portal/payment-notifications';
+import { mapFiestaToClientPortal } from '@/lib/client-portal/public-fiesta';
 
 
 const MUSIC_LIST_KEYS = ['imprescindibles', 'siEsPosible', 'noQuiero'] as const;
@@ -65,6 +66,37 @@ export async function initializePortalSession(fiestaId: string, accessKey: strin
   } catch (err: any) {
     return { success: false, error: sanitizeActionError(err) };
   }
+}
+
+export async function getFiestaForPortalSession(fiestaId: string): Promise<FiestaEnPlanificacion | null> {
+  if (!(await verifyPortalSession(fiestaId))) return null;
+  const fiesta = await getFiestaByIdRaw(fiestaId);
+  if (!fiesta?.clientPortalSettings?.enabled) return null;
+  return mapFiestaToClientPortal(fiesta);
+}
+
+export async function updateClientGuestTable(
+  fiestaId: string,
+  guestId: string,
+  tableNumber?: string,
+): Promise<{ success: boolean; error?: string }> {
+  if (!(await verifyPortalSession(fiestaId))) return { success: false, error: 'Sesión no autorizada.' };
+  return updateFiestaData(fiestaId, data => ({
+    ...data,
+    invitados: (data.invitados ?? []).map(guest => (
+      guest.id === guestId
+        ? { ...guest, tableNumber: tableNumber?.trim() || undefined }
+        : guest
+    )),
+  }));
+}
+
+export async function updateClientPackingList(
+  fiestaId: string,
+  items: import('@/types/fiesta').ClienteDebeLlevarItem[],
+): Promise<{ success: boolean; error?: string }> {
+  if (!(await verifyPortalSession(fiestaId))) return { success: false, error: 'Sesión no autorizada.' };
+  return updateFiestaData(fiestaId, data => ({ ...data, clienteDebeLlevar: items }));
 }
 
 
@@ -171,7 +203,7 @@ export async function getFiestaByAccessKey(accessKey: string): Promise<FiestaEnP
       if (!snapshot.empty) {
         const data = snapshot.docs[0].data();
         delete data._syncedAt;
-        return data as FiestaEnPlanificacion;
+        return mapFiestaToClientPortal(data as FiestaEnPlanificacion);
       }
     }
   } catch {
@@ -180,11 +212,12 @@ export async function getFiestaByAccessKey(accessKey: string): Promise<FiestaEnP
 
   try {
     const fiestas = await getFiestas(false);
-    return fiestas.find(
+    const fiesta = fiestas.find(
       f =>
         f.clientPortalSettings?.enabled === true &&
         f.clientPortalSettings?.accessKey === safeAccessKey
     ) ?? null;
+    return mapFiestaToClientPortal(fiesta);
   } catch {
     return null;
   }
@@ -705,7 +738,7 @@ export async function checkDateAvailability(
   targetDateStr: string
 ): Promise<{ success: boolean; available: boolean; suggestions?: string[]; error?: string }> {
   const { verifyPortalSession } = await import('@/lib/security/portal-session');
-  if (!verifyPortalSession(fiestaId)) return { success: false, available: false, error: 'Sesión no autorizada.' };
+  if (!(await verifyPortalSession(fiestaId))) return { success: false, available: false, error: 'Sesión no autorizada.' };
   try {
     const allFiestas = await getFiestas(false);
     const targetDate = new Date(targetDateStr).toISOString().split('T')[0];
@@ -752,7 +785,7 @@ export async function cancelServicesOrParty(
   }
 ): Promise<{ success: boolean; error?: string; fileName?: string; refundAmount?: number; pendingDue?: number }> {
   const { verifyPortalSession } = await import('@/lib/security/portal-session');
-  if (!verifyPortalSession(fiestaId)) return { success: false, error: 'Sesión no autorizada.' };
+  if (!(await verifyPortalSession(fiestaId))) return { success: false, error: 'Sesión no autorizada.' };
   try {
     const fiesta = await getFiestaById(fiestaId);
     if (!fiesta) return { success: false, error: 'Evento no encontrado.' };
@@ -991,7 +1024,7 @@ Firma AK Producciones: _________________   Fecha: __/__/____
     await saveFiesta(updatedFiesta);
 
     // Create system notification
-    const { createNotification } = await import('../notifications');
+    const { createNotification } = await import('@/lib/notifications/create-notification');
     await createNotification({
       mensaje: `⚠️ Cliente canceló ${payload.cancelAll ? 'toda la fiesta' : 'servicios'} en "${fiesta.configuracion.nombreEvento}". Contrato generado.`,
       href: `/fiestas/nueva?fiestaId=${fiestaId}&tab=portal-cliente`,
@@ -1021,7 +1054,7 @@ export async function changeEventDate(
   }
 ): Promise<{ success: boolean; error?: string; fileName?: string; penaltyAmount?: number; newBalance?: number }> {
   const { verifyPortalSession } = await import('@/lib/security/portal-session');
-  if (!verifyPortalSession(fiestaId)) return { success: false, error: 'Sesión no autorizada.' };
+  if (!(await verifyPortalSession(fiestaId))) return { success: false, error: 'Sesión no autorizada.' };
   try {
     const fiesta = await getFiestaById(fiestaId);
     if (!fiesta) return { success: false, error: 'Evento no encontrado.' };
@@ -1163,7 +1196,7 @@ Firma AK Producciones: _________________   Fecha: __/__/____
     await saveFiesta(updatedFiesta);
 
     // Create system notification
-    const { createNotification } = await import('../notifications');
+    const { createNotification } = await import('@/lib/notifications/create-notification');
     await createNotification({
       mensaje: `📅 Cliente cambió fecha a ${newDateFmt} en "${fiesta.configuracion.nombreEvento}". Adenda generada.`,
       href: `/fiestas/nueva?fiestaId=${fiestaId}&tab=portal-cliente`,

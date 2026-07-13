@@ -4,6 +4,7 @@
 import { readData, writeData } from '@/lib/data-service';
 import type { Salon, SalonPago } from '@/types/salon';
 import { uploadToStorage, deleteFromStorage } from '@/lib/firebase/storage';
+import { requireAppSession } from '@/lib/auth/require-session';
 
 const SALONES_FILE = 'salones.json';
 const SALONES_STORAGE_PREFIX = 'salones';
@@ -15,6 +16,7 @@ export async function getSalones(): Promise<Salon[]> {
 export async function saveSalon(
   salonData: Omit<Salon, 'id'> | Salon
 ): Promise<{ success: boolean; salon?: Salon; error?: string }> {
+  await requireAppSession();
   if (!salonData.nombre.trim()) {
     return { success: false, error: 'El nombre del salón es obligatorio.' };
   }
@@ -41,6 +43,7 @@ export async function saveSalon(
 export async function deleteSalon(
   id: string
 ): Promise<{ success: boolean; error?: string }> {
+  await requireAppSession();
   const salones = await getSalones();
   const idx = salones.findIndex((s) => s.id === id);
   if (idx === -1) {
@@ -57,6 +60,7 @@ export async function deleteSalon(
 export async function uploadSalonFoto(
   formData: FormData
 ): Promise<{ success: boolean; url?: string; error?: string }> {
+  await requireAppSession();
   const file = formData.get('file') as File | null;
   const salonId = formData.get('salonId') as string | null;
 
@@ -99,6 +103,7 @@ export async function deleteSalonFoto(
   salonId: string,
   fotoUrl: string
 ): Promise<{ success: boolean; error?: string }> {
+  await requireAppSession();
   try {
     const salones = await getSalones();
     const idx = salones.findIndex((s) => s.id === salonId);
@@ -144,6 +149,7 @@ export async function addSalonPago(
   salonId: string,
   pago: Omit<SalonPago, 'id'>
 ): Promise<{ success: boolean; pago?: SalonPago; error?: string }> {
+  await requireAppSession();
   try {
     const salones = await getSalones();
     const idx = salones.findIndex((s) => s.id === salonId);
@@ -172,6 +178,7 @@ export async function deleteSalonPago(
   salonId: string,
   pagoId: string
 ): Promise<{ success: boolean; error?: string }> {
+  await requireAppSession();
   try {
     const salones = await getSalones();
     const idx = salones.findIndex((s) => s.id === salonId);

@@ -1,7 +1,7 @@
 'use client';
 
-import React, { useState, useEffect, type FormEvent, useCallback, useMemo, use } from 'react';
-import { useRouter } from 'next/navigation';
+import React, { useState, useEffect, type FormEvent, useCallback, useMemo } from 'react';
+import { useParams, useRouter } from 'next/navigation';
 import { Card, CardContent, CardHeader, CardTitle, CardFooter } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -64,8 +64,8 @@ const formatCurrency = (amount: number, currency: string = 'UYU') => {
   }).format(amount);
 };
 
-export default function ViewInvoicePage({ params }: { params: Promise<{ id: string }> }) {
-  const resolvedParams = use(params);
+export default function ViewInvoicePage() {
+  const resolvedParams = useParams<{ id: string }>();
   const invoiceId = resolvedParams.id;
   const { toast } = useToast();
 

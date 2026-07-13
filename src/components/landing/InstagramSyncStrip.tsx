@@ -4,6 +4,7 @@ import Image from 'next/image';
 import { motion, useReducedMotion } from 'framer-motion';
 import { ArrowRight, Camera, Instagram, PlayCircle, RefreshCw } from 'lucide-react';
 import { cn } from '@/lib/utils';
+import { canUseNextImage } from '@/lib/next-image-url';
 
 export interface InstagramSyncItem {
   id: string;
@@ -18,13 +19,10 @@ interface InstagramSyncStripProps {
   handle: string;
   profileUrl: string;
   items: InstagramSyncItem[];
+  isApiConnected: boolean;
 }
 
-function canUseNextImage(url: string) {
-  return url.startsWith('/') || url.startsWith('https://images.unsplash.com/');
-}
-
-export function InstagramSyncStrip({ handle, profileUrl, items }: InstagramSyncStripProps) {
+export function InstagramSyncStrip({ handle, profileUrl, items, isApiConnected }: InstagramSyncStripProps) {
   const reduceMotion = useReducedMotion();
   const visibleItems = items.slice(0, 8);
 
@@ -49,7 +47,7 @@ export function InstagramSyncStrip({ handle, profileUrl, items }: InstagramSyncS
               className="mb-4 inline-flex items-center gap-2 rounded-xl border border-pink-300/20 bg-pink-500/10 px-3 py-1 text-xs font-black uppercase tracking-widest text-pink-200"
             >
               <RefreshCw className="h-3.5 w-3.5" />
-              Instagram conectado
+              {isApiConnected ? 'Instagram sincronizado' : 'Perfil oficial de Instagram'}
             </motion.span>
             <motion.h2
               initial={reduceMotion ? false : { opacity: 0, y: 18 }}
@@ -61,7 +59,9 @@ export function InstagramSyncStrip({ handle, profileUrl, items }: InstagramSyncS
               La web muestra material listo para redes
             </motion.h2>
             <p className="mt-4 max-w-2xl text-sm font-medium leading-relaxed text-zinc-400 sm:text-base">
-              La galería pública toma fotos y videos aprobados de la app y los vincula con el perfil conectado para mantener prueba social fresca sin duplicar cargas.
+              {isApiConnected
+                ? 'La galería pública incorpora contenido aprobado desde la conexión profesional y lo mantiene vinculado con el perfil oficial.'
+                : 'La galería muestra material aprobado por AK Producciones y ofrece acceso directo al perfil oficial.'}
             </p>
           </div>
 
@@ -102,6 +102,7 @@ export function InstagramSyncStrip({ handle, profileUrl, items }: InstagramSyncS
                     className="object-cover transition-transform duration-700 group-hover:scale-105"
                   />
                 ) : (
+                  // eslint-disable-next-line @next/next/no-img-element -- Instagram/editor media may use a short-lived CDN host.
                   <img src={item.imageUrl} alt={item.title} className="h-full w-full object-cover transition-transform duration-700 group-hover:scale-105" />
                 )}
                 <div className="absolute inset-0 bg-gradient-to-t from-zinc-950 via-zinc-950/20 to-transparent" />
@@ -127,7 +128,7 @@ export function InstagramSyncStrip({ handle, profileUrl, items }: InstagramSyncS
         </motion.div>
 
         <div className="mt-8 flex flex-col gap-3 rounded-2xl border border-white/10 bg-white/[0.03] p-4 text-sm text-zinc-300 sm:flex-row sm:items-center sm:justify-between">
-          <span>Al actualizar la galería o la conexión social, esta sección acompaña el cambio automáticamente.</span>
+          <span>{isApiConnected ? 'La sección se actualiza con la conexión profesional de Instagram.' : 'Contenido seleccionado por AK Producciones para mostrar trabajos reales.'}</span>
           <a href={profileUrl} target="_blank" rel="noopener noreferrer" className="inline-flex items-center gap-2 font-black uppercase tracking-wider text-pink-200 hover:text-pink-100">
             Ver más en Instagram
             <ArrowRight className="h-4 w-4" />

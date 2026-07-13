@@ -3,6 +3,7 @@
 import { MessageSquare, ChevronDown } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import type { HeroData } from '@/types/public-landing';
+import { AK_WHATSAPP_NUMBER } from '@/lib/public-contact';
 
 interface HeroSectionProps {
   hero: HeroData;
@@ -12,7 +13,7 @@ interface HeroSectionProps {
 
 export function HeroSection({
   hero,
-  whatsappNumber = '59899123456',
+  whatsappNumber = AK_WHATSAPP_NUMBER,
   whatsappMessage,
 }: HeroSectionProps) {
   const waHref = `https://wa.me/${whatsappNumber}?text=${encodeURIComponent(

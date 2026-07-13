@@ -1,8 +1,8 @@
 
 'use client';
 
-import React, { useState, useEffect, useCallback, type FormEvent, useRef, use } from 'react';
-import { useRouter } from 'next/navigation';
+import React, { useState, useEffect, useCallback, type FormEvent, useRef } from 'react';
+import { useParams, useRouter } from 'next/navigation';
 import Link from 'next/link';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle, CardFooter } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -28,8 +28,8 @@ import {
 import { Separator } from '@/components/ui/separator';
 import { uploadPublicPageAsset } from '@/app/actions/fiesta/assets.actions';
 
-export default function EditarActivoFijoPage(props: { params: Promise<{ id: string }> }) {
-  const params = use(props.params);
+export default function EditarActivoFijoPage() {
+  const params = useParams<{ id: string }>();
   const router = useRouter();
   const { toast } = useToast();
 

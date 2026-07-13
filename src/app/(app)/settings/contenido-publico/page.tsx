@@ -52,6 +52,7 @@ export default function ContenidoPublicoSettingsPage() {
     ranInstagram?: boolean;
     message?: string;
     error?: string;
+    warning?: string;
   } | null>(null);
 
   const handleRunMarketingAutomation = async (force = true) => {
@@ -62,8 +63,12 @@ export default function ContenidoPublicoSettingsPage() {
       if (result.success) {
         if (result.ranSeo) await loadBlog();
         toast({
-          title: result.skipped ? 'Marketing automatico al dia' : 'Automatizacion ejecutada',
-          description: result.message || 'SEO e Instagram revisados correctamente.',
+          title: result.warning
+            ? 'Automatizacion ejecutada con una conexion pendiente'
+            : result.skipped
+              ? 'Marketing automatico al dia'
+              : 'Automatizacion ejecutada',
+          description: result.warning || result.message || 'SEO e Instagram revisados correctamente.',
         });
       } else {
         toast({ title: 'Error', description: result.error || 'No se pudo ejecutar la automatizacion.', variant: 'destructive' });
@@ -336,19 +341,19 @@ export default function ContenidoPublicoSettingsPage() {
               <div className="flex items-center gap-2 font-bold text-indigo-950">
                 {generatingAI ? (
                   <Loader2 className="h-4 w-4 animate-spin text-indigo-600" />
-                ) : automationStatus?.success === false ? (
+                ) : automationStatus?.success === false || automationStatus?.warning ? (
                   <Clock className="h-4 w-4 text-amber-600" />
                 ) : (
                   <CheckCircle2 className="h-4 w-4 text-emerald-600" />
                 )}
-                Marketing automatico activo
+                {automationStatus?.warning ? 'Marketing activo con una conexion pendiente' : 'Marketing automatico activo'}
               </div>
               <p className="text-xs text-indigo-900/75">
                 {automationStatus?.message || 'La app revisa Instagram hasta cada 6 horas y genera contenido SEO semanal cuando corresponde.'}
               </p>
             </div>
             <div className="flex flex-wrap gap-2 text-[11px] font-black uppercase tracking-wider text-indigo-800">
-              <span className="rounded-full bg-white px-3 py-1 shadow-sm">Instagram {automationStatus?.ranInstagram ? 'sincronizado' : 'programado'}</span>
+              <span className="rounded-full bg-white px-3 py-1 shadow-sm">Instagram {automationStatus?.ranInstagram ? 'sincronizado' : automationStatus?.warning ? 'pendiente' : 'programado'}</span>
               <span className="rounded-full bg-white px-3 py-1 shadow-sm">SEO {automationStatus?.ranSeo ? 'generado' : 'programado'}</span>
             </div>
           </div>

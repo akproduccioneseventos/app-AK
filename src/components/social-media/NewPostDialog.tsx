@@ -166,7 +166,7 @@ export function NewPostDialog({
 
     const dialogTitle = postToEdit ? 'Editar Publicación' : postToDuplicate ? 'Duplicar Publicación' : 'Nueva Publicación';
     const trigger = children ? <div onClick={() => setIsOpen(true)}>{children}</div> : (
-        <Button variant="default"><PlusCircle className="w-5 h-5 mr-2" />Crear Publicación</Button>
+        <Button variant="default" onClick={() => setIsOpen(true)}><PlusCircle className="w-5 h-5 mr-2" />Crear Publicación</Button>
     );
 
     return (

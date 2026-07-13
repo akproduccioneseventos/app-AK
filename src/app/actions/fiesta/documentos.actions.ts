@@ -4,9 +4,10 @@
 import type { FiestaEnPlanificacion, OtroDocumento, DocumentoTipo, Tarea } from '@/types/fiesta';
 import { getFiestaById, saveFiesta } from './fiesta.actions';
 import { headers } from 'next/headers';
-import { registerBookingDeposit } from '../invoices';
+import { getInvoices, registerBookingDeposit } from '../invoices';
+import { isDepositReceiptInvoice } from '@/lib/commercial-flow/ledger-service';
 import { addDays } from 'date-fns';
-import { createNotification } from '../notifications';
+import { createNotification } from '@/lib/notifications/create-notification';
 import { uploadToStorage, deleteFromStorage } from '@/lib/firebase/storage';
 import { getPresupuestoById } from '../presupuestos';
 
@@ -214,7 +215,12 @@ export async function uploadPhysicalContract(formData: FormData): Promise<{ succ
         }
 
         // Generar Factura de Seña si no existe (monto desde presupuesto)
-        const hasDeposit = updatedFiesta.invoiceIds?.length && updatedFiesta.invoiceIds.some(id => id.includes('SEÑA'));
+        const eventInvoiceIds = new Set(updatedFiesta.invoiceIds || []);
+        const existingInvoices = await getInvoices();
+        const hasDeposit = existingInvoices.some(invoice =>
+            isDepositReceiptInvoice(invoice)
+            && (eventInvoiceIds.has(invoice.id) || invoice.sourceFiestaId === fiesta.id)
+        );
         if (!hasDeposit) {
             try {
                 const depositAmount = await resolveDepositAmount(fiesta);

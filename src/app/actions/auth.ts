@@ -336,7 +336,7 @@ export async function changePassword(
 
 // ── Security questions management ─────────────────────────────────────────
 
-export const SECURITY_QUESTIONS = [
+const SECURITY_QUESTIONS = [
   '¿Nombre de tu primera mascota?',
   '¿Tu color favorito?',
   '¿Nombre de tu escuela?',

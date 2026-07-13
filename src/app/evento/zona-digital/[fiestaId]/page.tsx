@@ -6,6 +6,7 @@ import { useParams } from 'next/navigation';
 import {
   Camera,
   CheckCircle2,
+  Download,
   Flame,
   Gamepad2,
   Heart,
@@ -88,6 +89,51 @@ export default function ZonaDigitalPublicPage() {
   const emojis = settings.emojiReactions.filter(item => item.enabled);
   const selectedChallenge = challenges.find(item => item.id === selectedChallengeId) ?? challenges[0];
   const canDownload = !settings.showSocialFollowGate || followAcknowledged;
+
+  const handleDownloadSticker = () => {
+    if (!canDownload || !fiesta) return;
+
+    const canvas = document.createElement('canvas');
+    canvas.width = 1080;
+    canvas.height = 1080;
+    const context = canvas.getContext('2d');
+    if (!context) return;
+
+    const eventName = fiesta.configuracion.nombreEvento || 'Fiesta AK';
+    const gradient = context.createLinearGradient(0, 0, 1080, 1080);
+    gradient.addColorStop(0, '#020617');
+    gradient.addColorStop(0.55, '#111827');
+    gradient.addColorStop(1, '#991b1b');
+    context.fillStyle = gradient;
+    context.fillRect(0, 0, 1080, 1080);
+
+    context.strokeStyle = '#ffffff';
+    context.lineWidth = 26;
+    context.strokeRect(45, 45, 990, 990);
+    context.strokeStyle = '#ef4444';
+    context.lineWidth = 10;
+    context.strokeRect(72, 72, 936, 936);
+
+    context.textAlign = 'center';
+    context.fillStyle = '#ffffff';
+    context.font = '900 58px Arial, sans-serif';
+    context.fillText('AK PRODUCCIONES', 540, 150);
+    context.font = '900 82px Arial, sans-serif';
+    const displayName = eventName.length > 22 ? `${eventName.slice(0, 22)}...` : eventName;
+    context.fillText(displayName.toUpperCase(), 540, 540);
+    context.fillStyle = '#fecaca';
+    context.font = '700 46px Arial, sans-serif';
+    context.fillText(settings.hashtag || '#AKProducciones', 540, 630);
+    context.fillStyle = '#ffffff';
+    context.font = '700 34px Arial, sans-serif';
+    context.fillText('SALTO · URUGUAY', 540, 940);
+
+    const link = document.createElement('a');
+    const safeName = eventName.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '') || 'fiesta-ak';
+    link.download = `sticker-ak-${safeName}.png`;
+    link.href = canvas.toDataURL('image/png');
+    link.click();
+  };
 
   if (isLoading) {
     return <div className="ak-live-stage flex min-h-screen items-center justify-center"><Loader2 className="h-10 w-10 animate-spin text-red-500" /></div>;
@@ -300,8 +346,8 @@ export default function ZonaDigitalPublicPage() {
                   {followAcknowledged ? 'Listo para descargar' : 'Ya pase por las redes'}
                 </button>
               )}
-              <Button disabled={!canDownload} className="w-full rounded-full bg-white text-slate-950 hover:bg-white/90">
-                Descargar marco / sticker AK
+              <Button onClick={handleDownloadSticker} disabled={!canDownload} className="w-full rounded-full bg-white text-slate-950 hover:bg-white/90">
+                <Download className="mr-2 h-4 w-4" /> Descargar marco / sticker AK
               </Button>
             </CardContent>
           </Card>

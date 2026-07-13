@@ -4,6 +4,7 @@ import Link from 'next/link';
 import { MessageSquare } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { CompanyLogo } from '@/components/company-logo';
+import { AK_WHATSAPP_NUMBER } from '@/lib/public-contact';
 
 interface PublicNavbarProps {
   whatsappNumber?: string;
@@ -12,7 +13,7 @@ interface PublicNavbarProps {
 }
 
 export function PublicNavbar({
-  whatsappNumber = '59899123456',
+  whatsappNumber = AK_WHATSAPP_NUMBER,
   whatsappMessage = '¡Hola AK Producciones! Quiero consultar sobre sus servicios.',
   className,
 }: PublicNavbarProps) {

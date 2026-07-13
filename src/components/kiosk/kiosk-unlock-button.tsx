@@ -3,7 +3,7 @@
 import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Settings, Lock, X, RefreshCw } from 'lucide-react';
+import { Settings, Lock, X, AlertCircle } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 
@@ -21,8 +21,7 @@ export function KioskUnlockButton() {
   }, [isOpen]);
 
   const handleUnlock = () => {
-    const requiredPin = savedPin || '1234'; // Default fallback
-    if (pin === requiredPin) {
+    if (savedPin && pin === savedPin) {
       // Clear lock storage
       localStorage.removeItem('kiosk_locked_fiesta_id');
       localStorage.removeItem('kiosk_role');
@@ -38,12 +37,6 @@ export function KioskUnlockButton() {
       setPin('');
       setTimeout(() => setError(false), 800);
     }
-  };
-
-  const handleResetApp = () => {
-    // Completely clear all localstorage keys and refresh the page
-    localStorage.clear();
-    window.location.reload();
   };
 
   return (
@@ -114,8 +107,7 @@ export function KioskUnlockButton() {
                       if (val.length === 4) {
                         // Let state set, then run unlock
                         setTimeout(() => {
-                          const correctPin = savedPin || '1234';
-                          if (val === correctPin) {
+                          if (savedPin && val === savedPin) {
                             localStorage.removeItem('kiosk_locked_fiesta_id');
                             localStorage.removeItem('kiosk_role');
                             localStorage.removeItem('kiosk_pin');
@@ -144,6 +136,13 @@ export function KioskUnlockButton() {
                   </p>
                 )}
 
+                {!savedPin && (
+                  <div className="flex items-start gap-2 rounded-xl border border-amber-500/30 bg-amber-500/10 p-3 text-xs text-amber-200">
+                    <AlertCircle className="mt-0.5 h-4 w-4 shrink-0" />
+                    Este dispositivo no tiene un PIN valido. Debe configurarse nuevamente desde una sesion administrativa.
+                  </div>
+                )}
+
                 <div className="flex gap-3 pt-2">
                   <Button
                     onClick={() => setIsOpen(false)}
@@ -154,20 +153,13 @@ export function KioskUnlockButton() {
                   </Button>
                   <Button
                     onClick={handleUnlock}
+                    disabled={!savedPin || pin.length !== 4}
                     className="flex-1 h-11 rounded-xl bg-purple-600 hover:bg-purple-700 text-white text-xs font-bold"
                   >
                     Desbloquear
                   </Button>
                 </div>
                 
-                <div className="border-t border-slate-800/60 pt-4 flex justify-center">
-                  <button
-                    onClick={handleResetApp}
-                    className="text-[10px] text-slate-500 hover:text-slate-300 flex items-center gap-1.5 uppercase font-semibold tracking-wider transition-colors"
-                  >
-                    <RefreshCw className="w-3 h-3" /> Reiniciar Caché Completa
-                  </button>
-                </div>
               </div>
             </motion.div>
           </motion.div>

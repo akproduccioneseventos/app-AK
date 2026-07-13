@@ -3,6 +3,8 @@ import { isFileNotFoundError } from '@/lib/error-utils';
 import { NextRequest, NextResponse } from 'next/server';
 import fs from 'fs/promises';
 import path from 'path';
+import { hasAppSession } from '@/lib/auth/require-session';
+import { verifyPortalSession } from '@/lib/security/portal-session';
 
 export async function GET(
   request: NextRequest,
@@ -10,6 +12,10 @@ export async function GET(
 ) {
   const params = await props.params;
   const { fiestaId, filename } = params;
+
+  if (!(await hasAppSession()) && !(await verifyPortalSession(fiestaId))) {
+    return new NextResponse('Unauthorized', { status: 401 });
+  }
 
   if (!fiestaId || !filename) {
     return new NextResponse('Fiesta ID and Filename are required', { status: 400 });

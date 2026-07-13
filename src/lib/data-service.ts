@@ -22,8 +22,13 @@ function shouldUseLocalJsonOnly(): boolean {
 async function scheduleAutoBackupAfterWrite(normalizedFilePath: string, options?: WriteDataOptions): Promise<void> {
   if (options?.skipAutoBackup || BACKUP_EXCLUDED_FILES.has(normalizedFilePath)) return;
 
-  const backupTask = import('@/app/actions/backup')
-    .then(({ triggerAutoBackup }) => triggerAutoBackup())
+  const backupTask = Promise.all([
+    import('@/app/actions/backup'),
+    import('./backup/internal-token'),
+  ])
+    .then(([{ triggerAutoBackup }, { AUTO_BACKUP_INTERNAL_TOKEN }]) =>
+      triggerAutoBackup(AUTO_BACKUP_INTERNAL_TOKEN)
+    )
     .catch((err) => logger.warn('[data-service] Auto-backup trigger failed:', err));
 
   try {

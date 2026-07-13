@@ -3,6 +3,7 @@
 
 import type { SocialConnection, SocialPlatformName } from '@/types/settings';
 import { readData, writeData } from '@/lib/data-service';
+import { requireAppSession } from '@/lib/auth/require-session';
 
 const CONNECTIONS_FILE = 'social-connections.json';
 
@@ -14,6 +15,7 @@ export async function saveWhatsAppNumber(
   phoneNumber: string,
   logoUrl?: string
 ): Promise<{ success: boolean; connection?: SocialConnection; error?: string }> {
+  await requireAppSession();
   if (!phoneNumber || !/^\d+$/.test(phoneNumber.replace(/\s/g, ''))) {
     return { success: false, error: "Por favor, ingresa un número de teléfono válido (solo dígitos)." };
   }
@@ -47,6 +49,7 @@ export async function saveSocialLink(
   url: string,
   logoUrl?: string
 ): Promise<{ success: boolean; connection?: SocialConnection; error?: string }> {
+  await requireAppSession();
   if (platform === 'WhatsApp') {
     return { success: false, error: 'Usa la función de guardar número para WhatsApp.' };
   }
@@ -76,6 +79,7 @@ export async function saveSocialLink(
 }
 
 export async function disconnectSocialPlatform(platform: SocialPlatformName): Promise<{ success: boolean; error?: string }> {
+  await requireAppSession();
   let connections = await getSocialConnections();
   const initialLength = connections.length;
   connections = connections.filter(c => c.platform !== platform);

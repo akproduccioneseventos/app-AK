@@ -38,6 +38,69 @@ export type ReconciledSalePayment = {
   source: 'invoice' | 'budget';
 };
 
+export function isDepositReceiptInvoice(invoice: Pick<Invoice, 'documentKind' | 'invoiceNumber'>): boolean {
+  return invoice.documentKind === 'deposit_receipt'
+    || invoice.invoiceNumber.trim().toUpperCase().startsWith('SEÑA-')
+    || invoice.invoiceNumber.trim().toUpperCase().startsWith('SENA-');
+}
+
+export function isFirmSalesInvoice(invoice: Pick<Invoice, 'documentKind' | 'invoiceNumber' | 'status'>): boolean {
+  return invoice.status !== 'Draft' && !isDepositReceiptInvoice(invoice);
+}
+
+function normalizeCustomerName(value?: string): string {
+  return (value || '')
+    .normalize('NFD')
+    .replace(/[\u0300-\u036f]/g, '')
+    .toLowerCase()
+    .replace(/[^a-z0-9]+/g, ' ')
+    .trim();
+}
+
+function paymentDay(value?: string): string {
+  const date = value ? new Date(value) : new Date(Number.NaN);
+  return Number.isNaN(date.getTime()) ? '' : date.toISOString().slice(0, 10);
+}
+
+export function findExistingDepositReceipt(
+  invoices: Invoice[],
+  input: { fiestaId: string; invoiceIds?: string[]; amount: number; date: string }
+): Invoice | undefined {
+  const eventInvoiceIds = new Set(input.invoiceIds || []);
+  const expectedAmount = roundMoney(input.amount);
+  const expectedDay = paymentDay(input.date);
+
+  return invoices.find(invoice =>
+    isDepositReceiptInvoice(invoice)
+    && (invoice.sourceFiestaId === input.fiestaId || eventInvoiceIds.has(invoice.id))
+    && (invoice.payments ?? []).some(payment =>
+      roundMoney(payment.amount) === expectedAmount
+      && paymentDay(payment.paymentDate) === expectedDay
+    )
+  );
+}
+
+function depositReceiptIsMirrored(invoice: Invoice, presupuestos: Presupuesto[]): boolean {
+  if (invoice.sourcePresupuestoId) {
+    return presupuestos.some(presupuesto => presupuesto.id === invoice.sourcePresupuestoId);
+  }
+
+  const customerName = normalizeCustomerName(invoice.customer?.name || invoice.customer?.companyName);
+  if (!customerName) return false;
+
+  return (invoice.payments ?? []).some(invoicePayment =>
+    presupuestos.some(presupuesto =>
+      normalizeCustomerName(presupuesto.clienteNombre) === customerName
+      && (presupuesto.pagosCliente ?? []).some(budgetPayment =>
+        budgetPayment.estadoPago !== 'pendiente_confirmacion'
+        && budgetPayment.estadoPago !== 'rechazado'
+        && roundMoney(budgetPayment.monto) === roundMoney(invoicePayment.amount)
+        && paymentDay(budgetPayment.fecha) === paymentDay(invoicePayment.paymentDate)
+      )
+    )
+  );
+}
+
 export function getReconciledSalePayments(
   invoice: Invoice,
   linkedBudget?: Presupuesto,
@@ -100,11 +163,23 @@ export function calculateFinancialLedger(
       .filter(presupuesto => presupuesto.invoiceId)
       .map(presupuesto => [presupuesto.invoiceId!, presupuesto]),
   );
+  const firmInvoices = invoices.filter(isFirmSalesInvoice);
+  const firmInvoiceIds = new Set(firmInvoices.map(invoice => invoice.id));
 
   // 1. Sumar ventas de facturas
   let ventasFacturadas = 0;
   let totalCobradoFacturas = 0;
   for (const inv of invoices) {
+    if (isDepositReceiptInvoice(inv)) {
+      if (!depositReceiptIsMirrored(inv, presupuestos)) {
+        const standalonePayments = getReconciledSalePayments(inv);
+        totalCobradoFacturas += standalonePayments.reduce((sum, payment) => sum + payment.amount, 0);
+        standalonePayments.forEach(payment => addCollection(payment.date, payment.amount));
+      }
+      continue;
+    }
+    if (!isFirmSalesInvoice(inv)) continue;
+
     const invoiceTotal = roundMoney(inv.totalAmount);
     ventasFacturadas += invoiceTotal;
     const mes = getMes(inv.issueDate);
@@ -119,7 +194,7 @@ export function calculateFinancialLedger(
 
   // 2. Sumar ventas de presupuestos aceptados no facturados
   const presupuestosAceptadosSinFactura = presupuestos.filter(
-    p => p.estado === 'Aceptado' && !p.invoiceId
+    p => p.estado === 'Aceptado' && (!p.invoiceId || !firmInvoiceIds.has(p.invoiceId))
   );
   let ventasPresupuestadas = 0;
   let totalCobradoPresupuestos = 0;
@@ -152,7 +227,7 @@ export function calculateFinancialLedger(
     totalCobrado,
     saldoPendiente,
     porMes,
-    cantidadFacturas: invoices.length,
+    cantidadFacturas: firmInvoices.length,
     presupuestosAceptadosSinFactura: presupuestosAceptadosSinFactura.length,
   };
 }

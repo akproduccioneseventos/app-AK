@@ -10,6 +10,9 @@ test('health endpoint responds without exposing internal failures', async ({ req
     services: {
       firebase: expect.any(Boolean),
       gemini: expect.any(Boolean),
+      googleWorkspace: expect.any(Boolean),
+      mail: expect.any(Boolean),
+      instagram: expect.any(Boolean),
     },
   });
 });
@@ -25,6 +28,16 @@ test('protected access screen remains usable', async ({ page }) => {
   await expect(page.getByRole('button', { name: /Olvide mi contrase/i })).toBeVisible();
 });
 
+test('password recovery keeps the configured AK email visible when status verification is slow', async ({ page }) => {
+  await page.goto('/login', { waitUntil: 'domcontentloaded' });
+  const recoveryButton = page.getByRole('button', { name: /Olvide mi contrase/i });
+  await expect(recoveryButton).toHaveCount(1);
+  await recoveryButton.click();
+
+  await expect(page.getByText(/Mail de recuperaci.n: ak\*\*\*@gmail\.com/i)).toBeVisible();
+  await expect(page.getByText(/Todav.a no hay mail de recuperaci.n configurado/i)).toHaveCount(0);
+});
+
 test('manual budget simulator remains publicly reachable', async ({ page }) => {
   const response = await page.goto('/simulador-de-presupuesto', {
     waitUntil: 'domcontentloaded',
@@ -33,4 +46,50 @@ test('manual budget simulator remains publicly reachable', async ({ page }) => {
   expect(response?.status()).toBe(200);
   expect(page.url()).toContain('/simulador-de-presupuesto');
   await expect(page.locator('body')).toBeVisible();
+});
+
+test('public homepage fits the viewport without horizontal overflow', async ({ page }) => {
+  const response = await page.goto('/', { waitUntil: 'domcontentloaded' });
+
+  expect(response?.status()).toBe(200);
+  const mainHeading = page.getByRole('heading', { level: 1 });
+  await expect(mainHeading).toHaveCount(1);
+  await expect(mainHeading).toBeVisible();
+  await expect(page.getByText(/Instagram sincronizado|Perfil oficial de Instagram/i)).toBeVisible();
+  const overflow = await page.evaluate(() => ({
+    clientWidth: document.documentElement.clientWidth,
+    scrollWidth: document.documentElement.scrollWidth,
+  }));
+  expect(overflow.scrollWidth).toBeLessThanOrEqual(overflow.clientWidth + 1);
+});
+
+test('simulator input keeps typed text visible and the flow fits the viewport', async ({ page }) => {
+  await page.goto('/simulador-de-presupuesto', { waitUntil: 'domcontentloaded' });
+  const startButton = page.getByRole('button', { name: 'Comenzar mi presupuesto' });
+  await expect(startButton).toBeVisible();
+  await startButton.click();
+
+  const continueButton = page.getByRole('button', { name: 'Continuar' });
+  await expect(continueButton).toBeEnabled();
+  await continueButton.click();
+
+  const nameInput = page.locator('#simulator-name');
+  await expect(nameInput).toBeVisible();
+  await nameInput.fill('Ana García');
+  await expect(nameInput).toHaveValue('Ana García');
+
+  const inputInk = await nameInput.evaluate((element) => {
+    const style = getComputedStyle(element);
+    return { color: style.color, opacity: style.opacity, caretColor: style.caretColor };
+  });
+  expect(inputInk.color).not.toBe('transparent');
+  expect(inputInk.color).not.toBe('rgba(0, 0, 0, 0)');
+  expect(Number(inputInk.opacity)).toBeGreaterThan(0);
+  expect(inputInk.caretColor).not.toBe('transparent');
+
+  const overflow = await page.evaluate(() => ({
+    clientWidth: document.documentElement.clientWidth,
+    scrollWidth: document.documentElement.scrollWidth,
+  }));
+  expect(overflow.scrollWidth).toBeLessThanOrEqual(overflow.clientWidth + 1);
 });

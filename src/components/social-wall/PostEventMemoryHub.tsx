@@ -17,15 +17,15 @@ import {
   PartyPopper,
   Info
 } from 'lucide-react';
-import type { FiestaEnPlanificacion } from '@/types/fiesta';
 import type { SocialGalleryPost, Dedication } from '@/types/social-gallery';
+import type { PublicSocialEvent } from '@/lib/social-fiesta/public-event';
 import { getContractedDownloads } from '@/lib/experience-ak/post-event-utils';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 
 interface PostEventMemoryHubProps {
-  fiesta: FiestaEnPlanificacion;
+  fiesta: PublicSocialEvent;
   posts: SocialGalleryPost[];
   dedications: Dedication[];
 }

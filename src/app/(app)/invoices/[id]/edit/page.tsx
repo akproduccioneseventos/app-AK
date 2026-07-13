@@ -1,8 +1,8 @@
 
 'use client';
 
-import React, { useState, useEffect, useCallback, type FormEvent, use } from 'react';
-import { useRouter } from 'next/navigation';
+import React, { useState, useEffect, useCallback, type FormEvent } from 'react';
+import { useParams, useRouter } from 'next/navigation';
 import Link from 'next/link';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle, CardFooter } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -19,8 +19,8 @@ import { getInvoiceById, saveInvoice as updateInvoiceAction } from '@/app/action
 import { getCustomers } from '@/app/actions/customers'; // To fetch customers for dropdown
 import type { Customer } from '@/types/customer'; // Main Customer type
 
-export default function EditInvoicePage(props: { params: Promise<{ id: string }> }) {
-  const params = use(props.params);
+export default function EditInvoicePage() {
+  const params = useParams<{ id: string }>();
   const router = useRouter();
   const invoiceId = params.id;
   const { toast } = useToast();

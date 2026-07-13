@@ -2,7 +2,7 @@
 
 import { useEffect, useState, useCallback, useRef } from 'react';
 import { useParams, useRouter } from 'next/navigation';
-import { getFiestaById } from '@/app/actions/fiesta/fiesta.actions';
+import { getFiestaByAccessKey } from '@/app/actions/fiesta/portal.actions';
 import { saveSocialSettingsByClient, getSocialPostsByClient, moderateSocialPostByClient } from '@/app/actions/social-gallery';
 import type { FiestaEnPlanificacion, SocialGallerySettings } from '@/types/fiesta';
 import type { SocialGalleryPost } from '@/types/social-gallery';
@@ -128,9 +128,10 @@ export default function ClientMuroSocialPage() {
   // Load initial settings
   const loadData = useCallback(async (key: string) => {
     try {
-      const data = await getFiestaById(fiestaId);
-      if (!data) {
-        setError('Evento no encontrado.');
+      const data = await getFiestaByAccessKey(key);
+      if (!data || data.id !== fiestaId) {
+        sessionStorage.removeItem(SESSION_KEY_PREFIX + fiestaId);
+        setError('El acceso no corresponde a este evento.');
         setIsLoading(false);
         return;
       }

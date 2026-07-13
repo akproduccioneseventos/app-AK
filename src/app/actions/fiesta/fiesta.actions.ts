@@ -37,7 +37,7 @@ import {
     defaultDecoracion,
     defaultGestionCostos,
 } from '@/lib/fiesta-defaults';
-import { mergeClientPortalSettingsForSync, normalizeBudgetItemsForSync } from '@/lib/fiesta-sync-utils';
+import { deriveBudgetModulesForSync, mergeClientPortalSettingsForSync, normalizeBudgetItemsForSync } from '@/lib/fiesta-sync-utils';
 import { readData, writeData, updateDataPartial } from '@/lib/data-service';
 import path from 'path';
 import fs from 'fs/promises';
@@ -48,37 +48,64 @@ import { getActivosFijos } from '../activos-fijos';
 import * as logger from '@/lib/logger';
 import { normalizeInvitationSlug, isValidInvitationSlug } from '@/lib/invitacion-slug';
 import { buildAkDemoFiesta, type AkDemoFiestaKind } from '@/lib/experience-ak/demo-fiesta-factory';
+import { hasAppSession, requireAppSession } from '@/lib/auth/require-session';
+import { verifyPortalSession } from '@/lib/security/portal-session';
 
 const FIESTAS_DIR = 'fiestas';
 const ARCHIVE_DIR = 'archive';
+
+function shouldUseLocalJsonOnly(): boolean {
+  return process.env.AK_USE_LOCAL_JSON_ONLY === 'true';
+}
+
+async function readLocalFiestaDirectory(directory: string): Promise<FiestaEnPlanificacion[]> {
+  const fileNames = new Set<string>();
+  const candidates = [
+    path.join(process.cwd(), 'data', directory),
+    path.join(process.cwd(), 'src', 'data', directory),
+  ];
+
+  for (const candidate of candidates) {
+    try {
+      const entries = await fs.readdir(candidate);
+      entries.filter((file) => file.endsWith('.json')).forEach((file) => fileNames.add(file));
+    } catch {
+      // The directory is optional in local and test environments.
+    }
+  }
+
+  const fiestas = await Promise.all(
+    [...fileNames].map((file) => readData<FiestaEnPlanificacion | null>(path.join(directory, file), null)),
+  );
+  return fiestas.filter((fiesta): fiesta is FiestaEnPlanificacion => fiesta !== null);
+}
+
+async function requireFiestaWriteAccess(fiestaId: string) {
+    if (await hasAppSession()) return;
+    if (fiestaId && (await verifyPortalSession(fiestaId))) return;
+    throw new Error('No autorizado para modificar este evento.');
+}
 
 export async function getHistorialFiestas(): Promise<FiestaEnPlanificacion[]> {
   const isProduction = process.env.NODE_ENV === 'production' || !!process.env.VERCEL;
   let historiales: FiestaEnPlanificacion[] = [];
   let firestoreSucceeded = false;
 
-  try {
-    const { isFirebaseAvailable } = await import('@/lib/firebase');
-    if (isProduction || isFirebaseAvailable()) {
-      const { listCollectionFromFirestore } = await import('@/lib/firebase-sync');
-      historiales = (await listCollectionFromFirestore(ARCHIVE_DIR)) as FiestaEnPlanificacion[];
-      firestoreSucceeded = true;
+  if (!shouldUseLocalJsonOnly()) {
+    try {
+      const { isFirebaseAvailable } = await import('@/lib/firebase');
+      if (isProduction || isFirebaseAvailable()) {
+        const { listCollectionFromFirestore } = await import('@/lib/firebase-sync');
+        historiales = (await listCollectionFromFirestore(ARCHIVE_DIR)) as FiestaEnPlanificacion[];
+        firestoreSucceeded = true;
+      }
+    } catch (e) {
+      // fall through to filesystem fallback
     }
-  } catch (e) {
-    // fall through to filesystem fallback
   }
 
   if (!firestoreSucceeded) {
-    const dataDir = path.join(process.cwd(), 'src', 'data', ARCHIVE_DIR);
-    try {
-      const archiveFiles = await fs.readdir(dataDir);
-      const historialesPromises = archiveFiles
-          .filter(file => file.endsWith('.json'))
-          .map(file => readData<FiestaEnPlanificacion>(path.join(ARCHIVE_DIR, file), null as any));
-      historiales = (await Promise.all(historialesPromises)).filter((f): f is FiestaEnPlanificacion => f !== null);
-    } catch (error) {
-      historiales = [];
-    }
+    historiales = await readLocalFiestaDirectory(ARCHIVE_DIR);
   }
 
   return Array.from(new Map(historiales.map(f => [f.id, f])).values())
@@ -90,28 +117,21 @@ export async function getFiestas(includeArchived = true): Promise<FiestaEnPlanif
     let activas: FiestaEnPlanificacion[] = [];
     let firestoreSucceeded = false;
 
-    try {
-        const { isFirebaseAvailable } = await import('@/lib/firebase');
-        if (isProduction || isFirebaseAvailable()) {
-            const { listCollectionFromFirestore } = await import('@/lib/firebase-sync');
-            activas = (await listCollectionFromFirestore(FIESTAS_DIR)) as FiestaEnPlanificacion[];
-            firestoreSucceeded = true;
+    if (!shouldUseLocalJsonOnly()) {
+        try {
+            const { isFirebaseAvailable } = await import('@/lib/firebase');
+            if (isProduction || isFirebaseAvailable()) {
+                const { listCollectionFromFirestore } = await import('@/lib/firebase-sync');
+                activas = (await listCollectionFromFirestore(FIESTAS_DIR)) as FiestaEnPlanificacion[];
+                firestoreSucceeded = true;
+            }
+        } catch (e) {
+            // fall through to filesystem fallback
         }
-    } catch (e) {
-        // fall through to filesystem fallback
     }
 
     if (!firestoreSucceeded) {
-        const dataDir = path.join(process.cwd(), 'src', 'data', FIESTAS_DIR);
-        try {
-            const activeFiles = await fs.readdir(dataDir);
-            const activasPromises = activeFiles
-                .filter(file => file.endsWith('.json'))
-                .map(file => readData<FiestaEnPlanificacion>(path.join(FIESTAS_DIR, file), null as any));
-            activas = (await Promise.all(activasPromises)).filter((f): f is FiestaEnPlanificacion => f !== null);
-        } catch (error) {
-            activas = [];
-        }
+        activas = await readLocalFiestaDirectory(FIESTAS_DIR);
     }
 
     const archivadas = includeArchived ? await getHistorialFiestas() : [];
@@ -134,6 +154,7 @@ export async function getFiestaActual(): Promise<FiestaEnPlanificacion> {
 }
 
 export async function saveFiesta(fiestaData: FiestaEnPlanificacion): Promise<{ success: boolean; fiesta?: FiestaEnPlanificacion; error?: string }> {
+  await requireFiestaWriteAccess(fiestaData.id);
   try {
     const filePath = path.join(FIESTAS_DIR, `${fiestaData.id}.json`);
     await writeData(filePath, fiestaData);
@@ -144,6 +165,7 @@ export async function saveFiesta(fiestaData: FiestaEnPlanificacion): Promise<{ s
 }
 
 export async function updateFiestaPartial(fiestaId: string, partialData: Partial<FiestaEnPlanificacion>): Promise<{ success: boolean; error?: string }> {
+  await requireAppSession();
   try {
     const filePath = path.join(FIESTAS_DIR, `${fiestaId}.json`);
     await updateDataPartial<FiestaEnPlanificacion>(filePath, partialData);
@@ -668,16 +690,7 @@ export async function syncFiestaFromBudget(fiestaId: string) {
     modulos.fotografia = hasItem('foto') || hasItem('film') || hasItem('video') || items.some(i => ['Servicio de filmación', 'Servicio de fotografía'].includes(i.categoriaServicio || ''));
     modulos.decoracion = items.some(i => i.categoriaServicio === 'Servicio de decoración') || hasItem('decorac') || hasItem('ambientac');
     modulos.regalos = true; // Siempre activo para coordinar
-
-    // Sincronización dinámica de módulos tecnológicos y entretenimiento según presupuesto
-    modulos.redSocial = hasItem('red social') || hasItem('social') || hasItem('feed');
-    modulos.muroSocial = hasItem('muro social') || hasItem('pantalla') || hasItem('muro interactivo') || hasItem('mural');
-    modulos.barraTecnologica = hasItem('barra') || hasItem('trago') || hasItem('bebida');
-    modulos.zonaDigital = hasItem('zona digital') || hasItem('adolescente') || hasItem('juego') || hasItem('reto');
-    modulos.pantallasTotem = hasItem('totem') || hasItem('tótem') || hasItem('pantalla totem') || hasItem('pantallas totem');
-    modulos.entretenimiento = hasItem('fotocabina') || hasItem('cabina') || hasItem('360') || hasItem('espejo') || hasItem('bogue') || hasItem('plataforma');
-    modulos.paginaWeb = hasItem('invitacion') || hasItem('invitación') || hasItem('web') || hasItem('página web') || hasItem('pagina web');
-    modulos.buzon = hasItem('buzon') || hasItem('buzón') || hasItem('recuerdos') || hasItem('mensaje');
+    Object.assign(modulos, deriveBudgetModulesForSync(items));
     
     updatedFiesta.modulosContratados = modulos;
 
@@ -819,6 +832,7 @@ export async function syncFiestaFromBudget(fiestaId: string) {
 }
 
 export async function deleteFiesta(fiestaId: string): Promise<{ success: boolean; error?: string }> {
+  await requireAppSession();
   const isProduction = process.env.NODE_ENV === 'production' || !!process.env.VERCEL;
   try {
     if (isProduction) {
@@ -842,6 +856,7 @@ export async function deleteFiesta(fiestaId: string): Promise<{ success: boolean
 }
 
 export async function archiveFiesta(fiestaId: string): Promise<{ success: boolean; error?: string }> {
+  await requireAppSession();
   try {
     const fiesta = await getFiestaById(fiestaId);
     if (!fiesta) throw new Error("Evento no encontrado.");
@@ -856,6 +871,7 @@ export async function archiveFiesta(fiestaId: string): Promise<{ success: boolea
 }
 
 export async function deleteFiestaArchivada(fiestaId: string): Promise<{ success: boolean; error?: string }> {
+  await requireAppSession();
   const isProduction = process.env.NODE_ENV === 'production' || !!process.env.VERCEL;
   try {
     if (isProduction) {
@@ -1024,6 +1040,7 @@ export async function duplicateFiesta(fiestaId: string): Promise<{ success: bool
 export async function addInvoiceId(fiestaId: string, invoiceId: string) {
   const f = await getFiestaById(fiestaId);
   if (!f) return { success: false };
+  if ((f.invoiceIds || []).includes(invoiceId)) return { success: true };
   return await saveFiesta({ ...f, invoiceIds: [...(f.invoiceIds || []), invoiceId] });
 }
 

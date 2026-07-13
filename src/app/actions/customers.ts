@@ -5,7 +5,7 @@ import type { Customer, CustomerStatus } from '@/types/customer';
 import { readData, writeData } from '@/lib/data-service';
 import { uploadToStorage, deleteFromStorage } from '@/lib/firebase/storage';
 import { createNewFiestaForCustomer } from './fiesta/fiesta.actions';
-import { createNotification } from './notifications';
+import { createNotification } from '@/lib/notifications/create-notification';
 import { triggerWhatsAppAutomation } from '@/lib/whatsapp-automation-engine';
 import * as logger from '@/lib/logger';
 import { verifySession } from '@/lib/auth/session-token';
@@ -188,7 +188,7 @@ export async function saveCustomer(
     createNotification({
       titulo: 'Nuevo Cliente',
       mensaje: `Nuevo cliente registrado: ${(customerToSave as Customer).name}.`,
-      href: `/clientes`,
+      href: `/customers`,
       icono: 'KanbanSquare',
       tipo: 'info',
       entidadRelacionadaId: customerId,

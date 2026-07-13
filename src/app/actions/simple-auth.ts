@@ -8,6 +8,7 @@ import {
   parseAllowedGoogleEmails,
   validateGoogleIdentityClaims,
 } from '@/lib/auth/google-identity';
+import { getGoogleRecoveryAccountStatus } from '@/lib/auth/google-recovery';
 import type { GoogleWorkspaceAccount } from '@/types/google-workspace';
 
 const AUTH_COLLECTION = 'app-settings';
@@ -264,9 +265,7 @@ async function getConnectedCompanyGoogleAccount() {
 async function getCompanyGoogleAccountStatus() {
   const accounts = await readData<GoogleWorkspaceAccount[]>(GOOGLE_ACCOUNTS_FILE, []);
   const company = accounts.find((account) => account.kind === 'company');
-  if (!company) {
-    return { connected: false, email: undefined as string | undefined, reason: 'No hay cuenta Gmail de AK conectada.' };
-  }
+  if (!company) return getGoogleRecoveryAccountStatus(undefined, undefined);
 
   const fresh = await ensureFreshGoogleAccount(company).catch(() => undefined);
   if (fresh) {
@@ -276,14 +275,7 @@ async function getCompanyGoogleAccountStatus() {
     ).catch(() => undefined);
   }
 
-  const account = fresh || company;
-  return {
-    connected: account.status === 'connected' && Boolean(account.accessToken),
-    email: account.email,
-    reason: account.status === 'connected'
-      ? undefined
-      : account.lastError || 'La cuenta Gmail de AK necesita volver a conectarse.',
-  };
+  return getGoogleRecoveryAccountStatus(company, fresh);
 }
 
 async function sendSecurityEmail(to: string, code: string) {
@@ -520,7 +512,13 @@ export async function requestPasswordResetEmail(): Promise<{ success: boolean; s
     }
 
     const mail = await sendSecurityEmail(recoveryEmail, code);
-    return { success: true, sent: mail.sent, warning: mail.warning };
+    if (!mail.sent) {
+      return {
+        success: false,
+        error: mail.warning || 'No se pudo enviar el codigo por Gmail. Reconecta Google Workspace e intenta nuevamente.',
+      };
+    }
+    return { success: true, sent: true };
   } catch (err) {
     console.error('[simple-auth] requestPasswordResetEmail error:', err);
     return { success: false, error: 'No se pudo generar el codigo de recuperacion.' };

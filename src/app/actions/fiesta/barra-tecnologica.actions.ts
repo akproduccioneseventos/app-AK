@@ -423,16 +423,19 @@ export async function updateBarDrinkOrderStatus(
           transaction.update(ref, { status, updatedAt });
         });
 
-        if (shouldDiscountStock && orderData) {
+        const updatedOrder = orderData;
+        if (!updatedOrder) throw new Error('No se pudo recuperar el pedido actualizado.');
+
+        if (shouldDiscountStock) {
           const fiesta = await getFiestaById(fiestaId);
           if (fiesta) {
             const drinks = await getBarDrinks(fiesta);
-            const drink = drinks.find(d => d.id === orderData.drinkId);
+            const drink = drinks.find(d => d.id === updatedOrder.drinkId);
             if (drink) await descontarStock(drink);
           }
         }
 
-        return { success: true, order: orderData };
+        return { success: true, order: updatedOrder };
       } catch (error) {
         logger.warn('[barra-tecnologica] firestore status update failed, using fallback:', error);
       }

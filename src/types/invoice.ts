@@ -40,4 +40,7 @@ export interface Invoice {
   vendorAddress?: string;
   vendorTaxId?: string;
   payments?: Payment[];
+  documentKind?: 'invoice' | 'deposit_receipt';
+  sourceFiestaId?: string;
+  sourcePresupuestoId?: string;
 }

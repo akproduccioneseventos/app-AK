@@ -8,17 +8,17 @@ import React, {
   type FormEvent,
   useRef,
   type ChangeEvent,
-  use,
 } from 'react';
+import { useParams } from 'next/navigation';
 import { useToast } from '@/hooks/use-toast';
-import { getPublicSocialPosts, uploadSocialPost, addLikeToPost, addCommentToPost, deleteSocialPost, clearGallery, getChatMessages, addChatMessage, highlightComment, moderateSocialPost, saveSocialGallerySettings } from '@/app/actions/social-gallery';
+import { getPublicSocialEvent, getPublicSocialPosts, uploadSocialPost, addLikeToPost, addCommentToPost, deleteSocialPost, clearGallery, getChatMessages, addChatMessage, highlightComment, moderateSocialPost, saveSocialGallerySettings } from '@/app/actions/social-gallery';
 import { addDedication, addSongRequest, getPublicDedications, getSongRequests, getActivePoll, createPoll, votePoll, closePoll, highlightDedication, uploadDedicationAudio } from '@/app/actions/social-interactive';
 import { voteActiveGameOption, trackSocialFollowClick } from '@/app/actions/fiesta/screen-mode.actions';
 import type { SocialGalleryPost, SocialComment, ChatMessage, SocialPoll } from '@/types/social-gallery';
-import { getFiestaById } from '@/app/actions/fiesta/fiesta.actions';
 import { formatDistanceToNow } from 'date-fns';
 import { es } from 'date-fns/locale';
-import type { FiestaEnPlanificacion, SocialGallerySettings } from '@/types/fiesta';
+import type { SocialGallerySettings } from '@/types/fiesta';
+import type { PublicSocialEvent } from '@/lib/social-fiesta/public-event';
 import { MAX_DEDICATION_RECORDING_SECONDS } from '@/lib/social-fiesta/guardrails';
 import type { SocialConnection } from '@/types/settings';
 import { motion, AnimatePresence } from 'framer-motion';
@@ -455,7 +455,7 @@ function SocialCountdownScreen({
   coverUrl,
   title
 }: {
-  fiesta: FiestaEnPlanificacion;
+  fiesta: PublicSocialEvent;
   accentColor: string;
   coverUrl?: string;
   title?: string;
@@ -550,11 +550,11 @@ function SocialCountdownScreen({
 }
 
 
-export default function SocialGalleryPage(props: { params: Promise<{ fiestaId: string }> }) {
-  const params = use(props.params);
+export default function SocialGalleryPage() {
+  const params = useParams<{ fiestaId: string }>();
   const { toast } = useToast();
 
-  const [fiesta, setFiesta] = useState<FiestaEnPlanificacion | null>(null);
+  const [fiesta, setFiesta] = useState<PublicSocialEvent | null>(null);
   const [posts, setPosts] = useState<SocialGalleryPost[]>([]);
   const [chatMessages, setChatMessages] = useState<ChatMessage[]>([]);
   const [songRequests, setSongRequests] = useState<SongRequest[]>([]);
@@ -678,7 +678,12 @@ export default function SocialGalleryPage(props: { params: Promise<{ fiestaId: s
     try {
       const results = await Promise.allSettled([
           getPublicSocialPosts(params.fiestaId),
-          getFiestaById(params.fiestaId),
+          getPublicSocialEvent(
+            params.fiestaId,
+            typeof window !== 'undefined'
+              ? sessionStorage.getItem(`portal_auth_${params.fiestaId}`) || undefined
+              : undefined,
+          ),
           getChatMessages(params.fiestaId),
           includeBrandData ? getInvoiceTemplateSettings() : Promise.resolve(null),
           includeBrandData ? getSocialConnections() : Promise.resolve([]),
@@ -698,6 +703,7 @@ export default function SocialGalleryPage(props: { params: Promise<{ fiestaId: s
 
       setPosts(fetchedPosts || []);
       setFiesta(fiestaData);
+      setHasBypass(fiestaData?.clientAccessGranted === true);
       if (fiestaData?.socialGallerySettings) {
           setLocalSettings(prev => mergeGuestSettings(prev, fiestaData.socialGallerySettings!));
       }
@@ -751,16 +757,6 @@ export default function SocialGalleryPage(props: { params: Promise<{ fiestaId: s
 
 
   const [hasBypass, setHasBypass] = useState(false);
-  useEffect(() => {
-    if (typeof window === 'undefined' || !fiesta) return;
-    const portalAuth = sessionStorage.getItem(`portal_auth_${params.fiestaId}`);
-    const clientKey = fiesta.clientPortalSettings?.accessKey;
-    const urlParams = new URLSearchParams(window.location.search);
-    const isBypassParam = urlParams.get('bypass') === 'true' || urlParams.get('test') === 'true';
-    if ((portalAuth && clientKey && portalAuth === clientKey) || isBypassParam) {
-      setHasBypass(true);
-    }
-  }, [fiesta, params.fiestaId]);
 
   const fechaEvento = fiesta?.configuracion?.fechaEvento;
   const windowInfo = isEventInActiveWindow(fechaEvento);

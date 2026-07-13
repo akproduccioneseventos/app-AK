@@ -3,6 +3,7 @@
 import type { ServicioEmpresa } from '@/types/empresa';
 import { readData, writeData } from '@/lib/data-service';
 import { getMenus, saveMenu } from './menus-catering';
+import { requireAppSession } from '@/lib/auth/require-session';
 
 const INSUMOS_FILE = 'insumos.json';
 
@@ -79,6 +80,7 @@ async function propagateInsumoChangesToMenus(updatedInsumo: ServicioEmpresa) {
 export async function saveInsumo(
   itemData: Omit<ServicioEmpresa, 'id'> | ServicioEmpresa
 ): Promise<{ success: boolean; id?: string; servicio?: ServicioEmpresa; error?: string }> {
+  await requireAppSession();
   invalidateInsumosCache();
   let inventario = await getInsumos();
   let finalItemData: Partial<ServicioEmpresa>;
@@ -127,6 +129,7 @@ export async function saveInsumo(
 }
 
 export async function deleteInsumo(id: string): Promise<{ success: boolean; error?: string }> {
+  await requireAppSession();
   invalidateInsumosCache();
   let inventario = await getInsumos();
   const initialLength = inventario.length;
@@ -140,6 +143,7 @@ export async function deleteInsumo(id: string): Promise<{ success: boolean; erro
 export async function adjustAllInsumoCosts(
   percentage: number
 ): Promise<{ success: boolean; error?: string }> {
+  await requireAppSession();
   if (isNaN(percentage) || percentage === 0) {
     return { success: false, error: "El porcentaje debe ser un número distinto de cero." };
   }

@@ -36,11 +36,15 @@ import {
   AccordionItem,
   AccordionTrigger,
 } from '@/components/ui/accordion';
-import { getFiestaById, updateClienteDebeLlevar } from '@/app/actions/fiesta/fiesta.actions';
 import type { FiestaEnPlanificacion, Invitado, CuotaPlanPago, ClienteDebeLlevarItem, ClientePortalExperience } from '@/types/fiesta';
 import NextImage from 'next/image';
 import Link from 'next/link';
-import { updateInvitado } from '@/app/actions/fiesta/invitados.actions';
+import {
+  getFiestaForPortalSession,
+  initializePortalSession,
+  updateClientGuestTable,
+  updateClientPackingList,
+} from '@/app/actions/fiesta/portal.actions';
 import { useToast } from '@/hooks/use-toast';
 import { EventProgressBar } from '@/components/portal/EventProgressBar';
 import { calcFiestaProgress } from '@/lib/fiesta-progress';
@@ -107,6 +111,7 @@ export default function PortalClientePage() {
   const [password, setPassword]       = useState('');
   const [authError, setAuthError]     = useState<string | null>(null);
   const [isLoading, setIsLoading]     = useState(true);
+  const [isAuthenticating, setIsAuthenticating] = useState(false);
   const [pageError, setPageError]     = useState<string | null>(null);
   const [openSections, setOpenSections] = useState<string[]>(['resumen']);
 
@@ -128,23 +133,19 @@ export default function PortalClientePage() {
       return;
     }
     try {
-      const data = await getFiestaById(fiestaId);
-      if (!data || !data.clientPortalSettings?.enabled) {
-        setPageError('El portal de este evento no está habilitado o el evento no existe.');
-      } else {
-        setFiesta(data);
-        // Use clienteDebeLlevar as the single source of truth
-        const rootItems = data.clienteDebeLlevar;
-        setDebeLlevarItems(
-          (rootItems && rootItems.length > 0)
-            ? rootItems
-            : defaultClienteDebeLlevar
-        );
-        const storedKey = sessionStorage.getItem(sessionKey);
-        if (storedKey === data.clientPortalSettings.accessKey) {
-          setIsAuth(true);
-        }
+      const storedKey = sessionStorage.getItem(sessionKey);
+      if (!storedKey) return;
+      const sessionResult = await initializePortalSession(fiestaId, storedKey);
+      if (!sessionResult.success) {
+        sessionStorage.removeItem(sessionKey);
+        return;
       }
+      const data = await getFiestaForPortalSession(fiestaId);
+      if (!data) throw new Error('No se pudo abrir la sesión del portal.');
+      setFiesta(data);
+      const rootItems = data.clienteDebeLlevar;
+      setDebeLlevarItems(rootItems?.length ? rootItems : defaultClienteDebeLlevar);
+      setIsAuth(true);
     } catch {
       setPageError('No se pudo cargar la información del evento.');
     } finally {
@@ -166,21 +167,34 @@ export default function PortalClientePage() {
     const intervalMs = isToday ? 12000 : 20000;
     const pollInterval = setInterval(async () => {
       try {
-        const data = await getFiestaById(fiestaId);
+        const data = await getFiestaForPortalSession(fiestaId);
         if (data) setFiesta(data);
       } catch { /* ignore */ }
     }, intervalMs);
     return () => clearInterval(pollInterval);
   }, [fiestaId, fechaEvento, isAuthenticated]);
 
-  const handleLogin = (e: FormEvent) => {
+  const handleLogin = async (e: FormEvent) => {
     e.preventDefault();
-    if (password === fiesta?.clientPortalSettings?.accessKey) {
+    setIsAuthenticating(true);
+    setAuthError(null);
+    try {
+      const result = await initializePortalSession(fiestaId, password);
+      if (!result.success) {
+        setAuthError('Contraseña incorrecta. Pedísela a tu organizador.');
+        return;
+      }
+      const data = await getFiestaForPortalSession(fiestaId);
+      if (!data) throw new Error('No se pudo cargar el portal.');
       sessionStorage.setItem(sessionKey, password);
+      setFiesta(data);
+      setDebeLlevarItems(data.clienteDebeLlevar?.length ? data.clienteDebeLlevar : defaultClienteDebeLlevar);
       setIsAuth(true);
-      setAuthError(null);
-    } else {
-      setAuthError('Contraseña incorrecta. Pedísela a tu organizador.');
+      setPassword('');
+    } catch {
+      setAuthError('No se pudo ingresar. Verificá tu conexión e intentá nuevamente.');
+    } finally {
+      setIsAuthenticating(false);
     }
   };
 
@@ -188,7 +202,7 @@ export default function PortalClientePage() {
     if (!fiesta) return;
     setIsSavingSeat(true);
     const updated = { ...invitado, tableNumber: editingTable.trim() || undefined };
-    const res = await updateInvitado(fiestaId, updated);
+    const res = await updateClientGuestTable(fiestaId, invitado.id, updated.tableNumber);
     if (res.success) {
       setFiesta(prev => prev ? {
         ...prev,
@@ -211,7 +225,8 @@ export default function PortalClientePage() {
     setDebeLlevarItems(updated);
     setIsSavingLlevar(true);
     try {
-      await updateClienteDebeLlevar(fiestaId, updated);
+      const result = await updateClientPackingList(fiestaId, updated);
+      if (!result.success) throw new Error(result.error);
     } catch {
       toast({ title: 'Error al guardar', description: 'No se pudo guardar el estado. Verificá tu conexión e intentá nuevamente.', variant: 'destructive' });
     } finally {
@@ -274,8 +289,8 @@ export default function PortalClientePage() {
               {authError && <p className="text-sm text-red-600 text-center">{authError}</p>}
             </CardContent>
             <CardFooter>
-              <Button type="submit" className="w-full bg-red-700 hover:bg-red-800">
-                <LogIn className="w-4 h-4 mr-2" /> Ingresar
+              <Button type="submit" className="w-full bg-red-700 hover:bg-red-800" disabled={isAuthenticating || !password.trim()}>
+                {isAuthenticating ? <Loader2 className="w-4 h-4 mr-2 animate-spin" /> : <LogIn className="w-4 h-4 mr-2" />} Ingresar
               </Button>
             </CardFooter>
           </form>

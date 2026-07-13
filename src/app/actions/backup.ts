@@ -4,6 +4,8 @@ import type { Firestore } from 'firebase-admin/firestore';
 import { readData, writeData } from '@/lib/data-service';
 import { BACKUP_COLLECTIONS, getBackupValueCount, isRestorableDataFile } from '@/lib/backup/backup-registry';
 import { decodeSnapshotValue, encodeSnapshotValue, type EncodedSnapshotChunk } from '@/lib/backup/snapshot-codec';
+import { requireAppSession } from '@/lib/auth/require-session';
+import { AUTO_BACKUP_INTERNAL_TOKEN } from '@/lib/backup/internal-token';
 
 const LEGACY_SNAPSHOTS_FILE = '_backup-snapshots.json';
 const SNAPSHOTS_COLLECTION = 'backup_snapshots_v2';
@@ -216,6 +218,7 @@ async function finishAutoBackupLease(db: Firestore, error?: unknown): Promise<vo
 }
 
 export async function getRestorePoints(): Promise<RestorePoint[]> {
+  await requireAppSession();
   const [legacySnapshots, db] = await Promise.all([
     readData<LegacySnapshotEntry[]>(LEGACY_SNAPSHOTS_FILE, []),
     getBackupDb(),
@@ -237,7 +240,7 @@ export async function getRestorePoints(): Promise<RestorePoint[]> {
     .slice(0, MAX_SNAPSHOTS);
 }
 
-export async function createRestorePoint(isAuto: boolean = false): Promise<{ success: boolean; error?: string; point?: RestorePoint }> {
+async function createRestorePointInternal(isAuto: boolean): Promise<{ success: boolean; error?: string; point?: RestorePoint }> {
   let db: Firestore | null = null;
   let name = '';
 
@@ -295,7 +298,13 @@ export async function createRestorePoint(isAuto: boolean = false): Promise<{ suc
   }
 }
 
+export async function createRestorePoint(): Promise<{ success: boolean; error?: string; point?: RestorePoint }> {
+  await requireAppSession();
+  return createRestorePointInternal(false);
+}
+
 export async function restoreFromPoint(pointName: string): Promise<{ success: boolean; error?: string; summary?: RestoreSummaryItem[] }> {
+  await requireAppSession();
   try {
     const db = await getBackupDb();
     const v2Snapshot = await readV2Snapshot(db, pointName);
@@ -322,6 +331,7 @@ export async function restoreFromPoint(pointName: string): Promise<{ success: bo
 }
 
 export async function deleteRestorePoint(pointName: string): Promise<{ success: boolean; error?: string }> {
+  await requireAppSession();
   try {
     const db = await getBackupDb();
     const v2Document = await db.collection(SNAPSHOTS_COLLECTION).doc(pointName).get();
@@ -345,7 +355,7 @@ async function runAutoBackup(): Promise<void> {
   if (!acquired) return;
 
   try {
-    const result = await createRestorePoint(true);
+    const result = await createRestorePointInternal(true);
     if (!result.success) {
       throw new Error(result.error || 'No se pudo crear el respaldo automatico.');
     }
@@ -356,7 +366,10 @@ async function runAutoBackup(): Promise<void> {
   }
 }
 
-export async function triggerAutoBackup(): Promise<void> {
+export async function triggerAutoBackup(internalToken?: symbol): Promise<void> {
+  if (internalToken !== AUTO_BACKUP_INTERNAL_TOKEN) {
+    throw new Error('Activacion de respaldo no autorizada.');
+  }
   if (autoBackupPromise) return autoBackupPromise;
 
   autoBackupPromise = runAutoBackup()

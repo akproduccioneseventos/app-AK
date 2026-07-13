@@ -3,6 +3,7 @@
 
 import type { ItineraryTemplate, ProgramaEventoItem } from '@/types/fiesta';
 import { readData, writeData } from '@/lib/data-service';
+import { requireAppSession } from '@/lib/auth/require-session';
 
 const TEMPLATES_FILE = 'itinerary-templates.json';
 
@@ -11,6 +12,7 @@ export async function getItineraryTemplates(): Promise<ItineraryTemplate[]> {
 }
 
 export async function saveItineraryTemplate(name: string, items: ProgramaEventoItem[]): Promise<{ success: boolean; template?: ItineraryTemplate; error?: string }> {
+  await requireAppSession();
   if (!name.trim()) {
     return { success: false, error: "El nombre de la plantilla es obligatorio." };
   }
@@ -26,6 +28,7 @@ export async function saveItineraryTemplate(name: string, items: ProgramaEventoI
 }
 
 export async function deleteItineraryTemplate(id: string): Promise<{ success: boolean; error?: string }> {
+  await requireAppSession();
   let templates = await getItineraryTemplates();
   const initialLength = templates.length;
   templates = templates.filter(t => t.id !== id);

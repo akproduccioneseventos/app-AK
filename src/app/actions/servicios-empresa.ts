@@ -3,6 +3,7 @@
 
 import type { ServicioEmpresa, TipoCosto } from '@/types/empresa';
 import { readData, writeData } from '@/lib/data-service';
+import { requireAppSession } from '@/lib/auth/require-session';
 
 const SERVICIOS_EMPRESA_FILE = 'servicios-empresa.json';
 
@@ -37,6 +38,7 @@ export async function getServicioEmpresaById(id: string): Promise<ServicioEmpres
 export async function saveServicioEmpresa(
   itemData: Omit<ServicioEmpresa, 'id'> | ServicioEmpresa
 ): Promise<{ success: boolean; id?: string; servicio?: ServicioEmpresa; error?: string }> {
+  await requireAppSession();
   let inventario = await getServiciosEmpresa();
   let finalItemData: Partial<ServicioEmpresa>;
   let itemId: string;
@@ -79,6 +81,7 @@ export async function saveServicioEmpresa(
 }
 
 export async function deleteServicioEmpresa(id: string): Promise<{ success: boolean; error?: string }> {
+  await requireAppSession();
   let inventario = await getServiciosEmpresa();
   const initialLength = inventario.length;
   inventario = inventario.filter(s => s.id !== id);
@@ -90,6 +93,7 @@ export async function deleteServicioEmpresa(id: string): Promise<{ success: bool
 export async function duplicateServicioEmpresa(
   servicioId: string
 ): Promise<{ success: boolean; servicio?: ServicioEmpresa; error?: string }> {
+  await requireAppSession();
   const inventario = await getServiciosEmpresa();
   const servicioToDuplicate = inventario.find(s => s.id === servicioId);
 
@@ -110,6 +114,7 @@ export async function duplicateServicioEmpresa(
 export async function adjustAllServicePrices(
   percentage: number
 ): Promise<{ success: boolean; error?: string }> {
+  await requireAppSession();
   if (isNaN(percentage) || percentage === 0) {
     return { success: false, error: "El porcentaje debe ser un número distinto de cero." };
   }
@@ -156,6 +161,7 @@ export async function adjustAllServicePrices(
 export async function adjustAllServiceCosts(
   percentage: number
 ): Promise<{ success: boolean; error?: string }> {
+  await requireAppSession();
   if (isNaN(percentage) || percentage === 0) {
     return { success: false, error: "El porcentaje debe ser un número distinto de cero." };
   }

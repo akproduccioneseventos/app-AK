@@ -364,7 +364,7 @@ export default function MuroEnVivoPage() {
   // Using `!== false` is intentional: when enabled is undefined (legacy events that never set it),
   // we treat the playlist as active so existing behaviour is preserved (opt-out semantics).
   // New events can explicitly set enabled=false to disable the playlist.
-  const enabledPlaylist = settings.screenMode?.enabled !== false
+  const enabledPlaylist = useMemo(() => settings.screenMode?.enabled !== false
     ? (settings.screenMode?.playlist ?? []).filter((item) => {
         if (!item.enabled) return false;
         if (item.type === 'canciones' && settings.showSongRequests === false) return false;
@@ -373,7 +373,14 @@ export default function MuroEnVivoPage() {
         if (item.type === 'juego' && settings.showPolls === false) return false;
         return true;
       })
-    : [];
+    : [], [
+      settings.screenMode?.enabled,
+      settings.screenMode?.playlist,
+      settings.showSongRequests,
+      settings.showDedications,
+      settings.chatEnabled,
+      settings.showPolls,
+    ]);
   // Remote forced item overrides the auto playlist rotation
   const activeScreenItem = useMemo<ScreenPlaylistItem | null>(() => {
     return settings.forcedScreenItem

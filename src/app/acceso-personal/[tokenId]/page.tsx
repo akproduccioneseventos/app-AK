@@ -1,6 +1,7 @@
 'use client';
 
-import React, { useState, useEffect, useCallback, use } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
+import { useParams } from 'next/navigation';
 import Link from 'next/link';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -29,8 +30,8 @@ const MODULO_DETAILS: Record<ModuloPermiso, { label: string; href: string; icon:
   'calendario': { label: 'Calendario de Eventos', href: '/calendario', icon: CalendarCheck },
 };
 
-export default function PortalPersonalPage(props: { params: Promise<{ tokenId: string }> }) {
-  const params = use(props.params);
+export default function PortalPersonalPage() {
+  const params = useParams<{ tokenId: string }>();
   const { toast } = useToast();
   const [acceso, setAcceso] = useState<AccesoPersonal | null>(null);
   const [fiesta, setFiesta] = useState<{ id: string; nombreEvento: string } | null>(null);

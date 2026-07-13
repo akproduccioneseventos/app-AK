@@ -5,6 +5,7 @@ import { X, MessageSquare, Gift, Zap } from 'lucide-react';
 import { PromoCountdown } from './PromoCountdown';
 import { cn } from '@/lib/utils';
 import type { PromoActiva } from '@/types/promo';
+import { AK_WHATSAPP_NUMBER } from '@/lib/public-contact';
 
 interface PromoWidgetProps {
   promo: PromoActiva;
@@ -52,7 +53,7 @@ export function PromoWidget({ promo }: PromoWidgetProps) {
     } catch { /* ignore */ }
   };
 
-  const waNumber = '59899123456';
+  const waNumber = AK_WHATSAPP_NUMBER;
   const waHref = `https://wa.me/${waNumber}?text=${encodeURIComponent(promo.whatsappMensaje)}`;
   const rawCtaUrl = promo.ctaUrl ? sanitizeUrl(promo.ctaUrl) : '';
   const ctaHref = rawCtaUrl || waHref;

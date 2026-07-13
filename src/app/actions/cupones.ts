@@ -2,6 +2,7 @@
 
 import { readData, writeData } from '@/lib/data-service';
 import type { Coupon, CouponUsage, CouponValidationResult } from '@/types/coupon';
+import { requireAppSession } from '@/lib/auth/require-session';
 
 const CUPONES_FILE = 'cupones.json';
 const CUPONES_USAGE_FILE = 'cupones-usage.json';
@@ -25,6 +26,7 @@ export async function getCuponById(id: string): Promise<Coupon | null> {
 export async function saveCupon(
   data: Omit<Coupon, 'id' | 'usosActuales' | 'creadoEn'> & { id?: string }
 ): Promise<{ success: boolean; error?: string; cupon?: Coupon }> {
+  await requireAppSession();
   try {
     let cupones = await getCupones();
 
@@ -99,6 +101,7 @@ export async function saveCupon(
 }
 
 export async function toggleCuponActivo(id: string): Promise<{ success: boolean; error?: string }> {
+  await requireAppSession();
   try {
     const cupones = await getCupones();
     const idx = cupones.findIndex(c => c.id === id);
@@ -114,6 +117,7 @@ export async function toggleCuponActivo(id: string): Promise<{ success: boolean;
 }
 
 export async function deleteCupon(id: string): Promise<{ success: boolean; error?: string }> {
+  await requireAppSession();
   try {
     let cupones = await getCupones();
     cupones = cupones.filter(c => c.id !== id);
@@ -210,6 +214,7 @@ export async function registrarUsoCupon(
   montoDescuento: number,
   montoPresupuesto: number
 ): Promise<{ success: boolean; error?: string }> {
+  await requireAppSession();
   try {
     // Incrementar usos del cupón
     const cupones = await getCupones();

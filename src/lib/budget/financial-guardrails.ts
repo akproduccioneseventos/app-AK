@@ -69,6 +69,26 @@ export function isConfirmedClientPayment(payment: Pick<PagoCliente, 'estadoPago'
   return payment.estadoPago !== 'pendiente_confirmacion' && payment.estadoPago !== 'rechazado';
 }
 
+function paymentDay(value: unknown): string {
+  const date = new Date(String(value ?? ''));
+  return Number.isNaN(date.getTime()) ? '' : date.toISOString().slice(0, 10);
+}
+
+export function findMatchingClientPayment(
+  payments: PagoCliente[] = [],
+  amount: number,
+  date: string,
+): PagoCliente | undefined {
+  const expectedDay = paymentDay(date);
+  if (!expectedDay) return undefined;
+
+  return payments.find((payment) => (
+    payment.estadoPago !== 'rechazado'
+    && roundMoney(payment.monto) === roundMoney(amount)
+    && paymentDay(payment.fecha) === expectedDay
+  ));
+}
+
 export function sumConfirmedClientPayments(payments: PagoCliente[] = [], excludePaymentId?: string): number {
   return payments
     .filter((payment) => payment.id !== excludePaymentId)

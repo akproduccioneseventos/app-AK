@@ -90,7 +90,7 @@ export function WinSechWidgets({
   const currentOffer = current.id === 2
     ? {
         ...current,
-        description: `Mirá contenido real y novedades en ${instagramHandle}. La web toma lo mejor del perfil sin duplicar cargas.`,
+        description: `Mirá contenido real y novedades directamente en el perfil oficial ${instagramHandle}.`,
         ctaUrl: instagramUrl,
       }
     : current;

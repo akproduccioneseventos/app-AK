@@ -101,7 +101,7 @@ const QUICK_MODES: Record<string, string[]> = {
   'tecnologia':  ['paginaWeb', 'moduloInvitado', 'redSocial', 'muroSocial', 'zonaDigital', 'pantallasTotem', 'entretenimiento', 'barraTecnologica', 'enVivo', 'checkin'],
 };
 
-const ALWAYS_VISIBLE = ['enVivo', 'missionControl', 'readiness', 'proveedoresPortal', 'configuracion', 'entretenimiento', 'redSocial', 'zonaDigital', 'pantallasTotem', 'barraTecnologica'];
+const ALWAYS_VISIBLE = [...ALWAYS_VISIBLE_PLANNER_MODULE_IDS];
 
 describe('Planificador de Fiestas — Centro de Producción Premium', () => {
   describe('Estructura de categorías', () => {
@@ -375,3 +375,4 @@ describe('Planificador de Fiestas — Centro de Producción Premium', () => {
   });
 
 });
+import { ALWAYS_VISIBLE_PLANNER_MODULE_IDS } from '@/lib/planner-modules';
