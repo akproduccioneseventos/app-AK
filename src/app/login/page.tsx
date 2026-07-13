@@ -26,13 +26,19 @@ import {
 
 type RecoveryStatus = Awaited<ReturnType<typeof getPublicSecurityRecoveryStatus>>;
 
+const PUBLIC_RECOVERY_EMAIL =
+  process.env.NEXT_PUBLIC_AUTH_ALLOWED_EMAILS?.split(',')[0]?.trim().toLowerCase() ||
+  'akproduccionessalto@gmail.com';
+const PUBLIC_RECOVERY_EMAIL_HINT = PUBLIC_RECOVERY_EMAIL.replace(/^(.{2}).*(@.*)$/, '$1***$2');
+
 const RECOVERY_STATUS_FALLBACK: RecoveryStatus = {
-  hasRecoveryEmail: false,
+  hasRecoveryEmail: true,
   hasSecurityQuestions: false,
   hasBackupCodes: false,
   backupCodeCount: 0,
   gmailConnected: false,
-  gmailWarning: 'No se pudo verificar la recuperacion automaticamente. Podes intentar entrar o volver a pedir la verificacion.',
+  gmailWarning: 'No se pudo confirmar la conexion con Gmail automaticamente. Podes volver a verificarla al solicitar el codigo.',
+  recoveryEmailHint: PUBLIC_RECOVERY_EMAIL_HINT,
 };
 
 function withTimeout<T>(promise: Promise<T>, fallback: T, timeoutMs = 3500): Promise<T> {

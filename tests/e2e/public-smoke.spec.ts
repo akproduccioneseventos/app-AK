@@ -28,6 +28,16 @@ test('protected access screen remains usable', async ({ page }) => {
   await expect(page.getByRole('button', { name: /Olvide mi contrase/i })).toBeVisible();
 });
 
+test('password recovery keeps the configured AK email visible when status verification is slow', async ({ page }) => {
+  await page.goto('/login', { waitUntil: 'domcontentloaded' });
+  const recoveryButton = page.getByRole('button', { name: /Olvide mi contrase/i });
+  await expect(recoveryButton).toHaveCount(1);
+  await recoveryButton.click();
+
+  await expect(page.getByText(/Mail de recuperaci.n: ak\*\*\*@gmail\.com/i)).toBeVisible();
+  await expect(page.getByText(/Todav.a no hay mail de recuperaci.n configurado/i)).toHaveCount(0);
+});
+
 test('manual budget simulator remains publicly reachable', async ({ page }) => {
   const response = await page.goto('/simulador-de-presupuesto', {
     waitUntil: 'domcontentloaded',
