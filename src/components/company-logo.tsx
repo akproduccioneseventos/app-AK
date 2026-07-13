@@ -1,7 +1,9 @@
 'use client';
 
 import { useState } from 'react';
+import Image from 'next/image';
 import { cn } from '@/lib/utils';
+import { canUseNextImage } from '@/lib/next-image-url';
 
 const SIZE_MAP = {
   xs: { container: 'w-6 h-6', text: 'text-[8px]', pixels: 24 },
@@ -36,8 +38,8 @@ export function CompanyLogo({ size = 'md', className, src }: CompanyLogoProps) {
           AK
         </div>
       )}
-      {!hasError && (
-        <img
+      {!hasError && (canUseNextImage(imgSrc) ? (
+        <Image
           src={imgSrc}
           alt="AK Producciones"
           width={pixels}
@@ -46,7 +48,20 @@ export function CompanyLogo({ size = 'md', className, src }: CompanyLogoProps) {
           onLoad={() => setIsLoaded(true)}
           onError={() => setHasError(true)}
         />
-      )}
+      ) : (
+        <>
+          {/* eslint-disable-next-line @next/next/no-img-element -- A custom logo may use an external host outside Next's allowlist. */}
+          <img
+            src={imgSrc}
+            alt="AK Producciones"
+            width={pixels}
+            height={pixels}
+            className={cn('h-full w-full object-contain transition-opacity duration-200', isLoaded ? 'opacity-100' : 'opacity-0')}
+            onLoad={() => setIsLoaded(true)}
+            onError={() => setHasError(true)}
+          />
+        </>
+      ))}
     </div>
   );
 }

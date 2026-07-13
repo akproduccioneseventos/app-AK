@@ -1,6 +1,7 @@
 'use client';
 
 import React, { useState, useEffect, useCallback, useRef } from 'react';
+import Image from 'next/image';
 import type { DietaryRestriction, InvitacionDigitalConfig, InvitacionDigitalCronograma, InvitacionSectionId, InvitacionSectionConfig, InvitacionTypographyConfig } from '@/types/fiesta';
 import type { SocialConnection } from '@/types/settings';
 import { TIPO_EVENTO_LABELS } from '@/lib/invitacion-config-defaults';
@@ -13,6 +14,7 @@ import { cn } from '@/lib/utils';
 import { SplashScreen } from '@/components/invitacion/SplashScreen';
 import { buildGoogleCalendarUrl } from '@/lib/calendar-links';
 import { XVThemeEffects } from '@/components/invitacion/xv-theme-effects';
+import { canUseNextImage } from '@/lib/next-image-url';
 
 interface Props {
   config: InvitacionDigitalConfig;
@@ -798,8 +800,13 @@ function StoryTimeline({ hitos, colorPrincipal, colorSecundario }: { hitos: Hito
                   <h3 className="text-base sm:text-lg font-bold text-gray-800 mb-1.5">{hito.titulo}</h3>
                   <p className="text-xs sm:text-sm text-gray-600 leading-relaxed">{hito.descripcion}</p>
                   {hito.fotoUrl && (
-                    <div className="mt-4 rounded-xl overflow-hidden aspect-video shadow-inner">
-                      <img src={hito.fotoUrl} alt={hito.titulo} className="w-full h-full object-cover" loading="lazy" />
+                    <div className="relative mt-4 rounded-xl overflow-hidden aspect-video shadow-inner">
+                      {canUseNextImage(hito.fotoUrl) ? (
+                        <Image src={hito.fotoUrl} alt={hito.titulo} fill sizes="(max-width: 640px) 100vw, 640px" className="object-cover" />
+                      ) : (
+                        // eslint-disable-next-line @next/next/no-img-element -- Invitation media may use an external host outside Next's allowlist.
+                        <img src={hito.fotoUrl} alt={hito.titulo} className="w-full h-full object-cover" loading="lazy" />
+                      )}
                     </div>
                   )}
                 </div>
@@ -1190,7 +1197,12 @@ export function InvitacionPublicaClient({ config, fiestaId, socialConnections = 
             whileTap={{ scale: 0.98 }}
             className="aspect-square rounded-xl overflow-hidden shadow-md cursor-pointer relative group"
           >
-            <img src={url} alt={`Foto ${i + 1}`} className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105" loading="lazy" decoding="async" />
+            {canUseNextImage(url) ? (
+              <Image src={url} alt={`Foto ${i + 1}`} fill sizes="(max-width: 640px) 50vw, 25vw" className="object-cover transition-transform duration-500 group-hover:scale-105" />
+            ) : (
+              // eslint-disable-next-line @next/next/no-img-element -- Invitation media may use an external host outside Next's allowlist.
+              <img src={url} alt={`Foto ${i + 1}`} className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105" loading="lazy" decoding="async" />
+            )}
             <div className="absolute inset-0 bg-black/20 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
               <Sparkles className="text-white w-6 h-6 animate-pulse" />
             </div>
@@ -1630,6 +1642,7 @@ export function InvitacionPublicaClient({ config, fiestaId, socialConnections = 
               className="relative max-w-full max-h-[85vh] flex items-center justify-center"
               onClick={(e) => e.stopPropagation()}
             >
+              {/* eslint-disable-next-line @next/next/no-img-element -- The lightbox preserves the guest image's original dimensions. */}
               <img
                 src={config.galeriaFotos[activePhotoIndex]}
                 alt={`Imagen ${activePhotoIndex + 1}`}

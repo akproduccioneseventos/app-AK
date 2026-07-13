@@ -4,6 +4,7 @@ import Image from 'next/image';
 import { motion, useReducedMotion } from 'framer-motion';
 import { ArrowRight, Camera, Instagram, PlayCircle, RefreshCw } from 'lucide-react';
 import { cn } from '@/lib/utils';
+import { canUseNextImage } from '@/lib/next-image-url';
 
 export interface InstagramSyncItem {
   id: string;
@@ -18,10 +19,6 @@ interface InstagramSyncStripProps {
   handle: string;
   profileUrl: string;
   items: InstagramSyncItem[];
-}
-
-function canUseNextImage(url: string) {
-  return url.startsWith('/') || url.startsWith('https://images.unsplash.com/');
 }
 
 export function InstagramSyncStrip({ handle, profileUrl, items }: InstagramSyncStripProps) {
@@ -102,6 +99,7 @@ export function InstagramSyncStrip({ handle, profileUrl, items }: InstagramSyncS
                     className="object-cover transition-transform duration-700 group-hover:scale-105"
                   />
                 ) : (
+                  // eslint-disable-next-line @next/next/no-img-element -- Instagram/editor media may use a short-lived CDN host.
                   <img src={item.imageUrl} alt={item.title} className="h-full w-full object-cover transition-transform duration-700 group-hover:scale-105" />
                 )}
                 <div className="absolute inset-0 bg-gradient-to-t from-zinc-950 via-zinc-950/20 to-transparent" />

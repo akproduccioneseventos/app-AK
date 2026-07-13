@@ -5,27 +5,8 @@ import Image from 'next/image';
 import { Camera, X, ZoomIn, ChevronLeft, ChevronRight, Share2 } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { cn } from '@/lib/utils';
+import { canUseNextImage } from '@/lib/next-image-url';
 import type { GaleriaFoto } from '@/types/galeria';
-
-function isNextJsOptimizableUrl(url: string): boolean {
-  try {
-    const { hostname } = new URL(url);
-    return (
-      hostname === 'images.unsplash.com' ||
-      hostname === 'img.youtube.com' ||
-      hostname === 'placehold.co' ||
-      hostname === 'picsum.photos' ||
-      hostname === 'i.imgur.com'
-    );
-  } catch {
-    return false;
-  }
-}
-
-function canUseNextImage(url: string): boolean {
-  if (!url) return false;
-  return url.startsWith('/') || isNextJsOptimizableUrl(url);
-}
 
 function GalleryMedia({
   src,
@@ -49,12 +30,12 @@ function GalleryMedia({
         className={className}
         sizes={sizes}
         priority={priority}
-        unoptimized={true}
       />
     );
   }
 
   return (
+    // eslint-disable-next-line @next/next/no-img-element -- Editor content may use an external host outside Next's allowlist.
     <img
       src={src}
       alt={alt}
