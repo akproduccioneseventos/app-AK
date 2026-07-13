@@ -34,12 +34,12 @@ import {
 import type { PublicEntertainmentEvent } from '@/lib/entertainment/station-config';
 import { KioskUnlockButton } from '@/components/kiosk/kiosk-unlock-button';
 import { isVideoFrameReady } from '@/lib/entertainment/camera-readiness';
+import { applyEspejoFaceSwap } from '@/app/actions/espejo-magico-ai';
 import {
   ESPEJO_TEMPLATES,
   FACESWAP_CATEGORIES,
-  applyEspejoFaceSwap,
   type FaceSwapCategoryId,
-} from '@/app/actions/espejo-magico-ai';
+} from '@/lib/entertainment/espejo-magico-templates';
 
 const FILTERS = [
   { id: 'normal', label: 'Sin filtro', css: 'none' },
@@ -1171,7 +1171,6 @@ export default function EspejoMagicoPage() {
                     className={`px-3 py-1.5 rounded-full text-[10px] font-black uppercase tracking-wider transition whitespace-nowrap border flex items-center gap-1.5
                       ${selectedCategory === cat.id ? 'border-cyan-500 bg-cyan-500/20 text-cyan-400' : 'border-zinc-800 bg-zinc-900 text-zinc-400'}`}
                   >
-                    <span>{cat.emoji}</span>
                     <span>{cat.label}</span>
                   </button>
                 ))}
