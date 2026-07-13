@@ -3,6 +3,7 @@
 
 import { readData, writeData } from '@/lib/data-service';
 import type { GastoGeneral, CategoriaGasto } from '@/types/gastos';
+import { requireAppSession } from '@/lib/auth/require-session';
 
 const GASTOS_FILE = 'gastos-generales.json';
 
@@ -14,6 +15,7 @@ export async function getGastosGenerales(): Promise<GastoGeneral[]> {
 export async function saveGastoGeneral(
   data: Omit<GastoGeneral, 'id'>
 ): Promise<{ success: boolean; gasto?: GastoGeneral; error?: string }> {
+  await requireAppSession();
   if (!data.concepto.trim() || !data.fecha || !data.categoria || data.monto <= 0) {
     return { success: false, error: 'Faltan datos obligatorios (Concepto, Fecha, Categoría y Monto mayor a cero).' };
   }
@@ -28,6 +30,7 @@ export async function saveGastoGeneral(
 }
 
 export async function deleteGastoGeneral(id: string): Promise<{ success: boolean; error?: string }> {
+  await requireAppSession();
   let gastos = await getGastosGenerales();
   const initialLength = gastos.length;
   gastos = gastos.filter(g => g.id !== id);

@@ -5,6 +5,7 @@ import type { Empleado, NuevoEmpleadoFormData } from '@/types/empleado';
 import { readData, writeData } from '@/lib/data-service';
 import { randomUUID } from 'crypto';
 import { uploadToStorage, deleteFromStorage } from '@/lib/firebase/storage';
+import { requireAppSession } from '@/lib/auth/require-session';
 
 const EMPLEADOS_FILE = 'empleados.json';
 
@@ -20,6 +21,7 @@ export async function getEmpleadoById(id: string): Promise<Empleado | null> {
 export async function saveEmpleado(
   empleadoData: NuevoEmpleadoFormData | Empleado | FormData
 ): Promise<{ success: boolean; id?: string; empleado?: Empleado; error?: string }> {
+  await requireAppSession();
 
   let empleados = await getEmpleados();
   let empleadoId: string;
@@ -113,6 +115,7 @@ export async function saveEmpleado(
 }
 
 export async function deleteEmpleado(id: string): Promise<{ success: boolean; error?: string }> {
+  await requireAppSession();
   let empleados = await getEmpleados();
   const empleadoToDelete = empleados.find(e => e.id === id);
   const initialLength = empleados.length;

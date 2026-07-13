@@ -3,6 +3,7 @@
 
 import type { ServicioEmpresa } from '@/types/empresa';
 import { readData, writeData } from '@/lib/data-service';
+import { requireAppSession } from '@/lib/auth/require-session';
 
 const ACTIVOS_FIJOS_FILE = 'activos-fijos.json';
 
@@ -24,6 +25,7 @@ export async function getActivoFijoById(id: string): Promise<ServicioEmpresa | n
 export async function saveActivoFijo(
   itemData: Omit<ServicioEmpresa, 'id'> | ServicioEmpresa
 ): Promise<{ success: boolean; id?: string; servicio?: ServicioEmpresa; error?: string }> {
+  await requireAppSession();
   let inventario = await getActivosFijos();
   let finalItemData: Partial<ServicioEmpresa>;
   let itemId: string;
@@ -70,6 +72,7 @@ export async function saveActivoFijo(
 }
 
 export async function deleteActivoFijo(id: string): Promise<{ success: boolean; error?: string }> {
+  await requireAppSession();
   let inventario = await getActivosFijos();
   const initialLength = inventario.length;
   inventario = inventario.filter(s => s.id !== id);

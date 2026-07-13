@@ -77,4 +77,28 @@ describe('release security boundaries', () => {
     expect(readSource('src/app/api/google/oauth/callback/route.ts')).toContain('await hasAppSession()');
     expect(readSource('src/app/actions/google-workspace.ts')).toContain('await requireAppSession()');
   });
+
+  it.each([
+    ['activos-fijos.ts', ['saveActivoFijo', 'deleteActivoFijo']],
+    ['empleados.ts', ['saveEmpleado', 'deleteEmpleado']],
+    ['insumos.ts', ['saveInsumo', 'deleteInsumo', 'adjustAllInsumoCosts']],
+    ['proveedores.ts', ['saveProveedor', 'deleteProveedor']],
+    ['roles.ts', ['saveRol', 'deleteRol']],
+    ['salones.ts', ['saveSalon', 'deleteSalon', 'uploadSalonFoto', 'deleteSalonFoto', 'addSalonPago', 'deleteSalonPago']],
+    ['servicios-empresa.ts', ['saveServicioEmpresa', 'deleteServicioEmpresa', 'duplicateServicioEmpresa', 'adjustAllServicePrices', 'adjustAllServiceCosts']],
+    ['gastos.ts', ['saveGastoGeneral', 'deleteGastoGeneral']],
+    ['price-adjustments.ts', ['applyPriceAdjustment', 'revertPriceAdjustment']],
+    ['promos.ts', ['savePromo', 'deletePromo', 'togglePromo']],
+    ['menus-catering.ts', ['saveMenu', 'deleteMenu', 'duplicateMenu', 'adjustAllDishMargins']],
+    ['social-connections.ts', ['saveWhatsAppNumber', 'saveSocialLink', 'disconnectSocialPlatform']],
+  ])('requires a signed session for master-data writes in %s', (filename, functionNames) => {
+    const source = readSource(`src/app/actions/${filename}`);
+    for (const functionName of functionNames) {
+      const start = source.indexOf(`export async function ${functionName}`);
+      const nextExport = source.indexOf('export async function ', start + 1);
+      const functionSource = source.slice(start, nextExport === -1 ? undefined : nextExport);
+      expect(start).toBeGreaterThanOrEqual(0);
+      expect(functionSource).toContain('await requireAppSession()');
+    }
+  });
 });

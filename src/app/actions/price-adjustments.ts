@@ -2,6 +2,7 @@
 
 import { readData, writeData } from '@/lib/data-service';
 import { adjustAllServicePrices, adjustAllServiceCosts, getServiciosEmpresa } from './servicios-empresa';
+import { requireAppSession } from '@/lib/auth/require-session';
 
 export interface PriceAdjustmentRecord {
   id: string;
@@ -76,6 +77,7 @@ export async function applyPriceAdjustment(
   percentage: number,
   type: 'precios' | 'costos' | 'ambos' = 'ambos'
 ): Promise<{ success: boolean; error?: string; record?: PriceAdjustmentRecord }> {
+  await requireAppSession();
   if (isNaN(percentage) || percentage === 0) {
     return { success: false, error: 'El porcentaje debe ser un número distinto de cero.' };
   }
@@ -121,6 +123,7 @@ export async function applyPriceAdjustment(
 export async function revertPriceAdjustment(
   adjustmentId: string
 ): Promise<{ success: boolean; error?: string }> {
+  await requireAppSession();
   try {
     const history = await getPriceAdjustmentHistory();
     const adjustment = history.find(a => a.id === adjustmentId);
