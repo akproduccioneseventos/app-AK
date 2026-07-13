@@ -3,6 +3,7 @@
 import { readData, writeData } from '@/lib/data-service';
 import { uploadToStorage } from '@/lib/firebase/storage';
 import type { CatalogoFoto } from '@/types/catalogo';
+import { requireAppSession } from '@/lib/auth/require-session';
 
 const CATALOGO_FILE = 'catalogo-fotos.json';
 
@@ -11,12 +12,14 @@ export async function getCatalogoFotos(): Promise<CatalogoFoto[]> {
 }
 
 export async function addCatalogoFoto(foto: CatalogoFoto): Promise<void> {
+  await requireAppSession();
   const fotos = await getCatalogoFotos();
   fotos.push(foto);
   await writeData(CATALOGO_FILE, fotos);
 }
 
 export async function updateCatalogoFoto(foto: CatalogoFoto): Promise<void> {
+  await requireAppSession();
   const fotos = await getCatalogoFotos();
   const idx = fotos.findIndex(f => f.id === foto.id);
   if (idx !== -1) {
@@ -26,11 +29,13 @@ export async function updateCatalogoFoto(foto: CatalogoFoto): Promise<void> {
 }
 
 export async function deleteCatalogoFoto(id: string): Promise<void> {
+  await requireAppSession();
   const fotos = await getCatalogoFotos();
   await writeData(CATALOGO_FILE, fotos.filter(f => f.id !== id));
 }
 
 export async function toggleCatalogoFotoDestacada(id: string): Promise<void> {
+  await requireAppSession();
   const fotos = await getCatalogoFotos();
   const idx = fotos.findIndex(f => f.id === id);
   if (idx !== -1) {
@@ -65,6 +70,7 @@ export async function uploadCatalogoFotoFromFile(formData: FormData): Promise<{
   foto?: CatalogoFoto;
   error?: string;
 }> {
+  await requireAppSession();
   const file = formData.get('file') as File | null;
   const categoriaServicio = (formData.get('categoriaServicio') as string | null) || 'General';
   const tipoFiesta = (formData.get('tipoFiesta') as string | null) || undefined;

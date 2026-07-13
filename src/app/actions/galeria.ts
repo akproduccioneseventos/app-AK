@@ -2,6 +2,7 @@
 
 import { readData, writeData } from '@/lib/data-service';
 import type { GaleriaData, GaleriaFoto, GaleriaVideo } from '@/types/galeria';
+import { requireAppSession } from '@/lib/auth/require-session';
 
 const GALERIA_FILE = 'galeria-publica.json';
 
@@ -12,18 +13,21 @@ export async function getGaleriaItems(): Promise<GaleriaData> {
 }
 
 export async function addGaleriaFoto(foto: GaleriaFoto): Promise<void> {
+  await requireAppSession();
   const data = await getGaleriaItems();
   data.fotos.push(foto);
   await writeData(GALERIA_FILE, data);
 }
 
 export async function addGaleriaVideo(video: GaleriaVideo): Promise<void> {
+  await requireAppSession();
   const data = await getGaleriaItems();
   data.videos.push(video);
   await writeData(GALERIA_FILE, data);
 }
 
 export async function deleteGaleriaItem(id: string): Promise<void> {
+  await requireAppSession();
   const data = await getGaleriaItems();
   data.fotos = data.fotos.filter((f) => f.id !== id);
   data.videos = data.videos.filter((v) => v.id !== id);
@@ -34,6 +38,7 @@ export async function updateGaleriaItem(
   id: string,
   updates: Partial<GaleriaFoto | GaleriaVideo>
 ): Promise<void> {
+  await requireAppSession();
   const data = await getGaleriaItems();
   const fotoIdx = data.fotos.findIndex((f) => f.id === id);
   if (fotoIdx !== -1) {
@@ -51,6 +56,7 @@ export async function reorderGaleriaItems(
   tipo: 'foto' | 'video',
   ids: string[]
 ): Promise<void> {
+  await requireAppSession();
   const data = await getGaleriaItems();
   if (tipo === 'foto') {
     ids.forEach((id, index) => {
@@ -69,6 +75,7 @@ export async function reorderGaleriaItems(
 }
 
 export async function toggleDestacada(id: string): Promise<void> {
+  await requireAppSession();
   const data = await getGaleriaItems();
   const foto = data.fotos.find((f) => f.id === id);
   if (foto) {
@@ -106,6 +113,7 @@ export async function updateGaleriaFoto(
   id: string,
   updates: Partial<GaleriaFoto>
 ): Promise<{ success: boolean; error?: string }> {
+  await requireAppSession();
   try {
     const data = await getGaleriaItems();
     const fotoIdx = data.fotos.findIndex((f) => f.id === id);

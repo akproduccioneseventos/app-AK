@@ -14,6 +14,7 @@ import { saveFiesta } from './fiesta/fiesta.actions';
 import { createNotification } from '@/lib/notifications/create-notification';
 import { saveInvoice } from './invoices';
 import type { Invoice, Payment } from '@/types/invoice';
+import { requireAppSession } from '@/lib/auth/require-session';
 import { saveFiestaHistorica } from './fiestas-historicas';
 
 const CUSTOMERS_FILE = 'customers.json';
@@ -25,6 +26,7 @@ async function ensureDirectoryExists(dirPath: string) {
 }
 
 export async function processHistoricRecord(formData: FormData): Promise<{ success: boolean; error?: string }> {
+    await requireAppSession();
     const clienteNombre = formData.get('clienteNombre') as string;
     const eventoFecha = formData.get('eventoFecha') as string;
     const montoTotalStr = formData.get('montoTotal') as string;

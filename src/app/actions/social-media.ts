@@ -5,6 +5,7 @@ import type { SocialPost } from '@/types/social-media';
 import { readData, writeData } from '@/lib/data-service';
 import fs from 'fs/promises';
 import path from 'path';
+import { requireAppSession } from '@/lib/auth/require-session';
 
 const POSTS_FILE = 'social-posts.json';
 const DATA_DIR = path.join(process.cwd(), 'src', 'data');
@@ -88,6 +89,7 @@ export async function getSocialPosts(): Promise<SocialPost[]> {
 export async function saveSocialPost(
   formData: FormData
 ): Promise<{ success: boolean; post?: SocialPost; error?: string }> {
+  await requireAppSession();
   let posts = await getSocialPosts();
   const postId = (formData.get('id') as string) || `post_${Date.now()}_${Math.random().toString(36).substring(2, 9)}`;
   const mediaFile = formData.get('mediaFile') as File | null;
@@ -151,6 +153,7 @@ export async function saveSocialPost(
 
 
 export async function deleteSocialPost(postId: string): Promise<{ success: boolean, error?: string }> {
+  await requireAppSession();
   let posts = await getSocialPosts();
   const postToDelete = posts.find(p => p.id === postId);
 
@@ -178,6 +181,7 @@ export async function deleteSocialPost(postId: string): Promise<{ success: boole
  *  - Inserta los reels/videos en la sección de videos de la Galería pública junto a los de YouTube.
  */
 export async function syncInstagramPosts(): Promise<{ success: boolean; photosCount: number; videosCount: number; plannerCount: number; error?: string }> {
+  await requireAppSession();
   try {
     // 1. Obtener la conexión de Instagram si está configurada (fallback a posts por defecto)
     const connections = await readData<any[]>('social-connections.json', []);

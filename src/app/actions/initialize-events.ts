@@ -7,6 +7,7 @@ import path from 'path';
 import type { Customer } from '@/types/customer';
 import type { FiestaEnPlanificacion } from '@/types/fiesta';
 import { initialFiestaActualData } from '@/lib/fiesta-defaults';
+import { requireAppSession } from '@/lib/auth/require-session';
 
 const dataDirectory = path.join(process.cwd(), 'src', 'data');
 const customersFilePath = path.join(dataDirectory, 'customers.json');
@@ -45,6 +46,7 @@ async function readCustomersFile(): Promise<Customer[]> {
 }
 
 export async function initializeEventsForAllCustomers(): Promise<{ success: boolean; created: number; errors: number }> {
+  await requireAppSession();
   await ensureFiestasDirectoryExists();
   const customers = await readCustomersFile();
   let createdCount = 0;
