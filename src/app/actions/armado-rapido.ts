@@ -10,6 +10,7 @@ import { createNotification } from './notifications';
 import { upsertPublicCommercialLead } from '@/lib/crm/public-lead-persistence';
 import { normalizeUruguayPhone } from '@/lib/commercial/contact';
 import { enforcePublicRateLimit } from '@/lib/commercial/public-rate-limit';
+import { requireAppSession } from '@/lib/auth/require-session';
 
 const CONFIG_FILE = 'armado-rapido-config.json';
 const SIMULATOR_DISCOUNT_PERCENTAGE = 15;
@@ -43,6 +44,7 @@ export async function getArmadoRapidoConfig(): Promise<ArmadoRapidoConfig> {
 export async function saveArmadoRapidoConfig(
   newConfigData: ArmadoRapidoConfig
 ): Promise<{ success: boolean; error?: string }> {
+  await requireAppSession();
   try {
     const sanitizedConfig: ArmadoRapidoConfig = {
       ...newConfigData,

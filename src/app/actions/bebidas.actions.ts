@@ -4,6 +4,7 @@
 import type { BebidasData } from '@/types/fiesta';
 import { readData, writeData } from '@/lib/data-service';
 import { defaultBebidasData } from '@/lib/fiesta-defaults';
+import { requireAppSession } from '@/lib/auth/require-session';
 
 const BEBIDAS_TEMPLATE_FILE = 'bebidas-template.json';
 
@@ -26,6 +27,7 @@ export async function getBebidasMasterTemplate(): Promise<BebidasData> {
 export async function saveBebidasMasterTemplate(
   data: BebidasData
 ): Promise<{ success: boolean; data?: BebidasData; error?: string }> {
+  await requireAppSession();
   try {
     await writeData(BEBIDAS_TEMPLATE_FILE, data);
     return { success: true, data };
