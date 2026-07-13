@@ -244,12 +244,12 @@ function RsvpSection({ fiestaId, texto, typography, onSuccess }: { fiestaId: str
   }
 
   return (
-    <div className="space-y-6 max-w-md mx-auto bg-white/75 backdrop-blur-lg p-6 sm:p-8 rounded-[2rem] border border-white/40 shadow-xl">
+    <div className="mx-auto max-w-md space-y-6 rounded-lg border border-slate-200 bg-white p-6 shadow-xl sm:p-8">
       {texto && step === 1 && <p className="text-center text-xs sm:text-sm text-gray-500 leading-relaxed mb-4">{texto}</p>}
 
       {/* Progress Bar */}
       <div className="relative pt-1">
-        <div className="flex mb-2 items-center justify-between text-xs font-bold uppercase tracking-wider text-gray-400">
+        <div className="mb-2 flex items-center justify-between text-xs font-semibold text-gray-500">
           <span>Paso {step} de {totalSteps}</span>
           <span>{Math.round((step / totalSteps) * 100)}%</span>
         </div>
@@ -277,28 +277,28 @@ function RsvpSection({ fiestaId, texto, typography, onSuccess }: { fiestaId: str
                 className="space-y-4"
               >
                 <div>
-                  <label className="block text-xs font-bold text-gray-500 uppercase tracking-wider mb-1.5">Nombre completo *</label>
+                  <label className="mb-1.5 block text-xs font-semibold text-gray-600">Nombre completo *</label>
                   <Input
                     value={nombre}
                     onChange={e => setNombre(e.target.value)}
                     required
                     placeholder="Tu nombre y apellido"
-                    className="rounded-xl border-gray-200 h-11 focus-visible:ring-[var(--inv-primary)]"
+                    className="h-11 rounded-lg border-gray-200 focus-visible:ring-[var(--inv-primary)]"
                   />
                 </div>
 
                 <div>
-                  <label className="block text-xs font-bold text-gray-500 uppercase tracking-wider mb-1.5">WhatsApp / Celular (opcional)</label>
+                  <label className="mb-1.5 block text-xs font-semibold text-gray-600">WhatsApp / Celular (opcional)</label>
                   <Input
                     value={contacto}
                     onChange={e => setContacto(e.target.value)}
                     placeholder="Ej: 099 123 456"
-                    className="rounded-xl border-gray-200 h-11"
+                    className="h-11 rounded-lg border-gray-200"
                   />
                 </div>
 
                 <div>
-                  <label className="block text-xs font-bold text-gray-500 uppercase tracking-wider mb-2">¿Asistirás al evento?</label>
+                  <label className="mb-2 block text-xs font-semibold text-gray-600">¿Asistirás al evento?</label>
                   <div className="grid grid-cols-3 gap-2">
                     {asistenciaOptions.map(opt => (
                       <button
@@ -308,7 +308,7 @@ function RsvpSection({ fiestaId, texto, typography, onSuccess }: { fiestaId: str
                           setAsistencia(opt.value);
                         }}
                         className={cn(
-                          'rounded-xl py-2 px-1 text-xs font-bold border-2 transition-all duration-300 hover:scale-[1.03] flex flex-col items-center justify-center',
+                          'flex flex-col items-center justify-center rounded-lg border-2 px-1 py-2 text-xs font-bold transition-all duration-300 hover:scale-[1.03]',
                           asistencia === opt.value
                             ? 'border-transparent text-white shadow-md'
                             : 'border-gray-200 text-gray-600 bg-white hover:bg-gray-50'
@@ -334,14 +334,14 @@ function RsvpSection({ fiestaId, texto, typography, onSuccess }: { fiestaId: str
                 className="space-y-4"
               >
                 <div>
-                  <label className="block text-xs font-bold text-gray-500 uppercase tracking-wider mb-1.5">¿Cuántas personas asisten?</label>
+                  <label className="mb-1.5 block text-xs font-semibold text-gray-600">¿Cuántas personas asisten?</label>
                   <Input
                     type="number"
                     min="1"
                     max="20"
                     value={personas}
                     onChange={e => setPersonas(e.target.value)}
-                    className="rounded-xl border-gray-200 h-11"
+                    className="h-11 rounded-lg border-gray-200"
                   />
                 </div>
 
@@ -351,22 +351,22 @@ function RsvpSection({ fiestaId, texto, typography, onSuccess }: { fiestaId: str
                     animate={{ opacity: 1, height: 'auto' }}
                     className="space-y-1"
                   >
-                    <label className="block text-xs font-bold text-gray-500 uppercase tracking-wider mb-1.5">Nombres de acompañantes</label>
+                    <label className="mb-1.5 block text-xs font-semibold text-gray-600">Nombres de acompañantes</label>
                     <Input
                       value={acompanantes}
                       onChange={e => setAcompanantes(e.target.value)}
                       placeholder="Separados por coma: ej. María, Juan"
-                      className="rounded-xl border-gray-200 h-11"
+                      className="h-11 rounded-lg border-gray-200"
                     />
                   </motion.div>
                 )}
 
                 <div>
-                  <label className="block text-xs font-bold text-gray-500 uppercase tracking-wider mb-1.5">Restricción alimentaria</label>
+                  <label className="mb-1.5 block text-xs font-semibold text-gray-600">Restricción alimentaria</label>
                   <select
                     value={dietaryRestriction}
                     onChange={e => setDietaryRestriction(e.target.value as typeof dietaryRestriction)}
-                    className="w-full rounded-xl border border-gray-200 p-2.5 text-sm bg-white focus:outline-none focus:ring-2 focus:ring-[var(--inv-primary)] h-11"
+                    className="h-11 w-full rounded-lg border border-gray-200 bg-white p-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-[var(--inv-primary)]"
                   >
                     <option value="Ninguna">Sin restricciones (Menú Común)</option>
                     <option value="Celiaco">Celíaco/a (Sin Gluten)</option>
@@ -382,12 +382,12 @@ function RsvpSection({ fiestaId, texto, typography, onSuccess }: { fiestaId: str
                     initial={{ opacity: 0, height: 0 }}
                     animate={{ opacity: 1, height: 'auto' }}
                   >
-                    <label className="block text-xs font-bold text-gray-500 uppercase tracking-wider mb-1.5">Detalla tu restricción o alergia</label>
+                    <label className="mb-1.5 block text-xs font-semibold text-gray-600">Detalla tu restricción o alergia</label>
                     <Input
                       value={alergiasEspecificas}
                       onChange={e => setAlergiasEspecificas(e.target.value)}
                       placeholder="Ej. alergia al maní, intolerancia..."
-                      className="rounded-xl border-gray-200 h-11"
+                      className="h-11 rounded-lg border-gray-200"
                     />
                   </motion.div>
                 )}

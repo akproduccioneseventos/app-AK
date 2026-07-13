@@ -47,23 +47,14 @@ export function HeroSection({
   };
 
   return (
-    <section data-testid="hero-section" className="relative min-h-screen flex items-center overflow-hidden bg-zinc-950">
+    <section data-testid="hero-section" className="relative flex min-h-[78svh] items-center overflow-hidden bg-zinc-950">
       <motion.div
-        className="absolute inset-0 scale-105 bg-cover bg-center bg-no-repeat opacity-70"
+        className="absolute inset-0 scale-105 bg-cover bg-center bg-no-repeat opacity-75"
         style={{ backgroundImage: `url('${backgroundImageUrl}')` }}
         animate={reduceMotion ? undefined : { scale: [1.04, 1.09, 1.04], backgroundPosition: ['50% 50%', '54% 47%', '50% 50%'] }}
         transition={{ duration: 22, repeat: Infinity, ease: 'easeInOut' }}
       />
-      <div className="absolute inset-0 bg-[linear-gradient(105deg,rgba(2,6,23,0.85)_0%,rgba(9,9,11,0.70)_52%,rgba(24,24,27,0.50)_100%)]" />
-      <motion.div
-        className="absolute inset-0 opacity-15"
-        style={{
-          backgroundImage:
-            'repeating-linear-gradient(90deg, rgba(255,255,255,0.16) 0 1px, transparent 1px 96px), repeating-linear-gradient(0deg, rgba(255,255,255,0.08) 0 1px, transparent 1px 96px)',
-        }}
-        animate={reduceMotion ? undefined : { backgroundPosition: ['0px 0px', '96px 48px'] }}
-        transition={{ duration: 26, repeat: Infinity, ease: 'linear' }}
-      />
+      <div className="absolute inset-0 bg-slate-950/70" />
       <div className="relative z-10 w-full max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-24 pb-20">
         <motion.div
           variants={containerVariants}
@@ -75,7 +66,7 @@ export function HeroSection({
             <motion.a
               variants={itemVariants}
               href="#promo"
-              className="inline-flex items-center gap-2 px-4 py-2 rounded-xl bg-white/5 border border-white/20 text-white text-xs font-black uppercase tracking-widest mb-4 hover:bg-white/20 transition-colors backdrop-blur-md"
+              className="mb-4 inline-flex items-center gap-2 rounded-md border border-white/30 bg-black/20 px-4 py-2 text-xs font-bold text-white transition-colors hover:bg-black/40"
             >
               <Zap className="w-3.5 h-3.5 text-amber-200" />
               Promo activa: {promoActiva.titulo}
@@ -84,9 +75,9 @@ export function HeroSection({
 
           <motion.div
             variants={itemVariants}
-            className="inline-flex items-center gap-3 px-4 py-2 rounded-xl bg-white/5 backdrop-blur-sm border border-white/10 text-white text-xs font-black uppercase tracking-widest mb-7"
+            className="mb-7 inline-flex items-center gap-3 rounded-md border border-white/25 bg-black/20 px-4 py-2 text-xs font-bold text-white"
           >
-            <span className="h-2 w-8 rounded-full bg-indigo-500 shadow-[0_0_24px_rgba(99,102,241,0.62)]" />
+            <span className="h-2 w-8 rounded-full bg-red-600" />
             AK Producciones Eventos
           </motion.div>
 
@@ -115,10 +106,8 @@ export function HeroSection({
             <Link
               href={simulatorHref}
               className={cn(
-                'flex items-center gap-3 px-8 py-4 rounded-2xl',
-                'bg-indigo-600 hover:bg-indigo-500 text-white shadow-lg shadow-indigo-600/20',
-                'font-black text-base uppercase tracking-widest',
-                'transition-all duration-300 hover:scale-[1.02] active:scale-95',
+                'flex items-center gap-3 rounded-lg bg-red-700 px-8 py-4 text-base font-bold text-white shadow-lg shadow-red-950/20 hover:bg-red-800',
+                'transition-all duration-300 hover:translate-y-[-1px] active:scale-95',
                 'min-w-[220px] justify-center'
               )}
             >
@@ -131,19 +120,17 @@ export function HeroSection({
               rel="noopener noreferrer"
               data-testid="hero-cta-button"
               className={cn(
-                'flex items-center gap-3 px-8 py-4 rounded-2xl',
-                'bg-white/5 backdrop-blur-md border border-white/10 hover:bg-white/10 hover:border-white/20',
-                'text-white font-black text-base uppercase tracking-widest',
-                'transition-all duration-300 hover:scale-[1.02] active:scale-95',
+                'flex items-center gap-3 rounded-lg border border-white/35 bg-black/20 px-8 py-4 text-base font-bold text-white hover:bg-black/35',
+                'transition-all duration-300 hover:translate-y-[-1px] active:scale-95',
                 'min-w-[220px] justify-center'
               )}
             >
-              <MessageSquare className="w-6 h-6 shrink-0 text-indigo-400" />
+              <MessageSquare className="w-6 h-6 shrink-0 text-emerald-300" />
               {ctaLabel}
             </a>
           </motion.div>
 
-          <motion.div variants={itemVariants} className="mt-14 grid grid-cols-3 gap-3 max-w-lg">
+          <motion.div variants={itemVariants} className="mt-14 grid max-w-lg grid-cols-3 divide-x divide-white/20 border-y border-white/20">
             {[
               { value: '500+', label: 'Eventos' },
               { value: '12+', label: 'Años' },
@@ -151,11 +138,11 @@ export function HeroSection({
             ].map((stat) => (
               <motion.div
                 key={stat.label}
-                whileHover={reduceMotion ? undefined : { y: -4, borderColor: 'rgba(255,255,255,0.22)' }}
-                className="rounded-2xl border border-white/5 bg-white/[0.02] backdrop-blur-md px-4 py-3.5 text-center"
+                whileHover={reduceMotion ? undefined : { y: -2 }}
+                className="px-4 py-3.5 text-center"
               >
                 <div className="text-2xl sm:text-3xl font-black text-white drop-shadow">{stat.value}</div>
-                <div className="text-[9px] font-black text-zinc-500 uppercase tracking-widest mt-1">{stat.label}</div>
+                <div className="mt-1 text-[9px] font-bold text-zinc-300">{stat.label}</div>
               </motion.div>
             ))}
           </motion.div>

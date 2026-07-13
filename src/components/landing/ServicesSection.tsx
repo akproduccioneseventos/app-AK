@@ -44,7 +44,7 @@ const DEFAULT_SERVICES: ServiceItem[] = [
     features: ['Gastronomía premium', 'Decoración y flores exclusivas', 'Coordinación integral del día'],
     imageUrl: '/media/catalogo-servicios/boda_persuasiva.png',
     imageHint: 'wedding ceremony',
-    accentColor: 'bg-indigo-500',
+    accentColor: 'bg-red-600',
     emoji: 'AK',
     whatsappMessage: '¡Hola AK Producciones! Me gustaría cotizar el paquete de Boda.',
     icon: Heart,
@@ -57,7 +57,7 @@ const DEFAULT_SERVICES: ServiceItem[] = [
     features: ['Pistas LED interactivas', 'Cabinas y recuerdos en vivo', 'Ambientación temática a medida'],
     imageUrl: '/media/catalogo-servicios/quinceanera_persuasiva.png',
     imageHint: 'quinceañera party',
-    accentColor: 'bg-fuchsia-500',
+    accentColor: 'bg-emerald-600',
     emoji: 'XV',
     whatsappMessage: '¡Hola AK Producciones! Me gustaría cotizar el paquete de XV Años.',
     icon: Crown,
@@ -70,7 +70,7 @@ const DEFAULT_SERVICES: ServiceItem[] = [
     features: ['Discoteca y luces pro', 'Animación y barras exclusivas', 'Organización de tiempos y sorpresas'],
     imageUrl: '/media/catalogo-servicios/social_persuasivo.png',
     imageHint: 'birthday party lights',
-    accentColor: 'bg-indigo-500',
+    accentColor: 'bg-red-600',
     emoji: 'AK',
     whatsappMessage: '¡Hola AK Producciones! Me gustaría cotizar un cumpleaños.',
     icon: Sparkles,
@@ -120,8 +120,8 @@ export function ServicesSection({ whatsappNumber = '59898355530', services }: Se
 
       <div className="relative z-10 mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
         <div className="mb-16 max-w-3xl">
-          <span className="mb-4 inline-flex items-center gap-2 rounded-xl border border-white/10 bg-white/5 px-4 py-2 text-xs font-black uppercase tracking-widest text-indigo-300 backdrop-blur">
-            <Sparkles className="h-3.5 w-3.5 text-indigo-400" />
+          <span className="mb-4 inline-flex items-center gap-2 rounded-xl border border-white/10 bg-white/5 px-4 py-2 text-xs font-black uppercase tracking-widest text-red-400 backdrop-blur">
+            <Sparkles className="h-3.5 w-3.5 text-red-500" />
             Todo en un solo lugar
           </span>
           <h2 className="font-headline text-4xl font-black leading-tight text-white sm:text-5xl md:text-6xl">
@@ -134,7 +134,7 @@ export function ServicesSection({ whatsappNumber = '59898355530', services }: Se
 
         <div className="mb-20">
           <div className="mb-8 flex items-center gap-3">
-            <div className="flex h-11 w-11 items-center justify-center rounded-xl bg-indigo-500/10 text-indigo-400 border border-indigo-500/20">
+            <div className="flex h-11 w-11 items-center justify-center rounded-xl bg-red-500/10 text-red-400 border border-red-500/20">
               <Calendar className="h-6 w-6" />
             </div>
             <div>
@@ -151,7 +151,7 @@ export function ServicesSection({ whatsappNumber = '59898355530', services }: Se
                   key={party.title}
                   className="rounded-2xl border border-white/5 bg-white/[0.02] backdrop-blur-md p-5 transition-all duration-300 hover:-translate-y-1 hover:border-white/10 hover:bg-white/[0.04]"
                 >
-                  <div className="mb-4 flex h-11 w-11 items-center justify-center rounded-xl border border-white/10 bg-white/5 text-white">
+                  <div className="mb-4 flex h-11 w-11 items-center justify-center rounded-xl border border-white/10 bg-white/5 text-red-400">
                     <Icon className="h-5 w-5" />
                   </div>
                   <h4 className="font-headline text-lg font-black text-white">{party.title}</h4>
@@ -189,7 +189,7 @@ export function ServicesSection({ whatsappNumber = '59898355530', services }: Se
                 <motion.article
                   key={service.id}
                   variants={cardVariants}
-                  className="group flex flex-col justify-between overflow-hidden rounded-2xl border border-white/5 bg-white/[0.02] backdrop-blur-md shadow-sm transition-all duration-300 hover:-translate-y-1 hover:border-white/15 hover:bg-white/[0.03] hover:shadow-xl hover:shadow-indigo-500/[0.02]"
+                  className="group flex flex-col justify-between overflow-hidden rounded-2xl border border-white/5 bg-white/[0.02] backdrop-blur-md shadow-sm transition-all duration-300 hover:-translate-y-1 hover:border-white/15 hover:bg-white/[0.03] hover:shadow-xl hover:shadow-red-500/[0.02]"
                 >
                   <div>
                     <div className="relative aspect-[4/3] w-full overflow-hidden bg-zinc-900">
@@ -203,13 +203,13 @@ export function ServicesSection({ whatsappNumber = '59898355530', services }: Se
                       />
                       <div className="absolute inset-0 bg-gradient-to-t from-zinc-950 via-transparent to-transparent" />
                       <div className="absolute left-4 top-4 flex h-11 w-11 items-center justify-center rounded-xl border border-white/10 bg-zinc-950/80 text-sm font-black text-white shadow-sm backdrop-blur">
-                        {Icon ? <Icon className="h-5 w-5 text-indigo-400" /> : service.emoji}
+                        {Icon ? <Icon className="h-5 w-5 text-red-400" /> : service.emoji}
                       </div>
                     </div>
 
                     <div className="space-y-4 p-6 text-left">
                       <div>
-                        <p className="text-xs font-black uppercase tracking-widest text-indigo-400">{service.subtitle}</p>
+                        <p className="text-xs font-black uppercase tracking-widest text-red-400">{service.subtitle}</p>
                         <h4 className="mt-2 font-headline text-xl font-black text-white">
                           {service.title}
                         </h4>
@@ -221,7 +221,7 @@ export function ServicesSection({ whatsappNumber = '59898355530', services }: Se
                       <ul className="space-y-2 pt-1">
                         {service.features.map((feat) => (
                           <li key={feat} className="flex items-start gap-2 text-sm font-medium text-zinc-300">
-                            <span className="mt-2 h-1.5 w-1.5 shrink-0 rounded-full bg-indigo-500" />
+                            <span className="mt-2 h-1.5 w-1.5 shrink-0 rounded-full bg-red-500" />
                             <span>{feat}</span>
                           </li>
                         ))}
@@ -237,7 +237,7 @@ export function ServicesSection({ whatsappNumber = '59898355530', services }: Se
                       className={cn(
                         'mt-5 flex w-full items-center justify-center gap-2 rounded-xl px-4 py-4',
                         'border border-white/10 bg-white/5 text-xs font-black uppercase tracking-widest text-white backdrop-blur-md',
-                        'shadow-sm transition-all duration-300 hover:border-indigo-500 hover:bg-indigo-600 hover:scale-[1.02] active:scale-[0.98]'
+                        'shadow-sm transition-all duration-300 hover:border-red-500 hover:bg-red-600 hover:scale-[1.02] active:scale-[0.98]'
                       )}
                     >
                       <MessageSquare className="h-4 w-4 shrink-0" />

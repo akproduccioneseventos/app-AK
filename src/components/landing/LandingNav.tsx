@@ -57,8 +57,8 @@ export function LandingNav({ whatsappNumber = '59898355530' }: LandingNavProps) 
           </Link>
 
           <nav className={cn(
-            "hidden md:flex items-center gap-2 rounded-2xl px-2 py-1 backdrop-blur-md border transition-all duration-300",
-            isScrolled ? "border-slate-200 bg-slate-50/40" : "border-white/10 bg-white/10"
+            "hidden md:flex items-center gap-1 border-b transition-all duration-300",
+            isScrolled ? "border-slate-200" : "border-white/20"
           )}>
             {navLinks.map((link) =>
               link.isExternal ? (
@@ -66,10 +66,8 @@ export function LandingNav({ whatsappNumber = '59898355530' }: LandingNavProps) 
                   key={link.href}
                   href={link.href}
                   className={cn(
-                    'px-4 py-2 rounded-xl text-sm font-black uppercase tracking-wider transition-colors',
-                    isScrolled
-                      ? 'text-zinc-600 hover:bg-slate-100 hover:text-slate-950'
-                      : 'text-white/90 drop-shadow hover:bg-white/20 hover:text-white'
+                    'px-3 py-2 text-sm font-bold transition-colors',
+                    isScrolled ? 'text-zinc-600 hover:text-red-700' : 'text-white/90 hover:text-white'
                   )}
                 >
                   {link.label}
@@ -79,10 +77,8 @@ export function LandingNav({ whatsappNumber = '59898355530' }: LandingNavProps) 
                   key={link.href}
                   href={link.href}
                   className={cn(
-                    'px-4 py-2 rounded-xl text-sm font-black uppercase tracking-wider transition-colors',
-                    isScrolled
-                      ? 'text-zinc-600 hover:bg-slate-100 hover:text-slate-950'
-                      : 'text-white/90 drop-shadow hover:bg-white/20 hover:text-white'
+                    'px-3 py-2 text-sm font-bold transition-colors',
+                    isScrolled ? 'text-zinc-600 hover:text-red-700' : 'text-white/90 hover:text-white'
                   )}
                 >
                   {link.label}
@@ -95,7 +91,7 @@ export function LandingNav({ whatsappNumber = '59898355530' }: LandingNavProps) 
             <Link
               href="/login"
               className={cn(
-                'hidden md:flex items-center gap-2 px-4 py-2 rounded-xl font-black text-xs uppercase tracking-widest border transition-all duration-200 hover:scale-[1.03] active:scale-95',
+                'hidden md:flex items-center gap-2 rounded-lg border px-4 py-2 text-xs font-bold transition-all duration-200 hover:scale-[1.03] active:scale-95',
                 isScrolled
                   ? 'border-slate-200 hover:bg-slate-50 text-slate-700'
                   : 'border-white/20 hover:bg-white/10 text-white'
@@ -106,8 +102,8 @@ export function LandingNav({ whatsappNumber = '59898355530' }: LandingNavProps) 
             <Link
               href="/simulador-de-presupuesto"
               className={cn(
-                'hidden sm:flex items-center gap-2 px-4 py-2 rounded-xl font-black text-xs uppercase tracking-widest',
-                'bg-indigo-600 hover:bg-indigo-500 text-white shadow-lg shadow-indigo-600/20',
+                'hidden sm:flex items-center gap-2 rounded-lg px-4 py-2 text-xs font-bold',
+                'bg-red-700 hover:bg-red-800 text-white shadow-lg shadow-red-950/20',
                 'transition-all duration-200 hover:scale-[1.03] active:scale-95'
               )}
             >
@@ -116,7 +112,7 @@ export function LandingNav({ whatsappNumber = '59898355530' }: LandingNavProps) 
             <button
               onClick={() => setIsMenuOpen((o) => !o)}
               className={cn(
-                'md:hidden p-2 rounded-xl transition-colors',
+                'md:hidden rounded-lg p-2 transition-colors',
                 isScrolled ? 'text-zinc-800 hover:bg-slate-100' : 'text-white hover:bg-white/10'
               )}
               aria-label="Abrir menú"
@@ -136,7 +132,7 @@ export function LandingNav({ whatsappNumber = '59898355530' }: LandingNavProps) 
                   key={link.href}
                   href={link.href}
                   onClick={() => setIsMenuOpen(false)}
-                  className="block px-4 py-3 rounded-xl text-sm font-black uppercase tracking-wider text-zinc-700 hover:bg-slate-100 hover:text-slate-950 transition-colors"
+                  className="block rounded-lg px-4 py-3 text-sm font-bold text-zinc-700 hover:bg-slate-100 hover:text-red-700 transition-colors"
                 >
                   {link.label}
                 </Link>
@@ -145,7 +141,7 @@ export function LandingNav({ whatsappNumber = '59898355530' }: LandingNavProps) 
                   key={link.href}
                   href={link.href}
                   onClick={() => setIsMenuOpen(false)}
-                  className="block px-4 py-3 rounded-xl text-sm font-black uppercase tracking-wider text-zinc-700 hover:bg-slate-100 hover:text-slate-950 transition-colors"
+                  className="block rounded-lg px-4 py-3 text-sm font-bold text-zinc-700 hover:bg-slate-100 hover:text-red-700 transition-colors"
                 >
                   {link.label}
                 </a>
@@ -154,14 +150,14 @@ export function LandingNav({ whatsappNumber = '59898355530' }: LandingNavProps) 
             <Link
               href="/simulador-de-presupuesto"
               onClick={() => setIsMenuOpen(false)}
-              className="flex items-center justify-center gap-2 mt-2 px-4 py-3 rounded-xl font-black text-sm uppercase tracking-widest bg-indigo-600 hover:bg-indigo-500 text-white shadow-lg"
+              className="mt-2 flex items-center justify-center gap-2 rounded-lg bg-red-700 px-4 py-3 text-sm font-bold text-white shadow-lg hover:bg-red-800"
             >
               Cotizá tu Fiesta
             </Link>
             <Link
               href="/login"
               onClick={() => setIsMenuOpen(false)}
-              className="flex items-center justify-center gap-2 mt-2 px-4 py-3 rounded-xl font-black text-sm uppercase tracking-widest border border-slate-200 text-zinc-700 hover:bg-slate-50 transition-colors shadow-sm"
+              className="mt-2 flex items-center justify-center gap-2 rounded-lg border border-slate-200 px-4 py-3 text-sm font-bold text-zinc-700 shadow-sm transition-colors hover:bg-slate-50"
             >
               Acceso Staff
             </Link>
