@@ -20,6 +20,8 @@ import { detectIntent } from '@/lib/assistant/intent-router';
 import { parseDateTimeUY } from '@/lib/assistant/date-parser';
 import { getTool } from '@/lib/assistant/tool-registry';
 
+import { verifySession } from '@/lib/auth/session-token';
+
 const DEFAULT_SERVICE_NAME = 'Servicio';
 const SHORT_CONFIRMATION_REGEX = /^(si|dale|crealo|crealo ahora|confirma|hacelo|listo|ok|okay|de acuerdo|bueno|ya)[\s!.]*$/i;
 const KNOWLEDGE_DOC_CONTEXT_MAX_CHARS = 4000; // Per-document cap to keep prompt context concise and performant.
@@ -433,6 +435,11 @@ export async function sendAssistantMessage(
   action?: { type: string; data?: any; result?: any };
   error?: string;
 }> {
+  if (process.env.NODE_ENV !== 'test') {
+    const auth = await verifySession();
+    if (!auth.success) return { success: false, error: auth.error || 'No autorizado' };
+  }
+
   try {
     logger.info('[Asistente AK] Inicio sendAssistantMessage:', { msgLength: message?.length ?? 0, hasImage: !!imageDataUri });
 

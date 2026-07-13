@@ -1,8 +1,6 @@
-'use client';
-
-import React, { useMemo } from 'react';
+import React from 'react';
 import Link from 'next/link';
-import { useParams } from 'next/navigation';
+import type { Metadata } from 'next';
 import {
   ArrowLeft,
   Calendar,
@@ -53,22 +51,35 @@ const MOCK_IMPORTED_POST: BlogPost = {
   ],
 };
 
-export default function BlogPostPage() {
-  const params = useParams<{ slug: string }>();
-  const slug = params.slug;
+interface Props {
+  params: Promise<{ slug: string }>;
+}
 
-  const post = useMemo(() => {
-    if (slug === MOCK_IMPORTED_POST.slug) return MOCK_IMPORTED_POST;
-    return blogPosts.find((p) => p.slug === slug) ?? null;
-  }, [slug]);
+export async function generateMetadata({ params }: Props): Promise<Metadata> {
+  const { slug } = await params;
+  const post = slug === MOCK_IMPORTED_POST.slug ? MOCK_IMPORTED_POST : blogPosts.find((p) => p.slug === slug);
+  if (!post) {
+    return {
+      title: 'Artículo no encontrado | Blog AK Producciones',
+    };
+  }
+  return {
+    title: `${post.title} | Blog AK Producciones`,
+    description: post.excerpt,
+  };
+}
 
-  const relatedPosts = useMemo(() => {
-    if (!post) return [];
-    const related = (post.relatedSlugs ?? [])
-      .map((s) => blogPosts.find((p) => p.slug === s))
-      .filter((p): p is BlogPost => p !== undefined);
-    return related.slice(0, 2);
-  }, [post]);
+export default async function BlogPostPage({ params }: Props) {
+  const { slug } = await params;
+
+  const post = slug === MOCK_IMPORTED_POST.slug ? MOCK_IMPORTED_POST : blogPosts.find((p) => p.slug === slug) ?? null;
+
+  const relatedPosts = post
+    ? (post.relatedSlugs ?? [])
+        .map((s) => blogPosts.find((p) => p.slug === s))
+        .filter((p): p is BlogPost => p !== undefined)
+        .slice(0, 2)
+    : [];
 
   if (!post) {
     return (

@@ -58,8 +58,23 @@ function normalizeCustomerName(value?: string): string {
 }
 
 function paymentDay(value?: string): string {
-  if (!value) return '';
-  const date = new Date(value);
+  const valStr = String(value ?? '').trim();
+  if (!valStr) return '';
+  const match = valStr.match(/^(\d{4}-\d{2}-\d{2})/);
+  if (match) {
+    if (valStr.includes('T') && valStr.endsWith('Z')) {
+      const date = new Date(valStr);
+      if (!Number.isNaN(date.getTime())) {
+        const uyDate = new Date(date.getTime() - 3 * 60 * 60 * 1000);
+        const year = uyDate.getUTCFullYear();
+        const month = String(uyDate.getUTCMonth() + 1).padStart(2, '0');
+        const day = String(uyDate.getUTCDate()).padStart(2, '0');
+        return `${year}-${month}-${day}`;
+      }
+    }
+    return match[1];
+  }
+  const date = new Date(valStr);
   if (Number.isNaN(date.getTime())) return '';
   const year = date.getFullYear();
   const month = String(date.getMonth() + 1).padStart(2, '0');
