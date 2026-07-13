@@ -1,8 +1,8 @@
 
 'use client';
 
-import React, { useState, useEffect, useCallback, use } from 'react';
-import { useRouter } from 'next/navigation';
+import React, { useState, useEffect, useCallback } from 'react';
+import { useParams, useRouter } from 'next/navigation';
 import Link from 'next/link';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -49,8 +49,8 @@ interface EventPaymentDetails {
   fuentePagos: 'presupuesto' | 'facturas' | 'mixto' | 'sin_pagos';
 }
 
-export default function CustomerDetailsPage(props: { params: Promise<{ id: string }> }) {
-  const params = use(props.params);
+export default function CustomerDetailsPage() {
+  const params = useParams<{ id: string }>();
   const customerId = params.id;
   const router = useRouter();
   const { toast } = useToast();

@@ -1,7 +1,8 @@
 'use client';
 
-import React, { useState, useEffect, useCallback, use } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import Link from 'next/link';
+import { useParams } from 'next/navigation';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription, CardFooter } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Loader2, ArrowLeft, FileSignature, CheckCircle2, ShieldCheck, Info, AlertTriangle, User, Building2, Calendar, DollarSign, Star, Clock } from 'lucide-react';
@@ -25,8 +26,8 @@ function formatDate(iso?: string) {
   return new Date(iso).toLocaleDateString('es-UY', { day: '2-digit', month: 'long', year: 'numeric' });
 }
 
-export default function ClientContractPage(props: { params: Promise<{ fiestaId: string }> }) {
-  const params = use(props.params);
+export default function ClientContractPage() {
+  const params = useParams<{ fiestaId: string }>();
   const fiestaId = params.fiestaId;
   const { toast } = useToast();
 

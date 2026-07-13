@@ -1,7 +1,8 @@
 
 'use client';
 
-import React, { useState, useEffect, type FormEvent, Suspense, use } from 'react';
+import React, { useState, useEffect, type FormEvent, Suspense } from 'react';
+import { useParams } from 'next/navigation';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription, CardFooter } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -251,8 +252,8 @@ function FeedbackContent({ fiestaId }: { fiestaId: string | null }) {
   );
 }
 
-export default function FeedbackPage(props: { params: Promise<{ fiestaId: string }> }) {
-  const params = use(props.params);
+export default function FeedbackPage() {
+  const params = useParams<{ fiestaId: string }>();
   const fiestaId = params.fiestaId;
 
   return (

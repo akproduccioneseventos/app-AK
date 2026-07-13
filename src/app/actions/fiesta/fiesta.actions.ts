@@ -54,6 +54,32 @@ import { verifyPortalSession } from '@/lib/security/portal-session';
 const FIESTAS_DIR = 'fiestas';
 const ARCHIVE_DIR = 'archive';
 
+function shouldUseLocalJsonOnly(): boolean {
+  return process.env.AK_USE_LOCAL_JSON_ONLY === 'true';
+}
+
+async function readLocalFiestaDirectory(directory: string): Promise<FiestaEnPlanificacion[]> {
+  const fileNames = new Set<string>();
+  const candidates = [
+    path.join(process.cwd(), 'data', directory),
+    path.join(process.cwd(), 'src', 'data', directory),
+  ];
+
+  for (const candidate of candidates) {
+    try {
+      const entries = await fs.readdir(candidate);
+      entries.filter((file) => file.endsWith('.json')).forEach((file) => fileNames.add(file));
+    } catch {
+      // The directory is optional in local and test environments.
+    }
+  }
+
+  const fiestas = await Promise.all(
+    [...fileNames].map((file) => readData<FiestaEnPlanificacion | null>(path.join(directory, file), null)),
+  );
+  return fiestas.filter((fiesta): fiesta is FiestaEnPlanificacion => fiesta !== null);
+}
+
 async function requireFiestaWriteAccess(fiestaId: string) {
     if (await hasAppSession()) return;
     if (fiestaId && (await verifyPortalSession(fiestaId))) return;
@@ -65,28 +91,21 @@ export async function getHistorialFiestas(): Promise<FiestaEnPlanificacion[]> {
   let historiales: FiestaEnPlanificacion[] = [];
   let firestoreSucceeded = false;
 
-  try {
-    const { isFirebaseAvailable } = await import('@/lib/firebase');
-    if (isProduction || isFirebaseAvailable()) {
-      const { listCollectionFromFirestore } = await import('@/lib/firebase-sync');
-      historiales = (await listCollectionFromFirestore(ARCHIVE_DIR)) as FiestaEnPlanificacion[];
-      firestoreSucceeded = true;
+  if (!shouldUseLocalJsonOnly()) {
+    try {
+      const { isFirebaseAvailable } = await import('@/lib/firebase');
+      if (isProduction || isFirebaseAvailable()) {
+        const { listCollectionFromFirestore } = await import('@/lib/firebase-sync');
+        historiales = (await listCollectionFromFirestore(ARCHIVE_DIR)) as FiestaEnPlanificacion[];
+        firestoreSucceeded = true;
+      }
+    } catch (e) {
+      // fall through to filesystem fallback
     }
-  } catch (e) {
-    // fall through to filesystem fallback
   }
 
   if (!firestoreSucceeded) {
-    const dataDir = path.join(process.cwd(), 'src', 'data', ARCHIVE_DIR);
-    try {
-      const archiveFiles = await fs.readdir(dataDir);
-      const historialesPromises = archiveFiles
-          .filter(file => file.endsWith('.json'))
-          .map(file => readData<FiestaEnPlanificacion>(path.join(ARCHIVE_DIR, file), null as any));
-      historiales = (await Promise.all(historialesPromises)).filter((f): f is FiestaEnPlanificacion => f !== null);
-    } catch (error) {
-      historiales = [];
-    }
+    historiales = await readLocalFiestaDirectory(ARCHIVE_DIR);
   }
 
   return Array.from(new Map(historiales.map(f => [f.id, f])).values())
@@ -98,28 +117,21 @@ export async function getFiestas(includeArchived = true): Promise<FiestaEnPlanif
     let activas: FiestaEnPlanificacion[] = [];
     let firestoreSucceeded = false;
 
-    try {
-        const { isFirebaseAvailable } = await import('@/lib/firebase');
-        if (isProduction || isFirebaseAvailable()) {
-            const { listCollectionFromFirestore } = await import('@/lib/firebase-sync');
-            activas = (await listCollectionFromFirestore(FIESTAS_DIR)) as FiestaEnPlanificacion[];
-            firestoreSucceeded = true;
+    if (!shouldUseLocalJsonOnly()) {
+        try {
+            const { isFirebaseAvailable } = await import('@/lib/firebase');
+            if (isProduction || isFirebaseAvailable()) {
+                const { listCollectionFromFirestore } = await import('@/lib/firebase-sync');
+                activas = (await listCollectionFromFirestore(FIESTAS_DIR)) as FiestaEnPlanificacion[];
+                firestoreSucceeded = true;
+            }
+        } catch (e) {
+            // fall through to filesystem fallback
         }
-    } catch (e) {
-        // fall through to filesystem fallback
     }
 
     if (!firestoreSucceeded) {
-        const dataDir = path.join(process.cwd(), 'src', 'data', FIESTAS_DIR);
-        try {
-            const activeFiles = await fs.readdir(dataDir);
-            const activasPromises = activeFiles
-                .filter(file => file.endsWith('.json'))
-                .map(file => readData<FiestaEnPlanificacion>(path.join(FIESTAS_DIR, file), null as any));
-            activas = (await Promise.all(activasPromises)).filter((f): f is FiestaEnPlanificacion => f !== null);
-        } catch (error) {
-            activas = [];
-        }
+        activas = await readLocalFiestaDirectory(FIESTAS_DIR);
     }
 
     const archivadas = includeArchived ? await getHistorialFiestas() : [];

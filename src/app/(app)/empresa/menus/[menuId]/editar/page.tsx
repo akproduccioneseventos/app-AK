@@ -1,8 +1,8 @@
 
 'use client';
 
-import React, { useEffect, useState, useCallback, use } from 'react';
-import { useRouter } from 'next/navigation';
+import React, { useEffect, useState, useCallback } from 'react';
+import { useParams, useRouter } from 'next/navigation';
 import Link from 'next/link';
 import { Button } from '@/components/ui/button';
 import { ArrowLeft, ChefHat, Loader2 } from 'lucide-react';
@@ -11,8 +11,8 @@ import { getMenuById } from '@/app/actions/menus-catering';
 import type { FullMenu } from '@/types/catering';
 import { useToast } from '@/hooks/use-toast';
 
-export default function EditarMenuPage(props: { params: Promise<{ menuId: string }> }) {
-  const params = use(props.params);
+export default function EditarMenuPage() {
+  const params = useParams<{ menuId: string }>();
   const router = useRouter();
   const { toast } = useToast();
   const [menu, setMenu] = useState<FullMenu | null>(null);

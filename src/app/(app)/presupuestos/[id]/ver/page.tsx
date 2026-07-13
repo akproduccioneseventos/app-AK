@@ -1,7 +1,7 @@
 'use client';
 
-import React, { useState, useEffect, useCallback, useMemo, Suspense, use, useRef } from 'react';
-import { useRouter, useSearchParams } from 'next/navigation';
+import React, { useState, useEffect, useCallback, useMemo, Suspense, useRef } from 'react';
+import { useParams, useRouter, useSearchParams } from 'next/navigation';
 import Link from 'next/link';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription, CardFooter } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -1291,8 +1291,8 @@ function VerPresupuestoContent({ params }: { params: { id: string } }) {
   );
 }
 
-export default function VerPresupuestoPage(props: { params: Promise<{ id: string }> }) {
-  const params = use(props.params);
+export default function VerPresupuestoPage() {
+  const params = useParams<{ id: string }>();
   return (
     <Suspense fallback={<div className="flex justify-center items-center h-screen"><Loader2 className="w-12 h-12 animate-spin text-primary" /></div>}>
       <VerPresupuestoContent params={params} />
