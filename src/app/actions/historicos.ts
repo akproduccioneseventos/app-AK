@@ -11,7 +11,7 @@ import type { Presupuesto, ItemPresupuestado } from '@/types/presupuesto';
 import type { FiestaHistorica } from '@/types/fiesta-historica';
 import { initialFiestaActualData } from '@/lib/fiesta-defaults';
 import { saveFiesta } from './fiesta/fiesta.actions';
-import { createNotification } from './notifications';
+import { createNotification } from '@/lib/notifications/create-notification';
 import { saveInvoice } from './invoices';
 import type { Invoice, Payment } from '@/types/invoice';
 import { saveFiestaHistorica } from './fiestas-historicas';

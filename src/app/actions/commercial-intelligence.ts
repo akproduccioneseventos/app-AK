@@ -2,7 +2,8 @@
 
 import { getCrmLeads } from '@/app/actions/crm';
 import { getPresupuestos } from '@/app/actions/presupuestos';
-import { createNotification, getNotifications } from '@/app/actions/notifications';
+import { getNotifications } from '@/app/actions/notifications';
+import { createNotification } from '@/lib/notifications/create-notification';
 import { saveAgentLearning } from '@/lib/multiagent/memory-store';
 import type { Notificacion } from '@/types/fiesta';
 

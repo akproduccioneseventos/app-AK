@@ -2,7 +2,7 @@
 
 import { revalidatePath } from 'next/cache';
 import { getFiestaById, saveFiesta } from '@/app/actions/fiesta/fiesta.actions';
-import { createNotification } from '@/app/actions/notifications';
+import { createNotification } from '@/lib/notifications/create-notification';
 import { buildAk100Readiness } from '@/lib/ak-100/ak-100-readiness';
 import type { Tarea } from '@/types/fiesta';
 

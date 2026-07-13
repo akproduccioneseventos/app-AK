@@ -7,7 +7,7 @@ import { saveCustomer, getCustomers } from '@/app/actions/customers';
 import { getPresupuestoById, updatePresupuesto } from '@/app/actions/presupuestos';
 import { saveFiesta, syncFiestaFromBudget, getFiestas } from '@/app/actions/fiesta/fiesta.actions';
 import { getInvoiceById, saveInvoice } from '@/app/actions/invoices';
-import { createNotification } from './notifications';
+import { createNotification } from '@/lib/notifications/create-notification';
 import type { FiestaEnPlanificacion } from '@/types/fiesta';
 import type { Presupuesto, PagoCliente, MetodoPago } from '@/types/presupuesto';
 import { initialFiestaActualData, defaultModulosContratados } from '@/lib/fiesta-defaults';

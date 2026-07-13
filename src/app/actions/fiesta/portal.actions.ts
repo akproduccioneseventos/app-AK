@@ -5,7 +5,7 @@
 import type { FiestaEnPlanificacion, ClientTarea, ClientPortalSettings, ClientPaymentNotification, TimelineHito, MenuSeleccionPortal, ListaMusicaPortal, SocialGallerySettings } from '@/types/fiesta';
 import { getFiestaById, saveFiesta, getFiestas } from './fiesta.actions';
 import { addPagoToPresupuesto, getPresupuestoById, updatePresupuesto } from '../presupuestos';
-import { createNotification } from '../notifications';
+import { createNotification } from '@/lib/notifications/create-notification';
 import {
   notifyClientPaymentApproved,
   notifyClientPaymentRejected,
@@ -1024,7 +1024,7 @@ Firma AK Producciones: _________________   Fecha: __/__/____
     await saveFiesta(updatedFiesta);
 
     // Create system notification
-    const { createNotification } = await import('../notifications');
+    const { createNotification } = await import('@/lib/notifications/create-notification');
     await createNotification({
       mensaje: `⚠️ Cliente canceló ${payload.cancelAll ? 'toda la fiesta' : 'servicios'} en "${fiesta.configuracion.nombreEvento}". Contrato generado.`,
       href: `/fiestas/nueva?fiestaId=${fiestaId}&tab=portal-cliente`,
@@ -1196,7 +1196,7 @@ Firma AK Producciones: _________________   Fecha: __/__/____
     await saveFiesta(updatedFiesta);
 
     // Create system notification
-    const { createNotification } = await import('../notifications');
+    const { createNotification } = await import('@/lib/notifications/create-notification');
     await createNotification({
       mensaje: `📅 Cliente cambió fecha a ${newDateFmt} en "${fiesta.configuracion.nombreEvento}". Adenda generada.`,
       href: `/fiestas/nueva?fiestaId=${fiestaId}&tab=portal-cliente`,

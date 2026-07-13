@@ -1,7 +1,7 @@
 'use server';
 
 import { getAllFiestas, getFiestaById } from '@/app/actions/fiesta/fiesta.actions';
-import { createNotification } from '@/app/actions/notifications';
+import { createNotification } from '@/lib/notifications/create-notification';
 import { saveAgentLearning } from '@/lib/multiagent/memory-store';
 import { calculateFiestaPreparationScore } from '@/lib/fiesta/preparation-score';
 

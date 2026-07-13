@@ -8,7 +8,7 @@ import { saveFiesta } from './fiesta/fiesta.actions';
 import { initialFiestaActualData } from '@/lib/fiesta-defaults';
 import type { Presupuesto } from '@/types/presupuesto';
 import type { FiestaEnPlanificacion } from '@/types/fiesta';
-import { createNotification } from './notifications';
+import { createNotification } from '@/lib/notifications/create-notification';
 
 const FIESTAS_HISTORICAS_FILE = 'fiestas-historicas.json';
 
