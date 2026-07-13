@@ -166,7 +166,18 @@ const quickModes: { id: QuickMode; label: string; icon: React.ElementType; color
 ];
 
 // Module IDs that are always visible regardless of modulosContratados
-const alwaysVisibleIds = modules.map(m => m.id);
+const alwaysVisibleIds = [
+  'enVivo',
+  'missionControl',
+  'readiness',
+  'proveedoresPortal',
+  'configuracion',
+  'entretenimiento',
+  'redSocial',
+  'zonaDigital',
+  'pantallasTotem',
+  'barraTecnologica'
+];
 
 function PlannerDashboardContent() {
   const { toast } = useToast();

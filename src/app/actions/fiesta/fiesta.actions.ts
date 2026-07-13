@@ -668,6 +668,16 @@ export async function syncFiestaFromBudget(fiestaId: string) {
     modulos.fotografia = hasItem('foto') || hasItem('film') || hasItem('video') || items.some(i => ['Servicio de filmación', 'Servicio de fotografía'].includes(i.categoriaServicio || ''));
     modulos.decoracion = items.some(i => i.categoriaServicio === 'Servicio de decoración') || hasItem('decorac') || hasItem('ambientac');
     modulos.regalos = true; // Siempre activo para coordinar
+
+    // Sincronización dinámica de módulos tecnológicos y entretenimiento según presupuesto
+    modulos.redSocial = hasItem('red social') || hasItem('social') || hasItem('feed');
+    modulos.muroSocial = hasItem('muro social') || hasItem('pantalla') || hasItem('muro interactivo') || hasItem('mural');
+    modulos.barraTecnologica = hasItem('barra') || hasItem('trago') || hasItem('bebida');
+    modulos.zonaDigital = hasItem('zona digital') || hasItem('adolescente') || hasItem('juego') || hasItem('reto');
+    modulos.pantallasTotem = hasItem('totem') || hasItem('tótem') || hasItem('pantalla totem') || hasItem('pantallas totem');
+    modulos.entretenimiento = hasItem('fotocabina') || hasItem('cabina') || hasItem('360') || hasItem('espejo') || hasItem('bogue') || hasItem('plataforma');
+    modulos.paginaWeb = hasItem('invitacion') || hasItem('invitación') || hasItem('web') || hasItem('página web') || hasItem('pagina web');
+    modulos.buzon = hasItem('buzon') || hasItem('buzón') || hasItem('recuerdos') || hasItem('mensaje');
     
     updatedFiesta.modulosContratados = modulos;
 
