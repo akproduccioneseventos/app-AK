@@ -2,6 +2,7 @@
 
 import type { AprobacionRequest, EstadoAprobacion } from '@/types/approval';
 import { readData, writeData } from '@/lib/data-service';
+import { requireAppSession } from '@/lib/auth/require-session';
 
 const APROBACIONES_FILE = 'aprobaciones.json';
 
@@ -19,6 +20,7 @@ export async function getAprobacionById(id: string): Promise<AprobacionRequest |
 export async function createAprobacion(
   data: Omit<AprobacionRequest, 'id' | 'solicitadoEn' | 'estadoAprobacion' | 'version'>
 ): Promise<{ success: boolean; aprobacion?: AprobacionRequest; error?: string }> {
+  await requireAppSession();
   try {
     const all = await getAprobaciones();
     const newAprobacion: AprobacionRequest = {
@@ -40,6 +42,7 @@ export async function aprobarCambio(
   id: string,
   aprobadoPor: string
 ): Promise<{ success: boolean; error?: string }> {
+  await requireAppSession();
   try {
     const all = await readData<AprobacionRequest[]>(APROBACIONES_FILE, []);
     const index = all.findIndex(a => a.id === id);
@@ -62,6 +65,7 @@ export async function rechazarCambio(
   motivoRechazo: string,
   rechazadoPor: string
 ): Promise<{ success: boolean; error?: string }> {
+  await requireAppSession();
   try {
     const all = await readData<AprobacionRequest[]>(APROBACIONES_FILE, []);
     const index = all.findIndex(a => a.id === id);

@@ -91,6 +91,19 @@ describe('release security boundaries', () => {
     ['promos.ts', ['savePromo', 'deletePromo', 'togglePromo']],
     ['menus-catering.ts', ['saveMenu', 'deleteMenu', 'duplicateMenu', 'adjustAllDishMargins']],
     ['social-connections.ts', ['saveWhatsAppNumber', 'saveSocialLink', 'disconnectSocialPlatform']],
+    ['approvals.ts', ['createAprobacion', 'aprobarCambio', 'rechazarCambio']],
+    ['feature-flags.ts', ['updateDefaultTier', 'updateGlobalOverride', 'setEventTier', 'setEventModuleOverride']],
+    ['marketing.ts', ['saveMarketingTemplate', 'deleteMarketingTemplate', 'saveMarketingChecklist', 'importMarketingData']],
+    ['mission-control.ts', ['getMissionControl', 'updateMissionControl', 'updateEtapaEstado', 'toggleChecklistItem', 'addNotaEtapa', 'addEtapa', 'updateEtapa']],
+    ['armado-rapido.ts', ['saveArmadoRapidoConfig']],
+    ['bebidas.actions.ts', ['saveBebidasMasterTemplate']],
+    ['carta-tragos-master.actions.ts', ['saveCartaTragosMaster']],
+    ['deco-canvas-templates.ts', ['saveDecoCanvasTemplate', 'deleteDecoCanvasTemplate']],
+    ['invitacion-digital-templates.ts', ['saveInvitationTemplate', 'deleteInvitationTemplate', 'duplicateInvitationTemplate']],
+    ['itinerary-templates.ts', ['saveItineraryTemplate', 'deleteItineraryTemplate']],
+    ['meeting-checklist.ts', ['saveMeetingMasterTemplate']],
+    ['salon-layout-templates.ts', ['saveSalonLayoutTemplate', 'deleteSalonLayoutTemplate']],
+    ['task-templates.ts', ['saveTaskTemplate', 'deleteTaskTemplate']],
   ])('requires a signed session for master-data writes in %s', (filename, functionNames) => {
     const source = readSource(`src/app/actions/${filename}`);
     for (const functionName of functionNames) {
