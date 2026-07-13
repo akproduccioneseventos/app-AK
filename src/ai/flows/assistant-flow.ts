@@ -1,4 +1,4 @@
-'use server';
+import 'server-only';
 
 import { ai, geminiModel } from '@/ai/genkit';
 import { buildAssistantProCapabilitiesPrompt } from '@/lib/assistant/assistant-pro-capabilities';
