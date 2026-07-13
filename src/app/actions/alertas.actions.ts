@@ -5,6 +5,7 @@ import { evaluarReglasParaFiesta, evaluarReglasParaTodasLasFiestas } from '@/lib
 import type { AlertaAutomatica } from '@/types/automatizaciones';
 import { readData, writeData } from '@/lib/data-service';
 import * as logger from '@/lib/logger';
+import { requireAppSession } from '@/lib/auth/require-session';
 
 const ALERTAS_LEIDAS_FILE = 'alertas-leidas.json';
 const ALERTAS_DESCARTADAS_FILE = 'alertas-descartadas.json';
@@ -33,6 +34,7 @@ export async function getAlertasPorFiesta(fiestaId: string): Promise<AlertaAutom
 }
 
 export async function marcarAlertaLeida(alertaId: string): Promise<{ success: boolean }> {
+  await requireAppSession();
   try {
     const idsLeidos = await readData<string[]>(ALERTAS_LEIDAS_FILE, []);
     if (!idsLeidos.includes(alertaId)) {
@@ -47,6 +49,7 @@ export async function marcarAlertaLeida(alertaId: string): Promise<{ success: bo
 }
 
 export async function marcarTodasLeidas(): Promise<{ success: boolean }> {
+  await requireAppSession();
   try {
     const alertas = await getAlertasGlobales();
     const todosIds = alertas.map(a => a.id);
@@ -80,6 +83,7 @@ export async function getAlertasGlobalesConLeidas(): Promise<AlertaAutomatica[]>
 }
 
 export async function resetAlertasLeidas(): Promise<{ success: boolean }> {
+  await requireAppSession();
   try {
     await writeData(ALERTAS_LEIDAS_FILE, []);
     return { success: true };
@@ -99,6 +103,7 @@ export async function getAlertasNoLeidas(): Promise<AlertaAutomatica[]> {
  * Discarded alerts are excluded from all future queries.
  */
 export async function descartarAlerta(alertaId: string): Promise<{ success: boolean }> {
+  await requireAppSession();
   try {
     const idsDescartados = await readData<string[]>(ALERTAS_DESCARTADAS_FILE, []);
     if (!idsDescartados.includes(alertaId)) {
@@ -119,6 +124,7 @@ export async function descartarAlerta(alertaId: string): Promise<{ success: bool
  * does not reappear on the next page load.
  */
 export async function descartarPrioridad(alertaId: string): Promise<{ success: boolean }> {
+  await requireAppSession();
   try {
     const ids = await readData<string[]>(PRIORIDADES_DESCARTADAS_FILE, []);
     if (!ids.includes(alertaId)) {

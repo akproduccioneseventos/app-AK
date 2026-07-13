@@ -2,6 +2,7 @@
 
 import { readData, writeData } from '@/lib/data-service';
 import type { ScheduledMessage, ScheduledMessageStatus } from '@/types/whatsapp-automation';
+import { requireAppSession } from '@/lib/auth/require-session';
 
 const SCHEDULED_MESSAGES_FILE = 'scheduled-messages.json';
 
@@ -12,6 +13,7 @@ export async function getScheduledMessages(): Promise<ScheduledMessage[]> {
 export async function saveScheduledMessage(
   message: Omit<ScheduledMessage, 'id' | 'createdAt'>
 ): Promise<{ success: boolean; message?: ScheduledMessage; error?: string }> {
+  await requireAppSession();
   try {
     const messages = await getScheduledMessages();
     const newMessage: ScheduledMessage = {
@@ -30,6 +32,7 @@ export async function markMessageAsSent(
   messageId: string,
   sentBy: string
 ): Promise<{ success: boolean; error?: string }> {
+  await requireAppSession();
   try {
     const messages = await getScheduledMessages();
     const updated = messages.map(m =>
@@ -48,6 +51,7 @@ export async function rescheduleMessage(
   messageId: string,
   newDate: string
 ): Promise<{ success: boolean; error?: string }> {
+  await requireAppSession();
   try {
     const messages = await getScheduledMessages();
     const updated = messages.map(m =>
@@ -70,6 +74,7 @@ export async function rescheduleMessage(
 export async function cancelScheduledMessage(
   messageId: string
 ): Promise<{ success: boolean; error?: string }> {
+  await requireAppSession();
   try {
     const messages = await getScheduledMessages();
     const updated = messages.map(m =>

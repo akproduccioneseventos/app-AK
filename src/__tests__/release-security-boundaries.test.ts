@@ -106,6 +106,22 @@ describe('release security boundaries', () => {
     ['task-templates.ts', ['saveTaskTemplate', 'deleteTaskTemplate']],
     ['backup.ts', ['getRestorePoints', 'createRestorePoint', 'restoreFromPoint', 'deleteRestorePoint']],
     ['notifications.ts', ['getNotifications', 'markNotificationAsRead', 'markAllNotificationsAsRead', 'deleteNotification', 'checkAndCreateTaskReminders', 'checkAndCreateReunionReminders', 'checkAndCreateEventAlerts', 'checkAndCreatePendingBalanceAlerts', 'generateAllSmartNotifications', 'resetAllNotifications']],
+    ['alertas.actions.ts', ['marcarAlertaLeida', 'marcarTodasLeidas', 'resetAlertasLeidas', 'descartarAlerta', 'descartarPrioridad']],
+    ['blog.ts', ['saveBlogPost', 'deleteBlogPost']],
+    ['catalogo-fotos.ts', ['addCatalogoFoto', 'updateCatalogoFoto', 'deleteCatalogoFoto', 'toggleCatalogoFotoDestacada', 'uploadCatalogoFotoFromFile']],
+    ['contenido-publico.ts', ['savePresentacionLedSettings', 'saveCatalogoSettings']],
+    ['fiestas-historicas.ts', ['saveFiestaHistorica', 'deleteFiestaHistorica', 'generarDesdeHistorico', 'resetAllFiestasHistoricas']],
+    ['galeria.ts', ['addGaleriaFoto', 'addGaleriaVideo', 'deleteGaleriaItem', 'updateGaleriaItem', 'reorderGaleriaItems', 'toggleDestacada', 'updateGaleriaFoto']],
+    ['historicos.ts', ['processHistoricRecord']],
+    ['incidents.ts', ['createIncidente', 'updateIncidente', 'addActualizacionIncidente', 'resolverIncidente', 'cerrarIncidente']],
+    ['initialize-events.ts', ['initializeEventsForAllCustomers']],
+    ['invitacion-config.ts', ['saveInvitacionConfig']],
+    ['landing-editor.ts', ['saveLandingSettings']],
+    ['playbooks.ts', ['createPlaybook', 'updatePlaybook', 'deletePlaybook', 'applyPlaybookToFiesta']],
+    ['reposteria.actions.ts', ['saveReposteriaMasterTemplate']],
+    ['scheduled-messages.ts', ['saveScheduledMessage', 'markMessageAsSent', 'rescheduleMessage', 'cancelScheduledMessage']],
+    ['simulador-copilot.ts', ['saveCopilotConfig']],
+    ['social-media.ts', ['saveSocialPost', 'deleteSocialPost', 'syncInstagramPosts']],
   ])('requires a signed session for master-data writes in %s', (filename, functionNames) => {
     const source = readSource(`src/app/actions/${filename}`);
     for (const functionName of functionNames) {
