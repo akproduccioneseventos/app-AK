@@ -135,7 +135,7 @@ const CHARACTER_DEFINITIONS: Record<TouchpixCharacterId, CharacterDefinition> = 
 
 const MAX_IMAGE_SIZE = 10 * 1024 * 1024; // 10 MB
 const TOUCHPIX_AI_TIMEOUT_MS = 60_000;
-export const TOUCHPIX_IMAGE_MODEL =
+const TOUCHPIX_IMAGE_MODEL =
   process.env.GEMINI_IMAGE_MODEL?.trim() || 'googleai/gemini-3.1-flash-image-preview';
 
 async function ensureTouchpixAccess(fiestaId: string, accessToken?: string): Promise<void> {
