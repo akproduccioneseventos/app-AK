@@ -26,7 +26,7 @@ function getIconComponent(name: any) {
 }
 
 export default async function BlogPage() {
-  const postsFromDb = await getBlogPosts();
+  const postsFromDb = await getBlogPosts().catch(() => []);
   const posts = (postsFromDb && postsFromDb.length > 0) ? postsFromDb : defaultBlogPosts;
 
   const featured = posts[0];

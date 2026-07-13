@@ -37,7 +37,8 @@ import {
     HeartHandshake,
     Settings2,
     Plus,
-    Trash2
+    Trash2,
+    AlertTriangle
 } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { captureSimulatorLeadProgress, getArmadoRapidoConfig, generateBudgetAndLeadFromSimulator, getPublicBudgetsByPhone } from '@/app/actions/armado-rapido';
@@ -244,6 +245,7 @@ function SimuladorContent() {
     const [isSearchFocused, setIsSearchFocused] = useState(false);
 
     const [isLoading, setIsLoading] = useState(true);
+    const [errorLoading, setErrorLoading] = useState(false);
     const [isGenerating, setIsGenerating] = useState(false);
     const [isSavingProgress, setIsSavingProgress] = useState(false);
     const [isDownloadingPdf, setIsDownloadingPdf] = useState(false);
@@ -317,6 +319,7 @@ function SimuladorContent() {
 
     useEffect(() => {
         const loadInitialData = async () => {
+            setErrorLoading(false);
             setIsLoading(true);
             try {
                 const [armadoConfig, bSettings, serviciosData, socialConnections, templateSettings, menuData] = await Promise.all([
@@ -327,6 +330,11 @@ function SimuladorContent() {
                     withFallbackTimeout(getInvoiceTemplateSettings(), { logoUrl: null } as any),
                     withFallbackTimeout(getMenus(), []),
                 ]);
+
+                if (!armadoConfig || !serviciosData || serviciosData.length === 0) {
+                    throw new Error("No se pudo cargar el catálogo de servicios.");
+                }
+
                 setConfig(armadoConfig);
                 setBudgetSettings(bSettings);
                 setServiciosCatalogo((Array.isArray(serviciosData) ? serviciosData : []).filter(s => s.tipoItem === 'Servicio'));
@@ -338,6 +346,7 @@ function SimuladorContent() {
                 setLogoUrl(templateSettings.logoUrl || null);
             } catch (error) {
                 console.error("Initial load failed", error);
+                setErrorLoading(true);
             } finally {
                 setIsLoading(false);
             }
@@ -1304,6 +1313,23 @@ function SimuladorContent() {
                     </div>
                 </section>
             </main>
+        );
+    }
+
+    if (errorLoading) {
+        return (
+            <div className="min-h-screen flex flex-col items-center justify-center bg-slate-950 text-white p-6 text-center">
+                <div className="max-w-md space-y-4">
+                    <AlertTriangle className="w-16 h-16 mx-auto text-amber-500 animate-pulse" />
+                    <h2 className="text-2xl font-black uppercase tracking-tight">Error de conexión</h2>
+                    <p className="text-slate-400 text-sm leading-relaxed">
+                        No pudimos cargar el catálogo de servicios de AK Producciones. Verificá tu conexión a internet e intentalo de nuevo.
+                    </p>
+                    <Button onClick={() => window.location.reload()} className="mt-4 bg-red-700 hover:bg-red-800 text-white font-black px-6 h-12 rounded-lg transition">
+                        Reintentar
+                    </Button>
+                </div>
+            </div>
         );
     }
 

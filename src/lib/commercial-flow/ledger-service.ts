@@ -58,8 +58,28 @@ function normalizeCustomerName(value?: string): string {
 }
 
 function paymentDay(value?: string): string {
-  const date = value ? new Date(value) : new Date(Number.NaN);
-  return Number.isNaN(date.getTime()) ? '' : date.toISOString().slice(0, 10);
+  const valStr = String(value ?? '').trim();
+  if (!valStr) return '';
+  const match = valStr.match(/^(\d{4}-\d{2}-\d{2})/);
+  if (match) {
+    if (valStr.includes('T') && valStr.endsWith('Z')) {
+      const date = new Date(valStr);
+      if (!Number.isNaN(date.getTime())) {
+        const uyDate = new Date(date.getTime() - 3 * 60 * 60 * 1000);
+        const year = uyDate.getUTCFullYear();
+        const month = String(uyDate.getUTCMonth() + 1).padStart(2, '0');
+        const day = String(uyDate.getUTCDate()).padStart(2, '0');
+        return `${year}-${month}-${day}`;
+      }
+    }
+    return match[1];
+  }
+  const date = new Date(valStr);
+  if (Number.isNaN(date.getTime())) return '';
+  const year = date.getFullYear();
+  const month = String(date.getMonth() + 1).padStart(2, '0');
+  const day = String(date.getDate()).padStart(2, '0');
+  return `${year}-${month}-${day}`;
 }
 
 export function findExistingDepositReceipt(
@@ -153,7 +173,9 @@ export function calculateFinancialLedger(
     if (!dateStr) return 'sin-fecha';
     const date = new Date(dateStr);
     if (Number.isNaN(date.getTime())) return 'sin-fecha';
-    return date.toISOString().slice(0, 7); // 'YYYY-MM'
+    const year = date.getFullYear();
+    const month = String(date.getMonth() + 1).padStart(2, '0');
+    return `${year}-${month}`;
   };
   const addCollection = (date: string, amount: number) => {
     getOrCreateMonth(getMes(date)).cobros += amount;

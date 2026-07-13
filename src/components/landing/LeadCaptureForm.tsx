@@ -71,30 +71,36 @@ export function LeadCaptureForm({
       },
     };
 
-    const res = await saveLead(data);
-    setLoading(false);
+    try {
+      const res = await saveLead(data);
+      setLoading(false);
 
-    if (res.success) {
-      setSent(true);
-      // Open WhatsApp with pre-filled message
-      const parts = [
-        `Hola AK Producciones! 👋`,
-        `Mi nombre es *${data.nombre}*.`,
-        data.tipoEvento && `Tipo de evento: *${data.tipoEvento}*`,
-        data.fechaEstimada && `Fecha estimada: *${data.fechaEstimada}*`,
-        data.invitados && `Cantidad de invitados: *${data.invitados}*`,
-        data.mensaje && `Mensaje: ${data.mensaje}`,
-        `\n¡Me gustaría cotizar mi evento!`,
-      ].filter(Boolean).join('\n');
+      if (res.success) {
+        setSent(true);
+        // Open WhatsApp with pre-filled message
+        const parts = [
+          `Hola AK Producciones! 👋`,
+          `Mi nombre es *${data.nombre}*.`,
+          data.tipoEvento && `Tipo de evento: *${data.tipoEvento}*`,
+          data.fechaEstimada && `Fecha estimada: *${data.fechaEstimada}*`,
+          data.invitados && `Cantidad de invitados: *${data.invitados}*`,
+          data.mensaje && `Mensaje: ${data.mensaje}`,
+          `\n¡Me gustaría cotizar mi evento!`,
+        ].filter(Boolean).join('\n');
 
-      setTimeout(() => {
-        window.open(
-          `https://wa.me/${whatsappNumber}?text=${encodeURIComponent(parts)}`,
-          '_blank'
-        );
-      }, 500);
-    } else {
-      setError(res.error || 'Error al enviar. Intentá de nuevo.');
+        setTimeout(() => {
+          window.open(
+            `https://wa.me/${whatsappNumber}?text=${encodeURIComponent(parts)}`,
+            '_blank'
+          );
+        }, 500);
+      } else {
+        setError(res.error || 'Error al enviar. Intentá de nuevo.');
+      }
+    } catch (err: any) {
+      setLoading(false);
+      setError('Error de conexión. Verificá tu internet e intentá de nuevo.');
+      console.error('[LeadCaptureForm] Error submitting lead:', err);
     }
   };
 

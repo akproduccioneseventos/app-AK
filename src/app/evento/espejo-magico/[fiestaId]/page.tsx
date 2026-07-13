@@ -1233,6 +1233,7 @@ export default function EspejoMagicoPage() {
               <div className="flex items-center justify-center pb-2 shrink-0">
                 <button
                   onClick={takePhoto}
+                  aria-label="Tomar fotografía"
                   disabled={
                     countdown !== null ||
                     !!errorMsg ||
@@ -1241,7 +1242,7 @@ export default function EspejoMagicoPage() {
                   className="w-14 h-14 rounded-full bg-gradient-to-tr from-cyan-500 to-indigo-500 p-1 shadow-[0_0_20px_rgba(6,182,212,0.3)] transition-transform active:scale-95 disabled:opacity-50"
                 >
                   <div className="w-full h-full rounded-full bg-white flex items-center justify-center text-cyan-500">
-                    <Camera className="w-6 h-6" />
+                    <Camera className="w-6 h-6 shrink-0" />
                   </div>
                 </button>
               </div>
@@ -1266,19 +1267,21 @@ export default function EspejoMagicoPage() {
               <div className="flex items-center justify-between px-8 pb-6">
                 <button
                   onClick={() => setShowStickerPanel(true)}
+                  aria-label="Agregar stickers"
                   disabled={countdown !== null}
                   className="w-14 h-14 rounded-full bg-zinc-800 flex items-center justify-center text-zinc-300 hover:bg-zinc-700 transition animate-pulse"
                 >
-                  <SmilePlus className="w-6 h-6 text-rose-400" />
+                  <SmilePlus className="w-6 h-6 text-rose-400 shrink-0" />
                 </button>
 
                 <button
                   onClick={takePhoto}
+                  aria-label="Tomar fotografía"
                   disabled={countdown !== null || !!errorMsg}
                   className="w-20 h-20 rounded-full bg-gradient-to-tr from-rose-500 to-amber-500 p-1.5 shadow-[0_0_30px_rgba(244,63,94,0.2)] transition-transform active:scale-95 disabled:opacity-50"
                 >
                   <div className="w-full h-full rounded-full bg-white flex items-center justify-center text-rose-500">
-                    <Camera className="w-8 h-8" />
+                    <Camera className="w-8 h-8 shrink-0" />
                   </div>
                 </button>
 

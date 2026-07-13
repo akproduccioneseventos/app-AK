@@ -7,6 +7,7 @@
 
 import crypto from 'crypto';
 import { dbAdmin } from '@/lib/firebase/server';
+import { verifySession } from '@/lib/auth/session-token';
 
 // ── Constants ──────────────────────────────────────────────────────────────
 
@@ -408,6 +409,10 @@ export async function listUsers(): Promise<{
 }> {
   if (!dbAdmin) return { success: false, error: 'Base de datos no disponible.' };
 
+  const auth = await verifySession();
+  if (!auth.success) return { success: false, error: auth.error || 'No autorizado' };
+  if (auth.user?.role !== 'admin') return { success: false, error: 'Acceso restringido a administradores.' };
+
   try {
     const snapshot = await dbAdmin
       .collection('users')
@@ -442,6 +447,10 @@ export async function createUser(data: {
   modules: string[];
 }): Promise<{ success: boolean; id?: string; error?: string }> {
   if (!dbAdmin) return { success: false, error: 'Base de datos no disponible.' };
+
+  const auth = await verifySession();
+  if (!auth.success) return { success: false, error: auth.error || 'No autorizado' };
+  if (auth.user?.role !== 'admin') return { success: false, error: 'Acceso restringido a administradores.' };
 
   try {
     const email = data.email.trim().toLowerCase();
@@ -486,6 +495,10 @@ export async function updateUserModules(
 ): Promise<{ success: boolean; error?: string }> {
   if (!dbAdmin) return { success: false, error: 'Base de datos no disponible.' };
 
+  const auth = await verifySession();
+  if (!auth.success) return { success: false, error: auth.error || 'No autorizado' };
+  if (auth.user?.role !== 'admin') return { success: false, error: 'Acceso restringido a administradores.' };
+
   try {
     await dbAdmin.collection('users').doc(userId).update({
       modules,
@@ -504,6 +517,10 @@ export async function deleteUser(
 ): Promise<{ success: boolean; error?: string }> {
   if (!dbAdmin) return { success: false, error: 'Base de datos no disponible.' };
 
+  const auth = await verifySession();
+  if (!auth.success) return { success: false, error: auth.error || 'No autorizado' };
+  if (auth.user?.role !== 'admin') return { success: false, error: 'Acceso restringido a administradores.' };
+
   try {
     await dbAdmin.collection('users').doc(userId).delete();
     return { success: true };
@@ -518,6 +535,10 @@ export async function adminResetUserPassword(
   newPassword: string
 ): Promise<{ success: boolean; error?: string }> {
   if (!dbAdmin) return { success: false, error: 'Base de datos no disponible.' };
+
+  const auth = await verifySession();
+  if (!auth.success) return { success: false, error: auth.error || 'No autorizado' };
+  if (auth.user?.role !== 'admin') return { success: false, error: 'Acceso restringido a administradores.' };
 
   try {
     if (newPassword.length < 8) {

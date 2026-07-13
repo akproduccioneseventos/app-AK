@@ -53,7 +53,10 @@ export async function registerContractDeposit(input: DepositInput): Promise<Depo
   if (!normalizedAmount || normalizedAmount <= 0) return { success: false, error: 'El monto debe ser mayor a cero.' };
   const parsedDate = new Date(date);
   if (Number.isNaN(parsedDate.getTime())) return { success: false, error: 'La fecha de la seña no es válida.' };
-  const paymentDay = parsedDate.toISOString().slice(0, 10);
+  const year = parsedDate.getFullYear();
+  const month = String(parsedDate.getMonth() + 1).padStart(2, '0');
+  const day = String(parsedDate.getDate()).padStart(2, '0');
+  const paymentDay = `${year}-${month}-${day}`;
   const paymentReference = referencia || `Seña contrato:${fiestaId}:${paymentDay}:${normalizedAmount}`;
 
   try {
