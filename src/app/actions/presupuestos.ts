@@ -105,7 +105,11 @@ async function syncLinkedFiesta(presupuesto: Presupuesto) {
             } else {
                 linkedFiesta.configuracion = {
                     ...linkedFiesta.configuracion,
-                    nombreEvento: `${presupuesto.eventoTipo} de ${presupuesto.clienteNombre}`,
+                    nombreEvento: `${presupuesto.eventoTipo} de ${
+                        presupuesto.protagonista1Nombre
+                            ? (presupuesto.protagonista2Nombre ? `${presupuesto.protagonista1Nombre} y ${presupuesto.protagonista2Nombre}` : presupuesto.protagonista1Nombre)
+                            : (presupuesto.eventoTipo === 'XV años' ? 'la Quinceañera' : (presupuesto.eventoTipo === 'Boda' ? 'los Novios' : (presupuesto.clienteNombre || 'el Agasajado')))
+                    }`,
                     fechaEvento: presupuesto.eventoFecha,
                     invitadosEstimados: presupuesto.invitadosCantidad,
                     invitadosAdultos: presupuesto.invitadosAdultos,

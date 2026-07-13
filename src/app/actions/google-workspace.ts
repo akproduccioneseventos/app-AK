@@ -230,7 +230,7 @@ export async function syncFiestaToGoogleWorkspace(
 
       let existingCompanyEventId = record.companyCalendarEventId;
       if (!existingCompanyEventId && fiesta.configuracion?.fechaEvento) {
-        const dateStr = new Date(fiesta.configuracion.fechaEvento).toISOString().split('T')[0];
+        const dateStr = (fiesta.configuracion.fechaEvento || '').substring(0, 10);
         const queryText = getFiestaTitle(fiesta);
         const foundId = await findExistingGoogleCalendarEvent(freshCompany, dateStr, queryText, fiesta.id);
         if (foundId) {
@@ -261,7 +261,7 @@ export async function syncFiestaToGoogleWorkspace(
 
         let existingEmployeeEventId = record.employeeCalendarEventIds[assignment.employee.id];
         if (!existingEmployeeEventId && fiesta.configuracion?.fechaEvento) {
-          const dateStr = new Date(fiesta.configuracion.fechaEvento).toISOString().split('T')[0];
+          const dateStr = (fiesta.configuracion.fechaEvento || '').substring(0, 10);
           const queryText = `${assignment.roleName} - ${getFiestaTitle(fiesta)}`;
           const foundId = await findExistingGoogleCalendarEvent(freshEmployee, dateStr, queryText, fiesta.id);
           if (foundId) {

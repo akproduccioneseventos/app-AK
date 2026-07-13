@@ -448,15 +448,24 @@ export default function EspejoMagicoPage() {
     let currentCount = fiesta?.station.countdownSeconds || 4;
     setCountdown(currentCount);
     playBeep();
-    speak("Tres");
+
+    const speakNumber = (num: number) => {
+      if (num === 5) speak("Cinco");
+      else if (num === 4) speak("Cuatro");
+      else if (num === 3) speak("Tres");
+      else if (num === 2) speak("Dos");
+      else if (num === 1) speak("Uno");
+      else if (num > 5) speak(String(num));
+    };
+
+    speakNumber(currentCount);
 
     const interval = setInterval(() => {
       currentCount -= 1;
       if (currentCount > 0) {
         setCountdown(currentCount);
         playBeep();
-        if (currentCount === 2) speak("Dos");
-        if (currentCount === 1) speak("Uno");
+        speakNumber(currentCount);
       } else {
         clearInterval(interval);
         setCountdown(null);
@@ -525,11 +534,23 @@ export default function EspejoMagicoPage() {
     const contW = containerRef.current.clientWidth;
     const contH = containerRef.current.clientHeight;
 
-    canvas.width = video.videoWidth;
+    // Configurar canvas con la altura nativa del video pero con la proporción (aspect ratio) del contenedor
     canvas.height = video.videoHeight;
+    canvas.width = Math.round(video.videoHeight * (contW / contH));
 
-    const scaleX = canvas.width / contW;
-    const scaleY = canvas.height / contH;
+    const scale = canvas.width / contW;
+
+    // Calcular recorte object-cover del video original de la cámara
+    const vr = video.videoWidth / video.videoHeight;
+    const cr = contW / contH;
+    let sx = 0, sy = 0, sw = video.videoWidth, sh = video.videoHeight;
+    if (vr > cr) {
+      sw = video.videoHeight * cr;
+      sx = (video.videoWidth - sw) / 2;
+    } else {
+      sh = video.videoWidth / cr;
+      sy = (video.videoHeight - sh) / 2;
+    }
 
     ctx.filter = selectedFilter.css;
 
@@ -538,18 +559,19 @@ export default function EspejoMagicoPage() {
       ctx.scale(-1, 1);
     }
 
-    ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
+    // Dibujar el video aplicando el recorte proporcional calculado
+    ctx.drawImage(video, sx, sy, sw, sh, 0, 0, canvas.width, canvas.height);
     ctx.setTransform(1, 0, 0, 1, 0, 0);
     ctx.filter = 'none';
 
-    // Draw stickers onto high res canvas
+    // Dibujar los stickers de forma proporcional y no deformada
     ctx.textAlign = 'center';
     ctx.textBaseline = 'middle';
-    ctx.font = `${80 * Math.max(scaleX, scaleY)}px sans-serif`;
+    ctx.font = `${80 * scale}px sans-serif`;
 
     stickers.forEach(s => {
-      const drawX = (s.x + 40) * scaleX;
-      const drawY = (s.y + 40) * scaleY;
+      const drawX = (s.x + 40) * scale;
+      const drawY = (s.y + 40) * scale;
       ctx.fillText(s.emoji, drawX, drawY);
     });
 

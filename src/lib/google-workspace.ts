@@ -226,7 +226,17 @@ export function getFiestaTitle(fiesta: FiestaEnPlanificacion) {
 
 export function getFiestaTimes(fiesta: FiestaEnPlanificacion) {
   const raw = fiesta.configuracion?.fechaEvento;
-  const start = raw ? new Date(raw) : new Date();
+  let start: Date;
+  if (raw) {
+    if (/^\d{4}-\d{2}-\d{2}$/.test(raw.trim())) {
+      // Fecha sin hora: default a las 21:00 de Uruguay (GMT-3)
+      start = new Date(`${raw.trim()}T21:00:00-03:00`);
+    } else {
+      start = new Date(raw);
+    }
+  } else {
+    start = new Date();
+  }
   const safeStart = Number.isNaN(start.getTime()) ? new Date() : start;
   const end = new Date(safeStart.getTime() + 6 * 60 * 60 * 1000);
   return { start, safeStart, end };
