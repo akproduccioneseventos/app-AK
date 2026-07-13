@@ -226,7 +226,17 @@ export function getFiestaTitle(fiesta: FiestaEnPlanificacion) {
 
 export function getFiestaTimes(fiesta: FiestaEnPlanificacion) {
   const raw = fiesta.configuracion?.fechaEvento;
-  const start = raw ? new Date(raw) : new Date();
+  let start: Date;
+  if (raw) {
+    if (/^\d{4}-\d{2}-\d{2}$/.test(raw.trim())) {
+      // Fecha sin hora: default a las 21:00 de Uruguay (GMT-3)
+      start = new Date(`${raw.trim()}T21:00:00-03:00`);
+    } else {
+      start = new Date(raw);
+    }
+  } else {
+    start = new Date();
+  }
   const safeStart = Number.isNaN(start.getTime()) ? new Date() : start;
   const end = new Date(safeStart.getTime() + 6 * 60 * 60 * 1000);
   return { start, safeStart, end };
@@ -468,6 +478,7 @@ export async function findExistingGoogleCalendarEvent(
 ): Promise<string | null> {
   try {
     const calendarId = encodeURIComponent(account.calendarId || 'primary');
+    // Cover the full day in Uruguay time zone (-03:00)
     const timeMin = encodeURIComponent(new Date(`${dateStr}T00:00:00-03:00`).toISOString());
     const timeMax = encodeURIComponent(new Date(`${dateStr}T23:59:59-03:00`).toISOString());
 
@@ -486,24 +497,36 @@ export async function findExistingGoogleCalendarEvent(
     const data = await response.json() as { items?: GoogleCalendarListItem[] };
     if (!data.items || data.items.length === 0) return null;
 
+    // 1. First priority: exact match on AK_FIESTA_ID in description
     for (const item of data.items) {
       if (item.description?.includes(`AK_FIESTA_ID: ${fiestaId}`)) {
         return item.id;
       }
     }
 
-    const expectedSummary = normalizeCalendarIdentityText(expectedEvent?.summary || queryText);
-    if (!expectedSummary || !expectedEvent?.startIso) {
-      return null;
+    // 2. Second priority: advanced match based on expectedEvent properties (introduced in origin/main)
+    if (expectedEvent && expectedEvent.startIso) {
+      const expectedSummary = normalizeCalendarIdentityText(expectedEvent.summary || queryText);
+      if (expectedSummary) {
+        for (const item of data.items) {
+          const summaryMatches = normalizeCalendarIdentityText(item.summary) === expectedSummary;
+          if (!summaryMatches) continue;
+          if (!calendarPointMatches(item.start, expectedEvent.startIso)) continue;
+          if (expectedEvent.endIso && !calendarPointMatches(item.end, expectedEvent.endIso)) continue;
+          if (!calendarLocationMatches(item.location, expectedEvent.location)) continue;
+          return item.id;
+        }
+      }
     }
 
-    for (const item of data.items) {
-      const summaryMatches = normalizeCalendarIdentityText(item.summary) === expectedSummary;
-      if (!summaryMatches) continue;
-      if (!calendarPointMatches(item.start, expectedEvent.startIso)) continue;
-      if (expectedEvent.endIso && !calendarPointMatches(item.end, expectedEvent.endIso)) continue;
-      if (!calendarLocationMatches(item.location, expectedEvent.location)) continue;
-      return item.id;
+    // 3. Third priority (fallback): exact match on queryText (protagonist/client name) in summary
+    const cleanQuery = normalizeCalendarIdentityText(queryText);
+    if (cleanQuery) {
+      for (const item of data.items) {
+        if (normalizeCalendarIdentityText(item.summary) === cleanQuery) {
+          return item.id;
+        }
+      }
     }
 
     return null;
