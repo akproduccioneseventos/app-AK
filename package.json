@@ -2,6 +2,9 @@
   "name": "ak-producciones",
   "version": "0.1.0",
   "private": true,
+  "engines": {
+    "node": ">=20.0.0"
+  },
   "scripts": {
     "dev": "next dev",
     "build": "node scripts/generate-firebase-messaging-sw.mjs && node scripts/build-next-with-memory.mjs",
@@ -107,7 +110,8 @@
     "@genkit-ai/firebase": "1.20.0",
     "@genkit-ai/google-cloud": "1.20.0",
     "form-data@<2.5.6": "2.5.6",
-    "@grpc/grpc-js@<=1.9.15": "1.14.4"
+    "@grpc/grpc-js@<=1.9.15": "1.14.4",
+    "serialize-javascript@<=7.0.4": "7.0.7"
   },
   "devDependencies": {
     "@firebase/rules-unit-testing": "4.0.1",
