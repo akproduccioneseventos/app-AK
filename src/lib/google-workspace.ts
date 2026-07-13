@@ -519,12 +519,11 @@ export async function findExistingGoogleCalendarEvent(
       }
     }
 
-    // 3. Third priority (fallback): flexible match on queryText (protagonist/client name) in summary
-    const cleanQuery = queryText.trim().toLowerCase();
+    // 3. Third priority (fallback): exact match on queryText (protagonist/client name) in summary
+    const cleanQuery = normalizeCalendarIdentityText(queryText);
     if (cleanQuery) {
       for (const item of data.items) {
-        const summary = (item.summary || '').toLowerCase();
-        if (summary.includes(cleanQuery)) {
+        if (normalizeCalendarIdentityText(item.summary) === cleanQuery) {
           return item.id;
         }
       }
