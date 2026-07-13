@@ -24,6 +24,7 @@ import { SidebarProvider, SidebarInset, SidebarTrigger } from '@/components/ui/s
 import { MainNav } from './main-nav';
 import { LazyMultiAgentWidget } from '@/components/multiagent/lazy-multiagent-widget';
 import { ModuleNavigationDock } from '@/components/module-navigation-dock';
+import { MarketingAutomationTrigger } from '@/components/marketing/marketing-automation-trigger';
 
 
 const getPageTitle = (pathname: string): string => {
@@ -327,6 +328,7 @@ export function AppShell({ children }: { children: ReactNode }) {
 
   return (
     <SidebarProvider>
+      <MarketingAutomationTrigger />
       <MainNav />
       <SidebarInset>
         <div className="flex min-h-screen w-full flex-col">

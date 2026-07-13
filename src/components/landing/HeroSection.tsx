@@ -1,11 +1,13 @@
 'use client';
 
 import Link from 'next/link';
+import Image from 'next/image';
 import { motion, useReducedMotion } from 'framer-motion';
 import { ArrowRight, MessageSquare, ChevronDown, Zap } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import type { PromoActiva } from '@/types/promo';
 import { AK_WHATSAPP_NUMBER } from '@/lib/public-contact';
+import { canUseNextImage } from '@/lib/next-image-url';
 
 interface HeroSectionProps {
   whatsappNumber?: string;
@@ -55,11 +57,27 @@ export function HeroSection({
   return (
     <section data-testid="hero-section" className="relative flex min-h-[78svh] items-center overflow-hidden bg-zinc-950">
       <motion.div
-        className="absolute inset-0 scale-105 bg-cover bg-center bg-no-repeat opacity-75"
-        style={{ backgroundImage: `url('${backgroundImageUrl}')` }}
-        animate={reduceMotion ? undefined : { scale: [1.04, 1.09, 1.04], backgroundPosition: ['50% 50%', '54% 47%', '50% 50%'] }}
+        className="absolute inset-0 scale-105 opacity-75"
+        animate={reduceMotion ? undefined : { scale: [1.04, 1.09, 1.04] }}
         transition={{ duration: 22, repeat: Infinity, ease: 'easeInOut' }}
-      />
+      >
+        {canUseNextImage(backgroundImageUrl) ? (
+          <Image
+            src={backgroundImageUrl}
+            alt="Celebración producida por AK Producciones"
+            fill
+            priority
+            sizes="100vw"
+            quality={82}
+            className="object-cover object-center"
+          />
+        ) : (
+          <div
+            className="absolute inset-0 bg-cover bg-center bg-no-repeat"
+            style={{ backgroundImage: `url('${backgroundImageUrl}')` }}
+          />
+        )}
+      </motion.div>
       <div className="absolute inset-0 bg-slate-950/70" />
       <div className="relative z-10 w-full max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-24 pb-20">
         <motion.div

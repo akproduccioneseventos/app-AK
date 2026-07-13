@@ -195,6 +195,10 @@ export default async function HomePage({ searchParams }: LandingPageProps) {
   const instagramConnection = (socialConnections as any[]).find((connection) => connection.platform === 'Instagram' && connection.isConnected);
   const instagramProfileUrl = instagramConnection?.profileUrl || DEFAULT_INSTAGRAM_URL;
   const instagramHandle = getInstagramHandle(instagramProfileUrl, instagramConnection?.username);
+  const instagramApiConnected = Boolean(
+    (process.env.INSTAGRAM_ACCESS_TOKEN || process.env.META_INSTAGRAM_ACCESS_TOKEN) &&
+    (process.env.INSTAGRAM_BUSINESS_ACCOUNT_ID || process.env.INSTAGRAM_USER_ID)
+  );
   const instagramItems: InstagramSyncItem[] = [
     ...fotosCombinadas.slice(0, 6).map((foto) => ({
       id: `foto-${foto.id}`,
@@ -311,7 +315,7 @@ export default async function HomePage({ searchParams }: LandingPageProps) {
         team={<AkTeamStorySection />}
         process={<ProcessSection />}
         gallery={<GallerySection galeriaFotos={fotosCombinadas} />}
-        instagram={<InstagramSyncStrip handle={instagramHandle} profileUrl={instagramProfileUrl} items={instagramItems} />}
+        instagram={<InstagramSyncStrip handle={instagramHandle} profileUrl={instagramProfileUrl} items={instagramItems} isApiConnected={instagramApiConnected} />}
         blog={<BlogSection />}
         video={<VideoSection galeriaVideos={videosCombinados} channelUrl={AK_YOUTUBE_CHANNEL_URL} />}
         testimonials={<TestimonialsSection testimonials={approvedTestimonials} />}

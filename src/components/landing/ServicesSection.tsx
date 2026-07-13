@@ -14,6 +14,7 @@ import {
 import { cn } from '@/lib/utils';
 import { motion } from 'framer-motion';
 import { AK_WHATSAPP_NUMBER } from '@/lib/public-contact';
+import { canUseNextImage } from '@/lib/next-image-url';
 
 export interface ServiceItem {
   id: string;
@@ -188,14 +189,22 @@ export function ServicesSection({ whatsappNumber = AK_WHATSAPP_NUMBER, services 
                 >
                   <div>
                     <div className="relative aspect-[4/3] w-full overflow-hidden bg-slate-100">
-                      <Image
-                        src={service.imageUrl}
-                        alt={service.title}
-                        fill
-                        className="object-cover transition-transform duration-500 group-hover:scale-[1.03]"
-                        sizes="(max-width: 768px) 100vw, 30vw"
-                        unoptimized={true}
-                      />
+                      {canUseNextImage(service.imageUrl) ? (
+                        <Image
+                          src={service.imageUrl}
+                          alt={service.title}
+                          fill
+                          className="object-cover transition-transform duration-500 group-hover:scale-[1.03]"
+                          sizes="(max-width: 768px) 100vw, 30vw"
+                        />
+                      ) : (
+                        // eslint-disable-next-line @next/next/no-img-element -- User-managed service media may use an unconfigured host.
+                        <img
+                          src={service.imageUrl}
+                          alt={service.title}
+                          className="h-full w-full object-cover transition-transform duration-500 group-hover:scale-[1.03]"
+                        />
+                      )}
                       <div className="absolute inset-0 bg-slate-950/25" />
                       <div className="absolute left-4 top-4 flex h-11 w-11 items-center justify-center rounded-md border border-white/40 bg-white/90 text-sm font-black text-red-700 shadow-sm">
                         {Icon ? <Icon className="h-5 w-5" /> : service.emoji}

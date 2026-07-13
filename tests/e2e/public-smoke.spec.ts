@@ -10,6 +10,9 @@ test('health endpoint responds without exposing internal failures', async ({ req
     services: {
       firebase: expect.any(Boolean),
       gemini: expect.any(Boolean),
+      googleWorkspace: expect.any(Boolean),
+      mail: expect.any(Boolean),
+      instagram: expect.any(Boolean),
     },
   });
 });
@@ -42,6 +45,7 @@ test('public homepage fits the viewport without horizontal overflow', async ({ p
   const mainHeading = page.getByRole('heading', { level: 1 });
   await expect(mainHeading).toHaveCount(1);
   await expect(mainHeading).toBeVisible();
+  await expect(page.getByText(/Instagram sincronizado|Perfil oficial de Instagram/i)).toBeVisible();
   const overflow = await page.evaluate(() => ({
     clientWidth: document.documentElement.clientWidth,
     scrollWidth: document.documentElement.scrollWidth,
