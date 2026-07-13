@@ -22,7 +22,7 @@ Este documento evita repetir auditorias y evita declarar como aprobado algo que 
 | SECURITY-01 | Sesiones del portal, DTO publico, documentos privados, descargas y Google OAuth | APROBADO_LOCAL | PR #747 integrada; rutas protegidas dinamicas, TypeScript, seguridad y build conjunto aprobados |
 | FLOW-01 | Enlaces inexistentes, creacion de evento, confirmaciones falsas de guardado y borrado de factura | APROBADO_LOCAL | PR #748 integrada; pruebas de regresion y suite conjunta aprobadas |
 | API-01 | Clasificacion completa de rutas API y firmas de webhooks Meta/Twilio | APROBADO_LOCAL | PR #747; todas las rutas clasificadas, Twilio form-urlencoded y HMAC Meta/Twilio probados |
-| COMBINED-01 | PR #747, #748, #749 y #750 aplicadas sobre la base #746 | APROBADO_LOCAL | 899 pruebas Jest, 4 reglas Firestore, 10 Playwright PC/movil, TypeScript, lint sin errores y build 259/259 paginas estaticas |
+| COMBINED-01 | PR #747, #748, #749 y #750 aplicadas sobre la base #746 | APROBADO_LOCAL | 911 pruebas Jest, 4 reglas Firestore, 13 Playwright PC/movil, TypeScript, lint sin errores y build 259/259 paginas estaticas |
 
 ## Cobertura pendiente, sin declarar aprobada
 
@@ -30,7 +30,7 @@ Este documento evita repetir auditorias y evita declarar como aprobado algo que 
 | --- | --- | --- | --- |
 | ENTERTAINMENT-01 | Permisos operador/invitado, PIN de kiosco, consentimiento IA, estaciones, captura remota y QR | VALIDACION_PARCIAL | PR #749 integrada, pruebas unitarias y build aprobados; faltan recorridos con camaras y dispositivos reales |
 | PUBLIC-UX-01 | Web, promociones, conversion, cliente, invitado, invitacion, responsive, accesibilidad y rendimiento | VALIDACION_PARCIAL | PR #750 corrige WhatsApp y promociones; Playwright PC/movil aprobado; faltan accesibilidad y rendimiento por ruta |
-| INTERNAL-01 | Modulos internos restantes de empresa, planificacion y operacion no cubiertos arriba | PENDIENTE | Inventario Graphify, acciones verificadas y pruebas focalizadas |
+| INTERNAL-01 | Modulos internos restantes de empresa, planificacion y operacion no cubiertos arriba | VALIDACION_PARCIAL | 180/180 rutas estaticas y seis rutas centrales autenticadas PC/movil aprobadas; faltan controles y escrituras de modulos restantes |
 | PROD-01 | Firebase real, Gmail real, Instagram, datos del panel y recuperacion de clave | PRUEBA_REAL | Smoke test posterior al despliegue con credenciales reales |
 | DEVICES-01 | Camaras, plataforma 360, espejo, Touchpix, impresion y operador | PRUEBA_REAL | Prueba con hardware real y checklist de operador |
 
