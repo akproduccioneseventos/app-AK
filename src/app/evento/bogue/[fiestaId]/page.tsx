@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect, useRef } from 'react';
+import { useCallback, useState, useEffect, useRef } from 'react';
 import { useParams, useRouter, useSearchParams } from 'next/navigation';
 import Link from 'next/link';
 import { motion, AnimatePresence } from 'framer-motion';
@@ -81,6 +81,10 @@ export default function BoguePage() {
 
   // Audio effect context for high-quality beeps
   const audioCtxRef = useRef<AudioContext | null>(null);
+  const resetLocalStateRef = useRef<() => void>(() => undefined);
+  const startCaptureProcessRef = useRef<(recordDuration?: number, totalFrames?: number) => void>(() => undefined);
+  const localStatusRef = useRef<'idle' | 'countdown' | 'recording' | 'processing' | 'done'>('idle');
+  const selectedFrameRef = useRef('none');
 
   const speak = (text: string) => {
     if (!voiceEnabled) return;
@@ -120,60 +124,14 @@ export default function BoguePage() {
     } catch (e) {}
   };
 
-  // 1. Initial Load and Firestore Polling
-  useEffect(() => {
-    getPublicEntertainmentEvent(fiestaId, 'bogue', accessToken)
-      .then((result) => {
-        if (result.success && result.event) setFiesta(result.event);
-        else setLoadError(result.error || 'No se pudo abrir esta estacion.');
-      })
-      .catch(() => setLoadError('No se pudo abrir esta estacion.'));
-    
-    let pollInFlight = false;
-    const interval = setInterval(async () => {
-      if (pollInFlight) return;
-      pollInFlight = true;
-      try {
-        const s = await getEntertainmentSession(fiestaId, 'bogue', accessToken);
-        setSession(s);
-
-        if (role === 'display' && s && s.status !== localStatus) {
-          if (s.status === 'countdown' && localStatus === 'idle') {
-            const requestedFrame = s.settings?.frameId;
-            if (
-              typeof requestedFrame === 'string' &&
-              BOGUE_FRAMES.some((frame) => frame.id === requestedFrame) &&
-              requestedFrame !== selectedFrame
-            ) {
-              setSelectedFrame(requestedFrame);
-              return;
-            }
-            startCaptureProcess(s.settings?.duration || 3, s.settings?.frameCount || 15);
-          } else if (s.status === 'idle') {
-            resetLocalState();
-          }
-        }
-      } finally {
-        pollInFlight = false;
-      }
-    }, 2000);
-
-    return () => {
-      clearInterval(interval);
-      stopCamera();
-    };
-  }, [accessToken, fiestaId, role, localStatus, selectedFrame]);
-
-  // 2. Manage WebRTC Camera Feed for Display Role
-  useEffect(() => {
-    if (fiesta && role === 'display' && (localStatus === 'idle' || localStatus === 'countdown' || localStatus === 'recording')) {
-      startCamera();
-    } else {
-      stopCamera();
+  const stopCamera = useCallback(() => {
+    if (streamRef.current) {
+      streamRef.current.getTracks().forEach(track => track.stop());
+      streamRef.current = null;
     }
-  }, [facingMode, fiesta, localStatus, role]);
+  }, []);
 
-  const startCamera = async () => {
+  const startCamera = useCallback(async () => {
     stopCamera();
     try {
       const mediaStream = await navigator.mediaDevices.getUserMedia({
@@ -187,14 +145,69 @@ export default function BoguePage() {
     } catch (err) {
       console.error('Error al acceder a la cámara:', err);
     }
-  };
+  }, [facingMode, stopCamera]);
 
-  const stopCamera = () => {
-    if (streamRef.current) {
-      streamRef.current.getTracks().forEach(track => track.stop());
-      streamRef.current = null;
+  // 1. Initial load
+  useEffect(() => {
+    getPublicEntertainmentEvent(fiestaId, 'bogue', accessToken)
+      .then((result) => {
+        if (result.success && result.event) setFiesta(result.event);
+        else setLoadError(result.error || 'No se pudo abrir esta estacion.');
+      })
+      .catch(() => setLoadError('No se pudo abrir esta estacion.'));
+  }, [accessToken, fiestaId]);
+
+  useEffect(() => {
+    localStatusRef.current = localStatus;
+    selectedFrameRef.current = selectedFrame;
+  }, [localStatus, selectedFrame]);
+
+  // Keep one remote-control channel alive during the full capture workflow.
+  useEffect(() => {
+    let pollInFlight = false;
+    const interval = setInterval(async () => {
+      if (pollInFlight) return;
+      pollInFlight = true;
+      try {
+        const s = await getEntertainmentSession(fiestaId, 'bogue', accessToken);
+        setSession(s);
+
+        const currentStatus = localStatusRef.current;
+        if (role === 'display' && s && s.status !== currentStatus) {
+          if (s.status === 'countdown' && currentStatus === 'idle') {
+            const requestedFrame = s.settings?.frameId;
+            if (
+              typeof requestedFrame === 'string' &&
+              BOGUE_FRAMES.some((frame) => frame.id === requestedFrame) &&
+              requestedFrame !== selectedFrameRef.current
+            ) {
+              setSelectedFrame(requestedFrame);
+              return;
+            }
+            startCaptureProcessRef.current(s.settings?.duration || 3, s.settings?.frameCount || 15);
+          } else if (s.status === 'idle') {
+            resetLocalStateRef.current();
+          }
+        }
+      } finally {
+        pollInFlight = false;
+      }
+    }, 2000);
+
+    return () => {
+      clearInterval(interval);
+      stopCamera();
+    };
+  }, [accessToken, fiestaId, role, stopCamera]);
+
+  // 2. Manage WebRTC Camera Feed for Display Role
+  useEffect(() => {
+    if (fiesta && role === 'display' && (localStatus === 'idle' || localStatus === 'countdown' || localStatus === 'recording')) {
+      startCamera();
+    } else {
+      stopCamera();
     }
-  };
+  }, [fiesta, localStatus, role, startCamera, stopCamera]);
 
   const toggleCamera = () => {
     setFacingMode(prev => (prev === 'user' ? 'environment' : 'user'));
@@ -242,6 +255,13 @@ export default function BoguePage() {
       }
     }, 1000);
   };
+
+  useEffect(() => {
+    resetLocalStateRef.current = resetLocalState;
+    startCaptureProcessRef.current = (recordDuration, totalFrames) => {
+      void startCaptureProcess(recordDuration, totalFrames);
+    };
+  });
 
   const captureFramesSequence = async (durationSec: number, maxFrames: number) => {
     setLocalStatus('recording');

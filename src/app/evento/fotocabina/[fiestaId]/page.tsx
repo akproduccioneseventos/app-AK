@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect, useRef } from 'react';
+import { useCallback, useState, useEffect, useRef } from 'react';
 import { useParams, useRouter, useSearchParams } from 'next/navigation';
 import { motion, AnimatePresence } from 'framer-motion';
 import {
@@ -54,6 +54,9 @@ export default function FotocabinaPage() {
   const videoRef = useRef<HTMLVideoElement>(null);
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const streamRef = useRef<MediaStream | null>(null);
+  const takePhotoRef = useRef<() => void>(() => undefined);
+  const retakeRef = useRef<() => void>(() => undefined);
+  const localStatusRef = useRef<'idle' | 'countdown' | 'recording' | 'processing' | 'done'>('idle');
 
   const [fiesta, setFiesta] = useState<PublicEntertainmentEvent | null>(null);
   const [facingMode, setFacingMode] = useState<'user' | 'environment'>('user');
@@ -101,53 +104,14 @@ export default function FotocabinaPage() {
     } catch(e) {}
   };
 
-  // 1. Load details and set Firestore Polling
-  useEffect(() => {
-    getPublicEntertainmentEvent(fiestaId, 'fotocabina', accessToken)
-      .then((result) => {
-        if (result.success && result.event) setFiesta(result.event);
-        else setErrorMsg(result.error || 'No se pudo abrir esta estacion.');
-      })
-      .catch(() => setErrorMsg('No se pudo abrir esta estacion.'));
-    
-    let pollInFlight = false;
-    const interval = setInterval(async () => {
-      if (pollInFlight) return;
-      pollInFlight = true;
-      try {
-        const s = await getEntertainmentSession(fiestaId, 'fotocabina', accessToken);
-        setSession(s);
-
-        if (role === 'display' && s && s.status !== localStatus) {
-          if (s.status === 'countdown' && localStatus === 'idle') {
-            const frameToUse = s.settings?.frameId || 'none';
-            setSelectedFrame(frameToUse);
-            takePhoto();
-          } else if (s.status === 'idle') {
-            retake();
-          }
-        }
-      } finally {
-        pollInFlight = false;
-      }
-    }, 2000);
-
-    return () => {
-      clearInterval(interval);
-      stopCamera();
-    };
-  }, [accessToken, fiestaId, role, localStatus]);
-
-  // 2. Camera controller for display
-  useEffect(() => {
-    if (fiesta && role === 'display' && (localStatus === 'idle' || localStatus === 'countdown' || localStatus === 'recording')) {
-      startCamera();
-    } else {
-      stopCamera();
+  const stopCamera = useCallback(() => {
+    if (streamRef.current) {
+      streamRef.current.getTracks().forEach(track => track.stop());
+      streamRef.current = null;
     }
-  }, [facingMode, fiesta, localStatus, role]);
+  }, []);
 
-  const startCamera = async () => {
+  const startCamera = useCallback(async () => {
     stopCamera();
     setErrorMsg(null);
     try {
@@ -162,14 +126,61 @@ export default function FotocabinaPage() {
     } catch (err) {
       setErrorMsg('No se pudo acceder a la cámara. Por favor, revisa los permisos del navegador.');
     }
-  };
+  }, [facingMode, stopCamera]);
 
-  const stopCamera = () => {
-    if (streamRef.current) {
-      streamRef.current.getTracks().forEach(track => track.stop());
-      streamRef.current = null;
+  // 1. Load details
+  useEffect(() => {
+    getPublicEntertainmentEvent(fiestaId, 'fotocabina', accessToken)
+      .then((result) => {
+        if (result.success && result.event) setFiesta(result.event);
+        else setErrorMsg(result.error || 'No se pudo abrir esta estacion.');
+      })
+      .catch(() => setErrorMsg('No se pudo abrir esta estacion.'));
+  }, [accessToken, fiestaId]);
+
+  useEffect(() => {
+    localStatusRef.current = localStatus;
+  }, [localStatus]);
+
+  // Keep one remote-control channel alive during the full capture workflow.
+  useEffect(() => {
+    let pollInFlight = false;
+    const interval = setInterval(async () => {
+      if (pollInFlight) return;
+      pollInFlight = true;
+      try {
+        const s = await getEntertainmentSession(fiestaId, 'fotocabina', accessToken);
+        setSession(s);
+
+        const currentStatus = localStatusRef.current;
+        if (role === 'display' && s && s.status !== currentStatus) {
+          if (s.status === 'countdown' && currentStatus === 'idle') {
+            const frameToUse = s.settings?.frameId || 'none';
+            setSelectedFrame(frameToUse);
+            takePhotoRef.current();
+          } else if (s.status === 'idle') {
+            retakeRef.current();
+          }
+        }
+      } finally {
+        pollInFlight = false;
+      }
+    }, 2000);
+
+    return () => {
+      clearInterval(interval);
+      stopCamera();
+    };
+  }, [accessToken, fiestaId, role, stopCamera]);
+
+  // 2. Camera controller for display
+  useEffect(() => {
+    if (fiesta && role === 'display' && (localStatus === 'idle' || localStatus === 'countdown' || localStatus === 'recording')) {
+      startCamera();
+    } else {
+      stopCamera();
     }
-  };
+  }, [fiesta, localStatus, role, startCamera, stopCamera]);
 
   const toggleCamera = () => {
     setFacingMode(prev => prev === 'user' ? 'environment' : 'user');
@@ -413,6 +424,11 @@ export default function FotocabinaPage() {
     }
   };
 
+  useEffect(() => {
+    takePhotoRef.current = () => { void takePhoto(); };
+    retakeRef.current = retake;
+  });
+
   const handleOperatorStart = async () => {
     setErrorMsg(null);
     const result = await startEntertainmentSession(
@@ -641,6 +657,7 @@ export default function FotocabinaPage() {
             
             {/* Captured Image Preview */}
             <div className="relative w-full max-w-sm aspect-[9/16] bg-black rounded-3xl overflow-hidden border border-white/10 shadow-2xl">
+              {/* eslint-disable-next-line @next/next/no-img-element -- Canvas output is generated only in this browser. */}
               <img src={capturedImage} className="w-full h-full object-contain" alt="Captura Final" />
               <div className="absolute top-4 left-4 bg-amber-400 text-zinc-950 text-[10px] font-black uppercase px-3 py-1 rounded-full tracking-wider">
                 Foto Capturada
