@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect, useRef } from 'react';
+import { useCallback, useState, useEffect, useRef } from 'react';
 import { useParams, useRouter, useSearchParams } from 'next/navigation';
 import { motion, AnimatePresence } from 'framer-motion';
 import {
@@ -104,6 +104,9 @@ export default function EspejoMagicoPage() {
   const containerRef = useRef<HTMLDivElement>(null);
   const drawingCanvasRef = useRef<HTMLCanvasElement>(null);
   const streamRef = useRef<MediaStream | null>(null);
+  const takePhotoRef = useRef<() => void>(() => undefined);
+  const retakeRef = useRef<() => void>(() => undefined);
+  const localStatusRef = useRef<'idle' | 'countdown' | 'recording' | 'processing' | 'done'>('idle');
 
   const [facingMode, setFacingMode] = useState<'user' | 'environment'>('user');
   const [selectedFilter, setSelectedFilter] = useState(FILTERS[0]);
@@ -149,7 +152,7 @@ export default function EspejoMagicoPage() {
     { id: 'white', value: '#ffffff', label: '⚪ Blanco' },
   ];
 
-  const speak = (text: string) => {
+  const speak = useCallback((text: string) => {
     if (!voiceEnabled) return;
     try {
       window.speechSynthesis.cancel();
@@ -162,7 +165,7 @@ export default function EspejoMagicoPage() {
     } catch (e) {
       console.error('SpeechSynthesis error:', e);
     }
-  };
+  }, [voiceEnabled]);
 
   const playBeep = (freq = 880, duration = 0.1) => {
     try {
@@ -175,7 +178,31 @@ export default function EspejoMagicoPage() {
     } catch(e) {}
   };
 
-  // 1. Initial configuration load + Firestore synchronization polling
+  const stopCamera = useCallback(() => {
+    if (streamRef.current) {
+      streamRef.current.getTracks().forEach(track => track.stop());
+      streamRef.current = null;
+    }
+  }, []);
+
+  const startCamera = useCallback(async () => {
+    stopCamera();
+    setErrorMsg(null);
+    try {
+      const mediaStream = await navigator.mediaDevices.getUserMedia({
+        video: { facingMode, width: { ideal: 1080 }, height: { ideal: 1920 } },
+        audio: false
+      });
+      streamRef.current = mediaStream;
+      if (videoRef.current) {
+        videoRef.current.srcObject = mediaStream;
+      }
+    } catch (err) {
+      setErrorMsg('No se pudo acceder a la cámara.');
+    }
+  }, [facingMode, stopCamera]);
+
+  // 1. Initial configuration load
   useEffect(() => {
     getPublicEntertainmentEvent(fiestaId, moduleId, accessToken)
       .then((result) => {
@@ -183,7 +210,14 @@ export default function EspejoMagicoPage() {
         else setErrorMsg(result.error || 'No se pudo abrir esta estacion.');
       })
       .catch(() => setErrorMsg('No se pudo abrir esta estacion.'));
+  }, [accessToken, fiestaId, moduleId]);
 
+  useEffect(() => {
+    localStatusRef.current = localStatus;
+  }, [localStatus]);
+
+  // Keep one remote-control channel alive during the full capture workflow.
+  useEffect(() => {
     let pollInFlight = false;
     const interval = setInterval(async () => {
       if (pollInFlight) return;
@@ -192,11 +226,12 @@ export default function EspejoMagicoPage() {
         const s = await getEntertainmentSession(fiestaId, moduleId, accessToken);
         setSession(s);
 
-        if (role === 'display' && s && s.status !== localStatus) {
-          if (s.status === 'countdown' && localStatus === 'idle') {
-            takePhoto();
+        const currentStatus = localStatusRef.current;
+        if (role === 'display' && s && s.status !== currentStatus) {
+          if (s.status === 'countdown' && currentStatus === 'idle') {
+            takePhotoRef.current();
           } else if (s.status === 'idle') {
-            retake();
+            retakeRef.current();
           }
         }
       } finally {
@@ -208,7 +243,7 @@ export default function EspejoMagicoPage() {
       clearInterval(interval);
       stopCamera();
     };
-  }, [accessToken, fiestaId, role, localStatus, moduleId]);
+  }, [accessToken, fiestaId, moduleId, role, stopCamera]);
 
   // Set drawing canvas dimensions when capturedImage changes
   useEffect(() => {
@@ -225,7 +260,7 @@ export default function EspejoMagicoPage() {
     } else {
       stopCamera();
     }
-  }, [facingMode, fiesta, localStatus, role]);
+  }, [fiesta, localStatus, role, startCamera, stopCamera]);
 
   // Welcome Speech Cues
   useEffect(() => {
@@ -236,31 +271,7 @@ export default function EspejoMagicoPage() {
         speak(`Hola. ${modeCopy.start}.`);
       }
     }
-  }, [localStatus, capturedImage, mode, modeCopy.start, role]);
-
-  const startCamera = async () => {
-    stopCamera();
-    setErrorMsg(null);
-    try {
-      const mediaStream = await navigator.mediaDevices.getUserMedia({
-        video: { facingMode, width: { ideal: 1080 }, height: { ideal: 1920 } },
-        audio: false
-      });
-      streamRef.current = mediaStream;
-      if (videoRef.current) {
-        videoRef.current.srcObject = mediaStream;
-      }
-    } catch (err) {
-      setErrorMsg('No se pudo acceder a la cámara.');
-    }
-  };
-
-  const stopCamera = () => {
-    if (streamRef.current) {
-      streamRef.current.getTracks().forEach(track => track.stop());
-      streamRef.current = null;
-    }
-  };
+  }, [localStatus, capturedImage, mode, modeCopy.start, role, speak]);
 
   const runFaceSwapIA = async (originalPhotoUrl: string) => {
     setAiProcessing(true);
@@ -678,6 +689,11 @@ export default function EspejoMagicoPage() {
     }
   };
 
+  useEffect(() => {
+    takePhotoRef.current = () => { void takePhoto(); };
+    retakeRef.current = retake;
+  });
+
   const openDisplayScreen = () => {
     const params = new URLSearchParams({ mode });
     if (accessToken) params.set('access', accessToken);
@@ -921,6 +937,7 @@ export default function EspejoMagicoPage() {
                   onPointerLeave={() => setIsDraggingSlider(false)}
                 >
                   {/* Base: Original captured image */}
+                  {/* eslint-disable-next-line @next/next/no-img-element -- Runtime camera output uses data/blob URLs. */}
                   <img
                     src={originalPhotoUrl}
                     className="absolute inset-0 w-full h-full object-cover opacity-80"
@@ -931,6 +948,7 @@ export default function EspejoMagicoPage() {
                     className="absolute inset-0 w-full h-full"
                     style={{ clipPath: `polygon(0 0, ${sliderPosition}% 0, ${sliderPosition}% 100%, 0 100%)` }}
                   >
+                    {/* eslint-disable-next-line @next/next/no-img-element -- Runtime AI output uses a data URL. */}
                     <img
                       src={aiImageBase64}
                       className="absolute inset-0 w-full h-full object-cover"
@@ -988,6 +1006,7 @@ export default function EspejoMagicoPage() {
                 transition={{ duration: 2, repeat: Infinity, ease: 'easeInOut' }}
                 className="absolute inset-x-0 h-1 bg-cyan-400 shadow-[0_0_15px_#22d3ee] z-20"
               />
+              {/* eslint-disable-next-line @next/next/no-img-element -- Runtime camera output uses a data/blob URL. */}
               <img src={originalPhotoUrl || ''} className="w-full h-full object-cover opacity-60 filter grayscale" alt="Escaneo" />
             </div>
 
@@ -1066,6 +1085,7 @@ export default function EspejoMagicoPage() {
           <div className="absolute inset-0 z-40 bg-zinc-950 flex flex-col md:flex-row items-center justify-center p-6 gap-8">
             {/* Captured image with overlay merged */}
             <div className="relative w-full max-w-sm aspect-[9/16] bg-black rounded-3xl overflow-hidden border border-white/10 shadow-2xl">
+              {/* eslint-disable-next-line @next/next/no-img-element -- Canvas output is generated only in this browser. */}
               <img src={canvasRef.current?.toDataURL('image/jpeg', 0.9) || capturedImage} className="w-full h-full object-cover" alt="Espejo Final" />
               <div className="absolute top-4 left-4 bg-rose-500 text-white text-[10px] font-black uppercase px-3 py-1 rounded-full tracking-wider">
                 {modeCopy.doneLabel}

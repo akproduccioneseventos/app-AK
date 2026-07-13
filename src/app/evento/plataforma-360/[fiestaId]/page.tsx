@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect, useRef } from 'react';
+import { useCallback, useState, useEffect, useRef } from 'react';
 import { useParams, useRouter, useSearchParams } from 'next/navigation';
 import { motion, AnimatePresence } from 'framer-motion';
 import {
@@ -51,6 +51,9 @@ export default function Plataforma360Page() {
   const videoRef = useRef<HTMLVideoElement>(null);
   const mediaRecorderRef = useRef<MediaRecorder | null>(null);
   const streamRef = useRef<MediaStream | null>(null);
+  const resetLocalStateRef = useRef<() => void>(() => undefined);
+  const startDisplayCaptureRef = useRef<(duration: number) => void>(() => undefined);
+  const localStatusRef = useRef<'idle' | 'countdown' | 'recording' | 'processing' | 'done'>('idle');
 
   const [fiesta, setFiesta] = useState<PublicEntertainmentEvent | null>(null);
   const [stream, setStream] = useState<MediaStream | null>(null);
@@ -109,7 +112,42 @@ export default function Plataforma360Page() {
     } catch (e) {}
   };
 
-  // 1. Initial Load & Firestore polling
+  const stopCamera = useCallback(() => {
+    if (streamRef.current) {
+      streamRef.current.getTracks().forEach(track => track.stop());
+      streamRef.current = null;
+      setStream(null);
+    }
+  }, []);
+
+  const startCamera = useCallback(async () => {
+    stopCamera();
+    try {
+      const mediaStream = await navigator.mediaDevices.getUserMedia({
+        video: { facingMode, width: { ideal: 1080 }, height: { ideal: 1920 } },
+        audio: true,
+      });
+      streamRef.current = mediaStream;
+      setStream(mediaStream);
+      if (videoRef.current) {
+        videoRef.current.srcObject = mediaStream;
+      }
+    } catch (err) {
+      console.error('No se pudo acceder a la cámara:', err);
+    }
+  }, [facingMode, stopCamera]);
+
+  const loadRecentVideos = useCallback(async () => {
+    try {
+      const posts = await getSocialPosts(fiestaId);
+      const videos = posts
+        .filter(p => p.sourceModule === 'plataforma360' || p.source === 'plataforma360' || p.imageUrl.endsWith('.mp4'))
+        .slice(0, 4);
+      setRecentVideos(videos);
+    } catch (e) {}
+  }, [fiestaId]);
+
+  // 1. Initial load
   useEffect(() => {
     getPublicEntertainmentEvent(fiestaId, 'plataforma360', accessToken)
       .then((result) => {
@@ -121,8 +159,15 @@ export default function Plataforma360Page() {
         }
       })
       .catch(() => setLoadError('No se pudo abrir esta estacion.'));
-    loadRecentVideos();
+    void loadRecentVideos();
+  }, [accessToken, fiestaId, loadRecentVideos]);
 
+  useEffect(() => {
+    localStatusRef.current = localStatus;
+  }, [localStatus]);
+
+  // Keep one remote-control channel alive during the full recording workflow.
+  useEffect(() => {
     let pollInFlight = false;
     const interval = setInterval(async () => {
       if (pollInFlight) return;
@@ -131,11 +176,12 @@ export default function Plataforma360Page() {
         const s = await getEntertainmentSession(fiestaId, 'plataforma360', accessToken);
         setSession(s);
 
-        if (role === 'display' && s && s.status !== localStatus) {
-          if (s.status === 'countdown' && localStatus === 'idle') {
-            startDisplayCapture(s.settings?.duration || 15);
+        const currentStatus = localStatusRef.current;
+        if (role === 'display' && s && s.status !== currentStatus) {
+          if (s.status === 'countdown' && currentStatus === 'idle') {
+            startDisplayCaptureRef.current(s.settings?.duration || 15);
           } else if (s.status === 'idle') {
-            resetLocalState();
+            resetLocalStateRef.current();
           }
         }
       } finally {
@@ -147,7 +193,7 @@ export default function Plataforma360Page() {
       clearInterval(interval);
       stopCamera();
     };
-  }, [accessToken, fiestaId, role, localStatus]);
+  }, [accessToken, fiestaId, role, stopCamera]);
 
   // 2. Camera feed management for Display
   useEffect(() => {
@@ -156,45 +202,10 @@ export default function Plataforma360Page() {
     } else {
       stopCamera();
     }
-  }, [facingMode, fiesta, localStatus, role]);
-
-  const startCamera = async () => {
-    stopCamera();
-    try {
-      const mediaStream = await navigator.mediaDevices.getUserMedia({
-        video: { facingMode, width: { ideal: 1080 }, height: { ideal: 1920 } },
-        audio: true, // we want sound for 360 videos
-      });
-      streamRef.current = mediaStream;
-      setStream(mediaStream);
-      if (videoRef.current) {
-        videoRef.current.srcObject = mediaStream;
-      }
-    } catch (err) {
-      console.error('No se pudo acceder a la cámara:', err);
-    }
-  };
-
-  const stopCamera = () => {
-    if (streamRef.current) {
-      streamRef.current.getTracks().forEach(track => track.stop());
-      streamRef.current = null;
-      setStream(null);
-    }
-  };
+  }, [fiesta, localStatus, role, startCamera, stopCamera]);
 
   const toggleCamera = () => {
     setFacingMode(prev => prev === 'environment' ? 'user' : 'environment');
-  };
-
-  const loadRecentVideos = async () => {
-    try {
-      const posts = await getSocialPosts(fiestaId);
-      const videos = posts
-        .filter(p => p.sourceModule === 'plataforma360' || p.source === 'plataforma360' || p.imageUrl.endsWith('.mp4'))
-        .slice(0, 4);
-      setRecentVideos(videos);
-    } catch (e) {}
   };
 
   const resetLocalState = () => {
@@ -249,6 +260,11 @@ export default function Plataforma360Page() {
       }
     }, 1000);
   };
+
+  useEffect(() => {
+    resetLocalStateRef.current = resetLocalState;
+    startDisplayCaptureRef.current = (duration) => { void startDisplayCapture(duration); };
+  });
 
   const recordVideoDuration = async (durationSec: number) => {
     const currentStream = streamRef.current;

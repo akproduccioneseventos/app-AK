@@ -128,6 +128,13 @@ export default function TouchpixPage() {
     }
   }, [isProcessing, triviaList.length]);
 
+  const stopCamera = useCallback(() => {
+    setStream(prev => {
+      if (prev) prev.getTracks().forEach(t => t.stop());
+      return null;
+    });
+  }, []);
+
   /* ── Load fiesta data ── */
   useEffect(() => {
     getPublicEntertainmentEvent(fiestaId, 'espejoMagicoIA', accessToken)
@@ -137,7 +144,7 @@ export default function TouchpixPage() {
       })
       .catch(() => setErrorMsg('No se pudo abrir esta estacion.'));
     return () => { stopCamera(); };
-  }, [accessToken, fiestaId]);
+  }, [accessToken, fiestaId, stopCamera]);
 
   /* ── Camera ── */
   const startCamera = useCallback(async () => {
@@ -155,14 +162,7 @@ export default function TouchpixPage() {
     } catch {
       setErrorMsg('No se pudo acceder a la cámara. Revisá los permisos del navegador.');
     }
-  }, [facingMode]);
-
-  const stopCamera = useCallback(() => {
-    setStream(prev => {
-      if (prev) prev.getTracks().forEach(t => t.stop());
-      return null;
-    });
-  }, []);
+  }, [facingMode, stopCamera]);
 
   useEffect(() => {
     if (fiesta && !capturedImage && wizardStep === 0) startCamera();
@@ -560,6 +560,18 @@ export default function TouchpixPage() {
     document.body.removeChild(a);
   }, [capturedImage]);
 
+  /* ── Retake ── */
+  const retake = useCallback(() => {
+    setCapturedImage(null);
+    setRawCapturedImage(null);
+    setIsProcessing(false);
+    setProcessingResult(null);
+    setWizardStep(0);
+    setConsentAccepted(false);
+    resetEntertainmentSession(fiestaId, 'espejoMagicoIA', accessToken);
+    startCamera();
+  }, [accessToken, fiestaId, startCamera]);
+
   /* ── Upload ── */
   const handleUpload = useCallback(async () => {
     if (!capturedImage) return;
@@ -600,19 +612,7 @@ export default function TouchpixPage() {
     } finally {
       setIsUploading(false);
     }
-  }, [capturedImage, fiestaId, activeTab, selectedAiTheme, selectedCharacter, accessToken]);
-
-  /* ── Retake ── */
-  const retake = useCallback(() => {
-    setCapturedImage(null);
-    setRawCapturedImage(null);
-    setIsProcessing(false);
-    setProcessingResult(null);
-    setWizardStep(0);
-    setConsentAccepted(false);
-    resetEntertainmentSession(fiestaId, 'espejoMagicoIA', accessToken);
-    startCamera();
-  }, [accessToken, fiestaId, startCamera]);
+  }, [accessToken, activeTab, capturedImage, fiestaId, retake, selectedAiTheme, selectedCharacter]);
 
   /* ── Get current CSS filter for live preview ── */
   const getLiveFilter = (): string => {
