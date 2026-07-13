@@ -105,6 +105,7 @@ describe('release security boundaries', () => {
     ['salon-layout-templates.ts', ['saveSalonLayoutTemplate', 'deleteSalonLayoutTemplate']],
     ['task-templates.ts', ['saveTaskTemplate', 'deleteTaskTemplate']],
     ['backup.ts', ['getRestorePoints', 'createRestorePoint', 'restoreFromPoint', 'deleteRestorePoint']],
+    ['notifications.ts', ['getNotifications', 'markNotificationAsRead', 'markAllNotificationsAsRead', 'deleteNotification', 'checkAndCreateTaskReminders', 'checkAndCreateReunionReminders', 'checkAndCreateEventAlerts', 'checkAndCreatePendingBalanceAlerts', 'generateAllSmartNotifications', 'resetAllNotifications']],
   ])('requires a signed session for master-data writes in %s', (filename, functionNames) => {
     const source = readSource(`src/app/actions/${filename}`);
     for (const functionName of functionNames) {
@@ -122,5 +123,13 @@ describe('release security boundaries', () => {
     expect(backup).toContain('internalToken !== AUTO_BACKUP_INTERNAL_TOKEN');
     expect(backup).toContain('createRestorePointInternal(true)');
     expect(dataService).toContain('triggerAutoBackup(AUTO_BACKUP_INTERNAL_TOKEN)');
+  });
+
+  it('allows notification creation only through a session or the internal wrapper', () => {
+    const notifications = readSource('src/app/actions/notifications.ts');
+    const wrapper = readSource('src/lib/notifications/create-notification.ts');
+    expect(notifications).toContain('internalToken !== NOTIFICATION_INTERNAL_TOKEN');
+    expect(notifications).toContain('await hasAppSession()');
+    expect(wrapper).toContain('createNotificationAction(data, NOTIFICATION_INTERNAL_TOKEN)');
   });
 });

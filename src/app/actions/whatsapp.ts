@@ -3,7 +3,7 @@
 import { readData, writeData } from '@/lib/data-service';
 import type { WhatsAppConfig, WhatsAppConversation, WhatsAppMessage, WhatsAppStats } from '@/types/whatsapp';
 import { addCrmLead, getCrmLeads } from '@/app/actions/crm';
-import { createNotification } from '@/app/actions/notifications';
+import { createNotification } from '@/lib/notifications/create-notification';
 
 const CONFIG_FILE = 'whatsapp-config.json';
 const CONVERSATIONS_FILE = 'whatsapp-conversations.json';

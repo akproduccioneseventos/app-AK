@@ -48,6 +48,10 @@ jest.mock('@/app/actions/notifications', () => ({
   getNotifications: jest.fn().mockResolvedValue([]),
 }));
 
+jest.mock('@/lib/notifications/create-notification', () => ({
+  createNotification: jest.fn().mockResolvedValue({ success: true }),
+}));
+
 jest.mock('@/app/actions/invoices', () => ({
   getInvoices: jest.fn().mockResolvedValue([]),
   saveInvoice: jest.fn().mockResolvedValue({ success: true, id: 'inv_test_1' }),
@@ -943,7 +947,7 @@ describe('executeCrearPresupuesto — catalog matching', () => {
 
 describe('Notificaciones reales en executors', () => {
   it('executeAgendarCita llama a createNotification cuando lead ya existe', async () => {
-    const { createNotification } = await import('@/app/actions/notifications');
+    const { createNotification } = await import('@/lib/notifications/create-notification');
     const { getCrmLeads, scheduleCrmMeeting } = await import('@/app/actions/crm');
 
     (getCrmLeads as jest.Mock).mockResolvedValueOnce([{ id: 'lead_1', name: 'Ana García' }]);
@@ -957,7 +961,7 @@ describe('Notificaciones reales en executors', () => {
   });
 
   it('executeAgendarCita llama a createNotification cuando se crea prospecto nuevo', async () => {
-    const { createNotification } = await import('@/app/actions/notifications');
+    const { createNotification } = await import('@/lib/notifications/create-notification');
     const { getCrmLeads, addCrmLead, scheduleCrmMeeting } = await import('@/app/actions/crm');
 
     (getCrmLeads as jest.Mock).mockResolvedValueOnce([]);
@@ -972,7 +976,7 @@ describe('Notificaciones reales en executors', () => {
   });
 
   it('executeCrearPresupuesto llama a createNotification al crear presupuesto exitosamente', async () => {
-    const { createNotification } = await import('@/app/actions/notifications');
+    const { createNotification } = await import('@/lib/notifications/create-notification');
     const { savePresupuesto } = await import('@/app/actions/presupuestos');
     const { getServiciosEmpresa } = await import('@/app/actions/servicios-empresa');
 
@@ -991,7 +995,7 @@ describe('Notificaciones reales en executors', () => {
   });
 
   it('executeRegistrarPago llama a createNotification al registrar pago exitosamente', async () => {
-    const { createNotification } = await import('@/app/actions/notifications');
+    const { createNotification } = await import('@/lib/notifications/create-notification');
     const { getPresupuestos, addPagoToPresupuesto } = await import('@/app/actions/presupuestos');
 
     (getPresupuestos as jest.Mock).mockResolvedValueOnce([

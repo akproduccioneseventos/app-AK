@@ -6,7 +6,7 @@ import { readData, writeData } from '@/lib/data-service';
 import type { ItemPresupuestado, PresupuestoSource } from '@/types/presupuesto';
 import type { CommercialAttribution } from '@/lib/commercial/acquisition';
 import { persistPublicSimulatorBudget } from '@/lib/budget/public-simulator-persistence';
-import { createNotification } from './notifications';
+import { createNotification } from '@/lib/notifications/create-notification';
 import { upsertPublicCommercialLead } from '@/lib/crm/public-lead-persistence';
 import { normalizeUruguayPhone } from '@/lib/commercial/contact';
 import { enforcePublicRateLimit } from '@/lib/commercial/public-rate-limit';

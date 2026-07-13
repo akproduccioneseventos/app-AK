@@ -7,7 +7,7 @@ import { headers } from 'next/headers';
 import { getInvoices, registerBookingDeposit } from '../invoices';
 import { isDepositReceiptInvoice } from '@/lib/commercial-flow/ledger-service';
 import { addDays } from 'date-fns';
-import { createNotification } from '../notifications';
+import { createNotification } from '@/lib/notifications/create-notification';
 import { uploadToStorage, deleteFromStorage } from '@/lib/firebase/storage';
 import { getPresupuestoById } from '../presupuestos';
 

@@ -5,7 +5,7 @@ import { saveAgentLearning, listAgentMemoryProfiles } from '@/lib/multiagent/mem
 import { appendMultiAgentChatTurn, listMultiAgentChatSessions } from '@/lib/multiagent/chat-store';
 import { buildMultiAgentTeamBriefing, summarizeDiagnosticsForLearning } from '@/lib/multiagent/diagnostics';
 import { getFiestaById, saveFiesta } from '@/app/actions/fiesta/fiesta.actions';
-import { createNotification } from '@/app/actions/notifications';
+import { createNotification } from '@/lib/notifications/create-notification';
 import type { Tarea } from '@/types/fiesta';
 import type { AkAgentChatSession, AkAgentType, AkMultiAgentMessage, AkMultiAgentOutput, AkPersistentMultiAgentOutput } from '@/types/multiagent';
 

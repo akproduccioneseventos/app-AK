@@ -5,7 +5,7 @@ import { readData, writeData } from '@/lib/data-service';
 import { getInvoiceById, saveInvoice } from './invoices';
 import type { Invoice, InvoiceItem } from '@/types/invoice';
 import { findLeadByBudgetOrCreate, getCrmStages, moveCrmLead } from './crm';
-import { createNotification } from './notifications';
+import { createNotification } from '@/lib/notifications/create-notification';
 import { getServiciosEmpresa } from './servicios-empresa';
 import { getMenus } from './menus-catering';
 import type { ServicioEmpresa } from '@/types/empresa';
