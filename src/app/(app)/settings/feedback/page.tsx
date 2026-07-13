@@ -36,6 +36,7 @@ export default function FeedbackPage() {
   const [testimonials, setTestimonials] = useState<Testimonial[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [fiestaIdActual, setFiestaIdActual] = useState<string>('');
+  const [generatingFeedbackId, setGeneratingFeedbackId] = useState<string | null>(null);
   
   // State for post creation dialog
   const [postToCreate, setPostToCreate] = useState<Partial<SocialPost> | null>(null);
@@ -67,16 +68,49 @@ export default function FeedbackPage() {
 
 
   const handleToggleApproval = async (id: string, currentStatus: boolean) => {
-    await updateTestimonialApproval(id, !currentStatus);
+    const result = await updateTestimonialApproval(id, !currentStatus);
+    if (!result.success) {
+      toast({ title: 'No se pudo actualizar', description: result.error, variant: 'destructive' });
+      return;
+    }
     toast({ title: `Testimonio ${!currentStatus ? 'aprobado' : 'desaprobado'}.` });
     await loadData();
   };
   
   const handleDeleteTestimonial = async (id: string) => {
-     await deleteTestimonial(id);
-     toast({title: "Testimonio eliminado", variant: "destructive"});
+     const result = await deleteTestimonial(id);
+     if (!result.success) {
+       toast({ title: 'No se pudo eliminar', description: result.error, variant: 'destructive' });
+       return;
+     }
+     toast({title: "Testimonio eliminado"});
      await loadData();
   }
+
+  const handleGenerateTestimonial = async (feedback: FeedbackSubmission) => {
+    setGeneratingFeedbackId(feedback.id);
+    try {
+      const source = feedback.generalComments?.trim() || feedback.enjoyedMost.trim();
+      const testimonialText = feedback.generalComments?.trim()
+        ? source
+        : `Lo que mas disfrutamos fue ${source.charAt(0).toLowerCase()}${source.slice(1)}.`;
+      const result = await saveTestimonial({
+        feedbackId: feedback.id,
+        fiestaId: feedback.fiestaId,
+        fiestaNombre: feedback.fiestaNombre,
+        clientName: feedback.clientName,
+        testimonialText,
+      });
+      if (!result.success) {
+        toast({ title: 'No se pudo generar el testimonio', description: result.error, variant: 'destructive' });
+        return;
+      }
+      toast({ title: 'Borrador de testimonio creado', description: 'Revisalo y aprobalo antes de publicarlo.' });
+      await loadData();
+    } finally {
+      setGeneratingFeedbackId(null);
+    }
+  };
   
   const handlePublishTestimonial = (testimonial: Testimonial) => {
     setPostToCreate({
@@ -135,7 +169,7 @@ export default function FeedbackPage() {
                 </Button>
             </div>
             <p>2. El feedback del cliente aparecerá automáticamente en la sección "Feedback Recibido".</p>
-            <p>3. El botón "Generar Testimonio" está desactivado temporalmente.</p>
+            <p>3. Genera un borrador de testimonio y aprobalo antes de usarlo en redes sociales.</p>
         </CardContent>
       </Card>
 
@@ -228,7 +262,10 @@ export default function FeedbackPage() {
                 )}
               </CardContent>
               <CardFooter>
-                <Button size="sm" disabled><Wand2 className="w-4 h-4 mr-2"/>Generar Testimonio (Desactivado)</Button>
+                <Button size="sm" onClick={() => handleGenerateTestimonial(fb)} disabled={generatingFeedbackId === fb.id}>
+                  {generatingFeedbackId === fb.id ? <Loader2 className="w-4 h-4 mr-2 animate-spin" /> : <Wand2 className="w-4 h-4 mr-2" />}
+                  Generar borrador
+                </Button>
               </CardFooter>
             </Card>
            )) : <p className="text-center text-muted-foreground p-4">No hay feedback nuevo para procesar.</p>
