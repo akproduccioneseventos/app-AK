@@ -5,6 +5,7 @@ import {
   verifyMetaWebhookSignature,
   verifyTwilioWebhookSignature,
 } from '@/lib/whatsapp/webhook-security';
+import { WHATSAPP_WEBHOOK_INTERNAL_TOKEN } from '@/lib/whatsapp/internal-token';
 
 export const runtime = 'nodejs';
 export const dynamic = 'force-dynamic';
@@ -22,7 +23,7 @@ export async function GET(request: NextRequest) {
 
   // Meta webhook verification
   if (mode === 'subscribe' && challenge) {
-    const config = await getWhatsAppConfig();
+    const config = await getWhatsAppConfig(WHATSAPP_WEBHOOK_INTERNAL_TOKEN);
     const verifyToken = config.verifyToken;
     if (!verifyToken && process.env.NODE_ENV === 'production') {
       return NextResponse.json({ error: 'WhatsApp verify token is not configured in production' }, { status: 403 });
@@ -45,7 +46,7 @@ export async function GET(request: NextRequest) {
  */
 export async function POST(request: NextRequest) {
   try {
-    const config = await getWhatsAppConfig();
+    const config = await getWhatsAppConfig(WHATSAPP_WEBHOOK_INTERNAL_TOKEN);
 
     if (!config.enabled) {
       return NextResponse.json({ status: 'ok' }, { status: 200 });
@@ -140,7 +141,7 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ status: 'ok' }, { status: 200 });
     }
 
-    const result = await processIncomingMessage(phone, messageText, clientName);
+    const result = await processIncomingMessage(phone, messageText, clientName, WHATSAPP_WEBHOOK_INTERNAL_TOKEN);
 
     if (!result.success) {
       console.error('[WhatsApp Webhook] Error processing message:', result.error);

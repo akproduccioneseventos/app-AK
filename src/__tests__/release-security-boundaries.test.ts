@@ -122,6 +122,15 @@ describe('release security boundaries', () => {
     ['scheduled-messages.ts', ['saveScheduledMessage', 'markMessageAsSent', 'rescheduleMessage', 'cancelScheduledMessage']],
     ['simulador-copilot.ts', ['saveCopilotConfig']],
     ['social-media.ts', ['saveSocialPost', 'deleteSocialPost', 'syncInstagramPosts']],
+    ['fiesta/fiesta.actions.ts', ['updateFiestaPartial', 'deleteFiesta', 'archiveFiesta', 'deleteFiestaArchivada']],
+    ['cupones.ts', ['saveCupon', 'toggleCuponActivo', 'deleteCupon', 'registrarUsoCupon']],
+    ['feedback.ts', ['getFeedback', 'getAllTestimonials', 'saveTestimonial', 'updateTestimonialApproval', 'deleteTestimonial']],
+    ['recibos-personal.ts', ['getRecibosFirmados', 'saveReciboFirmado']],
+    ['audit-log.ts', ['logAuditEvent', 'getAuditLogs']],
+    ['alertas.actions.ts', ['getAlertasGlobalesConLeidas']],
+    ['provider-portal.ts', ['getProveedoresPortal', 'createProveedorAcceso']],
+    ['whatsapp.ts', ['getWhatsAppConfig', 'getWhatsAppConversations', 'getWhatsAppConversation', 'saveWhatsAppConfig', 'sendWhatsAppMessage', 'takeOverConversation', 'returnToBotConversation', 'getWhatsAppStats']],
+    ['crm.ts', ['findLeadByBudgetOrCreate']],
   ])('requires a signed session for master-data writes in %s', (filename, functionNames) => {
     const source = readSource(`src/app/actions/${filename}`);
     for (const functionName of functionNames) {
@@ -147,5 +156,36 @@ describe('release security boundaries', () => {
     expect(notifications).toContain('internalToken !== NOTIFICATION_INTERNAL_TOKEN');
     expect(notifications).toContain('await hasAppSession()');
     expect(wrapper).toContain('createNotificationAction(data, NOTIFICATION_INTERNAL_TOKEN)');
+  });
+
+  it('limits event writes to an app session or that event portal session', () => {
+    const actions = readSource('src/app/actions/fiesta/fiesta.actions.ts');
+    expect(actions).toContain('await requireFiestaWriteAccess(fiestaData.id)');
+    expect(actions).toContain('await verifyPortalSession(fiestaId)');
+    expect(actions).toContain("throw new Error('No autorizado para modificar este evento.')");
+  });
+
+  it('exposes only approved testimonials and rate-limits public feedback', () => {
+    const feedback = readSource('src/app/actions/feedback.ts');
+    expect(feedback).toContain('.filter((testimonial) => testimonial.isApproved)');
+    expect(feedback).toContain("scope: 'event-feedback'");
+    expect(feedback).toContain('limit: 3');
+  });
+
+  it('keeps WhatsApp secrets private while the simulator receives only the phone number', () => {
+    const whatsapp = readSource('src/app/actions/whatsapp.ts');
+    const webhook = readSource('src/app/api/whatsapp/webhook/route.ts');
+    const simulator = readSource('src/app/simulador-ak/page.tsx');
+    expect(whatsapp).toContain('internalToken !== WHATSAPP_WEBHOOK_INTERNAL_TOKEN');
+    expect(webhook).toContain('getWhatsAppConfig(WHATSAPP_WEBHOOK_INTERNAL_TOKEN)');
+    expect(simulator).toContain('getPublicWhatsAppNumber()');
+    expect(simulator).not.toContain('getWhatsAppConfig()');
+  });
+
+  it('uses cryptographic provider tokens and rejects inactive portal mutations', () => {
+    const provider = readSource('src/app/actions/provider-portal.ts');
+    expect(provider).toContain('token: randomUUID()');
+    expect(provider).toContain('const access = await getProveedorByToken(token)');
+    expect(provider).toContain('if (!access.success) return { success: false, error: access.error }');
   });
 });

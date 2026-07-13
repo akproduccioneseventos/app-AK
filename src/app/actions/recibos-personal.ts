@@ -2,13 +2,15 @@
 
 import { readData, writeData } from '@/lib/data-service';
 import type { ReciboFirmado } from '@/types/empleado';
+import { randomUUID } from 'crypto';
+import { requireAppSession } from '@/lib/auth/require-session';
 
 const RECIBOS_PERSONAL_FILE = 'personal-recibos.json';
 
 const ESTADOS_VALIDOS: ReciboFirmado['estado'][] = ['pendiente', 'pagado', 'firmado_subido'];
 
 function generateReciboId(): string {
-  return `recibo_${Date.now()}_${Math.random().toString(36).slice(2, 9)}`;
+  return `recibo_${randomUUID()}`;
 }
 
 function normalizeEstado(value: unknown): ReciboFirmado['estado'] {
@@ -40,6 +42,7 @@ function normalizeRecibo(raw: Partial<ReciboFirmado>): ReciboFirmado {
 }
 
 export async function getRecibosFirmados(): Promise<ReciboFirmado[]> {
+  await requireAppSession();
   const raw = await readData<Partial<ReciboFirmado>[]>(RECIBOS_PERSONAL_FILE, []);
   return (Array.isArray(raw) ? raw : [])
     .map(normalizeRecibo)
@@ -55,6 +58,7 @@ export async function getRecibosFirmadosByEmpleado(empleadoId: string): Promise<
 export async function saveReciboFirmado(
   payload: Partial<ReciboFirmado> & Pick<ReciboFirmado, 'fiestaId' | 'empleadoId'>
 ): Promise<{ success: boolean; recibo?: ReciboFirmado; error?: string }> {
+  await requireAppSession();
   if (!payload.empleadoId?.trim()) {
     return { success: false, error: 'El empleado es obligatorio.' };
   }

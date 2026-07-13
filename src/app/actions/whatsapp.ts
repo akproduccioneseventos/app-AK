@@ -4,6 +4,8 @@ import { readData, writeData } from '@/lib/data-service';
 import type { WhatsAppConfig, WhatsAppConversation, WhatsAppMessage, WhatsAppStats } from '@/types/whatsapp';
 import { addCrmLead, getCrmLeads } from '@/app/actions/crm';
 import { createNotification } from '@/lib/notifications/create-notification';
+import { requireAppSession } from '@/lib/auth/require-session';
+import { WHATSAPP_WEBHOOK_INTERNAL_TOKEN } from '@/lib/whatsapp/internal-token';
 
 const CONFIG_FILE = 'whatsapp-config.json';
 const CONVERSATIONS_FILE = 'whatsapp-conversations.json';
@@ -36,14 +38,23 @@ const defaultConfig: WhatsAppConfig = {
 
 // --- Config ---
 
-export async function getWhatsAppConfig(): Promise<WhatsAppConfig> {
+export async function getWhatsAppConfig(internalToken?: symbol): Promise<WhatsAppConfig> {
+  if (internalToken !== WHATSAPP_WEBHOOK_INTERNAL_TOKEN) {
+    await requireAppSession();
+  }
   const data = await readData<Partial<WhatsAppConfig>>(CONFIG_FILE, {});
   return { ...defaultConfig, ...data } as WhatsAppConfig;
+}
+
+export async function getPublicWhatsAppNumber(): Promise<string> {
+  const data = await readData<Partial<WhatsAppConfig>>(CONFIG_FILE, {});
+  return data.phoneNumber || '';
 }
 
 export async function saveWhatsAppConfig(
   config: Partial<WhatsAppConfig>
 ): Promise<{ success: boolean; config?: WhatsAppConfig; error?: string }> {
+  await requireAppSession();
   try {
     const current = await getWhatsAppConfig();
     const toSave: WhatsAppConfig = {
@@ -63,12 +74,14 @@ export async function saveWhatsAppConfig(
 // --- Conversations ---
 
 export async function getWhatsAppConversations(): Promise<WhatsAppConversation[]> {
+  await requireAppSession();
   const data = await readData<WhatsAppConversation[]>(CONVERSATIONS_FILE, []);
   if (!Array.isArray(data)) return [];
   return [...data].sort((a, b) => new Date(b.updatedAt).getTime() - new Date(a.updatedAt).getTime());
 }
 
 export async function getWhatsAppConversation(id: string): Promise<WhatsAppConversation | null> {
+  await requireAppSession();
   const conversations = await getWhatsAppConversations();
   return conversations.find(c => c.id === id) ?? null;
 }
@@ -77,6 +90,7 @@ export async function sendWhatsAppMessage(
   conversationId: string,
   message: string
 ): Promise<{ success: boolean; message?: WhatsAppMessage; error?: string }> {
+  await requireAppSession();
   try {
     const conversations = await readData<WhatsAppConversation[]>(CONVERSATIONS_FILE, []);
     const idx = conversations.findIndex(c => c.id === conversationId);
@@ -111,10 +125,14 @@ export async function sendWhatsAppMessage(
 export async function processIncomingMessage(
   phone: string,
   message: string,
-  clientName?: string
+  clientName?: string,
+  internalToken?: symbol
 ): Promise<{ success: boolean; botResponse?: string; conversationId?: string; error?: string }> {
+  if (internalToken !== WHATSAPP_WEBHOOK_INTERNAL_TOKEN) {
+    throw new Error('Webhook de WhatsApp no autorizado.');
+  }
   try {
-    const config = await getWhatsAppConfig();
+    const config = await getWhatsAppConfig(internalToken);
     if (!config.enabled) {
       return { success: true };
     }
@@ -275,6 +293,7 @@ function generateAutoResponse(message: string, config: WhatsAppConfig, isFirst: 
 export async function takeOverConversation(
   conversationId: string
 ): Promise<{ success: boolean; error?: string }> {
+  await requireAppSession();
   try {
     const conversations = await readData<WhatsAppConversation[]>(CONVERSATIONS_FILE, []);
     const idx = conversations.findIndex(c => c.id === conversationId);
@@ -292,6 +311,7 @@ export async function takeOverConversation(
 export async function returnToBotConversation(
   conversationId: string
 ): Promise<{ success: boolean; error?: string }> {
+  await requireAppSession();
   try {
     const conversations = await readData<WhatsAppConversation[]>(CONVERSATIONS_FILE, []);
     const idx = conversations.findIndex(c => c.id === conversationId);
@@ -306,6 +326,7 @@ export async function returnToBotConversation(
 }
 
 export async function getWhatsAppStats(): Promise<WhatsAppStats> {
+  await requireAppSession();
   const conversations = await getWhatsAppConversations();
   const active = conversations.filter(c => c.status === 'active' || c.status === 'waiting_human');
   const withLeads = conversations.filter(c => c.leadId);

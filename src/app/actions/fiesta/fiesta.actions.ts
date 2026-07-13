@@ -48,9 +48,17 @@ import { getActivosFijos } from '../activos-fijos';
 import * as logger from '@/lib/logger';
 import { normalizeInvitationSlug, isValidInvitationSlug } from '@/lib/invitacion-slug';
 import { buildAkDemoFiesta, type AkDemoFiestaKind } from '@/lib/experience-ak/demo-fiesta-factory';
+import { hasAppSession, requireAppSession } from '@/lib/auth/require-session';
+import { verifyPortalSession } from '@/lib/security/portal-session';
 
 const FIESTAS_DIR = 'fiestas';
 const ARCHIVE_DIR = 'archive';
+
+async function requireFiestaWriteAccess(fiestaId: string) {
+    if (await hasAppSession()) return;
+    if (fiestaId && (await verifyPortalSession(fiestaId))) return;
+    throw new Error('No autorizado para modificar este evento.');
+}
 
 export async function getHistorialFiestas(): Promise<FiestaEnPlanificacion[]> {
   const isProduction = process.env.NODE_ENV === 'production' || !!process.env.VERCEL;
@@ -134,6 +142,7 @@ export async function getFiestaActual(): Promise<FiestaEnPlanificacion> {
 }
 
 export async function saveFiesta(fiestaData: FiestaEnPlanificacion): Promise<{ success: boolean; fiesta?: FiestaEnPlanificacion; error?: string }> {
+  await requireFiestaWriteAccess(fiestaData.id);
   try {
     const filePath = path.join(FIESTAS_DIR, `${fiestaData.id}.json`);
     await writeData(filePath, fiestaData);
@@ -144,6 +153,7 @@ export async function saveFiesta(fiestaData: FiestaEnPlanificacion): Promise<{ s
 }
 
 export async function updateFiestaPartial(fiestaId: string, partialData: Partial<FiestaEnPlanificacion>): Promise<{ success: boolean; error?: string }> {
+  await requireAppSession();
   try {
     const filePath = path.join(FIESTAS_DIR, `${fiestaId}.json`);
     await updateDataPartial<FiestaEnPlanificacion>(filePath, partialData);
@@ -810,6 +820,7 @@ export async function syncFiestaFromBudget(fiestaId: string) {
 }
 
 export async function deleteFiesta(fiestaId: string): Promise<{ success: boolean; error?: string }> {
+  await requireAppSession();
   const isProduction = process.env.NODE_ENV === 'production' || !!process.env.VERCEL;
   try {
     if (isProduction) {
@@ -833,6 +844,7 @@ export async function deleteFiesta(fiestaId: string): Promise<{ success: boolean
 }
 
 export async function archiveFiesta(fiestaId: string): Promise<{ success: boolean; error?: string }> {
+  await requireAppSession();
   try {
     const fiesta = await getFiestaById(fiestaId);
     if (!fiesta) throw new Error("Evento no encontrado.");
@@ -847,6 +859,7 @@ export async function archiveFiesta(fiestaId: string): Promise<{ success: boolea
 }
 
 export async function deleteFiestaArchivada(fiestaId: string): Promise<{ success: boolean; error?: string }> {
+  await requireAppSession();
   const isProduction = process.env.NODE_ENV === 'production' || !!process.env.VERCEL;
   try {
     if (isProduction) {

@@ -14,6 +14,7 @@ import { initialFiestaActualData, defaultModulosContratados } from '@/lib/fiesta
 import * as logger from '@/lib/logger';
 import { normalizePresupuestoFinancials, roundMoney, validatePaymentAgainstBudget, parseCleanMoney } from '@/lib/budget/financial-guardrails';
 import { verifySession } from '@/lib/auth/session-token';
+import { requireAppSession } from '@/lib/auth/require-session';
 import type { CommercialAttribution, CommercialSource } from '@/lib/commercial/acquisition';
 import { sanitizeCommercialAttribution } from '@/lib/commercial/acquisition';
 import { upsertPublicCommercialLead } from '@/lib/crm/public-lead-persistence';
@@ -738,6 +739,7 @@ export async function getCrmKpiData() {
 }
 
 export async function findLeadByBudgetOrCreate(presupuesto: any) {
+    await requireAppSession();
     const leads = await getCrmLeads();
     const stages = await getCrmStages();
     const budgetSource = presupuesto.source || 'manual';
