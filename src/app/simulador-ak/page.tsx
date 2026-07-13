@@ -18,7 +18,7 @@ import { getBudgetDisplaySettings } from '@/app/actions/settings';
 import { checkDateAvailability } from '@/app/actions/simulador-v2';
 import { getServiciosEmpresa } from '@/app/actions/servicios-empresa';
 import { getMenus } from '@/app/actions/menus-catering';
-import { getWhatsAppConfig } from '@/app/actions/whatsapp';
+import { getPublicWhatsAppNumber } from '@/app/actions/whatsapp';
 import { CompanyLogo } from '@/components/company-logo';
 import { cn } from '@/lib/utils';
 import { DatePickerDemo } from '@/components/date-picker-demo';
@@ -202,9 +202,9 @@ function SimuladorAKContent() {
       if (active) setIsReferenceDataLoading(false);
     });
 
-    getWhatsAppConfig()
-      .then((waConfig) => {
-        if (active && waConfig?.phoneNumber) setEmpresaPhone(waConfig.phoneNumber);
+    getPublicWhatsAppNumber()
+      .then((phoneNumber) => {
+        if (active && phoneNumber) setEmpresaPhone(phoneNumber);
       })
       .catch(() => {});
 

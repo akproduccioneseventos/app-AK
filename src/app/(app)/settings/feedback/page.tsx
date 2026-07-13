@@ -12,7 +12,7 @@ import { Separator } from '@/components/ui/separator';
 import { ArrowLeft, Loader2, AlertTriangle, Star, Wand2, Trash2, ClipboardCopy, CheckCircle, Info, Link as LinkIcon, Send } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import type { FeedbackSubmission, Testimonial } from '@/types/feedback';
-import { getFeedback, getTestimonials, saveTestimonial, updateTestimonialApproval, deleteTestimonial } from '@/app/actions/feedback';
+import { getFeedback, getAllTestimonials, saveTestimonial, updateTestimonialApproval, deleteTestimonial } from '@/app/actions/feedback';
 import {
   Dialog,
   DialogContent,
@@ -45,7 +45,7 @@ export default function FeedbackPage() {
   const loadData = useCallback(async () => {
     setIsLoading(true);
     try {
-      const [feedbackData, testimonialsData, fiestaActual] = await Promise.all([getFeedback(), getTestimonials(), getFiestaActual()]);
+      const [feedbackData, testimonialsData, fiestaActual] = await Promise.all([getFeedback(), getAllTestimonials(), getFiestaActual()]);
       setFeedbackList(feedbackData);
       setTestimonials(testimonialsData);
       if(fiestaActual) setFiestaIdActual(fiestaActual.id);

@@ -61,6 +61,7 @@ export async function marcarTodasLeidas(): Promise<{ success: boolean }> {
 }
 
 export async function getAlertasGlobalesConLeidas(): Promise<AlertaAutomatica[]> {
+  await requireAppSession();
   const alertasActuales = await getAlertasGlobales();
   const [idsLeidos, idsDescartados] = await Promise.all([
     readData<string[]>(ALERTAS_LEIDAS_FILE, []),
