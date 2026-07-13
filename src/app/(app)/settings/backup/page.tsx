@@ -84,7 +84,7 @@ export default function BackupPage() {
   const handleCreateRestorePoint = async () => {
     setIsCreatingPoint(true);
     try {
-        const result = await createRestorePoint(false);
+        const result = await createRestorePoint();
         if (result.success && result.point) {
             toast({ title: "¡Punto Manual Creado!", description: `Se ha guardado tu respaldo actual.` });
             await loadRestorePoints();
