@@ -122,6 +122,19 @@ export async function getPresupuestoById(id: string, token?: string): Promise<Pr
   return presupuestos.find(p => p.id === id) || null;
 }
 
+export async function getPresupuestoShareToken(
+  id: string
+): Promise<{ success: boolean; token?: string; error?: string }> {
+  const auth = await verifySession();
+  if (!auth.success) return { success: false, error: 'No autorizado' };
+
+  const presupuesto = await getPresupuestoById(id);
+  if (!presupuesto) return { success: false, error: 'Presupuesto no encontrado' };
+
+  const { generateBudgetToken } = await import('@/lib/auth/session-token');
+  return { success: true, token: await generateBudgetToken(id) };
+}
+
 async function syncLinkedFiesta(presupuesto: Presupuesto) {
     try {
         const allFiestas = await getAllFiestas();

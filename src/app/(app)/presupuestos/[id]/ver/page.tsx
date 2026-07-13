@@ -15,7 +15,7 @@ import { PresupuestoStatusBadge } from '@/components/presupuestos/presupuesto-st
 import type { Presupuesto, ItemPresupuestado, PagoCliente, MetodoPago } from '@/types/presupuesto';
 import type { AuditResult } from '@/lib/commercial-flow/budget-audit';
 import { ALL_METODOS_PAGO } from '@/types/presupuesto';
-import { getPresupuestoById, addPagoToPresupuesto, deletePagoFromPresupuesto, createFiestaFromPresupuesto, approvePresupuesto, addPagoClienteFromPortal } from '@/app/actions/presupuestos';
+import { getPresupuestoById, getPresupuestoShareToken, addPagoToPresupuesto, deletePagoFromPresupuesto, createFiestaFromPresupuesto, approvePresupuesto, addPagoClienteFromPortal } from '@/app/actions/presupuestos';
 import { getFiestas } from '@/app/actions/fiesta/fiesta.actions';
 import { getCustomerById } from '@/app/actions/customers';
 import { getSocialConnections } from '@/app/actions/social-connections';
@@ -103,6 +103,7 @@ function VerPresupuestoContent({ params }: { params: { id: string } }) {
   const [isCreatingFiesta, setIsCreatingFiesta] = useState(false);
   const [linkedFiestaId, setLinkedFiestaId] = useState<string | null>(null);
   const [isDownloading, setIsDownloading] = useState(false);
+  const [isSharing, setIsSharing] = useState(false);
 
   // Sanity Check / Verification state
   const [isApprovingPresupuesto, setIsApprovingPresupuesto] = useState(false);
@@ -334,12 +335,21 @@ function VerPresupuestoContent({ params }: { params: { id: string } }) {
     window.open(`https://wa.me/${whatsappNumber}?text=${encodeURIComponent(text)}`, '_blank');
   };
 
-  const handleSharePublicBudget = () => {
-    if (!presupuesto) return;
-    const currentToken = searchParams.get('token') || (presupuesto as any).token || '';
-    const nameParam = encodeURIComponent(presupuesto.clienteNombre.trim().replace(/\s+/g, '_'));
-    const url = `${window.location.origin}/presupuestos/${presupuesto.id}/ver?cliente=1&token=${currentToken}&para=${nameParam}`;
-    const text = [
+  const handleSharePublicBudget = async () => {
+    if (!presupuesto || isSharing) return;
+    setIsSharing(true);
+    try {
+      let currentToken = searchParams.get('token') || (presupuesto as any).token || '';
+      if (!currentToken) {
+        const tokenResult = await getPresupuestoShareToken(presupuesto.id);
+        if (!tokenResult.success || !tokenResult.token) {
+          throw new Error(tokenResult.error || 'No se pudo crear un acceso seguro al presupuesto.');
+        }
+        currentToken = tokenResult.token;
+      }
+      const nameParam = encodeURIComponent(presupuesto.clienteNombre.trim().replace(/\s+/g, '_'));
+      const url = `${window.location.origin}/presupuestos/${presupuesto.id}/ver?cliente=1&token=${currentToken}&para=${nameParam}`;
+      const text = [
       `📄 *Presupuesto de AK Producciones para ${presupuesto.clienteNombre}*`,
       `-----------------`,
       `¡Hola! Te compartimos el detalle formal de tu presupuesto.`,
@@ -348,8 +358,17 @@ function VerPresupuestoContent({ params }: { params: { id: string } }) {
       `*Total Vigente:* ${formatCurrency(calculatedValues.totalFinal)}`,
       ``,
       `👉 *Ver presupuesto online:* ${url}`
-    ].join('\n');
-    window.open(`https://wa.me/?text=${encodeURIComponent(text)}`, '_blank');
+      ].join('\n');
+      window.open(`https://wa.me/?text=${encodeURIComponent(text)}`, '_blank');
+    } catch (error) {
+      toast({
+        title: 'No se pudo compartir',
+        description: error instanceof Error ? error.message : 'Intentá nuevamente.',
+        variant: 'destructive',
+      });
+    } finally {
+      setIsSharing(false);
+    }
   };
 
   const pagosSummary = useMemo(() => {
@@ -687,9 +706,11 @@ function VerPresupuestoContent({ params }: { params: { id: string } }) {
                 <div className="grid grid-cols-1 gap-3 md:grid-cols-3">
                   <Button
                     onClick={handleSharePublicBudget}
+                    disabled={isSharing}
                     className="h-12 rounded-xl bg-emerald-600 text-[11px] sm:text-xs font-bold uppercase tracking-wide text-white hover:bg-emerald-700 px-2 flex items-center justify-center gap-1.5 w-full"
                   >
-                    <Share2 className="h-4 w-4 shrink-0" /> <span className="truncate">Compartir por WhatsApp</span>
+                    {isSharing ? <Loader2 className="h-4 w-4 shrink-0 animate-spin" /> : <Share2 className="h-4 w-4 shrink-0" />}
+                    <span className="truncate">Compartir por WhatsApp</span>
                   </Button>
                   <Button
                     variant="outline"

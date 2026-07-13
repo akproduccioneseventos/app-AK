@@ -6,6 +6,7 @@ import {
   isTruthyFollowConfirmation,
   normalizeBarTime,
   normalizeSocialHandle,
+  shouldDiscountBarStock,
 } from '@/lib/barra-tecnologica';
 
 describe('barra tecnologica helpers', () => {
@@ -64,5 +65,11 @@ describe('barra tecnologica helpers', () => {
     expect(getBarScheduleError(settings, 17 * 60 + 30)).toBe('La barra abre a las 18:00 hs.');
     expect(getBarScheduleError(settings, 20 * 60)).toBeNull();
     expect(getBarScheduleError(settings, 23 * 60 + 30)).toBe('La barra esta cerrada por hoy.');
+  });
+
+  it('discounts stock only on the first transition to delivered', () => {
+    expect(shouldDiscountBarStock('listo', 'entregado')).toBe(true);
+    expect(shouldDiscountBarStock('entregado', 'entregado')).toBe(false);
+    expect(shouldDiscountBarStock('entregado', 'cancelado')).toBe(false);
   });
 });
