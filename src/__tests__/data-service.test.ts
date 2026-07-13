@@ -16,6 +16,13 @@ jest.mock('@/app/actions/backup', () => ({
   triggerAutoBackup: jest.fn().mockResolvedValue(undefined),
 }));
 
+jest.mock('fs/promises', () => ({
+  __esModule: true,
+  mkdir: jest.fn().mockResolvedValue(undefined),
+  writeFile: jest.fn().mockResolvedValue(undefined),
+  readFile: jest.fn().mockRejectedValue(new Error('Filesystem reads are disabled in this unit test.')),
+}));
+
 // ─────────────────────────────────────────────────────────────────
 // Tests
 // ─────────────────────────────────────────────────────────────────
