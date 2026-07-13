@@ -16,6 +16,10 @@ function createSessionToken() {
 
 test.beforeEach(async ({ context, baseURL }) => {
   if (!baseURL) throw new Error('Playwright baseURL no configurada.');
+  await context.addInitScript(() => {
+    window.localStorage.setItem('ak_session', 'true');
+    window.sessionStorage.setItem('ak_session', 'true');
+  });
   await context.addCookies([
     {
       name: 'ak_session',
