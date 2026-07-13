@@ -1,7 +1,7 @@
 'use client';
 
-import React, { useState, useEffect, useCallback, use } from 'react';
-import { useRouter } from 'next/navigation';
+import React, { useState, useEffect, useCallback } from 'react';
+import { useParams, useRouter } from 'next/navigation';
 import Link from 'next/link';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle, CardFooter } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -13,8 +13,8 @@ import { useToast } from '@/hooks/use-toast';
 import { getProveedorById, saveProveedor } from '@/app/actions/proveedores';
 import type { Proveedor } from '@/types/proveedor';
 
-export default function EditProveedorPage(props: { params: Promise<{ id: string }> }) {
-  const params = use(props.params);
+export default function EditProveedorPage() {
+  const params = useParams<{ id: string }>();
   const router = useRouter();
   const { toast } = useToast();
 

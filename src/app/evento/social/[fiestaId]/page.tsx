@@ -8,8 +8,8 @@ import React, {
   type FormEvent,
   useRef,
   type ChangeEvent,
-  use,
 } from 'react';
+import { useParams } from 'next/navigation';
 import { useToast } from '@/hooks/use-toast';
 import { getPublicSocialEvent, getPublicSocialPosts, uploadSocialPost, addLikeToPost, addCommentToPost, deleteSocialPost, clearGallery, getChatMessages, addChatMessage, highlightComment, moderateSocialPost, saveSocialGallerySettings } from '@/app/actions/social-gallery';
 import { addDedication, addSongRequest, getPublicDedications, getSongRequests, getActivePoll, createPoll, votePoll, closePoll, highlightDedication, uploadDedicationAudio } from '@/app/actions/social-interactive';
@@ -550,8 +550,8 @@ function SocialCountdownScreen({
 }
 
 
-export default function SocialGalleryPage(props: { params: Promise<{ fiestaId: string }> }) {
-  const params = use(props.params);
+export default function SocialGalleryPage() {
+  const params = useParams<{ fiestaId: string }>();
   const { toast } = useToast();
 
   const [fiesta, setFiesta] = useState<PublicSocialEvent | null>(null);
