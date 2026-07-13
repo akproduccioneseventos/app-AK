@@ -32,17 +32,16 @@ function ReporteEventoContent({ fiestaId }: { fiestaId: string | null }) {
     setIsLoading(true);
     setError(null);
     try {
-      // NOTE: This report page is not fully implemented to filter by a specific event.
-      // It currently shows the Profit & Loss for a default or broader range.
-      // This would need to be updated in `reportes.ts` to accept and use a `fiestaId`.
       const [reportResult, settings] = await Promise.all([
-          getProfitAndLossData({from: new Date(2000, 1, 1), to: new Date(2100, 1, 1)}), // Placeholder date range
+          getProfitAndLossData(
+            { from: new Date('2000-01-01T00:00:00.000Z'), to: new Date('2100-12-31T23:59:59.999Z') },
+            { fiestaId },
+          ),
           getInvoiceTemplateSettings()
       ]);
       
       if (reportResult.success && reportResult.data) {
-        // Placeholder for event-specific name, as the backend doesn't filter yet.
-        setReportData({...(reportResult.data), nombreEvento: 'Evento Actual'}); 
+        setReportData(reportResult.data);
       } else {
         throw new Error(reportResult.error || "No se pudo generar el reporte.");
       }

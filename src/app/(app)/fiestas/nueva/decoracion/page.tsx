@@ -675,7 +675,11 @@ function DecoracionYDisenoEventoContent() {
       plantillasGuardadas: [...(decoracionData.plantillasGuardadas ?? []), nuevaPlantilla],
     };
     if (fiestaId) {
-      await updateDecoracionFiestaActual(fiestaId, updatedDecoracion);
+      const result = await updateDecoracionFiestaActual(fiestaId, updatedDecoracion);
+      if (!result.success) {
+        toast({ title: 'Error al guardar plantilla', description: result.error || 'No se pudo guardar la plantilla.', variant: 'destructive' });
+        return;
+      }
       setDecoracionData(updatedDecoracion);
       toast({ title: `Plantilla "${plantillaNombre}" guardada ✓` });
     }

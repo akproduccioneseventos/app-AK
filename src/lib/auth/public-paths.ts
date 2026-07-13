@@ -35,7 +35,6 @@ export const PUBLIC_PATH_PREFIXES = [
   '/evento/bogue',
   '/evento/buzon',
   '/invitado',
-  '/portal-proveedor',
   '/club-uruguay',
 ] as const;
 

@@ -8,6 +8,7 @@ import { getPromoActiva } from '@/app/actions/promos';
 import { PromoWidget } from '@/components/promo/PromoWidget';
 import { PromoCountdown } from '@/components/promo/PromoCountdown';
 import { MessageSquare } from 'lucide-react';
+import { AK_WHATSAPP_NUMBER } from '@/lib/public-contact';
 
 export const metadata: Metadata = {
   title: 'Eventos & Corporativos — AK Producciones',
@@ -28,7 +29,7 @@ export const metadata: Metadata = {
   },
 };
 
-const WHATSAPP_NUMBER = '59899123456';
+const WHATSAPP_NUMBER = AK_WHATSAPP_NUMBER;
 
 const services = [
   { icon: '🎈', title: 'Cumpleaños', desc: 'Infantiles y adultos, con toda la magia.' },

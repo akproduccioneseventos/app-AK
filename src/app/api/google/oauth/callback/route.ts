@@ -6,10 +6,15 @@ import {
   getPublicAppOrigin,
   getSafeGoogleReturnPath,
 } from '@/lib/google-workspace';
+import { hasAppSession } from '@/lib/auth/require-session';
 
 export const runtime = 'nodejs';
+export const dynamic = 'force-dynamic';
 
 export async function GET(request: NextRequest) {
+  if (!(await hasAppSession())) {
+    return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+  }
   const url = new URL(request.url);
   const code = url.searchParams.get('code');
   const error = url.searchParams.get('error');

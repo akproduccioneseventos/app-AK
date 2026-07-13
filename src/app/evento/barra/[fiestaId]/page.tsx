@@ -649,6 +649,7 @@ export default function BarraTecnologicaTouchPage() {
   const handleLogout = () => {
     localStorage.removeItem(`bar_guest_name_${fiestaId}`);
     setGuestName('');
+    stopCamera();
     setCurrentScreen('HOME');
     toast({ title: 'Sesión Cerrada', description: 'Ya podés registrar otra persona.' });
   };
@@ -972,6 +973,7 @@ export default function BarraTecnologicaTouchPage() {
               {/* Vista Previa de la Captura (con el marco ya renderizado) */}
               {capturedDataUrl && (
                 currentScreen === 'PHOTO' ? (
+                  // eslint-disable-next-line @next/next/no-img-element -- Camera output is a runtime data URL.
                   <img src={capturedDataUrl} className="w-full h-full object-cover" alt="Preview" />
                 ) : (
                   <div className="relative w-full h-full">

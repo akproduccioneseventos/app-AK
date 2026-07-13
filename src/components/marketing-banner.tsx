@@ -5,6 +5,7 @@ import { Facebook, Instagram, Music, MessageSquare } from 'lucide-react';
 import { getSocialConnections } from '@/app/actions/social-connections';
 import { cn } from '@/lib/utils';
 import { CompanyLogo } from '@/components/company-logo';
+import { AK_WHATSAPP_NUMBER } from '@/lib/public-contact';
 
 const FALLBACK_SOCIAL = [
   {
@@ -23,7 +24,7 @@ const FALLBACK_SOCIAL = [
   },
   {
     platform: 'WhatsApp',
-    profileUrl: 'https://wa.me/59899123456',
+    profileUrl: `https://wa.me/${AK_WHATSAPP_NUMBER}`,
     icon: MessageSquare,
     bgClass: 'bg-[#25D366]',
     shadowClass: 'hover:shadow-green-400/60',
@@ -40,7 +41,7 @@ const FALLBACK_SOCIAL = [
 interface MarketingBannerProps {
   /** 'full' shows headline + CTA button; 'compact' shows only logo + social icons */
   variant?: 'full' | 'compact';
-  /** Phone number for WhatsApp CTA (digits only, e.g. "59899123456") */
+  /** Phone number for WhatsApp CTA (digits only, including country code). */
   whatsappNumber?: string;
   /** Whether to show the "¡Consultanos!" WhatsApp CTA button */
   showCTA?: boolean;
@@ -49,7 +50,7 @@ interface MarketingBannerProps {
 
 export function MarketingBanner({
   variant = 'full',
-  whatsappNumber = '59899123456',
+  whatsappNumber = AK_WHATSAPP_NUMBER,
   showCTA = true,
   className,
 }: MarketingBannerProps) {

@@ -4,6 +4,7 @@ import { Play } from 'lucide-react';
 import Image from 'next/image';
 import { useState } from 'react';
 import { cn } from '@/lib/utils';
+import { canUseNextImage } from '@/lib/next-image-url';
 import type { GaleriaVideo } from '@/types/galeria';
 
 const DIRECT_VIDEO_PATTERN = /\.(mp4|webm|ogg)(\?|$)/i;
@@ -19,16 +20,6 @@ export interface VideoItem {
   categoria?: string;
 }
 
-function canUseNextImage(url: string) {
-  if (url.startsWith('/')) return true;
-  try {
-    const { hostname } = new URL(url);
-    return ['images.unsplash.com', 'img.youtube.com', 'placehold.co', 'picsum.photos', 'i.imgur.com', 'storage.googleapis.com'].includes(hostname);
-  } catch {
-    return false;
-  }
-}
-
 function VideoThumbnail({ src, alt }: { src: string; alt: string }) {
   if (canUseNextImage(src)) {
     return (
@@ -37,12 +28,12 @@ function VideoThumbnail({ src, alt }: { src: string; alt: string }) {
         alt={alt}
         fill
         sizes="(max-width: 768px) 100vw, 33vw"
-        unoptimized
         className="h-full w-full object-cover transition-transform duration-500 group-hover:scale-105"
       />
     );
   }
 
+  // eslint-disable-next-line @next/next/no-img-element -- Editor content may use an external host outside Next's allowlist.
   return <img src={src} alt={alt} loading="lazy" className="h-full w-full object-cover transition-transform duration-500 group-hover:scale-105" />;
 }
 

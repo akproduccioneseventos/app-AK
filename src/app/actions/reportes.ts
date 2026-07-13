@@ -3,15 +3,19 @@
 import { getInvoices } from './invoices';
 import { getPresupuestos } from './presupuestos';
 import { getAllFiestas } from './fiesta/fiesta.actions';
-import { getEmpleados } from './empleados';
 import { getRoles } from './roles';
 import { getGastosGenerales } from './gastos';
 import { isConfirmedClientPayment } from '@/lib/budget/financial-guardrails';
-import { getReconciledSalePayments } from '@/lib/commercial-flow/ledger-service';
+import { getReconciledSalePayments, isFirmSalesInvoice } from '@/lib/commercial-flow/ledger-service';
+import { verifySession } from '@/lib/auth/session-token';
 
 interface DateRange {
   from: Date;
   to: Date;
+}
+
+interface ProfitAndLossScope {
+  fiestaId?: string;
 }
 
 export interface IngresoDetalle {
@@ -60,17 +64,44 @@ function isFirmBudgetStatus(estado?: string) {
   return estado === 'Aceptado' || estado === 'Facturado';
 }
 
-export async function getProfitAndLossData(range: DateRange): Promise<{ success: boolean; data?: ProfitAndLossData; error?: string }> {
+export async function getProfitAndLossData(
+  range: DateRange,
+  scope: ProfitAndLossScope = {},
+): Promise<{ success: boolean; data?: ProfitAndLossData; error?: string }> {
   try {
+    const auth = await verifySession();
+    if (!auth.success) return { success: false, error: auth.error || 'No autorizado.' };
+
     const { from, to } = range;
-    const [allInvoices, presupuestos, fiestas, _empleados, roles, gastosGenerales] = await Promise.all([
+    const [allInvoices, presupuestos, fiestas, roles, gastosGenerales] = await Promise.all([
       getInvoices(),
       getPresupuestos(),
       getAllFiestas(),
-      getEmpleados(),
       getRoles(),
       getGastosGenerales(),
     ]);
+
+    const targetFiesta = scope.fiestaId
+      ? fiestas.find(fiesta => fiesta.id === scope.fiestaId)
+      : undefined;
+    if (scope.fiestaId && !targetFiesta) {
+      return { success: false, error: 'No se encontró el evento solicitado.' };
+    }
+
+    const scopedBudgetIds = targetFiesta
+      ? new Set(targetFiesta.presupuestoId ? [targetFiesta.presupuestoId] : [])
+      : null;
+    const scopedInvoiceIds = targetFiesta
+      ? new Set([
+          ...(targetFiesta.invoiceIds ?? []),
+          ...presupuestos
+            .filter(presupuesto => presupuesto.id === targetFiesta.presupuestoId && presupuesto.invoiceId)
+            .map(presupuesto => presupuesto.invoiceId!),
+          ...allInvoices
+            .filter(invoice => invoice.sourceFiestaId === targetFiesta.id)
+            .map(invoice => invoice.id),
+        ])
+      : null;
 
     const ingresosDetalle: IngresoDetalle[] = [];
     let totalIngresos = 0;
@@ -82,6 +113,8 @@ export async function getProfitAndLossData(range: DateRange): Promise<{ success:
     );
 
     allInvoices.forEach(invoice => {
+      if (!isFirmSalesInvoice(invoice)) return;
+      if (scopedInvoiceIds && !scopedInvoiceIds.has(invoice.id)) return;
       getReconciledSalePayments(invoice, linkedBudgetByInvoiceId.get(invoice.id)).forEach(payment => {
         if (!inRange(payment.date, from, to)) return;
         const monto = roundMoney(payment.amount);
@@ -96,8 +129,14 @@ export async function getProfitAndLossData(range: DateRange): Promise<{ success:
       });
     });
 
-    const invoicedBudgetIds = new Set(presupuestos.filter(p => p.invoiceId).map(p => p.id));
+    const firmInvoiceIds = new Set(allInvoices.filter(isFirmSalesInvoice).map(invoice => invoice.id));
+    const invoicedBudgetIds = new Set(
+      presupuestos
+        .filter(presupuesto => presupuesto.invoiceId && firmInvoiceIds.has(presupuesto.invoiceId))
+        .map(presupuesto => presupuesto.id),
+    );
     presupuestos.forEach(presupuesto => {
+      if (scopedBudgetIds && !scopedBudgetIds.has(presupuesto.id)) return;
       if (!isFirmBudgetStatus(presupuesto.estado)) return;
       if (invoicedBudgetIds.has(presupuesto.id)) return;
       presupuesto.pagosCliente?.forEach(pago => {
@@ -118,21 +157,24 @@ export async function getProfitAndLossData(range: DateRange): Promise<{ success:
     const costosDetalle: CostoDetalle[] = [];
     let totalCostos = 0;
 
-    gastosGenerales.forEach(gasto => {
-      if (!inRange(gasto.fecha, from, to)) return;
-      const monto = roundMoney(gasto.monto);
-      if (monto <= 0) return;
-      costosDetalle.push({
-        id: gasto.id,
-        fecha: gasto.fecha,
-        concepto: gasto.concepto,
-        categoria: gasto.categoria,
-        monto,
+    if (!targetFiesta) {
+      gastosGenerales.forEach(gasto => {
+        if (!inRange(gasto.fecha, from, to)) return;
+        const monto = roundMoney(gasto.monto);
+        if (monto <= 0) return;
+        costosDetalle.push({
+          id: gasto.id,
+          fecha: gasto.fecha,
+          concepto: gasto.concepto,
+          categoria: gasto.categoria,
+          monto,
+        });
+        totalCostos += monto;
       });
-      totalCostos += monto;
-    });
+    }
 
-    for (const fiesta of fiestas) {
+    const fiestasForReport = targetFiesta ? [targetFiesta] : fiestas;
+    for (const fiesta of fiestasForReport) {
       const fechaEvento = fiesta.configuracion.fechaEvento;
       if (!inRange(fechaEvento, from, to)) continue;
 
@@ -154,7 +196,24 @@ export async function getProfitAndLossData(range: DateRange): Promise<{ success:
       });
 
       const costosItems = fiesta.gestionCostos?.costosItems || [];
-      const totalCostosPlanificados = costosItems.reduce((sum, item) => sum + roundMoney(item.montoEstimado), 0);
+      const costosSinMermaDuplicada = costosItems.filter(item => item.id !== 'auto_merma_bebidas');
+      const otros = fiesta.gestionCostos?.others || {};
+      const personalCalculado = (fiesta.personalAsignado ?? []).reduce((sum, pa) => {
+        const rol = roles.find(r => r.id === pa.rolId);
+        const sueldo = roundMoney(pa.eventSalary || rol?.sueldoPorEvento || 0);
+        const aportes = Math.round((sueldo * (rol?.porcentajeAportesPatronales || 0)) / 100);
+        return sum + sueldo + aportes;
+      }, 0);
+      const costosOperativos = [
+        roundMoney(otros.totalCateringCost),
+        roundMoney(otros.totalBebidasCost),
+        roundMoney(otros.totalReposteriaCost),
+        Math.max(roundMoney(otros.totalPersonalCost), personalCalculado),
+      ];
+      const totalCostosPlanificados = costosSinMermaDuplicada.reduce(
+        (sum, item) => sum + roundMoney(item.montoEstimado),
+        0,
+      ) + costosOperativos.reduce((sum, monto) => sum + monto, 0);
       const restantePlanificado = Math.max(0, totalCostosPlanificados - totalPagosProveedores);
       if (restantePlanificado > 0) {
         costosDetalle.push({
@@ -167,43 +226,6 @@ export async function getProfitAndLossData(range: DateRange): Promise<{ success:
         totalCostos += restantePlanificado;
       }
 
-      if (totalCostosPlanificados === 0) {
-        const otros = fiesta.gestionCostos?.others || {};
-        const proyecciones = [
-          { id: 'cat', nombre: 'Proyección comida', categoria: 'Comida Proyectada', monto: otros.totalCateringCost || 0 },
-          { id: 'beb', nombre: 'Proyección bebidas', categoria: 'Bebidas Proyectadas', monto: otros.totalBebidasCost || 0 },
-          { id: 'rep', nombre: 'Proyección repostería', categoria: 'Repostería Proyectada', monto: otros.totalReposteriaCost || 0 },
-          { id: 'prov', nombre: 'Proyección proveedores', categoria: 'Proveedores Proyectados', monto: otros.totalProveedorCost || 0 },
-        ];
-        proyecciones.forEach(proy => {
-          const monto = roundMoney(proy.monto);
-          if (monto <= 0) return;
-          costosDetalle.push({
-            id: `proy-${proy.id}-${fiesta.id}`,
-            fecha: fechaEvento!,
-            concepto: `${proy.nombre}: ${fiesta.configuracion.nombreEvento}`,
-            categoria: proy.categoria,
-            monto,
-          });
-          totalCostos += monto;
-        });
-      }
-
-      fiesta.personalAsignado?.forEach(pa => {
-        const rol = roles.find(r => r.id === pa.rolId);
-        const sueldo = roundMoney(pa.eventSalary || rol?.sueldoPorEvento || 0);
-        const aportes = Math.round((sueldo * (rol?.porcentajeAportesPatronales || 0)) / 100);
-        const costoNomina = sueldo + aportes;
-        if (costoNomina <= 0) return;
-        costosDetalle.push({
-          id: `pers-${pa.empleadoId || 'vac'}-${fiesta.id}`,
-          fecha: fechaEvento!,
-          concepto: `Nómina: ${rol?.nombre || 'Personal'} (${fiesta.configuracion.nombreEvento})`,
-          categoria: 'Personal',
-          monto: costoNomina,
-        });
-        totalCostos += costoNomina;
-      });
     }
 
     const gananciaNeta = totalIngresos - totalCostos;
@@ -216,6 +238,7 @@ export async function getProfitAndLossData(range: DateRange): Promise<{ success:
         costos: { total: totalCostos, detalle: costosDetalle },
         gananciaNeta,
         margen,
+        nombreEvento: targetFiesta?.configuracion.nombreEvento,
       },
     };
   } catch (error: any) {

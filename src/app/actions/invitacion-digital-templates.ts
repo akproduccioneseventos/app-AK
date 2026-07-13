@@ -4,6 +4,7 @@
 import { readData, writeData } from '@/lib/data-service';
 import type { InvitacionDigitalData } from '@/types/fiesta';
 import { defaultInvitacionDigitalData } from '@/lib/invitacion-digital-defaults';
+import { requireAppSession } from '@/lib/auth/require-session';
 import {
   tplBodaRosaEterna,
   tplBodaBohoMistica,
@@ -130,6 +131,7 @@ async function readSavedTemplates(): Promise<InvitacionDigitalTemplate[]> {
 export async function saveInvitationTemplate(
   templateData: Omit<InvitacionDigitalTemplate, 'id'> | InvitacionDigitalTemplate
 ): Promise<{ success: boolean; template?: InvitacionDigitalTemplate; error?: string }> {
+  await requireAppSession();
   if (!templateData.name.trim()) {
     return { success: false, error: "El nombre de la plantilla es obligatorio." };
   }
@@ -164,6 +166,7 @@ export async function saveInvitationTemplate(
 }
 
 export async function deleteInvitationTemplate(id: string): Promise<{ success: boolean; error?: string }> {
+  await requireAppSession();
   const allTemplates = await getInvitationTemplates();
   const exists = allTemplates.some(t => t.id === id);
   if (!exists) {
@@ -178,6 +181,7 @@ export async function deleteInvitationTemplate(id: string): Promise<{ success: b
 }
 
 export async function duplicateInvitationTemplate(templateId: string): Promise<{ success: boolean; newTemplate?: InvitacionDigitalTemplate, error?: string }> {
+  await requireAppSession();
   const allTemplates = await getInvitationTemplates();
   const templateToDuplicate = allTemplates.find(t => t.id === templateId);
 

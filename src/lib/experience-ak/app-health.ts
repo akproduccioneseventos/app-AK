@@ -103,6 +103,9 @@ export function buildAppHealthReport(fiesta: FiestaEnPlanificacion): AppHealthRe
   const projectId = process.env.NEXT_PUBLIC_FIREBASE_PROJECT_ID || process.env.GCLOUD_PROJECT || process.env.GOOGLE_CLOUD_PROJECT;
   const googleWorkspaceReady = hasText(process.env.GOOGLE_CLIENT_ID) && hasText(process.env.GOOGLE_CLIENT_SECRET);
   const mailReady = hasText(process.env.GMAIL_CLIENT_ID) || hasText(process.env.GOOGLE_CLIENT_ID) || hasText(process.env.SMTP_HOST);
+  const instagramReady =
+    hasText(process.env.INSTAGRAM_ACCESS_TOKEN || process.env.META_INSTAGRAM_ACCESS_TOKEN) &&
+    hasText(process.env.INSTAGRAM_BUSINESS_ACCOUNT_ID || process.env.INSTAGRAM_USER_ID);
   const publicBaseReady = hasText(process.env.NEXT_PUBLIC_APP_URL) || hasText(process.env.NEXT_PUBLIC_BASE_URL) || process.env.NODE_ENV !== 'production';
 
   const checks: AppHealthCheck[] = [
@@ -139,6 +142,15 @@ export function buildAppHealthReport(fiesta: FiestaEnPlanificacion): AppHealthRe
       status: mailReady ? 'ok' : 'warning',
       detail: mailReady ? 'Configuracion de correo detectada.' : 'Falta configurar proveedor de correo para envios reales.',
       href: '/settings/google-workspace',
+    },
+    {
+      id: 'instagram',
+      label: 'Instagram Graph API',
+      status: instagramReady ? 'ok' : 'warning',
+      detail: instagramReady
+        ? 'Token y cuenta comercial detectados para sincronizacion real.'
+        : 'Falta conectar el token y la cuenta comercial; la app no usara publicaciones simuladas en produccion.',
+      href: '/settings/contenido-publico',
     },
     {
       id: 'public-routes',

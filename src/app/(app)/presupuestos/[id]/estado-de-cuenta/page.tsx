@@ -1,6 +1,7 @@
 'use client';
 
-import React, { useState, useEffect, useCallback, useMemo, Suspense, use } from 'react';
+import React, { useState, useEffect, useCallback, useMemo, Suspense } from 'react';
+import { useParams } from 'next/navigation';
 import Link from 'next/link';
 import { ArrowLeft, Printer, MessageCircle, CheckCircle2, Clock, AlertCircle, Loader2, CreditCard, Banknote, Smartphone, FileCheck2 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
@@ -498,8 +499,8 @@ function EstadoDeCuentaContent({ params }: { params: { id: string } }) {
   );
 }
 
-export default function EstadoDeCuentaPage(props: { params: Promise<{ id: string }> }) {
-  const params = use(props.params);
+export default function EstadoDeCuentaPage() {
+  const params = useParams<{ id: string }>();
   return (
     <Suspense
       fallback={

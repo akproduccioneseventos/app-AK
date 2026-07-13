@@ -18,7 +18,7 @@ import { getBudgetDisplaySettings } from '@/app/actions/settings';
 import { checkDateAvailability } from '@/app/actions/simulador-v2';
 import { getServiciosEmpresa } from '@/app/actions/servicios-empresa';
 import { getMenus } from '@/app/actions/menus-catering';
-import { getWhatsAppConfig } from '@/app/actions/whatsapp';
+import { getPublicWhatsAppNumber } from '@/app/actions/whatsapp';
 import { CompanyLogo } from '@/components/company-logo';
 import { cn } from '@/lib/utils';
 import { DatePickerDemo } from '@/components/date-picker-demo';
@@ -164,6 +164,7 @@ function SimuladorAKContent() {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [generatedId, setGeneratedId] = useState<string | null>(null);
   const [token, setToken] = useState<string | null>(null);
+  const autoSaveAttemptRef = useRef<string | null>(null);
 
   // Load configuration
   useEffect(() => {
@@ -201,9 +202,9 @@ function SimuladorAKContent() {
       if (active) setIsReferenceDataLoading(false);
     });
 
-    getWhatsAppConfig()
-      .then((waConfig) => {
-        if (active && waConfig?.phoneNumber) setEmpresaPhone(waConfig.phoneNumber);
+    getPublicWhatsAppNumber()
+      .then((phoneNumber) => {
+        if (active && phoneNumber) setEmpresaPhone(phoneNumber);
       })
       .catch(() => {});
 
@@ -216,13 +217,6 @@ function SimuladorAKContent() {
   useEffect(() => {
     chatEndRef.current?.scrollIntoView({ behavior: 'smooth' });
   }, [chatHistory, isAiLoading, currentChatStep]);
-
-  // Save budget automatically when budget_ready is reached
-  useEffect(() => {
-    if (currentChatStep === 'budget_ready' && priceStats && !isSubmitting && !generatedId) {
-      handleSaveBudget();
-    }
-  }, [currentChatStep]);
 
   // Extract menus dynamically
   const { entradasDisponibles, principalesDisponibles, menusNinoDisponibles } = useMemo(() => {
@@ -625,6 +619,22 @@ function SimuladorAKContent() {
       setIsSubmitting(false);
     }
   };
+
+  useEffect(() => {
+    if (currentChatStep !== 'budget_ready' || !priceStats || isSubmitting || generatedId) return;
+    const attemptKey = [
+      selectedPaqueteId || 'custom',
+      priceStats.totalFinal,
+      adultos,
+      ninosYAdolescentes,
+      eventoFecha?.toISOString() || 'no-date',
+    ].join(':');
+    if (autoSaveAttemptRef.current === attemptKey) return;
+    autoSaveAttemptRef.current = attemptKey;
+    void handleSaveBudget();
+    // handleSaveBudget intentionally uses the latest simulator snapshot from this render.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [currentChatStep, priceStats, isSubmitting, generatedId, selectedPaqueteId, adultos, ninosYAdolescentes, eventoFecha]);
 
   const handleSwitchPackage = async (paqueteId: string) => {
     setIsAiLoading(true);
@@ -1090,7 +1100,7 @@ ${generatedId ? `*Link:* ${window.location.origin}/presupuestos/${generatedId}/v
                       {/* RESERVATION BANNER */}
                       <div className="w-full space-y-1 rounded-xl border border-white/10 bg-zinc-950/70 p-4 text-xs text-zinc-300">
                         <h4 className="font-black uppercase tracking-widest text-[9px] flex items-center gap-1.5"><Info className="w-3.5 h-3.5"/> Información de Contratación</h4>
-                        <p className="leading-relaxed">Seña para congelar fecha: **{formatCurrency(priceStats.totalFinal * 0.3)}** (30% del total).</p>
+                        <p className="leading-relaxed">Seña para asegurar la fecha: **{formatCurrency(priceStats.totalFinal * 0.3)}** (30% del total).</p>
                         <p className="leading-relaxed">El saldo restante se financia en cuotas fijas o reajustables hasta el día de la fiesta.</p>
                       </div>
 

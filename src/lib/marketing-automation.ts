@@ -3,6 +3,7 @@ import 'server-only';
 import { generateBlogPostAndSocialDraft } from '@/lib/blog-ai-generator';
 import { readData, writeData } from '@/lib/data-service';
 import { syncInstagramPosts } from '@/app/actions/social-media';
+import { MARKETING_AUTOMATION_INTERNAL_TOKEN } from '@/lib/marketing/internal-token';
 
 const AUTOMATION_STATE_FILE = 'marketing-automation-state.json';
 const SEO_INTERVAL_MS = 7 * 24 * 60 * 60 * 1000;
@@ -39,6 +40,7 @@ export interface MarketingAutomationResult {
   };
   message: string;
   error?: string;
+  warning?: string;
 }
 
 function addMs(iso: string | undefined, ms: number) {
@@ -51,6 +53,11 @@ function isDue(lastRunAt: string | undefined, intervalMs: number, nowMs: number)
   const last = new Date(lastRunAt).getTime();
   if (!Number.isFinite(last)) return true;
   return nowMs - last >= intervalMs;
+}
+
+function hasUsableAiKey(): boolean {
+  const key = process.env.GOOGLE_API_KEY || process.env.GEMINI_API_KEY;
+  return Boolean(key && key.trim() && key !== 'dummy');
 }
 
 export async function runMarketingAutomation(options?: {
@@ -94,38 +101,43 @@ export async function runMarketingAutomation(options?: {
 
   let blogResult: Awaited<ReturnType<typeof generateBlogPostAndSocialDraft>> | undefined;
   let instagramResult: Awaited<ReturnType<typeof syncInstagramPosts>> | undefined;
+  let seoError: string | undefined;
 
   if (instagramDue) {
-    instagramResult = await syncInstagramPosts();
-    if (!instagramResult.success) {
-      return {
-        success: false,
-        skipped: false,
-        source,
-        ranSeo: false,
-        ranInstagram: false,
-        nextSeoAt,
-        nextInstagramAt,
-        message: 'No se pudo sincronizar Instagram.',
-        error: instagramResult.error,
-      };
+    instagramResult = await syncInstagramPosts(MARKETING_AUTOMATION_INTERNAL_TOKEN);
+    if (instagramResult.success) {
+      nextState.lastInstagramSyncAt = now.toISOString();
     }
-    nextState.lastInstagramSyncAt = now.toISOString();
   }
 
   if (seoDue) {
-    blogResult = await generateBlogPostAndSocialDraft();
-    nextState.lastSeoRunAt = now.toISOString();
+    if (hasUsableAiKey()) {
+      blogResult = await generateBlogPostAndSocialDraft();
+      nextState.lastSeoRunAt = now.toISOString();
+    } else {
+      seoError = 'SEO automatico pendiente: falta una clave valida de Gemini.';
+    }
   }
 
-  await writeData(AUTOMATION_STATE_FILE, nextState, undefined, { skipAutoBackup: true });
+  const instagramFailed = instagramDue && instagramResult?.success === false;
+  const instagramSucceeded = instagramDue && instagramResult?.success === true;
+  const seoSucceeded = seoDue && Boolean(blogResult);
+  const completedJobs = Number(instagramSucceeded) + Number(seoSucceeded);
+  const errors = [instagramFailed ? instagramResult?.error : undefined, seoError].filter(
+    (message): message is string => Boolean(message)
+  );
+  const success = completedJobs > 0;
+
+  if (success) {
+    await writeData(AUTOMATION_STATE_FILE, nextState, undefined, { skipAutoBackup: true });
+  }
 
   return {
-    success: true,
+    success,
     skipped: false,
     source,
-    ranSeo: seoDue,
-    ranInstagram: instagramDue,
+    ranSeo: seoSucceeded,
+    ranInstagram: instagramSucceeded,
     nextSeoAt: nextState.lastSeoRunAt ? addMs(nextState.lastSeoRunAt, SEO_INTERVAL_MS) : nextSeoAt,
     nextInstagramAt: nextState.lastInstagramSyncAt ? addMs(nextState.lastInstagramSyncAt, INSTAGRAM_INTERVAL_MS) : nextInstagramAt,
     blogPost: blogResult?.blogPost,
@@ -138,8 +150,12 @@ export async function runMarketingAutomation(options?: {
         }
       : undefined,
     message: [
-      seoDue ? 'SEO generado' : '',
-      instagramDue ? 'Instagram sincronizado' : '',
+      seoSucceeded ? 'SEO generado' : '',
+      instagramSucceeded ? 'Instagram sincronizado' : '',
+      instagramFailed ? 'Instagram pendiente de conexion real' : '',
+      seoError ? 'SEO pendiente de configuracion' : '',
     ].filter(Boolean).join(' y ') || 'Marketing automatico al dia.',
+    error: success ? undefined : errors.join(' '),
+    warning: success && errors.length > 0 ? errors.join(' ') : undefined,
   };
 }

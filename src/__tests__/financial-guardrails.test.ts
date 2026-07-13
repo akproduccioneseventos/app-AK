@@ -7,6 +7,7 @@ import {
   getBudgetPaymentSummary,
   getPaymentReceiptSnapshot,
   auditPresupuestoFinancialGuardrails,
+  findMatchingClientPayment,
 } from '@/lib/budget/financial-guardrails';
 import { auditPresupuestoTotals } from '@/lib/commercial-flow/budget-audit';
 
@@ -152,6 +153,18 @@ describe('financial guardrails', () => {
 
     expect(receipt.balanceBeforePayment).toBe(600);
     expect(receipt.balanceAfterPayment).toBe(600);
+  });
+
+  it('recognizes the same payment on retry without accepting rejected or invalid records', () => {
+    const payments = [
+      { id: 'p1', fecha: '2026-05-16T21:00:00.000Z', monto: 300, metodoPago: 'Efectivo' as const, estadoPago: 'confirmado' as const },
+      { id: 'p2', fecha: 'fecha-invalida', monto: 300, metodoPago: 'Efectivo' as const, estadoPago: 'confirmado' as const },
+      { id: 'p3', fecha: '2026-05-17', monto: 300, metodoPago: 'Efectivo' as const, estadoPago: 'rechazado' as const },
+    ];
+
+    expect(findMatchingClientPayment(payments, 300, '2026-05-16')).toBe(payments[0]);
+    expect(findMatchingClientPayment(payments, 300, 'fecha-invalida')).toBeUndefined();
+    expect(findMatchingClientPayment(payments, 300, '2026-05-17')).toBeUndefined();
   });
 
   it('audits guest totals that drift from the split counts', () => {

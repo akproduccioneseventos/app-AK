@@ -1,14 +1,15 @@
 'use server';
 
 import type { Invoice, InvoiceItem, Payment } from '@/types/invoice';
-import type { MetodoPago } from '@/types/presupuesto';
+import type { MetodoPago, Presupuesto } from '@/types/presupuesto';
 import { readData, writeData } from '@/lib/data-service';
 import { addPagoToPresupuesto, markPresupuestoAsFacturado } from './presupuestos';
-import { addInvoiceId } from './fiesta/fiesta.actions';
+import { addInvoiceId, removeInvoiceId } from './fiesta/fiesta.actions';
 import * as logger from '@/lib/logger';
 import { uploadToStorage } from '@/lib/firebase/storage';
 import { verifySession } from '@/lib/auth/session-token';
-import { parseCleanMoney } from '@/lib/budget/financial-guardrails';
+import { findMatchingClientPayment, parseCleanMoney } from '@/lib/budget/financial-guardrails';
+import { findExistingDepositReceipt } from '@/lib/commercial-flow/ledger-service';
 
 const INVOICES_FILE = 'invoices.json';
 const MONEY_TOLERANCE = 1;
@@ -193,14 +194,50 @@ export async function registerBookingDeposit(data: {
     const fiesta = await readData<any>(`fiestas/${data.fiestaId}.json`, null);
     if (!fiesta) throw new Error('Fiesta no encontrada.');
 
-    if (fiesta.presupuestoId && !data.skipBudgetPayment) {
-      const [{ getPresupuestoById }, { validatePaymentAgainstBudget }] = await Promise.all([
-        import('./presupuestos'),
-        import('@/lib/budget/financial-guardrails'),
-      ]);
-      const presupuesto = await getPresupuestoById(fiesta.presupuestoId);
-      if (presupuesto) {
-        const validation = validatePaymentAgainstBudget(presupuesto, amount, { includePendingForLimit: true });
+    const paymentDay = new Date(data.date).toISOString().slice(0, 10);
+    const paymentReference = `Seña registrada:${data.fiestaId}:${paymentDay}:${amount}`;
+    let linkedBudget: Presupuesto | null = null;
+
+    if (fiesta.presupuestoId) {
+      const { getPresupuestoById } = await import('./presupuestos');
+      linkedBudget = await getPresupuestoById(fiesta.presupuestoId);
+    }
+
+    const existingReceipt = findExistingDepositReceipt(await getInvoices(), {
+      fiestaId: data.fiestaId,
+      invoiceIds: fiesta.invoiceIds,
+      amount,
+      date: data.date,
+    });
+
+    if (existingReceipt) {
+      if (linkedBudget && !data.skipBudgetPayment) {
+        const paymentAlreadyRegistered = Boolean(findMatchingClientPayment(
+          linkedBudget.pagosCliente,
+          amount,
+          data.date,
+        ));
+        if (!paymentAlreadyRegistered) {
+          const paymentResult = await addPagoToPresupuesto(fiesta.presupuestoId, {
+            fecha: data.date,
+            monto: amount,
+            metodoPago: mapDepositMethodToBudgetMethod(data.method),
+            referencia: paymentReference,
+            estadoPago: 'confirmado',
+          });
+          if (!paymentResult.success) return { success: false, error: paymentResult.error };
+        }
+      }
+      if (!data.skipFiestaSave && !(fiesta.invoiceIds || []).includes(existingReceipt.id)) {
+        await addInvoiceId(data.fiestaId, existingReceipt.id);
+      }
+      return { success: true, invoiceId: existingReceipt.id };
+    }
+
+    if (linkedBudget && !data.skipBudgetPayment) {
+      const { validatePaymentAgainstBudget } = await import('@/lib/budget/financial-guardrails');
+      if (linkedBudget) {
+        const validation = validatePaymentAgainstBudget(linkedBudget, amount, { includePendingForLimit: true });
         if (!validation.ok) return { success: false, error: validation.error };
       }
     }
@@ -223,7 +260,10 @@ export async function registerBookingDeposit(data: {
       totalAmount: amount,
       status: 'Paid',
       currency: 'UYU',
-      vendorName: 'AK Producciones'
+      vendorName: 'AK Producciones',
+      documentKind: 'deposit_receipt',
+      sourceFiestaId: data.fiestaId,
+      sourcePresupuestoId: fiesta.presupuestoId,
     };
 
     const invoiceResult = await saveInvoice(newInvoice);
@@ -247,7 +287,7 @@ export async function registerBookingDeposit(data: {
         fecha: data.date,
         monto: amount,
         metodoPago: mapDepositMethodToBudgetMethod(data.method),
-        referencia: `Seña registrada desde evento ${fiesta.configuracion.nombreEvento || data.fiestaId}`,
+        referencia: paymentReference,
         estadoPago: 'confirmado',
       });
       if (!paymentResult.success) {
@@ -264,19 +304,36 @@ export async function registerBookingDeposit(data: {
   }
 }
 
-export async function deleteInvoice(id: string): Promise<{ success: boolean; error?: string }> {
+export async function deleteInvoice(id: string, linkedFiestaId?: string): Promise<{ success: boolean; error?: string }> {
   const auth = await verifySession();
   if (!auth.success) return { success: false, error: auth.error };
-  let invoices = await getInvoices();
-  const initialLength = invoices.length;
-  invoices = invoices.filter(inv => inv.id !== id);
+  const originalInvoices = await getInvoices();
+  const initialLength = originalInvoices.length;
+  const invoices = originalInvoices.filter(inv => inv.id !== id);
   if (invoices.length === initialLength) {
     return { success: false, error: `Factura con ID ${id} no encontrada para eliminar.` };
   }
+  let deletionPersisted = false;
   try {
     await writeData(INVOICES_FILE, invoices);
+    deletionPersisted = true;
+    if (linkedFiestaId) {
+      const unlinkResult = await removeInvoiceId(linkedFiestaId, id);
+      if (!unlinkResult.success) {
+        await writeData(INVOICES_FILE, originalInvoices);
+        return { success: false, error: 'No se pudo desvincular la factura del evento. La eliminación fue revertida.' };
+      }
+    }
   } catch (writeError: any) {
     console.error('Error deleting invoice:', writeError);
+    if (deletionPersisted) {
+      try {
+        await writeData(INVOICES_FILE, originalInvoices);
+      } catch (rollbackError) {
+        console.error('Error restoring invoice after unlink failure:', rollbackError);
+        return { success: false, error: 'La factura quedó en un estado inconsistente. Recargá y no repitas la operación.' };
+      }
+    }
     return { success: false, error: writeError.message || 'Error al eliminar la factura.' };
   }
   return { success: true };

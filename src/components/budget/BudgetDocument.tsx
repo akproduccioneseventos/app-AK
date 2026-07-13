@@ -637,7 +637,6 @@ export default function BudgetDocument({
           .budget-formal-print-template td {
             padding: 4px 6px !important;
           }
-          .budget-formal-print-template section,
           .budget-print-avoid-break,
           .budget-formal-print-template tr {
             break-inside: avoid;

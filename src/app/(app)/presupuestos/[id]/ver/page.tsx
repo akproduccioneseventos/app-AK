@@ -1,7 +1,7 @@
 'use client';
 
-import React, { useState, useEffect, useCallback, useMemo, Suspense, use } from 'react';
-import { useRouter, useSearchParams } from 'next/navigation';
+import React, { useState, useEffect, useCallback, useMemo, Suspense, useRef } from 'react';
+import { useParams, useRouter, useSearchParams } from 'next/navigation';
 import Link from 'next/link';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription, CardFooter } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -15,7 +15,7 @@ import { PresupuestoStatusBadge } from '@/components/presupuestos/presupuesto-st
 import type { Presupuesto, ItemPresupuestado, PagoCliente, MetodoPago } from '@/types/presupuesto';
 import type { AuditResult } from '@/lib/commercial-flow/budget-audit';
 import { ALL_METODOS_PAGO } from '@/types/presupuesto';
-import { getPresupuestoById, addPagoToPresupuesto, deletePagoFromPresupuesto, createFiestaFromPresupuesto, approvePresupuesto, addPagoClienteFromPortal } from '@/app/actions/presupuestos';
+import { getPresupuestoById, getPresupuestoShareToken, addPagoToPresupuesto, deletePagoFromPresupuesto, createFiestaFromPresupuesto, approvePresupuesto, addPagoClienteFromPortal } from '@/app/actions/presupuestos';
 import { getFiestas } from '@/app/actions/fiesta/fiesta.actions';
 import { getCustomerById } from '@/app/actions/customers';
 import { getSocialConnections } from '@/app/actions/social-connections';
@@ -91,6 +91,7 @@ function VerPresupuestoContent({ params }: { params: { id: string } }) {
   const { toast } = useToast();
 
   const [presupuesto, setPresupuesto] = useState<Presupuesto | null>(null);
+  const budgetDocumentRef = useRef<HTMLDivElement>(null);
   const [cliente, setCliente] = useState<Customer | null>(null);
   const [displaySettings, setDisplaySettings] = useState<BudgetDisplaySettings | null>(null);
   const [companyInfo, setCompanyInfo] = useState<CompanyInfo | null>(null);
@@ -102,6 +103,7 @@ function VerPresupuestoContent({ params }: { params: { id: string } }) {
   const [isCreatingFiesta, setIsCreatingFiesta] = useState(false);
   const [linkedFiestaId, setLinkedFiestaId] = useState<string | null>(null);
   const [isDownloading, setIsDownloading] = useState(false);
+  const [isSharing, setIsSharing] = useState(false);
 
   // Sanity Check / Verification state
   const [isApprovingPresupuesto, setIsApprovingPresupuesto] = useState(false);
@@ -127,13 +129,14 @@ function VerPresupuestoContent({ params }: { params: { id: string } }) {
   const [isAuditing, setIsAuditing] = useState(false);
   const [auditResult, setAuditResult] = useState<AuditResult | null>(null);
   const [showAudit, setShowAudit] = useState(false);
+  const publicToken = searchParams.get('token') || undefined;
 
   const fetchPresupuestoAndSettings = useCallback(async () => {
     if (!presupuestoId) return;
     setIsLoading(true);
     try {
       const [fetchedPresupuesto, fetchedSettings, templateSettings, socialConnections, fetchedCompanyInfo] = await Promise.all([
-        getPresupuestoById(presupuestoId, searchParams.get('token') || undefined),
+        getPresupuestoById(presupuestoId, publicToken),
         getBudgetDisplaySettings(),
         getInvoiceTemplateSettings(),
         getSocialConnections(),
@@ -166,7 +169,7 @@ function VerPresupuestoContent({ params }: { params: { id: string } }) {
     } finally {
       setIsLoading(false);
     }
-  }, [presupuestoId]);
+  }, [presupuestoId, publicToken]);
 
   useEffect(() => { fetchPresupuestoAndSettings(); }, [fetchPresupuestoAndSettings]);
   useEffect(() => {
@@ -243,8 +246,44 @@ function VerPresupuestoContent({ params }: { params: { id: string } }) {
     };
   }, [presupuesto, adjustmentPct]);
 
-  const handlePrint = () => {
-    window.print();
+  const handlePrint = async () => {
+    if (!presupuesto || !budgetDocumentRef.current || isDownloading) return;
+    setIsDownloading(true);
+    try {
+      const { jsPDF } = await import('jspdf');
+      const pdf = new jsPDF({ orientation: 'portrait', unit: 'mm', format: 'a4' });
+      await pdf.html(budgetDocumentRef.current, {
+        autoPaging: 'text',
+        margin: [12, 12, 16, 12],
+        width: 186,
+        windowWidth: 1024,
+        html2canvas: {
+          backgroundColor: '#ffffff',
+          scale: 0.8,
+          useCORS: true,
+        },
+      });
+      const totalPages = pdf.getNumberOfPages();
+      for (let page = 1; page <= totalPages; page += 1) {
+        pdf.setPage(page);
+        pdf.setFontSize(8);
+        pdf.setTextColor(100);
+        pdf.text(`Página ${page} de ${totalPages}`, 198, 285, { align: 'right' });
+      }
+      pdf.save(`presupuesto-ak-${presupuesto.numero || presupuesto.id}.pdf`);
+      toast({
+        title: 'Descarga exitosa',
+        description: 'El archivo PDF de tu presupuesto se ha descargado correctamente.',
+      });
+    } catch (error: any) {
+      toast({
+        title: 'No pudimos descargar el PDF',
+        description: error.message || 'Intentá nuevamente.',
+        variant: 'destructive',
+      });
+    } finally {
+      setIsDownloading(false);
+    }
   };
 
   const handleAudit = () => {
@@ -297,16 +336,40 @@ function VerPresupuestoContent({ params }: { params: { id: string } }) {
     window.open(`https://wa.me/${whatsappNumber}?text=${encodeURIComponent(text)}`, '_blank');
   };
 
-  const handleSharePublicBudget = () => {
-    if (!presupuesto) return;
-    const url = `${window.location.origin}/presupuestos/${presupuesto.id}/ver?cliente=1`;
-    const text = [
-      'Hola! Te comparto el presupuesto formal de AK Producciones.',
-      `Cliente: ${presupuesto.clienteNombre}`,
-      `Total vigente: ${formatCurrency(calculatedValues.totalFinal)}`,
-      `Ver presupuesto: ${url}`,
-    ].join('\n');
-    window.open(`https://wa.me/?text=${encodeURIComponent(text)}`, '_blank');
+  const handleSharePublicBudget = async () => {
+    if (!presupuesto || isSharing) return;
+    setIsSharing(true);
+    try {
+      let currentToken = searchParams.get('token') || (presupuesto as any).token || '';
+      if (!currentToken) {
+        const tokenResult = await getPresupuestoShareToken(presupuesto.id);
+        if (!tokenResult.success || !tokenResult.token) {
+          throw new Error(tokenResult.error || 'No se pudo crear un acceso seguro al presupuesto.');
+        }
+        currentToken = tokenResult.token;
+      }
+      const nameParam = encodeURIComponent(presupuesto.clienteNombre.trim().replace(/\s+/g, '_'));
+      const url = `${window.location.origin}/presupuestos/${presupuesto.id}/ver?cliente=1&token=${currentToken}&para=${nameParam}`;
+      const text = [
+      `📄 *Presupuesto de AK Producciones para ${presupuesto.clienteNombre}*`,
+      `-----------------`,
+      `¡Hola! Te compartimos el detalle formal de tu presupuesto.`,
+      ``,
+      `*Evento:* ${presupuesto.eventoTipo || 'Social'}`,
+      `*Total Vigente:* ${formatCurrency(calculatedValues.totalFinal)}`,
+      ``,
+      `👉 *Ver presupuesto online:* ${url}`
+      ].join('\n');
+      window.open(`https://wa.me/?text=${encodeURIComponent(text)}`, '_blank');
+    } catch (error) {
+      toast({
+        title: 'No se pudo compartir',
+        description: error instanceof Error ? error.message : 'Intentá nuevamente.',
+        variant: 'destructive',
+      });
+    } finally {
+      setIsSharing(false);
+    }
   };
 
   const pagosSummary = useMemo(() => {
@@ -644,9 +707,11 @@ function VerPresupuestoContent({ params }: { params: { id: string } }) {
                 <div className="grid grid-cols-1 gap-3 md:grid-cols-3">
                   <Button
                     onClick={handleSharePublicBudget}
+                    disabled={isSharing}
                     className="h-12 rounded-xl bg-emerald-600 text-[11px] sm:text-xs font-bold uppercase tracking-wide text-white hover:bg-emerald-700 px-2 flex items-center justify-center gap-1.5 w-full"
                   >
-                    <Share2 className="h-4 w-4 shrink-0" /> <span className="truncate">Compartir por WhatsApp</span>
+                    {isSharing ? <Loader2 className="h-4 w-4 shrink-0 animate-spin" /> : <Share2 className="h-4 w-4 shrink-0" />}
+                    <span className="truncate">Compartir por WhatsApp</span>
                   </Button>
                   <Button
                     variant="outline"
@@ -977,7 +1042,7 @@ function VerPresupuestoContent({ params }: { params: { id: string } }) {
                 </Card>
             </motion.div>
 
-            <div id="budget-print-area-wrapper">
+            <div id="budget-print-area-wrapper" ref={budgetDocumentRef}>
               <BudgetDocument
                 presupuesto={presupuesto}
                 logoUrl={logoUrl}
@@ -1226,8 +1291,8 @@ function VerPresupuestoContent({ params }: { params: { id: string } }) {
   );
 }
 
-export default function VerPresupuestoPage(props: { params: Promise<{ id: string }> }) {
-  const params = use(props.params);
+export default function VerPresupuestoPage() {
+  const params = useParams<{ id: string }>();
   return (
     <Suspense fallback={<div className="flex justify-center items-center h-screen"><Loader2 className="w-12 h-12 animate-spin text-primary" /></div>}>
       <VerPresupuestoContent params={params} />

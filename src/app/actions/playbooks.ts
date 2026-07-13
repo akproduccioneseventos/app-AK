@@ -5,6 +5,7 @@ import type { TipoEvento } from '@/types/presupuesto';
 import type { Tarea } from '@/types/fiesta';
 import { readData, writeData } from '@/lib/data-service';
 import { getFiestaById, saveFiesta } from '@/app/actions/fiesta/fiesta.actions';
+import { requireAppSession } from '@/lib/auth/require-session';
 
 const PLAYBOOKS_FILE = 'playbooks.json';
 const APLICACIONES_FILE = 'playbook-aplicaciones.json';
@@ -26,6 +27,7 @@ export async function getPlaybookByTipoEvento(tipoEvento: TipoEvento | 'Otro'): 
 export async function createPlaybook(
   data: Omit<Playbook, 'id' | 'createdAt' | 'updatedAt'>
 ): Promise<{ success: boolean; playbook?: Playbook; error?: string }> {
+  await requireAppSession();
   try {
     const playbooks = await getPlaybooks();
     const now = new Date().toISOString();
@@ -47,6 +49,7 @@ export async function updatePlaybook(
   id: string,
   data: Partial<Omit<Playbook, 'id' | 'createdAt'>>
 ): Promise<{ success: boolean; playbook?: Playbook; error?: string }> {
+  await requireAppSession();
   try {
     const playbooks = await getPlaybooks();
     const index = playbooks.findIndex(p => p.id === id);
@@ -60,6 +63,7 @@ export async function updatePlaybook(
 }
 
 export async function deletePlaybook(id: string): Promise<{ success: boolean; error?: string }> {
+  await requireAppSession();
   try {
     const playbooks = await getPlaybooks();
     const filtered = playbooks.filter(p => p.id !== id);
@@ -76,6 +80,7 @@ export async function applyPlaybookToFiesta(
   fiestaId: string,
   userId: string
 ): Promise<{ success: boolean; tareasGeneradas: number; documentosGenerados: number; error?: string }> {
+  await requireAppSession();
   try {
     const [playbook, fiesta] = await Promise.all([
       getPlaybookById(playbookId),

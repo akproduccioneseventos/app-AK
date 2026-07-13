@@ -1,7 +1,8 @@
 
 'use client';
 
-import React, { useState, useEffect, useCallback, useRef, type ChangeEvent, use } from 'react';
+import React, { useState, useEffect, useCallback, useRef, type ChangeEvent } from 'react';
+import { useParams } from 'next/navigation';
 import NextImage from 'next/image';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription, CardFooter } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -205,8 +206,8 @@ function VideoVidaClientPageContent({ params }: { params: { fiestaId: string } }
 
 
 // --- Página principal que se asegura de renderizar el contenido solo en el cliente ---
-export default function VideoVidaPage(props: { params: Promise<{ fiestaId: string }> }) {
-  const params = use(props.params);
+export default function VideoVidaPage() {
+  const params = useParams<{ fiestaId: string }>();
   const [isClient, setIsClient] = useState(false);
 
   useEffect(() => {

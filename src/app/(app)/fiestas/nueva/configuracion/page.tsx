@@ -131,7 +131,13 @@ function ConfiguracionEventoContent() {
       };
       const result = await updateConfiguracionFiestaActual(fiestaId, configToSave);
       if (result.success && cfg.clienteId) {
-        await syncCustomerFromFiestaConfig(cfg.clienteId, configToSave).catch(() => {});
+        const syncResult = await syncCustomerFromFiestaConfig(cfg.clienteId, configToSave);
+        if (!syncResult.success) {
+          return {
+            success: false,
+            error: `El evento se guardó, pero no se pudo sincronizar el cliente: ${syncResult.error || 'error desconocido'}`,
+          };
+        }
       }
       return result;
     },

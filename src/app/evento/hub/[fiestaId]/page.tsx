@@ -2,11 +2,13 @@
 
 import { useState, useEffect } from 'react';
 import { useParams } from 'next/navigation';
+import Image from 'next/image';
 import Link from 'next/link';
 import { Loader2, Instagram, Facebook } from 'lucide-react';
 import { getPublicEntertainmentEvent } from '@/app/actions/fiesta/entretenimiento.actions';
 import { getSocialPosts } from '@/app/actions/social-gallery';
 import type { PublicEntertainmentEvent } from '@/lib/entertainment/station-config';
+import { canUseNextImage } from '@/lib/next-image-url';
 
 export default function EventoHubPage() {
   const params = useParams();
@@ -69,8 +71,19 @@ export default function EventoHubPage() {
     <div className="min-h-screen bg-zinc-950 text-white font-sans selection:bg-purple-500/30">
       {/* HERO HEADER */}
       <div className="relative w-full h-[40vh] md:h-[50vh] flex flex-col items-center justify-end pb-12 px-4 text-center overflow-hidden">
-        {coverImage ? (
-          <img src={coverImage} alt="Cover" className="absolute inset-0 w-full h-full object-cover opacity-50" />
+        {coverImage ? (canUseNextImage(coverImage) ? (
+          <Image
+            src={coverImage}
+            alt="Portada del evento"
+            fill
+            priority
+            sizes="100vw"
+            className="object-cover opacity-50"
+          />
+        ) : (
+          // eslint-disable-next-line @next/next/no-img-element -- Event media may use an external host outside Next's allowlist.
+          <img src={coverImage} alt="Portada del evento" className="absolute inset-0 w-full h-full object-cover opacity-50" />
+        )
         ) : (
           <div className="absolute inset-0 bg-gradient-to-br from-indigo-950 to-purple-900" />
         )}

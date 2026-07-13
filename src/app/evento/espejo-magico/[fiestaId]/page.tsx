@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect, useRef } from 'react';
+import { useCallback, useState, useEffect, useRef } from 'react';
 import { useParams, useRouter, useSearchParams } from 'next/navigation';
 import { motion, AnimatePresence } from 'framer-motion';
 import {
@@ -20,8 +20,10 @@ import {
   Zap,
 } from 'lucide-react';
 import { QRCodeSVG } from 'qrcode.react';
-import { uploadSocialPost } from '@/app/actions/social-gallery';
-import { getPublicEntertainmentEvent } from '@/app/actions/fiesta/entretenimiento.actions';
+import {
+  getPublicEntertainmentEvent,
+  uploadEntretenimientoMedia,
+} from '@/app/actions/fiesta/entretenimiento.actions';
 import {
   getEntertainmentSession,
   startEntertainmentSession,
@@ -31,12 +33,13 @@ import {
 } from '@/app/actions/fiesta/sesion-entretenimiento';
 import type { PublicEntertainmentEvent } from '@/lib/entertainment/station-config';
 import { KioskUnlockButton } from '@/components/kiosk/kiosk-unlock-button';
+import { isVideoFrameReady } from '@/lib/entertainment/camera-readiness';
+import { applyEspejoFaceSwap } from '@/app/actions/espejo-magico-ai';
 import {
   ESPEJO_TEMPLATES,
   FACESWAP_CATEGORIES,
-  applyEspejoFaceSwap,
   type FaceSwapCategoryId,
-} from '@/app/actions/espejo-magico-ai';
+} from '@/lib/entertainment/espejo-magico-templates';
 
 const FILTERS = [
   { id: 'normal', label: 'Sin filtro', css: 'none' },
@@ -100,8 +103,11 @@ export default function EspejoMagicoPage() {
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const containerRef = useRef<HTMLDivElement>(null);
   const drawingCanvasRef = useRef<HTMLCanvasElement>(null);
+  const streamRef = useRef<MediaStream | null>(null);
+  const takePhotoRef = useRef<() => void>(() => undefined);
+  const retakeRef = useRef<() => void>(() => undefined);
+  const localStatusRef = useRef<'idle' | 'countdown' | 'recording' | 'processing' | 'done'>('idle');
 
-  const [stream, setStream] = useState<MediaStream | null>(null);
   const [facingMode, setFacingMode] = useState<'user' | 'environment'>('user');
   const [selectedFilter, setSelectedFilter] = useState(FILTERS[0]);
 
@@ -128,6 +134,7 @@ export default function EspejoMagicoPage() {
 
   const [isUploading, setIsUploading] = useState(false);
   const [errorMsg, setErrorMsg] = useState<string | null>(null);
+  const [consentAccepted, setConsentAccepted] = useState(false);
 
   const [fiesta, setFiesta] = useState<PublicEntertainmentEvent | null>(null);
   const [voiceEnabled, setVoiceEnabled] = useState(true);
@@ -145,7 +152,7 @@ export default function EspejoMagicoPage() {
     { id: 'white', value: '#ffffff', label: '⚪ Blanco' },
   ];
 
-  const speak = (text: string) => {
+  const speak = useCallback((text: string) => {
     if (!voiceEnabled) return;
     try {
       window.speechSynthesis.cancel();
@@ -158,7 +165,7 @@ export default function EspejoMagicoPage() {
     } catch (e) {
       console.error('SpeechSynthesis error:', e);
     }
-  };
+  }, [voiceEnabled]);
 
   const playBeep = (freq = 880, duration = 0.1) => {
     try {
@@ -171,25 +178,60 @@ export default function EspejoMagicoPage() {
     } catch(e) {}
   };
 
-  // 1. Initial configuration load + Firestore synchronization polling
-  useEffect(() => {
-    getPublicEntertainmentEvent(fiestaId, moduleId)
-      .then((result) => setFiesta(result.success ? result.event || null : null))
-      .catch(() => {});
+  const stopCamera = useCallback(() => {
+    if (streamRef.current) {
+      streamRef.current.getTracks().forEach(track => track.stop());
+      streamRef.current = null;
+    }
+  }, []);
 
+  const startCamera = useCallback(async () => {
+    stopCamera();
+    setErrorMsg(null);
+    try {
+      const mediaStream = await navigator.mediaDevices.getUserMedia({
+        video: { facingMode, width: { ideal: 1080 }, height: { ideal: 1920 } },
+        audio: false
+      });
+      streamRef.current = mediaStream;
+      if (videoRef.current) {
+        videoRef.current.srcObject = mediaStream;
+      }
+    } catch (err) {
+      setErrorMsg('No se pudo acceder a la cámara.');
+    }
+  }, [facingMode, stopCamera]);
+
+  // 1. Initial configuration load
+  useEffect(() => {
+    getPublicEntertainmentEvent(fiestaId, moduleId, accessToken)
+      .then((result) => {
+        if (result.success && result.event) setFiesta(result.event);
+        else setErrorMsg(result.error || 'No se pudo abrir esta estacion.');
+      })
+      .catch(() => setErrorMsg('No se pudo abrir esta estacion.'));
+  }, [accessToken, fiestaId, moduleId]);
+
+  useEffect(() => {
+    localStatusRef.current = localStatus;
+  }, [localStatus]);
+
+  // Keep one remote-control channel alive during the full capture workflow.
+  useEffect(() => {
     let pollInFlight = false;
     const interval = setInterval(async () => {
       if (pollInFlight) return;
       pollInFlight = true;
       try {
-        const s = await getEntertainmentSession(fiestaId, moduleId);
+        const s = await getEntertainmentSession(fiestaId, moduleId, accessToken);
         setSession(s);
 
-        if (role === 'display' && s && s.status !== localStatus) {
-          if (s.status === 'countdown' && localStatus === 'idle') {
-            takePhoto();
+        const currentStatus = localStatusRef.current;
+        if (role === 'display' && s && s.status !== currentStatus) {
+          if (s.status === 'countdown' && currentStatus === 'idle') {
+            takePhotoRef.current();
           } else if (s.status === 'idle') {
-            retake();
+            retakeRef.current();
           }
         }
       } finally {
@@ -201,7 +243,7 @@ export default function EspejoMagicoPage() {
       clearInterval(interval);
       stopCamera();
     };
-  }, [fiestaId, role, localStatus, moduleId]);
+  }, [accessToken, fiestaId, moduleId, role, stopCamera]);
 
   // Set drawing canvas dimensions when capturedImage changes
   useEffect(() => {
@@ -213,12 +255,12 @@ export default function EspejoMagicoPage() {
 
   // Camera hooks
   useEffect(() => {
-    if (role === 'display' && (localStatus === 'idle' || localStatus === 'countdown' || localStatus === 'recording')) {
+    if (fiesta && role === 'display' && (localStatus === 'idle' || localStatus === 'countdown' || localStatus === 'recording')) {
       startCamera();
     } else {
       stopCamera();
     }
-  }, [facingMode, localStatus, role]);
+  }, [fiesta, localStatus, role, startCamera, stopCamera]);
 
   // Welcome Speech Cues
   useEffect(() => {
@@ -229,31 +271,7 @@ export default function EspejoMagicoPage() {
         speak(`Hola. ${modeCopy.start}.`);
       }
     }
-  }, [localStatus, capturedImage, mode, modeCopy.start, role]);
-
-  const startCamera = async () => {
-    stopCamera();
-    setErrorMsg(null);
-    try {
-      const mediaStream = await navigator.mediaDevices.getUserMedia({
-        video: { facingMode, width: { ideal: 1080 }, height: { ideal: 1920 } },
-        audio: false
-      });
-      setStream(mediaStream);
-      if (videoRef.current) {
-        videoRef.current.srcObject = mediaStream;
-      }
-    } catch (err) {
-      setErrorMsg('No se pudo acceder a la cámara.');
-    }
-  };
-
-  const stopCamera = () => {
-    if (stream) {
-      stream.getTracks().forEach(track => track.stop());
-      setStream(null);
-    }
-  };
+  }, [localStatus, capturedImage, mode, modeCopy.start, role, speak]);
 
   const runFaceSwapIA = async (originalPhotoUrl: string) => {
     setAiProcessing(true);
@@ -271,6 +289,7 @@ export default function EspejoMagicoPage() {
       const formData = new FormData();
       formData.append('fiestaId', fiestaId);
       if (accessToken) formData.append('accessToken', accessToken);
+      formData.append('consentAccepted', String(consentAccepted));
       formData.append('templateId', selectedTemplateId);
       formData.append('sourceFile', file);
 
@@ -439,6 +458,11 @@ export default function EspejoMagicoPage() {
 
   // Photo Shoot countdown
   const takePhoto = async () => {
+    if (mode === 'ia' && fiesta?.station.consentRequired && !consentAccepted) {
+      setErrorMsg('Debes aceptar el uso de IA antes de iniciar la captura.');
+      return;
+    }
+    setErrorMsg(null);
     setLocalStatus('countdown');
     if (role === 'display') {
       await updateEntertainmentSessionStatus(fiestaId, moduleId, 'countdown', {}, accessToken);
@@ -519,6 +543,11 @@ export default function EspejoMagicoPage() {
 
   const captureToCanvas = async () => {
     if (!videoRef.current || !canvasRef.current || !containerRef.current) return;
+    if (!isVideoFrameReady(videoRef.current)) {
+      setErrorMsg('La camara todavia se esta preparando. Intenta nuevamente en un instante.');
+      setLocalStatus('idle');
+      return;
+    }
 
     setLocalStatus('recording');
     await updateEntertainmentSessionStatus(fiestaId, moduleId, 'recording', {}, accessToken);
@@ -630,13 +659,13 @@ export default function EspejoMagicoPage() {
       formData.append('fiestaId', fiestaId);
       formData.append('file', file);
       formData.append('authorName', modeCopy.author);
-      formData.append('source', 'entertainment');
-      formData.append('sourceModule', moduleId);
+      formData.append('moduleId', moduleId);
+      if (accessToken) formData.append('accessToken', accessToken);
 
-      const res = await uploadSocialPost(formData);
+      const res = await uploadEntretenimientoMedia(formData);
       if (res.success) {
-        const mediaUrl = res.post?.imageUrl || '';
-        setQrCodeUrl(mediaUrl || window.location.href);
+        const mediaUrl = res.media?.url || '';
+        setQrCodeUrl(mediaUrl);
         setLocalStatus('done');
         await updateEntertainmentSessionStatus(
           fiestaId,
@@ -657,7 +686,8 @@ export default function EspejoMagicoPage() {
       }
     } catch (err) {
       console.error(err);
-      setQrCodeUrl(window.location.href);
+      setQrCodeUrl('');
+      setErrorMsg((err as Error).message || 'No se pudo subir la foto. Puedes descargarla en este dispositivo.');
       setLocalStatus('done');
       await updateEntertainmentSessionStatus(fiestaId, moduleId, 'done', {}, accessToken);
       speak('No se pudo subir, pero podés escanear el QR.');
@@ -680,6 +710,11 @@ export default function EspejoMagicoPage() {
       startCamera();
     }
   };
+
+  useEffect(() => {
+    takePhotoRef.current = () => { void takePhoto(); };
+    retakeRef.current = retake;
+  });
 
   const openDisplayScreen = () => {
     const params = new URLSearchParams({ mode });
@@ -924,6 +959,7 @@ export default function EspejoMagicoPage() {
                   onPointerLeave={() => setIsDraggingSlider(false)}
                 >
                   {/* Base: Original captured image */}
+                  {/* eslint-disable-next-line @next/next/no-img-element -- Runtime camera output uses data/blob URLs. */}
                   <img
                     src={originalPhotoUrl}
                     className="absolute inset-0 w-full h-full object-cover opacity-80"
@@ -934,6 +970,7 @@ export default function EspejoMagicoPage() {
                     className="absolute inset-0 w-full h-full"
                     style={{ clipPath: `polygon(0 0, ${sliderPosition}% 0, ${sliderPosition}% 100%, 0 100%)` }}
                   >
+                    {/* eslint-disable-next-line @next/next/no-img-element -- Runtime AI output uses a data URL. */}
                     <img
                       src={aiImageBase64}
                       className="absolute inset-0 w-full h-full object-cover"
@@ -991,6 +1028,7 @@ export default function EspejoMagicoPage() {
                 transition={{ duration: 2, repeat: Infinity, ease: 'easeInOut' }}
                 className="absolute inset-x-0 h-1 bg-cyan-400 shadow-[0_0_15px_#22d3ee] z-20"
               />
+              {/* eslint-disable-next-line @next/next/no-img-element -- Runtime camera output uses a data/blob URL. */}
               <img src={originalPhotoUrl || ''} className="w-full h-full object-cover opacity-60 filter grayscale" alt="Escaneo" />
             </div>
 
@@ -1069,6 +1107,7 @@ export default function EspejoMagicoPage() {
           <div className="absolute inset-0 z-40 bg-zinc-950 flex flex-col md:flex-row items-center justify-center p-6 gap-8">
             {/* Captured image with overlay merged */}
             <div className="relative w-full max-w-sm aspect-[9/16] bg-black rounded-3xl overflow-hidden border border-white/10 shadow-2xl">
+              {/* eslint-disable-next-line @next/next/no-img-element -- Canvas output is generated only in this browser. */}
               <img src={canvasRef.current?.toDataURL('image/jpeg', 0.9) || capturedImage} className="w-full h-full object-cover" alt="Espejo Final" />
               <div className="absolute top-4 left-4 bg-rose-500 text-white text-[10px] font-black uppercase px-3 py-1 rounded-full tracking-wider">
                 {modeCopy.doneLabel}
@@ -1100,12 +1139,14 @@ export default function EspejoMagicoPage() {
                 >
                   <Download className="w-4 h-4" /> Guardar Foto
                 </button>
-                <button
-                  onClick={retake}
-                  className="w-full h-12 rounded-xl bg-white/5 hover:bg-white/10 text-white font-bold text-sm border border-white/10 transition flex items-center justify-center gap-2"
-                >
-                  <RefreshCw className="w-4 h-4" /> Tomar Otra Foto
-                </button>
+                {fiesta?.station.allowGuestRetake && fiesta.station.maxRetakes > 0 && (
+                  <button
+                    onClick={retake}
+                    className="w-full h-12 rounded-xl bg-white/5 hover:bg-white/10 text-white font-bold text-sm border border-white/10 transition flex items-center justify-center gap-2"
+                  >
+                    <RefreshCw className="w-4 h-4" /> Tomar Otra Foto
+                  </button>
+                )}
               </div>
             </div>
           </div>
@@ -1152,7 +1193,6 @@ export default function EspejoMagicoPage() {
                     className={`px-3 py-1.5 rounded-full text-[10px] font-black uppercase tracking-wider transition whitespace-nowrap border flex items-center gap-1.5
                       ${selectedCategory === cat.id ? 'border-cyan-500 bg-cyan-500/20 text-cyan-400' : 'border-zinc-800 bg-zinc-900 text-zinc-400'}`}
                   >
-                    <span>{cat.emoji}</span>
                     <span>{cat.label}</span>
                   </button>
                 ))}
@@ -1177,11 +1217,27 @@ export default function EspejoMagicoPage() {
                   ))}
               </div>
 
+              {fiesta?.station.consentRequired && (
+                <label className="flex items-center justify-center gap-2 text-[10px] text-zinc-300">
+                  <input
+                    type="checkbox"
+                    checked={consentAccepted}
+                    onChange={(event) => setConsentAccepted(event.target.checked)}
+                    className="h-4 w-4 accent-cyan-500"
+                  />
+                  Acepto el procesamiento temporal de mi foto con IA.
+                </label>
+              )}
+
               {/* Action Bar */}
               <div className="flex items-center justify-center pb-2 shrink-0">
                 <button
                   onClick={takePhoto}
-                  disabled={countdown !== null || !!errorMsg}
+                  disabled={
+                    countdown !== null ||
+                    !!errorMsg ||
+                    Boolean(fiesta?.station.consentRequired && !consentAccepted)
+                  }
                   className="w-14 h-14 rounded-full bg-gradient-to-tr from-cyan-500 to-indigo-500 p-1 shadow-[0_0_20px_rgba(6,182,212,0.3)] transition-transform active:scale-95 disabled:opacity-50"
                 >
                   <div className="w-full h-full rounded-full bg-white flex items-center justify-center text-cyan-500">

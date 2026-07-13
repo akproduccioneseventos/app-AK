@@ -1,8 +1,8 @@
 
 'use client';
 
-import React, { useState, useEffect, useCallback, type FormEvent, use } from 'react';
-import { useRouter } from 'next/navigation';
+import React, { useState, useEffect, useCallback, type FormEvent } from 'react';
+import { useParams, useRouter } from 'next/navigation';
 import Link from 'next/link';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle, CardFooter } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -27,8 +27,8 @@ import {
 } from "@/components/ui/alert-dialog";
 
 
-export default function EditarInsumoPage(props: { params: Promise<{ id: string }> }) {
-  const params = use(props.params);
+export default function EditarInsumoPage() {
+  const params = useParams<{ id: string }>();
   const router = useRouter();
   const { toast } = useToast();
 

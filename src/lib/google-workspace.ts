@@ -436,11 +436,45 @@ export function buildGoogleCalendarTemplateUrl(input: GoogleWorkspaceEventInput)
   return url.toString();
 }
 
+type GoogleCalendarListItem = {
+  id: string;
+  summary?: string;
+  description?: string;
+  location?: string;
+  start?: { dateTime?: string; date?: string };
+  end?: { dateTime?: string; date?: string };
+};
+
+function normalizeCalendarIdentityText(value?: string) {
+  return (value || '')
+    .normalize('NFD')
+    .replace(/[\u0300-\u036f]/g, '')
+    .toLowerCase()
+    .replace(/\s+/g, ' ')
+    .trim();
+}
+
+function calendarPointMatches(point: GoogleCalendarListItem['start'], expectedIso?: string) {
+  if (!expectedIso || !point) return false;
+  const actual = point.dateTime || (point.date ? `${point.date}T00:00:00-03:00` : '');
+  if (!actual) return false;
+  const actualTime = new Date(actual).getTime();
+  const expectedTime = new Date(expectedIso).getTime();
+  if (!Number.isFinite(actualTime) || !Number.isFinite(expectedTime)) return false;
+  return Math.abs(actualTime - expectedTime) < 60_000;
+}
+
+function calendarLocationMatches(actual?: string, expected?: string) {
+  if (!expected) return true;
+  return normalizeCalendarIdentityText(actual) === normalizeCalendarIdentityText(expected);
+}
+
 export async function findExistingGoogleCalendarEvent(
   account: GoogleWorkspaceAccount,
   dateStr: string,
   queryText: string,
-  fiestaId: string
+  fiestaId: string,
+  expectedEvent?: Pick<GoogleWorkspaceEventInput, 'summary' | 'startIso' | 'endIso' | 'location'>
 ): Promise<string | null> {
   try {
     const calendarId = encodeURIComponent(account.calendarId || 'primary');
@@ -460,7 +494,7 @@ export async function findExistingGoogleCalendarEvent(
       return null;
     }
 
-    const data = await response.json() as { items?: Array<{ id: string; summary?: string; description?: string }> };
+    const data = await response.json() as { items?: GoogleCalendarListItem[] };
     if (!data.items || data.items.length === 0) return null;
 
     // 1. First priority: exact match on AK_FIESTA_ID in description
@@ -470,7 +504,22 @@ export async function findExistingGoogleCalendarEvent(
       }
     }
 
-    // 2. Second priority: match on queryText (protagonist/client name) in summary
+    // 2. Second priority: advanced match based on expectedEvent properties (introduced in origin/main)
+    if (expectedEvent && expectedEvent.startIso) {
+      const expectedSummary = normalizeCalendarIdentityText(expectedEvent.summary || queryText);
+      if (expectedSummary) {
+        for (const item of data.items) {
+          const summaryMatches = normalizeCalendarIdentityText(item.summary) === expectedSummary;
+          if (!summaryMatches) continue;
+          if (!calendarPointMatches(item.start, expectedEvent.startIso)) continue;
+          if (expectedEvent.endIso && !calendarPointMatches(item.end, expectedEvent.endIso)) continue;
+          if (!calendarLocationMatches(item.location, expectedEvent.location)) continue;
+          return item.id;
+        }
+      }
+    }
+
+    // 3. Third priority (fallback): flexible match on queryText (protagonist/client name) in summary
     const cleanQuery = queryText.trim().toLowerCase();
     if (cleanQuery) {
       for (const item of data.items) {

@@ -5,6 +5,8 @@ import type { SocialPost } from '@/types/social-media';
 import { readData, writeData } from '@/lib/data-service';
 import fs from 'fs/promises';
 import path from 'path';
+import { requireAppSession } from '@/lib/auth/require-session';
+import { MARKETING_AUTOMATION_INTERNAL_TOKEN } from '@/lib/marketing/internal-token';
 
 const POSTS_FILE = 'social-posts.json';
 const DATA_DIR = path.join(process.cwd(), 'src', 'data');
@@ -52,7 +54,7 @@ async function fetchInstagramGraphFeed(profileUrl?: string): Promise<InstagramFe
     );
 
     if (!response.ok) {
-      console.warn(`[Instagram Sync] Graph API respondio ${response.status}. Se usa fallback local.`);
+      console.warn(`[Instagram Sync] Graph API respondio ${response.status}. No se sincroniza contenido.`);
       return null;
     }
 
@@ -76,7 +78,7 @@ async function fetchInstagramGraphFeed(profileUrl?: string): Promise<InstagramFe
       })
       .filter(Boolean) as InstagramFeedPost[];
   } catch (error: any) {
-    console.warn('[Instagram Sync] No se pudo leer Instagram Graph API. Se usa fallback local:', error.message || error);
+    console.warn('[Instagram Sync] No se pudo leer Instagram Graph API:', error.message || error);
     return null;
   }
 }
@@ -88,6 +90,7 @@ export async function getSocialPosts(): Promise<SocialPost[]> {
 export async function saveSocialPost(
   formData: FormData
 ): Promise<{ success: boolean; post?: SocialPost; error?: string }> {
+  await requireAppSession();
   let posts = await getSocialPosts();
   const postId = (formData.get('id') as string) || `post_${Date.now()}_${Math.random().toString(36).substring(2, 9)}`;
   const mediaFile = formData.get('mediaFile') as File | null;
@@ -151,6 +154,7 @@ export async function saveSocialPost(
 
 
 export async function deleteSocialPost(postId: string): Promise<{ success: boolean, error?: string }> {
+  await requireAppSession();
   let posts = await getSocialPosts();
   const postToDelete = posts.find(p => p.id === postId);
 
@@ -177,7 +181,12 @@ export async function deleteSocialPost(postId: string): Promise<{ success: boole
  *  - Clasifica las fotos en el catálogo público usando expresiones regulares.
  *  - Inserta los reels/videos en la sección de videos de la Galería pública junto a los de YouTube.
  */
-export async function syncInstagramPosts(): Promise<{ success: boolean; photosCount: number; videosCount: number; plannerCount: number; error?: string }> {
+export async function syncInstagramPosts(
+  internalToken?: symbol
+): Promise<{ success: boolean; photosCount: number; videosCount: number; plannerCount: number; error?: string }> {
+  if (internalToken !== MARKETING_AUTOMATION_INTERNAL_TOKEN) {
+    await requireAppSession();
+  }
   try {
     // 1. Obtener la conexión de Instagram si está configurada (fallback a posts por defecto)
     const connections = await readData<any[]>('social-connections.json', []);
@@ -255,7 +264,21 @@ export async function syncInstagramPosts(): Promise<{ success: boolean; photosCo
     let addedVideosCount = 0;
     let addedPlannerCount = 0;
 
-    const instagramFeed = await fetchInstagramGraphFeed(instagramConn?.profileUrl) || fallbackInstagramFeed;
+    const graphFeed = await fetchInstagramGraphFeed(instagramConn?.profileUrl);
+    const allowDemoFallback =
+      process.env.NODE_ENV !== 'production' &&
+      process.env.AK_ALLOW_DEMO_INSTAGRAM === 'true';
+    const instagramFeed = graphFeed || (allowDemoFallback ? fallbackInstagramFeed : null);
+
+    if (!instagramFeed) {
+      return {
+        success: false,
+        photosCount: 0,
+        videosCount: 0,
+        plannerCount: 0,
+        error: 'Instagram no esta conectado a Graph API. Configura el token y la cuenta comercial para sincronizar contenido real.',
+      };
+    }
 
     for (const post of instagramFeed) {
       const category = guessCategoryFromText(post.text);

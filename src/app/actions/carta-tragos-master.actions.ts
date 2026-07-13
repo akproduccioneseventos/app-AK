@@ -3,6 +3,7 @@
 import type { Trago } from '@/types/fiesta';
 import { readData, writeData } from '@/lib/data-service';
 import { defaultCartaTragosData } from '@/lib/fiesta-defaults';
+import { requireAppSession } from '@/lib/auth/require-session';
 
 const CARTA_TRAGOS_MASTER_FILE = 'carta-tragos-master.json';
 
@@ -25,6 +26,7 @@ export async function getCartaTragosMaster(): Promise<Trago[]> {
 }
 
 export async function saveCartaTragosMaster(items: Trago[]): Promise<{ success: boolean; data?: Trago[]; error?: string }> {
+  await requireAppSession();
   try {
     const sanitized = normalizeMasterItems(items);
     await writeData(CARTA_TRAGOS_MASTER_FILE, sanitized);

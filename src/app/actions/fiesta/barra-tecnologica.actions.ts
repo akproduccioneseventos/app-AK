@@ -17,7 +17,7 @@ import { getCartaTragosMaster } from '@/app/actions/carta-tragos-master.actions'
 import { getFiestaById, saveFiesta } from './fiesta.actions';
 import { uploadToStorage } from '@/lib/firebase/storage';
 import { createSocialMediaPostFromUrl } from '@/app/actions/social-gallery';
-import { getBarScheduleError, isTruthyFollowConfirmation, normalizeBarTime } from '@/lib/barra-tecnologica';
+import { getBarScheduleError, isTruthyFollowConfirmation, normalizeBarTime, shouldDiscountBarStock } from '@/lib/barra-tecnologica';
 import { getInsumoById, saveInsumo } from '@/app/actions/insumos';
 import * as logger from '@/lib/logger';
 
@@ -132,21 +132,30 @@ async function getBarDrinks(fiesta: FiestaEnPlanificacion): Promise<Trago[]> {
     }));
 }
 
+let stockPromiseChain = Promise.resolve();
+
 async function descontarStock(drink: Trago) {
-  if (!drink.recetaIngredientes) return;
-  for (const ing of drink.recetaIngredientes) {
-    if (!ing.insumoId) continue;
-    try {
-      const insumo = await getInsumoById(ing.insumoId);
-      if (insumo && insumo.cantidadDisponible !== undefined) {
-        insumo.cantidadDisponible -= ing.cantidad;
-        if (insumo.cantidadDisponible < 0) insumo.cantidadDisponible = 0;
-        await saveInsumo(insumo);
+  const nextPromise = stockPromiseChain.then(async () => {
+    if (!drink.recetaIngredientes) return;
+    for (const ing of drink.recetaIngredientes) {
+      if (!ing.insumoId) continue;
+      try {
+        const insumo = await getInsumoById(ing.insumoId);
+        if (insumo && insumo.cantidadDisponible !== undefined) {
+          insumo.cantidadDisponible -= ing.cantidad;
+          if (insumo.cantidadDisponible < 0) insumo.cantidadDisponible = 0;
+          await saveInsumo(insumo);
+        }
+      } catch (error) {
+        logger.error(`[barra-tecnologica] error al descontar stock del insumo ${ing.insumoId}`, error);
       }
-    } catch (error) {
-      logger.error(`[barra-tecnologica] error al descontar stock del insumo ${ing.insumoId}`, error);
     }
-  }
+  }).catch((err) => {
+    logger.error(`[barra-tecnologica] stockPromiseChain error`, err);
+  });
+
+  stockPromiseChain = nextPromise;
+  await nextPromise;
 }
 
 async function getFirestoreOrders(fiestaId: string): Promise<BarDrinkOrder[] | null> {
@@ -311,7 +320,7 @@ export async function createBarmanManualOrder(input: CreateBarDrinkOrderInput): 
       drinkId: drink.id,
       drinkName: drink.nombre,
       guestName: 'Barman',
-      status: 'nuevo',
+      status: 'entregado',
       createdAt: now,
       updatedAt: now,
       source: 'staff',
@@ -328,6 +337,8 @@ export async function createBarmanManualOrder(input: CreateBarDrinkOrderInput): 
     } else {
       await saveFallbackOrders(fiesta, [order, ...(stored.orders || [])]);
     }
+
+    await descontarStock(drink);
 
     return { success: true, order };
   } catch (error: any) {
@@ -398,20 +409,33 @@ export async function updateBarDrinkOrderStatus(
     if (db) {
       try {
         const ref = db.collection(BAR_ORDERS_COLLECTION).doc(orderId);
-        await ref.update({ status, updatedAt });
-        const snapshot = await ref.get();
-        const orderData = snapshot.data() as BarDrinkOrder;
+        let orderData: BarDrinkOrder | undefined;
+        let shouldDiscountStock = false;
+        await db.runTransaction(async (transaction) => {
+          const snapshot = await transaction.get(ref);
+          if (!snapshot.exists) throw new Error('Pedido no encontrado.');
 
-        if (status === 'entregado') {
+          const currentOrder = snapshot.data() as BarDrinkOrder;
+          if (currentOrder.fiestaId !== fiestaId) throw new Error('El pedido no pertenece a esta fiesta.');
+
+          shouldDiscountStock = shouldDiscountBarStock(currentOrder.status, status);
+          orderData = { ...currentOrder, status, updatedAt };
+          transaction.update(ref, { status, updatedAt });
+        });
+
+        const updatedOrder = orderData;
+        if (!updatedOrder) throw new Error('No se pudo recuperar el pedido actualizado.');
+
+        if (shouldDiscountStock) {
           const fiesta = await getFiestaById(fiestaId);
           if (fiesta) {
             const drinks = await getBarDrinks(fiesta);
-            const drink = drinks.find(d => d.id === orderData.drinkId);
+            const drink = drinks.find(d => d.id === updatedOrder.drinkId);
             if (drink) await descontarStock(drink);
           }
         }
 
-        return { success: true, order: orderData };
+        return { success: true, order: updatedOrder };
       } catch (error) {
         logger.warn('[barra-tecnologica] firestore status update failed, using fallback:', error);
       }
@@ -420,13 +444,17 @@ export async function updateBarDrinkOrderStatus(
     const fiesta = await getFiestaById(fiestaId);
     if (!fiesta) throw new Error('Fiesta no encontrada.');
     const stored = getStoredBarData(fiesta);
+    const currentOrder = (stored.orders || []).find((order) => order.id === orderId);
+    if (!currentOrder) return { success: false, error: 'Pedido no encontrado.' };
+    if (currentOrder.fiestaId !== fiestaId) return { success: false, error: 'El pedido no pertenece a esta fiesta.' };
+    const shouldDiscountStock = shouldDiscountBarStock(currentOrder.status, status);
     const orders = (stored.orders || []).map((order) => (
       order.id === orderId ? { ...order, status, updatedAt } : order
     ));
     await saveFallbackOrders(fiesta, orders);
     const updatedOrder = orders.find((order) => order.id === orderId);
 
-    if (status === 'entregado' && updatedOrder) {
+    if (shouldDiscountStock && updatedOrder) {
       const drinks = await getBarDrinks(fiesta);
       const drink = drinks.find(d => d.id === updatedOrder.drinkId);
       if (drink) await descontarStock(drink);

@@ -33,6 +33,7 @@ import type { EventCatalogData, ServiceItem } from '@/types/public-landing';
 import { getCatalogoSettings } from '@/app/actions/contenido-publico';
 import type { CatalogoSettings } from '@/types/contenido-publico';
 import { DEFAULT_CATALOGO_PRESENTACION_TEXT, DEFAULT_CATALOGO_POR_QUE_TEXT } from '@/lib/public-content-defaults';
+import { AK_WHATSAPP_NUMBER } from '@/lib/public-contact';
 
 // ─── Session storage keys (must match presupuesto flow) ──────────────────────
 const PRESUPUESTO_SESSION_KEY = 'presupuestoEnProgreso_v3';
@@ -496,7 +497,7 @@ function CierreSlide({
   onCreateBudget: () => void;
 }) {
   const accent = getAccent(catalog.hero.accentColor);
-  const WHATSAPP_NUMBER = catalog.whatsappNumber ?? '59899123456';
+  const WHATSAPP_NUMBER = catalog.whatsappNumber ?? AK_WHATSAPP_NUMBER;
   const waMsg = catalog.whatsappMessage ?? `¡Hola AK Producciones! Quiero cotizar: ${catalog.name}.`;
   const waHref = `https://wa.me/${WHATSAPP_NUMBER}?text=${encodeURIComponent(waMsg)}`;
 

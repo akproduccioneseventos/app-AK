@@ -2,6 +2,7 @@
 
 import { readData, writeData } from '@/lib/data-service';
 import type { MarketingTemplate, ChecklistItem, MarketingData } from '@/types/marketing';
+import { requireAppSession } from '@/lib/auth/require-session';
 
 const TEMPLATES_FILE = 'marketing-templates.json';
 const CHECKLIST_FILE = 'marketing-checklist.json';
@@ -15,6 +16,7 @@ export async function getMarketingTemplates(): Promise<MarketingTemplate[]> {
 export async function saveMarketingTemplate(
   template: MarketingTemplate
 ): Promise<{ success: boolean; error?: string }> {
+  await requireAppSession();
   try {
     const templates = await getMarketingTemplates();
     const idx = templates.findIndex(t => t.id === template.id);
@@ -33,6 +35,7 @@ export async function saveMarketingTemplate(
 export async function deleteMarketingTemplate(
   id: string
 ): Promise<{ success: boolean; error?: string }> {
+  await requireAppSession();
   try {
     const templates = await getMarketingTemplates();
     const filtered = templates.filter(t => t.id !== id);
@@ -52,6 +55,7 @@ export async function getMarketingChecklist(): Promise<ChecklistItem[]> {
 export async function saveMarketingChecklist(
   items: ChecklistItem[]
 ): Promise<{ success: boolean; error?: string }> {
+  await requireAppSession();
   try {
     await writeData(CHECKLIST_FILE, items);
     return { success: true };
@@ -77,6 +81,7 @@ export async function exportMarketingData(): Promise<{ success: boolean; data?: 
 export async function importMarketingData(
   data: MarketingData
 ): Promise<{ success: boolean; error?: string }> {
+  await requireAppSession();
   try {
     await Promise.all([
       writeData(TEMPLATES_FILE, data.templates ?? []),

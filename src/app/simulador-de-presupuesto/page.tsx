@@ -94,6 +94,26 @@ const safeImageUrl = (url?: string): string | undefined => {
     }
 };
 
+async function withFallbackTimeout<T>(
+    promise: Promise<T>,
+    fallback: T,
+    timeoutMs = 12000,
+): Promise<T> {
+    let timeout: ReturnType<typeof setTimeout> | undefined;
+    try {
+        return await Promise.race([
+            promise,
+            new Promise<T>((resolve) => {
+                timeout = setTimeout(() => resolve(fallback), timeoutMs);
+            }),
+        ]);
+    } catch {
+        return fallback;
+    } finally {
+        if (timeout) clearTimeout(timeout);
+    }
+}
+
 const DURATION_OPTIONS = [
     { value: 3, title: 'Menos de 4 horas', subtitle: 'Fiesta chica', detail: '1 entrada habilitada' },
     { value: 5, title: 'Mas de 4 horas', subtitle: 'Fiesta grande', detail: '2 entradas habilitadas' },
@@ -300,12 +320,12 @@ function SimuladorContent() {
             setIsLoading(true);
             try {
                 const [armadoConfig, bSettings, serviciosData, socialConnections, templateSettings, menuData] = await Promise.all([
-                    getArmadoRapidoConfig().catch(() => null),
-                    getBudgetDisplaySettings().catch(() => defaultBudgetDisplaySettings),
-                    getServiciosEmpresa().catch(() => []),
-                    getSocialConnections().catch(() => []),
-                    getInvoiceTemplateSettings().catch(() => ({ logoUrl: null } as any)),
-                    getMenus().catch(() => []),
+                    withFallbackTimeout(getArmadoRapidoConfig(), null),
+                    withFallbackTimeout(getBudgetDisplaySettings(), defaultBudgetDisplaySettings),
+                    withFallbackTimeout(getServiciosEmpresa(), []),
+                    withFallbackTimeout(getSocialConnections(), []),
+                    withFallbackTimeout(getInvoiceTemplateSettings(), { logoUrl: null } as any),
+                    withFallbackTimeout(getMenus(), []),
                 ]);
                 setConfig(armadoConfig);
                 setBudgetSettings(bSettings);
@@ -1153,6 +1173,16 @@ function SimuladorContent() {
         return true;
     }, [config, selectedPaqueteId, removablePackageServices, stats.detallados]);
 
+    const groupedDetallados = useMemo(() => {
+        const groups: Record<string, any[]> = {};
+        for (const item of stats.detallados) {
+            const cat = item.categoria || 'Otros';
+            if (!groups[cat]) groups[cat] = [];
+            groups[cat].push(item);
+        }
+        return groups;
+    }, [stats.detallados]);
+
     useEffect(() => {
         if (!selectedPaqueteId) return;
         if (!sortedPaquetes.some((p) => p.id === selectedPaqueteId)) {
@@ -1223,8 +1253,6 @@ function SimuladorContent() {
         acquisition,
     ]);
 
-    if (isLoading) return <div className="min-h-screen flex items-center justify-center bg-slate-100"><Loader2 className="w-12 h-12 animate-spin text-primary"/></div>;
-
     if (!hasStarted) {
         return (
             <main className="min-h-screen bg-slate-950 text-white">
@@ -1245,9 +1273,13 @@ function SimuladorContent() {
                             <Button
                                 onClick={() => setHasStarted(true)}
                                 className="mt-8 h-14 rounded-md bg-red-600 px-8 text-base font-black text-white hover:bg-red-700"
+                                disabled={isLoading}
                             >
-                                Comenzar mi presupuesto
-                                <ArrowRight className="ml-2 h-5 w-5" />
+                                {isLoading ? (
+                                    <><Loader2 className="mr-2 h-5 w-5 animate-spin" /> Preparando catálogo...</>
+                                ) : (
+                                    <>Comenzar mi presupuesto <ArrowRight className="ml-2 h-5 w-5" /></>
+                                )}
                             </Button>
                         </div>
                     </div>
@@ -1275,9 +1307,11 @@ function SimuladorContent() {
         );
     }
 
+    if (isLoading) return <div className="min-h-screen flex items-center justify-center bg-slate-100"><Loader2 className="w-12 h-12 animate-spin text-primary"/></div>;
+
     if (step === 6 && generatedPresupuestoId) {
         return (
-            <div className="min-h-screen bg-slate-50 flex flex-col items-center py-10 px-2 sm:px-4 print:bg-white print:p-0">
+            <div className="ak-public-page flex min-h-screen flex-col items-center px-2 py-10 sm:px-4 print:bg-white print:p-0">
                 <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.6 }} className="w-full max-w-3xl space-y-8">
 
                     <div className="flex justify-center mb-2 print:hidden">
@@ -1305,7 +1339,7 @@ function SimuladorContent() {
                                         <p className="text-sm font-black uppercase text-amber-900 tracking-wider">¡Asegurá tu Bonificación Especial del {stats.discountPercentage}%!</p>
                                     </div>
                                     <p className="text-xs text-slate-600 font-bold leading-relaxed">
-                                        Congelá los precios vigentes y tu descuento señando con $5.000 antes de que expire la reserva.
+                                        Asegurá los precios vigentes y tu descuento señando con $5.000 antes de que expire la reserva.
                                     </p>
                                     <div className="text-3xl font-black text-amber-600 font-mono tracking-widest bg-white/80 py-2 rounded-xl inline-block px-5 border">
                                         {formatTime(timeLeft)}
@@ -1314,7 +1348,7 @@ function SimuladorContent() {
                                         onClick={handleShareBudgetWhatsApp}
                                         className="h-12 w-full rounded-xl bg-amber-600 hover:bg-amber-700 text-white font-bold text-xs uppercase tracking-widest shadow-md flex items-center justify-center gap-2"
                                     >
-                                        <Zap className="w-4 h-4 text-yellow-300 fill-yellow-300 animate-bounce" /> Congelar precio de mi evento
+                                        <Zap className="w-4 h-4 text-yellow-300 fill-yellow-300 animate-bounce" /> Asegurar mi descuento y regalos
                                     </Button>
                                 </div>
                             ) : (
@@ -1556,13 +1590,13 @@ function SimuladorContent() {
     }
 
     return (
-        <div className="min-h-screen bg-slate-100 flex flex-col items-center justify-center p-2 sm:p-6 lg:p-8 gap-4">
+        <div className="ak-public-page flex min-h-screen flex-col items-center justify-center gap-4 p-2 sm:p-6 lg:p-8">
             {/* Chat Simulator Banner */}
             <div className="w-full max-w-3xl print:hidden">
               <Link href="/simulador-ak">
-                <div className="flex items-center justify-between gap-3 bg-gradient-to-r from-violet-600 to-primary text-white rounded-2xl px-5 py-4 shadow-lg hover:shadow-xl hover:from-violet-500 hover:to-primary/90 transition-all cursor-pointer group">
+                <div className="group flex cursor-pointer items-center justify-between gap-3 rounded-lg border border-slate-800 bg-slate-950 px-5 py-4 text-white shadow-lg transition-all hover:bg-slate-900">
                   <div className="flex items-center gap-3">
-                    <MessageSquare className="w-6 h-6 shrink-0 text-yellow-300" />
+                    <MessageSquare className="h-6 w-6 shrink-0 text-emerald-300" />
                     <div>
                       <p className="font-black text-sm">También podés armarlo con el Asistente AK</p>
                       <p className="text-xs text-white/70">La IA usa los mismos paquetes, servicios y precios de este simulador manual</p>
@@ -2054,92 +2088,110 @@ function SimuladorContent() {
                                 )}
                             </div>
 
-                            {/* 1. TODO EL PRESUPUESTO EDITABLE ELEGIDO */}
-                            <div className="grid gap-3 md:grid-cols-2">
-                                {stats.detallados.map(item => {
-                                    const isExcluded = excludedPackageServiceIds.includes(item.id);
+                            {/* SERVICIOS DETALLADOS AGRUPADOS POR CATEGORÍA */}
+                            <div className="space-y-6">
+                                {Object.entries(groupedDetallados).map(([category, items]) => {
+                                    const activeItems = items.filter(item => !excludedPackageServiceIds.includes(item.id));
+                                    if (activeItems.length === 0) return null;
                                     return (
-                                        <div
-                                            key={item.id}
-                                            className={cn(
-                                                "flex items-center justify-between gap-3 rounded-xl border p-3 transition-all duration-300 bg-white",
-                                                isExcluded
-                                                    ? "border-dashed border-slate-200 bg-slate-50/50 opacity-60"
-                                                    : "border-slate-200 hover:border-slate-300 shadow-sm"
-                                            )}
-                                        >
-                                            <div className="min-w-0 flex-1">
-                                                <span className={cn("block font-bold text-slate-800 text-xs truncate", isExcluded && "line-through text-slate-400")}>
-                                                    {item.nombre}
-                                                </span>
-                                                <div className="flex items-center gap-2 mt-0.5 text-[9px] font-semibold text-slate-400 uppercase tracking-tight">
-                                                    <span>{item.esRegalo ? "Regalo incluido" : (item.subcategoria || formatCategoriaText(item.categoria) || 'Servicio seleccionado')}</span>
-                                                    {!item.esRegalo && (
-                                                        <>
-                                                            <span>•</span>
-                                                            {item.id === 'serv_salon_club_uruguay' ? (
-                                                                <span className="text-slate-500 font-bold">
-                                                                    <span className="line-through text-slate-400 mr-1">{formatCurrency(item.costoTotal * 2)}</span>
-                                                                    <span className="text-amber-600 font-black">{formatCurrency(item.costoTotal)} (50% OFF)</span>
+                                        <div key={category} className="p-6 bg-white border border-slate-200 rounded-[2rem] shadow-sm space-y-4">
+                                            <h3 className="text-xs font-black uppercase tracking-wider text-slate-400 border-b pb-2 flex items-center justify-between">
+                                                <span>{formatCategoriaText(category)}</span>
+                                                <Badge variant="secondary" className="font-bold text-[9px]">{activeItems.length}</Badge>
+                                            </h3>
+                                            <div className="grid gap-3 sm:grid-cols-2">
+                                                {activeItems.map(item => {
+                                                    return (
+                                                        <div
+                                                            key={item.id}
+                                                            className="flex items-center justify-between gap-3 rounded-2xl border border-slate-200 p-3.5 transition-all duration-300 bg-white hover:border-slate-300 shadow-sm"
+                                                        >
+                                                            <div className="min-w-0 flex-1 text-left">
+                                                                <span className="block font-bold text-slate-800 text-xs truncate">
+                                                                    {item.nombre}
                                                                 </span>
-                                                            ) : (
-                                                                <span className="text-slate-500 font-bold">{formatCurrency(item.costoTotal)}</span>
+                                                                <div className="flex items-center gap-2 mt-0.5 text-[9px] font-semibold text-slate-400 uppercase tracking-tight">
+                                                                    <span>{item.esRegalo ? "Regalo incluido" : (item.subcategoria || formatCategoriaText(item.categoria) || 'Servicio activo')}</span>
+                                                                    {!item.esRegalo && (
+                                                                        <>
+                                                                            <span>•</span>
+                                                                            {item.id === 'serv_salon_club_uruguay' ? (
+                                                                                <span className="text-slate-500 font-bold">
+                                                                                    <span className="line-through text-slate-400 mr-1">{formatCurrency(item.costoTotal * 2)}</span>
+                                                                                    <span className="text-amber-600 font-black">{formatCurrency(item.costoTotal)} (50% OFF)</span>
+                                                                                </span>
+                                                                            ) : (
+                                                                                <span className="text-slate-500 font-bold">{formatCurrency(item.costoTotal)}</span>
+                                                                            )}
+                                                                        </>
+                                                                    )}
+                                                                </div>
+                                                            </div>
+
+                                                            {isServiceRemovable(item) && (
+                                                                <Button
+                                                                    type="button"
+                                                                    size="icon"
+                                                                    variant="ghost"
+                                                                    onClick={() => setServiceToDelete(item)}
+                                                                    className="h-8 w-8 rounded-lg text-slate-450 hover:text-red-650 hover:bg-red-50 shrink-0"
+                                                                    title="Retirar servicio"
+                                                                >
+                                                                    <Trash2 className="w-4 h-4"/>
+                                                                </Button>
                                                             )}
-                                                        </>
-                                                    )}
-                                                </div>
+                                                        </div>
+                                                    );
+                                                })}
                                             </div>
-
-                                            {isServiceRemovable(item) && (
-                                                <Button
-                                                    type="button"
-                                                    size="icon"
-                                                    variant="ghost"
-                                                    onClick={() => handleToggleServiceInBudget(item.id, 'exclude')}
-                                                    className="h-8 w-8 rounded-lg text-slate-450 hover:text-red-650 hover:bg-red-50 shrink-0"
-                                                    title="Retirar servicio"
-                                                >
-                                                    <Trash2 className="w-4 h-4"/>
-                                                </Button>
-                                            )}
-                                        </div>
-                                    );
-                                })}
-
-                                {/* Mostrar también los servicios del paquete que actualmente están excluidos */}
-                                {excludedPackageServiceIds.map(excludedId => {
-                                    const service = allSimuladorServices.find(s => s.id === excludedId);
-                                    if (!service) return null;
-                                    const calculated = getSimulatorServiceCalculatedData(service, adultos, ninosYAdolescentes);
-                                    return (
-                                        <div
-                                            key={excludedId}
-                                            className="flex items-center justify-between gap-3 rounded-xl border border-dashed border-slate-200 bg-slate-50/40 p-3 opacity-60 transition-all duration-300"
-                                        >
-                                            <div className="min-w-0 flex-1">
-                                                <span className="block font-bold text-slate-400 line-through text-xs truncate">
-                                                    {service.nombre}
-                                                </span>
-                                                <div className="flex items-center gap-2 mt-0.5 text-[9px] font-semibold text-slate-400 uppercase tracking-tight">
-                                                    <span>{service.notas || service.subcategoria || formatCategoriaText(service.categoria) || 'Servicio retirado'}</span>
-                                                    <span>•</span>
-                                                    <span className="text-slate-400">-{formatCurrency(calculated.total)}</span>
-                                                </div>
-                                            </div>
-                                            <Button
-                                                type="button"
-                                                size="icon"
-                                                variant="ghost"
-                                                onClick={() => handleToggleServiceInBudget(excludedId, 'include')}
-                                                className="h-8 w-8 rounded-lg text-emerald-600 hover:text-emerald-700 hover:bg-emerald-50 shrink-0"
-                                                title="Incluir servicio"
-                                            >
-                                                <Plus className="w-4 h-4"/>
-                                            </Button>
                                         </div>
                                     );
                                 })}
                             </div>
+
+                            {/* SERVICIOS RETIRADOS / OPCIONALES DISPONIBLES */}
+                            {excludedPackageServiceIds.length > 0 && (
+                                <div className="p-6 bg-slate-50/50 border border-dashed border-slate-200 rounded-[2rem] space-y-4">
+                                    <h3 className="text-xs font-black uppercase tracking-wider text-slate-400 flex items-center gap-2 text-left">
+                                        <span>Servicios retirados del paquete (Opcionales)</span>
+                                        <Badge className="bg-slate-200 text-slate-700 hover:bg-slate-200 font-bold text-[9px]">{excludedPackageServiceIds.length}</Badge>
+                                    </h3>
+                                    <div className="grid gap-3 sm:grid-cols-2">
+                                        {excludedPackageServiceIds.map(excludedId => {
+                                            const service = allSimuladorServices.find(s => s.id === excludedId);
+                                            if (!service) return null;
+                                            const calculated = getSimulatorServiceCalculatedData(service, adultos, ninosYAdolescentes);
+                                            return (
+                                                <div
+                                                    key={excludedId}
+                                                    className="flex items-center justify-between gap-3 rounded-2xl border border-dashed border-slate-200 bg-white p-3.5 opacity-70 hover:opacity-100 transition-all duration-300"
+                                                >
+                                                    <div className="min-w-0 flex-1 text-left">
+                                                        <span className="block font-bold text-slate-400 line-through text-xs truncate">
+                                                            {service.nombre}
+                                                        </span>
+                                                        <div className="flex items-center gap-2 mt-0.5 text-[9px] font-semibold text-slate-400 uppercase tracking-tight">
+                                                            <span>{service.subcategoria || formatCategoriaText(service.categoria)}</span>
+                                                            <span>•</span>
+                                                            <span className="text-slate-550 font-bold">-{formatCurrency(calculated.total)}</span>
+                                                        </div>
+                                                    </div>
+                                                    <Button
+                                                        type="button"
+                                                        size="icon"
+                                                        variant="ghost"
+                                                        onClick={() => handleToggleServiceInBudget(excludedId, 'include')}
+                                                        className="h-8 w-8 rounded-lg text-emerald-600 hover:text-emerald-700 hover:bg-emerald-50 shrink-0"
+                                                        title="Volver a agregar"
+                                                    >
+                                                        <Plus className="w-4 h-4"/>
+                                                    </Button>
+                                                </div>
+                                            );
+                                        })}
+                                    </div>
+                                </div>
+                            )}
 
                             {/* 2. SERVICIOS SUGERIDOS Y EL BUSCADOR */}
                             <div className="space-y-6 pt-6 border-t border-slate-200">

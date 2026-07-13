@@ -1,8 +1,8 @@
 
 'use client';
 
-import React, { useState, useEffect, useCallback, type FormEvent, use } from 'react';
-import { useRouter } from 'next/navigation';
+import React, { useState, useEffect, useCallback, type FormEvent } from 'react';
+import { useParams, useRouter } from 'next/navigation';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle, CardFooter } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -29,8 +29,8 @@ import {
 } from "@/components/ui/alert-dialog";
 import { ALL_TIPOS_EVENTO, type TipoEvento } from '@/types/presupuesto';
 
-export default function EditCustomerPage(props: { params: Promise<{ id: string }> }) {
-  const params = use(props.params);
+export default function EditCustomerPage() {
+  const params = useParams<{ id: string }>();
   const router = useRouter();
   const { toast } = useToast();
   const [customer, setCustomer] = useState<Customer | null>(null);

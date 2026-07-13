@@ -8,6 +8,7 @@ import { CTASection } from '@/components/landing/CTASection';
 import { PublicFooter } from '@/components/public-footer';
 import { notFound } from 'next/navigation';
 import { CAMPAIGN_LANDING_MAP, CAMPAIGN_LANDINGS } from '@/lib/marketing/campaign-landings';
+import { AK_WHATSAPP_NUMBER } from '@/lib/public-contact';
 
 // ─── Promo page data store ──────────────────────────────────────────────────
 // To add a new promotion, simply add an entry to this object with a unique slug.
@@ -43,7 +44,9 @@ function getConfigCtaLabel(config: AnyLandingConfig) {
 }
 
 function getConfigWhatsappNumber(config: AnyLandingConfig) {
-  return 'whatsappNumber' in config && config.whatsappNumber ? config.whatsappNumber : '59899123456';
+  return 'whatsappNumber' in config && config.whatsappNumber
+    ? config.whatsappNumber
+    : AK_WHATSAPP_NUMBER;
 }
 
 const PROMO_PAGES: Record<string, PromoConfig> = {

@@ -27,11 +27,13 @@ import type { Firestore, QueryDocumentSnapshot, Transaction } from 'firebase-adm
 import admin from 'firebase-admin';
 import path from 'path';
 import { getFiestaById, saveFiesta } from '@/app/actions/fiesta/fiesta.actions';
+import { getFiestaByAccessKey } from '@/app/actions/fiesta/portal.actions';
 import * as logger from '@/lib/logger';
 import { reviewSocialContent, sanitizeSocialText } from '@/lib/social-fiesta/content-review';
 import { checkImageSafety } from '@/lib/social-fiesta/content-safety-ai';
 import { hasAppSession, requireAppSession } from '@/lib/auth/require-session';
 import { isSharedKioskUpload, shouldQueueForManualReview } from '@/lib/social-fiesta/guardrails';
+import { toPublicSocialEvent, type PublicSocialEvent } from '@/lib/social-fiesta/public-event';
 
 // Firestore collection names
 const GALLERY_COLLECTION = 'social_gallery_posts';
@@ -82,6 +84,51 @@ export async function getSocialPosts(fiestaId: string): Promise<SocialGalleryPos
 export async function getPublicSocialPosts(fiestaId: string): Promise<SocialGalleryPost[]> {
   const posts = await getSocialPosts(fiestaId);
   return posts.filter((post) => (post.moderationStatus ?? 'approved') === 'approved');
+}
+
+export async function getPublicSocialEvent(
+  fiestaId: string,
+  accessKey?: string,
+): Promise<PublicSocialEvent | null> {
+  const normalizedKey = accessKey?.trim();
+  const fiesta = normalizedKey
+    ? await getFiestaByAccessKey(normalizedKey)
+    : await getFiestaById(fiestaId);
+  if (!fiesta || fiesta.id !== fiestaId) return null;
+
+  return toPublicSocialEvent(fiesta, Boolean(normalizedKey));
+}
+
+export async function getSocialPostsByClient(
+  fiestaId: string,
+  accessKey: string
+): Promise<{ success: boolean; posts?: SocialGalleryPost[]; error?: string }> {
+  try {
+    const fiesta = await getFiestaById(fiestaId);
+    if (!fiesta) return { success: false, error: 'Evento no encontrado.' };
+    if (fiesta.clientPortalSettings?.accessKey !== accessKey) {
+      return { success: false, error: 'Código de acceso incorrecto.' };
+    }
+
+    const db = await getDb();
+    const snapshot = await db
+      .collection(GALLERY_COLLECTION)
+      .where('fiestaId', '==', fiestaId)
+      .get();
+
+    const posts = snapshot.docs
+      .map((doc: QueryDocumentSnapshot) => {
+        const data = { ...doc.data() } as any;
+        delete data._syncedAt;
+        return data as SocialGalleryPost;
+      })
+      .sort((a: SocialGalleryPost, b: SocialGalleryPost) => new Date(b.timestamp).getTime() - new Date(a.timestamp).getTime());
+
+    return { success: true, posts };
+  } catch (error: any) {
+    logger.warn('[social-gallery] getSocialPostsByClient failed:', error);
+    return { success: false, error: error.message || 'No se pudieron cargar las publicaciones.' };
+  }
 }
 
 export async function getSocialAdminAccess(): Promise<boolean> {
@@ -544,5 +591,39 @@ export async function saveSocialSettingsByClient(
       : { success: false, error: result.error || 'No se pudieron guardar los ajustes.' };
   } catch (error: any) {
     return { success: false, error: error.message || 'Error al guardar.' };
+  }
+}
+
+export async function moderateSocialPostByClient(
+  fiestaId: string,
+  accessKey: string,
+  postId: string,
+  moderationStatus: 'pending' | 'approved' | 'hidden'
+): Promise<{ success: boolean; error?: string }> {
+  try {
+    const fiesta = await getFiestaById(fiestaId);
+    if (!fiesta) return { success: false, error: 'Evento no encontrado.' };
+    if (fiesta.clientPortalSettings?.accessKey !== accessKey) {
+      return { success: false, error: 'Código de acceso incorrecto.' };
+    }
+    const db = await getDb();
+    const ref = db.collection(GALLERY_COLLECTION).doc(postId);
+    const snap = await ref.get();
+    if (!snap.exists) return { success: false, error: 'Publicación no encontrada.' };
+    
+    // Validate that the post belongs to this event
+    const postData = snap.data();
+    if (postData?.fiestaId !== fiestaId) {
+      return { success: false, error: 'La publicación no pertenece a este evento.' };
+    }
+
+    await ref.update({
+      moderationStatus,
+      moderatedAt: new Date().toISOString(),
+      moderatedBy: 'Cliente Portal',
+    });
+    return { success: true };
+  } catch (error: any) {
+    return { success: false, error: error.message || 'Error al moderar.' };
   }
 }

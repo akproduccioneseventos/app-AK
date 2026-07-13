@@ -59,7 +59,12 @@ export interface ContractedDownloads {
  * Determines which media types are contracted and available for download
  * based on the event's modules and digital zone settings.
  */
-export function getContractedDownloads(fiesta: FiestaEnPlanificacion): ContractedDownloads {
+export function getContractedDownloads(
+  fiesta: Pick<
+    FiestaEnPlanificacion,
+    'modulosContratados' | 'zonaDigitalAdolescentes' | 'socialGallerySettings' | 'buzonConfig'
+  >,
+): ContractedDownloads {
   const modulos = fiesta.modulosContratados;
   const zd = fiesta.zonaDigitalAdolescentes;
 

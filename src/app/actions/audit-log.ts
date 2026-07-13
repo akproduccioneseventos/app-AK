@@ -2,12 +2,14 @@
 
 import type { AuditLog, ModuloSistema } from '@/types/audit-log';
 import { readData, writeData } from '@/lib/data-service';
+import { requireAppSession } from '@/lib/auth/require-session';
 
 const AUDIT_LOGS_FILE = 'audit-logs.json';
 
 export async function logAuditEvent(
   data: Omit<AuditLog, 'id' | 'timestamp'>
 ): Promise<{ success: boolean; log?: AuditLog; error?: string }> {
+  await requireAppSession();
   try {
     const logs = await readData<AuditLog[]>(AUDIT_LOGS_FILE, []);
     const newLog: AuditLog = {
@@ -29,6 +31,7 @@ export async function getAuditLogs(filters?: {
   desde?: string;
   hasta?: string;
 }): Promise<AuditLog[]> {
+  await requireAppSession();
   const logs = await readData<AuditLog[]>(AUDIT_LOGS_FILE, []);
   if (!filters) return logs;
 

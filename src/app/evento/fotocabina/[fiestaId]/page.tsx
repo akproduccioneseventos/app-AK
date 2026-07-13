@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect, useRef } from 'react';
+import { useCallback, useState, useEffect, useRef } from 'react';
 import { useParams, useRouter, useSearchParams } from 'next/navigation';
 import { motion, AnimatePresence } from 'framer-motion';
 import {
@@ -20,8 +20,10 @@ import {
   Check,
 } from 'lucide-react';
 import { QRCodeSVG } from 'qrcode.react';
-import { uploadSocialPost } from '@/app/actions/social-gallery';
-import { getPublicEntertainmentEvent } from '@/app/actions/fiesta/entretenimiento.actions';
+import {
+  getPublicEntertainmentEvent,
+  uploadEntretenimientoMedia,
+} from '@/app/actions/fiesta/entretenimiento.actions';
 import {
   getEntertainmentSession,
   startEntertainmentSession,
@@ -31,6 +33,7 @@ import {
 } from '@/app/actions/fiesta/sesion-entretenimiento';
 import type { PublicEntertainmentEvent } from '@/lib/entertainment/station-config';
 import { KioskUnlockButton } from '@/components/kiosk/kiosk-unlock-button';
+import { isVideoFrameReady } from '@/lib/entertainment/camera-readiness';
 
 const FRAMES = [
   { id: 'none', label: 'Sin Marco', bg: 'transparent' },
@@ -50,9 +53,12 @@ export default function FotocabinaPage() {
   
   const videoRef = useRef<HTMLVideoElement>(null);
   const canvasRef = useRef<HTMLCanvasElement>(null);
+  const streamRef = useRef<MediaStream | null>(null);
+  const takePhotoRef = useRef<() => void>(() => undefined);
+  const retakeRef = useRef<() => void>(() => undefined);
+  const localStatusRef = useRef<'idle' | 'countdown' | 'recording' | 'processing' | 'done'>('idle');
 
   const [fiesta, setFiesta] = useState<PublicEntertainmentEvent | null>(null);
-  const [stream, setStream] = useState<MediaStream | null>(null);
   const [facingMode, setFacingMode] = useState<'user' | 'environment'>('user');
   const [selectedFrame, setSelectedFrame] = useState('none');
   
@@ -98,27 +104,62 @@ export default function FotocabinaPage() {
     } catch(e) {}
   };
 
-  // 1. Load details and set Firestore Polling
+  const stopCamera = useCallback(() => {
+    if (streamRef.current) {
+      streamRef.current.getTracks().forEach(track => track.stop());
+      streamRef.current = null;
+    }
+  }, []);
+
+  const startCamera = useCallback(async () => {
+    stopCamera();
+    setErrorMsg(null);
+    try {
+      const mediaStream = await navigator.mediaDevices.getUserMedia({
+        video: { facingMode, width: { ideal: 1080 }, height: { ideal: 1920 } },
+        audio: false
+      });
+      streamRef.current = mediaStream;
+      if (videoRef.current) {
+        videoRef.current.srcObject = mediaStream;
+      }
+    } catch (err) {
+      setErrorMsg('No se pudo acceder a la cámara. Por favor, revisa los permisos del navegador.');
+    }
+  }, [facingMode, stopCamera]);
+
+  // 1. Load details
   useEffect(() => {
-    getPublicEntertainmentEvent(fiestaId, 'fotocabina')
-      .then((result) => setFiesta(result.success ? result.event || null : null))
-      .catch(() => {});
-    
+    getPublicEntertainmentEvent(fiestaId, 'fotocabina', accessToken)
+      .then((result) => {
+        if (result.success && result.event) setFiesta(result.event);
+        else setErrorMsg(result.error || 'No se pudo abrir esta estacion.');
+      })
+      .catch(() => setErrorMsg('No se pudo abrir esta estacion.'));
+  }, [accessToken, fiestaId]);
+
+  useEffect(() => {
+    localStatusRef.current = localStatus;
+  }, [localStatus]);
+
+  // Keep one remote-control channel alive during the full capture workflow.
+  useEffect(() => {
     let pollInFlight = false;
     const interval = setInterval(async () => {
       if (pollInFlight) return;
       pollInFlight = true;
       try {
-        const s = await getEntertainmentSession(fiestaId, 'fotocabina');
+        const s = await getEntertainmentSession(fiestaId, 'fotocabina', accessToken);
         setSession(s);
 
-        if (role === 'display' && s && s.status !== localStatus) {
-          if (s.status === 'countdown' && localStatus === 'idle') {
+        const currentStatus = localStatusRef.current;
+        if (role === 'display' && s && s.status !== currentStatus) {
+          if (s.status === 'countdown' && currentStatus === 'idle') {
             const frameToUse = s.settings?.frameId || 'none';
             setSelectedFrame(frameToUse);
-            takePhoto();
+            takePhotoRef.current();
           } else if (s.status === 'idle') {
-            retake();
+            retakeRef.current();
           }
         }
       } finally {
@@ -130,40 +171,16 @@ export default function FotocabinaPage() {
       clearInterval(interval);
       stopCamera();
     };
-  }, [fiestaId, role, localStatus]);
+  }, [accessToken, fiestaId, role, stopCamera]);
 
   // 2. Camera controller for display
   useEffect(() => {
-    if (role === 'display' && (localStatus === 'idle' || localStatus === 'countdown' || localStatus === 'recording')) {
+    if (fiesta && role === 'display' && (localStatus === 'idle' || localStatus === 'countdown' || localStatus === 'recording')) {
       startCamera();
     } else {
       stopCamera();
     }
-  }, [facingMode, localStatus, role]);
-
-  const startCamera = async () => {
-    stopCamera();
-    setErrorMsg(null);
-    try {
-      const mediaStream = await navigator.mediaDevices.getUserMedia({
-        video: { facingMode, width: { ideal: 1080 }, height: { ideal: 1920 } },
-        audio: false
-      });
-      setStream(mediaStream);
-      if (videoRef.current) {
-        videoRef.current.srcObject = mediaStream;
-      }
-    } catch (err) {
-      setErrorMsg('No se pudo acceder a la cámara. Por favor, revisa los permisos del navegador.');
-    }
-  };
-
-  const stopCamera = () => {
-    if (stream) {
-      stream.getTracks().forEach(track => track.stop());
-      setStream(null);
-    }
-  };
+  }, [fiesta, localStatus, role, startCamera, stopCamera]);
 
   const toggleCamera = () => {
     setFacingMode(prev => prev === 'user' ? 'environment' : 'user');
@@ -199,6 +216,11 @@ export default function FotocabinaPage() {
 
   const captureToCanvas = async () => {
     if (!videoRef.current || !canvasRef.current) return;
+    if (!isVideoFrameReady(videoRef.current)) {
+      setErrorMsg('La camara todavia se esta preparando. Intenta nuevamente en un instante.');
+      setLocalStatus('idle');
+      return;
+    }
     
     setLocalStatus('recording');
     await updateEntertainmentSessionStatus(fiestaId, 'fotocabina', 'recording', {}, accessToken);
@@ -336,13 +358,13 @@ export default function FotocabinaPage() {
       formData.append('fiestaId', fiestaId);
       formData.append('file', file);
       formData.append('authorName', 'Fotocabina AK');
-      formData.append('source', 'entertainment');
-      formData.append('sourceModule', 'fotocabina');
+      formData.append('moduleId', 'fotocabina');
+      if (accessToken) formData.append('accessToken', accessToken);
       
-      const res = await uploadSocialPost(formData);
+      const res = await uploadEntretenimientoMedia(formData);
       if (res.success) {
-        const mediaUrl = res.post?.imageUrl || '';
-        setQrCodeUrl(mediaUrl || window.location.href);
+        const mediaUrl = res.media?.url || '';
+        setQrCodeUrl(mediaUrl);
         setLocalStatus('done');
         await updateEntertainmentSessionStatus(
           fiestaId,
@@ -365,7 +387,8 @@ export default function FotocabinaPage() {
       }
     } catch (err) {
       console.error(err);
-      setQrCodeUrl(window.location.href);
+      setQrCodeUrl('');
+      setErrorMsg((err as Error).message || 'No se pudo subir la foto. Puedes descargarla en este dispositivo.');
       setLocalStatus('done');
       await updateEntertainmentSessionStatus(
         fiestaId,
@@ -399,6 +422,32 @@ export default function FotocabinaPage() {
     if (role === 'display') {
       startCamera();
     }
+  };
+
+  useEffect(() => {
+    takePhotoRef.current = () => { void takePhoto(); };
+    retakeRef.current = retake;
+  });
+
+  const handleOperatorStart = async () => {
+    setErrorMsg(null);
+    const result = await startEntertainmentSession(
+      fiestaId,
+      'fotocabina',
+      {
+        frameId: selectedFrame,
+        countdownSeconds: fiesta?.station.countdownSeconds || 4,
+        operatorName: fiesta?.station.operatorName,
+      },
+      accessToken
+    );
+    if (!result.success) setErrorMsg(result.error || 'No se pudo disparar la fotocabina.');
+  };
+
+  const handleOperatorReset = async () => {
+    setErrorMsg(null);
+    const result = await resetEntertainmentSession(fiestaId, 'fotocabina', accessToken);
+    if (!result.success) setErrorMsg(result.error || 'No se pudo reiniciar la fotocabina.');
   };
 
   // 4. Operator view
@@ -449,18 +498,7 @@ export default function FotocabinaPage() {
             {/* Shutter / reset */}
             <div className="space-y-3 pt-2">
               <button
-                onClick={() =>
-                  startEntertainmentSession(
-                    fiestaId,
-                    'fotocabina',
-                    {
-                      frameId: selectedFrame,
-                      countdownSeconds: fiesta?.station.countdownSeconds || 4,
-                      operatorName: fiesta?.station.operatorName,
-                    },
-                    accessToken
-                  )
-                }
+                onClick={handleOperatorStart}
                 disabled={session?.status && session.status !== 'idle' && session.status !== 'done'}
                 className="w-full h-16 rounded-2xl bg-gradient-to-r from-amber-400 to-orange-500 hover:from-amber-500 hover:to-orange-600 text-zinc-950 font-black text-lg shadow-xl shadow-amber-400/20 flex items-center justify-center gap-2 disabled:opacity-50 disabled:pointer-events-none active:scale-98 transition-all"
               >
@@ -469,12 +507,13 @@ export default function FotocabinaPage() {
               </button>
 
               <button
-                onClick={() => resetEntertainmentSession(fiestaId, 'fotocabina', accessToken)}
+                onClick={handleOperatorReset}
                 className="w-full h-12 rounded-xl bg-white/5 hover:bg-white/10 text-slate-300 font-bold text-sm border border-white/5 transition flex items-center justify-center gap-2"
               >
                 <RefreshCw className="w-4 h-4" />
                 Reiniciar Cabina
               </button>
+              {errorMsg && <p className="text-center text-xs font-bold text-rose-400">{errorMsg}</p>}
             </div>
           </div>
         </div>
@@ -618,6 +657,7 @@ export default function FotocabinaPage() {
             
             {/* Captured Image Preview */}
             <div className="relative w-full max-w-sm aspect-[9/16] bg-black rounded-3xl overflow-hidden border border-white/10 shadow-2xl">
+              {/* eslint-disable-next-line @next/next/no-img-element -- Canvas output is generated only in this browser. */}
               <img src={capturedImage} className="w-full h-full object-contain" alt="Captura Final" />
               <div className="absolute top-4 left-4 bg-amber-400 text-zinc-950 text-[10px] font-black uppercase px-3 py-1 rounded-full tracking-wider">
                 Foto Capturada
@@ -663,7 +703,7 @@ export default function FotocabinaPage() {
                     Aceptar y compartir
                   </button>
                 )}
-                {(fiesta?.station.allowGuestRetake !== false || qrCodeUrl) && (
+                {fiesta?.station.allowGuestRetake && fiesta.station.maxRetakes > 0 && (
                   <button
                     onClick={retake}
                     className="w-full h-12 rounded-xl bg-white/5 hover:bg-white/10 text-white font-bold text-sm border border-white/10 transition flex items-center justify-center gap-2"

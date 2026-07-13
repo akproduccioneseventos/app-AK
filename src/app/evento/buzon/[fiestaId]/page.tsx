@@ -1,7 +1,7 @@
 'use client';
 
 import React, { useState, useEffect, useRef } from 'react';
-import { useParams, useRouter } from 'next/navigation';
+import { useParams, useRouter, useSearchParams } from 'next/navigation';
 import { motion, AnimatePresence } from 'framer-motion';
 import {
   Mic, Video, Play, Pause, Trash2, Send, ArrowLeft, Loader2, CheckCircle2,
@@ -18,8 +18,10 @@ import { cn } from '@/lib/utils';
 export default function GuestBuzonPage() {
   const params = useParams();
   const router = useRouter();
+  const searchParams = useSearchParams();
   const { toast } = useToast();
   const fiestaId = params.fiestaId as string;
+  const accessToken = searchParams.get('access') || undefined;
 
   const [fiesta, setFiesta] = useState<PublicEntertainmentEvent | null>(null);
   const [activeTab, setActiveTab] = useState<'audio' | 'video'>('audio');
@@ -225,7 +227,7 @@ export default function GuestBuzonPage() {
   useEffect(() => {
     async function loadData() {
       try {
-        const res = await getPublicEntertainmentEvent(fiestaId, 'capsulaTiempo');
+        const res = await getPublicEntertainmentEvent(fiestaId, 'capsulaTiempo', accessToken);
         if (res.success && res.event) {
           setFiesta(res.event);
         }
@@ -236,7 +238,7 @@ export default function GuestBuzonPage() {
       }
     }
     loadData();
-  }, [fiestaId]);
+  }, [accessToken, fiestaId]);
 
   useEffect(() => {
     return () => {

@@ -8,8 +8,9 @@ import {
   Smartphone,
   Ticket,
 } from 'lucide-react';
-import { motion } from 'framer-motion';
+import { motion, useReducedMotion } from 'framer-motion';
 import { Button } from '@/components/ui/button';
+import { AK_WHATSAPP_NUMBER } from '@/lib/public-contact';
 
 interface TechnologyExperienceSectionProps {
   whatsappNumber?: string;
@@ -34,8 +35,9 @@ const techFeatures = [
 ];
 
 export default function TechnologyExperienceSection({
-  whatsappNumber = '59898355530',
+  whatsappNumber = AK_WHATSAPP_NUMBER,
 }: TechnologyExperienceSectionProps) {
+  const reduceMotion = useReducedMotion();
   const waHref = `https://wa.me/${whatsappNumber}?text=${encodeURIComponent(
     '¡Hola! Me interesa saber más sobre la tecnología interactiva incluida en las fiestas.',
   )}`;
@@ -67,7 +69,7 @@ export default function TechnologyExperienceSection({
         <div className="grid gap-12 lg:grid-cols-[0.95fr_1.05fr] lg:items-center">
           <div className="space-y-8">
             <div className="max-w-3xl">
-              <span className="mb-4 inline-flex items-center gap-2 rounded-md border border-indigo-200 bg-white px-3 py-1 text-xs font-black uppercase tracking-widest text-indigo-700">
+              <span className="mb-4 inline-flex items-center gap-2 rounded-md border border-red-200 bg-white px-3 py-1 text-xs font-bold text-red-700">
                 <Bot className="h-3.5 w-3.5" />
                 Tecnología útil para el evento
               </span>
@@ -92,9 +94,9 @@ export default function TechnologyExperienceSection({
                   <motion.article
                     key={feature.title}
                     variants={cardVariants}
-                    className="flex gap-4 rounded-lg border border-slate-200 bg-white p-5 shadow-sm transition-all duration-300 hover:-translate-y-1 hover:border-indigo-200 hover:shadow-lg"
+                    className="flex gap-4 rounded-lg border border-slate-200 bg-white p-5 shadow-sm transition-all duration-300 hover:-translate-y-1 hover:border-red-200 hover:shadow-lg"
                   >
-                    <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-md border border-indigo-100 bg-indigo-50 text-indigo-700">
+                    <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-md border border-emerald-100 bg-emerald-50 text-emerald-700">
                       <Icon className="h-6 w-6" />
                     </div>
                     <div>
@@ -120,7 +122,7 @@ export default function TechnologyExperienceSection({
                 <Button
                   asChild
                   size="lg"
-                  className="h-12 w-full rounded-md bg-indigo-600 px-6 text-xs font-black uppercase tracking-wider text-white shadow-sm transition-transform duration-200 hover:scale-[1.02] hover:bg-indigo-700"
+                  className="h-12 w-full rounded-md bg-red-700 px-6 text-xs font-bold text-white shadow-sm transition-transform duration-200 hover:scale-[1.02] hover:bg-red-800"
                 >
                   <Link href="/simulador-de-presupuesto" className="w-full sm:w-auto">
                     Probar simulador
@@ -139,7 +141,11 @@ export default function TechnologyExperienceSection({
             </div>
           </div>
 
-          <div className="relative">
+          <motion.div
+            className="relative"
+            animate={reduceMotion ? undefined : { y: [0, -8, 0] }}
+            transition={{ duration: 7, repeat: Infinity, ease: 'easeInOut' }}
+          >
             <div className="relative aspect-[4/3] w-full overflow-hidden rounded-lg border border-slate-200 bg-slate-200 shadow-xl">
               <Image
                 src="/media/catalogo-servicios/tecnologia_fiesta.png"
@@ -150,11 +156,11 @@ export default function TechnologyExperienceSection({
                 priority
               />
               <div className="absolute inset-x-0 bottom-0 bg-slate-950/82 p-6 text-white">
-                <span className="text-[10px] font-black uppercase tracking-[0.25em] text-indigo-200">Fiestas conectadas</span>
+                <span className="text-[10px] font-bold text-emerald-200">Fiestas conectadas</span>
                 <p className="mt-2 text-xl font-black leading-tight sm:text-2xl">Invitados, pantallas y organización trabajando juntos</p>
               </div>
             </div>
-          </div>
+          </motion.div>
         </div>
       </div>
     </section>

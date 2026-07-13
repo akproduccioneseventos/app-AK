@@ -197,6 +197,7 @@ export default function PublicPortalProView({ fiesta, companyContact, companyNam
   const whatsappHref = whatsappNumber.length >= 7 ? `https://wa.me/${whatsappNumber}?text=${whatsappText}` : `https://wa.me/?text=${whatsappText}`;
 
   const [showPagoModal, setShowPagoModal] = useState(false);
+  const [showDocuments, setShowDocuments] = useState(false);
   const [pagoMonto, setPagoMonto] = useState('');
   const [pagoNota, setPagoNota] = useState('');
   const [pagoFile, setPagoFile] = useState<File | null>(null);
@@ -349,12 +350,30 @@ export default function PublicPortalProView({ fiesta, companyContact, companyNam
                 )}
                 <div className="flex flex-wrap gap-2">
                   <Button className="rounded-2xl" style={{ backgroundColor: eventColor }} onClick={() => setShowPagoModal(true)}>Hacer pago</Button>
-                  <Button variant="outline" className="rounded-2xl"><FileText className="w-4 h-4 mr-2" /> Ver documentos</Button>
+                  <Button variant="outline" className="rounded-2xl" onClick={() => setShowDocuments(current => !current)}>
+                    <FileText className="w-4 h-4 mr-2" /> {showDocuments ? 'Ocultar documentos' : 'Ver documentos'}
+                  </Button>
                 </div>
                 <div className="grid gap-2 sm:grid-cols-2">
                   <div className="rounded-2xl border p-3 text-sm">Contrato: {fiesta?.contratoServicioTexto ? 'Cargado' : 'Sin configurar'}</div>
                   <div className="rounded-2xl border p-3 text-sm">Documentos: {documentos.length || 'Sin documentos cargados'}</div>
                 </div>
+                {showDocuments && (
+                  <div className="rounded-2xl border bg-slate-50 p-4" aria-live="polite">
+                    {documentos.length > 0 ? (
+                      <ul className="space-y-2">
+                        {documentos.map((documento: any, index: number) => (
+                          <li key={documento.id || documento.fileName || index} className="flex items-center gap-2 text-sm text-slate-700">
+                            <FileText className="h-4 w-4 shrink-0" />
+                            <span>{documento.titulo || documento.nombre || documento.fileName || `Documento ${index + 1}`}</span>
+                          </li>
+                        ))}
+                      </ul>
+                    ) : (
+                      <p className="text-sm text-slate-600">AK todavia no cargo documentos visibles para este evento.</p>
+                    )}
+                  </div>
+                )}
               </CardContent>
             </Card>
 

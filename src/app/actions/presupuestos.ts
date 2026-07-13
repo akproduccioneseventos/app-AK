@@ -5,7 +5,7 @@ import { readData, writeData } from '@/lib/data-service';
 import { getInvoiceById, saveInvoice } from './invoices';
 import type { Invoice, InvoiceItem } from '@/types/invoice';
 import { findLeadByBudgetOrCreate, getCrmStages, moveCrmLead } from './crm';
-import { createNotification } from './notifications';
+import { createNotification } from '@/lib/notifications/create-notification';
 import { getServiciosEmpresa } from './servicios-empresa';
 import { getMenus } from './menus-catering';
 import type { ServicioEmpresa } from '@/types/empresa';
@@ -27,6 +27,33 @@ const PRESUPUESTOS_FILE = 'presupuestos.json';
 
 function shouldDedupePaymentReference(referencia?: string): boolean {
   return !!referencia && referencia.includes('Pago verificado desde Portal VIP');
+}
+
+function getFiestaSubjectName(input: {
+  protagonista1Nombre?: string;
+  protagonista2Nombre?: string;
+  clienteNombre?: string;
+  eventoTipo?: string;
+}) {
+  const protagonista1 = input.protagonista1Nombre?.trim();
+  const protagonista2 = input.protagonista2Nombre?.trim();
+  const cliente = input.clienteNombre?.trim();
+  if (protagonista1 && protagonista2) return `${protagonista1} y ${protagonista2}`;
+  if (protagonista1) return protagonista1;
+  if (cliente) return cliente;
+  if (input.eventoTipo === 'XV años') return 'la Quinceañera';
+  if (input.eventoTipo === 'Boda') return 'los Novios';
+  return 'el Agasajado';
+}
+
+function buildFiestaNameFromBudget(input: {
+  protagonista1Nombre?: string;
+  protagonista2Nombre?: string;
+  clienteNombre?: string;
+  eventoTipo?: string;
+}) {
+  const tipo = input.eventoTipo?.trim() || 'Evento';
+  return `${tipo} de ${getFiestaSubjectName(input)}`;
 }
 
 /** Returns all presupuestos. Pass includeArchived=true to include soft-deleted ones. */
@@ -95,6 +122,19 @@ export async function getPresupuestoById(id: string, token?: string): Promise<Pr
   return presupuestos.find(p => p.id === id) || null;
 }
 
+export async function getPresupuestoShareToken(
+  id: string
+): Promise<{ success: boolean; token?: string; error?: string }> {
+  const auth = await verifySession();
+  if (!auth.success) return { success: false, error: 'No autorizado' };
+
+  const presupuesto = await getPresupuestoById(id);
+  if (!presupuesto) return { success: false, error: 'Presupuesto no encontrado' };
+
+  const { generateBudgetToken } = await import('@/lib/auth/session-token');
+  return { success: true, token: await generateBudgetToken(id) };
+}
+
 async function syncLinkedFiesta(presupuesto: Presupuesto) {
     try {
         const allFiestas = await getAllFiestas();
@@ -105,11 +145,7 @@ async function syncLinkedFiesta(presupuesto: Presupuesto) {
             } else {
                 linkedFiesta.configuracion = {
                     ...linkedFiesta.configuracion,
-                    nombreEvento: `${presupuesto.eventoTipo} de ${
-                        presupuesto.protagonista1Nombre
-                            ? (presupuesto.protagonista2Nombre ? `${presupuesto.protagonista1Nombre} y ${presupuesto.protagonista2Nombre}` : presupuesto.protagonista1Nombre)
-                            : (presupuesto.eventoTipo === 'XV años' ? 'la Quinceañera' : (presupuesto.eventoTipo === 'Boda' ? 'los Novios' : (presupuesto.clienteNombre || 'el Agasajado')))
-                    }`,
+                    nombreEvento: buildFiestaNameFromBudget(presupuesto),
                     fechaEvento: presupuesto.eventoFecha,
                     invitadosEstimados: presupuesto.invitadosCantidad,
                     invitadosAdultos: presupuesto.invitadosAdultos,
@@ -658,11 +694,7 @@ export async function importarPresupuestoDesdeTexto(
         estado: 'En Planificación',
         configuracion: {
           ...initialFiestaActualData.configuracion,
-          nombreEvento: `${parsed.eventoTipo || 'Evento'} de ${
-            parsed.protagonista1Nombre
-              ? (parsed.protagonista2Nombre ? `${parsed.protagonista1Nombre} y ${parsed.protagonista2Nombre}` : parsed.protagonista1Nombre)
-              : (parsed.eventoTipo === 'XV años' ? 'la Quinceañera' : (parsed.eventoTipo === 'Boda' ? 'los Novios' : (parsed.clienteNombre || 'el Agasajado')))
-          }`,
+          nombreEvento: buildFiestaNameFromBudget(parsed),
           tipoCelebracion: parsed.eventoTipo || 'Otro',
           fechaEvento: eventoFecha,
           invitadosEstimados: parsed.invitadosCantidad,
@@ -722,11 +754,7 @@ export async function createFiestaFromPresupuesto(
     estado: 'En Planificación',
     configuracion: {
       ...initialFiestaActualData.configuracion,
-      nombreEvento: `${presupuesto.eventoTipo} de ${
-        presupuesto.protagonista1Nombre
-          ? (presupuesto.protagonista2Nombre ? `${presupuesto.protagonista1Nombre} y ${presupuesto.protagonista2Nombre}` : presupuesto.protagonista1Nombre)
-          : (presupuesto.eventoTipo === 'XV años' ? 'la Quinceañera' : (presupuesto.eventoTipo === 'Boda' ? 'los Novios' : (presupuesto.clienteNombre || 'el Agasajado')))
-      }`,
+      nombreEvento: buildFiestaNameFromBudget(presupuesto),
       tipoCelebracion: presupuesto.eventoTipo,
       fechaEvento: presupuesto.eventoFecha || '',
       invitadosEstimados: presupuesto.invitadosCantidad,

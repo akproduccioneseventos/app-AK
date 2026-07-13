@@ -3,6 +3,8 @@
 
 import type { FeedbackSubmission, Testimonial } from '@/types/feedback';
 import { readData, writeData } from '@/lib/data-service';
+import { requireAppSession } from '@/lib/auth/require-session';
+import { enforcePublicRateLimit } from '@/lib/commercial/public-rate-limit';
 
 const FEEDBACK_FILE = 'feedback.json';
 const TESTIMONIALS_FILE = 'testimonials.json';
@@ -10,6 +12,12 @@ const TESTIMONIALS_FILE = 'testimonials.json';
 const sortFn = (a: any, b: any) => new Date(b.timestamp || b.createdAt || 0).getTime() - new Date(a.timestamp || a.createdAt || 0).getTime();
 
 export async function saveFeedback(submission: Omit<FeedbackSubmission, 'id' | 'timestamp'>): Promise<{ success: boolean, feedback?: FeedbackSubmission, error?: string }> {
+  await enforcePublicRateLimit({
+    scope: 'event-feedback',
+    identity: `${submission.fiestaId}|${submission.clientName}`,
+    limit: 3,
+    windowMs: 24 * 60 * 60 * 1000,
+  });
   const allFeedback = await readData<FeedbackSubmission[]>(FEEDBACK_FILE, []);
   const newFeedback: FeedbackSubmission = {
     ...submission,
@@ -22,15 +30,26 @@ export async function saveFeedback(submission: Omit<FeedbackSubmission, 'id' | '
 }
 
 export async function getFeedback(): Promise<FeedbackSubmission[]> {
+  await requireAppSession();
   return readData<FeedbackSubmission[]>(FEEDBACK_FILE, []);
 }
 
-export async function getTestimonials(): Promise<Testimonial[]> {
+async function getTestimonialsInternal(): Promise<Testimonial[]> {
   return readData<Testimonial[]>(TESTIMONIALS_FILE, []);
 }
 
+export async function getTestimonials(): Promise<Testimonial[]> {
+  return (await getTestimonialsInternal()).filter((testimonial) => testimonial.isApproved);
+}
+
+export async function getAllTestimonials(): Promise<Testimonial[]> {
+  await requireAppSession();
+  return getTestimonialsInternal();
+}
+
 export async function saveTestimonial(testimonialData: Omit<Testimonial, 'id' | 'createdAt' | 'isApproved'>): Promise<{ success: boolean, testimonial?: Testimonial, error?: string }> {
-  const allTestimonials = await getTestimonials();
+  await requireAppSession();
+  const allTestimonials = await getTestimonialsInternal();
   
   if (allTestimonials.some(t => t.feedbackId === testimonialData.feedbackId)) {
     return { success: false, error: "Ya existe un testimonio para este feedback." };
@@ -48,7 +67,8 @@ export async function saveTestimonial(testimonialData: Omit<Testimonial, 'id' | 
 }
 
 export async function updateTestimonialApproval(testimonialId: string, isApproved: boolean): Promise<{ success: boolean, error?: string }> {
-  const allTestimonials = await getTestimonials();
+  await requireAppSession();
+  const allTestimonials = await getTestimonialsInternal();
   const index = allTestimonials.findIndex(t => t.id === testimonialId);
   if (index === -1) {
     return { success: false, error: "Testimonio no encontrado." };
@@ -59,7 +79,8 @@ export async function updateTestimonialApproval(testimonialId: string, isApprove
 }
 
 export async function deleteTestimonial(testimonialId: string): Promise<{ success: boolean, error?: string }> {
-  let allTestimonials = await getTestimonials();
+  await requireAppSession();
+  let allTestimonials = await getTestimonialsInternal();
   const initialLength = allTestimonials.length;
   allTestimonials = allTestimonials.filter(t => t.id !== testimonialId);
   if (allTestimonials.length === initialLength) {

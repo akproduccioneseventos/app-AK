@@ -349,6 +349,7 @@ function PantallasTotemContent() {
                         <div className="flex flex-wrap gap-2 p-3 rounded-2xl border bg-slate-50 mt-1 max-h-40 overflow-y-auto">
                           {totem.heroPhotoUrl.split(/[\n,]+/).map((url) => url.trim()).filter(Boolean).map((url, i) => (
                             <div key={i} className="relative w-12 h-16 rounded-xl overflow-hidden group border border-slate-200 shadow-sm bg-white shrink-0">
+                              {/* eslint-disable-next-line @next/next/no-img-element -- Admin previews may use arbitrary external or data URLs. */}
                               <img src={url} alt="" className="w-full h-full object-cover" />
                               <button
                                 type="button"

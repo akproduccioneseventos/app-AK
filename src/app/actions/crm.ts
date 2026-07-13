@@ -7,13 +7,14 @@ import { saveCustomer, getCustomers } from '@/app/actions/customers';
 import { getPresupuestoById, updatePresupuesto } from '@/app/actions/presupuestos';
 import { saveFiesta, syncFiestaFromBudget, getFiestas } from '@/app/actions/fiesta/fiesta.actions';
 import { getInvoiceById, saveInvoice } from '@/app/actions/invoices';
-import { createNotification } from './notifications';
+import { createNotification } from '@/lib/notifications/create-notification';
 import type { FiestaEnPlanificacion } from '@/types/fiesta';
 import type { Presupuesto, PagoCliente, MetodoPago } from '@/types/presupuesto';
 import { initialFiestaActualData, defaultModulosContratados } from '@/lib/fiesta-defaults';
 import * as logger from '@/lib/logger';
 import { normalizePresupuestoFinancials, roundMoney, validatePaymentAgainstBudget, parseCleanMoney } from '@/lib/budget/financial-guardrails';
 import { verifySession } from '@/lib/auth/session-token';
+import { requireAppSession } from '@/lib/auth/require-session';
 import type { CommercialAttribution, CommercialSource } from '@/lib/commercial/acquisition';
 import { sanitizeCommercialAttribution } from '@/lib/commercial/acquisition';
 import { upsertPublicCommercialLead } from '@/lib/crm/public-lead-persistence';
@@ -738,6 +739,7 @@ export async function getCrmKpiData() {
 }
 
 export async function findLeadByBudgetOrCreate(presupuesto: any) {
+    await requireAppSession();
     const leads = await getCrmLeads();
     const stages = await getCrmStages();
     const budgetSource = presupuesto.source || 'manual';

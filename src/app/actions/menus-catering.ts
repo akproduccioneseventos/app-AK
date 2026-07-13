@@ -4,6 +4,7 @@ import type { FullMenu, MenuItem, Ingredient } from '@/types/catering';
 import type { ServicioEmpresa } from '@/types/empresa';
 import { readData, writeData } from '@/lib/data-service';
 import { getInsumos } from './insumos';
+import { requireAppSession } from '@/lib/auth/require-session';
 
 const MENUS_CATERING_COLLECTION_JSON = 'menus-catering.json';
 
@@ -165,6 +166,7 @@ async function writeMenusFile(data: FullMenu[]): Promise<void> {
 export async function saveMenu(
   menuDataInput: Omit<FullMenu, 'id' | 'createdAt' | 'updatedAt'> | FullMenu
 ): Promise<{ success: boolean; id?: string; error?: string; menu?: FullMenu }> {
+  await requireAppSession();
   invalidateMenusCache();
   const [menus, catalog] = await Promise.all([readMenusFile(), getInsumos()]);
   let menuId: string;
@@ -196,6 +198,7 @@ export async function saveMenu(
 }
 
 export async function deleteMenu(id: string): Promise<{ success: boolean; error?: string }> {
+  await requireAppSession();
   invalidateMenusCache();
   let menus = await readMenusFile();
   const initialLength = menus.length;
@@ -207,6 +210,7 @@ export async function deleteMenu(id: string): Promise<{ success: boolean; error?
 }
 
 export async function duplicateMenu(id: string): Promise<{ success: boolean; error?: string; menu?: FullMenu }> {
+    await requireAppSession();
     invalidateMenusCache();
     const menuToDuplicate = await getMenuById(id);
     if (!menuToDuplicate) return { success: false, error: 'Menú a duplicar no encontrado.' };
@@ -218,6 +222,7 @@ export async function duplicateMenu(id: string): Promise<{ success: boolean; err
 }
 
 export async function adjustAllDishMargins(percentage: number): Promise<{ success: boolean; error?: string }> {
+  await requireAppSession();
   try {
     invalidateMenusCache();
     const menus = await getMenus();

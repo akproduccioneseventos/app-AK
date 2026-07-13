@@ -1,9 +1,14 @@
 'use server';
 
 import { verifySession } from '@/lib/auth/session-token';
-import { runMarketingAutomation } from '@/lib/marketing-automation';
+import {
+  runMarketingAutomation,
+  type MarketingAutomationResult,
+} from '@/lib/marketing-automation';
 
-export async function runMarketingAutomationFromAdmin(options?: { force?: boolean }) {
+export async function runMarketingAutomationFromAdmin(
+  options?: { force?: boolean }
+): Promise<MarketingAutomationResult> {
   const session = await verifySession();
   if (!session.success || session.user?.role !== 'admin') {
     return {
@@ -11,6 +16,7 @@ export async function runMarketingAutomationFromAdmin(options?: { force?: boolea
       skipped: false,
       ranSeo: false,
       ranInstagram: false,
+      source: 'admin',
       message: 'Solo un administrador puede ejecutar la automatizacion de marketing.',
       error: 'No autorizado',
     };
@@ -28,6 +34,7 @@ export async function runMarketingAutomationFromAdmin(options?: { force?: boolea
       skipped: false,
       ranSeo: false,
       ranInstagram: false,
+      source: 'admin',
       message: 'No se pudo ejecutar la automatizacion de marketing.',
       error: error.message || 'Error inesperado',
     };

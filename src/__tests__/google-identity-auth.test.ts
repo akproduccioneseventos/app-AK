@@ -4,6 +4,7 @@ import {
   validateGoogleIdentityClaims,
 } from '@/lib/auth/google-identity';
 import { sanitizeAppRedirect } from '@/lib/auth/redirect';
+import { getGoogleRecoveryAccountStatus } from '@/lib/auth/google-recovery';
 import fs from 'fs';
 import path from 'path';
 
@@ -52,6 +53,29 @@ describe('Google identity authentication', () => {
       auth_time: 600,
       firebase: { sign_in_provider: 'google.com' },
     }, allowed, { maxAuthAgeSeconds: 300, nowSeconds: 1000 }).success).toBe(false);
+  });
+
+  it('only reports Gmail recovery as connected after the token refresh succeeds', () => {
+    const company = {
+      email: DEFAULT_ALLOWED_GOOGLE_EMAIL,
+      status: 'connected' as const,
+      accessToken: 'expired-token',
+    };
+
+    expect(getGoogleRecoveryAccountStatus(company, undefined)).toEqual({
+      connected: false,
+      email: DEFAULT_ALLOWED_GOOGLE_EMAIL,
+      reason: 'La cuenta Gmail de AK necesita volver a conectarse.',
+    });
+
+    expect(getGoogleRecoveryAccountStatus(company, {
+      ...company,
+      accessToken: 'fresh-token',
+    })).toEqual({
+      connected: true,
+      email: DEFAULT_ALLOWED_GOOGLE_EMAIL,
+      reason: undefined,
+    });
   });
 
   it('keeps redirects inside the application', () => {

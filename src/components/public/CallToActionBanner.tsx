@@ -2,6 +2,7 @@
 
 import { MessageSquare } from 'lucide-react';
 import { cn } from '@/lib/utils';
+import { AK_WHATSAPP_NUMBER } from '@/lib/public-contact';
 
 interface CallToActionBannerProps {
   headline?: string;
@@ -17,7 +18,7 @@ export function CallToActionBanner({
   headline = '¿Listo para crear momentos únicos?',
   subheadline = 'Contactanos hoy y empezamos a planificar juntos la celebración de tus sueños. Sin compromiso.',
   ctaLabel = '¡Hablemos por WhatsApp!',
-  whatsappNumber = '59899123456',
+  whatsappNumber = AK_WHATSAPP_NUMBER,
   whatsappMessage = '¡Hola AK Producciones! Quiero consultar sobre sus servicios de eventos.',
   variant = 'purple',
   className,

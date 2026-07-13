@@ -3,6 +3,7 @@
 
 import { readData, writeData } from '@/lib/data-service';
 import type { DecoracionData } from '@/types/fiesta';
+import { requireAppSession } from '@/lib/auth/require-session';
 
 export interface SalonLayoutTemplate {
   id: string;
@@ -22,6 +23,7 @@ export async function saveSalonLayoutTemplate(
   name: string,
   layoutData: DecoracionData
 ): Promise<{ success: boolean; template?: SalonLayoutTemplate; error?: string }> {
+  await requireAppSession();
   if (!name.trim()) {
     return { success: false, error: "El nombre de la plantilla es obligatorio." };
   }
@@ -49,6 +51,7 @@ export async function saveSalonLayoutTemplate(
 }
 
 export async function deleteSalonLayoutTemplate(id: string): Promise<{ success: boolean; error?: string }> {
+  await requireAppSession();
   let templates = await getSalonLayoutTemplates();
   const initialLength = templates.length;
   templates = templates.filter(t => t.id !== id);

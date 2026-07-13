@@ -1,5 +1,14 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { getWhatsAppConfig, processIncomingMessage } from '@/app/actions/whatsapp';
+import {
+  getExternalWebhookUrl,
+  verifyMetaWebhookSignature,
+  verifyTwilioWebhookSignature,
+} from '@/lib/whatsapp/webhook-security';
+import { WHATSAPP_WEBHOOK_INTERNAL_TOKEN } from '@/lib/whatsapp/internal-token';
+
+export const runtime = 'nodejs';
+export const dynamic = 'force-dynamic';
 
 /**
  * GET /api/whatsapp/webhook
@@ -14,7 +23,7 @@ export async function GET(request: NextRequest) {
 
   // Meta webhook verification
   if (mode === 'subscribe' && challenge) {
-    const config = await getWhatsAppConfig();
+    const config = await getWhatsAppConfig(WHATSAPP_WEBHOOK_INTERNAL_TOKEN);
     const verifyToken = config.verifyToken;
     if (!verifyToken && process.env.NODE_ENV === 'production') {
       return NextResponse.json({ error: 'WhatsApp verify token is not configured in production' }, { status: 403 });
@@ -37,18 +46,25 @@ export async function GET(request: NextRequest) {
  */
 export async function POST(request: NextRequest) {
   try {
-    const config = await getWhatsAppConfig();
+    const config = await getWhatsAppConfig(WHATSAPP_WEBHOOK_INTERNAL_TOKEN);
 
     if (!config.enabled) {
       return NextResponse.json({ status: 'ok' }, { status: 200 });
     }
 
     const rawBody = await request.text();
+    const contentType = request.headers.get('content-type') || '';
     let body: any = null;
-    try {
-      body = JSON.parse(rawBody);
-    } catch {
-      return NextResponse.json({ error: 'Invalid JSON payload' }, { status: 400 });
+    let formParams: URLSearchParams | null = null;
+    if (contentType.includes('application/x-www-form-urlencoded')) {
+      formParams = new URLSearchParams(rawBody);
+      body = Object.fromEntries(formParams.entries());
+    } else {
+      try {
+        body = JSON.parse(rawBody);
+      } catch {
+        return NextResponse.json({ error: 'Invalid webhook payload' }, { status: 400 });
+      }
     }
     if (!body) {
       return NextResponse.json({ error: 'Invalid payload' }, { status: 400 });
@@ -66,9 +82,7 @@ export async function POST(request: NextRequest) {
         if (!config.appSecret || !metaSignature) {
           return NextResponse.json({ error: 'Meta app secret or signature missing' }, { status: 401 });
         }
-        const crypto = await import('crypto');
-        const expected = 'sha256=' + crypto.createHmac('sha256', config.appSecret).update(rawBody).digest('hex');
-        if (metaSignature !== expected) {
+        if (!verifyMetaWebhookSignature(rawBody, metaSignature, config.appSecret)) {
           return NextResponse.json({ error: 'Signature verification failed' }, { status: 401 });
         }
       }
@@ -93,8 +107,18 @@ export async function POST(request: NextRequest) {
     // Parse Twilio format
     if (!phone && body.From) {
       const twilioSignature = request.headers.get('x-twilio-signature');
-      if (process.env.NODE_ENV === 'production' && !twilioSignature) {
-        return NextResponse.json({ error: 'Twilio signature is required in production' }, { status: 401 });
+      if (process.env.NODE_ENV === 'production') {
+        if (
+          !formParams ||
+          !verifyTwilioWebhookSignature({
+            authToken: config.apiKey,
+            signature: twilioSignature,
+            url: getExternalWebhookUrl(request),
+            params: formParams,
+          })
+        ) {
+          return NextResponse.json({ error: 'Twilio signature verification failed' }, { status: 401 });
+        }
       }
 
       phone = (body.From as string).replace('whatsapp:', '');
@@ -117,7 +141,7 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ status: 'ok' }, { status: 200 });
     }
 
-    const result = await processIncomingMessage(phone, messageText, clientName);
+    const result = await processIncomingMessage(phone, messageText, clientName, WHATSAPP_WEBHOOK_INTERNAL_TOKEN);
 
     if (!result.success) {
       console.error('[WhatsApp Webhook] Error processing message:', result.error);

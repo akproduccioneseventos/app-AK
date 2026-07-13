@@ -76,7 +76,6 @@ const PUBLIC_AGENT_HIDDEN_PREFIXES = [
   '/portal',
   '/portal-cliente',
   '/portal-invitado',
-  '/portal-proveedor',
   '/invitacion',
   '/invitado',
   '/feedback',

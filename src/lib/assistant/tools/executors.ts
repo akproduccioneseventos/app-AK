@@ -39,7 +39,7 @@ async function enviarNotificacion(params: {
   tipo: 'info' | 'aviso' | 'urgente' | 'exito';
   href: string;
 }): Promise<void> {
-  const { createNotification } = await import('@/app/actions/notifications');
+  const { createNotification } = await import('@/lib/notifications/create-notification');
   await createNotification(params).catch((notifErr: unknown) => {
     logger.warn('[Asistente AK] No se pudo enviar notificación:', (notifErr as Error)?.message);
   });

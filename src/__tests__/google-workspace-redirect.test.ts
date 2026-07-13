@@ -1,8 +1,10 @@
 import {
+  findExistingGoogleCalendarEvent,
   getGoogleRedirectUri,
   getPublicAppOrigin,
   getSafeGoogleReturnPath,
 } from '@/lib/google-workspace';
+import type { GoogleWorkspaceAccount } from '@/types/google-workspace';
 
 describe('Google Workspace public redirects', () => {
   const previousAppUrl = process.env.NEXT_PUBLIC_APP_URL;
@@ -30,5 +32,97 @@ describe('Google Workspace public redirects', () => {
     );
     expect(getSafeGoogleReturnPath('https://example.com', '/settings')).toBe('/settings');
     expect(getSafeGoogleReturnPath('//example.com', '/settings')).toBe('/settings');
+  });
+});
+
+describe('Google Calendar duplicate detection', () => {
+  const originalFetch = global.fetch;
+  const account: GoogleWorkspaceAccount = {
+    id: 'gcal_company',
+    kind: 'company',
+    accessToken: 'token',
+    connectedAt: '2026-07-11T00:00:00.000Z',
+    updatedAt: '2026-07-11T00:00:00.000Z',
+    status: 'connected',
+  };
+
+  const expectedEvent = {
+    summary: 'Boda de Ana',
+    description: 'Evento AK',
+    startIso: '2026-12-20T22:00:00.000Z',
+    endIso: '2026-12-21T04:00:00.000Z',
+    location: 'Club Uruguay',
+  };
+
+  beforeEach(() => {
+    global.fetch = jest.fn() as unknown as typeof fetch;
+  });
+
+  afterEach(() => {
+    global.fetch = originalFetch;
+    jest.clearAllMocks();
+  });
+
+  it('detects an existing event by the internal fiesta marker', async () => {
+    (global.fetch as jest.Mock).mockResolvedValue({
+      ok: true,
+      json: async () => ({
+        items: [
+          {
+            id: 'evt_marker',
+            summary: 'Nombre editado en Google',
+            description: 'AK_FIESTA_ID: fiesta_ana',
+          },
+        ],
+      }),
+    });
+
+    await expect(
+      findExistingGoogleCalendarEvent(account, '2026-12-20', 'Boda de Ana', 'fiesta_ana', expectedEvent)
+    ).resolves.toBe('evt_marker');
+  });
+
+  it('does not patch a partial title match from another event on the same day', async () => {
+    (global.fetch as jest.Mock).mockResolvedValue({
+      ok: true,
+      json: async () => ({
+        items: [
+          {
+            id: 'evt_wrong',
+            summary: 'Boda de Ana y Luis',
+            description: '',
+            location: 'Club Uruguay',
+            start: { dateTime: '2026-12-20T22:00:00.000Z' },
+            end: { dateTime: '2026-12-21T04:00:00.000Z' },
+          },
+        ],
+      }),
+    });
+
+    await expect(
+      findExistingGoogleCalendarEvent(account, '2026-12-20', 'Boda de Ana', 'fiesta_ana', expectedEvent)
+    ).resolves.toBeNull();
+  });
+
+  it('detects a legacy event only when title, time, and location match strongly', async () => {
+    (global.fetch as jest.Mock).mockResolvedValue({
+      ok: true,
+      json: async () => ({
+        items: [
+          {
+            id: 'evt_exact',
+            summary: 'Boda de Ana',
+            description: '',
+            location: 'Club Uruguay',
+            start: { dateTime: '2026-12-20T22:00:00.000Z' },
+            end: { dateTime: '2026-12-21T04:00:00.000Z' },
+          },
+        ],
+      }),
+    });
+
+    await expect(
+      findExistingGoogleCalendarEvent(account, '2026-12-20', 'Boda de Ana', 'fiesta_ana', expectedEvent)
+    ).resolves.toBe('evt_exact');
   });
 });

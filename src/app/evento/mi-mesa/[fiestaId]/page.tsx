@@ -1,6 +1,7 @@
 'use client';
 
-import React, { useState, useEffect, useCallback, use } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
+import { useParams } from 'next/navigation';
 import { CompanyLogo } from '@/components/company-logo';
 import { Search, Loader2, AlertTriangle, PartyPopper, ChevronRight, MessageCircle } from 'lucide-react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
@@ -23,12 +24,8 @@ function normalize(str: string): string {
     .replace(/[\u0300-\u036f]/g, '');
 }
 
-interface Params {
-  fiestaId: string;
-}
-
-export default function MiMesaPage({ params }: { params: Promise<Params> }) {
-  const { fiestaId } = use(params);
+export default function MiMesaPage() {
+  const { fiestaId } = useParams<{ fiestaId: string }>();
 
   const [fiesta, setFiesta] = useState<FiestaEnPlanificacion | null>(null);
   const [isLoading, setIsLoading] = useState(true);

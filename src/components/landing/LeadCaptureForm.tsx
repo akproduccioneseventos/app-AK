@@ -7,6 +7,7 @@ import { saveLead, type LandingLeadData } from '@/app/actions/crm';
 import { cn } from '@/lib/utils';
 import { commercialAttributionFromSearchParams } from '@/lib/commercial/acquisition';
 import type { CommercialSource } from '@/lib/commercial/acquisition';
+import { AK_WHATSAPP_NUMBER } from '@/lib/public-contact';
 
 interface LeadCaptureFormProps {
   fuente: LandingLeadData['fuente'];
@@ -18,7 +19,7 @@ interface LeadCaptureFormProps {
 
 export function LeadCaptureForm({
   fuente,
-  whatsappNumber = '59899123456',
+  whatsappNumber = AK_WHATSAPP_NUMBER,
   tipoEventoDefault = '',
   title = '¡Cotizá tu Evento!',
   subtitle = 'Completá el formulario y te contactamos en menos de 24 horas.',

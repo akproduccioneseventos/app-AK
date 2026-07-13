@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect, useRef } from 'react';
+import { useCallback, useState, useEffect, useRef } from 'react';
 import { useParams, useRouter, useSearchParams } from 'next/navigation';
 import Link from 'next/link';
 import { motion, AnimatePresence } from 'framer-motion';
@@ -22,8 +22,10 @@ import {
   Zap,
 } from 'lucide-react';
 import { QRCodeSVG } from 'qrcode.react';
-import { uploadSocialPost } from '@/app/actions/social-gallery';
-import { getPublicEntertainmentEvent } from '@/app/actions/fiesta/entretenimiento.actions';
+import {
+  getPublicEntertainmentEvent,
+  uploadEntretenimientoMedia,
+} from '@/app/actions/fiesta/entretenimiento.actions';
 import {
   getEntertainmentSession,
   startEntertainmentSession,
@@ -33,6 +35,7 @@ import {
 } from '@/app/actions/fiesta/sesion-entretenimiento';
 import type { PublicEntertainmentEvent } from '@/lib/entertainment/station-config';
 import { KioskUnlockButton } from '@/components/kiosk/kiosk-unlock-button';
+import { isVideoFrameReady } from '@/lib/entertainment/camera-readiness';
 
 const BOGUE_FRAMES = [
   { id: 'none', label: 'Sin Marco', border: 'transparent' },
@@ -51,9 +54,9 @@ export default function BoguePage() {
 
   const videoRef = useRef<HTMLVideoElement>(null);
   const displayCanvasRef = useRef<HTMLCanvasElement>(null);
+  const streamRef = useRef<MediaStream | null>(null);
 
   const [fiesta, setFiesta] = useState<PublicEntertainmentEvent | null>(null);
-  const [stream, setStream] = useState<MediaStream | null>(null);
   const [facingMode, setFacingMode] = useState<'user' | 'environment'>('user');
   
   // Real-time Firestore sync
@@ -73,9 +76,15 @@ export default function BoguePage() {
   const [selectedFrame, setSelectedFrame] = useState('none');
   const [voiceEnabled, setVoiceEnabled] = useState(true);
   const [isUploading, setIsUploading] = useState(false);
+  const [operatorError, setOperatorError] = useState<string | null>(null);
+  const [loadError, setLoadError] = useState<string | null>(null);
 
   // Audio effect context for high-quality beeps
   const audioCtxRef = useRef<AudioContext | null>(null);
+  const resetLocalStateRef = useRef<() => void>(() => undefined);
+  const startCaptureProcessRef = useRef<(recordDuration?: number, totalFrames?: number) => void>(() => undefined);
+  const localStatusRef = useRef<'idle' | 'countdown' | 'recording' | 'processing' | 'done'>('idle');
+  const selectedFrameRef = useRef('none');
 
   const speak = (text: string) => {
     if (!voiceEnabled) return;
@@ -115,25 +124,69 @@ export default function BoguePage() {
     } catch (e) {}
   };
 
-  // 1. Initial Load and Firestore Polling
+  const stopCamera = useCallback(() => {
+    if (streamRef.current) {
+      streamRef.current.getTracks().forEach(track => track.stop());
+      streamRef.current = null;
+    }
+  }, []);
+
+  const startCamera = useCallback(async () => {
+    stopCamera();
+    try {
+      const mediaStream = await navigator.mediaDevices.getUserMedia({
+        video: { facingMode, width: { ideal: 1080 }, height: { ideal: 1920 } },
+        audio: false,
+      });
+      streamRef.current = mediaStream;
+      if (videoRef.current) {
+        videoRef.current.srcObject = mediaStream;
+      }
+    } catch (err) {
+      console.error('Error al acceder a la cámara:', err);
+    }
+  }, [facingMode, stopCamera]);
+
+  // 1. Initial load
   useEffect(() => {
-    getPublicEntertainmentEvent(fiestaId, 'bogue')
-      .then((result) => setFiesta(result.success ? result.event || null : null))
-      .catch(() => {});
-    
+    getPublicEntertainmentEvent(fiestaId, 'bogue', accessToken)
+      .then((result) => {
+        if (result.success && result.event) setFiesta(result.event);
+        else setLoadError(result.error || 'No se pudo abrir esta estacion.');
+      })
+      .catch(() => setLoadError('No se pudo abrir esta estacion.'));
+  }, [accessToken, fiestaId]);
+
+  useEffect(() => {
+    localStatusRef.current = localStatus;
+    selectedFrameRef.current = selectedFrame;
+  }, [localStatus, selectedFrame]);
+
+  // Keep one remote-control channel alive during the full capture workflow.
+  useEffect(() => {
     let pollInFlight = false;
     const interval = setInterval(async () => {
       if (pollInFlight) return;
       pollInFlight = true;
       try {
-        const s = await getEntertainmentSession(fiestaId, 'bogue');
+        const s = await getEntertainmentSession(fiestaId, 'bogue', accessToken);
         setSession(s);
 
-        if (role === 'display' && s && s.status !== localStatus) {
-          if (s.status === 'countdown' && localStatus === 'idle') {
-            startCaptureProcess(s.settings?.duration || 3, s.settings?.frameCount || 15);
+        const currentStatus = localStatusRef.current;
+        if (role === 'display' && s && s.status !== currentStatus) {
+          if (s.status === 'countdown' && currentStatus === 'idle') {
+            const requestedFrame = s.settings?.frameId;
+            if (
+              typeof requestedFrame === 'string' &&
+              BOGUE_FRAMES.some((frame) => frame.id === requestedFrame) &&
+              requestedFrame !== selectedFrameRef.current
+            ) {
+              setSelectedFrame(requestedFrame);
+              return;
+            }
+            startCaptureProcessRef.current(s.settings?.duration || 3, s.settings?.frameCount || 15);
           } else if (s.status === 'idle') {
-            resetLocalState();
+            resetLocalStateRef.current();
           }
         }
       } finally {
@@ -145,39 +198,16 @@ export default function BoguePage() {
       clearInterval(interval);
       stopCamera();
     };
-  }, [fiestaId, role, localStatus]);
+  }, [accessToken, fiestaId, role, stopCamera]);
 
   // 2. Manage WebRTC Camera Feed for Display Role
   useEffect(() => {
-    if (role === 'display' && (localStatus === 'idle' || localStatus === 'countdown' || localStatus === 'recording')) {
+    if (fiesta && role === 'display' && (localStatus === 'idle' || localStatus === 'countdown' || localStatus === 'recording')) {
       startCamera();
     } else {
       stopCamera();
     }
-  }, [facingMode, localStatus, role]);
-
-  const startCamera = async () => {
-    stopCamera();
-    try {
-      const mediaStream = await navigator.mediaDevices.getUserMedia({
-        video: { facingMode, width: { ideal: 1080 }, height: { ideal: 1920 } },
-        audio: false,
-      });
-      setStream(mediaStream);
-      if (videoRef.current) {
-        videoRef.current.srcObject = mediaStream;
-      }
-    } catch (err) {
-      console.error('Error al acceder a la cámara:', err);
-    }
-  };
-
-  const stopCamera = () => {
-    if (stream) {
-      stream.getTracks().forEach(track => track.stop());
-      setStream(null);
-    }
-  };
+  }, [fiesta, localStatus, role, startCamera, stopCamera]);
 
   const toggleCamera = () => {
     setFacingMode(prev => (prev === 'user' ? 'environment' : 'user'));
@@ -226,13 +256,24 @@ export default function BoguePage() {
     }, 1000);
   };
 
+  useEffect(() => {
+    resetLocalStateRef.current = resetLocalState;
+    startCaptureProcessRef.current = (recordDuration, totalFrames) => {
+      void startCaptureProcess(recordDuration, totalFrames);
+    };
+  });
+
   const captureFramesSequence = async (durationSec: number, maxFrames: number) => {
     setLocalStatus('recording');
     await updateEntertainmentSessionStatus(fiestaId, 'bogue', 'recording', {}, accessToken);
     speak("¡Muévanse!");
 
     const video = videoRef.current;
-    if (!video) return;
+    if (!isVideoFrameReady(video)) {
+      setProgressMsg('La camara todavia se esta preparando. Intenta nuevamente.');
+      setLocalStatus('idle');
+      return;
+    }
 
     const frames: HTMLCanvasElement[] = [];
     const intervalMs = (durationSec * 1000) / maxFrames;
@@ -457,15 +498,15 @@ export default function BoguePage() {
       formData.append('fiestaId', fiestaId);
       formData.append('file', file);
       formData.append('authorName', 'Bogue Boomerang');
-      formData.append('source', 'entertainment');
-      formData.append('sourceModule', 'bogue');
+      formData.append('moduleId', 'bogue');
+      if (accessToken) formData.append('accessToken', accessToken);
 
-      const res = await uploadSocialPost(formData);
+      const res = await uploadEntretenimientoMedia(formData);
       
       if (res.success) {
-        const mediaUrl = res.post?.imageUrl || '';
+        const mediaUrl = res.media?.url || '';
         setUploadedPostUrl(mediaUrl);
-        setQrCodeUrl(mediaUrl || window.location.href);
+        setQrCodeUrl(mediaUrl);
         setLocalStatus('done');
         await updateEntertainmentSessionStatus(
           fiestaId,
@@ -486,8 +527,8 @@ export default function BoguePage() {
       }
     } catch (err) {
       console.error(err);
-      setProgressMsg('No se pudo subir al muro. Mostrando QR local...');
-      setQrCodeUrl(window.location.href);
+      setProgressMsg('No se pudo subir al muro. Conservamos el video para reintentar.');
+      setQrCodeUrl('');
       setLocalStatus('done');
       await updateEntertainmentSessionStatus(fiestaId, 'bogue', 'done', {}, accessToken);
     } finally {
@@ -497,7 +538,8 @@ export default function BoguePage() {
 
   // 4. Operator Actions
   const handleOperatorStart = async () => {
-    await startEntertainmentSession(
+    setOperatorError(null);
+    const result = await startEntertainmentSession(
       fiestaId,
       'bogue',
       {
@@ -508,11 +550,18 @@ export default function BoguePage() {
       },
       accessToken
     );
+    if (!result.success) setOperatorError(result.error || 'No se pudo iniciar Bogue.');
   };
 
   const handleOperatorReset = async () => {
-    await resetEntertainmentSession(fiestaId, 'bogue', accessToken);
+    setOperatorError(null);
+    const result = await resetEntertainmentSession(fiestaId, 'bogue', accessToken);
+    if (!result.success) setOperatorError(result.error || 'No se pudo reiniciar Bogue.');
   };
+
+  if (loadError) {
+    return <div className="flex min-h-screen items-center justify-center bg-zinc-950 p-6 text-center font-bold text-rose-300">{loadError}</div>;
+  }
 
   // Render Operator view
   if (role === 'operator') {
@@ -569,6 +618,7 @@ export default function BoguePage() {
                 <Zap className="w-6 h-6 fill-white" />
                 DISPARAR BOGUE
               </button>
+              {operatorError && <p className="text-center text-xs font-bold text-rose-400">{operatorError}</p>}
 
               <button
                 onClick={handleOperatorReset}
@@ -796,12 +846,14 @@ export default function BoguePage() {
               </div>
 
               <div className="space-y-3 w-full">
-                <button
-                  onClick={resetLocalState}
-                  className="w-full h-12 rounded-xl bg-white/5 hover:bg-white/10 text-white font-bold text-sm border border-white/10 transition flex items-center justify-center gap-2"
-                >
-                  <RefreshCw className="w-4 h-4" /> Tomar Otro Loop
-                </button>
+                {fiesta?.station.allowGuestRetake && fiesta.station.maxRetakes > 0 && (
+                  <button
+                    onClick={resetLocalState}
+                    className="w-full h-12 rounded-xl bg-white/5 hover:bg-white/10 text-white font-bold text-sm border border-white/10 transition flex items-center justify-center gap-2"
+                  >
+                    <RefreshCw className="w-4 h-4" /> Tomar Otro Loop
+                  </button>
+                )}
               </div>
             </div>
 

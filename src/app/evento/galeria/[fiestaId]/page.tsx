@@ -43,17 +43,6 @@ export default function GaleriaPage() {
     return () => clearInterval(interval);
   }, [fiestaId]);
 
-  useEffect(() => {
-    const handleKeyDown = (e: KeyboardEvent) => {
-      if (lightboxIndex === null) return;
-      if (e.key === 'Escape') setLightboxIndex(null);
-      if (e.key === 'ArrowLeft') showPrev();
-      if (e.key === 'ArrowRight') showNext();
-    };
-    window.addEventListener('keydown', handleKeyDown);
-    return () => window.removeEventListener('keydown', handleKeyDown);
-  }, [lightboxIndex]);
-
   const filteredPosts = useMemo(() => {
     if (activeTab === 'todas') return posts;
     if (activeTab === 'fotocabina') return posts.filter(p => p.sourceModule === 'fotocabina');
@@ -70,6 +59,21 @@ export default function GaleriaPage() {
     if (activeTab === 'invitados') return posts.filter(p => p.source === 'guest');
     return posts;
   }, [posts, activeTab]);
+
+  useEffect(() => {
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (lightboxIndex === null) return;
+      if (e.key === 'Escape') setLightboxIndex(null);
+      if (e.key === 'ArrowLeft') {
+        setLightboxIndex(index => index === null ? null : Math.max(0, index - 1));
+      }
+      if (e.key === 'ArrowRight') {
+        setLightboxIndex(index => index === null ? null : Math.min(filteredPosts.length - 1, index + 1));
+      }
+    };
+    window.addEventListener('keydown', handleKeyDown);
+    return () => window.removeEventListener('keydown', handleKeyDown);
+  }, [filteredPosts.length, lightboxIndex]);
 
   const totalLikes = useMemo(() => posts.reduce((sum, p) => sum + (p.likes || 0), 0), [posts]);
   const totalComments = useMemo(() => posts.reduce((sum, p) => sum + Object.keys(p.comments || {}).length, 0), [posts]);
@@ -188,6 +192,7 @@ export default function GaleriaPage() {
                       </div>
                     </>
                   ) : (
+                    // eslint-disable-next-line @next/next/no-img-element -- Guest media has variable dimensions and may be a data URL.
                     <img src={post.imageUrl} alt={post.authorName || 'Foto'} className="w-full h-auto object-cover transition-transform duration-500 group-hover:scale-105" loading="lazy" />
                   )}
                   
@@ -258,6 +263,7 @@ export default function GaleriaPage() {
                   onClick={e => e.stopPropagation()}
                 />
               ) : (
+                // eslint-disable-next-line @next/next/no-img-element -- Full-size guest media preserves its original dimensions.
                 <img 
                   src={filteredPosts[lightboxIndex].imageUrl} 
                   alt="Ampliada" 

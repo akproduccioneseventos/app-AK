@@ -4,6 +4,7 @@
 import type { ReposteriaData } from '@/types/fiesta';
 import { readData, writeData } from '@/lib/data-service';
 import { defaultReposteriaData } from '@/lib/fiesta-defaults';
+import { requireAppSession } from '@/lib/auth/require-session';
 
 const REPOSTERIA_TEMPLATE_FILE = 'reposteria-template.json';
 
@@ -30,6 +31,7 @@ export async function getReposteriaMasterTemplate(): Promise<ReposteriaData> {
 export async function saveReposteriaMasterTemplate(
   data: ReposteriaData
 ): Promise<{ success: boolean; data?: ReposteriaData; error?: string }> {
+  await requireAppSession();
   try {
     await writeData(REPOSTERIA_TEMPLATE_FILE, data);
     return { success: true, data };

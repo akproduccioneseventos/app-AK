@@ -8,7 +8,8 @@ import { saveFiesta } from './fiesta/fiesta.actions';
 import { initialFiestaActualData } from '@/lib/fiesta-defaults';
 import type { Presupuesto } from '@/types/presupuesto';
 import type { FiestaEnPlanificacion } from '@/types/fiesta';
-import { createNotification } from './notifications';
+import { createNotification } from '@/lib/notifications/create-notification';
+import { requireAppSession } from '@/lib/auth/require-session';
 
 const FIESTAS_HISTORICAS_FILE = 'fiestas-historicas.json';
 
@@ -19,6 +20,7 @@ export async function getFiestasHistoricas(): Promise<FiestaHistorica[]> {
 export async function saveFiestaHistorica(
   data: Omit<FiestaHistorica, 'id' | 'fechaCreacion'> | FiestaHistorica
 ): Promise<{ success: boolean; id?: string; error?: string }> {
+  await requireAppSession();
   try {
     const historicos = await getFiestasHistoricas();
     let id: string;
@@ -42,6 +44,7 @@ export async function saveFiestaHistorica(
 }
 
 export async function deleteFiestaHistorica(id: string): Promise<{ success: boolean; error?: string }> {
+  await requireAppSession();
   try {
     let historicos = await getFiestasHistoricas();
     historicos = historicos.filter(h => h.id !== id);
@@ -73,6 +76,7 @@ export async function generarDesdeHistorico(
   historicoId: string,
   anioNuevo: number
 ): Promise<{ success: boolean; fiestaId?: string; error?: string }> {
+  await requireAppSession();
   try {
     const historicos = await getFiestasHistoricas();
     const source = historicos.find(h => h.id === historicoId);
@@ -146,6 +150,7 @@ export async function generarDesdeHistorico(
  * This is a destructive admin-only operation and requires explicit confirmation in the UI.
  */
 export async function resetAllFiestasHistoricas(): Promise<{ success: boolean; deletedCount?: number; error?: string }> {
+  await requireAppSession();
   try {
     const { dbAdmin } = await import('@/lib/firebase/server');
     let deletedCount = 0;

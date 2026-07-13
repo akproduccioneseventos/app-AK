@@ -702,7 +702,9 @@ function EntretenimientoContent() {
   const [isLoading, setIsLoading] = useState(true);
   const [isSaving, setIsSaving] = useState(false);
   const [uploadingStation, setUploadingStation] = useState<StationId | null>(null);
-  const [launchTokens, setLaunchTokens] = useState<Partial<Record<StationId, string>>>({});
+  const [launchTokens, setLaunchTokens] = useState<
+    Partial<Record<StationId, { guest: string; operator: string }>>
+  >({});
 
   // Active sub-section / Wizard state
   const [activeStationId, setActiveStationId] = useState<StationId | null>(null);
@@ -765,8 +767,11 @@ function EntretenimientoContent() {
     if (!fiestaId || !activeStationId || launchTokens[activeStationId]) return;
     let cancelled = false;
     getEntertainmentLaunchToken(fiestaId, activeStationId).then((result) => {
-      if (!cancelled && result.success && result.token) {
-        setLaunchTokens((current) => ({ ...current, [activeStationId]: result.token }));
+      if (!cancelled && result.success && result.guestToken && result.operatorToken) {
+        setLaunchTokens((current) => ({
+          ...current,
+          [activeStationId]: { guest: result.guestToken, operator: result.operatorToken },
+        }));
       }
     });
     return () => {
@@ -1018,10 +1023,10 @@ function EntretenimientoContent() {
   };
 
   const getGuestLaunchLink = (stationId: StationId) =>
-    getEntertainmentGuestPath(fiestaId || '', stationId, launchTokens[stationId]);
+    getEntertainmentGuestPath(fiestaId || '', stationId, launchTokens[stationId]?.guest);
 
   const getOperatorLaunchLink = (stationId: StationId) =>
-    getEntertainmentOperatorPath(fiestaId || '', stationId, launchTokens[stationId]);
+    getEntertainmentOperatorPath(fiestaId || '', stationId, launchTokens[stationId]?.operator);
 
   if (isLoading) {
     return (

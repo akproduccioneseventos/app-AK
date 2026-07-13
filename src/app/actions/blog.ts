@@ -2,6 +2,7 @@
 
 import { readData, writeData } from '@/lib/data-service';
 import { verifySession } from '@/lib/auth/session-token';
+import { requireAppSession } from '@/lib/auth/require-session';
 import { generateBlogPostAndSocialDraft } from '@/lib/blog-ai-generator';
 import type { BlogPost } from '@/types/blog';
 
@@ -19,6 +20,7 @@ export async function getBlogPosts(): Promise<BlogPost[]> {
 export async function saveBlogPost(
   post: BlogPost
 ): Promise<{ success: boolean; error?: string }> {
+  await requireAppSession();
   try {
     const posts = await getBlogPosts();
     const idx = posts.findIndex(p => p.slug === post.slug);
@@ -46,6 +48,7 @@ export async function saveBlogPost(
 export async function deleteBlogPost(
   slug: string
 ): Promise<{ success: boolean; error?: string }> {
+  await requireAppSession();
   try {
     const posts = await getBlogPosts();
     const filtered = posts.filter(p => p.slug !== slug);
