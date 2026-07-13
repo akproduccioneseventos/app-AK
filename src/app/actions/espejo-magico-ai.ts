@@ -185,12 +185,82 @@ const ESPEJO_TEMPLATES: Record<string, EspejoTemplateDefinition> = {
     promptDescription:
       'a classic comic book illustration with bold black outlines, high contrast pop art colors (bright cyan, yellow, magenta), retro dot halftone pattern background, speech bubble next to the person with party sparkles',
   },
+  supermodel: {
+    id: 'supermodel',
+    categoryId: 'showbiz',
+    label: 'Supermodelo Pasarela',
+    promptDescription:
+      'a high-fashion supermodel walking down a premium fashion runway, flashing camera lights from photographers in the dark background, wearing an elegant designer outfit, haute couture aesthetic',
+  },
+  rock_legend: {
+    id: 'rock_legend',
+    categoryId: 'showbiz',
+    label: 'Leyenda del Rock',
+    promptDescription:
+      'a legendary rock singer performing live on a huge stadium stage with dramatic red and orange spotlights, pyrotechnics fire erupting, holding a vintage microphone stand, massive cheering crowd in background',
+  },
+  steampunk_explorer: {
+    id: 'steampunk_explorer',
+    categoryId: 'cinema',
+    label: 'Viajero Steampunk',
+    promptDescription:
+      'a steampunk explorer wearing brass goggles, a leather vest with gears, standing on the deck of a wooden flying airship amidst high altitude clouds and mechanical details, warm brass and copper tones',
+  },
+  anime_hero: {
+    id: 'anime_hero',
+    categoryId: 'cinema',
+    label: 'Héroe Anime',
+    promptDescription:
+      'a powerful 2D anime hero with spiky hair, wearing detailed combat robes, surrounded by an intense glowing blue energy aura, standing in a dynamic action pose in a fantasy valley landscape',
+  },
+  cyber_elf: {
+    id: 'cyber_elf',
+    categoryId: 'fantasy',
+    label: 'Elfo Cyberpunk',
+    promptDescription:
+      'a high-tech cyber elf with pointed ears, wearing glowing holographic garments, standing in a magical bioluminescent futuristic garden under neon-colored alien trees',
+  },
+  viking_warrior: {
+    id: 'viking_warrior',
+    categoryId: 'fantasy',
+    label: 'Guerrero Vikingo',
+    promptDescription:
+      'a rugged viking warrior with braided hair, wearing fur-lined leather armor, standing on the deck of a longship under a spectacular green aurora borealis sky with ocean waves crashing',
+  },
+  silicon_founder: {
+    id: 'silicon_founder',
+    categoryId: 'corporate',
+    label: 'Presentador Tech',
+    promptDescription:
+      'a confident tech founder giving a keynote presentation on a modern stage, wearing a smart casual blazer and t-shirt, warm stage lighting, large presentation screen blurred in the background',
+  },
+  influencer_travel: {
+    id: 'influencer_travel',
+    categoryId: 'corporate',
+    label: 'Influencer Viajes',
+    promptDescription:
+      'a stylish travel blogger wearing fashionable sunglasses and summer outfit, standing on a luxury terrace in Santorini overlooking the deep blue Aegean sea at golden sunset',
+  },
+  plastic_toy: {
+    id: 'plastic_toy',
+    categoryId: 'fun',
+    label: 'Muñeco de Acción',
+    promptDescription:
+      'a vintage plastic action figure toy inside an unopened retro collector box with colorful packaging and retro brand logo, plastic glossy texture, toy store display lighting',
+  },
+  chibi_avatar: {
+    id: 'chibi_avatar',
+    categoryId: 'fun',
+    label: 'Avatar Chibi 3D',
+    promptDescription:
+      'a cute 3D chibi character with oversized head and big expressive eyes, wearing pastel-colored clothes, standing in a dreamy wonderland filled with candy canes, giant lollipops, and cotton candy clouds',
+  },
 };
 
 const MAX_IMAGE_SIZE = 10 * 1024 * 1024; // 10 MB
 const ESPEJO_AI_TIMEOUT_MS = 60_000;
 const ESPEJO_IMAGE_MODEL =
-  process.env.GEMINI_IMAGE_MODEL?.trim() || 'googleai/gemini-3.1-flash-image-preview';
+  process.env.GEMINI_IMAGE_MODEL?.trim() || 'googleai/imagen3';
 
 async function ensureEspejoAccess(fiestaId: string, accessToken?: string): Promise<void> {
   const authorized = await hasEntertainmentGuestAccess(
@@ -387,33 +457,40 @@ export async function applyEspejoFaceSwap(
       };
     }
 
-    const promptParts = [
-      {
-        media: {
-          contentType: sourceContentType,
-          url: `data:${sourceContentType};base64,${sourceBase64}`,
-        },
-      },
-      {
-        text: [
-          'You are an expert digital portrait artist and AI image compositor.',
-          'TASK: Perform a high-fidelity Face Swap by transferring the face of the person in the provided image into a new scene.',
-          '',
-          `SCENE TO GENERATE: ${template.promptDescription}`,
-          '',
-          'INSTRUCTIONS FOR DYNAMIC LANDMARK MAPPING:',
-          '1. Identity Retention: Keep the user\'s facial features (eyes, nose, mouth, chin), skin tone, expression, and overall face structure identical to the input image.',
-          '2. Face Alignment: Align the head and face angle naturally with the shoulders and posture of the character in the scene.',
-          '3. Lighting and Shadow Blending: Match the lighting direction, ambient color, highlights, and shadows on the face with the lights of the generated scene so the face composites seamlessly.',
-          '4. High Quality: The generated image must look clean, detailed, and photorealistic. No visible lines, blurred borders, or uncanny stretches around the face boundary.',
-          '5. No text, logos, overlays, or watermarks.',
-        ].join('\n'),
-      },
-    ];
+    // Step 1: Analyze face using Gemini 1.5 Flash
+    let faceDesc = "a person";
+    try {
+      const faceAnalyzeResult = await ai.generate({
+        model: 'googleai/gemini-1.5-flash',
+        prompt: [
+          {
+            media: {
+              contentType: sourceContentType,
+              url: `data:${sourceContentType};base64,${sourceBase64}`,
+            },
+          },
+          {
+            text: 'Analyze the person\'s face in this photo. Describe their facial features (apparent gender, hair color and style, skin tone, facial structure, eye shape, and facial expression) in detail but concisely in English. Focus only on the head and face. Do not describe clothing, body, or background. Output only the description.',
+          }
+        ]
+      });
+      if (faceAnalyzeResult.text) {
+        faceDesc = faceAnalyzeResult.text.trim();
+      }
+    } catch (err) {
+      logger.warn('[espejo-magico-ai] Face analysis failed, using generic: ', err);
+    }
+
+    // Step 2: Generate the avatar using Imagen 3
+    const imagePrompt = [
+      `A high-quality, professional photograph of ${template.promptDescription}.`,
+      `The character must have the face of ${faceDesc}.`,
+      `Ensure the facial features look natural, integrated into the scene lighting, photorealistic, high resolution, no text, no watermarks, no distorted features.`
+    ].join(' ');
 
     const response = await generateEspejoImage({
       model: ESPEJO_IMAGE_MODEL,
-      prompt: promptParts,
+      prompt: imagePrompt,
     });
 
     const transformedBase64 = extractImageFromResult(response);

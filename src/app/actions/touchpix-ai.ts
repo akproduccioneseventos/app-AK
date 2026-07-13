@@ -91,7 +91,31 @@ export type TouchpixCharacterId =
   | 'royalty'
   | 'pirate'
   | 'rockstar'
-  | 'fairy';
+  | 'fairy'
+  | 'dj'
+  | 'cyberpunk'
+  | 'medieval_knight'
+  | 'gatsby_guest'
+  | 'f1_driver'
+  | 'gourmet_chef'
+  | 'kpop_idol'
+  | 'pop_art'
+  | 'oil_portrait'
+  | 'steampunk_pilot'
+  | 'viking'
+  | 'anime_character'
+  | 'ninja'
+  | 'samurai'
+  | 'detective'
+  | 'explorer'
+  | 'wizard'
+  | 'cyber_elf'
+  | 'travel_blogger'
+  | 'toy_figurine'
+  | 'chibi_character'
+  | 'glamour_model'
+  | 'skater'
+  | 'pilot';
 
 interface CharacterDefinition {
   label: string;
@@ -129,6 +153,126 @@ const CHARACTER_DEFINITIONS: Record<TouchpixCharacterId, CharacterDefinition> = 
     promptDescription:
       'a magical fairy with large iridescent butterfly wings that shimmer with rainbow light, wearing an elegant flowing dress made of flower petals, hovering above a moonlit enchanted garden with glowing mushrooms and twinkling fairy lights everywhere',
   },
+  dj: {
+    label: 'Electronic DJ',
+    promptDescription:
+      'a professional electronic music DJ wearing cool headphones around the neck, standing behind a glowing high-tech Pioneer DJ deck and mixer setup in a premium nightclub with laser beams and dancing crowd in background',
+  },
+  cyberpunk: {
+    label: 'Cyberpunk Warrior',
+    promptDescription:
+      'a futuristic cyberpunk mercenary with glowing blue cybernetic implants on the face and arms, wearing a technical high-collar jacket, standing on a rainy neo-tokyo street filled with neon signs and flying vehicles',
+  },
+  medieval_knight: {
+    label: 'Medieval Knight',
+    promptDescription:
+      'a brave knight in detailed shining silver armor holding a sword, standing in a dreamy enchanted meadow next to an old stone castle',
+  },
+  gatsby_guest: {
+    label: 'Gatsby Guest 1920s',
+    promptDescription:
+      'a glamorous guest at a 1920s Gatsby party, wearing a black tuxedo or a sparkling flapper dress with pearl necklaces and a feathered headband, holding a champagne glass, gold art deco background pattern with warm luxury lighting',
+  },
+  f1_driver: {
+    label: 'F1 Driver',
+    promptDescription:
+      'a professional racing car driver wearing a detailed red racing suit covered in sponsor patches, holding a helmet under one arm, standing in the pit lane of a race track with garage and F1 car blurred in background',
+  },
+  gourmet_chef: {
+    label: 'Gourmet Chef',
+    promptDescription:
+      'a professional gourmet master chef wearing a clean double-breasted white chef jacket and a tall white chef hat, standing in a premium modern stainless steel restaurant kitchen preparing a beautifully plated dish',
+  },
+  kpop_idol: {
+    label: 'K-Pop Star',
+    promptDescription:
+      'a famous K-pop music idol performing on a massive stage under colorful spotlights and flashing purple neon lasers, wearing a highly stylish modern streetwear outfit with chains, shiny makeup, dynamic concert crowd in background',
+  },
+  pop_art: {
+    label: 'Pop Art Portrait',
+    promptDescription:
+      'a bold Andy Warhol-style pop art illustration using flat, highly saturated primary colors (bright red, yellow, blue, green), thick black comic-book outlines around the features, and a high-contrast posterized style',
+  },
+  oil_portrait: {
+    label: 'Oil Painting',
+    promptDescription:
+      'a classical renaissance oil painting portrait, showing rich brush strokes, fine canvas texture, warm Rembrandt-style chiascuro lighting, rich classical clothing, looking like a museum masterpiece',
+  },
+  steampunk_pilot: {
+    label: 'Steampunk Pilot',
+    promptDescription:
+      'a steampunk pilot wearing brass goggles, a leather vest with gears, standing on the deck of a wooden flying airship amidst high altitude clouds and mechanical details, warm brass and copper tones',
+  },
+  viking: {
+    label: 'Viking Warrior',
+    promptDescription:
+      'a rugged viking warrior with braided hair, wearing fur-lined leather armor, standing on the deck of a longship under a spectacular green aurora borealis sky with ocean waves crashing',
+  },
+  anime_character: {
+    label: 'Anime Hero',
+    promptDescription:
+      'a powerful 2D anime hero with spiky hair, wearing detailed combat robes, surrounded by an intense glowing blue energy aura, standing in a dynamic action pose in a fantasy valley landscape',
+  },
+  ninja: {
+    label: 'Shadow Ninja',
+    promptDescription:
+      'a stealthy ninja dressed in black, standing in a dynamic stance on a tiled rooftop of a traditional Japanese temple at night under a giant glowing full moon',
+  },
+  samurai: {
+    label: 'Noble Samurai',
+    promptDescription:
+      'a noble samurai warrior wearing detailed traditional armor, holding a katana, standing under a beautiful cherry blossom tree with falling pink petals in a serene Japanese garden',
+  },
+  detective: {
+    label: 'Noir Detective',
+    promptDescription:
+      'a classic film noir detective wearing a trench coat and fedora hat, standing under a dim street lamp on a rainy city street at night, moody cinematic lighting with dramatic shadows',
+  },
+  explorer: {
+    label: 'Jungle Explorer',
+    promptDescription:
+      'a brave jungle explorer wearing a khaki safari outfit, standing in front of a massive ancient stone temple hidden deep inside a lush green tropical rainforest with sunlight filtering through leaves',
+  },
+  wizard: {
+    label: 'Grand Wizard',
+    promptDescription:
+      'a powerful old wizard with a long white beard, wearing deep blue robes decorated with silver stars, holding a glowing magical wooden staff in a mystical stone library filled with ancient scrolls',
+  },
+  cyber_elf: {
+    label: 'Cyber Elf',
+    promptDescription:
+      'a high-tech cyber elf with pointed ears, wearing glowing holographic garments, standing in a magical bioluminescent futuristic garden under neon-colored alien trees',
+  },
+  travel_blogger: {
+    label: 'Travel Influencer',
+    promptDescription:
+      'a stylish travel blogger wearing fashionable sunglasses and summer outfit, standing on a luxury terrace in Santorini overlooking the deep blue Aegean sea at golden sunset',
+  },
+  toy_figurine: {
+    label: 'Action Figurine',
+    promptDescription:
+      'a vintage plastic action figure toy inside an unopened retro collector box with colorful packaging and retro brand logo, plastic glossy texture, toy store display lighting',
+  },
+  chibi_character: {
+    label: 'Chibi 3D Avatar',
+    promptDescription:
+      'a cute 3D chibi character with oversized head and big expressive eyes, wearing pastel-colored clothes, standing in a dreamy wonderland filled with candy canes, giant lollipops, and cotton candy clouds',
+  },
+  glamour_model: {
+    label: 'Fashion Runway Model',
+    promptDescription:
+      'a high-fashion supermodel walking down a premium fashion runway, flashing camera lights from photographers in the dark background, wearing an elegant designer outfit, haute couture aesthetic',
+  },
+  skater: {
+    label: 'Street Skater',
+    promptDescription:
+      'a cool urban skater doing a trick on a skateboard in a concrete skatepark at vibrant sunset, wearing streetwear, city buildings blurred in the background',
+  },
+  pilot: {
+    label: 'Airline Pilot',
+    promptDescription:
+      'a professional airline pilot wearing a classic dark blue uniform with gold stripes, standing on the airport runway at sunrise with a large commercial jet aircraft in the background',
+  },
 };
 
 // ──────────────────── Helpers ────────────────────
@@ -136,7 +280,7 @@ const CHARACTER_DEFINITIONS: Record<TouchpixCharacterId, CharacterDefinition> = 
 const MAX_IMAGE_SIZE = 10 * 1024 * 1024; // 10 MB
 const TOUCHPIX_AI_TIMEOUT_MS = 60_000;
 const TOUCHPIX_IMAGE_MODEL =
-  process.env.GEMINI_IMAGE_MODEL?.trim() || 'googleai/gemini-3.1-flash-image-preview';
+  process.env.GEMINI_IMAGE_MODEL?.trim() || 'googleai/imagen3';
 
 async function ensureTouchpixAccess(fiestaId: string, accessToken?: string): Promise<void> {
   const authorized = await hasEntertainmentGuestAccess(

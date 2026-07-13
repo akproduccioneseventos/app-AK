@@ -20,7 +20,7 @@ describe('Touchpix real AI wiring', () => {
 
   it('uses a dedicated image generation model', () => {
     expect(actionSource).toContain('GEMINI_IMAGE_MODEL');
-    expect(actionSource).toContain('gemini-3.1-flash-image-preview');
+    expect(actionSource).toContain('googleai/imagen3');
     expect(actionSource).toContain('model: TOUCHPIX_IMAGE_MODEL');
   });
 });
