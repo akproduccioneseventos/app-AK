@@ -8,6 +8,10 @@ jest.mock('@/lib/data-service', () => ({
   writeData: jest.fn(),
 }));
 
+jest.mock('@/lib/auth/require-session', () => ({
+  requireAppSession: jest.fn().mockResolvedValue(undefined),
+}));
+
 describe('Blog Dinámico - Acciones de Servidor', () => {
   const mockPosts: BlogPost[] = [
     {
