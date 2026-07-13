@@ -46,7 +46,7 @@ const DEFAULT_SERVICES: ServiceItem[] = [
     features: ['Gastronomía premium', 'Decoración y flores exclusivas', 'Coordinación integral del día'],
     imageUrl: '/media/catalogo-servicios/boda_persuasiva.png',
     imageHint: 'wedding ceremony',
-    accentColor: 'bg-red-600',
+    accentColor: 'bg-indigo-500',
     emoji: 'AK',
     whatsappMessage: '¡Hola AK Producciones! Me gustaría cotizar el paquete de Boda.',
     icon: Heart,
@@ -59,7 +59,7 @@ const DEFAULT_SERVICES: ServiceItem[] = [
     features: ['Pistas LED interactivas', 'Cabinas y recuerdos en vivo', 'Ambientación temática a medida'],
     imageUrl: '/media/catalogo-servicios/quinceanera_persuasiva.png',
     imageHint: 'quinceañera party',
-    accentColor: 'bg-emerald-600',
+    accentColor: 'bg-fuchsia-500',
     emoji: 'XV',
     whatsappMessage: '¡Hola AK Producciones! Me gustaría cotizar el paquete de XV Años.',
     icon: Crown,
@@ -72,7 +72,7 @@ const DEFAULT_SERVICES: ServiceItem[] = [
     features: ['Discoteca y luces pro', 'Animación y barras exclusivas', 'Organización de tiempos y sorpresas'],
     imageUrl: '/media/catalogo-servicios/social_persuasivo.png',
     imageHint: 'birthday party lights',
-    accentColor: 'bg-red-600',
+    accentColor: 'bg-indigo-500',
     emoji: 'AK',
     whatsappMessage: '¡Hola AK Producciones! Me gustaría cotizar un cumpleaños.',
     icon: Sparkles,
@@ -115,27 +115,33 @@ export function ServicesSection({ whatsappNumber = AK_WHATSAPP_NUMBER, services 
   };
 
   return (
-    <section id="servicios" className="border-y border-slate-200 bg-white py-24 text-slate-950">
-      <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
+    <section id="servicios" className="relative overflow-hidden bg-zinc-950 py-24 text-white border-y border-white/5">
+      {/* Background gradients */}
+      <div className="absolute top-0 left-1/4 h-96 w-96 rounded-full bg-indigo-500/10 blur-[128px]" />
+      <div className="absolute bottom-0 right-1/4 h-96 w-96 rounded-full bg-fuchsia-500/10 blur-[128px]" />
+
+      <div className="relative z-10 mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
         <div className="mb-16 max-w-3xl">
-          <span className="mb-4 inline-flex items-center gap-2 rounded-md border border-red-200 bg-red-50 px-3 py-1 text-xs font-bold text-red-700">
-            <Sparkles className="h-3.5 w-3.5" />
+          <span className="mb-4 inline-flex items-center gap-2 rounded-xl border border-white/10 bg-white/5 px-4 py-2 text-xs font-black uppercase tracking-widest text-indigo-300 backdrop-blur">
+            <Sparkles className="h-3.5 w-3.5 text-indigo-400" />
             Todo en un solo lugar
           </span>
-          <h2 className="font-headline text-4xl font-black leading-tight text-slate-950 sm:text-5xl">
+          <h2 className="font-headline text-4xl font-black leading-tight text-white sm:text-5xl md:text-6xl">
             Producción integral para fiestas bien organizadas
           </h2>
-          <p className="mt-5 max-w-2xl text-lg leading-relaxed text-slate-600">
+          <p className="mt-5 max-w-2xl text-lg leading-relaxed text-zinc-400 font-medium">
             Coordinamos comida, decoración, luces, fotos y logística con un equipo único. El cliente ve una propuesta clara y AK controla cada detalle.
           </p>
         </div>
 
         <div className="mb-20">
           <div className="mb-8 flex items-center gap-3">
-            <Calendar className="h-6 w-6 text-red-700" />
+            <div className="flex h-11 w-11 items-center justify-center rounded-xl bg-indigo-500/10 text-indigo-400 border border-indigo-500/20">
+              <Calendar className="h-6 w-6" />
+            </div>
             <div>
-              <h3 className="font-headline text-2xl font-black text-slate-950">Celebraciones que producimos</h3>
-              <p className="mt-1 text-sm font-medium text-slate-500">Cada tipo de evento conserva su estética, tiempos y prioridades.</p>
+              <h3 className="font-headline text-2xl font-black text-white">Celebraciones que producimos</h3>
+              <p className="mt-1 text-sm font-medium text-zinc-500">Cada tipo de evento conserva su estética, tiempos y prioridades.</p>
             </div>
           </div>
 
@@ -145,13 +151,13 @@ export function ServicesSection({ whatsappNumber = AK_WHATSAPP_NUMBER, services 
               return (
                 <div
                   key={party.title}
-                  className="rounded-lg border border-slate-200 bg-slate-50 p-5 transition-all duration-300 hover:-translate-y-1 hover:border-red-200 hover:bg-white hover:shadow-lg"
+                  className="rounded-2xl border border-white/5 bg-white/[0.02] backdrop-blur-md p-5 transition-all duration-300 hover:-translate-y-1 hover:border-white/10 hover:bg-white/[0.04]"
                 >
-                  <div className="mb-4 flex h-11 w-11 items-center justify-center rounded-md border border-emerald-100 bg-emerald-50 text-emerald-700">
+                  <div className="mb-4 flex h-11 w-11 items-center justify-center rounded-xl border border-white/10 bg-white/5 text-white">
                     <Icon className="h-5 w-5" />
                   </div>
-                  <h4 className="font-headline text-lg font-black text-slate-950">{party.title}</h4>
-                  <p className="mt-2 text-sm font-medium leading-relaxed text-slate-600">{party.desc}</p>
+                  <h4 className="font-headline text-lg font-black text-white">{party.title}</h4>
+                  <p className="mt-2 text-sm font-medium leading-relaxed text-zinc-400">{party.desc}</p>
                 </div>
               );
             })}
@@ -160,10 +166,10 @@ export function ServicesSection({ whatsappNumber = AK_WHATSAPP_NUMBER, services 
 
         <div>
           <div className="mb-10">
-            <h3 className="font-headline text-2xl font-black text-slate-950">
+            <h3 className="font-headline text-2xl font-black text-white">
               Servicios principales
             </h3>
-            <p className="mt-1 text-sm font-medium text-slate-600">
+            <p className="mt-1 text-sm font-medium text-zinc-500">
               La propuesta muestra beneficios concretos y deja un camino directo para consultar por WhatsApp.
             </p>
           </div>
@@ -185,10 +191,10 @@ export function ServicesSection({ whatsappNumber = AK_WHATSAPP_NUMBER, services 
                 <motion.article
                   key={service.id}
                   variants={cardVariants}
-                  className="group flex flex-col justify-between overflow-hidden rounded-lg border border-slate-200 bg-white shadow-sm transition-all duration-300 hover:-translate-y-1 hover:border-red-200 hover:shadow-xl"
+                  className="group flex flex-col justify-between overflow-hidden rounded-2xl border border-white/5 bg-white/[0.02] backdrop-blur-md shadow-sm transition-all duration-300 hover:-translate-y-1 hover:border-white/15 hover:bg-white/[0.03] hover:shadow-xl hover:shadow-indigo-500/[0.02]"
                 >
                   <div>
-                    <div className="relative aspect-[4/3] w-full overflow-hidden bg-slate-100">
+                    <div className="relative aspect-[4/3] w-full overflow-hidden bg-zinc-900">
                       {canUseNextImage(service.imageUrl) ? (
                         <Image
                           src={service.imageUrl}
@@ -205,27 +211,27 @@ export function ServicesSection({ whatsappNumber = AK_WHATSAPP_NUMBER, services 
                           className="h-full w-full object-cover transition-transform duration-500 group-hover:scale-[1.03]"
                         />
                       )}
-                      <div className="absolute inset-0 bg-slate-950/25" />
-                      <div className="absolute left-4 top-4 flex h-11 w-11 items-center justify-center rounded-md border border-white/40 bg-white/90 text-sm font-black text-red-700 shadow-sm">
-                        {Icon ? <Icon className="h-5 w-5" /> : service.emoji}
+                      <div className="absolute inset-0 bg-gradient-to-t from-zinc-950 via-transparent to-transparent" />
+                      <div className="absolute left-4 top-4 flex h-11 w-11 items-center justify-center rounded-xl border border-white/10 bg-zinc-950/80 text-sm font-black text-white shadow-sm backdrop-blur">
+                        {Icon ? <Icon className="h-5 w-5 text-indigo-400" /> : service.emoji}
                       </div>
                     </div>
 
                     <div className="space-y-4 p-6 text-left">
                       <div>
-                        <p className="text-xs font-bold text-red-700">{service.subtitle}</p>
-                        <h4 className="mt-2 font-headline text-xl font-black text-slate-950">
+                        <p className="text-xs font-black uppercase tracking-widest text-indigo-400">{service.subtitle}</p>
+                        <h4 className="mt-2 font-headline text-xl font-black text-white">
                           {service.title}
                         </h4>
                       </div>
-                      <p className="text-sm font-medium leading-relaxed text-slate-600">
+                      <p className="text-sm font-medium leading-relaxed text-zinc-400">
                         {service.description}
                       </p>
 
                       <ul className="space-y-2 pt-1">
                         {service.features.map((feat) => (
-                          <li key={feat} className="flex items-start gap-2 text-sm font-medium text-slate-700">
-                            <span className="mt-2 h-1.5 w-1.5 shrink-0 rounded-full bg-emerald-600" />
+                          <li key={feat} className="flex items-start gap-2 text-sm font-medium text-zinc-300">
+                            <span className="mt-2 h-1.5 w-1.5 shrink-0 rounded-full bg-indigo-500" />
                             <span>{feat}</span>
                           </li>
                         ))}
@@ -233,20 +239,20 @@ export function ServicesSection({ whatsappNumber = AK_WHATSAPP_NUMBER, services 
                     </div>
                   </div>
 
-                  <div className="border-t border-slate-100 p-6 pt-0">
+                  <div className="p-6 pt-0">
                     <a
                       href={waHref}
                       target="_blank"
                       rel="noopener noreferrer"
                       className={cn(
-                        'mt-5 flex w-full items-center justify-center gap-2 rounded-md px-4 py-3.5',
-                        'border border-red-200 bg-red-50 text-xs font-bold text-red-700',
-                        'shadow-sm transition-all duration-200 hover:border-red-700 hover:bg-red-700 hover:text-white active:scale-[0.98]'
+                        'mt-5 flex w-full items-center justify-center gap-2 rounded-xl px-4 py-4',
+                        'border border-white/10 bg-white/5 text-xs font-black uppercase tracking-widest text-white backdrop-blur-md',
+                        'shadow-sm transition-all duration-300 hover:border-indigo-500 hover:bg-indigo-600 hover:scale-[1.02] active:scale-[0.98]'
                       )}
                     >
                       <MessageSquare className="h-4 w-4 shrink-0" />
                       Consultar servicio
-                      <ChevronRight className="h-3.5 w-3.5" />
+                      <ChevronRight className="h-3.5 w-3.5 text-zinc-400 group-hover:text-white" />
                     </a>
                   </div>
                 </motion.article>

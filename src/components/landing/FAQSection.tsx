@@ -64,7 +64,7 @@ export function FAQSection({ faqs }: FAQSectionProps) {
   const items = faqs && faqs.length > 0 ? faqs : DEFAULT_FAQS;
 
   return (
-    <section className="py-24 bg-slate-50" id="faq">
+    <section className="py-24 bg-zinc-950" id="faq">
       <div className="max-w-3xl mx-auto px-4 sm:px-6 lg:px-8">
 
         {/* Header */}
@@ -75,13 +75,13 @@ export function FAQSection({ faqs }: FAQSectionProps) {
           transition={{ duration: 0.5 }}
           className="text-center mb-16"
         >
-          <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-purple-100 text-purple-700 text-xs font-black uppercase tracking-widest mb-6">
+          <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-white/5 border border-white/10 text-indigo-300 text-xs font-black uppercase tracking-widest mb-6 backdrop-blur">
             ❓ FAQ
           </div>
-          <h2 className="text-4xl sm:text-5xl font-black text-slate-900 mb-4">
+          <h2 className="text-4xl sm:text-5xl font-black text-white mb-4">
             Preguntas Frecuentes
           </h2>
-          <p className="text-slate-500 text-lg max-w-xl mx-auto">
+          <p className="text-zinc-400 text-lg max-w-xl mx-auto">
             Todo lo que necesitás saber antes de contratar tu evento
           </p>
         </motion.div>
@@ -98,8 +98,8 @@ export function FAQSection({ faqs }: FAQSectionProps) {
             <div
               key={faq.id}
               className={cn(
-                'rounded-2xl border border-slate-200 overflow-hidden transition-all duration-300',
-                open === faq.id ? 'bg-white shadow-md border-purple-200' : 'bg-white/60'
+                'rounded-2xl border overflow-hidden transition-all duration-300',
+                open === faq.id ? 'bg-white/[0.05] shadow-md border-indigo-500/30' : 'bg-white/[0.02] border-white/5'
               )}
             >
               <button
@@ -108,13 +108,13 @@ export function FAQSection({ faqs }: FAQSectionProps) {
               >
                 <span className={cn(
                   'font-bold text-sm sm:text-base transition-colors',
-                  open === faq.id ? 'text-purple-700' : 'text-slate-900'
+                  open === faq.id ? 'text-indigo-300' : 'text-white'
                 )}>
                   {faq.question}
                 </span>
                 {open === faq.id
-                  ? <ChevronUp className="w-5 h-5 text-purple-600 shrink-0" />
-                  : <ChevronDown className="w-5 h-5 text-slate-400 shrink-0" />
+                  ? <ChevronUp className="w-5 h-5 text-indigo-400 shrink-0" />
+                  : <ChevronDown className="w-5 h-5 text-zinc-500 shrink-0" />
                 }
               </button>
 
@@ -126,7 +126,7 @@ export function FAQSection({ faqs }: FAQSectionProps) {
                     exit={{ height: 0, opacity: 0 }}
                     transition={{ duration: 0.25, ease: 'easeInOut' }}
                   >
-                    <div className="px-6 pb-5 text-slate-600 text-sm leading-relaxed border-t border-slate-100/80 pt-3">
+                    <div className="px-6 pb-5 text-zinc-400 text-sm leading-relaxed border-t border-white/5 pt-3">
                       {faq.answer}
                     </div>
                   </motion.div>
