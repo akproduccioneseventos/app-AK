@@ -8,6 +8,7 @@ const testEnvironment = {
   GOOGLE_API_KEY: 'dummy',
   GEMINI_API_KEY: 'dummy',
   AK_USE_LOCAL_JSON_ONLY: 'true',
+  AK_SESSION_SECRET: 'playwright-session-secret-with-enough-entropy',
   FIREBASE_PROJECT_ID: 'demo-ak-producciones',
   NEXT_PUBLIC_FIREBASE_PROJECT_ID: 'demo-ak-producciones',
   NEXT_PUBLIC_FIREBASE_API_KEY: 'dummy',
