@@ -104,6 +104,7 @@ describe('release security boundaries', () => {
     ['meeting-checklist.ts', ['saveMeetingMasterTemplate']],
     ['salon-layout-templates.ts', ['saveSalonLayoutTemplate', 'deleteSalonLayoutTemplate']],
     ['task-templates.ts', ['saveTaskTemplate', 'deleteTaskTemplate']],
+    ['backup.ts', ['getRestorePoints', 'createRestorePoint', 'restoreFromPoint', 'deleteRestorePoint']],
   ])('requires a signed session for master-data writes in %s', (filename, functionNames) => {
     const source = readSource(`src/app/actions/${filename}`);
     for (const functionName of functionNames) {
@@ -113,5 +114,13 @@ describe('release security boundaries', () => {
       expect(start).toBeGreaterThanOrEqual(0);
       expect(functionSource).toContain('await requireAppSession()');
     }
+  });
+
+  it('keeps automatic backups internal without exposing restore privileges', () => {
+    const backup = readSource('src/app/actions/backup.ts');
+    const dataService = readSource('src/lib/data-service.ts');
+    expect(backup).toContain('internalToken !== AUTO_BACKUP_INTERNAL_TOKEN');
+    expect(backup).toContain('createRestorePointInternal(true)');
+    expect(dataService).toContain('triggerAutoBackup(AUTO_BACKUP_INTERNAL_TOKEN)');
   });
 });
