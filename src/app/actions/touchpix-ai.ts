@@ -495,33 +495,44 @@ export async function applyTouchpixTheme(
       };
     }
 
-    const promptText = [
-      'You are an expert image editor and digital artist.',
-      `Transform the following photo using the "${theme.label}" theme.`,
-      '',
-      theme.promptDescription,
-      '',
-      'CRITICAL RULES:',
-      '- The person in the photo must remain fully recognizable — do NOT alter their face, facial features, skin tone, hair, body proportions, or pose.',
-      '- Apply the theme as an artistic overlay, lighting adjustment, background replacement, and ambient effect ONLY.',
-      '- The output must be a single photorealistic image at the same resolution as the input.',
-      '- Do NOT add any text, watermarks, logos, or borders to the image.',
-    ].join('\n');
+    // Step 1: Analyze user photo using Gemini 1.5 Flash
+    let userDesc = "a person";
+    try {
+      const analyzeResult = await ai.generate({
+        model: 'googleai/gemini-1.5-flash',
+        prompt: [
+          {
+            media: {
+              contentType: contentType as 'image/jpeg' | 'image/png' | 'image/webp' | 'image/gif',
+              url: `data:${contentType};base64,${base64}`,
+            },
+          },
+          {
+            text: 'Analyze the person in this photo. Describe their facial features, expression, hair color and style, clothing, and pose in detail but concisely in English. Focus only on the person. Output only the description.',
+          }
+        ]
+      });
+      if (analyzeResult.text) {
+        userDesc = analyzeResult.text.trim();
+      }
+    } catch (err) {
+      logger.warn('[touchpix-ai] Theme face analysis failed: ', err);
+    }
+
+    // Step 2: Generate the themed image using Imagen 3
+    const imagePrompt = [
+      `A high-quality, professional photograph of a person.`,
+      `The person is described as: ${userDesc}.`,
+      `Apply this transformation style: ${theme.promptDescription}.`,
+      `Ensure the result looks natural, photorealistic, high resolution, no text, no watermarks, no distorted features.`
+    ].join(' ');
 
     const result = await generateTouchpixImage({
       model: TOUCHPIX_IMAGE_MODEL,
-      prompt: [
-        {
-          media: {
-            contentType: contentType as 'image/jpeg' | 'image/png' | 'image/webp' | 'image/gif',
-            url: `data:${contentType};base64,${base64}`,
-          },
-        },
-        { text: promptText },
-      ],
+      prompt: imagePrompt,
       config: {
-        temperature: 0.4,
-        responseModalities: ['IMAGE', 'TEXT'],
+        aspectRatio: '3:4',
+        outputMimeType: 'image/jpeg',
       },
     });
 
@@ -623,77 +634,84 @@ export async function applyFaceSwap(
       };
     }
 
-    // Build the prompt parts array.
-    const promptParts: Array<
-      | { media: { contentType: string; url: string } }
-      | { text: string }
-    > = [];
-
-    // Always include the source (person's face) image.
-    promptParts.push({
-      media: {
-        contentType: sourceContentType,
-        url: `data:${sourceContentType};base64,${sourceBase64}`,
-      },
-    });
-
-    if (hasTargetFile) {
-      // Use the provided target image for face swap.
-      const targetExtraction = await validateAndExtractImage(targetFile, 'targetFile');
-      if (!targetExtraction.ok) {
-        return { success: false, error: targetExtraction.error };
+    // Step 1: Analyze user face using Gemini 1.5 Flash
+    let faceDesc = "a person";
+    try {
+      const faceAnalyzeResult = await ai.generate({
+        model: 'googleai/gemini-1.5-flash',
+        prompt: [
+          {
+            media: {
+              contentType: sourceContentType,
+              url: `data:${sourceContentType};base64,${sourceBase64}`,
+            },
+          },
+          {
+            text: 'Analyze the person\'s face in this photo. Describe their facial features (apparent gender, hair color and style, skin tone, facial structure, eye shape, and facial expression) in detail but concisely in English. Focus only on the head and face. Do not describe clothing, body, or background. Output only the description.',
+          }
+        ]
+      });
+      if (faceAnalyzeResult.text) {
+        faceDesc = faceAnalyzeResult.text.trim();
       }
-      const { base64: targetBase64, contentType: targetContentType } = targetExtraction;
+    } catch (err) {
+      logger.warn('[touchpix-ai] Face analysis failed, using generic: ', err);
+    }
 
-      promptParts.push({
-        media: {
-          contentType: targetContentType,
-          url: `data:${targetContentType};base64,${targetBase64}`,
-        },
-      });
+    let imagePrompt = "";
+    if (hasTargetFile) {
+      // Describe target image first using Gemini 1.5 Flash
+      let targetDesc = "a character scene";
+      try {
+        const targetExtraction = await validateAndExtractImage(targetFile, 'targetFile');
+        if (!targetExtraction.ok) {
+          return { success: false, error: targetExtraction.error };
+        }
+        const { base64: targetBase64, contentType: targetContentType } = targetExtraction;
 
-      promptParts.push({
-        text: [
-          'You are an expert image compositing artist specializing in face swaps.',
-          '',
-          "TASK: Take the face from the FIRST image (the person's photo) and seamlessly place it onto the body/character in the SECOND image.",
-          '',
-          'RULES:',
-          "- Keep the person's face from the first image: their exact facial features, skin tone, expression, and proportions.",
-          '- Blend the face naturally onto the body in the second image, matching lighting, angle, and perspective.',
-          '- The result must look photorealistic — no visible seams, no uncanny distortions.',
-          '- Preserve the outfit, background, and setting from the second image.',
-          '- Output a single high-quality image at the same resolution as the second image.',
-          '- Do NOT add any text, watermarks, logos, or borders.',
-        ].join('\n'),
-      });
+        const targetAnalyzeResult = await ai.generate({
+          model: 'googleai/gemini-1.5-flash',
+          prompt: [
+            {
+              media: {
+                contentType: targetContentType,
+                url: `data:${targetContentType};base64,${targetBase64}`,
+              },
+            },
+            {
+              text: 'Analyze this photo. Describe the character, outfit, background scene, posture, and lighting in detail in English. Focus on everything except the face. Output only the description.',
+            }
+          ]
+        });
+        if (targetAnalyzeResult.text) {
+          targetDesc = targetAnalyzeResult.text.trim();
+        }
+      } catch (err) {
+        logger.warn('[touchpix-ai] Target analysis failed: ', err);
+      }
+
+      imagePrompt = [
+        `A high-quality, professional photograph of the scene: ${targetDesc}.`,
+        `The main character in the scene must have the face of ${faceDesc}.`,
+        `Ensure the face merges seamlessly, matching lighting, perspective, photorealistic detail, no text, no watermarks.`
+      ].join(' ');
+
     } else {
-      // Use a character description for the face swap.
+      // Use characterId
       const character = CHARACTER_DEFINITIONS[characterId as TouchpixCharacterId]!;
-
-      promptParts.push({
-        text: [
-          'You are an expert image compositing artist specializing in face swaps and character transformations.',
-          '',
-          `TASK: Take the face of the person in the provided photo and place it onto the body of ${character.promptDescription}.`,
-          '',
-          'RULES:',
-          "- Keep the person's exact facial features, skin tone, expression, and proportions from the provided photo.",
-          "- Generate a complete full-body or upper-body image of the character, with the person's face seamlessly composited.",
-          '- Match the lighting on the face to the character scene so it looks natural and photorealistic.',
-          '- The result must look like a professional movie poster or high-quality composite — no visible seams.',
-          '- Output a single high-quality photorealistic image.',
-          '- Do NOT add any text, watermarks, logos, or borders.',
-        ].join('\n'),
-      });
+      imagePrompt = [
+        `A high-quality, professional photograph of ${character.promptDescription}.`,
+        `The character must have the face of ${faceDesc}.`,
+        `Ensure the facial features look natural, integrated into the scene lighting, photorealistic, high resolution, no text, no watermarks, no distorted features.`
+      ].join(' ');
     }
 
     const result = await generateTouchpixImage({
       model: TOUCHPIX_IMAGE_MODEL,
-      prompt: promptParts,
+      prompt: imagePrompt,
       config: {
-        temperature: 0.4,
-        responseModalities: ['IMAGE', 'TEXT'],
+        aspectRatio: '3:4',
+        outputMimeType: 'image/jpeg',
       },
     });
 
