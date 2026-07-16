@@ -491,6 +491,10 @@ export async function applyEspejoFaceSwap(
     const response = await generateEspejoImage({
       model: ESPEJO_IMAGE_MODEL,
       prompt: imagePrompt,
+      config: {
+        aspectRatio: '3:4',
+        outputMimeType: 'image/jpeg',
+      },
     });
 
     const transformedBase64 = extractImageFromResult(response);
