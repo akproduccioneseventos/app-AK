@@ -558,7 +558,6 @@ function SimuladorContent() {
 
         const suggested = serviciosCatalogo.filter(s => otherServicesIds.has(s.id));
 
-        const currentPackage = config.paquetes.find(p => p.id === selectedPaqueteId);
         const packageServiceIds = new Set(currentPackage?.serviciosIncluidos?.map(s => s.id) || []);
 
         if (suggested.length < 3) {
@@ -2009,7 +2008,6 @@ function SimuladorContent() {
                                     if (pkg) {
                                         setFormData(prev => {
                                             const newSelected = new Map(prev.serviciosSeleccionados);
-                                            pkg.serviciosIncludedIds?.forEach((id: string) => newSelected.delete(id));
                                             pkg.serviciosIncluidos?.forEach((item: any) => newSelected.delete(item.id));
                                             return { ...prev, serviciosSeleccionados: newSelected };
                                         });
@@ -2424,7 +2422,6 @@ function SimuladorContent() {
                                                         setExcludedPackageServiceIds([]);
                                                         setFormData(prev => {
                                                             const newSelected = new Map(prev.serviciosSeleccionados);
-                                                            p.serviciosIncludedIds?.forEach((id: string) => newSelected.delete(id));
                                                             p.serviciosIncluidos?.forEach((item: any) => newSelected.delete(item.id));
                                                             return { ...prev, serviciosSeleccionados: newSelected };
                                                         });
