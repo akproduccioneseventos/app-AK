@@ -28,10 +28,11 @@ import {
   Clock,
   Facebook,
 } from 'lucide-react';
-import { getFiestaById } from '@/app/actions/fiesta/fiesta.actions';
+import { getPublicGuestPortalData } from '@/app/actions/public-guest-portal';
 import { getSocialConnections } from '@/app/actions/social-connections';
 import { trackGuestCtaClick } from '@/app/actions/fiesta/invitados.actions';
-import type { FiestaEnPlanificacion, Invitado, GuestPortalSettings } from '@/types/fiesta';
+import type { GuestPortalSettings } from '@/types/fiesta';
+import type { PublicGuest, PublicGuestEvent } from '@/lib/guest-portal-public-data';
 import type { SocialConnection } from '@/types/settings';
 import { Button } from '@/components/ui/button';
 import QRCodeStylized from 'qrcode.react';
@@ -119,8 +120,8 @@ function GuestPortalContent() {
   const fiestaId = params.fiestaId as string;
   const guestId = params.guestId as string;
 
-  const [fiesta, setFiesta] = useState<FiestaEnPlanificacion | null>(null);
-  const [guest, setGuest] = useState<Invitado | null>(null);
+  const [fiesta, setFiesta] = useState<PublicGuestEvent | null>(null);
+  const [guest, setGuest] = useState<PublicGuest | null>(null);
   const [socialConnections, setSocialConnections] = useState<SocialConnection[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [loadError, setLoadError] = useState<string | null>(null);
@@ -134,18 +135,16 @@ function GuestPortalContent() {
     }
     try {
       const [data, connections] = await Promise.all([
-        getFiestaById(fiestaId),
+        getPublicGuestPortalData(fiestaId, guestId),
         getSocialConnections().catch((err) => {
           console.error('[GuestPortal] Failed to load social connections:', err);
           return [] as SocialConnection[];
         }),
       ]);
-      if (!data) throw new Error('Evento no encontrado.');
-      setFiesta(data);
+      if (!data) throw new Error('Evento o invitado no encontrado.');
+      setFiesta(data.fiesta);
+      setGuest(data.guest);
       setSocialConnections(connections);
-      const found = (data.invitados ?? []).find((i: Invitado) => i.id === guestId);
-      if (!found) throw new Error('Invitado no encontrado.');
-      setGuest(found);
     } catch (e: unknown) {
       setLoadError((e instanceof Error ? e.message : null) || 'No se pudo cargar tu información.');
     } finally {
@@ -369,7 +368,7 @@ function GuestPortalContent() {
               href={`/evento/social/${fiestaId}`}
               whileHover={{ scale: 1.02 }}
               whileTap={{ scale: 0.98 }}
-              className="mt-5 w-full max-w-sm flex items-center gap-4 p-4 rounded-3xl bg-gradient-to-r from-pink-600 via-rose-500 to-amber-500 text-white border border-white/10 shadow-xl relative overflow-hidden group"
+              className="hidden"
             >
               <div className="absolute -right-4 -bottom-4 w-24 h-24 bg-white/10 rounded-full blur-xl group-hover:scale-120 transition-transform duration-500" />
               <div className="w-12 h-12 rounded-2xl bg-white/10 backdrop-blur-md flex items-center justify-center text-2xl shrink-0 shadow-inner">
@@ -387,28 +386,28 @@ function GuestPortalContent() {
 
           {/* 🎉 Zona Digital AK */}
           <div className="mt-6 w-full max-w-sm">
-            <p className="text-xs font-bold uppercase tracking-widest text-zinc-300 mb-3">🎉 Zona Digital AK</p>
+            <p className="mb-3 text-xs font-bold uppercase tracking-widest text-zinc-300">Accesos de la fiesta</p>
             <div className="grid grid-cols-2 gap-2">
-              <a href={`/evento/fotocabina/${fiestaId}`} className="flex flex-col items-center justify-center gap-1.5 p-3 rounded-2xl bg-gradient-to-br from-amber-500 to-orange-600 text-white shadow-lg hover:scale-105 transition-transform border border-white/10">
+              <a href={`/evento/fotocabina/${fiestaId}`} className="flex flex-col items-center justify-center gap-1.5 rounded-md border border-white/10 bg-white/[0.05] p-3 text-white transition-colors hover:bg-white/[0.09]">
                 <span className="text-2xl">📸</span>
                 <span className="text-xs font-black uppercase tracking-wide text-center">Fotocabina</span>
               </a>
-              <a href={`/evento/hub/${fiestaId}`} className="flex flex-col items-center justify-center gap-1.5 p-3 rounded-2xl bg-gradient-to-br from-purple-600 to-indigo-600 text-white shadow-lg hover:scale-105 transition-transform border border-white/10">
+              <a href={`/evento/hub/${fiestaId}`} className="flex flex-col items-center justify-center gap-1.5 rounded-md border border-white/10 bg-white/[0.05] p-3 text-white transition-colors hover:bg-white/[0.09]">
                 <span className="text-2xl">🌐</span>
                 <span className="text-xs font-black uppercase tracking-wide text-center">Hub del Evento</span>
               </a>
-              <a href={`/evento/social/${fiestaId}`} className={`flex flex-col items-center justify-center gap-1.5 p-3 rounded-2xl bg-gradient-to-br from-pink-600 to-rose-500 text-white shadow-lg hover:scale-105 transition-transform border border-white/10 ${gps.showBuzon !== false ? '' : 'col-span-2 flex-row gap-2'}`}>
+              <a href={`/evento/social/${fiestaId}`} className={`flex flex-col items-center justify-center gap-1.5 rounded-md border border-white/10 bg-white/[0.05] p-3 text-white transition-colors hover:bg-white/[0.09] ${gps.showBuzon !== false ? '' : 'col-span-2 flex-row gap-2'}`}>
                 <span className="text-2xl">📱</span>
                 <span className={`${gps.showBuzon !== false ? 'text-xs' : 'text-sm'} font-black uppercase tracking-wide text-center`}>Red Social</span>
               </a>
               {gps.showBuzon !== false && (
-                <a href={`/evento/buzon/${fiestaId}`} className="flex flex-col items-center justify-center gap-1.5 p-3 rounded-2xl bg-gradient-to-br from-violet-600 to-fuchsia-600 text-white shadow-lg hover:scale-105 transition-transform border border-white/10">
+                <a href={`/evento/buzon/${fiestaId}`} className="flex flex-col items-center justify-center gap-1.5 rounded-md border border-white/10 bg-white/[0.05] p-3 text-white transition-colors hover:bg-white/[0.09]">
                   <span className="text-2xl">🎙️</span>
                   <span className="text-xs font-black uppercase tracking-wide text-center">Buzón recuerdos</span>
                 </a>
               )}
               {/* Barra Interactiva / Mini Quiosco */}
-              <button onClick={() => setShowQuiosco(true)} className="col-span-2 flex items-center justify-center gap-3 p-3 mt-1 rounded-2xl bg-gradient-to-r from-emerald-500 to-teal-500 text-white shadow-[0_0_20px_rgba(16,185,129,0.3)] hover:scale-105 transition-transform border border-white/20">
+              <button onClick={() => setShowQuiosco(true)} className="col-span-2 mt-1 flex items-center justify-center gap-3 rounded-md border border-emerald-400/25 bg-emerald-400/10 p-3 text-white transition-colors hover:bg-emerald-400/15">
                 <span className="text-2xl">🍸</span>
                 <span className="text-sm font-black uppercase tracking-widest text-center">Quiosco de Tragos</span>
               </button>
@@ -619,6 +618,12 @@ function GuestPortalContent() {
             gps.showInvitacionWeb && { icon: '💌', label: 'Ver invitación', href: invitacionUrl, external: true },
             gps.showFotos && { icon: '📸', label: 'Subir foto', href: `/evento/social/${fiestaId}`, external: false },
             gps.showMusica && { icon: '🎵', label: 'Sugerir canción', href: `/evento/social/${fiestaId}`, external: false },
+            gps.showRegalos && {
+              icon: '🎁',
+              label: 'Ver regalos',
+              href: `${invitacionUrl}#regalos`,
+              external: true,
+            },
           ].filter(Boolean) as { icon: string; label: string; href: string; external: boolean }[];
           if (actions.length === 0) return null;
           return (

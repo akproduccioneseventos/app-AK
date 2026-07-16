@@ -1,6 +1,8 @@
-import type { MenuItem, FullMenu } from '@/types/catering';
+import type { MenuItem, FullMenu } from "@/types/catering";
 
-const DEFAULT_MENU_IMAGE_BASE = '/catering/menus/xv';
+const DEFAULT_MENU_IMAGE_BASE = "/catering/menus/xv";
+const LEGACY_CANVA_IMAGE_HOST =
+  "ak-producciones-fiestas-y-eventos.my.canva.site";
 
 export const defaultCateringDishImages: Record<string, string> = {
   dish_entrada_2: `${DEFAULT_MENU_IMAGE_BASE}/dish_entrada_2.jpeg`,
@@ -51,15 +53,21 @@ export const defaultCateringDishImages: Record<string, string> = {
   dish_child_4: `${DEFAULT_MENU_IMAGE_BASE}/dish_child_4.jpeg`,
 };
 
-export function getCateringDishImage(item: Pick<MenuItem, 'id' | 'imageUrl'> | null | undefined): string | undefined {
+export function getCateringDishImage(
+  item: Pick<MenuItem, "id" | "imageUrl"> | null | undefined,
+): string | undefined {
   if (!item) return undefined;
   const local = defaultCateringDishImages[item.id];
-  if (local) return local; // Prefer local mapping to avoid Canva issues and wrong duplicates
-  return item.imageUrl;
+  const isLegacyCanvaImage = item.imageUrl?.includes(LEGACY_CANVA_IMAGE_HOST);
+  if (item.imageUrl && !isLegacyCanvaImage) return item.imageUrl;
+  return local || item.imageUrl;
 }
 
-export function getCateringMenuImage(menu: Pick<FullMenu, 'imageUrl' | 'items'> | null | undefined): string | undefined {
+export function getCateringMenuImage(
+  menu: Pick<FullMenu, "imageUrl" | "items"> | null | undefined,
+): string | undefined {
   if (!menu) return undefined;
-  return menu.imageUrl || (menu.items || []).map(getCateringDishImage).find(Boolean);
+  return (
+    menu.imageUrl || (menu.items || []).map(getCateringDishImage).find(Boolean)
+  );
 }
-

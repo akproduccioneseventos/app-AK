@@ -41,12 +41,10 @@ import {
     AlertTriangle
 } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
-import { captureSimulatorLeadProgress, getArmadoRapidoConfig, generateBudgetAndLeadFromSimulator, getPublicBudgetsByPhone } from '@/app/actions/armado-rapido';
+import { captureSimulatorLeadProgress, generateBudgetAndLeadFromSimulator, getPublicBudgetsByPhone } from '@/app/actions/armado-rapido';
 import { checkDateAvailability } from '@/app/actions/simulador-v2';
-import { getServiciosEmpresa } from '@/app/actions/servicios-empresa';
-import { getSocialConnections } from '@/app/actions/social-connections';
-import { getInvoiceTemplateSettings, getBudgetDisplaySettings } from '@/app/actions/settings';
-import type { SocialConnection, BudgetDisplaySettings } from '@/types/settings';
+import { getPublicSimulatorBootstrap } from '@/app/actions/public-simulator-bootstrap';
+import type { BudgetDisplaySettings } from '@/types/settings';
 import { defaultBudgetDisplaySettings } from '@/types/settings';
 import type { ArmadoRapidoConfig, PaqueteArmadoRapido } from '@/types/armado-rapido';
 import { isPackageApplicableToEventType } from '@/types/armado-rapido';
@@ -57,7 +55,6 @@ import { Checkbox } from '@/components/ui/checkbox';
 import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import type { FullMenu, MenuItem } from '@/types/catering';
-import { getMenus } from '@/app/actions/menus-catering';
 import { DatePickerDemo } from '@/components/date-picker-demo';
 import { getGuestCountForItem } from '@/lib/calculations';
 import { cn } from '@/lib/utils';
@@ -336,28 +333,23 @@ function SimuladorContent() {
             setErrorLoading(false);
             setIsLoading(true);
             try {
-                const [armadoConfig, bSettings, serviciosData, socialConnections, templateSettings, menuData] = await Promise.all([
-                    withFallbackTimeout(getArmadoRapidoConfig(), null),
-                    withFallbackTimeout(getBudgetDisplaySettings(), defaultBudgetDisplaySettings),
-                    withFallbackTimeout(getServiciosEmpresa(), []),
-                    withFallbackTimeout(getSocialConnections(), []),
-                    withFallbackTimeout(getInvoiceTemplateSettings(), { logoUrl: null } as any),
-                    withFallbackTimeout(getMenus(), []),
-                ]);
+                const bootstrap = await withFallbackTimeout(
+                    getPublicSimulatorBootstrap(),
+                    null,
+                );
 
-                if (!armadoConfig || !serviciosData || serviciosData.length === 0) {
+                if (!bootstrap || bootstrap.services.length === 0) {
                     throw new Error("No se pudo cargar el catálogo de servicios.");
                 }
 
-                setConfig(armadoConfig);
-                setBudgetSettings(bSettings);
-                setServiciosCatalogo((Array.isArray(serviciosData) ? serviciosData : []).filter(s => s.tipoItem === 'Servicio'));
-                setAllMenus(Array.isArray(menuData) ? menuData : []);
-                const whatsappConnection = (Array.isArray(socialConnections) ? socialConnections : []).find(c => c.platform === 'WhatsApp' && c.isConnected);
-                if (whatsappConnection?.phoneNumber) {
-                    setWhatsappNumber(whatsappConnection.phoneNumber);
+                setConfig(bootstrap.config);
+                setBudgetSettings(bootstrap.budgetSettings);
+                setServiciosCatalogo(bootstrap.services);
+                setAllMenus(bootstrap.menus);
+                if (bootstrap.whatsappNumber) {
+                    setWhatsappNumber(bootstrap.whatsappNumber);
                 }
-                setLogoUrl(templateSettings.logoUrl || null);
+                setLogoUrl(bootstrap.logoUrl);
             } catch (error) {
                 console.error("Initial load failed", error);
                 setErrorLoading(true);
@@ -1336,7 +1328,7 @@ function SimuladorContent() {
         return (
             <div className="min-h-screen flex flex-col items-center justify-center bg-slate-950 text-white p-6 text-center">
                 <div className="max-w-md space-y-4">
-                    <AlertTriangle className="w-16 h-16 mx-auto text-amber-500 animate-pulse" />
+                    <AlertTriangle className="mx-auto h-16 w-16 text-amber-600" />
                     <h2 className="text-2xl font-black uppercase tracking-tight">Error de conexión</h2>
                     <p className="text-slate-400 text-sm leading-relaxed">
                         No pudimos cargar el catálogo de servicios de AK Producciones. Verificá tu conexión a internet e intentalo de nuevo.
@@ -1359,13 +1351,13 @@ function SimuladorContent() {
                     <div className="flex justify-center mb-2 print:hidden">
                       <CompanyLogo size="sm" src={logoUrl || undefined} className="opacity-40" />
                     </div>
-                    <Card className="border-none shadow-2xl rounded-[2.5rem] overflow-hidden bg-white">
+                    <Card className="overflow-hidden rounded-md border border-slate-200 bg-white shadow-sm">
                         <CardContent className="p-8 sm:p-12 flex flex-col items-center text-center space-y-8">
-                            <div className="p-4 bg-primary/10 rounded-full">
-                                <PartyPopper className="w-12 h-12 text-primary animate-bounce"/>
+                            <div className="flex h-12 w-12 items-center justify-center rounded-full bg-emerald-50">
+                                <CheckCircle2 className="h-7 w-7 text-emerald-700"/>
                             </div>
                             <div className="space-y-3">
-                                <h2 className="text-3xl sm:text-4xl font-black font-headline tracking-tighter text-slate-900 uppercase">
+                                <h2 className="font-headline text-3xl font-bold text-slate-900 sm:text-4xl">
                                     ¡Tu presupuesto está listo!
                                 </h2>
                                 <p className="text-slate-500 font-medium max-w-md mx-auto leading-relaxed mb-6">
@@ -1375,26 +1367,26 @@ function SimuladorContent() {
 
                             {/* Countdown Timer with CTA */}
                             {timeLeft > 0 ? (
-                                <div className="w-full bg-amber-500/10 border border-amber-500/20 rounded-3xl p-6 text-center space-y-4 max-w-lg mx-auto">
+                                <div className="mx-auto w-full max-w-lg space-y-4 rounded-md border border-slate-200 bg-slate-50 p-6 text-center">
                                     <div className="flex flex-col items-center justify-center gap-2">
-                                        <Clock className="w-8 h-8 text-amber-600 animate-pulse"/>
-                                        <p className="text-sm font-black uppercase text-amber-900 tracking-wider">¡Asegurá tu Bonificación Especial del {stats.discountPercentage}%!</p>
+                                        <Clock className="h-6 w-6 text-slate-600"/>
+                                        <p className="text-sm font-bold text-slate-900">Asegurá tu bonificación especial del {stats.discountPercentage}%</p>
                                     </div>
                                     <p className="text-xs text-slate-600 font-bold leading-relaxed">
                                         Asegurá los precios vigentes y tu descuento señando con $5.000 antes de que expire la reserva.
                                     </p>
-                                    <div className="text-3xl font-black text-amber-600 font-mono tracking-widest bg-white/80 py-2 rounded-xl inline-block px-5 border">
+                                    <div className="inline-block rounded-md border bg-white px-5 py-2 font-mono text-3xl font-bold text-slate-900">
                                         {formatTime(timeLeft)}
                                     </div>
                                     <Button
                                         onClick={handleShareBudgetWhatsApp}
-                                        className="h-12 w-full rounded-xl bg-amber-600 hover:bg-amber-700 text-white font-bold text-xs uppercase tracking-widest shadow-md flex items-center justify-center gap-2"
+                                        className="flex h-12 w-full items-center justify-center gap-2 rounded-md bg-red-700 text-sm font-bold text-white hover:bg-red-800"
                                     >
-                                        <Zap className="w-4 h-4 text-yellow-300 fill-yellow-300 animate-bounce" /> Asegurar mi descuento y regalos
+                                        <ShieldCheck className="h-4 w-4" /> Asegurar descuento y regalos
                                     </Button>
                                 </div>
                             ) : (
-                                <div className="w-full bg-red-50 border border-red-100 rounded-3xl p-5 text-center max-w-lg mx-auto">
+                                <div className="mx-auto w-full max-w-lg rounded-md border border-red-200 bg-red-50 p-5 text-center">
                                     <p className="text-xs font-bold text-red-800">El tiempo de tu reserva ha expirado. Podés contactar a un asesor de ventas para consultar disponibilidad de fecha.</p>
                                 </div>
                             )}
@@ -1402,14 +1394,14 @@ function SimuladorContent() {
                             <div className="w-full grid grid-cols-1 md:grid-cols-3 gap-3">
                                 <Button
                                     onClick={handleShareBudgetWhatsApp}
-                                    className="h-12 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white font-bold text-[11px] sm:text-xs uppercase tracking-wide px-2 flex items-center justify-center gap-1.5 w-full"
+                                    className="flex h-12 w-full items-center justify-center gap-1.5 rounded-md bg-emerald-700 px-2 text-xs font-bold text-white hover:bg-emerald-800"
                                 >
                                     <Share2 className="w-4 h-4 shrink-0"/> <span className="truncate">Compartir por WhatsApp</span>
                                 </Button>
                                 <Button
                                     variant="outline"
                                     onClick={handleWhatsAppQuickConsult}
-                                    className="h-12 rounded-xl border-emerald-200 text-emerald-700 hover:bg-emerald-50 font-bold text-[11px] sm:text-xs uppercase tracking-wide px-2 flex items-center justify-center gap-1.5 w-full"
+                                    className="flex h-12 w-full items-center justify-center gap-1.5 rounded-md border-slate-300 px-2 text-xs font-bold text-slate-700 hover:bg-slate-50"
                                 >
                                     <MessageSquare className="w-4 h-4 shrink-0"/> <span className="truncate">Coordinar una Reunión</span>
                                 </Button>
@@ -1417,7 +1409,7 @@ function SimuladorContent() {
                                   variant="outline"
                                   onClick={handleDownloadBudgetPdf}
                                   disabled={isDownloadingPdf}
-                                  className="h-12 rounded-xl font-bold uppercase tracking-wide text-[11px] sm:text-xs px-2 flex items-center justify-center gap-1.5 w-full"
+                                  className="flex h-12 w-full items-center justify-center gap-1.5 rounded-md px-2 text-xs font-bold"
                                 >
                                     {isDownloadingPdf
                                         ? <Loader2 className="h-4 w-4 animate-spin shrink-0" />
@@ -1428,16 +1420,16 @@ function SimuladorContent() {
                         </CardContent>
                     </Card>
 
-                    <Card ref={budgetDocumentRef} className="shadow-3xl print:shadow-none border border-slate-200 rounded-[2.5rem] overflow-hidden bg-white print:bg-white">
+                    <Card ref={budgetDocumentRef} className="overflow-hidden rounded-md border border-slate-300 bg-white shadow-sm print:bg-white print:shadow-none">
                         <CardHeader className="text-center bg-white p-6 sm:p-10 border-b border-slate-200">
                             <div className="flex justify-center mb-4">
                               <CompanyLogo size="sm" src={logoUrl || undefined} className="print:brightness-100" />
                             </div>
-                            <CardTitle className="font-headline text-2xl sm:text-3xl font-black uppercase tracking-tighter text-slate-800">Presupuesto Estimado</CardTitle>
+                            <CardTitle className="font-headline text-2xl font-bold text-slate-900 sm:text-3xl">Presupuesto estimado</CardTitle>
                             <p className="text-slate-500 font-semibold text-sm mt-2">AK Producciones Eventos — Salto, Uruguay</p>
                         </CardHeader>
                         <CardContent className="p-4 sm:p-10 print:p-2 space-y-10">
-                            <div className="border border-slate-200 rounded-[2rem] overflow-x-auto print:border-slate-300">
+                            <div className="overflow-x-auto rounded-md border border-slate-200 print:border-slate-300">
                                 <Table>
                                     <TableHeader className="bg-slate-50">
                                         <TableRow className="border-slate-200">
@@ -1543,7 +1535,7 @@ function SimuladorContent() {
                                 </Table>
                             </div>
 
-                            <div className="w-full max-w-sm ml-auto space-y-3 py-6 px-8 bg-slate-50 text-slate-900 rounded-[1.5rem] border border-slate-200 shadow-sm">
+                            <div className="ml-auto w-full max-w-sm space-y-3 rounded-md border border-slate-200 bg-slate-50 px-8 py-6 text-slate-900">
                                 {(budgetSettings.showIndividualPrices ?? true) && (
                                    <div className="flex justify-between items-center text-[10px] font-black uppercase text-slate-500 tracking-widest">
                                        <span>Subtotal Servicios:</span>
@@ -1551,7 +1543,7 @@ function SimuladorContent() {
                                    </div>
                                  )}
                                  {stats.ahorroRegalos > 0 && (
-                                     <div className="flex justify-between items-center text-[10px] font-black text-emerald-600 uppercase tracking-[0.3em]">
+                                     <div className="flex items-center justify-between text-[10px] font-bold uppercase text-emerald-700">
                                          <span>Ahorro Regalos Incluidos:</span>
                                          <span>-{formatCurrency(stats.ahorroRegalos)}</span>
                                      </div>
@@ -1581,7 +1573,7 @@ function SimuladorContent() {
                                  )}
                             </div>
                             {stats.annualProjection.applies && (
-                                <div className="rounded-2xl border border-slate-200 bg-white p-4 text-sm">
+                                <div className="rounded-md border border-slate-200 bg-white p-4 text-sm">
                                     <p className="mb-3 text-[10px] font-black uppercase tracking-widest text-slate-500">
                                         Proyeccion de ajuste anual ({stats.annualProjection.adjustmentPct}%)
                                     </p>
@@ -1600,9 +1592,9 @@ function SimuladorContent() {
                             )}
                         </CardContent>
                         <CardFooter className="bg-slate-50 p-8 border-t flex flex-col items-center gap-4">
-                            <div className="bg-blue-50 p-6 rounded-3xl border border-blue-100 w-full">
-                                <h4 className="text-[10px] font-black uppercase text-blue-800 tracking-widest mb-2 flex items-center gap-2"><Info className="w-4 h-4"/> Condiciones de Reserva</h4>
-                                <p className="text-xs text-blue-800 leading-relaxed font-semibold">
+                            <div className="w-full rounded-md border border-slate-200 bg-white p-6">
+                                <h4 className="mb-2 flex items-center gap-2 text-[10px] font-bold uppercase tracking-widest text-slate-700"><Info className="w-4 h-4"/> Condiciones de reserva</h4>
+                                <p className="text-xs font-medium leading-relaxed text-slate-600">
                                     {stats.annualProjection.applies ? (
                                         <>Con una seña de $5.000 podés solicitar la reserva de la fecha y del servicio. El presupuesto es válido por 30 días para mantener el precio de la promoción y los regalos incluidos. Los eventos programados para años posteriores al vigente tendrán un ajuste anual proyectado del 15% de acuerdo a lo establecido en el contrato.</>
                                     ) : (
@@ -1610,16 +1602,16 @@ function SimuladorContent() {
                                     )}
                                 </p>
                                 {budgetSettings.bookingTerms && (
-                                    <p className="mt-2 text-xs text-blue-700 leading-relaxed">{budgetSettings.bookingTerms}</p>
+                                    <p className="mt-2 text-xs leading-relaxed text-slate-600">{budgetSettings.bookingTerms}</p>
                                 )}
                             </div>
                             <div className="flex flex-col sm:flex-row items-center gap-3 print:hidden">
-                              <Button variant="ghost" onClick={() => setStep(1)} className="rounded-xl text-slate-400 font-bold uppercase tracking-widest text-[10px]">Iniciar Nueva Simulación</Button>
+                              <Button variant="ghost" onClick={() => setStep(1)} className="rounded-md text-xs font-bold text-slate-500">Iniciar nueva simulación</Button>
                               <a
                                 href="https://akproduccioneseventos.com/#faq"
                                 target="_blank"
                                 rel="noopener noreferrer"
-                                className="inline-flex items-center gap-2 rounded-xl px-4 py-2 text-[10px] font-bold uppercase tracking-widest text-primary border border-primary/20 hover:bg-primary/5 transition-colors"
+                                className="inline-flex items-center gap-2 rounded-md border border-slate-300 px-4 py-2 text-xs font-bold text-slate-700 transition-colors hover:bg-slate-50"
                               >
                                 <Info className="w-3.5 h-3.5" /> Preguntas Frecuentes
                               </a>
@@ -1669,16 +1661,16 @@ function SimuladorContent() {
                     {step === 1 && (
                         <div className="space-y-8 animate-in fade-in slide-in-from-bottom-4 duration-500 max-w-2xl mx-auto py-4">
                             <div className="text-center space-y-4">
-                                <div className="p-4 bg-primary/10 rounded-full inline-block">
-                                    <Sparkles className="w-10 h-10 text-primary animate-pulse" />
+                                <div className="inline-flex h-12 w-12 items-center justify-center rounded-full bg-red-50">
+                                    <Sparkles className="h-6 w-6 text-red-700" />
                                 </div>
                                 <h2 className="text-3xl font-black text-slate-900 tracking-tight">La fiesta de tus sueños, planificada sin estrés</h2>
                                 <p className="text-lg font-bold text-primary">Elegí lo que te gusta, calculá el costo al instante y armá una experiencia inolvidable.</p>
                             </div>
 
                             <div className="grid gap-6 md:grid-cols-2 pt-4">
-                                <div className="p-6 bg-slate-50 rounded-3xl border border-slate-100 flex items-start gap-4 text-left">
-                                    <div className="p-3 bg-violet-100 text-violet-700 rounded-2xl shrink-0">
+                                <div className="flex items-start gap-4 border-b border-slate-200 py-4 text-left">
+                                    <div className="shrink-0 rounded-md bg-slate-100 p-3 text-slate-700">
                                         <PartyPopper className="w-6 h-6" />
                                     </div>
                                     <div>
@@ -1687,8 +1679,8 @@ function SimuladorContent() {
                                     </div>
                                 </div>
 
-                                <div className="p-6 bg-slate-50 rounded-3xl border border-slate-100 flex items-start gap-4 text-left">
-                                    <div className="p-3 bg-fuchsia-100 text-fuchsia-700 rounded-2xl shrink-0">
+                                <div className="flex items-start gap-4 border-b border-slate-200 py-4 text-left">
+                                    <div className="shrink-0 rounded-md bg-slate-100 p-3 text-slate-700">
                                         <Users className="w-6 h-6" />
                                     </div>
                                     <div>
@@ -1697,8 +1689,8 @@ function SimuladorContent() {
                                     </div>
                                 </div>
 
-                                <div className="p-6 bg-slate-50 rounded-3xl border border-slate-100 flex items-start gap-4 text-left">
-                                    <div className="p-3 bg-blue-100 text-blue-700 rounded-2xl shrink-0">
+                                <div className="flex items-start gap-4 border-b border-slate-200 py-4 text-left">
+                                    <div className="shrink-0 rounded-md bg-slate-100 p-3 text-slate-700">
                                         <Laptop className="w-6 h-6" />
                                     </div>
                                     <div>
@@ -1707,8 +1699,8 @@ function SimuladorContent() {
                                     </div>
                                 </div>
 
-                                <div className="p-6 bg-slate-50 rounded-3xl border border-slate-100 flex items-start gap-4 text-left">
-                                    <div className="p-3 bg-emerald-100 text-emerald-700 rounded-2xl shrink-0">
+                                <div className="flex items-start gap-4 border-b border-slate-200 py-4 text-left">
+                                    <div className="shrink-0 rounded-md bg-slate-100 p-3 text-slate-700">
                                         <HeartHandshake className="w-6 h-6" />
                                     </div>
                                     <div>
@@ -1718,13 +1710,13 @@ function SimuladorContent() {
                                 </div>
                             </div>
 
-                            <div className="p-6 bg-gradient-to-r from-slate-900 to-slate-800 text-white rounded-3xl border shadow-xl flex flex-col sm:flex-row items-center gap-5 justify-between text-left">
+                            <div className="flex flex-col items-center justify-between gap-5 rounded-md border border-slate-800 bg-slate-950 p-6 text-left text-white sm:flex-row">
                                 <div className="flex items-center gap-4">
-                                    <div className="p-3 bg-white/10 rounded-2xl">
-                                        <MapPin className="w-7 h-7 text-yellow-300" />
+                                    <div className="rounded-md bg-white/10 p-3">
+                                        <MapPin className="h-7 w-7 text-white" />
                                     </div>
                                     <div>
-                                        <h4 className="font-black text-yellow-300 uppercase text-[10px] tracking-wider">Locación Exclusiva</h4>
+                                        <h4 className="text-[10px] font-bold uppercase tracking-wider text-white/70">Locación</h4>
                                         <h3 className="font-black text-lg">Salón de Fiestas: Club Uruguay</h3>
                                         <p className="text-xs text-white/70 font-semibold">El salón más distinguido con servicio integral.</p>
                                     </div>
@@ -1901,12 +1893,12 @@ function SimuladorContent() {
                                         const imageUrl = safeImageUrl(s.imageUrl);
                                         return (
                                             <label key={s.id} className={cn(
-                                                "group relative p-5 border-2 rounded-[1.5rem] cursor-pointer transition-all flex items-center gap-4",
-                                                selectedEntradas.includes(s.id) ? "border-primary bg-primary/5 shadow-lg shadow-primary/5" : "border-slate-100 hover:border-primary/20 bg-slate-50/50",
-                                                isRecommended && !selectedEntradas.includes(s.id) && "border-amber-200 bg-amber-50/30 shadow-md"
+                                                 "group relative flex cursor-pointer items-center gap-4 rounded-md border p-5 transition-colors",
+                                                 selectedEntradas.includes(s.id) ? "border-red-700 bg-red-50" : "border-slate-200 bg-white hover:border-slate-400",
+                                                 isRecommended && !selectedEntradas.includes(s.id) && "border-slate-300 bg-slate-50"
                                             )}>
                                                 {isRecommended && (
-                                                    <div className="absolute -top-3 left-4 bg-amber-500 text-white text-[9px] font-black uppercase tracking-widest px-3 py-1 rounded-full shadow-lg z-10 animate-bounce">RECOMENDADO</div>
+                                                     <div className="absolute -top-3 left-4 z-10 rounded-sm border border-slate-300 bg-white px-3 py-1 text-[9px] font-bold uppercase tracking-widest text-slate-700">Recomendado</div>
                                                 )}
                                                 {imageUrl && (
                                                   <div className="h-20 w-24 rounded-2xl overflow-hidden border bg-white shrink-0">
@@ -1935,12 +1927,12 @@ function SimuladorContent() {
                                         const imageUrl = safeImageUrl(s.imageUrl);
                                         return (
                                             <label key={s.id} className={cn(
-                                                "group relative p-5 border-2 rounded-[1.5rem] cursor-pointer transition-all flex items-center gap-4",
-                                                selectedPrincipal === s.id ? "border-primary bg-primary/5 shadow-lg shadow-primary/5" : "border-slate-100 hover:border-primary/20 bg-slate-50/50",
-                                                isRecommended && selectedPrincipal !== s.id && "border-amber-200 bg-amber-50/30 shadow-md"
+                                                 "group relative flex cursor-pointer items-center gap-4 rounded-md border p-5 transition-colors",
+                                                 selectedPrincipal === s.id ? "border-red-700 bg-red-50" : "border-slate-200 bg-white hover:border-slate-400",
+                                                 isRecommended && selectedPrincipal !== s.id && "border-slate-300 bg-slate-50"
                                             )}>
                                                 {isRecommended && (
-                                                    <div className="absolute -top-3 left-4 bg-amber-500 text-white text-[9px] font-black uppercase tracking-widest px-3 py-1 rounded-full shadow-lg z-10 animate-bounce">RECOMENDADO</div>
+                                                     <div className="absolute -top-3 left-4 z-10 rounded-sm border border-slate-300 bg-white px-3 py-1 text-[9px] font-bold uppercase tracking-widest text-slate-700">Recomendado</div>
                                                 )}
                                                 {imageUrl && (
                                                   <div className="h-20 w-24 rounded-2xl overflow-hidden border bg-white shrink-0">
@@ -1970,12 +1962,12 @@ function SimuladorContent() {
                                             const imageUrl = safeImageUrl(s.imageUrl);
                                             return (
                                                 <label key={s.id} className={cn(
-                                                    "group relative p-5 border-2 rounded-[1.5rem] cursor-pointer transition-all flex items-center gap-4",
-                                                    selectedInfantil === s.id ? "border-purple-500 bg-purple-50 shadow-lg shadow-purple-900/5" : "border-slate-100 hover:border-purple-200 bg-slate-50/50",
-                                                    isRecommended && selectedInfantil !== s.id && "border-amber-200 bg-amber-50/30 shadow-md"
+                                                     "group relative flex cursor-pointer items-center gap-4 rounded-md border p-5 transition-colors",
+                                                     selectedInfantil === s.id ? "border-red-700 bg-red-50" : "border-slate-200 bg-white hover:border-slate-400",
+                                                     isRecommended && selectedInfantil !== s.id && "border-slate-300 bg-slate-50"
                                                 )}>
                                                     {isRecommended && (
-                                                        <div className="absolute -top-3 left-4 bg-amber-500 text-white text-[9px] font-black uppercase tracking-widest px-3 py-1 rounded-full shadow-lg z-10 animate-bounce">RECOMENDADO</div>
+                                                         <div className="absolute -top-3 left-4 z-10 rounded-sm border border-slate-300 bg-white px-3 py-1 text-[9px] font-bold uppercase tracking-widest text-slate-700">Recomendado</div>
                                                     )}
                                                     {imageUrl && (
                                                       <div className="h-20 w-24 rounded-2xl overflow-hidden border bg-white shrink-0">
@@ -1998,7 +1990,7 @@ function SimuladorContent() {
                     )}
                     {step === 4 && (
                         <div className="space-y-8 animate-in fade-in slide-in-from-right-4 duration-700 text-left">
-                            <h3 className="font-black text-xl text-slate-800 uppercase tracking-tighter text-center">Selecciona tu Paquete de Servicios</h3>
+                            <h3 className="text-center text-xl font-bold text-slate-900">Seleccioná tu paquete de servicios</h3>
                             <RadioGroup
                                 value={selectedPaqueteId}
                                 onValueChange={value => {
@@ -2029,13 +2021,13 @@ function SimuladorContent() {
 
                                     return (
                                         <label key={p.id} className={cn(
-                                            "p-6 sm:p-8 border-2 rounded-[2.5rem] cursor-pointer transition-all flex flex-col gap-4 relative overflow-hidden",
-                                            selectedPaqueteId === p.id ? "border-primary bg-primary/5 shadow-2xl scale-[1.02]" : "border-slate-100 hover:border-primary/20 bg-white",
-                                            p.recommended && selectedPaqueteId !== p.id && "border-amber-200 ring-4 ring-amber-50 shadow-xl"
+                                            "relative flex cursor-pointer flex-col gap-4 overflow-hidden rounded-md border p-6 transition-colors sm:p-8",
+                                            selectedPaqueteId === p.id ? "border-red-700 bg-red-50" : "border-slate-200 bg-white hover:border-slate-400",
+                                            p.recommended && selectedPaqueteId !== p.id && "border-slate-400 bg-slate-50"
                                         )}>
                                             {p.recommended && (
-                                                <div className="absolute top-3 right-3 bg-primary text-white text-[8px] sm:text-[9px] font-black uppercase tracking-[0.2em] px-4 py-1.5 rounded-full shadow-2xl z-10 animate-pulse">
-                                                    MÁS ELEGIDO
+                                                <div className="absolute right-3 top-3 z-10 rounded-sm bg-slate-900 px-4 py-1.5 text-[8px] font-bold uppercase tracking-widest text-white sm:text-[9px]">
+                                                    Más elegido
                                                 </div>
                                             )}
                                             <div className="flex items-start justify-between">
@@ -2095,7 +2087,6 @@ function SimuladorContent() {
                                                     )}
                                                 </AnimatePresence>
                                             </div>
-                                            {selectedPaqueteId === p.id && <div className="absolute -bottom-2 -right-2 p-4 opacity-10 rotate-12"><PartyPopper className="w-20 h-20 text-primary"/></div>}
                                         </label>
                                     );
                                 })}
@@ -2104,7 +2095,7 @@ function SimuladorContent() {
                                 <p className="text-center text-sm text-slate-500">No hay paquetes aplicables para el tipo de evento seleccionado.</p>
                             )}
 
-                            <div className="rounded-2xl border border-blue-100 bg-blue-50 p-4 text-sm text-blue-900">
+                            <div className="rounded-md border border-slate-200 bg-slate-50 p-4 text-sm text-slate-700">
                               <strong>Precios {currentYear}</strong>
                               {stats.annualProjection.applies
                                 ? <> — Ajuste anual proyectado del <strong>{stats.annualProjection.adjustmentPct}%</strong> para eventos en {stats.annualProjection.eventYear}.</>
@@ -2115,23 +2106,23 @@ function SimuladorContent() {
                     {step === 5 && (
                         <div className="space-y-10 animate-in fade-in slide-in-from-right-4 duration-700 text-left">
                             <div className="border-b border-slate-100 pb-5">
-                                <h2 className="text-3xl font-black tracking-tight bg-gradient-to-r from-red-650 to-indigo-650 bg-clip-text text-transparent">Personalización de tu Presupuesto</h2>
+                                <h2 className="text-3xl font-bold text-slate-900">Personalización de tu presupuesto</h2>
                                 <p className="mt-2 text-sm text-slate-500 font-semibold leading-relaxed">
                                     ¡Llegamos a la etapa final! Ajustá la fecha y los invitados, quitá opcionales de tu paquete o agregá extras a tu gusto. El total se recalcula al instante.
                                 </p>
                             </div>
 
-                            <div className="p-6 bg-gradient-to-br from-slate-50/70 to-white border border-slate-200/60 rounded-[2rem] shadow-sm space-y-4">
+                            <div className="space-y-4 rounded-md border border-slate-200 bg-slate-50 p-6">
                                 <h3 className="text-xs font-black uppercase tracking-wider text-slate-400 flex items-center gap-2">
                                     <CalendarDays className="w-4.5 h-4.5 text-slate-500"/> Información General del Evento
                                 </h3>
                                 <div className="grid gap-4 sm:grid-cols-3 items-end">
                                     <div className="space-y-2">
-                                        <Label className="text-xs font-bold text-slate-650">Fecha del evento</Label>
+                                        <Label className="text-xs font-bold text-slate-600">Fecha del evento</Label>
                                         <DatePickerDemo selectedDate={eventoFecha} onDateChange={handleEventoFechaChange} className="h-12 rounded-xl bg-white text-slate-900 border-slate-200 w-full" />
                                     </div>
                                     <div className="space-y-2">
-                                        <Label className="text-xs font-bold text-slate-650">Invitados Adultos</Label>
+                                        <Label className="text-xs font-bold text-slate-600">Invitados Adultos</Label>
                                         <Input
                                             type="number"
                                             min={1}
@@ -2141,7 +2132,7 @@ function SimuladorContent() {
                                         />
                                     </div>
                                     <div className="space-y-2">
-                                        <Label className="text-xs font-bold text-slate-650">Niños y Adolescentes</Label>
+                                        <Label className="text-xs font-bold text-slate-600">Niños y Adolescentes</Label>
                                         <Input
                                             type="number"
                                             min={0}
@@ -2178,23 +2169,23 @@ function SimuladorContent() {
                                     const CatIcon = style.icon;
 
                                     return (
-                                        <div key={category} className="p-6 bg-white border border-slate-200/80 rounded-[2rem] shadow-sm space-y-4 relative overflow-hidden transition-all hover:shadow-md">
-                                            <div className={cn("absolute top-0 left-0 w-2 h-full bg-gradient-to-b", style.color)} />
+                                        <div key={category} className="relative space-y-4 overflow-hidden rounded-md border border-slate-200 bg-white p-6">
+                                            <div className="absolute left-0 top-0 h-full w-1 bg-slate-800" />
                                             <div className="flex items-center justify-between border-b pb-3 pl-2">
                                                 <div className="flex items-center gap-2">
-                                                    <span className={cn("flex h-7 w-7 items-center justify-center rounded-lg text-white bg-gradient-to-r", style.color)}>
+                                                    <span className="flex h-7 w-7 items-center justify-center rounded-md bg-slate-900 text-white">
                                                         <CatIcon className="w-4 h-4" />
                                                     </span>
                                                     <span className="font-black text-slate-800 text-xs uppercase tracking-wider">{formatCategoriaText(category)}</span>
                                                 </div>
-                                                <Badge className="font-black text-[9px] bg-slate-100 text-slate-650 hover:bg-slate-100">{activeItems.length} activos</Badge>
+                                                <Badge className="bg-slate-100 text-[9px] font-bold text-slate-600 hover:bg-slate-100">{activeItems.length} activos</Badge>
                                             </div>
                                             <div className="grid gap-3 sm:grid-cols-2">
                                                 {activeItems.map(item => {
                                                     return (
                                                         <div
                                                             key={item.id}
-                                                            className="flex items-center justify-between gap-3 rounded-2xl border border-slate-150 p-4 transition-all duration-200 bg-slate-50/40 hover:bg-slate-50 hover:border-slate-200 shadow-sm"
+                                                            className="flex items-center justify-between gap-3 rounded-md border border-slate-200 bg-slate-50 p-4 transition-colors hover:bg-white"
                                                         >
                                                             <div className="min-w-0 flex-1 text-left">
                                                                 <span className="block font-black text-slate-800 text-xs truncate">
@@ -2211,7 +2202,7 @@ function SimuladorContent() {
                                                                                     <span className="text-amber-600 font-black">{formatCurrency(item.costoTotal)} (50% OFF)</span>
                                                                                 </span>
                                                                             ) : (
-                                                                                <span className="text-slate-650 font-black">{formatCurrency(item.costoTotal)}</span>
+                                                                                <span className="font-bold text-slate-700">{formatCurrency(item.costoTotal)}</span>
                                                                             )}
                                                                         </>
                                                                     )}
@@ -2283,7 +2274,7 @@ function SimuladorContent() {
                                 </div>
                             )}
 
-                            <div className="p-6 bg-gradient-to-br from-white to-slate-50/50 border border-slate-200 rounded-[2rem] shadow-sm space-y-6">
+                            <div className="space-y-6 rounded-md border border-slate-200 bg-white p-6">
                                 <div className="space-y-4">
                                     <h4 className="font-black text-slate-800 uppercase text-xs tracking-wider flex items-center gap-2">
                                         <Search className="w-4.5 h-4.5 text-slate-500"/> ¿Querés agregar algún servicio extra?
@@ -2314,7 +2305,7 @@ function SimuladorContent() {
                                         </div>
 
                                         {isSearchFocused && filteredSearchServices.length > 0 && (
-                                            <div className="absolute left-0 right-0 z-50 mt-2 bg-white border border-slate-200 rounded-2xl shadow-2xl overflow-hidden animate-in fade-in slide-in-from-top-2 duration-200">
+                                            <div className="absolute left-0 right-0 z-50 mt-2 overflow-hidden rounded-md border border-slate-200 bg-white shadow-lg animate-in fade-in slide-in-from-top-2 duration-200">
                                                 <div className="p-3 bg-slate-50 border-b text-[10px] font-black text-slate-400 uppercase tracking-widest">
                                                     Servicios encontrados ({filteredSearchServices.length})
                                                 </div>
@@ -2340,7 +2331,7 @@ function SimuladorContent() {
                                                                 className="w-full p-4 text-left hover:bg-slate-50 flex items-center justify-between gap-4 transition"
                                                             >
                                                                 <div>
-                                                                    <span className="block font-black text-sm text-slate-805">{service.nombre}</span>
+                                                                    <span className="block text-sm font-bold text-slate-800">{service.nombre}</span>
                                                                     <span className="block text-[10px] text-slate-400 font-semibold uppercase mt-0.5">
                                                                         {formatCategoriaText(service.categoria)} {service.subcategoria ? `· ${service.subcategoria}` : ''}
                                                                     </span>
@@ -2361,7 +2352,7 @@ function SimuladorContent() {
                                 {suggestedServices.length > 0 && (
                                     <div className="space-y-3 pt-2">
                                         <h5 className="text-[10px] font-black uppercase tracking-widest text-slate-400 flex items-center gap-1.5 text-left">
-                                            <Sparkles className="w-3.5 h-3.5 text-primary animate-pulse" /> Recomendados para tu evento:
+                                            <Sparkles className="h-3.5 w-3.5 text-slate-600" /> Recomendados para tu evento:
                                         </h5>
                                         <div className="grid gap-3 sm:grid-cols-2">
                                             {suggestedServices.map(service => {
@@ -2408,7 +2399,7 @@ function SimuladorContent() {
                                             <div key={p.id} className="p-6 bg-slate-50/50 border border-slate-100 rounded-3xl flex flex-col justify-between gap-4 hover:bg-slate-50 transition duration-200 text-left">
                                                 <div>
                                                     <span className="text-[9px] font-black text-slate-450 uppercase tracking-widest">Alternativa</span>
-                                                    <h5 className="text-base font-black text-slate-805 uppercase tracking-tight">{p.nombre}</h5>
+                                                    <h5 className="text-base font-bold text-slate-800">{p.nombre}</h5>
                                                     <p className="mt-2 text-xl font-black text-primary">{formatCurrency(precioAlternativo)}</p>
                                                     <p className="mt-0.5 text-[9px] text-slate-550 font-bold uppercase tracking-wider">
                                                         {esMejora
@@ -2454,7 +2445,7 @@ function SimuladorContent() {
                     <div className="flex flex-col sm:flex-row items-center gap-4 w-full sm:w-auto justify-between sm:justify-start">
                         <Button variant="ghost" onClick={handlePrev} disabled={step === 1 || isSavingProgress || isGenerating} className="w-full sm:w-auto rounded-md h-12 px-7 font-bold text-slate-500">Anterior</Button>
                         {stats.ahorroRegalos > 0 && (
-                            <span className="bg-emerald-50 text-emerald-700 text-[10px] font-black px-4 py-2 rounded-full border border-emerald-100 flex items-center gap-1.5 shadow-sm animate-pulse shrink-0">
+                            <span className="flex shrink-0 items-center gap-1.5 rounded-md border border-emerald-200 bg-emerald-50 px-4 py-2 text-[10px] font-bold text-emerald-800">
                                 🎁 ¡Ahorrás {formatCurrency(stats.ahorroRegalos)} en regalos incluidos!
                             </span>
                         )}
