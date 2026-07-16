@@ -137,23 +137,34 @@ export async function writeData<T>(
   let dataToWrite: T = data;
   if (Array.isArray(data) && sortFn) dataToWrite = [...data].sort(sortFn) as unknown as T;
 
-  if (shouldUseLocalJsonOnly()) {
-    throw new Error('La escritura esta deshabilitada en el modo local de pruebas.');
+  const isLocalOnly = shouldUseLocalJsonOnly();
+
+  if (isLocalOnly) {
+    await writeLocalJsonFallback(normalizedFilePath, dataToWrite);
+    return;
   }
 
   try {
-    await syncToFirestore(normalizedFilePath, dataToWrite);
-    if (isSafeTopLevelJsonFile(normalizedFilePath)) {
-      const persisted = await readFromFirestore(normalizedFilePath);
-      if (persisted === null || persisted === undefined) {
-        await syncGenericJsonFile(normalizedFilePath, dataToWrite);
+    const { isFirebaseAvailable } = await import('./firebase/server');
+    if (isFirebaseAvailable()) {
+      await syncToFirestore(normalizedFilePath, dataToWrite);
+      if (isSafeTopLevelJsonFile(normalizedFilePath)) {
+        const persisted = await readFromFirestore(normalizedFilePath);
+        if (persisted === null || persisted === undefined) {
+          await syncGenericJsonFile(normalizedFilePath, dataToWrite);
+        }
       }
+    } else {
+      logger.warn(`[writeData] Firestore no disponible. Escribiendo copia local de respaldo para "${normalizedFilePath}".`);
     }
-    // Escribir localmente al disco para mantener los fallbacks sincronizados
     await writeLocalJsonFallback(normalizedFilePath, dataToWrite);
   } catch (err) {
     logger.error(`[writeData] Error escribiendo ${filePath} en Firestore:`, err);
-    throw new Error(`Error al guardar datos en Firestore: ${err instanceof Error ? err.message : err}`);
+    if (process.env.NODE_ENV === 'production') {
+      throw new Error(`Error al guardar datos en Firestore: ${err instanceof Error ? err.message : err}`);
+    } else {
+      await writeLocalJsonFallback(normalizedFilePath, dataToWrite);
+    }
   }
 
   await scheduleAutoBackupAfterWrite(normalizedFilePath, options);
@@ -201,24 +212,43 @@ export async function updateDataPartial<T extends Record<string, any>>(
 
   const normalizedFilePath = filePath.replace(/\\/g, '/');
 
-  try {
-    // 1. Sincronización a Firestore (firebase-sync ya utiliza { merge: true } para documentos individuales)
-    await syncToFirestore(normalizedFilePath, partialData);
+  const isLocalOnly = shouldUseLocalJsonOnly();
+  if (isLocalOnly) {
+    const existing = await readLocalJsonFallback<T>(normalizedFilePath) || {} as T;
+    const merged = deepMerge(existing, partialData);
+    await writeLocalJsonFallback(normalizedFilePath, merged);
+    return;
+  }
 
-    // 2. Actualización local JSON (Merge manual)
-    if (isSafeTopLevelJsonFile(normalizedFilePath)) {
-      const existing = await readGenericJsonFile(normalizedFilePath) as Record<string, any> || {};
-      const merged = deepMerge(existing, partialData);
-      await syncGenericJsonFile(normalizedFilePath, merged);
-      await writeLocalJsonFallback(normalizedFilePath, merged);
+  try {
+    const { isFirebaseAvailable } = await import('./firebase/server');
+    if (isFirebaseAvailable()) {
+      await syncToFirestore(normalizedFilePath, partialData);
+      if (isSafeTopLevelJsonFile(normalizedFilePath)) {
+        const existing = await readGenericJsonFile(normalizedFilePath) as Record<string, any> || {};
+        const merged = deepMerge(existing, partialData);
+        await syncGenericJsonFile(normalizedFilePath, merged);
+        await writeLocalJsonFallback(normalizedFilePath, merged);
+      } else {
+        const existing = await readLocalJsonFallback<T>(normalizedFilePath) || {} as T;
+        const merged = deepMerge(existing, partialData);
+        await writeLocalJsonFallback(normalizedFilePath, merged);
+      }
     } else {
+      logger.warn(`[updateDataPartial] Firestore no disponible. Escribiendo copia local de respaldo para "${normalizedFilePath}".`);
       const existing = await readLocalJsonFallback<T>(normalizedFilePath) || {} as T;
       const merged = deepMerge(existing, partialData);
       await writeLocalJsonFallback(normalizedFilePath, merged);
     }
   } catch (err) {
     logger.error(`[updateDataPartial] Error actualizando ${filePath} en Firestore:`, err);
-    throw new Error(`Error al actualizar datos en Firestore: ${err instanceof Error ? err.message : err}`);
+    if (process.env.NODE_ENV === 'production') {
+      throw new Error(`Error al actualizar datos en Firestore: ${err instanceof Error ? err.message : err}`);
+    } else {
+      const existing = await readLocalJsonFallback<T>(normalizedFilePath) || {} as T;
+      const merged = deepMerge(existing, partialData);
+      await writeLocalJsonFallback(normalizedFilePath, merged);
+    }
   }
 
   await scheduleAutoBackupAfterWrite(normalizedFilePath, options);

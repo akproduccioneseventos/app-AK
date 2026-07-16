@@ -87,7 +87,7 @@ export function CTASection({
           <div>
             <h4 className="text-sm font-black text-white">🎁 Regalo de Reserva Inmediata</h4>
             <p className="text-xs font-semibold text-zinc-400 mt-1 leading-relaxed">
-              Confirmando tu propuesta durante esta semana, te obsequiamos la **Plataforma de Video 360°** de regalo para sorprender a todos tus invitados.
+              Confirmando tu propuesta durante esta semana, te obsequiamos la <strong className="text-white">Plataforma de Video 360°</strong> de regalo para sorprender a todos tus invitados.
             </p>
           </div>
         </div>
@@ -103,6 +103,7 @@ export function CTASection({
             href={waHref}
             target="_blank"
             rel="noopener noreferrer"
+            aria-label="Cotizar evento por WhatsApp"
             className={cn(
               'flex items-center gap-3 px-8 py-5 rounded-2xl',
               'bg-[#25D366] hover:bg-[#1eb356] text-white',
@@ -117,6 +118,7 @@ export function CTASection({
           </a>
           <a
             href={`tel:+${whatsappNumber}`}
+            aria-label="Llamar por teléfono a AK Producciones"
             className={cn(
               'flex items-center gap-3 px-8 py-5 rounded-2xl',
               'bg-white/5 backdrop-blur-sm hover:bg-white/10 text-white',
@@ -147,6 +149,7 @@ export function CTASection({
               target="_blank"
               rel="noopener noreferrer"
               title={platform}
+              aria-label={`Visitar ${platform} de AK Producciones`}
               className={cn(
                 'w-12 h-12 rounded-2xl flex items-center justify-center text-white',
                 'transition-all duration-300 hover:scale-125 hover:shadow-lg',

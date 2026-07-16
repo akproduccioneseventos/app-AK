@@ -85,25 +85,25 @@ interface ServicesSectionProps {
   services?: ServiceItem[];
 }
 
+const containerVariants = {
+  hidden: {},
+  visible: {
+    transition: {
+      staggerChildren: 0.08,
+    },
+  },
+};
+
+const cardVariants = {
+  hidden: { opacity: 0, y: 20 },
+  visible: { opacity: 1, y: 0, transition: { duration: 0.5, ease: 'easeOut' } },
+};
+
 export function ServicesSection({
   whatsappNumber = AK_WHATSAPP_NUMBER,
   services,
 }: ServicesSectionProps) {
   const displayServices = services && services.length > 0 ? services : DEFAULT_SERVICES;
-
-  const containerVariants = {
-    hidden: {},
-    visible: {
-      transition: {
-        staggerChildren: 0.08,
-      },
-    },
-  };
-
-  const cardVariants = {
-    hidden: { opacity: 0, y: 20 },
-    visible: { opacity: 1, y: 0, transition: { duration: 0.5, ease: 'easeOut' } },
-  };
 
   return (
     <section id="servicios" className="relative overflow-hidden bg-zinc-950 py-24 text-white border-y border-white/5">
@@ -215,12 +215,12 @@ export function ServicesSection({
                       </div>
 
                       {/* Emotion Badge */}
-                      {(service.badge || (service as any).badge) && (
+                      {service.badge && (
                         <div className={cn(
                           'absolute right-4 top-4 rounded-lg bg-gradient-to-r px-2.5 py-1 text-[9px] font-black uppercase tracking-widest text-white shadow-md',
                           accentGradient
                         )}>
-                          {service.badge || (service as any).badge}
+                          {service.badge}
                         </div>
                       )}
                     </div>
@@ -253,6 +253,7 @@ export function ServicesSection({
                       href={waHref}
                       target="_blank"
                       rel="noopener noreferrer"
+                      aria-label={`Consultar servicio de ${service.title} por WhatsApp`}
                       className={cn(
                         'flex w-full items-center justify-center gap-2 rounded-xl px-4 py-4',
                         'border border-white/10 bg-white/5 text-xs font-black uppercase tracking-widest text-white backdrop-blur-md',

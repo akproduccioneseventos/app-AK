@@ -41,19 +41,13 @@ export function HeroSection({
       : waHref;
   const reduceMotion = useReducedMotion();
 
-  const containerVariants = {
-    hidden: {},
-    visible: {
-      transition: {
-        staggerChildren: 0.08,
-      },
-    },
-  };
+  const containerVariants = reduceMotion
+    ? { hidden: { opacity: 1 }, visible: { opacity: 1 } }
+    : { hidden: {}, visible: { transition: { staggerChildren: 0.08 } } };
 
-  const itemVariants = {
-    hidden: { opacity: 0, y: 15 },
-    visible: { opacity: 1, y: 0, transition: { duration: 0.5, ease: 'easeOut' } },
-  };
+  const itemVariants = reduceMotion
+    ? { hidden: { opacity: 1 }, visible: { opacity: 1 } }
+    : { hidden: { opacity: 0, y: 15 }, visible: { opacity: 1, y: 0, transition: { duration: 0.5, ease: 'easeOut' } } };
 
   return (
     <section data-testid="hero-section" className="relative flex min-h-[90svh] items-center overflow-hidden bg-zinc-950">
@@ -105,6 +99,7 @@ export function HeroSection({
                 href={promoHref}
                 target={promoHref.startsWith('http') ? '_blank' : undefined}
                 rel={promoHref.startsWith('http') ? 'noopener noreferrer' : undefined}
+                aria-label={`Ver promo: ${promoActiva.titulo}`}
                 className="inline-flex items-center gap-2 rounded-xl border border-red-500/30 bg-red-950/30 px-4 py-2 text-xs font-black uppercase tracking-widest text-red-400 backdrop-blur-sm transition-all hover:bg-red-950/50"
               >
                 <Zap className="w-3.5 h-3.5 text-red-400 animate-pulse" />
@@ -165,7 +160,7 @@ export function HeroSection({
             >
               <Button
                 asChild
-                className="bg-red-700 hover:bg-red-800 text-white font-bold rounded-xl px-8 py-5 h-12 shadow-lg shadow-red-950/30 transition-all duration-300 hover:translate-y-[-1px] active:scale-95 min-w-[220px] justify-center"
+                className="bg-red-700 hover:bg-red-800 text-white font-bold rounded-xl px-8 py-5 shadow-lg shadow-red-950/30 transition-all duration-300 hover:translate-y-[-1px] active:scale-95 min-w-[220px] justify-center"
               >
                 <Link href={simulatorHref}>
                   {simulatorLabel}
@@ -177,7 +172,8 @@ export function HeroSection({
                 target="_blank"
                 rel="noopener noreferrer"
                 data-testid="hero-cta-button"
-                className="flex items-center gap-3 rounded-xl border border-white/15 bg-white/5 px-8 py-5 h-12 text-sm font-bold text-white hover:bg-white/10 transition-all duration-300 hover:translate-y-[-1px] active:scale-95 min-w-[220px] justify-center"
+                aria-label="Conversar con un asesor por WhatsApp"
+                className="flex items-center gap-3 rounded-xl border border-white/15 bg-white/5 px-8 py-5 text-sm font-bold text-white hover:bg-white/10 transition-all duration-300 hover:translate-y-[-1px] active:scale-95 min-w-[220px] justify-center"
               >
                 <MessageSquare className="w-5 h-5 shrink-0 text-emerald-400" />
                 {ctaLabel}
@@ -210,14 +206,14 @@ export function HeroSection({
 
                 <div className="space-y-4 border-t border-white/5 pt-4">
                   <div className="space-y-1.5">
-                    <label className="text-[9px] font-black uppercase tracking-wider text-zinc-400 block">Cantidad de invitados</label>
+                    <span className="text-[9px] font-black uppercase tracking-wider text-zinc-400 block">Cantidad de invitados</span>
                     <div className="w-full rounded-xl border border-white/5 bg-white/5 px-4 py-2.5 text-xs text-white/90 font-bold flex justify-between items-center">
                       <span>120 Invitados</span>
                       <span className="text-[10px] text-zinc-500">Ajustable</span>
                     </div>
                   </div>
                   <div className="space-y-1.5">
-                    <label className="text-[9px] font-black uppercase tracking-wider text-zinc-400 block">Estilo de Gastronomía</label>
+                    <span className="text-[9px] font-black uppercase tracking-wider text-zinc-400 block">Estilo de Gastronomía</span>
                     <div className="w-full rounded-xl border border-white/5 bg-white/5 px-4 py-2.5 text-xs text-white/90 font-bold flex justify-between items-center">
                       <span>Catering Integral Premium</span>
                       <span className="text-[10px] text-zinc-500">Cambiar</span>

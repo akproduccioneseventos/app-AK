@@ -122,6 +122,9 @@ export function WinSechWidgets({
           onMouseEnter={() => setIsPaused(true)}
           onMouseLeave={() => setIsPaused(false)}
           className="fixed bottom-5 left-4 right-4 z-[80] w-auto overflow-hidden rounded-3xl border border-white/10 bg-slate-950/85 p-5 text-white shadow-2xl backdrop-blur-xl sm:bottom-8 sm:left-auto sm:right-6 sm:w-[20rem] text-left"
+          role="complementary"
+          aria-live="polite"
+          aria-label="Oferta destacada"
         >
           {/* Subtle Accent Glow bar */}
           {!reduceMotion && (

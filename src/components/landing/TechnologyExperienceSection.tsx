@@ -37,6 +37,24 @@ const techFeatures = [
   },
 ];
 
+const containerVariants = {
+  hidden: {},
+  visible: {
+    transition: {
+      staggerChildren: 0.08,
+    },
+  },
+};
+
+const cardVariants = {
+  hidden: { opacity: 0, y: 15 },
+  visible: {
+    opacity: 1,
+    y: 0,
+    transition: { duration: 0.45, ease: 'easeOut' },
+  },
+};
+
 export default function TechnologyExperienceSection({
   whatsappNumber = AK_WHATSAPP_NUMBER,
 }: TechnologyExperienceSectionProps) {
@@ -44,24 +62,6 @@ export default function TechnologyExperienceSection({
   const waHref = `https://wa.me/${whatsappNumber}?text=${encodeURIComponent(
     '¡Hola! Me interesa saber más sobre la tecnología interactiva incluida en las fiestas.',
   )}`;
-
-  const containerVariants = {
-    hidden: {},
-    visible: {
-      transition: {
-        staggerChildren: 0.08,
-      },
-    },
-  };
-
-  const cardVariants = {
-    hidden: { opacity: 0, y: 15 },
-    visible: {
-      opacity: 1,
-      y: 0,
-      transition: { duration: 0.45, ease: 'easeOut' },
-    },
-  };
 
   return (
     <section
@@ -202,7 +202,7 @@ export default function TechnologyExperienceSection({
               transition={{ duration: 0.55, delay: 0.25 }}
               animate={reduceMotion ? undefined : { y: [0, -10, 0] }}
               style={{ originX: 0.5, originY: 0.5 }}
-              className="absolute right-4 bottom-0 w-[230px] h-[400px] rounded-[2.25rem] border border-white/20 bg-zinc-950 shadow-2xl backdrop-blur-xl overflow-hidden p-5 flex flex-col justify-between hidden sm:flex"
+              className="absolute right-4 bottom-0 w-[230px] h-[400px] rounded-[2.25rem] border border-white/20 bg-zinc-950 shadow-2xl backdrop-blur-xl overflow-hidden p-5 hidden sm:flex flex-col justify-between"
             >
               {/* Smartphone Notch */}
               <div className="absolute top-2.5 left-1/2 -translate-x-1/2 w-20 h-4 rounded-full bg-zinc-900 border border-white/5 z-30" />
