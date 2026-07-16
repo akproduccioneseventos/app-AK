@@ -3,9 +3,10 @@
 import { Suspense, useEffect, useState, useCallback, type FormEvent } from 'react';
 import { useParams } from 'next/navigation';
 import { Loader2, AlertTriangle, CheckCircle, Music, Utensils, Users, Download, MapPin, CalendarDays, Instagram, MessageCircle, ExternalLink } from 'lucide-react';
-import { getFiestaById } from '@/app/actions/fiesta/fiesta.actions';
+import { getPublicGuestEvent } from '@/app/actions/public-guest-portal';
 import { submitPublicRsvp } from '@/app/actions/fiesta/invitados.actions';
-import type { FiestaEnPlanificacion, DietaryRestriction, Invitado } from '@/types/fiesta';
+import type { DietaryRestriction, Invitado } from '@/types/fiesta';
+import type { PublicGuestEvent } from '@/lib/guest-portal-public-data';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
@@ -29,7 +30,7 @@ function RsvpFormContent() {
   const fiestaId = params.fiestaId as string;
   const { toast } = useToast();
 
-  const [fiesta, setFiesta] = useState<FiestaEnPlanificacion | null>(null);
+  const [fiesta, setFiesta] = useState<PublicGuestEvent | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -54,7 +55,7 @@ function RsvpFormContent() {
       return;
     }
     try {
-      const data = await getFiestaById(fiestaId);
+      const data = await getPublicGuestEvent(fiestaId);
       if (!data) throw new Error('Evento no encontrado.');
       setFiesta(data);
     } catch (e: any) {

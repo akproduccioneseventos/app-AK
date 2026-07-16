@@ -3,6 +3,8 @@
 import { randomUUID } from 'crypto';
 import type { FiestaEnPlanificacion, Invitado, RsvpStatus, CategoriaInvitado, DietaryRestriction } from '@/types/fiesta';
 import { getFiestaById, saveFiesta } from './fiesta.actions';
+import { writeData } from '@/lib/data-service';
+import { enforcePublicRateLimit } from '@/lib/commercial/public-rate-limit';
 
 // ─── Core helper ────────────────────────────────────────────────────────────
 
@@ -37,7 +39,8 @@ function normalizeGuestName(value: string): string {
 
 async function updateFiestaData(
   fiestaId: string,
-  updateFn: (data: FiestaEnPlanificacion) => FiestaEnPlanificacion
+  updateFn: (data: FiestaEnPlanificacion) => FiestaEnPlanificacion,
+  options: { publicRsvp?: boolean } = {},
 ): Promise<{ success: boolean; updatedFiesta?: FiestaEnPlanificacion; error?: string }> {
   const releaseLock = await acquireFiestaUpdateLock(fiestaId);
   try {
@@ -46,7 +49,16 @@ async function updateFiestaData(
       throw new Error(`Fiesta con ID ${fiestaId} no encontrada.`);
     }
     const updatedData = updateFn(currentData);
-    const result = await saveFiesta(updatedData);
+    const result: {
+      success: boolean;
+      fiesta?: FiestaEnPlanificacion;
+      error?: string;
+    } = options.publicRsvp
+      ? await writeData(`fiestas/${fiestaId}.json`, updatedData).then(() => ({
+          success: true,
+          fiesta: updatedData,
+        }))
+      : await saveFiesta(updatedData);
     if (!result.success || !result.fiesta) {
       throw new Error(result.error || 'No se pudo guardar la fiesta después de actualizar los invitados.');
     }
@@ -348,6 +360,30 @@ export async function submitPublicRsvp(
 ): Promise<{ success: boolean; invitado?: Invitado; error?: string }> {
   let savedInvitado: Invitado | undefined;
 
+  await enforcePublicRateLimit({
+    scope: 'public-event-rsvp',
+    identity: fiestaId,
+    limit: 12,
+    windowMs: 15 * 60 * 1000,
+  });
+
+  const nombre = submission.nombre.trim().slice(0, 120);
+  if (!nombre) return { success: false, error: 'El nombre es obligatorio.' };
+  const contacto = submission.contacto?.trim().slice(0, 80) || undefined;
+  const partySize = submission.partySize
+    ? Math.max(1, Math.min(20, Math.round(submission.partySize)))
+    : undefined;
+  const companionNames = submission.companionNames
+    ?.slice(0, 19)
+    .map((name) => name.trim().slice(0, 120))
+    .filter(Boolean);
+  const cancionesDJ = submission.cancionesDJ
+    .slice(0, 10)
+    .map((song) => song.trim().slice(0, 150))
+    .filter(Boolean);
+  const alergiasEspecificas = submission.alergiasEspecificas?.trim().slice(0, 500);
+  const mensaje = submission.mensaje?.trim().slice(0, 1000);
+
   // Normalise dietary restriction to valid type
   const dietary: DietaryRestriction = (['Ninguna', 'Celiaco', 'Vegetariano', 'Vegano', 'Sin Gluten', 'Sin Lactosa', 'Alergia Mariscos', 'Alergia Frutos Secos', 'Otro'] as DietaryRestriction[]).includes(submission.dietaryRestriction as DietaryRestriction)
     ? (submission.dietaryRestriction as DietaryRestriction)
@@ -358,7 +394,7 @@ export async function submitPublicRsvp(
   const result = await updateFiestaData(fiestaId, data => {
     const currentInvitados = data.invitados || [];
     const existingIndex = currentInvitados.findIndex(
-      inv => normalizeGuestName(inv.nombre) === normalizeGuestName(submission.nombre)
+      inv => normalizeGuestName(inv.nombre) === normalizeGuestName(nombre)
     );
 
     if (existingIndex > -1) {
@@ -367,13 +403,13 @@ export async function submitPublicRsvp(
         // Stamp a token if the existing invitado doesn't have one yet
         guestAccessToken: currentInvitados[existingIndex].guestAccessToken ?? randomUUID(),
         rsvp: rsvpStatus,
-        contacto: submission.contacto ?? currentInvitados[existingIndex].contacto,
-        partySize: submission.partySize ?? currentInvitados[existingIndex].partySize,
-        companionNames: submission.companionNames ?? currentInvitados[existingIndex].companionNames,
+        contacto: contacto ?? currentInvitados[existingIndex].contacto,
+        partySize: partySize ?? currentInvitados[existingIndex].partySize,
+        companionNames: companionNames ?? currentInvitados[existingIndex].companionNames,
         dietaryRestriction: dietary,
-        alergiasEspecificas: submission.alergiasEspecificas ?? currentInvitados[existingIndex].alergiasEspecificas,
-        cancionesDJ: submission.cancionesDJ.length > 0 ? submission.cancionesDJ : currentInvitados[existingIndex].cancionesDJ,
-        mensaje: submission.mensaje ?? currentInvitados[existingIndex].mensaje,
+        alergiasEspecificas: alergiasEspecificas ?? currentInvitados[existingIndex].alergiasEspecificas,
+        cancionesDJ: cancionesDJ.length > 0 ? cancionesDJ : currentInvitados[existingIndex].cancionesDJ,
+        mensaje: mensaje ?? currentInvitados[existingIndex].mensaje,
         requiereAccesibilidad: submission.requiereAccesibilidad ?? currentInvitados[existingIndex].requiereAccesibilidad,
         isCeliac: dietary === 'Celiaco',
       };
@@ -383,22 +419,22 @@ export async function submitPublicRsvp(
       savedInvitado = {
         id: `inv_rsvp_${Date.now()}_${Math.random().toString(36).substring(2, 7)}`,
         guestAccessToken: randomUUID(),
-        nombre: submission.nombre.trim(),
+        nombre,
         rsvp: rsvpStatus,
         categoria: 'Adulto',
-        contacto: submission.contacto,
-        partySize: submission.partySize,
-        companionNames: submission.companionNames,
+        contacto,
+        partySize,
+        companionNames,
         dietaryRestriction: dietary,
-        alergiasEspecificas: submission.alergiasEspecificas,
-        cancionesDJ: submission.cancionesDJ,
-        mensaje: submission.mensaje,
+        alergiasEspecificas,
+        cancionesDJ,
+        mensaje,
         requiereAccesibilidad: submission.requiereAccesibilidad,
         isCeliac: dietary === 'Celiaco',
       };
       return { ...data, invitados: [...currentInvitados, savedInvitado] };
     }
-  });
+  }, { publicRsvp: true });
 
   return { ...result, invitado: savedInvitado };
 }

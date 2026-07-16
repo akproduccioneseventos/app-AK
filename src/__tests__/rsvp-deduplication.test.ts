@@ -6,14 +6,20 @@ import {
   getFiestaById,
   saveFiesta,
 } from '@/app/actions/fiesta/fiesta.actions';
+import { writeData } from '@/lib/data-service';
 
 jest.mock('@/app/actions/fiesta/fiesta.actions', () => ({
   getFiestaById: jest.fn(),
   saveFiesta: jest.fn(),
 }));
+jest.mock('@/lib/data-service', () => ({ writeData: jest.fn() }));
+jest.mock('@/lib/commercial/public-rate-limit', () => ({
+  enforcePublicRateLimit: jest.fn().mockResolvedValue(undefined),
+}));
 
 const mockedGetFiestaById = getFiestaById as jest.MockedFunction<typeof getFiestaById>;
 const mockedSaveFiesta = saveFiesta as jest.MockedFunction<typeof saveFiesta>;
+const mockedWriteData = writeData as jest.MockedFunction<typeof writeData>;
 
 function buildFiesta(invitados: any[] = []) {
   return {
@@ -101,10 +107,7 @@ describe('RSVP deduplication', () => {
     }]);
 
     mockedGetFiestaById.mockResolvedValue(fiesta);
-    mockedSaveFiesta.mockImplementation(async (updated) => ({
-      success: true,
-      fiesta: updated,
-    }));
+    mockedWriteData.mockResolvedValue(undefined);
 
     const result = await submitPublicRsvp(fiesta.id, {
       nombre: ' lucia   fernandez ',
@@ -114,7 +117,7 @@ describe('RSVP deduplication', () => {
     });
 
     expect(result.success).toBe(true);
-    const saved = mockedSaveFiesta.mock.calls[0][0];
+    const saved = mockedWriteData.mock.calls[0][1] as any;
     expect(saved.invitados).toHaveLength(1);
     expect(saved.invitados?.[0].guestAccessToken).toBe('token-original');
     expect(saved.invitados?.[0].rsvp).toBe('Confirmado');
