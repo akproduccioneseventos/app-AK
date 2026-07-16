@@ -123,11 +123,7 @@ export default function TechnologyExperienceSection({
                   asChild
                   size="lg"
                   className="h-12 w-full rounded-md bg-red-700 px-6 text-xs font-bold text-white shadow-sm transition-transform duration-200 hover:scale-[1.02] hover:bg-red-800"
-                >
-                  <Link href="/simulador-de-presupuesto" className="w-full sm:w-auto">
-                    Probar simulador
-                  </Link>
-                </Button>
+                ><Link href="/simulador-de-presupuesto" className="w-full sm:w-auto">Probar simulador</Link></Button>
                 <a href={waHref} target="_blank" rel="noopener noreferrer" className="w-full sm:w-auto">
                   <Button
                     size="lg"
