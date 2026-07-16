@@ -140,8 +140,7 @@ export async function writeData<T>(
   const isLocalOnly = shouldUseLocalJsonOnly();
 
   if (isLocalOnly) {
-    await writeLocalJsonFallback(normalizedFilePath, dataToWrite);
-    return;
+    throw new Error('La escritura esta deshabilitada en el modo local de pruebas.');
   }
 
   try {
@@ -214,10 +213,7 @@ export async function updateDataPartial<T extends Record<string, any>>(
 
   const isLocalOnly = shouldUseLocalJsonOnly();
   if (isLocalOnly) {
-    const existing = await readLocalJsonFallback<T>(normalizedFilePath) || {} as T;
-    const merged = deepMerge(existing, partialData);
-    await writeLocalJsonFallback(normalizedFilePath, merged);
-    return;
+    throw new Error('La escritura esta deshabilitada en el modo local de pruebas.');
   }
 
   try {
