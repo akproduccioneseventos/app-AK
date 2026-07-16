@@ -127,6 +127,18 @@ const formatCategoriaText = (cat?: string): string => {
     return cat === 'Servicio de catering' ? 'Servicio de comida' : cat;
 };
 
+const CATEGORY_STYLES: Record<string, { icon: React.ComponentType<any>; color: string; border: string; bg: string; text: string }> = {
+  'Servicio de catering': { icon: Utensils, color: 'from-amber-500 to-orange-600', border: 'border-orange-100', bg: 'bg-orange-50/50', text: 'text-orange-900' },
+  'Servicios adicionales': { icon: Plus, color: 'from-blue-500 to-indigo-600', border: 'border-blue-100', bg: 'bg-blue-50/50', text: 'text-blue-900' },
+  'Otros servicios': { icon: Settings2, color: 'from-emerald-500 to-teal-600', border: 'border-emerald-100', bg: 'bg-emerald-50/50', text: 'text-emerald-900' },
+  'Ambientación': { icon: Star, color: 'from-purple-500 to-fuchsia-600', border: 'border-fuchsia-100', bg: 'bg-fuchsia-50/50', text: 'text-fuchsia-900' },
+  'Regalos Incluidos': { icon: Gift, color: 'from-pink-500 to-rose-600', border: 'border-rose-100', bg: 'bg-rose-50/50', text: 'text-rose-900' },
+};
+
+const getCategoryStyle = (category: string) => {
+  return CATEGORY_STYLES[category] || { icon: CheckCircle2, color: 'from-slate-500 to-slate-700', border: 'border-slate-100', bg: 'bg-slate-50/50', text: 'text-slate-900' };
+};
+
 const menuItemToServicioEmpresa = (item: MenuItem & { precioVenta: number; imageUrl?: string }): ServicioEmpresa => {
     return {
         id: item.id,
@@ -264,6 +276,8 @@ function SimuladorContent() {
             ? crypto.randomUUID()
             : `visual_${Date.now()}_${Math.random().toString(36).slice(2, 10)}`
     );
+
+    const [expandedPackages, setExpandedPackages] = useState<Record<string, boolean>>({});
 
     const maxEntradas = useMemo(() => (duracionHoras > 4 ? 2 : 1), [duracionHoras]);
 
@@ -544,10 +558,12 @@ function SimuladorContent() {
 
         const suggested = serviciosCatalogo.filter(s => otherServicesIds.has(s.id));
 
+        const packageServiceIds = new Set(currentPackage?.serviciosIncluidos?.map(s => s.id) || []);
+
         if (suggested.length < 3) {
             const popularIds = ['serv_barra_tragos', 'serv_pista_led', 'serv_plataforma_360', 'serv_cabina_fotos'];
             popularIds.forEach(id => {
-                if (!currentSelectedIds.has(id) && !suggested.some(s => s.id === id)) {
+                if (!currentSelectedIds.has(id) && !packageServiceIds.has(id) && !suggested.some(s => s.id === id)) {
                     const serv = serviciosCatalogo.find(s => s.id === id);
                     if (serv) suggested.push(serv);
                 }
@@ -1988,6 +2004,14 @@ function SimuladorContent() {
                                 onValueChange={value => {
                                     setSelectedPaqueteId(value);
                                     setExcludedPackageServiceIds([]);
+                                    const pkg = config?.paquetes.find(item => item.id === value);
+                                    if (pkg) {
+                                        setFormData(prev => {
+                                            const newSelected = new Map(prev.serviciosSeleccionados);
+                                            pkg.serviciosIncluidos?.forEach((item: any) => newSelected.delete(item.id));
+                                            return { ...prev, serviciosSeleccionados: newSelected };
+                                        });
+                                    }
                                 }}
                                 className="grid grid-cols-1 md:grid-cols-2 gap-6"
                             >
@@ -2001,10 +2025,11 @@ function SimuladorContent() {
                                     });
 
                                     const estimatedTotal = calculatePackageEstimatedPrice(p);
+                                    const isExpanded = !!expandedPackages[p.id];
 
                                     return (
                                         <label key={p.id} className={cn(
-                                            "p-6 sm:p-8 border-2 rounded-[2.5rem] cursor-pointer transition-all flex flex-col gap-6 relative overflow-hidden",
+                                            "p-6 sm:p-8 border-2 rounded-[2.5rem] cursor-pointer transition-all flex flex-col gap-4 relative overflow-hidden",
                                             selectedPaqueteId === p.id ? "border-primary bg-primary/5 shadow-2xl scale-[1.02]" : "border-slate-100 hover:border-primary/20 bg-white",
                                             p.recommended && selectedPaqueteId !== p.id && "border-amber-200 ring-4 ring-amber-50 shadow-xl"
                                         )}>
@@ -2021,29 +2046,54 @@ function SimuladorContent() {
                                                 <RadioGroupItem value={p.id} className="h-6 w-6"/>
                                             </div>
 
-                                            <div className="space-y-3">
-                                                <Label className="text-[9px] font-black uppercase tracking-widest text-slate-400 flex items-center gap-2">
-                                                    <ListPlus className="w-3 h-3"/> Servicios Incluidos:
-                                                </Label>
-                                                <ScrollArea className="h-48 pr-3 border rounded-2xl bg-white shadow-inner p-2">
-                                                    <ul className="text-[10px] space-y-2 text-slate-500 font-bold uppercase tracking-tight animate-in fade-in">
-                                                        {sortedIncluded.map(s => {
-                                                            const serv = allSimuladorServices.find(os => os.id === s.id);
-                                                            return serv && (
-                                                                <li key={s.id} className={cn(
-                                                                    "flex items-center justify-between gap-3 p-2 rounded-xl border",
-                                                                    s.esRegalo ? "bg-emerald-50 border-emerald-100 text-emerald-700" : "bg-slate-50 border-slate-100 text-slate-600"
-                                                                )}>
-                                                                    <div className="flex items-center gap-2 min-w-0">
-                                                                        {s.esRegalo ? <Gift className="w-3.5 h-3.5 shrink-0"/> : <Check className="w-3.5 h-3.5 opacity-40 shrink-0"/>}
-                                                                        <span className="truncate">{serv.nombre}</span>
-                                                                    </div>
-                                                                    {s.esRegalo && <Badge className="bg-emerald-600 text-white border-none font-black text-[8px] px-1.5 h-4">REGALO</Badge>}
-                                                                </li>
-                                                            );
-                                                        })}
-                                                    </ul>
-                                                </ScrollArea>
+                                            <div className="space-y-2">
+                                                <button
+                                                    type="button"
+                                                    onClick={(e) => {
+                                                        e.preventDefault();
+                                                        e.stopPropagation();
+                                                        setExpandedPackages(prev => ({ ...prev, [p.id]: !prev[p.id] }));
+                                                    }}
+                                                    className="flex items-center gap-1.5 text-xs font-black text-primary hover:text-red-700 transition"
+                                                >
+                                                    <ChevronDown className={cn("w-4 h-4 transition-transform duration-200", isExpanded && "rotate-180")} />
+                                                    {isExpanded ? "Ocultar servicios incluidos" : "Ver servicios incluidos"}
+                                                </button>
+
+                                                <AnimatePresence initial={false}>
+                                                    {isExpanded && (
+                                                        <motion.div
+                                                            initial={{ height: 0, opacity: 0 }}
+                                                            animate={{ height: "auto", opacity: 1 }}
+                                                            exit={{ height: 0, opacity: 0 }}
+                                                            transition={{ duration: 0.3 }}
+                                                            className="overflow-hidden space-y-3 pt-2"
+                                                        >
+                                                            <Label className="text-[9px] font-black uppercase tracking-widest text-slate-400 flex items-center gap-2">
+                                                                <ListPlus className="w-3 h-3"/> Servicios Incluidos:
+                                                            </Label>
+                                                            <ScrollArea className="h-48 pr-3 border rounded-2xl bg-white shadow-inner p-2">
+                                                                <ul className="text-[10px] space-y-2 text-slate-500 font-bold uppercase tracking-tight">
+                                                                    {sortedIncluded.map(s => {
+                                                                        const serv = allSimuladorServices.find(os => os.id === s.id);
+                                                                        return serv && (
+                                                                            <li key={s.id} className={cn(
+                                                                                "flex items-center justify-between gap-3 p-2 rounded-xl border",
+                                                                                s.esRegalo ? "bg-emerald-50 border-emerald-100 text-emerald-700" : "bg-slate-50 border-slate-100 text-slate-600"
+                                                                            )}>
+                                                                                <div className="flex items-center gap-2 min-w-0">
+                                                                                    {s.esRegalo ? <Gift className="w-3.5 h-3.5 shrink-0"/> : <Check className="w-3.5 h-3.5 opacity-40 shrink-0"/>}
+                                                                                    <span className="truncate">{serv.nombre}</span>
+                                                                                </div>
+                                                                                {s.esRegalo && <Badge className="bg-emerald-600 text-white border-none font-black text-[8px] px-1.5 h-4">REGALO</Badge>}
+                                                                            </li>
+                                                                        );
+                                                                    })}
+                                                                </ul>
+                                                            </ScrollArea>
+                                                        </motion.div>
+                                                    )}
+                                                </AnimatePresence>
                                             </div>
                                             {selectedPaqueteId === p.id && <div className="absolute -bottom-2 -right-2 p-4 opacity-10 rotate-12"><PartyPopper className="w-20 h-20 text-primary"/></div>}
                                         </label>
@@ -2058,45 +2108,46 @@ function SimuladorContent() {
                               <strong>Precios {currentYear}</strong>
                               {stats.annualProjection.applies
                                 ? <> — Ajuste anual proyectado del <strong>{stats.annualProjection.adjustmentPct}%</strong> para eventos en {stats.annualProjection.eventYear}.</>
-                                : <> — El total mostrado corresponde al precio vigente.</>}
+                                : <> — El total corresponde al precio vigente.</>}
                             </div>
                         </div>
                     )}
                     {step === 5 && (
-                        <div className="space-y-8 animate-in fade-in slide-in-from-right-4 duration-700 text-left">
-                            <div>
-                                <h2 className="text-xl font-black text-slate-900">Personalización del paquete</h2>
-                                <p className="mt-1 text-sm text-slate-500">Podés cambiar la fecha e invitados, y quitar servicios opcionales de tu paquete contratado para adaptar el presupuesto a tu gusto. El total se actualizará automáticamente:</p>
+                        <div className="space-y-10 animate-in fade-in slide-in-from-right-4 duration-700 text-left">
+                            <div className="border-b border-slate-100 pb-5">
+                                <h2 className="text-3xl font-black tracking-tight bg-gradient-to-r from-red-650 to-indigo-650 bg-clip-text text-transparent">Personalización de tu Presupuesto</h2>
+                                <p className="mt-2 text-sm text-slate-500 font-semibold leading-relaxed">
+                                    ¡Llegamos a la etapa final! Ajustá la fecha y los invitados, quitá opcionales de tu paquete o agregá extras a tu gusto. El total se recalcula al instante.
+                                </p>
                             </div>
 
-                            {/* EDITOR RÁPIDO DE FECHA E INVITADOS */}
-                            <div className="p-5 bg-slate-50 border border-slate-100 rounded-3xl space-y-4">
+                            <div className="p-6 bg-gradient-to-br from-slate-50/70 to-white border border-slate-200/60 rounded-[2rem] shadow-sm space-y-4">
                                 <h3 className="text-xs font-black uppercase tracking-wider text-slate-400 flex items-center gap-2">
-                                    <CalendarDays className="w-4 h-4 text-slate-500"/> Información General del Evento
+                                    <CalendarDays className="w-4.5 h-4.5 text-slate-500"/> Información General del Evento
                                 </h3>
                                 <div className="grid gap-4 sm:grid-cols-3 items-end">
                                     <div className="space-y-2">
-                                        <Label className="text-xs font-bold text-slate-600">Fecha del evento</Label>
+                                        <Label className="text-xs font-bold text-slate-650">Fecha del evento</Label>
                                         <DatePickerDemo selectedDate={eventoFecha} onDateChange={handleEventoFechaChange} className="h-12 rounded-xl bg-white text-slate-900 border-slate-200 w-full" />
                                     </div>
                                     <div className="space-y-2">
-                                        <Label className="text-xs font-bold text-slate-600">Invitados Adultos</Label>
+                                        <Label className="text-xs font-bold text-slate-650">Invitados Adultos</Label>
                                         <Input
                                             type="number"
                                             min={1}
                                             value={adultos || ''}
                                             onChange={e => setAdultos(Math.max(1, Number(e.target.value) || 0))}
-                                            className="h-12 rounded-xl bg-white text-slate-900 border-slate-200"
+                                            className="h-12 rounded-xl bg-white text-slate-900 border-slate-200 focus-visible:ring-primary font-bold"
                                         />
                                     </div>
                                     <div className="space-y-2">
-                                        <Label className="text-xs font-bold text-slate-600">Niños y Adolescentes</Label>
+                                        <Label className="text-xs font-bold text-slate-650">Niños y Adolescentes</Label>
                                         <Input
                                             type="number"
                                             min={0}
                                             value={ninosYAdolescentes || ''}
                                             onChange={e => setNinosYAdolescentes(Math.max(0, Number(e.target.value) || 0))}
-                                            className="h-12 rounded-xl bg-white text-slate-900 border-slate-200"
+                                            className="h-12 rounded-xl bg-white text-slate-900 border-slate-200 focus-visible:ring-primary font-bold"
                                         />
                                     </div>
                                 </div>
@@ -2105,7 +2156,7 @@ function SimuladorContent() {
                                         <p className="text-sm font-bold text-amber-900">{dateWarning}</p>
                                         <div className="mt-3 flex flex-wrap gap-2">
                                             {dateSuggestions.map(date => (
-                                                <button key={date} type="button" className="rounded-md bg-white px-3 py-2 text-xs font-bold text-amber-900 shadow-sm border" onClick={() => handleEventoFechaChange(new Date(`${date}T12:00:00`))}>
+                                                <button key={date} type="button" className="rounded-md bg-white px-3 py-2 text-xs font-bold text-amber-900 shadow-sm border hover:bg-amber-100 transition" onClick={() => handleEventoFechaChange(new Date(`${date}T12:00:00`))}>
                                                     {new Intl.DateTimeFormat('es-UY').format(new Date(`${date}T12:00:00`))}
                                                 </button>
                                             ))}
@@ -2114,30 +2165,43 @@ function SimuladorContent() {
                                 )}
                             </div>
 
-                            {/* SERVICIOS DETALLADOS AGRUPADOS POR CATEGORÍA */}
                             <div className="space-y-6">
+                                <h3 className="text-sm font-black uppercase tracking-wider text-slate-800 flex items-center gap-2 pl-2">
+                                    <ListPlus className="w-4.5 h-4.5 text-slate-500" /> Servicios contratados en tu propuesta
+                                </h3>
+
                                 {Object.entries(groupedDetallados).map(([category, items]) => {
                                     const activeItems = items.filter(item => !excludedPackageServiceIds.includes(item.id));
                                     if (activeItems.length === 0) return null;
+
+                                    const style = getCategoryStyle(category);
+                                    const CatIcon = style.icon;
+
                                     return (
-                                        <div key={category} className="p-6 bg-white border border-slate-200 rounded-[2rem] shadow-sm space-y-4">
-                                            <h3 className="text-xs font-black uppercase tracking-wider text-slate-400 border-b pb-2 flex items-center justify-between">
-                                                <span>{formatCategoriaText(category)}</span>
-                                                <Badge variant="secondary" className="font-bold text-[9px]">{activeItems.length}</Badge>
-                                            </h3>
+                                        <div key={category} className="p-6 bg-white border border-slate-200/80 rounded-[2rem] shadow-sm space-y-4 relative overflow-hidden transition-all hover:shadow-md">
+                                            <div className={cn("absolute top-0 left-0 w-2 h-full bg-gradient-to-b", style.color)} />
+                                            <div className="flex items-center justify-between border-b pb-3 pl-2">
+                                                <div className="flex items-center gap-2">
+                                                    <span className={cn("flex h-7 w-7 items-center justify-center rounded-lg text-white bg-gradient-to-r", style.color)}>
+                                                        <CatIcon className="w-4 h-4" />
+                                                    </span>
+                                                    <span className="font-black text-slate-800 text-xs uppercase tracking-wider">{formatCategoriaText(category)}</span>
+                                                </div>
+                                                <Badge className="font-black text-[9px] bg-slate-100 text-slate-650 hover:bg-slate-100">{activeItems.length} activos</Badge>
+                                            </div>
                                             <div className="grid gap-3 sm:grid-cols-2">
                                                 {activeItems.map(item => {
                                                     return (
                                                         <div
                                                             key={item.id}
-                                                            className="flex items-center justify-between gap-3 rounded-2xl border border-slate-200 p-3.5 transition-all duration-300 bg-white hover:border-slate-300 shadow-sm"
+                                                            className="flex items-center justify-between gap-3 rounded-2xl border border-slate-150 p-4 transition-all duration-200 bg-slate-50/40 hover:bg-slate-50 hover:border-slate-200 shadow-sm"
                                                         >
                                                             <div className="min-w-0 flex-1 text-left">
-                                                                <span className="block font-bold text-slate-800 text-xs truncate">
+                                                                <span className="block font-black text-slate-800 text-xs truncate">
                                                                     {item.nombre}
                                                                 </span>
-                                                                <div className="flex items-center gap-2 mt-0.5 text-[9px] font-semibold text-slate-400 uppercase tracking-tight">
-                                                                    <span>{item.esRegalo ? "Regalo incluido" : (item.subcategoria || formatCategoriaText(item.categoria) || 'Servicio activo')}</span>
+                                                                <div className="flex items-center gap-2 mt-1 text-[9px] font-bold text-slate-400 uppercase tracking-wider">
+                                                                    <span className={item.esRegalo ? "text-emerald-600 font-black" : ""}>{item.esRegalo ? "Regalo incluido" : (item.subcategoria || formatCategoriaText(item.categoria) || 'Servicio activo')}</span>
                                                                     {!item.esRegalo && (
                                                                         <>
                                                                             <span>•</span>
@@ -2147,7 +2211,7 @@ function SimuladorContent() {
                                                                                     <span className="text-amber-600 font-black">{formatCurrency(item.costoTotal)} (50% OFF)</span>
                                                                                 </span>
                                                                             ) : (
-                                                                                <span className="text-slate-500 font-bold">{formatCurrency(item.costoTotal)}</span>
+                                                                                <span className="text-slate-650 font-black">{formatCurrency(item.costoTotal)}</span>
                                                                             )}
                                                                         </>
                                                                     )}
@@ -2160,7 +2224,7 @@ function SimuladorContent() {
                                                                     size="icon"
                                                                     variant="ghost"
                                                                     onClick={() => setServiceToDelete(item)}
-                                                                    className="h-8 w-8 rounded-lg text-slate-450 hover:text-red-650 hover:bg-red-50 shrink-0"
+                                                                    className="h-8 w-8 rounded-xl text-slate-400 hover:text-red-650 hover:bg-red-50 transition shrink-0"
                                                                     title="Retirar servicio"
                                                                 >
                                                                     <Trash2 className="w-4 h-4"/>
@@ -2175,12 +2239,12 @@ function SimuladorContent() {
                                 })}
                             </div>
 
-                            {/* SERVICIOS RETIRADOS / OPCIONALES DISPONIBLES */}
                             {excludedPackageServiceIds.length > 0 && (
-                                <div className="p-6 bg-slate-50/50 border border-dashed border-slate-200 rounded-[2rem] space-y-4">
+                                <div className="p-6 bg-slate-50/50 border border-dashed border-slate-300 rounded-[2rem] space-y-4">
                                     <h3 className="text-xs font-black uppercase tracking-wider text-slate-400 flex items-center gap-2 text-left">
+                                        <Info className="w-4.5 h-4.5 text-slate-455" />
                                         <span>Servicios retirados del paquete (Opcionales)</span>
-                                        <Badge className="bg-slate-200 text-slate-700 hover:bg-slate-200 font-bold text-[9px]">{excludedPackageServiceIds.length}</Badge>
+                                        <Badge className="bg-slate-200 text-slate-700 hover:bg-slate-200 font-black text-[9px]">{excludedPackageServiceIds.length}</Badge>
                                     </h3>
                                     <div className="grid gap-3 sm:grid-cols-2">
                                         {excludedPackageServiceIds.map(excludedId => {
@@ -2190,13 +2254,13 @@ function SimuladorContent() {
                                             return (
                                                 <div
                                                     key={excludedId}
-                                                    className="flex items-center justify-between gap-3 rounded-2xl border border-dashed border-slate-200 bg-white p-3.5 opacity-70 hover:opacity-100 transition-all duration-300"
+                                                    className="flex items-center justify-between gap-3 rounded-2xl border border-dashed border-slate-200 bg-white p-3.5 opacity-70 hover:opacity-100 transition-all duration-200"
                                                 >
                                                     <div className="min-w-0 flex-1 text-left">
-                                                        <span className="block font-bold text-slate-400 line-through text-xs truncate">
+                                                        <span className="block font-black text-slate-400 line-through text-xs truncate">
                                                             {service.nombre}
                                                         </span>
-                                                        <div className="flex items-center gap-2 mt-0.5 text-[9px] font-semibold text-slate-400 uppercase tracking-tight">
+                                                        <div className="flex items-center gap-2 mt-0.5 text-[9px] font-bold text-slate-400 uppercase tracking-wider">
                                                             <span>{service.subcategoria || formatCategoriaText(service.categoria)}</span>
                                                             <span>•</span>
                                                             <span className="text-slate-550 font-bold">-{formatCurrency(calculated.total)}</span>
@@ -2207,7 +2271,7 @@ function SimuladorContent() {
                                                         size="icon"
                                                         variant="ghost"
                                                         onClick={() => handleToggleServiceInBudget(excludedId, 'include')}
-                                                        className="h-8 w-8 rounded-lg text-emerald-600 hover:text-emerald-700 hover:bg-emerald-50 shrink-0"
+                                                        className="h-8 w-8 rounded-xl text-emerald-600 hover:text-emerald-700 hover:bg-emerald-50 shrink-0"
                                                         title="Volver a agregar"
                                                     >
                                                         <Plus className="w-4 h-4"/>
@@ -2219,25 +2283,24 @@ function SimuladorContent() {
                                 </div>
                             )}
 
-                            {/* 2. SERVICIOS SUGERIDOS Y EL BUSCADOR */}
-                            <div className="space-y-6 pt-6 border-t border-slate-200">
+                            <div className="p-6 bg-gradient-to-br from-white to-slate-50/50 border border-slate-200 rounded-[2rem] shadow-sm space-y-6">
                                 <div className="space-y-4">
                                     <h4 className="font-black text-slate-800 uppercase text-xs tracking-wider flex items-center gap-2">
-                                        <Search className="w-4.5 h-4.5 text-slate-500"/> ¿Querés agregar otro servicio?
+                                        <Search className="w-4.5 h-4.5 text-slate-500"/> ¿Querés agregar algún servicio extra?
                                     </h4>
                                     <div className="relative">
                                         <div className="relative flex-1">
                                             <Search className="absolute left-4 top-3.5 h-5 w-5 text-slate-400" />
                                             <Input
                                                 type="text"
-                                                placeholder="Buscá por nombre de servicio (ej: cabina, plataforma, buffet, barra)..."
+                                                placeholder="Buscá servicios adicionales por nombre (ej: cabina, plataforma, barra, cascada)..."
                                                 value={serviceSearchTerm}
                                                 onChange={e => setServiceSearchTerm(e.target.value)}
                                                 onFocus={() => setIsSearchFocused(true)}
                                                 onBlur={() => {
                                                     setTimeout(() => setIsSearchFocused(false), 200);
                                                 }}
-                                                className="h-12 pl-12 rounded-xl border-slate-200 bg-white text-slate-900"
+                                                className="h-12 pl-12 rounded-xl border-slate-200 bg-white text-slate-900 focus-visible:ring-primary"
                                             />
                                             {serviceSearchTerm && (
                                                 <button
@@ -2250,7 +2313,6 @@ function SimuladorContent() {
                                             )}
                                         </div>
 
-                                        {/* Dropdown de resultados de búsqueda */}
                                         {isSearchFocused && filteredSearchServices.length > 0 && (
                                             <div className="absolute left-0 right-0 z-50 mt-2 bg-white border border-slate-200 rounded-2xl shadow-2xl overflow-hidden animate-in fade-in slide-in-from-top-2 duration-200">
                                                 <div className="p-3 bg-slate-50 border-b text-[10px] font-black text-slate-400 uppercase tracking-widest">
@@ -2278,7 +2340,7 @@ function SimuladorContent() {
                                                                 className="w-full p-4 text-left hover:bg-slate-50 flex items-center justify-between gap-4 transition"
                                                             >
                                                                 <div>
-                                                                    <span className="block font-black text-sm text-slate-800">{service.nombre}</span>
+                                                                    <span className="block font-black text-sm text-slate-805">{service.nombre}</span>
                                                                     <span className="block text-[10px] text-slate-400 font-semibold uppercase mt-0.5">
                                                                         {formatCategoriaText(service.categoria)} {service.subcategoria ? `· ${service.subcategoria}` : ''}
                                                                     </span>
@@ -2296,32 +2358,23 @@ function SimuladorContent() {
                                     </div>
                                 </div>
 
-                                {/* SERVICIOS SUGERIDOS */}
                                 {suggestedServices.length > 0 && (
-                                    <div className="space-y-4">
-                                        <h4 className="font-black text-slate-800 uppercase text-[10px] tracking-widest flex items-center gap-2">
-                                            <Sparkles className="w-4 h-4 text-amber-500 animate-pulse"/> Adicionales sugeridos para vos
-                                        </h4>
-                                        <div className="grid gap-4 md:grid-cols-2">
+                                    <div className="space-y-3 pt-2">
+                                        <h5 className="text-[10px] font-black uppercase tracking-widest text-slate-400 flex items-center gap-1.5 text-left">
+                                            <Sparkles className="w-3.5 h-3.5 text-primary animate-pulse" /> Recomendados para tu evento:
+                                        </h5>
+                                        <div className="grid gap-3 sm:grid-cols-2">
                                             {suggestedServices.map(service => {
                                                 const calculated = getSimulatorServiceCalculatedData(service, adultos, ninosYAdolescentes);
                                                 return (
-                                                    <div
-                                                        key={service.id}
-                                                        className="flex items-start justify-between gap-4 rounded-2xl border border-slate-200 bg-amber-50/10 hover:bg-amber-50/20 p-5 shadow-sm transition-all"
-                                                    >
-                                                        <div className="min-w-0 flex-1">
-                                                            <span className="block font-black text-slate-900 text-sm">{service.nombre}</span>
-                                                            <span className="block text-[10px] text-slate-400 font-semibold uppercase mt-0.5">
-                                                                {formatCategoriaText(service.categoria)}
-                                                            </span>
-                                                            <span className="mt-2 block text-sm font-black text-primary">
-                                                                {formatCurrency(calculated.total)}
-                                                            </span>
+                                                    <div key={service.id} className="p-4 bg-white border border-slate-200/80 rounded-2xl flex items-center justify-between gap-3 shadow-sm hover:border-slate-350 hover:shadow-md transition duration-200">
+                                                        <div className="min-w-0 flex-1 text-left">
+                                                            <span className="block font-black text-xs text-slate-800 truncate">{service.nombre}</span>
+                                                            <span className="block text-[9px] text-slate-400 font-bold uppercase tracking-wider mt-0.5">{formatCategoriaText(service.categoria)}</span>
+                                                            <span className="block text-xs font-black text-primary mt-1">{formatCurrency(calculated.total)}</span>
                                                         </div>
                                                         <Button
                                                             type="button"
-                                                            size="sm"
                                                             onClick={() => {
                                                                 handleToggleServiceInBudget(service.id, 'include');
                                                                 toast({
@@ -2329,9 +2382,9 @@ function SimuladorContent() {
                                                                     description: `${service.nombre} se agregó al presupuesto.`,
                                                                 });
                                                             }}
-                                                            className="rounded-xl bg-primary text-white text-[10px] font-black uppercase tracking-widest shrink-0 px-4"
+                                                            className="rounded-xl bg-slate-950 hover:bg-red-700 text-white text-[9px] font-black uppercase tracking-widest px-4 py-2 h-9 transition shrink-0"
                                                         >
-                                                            Agregar
+                                                            Agregar +
                                                         </Button>
                                                     </div>
                                                 );
@@ -2341,50 +2394,49 @@ function SimuladorContent() {
                                 )}
                             </div>
 
-                            {/* 3. COMPARADOR DE PAQUETES */}
-                            <div className="space-y-4 pt-6 border-t border-slate-200">
-                                <h4 className="font-black text-slate-800 uppercase text-xs tracking-wider">
-                                    ¿Querés comparar con otros paquetes para esta misma configuración?
-                                </h4>
+                            <div className="p-6 bg-white border border-slate-200 rounded-[2rem] shadow-sm space-y-4">
+                                <h4 className="font-black text-slate-800 uppercase text-xs tracking-wider text-left">¿Querés comparar con otros paquetes?</h4>
                                 <div className="grid gap-4 sm:grid-cols-2">
-                                    {config?.paquetes
-                                        ?.filter(p => p.id !== selectedPaqueteId)
-                                        .map(p => {
-                                            const totalInvitados = adultos + ninosYAdolescentes;
-                                            const precioActual = stats.totalFinal;
-                                            const precioAlternativo = packageSummaries.get(p.id)?.total || 0;
-                                            const diffTotal = precioAlternativo - precioActual;
-                                            const diffPorPersona = Math.round(Math.abs(diffTotal) / (totalInvitados || 1));
-                                            const esMejora = diffTotal > 0;
-
-                                            return (
-                                                <div key={p.id} className="p-6 bg-slate-50 border border-slate-100 rounded-3xl flex flex-col justify-between gap-4">
-                                                    <div>
-                                                        <span className="text-[10px] font-black text-slate-400 uppercase tracking-widest">Paquete disponible</span>
-                                                        <h5 className="text-lg font-black text-slate-800 uppercase tracking-tight">{p.nombre}</h5>
-                                                        <p className="mt-2 text-xl font-black text-primary">{formatCurrency(precioAlternativo)}</p>
-                                                        <p className="mt-1 text-xs text-slate-500 font-bold">
-                                                            {esMejora
-                                                                ? `Mejorá por ${formatCurrency(diffPorPersona)} más por persona`
-                                                                : `Ahorrás ${formatCurrency(diffPorPersona)} por persona`}
-                                                        </p>
-                                                    </div>
-                                                    <Button
-                                                        onClick={() => {
-                                                            setSelectedPaqueteId(p.id);
-                                                            setExcludedPackageServiceIds([]);
-                                                            toast({
-                                                                title: "Paquete cambiado",
-                                                                description: `Cambiado a ${p.nombre} con éxito.`
-                                                            });
-                                                        }}
-                                                        className="rounded-xl font-bold uppercase tracking-wider text-[10px] h-10 w-full"
-                                                    >
-                                                        Cambiar a Paquete {p.nombre}
-                                                    </Button>
+                                    {config?.paquetes?.filter(p => p.id !== selectedPaqueteId).map(p => {
+                                        const totalInvitados = adultos + ninosYAdolescentes;
+                                        const precioActual = stats.totalFinal;
+                                        const precioAlternativo = packageSummaries.get(p.id)?.total || 0;
+                                        const diffTotal = precioAlternativo - precioActual;
+                                        const diffPorPersona = Math.round(Math.abs(diffTotal) / (totalInvitados || 1));
+                                        const esMejora = diffTotal > 0;
+                                        return (
+                                            <div key={p.id} className="p-6 bg-slate-50/50 border border-slate-100 rounded-3xl flex flex-col justify-between gap-4 hover:bg-slate-50 transition duration-200 text-left">
+                                                <div>
+                                                    <span className="text-[9px] font-black text-slate-450 uppercase tracking-widest">Alternativa</span>
+                                                    <h5 className="text-base font-black text-slate-805 uppercase tracking-tight">{p.nombre}</h5>
+                                                    <p className="mt-2 text-xl font-black text-primary">{formatCurrency(precioAlternativo)}</p>
+                                                    <p className="mt-0.5 text-[9px] text-slate-550 font-bold uppercase tracking-wider">
+                                                        {esMejora
+                                                            ? `+ ${formatCurrency(diffPorPersona)} por persona`
+                                                            : `- ${formatCurrency(diffPorPersona)} por persona`}
+                                                    </p>
                                                 </div>
-                                            );
-                                        })}
+                                                <Button
+                                                    onClick={() => {
+                                                        setSelectedPaqueteId(p.id);
+                                                        setExcludedPackageServiceIds([]);
+                                                        setFormData(prev => {
+                                                            const newSelected = new Map(prev.serviciosSeleccionados);
+                                                            p.serviciosIncluidos?.forEach((item: any) => newSelected.delete(item.id));
+                                                            return { ...prev, serviciosSeleccionados: newSelected };
+                                                        });
+                                                        toast({
+                                                            title: "Paquete cambiado",
+                                                            description: `Cambiado a ${p.nombre} con éxito.`
+                                                        });
+                                                    }}
+                                                    className="rounded-xl font-black uppercase tracking-widest text-[9px] h-9 w-full bg-slate-900 hover:bg-red-700 text-white transition"
+                                                >
+                                                    Cambiar a {p.nombre}
+                                                </Button>
+                                            </div>
+                                        );
+                                    })}
                                 </div>
                             </div>
 
