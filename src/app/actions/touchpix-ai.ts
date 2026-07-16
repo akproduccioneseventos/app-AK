@@ -91,7 +91,31 @@ export type TouchpixCharacterId =
   | 'royalty'
   | 'pirate'
   | 'rockstar'
-  | 'fairy';
+  | 'fairy'
+  | 'dj'
+  | 'cyberpunk'
+  | 'medieval_knight'
+  | 'gatsby_guest'
+  | 'f1_driver'
+  | 'gourmet_chef'
+  | 'kpop_idol'
+  | 'pop_art'
+  | 'oil_portrait'
+  | 'steampunk_pilot'
+  | 'viking'
+  | 'anime_character'
+  | 'ninja'
+  | 'samurai'
+  | 'detective'
+  | 'explorer'
+  | 'wizard'
+  | 'cyber_elf'
+  | 'travel_blogger'
+  | 'toy_figurine'
+  | 'chibi_character'
+  | 'glamour_model'
+  | 'skater'
+  | 'pilot';
 
 interface CharacterDefinition {
   label: string;
@@ -129,6 +153,126 @@ const CHARACTER_DEFINITIONS: Record<TouchpixCharacterId, CharacterDefinition> = 
     promptDescription:
       'a magical fairy with large iridescent butterfly wings that shimmer with rainbow light, wearing an elegant flowing dress made of flower petals, hovering above a moonlit enchanted garden with glowing mushrooms and twinkling fairy lights everywhere',
   },
+  dj: {
+    label: 'Electronic DJ',
+    promptDescription:
+      'a professional electronic music DJ wearing cool headphones around the neck, standing behind a glowing high-tech Pioneer DJ deck and mixer setup in a premium nightclub with laser beams and dancing crowd in background',
+  },
+  cyberpunk: {
+    label: 'Cyberpunk Warrior',
+    promptDescription:
+      'a futuristic cyberpunk mercenary with glowing blue cybernetic implants on the face and arms, wearing a technical high-collar jacket, standing on a rainy neo-tokyo street filled with neon signs and flying vehicles',
+  },
+  medieval_knight: {
+    label: 'Medieval Knight',
+    promptDescription:
+      'a brave knight in detailed shining silver armor holding a sword, standing in a dreamy enchanted meadow next to an old stone castle',
+  },
+  gatsby_guest: {
+    label: 'Gatsby Guest 1920s',
+    promptDescription:
+      'a glamorous guest at a 1920s Gatsby party, wearing a black tuxedo or a sparkling flapper dress with pearl necklaces and a feathered headband, holding a champagne glass, gold art deco background pattern with warm luxury lighting',
+  },
+  f1_driver: {
+    label: 'F1 Driver',
+    promptDescription:
+      'a professional racing car driver wearing a detailed red racing suit covered in sponsor patches, holding a helmet under one arm, standing in the pit lane of a race track with garage and F1 car blurred in background',
+  },
+  gourmet_chef: {
+    label: 'Gourmet Chef',
+    promptDescription:
+      'a professional gourmet master chef wearing a clean double-breasted white chef jacket and a tall white chef hat, standing in a premium modern stainless steel restaurant kitchen preparing a beautifully plated dish',
+  },
+  kpop_idol: {
+    label: 'K-Pop Star',
+    promptDescription:
+      'a famous K-pop music idol performing on a massive stage under colorful spotlights and flashing purple neon lasers, wearing a highly stylish modern streetwear outfit with chains, shiny makeup, dynamic concert crowd in background',
+  },
+  pop_art: {
+    label: 'Pop Art Portrait',
+    promptDescription:
+      'a bold Andy Warhol-style pop art illustration using flat, highly saturated primary colors (bright red, yellow, blue, green), thick black comic-book outlines around the features, and a high-contrast posterized style',
+  },
+  oil_portrait: {
+    label: 'Oil Painting',
+    promptDescription:
+      'a classical renaissance oil painting portrait, showing rich brush strokes, fine canvas texture, warm Rembrandt-style chiascuro lighting, rich classical clothing, looking like a museum masterpiece',
+  },
+  steampunk_pilot: {
+    label: 'Steampunk Pilot',
+    promptDescription:
+      'a steampunk pilot wearing brass goggles, a leather vest with gears, standing on the deck of a wooden flying airship amidst high altitude clouds and mechanical details, warm brass and copper tones',
+  },
+  viking: {
+    label: 'Viking Warrior',
+    promptDescription:
+      'a rugged viking warrior with braided hair, wearing fur-lined leather armor, standing on the deck of a longship under a spectacular green aurora borealis sky with ocean waves crashing',
+  },
+  anime_character: {
+    label: 'Anime Hero',
+    promptDescription:
+      'a powerful 2D anime hero with spiky hair, wearing detailed combat robes, surrounded by an intense glowing blue energy aura, standing in a dynamic action pose in a fantasy valley landscape',
+  },
+  ninja: {
+    label: 'Shadow Ninja',
+    promptDescription:
+      'a stealthy ninja dressed in black, standing in a dynamic stance on a tiled rooftop of a traditional Japanese temple at night under a giant glowing full moon',
+  },
+  samurai: {
+    label: 'Noble Samurai',
+    promptDescription:
+      'a noble samurai warrior wearing detailed traditional armor, holding a katana, standing under a beautiful cherry blossom tree with falling pink petals in a serene Japanese garden',
+  },
+  detective: {
+    label: 'Noir Detective',
+    promptDescription:
+      'a classic film noir detective wearing a trench coat and fedora hat, standing under a dim street lamp on a rainy city street at night, moody cinematic lighting with dramatic shadows',
+  },
+  explorer: {
+    label: 'Jungle Explorer',
+    promptDescription:
+      'a brave jungle explorer wearing a khaki safari outfit, standing in front of a massive ancient stone temple hidden deep inside a lush green tropical rainforest with sunlight filtering through leaves',
+  },
+  wizard: {
+    label: 'Grand Wizard',
+    promptDescription:
+      'a powerful old wizard with a long white beard, wearing deep blue robes decorated with silver stars, holding a glowing magical wooden staff in a mystical stone library filled with ancient scrolls',
+  },
+  cyber_elf: {
+    label: 'Cyber Elf',
+    promptDescription:
+      'a high-tech cyber elf with pointed ears, wearing glowing holographic garments, standing in a magical bioluminescent futuristic garden under neon-colored alien trees',
+  },
+  travel_blogger: {
+    label: 'Travel Influencer',
+    promptDescription:
+      'a stylish travel blogger wearing fashionable sunglasses and summer outfit, standing on a luxury terrace in Santorini overlooking the deep blue Aegean sea at golden sunset',
+  },
+  toy_figurine: {
+    label: 'Action Figurine',
+    promptDescription:
+      'a vintage plastic action figure toy inside an unopened retro collector box with colorful packaging and retro brand logo, plastic glossy texture, toy store display lighting',
+  },
+  chibi_character: {
+    label: 'Chibi 3D Avatar',
+    promptDescription:
+      'a cute 3D chibi character with oversized head and big expressive eyes, wearing pastel-colored clothes, standing in a dreamy wonderland filled with candy canes, giant lollipops, and cotton candy clouds',
+  },
+  glamour_model: {
+    label: 'Fashion Runway Model',
+    promptDescription:
+      'a high-fashion supermodel walking down a premium fashion runway, flashing camera lights from photographers in the dark background, wearing an elegant designer outfit, haute couture aesthetic',
+  },
+  skater: {
+    label: 'Street Skater',
+    promptDescription:
+      'a cool urban skater doing a trick on a skateboard in a concrete skatepark at vibrant sunset, wearing streetwear, city buildings blurred in the background',
+  },
+  pilot: {
+    label: 'Airline Pilot',
+    promptDescription:
+      'a professional airline pilot wearing a classic dark blue uniform with gold stripes, standing on the airport runway at sunrise with a large commercial jet aircraft in the background',
+  },
 };
 
 // ──────────────────── Helpers ────────────────────
@@ -136,7 +280,7 @@ const CHARACTER_DEFINITIONS: Record<TouchpixCharacterId, CharacterDefinition> = 
 const MAX_IMAGE_SIZE = 10 * 1024 * 1024; // 10 MB
 const TOUCHPIX_AI_TIMEOUT_MS = 60_000;
 const TOUCHPIX_IMAGE_MODEL =
-  process.env.GEMINI_IMAGE_MODEL?.trim() || 'googleai/gemini-3.1-flash-image-preview';
+  process.env.GEMINI_IMAGE_MODEL?.trim() || 'googleai/imagen3';
 
 async function ensureTouchpixAccess(fiestaId: string, accessToken?: string): Promise<void> {
   const authorized = await hasEntertainmentGuestAccess(
@@ -351,33 +495,44 @@ export async function applyTouchpixTheme(
       };
     }
 
-    const promptText = [
-      'You are an expert image editor and digital artist.',
-      `Transform the following photo using the "${theme.label}" theme.`,
-      '',
-      theme.promptDescription,
-      '',
-      'CRITICAL RULES:',
-      '- The person in the photo must remain fully recognizable — do NOT alter their face, facial features, skin tone, hair, body proportions, or pose.',
-      '- Apply the theme as an artistic overlay, lighting adjustment, background replacement, and ambient effect ONLY.',
-      '- The output must be a single photorealistic image at the same resolution as the input.',
-      '- Do NOT add any text, watermarks, logos, or borders to the image.',
-    ].join('\n');
+    // Step 1: Analyze user photo using Gemini 1.5 Flash
+    let userDesc = "a person";
+    try {
+      const analyzeResult = await ai.generate({
+        model: 'googleai/gemini-1.5-flash',
+        prompt: [
+          {
+            media: {
+              contentType: contentType as 'image/jpeg' | 'image/png' | 'image/webp' | 'image/gif',
+              url: `data:${contentType};base64,${base64}`,
+            },
+          },
+          {
+            text: 'Analyze the person in this photo. Describe their facial features, expression, hair color and style, clothing, and pose in detail but concisely in English. Focus only on the person. Output only the description.',
+          }
+        ]
+      });
+      if (analyzeResult.text) {
+        userDesc = analyzeResult.text.trim();
+      }
+    } catch (err) {
+      logger.warn('[touchpix-ai] Theme face analysis failed: ', err);
+    }
+
+    // Step 2: Generate the themed image using Imagen 3
+    const imagePrompt = [
+      `A high-quality, professional photograph of a person.`,
+      `The person is described as: ${userDesc}.`,
+      `Apply this transformation style: ${theme.promptDescription}.`,
+      `Ensure the result looks natural, photorealistic, high resolution, no text, no watermarks, no distorted features.`
+    ].join(' ');
 
     const result = await generateTouchpixImage({
       model: TOUCHPIX_IMAGE_MODEL,
-      prompt: [
-        {
-          media: {
-            contentType: contentType as 'image/jpeg' | 'image/png' | 'image/webp' | 'image/gif',
-            url: `data:${contentType};base64,${base64}`,
-          },
-        },
-        { text: promptText },
-      ],
+      prompt: imagePrompt,
       config: {
-        temperature: 0.4,
-        responseModalities: ['IMAGE', 'TEXT'],
+        aspectRatio: '3:4',
+        outputMimeType: 'image/jpeg',
       },
     });
 
@@ -479,77 +634,84 @@ export async function applyFaceSwap(
       };
     }
 
-    // Build the prompt parts array.
-    const promptParts: Array<
-      | { media: { contentType: string; url: string } }
-      | { text: string }
-    > = [];
-
-    // Always include the source (person's face) image.
-    promptParts.push({
-      media: {
-        contentType: sourceContentType,
-        url: `data:${sourceContentType};base64,${sourceBase64}`,
-      },
-    });
-
-    if (hasTargetFile) {
-      // Use the provided target image for face swap.
-      const targetExtraction = await validateAndExtractImage(targetFile, 'targetFile');
-      if (!targetExtraction.ok) {
-        return { success: false, error: targetExtraction.error };
+    // Step 1: Analyze user face using Gemini 1.5 Flash
+    let faceDesc = "a person";
+    try {
+      const faceAnalyzeResult = await ai.generate({
+        model: 'googleai/gemini-1.5-flash',
+        prompt: [
+          {
+            media: {
+              contentType: sourceContentType,
+              url: `data:${sourceContentType};base64,${sourceBase64}`,
+            },
+          },
+          {
+            text: 'Analyze the person\'s face in this photo. Describe their facial features (apparent gender, hair color and style, skin tone, facial structure, eye shape, and facial expression) in detail but concisely in English. Focus only on the head and face. Do not describe clothing, body, or background. Output only the description.',
+          }
+        ]
+      });
+      if (faceAnalyzeResult.text) {
+        faceDesc = faceAnalyzeResult.text.trim();
       }
-      const { base64: targetBase64, contentType: targetContentType } = targetExtraction;
+    } catch (err) {
+      logger.warn('[touchpix-ai] Face analysis failed, using generic: ', err);
+    }
 
-      promptParts.push({
-        media: {
-          contentType: targetContentType,
-          url: `data:${targetContentType};base64,${targetBase64}`,
-        },
-      });
+    let imagePrompt = "";
+    if (hasTargetFile) {
+      // Describe target image first using Gemini 1.5 Flash
+      let targetDesc = "a character scene";
+      try {
+        const targetExtraction = await validateAndExtractImage(targetFile, 'targetFile');
+        if (!targetExtraction.ok) {
+          return { success: false, error: targetExtraction.error };
+        }
+        const { base64: targetBase64, contentType: targetContentType } = targetExtraction;
 
-      promptParts.push({
-        text: [
-          'You are an expert image compositing artist specializing in face swaps.',
-          '',
-          "TASK: Take the face from the FIRST image (the person's photo) and seamlessly place it onto the body/character in the SECOND image.",
-          '',
-          'RULES:',
-          "- Keep the person's face from the first image: their exact facial features, skin tone, expression, and proportions.",
-          '- Blend the face naturally onto the body in the second image, matching lighting, angle, and perspective.',
-          '- The result must look photorealistic — no visible seams, no uncanny distortions.',
-          '- Preserve the outfit, background, and setting from the second image.',
-          '- Output a single high-quality image at the same resolution as the second image.',
-          '- Do NOT add any text, watermarks, logos, or borders.',
-        ].join('\n'),
-      });
+        const targetAnalyzeResult = await ai.generate({
+          model: 'googleai/gemini-1.5-flash',
+          prompt: [
+            {
+              media: {
+                contentType: targetContentType,
+                url: `data:${targetContentType};base64,${targetBase64}`,
+              },
+            },
+            {
+              text: 'Analyze this photo. Describe the character, outfit, background scene, posture, and lighting in detail in English. Focus on everything except the face. Output only the description.',
+            }
+          ]
+        });
+        if (targetAnalyzeResult.text) {
+          targetDesc = targetAnalyzeResult.text.trim();
+        }
+      } catch (err) {
+        logger.warn('[touchpix-ai] Target analysis failed: ', err);
+      }
+
+      imagePrompt = [
+        `A high-quality, professional photograph of the scene: ${targetDesc}.`,
+        `The main character in the scene must have the face of ${faceDesc}.`,
+        `Ensure the face merges seamlessly, matching lighting, perspective, photorealistic detail, no text, no watermarks.`
+      ].join(' ');
+
     } else {
-      // Use a character description for the face swap.
+      // Use characterId
       const character = CHARACTER_DEFINITIONS[characterId as TouchpixCharacterId]!;
-
-      promptParts.push({
-        text: [
-          'You are an expert image compositing artist specializing in face swaps and character transformations.',
-          '',
-          `TASK: Take the face of the person in the provided photo and place it onto the body of ${character.promptDescription}.`,
-          '',
-          'RULES:',
-          "- Keep the person's exact facial features, skin tone, expression, and proportions from the provided photo.",
-          "- Generate a complete full-body or upper-body image of the character, with the person's face seamlessly composited.",
-          '- Match the lighting on the face to the character scene so it looks natural and photorealistic.',
-          '- The result must look like a professional movie poster or high-quality composite — no visible seams.',
-          '- Output a single high-quality photorealistic image.',
-          '- Do NOT add any text, watermarks, logos, or borders.',
-        ].join('\n'),
-      });
+      imagePrompt = [
+        `A high-quality, professional photograph of ${character.promptDescription}.`,
+        `The character must have the face of ${faceDesc}.`,
+        `Ensure the facial features look natural, integrated into the scene lighting, photorealistic, high resolution, no text, no watermarks, no distorted features.`
+      ].join(' ');
     }
 
     const result = await generateTouchpixImage({
       model: TOUCHPIX_IMAGE_MODEL,
-      prompt: promptParts,
+      prompt: imagePrompt,
       config: {
-        temperature: 0.4,
-        responseModalities: ['IMAGE', 'TEXT'],
+        aspectRatio: '3:4',
+        outputMimeType: 'image/jpeg',
       },
     });
 

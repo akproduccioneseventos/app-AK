@@ -167,4 +167,74 @@ export const ESPEJO_TEMPLATES: Record<string, EspejoTemplateDefinition> = {
     promptDescription:
       'a classic comic book illustration with bold black outlines, high contrast pop art colors (bright cyan, yellow, magenta), retro dot halftone pattern background, speech bubble next to the person with party sparkles',
   },
+  supermodel: {
+    id: 'supermodel',
+    categoryId: 'showbiz',
+    label: 'Supermodelo Pasarela',
+    promptDescription:
+      'a high-fashion supermodel walking down a premium fashion runway, flashing camera lights from photographers in the dark background, wearing an elegant designer outfit, haute couture aesthetic',
+  },
+  rock_legend: {
+    id: 'rock_legend',
+    categoryId: 'showbiz',
+    label: 'Leyenda del Rock',
+    promptDescription:
+      'a legendary rock singer performing live on a huge stadium stage with dramatic red and orange spotlights, pyrotechnics fire erupting, holding a vintage microphone stand, massive cheering crowd in background',
+  },
+  steampunk_explorer: {
+    id: 'steampunk_explorer',
+    categoryId: 'cinema',
+    label: 'Viajero Steampunk',
+    promptDescription:
+      'a steampunk explorer wearing brass goggles, a leather vest with gears, standing on the deck of a wooden flying airship amidst high altitude clouds and mechanical details, warm brass and copper tones',
+  },
+  anime_hero: {
+    id: 'anime_hero',
+    categoryId: 'cinema',
+    label: 'Héroe Anime',
+    promptDescription:
+      'a powerful 2D anime hero with spiky hair, wearing detailed combat robes, surrounded by an intense glowing blue energy aura, standing in a dynamic action pose in a fantasy valley landscape',
+  },
+  cyber_elf: {
+    id: 'cyber_elf',
+    categoryId: 'fantasy',
+    label: 'Elfo Cyberpunk',
+    promptDescription:
+      'a high-tech cyber elf with pointed ears, wearing glowing holographic garments, standing in a magical bioluminescent futuristic garden under neon-colored alien trees',
+  },
+  viking_warrior: {
+    id: 'viking_warrior',
+    categoryId: 'fantasy',
+    label: 'Guerrero Vikingo',
+    promptDescription:
+      'a rugged viking warrior with braided hair, wearing fur-lined leather armor, standing on the deck of a longship under a spectacular green aurora borealis sky with ocean waves crashing',
+  },
+  silicon_founder: {
+    id: 'silicon_founder',
+    categoryId: 'corporate',
+    label: 'Presentador Tech',
+    promptDescription:
+      'a confident tech founder giving a keynote presentation on a modern stage, wearing a smart casual blazer and t-shirt, warm stage lighting, large presentation screen blurred in the background',
+  },
+  influencer_travel: {
+    id: 'influencer_travel',
+    categoryId: 'corporate',
+    label: 'Influencer Viajes',
+    promptDescription:
+      'a stylish travel blogger wearing fashionable sunglasses and summer outfit, standing on a luxury terrace in Santorini overlooking the deep blue Aegean sea at golden sunset',
+  },
+  plastic_toy: {
+    id: 'plastic_toy',
+    categoryId: 'fun',
+    label: 'Muñeco de Acción',
+    promptDescription:
+      'a vintage plastic action figure toy inside an unopened retro collector box with colorful packaging and retro brand logo, plastic glossy texture, toy store display lighting',
+  },
+  chibi_avatar: {
+    id: 'chibi_avatar',
+    categoryId: 'fun',
+    label: 'Avatar Chibi 3D',
+    promptDescription:
+      'a cute 3D chibi character with oversized head and big expressive eyes, wearing pastel-colored clothes, standing in a dreamy wonderland filled with candy canes, giant lollipops, and cotton candy clouds',
+  },
 };
