@@ -29,6 +29,7 @@ const NAV_ITEMS = [
   ["blog-video", "Blog"],
   ["cta-footer", "Contacto"],
 ] as const;
+const DEFERRED_SECTIONS = new Set(["difference", "team-process", "cta-footer"]);
 export function LandingSpaContainer({
   hero,
   stats,
@@ -82,7 +83,7 @@ export function LandingSpaContainer({
         id={`landing-${key}`}
         key={key}
         {...revealProps}
-        className={`w-full relative ${key === "hero" ? "" : "ak-deferred-section"} ${justify === "between" ? "md:flex md:min-h-screen md:flex-col md:justify-between" : ""}`}
+        className={`relative w-full scroll-mt-20 ${DEFERRED_SECTIONS.has(key) ? "ak-deferred-section" : ""} ${justify === "between" ? "md:flex md:min-h-screen md:flex-col md:justify-between" : ""}`}
       >
         {" "}
         {children}{" "}

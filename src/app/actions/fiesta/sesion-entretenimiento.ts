@@ -143,8 +143,8 @@ export async function resetEntertainmentSession(
     if (!fiestaId || fiestaId.length > 160 || !isEntertainmentModuleId(moduleId)) {
       return { success: false, error: 'Modulo de entretenimiento no valido.' };
     }
-    if (!(await hasEntertainmentGuestAccess(fiestaId, moduleId, accessToken))) {
-      return { success: false, error: 'Acceso de estacion no autorizado.' };
+    if (!(await hasEntertainmentControlAccess(fiestaId, moduleId, accessToken))) {
+      return { success: false, error: 'Acceso de operador no autorizado.' };
     }
     if (!(await isStationEnabled(fiestaId, moduleId))) {
       return { success: false, error: 'Esta estacion esta desactivada.' };
@@ -161,6 +161,58 @@ export async function resetEntertainmentSession(
     return { success: true };
   } catch (e: any) {
     console.error(`[sesion-entretenimiento] Error en resetEntertainmentSession:`, e);
+    return { success: false, error: e.message };
+  }
+}
+
+export async function completeEntertainmentSessionCycle(
+  fiestaId: string,
+  moduleId: string,
+  accessToken?: string
+): Promise<{ success: boolean; error?: string }> {
+  try {
+    if (!fiestaId || fiestaId.length > 160 || !isEntertainmentModuleId(moduleId)) {
+      return { success: false, error: 'Modulo de entretenimiento no valido.' };
+    }
+    if (!(await hasEntertainmentGuestAccess(fiestaId, moduleId, accessToken))) {
+      return { success: false, error: 'Acceso de estacion no autorizado.' };
+    }
+    if (!(await isStationEnabled(fiestaId, moduleId))) {
+      return { success: false, error: 'Esta estacion esta desactivada.' };
+    }
+
+    const db = await getDb();
+    const docId = `${fiestaId}_${moduleId}`;
+    const docRef = db.collection(SESIONES_COLLECTION).doc(docId);
+    const result = await db.runTransaction(async (transaction) => {
+      const snap = await transaction.get(docRef);
+      if (!snap.exists) return 'idle';
+
+      const session = snap.data() as EntertainmentSession;
+      if (session.fiestaId !== fiestaId || session.moduleId !== moduleId) return 'invalid';
+      if (session.status === 'idle') return 'idle';
+      if (session.status !== 'done') return 'active';
+
+      const now = new Date().toISOString();
+      transaction.set(docRef, {
+        fiestaId,
+        moduleId,
+        status: 'idle',
+        timestamp: now,
+        lastUpdated: now,
+      });
+      return 'completed';
+    });
+
+    if (result === 'active') {
+      return { success: false, error: 'La sesion todavia esta activa.' };
+    }
+    if (result === 'invalid') {
+      return { success: false, error: 'La sesion no corresponde a esta estacion.' };
+    }
+    return { success: true };
+  } catch (e: any) {
+    console.error(`[sesion-entretenimiento] Error en completeEntertainmentSessionCycle:`, e);
     return { success: false, error: e.message };
   }
 }

@@ -21,6 +21,7 @@ export type CrmTimelineEventType =
   | 'deposit_registered'
   | 'event_created'
   | 'whatsapp_sent'
+  | 'whatsapp_opened'
   | 'whatsapp_scheduled'
   | 'payment_reminder_sent'
   | 'lead_created';

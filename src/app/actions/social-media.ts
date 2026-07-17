@@ -7,6 +7,7 @@ import fs from 'fs/promises';
 import path from 'path';
 import { requireAppSession } from '@/lib/auth/require-session';
 import { MARKETING_AUTOMATION_INTERNAL_TOKEN } from '@/lib/marketing/internal-token';
+import { getPublicInstagramFeed } from '@/lib/instagram/public-feed';
 
 const POSTS_FILE = 'social-posts.json';
 const DATA_DIR = path.join(process.cwd(), 'src', 'data');
@@ -27,61 +28,6 @@ async function ensureDataDirectoriesExist() {
   try { await fs.access(assetsDirectoryPath); } catch { await fs.mkdir(assetsDirectoryPath, { recursive: true }); }
 }
 ensureDataDirectoriesExist();
-
-async function fetchInstagramGraphFeed(profileUrl?: string): Promise<InstagramFeedPost[] | null> {
-  const accessToken = process.env.INSTAGRAM_ACCESS_TOKEN || process.env.META_INSTAGRAM_ACCESS_TOKEN;
-  const accountId = process.env.INSTAGRAM_BUSINESS_ACCOUNT_ID || process.env.INSTAGRAM_USER_ID;
-
-  if (!accessToken || !accountId) return null;
-
-  const apiVersion = process.env.INSTAGRAM_GRAPH_API_VERSION || 'v25.0';
-  const fields = [
-    'id',
-    'caption',
-    'media_type',
-    'media_url',
-    'thumbnail_url',
-    'permalink',
-    'timestamp',
-    'like_count',
-    'comments_count',
-  ].join(',');
-
-  try {
-    const response = await fetch(
-      `https://graph.facebook.com/${apiVersion}/${accountId}/media?fields=${encodeURIComponent(fields)}&limit=12&access_token=${encodeURIComponent(accessToken)}`,
-      { cache: 'no-store' }
-    );
-
-    if (!response.ok) {
-      console.warn(`[Instagram Sync] Graph API respondio ${response.status}. No se sincroniza contenido.`);
-      return null;
-    }
-
-    const payload = await response.json();
-    const items = Array.isArray(payload?.data) ? payload.data : [];
-
-    return items
-      .map((item: any): InstagramFeedPost | null => {
-        const isVideo = String(item.media_type || '').toUpperCase().includes('VIDEO') || String(item.media_type || '').toUpperCase().includes('REEL');
-        const mediaUrl = item.thumbnail_url || item.media_url;
-        if (!item.id || !mediaUrl) return null;
-
-        return {
-          id: `ig_${item.id}`,
-          mediaType: isVideo ? 'video' : 'image',
-          mediaUrl,
-          videoUrl: item.permalink || profileUrl,
-          text: item.caption || 'Contenido reciente de Instagram AK Producciones.',
-          likes: Number(item.like_count || item.comments_count || 0),
-        };
-      })
-      .filter(Boolean) as InstagramFeedPost[];
-  } catch (error: any) {
-    console.warn('[Instagram Sync] No se pudo leer Instagram Graph API:', error.message || error);
-    return null;
-  }
-}
 
 export async function getSocialPosts(): Promise<SocialPost[]> {
   return readData<SocialPost[]>(POSTS_FILE, []);
@@ -264,7 +210,17 @@ export async function syncInstagramPosts(
     let addedVideosCount = 0;
     let addedPlannerCount = 0;
 
-    const graphFeed = await fetchInstagramGraphFeed(instagramConn?.profileUrl);
+    const publicFeed = await getPublicInstagramFeed(instagramConn?.profileUrl);
+    const graphFeed: InstagramFeedPost[] | null = publicFeed.length
+      ? publicFeed.map((post) => ({
+          id: post.id,
+          mediaType: post.mediaType,
+          mediaUrl: post.mediaUrl,
+          videoUrl: post.permalink,
+          text: post.caption,
+          likes: post.likes,
+        }))
+      : null;
     const allowDemoFallback =
       process.env.NODE_ENV !== 'production' &&
       process.env.AK_ALLOW_DEMO_INSTAGRAM === 'true';
@@ -285,77 +241,108 @@ export async function syncInstagramPosts(
       const now = new Date().toISOString();
 
       if (post.mediaType === 'video') {
-        // Es un reel/video -> colocar en la sección de videos de la galería
-        const exists = galeriaData.videos.some(v => v.youtubeId === post.id);
-        if (!exists) {
+        // Los IDs de Instagram son estables; la URL CDN puede cambiar y debe actualizarse.
+        const existingVideoIndex = galeriaData.videos.findIndex(v =>
+          v.id === post.id
+          || v.youtubeId === post.id
+          || (v.source === 'instagram' && v.sourceId === post.id)
+        );
+        const syncedVideo = {
+          id: post.id,
+          tipo: 'video',
+          youtubeUrl: post.videoUrl,
+          youtubeId: post.id,
+          plataforma: 'archivo',
+          thumbnailUrl: post.mediaUrl,
+          titulo: `Reel de Instagram: ${category}`,
+          descripcion: post.text,
+          categoria: category,
+          destacada: true,
+          orden: existingVideoIndex >= 0 ? galeriaData.videos[existingVideoIndex].orden : galeriaData.videos.length,
+          createdAt: existingVideoIndex >= 0 ? galeriaData.videos[existingVideoIndex].createdAt : now,
+          source: 'instagram',
+          sourceId: post.id,
+          sourceUrl: post.videoUrl,
+        };
+        if (existingVideoIndex >= 0) {
+          galeriaData.videos[existingVideoIndex] = {
+            ...galeriaData.videos[existingVideoIndex],
+            ...syncedVideo,
+          };
+        } else {
           galeriaData.videos.push({
-            id: post.id,
-            tipo: 'video',
-            youtubeUrl: post.videoUrl,
-            youtubeId: post.id, // ID único de la publicación de Instagram
-            plataforma: 'archivo', // Clasificado como archivo para reproducción directa
-            thumbnailUrl: post.mediaUrl,
-            titulo: `Reel de Instagram: ${category}`,
-            descripcion: post.text,
-            categoria: category,
-            destacada: true,
-            orden: galeriaData.videos.length,
-            createdAt: now
+            ...syncedVideo,
           });
           addedVideosCount++;
         }
       } else {
-        // Es una foto -> colocar en el catálogo de fotos de servicios
-        const exists = catalogoFotos.some(f => f.url === post.mediaUrl);
-        if (!exists) {
+        const existingPhotoIndex = catalogoFotos.findIndex(f =>
+          f.id === post.id
+          || (f.source === 'instagram' && f.sourceId === post.id)
+        );
+        const syncedPhoto = {
+          id: post.id,
+          url: post.mediaUrl,
+          titulo: `Instagram: ${category}`,
+          descripcion: post.text,
+          categoriaServicio: category,
+          destacada: true,
+          orden: existingPhotoIndex >= 0 ? catalogoFotos[existingPhotoIndex].orden : catalogoFotos.length,
+          source: 'instagram',
+          sourceId: post.id,
+          sourceUrl: post.videoUrl || instagramConn?.profileUrl,
+          createdAt: existingPhotoIndex >= 0 ? catalogoFotos[existingPhotoIndex].createdAt : now,
+        };
+        if (existingPhotoIndex >= 0) {
+          catalogoFotos[existingPhotoIndex] = {
+            ...catalogoFotos[existingPhotoIndex],
+            ...syncedPhoto,
+          };
+        } else {
           catalogoFotos.push({
-            id: post.id,
-            url: post.mediaUrl,
-            titulo: `Instagram: ${category}`,
-            descripcion: post.text,
-            categoriaServicio: category,
-            destacada: true,
-            orden: catalogoFotos.length,
-            source: 'instagram',
-            createdAt: now
+            ...syncedPhoto,
           });
           addedPhotosCount++;
         }
       }
 
       const plannerId = `ig_sync_${post.id}`;
-      if (!socialPosts.some(item => item.id === plannerId)) {
+      const plannerIndex = socialPosts.findIndex(item => item.id === plannerId);
+      const syncedPlanner: SocialPost = {
+        ...(plannerIndex >= 0 ? socialPosts[plannerIndex] : {} as SocialPost),
+        id: plannerId,
+        platform: 'Instagram',
+        isGeneralCampaign: true,
+        publishDate: now,
+        text: post.text,
+        link: post.videoUrl || instagramConn?.profileUrl,
+        mediaUrl: post.mediaUrl,
+        mediaType: post.mediaType === 'video' ? 'video' : 'image',
+        status: 'Publicado',
+        performance: {
+          likes: post.likes,
+          interactions: post.likes,
+        },
+        createdAt: plannerIndex >= 0 ? socialPosts[plannerIndex].createdAt : now,
+        updatedAt: now,
+      };
+      if (plannerIndex >= 0) {
+        socialPosts[plannerIndex] = syncedPlanner;
+      } else {
         socialPosts.push({
-          id: plannerId,
-          platform: 'Instagram',
-          isGeneralCampaign: true,
-          publishDate: now,
-          text: post.text,
-          link: post.videoUrl || instagramConn?.profileUrl,
-          mediaUrl: post.mediaUrl,
-          mediaType: post.mediaType === 'video' ? 'video' : 'image',
-          status: 'Publicado',
-          performance: {
-            likes: post.likes,
-            interactions: post.likes,
-          },
-          createdAt: now,
-          updatedAt: now,
+          ...syncedPlanner,
         });
         addedPlannerCount++;
       }
     }
 
     // 4. Guardar datos actualizados
-    if (addedPhotosCount > 0) {
-      await writeData('catalogo-fotos.json', catalogoFotos);
-    }
-    if (addedVideosCount > 0) {
-      await writeData('galeria-publica.json', galeriaData);
-    }
-    if (addedPlannerCount > 0) {
-      await writeData(POSTS_FILE, socialPosts, (a, b) => new Date(b.publishDate).getTime() - new Date(a.publishDate).getTime());
-    }
+    // También persiste cambios de URL/miniatura de elementos ya sincronizados.
+    await Promise.all([
+      writeData('catalogo-fotos.json', catalogoFotos),
+      writeData('galeria-publica.json', galeriaData),
+      writeData(POSTS_FILE, socialPosts, (a, b) => new Date(b.publishDate).getTime() - new Date(a.publishDate).getTime()),
+    ]);
 
     console.log(`[Instagram Sync] Proceso de sincronización completado. Fotos: +${addedPhotosCount}, Reels/Videos: +${addedVideosCount}, Planner: +${addedPlannerCount}`);
     return { success: true, photosCount: addedPhotosCount, videosCount: addedVideosCount, plannerCount: addedPlannerCount };

@@ -7,7 +7,7 @@
 
 import crypto from 'crypto';
 import { dbAdmin } from '@/lib/firebase/server';
-import { verifySession } from '@/lib/auth/session-token';
+import { verifySession, writeSessionCookie } from '@/lib/auth/session-token';
 
 // ── Constants ──────────────────────────────────────────────────────────────
 
@@ -160,15 +160,24 @@ export async function loginUser(
       return { success: false, error: 'Correo o contraseña incorrectos.' };
     }
 
+    const user: NonNullable<LoginResult['user']> = {
+      id: doc.id,
+      email: data.email,
+      role: data.role,
+      modules: Array.isArray(data.modules) ? data.modules : [],
+      mustChangePassword: data.mustChangePassword ?? false,
+    };
+
+    await writeSessionCookie({
+      email: user.email,
+      role: user.role,
+      userId: user.id,
+      modules: user.modules,
+    });
+
     return {
       success: true,
-      user: {
-        id: doc.id,
-        email: data.email,
-        role: data.role,
-        modules: data.modules,
-        mustChangePassword: data.mustChangePassword ?? false,
-      },
+      user,
     };
   } catch (err) {
     console.error('[auth] loginUser error:', err);

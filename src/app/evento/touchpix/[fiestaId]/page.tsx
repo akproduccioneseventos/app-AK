@@ -27,6 +27,7 @@ import { applyFaceSwap, applyTouchpixTheme, uploadTouchpixPhoto } from '@/app/ac
 import { getPublicEntertainmentEvent } from '@/app/actions/fiesta/entretenimiento.actions';
 import {
   getEntertainmentSession,
+  completeEntertainmentSessionCycle,
   resetEntertainmentSession,
   startEntertainmentSession,
   updateEntertainmentSessionStatus,
@@ -568,7 +569,7 @@ export default function TouchpixPage() {
     setProcessingResult(null);
     setWizardStep(0);
     setConsentAccepted(false);
-    resetEntertainmentSession(fiestaId, 'espejoMagicoIA', accessToken);
+    void completeEntertainmentSessionCycle(fiestaId, 'espejoMagicoIA', accessToken);
     startCamera();
   }, [accessToken, fiestaId, startCamera]);
 

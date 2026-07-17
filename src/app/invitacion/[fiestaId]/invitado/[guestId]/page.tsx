@@ -8,7 +8,7 @@
  */
 
 import { Suspense, useEffect, useState, useCallback } from 'react';
-import { useParams } from 'next/navigation';
+import { useParams, useSearchParams } from 'next/navigation';
 import { motion, AnimatePresence } from 'framer-motion';
 import {
   Loader2,
@@ -28,7 +28,11 @@ import {
   Clock,
   Facebook,
 } from 'lucide-react';
-import { getPublicGuestPortalData } from '@/app/actions/public-guest-portal';
+import {
+  getPublicGuestEntertainmentLinks,
+  getPublicGuestPortalData,
+  type PublicGuestEntertainmentLink,
+} from '@/app/actions/public-guest-portal';
 import { getSocialConnections } from '@/app/actions/social-connections';
 import { trackGuestCtaClick } from '@/app/actions/fiesta/invitados.actions';
 import type { GuestPortalSettings } from '@/types/fiesta';
@@ -58,6 +62,17 @@ const DEFAULT_GPS: GuestPortalSettings = {
   showCheckin: true,
 };
 
+const ENTERTAINMENT_ICONS: Record<string, string> = {
+  fotocabina: '📸',
+  plataforma360: '🎥',
+  bogue: '✨',
+  espejoMagicoFoto: '🪞',
+  espejoMagicoFirma: '✍️',
+  espejoMagicoIA: '🪄',
+  totems: '🖥️',
+  capsulaTiempo: '🎙️',
+};
+
 /** Calcula días hasta el evento. Negativo = ya pasó. null = sin fecha. */
 function getDaysUntil(fechaEvento?: string): number | null {
   if (!fechaEvento) return null;
@@ -79,8 +94,8 @@ function SocialPhotosPreview({ fiestaId, accentColor }: { fiestaId: string; acce
   const [loaded, setLoaded] = useState(false);
 
   useEffect(() => {
-    import('@/app/actions/social-gallery').then(({ getSocialPosts }) => {
-      getSocialPosts(fiestaId).then(posts => {
+    import('@/app/actions/social-gallery').then(({ getPublicSocialPosts }) => {
+      getPublicSocialPosts(fiestaId).then(posts => {
         setPhotos(
           posts.slice(0, 6).map(p => ({ id: p.id, imageUrl: p.imageUrl, authorName: p.authorName ?? '' }))
         );
@@ -117,8 +132,10 @@ function SocialPhotosPreview({ fiestaId, accentColor }: { fiestaId: string; acce
 
 function GuestPortalContent() {
   const params = useParams();
+  const searchParams = useSearchParams();
   const fiestaId = params.fiestaId as string;
   const guestId = params.guestId as string;
+  const guestAccessToken = searchParams.get('token') || '';
 
   const [fiesta, setFiesta] = useState<PublicGuestEvent | null>(null);
   const [guest, setGuest] = useState<PublicGuest | null>(null);
@@ -126,31 +143,34 @@ function GuestPortalContent() {
   const [isLoading, setIsLoading] = useState(true);
   const [loadError, setLoadError] = useState<string | null>(null);
   const [showQuiosco, setShowQuiosco] = useState(false);
+  const [entertainmentLinks, setEntertainmentLinks] = useState<PublicGuestEntertainmentLink[]>([]);
 
   const loadData = useCallback(async () => {
-    if (!fiestaId || !guestId) {
+    if (!fiestaId || !guestId || !guestAccessToken) {
       setLoadError('Enlace inválido.');
       setIsLoading(false);
       return;
     }
     try {
-      const [data, connections] = await Promise.all([
-        getPublicGuestPortalData(fiestaId, guestId),
+      const [data, connections, stationLinks] = await Promise.all([
+        getPublicGuestPortalData(fiestaId, guestId, guestAccessToken),
         getSocialConnections().catch((err) => {
           console.error('[GuestPortal] Failed to load social connections:', err);
           return [] as SocialConnection[];
         }),
+        getPublicGuestEntertainmentLinks(fiestaId, guestId, guestAccessToken),
       ]);
       if (!data) throw new Error('Evento o invitado no encontrado.');
       setFiesta(data.fiesta);
       setGuest(data.guest);
       setSocialConnections(connections);
+      setEntertainmentLinks(stationLinks);
     } catch (e: unknown) {
       setLoadError((e instanceof Error ? e.message : null) || 'No se pudo cargar tu información.');
     } finally {
       setIsLoading(false);
     }
-  }, [fiestaId, guestId]);
+  }, [fiestaId, guestId, guestAccessToken]);
 
   useEffect(() => { loadData(); }, [loadData]);
 
@@ -230,9 +250,7 @@ function GuestPortalContent() {
   const showAkCta = guestExp?.enabled !== false && guestExp?.showAkBranding !== false;
 
   const baseUrl = typeof window !== 'undefined' ? window.location.origin : 'https://app-ak.vercel.app';
-  const accessParam = guest.guestAccessToken
-    ? `token=${guest.guestAccessToken}&guestId=${guest.id}`
-    : `guestId=${guest.id}`;
+  const accessParam = `token=${encodeURIComponent(guestAccessToken)}&guestId=${encodeURIComponent(guest.id)}`;
   const qrValue = `${baseUrl}/evento/accesos/${fiestaId}?fiestaId=${fiestaId}&${accessParam}`;
 
   // Bug 3: URL real de la invitación
@@ -388,11 +406,13 @@ function GuestPortalContent() {
           <div className="mt-6 w-full max-w-sm">
             <p className="mb-3 text-xs font-bold uppercase tracking-widest text-zinc-300">Accesos de la fiesta</p>
             <div className="grid grid-cols-2 gap-2">
-              <a href={`/evento/fotocabina/${fiestaId}`} className="flex flex-col items-center justify-center gap-1.5 rounded-md border border-white/10 bg-white/[0.05] p-3 text-white transition-colors hover:bg-white/[0.09]">
-                <span className="text-2xl">📸</span>
-                <span className="text-xs font-black uppercase tracking-wide text-center">Fotocabina</span>
-              </a>
-              <a href={`/evento/hub/${fiestaId}`} className="flex flex-col items-center justify-center gap-1.5 rounded-md border border-white/10 bg-white/[0.05] p-3 text-white transition-colors hover:bg-white/[0.09]">
+              {entertainmentLinks.map((station) => (
+                <a key={station.id} href={station.href} className="flex flex-col items-center justify-center gap-1.5 rounded-md border border-white/10 bg-white/[0.05] p-3 text-white transition-colors hover:bg-white/[0.09]">
+                  <span className="text-2xl">{ENTERTAINMENT_ICONS[station.id] || '✨'}</span>
+                  <span className="text-center text-xs font-black uppercase tracking-wide">{station.label}</span>
+                </a>
+              ))}
+              <a href={`/evento/hub/${fiestaId}?${accessParam}`} className="flex flex-col items-center justify-center gap-1.5 rounded-md border border-white/10 bg-white/[0.05] p-3 text-white transition-colors hover:bg-white/[0.09]">
                 <span className="text-2xl">🌐</span>
                 <span className="text-xs font-black uppercase tracking-wide text-center">Hub del Evento</span>
               </a>
@@ -400,12 +420,6 @@ function GuestPortalContent() {
                 <span className="text-2xl">📱</span>
                 <span className={`${gps.showBuzon !== false ? 'text-xs' : 'text-sm'} font-black uppercase tracking-wide text-center`}>Red Social</span>
               </a>
-              {gps.showBuzon !== false && (
-                <a href={`/evento/buzon/${fiestaId}`} className="flex flex-col items-center justify-center gap-1.5 rounded-md border border-white/10 bg-white/[0.05] p-3 text-white transition-colors hover:bg-white/[0.09]">
-                  <span className="text-2xl">🎙️</span>
-                  <span className="text-xs font-black uppercase tracking-wide text-center">Buzón recuerdos</span>
-                </a>
-              )}
               {/* Barra Interactiva / Mini Quiosco */}
               <button onClick={() => setShowQuiosco(true)} className="col-span-2 mt-1 flex items-center justify-center gap-3 rounded-md border border-emerald-400/25 bg-emerald-400/10 p-3 text-white transition-colors hover:bg-emerald-400/15">
                 <span className="text-2xl">🍸</span>
@@ -597,7 +611,7 @@ function GuestPortalContent() {
             )}
             {guestExp?.showMenu !== false && (
               <a
-                href={`/portal-cliente/${fiestaId}/menu`}
+                href="#menu-evento"
                 className="flex items-center gap-2 text-sm font-semibold hover:opacity-80 transition mt-1"
                 style={{ color: accentColor }}
               >
@@ -606,6 +620,24 @@ function GuestPortalContent() {
             )}
           </div>
           </motion.div>
+        )}
+
+        {guestExp?.showMenu !== false && fiesta.menuMesa && (
+          <motion.section
+            id="menu-evento"
+            initial={{ opacity: 0, y: 12 }}
+            animate={{ opacity: 1, y: 0 }}
+            className="mx-4 scroll-mt-20 rounded-lg border border-white/10 bg-zinc-900 p-5"
+          >
+            <p className="text-xs font-black uppercase tracking-widest" style={{ color: accentColor }}>Menú del evento</p>
+            <div className="mt-4 grid gap-3 text-sm text-zinc-200 sm:grid-cols-2">
+              {fiesta.menuMesa.entrada && <p><span className="font-black text-white">Entrada:</span> {fiesta.menuMesa.entrada}</p>}
+              {fiesta.menuMesa.platoPrincipal && <p><span className="font-black text-white">Plato principal:</span> {fiesta.menuMesa.platoPrincipal}</p>}
+              {fiesta.menuMesa.adolescentes && <p><span className="font-black text-white">Menú adolescente:</span> {fiesta.menuMesa.adolescentes}</p>}
+              {fiesta.menuMesa.postres && <p><span className="font-black text-white">Postres:</span> {fiesta.menuMesa.postres}</p>}
+              {fiesta.menuMesa.bebidas && <p><span className="font-black text-white">Bebidas:</span> {fiesta.menuMesa.bebidas}</p>}
+            </div>
+          </motion.section>
         )}
 
         {/* Separador visual */}
@@ -847,7 +879,7 @@ function GuestPortalContent() {
       </div>
 
       <AnimatePresence>
-        {showQuiosco && <MiniQuiosco fiestaId={fiestaId} guest={guest} onClose={() => setShowQuiosco(false)} />}
+        {showQuiosco && <MiniQuiosco fiestaId={fiestaId} guest={guest} guestAccessToken={guestAccessToken} onClose={() => setShowQuiosco(false)} />}
       </AnimatePresence>
     </div>
   );

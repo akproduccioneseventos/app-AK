@@ -8,13 +8,14 @@ import {
 import { Button } from '@/components/ui/button';
 import { useToast } from '@/hooks/use-toast';
 import { 
-  getBarraTecnologicaDashboard, 
+  getPublicBarraTecnologicaDashboard,
+  getGuestBarOrders,
   createBarDrinkOrder, 
   cancelBarDrinkOrder, 
   changeBarDrinkOrder,
   uploadBarMagicPhoto
 } from '@/app/actions/fiesta/barra-tecnologica.actions';
-import type { BarDrinkOrder, BarTechnologyDashboard } from '@/types/barra-tecnologica';
+import type { BarDrinkOrder, PublicBarTechnologyDashboard } from '@/types/barra-tecnologica';
 import type { Invitado, Trago } from '@/types/fiesta';
 import NextImage from 'next/image';
 import {
@@ -24,9 +25,9 @@ import {
   DialogTitle,
 } from "@/components/ui/dialog";
 
-export function MiniQuiosco({ fiestaId, guest, onClose }: { fiestaId: string, guest: Invitado, onClose: () => void }) {
+export function MiniQuiosco({ fiestaId, guest, guestAccessToken, onClose }: { fiestaId: string, guest: Invitado, guestAccessToken: string, onClose: () => void }) {
   const { toast } = useToast();
-  const [dashboard, setDashboard] = useState<BarTechnologyDashboard | null>(null);
+  const [dashboard, setDashboard] = useState<PublicBarTechnologyDashboard | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   
   // States
@@ -39,14 +40,16 @@ export function MiniQuiosco({ fiestaId, guest, onClose }: { fiestaId: string, gu
   const [isUploading, setIsUploading] = useState(false);
 
   const loadData = useCallback(async () => {
-    const dashResult = await getBarraTecnologicaDashboard(fiestaId);
+    const [dashResult, ordersResult] = await Promise.all([
+      getPublicBarraTecnologicaDashboard(fiestaId),
+      getGuestBarOrders(fiestaId, guest.id, guestAccessToken),
+    ]);
     if (dashResult.success && dashResult.data) {
       setDashboard(dashResult.data);
-      const orders = dashResult.data.orders.filter(o => o.guestName === guest.nombre);
-      setMyOrders(orders);
+      setMyOrders(ordersResult.success ? ordersResult.orders || [] : []);
     }
     setIsLoading(false);
-  }, [fiestaId, guest.nombre]);
+  }, [fiestaId, guest.id, guestAccessToken]);
 
   useEffect(() => {
     loadData();
@@ -58,12 +61,13 @@ export function MiniQuiosco({ fiestaId, guest, onClose }: { fiestaId: string, gu
     setIsOrdering(true);
     let result;
     if (isChangeOrderId) {
-      result = await changeBarDrinkOrder(fiestaId, isChangeOrderId, drinkId);
+      result = await changeBarDrinkOrder(fiestaId, isChangeOrderId, drinkId, guest.id, guestAccessToken);
     } else {
       result = await createBarDrinkOrder({
         fiestaId,
         drinkId,
         guestName: guest.nombre,
+        guestId: guest.id,
         tableNumber: guest.tableNumber,
       });
     }
@@ -81,7 +85,7 @@ export function MiniQuiosco({ fiestaId, guest, onClose }: { fiestaId: string, gu
 
   const handleCancel = async (orderId: string) => {
     setIsCanceling(orderId);
-    const result = await cancelBarDrinkOrder(fiestaId, orderId);
+    const result = await cancelBarDrinkOrder(fiestaId, orderId, guest.id, guestAccessToken);
     if (result.success) {
       toast({ title: 'Pedido cancelado', description: 'Has cancelado el pedido correctamente.' });
       await loadData();

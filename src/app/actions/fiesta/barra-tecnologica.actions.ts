@@ -10,6 +10,7 @@ import type {
   BarTechnologyDashboard,
   BarTechnologySettings,
   CreateBarDrinkOrderInput,
+  PublicBarTechnologyDashboard,
 } from '@/types/barra-tecnologica';
 import { defaultCartaTragosData } from '@/lib/fiesta-defaults';
 import { mergeMasterTragosWithFiesta } from '@/lib/carta-tragos-master';
@@ -20,6 +21,8 @@ import { createSocialMediaPostFromUrl } from '@/app/actions/social-gallery';
 import { getBarScheduleError, isTruthyFollowConfirmation, normalizeBarTime, shouldDiscountBarStock } from '@/lib/barra-tecnologica';
 import { getInsumoById, saveInsumo } from '@/app/actions/insumos';
 import * as logger from '@/lib/logger';
+import { requireAppSession } from '@/lib/auth/require-session';
+import { enforcePublicRateLimit } from '@/lib/commercial/public-rate-limit';
 
 const BAR_ORDERS_COLLECTION = 'bar_drink_orders';
 const MAX_BAR_IMAGE_SIZE = 10 * 1024 * 1024;
@@ -189,6 +192,7 @@ async function saveFallbackOrders(fiesta: FiestaEnPlanificacion, orders: BarDrin
 
 export async function getBarraTecnologicaDashboard(fiestaId: string): Promise<{ success: boolean; data?: BarTechnologyDashboard; error?: string }> {
   try {
+    await requireAppSession();
     const fiesta = await getFiestaById(fiestaId);
     if (!fiesta) throw new Error('Fiesta no encontrada.');
 
@@ -219,11 +223,68 @@ export async function getBarraTecnologicaDashboard(fiestaId: string): Promise<{ 
   }
 }
 
+function findAuthorizedGuest(fiesta: FiestaEnPlanificacion, guestId: string, guestAccessToken: string) {
+  if (!guestId || !guestAccessToken) return null;
+  return (fiesta.invitados || []).find(
+    (guest) => guest.id === guestId && guest.guestAccessToken === guestAccessToken,
+  ) || null;
+}
+
+function orderBelongsToGuest(order: BarDrinkOrder, guest: { id: string; nombre: string }) {
+  if (order.guestId) return order.guestId === guest.id;
+  return order.guestName.trim().toLocaleLowerCase('es') === guest.nombre.trim().toLocaleLowerCase('es');
+}
+
+async function findBarOrder(fiesta: FiestaEnPlanificacion, orderId: string) {
+  const db = await getDb();
+  if (db) {
+    const snapshot = await db.collection(BAR_ORDERS_COLLECTION).doc(orderId).get();
+    if (snapshot.exists) return snapshot.data() as BarDrinkOrder;
+  }
+  return getStoredBarData(fiesta).orders?.find((order) => order.id === orderId) || null;
+}
+
+export async function getPublicBarraTecnologicaDashboard(
+  fiestaId: string,
+): Promise<{ success: boolean; data?: PublicBarTechnologyDashboard; error?: string }> {
+  try {
+    const fiesta = await getFiestaById(fiestaId);
+    if (!fiesta) throw new Error('Fiesta no encontrada.');
+
+    const stored = getStoredBarData(fiesta);
+    const drinks = (await getBarDrinks(fiesta)).map((drink) => ({
+      id: drink.id,
+      nombre: drink.nombre,
+      imageUrl: drink.imageUrl,
+      descripcion: drink.descripcion,
+      description: drink.description,
+      videoUrl: drink.videoUrl,
+      ingredientes: drink.ingredientes || [],
+      stockDisponible: drink.stockDisponible,
+    }));
+
+    return {
+      success: true,
+      data: {
+        fiestaId,
+        eventName: fiesta.configuracion?.nombreEvento || 'Evento AK',
+        settings: stored.settings,
+        drinks,
+        backgroundImageUrl: fiesta.cartaTragos?.backgroundImageUrl || '',
+        protagonistaFotoUrl: fiesta.cartaTragos?.protagonistaFotoUrl || '',
+      },
+    };
+  } catch (error: any) {
+    return { success: false, error: error.message || 'No se pudo cargar la carta de tragos.' };
+  }
+}
+
 export async function saveBarraTecnologicaSettings(
   fiestaId: string,
   settings: Partial<BarTechnologySettings>
 ): Promise<{ success: boolean; data?: BarTechnologySettings; error?: string }> {
   try {
+    await requireAppSession();
     const fiesta = await getFiestaById(fiestaId);
     if (!fiesta) throw new Error('Fiesta no encontrada.');
 
@@ -252,6 +313,12 @@ export async function saveBarraTecnologicaSettings(
 
 export async function createBarDrinkOrder(input: CreateBarDrinkOrderInput): Promise<{ success: boolean; order?: BarDrinkOrder; error?: string }> {
   try {
+    await enforcePublicRateLimit({
+      scope: 'bar-drink-order',
+      identity: input.fiestaId,
+      limit: 30,
+      windowMs: 60_000,
+    });
     const fiesta = await getFiestaById(input.fiestaId);
     if (!fiesta) throw new Error('Fiesta no encontrada.');
 
@@ -278,6 +345,7 @@ export async function createBarDrinkOrder(input: CreateBarDrinkOrderInput): Prom
       drinkId: drink.id,
       drinkName: drink.nombre,
       guestName,
+      guestId: sanitizeText(input.guestId),
       tableNumber: sanitizeText(input.tableNumber),
       note: sanitizeText(input.note),
       status: 'nuevo',
@@ -298,7 +366,13 @@ export async function createBarDrinkOrder(input: CreateBarDrinkOrderInput): Prom
       await saveFallbackOrders(fiesta, [order, ...(stored.orders || [])]);
     }
 
-    return { success: true, order };
+    const currentOrders = await getFirestoreOrders(input.fiestaId).catch(() => null);
+    const allOrders = currentOrders ?? [order, ...(stored.orders || [])];
+    const queuePosition = allOrders.filter(
+      (item) => item.status === 'nuevo' || item.status === 'preparando',
+    ).length;
+
+    return { success: true, order: { ...order, queuePosition } };
   } catch (error: any) {
     return { success: false, error: error.message || 'No se pudo crear el pedido.' };
   }
@@ -306,6 +380,7 @@ export async function createBarDrinkOrder(input: CreateBarDrinkOrderInput): Prom
 
 export async function createBarmanManualOrder(input: CreateBarDrinkOrderInput): Promise<{ success: boolean; order?: BarDrinkOrder; error?: string }> {
   try {
+    await requireAppSession();
     const fiesta = await getFiestaById(input.fiestaId);
     if (!fiesta) throw new Error('Fiesta no encontrada.');
 
@@ -346,14 +421,56 @@ export async function createBarmanManualOrder(input: CreateBarDrinkOrderInput): 
   }
 }
 
-export async function cancelBarDrinkOrder(fiestaId: string, orderId: string): Promise<{ success: boolean; error?: string }> {
-  return updateBarDrinkOrderStatus(fiestaId, orderId, 'cancelado');
-}
-
-export async function changeBarDrinkOrder(fiestaId: string, orderId: string, newDrinkId: string): Promise<{ success: boolean; order?: BarDrinkOrder; error?: string }> {
+export async function getGuestBarOrders(
+  fiestaId: string,
+  guestId: string,
+  guestAccessToken: string,
+): Promise<{ success: boolean; orders?: BarDrinkOrder[]; error?: string }> {
   try {
     const fiesta = await getFiestaById(fiestaId);
     if (!fiesta) throw new Error('Fiesta no encontrada.');
+    const guest = findAuthorizedGuest(fiesta, guestId, guestAccessToken);
+    if (!guest) return { success: false, error: 'Acceso de invitado no autorizado.' };
+    const firestoreOrders = await getFirestoreOrders(fiestaId).catch(() => null);
+    const orders = firestoreOrders ?? getStoredBarData(fiesta).orders ?? [];
+    return { success: true, orders: orders.filter((order) => orderBelongsToGuest(order, guest)) };
+  } catch (error: any) {
+    return { success: false, error: error.message || 'No se pudieron cargar tus pedidos.' };
+  }
+}
+
+export async function cancelBarDrinkOrder(
+  fiestaId: string,
+  orderId: string,
+  guestId: string,
+  guestAccessToken: string,
+): Promise<{ success: boolean; error?: string }> {
+  const fiesta = await getFiestaById(fiestaId);
+  if (!fiesta) return { success: false, error: 'Fiesta no encontrada.' };
+  const guest = findAuthorizedGuest(fiesta, guestId, guestAccessToken);
+  if (!guest) return { success: false, error: 'Acceso de invitado no autorizado.' };
+  const order = await findBarOrder(fiesta, orderId);
+  if (!order || !orderBelongsToGuest(order, guest)) return { success: false, error: 'Pedido no encontrado.' };
+  if (order.status !== 'nuevo') return { success: false, error: 'El pedido ya esta en preparacion y no se puede cancelar.' };
+  return updateBarDrinkOrderStatusInternal(fiestaId, orderId, 'cancelado');
+}
+
+export async function changeBarDrinkOrder(
+  fiestaId: string,
+  orderId: string,
+  newDrinkId: string,
+  guestId: string,
+  guestAccessToken: string,
+): Promise<{ success: boolean; order?: BarDrinkOrder; error?: string }> {
+  try {
+    const fiesta = await getFiestaById(fiestaId);
+    if (!fiesta) throw new Error('Fiesta no encontrada.');
+    const guest = findAuthorizedGuest(fiesta, guestId, guestAccessToken);
+    if (!guest) return { success: false, error: 'Acceso de invitado no autorizado.' };
+    const existing = await findBarOrder(fiesta, orderId);
+    if (!existing || !orderBelongsToGuest(existing, guest)) {
+      return { success: false, error: 'Pedido no encontrado.' };
+    }
 
     const drinks = await getBarDrinks(fiesta);
     const drink = drinks.find((item) => item.id === newDrinkId);
@@ -395,7 +512,7 @@ export async function changeBarDrinkOrder(fiestaId: string, orderId: string, new
   }
 }
 
-export async function updateBarDrinkOrderStatus(
+async function updateBarDrinkOrderStatusInternal(
   fiestaId: string,
   orderId: string,
   status: BarDrinkOrderStatus
@@ -466,6 +583,19 @@ export async function updateBarDrinkOrderStatus(
   }
 }
 
+export async function updateBarDrinkOrderStatus(
+  fiestaId: string,
+  orderId: string,
+  status: BarDrinkOrderStatus,
+): Promise<{ success: boolean; order?: BarDrinkOrder; error?: string }> {
+  try {
+    await requireAppSession();
+    return updateBarDrinkOrderStatusInternal(fiestaId, orderId, status);
+  } catch (error: any) {
+    return { success: false, error: error.message || 'Sesion no autorizada.' };
+  }
+}
+
 export async function uploadBarMagicPhoto(formData: FormData): Promise<{ success: boolean; url?: string; shareText?: string; error?: string }> {
   const fiestaId = String(formData.get('fiestaId') || '');
   const authorName = sanitizeText(String(formData.get('authorName') || ''), 'Invitado barra AK');
@@ -476,6 +606,17 @@ export async function uploadBarMagicPhoto(formData: FormData): Promise<{ success
   const drinkName = formData.get('drinkName') ? String(formData.get('drinkName')) : undefined;
 
   if (!fiestaId || !file) return { success: false, error: 'Faltan datos para subir la foto.' };
+
+  try {
+    await enforcePublicRateLimit({
+      scope: 'bar-media-upload',
+      identity: fiestaId,
+      limit: 10,
+      windowMs: 60_000,
+    });
+  } catch (error: any) {
+    return { success: false, error: error.message || 'Espera un momento antes de volver a subir.' };
+  }
 
   const isVideo = file.type.startsWith('video/');
   if (!file.type.startsWith('image/') && !isVideo) {

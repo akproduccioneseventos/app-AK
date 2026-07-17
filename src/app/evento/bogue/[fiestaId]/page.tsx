@@ -31,6 +31,7 @@ import {
   startEntertainmentSession,
   updateEntertainmentSessionStatus,
   resetEntertainmentSession,
+  completeEntertainmentSessionCycle,
   EntertainmentSession,
 } from '@/app/actions/fiesta/sesion-entretenimiento';
 import type { PublicEntertainmentEvent } from '@/lib/entertainment/station-config';
@@ -225,6 +226,11 @@ export default function BoguePage() {
     if (role === 'display') {
       startCamera();
     }
+  };
+
+  const completeGuestCycle = () => {
+    void completeEntertainmentSessionCycle(fiestaId, 'bogue', accessToken);
+    resetLocalState();
   };
 
   // 3. Capture & Process Boomerang (Display flow)
@@ -519,8 +525,7 @@ export default function BoguePage() {
         
         // Auto reset after 12 seconds
         setTimeout(() => {
-          resetLocalState();
-          resetEntertainmentSession(fiestaId, 'bogue', accessToken);
+          completeGuestCycle();
         }, 12000);
       } else {
         throw new Error(res.error || 'Fallo al subir archivo');
@@ -569,7 +574,7 @@ export default function BoguePage() {
       <div className="min-h-screen bg-[radial-gradient(ellipse_at_top,_#1e1b4b_0%,_#09090b_70%)] text-white p-6">
         <div className="max-w-md mx-auto space-y-6">
           <div className="flex items-center justify-between border-b border-white/10 pb-4">
-            <button onClick={() => router.push(`/evento/hub/${fiestaId}`)} className="p-2 bg-white/5 rounded-full hover:bg-white/10 transition">
+            <button onClick={() => router.back()} className="p-2 bg-white/5 rounded-full hover:bg-white/10 transition">
               <ArrowLeft className="w-5 h-5" />
             </button>
             <h1 className="text-lg font-black tracking-widest text-pink-400 uppercase flex items-center gap-2">
@@ -848,7 +853,7 @@ export default function BoguePage() {
               <div className="space-y-3 w-full">
                 {fiesta?.station.allowGuestRetake && fiesta.station.maxRetakes > 0 && (
                   <button
-                    onClick={resetLocalState}
+                    onClick={completeGuestCycle}
                     className="w-full h-12 rounded-xl bg-white/5 hover:bg-white/10 text-white font-bold text-sm border border-white/10 transition flex items-center justify-center gap-2"
                   >
                     <RefreshCw className="w-4 h-4" /> Tomar Otro Loop

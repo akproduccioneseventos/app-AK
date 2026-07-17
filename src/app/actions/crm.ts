@@ -35,6 +35,69 @@ function normalizeName(name: string): string {
   return name.toLowerCase().trim().replace(/\s+/g, ' ');
 }
 
+function cleanCrmLeadForFirestore(lead: CrmLead): CrmLead {
+  return JSON.parse(JSON.stringify(lead)) as CrmLead;
+}
+
+async function createCrmLeadDocument(newLead: CrmLead, knownLeads?: CrmLead[]): Promise<void> {
+  const { dbAdmin } = await import('@/lib/firebase/server');
+  if (dbAdmin) {
+    await dbAdmin.collection('prospectos').doc(newLead.id).create({
+      ...cleanCrmLeadForFirestore(newLead),
+      _syncedAt: new Date().toISOString(),
+    });
+    return;
+  }
+  const leads = knownLeads ?? await readData<CrmLead[]>(LEADS_FILE, []);
+  await writeData(LEADS_FILE, [...leads, newLead]);
+}
+
+async function mutateCrmLeadDocument(
+  leadId: string,
+  mutate: (lead: CrmLead) => CrmLead,
+): Promise<CrmLead | null> {
+  const { dbAdmin } = await import('@/lib/firebase/server');
+  if (dbAdmin) {
+    let updated: CrmLead | null = null;
+    const ref = dbAdmin.collection('prospectos').doc(leadId);
+    await dbAdmin.runTransaction(async (transaction) => {
+      const snapshot = await transaction.get(ref);
+      if (!snapshot.exists) return;
+      const data = { ...snapshot.data() } as CrmLead & { _syncedAt?: string };
+      delete data._syncedAt;
+      updated = cleanCrmLeadForFirestore(mutate(data));
+      transaction.set(ref, {
+        ...updated,
+        _syncedAt: new Date().toISOString(),
+      });
+    });
+    return updated;
+  }
+
+  const leads = await readData<CrmLead[]>(LEADS_FILE, []);
+  const index = leads.findIndex((lead) => lead.id === leadId);
+  if (index === -1) return null;
+  leads[index] = mutate(leads[index]);
+  await writeData(LEADS_FILE, leads);
+  return leads[index];
+}
+
+async function deleteCrmLeadDocument(leadId: string): Promise<boolean> {
+  const { dbAdmin } = await import('@/lib/firebase/server');
+  if (dbAdmin) {
+    const ref = dbAdmin.collection('prospectos').doc(leadId);
+    const snapshot = await ref.get();
+    if (!snapshot.exists) return false;
+    await ref.delete();
+    return true;
+  }
+  const leads = await readData<CrmLead[]>(LEADS_FILE, []);
+  const next = leads.filter((lead) => lead.id !== leadId);
+  if (next.length === leads.length) return false;
+  await writeData(LEADS_FILE, next);
+  return true;
+}
+
 const MIN_NAME_LENGTH_FOR_PARTIAL_MATCH = 6;
 const getBudgetSourceLabel = (source?: string) => {
   if (source === 'simulator_assistant') return 'Simulador con asistente';
@@ -186,8 +249,7 @@ export async function addCrmLead(leadData: NewCrmLeadData): Promise<{ success: b
       },
     ],
   };
-  leads.push(newLead);
-  await writeData(LEADS_FILE, leads);
+  await createCrmLeadDocument(newLead, leads);
 
   // Notificación de negocio: nuevo prospecto/lead ingresado
   createNotification({
@@ -208,45 +270,36 @@ export async function addCrmLead(leadData: NewCrmLeadData): Promise<{ success: b
 export async function moveCrmLead(leadId: string, newStageId: string, meetingDate?: string): Promise<{ success: boolean; lead?: CrmLead; error?: string }> {
   const auth = await verifySession();
   if (!auth.success) return { success: false, error: auth.error };
-  let leads = await getCrmLeads();
-  const index = leads.findIndex(l => l.id === leadId);
-  if (index === -1) return { success: false, error: "No encontrado" };
-  
-  leads[index].currentStageId = newStageId;
-  leads[index].updatedAt = new Date().toISOString();
-  if (meetingDate) leads[index].followUpDate = meetingDate;
-
-  await writeData(LEADS_FILE, leads);
-  return { success: true, lead: leads[index] };
+  const lead = await mutateCrmLeadDocument(leadId, (current) => ({
+    ...current,
+    currentStageId: newStageId,
+    updatedAt: new Date().toISOString(),
+    ...(meetingDate ? { followUpDate: meetingDate } : {}),
+  }));
+  return lead ? { success: true, lead } : { success: false, error: 'No encontrado' };
 }
 
 export async function scheduleCrmMeeting(leadId: string, date: string, title?: string): Promise<{ success: boolean; lead?: CrmLead; error?: string }> {
     const auth = await verifySession();
     if (!auth.success) return { success: false, error: auth.error };
-    let leads = await getCrmLeads();
-    const index = leads.findIndex(l => l.id === leadId);
-    if (index === -1) return { success: false, error: "Prospecto no encontrado" };
-
-    leads[index].followUpDate = date;
-    leads[index].updatedAt = new Date().toISOString();
-    if (title) {
-        const existingNotes = leads[index].notes || '';
-        leads[index].notes = `${existingNotes}\n[REUNIÓN AGENDADA: ${title} para el ${new Date(date).toLocaleString('es-ES')}]`.trim();
-    }
-
-    await writeData(LEADS_FILE, leads);
-    return { success: true, lead: leads[index] };
+    const lead = await mutateCrmLeadDocument(leadId, (current) => {
+      const existingNotes = current.notes || '';
+      return {
+        ...current,
+        followUpDate: date,
+        updatedAt: new Date().toISOString(),
+        ...(title ? { notes: `${existingNotes}\n[REUNIÓN AGENDADA: ${title} para el ${new Date(date).toLocaleString('es-ES')}]`.trim() } : {}),
+      };
+    });
+    return lead ? { success: true, lead } : { success: false, error: 'Prospecto no encontrado' };
 }
 
 export async function deleteCrmLead(leadId: string): Promise<{ success: boolean; error?: string }> {
     const auth = await verifySession();
     if (!auth.success) return { success: false, error: auth.error };
-    let leads = await getCrmLeads();
-    const initialLength = leads.length;
-    leads = leads.filter(l => l.id !== leadId);
-    if (leads.length === initialLength) return { success: false, error: "No encontrado" };
-    await writeData(LEADS_FILE, leads);
-    return { success: true };
+    return await deleteCrmLeadDocument(leadId)
+      ? { success: true }
+      : { success: false, error: 'No encontrado' };
 }
 
 /**
@@ -292,32 +345,24 @@ export async function resetCrm(): Promise<{ success: boolean; deletedCount?: num
     }
 }
 
-export async function recordWhatsAppContact(leadId: string, message: string): Promise<{ success: boolean; lead?: CrmLead; error?: string }> {
+export async function recordWhatsAppOpened(leadId: string, message: string): Promise<{ success: boolean; lead?: CrmLead; error?: string }> {
     const auth = await verifySession();
     if (!auth.success) return { success: false, error: auth.error };
-    const leads = await getCrmLeads();
-    const index = leads.findIndex(l => l.id === leadId);
-    if (index === -1) return { success: false, error: "Prospecto no encontrado" };
-
     const now = new Date().toISOString();
-    leads[index].lastContactedAt = now;
-    leads[index].lastContactMethod = 'whatsapp';
-    leads[index].updatedAt = now;
-
-    const noteEntry = `[WhatsApp ${new Date(now).toLocaleString('es-ES')}]: ${message.slice(0, 120)}${message.length > 120 ? '…' : ''}`;
-    const existingNotes = leads[index].notes || '';
-    leads[index].notes = existingNotes ? `${existingNotes}\n${noteEntry}` : noteEntry;
-
+    const noteEntry = `[WhatsApp abierto ${new Date(now).toLocaleString('es-ES')}]: ${message.slice(0, 120)}${message.length > 120 ? '…' : ''}`;
     const timelineEntry: CrmTimelineItem = {
         id: `tl_${Date.now()}`,
-        type: 'whatsapp_sent',
+        type: 'whatsapp_opened',
         timestamp: now,
-        description: `WhatsApp enviado: ${message.slice(0, 80)}${message.length > 80 ? '…' : ''}`,
+        description: `WhatsApp abierto con mensaje preparado: ${message.slice(0, 80)}${message.length > 80 ? '…' : ''}`,
     };
-    leads[index].timeline = [...(leads[index].timeline || []), timelineEntry];
-
-    await writeData(LEADS_FILE, leads);
-    return { success: true, lead: leads[index] };
+    const lead = await mutateCrmLeadDocument(leadId, (current) => ({
+      ...current,
+      updatedAt: now,
+      notes: current.notes ? `${current.notes}\n${noteEntry}` : noteEntry,
+      timeline: [...(current.timeline || []), timelineEntry],
+    }));
+    return lead ? { success: true, lead } : { success: false, error: 'Prospecto no encontrado' };
 }
 
 export async function updateCrmLeadField(
@@ -326,13 +371,12 @@ export async function updateCrmLeadField(
 ): Promise<{ success: boolean; lead?: CrmLead; error?: string }> {
     const auth = await verifySession();
     if (!auth.success) return { success: false, error: auth.error };
-    const leads = await getCrmLeads();
-    const index = leads.findIndex(l => l.id === leadId);
-    if (index === -1) return { success: false, error: "Prospecto no encontrado" };
-
-    Object.assign(leads[index], fields, { updatedAt: new Date().toISOString() });
-    await writeData(LEADS_FILE, leads);
-    return { success: true, lead: leads[index] };
+    const lead = await mutateCrmLeadDocument(leadId, (current) => ({
+      ...current,
+      ...fields,
+      updatedAt: new Date().toISOString(),
+    }));
+    return lead ? { success: true, lead } : { success: false, error: 'Prospecto no encontrado' };
 }
 
 export async function checkDuplicatePhone(phone: string): Promise<{ duplicate: CrmLead | null }> {
@@ -568,45 +612,39 @@ export async function confirmBookingWithContract(formData: FormData): Promise<{ 
 
     // 8. Update lead: move to conversion stage, add timeline events, link contract
     {
-      const currentLeads = await getCrmLeads();
-      const leadIdx = currentLeads.findIndex(l => l.id === leadId);
-      if (leadIdx !== -1) {
-        if (archiveLead && conversionStage) {
-          currentLeads[leadIdx].currentStageId = conversionStage.id;
-        }
-        if (contractFileName) {
-          (currentLeads[leadIdx] as any).contractFileName = contractFileName;
-        }
-        const timelineItems: CrmTimelineItem[] = [
+      const timelineItems: CrmTimelineItem[] = [
           {
             id: `tl_contract_${Date.now()}`,
             type: 'contract_signed',
             timestamp: now,
             description: `Contrato firmado. CI: ${ci || 'N/D'}. Salón: ${finalSalon || 'N/D'}.`,
           },
-        ];
-        if (formMontoSenia !== undefined && formMontoSenia > 0) {
-          timelineItems.push({
-            id: `tl_deposit_${Date.now()}`,
-            type: 'deposit_registered',
-            timestamp: now,
-            description: `Seña registrada: $${formMontoSenia.toLocaleString('es-UY')} UYU.`,
-            meta: { monto: formMontoSenia },
-          });
-        }
+      ];
+      if (formMontoSenia !== undefined && formMontoSenia > 0) {
         timelineItems.push({
+          id: `tl_deposit_${Date.now()}`,
+          type: 'deposit_registered',
+          timestamp: now,
+          description: `Seña registrada: $${formMontoSenia.toLocaleString('es-UY')} UYU.`,
+          meta: { monto: formMontoSenia },
+        });
+      }
+      timelineItems.push({
           id: `tl_event_${Date.now()}`,
           type: 'event_created',
           timestamp: now,
           description: `Evento creado: ${newFiesta.configuracion.nombreEvento} (ID: ${newFiesta.id}).`,
-        });
-        currentLeads[leadIdx].timeline = [
-          ...(currentLeads[leadIdx].timeline || []),
+      });
+      await mutateCrmLeadDocument(leadId, (current) => ({
+        ...current,
+        ...(archiveLead && conversionStage ? { currentStageId: conversionStage.id } : {}),
+        ...(contractFileName ? { contractFileName } : {}),
+        timeline: [
+          ...(current.timeline || []),
           ...timelineItems,
-        ];
-        currentLeads[leadIdx].updatedAt = now;
-        await writeData(LEADS_FILE, currentLeads);
-      }
+        ],
+        updatedAt: now,
+      } as CrmLead));
     }
 
     await createNotification({
@@ -738,6 +776,45 @@ export async function getCrmKpiData() {
     };
 }
 
+export async function getCrmBoardData(): Promise<{
+    success: boolean;
+    data?: { stages: CrmStage[]; leads: CrmLead[]; kpis: any };
+    error?: string;
+}> {
+    const auth = await verifySession();
+    if (!auth.success) return { success: false, error: auth.error };
+    try {
+        const [stages, leads, presupuestos] = await Promise.all([
+            getCrmStages(),
+            getCrmLeads(),
+            readData<any[]>('presupuestos.json', []).catch(() => []),
+        ]);
+        const activeLeads = leads.filter(lead => lead.currentStageId !== 's4' && lead.currentStageId !== 's5');
+        const pipelineValue = presupuestos
+            .filter(presupuesto => activeLeads.some(lead => lead.presupuestoId === presupuesto.id))
+            .reduce((sum, presupuesto) => sum + (presupuesto.totalConDescuento ?? presupuesto.costoTotalEstimado ?? 0), 0);
+        const wonLeads = leads.filter(lead => lead.currentStageId === 's4').length;
+        const lostLeads = leads.filter(lead => lead.currentStageId === 's5').length;
+        const totalFinished = wonLeads + lostLeads;
+        return {
+            success: true,
+            data: {
+                stages,
+                leads,
+                kpis: {
+                    activeLeads: activeLeads.length,
+                    pipelineValue,
+                    conversionRate: totalFinished > 0 ? (wonLeads / totalFinished) * 100 : 0,
+                    wonLeads,
+                    lostLeads,
+                },
+            },
+        };
+    } catch (error: any) {
+        return { success: false, error: error.message || 'No se pudo cargar el tablero comercial.' };
+    }
+}
+
 export async function findLeadByBudgetOrCreate(presupuesto: any) {
     await requireAppSession();
     const leads = await getCrmLeads();
@@ -781,42 +858,40 @@ export async function findLeadByBudgetOrCreate(presupuesto: any) {
         } as NewCrmLeadData);
         return { lead: res.lead!, isNew: true };
     } else {
-        // Actualizar datos del lead existente (Sincronización Inteligente)
-        const lead = leads[leadIndex];
-        lead.presupuestoId = presupuesto.id;
-        lead.presupuestoEstado = presupuesto.estado;
-        if (presupuesto.invoiceId) lead.invoiceId = presupuesto.invoiceId;
-        
-        // Sincronizar campos siempre con la información más reciente del presupuesto
-        if (presupuesto.clienteContacto) lead.phone = presupuesto.clienteContacto;
-        if (presupuesto.eventoTipo) lead.partyType = presupuesto.eventoTipo;
-        if (presupuesto.salonFiestas) lead.venueName = presupuesto.salonFiestas;
-        if (presupuesto.invitadosCantidad) lead.guestCount = presupuesto.invitadosCantidad;
-        lead.budgetSource = budgetSource;
-        lead.lastBudgetAt = budgetTimestamp;
-        lead.timeline = [
-          ...(lead.timeline || []),
-          {
-            id: `tl_${Date.now()}`,
-            type: 'presupuesto_created',
-            timestamp: budgetTimestamp,
-            description: `Presupuesto ${presupuesto.numero ? `#${presupuesto.numero}` : ''} registrado desde ${getBudgetSourceLabel(budgetSource)}`.trim(),
-            meta: { source: budgetSource },
-          },
-        ];
-        
-        // Progresión automática de etapas
-        if ((presupuesto.estado === 'Aceptado' || presupuesto.estado === 'Facturado')) {
-            const conversionStage = stages.find(s => s.isConversionStage);
-            if (conversionStage) lead.currentStageId = conversionStage.id;
-        } else if (presupuesto.estado === 'Enviado' && (lead.currentStageId === stages[0].id || lead.currentStageId === 's1')) {
-            const budgetStage = stages.find(s => s.name.toLowerCase().includes('presupuesto'));
-            if (budgetStage) lead.currentStageId = budgetStage.id;
-        }
-
-        lead.updatedAt = new Date().toISOString();
-        await writeData(LEADS_FILE, leads);
-        return { lead, isNew: false };
+        const leadId = leads[leadIndex].id;
+        const updatedLead = await mutateCrmLeadDocument(leadId, (current) => {
+          let currentStageId = current.currentStageId;
+          if (presupuesto.estado === 'Aceptado' || presupuesto.estado === 'Facturado') {
+            currentStageId = stages.find((stage) => stage.isConversionStage)?.id || currentStageId;
+          } else if (presupuesto.estado === 'Enviado' && (currentStageId === stages[0].id || currentStageId === 's1')) {
+            currentStageId = stages.find((stage) => stage.name.toLowerCase().includes('presupuesto'))?.id || currentStageId;
+          }
+          return {
+            ...current,
+            presupuestoId: presupuesto.id,
+            presupuestoEstado: presupuesto.estado,
+            ...(presupuesto.invoiceId ? { invoiceId: presupuesto.invoiceId } : {}),
+            ...(presupuesto.clienteContacto ? { phone: presupuesto.clienteContacto } : {}),
+            ...(presupuesto.eventoTipo ? { partyType: presupuesto.eventoTipo } : {}),
+            ...(presupuesto.salonFiestas ? { venueName: presupuesto.salonFiestas } : {}),
+            ...(presupuesto.invitadosCantidad ? { guestCount: presupuesto.invitadosCantidad } : {}),
+            budgetSource,
+            lastBudgetAt: budgetTimestamp,
+            currentStageId,
+            timeline: [
+              ...(current.timeline || []),
+              {
+                id: `tl_${Date.now()}`,
+                type: 'presupuesto_created',
+                timestamp: budgetTimestamp,
+                description: `Presupuesto ${presupuesto.numero ? `#${presupuesto.numero}` : ''} registrado desde ${getBudgetSourceLabel(budgetSource)}`.trim(),
+                meta: { source: budgetSource },
+              },
+            ],
+            updatedAt: new Date().toISOString(),
+          };
+        });
+        return { lead: updatedLead || leads[leadIndex], isNew: false };
     }
 }
 

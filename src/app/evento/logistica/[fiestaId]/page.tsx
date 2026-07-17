@@ -2,8 +2,8 @@
 
 import { useEffect, useState } from 'react';
 import { useParams } from 'next/navigation';
-import { getFiestaById } from '@/app/actions/fiesta/fiesta.actions';
-import type { FiestaEnPlanificacion } from '@/types/fiesta';
+import { getPublicGuestEvent } from '@/app/actions/public-guest-portal';
+import type { PublicGuestEvent } from '@/lib/guest-portal-public-data';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
@@ -16,13 +16,13 @@ export default function LogisticaPage() {
   const params = useParams<{ fiestaId: string }>();
   const { fiestaId } = params;
 
-  const [fiesta, setFiesta] = useState<FiestaEnPlanificacion | null>(null);
+  const [fiesta, setFiesta] = useState<PublicGuestEvent | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
     if (!fiestaId) return;
-    getFiestaById(fiestaId)
+    getPublicGuestEvent(fiestaId)
       .then(data => {
         if (!data) { setError('Evento no encontrado.'); return; }
         setFiesta(data);

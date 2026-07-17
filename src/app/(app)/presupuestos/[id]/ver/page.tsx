@@ -181,7 +181,7 @@ function VerPresupuestoContent({ params }: { params: { id: string } }) {
 
   const adjustmentPct = presupuesto?.ajusteAnualPorcentaje ?? displaySettings?.annualAdjustmentPercentage ?? 15;
   const calculatedValues = useMemo(() => {
-    if (!presupuesto) return { itemsAgrupados: {}, totalFinal: 0, subtotalBruto: 0, ahorroRegalos: 0, bonificacionPromo: 0, ajusteAnual: 0, aniosDiferencia: 0 };
+    if (!presupuesto) return { itemsAgrupados: {}, totalVigente: 0, totalFinal: 0, subtotalBruto: 0, ahorroRegalos: 0, bonificacionPromo: 0, ajusteAnual: 0, aniosDiferencia: 0 };
     const financials = calculateBudgetFinancials(presupuesto, { preserveStoredTotal: true });
   
     const adultos = presupuesto.invitadosAdultos || 0;
@@ -241,6 +241,7 @@ function VerPresupuestoContent({ params }: { params: { id: string } }) {
       ahorroRegalos: Math.round(regalosVal),
       bonificacionPromo: discountAmount,
       ajusteAnual: ajusteAnualVal,
+      totalVigente: Math.round(totalVigente),
       totalFinal: Math.round(totalFinalVal),
       aniosDiferencia: aniosDiferenciaVal
     };
@@ -550,7 +551,7 @@ function VerPresupuestoContent({ params }: { params: { id: string } }) {
   const isDirectPrintAccess = searchParams.get('imprimir') === '1' || searchParams.get('direct') === '1';
   const isContracted = presupuesto.estado === 'Aceptado' || presupuesto.estado === 'Facturado';
   const annualProjection = buildAnnualAdjustmentProjection({
-    baseTotal: calculatedValues.totalFinal,
+    baseTotal: calculatedValues.totalVigente,
     eventDate: presupuesto.eventoFecha,
     adjustmentPct,
     currentYear,

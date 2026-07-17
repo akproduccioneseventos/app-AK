@@ -21,7 +21,7 @@ import { Badge } from '@/components/ui/badge';
 import Link from 'next/link';
 import { memo, useMemo, useState, useCallback, useEffect } from 'react';
 import { cn } from '@/lib/utils';
-import { recordWhatsAppContact, updateCrmLeadField } from '@/app/actions/crm';
+import { recordWhatsAppOpened, updateCrmLeadField } from '@/app/actions/crm';
 import { Textarea } from '@/components/ui/textarea';
 import { useToast } from '@/hooks/use-toast';
 import { CrmLeadTimeline } from './CrmLeadTimeline';
@@ -145,11 +145,11 @@ export const CrmLeadCard = memo(function CrmLeadCard({ lead, onDeleteLead, isDel
 
     // Record contact in background
     try {
-      await recordWhatsAppContact(lead.id, message);
+      await recordWhatsAppOpened(lead.id, message);
     } catch {
       // non-blocking
     }
-    toast({ description: `WhatsApp abierto para ${lead.name}. Contacto registrado.` });
+    toast({ description: `WhatsApp abierto para ${lead.name}. Se registró como mensaje preparado, no como enviado.` });
   }, [lead.phone, lead.name, lead.id, lead.acquisition?.source, lead.referrerEventName, isMeetingTomorrow, toast]);
 
   const handleSaveNotes = useCallback(async () => {
@@ -330,6 +330,32 @@ export const CrmLeadCard = memo(function CrmLeadCard({ lead, onDeleteLead, isDel
               >
                 <MessageCircle className="w-3.5 h-3.5" />
               </Button>
+            )}
+            {isMobile && onMove && (
+              <div className="flex items-center gap-1" aria-label="Cambiar etapa">
+                <Button
+                  type="button"
+                  variant="ghost"
+                  size="icon"
+                  className="h-8 w-8"
+                  onClick={() => onMove(-1)}
+                  title="Mover a la etapa anterior"
+                  aria-label="Mover a la etapa anterior"
+                >
+                  <ChevronLeft className="h-4 w-4" />
+                </Button>
+                <Button
+                  type="button"
+                  variant="ghost"
+                  size="icon"
+                  className="h-8 w-8"
+                  onClick={() => onMove(1)}
+                  title="Mover a la etapa siguiente"
+                  aria-label="Mover a la etapa siguiente"
+                >
+                  <ChevronRight className="h-4 w-4" />
+                </Button>
+              </div>
             )}
             {/* Edit notes button */}
             <Button
