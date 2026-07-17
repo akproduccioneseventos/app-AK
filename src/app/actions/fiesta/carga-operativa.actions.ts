@@ -194,7 +194,7 @@ export async function updateCargaOperativaItemState(input: {
 export async function checkAssetConflicts(fiestaId: string, date: string, items: CargaOperativaItem[]): Promise<CargaOperativaItem[]> {
     const allFiestas = await getFiestas(false); // Solo activas
     const assetsCatalog = await getActivosFijos();
-    const otherFiestasSameDay = allFiestas.filter(f => f.id !== fiestaId && f.configuracion.fechaEvento && isSameDay(new Date(f.configuracion.fechaEvento), new Date(date)));
+    const otherFiestasSameDay = allFiestas.filter(f => f.id !== fiestaId && f.configuracion.fechaEvento && f.configuracion.fechaEvento === date);
 
     return items.map(item => {
         if (!item.origenId) return item;

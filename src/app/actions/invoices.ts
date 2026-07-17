@@ -10,6 +10,8 @@ import { uploadToStorage } from '@/lib/firebase/storage';
 import { verifySession } from '@/lib/auth/session-token';
 import { findMatchingClientPayment, parseCleanMoney } from '@/lib/budget/financial-guardrails';
 import { findExistingDepositReceipt } from '@/lib/commercial-flow/ledger-service';
+import { triggerWhatsAppAutomation } from '@/lib/whatsapp-automation-engine';
+import { getScheduledMessages } from '@/app/actions/scheduled-messages';
 
 const INVOICES_FILE = 'invoices.json';
 const MONEY_TOLERANCE = 1;
@@ -428,4 +430,84 @@ export async function addPaymentToInvoice(
   invoices[invoiceIndex] = { ...invoice, payments: updatedPayments, status: newStatus };
   await writeData(INVOICES_FILE, invoices);
   return { success: true, invoice: invoices[invoiceIndex] };
+}
+
+function parseDateStringLocal(dateStr: string): Date {
+  const match = (dateStr || '').match(/^(\d{4})-(\d{2})-(\d{2})/);
+  if (match) {
+    return new Date(Number(match[1]), Number(match[2]) - 1, Number(match[3]));
+  }
+  return new Date(dateStr);
+}
+
+export async function scanAndTriggerPaymentReminders(): Promise<{ success: boolean; triggeredCount: number; errors: string[] }> {
+  const auth = await verifySession();
+  if (!auth.success) throw new Error('No autorizado');
+
+  const [invoices, scheduledMessages] = await Promise.all([
+    getInvoices(),
+    getScheduledMessages().catch(() => [])
+  ]);
+
+  const today = new Date();
+  today.setHours(0, 0, 0, 0);
+
+  let triggeredCount = 0;
+  const errors: string[] = [];
+  const oneDayAgo = new Date(Date.now() - 24 * 60 * 60 * 1000);
+
+  for (const inv of invoices) {
+    if (inv.status === 'Paid') continue;
+    const balance = getInvoiceBalance(inv);
+    if (balance <= 0) continue;
+
+    const due = parseDateStringLocal(inv.dueDate);
+    due.setHours(0, 0, 0, 0);
+
+    const diffTime = due.getTime() - today.getTime();
+    const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+
+    // Determine trigger
+    let trigger: 'pago_vencido' | 'pago_por_vencer' | null = null;
+    if (diffDays < 0) {
+      trigger = 'pago_vencido';
+    } else if (diffDays >= 0 && diffDays <= 3) {
+      trigger = 'pago_por_vencer';
+    }
+
+    if (trigger) {
+      // Check for duplicate pending messages or recently sent ones to prevent spam
+      const hasRecentOrPending = scheduledMessages.some(m =>
+        m.targetId === inv.customer.id &&
+        m.templateType === trigger &&
+        (m.status === 'pendiente' || (m.status === 'enviado' && m.sentAt && new Date(m.sentAt) > oneDayAgo))
+      );
+
+      if (hasRecentOrPending) {
+        continue;
+      }
+
+      const ctx = {
+        targetId: inv.customer.id,
+        targetName: inv.customer.name,
+        targetType: 'cliente' as const,
+        targetPhone: inv.customer.phone,
+        fiestaId: inv.sourceFiestaId,
+        nombre: inv.customer.name,
+        saldo: `${inv.currency || 'UYU'} ${balance}`,
+        fecha: inv.dueDate,
+        link: `${process.env.NEXT_PUBLIC_APP_URL || ''}/portal/${inv.sourceFiestaId || ''}`,
+      };
+
+      const result = await triggerWhatsAppAutomation(trigger, ctx);
+      if (result.scheduled > 0) {
+        triggeredCount += result.scheduled;
+      }
+      if (result.errors.length > 0) {
+        errors.push(...result.errors);
+      }
+    }
+  }
+
+  return { success: true, triggeredCount, errors };
 }
