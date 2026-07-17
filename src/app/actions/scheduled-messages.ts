@@ -7,6 +7,7 @@ import { requireAppSession } from '@/lib/auth/require-session';
 const SCHEDULED_MESSAGES_FILE = 'scheduled-messages.json';
 
 export async function getScheduledMessages(): Promise<ScheduledMessage[]> {
+  await requireAppSession();
   return readData<ScheduledMessage[]>(SCHEDULED_MESSAGES_FILE, []);
 }
 
@@ -88,6 +89,7 @@ export async function cancelScheduledMessage(
 }
 
 export async function getPendingMessagesForToday(): Promise<ScheduledMessage[]> {
+  await requireAppSession();
   const messages = await getScheduledMessages();
   const today = new Date();
   today.setHours(0, 0, 0, 0);

@@ -22,8 +22,21 @@ describe('PWA and practical security readiness', () => {
   it('keeps public event experiences out of the private app guard', () => {
     expect(isPublicPathPrefix('/evento/zona-digital/fiesta-demo')).toBe(true);
     expect(isPublicPathPrefix('/evento/barra/fiesta-demo')).toBe(true);
-    expect(isPublicPathPrefix('/evento/video-vida/fiesta-demo')).toBe(true);
+    expect(isPublicPathPrefix('/evento/barra/fiesta-demo/barman')).toBe(false);
+    expect(isPublicPathPrefix('/evento/barra/fiesta-demo/stats')).toBe(false);
+    expect(isPublicPathPrefix('/evento/en-vivo/fiesta-demo/organizador')).toBe(false);
+    expect(isPublicPathPrefix('/evento/en-vivo/fiesta-demo/pantalla')).toBe(true);
+    expect(isPublicPathPrefix('/evento/dj/fiesta-demo')).toBe(false);
+    expect(isPublicPathPrefix('/evento/galeria/fiesta-demo')).toBe(true);
+    expect(isPublicPathPrefix('/portal-invitado/fiesta-demo/invitado-demo')).toBe(true);
+    expect(isPublicPathPrefix('/i/invitacion-demo')).toBe(true);
+    expect(isPublicPathPrefix('/evento/accesos/fiesta-demo')).toBe(false);
+    expect(isPublicPathPrefix('/evento/video-vida/fiesta-demo')).toBe(false);
+    expect(isPublicPathPrefix('/evento/actual')).toBe(true);
+    expect(isPublicPathPrefix('/evento/actual/checkin')).toBe(false);
+    expect(isPublicPathPrefix('/evento/actual/mesa')).toBe(false);
     expect(isPublicPathPrefix('/eventos')).toBe(false);
+    expect(PUBLIC_EXACT_PATHS.has('/evento')).toBe(false);
     expect(PUBLIC_EXACT_PATHS.has('/api/health')).toBe(true);
   });
 

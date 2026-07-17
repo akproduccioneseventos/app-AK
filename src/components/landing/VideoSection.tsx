@@ -105,13 +105,19 @@ export function VideoSection({ videos, galeriaVideos, channelUrl }: VideoSection
   const dynamicVideos: VideoItem[] = galeriaVideos?.map(galeriaVideoToVideoItem) ?? [];
   const allVideos: VideoItem[] = dynamicVideos.length > 0 ? dynamicVideos : videos ?? [];
 
-  // Deduplicate by title
-  const seenTitles = new Set<string>();
+  // El título puede repetirse; la identidad estable es la plataforma o URL de origen.
+  const seenVideos = new Set<string>();
   const uniqueVideos: VideoItem[] = [];
   for (const video of allVideos) {
-    const titleKey = video.title.toLowerCase().trim();
-    if (!seenTitles.has(titleKey)) {
-      seenTitles.add(titleKey);
+    const identity = video.youtubeId
+      ? `youtube:${video.youtubeId}`
+      : video.externalUrl
+        ? `external:${video.externalUrl.split(/[?#]/, 1)[0]}`
+        : video.embedUrl
+          ? `embed:${video.embedUrl.split(/[?#]/, 1)[0]}`
+          : `id:${video.id}`;
+    if (!seenVideos.has(identity)) {
+      seenVideos.add(identity);
       uniqueVideos.push(video);
     }
   }
@@ -138,7 +144,7 @@ export function VideoSection({ videos, galeriaVideos, channelUrl }: VideoSection
           <div className="text-center mb-14">
             <p className="text-xs font-black uppercase tracking-[0.4em] text-fuchsia-400 mb-4">Momentos reales</p>
             <h2 className="font-headline text-5xl sm:text-6xl font-black text-white leading-tight mb-6">
-              Nuestros Videos
+              Historias en movimiento
             </h2>
             <p className="text-slate-400 text-lg max-w-xl mx-auto">
               Revivimos cada evento. Mirá el trabajo que ponemos en cada celebración.
@@ -177,7 +183,7 @@ export function VideoSection({ videos, galeriaVideos, channelUrl }: VideoSection
         <div className="text-center mb-14">
           <p className="text-xs font-black uppercase tracking-[0.4em] text-fuchsia-400 mb-4">Momentos reales</p>
           <h2 className="font-headline text-5xl sm:text-6xl font-black text-white leading-tight mb-6">
-            Nuestros Videos
+            Historias en movimiento
           </h2>
           <p className="text-slate-400 text-lg max-w-xl mx-auto">
             Revivimos cada evento. Mirá el trabajo que ponemos en cada celebración.

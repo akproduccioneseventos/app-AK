@@ -128,6 +128,9 @@ export default function CrmAgendaPage() {
                 <div className="text-center text-destructive">
                     <AlertTriangle className="mx-auto w-8 h-8 mb-2"/>
                     <p>{error}</p>
+                    <Button type="button" variant="outline" size="sm" className="mt-4" onClick={() => void fetchMeetings()}>
+                      Reintentar
+                    </Button>
                 </div>
             ) : (
                 <DashboardCalendar 

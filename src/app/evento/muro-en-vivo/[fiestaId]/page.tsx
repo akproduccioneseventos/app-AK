@@ -2,12 +2,11 @@
 
 import { useEffect, useState, useCallback, useRef, useMemo } from 'react';
 import { useParams } from 'next/navigation';
-import { getSocialPosts, getChatMessages } from '@/app/actions/social-gallery';
+import { getPublicSocialEvent, getPublicSocialPosts, getChatMessages } from '@/app/actions/social-gallery';
 import type { SocialGalleryPost, Dedication, SocialComment, ChatMessage } from '@/types/social-gallery';
 import { motion, AnimatePresence } from 'framer-motion';
 import NextImage from 'next/image';
 import { QRCodeSVG } from 'qrcode.react';
-import { getFiestaById } from '@/app/actions/fiesta/fiesta.actions';
 import { getActivePoll, getDedications } from '@/app/actions/social-interactive';
 import { getCompanyInfo, getInvoiceTemplateSettings } from '@/app/actions/settings';
 import { getSocialConnections } from '@/app/actions/social-connections';
@@ -192,8 +191,8 @@ export default function MuroEnVivoPage() {
     if (!fiestaId) return;
     try {
       const [fetchedPosts, fiestaData, pollData, dedicationsData, chatData, songData] = await Promise.all([
-        getSocialPosts(fiestaId),
-        getFiestaById(fiestaId),
+        getPublicSocialPosts(fiestaId),
+        getPublicSocialEvent(fiestaId),
         getActivePoll(fiestaId),
         getDedications(fiestaId),
         getChatMessages(fiestaId).catch((err) => { console.warn('[MuroEnVivo] getChatMessages failed:', err); return []; }),

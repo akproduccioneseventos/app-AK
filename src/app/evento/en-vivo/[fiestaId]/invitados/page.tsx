@@ -13,7 +13,7 @@ import { Badge } from '@/components/ui/badge';
 import { Camera, Music, MessageSquare, Vote, Loader2, Upload, Send, Star, Gift, PartyPopper } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { GuestBotWidget } from '@/components/evento/guest-bot-widget';
-import { getFiestaById } from '@/app/actions/fiesta/fiesta.actions';
+import { getPublicGuestEvent } from '@/app/actions/public-guest-portal';
 import {
   getEventoEnVivoData,
   addFotoEnVivo,
@@ -70,7 +70,7 @@ export default function InvitadosPage() {
 
   const fetchData = useCallback(async () => {
     const [fiesta, eventoData] = await Promise.all([
-      getFiestaById(fiestaId),
+      getPublicGuestEvent(fiestaId),
       getEventoEnVivoData(fiestaId),
     ]);
     if (fiesta) setFiestaName(fiesta.configuracion?.nombreEvento || fiesta.configuracion?.nombreAgasajado || 'Evento');

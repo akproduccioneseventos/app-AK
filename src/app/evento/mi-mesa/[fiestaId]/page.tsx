@@ -7,37 +7,30 @@ import { Search, Loader2, AlertTriangle, PartyPopper, ChevronRight, MessageCircl
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
-import { getFiestaById } from '@/app/actions/fiesta/fiesta.actions';
-import type { FiestaEnPlanificacion, Invitado } from '@/types/fiesta';
-
-// Minimum word length for partial match in fuzzy search
-const MIN_SEARCH_WORD_LENGTH = 3;
+import {
+  getPublicGuestEvent,
+  searchPublicGuestTable,
+  type PublicGuestTableMatch,
+} from '@/app/actions/public-guest-portal';
+import type { PublicGuestEvent } from '@/lib/guest-portal-public-data';
 
 // Contact phone for WhatsApp fallback (WhatsApp format: country code + number)
 const CONTACT_WHATSAPP = '59898355530';
 
-// Normalize string: lowercase, remove accents
-function normalize(str: string): string {
-  return str
-    .toLowerCase()
-    .normalize('NFD')
-    .replace(/[\u0300-\u036f]/g, '');
-}
-
 export default function MiMesaPage() {
   const { fiestaId } = useParams<{ fiestaId: string }>();
 
-  const [fiesta, setFiesta] = useState<FiestaEnPlanificacion | null>(null);
+  const [fiesta, setFiesta] = useState<PublicGuestEvent | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [query, setQuery] = useState('');
-  const [results, setResults] = useState<Invitado[] | null>(null);
-  const [selected, setSelected] = useState<Invitado | null>(null);
+  const [results, setResults] = useState<PublicGuestTableMatch[] | null>(null);
+  const [selected, setSelected] = useState<PublicGuestTableMatch | null>(null);
   const [notFound, setNotFound] = useState(false);
   const [isSearching, setIsSearching] = useState(false);
 
   const loadFiesta = useCallback(async () => {
     try {
-      const data = await getFiestaById(fiestaId);
+      const data = await getPublicGuestEvent(fiestaId);
       setFiesta(data ?? null);
     } catch {
       // ignore
@@ -48,44 +41,31 @@ export default function MiMesaPage() {
 
   useEffect(() => { loadFiesta(); }, [loadFiesta]);
 
-  const handleSearch = (e: React.FormEvent) => {
+  const handleSearch = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!fiesta || !query.trim()) return;
+    if (!fiesta || query.trim().length < 3) return;
 
     setIsSearching(true);
     setResults(null);
     setSelected(null);
     setNotFound(false);
 
-    const q = normalize(query.trim());
-    const invitados = fiesta.invitados ?? [];
-
-    // Exact match first
-    const exact = invitados.filter(inv =>
-      normalize(inv.nombre) === q
-    );
-    if (exact.length === 1) {
-      setSelected(exact[0]);
-      setIsSearching(false);
-      return;
-    }
-
-    // Partial match (includes)
-    const partial = invitados.filter(inv =>
-      normalize(inv.nombre).includes(q) || q.split(' ').some(word => word.length >= MIN_SEARCH_WORD_LENGTH && normalize(inv.nombre).includes(word))
-    );
-
-    if (partial.length === 0) {
+    try {
+      const matches = await searchPublicGuestTable(fiestaId, query);
+      if (matches.length === 0) {
+        setNotFound(true);
+      } else if (matches.length === 1) {
+        setSelected(matches[0]);
+      } else {
+        setResults(matches);
+      }
+    } catch {
       setNotFound(true);
-    } else if (partial.length === 1) {
-      setSelected(partial[0]);
-    } else {
-      setResults(partial);
     }
     setIsSearching(false);
   };
 
-  const handleSelect = (inv: Invitado) => {
+  const handleSelect = (inv: PublicGuestTableMatch) => {
     setSelected(inv);
     setResults(null);
   };

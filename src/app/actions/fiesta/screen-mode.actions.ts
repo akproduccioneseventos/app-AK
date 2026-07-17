@@ -5,6 +5,8 @@ import { uploadToStorage } from '@/lib/firebase/storage';
 import { getFiestaById, getFiestas, saveFiesta } from './fiesta.actions';
 import type { ActiveGameData, ScreenMediaAsset, ScreenModeSettings, SocialGalleryBrand, SocialGallerySettings } from '@/types/fiesta';
 import admin from 'firebase-admin';
+import { enforcePublicRateLimit } from '@/lib/commercial/public-rate-limit';
+import { requireAppSession } from '@/lib/auth/require-session';
 
 /** Maximum allowed video upload size (bytes) — leaves headroom below the 20 MB Next.js bodySizeLimit */
 const MAX_VIDEO_UPLOAD_BYTES = 18 * 1024 * 1024;
@@ -52,6 +54,7 @@ async function patchScreenMode(
   patch: Partial<ScreenModeSettings>
 ): Promise<{ success: boolean; error?: string }> {
   try {
+    await requireAppSession();
     const fiesta = await getFiestaById(fiestaId);
     if (!fiesta) return { success: false, error: 'Fiesta no encontrada.' };
     const currentMode = fiesta.socialGallerySettings?.screenMode;
@@ -90,6 +93,7 @@ export async function pauseScreenPlaylist(fiestaId: string): Promise<{ success: 
 /** Avanza al siguiente ítem de la playlist */
 export async function nextScreenItem(fiestaId: string): Promise<{ success: boolean; error?: string }> {
   try {
+    await requireAppSession();
     const fiesta = await getFiestaById(fiestaId);
     if (!fiesta) return { success: false, error: 'Fiesta no encontrada.' };
     const mode = fiesta.socialGallerySettings?.screenMode;
@@ -106,6 +110,7 @@ export async function nextScreenItem(fiestaId: string): Promise<{ success: boole
 /** Retrocede al ítem anterior de la playlist */
 export async function prevScreenItem(fiestaId: string): Promise<{ success: boolean; error?: string }> {
   try {
+    await requireAppSession();
     const fiesta = await getFiestaById(fiestaId);
     if (!fiesta) return { success: false, error: 'Fiesta no encontrada.' };
     const mode = fiesta.socialGallerySettings?.screenMode;
@@ -130,6 +135,7 @@ export async function updateLedMessage(
   text: string
 ): Promise<{ success: boolean; error?: string }> {
   try {
+    await requireAppSession();
     const fiesta = await getFiestaById(fiestaId);
     if (!fiesta) return { success: false, error: 'Fiesta no encontrada.' };
     await saveFiesta({
@@ -151,6 +157,7 @@ export async function triggerLiveMoment(
   moment: { id: string; nombre: string; emoji: string }
 ): Promise<{ success: boolean; error?: string }> {
   try {
+    await requireAppSession();
     const fiesta = await getFiestaById(fiestaId);
     if (!fiesta) return { success: false, error: 'Fiesta no encontrada.' };
     const existing = fiesta.socialGallerySettings?.momentosActivos ?? [];
@@ -174,6 +181,7 @@ export async function updateScreenBrand(
   brand: SocialGalleryBrand
 ): Promise<{ success: boolean; error?: string }> {
   try {
+    await requireAppSession();
     const fiesta = await getFiestaById(fiestaId);
     if (!fiesta) return { success: false, error: 'Fiesta no encontrada.' };
     await saveFiesta({
@@ -193,6 +201,7 @@ export async function uploadScreenMediaAsset(
   formData: FormData
 ): Promise<{ success: boolean; asset?: ScreenMediaAsset; error?: string }> {
   try {
+    await requireAppSession();
     const fiestaId = formData.get('fiestaId') as string | null;
     const file = formData.get('file') as File | null;
     if (!fiestaId || !file) return { success: false, error: 'Datos incompletos.' };
@@ -241,6 +250,7 @@ export async function uploadScreenMediaAsset(
 }
 
 export async function getGlobalScreenMediaLibrary(): Promise<ScreenMediaAsset[]> {
+  await requireAppSession();
   const fiestas = await getFiestas(false);
   const dedup = new Map<string, ScreenMediaAsset>();
   for (const fiesta of fiestas) {
@@ -257,6 +267,7 @@ export async function launchGame(
   game: Omit<ActiveGameData, 'launchedAt'>
 ): Promise<{ success: boolean; error?: string }> {
   try {
+    await requireAppSession();
     const fiesta = await getFiestaById(fiestaId);
     if (!fiesta) return { success: false, error: 'Fiesta no encontrada.' };
     const activeGame: ActiveGameData = { ...game, launchedAt: new Date().toISOString() };
@@ -278,6 +289,7 @@ export async function clearActiveGame(
   fiestaId: string
 ): Promise<{ success: boolean; error?: string }> {
   try {
+    await requireAppSession();
     // Use a direct Firestore update with FieldValue.delete() to explicitly remove the
     // activeGame nested field.  The generic saveFiesta path uses { merge: true } which
     // only adds/updates fields — it NEVER deletes existing ones, so the game would stay
@@ -310,6 +322,7 @@ export async function triggerSorteoWinner(
 ): Promise<{ success: boolean; error?: string }> {
   const MAX_SORTEO_HISTORY = 50;
   try {
+    await requireAppSession();
     const fiesta = await getFiestaById(fiestaId);
     if (!fiesta) return { success: false, error: 'Fiesta no encontrada.' };
     const settings = normalizeSocialSettings(fiesta.socialGallerySettings);
@@ -337,6 +350,7 @@ export async function startSorteoSpinOnScreen(
   fiestaId: string
 ): Promise<{ success: boolean; error?: string }> {
   try {
+    await requireAppSession();
     const fiesta = await getFiestaById(fiestaId);
     if (!fiesta) return { success: false, error: 'Fiesta no encontrada.' };
     const settings = normalizeSocialSettings(fiesta.socialGallerySettings);
@@ -360,6 +374,7 @@ export async function transferSorteoToScreen(
   fiestaId: string
 ): Promise<{ success: boolean; error?: string }> {
   try {
+    await requireAppSession();
     const fiesta = await getFiestaById(fiestaId);
     if (!fiesta) return { success: false, error: 'Fiesta no encontrada.' };
     const settings = normalizeSocialSettings(fiesta.socialGallerySettings);
@@ -384,20 +399,32 @@ export async function voteActiveGameOption(
   optionId: string
 ): Promise<{ success: boolean; error?: string }> {
   try {
-    const fiesta = await getFiestaById(fiestaId);
-    if (!fiesta) return { success: false, error: 'Fiesta no encontrada.' };
-    const settings = normalizeSocialSettings(fiesta.socialGallerySettings);
-    const activeGame = settings.activeGame;
-    if (!activeGame) return { success: false, error: 'No hay juego activo.' };
-    const updatedOptions = (activeGame.options ?? []).map(opt =>
-      opt.id === optionId ? { ...opt, votes: (opt.votes ?? 0) + 1 } : opt
-    );
-    await saveFiesta({
-      ...fiesta,
-      socialGallerySettings: {
-        ...settings,
-        activeGame: { ...activeGame, options: updatedOptions },
-      },
+    await enforcePublicRateLimit({
+      scope: 'social-active-game-vote',
+      identity: fiestaId,
+      limit: 40,
+      windowMs: 60_000,
+    });
+    const { dbAdmin } = await import('@/lib/firebase/server');
+    if (!dbAdmin) throw new Error('Base de datos no disponible.');
+    const ref = dbAdmin.collection('fiestas').doc(fiestaId);
+    await dbAdmin.runTransaction(async (transaction) => {
+      const snapshot = await transaction.get(ref);
+      if (!snapshot.exists) throw new Error('Fiesta no encontrada.');
+      const stored = snapshot.data() as { socialGallerySettings?: SocialGallerySettings };
+      const settings = normalizeSocialSettings(stored.socialGallerySettings);
+      const activeGame = settings.activeGame;
+      if (!activeGame) throw new Error('No hay juego activo.');
+      if (!(activeGame.options ?? []).some((option) => option.id === optionId)) {
+        throw new Error('Opción de juego no válida.');
+      }
+      const updatedOptions = (activeGame.options ?? []).map((option) =>
+        option.id === optionId ? { ...option, votes: (option.votes ?? 0) + 1 } : option
+      );
+      transaction.update(ref, {
+        'socialGallerySettings.activeGame': { ...activeGame, options: updatedOptions },
+        _syncedAt: new Date().toISOString(),
+      });
     });
     return { success: true };
   } catch (error: any) {
@@ -411,6 +438,7 @@ export async function updateLedConfig(
   config: { text?: string; enabled?: boolean; color?: string; bgColor?: string }
 ): Promise<{ success: boolean; error?: string }> {
   try {
+    await requireAppSession();
     const fiesta = await getFiestaById(fiestaId);
     if (!fiesta) return { success: false, error: 'Fiesta no encontrada.' };
     const settings = normalizeSocialSettings(fiesta.socialGallerySettings);
@@ -475,6 +503,7 @@ export async function getMuroParticipantesForSorteo(
   fiestaId: string
 ): Promise<{ success: boolean; participantes?: string[]; error?: string }> {
   try {
+    await requireAppSession();
     // Import social actions lazily to avoid circular dependencies
     const { getSocialPosts } = await import('@/app/actions/social-gallery');
     const { getDedications, getSongRequests } = await import('@/app/actions/social-interactive');

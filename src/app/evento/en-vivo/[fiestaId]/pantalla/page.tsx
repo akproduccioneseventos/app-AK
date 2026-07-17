@@ -2,9 +2,12 @@
 
 import React, { useState, useEffect, useCallback } from 'react';
 import { useParams } from 'next/navigation';
-import { getFiestaById } from '@/app/actions/fiesta/fiesta.actions';
+import {
+  getPublicLiveDisplayEvent,
+  type PublicLiveDisplayEvent,
+} from '@/app/actions/public-guest-portal';
 import { getEventoEnVivoData } from '@/app/actions/evento-en-vivo';
-import type { EventoEnVivoData, FotoEnVivo, MensajeEnVivo, VotacionEnVivo, FiestaEnPlanificacion, PlaylistItem, SocialScreenConfig } from '@/types/fiesta';
+import type { EventoEnVivoData, FotoEnVivo, MensajeEnVivo, VotacionEnVivo, PlaylistItem, SocialScreenConfig } from '@/types/fiesta';
 import { Instagram, Facebook, MessageCircle, QrCode } from 'lucide-react';
 
 const REFRESH_INTERVAL = 20_000;
@@ -184,7 +187,7 @@ export default function PantallaPage() {
   const { fiestaId } = useParams<{ fiestaId: string }>();
 
   const [fiestaName, setFiestaName] = useState('');
-  const [fiesta, setFiesta] = useState<FiestaEnPlanificacion | null>(null);
+  const [fiesta, setFiesta] = useState<PublicLiveDisplayEvent | null>(null);
   const [data, setData] = useState<EventoEnVivoData>({
     fotos: [],
     solicitudesCanciones: [],
@@ -199,7 +202,7 @@ export default function PantallaPage() {
 
   const fetchData = useCallback(async () => {
     const [fiestaData, eventoData] = await Promise.all([
-      getFiestaById(fiestaId),
+      getPublicLiveDisplayEvent(fiestaId),
       getEventoEnVivoData(fiestaId),
     ]);
     if (fiestaData) {

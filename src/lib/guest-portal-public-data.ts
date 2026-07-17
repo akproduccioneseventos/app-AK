@@ -4,11 +4,14 @@ import type {
   GuestExperienceSettings,
   GuestPortalSettings,
   Invitado,
+  ModulosContratados,
+  ZonaDigitalAdolescentesSettings,
 } from "@/types/fiesta";
 
 export type PublicGuestEventConfig = Pick<
   ConfigEventoDataStorage,
   | "nombreEvento"
+  | "nombreAgasajado"
   | "tipoCelebracion"
   | "fechaEvento"
   | "horaInicio"
@@ -16,6 +19,12 @@ export type PublicGuestEventConfig = Pick<
   | "direccionLugar"
   | "googleMapsUrl"
   | "primaryColor"
+  | "instruccionesLlegada"
+  | "infoEstacionamiento"
+  | "rutaAccesibilidad"
+  | "protocoloLluvia"
+  | "mapaDelSalonUrl"
+  | "telefonoAsistencia"
 >;
 
 export interface PublicGuestProgramItem {
@@ -39,6 +48,15 @@ export interface PublicGuestEvent {
   };
   invitacionSlug?: string;
   programa: PublicGuestProgramItem[];
+  menuMesa?: {
+    entrada?: string;
+    platoPrincipal?: string;
+    adolescentes?: string;
+    postres?: string;
+    bebidas?: string;
+  };
+  zonaDigitalAdolescentes?: ZonaDigitalAdolescentesSettings;
+  modulosContratados?: ModulosContratados;
 }
 
 export type PublicGuest = Pick<
@@ -52,7 +70,6 @@ export type PublicGuest = Pick<
   | "cancionesDJ"
   | "mensaje"
   | "requiereAccesibilidad"
-  | "guestAccessToken"
 >;
 
 export interface PublicGuestPortalData {
@@ -69,6 +86,7 @@ export function buildPublicGuestEvent(
   return {
     configuracion: {
       nombreEvento: config.nombreEvento,
+      nombreAgasajado: config.nombreAgasajado,
       tipoCelebracion: config.tipoCelebracion,
       fechaEvento: config.fechaEvento,
       horaInicio: config.horaInicio,
@@ -76,6 +94,12 @@ export function buildPublicGuestEvent(
       direccionLugar: config.direccionLugar,
       googleMapsUrl: config.googleMapsUrl,
       primaryColor: config.primaryColor,
+      instruccionesLlegada: config.instruccionesLlegada,
+      infoEstacionamiento: config.infoEstacionamiento,
+      rutaAccesibilidad: config.rutaAccesibilidad,
+      protocoloLluvia: config.protocoloLluvia,
+      mapaDelSalonUrl: config.mapaDelSalonUrl,
+      telefonoAsistencia: config.telefonoAsistencia,
     },
     guestExperienceSettings: fiesta.guestExperienceSettings,
     guestPortalSettings: fiesta.guestPortalSettings,
@@ -96,15 +120,27 @@ export function buildPublicGuestEvent(
         descripcion: item.descripcionCliente || item.descripcion,
         icono: item.icono,
       })),
+    menuMesa: fiesta.menuMesa
+      ? {
+          entrada: fiesta.menuMesa.entrada,
+          platoPrincipal: fiesta.menuMesa.platoPrincipal,
+          adolescentes: fiesta.menuMesa.adolescentes,
+          postres: fiesta.menuMesa.postres,
+          bebidas: fiesta.menuMesa.bebidas,
+        }
+      : undefined,
+    zonaDigitalAdolescentes: fiesta.zonaDigitalAdolescentes,
+    modulosContratados: fiesta.modulosContratados,
   };
 }
 
 export function buildPublicGuestPortalData(
   fiesta: FiestaEnPlanificacion,
   guestId: string,
+  guestAccessToken: string,
 ): PublicGuestPortalData | null {
   const guest = (fiesta.invitados || []).find((item) => item.id === guestId);
-  if (!guest) return null;
+  if (!guest || !guest.guestAccessToken || guest.guestAccessToken !== guestAccessToken) return null;
 
   return {
     fiesta: buildPublicGuestEvent(fiesta),
@@ -118,7 +154,6 @@ export function buildPublicGuestPortalData(
       cancionesDJ: guest.cancionesDJ,
       mensaje: guest.mensaje,
       requiereAccesibilidad: guest.requiereAccesibilidad,
-      guestAccessToken: guest.guestAccessToken,
     },
   };
 }

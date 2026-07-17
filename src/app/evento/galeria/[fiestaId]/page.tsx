@@ -4,9 +4,8 @@ import { useState, useEffect, useMemo } from 'react';
 import { useParams, useRouter } from 'next/navigation';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Download, Share2, Heart, ArrowLeft, Loader2, Play, ChevronLeft, ChevronRight, X, ImageIcon } from 'lucide-react';
-import { getSocialPosts } from '@/app/actions/social-gallery';
-import { getFiestaById } from '@/app/actions/fiesta/fiesta.actions';
-import type { FiestaEnPlanificacion } from '@/types/fiesta';
+import { getPublicSocialEvent, getPublicSocialPosts } from '@/app/actions/social-gallery';
+import type { PublicSocialEvent } from '@/lib/social-fiesta/public-event';
 import type { SocialGalleryPost } from '@/types/social-gallery';
 
 type FilterTab = 'todas' | 'fotocabina' | '360' | 'espejo' | 'invitados';
@@ -16,7 +15,7 @@ export default function GaleriaPage() {
   const router = useRouter();
   const fiestaId = params.fiestaId as string;
   
-  const [fiesta, setFiesta] = useState<FiestaEnPlanificacion | null>(null);
+  const [fiesta, setFiesta] = useState<PublicSocialEvent | null>(null);
   const [posts, setPosts] = useState<SocialGalleryPost[]>([]);
   const [activeTab, setActiveTab] = useState<FilterTab>('todas');
   const [isLoading, setIsLoading] = useState(true);
@@ -24,15 +23,13 @@ export default function GaleriaPage() {
   const [lightboxIndex, setLightboxIndex] = useState<number | null>(null);
 
   useEffect(() => {
-    getFiestaById(fiestaId).then(setFiesta).catch(() => {});
+    getPublicSocialEvent(fiestaId).then(setFiesta).catch(() => {});
   }, [fiestaId]);
 
   useEffect(() => {
     const loadPosts = async () => {
       try {
-        const data = await getSocialPosts(fiestaId);
-        const approved = data.filter(p => (p.moderationStatus ?? 'approved') === 'approved');
-        setPosts(approved);
+        setPosts(await getPublicSocialPosts(fiestaId));
       } catch (e) {} finally {
         setIsLoading(false);
       }
@@ -104,15 +101,13 @@ export default function GaleriaPage() {
 
   const isVideo = (url: string) => url.toLowerCase().endsWith('.mp4') || url.toLowerCase().endsWith('.mov') || url.toLowerCase().includes('video');
 
-  const accentColor = fiesta?.invitacionConfig?.colorPrincipal || fiesta?.configuracion?.primaryColor || '#d4af37';
-
   return (
     <div className="min-h-screen bg-zinc-950 text-white font-sans selection:bg-white/30">
       
       {/* HEADER */}
       <div className="sticky top-0 z-30 bg-zinc-950/80 backdrop-blur-xl border-b border-white/5 pt-safe">
         <div className="max-w-7xl mx-auto px-4 py-4 flex items-center justify-between">
-          <button onClick={() => router.push(`/evento/hub/${fiestaId}`)} className="p-2 -ml-2 text-zinc-400 hover:text-white transition">
+          <button aria-label="Volver al evento" onClick={() => router.back()} className="p-2 -ml-2 text-zinc-400 hover:text-white transition">
             <ArrowLeft className="w-6 h-6" />
           </button>
           
@@ -121,7 +116,7 @@ export default function GaleriaPage() {
             {fiesta && <p className="text-xs text-zinc-400 font-medium">{fiesta.configuracion?.nombreEvento}</p>}
           </div>
 
-          <button onClick={handleShare} className="p-2 -mr-2 text-zinc-400 hover:text-white transition">
+          <button aria-label="Compartir galería" onClick={handleShare} className="p-2 -mr-2 text-zinc-400 hover:text-white transition">
             <Share2 className="w-5 h-5" />
           </button>
         </div>
@@ -234,10 +229,11 @@ export default function GaleriaPage() {
                   rel="noreferrer"
                   className="p-2 bg-white/10 rounded-full hover:bg-white/20 transition"
                   onClick={(e) => e.stopPropagation()}
+                  aria-label="Descargar archivo"
                 >
                   <Download className="w-5 h-5" />
                 </a>
-                <button onClick={() => setLightboxIndex(null)} className="p-2 bg-white/10 rounded-full hover:bg-white/20 transition">
+                <button aria-label="Cerrar galería" onClick={() => setLightboxIndex(null)} className="p-2 bg-white/10 rounded-full hover:bg-white/20 transition">
                   <X className="w-6 h-6" />
                 </button>
               </div>
@@ -245,7 +241,7 @@ export default function GaleriaPage() {
 
             {/* Navigation Left */}
             {lightboxIndex > 0 && (
-              <button onClick={(e) => { e.stopPropagation(); showPrev(); }} className="absolute left-4 p-3 bg-black/50 hover:bg-white/10 rounded-full text-white transition z-10 hidden md:block">
+              <button aria-label="Foto anterior" onClick={(e) => { e.stopPropagation(); showPrev(); }} className="absolute left-2 p-3 bg-black/60 hover:bg-white/10 rounded-full text-white transition z-10 md:left-4">
                 <ChevronLeft className="w-8 h-8" />
               </button>
             )}
@@ -275,7 +271,7 @@ export default function GaleriaPage() {
 
             {/* Navigation Right */}
             {lightboxIndex < filteredPosts.length - 1 && (
-              <button onClick={(e) => { e.stopPropagation(); showNext(); }} className="absolute right-4 p-3 bg-black/50 hover:bg-white/10 rounded-full text-white transition z-10 hidden md:block">
+              <button aria-label="Foto siguiente" onClick={(e) => { e.stopPropagation(); showNext(); }} className="absolute right-2 p-3 bg-black/60 hover:bg-white/10 rounded-full text-white transition z-10 md:right-4">
                 <ChevronRight className="w-8 h-8" />
               </button>
             )}

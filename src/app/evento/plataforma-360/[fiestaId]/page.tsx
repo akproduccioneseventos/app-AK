@@ -19,7 +19,7 @@ import {
   Check,
 } from 'lucide-react';
 import { QRCodeSVG } from 'qrcode.react';
-import { getSocialPosts } from '@/app/actions/social-gallery';
+import { getPublicSocialPosts } from '@/app/actions/social-gallery';
 import {
   getPublicEntertainmentEvent,
   uploadEntretenimientoMedia,
@@ -29,6 +29,7 @@ import {
   startEntertainmentSession,
   updateEntertainmentSessionStatus,
   resetEntertainmentSession,
+  completeEntertainmentSessionCycle,
   EntertainmentSession,
 } from '@/app/actions/fiesta/sesion-entretenimiento';
 import type { PublicEntertainmentEvent } from '@/lib/entertainment/station-config';
@@ -68,8 +69,10 @@ export default function Plataforma360Page() {
   const [recordingTimeLeft, setRecordingTimeLeft] = useState(0);
 
   const [finalVideoUrl, setFinalVideoUrl] = useState<string | null>(null);
+  const [pendingVideoBlob, setPendingVideoBlob] = useState<Blob | null>(null);
   const [uploadedPostUrl, setUploadedPostUrl] = useState<string | null>(null);
   const [qrCodeUrl, setQrCodeUrl] = useState<string>('');
+  const [uploadError, setUploadError] = useState<string | null>(null);
   
   const [isUploading, setIsUploading] = useState(false);
   const [progress, setProgress] = useState(0);
@@ -139,7 +142,7 @@ export default function Plataforma360Page() {
 
   const loadRecentVideos = useCallback(async () => {
     try {
-      const posts = await getSocialPosts(fiestaId);
+      const posts = await getPublicSocialPosts(fiestaId);
       const videos = posts
         .filter(p => p.sourceModule === 'plataforma360' || p.source === 'plataforma360' || p.imageUrl.endsWith('.mp4'))
         .slice(0, 4);
@@ -216,7 +219,10 @@ export default function Plataforma360Page() {
     setLocalStatus('idle');
     setCountdown(null);
     setFinalVideoUrl(null);
+    setPendingVideoBlob(null);
     setUploadedPostUrl(null);
+    setQrCodeUrl('');
+    setUploadError(null);
     setRecordingProgress(0);
     setIsUploading(false);
     setProgress(0);
@@ -224,6 +230,11 @@ export default function Plataforma360Page() {
     if (role === 'display') {
       startCamera();
     }
+  };
+
+  const completeGuestCycle = () => {
+    void completeEntertainmentSessionCycle(fiestaId, 'plataforma360', accessToken);
+    resetLocalState();
   };
 
   // 3. Capture Flow
@@ -308,6 +319,7 @@ export default function Plataforma360Page() {
       const videoBlob = new Blob(chunks, { type: mimeType });
       const videoUrl = URL.createObjectURL(videoBlob);
       setFinalVideoUrl(videoUrl);
+      setPendingVideoBlob(videoBlob);
 
       // Auto upload video
       await handleVideoUpload(videoBlob);
@@ -337,6 +349,7 @@ export default function Plataforma360Page() {
   };
 
   const handleVideoUpload = async (blob: Blob) => {
+    setUploadError(null);
     setLocalStatus('processing');
     await updateEntertainmentSessionStatus(
       fiestaId,
@@ -377,24 +390,26 @@ export default function Plataforma360Page() {
 
         // Auto reset after 12 seconds
         setTimeout(() => {
-          resetLocalState();
-          resetEntertainmentSession(fiestaId, 'plataforma360', accessToken);
+          completeGuestCycle();
         }, (fiesta?.station.reviewSeconds || 20) * 1000);
       } else {
         throw new Error(res.error || 'Error de subida');
       }
     } catch (err) {
       console.error(err);
+      const message = (err as Error).message || 'No se pudo subir el video.';
       setProgressMsg('No se pudo subir el video. Conservamos la vista previa para reintentar.');
+      setUploadError(message);
       setQrCodeUrl('');
       setLocalStatus('done');
       await updateEntertainmentSessionStatus(
         fiestaId,
         'plataforma360',
-        'done',
+        'idle',
         {},
         accessToken
       );
+      speak('No se pudo subir el video. Podés reintentar sin volver a grabarlo.');
     } finally {
       setIsUploading(false);
     }
@@ -433,7 +448,7 @@ export default function Plataforma360Page() {
         <div className="max-w-md mx-auto space-y-6">
           
           <div className="flex items-center justify-between border-b border-white/10 pb-4">
-            <button onClick={() => router.push(`/evento/hub/${fiestaId}`)} className="p-2 bg-white/5 rounded-full hover:bg-white/10 transition">
+            <button onClick={() => router.back()} className="p-2 bg-white/5 rounded-full hover:bg-white/10 transition">
               <ArrowLeft className="w-5 h-5" />
             </button>
             <h1 className="text-lg font-black tracking-widest text-purple-400 uppercase flex items-center gap-2">
@@ -666,11 +681,11 @@ export default function Plataforma360Page() {
         )}
 
         {/* Done / QR Screen */}
-        {localStatus === 'done' && (
-          <div className="absolute inset-0 z-40 bg-zinc-950 flex flex-col md:flex-row items-center justify-center p-6 gap-8">
+        {localStatus === 'done' && !uploadError && (
+          <div className="absolute inset-0 z-40 flex flex-col items-center justify-start gap-6 overflow-y-auto overscroll-contain bg-zinc-950 px-4 pb-8 pt-20 md:flex-row md:justify-center md:gap-8 md:p-6">
             
             {/* Video preview */}
-            <div className="relative w-full max-w-sm aspect-[9/16] bg-zinc-900 rounded-3xl overflow-hidden border border-white/10 shadow-2xl">
+            <div className="relative h-[52dvh] max-h-[32rem] w-auto max-w-full shrink-0 aspect-[9/16] overflow-hidden rounded-3xl border border-white/10 bg-zinc-900 shadow-2xl md:h-[80dvh] md:max-h-[48rem]">
               {finalVideoUrl && (
                 <video
                   src={finalVideoUrl}
@@ -707,7 +722,7 @@ export default function Plataforma360Page() {
               <div className="space-y-3 w-full">
                 {fiesta?.station.allowGuestRetake && fiesta.station.maxRetakes > 0 && (
                   <button
-                    onClick={resetLocalState}
+                    onClick={completeGuestCycle}
                     className="w-full h-12 rounded-xl bg-white/5 hover:bg-white/10 text-white font-bold text-sm border border-white/10 transition flex items-center justify-center gap-2"
                   >
                     <RefreshCw className="w-4 h-4" /> Hacer Otro Video
@@ -716,6 +731,36 @@ export default function Plataforma360Page() {
               </div>
             </div>
 
+          </div>
+        )}
+
+        {localStatus === 'done' && uploadError && (
+          <div className="absolute inset-0 z-40 flex flex-col items-center justify-start gap-6 overflow-y-auto overscroll-contain bg-zinc-950 px-4 pb-8 pt-20 text-center md:justify-center md:p-6">
+            <div className="h-[52dvh] max-h-[32rem] w-auto max-w-full shrink-0 aspect-[9/16] overflow-hidden rounded-lg border border-white/10 bg-black md:h-[72dvh] md:max-h-[44rem]">
+              {finalVideoUrl && <video src={finalVideoUrl} controls loop playsInline className="h-full w-full object-cover" />}
+            </div>
+            <div className="max-w-md">
+              <h3 className="text-2xl font-black text-white">El video quedó guardado en esta pantalla</h3>
+              <p className="mt-2 text-sm text-rose-300">{uploadError}</p>
+              <p className="mt-2 text-sm text-zinc-400">Reintentá la subida. No mostramos un QR hasta tener un enlace válido.</p>
+            </div>
+            <div className="flex w-full max-w-sm flex-col gap-3 sm:flex-row">
+              <button
+                type="button"
+                onClick={() => pendingVideoBlob && handleVideoUpload(pendingVideoBlob)}
+                disabled={!pendingVideoBlob || isUploading}
+                className="h-14 flex-1 rounded-lg bg-purple-600 px-5 font-black text-white hover:bg-purple-500 disabled:opacity-50"
+              >
+                {isUploading ? 'Subiendo...' : 'Reintentar subida'}
+              </button>
+              <button
+                type="button"
+                onClick={completeGuestCycle}
+                className="h-14 flex-1 rounded-lg border border-white/15 bg-white/5 px-5 font-bold text-white hover:bg-white/10"
+              >
+                Grabar otro
+              </button>
+            </div>
           </div>
         )}
 

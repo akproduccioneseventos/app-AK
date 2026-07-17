@@ -2,8 +2,7 @@
 
 import { useEffect, useState } from 'react';
 import { useParams, useRouter } from 'next/navigation';
-import { getFiestaById } from '@/app/actions/fiesta/fiesta.actions';
-import { saveMenuSeleccion } from '@/app/actions/fiesta/portal.actions';
+import { getFiestaForPortalSession, initializePortalSession, saveMenuSeleccion } from '@/app/actions/fiesta/portal.actions';
 import type { FiestaEnPlanificacion, MenuSeleccionPortal } from '@/types/fiesta';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -29,9 +28,14 @@ export default function MenuPortalPage() {
   useEffect(() => {
     const accessKey = sessionStorage.getItem(SESSION_KEY_PREFIX + fiestaId);
     if (!accessKey) { sessionStorage.removeItem(SESSION_KEY_PREFIX + fiestaId); router.replace(`/portal-cliente/${fiestaId}`); return; }
-    getFiestaById(fiestaId)
+    initializePortalSession(fiestaId, accessKey)
+      .then(async session => session.success ? getFiestaForPortalSession(fiestaId) : null)
       .then(data => {
-        if (!data) { setError('Evento no encontrado.'); return; }
+        if (!data) {
+          sessionStorage.removeItem(SESSION_KEY_PREFIX + fiestaId);
+          setError('La sesión del portal venció o no corresponde a este evento.');
+          return;
+        }
         setFiesta(data);
         setForm(data.menuSeleccionPortal ?? {});
       })
