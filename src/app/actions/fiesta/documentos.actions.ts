@@ -10,6 +10,7 @@ import { addDays } from 'date-fns';
 import { createNotification } from '@/lib/notifications/create-notification';
 import { uploadToStorage, deleteFromStorage } from '@/lib/firebase/storage';
 import { getPresupuestoById } from '../presupuestos';
+import { verifyPortalSession } from '@/lib/security/portal-session';
 
 /** Default deposit amount used only when no presupuesto or plan de pagos seña is available. */
 const DEFAULT_DEPOSIT_AMOUNT = 20000;
@@ -30,6 +31,9 @@ export async function getContractSigningSummary(fiestaId: string): Promise<{
   error?: string;
 }> {
   try {
+    if (!(await verifyPortalSession(fiestaId))) {
+      return { success: false, error: 'Sesión del portal no autorizada.' };
+    }
     const fiesta = await getFiestaById(fiestaId);
     if (!fiesta) return { success: false, error: 'Evento no encontrado' };
 
@@ -175,6 +179,9 @@ export async function deleteDocumento(fiestaId: string, docId: string): Promise<
 // --- TOQUE DE ORO 2: AUTOMATIZACIÓN DE FLUJOS (DOMINÓ) ---
 
 export async function signContractDigitally(fiestaId: string, signerName: string, acceptedPlanPagos?: boolean): Promise<{ success: boolean; error?: string }> {
+    if (!(await verifyPortalSession(fiestaId))) {
+      return { success: false, error: 'Sesión del portal no autorizada.' };
+    }
     return { success: false, error: 'La firma digital está deshabilitada. Por favor, firme físicamente el contrato.' };
 }
 

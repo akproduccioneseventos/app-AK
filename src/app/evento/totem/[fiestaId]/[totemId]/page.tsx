@@ -6,16 +6,16 @@ import NextImage from 'next/image';
 import { QRCodeSVG } from 'qrcode.react';
 import { AnimatePresence, motion } from 'framer-motion';
 import { Maximize, QrCode, Sparkles } from 'lucide-react';
-import { getFiestaById } from '@/app/actions/fiesta/fiesta.actions';
-import { getSocialPosts } from '@/app/actions/social-gallery';
-import type { FiestaEnPlanificacion, TotemScreenSettings } from '@/types/fiesta';
+import { getPublicSocialEvent, getPublicSocialPosts } from '@/app/actions/social-gallery';
+import type { TotemScreenSettings } from '@/types/fiesta';
 import type { SocialGalleryPost } from '@/types/social-gallery';
+import type { PublicSocialEvent } from '@/lib/social-fiesta/public-event';
 import { cn } from '@/lib/utils';
 import { KioskUnlockButton } from '@/components/kiosk/kiosk-unlock-button';
 
 const REFRESH_MS = 2500;
 
-function fallbackTotem(fiesta: FiestaEnPlanificacion, totemId: string, origin = ''): TotemScreenSettings {
+function fallbackTotem(fiesta: PublicSocialEvent, totemId: string, origin = ''): TotemScreenSettings {
   const socialUrl = origin ? `${origin}/evento/social/${fiesta.id}` : `/evento/social/${fiesta.id}`;
   return {
     id: totemId,
@@ -44,7 +44,7 @@ export default function TotemPublicPage() {
   const fiestaId = params.fiestaId as string;
   const totemId = params.totemId as string;
 
-  const [fiesta, setFiesta] = useState<FiestaEnPlanificacion | null>(null);
+  const [fiesta, setFiesta] = useState<PublicSocialEvent | null>(null);
   const [totem, setTotem] = useState<TotemScreenSettings | null>(null);
   const [posts, setPosts] = useState<SocialGalleryPost[]>([]);
   const [origin, setOrigin] = useState('');
@@ -74,8 +74,8 @@ export default function TotemPublicPage() {
     const currentOrigin = typeof window !== 'undefined' ? window.location.origin : '';
     setOrigin(currentOrigin);
     const [fiestaData, socialPosts] = await Promise.all([
-      getFiestaById(fiestaId),
-      getSocialPosts(fiestaId).catch(() => []),
+      getPublicSocialEvent(fiestaId),
+      getPublicSocialPosts(fiestaId).catch(() => []),
     ]);
     if (!fiestaData) {
       setIsLoaded(true);

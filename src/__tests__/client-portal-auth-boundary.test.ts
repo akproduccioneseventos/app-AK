@@ -30,8 +30,10 @@ describe('client portal authentication boundary', () => {
     expect(portalActions).toContain('if (!(await verifyPortalSession(fiestaId)))');
   });
 
-  it('loads social controls through the client access key instead of an admin reader', () => {
-    expect(socialControlPage).toContain('getFiestaByAccessKey(key)');
+  it('exchanges the client key for a verified portal session before loading social controls', () => {
+    expect(socialControlPage).toContain('initializePortalSession(fiestaId, key)');
+    expect(socialControlPage).toContain('getFiestaForPortalSession(fiestaId)');
+    expect(socialControlPage).not.toContain('getFiestaByAccessKey(key)');
     expect(socialControlPage).not.toContain('getFiestaById(fiestaId)');
   });
 });

@@ -216,6 +216,7 @@ function SimuladorContent() {
     const prefillName = searchParams.get('name')?.slice(0, 120) || '';
     const prefillGuests = Math.max(1, Math.min(1000, Math.round(Number(searchParams.get('guests')) || 50)));
     const prefillEventType = normalizePrefillEventType(searchParams.get('eventType'));
+    const prefillSalonChoice: 'club' | '' = searchParams.get('salon')?.toLowerCase() === 'club' ? 'club' : '';
     const acquisition = useMemo(() => ({
         ...commercialAttributionFromSearchParams(searchParams, 'landing'),
         entryPath: searchParams.get('entry') || '/simulador-de-presupuesto',
@@ -244,7 +245,7 @@ function SimuladorContent() {
     const [selectedPrincipal, setSelectedPrincipal] = useState<string>('');
     const [selectedInfantil, setSelectedInfantil] = useState<string>('');
     const [selectedPaqueteId, setSelectedPaqueteId] = useState<string>('');
-    const [salonChoice, setSalonChoice] = useState<'propio' | 'club' | ''>('');
+    const [salonChoice, setSalonChoice] = useState<'propio' | 'club' | ''>(prefillSalonChoice);
     const [excludedPackageServiceIds, setExcludedPackageServiceIds] = useState<string[]>([]);
     const [dateSuggestions, setDateSuggestions] = useState<string[]>([]);
     const [dateWarning, setDateWarning] = useState('');
@@ -926,6 +927,7 @@ function SimuladorContent() {
                     backgroundColor: '#ffffff',
                     scale: 0.8,
                     useCORS: true,
+                    ignoreElements: (element: Element) => element.hasAttribute('data-pdf-exclude'),
                 },
             });
             const totalPages = pdf.getNumberOfPages();
@@ -1270,6 +1272,23 @@ function SimuladorContent() {
         acquisition,
     ]);
 
+    if (errorLoading) {
+        return (
+            <div className="min-h-screen flex flex-col items-center justify-center bg-slate-950 text-white p-6 text-center">
+                <div className="max-w-md space-y-4">
+                    <AlertTriangle className="mx-auto h-16 w-16 text-amber-600" />
+                    <h2 className="text-2xl font-black uppercase tracking-tight">Error de conexión</h2>
+                    <p className="text-slate-400 text-sm leading-relaxed">
+                        No pudimos cargar el catálogo de servicios de AK Producciones. Verificá tu conexión a internet e intentalo de nuevo.
+                    </p>
+                    <Button onClick={() => window.location.reload()} className="mt-4 bg-red-700 hover:bg-red-800 text-white font-black px-6 h-12 rounded-lg transition">
+                        Reintentar
+                    </Button>
+                </div>
+            </div>
+        );
+    }
+
     if (!hasStarted) {
         return (
             <main className="min-h-screen bg-slate-950 text-white">
@@ -1321,23 +1340,6 @@ function SimuladorContent() {
                     </div>
                 </section>
             </main>
-        );
-    }
-
-    if (errorLoading) {
-        return (
-            <div className="min-h-screen flex flex-col items-center justify-center bg-slate-950 text-white p-6 text-center">
-                <div className="max-w-md space-y-4">
-                    <AlertTriangle className="mx-auto h-16 w-16 text-amber-600" />
-                    <h2 className="text-2xl font-black uppercase tracking-tight">Error de conexión</h2>
-                    <p className="text-slate-400 text-sm leading-relaxed">
-                        No pudimos cargar el catálogo de servicios de AK Producciones. Verificá tu conexión a internet e intentalo de nuevo.
-                    </p>
-                    <Button onClick={() => window.location.reload()} className="mt-4 bg-red-700 hover:bg-red-800 text-white font-black px-6 h-12 rounded-lg transition">
-                        Reintentar
-                    </Button>
-                </div>
-            </div>
         );
     }
 
@@ -1429,6 +1431,30 @@ function SimuladorContent() {
                             <p className="text-slate-500 font-semibold text-sm mt-2">AK Producciones Eventos — Salto, Uruguay</p>
                         </CardHeader>
                         <CardContent className="p-4 sm:p-10 print:p-2 space-y-10">
+                            <div className="grid gap-4 border-b border-slate-200 pb-6 text-sm text-slate-700 sm:grid-cols-2" style={{ breakInside: 'avoid', pageBreakInside: 'avoid' }}>
+                                <div>
+                                    <p className="text-[10px] font-bold uppercase tracking-widest text-slate-400">Cliente</p>
+                                    <p className="mt-1 font-bold text-slate-900">{clienteNombre}</p>
+                                </div>
+                                <div>
+                                    <p className="text-[10px] font-bold uppercase tracking-widest text-slate-400">Evento</p>
+                                    <p className="mt-1 font-bold text-slate-900">{eventoTipo}</p>
+                                </div>
+                                <div>
+                                    <p className="text-[10px] font-bold uppercase tracking-widest text-slate-400">Fecha prevista</p>
+                                    <p className="mt-1 font-semibold text-slate-800">
+                                        {eventoFecha ? new Intl.DateTimeFormat('es-UY').format(eventoFecha) : 'A confirmar'}
+                                    </p>
+                                </div>
+                                <div>
+                                    <p className="text-[10px] font-bold uppercase tracking-widest text-slate-400">Invitados</p>
+                                    <p className="mt-1 font-semibold text-slate-800">{adultos + ninosYAdolescentes} personas</p>
+                                </div>
+                                <div className="sm:col-span-2">
+                                    <p className="text-[10px] font-bold uppercase tracking-widest text-slate-400">Referencia</p>
+                                    <p className="mt-1 font-mono text-xs text-slate-600">{generatedPresupuestoId}</p>
+                                </div>
+                            </div>
                             <div className="overflow-x-auto rounded-md border border-slate-200 print:border-slate-300">
                                 <Table>
                                     <TableHeader className="bg-slate-50">
@@ -1445,11 +1471,11 @@ function SimuladorContent() {
                                     <TableBody>
                                         {Object.entries(stats.agrupados).map(([categoria, items]) => (
                                             <React.Fragment key={categoria}>
-                                                <TableRow className="bg-slate-50 border-y border-slate-200">
+                                                <TableRow className="bg-slate-50 border-y border-slate-200" style={{ breakInside: 'avoid', pageBreakInside: 'avoid' }}>
                                                   <TableCell colSpan={(budgetSettings.showIndividualPrices ?? true) ? 3 : 1} className="font-black text-[10px] uppercase text-slate-700 pl-8 tracking-widest py-2">{categoria}</TableCell>
                                                 </TableRow>
                                                 {items.map(item => (
-                                                    <TableRow key={item.id} className="hover:bg-slate-50/50 transition-colors border-slate-100">
+                                                    <TableRow key={item.id} className="hover:bg-slate-50/50 transition-colors border-slate-100" style={{ breakInside: 'avoid', pageBreakInside: 'avoid' }}>
                                                         <TableCell className="pl-8 py-4">
                                                             <div className="flex items-center justify-between gap-2">
                                                                 <div>
@@ -1462,6 +1488,7 @@ function SimuladorContent() {
                                                                 </div>
                                                                 {isServiceRemovable(item) && (
                                                                     <Button
+                                                                        data-pdf-exclude="true"
                                                                         variant="ghost"
                                                                         size="icon"
                                                                         onClick={() => setServiceToDelete(item)}
@@ -1496,13 +1523,13 @@ function SimuladorContent() {
                                         ))}
                                         {removedServiceDetails.length > 0 && (
                                             <>
-                                                <TableRow className="border-y border-red-200 bg-red-50">
+                                                <TableRow data-pdf-exclude="true" className="border-y border-red-200 bg-red-50 print:hidden">
                                                     <TableCell colSpan={(budgetSettings.showIndividualPrices ?? true) ? 3 : 1} className="py-2 pl-8 text-[10px] font-black uppercase tracking-widest text-red-700">
                                                         Servicios retirados
                                                     </TableCell>
                                                 </TableRow>
                                                 {removedServiceDetails.map(item => (
-                                                    <TableRow key={item.id} className="border-slate-100">
+                                                    <TableRow key={item.id} data-pdf-exclude="true" className="border-slate-100 print:hidden">
                                                         <TableCell className="py-4 pl-8">
                                                             <div className="flex items-center justify-between gap-2">
                                                                 <div>
@@ -1535,7 +1562,7 @@ function SimuladorContent() {
                                 </Table>
                             </div>
 
-                            <div className="ml-auto w-full max-w-sm space-y-3 rounded-md border border-slate-200 bg-slate-50 px-8 py-6 text-slate-900">
+                            <div className="ml-auto w-full max-w-sm space-y-3 rounded-md border border-slate-200 bg-slate-50 px-8 py-6 text-slate-900" style={{ breakInside: 'avoid', pageBreakInside: 'avoid' }}>
                                 {(budgetSettings.showIndividualPrices ?? true) && (
                                    <div className="flex justify-between items-center text-[10px] font-black uppercase text-slate-500 tracking-widest">
                                        <span>Subtotal Servicios:</span>
@@ -1573,7 +1600,7 @@ function SimuladorContent() {
                                  )}
                             </div>
                             {stats.annualProjection.applies && (
-                                <div className="rounded-md border border-slate-200 bg-white p-4 text-sm">
+                                <div className="rounded-md border border-slate-200 bg-white p-4 text-sm" style={{ breakInside: 'avoid', pageBreakInside: 'avoid' }}>
                                     <p className="mb-3 text-[10px] font-black uppercase tracking-widest text-slate-500">
                                         Proyeccion de ajuste anual ({stats.annualProjection.adjustmentPct}%)
                                     </p>
@@ -1605,7 +1632,7 @@ function SimuladorContent() {
                                     <p className="mt-2 text-xs leading-relaxed text-slate-600">{budgetSettings.bookingTerms}</p>
                                 )}
                             </div>
-                            <div className="flex flex-col sm:flex-row items-center gap-3 print:hidden">
+                            <div data-pdf-exclude="true" className="flex flex-col sm:flex-row items-center gap-3 print:hidden">
                               <Button variant="ghost" onClick={() => setStep(1)} className="rounded-md text-xs font-bold text-slate-500">Iniciar nueva simulación</Button>
                               <a
                                 href="https://akproduccioneseventos.com/#faq"

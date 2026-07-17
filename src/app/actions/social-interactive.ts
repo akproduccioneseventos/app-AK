@@ -31,6 +31,7 @@ import {
   isDedicationAudioOwnedByEvent,
   validateDedicationAudioFile,
 } from '@/lib/social-fiesta/guardrails';
+import { enforcePublicRateLimit } from '@/lib/commercial/public-rate-limit';
 
 // Firestore collection names
 const POLLS_COLLECTION = 'social_polls';
@@ -137,6 +138,12 @@ export async function votePoll(
   optionId: string
 ): Promise<{ success: boolean; poll?: SocialPoll; error?: string }> {
   try {
+    await enforcePublicRateLimit({
+      scope: 'social-poll-vote',
+      identity: `${fiestaId}:${pollId}`,
+      limit: 30,
+      windowMs: 60_000,
+    });
     const db = await getDb();
     const ref = db.collection(POLLS_COLLECTION).doc(pollId);
     // Transaction guarantees that every concurrent vote is counted — no vote is lost.
@@ -196,6 +203,12 @@ export async function addSongRequest(
   requestedBy: string
 ): Promise<{ success: boolean; request?: SongRequest; error?: string }> {
   try {
+    await enforcePublicRateLimit({
+      scope: 'social-song-request',
+      identity: fiestaId,
+      limit: 12,
+      windowMs: 60_000,
+    });
     const review = reviewSocialContent({ type: 'text', text: song, authorName: requestedBy, moderationMode: 'automatico' });
     if (review.status === 'blocked') return { success: false, error: review.message };
     const db = await getDb();
@@ -220,10 +233,22 @@ export async function voteSongRequest(
   requestId: string
 ): Promise<{ success: boolean; error?: string }> {
   try {
+    await enforcePublicRateLimit({
+      scope: 'social-song-vote',
+      identity: `${fiestaId}:${requestId}`,
+      limit: 30,
+      windowMs: 60_000,
+    });
     const db = await getDb();
-    // Atomic increment — concurrent votes are all counted.
-    await db.collection(SONGS_COLLECTION).doc(requestId).update({
-      votes: admin.firestore.FieldValue.increment(1),
+    const ref = db.collection(SONGS_COLLECTION).doc(requestId);
+    await db.runTransaction(async (transaction: Transaction) => {
+      const snapshot = await transaction.get(ref);
+      if (!snapshot.exists || snapshot.data()?.fiestaId !== fiestaId) {
+        throw new Error('Pedido musical no encontrado para este evento.');
+      }
+      transaction.update(ref, {
+        votes: admin.firestore.FieldValue.increment(1),
+      });
     });
     return { success: true };
   } catch (e: any) {
@@ -238,7 +263,12 @@ export async function markSongPlayed(
   try {
     await requireAppSession();
     const db = await getDb();
-    await db.collection(SONGS_COLLECTION).doc(requestId).update({ played: true });
+    const ref = db.collection(SONGS_COLLECTION).doc(requestId);
+    const snapshot = await ref.get();
+    if (!snapshot.exists || snapshot.data()?.fiestaId !== fiestaId) {
+      return { success: false, error: 'Pedido musical no encontrado para este evento.' };
+    }
+    await ref.update({ played: true });
     return { success: true };
   } catch (e: any) {
     return { success: false, error: e.message };
@@ -295,6 +325,12 @@ export async function addDedication(
   audioUrl?: string
 ): Promise<{ success: boolean; dedication?: Dedication; error?: string }> {
   try {
+    await enforcePublicRateLimit({
+      scope: 'social-dedication',
+      identity: fiestaId,
+      limit: 12,
+      windowMs: 60_000,
+    });
     const fiesta = await getFiestaById(fiestaId);
     if (!fiesta) return { success: false, error: 'Evento no encontrado.' };
     if (fiesta.socialGallerySettings?.showDedications === false) {
@@ -411,6 +447,12 @@ export async function uploadDedicationAudio(
   formData: FormData
 ): Promise<{ success: boolean; audioUrl?: string; error?: string }> {
   try {
+    await enforcePublicRateLimit({
+      scope: 'social-dedication-audio',
+      identity: fiestaId,
+      limit: 8,
+      windowMs: 60_000,
+    });
     const file = formData.get('file') as File | null;
     if (!fiestaId || !file || !(file instanceof File)) return { success: false, error: 'Faltan datos.' };
     const validationError = validateDedicationAudioFile(file);

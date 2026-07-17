@@ -6,6 +6,7 @@ import { ServicesSection } from "@/components/landing/ServicesSection";
 import TechnologyExperienceSection from "@/components/landing/TechnologyExperienceSection";
 import { AkTeamStorySection } from "@/components/landing/AkTeamStorySection";
 import { VideoSection } from "@/components/landing/VideoSection";
+import { GallerySection } from "@/components/landing/GallerySection";
 import { TestimonialsSection } from "@/components/landing/TestimonialsSection";
 import { CTASection } from "@/components/landing/CTASection";
 import { FAQSection } from "@/components/landing/FAQSection";
@@ -16,11 +17,15 @@ import defaultCatalogoFotos from "@/data/catalogo-fotos.json";
 import { BlogSection } from "@/components/landing/BlogSection";
 import { FloatingActions } from "@/components/public/FloatingActions";
 import { SalonDestacadoSection } from "@/components/landing/SalonDestacadoSection";
+import { defaultLandingSettings } from "@/types/landing-editor";
 import { getPromoActiva } from "@/app/actions/promos";
 import { getLandingSettings } from "@/app/actions/landing-editor";
 import { getCatalogoFotos } from "@/app/actions/catalogo-fotos";
+import { getGaleriaItems } from "@/app/actions/galeria";
+import { getSalones } from "@/app/actions/salones";
 import { getTestimonials } from "@/app/actions/feedback";
 import type { GaleriaFoto } from "@/types/galeria";
+import type { GaleriaVideo } from "@/types/galeria";
 import type { ServiceItem } from "@/components/landing/ServicesSection";
 import {
   getAkYoutubeVideos,
@@ -33,6 +38,9 @@ import {
   InstagramSyncStrip,
   type InstagramSyncItem,
 } from "@/components/landing/InstagramSyncStrip";
+import { getPublicInstagramFeed } from "@/lib/instagram/public-feed";
+import { isClubUruguay } from "@/lib/club-uruguay";
+import { getDynamicSalonPhotos, type SalonPhoto } from "@/lib/salon-helper";
 export const revalidate = 300;
 const DEFAULT_DYNAMIC_SERVICE_SUBTITLE = "Servicio AK";
 const DEFAULT_INSTAGRAM_URL =
@@ -43,6 +51,26 @@ const DEFAULT_SEO_DESCRIPTION =
   "Organización completa de bodas, fiestas de 15 años y eventos empresariales en Salto, Uruguay. Discoteca, comida premium, fotografía, decoración y salones de fiesta en un solo lugar con tecnología interactiva.";
 const DEFAULT_OG_IMAGE = "/media/catalogo-servicios/quinceanera_hero.png";
 const getCachedLandingSettings = cache(getLandingSettings);
+
+async function withPublicFallback<T>(
+  promise: Promise<T>,
+  fallback: T,
+  timeoutMs = 3_500,
+): Promise<T> {
+  let timeout: ReturnType<typeof setTimeout> | undefined;
+  try {
+    return await Promise.race([
+      promise,
+      new Promise<T>((resolve) => {
+        timeout = setTimeout(() => resolve(fallback), timeoutMs);
+      }),
+    ]);
+  } catch {
+    return fallback;
+  } finally {
+    if (timeout) clearTimeout(timeout);
+  }
+}
 function getInstagramHandle(profileUrl?: string, username?: string) {
   const raw = username || profileUrl || "@akproduccioneseventos";
   const cleaned = raw
@@ -51,6 +79,46 @@ function getInstagramHandle(profileUrl?: string, username?: string) {
     .replace(/^@/, "")
     .trim();
   return `@${cleaned || "akproduccioneseventos"}`;
+}
+
+function withoutUrlQuery(value: string) {
+  return value.split(/[?#]/, 1)[0].replace(/\/$/, "").toLowerCase();
+}
+
+function dedupeGalleryPhotos(items: GaleriaFoto[]) {
+  const seen = new Set<string>();
+  return items.filter((item) => {
+    if (!item.url) return false;
+    const key = item.sourceId
+      ? `${item.source || "source"}:${item.sourceId}`
+      : `url:${withoutUrlQuery(item.url)}`;
+    if (seen.has(key)) return false;
+    seen.add(key);
+    return true;
+  });
+}
+
+function dedupeGalleryVideos(items: GaleriaVideo[]) {
+  const seen = new Set<string>();
+  return items.filter((item) => {
+    const key = item.sourceId
+      ? `${item.source || "source"}:${item.sourceId}`
+      : item.youtubeId
+        ? `video:${item.youtubeId}`
+        : `url:${withoutUrlQuery(item.youtubeUrl || item.embedUrl || item.id)}`;
+    if (seen.has(key)) return false;
+    seen.add(key);
+    return true;
+  });
+}
+
+function dedupeSalonPhotos(items: SalonPhoto[]) {
+  const seen = new Set<string>();
+  return items.filter((item) => {
+    if (!item.src || seen.has(item.src)) return false;
+    seen.add(item.src);
+    return true;
+  });
 }
 function getDefaultServiceImage(title: string): string {
   const lower = title.toLowerCase();
@@ -189,7 +257,11 @@ function getDefaultServiceFeatures(title: string): string[] {
   ];
 }
 export async function generateMetadata(): Promise<Metadata> {
-  const settings = await getCachedLandingSettings();
+  const settings = await withPublicFallback(
+    getCachedLandingSettings(),
+    defaultLandingSettings,
+    2_500,
+  );
   const title = `${settings.seo.title || DEFAULT_SEO_TITLE} | Organización Integral de Eventos en Salto`;
   const description = settings.seo.description || DEFAULT_SEO_DESCRIPTION;
   const ogImage = settings.seo.ogImageUrl || DEFAULT_OG_IMAGE;
@@ -235,40 +307,89 @@ export default async function HomePage({ searchParams }: LandingPageProps) {
     youtubeVideos,
     testimonialData,
     socialConnections,
+    galeriaData,
+    instagramFeed,
+    salones,
   ] = await Promise.all([
-    getPromoActiva(),
-    getCachedLandingSettings(),
-    getCatalogoFotos().catch(() => []),
+    withPublicFallback(getPromoActiva(), null),
+    withPublicFallback(getCachedLandingSettings(), defaultLandingSettings),
+    withPublicFallback(getCatalogoFotos(), []),
     getAkYoutubeVideos(),
-    getTestimonials().catch(() => []),
-    getSocialConnections().catch(() => []),
+    withPublicFallback(getTestimonials(), []),
+    withPublicFallback(getSocialConnections(), []),
+    withPublicFallback(getGaleriaItems(), { fotos: [], videos: [] }),
+    withPublicFallback(getPublicInstagramFeed(), [], 4_500),
+    withPublicFallback(getSalones(), []),
   ]);
   const fotos = defaultGaleriaPublica.fotos as GaleriaFoto[];
-  const videos = defaultGaleriaPublica.videos as any[];
-  const videoIds = new Set(videos.map((video) => video.youtubeId));
-  const videosCombinados = [
-    ...videos,
-    ...youtubeVideos.filter((video) => !videoIds.has(video.youtubeId)),
-  ];
-  const galeriaUrls = new Set(fotos.map((f) => f.url));
+  const videos = defaultGaleriaPublica.videos as GaleriaVideo[];
   const safeCatalogoFotos =
     catalogoFotos && catalogoFotos.length > 0
       ? catalogoFotos
       : defaultCatalogoFotos;
   const catalogoComoGaleria: GaleriaFoto[] = (safeCatalogoFotos as any)
-    .filter((f: any) => !galeriaUrls.has(f.url))
     .map((f: any) => ({
       id: f.id,
       tipo: "foto" as const,
       url: f.url,
       titulo: f.titulo,
-      description: f.descripcion,
+      descripcion: f.descripcion,
       categoria: f.categoriaServicio,
       destacada: f.destacada,
       orden: fotos.length + f.orden,
       createdAt: f.createdAt,
+      source: f.source || "catalogo",
+      sourceId: f.sourceId,
+      sourceUrl: f.sourceUrl,
     }));
-  const fotosCombinadas = [...fotos, ...catalogoComoGaleria];
+  const instagramFotos: GaleriaFoto[] = instagramFeed
+    .filter((post) => post.mediaType === "image")
+    .map((post, index) => ({
+      id: post.id,
+      tipo: "foto",
+      url: post.mediaUrl,
+      titulo: "Trabajo reciente de AK Producciones",
+      descripcion: post.caption,
+      categoria: "Instagram",
+      destacada: true,
+      orden: index,
+      createdAt: post.publishedAt || new Date(0).toISOString(),
+      source: "instagram",
+      sourceId: post.sourceId,
+      sourceUrl: post.permalink,
+    }));
+  const fotosCombinadas = dedupeGalleryPhotos([
+    ...instagramFotos,
+    ...(galeriaData.fotos || []),
+    ...fotos,
+    ...catalogoComoGaleria,
+  ]);
+
+  const instagramVideos: GaleriaVideo[] = instagramFeed
+    .filter((post) => post.mediaType === "video")
+    .map((post, index) => ({
+      id: post.id,
+      tipo: "video",
+      youtubeUrl: post.permalink,
+      youtubeId: post.id,
+      plataforma: "archivo",
+      thumbnailUrl: post.mediaUrl,
+      titulo: "Video reciente de AK Producciones",
+      descripcion: post.caption,
+      categoria: "Instagram",
+      destacada: true,
+      orden: index,
+      createdAt: post.publishedAt || new Date(0).toISOString(),
+      source: "instagram",
+      sourceId: post.sourceId,
+      sourceUrl: post.permalink,
+    }));
+  const videosCombinados = dedupeGalleryVideos([
+    ...instagramVideos,
+    ...(galeriaData.videos || []),
+    ...videos,
+    ...youtubeVideos,
+  ]);
   const instagramConnection = (socialConnections as any[]).find(
     (connection) =>
       connection.platform === "Instagram" && connection.isConnected,
@@ -279,39 +400,23 @@ export default async function HomePage({ searchParams }: LandingPageProps) {
     instagramProfileUrl,
     instagramConnection?.username,
   );
-  const instagramApiConnected = Boolean(
-    (process.env.INSTAGRAM_ACCESS_TOKEN ||
-      process.env.META_INSTAGRAM_ACCESS_TOKEN) &&
-      (process.env.INSTAGRAM_BUSINESS_ACCOUNT_ID ||
-        process.env.INSTAGRAM_USER_ID),
-  );
-  const instagramItems: InstagramSyncItem[] = [
-    ...fotosCombinadas.slice(0, 6).map((foto) => ({
-      id: `foto-${foto.id}`,
-      type: "photo" as const,
-      imageUrl: foto.url,
-      title: foto.titulo || foto.descripcion || "Evento AK Producciones",
-      category: foto.categoria || "Galería AK",
-      href: instagramProfileUrl,
-    })),
-    ...videosCombinados.slice(0, 2).map((video: any) => ({
-      id: `video-${video.id || video.youtubeId || video.youtubeUrl}`,
-      type: "video" as const,
-      imageUrl:
-        video.thumbnailUrl ||
-        video.thumbnail ||
-        (video.youtubeId
-          ? `https://img.youtube.com/vi/${video.youtubeId}/hqdefault.jpg`
-          : DEFAULT_OG_IMAGE),
-      title: video.title || video.titulo || "Video de evento AK",
-      category: "Video",
-      href:
-        video.youtubeUrl ||
-        (video.youtubeId
-          ? `https://www.youtube.com/watch?v=${video.youtubeId}`
-          : instagramProfileUrl),
-    })),
-  ].slice(0, 8);
+  const instagramApiConnected = instagramFeed.length > 0;
+  const instagramItems: InstagramSyncItem[] = instagramFeed.map((post) => ({
+    id: post.id,
+    type: post.mediaType === "video" ? "video" : "photo",
+    imageUrl: post.mediaUrl,
+    title: post.caption || "Evento AK Producciones",
+    category: post.mediaType === "video" ? "Reel" : "Instagram",
+    href: post.permalink,
+  }));
+  const clubSalon = salones.find((salon) => salon.esClubUruguay || isClubUruguay(salon.nombre));
+  const masterClubPhotos: SalonPhoto[] = (clubSalon?.fotos || []).map((src, index) => ({
+    src,
+    alt: `Club Uruguay, vista ${index + 1}`,
+    title: index === 0 ? "Club Uruguay" : `Vista ${index + 1}`,
+    description: "Foto cargada desde el módulo maestro de salones.",
+  }));
+  const clubPhotos = dedupeSalonPhotos([...masterClubPhotos, ...getDynamicSalonPhotos()]);
   const whatsapp = "59898355530";
   /* Usar el número real de contacto de la empresa */ const safeTestimonialData =
     testimonialData && testimonialData.length > 0
@@ -417,17 +522,19 @@ export default async function HomePage({ searchParams }: LandingPageProps) {
           />
         }
         technology={<TechnologyExperienceSection whatsappNumber={whatsapp} />}
-        salon={<SalonDestacadoSection />}
+        salon={<SalonDestacadoSection photos={clubPhotos} capacity={clubSalon?.capacidad} />}
         team={<AkTeamStorySection />}
         process={null}
-        gallery={null}
+        gallery={<GallerySection galeriaFotos={fotosCombinadas} />}
         instagram={
-          <InstagramSyncStrip
-            handle={instagramHandle}
-            profileUrl={instagramProfileUrl}
-            items={instagramItems}
-            isApiConnected={instagramApiConnected}
-          />
+          instagramItems.length > 0 ? (
+            <InstagramSyncStrip
+              handle={instagramHandle}
+              profileUrl={instagramProfileUrl}
+              items={instagramItems}
+              isApiConnected={instagramApiConnected}
+            />
+          ) : null
         }
         blog={<BlogSection />}
         video={

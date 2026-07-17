@@ -20,12 +20,17 @@ describe("performance release gate", () => {
 
   it("defers below-the-fold landing work and bounds the YouTube request", () => {
     const landing = read("src/components/landing/LandingSpaContainer.tsx");
+    const landingPage = read("src/app/page.tsx");
+    const clubPage = read("src/app/club-uruguay/page.tsx");
     const styles = read("src/app/ak-motion-effects.css");
     const youtube = read("src/lib/youtube/ak-channel.ts");
 
-    expect(landing).toContain('key === "hero" ? "" : "ak-deferred-section"');
+    expect(landing).toContain('DEFERRED_SECTIONS.has(key) ? "ak-deferred-section"');
+    expect(landing).toContain("scroll-mt-20");
     expect(styles).toContain("content-visibility: auto");
     expect(youtube).toContain("AbortSignal.timeout(2500)");
+    expect(landingPage).toContain("withPublicFallback(getSalones(), [])");
+    expect(clubPage).toContain("getSalonesWithoutBlockingSale");
   });
 
   it("keeps direct public imagery within a practical transfer size", () => {

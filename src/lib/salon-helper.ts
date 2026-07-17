@@ -8,71 +8,74 @@ export interface SalonPhoto {
   description?: string;
 }
 
+export const CURATED_CLUB_URUGUAY_PHOTOS: SalonPhoto[] = [
+  {
+    src: '/media/catalogo-servicios/salon-discoteca-ak-01.jpeg',
+    alt: 'Salon principal de Club Uruguay preparado para una fiesta',
+    title: 'Salon principal',
+    description: 'Montaje real con mesas, pista y servicio de discoteca de AK Producciones.',
+  },
+  {
+    src: '/media/catalogo-servicios/discoteca-salon-ak-02.jpeg',
+    alt: 'Pista y discoteca instaladas en Club Uruguay',
+    title: 'Pista y discoteca',
+    description: 'Iluminacion, sonido y pista preparados para el evento.',
+  },
+  {
+    src: '/media/catalogo-servicios/xv-pista-iluminada-01.jpeg',
+    alt: 'Fiesta de quince anos con pista iluminada',
+    title: 'Una fiesta en funcionamiento',
+    description: 'Una produccion real con ambientacion, pista y coordinacion integral.',
+  },
+];
+
+function explicitlyReferencesClubUruguay(value: string) {
+  const normalized = value
+    .normalize('NFD')
+    .replace(/[\u0300-\u036f]/g, '')
+    .toLowerCase()
+    .replace(/[_-]+/g, ' ')
+    .replace(/\s+/g, ' ')
+    .trim();
+
+  return normalized.includes('club uruguay') || normalized.includes('cluburuguay');
+}
+
 export function getDynamicSalonPhotos(): SalonPhoto[] {
-  // Combine all images from catalog and public gallery
+  const curatedUrls = new Set(CURATED_CLUB_URUGUAY_PHOTOS.map((photo) => photo.src));
   const allItems = [
-    ...defaultCatalogoFotos.map((x) => ({
-      url: x.url,
-      titulo: x.titulo,
-      descripcion: x.descripcion,
-      categoria: x.categoriaServicio,
+    ...defaultCatalogoFotos.map((item) => ({
+      url: item.url,
+      titulo: item.titulo,
+      descripcion: item.descripcion,
+      categoria: item.categoriaServicio,
     })),
-    ...defaultGaleriaPublica.fotos.map((x) => ({
-      url: x.url,
-      titulo: x.titulo,
-      descripcion: x.descripcion,
-      categoria: x.categoria,
+    ...defaultGaleriaPublica.fotos.map((item) => ({
+      url: item.url,
+      titulo: item.titulo,
+      descripcion: item.descripcion,
+      categoria: item.categoria,
     })),
   ];
 
-  const seenUrls = new Set<string>();
-  const salonPhotos: SalonPhoto[] = [];
+  const explicitPhotos = allItems
+    .filter((item) => {
+      if (!item.url || curatedUrls.has(item.url)) return false;
+      return explicitlyReferencesClubUruguay(
+        `${item.titulo || ''} ${item.descripcion || ''} ${item.categoria || ''} ${item.url}`,
+      );
+    })
+    .map((item) => ({
+      src: item.url,
+      alt: item.titulo || 'Evento de AK Producciones en Club Uruguay',
+      title: item.titulo || 'Evento en Club Uruguay',
+      description: item.descripcion || 'Registro real asociado a Club Uruguay.',
+    }));
 
-  for (const item of allItems) {
-    if (!item.url || seenUrls.has(item.url)) continue;
-
-    const text = `${item.titulo || ''} ${item.descripcion || ''} ${item.categoria || ''} ${item.url}`.toLowerCase();
-
-    // Check if it belongs to Salon / Club Uruguay
-    if (
-      text.includes('salon') ||
-      text.includes('salón') ||
-      text.includes('club') ||
-      text.includes('uruguay')
-    ) {
-      seenUrls.add(item.url);
-      salonPhotos.push({
-        src: item.url,
-        alt: item.titulo || 'Salón Club Uruguay decorado por AK Producciones',
-        title: item.titulo || 'Montaje de Fiesta',
-        description: item.descripcion || 'Servicio integral en Salón Club Uruguay.',
-      });
-    }
-  }
-
-  // Fallback default photos if empty
-  if (salonPhotos.length === 0) {
-    return [
-      {
-        src: '/media/catalogo-servicios/recepcion-display-evento-01.jpeg',
-        alt: 'Recepción en Club Uruguay',
-        title: 'Recepción Elegante',
-        description: 'Montaje formal e ingreso al salón clásico.',
-      },
-      {
-        src: '/media/catalogo-servicios/decoracion-boda-mesa-01.jpeg',
-        alt: 'Decoración en Club Uruguay',
-        title: 'Salón Principal',
-        description: 'Decoración integral y mesas dispuestas para la cena.',
-      },
-      {
-        src: '/media/catalogo-servicios/boda_persuasiva.png',
-        alt: 'Mesa Principal y Ambiente',
-        title: 'Arquitectura y Diseño',
-        description: 'Ambiente señorial adaptado con las últimas tendencias.',
-      },
-    ];
-  }
-
-  return salonPhotos;
+  const seen = new Set<string>();
+  return [...CURATED_CLUB_URUGUAY_PHOTOS, ...explicitPhotos].filter((photo) => {
+    if (seen.has(photo.src)) return false;
+    seen.add(photo.src);
+    return true;
+  });
 }

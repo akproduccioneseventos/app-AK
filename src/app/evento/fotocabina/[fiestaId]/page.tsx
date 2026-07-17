@@ -29,6 +29,7 @@ import {
   startEntertainmentSession,
   updateEntertainmentSessionStatus,
   resetEntertainmentSession,
+  completeEntertainmentSessionCycle,
   EntertainmentSession,
 } from '@/app/actions/fiesta/sesion-entretenimiento';
 import type { PublicEntertainmentEvent } from '@/lib/entertainment/station-config';
@@ -380,7 +381,6 @@ export default function FotocabinaPage() {
         setTimeout(() => {
           setShowSuccess(false);
           retake();
-          resetEntertainmentSession(fiestaId, 'fotocabina', accessToken);
         }, (fiesta?.station.reviewSeconds || 20) * 1000);
       } else {
         throw new Error(res.error || 'Error al subir');
@@ -418,7 +418,7 @@ export default function FotocabinaPage() {
     setQrCodeUrl('');
     setLocalStatus('idle');
     setShowSuccess(false);
-    resetEntertainmentSession(fiestaId, 'fotocabina', accessToken);
+    void completeEntertainmentSessionCycle(fiestaId, 'fotocabina', accessToken);
     if (role === 'display') {
       startCamera();
     }
@@ -456,7 +456,7 @@ export default function FotocabinaPage() {
       <div className="min-h-screen bg-[radial-gradient(ellipse_at_top,_#18181b_0%,_#09090b_70%)] text-white p-6">
         <div className="max-w-md mx-auto space-y-6">
           <div className="flex items-center justify-between border-b border-white/10 pb-4">
-            <button onClick={() => router.push(`/evento/hub/${fiestaId}`)} className="p-2 bg-white/5 rounded-full hover:bg-white/10 transition">
+            <button onClick={() => router.back()} className="p-2 bg-white/5 rounded-full hover:bg-white/10 transition">
               <ArrowLeft className="w-5 h-5" />
             </button>
             <h1 className="text-lg font-black tracking-widest text-amber-500 uppercase flex items-center gap-2">
@@ -653,10 +653,10 @@ export default function FotocabinaPage() {
 
         {/* State: Done (Photo Preview + QR Download) */}
         {localStatus === 'done' && capturedImage && (
-          <div className="absolute inset-0 z-40 bg-zinc-950 flex flex-col md:flex-row items-center justify-center p-6 gap-8">
+          <div className="absolute inset-0 z-40 flex flex-col items-center justify-start gap-6 overflow-y-auto overscroll-contain bg-zinc-950 px-4 pb-8 pt-20 md:flex-row md:justify-center md:gap-8 md:p-6">
             
             {/* Captured Image Preview */}
-            <div className="relative w-full max-w-sm aspect-[9/16] bg-black rounded-3xl overflow-hidden border border-white/10 shadow-2xl">
+            <div className="relative h-[52dvh] max-h-[32rem] w-auto max-w-full shrink-0 aspect-[9/16] overflow-hidden rounded-3xl border border-white/10 bg-black shadow-2xl md:h-[80dvh] md:max-h-[48rem]">
               {/* eslint-disable-next-line @next/next/no-img-element -- Canvas output is generated only in this browser. */}
               <img src={capturedImage} className="w-full h-full object-contain" alt="Captura Final" />
               <div className="absolute top-4 left-4 bg-amber-400 text-zinc-950 text-[10px] font-black uppercase px-3 py-1 rounded-full tracking-wider">

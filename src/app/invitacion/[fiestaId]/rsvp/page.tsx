@@ -314,7 +314,7 @@ function RsvpFormContent() {
                     <Download className="w-4 h-4 mr-2" /> Descargar QR
                   </Button>
                   <a
-                    href={`/invitacion/${fiestaId}/invitado/${confirmedGuest.id}`}
+                    href={`/invitacion/${fiestaId}/invitado/${confirmedGuest.id}?token=${encodeURIComponent(confirmedGuest.guestAccessToken || '')}`}
                     className="flex w-full items-center justify-center gap-2 rounded-lg py-3.5 text-sm font-bold transition-all"
                     style={{
                       background: 'linear-gradient(135deg, #7c3aed 0%, #4f46e5 100%)',

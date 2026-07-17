@@ -12,6 +12,9 @@ export interface GaleriaFoto {
   destacada: boolean;
   orden: number;
   createdAt: string;
+  source?: 'manual' | 'instagram' | 'youtube' | 'catalogo';
+  sourceId?: string;
+  sourceUrl?: string;
 }
 
 export interface GaleriaVideo {
@@ -30,6 +33,9 @@ export interface GaleriaVideo {
   destacada: boolean;
   orden: number;
   createdAt: string;
+  source?: 'manual' | 'instagram' | 'youtube' | 'catalogo';
+  sourceId?: string;
+  sourceUrl?: string;
 }
 
 export interface GaleriaData {

@@ -351,16 +351,16 @@ export function GallerySection({ images, galeriaFotos }: GallerySectionProps) {
           {" "}
           <span className="inline-flex items-center gap-2 px-3 py-1 rounded-xl bg-white/5 border border-white/10 text-xs font-black uppercase tracking-widest text-red-400 mb-4">
             {" "}
-            <Camera className="w-3.5 h-3.5" /> Nuestros Trabajos{" "}
+            <Camera className="w-3.5 h-3.5" /> Trabajos e inspiración{" "}
           </span>{" "}
           <h2 className="font-headline text-5xl sm:text-6xl font-black text-white leading-tight mb-4">
             {" "}
-            Galería de Fotos{" "}
+            Eventos reales, ideas para tu fiesta{" "}
           </h2>{" "}
           <p className="text-zinc-400 text-lg max-w-xl mx-auto leading-relaxed">
             {" "}
-            Una selección de momentos reales, montajes de gala, ambientaciones y
-            tecnología en las fiestas que producimos.{" "}
+            Explorá ambientaciones, gastronomía, música y tecnología. Cada imagen
+            te ayuda a elegir qué querés vivir en tu propio evento.{" "}
           </p>{" "}
         </div>{" "}
         {/* Category Filters */}{" "}

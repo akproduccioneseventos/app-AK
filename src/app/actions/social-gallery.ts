@@ -34,6 +34,7 @@ import { checkImageSafety } from '@/lib/social-fiesta/content-safety-ai';
 import { hasAppSession, requireAppSession } from '@/lib/auth/require-session';
 import { isSharedKioskUpload, shouldQueueForManualReview } from '@/lib/social-fiesta/guardrails';
 import { toPublicSocialEvent, type PublicSocialEvent } from '@/lib/social-fiesta/public-event';
+import { enforcePublicRateLimit } from '@/lib/commercial/public-rate-limit';
 
 // Firestore collection names
 const GALLERY_COLLECTION = 'social_gallery_posts';
@@ -182,6 +183,12 @@ export async function uploadSocialPost(
   }
 
   try {
+    await enforcePublicRateLimit({
+      scope: 'social-media-upload',
+      identity: fiestaId,
+      limit: 12,
+      windowMs: 60_000,
+    });
     const db = await getDb();
     const fiestaData = await getFiestaById(fiestaId);
     if (!fiestaData) return { success: false, error: 'Evento no encontrado.' };
@@ -374,6 +381,12 @@ export async function addLikeToPost(
   postId: string
 ): Promise<{ success: boolean; post?: SocialGalleryPost; error?: string }> {
   try {
+    await enforcePublicRateLimit({
+      scope: 'social-post-like',
+      identity: postId,
+      limit: 40,
+      windowMs: 60_000,
+    });
     const db = await getDb();
     const ref = db.collection(GALLERY_COLLECTION).doc(postId);
     // FieldValue.increment is a server-side atomic operation — never loses a like.
@@ -392,6 +405,12 @@ export async function addCommentToPost(
   authorName: string = 'Anónimo'
 ): Promise<{ success: boolean; comment?: SocialComment; error?: string }> {
   try {
+    await enforcePublicRateLimit({
+      scope: 'social-post-comment',
+      identity: postId,
+      limit: 20,
+      windowMs: 60_000,
+    });
     const review = reviewSocialContent({ type: 'text', text, authorName, moderationMode: 'automatico' });
     if (review.status === 'blocked') return { success: false, error: review.message };
     const db = await getDb();
@@ -537,6 +556,12 @@ export async function addChatMessage(
   const review = reviewSocialContent({ type: 'text', text, authorName, moderationMode: 'automatico' });
   if (review.status === 'blocked') return { success: false, error: review.message };
   try {
+    await enforcePublicRateLimit({
+      scope: 'social-live-chat',
+      identity: fiestaId,
+      limit: 30,
+      windowMs: 60_000,
+    });
     const db = await getDb();
     const msgId = `chat_${Date.now()}_${Math.random().toString(36).substring(2, 9)}`;
     const newMessage: ChatMessage = {

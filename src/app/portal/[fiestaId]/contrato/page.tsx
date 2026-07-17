@@ -7,7 +7,8 @@ import { Card, CardContent, CardHeader, CardTitle, CardDescription, CardFooter }
 import { Button } from '@/components/ui/button';
 import { Loader2, ArrowLeft, FileSignature, CheckCircle2, ShieldCheck, Info, AlertTriangle, User, Building2, Calendar, DollarSign, Star, Clock } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
-import { getFiestaById, signContractDigitally, getContractSigningSummary } from '@/app/actions/fiesta-actual';
+import { signContractDigitally, getContractSigningSummary } from '@/app/actions/fiesta-actual';
+import { getFiestaForPortalSession } from '@/app/actions/fiesta/portal.actions';
 import { getCompanyInfo } from '@/app/actions/settings';
 import type { FiestaEnPlanificacion } from '@/types/fiesta';
 import type { CompanyInfo } from '@/types/settings';
@@ -51,7 +52,7 @@ export default function ClientContractPage() {
     setIsLoading(true);
     try {
       const [data, companyData, summaryData] = await Promise.all([
-          getFiestaById(fiestaId),
+          getFiestaForPortalSession(fiestaId),
           getCompanyInfo(),
           getContractSigningSummary(fiestaId),
       ]);

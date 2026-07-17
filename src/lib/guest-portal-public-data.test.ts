@@ -56,15 +56,16 @@ describe("public guest portal data", () => {
     const result = buildPublicGuestPortalData(
       fiesta,
       "guest-1",
+      "token-guest-1",
     ) as PublicGuestPortalData;
 
     expect(result.guest).toEqual(
       expect.objectContaining({
         id: "guest-1",
         nombre: "Ana",
-        guestAccessToken: "token-guest-1",
       }),
     );
+    expect(result.guest).not.toHaveProperty("guestAccessToken");
     expect(result.guest).not.toHaveProperty("contacto");
     expect(result.guest).not.toHaveProperty("notes");
     expect(result.fiesta).not.toHaveProperty("invitados");
@@ -79,6 +80,11 @@ describe("public guest portal data", () => {
   });
 
   it("rejects a guest id that does not belong to the event", () => {
-    expect(buildPublicGuestPortalData(fiesta, "missing")).toBeNull();
+    expect(buildPublicGuestPortalData(fiesta, "missing", "token-guest-1")).toBeNull();
+  });
+
+  it("rejects a missing or incorrect guest token", () => {
+    expect(buildPublicGuestPortalData(fiesta, "guest-1", "")).toBeNull();
+    expect(buildPublicGuestPortalData(fiesta, "guest-1", "wrong-token")).toBeNull();
   });
 });

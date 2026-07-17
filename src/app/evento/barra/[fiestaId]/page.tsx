@@ -8,28 +8,28 @@ import {
   Camera,
   CheckCircle2,
   ChevronLeft,
-  Crown,
+  ChevronRight,
   Loader2,
   Martini,
   Shuffle,
   Video,
   Wine,
   X,
-  Instagram,
-  Sparkles,
   Share2,
-  Copy,
   User,
   Palette
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { useToast } from '@/hooks/use-toast';
-import type { BarDrinkOrder, BarTechnologyDashboard } from '@/types/barra-tecnologica';
-import type { Trago } from '@/types/fiesta';
+import type {
+  BarDrinkOrder,
+  PublicBarDrink,
+  PublicBarTechnologyDashboard,
+} from '@/types/barra-tecnologica';
 import {
   createBarDrinkOrder,
-  getBarraTecnologicaDashboard,
+  getPublicBarraTecnologicaDashboard,
   uploadBarMagicPhoto,
 } from '@/app/actions/fiesta/barra-tecnologica.actions';
 import { KioskUnlockButton } from '@/components/kiosk/kiosk-unlock-button';
@@ -49,7 +49,7 @@ export default function BarraTecnologicaTouchPage() {
   const fiestaId = params.fiestaId as string;
   const { toast } = useToast();
 
-  const [dashboard, setDashboard] = useState<BarTechnologyDashboard | null>(null);
+  const [dashboard, setDashboard] = useState<PublicBarTechnologyDashboard | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [currentScreen, setCurrentScreen] = useState<ScreenState>('HOME');
 
@@ -59,7 +59,7 @@ export default function BarraTecnologicaTouchPage() {
   const [pendingScreen, setPendingScreen] = useState<ScreenState | null>(null);
 
   // Ordering State
-  const [selectedDrink, setSelectedDrink] = useState<Trago | null>(null);
+  const [selectedDrink, setSelectedDrink] = useState<PublicBarDrink | null>(null);
   const [isOrdering, setIsOrdering] = useState(false);
   const [lastOrder, setLastOrder] = useState<BarDrinkOrder | null>(null);
   const [isShuffling, setIsShuffling] = useState(false);
@@ -373,7 +373,7 @@ export default function BarraTecnologicaTouchPage() {
   ];
 
   const loadData = useCallback(async () => {
-    const dashResult = await getBarraTecnologicaDashboard(fiestaId);
+    const dashResult = await getPublicBarraTecnologicaDashboard(fiestaId);
     if (dashResult.success && dashResult.data) {
       setDashboard(dashResult.data);
     } else {
@@ -588,7 +588,7 @@ export default function BarraTecnologicaTouchPage() {
     let count = 0;
     const interval = setInterval(() => {
       const idx = Math.floor(Math.random() * drinksList.length);
-      setSelectedDrink(drinksList[idx] as Trago);
+      setSelectedDrink(drinksList[idx]);
       count++;
       if (count > 6) {
         clearInterval(interval);
@@ -782,120 +782,174 @@ export default function BarraTecnologicaTouchPage() {
           </motion.div>
         )}
 
-        {/* --- CARTA DE TRAGOS COMPACTA --- */}
+        {/* --- CARTA DE TRAGOS INTERACTIVA --- */}
         {currentScreen === 'MENU' && (
           <motion.div
             key="menu"
-            initial={{ opacity: 0, y: 80 }}
+            initial={{ opacity: 0, y: 24 }}
             animate={{ opacity: 1, y: 0 }}
-            exit={{ opacity: 0, y: 80 }}
-            className="relative z-10 flex flex-1 flex-col pt-32 p-10 overflow-hidden"
+            exit={{ opacity: 0, y: 24 }}
+            className="relative z-10 flex flex-1 flex-col overflow-hidden px-6 pb-8 pt-28 md:px-10"
           >
-            <div className="flex items-center justify-between mb-8 flex-wrap gap-4">
+            <div className="mb-8 flex flex-wrap items-end justify-between gap-5 border-b border-white/10 pb-6">
               <div>
-                <h1 className="text-5xl font-black text-white tracking-tight drop-shadow-md">Carta de Tragos</h1>
-                <p className="text-slate-400 font-bold text-lg mt-1">{settings?.guestPrompt || 'Selecciona un trago para enviar tu pedido.'}</p>
+                <p className="mb-2 text-sm font-bold uppercase text-red-500">Barra interactiva</p>
+                <h1 className="text-4xl font-black text-white md:text-5xl">Elegí deslizando</h1>
+                <p className="mt-2 max-w-2xl text-base text-zinc-300 md:text-lg">
+                  {settings?.guestPrompt || 'Tocá un trago para conocer qué lleva y sumarlo a la cola.'}
+                </p>
               </div>
               <Button
                 onClick={handleRandomDrink}
                 disabled={isShuffling}
-                className="h-16 px-8 rounded-full bg-gradient-to-r from-purple-600 via-purple-500 to-indigo-600 text-2xl font-black shadow-[0_6px_25px_rgba(147,51,234,0.4)] hover:scale-[1.03] active:scale-[0.98] transition-all border-0"
+                className="h-14 rounded-lg border border-white/15 bg-white px-6 text-base font-black text-black shadow-lg hover:bg-zinc-200"
               >
-                <Shuffle className={`w-6 h-6 mr-3 text-yellow-300 ${isShuffling ? 'animate-spin' : ''}`} /> Sugerir Trago 🎲
+                <Shuffle className={`mr-3 h-5 w-5 ${isShuffling ? 'animate-spin' : ''}`} /> Sorprendeme
               </Button>
             </div>
 
-            {/* Grilla compacta adaptable (vertical/horizontal) */}
-            <div className="flex-1 overflow-y-auto pb-24 scrollbar-none">
-              <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-4">
+            <div className="flex-1 overflow-y-auto pb-8 scrollbar-none">
+              {drinks.length > 0 ? (
+                <div className="flex snap-x snap-mandatory gap-5 overflow-x-auto pb-8 pr-[18vw] scrollbar-none">
                 {drinks.map((drink, idx) => {
-                  const isSignature = drink.id.startsWith('custom_') || idx === 0;
                   return (
                     <motion.button
                       key={drink.id}
-                      whileTap={{ scale: 0.96 }}
+                      whileHover={{ y: -4 }}
+                      whileTap={{ scale: 0.98 }}
                       onClick={() => setSelectedDrink(drink)}
-                      className={`relative flex flex-col items-start overflow-hidden rounded-[2rem] p-4 text-left transition-all duration-300 ${
-                        isSignature
-                          ? 'bg-gradient-to-br from-amber-950/40 via-slate-900/90 to-amber-950/20 border-2 border-amber-500/80 shadow-[0_8px_30px_rgba(245,158,11,0.2)] hover:border-amber-400'
-                          : 'bg-black/60 border border-white/10 backdrop-blur-md hover:bg-black/75 hover:border-white/20'
-                      }`}
+                      className="group relative flex w-[72vw] max-w-[330px] flex-none snap-start flex-col overflow-hidden rounded-lg border border-white/10 bg-zinc-950 text-left shadow-2xl transition-colors hover:border-red-500/70 md:w-[320px]"
                     >
-                      <div className="relative w-full aspect-[4/3] rounded-2xl bg-slate-950 mb-3 overflow-hidden">
+                      <div className="relative aspect-[4/5] w-full overflow-hidden bg-zinc-900">
                         {drink.imageUrl ? (
                           <NextImage
                             src={drink.imageUrl}
                             alt={drink.nombre}
                             fill
-                            className="object-cover"
+                            className="object-cover transition-transform duration-500 group-hover:scale-105"
                             loading="lazy"
                             decoding="async"
                             unoptimized
                           />
                         ) : (
-                          <div className="flex h-full w-full items-center justify-center bg-slate-900 text-rose-500/30">
-                            <Wine className="w-10 h-10" />
+                          <div className="flex h-full w-full items-center justify-center bg-zinc-900 text-red-500/50">
+                            <Wine className="h-14 w-14" />
                           </div>
                         )}
-                        {isSignature && (
-                          <div className="absolute top-2.5 left-2.5 bg-gradient-to-r from-amber-500 to-yellow-400 text-slate-950 px-3 py-1 rounded-full text-[10px] font-black flex items-center gap-1 shadow-md">
-                            <Crown className="w-3 h-3" /> Especial 👑
-                          </div>
-                        )}
+                        <span className="absolute left-3 top-3 rounded bg-black/75 px-3 py-1 text-xs font-bold text-white backdrop-blur-sm">
+                          {String(idx + 1).padStart(2, '0')}
+                        </span>
                       </div>
-
-                      <h3 className={`text-xl font-black line-clamp-1 w-full tracking-tight ${isSignature ? 'text-amber-400' : 'text-white'}`}>
-                        {drink.nombre}
-                      </h3>
-
-                      {drink.ingredientes && drink.ingredientes.length > 0 && (
-                        <p className="text-sm text-slate-400 font-semibold mt-1 line-clamp-1 w-full">
-                          {drink.ingredientes.join(', ')}
-                        </p>
-                      )}
+                      <div className="flex min-h-32 flex-1 items-center justify-between gap-4 p-5">
+                        <div className="min-w-0">
+                          <h3 className="line-clamp-2 text-2xl font-black text-white">{drink.nombre}</h3>
+                          <p className="mt-2 line-clamp-2 text-sm text-zinc-400">
+                            {drink.ingredientes?.length
+                              ? drink.ingredientes.join(' · ')
+                              : 'Tocá para conocer este trago'}
+                          </p>
+                        </div>
+                        <ChevronRight className="h-7 w-7 flex-none text-red-500" />
+                      </div>
                     </motion.button>
                   );
                 })}
-              </div>
+                </div>
+              ) : (
+                <div className="flex min-h-72 flex-col items-center justify-center rounded-lg border border-dashed border-white/20 bg-black/30 p-8 text-center">
+                  <Martini className="mb-4 h-12 w-12 text-red-500" />
+                  <h2 className="text-2xl font-black text-white">La carta todavía no está disponible</h2>
+                  <p className="mt-2 text-zinc-400">Consultá al personal de barra.</p>
+                </div>
+              )}
             </div>
 
-            {/* MODAL DE CONFIRMACIÓN DE PEDIDO RÁPIDO */}
+            {/* Detalle y confirmación del trago */}
             <AnimatePresence>
               {selectedDrink && (
                 <motion.div
                   initial={{ opacity: 0 }}
                   animate={{ opacity: 1 }}
                   exit={{ opacity: 0 }}
-                  className="absolute inset-0 z-50 flex items-center justify-center bg-black/90 backdrop-blur-xl p-10"
+                  className="absolute inset-0 z-50 flex items-center justify-center overflow-y-auto bg-black/95 p-4 backdrop-blur-md md:p-10"
                 >
                   <motion.div
-                    initial={{ scale: 0.94, y: 30 }}
+                    initial={{ scale: 0.97, y: 20 }}
                     animate={{ scale: 1, y: 0 }}
-                    className="w-full max-w-xl bg-slate-900 rounded-[3rem] border border-white/10 p-10 shadow-2xl flex flex-col items-center text-center"
+                    className="relative grid w-full max-w-5xl overflow-hidden rounded-lg border border-white/10 bg-zinc-950 shadow-2xl md:grid-cols-[0.9fr_1.1fr]"
                   >
-                    <div className="w-28 h-28 rounded-full bg-rose-500/10 flex items-center justify-center mb-6 border-4 border-rose-500 shadow-[0_0_40px_rgba(244,63,94,0.3)]">
-                      <Martini className="w-12 h-12 text-rose-500" />
-                    </div>
-                    <h2 className="text-4xl font-black text-white tracking-tight mb-2">{selectedDrink.nombre}</h2>
-                    <p className="text-lg text-slate-400 font-bold mb-8">
-                      ¿Confirmás el pedido para <span className="text-rose-500">{guestName}</span>?
-                    </p>
+                    <button
+                      type="button"
+                      aria-label="Cerrar detalle del trago"
+                      onClick={() => setSelectedDrink(null)}
+                      className="absolute right-4 top-4 z-10 grid h-12 w-12 place-items-center rounded-md bg-black/75 text-white hover:bg-red-600"
+                    >
+                      <X className="h-6 w-6" />
+                    </button>
 
-                    <div className="flex gap-4 w-full">
-                      <Button
-                        onClick={() => setSelectedDrink(null)}
-                        variant="outline"
-                        className="flex-1 h-18 rounded-2xl border-white/15 bg-transparent text-xl font-bold text-white hover:bg-white/10"
-                      >
-                        Cancelar
-                      </Button>
-                      <Button
-                        onClick={submitOrder}
-                        disabled={isOrdering}
-                        className="flex-1 h-18 rounded-2xl bg-gradient-to-r from-rose-600 to-orange-500 text-xl font-black text-white shadow-xl border-0"
-                      >
-                        {isOrdering ? <Loader2 className="w-6 h-6 animate-spin" /> : 'Confirmar Pedido'}
-                      </Button>
+                    <div className="relative min-h-72 bg-zinc-900 md:min-h-[560px]">
+                      {selectedDrink.imageUrl ? (
+                        <NextImage
+                          src={selectedDrink.imageUrl}
+                          alt={selectedDrink.nombre}
+                          fill
+                          className="object-cover"
+                          unoptimized
+                        />
+                      ) : (
+                        <div className="flex h-full min-h-72 items-center justify-center text-red-500/50">
+                          <Wine className="h-20 w-20" />
+                        </div>
+                      )}
+                    </div>
+
+                    <div className="flex flex-col justify-center p-7 md:p-10">
+                      <p className="text-sm font-bold uppercase text-red-500">Tu elección</p>
+                      <h2 className="mt-2 text-4xl font-black text-white md:text-5xl">{selectedDrink.nombre}</h2>
+
+                      {settings?.showDrinkDescription && (selectedDrink.descripcion || selectedDrink.description) && (
+                        <p className="mt-5 text-lg leading-relaxed text-zinc-300">
+                          {selectedDrink.descripcion || selectedDrink.description}
+                        </p>
+                      )}
+
+                      {settings?.showIngredients && selectedDrink.ingredientes && selectedDrink.ingredientes.length > 0 && (
+                        <div className="mt-6 border-y border-white/10 py-5">
+                          <p className="text-xs font-bold uppercase text-zinc-500">Qué lleva</p>
+                          <p className="mt-2 text-lg font-semibold text-white">{selectedDrink.ingredientes.join(' · ')}</p>
+                        </div>
+                      )}
+
+                      {settings?.showDrinkVideo && selectedDrink.videoUrl && (
+                        <a
+                          href={selectedDrink.videoUrl}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className="mt-5 inline-flex items-center gap-2 text-sm font-bold text-zinc-300 underline decoration-red-500 underline-offset-4 hover:text-white"
+                        >
+                          <Video className="h-4 w-4" /> Ver preparación
+                        </a>
+                      )}
+
+                      <p className="mt-8 text-base text-zinc-400">
+                        Pedido a nombre de <strong className="text-white">{guestName}</strong>
+                      </p>
+                      <div className="mt-5 flex flex-col gap-3 sm:flex-row">
+                        <Button
+                          onClick={() => setSelectedDrink(null)}
+                          variant="outline"
+                          className="h-14 flex-1 rounded-lg border-white/20 bg-transparent text-base font-bold text-white hover:bg-white/10"
+                        >
+                          Seguir mirando
+                        </Button>
+                        <Button
+                          onClick={submitOrder}
+                          disabled={isOrdering}
+                          className="h-14 flex-1 rounded-lg bg-red-600 text-base font-black text-white shadow-lg hover:bg-red-500"
+                        >
+                          {isOrdering ? <Loader2 className="h-6 w-6 animate-spin" /> : 'Enviar a la barra'}
+                        </Button>
+                      </div>
                     </div>
                   </motion.div>
                 </motion.div>
@@ -909,20 +963,26 @@ export default function BarraTecnologicaTouchPage() {
                   initial={{ opacity: 0 }}
                   animate={{ opacity: 1 }}
                   exit={{ opacity: 0 }}
-                  className="absolute inset-0 z-50 flex items-center justify-center bg-emerald-950/95 backdrop-blur-xl"
+                  className="absolute inset-0 z-50 flex items-center justify-center bg-black/95 backdrop-blur-xl"
                 >
                   <div className="text-center p-8 max-w-xl">
-                    <div className="w-32 h-32 rounded-full bg-emerald-500/10 flex items-center justify-center mx-auto mb-8 border-4 border-emerald-400 shadow-[0_0_40px_rgba(52,211,153,0.35)]">
-                      <CheckCircle2 className="w-16 h-16 text-emerald-400" />
+                    <div className="mx-auto mb-8 flex h-28 w-28 items-center justify-center rounded-full border-4 border-green-500 bg-green-500/10">
+                      <CheckCircle2 className="h-14 w-14 text-green-400" />
                     </div>
-                    <h2 className="text-5xl font-black text-white tracking-tight mb-4">¡Pedido Enviado!</h2>
-                    <p className="text-2xl text-emerald-300 font-bold mb-2">Ya lo recibimos en la barra.</p>
-                    <p className="text-base text-emerald-400/80 font-semibold mb-10">Acércate a retirar tu trago en unos minutos.</p>
+                    <h2 className="mb-4 text-5xl font-black text-white">Pedido enviado</h2>
+                    <p className="mb-2 text-2xl font-bold text-green-300">Ya apareció en la pantalla del barman.</p>
+                    {lastOrder.queuePosition ? (
+                      <p className="mb-10 text-lg font-semibold text-zinc-300">
+                        Posición aproximada en la cola: <strong className="text-white">{lastOrder.queuePosition}</strong>
+                      </p>
+                    ) : (
+                      <p className="mb-10 text-base font-semibold text-zinc-400">Acercate a retirar tu trago en unos minutos.</p>
+                    )}
                     <Button
                       onClick={() => setLastOrder(null)}
-                      className="h-16 px-12 rounded-2xl bg-white text-emerald-950 text-xl font-black hover:bg-slate-200 shadow-xl border-0"
+                      className="h-14 rounded-lg bg-white px-12 text-lg font-black text-black shadow-xl hover:bg-zinc-200"
                     >
-                      Entendido
+                      Elegir otro
                     </Button>
                   </div>
                 </motion.div>
@@ -1107,20 +1167,20 @@ export default function BarraTecnologicaTouchPage() {
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
-            className="fixed inset-0 z-50 flex items-center justify-center bg-black/95 backdrop-blur-2xl p-6"
+            className="fixed inset-0 z-50 flex items-start justify-center overflow-y-auto overscroll-contain bg-black/95 p-3 backdrop-blur-2xl md:items-center md:p-6"
           >
             <motion.div
               initial={{ scale: 0.9, y: 30 }}
               animate={{ scale: 1, y: 0 }}
               exit={{ scale: 0.9, y: 30 }}
-              className="w-full max-w-3xl bg-slate-900 border border-white/10 p-10 rounded-[3rem] shadow-2xl flex flex-col items-center"
+              className="my-3 flex w-full max-w-3xl flex-col items-center rounded-2xl border border-white/10 bg-slate-900 p-4 shadow-2xl sm:p-6 md:my-0 md:rounded-[3rem] md:p-10"
             >
-              <div className="w-20 h-20 rounded-full bg-rose-500/10 flex items-center justify-center mb-6 border-2 border-rose-500">
-                <User className="w-10 h-10 text-rose-500" />
+              <div className="mb-3 flex h-12 w-12 items-center justify-center rounded-full border-2 border-rose-500 bg-rose-500/10 md:mb-6 md:h-20 md:w-20">
+                <User className="h-6 w-6 text-rose-500 md:h-10 md:w-10" />
               </div>
 
-              <h2 className="text-4xl font-black text-white text-center tracking-tight">¡Hola! ¿Cómo te llamás?</h2>
-              <p className="text-slate-400 font-bold text-center mt-2 mb-8">
+              <h2 className="text-center text-2xl font-black tracking-tight text-white md:text-4xl">¡Hola! ¿Cómo te llamás?</h2>
+              <p className="mb-4 mt-2 text-center text-sm font-bold text-slate-400 md:mb-8 md:text-base">
                 Ingresá tu nombre para identificarte en la barra y en las fotos del muro gigante.
               </p>
 
@@ -1128,25 +1188,25 @@ export default function BarraTecnologicaTouchPage() {
                 value={guestName}
                 readOnly
                 placeholder="Escribí tu nombre..."
-                className="h-20 max-w-lg rounded-2xl bg-black/50 border-white/10 text-center text-3xl font-black text-white mb-8 placeholder:text-slate-700 focus:border-rose-500 focus:ring-rose-500"
+                className="mb-4 h-14 max-w-lg rounded-2xl border-white/10 bg-black/50 text-center text-xl font-black text-white placeholder:text-slate-700 focus:border-rose-500 focus:ring-rose-500 md:mb-8 md:h-20 md:text-3xl"
               />
 
               {/* TECLADO TÁCTIL VIRTUAL INTEGRADO */}
-              <div className="w-full space-y-2 mb-8">
+              <div className="mb-4 w-full space-y-1.5 md:mb-8 md:space-y-2">
                 {keyboardKeys.map((row, rowIdx) => (
-                  <div key={rowIdx} className="flex justify-center gap-1.5">
+                  <div key={rowIdx} className="flex w-full justify-center gap-1 sm:gap-1.5">
                     {row.map((key) => {
                       const isSpecial = key === 'BACKSPACE' || key === 'CLEAR';
                       return (
                         <button
                           key={key}
                           onClick={() => handleKeypress(key)}
-                          className={`h-14 rounded-xl flex items-center justify-center text-lg font-black active:scale-95 transition-all ${
+                          className={`flex h-10 min-w-0 items-center justify-center rounded-lg text-xs font-black transition-all active:scale-95 sm:h-12 sm:text-sm md:h-14 md:rounded-xl md:text-lg ${
                             isSpecial
-                              ? 'bg-rose-500/20 text-rose-400 border border-rose-500/30 px-4'
+                              ? 'flex-[1.5] bg-rose-500/20 px-1 text-[10px] text-rose-400 border border-rose-500/30 sm:px-2 sm:text-xs md:px-4 md:text-base'
                               : key === ' '
-                              ? 'bg-white/10 text-white w-32 border border-white/5'
-                              : 'bg-white/10 text-white w-12 border border-white/5 hover:bg-white/15'
+                              ? 'flex-[3] max-w-32 bg-white/10 text-white border border-white/5'
+                              : 'flex-1 max-w-12 bg-white/10 text-white border border-white/5 hover:bg-white/15'
                           }`}
                         >
                           {key === 'BACKSPACE' ? 'Borrar' : key === 'CLEAR' ? 'Limpiar' : key === ' ' ? 'Espacio' : key}
@@ -1157,17 +1217,17 @@ export default function BarraTecnologicaTouchPage() {
                 ))}
               </div>
 
-              <div className="flex gap-4 w-full max-w-md">
+              <div className="flex w-full max-w-md gap-2 md:gap-4">
                 <Button
                   onClick={() => { setShowNameModal(false); setPendingScreen(null); }}
                   variant="outline"
-                  className="flex-1 h-16 rounded-2xl border-white/10 bg-transparent text-lg font-bold text-white hover:bg-white/10"
+                  className="h-12 flex-1 rounded-xl border-white/10 bg-transparent text-sm font-bold text-white hover:bg-white/10 md:h-16 md:rounded-2xl md:text-lg"
                 >
                   Cancelar
                 </Button>
                 <Button
                   onClick={saveNameAndProceed}
-                  className="flex-1 h-16 rounded-2xl bg-gradient-to-r from-rose-600 to-orange-500 text-lg font-black text-white border-0 shadow-lg"
+                  className="h-12 flex-1 rounded-xl border-0 bg-gradient-to-r from-rose-600 to-orange-500 text-sm font-black text-white shadow-lg md:h-16 md:rounded-2xl md:text-lg"
                 >
                   Confirmar e Ingresar
                 </Button>

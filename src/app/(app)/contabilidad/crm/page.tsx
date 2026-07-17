@@ -246,6 +246,26 @@ export default function CrmPage() {
     }
   }, [leads, stages, moveLead, handleHireClick]);
 
+  const handleMobileMove = useCallback((lead: CrmLead, direction: -1 | 1) => {
+    const currentIndex = stages.findIndex(stage => stage.id === lead.currentStageId);
+    const targetStage = stages[currentIndex + direction];
+    if (!targetStage) {
+      toast({ description: direction < 0 ? 'Este prospecto ya está en la primera etapa.' : 'Este prospecto ya está en la última etapa.' });
+      return;
+    }
+    if (targetStage.name.toLowerCase().includes('entrevista')) {
+      setLeadForMeeting({ ...lead, currentStageId: targetStage.id });
+      setMeetingType('Entrevista');
+      setIsMeetingModalOpen(true);
+      return;
+    }
+    if (targetStage.isConversionStage) {
+      handleHireClick(lead);
+      return;
+    }
+    void moveLead(lead.id, targetStage.id);
+  }, [handleHireClick, moveLead, stages, toast]);
+
   const handleResetCrm = useCallback(async () => {
     setIsResettingCrm(true);
     try {
@@ -414,7 +434,15 @@ export default function CrmPage() {
                     </AccordionTrigger>
                     <AccordionContent className="p-2 space-y-2 bg-muted/10">
                        {filteredLeadsByStage[stage.id]?.map(lead => (
-                        <CrmLeadCard key={lead.id} lead={lead} onDeleteLead={deleteLead} isDeleting={deletingLeadId === lead.id} isMobile={true} onHire={() => handleHireClick(lead)} />
+                        <CrmLeadCard
+                          key={lead.id}
+                          lead={lead}
+                          onDeleteLead={deleteLead}
+                          isDeleting={deletingLeadId === lead.id}
+                          isMobile={true}
+                          onMove={(direction) => handleMobileMove(lead, direction)}
+                          onHire={() => handleHireClick(lead)}
+                        />
                        ))}
                        {(!filteredLeadsByStage[stage.id] || filteredLeadsByStage[stage.id].length === 0) && (
                          <p className="text-center py-8 text-xs text-muted-foreground italic font-medium uppercase tracking-widest opacity-50">
