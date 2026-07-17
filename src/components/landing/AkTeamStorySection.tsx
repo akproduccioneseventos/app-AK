@@ -32,7 +32,7 @@ export function AkTeamStorySection() {
   return (
     <section className="relative overflow-hidden bg-zinc-950 py-24 text-white border-y border-white/5">
       {/* Glow blobs */}
-      <div className="absolute top-1/2 left-0 h-96 w-96 rounded-full bg-red-650/5 blur-[120px] pointer-events-none" />
+      <div className="absolute top-1/2 left-0 h-96 w-96 rounded-full bg-red-600/5 blur-[120px] pointer-events-none" />
       <div className="absolute bottom-0 right-0 h-96 w-96 rounded-full bg-rose-500/5 blur-[120px] pointer-events-none" />
 
       <div className="relative z-10 mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
@@ -103,14 +103,14 @@ export function AkTeamStorySection() {
 
         {/* Resources Banner Box */}
         <div className="mt-12 grid gap-6 rounded-[2.5rem] bg-gradient-to-br from-slate-950 via-slate-900/40 to-slate-950 border border-white/10 p-7 text-left shadow-2xl lg:grid-cols-[1fr_1.3fr] lg:p-10 relative overflow-hidden">
-          <div className="absolute top-0 right-0 h-48 w-48 rounded-full bg-red-650/5 blur-3xl pointer-events-none" />
+          <div className="absolute top-0 right-0 h-48 w-48 rounded-full bg-red-600/5 blur-3xl pointer-events-none" />
           
           <div className="space-y-4">
             <div className="inline-flex rounded-2xl bg-red-950/40 border border-red-500/25 p-3.5 text-red-400">
               <BookOpen className="h-6 w-6" />
             </div>
             <h3 className="text-3xl font-black font-headline text-white">Guías útiles y consejos</h3>
-            <p className="text-sm font-medium leading-relaxed text-zinc-450 max-w-md">
+            <p className="text-sm font-medium leading-relaxed text-zinc-400 max-w-md">
               Descubrí nuestras guías completas para sacarte todas las dudas sobre presupuestos, distribución de mesas, comida e iluminación.
             </p>
           </div>

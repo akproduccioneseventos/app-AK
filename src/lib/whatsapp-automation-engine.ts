@@ -35,10 +35,11 @@ function buildVariables(ctx: AutomationContext): TemplateVariables {
 
 function renderTemplate(template: string, ctx: AutomationContext): string {
   const vars = buildVariables(ctx);
-  return Object.entries(vars).reduce(
+  const rendered = Object.entries(vars).reduce(
     (text, [key, value]) => text.replace(new RegExp(`\\{\\{${key}\\}\\}`, 'g'), () => value),
     template
   );
+  return rendered.replace(/ {2,}/g, ' ').trim();
 }
 
 /**

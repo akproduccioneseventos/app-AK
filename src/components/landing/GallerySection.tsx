@@ -436,7 +436,7 @@ export function GallerySection({ images, galeriaFotos }: GallerySectionProps) {
               <GalleryMedia
                 src={image.src}
                 alt={image.alt}
-                className="object-cover transition-transform duration-500 group-hover:scale-103"
+                className="object-cover transition-transform duration-500 group-hover:scale-105"
                 sizes="(max-width: 768px) 50vw, 25vw"
               />{" "}
               <div className="absolute inset-0 bg-gradient-to-t from-zinc-950/90 via-zinc-950/20 to-transparent" />{" "}
