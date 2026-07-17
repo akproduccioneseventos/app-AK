@@ -11,6 +11,7 @@ import { verifySession } from '@/lib/auth/session-token';
 import { findMatchingClientPayment, parseCleanMoney } from '@/lib/budget/financial-guardrails';
 import { findExistingDepositReceipt } from '@/lib/commercial-flow/ledger-service';
 import { triggerWhatsAppAutomation } from '@/lib/whatsapp-automation-engine';
+import { getScheduledMessages } from '@/app/actions/scheduled-messages';
 
 const INVOICES_FILE = 'invoices.json';
 const MONEY_TOLERANCE = 1;
@@ -431,23 +432,36 @@ export async function addPaymentToInvoice(
   return { success: true, invoice: invoices[invoiceIndex] };
 }
 
+function parseDateStringLocal(dateStr: string): Date {
+  const match = (dateStr || '').match(/^(\d{4})-(\d{2})-(\d{2})/);
+  if (match) {
+    return new Date(Number(match[1]), Number(match[2]) - 1, Number(match[3]));
+  }
+  return new Date(dateStr);
+}
+
 export async function scanAndTriggerPaymentReminders(): Promise<{ success: boolean; triggeredCount: number; errors: string[] }> {
   const auth = await verifySession();
   if (!auth.success) throw new Error('No autorizado');
 
-  const invoices = await getInvoices();
+  const [invoices, scheduledMessages] = await Promise.all([
+    getInvoices(),
+    getScheduledMessages().catch(() => [])
+  ]);
+
   const today = new Date();
   today.setHours(0, 0, 0, 0);
 
   let triggeredCount = 0;
   const errors: string[] = [];
+  const oneDayAgo = new Date(Date.now() - 24 * 60 * 60 * 1000);
 
   for (const inv of invoices) {
     if (inv.status === 'Paid') continue;
     const balance = getInvoiceBalance(inv);
     if (balance <= 0) continue;
 
-    const due = new Date(inv.dueDate);
+    const due = parseDateStringLocal(inv.dueDate);
     due.setHours(0, 0, 0, 0);
 
     const diffTime = due.getTime() - today.getTime();
@@ -462,6 +476,17 @@ export async function scanAndTriggerPaymentReminders(): Promise<{ success: boole
     }
 
     if (trigger) {
+      // Check for duplicate pending messages or recently sent ones to prevent spam
+      const hasRecentOrPending = scheduledMessages.some(m =>
+        m.targetId === inv.customer.id &&
+        m.templateType === trigger &&
+        (m.status === 'pendiente' || (m.status === 'enviado' && m.sentAt && new Date(m.sentAt) > oneDayAgo))
+      );
+
+      if (hasRecentOrPending) {
+        continue;
+      }
+
       const ctx = {
         targetId: inv.customer.id,
         targetName: inv.customer.name,
