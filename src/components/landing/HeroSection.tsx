@@ -152,7 +152,7 @@ export function HeroSection({
 
           <motion.p
             variants={itemVariants}
-            className="max-w-2xl text-base font-medium leading-relaxed text-white/82 sm:text-lg md:text-xl"
+            className="max-w-2xl text-base font-medium leading-relaxed text-white/80 sm:text-lg md:text-xl"
           >
             {subheadline}
           </motion.p>
@@ -206,7 +206,7 @@ export function HeroSection({
 
           <motion.p
             variants={itemVariants}
-            className="flex items-center gap-2 text-xs font-semibold text-white/58"
+            className="flex items-center gap-2 text-xs font-semibold text-white/60"
           >
             <ShieldCheck className="h-4 w-4 text-emerald-300" />
             Presupuesto claro, precios vigentes y acompañamiento humano.
