@@ -7,6 +7,7 @@ import {
   getBudgetPaymentSummary,
   getPaymentReceiptSnapshot,
   auditPresupuestoFinancialGuardrails,
+  calculateDiscountAmount,
   findMatchingClientPayment,
 } from '@/lib/budget/financial-guardrails';
 import { auditPresupuestoTotals } from '@/lib/commercial-flow/budget-audit';
@@ -93,6 +94,32 @@ describe('financial guardrails', () => {
 
     expect(normalized.totalConDescuento).toBe(900);
     expect(normalized.saldo).toBe(900);
+  });
+
+  it('calculates one traceable percentage or fixed discount', () => {
+    expect(calculateDiscountAmount(100_000, {
+      descuentoTipo: 'porcentaje',
+      descuentoValor: 10,
+    })).toBe(10_000);
+    expect(calculateDiscountAmount(100_000, {
+      descuentoTipo: 'fijo',
+      descuentoValor: 7_500,
+    })).toBe(7_500);
+  });
+
+  it('preserves a server-priced simulator total while recalculating its balance', () => {
+    const normalized = normalizePresupuestoFinancials(presupuesto({
+      costoTotalEstimado: 100_000,
+      totalConDescuento: 87_500,
+      descuentoTipo: 'porcentaje',
+      descuentoValor: 5,
+      pagosCliente: [
+        { id: 'p1', fecha: '2026-05-16', monto: 10_000, metodoPago: 'Efectivo', estadoPago: 'confirmado' },
+      ],
+    }), { preserveStoredTotal: true });
+
+    expect(normalized.totalConDescuento).toBe(87_500);
+    expect(normalized.saldo).toBe(77_500);
   });
 
   it('blocks payments that would charge more than the remaining balance', () => {

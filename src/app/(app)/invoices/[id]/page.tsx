@@ -56,11 +56,12 @@ function numberToSpanishWords(n: number): string {
 }
 
 const formatCurrency = (amount: number, currency: string = 'UYU') => {
+  const fractionDigits = currency.toUpperCase() === 'UYU' ? 0 : 2;
   return new Intl.NumberFormat('es-UY', {
     style: 'currency',
     currency: currency,
-    minimumFractionDigits: 0,
-    maximumFractionDigits: 0,
+    minimumFractionDigits: fractionDigits,
+    maximumFractionDigits: fractionDigits,
   }).format(amount);
 };
 
@@ -95,12 +96,14 @@ export default function ViewInvoicePage() {
       
       if (fetchedInvoice) {
         setInvoice(fetchedInvoice);
-        const linkedBudget = allBudgets.find(b => b.invoiceId === fetchedInvoice.id || b.id === fetchedInvoice.id);
+        const linkedBudget = allBudgets.find(b =>
+          b.invoiceId === fetchedInvoice.id || b.id === fetchedInvoice.sourcePresupuestoId
+        );
         if (linkedBudget?.eventoFecha) {
             const yearCreated = new Date(linkedBudget.timestamp).getFullYear();
             const yearEvent = new Date(linkedBudget.eventoFecha).getFullYear();
             if (yearEvent > yearCreated) {
-                setAjusteText(`INCLUYE AJUSTE 15% ANUAL (${yearCreated} A ${yearEvent})`);
+                setAjusteText(`INCLUYE AJUSTE ${linkedBudget.ajusteAnualPorcentaje ?? 15}% ANUAL (${yearCreated} A ${yearEvent})`);
             }
         }
       }
@@ -209,9 +212,9 @@ export default function ViewInvoicePage() {
                                 <p className="font-bold">SERVICIOS CONTRATADOS</p>
                                 <p className="text-xs text-muted-foreground">Monto Total Acordado</p>
                             </td>
-                            <td className="py-3 px-3 text-right font-medium">{formatCurrency(invoice.totalAmount)}</td>
+                            <td className="py-3 px-3 text-right font-medium">{formatCurrency(invoice.totalAmount, invoice.currency)}</td>
                             <td className="py-3 px-3 text-right">-</td>
-                            <td className="py-3 px-3 text-right font-bold">{formatCurrency(invoice.totalAmount)}</td>
+                            <td className="py-3 px-3 text-right font-bold">{formatCurrency(invoice.totalAmount, invoice.currency)}</td>
                         </tr>
                         {invoice.payments?.map((p, idx) => {
                             const balanceAfter = invoice.totalAmount - (invoice.payments?.slice(0, idx + 1).reduce((s, pay) => s + pay.amount, 0) || 0);
@@ -222,8 +225,8 @@ export default function ViewInvoicePage() {
                                         <p className="text-xs text-muted-foreground">{new Date(p.paymentDate).toLocaleDateString('es-ES')}</p>
                                     </td>
                                     <td className="py-3 px-3 text-right">-</td>
-                                    <td className="py-3 px-3 text-right text-green-600 font-medium">-{formatCurrency(p.amount)}</td>
-                                    <td className="py-3 px-3 text-right text-gray-500">{formatCurrency(balanceAfter)}</td>
+                                    <td className="py-3 px-3 text-right text-green-600 font-medium">-{formatCurrency(p.amount, invoice.currency)}</td>
+                                    <td className="py-3 px-3 text-right text-gray-500">{formatCurrency(balanceAfter, invoice.currency)}</td>
                                 </tr>
                             );
                         })}
@@ -235,15 +238,15 @@ export default function ViewInvoicePage() {
                 <div className="w-full max-w-[280px] space-y-2">
                     <div className="flex justify-between text-sm">
                         <span className="text-muted-foreground">TOTAL EVENTO:</span>
-                        <span className="font-bold">{formatCurrency(invoice.totalAmount)}</span>
+                        <span className="font-bold">{formatCurrency(invoice.totalAmount, invoice.currency)}</span>
                     </div>
                     <div className="flex justify-between text-sm">
                         <span className="text-muted-foreground">TOTAL PAGADO:</span>
-                        <span className="font-bold text-green-600">{formatCurrency(totalPaid)}</span>
+                        <span className="font-bold text-green-600">{formatCurrency(totalPaid, invoice.currency)}</span>
                     </div>
                     <div className="flex justify-between text-lg bg-primary/5 p-2 rounded">
                         <span className="font-bold text-primary">SALDO PENDIENTE:</span>
-                        <span className="font-bold text-primary">{formatCurrency(amountDue)}</span>
+                        <span className="font-bold text-primary">{formatCurrency(amountDue, invoice.currency)}</span>
                     </div>
                 </div>
             </div>
@@ -296,8 +299,8 @@ export default function ViewInvoicePage() {
                 <div className="mt-10 flex justify-between items-end">
                     <div className="text-center">
                         <div className="border border-black p-2 w-48 mb-1">
-                            <div className="flex justify-between text-[8pt]"><span>TOTAL:</span> <span>{formatCurrency(invoice.totalAmount)}</span></div>
-                            <div className="flex justify-between text-[8pt] font-bold"><span>SALDO:</span> <span>{formatCurrency(amountDue)}</span></div>
+                            <div className="flex justify-between text-[8pt]"><span>TOTAL:</span> <span>{formatCurrency(invoice.totalAmount, invoice.currency)}</span></div>
+                            <div className="flex justify-between text-[8pt] font-bold"><span>SALDO:</span> <span>{formatCurrency(amountDue, invoice.currency)}</span></div>
                         </div>
                         <p className="text-xs">{new Date(lastPayment.paymentDate).toLocaleDateString('es-ES')}</p>
                     </div>

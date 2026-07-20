@@ -16,12 +16,14 @@ import { getGuestCountForItem, recalcularCostoItem } from '@/lib/calculations';
 import { Badge } from '@/components/ui/badge';
 import { cn } from '@/lib/utils';
 import { buildAnnualAdjustmentProjection } from '@/lib/budget/formal-budget';
+import { calculateDiscountAmount } from '@/lib/budget/financial-guardrails';
 
 interface Paso3ResumenProps {
   formData: PresupuestoFormData;
   setFormData: Dispatch<SetStateAction<PresupuestoFormData>>;
   totalCalculado: number;
   totalInvitados: number;
+  annualAdjustmentPercentage: number;
 }
 
 const formatCurrency = (amount?: number) => {
@@ -29,7 +31,7 @@ const formatCurrency = (amount?: number) => {
   return new Intl.NumberFormat('es-UY', { style: 'currency', currency: 'UYU', minimumFractionDigits: 0, maximumFractionDigits: 0 }).format(amount);
 };
 
-export default function Paso3Resumen({ formData, setFormData, totalCalculado, totalInvitados }: Paso3ResumenProps) {
+export default function Paso3Resumen({ formData, setFormData, totalCalculado, totalInvitados, annualAdjustmentPercentage }: Paso3ResumenProps) {
   const [cuponInput, setCuponInput] = useState(formData.cuponCodigo || '');
   const [cuponValidating, setCuponValidating] = useState(false);
   const [cuponResult, setCuponResult] = useState<{ valid: boolean; error?: string; nombre?: string; descuento?: number } | null>(
@@ -81,6 +83,9 @@ export default function Paso3Resumen({ formData, setFormData, totalCalculado, to
       cuponCodigo: undefined,
       cuponId: undefined,
       cuponDescuento: undefined,
+      nombrePromocion: undefined,
+      descuentoTipo: undefined,
+      descuentoValor: '',
     }));
   };
 
@@ -146,21 +151,17 @@ export default function Paso3Resumen({ formData, setFormData, totalCalculado, to
         return sum + recalcularCostoItem(itemNormal as any, adultos, 0, ninos);
     }, 0);
 
-    let descPromo = 0;
     const valorDesc = parseFloat(formData.descuentoValor || '0') || 0;
-    if (formData.descuentoTipo === 'porcentaje') descPromo = (brutoVenta * valorDesc) / 100;
-    else if (formData.descuentoTipo === 'fijo') descPromo = valorDesc;
-    
-    const totalSinAj = brutoVenta - descPromo;
-
-    // Cupón = descuento REAL (no marketing)
-    const descuentoCupon = formData.cuponDescuento || 0;
-    const totalConCupon = Math.max(0, Math.round(totalSinAj - descuentoCupon));
+    const descPromo = calculateDiscountAmount(brutoVenta, {
+      descuentoTipo: formData.descuentoTipo,
+      descuentoValor: valorDesc,
+    });
+    const totalConCupon = Math.max(0, Math.round(brutoVenta - descPromo));
     const isContracted = formData.estado === 'Aceptado' || formData.estado === 'Facturado';
     const annualProjection = buildAnnualAdjustmentProjection({
       baseTotal: totalConCupon,
       eventDate: formData.eventoFecha,
-      adjustmentPct: 15,
+      adjustmentPct: annualAdjustmentPercentage,
     });
 
     // Marketing markup (fictitious — only for display, never affects real price)
@@ -173,14 +174,13 @@ export default function Paso3Resumen({ formData, setFormData, totalCalculado, to
       subtotalBruto: brutoVenta + regalosVal,
       ahorroRegalos: Math.round(regalosVal),
       bonificacionPromo: Math.round(descPromo),
-      descuentoCupon: Math.round(descuentoCupon),
       totalFinal: totalConCupon,
       annualProjection,
       isContracted,
       precioLista,
       ahorroMarketing,
     };
-  }, [formData]);
+  }, [annualAdjustmentPercentage, formData]);
 
   return (
     <div className="space-y-8">

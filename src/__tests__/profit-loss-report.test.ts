@@ -113,4 +113,36 @@ describe('profit and loss reports', () => {
 
     expect(result).toEqual({ success: false, error: 'No se encontró el evento solicitado.' });
   });
+
+  it('does not use one provider overrun to erase another planned cost', async () => {
+    (getInvoices as jest.Mock).mockResolvedValue([]);
+    (getPresupuestos as jest.Mock).mockResolvedValue([]);
+    (getGastosGenerales as jest.Mock).mockResolvedValue([]);
+    (getAllFiestas as jest.Mock).mockResolvedValue([{
+      id: 'fiesta-costos',
+      configuracion: { nombreEvento: 'Evento costos', fechaEvento: '2026-08-08' },
+      pagosProveedores: [{
+        id: 'pago-sobre-costo',
+        monto: 1400,
+        fecha: '2026-07-01',
+        costoAsociadoId: 'proveedor-a',
+      }],
+      gestionCostos: {
+        costosItems: [
+          { id: 'proveedor-a', nombre: 'Proveedor A', montoEstimado: 1000 },
+          { id: 'proveedor-b', nombre: 'Proveedor B', montoEstimado: 500 },
+        ],
+        others: {},
+      },
+    }]);
+
+    const result = await getProfitAndLossData(fullRange, { fiestaId: 'fiesta-costos' });
+
+    expect(result.success).toBe(true);
+    expect(result.data?.costos.total).toBe(1900);
+    expect(result.data?.costos.detalle).toEqual(expect.arrayContaining([
+      expect.objectContaining({ id: 'pago-pago-sobre-costo', monto: 1400 }),
+      expect.objectContaining({ id: 'pendiente-costos-fiesta-costos', monto: 500 }),
+    ]));
+  });
 });

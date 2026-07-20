@@ -179,7 +179,12 @@ export async function getProfitAndLossData(
       if (!inRange(fechaEvento, from, to)) continue;
 
       const pagosProveedores = fiesta.pagosProveedores || [];
-      const totalPagosProveedores = pagosProveedores.reduce((sum, pago) => sum + roundMoney(pago.monto), 0);
+      const pagosPorCosto = pagosProveedores.reduce((totals, pago) => {
+        const costoId = pago.costoAsociadoId?.trim();
+        if (!costoId) return totals;
+        totals.set(costoId, (totals.get(costoId) || 0) + roundMoney(pago.monto));
+        return totals;
+      }, new Map<string, number>());
 
       pagosProveedores.forEach(pago => {
         const monto = roundMoney(pago.monto);
@@ -204,17 +209,23 @@ export async function getProfitAndLossData(
         const aportes = Math.round((sueldo * (rol?.porcentajeAportesPatronales || 0)) / 100);
         return sum + sueldo + aportes;
       }, 0);
-      const costosOperativos = [
-        roundMoney(otros.totalCateringCost),
-        roundMoney(otros.totalBebidasCost),
-        roundMoney(otros.totalReposteriaCost),
-        Math.max(roundMoney(otros.totalPersonalCost), personalCalculado),
+      const costosPlanificados = [
+        ...costosSinMermaDuplicada.map(item => ({
+          id: item.id,
+          monto: roundMoney(item.montoEstimado),
+        })),
+        { id: 'cat_catering', monto: roundMoney(otros.totalCateringCost) },
+        { id: 'cat_bebidas', monto: roundMoney(otros.totalBebidasCost) },
+        { id: 'cat_reposteria', monto: roundMoney(otros.totalReposteriaCost) },
+        {
+          id: 'cat_personal',
+          monto: Math.max(roundMoney(otros.totalPersonalCost), personalCalculado),
+        },
       ];
-      const totalCostosPlanificados = costosSinMermaDuplicada.reduce(
-        (sum, item) => sum + roundMoney(item.montoEstimado),
-        0,
-      ) + costosOperativos.reduce((sum, monto) => sum + monto, 0);
-      const restantePlanificado = Math.max(0, totalCostosPlanificados - totalPagosProveedores);
+      const restantePlanificado = costosPlanificados.reduce((sum, costo) => {
+        const pagadoParaCosto = pagosPorCosto.get(costo.id) || 0;
+        return sum + Math.max(0, costo.monto - pagadoParaCosto);
+      }, 0);
       if (restantePlanificado > 0) {
         costosDetalle.push({
           id: `pendiente-costos-${fiesta.id}`,
