@@ -429,9 +429,11 @@ export const GraziaTemplate: React.FC<TemplateProps> = ({ fiesta, invitacionData
                     </div>
                     <p className="text-xs md:text-sm text-slate-400 font-medium leading-relaxed">{detalle.direccionLugar}</p>
                     <div className="flex flex-col sm:flex-row items-center gap-2 justify-center mt-2 md:mt-4">
-                      <Button asChild variant="outline" className="rounded-xl h-10 md:h-12 px-6 md:px-8 border-slate-200 hover:bg-primary/5 hover:border-primary/20 hover:text-primary transition-all font-bold text-xs md:text-sm">
-                        <a href={detalle.mapaUrl || '#'} target="_blank"><MapPin className="w-3 h-3 md:w-4 md:h-4 mr-2"/> VER UBICACIÓN</a>
-                      </Button>
+                      {detalle.mapaUrl && /^https?:\/\//i.test(detalle.mapaUrl) && (
+                        <Button asChild variant="outline" className="rounded-xl h-10 md:h-12 px-6 md:px-8 border-slate-200 hover:bg-primary/5 hover:border-primary/20 hover:text-primary transition-all font-bold text-xs md:text-sm">
+                          <a href={detalle.mapaUrl} target="_blank" rel="noopener noreferrer"><MapPin className="w-3 h-3 md:w-4 md:h-4 mr-2"/> VER UBICACIÓN</a>
+                        </Button>
+                      )}
                       {(detalle.fecha || fiesta.configuracion.fechaEvento) && (
                         <AddToCalendarButton
                           eventName={detalle.titulo || fiesta.configuracion.nombreEvento || 'Mi Evento'}

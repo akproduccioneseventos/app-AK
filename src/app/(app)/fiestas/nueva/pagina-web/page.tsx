@@ -457,7 +457,13 @@ function PaginaWebPageContent() {
             <Button variant="outline" className="rounded-xl font-bold h-9" onClick={() => setTemplateGalleryOpen(true)}>
               <Sparkles className="w-4 h-4 sm:mr-2" /> <span className="hidden sm:inline">Cambiar Plantilla</span>
             </Button>
-            <Button asChild variant="outline" className="rounded-xl font-bold h-9"><Link href={fiestaId ? (slugUrl || getFullLink('/invitacion/[fiestaId]')) : '#'} target="_blank" className="hidden xs:block"><Eye className="w-4 h-4 mr-2"/>Ver Real</Link></Button>
+            {fiestaId ? (
+              <Button asChild variant="outline" className="rounded-xl font-bold h-9"><Link href={slugUrl || getFullLink('/invitacion/[fiestaId]')} target="_blank" className="hidden xs:block"><Eye className="w-4 h-4 mr-2"/>Ver Real</Link></Button>
+            ) : (
+              <Button variant="outline" className="hidden h-9 rounded-xl font-bold xs:inline-flex" disabled title="Selecciona una fiesta para abrir su página">
+                <Eye className="mr-2 h-4 w-4"/>Ver Real
+              </Button>
+            )}
            <Button onClick={handleSave} disabled={isSaving || fiestaId === 'template_preview'} className="rounded-xl font-bold h-9 shadow-lg shadow-primary/20">
                 {isSaving ? <Loader2 className="w-4 h-4 animate-spin"/> : <Save className="w-4 h-4 sm:mr-2"/>}
                 <span className="hidden sm:inline">Guardar</span>
