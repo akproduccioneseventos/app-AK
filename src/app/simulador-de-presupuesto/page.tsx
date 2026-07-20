@@ -247,6 +247,8 @@ function SimuladorContent() {
     const [excludedPackageServiceIds, setExcludedPackageServiceIds] = useState<string[]>([]);
     const [dateSuggestions, setDateSuggestions] = useState<string[]>([]);
     const [dateWarning, setDateWarning] = useState('');
+    const [dateAvailabilityStatus, setDateAvailabilityStatus] = useState<'idle' | 'checking' | 'available' | 'occupied' | 'error'>('idle');
+    const dateAvailabilityRequestRef = useRef(0);
 
     const [gastronomiaSearchTerm, setGastronomiaSearchTerm] = useState('');
     const [serviceSearchTerm, setServiceSearchTerm] = useState('');
@@ -690,7 +692,14 @@ function SimuladorContent() {
                 });
                 return;
             }
-            if (dateWarning) {
+            if (dateAvailabilityStatus === 'checking') {
+                toast({
+                    title: "Estamos verificando la fecha",
+                    description: "Esperá un instante para confirmar la disponibilidad.",
+                });
+                return;
+            }
+            if (dateAvailabilityStatus === 'occupied') {
                 toast({
                     title: "Elegí una fecha disponible",
                     description: "La fecha seleccionada ya está ocupada. Podés elegir una alternativa sugerida.",
@@ -775,25 +784,35 @@ function SimuladorContent() {
     const handlePrev = () => { if (step > 1) setStep(s => s - 1); };
 
     const handleEventoFechaChange = useCallback(async (date: Date | undefined) => {
+        const requestId = ++dateAvailabilityRequestRef.current;
         setEventoFecha(date);
         if (!date) {
             setDateWarning('');
             setDateSuggestions([]);
+            setDateAvailabilityStatus('idle');
             return;
         }
+        setDateAvailabilityStatus('checking');
+        setDateWarning('Verificando disponibilidad...');
+        setDateSuggestions([]);
         try {
             const availability = await checkDateAvailability(date.toISOString());
+            if (requestId !== dateAvailabilityRequestRef.current) return;
             if (availability.isOccupied) {
                 setDateWarning('⚠️ Fecha no disponible. Te sugerimos estas fechas cercanas:');
                 setDateSuggestions(availability.suggestions || []);
+                setDateAvailabilityStatus('occupied');
             } else {
                 setDateWarning('');
                 setDateSuggestions([]);
+                setDateAvailabilityStatus('available');
             }
         } catch (error) {
+            if (requestId !== dateAvailabilityRequestRef.current) return;
             console.error('[Simulador] Error checking date availability:', error);
-            setDateWarning('⚠️ Ocurrió un error al verificar la disponibilidad de la fecha. Por favor, reintenta.');
+            setDateWarning('No pudimos verificar la disponibilidad ahora. Podés continuar y AK confirmará la fecha antes de la reserva.');
             setDateSuggestions([]);
+            setDateAvailabilityStatus('error');
         }
     }, []);
 

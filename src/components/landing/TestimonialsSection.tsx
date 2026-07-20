@@ -1,8 +1,8 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Star, Quote, Sparkles, MessageSquare, X, ShieldCheck, HeartHandshake } from 'lucide-react';
+import { CheckCircle2, Star, Quote, Sparkles, MessageSquare, X, HeartHandshake } from 'lucide-react';
 import { AK_WHATSAPP_NUMBER } from '@/lib/public-contact';
 
 export interface Testimonial {
@@ -28,60 +28,11 @@ interface SuccessStory {
   clientName: string;
   role: string;
   eventType: string;
-  logro: string;
-  image: string;
-  servicios: string[];
   whatsappMessage: string;
   rating?: number;
 }
 
-const SUCCESS_STORIES: SuccessStory[] = [
-  {
-    id: 'story-1',
-    title: 'Los 15 Años de Valentina',
-    text: 'Ver a mi hija entrar y ver todo tal cual lo soñó fue hermoso. La discoteca y la pista de luces LED interactiva fueron el centro de la diversión. Nos liberamos de coordinar con diez proveedores distintos. ¡AK se encargó de todo!',
-    clientName: 'María José',
-    role: 'Mamá de Valentina',
-    eventType: 'Fiesta de 15 Años',
-    logro: 'Pista llena toda la noche y organización impecable',
-    image: '/media/catalogo-servicios/quinceanera_persuasiva.png',
-    servicios: ['Salón Club Uruguay', 'Gastronomía Integral', 'Pista LED Interactiva', 'Decoración Temática'],
-    whatsappMessage: 'Hola AK Producciones, vi el caso de éxito de los 15 de Valentina y me gustaría cotizar un cumpleaños similar.',
-  },
-  {
-    id: 'story-2',
-    title: 'La Boda de Belén & Sebastián',
-    text: 'Buscábamos un servicio premium que nos diera paz mental. El menú gourmet fue elogiado por todos los invitados y el montaje clásico en el Club Uruguay superó nuestras expectativas. Excelente coordinación durante la ceremonia y el baile.',
-    clientName: 'Belén & Sebastián',
-    role: 'Novios',
-    eventType: 'Boda Premium',
-    logro: 'Gastronomía de gala y ambientación señorial de ensueño',
-    image: '/media/catalogo-servicios/boda_persuasiva.png',
-    servicios: ['Catering Gourmet', 'Discoteca Profesional', 'Diseño Floral y Livings', 'Coordinación In Situ'],
-    whatsappMessage: 'Hola AK Producciones, vi la boda de Belén y Sebastián y me interesa recibir información para mi casamiento.',
-  },
-  {
-    id: 'story-3',
-    title: 'Fiesta Social Egresados',
-    text: 'La barra de tragos moderna y la tecnología del muro social interactivo en pantalla gigante marcaron la diferencia. Los chicos compartían las fotos en vivo desde sus celulares al instante. Todo el staff estuvo en cada detalle.',
-    clientName: 'Rodrigo',
-    role: 'Comisión de Egresados',
-    eventType: 'Evento Social',
-    logro: 'Tecnología interactiva y barras móviles de vanguardia',
-    image: '/media/catalogo-servicios/social_persuasivo.png',
-    servicios: ['Barra Libre de Tragos', 'Muro Social QR', 'Pantalla Gigante LED', 'Efectos Especiales'],
-    whatsappMessage: 'Hola AK Producciones, me interesa la tecnología interactiva y barra de tragos para una fiesta de egresados/social.',
-  },
-];
-
-const TESTIMONIAL_IMAGES = [
-  '/media/catalogo-servicios/quinceanera_persuasiva.png',
-  '/media/catalogo-servicios/boda_persuasiva.png',
-  '/media/catalogo-servicios/social_persuasivo.png',
-  '/media/catalogo-servicios/familia_feliz_evento.png',
-];
-
-function testimonialToStory(testimonial: Testimonial, index: number): SuccessStory {
+export function testimonialToStory(testimonial: Testimonial): SuccessStory {
   const eventType = testimonial.eventType || 'Evento AK';
   return {
     id: `testimonial-${testimonial.id}`,
@@ -90,9 +41,6 @@ function testimonialToStory(testimonial: Testimonial, index: number): SuccessSto
     clientName: testimonial.name,
     role: testimonial.role || 'Cliente AK',
     eventType,
-    logro: `Evento ${eventType.toLowerCase()} acompañado por el equipo de AK Producciones.`,
-    image: TESTIMONIAL_IMAGES[index % TESTIMONIAL_IMAGES.length],
-    servicios: ['Producción integral AK', eventType, 'Coordinación y seguimiento'],
     whatsappMessage: `Hola AK Producciones, vi el testimonio de ${testimonial.name} y quiero consultar una propuesta para mi evento.`,
     rating: testimonial.rating ?? 5,
   };
@@ -100,22 +48,50 @@ function testimonialToStory(testimonial: Testimonial, index: number): SuccessSto
 
 export function TestimonialsSection({ testimonials = [], whatsappNumber = AK_WHATSAPP_NUMBER }: TestimonialsSectionProps) {
   const [selectedStory, setSelectedStory] = useState<SuccessStory | null>(null);
-  const stories = [
-    ...testimonials.map(testimonialToStory),
-    ...SUCCESS_STORIES,
-  ];
+  const closeButtonRef = useRef<HTMLButtonElement>(null);
+  const previousFocusRef = useRef<HTMLElement | null>(null);
+  const stories = testimonials.map(testimonialToStory);
 
-  // Escuchar tecla Escape para cerrar el modal
+  const openStory = (story: SuccessStory) => {
+    previousFocusRef.current = document.activeElement instanceof HTMLElement ? document.activeElement : null;
+    setSelectedStory(story);
+  };
+
   useEffect(() => {
     if (!selectedStory) return;
+    const previousOverflow = document.body.style.overflow;
+    document.body.style.overflow = 'hidden';
+    const focusFrame = requestAnimationFrame(() => closeButtonRef.current?.focus());
     const handleKeyDown = (e: KeyboardEvent) => {
       if (e.key === 'Escape') {
         setSelectedStory(null);
+        return;
+      }
+      if (e.key !== 'Tab') return;
+      const dialog = closeButtonRef.current?.closest('[role="dialog"]');
+      if (!(dialog instanceof HTMLElement)) return;
+      const focusable = Array.from(dialog.querySelectorAll<HTMLElement>('button:not([disabled]), a[href], [tabindex]:not([tabindex="-1"])'));
+      if (focusable.length === 0) return;
+      const first = focusable[0];
+      const last = focusable[focusable.length - 1];
+      if (e.shiftKey && document.activeElement === first) {
+        e.preventDefault();
+        last.focus();
+      } else if (!e.shiftKey && document.activeElement === last) {
+        e.preventDefault();
+        first.focus();
       }
     };
     window.addEventListener('keydown', handleKeyDown);
-    return () => window.removeEventListener('keydown', handleKeyDown);
+    return () => {
+      cancelAnimationFrame(focusFrame);
+      document.body.style.overflow = previousOverflow;
+      window.removeEventListener('keydown', handleKeyDown);
+      requestAnimationFrame(() => previousFocusRef.current?.focus());
+    };
   }, [selectedStory]);
+
+  if (stories.length === 0) return null;
 
   return (
     <section id="landing-testimonials" className="py-24 bg-zinc-950 text-white relative overflow-hidden border-t border-white/5">
@@ -134,37 +110,30 @@ export function TestimonialsSection({ testimonials = [], whatsappNumber = AK_WHA
         >
           <span className="inline-flex items-center gap-2 px-3 py-1 rounded-xl bg-red-500/10 border border-red-500/20 text-xs font-black uppercase tracking-widest text-red-400 mb-4">
             <HeartHandshake className="w-3.5 h-3.5" />
-            Casos de Éxito Reales
+            Reseñas de clientes
           </span>
           <h2 className="font-headline text-5xl sm:text-6xl font-black text-white leading-tight mb-4">
-            Historias de Felicidad
+            Experiencias compartidas
           </h2>
           <p className="text-zinc-400 text-lg max-w-xl mx-auto leading-relaxed">
-            Descubrí cómo organizamos eventos espectaculares y sin estrés en Salto, contados por sus propios protagonistas.
+            Opiniones compartidas por clientes sobre su experiencia con AK Producciones.
           </p>
         </motion.div>
 
         {/* Grilla de Casos de Éxito */}
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
           {stories.map((story, index) => (
-            <motion.div
+            <motion.button
+              type="button"
               key={story.id}
               initial={{ opacity: 0, y: 28 }}
               whileInView={{ opacity: 1, y: 0 }}
               viewport={{ once: true, amount: 0.25 }}
               transition={{ duration: 0.45, delay: Math.min(index * 0.06, 0.24), ease: 'easeOut' }}
               whileHover={{ y: -6, scale: 1.01 }}
-              onClick={() => setSelectedStory(story)}
-              onKeyDown={(e) => {
-                if (e.key === 'Enter' || e.key === ' ') {
-                  e.preventDefault();
-                  setSelectedStory(story);
-                }
-              }}
-              role="button"
-              tabIndex={0}
-              aria-label={`Ver historia de éxito: ${story.title}`}
-              className="flex flex-col justify-between rounded-3xl bg-white/[0.02] border border-white/10 p-6 cursor-pointer shadow-xl hover:shadow-[0_10px_35px_rgba(239,68,68,0.15)] hover:border-red-500/20 group transition-all relative overflow-hidden text-left"
+              onClick={() => openStory(story)}
+              aria-label={`Ver reseña de ${story.clientName}`}
+              className="flex w-full flex-col justify-between rounded-3xl bg-white/[0.02] border border-white/10 p-6 cursor-pointer shadow-xl hover:shadow-[0_10px_35px_rgba(239,68,68,0.15)] hover:border-red-500/20 group transition-all relative overflow-hidden text-left focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-red-400 focus-visible:ring-offset-2 focus-visible:ring-offset-zinc-950"
             >
               <div className="space-y-4">
                 <div className="flex items-center justify-between">
@@ -194,11 +163,11 @@ export function TestimonialsSection({ testimonials = [], whatsappNumber = AK_WHA
                   <p className="text-[10px] text-zinc-500 font-bold uppercase tracking-wider mt-0.5">{story.role}</p>
                 </div>
                 <span className="inline-flex items-center gap-1 text-[9px] font-black uppercase tracking-widest bg-emerald-500/10 text-emerald-400 px-2 py-1 rounded-md">
-                  <ShieldCheck className="w-3.5 h-3.5" />
-                  Verificado
+                  <CheckCircle2 className="w-3.5 h-3.5" />
+                  Opinión publicada
                 </span>
               </div>
-            </motion.div>
+            </motion.button>
           ))}
         </div>
       </div>
@@ -229,6 +198,8 @@ export function TestimonialsSection({ testimonials = [], whatsappNumber = AK_WHA
             >
               {/* Botón de cierre */}
               <button
+                ref={closeButtonRef}
+                type="button"
                 onClick={() => setSelectedStory(null)}
                 className="absolute top-6 right-6 z-30 w-8 h-8 rounded-full bg-white/5 border border-white/10 hover:bg-white/10 flex items-center justify-center text-white transition-colors"
                 aria-label="Cerrar historia"
@@ -254,26 +225,6 @@ export function TestimonialsSection({ testimonials = [], whatsappNumber = AK_WHA
                   <div className="mt-4 flex items-center gap-2 not-italic">
                     <span className="w-6 h-0.5 bg-red-600" />
                     <p className="text-xs font-black text-white">{selectedStory.clientName} ({selectedStory.role})</p>
-                  </div>
-                </div>
-
-                {/* Logro y Servicios */}
-                <div className="grid grid-cols-1 sm:grid-cols-2 gap-5">
-                  <div className="space-y-2">
-                    <h4 className="text-xs font-black uppercase tracking-wider text-red-400">Logro verificado</h4>
-                    <p className="text-xs font-semibold text-slate-400 leading-relaxed">
-                      {selectedStory.logro}
-                    </p>
-                  </div>
-                  <div className="space-y-2">
-                    <h4 className="text-xs font-black uppercase tracking-wider text-red-400">Servicios Incluidos</h4>
-                    <div className="flex flex-wrap gap-1.5 pt-1">
-                      {selectedStory.servicios.map((s, idx) => (
-                        <span key={idx} className="px-2.5 py-1 rounded-md bg-white/5 border border-white/5 text-[9px] font-bold text-slate-300">
-                          {s}
-                        </span>
-                      ))}
-                    </div>
                   </div>
                 </div>
 

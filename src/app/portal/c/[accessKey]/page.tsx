@@ -5,6 +5,7 @@ import { getCompanyInfo } from '@/app/actions/settings';
 import { getPresupuestoById } from '@/app/actions/presupuestos';
 import { getServiciosEmpresa } from '@/app/actions/servicios-empresa';
 import type { Presupuesto } from '@/types/presupuesto';
+import { toPublicGuestStatsInput } from '@/lib/client-portal/public-guest-stats';
 import PublicPortalClientExperience from './PublicPortalClientExperience';
 
 interface PageProps {
@@ -72,14 +73,7 @@ function mapFiestaToPortalDTO(fiesta: any, routeAccessKey: string): any {
       activeGame: fiesta.socialGallerySettings.activeGame,
     } : {},
     timeline: fiesta.timeline || [],
-    invitados: (fiesta.invitados || []).map((inv: any) => ({
-      id: inv.id,
-      rsvp: inv.rsvp,
-      nombre: inv.nombre,
-      esAcompanante: inv.esAcompanante,
-      alergias: inv.alergias,
-      mesaId: inv.mesaId,
-    })),
+    invitados: toPublicGuestStatsInput(fiesta.invitados),
     reuniones: fiesta.reuniones || [],
     programa: fiesta.programa || [],
     videoVida: fiesta.videoVida ? {

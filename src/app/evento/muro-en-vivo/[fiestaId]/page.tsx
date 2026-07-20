@@ -152,13 +152,16 @@ export default function MuroEnVivoPage() {
       url: `https://tiktok.com/${tt}`
     });
 
-    // WhatsApp (Fijo)
+    // WhatsApp is shown only when there is a usable destination.
     const wa = brand?.whatsappNumber?.trim();
-    list.push({
-      platform: 'WhatsApp',
-      handle: wa || 'Teléfono no configurado',
-      url: wa ? `https://wa.me/${wa}` : '#'
-    });
+    const waDigits = wa?.replace(/\D/g, '');
+    if (wa && waDigits) {
+      list.push({
+        platform: 'WhatsApp',
+        handle: wa,
+        url: `https://wa.me/${waDigits}`,
+      });
+    }
 
     return list;
   }, [settings.brand]);

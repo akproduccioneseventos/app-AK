@@ -1,8 +1,8 @@
 'use client';
 
-import { Play } from 'lucide-react';
+import { Play, X } from 'lucide-react';
 import Image from 'next/image';
-import { useState, useEffect } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { cn } from '@/lib/utils';
 import { canUseNextImage } from '@/lib/next-image-url';
 import type { GaleriaVideo } from '@/types/galeria';
@@ -62,17 +62,10 @@ interface VideoCardProps {
 
 function VideoCard({ video, onPlay }: VideoCardProps) {
   return (
-    <div
-      className="group relative rounded-3xl overflow-hidden bg-slate-800 shadow-2xl cursor-pointer"
+    <button
+      type="button"
+      className="group relative w-full rounded-3xl overflow-hidden bg-slate-800 shadow-2xl cursor-pointer text-left focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-red-400 focus-visible:ring-offset-2 focus-visible:ring-offset-slate-900"
       onClick={() => onPlay(video)}
-      onKeyDown={(e) => {
-        if (e.key === 'Enter' || e.key === ' ') {
-          e.preventDefault();
-          onPlay(video);
-        }
-      }}
-      role="button"
-      tabIndex={0}
       aria-label={`Reproducir video: ${video.title}`}
     >
       {/* Thumbnail */}
@@ -103,7 +96,7 @@ function VideoCard({ video, onPlay }: VideoCardProps) {
           <p className="text-slate-400 text-sm leading-relaxed">{video.description}</p>
         )}
       </div>
-    </div>
+    </button>
   );
 }
 
@@ -136,17 +129,41 @@ export function VideoSection({ videos, galeriaVideos, channelUrl }: VideoSection
 
   const [activeCategory, setActiveCategory] = useState('Todos');
   const [activeVideo, setActiveVideo] = useState<VideoItem | null>(null);
+  const closeButtonRef = useRef<HTMLButtonElement>(null);
+  const previousFocusRef = useRef<HTMLElement | null>(null);
 
-  // Escuchar tecla Escape para cerrar el modal de video
   useEffect(() => {
     if (!activeVideo) return;
+    const previousOverflow = document.body.style.overflow;
+    document.body.style.overflow = 'hidden';
+    const focusFrame = requestAnimationFrame(() => closeButtonRef.current?.focus());
     const handleKeyDown = (e: KeyboardEvent) => {
       if (e.key === 'Escape') {
         setActiveVideo(null);
+        return;
+      }
+      if (e.key !== 'Tab') return;
+      const dialog = closeButtonRef.current?.closest('[role="dialog"]');
+      if (!(dialog instanceof HTMLElement)) return;
+      const focusable = Array.from(dialog.querySelectorAll<HTMLElement>('button:not([disabled]), a[href], iframe, video[controls], [tabindex]:not([tabindex="-1"])'));
+      if (focusable.length === 0) return;
+      const first = focusable[0];
+      const last = focusable[focusable.length - 1];
+      if (e.shiftKey && document.activeElement === first) {
+        e.preventDefault();
+        last.focus();
+      } else if (!e.shiftKey && document.activeElement === last) {
+        e.preventDefault();
+        first.focus();
       }
     };
     window.addEventListener('keydown', handleKeyDown);
-    return () => window.removeEventListener('keydown', handleKeyDown);
+    return () => {
+      cancelAnimationFrame(focusFrame);
+      document.body.style.overflow = previousOverflow;
+      window.removeEventListener('keydown', handleKeyDown);
+      requestAnimationFrame(() => previousFocusRef.current?.focus());
+    };
   }, [activeVideo]);
 
   // Sort: destacados first using a Map for O(n) performance
@@ -192,6 +209,7 @@ export function VideoSection({ videos, galeriaVideos, channelUrl }: VideoSection
       window.open(video.externalUrl, '_blank', 'noopener,noreferrer');
       return;
     }
+    previousFocusRef.current = document.activeElement instanceof HTMLElement ? document.activeElement : null;
     setActiveVideo(video);
   };
 
@@ -268,28 +286,36 @@ export function VideoSection({ videos, galeriaVideos, channelUrl }: VideoSection
           onClick={() => setActiveVideo(null)}
         >
           <div
-            className="relative w-full max-w-4xl aspect-video rounded-2xl overflow-hidden shadow-2xl"
+            role="dialog"
+            aria-modal="true"
+            aria-labelledby="video-modal-title"
+            className="relative w-full max-w-4xl"
             onClick={(e) => e.stopPropagation()}
           >
-            {isDirectVideoSrc ? (
-              <video src={embedSrc} controls autoPlay className="w-full h-full bg-black" />
-            ) : (
-              <iframe
-                src={embedSrc}
-                title={activeVideo.title}
-                allow="autoplay; encrypted-media; picture-in-picture"
-                allowFullScreen
-                className="w-full h-full"
-              />
-            )}
+            <h2 id="video-modal-title" className="sr-only">{activeVideo.title}</h2>
+            <div className="aspect-video overflow-hidden rounded-2xl shadow-2xl">
+              {isDirectVideoSrc ? (
+                <video src={embedSrc} controls autoPlay className="w-full h-full bg-black" />
+              ) : (
+                <iframe
+                  src={embedSrc}
+                  title={activeVideo.title}
+                  allow="autoplay; encrypted-media; picture-in-picture"
+                  allowFullScreen
+                  className="w-full h-full"
+                />
+              )}
+            </div>
+            <button
+              ref={closeButtonRef}
+              type="button"
+              onClick={() => setActiveVideo(null)}
+              className="absolute -top-12 right-0 flex h-10 w-10 items-center justify-center rounded-full bg-white/10 text-white transition-colors hover:bg-white/20 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white"
+              aria-label="Cerrar video"
+            >
+              <X className="h-5 w-5" />
+            </button>
           </div>
-          <button
-            onClick={() => setActiveVideo(null)}
-            className="absolute top-4 right-4 w-10 h-10 rounded-full bg-white/10 text-white flex items-center justify-center hover:bg-white/20 transition-colors"
-            aria-label="Cerrar video"
-          >
-            ✕
-          </button>
         </div>
       )}
     </section>

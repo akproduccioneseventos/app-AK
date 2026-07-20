@@ -102,10 +102,11 @@ export function FAQSection({ faqs }: FAQSectionProps) {
               )}
             >
               <button
+                type="button"
                 onClick={() => setOpen(open === faq.id ? null : faq.id)}
                 aria-expanded={open === faq.id}
                 aria-controls={`faq-answer-${faq.id}`}
-                className="w-full flex items-center justify-between gap-4 px-6 py-5 text-left focus:outline-none"
+                className="w-full flex items-center justify-between gap-4 px-6 py-5 text-left focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-red-400"
               >
                 <span className={cn(
                   'font-bold text-sm sm:text-base transition-colors',

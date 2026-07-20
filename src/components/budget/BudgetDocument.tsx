@@ -8,7 +8,11 @@ import Image from 'next/image';
 import type { Presupuesto, ItemPresupuestado } from '@/types/presupuesto';
 import type { AnnualAdjustmentProjection } from '@/lib/budget/formal-budget';
 import { Gift, CheckCircle2 } from 'lucide-react';
-import { DEFAULT_BOOKING_DEPOSIT_AMOUNT } from '@/lib/budget/formal-budget';
+import {
+  BUDGET_VALIDITY_DAYS,
+  buildFormalBudgetBookingNote,
+  DEFAULT_BOOKING_DEPOSIT_AMOUNT,
+} from '@/lib/budget/formal-budget';
 
 // ── Company constants ─────────────────────────────────────────────────────────
 const COMPANY_NAME = 'AK PRODUCCIONES';
@@ -17,13 +21,6 @@ const COMPANY_ADDRESS_LINE1 = 'Salto';
 const COMPANY_ADDRESS_LINE2 = '50000 Salto';
 const COMPANY_EMAIL = 'akproduccionessalto@gmail.com';
 const COMPANY_WEBSITE = 'www.akproduccioneseventos.com';
-const BUDGET_VALIDITY_DAYS = 30;
-const BOOKING_NOTE_WITH_ADJUSTMENT =
-  'El presupuesto es válido por 30 días para mantener el precio de la promoción y los regalos incluidos. La reserva de la fecha y de los servicios se realiza con una seña de $ 5.000. Los eventos programados para años posteriores al vigente tendrán un ajuste anual proyectado del 15% de acuerdo a lo establecido en el contrato.';
-
-const BOOKING_NOTE_CURRENT_YEAR =
-  'El presupuesto es válido por 30 días para mantener el precio de la promoción y los regalos incluidos. La reserva de la fecha y de los servicios se realiza con una seña de $ 5.000. El total mostrado corresponde al precio vigente del año {AÑO}.';
-
 // ── Helpers ───────────────────────────────────────────────────────────────────
 function formatCurrency(amount?: number): string {
   if (amount === undefined || isNaN(amount)) return 'N/A';
@@ -262,7 +259,7 @@ export default function BudgetDocument({
                   Número de Documento
                 </th>
                 <th className="border border-slate-300 px-2 py-1.5 text-center font-semibold text-slate-700">
-                  Página
+                  Formato
                 </th>
                 <th className="border border-slate-300 px-2 py-1.5 text-left font-semibold text-slate-700">
                   Fecha
@@ -281,7 +278,7 @@ export default function BudgetDocument({
                 <td className="border border-slate-200 px-2 py-1.5 font-mono font-semibold text-slate-800">
                   #{budgetNumber}
                 </td>
-                <td className="border border-slate-200 px-2 py-1.5 text-center text-slate-600">1/1</td>
+                <td className="border border-slate-200 px-2 py-1.5 text-center text-slate-600">A4</td>
                 <td className="border border-slate-200 px-2 py-1.5 text-slate-600">
                   {formatDateShort(presupuesto.timestamp)}
                 </td>
@@ -552,7 +549,7 @@ export default function BudgetDocument({
                     <td className="border border-slate-200 px-3 py-1.5 text-right font-mono text-slate-600">
                       {row.adjustmentAmount === 0 ? '—' : `+${formatCurrency(row.adjustmentAmount)}`}
                     </td>
-                    <td className="border border-slate-200 px-3 py-1.5 text-right font-bold font-mono text-slate-850">{formatCurrency(row.total)}</td>
+                    <td className="border border-slate-200 px-3 py-1.5 text-right font-bold font-mono text-slate-900">{formatCurrency(row.total)}</td>
                   </tr>
                 ))}
               </tbody>
@@ -566,9 +563,12 @@ export default function BudgetDocument({
         {/* Footer */}
         <footer className="mt-6 pt-4 border-t border-slate-300 text-xs print:text-[8pt] text-slate-500 space-y-3">
           <p className="font-semibold text-slate-700 print:text-black">
-            {presupuesto.ajusteAnualActivo || projectionRows.length > 0
-              ? BOOKING_NOTE_WITH_ADJUSTMENT
-              : BOOKING_NOTE_CURRENT_YEAR.replace('{AÑO}', String(new Date(presupuesto.timestamp).getFullYear()))}
+            {buildFormalBudgetBookingNote({
+              hasAnnualAdjustment: Boolean(presupuesto.ajusteAnualActivo || projectionRows.length > 0),
+              adjustmentPct,
+              bookingDepositAmount,
+              currentYear: new Date(presupuesto.timestamp).getFullYear(),
+            })}
           </p>
 
           {showSignatures ? (
