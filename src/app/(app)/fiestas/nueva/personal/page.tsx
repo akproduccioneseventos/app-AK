@@ -24,6 +24,7 @@ import { Badge } from '@/components/ui/badge';
 import { Separator } from '@/components/ui/separator';
 import { useSearchParams } from 'next/navigation';
 import { cn } from '@/lib/utils';
+import { EventSelectionRequired } from '@/components/fiestas/event-selection-required';
 
 const formatCurrency = (amount: number) => {
   if (isNaN(amount)) return 'N/A';
@@ -198,20 +199,23 @@ function AsignarPersonalEventoContent() {
     fetchInitialData();
   }, [fetchInitialData]);
 
-  const handleAutoSave = async (updatedStaff: PersonalAsignadoDetalleStorage[]) => {
-    if (!fiestaId) return;
+  const handleAutoSave = async (updatedStaff: PersonalAsignadoDetalleStorage[]): Promise<boolean> => {
+    if (!fiestaId) return false;
     setIsSaving(true);
     try {
       const result = await updatePersonalFiestaActual(fiestaId, updatedStaff);
       if (!result.success) throw new Error(result.error || "No se pudo guardar automáticamente.");
+      return true;
     } catch (error: any) {
       toast({ title: "Error en auto-guardado", description: error.message, variant: "destructive" });
+      return false;
     } finally {
       setIsSaving(false);
     }
   };
 
   const handleUpdateAssignment = async (index: number, empleadoId: string | null, rolId: string, defaultSalary?: number) => {
+    const previousStaff = assignedStaff;
     const updatedStaff = [...assignedStaff];
     let newlyAssignedEmpleadoId: string | null = null;
     let assignedSalary = 0;
@@ -240,7 +244,11 @@ function AsignarPersonalEventoContent() {
     }
     
     setAssignedStaff(updatedStaff);
-    await handleAutoSave(updatedStaff);
+    const saved = await handleAutoSave(updatedStaff);
+    if (!saved) {
+      setAssignedStaff(previousStaff);
+      return;
+    }
 
     if (newlyAssignedEmpleadoId && currentFiesta) {
         const empleado = allEmpleados.find(e => e.id === newlyAssignedEmpleadoId);
@@ -252,17 +260,23 @@ function AsignarPersonalEventoContent() {
   };
 
   const handleSalaryChange = async (index: number, newSalary: number) => {
-      const updatedStaff = [...assignedStaff];
-      updatedStaff[index].eventSalary = newSalary;
+      const previousStaff = assignedStaff;
+      const updatedStaff = assignedStaff.map((staff, staffIndex) =>
+        staffIndex === index ? { ...staff, eventSalary: newSalary } : staff
+      );
       setAssignedStaff(updatedStaff);
-      await handleAutoSave(updatedStaff);
+      const saved = await handleAutoSave(updatedStaff);
+      if (!saved) setAssignedStaff(previousStaff);
   };
 
-  const addManualAssignment = () => {
+  const addManualAssignment = async () => {
       const firstRole = allRoles[0];
       if (firstRole) {
+          const previousStaff = assignedStaff;
           const updatedStaff = [...assignedStaff, { empleadoId: '', rolId: firstRole.id, eventSalary: firstRole.sueldoPorEvento }];
           setAssignedStaff(updatedStaff);
+          const saved = await handleAutoSave(updatedStaff);
+          if (!saved) setAssignedStaff(previousStaff);
       }
   };
 
@@ -402,6 +416,8 @@ Por favor confirmá tu asistencia respondiendo este mensaje.
   }, [assignmentRows, allRoles]);
 
   const filledCount = useMemo(() => assignedStaff.filter(s => !!s.empleadoId).length, [assignedStaff]);
+
+  if (!fiestaId) return <EventSelectionRequired moduleName="la asignación de personal" />;
 
   return (
     <div className="space-y-6">

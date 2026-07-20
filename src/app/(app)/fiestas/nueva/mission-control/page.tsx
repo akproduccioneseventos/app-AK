@@ -131,8 +131,15 @@ function MissionControlContent() {
 
   // Auto-refresh every 30 seconds
   useEffect(() => {
-    const interval = setInterval(() => loadData(true), 30_000);
-    return () => clearInterval(interval);
+    const refreshWhenVisible = () => {
+      if (document.visibilityState === 'visible') void loadData(true);
+    };
+    document.addEventListener('visibilitychange', refreshWhenVisible);
+    const interval = setInterval(refreshWhenVisible, 30_000);
+    return () => {
+      clearInterval(interval);
+      document.removeEventListener('visibilitychange', refreshWhenVisible);
+    };
   }, [loadData]);
 
   // Offline detection

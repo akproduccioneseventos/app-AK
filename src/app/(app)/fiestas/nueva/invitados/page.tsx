@@ -17,6 +17,7 @@ import type { FiestaEnPlanificacion } from '@/types/fiesta';
 import QRCodeStylized from 'qrcode.react';
 import { Switch } from '@/components/ui/switch';
 import { Progress } from '@/components/ui/progress';
+import { EventSelectionRequired } from '@/components/fiestas/event-selection-required';
 
 import {
   Dialog,
@@ -133,6 +134,8 @@ function InvitadosEventoContent() {
       setNuevoNombre(''); setNuevoTag(''); setNuevoCeliaco(false); setNuevoPerfil('General');
       await fetchInvitados();
       toast({ title: "Invitado Añadido" });
+    } else {
+      toast({ title: "No se pudo agregar", description: result.error || "Intenta nuevamente.", variant: "destructive" });
     }
     setIsSaving(false);
   };
@@ -143,6 +146,8 @@ function InvitadosEventoContent() {
     if (result.success) {
       await fetchInvitados();
       toast({ title: "Eliminado", variant: "destructive" });
+    } else {
+      toast({ title: "No se pudo eliminar", description: result.error || "Intenta nuevamente.", variant: "destructive" });
     }
   };
 
@@ -165,6 +170,7 @@ function InvitadosEventoContent() {
     setIsSavingEdit(false);
   };
 
+  if (!fiestaId) return <EventSelectionRequired moduleName="la gestión de invitados" />;
   if (isLoading || !fiesta) return <div className="flex justify-center p-8"><Loader2 className="animate-spin text-primary"/></div>;
 
   return (

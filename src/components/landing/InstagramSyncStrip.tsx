@@ -44,7 +44,7 @@ export function InstagramSyncStrip({ handle, profileUrl, items, isApiConnected }
               initial={reduceMotion ? false : { opacity: 0, y: 12 }}
               whileInView={reduceMotion ? undefined : { opacity: 1, y: 0 }}
               viewport={{ once: true, amount: 0.4 }}
-              className="mb-4 inline-flex items-center gap-2 rounded-xl border border-pink-300/20 bg-pink-500/10 px-3 py-1 text-xs font-black uppercase tracking-widest text-pink-200"
+              className="mb-4 inline-flex items-center gap-2 rounded-lg border border-pink-300/20 bg-pink-500/10 px-3 py-1 text-xs font-black uppercase tracking-widest text-pink-200"
             >
               <RefreshCw className="h-3.5 w-3.5" />
               {isApiConnected ? 'Instagram sincronizado' : 'Perfil oficial de Instagram'}
@@ -54,7 +54,7 @@ export function InstagramSyncStrip({ handle, profileUrl, items, isApiConnected }
               whileInView={reduceMotion ? undefined : { opacity: 1, y: 0 }}
               viewport={{ once: true, amount: 0.35 }}
               transition={{ duration: 0.5, ease: 'easeOut' }}
-              className="font-headline text-4xl font-black leading-tight sm:text-6xl"
+              className="font-headline text-4xl font-black leading-tight sm:text-5xl"
             >
               La web muestra material listo para redes
             </motion.h2>
@@ -69,7 +69,7 @@ export function InstagramSyncStrip({ handle, profileUrl, items, isApiConnected }
             href={profileUrl}
             target="_blank"
             rel="noopener noreferrer"
-            className="inline-flex items-center justify-center gap-3 rounded-2xl border border-white/10 bg-white/5 px-5 py-4 text-sm font-black uppercase tracking-wider text-white transition-all hover:-translate-y-0.5 hover:border-pink-300/40 hover:bg-white/10"
+            className="inline-flex min-h-11 items-center justify-center gap-3 rounded-lg border border-white/10 bg-white/5 px-5 py-3 text-sm font-black uppercase tracking-wider text-white transition-all hover:-translate-y-0.5 hover:border-pink-300/40 hover:bg-white/10 motion-reduce:transform-none motion-reduce:transition-none"
           >
             <Instagram className="h-5 w-5 text-pink-300" />
             {handle}
@@ -91,7 +91,7 @@ export function InstagramSyncStrip({ handle, profileUrl, items, isApiConnected }
                 viewport={{ once: true, amount: 0.25 }}
                 transition={{ duration: 0.45, delay: Math.min(index * 0.05, 0.25), ease: 'easeOut' }}
                 whileHover={reduceMotion ? undefined : { y: -6 }}
-                className="group relative aspect-[4/5] overflow-hidden rounded-2xl border border-white/10 bg-zinc-900 shadow-2xl shadow-black/25"
+                className="group relative aspect-[4/5] overflow-hidden rounded-lg border border-white/10 bg-zinc-900 shadow-xl shadow-black/20"
               >
                 {canUseNextImage(item.imageUrl) ? (
                   <Image
@@ -118,16 +118,33 @@ export function InstagramSyncStrip({ handle, profileUrl, items, isApiConnected }
             );
 
             return item.href ? (
-              <a key={item.id} href={item.href} target="_blank" rel="noopener noreferrer" className={cn('block focus:outline-none focus:ring-2 focus:ring-pink-300 focus:ring-offset-2 focus:ring-offset-zinc-950 rounded-2xl')}>
+              <a key={item.id} href={item.href} target="_blank" rel="noopener noreferrer" className={cn('block rounded-lg focus:outline-none focus:ring-2 focus:ring-pink-300 focus:ring-offset-2 focus:ring-offset-zinc-950')}>
                 {card}
               </a>
             ) : (
               <div key={item.id}>{card}</div>
             );
           })}
+          {visibleItems.length === 0 && (
+            <a
+              href={profileUrl}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="col-span-full flex min-h-52 flex-col items-center justify-center rounded-lg border border-dashed border-white/15 bg-white/[0.03] px-6 text-center transition hover:border-pink-300/35 hover:bg-white/[0.05] motion-reduce:transition-none"
+            >
+              <Instagram className="h-10 w-10 text-pink-300" aria-hidden="true" />
+              <h3 className="mt-4 text-xl font-black">Conocé nuestros eventos reales</h3>
+              <p className="mt-2 max-w-xl text-sm leading-6 text-zinc-400">
+                La sincronización automática está actualizándose. Mientras tanto, podés ver el contenido más reciente en el perfil oficial.
+              </p>
+              <span className="mt-4 inline-flex items-center gap-2 text-sm font-black uppercase tracking-wider text-pink-200">
+                Abrir {handle} <ArrowRight className="h-4 w-4" />
+              </span>
+            </a>
+          )}
         </motion.div>
 
-        <div className="mt-8 flex flex-col gap-3 rounded-2xl border border-white/10 bg-white/[0.03] p-4 text-sm text-zinc-300 sm:flex-row sm:items-center sm:justify-between">
+        <div className="mt-8 flex flex-col gap-3 rounded-lg border border-white/10 bg-white/[0.03] p-4 text-sm text-zinc-300 sm:flex-row sm:items-center sm:justify-between">
           <span>{isApiConnected ? 'La sección se actualiza con la conexión profesional de Instagram.' : 'Contenido seleccionado por AK Producciones para mostrar trabajos reales.'}</span>
           <a href={profileUrl} target="_blank" rel="noopener noreferrer" className="inline-flex items-center gap-2 font-black uppercase tracking-wider text-pink-200 hover:text-pink-100">
             Ver más en Instagram

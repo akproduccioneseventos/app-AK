@@ -528,14 +528,12 @@ export default async function HomePage({ searchParams }: LandingPageProps) {
         process={null}
         gallery={<GallerySection galeriaFotos={fotosCombinadas} />}
         instagram={
-          instagramItems.length > 0 ? (
-            <InstagramSyncStrip
-              handle={instagramHandle}
-              profileUrl={instagramProfileUrl}
-              items={instagramItems}
-              isApiConnected={instagramApiConnected}
-            />
-          ) : null
+          <InstagramSyncStrip
+            handle={instagramHandle}
+            profileUrl={instagramProfileUrl}
+            items={instagramItems}
+            isApiConnected={instagramApiConnected}
+          />
         }
         blog={<BlogSection />}
         video={

@@ -15,6 +15,7 @@ import {
 import { getInvoiceTemplateSettings } from '@/app/actions/settings';
 import {
   applyCargaOperativaItemPatch,
+  mergeGeneratedCargaWithManualItems,
   mergeCargaOperativaStructure,
   type CargaOperativaItemPatch,
 } from '@/lib/logistics/carga-operativa';
@@ -391,12 +392,17 @@ export async function generateCargaFromActivos(
       };
     });
 
-    const newLista: ListaDeCargaOperativa = {
+    const generatedLista: ListaDeCargaOperativa = {
       id: fiesta.listaDeCargaOperativa?.id || 'lista_auto',
       name: 'Lista de Carga (Generada desde Activos)',
       categorias,
       notasGenerales: fiesta.listaDeCargaOperativa?.notasGenerales || '',
     };
+
+    const newLista = mergeGeneratedCargaWithManualItems(
+      generatedLista,
+      fiesta.listaDeCargaOperativa || { categorias: [], notasGenerales: '' },
+    );
 
     return await updateListaDeCargaOperativa(fiestaId, newLista);
   } catch (e: any) {

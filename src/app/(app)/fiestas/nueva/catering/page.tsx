@@ -20,6 +20,7 @@ import { Label } from '@/components/ui/label';
 import { getMenus } from '@/app/actions/menus-catering';
 import type { FullMenu } from '@/types/catering';
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
+import { EventSelectionRequired } from '@/components/fiestas/event-selection-required';
 
 function PlannerGastronomicoFiestaContent() {
   const { toast } = useToast();
@@ -179,7 +180,7 @@ function PlannerGastronomicoFiestaContent() {
         }
     }
   
-    const displayAdultos = presupuesto?.invitadosAdultos ?? Number(fiesta?.configuracion.invitadosEstimados) ?? 0;
+    const displayAdultos = presupuesto?.invitadosAdultos ?? (Number(fiesta?.configuracion.invitadosEstimados) || 0);
     const displayNinos = (presupuesto?.invitadosNinos ?? 0) + (presupuesto?.invitadosAdolescentes ?? 0);
     const totalInvitados = displayAdultos + displayNinos;
 
@@ -188,6 +189,8 @@ function PlannerGastronomicoFiestaContent() {
         item.nombreServicio.toLowerCase().includes('barra') ||
         item.nombreServicio.toLowerCase().includes('licuado')
     );
+
+  if (!fiestaId) return <EventSelectionRequired moduleName="la planificación gastronómica" />;
 
   return (
     <div data-testid="catering-page" className="max-w-5xl mx-auto space-y-6">
