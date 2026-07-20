@@ -577,7 +577,7 @@ export default function BudgetDocument({
                 className="text-center flex-1"
                 style={{ borderTop: '1px solid #94a3b8', paddingTop: '8px' }}
               >
-                <p className="font-semibold text-slate-750 print:text-[8pt]">
+                <p className="font-semibold text-slate-700 print:text-[8pt]">
                   Firma del Cliente
                 </p>
                 <p className="text-slate-500 print:text-[7pt] font-mono mt-0.5">{clientName}</p>
@@ -586,7 +586,7 @@ export default function BudgetDocument({
                 className="text-center flex-1"
                 style={{ borderTop: '1px solid #94a3b8', paddingTop: '8px' }}
               >
-                <p className="font-semibold text-slate-750 print:text-[8pt]">
+                <p className="font-semibold text-slate-700 print:text-[8pt]">
                   Firma y sello de la empresa
                 </p>
                 <p className="text-slate-500 print:text-[7pt] font-mono mt-0.5">{COMPANY_NAME}</p>

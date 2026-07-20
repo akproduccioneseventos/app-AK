@@ -429,7 +429,7 @@ function RsvpSection({ fiestaId, texto, typography, onSuccess }: { fiestaId: str
                 </div>
 
                 {!isNoAsiste && (
-                  <div className="flex items-center gap-3 p-3 rounded-xl bg-gray-50 border border-gray-150">
+                  <div className="flex items-center gap-3 p-3 rounded-xl bg-gray-50 border border-gray-200">
                     <input
                       type="checkbox"
                       id="accesibilidad"
@@ -783,7 +783,7 @@ function StoryTimeline({ hitos, colorPrincipal, colorSecundario }: { hitos: Hito
               )}
             >
               {/* Central Point */}
-              <div className="absolute left-4 sm:left-1/2 top-4 sm:top-auto w-5.5 h-5.5 rounded-full border-4 bg-white -translate-x-1/2 flex items-center justify-center shadow" style={{ borderColor: colorPrincipal }} />
+              <div className="absolute left-4 sm:left-1/2 top-4 sm:top-auto w-6 h-6 rounded-full border-4 bg-white -translate-x-1/2 flex items-center justify-center shadow" style={{ borderColor: colorPrincipal }} />
 
               {/* Card Container */}
               <div className={cn(
@@ -1214,7 +1214,7 @@ export function InvitacionPublicaClient({ config, fiestaId, socialConnections = 
 
   addSectionEntry('regalos', hasGifts, (
     <Section key="regalos" id="regalos" className="max-w-lg mx-auto" typography={config.typography}>
-      <TiltCard className="bg-white p-8 rounded-3xl border border-gray-150 shadow-xl text-center">
+      <TiltCard className="bg-white p-8 rounded-3xl border border-gray-200 shadow-xl text-center">
         <div className="mb-6">
           {(config.regalos.tipo === 'dinero' || config.regalos.tipo === 'ambos')
             ? <CreditCard className="w-8 h-8 mx-auto mb-4" style={{ color: 'var(--inv-primary)' }} />
@@ -1604,7 +1604,7 @@ export function InvitacionPublicaClient({ config, fiestaId, socialConnections = 
               onClick={() => setActivePhotoIndex(null)}
               className="absolute top-6 right-6 text-white bg-white/10 hover:bg-white/20 p-2.5 rounded-full transition-all hover:scale-105 active:scale-95"
             >
-              <X className="w-5.5 h-5.5" />
+              <X className="w-6 h-6" />
             </button>
 
             {/* Navigation Left */}

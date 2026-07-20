@@ -129,7 +129,7 @@ export default async function BlogPostPage({ params }: Props) {
                   <h2 className="text-2xl font-black text-slate-950">{section.heading}</h2>
                   <div className="space-y-4">
                     {section.body.map((paragraph) => (
-                      <p key={paragraph} className="text-base leading-8 text-slate-750 font-medium">
+                      <p key={paragraph} className="text-base leading-8 text-slate-700 font-medium">
                         {paragraph}
                       </p>
                     ))}
@@ -160,7 +160,7 @@ export default async function BlogPostPage({ params }: Props) {
                 </div>
                 <div>
                   <h2 className="text-lg font-black text-slate-950">¿Lo vemos juntos?</h2>
-                  <p className="mt-2 text-sm leading-6 text-slate-650 font-medium">
+                  <p className="mt-2 text-sm leading-6 text-slate-600 font-medium">
                     Mandanos tu fecha tentativa, invitados y tipo de evento. Te ayudamos a ordenar opciones al instante.
                   </p>
                 </div>
@@ -235,7 +235,7 @@ export default async function BlogPostPage({ params }: Props) {
                         </div>
                       </div>
                       <div className="min-w-0">
-                        <p className="text-[10px] font-black uppercase tracking-[0.18em] text-slate-450">{item.category}</p>
+                        <p className="text-[10px] font-black uppercase tracking-[0.18em] text-slate-400">{item.category}</p>
                         <h3 className="mt-1 font-black leading-snug text-slate-950 group-hover:text-indigo-600 truncate" title={item.title}>{item.title}</h3>
                         <span className="mt-2 inline-flex items-center gap-1 text-xs font-black uppercase tracking-wider text-indigo-600">
                           Leer

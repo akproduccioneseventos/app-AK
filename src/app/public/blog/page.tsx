@@ -51,7 +51,7 @@ export default async function BlogPage() {
                 <h1 className="max-w-3xl text-4xl font-black leading-tight sm:text-5xl">
                   Consejos reales para organizar una fiesta sin perder el control.
                 </h1>
-                <p className="max-w-2xl text-base leading-8 text-slate-355 sm:text-lg">
+                <p className="max-w-2xl text-base leading-8 text-slate-300 sm:text-lg">
                   Contenido de valor para elegir salón, menú, presupuesto, tiempos y servicios con información clara antes de contratar.
                 </p>
               </div>

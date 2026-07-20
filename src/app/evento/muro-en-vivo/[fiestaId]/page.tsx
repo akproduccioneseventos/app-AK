@@ -1513,7 +1513,7 @@ function SlideshowLayout({
           {/* Drink badge centered overlapping top border */}
           {post.drinkName && (
             <div className="absolute -top-5 left-1/2 -translate-x-1/2 z-30 flex items-center gap-2 rounded-full bg-rose-600 px-5 py-2 border border-rose-400 shadow-lg animate-pulse">
-              <Martini className="h-4.5 w-4.5 text-white" />
+              <Martini className="h-5 w-5 text-white" />
               <span className="text-xs font-black tracking-widest text-white uppercase">Tomando: {post.drinkName}</span>
             </div>
           )}
