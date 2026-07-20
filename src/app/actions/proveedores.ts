@@ -2,13 +2,17 @@
 'use server';
 
 import type { Proveedor, NuevoProveedorFormData } from '@/types/proveedor';
-import { readData, writeData } from '@/lib/data-service';
+import { createDataItem, deleteDataItem, readData, updateDataItem } from '@/lib/data-service';
 import { requireAppSession } from '@/lib/auth/require-session';
 
 const PROVEEDORES_FILE = 'proveedores.json';
+const PROVEEDORES_COLLECTION = 'proveedores';
 
 export async function getProveedores(): Promise<Proveedor[]> {
-  return readData<Proveedor[]>(PROVEEDORES_FILE, []);
+  const proveedores = await readData<Proveedor[]>(PROVEEDORES_FILE, []);
+  return [...proveedores].sort((a, b) =>
+    (a.nombreEmpresa || a.nombre || '').localeCompare(b.nombreEmpresa || b.nombre || '')
+  );
 }
 
 export async function getProveedorById(id: string): Promise<Proveedor | null> {
@@ -57,7 +61,17 @@ export async function saveProveedor(
     proveedores.push(finalProveedorData);
   }
   try {
-    await writeData(PROVEEDORES_FILE, proveedores, (a, b) => (a.nombreEmpresa || a.nombre || '').localeCompare(b.nombreEmpresa || b.nombre || ''));
+    if ('id' in proveedorData && proveedorData.id) {
+      const updated = await updateDataItem(
+        PROVEEDORES_FILE,
+        PROVEEDORES_COLLECTION,
+        proveedorId,
+        finalProveedorData,
+      );
+      if (!updated) return { success: false, error: `Proveedor con ID ${proveedorId} no encontrado.` };
+    } else {
+      await createDataItem(PROVEEDORES_FILE, PROVEEDORES_COLLECTION, proveedorId, finalProveedorData);
+    }
   } catch (writeError: any) {
     console.error("Error saving proveedor:", writeError);
     return { success: false, error: writeError.message || "Error al guardar el proveedor." };
@@ -67,14 +81,9 @@ export async function saveProveedor(
 
 export async function deleteProveedor(id: string): Promise<{ success: boolean; error?: string }> {
   await requireAppSession();
-  let proveedores = await getProveedores();
-  const initialLength = proveedores.length;
-  proveedores = proveedores.filter(p => p.id !== id);
-  if (proveedores.length === initialLength) {
-    return { success: false, error: `Proveedor con ID ${id} no encontrado para eliminar.` };
-  }
   try {
-    await writeData(PROVEEDORES_FILE, proveedores);
+    const deleted = await deleteDataItem(PROVEEDORES_FILE, PROVEEDORES_COLLECTION, id);
+    if (!deleted) return { success: false, error: `Proveedor con ID ${id} no encontrado para eliminar.` };
   } catch (writeError: any) {
     console.error("Error deleting proveedor:", writeError);
     return { success: false, error: writeError.message || "Error al eliminar el proveedor." };

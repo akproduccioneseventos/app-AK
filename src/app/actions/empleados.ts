@@ -2,15 +2,17 @@
 'use server';
 
 import type { Empleado, NuevoEmpleadoFormData } from '@/types/empleado';
-import { readData, writeData } from '@/lib/data-service';
+import { createDataItem, deleteDataItem, readData, updateDataItem } from '@/lib/data-service';
 import { randomUUID } from 'crypto';
 import { uploadToStorage, deleteFromStorage } from '@/lib/firebase/storage';
 import { requireAppSession } from '@/lib/auth/require-session';
 
 const EMPLEADOS_FILE = 'empleados.json';
+const EMPLEADOS_COLLECTION = 'empleados';
 
 export async function getEmpleados(): Promise<Empleado[]> {
-  return readData<Empleado[]>(EMPLEADOS_FILE, []);
+  const empleados = await readData<Empleado[]>(EMPLEADOS_FILE, []);
+  return [...empleados].sort((a, b) => (a.nombre || '').localeCompare(b.nombre || ''));
 }
 
 export async function getEmpleadoById(id: string): Promise<Empleado | null> {
@@ -27,6 +29,8 @@ export async function saveEmpleado(
   let empleadoId: string;
   let empleadoToSave: Partial<Empleado> = {};
   let contractFile: File | null = null;
+  let previousContractFileName: string | undefined;
+  let uploadedContractUrl: string | undefined;
 
   if (empleadoData instanceof FormData) {
     empleadoToSave.id = empleadoData.get('id') as string | undefined;
@@ -61,6 +65,7 @@ export async function saveEmpleado(
       return { success: false, error: `Empleado con ID ${empleadoId} no encontrado.` };
     }
     const existingEmpleado = empleados[index];
+    previousContractFileName = existingEmpleado.contractFileName;
     empleados[index] = {
       ...existingEmpleado,
       ...empleadoToSave,
@@ -92,6 +97,7 @@ export async function saveEmpleado(
       const storagePath = `employee-contracts/${uniqueFilename}`;
       const fileUrl = await uploadToStorage(buffer, storagePath, 'application/pdf', false);
       empleadoToSave.contractFileName = fileUrl;
+      uploadedContractUrl = fileUrl;
     } catch (fileError: any) {
       console.error("Error saving employee contract file:", fileError);
       // Rollback in-memory addition for new employees before returning
@@ -106,10 +112,29 @@ export async function saveEmpleado(
   if (finalIndex !== -1) empleados[finalIndex] = empleadoToSave as Empleado;
 
   try {
-    await writeData(EMPLEADOS_FILE, empleados, (a, b) => (a.nombre || '').localeCompare(b.nombre || ''));
+    if (isNewEmployee) {
+      await createDataItem(EMPLEADOS_FILE, EMPLEADOS_COLLECTION, empleadoId, empleadoToSave);
+    } else {
+      const updated = await updateDataItem(
+        EMPLEADOS_FILE,
+        EMPLEADOS_COLLECTION,
+        empleadoId,
+        empleadoToSave,
+      );
+      if (!updated) {
+        if (uploadedContractUrl) await deleteFromStorage(uploadedContractUrl).catch(() => undefined);
+        return { success: false, error: `Empleado con ID ${empleadoId} no encontrado.` };
+      }
+    }
   } catch (writeError: any) {
+    if (uploadedContractUrl) await deleteFromStorage(uploadedContractUrl).catch(() => undefined);
     console.error("Error writing empleados data:", writeError);
     return { success: false, error: `Error al guardar los datos del empleado: ${writeError.message}` };
+  }
+  if (uploadedContractUrl && previousContractFileName && previousContractFileName !== uploadedContractUrl) {
+    deleteFromStorage(previousContractFileName).catch((fileError: any) => {
+      console.warn(`Error deleting replaced contract ${previousContractFileName}:`, fileError.message);
+    });
   }
   return { success: true, id: empleadoId, empleado: empleadoToSave as Empleado };
 }
@@ -118,19 +143,17 @@ export async function deleteEmpleado(id: string): Promise<{ success: boolean; er
   await requireAppSession();
   let empleados = await getEmpleados();
   const empleadoToDelete = empleados.find(e => e.id === id);
-  const initialLength = empleados.length;
-  empleados = empleados.filter(e => e.id !== id);
-
-  if (empleados.length === initialLength) {
+  if (!empleadoToDelete) {
     return { success: false, error: `Empleado con ID ${id} no encontrado para eliminar.` };
   }
+
+  const deleted = await deleteDataItem(EMPLEADOS_FILE, EMPLEADOS_COLLECTION, id);
+  if (!deleted) return { success: false, error: `Empleado con ID ${id} no encontrado para eliminar.` };
 
   if (empleadoToDelete?.contractFileName) {
     deleteFromStorage(empleadoToDelete.contractFileName).catch((fileError: any) => {
       console.warn(`Error deleting contract file ${empleadoToDelete.contractFileName}:`, fileError.message);
     });
   }
-
-  await writeData(EMPLEADOS_FILE, empleados);
   return { success: true };
 }
