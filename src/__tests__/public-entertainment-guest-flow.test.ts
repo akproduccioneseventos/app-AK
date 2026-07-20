@@ -42,7 +42,7 @@ describe('public entertainment guest flows', () => {
     expect(mirror).toContain('Acepto el procesamiento temporal de esta foto para generar el retrato con IA.');
     expect(mirror).toContain('Acepto el procesamiento temporal de mi foto con IA para generar este recuerdo.');
     expect(mirror).not.toContain("mode === 'ia' && fiesta?.station.consentRequired");
-    expect(touchpix).toContain("activeTab !== 'foto' &&\n      !consentAccepted");
+    expect(touchpix).toMatch(/activeTab !== 'foto'\s*&&\s*!consentAccepted/);
     expect(touchpix).toContain('Acepto que mi foto se procese temporalmente con IA para crear este recuerdo.');
     expect(touchpix).not.toContain('activeTab !== \'foto\' && fiesta?.station.consentRequired');
   });

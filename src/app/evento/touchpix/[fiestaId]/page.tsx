@@ -1182,7 +1182,7 @@ export default function TouchpixPage() {
             <div className="flex items-center justify-around">
               {fiesta?.station.allowGuestRetake && fiesta.station.maxRetakes > 0 && (
                 <button onClick={retake} className="flex flex-col items-center gap-1.5 text-zinc-400 hover:text-white transition">
-                  <div className="w-13 h-13 rounded-full bg-white/5 border border-white/10 flex items-center justify-center">
+                  <div className="h-[52px] w-[52px] rounded-full bg-white/5 border border-white/10 flex items-center justify-center">
                     <RefreshCw className="w-5 h-5" />
                   </div>
                   <span className="text-[10px] font-bold">Repetir</span>
@@ -1190,7 +1190,7 @@ export default function TouchpixPage() {
               )}
 
               <button onClick={() => setShowQrModal(true)} className="flex flex-col items-center gap-1.5 text-zinc-400 hover:text-white transition">
-                <div className="w-13 h-13 rounded-full bg-white/5 border border-white/10 flex items-center justify-center">
+                <div className="h-[52px] w-[52px] rounded-full bg-white/5 border border-white/10 flex items-center justify-center">
                   <QrCode className="w-5 h-5" />
                 </div>
                 <span className="text-[10px] font-bold">Compartir</span>
@@ -1204,7 +1204,7 @@ export default function TouchpixPage() {
               </button>
 
               <button onClick={handleDownload} className="flex flex-col items-center gap-1.5 text-zinc-400 hover:text-white transition">
-                <div className="w-13 h-13 rounded-full bg-white/5 border border-white/10 flex items-center justify-center">
+                <div className="h-[52px] w-[52px] rounded-full bg-white/5 border border-white/10 flex items-center justify-center">
                   <Download className="w-5 h-5" />
                 </div>
                 <span className="text-[10px] font-bold">Guardar</span>
@@ -1218,7 +1218,7 @@ export default function TouchpixPage() {
                   }}
                   className="flex flex-col items-center gap-1.5 text-zinc-400 hover:text-fuchsia-400 transition"
                 >
-                  <div className="w-13 h-13 rounded-full bg-white/5 border border-white/10 flex items-center justify-center">
+                  <div className="h-[52px] w-[52px] rounded-full bg-white/5 border border-white/10 flex items-center justify-center">
                     <Palette className="w-5 h-5" />
                   </div>
                   <span className="text-[10px] font-bold">Otro Tema</span>

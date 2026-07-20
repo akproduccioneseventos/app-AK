@@ -1178,14 +1178,14 @@ export default function BarraTecnologicaTouchPage() {
                   <Button
                     onClick={() => { setCapturedDataUrl(null); }}
                     variant="outline"
-                    className="h-18 flex-1 rounded-lg border-white/15 bg-black/60 text-xl font-bold text-white hover:bg-white/10"
+                    className="h-[72px] flex-1 rounded-lg border-white/15 bg-black/60 text-xl font-bold text-white hover:bg-white/10"
                   >
                     <X className="w-6 h-6 mr-2 text-rose-500" /> Reintentar
                   </Button>
                   <Button
                     onClick={uploadMedia}
                     disabled={isUploadingMedia}
-                    className="h-18 flex-1 rounded-lg border-0 bg-emerald-600 text-xl font-black text-white shadow-xl hover:bg-emerald-500 hover:scale-[1.02]"
+                    className="h-[72px] flex-1 rounded-lg border-0 bg-emerald-600 text-xl font-black text-white shadow-xl hover:bg-emerald-500 hover:scale-[1.02]"
                   >
                     {isUploadingMedia ? (
                       <Loader2 className="w-6 h-6 animate-spin" />

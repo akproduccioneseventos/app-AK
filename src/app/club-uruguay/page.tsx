@@ -37,7 +37,7 @@ function SalonMedia({ src, alt, sizes, priority, className }: { src: string; alt
   );
 }
 
-export function uniquePhotos(photos: SalonPhoto[]) {
+function uniquePhotos(photos: SalonPhoto[]) {
   const seen = new Set<string>();
   return photos.filter((photo) => {
     if (!photo.src || seen.has(photo.src)) return false;
