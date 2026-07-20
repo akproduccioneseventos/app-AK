@@ -266,7 +266,6 @@ function SimuladorContent() {
 
     const [existingBudgets, setExistingBudgets] = useState<any[]>([]);
     const [isSearchingBudgets, setIsSearchingBudgets] = useState(false);
-    const [timeLeft, setTimeLeft] = useState(900); // 15 minutes countdown
 
     const [formData, setFormData] = useState<{serviciosSeleccionados: Map<string, ServicioSeleccionadoValue>}>({serviciosSeleccionados: new Map()});
     const submissionIdRef = useRef(
@@ -400,26 +399,6 @@ function SimuladorContent() {
             return prev;
         });
     }, [maxEntradas]);
-
-    useEffect(() => {
-        if (step !== 5) return;
-        const interval = setInterval(() => {
-            setTimeLeft(prev => {
-                if (prev <= 1) {
-                    clearInterval(interval);
-                    return 0;
-                }
-                return prev - 1;
-            });
-        }, 1000);
-        return () => clearInterval(interval);
-    }, [step]);
-
-    const formatTime = (seconds: number) => {
-        const mins = Math.floor(seconds / 60);
-        const secs = seconds % 60;
-        return `${mins.toString().padStart(2, '0')}:${secs.toString().padStart(2, '0')}`;
-    };
 
     const handleEntradaChange = (servicioId: string, checked: boolean) => {
         if (checked) {
@@ -1390,31 +1369,25 @@ function SimuladorContent() {
                                 </p>
                             </div>
 
-                            {/* Countdown Timer with CTA */}
-                            {timeLeft > 0 ? (
-                                <div className="mx-auto w-full max-w-lg space-y-4 rounded-md border border-slate-200 bg-slate-50 p-6 text-center">
-                                    <div className="flex flex-col items-center justify-center gap-2">
-                                        <Clock className="h-6 w-6 text-slate-600"/>
-                                        <p className="text-sm font-bold text-slate-900">Asegurá tu bonificación especial del {stats.discountPercentage}%</p>
+                            <div className="mx-auto w-full max-w-lg space-y-4 rounded-md border border-slate-200 bg-slate-50 p-6 text-left">
+                                <div className="flex items-start gap-3">
+                                    <span className="mt-0.5 grid h-9 w-9 shrink-0 place-items-center rounded-md bg-white text-slate-700 shadow-sm">
+                                        <ShieldCheck className="h-5 w-5" />
+                                    </span>
+                                    <div>
+                                        <p className="text-sm font-black text-slate-900">Próximo paso: confirmar disponibilidad</p>
+                                        <p className="mt-1 text-xs font-medium leading-relaxed text-slate-600">
+                                            El presupuesto es válido por 30 días. Con una seña de $5.000 podés solicitar la reserva; AK confirma la fecha y las condiciones antes de registrar el pago.
+                                        </p>
                                     </div>
-                                    <p className="text-xs text-slate-600 font-bold leading-relaxed">
-                                        Asegurá los precios vigentes y tu descuento señando con $5.000 antes de que expire la reserva.
-                                    </p>
-                                    <div className="inline-block rounded-md border bg-white px-5 py-2 font-mono text-3xl font-bold text-slate-900">
-                                        {formatTime(timeLeft)}
-                                    </div>
-                                    <Button
-                                        onClick={handleShareBudgetWhatsApp}
-                                        className="flex h-12 w-full items-center justify-center gap-2 rounded-md bg-red-700 text-sm font-bold text-white hover:bg-red-800"
-                                    >
-                                        <ShieldCheck className="h-4 w-4" /> Asegurar descuento y regalos
-                                    </Button>
                                 </div>
-                            ) : (
-                                <div className="mx-auto w-full max-w-lg rounded-md border border-red-200 bg-red-50 p-5 text-center">
-                                    <p className="text-xs font-bold text-red-800">El tiempo de tu reserva ha expirado. Podés contactar a un asesor de ventas para consultar disponibilidad de fecha.</p>
-                                </div>
-                            )}
+                                <Button
+                                    onClick={handleShareBudgetWhatsApp}
+                                    className="flex h-12 w-full items-center justify-center gap-2 rounded-md bg-red-700 text-sm font-bold text-white hover:bg-red-800"
+                                >
+                                    <MessageSquare className="h-4 w-4" /> Consultar disponibilidad por WhatsApp
+                                </Button>
+                            </div>
 
                             <div className="w-full grid grid-cols-1 md:grid-cols-3 gap-3">
                                 <Button
@@ -1646,7 +1619,7 @@ function SimuladorContent() {
                                 <h4 className="mb-2 flex items-center gap-2 text-[10px] font-bold uppercase tracking-widest text-slate-700"><Info className="w-4 h-4"/> Condiciones de reserva</h4>
                                 <p className="text-xs font-medium leading-relaxed text-slate-600">
                                     {stats.annualProjection.applies ? (
-                                        <>Con una seña de $5.000 podés solicitar la reserva de la fecha y del servicio. El presupuesto es válido por 30 días para mantener el precio de la promoción y los regalos incluidos. Los eventos programados para años posteriores al vigente tendrán un ajuste anual proyectado del 15% de acuerdo a lo establecido en el contrato.</>
+                                        <>Con una seña de $5.000 podés solicitar la reserva de la fecha y del servicio. El presupuesto es válido por 30 días para mantener el precio de la promoción y los regalos incluidos. Los eventos programados para años posteriores al vigente tendrán un ajuste anual proyectado del {stats.annualProjection.adjustmentPct}% de acuerdo a lo establecido en el contrato.</>
                                     ) : (
                                         <>Con una seña de $5.000 podés solicitar la reserva de la fecha y del servicio. El presupuesto es válido por 30 días para mantener el precio de la promoción y los regalos incluidos. El total mostrado corresponde al precio vigente del año {currentYear}.</>
                                     )}

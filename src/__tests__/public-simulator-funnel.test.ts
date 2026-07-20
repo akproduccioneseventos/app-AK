@@ -10,6 +10,10 @@ describe('public simulator sales funnel', () => {
     path.join(process.cwd(), 'src/app/actions/armado-rapido.ts'),
     'utf8',
   );
+  const assistantSource = fs.readFileSync(
+    path.join(process.cwd(), 'src/app/simulador-ak/page.tsx'),
+    'utf8',
+  );
 
   it('uses a five-step public funnel with a separate commercial entry', () => {
     expect(source).toContain("const STEP_LABELS = ['Presentación', 'Datos', 'Menú', 'Paquete', 'Edición']");
@@ -26,6 +30,9 @@ describe('public simulator sales funnel', () => {
   it('downloads a generated PDF without sending the guest to the admin view', () => {
     expect(source).toContain("const { jsPDF } = await import('jspdf')");
     expect(source).not.toContain('imprimir=1&cliente=1&direct=1');
+    expect(assistantSource).toContain("const { jsPDF } = await import('jspdf')");
+    expect(assistantSource).toContain('handleDownloadBudgetPdf');
+    expect(assistantSource).not.toContain('imprimir=1&cliente=1&direct=1');
   });
 
   it('persists service deletion to the backend and checks removable rules', () => {
@@ -37,5 +44,11 @@ describe('public simulator sales funnel', () => {
   it('correctly handles empty customized additional services configurations', () => {
     expect(source).toContain('budgetSettings?.serviciosAdicionalesVisibles !== undefined');
     expect(source).toContain('budgetSettings?.serviciosAdicionalesVisibles !== null');
+  });
+
+  it('invalidates and resaves the assistant budget when its priced selection changes', () => {
+    expect(assistantSource).toContain('const changesBudget = [');
+    expect(assistantSource).toContain('setGeneratedAt(null)');
+    expect(assistantSource).toContain("[...selectedServices, ...selectedEntradas].sort().join(',')");
   });
 });

@@ -199,6 +199,13 @@ export async function getPublicBudgetsByPhone(rawPhone: string): Promise<{
       return { success: false, error: 'Ingresa un celular uruguayo valido.' };
     }
 
+    await enforcePublicRateLimit({
+      scope: 'public-budget-history',
+      identity: phone,
+      limit: 12,
+      windowMs: 60 * 60 * 1000,
+    });
+
     let matchingBudgets: any[] = [];
 
     // 1. Try querying Firestore if available
