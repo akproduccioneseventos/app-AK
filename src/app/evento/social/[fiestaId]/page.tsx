@@ -51,6 +51,7 @@ import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
 import { useToast } from '@/hooks/use-toast';
 import { isEventInActiveWindow } from '@/lib/experience-ak/post-event-utils';
+import { waitForInitialPublicLoad } from '@/lib/public-experience/wait-for-initial-public-load';
 import { MAX_DEDICATION_RECORDING_SECONDS } from '@/lib/social-fiesta/guardrails';
 import type { PublicSocialEvent } from '@/lib/social-fiesta/public-event';
 import type { ChatMessage, Dedication, SocialGalleryPost, SocialPoll, SongRequest } from '@/types/social-gallery';
@@ -299,18 +300,30 @@ export default function SocialEventPage() {
   useEffect(() => {
     let active = true;
     const refreshPublicData = async (isInitialLoad = false) => {
-      if (document.visibilityState !== 'visible' || pollingRef.current) return;
+      if ((!isInitialLoad && document.visibilityState !== 'visible') || pollingRef.current) return;
       pollingRef.current = true;
-      try {
+
+      const loadTask = (async () => {
         await Promise.all([loadCore(), loadSection(section)]);
         if (isInitialLoad) {
           const items = await getPublicDedications(fiestaId);
           if (active) setDedications(items);
         }
-      } finally {
-        pollingRef.current = false;
-        if (isInitialLoad && active) setLoading(false);
+      })()
+        .catch((error) => {
+          console.warn('[SocialEvent] public data refresh failed:', error);
+        })
+        .finally(() => {
+          pollingRef.current = false;
+        });
+
+      if (isInitialLoad) {
+        await waitForInitialPublicLoad(loadTask);
+        if (active) setLoading(false);
+        return;
       }
+
+      await loadTask;
     };
 
     const handleVisibilityChange = () => {

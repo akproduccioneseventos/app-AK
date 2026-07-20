@@ -7,11 +7,12 @@ describe('public social display contract', () => {
   const socialPage = readRoute('src/app/evento/social/[fiestaId]/page.tsx');
   const liveWallPage = readRoute('src/app/evento/muro-en-vivo/[fiestaId]/page.tsx');
 
-  it('keeps the guest feed on public data and skips hidden-tab polling', () => {
+  it('keeps the guest feed on public data and skips only background polling', () => {
     expect(socialPage).toContain('getPublicSocialEvent');
     expect(socialPage).toContain('getPublicSocialPosts');
-    expect(socialPage).toContain("document.visibilityState !== 'visible'");
+    expect(socialPage).toContain("(!isInitialLoad && document.visibilityState !== 'visible')");
     expect(socialPage).toContain('pollingRef.current');
+    expect(socialPage).toContain('waitForInitialPublicLoad(loadTask)');
     expect(socialPage).not.toContain('getSocialAdminAccess');
   });
 
@@ -20,6 +21,7 @@ describe('public social display contract', () => {
     expect(liveWallPage).toContain('getPublicSocialPosts');
     expect(liveWallPage).toContain("document.visibilityState !== 'visible'");
     expect(liveWallPage).toContain('pollingRef.current');
+    expect(liveWallPage).toContain('waitForInitialPublicLoad(fetchData(true))');
     expect(liveWallPage).toContain('prefers-reduced-motion');
     expect(liveWallPage).not.toContain('KioskUnlockButton');
     expect(liveWallPage).not.toContain('ak-bg-particle');

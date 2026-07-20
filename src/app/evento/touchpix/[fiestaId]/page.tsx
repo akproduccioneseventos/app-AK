@@ -34,8 +34,10 @@ import {
   type EntertainmentSession,
 } from '@/app/actions/fiesta/sesion-entretenimiento';
 import type { PublicEntertainmentEvent } from '@/lib/entertainment/station-config';
+import { PublicEntertainmentEventStatus } from '@/components/entertainment/public-entertainment-event-status';
 import { KioskUnlockButton } from '@/components/kiosk/kiosk-unlock-button';
 import { isVideoFrameReady } from '@/lib/entertainment/camera-readiness';
+import { waitForInitialPublicLoad } from '@/lib/public-experience/wait-for-initial-public-load';
 
 /* ───────────────────── Theme Definitions ───────────────────── */
 
@@ -80,6 +82,7 @@ export default function TouchpixPage() {
   const processingCanvasRef = useRef<HTMLCanvasElement>(null);
 
   const [fiesta, setFiesta] = useState<PublicEntertainmentEvent | null>(null);
+  const [isEventLoading, setIsEventLoading] = useState(true);
   const [stream, setStream] = useState<MediaStream | null>(null);
   const [facingMode, setFacingMode] = useState<'user' | 'environment'>('user');
 
@@ -138,13 +141,32 @@ export default function TouchpixPage() {
 
   /* ── Load fiesta data ── */
   useEffect(() => {
-    getPublicEntertainmentEvent(fiestaId, 'espejoMagicoIA', accessToken)
+    let active = true;
+    setFiesta(null);
+    setErrorMsg(null);
+    setIsEventLoading(true);
+    const loadTask = getPublicEntertainmentEvent(fiestaId, 'espejoMagicoIA', accessToken)
       .then((result) => {
-        if (result.success && result.event) setFiesta(result.event);
-        else setErrorMsg(result.error || 'No se pudo abrir esta estacion.');
+        if (!active) return;
+        if (result.success && result.event) {
+          setFiesta(result.event);
+          setErrorMsg(null);
+        } else {
+          setErrorMsg(result.error || 'No se pudo abrir esta estacion.');
+        }
       })
-      .catch(() => setErrorMsg('No se pudo abrir esta estacion.'));
-    return () => { stopCamera(); };
+      .catch(() => {
+        if (active) setErrorMsg('No se pudo abrir esta estacion.');
+      });
+    void waitForInitialPublicLoad(loadTask).then((result) => {
+      if (!active) return;
+      if (result === 'timeout') setErrorMsg('La validacion del evento demoro demasiado. Intenta nuevamente.');
+      setIsEventLoading(false);
+    });
+    return () => {
+      active = false;
+      stopCamera();
+    };
   }, [accessToken, fiestaId, stopCamera]);
 
   /* ── Camera ── */
@@ -688,6 +710,10 @@ export default function TouchpixPage() {
   const isReviewMode = capturedImage !== null && !(activeTab === 'ai_themes' && !isProcessing && rawCapturedImage && capturedImage === rawCapturedImage);
   const isAiThemeSelection = activeTab === 'ai_themes' && capturedImage === rawCapturedImage && !isProcessing && rawCapturedImage !== null;
 
+  if (isEventLoading || !fiesta) {
+    return <PublicEntertainmentEventStatus isLoading={isEventLoading} error={errorMsg} />;
+  }
+
   if (role === 'operator') {
     const displayHref = `/evento/touchpix/${fiestaId}${accessToken ? `?access=${encodeURIComponent(accessToken)}` : ''}`;
     return (
@@ -852,7 +878,7 @@ export default function TouchpixPage() {
 
       {/* ═══════════ HEADER ═══════════ */}
       <div className="relative z-20 px-4 pt-4 pb-2 flex items-center justify-between bg-gradient-to-b from-black/80 via-black/40 to-transparent">
-        <button onClick={() => router.back()} className="p-2.5 bg-white/10 rounded-full backdrop-blur-md hover:bg-white/20 transition">
+        <button type="button" onClick={() => router.back()} aria-label="Volver" title="Volver" className="flex h-11 w-11 items-center justify-center rounded-full bg-white/10 backdrop-blur-md transition hover:bg-white/20">
           <ArrowLeft className="w-5 h-5" />
         </button>
 
@@ -869,8 +895,8 @@ export default function TouchpixPage() {
           )}
         </div>
 
-        {!capturedImage && wizardStep === 0 ? (
-          <button onClick={toggleCamera} className="p-2.5 bg-white/10 rounded-full backdrop-blur-md hover:bg-white/20 transition">
+        {!capturedImage && wizardStep === 0 && !errorMsg && fiesta ? (
+          <button type="button" onClick={toggleCamera} aria-label="Cambiar camara" title="Cambiar camara" className="flex h-11 w-11 items-center justify-center rounded-full bg-white/10 backdrop-blur-md transition hover:bg-white/20">
             <SwitchCamera className="w-5 h-5" />
           </button>
         ) : (

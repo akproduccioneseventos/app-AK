@@ -1347,6 +1347,8 @@ ${generatedId ? `*Link:* ${window.location.origin}/presupuestos/${generatedId}/v
             onClick={() => handleSendMessage()}
             disabled={isAiLoading || !inputMessage.trim()}
             className="h-10 w-10 shrink-0 rounded-xl bg-indigo-700 text-white hover:bg-indigo-600 disabled:opacity-40"
+            aria-label="Enviar mensaje"
+            title="Enviar mensaje"
           >
             <Send className="w-4 h-4" />
           </Button>

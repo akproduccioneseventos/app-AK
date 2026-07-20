@@ -278,7 +278,7 @@ export function GallerySection({ images, galeriaFotos }: GallerySectionProps) {
                 setShowAll(false);
               }}
               className={cn(
-                "rounded-md border px-3 py-2 text-xs font-bold transition-colors",
+                      "min-h-11 rounded-md border px-3 py-2 text-xs font-bold transition-colors",
                 activeCategory === category
                   ? "border-white bg-white text-zinc-950"
                   : "border-white/15 text-zinc-400 hover:border-white/40 hover:text-white",

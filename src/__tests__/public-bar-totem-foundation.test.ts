@@ -10,6 +10,7 @@ describe('barra publica y base de totem', () => {
   const barmanPage = read('src/app/evento/barra/[fiestaId]/barman/page.tsx');
   const totemPage = read('src/app/evento/totem/[fiestaId]/[totemId]/page.tsx');
   const setup = read('src/components/kiosk/kiosk-setup.tsx');
+  const unlockButton = read('src/components/kiosk/kiosk-unlock-button.tsx');
 
   it('mantiene una carta tactil con categorias, datos del trago y pedido identificado', () => {
     expect(barPage).toContain('getDrinkTags');
@@ -17,6 +18,9 @@ describe('barra publica y base de totem', () => {
     expect(barPage).toContain('getDrinkDescription(selectedDrink)');
     expect(barPage).toContain('createBarDrinkOrder');
     expect(barPage).toContain('lastOrder.status');
+    expect(barPage).toContain('/media/catalogo-servicios/barra-tragos-ak-01.jpeg');
+    expect(unlockButton).toContain('aria-label="Administrar dispositivo"');
+    expect(unlockButton).toContain('aria-label="Cerrar administración del dispositivo"');
   });
 
   it('limita los botones del barman a transiciones del contrato', () => {

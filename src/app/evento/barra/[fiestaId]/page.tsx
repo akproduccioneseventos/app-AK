@@ -683,7 +683,7 @@ export default function BarraTecnologicaTouchPage() {
   }
 
   const settings = dashboard?.settings;
-  const quinceaneraPhoto = 'https://images.unsplash.com/photo-1541250848049-b4f7146174fb?q=80&w=1080&auto=format&fit=crop';
+  const quinceaneraPhoto = '/media/catalogo-servicios/barra-tragos-ak-01.jpeg';
   const backgroundPhoto = dashboard?.backgroundImageUrl || quinceaneraPhoto;
   const drinks = dashboard?.drinks?.length ? dashboard.drinks : [];
   const drinkCategories = ['Todos', ...Array.from(new Set(drinks.flatMap((drink) => getDrinkTags(drink))))];
@@ -827,7 +827,7 @@ export default function BarraTecnologicaTouchPage() {
                   type="button"
                   onClick={() => setActiveCategory(category)}
                   aria-pressed={activeCategory === category}
-                  className={`flex h-10 flex-none items-center gap-2 rounded-lg border px-4 text-sm font-black transition-colors motion-reduce:transition-none ${
+                  className={`flex h-11 flex-none items-center gap-2 rounded-lg border px-4 text-sm font-black transition-colors motion-reduce:transition-none ${
                     activeCategory === category
                       ? 'border-red-500 bg-red-600 text-white'
                       : 'border-white/15 bg-white/5 text-white/70 hover:border-white/30 hover:text-white'

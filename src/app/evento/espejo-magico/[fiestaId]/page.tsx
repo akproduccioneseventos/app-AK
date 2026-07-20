@@ -33,8 +33,10 @@ import {
   type EntertainmentSession,
 } from '@/app/actions/fiesta/sesion-entretenimiento';
 import type { PublicEntertainmentEvent } from '@/lib/entertainment/station-config';
+import { PublicEntertainmentEventStatus } from '@/components/entertainment/public-entertainment-event-status';
 import { KioskUnlockButton } from '@/components/kiosk/kiosk-unlock-button';
 import { isVideoFrameReady } from '@/lib/entertainment/camera-readiness';
+import { waitForInitialPublicLoad } from '@/lib/public-experience/wait-for-initial-public-load';
 import { applyEspejoFaceSwap } from '@/app/actions/espejo-magico-ai';
 import {
   ESPEJO_TEMPLATES,
@@ -138,6 +140,7 @@ export default function EspejoMagicoPage() {
   const [consentAccepted, setConsentAccepted] = useState(false);
 
   const [fiesta, setFiesta] = useState<PublicEntertainmentEvent | null>(null);
+  const [isEventLoading, setIsEventLoading] = useState(true);
   const [voiceEnabled, setVoiceEnabled] = useState(true);
   const [watermarkEnabled, setWatermarkEnabled] = useState(true);
   const [qrCodeUrl, setQrCodeUrl] = useState<string>('');
@@ -205,12 +208,31 @@ export default function EspejoMagicoPage() {
 
   // 1. Initial configuration load
   useEffect(() => {
-    getPublicEntertainmentEvent(fiestaId, moduleId, accessToken)
+    let active = true;
+    setFiesta(null);
+    setErrorMsg(null);
+    setIsEventLoading(true);
+    const loadTask = getPublicEntertainmentEvent(fiestaId, moduleId, accessToken)
       .then((result) => {
-        if (result.success && result.event) setFiesta(result.event);
-        else setErrorMsg(result.error || 'No se pudo abrir esta estacion.');
+        if (!active) return;
+        if (result.success && result.event) {
+          setFiesta(result.event);
+          setErrorMsg(null);
+        } else {
+          setErrorMsg(result.error || 'No se pudo abrir esta estacion.');
+        }
       })
-      .catch(() => setErrorMsg('No se pudo abrir esta estacion.'));
+      .catch(() => {
+        if (active) setErrorMsg('No se pudo abrir esta estacion.');
+      });
+    void waitForInitialPublicLoad(loadTask).then((result) => {
+      if (!active) return;
+      if (result === 'timeout') setErrorMsg('La validacion del evento demoro demasiado. Intenta nuevamente.');
+      setIsEventLoading(false);
+    });
+    return () => {
+      active = false;
+    };
   }, [accessToken, fiestaId, moduleId]);
 
   useEffect(() => {
@@ -767,6 +789,10 @@ export default function EspejoMagicoPage() {
   };
 
   // 5. Operator View
+  if (isEventLoading || !fiesta) {
+    return <PublicEntertainmentEventStatus isLoading={isEventLoading} error={errorMsg} />;
+  }
+
   if (role === 'operator') {
     return (
       <div className="min-h-screen bg-[radial-gradient(ellipse_at_top,_#18181b_0%,_#09090b_70%)] text-white p-4 sm:p-6">
@@ -855,7 +881,7 @@ export default function EspejoMagicoPage() {
 
       {/* HEADER */}
       <div className="absolute top-0 left-0 right-0 z-20 p-4 flex justify-between items-center bg-gradient-to-b from-zinc-950/90 to-transparent pb-8 pt-safe">
-        <button onClick={() => router.back()} className="p-2 bg-white/10 rounded-full backdrop-blur-md hover:bg-white/20 transition">
+        <button type="button" onClick={() => router.back()} aria-label="Volver" title="Volver" className="flex h-11 w-11 items-center justify-center rounded-full bg-white/10 backdrop-blur-md transition hover:bg-white/20">
           <ArrowLeft className="w-6 h-6" />
         </button>
         <div className="text-center">
@@ -864,21 +890,27 @@ export default function EspejoMagicoPage() {
           {fiesta && <p className="text-xs font-semibold text-zinc-300">{fiesta.eventName}</p>}
         </div>
         <div className="flex items-center gap-2">
-          {localStatus === 'idle' && !capturedImage && (
+          {localStatus === 'idle' && !capturedImage && !errorMsg && fiesta && (
             <>
               <button
+                type="button"
                 onClick={() => setVoiceEnabled(v => !v)}
-                className={`p-2 rounded-full backdrop-blur-md transition ${voiceEnabled ? 'bg-amber-400/20 text-amber-400 border border-amber-400/30' : 'bg-white/10 text-white'}`}
+                aria-label={voiceEnabled ? 'Desactivar voz' : 'Activar voz'}
+                title={voiceEnabled ? 'Desactivar voz' : 'Activar voz'}
+                className={`flex h-11 w-11 items-center justify-center rounded-full backdrop-blur-md transition ${voiceEnabled ? 'bg-amber-400/20 text-amber-400 border border-amber-400/30' : 'bg-white/10 text-white'}`}
               >
                 {voiceEnabled ? <Volume2 className="w-5 h-5" /> : <VolumeX className="w-5 h-5" />}
               </button>
               <button
+                type="button"
                 onClick={() => setWatermarkEnabled(w => !w)}
-                className={`p-2 rounded-full backdrop-blur-md transition ${watermarkEnabled ? 'bg-amber-400/20 text-amber-400 border border-amber-400/30' : 'bg-white/10 text-white'}`}
+                aria-label={watermarkEnabled ? 'Quitar marca del evento' : 'Agregar marca del evento'}
+                title={watermarkEnabled ? 'Quitar marca del evento' : 'Agregar marca del evento'}
+                className={`flex h-11 w-11 items-center justify-center rounded-full backdrop-blur-md transition ${watermarkEnabled ? 'bg-amber-400/20 text-amber-400 border border-amber-400/30' : 'bg-white/10 text-white'}`}
               >
                 <FileImage className="w-5 h-5" />
               </button>
-              <button onClick={() => setFacingMode(f => f === 'user' ? 'environment' : 'user')} className="p-2 bg-white/10 rounded-full backdrop-blur-md hover:bg-white/20 transition">
+              <button type="button" onClick={() => setFacingMode(f => f === 'user' ? 'environment' : 'user')} aria-label="Cambiar camara" title="Cambiar camara" className="flex h-11 w-11 items-center justify-center rounded-full bg-white/10 backdrop-blur-md transition hover:bg-white/20">
                 <SwitchCamera className="w-5 h-5" />
               </button>
             </>

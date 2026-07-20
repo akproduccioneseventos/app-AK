@@ -33,7 +33,9 @@ import {
   EntertainmentSession,
 } from '@/app/actions/fiesta/sesion-entretenimiento';
 import type { PublicEntertainmentEvent } from '@/lib/entertainment/station-config';
+import { PublicEntertainmentEventStatus } from '@/components/entertainment/public-entertainment-event-status';
 import { KioskUnlockButton } from '@/components/kiosk/kiosk-unlock-button';
+import { waitForInitialPublicLoad } from '@/lib/public-experience/wait-for-initial-public-load';
 
 const DURATION_OPTIONS = [
   { label: '10 Segundos', value: 10 },
@@ -57,6 +59,7 @@ export default function Plataforma360Page() {
   const localStatusRef = useRef<'idle' | 'countdown' | 'recording' | 'processing' | 'done'>('idle');
 
   const [fiesta, setFiesta] = useState<PublicEntertainmentEvent | null>(null);
+  const [isEventLoading, setIsEventLoading] = useState(true);
   const [stream, setStream] = useState<MediaStream | null>(null);
   const [facingMode, setFacingMode] = useState<'environment' | 'user'>('environment'); // environment default for 360 arms
   const [recentVideos, setRecentVideos] = useState<any[]>([]);
@@ -152,17 +155,33 @@ export default function Plataforma360Page() {
 
   // 1. Initial load
   useEffect(() => {
-    getPublicEntertainmentEvent(fiestaId, 'plataforma360', accessToken)
+    let active = true;
+    setFiesta(null);
+    setLoadError(null);
+    setIsEventLoading(true);
+    const loadTask = getPublicEntertainmentEvent(fiestaId, 'plataforma360', accessToken)
       .then((result) => {
+        if (!active) return;
         if (result.success && result.event) {
           setFiesta(result.event);
+          setLoadError(null);
           setSelectedDuration(result.event.station.recordingDurationSeconds);
         } else {
           setLoadError(result.error || 'No se pudo abrir esta estacion.');
         }
       })
-      .catch(() => setLoadError('No se pudo abrir esta estacion.'));
+      .catch(() => {
+        if (active) setLoadError('No se pudo abrir esta estacion.');
+      });
+    void waitForInitialPublicLoad(loadTask).then((result) => {
+      if (!active) return;
+      if (result === 'timeout') setLoadError('La validacion del evento demoro demasiado. Intenta nuevamente.');
+      setIsEventLoading(false);
+    });
     void loadRecentVideos();
+    return () => {
+      active = false;
+    };
   }, [accessToken, fiestaId, loadRecentVideos]);
 
   useEffect(() => {
@@ -437,8 +456,8 @@ export default function Plataforma360Page() {
     if (!result.success) setOperatorError(result.error || 'No se pudo reiniciar la plataforma 360.');
   };
 
-  if (loadError) {
-    return <div className="flex min-h-screen items-center justify-center bg-zinc-950 p-6 text-center font-bold text-rose-300">{loadError}</div>;
+  if (isEventLoading || !fiesta) {
+    return <PublicEntertainmentEventStatus isLoading={isEventLoading} error={loadError} />;
   }
 
   // Operator view UI
@@ -525,7 +544,7 @@ export default function Plataforma360Page() {
       
       {/* HEADER */}
       <div className="absolute top-0 left-0 right-0 z-20 p-4 flex justify-between items-center bg-gradient-to-b from-black/80 to-transparent">
-        <button onClick={() => router.back()} aria-label="Volver" title="Volver" className="rounded-lg bg-white/10 p-2 backdrop-blur-md transition hover:bg-white/20">
+        <button type="button" onClick={() => router.back()} aria-label="Volver" title="Volver" className="flex h-11 w-11 items-center justify-center rounded-lg bg-white/10 backdrop-blur-md transition hover:bg-white/20">
           <ArrowLeft className="w-6 h-6" />
         </button>
         <div className="text-center drop-shadow-md">
@@ -538,14 +557,17 @@ export default function Plataforma360Page() {
           {localStatus === 'idle' && (
             <>
               <button
+                type="button"
                 onClick={() => setVoiceEnabled(!voiceEnabled)}
-                className={`p-2 rounded-full backdrop-blur-md transition ${
+                aria-label={voiceEnabled ? 'Desactivar voz' : 'Activar voz'}
+                title={voiceEnabled ? 'Desactivar voz' : 'Activar voz'}
+                className={`flex h-11 w-11 items-center justify-center rounded-full backdrop-blur-md transition ${
                   voiceEnabled ? 'bg-purple-500/20 text-purple-400 border border-purple-500/30' : 'bg-white/10 text-white'
                 }`}
               >
                 {voiceEnabled ? <Volume2 className="w-5 h-5" /> : <VolumeX className="w-5 h-5" />}
               </button>
-              <button onClick={toggleCamera} className="p-2 bg-white/10 rounded-full backdrop-blur-md hover:bg-white/20 transition">
+              <button type="button" onClick={toggleCamera} aria-label="Cambiar camara" title="Cambiar camara" className="flex h-11 w-11 items-center justify-center rounded-full bg-white/10 backdrop-blur-md transition hover:bg-white/20">
                 <RefreshCw className="w-5 h-5" />
               </button>
             </>

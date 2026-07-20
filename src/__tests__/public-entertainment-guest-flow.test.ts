@@ -46,4 +46,24 @@ describe('public entertainment guest flows', () => {
     expect(touchpix).toContain('Acepto que mi foto se procese temporalmente con IA para crear este recuerdo.');
     expect(touchpix).not.toContain('activeTab !== \'foto\' && fiesta?.station.consentRequired');
   });
+
+  it('hides device controls on invalid events and names every icon control', () => {
+    const photoBooth = readRoute('fotocabina');
+    const platform = readRoute('plataforma-360');
+    const mirror = readRoute('espejo-magico');
+    const touchpix = readRoute('touchpix');
+
+    expect(photoBooth).toContain("!errorMsg && fiesta");
+    expect(mirror).toContain("!errorMsg && fiesta");
+    expect(touchpix).toContain("!errorMsg && fiesta");
+    expect(platform).toContain('isEventLoading || !fiesta');
+
+    for (const source of [photoBooth, platform, mirror, touchpix]) {
+      expect(source).toContain('PublicEntertainmentEventStatus');
+      expect(source).toContain('waitForInitialPublicLoad(loadTask)');
+      expect(source).toContain('aria-label="Volver"');
+      expect(source).toContain('aria-label="Cambiar camara"');
+      expect(source).toContain('h-11 w-11');
+    }
+  });
 });

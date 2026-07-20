@@ -332,7 +332,7 @@ export function AppShell({ children }: { children: ReactNode }) {
       <MainNav />
       <SidebarInset>
         <div className="flex min-h-screen w-full flex-col">
-          <header className="sticky top-0 z-10 flex min-h-16 items-center justify-between gap-3 border-b border-slate-200/80 bg-white/92 px-4 py-2 shadow-sm backdrop-blur-xl md:px-6 print:hidden">
+          <header data-app-shell-header className="sticky top-0 z-10 flex min-h-16 items-center justify-between gap-3 border-b border-slate-200/80 bg-white/92 px-4 py-2 shadow-sm backdrop-blur-xl md:px-6 print:hidden">
             <div className="flex min-w-0 flex-1 items-center gap-3">
               <SidebarTrigger className="md:hidden text-slate-500 hover:text-primary transition-colors" />
               {PageIcon && (

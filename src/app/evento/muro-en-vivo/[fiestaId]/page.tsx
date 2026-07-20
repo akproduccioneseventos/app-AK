@@ -12,6 +12,7 @@ import { getCompanyInfo, getInvoiceTemplateSettings } from '@/app/actions/settin
 import { getSocialConnections } from '@/app/actions/social-connections';
 import type { ActiveGameData, AudioRhythmSettings, ScreenPlaylistItem, ScreenPlaylistItemType, SocialGallerySettings, SocialGalleryBrand } from '@/types/fiesta';
 import { DEFAULT_MARKETING_TICKER_TEXT } from '@/lib/social-wall-defaults';
+import { waitForInitialPublicLoad } from '@/lib/public-experience/wait-for-initial-public-load';
 import type { SocialConnection } from '@/types/settings';
 import { Facebook, Instagram, MessageCircle, Music2, Maximize, Camera } from 'lucide-react';
 import { getSongRequests } from '@/app/actions/social-interactive';
@@ -189,8 +190,8 @@ export default function MuroEnVivoPage() {
     }
   }, [sorteoSpinActive]);
 
-  const fetchData = useCallback(async () => {
-    if (!fiestaId || pollingRef.current || document.visibilityState !== 'visible') return;
+  const fetchData = useCallback(async (allowHidden = false) => {
+    if (!fiestaId || pollingRef.current || (!allowHidden && document.visibilityState !== 'visible')) return;
     pollingRef.current = true;
     try {
       const [fetchedPosts, fiestaData, pollData, dedicationsData, chatData, songData] = await Promise.all([
@@ -363,7 +364,9 @@ export default function MuroEnVivoPage() {
     };
 
     document.addEventListener('visibilitychange', handleVisibilityChange);
-    void fetchData();
+    void waitForInitialPublicLoad(fetchData(true)).then(() => {
+      setIsLoaded(true);
+    });
     const interval = setInterval(fetchData, REFRESH_INTERVAL_MS);
     return () => {
       clearInterval(interval);
