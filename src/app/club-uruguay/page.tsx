@@ -1,11 +1,12 @@
 import type { Metadata } from 'next';
-import Image from 'next/image';
+import Image, { type ImageLoaderProps } from 'next/image';
 import Link from 'next/link';
 import { Building2, CalendarDays, Check, MapPin, MessageCircle, Users } from 'lucide-react';
 import { LandingNav } from '@/components/landing/LandingNav';
 import { PublicFooter } from '@/components/public-footer';
 import { getSalones } from '@/app/actions/salones';
 import { isClubUruguay } from '@/lib/club-uruguay';
+import { canUseNextImage } from '@/lib/next-image-url';
 import { getDynamicSalonPhotos, type SalonPhoto } from '@/lib/salon-helper';
 
 export const metadata: Metadata = {
@@ -15,8 +16,28 @@ export const metadata: Metadata = {
 };
 
 const WHATSAPP = '59898355530';
+const passthroughImageLoader = ({ src }: ImageLoaderProps) => src;
 
-function uniquePhotos(photos: SalonPhoto[]) {
+function SalonMedia({ src, alt, sizes, priority, className }: { src: string; alt: string; sizes: string; priority?: boolean; className: string }) {
+  if (canUseNextImage(src)) {
+    return <Image src={src} alt={alt} fill sizes={sizes} priority={priority} className={className} />;
+  }
+
+  return (
+    <Image
+      loader={passthroughImageLoader}
+      unoptimized
+      src={src}
+      alt={alt}
+      fill
+      sizes={sizes}
+      priority={priority}
+      className={className}
+    />
+  );
+}
+
+export function uniquePhotos(photos: SalonPhoto[]) {
   const seen = new Set<string>();
   return photos.filter((photo) => {
     if (!photo.src || seen.has(photo.src)) return false;
@@ -52,6 +73,9 @@ export default async function ClubUruguayPage() {
   }));
   const photos = uniquePhotos([...masterPhotos, ...getDynamicSalonPhotos()]);
   const heroPhoto = photos[0]?.src || '/media/catalogo-servicios/salon-discoteca-ak-01.jpeg';
+  const salonAddress = salon?.direccion?.trim();
+  const salonDescription = salon?.descripcion?.trim();
+  const salonCapacity = salon?.capacidad && salon.capacidad > 0 ? salon.capacidad : undefined;
   const whatsappHref = `https://wa.me/${WHATSAPP}?text=${encodeURIComponent(
     'Hola AK Producciones. Quiero conocer y cotizar una fiesta en Club Uruguay.',
   )}`;
@@ -62,15 +86,14 @@ export default async function ClubUruguayPage() {
 
       <main>
         <section className="relative flex min-h-[78vh] items-end overflow-hidden border-b border-white/10 pt-24">
-          <Image
+          <SalonMedia
             src={heroPhoto}
             alt="Salon de Club Uruguay preparado por AK Producciones"
-            fill
             priority
             sizes="100vw"
             className="object-cover object-center"
           />
-          <div className="absolute inset-0 bg-[linear-gradient(180deg,rgba(8,8,9,0.18)_0%,rgba(8,8,9,0.56)_54%,rgba(8,8,9,0.96)_100%)]" />
+          <div className="absolute inset-0 bg-black/60" />
 
           <div className="relative z-10 mx-auto w-full max-w-7xl px-4 pb-12 sm:px-6 sm:pb-16 lg:px-8">
             <div className="max-w-3xl">
@@ -81,7 +104,7 @@ export default async function ClubUruguayPage() {
                 Tu fiesta en Club Uruguay
               </h1>
               <p className="mt-5 max-w-2xl text-base leading-relaxed text-zinc-200 sm:text-xl">
-                Conoce el espacio en montajes reales y cotiza salon, catering, discoteca, decoracion y coordinacion en una sola propuesta.
+                Conoce el espacio en montajes reales y arma una propuesta para tu celebración.
               </p>
               <div className="mt-8 flex flex-col gap-3 sm:flex-row">
                 <Link
@@ -106,20 +129,28 @@ export default async function ClubUruguayPage() {
         <section className="border-b border-white/10 bg-white text-zinc-950">
           <div className="mx-auto grid max-w-7xl gap-px bg-zinc-200 sm:grid-cols-3">
             <div className="bg-white px-6 py-7">
-              <Users className="mb-3 h-6 w-6 text-red-600" />
-              <h2 className="font-headline text-xl font-black">Dos espacios</h2>
-              <p className="mt-2 text-sm leading-relaxed text-zinc-600">Opciones para encuentros intimos y celebraciones de mayor capacidad.</p>
+              <Building2 className="mb-3 h-6 w-6 text-red-600" />
+              <h2 className="font-headline text-xl font-black">Club Uruguay</h2>
+              <p className="mt-2 text-sm leading-relaxed text-zinc-600">El salón que estás buscando para tu evento en Salto.</p>
             </div>
             <div className="bg-white px-6 py-7">
               <MapPin className="mb-3 h-6 w-6 text-red-600" />
-              <h2 className="font-headline text-xl font-black">En el centro de Salto</h2>
-              <p className="mt-2 text-sm leading-relaxed text-zinc-600">Una ubicacion reconocible y practica para invitados y proveedores.</p>
+              <h2 className="font-headline text-xl font-black">Ubicación</h2>
+              <p className="mt-2 text-sm leading-relaxed text-zinc-600">{salonAddress || 'Salto, Uruguay'}</p>
             </div>
-            <div className="bg-white px-6 py-7">
-              <Check className="mb-3 h-6 w-6 text-red-600" />
-              <h2 className="font-headline text-xl font-black">Produccion integral</h2>
-              <p className="mt-2 text-sm leading-relaxed text-zinc-600">Un equipo coordina comida, ambientacion, musica, personal y tecnologia.</p>
-            </div>
+            {salonCapacity !== undefined ? (
+              <div className="bg-white px-6 py-7">
+                <Users className="mb-3 h-6 w-6 text-red-600" />
+                <h2 className="font-headline text-xl font-black">Capacidad informada</h2>
+                <p className="mt-2 text-sm leading-relaxed text-zinc-600">{salonCapacity} invitados</p>
+              </div>
+            ) : (
+              <div className="bg-white px-6 py-7">
+                <Check className="mb-3 h-6 w-6 text-red-600" />
+                <h2 className="font-headline text-xl font-black">Información clara</h2>
+                <p className="mt-2 text-sm leading-relaxed text-zinc-600">Consultá una propuesta acorde a tu celebración.</p>
+              </div>
+            )}
           </div>
         </section>
 
@@ -130,9 +161,13 @@ export default async function ClubUruguayPage() {
               <h2 className="mt-3 font-headline text-4xl font-black sm:text-5xl">Mira el salon en uso</h2>
             </div>
             <p className="max-w-2xl text-base leading-relaxed text-zinc-400">
-              Las fotos cargadas en el módulo maestro aparecen primero. Cuando todavía no hay suficientes, completamos el recorrido con montajes de referencia seleccionados por AK Producciones.
+              Mirá el salón y algunos montajes reales para imaginar la disposición de tu evento.
             </p>
           </div>
+
+          {salonDescription && (
+            <p className="mt-6 max-w-3xl text-base leading-relaxed text-zinc-300">{salonDescription}</p>
+          )}
 
           <div className="mt-10 grid gap-4 md:grid-cols-2 lg:grid-cols-3">
             {photos.map((photo, index) => (
@@ -141,14 +176,13 @@ export default async function ClubUruguayPage() {
                 className={`group relative overflow-hidden rounded-md bg-zinc-900 ${index === 0 ? 'md:col-span-2 md:row-span-2' : ''}`}
               >
                 <div className={index === 0 ? 'aspect-[16/10] md:h-full' : 'aspect-[4/3]'}>
-                  <Image
+                  <SalonMedia
                     src={photo.src}
                     alt={photo.alt}
-                    fill
                     sizes={index === 0 ? '(max-width: 1024px) 100vw, 66vw' : '(max-width: 768px) 100vw, 33vw'}
-                    className="object-cover transition-transform duration-700 group-hover:scale-[1.025]"
+                    className="object-cover motion-safe:transition-transform motion-safe:duration-700 motion-safe:group-hover:scale-[1.025] motion-reduce:transition-none"
                   />
-                  <div className="absolute inset-0 bg-gradient-to-t from-black/85 via-transparent to-transparent" />
+                  <div className="absolute inset-0 bg-black/20" />
                 </div>
                 <figcaption className="absolute inset-x-0 bottom-0 p-5">
                   <h3 className="font-headline text-lg font-black">{photo.title}</h3>
@@ -164,14 +198,24 @@ export default async function ClubUruguayPage() {
             <div>
               <p className="text-sm font-bold uppercase text-red-400">Propuesta a medida</p>
               <h2 className="mt-3 font-headline text-3xl font-black sm:text-5xl">Calcula una fiesta completa, sin precios viejos</h2>
-              <p className="mt-4 max-w-2xl text-zinc-400">El simulador usa el catalogo vigente y separa salon, invitados, menu y servicios para que puedas comparar una propuesta real.</p>
+              <p className="mt-4 max-w-2xl text-zinc-400">Usá el simulador para ordenar una propuesta con el catálogo vigente o escribinos para coordinar la conversación.</p>
             </div>
-            <Link
-              href="/simulador-de-presupuesto?salon=club"
-              className="inline-flex min-h-14 items-center justify-center gap-2 rounded-md bg-white px-6 py-3 font-black text-zinc-950 transition-colors hover:bg-zinc-200"
-            >
-              Abrir simulador
-            </Link>
+            <div className="flex flex-col gap-3 sm:flex-row lg:flex-col">
+              <Link
+                href="/simulador-de-presupuesto?salon=club"
+                className="inline-flex min-h-14 items-center justify-center gap-2 rounded-md bg-white px-6 py-3 font-black text-zinc-950 transition-colors hover:bg-zinc-200"
+              >
+                <CalendarDays className="h-5 w-5" /> Abrir simulador
+              </Link>
+              <a
+                href={whatsappHref}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="inline-flex min-h-14 items-center justify-center gap-2 rounded-md border border-white/25 px-6 py-3 font-black text-white transition-colors hover:bg-white/10"
+              >
+                <MessageCircle className="h-5 w-5" /> Escribir por WhatsApp
+              </a>
+            </div>
           </div>
         </section>
       </main>
