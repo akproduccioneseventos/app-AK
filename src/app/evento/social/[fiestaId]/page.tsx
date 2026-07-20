@@ -51,7 +51,10 @@ import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
 import { useToast } from '@/hooks/use-toast';
 import { isEventInActiveWindow } from '@/lib/experience-ak/post-event-utils';
-import { waitForInitialPublicLoad } from '@/lib/public-experience/wait-for-initial-public-load';
+import {
+  waitForInitialPublicLoad,
+  withPublicRequestTimeout,
+} from '@/lib/public-experience/wait-for-initial-public-load';
 import { MAX_DEDICATION_RECORDING_SECONDS } from '@/lib/social-fiesta/guardrails';
 import type { PublicSocialEvent } from '@/lib/social-fiesta/public-event';
 import type { ChatMessage, Dedication, SocialGalleryPost, SocialPoll, SongRequest } from '@/types/social-gallery';
@@ -303,13 +306,13 @@ export default function SocialEventPage() {
       if ((!isInitialLoad && document.visibilityState !== 'visible') || pollingRef.current) return;
       pollingRef.current = true;
 
-      const loadTask = (async () => {
+      const loadTask = withPublicRequestTimeout((async () => {
         await Promise.all([loadCore(), loadSection(section)]);
         if (isInitialLoad) {
           const items = await getPublicDedications(fiestaId);
           if (active) setDedications(items);
         }
-      })()
+      })())
         .catch((error) => {
           console.warn('[SocialEvent] public data refresh failed:', error);
         })

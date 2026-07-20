@@ -5,12 +5,13 @@ import { useParams } from 'next/navigation';
 import NextImage from 'next/image';
 import { QRCodeSVG } from 'qrcode.react';
 import { AnimatePresence, motion, useReducedMotion } from 'framer-motion';
-import { Maximize, QrCode, Sparkles } from 'lucide-react';
+import { Maximize, QrCode, RefreshCw, Sparkles } from 'lucide-react';
 import { getPublicSocialEvent, getPublicSocialPosts } from '@/app/actions/social-gallery';
 import type { TotemScreenSettings } from '@/types/fiesta';
 import type { SocialGalleryPost } from '@/types/social-gallery';
 import type { PublicSocialEvent } from '@/lib/social-fiesta/public-event';
 import { cn } from '@/lib/utils';
+import { withPublicRequestTimeout } from '@/lib/public-experience/wait-for-initial-public-load';
 
 const REFRESH_MS = 2500;
 
@@ -48,6 +49,7 @@ export default function TotemPublicPage() {
   const [posts, setPosts] = useState<SocialGalleryPost[]>([]);
   const [origin, setOrigin] = useState('');
   const [isLoaded, setIsLoaded] = useState(false);
+  const [loadError, setLoadError] = useState<string | null>(null);
   const [photoIndex, setPhotoIndex] = useState(0);
   const [audioLevel, setAudioLevel] = useState(0.35);
   const prefersReducedMotion = useReducedMotion();
@@ -73,25 +75,32 @@ export default function TotemPublicPage() {
   const loadData = useCallback(async () => {
     const currentOrigin = typeof window !== 'undefined' ? window.location.origin : '';
     setOrigin(currentOrigin);
-    const [fiestaData, socialPosts] = await Promise.all([
-      getPublicSocialEvent(fiestaId),
-      getPublicSocialPosts(fiestaId).catch(() => []),
-    ]);
-    if (!fiestaData) {
+    try {
+      const [fiestaData, socialPosts] = await withPublicRequestTimeout(Promise.all([
+        getPublicSocialEvent(fiestaId),
+        getPublicSocialPosts(fiestaId).catch(() => []),
+      ]));
+      if (!fiestaData) {
+        setLoadError('No encontramos la configuración de este tótem.');
+        return;
+      }
+      const selected = fiestaData.socialGallerySettings?.totemScreens?.find((item) => item.id === totemId)
+        || fallbackTotem(fiestaData, totemId, currentOrigin);
+      setFiesta(fiestaData);
+      setTotem(selected);
+      setPosts(
+        socialPosts
+          .filter((post) => (post.moderationStatus ?? 'approved') === 'approved')
+          .sort((a, b) => new Date(b.timestamp).getTime() - new Date(a.timestamp).getTime())
+          .slice(0, 18)
+      );
+      setLoadError(null);
+    } catch (error) {
+      console.warn('[TotemPublic] refresh failed:', error);
+      setLoadError('La pantalla no pudo sincronizarse. Revisa la conexión e intenta nuevamente.');
+    } finally {
       setIsLoaded(true);
-      return;
     }
-    const selected = fiestaData.socialGallerySettings?.totemScreens?.find((item) => item.id === totemId)
-      || fallbackTotem(fiestaData, totemId, currentOrigin);
-    setFiesta(fiestaData);
-    setTotem(selected);
-    setPosts(
-      socialPosts
-        .filter((post) => (post.moderationStatus ?? 'approved') === 'approved')
-        .sort((a, b) => new Date(b.timestamp).getTime() - new Date(a.timestamp).getTime())
-        .slice(0, 18)
-    );
-    setIsLoaded(true);
   }, [fiestaId, totemId]);
 
   useEffect(() => {
@@ -151,6 +160,29 @@ export default function TotemPublicPage() {
 
   if (!isLoaded) {
     return <div className="fixed inset-0 flex items-center justify-center bg-slate-950 text-white">Cargando tótem AK...</div>;
+  }
+
+  if (!fiesta && loadError) {
+    return (
+      <main className="fixed inset-0 flex items-center justify-center bg-slate-950 p-8 text-center text-white">
+        <div className="w-full max-w-lg rounded-lg border border-white/10 bg-white/5 p-7">
+          <p className="text-sm font-black uppercase tracking-[0.25em] text-white/40">Pantalla AK</p>
+          <h1 className="mt-3 text-3xl font-black">No pudimos abrir el tótem</h1>
+          <p className="mt-3 text-sm leading-6 text-white/65">{loadError}</p>
+          <button
+            type="button"
+            onClick={() => {
+              setIsLoaded(false);
+              void loadData();
+            }}
+            className="mx-auto mt-6 flex h-11 items-center justify-center gap-2 rounded-lg bg-white px-5 text-sm font-black text-slate-950 transition hover:bg-white/90 motion-reduce:transition-none"
+          >
+            <RefreshCw className="h-4 w-4" aria-hidden="true" />
+            Reintentar
+          </button>
+        </div>
+      </main>
+    );
   }
 
   if (!fiesta || !totem || totem.enabled === false) {

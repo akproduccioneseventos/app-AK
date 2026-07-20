@@ -19,6 +19,8 @@ describe('barra publica y base de totem', () => {
     expect(barPage).toContain('createBarDrinkOrder');
     expect(barPage).toContain('lastOrder.status');
     expect(barPage).toContain('/media/catalogo-servicios/barra-tragos-ak-01.jpeg');
+    expect(barPage).toContain('withPublicRequestTimeout');
+    expect(barPage).toContain('No pudimos abrir la barra');
     expect(unlockButton).toContain('aria-label="Administrar dispositivo"');
     expect(unlockButton).toContain('aria-label="Cerrar administración del dispositivo"');
   });
@@ -34,6 +36,8 @@ describe('barra publica y base de totem', () => {
   it('usa la configuracion publica exacta del totem y no expone desbloqueo en reproduccion', () => {
     expect(totemPage).toContain('find((item) => item.id === totemId)');
     expect(totemPage).toContain('data-totem-id={totem.id}');
+    expect(totemPage).toContain('withPublicRequestTimeout');
+    expect(totemPage).toContain('No pudimos abrir el tótem');
     expect(totemPage).not.toContain('KioskUnlockButton');
   });
 

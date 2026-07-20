@@ -12,7 +12,10 @@ import { getCompanyInfo, getInvoiceTemplateSettings } from '@/app/actions/settin
 import { getSocialConnections } from '@/app/actions/social-connections';
 import type { ActiveGameData, AudioRhythmSettings, ScreenPlaylistItem, ScreenPlaylistItemType, SocialGallerySettings, SocialGalleryBrand } from '@/types/fiesta';
 import { DEFAULT_MARKETING_TICKER_TEXT } from '@/lib/social-wall-defaults';
-import { waitForInitialPublicLoad } from '@/lib/public-experience/wait-for-initial-public-load';
+import {
+  waitForInitialPublicLoad,
+  withPublicRequestTimeout,
+} from '@/lib/public-experience/wait-for-initial-public-load';
 import type { SocialConnection } from '@/types/settings';
 import { Facebook, Instagram, MessageCircle, Music2, Maximize, Camera } from 'lucide-react';
 import { getSongRequests } from '@/app/actions/social-interactive';
@@ -194,14 +197,14 @@ export default function MuroEnVivoPage() {
     if (!fiestaId || pollingRef.current || (!allowHidden && document.visibilityState !== 'visible')) return;
     pollingRef.current = true;
     try {
-      const [fetchedPosts, fiestaData, pollData, dedicationsData, chatData, songData] = await Promise.all([
+      const [fetchedPosts, fiestaData, pollData, dedicationsData, chatData, songData] = await withPublicRequestTimeout(Promise.all([
         getPublicSocialPosts(fiestaId),
         getPublicSocialEvent(fiestaId),
         getActivePoll(fiestaId),
         getDedications(fiestaId),
         getChatMessages(fiestaId).catch((err) => { console.warn('[MuroEnVivo] getChatMessages failed:', err); return []; }),
         getSongRequests(fiestaId).catch((err) => { console.warn('[MuroEnVivo] getSongRequests failed:', err); return []; }),
-      ]);
+      ]));
 
       const sorted = [...fetchedPosts].filter(isPostApprovedForScreen).sort(
         (a, b) => new Date(b.timestamp).getTime() - new Date(a.timestamp).getTime()

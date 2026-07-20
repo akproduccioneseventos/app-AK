@@ -20,7 +20,8 @@ import {
   Share2,
   Tag,
   User,
-  Palette
+  Palette,
+  RefreshCw,
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -36,6 +37,7 @@ import {
   uploadBarMagicPhoto,
 } from '@/app/actions/fiesta/barra-tecnologica.actions';
 import { getDrinkDescription, getDrinkTags } from '@/lib/barra-tecnologica';
+import { withPublicRequestTimeout } from '@/lib/public-experience/wait-for-initial-public-load';
 
 type ScreenState = 'HOME' | 'MENU' | 'PHOTO' | 'VIDEO';
 
@@ -54,6 +56,7 @@ export default function BarraTecnologicaTouchPage() {
 
   const [dashboard, setDashboard] = useState<PublicBarTechnologyDashboard | null>(null);
   const [isLoading, setIsLoading] = useState(true);
+  const [loadError, setLoadError] = useState<string | null>(null);
   const [currentScreen, setCurrentScreen] = useState<ScreenState>('HOME');
 
   // Identificación del invitado
@@ -377,14 +380,23 @@ export default function BarraTecnologicaTouchPage() {
   ];
 
   const loadData = useCallback(async () => {
-    const dashResult = await getPublicBarraTecnologicaDashboard(fiestaId);
-    if (dashResult.success && dashResult.data) {
-      setDashboard(dashResult.data);
-    } else {
-      toast({ title: 'Error de conexión', description: dashResult.error, variant: 'destructive' });
+    try {
+      const dashResult = await withPublicRequestTimeout(
+        getPublicBarraTecnologicaDashboard(fiestaId),
+      );
+      if (dashResult.success && dashResult.data) {
+        setDashboard(dashResult.data);
+        setLoadError(null);
+      } else {
+        setLoadError(dashResult.error || 'No se pudo cargar la barra de tragos.');
+      }
+    } catch (error) {
+      console.warn('[BarraTecnologica] public dashboard refresh failed:', error);
+      setLoadError('La barra no pudo conectarse. Revisa la conexión e intenta nuevamente.');
+    } finally {
+      setIsLoading(false);
     }
-    setIsLoading(false);
-  }, [fiestaId, toast]);
+  }, [fiestaId]);
 
   useEffect(() => {
     loadData();
@@ -679,6 +691,29 @@ export default function BarraTecnologicaTouchPage() {
       <div className="flex min-h-screen items-center justify-center bg-black">
         <Loader2 className="h-16 w-16 animate-spin text-rose-600" />
       </div>
+    );
+  }
+
+  if (!dashboard && loadError) {
+    return (
+      <main className="flex min-h-screen items-center justify-center bg-slate-950 p-6 text-white">
+        <div className="w-full max-w-md rounded-lg border border-white/10 bg-white/5 p-6 text-center shadow-2xl">
+          <Martini className="mx-auto h-10 w-10 text-rose-400" aria-hidden="true" />
+          <h1 className="mt-4 text-xl font-black">No pudimos abrir la barra</h1>
+          <p className="mt-2 text-sm leading-6 text-slate-300">{loadError}</p>
+          <Button
+            type="button"
+            onClick={() => {
+              setIsLoading(true);
+              void loadData();
+            }}
+            className="mt-5 w-full"
+          >
+            <RefreshCw className="h-4 w-4" />
+            Reintentar
+          </Button>
+        </div>
+      </main>
     );
   }
 

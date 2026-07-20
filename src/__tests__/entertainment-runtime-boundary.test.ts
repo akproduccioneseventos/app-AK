@@ -52,6 +52,16 @@ describe("entertainment runtime boundaries", () => {
     expect(bogueSource).toContain("setSelectedFrame(requestedFrame)");
   });
 
+  it("unlocks Bogue when event loading or camera access fails", () => {
+    const bogueSource = read("src/app/evento/bogue/[fiestaId]/page.tsx");
+
+    expect(bogueSource).toContain("withPublicRequestTimeout");
+    expect(bogueSource).toContain("isEventLoading");
+    expect(bogueSource).toContain("setCameraError");
+    expect(bogueSource).toContain('aria-label="Cambiar cámara"');
+    expect(bogueSource).toContain("Reintentar cámara");
+  });
+
   it("requires explicit consent in both AI server actions", () => {
     const touchpixSource = read("src/app/actions/touchpix-ai.ts");
     const mirrorSource = read("src/app/actions/espejo-magico-ai.ts");

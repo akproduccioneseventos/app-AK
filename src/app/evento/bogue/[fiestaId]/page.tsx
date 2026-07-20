@@ -37,6 +37,7 @@ import {
 import type { PublicEntertainmentEvent } from '@/lib/entertainment/station-config';
 import { KioskUnlockButton } from '@/components/kiosk/kiosk-unlock-button';
 import { isVideoFrameReady } from '@/lib/entertainment/camera-readiness';
+import { withPublicRequestTimeout } from '@/lib/public-experience/wait-for-initial-public-load';
 
 const BOGUE_FRAMES = [
   { id: 'none', label: 'Sin Marco', border: 'transparent' },
@@ -79,6 +80,9 @@ export default function BoguePage() {
   const [isUploading, setIsUploading] = useState(false);
   const [operatorError, setOperatorError] = useState<string | null>(null);
   const [loadError, setLoadError] = useState<string | null>(null);
+  const [isEventLoading, setIsEventLoading] = useState(true);
+  const [loadAttempt, setLoadAttempt] = useState(0);
+  const [cameraError, setCameraError] = useState<string | null>(null);
 
   // Audio effect context for high-quality beeps
   const audioCtxRef = useRef<AudioContext | null>(null);
@@ -134,6 +138,7 @@ export default function BoguePage() {
 
   const startCamera = useCallback(async () => {
     stopCamera();
+    setCameraError(null);
     try {
       const mediaStream = await navigator.mediaDevices.getUserMedia({
         video: { facingMode, width: { ideal: 1080 }, height: { ideal: 1920 } },
@@ -145,18 +150,31 @@ export default function BoguePage() {
       }
     } catch (err) {
       console.error('Error al acceder a la cámara:', err);
+      setCameraError('No pudimos abrir la cámara. Revisa el permiso del navegador y vuelve a intentar.');
     }
   }, [facingMode, stopCamera]);
 
   // 1. Initial load
   useEffect(() => {
-    getPublicEntertainmentEvent(fiestaId, 'bogue', accessToken)
+    let active = true;
+    setIsEventLoading(true);
+    setLoadError(null);
+    withPublicRequestTimeout(getPublicEntertainmentEvent(fiestaId, 'bogue', accessToken))
       .then((result) => {
+        if (!active) return;
         if (result.success && result.event) setFiesta(result.event);
-        else setLoadError(result.error || 'No se pudo abrir esta estacion.');
+        else setLoadError(result.error || 'No se pudo abrir esta estación.');
       })
-      .catch(() => setLoadError('No se pudo abrir esta estacion.'));
-  }, [accessToken, fiestaId]);
+      .catch(() => {
+        if (active) setLoadError('No se pudo abrir esta estación. Revisa la conexión e intenta nuevamente.');
+      })
+      .finally(() => {
+        if (active) setIsEventLoading(false);
+      });
+    return () => {
+      active = false;
+    };
+  }, [accessToken, fiestaId, loadAttempt]);
 
   useEffect(() => {
     localStatusRef.current = localStatus;
@@ -564,8 +582,32 @@ export default function BoguePage() {
     if (!result.success) setOperatorError(result.error || 'No se pudo reiniciar Bogue.');
   };
 
+  if (isEventLoading) {
+    return (
+      <div className="flex min-h-screen items-center justify-center bg-zinc-950 text-white">
+        <Loader2 className="h-10 w-10 animate-spin text-rose-400 motion-reduce:animate-none" aria-label="Cargando estación Bogue" />
+      </div>
+    );
+  }
+
   if (loadError) {
-    return <div className="flex min-h-screen items-center justify-center bg-zinc-950 p-6 text-center font-bold text-rose-300">{loadError}</div>;
+    return (
+      <main className="flex min-h-screen items-center justify-center bg-zinc-950 p-6 text-center text-white">
+        <div className="w-full max-w-md rounded-lg border border-white/10 bg-white/5 p-6">
+          <Flame className="mx-auto h-10 w-10 text-rose-400" aria-hidden="true" />
+          <h1 className="mt-4 text-xl font-black">No pudimos abrir Bogue</h1>
+          <p className="mt-2 text-sm leading-6 text-zinc-300">{loadError}</p>
+          <button
+            type="button"
+            onClick={() => setLoadAttempt((attempt) => attempt + 1)}
+            className="mt-5 flex h-11 w-full items-center justify-center gap-2 rounded-lg bg-rose-500 px-4 text-sm font-black transition hover:bg-rose-400 motion-reduce:transition-none"
+          >
+            <RefreshCw className="h-4 w-4" aria-hidden="true" />
+            Reintentar
+          </button>
+        </div>
+      </main>
+    );
   }
 
   // Render Operator view
@@ -668,14 +710,23 @@ export default function BoguePage() {
           {localStatus === 'idle' && (
             <>
               <button
+                type="button"
                 onClick={() => setVoiceEnabled(!voiceEnabled)}
+                aria-label={voiceEnabled ? 'Desactivar indicaciones por voz' : 'Activar indicaciones por voz'}
+                title={voiceEnabled ? 'Desactivar indicaciones por voz' : 'Activar indicaciones por voz'}
                 className={`p-2 rounded-full backdrop-blur-md transition ${
                   voiceEnabled ? 'bg-pink-500/20 text-pink-400 border border-pink-500/30' : 'bg-white/10 text-white'
                 }`}
               >
                 {voiceEnabled ? <Volume2 className="w-5 h-5" /> : <VolumeX className="w-5 h-5" />}
               </button>
-              <button onClick={toggleCamera} className="p-2 bg-white/10 rounded-full backdrop-blur-md hover:bg-white/20 transition">
+              <button
+                type="button"
+                onClick={toggleCamera}
+                aria-label="Cambiar cámara"
+                title="Cambiar cámara"
+                className="rounded-full bg-white/10 p-2 backdrop-blur-md transition hover:bg-white/20 motion-reduce:transition-none"
+              >
                 <RefreshCw className="w-5 h-5" />
               </button>
             </>
@@ -708,9 +759,24 @@ export default function BoguePage() {
                 </div>
 
                 <div className="pt-4 space-y-3">
+                  {cameraError && (
+                    <div role="alert" className="rounded-lg border border-rose-400/30 bg-rose-500/10 p-3 text-left">
+                      <p className="text-xs font-semibold leading-5 text-rose-100">{cameraError}</p>
+                      <button
+                        type="button"
+                        onClick={() => void startCamera()}
+                        className="mt-2 flex h-11 w-full items-center justify-center gap-2 rounded-lg bg-white/10 px-3 text-xs font-black text-white transition hover:bg-white/15 motion-reduce:transition-none"
+                      >
+                        <RefreshCw className="h-4 w-4" aria-hidden="true" />
+                        Reintentar cámara
+                      </button>
+                    </div>
+                  )}
                   <button
+                    type="button"
                     onClick={() => startCaptureProcess(3, 15)}
-                    className="flex h-14 w-full items-center justify-center gap-2 rounded-lg bg-white text-sm font-black text-zinc-950 transition hover:bg-zinc-200"
+                    disabled={Boolean(cameraError)}
+                    className="flex h-14 w-full items-center justify-center gap-2 rounded-lg bg-white text-sm font-black text-zinc-950 transition hover:bg-zinc-200 disabled:pointer-events-none disabled:opacity-45 motion-reduce:transition-none"
                   >
                     <Camera className="w-5 h-5" />
                     Grabar loop

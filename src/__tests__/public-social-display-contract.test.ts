@@ -13,6 +13,7 @@ describe('public social display contract', () => {
     expect(socialPage).toContain("(!isInitialLoad && document.visibilityState !== 'visible')");
     expect(socialPage).toContain('pollingRef.current');
     expect(socialPage).toContain('waitForInitialPublicLoad(loadTask)');
+    expect(socialPage).toContain('withPublicRequestTimeout');
     expect(socialPage).not.toContain('getSocialAdminAccess');
   });
 
@@ -22,6 +23,7 @@ describe('public social display contract', () => {
     expect(liveWallPage).toContain("document.visibilityState !== 'visible'");
     expect(liveWallPage).toContain('pollingRef.current');
     expect(liveWallPage).toContain('waitForInitialPublicLoad(fetchData(true))');
+    expect(liveWallPage).toContain('withPublicRequestTimeout(Promise.all');
     expect(liveWallPage).toContain('prefers-reduced-motion');
     expect(liveWallPage).not.toContain('KioskUnlockButton');
     expect(liveWallPage).not.toContain('ak-bg-particle');
