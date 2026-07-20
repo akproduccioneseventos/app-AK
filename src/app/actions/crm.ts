@@ -175,6 +175,28 @@ export async function getCrmLeadsForDashboard(): Promise<CrmLead[]> {
   return readData<CrmLead[]>(LEADS_FILE, []);
 }
 
+export type CrmAgendaEntry = Pick<CrmLead, 'id' | 'name' | 'phone' | 'followUpDate'>;
+export type CrmLeadOption = Pick<CrmLead, 'id' | 'name'>;
+
+export async function getCrmAgendaEntries(): Promise<CrmAgendaEntry[]> {
+  const auth = await verifySession();
+  if (!auth.success) throw new Error('No autorizado');
+  const leads = await readData<CrmLead[]>(LEADS_FILE, []);
+  return leads
+    .filter((lead) => Boolean(lead.followUpDate) && !Number.isNaN(new Date(lead.followUpDate!).getTime()))
+    .map(({ id, name, phone, followUpDate }) => ({ id, name, phone, followUpDate }))
+    .sort((a, b) => new Date(a.followUpDate!).getTime() - new Date(b.followUpDate!).getTime());
+}
+
+export async function getCrmLeadOptions(): Promise<CrmLeadOption[]> {
+  const auth = await verifySession();
+  if (!auth.success) throw new Error('No autorizado');
+  const leads = await readData<CrmLead[]>(LEADS_FILE, []);
+  return leads
+    .map(({ id, name }) => ({ id, name }))
+    .sort((a, b) => a.name.localeCompare(b.name));
+}
+
 export async function addCrmLead(leadData: NewCrmLeadData): Promise<{ success: boolean; lead?: CrmLead; error?: string; duplicate?: CrmLead }> {
   const auth = await verifySession();
   if (!auth.success) return { success: false, error: auth.error };
@@ -282,13 +304,29 @@ export async function moveCrmLead(leadId: string, newStageId: string, meetingDat
 export async function scheduleCrmMeeting(leadId: string, date: string, title?: string): Promise<{ success: boolean; lead?: CrmLead; error?: string }> {
     const auth = await verifySession();
     if (!auth.success) return { success: false, error: auth.error };
+    const parsedDate = new Date(date);
+    if (!date || Number.isNaN(parsedDate.getTime())) {
+      return { success: false, error: 'La fecha de la reunión no es válida.' };
+    }
+    const normalizedDate = parsedDate.toISOString();
     const lead = await mutateCrmLeadDocument(leadId, (current) => {
       const existingNotes = current.notes || '';
+      const now = new Date().toISOString();
+      const meetingTitle = title?.trim() || 'Reunión de seguimiento';
       return {
         ...current,
-        followUpDate: date,
-        updatedAt: new Date().toISOString(),
-        ...(title ? { notes: `${existingNotes}\n[REUNIÓN AGENDADA: ${title} para el ${new Date(date).toLocaleString('es-ES')}]`.trim() } : {}),
+        followUpDate: normalizedDate,
+        updatedAt: now,
+        ...(title ? { notes: `${existingNotes}\n[REUNIÓN AGENDADA: ${meetingTitle} para el ${parsedDate.toLocaleString('es-ES')}]`.trim() } : {}),
+        timeline: [
+          ...(current.timeline || []),
+          {
+            id: `tl_meeting_${Date.now()}`,
+            type: 'meeting_scheduled',
+            timestamp: now,
+            description: `${meetingTitle}: ${parsedDate.toLocaleString('es-ES')}`,
+          },
+        ],
       };
     });
     return lead ? { success: true, lead } : { success: false, error: 'Prospecto no encontrado' };

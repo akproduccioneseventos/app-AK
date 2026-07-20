@@ -7,17 +7,16 @@ import { Button } from '@/components/ui/button';
 import { ArrowLeft, CalendarDays, Loader2, AlertTriangle, Clock, CalendarPlus, MessageCircle } from 'lucide-react';
 import Link from 'next/link';
 import { DashboardCalendar } from '@/components/dashboard-calendar';
-import { getCrmLeads } from '@/app/actions/crm';
+import { getCrmAgendaEntries, type CrmAgendaEntry } from '@/app/actions/crm';
 import { getWhatsAppSettings } from '@/app/actions/settings';
 import { useToast } from '@/hooks/use-toast';
-import type { CrmLead } from '@/types/crm';
 import type { WhatsAppSettings } from '@/types/settings';
 import { isSameDay, startOfToday, format } from 'date-fns';
 import { es } from 'date-fns/locale';
 import { ScheduleNewMeetingDialog } from '@/components/crm/ScheduleNewMeetingDialog';
 
 export default function CrmAgendaPage() {
-  const [allMeetings, setAllMeetings] = useState<CrmLead[]>([]);
+  const [allMeetings, setAllMeetings] = useState<CrmAgendaEntry[]>([]);
   const [selectedDate, setSelectedDate] = useState<Date | undefined>(startOfToday());
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -37,10 +36,9 @@ export default function CrmAgendaPage() {
     setIsLoading(true);
     setError(null);
     try {
-      const [leads, wpSettings] = await Promise.all([getCrmLeads(), getWhatsAppSettings()]);
+      const [leads, wpSettings] = await Promise.all([getCrmAgendaEntries(), getWhatsAppSettings()]);
       if (!isMountedRef.current) return;
-      const meetingsWithDate = leads.filter(lead => !!lead.followUpDate);
-      setAllMeetings(meetingsWithDate.sort((a,b) => new Date(a.followUpDate!).getTime() - new Date(b.followUpDate!).getTime()));
+      setAllMeetings(leads);
       setWaSettings(wpSettings);
     } catch (err: any) {
       if (!isMountedRef.current) return;
@@ -68,7 +66,7 @@ export default function CrmAgendaPage() {
     return allMeetings.filter(m => isSameDay(new Date(m.followUpDate!), selectedDate));
   }, [allMeetings, selectedDate]);
 
-  const buildReminderUrl = (meeting: CrmLead) => {
+  const buildReminderUrl = (meeting: CrmAgendaEntry) => {
     const date = new Date(meeting.followUpDate!);
     const fecha = format(date, "EEEE d 'de' MMMM", { locale: es });
     const hora = format(date, 'HH:mm');
