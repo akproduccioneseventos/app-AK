@@ -1,5 +1,6 @@
 'use server';
 
+import crypto from 'crypto';
 import { Firestore } from 'firebase-admin/firestore';
 import {
   hasEntertainmentControlAccess,
@@ -12,6 +13,15 @@ import {
 import { getFiestaById } from './fiesta.actions';
 
 const SESIONES_COLLECTION = 'entretenimiento_sesiones';
+const SESSION_MAX_AGE_MS = 12 * 60 * 1000;
+
+const VALID_STATUS_TRANSITIONS: Record<EntertainmentSession['status'], EntertainmentSession['status'][]> = {
+  idle: ['countdown'],
+  countdown: ['recording', 'idle'],
+  recording: ['processing', 'done', 'idle'],
+  processing: ['done', 'idle'],
+  done: ['processing', 'idle', 'countdown'],
+};
 
 async function getDb(): Promise<Firestore> {
   const { dbAdmin } = await import('@/lib/firebase/server');
@@ -37,7 +47,49 @@ export interface EntertainmentSession {
     [key: string]: any;
   };
   mediaUrl?: string;
+  reviewPending?: boolean;
+  captureId?: string;
+  version?: number;
+  expiresAt?: string;
   lastUpdated: string;
+}
+
+function boundedText(value: unknown, maxLength: number): string | undefined {
+  return typeof value === 'string' && value.length <= maxLength ? value : undefined;
+}
+
+function boundedNumber(value: unknown, min: number, max: number): number | undefined {
+  const number = Number(value);
+  return Number.isFinite(number) && number >= min && number <= max ? number : undefined;
+}
+
+function sanitizeSessionSettings(input: unknown): EntertainmentSession['settings'] {
+  if (!input || typeof input !== 'object' || Array.isArray(input)) return {};
+  const source = input as Record<string, unknown>;
+  return {
+    duration: boundedNumber(source.duration, 1, 120),
+    countdownSeconds: boundedNumber(source.countdownSeconds, 1, 15),
+    frameCount: boundedNumber(source.frameCount, 1, 60),
+    frameId: boundedText(source.frameId, 80),
+    mode: boundedText(source.mode, 40),
+    characterId: boundedText(source.characterId, 80),
+    themeId: boundedText(source.themeId, 80),
+    operatorName: boundedText(source.operatorName, 120),
+    stationTitle: boundedText(source.stationTitle, 120),
+  };
+}
+
+function sanitizeSessionUpdate(input: unknown): Pick<EntertainmentSession, 'mediaUrl' | 'reviewPending'> {
+  if (!input || typeof input !== 'object' || Array.isArray(input)) return {};
+  const source = input as Record<string, unknown>;
+  const mediaUrl = boundedText(source.mediaUrl, 2_048);
+  const safeMediaUrl = mediaUrl && (/^https?:\/\//i.test(mediaUrl) || mediaUrl.startsWith('/'))
+    ? mediaUrl
+    : undefined;
+  return {
+    ...(safeMediaUrl ? { mediaUrl: safeMediaUrl } : {}),
+    ...(typeof source.reviewPending === 'boolean' ? { reviewPending: source.reviewPending } : {}),
+  };
 }
 
 export async function getEntertainmentSession(
@@ -83,7 +135,10 @@ export async function startEntertainmentSession(
       moduleId,
       status: 'countdown',
       timestamp: new Date().toISOString(),
-      settings,
+      settings: sanitizeSessionSettings(settings),
+      captureId: crypto.randomUUID(),
+      version: 1,
+      expiresAt: new Date(Date.now() + SESSION_MAX_AGE_MS).toISOString(),
       lastUpdated: new Date().toISOString(),
     };
     await db.collection(SESIONES_COLLECTION).doc(docId).set(sessionData);
@@ -113,20 +168,45 @@ export async function updateEntertainmentSessionStatus(
     }
     const db = await getDb();
     const docId = `${fiestaId}_${moduleId}`;
-    const updates: Partial<EntertainmentSession> = {
-      status,
-      lastUpdated: new Date().toISOString(),
-      ...extraData,
-    };
-    await db.collection(SESIONES_COLLECTION).doc(docId).set(
-      {
+    const docRef = db.collection(SESIONES_COLLECTION).doc(docId);
+    const result = await db.runTransaction(async (transaction) => {
+      const snap = await transaction.get(docRef);
+      const current = snap.exists ? snap.data() as EntertainmentSession : null;
+      if (current && (current.fiestaId !== fiestaId || current.moduleId !== moduleId)) return 'invalid-session';
+
+      const now = new Date();
+      const expired = current?.expiresAt
+        ? new Date(current.expiresAt).getTime() <= now.getTime()
+        : false;
+      const currentStatus: EntertainmentSession['status'] = expired
+        ? 'idle'
+        : current?.status || 'idle';
+      const isIdempotent = currentStatus === status;
+      if (!isIdempotent && !VALID_STATUS_TRANSITIONS[currentStatus].includes(status)) {
+        return 'invalid-transition';
+      }
+
+      const nowIso = now.toISOString();
+      const startsCapture = currentStatus === 'idle' && status === 'countdown';
+      transaction.set(docRef, {
         fiestaId,
         moduleId,
-        timestamp: new Date().toISOString(),
-        ...updates,
-      },
-      { merge: true }
-    );
+        status,
+        timestamp: current?.timestamp || nowIso,
+        captureId: startsCapture || !current?.captureId ? crypto.randomUUID() : current.captureId,
+        version: (current?.version || 0) + 1,
+        expiresAt: new Date(now.getTime() + SESSION_MAX_AGE_MS).toISOString(),
+        lastUpdated: nowIso,
+        ...sanitizeSessionUpdate(extraData),
+      }, { merge: true });
+      return 'updated';
+    });
+    if (result === 'invalid-session') {
+      return { success: false, error: 'La sesion no corresponde a esta estacion.' };
+    }
+    if (result === 'invalid-transition') {
+      return { success: false, error: 'La transicion solicitada no es valida para el estado actual.' };
+    }
     return { success: true };
   } catch (e: any) {
     console.error(`[sesion-entretenimiento] Error en updateEntertainmentSessionStatus:`, e);

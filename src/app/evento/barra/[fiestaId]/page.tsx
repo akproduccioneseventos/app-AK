@@ -7,8 +7,10 @@ import { AnimatePresence, motion } from 'framer-motion';
 import {
   Camera,
   CheckCircle2,
+  Clock3,
   ChevronLeft,
   ChevronRight,
+  Filter,
   Loader2,
   Martini,
   Shuffle,
@@ -16,6 +18,7 @@ import {
   Wine,
   X,
   Share2,
+  Tag,
   User,
   Palette
 } from 'lucide-react';
@@ -32,7 +35,7 @@ import {
   getPublicBarraTecnologicaDashboard,
   uploadBarMagicPhoto,
 } from '@/app/actions/fiesta/barra-tecnologica.actions';
-import { KioskUnlockButton } from '@/components/kiosk/kiosk-unlock-button';
+import { getDrinkDescription, getDrinkTags } from '@/lib/barra-tecnologica';
 
 type ScreenState = 'HOME' | 'MENU' | 'PHOTO' | 'VIDEO';
 
@@ -63,6 +66,7 @@ export default function BarraTecnologicaTouchPage() {
   const [isOrdering, setIsOrdering] = useState(false);
   const [lastOrder, setLastOrder] = useState<BarDrinkOrder | null>(null);
   const [isShuffling, setIsShuffling] = useState(false);
+  const [activeCategory, setActiveCategory] = useState('Todos');
 
   // Camera & Recording State
   const [capturedDataUrl, setCapturedDataUrl] = useState<string | null>(null);
@@ -547,7 +551,6 @@ export default function BarraTecnologicaTouchPage() {
       stopCamera();
     }
     setCurrentScreen(screen);
-    setLastOrder(null);
   };
 
   const submitOrder = async () => {
@@ -683,6 +686,10 @@ export default function BarraTecnologicaTouchPage() {
   const quinceaneraPhoto = 'https://images.unsplash.com/photo-1541250848049-b4f7146174fb?q=80&w=1080&auto=format&fit=crop';
   const backgroundPhoto = dashboard?.backgroundImageUrl || quinceaneraPhoto;
   const drinks = dashboard?.drinks?.length ? dashboard.drinks : [];
+  const drinkCategories = ['Todos', ...Array.from(new Set(drinks.flatMap((drink) => getDrinkTags(drink))))];
+  const visibleDrinks = activeCategory === 'Todos'
+    ? drinks
+    : drinks.filter((drink) => getDrinkTags(drink).includes(activeCategory));
 
   return (
     <main className="relative flex min-h-screen w-full max-w-full flex-col bg-slate-950 text-slate-100 font-sans overflow-hidden">
@@ -697,20 +704,24 @@ export default function BarraTecnologicaTouchPage() {
           decoding="async"
           unoptimized
         />
-        <div className="absolute inset-0 bg-gradient-to-tr from-slate-950 via-purple-950/20 to-rose-950/20 animate-gradient" />
+        <div className="absolute inset-0 bg-slate-950/70" />
       </div>
 
       {/* HEADER DE IDENTIFICACIÓN PERMANENTE */}
       {guestName.trim() && (
         <div className="absolute top-8 right-8 z-50 flex items-center gap-3">
-          <div className="flex items-center gap-2.5 bg-black/60 border border-white/10 backdrop-blur-xl py-3 px-6 rounded-full text-slate-200 shadow-lg">
+          <button
+            type="button"
+            onClick={() => { setPendingScreen(null); setShowNameModal(true); }}
+            className="flex items-center gap-2.5 rounded-lg border border-white/10 bg-black/60 px-5 py-3 text-left text-slate-200 shadow-lg backdrop-blur-xl hover:border-white/25"
+          >
             <User className="w-5 h-5 text-rose-500" />
             <span className="text-lg font-black tracking-wide">{guestName}</span>
-          </div>
+          </button>
           <Button
             variant="ghost"
             onClick={handleLogout}
-            className="rounded-full bg-white/5 border border-white/5 text-slate-300 hover:bg-rose-500/20 hover:text-rose-400 py-3 h-12 text-sm font-bold"
+            className="rounded-lg border border-white/5 bg-white/5 py-3 text-sm font-bold text-slate-300 hover:bg-rose-500/20 hover:text-rose-400"
           >
             Salir
           </Button>
@@ -723,7 +734,7 @@ export default function BarraTecnologicaTouchPage() {
           <Button
             variant="outline"
             size="lg"
-            className="rounded-full bg-black/60 border-white/10 text-white backdrop-blur-xl h-16 px-8 text-xl font-bold shadow-[0_4px_20px_rgba(0,0,0,0.5)] hover:bg-black/80 transition-all active:scale-95"
+            className="rounded-lg border-white/10 bg-black/60 text-xl font-bold text-white backdrop-blur-xl transition-all active:scale-95 hover:bg-black/80 motion-reduce:transition-none"
             onClick={() => handleScreenChange('HOME')}
           >
             <ChevronLeft className="w-6 h-6 mr-2 text-rose-500" /> Volver al Inicio
@@ -758,7 +769,7 @@ export default function BarraTecnologicaTouchPage() {
             <div className="flex flex-col gap-6 w-full max-w-2xl">
               <Button
                 onClick={() => handleScreenChange('MENU')}
-                className="h-32 rounded-[2.5rem] bg-gradient-to-r from-rose-600 via-rose-500 to-orange-500 text-3xl font-black text-white shadow-[0_10px_45px_rgba(244,63,94,0.45)] hover:scale-[1.03] active:scale-[0.98] transition-transform duration-250 border-0"
+                className="h-32 rounded-lg border-0 bg-red-600 text-3xl font-black text-white shadow-xl transition-transform duration-250 hover:bg-red-500 hover:scale-[1.03] active:scale-[0.98] motion-reduce:transition-none"
               >
                 <Martini className="w-14 h-14 mr-5" /> Elegí tu Trago
               </Button>
@@ -766,14 +777,14 @@ export default function BarraTecnologicaTouchPage() {
               <div className="grid grid-cols-2 gap-4">
                 <Button
                   onClick={() => handleScreenChange('PHOTO')}
-                  className="h-32 rounded-[2.5rem] bg-slate-900/85 backdrop-blur-xl border border-white/10 text-2xl font-black text-white hover:bg-slate-900 hover:scale-[1.03] active:scale-[0.98] transition-transform shadow-xl"
+                  className="h-32 rounded-lg border border-white/10 bg-slate-900/85 text-2xl font-black text-white shadow-xl transition-transform hover:bg-slate-900 hover:scale-[1.03] active:scale-[0.98] motion-reduce:transition-none"
                 >
                   <Camera className="w-10 h-10 mr-3 text-cyan-400" /> Sacate una Foto
                 </Button>
 
                 <Button
                   onClick={() => handleScreenChange('VIDEO')}
-                  className="h-32 rounded-[2.5rem] bg-slate-900/85 backdrop-blur-xl border border-white/10 text-2xl font-black text-white hover:bg-slate-900 hover:scale-[1.03] active:scale-[0.98] transition-transform shadow-xl"
+                  className="h-32 rounded-lg border border-white/10 bg-slate-900/85 text-2xl font-black text-white shadow-xl transition-transform hover:bg-slate-900 hover:scale-[1.03] active:scale-[0.98] motion-reduce:transition-none"
                 >
                   <Video className="w-10 h-10 mr-3 text-purple-400" /> Graba un Video
                 </Button>
@@ -808,17 +819,39 @@ export default function BarraTecnologicaTouchPage() {
               </Button>
             </div>
 
+            <div className="mb-5 flex items-center gap-2 overflow-x-auto pb-1 scrollbar-none" aria-label="Categorias de tragos">
+              <Filter className="h-4 w-4 flex-none text-white/45" aria-hidden="true" />
+              {drinkCategories.map((category) => (
+                <button
+                  key={category}
+                  type="button"
+                  onClick={() => setActiveCategory(category)}
+                  aria-pressed={activeCategory === category}
+                  className={`flex h-10 flex-none items-center gap-2 rounded-lg border px-4 text-sm font-black transition-colors motion-reduce:transition-none ${
+                    activeCategory === category
+                      ? 'border-red-500 bg-red-600 text-white'
+                      : 'border-white/15 bg-white/5 text-white/70 hover:border-white/30 hover:text-white'
+                  }`}
+                >
+                  <Tag className="h-4 w-4" /> {category}
+                </button>
+              ))}
+            </div>
+
             <div className="flex-1 overflow-y-auto pb-8 scrollbar-none">
               {drinks.length > 0 ? (
-                <div className="flex snap-x snap-mandatory gap-5 overflow-x-auto pb-8 pr-[18vw] scrollbar-none">
-                {drinks.map((drink, idx) => {
+                <div className="flex snap-x snap-mandatory gap-4 overflow-x-auto pb-8 pr-[18vw] scrollbar-none" aria-label={`Tragos: ${activeCategory}`}>
+                {visibleDrinks.map((drink, idx) => {
+                  const drinkTags = getDrinkTags(drink);
+                  const isAvailable = drink.stockDisponible === undefined || drink.stockDisponible > 0;
                   return (
                     <motion.button
                       key={drink.id}
                       whileHover={{ y: -4 }}
                       whileTap={{ scale: 0.98 }}
                       onClick={() => setSelectedDrink(drink)}
-                      className="group relative flex w-[72vw] max-w-[330px] flex-none snap-start flex-col overflow-hidden rounded-lg border border-white/10 bg-zinc-950 text-left shadow-2xl transition-colors hover:border-red-500/70 md:w-[320px]"
+                      disabled={!isAvailable}
+                      className="group relative flex w-[78vw] max-w-[340px] flex-none snap-start flex-col overflow-hidden rounded-lg border border-white/10 bg-zinc-950 text-left shadow-2xl transition-colors hover:border-red-500/70 disabled:cursor-not-allowed disabled:opacity-55 md:w-[320px] motion-reduce:transition-none"
                     >
                       <div className="relative aspect-[4/5] w-full overflow-hidden bg-zinc-900">
                         {drink.imageUrl ? (
@@ -836,11 +869,12 @@ export default function BarraTecnologicaTouchPage() {
                             <Wine className="h-14 w-14" />
                           </div>
                         )}
-                        <span className="absolute left-3 top-3 rounded bg-black/75 px-3 py-1 text-xs font-bold text-white backdrop-blur-sm">
+                        <span className="absolute left-3 top-3 rounded-lg bg-black/75 px-3 py-1 text-xs font-bold text-white backdrop-blur-sm">
                           {String(idx + 1).padStart(2, '0')}
                         </span>
+                        {!isAvailable && <span className="absolute bottom-3 left-3 rounded-lg bg-black/80 px-3 py-1 text-xs font-black uppercase text-amber-300">Agotado</span>}
                       </div>
-                      <div className="flex min-h-32 flex-1 items-center justify-between gap-4 p-5">
+                      <div className="flex min-h-36 flex-1 flex-col gap-3 p-5">
                         <div className="min-w-0">
                           <h3 className="line-clamp-2 text-2xl font-black text-white">{drink.nombre}</h3>
                           <p className="mt-2 line-clamp-2 text-sm text-zinc-400">
@@ -849,7 +883,12 @@ export default function BarraTecnologicaTouchPage() {
                               : 'Tocá para conocer este trago'}
                           </p>
                         </div>
-                        <ChevronRight className="h-7 w-7 flex-none text-red-500" />
+                        <div className="flex items-center justify-between gap-2">
+                          <div className="flex min-w-0 gap-1 overflow-hidden">
+                            {drinkTags.slice(0, 2).map((tag) => <span key={tag} className="truncate rounded-lg bg-white/10 px-2 py-1 text-[11px] font-bold text-white/60">{tag}</span>)}
+                          </div>
+                          <ChevronRight className="h-6 w-6 flex-none text-red-400" />
+                        </div>
                       </div>
                     </motion.button>
                   );
@@ -907,9 +946,9 @@ export default function BarraTecnologicaTouchPage() {
                       <p className="text-sm font-bold uppercase text-red-500">Tu elección</p>
                       <h2 className="mt-2 text-4xl font-black text-white md:text-5xl">{selectedDrink.nombre}</h2>
 
-                      {settings?.showDrinkDescription && (selectedDrink.descripcion || selectedDrink.description) && (
+                      {settings?.showDrinkDescription && (
                         <p className="mt-5 text-lg leading-relaxed text-zinc-300">
-                          {selectedDrink.descripcion || selectedDrink.description}
+                          {getDrinkDescription(selectedDrink)}
                         </p>
                       )}
 
@@ -931,8 +970,8 @@ export default function BarraTecnologicaTouchPage() {
                         </a>
                       )}
 
-                      <p className="mt-8 text-base text-zinc-400">
-                        Pedido a nombre de <strong className="text-white">{guestName}</strong>
+                      <p className="mt-8 flex items-center gap-2 text-base text-zinc-400">
+                        <User className="h-4 w-4 text-red-400" /> Pedido a nombre de <strong className="text-white">{guestName}</strong>
                       </p>
                       <div className="mt-5 flex flex-col gap-3 sm:flex-row">
                         <Button
@@ -947,7 +986,7 @@ export default function BarraTecnologicaTouchPage() {
                           disabled={isOrdering}
                           className="h-14 flex-1 rounded-lg bg-red-600 text-base font-black text-white shadow-lg hover:bg-red-500"
                         >
-                          {isOrdering ? <Loader2 className="h-6 w-6 animate-spin" /> : 'Enviar a la barra'}
+                          {isOrdering ? <Loader2 className="h-6 w-6 animate-spin" /> : <><CheckCircle2 className="mr-2 h-5 w-5" /> Enviar a la barra</>}
                         </Button>
                       </div>
                     </div>
@@ -966,11 +1005,14 @@ export default function BarraTecnologicaTouchPage() {
                   className="absolute inset-0 z-50 flex items-center justify-center bg-black/95 backdrop-blur-xl"
                 >
                   <div className="text-center p-8 max-w-xl">
-                    <div className="mx-auto mb-8 flex h-28 w-28 items-center justify-center rounded-full border-4 border-green-500 bg-green-500/10">
+                    <div className="mx-auto mb-8 flex h-28 w-28 items-center justify-center rounded-lg border-4 border-green-500 bg-green-500/10">
                       <CheckCircle2 className="h-14 w-14 text-green-400" />
                     </div>
                     <h2 className="mb-4 text-5xl font-black text-white">Pedido enviado</h2>
                     <p className="mb-2 text-2xl font-bold text-green-300">Ya apareció en la pantalla del barman.</p>
+                    <div className="mx-auto mb-5 flex w-fit items-center gap-2 rounded-lg border border-amber-300/20 bg-amber-300/10 px-4 py-2 text-sm font-black uppercase tracking-[0.12em] text-amber-200">
+                      <Clock3 className="h-4 w-4" /> {lastOrder.status === 'nuevo' ? 'En cola' : lastOrder.status}
+                    </div>
                     {lastOrder.queuePosition ? (
                       <p className="mb-10 text-lg font-semibold text-zinc-300">
                         Posición aproximada en la cola: <strong className="text-white">{lastOrder.queuePosition}</strong>
@@ -1015,11 +1057,11 @@ export default function BarraTecnologicaTouchPage() {
               {!capturedDataUrl && (
                 <div className="absolute inset-0 pointer-events-none z-30 flex flex-col justify-between p-6">
                   {/* Borde superior e inferior del color de acento de la plantilla */}
-                  <div className={`w-full h-8 bg-gradient-to-r ${templates[selectedFrameIdx].color} rounded-full`} />
+                  <div className="h-8 w-full rounded-lg bg-white/15" />
 
                   {/* Banner inferior simulando la marca del marco */}
-                  <div className="bg-black/85 border border-white/10 backdrop-blur-md p-5 rounded-2xl flex flex-col items-center justify-center text-center">
-                    <p className={`text-2xl font-black uppercase bg-gradient-to-r ${templates[selectedFrameIdx].color} bg-clip-text text-transparent`}>
+                  <div className="flex flex-col items-center justify-center rounded-lg border border-white/10 bg-black/85 p-5 text-center backdrop-blur-md">
+                    <p className="text-2xl font-black uppercase text-white">
                       {dashboard?.eventName || 'Mi Fiesta'}
                     </p>
                     <p className="text-slate-300 font-bold text-sm mt-1">{settings?.hashtag || '#AKProducciones'}</p>
@@ -1041,9 +1083,9 @@ export default function BarraTecnologicaTouchPage() {
 
                     {/* Marco superpuesto en el reproductor de video */}
                     <div className="absolute inset-0 pointer-events-none z-30 flex flex-col justify-between p-6">
-                      <div className={`w-full h-8 bg-gradient-to-r ${templates[selectedFrameIdx].color} rounded-full`} />
-                      <div className="bg-black/85 border border-white/10 backdrop-blur-md p-5 rounded-2xl flex flex-col items-center justify-center text-center">
-                        <p className={`text-2xl font-black uppercase bg-gradient-to-r ${templates[selectedFrameIdx].color} bg-clip-text text-transparent`}>
+                      <div className="h-8 w-full rounded-lg bg-white/15" />
+                      <div className="flex flex-col items-center justify-center rounded-lg border border-white/10 bg-black/85 p-5 text-center backdrop-blur-md">
+                        <p className="text-2xl font-black uppercase text-white">
                           {dashboard?.eventName || 'Mi Fiesta'}
                         </p>
                         <p className="text-slate-300 font-bold text-sm mt-1">{settings?.hashtag || '#AKProducciones'}</p>
@@ -1079,8 +1121,8 @@ export default function BarraTecnologicaTouchPage() {
 
               {/* Indicador de Grabación */}
               {isRecording && (
-                <div className="absolute top-28 right-8 flex items-center gap-3 bg-rose-600/90 px-6 py-3 rounded-full animate-pulse shadow-lg z-30">
-                  <div className="w-4 h-4 bg-white rounded-full" />
+                <div className="absolute right-8 top-28 z-30 flex items-center gap-3 rounded-lg bg-rose-600/90 px-6 py-3 shadow-lg animate-pulse">
+                  <div className="h-4 w-4 rounded-lg bg-white" />
                   <span className="text-2xl font-black text-white">00:{recordingTime.toString().padStart(2, '0')}</span>
                 </div>
               )}
@@ -1097,9 +1139,9 @@ export default function BarraTecnologicaTouchPage() {
                     <Button
                       key={tmpl.id}
                       onClick={() => setSelectedFrameIdx(idx)}
-                      className={`h-16 px-5 rounded-2xl flex items-center gap-2 border whitespace-nowrap text-lg transition-all active:scale-95 ${
+                      className={`flex h-16 items-center gap-2 whitespace-nowrap rounded-lg border px-5 text-lg transition-all active:scale-95 motion-reduce:transition-none ${
                         selectedFrameIdx === idx
-                          ? `bg-gradient-to-r ${tmpl.color} text-slate-950 border-transparent font-black shadow-lg`
+                          ? 'bg-white text-slate-950 border-white font-black shadow-lg'
                           : 'bg-white/5 border-white/10 text-white hover:bg-white/10'
                       }`}
                     >
@@ -1118,32 +1160,32 @@ export default function BarraTecnologicaTouchPage() {
                   <Button
                     onClick={triggerPhotoCountdown}
                     disabled={countdown !== null}
-                    className="w-28 h-28 rounded-full border-[8px] border-white/50 bg-white hover:bg-slate-200 active:scale-95 transition-all shadow-[0_0_40px_rgba(255,255,255,0.4)]"
-                  />
+                    className="flex h-28 w-28 items-center justify-center rounded-lg border-4 border-white/50 bg-white text-slate-950 shadow-xl transition-all hover:bg-slate-200 active:scale-95 motion-reduce:transition-none"
+                  ><Camera className="h-10 w-10" /></Button>
                 ) : (
                   <Button
                     onClick={isRecording ? undefined : triggerVideoCountdown}
                     disabled={isRecording || countdown !== null}
-                    className={`w-28 h-28 rounded-full border-[8px] border-white/50 bg-red-600 hover:bg-red-700 active:scale-95 transition-all ${
+                    className={`flex h-28 w-28 items-center justify-center rounded-lg border-4 border-white/50 bg-red-600 text-white transition-all hover:bg-red-700 active:scale-95 motion-reduce:transition-none ${
                       isRecording
                         ? 'scale-110 shadow-[0_0_50px_rgba(220,38,38,0.8)] animate-pulse'
                         : 'shadow-[0_0_40px_rgba(220,38,38,0.4)]'
                     }`}
-                  />
+                  ><Video className="h-10 w-10" /></Button>
                 )
               ) : (
                 <div className="flex gap-4 max-w-md w-full">
                   <Button
                     onClick={() => { setCapturedDataUrl(null); }}
                     variant="outline"
-                    className="flex-1 h-18 rounded-2xl bg-black/60 border-white/15 text-xl font-bold text-white hover:bg-white/10"
+                    className="h-18 flex-1 rounded-lg border-white/15 bg-black/60 text-xl font-bold text-white hover:bg-white/10"
                   >
                     <X className="w-6 h-6 mr-2 text-rose-500" /> Reintentar
                   </Button>
                   <Button
                     onClick={uploadMedia}
                     disabled={isUploadingMedia}
-                    className="flex-1 h-18 rounded-2xl bg-gradient-to-r from-emerald-600 to-teal-500 border-0 text-xl font-black text-white shadow-[0_6px_30px_rgba(16,185,129,0.4)] hover:scale-[1.02]"
+                    className="h-18 flex-1 rounded-lg border-0 bg-emerald-600 text-xl font-black text-white shadow-xl hover:bg-emerald-500 hover:scale-[1.02]"
                   >
                     {isUploadingMedia ? (
                       <Loader2 className="w-6 h-6 animate-spin" />
@@ -1173,9 +1215,9 @@ export default function BarraTecnologicaTouchPage() {
               initial={{ scale: 0.9, y: 30 }}
               animate={{ scale: 1, y: 0 }}
               exit={{ scale: 0.9, y: 30 }}
-              className="my-3 flex w-full max-w-3xl flex-col items-center rounded-2xl border border-white/10 bg-slate-900 p-4 shadow-2xl sm:p-6 md:my-0 md:rounded-[3rem] md:p-10"
+              className="my-3 flex w-full max-w-3xl flex-col items-center rounded-lg border border-white/10 bg-slate-900 p-4 shadow-2xl sm:p-6 md:my-0 md:p-10"
             >
-              <div className="mb-3 flex h-12 w-12 items-center justify-center rounded-full border-2 border-rose-500 bg-rose-500/10 md:mb-6 md:h-20 md:w-20">
+              <div className="mb-3 flex h-12 w-12 items-center justify-center rounded-lg border-2 border-rose-500 bg-rose-500/10 md:mb-6 md:h-20 md:w-20">
                 <User className="h-6 w-6 text-rose-500 md:h-10 md:w-10" />
               </div>
 
@@ -1188,7 +1230,7 @@ export default function BarraTecnologicaTouchPage() {
                 value={guestName}
                 readOnly
                 placeholder="Escribí tu nombre..."
-                className="mb-4 h-14 max-w-lg rounded-2xl border-white/10 bg-black/50 text-center text-xl font-black text-white placeholder:text-slate-700 focus:border-rose-500 focus:ring-rose-500 md:mb-8 md:h-20 md:text-3xl"
+                className="mb-4 h-14 max-w-lg rounded-lg border-white/10 bg-black/50 text-center text-xl font-black text-white placeholder:text-slate-700 focus:border-rose-500 focus:ring-rose-500 md:mb-8 md:h-20 md:text-3xl"
               />
 
               {/* TECLADO TÁCTIL VIRTUAL INTEGRADO */}
@@ -1201,7 +1243,7 @@ export default function BarraTecnologicaTouchPage() {
                         <button
                           key={key}
                           onClick={() => handleKeypress(key)}
-                          className={`flex h-10 min-w-0 items-center justify-center rounded-lg text-xs font-black transition-all active:scale-95 sm:h-12 sm:text-sm md:h-14 md:rounded-xl md:text-lg ${
+                          className={`flex h-10 min-w-0 items-center justify-center rounded-lg text-xs font-black transition-all active:scale-95 sm:h-12 sm:text-sm md:h-14 md:text-lg motion-reduce:transition-none ${
                             isSpecial
                               ? 'flex-[1.5] bg-rose-500/20 px-1 text-[10px] text-rose-400 border border-rose-500/30 sm:px-2 sm:text-xs md:px-4 md:text-base'
                               : key === ' '
@@ -1221,13 +1263,13 @@ export default function BarraTecnologicaTouchPage() {
                 <Button
                   onClick={() => { setShowNameModal(false); setPendingScreen(null); }}
                   variant="outline"
-                  className="h-12 flex-1 rounded-xl border-white/10 bg-transparent text-sm font-bold text-white hover:bg-white/10 md:h-16 md:rounded-2xl md:text-lg"
+                  className="h-12 flex-1 rounded-lg border-white/10 bg-transparent text-sm font-bold text-white hover:bg-white/10 md:h-16 md:text-lg"
                 >
                   Cancelar
                 </Button>
                 <Button
                   onClick={saveNameAndProceed}
-                  className="h-12 flex-1 rounded-xl border-0 bg-gradient-to-r from-rose-600 to-orange-500 text-sm font-black text-white shadow-lg md:h-16 md:rounded-2xl md:text-lg"
+                  className="h-12 flex-1 rounded-lg border-0 bg-rose-600 text-sm font-black text-white shadow-lg hover:bg-rose-500 md:h-16 md:text-lg"
                 >
                   Confirmar e Ingresar
                 </Button>
@@ -1237,7 +1279,6 @@ export default function BarraTecnologicaTouchPage() {
         )}
       </AnimatePresence>
 
-      <KioskUnlockButton />
     </main>
   );
 }

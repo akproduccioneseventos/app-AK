@@ -392,7 +392,6 @@ export default function TouchpixPage() {
     if (countdown !== null) return;
     if (
       activeTab !== 'foto' &&
-      fiesta?.station.consentRequired &&
       !consentAccepted
     ) {
       setErrorMsg('Debes aceptar el uso de IA antes de iniciar la captura.');
@@ -851,10 +850,6 @@ export default function TouchpixPage() {
         </div>
       )}
 
-      <div className="absolute inset-0 pointer-events-none">
-        <div className="absolute top-0 left-1/2 -translate-x-1/2 w-[600px] h-[400px] bg-gradient-radial from-fuchsia-900/20 via-purple-900/10 to-transparent rounded-full blur-3xl" />
-      </div>
-
       {/* ═══════════ HEADER ═══════════ */}
       <div className="relative z-20 px-4 pt-4 pb-2 flex items-center justify-between bg-gradient-to-b from-black/80 via-black/40 to-transparent">
         <button onClick={() => router.back()} className="p-2.5 bg-white/10 rounded-full backdrop-blur-md hover:bg-white/20 transition">
@@ -921,7 +916,7 @@ export default function TouchpixPage() {
                           setActiveTab('faceswap');
                           setWizardStep(2);
                         }}
-                        className="w-full p-5 rounded-2xl bg-white/5 border border-white/10 hover:border-fuchsia-500/40 text-left transition flex items-center justify-between group"
+                        className="flex w-full items-center justify-between rounded-lg border border-white/10 bg-white/5 p-5 text-left transition hover:border-fuchsia-500/40"
                       >
                         <div className="flex items-center gap-4">
                           <div className="text-4xl">🎭</div>
@@ -938,7 +933,7 @@ export default function TouchpixPage() {
                           setActiveTab('ai_themes');
                           setWizardStep(2);
                         }}
-                        className="w-full p-5 rounded-2xl bg-white/5 border border-white/10 hover:border-purple-500/40 text-left transition flex items-center justify-between group"
+                        className="flex w-full items-center justify-between rounded-lg border border-white/10 bg-white/5 p-5 text-left transition hover:border-purple-500/40"
                       >
                         <div className="flex items-center gap-4">
                           <div className="text-4xl">🎬</div>
@@ -969,7 +964,7 @@ export default function TouchpixPage() {
                           <button
                             key={c.id}
                             onClick={() => setSelectedCharacter(c.id)}
-                            className={`p-4 rounded-2xl border text-left transition-all flex flex-col gap-2 relative ${
+                            className={`relative flex flex-col gap-2 rounded-lg border p-4 text-left transition-all ${
                               selectedCharacter === c.id
                                 ? 'border-fuchsia-500 bg-fuchsia-500/10'
                                 : 'border-white/5 bg-white/5 hover:bg-white/10'
@@ -990,7 +985,7 @@ export default function TouchpixPage() {
                           <button
                             key={t.id}
                             onClick={() => setSelectedAiTheme(t.id)}
-                            className={`p-4 rounded-2xl border text-left transition-all flex flex-col gap-2 relative ${
+                            className={`relative flex flex-col gap-2 rounded-lg border p-4 text-left transition-all ${
                               selectedAiTheme === t.id
                                 ? 'border-purple-500 bg-purple-500/10'
                                 : 'border-white/5 bg-white/5 hover:bg-white/10'
@@ -1007,8 +1002,8 @@ export default function TouchpixPage() {
                       </div>
                     )}
 
-                    {activeTab !== 'foto' && fiesta?.station.consentRequired && (
-                      <label className="flex cursor-pointer items-start gap-3 rounded-lg border border-zinc-800 bg-zinc-900 p-4 text-left">
+                    {activeTab !== 'foto' && (
+                      <label className="flex cursor-pointer items-start gap-3 rounded-lg border border-fuchsia-400/30 bg-fuchsia-950/20 p-4 text-left">
                         <input
                           type="checkbox"
                           checked={consentAccepted}
@@ -1030,7 +1025,7 @@ export default function TouchpixPage() {
                       </button>
                       <button
                         onClick={() => setWizardStep(0)}
-                        disabled={activeTab !== 'foto' && fiesta?.station.consentRequired && !consentAccepted}
+                        disabled={activeTab !== 'foto' && !consentAccepted}
                         className="flex-1 py-3 bg-fuchsia-600 hover:bg-fuchsia-500 disabled:bg-zinc-800 disabled:text-zinc-500 text-white font-black rounded-xl text-xs uppercase tracking-wider flex items-center justify-center gap-1.5"
                       >
                         <Camera className="w-4 h-4" /> Abrir Cámara
@@ -1139,7 +1134,7 @@ export default function TouchpixPage() {
                 </div>
 
                 {/* Queue interactive Trivia card */}
-                <div className="w-full bg-white/5 border border-white/10 rounded-2xl p-5 shadow-xl text-center space-y-2">
+                <div className="w-full space-y-2 rounded-lg border border-white/10 bg-white/5 p-5 text-center shadow-xl">
                   <p className="text-[10px] font-black uppercase text-fuchsia-400 tracking-widest flex items-center gap-1.5 justify-center">
                     <Wand2 className="w-3.5 h-3.5 animate-pulse" /> Trivia de la fiesta
                   </p>
@@ -1205,7 +1200,7 @@ export default function TouchpixPage() {
                 <div className="w-[68px] h-[68px] rounded-full bg-gradient-to-r from-fuchsia-500 to-purple-600 shadow-[0_0_30px_rgba(217,70,239,0.4)] flex items-center justify-center">
                   {isUploading ? <Loader2 className="w-7 h-7 animate-spin" /> : <Send className="w-7 h-7 ml-0.5" />}
                 </div>
-                <span className="text-xs font-black uppercase tracking-wide">Subir al Muro</span>
+                <span className="text-xs font-black uppercase tracking-wide">Publicar al muro</span>
               </button>
 
               <button onClick={handleDownload} className="flex flex-col items-center gap-1.5 text-zinc-400 hover:text-white transition">

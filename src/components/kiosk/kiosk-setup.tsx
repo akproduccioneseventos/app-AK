@@ -36,7 +36,7 @@ export function KioskSetup({ defaultRole }: KioskSetupProps) {
   const [errorMessage, setErrorMessage] = useState('');
   
   // Totem custom identifier
-  const [totemId, setTotemId] = useState('totem-1');
+  const [totemId, setTotemId] = useState('');
 
   const loadFiestaOptions = useCallback(async (preferredFiestaId?: string) => {
     try {
@@ -73,9 +73,9 @@ export function KioskSetup({ defaultRole }: KioskSetupProps) {
     const savedFiestaId = localStorage.getItem('kiosk_locked_fiesta_id');
     const savedRole = localStorage.getItem('kiosk_role');
     const savedPin = localStorage.getItem('kiosk_pin');
-    const savedTotemId = localStorage.getItem('kiosk_totem_id') || 'totem-1';
+    const savedTotemId = localStorage.getItem('kiosk_totem_id') || '';
 
-    if (savedFiestaId && savedRole && /^\d{4}$/.test(savedPin || '')) {
+    if (savedFiestaId && savedRole && /^\d{4}$/.test(savedPin || '') && (savedRole !== 'totem' || savedTotemId.trim())) {
       setStatus('redirecting');
       navigateToRole(savedRole, savedFiestaId, savedTotemId);
       return;
@@ -111,27 +111,32 @@ export function KioskSetup({ defaultRole }: KioskSetupProps) {
       return;
     }
 
+    if (selectedRole === 'totem' && !totemId.trim()) {
+      setErrorMessage('Indica el identificador real del tótem antes de lanzarlo.');
+      return;
+    }
+
     // Lock the configuration
     localStorage.setItem('kiosk_locked_fiesta_id', selectedFiestaId);
     localStorage.setItem('kiosk_role', selectedRole);
     localStorage.setItem('kiosk_pin', pin);
     if (selectedRole === 'totem') {
-      localStorage.setItem('kiosk_totem_id', totemId);
+      localStorage.setItem('kiosk_totem_id', totemId.trim());
     }
 
     setStatus('redirecting');
-    navigateToRole(selectedRole, selectedFiestaId, totemId);
+    navigateToRole(selectedRole, selectedFiestaId, totemId.trim());
   };
 
   if (status === 'checking') {
     return (
-      <div className="min-h-screen flex flex-col items-center justify-center bg-slate-950 text-white p-6">
+      <div className="min-h-screen flex flex-col items-center justify-center bg-slate-950 text-white p-6 motion-reduce:transition-none">
         <motion.div
           initial={{ opacity: 0, scale: 0.95 }}
           animate={{ opacity: 1, scale: 1 }}
           className="text-center space-y-6"
         >
-          <div className="relative w-24 h-24 mx-auto flex items-center justify-center rounded-3xl bg-purple-500/10 border border-purple-500/30 shadow-2xl">
+          <div className="relative w-24 h-24 mx-auto flex items-center justify-center rounded-lg bg-purple-500/10 border border-purple-500/30 shadow-2xl">
             <Loader2 className="w-12 h-12 text-purple-400 animate-spin" />
           </div>
           <div className="space-y-2">
@@ -159,7 +164,7 @@ export function KioskSetup({ defaultRole }: KioskSetupProps) {
   }
 
   return (
-    <div className="min-h-screen bg-[radial-gradient(ellipse_at_top,_#1e1b4b_0%,_#09090b_70%)] text-white flex items-center justify-center p-4 md:p-8">
+    <div className="min-h-screen bg-slate-950 text-white flex items-center justify-center p-4 md:p-8">
       <motion.div
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
@@ -168,7 +173,7 @@ export function KioskSetup({ defaultRole }: KioskSetupProps) {
       >
         <Card className="bg-slate-900/80 border-slate-800 shadow-2xl backdrop-blur-xl">
           <CardHeader className="text-center pb-4">
-            <div className="mx-auto w-16 h-16 rounded-2xl bg-purple-600/20 border border-purple-500/30 flex items-center justify-center mb-4">
+            <div className="mx-auto w-16 h-16 rounded-lg bg-purple-600/20 border border-purple-500/30 flex items-center justify-center mb-4">
               <Settings className="w-8 h-8 text-purple-400 animate-pulse" />
             </div>
             <CardTitle className="text-3xl font-black tracking-tight text-white">Configuración de Kiosco</CardTitle>
@@ -228,7 +233,7 @@ export function KioskSetup({ defaultRole }: KioskSetupProps) {
                         setSelectedRole(role.id as any);
                         setErrorMessage('');
                       }}
-                      className={`flex flex-col items-center gap-3 p-4 rounded-xl border text-center transition-all ${
+                      className={`flex flex-col items-center gap-3 p-4 rounded-lg border text-center transition-all motion-reduce:transition-none ${
                         isSelected 
                           ? 'border-purple-500 bg-purple-500/10 shadow-lg shadow-purple-500/5 text-purple-300' 
                           : 'border-slate-800 bg-slate-950 text-slate-400 ' + role.color
@@ -293,7 +298,7 @@ export function KioskSetup({ defaultRole }: KioskSetupProps) {
           <CardFooter className="pt-2 pb-6 flex flex-col gap-3">
             <Button
               onClick={handleLockDevice}
-              className="w-full h-14 rounded-xl bg-purple-600 hover:bg-purple-700 text-white font-bold text-base shadow-xl shadow-purple-600/10 flex items-center justify-center gap-2"
+              className="w-full h-14 rounded-lg bg-purple-600 hover:bg-purple-700 text-white font-bold text-base shadow-xl shadow-purple-600/10 flex items-center justify-center gap-2"
             >
               <Lock className="w-5 h-5" />
               Bloquear y Lanzar Kiosco

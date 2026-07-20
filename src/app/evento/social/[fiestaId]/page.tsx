@@ -4,7 +4,6 @@ import { useCallback, useEffect, useMemo, useRef, useState, type ChangeEvent, ty
 import { useParams } from 'next/navigation';
 import { formatDistanceToNow } from 'date-fns';
 import { es } from 'date-fns/locale';
-import { AnimatePresence, motion } from 'framer-motion';
 import {
   ArrowLeft,
   BarChart3,
@@ -130,12 +129,7 @@ function FeedPost({
   };
 
   return (
-    <motion.article
-      layout
-      initial={{ opacity: 0, y: 18 }}
-      animate={{ opacity: 1, y: 0 }}
-      className="overflow-hidden border-y border-slate-200 bg-white sm:rounded-md sm:border"
-    >
+    <article className="overflow-hidden border-y border-slate-200 bg-white sm:rounded-md sm:border">
       <header className="flex items-center gap-3 px-4 py-3">
         <div className="grid h-10 w-10 shrink-0 place-items-center rounded-full text-sm font-black text-white" style={{ backgroundColor: accentColor }}>
           {initials(post.authorName)}
@@ -190,7 +184,7 @@ function FeedPost({
             <div className="grid h-8 w-8 shrink-0 place-items-center rounded-full bg-slate-200 text-[10px] font-black text-slate-700">
               {initials(item.authorName)}
             </div>
-            <div className="min-w-0 rounded-2xl bg-slate-100 px-3 py-2 text-sm">
+            <div className="min-w-0 rounded-md bg-slate-100 px-3 py-2 text-sm">
               <p className="font-bold text-slate-900">{item.authorName}</p>
               <p className="break-words text-slate-700">{item.text}</p>
             </div>
@@ -202,7 +196,7 @@ function FeedPost({
             <div className="grid h-8 w-8 shrink-0 place-items-center rounded-full text-[10px] font-black text-white" style={{ backgroundColor: accentColor }}>
               {initials(authorName)}
             </div>
-            <div className="flex min-w-0 flex-1 items-center rounded-full bg-slate-100 px-3">
+            <div className="flex min-w-0 flex-1 items-center rounded-md bg-slate-100 px-3">
               <input
                 id={`comment-${post.id}`}
                 value={comment}
@@ -218,7 +212,7 @@ function FeedPost({
           </form>
         )}
       </div>
-    </motion.article>
+    </article>
   );
 }
 
@@ -253,6 +247,7 @@ export default function SocialEventPage() {
   const recorderRef = useRef<MediaRecorder | null>(null);
   const audioChunksRef = useRef<Blob[]>([]);
   const recordingTimerRef = useRef<ReturnType<typeof setInterval> | null>(null);
+  const pollingRef = useRef(false);
   const [recording, setRecording] = useState(false);
   const [recordingSeconds, setRecordingSeconds] = useState(0);
   const [audioBlob, setAudioBlob] = useState<Blob | null>(null);
@@ -303,15 +298,34 @@ export default function SocialEventPage() {
 
   useEffect(() => {
     let active = true;
-    Promise.all([loadCore(), loadSection(section)]).finally(() => active && setLoading(false));
-    void getPublicDedications(fiestaId).then((items) => active && setDedications(items));
+    const refreshPublicData = async (isInitialLoad = false) => {
+      if (document.visibilityState !== 'visible' || pollingRef.current) return;
+      pollingRef.current = true;
+      try {
+        await Promise.all([loadCore(), loadSection(section)]);
+        if (isInitialLoad) {
+          const items = await getPublicDedications(fiestaId);
+          if (active) setDedications(items);
+        }
+      } finally {
+        pollingRef.current = false;
+        if (isInitialLoad && active) setLoading(false);
+      }
+    };
+
+    const handleVisibilityChange = () => {
+      if (document.visibilityState === 'visible') void refreshPublicData(true);
+    };
+
+    document.addEventListener('visibilitychange', handleVisibilityChange);
+    void refreshPublicData(true);
     const timer = setInterval(() => {
-      void loadCore();
-      void loadSection(section);
+      void refreshPublicData();
     }, 7000);
     return () => {
       active = false;
       clearInterval(timer);
+      document.removeEventListener('visibilitychange', handleVisibilityChange);
     };
   }, [fiestaId, loadCore, loadSection, section]);
 
@@ -604,7 +618,7 @@ export default function SocialEventPage() {
         </DialogContent>
       </Dialog>
 
-      <header className="sticky top-0 z-30 border-b border-slate-200 bg-white/95 backdrop-blur">
+      <header className="sticky top-0 z-30 border-b border-slate-200 bg-white">
         <div className="mx-auto flex h-16 max-w-6xl items-center gap-3 px-4">
           {section !== 'feed' && <button type="button" onClick={() => chooseSection('feed')} className="grid h-10 w-10 place-items-center rounded-full hover:bg-slate-100" aria-label="Volver"><ArrowLeft className="h-5 w-5" /></button>}
           <div className="min-w-0 flex-1"><h1 className="truncate text-base font-black sm:text-lg">{eventName}</h1><p className="text-xs text-slate-500">Hola, {authorName || 'invitado'}</p></div>
@@ -616,7 +630,7 @@ export default function SocialEventPage() {
         <div className="relative mx-auto h-48 max-w-6xl overflow-hidden sm:mt-4 sm:h-64 sm:rounded-md">
           {/* eslint-disable-next-line @next/next/no-img-element -- Event covers may use Firebase signed URLs. */}
           <img src={settings.mobileControlCoverUrl} alt={eventName} className="h-full w-full object-cover" />
-          <div className="absolute inset-0 bg-gradient-to-t from-black/70 to-transparent" />
+          <div className="absolute inset-0 bg-black/45" />
           <div className="absolute bottom-0 px-5 py-4 text-white"><p className="text-2xl font-black sm:text-4xl">{eventName}</p>{settings.subtitle && <p className="mt-1 text-sm text-white/85">{settings.subtitle}</p>}</div>
         </div>
       )}
@@ -626,40 +640,40 @@ export default function SocialEventPage() {
           {availableSections.map((item) => {
             const Icon = item.icon;
             const selected = section === item.id;
-            return <button key={item.id} type="button" onClick={() => chooseSection(item.id)} className="relative flex min-h-11 shrink-0 items-center gap-2 rounded-md px-4 text-sm font-bold transition hover:bg-slate-100" style={selected ? { color: accentColor, backgroundColor: `${accentColor}0d` } : { color: '#475569' }}><Icon className="h-5 w-5" />{item.label}{selected && <motion.span layoutId="social-active-tab" className="absolute inset-x-2 bottom-0 h-0.5" style={{ backgroundColor: accentColor }} />}</button>;
+            return <button key={item.id} type="button" onClick={() => chooseSection(item.id)} className="relative flex min-h-11 shrink-0 items-center gap-2 rounded-md px-4 text-sm font-bold transition hover:bg-slate-100" style={selected ? { color: accentColor, backgroundColor: `${accentColor}0d` } : { color: '#475569' }}><Icon className="h-5 w-5" />{item.label}{selected && <span className="absolute inset-x-2 bottom-0 h-0.5" style={{ backgroundColor: accentColor }} />}</button>;
           })}
         </div>
       </nav>
 
       <main className="mx-auto w-full max-w-3xl py-4 sm:px-4 sm:py-6">
-        <AnimatePresence mode="wait">
+        <div>
           {section === 'feed' && (
-            <motion.div key="feed" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} className="space-y-4">
+            <div className="space-y-4">
               <section className="border-y border-slate-200 bg-white p-4 sm:rounded-md sm:border">
-                <div className="flex items-center gap-3"><div className="grid h-11 w-11 shrink-0 place-items-center rounded-full text-xs font-black text-white" style={{ backgroundColor: accentColor }}>{initials(authorName)}</div><button type="button" onClick={() => setUploadOpen(true)} disabled={!settings.uploadsActive} className="min-h-11 flex-1 rounded-full bg-slate-100 px-4 text-left text-sm font-semibold text-slate-600 transition hover:bg-slate-200 disabled:opacity-50">{settings.uploadsActive ? '¿Qué querés compartir?' : 'Las publicaciones están pausadas'}</button></div>
+                <div className="flex items-center gap-3"><div className="grid h-11 w-11 shrink-0 place-items-center rounded-full text-xs font-black text-white" style={{ backgroundColor: accentColor }}>{initials(authorName)}</div><button type="button" onClick={() => setUploadOpen(true)} disabled={!settings.uploadsActive} className="min-h-11 flex-1 rounded-md bg-slate-100 px-4 text-left text-sm font-semibold text-slate-600 transition hover:bg-slate-200 disabled:opacity-50">{settings.uploadsActive ? '¿Qué querés compartir?' : 'Las publicaciones están pausadas'}</button></div>
                 <div className="mt-3 grid grid-cols-2 border-t border-slate-100 pt-2"><button type="button" onClick={() => setUploadOpen(true)} disabled={!settings.uploadsActive} className="flex min-h-10 items-center justify-center gap-2 rounded-md text-sm font-bold text-slate-600 hover:bg-slate-100"><Camera className="h-5 w-5 text-emerald-600" />Foto</button><button type="button" onClick={() => setUploadOpen(true)} disabled={!settings.uploadsActive} className="flex min-h-10 items-center justify-center gap-2 rounded-md text-sm font-bold text-slate-600 hover:bg-slate-100"><Video className="h-5 w-5 text-red-600" />Video</button></div>
               </section>
               {posts.length ? posts.map((post) => <FeedPost key={post.id} post={post} authorName={authorName} accentColor={accentColor} allowLikes={settings.allowLikes !== false} allowComments={settings.allowComments !== false} liked={likedPosts.has(post.id)} onLike={() => void likePost(post.id)} onComment={(text) => commentPost(post.id, text)} />) : <EmptyState icon={Camera} title="Todavía no hay publicaciones" text="Sé la primera persona en compartir un momento." />}
-            </motion.div>
+            </div>
           )}
 
           {section === 'songs' && <SectionShell key="songs" title="Pedí una canción" text="Tu pedido entra en la lista que revisa el DJ."><form onSubmit={submitSong} className="flex gap-2"><Input value={songDraft} onChange={(change) => setSongDraft(change.target.value)} maxLength={120} placeholder="Canción y artista" className="h-12 bg-white text-slate-950" /><Button type="submit" disabled={!songDraft.trim() || submitting} className="h-12 px-4" style={{ backgroundColor: accentColor }}><Send className="h-5 w-5" /></Button></form><div className="divide-y divide-slate-100">{songs.map((song, index) => <div key={song.id} className="flex items-center gap-3 py-4"><span className="grid h-9 w-9 shrink-0 place-items-center rounded-full bg-slate-100 text-sm font-black">{index + 1}</span><div className="min-w-0 flex-1"><p className="font-bold text-slate-900">{song.song}</p><p className="text-xs text-slate-500">Pedido por {song.requestedBy}</p></div>{song.played && <span className="flex items-center gap-1 text-xs font-bold text-emerald-700"><Play className="h-3 w-3 fill-current" /> Sonó</span>}</div>)}{songs.length === 0 && <EmptyState icon={Music2} title="Sin pedidos todavía" text="Pedí la primera canción de la fiesta." />}</div></SectionShell>}
 
           {section === 'dedications' && <SectionShell key="dedications" title={settings.privateDedicationsMode ? 'Mensaje privado' : 'Mensajes para la fiesta'} text={settings.privateDedicationsMode ? 'Solo el equipo organizador podrá leerlo.' : 'Dejá un texto o una nota de voz.'}><form onSubmit={submitDedication} className="space-y-3"><Textarea value={dedicationDraft} onChange={(change) => setDedicationDraft(change.target.value)} maxLength={1000} placeholder="Escribí tu mensaje" className="min-h-28 bg-white text-slate-950" /><div className="flex flex-wrap items-center gap-2">{recording ? <Button type="button" variant="destructive" onClick={stopRecording}><Square className="mr-2 h-4 w-4 fill-current" />Detener {recordingSeconds}s</Button> : <Button type="button" variant="outline" onClick={startRecording}><Mic className="mr-2 h-4 w-4" />Grabar voz</Button>}{audioPreview && <><audio src={audioPreview} controls className="h-10 max-w-full" /><button type="button" onClick={clearAudio} className="grid h-9 w-9 place-items-center rounded-full bg-slate-100" aria-label="Quitar audio"><X className="h-4 w-4" /></button></>}<Button type="submit" disabled={(!dedicationDraft.trim() && !audioBlob) || submitting} className="ml-auto" style={{ backgroundColor: accentColor }}><Send className="mr-2 h-4 w-4" />Enviar</Button></div></form>{!settings.privateDedicationsMode && <div className="mt-6 space-y-3">{dedications.slice().reverse().map((dedication) => <article key={dedication.id} className="border-t border-slate-100 pt-4"><div className="flex items-center gap-2"><div className="grid h-9 w-9 place-items-center rounded-full bg-slate-200 text-xs font-black">{initials(dedication.authorName)}</div><div><p className="text-sm font-bold">{dedication.authorName}</p><p className="text-xs text-slate-500">{formatDistanceToNow(new Date(dedication.timestamp), { addSuffix: true, locale: es })}</p></div></div><p className="mt-3 text-sm leading-relaxed text-slate-700">{dedication.message}</p>{dedication.audioUrl && <audio src={dedication.audioUrl} controls className="mt-3 h-10 w-full" />}</article>)}{dedications.length === 0 && <EmptyState icon={Heart} title="Todavía no hay mensajes" text="Dejá el primero para los protagonistas." />}</div>}</SectionShell>}
 
-          {section === 'chat' && <SectionShell key="chat" title="Chat en vivo" text="Mensajes cortos para compartir durante la fiesta."><div className="max-h-[55vh] min-h-72 space-y-3 overflow-y-auto rounded-md bg-slate-50 p-3">{messages.map((message) => { const own = message.authorName === authorName; return <div key={message.id} className={`flex ${own ? 'justify-end' : 'justify-start'}`}><div className={`max-w-[85%] rounded-2xl px-3 py-2 text-sm ${own ? 'text-white' : 'bg-white text-slate-800 shadow-sm'}`} style={own ? { backgroundColor: accentColor } : undefined}><p className={`text-[10px] font-bold ${own ? 'text-white/75' : 'text-slate-500'}`}>{message.authorName}</p><p className="break-words">{message.text}</p></div></div>; })}{messages.length === 0 && <EmptyState icon={MessageCircle} title="El chat está vacío" text="Mandá el primer saludo." />}</div><form onSubmit={submitChat} className="mt-3 flex gap-2"><Input value={chatDraft} onChange={(change) => setChatDraft(change.target.value)} maxLength={500} placeholder="Escribí un mensaje" className="h-12 bg-white text-slate-950" /><Button type="submit" disabled={!chatDraft.trim() || submitting} className="h-12" style={{ backgroundColor: accentColor }}><Send className="h-5 w-5" /></Button></form></SectionShell>}
+          {section === 'chat' && <SectionShell key="chat" title="Chat en vivo" text="Mensajes cortos para compartir durante la fiesta."><div className="max-h-[55vh] min-h-72 space-y-3 overflow-y-auto rounded-md bg-slate-50 p-3">{messages.map((message) => { const own = message.authorName === authorName; return <div key={message.id} className={`flex ${own ? 'justify-end' : 'justify-start'}`}><div className={`max-w-[85%] rounded-md px-3 py-2 text-sm ${own ? 'text-white' : 'bg-white text-slate-800 shadow-sm'}`} style={own ? { backgroundColor: accentColor } : undefined}><p className={`text-[10px] font-bold ${own ? 'text-white/75' : 'text-slate-500'}`}>{message.authorName}</p><p className="break-words">{message.text}</p></div></div>; })}{messages.length === 0 && <EmptyState icon={MessageCircle} title="El chat está vacío" text="Mandá el primer saludo." />}</div><form onSubmit={submitChat} className="mt-3 flex gap-2"><Input value={chatDraft} onChange={(change) => setChatDraft(change.target.value)} maxLength={500} placeholder="Escribí un mensaje" className="h-12 bg-white text-slate-950" /><Button type="submit" disabled={!chatDraft.trim() || submitting} className="h-12" style={{ backgroundColor: accentColor }}><Send className="h-5 w-5" /></Button></form></SectionShell>}
 
           {section === 'poll' && <SectionShell key="poll" title={poll?.question || 'Encuesta'} text="Elegí una opción. Cada invitado puede votar una vez.">{poll ? <VoteOptions options={poll.options} voted={votedPollId === poll.id} accentColor={accentColor} onVote={submitPollVote} /> : <EmptyState icon={BarChart3} title="No hay encuesta activa" text="Cuando el equipo publique una, aparecerá acá." />}</SectionShell>}
 
           {section === 'game' && <SectionShell key="game" title={activeGame?.title || 'Juego'} text={activeGame?.subtitle || 'Participá desde tu celular.'}>{activeGame?.options?.length ? <VoteOptions options={activeGame.options.map((option) => ({ ...option, votes: option.votes || 0 }))} voted={votedGameId === activeGame.launchedAt} accentColor={accentColor} onVote={submitGameVote} /> : <EmptyState icon={Gamepad2} title="Esperando el próximo desafío" text="Mirá la pantalla principal y seguí las indicaciones." />}</SectionShell>}
-        </AnimatePresence>
+        </div>
       </main>
     </div>
   );
 }
 
 function SectionShell({ title, text, children }: { title: string; text: string; children: React.ReactNode }) {
-  return <motion.section initial={{ opacity: 0, x: 18 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: -18 }} className="border-y border-slate-200 bg-white p-5 sm:rounded-md sm:border sm:p-6"><h2 className="text-2xl font-black text-slate-950">{title}</h2><p className="mt-1 mb-5 text-sm text-slate-500">{text}</p>{children}</motion.section>;
+  return <section className="border-y border-slate-200 bg-white p-5 sm:rounded-md sm:border sm:p-6"><h2 className="text-2xl font-black text-slate-950">{title}</h2><p className="mt-1 mb-5 text-sm text-slate-500">{text}</p>{children}</section>;
 }
 
 function EmptyState({ icon: Icon, title, text }: { icon: typeof Camera; title: string; text: string }) {
@@ -668,5 +682,5 @@ function EmptyState({ icon: Icon, title, text }: { icon: typeof Camera; title: s
 
 function VoteOptions({ options, voted, accentColor, onVote }: { options: Array<{ id: string; text: string; votes: number }>; voted: boolean; accentColor: string; onVote: (id: string) => Promise<void> }) {
   const total = options.reduce((sum, option) => sum + (option.votes || 0), 0);
-  return <div className="space-y-3">{options.map((option) => { const percentage = total ? Math.round(((option.votes || 0) / total) * 100) : 0; return voted ? <div key={option.id}><div className="mb-1 flex justify-between text-sm"><span className="font-semibold text-slate-700">{option.text}</span><span className="font-black" style={{ color: accentColor }}>{percentage}%</span></div><div className="h-3 overflow-hidden rounded-full bg-slate-100"><motion.div initial={{ width: 0 }} animate={{ width: `${percentage}%` }} className="h-full rounded-full" style={{ backgroundColor: accentColor }} /></div></div> : <button key={option.id} type="button" onClick={() => void onVote(option.id)} className="min-h-14 w-full rounded-md border border-slate-200 bg-white px-4 text-left font-bold text-slate-800 transition hover:border-slate-400 hover:bg-slate-50">{option.text}</button>; })}{voted && <p className="pt-2 text-center text-sm font-semibold text-slate-500">Tu voto quedó registrado.</p>}</div>;
+  return <div className="space-y-3">{options.map((option) => { const percentage = total ? Math.round(((option.votes || 0) / total) * 100) : 0; return voted ? <div key={option.id}><div className="mb-1 flex justify-between text-sm"><span className="font-semibold text-slate-700">{option.text}</span><span className="font-black" style={{ color: accentColor }}>{percentage}%</span></div><div className="h-3 overflow-hidden rounded-md bg-slate-100"><div className="h-full rounded-md" style={{ width: `${percentage}%`, backgroundColor: accentColor }} /></div></div> : <button key={option.id} type="button" onClick={() => void onVote(option.id)} className="min-h-14 w-full rounded-md border border-slate-200 bg-white px-4 text-left font-bold text-slate-800 transition hover:border-slate-400 hover:bg-slate-50">{option.text}</button>; })}{voted && <p className="pt-2 text-center text-sm font-semibold text-slate-500">Tu voto quedó registrado.</p>}</div>;
 }

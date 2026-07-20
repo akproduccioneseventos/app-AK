@@ -18,7 +18,7 @@ import { getCartaTragosMaster } from '@/app/actions/carta-tragos-master.actions'
 import { getFiestaById, saveFiesta } from './fiesta.actions';
 import { uploadToStorage } from '@/lib/firebase/storage';
 import { createSocialMediaPostFromUrl } from '@/app/actions/social-gallery';
-import { getBarScheduleError, isTruthyFollowConfirmation, normalizeBarTime, shouldDiscountBarStock } from '@/lib/barra-tecnologica';
+import { getBarScheduleError, isTruthyFollowConfirmation, isValidBarOrderTransition, normalizeBarTime, shouldDiscountBarStock } from '@/lib/barra-tecnologica';
 import { getInsumoById, saveInsumo } from '@/app/actions/insumos';
 import * as logger from '@/lib/logger';
 import { requireAppSession } from '@/lib/auth/require-session';
@@ -526,24 +526,29 @@ async function updateBarDrinkOrderStatusInternal(
     if (db) {
       try {
         const ref = db.collection(BAR_ORDERS_COLLECTION).doc(orderId);
-        let orderData: BarDrinkOrder | undefined;
-        let shouldDiscountStock = false;
-        await db.runTransaction(async (transaction) => {
+        const transactionResult = await db.runTransaction(async (transaction) => {
           const snapshot = await transaction.get(ref);
           if (!snapshot.exists) throw new Error('Pedido no encontrado.');
 
           const currentOrder = snapshot.data() as BarDrinkOrder;
           if (currentOrder.fiestaId !== fiestaId) throw new Error('El pedido no pertenece a esta fiesta.');
+          if (!isValidBarOrderTransition(currentOrder.status, status)) {
+            return { error: 'Ese cambio de estado no corresponde al paso actual del pedido.' };
+          }
 
-          shouldDiscountStock = shouldDiscountBarStock(currentOrder.status, status);
-          orderData = { ...currentOrder, status, updatedAt };
+          const shouldDiscountStock = shouldDiscountBarStock(currentOrder.status, status);
+          const order = { ...currentOrder, status, updatedAt };
           transaction.update(ref, { status, updatedAt });
+          return { order, shouldDiscountStock };
         });
 
-        const updatedOrder = orderData;
+        if (transactionResult.error) {
+          return { success: false, error: transactionResult.error };
+        }
+        const updatedOrder = transactionResult.order;
         if (!updatedOrder) throw new Error('No se pudo recuperar el pedido actualizado.');
 
-        if (shouldDiscountStock) {
+        if (transactionResult.shouldDiscountStock) {
           const fiesta = await getFiestaById(fiestaId);
           if (fiesta) {
             const drinks = await getBarDrinks(fiesta);
@@ -564,6 +569,9 @@ async function updateBarDrinkOrderStatusInternal(
     const currentOrder = (stored.orders || []).find((order) => order.id === orderId);
     if (!currentOrder) return { success: false, error: 'Pedido no encontrado.' };
     if (currentOrder.fiestaId !== fiestaId) return { success: false, error: 'El pedido no pertenece a esta fiesta.' };
+    if (!isValidBarOrderTransition(currentOrder.status, status)) {
+      return { success: false, error: 'Ese cambio de estado no corresponde al paso actual del pedido.' };
+    }
     const shouldDiscountStock = shouldDiscountBarStock(currentOrder.status, status);
     const orders = (stored.orders || []).map((order) => (
       order.id === orderId ? { ...order, status, updatedAt } : order

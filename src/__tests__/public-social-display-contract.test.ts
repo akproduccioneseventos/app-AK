@@ -1,0 +1,27 @@
+import fs from 'node:fs';
+import path from 'node:path';
+
+const readRoute = (route: string) => fs.readFileSync(path.join(process.cwd(), route), 'utf8');
+
+describe('public social display contract', () => {
+  const socialPage = readRoute('src/app/evento/social/[fiestaId]/page.tsx');
+  const liveWallPage = readRoute('src/app/evento/muro-en-vivo/[fiestaId]/page.tsx');
+
+  it('keeps the guest feed on public data and skips hidden-tab polling', () => {
+    expect(socialPage).toContain('getPublicSocialEvent');
+    expect(socialPage).toContain('getPublicSocialPosts');
+    expect(socialPage).toContain("document.visibilityState !== 'visible'");
+    expect(socialPage).toContain('pollingRef.current');
+    expect(socialPage).not.toContain('getSocialAdminAccess');
+  });
+
+  it('keeps the live wall public, projection-safe, and free of kiosk controls', () => {
+    expect(liveWallPage).toContain('getPublicSocialEvent');
+    expect(liveWallPage).toContain('getPublicSocialPosts');
+    expect(liveWallPage).toContain("document.visibilityState !== 'visible'");
+    expect(liveWallPage).toContain('pollingRef.current');
+    expect(liveWallPage).toContain('prefers-reduced-motion');
+    expect(liveWallPage).not.toContain('KioskUnlockButton');
+    expect(liveWallPage).not.toContain('ak-bg-particle');
+  });
+});

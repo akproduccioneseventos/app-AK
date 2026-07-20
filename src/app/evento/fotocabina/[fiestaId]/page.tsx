@@ -453,22 +453,22 @@ export default function FotocabinaPage() {
   // 4. Operator view
   if (role === 'operator') {
     return (
-      <div className="min-h-screen bg-[radial-gradient(ellipse_at_top,_#18181b_0%,_#09090b_70%)] text-white p-6">
-        <div className="max-w-md mx-auto space-y-6">
+      <div className="min-h-screen bg-zinc-950 p-4 text-white sm:p-6">
+        <div className="mx-auto max-w-md space-y-5">
           <div className="flex items-center justify-between border-b border-white/10 pb-4">
-            <button onClick={() => router.back()} className="p-2 bg-white/5 rounded-full hover:bg-white/10 transition">
+            <button onClick={() => router.back()} aria-label="Volver" title="Volver" className="rounded-lg p-2 transition hover:bg-white/10">
               <ArrowLeft className="w-5 h-5" />
             </button>
-            <h1 className="text-lg font-black tracking-widest text-amber-500 uppercase flex items-center gap-2">
-              <Radio className="w-5 h-5 animate-pulse text-amber-500" /> Operador Fotocabina
+            <h1 className="flex items-center gap-2 text-base font-black uppercase tracking-wide text-amber-300">
+              <Radio className="h-5 w-5 text-amber-300 motion-safe:animate-pulse" /> Operador de fotocabina
             </h1>
             <div className="w-9" />
           </div>
 
-          <div className="bg-white/5 border border-white/10 rounded-3xl p-6 shadow-2xl space-y-6">
+          <div className="space-y-5 rounded-lg border border-white/10 bg-zinc-900 p-5">
             <div>
               <p className="text-xs font-bold text-slate-400 uppercase tracking-widest mb-1">Estado de la Fotocabina</p>
-              <div className="flex items-center gap-3 bg-black/40 px-4 py-3 rounded-2xl border border-white/5">
+              <div className="flex items-center gap-3 rounded-lg border border-white/5 bg-black/30 px-4 py-3">
                 <Radio className={`w-5 h-5 ${session?.status === 'idle' ? 'text-slate-500' : 'text-amber-500 animate-pulse'}`} />
                 <span className="font-bold capitalize text-sm">{session?.status || 'Desconectado'}</span>
               </div>
@@ -482,7 +482,7 @@ export default function FotocabinaPage() {
                   <button
                     key={f.id}
                     onClick={() => setSelectedFrame(f.id)}
-                    className={`p-3 rounded-xl border text-xs font-bold transition flex items-center justify-between ${
+                    className={`flex items-center justify-between rounded-lg border p-3 text-xs font-bold transition ${
                       selectedFrame === f.id
                         ? 'border-amber-500 bg-amber-500/10 text-amber-300'
                         : 'border-white/5 bg-black/20 text-slate-400 hover:border-white/10'
@@ -500,18 +500,18 @@ export default function FotocabinaPage() {
               <button
                 onClick={handleOperatorStart}
                 disabled={session?.status && session.status !== 'idle' && session.status !== 'done'}
-                className="w-full h-16 rounded-2xl bg-gradient-to-r from-amber-400 to-orange-500 hover:from-amber-500 hover:to-orange-600 text-zinc-950 font-black text-lg shadow-xl shadow-amber-400/20 flex items-center justify-center gap-2 disabled:opacity-50 disabled:pointer-events-none active:scale-98 transition-all"
+                className="flex h-14 w-full items-center justify-center gap-2 rounded-lg bg-amber-400 text-base font-black text-zinc-950 transition hover:bg-amber-300 disabled:pointer-events-none disabled:opacity-50"
               >
                 <Zap className="w-6 h-6 fill-zinc-950" />
-                DISPARAR REMOTO
+                Iniciar cuenta regresiva
               </button>
 
               <button
                 onClick={handleOperatorReset}
-                className="w-full h-12 rounded-xl bg-white/5 hover:bg-white/10 text-slate-300 font-bold text-sm border border-white/5 transition flex items-center justify-center gap-2"
+                className="flex h-12 w-full items-center justify-center gap-2 rounded-lg border border-white/10 bg-white/5 text-sm font-bold text-slate-300 transition hover:bg-white/10"
               >
                 <RefreshCw className="w-4 h-4" />
-                Reiniciar Cabina
+                Reiniciar sesion
               </button>
               {errorMsg && <p className="text-center text-xs font-bold text-rose-400">{errorMsg}</p>}
             </div>
@@ -531,7 +531,7 @@ export default function FotocabinaPage() {
 
       {/* HEADER */}
       <div className="absolute top-0 left-0 right-0 z-20 p-4 flex justify-between items-center bg-gradient-to-b from-black/80 to-transparent">
-        <button onClick={() => router.back()} className="p-2 bg-white/10 rounded-full backdrop-blur-md hover:bg-white/20 transition">
+        <button onClick={() => router.back()} aria-label="Volver" title="Volver" className="rounded-lg bg-white/10 p-2 backdrop-blur-md transition hover:bg-white/20">
           <ArrowLeft className="w-6 h-6" />
         </button>
         <div className="text-center drop-shadow-md">
@@ -595,7 +595,7 @@ export default function FotocabinaPage() {
                     {fiesta?.station.brandText || 'Fotocabina'}
                   </h2>
                   <p className="text-sm text-zinc-300">
-                    Toca comenzar, mira a la camara y sigue la cuenta regresiva.
+                    Prepara tu pose. La foto se captura con la camara web de esta pantalla.
                   </p>
                 </div>
 
@@ -606,7 +606,7 @@ export default function FotocabinaPage() {
                     style={{ backgroundColor: fiesta?.station.accentColor || '#d97706' }}
                   >
                     <Camera className="w-5 h-5" />
-                    Comenzar
+                    Preparar foto
                   </button>
                 </div>
               </div>
@@ -635,7 +635,7 @@ export default function FotocabinaPage() {
                   transition={{ duration: 0.5 }}
                   className="relative z-10"
                 >
-                  <span className="text-[12rem] font-black text-white drop-shadow-[0_0_25px_rgba(251,191,36,0.8)]">{countdown}</span>
+                  <span className="text-8xl font-black text-white sm:text-9xl">{countdown}</span>
                 </motion.div>
               )}
             </AnimatePresence>
@@ -647,7 +647,7 @@ export default function FotocabinaPage() {
           <div className="absolute inset-0 z-40 bg-zinc-950 flex flex-col items-center justify-center text-center p-6">
             <Loader2 className="w-16 h-16 text-amber-400 animate-spin mb-4" />
             <h3 className="text-2xl font-black text-white mb-2">Procesando Foto...</h3>
-            <p className="text-sm text-zinc-400">Subiendo a las pantallas del salón...</p>
+            <p className="text-sm text-zinc-400">Preparando la previsualizacion de tu captura web.</p>
           </div>
         )}
 
@@ -656,11 +656,11 @@ export default function FotocabinaPage() {
           <div className="absolute inset-0 z-40 flex flex-col items-center justify-start gap-6 overflow-y-auto overscroll-contain bg-zinc-950 px-4 pb-8 pt-20 md:flex-row md:justify-center md:gap-8 md:p-6">
             
             {/* Captured Image Preview */}
-            <div className="relative h-[52dvh] max-h-[32rem] w-auto max-w-full shrink-0 aspect-[9/16] overflow-hidden rounded-3xl border border-white/10 bg-black shadow-2xl md:h-[80dvh] md:max-h-[48rem]">
+            <div className="relative h-[52dvh] max-h-[32rem] w-auto max-w-full shrink-0 aspect-[9/16] overflow-hidden rounded-lg border border-white/10 bg-black shadow-2xl md:h-[80dvh] md:max-h-[48rem]">
               {/* eslint-disable-next-line @next/next/no-img-element -- Canvas output is generated only in this browser. */}
               <img src={capturedImage} className="w-full h-full object-contain" alt="Captura Final" />
-              <div className="absolute top-4 left-4 bg-amber-400 text-zinc-950 text-[10px] font-black uppercase px-3 py-1 rounded-full tracking-wider">
-                Foto Capturada
+              <div className="absolute left-4 top-4 rounded-lg bg-amber-400 px-3 py-1 text-[10px] font-black uppercase tracking-wide text-zinc-950">
+                Previsualizacion
               </div>
             </div>
 
@@ -673,7 +673,7 @@ export default function FotocabinaPage() {
                 <p className="text-sm text-zinc-400">
                   {qrCodeUrl
                     ? fiesta?.station.qrCallout
-                    : 'Puedes repetirla o aceptarla para publicarla y descargarla.'}
+                    : 'Repetila o publicala para recibir un enlace y guardarla.'}
                 </p>
               </div>
 
@@ -700,7 +700,7 @@ export default function FotocabinaPage() {
                     style={{ backgroundColor: fiesta?.station.accentColor || '#d97706' }}
                   >
                     {isUploading ? <Loader2 className="w-4 h-4 animate-spin" /> : <Send className="w-4 h-4" />}
-                    Aceptar y compartir
+                    Publicar y obtener enlace
                   </button>
                 )}
                 {fiesta?.station.allowGuestRetake && fiesta.station.maxRetakes > 0 && (
@@ -708,7 +708,7 @@ export default function FotocabinaPage() {
                     onClick={retake}
                     className="w-full h-12 rounded-xl bg-white/5 hover:bg-white/10 text-white font-bold text-sm border border-white/10 transition flex items-center justify-center gap-2"
                   >
-                    <RefreshCw className="w-4 h-4" /> Hacer otra
+                    <RefreshCw className="w-4 h-4" /> Repetir foto
                   </button>
                 )}
               </div>

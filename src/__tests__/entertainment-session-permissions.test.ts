@@ -37,6 +37,7 @@ jest.mock('@/lib/firebase/server', () => ({
 import {
   completeEntertainmentSessionCycle,
   resetEntertainmentSession,
+  updateEntertainmentSessionStatus,
 } from '@/app/actions/fiesta/sesion-entretenimiento';
 
 describe('entertainment session permissions', () => {
@@ -80,5 +81,59 @@ describe('entertainment session permissions', () => {
       expect.objectContaining({ id: 'fiesta-1_fotocabina' }),
       expect.objectContaining({ status: 'idle' }),
     );
+  });
+
+  it('rejects a guest transition that skips the capture lifecycle', async () => {
+    mockTransactionGet.mockResolvedValue({
+      exists: true,
+      data: () => ({ fiestaId: 'fiesta-1', moduleId: 'fotocabina', status: 'idle' }),
+    });
+
+    const result = await updateEntertainmentSessionStatus(
+      'fiesta-1',
+      'fotocabina',
+      'done',
+      {},
+      'guest-token',
+    );
+
+    expect(result.success).toBe(false);
+    expect(mockTransactionSet).not.toHaveBeenCalled();
+  });
+
+  it('sanitizes guest session data before writing a valid transition', async () => {
+    mockTransactionGet.mockResolvedValue({
+      exists: true,
+      data: () => ({
+        fiestaId: 'fiesta-1',
+        moduleId: 'fotocabina',
+        status: 'recording',
+        version: 2,
+        captureId: 'capture-1',
+      }),
+    });
+
+    const result = await updateEntertainmentSessionStatus(
+      'fiesta-1',
+      'fotocabina',
+      'done',
+      {
+        fiestaId: 'another-fiesta',
+        settings: { mode: 'admin' },
+        mediaUrl: 'javascript:alert(1)',
+        reviewPending: false,
+      },
+      'guest-token',
+    );
+
+    expect(result.success).toBe(true);
+    const payload = mockTransactionSet.mock.calls[0][1];
+    expect(payload.fiestaId).toBe('fiesta-1');
+    expect(payload.moduleId).toBe('fotocabina');
+    expect(payload.captureId).toBe('capture-1');
+    expect(payload.version).toBe(3);
+    expect(payload.mediaUrl).toBeUndefined();
+    expect(payload.settings).toBeUndefined();
+    expect(payload.reviewPending).toBe(false);
   });
 });
