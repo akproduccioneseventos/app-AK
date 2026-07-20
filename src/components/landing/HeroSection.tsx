@@ -111,7 +111,7 @@ export function HeroSection({
         )}
       </motion.div>
 
-      <div className="absolute inset-0 bg-gradient-to-r from-black via-black/78 to-black/15" />
+      <div className="absolute inset-0 bg-gradient-to-r from-black via-black/80 to-black/15" />
       <div className="absolute inset-0 bg-gradient-to-t from-zinc-950 via-transparent to-black/35" />
 
       <div className="relative z-10 mx-auto w-full max-w-7xl px-4 pb-14 pt-24 sm:px-6 lg:px-8">

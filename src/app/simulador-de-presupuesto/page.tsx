@@ -1,7 +1,7 @@
 
 'use client';
 
-import React, { useState, useEffect, useCallback, useMemo, useRef, type FormEvent, Suspense } from 'react';
+import React, { useState, useEffect, useCallback, useMemo, useRef, Suspense } from 'react';
 import { useSearchParams } from 'next/navigation';
 import Link from 'next/link';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription, CardFooter } from '@/components/ui/card';
@@ -18,18 +18,16 @@ import {
 } from "@/components/ui/dialog";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import {
-    ArrowLeft, ArrowRight, Wand2, Loader2, PartyPopper, Users,
-    Save, Clock, CalendarDays, Search, Check, Info, TrendingUp,
-    Share2, Printer, Gift, ListPlus, ShieldCheck, Zap, Star, Percent,
+    ArrowLeft, ArrowRight, Loader2, PartyPopper, Users,
+    Clock, CalendarDays, Search, Check, Info,
+    Share2, Gift, ListPlus, ShieldCheck, Zap, Star,
     Building2,
     CheckCircle2,
     ChevronDown,
     FileDown,
     MapPin,
     PackageCheck,
-    Phone,
     Utensils,
-    UserMinus,
     X,
     MessageSquare,
     Sparkles,
@@ -528,8 +526,8 @@ function SimuladorContent() {
 
     const suggestedServices = useMemo(() => {
         if (!config || !selectedPaqueteId) return [];
-        const currentPackage = config.paquetes.find(p => p.id === selectedPaqueteId);
-        const otherPackages = config.paquetes.filter(p => p.id !== selectedPaqueteId);
+        const currentPackage = config?.paquetes?.find(p => p.id === selectedPaqueteId);
+        const otherPackages = config?.paquetes?.filter(p => p.id !== selectedPaqueteId) || [];
 
         const otherServicesIds = new Set<string>();
         otherPackages.forEach(p => {
@@ -567,7 +565,7 @@ function SimuladorContent() {
     }, [config, selectedPaqueteId, serviciosCatalogo, selectedEntradas, selectedPrincipal, selectedInfantil, formData.serviciosSeleccionados]);
 
     const handleToggleServiceInBudget = useCallback((serviceId: string, action: 'include' | 'exclude') => {
-        const packageItem = config?.paquetes.find(p => p.id === selectedPaqueteId);
+        const packageItem = config?.paquetes?.find(p => p.id === selectedPaqueteId);
         const isFromPackage = packageItem?.serviciosIncluidos.some(s => s.id === serviceId);
 
         if (action === 'exclude') {
@@ -733,7 +731,7 @@ function SimuladorContent() {
 
         if (step === 5) {
             setIsGenerating(true);
-            const selectedPackageName = config?.paquetes.find(p => p.id === selectedPaqueteId)?.nombre;
+            const selectedPackageName = config?.paquetes?.find(p => p.id === selectedPaqueteId)?.nombre;
             const data = {
                 submissionId: submissionIdRef.current,
                 clienteNombre,
@@ -783,12 +781,18 @@ function SimuladorContent() {
             setDateSuggestions([]);
             return;
         }
-        const availability = await checkDateAvailability(date.toISOString());
-        if (availability.isOccupied) {
-            setDateWarning('⚠️ Fecha no disponible. Te sugerimos estas fechas cercanas:');
-            setDateSuggestions(availability.suggestions || []);
-        } else {
-            setDateWarning('');
+        try {
+            const availability = await checkDateAvailability(date.toISOString());
+            if (availability.isOccupied) {
+                setDateWarning('⚠️ Fecha no disponible. Te sugerimos estas fechas cercanas:');
+                setDateSuggestions(availability.suggestions || []);
+            } else {
+                setDateWarning('');
+                setDateSuggestions([]);
+            }
+        } catch (error) {
+            console.error('[Simulador] Error checking date availability:', error);
+            setDateWarning('⚠️ Ocurrió un error al verificar la disponibilidad de la fecha. Por favor, reintenta.');
             setDateSuggestions([]);
         }
     }, []);
@@ -798,7 +802,7 @@ function SimuladorContent() {
         const serviceId = serviceToDelete.id;
         setIsGenerating(true);
 
-        const packageItem = config?.paquetes.find(p => p.id === selectedPaqueteId);
+        const packageItem = config?.paquetes?.find(p => p.id === selectedPaqueteId);
         const isFromPackage = packageItem?.serviciosIncluidos.some(s => s.id === serviceId);
 
         let newExcluded = [...excludedPackageServiceIds];
@@ -1183,7 +1187,7 @@ function SimuladorContent() {
         );
         if (isRequiredDependency) return false;
 
-        const packageItem = config?.paquetes.find(p => p.id === selectedPaqueteId);
+        const packageItem = config?.paquetes?.find(p => p.id === selectedPaqueteId);
         const isFromPackage = packageItem?.serviciosIncluidos.some(s => s.id === item.id);
         if (isFromPackage) {
             return removablePackageServices.some(s => s.id === item.id);
@@ -2023,7 +2027,7 @@ function SimuladorContent() {
                                 onValueChange={value => {
                                     setSelectedPaqueteId(value);
                                     setExcludedPackageServiceIds([]);
-                                    const pkg = config?.paquetes.find(item => item.id === value);
+                                    const pkg = config?.paquetes?.find(item => item.id === value);
                                     if (pkg) {
                                         setFormData(prev => {
                                             const newSelected = new Map(prev.serviciosSeleccionados);
@@ -2141,7 +2145,7 @@ function SimuladorContent() {
 
                             <div className="space-y-4 rounded-md border border-slate-200 bg-slate-50 p-6">
                                 <h3 className="text-xs font-black uppercase tracking-wider text-slate-400 flex items-center gap-2">
-                                    <CalendarDays className="w-4.5 h-4.5 text-slate-500"/> Información General del Evento
+                                    <CalendarDays className="w-[18px] h-[18px] text-slate-500"/> Información General del Evento
                                 </h3>
                                 <div className="grid gap-4 sm:grid-cols-3 items-end">
                                     <div className="space-y-2">
@@ -2185,7 +2189,7 @@ function SimuladorContent() {
 
                             <div className="space-y-6">
                                 <h3 className="text-sm font-black uppercase tracking-wider text-slate-800 flex items-center gap-2 pl-2">
-                                    <ListPlus className="w-4.5 h-4.5 text-slate-500" /> Servicios contratados en tu propuesta
+                                    <ListPlus className="w-[18px] h-[18px] text-slate-500" /> Servicios contratados en tu propuesta
                                 </h3>
 
                                 {Object.entries(groupedDetallados).map(([category, items]) => {
@@ -2242,7 +2246,7 @@ function SimuladorContent() {
                                                                     size="icon"
                                                                     variant="ghost"
                                                                     onClick={() => setServiceToDelete(item)}
-                                                                    className="h-8 w-8 rounded-xl text-slate-400 hover:text-red-650 hover:bg-red-50 transition shrink-0"
+                                                                    className="h-8 w-8 rounded-xl text-slate-400 hover:text-red-600 hover:bg-red-50 transition shrink-0"
                                                                     title="Retirar servicio"
                                                                 >
                                                                     <Trash2 className="w-4 h-4"/>
@@ -2260,7 +2264,7 @@ function SimuladorContent() {
                             {excludedPackageServiceIds.length > 0 && (
                                 <div className="p-6 bg-slate-50/50 border border-dashed border-slate-300 rounded-[2rem] space-y-4">
                                     <h3 className="text-xs font-black uppercase tracking-wider text-slate-400 flex items-center gap-2 text-left">
-                                        <Info className="w-4.5 h-4.5 text-slate-455" />
+                                        <Info className="w-[18px] h-[18px] text-slate-500" />
                                         <span>Servicios retirados del paquete (Opcionales)</span>
                                         <Badge className="bg-slate-200 text-slate-700 hover:bg-slate-200 font-black text-[9px]">{excludedPackageServiceIds.length}</Badge>
                                     </h3>
@@ -2281,7 +2285,7 @@ function SimuladorContent() {
                                                         <div className="flex items-center gap-2 mt-0.5 text-[9px] font-bold text-slate-400 uppercase tracking-wider">
                                                             <span>{service.subcategoria || formatCategoriaText(service.categoria)}</span>
                                                             <span>•</span>
-                                                            <span className="text-slate-550 font-bold">-{formatCurrency(calculated.total)}</span>
+                                                            <span className="text-slate-500 font-bold">-{formatCurrency(calculated.total)}</span>
                                                         </div>
                                                     </div>
                                                     <Button
@@ -2304,7 +2308,7 @@ function SimuladorContent() {
                             <div className="space-y-6 rounded-md border border-slate-200 bg-white p-6">
                                 <div className="space-y-4">
                                     <h4 className="font-black text-slate-800 uppercase text-xs tracking-wider flex items-center gap-2">
-                                        <Search className="w-4.5 h-4.5 text-slate-500"/> ¿Querés agregar algún servicio extra?
+                                        <Search className="w-[18px] h-[18px] text-slate-500"/> ¿Querés agregar algún servicio extra?
                                     </h4>
                                     <div className="relative">
                                         <div className="relative flex-1">
@@ -2385,7 +2389,7 @@ function SimuladorContent() {
                                             {suggestedServices.map(service => {
                                                 const calculated = getSimulatorServiceCalculatedData(service, adultos, ninosYAdolescentes);
                                                 return (
-                                                    <div key={service.id} className="p-4 bg-white border border-slate-200/80 rounded-2xl flex items-center justify-between gap-3 shadow-sm hover:border-slate-350 hover:shadow-md transition duration-200">
+                                                    <div key={service.id} className="p-4 bg-white border border-slate-200/80 rounded-2xl flex items-center justify-between gap-3 shadow-sm hover:border-slate-400 hover:shadow-md transition duration-200">
                                                         <div className="min-w-0 flex-1 text-left">
                                                             <span className="block font-black text-xs text-slate-800 truncate">{service.nombre}</span>
                                                             <span className="block text-[9px] text-slate-400 font-bold uppercase tracking-wider mt-0.5">{formatCategoriaText(service.categoria)}</span>
@@ -2425,10 +2429,10 @@ function SimuladorContent() {
                                         return (
                                             <div key={p.id} className="p-6 bg-slate-50/50 border border-slate-100 rounded-3xl flex flex-col justify-between gap-4 hover:bg-slate-50 transition duration-200 text-left">
                                                 <div>
-                                                    <span className="text-[9px] font-black text-slate-450 uppercase tracking-widest">Alternativa</span>
+                                                    <span className="text-[9px] font-black text-slate-400 uppercase tracking-widest">Alternativa</span>
                                                     <h5 className="text-base font-bold text-slate-800">{p.nombre}</h5>
                                                     <p className="mt-2 text-xl font-black text-primary">{formatCurrency(precioAlternativo)}</p>
-                                                    <p className="mt-0.5 text-[9px] text-slate-550 font-bold uppercase tracking-wider">
+                                                    <p className="mt-0.5 text-[9px] text-slate-500 font-bold uppercase tracking-wider">
                                                         {esMejora
                                                             ? `+ ${formatCurrency(diffPorPersona)} por persona`
                                                             : `- ${formatCurrency(diffPorPersona)} por persona`}

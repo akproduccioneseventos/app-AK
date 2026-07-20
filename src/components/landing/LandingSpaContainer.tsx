@@ -97,24 +97,7 @@ export function LandingSpaContainer({
         style={{ scaleX: progressScale }}
         className="fixed left-0 top-0 z-[70] h-1 w-full origin-left bg-red-600"
       />{" "}
-      <nav className="hidden">
-        {" "}
-        {NAV_ITEMS.map(([key, label]) => (
-          <button
-            key={key}
-            type="button"
-            onClick={() => scrollToSection(key)}
-            className="group flex items-center gap-2 rounded-md px-2.5 py-2 text-left text-[10px] font-black uppercase tracking-wider text-zinc-400 transition-all hover:bg-white/10 hover:text-white"
-            title={label}
-          >
-            {" "}
-            <span className="h-1.5 w-1.5 rounded-full bg-zinc-600 transition-all group-hover:w-5 group-hover:bg-red-400" />{" "}
-            <span className="max-w-0 overflow-hidden whitespace-nowrap transition-all group-hover:max-w-24">
-              {label}
-            </span>{" "}
-          </button>
-        ))}{" "}
-      </nav>{" "}
+{" "}
       <motion.div
         key="landing-scroll"
         initial={{ opacity: 0 }}

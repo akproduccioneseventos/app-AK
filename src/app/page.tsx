@@ -32,6 +32,7 @@ import {
   AK_YOUTUBE_CHANNEL_URL,
 } from "@/lib/youtube/ak-channel";
 import { PromoWidget } from "@/components/promo/PromoWidget";
+import { AK_WHATSAPP_NUMBER } from "@/lib/public-contact";
 import { LandingSpaContainer } from "@/components/landing/LandingSpaContainer";
 import { getSocialConnections } from "@/app/actions/social-connections";
 import {
@@ -417,7 +418,7 @@ export default async function HomePage({ searchParams }: LandingPageProps) {
     description: "Foto cargada desde el módulo maestro de salones.",
   }));
   const clubPhotos = dedupeSalonPhotos([...masterClubPhotos, ...getDynamicSalonPhotos()]);
-  const whatsapp = "59898355530";
+  const whatsapp = AK_WHATSAPP_NUMBER;
   /* Usar el número real de contacto de la empresa */ const safeTestimonialData =
     testimonialData && testimonialData.length > 0
       ? testimonialData

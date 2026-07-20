@@ -2,7 +2,7 @@
 
 import { Play } from 'lucide-react';
 import Image from 'next/image';
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { cn } from '@/lib/utils';
 import { canUseNextImage } from '@/lib/next-image-url';
 import type { GaleriaVideo } from '@/types/galeria';
@@ -62,7 +62,19 @@ interface VideoCardProps {
 
 function VideoCard({ video, onPlay }: VideoCardProps) {
   return (
-    <div className="group relative rounded-3xl overflow-hidden bg-slate-800 shadow-2xl cursor-pointer" onClick={() => onPlay(video)}>
+    <div
+      className="group relative rounded-3xl overflow-hidden bg-slate-800 shadow-2xl cursor-pointer"
+      onClick={() => onPlay(video)}
+      onKeyDown={(e) => {
+        if (e.key === 'Enter' || e.key === ' ') {
+          e.preventDefault();
+          onPlay(video);
+        }
+      }}
+      role="button"
+      tabIndex={0}
+      aria-label={`Reproducir video: ${video.title}`}
+    >
       {/* Thumbnail */}
       <div className="relative aspect-video overflow-hidden">
         <VideoThumbnail src={video.thumbnailUrl} alt={video.title} />
@@ -124,6 +136,18 @@ export function VideoSection({ videos, galeriaVideos, channelUrl }: VideoSection
 
   const [activeCategory, setActiveCategory] = useState('Todos');
   const [activeVideo, setActiveVideo] = useState<VideoItem | null>(null);
+
+  // Escuchar tecla Escape para cerrar el modal de video
+  useEffect(() => {
+    if (!activeVideo) return;
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (e.key === 'Escape') {
+        setActiveVideo(null);
+      }
+    };
+    window.addEventListener('keydown', handleKeyDown);
+    return () => window.removeEventListener('keydown', handleKeyDown);
+  }, [activeVideo]);
 
   // Sort: destacados first using a Map for O(n) performance
   const destacadaMap = new Map(galeriaVideos?.map((v) => [v.id, v.destacada]));
