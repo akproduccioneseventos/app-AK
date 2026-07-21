@@ -17,7 +17,7 @@ import {
   withPublicRequestTimeout,
 } from '@/lib/public-experience/wait-for-initial-public-load';
 import type { SocialConnection } from '@/types/settings';
-import { Facebook, Instagram, MessageCircle, Music2, Maximize, Camera } from 'lucide-react';
+import { Facebook, Instagram, MessageCircle, Music2, Maximize, Camera, QrCode } from 'lucide-react';
 import { getSongRequests } from '@/app/actions/social-interactive';
 import type { SongRequest } from '@/types/social-gallery';
 
@@ -500,13 +500,7 @@ export default function MuroEnVivoPage() {
 
           {/* Empty state */}
           {isLoaded && settings.privateDedicationsMode !== true && !['video', 'redes', 'juego', 'dedicaciones', 'chat', 'canciones', 'audioritmico', 'pauta'].includes(activeScreenItem?.type ?? '') && posts.length === 0 && settings.enabled !== false && (
-            <div className="absolute inset-0 flex flex-col items-center justify-center gap-6">
-              <div className="text-8xl opacity-20">📸</div>
-              <div className="text-center space-y-2">
-                <p className={`text-2xl font-light tracking-widest uppercase ${settings.screenDarkMode !== false ? 'text-white/50' : 'text-slate-400'}`}>Muro Social</p>
-                <p className={`text-base ${settings.screenDarkMode !== false ? 'text-white/30' : 'text-slate-300'}`}>Las fotos de los invitados aparecerán aquí.</p>
-              </div>
-            </div>
+            <EmptyWallState eventName={eventName} qrUrl={qrUrl} />
           )}
 
           {/* Private Greetings Mailbox Mode ("PALABRAS Y AUDIOS PARA SIEMPRE") */}
@@ -590,15 +584,7 @@ export default function MuroEnVivoPage() {
           {isLoaded && activeScreenItem?.type === 'redes' && (
             posts.length > 0 ? (
               <SlideshowLayout posts={posts} qrUrl={qrUrl} settings={settings} />
-            ) : (
-              <div className="absolute inset-0 flex flex-col items-center justify-center gap-6">
-                <div className="text-8xl opacity-20">📸</div>
-                <div className="text-center space-y-2">
-                  <p className={`text-2xl font-light tracking-widest uppercase ${settings.screenDarkMode !== false ? 'text-white/50' : 'text-slate-400'}`}>Muro Social</p>
-                  <p className={`text-base ${settings.screenDarkMode !== false ? 'text-white/30' : 'text-slate-300'}`}>Las fotos de los invitados aparecerán aquí.</p>
-                </div>
-              </div>
-            )
+            ) : <EmptyWallState eventName={eventName} qrUrl={qrUrl} />
           )}
 
           {/* Dedicaciones full-screen slide - Omitted as memories go in a separate module */}
@@ -813,7 +799,7 @@ export default function MuroEnVivoPage() {
             </div>
           </div>
         )}
-        {settings.marketingTickerEnabled !== false && (settings.marketingTickerText || companyMarketingText) && (
+        {posts.length > 0 && settings.marketingTickerEnabled !== false && (settings.marketingTickerText || companyMarketingText) && (
           <div
             className="overflow-hidden border-t py-2"
             style={{
@@ -1075,6 +1061,44 @@ export default function MuroEnVivoPage() {
         }
       `}</style>
     </div>
+  );
+}
+
+function EmptyWallState({ eventName, qrUrl }: { eventName: string; qrUrl: string }) {
+  return (
+    <section
+      data-testid="live-wall-empty"
+      className="absolute inset-0 grid place-items-center overflow-hidden bg-slate-950 px-8 py-10 text-white"
+      aria-live="polite"
+    >
+      <div className="grid w-full max-w-6xl items-center gap-10 lg:grid-cols-[1fr_auto] lg:gap-16">
+        <div className="max-w-3xl">
+          <div className="mb-6 flex items-center gap-3 text-red-300">
+            <Camera className="h-8 w-8" aria-hidden="true" />
+            <p className="text-base font-black uppercase tracking-[0.28em]">Muro social en vivo</p>
+          </div>
+          <h1 className="text-5xl font-black leading-tight sm:text-6xl lg:text-7xl">
+            {eventName || 'Compartí este momento'}
+          </h1>
+          <p className="mt-6 max-w-2xl text-xl leading-relaxed text-slate-300 lg:text-2xl">
+            Todavía no hay publicaciones. Escaneá el código, subí tu foto y aparecé en esta pantalla.
+          </p>
+        </div>
+
+        {qrUrl ? (
+          <div className="flex min-w-[250px] flex-col items-center rounded-lg border border-white/15 bg-white p-5 text-center text-slate-950 shadow-2xl">
+            <QRCodeSVG value={qrUrl} size={190} includeMargin={false} />
+            <p className="mt-4 flex items-center gap-2 text-sm font-black uppercase tracking-wider">
+              <QrCode className="h-4 w-4" aria-hidden="true" /> Escaneá para participar
+            </p>
+          </div>
+        ) : (
+          <div className="grid h-56 w-56 place-items-center rounded-lg border border-white/15 bg-white/5 text-white/35">
+            <QrCode className="h-24 w-24" aria-hidden="true" />
+          </div>
+        )}
+      </div>
+    </section>
   );
 }
 

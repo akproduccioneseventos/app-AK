@@ -72,10 +72,10 @@ export const defaultPrograma: ProgramaEventoItem[] = [
 ];
 
 export const defaultBebidaItems: BebidaCalculable[] = [
-  { id: 'cerveza', nombre: 'Cerveza Corona', emoji: 'ðŸº', cantidadPorPersona: 5, unidad: 'unidades', clienteLleva: false, visible: true, color: 'amber' },
-  { id: 'refresco', nombre: 'Agua / Gaseosa', emoji: 'ðŸ¥¤', cantidadPorPersona: 1.5, unidad: 'litros', clienteLleva: false, visible: true, color: 'sky' },
-  { id: 'hielo', nombre: 'Hielo', emoji: 'ðŸ§Š', cantidadPorPersona: 1, unidad: 'kg', clienteLleva: false, visible: true, color: 'slate' },
-  { id: 'agua', nombre: 'Agua mineral', emoji: 'ðŸ’§', cantidadPorPersona: 0.5, unidad: 'litros', clienteLleva: false, visible: true, color: 'blue' },
+  { id: 'cerveza', nombre: 'Cerveza Corona', emoji: '🍺', cantidadPorPersona: 5, unidad: 'unidades', clienteLleva: false, visible: true, color: 'amber' },
+  { id: 'refresco', nombre: 'Agua / Gaseosa', emoji: '🥤', cantidadPorPersona: 1.5, unidad: 'litros', clienteLleva: false, visible: true, color: 'sky' },
+  { id: 'hielo', nombre: 'Hielo', emoji: '🧊', cantidadPorPersona: 1, unidad: 'kg', clienteLleva: false, visible: true, color: 'slate' },
+  { id: 'agua', nombre: 'Agua mineral', emoji: '💧', cantidadPorPersona: 0.5, unidad: 'litros', clienteLleva: false, visible: true, color: 'blue' },
 ];
 
 export const defaultFaq: FaqItem[] = [
@@ -218,18 +218,18 @@ export const defaultMenuMesaData: MenuMesaData = {
 };
 
 export const defaultGiftItems: GiftItem[] = [
-  { id: 'gift_default_1',  name: 'ðŸ’ Flores',                  description: 'Ramo de flores para decorar',                        isClaimed: false },
-  { id: 'gift_default_2',  name: 'ðŸ¾ Champagne',               description: 'Botella de champagne o espumante',                   isClaimed: false },
-  { id: 'gift_default_3',  name: 'ðŸŽ Caja de regalo',          description: 'Caja con detalles y sorpresas',                      isClaimed: false },
-  { id: 'gift_default_4',  name: 'ðŸ’³ Tarjeta de regalo',       description: 'Gift card para elegir lo que más le guste',          isClaimed: false },
-  { id: 'gift_default_5',  name: 'ðŸ‘— Ropa o accesorios',       description: 'Prenda de vestir, cartera o accesorio de moda',      isClaimed: false },
-  { id: 'gift_default_6',  name: 'ðŸ’„ Set de belleza',          description: 'Perfume, maquillaje o productos de cuidado personal', isClaimed: false },
-  { id: 'gift_default_7',  name: 'ðŸ“š Libro',                   description: 'Libro favorito o colección especial',                 isClaimed: false },
-  { id: 'gift_default_8',  name: 'ðŸŽ­ Entradas a espectáculo',  description: 'Teatro, recital, cine u otro evento cultural',        isClaimed: false },
-  { id: 'gift_default_9',  name: 'ðŸ§³ Accesorios de viaje',     description: 'Valija, neceser o artículo de viaje',                 isClaimed: false },
-  { id: 'gift_default_10', name: 'ðŸŽ® Videojuego o consola',    description: 'Juego o gadget tecnológico',                         isClaimed: false },
-  { id: 'gift_default_11', name: 'ðŸ« Chocolates o golosinas',  description: 'Caja de bombones o dulces especiales',               isClaimed: false },
-  { id: 'gift_default_12', name: 'ðŸŒŸ Experiencia especial',    description: 'Spa, cena romántica o actividad única',               isClaimed: false },
+  { id: 'gift_default_1',  name: '💐 Flores',                  description: 'Ramo de flores para decorar',                        isClaimed: false },
+  { id: 'gift_default_2',  name: '🍾 Champagne',               description: 'Botella de champagne o espumante',                   isClaimed: false },
+  { id: 'gift_default_3',  name: '🎁 Caja de regalo',          description: 'Caja con detalles y sorpresas',                      isClaimed: false },
+  { id: 'gift_default_4',  name: '💳 Tarjeta de regalo',       description: 'Gift card para elegir lo que más le guste',          isClaimed: false },
+  { id: 'gift_default_5',  name: '👗 Ropa o accesorios',       description: 'Prenda de vestir, cartera o accesorio de moda',      isClaimed: false },
+  { id: 'gift_default_6',  name: '💄 Set de belleza',          description: 'Perfume, maquillaje o productos de cuidado personal', isClaimed: false },
+  { id: 'gift_default_7',  name: '📚 Libro',                   description: 'Libro favorito o colección especial',                 isClaimed: false },
+  { id: 'gift_default_8',  name: '🎭 Entradas a espectáculo',  description: 'Teatro, recital, cine u otro evento cultural',        isClaimed: false },
+  { id: 'gift_default_9',  name: '🧳 Accesorios de viaje',     description: 'Valija, neceser o artículo de viaje',                 isClaimed: false },
+  { id: 'gift_default_10', name: '🎮 Videojuego o consola',    description: 'Juego o gadget tecnológico',                         isClaimed: false },
+  { id: 'gift_default_11', name: '🍫 Chocolates o golosinas',  description: 'Caja de bombones o dulces especiales',               isClaimed: false },
+  { id: 'gift_default_12', name: '🌟 Experiencia especial',    description: 'Spa, cena romántica o actividad única',               isClaimed: false },
 ];
 
 export const defaultCartaTragosData: CartaTragosData = {

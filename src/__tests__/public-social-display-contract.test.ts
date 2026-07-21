@@ -25,6 +25,10 @@ describe('public social display contract', () => {
     expect(liveWallPage).toContain('waitForInitialPublicLoad(fetchData(true))');
     expect(liveWallPage).toContain('withPublicRequestTimeout(Promise.all');
     expect(liveWallPage).toContain('prefers-reduced-motion');
+    expect(liveWallPage).toContain('data-testid="live-wall-empty"');
+    expect(liveWallPage).toContain('Muro social en vivo');
+    expect(liveWallPage).toContain('Escaneá para participar');
+    expect(liveWallPage).toContain('posts.length > 0 && settings.marketingTickerEnabled');
     expect(liveWallPage).not.toContain('KioskUnlockButton');
     expect(liveWallPage).not.toContain('ak-bg-particle');
   });

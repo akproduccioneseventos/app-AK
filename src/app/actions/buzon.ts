@@ -115,8 +115,8 @@ export async function uploadBuzonMessage(
 
     // Notify the screen visually by adding a system chat message
     const alertText = isAudio
-      ? 'ðŸŽ™ï¸ Dejó un saludo de voz en el buzón'
-      : 'ðŸ“¹ Subió un video al buzón';
+      ? '🎙️ Dejó un saludo de voz en el buzón'
+      : '📹 Subió un video al buzón';
 
     await addChatMessage(fiestaId, alertText, authorName).catch((err) => {
       logger.warn('[buzon] Failed to send chat notification:', err);
