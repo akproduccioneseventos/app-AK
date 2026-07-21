@@ -2,10 +2,11 @@
 'use server';
 
 import type { ServicioEmpresa } from '@/types/empresa';
-import { readData, writeData } from '@/lib/data-service';
+import { createDataItem, deleteDataItem, readData, updateDataItem } from '@/lib/data-service';
 import { requireAppSession } from '@/lib/auth/require-session';
 
 const ACTIVOS_FIJOS_FILE = 'activos-fijos.json';
+const ACTIVOS_FIJOS_COLLECTION = 'activos_fijos';
 
 export async function getActivosFijos(): Promise<ServicioEmpresa[]> {
     const items = await readData<any[]>(ACTIVOS_FIJOS_FILE, []);
@@ -14,7 +15,10 @@ export async function getActivosFijos(): Promise<ServicioEmpresa[]> {
       tipoItem: 'Activo Fijo',
       valorUnitarioEstimado: item.valorUnitarioEstimado !== undefined && !isNaN(Number(item.valorUnitarioEstimado)) ? Number(item.valorUnitarioEstimado) : 0,
       cantidadDisponible: item.cantidadDisponible !== undefined && !isNaN(Number(item.cantidadDisponible)) ? Number(item.cantidadDisponible) : undefined,
-    }));
+    })).sort((a, b) =>
+      (a.categoria || '').localeCompare(b.categoria || '')
+      || (a.nombre || '').localeCompare(b.nombre || '')
+    );
 }
 
 export async function getActivoFijoById(id: string): Promise<ServicioEmpresa | null> {
@@ -67,16 +71,23 @@ export async function saveActivoFijo(
     inventario.push(finalItemData as ServicioEmpresa);
   }
   
-  await writeData(ACTIVOS_FIJOS_FILE, inventario, (a, b) => (a.categoria || '').localeCompare(b.categoria || '') || (a.nombre || '').localeCompare(b.nombre || ''));
+  if ('id' in itemData && itemData.id) {
+    const updated = await updateDataItem(
+      ACTIVOS_FIJOS_FILE,
+      ACTIVOS_FIJOS_COLLECTION,
+      itemId,
+      finalItemData,
+    );
+    if (!updated) return { success: false, error: `Activo con ID ${itemId} no encontrado.` };
+  } else {
+    await createDataItem(ACTIVOS_FIJOS_FILE, ACTIVOS_FIJOS_COLLECTION, itemId, finalItemData);
+  }
   return { success: true, id: itemId, servicio: finalItemData as ServicioEmpresa };
 }
 
 export async function deleteActivoFijo(id: string): Promise<{ success: boolean; error?: string }> {
   await requireAppSession();
-  let inventario = await getActivosFijos();
-  const initialLength = inventario.length;
-  inventario = inventario.filter(s => s.id !== id);
-  if (inventario.length === initialLength) return { success: false, error: `Activo Fijo con ID ${id} no encontrado para eliminar.` };
-  await writeData(ACTIVOS_FIJOS_FILE, inventario);
+  const deleted = await deleteDataItem(ACTIVOS_FIJOS_FILE, ACTIVOS_FIJOS_COLLECTION, id);
+  if (!deleted) return { success: false, error: `Activo Fijo con ID ${id} no encontrado para eliminar.` };
   return { success: true };
 }

@@ -114,11 +114,17 @@ export default async function CicloComercialPage() {
                 <div className="mt-5 grid gap-2 sm:grid-cols-5">
                   {row.steps.map((step) => {
                     const Icon = stepIcon[step.id];
-                    return (
-                      <Link key={step.id} href={step.href || '#'} className={cn('rounded-2xl border p-3 text-sm font-black transition', step.ready ? 'border-emerald-200 bg-emerald-50 text-emerald-800' : 'border-slate-200 bg-slate-50 text-slate-500 hover:border-red-200')}>
+                    const className = cn('rounded-2xl border p-3 text-sm font-black transition', step.ready ? 'border-emerald-200 bg-emerald-50 text-emerald-800' : 'border-slate-200 bg-slate-50 text-slate-500 hover:border-red-200');
+                    const content = (
+                      <>
                         <Icon className="mb-2 h-4 w-4" />
                         {step.label}
-                      </Link>
+                      </>
+                    );
+                    return step.href ? (
+                      <Link key={step.id} href={step.href} className={className}>{content}</Link>
+                    ) : (
+                      <div key={step.id} aria-disabled="true" className={cn(className, 'cursor-default hover:border-slate-200')}>{content}</div>
                     );
                   })}
                 </div>

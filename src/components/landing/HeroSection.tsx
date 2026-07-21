@@ -29,6 +29,8 @@ interface HeroSectionProps {
   ctaLabel?: string;
   simulatorHref?: string;
   simulatorLabel?: string;
+  showEventTypes?: boolean;
+  backgroundImageAlt?: string;
 }
 
 const EVENT_TYPES = [
@@ -59,6 +61,8 @@ export function HeroSection({
   ctaLabel = "Conversar con un asesor",
   simulatorHref = "/simulador-de-presupuesto",
   simulatorLabel = "Simular mi fiesta",
+  showEventTypes = true,
+  backgroundImageAlt = "Celebracion producida por AK Producciones",
 }: HeroSectionProps) {
   const reduceMotion = useReducedMotion();
   const waHref = `https://wa.me/${whatsappNumber}?text=${encodeURIComponent(whatsappMessage)}`;
@@ -96,7 +100,7 @@ export function HeroSection({
         {canUseNextImage(backgroundImageUrl) ? (
           <Image
             src={backgroundImageUrl}
-            alt="Celebración producida por AK Producciones"
+              alt={backgroundImageAlt}
             fill
             priority
             sizes="100vw"
@@ -111,8 +115,7 @@ export function HeroSection({
         )}
       </motion.div>
 
-      <div className="absolute inset-0 bg-gradient-to-r from-black via-black/78 to-black/15" />
-      <div className="absolute inset-0 bg-gradient-to-t from-zinc-950 via-transparent to-black/35" />
+      <div className="absolute inset-0 bg-black/60" />
 
       <div className="relative z-10 mx-auto w-full max-w-7xl px-4 pb-14 pt-24 sm:px-6 lg:px-8">
         <motion.div
@@ -157,7 +160,7 @@ export function HeroSection({
             {subheadline}
           </motion.p>
 
-          <motion.div variants={itemVariants} className="space-y-3 pt-1">
+          {showEventTypes && <motion.div variants={itemVariants} className="space-y-3 pt-1">
             <p className="text-xs font-black uppercase tracking-widest text-white/60">
               Elegí tu celebración
             </p>
@@ -176,7 +179,7 @@ export function HeroSection({
                 );
               })}
             </div>
-          </motion.div>
+          </motion.div>}
 
           <motion.div
             variants={itemVariants}

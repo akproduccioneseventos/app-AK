@@ -2,18 +2,13 @@
 
 import Link from 'next/link';
 import Image from 'next/image';
-import * as Lucide from 'lucide-react';
+import { ArrowRight, Inbox } from 'lucide-react';
 import type { BlogPost } from '@/types/blog';
 import { getPostImage } from '@/data/blog-posts';
+import { getBlogIcon } from '@/lib/blog-icons';
 
 interface Props {
   posts: BlogPost[];
-}
-
-function getIconComponent(name: any) {
-  if (typeof name !== 'string') return name || Lucide.BookOpen;
-  const IconComp = (Lucide as any)[name];
-  return IconComp || Lucide.BookOpen;
 }
 
 export function BlogInteractiveList({ posts }: Props) {
@@ -22,13 +17,13 @@ export function BlogInteractiveList({ posts }: Props) {
       {/* Grid Animada de Artículos */}
       {posts.length === 0 ? (
         <div className="flex min-h-[250px] flex-col items-center justify-center space-y-4 rounded-3xl border border-dashed border-slate-200 p-8">
-          <Lucide.Inbox className="h-10 w-10 text-slate-300 animate-pulse" />
+          <Inbox className="h-10 w-10 text-slate-300 animate-pulse" />
           <p className="text-slate-500 font-bold text-sm text-center">No encontramos artículos por el momento.</p>
         </div>
       ) : (
         <div className="grid gap-8 md:grid-cols-2 lg:grid-cols-3 transition-all duration-500">
           {posts.map((post) => {
-            const Icon = getIconComponent(post.icon);
+            const Icon = getBlogIcon(post.icon);
             return (
               <Link
                 key={post.slug}
@@ -74,7 +69,7 @@ export function BlogInteractiveList({ posts }: Props) {
                   <div className="flex items-center justify-between border-t border-slate-100 pt-4 mt-auto">
                     <span className="inline-flex items-center gap-2 text-xs font-black uppercase tracking-wider text-indigo-600 group-hover:text-slate-950 transition-colors">
                       Leer Guía
-                      <Lucide.ArrowRight className="h-4 w-4 transition duration-300 group-hover:translate-x-1.5" />
+                      <ArrowRight className="h-4 w-4 transition duration-300 group-hover:translate-x-1.5" />
                     </span>
                     <span className="text-[10px] font-bold text-slate-400">{post.publishedAt}</span>
                   </div>

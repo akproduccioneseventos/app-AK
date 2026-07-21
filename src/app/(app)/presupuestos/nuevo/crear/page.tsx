@@ -21,6 +21,8 @@ import { getMenus } from '@/app/actions/menus-catering';
 import type { FullMenu } from '@/types/catering';
 import { getOcupiedDates } from '@/app/actions/agenda';
 import { getGuestCountForItem, recalcularCostoItem, calculateSuggestedQuantity } from '@/lib/calculations';
+import { getBudgetDisplaySettings } from '@/app/actions/settings';
+import { defaultBudgetDisplaySettings } from '@/types/settings';
 
 const SESSION_STORAGE_KEY = 'presupuestoEnProgreso_v3';
 
@@ -96,6 +98,9 @@ function CrearPresupuestoContent() {
     const [editingPresupuestoId, setEditingPresupuestoId] = useState<string | null>(null);
     const [occupiedDates, setOccupiedDates] = useState<Date[]>([]);
     const [armadoConfig, setArmadoConfig] = useState<ArmadoRapidoConfig | null>(null);
+    const [annualAdjustmentPercentage, setAnnualAdjustmentPercentage] = useState<number>(
+        defaultBudgetDisplaySettings.annualAdjustmentPercentage ?? 15,
+    );
     
     const leadIdFromParams = searchParams.get('leadId');
 
@@ -172,17 +177,23 @@ function CrearPresupuestoContent() {
                 const editId = searchParams.get('editId');
                 setEditingPresupuestoId(editId);
 
-                const [config, menuData, services, occupiedDatesStrings] = await Promise.all([
+                const [config, menuData, services, occupiedDatesStrings, budgetSettings] = await Promise.all([
                     getArmadoRapidoConfig(), 
                     getMenus(), 
                     getServiciosEmpresa(),
-                    getOcupiedDates()
+                    getOcupiedDates(),
+                    getBudgetDisplaySettings(),
                 ]);
                 setArmadoConfig(config);
                 setOccupiedDates(occupiedDatesStrings.map(d => new Date(d)));
                 setServiciosCatalogo(services.filter(s => s.tipoItem === 'Servicio'));
                 setPaquetesBase(config.paquetes || []);
                 setAllMenus(menuData || []);
+                setAnnualAdjustmentPercentage(
+                    budgetSettings.annualAdjustmentPercentage
+                    ?? defaultBudgetDisplaySettings.annualAdjustmentPercentage
+                    ?? 15,
+                );
 
                 if (editId) {
                     const presupuestoToEdit = await getPresupuestoById(editId);
@@ -380,7 +391,7 @@ function CrearPresupuestoContent() {
             invoiceId: formData.invoiceId,
             marketingMarkupPercent: formData.marketingMarkupPercent,
             ajusteAnualActivo: shouldApplyAnnualAdjustment,
-            ajusteAnualPorcentaje: shouldApplyAnnualAdjustment ? 15 : undefined,
+            ajusteAnualPorcentaje: shouldApplyAnnualAdjustment ? annualAdjustmentPercentage : undefined,
             timestamp: formData.timestamp || new Date().toISOString(),
         };
         
@@ -430,7 +441,7 @@ function CrearPresupuestoContent() {
                         <>
                             {paso === 1 && <Paso1DatosEvento formData={formData} setFormData={setFormData} occupiedDates={occupiedDates} />}
                             {paso === 2 && <Paso2Servicios formData={formData} setFormData={setFormData} serviciosCatalogo={serviciosCatalogo} paquetesBase={paquetesBase} allMenus={allMenus} onCatalogUpdate={fetchServicios} totalInvitados={totalInvitados} config={armadoConfig} />}
-                            {paso === 3 && <Paso3Resumen formData={formData} setFormData={setFormData} totalCalculado={totalCalculado} totalInvitados={totalInvitados} />}
+                            {paso === 3 && <Paso3Resumen formData={formData} setFormData={setFormData} totalCalculado={totalCalculado} totalInvitados={totalInvitados} annualAdjustmentPercentage={annualAdjustmentPercentage} />}
                         </>
                     )}
                 </CardContent>

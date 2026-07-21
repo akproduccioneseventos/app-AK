@@ -103,3 +103,38 @@ export function mergeCargaOperativaStructure(
     })),
   };
 }
+
+export function mergeGeneratedCargaWithManualItems(
+  generated: ListaDeCargaOperativa,
+  current: ListaDeCargaOperativa,
+): ListaDeCargaOperativa {
+  const generatedCategories = (generated.categorias || []).map((category) => ({
+    ...category,
+    items: [...(category.items || [])],
+  }));
+
+  for (const currentCategory of current.categorias || []) {
+    const manualItems = (currentCategory.items || []).filter((item) => !item.origenId);
+    if (manualItems.length === 0) continue;
+
+    const targetCategory = generatedCategories.find((category) =>
+      category.id === currentCategory.id
+      || category.nombre.trim().toLocaleLowerCase('es') === currentCategory.nombre.trim().toLocaleLowerCase('es')
+    );
+
+    if (targetCategory) {
+      const knownIds = new Set(targetCategory.items.map((item) => item.id));
+      targetCategory.items.push(...manualItems.filter((item) => !knownIds.has(item.id)));
+    } else {
+      generatedCategories.push({ ...currentCategory, items: manualItems });
+    }
+  }
+
+  return {
+    ...generated,
+    categorias: generatedCategories,
+    notasGenerales: current.notasGenerales || generated.notasGenerales,
+    updatedAt: current.updatedAt,
+    updatedBy: current.updatedBy,
+  };
+}

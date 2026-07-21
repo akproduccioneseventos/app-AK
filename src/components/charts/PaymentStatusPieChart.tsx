@@ -1,7 +1,7 @@
 
 'use client';
 
-import { Pie, PieChart, Cell, Tooltip, Legend, ResponsiveContainer } from 'recharts';
+import { Pie, PieChart, Cell, Legend } from 'recharts';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { ChartConfig, ChartContainer, ChartTooltip, ChartTooltipContent } from '@/components/ui/chart'; // Added ChartTooltip
 

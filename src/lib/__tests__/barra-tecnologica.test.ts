@@ -4,6 +4,7 @@ import {
   getDrinkDescription,
   getDrinkTags,
   isTruthyFollowConfirmation,
+  isValidBarOrderTransition,
   normalizeBarTime,
   normalizeSocialHandle,
   shouldDiscountBarStock,
@@ -71,5 +72,14 @@ describe('barra tecnologica helpers', () => {
     expect(shouldDiscountBarStock('listo', 'entregado')).toBe(true);
     expect(shouldDiscountBarStock('entregado', 'entregado')).toBe(false);
     expect(shouldDiscountBarStock('entregado', 'cancelado')).toBe(false);
+  });
+
+  it('only accepts the operational bar order sequence', () => {
+    expect(isValidBarOrderTransition('nuevo', 'preparando')).toBe(true);
+    expect(isValidBarOrderTransition('preparando', 'listo')).toBe(true);
+    expect(isValidBarOrderTransition('listo', 'entregado')).toBe(true);
+    expect(isValidBarOrderTransition('nuevo', 'entregado')).toBe(false);
+    expect(isValidBarOrderTransition('entregado', 'nuevo')).toBe(false);
+    expect(isValidBarOrderTransition('cancelado', 'preparando')).toBe(false);
   });
 });

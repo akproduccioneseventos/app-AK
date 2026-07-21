@@ -2,6 +2,7 @@
 'use client';
 
 import React, { useState, useEffect, useCallback, Suspense, useMemo } from 'react';
+import dynamic from 'next/dynamic';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { Button } from '@/components/ui/button';
 import { Loader2, ArrowLeft, Save, ClipboardCopy, Gift, Eye, Smartphone, Tablet, Monitor, Download, AlertTriangle, Settings2, Wand2, Sparkles } from 'lucide-react';
@@ -10,18 +11,13 @@ import { getFiestaById, saveFiesta, updateInvitacionSlug } from '@/app/actions/f
 import type { FiestaEnPlanificacion, InvitacionDigitalData, InvitacionDigitalConfig, SeccionInvitacion } from '@/types/fiesta';
 import { defaultInvitacionDigitalData } from '@/lib/invitacion-digital-defaults';
 import { defaultInvitacionConfig, buildInvitacionConfigFromFiesta } from '@/lib/invitacion-config-defaults';
-import { merge, cloneDeep } from 'lodash';
-import { DndContext, closestCenter, type DragEndEvent, PointerSensor, useSensor, useSensors } from '@dnd-kit/core';
-import { SortableContext, arrayMove, verticalListSortingStrategy } from '@dnd-kit/sortable';
-import { GraziaTemplate } from '@/components/invitacion/templates/GraziaTemplate';
-import { AllegriaTemplate } from '@/components/invitacion/templates/AllegriaTemplate';
+import cloneDeep from 'lodash/cloneDeep';
+import merge from 'lodash/merge';
 import { InvitacionPublicaClient } from '@/app/invitacion/[fiestaId]/invitacion-publica-client';
 import { InvitacionConfigPanel } from '@/components/invitacion/InvitacionConfigPanel';
 import { getSocialConnections } from '@/app/actions/social-connections';
 import type { SocialConnection } from '@/types/settings';
 import { getInvitationTemplates, type InvitacionDigitalTemplate } from '@/app/actions/invitacion-digital-templates';
-import { ControlPanel } from '@/components/invitacion/edit/ControlPanel';
-import { SectionEditorPanel } from '@/components/invitacion/edit/SectionEditorPanel';
 import Link from 'next/link';
 import { Card } from '@/components/ui/card';
 import QRCodeStylized from 'qrcode.react';
@@ -31,12 +27,28 @@ import { cn } from '@/lib/utils';
 import { useAutoSave } from '@/hooks/use-auto-save';
 import { AutoSaveIndicator } from '@/components/ui/auto-save-indicator';
 import { Sheet, SheetContent } from '@/components/ui/sheet';
-import { TemplatePickerGallery } from '@/components/invitacion/TemplatePickerGallery';
 import { normalizeInvitationSlug } from '@/lib/invitacion-slug';
 import { getErrorMessage } from '@/lib/error-utils';
 
 type PreviewMode = 'mobile' | 'tablet' | 'desktop';
 type EditorMode = 'simple' | 'avanzado';
+
+const AdvancedInvitationCanvas = dynamic(
+  () => import('@/components/invitacion/edit/AdvancedInvitationCanvas').then((module) => module.AdvancedInvitationCanvas),
+  { loading: () => <div className="flex h-full items-center justify-center"><Loader2 className="h-10 w-10 animate-spin text-primary/40" /></div> },
+);
+const ControlPanel = dynamic(
+  () => import('@/components/invitacion/edit/ControlPanel').then((module) => module.ControlPanel),
+  { loading: () => <div className="flex min-h-48 items-center justify-center"><Loader2 className="h-8 w-8 animate-spin text-primary/40" /></div> },
+);
+const SectionEditorPanel = dynamic(
+  () => import('@/components/invitacion/edit/SectionEditorPanel').then((module) => module.SectionEditorPanel),
+  { loading: () => <div className="flex min-h-48 items-center justify-center"><Loader2 className="h-8 w-8 animate-spin text-primary/40" /></div> },
+);
+const TemplatePickerGallery = dynamic(
+  () => import('@/components/invitacion/TemplatePickerGallery').then((module) => module.TemplatePickerGallery),
+  { loading: () => <div className="fixed inset-0 z-[100] flex items-center justify-center bg-black/30"><Loader2 className="h-10 w-10 animate-spin text-white" /></div> },
+);
 
 function PaginaWebPageContent() {
   const { toast } = useToast();
@@ -61,7 +73,6 @@ function PaginaWebPageContent() {
   const [isSavingSlug, setIsSavingSlug] = useState(false);
   
   const [selectedSectionId, setSelectedSectionId] = useState<string | null>(null);
-  const sensors = useSensors(useSensor(PointerSensor));
 
   const { isSaving, lastSaved, saveError, saveNow } = useAutoSave({
     data: { invitacionData, invitacionConfig },
@@ -163,17 +174,6 @@ function PaginaWebPageContent() {
     setInvitacionData(prev => ({...prev, ...newData}));
   }, []);
   
-  const handleDragEnd = (event: DragEndEvent) => {
-    const { active, over } = event;
-    if (over && active.id !== over.id) {
-        setInvitacionData(prev => {
-            const oldIndex = (prev.secciones ?? []).findIndex(s => s.id === active.id);
-            const newIndex = (prev.secciones ?? []).findIndex(s => s.id === over.id);
-            return { ...prev, secciones: arrayMove(prev.secciones ?? [], oldIndex, newIndex) };
-        });
-    }
-  };
-
   const handleSave = () => {
     if (!fiesta || fiestaId === 'template_preview') {
       toast({ title: 'Guardado no disponible', description: 'No se puede guardar una vista previa de plantilla. Personaliza el evento directamente.' });
@@ -277,30 +277,6 @@ function PaginaWebPageContent() {
         document.body.appendChild(downloadLink);
         downloadLink.click();
         document.body.removeChild(downloadLink);
-    }
-  };
-
-  const renderTemplate = () => {
-    if(!fiesta) return null;
-
-    const props = {
-      fiesta,
-      invitacionData,
-      socialConnections,
-      isPreview: true,
-      onSectionClick: setSelectedSectionId,
-      onUpdate: handleUpdate,
-      onRsvpSubmit: undefined, 
-      selectedSectionId,
-    };
-    
-    switch(invitacionData.plantilla) {
-      case 'Grazia':
-        return <GraziaTemplate {...props} />;
-      case 'Allegria':
-        return <AllegriaTemplate {...props} />;
-      default:
-        return <GraziaTemplate {...props} />;
     }
   };
 
@@ -457,7 +433,13 @@ function PaginaWebPageContent() {
             <Button variant="outline" className="rounded-xl font-bold h-9" onClick={() => setTemplateGalleryOpen(true)}>
               <Sparkles className="w-4 h-4 sm:mr-2" /> <span className="hidden sm:inline">Cambiar Plantilla</span>
             </Button>
-            <Button asChild variant="outline" className="rounded-xl font-bold h-9"><Link href={fiestaId ? (slugUrl || getFullLink('/invitacion/[fiestaId]')) : '#'} target="_blank" className="hidden xs:block"><Eye className="w-4 h-4 mr-2"/>Ver Real</Link></Button>
+            {fiestaId ? (
+              <Button asChild variant="outline" className="rounded-xl font-bold h-9"><Link href={slugUrl || getFullLink('/invitacion/[fiestaId]')} target="_blank" className="hidden xs:block"><Eye className="w-4 h-4 mr-2"/>Ver Real</Link></Button>
+            ) : (
+              <Button variant="outline" className="hidden h-9 rounded-xl font-bold xs:inline-flex" disabled title="Selecciona una fiesta para abrir su página">
+                <Eye className="mr-2 h-4 w-4"/>Ver Real
+              </Button>
+            )}
            <Button onClick={handleSave} disabled={isSaving || fiestaId === 'template_preview'} className="rounded-xl font-bold h-9 shadow-lg shadow-primary/20">
                 {isSaving ? <Loader2 className="w-4 h-4 animate-spin"/> : <Save className="w-4 h-4 sm:mr-2"/>}
                 <span className="hidden sm:inline">Guardar</span>
@@ -497,11 +479,14 @@ function PaginaWebPageContent() {
                     onConfigChange={setInvitacionConfig}
                   />
                 ) : (
-                  <DndContext sensors={sensors} onDragEnd={handleDragEnd} collisionDetection={closestCenter}>
-                      <SortableContext items={(invitacionData.secciones ?? []).map(s => s.id)} strategy={verticalListSortingStrategy}>
-                          {renderTemplate()}
-                      </SortableContext>
-                  </DndContext>
+                  <AdvancedInvitationCanvas
+                    fiesta={fiesta}
+                    invitacionData={invitacionData}
+                    socialConnections={socialConnections}
+                    selectedSectionId={selectedSectionId}
+                    onSectionClick={setSelectedSectionId}
+                    onUpdate={handleUpdate}
+                  />
                 )}
               </div>
             ) : (
@@ -526,14 +511,16 @@ function PaginaWebPageContent() {
         </SheetContent>
       </Sheet>
 
-      <TemplatePickerGallery
-        open={templateGalleryOpen}
-        onOpenChange={setTemplateGalleryOpen}
-        templates={templates}
-        currentData={invitacionData}
-        onApply={applyTemplate}
-        tipoCelebracion={fiesta?.configuracion?.tipoCelebracion}
-      />
+      {templateGalleryOpen && (
+        <TemplatePickerGallery
+          open={templateGalleryOpen}
+          onOpenChange={setTemplateGalleryOpen}
+          templates={templates}
+          currentData={invitacionData}
+          onApply={applyTemplate}
+          tipoCelebracion={fiesta?.configuracion?.tipoCelebracion}
+        />
+      )}
       
       <style jsx global>{`
         .custom-scrollbar::-webkit-scrollbar { width: 6px; }

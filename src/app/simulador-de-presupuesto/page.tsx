@@ -1,7 +1,7 @@
 
 'use client';
 
-import React, { useState, useEffect, useCallback, useMemo, useRef, type FormEvent, Suspense } from 'react';
+import React, { useState, useEffect, useCallback, useMemo, useRef, Suspense } from 'react';
 import { useSearchParams } from 'next/navigation';
 import Link from 'next/link';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription, CardFooter } from '@/components/ui/card';
@@ -18,18 +18,16 @@ import {
 } from "@/components/ui/dialog";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import {
-    ArrowLeft, ArrowRight, Wand2, Loader2, PartyPopper, Users,
-    Save, Clock, CalendarDays, Search, Check, Info, TrendingUp,
-    Share2, Printer, Gift, ListPlus, ShieldCheck, Zap, Star, Percent,
+    ArrowLeft, ArrowRight, Loader2, PartyPopper, Users,
+    Clock, CalendarDays, Search, Check, Info,
+    Share2, Gift, ListPlus, ShieldCheck, Zap, Star,
     Building2,
     CheckCircle2,
     ChevronDown,
     FileDown,
     MapPin,
     PackageCheck,
-    Phone,
     Utensils,
-    UserMinus,
     X,
     MessageSquare,
     Sparkles,
@@ -249,6 +247,8 @@ function SimuladorContent() {
     const [excludedPackageServiceIds, setExcludedPackageServiceIds] = useState<string[]>([]);
     const [dateSuggestions, setDateSuggestions] = useState<string[]>([]);
     const [dateWarning, setDateWarning] = useState('');
+    const [dateAvailabilityStatus, setDateAvailabilityStatus] = useState<'idle' | 'checking' | 'available' | 'occupied' | 'error'>('idle');
+    const dateAvailabilityRequestRef = useRef(0);
 
     const [gastronomiaSearchTerm, setGastronomiaSearchTerm] = useState('');
     const [serviceSearchTerm, setServiceSearchTerm] = useState('');
@@ -266,7 +266,6 @@ function SimuladorContent() {
 
     const [existingBudgets, setExistingBudgets] = useState<any[]>([]);
     const [isSearchingBudgets, setIsSearchingBudgets] = useState(false);
-    const [timeLeft, setTimeLeft] = useState(900); // 15 minutes countdown
 
     const [formData, setFormData] = useState<{serviciosSeleccionados: Map<string, ServicioSeleccionadoValue>}>({serviciosSeleccionados: new Map()});
     const submissionIdRef = useRef(
@@ -401,26 +400,6 @@ function SimuladorContent() {
         });
     }, [maxEntradas]);
 
-    useEffect(() => {
-        if (step !== 5) return;
-        const interval = setInterval(() => {
-            setTimeLeft(prev => {
-                if (prev <= 1) {
-                    clearInterval(interval);
-                    return 0;
-                }
-                return prev - 1;
-            });
-        }, 1000);
-        return () => clearInterval(interval);
-    }, [step]);
-
-    const formatTime = (seconds: number) => {
-        const mins = Math.floor(seconds / 60);
-        const secs = seconds % 60;
-        return `${mins.toString().padStart(2, '0')}:${secs.toString().padStart(2, '0')}`;
-    };
-
     const handleEntradaChange = (servicioId: string, checked: boolean) => {
         if (checked) {
             if (selectedEntradas.length >= maxEntradas) {
@@ -528,8 +507,8 @@ function SimuladorContent() {
 
     const suggestedServices = useMemo(() => {
         if (!config || !selectedPaqueteId) return [];
-        const currentPackage = config.paquetes.find(p => p.id === selectedPaqueteId);
-        const otherPackages = config.paquetes.filter(p => p.id !== selectedPaqueteId);
+        const currentPackage = config?.paquetes?.find(p => p.id === selectedPaqueteId);
+        const otherPackages = config?.paquetes?.filter(p => p.id !== selectedPaqueteId) || [];
 
         const otherServicesIds = new Set<string>();
         otherPackages.forEach(p => {
@@ -567,7 +546,7 @@ function SimuladorContent() {
     }, [config, selectedPaqueteId, serviciosCatalogo, selectedEntradas, selectedPrincipal, selectedInfantil, formData.serviciosSeleccionados]);
 
     const handleToggleServiceInBudget = useCallback((serviceId: string, action: 'include' | 'exclude') => {
-        const packageItem = config?.paquetes.find(p => p.id === selectedPaqueteId);
+        const packageItem = config?.paquetes?.find(p => p.id === selectedPaqueteId);
         const isFromPackage = packageItem?.serviciosIncluidos.some(s => s.id === serviceId);
 
         if (action === 'exclude') {
@@ -692,7 +671,14 @@ function SimuladorContent() {
                 });
                 return;
             }
-            if (dateWarning) {
+            if (dateAvailabilityStatus === 'checking') {
+                toast({
+                    title: "Estamos verificando la fecha",
+                    description: "Esperá un instante para confirmar la disponibilidad.",
+                });
+                return;
+            }
+            if (dateAvailabilityStatus === 'occupied') {
                 toast({
                     title: "Elegí una fecha disponible",
                     description: "La fecha seleccionada ya está ocupada. Podés elegir una alternativa sugerida.",
@@ -733,7 +719,7 @@ function SimuladorContent() {
 
         if (step === 5) {
             setIsGenerating(true);
-            const selectedPackageName = config?.paquetes.find(p => p.id === selectedPaqueteId)?.nombre;
+            const selectedPackageName = config?.paquetes?.find(p => p.id === selectedPaqueteId)?.nombre;
             const data = {
                 submissionId: submissionIdRef.current,
                 clienteNombre,
@@ -777,19 +763,35 @@ function SimuladorContent() {
     const handlePrev = () => { if (step > 1) setStep(s => s - 1); };
 
     const handleEventoFechaChange = useCallback(async (date: Date | undefined) => {
+        const requestId = ++dateAvailabilityRequestRef.current;
         setEventoFecha(date);
         if (!date) {
             setDateWarning('');
             setDateSuggestions([]);
+            setDateAvailabilityStatus('idle');
             return;
         }
-        const availability = await checkDateAvailability(date.toISOString());
-        if (availability.isOccupied) {
-            setDateWarning('⚠️ Fecha no disponible. Te sugerimos estas fechas cercanas:');
-            setDateSuggestions(availability.suggestions || []);
-        } else {
-            setDateWarning('');
+        setDateAvailabilityStatus('checking');
+        setDateWarning('Verificando disponibilidad...');
+        setDateSuggestions([]);
+        try {
+            const availability = await checkDateAvailability(date.toISOString());
+            if (requestId !== dateAvailabilityRequestRef.current) return;
+            if (availability.isOccupied) {
+                setDateWarning('⚠️ Fecha no disponible. Te sugerimos estas fechas cercanas:');
+                setDateSuggestions(availability.suggestions || []);
+                setDateAvailabilityStatus('occupied');
+            } else {
+                setDateWarning('');
+                setDateSuggestions([]);
+                setDateAvailabilityStatus('available');
+            }
+        } catch (error) {
+            if (requestId !== dateAvailabilityRequestRef.current) return;
+            console.error('[Simulador] Error checking date availability:', error);
+            setDateWarning('No pudimos verificar la disponibilidad ahora. Podés continuar y AK confirmará la fecha antes de la reserva.');
             setDateSuggestions([]);
+            setDateAvailabilityStatus('error');
         }
     }, []);
 
@@ -798,7 +800,7 @@ function SimuladorContent() {
         const serviceId = serviceToDelete.id;
         setIsGenerating(true);
 
-        const packageItem = config?.paquetes.find(p => p.id === selectedPaqueteId);
+        const packageItem = config?.paquetes?.find(p => p.id === selectedPaqueteId);
         const isFromPackage = packageItem?.serviciosIncluidos.some(s => s.id === serviceId);
 
         let newExcluded = [...excludedPackageServiceIds];
@@ -1183,7 +1185,7 @@ function SimuladorContent() {
         );
         if (isRequiredDependency) return false;
 
-        const packageItem = config?.paquetes.find(p => p.id === selectedPaqueteId);
+        const packageItem = config?.paquetes?.find(p => p.id === selectedPaqueteId);
         const isFromPackage = packageItem?.serviciosIncluidos.some(s => s.id === item.id);
         if (isFromPackage) {
             return removablePackageServices.some(s => s.id === item.id);
@@ -1367,31 +1369,25 @@ function SimuladorContent() {
                                 </p>
                             </div>
 
-                            {/* Countdown Timer with CTA */}
-                            {timeLeft > 0 ? (
-                                <div className="mx-auto w-full max-w-lg space-y-4 rounded-md border border-slate-200 bg-slate-50 p-6 text-center">
-                                    <div className="flex flex-col items-center justify-center gap-2">
-                                        <Clock className="h-6 w-6 text-slate-600"/>
-                                        <p className="text-sm font-bold text-slate-900">Asegurá tu bonificación especial del {stats.discountPercentage}%</p>
+                            <div className="mx-auto w-full max-w-lg space-y-4 rounded-md border border-slate-200 bg-slate-50 p-6 text-left">
+                                <div className="flex items-start gap-3">
+                                    <span className="mt-0.5 grid h-9 w-9 shrink-0 place-items-center rounded-md bg-white text-slate-700 shadow-sm">
+                                        <ShieldCheck className="h-5 w-5" />
+                                    </span>
+                                    <div>
+                                        <p className="text-sm font-black text-slate-900">Próximo paso: confirmar disponibilidad</p>
+                                        <p className="mt-1 text-xs font-medium leading-relaxed text-slate-600">
+                                            El presupuesto es válido por 30 días. Con una seña de $5.000 podés solicitar la reserva; AK confirma la fecha y las condiciones antes de registrar el pago.
+                                        </p>
                                     </div>
-                                    <p className="text-xs text-slate-600 font-bold leading-relaxed">
-                                        Asegurá los precios vigentes y tu descuento señando con $5.000 antes de que expire la reserva.
-                                    </p>
-                                    <div className="inline-block rounded-md border bg-white px-5 py-2 font-mono text-3xl font-bold text-slate-900">
-                                        {formatTime(timeLeft)}
-                                    </div>
-                                    <Button
-                                        onClick={handleShareBudgetWhatsApp}
-                                        className="flex h-12 w-full items-center justify-center gap-2 rounded-md bg-red-700 text-sm font-bold text-white hover:bg-red-800"
-                                    >
-                                        <ShieldCheck className="h-4 w-4" /> Asegurar descuento y regalos
-                                    </Button>
                                 </div>
-                            ) : (
-                                <div className="mx-auto w-full max-w-lg rounded-md border border-red-200 bg-red-50 p-5 text-center">
-                                    <p className="text-xs font-bold text-red-800">El tiempo de tu reserva ha expirado. Podés contactar a un asesor de ventas para consultar disponibilidad de fecha.</p>
-                                </div>
-                            )}
+                                <Button
+                                    onClick={handleShareBudgetWhatsApp}
+                                    className="flex h-12 w-full items-center justify-center gap-2 rounded-md bg-red-700 text-sm font-bold text-white hover:bg-red-800"
+                                >
+                                    <MessageSquare className="h-4 w-4" /> Consultar disponibilidad por WhatsApp
+                                </Button>
+                            </div>
 
                             <div className="w-full grid grid-cols-1 md:grid-cols-3 gap-3">
                                 <Button
@@ -1623,7 +1619,7 @@ function SimuladorContent() {
                                 <h4 className="mb-2 flex items-center gap-2 text-[10px] font-bold uppercase tracking-widest text-slate-700"><Info className="w-4 h-4"/> Condiciones de reserva</h4>
                                 <p className="text-xs font-medium leading-relaxed text-slate-600">
                                     {stats.annualProjection.applies ? (
-                                        <>Con una seña de $5.000 podés solicitar la reserva de la fecha y del servicio. El presupuesto es válido por 30 días para mantener el precio de la promoción y los regalos incluidos. Los eventos programados para años posteriores al vigente tendrán un ajuste anual proyectado del 15% de acuerdo a lo establecido en el contrato.</>
+                                        <>Con una seña de $5.000 podés solicitar la reserva de la fecha y del servicio. El presupuesto es válido por 30 días para mantener el precio de la promoción y los regalos incluidos. Los eventos programados para años posteriores al vigente tendrán un ajuste anual proyectado del {stats.annualProjection.adjustmentPct}% de acuerdo a lo establecido en el contrato.</>
                                     ) : (
                                         <>Con una seña de $5.000 podés solicitar la reserva de la fecha y del servicio. El presupuesto es válido por 30 días para mantener el precio de la promoción y los regalos incluidos. El total mostrado corresponde al precio vigente del año {currentYear}.</>
                                     )}
@@ -2023,7 +2019,7 @@ function SimuladorContent() {
                                 onValueChange={value => {
                                     setSelectedPaqueteId(value);
                                     setExcludedPackageServiceIds([]);
-                                    const pkg = config?.paquetes.find(item => item.id === value);
+                                    const pkg = config?.paquetes?.find(item => item.id === value);
                                     if (pkg) {
                                         setFormData(prev => {
                                             const newSelected = new Map(prev.serviciosSeleccionados);
@@ -2141,7 +2137,7 @@ function SimuladorContent() {
 
                             <div className="space-y-4 rounded-md border border-slate-200 bg-slate-50 p-6">
                                 <h3 className="text-xs font-black uppercase tracking-wider text-slate-400 flex items-center gap-2">
-                                    <CalendarDays className="w-4.5 h-4.5 text-slate-500"/> Información General del Evento
+                                    <CalendarDays className="w-[18px] h-[18px] text-slate-500"/> Información General del Evento
                                 </h3>
                                 <div className="grid gap-4 sm:grid-cols-3 items-end">
                                     <div className="space-y-2">
@@ -2185,7 +2181,7 @@ function SimuladorContent() {
 
                             <div className="space-y-6">
                                 <h3 className="text-sm font-black uppercase tracking-wider text-slate-800 flex items-center gap-2 pl-2">
-                                    <ListPlus className="w-4.5 h-4.5 text-slate-500" /> Servicios contratados en tu propuesta
+                                    <ListPlus className="w-[18px] h-[18px] text-slate-500" /> Servicios contratados en tu propuesta
                                 </h3>
 
                                 {Object.entries(groupedDetallados).map(([category, items]) => {
@@ -2242,7 +2238,7 @@ function SimuladorContent() {
                                                                     size="icon"
                                                                     variant="ghost"
                                                                     onClick={() => setServiceToDelete(item)}
-                                                                    className="h-8 w-8 rounded-xl text-slate-400 hover:text-red-650 hover:bg-red-50 transition shrink-0"
+                                                                    className="h-8 w-8 rounded-xl text-slate-400 hover:text-red-600 hover:bg-red-50 transition shrink-0"
                                                                     title="Retirar servicio"
                                                                 >
                                                                     <Trash2 className="w-4 h-4"/>
@@ -2260,7 +2256,7 @@ function SimuladorContent() {
                             {excludedPackageServiceIds.length > 0 && (
                                 <div className="p-6 bg-slate-50/50 border border-dashed border-slate-300 rounded-[2rem] space-y-4">
                                     <h3 className="text-xs font-black uppercase tracking-wider text-slate-400 flex items-center gap-2 text-left">
-                                        <Info className="w-4.5 h-4.5 text-slate-455" />
+                                        <Info className="w-[18px] h-[18px] text-slate-500" />
                                         <span>Servicios retirados del paquete (Opcionales)</span>
                                         <Badge className="bg-slate-200 text-slate-700 hover:bg-slate-200 font-black text-[9px]">{excludedPackageServiceIds.length}</Badge>
                                     </h3>
@@ -2281,7 +2277,7 @@ function SimuladorContent() {
                                                         <div className="flex items-center gap-2 mt-0.5 text-[9px] font-bold text-slate-400 uppercase tracking-wider">
                                                             <span>{service.subcategoria || formatCategoriaText(service.categoria)}</span>
                                                             <span>•</span>
-                                                            <span className="text-slate-550 font-bold">-{formatCurrency(calculated.total)}</span>
+                                                            <span className="text-slate-500 font-bold">-{formatCurrency(calculated.total)}</span>
                                                         </div>
                                                     </div>
                                                     <Button
@@ -2304,7 +2300,7 @@ function SimuladorContent() {
                             <div className="space-y-6 rounded-md border border-slate-200 bg-white p-6">
                                 <div className="space-y-4">
                                     <h4 className="font-black text-slate-800 uppercase text-xs tracking-wider flex items-center gap-2">
-                                        <Search className="w-4.5 h-4.5 text-slate-500"/> ¿Querés agregar algún servicio extra?
+                                        <Search className="w-[18px] h-[18px] text-slate-500"/> ¿Querés agregar algún servicio extra?
                                     </h4>
                                     <div className="relative">
                                         <div className="relative flex-1">
@@ -2385,7 +2381,7 @@ function SimuladorContent() {
                                             {suggestedServices.map(service => {
                                                 const calculated = getSimulatorServiceCalculatedData(service, adultos, ninosYAdolescentes);
                                                 return (
-                                                    <div key={service.id} className="p-4 bg-white border border-slate-200/80 rounded-2xl flex items-center justify-between gap-3 shadow-sm hover:border-slate-350 hover:shadow-md transition duration-200">
+                                                    <div key={service.id} className="p-4 bg-white border border-slate-200/80 rounded-2xl flex items-center justify-between gap-3 shadow-sm hover:border-slate-400 hover:shadow-md transition duration-200">
                                                         <div className="min-w-0 flex-1 text-left">
                                                             <span className="block font-black text-xs text-slate-800 truncate">{service.nombre}</span>
                                                             <span className="block text-[9px] text-slate-400 font-bold uppercase tracking-wider mt-0.5">{formatCategoriaText(service.categoria)}</span>
@@ -2425,10 +2421,10 @@ function SimuladorContent() {
                                         return (
                                             <div key={p.id} className="p-6 bg-slate-50/50 border border-slate-100 rounded-3xl flex flex-col justify-between gap-4 hover:bg-slate-50 transition duration-200 text-left">
                                                 <div>
-                                                    <span className="text-[9px] font-black text-slate-450 uppercase tracking-widest">Alternativa</span>
+                                                    <span className="text-[9px] font-black text-slate-400 uppercase tracking-widest">Alternativa</span>
                                                     <h5 className="text-base font-bold text-slate-800">{p.nombre}</h5>
                                                     <p className="mt-2 text-xl font-black text-primary">{formatCurrency(precioAlternativo)}</p>
-                                                    <p className="mt-0.5 text-[9px] text-slate-550 font-bold uppercase tracking-wider">
+                                                    <p className="mt-0.5 text-[9px] text-slate-500 font-bold uppercase tracking-wider">
                                                         {esMejora
                                                             ? `+ ${formatCurrency(diffPorPersona)} por persona`
                                                             : `- ${formatCurrency(diffPorPersona)} por persona`}

@@ -4,6 +4,35 @@ export const DEFAULT_ANNUAL_ADJUSTMENT_PERCENTAGE = 15;
 export const DEFAULT_BOOKING_DEPOSIT_AMOUNT = 5000;
 export const BUDGET_VALIDITY_DAYS = 30;
 
+export function buildFormalBudgetBookingNote(input: {
+  hasAnnualAdjustment: boolean;
+  adjustmentPct?: number | null;
+  bookingDepositAmount?: number | null;
+  currentYear?: number;
+  validityDays?: number;
+}): string {
+  const adjustmentPct = Math.max(
+    0,
+    Number(input.adjustmentPct ?? DEFAULT_ANNUAL_ADJUSTMENT_PERCENTAGE) || 0,
+  );
+  const bookingDepositAmount = Math.max(
+    0,
+    Math.round(Number(input.bookingDepositAmount ?? DEFAULT_BOOKING_DEPOSIT_AMOUNT) || 0),
+  );
+  const validityDays = Math.max(1, Math.round(Number(input.validityDays ?? BUDGET_VALIDITY_DAYS) || BUDGET_VALIDITY_DAYS));
+  const currentYear = input.currentYear ?? new Date().getFullYear();
+  const formattedDeposit = new Intl.NumberFormat('es-UY', {
+    maximumFractionDigits: 0,
+  }).format(bookingDepositAmount);
+  const baseNote = `El presupuesto es válido por ${validityDays} días para mantener el precio de la promoción y los regalos incluidos. La reserva de la fecha y de los servicios se realiza con una seña de $ ${formattedDeposit}.`;
+
+  if (input.hasAnnualAdjustment) {
+    return `${baseNote} Los eventos programados para años posteriores al vigente tendrán un ajuste anual proyectado del ${adjustmentPct}% de acuerdo a lo establecido en el contrato.`;
+  }
+
+  return `${baseNote} El total mostrado corresponde al precio vigente del año ${currentYear}.`;
+}
+
 export type AnnualAdjustmentProjectionRow = {
   year: number;
   total: number;

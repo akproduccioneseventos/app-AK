@@ -1755,7 +1755,7 @@ export default function PublicPortalClientExperience({ fiesta, companyContact, c
                     
                     <div className={`p-3 rounded-xl border flex items-center justify-between text-sm ${impact.refund > 0 ? 'bg-emerald-50 border-emerald-200 text-emerald-800' : 'bg-amber-50 border-amber-200 text-amber-800'}`}>
                       <span className="font-black flex items-center gap-1.5">
-                        {impact.refund > 0 ? <CheckCircle2 className="h-4.5 w-4.5 animate-none" /> : <AlertTriangle className="h-4.5 w-4.5 animate-none" />}
+                        {impact.refund > 0 ? <CheckCircle2 className="h-5 w-5 animate-none" /> : <AlertTriangle className="h-5 w-5 animate-none" />}
                         {impact.refund > 0 ? 'SE TE DEVOLVERÁ:' : 'RESTAS DEBER DE MULTA:'}
                       </span>
                       <span className="font-black text-base">
@@ -1994,7 +1994,7 @@ export default function PublicPortalClientExperience({ fiesta, companyContact, c
                   <div className="flex flex-col gap-2 w-full mt-2">
                     <Button className="w-full h-12 rounded-xl font-bold bg-emerald-600 hover:bg-emerald-500 text-white flex items-center justify-center gap-2" asChild>
                       <a href={documentHref(fiesta.id, actionSuccessData.fileName)} download target="_blank" rel="noopener noreferrer">
-                        <Download className="h-4.5 w-4.5" /> Descargar Contrato (.txt)
+                        <Download className="h-5 w-5" /> Descargar Contrato (.txt)
                       </a>
                     </Button>
                     <Button variant="ghost" className="w-full rounded-xl text-slate-500 animate-none" onClick={() => { setPinVerificationOpen(false); window.location.reload(); }}>

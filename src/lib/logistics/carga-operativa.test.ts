@@ -1,5 +1,6 @@
 import {
   applyCargaOperativaItemPatch,
+  mergeGeneratedCargaWithManualItems,
   mergeCargaOperativaStructure,
 } from './carga-operativa';
 import type { ListaDeCargaOperativa } from '@/types/fiesta';
@@ -129,5 +130,48 @@ describe('carga operativa item updates', () => {
     expect(item.notas).toBe('Ubicar junto al escenario');
     expect(item.cargado).toBe(true);
     expect(item.cargadoPor).toBe('Mario');
+  });
+
+  it('preserves manual items when the asset-generated checklist is rebuilt', () => {
+    const current: ListaDeCargaOperativa = {
+      categorias: [
+        {
+          id: 'audio',
+          nombre: 'Audio',
+          items: [
+            { ...list.categorias[0].items[0], origenId: 'activo_parlante' },
+            { id: 'manual-cable', nombre: 'Cable especial', cantidad: '1', cargado: false },
+          ],
+        },
+        {
+          id: 'documentos',
+          nombre: 'Documentos',
+          items: [{ id: 'manual-contrato', nombre: 'Contrato', cantidad: '1', cargado: true }],
+        },
+      ],
+      notasGenerales: 'Revisar con el encargado',
+    };
+    const generated: ListaDeCargaOperativa = {
+      categorias: [{
+        id: 'audio',
+        nombre: 'Audio',
+        items: [{
+          id: 'gen_activo_parlante',
+          nombre: 'Parlante actualizado',
+          cantidad: '4',
+          cargado: false,
+          origenId: 'activo_parlante',
+        }],
+      }],
+    };
+
+    const result = mergeGeneratedCargaWithManualItems(generated, current);
+
+    expect(result.categorias[0].items.map((item) => item.id)).toEqual([
+      'gen_activo_parlante',
+      'manual-cable',
+    ]);
+    expect(result.categorias[1].items[0].id).toBe('manual-contrato');
+    expect(result.notasGenerales).toBe('Revisar con el encargado');
   });
 });

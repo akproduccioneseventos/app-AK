@@ -44,6 +44,7 @@ export function KioskUnlockButton() {
       {/* Subtle trigger button in top right corner */}
       <div className="fixed top-3 right-3 z-[9999] print:hidden">
         <button
+          type="button"
           onClick={() => {
             setIsOpen(true);
             setPin('');
@@ -51,6 +52,7 @@ export function KioskUnlockButton() {
           }}
           className="p-3 rounded-full bg-black/20 text-white/40 hover:text-white hover:bg-black/60 backdrop-blur-md transition-all duration-300 shadow-md border border-white/5"
           title="Administrar Dispositivo"
+          aria-label="Administrar dispositivo"
         >
           <Settings className="w-4 h-4 animate-spin-slow" />
         </button>
@@ -72,8 +74,10 @@ export function KioskUnlockButton() {
               className="w-full max-w-sm bg-slate-900 border border-slate-800 rounded-3xl p-6 shadow-2xl relative"
             >
               <button
+                type="button"
                 onClick={() => setIsOpen(false)}
                 className="absolute top-4 right-4 p-2 text-slate-400 hover:text-white rounded-full bg-slate-800/50 hover:bg-slate-800 transition-colors"
+                aria-label="Cerrar administración del dispositivo"
               >
                 <X className="w-4 h-4" />
               </button>

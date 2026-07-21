@@ -55,7 +55,11 @@ test('public homepage fits the viewport without horizontal overflow', async ({ p
   const mainHeading = page.getByRole('heading', { level: 1 });
   await expect(mainHeading).toHaveCount(1);
   await expect(mainHeading).toBeVisible();
-  await expect(page.getByRole('heading', { name: 'Eventos reales, ideas para tu fiesta', level: 2 })).toBeVisible();
+  const gallery = page.getByTestId('gallery-section');
+  await expect(gallery).toBeVisible();
+  await expect(
+    gallery.getByRole('heading', { name: 'Mirá cómo se ve una producción AK', level: 2 }),
+  ).toBeVisible();
   const overflow = await page.evaluate(() => ({
     clientWidth: document.documentElement.clientWidth,
     scrollWidth: document.documentElement.scrollWidth,

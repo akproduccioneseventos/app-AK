@@ -1,15 +1,40 @@
-import Image from 'next/image';
+import Image, { type ImageLoaderProps } from 'next/image';
 import Link from 'next/link';
 import { ArrowRight, Building2, CalendarDays, MapPin, Users } from 'lucide-react';
 import type { SalonPhoto } from '@/lib/salon-helper';
+import { canUseNextImage } from '@/lib/next-image-url';
+
+const passthroughImageLoader = ({ src }: ImageLoaderProps) => src;
+
+function SalonMedia({ src, alt, sizes, className }: { src: string; alt: string; sizes: string; className: string }) {
+  if (canUseNextImage(src)) {
+    return <Image src={src} alt={alt} fill sizes={sizes} className={className} />;
+  }
+
+  return (
+    <Image
+      loader={passthroughImageLoader}
+      unoptimized
+      src={src}
+      alt={alt}
+      fill
+      sizes={sizes}
+      className={className}
+    />
+  );
+}
 
 interface SalonDestacadoSectionProps {
   photos: SalonPhoto[];
   capacity?: number;
 }
 
+export function getVisibleSalonPhotos(photos: SalonPhoto[]) {
+  return photos.slice(0, 3);
+}
+
 export function SalonDestacadoSection({ photos, capacity }: SalonDestacadoSectionProps) {
-  const visiblePhotos = photos.slice(0, 3);
+  const visiblePhotos = getVisibleSalonPhotos(photos);
   if (visiblePhotos.length === 0) return null;
 
   return (
@@ -30,13 +55,15 @@ export function SalonDestacadoSection({ photos, capacity }: SalonDestacadoSectio
             <div className="bg-white p-5">
               <MapPin className="h-5 w-5 text-red-700" />
               <p className="mt-3 font-black">Centro de Salto</p>
-              <p className="mt-1 text-sm text-zinc-600">Acceso práctico para invitados y proveedores.</p>
+              <p className="mt-1 text-sm text-zinc-600">Club Uruguay, un salón conocido para celebrar.</p>
             </div>
-            <div className="bg-white p-5">
-              <Users className="h-5 w-5 text-red-700" />
-              <p className="mt-3 font-black">{capacity ? `Hasta ${capacity} invitados` : 'Distintas capacidades'}</p>
-              <p className="mt-1 text-sm text-zinc-600">La propuesta se calcula con el catálogo vigente.</p>
-            </div>
+            {capacity !== undefined && capacity > 0 && (
+              <div className="bg-white p-5">
+                <Users className="h-5 w-5 text-red-700" />
+                <p className="mt-3 font-black">Hasta {capacity} invitados</p>
+                <p className="mt-1 text-sm text-zinc-600">Capacidad informada para este salón.</p>
+              </div>
+            )}
           </div>
 
           <div className="mt-7 flex flex-col gap-3 sm:flex-row">
@@ -57,14 +84,13 @@ export function SalonDestacadoSection({ photos, capacity }: SalonDestacadoSectio
 
         <div className="grid gap-3 sm:grid-cols-12">
           <figure className="group relative aspect-[4/3] overflow-hidden rounded-lg bg-zinc-100 sm:col-span-8 sm:row-span-2 sm:aspect-auto sm:min-h-[520px]">
-            <Image
+            <SalonMedia
               src={visiblePhotos[0].src}
               alt={visiblePhotos[0].alt}
-              fill
               sizes="(max-width: 1024px) 100vw, 42vw"
-              className="object-cover transition-transform duration-700 group-hover:scale-[1.025]"
+              className="object-cover motion-safe:transition-transform motion-safe:duration-700 motion-safe:group-hover:scale-[1.025] motion-reduce:transition-none"
             />
-            <figcaption className="absolute inset-x-0 bottom-0 bg-gradient-to-t from-black/80 to-transparent p-5 pt-16 text-white">
+            <figcaption className="absolute inset-x-0 bottom-0 bg-black/70 p-4 text-white">
               <p className="font-black">{visiblePhotos[0].title}</p>
             </figcaption>
           </figure>
@@ -72,14 +98,13 @@ export function SalonDestacadoSection({ photos, capacity }: SalonDestacadoSectio
           <div className="grid gap-3 sm:col-span-4 sm:grid-rows-2">
             {visiblePhotos.slice(1).map((photo) => (
               <figure key={photo.src} className="group relative aspect-[4/3] overflow-hidden rounded-lg bg-zinc-100 sm:aspect-auto">
-                <Image
+                <SalonMedia
                   src={photo.src}
                   alt={photo.alt}
-                  fill
                   sizes="(max-width: 640px) 100vw, 22vw"
-                  className="object-cover transition-transform duration-700 group-hover:scale-[1.03]"
+                  className="object-cover motion-safe:transition-transform motion-safe:duration-700 motion-safe:group-hover:scale-[1.03] motion-reduce:transition-none"
                 />
-                <figcaption className="absolute inset-x-0 bottom-0 bg-gradient-to-t from-black/75 to-transparent p-4 pt-10 text-sm font-bold text-white">
+                <figcaption className="absolute inset-x-0 bottom-0 bg-black/70 p-3 text-sm font-bold text-white">
                   {photo.title}
                 </figcaption>
               </figure>

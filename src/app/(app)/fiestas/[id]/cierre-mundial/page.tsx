@@ -249,12 +249,19 @@ export default async function CierreMundialPage(props: PageProps) {
               </CardTitle>
             </CardHeader>
             <CardContent className="grid gap-3 md:grid-cols-2">
-              {suite.urgentFixes.slice(0, 8).map((fix) => (
-                <Link key={fix.label} href={fix.href ?? '#'} className="rounded-2xl border border-amber-200 bg-white/80 p-4 transition hover:bg-white">
+              {suite.urgentFixes.slice(0, 8).map((fix) => {
+                const content = (
+                  <>
                   <p className="font-black text-amber-950">{fix.label}</p>
                   <p className="mt-1 text-sm leading-5 text-amber-800/80">{fix.detail}</p>
-                </Link>
-              ))}
+                  </>
+                );
+                return fix.href ? (
+                  <Link key={fix.label} href={fix.href} className="rounded-2xl border border-amber-200 bg-white/80 p-4 transition hover:bg-white">{content}</Link>
+                ) : (
+                  <div key={fix.label} aria-disabled="true" className="rounded-2xl border border-amber-200 bg-white/60 p-4">{content}</div>
+                );
+              })}
             </CardContent>
           </Card>
         )}

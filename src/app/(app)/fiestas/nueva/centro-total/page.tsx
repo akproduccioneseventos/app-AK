@@ -352,16 +352,17 @@ export default function CentroTotalPage() {
 
               <Card className="rounded-[2rem] border-slate-200 bg-white shadow-lg">
                 <CardHeader>
-                  <CardTitle className="text-2xl font-black">Salud real de la app</CardTitle>
+                  <CardTitle className="text-2xl font-black">Estado de configuración</CardTitle>
                 </CardHeader>
                 <CardContent className="space-y-3">
                   <div className="rounded-2xl border border-slate-100 bg-slate-50 p-4">
                     <p className="text-xs font-black uppercase tracking-widest text-slate-400">Estado general</p>
                     <p className="mt-1 text-3xl font-black text-slate-950">{report.appHealth.score}%</p>
-                    <p className="mt-1 text-sm text-slate-500">Backup, Firebase, mails, Calendar/Gmail, rutas publicas, PWA y analitica.</p>
+                    <p className="mt-1 text-sm text-slate-500">Verificación de configuración para backup, Firebase, correo, rutas públicas, PWA y analítica. No reemplaza una prueba real de producción.</p>
                   </div>
-                  {report.appHealth.checks.map((check) => (
-                    <Link key={check.id} href={check.href || '#'} className="block rounded-2xl border border-slate-100 bg-white p-4 transition hover:border-red-200 hover:bg-slate-50">
+                  {report.appHealth.checks.map((check) => {
+                    const content = (
+                      <>
                       <div className="flex flex-wrap items-center justify-between gap-2">
                         <p className="font-black text-slate-950">{check.label}</p>
                         <Badge variant="outline" className={cn('font-black', check.status === 'ok' ? 'border-emerald-200 bg-emerald-50 text-emerald-700' : check.status === 'warning' ? 'border-amber-200 bg-amber-50 text-amber-700' : 'border-red-200 bg-red-50 text-red-700')}>
@@ -369,8 +370,18 @@ export default function CentroTotalPage() {
                         </Badge>
                       </div>
                       <p className="mt-1 text-sm leading-5 text-slate-500">{check.detail}</p>
-                    </Link>
-                  ))}
+                      </>
+                    );
+                    return check.href ? (
+                      <Link key={check.id} href={check.href} className="block rounded-2xl border border-slate-100 bg-white p-4 transition hover:border-red-200 hover:bg-slate-50">
+                        {content}
+                      </Link>
+                    ) : (
+                      <div key={check.id} aria-disabled="true" className="rounded-2xl border border-slate-100 bg-slate-50 p-4">
+                        {content}
+                      </div>
+                    );
+                  })}
                 </CardContent>
               </Card>
             </section>

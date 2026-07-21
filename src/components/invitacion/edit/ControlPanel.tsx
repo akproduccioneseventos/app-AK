@@ -27,7 +27,8 @@ import { Card, CardContent, CardDescription } from "@/components/ui/card";
 import QRCodeStylized from 'qrcode.react';
 import { useToast } from "@/hooks/use-toast";
 import { getInvitationTemplates, type InvitacionDigitalTemplate } from "@/app/actions/invitacion-digital-templates";
-import { merge, cloneDeep } from 'lodash';
+import cloneDeep from 'lodash/cloneDeep';
+import merge from 'lodash/merge';
 
 interface ControlPanelProps {
     data: InvitacionDigitalData;

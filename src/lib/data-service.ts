@@ -199,6 +199,108 @@ export async function writeData<T>(
   await scheduleAutoBackupAfterWrite(normalizedFilePath, options);
 }
 
+function validateCollectionMutationInput(filePath: string, collectionName: string, documentId: string) {
+  if (filePath.includes("..") || filePath.startsWith("/"))
+    throw new Error("Invalid data file path");
+  if (!/^[a-zA-Z0-9_-]+$/.test(collectionName))
+    throw new Error("Invalid Firestore collection name");
+  if (!documentId || documentId.includes("/"))
+    throw new Error("Invalid Firestore document id");
+}
+
+function cleanCollectionItem<T extends object>(item: T): T {
+  return JSON.parse(JSON.stringify(item)) as T;
+}
+
+async function refreshCollectionFallback(
+  normalizedFilePath: string,
+  options?: WriteDataOptions,
+): Promise<void> {
+  const persisted = await readFromFirestore(normalizedFilePath);
+  if (persisted !== null && persisted !== undefined) {
+    await writeLocalJsonFallback(normalizedFilePath, persisted);
+  }
+  await scheduleAutoBackupAfterWrite(normalizedFilePath, options);
+}
+
+export async function createDataItem<T extends object>(
+  filePath: string,
+  collectionName: string,
+  documentId: string,
+  item: T,
+  options?: WriteDataOptions,
+): Promise<void> {
+  validateCollectionMutationInput(filePath, collectionName, documentId);
+  if (shouldUseLocalJsonOnly()) {
+    throw new Error("La escritura esta deshabilitada en el modo local de pruebas.");
+  }
+
+  const normalizedFilePath = filePath.replace(/\\/g, "/");
+  const { dbAdmin } = await import("./firebase/server");
+  if (!dbAdmin) throw new Error("Firestore no esta disponible.");
+  await dbAdmin.collection(collectionName).doc(documentId).create({
+    ...cleanCollectionItem(item),
+    _syncedAt: new Date().toISOString(),
+  });
+  await refreshCollectionFallback(normalizedFilePath, options);
+}
+
+export async function updateDataItem<T extends object>(
+  filePath: string,
+  collectionName: string,
+  documentId: string,
+  item: T,
+  options?: WriteDataOptions,
+): Promise<boolean> {
+  validateCollectionMutationInput(filePath, collectionName, documentId);
+  if (shouldUseLocalJsonOnly()) {
+    throw new Error("La escritura esta deshabilitada en el modo local de pruebas.");
+  }
+
+  const normalizedFilePath = filePath.replace(/\\/g, "/");
+  const { dbAdmin } = await import("./firebase/server");
+  if (!dbAdmin) throw new Error("Firestore no esta disponible.");
+  const ref = dbAdmin.collection(collectionName).doc(documentId);
+  let updated = false;
+  await dbAdmin.runTransaction(async (transaction) => {
+    const snapshot = await transaction.get(ref);
+    if (!snapshot.exists) return;
+    transaction.set(ref, {
+      ...cleanCollectionItem(item),
+      _syncedAt: new Date().toISOString(),
+    });
+    updated = true;
+  });
+  if (updated) await refreshCollectionFallback(normalizedFilePath, options);
+  return updated;
+}
+
+export async function deleteDataItem(
+  filePath: string,
+  collectionName: string,
+  documentId: string,
+  options?: WriteDataOptions,
+): Promise<boolean> {
+  validateCollectionMutationInput(filePath, collectionName, documentId);
+  if (shouldUseLocalJsonOnly()) {
+    throw new Error("La escritura esta deshabilitada en el modo local de pruebas.");
+  }
+
+  const normalizedFilePath = filePath.replace(/\\/g, "/");
+  const { dbAdmin } = await import("./firebase/server");
+  if (!dbAdmin) throw new Error("Firestore no esta disponible.");
+  const ref = dbAdmin.collection(collectionName).doc(documentId);
+  let deleted = false;
+  await dbAdmin.runTransaction(async (transaction) => {
+    const snapshot = await transaction.get(ref);
+    if (!snapshot.exists) return;
+    transaction.delete(ref);
+    deleted = true;
+  });
+  if (deleted) await refreshCollectionFallback(normalizedFilePath, options);
+  return deleted;
+}
+
 function deepMerge(target: any, source: any): any {
   if (Array.isArray(target) && Array.isArray(source)) {
     const merged = [...target];

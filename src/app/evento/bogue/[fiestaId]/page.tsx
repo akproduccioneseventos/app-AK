@@ -37,6 +37,7 @@ import {
 import type { PublicEntertainmentEvent } from '@/lib/entertainment/station-config';
 import { KioskUnlockButton } from '@/components/kiosk/kiosk-unlock-button';
 import { isVideoFrameReady } from '@/lib/entertainment/camera-readiness';
+import { withPublicRequestTimeout } from '@/lib/public-experience/wait-for-initial-public-load';
 
 const BOGUE_FRAMES = [
   { id: 'none', label: 'Sin Marco', border: 'transparent' },
@@ -79,6 +80,9 @@ export default function BoguePage() {
   const [isUploading, setIsUploading] = useState(false);
   const [operatorError, setOperatorError] = useState<string | null>(null);
   const [loadError, setLoadError] = useState<string | null>(null);
+  const [isEventLoading, setIsEventLoading] = useState(true);
+  const [loadAttempt, setLoadAttempt] = useState(0);
+  const [cameraError, setCameraError] = useState<string | null>(null);
 
   // Audio effect context for high-quality beeps
   const audioCtxRef = useRef<AudioContext | null>(null);
@@ -134,6 +138,7 @@ export default function BoguePage() {
 
   const startCamera = useCallback(async () => {
     stopCamera();
+    setCameraError(null);
     try {
       const mediaStream = await navigator.mediaDevices.getUserMedia({
         video: { facingMode, width: { ideal: 1080 }, height: { ideal: 1920 } },
@@ -145,18 +150,31 @@ export default function BoguePage() {
       }
     } catch (err) {
       console.error('Error al acceder a la cámara:', err);
+      setCameraError('No pudimos abrir la cámara. Revisa el permiso del navegador y vuelve a intentar.');
     }
   }, [facingMode, stopCamera]);
 
   // 1. Initial load
   useEffect(() => {
-    getPublicEntertainmentEvent(fiestaId, 'bogue', accessToken)
+    let active = true;
+    setIsEventLoading(true);
+    setLoadError(null);
+    withPublicRequestTimeout(getPublicEntertainmentEvent(fiestaId, 'bogue', accessToken))
       .then((result) => {
+        if (!active) return;
         if (result.success && result.event) setFiesta(result.event);
-        else setLoadError(result.error || 'No se pudo abrir esta estacion.');
+        else setLoadError(result.error || 'No se pudo abrir esta estación.');
       })
-      .catch(() => setLoadError('No se pudo abrir esta estacion.'));
-  }, [accessToken, fiestaId]);
+      .catch(() => {
+        if (active) setLoadError('No se pudo abrir esta estación. Revisa la conexión e intenta nuevamente.');
+      })
+      .finally(() => {
+        if (active) setIsEventLoading(false);
+      });
+    return () => {
+      active = false;
+    };
+  }, [accessToken, fiestaId, loadAttempt]);
 
   useEffect(() => {
     localStatusRef.current = localStatus;
@@ -564,29 +582,53 @@ export default function BoguePage() {
     if (!result.success) setOperatorError(result.error || 'No se pudo reiniciar Bogue.');
   };
 
+  if (isEventLoading) {
+    return (
+      <div className="flex min-h-screen items-center justify-center bg-zinc-950 text-white">
+        <Loader2 className="h-10 w-10 animate-spin text-rose-400 motion-reduce:animate-none" aria-label="Cargando estación Bogue" />
+      </div>
+    );
+  }
+
   if (loadError) {
-    return <div className="flex min-h-screen items-center justify-center bg-zinc-950 p-6 text-center font-bold text-rose-300">{loadError}</div>;
+    return (
+      <main className="flex min-h-screen items-center justify-center bg-zinc-950 p-6 text-center text-white">
+        <div className="w-full max-w-md rounded-lg border border-white/10 bg-white/5 p-6">
+          <Flame className="mx-auto h-10 w-10 text-rose-400" aria-hidden="true" />
+          <h1 className="mt-4 text-xl font-black">No pudimos abrir Bogue</h1>
+          <p className="mt-2 text-sm leading-6 text-zinc-300">{loadError}</p>
+          <button
+            type="button"
+            onClick={() => setLoadAttempt((attempt) => attempt + 1)}
+            className="mt-5 flex h-11 w-full items-center justify-center gap-2 rounded-lg bg-rose-500 px-4 text-sm font-black transition hover:bg-rose-400 motion-reduce:transition-none"
+          >
+            <RefreshCw className="h-4 w-4" aria-hidden="true" />
+            Reintentar
+          </button>
+        </div>
+      </main>
+    );
   }
 
   // Render Operator view
   if (role === 'operator') {
     return (
-      <div className="min-h-screen bg-[radial-gradient(ellipse_at_top,_#1e1b4b_0%,_#09090b_70%)] text-white p-6">
-        <div className="max-w-md mx-auto space-y-6">
+      <div className="min-h-screen bg-zinc-950 p-4 text-white sm:p-6">
+        <div className="mx-auto max-w-md space-y-5">
           <div className="flex items-center justify-between border-b border-white/10 pb-4">
-            <button onClick={() => router.back()} className="p-2 bg-white/5 rounded-full hover:bg-white/10 transition">
+            <button onClick={() => router.back()} aria-label="Volver" title="Volver" className="rounded-lg p-2 transition hover:bg-white/10">
               <ArrowLeft className="w-5 h-5" />
             </button>
-            <h1 className="text-lg font-black tracking-widest text-pink-400 uppercase flex items-center gap-2">
-              <Flame className="w-5 h-5 animate-pulse" /> Operator Bogue
+            <h1 className="flex items-center gap-2 text-base font-black uppercase tracking-wide text-rose-300">
+              <Flame className="h-5 w-5 motion-safe:animate-pulse" /> Operador Bogue
             </h1>
             <div className="w-9" />
           </div>
 
-          <div className="bg-white/5 border border-white/10 rounded-3xl p-6 shadow-2xl space-y-6">
+          <div className="space-y-5 rounded-lg border border-white/10 bg-zinc-900 p-5">
             <div>
               <p className="text-xs font-bold text-slate-400 uppercase tracking-widest mb-1">Estado de la Cabina</p>
-              <div className="flex items-center gap-3 bg-black/40 px-4 py-3 rounded-2xl border border-white/5">
+              <div className="flex items-center gap-3 rounded-lg border border-white/5 bg-black/30 px-4 py-3">
                 <Radio className={`w-5 h-5 ${session?.status === 'idle' ? 'text-slate-500' : 'text-pink-500 animate-pulse'}`} />
                 <span className="font-bold capitalize text-sm">{session?.status || 'Desconectado'}</span>
               </div>
@@ -600,7 +642,7 @@ export default function BoguePage() {
                   <button
                     key={f.id}
                     onClick={() => setSelectedFrame(f.id)}
-                    className={`p-3 rounded-xl border text-xs font-bold transition flex items-center justify-between ${
+                    className={`flex items-center justify-between rounded-lg border p-3 text-xs font-bold transition ${
                       selectedFrame === f.id
                         ? 'border-pink-500 bg-pink-500/10 text-pink-300'
                         : 'border-white/5 bg-black/20 text-slate-400 hover:border-white/10'
@@ -618,26 +660,26 @@ export default function BoguePage() {
               <button
                 onClick={handleOperatorStart}
                 disabled={session?.status && session.status !== 'idle' && session.status !== 'done'}
-                className="w-full h-16 rounded-2xl bg-gradient-to-r from-pink-500 to-fuchsia-600 hover:from-pink-600 hover:to-fuchsia-700 text-white font-black text-lg shadow-xl shadow-pink-500/10 flex items-center justify-center gap-2 disabled:opacity-50 disabled:pointer-events-none active:scale-98 transition-all"
+                className="flex h-14 w-full items-center justify-center gap-2 rounded-lg bg-rose-500 text-base font-black text-white transition hover:bg-rose-400 disabled:pointer-events-none disabled:opacity-50"
               >
                 <Zap className="w-6 h-6 fill-white" />
-                DISPARAR BOGUE
+                Iniciar cuenta regresiva
               </button>
               {operatorError && <p className="text-center text-xs font-bold text-rose-400">{operatorError}</p>}
 
               <button
                 onClick={handleOperatorReset}
-                className="w-full h-12 rounded-xl bg-white/5 hover:bg-white/10 text-slate-300 font-bold text-sm border border-white/5 transition flex items-center justify-center gap-2"
+                className="flex h-12 w-full items-center justify-center gap-2 rounded-lg border border-white/10 bg-white/5 text-sm font-bold text-slate-300 transition hover:bg-white/10"
               >
                 <RefreshCw className="w-4 h-4" />
-                Reiniciar Cabina
+                Reiniciar sesion
               </button>
             </div>
           </div>
 
-          <div className="bg-white/5 border border-white/5 rounded-2xl p-4 text-center">
+          <div className="rounded-lg border border-white/10 bg-zinc-900 p-4 text-center">
             <p className="text-xs text-slate-400">
-              Coloca la pantalla del invitado en la estación de captura. Cuando presiones "DISPARAR", la cabina iniciará el conteo y grabará el loop automáticamente.
+              Esta pantalla crea un loop desde la camara web. No controla hardware externo.
             </p>
           </div>
         </div>
@@ -655,7 +697,7 @@ export default function BoguePage() {
 
       {/* HEADER */}
       <div className="absolute top-0 left-0 right-0 z-20 p-4 flex justify-between items-center bg-gradient-to-b from-black/80 to-transparent">
-        <button onClick={() => router.back()} className="p-2 bg-white/10 rounded-full backdrop-blur-md hover:bg-white/20 transition">
+        <button onClick={() => router.back()} aria-label="Volver" title="Volver" className="rounded-lg bg-white/10 p-2 backdrop-blur-md transition hover:bg-white/20">
           <ArrowLeft className="w-6 h-6" />
         </button>
         <div className="text-center">
@@ -668,14 +710,23 @@ export default function BoguePage() {
           {localStatus === 'idle' && (
             <>
               <button
+                type="button"
                 onClick={() => setVoiceEnabled(!voiceEnabled)}
+                aria-label={voiceEnabled ? 'Desactivar indicaciones por voz' : 'Activar indicaciones por voz'}
+                title={voiceEnabled ? 'Desactivar indicaciones por voz' : 'Activar indicaciones por voz'}
                 className={`p-2 rounded-full backdrop-blur-md transition ${
                   voiceEnabled ? 'bg-pink-500/20 text-pink-400 border border-pink-500/30' : 'bg-white/10 text-white'
                 }`}
               >
                 {voiceEnabled ? <Volume2 className="w-5 h-5" /> : <VolumeX className="w-5 h-5" />}
               </button>
-              <button onClick={toggleCamera} className="p-2 bg-white/10 rounded-full backdrop-blur-md hover:bg-white/20 transition">
+              <button
+                type="button"
+                onClick={toggleCamera}
+                aria-label="Cambiar cámara"
+                title="Cambiar cámara"
+                className="rounded-full bg-white/10 p-2 backdrop-blur-md transition hover:bg-white/20 motion-reduce:transition-none"
+              >
                 <RefreshCw className="w-5 h-5" />
               </button>
             </>
@@ -698,26 +749,37 @@ export default function BoguePage() {
             />
             
             <div className="absolute inset-0 flex flex-col items-center justify-center text-center p-6 bg-gradient-to-t from-zinc-950 via-zinc-950/40 to-zinc-950/80">
-              {/* Luxury gold glow rings */}
-              <div className="absolute w-72 h-72 rounded-full border border-pink-500/20 animate-[spin_12s_linear_infinite]" />
-              <div className="absolute w-56 h-56 rounded-full border border-fuchsia-500/35 animate-[spin_8s_linear_infinite_reverse]" />
-              
               <div className="relative z-10 space-y-6 max-w-sm">
-                <div className="w-20 h-20 mx-auto rounded-full bg-gradient-to-tr from-pink-500 to-fuchsia-600 flex items-center justify-center shadow-lg shadow-pink-500/20 animate-bounce">
+                <div className="mx-auto flex h-20 w-20 items-center justify-center rounded-lg bg-rose-500 shadow-lg shadow-rose-950/30">
                   <Flame className="w-10 h-10 text-white fill-white" />
                 </div>
                 <div className="space-y-2">
-                  <h2 className="text-3xl md:text-4xl font-black tracking-tight text-white">¡Grabá tu Boomerang!</h2>
-                  <p className="text-sm text-zinc-300">Espera que el operador active la cabina o presiona abajo para iniciar.</p>
+                  <h2 className="text-3xl font-black tracking-tight text-white md:text-4xl">Boomerang</h2>
+                  <p className="text-sm text-zinc-300">Prepara tu pose. Esta estacion crea un loop con la camara web.</p>
                 </div>
 
                 <div className="pt-4 space-y-3">
+                  {cameraError && (
+                    <div role="alert" className="rounded-lg border border-rose-400/30 bg-rose-500/10 p-3 text-left">
+                      <p className="text-xs font-semibold leading-5 text-rose-100">{cameraError}</p>
+                      <button
+                        type="button"
+                        onClick={() => void startCamera()}
+                        className="mt-2 flex h-11 w-full items-center justify-center gap-2 rounded-lg bg-white/10 px-3 text-xs font-black text-white transition hover:bg-white/15 motion-reduce:transition-none"
+                      >
+                        <RefreshCw className="h-4 w-4" aria-hidden="true" />
+                        Reintentar cámara
+                      </button>
+                    </div>
+                  )}
                   <button
+                    type="button"
                     onClick={() => startCaptureProcess(3, 15)}
-                    className="w-full h-14 rounded-2xl bg-white text-zinc-950 font-black text-sm uppercase tracking-wider hover:bg-zinc-200 transition-all shadow-xl flex items-center justify-center gap-2"
+                    disabled={Boolean(cameraError)}
+                    className="flex h-14 w-full items-center justify-center gap-2 rounded-lg bg-white text-sm font-black text-zinc-950 transition hover:bg-zinc-200 disabled:pointer-events-none disabled:opacity-45 motion-reduce:transition-none"
                   >
                     <Camera className="w-5 h-5" />
-                    Iniciar Captura Local
+                    Grabar loop
                   </button>
                   
                   {/* Selected Frame Indicator */}
@@ -726,7 +788,7 @@ export default function BoguePage() {
                       <button
                         key={f.id}
                         onClick={() => setSelectedFrame(f.id)}
-                        className={`text-[10px] font-black px-3 py-1.5 rounded-full border transition whitespace-nowrap ${
+                        className={`whitespace-nowrap rounded-lg border px-3 py-1.5 text-[10px] font-black transition ${
                           selectedFrame === f.id
                             ? 'border-pink-500 bg-pink-500/20 text-pink-300'
                             : 'border-zinc-800 bg-zinc-900/60 text-zinc-400'
@@ -763,7 +825,7 @@ export default function BoguePage() {
                   transition={{ duration: 0.5 }}
                   className="relative z-10"
                 >
-                  <span className="text-[12rem] font-black text-white drop-shadow-[0_0_35px_rgba(236,72,153,0.8)]">
+                  <span className="text-8xl font-black text-white sm:text-9xl">
                     {countdown}
                   </span>
                 </motion.div>
@@ -782,13 +844,10 @@ export default function BoguePage() {
               muted
               className={`absolute inset-0 w-full h-full object-cover ${facingMode === 'user' ? 'scale-x-[-1]' : ''}`}
             />
-            {/* Red recording frame border */}
-            <div className="absolute inset-0 border-8 border-red-600 animate-pulse pointer-events-none" />
-
             {/* Recording indicator */}
             <div className="absolute bottom-10 left-10 right-10 z-10 flex flex-col items-center space-y-2">
-              <span className="text-sm font-black tracking-widest text-red-500 uppercase flex items-center gap-1.5 bg-black/60 px-4 py-1.5 rounded-full border border-red-500/30">
-                <span className="w-2.5 h-2.5 rounded-full bg-red-500 animate-ping" /> Grabando Loop
+              <span className="flex items-center gap-1.5 rounded-lg border border-rose-400/30 bg-black/60 px-4 py-1.5 text-sm font-black uppercase tracking-wide text-rose-200">
+                <span className="h-2.5 w-2.5 rounded-full bg-red-500 motion-safe:animate-pulse" /> Grabando loop
               </span>
               <div className="w-full max-w-xs h-2 bg-zinc-900 rounded-full overflow-hidden border border-white/5">
                 <motion.div
@@ -813,10 +872,10 @@ export default function BoguePage() {
 
         {/* State: Done (Boomerang Preview + QR Download) */}
         {localStatus === 'done' && (
-          <div className="absolute inset-0 z-40 bg-zinc-950 flex flex-col md:flex-row items-center justify-center p-6 gap-8">
+          <div className="absolute inset-0 z-40 flex flex-col items-center justify-start gap-6 overflow-y-auto bg-zinc-950 px-4 pb-8 pt-20 md:flex-row md:justify-center md:gap-8 md:p-6">
             
             {/* Left/Top: Loop Video preview */}
-            <div className="relative w-full max-w-sm aspect-[9/16] bg-zinc-900 rounded-3xl overflow-hidden border border-white/10 shadow-2xl">
+            <div className="relative h-[52dvh] max-h-[32rem] w-auto max-w-full shrink-0 aspect-[9/16] overflow-hidden rounded-lg border border-white/10 bg-zinc-900 shadow-2xl md:h-[80dvh] md:max-h-[48rem]">
               {finalVideoUrl && (
                 <video
                   src={finalVideoUrl}
@@ -827,16 +886,16 @@ export default function BoguePage() {
                   playsInline
                 />
               )}
-              <div className="absolute top-4 left-4 bg-pink-500 text-white text-[10px] font-black uppercase px-3 py-1 rounded-full tracking-wider flex items-center gap-1">
-                <Sparkles className="w-3 h-3" /> Boomerang Loop
+              <div className="absolute left-4 top-4 flex items-center gap-1 rounded-lg bg-rose-500 px-3 py-1 text-[10px] font-black uppercase tracking-wide text-white">
+                <Sparkles className="w-3 h-3" /> Previsualizacion lista
               </div>
             </div>
 
             {/* Right/Bottom: QR code and sharing options */}
             <div className="flex flex-col items-center text-center space-y-6 max-w-xs">
               <div className="space-y-2">
-                <h3 className="text-2xl font-black text-white">¡Escaneá y Guardá!</h3>
-                <p className="text-sm text-zinc-400">Escaneá este código QR con tu celular para descargar tu video Boomerang.</p>
+                <h3 className="text-2xl font-black text-white">Guarda o comparte tu loop</h3>
+                <p className="text-sm text-zinc-400">Escanea el QR desde tu celular para abrir el enlace de esta captura web.</p>
               </div>
 
               {/* QR Code Container */}
@@ -856,7 +915,7 @@ export default function BoguePage() {
                     onClick={completeGuestCycle}
                     className="w-full h-12 rounded-xl bg-white/5 hover:bg-white/10 text-white font-bold text-sm border border-white/10 transition flex items-center justify-center gap-2"
                   >
-                    <RefreshCw className="w-4 h-4" /> Tomar Otro Loop
+                    <RefreshCw className="w-4 h-4" /> Grabar otro loop
                   </button>
                 )}
               </div>

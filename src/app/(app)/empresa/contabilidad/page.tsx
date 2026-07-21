@@ -2,6 +2,7 @@
 'use client';
 
 import React, { useState, useEffect, useCallback, useMemo } from 'react';
+import dynamic from 'next/dynamic';
 import Link from 'next/link';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle, CardFooter } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -9,9 +10,21 @@ import { ArrowLeft, BarChart3, FileText, KanbanSquare, ListChecks, TrendingUp, D
 import { KpiCard } from '@/components/dashboard/kpi-card';
 import { getDashboardKpiData } from '@/app/actions/dashboard';
 import { getCrmKpiData } from '@/app/actions/crm';
-import { MonthlySalesChart } from '@/components/charts/MonthlySalesChart';
-import { PaymentStatusPieChart } from '@/components/charts/PaymentStatusPieChart';
 import { Separator } from '@/components/ui/separator';
+
+const chartLoading = () => (
+    <Card className="flex h-[300px] items-center justify-center">
+        <Loader2 className="h-8 w-8 animate-spin text-primary/40" />
+    </Card>
+);
+const MonthlySalesChart = dynamic(
+    () => import('@/components/charts/MonthlySalesChart').then((module) => module.MonthlySalesChart),
+    { loading: chartLoading },
+);
+const PaymentStatusPieChart = dynamic(
+    () => import('@/components/charts/PaymentStatusPieChart').then((module) => module.PaymentStatusPieChart),
+    { loading: chartLoading },
+);
 
 const formatCurrency = (value?: number) => {
     if (value === undefined) return 'N/A';

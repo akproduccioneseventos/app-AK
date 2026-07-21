@@ -60,8 +60,7 @@ const PROMO_PAGES: Record<string, PromoConfig> = {
       headline: 'Paquete\nBodas 2026',
       subheadline:
         'Precios especiales de lanzamiento para bodas en 2026. Cupos limitados — ¡consultá ahora!',
-      backgroundImageUrl:
-        'https://images.unsplash.com/photo-1519225421980-715cb0215aed?w=1920&q=85&auto=format&fit=crop',
+      backgroundImageUrl: '/media/catalogo-servicios/boda_persuasiva.png',
     },
     services: [
       {
@@ -80,8 +79,7 @@ const PROMO_PAGES: Record<string, PromoConfig> = {
           'Traslado de novios',
           'Mesa dulce premium',
         ],
-        imageUrl:
-          'https://images.unsplash.com/photo-1511795409834-ef04bbd61622?w=800&q=80&auto=format&fit=crop',
+        imageUrl: '/media/catalogo-servicios/boda-decoracion-dorada-01.jpeg',
         imageHint: 'wedding decoration flowers',
         accentColor: 'bg-pink-500',
         emoji: '💍',
@@ -107,8 +105,7 @@ const PROMO_PAGES: Record<string, PromoConfig> = {
       headline: 'XV Años\nPerfectos',
       subheadline:
         'Convertimos los 15 años de tu hija en una noche de ensueño. Paquetes completos y personalizados.',
-      backgroundImageUrl:
-        'https://images.unsplash.com/photo-1464366400600-7168b8af9bc3?w=1920&q=85&auto=format&fit=crop',
+      backgroundImageUrl: '/media/catalogo-servicios/quinceanera_hero.png',
     },
     services: [
       {
@@ -127,8 +124,7 @@ const PROMO_PAGES: Record<string, PromoConfig> = {
           'DJ y animación toda la noche',
           'Sorpresa especial de medianoche',
         ],
-        imageUrl:
-          'https://images.unsplash.com/photo-1530103862676-de8c9debad1d?w=800&q=80&auto=format&fit=crop',
+        imageUrl: '/media/catalogo-servicios/xv-decoracion-rosa-01.jpeg',
         imageHint: 'sweet fifteen celebration cake',
         accentColor: 'bg-fuchsia-500',
         emoji: '👑',

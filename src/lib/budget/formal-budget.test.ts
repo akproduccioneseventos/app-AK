@@ -1,5 +1,6 @@
 import {
   buildAnnualAdjustmentProjection,
+  buildFormalBudgetBookingNote,
   calculatePricePerPerson,
 } from './formal-budget';
 
@@ -38,5 +39,29 @@ describe('formal budget presentation calculations', () => {
   it('calculates the marketing price per person without dividing by zero', () => {
     expect(calculatePricePerPerson(100000, 100)).toBe(1000);
     expect(calculatePricePerPerson(100000, 0)).toBe(0);
+  });
+
+  it('uses the configured annual percentage and deposit in the formal note', () => {
+    const note = buildFormalBudgetBookingNote({
+      hasAnnualAdjustment: true,
+      adjustmentPct: 12,
+      bookingDepositAmount: 7000,
+      currentYear: 2026,
+    });
+
+    expect(note).toContain('ajuste anual proyectado del 12%');
+    expect(note).toContain('seña de $ 7.000');
+    expect(note).not.toContain('15%');
+  });
+
+  it('does not mention an annual adjustment for a current-year budget', () => {
+    const note = buildFormalBudgetBookingNote({
+      hasAnnualAdjustment: false,
+      adjustmentPct: 15,
+      currentYear: 2026,
+    });
+
+    expect(note).toContain('precio vigente del año 2026');
+    expect(note).not.toContain('ajuste anual');
   });
 });

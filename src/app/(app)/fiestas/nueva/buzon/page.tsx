@@ -665,7 +665,7 @@ function BuzonAdminContent() {
                 </p>
               </div>
               <Badge variant="secondary" className="text-[9px] font-black uppercase tracking-wider">
-                {isAudio ? 'ðŸŽ™ï¸ Voz' : 'ðŸ“¹ Video'}
+                {isAudio ? '🎙️ Voz' : '📹 Video'}
               </Badge>
             </div>
 

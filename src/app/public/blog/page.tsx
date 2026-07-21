@@ -5,10 +5,10 @@ import { ArrowRight, BookOpen, MessageSquare, Sparkles } from 'lucide-react';
 import { PublicNavbar } from '@/components/public/PublicNavbar';
 import { PublicFooter } from '@/components/public-footer';
 import { CompanyLogo } from '@/components/company-logo';
-import * as Lucide from 'lucide-react';
 import { getBlogPosts } from '@/app/actions/blog';
 import { BlogInteractiveList } from '@/components/public/BlogInteractiveList';
 import { blogPosts as defaultBlogPosts, getPostImage } from '@/data/blog-posts';
+import { getBlogIcon } from '@/lib/blog-icons';
 
 export const metadata: Metadata = {
   title: 'Consejos para organizar eventos | Blog AK Producciones',
@@ -19,19 +19,13 @@ export const metadata: Metadata = {
 const WHATSAPP_NUMBER = '59898355530';
 const WHATSAPP_MESSAGE = 'Hola AK Producciones, lei el blog y quiero asesoramiento para organizar mi evento.';
 
-function getIconComponent(name: any) {
-  if (typeof name !== 'string') return name || Lucide.BookOpen;
-  const IconComp = (Lucide as any)[name];
-  return IconComp || Lucide.BookOpen;
-}
-
 export default async function BlogPage() {
   const postsFromDb = await getBlogPosts().catch(() => []);
   const posts = (postsFromDb && postsFromDb.length > 0) ? postsFromDb : defaultBlogPosts;
 
   const featured = posts[0];
   const latest = posts.slice(1);
-  const FeaturedIcon = getIconComponent(featured.icon);
+  const FeaturedIcon = getBlogIcon(featured.icon);
 
   return (
     <div className="min-h-screen bg-white font-body text-slate-900">
@@ -51,7 +45,7 @@ export default async function BlogPage() {
                 <h1 className="max-w-3xl text-4xl font-black leading-tight sm:text-5xl">
                   Consejos reales para organizar una fiesta sin perder el control.
                 </h1>
-                <p className="max-w-2xl text-base leading-8 text-slate-355 sm:text-lg">
+                <p className="max-w-2xl text-base leading-8 text-slate-300 sm:text-lg">
                   Contenido de valor para elegir salón, menú, presupuesto, tiempos y servicios con información clara antes de contratar.
                 </p>
               </div>

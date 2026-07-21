@@ -235,7 +235,7 @@ export default function BudgetPrintTemplate({
                   Número de Documento
                 </th>
                 <th className="border border-gray-400 px-2 py-1.5 text-center font-semibold">
-                  Página
+                  Formato
                 </th>
                 <th className="border border-gray-400 px-2 py-1.5 text-left font-semibold">
                   Fecha
@@ -254,7 +254,7 @@ export default function BudgetPrintTemplate({
                 <td className="border border-gray-300 px-2 py-1.5 font-mono font-semibold">
                   #{budgetNumber}
                 </td>
-                <td className="border border-gray-300 px-2 py-1.5 text-center">1/1</td>
+                <td className="border border-gray-300 px-2 py-1.5 text-center">A4</td>
                 <td className="border border-gray-300 px-2 py-1.5">
                   {formatDateShort(presupuesto.timestamp)}
                 </td>
