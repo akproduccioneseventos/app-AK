@@ -1,20 +1,15 @@
 'use client';
 
 import { useState, useCallback, useMemo } from 'react';
+import dynamic from 'next/dynamic';
 import Link from 'next/link';
-import { DndContext, PointerSensor, useSensor, useSensors, type DragEndEvent } from '@dnd-kit/core';
+import type { DragEndEvent } from '@dnd-kit/core';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { KanbanSquare, Users, Clock, TrendingUp, Wallet, CheckCircle, Loader2, ArrowLeft, Search, X, AlertTriangle, User, RotateCcw, CalendarDays, Gift, Sparkles, Monitor } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import type { CrmLead } from '@/types/crm';
 import { getPresupuestoById } from '@/app/actions/presupuestos';
-import { CrmStageColumn } from '@/components/crm/CrmStageColumn';
-import { AddLeadDialog } from '@/components/crm/AddLeadDialog';
-import { ScheduleMeetingDialog } from '@/components/crm/ScheduleMeetingDialog'; 
-import { BookingConfirmationDialog } from '@/components/crm/BookingConfirmationDialog';
-import { RegisterDepositDialog } from '@/components/crm/RegisterDepositDialog';
-import { ScrollArea, ScrollBar } from "@/components/ui/scroll-area";
 import { useIsMobile } from '@/hooks/use-mobile';
 import {
   Accordion,
@@ -43,7 +38,27 @@ import {
 import { resetCrm } from '@/app/actions/crm';
 
 const INACTIVITY_DAYS = 7;
-const BOARD_SCROLL_STYLE = { height: 'calc(100vh - 320px)', minHeight: '400px', maxHeight: '900px' } as const;
+
+const CrmDesktopBoard = dynamic(
+  () => import('@/components/crm/CrmDesktopBoard').then((module) => module.CrmDesktopBoard),
+  { loading: () => <div className="flex min-h-[400px] items-center justify-center"><Loader2 className="h-8 w-8 animate-spin text-primary/40" /></div> },
+);
+const AddLeadDialog = dynamic(
+  () => import('@/components/crm/AddLeadDialog').then((module) => module.AddLeadDialog),
+  { loading: () => <Button variant="outline" className="h-11" disabled><Loader2 className="mr-2 h-4 w-4 animate-spin" />Cargando</Button> },
+);
+const ScheduleMeetingDialog = dynamic(
+  () => import('@/components/crm/ScheduleMeetingDialog').then((module) => module.ScheduleMeetingDialog),
+  { loading: () => <div className="fixed inset-0 z-[100] flex items-center justify-center bg-black/20"><Loader2 className="h-8 w-8 animate-spin text-white" /></div> },
+);
+const BookingConfirmationDialog = dynamic(
+  () => import('@/components/crm/BookingConfirmationDialog').then((module) => module.BookingConfirmationDialog),
+  { loading: () => <div className="fixed inset-0 z-[100] flex items-center justify-center bg-black/20"><Loader2 className="h-8 w-8 animate-spin text-white" /></div> },
+);
+const RegisterDepositDialog = dynamic(
+  () => import('@/components/crm/RegisterDepositDialog').then((module) => module.RegisterDepositDialog),
+  { loading: () => <div className="fixed inset-0 z-[100] flex items-center justify-center bg-black/20"><Loader2 className="h-8 w-8 animate-spin text-white" /></div> },
+);
 
 const formatCurrency = (value?: number) => {
     if (value === undefined) return 'N/A';
@@ -107,7 +122,6 @@ export default function CrmPage() {
   const [quickFilter, setQuickFilter] = useState<QuickFilter>(initialQuickFilter);
   
   const isMobile = useIsMobile();
-  const sensors = useSensors(useSensor(PointerSensor));
 
   // Filtered leads
   const filteredLeads = useMemo(() => {
@@ -299,7 +313,6 @@ export default function CrmPage() {
   ];
 
   return (
-    <DndContext sensors={sensors} onDragEnd={handleDragEnd}>
       <div className="h-full flex flex-col space-y-4">
         <div className="sticky top-0 z-20 -mx-2 flex flex-col items-start justify-between gap-4 rounded-2xl border bg-white/95 p-3 shadow-sm backdrop-blur sm:flex-row sm:items-center">
           <div>
@@ -454,14 +467,14 @@ export default function CrmPage() {
               ))}
             </Accordion>
         ) : (
-          <ScrollArea className="w-full whitespace-nowrap pb-4" style={BOARD_SCROLL_STYLE}>
-              <div className="flex gap-4">
-              {stages.map(stage => (
-                  <CrmStageColumn key={stage.id} stage={stage} leads={filteredLeadsByStage[stage.id] || []} onDeleteLead={deleteLead} deletingLeadId={deletingLeadId} onHire={handleHireClick} />
-              ))}
-              </div>
-              <ScrollBar orientation="horizontal" />
-          </ScrollArea>
+          <CrmDesktopBoard
+            stages={stages}
+            leadsByStage={filteredLeadsByStage}
+            deletingLeadId={deletingLeadId}
+            onDeleteLead={deleteLead}
+            onHire={handleHireClick}
+            onDragEnd={handleDragEnd}
+          />
         )}
         
         {leadToBook && bookingPresupuestoInfo && (
@@ -476,6 +489,5 @@ export default function CrmPage() {
             <ScheduleMeetingDialog isOpen={isMeetingModalOpen} onOpenChange={setIsMeetingModalOpen} leadName={leadForMeeting.name} meetingType={meetingType} onSubmit={handleMeetingSubmit} onClose={() => setLeadForMeeting(null)} />
         )}
       </div>
-    </DndContext>
   );
 }

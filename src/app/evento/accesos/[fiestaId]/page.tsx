@@ -6,7 +6,7 @@ import { Loader2, AlertTriangle, CheckCircle2, XCircle, AlertCircle, CameraOff, 
 import { getFiestaById } from '@/app/actions/fiesta/fiesta.actions';
 import { checkInGuest } from '@/app/actions/fiesta/invitados.actions';
 import type { FiestaEnPlanificacion, Invitado } from '@/types/fiesta';
-import { Html5QrcodeScanner, type QrcodeSuccessCallback } from 'html5-qrcode';
+import type { Html5QrcodeScanner, QrcodeSuccessCallback } from 'html5-qrcode';
 import { Button } from '@/components/ui/button';
 import { motion, AnimatePresence } from 'framer-motion';
 import { cn } from '@/lib/utils';
@@ -142,9 +142,12 @@ function AccessControlContent() {
   const startScanner = useCallback(() => {
     const init = async () => {
       try {
-        await navigator.mediaDevices.getUserMedia({ video: { facingMode: 'environment' } });
+        const permissionStream = await navigator.mediaDevices.getUserMedia({ video: { facingMode: 'environment' } });
+        permissionStream.getTracks().forEach((track) => track.stop());
         setHasCameraPermission(true);
         if (!scannerRef.current) {
+          const { Html5QrcodeScanner } = await import('html5-qrcode');
+          if (scannerRef.current) return;
           const scanner = new Html5QrcodeScanner(
             'qr-acceso-reader',
             { fps: 15, qrbox: { width: 260, height: 260 }, rememberLastUsedCamera: true },

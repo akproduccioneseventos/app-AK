@@ -49,6 +49,55 @@ describe("performance release gate", () => {
     }
   });
 
+  it("loads the advanced invitation editor only when it is requested", () => {
+    const editor = read("src/app/(app)/fiestas/nueva/pagina-web/page.tsx");
+
+    expect(editor).toContain("const AdvancedInvitationCanvas = dynamic(");
+    expect(editor).toContain("const ControlPanel = dynamic(");
+    expect(editor).toContain("const SectionEditorPanel = dynamic(");
+    expect(editor).toContain("const TemplatePickerGallery = dynamic(");
+    expect(editor).toContain("{templateGalleryOpen && (");
+    expect(editor).not.toContain("from '@dnd-kit/core'");
+    expect(editor).not.toContain("from '@dnd-kit/sortable'");
+    expect(editor).not.toContain("from '@/components/invitacion/templates/GraziaTemplate'");
+  });
+
+  it("splits heavy accounting charts and the CRM desktop board", () => {
+    const accounting = read("src/app/(app)/empresa/contabilidad/page.tsx");
+    const crm = read("src/app/(app)/contabilidad/crm/page.tsx");
+
+    expect(accounting).toContain("const MonthlySalesChart = dynamic(");
+    expect(accounting).toContain("const PaymentStatusPieChart = dynamic(");
+    expect(crm).toContain("const CrmDesktopBoard = dynamic(");
+    expect(crm).toContain("const AddLeadDialog = dynamic(");
+    expect(crm).not.toContain("import { DndContext");
+    expect(crm).not.toContain("from '@/components/crm/CrmStageColumn'");
+  });
+
+  it("keeps dashboard and analytics charts out of their initial bundles", () => {
+    const dashboard = read("src/app/(app)/admin/page.tsx");
+    const analytics = read("src/app/analytics/page.tsx");
+
+    expect(dashboard).toContain("const MonthlySalesChart = dynamic(");
+    expect(dashboard).toContain("const PaymentStatusPieChart = dynamic(");
+    expect(analytics).toContain("const ProfitabilityChart = dynamic(");
+    expect(analytics).toContain("const StaffEfficiencyChart = dynamic(");
+    expect(analytics).not.toMatch(/import \{ .*Chart.* \} from '@\/components\/charts\//);
+  });
+
+  it("loads the QR camera engine only when a scanner is activated", () => {
+    const publicScanner = read("src/app/evento/accesos/[fiestaId]/page.tsx");
+    const internalScanner = read(
+      "src/app/(app)/fiestas/nueva/invitados/checkin-scanner/page.tsx",
+    );
+
+    for (const scanner of [publicScanner, internalScanner]) {
+      expect(scanner).toContain("await import('html5-qrcode')");
+      expect(scanner).toContain("getTracks().forEach((track) => track.stop())");
+      expect(scanner).not.toContain("import { Html5QrcodeScanner");
+    }
+  });
+
   it("keeps direct public imagery within a practical transfer size", () => {
     const simulatorHero = path.join(
       process.cwd(),

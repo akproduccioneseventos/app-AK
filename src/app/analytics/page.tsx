@@ -1,17 +1,42 @@
 'use client';
 
 import React, { useState, useEffect, useCallback } from 'react';
+import dynamic from 'next/dynamic';
 import { motion } from 'framer-motion';
 import { TrendingUp, Target, CalendarCheck, DollarSign, Loader2, Zap, BarChart2, Users } from 'lucide-react';
 import { KpiCard } from '@/components/dashboard/kpi-card';
-import { ProfitabilityChart } from '@/components/charts/ProfitabilityChart';
-import { ConversionFunnelChart } from '@/components/charts/ConversionFunnelChart';
-import { TopServicesChart } from '@/components/charts/TopServicesChart';
-import { EventTypeProfitabilityChart } from '@/components/charts/EventTypeProfitabilityChart';
-import { BottleneckAlertsPanel } from '@/components/charts/BottleneckAlertsPanel';
-import { StaffEfficiencyChart } from '@/components/charts/StaffEfficiencyChart';
 import { getAnalyticsData, type AnalyticsData } from '@/app/actions/analytics';
 import { useToast } from '@/hooks/use-toast';
+
+const analyticsChartLoading = () => (
+  <div className="flex h-[360px] items-center justify-center rounded-2xl bg-slate-50 shadow-sm">
+    <Loader2 className="h-8 w-8 animate-spin text-primary/30" />
+  </div>
+);
+const ProfitabilityChart = dynamic(
+  () => import('@/components/charts/ProfitabilityChart').then((module) => module.ProfitabilityChart),
+  { loading: analyticsChartLoading },
+);
+const ConversionFunnelChart = dynamic(
+  () => import('@/components/charts/ConversionFunnelChart').then((module) => module.ConversionFunnelChart),
+  { loading: analyticsChartLoading },
+);
+const TopServicesChart = dynamic(
+  () => import('@/components/charts/TopServicesChart').then((module) => module.TopServicesChart),
+  { loading: analyticsChartLoading },
+);
+const EventTypeProfitabilityChart = dynamic(
+  () => import('@/components/charts/EventTypeProfitabilityChart').then((module) => module.EventTypeProfitabilityChart),
+  { loading: analyticsChartLoading },
+);
+const BottleneckAlertsPanel = dynamic(
+  () => import('@/components/charts/BottleneckAlertsPanel').then((module) => module.BottleneckAlertsPanel),
+  { loading: analyticsChartLoading },
+);
+const StaffEfficiencyChart = dynamic(
+  () => import('@/components/charts/StaffEfficiencyChart').then((module) => module.StaffEfficiencyChart),
+  { loading: analyticsChartLoading },
+);
 
 export default function AnalyticsDashboardPage() {
   const [data, setData] = useState<AnalyticsData | null>(null);

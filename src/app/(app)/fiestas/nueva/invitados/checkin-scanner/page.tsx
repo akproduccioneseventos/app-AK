@@ -14,7 +14,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Input } from '@/components/ui/input';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { useSearchParams } from 'next/navigation';
-import { Html5QrcodeScanner, type QrcodeSuccessCallback } from 'html5-qrcode';
+import type { Html5QrcodeScanner, QrcodeSuccessCallback } from 'html5-qrcode';
 import { Alert, AlertTitle, AlertDescription } from '@/components/ui/alert';
 
 
@@ -30,7 +30,6 @@ function CheckinScannerContent() {
   const [isProcessingCheckin, setIsProcessingCheckin] = useState<string | null>(null);
   const scannerRef = useRef<Html5QrcodeScanner | null>(null);
   const [hasCameraPermission, setHasCameraPermission] = useState<boolean | null>(null);
-  const videoRef = useRef<HTMLVideoElement>(null);
 
 
   const loadInitialData = useCallback(async (showLoading = true) => {
@@ -133,13 +132,12 @@ function CheckinScannerContent() {
     const getCameraPermission = async () => {
       try {
         const stream = await navigator.mediaDevices.getUserMedia({ video: true });
+        stream.getTracks().forEach((track) => track.stop());
         setHasCameraPermission(true);
 
-        if (videoRef.current) {
-          videoRef.current.srcObject = stream;
-        }
-
         if (!scannerRef.current) {
+          const { Html5QrcodeScanner } = await import('html5-qrcode');
+          if (scannerRef.current) return;
           const scanner = new Html5QrcodeScanner("qr-reader", { fps: 10, qrbox: { width: 250, height: 250 } }, false);
           scanner.render(onScanSuccess, onScanFailure);
           scannerRef.current = scanner;
