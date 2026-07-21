@@ -4,6 +4,7 @@ import { expect, test, type Page } from '@playwright/test';
 import {
   defaultCartaTragosData,
   defaultClientPortalSettings,
+  defaultModulosContratados,
   initialFiestaActualData,
 } from '../../src/lib/fiesta-defaults';
 
@@ -62,6 +63,7 @@ test.beforeAll(({}, workerInfo) => {
     tipoCelebracion: 'XV Años',
   };
   fiesta.modulosContratados = {
+    ...defaultModulosContratados,
     ...(fiesta.modulosContratados || {}),
     checkin: true,
   };

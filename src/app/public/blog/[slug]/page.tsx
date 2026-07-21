@@ -2,25 +2,20 @@ import type { Metadata } from 'next';
 import Link from 'next/link';
 import Image from 'next/image';
 import { notFound } from 'next/navigation';
+import { ArrowLeft, ArrowRight, CheckCircle2, MessageSquare, Timer } from 'lucide-react';
 import { PublicNavbar } from '@/components/public/PublicNavbar';
 import { PublicFooter } from '@/components/public-footer';
 import { CompanyLogo } from '@/components/company-logo';
-import * as Lucide from 'lucide-react';
 import { getBlogPosts, getBlogPostBySlug, getRelatedPosts } from '@/app/actions/blog';
 import { BlogFaq } from '@/components/public/BlogFaq';
 import { blogPosts as defaultBlogPosts, getPostImage } from '@/data/blog-posts';
+import { getBlogIcon } from '@/lib/blog-icons';
 
 interface Props {
   params: Promise<{ slug: string }>;
 }
 
 const WHATSAPP_NUMBER = '59898355530';
-
-function getIconComponent(name: any) {
-  if (typeof name !== 'string') return name || Lucide.BookOpen;
-  const IconComp = (Lucide as any)[name];
-  return IconComp || Lucide.BookOpen;
-}
 
 export async function generateStaticParams() {
   const postsFromDb = await getBlogPosts();
@@ -51,7 +46,7 @@ export default async function BlogPostPage({ params }: Props) {
 
   if (!post) notFound();
 
-  const Icon = getIconComponent(post.icon);
+  const Icon = getBlogIcon(post.icon);
   
   // Get related posts
   let relatedFromDb = await getRelatedPosts(post);
@@ -88,7 +83,7 @@ export default async function BlogPostPage({ params }: Props) {
                 href="/public/blog"
                 className="inline-flex items-center gap-2 rounded-full border border-white/20 bg-white/5 px-4 py-2 text-xs font-black uppercase tracking-wider text-white/95 transition hover:bg-white/15"
               >
-                <Lucide.ArrowLeft className="h-4 w-4" />
+                <ArrowLeft className="h-4 w-4" />
                 Volver al blog
               </Link>
               
@@ -103,7 +98,7 @@ export default async function BlogPostPage({ params }: Props) {
                 <div className="inline-flex items-center gap-2 rounded-full bg-white/15 px-4 py-2 text-[11px] font-black uppercase tracking-[0.22em]">
                   {post.category}
                   <span className="h-1 w-1 rounded-full bg-white/50" />
-                  <Lucide.Timer className="h-3.5 w-3.5" />
+                  <Timer className="h-3.5 w-3.5" />
                   {post.readTime}
                 </div>
                 <h1 className="text-4xl font-black leading-tight sm:text-5xl">{post.title}</h1>
@@ -143,7 +138,7 @@ export default async function BlogPostPage({ params }: Props) {
                   <ul className="mt-5 space-y-3">
                     {post.checklist.map((item) => (
                       <li key={item} className="flex gap-3 text-sm leading-7 text-slate-700 font-medium">
-                        <Lucide.CheckCircle2 className="mt-0.5 h-5 w-5 shrink-0 text-emerald-600" />
+                        <CheckCircle2 className="mt-0.5 h-5 w-5 shrink-0 text-emerald-600" />
                         <span>{item}</span>
                       </li>
                     ))}
@@ -170,7 +165,7 @@ export default async function BlogPostPage({ params }: Props) {
                   rel="noopener noreferrer"
                   className="inline-flex w-full items-center justify-center gap-2 rounded-2xl bg-[#25D366] px-4 py-3.5 text-xs font-black uppercase tracking-wider text-white shadow-md transition hover:bg-[#1eb356] hover:-translate-y-0.5 duration-200"
                 >
-                  <Lucide.MessageSquare className="h-4 w-4" />
+                  <MessageSquare className="h-4 w-4" />
                   Chatear por WhatsApp
                 </a>
               </div>
@@ -195,7 +190,7 @@ export default async function BlogPostPage({ params }: Props) {
                   </p>
                   <div className="pt-2 flex items-center gap-1.5 text-xs font-black uppercase tracking-wider text-purple-700">
                     Comenzar simulación
-                    <Lucide.ArrowRight className="h-3.5 w-3.5 transition duration-300 group-hover:translate-x-1" />
+                    <ArrowRight className="h-3.5 w-3.5 transition duration-300 group-hover:translate-x-1" />
                   </div>
                 </div>
               </Link>
@@ -215,7 +210,7 @@ export default async function BlogPostPage({ params }: Props) {
               </div>
               <div className="grid gap-4 md:grid-cols-2">
                 {relatedFromDb.map((item) => {
-                  const RelatedIcon = getIconComponent(item.icon);
+                  const RelatedIcon = getBlogIcon(item.icon);
                   return (
                     <Link
                       key={item.slug}
@@ -239,7 +234,7 @@ export default async function BlogPostPage({ params }: Props) {
                         <h3 className="mt-1 font-black leading-snug text-slate-950 group-hover:text-indigo-600 truncate" title={item.title}>{item.title}</h3>
                         <span className="mt-2 inline-flex items-center gap-1 text-xs font-black uppercase tracking-wider text-indigo-600">
                           Leer
-                          <Lucide.ArrowRight className="h-3.5 w-3.5" />
+                          <ArrowRight className="h-3.5 w-3.5" />
                         </span>
                       </div>
                     </Link>

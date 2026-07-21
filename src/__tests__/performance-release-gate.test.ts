@@ -33,6 +33,22 @@ describe("performance release gate", () => {
     expect(clubPage).toContain("getSalonesWithoutBlockingSale");
   });
 
+  it("keeps the public blog from bundling the complete icon catalog", () => {
+    const publicBlogFiles = [
+      "src/components/landing/BlogSection.tsx",
+      "src/components/public/BlogInteractiveList.tsx",
+      "src/app/public/blog/page.tsx",
+      "src/app/public/blog/[slug]/page.tsx",
+      "src/app/blog/[slug]/page.tsx",
+    ];
+
+    for (const file of publicBlogFiles) {
+      expect(read(file)).not.toMatch(
+        /import\s+\*\s+as\s+\w+\s+from\s+["']lucide-react["']/,
+      );
+    }
+  });
+
   it("keeps direct public imagery within a practical transfer size", () => {
     const simulatorHero = path.join(
       process.cwd(),
