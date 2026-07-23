@@ -996,6 +996,7 @@ function SimuladorContent() {
             adultos,
             ninosYAdolescentes,
             selectedPaqueteId: paqueteId,
+            excludedPackageServiceIds: [],
             selectedServices: Array.from(formData.serviciosSeleccionados.entries()).map(([id, data]) => ({
                 id,
                 esRegalo: data.esRegalo,
@@ -1009,7 +1010,7 @@ function SimuladorContent() {
         const data = {
             submissionId: submissionIdRef.current,
             clienteNombre,
-            clienteContacto,
+            clienteContacto: normalizeUruguayPhone(clienteContacto),
             eventoFecha: eventoFecha ? eventoFecha.toISOString() : undefined,
             adultos,
             ninos: ninosYAdolescentes,
