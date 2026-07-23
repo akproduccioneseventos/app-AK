@@ -117,7 +117,7 @@ export function CTASection({
             {ctaLabel}
           </a>
           <a
-            href={`tel:+${whatsappNumber}`}
+            href={`tel:${whatsappNumber.replace(/[\s-]/g, '').replace(/^([^+])/, '+$1')}`}
             aria-label="Llamar por teléfono a AK Producciones"
             className={cn(
               'flex items-center gap-3 px-8 py-5 rounded-2xl',

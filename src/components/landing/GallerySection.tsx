@@ -3,9 +3,11 @@
 import { useEffect, useMemo, useState } from "react";
 import Image, { type ImageLoaderProps } from "next/image";
 import {
+  ArrowRight,
   Camera,
   ChevronLeft,
   ChevronRight,
+  Instagram,
   Share2,
   X,
   ZoomIn,
@@ -101,23 +103,29 @@ function getCategoriasAsociadas(
   const cats: string[] = [];
 
   if (/(salon|salón|club|uruguay)/.test(text)) cats.push("Salón");
-  if (/(decor|ambient|mesa principal|velas)/.test(text)) cats.push("Decoración");
-  if (/(comida|catering|menu|menú| finger |gastro|plato|bocado|recepcion|recepción)/.test(text)) {
+  if (/(decor|ambient|mesa principal|velas|flores|estilo|cortinas)/.test(text)) cats.push("Decoración");
+  if (/(comida|catering|menu|menú|finger|gastro|plato|bocado|recepcion|recepción|kebab|kebat|shawarma|asado|parrilla|picada|brochete|brochette|sandwich|sándwich|tabla|perro|pancho|hamburguesa|pizza|pizzeta|empanada|gastronomia|gastronomía|lunch|carne|snack|buffet|buffêt)/.test(text)) {
     cats.push("Catering");
   }
-  if (/(trago|bebida|bar |barra)/.test(text)) cats.push("Barra de Tragos");
-  if (/(cabina|espejo|plataforma|touchpix|fotocabina|fotobina|totem|tótem)/.test(text)) {
+  if (/(trago|bebida|bar |barra|coctel|cóctel|whisky|gin|cerveza)/.test(text)) cats.push("Barra de Tragos");
+  if (/(cabina|espejo|plataforma|touchpix|fotocabina|fotobina|totem|tótem| 360)/.test(text)) {
     cats.push("Fotocabina");
   }
-  if (/(torta|dulce|candy|postre|reposteria|repostería)/.test(text)) cats.push("Repostería");
-  if (/(disco|luz|luces|pantalla|led|dj|sonido|pista|baile|valz|vals)/.test(text)) {
+  if (/(torta|dulce|candy|postre|reposteria|repostería|chocolat|volcán|helado)/.test(text)) cats.push("Repostería");
+  if (/(disco|luz|luces|pantalla|led|dj|sonido|pista|baile|valz|vals|robot)/.test(text)) {
     cats.push("Discoteca");
   }
   if (/(foto|video|film|bogue|exteriores|civil|iglesia|pintada|sesion|sesión|retrato)/.test(text)) {
     cats.push("Fotografía");
   }
 
-  if (cats.length === 0) cats.push(text.includes("boda") || text.includes("casamiento") ? "Fotografía" : "Decoración");
+  if (cats.length === 0) {
+    if (/(gastro|comida|catering|menú|menu|bocado|plato|carne|kebab)/.test(text)) {
+      cats.push("Catering");
+    } else {
+      cats.push("Fotografía");
+    }
+  }
   return cats;
 }
 
@@ -255,16 +263,29 @@ export function GallerySection({ images, galeriaFotos }: GallerySectionProps) {
   return (
     <section id="galeria" data-testid="gallery-section" className="border-y border-white/10 bg-zinc-950 py-20 text-white sm:py-24">
       <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
-        <div className="mb-10 max-w-2xl">
-          <p className="mb-3 flex items-center gap-2 text-xs font-black uppercase tracking-[0.2em] text-red-400">
-            <Camera className="h-4 w-4" /> Trabajos reales
-          </p>
-          <h2 className="font-headline text-4xl font-black leading-tight sm:text-5xl">
-            Mirá cómo se ve una producción AK
-          </h2>
-          <p className="mt-4 max-w-xl text-base leading-relaxed text-zinc-400 sm:text-lg">
-            Explorá montajes, gastronomía, discoteca y servicios que forman parte de eventos reales.
-          </p>
+        <div className="mb-10 flex flex-col gap-6 md:flex-row md:items-end md:justify-between">
+          <div className="max-w-2xl">
+            <div className="mb-3 inline-flex items-center gap-2 rounded-xl border border-pink-500/20 bg-pink-500/10 px-3.5 py-1 text-xs font-black uppercase tracking-widest text-pink-300">
+              <Instagram className="h-3.5 w-3.5 text-pink-400" />
+              Sincronizado con Instagram @akproduccioneseventos
+            </div>
+            <h2 className="font-headline text-4xl font-black leading-tight text-white sm:text-5xl">
+              Galería de Eventos Reales
+            </h2>
+            <p className="mt-3 max-w-xl text-base leading-relaxed text-zinc-400 sm:text-lg">
+              Explorá fotos reales de nuestras producciones: gastronomía gourmet, salones armados, pistas LED, discoteca y ambientación.
+            </p>
+          </div>
+          <a
+            href="https://www.instagram.com/akproduccioneseventos/"
+            target="_blank"
+            rel="noopener noreferrer"
+            className="inline-flex shrink-0 items-center justify-center gap-2 rounded-2xl border border-white/10 bg-white/5 px-5 py-3 text-xs font-black uppercase tracking-widest text-white transition-all hover:scale-[1.02] hover:border-pink-500/40 hover:bg-white/10 active:scale-95"
+          >
+            <Instagram className="h-4 w-4 text-pink-400" />
+            Ver @akproduccioneseventos
+            <ArrowRight className="h-4 w-4 text-red-400" />
+          </a>
         </div>
 
         <div className="mb-8 flex flex-wrap gap-2 border-b border-white/10 pb-4">

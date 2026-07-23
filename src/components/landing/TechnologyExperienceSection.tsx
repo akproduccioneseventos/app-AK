@@ -55,18 +55,18 @@ export default function TechnologyExperienceSection({
   return (
     <section
       id="tecnologia"
-      className="border-y border-slate-200 bg-white py-20 text-slate-950 sm:py-24"
+      className="border-y border-white/5 bg-zinc-950 py-20 text-white sm:py-24"
     >
       <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
         <div className="grid items-center gap-12 lg:grid-cols-[0.9fr_1.1fr] lg:gap-16">
           <motion.div {...reveal} className="max-w-xl text-left">
-            <p className="text-xs font-black uppercase tracking-widest text-red-700">
+            <p className="text-xs font-black uppercase tracking-widest text-red-400">
               Tecnología útil
             </p>
             <h2 className="mt-4 font-headline text-4xl font-black leading-tight sm:text-5xl">
               Menos coordinación. Más experiencia.
             </h2>
-            <p className="mt-5 text-base font-medium leading-7 text-slate-600 sm:text-lg">
+            <p className="mt-5 text-base font-medium leading-7 text-zinc-400 sm:text-lg">
               La tecnología acompaña la fiesta sin convertirse en una
               complicación. El cliente organiza mejor y los invitados participan
               desde el celular con una experiencia simple y privada.
@@ -83,9 +83,10 @@ export default function TechnologyExperienceSection({
                 href={waHref}
                 target="_blank"
                 rel="noopener noreferrer"
-                className="inline-flex h-12 items-center justify-center gap-2 rounded-md border border-slate-300 px-6 text-sm font-bold text-slate-800 transition-colors hover:bg-slate-100"
+                aria-label="Consultar por WhatsApp sobre tecnología AK (abre en nueva ventana)"
+                className="inline-flex h-12 items-center justify-center gap-2 rounded-md border border-white/10 bg-white/5 px-6 text-sm font-bold text-white transition-colors hover:bg-white/10"
               >
-                <MessageSquare className="h-4 w-4 text-emerald-700" />
+                <MessageSquare className="h-4 w-4 text-emerald-400" aria-hidden="true" />
                 Consultar
               </a>
             </div>
@@ -93,7 +94,7 @@ export default function TechnologyExperienceSection({
 
           <motion.figure
             {...reveal}
-            className="relative min-h-[360px] overflow-hidden rounded-md bg-slate-900 sm:min-h-[470px]"
+            className="relative min-h-[360px] overflow-hidden rounded-2xl bg-zinc-900 sm:min-h-[470px]"
           >
             <Image
               src="/media/catalogo-servicios/tecnologia_fiesta.png"
@@ -112,18 +113,18 @@ export default function TechnologyExperienceSection({
 
         <motion.div
           {...reveal}
-          className="mt-14 grid border-y border-slate-200 sm:grid-cols-3"
+          className="mt-14 grid border-y border-white/5 sm:grid-cols-3"
         >
           {TECH_FEATURES.map((feature, index) => {
             const Icon = feature.icon;
             return (
               <article
                 key={feature.title}
-                className={`py-7 sm:px-7 ${index > 0 ? "border-t border-slate-200 sm:border-l sm:border-t-0" : ""}`}
+                className={`py-7 sm:px-7 ${index > 0 ? "border-t border-white/5 sm:border-l sm:border-t-0" : ""}`}
               >
-                <Icon className="h-6 w-6 text-red-700" />
+                <Icon className="h-6 w-6 text-red-400" aria-hidden="true" />
                 <h3 className="mt-4 text-lg font-black">{feature.title}</h3>
-                <p className="mt-2 text-sm leading-6 text-slate-600">
+                <p className="mt-2 text-sm leading-6 text-zinc-400">
                   {feature.description}
                 </p>
               </article>
