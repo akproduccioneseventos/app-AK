@@ -9,13 +9,15 @@ import { isClubUruguay } from '@/lib/club-uruguay';
 import { canUseNextImage } from '@/lib/next-image-url';
 import { getDynamicSalonPhotos, type SalonPhoto } from '@/lib/salon-helper';
 
+import { AK_WHATSAPP_NUMBER } from '@/lib/public-contact';
+
 export const metadata: Metadata = {
   title: 'Fiestas en Club Uruguay | AK Producciones',
   description:
     'Conoce el salon, mira montajes reales y cotiza una produccion integral de AK Producciones en Club Uruguay, Salto.',
 };
 
-const WHATSAPP = '59898355530';
+const WHATSAPP = AK_WHATSAPP_NUMBER;
 const passthroughImageLoader = ({ src }: ImageLoaderProps) => src;
 
 function SalonMedia({ src, alt, sizes, priority, className }: { src: string; alt: string; sizes: string; priority?: boolean; className: string }) {

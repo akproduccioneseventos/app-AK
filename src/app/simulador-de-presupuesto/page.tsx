@@ -90,6 +90,28 @@ const safeImageUrl = (url?: string): string | undefined => {
     }
 };
 
+const getServiceOrDishImage = (s?: { id?: string; nombre?: string; title?: string; imageUrl?: string }): string => {
+    if (!s) return '/media/catalogo-servicios/blog_presupuesto.png';
+    const safe = safeImageUrl(s.imageUrl);
+    if (safe) return safe;
+    const dishImg = getCateringDishImage({ id: s.id || '', imageUrl: s.imageUrl });
+    if (dishImg) return dishImg;
+
+    const text = (s.nombre || s.title || '').toLowerCase();
+    if (/(boda|casamiento)/.test(text)) return '/media/catalogo-servicios/boda_persuasiva.png';
+    if (/(15|quince)/.test(text)) return '/media/catalogo-servicios/quinceanera_persuasiva.png';
+    if (/(corporat|empres)/.test(text)) return '/media/catalogo-servicios/corporativo_persuasivo.png';
+    if (/(cumple|social)/.test(text)) return '/media/catalogo-servicios/social_persuasivo.png';
+    if (/(tecnolog|interact|muro|portal|qr|cabina|espejo|360)/.test(text)) return '/media/catalogo-servicios/tecnologia_fiesta.png';
+    if (/(salon|salón|club|uruguay)/.test(text)) return '/media/catalogo-servicios/blog_salon.png';
+    if (/(disco|música|dj|sonido|iluminac|pista|robot|luz)/.test(text)) return '/media/catalogo-servicios/blog_iluminacion.png';
+    if (/(bar|trago|bebida|coctel|cóctel)/.test(text)) return '/media/catalogo-servicios/blog_bebidas.png';
+    if (/(catering|comida|menu|menú|plato|bocado|entrada|asado|parrilla|kebab|shawarma|lunch)/.test(text)) return '/media/catalogo-servicios/blog_comida.png';
+    if (/(torta|dulce|candy|postre|reposteria)/.test(text)) return '/media/catalogo-servicios/social_persuasivo.png';
+    if (/(decor|ambient|mesa|flores)/.test(text)) return '/media/catalogo-servicios/blog_salon.png';
+    return '/media/catalogo-servicios/blog_presupuesto.png';
+};
+
 async function withFallbackTimeout<T>(
     promise: Promise<T>,
     fallback: T,
@@ -996,6 +1018,7 @@ function SimuladorContent() {
             adultos,
             ninosYAdolescentes,
             selectedPaqueteId: paqueteId,
+            excludedPackageServiceIds: [],
             selectedServices: Array.from(formData.serviciosSeleccionados.entries()).map(([id, data]) => ({
                 id,
                 esRegalo: data.esRegalo,
@@ -1009,7 +1032,7 @@ function SimuladorContent() {
         const data = {
             submissionId: submissionIdRef.current,
             clienteNombre,
-            clienteContacto,
+            clienteContacto: normalizeUruguayPhone(clienteContacto),
             eventoFecha: eventoFecha ? eventoFecha.toISOString() : undefined,
             adultos,
             ninos: ninosYAdolescentes,
@@ -1982,7 +2005,7 @@ function SimuladorContent() {
                                     <RadioGroup value={selectedInfantil} onValueChange={v => { setSelectedInfantil(v); handleGastronomicSelectionChange('infantil', v); }} className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                                         {menusNinoDisponibles.map(s => {
                                             const isRecommended = Boolean(s.isFeatured || config?.platosVisibles?.find(p => p.id === s.id)?.recommended);
-                                            const imageUrl = safeImageUrl(s.imageUrl);
+                                            const imageUrl = getServiceOrDishImage(s);
                                             return (
                                                 <label key={s.id} className={cn(
                                                      "group relative flex cursor-pointer items-center gap-4 rounded-md border p-5 transition-colors",

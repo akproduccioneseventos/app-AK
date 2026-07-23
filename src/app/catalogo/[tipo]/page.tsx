@@ -65,7 +65,7 @@ function getAccent(color: string) {
 
 function getSafeImageUrl(url: string | undefined): string | null {
   if (!url) return null;
-  return /^https?:\/\//i.test(url) ? url : null;
+  return /^https?:\/\//i.test(url) || url.startsWith('/') ? url : null;
 }
 
 // ─── Slide IDs ────────────────────────────────────────────────────────────────
