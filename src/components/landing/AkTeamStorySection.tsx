@@ -125,7 +125,7 @@ export function AkTeamStorySection() {
               </div>
             ))}
             <Link
-              href="/public/blog"
+              href="/blog"
               className={cn(
                 'inline-flex min-h-12 items-center justify-center gap-2 rounded-2xl bg-red-700 px-6 text-xs font-black uppercase tracking-widest text-white transition-all shadow-md',
                 'hover:bg-red-800 hover:scale-[1.02] active:scale-[0.98]',

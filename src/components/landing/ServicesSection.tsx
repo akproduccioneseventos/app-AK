@@ -3,7 +3,7 @@
 import Image from 'next/image';
 import Link from 'next/link';
 import {
-  Building2, Calendar, ChevronRight, Crown, Heart, MessageSquare, Sparkles, type LucideIcon, ShieldCheck, ArrowRight, Star,
+  Building2, Calendar, ChevronRight, Crown, Heart, MessageSquare, Sparkles, type LucideIcon, ShieldCheck, ArrowRight,
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { motion } from 'framer-motion';
@@ -108,7 +108,7 @@ export function ServicesSection({
   const displayServices = services && services.length > 0 ? services : DEFAULT_SERVICES;
 
   return (
-    <section id="landing-services" className="relative overflow-hidden bg-zinc-950 py-24 text-white border-y border-white/10">
+    <section className="relative overflow-hidden bg-zinc-950 py-24 text-white border-y border-white/10">
       {/* Dynamic Background Glows */}
       <div className="absolute top-0 left-1/4 h-96 w-96 rounded-full bg-red-600/5 blur-[140px] pointer-events-none" />
       <div className="absolute bottom-0 right-1/4 h-96 w-96 rounded-full bg-purple-600/5 blur-[140px] pointer-events-none" />

@@ -100,7 +100,6 @@ export function LeadCaptureForm({
     } catch (err: any) {
       setLoading(false);
       setError('Error de conexión. Verificá tu internet e intentá de nuevo.');
-      console.error('[LeadCaptureForm] Error submitting lead:', err);
     }
   };
 

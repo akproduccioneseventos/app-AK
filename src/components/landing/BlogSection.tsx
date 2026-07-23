@@ -42,7 +42,7 @@ export function BlogSection() {
             </p>
           </div>
           <Link
-            href="/public/blog"
+            href="/blog"
             className="inline-flex shrink-0 items-center justify-center gap-2 rounded-2xl border border-white/10 bg-white/5 px-6 py-3.5 text-xs font-black uppercase tracking-widest text-white transition-all hover:scale-[1.02] hover:border-white/20 hover:bg-white/10 active:scale-95"
           >
             Ver todos los artículos
@@ -66,7 +66,7 @@ export function BlogSection() {
                 className="h-full"
               >
                 <Link
-                  href={`/public/blog/${post.slug}`}
+                  href={`/blog/${post.slug}`}
                   className="group relative flex h-full flex-col justify-between overflow-hidden rounded-3xl border border-white/10 bg-white/[0.02] p-8 shadow-xl transition-all duration-300 hover:bg-white/[0.04] hover:shadow-2xl"
                 >
                   <div className="absolute left-0 right-0 top-0 h-px bg-gradient-to-r from-transparent via-red-500/50 to-transparent opacity-0 transition-opacity duration-500 group-hover:opacity-100" />
