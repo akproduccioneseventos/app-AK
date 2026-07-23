@@ -12,6 +12,8 @@ import {
   ShieldCheck,
   Sparkles,
   Zap,
+  Star,
+  Flame,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { canUseNextImage } from "@/lib/next-image-url";
@@ -38,23 +40,26 @@ const EVENT_TYPES = [
     label: "Boda / Casamiento",
     icon: Heart,
     href: "/simulador-de-presupuesto?tipo=boda",
+    badge: "Elegante",
   },
   {
     label: "Fiesta de 15 Años",
     icon: Crown,
     href: "/simulador-de-presupuesto?tipo=15-anos",
+    badge: "Tendencia",
   },
   {
     label: "Cumpleaños / Social",
     icon: Sparkles,
     href: "/simulador-de-presupuesto?tipo=social",
+    badge: "Divertido",
   },
 ] as const;
 
 export function HeroSection({
   whatsappNumber = AK_WHATSAPP_NUMBER,
   headline = "Tu fiesta de ensueño,\norganizada sin estrés",
-  subheadline = "Disfrutá la tranquilidad de tener catering, discoteca, ambientación y coordinación en un solo equipo.",
+  subheadline = "Disfrutá la tranquilidad de tener catering gourmet, discoteca, ambientación y coordinación en un solo equipo.",
   backgroundImageUrl = "/media/catalogo-servicios/quinceanera_hero.png",
   promoActiva,
   whatsappMessage = "Hola AK Producciones, vi su página y me gustaría cotizar mi evento.",
@@ -75,36 +80,37 @@ export function HeroSection({
 
   const containerVariants = reduceMotion
     ? { hidden: { opacity: 1 }, visible: { opacity: 1 } }
-    : { hidden: {}, visible: { transition: { staggerChildren: 0.08 } } };
+    : { hidden: {}, visible: { transition: { staggerChildren: 0.1 } } };
   const itemVariants = reduceMotion
     ? { hidden: { opacity: 1 }, visible: { opacity: 1 } }
     : {
-        hidden: { opacity: 0, y: 16 },
+        hidden: { opacity: 0, y: 20 },
         visible: {
           opacity: 1,
           y: 0,
-          transition: { duration: 0.5, ease: "easeOut" as const },
+          transition: { duration: 0.6, ease: [0.22, 1, 0.36, 1] as const },
         },
       };
 
   return (
     <section
       data-testid="hero-section"
-      className="relative flex min-h-[86svh] items-center overflow-hidden bg-zinc-950"
+      className="relative flex min-h-[92svh] items-center overflow-hidden bg-zinc-950 text-white"
     >
+      {/* Background Animated Image & Zoom */}
       <motion.div
-        className="absolute inset-0 scale-105 opacity-60"
-        animate={reduceMotion ? undefined : { scale: [1.02, 1.055, 1.02] }}
-        transition={{ duration: 24, repeat: Infinity, ease: "easeInOut" }}
+        className="absolute inset-0 scale-105 opacity-50"
+        animate={reduceMotion ? undefined : { scale: [1, 1.05, 1], filter: ["brightness(0.9)", "brightness(1.05)", "brightness(0.9)"] }}
+        transition={{ duration: 20, repeat: Infinity, ease: "easeInOut" }}
       >
         {canUseNextImage(backgroundImageUrl) ? (
           <Image
             src={backgroundImageUrl}
-              alt={backgroundImageAlt}
+            alt={backgroundImageAlt}
             fill
             priority
             sizes="100vw"
-            quality={85}
+            quality={90}
             className="object-cover object-center"
           />
         ) : (
@@ -115,119 +121,216 @@ export function HeroSection({
         )}
       </motion.div>
 
-      <div className="absolute inset-0 bg-black/60" />
+      {/* Floating Animated Light Blobs (Dinamismo 2026) */}
+      <motion.div
+        animate={{
+          x: [0, 40, -30, 0],
+          y: [0, -40, 30, 0],
+          scale: [1, 1.2, 0.9, 1],
+        }}
+        transition={{ duration: 16, repeat: Infinity, ease: "easeInOut" }}
+        className="absolute top-1/4 -left-20 h-96 w-96 rounded-full bg-red-600/20 blur-[130px] pointer-events-none"
+      />
+      <motion.div
+        animate={{
+          x: [0, -50, 40, 0],
+          y: [0, 50, -40, 0],
+          scale: [1, 1.15, 0.95, 1],
+        }}
+        transition={{ duration: 18, repeat: Infinity, ease: "easeInOut" }}
+        className="absolute bottom-10 right-10 h-[30rem] w-[30rem] rounded-full bg-purple-600/15 blur-[150px] pointer-events-none"
+      />
 
-      <div className="relative z-10 mx-auto w-full max-w-7xl px-4 pb-14 pt-24 sm:px-6 lg:px-8">
-        <motion.div
-          variants={containerVariants}
-          initial="hidden"
-          animate="visible"
-          className="max-w-4xl space-y-6 text-left"
-        >
-          {promoActiva && (
-            <motion.a
-              variants={itemVariants}
-              href={promoHref}
-              target={promoHref.startsWith("http") ? "_blank" : undefined}
-              rel={
-                promoHref.startsWith("http") ? "noopener noreferrer" : undefined
-              }
-              className="inline-flex items-center gap-2 rounded-md border border-red-400/30 bg-black/35 px-3 py-2 text-xs font-black uppercase tracking-widest text-red-300 backdrop-blur-sm transition-colors hover:bg-black/55"
-            >
-              <Zap className="h-3.5 w-3.5" />
-              {promoActiva.titulo}
-            </motion.a>
-          )}
+      {/* Overlay Gradient */}
+      <div className="absolute inset-0 bg-gradient-to-t from-zinc-950 via-zinc-950/70 to-zinc-950/40" />
 
-          <motion.h1
-            variants={itemVariants}
-            className="max-w-4xl font-headline text-4xl font-black leading-[1.06] text-white drop-shadow-lg sm:text-5xl md:text-6xl"
-          >
-            {headline.split("\n").map((line, index) => (
-              <span
-                key={`${line}-${index}`}
-                className={cn("block", index === 1 && "text-red-400")}
-              >
-                {line}
-              </span>
-            ))}
-          </motion.h1>
-
-          <motion.p
-            variants={itemVariants}
-            className="max-w-2xl text-base font-medium leading-relaxed text-white/80 sm:text-lg md:text-xl"
-          >
-            {subheadline}
-          </motion.p>
-
-          {showEventTypes && <motion.div variants={itemVariants} className="space-y-3 pt-1">
-            <p className="text-xs font-black uppercase tracking-widest text-white/60">
-              Elegí tu celebración
-            </p>
-            <div className="flex flex-wrap gap-2.5">
-              {EVENT_TYPES.map((item) => {
-                const Icon = item.icon;
-                return (
-                  <Link
-                    key={item.label}
-                    href={item.href}
-                    className="flex items-center gap-2 rounded-md border border-white/15 bg-black/25 px-4 py-3 text-xs font-bold text-white backdrop-blur-sm transition-all duration-200 hover:-translate-y-0.5 hover:border-red-300/50 hover:bg-black/45"
-                  >
-                    <Icon className="h-4 w-4 shrink-0 text-red-300" />
-                    {item.label}
-                  </Link>
-                );
-              })}
-            </div>
-          </motion.div>}
-
+      {/* Hero Content */}
+      <div className="relative z-10 mx-auto w-full max-w-7xl px-4 pb-20 pt-28 sm:px-6 lg:px-8">
+        <div className="grid lg:grid-cols-12 gap-12 items-center">
+          
           <motion.div
-            variants={itemVariants}
-            className="flex flex-col items-stretch gap-3 pt-2 sm:flex-row sm:items-center"
+            variants={containerVariants}
+            initial="hidden"
+            animate="visible"
+            className="lg:col-span-8 space-y-6 text-left"
           >
-            <Button
-              asChild
-              className="min-w-[220px] justify-center rounded-md bg-red-700 px-8 py-5 font-bold text-white shadow-lg shadow-black/30 transition-all duration-200 hover:-translate-y-0.5 hover:bg-red-800 active:scale-95"
+            {promoActiva && (
+              <motion.a
+                variants={itemVariants}
+                href={promoHref}
+                target={promoHref.startsWith("http") ? "_blank" : undefined}
+                rel={
+                  promoHref.startsWith("http") ? "noopener noreferrer" : undefined
+                }
+                className="inline-flex items-center gap-2 rounded-xl border border-red-500/40 bg-red-950/60 px-4 py-2 text-xs font-black uppercase tracking-widest text-red-300 backdrop-blur-md transition-all hover:scale-105 hover:bg-red-900/80 shadow-lg shadow-red-950/50"
+              >
+                <Zap className="h-3.5 w-3.5 text-amber-300 animate-bounce" />
+                <span>{promoActiva.titulo}</span>
+              </motion.a>
+            )}
+
+            <motion.div variants={itemVariants} className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-white/5 border border-white/10 text-xs font-black uppercase tracking-widest text-zinc-300 backdrop-blur-md">
+              <Flame className="w-3.5 h-3.5 text-red-500 animate-pulse" />
+              <span>Eventos Exclusivos en Salto, Uruguay</span>
+            </motion.div>
+
+            <motion.h1
+              variants={itemVariants}
+              className="max-w-4xl font-headline text-4xl sm:text-6xl md:text-7xl font-black leading-[1.05] text-white drop-shadow-2xl tracking-tight"
             >
-              <Link href={simulatorHref}>
-                {simulatorLabel}
-                <ArrowRight className="ml-2 h-4 w-4 shrink-0" />
-              </Link>
-            </Button>
-            <a
-              href={waHref}
-              target="_blank"
-              rel="noopener noreferrer"
-              data-testid="hero-cta-button"
-              aria-label="Conversar con un asesor por WhatsApp"
-              className="flex min-w-[220px] items-center justify-center gap-3 rounded-md border border-white/20 bg-black/20 px-8 py-3.5 text-sm font-bold text-white backdrop-blur-sm transition-all duration-200 hover:-translate-y-0.5 hover:bg-black/40 active:scale-95"
+              {headline.split("\n").map((line, index) => (
+                <span
+                  key={`${line}-${index}`}
+                  className={cn(
+                    "block",
+                    index === 1 && "bg-gradient-to-r from-red-400 via-rose-400 to-amber-300 bg-clip-text text-transparent"
+                  )}
+                >
+                  {line}
+                </span>
+              ))}
+            </motion.h1>
+
+            <motion.p
+              variants={itemVariants}
+              className="max-w-2xl text-lg font-medium leading-relaxed text-zinc-300 sm:text-xl"
             >
-              <MessageSquare className="h-5 w-5 shrink-0 text-emerald-300" />
-              {ctaLabel}
-            </a>
+              {subheadline}
+            </motion.p>
+
+            {showEventTypes && (
+              <motion.div variants={itemVariants} className="space-y-3 pt-2">
+                <p className="text-xs font-black uppercase tracking-widest text-zinc-400">
+                  ¿Qué tipo de evento estás planificando?
+                </p>
+                <div className="flex flex-wrap gap-3">
+                  {EVENT_TYPES.map((item) => {
+                    const Icon = item.icon;
+                    return (
+                      <Link
+                        key={item.label}
+                        href={item.href}
+                        className="group flex items-center gap-2.5 rounded-2xl border border-white/10 bg-white/[0.04] hover:bg-white/[0.1] px-4 py-3 text-xs font-bold text-white backdrop-blur-md transition-all duration-300 hover:scale-[1.03] hover:border-red-500/40 shadow-lg"
+                      >
+                        <Icon className="h-4 w-4 shrink-0 text-red-400 group-hover:scale-125 transition-transform" />
+                        <span>{item.label}</span>
+                        <span className="text-[9px] font-black uppercase tracking-wider text-zinc-400 bg-white/5 px-2 py-0.5 rounded-md group-hover:text-red-300">
+                          {item.badge}
+                        </span>
+                      </Link>
+                    );
+                  })}
+                </div>
+              </motion.div>
+            )}
+
+            {/* Main CTAs */}
+            <motion.div
+              variants={itemVariants}
+              className="flex flex-col items-stretch gap-4 pt-4 sm:flex-row sm:items-center"
+            >
+              <Button
+                asChild
+                className="relative overflow-hidden min-w-[240px] justify-center rounded-2xl bg-gradient-to-r from-red-700 via-red-600 to-red-700 hover:from-red-600 hover:to-red-800 px-8 py-6 font-black text-xs uppercase tracking-widest text-white shadow-2xl shadow-red-950/60 transition-all duration-300 hover:scale-[1.03] active:scale-95 border border-red-400/30"
+              >
+                <Link href={simulatorHref} className="flex items-center gap-2">
+                  <Sparkles className="w-4 h-4 text-amber-300 animate-spin-slow" />
+                  <span>{simulatorLabel}</span>
+                  <ArrowRight className="ml-1 h-4 w-4 shrink-0" />
+                </Link>
+              </Button>
+
+              <a
+                href={waHref}
+                target="_blank"
+                rel="noopener noreferrer"
+                data-testid="hero-cta-button"
+                aria-label="Conversar con un asesor por WhatsApp"
+                className="flex min-w-[220px] items-center justify-center gap-3 rounded-2xl border border-white/15 bg-white/5 px-8 py-4 text-xs font-black uppercase tracking-widest text-white backdrop-blur-md transition-all duration-300 hover:scale-[1.02] hover:bg-white/10 active:scale-95"
+              >
+                <MessageSquare className="h-4 w-4 shrink-0 text-emerald-400" />
+                <span>{ctaLabel}</span>
+              </a>
+            </motion.div>
+
+            <motion.div
+              variants={itemVariants}
+              className="flex items-center gap-4 text-xs font-semibold text-zinc-400 pt-2"
+            >
+              <span className="flex items-center gap-1.5 text-emerald-400">
+                <ShieldCheck className="h-4 w-4 shrink-0" />
+                Garantía de Servicio AK
+              </span>
+              <span className="text-zinc-600">•</span>
+              <span className="flex items-center gap-1 text-amber-400">
+                <Star className="h-3.5 w-3.5 fill-amber-400" />
+                5.0 en Reseñas Reales
+              </span>
+            </motion.div>
+
           </motion.div>
 
-          <motion.p
-            variants={itemVariants}
-            className="flex items-center gap-2 text-xs font-semibold text-white/60"
+          {/* Floating Live Tech Card (Dinamismo Visual) */}
+          <motion.div 
+            initial={{ opacity: 0, x: 40 }}
+            animate={{ opacity: 1, x: 0 }}
+            transition={{ duration: 0.8, delay: 0.4 }}
+            className="hidden lg:block lg:col-span-4"
           >
-            <ShieldCheck className="h-4 w-4 text-emerald-300" />
-            Presupuesto claro, precios vigentes y acompañamiento humano.
-          </motion.p>
-        </motion.div>
+            <div className="relative rounded-3xl border border-white/15 bg-zinc-950/70 p-6 backdrop-blur-xl shadow-2xl space-y-4 text-left hover:border-red-500/40 transition-all duration-500 group">
+              <div className="flex items-center justify-between">
+                <span className="inline-flex items-center gap-1.5 text-[10px] font-black uppercase tracking-widest text-red-400 bg-red-950/80 px-3 py-1 rounded-full border border-red-500/30">
+                  <span className="h-2 w-2 rounded-full bg-red-500 animate-ping" />
+                  Experiencia Interactiva
+                </span>
+                <span className="text-xs font-bold text-zinc-400">Salto, UY</span>
+              </div>
+
+              <div className="space-y-2">
+                <h3 className="font-headline font-black text-xl text-white group-hover:text-red-400 transition-colors">
+                  Producción Integral 360°
+                </h3>
+                <p className="text-xs text-zinc-400 leading-relaxed">
+                  Catering gourmet, discoteca profesional con robóticas LED, muro interactivo por QR y coordinación en vivo.
+                </p>
+              </div>
+
+              <div className="grid grid-cols-2 gap-3 pt-2">
+                <div className="rounded-xl bg-white/5 p-3 border border-white/5 text-center">
+                  <span className="block text-xl font-black text-white">+500</span>
+                  <span className="text-[9px] font-bold text-zinc-400 uppercase tracking-wider">Fiestas Realizadas</span>
+                </div>
+                <div className="rounded-xl bg-white/5 p-3 border border-white/5 text-center">
+                  <span className="block text-xl font-black text-red-400">100%</span>
+                  <span className="text-[9px] font-bold text-zinc-400 uppercase tracking-wider">Coordinación Humana</span>
+                </div>
+              </div>
+
+              <Link 
+                href="/simulador-de-presupuesto" 
+                className="w-full py-3 rounded-xl bg-white/10 hover:bg-red-600 text-white font-black text-xs uppercase tracking-widest flex items-center justify-center gap-2 transition-all duration-300 group-hover:bg-red-600"
+              >
+                <span>Cotizar Mi Fiesta</span>
+                <ArrowRight className="w-3.5 h-3.5" />
+              </Link>
+            </div>
+          </motion.div>
+
+        </div>
       </div>
 
+      {/* Down Chevron Indicator */}
       <motion.a
         initial={{ opacity: 0, y: -6 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{
-          duration: 0.55,
+          duration: 0.6,
           delay: 0.8,
           repeat: Infinity,
           repeatType: "reverse",
         }}
-        href="#servicios"
-        className="absolute bottom-3 left-1/2 z-20 -translate-x-1/2 text-white/65 transition-colors hover:text-white"
+        href="#landing-services"
+        className="absolute bottom-4 left-1/2 z-20 -translate-x-1/2 text-zinc-400 hover:text-white transition-colors"
         aria-label="Ver servicios"
       >
         <ChevronDown className="h-7 w-7" />
