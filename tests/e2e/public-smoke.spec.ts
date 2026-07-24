@@ -58,13 +58,27 @@ test('public homepage fits the viewport without horizontal overflow', async ({ p
   const gallery = page.getByTestId('gallery-section');
   await expect(gallery).toBeVisible();
   await expect(
-    gallery.getByRole('heading', { name: 'Mirá cómo se ve una producción AK', level: 2 }),
+    gallery.getByRole('heading', { name: 'Galería de Eventos Reales', level: 2 }),
   ).toBeVisible();
   const overflow = await page.evaluate(() => ({
     clientWidth: document.documentElement.clientWidth,
     scrollWidth: document.documentElement.scrollWidth,
   }));
   expect(overflow.scrollWidth).toBeLessThanOrEqual(overflow.clientWidth + 1);
+});
+
+test('secondary public navigation returns to the matching homepage section', async ({ page }) => {
+  await page.goto('/club-uruguay', { waitUntil: 'domcontentloaded' });
+
+  const servicesLink = page.locator('header').getByRole('link', { name: 'Servicios', exact: true });
+  if ((page.viewportSize()?.width ?? 1280) < 768) {
+    await page.getByRole('button', { name: 'Abrir menú' }).click();
+  }
+
+  await expect(servicesLink).toBeVisible();
+  await servicesLink.click();
+  await expect(page).toHaveURL(/\/#landing-services$/);
+  await expect(page.locator('#landing-services')).toBeVisible();
 });
 
 test('simulator input keeps typed text visible and the flow fits the viewport', async ({ page }) => {

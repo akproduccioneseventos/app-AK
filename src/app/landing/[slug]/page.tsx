@@ -168,7 +168,7 @@ export default async function PromoLandingPage({ params }: PromoPageProps) {
 
   return (
     <div className="min-h-screen bg-white">
-      <LandingNav whatsappNumber={whatsappNumber} />
+      <LandingNav />
       <HeroSection
         whatsappNumber={whatsappNumber}
         headline={config.hero.headline}

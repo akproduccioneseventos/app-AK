@@ -19,7 +19,11 @@ export function LandingNav() {
   const handleAnchorClick = useCallback((e: React.MouseEvent<HTMLAnchorElement>, href: string) => {
     e.preventDefault();
     const el = document.querySelector(href);
-    if (el) el.scrollIntoView({ behavior: 'smooth' });
+    if (el) {
+      el.scrollIntoView({ behavior: 'smooth' });
+    } else {
+      window.location.assign(`/${href}`);
+    }
     setIsMenuOpen(false);
   }, []);
 
