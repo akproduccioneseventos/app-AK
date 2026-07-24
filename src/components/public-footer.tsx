@@ -66,7 +66,11 @@ export function PublicFooter({ className }: PublicFooterProps) {
     if (href.startsWith('#')) {
       e.preventDefault();
       const el = document.querySelector(href);
-      if (el) el.scrollIntoView({ behavior: 'smooth' });
+      if (el) {
+        el.scrollIntoView({ behavior: 'smooth' });
+      } else {
+        window.location.assign(`/${href}`);
+      }
     }
   };
 

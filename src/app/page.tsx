@@ -527,7 +527,14 @@ export default async function HomePage({ searchParams }: LandingPageProps) {
         team={<AkTeamStorySection />}
         process={null}
         gallery={<GallerySection galeriaFotos={fotosCombinadas} />}
-        instagram={null}
+        instagram={
+          <InstagramSyncStrip
+            handle={instagramHandle}
+            profileUrl={instagramProfileUrl}
+            items={instagramItems}
+            isApiConnected={instagramApiConnected}
+          />
+        }
         blog={<BlogSection />}
         video={
           <VideoSection
