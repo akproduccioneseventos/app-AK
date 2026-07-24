@@ -8,6 +8,7 @@ import path from 'path';
 import { requireAppSession } from '@/lib/auth/require-session';
 import { MARKETING_AUTOMATION_INTERNAL_TOKEN } from '@/lib/marketing/internal-token';
 import { getPublicInstagramFeed } from '@/lib/instagram/public-feed';
+import { classifyGalleryCategories } from '@/components/landing/gallery-media-utils';
 
 const POSTS_FILE = 'social-posts.json';
 const DATA_DIR = path.join(process.cwd(), 'src', 'data');
@@ -179,26 +180,8 @@ export async function syncInstagramPosts(
       }
     ];
 
-    // Algoritmo de clasificación por palabras clave
-    const KEYWORDS_TO_CATEGORY = [
-      { keywords: ['deco', 'decoracion', 'mesa', 'centro', 'ambientacion', 'arreglo', 'flores', 'lila', 'rosa', 'dorada', 'velas'], category: 'Decoración' },
-      { keywords: ['catering', 'comida', 'plato', 'recepcion', 'canapes', 'bocados', 'asado', 'cena', 'menú', 'carne'], category: 'Catering' },
-      { keywords: ['torta', 'postre', 'dulce', 'candy', 'candy bar', 'chocolates', 'reposteria', 'pastel'], category: 'Repostería' },
-      { keywords: ['barra', 'trago', 'cocktail', 'licor', 'barman', 'bebida', 'copas', 'barra libre'], category: 'Barra de Tragos' },
-      { keywords: ['discoteca', 'dj', 'pista', 'luces', 'iluminacion', 'pantalla', 'sonido', 'led', 'audio', 'bolas', 'sonido'], category: 'Discoteca' },
-      { keywords: ['glitter', 'maquillaje', 'brillo', 'neon', 'pintura'], category: 'Glitter Bar' },
-      { keywords: ['cabina', 'photobooth', 'foto', 'video', 'camara', 'vogue', 'espejo', 'plataforma', '360'], category: 'Fotografía y Cabina' },
-      { keywords: ['souvenir', 'cotillon', 'regalo', 'tarjeta', 'invitacion'], category: 'Souvenirs y Cotillón' }
-    ];
-
     const guessCategoryFromText = (text: string): string => {
-      const lower = text.toLowerCase();
-      for (const item of KEYWORDS_TO_CATEGORY) {
-        if (item.keywords.some(kw => lower.includes(kw))) {
-          return item.category;
-        }
-      }
-      return 'General';
+      return classifyGalleryCategories('', text, '')[0];
     };
 
     // 3. Cargar bases de datos actuales

@@ -28,10 +28,11 @@ export function LandingNav() {
   }, []);
 
   const navLinks = [
+    { label: 'Inicio', href: '#landing-hero', isExternal: false },
     { label: 'Servicios', href: '#landing-services', isExternal: false },
-    { label: 'Tecnología', href: '#landing-technology', isExternal: false },
-    { label: 'Consulta', href: '#landing-cta-footer', isExternal: false },
     { label: 'Simulador', href: '/simulador-de-presupuesto', isExternal: true },
+    { label: 'Blog', href: '/public/blog', isExternal: true },
+    { label: 'Club Uruguay', href: '/club-uruguay', isExternal: true },
   ];
 
   return (
@@ -39,7 +40,7 @@ export function LandingNav() {
       className={cn(
         'fixed top-0 left-0 right-0 z-50 transition-all duration-300',
         isScrolled
-          ? 'bg-zinc-950/85 backdrop-blur-lg shadow-2xl border-b border-white/5'
+          ? 'border-b border-slate-200 bg-white/95 text-slate-950 shadow-lg backdrop-blur-lg'
           : 'bg-transparent'
       )}
     >
@@ -49,7 +50,10 @@ export function LandingNav() {
           {/* Logo */}
           <Link href="/" className="flex items-center gap-3 shrink-0 rounded-lg focus:outline-none focus:ring-2 focus:ring-red-500/50">
             <CompanyLogo size="sm" />
-            <span className="font-headline font-black text-lg hidden sm:block text-white tracking-tight">
+            <span className={cn(
+              "hidden font-headline text-lg font-black tracking-tight sm:block",
+              isScrolled ? "text-slate-950" : "text-white",
+            )}>
               AK Producciones
             </span>
           </Link>
@@ -64,7 +68,10 @@ export function LandingNav() {
                 <Link
                   key={link.href}
                   href={link.href}
-                  className="px-3.5 py-2 text-xs font-black uppercase tracking-widest text-zinc-300 hover:text-white transition-colors"
+                  className={cn(
+                    "px-3.5 py-2 text-xs font-black uppercase tracking-widest transition-colors",
+                    isScrolled ? "text-slate-600 hover:text-red-700" : "text-zinc-200 hover:text-white",
+                  )}
                 >
                   {link.label}
                 </Link>
@@ -73,7 +80,10 @@ export function LandingNav() {
                   key={link.href}
                   href={link.href}
                   onClick={(e) => handleAnchorClick(e, link.href)}
-                  className="px-3.5 py-2 text-xs font-black uppercase tracking-widest text-zinc-300 hover:text-white transition-colors"
+                  className={cn(
+                    "px-3.5 py-2 text-xs font-black uppercase tracking-widest transition-colors",
+                    isScrolled ? "text-slate-600 hover:text-red-700" : "text-zinc-200 hover:text-white",
+                  )}
                 >
                   {link.label}
                 </a>
@@ -97,7 +107,12 @@ export function LandingNav() {
             {/* Mobile Menu button */}
             <button
               onClick={() => setIsMenuOpen((o) => !o)}
-              className="md:hidden rounded-lg p-2.5 text-zinc-400 hover:text-white hover:bg-white/5 transition-colors"
+              className={cn(
+                "rounded-lg p-2.5 transition-colors md:hidden",
+                isScrolled
+                  ? "text-slate-700 hover:bg-slate-100 hover:text-red-700"
+                  : "text-zinc-200 hover:bg-white/10 hover:text-white",
+              )}
               aria-label={isMenuOpen ? 'Cerrar menú' : 'Abrir menú'}
               aria-expanded={isMenuOpen}
             >
@@ -109,7 +124,7 @@ export function LandingNav() {
 
       {/* Mobile Nav Drawer */}
       {isMenuOpen && (
-        <div className="md:hidden bg-zinc-950/95 backdrop-blur-xl border-b border-white/5 shadow-2xl">
+        <div className="border-b border-slate-200 bg-white/95 shadow-2xl backdrop-blur-xl md:hidden">
           <div className="px-4 py-6 space-y-2.5">
             {navLinks.map((link) =>
               link.isExternal ? (
@@ -117,7 +132,7 @@ export function LandingNav() {
                   key={link.href}
                   href={link.href}
                   onClick={() => setIsMenuOpen(false)}
-                  className="block rounded-xl px-4 py-3.5 text-xs font-black uppercase tracking-widest text-zinc-400 hover:bg-white/5 hover:text-white transition-all"
+                  className="block rounded-lg px-4 py-3.5 text-xs font-black uppercase tracking-widest text-slate-700 transition-all hover:bg-slate-100 hover:text-red-700"
                 >
                   {link.label}
                 </Link>
@@ -126,14 +141,14 @@ export function LandingNav() {
                   key={link.href}
                   href={link.href}
                   onClick={(e) => handleAnchorClick(e, link.href)}
-                  className="block rounded-xl px-4 py-3.5 text-xs font-black uppercase tracking-widest text-zinc-400 hover:bg-white/5 hover:text-white transition-all"
+                  className="block rounded-lg px-4 py-3.5 text-xs font-black uppercase tracking-widest text-slate-700 transition-all hover:bg-slate-100 hover:text-red-700"
                 >
                   {link.label}
                 </a>
               )
             )}
 
-            <div className="pt-4 border-t border-white/5 space-y-2">
+            <div className="space-y-2 border-t border-slate-200 pt-4">
               <Link
                 href="/simulador-de-presupuesto"
                 onClick={() => setIsMenuOpen(false)}

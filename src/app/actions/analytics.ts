@@ -8,6 +8,7 @@ import { getEmpleados } from './empleados';
 import { subMonths, format, startOfToday, differenceInDays } from 'date-fns';
 import { es } from 'date-fns/locale';
 import { isFirmSalesInvoice } from '@/lib/commercial-flow/ledger-service';
+import { isSimulatorBudget } from '@/lib/budget/formal-budget';
 
 function isAcceptedBudget(status?: string) {
   return status === 'Aceptado' || status === 'Facturado';
@@ -211,7 +212,7 @@ export async function getAnalyticsData(): Promise<{ success: boolean; data?: Ana
     const tasaConversion = total > 0 ? Math.round((aceptados / total) * 100) : 0;
 
     // ─── Simulator Conversion Rate ────────────────────────────────────────────
-    const simulatorPresupuestos = presupuestosData.filter(p => p.source === 'simulator');
+    const simulatorPresupuestos = presupuestosData.filter(p => isSimulatorBudget(p.source));
     const simulatorAceptados = simulatorPresupuestos.filter(
       p => p.estado === 'Aceptado' || p.estado === 'Facturado'
     ).length;

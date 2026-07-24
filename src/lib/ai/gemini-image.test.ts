@@ -74,4 +74,30 @@ describe("Gemini image editor", () => {
       imageSize: "1K",
     });
   });
+
+  it("generates a standalone cover with Nano Banana 2 when no reference is needed", async () => {
+    process.env.GEMINI_API_KEY = "test-key";
+    process.env.GEMINI_IMAGE_MODEL = "gemini-3.1-flash-image-preview";
+    const fetchMock = jest.fn().mockResolvedValue({
+      ok: true,
+      json: async () => ({
+        candidates: [{ content: { parts: [{ inlineData: { data: "cover-base64" } }] } }],
+      }),
+    } as Response);
+    Object.defineProperty(globalThis, "fetch", {
+      configurable: true,
+      writable: true,
+      value: fetchMock,
+    });
+
+    await expect(
+      generateGeminiImage({ prompt: "A formal event table, no text.", aspectRatio: "16:9" }),
+    ).resolves.toBe("cover-base64");
+
+    const [url, request] = fetchMock.mock.calls[0] as [string, RequestInit];
+    const body = JSON.parse(String(request.body));
+    expect(url).toContain("/gemini-3.1-flash-image:generateContent");
+    expect(body.contents[0].parts).toEqual([{ text: "A formal event table, no text." }]);
+    expect(body.generationConfig.responseFormat.image.aspectRatio).toBe("16:9");
+  });
 });

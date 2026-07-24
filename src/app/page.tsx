@@ -35,13 +35,10 @@ import { PromoWidget } from "@/components/promo/PromoWidget";
 import { AK_WHATSAPP_NUMBER } from "@/lib/public-contact";
 import { LandingSpaContainer } from "@/components/landing/LandingSpaContainer";
 import { getSocialConnections } from "@/app/actions/social-connections";
-import {
-  InstagramSyncStrip,
-  type InstagramSyncItem,
-} from "@/components/landing/InstagramSyncStrip";
 import { getPublicInstagramFeed } from "@/lib/instagram/public-feed";
 import { isClubUruguay } from "@/lib/club-uruguay";
 import { getDynamicSalonPhotos, type SalonPhoto } from "@/lib/salon-helper";
+import { getBlogPosts } from "@/app/actions/blog";
 export const revalidate = 300;
 const DEFAULT_DYNAMIC_SERVICE_SUBTITLE = "Servicio AK";
 const DEFAULT_INSTAGRAM_URL =
@@ -72,16 +69,6 @@ async function withPublicFallback<T>(
     if (timeout) clearTimeout(timeout);
   }
 }
-function getInstagramHandle(profileUrl?: string, username?: string) {
-  const raw = username || profileUrl || "@akproduccioneseventos";
-  const cleaned = raw
-    .replace(/^https?:\/\/(www\.)?instagram\.com\//i, "")
-    .replace(/[/?#].*$/g, "")
-    .replace(/^@/, "")
-    .trim();
-  return `@${cleaned || "akproduccioneseventos"}`;
-}
-
 function withoutUrlQuery(value: string) {
   return value.split(/[?#]/, 1)[0].replace(/\/$/, "").toLowerCase();
 }
@@ -311,6 +298,7 @@ export default async function HomePage({ searchParams }: LandingPageProps) {
     galeriaData,
     instagramFeed,
     salones,
+    publishedBlogPosts,
   ] = await Promise.all([
     withPublicFallback(getPromoActiva(), null),
     withPublicFallback(getCachedLandingSettings(), defaultLandingSettings),
@@ -321,6 +309,7 @@ export default async function HomePage({ searchParams }: LandingPageProps) {
     withPublicFallback(getGaleriaItems(), { fotos: [], videos: [] }),
     withPublicFallback(getPublicInstagramFeed(), [], 4_500),
     withPublicFallback(getSalones(), []),
+    withPublicFallback(getBlogPosts(), []),
   ]);
   const fotos = defaultGaleriaPublica.fotos as GaleriaFoto[];
   const videos = defaultGaleriaPublica.videos as GaleriaVideo[];
@@ -397,19 +386,6 @@ export default async function HomePage({ searchParams }: LandingPageProps) {
   );
   const instagramProfileUrl =
     instagramConnection?.profileUrl || DEFAULT_INSTAGRAM_URL;
-  const instagramHandle = getInstagramHandle(
-    instagramProfileUrl,
-    instagramConnection?.username,
-  );
-  const instagramApiConnected = instagramFeed.length > 0;
-  const instagramItems: InstagramSyncItem[] = instagramFeed.map((post) => ({
-    id: post.id,
-    type: post.mediaType === "video" ? "video" : "photo",
-    imageUrl: post.mediaUrl,
-    title: post.caption || "Evento AK Producciones",
-    category: post.mediaType === "video" ? "Reel" : "Instagram",
-    href: post.permalink,
-  }));
   const clubSalon = salones.find((salon) => salon.esClubUruguay || isClubUruguay(salon.nombre));
   const masterClubPhotos: SalonPhoto[] = (clubSalon?.fotos || []).map((src, index) => ({
     src,
@@ -490,7 +466,7 @@ export default async function HomePage({ searchParams }: LandingPageProps) {
       "Organización integral de eventos en Salto, Uruguay. Discoteca, comida premium, fotografía, decoración y salones de fiesta en un solo lugar con tecnología interactiva.",
   };
   return (
-    <div className="bg-zinc-950 min-h-screen text-white selection:bg-red-700 selection:text-white">
+    <div className="min-h-screen bg-white text-slate-950 selection:bg-red-700 selection:text-white">
       {" "}
       {/* Inject JSON-LD Schema for SEO */}{" "}
       <script
@@ -527,15 +503,7 @@ export default async function HomePage({ searchParams }: LandingPageProps) {
         team={<AkTeamStorySection />}
         process={null}
         gallery={<GallerySection galeriaFotos={fotosCombinadas} />}
-        instagram={
-          <InstagramSyncStrip
-            handle={instagramHandle}
-            profileUrl={instagramProfileUrl}
-            items={instagramItems}
-            isApiConnected={instagramApiConnected}
-          />
-        }
-        blog={<BlogSection />}
+        blog={<BlogSection posts={publishedBlogPosts} />}
         video={
           <VideoSection
             galeriaVideos={videosCombinados}

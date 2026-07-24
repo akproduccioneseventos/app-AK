@@ -26,4 +26,11 @@ describe('public landing navigation release contract', () => {
     expect(navigation).toContain('window.location.assign(`/${href}`)');
     expect(footer).toContain('window.location.assign(`/${href}`)');
   });
+
+  it('opens the public blog without crossing the protected /blog route', () => {
+    const navigation = read('src/components/landing/LandingNav.tsx');
+
+    expect(navigation).toContain("href: '/public/blog'");
+    expect(navigation).not.toContain("href: '/blog'");
+  });
 });

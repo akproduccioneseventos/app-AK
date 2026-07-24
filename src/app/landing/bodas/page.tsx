@@ -21,7 +21,7 @@ export default function BodasLanding() {
       intro="Una boda se vive mejor cuando cada detalle tiene un equipo atento detrás."
       detailTitle="Tu día, con una coordinación que se siente simple"
       detailDescription="Catering, ambientación, música y tiempos de la celebración se trabajan como una sola experiencia, siempre en diálogo con ustedes."
-      detailImage="/media/catalogo-servicios/boda-decoracion-dorada-01.jpeg"
+      detailImage="/media/catalogo-servicios/decoracion-boda-mesa-01.jpeg"
       detailImageAlt="Mesa decorada para una boda"
       simulatorHref="/simulador-de-presupuesto?tipo=boda"
       services={[

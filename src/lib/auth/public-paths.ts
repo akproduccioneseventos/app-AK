@@ -18,6 +18,7 @@ export const PUBLIC_PATH_PREFIXES = [
   '/simulador-de-presupuesto',
   '/acceso-personal',
   '/public',
+  '/blog',
   '/portal-cliente',
   '/simulador',
   '/simulador-ak',

@@ -107,7 +107,11 @@ export default function CatalogoPlatosPage() {
         menuId: menu.id,
         menuName: menu.name,
       }))
-    ).sort((a,b) => a.name.localeCompare(b.name));
+    ).sort((a, b) =>
+      Number(Boolean(b.isFeatured)) - Number(Boolean(a.isFeatured)) ||
+      Number(b.suggestedSellingPrice || 0) - Number(a.suggestedSellingPrice || 0) ||
+      a.name.localeCompare(b.name)
+    );
   }, [allMenus]);
 
   const platosAgrupados = useMemo(() => {
