@@ -84,32 +84,32 @@ env:
       - RUNTIME
 
   - variable: GEMINI_MODEL
-    value: "googleai/gemini-3-flash-preview"
+    value: "googleai/gemini-3.6-flash"
     availability:
       - BUILD
       - RUNTIME
   - variable: GEMINI_MODEL_FAST
-    value: "googleai/gemini-3-flash-preview"
+    value: "googleai/gemini-3.6-flash"
     availability:
       - BUILD
       - RUNTIME
   - variable: GEMINI_MODEL_PRO
-    value: "googleai/gemini-3-pro-preview"
+    value: "googleai/gemini-3.6-flash"
     availability:
       - BUILD
       - RUNTIME
   - variable: GEMINI_MODEL_MARKETING
-    value: "googleai/gemini-3-flash-preview"
+    value: "googleai/gemini-3.6-flash"
     availability:
       - BUILD
       - RUNTIME
   - variable: GEMINI_MODEL_COMMERCIAL
-    value: "googleai/gemini-3-flash-preview"
+    value: "googleai/gemini-3.6-flash"
     availability:
       - BUILD
       - RUNTIME
   - variable: GEMINI_IMAGE_MODEL
-    value: "googleai/gemini-3.1-flash-image-preview"
+    value: "googleai/gemini-3.1-flash-image"
     availability:
       - BUILD
       - RUNTIME

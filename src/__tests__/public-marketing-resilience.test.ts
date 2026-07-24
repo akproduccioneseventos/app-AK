@@ -4,14 +4,15 @@ import { join } from 'node:path';
 const read = (relativePath: string) => readFileSync(join(process.cwd(), relativePath), 'utf8');
 
 describe('public marketing resilience', () => {
-  it('keeps the official Instagram section visible while the feed is empty', () => {
+  it('uses Instagram as a gallery source without rendering a redundant section', () => {
     const home = read('src/app/page.tsx');
-    const instagram = read('src/components/landing/InstagramSyncStrip.tsx');
+    const gallery = read('src/components/landing/GallerySection.tsx');
 
-    expect(home).not.toContain('instagramItems.length > 0 ?');
-    expect(home).toContain('<InstagramSyncStrip');
-    expect(instagram).toContain('visibleItems.length === 0');
-    expect(instagram).toContain('perfil oficial');
+    expect(home).toContain('const instagramFotos: GaleriaFoto[] = instagramFeed');
+    expect(home).toContain('const instagramVideos: GaleriaVideo[] = instagramFeed');
+    expect(home).toContain('<GallerySection galeriaFotos={fotosCombinadas} />');
+    expect(home).not.toContain('InstagramSyncStrip');
+    expect(gallery).toContain('Galería de eventos');
   });
 
   it('uses local AK campaign imagery instead of runtime Unsplash dependencies', () => {

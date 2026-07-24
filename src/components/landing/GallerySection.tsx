@@ -3,11 +3,9 @@
 import { useEffect, useMemo, useState } from "react";
 import Image, { type ImageLoaderProps } from "next/image";
 import {
-  ArrowRight,
   Camera,
   ChevronLeft,
   ChevronRight,
-  Instagram,
   Share2,
   X,
   ZoomIn,
@@ -16,6 +14,12 @@ import { AnimatePresence, motion, useReducedMotion } from "framer-motion";
 import { cn } from "@/lib/utils";
 import { canUseNextImage } from "@/lib/next-image-url";
 import type { GaleriaFoto } from "@/types/galeria";
+import {
+  classifyGalleryCategories,
+  galleryIdentityKeys,
+} from "./gallery-media-utils";
+
+export { classifyGalleryCategories } from "./gallery-media-utils";
 
 const passthroughImageLoader = ({ src }: ImageLoaderProps) => src;
 
@@ -68,6 +72,9 @@ export interface GalleryImage {
   titulo?: string;
   descripcion?: string;
   destacada?: boolean;
+  source?: GaleriaFoto["source"];
+  sourceId?: string;
+  sourceUrl?: string;
 }
 
 export interface LandingGalleryItem {
@@ -78,6 +85,9 @@ export interface LandingGalleryItem {
   titulo?: string;
   descripcion?: string;
   destacada?: boolean;
+  source?: GaleriaFoto["source"];
+  sourceId?: string;
+  sourceUrl?: string;
   categorias: string[];
   subCategoria?: string;
 }
@@ -93,41 +103,6 @@ const CATEGORY_FILTERS = [
   "Fotografía",
   "Salón",
 ];
-
-function getCategoriasAsociadas(
-  titulo: string,
-  descripcion: string,
-  categoriaOriginal: string,
-): string[] {
-  const text = `${titulo} ${descripcion} ${categoriaOriginal}`.toLowerCase();
-  const cats: string[] = [];
-
-  if (/(salon|salón|club|uruguay)/.test(text)) cats.push("Salón");
-  if (/(decor|ambient|mesa principal|velas|flores|estilo|cortinas)/.test(text)) cats.push("Decoración");
-  if (/(comida|catering|menu|menú|finger|gastro|plato|bocado|recepcion|recepción|kebab|kebat|shawarma|asado|parrilla|picada|brochete|brochette|sandwich|sándwich|tabla|perro|pancho|hamburguesa|pizza|pizzeta|empanada|gastronomia|gastronomía|lunch|carne|snack|buffet|buffêt)/.test(text)) {
-    cats.push("Catering");
-  }
-  if (/(trago|bebida|bar |barra|coctel|cóctel|whisky|gin|cerveza)/.test(text)) cats.push("Barra de Tragos");
-  if (/(cabina|espejo|plataforma|touchpix|fotocabina|fotobina|totem|tótem| 360)/.test(text)) {
-    cats.push("Fotocabina");
-  }
-  if (/(torta|dulce|candy|postre|reposteria|repostería|chocolat|volcán|helado)/.test(text)) cats.push("Repostería");
-  if (/(disco|luz|luces|pantalla|led|dj|sonido|pista|baile|valz|vals|robot)/.test(text)) {
-    cats.push("Discoteca");
-  }
-  if (/(foto|video|film|bogue|exteriores|civil|iglesia|pintada|sesion|sesión|retrato)/.test(text)) {
-    cats.push("Fotografía");
-  }
-
-  if (cats.length === 0) {
-    if (/(gastro|comida|catering|menú|menu|bocado|plato|carne|kebab)/.test(text)) {
-      cats.push("Catering");
-    } else {
-      cats.push("Fotografía");
-    }
-  }
-  return cats;
-}
 
 function getSubCategoriaFotografia(
   titulo: string,
@@ -153,7 +128,7 @@ function toLandingGalleryItem(
   const categoriaOriginal = isGaleriaFoto
     ? item.categoria || item.servicio || ""
     : item.category || "";
-  const categorias = getCategoriasAsociadas(titulo || "", descripcion || "", categoriaOriginal);
+  const categorias = classifyGalleryCategories(titulo || "", descripcion || "", categoriaOriginal);
 
   return {
     id: isGaleriaFoto ? item.id : item.id || `img-${index}`,
@@ -165,6 +140,9 @@ function toLandingGalleryItem(
     titulo,
     descripcion,
     destacada: item.destacada,
+    source: item.source,
+    sourceId: item.sourceId,
+    sourceUrl: item.sourceUrl,
     categorias,
     subCategoria: categorias.includes("Fotografía")
       ? getSubCategoriaFotografia(titulo || "", descripcion || "", categoriaOriginal)
@@ -172,16 +150,12 @@ function toLandingGalleryItem(
   };
 }
 
-function mediaIdentity(src: string) {
-  return src.trim().split(/[?#]/, 1)[0].toLowerCase();
-}
-
 export function dedupeGalleryImages(items: LandingGalleryItem[]) {
   const seen = new Set<string>();
   return items.filter((item) => {
-    const identity = mediaIdentity(item.src);
-    if (!identity || seen.has(identity)) return false;
-    seen.add(identity);
+    const identities = galleryIdentityKeys(item);
+    if (identities.size === 0 || [...identities].some((identity) => seen.has(identity))) return false;
+    identities.forEach((identity) => seen.add(identity));
     return true;
   });
 }
@@ -265,27 +239,13 @@ export function GallerySection({ images, galeriaFotos }: GallerySectionProps) {
       <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
         <div className="mb-10 flex flex-col gap-6 md:flex-row md:items-end md:justify-between">
           <div className="max-w-2xl">
-            <div className="mb-3 inline-flex items-center gap-2 rounded-xl border border-pink-500/20 bg-pink-500/10 px-3.5 py-1 text-xs font-black uppercase tracking-widest text-pink-300">
-              <Instagram className="h-3.5 w-3.5 text-pink-400" />
-              Sincronizado con Instagram @akproduccioneseventos
-            </div>
             <h2 className="font-headline text-4xl font-black leading-tight text-white sm:text-5xl">
-              Galería de Eventos Reales
+              Galería de eventos
             </h2>
             <p className="mt-3 max-w-xl text-base leading-relaxed text-zinc-400 sm:text-lg">
-              Explorá fotos reales de nuestras producciones: gastronomía gourmet, salones armados, pistas LED, discoteca y ambientación.
+              Momentos reales de nuestras producciones: gastronomía, salones, pista LED, discoteca y ambientación.
             </p>
           </div>
-          <a
-            href="https://www.instagram.com/akproduccioneseventos/"
-            target="_blank"
-            rel="noopener noreferrer"
-            className="inline-flex shrink-0 items-center justify-center gap-2 rounded-2xl border border-white/10 bg-white/5 px-5 py-3 text-xs font-black uppercase tracking-widest text-white transition-all hover:scale-[1.02] hover:border-pink-500/40 hover:bg-white/10 active:scale-95"
-          >
-            <Instagram className="h-4 w-4 text-pink-400" />
-            Ver @akproduccioneseventos
-            <ArrowRight className="h-4 w-4 text-red-400" />
-          </a>
         </div>
 
         <div className="mb-8 flex flex-wrap gap-2 border-b border-white/10 pb-4">

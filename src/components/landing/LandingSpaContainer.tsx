@@ -11,7 +11,6 @@ interface LandingSpaContainerProps {
   team: ReactNode;
   process: ReactNode;
   gallery: ReactNode;
-  instagram: ReactNode;
   blog: ReactNode;
   video: ReactNode;
   testimonials: ReactNode;
@@ -32,7 +31,6 @@ export function LandingSpaContainer({
   team,
   process,
   gallery,
-  instagram,
   blog,
   video,
   testimonials,
@@ -76,7 +74,7 @@ export function LandingSpaContainer({
     );
   };
   return (
-    <div className="min-h-screen text-white selection:bg-red-700 selection:text-white">
+    <div className="min-h-screen bg-white text-slate-950 selection:bg-red-700 selection:text-white">
       {" "}
       <motion.div
         style={{ scaleX: progressScale }}
@@ -112,7 +110,6 @@ export function LandingSpaContainer({
           ) : null,
         )}{" "}
         {dashboardSection("gallery", gallery)}{" "}
-        {instagram && dashboardSection("instagram", instagram)}{" "}
         {dashboardSection(
           "blog-video",
           blog || video ? (

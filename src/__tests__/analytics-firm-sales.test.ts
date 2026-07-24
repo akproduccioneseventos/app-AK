@@ -24,13 +24,18 @@ describe('firm sales analytics', () => {
     mockGetPresupuestos.mockResolvedValue([
       {
         id: 'accepted', estado: 'Aceptado', eventoFecha: eventDate, timestamp,
-        eventoTipo: 'XV', totalConDescuento: 100000,
+        eventoTipo: 'XV', totalConDescuento: 100000, source: 'simulator_common',
         itemsPresupuestados: [item('Servicio contratado', 100000)],
       },
       {
         id: 'sent', estado: 'Enviado', eventoFecha: eventDate, timestamp,
-        eventoTipo: 'Boda', totalConDescuento: 900000,
+        eventoTipo: 'Boda', totalConDescuento: 900000, source: 'simulator_assistant',
         itemsPresupuestados: [item('Servicio aun no vendido', 900000)],
+      },
+      {
+        id: 'rejected', estado: 'Rechazado', eventoFecha: eventDate, timestamp,
+        eventoTipo: 'Cumpleaños', totalConDescuento: 50000, source: 'simulator',
+        itemsPresupuestados: [item('Servicio rechazado', 50000)],
       },
     ]);
     mockGetInvoices.mockResolvedValue([
@@ -58,5 +63,6 @@ describe('firm sales analytics', () => {
     expect(result.data?.topServices.map((service) => service.nombre)).toEqual(['Servicio contratado']);
     expect(result.data?.eventTypeProfitability.map((entry) => entry.tipo)).toEqual(['XV']);
     expect(result.data?.staffEfficiency[0]?.ingresosGenerados).toBe(100000);
+    expect(result.data?.kpis.simulatorConversionRate).toBe(33);
   });
 });

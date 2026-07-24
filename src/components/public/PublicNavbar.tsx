@@ -23,7 +23,7 @@ export function PublicNavbar({
     <header
       className={cn(
         'sticky top-0 z-50 w-full',
-        'bg-white/80 backdrop-blur-md border-b border-purple-100/60',
+        'border-b border-slate-200 bg-white/90 backdrop-blur-md',
         'shadow-sm',
         className
       )}
@@ -38,13 +38,13 @@ export function PublicNavbar({
         </Link>
 
         <nav className="hidden items-center gap-5 text-[11px] font-black uppercase tracking-[0.18em] text-slate-600 md:flex">
-          <Link href="/" className="transition hover:text-purple-700">
+          <Link href="/" className="transition hover:text-red-700">
             Inicio
           </Link>
-          <Link href="/public/blog" className="transition hover:text-purple-700">
+          <Link href="/public/blog" className="transition hover:text-red-700">
             Blog
           </Link>
-          <Link href="/simulador-de-presupuesto" className="transition hover:text-purple-700">
+          <Link href="/simulador-de-presupuesto" className="transition hover:text-red-700">
             Simulador
           </Link>
         </nav>
@@ -52,7 +52,7 @@ export function PublicNavbar({
         <a href={waHref} target="_blank" rel="noopener noreferrer">
           <button
             className={cn(
-              'flex items-center gap-2 px-4 py-2 rounded-2xl',
+              'flex items-center gap-2 rounded-md px-4 py-2',
               'bg-[#25D366] hover:bg-[#1eb356]',
               'text-white font-black text-xs uppercase tracking-widest',
               'shadow-md shadow-green-900/20',

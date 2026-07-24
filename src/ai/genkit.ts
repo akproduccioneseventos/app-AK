@@ -3,8 +3,8 @@ import { googleAI } from '@genkit-ai/google-genai';
 import type { AkAgentType } from '@/types/multiagent';
 
 const apiKey = process.env.GOOGLE_API_KEY || process.env.GEMINI_API_KEY;
-const DEFAULT_GEMINI_MODEL = 'googleai/gemini-3-flash-preview';
-const DEFAULT_GEMINI_PRO_MODEL = 'googleai/gemini-3-pro-preview';
+const DEFAULT_GEMINI_MODEL = 'googleai/gemini-3.6-flash';
+const DEFAULT_GEMINI_PRO_MODEL = 'googleai/gemini-3.6-flash';
 const GEMINI_MODEL_PATTERN = /^googleai\/gemini-[a-z0-9]+(?:[.-][a-z0-9]+)*$/i;
 
 type GeminiModelRole = 'default' | 'fast' | 'pro' | 'marketing' | 'commercial';
@@ -31,7 +31,7 @@ export const geminiMarketingModel = resolveGeminiModel(process.env.GEMINI_MODEL_
 export const geminiCommercialModel = resolveGeminiModel(process.env.GEMINI_MODEL_COMMERCIAL, geminiFastModel, 'commercial');
 
 export function getGeminiModelForAgent(agentType?: AkAgentType, options?: { deep?: boolean }): string {
-  // Retorna siempre el modelo Pro para maximizar la capacidad intelectual de todos los agentes, como solicitó el usuario.
+  // Mantiene un único modelo estable para que todos los agentes compartan la misma capacidad.
   return geminiProModel;
 }
 

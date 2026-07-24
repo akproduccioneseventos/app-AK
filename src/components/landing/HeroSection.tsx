@@ -95,7 +95,7 @@ export function HeroSection({
   return (
     <section
       data-testid="hero-section"
-      className="relative flex min-h-[92svh] items-center overflow-hidden bg-zinc-950 text-white"
+      className="relative flex min-h-[80svh] items-center overflow-hidden bg-zinc-950 text-white sm:min-h-[92svh]"
     >
       {/* Background Animated Image & Zoom */}
       <motion.div
@@ -121,38 +121,18 @@ export function HeroSection({
         )}
       </motion.div>
 
-      {/* Floating Animated Light Blobs (Dinamismo 2026) */}
-      <motion.div
-        animate={{
-          x: [0, 40, -30, 0],
-          y: [0, -40, 30, 0],
-          scale: [1, 1.2, 0.9, 1],
-        }}
-        transition={{ duration: 16, repeat: Infinity, ease: "easeInOut" }}
-        className="absolute top-1/4 -left-20 h-96 w-96 rounded-full bg-red-600/20 blur-[130px] pointer-events-none"
-      />
-      <motion.div
-        animate={{
-          x: [0, -50, 40, 0],
-          y: [0, 50, -40, 0],
-          scale: [1, 1.15, 0.95, 1],
-        }}
-        transition={{ duration: 18, repeat: Infinity, ease: "easeInOut" }}
-        className="absolute bottom-10 right-10 h-[30rem] w-[30rem] rounded-full bg-purple-600/15 blur-[150px] pointer-events-none"
-      />
-
       {/* Overlay Gradient */}
       <div className="absolute inset-0 bg-gradient-to-t from-zinc-950 via-zinc-950/70 to-zinc-950/40" />
 
       {/* Hero Content */}
-      <div className="relative z-10 mx-auto w-full max-w-7xl px-4 pb-20 pt-28 sm:px-6 lg:px-8">
+      <div className="relative z-10 mx-auto w-full max-w-7xl px-4 pb-10 pt-20 sm:px-6 sm:pb-20 sm:pt-28 lg:px-8">
         <div className="grid lg:grid-cols-12 gap-12 items-center">
           
           <motion.div
             variants={containerVariants}
             initial="hidden"
             animate="visible"
-            className="lg:col-span-8 space-y-6 text-left"
+            className="space-y-4 text-left sm:space-y-6 lg:col-span-8"
           >
             {promoActiva && (
               <motion.a
@@ -203,18 +183,18 @@ export function HeroSection({
                 <p className="text-xs font-black uppercase tracking-widest text-zinc-400">
                   ¿Qué tipo de evento estás planificando?
                 </p>
-                <div className="flex flex-wrap gap-3">
+                <div className="grid grid-cols-3 gap-2 sm:flex sm:flex-wrap sm:gap-3">
                   {EVENT_TYPES.map((item) => {
                     const Icon = item.icon;
                     return (
                       <Link
                         key={item.label}
                         href={item.href}
-                        className="group flex items-center gap-2.5 rounded-2xl border border-white/10 bg-white/[0.04] hover:bg-white/[0.1] px-4 py-3 text-xs font-bold text-white backdrop-blur-md transition-all duration-300 hover:scale-[1.03] hover:border-red-500/40 shadow-lg"
+                        className="group flex min-w-0 flex-col items-center justify-center gap-1 rounded-lg border border-white/10 bg-white/[0.04] px-2 py-2.5 text-center text-[10px] font-bold leading-tight text-white shadow-lg backdrop-blur-md transition-all duration-300 hover:scale-[1.03] hover:border-red-500/40 hover:bg-white/[0.1] sm:flex-row sm:gap-2.5 sm:rounded-2xl sm:px-4 sm:py-3 sm:text-xs"
                       >
                         <Icon className="h-4 w-4 shrink-0 text-red-400 group-hover:scale-125 transition-transform" />
                         <span>{item.label}</span>
-                        <span className="text-[9px] font-black uppercase tracking-wider text-zinc-400 bg-white/5 px-2 py-0.5 rounded-md group-hover:text-red-300">
+                        <span className="hidden rounded-md bg-white/5 px-2 py-0.5 text-[9px] font-black uppercase tracking-wider text-zinc-400 group-hover:text-red-300 sm:inline">
                           {item.badge}
                         </span>
                       </Link>
@@ -255,7 +235,7 @@ export function HeroSection({
 
             <motion.div
               variants={itemVariants}
-              className="flex items-center gap-4 text-xs font-semibold text-zinc-400 pt-2"
+              className="hidden items-center gap-4 pt-2 text-xs font-semibold text-zinc-400 sm:flex"
             >
               <span className="flex items-center gap-1.5 text-emerald-400">
                 <ShieldCheck className="h-4 w-4 shrink-0" />

@@ -20,6 +20,6 @@ describe('public simulator bootstrap fallback', () => {
     expect(source).toContain('withBootstrapFallback(getMenus(), FALLBACK_MENUS)');
     expect(source).toContain('withBootstrapFallback(getSocialConnections(), [])');
     expect(source).toContain('...defaultClubUruguayConfig');
+    expect(source).toContain('timeoutMs = 4_500');
   });
-
 });

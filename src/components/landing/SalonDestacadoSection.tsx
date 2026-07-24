@@ -38,7 +38,7 @@ export function SalonDestacadoSection({ photos, capacity }: SalonDestacadoSectio
   if (visiblePhotos.length === 0) return null;
 
   return (
-    <section className="border-y border-white/5 bg-zinc-950 py-20 text-white">
+    <section className="border-y border-slate-200 bg-slate-50 py-20 text-slate-950">
       <div className="mx-auto grid max-w-7xl gap-12 px-4 sm:px-6 lg:grid-cols-[0.82fr_1.18fr] lg:items-center lg:px-8">
         <div className="max-w-xl">
           <p className="flex items-center gap-2 text-sm font-black uppercase text-red-400">
@@ -47,21 +47,21 @@ export function SalonDestacadoSection({ photos, capacity }: SalonDestacadoSectio
           <h2 className="mt-4 font-headline text-4xl font-black leading-tight sm:text-6xl">
             Club Uruguay
           </h2>
-          <p className="mt-5 text-lg leading-relaxed text-zinc-400">
+          <p className="mt-5 text-lg leading-relaxed text-slate-600">
             Un espacio emblemático en el centro de Salto, preparado por AK Producciones con catering, música, ambientación, personal y tecnología coordinados en una sola propuesta.
           </p>
 
-          <div className="mt-7 grid gap-px overflow-hidden rounded-lg border border-white/10 bg-white/5 sm:grid-cols-2">
-            <div className="bg-white/[0.03] p-5">
+          <div className="mt-7 grid gap-px overflow-hidden rounded-lg border border-slate-200 bg-slate-200 sm:grid-cols-2">
+            <div className="bg-white p-5">
               <MapPin className="h-5 w-5 text-red-400" aria-hidden="true" />
               <p className="mt-3 font-black">Centro de Salto</p>
-              <p className="mt-1 text-sm text-zinc-400">Club Uruguay, un salón conocido para celebrar.</p>
+              <p className="mt-1 text-sm text-slate-600">Club Uruguay, un salón conocido para celebrar.</p>
             </div>
             {capacity !== undefined && capacity > 0 && (
-              <div className="bg-white/[0.03] p-5">
+              <div className="bg-white p-5">
                 <Users className="h-5 w-5 text-red-400" aria-hidden="true" />
                 <p className="mt-3 font-black">Hasta {capacity} invitados</p>
-                <p className="mt-1 text-sm text-zinc-400">Capacidad informada para este salón.</p>
+                <p className="mt-1 text-sm text-slate-600">Capacidad informada para este salón.</p>
               </div>
             )}
           </div>
@@ -75,7 +75,7 @@ export function SalonDestacadoSection({ photos, capacity }: SalonDestacadoSectio
             </Link>
             <Link
               href="/simulador-de-presupuesto?salon=club"
-              className="inline-flex min-h-14 items-center justify-center gap-2 rounded-md border border-white/10 bg-white/5 px-6 py-3 font-black text-white transition-colors hover:border-white/20 hover:bg-white/10"
+              className="inline-flex min-h-14 items-center justify-center gap-2 rounded-md border border-slate-300 bg-white px-6 py-3 font-black text-slate-900 transition-colors hover:border-slate-400 hover:bg-slate-100"
             >
               <CalendarDays className="h-4 w-4" aria-hidden="true" /> Cotizar una fiesta
             </Link>

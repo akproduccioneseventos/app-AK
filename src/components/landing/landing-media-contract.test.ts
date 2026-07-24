@@ -1,6 +1,7 @@
 import fs from "node:fs";
 import path from "node:path";
 import {
+  classifyGalleryCategories,
   dedupeGalleryImages,
   type LandingGalleryItem,
 } from "./GallerySection";
@@ -32,6 +33,78 @@ describe("public landing media contracts", () => {
         galleryItem("/media/evento-2.jpg"),
       ]),
     ).toHaveLength(2);
+  });
+
+  it("uses one prioritized category and never sends a dish to Decoracion because of incidental copy", () => {
+    expect(
+      classifyGalleryCategories(
+        "Kebab gourmet",
+        "Mesa con decoracion y velas para una fiesta de 15",
+        "Decoracion",
+      ),
+    ).toEqual(["Catering"]);
+    expect(
+      classifyGalleryCategories("Momento de la fiesta", "", "Barra de tragos"),
+    ).toEqual(["Barra de Tragos"]);
+  });
+
+  it("keeps the historical kebab photo in catering and out of wedding pages", () => {
+    const gallery = JSON.parse(read("src/data/galeria-publica.json")) as {
+      fotos: Array<{ url: string; titulo: string; servicio: string }>;
+    };
+    const kebab = gallery.fotos.find(
+      (photo) => photo.url === "/media/catalogo-servicios/boda-decoracion-dorada-01.jpeg",
+    );
+
+    expect(kebab).toMatchObject({
+      titulo: "Kebab gourmet para eventos",
+      servicio: "Catering",
+    });
+    expect(read("src/app/landing/bodas/page.tsx")).not.toContain(
+      "boda-decoracion-dorada-01.jpeg",
+    );
+  });
+
+  it("deduplicates source identifiers, canonical links and fingerprinted filenames without hiding generic names", () => {
+    const instagram = {
+      ...galleryItem("https://cdn.instagram.com/media/photo-1.jpg?width=1200"),
+      id: "instagram-copy",
+      source: "instagram" as const,
+      sourceId: "ig_178923456789",
+      sourceUrl: "https://www.instagram.com/p/AK-event/?utm_source=feed",
+    };
+    const galleryCopy = {
+      ...galleryItem("https://images.example.com/other-file.jpg"),
+      id: "gallery-copy",
+      source: "manual" as const,
+      sourceId: "ig_178923456789",
+      sourceUrl: "https://www.instagram.com/p/AK-event/",
+    };
+    const firstGenericName = galleryItem("https://one.example.com/photos/evento.jpg");
+    const secondGenericName = galleryItem("https://two.example.com/archive/evento.jpg");
+    const canonicalLink = {
+      ...galleryItem("https://cdn.example.com/first-copy.jpg"),
+      sourceUrl: "https://www.instagram.com/p/ak-other-event/?utm_source=feed",
+    };
+    const canonicalLinkCopy = {
+      ...galleryItem("https://cdn.example.com/second-copy.jpg"),
+      sourceUrl: "https://www.instagram.com/p/ak-other-event/",
+    };
+    const fingerprintedFile = galleryItem("https://one.example.com/7f551858d4c122c3e2553cabb4710eca.jpg");
+    const fingerprintedFileCopy = galleryItem("https://two.example.com/7f551858d4c122c3e2553cabb4710eca.jpg");
+
+    expect(
+      dedupeGalleryImages([
+        instagram,
+        galleryCopy,
+        canonicalLink,
+        canonicalLinkCopy,
+        fingerprintedFile,
+        fingerprintedFileCopy,
+        firstGenericName,
+        secondGenericName,
+      ]),
+    ).toEqual([instagram, canonicalLink, fingerprintedFile, firstGenericName, secondGenericName]);
   });
 
   it("keeps all video sources and plays each supported platform", () => {

@@ -11,7 +11,7 @@ export interface GeminiImageReference {
 
 interface GenerateGeminiImageOptions {
   prompt: string;
-  images: GeminiImageReference[];
+  images?: GeminiImageReference[];
   aspectRatio?: string;
   imageSize?: "512" | "1K" | "2K" | "4K";
   timeoutMs?: number;
@@ -27,7 +27,11 @@ function resolveImageModel(): string {
     .replace(/^googleai\//, "")
     .replace(/^models\//, "");
 
-  if (!configured || configured.toLowerCase().includes("imagen")) {
+  if (
+    !configured ||
+    configured.toLowerCase().includes("imagen") ||
+    configured.toLowerCase().includes("preview")
+  ) {
     return DEFAULT_GEMINI_IMAGE_MODEL;
   }
 
@@ -40,16 +44,13 @@ function resolveImageModel(): string {
 
 export async function generateGeminiImage({
   prompt,
-  images,
+  images = [],
   aspectRatio = "3:4",
   imageSize = "1K",
   timeoutMs = 60_000,
 }: GenerateGeminiImageOptions): Promise<string | null> {
   const apiKey = process.env.GOOGLE_API_KEY || process.env.GEMINI_API_KEY;
   if (!apiKey) throw new Error("Falta configurar la clave de Gemini.");
-  if (!images.length)
-    throw new Error("Se necesita al menos una imagen de referencia.");
-
   const model = resolveImageModel();
   const response = await fetch(
     `${GEMINI_IMAGE_API_BASE}/${encodeURIComponent(model)}:generateContent`,

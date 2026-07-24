@@ -79,7 +79,7 @@ const PROMO_PAGES: Record<string, PromoConfig> = {
           'Traslado de novios',
           'Mesa dulce premium',
         ],
-        imageUrl: '/media/catalogo-servicios/boda-decoracion-dorada-01.jpeg',
+        imageUrl: '/media/catalogo-servicios/decoracion-boda-mesa-01.jpeg',
         imageHint: 'wedding decoration flowers',
         accentColor: 'bg-pink-500',
         emoji: '💍',
