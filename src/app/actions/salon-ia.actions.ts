@@ -108,14 +108,14 @@ export async function chatWithGuestBot(
       return { success: true, response: getMockBotResponse(message, fiesta) };
     }
 
-    const { ai, geminiModel } = await import('@/ai/genkit');
+    const { generateWithGeminiFallback, geminiModel } = await import('@/ai/genkit');
 
     const historyText = history
       .slice(-10)
       .map(h => `${h.role === 'bot' ? 'Asistente' : 'Invitado'}: ${h.text}`)
       .join('\n');
 
-    const response = await ai.generate({
+    const response = await generateWithGeminiFallback({
       model: geminiModel,
       system: `Sos el Asistente Virtual IA de la fiesta de ${fiesta.configuracion?.nombreAgasajado || fiesta.clienteNombre || 'nuestro anfitrión'}.
 Tu objetivo es responder de forma amable, alegre y festiva a los invitados sobre los detalles de la fiesta.

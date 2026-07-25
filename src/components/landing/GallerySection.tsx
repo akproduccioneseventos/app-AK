@@ -94,6 +94,7 @@ export interface LandingGalleryItem {
 
 const CATEGORY_FILTERS = [
   "Todos",
+  "Eventos",
   "Discoteca",
   "Catering",
   "Decoración",
@@ -235,20 +236,21 @@ export function GallerySection({ images, galeriaFotos }: GallerySectionProps) {
   };
 
   return (
-    <section id="galeria" data-testid="gallery-section" className="border-y border-white/10 bg-zinc-950 py-20 text-white sm:py-24">
+    <section id="galeria" data-testid="gallery-section" className="border-y border-neutral-200 bg-neutral-100 py-20 text-slate-950 sm:py-24">
       <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
         <div className="mb-10 flex flex-col gap-6 md:flex-row md:items-end md:justify-between">
           <div className="max-w-2xl">
-            <h2 className="font-headline text-4xl font-black leading-tight text-white sm:text-5xl">
+            <p className="text-sm font-bold text-red-700">Eventos reales</p>
+            <h2 className="mt-3 font-headline text-4xl font-black leading-tight text-slate-950 sm:text-5xl">
               Galería de eventos
             </h2>
-            <p className="mt-3 max-w-xl text-base leading-relaxed text-zinc-400 sm:text-lg">
+            <p className="mt-3 max-w-xl text-base leading-relaxed text-slate-600 sm:text-lg">
               Momentos reales de nuestras producciones: gastronomía, salones, pista LED, discoteca y ambientación.
             </p>
           </div>
         </div>
 
-        <div className="mb-8 flex flex-wrap gap-2 border-b border-white/10 pb-4">
+        <div className="mb-8 flex flex-wrap gap-2 border-b border-neutral-300 pb-4">
           {CATEGORY_FILTERS.map((category) => (
             <button
               key={category}
@@ -259,10 +261,10 @@ export function GallerySection({ images, galeriaFotos }: GallerySectionProps) {
                 setShowAll(false);
               }}
               className={cn(
-                      "min-h-11 rounded-md border px-3 py-2 text-xs font-bold transition-colors",
+                "min-h-11 border px-3 py-2 text-xs font-bold transition-colors",
                 activeCategory === category
-                  ? "border-white bg-white text-zinc-950"
-                  : "border-white/15 text-zinc-400 hover:border-white/40 hover:text-white",
+                  ? "border-slate-950 bg-slate-950 text-white"
+                  : "border-neutral-300 bg-white text-slate-600 hover:border-slate-500 hover:text-slate-950",
               )}
             >
               {category}
@@ -281,10 +283,10 @@ export function GallerySection({ images, galeriaFotos }: GallerySectionProps) {
                   setShowAll(false);
                 }}
                 className={cn(
-                  "rounded-md px-3 py-1.5 text-xs font-semibold transition-colors",
+                    "px-3 py-1.5 text-xs font-semibold transition-colors",
                   activeSubCategory === subCategory
                     ? "bg-red-700 text-white"
-                    : "text-zinc-500 hover:bg-white/10 hover:text-white",
+                    : "text-slate-600 hover:bg-neutral-200 hover:text-slate-950",
                 )}
               >
                 {subCategory}
@@ -306,7 +308,7 @@ export function GallerySection({ images, galeriaFotos }: GallerySectionProps) {
               type="button"
               variants={cardVariants}
               onClick={() => setLightboxIndex(index)}
-              className="group relative aspect-[4/3] overflow-hidden rounded-lg border border-white/10 bg-zinc-900 text-left focus:outline-none focus:ring-2 focus:ring-red-400"
+              className="group relative aspect-[4/3] overflow-hidden border border-neutral-200 bg-neutral-200 text-left shadow-sm transition-shadow hover:shadow-lg focus:outline-none focus:ring-2 focus:ring-red-700"
               aria-label={`Abrir foto: ${image.alt}`}
             >
               <GalleryMedia
@@ -315,12 +317,10 @@ export function GallerySection({ images, galeriaFotos }: GallerySectionProps) {
                 className="object-cover motion-safe:transition-transform motion-safe:duration-500 motion-safe:group-hover:scale-[1.03] motion-reduce:transition-none"
                 sizes="(max-width: 640px) 50vw, (max-width: 1024px) 33vw, 25vw"
               />
-              <div className="absolute inset-0 bg-black/20 transition-colors group-hover:bg-black/45" />
-              {image.destacada && (
-                <span className="absolute left-3 top-3 rounded-sm bg-red-700 px-2 py-1 text-[10px] font-bold uppercase tracking-wide text-white">
-                  Destacada
-                </span>
-              )}
+              <div className="absolute inset-0 bg-black/10 transition-colors group-hover:bg-black/35" />
+              <span className="absolute left-3 top-3 bg-white/95 px-2 py-1 text-[10px] font-bold text-slate-800">
+                {image.categorias[0] || "Eventos"}
+              </span>
               <span className="absolute bottom-3 left-3 right-3 flex items-center justify-between gap-2">
                 {image.titulo ? (
                   <span className="line-clamp-2 bg-black/70 px-2 py-1 text-xs font-semibold text-white">
@@ -336,8 +336,8 @@ export function GallerySection({ images, galeriaFotos }: GallerySectionProps) {
         </motion.div>
 
         {displayedImages.length === 0 && (
-          <div className="border border-white/10 bg-white/[0.03] px-6 py-16 text-center text-zinc-400">
-            <Camera className="mx-auto mb-3 h-9 w-9 text-zinc-600" />
+          <div className="border border-neutral-300 bg-white px-6 py-16 text-center text-slate-600">
+            <Camera className="mx-auto mb-3 h-9 w-9 text-slate-400" />
             No hay fotos cargadas en esta categoría todavía.
           </div>
         )}
@@ -347,7 +347,7 @@ export function GallerySection({ images, galeriaFotos }: GallerySectionProps) {
             <button
               type="button"
               onClick={() => setShowAll((value) => !value)}
-              className="inline-flex min-h-11 items-center gap-2 rounded-md border border-white/20 px-5 py-2.5 text-sm font-bold text-white transition-colors hover:border-white/50 hover:bg-white/10"
+              className="inline-flex min-h-11 items-center gap-2 border border-slate-300 bg-white px-5 py-2.5 text-sm font-bold text-slate-800 transition-colors hover:border-slate-500 hover:bg-neutral-50"
             >
               {showAll ? "Ver menos fotos" : `Ver todas las fotos (${filtered.length})`}
               <ChevronRight className={cn("h-4 w-4 transition-transform", showAll && "rotate-90")} />

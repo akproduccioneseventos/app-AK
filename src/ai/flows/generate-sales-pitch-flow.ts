@@ -1,4 +1,4 @@
-import { ai, getGeminiModelForAgent } from '@/ai/genkit';
+import { generateWithGeminiFallback, getGeminiModelForAgent } from '@/ai/genkit';
 import { z } from 'zod';
 
 export const GenerateSalesPitchSchema = z.object({
@@ -32,7 +32,7 @@ Reglas:
 - NO devuelvas JSON, devuelve directamente el texto del mensaje listo para copiar y pegar en WhatsApp.`;
 
     const model = getGeminiModelForAgent('comercial');
-    const result = await ai.generate({
+    const result = await generateWithGeminiFallback({
       model,
       prompt,
     });

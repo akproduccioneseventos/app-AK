@@ -606,6 +606,11 @@ export async function scanAiAssistantAppContext(): Promise<{ success: boolean; c
 }
 
 const GEMINI_CONNECTION_TIMEOUT_MS = 15000;
+const GEMINI_CONNECTION_MODELS = [
+  'gemini-flash-latest',
+  'gemini-3.6-flash',
+  'gemini-3.5-flash',
+] as const;
 
 export async function testGeminiConnection(): Promise<{ ok: boolean; error?: string }> {
   const apiKey = process.env.GOOGLE_API_KEY || process.env.GEMINI_API_KEY;
@@ -616,24 +621,33 @@ export async function testGeminiConnection(): Promise<{ ok: boolean; error?: str
     };
   }
   try {
-    const resp = await fetch(
-      `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=${apiKey}`,
-      {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          contents: [{ parts: [{ text: 'Respondé solo la palabra: ok' }] }],
-          generationConfig: { maxOutputTokens: 5 },
-        }),
-        signal: AbortSignal.timeout(GEMINI_CONNECTION_TIMEOUT_MS),
-      }
-    );
-    if (!resp.ok) {
+    let lastModelError = '';
+    for (const model of GEMINI_CONNECTION_MODELS) {
+      const resp = await fetch(
+        `https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent`,
+        {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'x-goog-api-key': apiKey,
+          },
+          body: JSON.stringify({
+            contents: [{ parts: [{ text: 'Respondé solo la palabra: ok' }] }],
+            generationConfig: { maxOutputTokens: 5 },
+          }),
+          signal: AbortSignal.timeout(GEMINI_CONNECTION_TIMEOUT_MS),
+        }
+      );
+      if (resp.ok) return { ok: true };
+
       const errData = await resp.json().catch(() => ({}));
       const msg = (errData as any)?.error?.message || `HTTP ${resp.status}`;
-      return { ok: false, error: `Gemini respondió con error: ${msg}` };
+      lastModelError = `${model}: ${msg}`;
+      if (![404, 429, 500, 502, 503, 504].includes(resp.status)) {
+        return { ok: false, error: `Gemini respondió con error: ${msg}` };
+      }
     }
-    return { ok: true };
+    return { ok: false, error: `Gemini no respondió con ningún modelo compatible. ${lastModelError}` };
   } catch (error: any) {
     return { ok: false, error: error?.message || String(error) };
   }

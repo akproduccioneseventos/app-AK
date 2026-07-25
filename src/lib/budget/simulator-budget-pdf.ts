@@ -314,7 +314,9 @@ export async function createSimulatorBudgetPdf(
     "El presupuesto es válido por 30 días. Con una seña de $5.000 se puede solicitar la reserva; AK confirma disponibilidad y condiciones antes de registrar el pago.";
   const termLines = pdf.splitTextToSize(terms, 169) as string[];
   const termsHeight = Math.max(25, 14 + termLines.length * 4);
-  ensureSpace(termsHeight + 5);
+  // Keep the conditions and the personalized link together so a long budget
+  // never creates an almost-empty page containing only the URL.
+  ensureSpace(termsHeight + 20);
   pdf.setDrawColor(203, 213, 225);
   pdf.roundedRect(marginX, y, contentWidth, termsHeight, 1.5, 1.5);
   pdf.setFont("helvetica", "bold");
@@ -327,7 +329,6 @@ export async function createSimulatorBudgetPdf(
   pdf.text(termLines, marginX + 4, y + 11);
   y += termsHeight + 5;
 
-  ensureSpace(15);
   pdf.setFontSize(7);
   pdf.setTextColor(100, 116, 139);
   pdf.text("Ver propuesta personalizada:", marginX, y + 4);

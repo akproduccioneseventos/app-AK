@@ -12,6 +12,11 @@ import {
   type VideoItem,
 } from "./VideoSection";
 import { getVisibleSalonPhotos } from "./SalonDestacadoSection";
+import { isAdditionalLandingService } from "./ServicesSection";
+import {
+  PUBLIC_EVENT_TYPE_IMAGES,
+  getPublicEventTypeImage,
+} from "./event-type-images";
 
 const read = (relativePath: string) =>
   fs.readFileSync(path.join(process.cwd(), relativePath), "utf8");
@@ -46,6 +51,13 @@ describe("public landing media contracts", () => {
     expect(
       classifyGalleryCategories("Momento de la fiesta", "", "Barra de tragos"),
     ).toEqual(["Barra de Tragos"]);
+    expect(
+      classifyGalleryCategories(
+        "Trabajo reciente de AK Producciones",
+        "Una noche con decoracion, luces y amigos.",
+        "Instagram",
+      ),
+    ).toEqual(["Eventos"]);
   });
 
   it("keeps the historical kebab photo in catering and out of wedding pages", () => {
@@ -63,6 +75,26 @@ describe("public landing media contracts", () => {
     expect(read("src/app/landing/bodas/page.tsx")).not.toContain(
       "boda-decoracion-dorada-01.jpeg",
     );
+  });
+
+  it("uses verified event imagery and never a blog or budget illustration for a party type", () => {
+    expect(getPublicEventTypeImage("XV Años")).toBe(PUBLIC_EVENT_TYPE_IMAGES.xv);
+    expect(getPublicEventTypeImage("Fiesta de quince")).toBe(PUBLIC_EVENT_TYPE_IMAGES.xv);
+    expect(getPublicEventTypeImage("Boda de gala")).toBe(PUBLIC_EVENT_TYPE_IMAGES.boda);
+    expect(Object.values(PUBLIC_EVENT_TYPE_IMAGES)).not.toContain(
+      "/media/catalogo-servicios/blog_presupuesto.png",
+    );
+    expect(PUBLIC_EVENT_TYPE_IMAGES.xv).toBe(
+      "/media/catalogo-servicios/xv-pista-iluminada-01.jpeg",
+    );
+  });
+
+  it("does not repeat event types or their dedicated homepage sections as extra services", () => {
+    expect(isAdditionalLandingService({ title: "Bodas" })).toBe(false);
+    expect(isAdditionalLandingService({ title: "XV Años" })).toBe(false);
+    expect(isAdditionalLandingService({ title: "Salón Club Uruguay" })).toBe(false);
+    expect(isAdditionalLandingService({ title: "Tecnología Interactiva" })).toBe(false);
+    expect(isAdditionalLandingService({ title: "Plataforma 360" })).toBe(true);
   });
 
   it("deduplicates source identifiers, canonical links and fingerprinted filenames without hiding generic names", () => {
