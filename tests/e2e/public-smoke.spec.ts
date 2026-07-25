@@ -58,8 +58,14 @@ test('public homepage fits the viewport without horizontal overflow', async ({ p
   const gallery = page.getByTestId('gallery-section');
   await expect(gallery).toBeVisible();
   await expect(
-    gallery.getByRole('heading', { name: 'Galería de Eventos Reales', level: 2 }),
+    gallery.getByRole('heading', { name: 'Galería de eventos', level: 2 }),
   ).toBeVisible();
+  await expect(
+    page.getByRole('heading', { name: 'Elegimos la base y la hacemos tuya.' }),
+  ).toHaveCount(0);
+  await expect(
+    page.getByRole('img', { name: 'Fiestas de 15 producida por AK Producciones' }),
+  ).toHaveAttribute('src', /xv-pista-iluminada-01\.jpeg/);
   const overflow = await page.evaluate(() => ({
     clientWidth: document.documentElement.clientWidth,
     scrollWidth: document.documentElement.scrollWidth,
@@ -104,6 +110,8 @@ test('simulator input keeps typed text visible and the flow fits the viewport', 
   expect(inputInk.color).not.toBe('rgba(0, 0, 0, 0)');
   expect(Number(inputInk.opacity)).toBeGreaterThan(0);
   expect(inputInk.caretColor).not.toBe('transparent');
+  await expect(page.getByText('Revisión comercial prioritaria')).toHaveCount(0);
+  await expect(page.getByText(/^\d{2}:\d{2}$/)).toHaveCount(0);
 
   const overflow = await page.evaluate(() => ({
     clientWidth: document.documentElement.clientWidth,

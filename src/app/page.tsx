@@ -34,6 +34,7 @@ import {
 import { PromoWidget } from "@/components/promo/PromoWidget";
 import { AK_WHATSAPP_NUMBER } from "@/lib/public-contact";
 import { LandingSpaContainer } from "@/components/landing/LandingSpaContainer";
+import { getPublicEventTypeImage } from "@/components/landing/event-type-images";
 import { getSocialConnections } from "@/app/actions/social-connections";
 import { getPublicInstagramFeed } from "@/lib/instagram/public-feed";
 import { isClubUruguay } from "@/lib/club-uruguay";
@@ -167,6 +168,11 @@ function getDefaultServiceImage(title: string): string {
     return "/media/catalogo-servicios/blog_comida.png";
   }
   return "/media/catalogo-servicios/blog_presupuesto.png";
+}
+
+function getSemanticServiceImage(title: string, configuredImage?: string): string {
+  // Public event cards use a verified, semantic image instead of arbitrary editor data.
+  return getPublicEventTypeImage(title) || configuredImage || getDefaultServiceImage(title);
 }
 function getDefaultServiceFeatures(title: string): string[] {
   const lower = title.toLowerCase();
@@ -433,7 +439,7 @@ export default async function HomePage({ searchParams }: LandingPageProps) {
         subtitle: DEFAULT_DYNAMIC_SERVICE_SUBTITLE,
         description: service.description,
         features: getDefaultServiceFeatures(service.title),
-        imageUrl: service.imageUrl || getDefaultServiceImage(service.title),
+        imageUrl: getSemanticServiceImage(service.title, service.imageUrl),
         imageHint: "event service",
         accentColor: "bg-primary",
         emoji: service.icon || "AK",
@@ -467,18 +473,16 @@ export default async function HomePage({ searchParams }: LandingPageProps) {
   };
   return (
     <div className="min-h-screen bg-white text-slate-950 selection:bg-red-700 selection:text-white">
-      {" "}
-      {/* Inject JSON-LD Schema for SEO */}{" "}
+      {/* Inject JSON-LD Schema for SEO */}
       <script
         type="application/ld+json"
         dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
-      />{" "}
-      {promo && <PromoWidget promo={promo} />}{" "}
+      />
+      {promo && <PromoWidget promo={promo} />}
       <LandingSpaContainer
         hero={
           <div className="flex w-full flex-col justify-between">
-            {" "}
-            <LandingNav />{" "}
+            <LandingNav />
             <HeroSection
               whatsappNumber={whatsapp}
               promoActiva={promo}
@@ -487,7 +491,7 @@ export default async function HomePage({ searchParams }: LandingPageProps) {
               backgroundImageUrl="/media/catalogo-servicios/quinceanera_hero.png"
               simulatorHref="/simulador-de-presupuesto"
               simulatorLabel="Cotizá tu Fiesta"
-            />{" "}
+            />
           </div>
         }
         stats={null}
@@ -526,7 +530,7 @@ export default async function HomePage({ searchParams }: LandingPageProps) {
         footer={<PublicFooter variant="dark" />}
         floatingActions={<FloatingActions whatsappNumber={whatsapp} />}
         winSech={null}
-      />{" "}
+      />
     </div>
   );
 }

@@ -1,7 +1,7 @@
 import 'server-only';
 
 import { z } from 'zod';
-import { ai, geminiProModel } from '@/ai/genkit';
+import { generateWithGeminiFallback, geminiProModel } from '@/ai/genkit';
 import { readData, writeData } from '@/lib/data-service';
 import { uploadToStorage } from '@/lib/firebase/storage';
 import { generateGeminiImage } from '@/lib/ai/gemini-image';
@@ -133,7 +133,7 @@ Al final, inclui una llamada clara a usar el Simulador de Presupuestos de AK Pro
 No repitas temas ni enfoques de articulos ya publicados. La portada debe ilustrar el tema, sin texto sobre la imagen.
 Es obligatorio que el resultado respete el esquema JSON especificado.`;
 
-  const result = await ai.generate({
+  const result = await generateWithGeminiFallback({
     model: geminiProModel,
     prompt,
     output: {

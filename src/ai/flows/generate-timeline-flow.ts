@@ -1,4 +1,4 @@
-import { ai, getGeminiModelForAgent } from '@/ai/genkit';
+import { generateWithGeminiFallback, getGeminiModelForAgent } from '@/ai/genkit';
 import { z } from 'zod';
 
 export const GenerateTimelineSchema = z.object({
@@ -40,7 +40,7 @@ El resultado debe ser un JSON Array, donde cada objeto tenga:
 Devuelve SOLO el JSON array.`;
 
     const model = getGeminiModelForAgent('fiestas_general');
-    const result = await ai.generate({
+    const result = await generateWithGeminiFallback({
       model,
       prompt,
       output: { format: 'json' },

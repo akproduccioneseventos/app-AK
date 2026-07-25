@@ -1,5 +1,6 @@
 export const GALLERY_CATEGORY_FILTERS = [
   "Todos",
+  "Eventos",
   "Discoteca",
   "Catering",
   "Decoraci\u00f3n",
@@ -86,11 +87,11 @@ export function classifyGalleryCategories(
   const sourceCategory = trustedCategory(categoriaOriginal);
   if (sourceCategory) return [sourceCategory];
 
-  const inferredCategory = categoryFromText(
-    normalizeSearchText(`${titulo} ${descripcion} ${categoriaOriginal}`),
-  );
-
-  return [inferredCategory ?? "Fotograf\u00eda"];
+  // Descriptions coming from social networks are marketing copy, not an
+  // authoritative label for the pictured service. A generic photo stays in
+  // Eventos until its owner assigns a verified service category.
+  const titleOnlyCategory = categoryFromText(normalizeSearchText(titulo));
+  return [titleOnlyCategory ?? "Eventos"];
 }
 
 function canonicalMediaUrl(value?: string) {

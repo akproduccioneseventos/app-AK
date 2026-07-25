@@ -1567,7 +1567,7 @@
         "totalDishCost": 97.119,
         "profitMargin": 105,
         "suggestedSellingPrice": 199,
-        "imageUrl": "https://ak-producciones-fiestas-y-eventos.my.canva.site/servicio-de-catering/images/8c21f793b9149c3b121c693b97e8bbb3.jpg"
+        "imageUrl": "https://ak-producciones-fiestas-y-eventos.my.canva.site/servicio-de-catering/images/36a980719a3f41081369e6b8b7f9cd2e.jpg"
       },
       {
         "id": "dish_entrada_22",
@@ -1677,7 +1677,7 @@
         "totalDishCost": 95.22,
         "profitMargin": 130,
         "suggestedSellingPrice": 219,
-        "imageUrl": "https://ak-producciones-fiestas-y-eventos.my.canva.site/servicio-de-catering/images/36a980719a3f41081369e6b8b7f9cd2e.jpg"
+        "imageUrl": "https://ak-producciones-fiestas-y-eventos.my.canva.site/servicio-de-catering/images/8c21f793b9149c3b121c693b97e8bbb3.jpg"
       },
       {
         "id": "dish_entrada_23",
@@ -2237,7 +2237,7 @@
         "totalDishCost": 102.1,
         "profitMargin": 291,
         "suggestedSellingPrice": 399,
-        "imageUrl": "https://ak-producciones-fiestas-y-eventos.my.canva.site/servicio-de-catering/images/6a84f3efe817d75d7b25cf77fb565dfa.jpg"
+        "imageUrl": null
       },
       {
         "id": "dish_main_5",
@@ -3509,7 +3509,7 @@
         "totalDishCost": 53.426,
         "profitMargin": 254,
         "suggestedSellingPrice": 189,
-        "imageUrl": "https://ak-producciones-fiestas-y-eventos.my.canva.site/servicio-de-catering/images/e8bb7ade93a93d0d73e2b4a846c6f3d5.jpg"
+        "imageUrl": null
       }
     ],
     "updatedAt": "2026-03-18T11:42:13.623Z"
@@ -3600,7 +3600,7 @@
         "totalDishCost": 164.3,
         "profitMargin": 82,
         "suggestedSellingPrice": 299,
-        "imageUrl": "https://ak-producciones-fiestas-y-eventos.my.canva.site/servicio-de-catering/images/2f543cc99bb66cf58ee20f3a66a5025f.jpg"
+        "imageUrl": null
       },
       {
         "id": "dish_child_2",

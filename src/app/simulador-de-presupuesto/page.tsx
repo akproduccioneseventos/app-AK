@@ -35,7 +35,8 @@ import {
     Settings2,
     Plus,
     Trash2,
-    AlertTriangle
+    AlertTriangle,
+    ChevronDown
 } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { captureSimulatorLeadProgress, generateBudgetAndLeadFromSimulator, getPublicBudgetsByPhone } from '@/app/actions/armado-rapido';
@@ -70,7 +71,11 @@ import {
 } from '@/lib/simulator/pricing';
 import { commercialAttributionFromSearchParams } from '@/lib/commercial/acquisition';
 import { isValidUruguayMobile, normalizeUruguayPhone, toWhatsAppNumber } from '@/lib/commercial/contact';
-import { getRemovablePackageServices, isPremiumSimulatorPackage } from '@/lib/simulator/package-customization';
+import {
+  getPackageChangeResult,
+  getPackageRecommendations,
+  getRemovablePackageServices,
+} from '@/lib/simulator/package-customization';
 import { downloadSimulatorBudgetPdf } from '@/lib/budget/simulator-budget-pdf';
 
 const COMMERCIAL_TIMER_SECONDS = 15 * 60;
@@ -87,10 +92,6 @@ const formatCountdown = (seconds: number) => {
     const minutes = Math.floor(safeSeconds / 60);
     return `${String(minutes).padStart(2, '0')}:${String(safeSeconds % 60).padStart(2, '0')}`;
 };
-
-const normalizeCommercialServiceName = (value?: string) => (
-    value || ''
-).normalize('NFD').replace(/[\u0300-\u036f]/g, '').toLowerCase().replace(/\s+/g, ' ').trim();
 
 const safeImageUrl = (url?: string): string | undefined => {
     if (!url) return undefined;
@@ -128,7 +129,7 @@ const getServiceOrDishImage = (s?: { id?: string; nombre?: string; title?: strin
 async function withFallbackTimeout<T>(
     promise: Promise<T>,
     fallback: T,
-    timeoutMs = 8000,
+    timeoutMs = 20000,
 ): Promise<T> {
     let timeout: ReturnType<typeof setTimeout> | undefined;
     try {
@@ -278,6 +279,7 @@ function SimuladorContent() {
     const [selectedPrincipal, setSelectedPrincipal] = useState<string>('');
     const [selectedInfantil, setSelectedInfantil] = useState<string>('');
     const [selectedPaqueteId, setSelectedPaqueteId] = useState<string>('');
+    const [expandedPackageId, setExpandedPackageId] = useState<string | null>(null);
     const [salonChoice, setSalonChoice] = useState<'propio' | 'club' | ''>(prefillSalonChoice);
     const [excludedPackageServiceIds, setExcludedPackageServiceIds] = useState<string[]>([]);
     const [dateSuggestions, setDateSuggestions] = useState<string[]>([]);
@@ -568,72 +570,23 @@ function SimuladorContent() {
     const suggestedServices = useMemo(() => {
         if (!config || !selectedPaqueteId) return [];
         const currentPackage = config?.paquetes?.find(p => p.id === selectedPaqueteId);
-        const otherPackages = config?.paquetes?.filter(p => p.id !== selectedPaqueteId) || [];
-        const visibleAdditionalIds = budgetSettings.serviciosAdicionalesVisibles?.length
-            ? new Set(budgetSettings.serviciosAdicionalesVisibles)
-            : null;
-        const nonCommercialUpsellPattern =
-            /\b(manteleria|vajilla|mobiliario|mesa|silla|mozo|personal|cocina|cubierto|servicio basico)\b/i;
-
-        const otherServicesIds = new Set<string>();
-        otherPackages.forEach(p => {
-            p.serviciosIncluidos?.forEach(s => otherServicesIds.add(s.id));
-        });
-
-        if (currentPackage) {
-            currentPackage.serviciosIncluidos?.forEach(s => otherServicesIds.delete(s.id));
-        }
-
         const currentSelectedIds = new Set([
             ...Array.from(formData.serviciosSeleccionados.keys()),
             ...selectedEntradas,
             ...(selectedPrincipal ? [selectedPrincipal] : []),
             ...(selectedInfantil ? [selectedInfantil] : []),
         ]);
-
-        currentSelectedIds.forEach(id => otherServicesIds.delete(id));
-
-        const selectedNames = new Set(
-            allSimuladorServices
-                .filter(service => currentSelectedIds.has(service.id))
-                .map(service => normalizeCommercialServiceName(service.nombre))
-        );
-        currentPackage?.serviciosIncluidos?.forEach(item => {
-            const service = allSimuladorServices.find(candidate => candidate.id === item.id);
-            if (service) selectedNames.add(normalizeCommercialServiceName(service.nombre));
+        return getPackageRecommendations({
+            currentPackage,
+            otherPackages: config.paquetes.filter(packageItem => packageItem.id !== selectedPaqueteId),
+            services: serviciosCatalogo,
+            selectedServiceIds: currentSelectedIds,
+            visibleServiceIds: budgetSettings.serviciosAdicionalesVisibles?.length
+                ? budgetSettings.serviciosAdicionalesVisibles
+                : null,
+            limit: 3,
         });
-
-        const isValidSuggestion = (service: ServicioEmpresa) => {
-            const normalizedName = normalizeCommercialServiceName(service.nombre);
-            return Boolean(
-                normalizedName &&
-                !selectedNames.has(normalizedName) &&
-                !nonCommercialUpsellPattern.test(normalizedName) &&
-                (!visibleAdditionalIds || visibleAdditionalIds.has(service.id))
-            );
-        };
-
-        const suggested = serviciosCatalogo.filter(service =>
-            otherServicesIds.has(service.id) && isValidSuggestion(service)
-        );
-
-        const packageServiceIds = new Set(currentPackage?.serviciosIncluidos?.map(service => service.id) || []);
-
-        if (suggested.length === 0) {
-            const popularIds = ['serv_barra_tragos', 'serv_pista_led', 'serv_plataforma_360', 'serv_cabina_fotos'];
-            popularIds.forEach(id => {
-                if (!currentSelectedIds.has(id) && !packageServiceIds.has(id) && !suggested.some(s => s.id === id)) {
-                    const serv = serviciosCatalogo.find(s => s.id === id);
-                    if (serv && isValidSuggestion(serv)) suggested.push(serv);
-                }
-            });
-        }
-
-        return suggested
-            .sort((a, b) => Number(Boolean(b.isFeatured)) - Number(Boolean(a.isFeatured)) || a.nombre.localeCompare(b.nombre))
-            .slice(0, 1);
     }, [
-        allSimuladorServices,
         budgetSettings.serviciosAdicionalesVisibles,
         config,
         formData.serviciosSeleccionados,
@@ -643,6 +596,41 @@ function SimuladorContent() {
         selectedPrincipal,
         serviciosCatalogo,
     ]);
+
+    const selectPackage = (paqueteId: string) => {
+        const currentPackage = config?.paquetes.find(packageItem => packageItem.id === selectedPaqueteId);
+        const nextPackage = config?.paquetes.find(packageItem => packageItem.id === paqueteId);
+        if (currentPackage?.id === nextPackage?.id) {
+            return {
+                nextPackage,
+                nextManualServices: new Map(formData.serviciosSeleccionados),
+                packageChange: {
+                    selectedServiceIds: Array.from(formData.serviciosSeleccionados.keys()),
+                    excludedPackageServiceIds,
+                },
+            };
+        }
+        const packageChange = getPackageChangeResult({
+            currentPackage,
+            nextPackage,
+            selectedServiceIds: formData.serviciosSeleccionados.keys(),
+        });
+        const nextManualServices = new Map<string, ServicioSeleccionadoValue>();
+
+        packageChange.selectedServiceIds.forEach((serviceId) => {
+            const selected = formData.serviciosSeleccionados.get(serviceId);
+            if (selected) nextManualServices.set(serviceId, selected);
+        });
+
+        setSelectedPaqueteId(paqueteId);
+        setExcludedPackageServiceIds(packageChange.excludedPackageServiceIds);
+        setFormData(previous => ({
+            ...previous,
+            serviciosSeleccionados: nextManualServices,
+        }));
+
+        return { nextPackage, nextManualServices, packageChange };
+    };
 
     const handleToggleServiceInBudget = useCallback((serviceId: string, action: 'include' | 'exclude') => {
         const packageItem = config?.paquetes?.find(p => p.id === selectedPaqueteId);
@@ -811,7 +799,6 @@ function SimuladorContent() {
             }
             try {
                 await saveProgress(true);
-                startCommercialTimer();
                 setStep(3);
             } catch (error: any) {
                 toast({ title: "No pudimos guardar el evento", description: error.message, variant: "destructive" });
@@ -874,6 +861,7 @@ function SimuladorContent() {
                 if (result.success && result.presupuestoId) {
                     setGeneratedPresupuestoId(result.presupuestoId);
                     if (result.token) setGeneratedToken(result.token);
+                    startCommercialTimer();
                     setStep(6);
                 } else throw new Error(result.error || "Error al generar.");
             } catch (e: any) {
@@ -1101,18 +1089,8 @@ function SimuladorContent() {
     const handleSwitchPackage = async (paqueteId: string) => {
         if (!config) return;
         setIsGenerating(true);
-        setSelectedPaqueteId(paqueteId);
-        setExcludedPackageServiceIds([]);
-
-        const newPackage = config.paquetes.find(p => p.id === paqueteId);
+        const { nextPackage: newPackage, nextManualServices } = selectPackage(paqueteId);
         const newPackageName = newPackage?.nombre;
-        const newPackageServiceIds = new Set(newPackage?.serviciosIncluidos.map(service => service.id) || []);
-        const nextManualServices = new Map(formData.serviciosSeleccionados);
-        newPackageServiceIds.forEach(serviceId => nextManualServices.delete(serviceId));
-        setFormData(previous => ({
-            ...previous,
-            serviciosSeleccionados: nextManualServices,
-        }));
 
         // Calculate new pricing stats
         const newStats = calculateSimulatorPricing({
@@ -1149,6 +1127,7 @@ function SimuladorContent() {
             excludedPackageServiceIds: [],
             paqueteId,
             paqueteNombre: newPackageName ? `${newPackageName} — ${eventoTipo}` : undefined,
+            includeClubUruguay: salonChoice === 'club',
             items: simulatorDetailsToBudgetItems(newStats.detallados)
         };
 
@@ -1252,7 +1231,6 @@ function SimuladorContent() {
         () => sortedPaquetes.find(packageItem => packageItem.id === selectedPaqueteId),
         [selectedPaqueteId, sortedPaquetes]
     );
-    const isPremiumPackage = isPremiumSimulatorPackage(selectedPackage?.nombre);
     const removablePackageServices = useMemo(() => {
         return getRemovablePackageServices(selectedPackage, allSimuladorServices, {
             serviceDependencies: config?.serviceDependencies,
@@ -1793,18 +1771,6 @@ function SimuladorContent() {
                     </div>
                 </CardHeader>
 
-                {step >= 3 && commercialTimerEndsAt && (
-                    <div className="flex flex-col gap-2 border-b border-red-100 bg-red-50 px-6 py-3 text-red-950 sm:flex-row sm:items-center sm:justify-between sm:px-10">
-                        <div>
-                            <p className="text-xs font-black uppercase tracking-wider">Revisión comercial prioritaria</p>
-                            <p className="text-xs text-red-800">Terminá la propuesta y consultá promociones y disponibilidad con el equipo AK.</p>
-                        </div>
-                        <span className="shrink-0 rounded-md bg-white px-3 py-1 font-mono text-sm font-black text-red-800 shadow-sm">
-                            {commercialTimerSeconds > 0 ? formatCountdown(commercialTimerSeconds) : 'Consulta abierta'}
-                        </span>
-                    </div>
-                )}
-
                 <CardContent className="p-6 sm:p-10">
                     {step === 1 && (
                         <div className="space-y-8 animate-in fade-in slide-in-from-bottom-4 duration-500 max-w-2xl mx-auto py-4">
@@ -2142,16 +2108,8 @@ function SimuladorContent() {
                             <RadioGroup
                                 value={selectedPaqueteId}
                                 onValueChange={value => {
-                                    setSelectedPaqueteId(value);
-                                    setExcludedPackageServiceIds([]);
-                                    const pkg = config?.paquetes?.find(item => item.id === value);
-                                    if (pkg) {
-                                        setFormData(prev => {
-                                            const newSelected = new Map(prev.serviciosSeleccionados);
-                                            pkg.serviciosIncluidos?.forEach((item: any) => newSelected.delete(item.id));
-                                            return { ...prev, serviciosSeleccionados: newSelected };
-                                        });
-                                    }
+                                    selectPackage(value);
+                                    setExpandedPackageId(null);
                                 }}
                                 className="grid grid-cols-1 md:grid-cols-2 gap-6"
                             >
@@ -2166,6 +2124,15 @@ function SimuladorContent() {
 
                                     const estimatedTotal = calculatePackageEstimatedPrice(p);
                                     const estimatedPricePerPerson = estimatedTotal / Math.max(1, adultos + ninosYAdolescentes);
+                                    const includedServices = sortedIncluded
+                                        .map(serviceItem => ({
+                                            serviceItem,
+                                            service: allSimuladorServices.find(candidate => candidate.id === serviceItem.id),
+                                        }))
+                                        .filter((item): item is { serviceItem: typeof sortedIncluded[number]; service: ServicioEmpresa } => Boolean(item.service));
+                                    const giftCount = includedServices.filter(item => item.serviceItem.esRegalo).length;
+                                    const isExpanded = expandedPackageId === p.id;
+                                    const visibleIncluded = isExpanded ? includedServices : includedServices.slice(0, 3);
 
                                     return (
                                         <label key={p.id} className={cn(
@@ -2188,13 +2155,27 @@ function SimuladorContent() {
                                             </div>
 
                                             <div className="space-y-3 border-t border-slate-200 pt-4">
-                                                <Label className="flex items-center gap-2 text-[9px] font-black uppercase tracking-widest text-slate-500">
-                                                    <ListPlus className="h-3 w-3"/> Todo lo que incluye
-                                                </Label>
+                                                <div className="flex items-center justify-between gap-3 text-[10px] font-bold text-slate-600">
+                                                    <span>{includedServices.length} servicios{giftCount > 0 ? ` · ${giftCount} regalo${giftCount === 1 ? '' : 's'}` : ''}</span>
+                                                    {includedServices.length > 3 && (
+                                                        <Button
+                                                            type="button"
+                                                            variant="ghost"
+                                                            size="sm"
+                                                            onClick={(event) => {
+                                                                event.preventDefault();
+                                                                event.stopPropagation();
+                                                                setExpandedPackageId(current => current === p.id ? null : p.id);
+                                                            }}
+                                                            className="h-8 gap-1 px-2 text-[10px] font-bold text-slate-700 hover:bg-slate-100"
+                                                        >
+                                                            {isExpanded ? 'Ver resumen' : 'Ver todo'}
+                                                            <ChevronDown className={cn('h-3.5 w-3.5 transition-transform', isExpanded && 'rotate-180')} />
+                                                        </Button>
+                                                    )}
+                                                </div>
                                                 <ul className="space-y-2 text-[10px] font-bold uppercase tracking-tight text-slate-600">
-                                                    {sortedIncluded.map(serviceItem => {
-                                                        const service = allSimuladorServices.find(candidate => candidate.id === serviceItem.id);
-                                                        return service && (
+                                                    {visibleIncluded.map(({ serviceItem, service }) => (
                                                             <li key={serviceItem.id} className={cn(
                                                                 "flex items-center justify-between gap-3 rounded-md border px-3 py-2",
                                                                 serviceItem.esRegalo
@@ -2213,8 +2194,7 @@ function SimuladorContent() {
                                                                     </Badge>
                                                                 )}
                                                             </li>
-                                                        );
-                                                    })}
+                                                        ))}
                                                 </ul>
                                             </div>
                                         </label>
@@ -2482,7 +2462,7 @@ function SimuladorContent() {
                                 {suggestedServices.length > 0 && (
                                     <div className="space-y-3 pt-2">
                                         <h5 className="text-[10px] font-black uppercase tracking-widest text-slate-400 flex items-center gap-1.5 text-left">
-                                            <Sparkles className="h-3.5 w-3.5 text-slate-600" /> Una mejora disponible para tu evento
+                                            <Sparkles className="h-3.5 w-3.5 text-slate-600" /> Mejoras disponibles para tu evento
                                         </h5>
                                         <div className="grid gap-3">
                                             {suggestedServices.map(service => {
