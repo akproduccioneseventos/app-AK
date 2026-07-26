@@ -27,6 +27,8 @@ import {
   Camera,
   Clock,
   Facebook,
+  X,
+  Utensils,
 } from 'lucide-react';
 import { getFiestaById } from '@/app/actions/fiesta/fiesta.actions';
 import { getSocialConnections } from '@/app/actions/social-connections';
@@ -125,6 +127,7 @@ function GuestPortalContent() {
   const [isLoading, setIsLoading] = useState(true);
   const [loadError, setLoadError] = useState<string | null>(null);
   const [showQuiosco, setShowQuiosco] = useState(false);
+  const [showMenuModal, setShowMenuModal] = useState(false);
 
   const loadData = useCallback(async () => {
     if (!fiestaId || !guestId) {
@@ -196,7 +199,7 @@ function GuestPortalContent() {
       <div className="min-h-screen bg-zinc-950 flex flex-col items-center justify-center p-8 text-center gap-6">
         <span className="text-5xl">🔒</span>
         <h2 className="text-xl font-bold text-white">El Portal del Invitado todavía no está habilitado.</h2>
-        <p className="text-sm text-zinc-400">Tu pase todavia no esta activo.<br />Intenta nuevamente mas tarde.</p>
+        <p className="text-sm text-zinc-400">Tu pase todavía no está activo.<br />Intentá nuevamente más tarde.</p>
       </div>
     );
   }
@@ -363,7 +366,7 @@ function GuestPortalContent() {
             )}
           </div>
 
-          {/* ðŸ“¸ Red Social de la Fiesta Banner */}
+          {/* 📸 Red Social de la Fiesta Banner */}
           {gps.showMural !== false && (
             <motion.a
               href={`/evento/social/${fiestaId}`}
@@ -381,7 +384,7 @@ function GuestPortalContent() {
                   Chatea, pide canciones y sube fotos/videos en tiempo real.
                 </p>
               </div>
-              <span className="ml-auto text-lg shrink-0 font-bold">âžœ</span>
+              <span className="ml-auto text-lg shrink-0 font-bold">➔</span>
             </motion.a>
           )}
 
@@ -431,9 +434,27 @@ function GuestPortalContent() {
           style={{ background: 'rgba(255,255,255,0.04)', borderColor: 'rgba(255,255,255,0.1)' }}
         >
           <p className="text-xs font-bold uppercase tracking-widest text-zinc-400">Mi Asistencia</p>
-          <div className={`inline-flex items-center gap-2 px-3 py-1.5 rounded-full border text-sm font-bold ${rsvpBadge.bg} ${rsvpBadge.color}`}>
-            {rsvpBadge.label}
+          <div className="flex flex-wrap items-center gap-2">
+            <div className={`inline-flex items-center gap-2 px-3 py-1.5 rounded-full border text-sm font-bold ${rsvpBadge.bg} ${rsvpBadge.color}`}>
+              {rsvpBadge.label}
+            </div>
+            {guest.rsvp !== 'Confirmado' && (
+              <a
+                href={`/invitacion/${fiestaId}/rsvp`}
+                className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-bold bg-amber-500 hover:bg-amber-400 text-zinc-950 shadow transition"
+              >
+                ✍️ Responder asistencia →
+              </a>
+            )}
           </div>
+
+          {guest.companionNames && guest.companionNames.length > 0 && (
+            <div className="mt-2 text-xs text-zinc-300 bg-white/5 p-3 rounded-xl border border-white/5">
+              <p className="text-zinc-400 font-semibold mb-1">Acompañantes registrados ({guest.companionNames.length}):</p>
+              <p className="text-zinc-200">{guest.companionNames.join(', ')}</p>
+            </div>
+          )}
+
           {gps.showMesaAsignada && guest.tableNumber && (
             <div
               data-testid="guest-portal-table"
@@ -597,13 +618,14 @@ function GuestPortalContent() {
               </a>
             )}
             {guestExp?.showMenu !== false && (
-              <a
-                href={`/portal-cliente/${fiestaId}/menu`}
-                className="flex items-center gap-2 text-sm font-semibold hover:opacity-80 transition mt-1"
+              <button
+                type="button"
+                onClick={() => setShowMenuModal(true)}
+                className="flex items-center gap-2 text-sm font-semibold hover:opacity-80 transition mt-1 text-left"
                 style={{ color: accentColor }}
               >
                 🍽️ Ver menú del evento →
-              </a>
+              </button>
             )}
           </div>
           </motion.div>
@@ -843,6 +865,102 @@ function GuestPortalContent() {
 
       <AnimatePresence>
         {showQuiosco && <MiniQuiosco fiestaId={fiestaId} guest={guest} onClose={() => setShowQuiosco(false)} />}
+        {showMenuModal && (
+          <div className="fixed inset-0 z-[100] flex items-center justify-center p-4">
+            <motion.div
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              onClick={() => setShowMenuModal(false)}
+              className="absolute inset-0 bg-black/80 backdrop-blur-sm"
+            />
+            <motion.div
+              initial={{ scale: 0.95, opacity: 0, y: 20 }}
+              animate={{ scale: 1, opacity: 1, y: 0 }}
+              exit={{ scale: 0.95, opacity: 0, y: 20 }}
+              className="relative max-w-md w-full bg-zinc-900 border border-white/10 rounded-3xl p-6 shadow-2xl z-10 text-left overflow-y-auto max-h-[85vh] space-y-5"
+            >
+              <div className="flex items-center justify-between border-b border-white/10 pb-3">
+                <div className="flex items-center gap-2">
+                  <span className="text-2xl">🍽️</span>
+                  <div>
+                    <h3 className="font-black text-lg text-white">Menú del Evento</h3>
+                    <p className="text-xs text-zinc-400">{config?.nombreEvento}</p>
+                  </div>
+                </div>
+                <button
+                  type="button"
+                  onClick={() => setShowMenuModal(false)}
+                  className="w-8 h-8 rounded-full bg-white/10 hover:bg-white/20 flex items-center justify-center text-white transition-colors"
+                >
+                  <X className="w-4 h-4" />
+                </button>
+              </div>
+
+              {fiesta.menuMesa ? (
+                <div className="space-y-3">
+                  {fiesta.menuMesa.entrada && (
+                    <div className="bg-white/5 border border-white/5 rounded-2xl p-4">
+                      <p className="text-xs font-bold uppercase tracking-wider text-amber-400 mb-1">Entrada</p>
+                      <p className="text-sm text-zinc-200">{fiesta.menuMesa.entrada}</p>
+                    </div>
+                  )}
+                  {fiesta.menuMesa.platoPrincipal && (
+                    <div className="bg-white/5 border border-white/5 rounded-2xl p-4">
+                      <p className="text-xs font-bold uppercase tracking-wider text-amber-400 mb-1">Plato Principal</p>
+                      <p className="text-sm text-zinc-200">{fiesta.menuMesa.platoPrincipal}</p>
+                    </div>
+                  )}
+                  {fiesta.menuMesa.adolescentes && (
+                    <div className="bg-white/5 border border-white/5 rounded-2xl p-4">
+                      <p className="text-xs font-bold uppercase tracking-wider text-amber-400 mb-1">Menú Jóvenes / Niños</p>
+                      <p className="text-sm text-zinc-200">{fiesta.menuMesa.adolescentes}</p>
+                    </div>
+                  )}
+                  {fiesta.menuMesa.postres && (
+                    <div className="bg-white/5 border border-white/5 rounded-2xl p-4">
+                      <p className="text-xs font-bold uppercase tracking-wider text-amber-400 mb-1">Postre & Mesa Dulce</p>
+                      <p className="text-sm text-zinc-200">{fiesta.menuMesa.postres}</p>
+                    </div>
+                  )}
+                  {fiesta.menuMesa.bebidas && (
+                    <div className="bg-white/5 border border-white/5 rounded-2xl p-4">
+                      <p className="text-xs font-bold uppercase tracking-wider text-amber-400 mb-1">Bebidas & Barra</p>
+                      <p className="text-sm text-zinc-200">{fiesta.menuMesa.bebidas}</p>
+                    </div>
+                  )}
+                </div>
+              ) : fiesta.menuSeleccionPortal && (fiesta.menuSeleccionPortal.entrada || fiesta.menuSeleccionPortal.principal) ? (
+                <div className="space-y-3">
+                  {fiesta.menuSeleccionPortal.entrada && (
+                    <div className="bg-white/5 border border-white/5 rounded-2xl p-4">
+                      <p className="text-xs font-bold uppercase tracking-wider text-amber-400 mb-1">Entrada</p>
+                      <p className="text-sm text-zinc-200">{fiesta.menuSeleccionPortal.entrada}</p>
+                    </div>
+                  )}
+                  {fiesta.menuSeleccionPortal.principal && (
+                    <div className="bg-white/5 border border-white/5 rounded-2xl p-4">
+                      <p className="text-xs font-bold uppercase tracking-wider text-amber-400 mb-1">Plato Principal</p>
+                      <p className="text-sm text-zinc-200">{fiesta.menuSeleccionPortal.principal}</p>
+                    </div>
+                  )}
+                </div>
+              ) : (
+                <div className="py-6 text-center text-zinc-400 text-sm space-y-1">
+                  <p>El menú gastronómico está coordinado por la cocina del evento.</p>
+                  <p className="text-xs text-zinc-500">Si tenés restricciones especiales, podés indicarlas en tu asistencia.</p>
+                </div>
+              )}
+
+              {dietLabel && (
+                <div className="bg-emerald-500/10 border border-emerald-500/20 rounded-2xl p-3 text-xs text-emerald-300 flex items-center gap-2">
+                  <span>✓</span>
+                  <span>Tu preferencia registrada: <strong>{dietLabel}</strong></span>
+                </div>
+              )}
+            </motion.div>
+          </div>
+        )}
       </AnimatePresence>
     </div>
   );
