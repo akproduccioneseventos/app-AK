@@ -3,17 +3,21 @@ import { googleAI } from '@genkit-ai/google-genai';
 import type { AkAgentType } from '@/types/multiagent';
 
 const apiKey = process.env.GOOGLE_API_KEY || process.env.GEMINI_API_KEY;
-const DEFAULT_GEMINI_MODEL = 'googleai/gemini-3-flash-preview';
-const DEFAULT_GEMINI_PRO_MODEL = 'googleai/gemini-3-pro-preview';
+const DEFAULT_GEMINI_MODEL = 'googleai/gemini-3.6-flash';
+const DEFAULT_GEMINI_PRO_MODEL = 'googleai/gemini-3.6-flash';
+const DEFAULT_GEMINI_LATEST_MODEL = 'googleai/gemini-flash-latest';
+const DEFAULT_GEMINI_FALLBACK_MODELS = [
+  DEFAULT_GEMINI_MODEL,
+  'googleai/gemini-3.5-flash',
+] as const;
 const GEMINI_MODEL_PATTERN = /^googleai\/gemini-[a-z0-9]+(?:[.-][a-z0-9]+)*$/i;
 
 type GeminiModelRole = 'default' | 'fast' | 'pro' | 'marketing' | 'commercial';
 
-type GeminiGenerationConfig = {
-  temperature: number;
-};
+type GeminiGenerationConfig = Record<string, never>;
 
 const configuredGeminiModel = process.env.GEMINI_MODEL?.trim();
+const automaticUpgradeEnabled = process.env.GEMINI_AUTO_UPGRADE !== 'false';
 
 function resolveGeminiModel(value: string | undefined, fallback: string, label: GeminiModelRole): string {
   const configured = value?.trim();
@@ -25,21 +29,32 @@ function resolveGeminiModel(value: string | undefined, fallback: string, label: 
 }
 
 export const geminiModel = resolveGeminiModel(configuredGeminiModel, DEFAULT_GEMINI_MODEL, 'default');
-export const geminiFastModel = resolveGeminiModel(process.env.GEMINI_MODEL_FAST, geminiModel, 'fast');
+export const geminiLatestModel = resolveGeminiModel(
+  process.env.GEMINI_MODEL_LATEST,
+  automaticUpgradeEnabled ? DEFAULT_GEMINI_LATEST_MODEL : geminiModel,
+  'default',
+);
+export const geminiFastModel = resolveGeminiModel(process.env.GEMINI_MODEL_FAST, geminiLatestModel, 'fast');
 export const geminiProModel = resolveGeminiModel(process.env.GEMINI_MODEL_PRO, DEFAULT_GEMINI_PRO_MODEL, 'pro');
 export const geminiMarketingModel = resolveGeminiModel(process.env.GEMINI_MODEL_MARKETING, geminiFastModel, 'marketing');
 export const geminiCommercialModel = resolveGeminiModel(process.env.GEMINI_MODEL_COMMERCIAL, geminiFastModel, 'commercial');
 
 export function getGeminiModelForAgent(agentType?: AkAgentType, options?: { deep?: boolean }): string {
-  // Retorna siempre el modelo Pro para maximizar la capacidad intelectual de todos los agentes, como solicitó el usuario.
-  return geminiProModel;
+  if (options?.deep || agentType === 'fiestas_general' || agentType === 'contable') {
+    return geminiProModel;
+  }
+  if (agentType === 'marketing') return geminiMarketingModel;
+  if (agentType === 'comercial') return geminiCommercialModel;
+  return geminiFastModel;
 }
 
-export function getGeminiGenerationConfigForAgent(agentType?: AkAgentType, options?: { deep?: boolean }): GeminiGenerationConfig {
-  if (agentType === 'marketing') return { temperature: 0.7 };
-  if (agentType === 'comercial') return { temperature: 0.3 };
-  if (options?.deep || agentType === 'fiestas_general' || agentType === 'contable') return { temperature: 0.15 };
-  return { temperature: 0.2 };
+export function getGeminiGenerationConfigForAgent(
+  _agentType?: AkAgentType,
+  _options?: { deep?: boolean },
+): GeminiGenerationConfig {
+  // Gemini 3.6+ deprecó temperature/top_p/top_k. La precisión se controla en
+  // instrucciones y salidas estructuradas para conservar compatibilidad futura.
+  return {};
 }
 
 if (!apiKey) {
@@ -49,3 +64,47 @@ if (!apiKey) {
 export const ai = genkit({
   plugins: apiKey ? [googleAI({ apiKey })] : [],
 });
+
+type GeminiGenerateRequest = Awaited<Parameters<typeof ai.generate>[0]>;
+
+function configuredFallbackModels(): string[] {
+  const configured = (process.env.GEMINI_MODEL_FALLBACKS || '')
+    .split(',')
+    .map(model => model.trim())
+    .filter(model => GEMINI_MODEL_PATTERN.test(model));
+
+  return [...configured, ...DEFAULT_GEMINI_FALLBACK_MODELS];
+}
+
+export function getGeminiFallbackCandidates(preferredModel: string): string[] {
+  return Array.from(new Set([preferredModel, ...configuredFallbackModels()]));
+}
+
+export function isRecoverableGeminiModelError(error: unknown): boolean {
+  const candidate = error as { status?: number; code?: number | string; message?: string };
+  const status = Number(candidate?.status || candidate?.code);
+  const message = String(candidate?.message || error || '').toLowerCase();
+
+  return (
+    [404, 408, 429, 500, 502, 503, 504].includes(status) ||
+    /(model.+(?:not found|unavailable)|resource_exhausted|overloaded|capacity|deadline exceeded|temporarily unavailable)/i.test(message)
+  );
+}
+
+export async function generateWithGeminiFallback(request: GeminiGenerateRequest) {
+  const preferredModel = typeof request.model === 'string' ? request.model : geminiFastModel;
+  const candidates = getGeminiFallbackCandidates(preferredModel);
+  let lastError: unknown;
+
+  for (const model of candidates) {
+    try {
+      return await ai.generate({ ...request, model });
+    } catch (error) {
+      lastError = error;
+      if (!isRecoverableGeminiModelError(error)) throw error;
+      console.warn(`[Genkit] El modelo "${model}" no respondió. Probando fallback compatible.`);
+    }
+  }
+
+  throw lastError;
+}

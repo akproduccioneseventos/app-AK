@@ -254,17 +254,20 @@ export default async function CentroExperienciaPage(props: PageProps) {
                   <p className="mt-1 text-sm text-emerald-100/80">Esta fiesta se puede mostrar como experiencia completa.</p>
                 </div>
               ) : (
-                nextSteps.map((step) => (
-                  <Link
-                    key={`${step.area}-${step.label}`}
-                    href={step.href ?? '#'}
-                    className="block rounded-2xl border border-white/10 bg-white/5 p-4 transition duration-300 hover:border-rose-300/40 hover:bg-white/10"
-                  >
+                nextSteps.map((step) => {
+                  const content = (
+                    <>
                     <p className="text-xs font-black uppercase tracking-widest text-rose-200">{step.area}</p>
                     <p className="mt-1 font-black text-white">{step.label}</p>
                     <p className="mt-1 text-sm leading-5 text-white/65">{step.detail}</p>
-                  </Link>
-                ))
+                    </>
+                  );
+                  return step.href ? (
+                    <Link key={`${step.area}-${step.label}`} href={step.href} className="block rounded-2xl border border-white/10 bg-white/5 p-4 transition duration-300 hover:border-rose-300/40 hover:bg-white/10">{content}</Link>
+                  ) : (
+                    <div key={`${step.area}-${step.label}`} aria-disabled="true" className="rounded-2xl border border-white/10 bg-white/5 p-4">{content}</div>
+                  );
+                })
               )}
             </CardContent>
           </Card>

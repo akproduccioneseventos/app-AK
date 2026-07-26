@@ -6,6 +6,21 @@ type DrinkMarketingFields = Pick<Trago, 'nombre' | 'ingredientes' | 'descripcion
 
 const BAR_TIME_PATTERN = /^([01]\d|2[0-3]):([0-5]\d)$/;
 
+const BAR_ORDER_TRANSITIONS: Record<BarDrinkOrderStatus, BarDrinkOrderStatus[]> = {
+  nuevo: ['preparando', 'cancelado'],
+  preparando: ['listo', 'cancelado'],
+  listo: ['entregado'],
+  entregado: [],
+  cancelado: [],
+};
+
+export function isValidBarOrderTransition(
+  previousStatus: BarDrinkOrderStatus,
+  nextStatus: BarDrinkOrderStatus,
+): boolean {
+  return previousStatus === nextStatus || BAR_ORDER_TRANSITIONS[previousStatus].includes(nextStatus);
+}
+
 export function shouldDiscountBarStock(
   previousStatus: BarDrinkOrderStatus,
   nextStatus: BarDrinkOrderStatus,

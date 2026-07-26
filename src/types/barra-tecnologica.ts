@@ -8,12 +8,14 @@ export interface BarDrinkOrder {
   drinkId: string;
   drinkName: string;
   guestName: string;
+  guestId?: string;
   tableNumber?: string;
   note?: string;
   status: BarDrinkOrderStatus;
   createdAt: string;
   updatedAt: string;
   source: 'touchscreen' | 'staff';
+  queuePosition?: number;
 }
 
 export interface BarTechnologySettings {
@@ -55,10 +57,25 @@ export interface BarTechnologyDashboard {
   protagonistaFotoUrl?: string;
 }
 
+export type PublicBarDrink = Pick<
+  Trago,
+  'id' | 'nombre' | 'imageUrl' | 'descripcion' | 'description' | 'videoUrl' | 'ingredientes' | 'stockDisponible'
+>;
+
+export interface PublicBarTechnologyDashboard {
+  fiestaId: string;
+  eventName: string;
+  drinks: PublicBarDrink[];
+  settings: BarTechnologySettings;
+  backgroundImageUrl?: string;
+  protagonistaFotoUrl?: string;
+}
+
 export interface CreateBarDrinkOrderInput {
   fiestaId: string;
   drinkId: string;
   guestName?: string;
+  guestId?: string;
   tableNumber?: string;
   note?: string;
 }

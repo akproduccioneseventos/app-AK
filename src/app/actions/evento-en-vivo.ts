@@ -14,6 +14,9 @@ import { normalizeBirthdayMonthDay } from '@/lib/commercial/birthday';
 import { normalizeUruguayPhone } from '@/lib/commercial/contact';
 import { enforcePublicRateLimit } from '@/lib/commercial/public-rate-limit';
 import { upsertPublicCommercialLead } from '@/lib/crm/public-lead-persistence';
+import { requireAppSession } from '@/lib/auth/require-session';
+
+export type PublicEventoEnVivoData = Omit<EventoEnVivoData, 'captaciones'>;
 
 function getOrInitData(fiesta: FiestaEnPlanificacion): EventoEnVivoData {
   const current = fiesta.eventoEnVivo ?? {
@@ -29,10 +32,11 @@ function randomId() {
   return Math.random().toString(36).slice(2, 10) + Date.now().toString(36);
 }
 
-export async function getEventoEnVivoData(fiestaId: string): Promise<EventoEnVivoData> {
+export async function getEventoEnVivoData(fiestaId: string): Promise<PublicEventoEnVivoData> {
   const fiesta = await getFiestaById(fiestaId);
   if (!fiesta) return { fotos: [], solicitudesCanciones: [], mensajes: [], votaciones: [] };
-  return getOrInitData(fiesta);
+  const { captaciones: _privateCaptures, ...publicData } = getOrInitData(fiesta);
+  return publicData;
 }
 
 export async function getFotosEnVivo(fiestaId: string): Promise<FotoEnVivo[]> {
@@ -151,6 +155,12 @@ export async function addFotoEnVivo(
   foto: Omit<FotoEnVivo, 'id' | 'timestamp'>
 ): Promise<{ success: boolean; error?: string }> {
   try {
+    await enforcePublicRateLimit({
+      scope: 'legacy-live-photo',
+      identity: fiestaId,
+      limit: 12,
+      windowMs: 60_000,
+    });
     const fiesta = await getFiestaById(fiestaId);
     if (!fiesta) return { success: false, error: 'Evento no encontrado.' };
     const data = getOrInitData(fiesta);
@@ -171,6 +181,12 @@ export async function addSolicitudCancion(
   solicitud: Omit<SolicitudCancion, 'id' | 'timestamp' | 'reproducida'>
 ): Promise<{ success: boolean; error?: string }> {
   try {
+    await enforcePublicRateLimit({
+      scope: 'legacy-live-song-request',
+      identity: fiestaId,
+      limit: 12,
+      windowMs: 60_000,
+    });
     const fiesta = await getFiestaById(fiestaId);
     if (!fiesta) return { success: false, error: 'Evento no encontrado.' };
     const data = getOrInitData(fiesta);
@@ -191,6 +207,7 @@ export async function marcarCancionReproducida(
   solicitudId: string
 ): Promise<{ success: boolean; error?: string }> {
   try {
+    await requireAppSession();
     const fiesta = await getFiestaById(fiestaId);
     if (!fiesta) return { success: false, error: 'Evento no encontrado.' };
     const data = getOrInitData(fiesta);
@@ -213,6 +230,12 @@ export async function addMensajeEnVivo(
   mensaje: Omit<MensajeEnVivo, 'id' | 'timestamp' | 'destacado'>
 ): Promise<{ success: boolean; error?: string }> {
   try {
+    await enforcePublicRateLimit({
+      scope: 'legacy-live-message',
+      identity: fiestaId,
+      limit: 20,
+      windowMs: 60_000,
+    });
     const fiesta = await getFiestaById(fiestaId);
     if (!fiesta) return { success: false, error: 'Evento no encontrado.' };
     const data = getOrInitData(fiesta);
@@ -233,6 +256,7 @@ export async function toggleMensajeDestacado(
   mensajeId: string
 ): Promise<{ success: boolean; error?: string }> {
   try {
+    await requireAppSession();
     const fiesta = await getFiestaById(fiestaId);
     if (!fiesta) return { success: false, error: 'Evento no encontrado.' };
     const data = getOrInitData(fiesta);
@@ -255,6 +279,7 @@ export async function createVotacion(
   votacion: Omit<VotacionEnVivo, 'id' | 'timestamp' | 'activa'>
 ): Promise<{ success: boolean; error?: string }> {
   try {
+    await requireAppSession();
     const fiesta = await getFiestaById(fiestaId);
     if (!fiesta) return { success: false, error: 'Evento no encontrado.' };
     const data = getOrInitData(fiesta);
@@ -276,6 +301,12 @@ export async function votarEnVivo(
   opcionId: string
 ): Promise<{ success: boolean; error?: string }> {
   try {
+    await enforcePublicRateLimit({
+      scope: 'legacy-live-vote',
+      identity: `${fiestaId}:${votacionId}`,
+      limit: 40,
+      windowMs: 60_000,
+    });
     const fiesta = await getFiestaById(fiestaId);
     if (!fiesta) return { success: false, error: 'Evento no encontrado.' };
     const data = getOrInitData(fiesta);
@@ -299,6 +330,7 @@ export async function toggleVotacionActiva(
   votacionId: string
 ): Promise<{ success: boolean; error?: string }> {
   try {
+    await requireAppSession();
     const fiesta = await getFiestaById(fiestaId);
     if (!fiesta) return { success: false, error: 'Evento no encontrado.' };
     const data = getOrInitData(fiesta);
@@ -317,6 +349,7 @@ export async function deleteContenidoEnVivo(
   id: string
 ): Promise<{ success: boolean; error?: string }> {
   try {
+    await requireAppSession();
     const fiesta = await getFiestaById(fiestaId);
     if (!fiesta) return { success: false, error: 'Evento no encontrado.' };
     const data = getOrInitData(fiesta);

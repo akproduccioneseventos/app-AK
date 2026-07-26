@@ -20,6 +20,7 @@ import { getServiciosEmpresa } from '@/app/actions/servicios-empresa';
 import { getMenus } from '@/app/actions/menus-catering';
 import { getPublicWhatsAppNumber } from '@/app/actions/whatsapp';
 import { CompanyLogo } from '@/components/company-logo';
+import BudgetDocument from '@/components/budget/BudgetDocument';
 import { cn } from '@/lib/utils';
 import { DatePickerDemo } from '@/components/date-picker-demo';
 import {
@@ -38,6 +39,8 @@ import type { FullMenu, MenuItem } from '@/types/catering';
 import type { ServicioEmpresa } from '@/types/empresa';
 import { DEFAULT_ANNUAL_ADJUSTMENT_PERCENTAGE } from '@/lib/budget/formal-budget';
 import { commercialAttributionFromSearchParams } from '@/lib/commercial/acquisition';
+import { isValidUruguayMobile, normalizeUruguayPhone } from '@/lib/commercial/contact';
+import type { Presupuesto } from '@/types/presupuesto';
 
 const WHATSAPP_NUMBER = '59898355530';
 const DEFAULT_DISCOUNT = 15;
@@ -164,7 +167,10 @@ function SimuladorAKContent() {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [generatedId, setGeneratedId] = useState<string | null>(null);
   const [token, setToken] = useState<string | null>(null);
+  const [generatedAt, setGeneratedAt] = useState<string | null>(null);
+  const [isDownloadingPdf, setIsDownloadingPdf] = useState(false);
   const autoSaveAttemptRef = useRef<string | null>(null);
+  const budgetDocumentRef = useRef<HTMLDivElement>(null);
 
   // Load configuration
   useEffect(() => {
@@ -334,6 +340,50 @@ function SimuladorAKContent() {
     selectedServices, selectedEntradas, selectedPrincipal, selectedInfantil,
     tieneSalon, incluirClubUruguay, eventoFecha, annualAdjustmentPercentage
   ]);
+
+  const budgetForPdf = useMemo<Presupuesto | null>(() => {
+    if (!generatedId || !generatedAt || !priceStats) return null;
+
+    return {
+      id: generatedId,
+      clienteNombre: clienteNombre.trim(),
+      clienteContacto: normalizeUruguayPhone(clienteContacto),
+      eventoTipo: eventoTipo ? EVENT_META[eventoTipo].label : 'Evento',
+      eventoFecha: eventoFecha?.toISOString() || generatedAt,
+      duracionHoras,
+      invitadosCantidad: adultos + ninosYAdolescentes,
+      invitadosAdultos: adultos,
+      invitadosNinos: ninosYAdolescentes,
+      invitadosAdolescentes: 0,
+      salonFiestas: tieneSalon === false && incluirClubUruguay ? 'Club Uruguay' : (tieneSalon ? 'Salon propio' : 'A definir'),
+      itemsPresupuestados: priceStats.detallados.map((item) => ({
+        idServicioCatalogo: item.id,
+        nombreServicio: item.nombre,
+        cantidad: item.cantidad,
+        unidad: item.unidad,
+        precioUnitario: item.precioUnitario,
+        precioUnitarioPresupuesto: item.precioUnitario,
+        costoTotalItem: item.costoTotal,
+        categoriaServicio: item.categoria,
+        subcategoria: item.subcategoria,
+        esRegalo: item.esRegalo,
+        calculationMethod: item.calculationMethod,
+        precioBase: item.precioBase,
+        precioPorPersona: item.precioPorPersona,
+        invitadosPorUnidad: item.invitadosPorUnidad,
+        tramosDePrecio: item.tramosDePrecio,
+      })),
+      costoTotalEstimado: priceStats.subtotalBruto,
+      descuentoTipo: 'porcentaje',
+      descuentoValor: priceStats.discountPercentage,
+      totalConDescuento: priceStats.totalFinal,
+      timestamp: generatedAt,
+      estado: 'Pendiente Verificación',
+      ajusteAnualActivo: priceStats.annualProjection.applies,
+      ajusteAnualPorcentaje: priceStats.annualProjection.adjustmentPct,
+      source: 'simulator_assistant',
+    };
+  }, [adultos, clienteContacto, clienteNombre, duracionHoras, eventoFecha, eventoTipo, generatedAt, generatedId, incluirClubUruguay, ninosYAdolescentes, priceStats, tieneSalon]);
 
   const handleEventoFechaChange = useCallback(async (date: Date | undefined) => {
     setEventoFecha(date);
@@ -542,6 +592,20 @@ function SimuladorAKContent() {
       // Process structural state sync
       if (res.action?.type === 'apply_changes' && res.action.changes) {
         const changes = res.action.changes;
+        const changesBudget = [
+          changes.eventoTipo,
+          changes.adultos,
+          changes.ninosYAdolescentes,
+          changes.eventoFecha,
+          changes.selectedPaqueteId,
+          changes.selectedServices,
+          changes.selectedPrincipal,
+          changes.duracionHoras,
+        ].some((value) => value !== undefined);
+        if (changesBudget) {
+          setGeneratedId(null);
+          setGeneratedAt(null);
+        }
         if (changes.eventoTipo !== undefined && changes.eventoTipo in EVENT_META) {
           setEventoTipo(changes.eventoTipo as EventType);
         }
@@ -550,7 +614,6 @@ function SimuladorAKContent() {
         if (changes.eventoFecha !== undefined) setEventoFecha(new Date(`${changes.eventoFecha}T12:00:00`));
         if (changes.selectedPaqueteId !== undefined) {
           setSelectedPaqueteId(changes.selectedPaqueteId);
-          setGeneratedId(null); // Force regenerate budget code
         }
         if (changes.selectedServices !== undefined) setSelectedServices(changes.selectedServices);
         if (changes.selectedPrincipal !== undefined) setSelectedPrincipal(changes.selectedPrincipal);
@@ -576,13 +639,23 @@ function SimuladorAKContent() {
 
   // Trigger CRM creation and lead generation in background
   const handleSaveBudget = async () => {
+    const normalizedName = clienteNombre.trim();
+    const normalizedPhone = normalizeUruguayPhone(clienteContacto);
+    if (normalizedName.length < 3 || !isValidUruguayMobile(normalizedPhone)) {
+      toast({
+        title: 'Faltan tus datos de contacto',
+        description: 'Ingresá tu nombre y un celular uruguayo válido antes de guardar el presupuesto.',
+        variant: 'destructive',
+      });
+      return;
+    }
     setIsSubmitting(true);
     try {
       const items = simulatorDetailsToBudgetItems(priceStats?.detallados || []);
       const result = await generateBudgetAndLeadFromSimulator({
         submissionId: submissionIdRef.current,
-        clienteNombre: clienteNombre.trim() || 'Cliente Chat',
-        clienteContacto: clienteContacto || '099000000',
+        clienteNombre: normalizedName,
+        clienteContacto: normalizedPhone,
         eventoFecha: eventoFecha?.toISOString() || new Date().toISOString(),
         adultos,
         ninos: ninosYAdolescentes,
@@ -611,6 +684,7 @@ function SimuladorAKContent() {
 
       if (result.success && result.presupuestoId) {
         setGeneratedId(result.presupuestoId);
+        setGeneratedAt(new Date().toISOString());
         if (result.token) setToken(result.token);
       }
     } catch (err) {
@@ -622,24 +696,30 @@ function SimuladorAKContent() {
 
   useEffect(() => {
     if (currentChatStep !== 'budget_ready' || !priceStats || isSubmitting || generatedId) return;
+    const normalizedPhone = normalizeUruguayPhone(clienteContacto);
+    if (clienteNombre.trim().length < 3 || !isValidUruguayMobile(normalizedPhone)) return;
     const attemptKey = [
       selectedPaqueteId || 'custom',
       priceStats.totalFinal,
       adultos,
       ninosYAdolescentes,
       eventoFecha?.toISOString() || 'no-date',
+      [...selectedServices, ...selectedEntradas].sort().join(','),
+      selectedPrincipal || 'no-principal',
+      selectedInfantil || 'no-infantil',
     ].join(':');
     if (autoSaveAttemptRef.current === attemptKey) return;
     autoSaveAttemptRef.current = attemptKey;
     void handleSaveBudget();
     // handleSaveBudget intentionally uses the latest simulator snapshot from this render.
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [currentChatStep, priceStats, isSubmitting, generatedId, selectedPaqueteId, adultos, ninosYAdolescentes, eventoFecha]);
+  }, [currentChatStep, priceStats, isSubmitting, generatedId, selectedPaqueteId, selectedServices, selectedEntradas, selectedPrincipal, selectedInfantil, adultos, ninosYAdolescentes, eventoFecha, clienteNombre, clienteContacto]);
 
   const handleSwitchPackage = async (paqueteId: string) => {
     setIsAiLoading(true);
     setSelectedPaqueteId(paqueteId);
     setGeneratedId(null); // Clear ID to force regenerations
+    setGeneratedAt(null);
 
     const pkg = config?.paquetes.find(p => p.id === paqueteId);
     const textToSend = `Quiero cambiar al paquete ${pkg?.nombre || 'básico'}`;
@@ -705,6 +785,42 @@ ${generatedId ? `*Link:* ${window.location.origin}/presupuestos/${generatedId}/v
     return `https://wa.me/${empresaPhone}?text=${encodeURIComponent(text)}`;
   };
 
+  const handleDownloadBudgetPdf = async () => {
+    if (!generatedId || !budgetDocumentRef.current || isDownloadingPdf) return;
+    setIsDownloadingPdf(true);
+    try {
+      const { jsPDF } = await import('jspdf');
+      const pdf = new jsPDF({ orientation: 'portrait', unit: 'mm', format: 'a4' });
+      await pdf.html(budgetDocumentRef.current, {
+        autoPaging: 'text',
+        margin: [12, 12, 16, 12],
+        width: 186,
+        windowWidth: 1024,
+        html2canvas: {
+          backgroundColor: '#ffffff',
+          scale: 0.8,
+          useCORS: true,
+        },
+      });
+      const totalPages = pdf.getNumberOfPages();
+      for (let page = 1; page <= totalPages; page += 1) {
+        pdf.setPage(page);
+        pdf.setFontSize(8);
+        pdf.setTextColor(100);
+        pdf.text(`Página ${page} de ${totalPages}`, 198, 285, { align: 'right' });
+      }
+      pdf.save(`presupuesto-ak-${generatedId}.pdf`);
+    } catch (error: any) {
+      toast({
+        title: 'No pudimos descargar el PDF',
+        description: error.message || 'Intentá nuevamente.',
+        variant: 'destructive',
+      });
+    } finally {
+      setIsDownloadingPdf(false);
+    }
+  };
+
   return (
     <div className="relative flex min-h-screen flex-col bg-zinc-950 font-sans text-zinc-100 selection:bg-indigo-500/30">
 
@@ -737,6 +853,27 @@ ${generatedId ? `*Link:* ${window.location.origin}/presupuestos/${generatedId}/v
           <ChatWindow />
         </div>
       </div>
+
+      {budgetForPdf && priceStats && (
+        <div
+          aria-hidden="true"
+          className="pointer-events-none fixed top-0 bg-white"
+          style={{ left: '-12000px', width: '1024px' }}
+        >
+          <div ref={budgetDocumentRef}>
+            <BudgetDocument
+              presupuesto={budgetForPdf}
+              adjustmentPct={priceStats.annualProjection.adjustmentPct}
+              annualProjection={priceStats.annualProjection}
+              pricePerPerson={priceStats.precioPorPersona}
+              showSignatures={false}
+              subtotalBrutoOverride={priceStats.subtotalBruto}
+              descuentoPromoOverride={priceStats.descPromo}
+              totalFinalOverride={priceStats.totalFinal}
+            />
+          </div>
+        </div>
+      )}
 
     </div>
   );
@@ -1093,15 +1230,39 @@ ${generatedId ? `*Link:* ${window.location.origin}/presupuestos/${generatedId}/v
                         <Separator className="bg-white/10" />
                         <div className="flex justify-between items-center pt-1">
                           <span className="text-xs font-black uppercase text-white">Total Final:</span>
-                          <span className="text-xl font-black text-indigo-400">{formatCurrency(priceStats.totalFinal)}</span>
+                          <span className="text-xl font-black text-red-400">{formatCurrency(priceStats.totalFinal)}</span>
                         </div>
+                        {priceStats.precioPorPersona > 0 && (
+                          <div className="flex items-center justify-between text-[10px] font-bold text-slate-300">
+                            <span>Valor aproximado por persona</span>
+                            <span>{formatCurrency(priceStats.precioPorPersona)}</span>
+                          </div>
+                        )}
                       </div>
 
+                      {priceStats.annualProjection.applies && (
+                        <section className="rounded-lg border border-white/10 bg-black/25 p-4">
+                          <div className="flex flex-wrap items-center justify-between gap-2">
+                            <h4 className="text-[10px] font-black uppercase tracking-widest text-slate-200">Proyección para la fecha elegida</h4>
+                            <span className="text-[10px] font-bold text-slate-400">Ajuste anual {priceStats.annualProjection.adjustmentPct}%</span>
+                          </div>
+                          <div className="mt-3 divide-y divide-white/10">
+                            {priceStats.annualProjection.rows.map((row) => (
+                              <div key={row.year} className="flex items-center justify-between py-2 text-xs">
+                                <span className="font-semibold text-slate-400">Total estimado {row.year}</span>
+                                <span className="font-black text-white">{formatCurrency(row.total)}</span>
+                              </div>
+                            ))}
+                          </div>
+                          <p className="mt-2 text-[10px] leading-relaxed text-slate-500">El total principal conserva el precio vigente. La proyección futura es informativa y se aplica según contrato.</p>
+                        </section>
+                      )}
+
                       {/* RESERVATION BANNER */}
-                      <div className="w-full space-y-1 rounded-xl border border-white/10 bg-zinc-950/70 p-4 text-xs text-zinc-300">
+                      <div className="w-full space-y-1 rounded-lg border border-white/10 bg-zinc-950/70 p-4 text-xs text-zinc-300">
                         <h4 className="font-black uppercase tracking-widest text-[9px] flex items-center gap-1.5"><Info className="w-3.5 h-3.5"/> Información de Contratación</h4>
-                        <p className="leading-relaxed">Seña para asegurar la fecha: **{formatCurrency(priceStats.totalFinal * 0.3)}** (30% del total).</p>
-                        <p className="leading-relaxed">El saldo restante se financia en cuotas fijas o reajustables hasta el día de la fiesta.</p>
+                        <p className="leading-relaxed">Con una seña de $5.000 podés solicitar la reserva de la fecha. AK confirma disponibilidad y condiciones antes de registrar el pago.</p>
+                        <p className="leading-relaxed">El presupuesto es válido por 30 días y el saldo se coordina en la propuesta contractual.</p>
                       </div>
 
                       {/* ACTIONS */}
@@ -1116,14 +1277,12 @@ ${generatedId ? `*Link:* ${window.location.origin}/presupuestos/${generatedId}/v
                         </Button>
                         <Button
                           variant="outline"
-                          disabled={!generatedId}
-                          onClick={() => {
-                            if (!generatedId) return;
-                            window.open(`/presupuestos/${generatedId}/ver?imprimir=1&cliente=1&direct=1&token=${token || ''}`, '_blank');
-                          }}
+                          disabled={!generatedId || isDownloadingPdf}
+                          onClick={handleDownloadBudgetPdf}
                           className="h-11 border-white/10 text-slate-300 hover:bg-white/5 hover:text-white font-bold text-[11px] sm:text-xs uppercase tracking-wide w-full rounded-xl bg-transparent px-2 flex items-center justify-center gap-1.5"
                         >
-                          <Printer className="w-4 h-4 shrink-0"/> <span className="truncate">Descargar PDF</span>
+                          {isDownloadingPdf ? <Loader2 className="w-4 h-4 shrink-0 animate-spin" /> : <Printer className="w-4 h-4 shrink-0"/>}
+                          <span className="truncate">Descargar PDF</span>
                         </Button>
                       </div>
                     </CardContent>
@@ -1188,6 +1347,8 @@ ${generatedId ? `*Link:* ${window.location.origin}/presupuestos/${generatedId}/v
             onClick={() => handleSendMessage()}
             disabled={isAiLoading || !inputMessage.trim()}
             className="h-10 w-10 shrink-0 rounded-xl bg-indigo-700 text-white hover:bg-indigo-600 disabled:opacity-40"
+            aria-label="Enviar mensaje"
+            title="Enviar mensaje"
           >
             <Send className="w-4 h-4" />
           </Button>

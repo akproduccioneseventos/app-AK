@@ -29,11 +29,14 @@ import {
   startEntertainmentSession,
   updateEntertainmentSessionStatus,
   resetEntertainmentSession,
+  completeEntertainmentSessionCycle,
   type EntertainmentSession,
 } from '@/app/actions/fiesta/sesion-entretenimiento';
 import type { PublicEntertainmentEvent } from '@/lib/entertainment/station-config';
+import { PublicEntertainmentEventStatus } from '@/components/entertainment/public-entertainment-event-status';
 import { KioskUnlockButton } from '@/components/kiosk/kiosk-unlock-button';
 import { isVideoFrameReady } from '@/lib/entertainment/camera-readiness';
+import { waitForInitialPublicLoad } from '@/lib/public-experience/wait-for-initial-public-load';
 import { applyEspejoFaceSwap } from '@/app/actions/espejo-magico-ai';
 import {
   ESPEJO_TEMPLATES,
@@ -56,7 +59,7 @@ const MODE_COPY = {
     eyebrow: 'Foto limpia',
     title: 'Espejo Mágico Foto',
     start: 'Tocar para foto',
-    subtitle: 'Captura rápida, filtro elegante y subida automática al muro.',
+    subtitle: 'Prepara la pose, captura la foto y revisala antes de guardarla o compartirla.',
     operatorCta: 'Disparar foto',
     doneLabel: 'Foto lista',
     author: 'Espejo Mágico Foto',
@@ -66,7 +69,7 @@ const MODE_COPY = {
     eyebrow: 'Firma y stickers',
     title: 'Espejo Mágico Firma',
     start: 'Tocar para firmar',
-    subtitle: 'Captura, firma en pantalla, stickers y QR final.',
+    subtitle: 'Captura la foto, agrega tu firma y revisa el resultado antes de compartirlo.',
     operatorCta: 'Disparar captura',
     doneLabel: 'Foto firmada',
     author: 'Espejo Mágico Firma',
@@ -76,7 +79,7 @@ const MODE_COPY = {
     eyebrow: 'Face Swap IA',
     title: 'Espejo Mágico IA',
     start: 'Crear avatar IA',
-    subtitle: 'Elegís un estilo, la app captura el rostro y genera el retrato.',
+    subtitle: 'Elegis un estilo, aceptas el procesamiento temporal y luego generamos el retrato.',
     operatorCta: 'Disparar IA',
     doneLabel: 'Avatar listo',
     author: 'Face Swap IA',
@@ -137,6 +140,7 @@ export default function EspejoMagicoPage() {
   const [consentAccepted, setConsentAccepted] = useState(false);
 
   const [fiesta, setFiesta] = useState<PublicEntertainmentEvent | null>(null);
+  const [isEventLoading, setIsEventLoading] = useState(true);
   const [voiceEnabled, setVoiceEnabled] = useState(true);
   const [watermarkEnabled, setWatermarkEnabled] = useState(true);
   const [qrCodeUrl, setQrCodeUrl] = useState<string>('');
@@ -204,12 +208,31 @@ export default function EspejoMagicoPage() {
 
   // 1. Initial configuration load
   useEffect(() => {
-    getPublicEntertainmentEvent(fiestaId, moduleId, accessToken)
+    let active = true;
+    setFiesta(null);
+    setErrorMsg(null);
+    setIsEventLoading(true);
+    const loadTask = getPublicEntertainmentEvent(fiestaId, moduleId, accessToken)
       .then((result) => {
-        if (result.success && result.event) setFiesta(result.event);
-        else setErrorMsg(result.error || 'No se pudo abrir esta estacion.');
+        if (!active) return;
+        if (result.success && result.event) {
+          setFiesta(result.event);
+          setErrorMsg(null);
+        } else {
+          setErrorMsg(result.error || 'No se pudo abrir esta estacion.');
+        }
       })
-      .catch(() => setErrorMsg('No se pudo abrir esta estacion.'));
+      .catch(() => {
+        if (active) setErrorMsg('No se pudo abrir esta estacion.');
+      });
+    void waitForInitialPublicLoad(loadTask).then((result) => {
+      if (!active) return;
+      if (result === 'timeout') setErrorMsg('La validacion del evento demoro demasiado. Intenta nuevamente.');
+      setIsEventLoading(false);
+    });
+    return () => {
+      active = false;
+    };
   }, [accessToken, fiestaId, moduleId]);
 
   useEffect(() => {
@@ -458,7 +481,7 @@ export default function EspejoMagicoPage() {
 
   // Photo Shoot countdown
   const takePhoto = async () => {
-    if (mode === 'ia' && fiesta?.station.consentRequired && !consentAccepted) {
+    if (mode === 'ia' && !consentAccepted) {
       setErrorMsg('Debes aceptar el uso de IA antes de iniciar la captura.');
       return;
     }
@@ -679,7 +702,6 @@ export default function EspejoMagicoPage() {
         // Auto reset after 12s
         setTimeout(() => {
           retake();
-          resetEntertainmentSession(fiestaId, moduleId, accessToken);
         }, 12000);
       } else {
         throw new Error(res.error || 'Error al subir');
@@ -688,15 +710,16 @@ export default function EspejoMagicoPage() {
       console.error(err);
       setQrCodeUrl('');
       setErrorMsg((err as Error).message || 'No se pudo subir la foto. Puedes descargarla en este dispositivo.');
-      setLocalStatus('done');
-      await updateEntertainmentSessionStatus(fiestaId, moduleId, 'done', {}, accessToken);
-      speak('No se pudo subir, pero podés escanear el QR.');
+      setLocalStatus('recording');
+      await updateEntertainmentSessionStatus(fiestaId, moduleId, 'idle', {}, accessToken);
+      speak('No se pudo subir la foto. Podés reintentar o guardarla en este dispositivo.');
     } finally {
       setIsUploading(false);
     }
   };
 
   const retake = () => {
+    setErrorMsg(null);
     setCapturedImage(null);
     setStickers([]);
     setQrCodeUrl('');
@@ -706,6 +729,7 @@ export default function EspejoMagicoPage() {
     setAiStep('idle');
     setSliderPosition(50);
     setLocalStatus('idle');
+    void completeEntertainmentSessionCycle(fiestaId, moduleId, accessToken);
     if (role === 'display') {
       startCamera();
     }
@@ -765,12 +789,16 @@ export default function EspejoMagicoPage() {
   };
 
   // 5. Operator View
+  if (isEventLoading || !fiesta) {
+    return <PublicEntertainmentEventStatus isLoading={isEventLoading} error={errorMsg} />;
+  }
+
   if (role === 'operator') {
     return (
       <div className="min-h-screen bg-[radial-gradient(ellipse_at_top,_#18181b_0%,_#09090b_70%)] text-white p-4 sm:p-6">
         <div className="mx-auto max-w-2xl space-y-5">
           <div className="flex items-center justify-between border-b border-white/10 pb-4">
-            <button onClick={() => router.push(`/evento/hub/${fiestaId}`)} className="p-2 bg-white/5 rounded-full hover:bg-white/10 transition">
+            <button onClick={() => router.back()} className="p-2 bg-white/5 rounded-full hover:bg-white/10 transition">
               <ArrowLeft className="w-5 h-5" />
             </button>
             <div className="text-center">
@@ -853,7 +881,7 @@ export default function EspejoMagicoPage() {
 
       {/* HEADER */}
       <div className="absolute top-0 left-0 right-0 z-20 p-4 flex justify-between items-center bg-gradient-to-b from-zinc-950/90 to-transparent pb-8 pt-safe">
-        <button onClick={() => router.back()} className="p-2 bg-white/10 rounded-full backdrop-blur-md hover:bg-white/20 transition">
+        <button type="button" onClick={() => router.back()} aria-label="Volver" title="Volver" className="flex h-11 w-11 items-center justify-center rounded-full bg-white/10 backdrop-blur-md transition hover:bg-white/20">
           <ArrowLeft className="w-6 h-6" />
         </button>
         <div className="text-center">
@@ -862,21 +890,27 @@ export default function EspejoMagicoPage() {
           {fiesta && <p className="text-xs font-semibold text-zinc-300">{fiesta.eventName}</p>}
         </div>
         <div className="flex items-center gap-2">
-          {localStatus === 'idle' && !capturedImage && (
+          {localStatus === 'idle' && !capturedImage && !errorMsg && fiesta && (
             <>
               <button
+                type="button"
                 onClick={() => setVoiceEnabled(v => !v)}
-                className={`p-2 rounded-full backdrop-blur-md transition ${voiceEnabled ? 'bg-amber-400/20 text-amber-400 border border-amber-400/30' : 'bg-white/10 text-white'}`}
+                aria-label={voiceEnabled ? 'Desactivar voz' : 'Activar voz'}
+                title={voiceEnabled ? 'Desactivar voz' : 'Activar voz'}
+                className={`flex h-11 w-11 items-center justify-center rounded-full backdrop-blur-md transition ${voiceEnabled ? 'bg-amber-400/20 text-amber-400 border border-amber-400/30' : 'bg-white/10 text-white'}`}
               >
                 {voiceEnabled ? <Volume2 className="w-5 h-5" /> : <VolumeX className="w-5 h-5" />}
               </button>
               <button
+                type="button"
                 onClick={() => setWatermarkEnabled(w => !w)}
-                className={`p-2 rounded-full backdrop-blur-md transition ${watermarkEnabled ? 'bg-amber-400/20 text-amber-400 border border-amber-400/30' : 'bg-white/10 text-white'}`}
+                aria-label={watermarkEnabled ? 'Quitar marca del evento' : 'Agregar marca del evento'}
+                title={watermarkEnabled ? 'Quitar marca del evento' : 'Agregar marca del evento'}
+                className={`flex h-11 w-11 items-center justify-center rounded-full backdrop-blur-md transition ${watermarkEnabled ? 'bg-amber-400/20 text-amber-400 border border-amber-400/30' : 'bg-white/10 text-white'}`}
               >
                 <FileImage className="w-5 h-5" />
               </button>
-              <button onClick={() => setFacingMode(f => f === 'user' ? 'environment' : 'user')} className="p-2 bg-white/10 rounded-full backdrop-blur-md hover:bg-white/20 transition">
+              <button type="button" onClick={() => setFacingMode(f => f === 'user' ? 'environment' : 'user')} aria-label="Cambiar camara" title="Cambiar camara" className="flex h-11 w-11 items-center justify-center rounded-full bg-white/10 backdrop-blur-md transition hover:bg-white/20">
                 <SwitchCamera className="w-5 h-5" />
               </button>
             </>
@@ -888,15 +922,47 @@ export default function EspejoMagicoPage() {
 
       {/* VIEWPORT */}
       <div
-        className="flex-1 relative w-full h-full bg-zinc-900 border-[8px] border-zinc-800 rounded-[2.5rem] overflow-hidden m-2 shadow-[inset_0_0_50px_rgba(0,0,0,0.8)]"
+        className="relative m-2 flex-1 w-auto overflow-hidden rounded-lg border-4 border-zinc-800 bg-zinc-900"
         ref={containerRef}
         onPointerMove={handlePointerMove}
         onPointerUp={handlePointerUp}
         onPointerLeave={handlePointerUp}
       >
         {errorMsg ? (
-          <div className="absolute inset-0 flex items-center justify-center text-red-400 font-medium p-6 text-center">
-            {errorMsg}
+          <div className="absolute inset-0 z-40 flex items-center justify-center bg-zinc-950 p-6 text-center">
+            <div className="max-w-md">
+              <h3 className="text-2xl font-black text-white">No pudimos subir la foto</h3>
+              <p className="mt-3 font-medium text-red-300">{errorMsg}</p>
+              <p className="mt-2 text-sm text-zinc-400">El recuerdo sigue en esta pantalla y no mostramos un QR inválido.</p>
+              {capturedImage && (
+                <div className="mt-6 grid gap-3 sm:grid-cols-3">
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setErrorMsg(null);
+                      void handleUpload(capturedImage);
+                    }}
+                    className="h-12 rounded-lg bg-rose-600 px-4 font-black text-white hover:bg-rose-500"
+                  >
+                    Reintentar
+                  </button>
+                  <button
+                    type="button"
+                    onClick={handleDownload}
+                    className="h-12 rounded-lg bg-white px-4 font-black text-zinc-950 hover:bg-zinc-200"
+                  >
+                    Guardar
+                  </button>
+                  <button
+                    type="button"
+                    onClick={retake}
+                    className="h-12 rounded-lg border border-white/15 bg-white/5 px-4 font-bold text-white hover:bg-white/10"
+                  >
+                    Otra foto
+                  </button>
+                </div>
+              )}
+            </div>
           </div>
         ) : localStatus === 'idle' && !capturedImage ? (
           <div className="relative w-full h-full">
@@ -909,12 +975,22 @@ export default function EspejoMagicoPage() {
             />
 
             <div className="absolute inset-0 flex flex-col items-center justify-center text-center p-6 bg-gradient-to-t from-zinc-950 via-zinc-950/30 to-zinc-950/80">
-              <div className="absolute h-80 w-80 rounded-full border border-rose-500/20 animate-[spin_20s_linear_infinite]" />
-
               <div className="relative z-10 space-y-6 max-w-sm">
+                {mode === 'ia' && (
+                  <label className="flex cursor-pointer items-start gap-3 rounded-lg border border-rose-400/30 bg-black/45 p-4 text-left text-sm text-zinc-200">
+                    <input
+                      type="checkbox"
+                      checked={consentAccepted}
+                      onChange={(event) => setConsentAccepted(event.target.checked)}
+                      className="mt-0.5 h-4 w-4 accent-rose-500"
+                    />
+                    <span>Acepto el procesamiento temporal de esta foto para generar el retrato con IA.</span>
+                  </label>
+                )}
                 <button
                   onClick={takePhoto}
-                  className="mx-auto h-48 w-48 rounded-full bg-gradient-to-tr from-rose-500 to-amber-500 text-white font-black uppercase tracking-widest transition shadow-2xl shadow-rose-950/40 flex flex-col items-center justify-center gap-2 border-[6px] border-white/20 hover:from-rose-600 hover:to-amber-600 active:scale-[0.98]"
+                  disabled={mode === 'ia' && !consentAccepted}
+                  className="mx-auto flex h-36 w-full max-w-xs flex-col items-center justify-center gap-2 rounded-lg bg-rose-500 text-white font-black uppercase tracking-wide transition hover:bg-rose-400 active:scale-[0.98] disabled:cursor-not-allowed disabled:bg-zinc-700 disabled:text-zinc-400"
                 >
                   <Camera className="h-9 w-9" />
                   <span className="px-4 text-center text-sm font-black leading-tight">{modeCopy.start}</span>
@@ -923,9 +999,9 @@ export default function EspejoMagicoPage() {
                 <div className="space-y-3 text-zinc-300">
                   <p className="text-sm font-semibold leading-relaxed">{modeCopy.subtitle}</p>
                   <div className="grid grid-cols-3 gap-2 text-[10px] font-black uppercase tracking-wider text-zinc-400">
-                    <span className="rounded-full border border-white/10 bg-white/5 px-2 py-2">1 Posá</span>
-                    <span className="rounded-full border border-white/10 bg-white/5 px-2 py-2">2 Captura</span>
-                    <span className="rounded-full border border-white/10 bg-white/5 px-2 py-2">3 Guarda</span>
+                    <span className="rounded-lg border border-white/10 bg-white/5 px-2 py-2">1 Prepara</span>
+                    <span className="rounded-lg border border-white/10 bg-white/5 px-2 py-2">2 Captura</span>
+                    <span className="rounded-lg border border-white/10 bg-white/5 px-2 py-2">3 Revisa</span>
                   </div>
                   <p className="text-xs text-zinc-500">También puede dispararlo el operador de cabina.</p>
                 </div>
@@ -1104,9 +1180,9 @@ export default function EspejoMagicoPage() {
 
         {/* State: Done (Photo Preview + QR Download) */}
         {localStatus === 'done' && capturedImage && (
-          <div className="absolute inset-0 z-40 bg-zinc-950 flex flex-col md:flex-row items-center justify-center p-6 gap-8">
+          <div className="absolute inset-0 z-40 flex flex-col items-center justify-start gap-6 overflow-y-auto overscroll-contain bg-zinc-950 px-4 pb-8 pt-20 md:flex-row md:justify-center md:gap-8 md:p-6">
             {/* Captured image with overlay merged */}
-            <div className="relative w-full max-w-sm aspect-[9/16] bg-black rounded-3xl overflow-hidden border border-white/10 shadow-2xl">
+            <div className="relative h-[52dvh] max-h-[32rem] w-auto max-w-full shrink-0 aspect-[9/16] overflow-hidden rounded-3xl border border-white/10 bg-black shadow-2xl md:h-[80dvh] md:max-h-[48rem]">
               {/* eslint-disable-next-line @next/next/no-img-element -- Canvas output is generated only in this browser. */}
               <img src={canvasRef.current?.toDataURL('image/jpeg', 0.9) || capturedImage} className="w-full h-full object-cover" alt="Espejo Final" />
               <div className="absolute top-4 left-4 bg-rose-500 text-white text-[10px] font-black uppercase px-3 py-1 rounded-full tracking-wider">
@@ -1217,17 +1293,15 @@ export default function EspejoMagicoPage() {
                   ))}
               </div>
 
-              {fiesta?.station.consentRequired && (
-                <label className="flex items-center justify-center gap-2 text-[10px] text-zinc-300">
+              <label className="rounded-lg border border-cyan-500/30 bg-cyan-950/30 px-3 py-2 flex items-center justify-center gap-2 text-[10px] text-zinc-200">
                   <input
                     type="checkbox"
                     checked={consentAccepted}
                     onChange={(event) => setConsentAccepted(event.target.checked)}
                     className="h-4 w-4 accent-cyan-500"
                   />
-                  Acepto el procesamiento temporal de mi foto con IA.
-                </label>
-              )}
+                  Acepto el procesamiento temporal de mi foto con IA para generar este recuerdo.
+              </label>
 
               {/* Action Bar */}
               <div className="flex items-center justify-center pb-2 shrink-0">
@@ -1237,7 +1311,7 @@ export default function EspejoMagicoPage() {
                   disabled={
                     countdown !== null ||
                     !!errorMsg ||
-                    Boolean(fiesta?.station.consentRequired && !consentAccepted)
+                    !consentAccepted
                   }
                   className="w-14 h-14 rounded-full bg-gradient-to-tr from-cyan-500 to-indigo-500 p-1 shadow-[0_0_20px_rgba(6,182,212,0.3)] transition-transform active:scale-95 disabled:opacity-50"
                 >

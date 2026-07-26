@@ -7,6 +7,12 @@ import { getRoles } from './roles';
 import { getEmpleados } from './empleados';
 import { subMonths, format, startOfToday, differenceInDays } from 'date-fns';
 import { es } from 'date-fns/locale';
+import { isFirmSalesInvoice } from '@/lib/commercial-flow/ledger-service';
+import { isSimulatorBudget } from '@/lib/budget/formal-budget';
+
+function isAcceptedBudget(status?: string) {
+  return status === 'Aceptado' || status === 'Facturado';
+}
 
 export interface MonthlyProfitabilityData {
   month: string;
@@ -99,7 +105,7 @@ export async function getAnalyticsData(): Promise<{ success: boolean; data?: Ana
     }
 
     // Revenue from invoices (by issue date)
-    invoicesData.forEach(inv => {
+    invoicesData.filter(isFirmSalesInvoice).forEach(inv => {
       const key = format(new Date(inv.issueDate), 'MMM yyyy', { locale: es });
       const entry = monthlyMap.get(key);
       if (entry) entry.ingresos += inv.totalAmount;
@@ -111,7 +117,7 @@ export async function getAnalyticsData(): Promise<{ success: boolean; data?: Ana
       return acc;
     }, new Set());
     presupuestosData.forEach(pres => {
-      if (pres.estado === 'Borrador' || pres.estado === 'Rechazado') return;
+      if (!isAcceptedBudget(pres.estado)) return;
       if (invoicedPresupuestoIds.has(pres.id)) return;
       if (!pres.eventoFecha) return;
       const key = format(new Date(pres.eventoFecha), 'MMM yyyy', { locale: es });
@@ -166,7 +172,7 @@ export async function getAnalyticsData(): Promise<{ success: boolean; data?: Ana
     const serviceMap = new Map<string, { totalVentas: number; cantidadVentas: number; categoria: string }>();
 
     presupuestosData.forEach(pres => {
-      if (pres.estado === 'Borrador') return;
+      if (!isAcceptedBudget(pres.estado)) return;
       pres.itemsPresupuestados?.forEach(item => {
         if (item.esRegalo) return;
         const key = item.nombreServicio || 'Sin nombre';
@@ -206,7 +212,7 @@ export async function getAnalyticsData(): Promise<{ success: boolean; data?: Ana
     const tasaConversion = total > 0 ? Math.round((aceptados / total) * 100) : 0;
 
     // ─── Simulator Conversion Rate ────────────────────────────────────────────
-    const simulatorPresupuestos = presupuestosData.filter(p => p.source === 'simulator');
+    const simulatorPresupuestos = presupuestosData.filter(p => isSimulatorBudget(p.source));
     const simulatorAceptados = simulatorPresupuestos.filter(
       p => p.estado === 'Aceptado' || p.estado === 'Facturado'
     ).length;
@@ -235,7 +241,7 @@ export async function getAnalyticsData(): Promise<{ success: boolean; data?: Ana
     >();
 
     presupuestosData.forEach(pres => {
-      if (pres.estado === 'Borrador' || pres.estado === 'Rechazado') return;
+      if (!isAcceptedBudget(pres.estado)) return;
       const tipo = pres.eventoTipo || 'Otro';
       const revenue = pres.totalConDescuento || pres.costoTotalEstimado || 0;
       const existing = eventTypeMap.get(tipo);
@@ -354,7 +360,7 @@ export async function getAnalyticsData(): Promise<{ success: boolean; data?: Ana
     fiestasData.forEach(fiesta => {
       // Find revenue for this event from its linked budget
       const linkedPresupuesto = presupuestosData.find(p => p.id === fiesta.presupuestoId);
-      const eventRevenue = linkedPresupuesto
+      const eventRevenue = linkedPresupuesto && isAcceptedBudget(linkedPresupuesto.estado)
         ? linkedPresupuesto.totalConDescuento || linkedPresupuesto.costoTotalEstimado || 0
         : 0;
 

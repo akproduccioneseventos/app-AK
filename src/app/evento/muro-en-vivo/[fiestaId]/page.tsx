@@ -2,32 +2,33 @@
 
 import { useEffect, useState, useCallback, useRef, useMemo } from 'react';
 import { useParams } from 'next/navigation';
-import { getSocialPosts, getChatMessages } from '@/app/actions/social-gallery';
+import { getPublicSocialEvent, getPublicSocialPosts, getChatMessages } from '@/app/actions/social-gallery';
 import type { SocialGalleryPost, Dedication, SocialComment, ChatMessage } from '@/types/social-gallery';
 import { motion, AnimatePresence } from 'framer-motion';
 import NextImage from 'next/image';
 import { QRCodeSVG } from 'qrcode.react';
-import { getFiestaById } from '@/app/actions/fiesta/fiesta.actions';
 import { getActivePoll, getDedications } from '@/app/actions/social-interactive';
 import { getCompanyInfo, getInvoiceTemplateSettings } from '@/app/actions/settings';
 import { getSocialConnections } from '@/app/actions/social-connections';
 import type { ActiveGameData, AudioRhythmSettings, ScreenPlaylistItem, ScreenPlaylistItemType, SocialGallerySettings, SocialGalleryBrand } from '@/types/fiesta';
 import { DEFAULT_MARKETING_TICKER_TEXT } from '@/lib/social-wall-defaults';
+import {
+  waitForInitialPublicLoad,
+  withPublicRequestTimeout,
+} from '@/lib/public-experience/wait-for-initial-public-load';
 import type { SocialConnection } from '@/types/settings';
-import { Facebook, Instagram, MessageCircle, Music2, Maximize, Martini, Camera } from 'lucide-react';
+import { Facebook, Instagram, MessageCircle, Music2, Maximize, Camera, QrCode } from 'lucide-react';
 import { getSongRequests } from '@/app/actions/social-interactive';
 import type { SongRequest } from '@/types/social-gallery';
-import { KioskUnlockButton } from '@/components/kiosk/kiosk-unlock-button';
 
 const REFRESH_INTERVAL_MS = 2000;
 const MOMENT_DISPLAY_DURATION_MS = 15000;
 const SORTEO_DISPLAY_DURATION_MS = 20000;
 /** Window in which a sorteo spin animation is shown on the big screen (before the winner is revealed) */
 const SORTEO_SPIN_DISPLAY_DURATION_MS = 7000;
-const FRESH_POST_POLAROID_DURATION_MS = 20000;
 const MARQUEE_REPEAT_COUNT = 3;
-const LED_MARQUEE_ANIMATION_CLASS = 'animate-[marquee_22s_linear_infinite]';
-const MARKETING_MARQUEE_ANIMATION_CLASS = 'animate-[marquee_28s_linear_infinite]';
+const LED_MARQUEE_ANIMATION_CLASS = 'animate-[marquee_22s_linear_infinite] motion-reduce:animate-none';
+const MARKETING_MARQUEE_ANIMATION_CLASS = 'animate-[marquee_28s_linear_infinite] motion-reduce:animate-none';
 const GAME_OVERLAY_CLASS =
   'w-full flex flex-col items-center justify-center gap-5';
 const SORTEO_WHEEL_GRADIENT =
@@ -106,6 +107,7 @@ export default function MuroEnVivoPage() {
   const [qrUrl, setQrUrl] = useState<string>('');
   const [showCameraFlash, setShowCameraFlash] = useState(false);
   const prevPostsCountRef = useRef(0);
+  const pollingRef = useRef(false);
 
   useEffect(() => {
     if (typeof window !== 'undefined') {
@@ -153,13 +155,16 @@ export default function MuroEnVivoPage() {
       url: `https://tiktok.com/${tt}`
     });
 
-    // WhatsApp (Fijo)
+    // WhatsApp is shown only when there is a usable destination.
     const wa = brand?.whatsappNumber?.trim();
-    list.push({
-      platform: 'WhatsApp',
-      handle: wa || 'Teléfono no configurado',
-      url: wa ? `https://wa.me/${wa}` : '#'
-    });
+    const waDigits = wa?.replace(/\D/g, '');
+    if (wa && waDigits) {
+      list.push({
+        platform: 'WhatsApp',
+        handle: wa,
+        url: `https://wa.me/${waDigits}`,
+      });
+    }
 
     return list;
   }, [settings.brand]);
@@ -188,17 +193,18 @@ export default function MuroEnVivoPage() {
     }
   }, [sorteoSpinActive]);
 
-  const fetchData = useCallback(async () => {
-    if (!fiestaId) return;
+  const fetchData = useCallback(async (allowHidden = false) => {
+    if (!fiestaId || pollingRef.current || (!allowHidden && document.visibilityState !== 'visible')) return;
+    pollingRef.current = true;
     try {
-      const [fetchedPosts, fiestaData, pollData, dedicationsData, chatData, songData] = await Promise.all([
-        getSocialPosts(fiestaId),
-        getFiestaById(fiestaId),
+      const [fetchedPosts, fiestaData, pollData, dedicationsData, chatData, songData] = await withPublicRequestTimeout(Promise.all([
+        getPublicSocialPosts(fiestaId),
+        getPublicSocialEvent(fiestaId),
         getActivePoll(fiestaId),
         getDedications(fiestaId),
         getChatMessages(fiestaId).catch((err) => { console.warn('[MuroEnVivo] getChatMessages failed:', err); return []; }),
         getSongRequests(fiestaId).catch((err) => { console.warn('[MuroEnVivo] getSongRequests failed:', err); return []; }),
-      ]);
+      ]));
 
       const sorted = [...fetchedPosts].filter(isPostApprovedForScreen).sort(
         (a, b) => new Date(b.timestamp).getTime() - new Date(a.timestamp).getTime()
@@ -349,15 +355,26 @@ export default function MuroEnVivoPage() {
     } catch (_) {
       // Silent fail for projection wall
     } finally {
+      pollingRef.current = false;
       if (!isLoaded) setIsLoaded(true);
     }
   }, [fiestaId, eventName, isLoaded, staticBranding]);
 
   // Initial load and polling
   useEffect(() => {
-    fetchData();
+    const handleVisibilityChange = () => {
+      if (document.visibilityState === 'visible') void fetchData();
+    };
+
+    document.addEventListener('visibilitychange', handleVisibilityChange);
+    void waitForInitialPublicLoad(fetchData(true)).then(() => {
+      setIsLoaded(true);
+    });
     const interval = setInterval(fetchData, REFRESH_INTERVAL_MS);
-    return () => clearInterval(interval);
+    return () => {
+      clearInterval(interval);
+      document.removeEventListener('visibilitychange', handleVisibilityChange);
+    };
   }, [fetchData]);
 
   // Playlist is only active when screenMode.enabled is explicitly true.
@@ -425,36 +442,30 @@ export default function MuroEnVivoPage() {
     (activePoll !== null && settings.showPolls !== false && !activeGame);
 
   return (
-    <div className={`fixed inset-0 overflow-hidden select-none flex flex-col ${settings.screenDarkMode !== false ? 'ak-live-stage-animated text-white' : 'ak-live-stage-light-animated text-slate-800'}`}>
+    <div className="ak-live-stage fixed inset-0 flex select-none flex-col overflow-hidden bg-slate-950 text-white">
 
       {/* Efecto destello cámara en pantalla completa al entrar foto nueva */}
       {showCameraFlash && <div className="ak-live-flash-overlay" />}
 
       {/* Orbes/partículas flotantes de luz 3D (fireflies) */}
       <div className="absolute inset-0 overflow-hidden pointer-events-none z-0">
-        <div className="ak-bg-particle bg-indigo-500 w-[450px] h-[450px]" style={{ top: '-10%', left: '10%', animationDuration: '30s', opacity: settings.screenDarkMode !== false ? 0.15 : 0.05 }} />
-        <div className="ak-bg-particle bg-purple-600 w-[350px] h-[350px]" style={{ bottom: '15%', right: '15%', animationDuration: '25s', animationDelay: '-5s', opacity: settings.screenDarkMode !== false ? 0.15 : 0.05 }} />
-        <div className="ak-bg-particle bg-pink-500 w-[300px] h-[300px]" style={{ top: '35%', left: '40%', animationDuration: '35s', animationDelay: '-12s', opacity: settings.screenDarkMode !== false ? 0.12 : 0.04 }} />
-        <div className="ak-bg-particle bg-amber-500 w-[200px] h-[200px]" style={{ bottom: '-5%', left: '15%', animationDuration: '20s', animationDelay: '-3s', opacity: settings.screenDarkMode !== false ? 0.08 : 0.02 }} />
-        <div className="ak-bg-particle bg-cyan-500 w-[250px] h-[250px]" style={{ top: '15%', right: '20%', animationDuration: '28s', animationDelay: '-8s', opacity: settings.screenDarkMode !== false ? 0.08 : 0.02 }} />
       </div>
 
       {/* Header bar — in flow so it doesn't float over content */}
-      <header className={`relative z-20 shrink-0 flex items-center justify-between px-8 py-3 ${settings.screenDarkMode !== false ? 'ak-live-header' : 'bg-white/90 border-b border-slate-200'}`}>
+      <header className="relative z-20 flex shrink-0 items-center justify-between border-b border-white/10 bg-slate-950 px-6 py-3">
         <div className="flex items-center gap-3">
           {companyLogoUrl && (
             <div className="relative h-8 w-20 overflow-hidden rounded bg-white/90 p-1">
               <NextImage src={companyLogoUrl} alt={`Logo de ${companyName}`} fill className="object-contain" />
             </div>
           )}
-          <div className="h-2 w-2 rounded-full bg-emerald-400 shadow-[0_0_14px_rgba(52,211,153,.75)] animate-pulse" />
-          <span className={`text-sm font-medium tracking-widest uppercase ${settings.screenDarkMode !== false ? 'text-white/60' : 'text-slate-500'}`}>En Vivo</span>
+          <div className="h-2 w-2 rounded-full bg-emerald-400" />
+          <span className="text-sm font-medium uppercase text-white/70">En vivo</span>
         </div>
         {eventName && (
-          <span className={`text-sm font-semibold tracking-wide ${settings.screenDarkMode !== false ? 'text-white/40' : 'text-slate-400'}`}>{eventName}</span>
+          <span className="text-sm font-semibold text-white/65">{eventName}</span>
         )}
         <div className="flex items-center gap-3">
-          <div className="h-2 w-2 rounded-full bg-emerald-400 shadow-[0_0_14px_rgba(52,211,153,.75)] animate-pulse" />
           <button
             onClick={() => {
               if (!document.fullscreenElement) {
@@ -463,7 +474,7 @@ export default function MuroEnVivoPage() {
                 document.exitFullscreen?.().catch(() => {});
               }
             }}
-            className={`p-1.5 rounded-lg transition-colors ${settings.screenDarkMode !== false ? 'text-white/40 hover:text-white/80 hover:bg-white/10' : 'text-slate-400 hover:text-slate-700 hover:bg-slate-100'}`}
+            className="grid h-9 w-9 place-items-center rounded-md text-white/60 transition-colors hover:bg-white/10 hover:text-white"
             title="Pantalla completa"
           >
             <Maximize className="w-4 h-4" />
@@ -489,13 +500,7 @@ export default function MuroEnVivoPage() {
 
           {/* Empty state */}
           {isLoaded && settings.privateDedicationsMode !== true && !['video', 'redes', 'juego', 'dedicaciones', 'chat', 'canciones', 'audioritmico', 'pauta'].includes(activeScreenItem?.type ?? '') && posts.length === 0 && settings.enabled !== false && (
-            <div className="absolute inset-0 flex flex-col items-center justify-center gap-6">
-              <div className="text-8xl opacity-20">📸</div>
-              <div className="text-center space-y-2">
-                <p className={`text-2xl font-light tracking-widest uppercase ${settings.screenDarkMode !== false ? 'text-white/50' : 'text-slate-400'}`}>Muro Social</p>
-                <p className={`text-base ${settings.screenDarkMode !== false ? 'text-white/30' : 'text-slate-300'}`}>Las fotos de los invitados aparecerán aquí.</p>
-              </div>
-            </div>
+            <EmptyWallState eventName={eventName} qrUrl={qrUrl} />
           )}
 
           {/* Private Greetings Mailbox Mode ("PALABRAS Y AUDIOS PARA SIEMPRE") */}
@@ -579,15 +584,7 @@ export default function MuroEnVivoPage() {
           {isLoaded && activeScreenItem?.type === 'redes' && (
             posts.length > 0 ? (
               <SlideshowLayout posts={posts} qrUrl={qrUrl} settings={settings} />
-            ) : (
-              <div className="absolute inset-0 flex flex-col items-center justify-center gap-6">
-                <div className="text-8xl opacity-20">📸</div>
-                <div className="text-center space-y-2">
-                  <p className={`text-2xl font-light tracking-widest uppercase ${settings.screenDarkMode !== false ? 'text-white/50' : 'text-slate-400'}`}>Muro Social</p>
-                  <p className={`text-base ${settings.screenDarkMode !== false ? 'text-white/30' : 'text-slate-300'}`}>Las fotos de los invitados aparecerán aquí.</p>
-                </div>
-              </div>
-            )
+            ) : <EmptyWallState eventName={eventName} qrUrl={qrUrl} />
           )}
 
           {/* Dedicaciones full-screen slide - Omitted as memories go in a separate module */}
@@ -802,7 +799,7 @@ export default function MuroEnVivoPage() {
             </div>
           </div>
         )}
-        {settings.marketingTickerEnabled !== false && (settings.marketingTickerText || companyMarketingText) && (
+        {posts.length > 0 && settings.marketingTickerEnabled !== false && (settings.marketingTickerText || companyMarketingText) && (
           <div
             className="overflow-hidden border-t py-2"
             style={{
@@ -1055,24 +1052,53 @@ export default function MuroEnVivoPage() {
           0% { transform: translateX(0%); }
           100% { transform: translateX(-50%); }
         }
-        @keyframes gradientBG {
-          0% { background-position: 0% 50%; }
-          50% { background-position: 100% 50%; }
-          100% { background-position: 0% 50%; }
-        }
-        .ak-live-stage-animated {
-          background: linear-gradient(-45deg, #090514, #120c24, #050b1c, #140512);
-          background-size: 400% 400%;
-          animation: gradientBG 20s ease infinite;
-        }
-        .ak-live-stage-light-animated {
-          background: linear-gradient(-45deg, #fafafa, #f5f5f5, #faf0f5, #f0faf5);
-          background-size: 400% 400%;
-          animation: gradientBG 20s ease infinite;
+        @media (prefers-reduced-motion: reduce) {
+          .ak-live-stage *, .ak-live-stage *::before, .ak-live-stage *::after {
+            animation: none !important;
+            transition-duration: 0ms !important;
+            scroll-behavior: auto !important;
+          }
         }
       `}</style>
-      <KioskUnlockButton />
     </div>
+  );
+}
+
+function EmptyWallState({ eventName, qrUrl }: { eventName: string; qrUrl: string }) {
+  return (
+    <section
+      data-testid="live-wall-empty"
+      className="absolute inset-0 grid place-items-center overflow-hidden bg-slate-950 px-8 py-10 text-white"
+      aria-live="polite"
+    >
+      <div className="grid w-full max-w-6xl items-center gap-10 lg:grid-cols-[1fr_auto] lg:gap-16">
+        <div className="max-w-3xl">
+          <div className="mb-6 flex items-center gap-3 text-red-300">
+            <Camera className="h-8 w-8" aria-hidden="true" />
+            <p className="text-base font-black uppercase tracking-[0.28em]">Muro social en vivo</p>
+          </div>
+          <h1 className="text-5xl font-black leading-tight sm:text-6xl lg:text-7xl">
+            {eventName || 'Compartí este momento'}
+          </h1>
+          <p className="mt-6 max-w-2xl text-xl leading-relaxed text-slate-300 lg:text-2xl">
+            Todavía no hay publicaciones. Escaneá el código, subí tu foto y aparecé en esta pantalla.
+          </p>
+        </div>
+
+        {qrUrl ? (
+          <div className="flex min-w-[250px] flex-col items-center rounded-lg border border-white/15 bg-white p-5 text-center text-slate-950 shadow-2xl">
+            <QRCodeSVG value={qrUrl} size={190} includeMargin={false} />
+            <p className="mt-4 flex items-center gap-2 text-sm font-black uppercase tracking-wider">
+              <QrCode className="h-4 w-4" aria-hidden="true" /> Escaneá para participar
+            </p>
+          </div>
+        ) : (
+          <div className="grid h-56 w-56 place-items-center rounded-lg border border-white/15 bg-white/5 text-white/35">
+            <QrCode className="h-24 w-24" aria-hidden="true" />
+          </div>
+        )}
+      </div>
+    </section>
   );
 }
 
@@ -1408,14 +1434,14 @@ function QRFloatingCard({ qrUrl, settings }: { qrUrl: string; settings: any }) {
   const instagram = brand?.instagramHandle?.trim() || '@akproducciones';
 
   return (
-    <div className="absolute bottom-6 right-6 z-30 flex items-center gap-4 rounded-3xl border border-white/10 bg-black/45 p-4 text-white shadow-2xl backdrop-blur-xl animate-fade-in">
-      <div className="bg-white p-2 rounded-2xl">
+    <div className="absolute bottom-5 right-5 z-30 flex items-center gap-3 rounded-md border border-white/20 bg-slate-950/95 p-3 text-white">
+      <div className="bg-white p-2 rounded-md">
         <QRCodeSVG value={qrUrl} size={90} includeMargin={false} />
       </div>
       <div className="max-w-[160px] text-left flex flex-col justify-center">
         <div className="flex items-center gap-1.5 text-amber-300">
-          <Camera className="h-3.5 w-3.5 animate-pulse" />
-          <span className="text-[10px] font-black uppercase tracking-[0.2em]">Subí tu foto</span>
+          <Camera className="h-3.5 w-3.5" />
+          <span className="text-[10px] font-black uppercase">Subí tu foto</span>
         </div>
         <p className="mt-1 text-xs font-bold leading-snug text-white/90">Escaneá para salir en la pantalla en vivo</p>
         {instagram && (
@@ -1443,15 +1469,12 @@ function SlideshowLayout({
 
   const post = posts[currentIndex] ?? posts[0];
   const isVideo = post ? (post.mediaType === 'video' || isVideoUrl(post.imageUrl)) : false;
-  const captionText = post ? (post.dedication || post.caption) : '';
-  const isFresh = post ? (Date.now() - new Date(post.timestamp).getTime() < FRESH_POST_POLAROID_DURATION_MS) : false;
+  const captionText = post ? (post.dedication || post.caption || post.momentTag) : '';
 
-  // Reset loading state when image/video changes
   useEffect(() => {
     setMediaLoaded(false);
   }, [currentIndex, posts]);
 
-  // When a new post arrives (length increases), jump to the newest photo (index 0)
   useEffect(() => {
     if (posts.length > prevLengthRef.current) {
       setCurrentIndex(0);
@@ -1478,116 +1501,30 @@ function SlideshowLayout({
   if (posts.length === 0) return null;
 
   return (
-    <div className="absolute inset-0 flex items-center justify-center overflow-hidden">
-      {/* Dynamic blurred background fill */}
-      <div className="absolute inset-0 pointer-events-none overflow-hidden select-none">
+    <div className="absolute inset-0 flex items-center justify-center overflow-hidden bg-black p-5">
+      {!mediaLoaded && (
+        <div className="absolute inset-0 z-10 grid place-items-center bg-slate-950 text-sm text-white/60">
+          Cargando publicación...
+        </div>
+      )}
+      <div className="relative h-full w-full max-w-[min(100%,1500px)] overflow-hidden rounded-md bg-slate-900">
         {isVideo ? (
-          <video src={post.imageUrl} className="h-full w-full object-cover scale-110 blur-2xl opacity-30" autoPlay muted loop playsInline />
+          <video src={post.imageUrl} className="h-full w-full object-contain" autoPlay muted playsInline preload="auto" onPlay={() => setMediaLoaded(true)} onLoadedData={() => setMediaLoaded(true)} onEnded={advance} />
         ) : (
-          <NextImage
-            src={post.imageUrl}
-            alt=""
-            fill
-            className="object-cover scale-110 blur-2xl opacity-30"
-            unoptimized
-            aria-hidden={true}
-          />
+          <NextImage src={post.imageUrl} alt={post.authorName} fill className="object-contain" unoptimized priority onLoad={() => setMediaLoaded(true)} />
         )}
+        <div className="absolute inset-x-0 bottom-0 bg-black/80 px-6 py-4 text-white">
+          <p className="text-2xl font-bold leading-tight">{captionText || 'Momento compartido'}</p>
+          <p className="mt-1 text-base text-white/70">{post.authorName}</p>
+        </div>
       </div>
-
-      <AnimatePresence mode="wait">
-        <motion.div
-          key={post.id}
-          initial={{ opacity: 0, scale: 0.88, rotate: -3 }}
-          animate={{ opacity: 1, scale: 1, rotate: 0.5 }}
-          exit={{ opacity: 0, scale: 0.88, rotate: 3 }}
-          transition={{
-            type: 'spring',
-            stiffness: 85,
-            damping: 15,
-            mass: 0.8
-          }}
-          className={`relative h-[78vh] aspect-[3/4] bg-[#fcfbf9] p-5 pb-6 rounded-sm shadow-[0_30px_90px_rgba(0,0,0,0.85)] border border-white/40 flex flex-col justify-between items-center ${
-            isFresh ? 'ak-fresh-polaroid-glow' : ''
-          }`}
-        >
-          {/* Drink badge centered overlapping top border */}
-          {post.drinkName && (
-            <div className="absolute -top-5 left-1/2 -translate-x-1/2 z-30 flex items-center gap-2 rounded-full bg-rose-600 px-5 py-2 border border-rose-400 shadow-lg animate-pulse">
-              <Martini className="h-4.5 w-4.5 text-white" />
-              <span className="text-xs font-black tracking-widest text-white uppercase">Tomando: {post.drinkName}</span>
-            </div>
-          )}
-
-          {/* Polaroid photo square area */}
-          <div className="w-full aspect-square relative overflow-hidden rounded-sm bg-slate-900 border border-slate-200/20 shadow-inner">
-            {!mediaLoaded && (
-              <div className="absolute inset-0 z-10 flex items-center justify-center bg-slate-950/90 text-white/50">
-                <div className="space-y-3 text-center">
-                  <div className="w-8 h-8 mx-auto rounded-full border-2 border-white/20 border-t-amber-400 animate-spin" />
-                  <p className="text-[10px] font-black uppercase tracking-[0.25em] text-white/40">Cargando media…</p>
-                </div>
-              </div>
-            )}
-            {isVideo ? (
-              <video
-                src={post.imageUrl}
-                className="h-full w-full object-cover"
-                autoPlay
-                muted
-                playsInline
-                preload="auto"
-                onPlay={() => setMediaLoaded(true)}
-                onLoadedData={() => setMediaLoaded(true)}
-                onEnded={advance}
-              />
-            ) : (
-              <NextImage
-                src={post.imageUrl}
-                alt={post.authorName}
-                fill
-                className="object-cover"
-                unoptimized
-                priority
-                onLoad={() => setMediaLoaded(true)}
-              />
-            )}
-          </div>
-
-          {/* Polaroid handwriting caption section */}
-          <div className="w-full flex-1 flex flex-col items-center justify-center text-center px-4 pt-4">
-            {captionText ? (
-              <div className="space-y-1">
-                <p className="text-3xl text-slate-800 font-normal leading-relaxed tracking-wide" style={{ fontFamily: 'var(--font-dancing_script)' }}>
-                  "{captionText}"
-                </p>
-                <p className="text-[10px] font-black tracking-[0.25em] text-slate-400 uppercase mt-1">
-                  — {post.authorName}
-                </p>
-              </div>
-            ) : (
-              <p className="text-4xl text-slate-800 font-normal tracking-wide" style={{ fontFamily: 'var(--font-dancing_script)' }}>
-                {post.authorName}
-              </p>
-            )}
-          </div>
-        </motion.div>
-      </AnimatePresence>
-
-      {/* QR de participación permanente flotante */}
       {qrUrl && <QRFloatingCard qrUrl={qrUrl} settings={settings} />}
-
-      {/* Slide counter dots outside the card container */}
       {posts.length > 1 && posts.length <= 12 && (
-        <div className="absolute bottom-4 left-0 right-0 flex justify-center gap-1.5 pointer-events-none z-10">
+        <div className="absolute left-5 top-5 z-10 flex gap-1.5 pointer-events-none">
           {posts.map((_, i) => (
             <div
               key={i}
-              className={`h-1.5 rounded-full transition-all duration-300 ${
-                i === currentIndex
-                  ? 'w-6 bg-white'
-                  : 'w-1.5 bg-white/40'
-              }`}
+              className={`h-1.5 w-5 rounded-sm ${i === currentIndex ? 'bg-white' : 'bg-white/35'}`}
             />
           ))}
         </div>
@@ -1605,90 +1542,33 @@ function MasonryLayout({
   qrUrl?: string;
   settings?: any;
 }) {
-  const numCols = Math.min(posts.length, 3);
-
-  // For 1 or 2 posts use a simple non-scrolling layout; for 3+ use the scrolling masonry.
-  if (numCols < 3) {
-    return (
-      <div className="absolute inset-0 pt-14 pb-16 px-3 flex items-center justify-center">
-        <div
-          className="h-full w-full grid gap-3"
-          style={{ gridTemplateColumns: `repeat(${numCols}, 1fr)` }}
-        >
-          {posts.map((post, i) => (
-            <MasonryCard key={post.id} post={post} index={i} />
-          ))}
-        </div>
-        {qrUrl && <QRFloatingCard qrUrl={qrUrl} settings={settings} />}
-      </div>
-    );
-  }
-
-  // 3+ photos: scrolling masonry with 3 columns
-  const columns = [0, 1, 2].map(colIndex =>
-    posts.filter((_, i) => i % 3 === colIndex)
-  );
-
   return (
-    <div className="absolute inset-0 pt-14 pb-4 px-3 overflow-hidden">
-      <div className="h-full grid grid-cols-3 gap-3">
-        {columns.map((colPosts, colIndex) => (
-          <div
-            key={colIndex}
-            className="flex flex-col gap-3 overflow-hidden"
-            style={{
-              animationName: colIndex % 2 === 0 ? 'scrollUp' : 'scrollDown',
-              animationDuration: `${30 + colIndex * 10}s`,
-              animationTimingFunction: 'linear',
-              animationIterationCount: 'infinite',
-            }}
-          >
-            {/* Duplicate for seamless loop */}
-            {[...colPosts, ...colPosts].map((post, i) => (
-              <MasonryCard key={`${post.id}-${i}`} post={post} index={i} />
-            ))}
-          </div>
+    <div className="absolute inset-0 overflow-hidden bg-black p-5">
+      <div className="grid h-full grid-cols-2 gap-3 lg:grid-cols-3">
+        {posts.slice(0, 6).map((post, index) => (
+          <MasonryCard key={post.id} post={post} index={index} />
         ))}
       </div>
       {qrUrl && <QRFloatingCard qrUrl={qrUrl} settings={settings} />}
-      <style>{`
-        @keyframes scrollUp {
-          0% { transform: translateY(0); }
-          100% { transform: translateY(-50%); }
-        }
-        @keyframes scrollDown {
-          0% { transform: translateY(-50%); }
-          100% { transform: translateY(0); }
-        }
-      `}</style>
     </div>
   );
 }
 
 function MasonryCard({ post, index }: { post: SocialGalleryPost; index: number }) {
   const [imgError, setImgError] = useState(false);
-  const isFreshPost = Date.now() - new Date(post.timestamp).getTime() < FRESH_POST_POLAROID_DURATION_MS;
-  const polaroidRotation = ((index % 7) - 3) * 1.8;
   const isVideo = post.mediaType === 'video' || isVideoUrl(post.imageUrl);
 
   return (
-    <motion.div
-      initial={{ opacity: 0, scale: 0.95 }}
-      animate={{ opacity: 1, scale: 1 }}
-      transition={{ duration: 0.5, delay: (index % 6) * 0.05 }}
-      className="relative overflow-hidden bg-slate-900 shadow-2xl flex-shrink-0 group rounded-xl"
+    <article
+      className="relative min-h-0 overflow-hidden rounded-md bg-slate-900"
       style={{
         aspectRatio: index % 3 === 0 ? '4/5' : index % 3 === 1 ? '1/1' : '3/4',
-        transform: isFreshPost ? `rotate(${polaroidRotation}deg)` : undefined,
-        border: isFreshPost ? '10px solid rgba(255,255,255,0.95)' : undefined,
-        borderBottomWidth: isFreshPost ? '24px' : undefined,
       }}
     >
       {isVideo ? (
         <video
           src={post.imageUrl}
-          className="h-full w-full object-cover transition-transform group-hover:scale-105"
-          style={{ transitionDuration: '8000ms' }}
+          className="h-full w-full object-cover"
           autoPlay
           muted
           loop
@@ -1700,8 +1580,7 @@ function MasonryCard({ post, index }: { post: SocialGalleryPost; index: number }
           alt={post.authorName}
           fill
           sizes="(max-width: 1920px) 33vw"
-          className="object-cover transition-transform group-hover:scale-105"
-          style={{ transitionDuration: '8000ms' }}
+          className="object-cover"
           onError={() => setImgError(true)}
           unoptimized
         />
@@ -1711,24 +1590,10 @@ function MasonryCard({ post, index }: { post: SocialGalleryPost; index: number }
         </div>
       )}
 
-      {/* Gradient overlay with author name */}
-      <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
-      <div className="absolute bottom-0 left-0 right-0 p-3 translate-y-full group-hover:translate-y-0 transition-transform duration-500">
-        <p className="text-white text-xs font-semibold truncate">{post.authorName}</p>
+      <div className="absolute inset-x-0 bottom-0 bg-black/75 px-3 py-2">
+        <p className="truncate text-sm font-semibold text-white">{post.authorName}</p>
       </div>
-
-      {/* New post flash effect */}
-      <AnimatePresence>
-        {isFreshPost && (
-          <motion.div
-            initial={{ opacity: 1 }}
-            animate={{ opacity: 0 }}
-            transition={{ duration: 2, delay: 1 }}
-            className="absolute inset-0 border-2 border-white/60 rounded-2xl pointer-events-none"
-          />
-        )}
-      </AnimatePresence>
-    </motion.div>
+    </article>
   );
 }
 

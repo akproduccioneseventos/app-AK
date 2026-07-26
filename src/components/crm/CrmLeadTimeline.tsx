@@ -45,7 +45,8 @@ function getTimelineIcon(type: CrmTimelineItem['type']) {
     case 'meeting_scheduled': return <Calendar className="w-3.5 h-3.5" />;
     case 'presupuesto_created': return <FilePlus2 className="w-3.5 h-3.5" />;
     case 'contract_uploaded': return <FileSignature className="w-3.5 h-3.5" />;
-    case 'whatsapp_sent': return <MessageCircle className="w-3.5 h-3.5" />;
+    case 'whatsapp_sent':
+    case 'whatsapp_opened': return <MessageCircle className="w-3.5 h-3.5" />;
     case 'note_added': return <StickyNote className="w-3.5 h-3.5" />;
     default: return <FileText className="w-3.5 h-3.5" />;
   }
@@ -59,6 +60,7 @@ function getTimelineColor(type: CrmTimelineItem['type']) {
     case 'presupuesto_created': return 'bg-orange-100 text-orange-700 border-orange-200';
     case 'contract_uploaded': return 'bg-emerald-100 text-emerald-700 border-emerald-200';
     case 'whatsapp_sent': return 'bg-green-100 text-green-700 border-green-200';
+    case 'whatsapp_opened': return 'bg-amber-100 text-amber-800 border-amber-200';
     case 'note_added': return 'bg-gray-100 text-gray-700 border-gray-200';
     default: return 'bg-muted text-muted-foreground border-muted';
   }

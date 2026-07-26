@@ -317,7 +317,7 @@ export async function persistPublicSimulatorBudget(
     estado: 'Pendiente Verificación',
     source: options.source,
     acquisition: attribution,
-  } as Presupuesto);
+  } as Presupuesto, { preserveStoredTotal: true });
 
   const conversionPlan = buildSimulatorConversionPlan({
     source: mapCommercialSource(attribution, options.source),

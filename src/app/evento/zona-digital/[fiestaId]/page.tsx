@@ -2,7 +2,7 @@
 
 import React, { useEffect, useMemo, useState } from 'react';
 import Link from 'next/link';
-import { useParams } from 'next/navigation';
+import { useParams, useSearchParams } from 'next/navigation';
 import {
   Camera,
   CheckCircle2,
@@ -28,8 +28,13 @@ import { Card, CardContent } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Progress } from '@/components/ui/progress';
-import { getFiestaById } from '@/app/actions/fiesta-actual';
-import type { FiestaEnPlanificacion, ZonaDigitalAdolescentesSettings } from '@/types/fiesta';
+import {
+  getPublicGuestEntertainmentLinks,
+  getPublicGuestPortalData,
+  type PublicGuestEntertainmentLink,
+} from '@/app/actions/public-guest-portal';
+import type { ZonaDigitalAdolescentesSettings } from '@/types/fiesta';
+import type { PublicGuestPortalData } from '@/lib/guest-portal-public-data';
 import {
   getVisibleZonaDigitalFeatures,
   withZonaDigitalDefaults,
@@ -60,8 +65,12 @@ function getBackgroundClass(style: ZonaDigitalAdolescentesSettings['backgroundSt
 
 export default function ZonaDigitalPublicPage() {
   const params = useParams<{ fiestaId: string }>();
+  const searchParams = useSearchParams();
   const fiestaId = decodeURIComponent(params.fiestaId);
-  const [fiesta, setFiesta] = useState<FiestaEnPlanificacion | null>(null);
+  const guestId = searchParams.get('guestId') || '';
+  const guestAccessToken = searchParams.get('token') || '';
+  const [portal, setPortal] = useState<PublicGuestPortalData | null>(null);
+  const [entertainmentLinks, setEntertainmentLinks] = useState<PublicGuestEntertainmentLink[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [nickname, setNickname] = useState('');
   const [selectedChallengeId, setSelectedChallengeId] = useState<string | null>(null);
@@ -71,12 +80,19 @@ export default function ZonaDigitalPublicPage() {
   useEffect(() => {
     async function load() {
       setIsLoading(true);
-      const current = await getFiestaById(fiestaId);
-      setFiesta(current);
+      const [current, links] = await Promise.all([
+        getPublicGuestPortalData(fiestaId, guestId, guestAccessToken),
+        getPublicGuestEntertainmentLinks(fiestaId, guestId, guestAccessToken),
+      ]);
+      setPortal(current);
+      setEntertainmentLinks(links);
+      if (current?.guest.nombre) setNickname(current.guest.nombre);
       setIsLoading(false);
     }
-    load();
-  }, [fiestaId]);
+    void load();
+  }, [fiestaId, guestAccessToken, guestId]);
+
+  const fiesta = portal?.fiesta;
 
   const settings = useMemo(() => withZonaDigitalDefaults(fiesta?.zonaDigitalAdolescentes), [fiesta]);
   const visibleFeatures = useMemo(
@@ -146,7 +162,7 @@ export default function ZonaDigitalPublicPage() {
           <CardContent className="space-y-4 p-6 text-center">
             <ShieldCheck className="mx-auto h-10 w-10 text-red-400" />
             <h1 className="text-2xl font-black">Zona digital no activa</h1>
-            <p className="text-white/70">Cuando AK la active, aca vas a ver retos, juegos y fotos de la fiesta.</p>
+            <p className="text-white/70">Abrí esta sección desde tu invitación personal para ver los juegos de la fiesta.</p>
           </CardContent>
         </Card>
       </main>
@@ -158,7 +174,7 @@ export default function ZonaDigitalPublicPage() {
       <div className="relative mx-auto max-w-6xl space-y-5">
         <div className="flex justify-start">
            <Button asChild variant="outline" className="rounded-full bg-white/10 text-white border-white/20 hover:bg-white/20">
-              <Link href={`/evento/hub/${fiestaId}`}>← Volver al Hub</Link>
+              <Link href={`/evento/hub/${fiestaId}?guestId=${encodeURIComponent(guestId)}&token=${encodeURIComponent(guestAccessToken)}`}>← Volver al Hub</Link>
            </Button>
         </div>
         <section className="ak-live-panel p-5 sm:p-8">
@@ -260,23 +276,24 @@ export default function ZonaDigitalPublicPage() {
         <section className="grid gap-4 md:grid-cols-2 xl:grid-cols-4">
           {visibleFeatures.map(item => {
             const Icon = featureIcon[item.id] ?? Sparkles;
-            let href = `/evento/hub/${fiestaId}`;
+            let href = `/evento/hub/${fiestaId}?guestId=${encodeURIComponent(guestId)}&token=${encodeURIComponent(guestAccessToken)}`;
             if (item.id === 'muro_social') href = `/evento/social/${fiestaId}`;
-            if (item.id === 'fotocabina') href = `/evento/fotocabina/${fiestaId}`;
-            if (item.id === 'plataforma360') href = `/evento/plataforma-360/${fiestaId}`;
-            if (item.id === 'bogue') href = `/evento/bogue/${fiestaId}`;
-            if (item.id === 'espejo_magico') href = `/evento/espejo-magico/${fiestaId}`;
+            if (item.id === 'fotocabina') href = entertainmentLinks.find(link => link.id === 'fotocabina')?.href || '';
+            if (item.id === 'plataforma360') href = entertainmentLinks.find(link => link.id === 'plataforma360')?.href || '';
+            if (item.id === 'bogue') href = entertainmentLinks.find(link => link.id === 'bogue')?.href || '';
+            if (item.id === 'espejo_magico') href = entertainmentLinks.find(link => link.id === 'espejoMagicoIA')?.href
+              || entertainmentLinks.find(link => link.id === 'espejoMagicoFoto')?.href
+              || '';
             if (item.id === 'barra') href = `/evento/barra/${fiestaId}`;
-            if (item.id === 'totems') href = `/evento/hub/${fiestaId}`;
+            if (item.id === 'totems') href = entertainmentLinks.find(link => link.id === 'totems')?.href || '';
             if (item.id === 'audioritmico') href = `/evento/muro-en-vivo/${fiestaId}`;
-            if (item.id === 'ranking') href = `/evento/zona-digital/${fiestaId}`;
+            if (item.id === 'ranking') href = `/evento/zona-digital/${fiestaId}?guestId=${encodeURIComponent(guestId)}&token=${encodeURIComponent(guestAccessToken)}`;
             if (item.id === 'recap') href = `/evento/galeria/${fiestaId}`;
 
-            return (
-              <Link key={item.id} href={href} className="block group">
-                <Card className="h-full border-white/10 bg-white/95 text-slate-950 shadow-xl transition hover:-translate-y-1 hover:shadow-2xl hover:border-red-500/50">
+            const featureCard = (
+                <Card className="h-full border-white/10 bg-white/95 text-slate-950 shadow-xl transition group-hover:-translate-y-1 group-hover:shadow-2xl group-hover:border-red-500/50">
                   <CardContent className="space-y-3 p-5">
-                    <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-red-50 text-red-600 transition group-hover:scale-110 group-hover:bg-red-600 group-hover:text-white">
+                    <div className="flex h-12 w-12 items-center justify-center rounded-lg bg-red-50 text-red-600 transition group-hover:scale-105 group-hover:bg-red-600 group-hover:text-white">
                       <Icon className="h-6 w-6" />
                     </div>
                     <h3 className="font-black">{item.label}</h3>
@@ -284,7 +301,16 @@ export default function ZonaDigitalPublicPage() {
                     {item.requiresHardware && <Badge variant="outline">estacion fisica</Badge>}
                   </CardContent>
                 </Card>
+            );
+
+            return href ? (
+              <Link key={item.id} href={href} className="block group">
+                {featureCard}
               </Link>
+            ) : (
+              <div key={item.id} className="group opacity-70" title="Abrí esta estación desde tu portal personal">
+                {featureCard}
+              </div>
             );
           })}
         </section>

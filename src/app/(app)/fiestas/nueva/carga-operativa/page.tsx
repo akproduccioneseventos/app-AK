@@ -260,13 +260,21 @@ function ListaDeCargaOperativaContent() {
 
   useEffect(() => {
     if (!fiestaId) return;
-    const intervalId = window.setInterval(async () => {
-      if (pendingItemUpdates > 0) return;
+    const refreshOperationalState = async () => {
+      if (document.visibilityState !== 'visible' || pendingItemUpdates > 0) return;
       const result = await getCargaOperativaAccessView(fiestaId);
       if (!result.success || !result.data) return;
       setListaDeCarga((current) => mergeRemoteOperationalState(current, result.data!.lista));
-    }, 5000);
-    return () => window.clearInterval(intervalId);
+    };
+    const handleVisibilityChange = () => {
+      if (document.visibilityState === 'visible') void refreshOperationalState();
+    };
+    document.addEventListener('visibilitychange', handleVisibilityChange);
+    const intervalId = window.setInterval(() => void refreshOperationalState(), 15_000);
+    return () => {
+      window.clearInterval(intervalId);
+      document.removeEventListener('visibilitychange', handleVisibilityChange);
+    };
   }, [fiestaId, pendingItemUpdates]);
 
   const persistItemPatch = useCallback(async (

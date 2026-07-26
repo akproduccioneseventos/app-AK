@@ -26,7 +26,10 @@ import { migrateVerifiedBudgetDates } from '@/lib/budget/verified-budget-date-mi
 const PRESUPUESTOS_FILE = 'presupuestos.json';
 
 function shouldDedupePaymentReference(referencia?: string): boolean {
-  return !!referencia && referencia.includes('Pago verificado desde Portal VIP');
+  return !!referencia && (
+    referencia.includes('Pago verificado desde Portal VIP')
+    || referencia.startsWith('AK_SYNC:')
+  );
 }
 
 function getFiestaSubjectName(input: {
@@ -293,7 +296,10 @@ function hasBudgetStructureChanged(oldBudget: Presupuesto, newBudget: Presupuest
   return false;
 }
 
-export async function updatePresupuesto(presupuestoData: Presupuesto): Promise<{ success: boolean; id?: string; presupuesto?: Presupuesto; error?: string }> {
+export async function updatePresupuesto(
+  presupuestoData: Presupuesto,
+  options: { preserveStoredTotal?: boolean } = {},
+): Promise<{ success: boolean; id?: string; presupuesto?: Presupuesto; error?: string }> {
     const auth = await verifySession();
     if (!auth.success) return { success: false, error: auth.error };
     let presupuestos = await getPresupuestos(true);
@@ -329,8 +335,10 @@ export async function updatePresupuesto(presupuestoData: Presupuesto): Promise<{
         ...presupuestoData,
         itemsPresupuestados: validItems,
         costoTotalEstimado: subtotal,
-        totalConDescuento: Math.round(totalConDescuento)
-    });
+        totalConDescuento: options.preserveStoredTotal
+          ? roundMoney(presupuestoData.totalConDescuento)
+          : Math.round(totalConDescuento)
+    }, { preserveStoredTotal: options.preserveStoredTotal });
 
     try {
         const syncRes = await findLeadByBudgetOrCreate(updated);
@@ -537,7 +545,10 @@ export async function addPagoToPresupuesto(
   };
 
   const updatedPagos = [...(presupuesto.pagosCliente || []), newPago];
-  const result = await updatePresupuesto({ ...presupuesto, pagosCliente: updatedPagos });
+  const result = await updatePresupuesto(
+    { ...presupuesto, pagosCliente: updatedPagos },
+    { preserveStoredTotal: true },
+  );
 
   if (result.success) {
     const montoFmt = new Intl.NumberFormat('es-UY', { style: 'currency', currency: 'UYU', maximumFractionDigits: 0 }).format(pago.monto);
@@ -565,7 +576,10 @@ export async function deletePagoFromPresupuesto(
   if (!presupuesto) return { success: false, error: 'Presupuesto no encontrado' };
 
   const updatedPagos = (presupuesto.pagosCliente || []).filter(p => p.id !== pagoId);
-  return updatePresupuesto({ ...presupuesto, pagosCliente: updatedPagos });
+  return updatePresupuesto(
+    { ...presupuesto, pagosCliente: updatedPagos },
+    { preserveStoredTotal: true },
+  );
 }
 
 export interface ImportarPresupuestoOptions {
@@ -834,7 +848,10 @@ export async function addPagoClienteFromPortal(
   };
 
   const updatedPagos = [...(presupuesto.pagosCliente || []), newPago];
-  const result = await updatePresupuesto({ ...presupuesto, pagosCliente: updatedPagos });
+  const result = await updatePresupuesto(
+    { ...presupuesto, pagosCliente: updatedPagos },
+    { preserveStoredTotal: true },
+  );
 
   if (result.success) {
     const montoFmt = new Intl.NumberFormat('es-UY', { style: 'currency', currency: 'UYU', maximumFractionDigits: 0 }).format(pago.monto);
@@ -868,7 +885,10 @@ export async function confirmPagoCliente(
   if (!validation.ok) return { success: false, error: validation.error };
 
   pagos[pagoIndex] = { ...pagos[pagoIndex], estadoPago: 'confirmado', motivoRechazo: undefined };
-  const result = await updatePresupuesto({ ...presupuesto, pagosCliente: pagos });
+  const result = await updatePresupuesto(
+    { ...presupuesto, pagosCliente: pagos },
+    { preserveStoredTotal: true },
+  );
 
   if (result.success) {
     const montoFmt = new Intl.NumberFormat('es-UY', { style: 'currency', currency: 'UYU', maximumFractionDigits: 0 }).format(pagos[pagoIndex].monto);
@@ -906,7 +926,10 @@ export async function rejectPagoCliente(
       ? { ...pago, estadoPago: 'rechazado' as EstadoPago, motivoRechazo: safeMotivo }
       : pago
   );
-  const result = await updatePresupuesto({ ...presupuesto, pagosCliente: updatedPagos });
+  const result = await updatePresupuesto(
+    { ...presupuesto, pagosCliente: updatedPagos },
+    { preserveStoredTotal: true },
+  );
 
   if (result.success) {
     createNotification({

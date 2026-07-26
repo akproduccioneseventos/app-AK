@@ -1095,9 +1095,15 @@ export default function GaleriaAdminPage() {
                           >
                             <Star className={`w-3 h-3 ${video.destacada ? 'fill-white' : ''}`} />
                           </Button>
-                          <Button asChild size="icon" variant="ghost" className="w-7 h-7"><Link href={sanitizeHttpUrl(video.youtubeUrl) ?? '#'} target="_blank" rel="noopener noreferrer">
+                          {sanitizeHttpUrl(video.youtubeUrl) ? (
+                            <Button asChild size="icon" variant="ghost" className="w-7 h-7"><Link href={sanitizeHttpUrl(video.youtubeUrl)!} target="_blank" rel="noopener noreferrer">
+                                <ExternalLink className="w-3 h-3" />
+                              </Link></Button>
+                          ) : (
+                            <Button size="icon" variant="ghost" className="w-7 h-7" disabled title="Video sin enlace válido">
                               <ExternalLink className="w-3 h-3" />
-                            </Link></Button>
+                            </Button>
+                          )}
                           <AlertDialog>
                             <AlertDialogTrigger asChild>
                               <Button size="icon" variant="ghost" className="w-7 h-7 text-destructive hover:text-destructive">

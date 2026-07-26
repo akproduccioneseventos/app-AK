@@ -19,7 +19,7 @@ import {
   Check,
 } from 'lucide-react';
 import { QRCodeSVG } from 'qrcode.react';
-import { getSocialPosts } from '@/app/actions/social-gallery';
+import { getPublicSocialPosts } from '@/app/actions/social-gallery';
 import {
   getPublicEntertainmentEvent,
   uploadEntretenimientoMedia,
@@ -29,10 +29,13 @@ import {
   startEntertainmentSession,
   updateEntertainmentSessionStatus,
   resetEntertainmentSession,
+  completeEntertainmentSessionCycle,
   EntertainmentSession,
 } from '@/app/actions/fiesta/sesion-entretenimiento';
 import type { PublicEntertainmentEvent } from '@/lib/entertainment/station-config';
+import { PublicEntertainmentEventStatus } from '@/components/entertainment/public-entertainment-event-status';
 import { KioskUnlockButton } from '@/components/kiosk/kiosk-unlock-button';
+import { waitForInitialPublicLoad } from '@/lib/public-experience/wait-for-initial-public-load';
 
 const DURATION_OPTIONS = [
   { label: '10 Segundos', value: 10 },
@@ -56,6 +59,7 @@ export default function Plataforma360Page() {
   const localStatusRef = useRef<'idle' | 'countdown' | 'recording' | 'processing' | 'done'>('idle');
 
   const [fiesta, setFiesta] = useState<PublicEntertainmentEvent | null>(null);
+  const [isEventLoading, setIsEventLoading] = useState(true);
   const [stream, setStream] = useState<MediaStream | null>(null);
   const [facingMode, setFacingMode] = useState<'environment' | 'user'>('environment'); // environment default for 360 arms
   const [recentVideos, setRecentVideos] = useState<any[]>([]);
@@ -68,8 +72,10 @@ export default function Plataforma360Page() {
   const [recordingTimeLeft, setRecordingTimeLeft] = useState(0);
 
   const [finalVideoUrl, setFinalVideoUrl] = useState<string | null>(null);
+  const [pendingVideoBlob, setPendingVideoBlob] = useState<Blob | null>(null);
   const [uploadedPostUrl, setUploadedPostUrl] = useState<string | null>(null);
   const [qrCodeUrl, setQrCodeUrl] = useState<string>('');
+  const [uploadError, setUploadError] = useState<string | null>(null);
   
   const [isUploading, setIsUploading] = useState(false);
   const [progress, setProgress] = useState(0);
@@ -139,7 +145,7 @@ export default function Plataforma360Page() {
 
   const loadRecentVideos = useCallback(async () => {
     try {
-      const posts = await getSocialPosts(fiestaId);
+      const posts = await getPublicSocialPosts(fiestaId);
       const videos = posts
         .filter(p => p.sourceModule === 'plataforma360' || p.source === 'plataforma360' || p.imageUrl.endsWith('.mp4'))
         .slice(0, 4);
@@ -149,17 +155,33 @@ export default function Plataforma360Page() {
 
   // 1. Initial load
   useEffect(() => {
-    getPublicEntertainmentEvent(fiestaId, 'plataforma360', accessToken)
+    let active = true;
+    setFiesta(null);
+    setLoadError(null);
+    setIsEventLoading(true);
+    const loadTask = getPublicEntertainmentEvent(fiestaId, 'plataforma360', accessToken)
       .then((result) => {
+        if (!active) return;
         if (result.success && result.event) {
           setFiesta(result.event);
+          setLoadError(null);
           setSelectedDuration(result.event.station.recordingDurationSeconds);
         } else {
           setLoadError(result.error || 'No se pudo abrir esta estacion.');
         }
       })
-      .catch(() => setLoadError('No se pudo abrir esta estacion.'));
+      .catch(() => {
+        if (active) setLoadError('No se pudo abrir esta estacion.');
+      });
+    void waitForInitialPublicLoad(loadTask).then((result) => {
+      if (!active) return;
+      if (result === 'timeout') setLoadError('La validacion del evento demoro demasiado. Intenta nuevamente.');
+      setIsEventLoading(false);
+    });
     void loadRecentVideos();
+    return () => {
+      active = false;
+    };
   }, [accessToken, fiestaId, loadRecentVideos]);
 
   useEffect(() => {
@@ -216,7 +238,10 @@ export default function Plataforma360Page() {
     setLocalStatus('idle');
     setCountdown(null);
     setFinalVideoUrl(null);
+    setPendingVideoBlob(null);
     setUploadedPostUrl(null);
+    setQrCodeUrl('');
+    setUploadError(null);
     setRecordingProgress(0);
     setIsUploading(false);
     setProgress(0);
@@ -224,6 +249,11 @@ export default function Plataforma360Page() {
     if (role === 'display') {
       startCamera();
     }
+  };
+
+  const completeGuestCycle = () => {
+    void completeEntertainmentSessionCycle(fiestaId, 'plataforma360', accessToken);
+    resetLocalState();
   };
 
   // 3. Capture Flow
@@ -308,6 +338,7 @@ export default function Plataforma360Page() {
       const videoBlob = new Blob(chunks, { type: mimeType });
       const videoUrl = URL.createObjectURL(videoBlob);
       setFinalVideoUrl(videoUrl);
+      setPendingVideoBlob(videoBlob);
 
       // Auto upload video
       await handleVideoUpload(videoBlob);
@@ -337,6 +368,7 @@ export default function Plataforma360Page() {
   };
 
   const handleVideoUpload = async (blob: Blob) => {
+    setUploadError(null);
     setLocalStatus('processing');
     await updateEntertainmentSessionStatus(
       fiestaId,
@@ -377,24 +409,26 @@ export default function Plataforma360Page() {
 
         // Auto reset after 12 seconds
         setTimeout(() => {
-          resetLocalState();
-          resetEntertainmentSession(fiestaId, 'plataforma360', accessToken);
+          completeGuestCycle();
         }, (fiesta?.station.reviewSeconds || 20) * 1000);
       } else {
         throw new Error(res.error || 'Error de subida');
       }
     } catch (err) {
       console.error(err);
+      const message = (err as Error).message || 'No se pudo subir el video.';
       setProgressMsg('No se pudo subir el video. Conservamos la vista previa para reintentar.');
+      setUploadError(message);
       setQrCodeUrl('');
       setLocalStatus('done');
       await updateEntertainmentSessionStatus(
         fiestaId,
         'plataforma360',
-        'done',
+        'idle',
         {},
         accessToken
       );
+      speak('No se pudo subir el video. Podés reintentar sin volver a grabarlo.');
     } finally {
       setIsUploading(false);
     }
@@ -422,30 +456,30 @@ export default function Plataforma360Page() {
     if (!result.success) setOperatorError(result.error || 'No se pudo reiniciar la plataforma 360.');
   };
 
-  if (loadError) {
-    return <div className="flex min-h-screen items-center justify-center bg-zinc-950 p-6 text-center font-bold text-rose-300">{loadError}</div>;
+  if (isEventLoading || !fiesta) {
+    return <PublicEntertainmentEventStatus isLoading={isEventLoading} error={loadError} />;
   }
 
   // Operator view UI
   if (role === 'operator') {
     return (
-      <div className="min-h-screen bg-[radial-gradient(ellipse_at_top,_#3b0764_0%,_#09090b_70%)] text-white p-6">
-        <div className="max-w-md mx-auto space-y-6">
+      <div className="min-h-screen bg-zinc-950 p-4 text-white sm:p-6">
+        <div className="mx-auto max-w-md space-y-5">
           
           <div className="flex items-center justify-between border-b border-white/10 pb-4">
-            <button onClick={() => router.push(`/evento/hub/${fiestaId}`)} className="p-2 bg-white/5 rounded-full hover:bg-white/10 transition">
+            <button onClick={() => router.back()} aria-label="Volver" title="Volver" className="rounded-lg p-2 transition hover:bg-white/10">
               <ArrowLeft className="w-5 h-5" />
             </button>
-            <h1 className="text-lg font-black tracking-widest text-purple-400 uppercase flex items-center gap-2">
-              <Radio className="w-5 h-5 animate-pulse text-purple-400" /> Operador 360°
+            <h1 className="flex items-center gap-2 text-base font-black uppercase tracking-wide text-violet-300">
+              <Radio className="h-5 w-5 text-violet-300 motion-safe:animate-pulse" /> Operador 360
             </h1>
             <div className="w-9" />
           </div>
 
-          <div className="bg-white/5 border border-white/10 rounded-3xl p-6 shadow-2xl space-y-6">
+          <div className="space-y-5 rounded-lg border border-white/10 bg-zinc-900 p-5">
             <div>
               <p className="text-xs font-bold text-slate-400 uppercase tracking-widest mb-1">Estado del Brazo 360</p>
-              <div className="flex items-center gap-3 bg-black/40 px-4 py-3 rounded-2xl border border-white/5">
+              <div className="flex items-center gap-3 rounded-lg border border-white/5 bg-black/30 px-4 py-3">
                 <Radio className={`w-5 h-5 ${session?.status === 'idle' ? 'text-slate-500' : 'text-purple-500 animate-pulse'}`} />
                 <span className="font-bold capitalize text-sm">{session?.status || 'Desconectado'}</span>
               </div>
@@ -459,7 +493,7 @@ export default function Plataforma360Page() {
                   <button
                     key={d.value}
                     onClick={() => setSelectedDuration(d.value)}
-                    className={`p-3 rounded-xl border text-xs font-bold transition flex flex-col items-center justify-center gap-1 ${
+                    className={`flex flex-col items-center justify-center gap-1 rounded-lg border p-3 text-xs font-bold transition ${
                       selectedDuration === d.value
                         ? 'border-purple-500 bg-purple-500/10 text-purple-300'
                         : 'border-white/5 bg-black/20 text-slate-400 hover:border-white/10'
@@ -476,26 +510,26 @@ export default function Plataforma360Page() {
               <button
                 onClick={handleOperatorStart}
                 disabled={session?.status && session.status !== 'idle' && session.status !== 'done'}
-                className="w-full h-16 rounded-2xl bg-gradient-to-r from-purple-500 to-fuchsia-600 hover:from-purple-600 hover:to-fuchsia-700 text-white font-black text-lg shadow-xl shadow-purple-500/20 flex items-center justify-center gap-2 disabled:opacity-50 disabled:pointer-events-none active:scale-98 transition-all"
+                className="flex h-14 w-full items-center justify-center gap-2 rounded-lg bg-violet-500 text-base font-black text-white transition hover:bg-violet-400 disabled:pointer-events-none disabled:opacity-50"
               >
                 <Zap className="w-6 h-6 fill-white" />
-                DISPARAR 360°
+                Iniciar cuenta regresiva
               </button>
               {operatorError && <p className="text-center text-xs font-bold text-rose-400">{operatorError}</p>}
 
               <button
                 onClick={handleOperatorReset}
-                className="w-full h-12 rounded-xl bg-white/5 hover:bg-white/10 text-slate-300 font-bold text-sm border border-white/5 transition flex items-center justify-center gap-2"
+                className="flex h-12 w-full items-center justify-center gap-2 rounded-lg border border-white/10 bg-white/5 text-sm font-bold text-slate-300 transition hover:bg-white/10"
               >
                 <RefreshCw className="w-4 h-4" />
-                Reiniciar Cabina
+                Reiniciar sesion
               </button>
             </div>
           </div>
 
-          <div className="bg-white/5 border border-white/5 rounded-2xl p-4 text-center">
+          <div className="rounded-lg border border-white/10 bg-zinc-900 p-4 text-center">
             <p className="text-xs text-slate-400">
-              Coloque el dispositivo en el soporte giratorio 360° y asegure los soportes. Al disparar comenzará la cuenta regresiva en pantalla de 5 segundos.
+              Esta pantalla graba con la camara web. El brazo 360 se opera fuera de esta aplicacion.
             </p>
           </div>
 
@@ -510,7 +544,7 @@ export default function Plataforma360Page() {
       
       {/* HEADER */}
       <div className="absolute top-0 left-0 right-0 z-20 p-4 flex justify-between items-center bg-gradient-to-b from-black/80 to-transparent">
-        <button onClick={() => router.back()} className="p-2 bg-white/10 rounded-full backdrop-blur-md hover:bg-white/20 transition">
+        <button type="button" onClick={() => router.back()} aria-label="Volver" title="Volver" className="flex h-11 w-11 items-center justify-center rounded-lg bg-white/10 backdrop-blur-md transition hover:bg-white/20">
           <ArrowLeft className="w-6 h-6" />
         </button>
         <div className="text-center drop-shadow-md">
@@ -523,14 +557,17 @@ export default function Plataforma360Page() {
           {localStatus === 'idle' && (
             <>
               <button
+                type="button"
                 onClick={() => setVoiceEnabled(!voiceEnabled)}
-                className={`p-2 rounded-full backdrop-blur-md transition ${
+                aria-label={voiceEnabled ? 'Desactivar voz' : 'Activar voz'}
+                title={voiceEnabled ? 'Desactivar voz' : 'Activar voz'}
+                className={`flex h-11 w-11 items-center justify-center rounded-full backdrop-blur-md transition ${
                   voiceEnabled ? 'bg-purple-500/20 text-purple-400 border border-purple-500/30' : 'bg-white/10 text-white'
                 }`}
               >
                 {voiceEnabled ? <Volume2 className="w-5 h-5" /> : <VolumeX className="w-5 h-5" />}
               </button>
-              <button onClick={toggleCamera} className="p-2 bg-white/10 rounded-full backdrop-blur-md hover:bg-white/20 transition">
+              <button type="button" onClick={toggleCamera} aria-label="Cambiar camara" title="Cambiar camara" className="flex h-11 w-11 items-center justify-center rounded-full bg-white/10 backdrop-blur-md transition hover:bg-white/20">
                 <RefreshCw className="w-5 h-5" />
               </button>
             </>
@@ -553,26 +590,22 @@ export default function Plataforma360Page() {
             />
             
             <div className="absolute inset-0 flex flex-col items-center justify-center text-center p-6 bg-gradient-to-t from-zinc-950 via-zinc-950/40 to-zinc-950/80">
-              {/* Spinning rings */}
-              <div className="absolute w-80 h-80 rounded-full border border-purple-500/20 animate-[spin_10s_linear_infinite]" />
-              <div className="absolute w-64 h-64 rounded-full border border-fuchsia-500/30 animate-[spin_7s_linear_infinite_reverse]" />
-
               <div className="relative z-10 space-y-6 max-w-sm">
-                <div className="w-20 h-20 mx-auto rounded-full bg-gradient-to-tr from-purple-600 to-fuchsia-500 flex items-center justify-center shadow-lg shadow-purple-500/25 animate-pulse">
+                <div className="mx-auto flex h-20 w-20 items-center justify-center rounded-lg bg-violet-500 shadow-lg shadow-violet-950/30">
                   <Play className="w-10 h-10 text-white fill-white ml-1" />
                 </div>
                 <div className="space-y-2">
-                  <h2 className="text-3xl md:text-4xl font-black tracking-tight text-white">¡Subite al 360°!</h2>
-                  <p className="text-sm text-zinc-300">Esperando la señal de disparo del operador o presiona abajo para iniciar.</p>
+                  <h2 className="text-3xl font-black tracking-tight text-white md:text-4xl">Video 360</h2>
+                  <p className="text-sm text-zinc-300">Prepara tu pose. Esta estacion graba un video con la camara web.</p>
                 </div>
 
                 <div className="pt-4 space-y-3">
                   <button
                     onClick={() => startDisplayCapture(selectedDuration)}
-                    className="w-full h-14 rounded-2xl bg-white text-zinc-950 font-black text-sm uppercase tracking-wider hover:bg-zinc-200 transition shadow-xl flex items-center justify-center gap-2"
+                    className="flex h-14 w-full items-center justify-center gap-2 rounded-lg bg-white text-sm font-black text-zinc-950 transition hover:bg-zinc-200"
                   >
                     <Camera className="w-5 h-5" />
-                    Iniciar Captura Local
+                    Grabar video
                   </button>
 
                   <div className="flex justify-center gap-1.5 overflow-x-auto py-2">
@@ -580,7 +613,7 @@ export default function Plataforma360Page() {
                       <button
                         key={d.value}
                         onClick={() => setSelectedDuration(d.value)}
-                        className={`text-[10px] font-black px-3 py-1.5 rounded-full border transition ${
+                        className={`rounded-lg border px-3 py-1.5 text-[10px] font-black transition ${
                           selectedDuration === d.value
                             ? 'border-purple-500 bg-purple-500/20 text-purple-300'
                             : 'border-zinc-800 bg-zinc-900/60 text-zinc-400'
@@ -617,7 +650,7 @@ export default function Plataforma360Page() {
                   transition={{ duration: 0.5 }}
                   className="relative z-10"
                 >
-                  <span className="text-[12rem] font-black text-white drop-shadow-[0_0_35px_rgba(168,85,247,0.8)]">
+                  <span className="text-8xl font-black text-white sm:text-9xl">
                     {countdown}
                   </span>
                 </motion.div>
@@ -637,12 +670,9 @@ export default function Plataforma360Page() {
               className={`absolute inset-0 w-full h-full object-cover ${facingMode === 'user' ? 'scale-x-[-1]' : ''}`}
             />
             
-            {/* Spinning neon rings for excitement on camera view */}
-            <div className="absolute inset-0 border-[12px] border-purple-500/50 animate-pulse pointer-events-none" />
-
             <div className="absolute bottom-10 left-10 right-10 z-10 flex flex-col items-center space-y-2">
-              <span className="text-sm font-black tracking-widest text-purple-400 uppercase flex items-center gap-1.5 bg-black/60 px-4 py-1.5 rounded-full border border-purple-500/30">
-                <span className="w-2.5 h-2.5 rounded-full bg-purple-500 animate-ping" /> GRABANDO ({recordingTimeLeft}s)
+              <span className="flex items-center gap-1.5 rounded-lg border border-violet-400/30 bg-black/60 px-4 py-1.5 text-sm font-black uppercase tracking-wide text-violet-200">
+                <span className="h-2.5 w-2.5 rounded-full bg-red-500 motion-safe:animate-pulse" /> Grabando ({recordingTimeLeft}s)
               </span>
               <div className="w-full max-w-xs h-2 bg-zinc-900 rounded-full overflow-hidden border border-white/5">
                 <motion.div
@@ -666,11 +696,11 @@ export default function Plataforma360Page() {
         )}
 
         {/* Done / QR Screen */}
-        {localStatus === 'done' && (
-          <div className="absolute inset-0 z-40 bg-zinc-950 flex flex-col md:flex-row items-center justify-center p-6 gap-8">
+        {localStatus === 'done' && !uploadError && (
+          <div className="absolute inset-0 z-40 flex flex-col items-center justify-start gap-6 overflow-y-auto overscroll-contain bg-zinc-950 px-4 pb-8 pt-20 md:flex-row md:justify-center md:gap-8 md:p-6">
             
             {/* Video preview */}
-            <div className="relative w-full max-w-sm aspect-[9/16] bg-zinc-900 rounded-3xl overflow-hidden border border-white/10 shadow-2xl">
+            <div className="relative h-[52dvh] max-h-[32rem] w-auto max-w-full shrink-0 aspect-[9/16] overflow-hidden rounded-lg border border-white/10 bg-zinc-900 shadow-2xl md:h-[80dvh] md:max-h-[48rem]">
               {finalVideoUrl && (
                 <video
                   src={finalVideoUrl}
@@ -681,16 +711,16 @@ export default function Plataforma360Page() {
                   playsInline
                 />
               )}
-              <div className="absolute top-4 left-4 bg-purple-500 text-white text-[10px] font-black uppercase px-3 py-1 rounded-full tracking-wider flex items-center gap-1">
-                <Star className="w-3 h-3 text-yellow-300" /> Video 360° Listo
+              <div className="absolute left-4 top-4 flex items-center gap-1 rounded-lg bg-violet-500 px-3 py-1 text-[10px] font-black uppercase tracking-wide text-white">
+                <Star className="w-3 h-3 text-white" /> Previsualizacion lista
               </div>
             </div>
 
             {/* QR sharing code */}
             <div className="flex flex-col items-center text-center space-y-6 max-w-xs">
               <div className="space-y-2">
-                <h3 className="text-2xl font-black text-white">¡Escaneá tu Video!</h3>
-                <p className="text-sm text-zinc-400">Escaneá este código QR con tu celular para descargar tu video de la plataforma 360°.</p>
+                <h3 className="text-2xl font-black text-white">Guarda o comparte tu video</h3>
+                <p className="text-sm text-zinc-400">Escanea el QR desde tu celular para abrir el enlace de esta captura web.</p>
               </div>
 
               {/* QR Container */}
@@ -707,15 +737,45 @@ export default function Plataforma360Page() {
               <div className="space-y-3 w-full">
                 {fiesta?.station.allowGuestRetake && fiesta.station.maxRetakes > 0 && (
                   <button
-                    onClick={resetLocalState}
+                    onClick={completeGuestCycle}
                     className="w-full h-12 rounded-xl bg-white/5 hover:bg-white/10 text-white font-bold text-sm border border-white/10 transition flex items-center justify-center gap-2"
                   >
-                    <RefreshCw className="w-4 h-4" /> Hacer Otro Video
+                    <RefreshCw className="w-4 h-4" /> Grabar otro video
                   </button>
                 )}
               </div>
             </div>
 
+          </div>
+        )}
+
+        {localStatus === 'done' && uploadError && (
+          <div className="absolute inset-0 z-40 flex flex-col items-center justify-start gap-6 overflow-y-auto overscroll-contain bg-zinc-950 px-4 pb-8 pt-20 text-center md:justify-center md:p-6">
+            <div className="h-[52dvh] max-h-[32rem] w-auto max-w-full shrink-0 aspect-[9/16] overflow-hidden rounded-lg border border-white/10 bg-black md:h-[72dvh] md:max-h-[44rem]">
+              {finalVideoUrl && <video src={finalVideoUrl} controls loop playsInline className="h-full w-full object-cover" />}
+            </div>
+            <div className="max-w-md">
+              <h3 className="text-2xl font-black text-white">El video quedó guardado en esta pantalla</h3>
+              <p className="mt-2 text-sm text-rose-300">{uploadError}</p>
+              <p className="mt-2 text-sm text-zinc-400">Reintentá la subida. No mostramos un QR hasta tener un enlace válido.</p>
+            </div>
+            <div className="flex w-full max-w-sm flex-col gap-3 sm:flex-row">
+              <button
+                type="button"
+                onClick={() => pendingVideoBlob && handleVideoUpload(pendingVideoBlob)}
+                disabled={!pendingVideoBlob || isUploading}
+                className="h-14 flex-1 rounded-lg bg-purple-600 px-5 font-black text-white hover:bg-purple-500 disabled:opacity-50"
+              >
+                {isUploading ? 'Subiendo...' : 'Reintentar subida'}
+              </button>
+              <button
+                type="button"
+                onClick={completeGuestCycle}
+                className="h-14 flex-1 rounded-lg border border-white/15 bg-white/5 px-5 font-bold text-white hover:bg-white/10"
+              >
+                Grabar otro
+              </button>
+            </div>
           </div>
         )}
 

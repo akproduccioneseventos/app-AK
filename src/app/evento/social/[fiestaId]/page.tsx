@@ -1,2681 +1,702 @@
 'use client';
 
-import React, {
-  useState,
-  useEffect,
-  useCallback,
-  useMemo,
-  type FormEvent,
-  useRef,
-  type ChangeEvent,
-} from 'react';
+import { useCallback, useEffect, useMemo, useRef, useState, type ChangeEvent, type FormEvent } from 'react';
 import { useParams } from 'next/navigation';
-import { useToast } from '@/hooks/use-toast';
-import { getPublicSocialEvent, getPublicSocialPosts, uploadSocialPost, addLikeToPost, addCommentToPost, deleteSocialPost, clearGallery, getChatMessages, addChatMessage, highlightComment, moderateSocialPost, saveSocialGallerySettings } from '@/app/actions/social-gallery';
-import { addDedication, addSongRequest, getPublicDedications, getSongRequests, getActivePoll, createPoll, votePoll, closePoll, highlightDedication, uploadDedicationAudio } from '@/app/actions/social-interactive';
-import { voteActiveGameOption, trackSocialFollowClick } from '@/app/actions/fiesta/screen-mode.actions';
-import type { SocialGalleryPost, SocialComment, ChatMessage, SocialPoll } from '@/types/social-gallery';
 import { formatDistanceToNow } from 'date-fns';
 import { es } from 'date-fns/locale';
-import type { SocialGallerySettings } from '@/types/fiesta';
-import type { PublicSocialEvent } from '@/lib/social-fiesta/public-event';
-import { MAX_DEDICATION_RECORDING_SECONDS } from '@/lib/social-fiesta/guardrails';
-import type { SocialConnection } from '@/types/settings';
-import { motion, AnimatePresence } from 'framer-motion';
-
-// UI Components
-import { Card, CardContent, CardHeader, CardTitle, CardDescription, CardFooter } from '@/components/ui/card';
+import {
+  ArrowLeft,
+  BarChart3,
+  Camera,
+  Gamepad2,
+  Heart,
+  ImagePlus,
+  Loader2,
+  MessageCircle,
+  Mic,
+  Music2,
+  Pause,
+  Play,
+  RefreshCw,
+  Send,
+  Square,
+  Upload,
+  UserRound,
+  Video,
+  X,
+} from 'lucide-react';
+import {
+  addChatMessage,
+  addCommentToPost,
+  addLikeToPost,
+  getChatMessages,
+  getPublicSocialEvent,
+  getPublicSocialPosts,
+  uploadSocialPost,
+} from '@/app/actions/social-gallery';
+import {
+  addDedication,
+  addSongRequest,
+  getActivePoll,
+  getPublicDedications,
+  getSongRequests,
+  uploadDedicationAudio,
+  votePoll,
+} from '@/app/actions/social-interactive';
+import { voteActiveGameOption } from '@/app/actions/fiesta/screen-mode.actions';
 import { Button } from '@/components/ui/button';
+import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
-import NextImage from 'next/image';
-import {
-  Dialog,
-  DialogContent,
-  DialogHeader,
-  DialogTitle,
-  DialogDescription,
-  DialogFooter,
-  DialogClose,
-  DialogTrigger,
-} from "@/components/ui/dialog";
-import { Loader2, AlertTriangle, Heart, MessageCircle, Send, Upload, RefreshCw, PartyPopper, MonitorPlay, X, Trash2, Download, Share2, User as UserIcon, MessageSquare, Settings2, CheckCircle2, Save, Camera as CameraIcon, Music, MicVocal, Star, PlusCircle, MinusCircle, PlayCircle, ArrowLeft, Gamepad2, LayoutGrid, BarChart2, Ghost, Mic, StopCircle } from 'lucide-react';
-import { WatermarkedImage } from '@/components/watermarked-image';
-import {
-  AlertDialog,
-  AlertDialogAction,
-  AlertDialogCancel,
-  AlertDialogContent,
-  AlertDialogDescription,
-  AlertDialogFooter,
-  AlertDialogHeader,
-  AlertDialogTitle,
-  AlertDialogTrigger,
-} from "@/components/ui/alert-dialog";
-import { ShareLinkDialog } from '@/components/dashboard/ShareLinkDialog';
-import QRCodeStylized from 'qrcode.react';
-import { ScrollArea } from '@/components/ui/scroll-area';
-import { getInvoiceTemplateSettings } from '@/app/actions/settings';
-import { getSocialConnections } from '@/app/actions/social-connections';
-import { Switch } from '@/components/ui/switch';
-import { Separator } from '@/components/ui/separator';
-import { cn } from '@/lib/utils';
-import type { Dedication, SongRequest } from '@/types/social-gallery';
-import QrFlyerGenerator from '@/components/social-wall/QrFlyerGenerator';
-import { Printer } from 'lucide-react';
+import { useToast } from '@/hooks/use-toast';
 import { isEventInActiveWindow } from '@/lib/experience-ak/post-event-utils';
+import {
+  waitForInitialPublicLoad,
+  withPublicRequestTimeout,
+} from '@/lib/public-experience/wait-for-initial-public-load';
+import { MAX_DEDICATION_RECORDING_SECONDS } from '@/lib/social-fiesta/guardrails';
+import type { PublicSocialEvent } from '@/lib/social-fiesta/public-event';
+import type { ChatMessage, Dedication, SocialGalleryPost, SocialPoll, SongRequest } from '@/types/social-gallery';
+import type { SocialGallerySettings } from '@/types/fiesta';
 import PostEventMemoryHub from '@/components/social-wall/PostEventMemoryHub';
 
-const MAX_DISPLAYED_SONG_REQUESTS = 12;
+type SocialSection = 'feed' | 'songs' | 'dedications' | 'chat' | 'poll' | 'game';
 
-/**
- * Merges incoming Firestore social-gallery settings with the current local state,
- * ensuring that "enabled by default" boolean flags (allowLikes, chatEnabled, etc.)
- * are treated as `true` when the field is absent — so that fiestas created before
- * those settings were introduced still have all interactive features enabled.
- */
-function mergeGuestSettings(
-  prev: SocialGallerySettings,
-  incoming: SocialGallerySettings
-): SocialGallerySettings {
+const DEFAULT_SETTINGS: SocialGallerySettings = {
+  enabled: true,
+  allowLikes: true,
+  allowComments: true,
+  uploadsActive: true,
+  chatEnabled: true,
+  showSongRequests: true,
+  showDedications: true,
+  showPolls: true,
+  requireApproval: false,
+  accentColor: '#c81e2a',
+  backgroundColor: '#f0f2f5',
+};
+
+function mergeSettings(settings?: SocialGallerySettings): SocialGallerySettings {
   return {
-    ...prev,
-    ...incoming,
-    allowLikes: incoming.allowLikes ?? prev.allowLikes ?? true,
-    allowComments: incoming.allowComments ?? prev.allowComments ?? true,
-    uploadsActive: incoming.uploadsActive ?? prev.uploadsActive ?? true,
-    chatEnabled: incoming.chatEnabled ?? prev.chatEnabled ?? true,
-    showSongRequests: incoming.showSongRequests ?? prev.showSongRequests ?? true,
-    showDedications: incoming.showDedications ?? prev.showDedications ?? true,
-    requireApproval: incoming.requireApproval ?? prev.requireApproval ?? false,
+    ...DEFAULT_SETTINGS,
+    ...settings,
+    allowLikes: settings?.allowLikes ?? true,
+    allowComments: settings?.allowComments ?? true,
+    uploadsActive: settings?.uploadsActive ?? true,
+    chatEnabled: settings?.chatEnabled ?? true,
+    showSongRequests: settings?.showSongRequests ?? true,
+    showDedications: settings?.showDedications ?? true,
+    showPolls: settings?.showPolls ?? true,
   };
 }
 
-function isVideoPost(post: SocialGalleryPost) {
+function isVideo(post: SocialGalleryPost) {
   return post.mediaType === 'video' || /\.(mp4|webm|ogg|mov)(\?|$)/i.test(post.imageUrl);
 }
 
-function getPostModerationStatus(post: SocialGalleryPost) {
-  return post.moderationStatus ?? 'approved';
+function initials(name: string) {
+  return name.trim().split(/\s+/).slice(0, 2).map((part) => part[0]?.toUpperCase()).join('') || 'I';
 }
 
-function isPostVisibleForAudience(post: SocialGalleryPost) {
-  return getPostModerationStatus(post) === 'approved';
-}
-
-/** Familiar, touchable shortcut used on the guest home screen. */
-const GuestFeatureButton: React.FC<{
-  icon: React.ReactNode;
-  label: string;
-  sublabel?: string;
-  color: string;
-  onClick: () => void;
-  primary?: boolean;
-  wide?: boolean;
-  pulse?: boolean;
-}> = ({ icon, label, sublabel, color, onClick, primary, wide, pulse }) => (
-  <motion.button
-    whileTap={{ scale: 0.94 }}
-    whileHover={{ y: -2, scale: 1.02 }}
-    onClick={onClick}
-    className={cn(
-      'relative flex min-h-[100px] flex-col items-center justify-center gap-2 rounded-2xl border p-4 text-center shadow-sm transition-all focus:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 select-none overflow-hidden',
-      wide ? 'col-span-2' : '',
-      primary
-        ? 'border-transparent text-white shadow-md'
-        : 'border-slate-200/60 bg-white/70 backdrop-blur-md text-slate-700 hover:bg-white/90 hover:shadow-md hover:border-slate-300/80',
-    )}
-    style={primary ? { background: `linear-gradient(135deg, ${color}, ${color}dd)` } : { '--tw-ring-color': color } as React.CSSProperties}
-  >
-    {pulse && (
-      <span className="absolute top-3 right-3 flex h-2.5 w-2.5">
-        <span
-          className="animate-ping absolute inline-flex h-full w-full rounded-full opacity-75"
-          style={{ backgroundColor: primary ? 'rgba(255,255,255,0.8)' : color }}
-        />
-        <span
-          className="relative inline-flex rounded-full h-2.5 w-2.5"
-          style={{ backgroundColor: primary ? 'white' : color }}
-        />
-      </span>
-    )}
-    <div style={!primary ? { color } : {}}>{icon}</div>
-    <div>
-      <p className="font-black text-sm tracking-tight leading-tight">{label}</p>
-      {sublabel && (
-        <p className={cn('text-[11px] mt-1 font-medium leading-tight', primary ? 'text-white/80' : 'text-slate-500')}>
-          {sublabel}
-        </p>
-      )}
-    </div>
-  </motion.button>
-);
-const DedicationCard: React.FC<{
-  dedication: Dedication;
-  accentColor: string;
-}> = ({ dedication, accentColor }) => {
-  return (
-    <Card className="rounded-3xl border border-slate-100 bg-white p-5 shadow-sm space-y-3">
-      <div className="flex items-center justify-between gap-2">
-        <div className="flex items-center gap-2">
-          <div className="h-8 w-8 rounded-full flex items-center justify-center text-xs font-bold text-white shrink-0" style={{ backgroundColor: accentColor }}>
-            {(dedication.authorName || 'I').charAt(0).toUpperCase()}
-          </div>
-          <div>
-            <p className="text-xs font-black text-slate-800">{dedication.authorName || 'Invitado'}</p>
-            <p className="text-[10px] text-slate-400">dejó un mensaje</p>
-          </div>
-        </div>
-        <span className="text-xs">💌</span>
-      </div>
-      <div className={cn(
-        "rounded-2xl p-4 italic text-slate-700 leading-relaxed font-semibold text-sm",
-        dedication.highlighted ? "bg-amber-50/70 border border-amber-100" : "bg-indigo-50/30 border border-indigo-100/10"
-      )}>
-        &ldquo;{dedication.message}&rdquo;
-      </div>
-      {dedication.audioUrl && (
-        <div className="pt-1 flex flex-col gap-1">
-          <p className="text-[10px] font-bold text-indigo-950 flex items-center gap-1">🎙️ Nota de voz:</p>
-          <audio src={dedication.audioUrl} controls className="h-8 w-full max-w-[240px]" />
-        </div>
-      )}
-    </Card>
-  );
-};
-
-const PostCard: React.FC<{
+function FeedPost({
+  post,
+  authorName,
+  accentColor,
+  allowLikes,
+  allowComments,
+  liked,
+  onLike,
+  onComment,
+}: {
   post: SocialGalleryPost;
-  onLike: (postId: string) => void;
-  onComment: (postId: string, text: string) => Promise<void>;
-  onDelete?: (postId: string) => void;
-  onModerate?: (postId: string, status: 'pending' | 'approved' | 'hidden') => Promise<void>;
-  onHighlightComment?: (postId: string, commentId: string, highlighted: boolean) => Promise<void>;
-  isAdminView: boolean;
   authorName: string;
   accentColor: string;
   allowLikes: boolean;
   allowComments: boolean;
-  hasLiked: boolean;
-}> = ({ post, onLike, onComment, onDelete, onModerate, onHighlightComment, isAdminView, authorName, accentColor, allowLikes, allowComments, hasLiked }) => {
-  const [commentText, setCommentText] = useState('');
-  const [floatingHearts, setFloatingHearts] = useState<{ id: number; x: number }[]>([]);
-  const heartIdRef = useRef(0);
-  const moderationStatus = getPostModerationStatus(post);
-  const moderationLabel = moderationStatus === 'pending' ? 'Pendiente' : moderationStatus === 'hidden' ? 'Oculto' : 'Aprobado';
-
-  const handleCommentSubmit = async (e: FormEvent) => {
-    e.preventDefault();
-    if (!commentText.trim()) return;
-    await onComment(post.id, commentText);
-    setCommentText('');
-  };
-
-  const handleLikeClick = () => {
-    // Guard here (in addition to button disabled prop) to prevent programmatic double-likes
-    // e.g., when the PostCard is reused in an admin context.
-    if (!allowLikes || hasLiked) return;
-    // Spawn 3-5 floating hearts
-    const count = 3 + Math.floor(Math.random() * 3);
-    const newHearts = Array.from({ length: count }, () => ({
-      id: ++heartIdRef.current,
-      x: -20 + Math.random() * 40,
-    }));
-    setFloatingHearts(prev => [...prev, ...newHearts]);
-    setTimeout(() => {
-      setFloatingHearts(prev => prev.filter(h => !newHearts.some(nh => nh.id === h.id)));
-    }, 1200);
-    onLike(post.id);
-  };
-
-  const formattedTimestamp = formatDistanceToNow(new Date(post.timestamp), {
-    addSuffix: true,
-    locale: es,
-  });
-  const postText = post.caption || post.dedication || post.momentTag;
-
-  return (
-    <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, scale: 0.95 }} transition={{ duration: 0.3 }}>
-        <Card className="overflow-hidden rounded-2xl border border-white/40 bg-white/70 backdrop-blur-xl shadow-[0_8px_30px_rgb(0,0,0,0.04)]">
-        <CardHeader className="flex flex-row items-center justify-between gap-3 p-4">
-            <div className="flex items-center gap-3">
-            <div className="w-10 h-10 rounded-full flex items-center justify-center text-white font-bold text-lg shadow-inner" style={{ backgroundColor: accentColor }}>
-                {post.authorName.charAt(0).toUpperCase()}
-            </div>
-            <div>
-                <p className="font-bold text-sm text-slate-800">{post.authorName}</p>
-                <p className="text-xs text-muted-foreground">{formattedTimestamp}</p>
-            </div>
-            </div>
-            {isAdminView && (
-              <div className="flex flex-wrap items-center justify-end gap-2">
-                <span className={cn(
-                  'rounded-full px-2.5 py-1 text-[10px] font-black uppercase tracking-wider',
-                  moderationStatus === 'approved' && 'bg-emerald-50 text-emerald-700',
-                  moderationStatus === 'pending' && 'bg-amber-50 text-amber-700',
-                  moderationStatus === 'hidden' && 'bg-slate-100 text-slate-500'
-                )}>
-                  {moderationLabel}
-                </span>
-                {onModerate && moderationStatus !== 'approved' && (
-                  <Button type="button" variant="outline" size="sm" className="h-8 rounded-full px-3 text-xs font-bold text-emerald-700" onClick={() => onModerate(post.id, 'approved')}>
-                    Aprobar
-                  </Button>
-                )}
-                {onModerate && moderationStatus !== 'hidden' && (
-                  <Button type="button" variant="outline" size="sm" className="h-8 rounded-full px-3 text-xs font-bold text-slate-600" onClick={() => onModerate(post.id, 'hidden')}>
-                    Ocultar
-                  </Button>
-                )}
-              </div>
-            )}
-            {isAdminView && onDelete && (
-            <AlertDialog>
-                <AlertDialogTrigger asChild>
-                <Button variant="ghost" size="icon" className="h-8 w-8 text-slate-400 hover:text-destructive"><Trash2 className="w-4 h-4"/></Button>
-                </AlertDialogTrigger>
-                <AlertDialogContent>
-                    <AlertDialogHeader><AlertDialogTitle>Confirmar Eliminación</AlertDialogTitle><AlertDialogDescription>Se eliminará esta foto. Esta acción no se puede deshacer.</AlertDialogDescription></AlertDialogHeader>
-                    <AlertDialogFooter><AlertDialogCancel>Cancelar</AlertDialogCancel><AlertDialogAction onClick={() => onDelete(post.id)} className="bg-destructive hover:bg-destructive/90">Eliminar</AlertDialogAction></AlertDialogFooter>
-                </AlertDialogContent>
-            </AlertDialog>
-            )}
-        </CardHeader>
-        <CardContent className="p-0 flex-grow">
-            {/* 4:3 container with object-contain so the full photo is always visible */}
-            <div className="relative w-full bg-slate-100" style={{ aspectRatio: '4 / 3' }}>
-              {isVideoPost(post) ? (
-                <video
-                  src={post.imageUrl}
-                  className="h-full w-full object-contain"
-                  controls
-                  playsInline
-                  preload="metadata"
-                />
-              ) : (
-                <NextImage
-                  src={post.imageUrl}
-                  alt={`Foto de ${post.authorName}`}
-                  fill
-                  className="object-contain"
-                  unoptimized
-                />
-              )}
-            </div>
-        </CardContent>
-        {postText && (
-          <div className="px-4 pt-4 text-sm leading-relaxed text-slate-700">
-            <span className="font-black text-slate-900">{post.authorName}</span>{' '}
-            {postText}
-          </div>
-        )}
-        <CardFooter className="flex flex-col items-start gap-3 p-4">
-            <div className="w-full border-b border-slate-100 pb-3">
-                <div className="grid grid-cols-2 gap-2">
-                    <div className="relative">
-                      <button
-                        onClick={handleLikeClick}
-                        disabled={!allowLikes || hasLiked}
-                        className="group/like flex h-10 w-full items-center justify-center gap-2 rounded-md text-sm font-semibold text-slate-600 outline-none transition hover:bg-slate-100 disabled:cursor-not-allowed"
-                        title={hasLiked ? 'Ya le diste Me Gusta' : 'Me Gusta'}
-                      >
-                          <Heart className={`h-5 w-5 transition-all ${(post.likes > 0 || hasLiked) ? 'fill-current text-red-500' : 'text-slate-500 group-hover/like:text-red-400'}`} />
-                          <span>Me gusta{post.likes > 0 ? ` · ${post.likes}` : ''}</span>
-                      </button>
-                      {/* Floating hearts */}
-                      <AnimatePresence>
-                        {floatingHearts.map(heart => (
-                          <motion.div
-                            key={heart.id}
-                            className="absolute pointer-events-none text-red-500 text-lg select-none"
-                            style={{ bottom: '100%', left: `calc(50% + ${heart.x}px)`, translateX: '-50%' }}
-                            initial={{ opacity: 1, y: 0, scale: 0.8 }}
-                            animate={{ opacity: 0, y: -50, scale: 1.4 }}
-                            exit={{ opacity: 0 }}
-                            transition={{ duration: 1.0, ease: 'easeOut' }}
-                          >
-                            ❤️
-                          </motion.div>
-                        ))}
-                      </AnimatePresence>
-                    </div>
-                    <div className="flex h-10 items-center justify-center gap-2 rounded-md text-sm font-semibold text-slate-600">
-                        <MessageCircle className="h-5 w-5" />
-                        <span>Comentar{post.comments.length > 0 ? ` · ${post.comments.length}` : ''}</span>
-                    </div>
-                </div>
-            </div>
-            {allowComments && (
-            <div className="w-full pt-3 border-t border-slate-100 space-y-3">
-                <div className="max-h-32 overflow-y-auto space-y-2 pr-2 text-sm scrollbar-hide">
-                    {post.comments.length > 0 ? post.comments.map(c => (
-                        <div key={c.id} className={cn("flex items-start gap-1.5 rounded-xl border p-2.5", c.highlighted ? "bg-amber-50 border-amber-300" : "bg-slate-50 border-slate-100/50")}>
-                            <div className="flex-1 min-w-0">
-                                <span className="font-black text-slate-700 text-xs mr-1">{c.authorName}:</span>
-                                <span className="text-slate-600 leading-relaxed">{c.text}</span>
-                            </div>
-                            {isAdminView && onHighlightComment && (
-                                <button
-                                    onClick={() => onHighlightComment(post.id, c.id, !c.highlighted)}
-                                    className={cn("flex-shrink-0 p-1 rounded-lg transition-colors", c.highlighted ? "text-amber-500 hover:text-amber-600" : "text-slate-300 hover:text-amber-400")}
-                                    title={c.highlighted ? 'Quitar destacado' : 'Destacar comentario'}
-                                >
-                                    <Star className="w-3.5 h-3.5" fill={c.highlighted ? 'currentColor' : 'none'} />
-                                </button>
-                            )}
-                        </div>
-                    )) : <p className="text-xs text-muted-foreground text-center py-2 italic">Sin comentarios aún...</p>}
-                </div>
-                <form onSubmit={handleCommentSubmit} className="flex gap-2 items-center">
-                    <Input value={commentText} onChange={e => setCommentText(e.target.value)} placeholder="Escribe un comentario... 💬❤️😊" className="h-10 text-xs rounded-xl bg-slate-50 border-none focus-visible:ring-1" style={{ '--tw-ring-color': accentColor } as any}/>
-                    <Button type="submit" size="icon" className="h-10 w-10 flex-shrink-0 rounded-xl shadow-md transition-transform active:scale-95" disabled={!commentText.trim()} style={{ backgroundColor: accentColor }}>
-                        <Send className="w-4 h-4"/>
-                    </Button>
-                </form>
-            </div>
-            )}
-        </CardFooter>
-        </Card>
-    </motion.div>
-  );
-};
-
-
-const AdCard: React.FC<{
-  ad: {
-    title: string;
-    description: string;
-    imageUrl: string;
-    ctaText: string;
-    ctaUrl: string;
-  };
-  accentColor: string;
-}> = ({ ad, accentColor }) => {
-  return (
-    <motion.div
-      initial={{ opacity: 0, y: 20 }}
-      animate={{ opacity: 1, y: 0 }}
-      transition={{ duration: 0.5 }}
-    >
-      <Card className="overflow-hidden rounded-3xl border border-rose-100 bg-gradient-to-b from-white to-rose-50/20 shadow-md">
-        <CardHeader className="flex flex-row items-center justify-between gap-3 p-4">
-          <div className="flex items-center gap-3">
-            <div className="w-10 h-10 rounded-full flex items-center justify-center text-white font-bold text-sm bg-gradient-to-tr from-rose-500 to-rose-600 shadow-inner">
-              AK
-            </div>
-            <div>
-              <p className="font-black text-sm text-slate-800 flex items-center gap-1.5">
-                AK Producciones
-                <span className="bg-slate-100 text-slate-500 font-bold text-[9px] px-1.5 py-0.5 rounded uppercase tracking-wider scale-90">
-                  Patrocinado
-                </span>
-              </p>
-              <p className="text-[10px] text-muted-foreground">Recomendación para tu evento</p>
-            </div>
-          </div>
-        </CardHeader>
-        <CardContent className="p-0">
-          <div className="relative w-full bg-slate-100" style={{ aspectRatio: '16 / 10' }}>
-            <NextImage
-              src={ad.imageUrl}
-              alt={ad.title}
-              fill
-              className="object-cover"
-              unoptimized
-            />
-          </div>
-          <div className="p-5 space-y-3">
-            <h3 className="font-black text-base text-slate-900 tracking-tight leading-tight">
-              {ad.title}
-            </h3>
-            <p className="text-xs text-slate-600 leading-relaxed">
-              {ad.description}
-            </p>
-          </div>
-        </CardContent>
-        <CardFooter className="p-4 pt-0">
-          <a href={ad.ctaUrl} className="w-full">
-            <Button
-              className="w-full h-11 rounded-xl text-xs font-bold text-white shadow-md transition-transform active:scale-95"
-              style={{ backgroundColor: accentColor }}
-            >
-              {ad.ctaText}
-            </Button>
-          </a>
-        </CardFooter>
-      </Card>
-    </motion.div>
-  );
-};
-
-function SocialCountdownScreen({
-  fiesta,
-  accentColor,
-  coverUrl,
-  title
-}: {
-  fiesta: PublicSocialEvent;
-  accentColor: string;
-  coverUrl?: string;
-  title?: string;
+  liked: boolean;
+  onLike: () => void;
+  onComment: (text: string) => Promise<void>;
 }) {
-  const eventDate = useMemo(() => new Date(fiesta.configuracion.fechaEvento || ''), [fiesta.configuracion.fechaEvento]);
-  const [timeLeft, setTimeLeft] = useState({ days: 0, hours: 0, minutes: 0, seconds: 0 });
+  const [comment, setComment] = useState('');
+  const [sending, setSending] = useState(false);
+  const caption = post.caption || post.dedication || post.momentTag;
 
-  useEffect(() => {
-    const updateCountdown = () => {
-      const now = new Date();
-      const diff = eventDate.getTime() - now.getTime();
-      if (diff <= 0) {
-        setTimeLeft({ days: 0, hours: 0, minutes: 0, seconds: 0 });
-        return;
-      }
-      const days = Math.floor(diff / (1000 * 60 * 60 * 24));
-      const hours = Math.floor((diff % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
-      const minutes = Math.floor((diff % (1000 * 60 * 60)) / (1000 * 60));
-      const seconds = Math.floor((diff % (1000 * 60)) / 1000);
-      setTimeLeft({ days, hours, minutes, seconds });
-    };
-
-    updateCountdown();
-    const interval = setInterval(updateCountdown, 1000);
-    return () => clearInterval(interval);
-  }, [eventDate]);
-
-  const targetDateFormatted = eventDate.toLocaleDateString('es-ES', {
-    day: 'numeric',
-    month: 'long',
-    year: 'numeric'
-  });
+  const submitComment = async (event: FormEvent) => {
+    event.preventDefault();
+    const value = comment.trim();
+    if (!value || sending) return;
+    setSending(true);
+    await onComment(value);
+    setComment('');
+    setSending(false);
+  };
 
   return (
-    <div className="min-h-screen relative flex flex-col items-center justify-center p-6 overflow-hidden text-white">
-      {coverUrl ? (
-        <div className="absolute inset-0 z-0">
-          <NextImage src={coverUrl} alt="Portada" fill className="object-cover scale-110 blur-2xl opacity-40" />
-          <div className="absolute inset-0 bg-gradient-to-b from-slate-950/80 via-slate-900/90 to-slate-950" />
+    <article className="overflow-hidden border-y border-slate-200 bg-white sm:rounded-md sm:border">
+      <header className="flex items-center gap-3 px-4 py-3">
+        <div className="grid h-10 w-10 shrink-0 place-items-center rounded-full text-sm font-black text-white" style={{ backgroundColor: accentColor }}>
+          {initials(post.authorName)}
         </div>
-      ) : (
-        <div className="absolute inset-0 z-0 bg-gradient-to-br from-slate-950 via-slate-900 to-slate-950" />
-      )}
-
-      <motion.div
-        initial={{ opacity: 0, y: 30 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ duration: 0.8 }}
-        className="z-10 w-full max-w-md text-center space-y-8 bg-slate-900/50 backdrop-blur-xl p-8 rounded-[2.5rem] border border-white/10 shadow-2xl"
-      >
-        <div className="space-y-3">
-          <div className="inline-flex p-4 bg-white/5 rounded-3xl border border-white/10 text-rose-500 animate-bounce mb-2">
-            <Heart className="w-8 h-8 fill-current" />
-          </div>
-          <h1 className="text-3xl font-black tracking-tight leading-tight">
-            {title || fiesta.configuracion.nombreEvento}
-          </h1>
-          <p className="text-sm text-slate-400 font-medium">Red Social Privada del Evento</p>
-        </div>
-
-        <div className="space-y-2">
-          <p className="text-xs uppercase tracking-widest font-black text-slate-500">La red social se activará en</p>
-
-          <div className="grid grid-cols-4 gap-3 pt-2">
-            {[
-              { label: 'Días', val: timeLeft.days },
-              { label: 'Horas', val: timeLeft.hours },
-              { label: 'Minutos', val: timeLeft.minutes },
-              { label: 'Segundos', val: timeLeft.seconds },
-            ].map((unit, idx) => (
-              <div key={idx} className="bg-white/5 border border-white/5 rounded-2xl p-3 flex flex-col items-center">
-                <span className="text-2xl font-black font-mono tracking-tight" style={{ color: accentColor }}>
-                  {String(unit.val).padStart(2, '0')}
-                </span>
-                <span className="text-[9px] uppercase tracking-wider font-bold text-slate-400 mt-1">{unit.label}</span>
-              </div>
-            ))}
-          </div>
-        </div>
-
-        <div className="pt-4 border-t border-white/5 space-y-2">
-          <p className="text-xs text-slate-400 leading-relaxed">
-            Faltan más de 30 días para la gran fiesta. Se habilitará la red social automáticamente 30 días antes del evento.
-          </p>
-          <p className="text-sm font-bold" style={{ color: accentColor }}>
-            Fecha del Evento: {targetDateFormatted}
+        <div className="min-w-0">
+          <p className="truncate text-sm font-bold text-slate-900">{post.authorName}</p>
+          <p className="text-xs text-slate-500">
+            {formatDistanceToNow(new Date(post.timestamp), { addSuffix: true, locale: es })}
           </p>
         </div>
-      </motion.div>
-    </div>
+      </header>
+
+      {caption && <p className="px-4 pb-3 text-sm leading-relaxed text-slate-800">{caption}</p>}
+
+      <div className="relative bg-black">
+        {isVideo(post) ? (
+          <video src={post.imageUrl} controls playsInline preload="metadata" className="max-h-[680px] w-full object-contain" />
+        ) : (
+          // eslint-disable-next-line @next/next/no-img-element -- Guest media can come from Firebase signed URLs.
+          <img src={post.imageUrl} alt={`Momento compartido por ${post.authorName}`} loading="lazy" className="max-h-[680px] w-full object-contain" />
+        )}
+      </div>
+
+      <div className="px-4 py-3">
+        <div className="flex min-h-7 items-center justify-between border-b border-slate-100 pb-2 text-xs text-slate-500">
+          <span>{post.likes || 0} Me gusta</span>
+          <span>{post.comments?.length || 0} comentarios</span>
+        </div>
+        <div className="grid grid-cols-2 border-b border-slate-100 py-1">
+          <button
+            type="button"
+            onClick={onLike}
+            disabled={!allowLikes || liked}
+            className="flex min-h-11 items-center justify-center gap-2 rounded-md text-sm font-bold transition hover:bg-slate-100 disabled:cursor-default"
+            style={liked ? { color: accentColor } : { color: '#475569' }}
+          >
+            <Heart className={`h-5 w-5 ${liked ? 'fill-current' : ''}`} />
+            {liked ? 'Te gusta' : 'Me gusta'}
+          </button>
+          <button
+            type="button"
+            onClick={() => document.getElementById(`comment-${post.id}`)?.focus()}
+            disabled={!allowComments}
+            className="flex min-h-11 items-center justify-center gap-2 rounded-md text-sm font-bold text-slate-600 transition hover:bg-slate-100 disabled:opacity-50"
+          >
+            <MessageCircle className="h-5 w-5" /> Comentar
+          </button>
+        </div>
+
+        {(post.comments || []).slice(-4).map((item) => (
+          <div key={item.id} className="mt-3 flex items-start gap-2">
+            <div className="grid h-8 w-8 shrink-0 place-items-center rounded-full bg-slate-200 text-[10px] font-black text-slate-700">
+              {initials(item.authorName)}
+            </div>
+            <div className="min-w-0 rounded-md bg-slate-100 px-3 py-2 text-sm">
+              <p className="font-bold text-slate-900">{item.authorName}</p>
+              <p className="break-words text-slate-700">{item.text}</p>
+            </div>
+          </div>
+        ))}
+
+        {allowComments && (
+          <form onSubmit={submitComment} className="mt-3 flex items-center gap-2">
+            <div className="grid h-8 w-8 shrink-0 place-items-center rounded-full text-[10px] font-black text-white" style={{ backgroundColor: accentColor }}>
+              {initials(authorName)}
+            </div>
+            <div className="flex min-w-0 flex-1 items-center rounded-md bg-slate-100 px-3">
+              <input
+                id={`comment-${post.id}`}
+                value={comment}
+                onChange={(event) => setComment(event.target.value)}
+                placeholder="Escribí un comentario"
+                maxLength={500}
+                className="min-h-10 min-w-0 flex-1 bg-transparent text-sm text-slate-900 outline-none placeholder:text-slate-500"
+              />
+              <button type="submit" disabled={!comment.trim() || sending} className="grid h-9 w-9 place-items-center text-slate-500 disabled:opacity-40" aria-label="Enviar comentario">
+                {sending ? <Loader2 className="h-4 w-4 animate-spin" /> : <Send className="h-4 w-4" />}
+              </button>
+            </div>
+          </form>
+        )}
+      </div>
+    </article>
   );
 }
 
-
-export default function SocialGalleryPage() {
+export default function SocialEventPage() {
   const params = useParams<{ fiestaId: string }>();
+  const fiestaId = params.fiestaId;
   const { toast } = useToast();
-
-  const [fiesta, setFiesta] = useState<PublicSocialEvent | null>(null);
+  const [event, setEvent] = useState<PublicSocialEvent | null>(null);
   const [posts, setPosts] = useState<SocialGalleryPost[]>([]);
-  const [chatMessages, setChatMessages] = useState<ChatMessage[]>([]);
-  const [songRequests, setSongRequests] = useState<SongRequest[]>([]);
+  const [songs, setSongs] = useState<SongRequest[]>([]);
   const [dedications, setDedications] = useState<Dedication[]>([]);
-  const [newChatMessage, setNewChatMessage] = useState('');
-  const [newSongRequest, setNewSongRequest] = useState('');
-  const [newDedication, setNewDedication] = useState('');
-
-  // Poll state
-  const [activePoll, setActivePoll] = useState<SocialPoll | null>(null);
-  const [pollQuestion, setPollQuestion] = useState('');
-  const [pollOptions, setPollOptions] = useState<string[]>(['', '']);
-  const [isCreatingPoll, setIsCreatingPoll] = useState(false);
-  const [hasVoted, setHasVoted] = useState(false);
-  const [votedPollId, setVotedPollId] = useState<string | null>(null);
-
-  // Restore hasVoted/votedPollId from localStorage on mount
-  useEffect(() => {
-    if (typeof window === 'undefined') return;
-    const stored = localStorage.getItem(`votedPoll_${params.fiestaId}`);
-    if (stored) {
-      setHasVoted(true);
-      setVotedPollId(stored);
-    }
-  }, [params.fiestaId]);
-
-  // Track which posts this guest has already liked (persisted in sessionStorage)
-  const [likedPosts, setLikedPosts] = useState<Set<string>>(new Set());
-  useEffect(() => {
-    if (typeof window === 'undefined') return;
-    const raw = sessionStorage.getItem(`likedPosts_${params.fiestaId}`);
-    if (raw) {
-      // Silently ignore parse errors — corrupted sessionStorage data (e.g., invalid JSON)
-      // should not break the UI; the guest simply starts with an empty liked set.
-      try { setLikedPosts(new Set(JSON.parse(raw))); } catch (_) { /* ignore invalid JSON */ }
-    }
-  }, [params.fiestaId]);
-
+  const [messages, setMessages] = useState<ChatMessage[]>([]);
+  const [poll, setPoll] = useState<SocialPoll | null>(null);
+  const [section, setSection] = useState<SocialSection>('feed');
+  const [loading, setLoading] = useState(true);
+  const [refreshing, setRefreshing] = useState(false);
   const [authorName, setAuthorName] = useState('');
-  const [tempAuthorName, setTempAuthorName] = useState('');
-  const [isNameModalOpen, setIsNameModalOpen] = useState(false);
-
-  const [isLoading, setIsLoading] = useState(true);
-  const [isUploading, setIsUploading] = useState(false);
-  const [isSendingChat, setIsSendingChat] = useState(false);
-  const [isSendingSong, setIsSendingSong] = useState(false);
-  const [isSendingDedication, setIsSendingDedication] = useState(false);
-
-  // This public route must remain a guest experience even when the browser has
-  // an authenticated organizer session. Admin tools live in the internal panel.
-  const isAdminView = false;
-  const [isClearing, setIsClearing] = useState(false);
-  const [isDownloadingAndClearing, setIsDownloadingAndClearing] = useState(false);
-  const [isSavingSettings, setIsSavingSettings] = useState(false);
-
-  const [companyLogoUrl, setCompanyLogoUrl] = useState<string | null>(null);
-  const [whatsappNumber, setWhatsappNumber] = useState<string | null>(null);
-  const [instagramUrl, setInstagramUrl] = useState<string | null>(null);
-  const [facebookUrl, setFacebookUrl] = useState<string | null>(null);
-  /** Platform keys the guest has already clicked "follow" on (stored in sessionStorage) */
-  const [followedPlatforms, setFollowedPlatforms] = useState<Set<string>>(new Set());
-
-  // Custom Settings State (for Admin)
-  const [localSettings, setLocalSettings] = useState<SocialGallerySettings>({
-      enabled: true,
-      allowLikes: true,
-      allowComments: true,
-      uploadsActive: true,
-      backgroundColor: '#f1f5f9',
-      accentColor: '#3b82f6',
-      chatEnabled: true,
-      showSongRequests: true,
-      showDedications: true,
-      requireApproval: false,
-      title: '',
-      subtitle: '',
-      maxPhotos: 200
-  });
-
-
-  // Dialog state
-  const [isUploadDialogOpen, setIsUploadDialogOpen] = useState(false);
-  const [fileToUpload, setFileToUpload] = useState<File | null>(null);
+  const [nameDraft, setNameDraft] = useState('');
+  const [nameDialogOpen, setNameDialogOpen] = useState(false);
+  const [uploadOpen, setUploadOpen] = useState(false);
+  const [uploadFile, setUploadFile] = useState<File | null>(null);
   const [uploadPreview, setUploadPreview] = useState<string | null>(null);
-  const [isSettingsDialogOpen, setIsSettingsDialogOpen] = useState(false);
-  const [isFlyerDialogOpen, setIsFlyerDialogOpen] = useState(false);
-
-  // Projection mode state
-  const [projectionMode, setProjectionMode] = useState(false);
-  const [currentSlide, setCurrentSlide] = useState(0);
-  const chatEndRef = useRef<HTMLDivElement>(null);
-  const [guestSection, setGuestSection] = useState<'photos' | 'song' | 'dedication' | 'chat' | 'poll' | 'game' | null>(null);
-
-  // Audio recording state
-  const mediaRecorderRef = useRef<MediaRecorder | null>(null);
+  const [uploadCaption, setUploadCaption] = useState('');
+  const [uploading, setUploading] = useState(false);
+  const [likedPosts, setLikedPosts] = useState<Set<string>>(new Set());
+  const [songDraft, setSongDraft] = useState('');
+  const [dedicationDraft, setDedicationDraft] = useState('');
+  const [chatDraft, setChatDraft] = useState('');
+  const [submitting, setSubmitting] = useState(false);
+  const [votedPollId, setVotedPollId] = useState<string | null>(null);
+  const [votedGameId, setVotedGameId] = useState<string | null>(null);
+  const recorderRef = useRef<MediaRecorder | null>(null);
   const audioChunksRef = useRef<Blob[]>([]);
   const recordingTimerRef = useRef<ReturnType<typeof setInterval> | null>(null);
-  const discardRecordingRef = useRef(false);
-  const [isRecording, setIsRecording] = useState(false);
+  const pollingRef = useRef(false);
+  const [recording, setRecording] = useState(false);
   const [recordingSeconds, setRecordingSeconds] = useState(0);
-  const [audioUrl, setAudioUrl] = useState<string | null>(null);
   const [audioBlob, setAudioBlob] = useState<Blob | null>(null);
-  const [isUploadingAudio, setIsUploadingAudio] = useState(false);
+  const [audioPreview, setAudioPreview] = useState<string | null>(null);
+
+  const settings = useMemo(() => mergeSettings(event?.socialGallerySettings), [event?.socialGallerySettings]);
+  const accentColor = settings.accentColor || '#c81e2a';
+  const eventName = settings.title || event?.configuracion.nombreEvento || 'Red social del evento';
+  const activeGame = settings.activeGame;
+
+  const loadCore = useCallback(async (showLoader = false) => {
+    if (showLoader) setRefreshing(true);
+    const [eventResult, postsResult, pollResult] = await Promise.allSettled([
+      getPublicSocialEvent(fiestaId),
+      getPublicSocialPosts(fiestaId),
+      getActivePoll(fiestaId),
+    ]);
+    if (eventResult.status === 'fulfilled') setEvent(eventResult.value);
+    if (postsResult.status === 'fulfilled') setPosts(postsResult.value);
+    if (pollResult.status === 'fulfilled') setPoll(pollResult.value);
+    if (showLoader) setRefreshing(false);
+  }, [fiestaId]);
+
+  const loadSection = useCallback(async (target: SocialSection) => {
+    if (target === 'songs') setSongs(await getSongRequests(fiestaId));
+    if (target === 'dedications') setDedications(await getPublicDedications(fiestaId));
+    if (target === 'chat') setMessages(await getChatMessages(fiestaId));
+    if (target === 'poll') setPoll(await getActivePoll(fiestaId));
+  }, [fiestaId]);
 
   useEffect(() => {
-    return () => {
-      if (recordingTimerRef.current) {
-        clearInterval(recordingTimerRef.current);
-      }
-      const recorder = mediaRecorderRef.current;
-      if (recorder?.state === 'recording') {
-        discardRecordingRef.current = true;
-        recorder.stop();
-      }
-    };
-  }, []);
-
-
-  const fetchData = useCallback(async (showLoadingIndicator = true, includeBrandData = showLoadingIndicator) => {
-    if(showLoadingIndicator) setIsLoading(true);
+    const savedName = sessionStorage.getItem(`socialWallAuthor_${fiestaId}`) || '';
+    setAuthorName(savedName);
+    setNameDraft(savedName);
+    setNameDialogOpen(!savedName);
     try {
-      const results = await Promise.allSettled([
-          getPublicSocialPosts(params.fiestaId),
-          getPublicSocialEvent(
-            params.fiestaId,
-            typeof window !== 'undefined'
-              ? sessionStorage.getItem(`portal_auth_${params.fiestaId}`) || undefined
-              : undefined,
-          ),
-          getChatMessages(params.fiestaId),
-          includeBrandData ? getInvoiceTemplateSettings() : Promise.resolve(null),
-          includeBrandData ? getSocialConnections() : Promise.resolve([]),
-          getSongRequests(params.fiestaId),
-          getPublicDedications(params.fiestaId),
-          getActivePoll(params.fiestaId),
-      ]);
-
-      const fetchedPosts = results[0].status === 'fulfilled' ? results[0].value : [];
-      const fiestaData = results[1].status === 'fulfilled' ? results[1].value : null;
-      const fetchedChat = results[2].status === 'fulfilled' ? (results[2].value || []) : [];
-      const settingsData = results[3].status === 'fulfilled' ? results[3].value : null;
-      const socialConnections = results[4].status === 'fulfilled' ? (results[4].value || []) : [];
-      const fetchedSongRequests = results[5].status === 'fulfilled' ? (results[5].value || []) : [];
-      const fetchedDedications = results[6].status === 'fulfilled' ? (results[6].value || []) : [];
-      const poll = results[7].status === 'fulfilled' ? results[7].value : null;
-
-      setPosts(fetchedPosts || []);
-      setFiesta(fiestaData);
-      setHasBypass(fiestaData?.clientAccessGranted === true);
-      if (fiestaData?.socialGallerySettings) {
-          setLocalSettings(prev => mergeGuestSettings(prev, fiestaData.socialGallerySettings!));
-      }
-      setChatMessages(fetchedChat);
-      setSongRequests(fetchedSongRequests);
-      setDedications(fetchedDedications);
-      setActivePoll(poll);
-      if (includeBrandData) {
-        setCompanyLogoUrl(settingsData?.logoUrl ?? null);
-
-        const socialList = Array.isArray(socialConnections) ? socialConnections : [];
-        setWhatsappNumber(socialList.find(c => c.platform === 'WhatsApp')?.phoneNumber || null);
-        const igConn = socialList.find(c => c.platform === 'Instagram');
-        const fbConn = socialList.find(c => c.platform === 'Facebook');
-        // Use brand handle if set, otherwise fall back to company social connections
-        const brandIg = fiestaData?.socialGallerySettings?.brand?.instagramHandle;
-        const brandFb = fiestaData?.socialGallerySettings?.brand?.facebookHandle;
-        setInstagramUrl(
-          brandIg
-            ? `https://instagram.com/${brandIg.replace(/^@/, '')}`
-            : igConn?.profileUrl || null
-        );
-        setFacebookUrl(
-          brandFb
-            ? `https://facebook.com/${brandFb.replace(/^@/, '')}`
-            : fbConn?.profileUrl || null
-        );
-      }
-
-    } catch (e) {
-      console.error("Error al cargar galería:", e);
-    } finally {
-      if(showLoadingIndicator) setIsLoading(false);
-    }
-  }, [params.fiestaId]);
-
-  useEffect(() => {
-    if (typeof window === 'undefined') return;
-    const savedName = sessionStorage.getItem(`socialWallAuthor_${params.fiestaId}`);
-    if (savedName) {
-      setAuthorName(savedName);
-    } else {
-      setIsNameModalOpen(true);
-    }
-
-    const followedRaw = sessionStorage.getItem(`socialFollowed_${params.fiestaId}`);
-    if (followedRaw) {
-      try { setFollowedPlatforms(new Set(JSON.parse(followedRaw))); } catch {}
-    }
-  }, [params.fiestaId]);
-
-
-  const [hasBypass, setHasBypass] = useState(false);
-
-  const fechaEvento = fiesta?.configuracion?.fechaEvento;
-  const windowInfo = isEventInActiveWindow(fechaEvento);
-  const isEventPast30Days = !windowInfo.isActive && windowInfo.phase === 'after';
-  const isEventFuture30Days = !windowInfo.isActive && windowInfo.phase === 'before';
-
-  useEffect(() => {
-    fetchData();
-    if (isEventPast30Days && !hasBypass) return;
-    const interval = setInterval(() => {
-        fetchData(false, false);
-    }, 3000);
-    return () => clearInterval(interval);
-  }, [fetchData, isEventPast30Days, hasBypass]);
-
-  const visiblePosts = useMemo(() => posts.filter(isPostVisibleForAudience), [posts]);
-  const galleryPosts = isAdminView ? posts : visiblePosts;
-  const screenPosts = visiblePosts;
-
-  const defaultAds = useMemo(() => [
-    {
-      isAd: true,
-      id: 'ad-plataforma-360',
-      title: 'Plataforma 360° Premium',
-      description: '¡Hacé que tus invitados se lleven un video espectacular en cámara lenta! Reservá la plataforma 360 de AK Producciones para tu fiesta.',
-      imageUrl: 'https://images.unsplash.com/photo-1516450360452-9312f5e86fc7?auto=format&fit=crop&w=600&q=80',
-      ctaText: 'Cotizar en mi Simulador',
-      ctaUrl: '/simulador-ak'
-    },
-    {
-      isAd: true,
-      id: 'ad-robot-led',
-      title: 'Robot LED Show',
-      description: 'Megatron y show de luces LED robotizado para hacer explotar la tanda de baile de tu evento. ¡Diversión garantizada!',
-      imageUrl: 'https://images.unsplash.com/photo-1508700115892-45ecd05ae2ad?auto=format&fit=crop&w=600&q=80',
-      ctaText: 'Ver Servicios en Simulador',
-      ctaUrl: '/simulador-ak'
-    },
-    {
-      isAd: true,
-      id: 'ad-espejo-magico',
-      title: 'Espejo Mágico de Fotos',
-      description: 'Un espejo táctil interactivo que saca fotos de cuerpo entero y las imprime al instante como souvenir premium para tus invitados.',
-      imageUrl: 'https://images.unsplash.com/photo-1541140111813-8222e9d90981?auto=format&fit=crop&w=600&q=80',
-      ctaText: 'Cotizar Souvenirs',
-      ctaUrl: '/simulador-ak'
-    },
-    {
-      isAd: true,
-      id: 'ad-pistas-led',
-      title: 'Pistas LED de Baile',
-      description: 'Pistas de baile iluminadas que cambian de color al ritmo de la música. Elevá la estética visual de tu evento al máximo.',
-      imageUrl: 'https://images.unsplash.com/photo-1470225620780-dba8ba36b745?auto=format&fit=crop&w=600&q=80',
-      ctaText: 'Diseñar mi Pista',
-      ctaUrl: '/simulador-ak'
-    }
-  ], []);
-
-  const unifiedTimeline = useMemo(() => {
-    const items: any[] = [];
-
-    // Agregar fotos de galería
-    galleryPosts.forEach((post) => {
-      items.push({ type: 'post', data: post, timestamp: post.timestamp });
-    });
-
-    // Agregar dedicatorias públicas
-    dedications.forEach((ded) => {
-      if (ded.visibility !== 'private') {
-        items.push({ type: 'dedication', data: ded, timestamp: ded.timestamp });
-      }
-    });
-
-    // Ordenar por fecha decreciente
-    items.sort((a, b) => new Date(b.timestamp).getTime() - new Date(a.timestamp).getTime());
-
-    // Insertar Ads de AK Producciones cada 4 elementos
-    const itemsWithAdsMerged: any[] = [];
-    let adIndex = 0;
-    items.forEach((item, index) => {
-      itemsWithAdsMerged.push(item);
-      if ((index + 1) % 4 === 0) {
-        const ad = defaultAds[adIndex % defaultAds.length];
-        itemsWithAdsMerged.push({ type: 'ad', data: { ...ad, id: `${ad.id}-${index}` }, timestamp: item.timestamp });
-        adIndex++;
-      }
-    });
-
-    return itemsWithAdsMerged;
-  }, [galleryPosts, dedications, defaultAds]);
-
-  useEffect(() => {
-    if (projectionMode && screenPosts.length > 0) {
-        const timer = setInterval(() => {
-            setCurrentSlide(prev => (prev + 1) % screenPosts.length);
-        }, 7000);
-        return () => clearInterval(timer);
-    }
-  }, [projectionMode, screenPosts.length]);
-
-  useEffect(() => {
-    if (screenPosts.length > 0 && currentSlide >= screenPosts.length) setCurrentSlide(0);
-  }, [currentSlide, screenPosts.length]);
-
-  useEffect(() => {
-    chatEndRef.current?.scrollIntoView({ behavior: 'smooth' });
-  }, [chatMessages]);
-
-
-  const handleFileSelect = (event: ChangeEvent<HTMLInputElement>) => {
-    const file = event.target.files?.[0];
-    if (file) {
-      const isVideo = file.type.startsWith('video/');
-      const isImage = file.type.startsWith('image/');
-      if (!isImage && !isVideo) {
-         toast({ title: "Formato no compatible", description: "Subi una foto o un video corto del evento.", variant: "destructive" });
-         return;
-      }
-      const maxSize = isVideo ? 60 * 1024 * 1024 : 10 * 1024 * 1024;
-      if (file.size > maxSize) {
-         toast({ title: "Archivo demasiado grande", description: isVideo ? "El video puede pesar hasta 60MB." : "La foto puede pesar hasta 10MB.", variant: "destructive" });
-         return;
-      }
-      setFileToUpload(file);
-      setUploadPreview(URL.createObjectURL(file));
-    }
-  };
-
-  /** Compute a SHA-256 hex digest of the file contents for duplicate detection. */
-  const computeImageHash = async (file: File): Promise<string | null> => {
-    try {
-      const buffer = await file.arrayBuffer();
-      const hashBuffer = await crypto.subtle.digest('SHA-256', buffer);
-      return Array.from(new Uint8Array(hashBuffer)).map(b => b.toString(16).padStart(2, '0')).join('');
+      setLikedPosts(new Set(JSON.parse(sessionStorage.getItem(`likedPosts_${fiestaId}`) || '[]')));
     } catch {
-      return null;
+      setLikedPosts(new Set());
     }
-  };
-
-  const handleSetAuthorName = (e: FormEvent) => {
-    e.preventDefault();
-    if(tempAuthorName.trim()) {
-        setAuthorName(tempAuthorName);
-        sessionStorage.setItem(`socialWallAuthor_${params.fiestaId}`, tempAuthorName);
-        setIsNameModalOpen(false);
+    setVotedPollId(localStorage.getItem(`votedPoll_${fiestaId}`));
+    setVotedGameId(localStorage.getItem(`votedGame_${fiestaId}`));
+    const requestedSection = new URLSearchParams(window.location.search).get('section');
+    if (requestedSection && ['feed', 'songs', 'dedications', 'chat', 'poll', 'game'].includes(requestedSection)) {
+      setSection(requestedSection as SocialSection);
     }
-  };
+  }, [fiestaId]);
 
-  const handleFollowClick = (platform: 'instagram' | 'facebook', url: string) => {
-    // Open link in new tab
-    window.open(url, '_blank', 'noopener,noreferrer');
-    // Track click server-side (fire-and-forget)
-    if (authorName && authorName.toLowerCase() !== 'anónimo') {
-      trackSocialFollowClick(params.fiestaId, authorName, platform).catch(() => {});
-    }
-    // Mark as followed in sessionStorage and local state
-    setFollowedPlatforms(prev => {
-      const next = new Set(prev);
-      next.add(platform);
-      sessionStorage.setItem(`socialFollowed_${params.fiestaId}`, JSON.stringify(Array.from(next)));
-      return next;
-    });
-  };
+  useEffect(() => {
+    let active = true;
+    const refreshPublicData = async (isInitialLoad = false) => {
+      if ((!isInitialLoad && document.visibilityState !== 'visible') || pollingRef.current) return;
+      pollingRef.current = true;
 
-  const handleUploadSubmit = async (event: FormEvent) => {
-    event.preventDefault();
-    if (!fileToUpload || !localSettings.uploadsActive) return;
-    setIsUploading(true);
-
-    try {
-      // Compute image hash only for photos; videos can be large and do not need duplicate detection here.
-      const imageHash = fileToUpload.type.startsWith('image/') ? await computeImageHash(fileToUpload) : null;
-
-      const formData = new FormData();
-      formData.append('fiestaId', params.fiestaId);
-      formData.append('file', fileToUpload);
-      formData.append('authorName', authorName || 'Anónimo');
-      if (imageHash) formData.append('imageHash', imageHash);
-
-      const result = await uploadSocialPost(formData);
-      if (result.success) {
-        toast({
-          title: localSettings.requireApproval ? "Momento enviado" : "Momento publicado",
-          description: localSettings.requireApproval ? "La organizacion lo revisa antes de mostrarlo." : "Ya esta en el mural.",
+      const loadTask = withPublicRequestTimeout((async () => {
+        await Promise.all([loadCore(), loadSection(section)]);
+        if (isInitialLoad) {
+          const items = await getPublicDedications(fiestaId);
+          if (active) setDedications(items);
+        }
+      })())
+        .catch((error) => {
+          console.warn('[SocialEvent] public data refresh failed:', error);
+        })
+        .finally(() => {
+          pollingRef.current = false;
         });
-        await fetchData(false);
-        setIsUploadDialogOpen(false);
-        setFileToUpload(null);
-        setUploadPreview(null);
-      } else {
-        toast({ title: "Error al subir", description: result.error, variant: "destructive" });
-      }
-    } catch (e: any) {
-      toast({ title: "Error al subir la foto", description: e.message || 'Ocurrió un error inesperado. Intentá de nuevo.', variant: "destructive" });
-    } finally {
-      setIsUploading(false);
-    }
-  };
 
-  const handleLike = async (postId: string) => {
-    if (localSettings.allowLikes === false) return;
-    if (likedPosts.has(postId)) return; // prevent double-like
-    // Persist immediately in sessionStorage so the heart stays filled across polls
-    const nextLiked = new Set(likedPosts);
-    nextLiked.add(postId);
-    setLikedPosts(nextLiked);
-    if (typeof window !== 'undefined') {
-      sessionStorage.setItem(`likedPosts_${params.fiestaId}`, JSON.stringify(Array.from(nextLiked)));
-    }
-    const revertLike = () => {
-      const reverted = new Set(nextLiked);
-      reverted.delete(postId);
-      setLikedPosts(reverted);
-      if (typeof window !== 'undefined') {
-        sessionStorage.setItem(`likedPosts_${params.fiestaId}`, JSON.stringify(Array.from(reverted)));
+      if (isInitialLoad) {
+        await waitForInitialPublicLoad(loadTask);
+        if (active) setLoading(false);
+        return;
       }
+
+      await loadTask;
     };
-    const originalPosts = [...posts];
-    setPosts(prev => prev.map(p => p.id === postId ? {...p, likes: (p.likes || 0) + 1} : p));
-    try {
-      const result = await addLikeToPost(postId);
-      if (!result.success) {
-        toast({title: "Error", description: "No se pudo registrar el 'Me Gusta'."});
-        setPosts(originalPosts);
-        revertLike();
-      }
-    } catch {
-      setPosts(originalPosts);
-      revertLike();
-    }
+
+    const handleVisibilityChange = () => {
+      if (document.visibilityState === 'visible') void refreshPublicData(true);
+    };
+
+    document.addEventListener('visibilitychange', handleVisibilityChange);
+    void refreshPublicData(true);
+    const timer = setInterval(() => {
+      void refreshPublicData();
+    }, 7000);
+    return () => {
+      active = false;
+      clearInterval(timer);
+      document.removeEventListener('visibilitychange', handleVisibilityChange);
+    };
+  }, [fiestaId, loadCore, loadSection, section]);
+
+  useEffect(() => () => {
+    if (recordingTimerRef.current) clearInterval(recordingTimerRef.current);
+    if (recorderRef.current?.state === 'recording') recorderRef.current.stop();
+    if (uploadPreview) URL.revokeObjectURL(uploadPreview);
+    if (audioPreview) URL.revokeObjectURL(audioPreview);
+  }, [audioPreview, uploadPreview]);
+
+  const availableSections = useMemo(() => [
+    { id: 'feed' as const, label: 'Inicio', icon: MessageCircle },
+    ...(settings.showSongRequests !== false ? [{ id: 'songs' as const, label: 'Canciones', icon: Music2 }] : []),
+    ...(settings.showDedications !== false ? [{ id: 'dedications' as const, label: 'Mensajes', icon: Heart }] : []),
+    ...(settings.chatEnabled !== false ? [{ id: 'chat' as const, label: 'Chat', icon: Send }] : []),
+    ...(settings.showPolls !== false && poll ? [{ id: 'poll' as const, label: 'Encuesta', icon: BarChart3 }] : []),
+    ...(activeGame ? [{ id: 'game' as const, label: 'Juego', icon: Gamepad2 }] : []),
+  ], [activeGame, poll, settings.chatEnabled, settings.showDedications, settings.showPolls, settings.showSongRequests]);
+
+  const chooseSection = (next: SocialSection) => {
+    setSection(next);
+    void loadSection(next);
   };
 
-  const handleComment = async (postId: string, text: string) => {
-    if (localSettings.allowComments === false) return;
-    const result = await addCommentToPost(postId, text, authorName || 'Anónimo');
+  const saveName = (eventForm: FormEvent) => {
+    eventForm.preventDefault();
+    const safeName = nameDraft.trim();
+    if (!safeName) return;
+    setAuthorName(safeName);
+    sessionStorage.setItem(`socialWallAuthor_${fiestaId}`, safeName);
+    setNameDialogOpen(false);
+  };
+
+  const selectUpload = (change: ChangeEvent<HTMLInputElement>) => {
+    const file = change.target.files?.[0];
+    if (!file) return;
+    const video = file.type.startsWith('video/');
+    const image = file.type.startsWith('image/');
+    if (!video && !image) {
+      toast({ title: 'Formato no compatible', description: 'Elegí una foto o un video.', variant: 'destructive' });
+      return;
+    }
+    const limit = video ? 60 * 1024 * 1024 : 10 * 1024 * 1024;
+    if (file.size > limit) {
+      toast({ title: 'Archivo demasiado grande', description: video ? 'El video puede pesar hasta 60 MB.' : 'La foto puede pesar hasta 10 MB.', variant: 'destructive' });
+      return;
+    }
+    if (uploadPreview) URL.revokeObjectURL(uploadPreview);
+    setUploadFile(file);
+    setUploadPreview(URL.createObjectURL(file));
+  };
+
+  const clearUpload = () => {
+    if (uploadPreview) URL.revokeObjectURL(uploadPreview);
+    setUploadFile(null);
+    setUploadPreview(null);
+    setUploadCaption('');
+  };
+
+  const submitUpload = async (eventForm: FormEvent) => {
+    eventForm.preventDefault();
+    if (!uploadFile || uploading) return;
+    setUploading(true);
+    const formData = new FormData();
+    formData.append('fiestaId', fiestaId);
+    formData.append('file', uploadFile);
+    formData.append('authorName', authorName || 'Invitado');
+    formData.append('dedication', uploadCaption.trim());
+    if (uploadFile.type.startsWith('image/') && crypto.subtle) {
+      const digest = await crypto.subtle.digest('SHA-256', await uploadFile.arrayBuffer());
+      formData.append('imageHash', Array.from(new Uint8Array(digest)).map((byte) => byte.toString(16).padStart(2, '0')).join(''));
+    }
+    const result = await uploadSocialPost(formData);
+    if (result.success) {
+      toast({
+        title: settings.requireApproval ? 'Momento enviado' : 'Momento publicado',
+        description: settings.requireApproval ? 'El equipo lo revisará antes de mostrarlo.' : 'Ya aparece en la red social.',
+      });
+      clearUpload();
+      setUploadOpen(false);
+      await loadCore();
+    } else {
+      toast({ title: 'No se pudo publicar', description: result.error, variant: 'destructive' });
+    }
+    setUploading(false);
+  };
+
+  const likePost = async (postId: string) => {
+    if (likedPosts.has(postId) || settings.allowLikes === false) return;
+    const next = new Set(likedPosts).add(postId);
+    setLikedPosts(next);
+    sessionStorage.setItem(`likedPosts_${fiestaId}`, JSON.stringify([...next]));
+    setPosts((current) => current.map((post) => post.id === postId ? { ...post, likes: (post.likes || 0) + 1 } : post));
+    const result = await addLikeToPost(postId);
     if (!result.success) {
-        toast({title: "Error", description: "No se pudo añadir el comentario."});
-    }
-    await fetchData(false);
-  };
-
-  const handleChatSubmit = async (e: FormEvent) => {
-    e.preventDefault();
-    if (!newChatMessage.trim()) return;
-
-    setIsSendingChat(true);
-    const optimisticMessage: ChatMessage = {
-      id: `temp-${Date.now()}`,
-      authorName: authorName || 'Anónimo',
-      text: newChatMessage,
-      timestamp: new Date().toISOString(),
-      fiestaId: params.fiestaId
-    };
-    setChatMessages(prev => [...prev, optimisticMessage]);
-    setNewChatMessage('');
-
-    try {
-      const result = await addChatMessage(params.fiestaId, newChatMessage, authorName || 'Anónimo');
-      if (!result.success) {
-        toast({ title: "Error", description: "No se pudo enviar tu mensaje.", variant: "destructive" });
-        setChatMessages(prev => prev.filter(m => m.id !== optimisticMessage.id)); // Revert
-      } else {
-          await fetchData(false); // Sync with server state
-      }
-    } finally {
-      setIsSendingChat(false);
+      next.delete(postId);
+      setLikedPosts(new Set(next));
+      sessionStorage.setItem(`likedPosts_${fiestaId}`, JSON.stringify([...next]));
+      await loadCore();
     }
   };
 
-  const handleSongRequestSubmit = async (e: FormEvent) => {
-    e.preventDefault();
-    if (!newSongRequest.trim() || isSendingSong) return;
-    setIsSendingSong(true);
-    try {
-      const result = await addSongRequest(params.fiestaId, newSongRequest.trim(), authorName || 'Anónimo');
-      if (result.success) {
-        setNewSongRequest('');
-        await fetchData(false);
-        toast({ title: 'Pedido recibido 🎵' });
-      } else {
-        toast({ title: 'Error', description: result.error || 'No se pudo guardar el pedido.', variant: 'destructive' });
-      }
-    } catch {
-      toast({ title: 'Error al enviar pedido', variant: 'destructive' });
-    } finally {
-      setIsSendingSong(false);
-    }
+  const commentPost = async (postId: string, text: string) => {
+    const result = await addCommentToPost(postId, text, authorName || 'Invitado');
+    if (!result.success) toast({ title: 'No se pudo comentar', description: result.error, variant: 'destructive' });
+    await loadCore();
+  };
+
+  const submitSong = async (eventForm: FormEvent) => {
+    eventForm.preventDefault();
+    if (!songDraft.trim() || submitting) return;
+    setSubmitting(true);
+    const result = await addSongRequest(fiestaId, songDraft.trim(), authorName || 'Invitado');
+    if (result.success) {
+      setSongDraft('');
+      toast({ title: 'Canción enviada al DJ' });
+      await loadSection('songs');
+    } else toast({ title: 'No se pudo enviar', description: result.error, variant: 'destructive' });
+    setSubmitting(false);
   };
 
   const startRecording = async () => {
     try {
       const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+      const recorder = new MediaRecorder(stream);
+      recorderRef.current = recorder;
       audioChunksRef.current = [];
-      discardRecordingRef.current = false;
-      setRecordingSeconds(0);
-      const mediaRecorder = new MediaRecorder(stream);
-      mediaRecorderRef.current = mediaRecorder;
-      mediaRecorder.ondataavailable = (event) => {
-        if (event.data.size > 0) {
-          audioChunksRef.current.push(event.data);
-        }
-      };
-      mediaRecorder.onstop = () => {
-        if (recordingTimerRef.current) {
-          clearInterval(recordingTimerRef.current);
-          recordingTimerRef.current = null;
-        }
-        setRecordingSeconds(0);
-        setIsRecording(false);
-        stream.getTracks().forEach(track => track.stop());
-        if (discardRecordingRef.current) {
-          audioChunksRef.current = [];
-          return;
-        }
+      recorder.ondataavailable = (eventData) => eventData.data.size > 0 && audioChunksRef.current.push(eventData.data);
+      recorder.onstop = () => {
+        stream.getTracks().forEach((track) => track.stop());
+        if (recordingTimerRef.current) clearInterval(recordingTimerRef.current);
         const blob = new Blob(audioChunksRef.current, { type: 'audio/webm' });
+        if (audioPreview) URL.revokeObjectURL(audioPreview);
         setAudioBlob(blob);
-        setAudioUrl(URL.createObjectURL(blob));
+        setAudioPreview(URL.createObjectURL(blob));
+        setRecording(false);
       };
-      mediaRecorder.start();
-      setIsRecording(true);
-      setAudioUrl(null);
-      setAudioBlob(null);
+      recorder.start();
+      setRecording(true);
+      setRecordingSeconds(0);
       recordingTimerRef.current = setInterval(() => {
         setRecordingSeconds((current) => {
           const next = current + 1;
-          if (next >= MAX_DEDICATION_RECORDING_SECONDS && mediaRecorder.state === 'recording') {
-            mediaRecorder.stop();
-          }
+          if (next >= MAX_DEDICATION_RECORDING_SECONDS && recorder.state === 'recording') recorder.stop();
           return next;
         });
       }, 1000);
-    } catch (err) {
-      console.error('Error accessing microphone', err);
-      toast({ title: 'Error de micrófono', description: 'Por favor, permite el acceso al micrófono para grabar audios.', variant: 'destructive' });
+    } catch {
+      toast({ title: 'No se pudo usar el micrófono', description: 'Revisá el permiso del navegador.', variant: 'destructive' });
     }
   };
 
   const stopRecording = () => {
-    if (mediaRecorderRef.current && isRecording) {
-      mediaRecorderRef.current.stop();
-    }
+    if (recorderRef.current?.state === 'recording') recorderRef.current.stop();
   };
 
-  const cancelRecording = () => {
-    discardRecordingRef.current = true;
-    if (mediaRecorderRef.current && isRecording) {
-      mediaRecorderRef.current.stop();
-    }
-    if (recordingTimerRef.current) {
-      clearInterval(recordingTimerRef.current);
-      recordingTimerRef.current = null;
-    }
-    setIsRecording(false);
-    setRecordingSeconds(0);
-    setAudioUrl(null);
+  const clearAudio = () => {
+    if (audioPreview) URL.revokeObjectURL(audioPreview);
     setAudioBlob(null);
+    setAudioPreview(null);
+    setRecordingSeconds(0);
   };
 
-  const handleDedicationSubmit = async (e: FormEvent) => {
-    e.preventDefault();
-    if (isSendingDedication) return;
-    if (!newDedication.trim() && !audioBlob) return;
-    setIsSendingDedication(true);
-    try {
-      let uploadedAudioUrl: string | undefined = undefined;
-      if (audioBlob) {
-        const formData = new FormData();
-        formData.append('file', new File([audioBlob], 'audio.webm', { type: 'audio/webm' }));
-        const uploadRes = await uploadDedicationAudio(params.fiestaId, formData);
-        if (uploadRes.success && uploadRes.audioUrl) {
-          uploadedAudioUrl = uploadRes.audioUrl;
-        } else {
-          toast({ title: 'Error de audio', description: uploadRes.error || 'No se pudo subir el audio.', variant: 'destructive' });
-          setIsSendingDedication(false);
-          return;
-        }
+  const submitDedication = async (eventForm: FormEvent) => {
+    eventForm.preventDefault();
+    if ((!dedicationDraft.trim() && !audioBlob) || submitting) return;
+    setSubmitting(true);
+    let audioUrl: string | undefined;
+    if (audioBlob) {
+      const formData = new FormData();
+      formData.append('file', new File([audioBlob], 'mensaje.webm', { type: 'audio/webm' }));
+      const upload = await uploadDedicationAudio(fiestaId, formData);
+      if (!upload.success) {
+        toast({ title: 'No se pudo subir el audio', description: upload.error, variant: 'destructive' });
+        setSubmitting(false);
+        return;
       }
-      const messageText = newDedication.trim() || (uploadedAudioUrl ? "🎙️ Mensaje de voz" : "");
-      const result = await addDedication(params.fiestaId, messageText, authorName || 'Anónimo', uploadedAudioUrl);
-      if (result.success) {
-        setNewDedication('');
-        setAudioBlob(null);
-        setAudioUrl(null);
-        await fetchData(false);
-        toast({ title: localSettings.privateDedicationsMode ? 'Mensaje privado enviado 🔒' : 'Dedicatoria enviada 💖' });
-      } else {
-        toast({ title: 'Error', description: result.error || 'No se pudo guardar la dedicatoria.', variant: 'destructive' });
-      }
-    } catch (err: any) {
-      toast({ title: 'Error al enviar', description: err.message, variant: 'destructive' });
-    } finally {
-      setIsSendingDedication(false);
+      audioUrl = upload.audioUrl;
     }
-  };
-
-
-  const handleCreatePoll = async (e: FormEvent) => {
-    e.preventDefault();
-    const opts = pollOptions.filter(o => o.trim());
-    if (!pollQuestion.trim() || opts.length < 2) return;
-    setIsCreatingPoll(true);
-    const filteredOptions = opts;
-    const result = await createPoll(params.fiestaId, pollQuestion.trim(), filteredOptions);
+    const result = await addDedication(fiestaId, dedicationDraft.trim() || 'Mensaje de voz', authorName || 'Invitado', audioUrl);
     if (result.success) {
-      setPollQuestion('');
-      setPollOptions(['', '']);
-      await fetchData(false);
-      toast({ title: '¡Encuesta lanzada! 🎯' });
-    } else {
-      toast({ title: 'Error', description: result.error, variant: 'destructive' });
-    }
-    setIsCreatingPoll(false);
+      setDedicationDraft('');
+      clearAudio();
+      toast({ title: settings.privateDedicationsMode ? 'Mensaje privado enviado' : 'Mensaje compartido' });
+      await loadSection('dedications');
+    } else toast({ title: 'No se pudo enviar', description: result.error, variant: 'destructive' });
+    setSubmitting(false);
   };
 
-  const handleVotePoll = async (pollId: string, optionId: string) => {
-    if (hasVoted && votedPollId === pollId) return;
-    const result = await votePoll(params.fiestaId, pollId, optionId);
+  const submitChat = async (eventForm: FormEvent) => {
+    eventForm.preventDefault();
+    const text = chatDraft.trim();
+    if (!text || submitting) return;
+    setSubmitting(true);
+    const result = await addChatMessage(fiestaId, text, authorName || 'Invitado');
     if (result.success) {
-      setHasVoted(true);
-      setVotedPollId(pollId);
-      if (typeof window !== 'undefined') {
-        localStorage.setItem(`votedPoll_${params.fiestaId}`, pollId);
-      }
-      await fetchData(false);
-    } else {
-      toast({ title: 'Error', description: result.error, variant: 'destructive' });
-    }
+      setChatDraft('');
+      await loadSection('chat');
+    } else toast({ title: 'No se pudo enviar', description: result.error, variant: 'destructive' });
+    setSubmitting(false);
   };
 
-  const handleClosePoll = async (pollId: string) => {
-    const result = await closePoll(params.fiestaId, pollId);
+  const submitPollVote = async (optionId: string) => {
+    if (!poll || votedPollId === poll.id) return;
+    const result = await votePoll(fiestaId, poll.id, optionId);
     if (result.success) {
-      await fetchData(false);
-      toast({ title: 'Encuesta cerrada' });
-    } else {
-      toast({ title: 'Error', description: result.error, variant: 'destructive' });
-    }
+      setVotedPollId(poll.id);
+      localStorage.setItem(`votedPoll_${fiestaId}`, poll.id);
+      setPoll(result.poll || poll);
+    } else toast({ title: 'No se pudo votar', description: result.error, variant: 'destructive' });
   };
 
-  const handleHighlightDedication = async (dedId: string, currentHighlighted: boolean) => {
-    const result = await highlightDedication(params.fiestaId, dedId, !currentHighlighted);
+  const submitGameVote = async (optionId: string) => {
+    if (!activeGame || votedGameId === activeGame.launchedAt) return;
+    const result = await voteActiveGameOption(fiestaId, optionId);
     if (result.success) {
-      await fetchData(false);
-    } else {
-      toast({ title: 'Error', description: result.error, variant: 'destructive' });
-    }
+      setVotedGameId(activeGame.launchedAt);
+      localStorage.setItem(`votedGame_${fiestaId}`, activeGame.launchedAt);
+      await loadCore();
+    } else toast({ title: 'No se pudo votar', description: result.error, variant: 'destructive' });
   };
 
-  const handleHighlightComment = async (postId: string, commentId: string, highlighted: boolean) => {
-    const result = await highlightComment(postId, commentId, highlighted);
-    if (result.success) {
-      await fetchData(false);
-    } else {
-      toast({ title: 'Error', description: result.error, variant: 'destructive' });
-    }
-  };
+  if (loading) {
+    return <main className="grid min-h-screen place-items-center bg-slate-100"><Loader2 className="h-9 w-9 animate-spin text-red-700" /></main>;
+  }
 
-  const handleModeratePost = async (postId: string, status: 'pending' | 'approved' | 'hidden') => {
-    const result = await moderateSocialPost(postId, status, 'AK Producciones');
-    if (result.success && result.post) {
-      setPosts(prev => prev.map(post => post.id === postId ? { ...post, ...result.post } : post));
-      toast({
-        title: status === 'approved' ? 'Contenido aprobado' : status === 'hidden' ? 'Contenido oculto' : 'Contenido pendiente',
-      });
-    } else {
-      toast({ title: 'Error', description: result.error || 'No se pudo actualizar la publicacion.', variant: 'destructive' });
-    }
-  };
+  if (!event) {
+    return (
+      <main className="grid min-h-screen place-items-center bg-slate-950 px-6 text-center text-white">
+        <div><h1 className="text-3xl font-black">Evento no disponible</h1><p className="mt-3 text-slate-400">Revisá el enlace o pedí un nuevo QR al equipo.</p></div>
+      </main>
+    );
+  }
 
-  const handleDelete = async (postId: string) => {
-    await deleteSocialPost(postId);
-    toast({ title: "Foto eliminada" });
-    await fetchData(false);
-  };
+  const activeWindow = isEventInActiveWindow(event.configuracion.fechaEvento);
+  if (!activeWindow.isActive && activeWindow.phase === 'after') {
+    return <PostEventMemoryHub fiesta={event} posts={posts} dedications={dedications} />;
+  }
 
-  const handleClearGallery = async () => {
-    setIsClearing(true);
-    await clearGallery(params.fiestaId);
-    toast({ title: "Galería Limpiada", variant: "destructive" });
-    await fetchData();
-    setIsClearing(false);
-  };
-
-  const handleDownloadAndClear = async () => {
-    setIsDownloadingAndClearing(true);
-    try {
-      const response = await fetch(`/api/social-gallery/${params.fiestaId}/download`);
-      if (response.ok) {
-        const blob = await response.blob();
-        const url = window.URL.createObjectURL(blob);
-        const a = document.createElement('a');
-        a.href = url;
-        a.download = `mural-social-${params.fiestaId}.zip`;
-        document.body.appendChild(a);
-        a.click();
-        a.remove();
-        window.URL.revokeObjectURL(url);
-      }
-      await clearGallery(params.fiestaId);
-      toast({ title: "ZIP descargado y galería limpiada", variant: "destructive" });
-      await fetchData();
-    } catch (e: any) {
-      toast({ title: "Error", description: e.message, variant: "destructive" });
-    } finally {
-      setIsDownloadingAndClearing(false);
-    }
-  };
-
-  const handleSaveSettings = async () => {
-      if (!fiesta) return;
-      setIsSavingSettings(true);
-      try {
-          const result = await saveSocialGallerySettings(params.fiestaId, localSettings);
-          if (result.success) {
-              toast({ title: "Ajustes guardados" });
-              setIsSettingsDialogOpen(false);
-              await fetchData(false);
-          } else throw new Error(result.error);
-      } catch (e: any) {
-          toast({ title: "Error", description: e.message, variant: "destructive" });
-      } finally {
-          setIsSavingSettings(false);
-      }
-  };
-
-  const handleDownloadChat = async () => {
-    let content = `Historial del Chat - ${fiesta?.configuracion.nombreEvento || 'Evento'}\n`;
-    content += `Generado el: ${new Date().toLocaleString('es-ES')}\n\n`;
-    chatMessages.forEach(msg => {
-      const timestamp = new Date(msg.timestamp).toLocaleTimeString('es-ES');
-      content += `[${timestamp}] ${msg.authorName}: ${msg.text}\n`;
-    });
-    const blob = new Blob([content], { type: 'text/plain;charset=utf-8' });
-    const url = URL.createObjectURL(blob);
-    const a = document.createElement('a');
-    a.href = url;
-    a.download = `chat-${params.fiestaId}.txt`;
-    a.click();
-    URL.revokeObjectURL(url);
-  };
-
-  const accentColor = localSettings.accentColor || '#3b82f6';
-  const bgColor = localSettings.backgroundColor || '#f1f5f9';
+  if (settings.enabled === false && !event.clientAccessGranted) {
+    return (
+      <main className="grid min-h-screen place-items-center bg-slate-100 px-6 text-center">
+        <div><Pause className="mx-auto h-10 w-10 text-slate-400" /><h1 className="mt-4 text-2xl font-black text-slate-900">La red social está pausada</h1><p className="mt-2 text-slate-500">El equipo la activará en el momento indicado.</p></div>
+      </main>
+    );
+  }
 
   return (
-    <div className="ak-social-mobile min-h-screen transition-colors duration-500" style={{ backgroundColor: bgColor }}>
-      {/* ── Name modal (shared) ──────────────────────────────────────── */}
-      <Dialog open={isNameModalOpen} onOpenChange={setIsNameModalOpen}>
-        <DialogContent onInteractOutside={(e) => e.preventDefault()} hideCloseButton className="ak-public-card border-none shadow-2xl">
-            <DialogHeader className="text-center">
-                <div className="w-16 h-16 bg-primary/10 rounded-full flex items-center justify-center mx-auto mb-4">
-                    {localSettings.mobileControlCoverUrl ? (
-                      <div className="relative w-16 h-16 rounded-full overflow-hidden">
-                        <NextImage src={localSettings.mobileControlCoverUrl} alt="Evento" fill className="object-cover" />
-                      </div>
-                    ) : (
-                      <UserIcon className="w-8 h-8 text-primary"/>
-                    )}
-                </div>
-                <DialogTitle className="text-2xl font-headline">¡Bienvenido/a!</DialogTitle>
-                <DialogDescription className="text-base">
-                  {localSettings.title || fiesta?.configuracion.nombreEvento
-                    ? `Ingresá tu nombre para participar en ${localSettings.title || fiesta?.configuracion.nombreEvento}.`
-                    : 'Dinos tu nombre para participar en el mural del evento.'}
-                </DialogDescription>
-            </DialogHeader>
-            <form onSubmit={handleSetAuthorName} className="space-y-4 py-4">
-                <div className="space-y-2">
-                    <Label htmlFor="author-name-input" className="text-xs uppercase tracking-widest font-bold text-slate-400">Tu Nombre</Label>
-                    <Input id="author-name-input" value={tempAuthorName} onChange={e => setTempAuthorName(e.target.value)} placeholder="Ej: Juan Pérez" className="h-12 rounded-xl text-lg bg-slate-50 border-none focus-visible:ring-2 focus-visible:ring-primary"/>
-                </div>
-                <DialogFooter className="flex-col gap-2 sm:flex-col">
-                    <Button type="submit" className="w-full h-12 rounded-xl text-lg font-bold shadow-lg" disabled={!tempAuthorName.trim()} style={{ backgroundColor: accentColor }}>Ingresar al Mural</Button>
-                    <Button
-                      type="button"
-                      variant="outline"
-                      className="w-full h-12 rounded-xl text-base font-semibold text-slate-500"
-                      onClick={() => {
-                        setAuthorName('Anónimo');
-                        sessionStorage.setItem(`socialWallAuthor_${params.fiestaId}`, 'Anónimo');
-                        setIsNameModalOpen(false);
-                      }}
-                    >
-                      <Ghost className="w-4 h-4 mr-2" />
-                      Participar como Anónimo
-                    </Button>
-                </DialogFooter>
-            </form>
+    <div className="min-h-screen bg-[#f0f2f5] text-slate-950">
+      <Dialog open={nameDialogOpen} onOpenChange={(open) => authorName && setNameDialogOpen(open)}>
+        <DialogContent hideCloseButton className="max-w-sm rounded-md border-0 bg-white p-6">
+          <DialogHeader className="text-center">
+            <div className="mx-auto grid h-14 w-14 place-items-center rounded-full bg-slate-100"><UserRound className="h-7 w-7 text-slate-700" /></div>
+            <DialogTitle className="pt-2 text-2xl">Entrá a la fiesta</DialogTitle>
+            <DialogDescription>Tu nombre aparecerá en fotos, mensajes y pedidos.</DialogDescription>
+          </DialogHeader>
+          <form onSubmit={saveName} className="mt-3 space-y-4">
+            <Label htmlFor="guest-name">Nombre</Label>
+            <Input id="guest-name" autoFocus value={nameDraft} onChange={(change) => setNameDraft(change.target.value)} maxLength={60} placeholder="Ej: Sofía Pérez" className="h-12 bg-white text-slate-950" />
+            <Button type="submit" disabled={!nameDraft.trim()} className="h-12 w-full text-base" style={{ backgroundColor: accentColor }}>Continuar</Button>
+          </form>
         </DialogContent>
       </Dialog>
 
-      {/* ════════════════════════════════════════════════════════════════
-          GUEST VIEW — clean button-grid interface
-          Syncs automatically via the 4-second polling in fetchData().
-          Buttons appear/disappear based on the organizer's settings.
-      ════════════════════════════════════════════════════════════════ */}
-      {!isAdminView && (
-        <>
-          {isEventPast30Days && fiesta && !hasBypass ? (
-            <PostEventMemoryHub fiesta={fiesta} posts={posts} dedications={dedications} />
-          ) : isEventFuture30Days && fiesta && !hasBypass && localSettings.enabled !== true ? (
-            <SocialCountdownScreen fiesta={fiesta} accentColor={accentColor} coverUrl={localSettings.mobileControlCoverUrl} title={localSettings.title} />
-          ) : (
-            <>
-              {/* Wall disabled by organizer */}
-              {localSettings.enabled === false && !hasBypass && (
-                <div className="min-h-screen flex flex-col items-center justify-center text-center p-8" style={{ backgroundColor: localSettings.backgroundColor || '#f1f5f9' }}>
-                  <div className="text-6xl mb-4">🎉</div>
-                  <h2 className="text-xl font-bold text-slate-700">La red social no está disponible en este momento</h2>
-                  <p className="text-sm text-slate-400 mt-2">El organizador lo activará pronto.</p>
-                </div>
-              )}
-
-              {/* Normal guest UI — only shown when the wall is enabled, or if bypassed by client */}
-              {(localSettings.enabled !== false || hasBypass) && (<>
-          {/* Upload dialog for guests (standalone, no trigger button needed here) */}
-          <Dialog open={isUploadDialogOpen} onOpenChange={setIsUploadDialogOpen}>
-            <DialogContent className="rounded-3xl border-none">
-              <DialogHeader>
-                <DialogTitle className="text-xl font-bold">Publicar Momento</DialogTitle>
-                <DialogDescription>Sube una foto o video corto para compartir el momento.</DialogDescription>
-              </DialogHeader>
-              <form onSubmit={handleUploadSubmit} className="space-y-6 py-2">
-                {uploadPreview ? (
-                  <div className="relative aspect-square rounded-2xl overflow-hidden shadow-inner border bg-slate-50">
-                    {fileToUpload?.type.startsWith('video/') ? (
-                      <video src={uploadPreview} controls playsInline className="h-full w-full object-contain" />
-                    ) : (
-                      <NextImage src={uploadPreview} alt="Vista previa" layout="fill" objectFit="contain" />
-                    )}
-                    <Button type="button" variant="destructive" size="icon" className="absolute top-2 right-2 rounded-full h-8 w-8" onClick={() => { setFileToUpload(null); setUploadPreview(null); }}>
-                      <X className="w-4 h-4" />
-                    </Button>
-                  </div>
-                ) : (
-                  <div className="h-64 border-2 border-dashed border-slate-200 rounded-3xl flex flex-col items-center justify-center bg-slate-50 transition-colors hover:bg-slate-100 hover:border-primary/30">
-                    <Label htmlFor="file-upload-guest" className="cursor-pointer text-center text-slate-400 p-8 flex flex-col items-center gap-3">
-                      <div className="p-4 bg-white rounded-2xl shadow-sm">
-                        <Upload className="w-8 h-8 text-primary" style={{ color: accentColor }} />
-                      </div>
-                      <div className="space-y-1">
-                        <p className="font-bold text-slate-600">Toca para seleccionar</p>
-                        <p className="text-xs">Fotos hasta 10MB · videos hasta 60MB</p>
-                      </div>
-                    </Label>
-                    <Input id="file-upload-guest" type="file" onChange={handleFileSelect} className="hidden" accept="image/*,video/*" disabled={!localSettings.uploadsActive} />
-                  </div>
+      <Dialog open={uploadOpen} onOpenChange={(open) => { setUploadOpen(open); if (!open) clearUpload(); }}>
+        <DialogContent className="max-w-lg rounded-md border-0 bg-white p-0">
+          <DialogHeader className="border-b px-5 py-4">
+            <DialogTitle>Crear publicación</DialogTitle>
+            <DialogDescription>Compartí una foto o un video del evento.</DialogDescription>
+          </DialogHeader>
+          <form onSubmit={submitUpload} className="space-y-4 p-5">
+            <div className="flex items-center gap-3"><div className="grid h-10 w-10 place-items-center rounded-full text-xs font-black text-white" style={{ backgroundColor: accentColor }}>{initials(authorName)}</div><p className="font-bold">{authorName}</p></div>
+            <Textarea value={uploadCaption} onChange={(change) => setUploadCaption(change.target.value)} maxLength={500} placeholder="¿Qué querés contar sobre este momento?" className="min-h-24 resize-none border-0 bg-slate-50 text-base text-slate-950" />
+            {uploadPreview ? (
+              <div className="relative overflow-hidden rounded-md bg-black">
+                {uploadFile?.type.startsWith('video/') ? <video src={uploadPreview} controls className="max-h-[420px] w-full object-contain" /> : (
+                  // eslint-disable-next-line @next/next/no-img-element -- Blob preview URLs are not supported by next/image.
+                  <img src={uploadPreview} alt="Vista previa" className="max-h-[420px] w-full object-contain" />
                 )}
-                <DialogFooter>
-                  <Button type="submit" className="w-full h-12 rounded-xl text-lg font-bold" disabled={isUploading || !fileToUpload || !localSettings.uploadsActive} style={{ backgroundColor: accentColor }}>
-                    {isUploading ? <Loader2 className="w-5 h-5 mr-2 animate-spin" /> : <Send className="w-5 h-5 mr-2" />}
-                    {isUploading ? 'Publicando...' : 'Publicar ahora'}
-                  </Button>
-                </DialogFooter>
-              </form>
-            </DialogContent>
-          </Dialog>
-
-          <div className="ak-social-mobile min-h-screen flex flex-col">
-            {/* Cover photo splash (only on home screen when configured) */}
-            {guestSection === null && localSettings.mobileControlCoverUrl && (
-              <div className="relative w-full h-48 overflow-hidden">
-                <NextImage
-                  src={localSettings.mobileControlCoverUrl}
-                  alt="Portada del evento"
-                  fill
-                  className="object-cover"
-                />
-                <div className="absolute inset-0 bg-gradient-to-b from-transparent to-black/60" />
-                <div className="absolute bottom-3 left-4 right-4">
-                  <p className="text-white font-black text-xl leading-tight drop-shadow-lg">
-                    {localSettings.title || fiesta?.configuracion.nombreEvento}
-                  </p>
-                  {authorName && (
-                    <p className="text-white/80 text-sm mt-0.5">Hola, {authorName} 👋</p>
-                  )}
-                </div>
+                <button type="button" onClick={clearUpload} className="absolute right-2 top-2 grid h-9 w-9 place-items-center rounded-full bg-black/70 text-white" aria-label="Quitar archivo"><X className="h-5 w-5" /></button>
               </div>
+            ) : (
+              <Label htmlFor="social-upload" className="flex min-h-44 cursor-pointer flex-col items-center justify-center gap-3 rounded-md border-2 border-dashed border-slate-300 bg-slate-50 text-center">
+                <ImagePlus className="h-9 w-9 text-slate-500" /><span className="font-bold text-slate-800">Elegir foto o video</span><span className="text-xs text-slate-500">Foto hasta 10 MB · video hasta 60 MB</span>
+                <input id="social-upload" type="file" accept="image/*,video/*" onChange={selectUpload} className="sr-only" />
+              </Label>
             )}
-            {/* Guest header */}
-            <header className="sticky top-0 z-20 border-b border-slate-200 bg-white shadow-sm">
-              <div className="max-w-lg mx-auto h-16 px-4 flex items-center gap-3">
-                {guestSection !== null ? (
-                  <>
-                    <button
-                      onClick={() => setGuestSection(null)}
-                      className="h-10 w-10 rounded-lg flex items-center justify-center text-slate-600 hover:bg-slate-100 active:bg-slate-200 transition-colors shrink-0"
-                      aria-label="Volver al inicio"
-                    >
-                      <ArrowLeft className="w-5 h-5" />
-                    </button>
-                    <h1 className="text-base font-bold text-slate-800 flex-1 text-center pr-10">
-                      {guestSection === 'photos' ? '📸 Fotos del evento' :
-                       guestSection === 'song' ? '🎵 Pedir Canción' :
-                       guestSection === 'dedication' ? '💖 Dedicatoria' :
-                       guestSection === 'chat' ? '💬 Chat en Vivo' :
-                       guestSection === 'poll' ? '📊 Encuesta' :
-                       guestSection === 'game' ? `🎮 ${localSettings.activeGame?.title || 'Juego'}` : ''}
-                    </h1>
-                  </>
-                ) : (
-                  <>
-                    <div className="flex items-center gap-2.5 flex-1 min-w-0">
-                      {companyLogoUrl && (
-                        <div className="relative h-9 w-20 overflow-hidden rounded-xl shrink-0">
-                          <NextImage src={companyLogoUrl} alt="Logo" fill className="object-contain" />
-                        </div>
-                      )}
-                      <div className="min-w-0">
-                        <h1 className="text-base font-black text-slate-800 truncate leading-tight">
-                          {localSettings.title || fiesta?.configuracion.nombreEvento || 'Evento'}
-                        </h1>
-                        <p className="text-[11px] text-slate-400 leading-tight">Hola, {authorName || '...'} 👋</p>
-                      </div>
-                    </div>
-                    <Button variant="ghost" size="icon" onClick={() => fetchData(true)} disabled={isLoading} className="h-10 w-10 rounded-lg shrink-0" aria-label="Actualizar">
-                      <RefreshCw className={`w-4 h-4 text-slate-400 ${isLoading ? 'animate-spin' : ''}`} />
-                    </Button>
-                  </>
-                )}
-              </div>
-            </header>
+            <Button type="submit" disabled={!uploadFile || uploading} className="h-12 w-full text-base" style={{ backgroundColor: accentColor }}>{uploading ? <Loader2 className="mr-2 h-5 w-5 animate-spin" /> : <Upload className="mr-2 h-5 w-5" />}Publicar</Button>
+          </form>
+        </DialogContent>
+      </Dialog>
 
-            {/* Guest main content */}
-            <div className="max-w-7xl mx-auto w-full px-4 lg:grid lg:grid-cols-[280px_1fr_280px] lg:gap-6 pt-6 flex-grow">
-
-              {/* Sidebar Izquierdo: Info del evento y cuenta regresiva/portada */}
-              <aside className="hidden lg:flex flex-col gap-4 self-start sticky top-24">
-                <Card className="rounded-lg border border-slate-200 shadow-sm overflow-hidden bg-white">
-                  {localSettings.mobileControlCoverUrl && (
-                    <div className="relative h-32 w-full">
-                      <NextImage src={localSettings.mobileControlCoverUrl} alt="Portada" fill className="object-cover blur-sm opacity-90 scale-105" />
-                      <div className="absolute inset-0 bg-slate-950/20" />
-                    </div>
-                  )}
-                  <CardContent className="p-5 space-y-4 text-slate-900">
-                    <div className="space-y-1">
-                      <p className="text-xs font-black uppercase tracking-wider text-rose-600 font-headline">Evento Privado</p>
-                      <h2 className="text-lg font-black text-slate-800 leading-tight">
-                        {localSettings.title || fiesta?.configuracion.nombreEvento}
-                      </h2>
-                    </div>
-                    <Separator className="bg-slate-100" />
-                    <div className="space-y-2.5 text-xs text-slate-600">
-                      <div className="flex justify-between">
-                        <span className="font-medium text-slate-400">Fecha:</span>
-                        <span className="font-bold">{fechaEvento ? new Date(fechaEvento).toLocaleDateString('es-ES') : '-'}</span>
-                      </div>
-                      <div className="flex justify-between">
-                        <span className="font-medium text-slate-400">Invitado:</span>
-                        <span className="font-bold truncate max-w-[120px]">{authorName || 'Anónimo'}</span>
-                      </div>
-                    </div>
-                  </CardContent>
-                </Card>
-
-                <Card className="rounded-lg border border-slate-200 shadow-sm p-5 bg-white space-y-3">
-                  <p className="text-xs font-black uppercase tracking-widest text-slate-400">¡Sumá tus fotos!</p>
-                  <p className="text-xs text-slate-500 leading-relaxed">
-                    Escaneá el código QR del evento con tu celular para subir fotos y videos directamente desde tu galería.
-                  </p>
-                  <div className="bg-slate-50 p-3 rounded-lg flex justify-center border border-slate-200">
-                    <QRCodeStylized value={typeof window !== 'undefined' ? `${window.location.origin}/evento/social/${params.fiestaId}` : ''} size={120} />
-                  </div>
-                </Card>
-              </aside>
-
-              {/* Central Column */}
-              <main className="w-full max-w-lg mx-auto pb-10">
-                {/* Pestañas de Navegación Permanente superiores (Red Social) */}
-                <div className="flex gap-2 overflow-x-auto pb-3 pt-2 scrollbar-none max-w-lg mx-auto px-1 mb-2">
-                  {[
-                    { id: null, label: '📱 Red Social', icon: LayoutGrid },
-                    ...(localSettings.chatEnabled !== false ? [{ id: 'chat', label: '💬 Chat', icon: MessageSquare }] : []),
-                    ...(localSettings.showSongRequests !== false ? [{ id: 'song', label: '🎵 Pedir Canción', icon: Music }] : []),
-                    ...(localSettings.showDedications !== false ? [{ id: 'dedication', label: '💌 Dedicatoria', icon: Heart }] : []),
-                    ...(activePoll && localSettings.showPolls !== false ? [{ id: 'poll', label: '📊 Votar', icon: BarChart2 }] : []),
-                    ...(localSettings.activeGame ? [{ id: 'game', label: '🎮 Juego', icon: Gamepad2 }] : []),
-                  ].map((tab) => {
-                    const Icon = tab.icon;
-                    const isActive = guestSection === tab.id;
-                    return (
-                      <button
-                        key={tab.id === null ? 'feed' : tab.id}
-                        onClick={() => setGuestSection(tab.id as any)}
-                        className={cn(
-                          "flex items-center gap-1.5 px-4 py-2.5 rounded-lg text-xs font-bold whitespace-nowrap transition-all duration-200 border shrink-0",
-                          isActive
-                            ? "bg-slate-900 text-white border-slate-900 shadow-md animate-none"
-                            : "bg-white text-slate-600 border-slate-200 hover:bg-slate-50"
-                        )}
-                        style={isActive ? { backgroundColor: accentColor, borderColor: accentColor } : {}}
-                      >
-                        <Icon className="w-3.5 h-3.5 shrink-0" />
-                        {tab.label}
-                      </button>
-                    );
-                  })}
-                </div>
-
-                <AnimatePresence mode="wait">
-
-                {/* ── Home / Feed: Unified social network timeline like Facebook ── */}
-                {guestSection === null && (
-                  <motion.div key="feed" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} className="pt-2 space-y-4">
-                    {/* Caja de publicación rápida tipo Facebook */}
-                    <Card className="rounded-lg border border-slate-200 bg-white shadow-sm">
-                      <CardContent className="p-4">
-                        <div className="flex items-center gap-3">
-                          <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-full text-sm font-black text-white" style={{ backgroundColor: accentColor }}>
-                            {(authorName || 'A').charAt(0).toUpperCase()}
-                          </div>
-                          <button
-                            type="button"
-                            onClick={() => setIsUploadDialogOpen(true)}
-                            disabled={!authorName || !localSettings.uploadsActive}
-                            className="min-h-11 flex-1 rounded-lg bg-slate-100 px-4 text-left text-sm font-semibold text-slate-500 transition hover:bg-slate-200 disabled:cursor-not-allowed disabled:opacity-60"
-                          >
-                            {localSettings.uploadsActive ? '¿Qué querés compartir hoy?' : 'Las publicaciones están pausadas'}
-                          </button>
-                        </div>
-                        <div className="mt-3 flex items-center justify-around border-t border-slate-100 pt-3 text-xs font-bold text-slate-500">
-                          <button type="button" onClick={() => setIsUploadDialogOpen(true)} disabled={!localSettings.uploadsActive} className="flex items-center gap-1.5 rounded-lg px-3 py-2 transition hover:bg-slate-50 disabled:opacity-50">
-                            <CameraIcon className="h-4 w-4" style={{ color: accentColor }} />
-                            Subir Foto/Video
-                          </button>
-                          {localSettings.showDedications !== false && (
-                            <button type="button" onClick={() => setGuestSection('dedication')} className="flex items-center gap-1.5 rounded-lg px-3 py-2 transition hover:bg-slate-50">
-                              <Heart className="h-4 w-4" style={{ color: accentColor }} />
-                              Dejar Dedicatoria
-                            </button>
-                          )}
-                          {localSettings.chatEnabled !== false && (
-                            <button type="button" onClick={() => setGuestSection('chat')} className="flex items-center gap-1.5 rounded-lg px-3 py-2 transition hover:bg-slate-50">
-                              <MessageSquare className="h-4 w-4" style={{ color: accentColor }} />
-                              Chat Vivo
-                            </button>
-                          )}
-                        </div>
-                      </CardContent>
-                    </Card>
-
-                    {/* Timeline Unificado */}
-                    {isLoading ? (
-                      <div className="grid grid-cols-2 gap-3">
-                        {Array.from({ length: 4 }).map((_, i) => (
-                          <div key={i} className="aspect-square bg-slate-100 animate-pulse rounded-lg" />
-                        ))}
-                      </div>
-                    ) : unifiedTimeline.length === 0 ? (
-                      <div className="text-center py-16 text-slate-400 bg-white rounded-lg p-6 border border-slate-200 shadow-sm">
-                        <p className="text-lg font-bold text-slate-500">El feed está en silencio...</p>
-                        <p className="text-xs text-slate-400 mt-1">Sé el primero en subir un momento o dejar una dedicatoria.</p>
-                      </div>
-                    ) : (
-                      <div className="grid grid-cols-1 gap-4">
-                        {unifiedTimeline.map((item) => {
-                          if (item.type === 'ad') {
-                            return (
-                              <AdCard
-                                key={item.data.id}
-                                ad={item.data}
-                                accentColor={accentColor}
-                              />
-                            );
-                          }
-                          if (item.type === 'dedication') {
-                            return (
-                              <DedicationCard
-                                key={item.data.id}
-                                dedication={item.data}
-                                accentColor={accentColor}
-                              />
-                            );
-                          }
-                          return (
-                            <PostCard
-                              key={item.data.id}
-                              post={item.data}
-                              onLike={handleLike}
-                              onComment={handleComment}
-                              isAdminView={false}
-                              authorName={authorName}
-                              accentColor={accentColor}
-                              allowLikes={localSettings.allowLikes !== false}
-                              allowComments={localSettings.allowComments !== false}
-                              hasLiked={likedPosts.has(item.data.id)}
-                            />
-                          );
-                        })}
-                      </div>
-                    )}
-
-                    {/* ── Social follow banner (shown when Instagram or Facebook is configured) ── */}
-                    {(instagramUrl || facebookUrl) && (
-                      <div className="mt-6 rounded-lg border border-slate-200 bg-white shadow-sm p-5 space-y-3">
-                        <p className="text-xs font-black uppercase tracking-widest text-slate-400 text-center">Seguinos en redes 📲</p>
-                        <div className={`grid gap-3 ${instagramUrl && facebookUrl ? 'grid-cols-2' : 'grid-cols-1'}`}>
-                          {instagramUrl && (
-                            <button
-                              onClick={() => handleFollowClick('instagram', instagramUrl)}
-                              className="flex items-center justify-center gap-2 rounded-2xl px-4 py-3 font-bold text-sm text-white shadow-lg transition-transform active:scale-95"
-                              style={{ background: 'linear-gradient(135deg, #f43f5e, #ec4899, #a855f7)' }}
-                            >
-                              {followedPlatforms.has('instagram') ? (
-                                <><CheckCircle2 className="w-4 h-4 shrink-0" /> ¡Ya seguís!</>
-                              ) : (
-                                <><svg className="w-4 h-4 shrink-0" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2.163c3.204 0 3.584.012 4.85.07 3.252.148 4.771 1.691 4.919 4.919.058 1.265.069 1.645.069 4.849 0 3.205-.012 3.584-.069 4.849-.149 3.225-1.664 4.771-4.919 4.919-1.266.058-1.644.07-4.85.07-3.204 0-3.584-.012-4.849-.07-3.26-.149-4.771-1.699-4.919-4.92-.058-1.265-.07-1.644-.07-4.849 0-3.204.013-3.583.07-4.849.149-3.227 1.664-4.771 4.919-4.919 1.266-.057 1.645-.069 4.849-.069zm0-2.163c-3.259 0-3.667.014-4.947.072-4.358.2-6.78 2.618-6.98 6.98-.059 1.281-.073 1.689-.073 4.948 0 3.259.014 3.668.072 4.948.2 4.358 2.618 6.78 6.98 6.98 1.281.058 1.689.072 4.948.072 3.259 0 3.668-.014 4.948-.072 4.354-.2 6.782-2.618 6.979-6.98.059-1.28.073-1.689.073-4.948 0-3.259-.014-3.667-.072-4.947-.196-4.354-2.617-6.78-6.979-6.98-1.281-.059-1.69-.073-4.949-.073zm0 5.838c-3.403 0-6.162 2.759-6.162 6.162s2.759 6.163 6.162 6.163 6.162-2.759 6.162-6.163c0-3.403-2.759-6.162-6.162-6.162zm0 10.162c-2.209 0-4-1.79-4-4 0-2.209 1.791-4 4-4s4 1.791 4 4c0 2.21-1.791 4-4 4zm6.406-11.845c-.796 0-1.441.645-1.441 1.44s.645 1.44 1.441 1.44c.795 0 1.439-.645 1.439-1.44s-.644-1.44-1.439-1.44z"/></svg> Seguir en Instagram</>
-                              )}
-                            </button>
-                          )}
-                          {facebookUrl && (
-                            <button
-                              onClick={() => handleFollowClick('facebook', facebookUrl)}
-                              className="flex items-center justify-center gap-2 rounded-2xl px-4 py-3 font-bold text-sm text-white shadow-lg transition-transform active:scale-95 bg-blue-600 hover:bg-blue-700"
-                            >
-                              {followedPlatforms.has('facebook') ? (
-                                <><CheckCircle2 className="w-4 h-4 shrink-0" /> ¡Ya seguís!</>
-                              ) : (
-                                <><svg className="w-4 h-4 shrink-0" viewBox="0 0 24 24" fill="currentColor"><path d="M24 12.073c0-6.627-5.373-12-12-12s-12 5.373-12 12c0 5.99 4.388 10.954 10.125 11.854v-8.385H7.078v-3.47h3.047V9.43c0-3.007 1.792-4.669 4.533-4.669 1.312 0 2.686.235 2.686.235v2.953H15.83c-1.491 0-1.956.925-1.956 1.874v2.25h3.328l-.532 3.47h-2.796v8.385C19.612 23.027 24 18.062 24 12.073z"/></svg> Seguir en Facebook</>
-                              )}
-                            </button>
-                          )}
-                        </div>
-                        {!isAdminView && authorName && authorName.toLowerCase() !== 'anónimo' &&
-                         (followedPlatforms.has('instagram') || followedPlatforms.has('facebook')) && (
-                          <p className="text-[10px] text-center text-slate-400">
-                            ✅ ¡Gracias por seguirnos! Tu nombre queda registrado para participar en los sorteos de redes. 🎉
-                          </p>
-                        )}
-                        {!isAdminView && authorName && authorName.toLowerCase() === 'anónimo' && (
-                          <p className="text-[10px] text-center text-amber-500">
-                            ⚠️ Para participar en los sorteos de redes, ingresá tu nombre (no como Anónimo).
-                          </p>
-                        )}
-                      </div>
-                    )}
-                  </motion.div>
-                )}
-
-                {/* ── Photos & Comments section ── */}
-                {guestSection === 'photos' && (
-                  <motion.div key="photos" initial={{ opacity: 0, x: 20 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: -20 }} className="pt-4 space-y-4">
-                    <Card className="rounded-3xl border border-slate-100 bg-white shadow-md">
-                      <CardContent className="p-4">
-                        <div className="flex items-center gap-3">
-                          <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-full text-sm font-black text-white" style={{ backgroundColor: accentColor }}>
-                            {(authorName || 'A').charAt(0).toUpperCase()}
-                          </div>
-                          <button
-                            type="button"
-                            onClick={() => setIsUploadDialogOpen(true)}
-                            disabled={!authorName || !localSettings.uploadsActive}
-                            className="min-h-11 flex-1 rounded-full bg-slate-100 px-4 text-left text-sm font-semibold text-slate-500 transition hover:bg-slate-200 disabled:cursor-not-allowed disabled:opacity-60"
-                          >
-                            {localSettings.uploadsActive ? 'Compartir foto o video del evento' : 'Las publicaciones estan pausadas'}
-                          </button>
-                        </div>
-                        <div className="mt-3 flex items-center justify-around border-t border-slate-100 pt-3 text-xs font-bold text-slate-500">
-                          <button type="button" onClick={() => setIsUploadDialogOpen(true)} disabled={!localSettings.uploadsActive} className="flex items-center gap-1.5 rounded-xl px-3 py-2 transition hover:bg-slate-50 disabled:opacity-50">
-                            <CameraIcon className="h-4 w-4" style={{ color: accentColor }} />
-                            Foto/video
-                          </button>
-                          {localSettings.chatEnabled !== false && (
-                            <button type="button" onClick={() => setGuestSection('chat')} className="flex items-center gap-1.5 rounded-xl px-3 py-2 transition hover:bg-slate-50">
-                              <MessageSquare className="h-4 w-4" style={{ color: accentColor }} />
-                              Chat
-                            </button>
-                          )}
-                          {localSettings.showDedications !== false && (
-                            <button type="button" onClick={() => setGuestSection('dedication')} className="flex items-center gap-1.5 rounded-xl px-3 py-2 transition hover:bg-slate-50">
-                              <Heart className="h-4 w-4" style={{ color: accentColor }} />
-                              Dedicatoria
-                            </button>
-                          )}
-                        </div>
-                      </CardContent>
-                    </Card>
-                    {isLoading ? (
-                      <div className="grid grid-cols-2 gap-3">
-                        {Array.from({ length: 4 }).map((_, i) => (
-                          <div key={i} className="aspect-square bg-slate-100 animate-pulse rounded-3xl" />
-                        ))}
-                      </div>
-                    ) : galleryPosts.length === 0 ? (
-                      <div className="text-center py-16 text-slate-400">No hay fotos aún.</div>
-                    ) : (
-                      <div className="grid grid-cols-1 gap-4">
-                        {unifiedTimeline.map((item) => {
-                          if (item.type === 'ad') {
-                            return (
-                              <AdCard
-                                key={item.data.id}
-                                ad={item.data}
-                                accentColor={accentColor}
-                              />
-                            );
-                          }
-                          if (item.type === 'dedication') {
-                            return (
-                              <DedicationCard
-                                key={item.data.id}
-                                dedication={item.data}
-                                accentColor={accentColor}
-                              />
-                            );
-                          }
-                          return (
-                            <PostCard
-                              key={item.data.id}
-                              post={item.data}
-                              onLike={handleLike}
-                              onComment={handleComment}
-                              isAdminView={false}
-                              authorName={authorName}
-                              accentColor={accentColor}
-                              allowLikes={localSettings.allowLikes !== false}
-                              allowComments={localSettings.allowComments !== false}
-                              hasLiked={likedPosts.has(item.data.id)}
-                            />
-                          );
-                        })}
-                      </div>
-                    )}
-                  </motion.div>
-                )}
-
-                {/* ── Song Requests section ── */}
-                {guestSection === 'song' && (
-                  <motion.div key="song" initial={{ opacity: 0, x: 20 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: -20 }} className="pt-4 space-y-4">
-                    <Card className="shadow-lg border-none rounded-3xl">
-                      <CardContent className="p-5 space-y-4">
-                        <form onSubmit={handleSongRequestSubmit} className="flex gap-2">
-                          <Input value={newSongRequest} onChange={e => setNewSongRequest(e.target.value)} placeholder="Ej: TQG - Karol G & Shakira" className="flex-1 h-12 rounded-2xl border-slate-200" disabled={isSendingSong} />
-                          <Button type="submit" disabled={!newSongRequest.trim() || isSendingSong} className="h-12 w-12 rounded-2xl shrink-0 shadow-lg transition-transform active:scale-95" style={{ backgroundColor: accentColor }}>
-                            {isSendingSong ? <Loader2 className="w-4 h-4 animate-spin" /> : <Send className="w-4 h-4" />}
-                          </Button>
-                        </form>
-                        <div className="space-y-2 max-h-[60vh] overflow-y-auto">
-                          {songRequests.slice(0, MAX_DISPLAYED_SONG_REQUESTS).map(req => (
-                            <div key={req.id} className="rounded-2xl border border-slate-100 bg-slate-50 px-4 py-3 text-sm">
-                              <p className="font-semibold text-slate-700">{req.song}</p>
-                              <p className="text-xs text-slate-500 mt-0.5">Pedido por {req.requestedBy}</p>
-                            </div>
-                          ))}
-                          {songRequests.length === 0 && (
-                            <p className="text-sm text-slate-400 text-center py-6">No hay pedidos aún. ¡Sé el primero!</p>
-                          )}
-                        </div>
-                      </CardContent>
-                    </Card>
-                  </motion.div>
-                )}
-
-                {/* ── Dedications section ── */}
-                {guestSection === 'dedication' && (
-                  <motion.div key="dedication" initial={{ opacity: 0, x: 20 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: -20 }} className="pt-4 space-y-4">
-                    <Card className="shadow-lg border-none rounded-3xl">
-                      <CardContent className="p-5 space-y-4">
-                        <div className="space-y-1">
-                          <h3 className="text-lg font-black text-slate-800 flex items-center gap-1.5">
-                            {localSettings.privateDedicationsMode ? "🔐 Buzón 100% Privado" : "💌 Dedicatorias"}
-                          </h3>
-                          <p className="text-xs text-slate-500 leading-normal">
-                            {localSettings.privateDedicationsMode
-                              ? "Tus palabras y audios irán directo a los anfitriones de forma privada."
-                              : "Envía saludos y felicitaciones para compartir en el evento."}
-                          </p>
-                        </div>
-                        <form onSubmit={handleDedicationSubmit} className="space-y-3">
-                          <Textarea
-                            value={newDedication}
-                            onChange={e => setNewDedication(e.target.value)}
-                            placeholder={localSettings.privateDedicationsMode ? "Escribe un mensaje privado..." : "Escribe tu dedicatoria aquí..."}
-                            rows={3}
-                            className="rounded-2xl border-slate-200 resize-none"
-                            disabled={isSendingDedication}
-                          />
-
-                          <Button type="submit" disabled={!newDedication.trim() || isSendingDedication} className="w-full h-12 rounded-2xl font-bold shadow-lg transition-transform active:scale-95" style={{ backgroundColor: accentColor }}>
-                            {isSendingDedication ? <Loader2 className="w-4 h-4 mr-2 animate-spin" /> : <Send className="w-4 h-4 mr-2" />}
-                            {localSettings.privateDedicationsMode ? "Enviar mensaje privado" : "Enviar dedicatoria"}
-                          </Button>
-                        </form>
-                        {localSettings.privateDedicationsMode && !isAdminView ? (
-                          <p className="rounded-2xl bg-emerald-50 px-4 py-3 text-center text-xs font-semibold text-emerald-800">
-                            Tu mensaje queda visible solamente para la organización.
-                          </p>
-                        ) : (
-                          <div className="space-y-2 max-h-[35vh] overflow-y-auto">
-                            {dedications.slice(-15).reverse().map(d => (
-                              <div key={d.id} className={cn('rounded-2xl border px-4 py-3 text-sm', d.highlighted ? 'bg-amber-50 border-amber-200' : 'bg-slate-50 border-slate-100')}>
-                                <p className="text-slate-700 leading-relaxed font-medium">{d.message}</p>
-                                {d.audioUrl && (
-                                  <div className="mt-2">
-                                    <audio src={d.audioUrl} controls className="w-full h-8 max-w-[260px]" />
-                                  </div>
-                                )}
-                                <p className="text-xs text-slate-500 mt-1.5">— {d.authorName}</p>
-                              </div>
-                            ))}
-                            {dedications.length === 0 && (
-                              <p className="text-sm text-slate-400 text-center py-6">No hay mensajes aún.</p>
-                            )}
-                          </div>
-                        )}
-                      </CardContent>
-                    </Card>
-                  </motion.div>
-                )}
-
-                {/* ── Live Chat section ── */}
-                {guestSection === 'chat' && (
-                  <motion.div key="chat" initial={{ opacity: 0, x: 20 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: -20 }} className="pt-4">
-                    <div className="flex flex-col" style={{ height: 'calc(100dvh - 9rem)' }}>
-                      <ScrollArea className="flex-1 pr-1">
-                        <div className="space-y-3 pb-2">
-                          {chatMessages.map(msg => {
-                            const isMe = msg.authorName === authorName;
-                            return (
-                              <div key={msg.id} className={cn('flex flex-col max-w-[85%]', isMe ? 'ml-auto items-end' : 'items-start')}>
-                                {!isMe && <span className="text-[9px] font-black text-slate-400 uppercase tracking-tighter mb-0.5 ml-1">{msg.authorName}</span>}
-                                <div
-                                  className={cn('px-3.5 py-2 rounded-2xl text-sm shadow-sm leading-relaxed', isMe ? 'text-white' : 'bg-white text-slate-700 border border-slate-100')}
-                                  style={isMe ? { backgroundColor: accentColor } : {}}
-                                >
-                                  {msg.text}
-                                </div>
-                                <span className="text-[8px] text-slate-300 mt-0.5 mx-1">
-                                  {new Date(msg.timestamp).toLocaleTimeString('es-ES', { hour: '2-digit', minute: '2-digit' })}
-                                </span>
-                              </div>
-                            );
-                          })}
-                          {chatMessages.length === 0 && (
-                            <p className="text-sm text-slate-400 text-center py-8">No hay mensajes aún. ¡Sé el primero!</p>
-                          )}
-                          <div ref={chatEndRef} />
-                        </div>
-                      </ScrollArea>
-                      <form onSubmit={handleChatSubmit} className="flex gap-2 items-center pt-3 border-t border-slate-100 mt-2 shrink-0">
-                        <Input
-                          value={newChatMessage}
-                          onChange={e => setNewChatMessage(e.target.value)}
-                          placeholder="Escribe un mensaje..."
-                          disabled={isSendingChat || !authorName}
-                          className="flex-1 h-12 rounded-2xl bg-slate-50 border-none px-4 text-sm"
-                        />
-                        <Button
-                          type="submit"
-                          disabled={!newChatMessage.trim() || isSendingChat || !authorName}
-                          className="h-12 w-12 rounded-2xl shrink-0 shadow-lg transition-transform active:scale-95"
-                          style={{ backgroundColor: accentColor }}
-                        >
-                          {isSendingChat ? <Loader2 className="w-4 h-4 animate-spin" /> : <Send className="w-4 h-4" />}
-                        </Button>
-                      </form>
-                    </div>
-                  </motion.div>
-                )}
-
-                {/* ── Poll / Voting section ── */}
-                {guestSection === 'poll' && (
-                  <motion.div key="poll" initial={{ opacity: 0, x: 20 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: -20 }} className="pt-4">
-                    {activePoll ? (
-                      <Card className="shadow-lg border-none rounded-3xl">
-                        <CardHeader>
-                          <CardTitle className="flex items-center gap-2 text-slate-800">
-                            <BarChart2 className="w-5 h-5" style={{ color: accentColor }} /> Encuesta en Vivo
-                          </CardTitle>
-                        </CardHeader>
-                        <CardContent className="space-y-4">
-                          <p className="text-lg font-bold text-slate-700">{activePoll.question}</p>
-                          {hasVoted && votedPollId === activePoll.id ? (
-                            <div className="space-y-3">
-                              {activePoll.options.map(opt => {
-                                const total = activePoll.options.reduce((a, o) => a + o.votes, 0);
-                                const pct = total > 0 ? Math.round((opt.votes / total) * 100) : 0;
-                                return (
-                                  <div key={opt.id} className="space-y-1">
-                                    <div className="flex justify-between text-sm text-slate-600">
-                                      <span className="font-medium">{opt.text}</span>
-                                      <span className="font-bold" style={{ color: accentColor }}>{pct}%</span>
-                                    </div>
-                                    <div className="h-3 rounded-full bg-slate-100">
-                                      <div className="h-full rounded-full transition-all duration-500" style={{ width: `${pct}%`, backgroundColor: accentColor }} />
-                                    </div>
-                                  </div>
-                                );
-                              })}
-                              <p className="text-xs text-slate-400 text-center pt-2">¡Gracias por votar!</p>
-                            </div>
-                          ) : (
-                            <div className="grid grid-cols-1 gap-2">
-                              {activePoll.options.map(opt => (
-                                <Button
-                                  key={opt.id}
-                                  variant="outline"
-                                  className="h-14 rounded-2xl text-left justify-start font-semibold text-base px-5"
-                                  onClick={() => handleVotePoll(activePoll.id, opt.id)}
-                                >
-                                  {opt.text}
-                                </Button>
-                              ))}
-                            </div>
-                          )}
-                        </CardContent>
-                      </Card>
-                    ) : (
-                      <div className="text-center py-16 space-y-3">
-                        <div className="text-4xl">📊</div>
-                        <p className="font-medium text-slate-500">No hay encuesta activa en este momento.</p>
-                      </div>
-                    )}
-                  </motion.div>
-                )}
-
-                {/* ── Game section ── */}
-                {guestSection === 'game' && (
-                  <motion.div key="game" initial={{ opacity: 0, x: 20 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: -20 }} className="pt-4 space-y-4">
-                    {localSettings.activeGame ? (
-                      <>
-                        <Card className="shadow-xl border-none rounded-3xl overflow-hidden">
-                          <div className="h-1.5 w-full" style={{ backgroundColor: accentColor }} />
-                          <CardContent className="p-8 text-center space-y-4">
-                            <div className="text-6xl mb-2">🎮</div>
-                            <h2 className="text-2xl font-black text-slate-800">{localSettings.activeGame.title}</h2>
-                            {localSettings.activeGame.subtitle && (
-                              <p className="text-slate-500 text-base">{localSettings.activeGame.subtitle}</p>
-                            )}
-                          </CardContent>
-                        </Card>
-
-                        {/* Game options with interactive voting (for siONo, verdadODesafio, trivia, encuesta) */}
-                        {localSettings.activeGame.options && localSettings.activeGame.options.length > 0 && !localSettings.activeGame.pollId && (
-                          <GameOptionsVoting
-                            game={localSettings.activeGame}
-                            fiestaId={params.fiestaId}
-                            accentColor={accentColor}
-                            onVoted={() => fetchData(false)}
-                          />
-                        )}
-
-                        {/* If the game has a linked poll, allow voting directly */}
-                        {localSettings.activeGame.pollId && activePoll && (
-                          <Card className="shadow-lg border-none rounded-3xl">
-                            <CardHeader>
-                              <CardTitle className="text-slate-800 text-base">{activePoll.question}</CardTitle>
-                            </CardHeader>
-                            <CardContent className="space-y-3">
-                              {hasVoted && votedPollId === activePoll.id ? (
-                                <div className="space-y-2">
-                                  {activePoll.options.map(opt => {
-                                    const total = activePoll.options.reduce((a, o) => a + o.votes, 0);
-                                    const pct = total > 0 ? Math.round((opt.votes / total) * 100) : 0;
-                                    return (
-                                      <div key={opt.id} className="space-y-0.5">
-                                        <div className="flex justify-between text-sm text-slate-600">
-                                          <span>{opt.text}</span>
-                                          <span className="font-bold" style={{ color: accentColor }}>{pct}%</span>
-                                        </div>
-                                        <div className="h-2.5 rounded-full bg-slate-100">
-                                          <div className="h-full rounded-full transition-all" style={{ width: `${pct}%`, backgroundColor: accentColor }} />
-                                        </div>
-                                      </div>
-                                    );
-                                  })}
-                                  <p className="text-xs text-center text-slate-400 pt-2">¡Gracias por votar!</p>
-                                </div>
-                              ) : (
-                                <div className="grid gap-2">
-                                  {activePoll.options.map(opt => (
-                                    <Button
-                                      key={opt.id}
-                                      variant="outline"
-                                      className="h-12 rounded-2xl justify-start font-semibold"
-                                      onClick={() => handleVotePoll(activePoll.id, opt.id)}
-                                    >
-                                      {opt.text}
-                                    </Button>
-                                  ))}
-                                </div>
-                              )}
-                            </CardContent>
-                          </Card>
-                        )}
-                      </>
-                    ) : (
-                      <div className="text-center py-16 space-y-3">
-                        <div className="text-4xl">🎮</div>
-                        <p className="font-medium text-slate-500">No hay juego activo en este momento.</p>
-                      </div>
-                    )}
-                  </motion.div>
-                )}
-
-              </AnimatePresence>
-            </main>
-
-            {/* ── Sticky social follow footer (shown in all sections when social links are configured) ── */}
-            {(instagramUrl || facebookUrl) && guestSection !== null && (
-              <div className="sticky bottom-0 z-10 bg-white/95 backdrop-blur-sm border-t border-slate-100 px-4 py-2.5 flex items-center gap-2 max-w-lg mx-auto w-full">
-                <span className="text-xs font-bold text-slate-400 shrink-0">Seguinos 📲</span>
-                <div className="flex gap-2 flex-1 justify-end">
-                  {instagramUrl && (
-                    <button
-                      onClick={() => handleFollowClick('instagram', instagramUrl)}
-                      className="flex items-center gap-1.5 rounded-xl px-3 py-1.5 text-xs font-bold text-white transition-transform active:scale-95"
-                      style={{ background: followedPlatforms.has('instagram') ? '#22c55e' : 'linear-gradient(135deg, #f43f5e, #a855f7)' }}
-                    >
-                      {followedPlatforms.has('instagram') ? <CheckCircle2 className="w-3.5 h-3.5" /> : <svg className="w-3.5 h-3.5" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2.163c3.204 0 3.584.012 4.85.07 3.252.148 4.771 1.691 4.919 4.919.058 1.265.069 1.645.069 4.849 0 3.205-.012 3.584-.069 4.849-.149 3.225-1.664 4.771-4.919 4.919-1.266.058-1.644.07-4.85.07-3.204 0-3.584-.012-4.849-.07-3.26-.149-4.771-1.699-4.919-4.92-.058-1.265-.07-1.644-.07-4.849 0-3.204.013-3.583.07-4.849.149-3.227 1.664-4.771 4.919-4.919 1.266-.057 1.645-.069 4.849-.069zm0-2.163c-3.259 0-3.667.014-4.947.072-4.358.2-6.78 2.618-6.98 6.98-.059 1.281-.073 1.689-.073 4.948 0 3.259.014 3.668.072 4.948.2 4.358 2.618 6.78 6.98 6.98 1.281.058 1.689.072 4.948.072 3.259 0 3.668-.014 4.948-.072 4.354-.2 6.782-2.618 6.979-6.98.059-1.28.073-1.689.073-4.948 0-3.259-.014-3.667-.072-4.947-.196-4.354-2.617-6.78-6.979-6.98-1.281-.059-1.69-.073-4.949-.073zm0 5.838c-3.403 0-6.162 2.759-6.162 6.162s2.759 6.163 6.162 6.163 6.162-2.759 6.162-6.163c0-3.403-2.759-6.162-6.162-6.162zm0 10.162c-2.209 0-4-1.79-4-4 0-2.209 1.791-4 4-4s4 1.791 4 4c0 2.21-1.791 4-4 4zm6.406-11.845c-.796 0-1.441.645-1.441 1.44s.645 1.44 1.441 1.44c.795 0 1.439-.645 1.439-1.44s-.644-1.44-1.439-1.44z"/></svg>}
-                      {followedPlatforms.has('instagram') ? '¡Seguido!' : 'Instagram'}
-                    </button>
-                  )}
-                  {facebookUrl && (
-                    <button
-                      onClick={() => handleFollowClick('facebook', facebookUrl)}
-                      className="flex items-center gap-1.5 rounded-xl px-3 py-1.5 text-xs font-bold text-white transition-transform active:scale-95"
-                      style={{ backgroundColor: followedPlatforms.has('facebook') ? '#22c55e' : '#1d4ed8' }}
-                    >
-                      {followedPlatforms.has('facebook') ? <CheckCircle2 className="w-3.5 h-3.5" /> : <svg className="w-3.5 h-3.5" viewBox="0 0 24 24" fill="currentColor"><path d="M24 12.073c0-6.627-5.373-12-12-12s-12 5.373-12 12c0 5.99 4.388 10.954 10.125 11.854v-8.385H7.078v-3.47h3.047V9.43c0-3.007 1.792-4.669 4.533-4.669 1.312 0 2.686.235 2.686.235v2.953H15.83c-1.491 0-1.956.925-1.956 1.874v2.25h3.328l-.532 3.47h-2.796v8.385C19.612 23.027 24 18.062 24 12.073z"/></svg>}
-                      {followedPlatforms.has('facebook') ? '¡Seguido!' : 'Facebook'}
-                    </button>
-                  )}
-                </div>
-              </div>
-            )}
-
-              {/* Sidebar Derecho: Publicidades y contacto fijo */}
-              <aside className="hidden lg:flex flex-col gap-4 self-start sticky top-24">
-                <p className="text-xs font-black uppercase tracking-widest text-slate-400 px-1">Servicios de AK Producciones</p>
-
-                {defaultAds.slice(0, 2).map((ad, idx) => (
-                  <Card key={idx} className="rounded-3xl border-none shadow-md overflow-hidden bg-white/70 backdrop-blur-lg hover:shadow-lg transition-all duration-300">
-                    <div className="relative h-28 w-full bg-slate-100">
-                      <NextImage src={ad.imageUrl} alt={ad.title} fill className="object-cover" />
-                    </div>
-                    <CardContent className="p-4 space-y-2 text-slate-900">
-                      <h4 className="font-black text-sm text-slate-800 leading-tight">{ad.title}</h4>
-                      <p className="text-[11px] text-slate-500 leading-normal">{ad.description}</p>
-                      <a href={ad.ctaUrl} className="block pt-1">
-                        <Button size="sm" className="w-full h-8 rounded-lg text-[10px] font-black uppercase tracking-wider text-white" style={{ backgroundColor: accentColor }}>
-                          {ad.ctaText}
-                        </Button>
-                      </a>
-                    </CardContent>
-                  </Card>
-                ))}
-
-                {whatsappNumber && (
-                  <Card className="rounded-3xl border-none shadow-md p-4 bg-gradient-to-tr from-slate-900 to-slate-950 text-white space-y-3">
-                    <p className="text-[10px] font-black uppercase tracking-wider text-rose-500">¿Dudas o Consultas?</p>
-                    <p className="text-xs text-slate-400 leading-normal">Contactate con nuestro equipo comercial para reservar fechas o cotizar packs promocionales.</p>
-                    <a href={`https://wa.me/${whatsappNumber}`} target="_blank" rel="noopener noreferrer" className="block">
-                      <Button size="sm" variant="outline" className="w-full h-9 rounded-xl border-white/10 bg-white/5 hover:bg-white/10 hover:text-white font-bold text-xs text-white">
-                        Escribir por WhatsApp
-                      </Button>
-                    </a>
-                  </Card>
-                )}
-              </aside>
-            </div>
-          </div>
-          </>
-        )}
-        </>
-      )}
-      </>
-    )}
-
-      {/* ── Name modal (shared) ──────────────────────────────────────── */}
-      {/* ════════════════════════════════════════════════════════════════
-          ADMIN VIEW — existing complex layout, unchanged
-      ════════════════════════════════════════════════════════════════ */}
-      {isAdminView && (
-        <>
-      <header className="sticky top-0 z-20 bg-white/70 backdrop-blur-2xl border-b border-white/20 shadow-sm px-4">
-        <div className="max-w-6xl mx-auto h-20 flex justify-between items-center gap-4">
-          <div className="flex items-center gap-4 min-w-0">
-            <motion.div initial={{ rotate: -10, scale: 0.9 }} animate={{ rotate: 0, scale: 1 }} transition={{ duration: 0.5 }} className="p-3 rounded-2xl hidden sm:flex shadow-inner" style={{ backgroundColor: accentColor }}>
-                <PartyPopper className="w-6 h-6 text-white" />
-            </motion.div>
-            <div className="min-w-0">
-                <h1 className="text-xl font-black font-headline text-slate-800 truncate tracking-tight">
-                    {localSettings.title || fiesta?.configuracion.nombreEvento || 'Red Social'}
-                </h1>
-                <p className="text-[10px] font-bold text-slate-500 truncate uppercase tracking-widest mt-0.5">
-                    {localSettings.subtitle || 'Subí tus fotos y participá en vivo'}
-                </p>
-            </div>
-          </div>
-
-          <div className="flex items-center gap-2 shrink-0">
-             <Dialog open={isUploadDialogOpen} onOpenChange={setIsUploadDialogOpen}>
-                <DialogTrigger asChild>
-                    <Button className="h-11 rounded-2xl px-6 font-bold shadow-lg shadow-primary/20 transition-transform active:scale-95" disabled={!authorName || !localSettings.uploadsActive} style={{ backgroundColor: accentColor }}>
-                        <Upload className="w-5 h-5 mr-2"/>
-                        <span className="hidden sm:inline">Subir Momento</span>
-                    </Button>
-                </DialogTrigger>
-                <DialogContent className="rounded-3xl border-none">
-                    <DialogHeader><DialogTitle className="text-xl font-bold">Publicar Momento</DialogTitle><DialogDescription>Sube una foto o video corto para compartir el momento.</DialogDescription></DialogHeader>
-                    <form onSubmit={handleUploadSubmit} className="space-y-6 py-2">
-                        {uploadPreview ? (
-                            <div className="relative aspect-square rounded-2xl overflow-hidden shadow-inner border bg-slate-50">
-                                {fileToUpload?.type.startsWith('video/') ? (
-                                  <video src={uploadPreview} controls playsInline className="h-full w-full object-contain" />
-                                ) : (
-                                  <NextImage src={uploadPreview} alt="Vista previa" layout="fill" objectFit="contain" />
-                                )}
-                                <Button type="button" variant="destructive" size="icon" className="absolute top-2 right-2 rounded-full h-8 w-8" onClick={() => {setFileToUpload(null); setUploadPreview(null);}}><X className="w-4 h-4"/></Button>
-                            </div>
-                        ) : (
-                            <div className="h-64 border-2 border-dashed border-slate-200 rounded-3xl flex flex-col items-center justify-center bg-slate-50 transition-colors hover:bg-slate-100 hover:border-primary/30">
-                                <Label htmlFor="file-upload-dialog" className="cursor-pointer text-center text-slate-400 p-8 flex flex-col items-center gap-3">
-                                    <div className="p-4 bg-white rounded-2xl shadow-sm">
-                                        <Upload className="w-8 h-8 text-primary" style={{ color: accentColor }}/>
-                                    </div>
-                                    <div className="space-y-1">
-                                        <p className="font-bold text-slate-600">Toca para seleccionar</p>
-                                        <p className="text-xs">Fotos hasta 10MB · videos hasta 60MB</p>
-                                    </div>
-                                </Label>
-                                 <Input id="file-upload-dialog" type="file" onChange={handleFileSelect} className="hidden" accept="image/*,video/*" disabled={!localSettings.uploadsActive} />
-                             </div>
-                         )}
-                        <DialogFooter>
-                            <Button type="submit" className="w-full h-12 rounded-xl text-lg font-bold" disabled={isUploading || !fileToUpload || !localSettings.uploadsActive} style={{ backgroundColor: accentColor }}>
-                                {isUploading ? <Loader2 className="w-5 h-5 mr-2 animate-spin"/> : <Send className="w-5 h-5 mr-2"/>}
-                                {isUploading ? "Publicando..." : "Publicar ahora"}
-                            </Button>
-                        </DialogFooter>
-                    </form>
-                </DialogContent>
-            </Dialog>
-
-            {isAdminView && (
-              <>
-                 <Dialog open={isSettingsDialogOpen} onOpenChange={setIsSettingsDialogOpen}>
-                    <DialogTrigger asChild>
-                        <Button variant="outline" className="h-11 w-11 rounded-2xl p-0 border-slate-200"><Settings2 className="w-5 h-5 text-slate-600"/></Button>
-                    </DialogTrigger>
-                    <DialogContent className="rounded-3xl border-none">
-                        <DialogHeader><DialogTitle className="text-xl font-bold">Ajustes del Mural</DialogTitle><DialogDescription>Personaliza la apariencia y funciones para los invitados.</DialogDescription></DialogHeader>
-                        <div className="space-y-5 py-4">
-                            <div className="space-y-2"><Label className="text-xs font-bold text-slate-400 uppercase">Personalización Visual</Label>
-                                <div className="grid grid-cols-2 gap-4">
-                                    <div className="space-y-1.5"><Label>Color Fondo</Label><div className="flex gap-2"><Input type="color" value={localSettings.backgroundColor} onChange={e => setLocalSettings(p => ({...p, backgroundColor: e.target.value}))} className="w-10 h-10 p-1"/><Input value={localSettings.backgroundColor} onChange={e => setLocalSettings(p => ({...p, backgroundColor: e.target.value}))}/></div></div>
-                                    <div className="space-y-1.5"><Label>Color Acento</Label><div className="flex gap-2"><Input type="color" value={localSettings.accentColor} onChange={e => setLocalSettings(p => ({...p, accentColor: e.target.value}))} className="w-10 h-10 p-1"/><Input value={localSettings.accentColor} onChange={e => setLocalSettings(p => ({...p, accentColor: e.target.value}))}/></div></div>
-                                </div>
-                            </div>
-                            <Separator/>
-                            <div className="flex items-center justify-between"><div className="space-y-0.5"><Label className="text-base font-bold">Chat en Vivo</Label><p className="text-xs text-muted-foreground">Activa el panel de conversación inferior.</p></div><Switch checked={localSettings.chatEnabled} onCheckedChange={v => setLocalSettings(p => ({...p, chatEnabled: v}))}/></div>
-                            <div className="flex items-center justify-between"><div className="space-y-0.5"><Label className="text-base font-bold">Permitir Subidas</Label><p className="text-xs text-muted-foreground">Habilitar el boton de subir fotos o videos.</p></div><Switch checked={localSettings.uploadsActive} onCheckedChange={v => setLocalSettings(p => ({...p, uploadsActive: v}))}/></div>
-                            <div className="flex items-center justify-between"><div className="space-y-0.5"><Label className="text-base font-bold">Revisar antes de publicar</Label><p className="text-xs text-muted-foreground">Los invitados envian contenido y vos lo aprobas antes de verlo en pantalla.</p></div><Switch checked={localSettings.requireApproval === true} onCheckedChange={v => setLocalSettings(p => ({...p, requireApproval: v}))}/></div>
-                            <Separator/>
-                            <div className="space-y-1.5">
-                                <Label className="text-base font-bold">Límite de Fotos</Label>
-                                <p className="text-xs text-muted-foreground">Máximo de fotos permitidas para este evento (10–500).</p>
-                                <Input type="number" min={10} max={500} value={localSettings.maxPhotos ?? 200} onChange={e => { const val = Math.min(500, Math.max(10, Number(e.target.value))); setLocalSettings(p => ({...p, maxPhotos: val})); }} />
-                            </div>
-                        </div>
-                        <DialogFooter><Button onClick={handleSaveSettings} disabled={isSavingSettings} className="w-full h-12 rounded-xl text-lg font-bold">{isSavingSettings ? <Loader2 className="animate-spin mr-2"/> : <Save className="w-5 h-5 mr-2"/>}Guardar Ajustes</Button></DialogFooter>
-                    </DialogContent>
-                 </Dialog>
-                 <ShareLinkDialog relativePath={`/evento/social/${params.fiestaId}`} title="Muro Social · Link para invitados" description="Compartí este link para que los invitados suban fotos y participen.">
-                    <Button variant="outline" className="h-11 w-11 rounded-2xl p-0 border-slate-200"><Share2 className="w-5 h-5 text-slate-600"/></Button>
-                </ShareLinkDialog>
-                  <Dialog open={isFlyerDialogOpen} onOpenChange={setIsFlyerDialogOpen}>
-                     <DialogTrigger asChild>
-                         <Button variant="outline" title="Descargar carteles QR" className="h-11 w-11 rounded-2xl p-0 border-slate-200"><Printer className="w-5 h-5 text-slate-600"/></Button>
-                     </DialogTrigger>
-                     <DialogContent className="rounded-3xl border-none max-w-lg">
-                         <DialogHeader>
-                             <DialogTitle className="text-xl font-bold">Generador de Cartelera QR</DialogTitle>
-                             <DialogDescription>Generá hermosos diseños para imprimir y colocar en las mesas de la fiesta.</DialogDescription>
-                         </DialogHeader>
-                         {typeof window !== 'undefined' && (
-                           <QrFlyerGenerator
-                             qrUrl={`${window.location.origin}/evento/social/${params.fiestaId}`}
-                             eventName={fiesta?.configuracion?.nombreEvento || "Nuestra Fiesta"}
-                             onClose={() => setIsFlyerDialogOpen(false)}
-                           />
-                         )}
-                     </DialogContent>
-                  </Dialog>
-                 <Button variant="outline" onClick={() => window.open(`/evento/muro-en-vivo/${params.fiestaId}`, '_blank')} title="Abrir pantalla gigante" aria-label="Abrir pantalla gigante" className="h-11 w-11 rounded-2xl p-0 border-slate-200"><MonitorPlay className="w-5 h-5 text-slate-600"/></Button>
-              </>
-            )}
-             <Button variant="ghost" size="icon" onClick={() => fetchData(true)} disabled={isLoading} className="h-11 w-11 rounded-2xl"><RefreshCw className={`w-5 h-5 text-slate-400 ${isLoading ? 'animate-spin' : ''}`}/></Button>
-          </div>
+      <header className="sticky top-0 z-30 border-b border-slate-200 bg-white">
+        <div className="mx-auto flex h-16 max-w-6xl items-center gap-3 px-4">
+          {section !== 'feed' && <button type="button" onClick={() => chooseSection('feed')} className="grid h-10 w-10 place-items-center rounded-full hover:bg-slate-100" aria-label="Volver"><ArrowLeft className="h-5 w-5" /></button>}
+          <div className="min-w-0 flex-1"><h1 className="truncate text-base font-black sm:text-lg">{eventName}</h1><p className="text-xs text-slate-500">Hola, {authorName || 'invitado'}</p></div>
+          <button type="button" onClick={() => void loadCore(true)} className="grid h-10 w-10 place-items-center rounded-full hover:bg-slate-100" aria-label="Actualizar"><RefreshCw className={`h-5 w-5 ${refreshing ? 'animate-spin' : ''}`} /></button>
         </div>
-        {isAdminView && (
-          <div className="bg-amber-50 border-y border-amber-100 p-2.5 flex justify-center items-center gap-6 overflow-x-auto">
-            <span className="text-[10px] font-bold text-amber-700 uppercase tracking-widest whitespace-nowrap">MODO ADMINISTRADOR · RED SOCIAL</span>
-            <div className="flex gap-2 flex-wrap">
-                <a href={`/evento/social/${params.fiestaId}`} target="_blank" rel="noopener noreferrer" aria-label="Abrir vista de invitados de la Red Social"><Button size="sm" variant="ghost" className="h-7 text-[10px] font-bold text-amber-800 hover:bg-amber-100">📱 INVITADOS</Button></a>
-                <a href={`/evento/muro-en-vivo/${params.fiestaId}`} target="_blank" rel="noopener noreferrer" aria-label="Abrir pantalla gigante del Muro Social"><Button size="sm" variant="ghost" className="h-7 text-[10px] font-bold text-amber-800 hover:bg-amber-100">🖥 PANTALLA GIGANTE</Button></a>
-                <Button size="sm" variant="ghost" className="h-7 text-[10px] font-bold text-amber-800 hover:bg-amber-100" onClick={handleDownloadChat}><Download className="w-3 h-3 mr-1.5"/>CHAT</Button>
-                <a href={`/api/social-gallery/${params.fiestaId}/download`} download><Button size="sm" variant="ghost" className="h-7 text-[10px] font-bold text-amber-800 hover:bg-amber-100"><Download className="w-3 h-3 mr-1.5"/>FOTOS</Button></a>
-                <AlertDialog>
-                    <AlertDialogTrigger asChild><Button size="sm" variant="ghost" className="h-7 text-[10px] font-bold text-destructive hover:bg-slate-100" disabled={isDownloadingAndClearing} aria-label="Descargar ZIP y limpiar galería"><Download className="w-3 h-3 mr-1.5"/><Trash2 className="w-3 h-3 mr-1.5"/>ZIP + LIMPIAR</Button></AlertDialogTrigger>
-                    <AlertDialogContent>
-                        <AlertDialogHeader><AlertDialogTitle>¿Descargar ZIP y limpiar?</AlertDialogTitle><AlertDialogDescription>Se descargará el ZIP con todas las fotos y luego se eliminarán permanentemente del servidor.</AlertDialogDescription></AlertDialogHeader>
-                        <AlertDialogFooter><AlertDialogCancel>Cancelar</AlertDialogCancel><AlertDialogAction onClick={handleDownloadAndClear} className="bg-destructive hover:bg-destructive/90">Confirmar</AlertDialogAction></AlertDialogFooter>
-                    </AlertDialogContent>
-                </AlertDialog>
-                <AlertDialog>
-                    <AlertDialogTrigger asChild><Button size="sm" variant="ghost" className="h-7 text-[10px] font-bold text-destructive hover:bg-slate-100" disabled={isClearing}><Trash2 className="w-3 h-3 mr-1.5"/>VACIAR</Button></AlertDialogTrigger>
-                    <AlertDialogContent>
-                        <AlertDialogHeader><AlertDialogTitle>¿Vaciar el mural?</AlertDialogTitle><AlertDialogDescription>Se eliminarán permanentemente todas las fotos y mensajes.</AlertDialogDescription></AlertDialogHeader>
-                        <AlertDialogFooter><AlertDialogCancel>Cancelar</AlertDialogCancel><AlertDialogAction onClick={handleClearGallery} className="bg-destructive hover:bg-destructive/90">Confirmar</AlertDialogAction></AlertDialogFooter>
-                    </AlertDialogContent>
-                </AlertDialog>
-            </div>
-          </div>
-        )}
       </header>
 
-      <main className="max-w-6xl mx-auto p-6 md:p-8 space-y-12">
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6 md:gap-8">
-            <AnimatePresence>
-                {galleryPosts.length === 0 && isLoading ? (
-                    Array.from({length:4}).map((_, i) => (
-                        <div key={i} className="aspect-square bg-white/50 animate-pulse rounded-3xl border border-white"></div>
-                    ))
-                ) : galleryPosts.map(post => (
-                    <PostCard
-                      key={post.id}
-                      post={post}
-                      onLike={handleLike}
-                      onComment={handleComment}
-                      isAdminView={isAdminView}
-                      onDelete={handleDelete}
-                      onModerate={isAdminView ? handleModeratePost : undefined}
-                      onHighlightComment={isAdminView ? handleHighlightComment : undefined}
-                      authorName={authorName}
-                      accentColor={accentColor}
-                      allowLikes={localSettings.allowLikes !== false}
-                      allowComments={localSettings.allowComments !== false}
-                      hasLiked={likedPosts.has(post.id)}
-                    />
-                ))}
-            </AnimatePresence>
+      {settings.mobileControlCoverUrl && section === 'feed' && (
+        <div className="relative mx-auto h-48 max-w-6xl overflow-hidden sm:mt-4 sm:h-64 sm:rounded-md">
+          {/* eslint-disable-next-line @next/next/no-img-element -- Event covers may use Firebase signed URLs. */}
+          <img src={settings.mobileControlCoverUrl} alt={eventName} className="h-full w-full object-cover" />
+          <div className="absolute inset-0 bg-black/45" />
+          <div className="absolute bottom-0 px-5 py-4 text-white"><p className="text-2xl font-black sm:text-4xl">{eventName}</p>{settings.subtitle && <p className="mt-1 text-sm text-white/85">{settings.subtitle}</p>}</div>
         </div>
+      )}
 
-        {galleryPosts.length === 0 && !isLoading && (
-            <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="text-center py-24 flex flex-col items-center gap-6">
-                <div className="w-24 h-24 bg-white rounded-[2.5rem] flex items-center justify-center shadow-xl shadow-slate-200">
-                    <CameraIcon className="w-10 h-10 text-slate-300"/>
-                </div>
-                <div className="space-y-2">
-                    <h2 className="text-2xl font-black text-slate-800">¡Mural vacío!</h2>
-                    <p className="text-slate-400">Sé el primero en compartir una foto de este momento.</p>
-                </div>
-                <Button onClick={() => setIsUploadDialogOpen(true)} className="h-12 rounded-xl px-8 font-bold" style={{ backgroundColor: accentColor }}>Subir primera foto</Button>
-            </motion.div>
-        )}
+      <nav className="sticky top-16 z-20 border-b border-slate-200 bg-white">
+        <div className="mx-auto flex max-w-3xl gap-1 overflow-x-auto px-2 py-2">
+          {availableSections.map((item) => {
+            const Icon = item.icon;
+            const selected = section === item.id;
+            return <button key={item.id} type="button" onClick={() => chooseSection(item.id)} className="relative flex min-h-11 shrink-0 items-center gap-2 rounded-md px-4 text-sm font-bold transition hover:bg-slate-100" style={selected ? { color: accentColor, backgroundColor: `${accentColor}0d` } : { color: '#475569' }}><Icon className="h-5 w-5" />{item.label}{selected && <span className="absolute inset-x-2 bottom-0 h-0.5" style={{ backgroundColor: accentColor }} />}</button>;
+          })}
+        </div>
+      </nav>
 
-        {(localSettings.showSongRequests !== false || localSettings.showDedications !== false) && (
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-            {localSettings.showSongRequests !== false && (
-              <Card className="shadow-xl border-none rounded-3xl bg-white/90 backdrop-blur-md">
-                <CardHeader>
-                  <CardTitle className="flex items-center gap-2 text-slate-800">
-                    <Music className="w-5 h-5" style={{ color: accentColor }} /> Pedidos de canciones
-                  </CardTitle>
-                  <CardDescription>Tu pedido aparece en el panel del organizador en tiempo real.</CardDescription>
-                </CardHeader>
-                <CardContent className="space-y-4">
-                  <form onSubmit={handleSongRequestSubmit} className="flex gap-2">
-                    <Input value={newSongRequest} onChange={e => setNewSongRequest(e.target.value)} placeholder="Ej: TQG - Karol G & Shakira" />
-                    <Button type="submit" disabled={!newSongRequest.trim()} style={{ backgroundColor: accentColor }}>
-                      <Send className="w-4 h-4" />
-                    </Button>
-                  </form>
-                  <div className="space-y-2 max-h-48 overflow-y-auto">
-                    {songRequests.slice(0, MAX_DISPLAYED_SONG_REQUESTS).map((request) => (
-                      <div key={request.id} className="rounded-xl border bg-slate-50 px-3 py-2 text-sm">
-                        <p className="font-semibold text-slate-700">{request.song}</p>
-                        <p className="text-xs text-slate-500">Pedido por {request.requestedBy}</p>
-                      </div>
-                    ))}
-                    {songRequests.length === 0 && <p className="text-xs text-slate-400">Todavía no hay pedidos.</p>}
-                  </div>
-                </CardContent>
-              </Card>
-            )}
+      <main className="mx-auto w-full max-w-3xl py-4 sm:px-4 sm:py-6">
+        <div>
+          {section === 'feed' && (
+            <div className="space-y-4">
+              <section className="border-y border-slate-200 bg-white p-4 sm:rounded-md sm:border">
+                <div className="flex items-center gap-3"><div className="grid h-11 w-11 shrink-0 place-items-center rounded-full text-xs font-black text-white" style={{ backgroundColor: accentColor }}>{initials(authorName)}</div><button type="button" onClick={() => setUploadOpen(true)} disabled={!settings.uploadsActive} className="min-h-11 flex-1 rounded-md bg-slate-100 px-4 text-left text-sm font-semibold text-slate-600 transition hover:bg-slate-200 disabled:opacity-50">{settings.uploadsActive ? '¿Qué querés compartir?' : 'Las publicaciones están pausadas'}</button></div>
+                <div className="mt-3 grid grid-cols-2 border-t border-slate-100 pt-2"><button type="button" onClick={() => setUploadOpen(true)} disabled={!settings.uploadsActive} className="flex min-h-10 items-center justify-center gap-2 rounded-md text-sm font-bold text-slate-600 hover:bg-slate-100"><Camera className="h-5 w-5 text-emerald-600" />Foto</button><button type="button" onClick={() => setUploadOpen(true)} disabled={!settings.uploadsActive} className="flex min-h-10 items-center justify-center gap-2 rounded-md text-sm font-bold text-slate-600 hover:bg-slate-100"><Video className="h-5 w-5 text-red-600" />Video</button></div>
+              </section>
+              {posts.length ? posts.map((post) => <FeedPost key={post.id} post={post} authorName={authorName} accentColor={accentColor} allowLikes={settings.allowLikes !== false} allowComments={settings.allowComments !== false} liked={likedPosts.has(post.id)} onLike={() => void likePost(post.id)} onComment={(text) => commentPost(post.id, text)} />) : <EmptyState icon={Camera} title="Todavía no hay publicaciones" text="Sé la primera persona en compartir un momento." />}
+            </div>
+          )}
 
-            {localSettings.showDedications !== false && (
-              <Card className="shadow-xl border-none rounded-3xl bg-white/90 backdrop-blur-md">
-                <CardHeader>
-                  <CardTitle className="flex items-center gap-2 text-slate-800">
-                    {localSettings.privateDedicationsMode ? "🔐 Buzón 100% Privado" : <><MicVocal className="w-5 h-5" style={{ color: accentColor }} /> Dedicatorias</>}
-                  </CardTitle>
-                  <CardDescription>
-                    {localSettings.privateDedicationsMode
-                      ? "Tus palabras y audios irán directo a los anfitriones de forma privada."
-                      : "Envía un mensaje para que se vea en el control del evento."}
-                  </CardDescription>
-                </CardHeader>
-                <CardContent className="space-y-4">
-                  <form onSubmit={handleDedicationSubmit} className="space-y-3">
-                    <Textarea
-                      value={newDedication}
-                      onChange={e => setNewDedication(e.target.value)}
-                      placeholder={localSettings.privateDedicationsMode ? "Escribe un mensaje privado..." : "Escribe tu dedicatoria..."}
-                      rows={3}
-                    />
+          {section === 'songs' && <SectionShell key="songs" title="Pedí una canción" text="Tu pedido entra en la lista que revisa el DJ."><form onSubmit={submitSong} className="flex gap-2"><Input value={songDraft} onChange={(change) => setSongDraft(change.target.value)} maxLength={120} placeholder="Canción y artista" className="h-12 bg-white text-slate-950" /><Button type="submit" disabled={!songDraft.trim() || submitting} className="h-12 px-4" style={{ backgroundColor: accentColor }}><Send className="h-5 w-5" /></Button></form><div className="divide-y divide-slate-100">{songs.map((song, index) => <div key={song.id} className="flex items-center gap-3 py-4"><span className="grid h-9 w-9 shrink-0 place-items-center rounded-full bg-slate-100 text-sm font-black">{index + 1}</span><div className="min-w-0 flex-1"><p className="font-bold text-slate-900">{song.song}</p><p className="text-xs text-slate-500">Pedido por {song.requestedBy}</p></div>{song.played && <span className="flex items-center gap-1 text-xs font-bold text-emerald-700"><Play className="h-3 w-3 fill-current" /> Sonó</span>}</div>)}{songs.length === 0 && <EmptyState icon={Music2} title="Sin pedidos todavía" text="Pedí la primera canción de la fiesta." />}</div></SectionShell>}
 
-                    <Button type="submit" disabled={!newDedication.trim() || isSendingDedication} className="w-full h-10 rounded-xl font-bold flex items-center justify-center gap-2" style={{ backgroundColor: accentColor }}>
-                      <Send className="w-4 h-4" />
-                      {localSettings.privateDedicationsMode ? "Enviar mensaje privado" : "Enviar dedicatoria"}
-                    </Button>
-                  </form>
-                  {localSettings.privateDedicationsMode && !isAdminView ? (
-                    <p className="rounded-xl bg-emerald-50 px-3 py-3 text-center text-xs font-semibold text-emerald-800">
-                      Tu mensaje queda visible solamente para la organización.
-                    </p>
-                  ) : (
-                    <div className="space-y-2 max-h-48 overflow-y-auto">
-                      {dedications.slice(-15).reverse().map((dedication) => (
-                        <div key={dedication.id} className={cn("rounded-xl border px-3 py-2 text-sm", dedication.highlighted ? "bg-amber-50 border-amber-300" : "bg-slate-50")}>
-                          <div className="flex items-start justify-between gap-2">
-                            <div className="min-w-0 font-medium">
-                              <p className="text-slate-700">{dedication.message}</p>
-                              {dedication.audioUrl && (
-                                <div className="mt-2">
-                                  <audio src={dedication.audioUrl} controls className="w-full h-8 max-w-[260px]" />
-                                </div>
-                              )}
-                              <p className="text-xs text-slate-500 mt-1">— {dedication.authorName}</p>
-                            </div>
-                            {isAdminView && (
-                              <button
-                                onClick={() => handleHighlightDedication(dedication.id, !!dedication.highlighted)}
-                                className={cn("flex-shrink-0 p-1 rounded-lg transition-colors", dedication.highlighted ? "text-amber-500 hover:text-amber-600" : "text-slate-300 hover:text-amber-400")}
-                                title={dedication.highlighted ? 'Quitar destacado' : 'Destacar'}
-                              >
-                                <Star className="w-4 h-4" fill={dedication.highlighted ? 'currentColor' : 'none'} />
-                              </button>
-                            )}
-                            {dedication.highlighted && !isAdminView && (
-                              <Star className="w-4 h-4 flex-shrink-0 text-amber-400 fill-current" />
-                            )}
-                          </div>
-                        </div>
-                      ))}
-                      {dedications.length === 0 && <p className="text-xs text-slate-400">Todavía no hay dedicatorias.</p>}
-                    </div>
-                  )}
-                </CardContent>
-              </Card>
-            )}
-          </div>
-        )}
+          {section === 'dedications' && <SectionShell key="dedications" title={settings.privateDedicationsMode ? 'Mensaje privado' : 'Mensajes para la fiesta'} text={settings.privateDedicationsMode ? 'Solo el equipo organizador podrá leerlo.' : 'Dejá un texto o una nota de voz.'}><form onSubmit={submitDedication} className="space-y-3"><Textarea value={dedicationDraft} onChange={(change) => setDedicationDraft(change.target.value)} maxLength={1000} placeholder="Escribí tu mensaje" className="min-h-28 bg-white text-slate-950" /><div className="flex flex-wrap items-center gap-2">{recording ? <Button type="button" variant="destructive" onClick={stopRecording}><Square className="mr-2 h-4 w-4 fill-current" />Detener {recordingSeconds}s</Button> : <Button type="button" variant="outline" onClick={startRecording}><Mic className="mr-2 h-4 w-4" />Grabar voz</Button>}{audioPreview && <><audio src={audioPreview} controls className="h-10 max-w-full" /><button type="button" onClick={clearAudio} className="grid h-9 w-9 place-items-center rounded-full bg-slate-100" aria-label="Quitar audio"><X className="h-4 w-4" /></button></>}<Button type="submit" disabled={(!dedicationDraft.trim() && !audioBlob) || submitting} className="ml-auto" style={{ backgroundColor: accentColor }}><Send className="mr-2 h-4 w-4" />Enviar</Button></div></form>{!settings.privateDedicationsMode && <div className="mt-6 space-y-3">{dedications.slice().reverse().map((dedication) => <article key={dedication.id} className="border-t border-slate-100 pt-4"><div className="flex items-center gap-2"><div className="grid h-9 w-9 place-items-center rounded-full bg-slate-200 text-xs font-black">{initials(dedication.authorName)}</div><div><p className="text-sm font-bold">{dedication.authorName}</p><p className="text-xs text-slate-500">{formatDistanceToNow(new Date(dedication.timestamp), { addSuffix: true, locale: es })}</p></div></div><p className="mt-3 text-sm leading-relaxed text-slate-700">{dedication.message}</p>{dedication.audioUrl && <audio src={dedication.audioUrl} controls className="mt-3 h-10 w-full" />}</article>)}{dedications.length === 0 && <EmptyState icon={Heart} title="Todavía no hay mensajes" text="Dejá el primero para los protagonistas." />}</div>}</SectionShell>}
 
-        {/* Admin: Polls/Trivia management */}
-        {isAdminView && (
-          <Card className="shadow-xl border-none rounded-3xl bg-white/90 backdrop-blur-md border-l-4" style={{ borderLeftColor: accentColor }}>
-            <CardHeader>
-              <CardTitle className="flex items-center gap-2 text-slate-800">
-                <PlayCircle className="w-5 h-5" style={{ color: accentColor }} /> Encuestas / Trivia
-              </CardTitle>
-              <CardDescription>Lanza una encuesta en vivo para que los invitados voten.</CardDescription>
-            </CardHeader>
-            <CardContent className="space-y-6">
-              <form onSubmit={handleCreatePoll} className="space-y-3">
-                <Input value={pollQuestion} onChange={e => setPollQuestion(e.target.value)} placeholder="Pregunta de la encuesta..." />
-                <div className="space-y-2">
-                  {pollOptions.map((opt, idx) => (
-                    <div key={idx} className="flex gap-2 items-center">
-                      <Input value={opt} onChange={e => { const next = [...pollOptions]; next[idx] = e.target.value; setPollOptions(next); }} placeholder={`Opción ${idx + 1}`} />
-                      {pollOptions.length > 2 && (
-                        <button type="button" onClick={() => setPollOptions(prev => prev.filter((_, i) => i !== idx))} className="text-slate-400 hover:text-destructive">
-                          <MinusCircle className="w-5 h-5" />
-                        </button>
-                      )}
-                    </div>
-                  ))}
-                  {pollOptions.length < 4 && (
-                    <button type="button" onClick={() => setPollOptions(prev => [...prev, ''])} className="flex items-center gap-1.5 text-xs font-semibold text-slate-400 hover:text-slate-600">
-                      <PlusCircle className="w-4 h-4" /> Agregar opción
-                    </button>
-                  )}
-                </div>
-                <Button type="submit" disabled={isCreatingPoll || !pollQuestion.trim() || pollOptions.filter(o => o.trim()).length < 2} style={{ backgroundColor: accentColor }}>
-                  {isCreatingPoll ? <Loader2 className="w-4 h-4 mr-2 animate-spin" /> : <PlayCircle className="w-4 h-4 mr-2" />}
-                  Lanzar Encuesta
-                </Button>
-              </form>
-              {activePoll && (
-                <div className="rounded-2xl bg-slate-50 border border-slate-200 p-4 space-y-3">
-                  <div className="flex items-center justify-between">
-                    <p className="font-semibold text-slate-700 text-sm">{activePoll.question}</p>
-                    <Button size="sm" variant="destructive" onClick={() => handleClosePoll(activePoll.id)}>Cerrar</Button>
-                  </div>
-                  <div className="space-y-1.5">
-                    {activePoll.options.map(opt => {
-                      const total = activePoll.options.reduce((a, o) => a + o.votes, 0);
-                      const pct = total > 0 ? Math.round((opt.votes / total) * 100) : 0;
-                      return (
-                        <div key={opt.id} className="space-y-0.5">
-                          <div className="flex justify-between text-xs text-slate-600">
-                            <span>{opt.text}</span><span className="font-bold">{pct}% ({opt.votes})</span>
-                          </div>
-                          <div className="h-2 rounded-full bg-slate-200"><div className="h-full rounded-full transition-all" style={{ width: `${pct}%`, backgroundColor: accentColor }} /></div>
-                        </div>
-                      );
-                    })}
-                  </div>
-                </div>
-              )}
-            </CardContent>
-          </Card>
-        )}
+          {section === 'chat' && <SectionShell key="chat" title="Chat en vivo" text="Mensajes cortos para compartir durante la fiesta."><div className="max-h-[55vh] min-h-72 space-y-3 overflow-y-auto rounded-md bg-slate-50 p-3">{messages.map((message) => { const own = message.authorName === authorName; return <div key={message.id} className={`flex ${own ? 'justify-end' : 'justify-start'}`}><div className={`max-w-[85%] rounded-md px-3 py-2 text-sm ${own ? 'text-white' : 'bg-white text-slate-800 shadow-sm'}`} style={own ? { backgroundColor: accentColor } : undefined}><p className={`text-[10px] font-bold ${own ? 'text-white/75' : 'text-slate-500'}`}>{message.authorName}</p><p className="break-words">{message.text}</p></div></div>; })}{messages.length === 0 && <EmptyState icon={MessageCircle} title="El chat está vacío" text="Mandá el primer saludo." />}</div><form onSubmit={submitChat} className="mt-3 flex gap-2"><Input value={chatDraft} onChange={(change) => setChatDraft(change.target.value)} maxLength={500} placeholder="Escribí un mensaje" className="h-12 bg-white text-slate-950" /><Button type="submit" disabled={!chatDraft.trim() || submitting} className="h-12" style={{ backgroundColor: accentColor }}><Send className="h-5 w-5" /></Button></form></SectionShell>}
 
+          {section === 'poll' && <SectionShell key="poll" title={poll?.question || 'Encuesta'} text="Elegí una opción. Cada invitado puede votar una vez.">{poll ? <VoteOptions options={poll.options} voted={votedPollId === poll.id} accentColor={accentColor} onVote={submitPollVote} /> : <EmptyState icon={BarChart3} title="No hay encuesta activa" text="Cuando el equipo publique una, aparecerá acá." />}</SectionShell>}
 
-
-        {localSettings.chatEnabled !== false && (
-            <Card className="shadow-2xl border-none rounded-[1.5rem] overflow-hidden bg-white/90 backdrop-blur-md max-w-lg mx-auto">
-                <CardHeader className="p-4 border-b border-slate-100 flex flex-row items-center gap-3">
-                    <div className="p-2 rounded-lg" style={{ backgroundColor: `${accentColor}15` }}>
-                        <MessageSquare className="w-4 h-4" style={{ color: accentColor }}/>
-                    </div>
-                    <CardTitle className="text-sm font-bold text-slate-800">Chat del Evento</CardTitle>
-                </CardHeader>
-                <CardContent className="p-4">
-                    <ScrollArea className="h-48 pr-4">
-                        <div className="space-y-3">
-                            {chatMessages.map(msg => {
-                                const isMe = msg.authorName === authorName;
-                                return (
-                                    <div key={msg.id} className={cn("flex flex-col max-w-[90%]", isMe ? "ml-auto items-end" : "items-start")}>
-                                        {!isMe && <span className="text-[9px] font-black text-slate-400 uppercase tracking-tighter mb-0.5 ml-1">{msg.authorName}</span>}
-                                        <div className={cn("px-3 py-1.5 rounded-xl text-xs shadow-sm", isMe ? "text-white" : "bg-slate-100 text-slate-700")} style={isMe ? { backgroundColor: accentColor } : {}}>
-                                            {msg.text}
-                                        </div>
-                                        <span className="text-[8px] text-slate-300 mt-0.5 mx-1">{new Date(msg.timestamp).toLocaleTimeString('es-ES', {hour: '2-digit', minute:'2-digit'})}</span>
-                                    </div>
-                                );
-                            })}
-                            <div ref={chatEndRef}/>
-                        </div>
-                    </ScrollArea>
-                    <form onSubmit={handleChatSubmit} className="flex gap-2 items-center mt-4 pt-3 border-t border-slate-100">
-                        <Input value={newChatMessage} onChange={e => setNewChatMessage(e.target.value)} placeholder="Escribe un mensaje..." disabled={isSendingChat || !authorName} className="h-10 rounded-xl bg-slate-50 border-none px-4 text-xs focus-visible:ring-2" style={{ '--tw-ring-color': accentColor } as any} />
-                        <Button type="submit" disabled={!newChatMessage.trim() || isSendingChat || !authorName} className="h-10 w-10 rounded-xl flex-shrink-0 shadow-lg shadow-primary/10 transition-transform active:scale-95" style={{ backgroundColor: accentColor }}>
-                            {isSendingChat ? <Loader2 className="w-4 h-4 animate-spin"/> : <Send className="w-4 h-4"/>}
-                        </Button>
-                    </form>
-                </CardContent>
-            </Card>
-        )}
+          {section === 'game' && <SectionShell key="game" title={activeGame?.title || 'Juego'} text={activeGame?.subtitle || 'Participá desde tu celular.'}>{activeGame?.options?.length ? <VoteOptions options={activeGame.options.map((option) => ({ ...option, votes: option.votes || 0 }))} voted={votedGameId === activeGame.launchedAt} accentColor={accentColor} onVote={submitGameVote} /> : <EmptyState icon={Gamepad2} title="Esperando el próximo desafío" text="Mirá la pantalla principal y seguí las indicaciones." />}</SectionShell>}
+        </div>
       </main>
-
-
-      {projectionMode && (
-        <div className="fixed inset-0 bg-black z-50 flex flex-col md:flex-row p-4 gap-4">
-            <Button onClick={() => setProjectionMode(false)} variant="ghost" size="icon" className="absolute top-4 right-4 z-50 bg-black/50 hover:bg-black/80 text-white hover:text-white h-10 w-10"><X className="w-6 h-6"/></Button>
-            <div className="relative flex-grow h-full w-full md:w-3/4">
-                {screenPosts.map((post, index) => (
-                    <div key={post.id} className={`absolute inset-0 transition-opacity duration-1000 ease-in-out ${index === currentSlide ? 'opacity-100' : 'opacity-0'}`}>
-                        {isVideoPost(post) ? (
-                          <video src={post.imageUrl} className="h-full w-full object-contain" autoPlay muted loop playsInline />
-                        ) : (
-                          <WatermarkedImage src={post.imageUrl} layout="fill" objectFit="contain" alt={`Foto de ${post.authorName}`} />
-                        )}
-                    </div>
-                ))}
-            </div>
-             <div className="flex-shrink-0 w-full md:w-1/4 h-1/3 md:h-full bg-slate-900/90 backdrop-blur rounded-[2rem] p-6 flex flex-col text-white shadow-2xl border border-white/5">
-                {companyLogoUrl && (
-                    <div className="relative h-24 w-full mb-6">
-                        <NextImage src={companyLogoUrl} alt="Logo" layout="fill" objectFit="contain" data-ai-hint="company logo"/>
-                    </div>
-                )}
-                <div className="flex items-center gap-2 mb-6">
-                    <MessageSquare className="w-5 h-5" style={{ color: accentColor }}/>
-                    <h2 className="text-xl font-black font-headline tracking-tight">Conversación</h2>
-                </div>
-                 <ScrollArea className="flex-grow mb-6">
-                     <div className="space-y-4">
-                        {chatMessages.map(msg => (
-                            <div key={msg.id} className="bg-white/5 p-3 rounded-2xl border border-white/5">
-                                <span className="font-black text-[10px] uppercase tracking-widest block mb-1" style={{ color: accentColor }}>{msg.authorName}</span>
-                                <span className="text-sm leading-relaxed text-slate-200">{msg.text}</span>
-                            </div>
-                        ))}
-                        <div ref={chatEndRef}/>
-                    </div>
-                 </ScrollArea>
-                 <div className="flex-shrink-0 text-center space-y-6 p-6 bg-white/5 rounded-3xl border border-white/5">
-                     <div className="space-y-3">
-                        <p className="font-bold text-slate-300 text-sm">¡Escanea y participa!</p>
-                        <div className="bg-white p-3 rounded-2xl inline-block shadow-2xl">
-                            <QRCodeStylized value={`${window.location.origin}/evento/social/${params.fiestaId}`} size={120} />
-                        </div>
-                     </div>
-                     {whatsappNumber && (
-                        <div className="border-t border-white/10 pt-4">
-                           <p className="font-bold text-xs uppercase tracking-widest text-slate-500 mb-2">Contacto</p>
-                           <p className="flex items-center justify-center gap-2 text-lg font-black" style={{ color: accentColor }}>
-                             <MessageSquare className="w-5 h-5"/>
-                             {whatsappNumber}
-                           </p>
-                        </div>
-                     )}
-                 </div>
-            </div>
-        </div>
-    )}
-      </>
-    )}
     </div>
   );
 }
 
-/** Interactive voting component for game options (siONo, verdadODesafio, trivia, encuesta) */
-function GameOptionsVoting({
-  game,
-  fiestaId,
-  accentColor,
-  onVoted,
-}: {
-  game: NonNullable<SocialGallerySettings['activeGame']>;
-  fiestaId: string;
-  accentColor: string;
-  onVoted: () => void;
-}) {
-  const storageKey = `votedGame_${fiestaId}_${game.launchedAt}`;
-  const [voted, setVoted] = useState<string | null>(() => {
-    if (typeof window !== 'undefined') {
-      return localStorage.getItem(storageKey);
-    }
-    return null;
-  });
-  const [isVoting, setIsVoting] = useState(false);
-  const { toast } = useToast();
+function SectionShell({ title, text, children }: { title: string; text: string; children: React.ReactNode }) {
+  return <section className="border-y border-slate-200 bg-white p-5 sm:rounded-md sm:border sm:p-6"><h2 className="text-2xl font-black text-slate-950">{title}</h2><p className="mt-1 mb-5 text-sm text-slate-500">{text}</p>{children}</section>;
+}
 
-  const handleVote = async (optionId: string) => {
-    if (voted || isVoting) return;
-    setIsVoting(true);
-    try {
-      const result = await voteActiveGameOption(fiestaId, optionId);
-      if (result.success) {
-        setVoted(optionId);
-        if (typeof window !== 'undefined') {
-          localStorage.setItem(storageKey, optionId);
-        }
-        onVoted();
-        toast({ title: '¡Voto registrado! 🎉' });
-      } else {
-        toast({ title: 'Error al votar', description: result.error, variant: 'destructive' });
-      }
-    } catch {
-      toast({ title: 'Error al enviar voto', variant: 'destructive' });
-    } finally {
-      setIsVoting(false);
-    }
-  };
+function EmptyState({ icon: Icon, title, text }: { icon: typeof Camera; title: string; text: string }) {
+  return <div className="px-5 py-14 text-center"><Icon className="mx-auto h-10 w-10 text-slate-300" /><p className="mt-3 font-bold text-slate-700">{title}</p><p className="mt-1 text-sm text-slate-500">{text}</p></div>;
+}
 
-  const totalVotes = (game.options ?? []).reduce((s, o) => s + (o.votes ?? 0), 0);
-
-  return (
-    <Card className="shadow-lg border-none rounded-3xl">
-      <CardContent className="p-5 space-y-3">
-        {voted ? (
-          <>
-            <p className="text-sm font-bold text-center text-slate-500 pb-1">Resultados actuales</p>
-            {(game.options ?? []).map(opt => {
-              const pct = totalVotes > 0 ? Math.round(((opt.votes ?? 0) / totalVotes) * 100) : 0;
-              const isMyVote = voted === opt.id;
-              return (
-                <div key={opt.id} className="space-y-1">
-                  <div className="flex justify-between text-sm text-slate-700">
-                    <span className="font-semibold flex items-center gap-1.5">
-                      {opt.emoji && <span>{opt.emoji}</span>}
-                      {opt.text}
-                      {isMyVote && <CheckCircle2 className="w-4 h-4 text-green-500 ml-1" />}
-                    </span>
-                    <span className="font-black" style={{ color: accentColor }}>{pct}%</span>
-                  </div>
-                  <div className="h-3 rounded-full bg-slate-100">
-                    <div
-                      className="h-full rounded-full transition-all duration-700"
-                      style={{
-                        width: `${pct}%`,
-                        backgroundColor: isMyVote ? accentColor : `${accentColor}80`,
-                      }}
-                    />
-                  </div>
-                </div>
-              );
-            })}
-            <p className="text-xs text-center text-slate-400 pt-1">¡Gracias por participar!</p>
-          </>
-        ) : (
-          <>
-            <p className="text-sm font-bold text-center text-slate-600 pb-1">¡Elegí tu respuesta!</p>
-            <div className="grid gap-2">
-              {(game.options ?? []).map(opt => (
-                <Button
-                  key={opt.id}
-                  variant="outline"
-                  className="h-14 rounded-2xl text-left justify-start font-semibold text-base px-5 transition-transform active:scale-95"
-                  disabled={isVoting}
-                  onClick={() => handleVote(opt.id)}
-                  style={{ borderColor: `${accentColor}40` }}
-                >
-                  {isVoting ? <Loader2 className="w-4 h-4 mr-2 animate-spin" /> : null}
-                  {opt.emoji && <span className="mr-2 text-lg">{opt.emoji}</span>}
-                  {opt.text}
-                </Button>
-              ))}
-            </div>
-          </>
-        )}
-      </CardContent>
-    </Card>
-  );
+function VoteOptions({ options, voted, accentColor, onVote }: { options: Array<{ id: string; text: string; votes: number }>; voted: boolean; accentColor: string; onVote: (id: string) => Promise<void> }) {
+  const total = options.reduce((sum, option) => sum + (option.votes || 0), 0);
+  return <div className="space-y-3">{options.map((option) => { const percentage = total ? Math.round(((option.votes || 0) / total) * 100) : 0; return voted ? <div key={option.id}><div className="mb-1 flex justify-between text-sm"><span className="font-semibold text-slate-700">{option.text}</span><span className="font-black" style={{ color: accentColor }}>{percentage}%</span></div><div className="h-3 overflow-hidden rounded-md bg-slate-100"><div className="h-full rounded-md" style={{ width: `${percentage}%`, backgroundColor: accentColor }} /></div></div> : <button key={option.id} type="button" onClick={() => void onVote(option.id)} className="min-h-14 w-full rounded-md border border-slate-200 bg-white px-4 text-left font-bold text-slate-800 transition hover:border-slate-400 hover:bg-slate-50">{option.text}</button>; })}{voted && <p className="pt-2 text-center text-sm font-semibold text-slate-500">Tu voto quedó registrado.</p>}</div>;
 }

@@ -1,1 +1,117 @@
-'use client';import React from 'react';import Link from 'next/link';import Image from 'next/image';import { Button } from '@/components/ui/button';import { Building2, ArrowRight } from 'lucide-react';import { getDynamicSalonPhotos } from '@/lib/salon-helper';export function SalonDestacadoSection() {  const allPhotos = getDynamicSalonPhotos();  const photos = allPhotos.slice(0, 3);  return (    <section className="py-24 bg-zinc-950 text-white relative overflow-hidden">      {/* Luces de fondo decorativas */}      <div className="absolute top-1/2 left-1/4 -translate-y-1/2 w-96 h-96 bg-red-500/10 rounded-full blur-3xl pointer-events-none" />      <div className="absolute top-1/2 right-1/4 -translate-y-1/2 w-96 h-96 bg-rose-500/10 rounded-full blur-3xl pointer-events-none" />      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">        <div className="grid grid-cols-1 lg:grid-cols-12 gap-12 items-center">          {/* Columna Izquierda: Contenido de Venta */}          <div className="lg:col-span-5 space-y-6 text-left">            <span className="inline-flex items-center gap-2 px-3 py-1 rounded-xl bg-white/5 border border-white/10 text-xs font-bold uppercase tracking-wider text-red-400">              <Building2 className="w-3.5 h-3.5" />              Salón de Fiesta Exclusivo            </span>            <h2 className="font-headline text-4xl sm:text-5xl font-black tracking-tight leading-tight">              Viví tu fiesta en el{' '}              <span className="bg-gradient-to-r from-red-500 via-rose-500 to-pink-500 bg-clip-text text-transparent">                Club Uruguay              </span>            </h2>            <p className="text-zinc-400 leading-relaxed font-medium">              El primer salón de fiestas de Salto, con 150 años de historia. Ubicado en pleno centro frente a la plaza principal, te ofrece elegancia histórica y terraza amplia, junto a la producción integral de <strong>AK Producciones</strong>.            </p>            {/* Opciones de Salón - Anclaje de Precios (Neuroventas) */}            <div className="space-y-4 pt-2">              <div className="p-4 rounded-2xl border border-white/5 bg-white/[0.02] hover:bg-white/[0.04] transition-all">                <div className="flex items-center justify-between">                  <h3 className="text-sm font-black uppercase text-red-400">Salón Chico (Hasta 50 invitados)</h3>                  <span className="text-[10px] font-black uppercase bg-emerald-600/20 text-emerald-400 px-2 py-0.5 rounded">50% OFF</span>                </div>                <p className="text-zinc-400 text-xs mt-1">Ideal para fiestas íntimas. Cuenta con patio grande, terraza, freezer, heladera y servicio de limpieza incluido.</p>                <p className="text-sm font-black mt-2 text-white">                  Cotización: <span className="text-zinc-500 line-through text-xs font-semibold">$17.800</span> <span className="text-lg text-emerald-400">$8.900</span>                </p>              </div>              <div className="p-4 rounded-2xl border border-white/5 bg-white/[0.02] hover:bg-white/[0.04] transition-all">                <div className="flex items-center justify-between">                  <h3 className="text-sm font-black uppercase text-red-400">Salón Grande (Hasta 200 invitados)</h3>                  <span className="text-[10px] font-black uppercase bg-emerald-600/20 text-emerald-400 px-2 py-0.5 rounded">50% OFF</span>                </div>                <p className="text-zinc-400 text-xs mt-1">Para grandes fiestas de gala. Salón señorial de dos plantas y máxima comodidad.</p>                <p className="text-sm font-black mt-2 text-white">                  Cotización: <span className="text-zinc-500 line-through text-xs font-semibold">$33.800</span> <span className="text-lg text-emerald-400">$16.900</span>                </p>              </div>            </div>            <div className="flex flex-wrap gap-4 pt-2">              <Button asChild size="lg" className="bg-red-700 hover:bg-red-600 text-white font-bold rounded-2xl shadow-lg shadow-red-900/35 px-8"><Link href="/club-uruguay">Ver Detalles del Salón<ArrowRight className="w-4 h-4 ml-2" /></Link></Button>              <Button asChild size="lg" variant="outline" className="border-white/10 hover:bg-white/5 hover:text-white text-zinc-300 font-bold rounded-2xl px-6"><Link href="/simulador-de-presupuesto?salon=club">Cotizar en Club Uruguay</Link></Button>            </div>          </div>          {/* Columna Derecha: Fotos Reales */}          <div className="lg:col-span-7 grid grid-cols-1 sm:grid-cols-12 gap-4 h-full">            {/* Foto principal grande */}            <div className="sm:col-span-8 group relative rounded-3xl overflow-hidden border border-white/10 aspect-[4/3] sm:aspect-square lg:aspect-[4/3] shadow-2xl">              <Image                src={photos[0].src}                alt={photos[0].alt}                fill                sizes="(max-width: 1024px) 100vw, 58vw"                className="object-cover group-hover:scale-105 transition-transform duration-700"              />              <div className="absolute inset-0 bg-gradient-to-t from-zinc-950 via-transparent to-transparent p-5 flex flex-col justify-end" />              <div className="absolute bottom-5 left-5 right-5 z-10">                <span className="text-xs text-red-400 font-bold uppercase tracking-wider">                  Ubicación Centro                </span>                <h3 className="font-headline font-black text-lg text-white mt-1">                  {photos[0].title}                </h3>              </div>            </div>            {/* Dos fotos pequeñas al costado */}            <div className="sm:col-span-4 flex flex-col gap-4">              {photos.slice(1).map((photo, i) => (                <div                  key={i}                  className="group relative rounded-3xl overflow-hidden border border-white/10 aspect-[4/3] sm:flex-1 shadow-xl"                >                  <Image                    src={photo.src}                    alt={photo.alt}                    fill                    sizes="(max-width: 1024px) 100vw, 28vw"                    className="object-cover group-hover:scale-105 transition-transform duration-700"                  />                  <div className="absolute inset-0 bg-gradient-to-t from-zinc-950/80 via-transparent to-transparent p-4 flex flex-col justify-end" />                  <div className="absolute bottom-4 left-4 right-4 z-10">                    <h3 className="font-headline font-bold text-sm text-white">                      {photo.title}                    </h3>                  </div>                </div>              ))}            </div>          </div>        </div>      </div>    </section>  );}
+import Image, { type ImageLoaderProps } from 'next/image';
+import Link from 'next/link';
+import { ArrowRight, Building2, CalendarDays, MapPin, Users } from 'lucide-react';
+import type { SalonPhoto } from '@/lib/salon-helper';
+import { canUseNextImage } from '@/lib/next-image-url';
+
+const passthroughImageLoader = ({ src }: ImageLoaderProps) => src;
+
+function SalonMedia({ src, alt, sizes, className }: { src: string; alt: string; sizes: string; className: string }) {
+  if (canUseNextImage(src)) {
+    return <Image src={src} alt={alt} fill sizes={sizes} className={className} />;
+  }
+
+  return (
+    <Image
+      loader={passthroughImageLoader}
+      unoptimized
+      src={src}
+      alt={alt}
+      fill
+      sizes={sizes}
+      className={className}
+    />
+  );
+}
+
+interface SalonDestacadoSectionProps {
+  photos: SalonPhoto[];
+  capacity?: number;
+}
+
+export function getVisibleSalonPhotos(photos: SalonPhoto[]) {
+  return photos.slice(0, 3);
+}
+
+export function SalonDestacadoSection({ photos, capacity }: SalonDestacadoSectionProps) {
+  const visiblePhotos = getVisibleSalonPhotos(photos);
+  if (visiblePhotos.length === 0) return null;
+
+  return (
+    <section className="border-y border-slate-200 bg-slate-50 py-20 text-slate-950">
+      <div className="mx-auto grid max-w-7xl gap-12 px-4 sm:px-6 lg:grid-cols-[0.82fr_1.18fr] lg:items-center lg:px-8">
+        <div className="max-w-xl">
+          <p className="flex items-center gap-2 text-sm font-black uppercase text-red-400">
+            <Building2 className="h-4 w-4" aria-hidden="true" /> Salón destacado
+          </p>
+          <h2 className="mt-4 font-headline text-4xl font-black leading-tight sm:text-6xl">
+            Club Uruguay
+          </h2>
+          <p className="mt-5 text-lg leading-relaxed text-slate-600">
+            Un espacio emblemático en el centro de Salto, preparado por AK Producciones con catering, música, ambientación, personal y tecnología coordinados en una sola propuesta.
+          </p>
+
+          <div className="mt-7 grid gap-px overflow-hidden rounded-lg border border-slate-200 bg-slate-200 sm:grid-cols-2">
+            <div className="bg-white p-5">
+              <MapPin className="h-5 w-5 text-red-400" aria-hidden="true" />
+              <p className="mt-3 font-black">Centro de Salto</p>
+              <p className="mt-1 text-sm text-slate-600">Club Uruguay, un salón conocido para celebrar.</p>
+            </div>
+            {capacity !== undefined && capacity > 0 && (
+              <div className="bg-white p-5">
+                <Users className="h-5 w-5 text-red-400" aria-hidden="true" />
+                <p className="mt-3 font-black">Hasta {capacity} invitados</p>
+                <p className="mt-1 text-sm text-slate-600">Capacidad informada para este salón.</p>
+              </div>
+            )}
+          </div>
+
+          <div className="mt-7 flex flex-col gap-3 sm:flex-row">
+            <Link
+              href="/club-uruguay"
+              className="inline-flex min-h-14 items-center justify-center gap-2 rounded-md bg-red-700 px-6 py-3 font-black text-white transition-colors hover:bg-red-800"
+            >
+              Conocer el salón <ArrowRight className="h-4 w-4" aria-hidden="true" />
+            </Link>
+            <Link
+              href="/simulador-de-presupuesto?salon=club"
+              className="inline-flex min-h-14 items-center justify-center gap-2 rounded-md border border-slate-300 bg-white px-6 py-3 font-black text-slate-900 transition-colors hover:border-slate-400 hover:bg-slate-100"
+            >
+              <CalendarDays className="h-4 w-4" aria-hidden="true" /> Cotizar una fiesta
+            </Link>
+          </div>
+        </div>
+
+        <div className="grid gap-3 sm:grid-cols-12">
+          <figure className="group relative aspect-[4/3] overflow-hidden rounded-2xl bg-zinc-900 sm:col-span-8 sm:row-span-2 sm:aspect-auto sm:min-h-[520px]">
+            <SalonMedia
+              src={visiblePhotos[0].src}
+              alt={visiblePhotos[0].alt}
+              sizes="(max-width: 1024px) 100vw, 42vw"
+              className="object-cover motion-safe:transition-transform motion-safe:duration-700 motion-safe:group-hover:scale-[1.025] motion-reduce:transition-none"
+            />
+            <figcaption className="absolute inset-x-0 bottom-0 bg-gradient-to-t from-black/80 to-transparent p-4 text-white">
+              <p className="font-black">{visiblePhotos[0].title}</p>
+            </figcaption>
+          </figure>
+
+          <div className="grid gap-3 sm:col-span-4 sm:grid-rows-2">
+            {visiblePhotos.slice(1).map((photo) => (
+              <figure key={photo.src} className="group relative aspect-[4/3] overflow-hidden rounded-2xl bg-zinc-900 sm:aspect-auto">
+                <SalonMedia
+                  src={photo.src}
+                  alt={photo.alt}
+                  sizes="(max-width: 640px) 100vw, 22vw"
+                  className="object-cover motion-safe:transition-transform motion-safe:duration-700 motion-safe:group-hover:scale-[1.03] motion-reduce:transition-none"
+                />
+                <figcaption className="absolute inset-x-0 bottom-0 bg-gradient-to-t from-black/80 to-transparent p-3 text-sm font-bold text-white">
+                  {photo.title}
+                </figcaption>
+              </figure>
+            ))}
+          </div>
+        </div>
+      </div>
+    </section>
+  );
+}

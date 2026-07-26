@@ -55,12 +55,36 @@ test('public homepage fits the viewport without horizontal overflow', async ({ p
   const mainHeading = page.getByRole('heading', { level: 1 });
   await expect(mainHeading).toHaveCount(1);
   await expect(mainHeading).toBeVisible();
-  await expect(page.getByText(/Instagram sincronizado|Perfil oficial de Instagram/i)).toBeVisible();
+  const gallery = page.getByTestId('gallery-section');
+  await expect(gallery).toBeVisible();
+  await expect(
+    gallery.getByRole('heading', { name: 'Galería de eventos', level: 2 }),
+  ).toBeVisible();
+  await expect(
+    page.getByRole('heading', { name: 'Elegimos la base y la hacemos tuya.' }),
+  ).toHaveCount(0);
+  await expect(
+    page.getByRole('img', { name: 'Fiestas de 15 producida por AK Producciones' }),
+  ).toHaveAttribute('src', /xv-pista-iluminada-01\.jpeg/);
   const overflow = await page.evaluate(() => ({
     clientWidth: document.documentElement.clientWidth,
     scrollWidth: document.documentElement.scrollWidth,
   }));
   expect(overflow.scrollWidth).toBeLessThanOrEqual(overflow.clientWidth + 1);
+});
+
+test('secondary public navigation returns to the matching homepage section', async ({ page }) => {
+  await page.goto('/club-uruguay', { waitUntil: 'domcontentloaded' });
+
+  const servicesLink = page.locator('header').getByRole('link', { name: 'Servicios', exact: true });
+  if ((page.viewportSize()?.width ?? 1280) < 768) {
+    await page.getByRole('button', { name: 'Abrir menú' }).click();
+  }
+
+  await expect(servicesLink).toBeVisible();
+  await servicesLink.click();
+  await expect(page).toHaveURL(/\/#landing-services$/);
+  await expect(page.locator('#landing-services')).toBeVisible();
 });
 
 test('simulator input keeps typed text visible and the flow fits the viewport', async ({ page }) => {
@@ -86,6 +110,8 @@ test('simulator input keeps typed text visible and the flow fits the viewport', 
   expect(inputInk.color).not.toBe('rgba(0, 0, 0, 0)');
   expect(Number(inputInk.opacity)).toBeGreaterThan(0);
   expect(inputInk.caretColor).not.toBe('transparent');
+  await expect(page.getByText('Revisión comercial prioritaria')).toHaveCount(0);
+  await expect(page.getByText(/^\d{2}:\d{2}$/)).toHaveCount(0);
 
   const overflow = await page.evaluate(() => ({
     clientWidth: document.documentElement.clientWidth,

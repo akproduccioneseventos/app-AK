@@ -16,8 +16,7 @@ import {
 import { CalendarPlus, Loader2, Search } from 'lucide-react';
 import { DatePickerDemo } from '../date-picker-demo';
 import { useToast } from '@/hooks/use-toast';
-import type { CrmLead } from '@/types/crm';
-import { getCrmLeads, scheduleCrmMeeting } from '@/app/actions/crm';
+import { getCrmLeadOptions, scheduleCrmMeeting, type CrmLeadOption } from '@/app/actions/crm';
 import { ScrollArea } from '../ui/scroll-area';
 
 interface ScheduleNewMeetingDialogProps {
@@ -27,8 +26,8 @@ interface ScheduleNewMeetingDialogProps {
 }
 
 export function ScheduleNewMeetingDialog({ isOpen, onOpenChange, onMeetingScheduled }: ScheduleNewMeetingDialogProps) {
-  const [allLeads, setAllLeads] = useState<CrmLead[]>([]);
-  const [filteredLeads, setFilteredLeads] = useState<CrmLead[]>([]);
+  const [allLeads, setAllLeads] = useState<CrmLeadOption[]>([]);
+  const [filteredLeads, setFilteredLeads] = useState<CrmLeadOption[]>([]);
   const [selectedLeadId, setSelectedLeadId] = useState<string>('');
   const [searchTerm, setSearchTerm] = useState('');
   
@@ -54,7 +53,7 @@ export function ScheduleNewMeetingDialog({ isOpen, onOpenChange, onMeetingSchedu
       const loadLeads = async () => {
         setIsLoading(true);
         try {
-          const leads = await getCrmLeads();
+          const leads = await getCrmLeadOptions();
           setAllLeads(leads);
           setFilteredLeads(leads);
         } catch (err) {

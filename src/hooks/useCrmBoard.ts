@@ -4,8 +4,7 @@ import { useState, useEffect, useCallback, useMemo, useRef } from 'react';
 import { useToast } from '@/hooks/use-toast';
 import type { CrmLead, CrmStage } from '@/types/crm';
 import {
-  getCrmLeads,
-  getCrmStages,
+  getCrmBoardData,
   moveCrmLead,
   deleteCrmLead,
   getCrmKpiData,
@@ -72,11 +71,11 @@ export function useCrmBoard() {
     setIsLoading(true);
     setError(null);
     try {
-      const [stagesData, leadsData, crmKpis] = await Promise.all([
-        getCrmStages(),
-        getCrmLeads(),
-        getCrmKpiData(),
-      ]);
+      const board = await getCrmBoardData();
+      if (!board.success || !board.data) {
+        throw new Error(board.error || 'No se pudo cargar el tablero comercial.');
+      }
+      const { stages: stagesData, leads: leadsData, kpis } = board.data;
 
       if (!isMountedRef.current) return;
 
@@ -85,11 +84,11 @@ export function useCrmBoard() {
 
       setCached(CACHE_KEY_STAGES, sortedStages);
       setCached(CACHE_KEY_LEADS, sortedLeads);
-      if (crmKpis.success) setCached(CACHE_KEY_KPIS, crmKpis.data);
+      setCached(CACHE_KEY_KPIS, kpis);
 
       setStages(sortedStages);
       setLeads(sortedLeads);
-      if (crmKpis.success) setKpiData(crmKpis.data);
+      setKpiData(kpis);
     } catch (err: any) {
       if (!isMountedRef.current) return;
       setError('No se pudieron cargar los datos del CRM.');

@@ -170,16 +170,16 @@ async function resolveClientContact(fiesta: FiestaEnPlanificacion) {
 }
 
 async function sendCompanyEmail(input: { to?: string; subject: string; html: string }) {
-  if (!input.to) return { success: true, warnings: ['No hay email destino para enviar.'] };
+  if (!input.to) return { success: false, warnings: ['No hay email destino para enviar.'] };
 
   const { account, warnings } = await getCompanyGoogleAccountForSend();
-  if (!account) return { success: true, warnings };
+  if (!account) return { success: false, warnings };
 
   try {
     await sendGoogleGmailMessage(account, input.to, input.subject, input.html);
     return { success: true, warnings };
   } catch (error: any) {
-    return { success: true, warnings: [...warnings, error?.message || String(error)] };
+    return { success: false, warnings: [...warnings, error?.message || String(error)] };
   }
 }
 
@@ -377,13 +377,15 @@ export async function syncReunionToGoogleWorkspace(
       html,
     });
     warnings.push(...(emailResult.warnings || []));
-    record = {
-      ...record,
-      lastEmailAtByClient: {
-        ...clientEmailLog,
-        [emailKey]: new Date().toISOString(),
-      },
-    };
+    if (emailResult.success) {
+      record = {
+        ...record,
+        lastEmailAtByClient: {
+          ...clientEmailLog,
+          [emailKey]: new Date().toISOString(),
+        },
+      };
+    }
   }
 
   record = {
@@ -420,14 +422,16 @@ export async function notifyGuestsWithCalendarLinks(fiestaId: string, options: {
       html: buildGuestInvitationEmailHtml({ fiesta, invitado, calendarTemplateUrl }),
     });
     warnings.push(...(result.warnings || []));
-    sent += 1;
-    record = {
-      ...record,
-      lastEmailAtByGuest: {
-        ...(record.lastEmailAtByGuest || {}),
-        [invitado.id]: new Date().toISOString(),
-      },
-    };
+    if (result.success) {
+      sent += 1;
+      record = {
+        ...record,
+        lastEmailAtByGuest: {
+          ...(record.lastEmailAtByGuest || {}),
+          [invitado.id]: new Date().toISOString(),
+        },
+      };
+    }
   }
 
   record = {

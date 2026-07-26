@@ -2061,7 +2061,7 @@ function EntretenimientoContent() {
                             {getOperatorLaunchLink(activeStationId) && (
                               <Button asChild variant="outline" className="w-full rounded-xl border-zinc-700 bg-zinc-900 text-white font-black text-xs uppercase tracking-wider">
                                 <a
-                                  href={getOperatorLaunchLink(activeStationId) || '#'}
+                                  href={getOperatorLaunchLink(activeStationId)!}
                                   target="_blank"
                                   rel="noopener noreferrer"
                                 >

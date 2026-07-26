@@ -1,57 +1,442 @@
-'use client';
+"use client";
+
+import { useEffect, useMemo, useState } from "react";
+import Image, { type ImageLoaderProps } from "next/image";
 import {
- useMemo, useState 
-}
- from 'react';
-import Image from 'next/image';
+  Camera,
+  ChevronLeft,
+  ChevronRight,
+  Share2,
+  X,
+  ZoomIn,
+} from "lucide-react";
+import { AnimatePresence, motion, useReducedMotion } from "framer-motion";
+import { cn } from "@/lib/utils";
+import { canUseNextImage } from "@/lib/next-image-url";
+import type { GaleriaFoto } from "@/types/galeria";
 import {
- Camera, X, ZoomIn, ChevronLeft, ChevronRight, Share2 
-}
- from 'lucide-react';
-import {
- motion, AnimatePresence 
-}
- from 'framer-motion';
-import {
- cn 
-}
- from '@/lib/utils';
-import {
- canUseNextImage 
-}
- from '@/lib/next-image-url';
-import type {
- GaleriaFoto 
-}
- from '@/types/galeria';
+  classifyGalleryCategories,
+  galleryIdentityKeys,
+} from "./gallery-media-utils";
+
+export { classifyGalleryCategories } from "./gallery-media-utils";
+
+const passthroughImageLoader = ({ src }: ImageLoaderProps) => src;
+
 function GalleryMedia({
-  src,  alt,  className,  sizes,  priority,
-}
-: {
+  src,
+  alt,
+  className,
+  sizes,
+  priority,
+}: {
   src: string;
   alt: string;
   className: string;
   sizes: string;
   priority?: boolean;
-}
-) {
+}) {
   if (canUseNextImage(src)) {
-return (      <Image        src={
-src
+    return (
+      <Image
+        src={src}
+        alt={alt}
+        fill
+        className={className}
+        sizes={sizes}
+        priority={priority}
+      />
+    );
+  }
+
+  return (
+    <Image
+      loader={passthroughImageLoader}
+      unoptimized
+      src={src}
+      alt={alt}
+      fill
+      className={className}
+      sizes={sizes}
+      priority={priority}
+    />
+  );
 }
-        alt={
-alt
+
+export interface GalleryImage {
+  id?: string;
+  src: string;
+  alt: string;
+  hint: string;
+  category?: string;
+  titulo?: string;
+  descripcion?: string;
+  destacada?: boolean;
+  source?: GaleriaFoto["source"];
+  sourceId?: string;
+  sourceUrl?: string;
 }
-        fill        className={
-className
+
+export interface LandingGalleryItem {
+  id: string;
+  src: string;
+  alt: string;
+  hint: string;
+  titulo?: string;
+  descripcion?: string;
+  destacada?: boolean;
+  source?: GaleriaFoto["source"];
+  sourceId?: string;
+  sourceUrl?: string;
+  categorias: string[];
+  subCategoria?: string;
 }
-        sizes={
-sizes
+
+const CATEGORY_FILTERS = [
+  "Todos",
+  "Eventos",
+  "Discoteca",
+  "Catering",
+  "Decoración",
+  "Barra de Tragos",
+  "Fotocabina",
+  "Repostería",
+  "Fotografía",
+  "Salón",
+];
+
+function getSubCategoriaFotografia(
+  titulo: string,
+  descripcion: string,
+  categoriaOriginal: string,
+): string {
+  const text = `${titulo} ${descripcion} ${categoriaOriginal}`.toLowerCase();
+  if (text.includes("pintada") || text.includes("bogue")) return "Pintada";
+  if (text.includes("civil")) return "Civil";
+  if (/(exteriores|campo|jardin|jardín|exterior)/.test(text)) return "Exteriores";
+  if (/(iglesia|templo|ceremonia)/.test(text)) return "Iglesia";
+  return "Fiestas";
 }
-        priority={
-priority
+
+function toLandingGalleryItem(
+  item: GalleryImage | GaleriaFoto,
+  index: number,
+): LandingGalleryItem {
+  const isGaleriaFoto = "url" in item;
+  const src = isGaleriaFoto ? item.url : item.src;
+  const titulo = item.titulo;
+  const descripcion = item.descripcion;
+  const categoriaOriginal = isGaleriaFoto
+    ? item.categoria || item.servicio || ""
+    : item.category || "";
+  const categorias = classifyGalleryCategories(titulo || "", descripcion || "", categoriaOriginal);
+
+  return {
+    id: isGaleriaFoto ? item.id : item.id || `img-${index}`,
+    src,
+    alt: isGaleriaFoto
+      ? item.titulo || item.categoria || "Foto de un evento de AK Producciones"
+      : item.alt,
+    hint: isGaleriaFoto ? item.categoria : item.hint,
+    titulo,
+    descripcion,
+    destacada: item.destacada,
+    source: item.source,
+    sourceId: item.sourceId,
+    sourceUrl: item.sourceUrl,
+    categorias,
+    subCategoria: categorias.includes("Fotografía")
+      ? getSubCategoriaFotografia(titulo || "", descripcion || "", categoriaOriginal)
+      : undefined,
+  };
 }
-      />    );
+
+export function dedupeGalleryImages(items: LandingGalleryItem[]) {
+  const seen = new Set<string>();
+  return items.filter((item) => {
+    const identities = galleryIdentityKeys(item);
+    if (identities.size === 0 || [...identities].some((identity) => seen.has(identity))) return false;
+    identities.forEach((identity) => seen.add(identity));
+    return true;
+  });
 }
-return (    
-/* eslint-disable-next-line @next/next/no-img-element -- Editor content may use an external host outside Next's allowlist. */    <img      src={src}      alt={alt}      loading={priority ? 'eager' : 'lazy'}      className={`h-full w-full ${className}`}    />  );}export interface GalleryImage {  id?: string;  src: string;  alt: string;  hint: string;  category?: string;  titulo?: string;  descripcion?: string;  destacada?: boolean;}interface LandingGalleryItem {  id: string;  src: string;  alt: string;  hint: string;  titulo?: string;  descripcion?: string;  destacada?: boolean;  categorias: string[];  subCategoria?: string;}const CATEGORY_FILTERS = [  'Todos',  'Discoteca',  'Catering',  'Decoración',  'Barra de Tragos',  'Fotocabina',  'Repostería',  'Fotografía',  'Salón',];function getCategoriasAsociadas(titulo: string, descripcion: string, categoriaOriginal: string): string[] {  const text = `${titulo || ''} ${descripcion || ''} ${categoriaOriginal || ''}`.toLowerCase();  const cats: string[] = [];  if (text.includes('salon') || text.includes('salón') || text.includes('club') || text.includes('uruguay')) {    cats.push('Salón');  }  if (text.includes('decor') || text.includes('ambient') || text.includes('mesa principal') || text.includes('velas')) {    cats.push('Decoración');  }  if (text.includes('comida') || text.includes('catering') || text.includes('menu') || text.includes('menú') || text.includes(' finger ') || text.includes('gastro') || text.includes('plato') || text.includes('bocado') || text.includes('recepcion') || text.includes('recepción')) {    cats.push('Catering');  }  if (text.includes('trago') || text.includes('bebida') || text.includes('bar ') || text.includes('barra')) {    cats.push('Barra de Tragos');  }  if (text.includes('cabina') || text.includes('espejo') || text.includes('plataforma') || text.includes('touchpix') || text.includes('fotocabina') || text.includes('fotobina') || text.includes('totem') || text.includes('tótem')) {    cats.push('Fotocabina');  }  if (text.includes('torta') || text.includes('dulce') || text.includes('candy') || text.includes('postre') || text.includes('reposteria') || text.includes('repostería')) {    cats.push('Repostería');  }  if (text.includes('disco') || text.includes('luz') || text.includes('luces') || text.includes('pantalla') || text.includes('led') || text.includes('dj') || text.includes('sonido') || text.includes('pista') || text.includes('baile') || text.includes('valz') || text.includes('vals')) {    cats.push('Discoteca');  }  if (text.includes('foto') || text.includes('video') || text.includes('film') || text.includes('bogue') || text.includes('exteriores') || text.includes('civil') || text.includes('iglesia') || text.includes('pintada') || text.includes('sesion') || text.includes('sesión') || text.includes('retrato')) {    cats.push('Fotografía');  }  if (cats.length === 0) {    if (text.includes('boda') || text.includes('casamiento')) {      cats.push('Fotografía');    } else {      cats.push('Decoración');    }  }  return cats;}function getSubCategoriaFotografia(titulo: string, descripcion: string, categoriaOriginal: string): string {  const text = `${titulo || ''} ${descripcion || ''} ${categoriaOriginal || ''}`.toLowerCase();  if (text.includes('pintada') || text.includes('bogue')) return 'Pintada';  if (text.includes('civil')) return 'Civil';  if (text.includes('exteriores') || text.includes('campo') || text.includes('jardin') || text.includes('jardín') || text.includes('exterior')) return 'Exteriores';  if (text.includes('iglesia') || text.includes('templo') || text.includes('ceremonia')) return 'Iglesia';  return 'Fiestas';}interface GallerySectionProps {  images?: GalleryImage[];  galeriaFotos?: GaleriaFoto[];}export function GallerySection({ images, galeriaFotos }: GallerySectionProps) {  const [activeCategory, setActiveCategory] = useState<string>('Todos');  const [activeSubCategory, setActiveSubCategory] = useState<string>('Todas');  const [showAll, setShowAll] = useState<boolean>(false);  const [lightboxIndex, setLightboxIndex] = useState<number | null>(null);  const allImages = useMemo<LandingGalleryItem[]>(() => {    const source = (galeriaFotos?.length ?? 0) > 0      ? galeriaFotos!.map((foto) => {          const cats = getCategoriasAsociadas(foto.titulo || '', foto.descripcion || '', foto.categoria || foto.servicio || '');          const subCat = cats.includes('Fotografía')            ? getSubCategoriaFotografia(foto.titulo || '', foto.descripcion || '', foto.categoria || foto.servicio || '')            : undefined;          return {            id: foto.id,            src: foto.url,            alt: foto.titulo ?? foto.categoria ?? 'Imagen de galería',            hint: foto.categoria ?? 'event gallery',            titulo: foto.titulo,            descripcion: foto.descripcion,            destacada: foto.destacada,            categorias: cats,            subCategoria: subCat,          };        })      : (images ?? []).map((image, index) => {          const cats = getCategoriasAsociadas(image.titulo || '', image.descripcion || '', image.category || '');          const subCat = cats.includes('Fotografía')            ? getSubCategoriaFotografia(image.titulo || '', image.descripcion || '', image.category || '')            : undefined;          return {            id: image.id ?? `img-${index}`,            src: image.src,            alt: image.alt,            hint: image.hint,            titulo: image.titulo,            descripcion: image.descripcion,            destacada: image.destacada,            categorias: cats,            subCategoria: subCat,          };        });    const seenUrls = new Set<string>();    const uniqueSource = source.filter((item) => {      if (!item.src) return false;      if (seenUrls.has(item.src)) return false;      seenUrls.add(item.src);      return true;    });    return uniqueSource.sort((a, b) => (b.destacada ? 1 : 0) - (a.destacada ? 1 : 0));  }, [galeriaFotos, images]);  const filtered = useMemo(() => {    let list = allImages;    if (activeCategory !== 'Todos') {      list = list.filter((img) => img.categorias.includes(activeCategory));    }    if (activeCategory === 'Fotografía' && activeSubCategory !== 'Todas') {      list = list.filter((img) => img.subCategoria === activeSubCategory);    }    return list;  }, [allImages, activeCategory, activeSubCategory]);  const displayedImages = useMemo(() => {    if (showAll) return filtered;    return filtered.slice(0, 8);  }, [filtered, showAll]);  const openLightbox = (index: number) => setLightboxIndex(index);  const closeLightbox = () => setLightboxIndex(null);  const prevImage = () => setLightboxIndex((i) => (i === null ? null : (i - 1 + displayedImages.length) % displayedImages.length));  const nextImage = () => setLightboxIndex((i) => (i === null ? null : (i + 1) % displayedImages.length));  const handleShareWhatsApp = (image: LandingGalleryItem) => {    const mainCat = image.categorias[0] || 'Evento';    const text = encodeURIComponent(`¡Mirá esta foto de ${mainCat} de AK Producciones! ${image.src}`);    window.open(`https://wa.me/?text=${text}`, '_blank');  };  const containerVariants = {    hidden: {},    visible: {      transition: {        staggerChildren: 0.04,      },    },  };  const cardVariants = {    hidden: { opacity: 0, scale: 0.96, y: 10 },    visible: { opacity: 1, scale: 1, y: 0, transition: { duration: 0.35, ease: 'easeOut' } },  };  return (    <section id="galeria" data-testid="gallery-section" className="py-24 bg-zinc-950 text-white border-y border-white/5">      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">        {/* Header */}        <div className="text-center mb-12">          <span className="inline-flex items-center gap-2 px-3 py-1 rounded-xl bg-white/5 border border-white/10 text-xs font-black uppercase tracking-widest text-red-400 mb-4">            <Camera className="w-3.5 h-3.5" />            Nuestros Trabajos          </span>          <h2 className="font-headline text-5xl sm:text-6xl font-black text-white leading-tight mb-4">            Galería de Fotos          </h2>          <p className="text-zinc-400 text-lg max-w-xl mx-auto leading-relaxed">            Una selección de momentos reales, montajes de gala, ambientaciones y tecnología en las fiestas que producimos.          </p>        </div>        {/* Category Filters */}        <div className="flex flex-wrap justify-center gap-2 mb-10 p-1.5 rounded-2xl bg-white/[0.02] border border-white/5 max-w-2xl mx-auto">          {CATEGORY_FILTERS.map((category) => (            <button              key={category}              onClick={() => {                setActiveCategory(category);                setShowAll(false);              }}              className={cn(                'px-4 py-2 rounded-xl text-xs font-black uppercase tracking-wider transition-all duration-200',                activeCategory === category                  ? 'bg-white text-zinc-950 shadow-md'                  : 'bg-transparent text-zinc-400 hover:bg-white/5 hover:text-white'              )}            >              {category}            </button>          ))}        </div>        {/* Sub-filtros para Fotografía */}        {activeCategory === 'Fotografía' && (          <div className="flex flex-wrap justify-center gap-1.5 mb-10 p-1 rounded-xl bg-white/[0.01] border border-white/5 max-w-lg mx-auto">            {['Todas', 'Pintada', 'Civil', 'Fiestas', 'Exteriores', 'Iglesia'].map((subCat) => (              <button                key={subCat}                onClick={() => {                  setActiveSubCategory(subCat);                  setShowAll(false);                }}                className={cn(                  'px-3 py-1.5 rounded-lg text-[10px] font-black uppercase tracking-widest transition-all duration-200',                  activeSubCategory === subCat                    ? 'bg-indigo-600 text-white shadow'                    : 'bg-transparent text-zinc-500 hover:bg-white/5 hover:text-white'                )}              >                {subCat}              </button>            ))}          </div>        )}        {/* Snap Grid: aspect-square responsivo sin recortes extraños */}        <motion.div          variants={containerVariants}          initial="hidden"          whileInView="visible"          viewport={{ once: true, margin: '-50px' }}          className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4"        >          {displayedImages.map((image, index) => (            <motion.button              key={image.id}              variants={cardVariants}              onClick={() => openLightbox(index)}              className="relative rounded-3xl overflow-hidden group focus:outline-none focus:ring-2 focus:ring-indigo-500 bg-zinc-900 border border-white/5 aspect-square text-left shadow-lg hover:shadow-2xl transition-all duration-300"            >              <GalleryMedia                src={image.src}                alt={image.alt}                className="object-cover transition-transform duration-500 group-hover:scale-103"                sizes="(max-width: 768px) 50vw, 25vw"              />              <div className="absolute inset-0 bg-gradient-to-t from-zinc-950/90 via-zinc-950/20 to-transparent" />              {image.destacada && (                <div className="absolute top-4 left-4 bg-gradient-to-r from-violet-600 to-indigo-600 text-white text-[9px] font-black px-3 py-1 rounded-xl shadow-md uppercase tracking-wider">                  Destacada                </div>              )}              <div className="absolute top-4 right-4 bg-zinc-950/80 border border-white/10 text-white text-[9px] font-black px-3 py-1 rounded-xl shadow-md uppercase tracking-wider">                {image.categorias[0] || 'Evento'}              </div>              <div className="absolute inset-x-0 bottom-0 p-4">                <p className="text-sm font-black text-white leading-tight line-clamp-2">                  {image.titulo || image.alt || 'Fiesta AK'}                </p>                {image.descripcion && (                  <p className="text-[10px] text-zinc-400 mt-1 line-clamp-1">{image.descripcion}</p>                )}              </div>              <div className="absolute inset-0 bg-zinc-950/0 group-hover:bg-zinc-950/30 transition-colors duration-300 flex items-center justify-center">                <ZoomIn className="w-8 h-8 text-white opacity-0 group-hover:opacity-100 transition-all duration-300 drop-shadow-lg scale-90 group-hover:scale-100" />              </div>            </motion.button>          ))}        </motion.div>        {/* Empty State */}        {displayedImages.length === 0 && (          <div className="text-center py-16 text-zinc-400 bg-white/[0.01] border border-white/5 rounded-3xl max-w-xl mx-auto">            <Camera className="w-10 h-10 mx-auto mb-3 opacity-55 text-indigo-400" />            No hay fotos cargadas bajo esta categoría todavía.          </div>        )}        {/* Botón de Expansión ("Ver Galería Completa") */}        {filtered.length > 8 && (          <div className="mt-12 text-center">            <button              onClick={() => setShowAll(!showAll)}              className="inline-flex items-center gap-2 rounded-2xl bg-white/5 border border-white/10 hover:bg-white/10 hover:border-white/20 px-8 py-4 text-xs font-black uppercase tracking-widest text-white transition-all shadow-md hover:scale-[1.02] active:scale-[0.98]"            >              {showAll ? 'Ver menos fotos' : 'Ver Galería Completa'}              <ChevronRight className={cn("w-4 h-4 transition-transform", showAll ? "rotate-90" : "")} />            </button>          </div>        )}      </div>      {/* LIGHTBOX FOR EVENT IMAGES */}      <AnimatePresence>        {lightboxIndex !== null && (          <motion.div            initial={{ opacity: 0 }}            animate={{ opacity: 1 }}            exit={{ opacity: 0 }}            transition={{ duration: 0.2 }}            className="fixed inset-0 z-[100] bg-black/95 flex items-center justify-center p-4"            onClick={closeLightbox}          >          <button            onClick={(e) => { e.stopPropagation(); closeLightbox(); }}            className="absolute top-4 right-4 w-11 h-11 rounded-xl bg-white/10 flex items-center justify-center text-white hover:bg-white/20 transition-colors"            aria-label="Cerrar galería"          >            <X className="w-5 h-5" />          </button>          <button            onClick={(e) => { e.stopPropagation(); prevImage(); }}            className="absolute left-4 top-1/2 -translate-y-1/2 w-11 h-11 rounded-xl bg-white/10 flex items-center justify-center text-white hover:bg-white/20 transition-colors"            aria-label="Foto anterior"          >            <ChevronLeft className="w-5 h-5" />          </button>          <div            className="relative max-w-5xl max-h-[82vh] w-full h-full flex flex-col"            onClick={(e) => e.stopPropagation()}          >            <div className="relative flex-1 rounded-2xl overflow-hidden bg-zinc-950 border border-white/10">              <GalleryMedia                src={displayedImages[lightboxIndex].src}                alt={displayedImages[lightboxIndex].alt}                className="object-contain"                sizes="100vw"                priority              />            </div>            {(displayedImages[lightboxIndex].titulo || (displayedImages[lightboxIndex].categorias && displayedImages[lightboxIndex].categorias.length > 0) || displayedImages[lightboxIndex].descripcion) && (              <div className="bg-zinc-950/90 border border-white/10 text-white p-4 rounded-2xl mt-3 flex items-center justify-between gap-3">                <div className="min-w-0">                  {displayedImages[lightboxIndex].titulo && (                    <p className="font-black text-base truncate">{displayedImages[lightboxIndex].titulo}</p>                  )}                  {displayedImages[lightboxIndex].categorias && displayedImages[lightboxIndex].categorias.length > 0 && (                    <p className="text-xs text-indigo-400 font-bold uppercase tracking-widest mt-1">{displayedImages[lightboxIndex].categorias[0]}</p>                  )}                  {displayedImages[lightboxIndex].descripcion && (                    <p className="text-xs text-zinc-400 mt-1 line-clamp-2">{displayedImages[lightboxIndex].descripcion}</p>                  )}                </div>                <button                  onClick={() => handleShareWhatsApp(displayedImages[lightboxIndex])}                  className="w-11 h-11 rounded-xl bg-green-500/20 hover:bg-green-500/30 flex items-center justify-center text-green-300 shrink-0 transition-colors"                  title="Compartir por WhatsApp"                >                  <Share2 className="w-4 h-4" />                </button>              </div>            )}          </div>          <button            onClick={(e) => { e.stopPropagation(); nextImage(); }}            className="absolute right-4 top-1/2 -translate-y-1/2 w-11 h-11 rounded-xl bg-white/10 flex items-center justify-center text-white hover:bg-white/20 transition-colors"            aria-label="Foto siguiente"          >            <ChevronRight className="w-5 h-5" />          </button>          <div className="absolute bottom-4 left-1/2 -translate-x-1/2 text-white/60 text-sm font-bold">            {lightboxIndex + 1} / {displayedImages.length}          </div>          </motion.div>        )}      </AnimatePresence>    </section>  );}
+
+interface GallerySectionProps {
+  images?: GalleryImage[];
+  galeriaFotos?: GaleriaFoto[];
+}
+
+export function GallerySection({ images, galeriaFotos }: GallerySectionProps) {
+  const [activeCategory, setActiveCategory] = useState("Todos");
+  const [activeSubCategory, setActiveSubCategory] = useState("Todas");
+  const [showAll, setShowAll] = useState(false);
+  const [lightboxIndex, setLightboxIndex] = useState<number | null>(null);
+  const shouldReduceMotion = useReducedMotion();
+
+  const allImages = useMemo(() => {
+    const source = [
+      ...(images ?? []).map((image, index) => toLandingGalleryItem(image, index)),
+      ...(galeriaFotos ?? []).map((foto, index) => toLandingGalleryItem(foto, index)),
+    ];
+
+    return dedupeGalleryImages(source).sort(
+      (a, b) => Number(Boolean(b.destacada)) - Number(Boolean(a.destacada)),
+    );
+  }, [galeriaFotos, images]);
+
+  const filtered = useMemo(() => {
+    let list = allImages;
+    if (activeCategory !== "Todos") {
+      list = list.filter((image) => image.categorias.includes(activeCategory));
+    }
+    if (activeCategory === "Fotografía" && activeSubCategory !== "Todas") {
+      list = list.filter((image) => image.subCategoria === activeSubCategory);
+    }
+    return list;
+  }, [activeCategory, activeSubCategory, allImages]);
+
+  const displayedImages = showAll ? filtered : filtered.slice(0, 12);
+
+  useEffect(() => {
+    setLightboxIndex(null);
+  }, [activeCategory, activeSubCategory, showAll]);
+
+  useEffect(() => {
+    if (lightboxIndex === null) return;
+    const handleKeyDown = (event: KeyboardEvent) => {
+      if (event.key === "Escape") setLightboxIndex(null);
+      if (event.key === "ArrowLeft") {
+        setLightboxIndex((index) => (index === null ? null : (index - 1 + displayedImages.length) % displayedImages.length));
+      }
+      if (event.key === "ArrowRight") {
+        setLightboxIndex((index) => (index === null ? null : (index + 1) % displayedImages.length));
+      }
+    };
+    document.addEventListener("keydown", handleKeyDown);
+    return () => document.removeEventListener("keydown", handleKeyDown);
+  }, [displayedImages.length, lightboxIndex]);
+
+  const handleShareWhatsApp = (image: LandingGalleryItem) => {
+    const category = image.categorias[0] || "evento";
+    const text = encodeURIComponent(`Mirá esta foto de ${category} de AK Producciones: ${image.src}`);
+    window.open(`https://wa.me/?text=${text}`, "_blank", "noopener,noreferrer");
+  };
+
+  const containerVariants = {
+    hidden: {},
+    visible: { transition: { staggerChildren: 0.035 } },
+  };
+  const cardVariants = {
+    hidden: { opacity: 0, y: 8 },
+    visible: {
+      opacity: 1,
+      y: 0,
+      transition: { duration: 0.28, ease: "easeOut" },
+    },
+  };
+
+  return (
+    <section id="galeria" data-testid="gallery-section" className="border-y border-neutral-200 bg-neutral-100 py-20 text-slate-950 sm:py-24">
+      <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
+        <div className="mb-10 flex flex-col gap-6 md:flex-row md:items-end md:justify-between">
+          <div className="max-w-2xl">
+            <p className="text-sm font-bold text-red-700">Eventos reales</p>
+            <h2 className="mt-3 font-headline text-4xl font-black leading-tight text-slate-950 sm:text-5xl">
+              Galería de eventos
+            </h2>
+            <p className="mt-3 max-w-xl text-base leading-relaxed text-slate-600 sm:text-lg">
+              Momentos reales de nuestras producciones: gastronomía, salones, pista LED, discoteca y ambientación.
+            </p>
+          </div>
+        </div>
+
+        <div className="mb-8 flex flex-wrap gap-2 border-b border-neutral-300 pb-4">
+          {CATEGORY_FILTERS.map((category) => (
+            <button
+              key={category}
+              type="button"
+              onClick={() => {
+                setActiveCategory(category);
+                setActiveSubCategory("Todas");
+                setShowAll(false);
+              }}
+              className={cn(
+                "min-h-11 border px-3 py-2 text-xs font-bold transition-colors",
+                activeCategory === category
+                  ? "border-slate-950 bg-slate-950 text-white"
+                  : "border-neutral-300 bg-white text-slate-600 hover:border-slate-500 hover:text-slate-950",
+              )}
+            >
+              {category}
+            </button>
+          ))}
+        </div>
+
+        {activeCategory === "Fotografía" && (
+          <div className="mb-8 flex flex-wrap gap-2">
+            {["Todas", "Pintada", "Civil", "Fiestas", "Exteriores", "Iglesia"].map((subCategory) => (
+              <button
+                key={subCategory}
+                type="button"
+                onClick={() => {
+                  setActiveSubCategory(subCategory);
+                  setShowAll(false);
+                }}
+                className={cn(
+                    "px-3 py-1.5 text-xs font-semibold transition-colors",
+                  activeSubCategory === subCategory
+                    ? "bg-red-700 text-white"
+                    : "text-slate-600 hover:bg-neutral-200 hover:text-slate-950",
+                )}
+              >
+                {subCategory}
+              </button>
+            ))}
+          </div>
+        )}
+
+        <motion.div
+          variants={containerVariants}
+          initial={shouldReduceMotion ? false : "hidden"}
+          whileInView={shouldReduceMotion ? undefined : "visible"}
+          viewport={{ once: true, margin: "-40px" }}
+          className="grid grid-cols-2 gap-3 sm:gap-4 md:grid-cols-3 lg:grid-cols-4"
+        >
+          {displayedImages.map((image, index) => (
+            <motion.button
+              key={`${image.id}-${image.src}`}
+              type="button"
+              variants={cardVariants}
+              onClick={() => setLightboxIndex(index)}
+              className="group relative aspect-[4/3] overflow-hidden border border-neutral-200 bg-neutral-200 text-left shadow-sm transition-shadow hover:shadow-lg focus:outline-none focus:ring-2 focus:ring-red-700"
+              aria-label={`Abrir foto: ${image.alt}`}
+            >
+              <GalleryMedia
+                src={image.src}
+                alt={image.alt}
+                className="object-cover motion-safe:transition-transform motion-safe:duration-500 motion-safe:group-hover:scale-[1.03] motion-reduce:transition-none"
+                sizes="(max-width: 640px) 50vw, (max-width: 1024px) 33vw, 25vw"
+              />
+              <div className="absolute inset-0 bg-black/10 transition-colors group-hover:bg-black/35" />
+              <span className="absolute left-3 top-3 bg-white/95 px-2 py-1 text-[10px] font-bold text-slate-800">
+                {image.categorias[0] || "Eventos"}
+              </span>
+              <span className="absolute bottom-3 left-3 right-3 flex items-center justify-between gap-2">
+                {image.titulo ? (
+                  <span className="line-clamp-2 bg-black/70 px-2 py-1 text-xs font-semibold text-white">
+                    {image.titulo}
+                  </span>
+                ) : (
+                  <span />
+                )}
+                <ZoomIn className="h-5 w-5 shrink-0 text-white opacity-0 transition-opacity group-hover:opacity-100" />
+              </span>
+            </motion.button>
+          ))}
+        </motion.div>
+
+        {displayedImages.length === 0 && (
+          <div className="border border-neutral-300 bg-white px-6 py-16 text-center text-slate-600">
+            <Camera className="mx-auto mb-3 h-9 w-9 text-slate-400" />
+            No hay fotos cargadas en esta categoría todavía.
+          </div>
+        )}
+
+        {filtered.length > 12 && (
+          <div className="mt-8 flex justify-center">
+            <button
+              type="button"
+              onClick={() => setShowAll((value) => !value)}
+              className="inline-flex min-h-11 items-center gap-2 border border-slate-300 bg-white px-5 py-2.5 text-sm font-bold text-slate-800 transition-colors hover:border-slate-500 hover:bg-neutral-50"
+            >
+              {showAll ? "Ver menos fotos" : `Ver todas las fotos (${filtered.length})`}
+              <ChevronRight className={cn("h-4 w-4 transition-transform", showAll && "rotate-90")} />
+            </button>
+          </div>
+        )}
+      </div>
+
+      <AnimatePresence>
+        {lightboxIndex !== null && displayedImages[lightboxIndex] && (
+          <motion.div
+            initial={shouldReduceMotion ? false : { opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={shouldReduceMotion ? undefined : { opacity: 0 }}
+            className="fixed inset-0 z-[100] flex items-center justify-center bg-black/95 p-4"
+            onClick={() => setLightboxIndex(null)}
+            role="dialog"
+            aria-modal="true"
+            aria-label="Vista ampliada de la galería"
+          >
+            <button
+              type="button"
+              onClick={() => setLightboxIndex(null)}
+              className="absolute right-4 top-4 z-10 flex h-11 w-11 items-center justify-center rounded-md bg-white/10 text-white hover:bg-white/20"
+              aria-label="Cerrar galería"
+              title="Cerrar galería"
+            >
+              <X className="h-5 w-5" />
+            </button>
+            <button
+              type="button"
+              onClick={(event) => {
+                event.stopPropagation();
+                setLightboxIndex((index) => (index === null ? null : (index - 1 + displayedImages.length) % displayedImages.length));
+              }}
+              className="absolute left-3 top-1/2 z-10 flex h-11 w-11 -translate-y-1/2 items-center justify-center rounded-md bg-white/10 text-white hover:bg-white/20 sm:left-6"
+              aria-label="Foto anterior"
+              title="Foto anterior"
+            >
+              <ChevronLeft className="h-5 w-5" />
+            </button>
+            <div className="w-full max-w-5xl" onClick={(event) => event.stopPropagation()}>
+              <div className="relative aspect-[16/10] overflow-hidden rounded-lg border border-white/15 bg-zinc-950">
+                <GalleryMedia
+                  src={displayedImages[lightboxIndex].src}
+                  alt={displayedImages[lightboxIndex].alt}
+                  className="object-contain"
+                  sizes="100vw"
+                  priority
+                />
+              </div>
+              <div className="mt-3 flex items-center justify-between gap-3 bg-zinc-900 px-4 py-3 text-white">
+                <div className="min-w-0">
+                  <p className="truncate text-sm font-bold">
+                    {displayedImages[lightboxIndex].titulo || displayedImages[lightboxIndex].alt}
+                  </p>
+                  <p className="mt-1 text-xs text-zinc-400">
+                    {displayedImages[lightboxIndex].categorias[0] || "Evento"} · {lightboxIndex + 1} / {displayedImages.length}
+                  </p>
+                  {displayedImages[lightboxIndex].descripcion && (
+                    <p className="mt-1 line-clamp-2 text-xs text-zinc-400">{displayedImages[lightboxIndex].descripcion}</p>
+                  )}
+                </div>
+                <button
+                  type="button"
+                  onClick={() => handleShareWhatsApp(displayedImages[lightboxIndex])}
+                  className="flex h-10 w-10 shrink-0 items-center justify-center rounded-md bg-emerald-500/15 text-emerald-300 hover:bg-emerald-500/25"
+                  aria-label="Compartir foto por WhatsApp"
+                  title="Compartir por WhatsApp"
+                >
+                  <Share2 className="h-4 w-4" />
+                </button>
+              </div>
+            </div>
+            <button
+              type="button"
+              onClick={(event) => {
+                event.stopPropagation();
+                setLightboxIndex((index) => (index === null ? null : (index + 1) % displayedImages.length));
+              }}
+              className="absolute right-3 top-1/2 z-10 flex h-11 w-11 -translate-y-1/2 items-center justify-center rounded-md bg-white/10 text-white hover:bg-white/20 sm:right-6"
+              aria-label="Foto siguiente"
+              title="Foto siguiente"
+            >
+              <ChevronRight className="h-5 w-5" />
+            </button>
+          </motion.div>
+        )}
+      </AnimatePresence>
+    </section>
+  );
+}

@@ -32,6 +32,7 @@ import { Separator } from '@/components/ui/separator';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow, TableFooter } from '@/components/ui/table';
 import { cn } from '@/lib/utils';
+import { EventSelectionRequired } from '@/components/fiestas/event-selection-required';
 
 // --- HELPERS ---
 const formatCurrency = (amount?: number) => {
@@ -253,6 +254,7 @@ function ResumenPlanificacionContent() {
     };
   }, [menu, presupuesto]);
 
+  if (!fiestaId) return <EventSelectionRequired moduleName="el resumen de planificación" />;
   if (isLoading) return <div className="flex flex-col items-center justify-center h-screen space-y-4"><Loader2 className="w-12 h-12 animate-spin text-primary" /><p className="font-bold uppercase tracking-widest text-slate-400">Generando Consolidado...</p></div>;
   if (error || !fiesta) return <div className="text-center p-8 text-destructive"><AlertTriangle className="w-12 h-12 mx-auto mb-4" />{error}</div>;
 

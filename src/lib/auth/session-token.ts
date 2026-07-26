@@ -11,6 +11,7 @@ export interface SessionUserData {
   email: string;
   role: string;
   userId: string;
+  modules?: string[];
 }
 
 export function hasPrivateSessionSecret() {

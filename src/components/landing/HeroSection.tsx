@@ -1,13 +1,12 @@
-'use client';
+"use client";
 
-import Link from 'next/link';
-import Image from 'next/image';
-import { motion, useReducedMotion } from 'framer-motion';
-import { ArrowRight, MessageSquare, ChevronDown, Zap } from 'lucide-react';
-import { cn } from '@/lib/utils';
-import type { PromoActiva } from '@/types/promo';
-import { AK_WHATSAPP_NUMBER } from '@/lib/public-contact';
-import { canUseNextImage } from '@/lib/next-image-url';
+import Image from "next/image";
+import Link from "next/link";
+import { ArrowDown, ArrowRight, MessageCircle, ShieldCheck } from "lucide-react";
+import { motion, useReducedMotion } from "framer-motion";
+import { canUseNextImage } from "@/lib/next-image-url";
+import { AK_WHATSAPP_NUMBER } from "@/lib/public-contact";
+import type { PromoActiva } from "@/types/promo";
 
 interface HeroSectionProps {
   whatsappNumber?: string;
@@ -19,172 +18,152 @@ interface HeroSectionProps {
   ctaLabel?: string;
   simulatorHref?: string;
   simulatorLabel?: string;
+  showEventTypes?: boolean;
+  backgroundImageAlt?: string;
 }
+
+const details = [
+  "Catering y barra",
+  "Ambientación y mobiliario",
+  "Música, luces y coordinación",
+];
 
 export function HeroSection({
   whatsappNumber = AK_WHATSAPP_NUMBER,
-  headline = 'Disfrutá tu Fiesta,\nNosotros nos Encargamos del Resto',
-  subheadline = 'La paz mental de saber que tu evento está en manos expertas. Desde el catering premium hasta la tecnología interactiva, coordinamos cada detalle para que vos solo te dediques a vivir el momento.',
-  backgroundImageUrl = '/media/catalogo-servicios/quinceanera_hero.png',
+  headline = "Tu fiesta, resuelta por un solo equipo",
+  subheadline = "Catering, ambientación, música, tecnología y coordinación para celebrar con tranquilidad en Salto.",
+  backgroundImageUrl = "/media/catalogo-servicios/quinceanera_hero.png",
   promoActiva,
-  whatsappMessage = 'Hola AK Producciones, vi su pagina y me gustaria cotizar mi evento.',
-  ctaLabel = 'Consultar por WhatsApp',
-  simulatorHref = '/simulador-de-presupuesto',
-  simulatorLabel = 'Simular Presupuesto',
+  whatsappMessage = "Hola AK Producciones, quisiera cotizar mi evento.",
+  ctaLabel = "Hablar con AK",
+  simulatorHref = "/simulador-de-presupuesto",
+  simulatorLabel = "Cotizar mi fiesta",
+  backgroundImageAlt = "Fiesta de quince años producida por AK Producciones",
 }: HeroSectionProps) {
+  const reduceMotion = useReducedMotion();
   const waHref = `https://wa.me/${whatsappNumber}?text=${encodeURIComponent(whatsappMessage)}`;
-  const configuredPromoHref = promoActiva?.ctaUrl?.trim() || '';
+  const configuredPromoHref = promoActiva?.ctaUrl?.trim() || "";
   const promoHref =
-    /^https?:\/\//i.test(configuredPromoHref) || configuredPromoHref.startsWith('/')
+    /^https?:\/\//i.test(configuredPromoHref) || configuredPromoHref.startsWith("/")
       ? configuredPromoHref
       : waHref;
-  const reduceMotion = useReducedMotion();
 
-  const containerVariants = {
-    hidden: {},
-    visible: {
-      transition: {
-        staggerChildren: 0.1,
-      },
-    },
-  };
-
-  const itemVariants = {
-    hidden: { opacity: 0, y: 20 },
-    visible: { opacity: 1, y: 0, transition: { duration: 0.6, ease: 'easeOut' } },
-  };
+  const reveal = reduceMotion
+    ? {}
+    : {
+        initial: { opacity: 0, y: 18 },
+        animate: { opacity: 1, y: 0 },
+        transition: { duration: 0.55, ease: [0.22, 1, 0.36, 1] as const },
+      };
 
   return (
-    <section data-testid="hero-section" className="relative flex min-h-[78svh] items-center overflow-hidden bg-zinc-950">
+    <section
+      data-testid="hero-section"
+      className="relative flex min-h-[82svh] items-end overflow-hidden bg-stone-950 text-white sm:min-h-[90svh]"
+    >
       <motion.div
-        className="absolute inset-0 scale-105 opacity-75"
-        animate={reduceMotion ? undefined : { scale: [1.04, 1.09, 1.04] }}
-        transition={{ duration: 22, repeat: Infinity, ease: 'easeInOut' }}
+        className="absolute inset-0"
+        animate={reduceMotion ? undefined : { scale: [1, 1.035, 1] }}
+        transition={{ duration: 22, repeat: Infinity, ease: "easeInOut" }}
       >
         {canUseNextImage(backgroundImageUrl) ? (
           <Image
             src={backgroundImageUrl}
-            alt="Celebración producida por AK Producciones"
+            alt={backgroundImageAlt}
             fill
             priority
             sizes="100vw"
-            quality={82}
             className="object-cover object-center"
           />
         ) : (
           <div
             className="absolute inset-0 bg-cover bg-center bg-no-repeat"
             style={{ backgroundImage: `url('${backgroundImageUrl}')` }}
+            role="img"
+            aria-label={backgroundImageAlt}
           />
         )}
       </motion.div>
-      <div className="absolute inset-0 bg-slate-950/70" />
-      <div className="relative z-10 w-full max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-24 pb-20">
-        <motion.div
-          variants={containerVariants}
-          initial="hidden"
-          animate="visible"
-          className="max-w-4xl text-left"
-        >
+      <div className="absolute inset-0 bg-black/55" />
+
+      <div className="relative z-10 mx-auto w-full max-w-7xl px-4 pb-16 pt-28 sm:px-6 sm:pb-20 lg:px-8">
+        <div className="max-w-3xl">
           {promoActiva && (
-            <motion.a
-              variants={itemVariants}
+            <a
               href={promoHref}
-              target={promoHref.startsWith('http') ? '_blank' : undefined}
-              rel={promoHref.startsWith('http') ? 'noopener noreferrer' : undefined}
-              className="mb-4 inline-flex items-center gap-2 rounded-md border border-white/30 bg-black/20 px-4 py-2 text-xs font-bold text-white transition-colors hover:bg-black/40"
+              target={promoHref.startsWith("http") ? "_blank" : undefined}
+              rel={promoHref.startsWith("http") ? "noopener noreferrer" : undefined}
+              className="mb-5 inline-flex items-center gap-2 border border-white/35 bg-black/30 px-3 py-2 text-xs font-semibold text-white transition-colors hover:bg-black/50"
             >
-              <Zap className="w-3.5 h-3.5 text-amber-200" />
-              Promo activa: {promoActiva.titulo}
-            </motion.a>
+              <ShieldCheck className="h-4 w-4" aria-hidden="true" />
+              {promoActiva.titulo}
+            </a>
           )}
 
-          <motion.div
-            variants={itemVariants}
-            className="mb-7 inline-flex items-center gap-3 rounded-md border border-white/25 bg-black/20 px-4 py-2 text-xs font-bold text-white"
-          >
-            <span className="h-2 w-8 rounded-full bg-red-600" />
-            AK Producciones Eventos
-          </motion.div>
-
+          <motion.p {...reveal} className="text-sm font-semibold text-stone-200">
+            AK Producciones Eventos · Salto, Uruguay
+          </motion.p>
           <motion.h1
-            variants={itemVariants}
-            className="font-headline text-5xl sm:text-6xl md:text-7xl lg:text-8xl font-black text-white leading-none mb-6 drop-shadow-2xl"
+            {...reveal}
+            transition={reduceMotion ? undefined : { duration: 0.6, delay: 0.06, ease: [0.22, 1, 0.36, 1] }}
+            className="mt-4 font-headline text-4xl font-black leading-[1.05] text-white sm:text-6xl lg:text-7xl"
           >
-            {headline.split('\n').map((line, i, lines) => (
-              <span key={i} className={cn('block', i === 1 && 'text-white/90')}>
-                {line}{i < lines.length - 1 ? ' ' : ''}
-              </span>
-            ))}
+            {headline}
           </motion.h1>
-
           <motion.p
-            variants={itemVariants}
-            className="text-lg sm:text-xl md:text-2xl text-zinc-300 font-medium max-w-2xl mb-10 leading-relaxed"
+            {...reveal}
+            transition={reduceMotion ? undefined : { duration: 0.6, delay: 0.12, ease: [0.22, 1, 0.36, 1] }}
+            className="mt-5 max-w-2xl text-lg leading-relaxed text-stone-100 sm:text-xl"
           >
             {subheadline}
           </motion.p>
 
           <motion.div
-            variants={itemVariants}
-            className="flex flex-col sm:flex-row items-stretch sm:items-center gap-4"
+            {...reveal}
+            transition={reduceMotion ? undefined : { duration: 0.6, delay: 0.18, ease: [0.22, 1, 0.36, 1] }}
+            className="mt-7 flex flex-wrap gap-x-5 gap-y-2 text-sm text-stone-100"
+          >
+            {details.map((detail) => (
+              <span key={detail} className="flex items-center gap-2">
+                <span className="h-1.5 w-1.5 bg-red-500" aria-hidden="true" />
+                {detail}
+              </span>
+            ))}
+          </motion.div>
+
+          <motion.div
+            {...reveal}
+            transition={reduceMotion ? undefined : { duration: 0.6, delay: 0.24, ease: [0.22, 1, 0.36, 1] }}
+            className="mt-9 flex flex-col gap-3 sm:flex-row"
           >
             <Link
               href={simulatorHref}
-              className={cn(
-                'flex items-center gap-3 rounded-lg bg-red-700 px-8 py-4 text-base font-bold text-white shadow-lg shadow-red-950/20 hover:bg-red-800',
-                'transition-all duration-300 hover:translate-y-[-1px] active:scale-95',
-                'min-w-[220px] justify-center'
-              )}
+              className="inline-flex min-h-12 items-center justify-center gap-2 bg-red-700 px-6 py-3 text-sm font-bold text-white transition-colors hover:bg-red-800"
             >
               {simulatorLabel}
-              <ArrowRight className="w-5 h-5 shrink-0" />
+              <ArrowRight className="h-4 w-4" aria-hidden="true" />
             </Link>
             <a
               href={waHref}
               target="_blank"
               rel="noopener noreferrer"
               data-testid="hero-cta-button"
-              className={cn(
-                'flex items-center gap-3 rounded-lg border border-white/35 bg-black/20 px-8 py-4 text-base font-bold text-white hover:bg-black/35',
-                'transition-all duration-300 hover:translate-y-[-1px] active:scale-95',
-                'min-w-[220px] justify-center'
-              )}
+              className="inline-flex min-h-12 items-center justify-center gap-2 border border-white/45 bg-black/25 px-6 py-3 text-sm font-bold text-white transition-colors hover:bg-black/45"
             >
-              <MessageSquare className="w-6 h-6 shrink-0 text-emerald-300" />
+              <MessageCircle className="h-4 w-4" aria-hidden="true" />
               {ctaLabel}
             </a>
           </motion.div>
-
-          <motion.div variants={itemVariants} className="mt-14 grid max-w-lg grid-cols-3 divide-x divide-white/20 border-y border-white/20">
-            {[
-              { value: '500+', label: 'Eventos' },
-              { value: '12+', label: 'Años' },
-              { value: '24/7', label: 'Acompañamiento' },
-            ].map((stat) => (
-              <motion.div
-                key={stat.label}
-                whileHover={reduceMotion ? undefined : { y: -2 }}
-                className="px-4 py-3.5 text-center"
-              >
-                <div className="text-2xl sm:text-3xl font-black text-white drop-shadow">{stat.value}</div>
-                <div className="mt-1 text-[9px] font-bold text-zinc-300">{stat.label}</div>
-              </motion.div>
-            ))}
-          </motion.div>
-        </motion.div>
+        </div>
       </div>
 
-      <motion.a
-        initial={{ opacity: 0, y: -10 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ duration: 0.5, delay: 0.8, repeat: Infinity, repeatType: 'reverse' }}
-        href="#servicios"
-        className="absolute bottom-8 left-1/2 z-20 -translate-x-1/2 text-white/70 transition-colors hover:text-white"
-        aria-label="Scroll hacia abajo"
+      <a
+        href="#landing-services"
+        className="absolute bottom-5 left-1/2 z-10 inline-flex -translate-x-1/2 items-center gap-2 text-xs font-semibold text-stone-200 transition-colors hover:text-white"
       >
-        <ChevronDown className="w-8 h-8" />
-      </motion.a>
+        Conocé las propuestas
+        <ArrowDown className="h-4 w-4" aria-hidden="true" />
+      </a>
     </section>
   );
 }

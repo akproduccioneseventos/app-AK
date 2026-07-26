@@ -40,6 +40,12 @@ const STATUS_STYLES: Record<BarDrinkOrderStatus, string> = {
   cancelado: 'bg-slate-900 text-white',
 };
 
+const ALLOWED_NEXT_STATUS: Partial<Record<BarDrinkOrderStatus, BarDrinkOrderStatus[]>> = {
+  nuevo: ['preparando', 'cancelado'],
+  preparando: ['listo', 'cancelado'],
+  listo: ['entregado'],
+};
+
 function minutesAgo(iso: string) {
   const minutes = Math.max(0, Math.floor((Date.now() - new Date(iso).getTime()) / 60000));
   if (minutes < 1) return 'recién';
@@ -94,6 +100,7 @@ export default function BarmanScreenPage() {
   }, [loadData]);
 
   const updateStatus = async (order: BarDrinkOrder, status: BarDrinkOrderStatus) => {
+    if (!ALLOWED_NEXT_STATUS[order.status]?.includes(status)) return;
     setUpdatingId(order.id);
     const result = await updateBarDrinkOrderStatus(fiestaId, order.id, status);
     if (!result.success) {
@@ -141,7 +148,7 @@ export default function BarmanScreenPage() {
     <main className="ak-live-stage min-h-screen p-4 text-white">
       <header className="ak-live-panel mb-4 flex flex-col gap-4 p-5 md:flex-row md:items-center md:justify-between">
         <div className="flex items-center gap-4">
-          <div className="flex h-16 w-16 items-center justify-center rounded-3xl shadow-xl" style={{ backgroundColor: accentColor }}>
+          <div className="flex h-16 w-16 items-center justify-center rounded-lg shadow-xl" style={{ backgroundColor: accentColor }}>
             <Martini className="h-9 w-9" />
           </div>
           <div>
@@ -150,7 +157,7 @@ export default function BarmanScreenPage() {
             <p className="text-white/60">{dashboard?.eventName}</p>
           </div>
         </div>
-        <Button variant="outline" className="h-12 rounded-2xl border-white/20 bg-white/10 font-black text-white hover:bg-white/20" onClick={() => loadData(false)}>
+        <Button variant="outline" className="h-12 rounded-lg border-white/20 bg-white/10 font-black text-white hover:bg-white/20" onClick={() => loadData(false)}>
           <RefreshCw className="mr-2 h-4 w-4" /> Actualizar
         </Button>
       </header>
@@ -167,7 +174,7 @@ export default function BarmanScreenPage() {
               <Button 
                 key={drink.id} 
                 variant="secondary" 
-                className="whitespace-nowrap rounded-2xl h-12 font-bold bg-white/10 hover:bg-white/20 text-white border border-white/5"
+                className="whitespace-nowrap rounded-lg h-12 font-bold bg-white/10 hover:bg-white/20 text-white border border-white/5"
                 onClick={() => setQuickDrink(drink)}
               >
                 {drink.nombre}
@@ -186,10 +193,10 @@ export default function BarmanScreenPage() {
           empty="Sin pedidos nuevos"
           renderActions={(order) => (
             <>
-              <Button className="h-11 flex-1 rounded-2xl font-black" style={{ backgroundColor: accentColor }} disabled={updatingId === order.id} onClick={() => updateStatus(order, 'preparando')}>
+              <Button className="h-11 flex-1 rounded-lg font-black" style={{ backgroundColor: accentColor }} disabled={updatingId === order.id} onClick={() => updateStatus(order, 'preparando')}>
                 Preparar
               </Button>
-              <Button variant="outline" className="h-11 rounded-2xl border-white/20 bg-white/10 font-bold text-white hover:bg-white/20" disabled={updatingId === order.id} onClick={() => updateStatus(order, 'cancelado')}>
+              <Button variant="outline" className="h-11 rounded-lg border-white/20 bg-white/10 font-bold text-white hover:bg-white/20" disabled={updatingId === order.id} onClick={() => updateStatus(order, 'cancelado')}>
                 <XCircle className="h-4 w-4" />
               </Button>
             </>
@@ -202,9 +209,14 @@ export default function BarmanScreenPage() {
           accentColor="#f59e0b"
           empty="Nada preparando"
           renderActions={(order) => (
-            <Button className="h-11 w-full rounded-2xl bg-emerald-600 font-black hover:bg-emerald-700" disabled={updatingId === order.id} onClick={() => updateStatus(order, 'listo')}>
-              Listo
-            </Button>
+            <div className="flex gap-2">
+              <Button className="h-11 flex-1 rounded-lg bg-emerald-600 font-black hover:bg-emerald-700" disabled={updatingId === order.id} onClick={() => updateStatus(order, 'listo')}>
+                Listo
+              </Button>
+              <Button variant="outline" className="h-11 rounded-lg border-white/20 bg-white/10 font-bold text-white hover:bg-white/20" disabled={updatingId === order.id} onClick={() => updateStatus(order, 'cancelado')} aria-label="Cancelar pedido">
+                <XCircle className="h-4 w-4" />
+              </Button>
+            </div>
           )}
         />
         <OrderColumn
@@ -214,7 +226,7 @@ export default function BarmanScreenPage() {
           accentColor="#16a34a"
           empty="No hay tragos listos"
           renderActions={(order) => (
-            <Button className="h-11 w-full rounded-2xl bg-white font-black text-slate-950 hover:bg-slate-100" disabled={updatingId === order.id} onClick={() => updateStatus(order, 'entregado')}>
+            <Button className="h-11 w-full rounded-lg bg-white font-black text-slate-950 hover:bg-slate-100" disabled={updatingId === order.id} onClick={() => updateStatus(order, 'entregado')}>
               Entregado
             </Button>
           )}
@@ -281,13 +293,13 @@ function OrderColumn({
     <div className="ak-live-panel min-h-[58vh] p-4">
       <div className="mb-4 flex items-center justify-between">
         <div className="flex items-center gap-3">
-          <div className="flex h-11 w-11 items-center justify-center rounded-2xl" style={{ backgroundColor: accentColor }}>{icon}</div>
+          <div className="flex h-11 w-11 items-center justify-center rounded-lg" style={{ backgroundColor: accentColor }}>{icon}</div>
           <h2 className="text-2xl font-black">{title}</h2>
         </div>
         <Badge className="bg-white text-slate-950">{orders.length}</Badge>
       </div>
       <AnimatePresence initial={false}>
-        <div className="space-y-3">
+        <div className="space-y-3" aria-live="polite">
           {orders.map((order) => (
             <motion.div
               key={order.id}
@@ -295,19 +307,20 @@ function OrderColumn({
               initial={{ opacity: 0, y: 12, scale: 0.98 }}
               animate={{ opacity: 1, y: 0, scale: 1 }}
               exit={{ opacity: 0, y: -12, scale: 0.98 }}
+              aria-label={`${order.drinkName}, ${STATUS_LABELS[order.status]}, ${order.guestName}`}
               className={cn('rounded-lg border border-white/10 bg-white p-4 text-slate-950 shadow-xl', order.status === 'nuevo' && 'ring-2 ring-rose-500/50')}
             >
               <div className="flex items-start justify-between gap-3">
                 <div>
-                  <p className="text-2xl font-black">{order.drinkName}</p>
+                  <p className="text-xl font-black leading-tight">{order.drinkName}</p>
                   <p className="font-bold text-slate-500">{order.guestName}{order.tableNumber ? ` · ${order.tableNumber}` : ''}</p>
                 </div>
-                <div className="rounded-2xl bg-slate-100 px-3 py-2 text-right">
+                <div className="rounded-lg bg-slate-100 px-3 py-2 text-right">
                   <p className="text-xs font-black uppercase text-slate-400">Hace</p>
                   <p className="font-black">{minutesAgo(order.createdAt)}</p>
                 </div>
               </div>
-              {order.note && <p className="mt-3 rounded-2xl bg-slate-100 p-3 text-sm font-semibold text-slate-600">{order.note}</p>}
+              {order.note && <p className="mt-3 rounded-lg bg-slate-100 p-3 text-sm font-semibold text-slate-600">{order.note}</p>}
               <div className="mt-4 flex gap-2">{renderActions(order)}</div>
             </motion.div>
           ))}

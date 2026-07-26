@@ -100,13 +100,12 @@ export function LeadCaptureForm({
     } catch (err: any) {
       setLoading(false);
       setError('Error de conexión. Verificá tu internet e intentá de nuevo.');
-      console.error('[LeadCaptureForm] Error submitting lead:', err);
     }
   };
 
   if (sent) {
     return (
-      <div className="bg-gradient-to-br from-green-50 to-emerald-50 border border-green-200 rounded-3xl p-10 text-center">
+      <div className="border border-emerald-200 bg-emerald-50 rounded-lg p-8 text-center">
         <div className="w-16 h-16 rounded-full bg-green-100 flex items-center justify-center mx-auto mb-4">
           <Check className="w-8 h-8 text-green-600" />
         </div>
@@ -125,7 +124,7 @@ export function LeadCaptureForm({
   }
 
   return (
-    <div className="bg-white rounded-3xl shadow-2xl shadow-purple-900/10 p-8 border border-slate-100">
+    <div className="bg-white rounded-lg shadow-xl shadow-zinc-950/10 p-6 sm:p-8 border border-zinc-200">
       <div className="text-center mb-8">
         <h3 className="text-2xl font-black text-slate-900 mb-2">{title}</h3>
         <p className="text-slate-500 text-sm">{subtitle}</p>
@@ -142,8 +141,8 @@ export function LeadCaptureForm({
               value={form.nombre}
               onChange={(e) => setForm({ ...form, nombre: e.target.value })}
               className={cn(
-                'w-full px-4 py-3 rounded-xl border border-slate-200 text-sm',
-                'focus:outline-none focus:ring-2 focus:ring-purple-400 focus:border-transparent',
+                'w-full px-4 py-3 rounded-lg border border-zinc-300 text-sm',
+                'focus:outline-none focus:ring-2 focus:ring-red-500 focus:border-transparent',
                 'transition-all placeholder:text-slate-400'
               )}
               placeholder="Tu nombre"
@@ -159,8 +158,8 @@ export function LeadCaptureForm({
               value={form.telefono}
               onChange={(e) => setForm({ ...form, telefono: e.target.value })}
               className={cn(
-                'w-full px-4 py-3 rounded-xl border border-slate-200 text-sm',
-                'focus:outline-none focus:ring-2 focus:ring-purple-400 focus:border-transparent',
+                'w-full px-4 py-3 rounded-lg border border-zinc-300 text-sm',
+                'focus:outline-none focus:ring-2 focus:ring-red-500 focus:border-transparent',
                 'transition-all placeholder:text-slate-400'
               )}
               placeholder="099 123 456"
@@ -179,8 +178,8 @@ export function LeadCaptureForm({
               value={form.fechaEstimada}
               onChange={(e) => setForm({ ...form, fechaEstimada: e.target.value })}
               className={cn(
-                'w-full px-4 py-3 rounded-xl border border-slate-200 text-sm',
-                'focus:outline-none focus:ring-2 focus:ring-purple-400 focus:border-transparent',
+                'w-full px-4 py-3 rounded-lg border border-zinc-300 text-sm',
+                'focus:outline-none focus:ring-2 focus:ring-red-500 focus:border-transparent',
                 'transition-all'
               )}
             />
@@ -194,8 +193,8 @@ export function LeadCaptureForm({
               value={form.invitados}
               onChange={(e) => setForm({ ...form, invitados: e.target.value })}
               className={cn(
-                'w-full px-4 py-3 rounded-xl border border-slate-200 text-sm',
-                'focus:outline-none focus:ring-2 focus:ring-purple-400 focus:border-transparent',
+                'w-full px-4 py-3 rounded-lg border border-zinc-300 text-sm',
+                'focus:outline-none focus:ring-2 focus:ring-red-500 focus:border-transparent',
                 'transition-all placeholder:text-slate-400'
               )}
               placeholder="Ej: 150"
@@ -213,8 +212,8 @@ export function LeadCaptureForm({
             value={form.email}
             onChange={(e) => setForm({ ...form, email: e.target.value })}
             className={cn(
-              'w-full px-4 py-3 rounded-xl border border-slate-200 text-sm',
-              'focus:outline-none focus:ring-2 focus:ring-purple-400 focus:border-transparent',
+              'w-full px-4 py-3 rounded-lg border border-zinc-300 text-sm',
+              'focus:outline-none focus:ring-2 focus:ring-red-500 focus:border-transparent',
               'transition-all placeholder:text-slate-400'
             )}
             placeholder="tu@email.com"
@@ -230,8 +229,8 @@ export function LeadCaptureForm({
             onChange={(e) => setForm({ ...form, mensaje: e.target.value })}
             rows={3}
             className={cn(
-              'w-full px-4 py-3 rounded-xl border border-slate-200 text-sm resize-none',
-              'focus:outline-none focus:ring-2 focus:ring-purple-400 focus:border-transparent',
+              'w-full px-4 py-3 rounded-lg border border-zinc-300 text-sm resize-none',
+              'focus:outline-none focus:ring-2 focus:ring-red-500 focus:border-transparent',
               'transition-all placeholder:text-slate-400'
             )}
             placeholder="Salón, estilo, colores, ideas..."
@@ -246,10 +245,10 @@ export function LeadCaptureForm({
           type="submit"
           disabled={loading}
           className={cn(
-            'w-full flex items-center justify-center gap-3 py-4 rounded-2xl',
-            'bg-gradient-to-r from-purple-600 to-fuchsia-600 hover:from-purple-700 hover:to-fuchsia-700',
+            'w-full flex items-center justify-center gap-3 py-4 rounded-lg',
+            'bg-red-700 hover:bg-red-800',
             'text-white font-black text-sm uppercase tracking-widest',
-            'shadow-xl shadow-purple-900/30',
+            'shadow-lg shadow-red-950/20',
             'transition-all duration-300 hover:scale-[1.02] active:scale-[0.98]',
             'disabled:opacity-60 disabled:cursor-not-allowed disabled:scale-100'
           )}

@@ -4,27 +4,32 @@ import { useEffect, useState } from 'react';
 import Link from 'next/link';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { ArrowLeft, BarChart3, TrendingUp, Users, AlertCircle, Loader2, CalendarCheck } from 'lucide-react';
+import { ArrowLeft, BarChart3, CalendarDays, Users, AlertCircle, Loader2, CalendarCheck, RefreshCw } from 'lucide-react';
 import { getFiestas } from '@/app/actions/fiesta/fiesta.actions';
 import type { FiestaEnPlanificacion } from '@/types/fiesta';
 
 export default function DashboardPage() {
   const [fiestas, setFiestas] = useState<FiestaEnPlanificacion[]>([]);
   const [loading, setLoading] = useState(true);
+  const [loadError, setLoadError] = useState<string | null>(null);
+  const [loadAttempt, setLoadAttempt] = useState(0);
 
   useEffect(() => {
     async function loadData() {
+      setLoading(true);
+      setLoadError(null);
       try {
         const data = await getFiestas(false); // only active
         setFiestas(data || []);
       } catch (err) {
         console.error(err);
+        setLoadError('No se pudieron cargar los datos ejecutivos. Revisa la conexión e intenta nuevamente.');
       } finally {
         setLoading(false);
       }
     }
-    loadData();
-  }, []);
+    void loadData();
+  }, [loadAttempt]);
 
   if (loading) {
     return (
@@ -35,11 +40,26 @@ export default function DashboardPage() {
     );
   }
 
+  if (loadError) {
+    return (
+      <main className="flex min-h-[55vh] items-center justify-center p-6">
+        <div className="w-full max-w-lg rounded-lg border border-rose-200 bg-white p-6 text-center shadow-sm">
+          <AlertCircle className="mx-auto h-10 w-10 text-rose-600" aria-hidden="true" />
+          <h1 className="mt-4 text-xl font-black text-slate-950">No pudimos cargar el panel</h1>
+          <p className="mt-2 text-sm leading-6 text-slate-600">{loadError}</p>
+          <Button type="button" onClick={() => setLoadAttempt((attempt) => attempt + 1)} className="mt-5 w-full">
+            <RefreshCw className="h-4 w-4" /> Reintentar
+          </Button>
+        </div>
+      </main>
+    );
+  }
+
   // Calculate metrics
   const activeEventsCount = fiestas.length;
   
-  // Very rough estimation based on guest count and generic pricing for demonstration
   const totalGuests = fiestas.reduce((acc, f) => acc + (f.invitados?.length || 0), 0);
+  const scheduledEventsCount = fiestas.filter((fiesta) => Boolean(fiesta.configuracion?.fechaEvento)).length;
   
   // Pending tasks (vendors not paid fully, etc.)
   let totalPendingTasks = 0;
@@ -52,7 +72,7 @@ export default function DashboardPage() {
       {/* Header */}
       <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
         <div className="flex items-center gap-3">
-          <div className="bg-indigo-100 p-2 rounded-xl">
+          <div className="rounded-lg bg-indigo-100 p-2">
             <BarChart3 className="w-8 h-8 text-indigo-600" />
           </div>
           <div>
@@ -62,7 +82,7 @@ export default function DashboardPage() {
             <p className="text-sm text-slate-500">Métricas globales y alertas operativas en tiempo real.</p>
           </div>
         </div>
-        <Button asChild variant="outline" className="rounded-xl"><Link href="/empresa">
+        <Button asChild variant="outline"><Link href="/empresa">
             <ArrowLeft className="w-4 h-4 mr-2" />
             Volver a Empresa
           </Link></Button>
@@ -70,7 +90,7 @@ export default function DashboardPage() {
 
       {/* Main KPI Cards */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
-        <Card className="rounded-2xl border-none shadow-md bg-white">
+        <Card className="bg-white">
           <CardHeader className="flex flex-row items-center justify-between pb-2">
             <CardTitle className="text-sm font-semibold text-slate-500">Fiestas Activas</CardTitle>
             <CalendarCheck className="h-5 w-5 text-emerald-500" />
@@ -81,7 +101,7 @@ export default function DashboardPage() {
           </CardContent>
         </Card>
 
-        <Card className="rounded-2xl border-none shadow-md bg-white">
+        <Card className="bg-white">
           <CardHeader className="flex flex-row items-center justify-between pb-2">
             <CardTitle className="text-sm font-semibold text-slate-500">Volumen de Invitados</CardTitle>
             <Users className="h-5 w-5 text-blue-500" />
@@ -92,34 +112,31 @@ export default function DashboardPage() {
           </CardContent>
         </Card>
 
-        <Card className="rounded-2xl border-none shadow-md bg-white">
+        <Card className="bg-white">
           <CardHeader className="flex flex-row items-center justify-between pb-2">
-            <CardTitle className="text-sm font-semibold text-slate-500">Proyección (Estimada)</CardTitle>
-            <TrendingUp className="h-5 w-5 text-indigo-500" />
+            <CardTitle className="text-sm font-semibold text-slate-500">Eventos con Fecha</CardTitle>
+            <CalendarDays className="h-5 w-5 text-indigo-500" />
           </CardHeader>
           <CardContent>
-            <div className="text-3xl font-black text-slate-900">
-              <span className="text-xl mr-1 text-slate-400">USD</span>
-              {new Intl.NumberFormat('en-US').format(activeEventsCount * 2500)}
-            </div>
-            <p className="text-xs text-slate-400 mt-1 font-medium">Cálculo base promedio</p>
+            <div className="text-3xl font-black text-slate-900">{scheduledEventsCount}</div>
+            <p className="mt-1 text-xs font-medium text-slate-400">Fechas confirmadas en planificación</p>
           </CardContent>
         </Card>
 
-        <Card className="rounded-2xl border-none shadow-md bg-rose-50 border-rose-100">
+        <Card className="border-rose-100 bg-rose-50">
           <CardHeader className="flex flex-row items-center justify-between pb-2">
-            <CardTitle className="text-sm font-semibold text-rose-600">Alertas Proveedores</CardTitle>
+            <CardTitle className="text-sm font-semibold text-rose-700">Órdenes por Confirmar</CardTitle>
             <AlertCircle className="h-5 w-5 text-rose-600" />
           </CardHeader>
           <CardContent>
             <div className="text-3xl font-black text-rose-700">{totalPendingTasks}</div>
-            <p className="text-xs text-rose-500/80 mt-1 font-medium">Pagos parciales o pendientes</p>
+            <p className="mt-1 text-xs font-medium text-rose-600/80">Compras todavía no marcadas como pagadas</p>
           </CardContent>
         </Card>
       </div>
 
       {/* Active Events List */}
-      <Card className="rounded-2xl border-none shadow-md bg-white">
+      <Card className="bg-white">
         <CardHeader>
           <CardTitle className="text-lg font-bold text-slate-900">Fiestas en Producción</CardTitle>
           <CardDescription>Eventos que requieren atención logística.</CardDescription>

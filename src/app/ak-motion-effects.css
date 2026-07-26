@@ -37,11 +37,6 @@
   contain-intrinsic-size: auto 720px;
 }
 
-.ak-landing-experience > section:nth-of-type(n + 4) {
-  content-visibility: auto;
-  contain-intrinsic-size: auto 760px;
-}
-
 @media (prefers-reduced-motion: no-preference) {
   .ak-motion-system main > section,
   .ak-motion-system main > div,

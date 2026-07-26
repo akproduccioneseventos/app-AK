@@ -1,6 +1,7 @@
 'use client';
 
 import Link from 'next/link';
+import dynamic from 'next/dynamic';
 import React, { useCallback, useEffect, useMemo, useState } from 'react';
 import {
   Archive,
@@ -44,8 +45,6 @@ import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Separator } from '@/components/ui/separator';
 import { KpiCard } from '@/components/dashboard/kpi-card';
-import { MonthlySalesChart } from '@/components/charts/MonthlySalesChart';
-import { PaymentStatusPieChart } from '@/components/charts/PaymentStatusPieChart';
 import { PublicFooter } from '@/components/public-footer';
 import { PwaInstallPrompt } from '@/components/pwa-install-prompt';
 import { PushNotificationPrompt } from '@/components/push-notification-prompt';
@@ -55,6 +54,20 @@ import { useToast } from '@/hooks/use-toast';
 import { cn } from '@/lib/utils';
 import { recoverFromDeploymentMismatch } from '@/lib/deployment-recovery';
 import { triggerAppLogout } from '@/app/auth-guard';
+
+const dashboardChartLoading = () => (
+  <Card className="flex h-[300px] items-center justify-center">
+    <Loader2 className="h-8 w-8 animate-spin text-primary/40" />
+  </Card>
+);
+const MonthlySalesChart = dynamic(
+  () => import('@/components/charts/MonthlySalesChart').then((module) => module.MonthlySalesChart),
+  { loading: dashboardChartLoading },
+);
+const PaymentStatusPieChart = dynamic(
+  () => import('@/components/charts/PaymentStatusPieChart').then((module) => module.PaymentStatusPieChart),
+  { loading: dashboardChartLoading },
+);
 
 const mainHubItems = [
   { title: 'Nuevo Lead / Contacto', description: 'Registrar un nuevo prospecto en el CRM.', href: '/contabilidad/crm', icon: UserPlus, lightColor: 'bg-violet-50 text-violet-600', featured: false },

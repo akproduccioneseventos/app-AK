@@ -1,7 +1,7 @@
 
 'use client';
 
-import React, { useState, useEffect, useCallback, useMemo, useRef, type FormEvent, Suspense } from 'react';
+import React, { useState, useEffect, useCallback, useMemo, useRef, Suspense } from 'react';
 import { useSearchParams } from 'next/navigation';
 import Link from 'next/link';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription, CardFooter } from '@/components/ui/card';
@@ -18,18 +18,15 @@ import {
 } from "@/components/ui/dialog";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import {
-    ArrowLeft, ArrowRight, Wand2, Loader2, PartyPopper, Users,
-    Save, Clock, CalendarDays, Search, Check, Info, TrendingUp,
-    Share2, Printer, Gift, ListPlus, ShieldCheck, Zap, Star, Percent,
+    ArrowLeft, ArrowRight, Loader2, PartyPopper, Users,
+    Clock, CalendarDays, Search, Check, Info,
+    Share2, Gift, ListPlus, ShieldCheck, Zap, Star,
     Building2,
     CheckCircle2,
-    ChevronDown,
     FileDown,
     MapPin,
     PackageCheck,
-    Phone,
     Utensils,
-    UserMinus,
     X,
     MessageSquare,
     Sparkles,
@@ -38,15 +35,14 @@ import {
     Settings2,
     Plus,
     Trash2,
-    AlertTriangle
+    AlertTriangle,
+    ChevronDown
 } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
-import { captureSimulatorLeadProgress, getArmadoRapidoConfig, generateBudgetAndLeadFromSimulator, getPublicBudgetsByPhone } from '@/app/actions/armado-rapido';
+import { captureSimulatorLeadProgress, generateBudgetAndLeadFromSimulator, getPublicBudgetsByPhone } from '@/app/actions/armado-rapido';
 import { checkDateAvailability } from '@/app/actions/simulador-v2';
-import { getServiciosEmpresa } from '@/app/actions/servicios-empresa';
-import { getSocialConnections } from '@/app/actions/social-connections';
-import { getInvoiceTemplateSettings, getBudgetDisplaySettings } from '@/app/actions/settings';
-import type { SocialConnection, BudgetDisplaySettings } from '@/types/settings';
+import { getPublicSimulatorBootstrap } from '@/app/actions/public-simulator-bootstrap';
+import type { BudgetDisplaySettings } from '@/types/settings';
 import { defaultBudgetDisplaySettings } from '@/types/settings';
 import type { ArmadoRapidoConfig, PaqueteArmadoRapido } from '@/types/armado-rapido';
 import { isPackageApplicableToEventType } from '@/types/armado-rapido';
@@ -57,16 +53,14 @@ import { Checkbox } from '@/components/ui/checkbox';
 import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import type { FullMenu, MenuItem } from '@/types/catering';
-import { getMenus } from '@/app/actions/menus-catering';
 import { DatePickerDemo } from '@/components/date-picker-demo';
 import { getGuestCountForItem } from '@/lib/calculations';
 import { cn } from '@/lib/utils';
 import {
   DEFAULT_ANNUAL_ADJUSTMENT_PERCENTAGE,
 } from '@/lib/budget/formal-budget';
-import { ScrollArea } from '@/components/ui/scroll-area';
 import { Badge } from '@/components/ui/badge';
-import { motion, AnimatePresence } from 'framer-motion';
+import { motion } from 'framer-motion';
 import { CompanyLogo } from '@/components/company-logo';
 import { getCateringDishImage, getCateringMenuImage } from '@/lib/catering/menu-images';
 import {
@@ -77,11 +71,26 @@ import {
 } from '@/lib/simulator/pricing';
 import { commercialAttributionFromSearchParams } from '@/lib/commercial/acquisition';
 import { isValidUruguayMobile, normalizeUruguayPhone, toWhatsAppNumber } from '@/lib/commercial/contact';
-import { getRemovablePackageServices, isPremiumSimulatorPackage } from '@/lib/simulator/package-customization';
+import {
+  getPackageChangeResult,
+  getPackageRecommendations,
+  getRemovablePackageServices,
+} from '@/lib/simulator/package-customization';
+import { downloadSimulatorBudgetPdf } from '@/lib/budget/simulator-budget-pdf';
+
+const COMMERCIAL_TIMER_SECONDS = 15 * 60;
+const COMMERCIAL_TIMER_STORAGE_KEY = 'ak-simulator-commercial-timer';
+const LEAD_PROGRESS_WAIT_MS = 4500;
 
 const formatCurrency = (amount?: number) => {
     if (amount === undefined || isNaN(amount)) return 'N/A';
     return new Intl.NumberFormat('es-UY', { style: 'currency', currency: 'UYU', minimumFractionDigits: 0, maximumFractionDigits: 0 }).format(amount);
+};
+
+const formatCountdown = (seconds: number) => {
+    const safeSeconds = Math.max(0, seconds);
+    const minutes = Math.floor(safeSeconds / 60);
+    return `${String(minutes).padStart(2, '0')}:${String(safeSeconds % 60).padStart(2, '0')}`;
 };
 
 const safeImageUrl = (url?: string): string | undefined => {
@@ -95,10 +104,32 @@ const safeImageUrl = (url?: string): string | undefined => {
     }
 };
 
+const getServiceOrDishImage = (s?: { id?: string; nombre?: string; title?: string; imageUrl?: string }): string => {
+    if (!s) return '/media/catalogo-servicios/blog_presupuesto.png';
+    const safe = safeImageUrl(s.imageUrl);
+    if (safe) return safe;
+    const dishImg = getCateringDishImage({ id: s.id || '', imageUrl: s.imageUrl });
+    if (dishImg) return dishImg;
+
+    const text = (s.nombre || s.title || '').toLowerCase();
+    if (/(boda|casamiento)/.test(text)) return '/media/catalogo-servicios/boda_persuasiva.png';
+    if (/(15|quince)/.test(text)) return '/media/catalogo-servicios/quinceanera_persuasiva.png';
+    if (/(corporat|empres)/.test(text)) return '/media/catalogo-servicios/corporativo_persuasivo.png';
+    if (/(cumple|social)/.test(text)) return '/media/catalogo-servicios/social_persuasivo.png';
+    if (/(tecnolog|interact|muro|portal|qr|cabina|espejo|360)/.test(text)) return '/media/catalogo-servicios/tecnologia_fiesta.png';
+    if (/(salon|salón|club|uruguay)/.test(text)) return '/media/catalogo-servicios/blog_salon.png';
+    if (/(disco|música|dj|sonido|iluminac|pista|robot|luz)/.test(text)) return '/media/catalogo-servicios/blog_iluminacion.png';
+    if (/(bar|trago|bebida|coctel|cóctel)/.test(text)) return '/media/catalogo-servicios/blog_bebidas.png';
+    if (/(catering|comida|menu|menú|plato|bocado|entrada|asado|parrilla|kebab|shawarma|lunch)/.test(text)) return '/media/catalogo-servicios/blog_comida.png';
+    if (/(torta|dulce|candy|postre|reposteria)/.test(text)) return '/media/catalogo-servicios/social_persuasivo.png';
+    if (/(decor|ambient|mesa|flores)/.test(text)) return '/media/catalogo-servicios/blog_salon.png';
+    return '/media/catalogo-servicios/blog_presupuesto.png';
+};
+
 async function withFallbackTimeout<T>(
     promise: Promise<T>,
     fallback: T,
-    timeoutMs = 12000,
+    timeoutMs = 20000,
 ): Promise<T> {
     let timeout: ReturnType<typeof setTimeout> | undefined;
     try {
@@ -127,6 +158,18 @@ const formatCategoriaText = (cat?: string): string => {
     return cat === 'Servicio de catering' ? 'Servicio de comida' : cat;
 };
 
+const CATEGORY_STYLES: Record<string, { icon: React.ComponentType<any>; color: string; border: string; bg: string; text: string }> = {
+  'Servicio de catering': { icon: Utensils, color: 'from-amber-500 to-orange-600', border: 'border-orange-100', bg: 'bg-orange-50/50', text: 'text-orange-900' },
+  'Servicios adicionales': { icon: Plus, color: 'from-blue-500 to-indigo-600', border: 'border-blue-100', bg: 'bg-blue-50/50', text: 'text-blue-900' },
+  'Otros servicios': { icon: Settings2, color: 'from-emerald-500 to-teal-600', border: 'border-emerald-100', bg: 'bg-emerald-50/50', text: 'text-emerald-900' },
+  'Ambientación': { icon: Star, color: 'from-purple-500 to-fuchsia-600', border: 'border-fuchsia-100', bg: 'bg-fuchsia-50/50', text: 'text-fuchsia-900' },
+  'Regalos Incluidos': { icon: Gift, color: 'from-pink-500 to-rose-600', border: 'border-rose-100', bg: 'bg-rose-50/50', text: 'text-rose-900' },
+};
+
+const getCategoryStyle = (category: string) => {
+  return CATEGORY_STYLES[category] || { icon: CheckCircle2, color: 'from-slate-500 to-slate-700', border: 'border-slate-100', bg: 'bg-slate-50/50', text: 'text-slate-900' };
+};
+
 const menuItemToServicioEmpresa = (item: MenuItem & { precioVenta: number; imageUrl?: string }): ServicioEmpresa => {
     return {
         id: item.id,
@@ -139,7 +182,7 @@ const menuItemToServicioEmpresa = (item: MenuItem & { precioVenta: number; image
         precioVenta: item.precioVenta,
         precioBase: item.precioVenta,
         valorUnitarioEstimado: item.totalDishCost,
-        imageUrl: item.imageUrl || getCateringDishImage(item),
+        imageUrl: getCateringDishImage(item) || item.imageUrl,
         isFeatured: item.isFeatured,
     };
 };
@@ -207,6 +250,7 @@ function SimuladorContent() {
     const prefillName = searchParams.get('name')?.slice(0, 120) || '';
     const prefillGuests = Math.max(1, Math.min(1000, Math.round(Number(searchParams.get('guests')) || 50)));
     const prefillEventType = normalizePrefillEventType(searchParams.get('eventType'));
+    const prefillSalonChoice: 'club' | '' = searchParams.get('salon')?.toLowerCase() === 'club' ? 'club' : '';
     const acquisition = useMemo(() => ({
         ...commercialAttributionFromSearchParams(searchParams, 'landing'),
         entryPath: searchParams.get('entry') || '/simulador-de-presupuesto',
@@ -235,10 +279,13 @@ function SimuladorContent() {
     const [selectedPrincipal, setSelectedPrincipal] = useState<string>('');
     const [selectedInfantil, setSelectedInfantil] = useState<string>('');
     const [selectedPaqueteId, setSelectedPaqueteId] = useState<string>('');
-    const [salonChoice, setSalonChoice] = useState<'propio' | 'club' | ''>('');
+    const [expandedPackageId, setExpandedPackageId] = useState<string | null>(null);
+    const [salonChoice, setSalonChoice] = useState<'propio' | 'club' | ''>(prefillSalonChoice);
     const [excludedPackageServiceIds, setExcludedPackageServiceIds] = useState<string[]>([]);
     const [dateSuggestions, setDateSuggestions] = useState<string[]>([]);
     const [dateWarning, setDateWarning] = useState('');
+    const [dateAvailabilityStatus, setDateAvailabilityStatus] = useState<'idle' | 'checking' | 'available' | 'occupied' | 'error'>('idle');
+    const dateAvailabilityRequestRef = useRef(0);
 
     const [gastronomiaSearchTerm, setGastronomiaSearchTerm] = useState('');
     const [serviceSearchTerm, setServiceSearchTerm] = useState('');
@@ -252,11 +299,11 @@ function SimuladorContent() {
     const [serviceToDelete, setServiceToDelete] = useState<SimulatorDetailedService | null>(null);
     const [generatedPresupuestoId, setGeneratedPresupuestoId] = useState<string | null>(null);
     const [generatedToken, setGeneratedToken] = useState<string | null>(null);
-    const budgetDocumentRef = useRef<HTMLDivElement>(null);
+    const [commercialTimerEndsAt, setCommercialTimerEndsAt] = useState<number | null>(null);
+    const [commercialTimerSeconds, setCommercialTimerSeconds] = useState(COMMERCIAL_TIMER_SECONDS);
 
     const [existingBudgets, setExistingBudgets] = useState<any[]>([]);
     const [isSearchingBudgets, setIsSearchingBudgets] = useState(false);
-    const [timeLeft, setTimeLeft] = useState(900); // 15 minutes countdown
 
     const [formData, setFormData] = useState<{serviciosSeleccionados: Map<string, ServicioSeleccionadoValue>}>({serviciosSeleccionados: new Map()});
     const submissionIdRef = useRef(
@@ -266,6 +313,32 @@ function SimuladorContent() {
     );
 
     const maxEntradas = useMemo(() => (duracionHoras > 4 ? 2 : 1), [duracionHoras]);
+
+    useEffect(() => {
+        const stored = Number(window.sessionStorage.getItem(COMMERCIAL_TIMER_STORAGE_KEY));
+        if (Number.isFinite(stored) && stored > Date.now()) {
+            setCommercialTimerEndsAt(stored);
+            setCommercialTimerSeconds(Math.max(0, Math.ceil((stored - Date.now()) / 1000)));
+        }
+    }, []);
+
+    useEffect(() => {
+        if (!commercialTimerEndsAt) return;
+        const updateTimer = () => {
+            setCommercialTimerSeconds(Math.max(0, Math.ceil((commercialTimerEndsAt - Date.now()) / 1000)));
+        };
+        updateTimer();
+        const interval = window.setInterval(updateTimer, 1000);
+        return () => window.clearInterval(interval);
+    }, [commercialTimerEndsAt]);
+
+    const startCommercialTimer = useCallback(() => {
+        if (commercialTimerEndsAt && commercialTimerEndsAt > Date.now()) return;
+        const expiresAt = Date.now() + COMMERCIAL_TIMER_SECONDS * 1000;
+        window.sessionStorage.setItem(COMMERCIAL_TIMER_STORAGE_KEY, String(expiresAt));
+        setCommercialTimerEndsAt(expiresAt);
+        setCommercialTimerSeconds(COMMERCIAL_TIMER_SECONDS);
+    }, [commercialTimerEndsAt]);
 
     const { entradasDisponibles, principalesDisponibles, menusNinoDisponibles } = useMemo(() => {
         if (!config || !allMenus.length) {
@@ -322,28 +395,23 @@ function SimuladorContent() {
             setErrorLoading(false);
             setIsLoading(true);
             try {
-                const [armadoConfig, bSettings, serviciosData, socialConnections, templateSettings, menuData] = await Promise.all([
-                    withFallbackTimeout(getArmadoRapidoConfig(), null),
-                    withFallbackTimeout(getBudgetDisplaySettings(), defaultBudgetDisplaySettings),
-                    withFallbackTimeout(getServiciosEmpresa(), []),
-                    withFallbackTimeout(getSocialConnections(), []),
-                    withFallbackTimeout(getInvoiceTemplateSettings(), { logoUrl: null } as any),
-                    withFallbackTimeout(getMenus(), []),
-                ]);
+                const bootstrap = await withFallbackTimeout(
+                    getPublicSimulatorBootstrap(),
+                    null,
+                );
 
-                if (!armadoConfig || !serviciosData || serviciosData.length === 0) {
+                if (!bootstrap || bootstrap.services.length === 0) {
                     throw new Error("No se pudo cargar el catálogo de servicios.");
                 }
 
-                setConfig(armadoConfig);
-                setBudgetSettings(bSettings);
-                setServiciosCatalogo((Array.isArray(serviciosData) ? serviciosData : []).filter(s => s.tipoItem === 'Servicio'));
-                setAllMenus(Array.isArray(menuData) ? menuData : []);
-                const whatsappConnection = (Array.isArray(socialConnections) ? socialConnections : []).find(c => c.platform === 'WhatsApp' && c.isConnected);
-                if (whatsappConnection?.phoneNumber) {
-                    setWhatsappNumber(whatsappConnection.phoneNumber);
+                setConfig(bootstrap.config);
+                setBudgetSettings(bootstrap.budgetSettings);
+                setServiciosCatalogo(bootstrap.services);
+                setAllMenus(bootstrap.menus);
+                if (bootstrap.whatsappNumber) {
+                    setWhatsappNumber(bootstrap.whatsappNumber);
                 }
-                setLogoUrl(templateSettings.logoUrl || null);
+                setLogoUrl(bootstrap.logoUrl);
             } catch (error) {
                 console.error("Initial load failed", error);
                 setErrorLoading(true);
@@ -393,26 +461,6 @@ function SimuladorContent() {
             return prev;
         });
     }, [maxEntradas]);
-
-    useEffect(() => {
-        if (step !== 5) return;
-        const interval = setInterval(() => {
-            setTimeLeft(prev => {
-                if (prev <= 1) {
-                    clearInterval(interval);
-                    return 0;
-                }
-                return prev - 1;
-            });
-        }, 1000);
-        return () => clearInterval(interval);
-    }, [step]);
-
-    const formatTime = (seconds: number) => {
-        const mins = Math.floor(seconds / 60);
-        const secs = seconds % 60;
-        return `${mins.toString().padStart(2, '0')}:${secs.toString().padStart(2, '0')}`;
-    };
 
     const handleEntradaChange = (servicioId: string, checked: boolean) => {
         if (checked) {
@@ -521,44 +569,71 @@ function SimuladorContent() {
 
     const suggestedServices = useMemo(() => {
         if (!config || !selectedPaqueteId) return [];
-        const currentPackage = config.paquetes.find(p => p.id === selectedPaqueteId);
-        const otherPackages = config.paquetes.filter(p => p.id !== selectedPaqueteId);
-
-        const otherServicesIds = new Set<string>();
-        otherPackages.forEach(p => {
-            p.serviciosIncluidos?.forEach(s => otherServicesIds.add(s.id));
-        });
-
-        if (currentPackage) {
-            currentPackage.serviciosIncluidos?.forEach(s => otherServicesIds.delete(s.id));
-        }
-
+        const currentPackage = config?.paquetes?.find(p => p.id === selectedPaqueteId);
         const currentSelectedIds = new Set([
             ...Array.from(formData.serviciosSeleccionados.keys()),
             ...selectedEntradas,
             ...(selectedPrincipal ? [selectedPrincipal] : []),
             ...(selectedInfantil ? [selectedInfantil] : []),
         ]);
+        return getPackageRecommendations({
+            currentPackage,
+            otherPackages: config.paquetes.filter(packageItem => packageItem.id !== selectedPaqueteId),
+            services: serviciosCatalogo,
+            selectedServiceIds: currentSelectedIds,
+            visibleServiceIds: budgetSettings.serviciosAdicionalesVisibles?.length
+                ? budgetSettings.serviciosAdicionalesVisibles
+                : null,
+            limit: 3,
+        });
+    }, [
+        budgetSettings.serviciosAdicionalesVisibles,
+        config,
+        formData.serviciosSeleccionados,
+        selectedEntradas,
+        selectedInfantil,
+        selectedPaqueteId,
+        selectedPrincipal,
+        serviciosCatalogo,
+    ]);
 
-        currentSelectedIds.forEach(id => otherServicesIds.delete(id));
-
-        const suggested = serviciosCatalogo.filter(s => otherServicesIds.has(s.id));
-
-        if (suggested.length < 3) {
-            const popularIds = ['serv_barra_tragos', 'serv_pista_led', 'serv_plataforma_360', 'serv_cabina_fotos'];
-            popularIds.forEach(id => {
-                if (!currentSelectedIds.has(id) && !suggested.some(s => s.id === id)) {
-                    const serv = serviciosCatalogo.find(s => s.id === id);
-                    if (serv) suggested.push(serv);
-                }
-            });
+    const selectPackage = (paqueteId: string) => {
+        const currentPackage = config?.paquetes.find(packageItem => packageItem.id === selectedPaqueteId);
+        const nextPackage = config?.paquetes.find(packageItem => packageItem.id === paqueteId);
+        if (currentPackage?.id === nextPackage?.id) {
+            return {
+                nextPackage,
+                nextManualServices: new Map(formData.serviciosSeleccionados),
+                packageChange: {
+                    selectedServiceIds: Array.from(formData.serviciosSeleccionados.keys()),
+                    excludedPackageServiceIds,
+                },
+            };
         }
+        const packageChange = getPackageChangeResult({
+            currentPackage,
+            nextPackage,
+            selectedServiceIds: formData.serviciosSeleccionados.keys(),
+        });
+        const nextManualServices = new Map<string, ServicioSeleccionadoValue>();
 
-        return suggested.slice(0, 4);
-    }, [config, selectedPaqueteId, serviciosCatalogo, selectedEntradas, selectedPrincipal, selectedInfantil, formData.serviciosSeleccionados]);
+        packageChange.selectedServiceIds.forEach((serviceId) => {
+            const selected = formData.serviciosSeleccionados.get(serviceId);
+            if (selected) nextManualServices.set(serviceId, selected);
+        });
+
+        setSelectedPaqueteId(paqueteId);
+        setExcludedPackageServiceIds(packageChange.excludedPackageServiceIds);
+        setFormData(previous => ({
+            ...previous,
+            serviciosSeleccionados: nextManualServices,
+        }));
+
+        return { nextPackage, nextManualServices, packageChange };
+    };
 
     const handleToggleServiceInBudget = useCallback((serviceId: string, action: 'include' | 'exclude') => {
-        const packageItem = config?.paquetes.find(p => p.id === selectedPaqueteId);
+        const packageItem = config?.paquetes?.find(p => p.id === selectedPaqueteId);
         const isFromPackage = packageItem?.serviciosIncluidos.some(s => s.id === serviceId);
 
         if (action === 'exclude') {
@@ -642,7 +717,7 @@ function SimuladorContent() {
     const saveProgress = async (includeEventDetails: boolean) => {
         setIsSavingProgress(true);
         try {
-            const result = await captureSimulatorLeadProgress({
+            const persistence = captureSimulatorLeadProgress({
                 clienteNombre: clienteNombre.trim(),
                 clienteContacto: normalizeUruguayPhone(clienteContacto),
                 eventoTipo: includeEventDetails ? eventoTipo : undefined,
@@ -654,6 +729,30 @@ function SimuladorContent() {
                 acquisition,
                 marketingConsent,
             });
+            let timeout: ReturnType<typeof setTimeout> | undefined;
+            const result = await Promise.race([
+                persistence,
+                new Promise<{ success: true; deferred: true }>((resolve) => {
+                    timeout = setTimeout(
+                        () => resolve({ success: true, deferred: true }),
+                        LEAD_PROGRESS_WAIT_MS,
+                    );
+                }),
+            ]);
+            if (timeout) clearTimeout(timeout);
+
+            if ('deferred' in result) {
+                void persistence
+                    .then((lateResult) => {
+                        if (!lateResult.success) {
+                            console.warn('[simulador] El guardado diferido del prospecto no se completo.', lateResult.error);
+                        }
+                    })
+                    .catch((error) => {
+                        console.warn('[simulador] El guardado diferido del prospecto fallo.', error);
+                    });
+                return;
+            }
             if (!result.success) throw new Error(result.error);
         } finally {
             setIsSavingProgress(false);
@@ -683,7 +782,14 @@ function SimuladorContent() {
                 });
                 return;
             }
-            if (dateWarning) {
+            if (dateAvailabilityStatus === 'checking') {
+                toast({
+                    title: "Estamos verificando la fecha",
+                    description: "Esperá un instante para confirmar la disponibilidad.",
+                });
+                return;
+            }
+            if (dateAvailabilityStatus === 'occupied') {
                 toast({
                     title: "Elegí una fecha disponible",
                     description: "La fecha seleccionada ya está ocupada. Podés elegir una alternativa sugerida.",
@@ -724,7 +830,7 @@ function SimuladorContent() {
 
         if (step === 5) {
             setIsGenerating(true);
-            const selectedPackageName = config?.paquetes.find(p => p.id === selectedPaqueteId)?.nombre;
+            const selectedPackageName = config?.paquetes?.find(p => p.id === selectedPaqueteId)?.nombre;
             const data = {
                 submissionId: submissionIdRef.current,
                 clienteNombre,
@@ -755,6 +861,7 @@ function SimuladorContent() {
                 if (result.success && result.presupuestoId) {
                     setGeneratedPresupuestoId(result.presupuestoId);
                     if (result.token) setGeneratedToken(result.token);
+                    startCommercialTimer();
                     setStep(6);
                 } else throw new Error(result.error || "Error al generar.");
             } catch (e: any) {
@@ -768,19 +875,35 @@ function SimuladorContent() {
     const handlePrev = () => { if (step > 1) setStep(s => s - 1); };
 
     const handleEventoFechaChange = useCallback(async (date: Date | undefined) => {
+        const requestId = ++dateAvailabilityRequestRef.current;
         setEventoFecha(date);
         if (!date) {
             setDateWarning('');
             setDateSuggestions([]);
+            setDateAvailabilityStatus('idle');
             return;
         }
-        const availability = await checkDateAvailability(date.toISOString());
-        if (availability.isOccupied) {
-            setDateWarning('⚠️ Fecha no disponible. Te sugerimos estas fechas cercanas:');
-            setDateSuggestions(availability.suggestions || []);
-        } else {
-            setDateWarning('');
+        setDateAvailabilityStatus('checking');
+        setDateWarning('Verificando disponibilidad...');
+        setDateSuggestions([]);
+        try {
+            const availability = await checkDateAvailability(date.toISOString());
+            if (requestId !== dateAvailabilityRequestRef.current) return;
+            if (availability.isOccupied) {
+                setDateWarning('⚠️ Fecha no disponible. Te sugerimos estas fechas cercanas:');
+                setDateSuggestions(availability.suggestions || []);
+                setDateAvailabilityStatus('occupied');
+            } else {
+                setDateWarning('');
+                setDateSuggestions([]);
+                setDateAvailabilityStatus('available');
+            }
+        } catch (error) {
+            if (requestId !== dateAvailabilityRequestRef.current) return;
+            console.error('[Simulador] Error checking date availability:', error);
+            setDateWarning('No pudimos verificar la disponibilidad ahora. Podés continuar y AK confirmará la fecha antes de la reserva.');
             setDateSuggestions([]);
+            setDateAvailabilityStatus('error');
         }
     }, []);
 
@@ -789,7 +912,7 @@ function SimuladorContent() {
         const serviceId = serviceToDelete.id;
         setIsGenerating(true);
 
-        const packageItem = config?.paquetes.find(p => p.id === selectedPaqueteId);
+        const packageItem = config?.paquetes?.find(p => p.id === selectedPaqueteId);
         const isFromPackage = packageItem?.serviciosIncluidos.some(s => s.id === serviceId);
 
         let newExcluded = [...excludedPackageServiceIds];
@@ -904,30 +1027,24 @@ function SimuladorContent() {
     };
 
     const handleDownloadBudgetPdf = async () => {
-        if (!generatedPresupuestoId || !budgetDocumentRef.current || isDownloadingPdf) return;
+        if (!generatedPresupuestoId || isDownloadingPdf) return;
         setIsDownloadingPdf(true);
         try {
-            const { jsPDF } = await import('jspdf');
-            const pdf = new jsPDF({ orientation: 'portrait', unit: 'mm', format: 'a4' });
-            await pdf.html(budgetDocumentRef.current, {
-                autoPaging: 'text',
-                margin: [12, 12, 16, 12],
-                width: 186,
-                windowWidth: 1024,
-                html2canvas: {
-                    backgroundColor: '#ffffff',
-                    scale: 0.8,
-                    useCORS: true,
-                },
+            const publicUrl = `${window.location.origin}/presupuestos/${generatedPresupuestoId}/ver?cliente=1&token=${generatedToken || ''}`;
+            const packageName = config?.paquetes.find(packageItem => packageItem.id === selectedPaqueteId)?.nombre;
+            await downloadSimulatorBudgetPdf({
+                documentId: generatedPresupuestoId,
+                publicUrl,
+                clientName: clienteNombre,
+                eventType: eventoTipo,
+                eventDate: eventoFecha,
+                adults: adultos,
+                childrenAndTeens: ninosYAdolescentes,
+                packageName,
+                items: stats.detallados,
+                stats,
+                bookingTerms: budgetSettings.bookingTerms,
             });
-            const totalPages = pdf.getNumberOfPages();
-            for (let page = 1; page <= totalPages; page += 1) {
-                pdf.setPage(page);
-                pdf.setFontSize(8);
-                pdf.setTextColor(100);
-                pdf.text(`Página ${page} de ${totalPages}`, 198, 285, { align: 'right' });
-            }
-            pdf.save(`presupuesto-ak-${generatedPresupuestoId}.pdf`);
         } catch (error: any) {
             toast({
                 title: 'No pudimos descargar el PDF',
@@ -972,10 +1089,8 @@ function SimuladorContent() {
     const handleSwitchPackage = async (paqueteId: string) => {
         if (!config) return;
         setIsGenerating(true);
-        setSelectedPaqueteId(paqueteId);
-        setExcludedPackageServiceIds([]);
-
-        const newPackageName = config.paquetes.find(p => p.id === paqueteId)?.nombre;
+        const { nextPackage: newPackage, nextManualServices } = selectPackage(paqueteId);
+        const newPackageName = newPackage?.nombre;
 
         // Calculate new pricing stats
         const newStats = calculateSimulatorPricing({
@@ -984,7 +1099,8 @@ function SimuladorContent() {
             adultos,
             ninosYAdolescentes,
             selectedPaqueteId: paqueteId,
-            selectedServices: Array.from(formData.serviciosSeleccionados.entries()).map(([id, data]) => ({
+            excludedPackageServiceIds: [],
+            selectedServices: Array.from(nextManualServices.entries()).map(([id, data]) => ({
                 id,
                 esRegalo: data.esRegalo,
             })),
@@ -997,7 +1113,7 @@ function SimuladorContent() {
         const data = {
             submissionId: submissionIdRef.current,
             clienteNombre,
-            clienteContacto,
+            clienteContacto: normalizeUruguayPhone(clienteContacto),
             eventoFecha: eventoFecha ? eventoFecha.toISOString() : undefined,
             adultos,
             ninos: ninosYAdolescentes,
@@ -1007,10 +1123,11 @@ function SimuladorContent() {
             ajusteAnualActivo: newStats.annualProjection.applies,
             ajusteAnualPorcentaje: newStats.annualProjection.adjustmentPct,
             serviciosIncluidos: newStats.detallados.map(s => s.id),
-            selectedServiceIds: Array.from(formData.serviciosSeleccionados.keys()),
+            selectedServiceIds: Array.from(nextManualServices.keys()),
             excludedPackageServiceIds: [],
             paqueteId,
             paqueteNombre: newPackageName ? `${newPackageName} — ${eventoTipo}` : undefined,
+            includeClubUruguay: salonChoice === 'club',
             items: simulatorDetailsToBudgetItems(newStats.detallados)
         };
 
@@ -1114,7 +1231,6 @@ function SimuladorContent() {
         () => sortedPaquetes.find(packageItem => packageItem.id === selectedPaqueteId),
         [selectedPaqueteId, sortedPaquetes]
     );
-    const isPremiumPackage = isPremiumSimulatorPackage(selectedPackage?.nombre);
     const removablePackageServices = useMemo(() => {
         return getRemovablePackageServices(selectedPackage, allSimuladorServices, {
             serviceDependencies: config?.serviceDependencies,
@@ -1173,7 +1289,7 @@ function SimuladorContent() {
         );
         if (isRequiredDependency) return false;
 
-        const packageItem = config?.paquetes.find(p => p.id === selectedPaqueteId);
+        const packageItem = config?.paquetes?.find(p => p.id === selectedPaqueteId);
         const isFromPackage = packageItem?.serviciosIncluidos.some(s => s.id === item.id);
         if (isFromPackage) {
             return removablePackageServices.some(s => s.id === item.id);
@@ -1262,6 +1378,23 @@ function SimuladorContent() {
         acquisition,
     ]);
 
+    if (errorLoading) {
+        return (
+            <div className="min-h-screen flex flex-col items-center justify-center bg-slate-950 text-white p-6 text-center">
+                <div className="max-w-md space-y-4">
+                    <AlertTriangle className="mx-auto h-16 w-16 text-amber-600" />
+                    <h2 className="text-2xl font-black uppercase tracking-tight">Error de conexión</h2>
+                    <p className="text-slate-400 text-sm leading-relaxed">
+                        No pudimos cargar el catálogo de servicios de AK Producciones. Verificá tu conexión a internet e intentalo de nuevo.
+                    </p>
+                    <Button onClick={() => window.location.reload()} className="mt-4 bg-red-700 hover:bg-red-800 text-white font-black px-6 h-12 rounded-lg transition">
+                        Reintentar
+                    </Button>
+                </div>
+            </div>
+        );
+    }
+
     if (!hasStarted) {
         return (
             <main className="min-h-screen bg-slate-950 text-white">
@@ -1316,23 +1449,6 @@ function SimuladorContent() {
         );
     }
 
-    if (errorLoading) {
-        return (
-            <div className="min-h-screen flex flex-col items-center justify-center bg-slate-950 text-white p-6 text-center">
-                <div className="max-w-md space-y-4">
-                    <AlertTriangle className="w-16 h-16 mx-auto text-amber-500 animate-pulse" />
-                    <h2 className="text-2xl font-black uppercase tracking-tight">Error de conexión</h2>
-                    <p className="text-slate-400 text-sm leading-relaxed">
-                        No pudimos cargar el catálogo de servicios de AK Producciones. Verificá tu conexión a internet e intentalo de nuevo.
-                    </p>
-                    <Button onClick={() => window.location.reload()} className="mt-4 bg-red-700 hover:bg-red-800 text-white font-black px-6 h-12 rounded-lg transition">
-                        Reintentar
-                    </Button>
-                </div>
-            </div>
-        );
-    }
-
     if (isLoading) return <div className="min-h-screen flex items-center justify-center bg-slate-100"><Loader2 className="w-12 h-12 animate-spin text-primary"/></div>;
 
     if (step === 6 && generatedPresupuestoId) {
@@ -1343,13 +1459,13 @@ function SimuladorContent() {
                     <div className="flex justify-center mb-2 print:hidden">
                       <CompanyLogo size="sm" src={logoUrl || undefined} className="opacity-40" />
                     </div>
-                    <Card className="border-none shadow-2xl rounded-[2.5rem] overflow-hidden bg-white">
+                    <Card className="overflow-hidden rounded-md border border-slate-200 bg-white shadow-sm">
                         <CardContent className="p-8 sm:p-12 flex flex-col items-center text-center space-y-8">
-                            <div className="p-4 bg-primary/10 rounded-full">
-                                <PartyPopper className="w-12 h-12 text-primary animate-bounce"/>
+                            <div className="flex h-12 w-12 items-center justify-center rounded-full bg-emerald-50">
+                                <CheckCircle2 className="h-7 w-7 text-emerald-700"/>
                             </div>
                             <div className="space-y-3">
-                                <h2 className="text-3xl sm:text-4xl font-black font-headline tracking-tighter text-slate-900 uppercase">
+                                <h2 className="font-headline text-3xl font-bold text-slate-900 sm:text-4xl">
                                     ¡Tu presupuesto está listo!
                                 </h2>
                                 <p className="text-slate-500 font-medium max-w-md mx-auto leading-relaxed mb-6">
@@ -1357,43 +1473,42 @@ function SimuladorContent() {
                                 </p>
                             </div>
 
-                            {/* Countdown Timer with CTA */}
-                            {timeLeft > 0 ? (
-                                <div className="w-full bg-amber-500/10 border border-amber-500/20 rounded-3xl p-6 text-center space-y-4 max-w-lg mx-auto">
-                                    <div className="flex flex-col items-center justify-center gap-2">
-                                        <Clock className="w-8 h-8 text-amber-600 animate-pulse"/>
-                                        <p className="text-sm font-black uppercase text-amber-900 tracking-wider">¡Asegurá tu Bonificación Especial del {stats.discountPercentage}%!</p>
+                            <div className="mx-auto w-full max-w-lg space-y-4 rounded-md border border-slate-200 bg-slate-50 p-6 text-left">
+                                <div className="flex items-start gap-3">
+                                    <span className="mt-0.5 grid h-9 w-9 shrink-0 place-items-center rounded-md bg-white text-slate-700 shadow-sm">
+                                        <ShieldCheck className="h-5 w-5" />
+                                    </span>
+                                    <div className="min-w-0 flex-1">
+                                        <div className="flex flex-wrap items-center justify-between gap-2">
+                                            <p className="text-sm font-black text-slate-900">Coordiná tu consulta comercial</p>
+                                            <span className="rounded-md bg-slate-950 px-3 py-1 font-mono text-sm font-black text-white">
+                                                {commercialTimerSeconds > 0 ? formatCountdown(commercialTimerSeconds) : 'Consulta abierta'}
+                                            </span>
+                                        </div>
+                                        <p className="mt-1 text-xs font-medium leading-relaxed text-slate-600">
+                                            El presupuesto es válido por 30 días. Durante estos 15 minutos podés coordinar una revisión prioritaria de disponibilidad, promociones y regalos; la reserva queda confirmada únicamente cuando AK valida la fecha.
+                                        </p>
                                     </div>
-                                    <p className="text-xs text-slate-600 font-bold leading-relaxed">
-                                        Asegurá los precios vigentes y tu descuento señando con $5.000 antes de que expire la reserva.
-                                    </p>
-                                    <div className="text-3xl font-black text-amber-600 font-mono tracking-widest bg-white/80 py-2 rounded-xl inline-block px-5 border">
-                                        {formatTime(timeLeft)}
-                                    </div>
-                                    <Button
-                                        onClick={handleShareBudgetWhatsApp}
-                                        className="h-12 w-full rounded-xl bg-amber-600 hover:bg-amber-700 text-white font-bold text-xs uppercase tracking-widest shadow-md flex items-center justify-center gap-2"
-                                    >
-                                        <Zap className="w-4 h-4 text-yellow-300 fill-yellow-300 animate-bounce" /> Asegurar mi descuento y regalos
-                                    </Button>
                                 </div>
-                            ) : (
-                                <div className="w-full bg-red-50 border border-red-100 rounded-3xl p-5 text-center max-w-lg mx-auto">
-                                    <p className="text-xs font-bold text-red-800">El tiempo de tu reserva ha expirado. Podés contactar a un asesor de ventas para consultar disponibilidad de fecha.</p>
-                                </div>
-                            )}
+                                <Button
+                                    onClick={handleShareBudgetWhatsApp}
+                                    className="flex h-12 w-full items-center justify-center gap-2 rounded-md bg-red-700 text-sm font-bold text-white hover:bg-red-800"
+                                >
+                                    <MessageSquare className="h-4 w-4" /> Consultar disponibilidad por WhatsApp
+                                </Button>
+                            </div>
 
                             <div className="w-full grid grid-cols-1 md:grid-cols-3 gap-3">
                                 <Button
                                     onClick={handleShareBudgetWhatsApp}
-                                    className="h-12 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white font-bold text-[11px] sm:text-xs uppercase tracking-wide px-2 flex items-center justify-center gap-1.5 w-full"
+                                    className="flex h-12 w-full items-center justify-center gap-1.5 rounded-md bg-emerald-700 px-2 text-xs font-bold text-white hover:bg-emerald-800"
                                 >
                                     <Share2 className="w-4 h-4 shrink-0"/> <span className="truncate">Compartir por WhatsApp</span>
                                 </Button>
                                 <Button
                                     variant="outline"
                                     onClick={handleWhatsAppQuickConsult}
-                                    className="h-12 rounded-xl border-emerald-200 text-emerald-700 hover:bg-emerald-50 font-bold text-[11px] sm:text-xs uppercase tracking-wide px-2 flex items-center justify-center gap-1.5 w-full"
+                                    className="flex h-12 w-full items-center justify-center gap-1.5 rounded-md border-slate-300 px-2 text-xs font-bold text-slate-700 hover:bg-slate-50"
                                 >
                                     <MessageSquare className="w-4 h-4 shrink-0"/> <span className="truncate">Coordinar una Reunión</span>
                                 </Button>
@@ -1401,7 +1516,7 @@ function SimuladorContent() {
                                   variant="outline"
                                   onClick={handleDownloadBudgetPdf}
                                   disabled={isDownloadingPdf}
-                                  className="h-12 rounded-xl font-bold uppercase tracking-wide text-[11px] sm:text-xs px-2 flex items-center justify-center gap-1.5 w-full"
+                                  className="flex h-12 w-full items-center justify-center gap-1.5 rounded-md px-2 text-xs font-bold"
                                 >
                                     {isDownloadingPdf
                                         ? <Loader2 className="h-4 w-4 animate-spin shrink-0" />
@@ -1412,16 +1527,40 @@ function SimuladorContent() {
                         </CardContent>
                     </Card>
 
-                    <Card ref={budgetDocumentRef} className="shadow-3xl print:shadow-none border border-slate-200 rounded-[2.5rem] overflow-hidden bg-white print:bg-white">
+                    <Card className="overflow-hidden rounded-md border border-slate-300 bg-white shadow-sm print:bg-white print:shadow-none">
                         <CardHeader className="text-center bg-white p-6 sm:p-10 border-b border-slate-200">
                             <div className="flex justify-center mb-4">
                               <CompanyLogo size="sm" src={logoUrl || undefined} className="print:brightness-100" />
                             </div>
-                            <CardTitle className="font-headline text-2xl sm:text-3xl font-black uppercase tracking-tighter text-slate-800">Presupuesto Estimado</CardTitle>
+                            <CardTitle className="font-headline text-2xl font-bold text-slate-900 sm:text-3xl">Presupuesto estimado</CardTitle>
                             <p className="text-slate-500 font-semibold text-sm mt-2">AK Producciones Eventos — Salto, Uruguay</p>
                         </CardHeader>
                         <CardContent className="p-4 sm:p-10 print:p-2 space-y-10">
-                            <div className="border border-slate-200 rounded-[2rem] overflow-x-auto print:border-slate-300">
+                            <div className="grid gap-4 border-b border-slate-200 pb-6 text-sm text-slate-700 sm:grid-cols-2" style={{ breakInside: 'avoid', pageBreakInside: 'avoid' }}>
+                                <div>
+                                    <p className="text-[10px] font-bold uppercase tracking-widest text-slate-400">Cliente</p>
+                                    <p className="mt-1 font-bold text-slate-900">{clienteNombre}</p>
+                                </div>
+                                <div>
+                                    <p className="text-[10px] font-bold uppercase tracking-widest text-slate-400">Evento</p>
+                                    <p className="mt-1 font-bold text-slate-900">{eventoTipo}</p>
+                                </div>
+                                <div>
+                                    <p className="text-[10px] font-bold uppercase tracking-widest text-slate-400">Fecha prevista</p>
+                                    <p className="mt-1 font-semibold text-slate-800">
+                                        {eventoFecha ? new Intl.DateTimeFormat('es-UY').format(eventoFecha) : 'A confirmar'}
+                                    </p>
+                                </div>
+                                <div>
+                                    <p className="text-[10px] font-bold uppercase tracking-widest text-slate-400">Invitados</p>
+                                    <p className="mt-1 font-semibold text-slate-800">{adultos + ninosYAdolescentes} personas</p>
+                                </div>
+                                <div className="sm:col-span-2">
+                                    <p className="text-[10px] font-bold uppercase tracking-widest text-slate-400">Referencia</p>
+                                    <p className="mt-1 font-mono text-xs text-slate-600">{generatedPresupuestoId}</p>
+                                </div>
+                            </div>
+                            <div className="overflow-x-auto rounded-md border border-slate-200 print:border-slate-300">
                                 <Table>
                                     <TableHeader className="bg-slate-50">
                                         <TableRow className="border-slate-200">
@@ -1437,11 +1576,11 @@ function SimuladorContent() {
                                     <TableBody>
                                         {Object.entries(stats.agrupados).map(([categoria, items]) => (
                                             <React.Fragment key={categoria}>
-                                                <TableRow className="bg-slate-50 border-y border-slate-200">
+                                                <TableRow className="bg-slate-50 border-y border-slate-200" style={{ breakInside: 'avoid', pageBreakInside: 'avoid' }}>
                                                   <TableCell colSpan={(budgetSettings.showIndividualPrices ?? true) ? 3 : 1} className="font-black text-[10px] uppercase text-slate-700 pl-8 tracking-widest py-2">{categoria}</TableCell>
                                                 </TableRow>
                                                 {items.map(item => (
-                                                    <TableRow key={item.id} className="hover:bg-slate-50/50 transition-colors border-slate-100">
+                                                    <TableRow key={item.id} className="hover:bg-slate-50/50 transition-colors border-slate-100" style={{ breakInside: 'avoid', pageBreakInside: 'avoid' }}>
                                                         <TableCell className="pl-8 py-4">
                                                             <div className="flex items-center justify-between gap-2">
                                                                 <div>
@@ -1454,6 +1593,7 @@ function SimuladorContent() {
                                                                 </div>
                                                                 {isServiceRemovable(item) && (
                                                                     <Button
+                                                                        data-pdf-exclude="true"
                                                                         variant="ghost"
                                                                         size="icon"
                                                                         onClick={() => setServiceToDelete(item)}
@@ -1488,13 +1628,13 @@ function SimuladorContent() {
                                         ))}
                                         {removedServiceDetails.length > 0 && (
                                             <>
-                                                <TableRow className="border-y border-red-200 bg-red-50">
+                                                <TableRow data-pdf-exclude="true" className="border-y border-red-200 bg-red-50 print:hidden">
                                                     <TableCell colSpan={(budgetSettings.showIndividualPrices ?? true) ? 3 : 1} className="py-2 pl-8 text-[10px] font-black uppercase tracking-widest text-red-700">
                                                         Servicios retirados
                                                     </TableCell>
                                                 </TableRow>
                                                 {removedServiceDetails.map(item => (
-                                                    <TableRow key={item.id} className="border-slate-100">
+                                                    <TableRow key={item.id} data-pdf-exclude="true" className="border-slate-100 print:hidden">
                                                         <TableCell className="py-4 pl-8">
                                                             <div className="flex items-center justify-between gap-2">
                                                                 <div>
@@ -1527,7 +1667,7 @@ function SimuladorContent() {
                                 </Table>
                             </div>
 
-                            <div className="w-full max-w-sm ml-auto space-y-3 py-6 px-8 bg-slate-50 text-slate-900 rounded-[1.5rem] border border-slate-200 shadow-sm">
+                            <div className="ml-auto w-full max-w-sm space-y-3 rounded-md border border-slate-200 bg-slate-50 px-8 py-6 text-slate-900" style={{ breakInside: 'avoid', pageBreakInside: 'avoid' }}>
                                 {(budgetSettings.showIndividualPrices ?? true) && (
                                    <div className="flex justify-between items-center text-[10px] font-black uppercase text-slate-500 tracking-widest">
                                        <span>Subtotal Servicios:</span>
@@ -1535,7 +1675,7 @@ function SimuladorContent() {
                                    </div>
                                  )}
                                  {stats.ahorroRegalos > 0 && (
-                                     <div className="flex justify-between items-center text-[10px] font-black text-emerald-600 uppercase tracking-[0.3em]">
+                                     <div className="flex items-center justify-between text-[10px] font-bold uppercase text-emerald-700">
                                          <span>Ahorro Regalos Incluidos:</span>
                                          <span>-{formatCurrency(stats.ahorroRegalos)}</span>
                                      </div>
@@ -1565,7 +1705,7 @@ function SimuladorContent() {
                                  )}
                             </div>
                             {stats.annualProjection.applies && (
-                                <div className="rounded-2xl border border-slate-200 bg-white p-4 text-sm">
+                                <div className="rounded-md border border-slate-200 bg-white p-4 text-sm" style={{ breakInside: 'avoid', pageBreakInside: 'avoid' }}>
                                     <p className="mb-3 text-[10px] font-black uppercase tracking-widest text-slate-500">
                                         Proyeccion de ajuste anual ({stats.annualProjection.adjustmentPct}%)
                                     </p>
@@ -1584,26 +1724,26 @@ function SimuladorContent() {
                             )}
                         </CardContent>
                         <CardFooter className="bg-slate-50 p-8 border-t flex flex-col items-center gap-4">
-                            <div className="bg-blue-50 p-6 rounded-3xl border border-blue-100 w-full">
-                                <h4 className="text-[10px] font-black uppercase text-blue-800 tracking-widest mb-2 flex items-center gap-2"><Info className="w-4 h-4"/> Condiciones de Reserva</h4>
-                                <p className="text-xs text-blue-800 leading-relaxed font-semibold">
+                            <div className="w-full rounded-md border border-slate-200 bg-white p-6">
+                                <h4 className="mb-2 flex items-center gap-2 text-[10px] font-bold uppercase tracking-widest text-slate-700"><Info className="w-4 h-4"/> Condiciones de reserva</h4>
+                                <p className="text-xs font-medium leading-relaxed text-slate-600">
                                     {stats.annualProjection.applies ? (
-                                        <>Con una seña de $5.000 podés solicitar la reserva de la fecha y del servicio. El presupuesto es válido por 30 días para mantener el precio de la promoción y los regalos incluidos. Los eventos programados para años posteriores al vigente tendrán un ajuste anual proyectado del 15% de acuerdo a lo establecido en el contrato.</>
+                                        <>Con una seña de $5.000 podés solicitar la reserva de la fecha y del servicio. El presupuesto es válido por 30 días para mantener el precio de la promoción y los regalos incluidos. Los eventos programados para años posteriores al vigente tendrán un ajuste anual proyectado del {stats.annualProjection.adjustmentPct}% de acuerdo a lo establecido en el contrato.</>
                                     ) : (
                                         <>Con una seña de $5.000 podés solicitar la reserva de la fecha y del servicio. El presupuesto es válido por 30 días para mantener el precio de la promoción y los regalos incluidos. El total mostrado corresponde al precio vigente del año {currentYear}.</>
                                     )}
                                 </p>
                                 {budgetSettings.bookingTerms && (
-                                    <p className="mt-2 text-xs text-blue-700 leading-relaxed">{budgetSettings.bookingTerms}</p>
+                                    <p className="mt-2 text-xs leading-relaxed text-slate-600">{budgetSettings.bookingTerms}</p>
                                 )}
                             </div>
-                            <div className="flex flex-col sm:flex-row items-center gap-3 print:hidden">
-                              <Button variant="ghost" onClick={() => setStep(1)} className="rounded-xl text-slate-400 font-bold uppercase tracking-widest text-[10px]">Iniciar Nueva Simulación</Button>
+                            <div data-pdf-exclude="true" className="flex flex-col sm:flex-row items-center gap-3 print:hidden">
+                              <Button variant="ghost" onClick={() => setStep(1)} className="rounded-md text-xs font-bold text-slate-500">Iniciar nueva simulación</Button>
                               <a
                                 href="https://akproduccioneseventos.com/#faq"
                                 target="_blank"
                                 rel="noopener noreferrer"
-                                className="inline-flex items-center gap-2 rounded-xl px-4 py-2 text-[10px] font-bold uppercase tracking-widest text-primary border border-primary/20 hover:bg-primary/5 transition-colors"
+                                className="inline-flex items-center gap-2 rounded-md border border-slate-300 px-4 py-2 text-xs font-bold text-slate-700 transition-colors hover:bg-slate-50"
                               >
                                 <Info className="w-3.5 h-3.5" /> Preguntas Frecuentes
                               </a>
@@ -1617,24 +1757,6 @@ function SimuladorContent() {
 
     return (
         <div className="ak-public-page flex min-h-screen flex-col items-center justify-center gap-4 p-2 sm:p-6 lg:p-8">
-            {/* Chat Simulator Banner */}
-            <div className="w-full max-w-3xl print:hidden">
-              <Link href="/simulador-ak">
-                <div className="group flex cursor-pointer items-center justify-between gap-3 rounded-lg border border-slate-800 bg-slate-950 px-5 py-4 text-white shadow-lg transition-all hover:bg-slate-900">
-                  <div className="flex items-center gap-3">
-                    <MessageSquare className="h-6 w-6 shrink-0 text-emerald-300" />
-                    <div>
-                      <p className="font-black text-sm">También podés armarlo con el Asistente AK</p>
-                      <p className="text-xs text-white/70">La IA usa los mismos paquetes, servicios y precios de este simulador manual</p>
-                    </div>
-                  </div>
-                  <div className="shrink-0 bg-white/20 group-hover:bg-white/30 rounded-xl px-3 py-1.5 text-xs font-black uppercase tracking-widest transition-colors">
-                    Probar IA →
-                  </div>
-                </div>
-              </Link>
-            </div>
-
             <Card className="w-full max-w-4xl overflow-hidden rounded-lg border border-slate-200 bg-white shadow-xl">
                 <CardHeader className="text-center bg-slate-50 p-6 sm:p-10 border-b border-slate-200">
                     <div className="flex justify-center mb-4">
@@ -1653,16 +1775,16 @@ function SimuladorContent() {
                     {step === 1 && (
                         <div className="space-y-8 animate-in fade-in slide-in-from-bottom-4 duration-500 max-w-2xl mx-auto py-4">
                             <div className="text-center space-y-4">
-                                <div className="p-4 bg-primary/10 rounded-full inline-block">
-                                    <Sparkles className="w-10 h-10 text-primary animate-pulse" />
+                                <div className="inline-flex h-12 w-12 items-center justify-center rounded-full bg-red-50">
+                                    <Sparkles className="h-6 w-6 text-red-700" />
                                 </div>
                                 <h2 className="text-3xl font-black text-slate-900 tracking-tight">La fiesta de tus sueños, planificada sin estrés</h2>
                                 <p className="text-lg font-bold text-primary">Elegí lo que te gusta, calculá el costo al instante y armá una experiencia inolvidable.</p>
                             </div>
 
                             <div className="grid gap-6 md:grid-cols-2 pt-4">
-                                <div className="p-6 bg-slate-50 rounded-3xl border border-slate-100 flex items-start gap-4 text-left">
-                                    <div className="p-3 bg-violet-100 text-violet-700 rounded-2xl shrink-0">
+                                <div className="flex items-start gap-4 border-b border-slate-200 py-4 text-left">
+                                    <div className="shrink-0 rounded-md bg-slate-100 p-3 text-slate-700">
                                         <PartyPopper className="w-6 h-6" />
                                     </div>
                                     <div>
@@ -1671,8 +1793,8 @@ function SimuladorContent() {
                                     </div>
                                 </div>
 
-                                <div className="p-6 bg-slate-50 rounded-3xl border border-slate-100 flex items-start gap-4 text-left">
-                                    <div className="p-3 bg-fuchsia-100 text-fuchsia-700 rounded-2xl shrink-0">
+                                <div className="flex items-start gap-4 border-b border-slate-200 py-4 text-left">
+                                    <div className="shrink-0 rounded-md bg-slate-100 p-3 text-slate-700">
                                         <Users className="w-6 h-6" />
                                     </div>
                                     <div>
@@ -1681,8 +1803,8 @@ function SimuladorContent() {
                                     </div>
                                 </div>
 
-                                <div className="p-6 bg-slate-50 rounded-3xl border border-slate-100 flex items-start gap-4 text-left">
-                                    <div className="p-3 bg-blue-100 text-blue-700 rounded-2xl shrink-0">
+                                <div className="flex items-start gap-4 border-b border-slate-200 py-4 text-left">
+                                    <div className="shrink-0 rounded-md bg-slate-100 p-3 text-slate-700">
                                         <Laptop className="w-6 h-6" />
                                     </div>
                                     <div>
@@ -1691,8 +1813,8 @@ function SimuladorContent() {
                                     </div>
                                 </div>
 
-                                <div className="p-6 bg-slate-50 rounded-3xl border border-slate-100 flex items-start gap-4 text-left">
-                                    <div className="p-3 bg-emerald-100 text-emerald-700 rounded-2xl shrink-0">
+                                <div className="flex items-start gap-4 border-b border-slate-200 py-4 text-left">
+                                    <div className="shrink-0 rounded-md bg-slate-100 p-3 text-slate-700">
                                         <HeartHandshake className="w-6 h-6" />
                                     </div>
                                     <div>
@@ -1702,13 +1824,13 @@ function SimuladorContent() {
                                 </div>
                             </div>
 
-                            <div className="p-6 bg-gradient-to-r from-slate-900 to-slate-800 text-white rounded-3xl border shadow-xl flex flex-col sm:flex-row items-center gap-5 justify-between text-left">
+                            <div className="flex flex-col items-center justify-between gap-5 rounded-md border border-slate-800 bg-slate-950 p-6 text-left text-white sm:flex-row">
                                 <div className="flex items-center gap-4">
-                                    <div className="p-3 bg-white/10 rounded-2xl">
-                                        <MapPin className="w-7 h-7 text-yellow-300" />
+                                    <div className="rounded-md bg-white/10 p-3">
+                                        <MapPin className="h-7 w-7 text-white" />
                                     </div>
                                     <div>
-                                        <h4 className="font-black text-yellow-300 uppercase text-[10px] tracking-wider">Locación Exclusiva</h4>
+                                        <h4 className="text-[10px] font-bold uppercase tracking-wider text-white/70">Locación</h4>
                                         <h3 className="font-black text-lg">Salón de Fiestas: Club Uruguay</h3>
                                         <p className="text-xs text-white/70 font-semibold">El salón más distinguido con servicio integral.</p>
                                     </div>
@@ -1885,12 +2007,12 @@ function SimuladorContent() {
                                         const imageUrl = safeImageUrl(s.imageUrl);
                                         return (
                                             <label key={s.id} className={cn(
-                                                "group relative p-5 border-2 rounded-[1.5rem] cursor-pointer transition-all flex items-center gap-4",
-                                                selectedEntradas.includes(s.id) ? "border-primary bg-primary/5 shadow-lg shadow-primary/5" : "border-slate-100 hover:border-primary/20 bg-slate-50/50",
-                                                isRecommended && !selectedEntradas.includes(s.id) && "border-amber-200 bg-amber-50/30 shadow-md"
+                                                 "group relative flex cursor-pointer items-center gap-4 rounded-md border p-5 transition-colors",
+                                                 selectedEntradas.includes(s.id) ? "border-red-700 bg-red-50" : "border-slate-200 bg-white hover:border-slate-400",
+                                                 isRecommended && !selectedEntradas.includes(s.id) && "border-slate-300 bg-slate-50"
                                             )}>
                                                 {isRecommended && (
-                                                    <div className="absolute -top-3 left-4 bg-amber-500 text-white text-[9px] font-black uppercase tracking-widest px-3 py-1 rounded-full shadow-lg z-10 animate-bounce">RECOMENDADO</div>
+                                                     <div className="absolute -top-3 left-4 z-10 rounded-sm border border-slate-300 bg-white px-3 py-1 text-[9px] font-bold uppercase tracking-widest text-slate-700">Recomendado</div>
                                                 )}
                                                 {imageUrl && (
                                                   <div className="h-20 w-24 rounded-2xl overflow-hidden border bg-white shrink-0">
@@ -1919,12 +2041,12 @@ function SimuladorContent() {
                                         const imageUrl = safeImageUrl(s.imageUrl);
                                         return (
                                             <label key={s.id} className={cn(
-                                                "group relative p-5 border-2 rounded-[1.5rem] cursor-pointer transition-all flex items-center gap-4",
-                                                selectedPrincipal === s.id ? "border-primary bg-primary/5 shadow-lg shadow-primary/5" : "border-slate-100 hover:border-primary/20 bg-slate-50/50",
-                                                isRecommended && selectedPrincipal !== s.id && "border-amber-200 bg-amber-50/30 shadow-md"
+                                                 "group relative flex cursor-pointer items-center gap-4 rounded-md border p-5 transition-colors",
+                                                 selectedPrincipal === s.id ? "border-red-700 bg-red-50" : "border-slate-200 bg-white hover:border-slate-400",
+                                                 isRecommended && selectedPrincipal !== s.id && "border-slate-300 bg-slate-50"
                                             )}>
                                                 {isRecommended && (
-                                                    <div className="absolute -top-3 left-4 bg-amber-500 text-white text-[9px] font-black uppercase tracking-widest px-3 py-1 rounded-full shadow-lg z-10 animate-bounce">RECOMENDADO</div>
+                                                     <div className="absolute -top-3 left-4 z-10 rounded-sm border border-slate-300 bg-white px-3 py-1 text-[9px] font-bold uppercase tracking-widest text-slate-700">Recomendado</div>
                                                 )}
                                                 {imageUrl && (
                                                   <div className="h-20 w-24 rounded-2xl overflow-hidden border bg-white shrink-0">
@@ -1951,15 +2073,15 @@ function SimuladorContent() {
                                     <RadioGroup value={selectedInfantil} onValueChange={v => { setSelectedInfantil(v); handleGastronomicSelectionChange('infantil', v); }} className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                                         {menusNinoDisponibles.map(s => {
                                             const isRecommended = Boolean(s.isFeatured || config?.platosVisibles?.find(p => p.id === s.id)?.recommended);
-                                            const imageUrl = safeImageUrl(s.imageUrl);
+                                            const imageUrl = getServiceOrDishImage(s);
                                             return (
                                                 <label key={s.id} className={cn(
-                                                    "group relative p-5 border-2 rounded-[1.5rem] cursor-pointer transition-all flex items-center gap-4",
-                                                    selectedInfantil === s.id ? "border-purple-500 bg-purple-50 shadow-lg shadow-purple-900/5" : "border-slate-100 hover:border-purple-200 bg-slate-50/50",
-                                                    isRecommended && selectedInfantil !== s.id && "border-amber-200 bg-amber-50/30 shadow-md"
+                                                     "group relative flex cursor-pointer items-center gap-4 rounded-md border p-5 transition-colors",
+                                                     selectedInfantil === s.id ? "border-red-700 bg-red-50" : "border-slate-200 bg-white hover:border-slate-400",
+                                                     isRecommended && selectedInfantil !== s.id && "border-slate-300 bg-slate-50"
                                                 )}>
                                                     {isRecommended && (
-                                                        <div className="absolute -top-3 left-4 bg-amber-500 text-white text-[9px] font-black uppercase tracking-widest px-3 py-1 rounded-full shadow-lg z-10 animate-bounce">RECOMENDADO</div>
+                                                         <div className="absolute -top-3 left-4 z-10 rounded-sm border border-slate-300 bg-white px-3 py-1 text-[9px] font-bold uppercase tracking-widest text-slate-700">Recomendado</div>
                                                     )}
                                                     {imageUrl && (
                                                       <div className="h-20 w-24 rounded-2xl overflow-hidden border bg-white shrink-0">
@@ -1982,12 +2104,12 @@ function SimuladorContent() {
                     )}
                     {step === 4 && (
                         <div className="space-y-8 animate-in fade-in slide-in-from-right-4 duration-700 text-left">
-                            <h3 className="font-black text-xl text-slate-800 uppercase tracking-tighter text-center">Selecciona tu Paquete de Servicios</h3>
+                            <h3 className="text-center text-xl font-bold text-slate-900">Seleccioná tu paquete de servicios</h3>
                             <RadioGroup
                                 value={selectedPaqueteId}
                                 onValueChange={value => {
-                                    setSelectedPaqueteId(value);
-                                    setExcludedPackageServiceIds([]);
+                                    selectPackage(value);
+                                    setExpandedPackageId(null);
                                 }}
                                 className="grid grid-cols-1 md:grid-cols-2 gap-6"
                             >
@@ -2001,51 +2123,80 @@ function SimuladorContent() {
                                     });
 
                                     const estimatedTotal = calculatePackageEstimatedPrice(p);
+                                    const estimatedPricePerPerson = estimatedTotal / Math.max(1, adultos + ninosYAdolescentes);
+                                    const includedServices = sortedIncluded
+                                        .map(serviceItem => ({
+                                            serviceItem,
+                                            service: allSimuladorServices.find(candidate => candidate.id === serviceItem.id),
+                                        }))
+                                        .filter((item): item is { serviceItem: typeof sortedIncluded[number]; service: ServicioEmpresa } => Boolean(item.service));
+                                    const giftCount = includedServices.filter(item => item.serviceItem.esRegalo).length;
+                                    const isExpanded = expandedPackageId === p.id;
+                                    const visibleIncluded = isExpanded ? includedServices : includedServices.slice(0, 3);
 
                                     return (
                                         <label key={p.id} className={cn(
-                                            "p-6 sm:p-8 border-2 rounded-[2.5rem] cursor-pointer transition-all flex flex-col gap-6 relative overflow-hidden",
-                                            selectedPaqueteId === p.id ? "border-primary bg-primary/5 shadow-2xl scale-[1.02]" : "border-slate-100 hover:border-primary/20 bg-white",
-                                            p.recommended && selectedPaqueteId !== p.id && "border-amber-200 ring-4 ring-amber-50 shadow-xl"
+                                            "relative flex cursor-pointer flex-col gap-4 overflow-hidden rounded-md border p-6 transition-colors sm:p-8",
+                                            selectedPaqueteId === p.id ? "border-red-700 bg-red-50" : "border-slate-200 bg-white hover:border-slate-400",
+                                            p.recommended && selectedPaqueteId !== p.id && "border-slate-400 bg-slate-50"
                                         )}>
                                             {p.recommended && (
-                                                <div className="absolute top-3 right-3 bg-primary text-white text-[8px] sm:text-[9px] font-black uppercase tracking-[0.2em] px-4 py-1.5 rounded-full shadow-2xl z-10 animate-pulse">
-                                                    MÁS ELEGIDO
+                                                <div className="absolute right-3 top-3 z-10 rounded-sm bg-slate-900 px-4 py-1.5 text-[8px] font-bold uppercase tracking-widest text-white sm:text-[9px]">
+                                                    Más elegido
                                                 </div>
                                             )}
                                             <div className="flex items-start justify-between">
                                                 <div className="space-y-1">
                                                     <p className="font-black uppercase tracking-tight text-xl text-slate-800 leading-none">{p.nombre}</p>
                                                     <p className="text-sm font-black text-primary">{formatCurrency(estimatedTotal)} <span className="text-[8px] uppercase tracking-widest text-slate-400 ml-1">Presupuesto Estimado</span></p>
+                                                    <p className="text-[10px] font-bold text-slate-500">{formatCurrency(estimatedPricePerPerson)} por persona</p>
                                                 </div>
                                                 <RadioGroupItem value={p.id} className="h-6 w-6"/>
                                             </div>
 
-                                            <div className="space-y-3">
-                                                <Label className="text-[9px] font-black uppercase tracking-widest text-slate-400 flex items-center gap-2">
-                                                    <ListPlus className="w-3 h-3"/> Servicios Incluidos:
-                                                </Label>
-                                                <ScrollArea className="h-48 pr-3 border rounded-2xl bg-white shadow-inner p-2">
-                                                    <ul className="text-[10px] space-y-2 text-slate-500 font-bold uppercase tracking-tight animate-in fade-in">
-                                                        {sortedIncluded.map(s => {
-                                                            const serv = allSimuladorServices.find(os => os.id === s.id);
-                                                            return serv && (
-                                                                <li key={s.id} className={cn(
-                                                                    "flex items-center justify-between gap-3 p-2 rounded-xl border",
-                                                                    s.esRegalo ? "bg-emerald-50 border-emerald-100 text-emerald-700" : "bg-slate-50 border-slate-100 text-slate-600"
-                                                                )}>
-                                                                    <div className="flex items-center gap-2 min-w-0">
-                                                                        {s.esRegalo ? <Gift className="w-3.5 h-3.5 shrink-0"/> : <Check className="w-3.5 h-3.5 opacity-40 shrink-0"/>}
-                                                                        <span className="truncate">{serv.nombre}</span>
-                                                                    </div>
-                                                                    {s.esRegalo && <Badge className="bg-emerald-600 text-white border-none font-black text-[8px] px-1.5 h-4">REGALO</Badge>}
-                                                                </li>
-                                                            );
-                                                        })}
-                                                    </ul>
-                                                </ScrollArea>
+                                            <div className="space-y-3 border-t border-slate-200 pt-4">
+                                                <div className="flex items-center justify-between gap-3 text-[10px] font-bold text-slate-600">
+                                                    <span>{includedServices.length} servicios{giftCount > 0 ? ` · ${giftCount} regalo${giftCount === 1 ? '' : 's'}` : ''}</span>
+                                                    {includedServices.length > 3 && (
+                                                        <Button
+                                                            type="button"
+                                                            variant="ghost"
+                                                            size="sm"
+                                                            onClick={(event) => {
+                                                                event.preventDefault();
+                                                                event.stopPropagation();
+                                                                setExpandedPackageId(current => current === p.id ? null : p.id);
+                                                            }}
+                                                            className="h-8 gap-1 px-2 text-[10px] font-bold text-slate-700 hover:bg-slate-100"
+                                                        >
+                                                            {isExpanded ? 'Ver resumen' : 'Ver todo'}
+                                                            <ChevronDown className={cn('h-3.5 w-3.5 transition-transform', isExpanded && 'rotate-180')} />
+                                                        </Button>
+                                                    )}
+                                                </div>
+                                                <ul className="space-y-2 text-[10px] font-bold uppercase tracking-tight text-slate-600">
+                                                    {visibleIncluded.map(({ serviceItem, service }) => (
+                                                            <li key={serviceItem.id} className={cn(
+                                                                "flex items-center justify-between gap-3 rounded-md border px-3 py-2",
+                                                                serviceItem.esRegalo
+                                                                    ? "border-emerald-200 bg-emerald-50 text-emerald-800"
+                                                                    : "border-slate-200 bg-slate-50 text-slate-700"
+                                                            )}>
+                                                                <div className="flex min-w-0 items-center gap-2">
+                                                                    {serviceItem.esRegalo
+                                                                        ? <Gift className="h-3.5 w-3.5 shrink-0"/>
+                                                                        : <Check className="h-3.5 w-3.5 shrink-0 text-emerald-700"/>}
+                                                                    <span className="whitespace-normal">{service.nombre}</span>
+                                                                </div>
+                                                                {serviceItem.esRegalo && (
+                                                                    <Badge className="h-5 shrink-0 border-none bg-emerald-700 px-2 text-[8px] font-black text-white">
+                                                                        REGALO
+                                                                    </Badge>
+                                                                )}
+                                                            </li>
+                                                        ))}
+                                                </ul>
                                             </div>
-                                            {selectedPaqueteId === p.id && <div className="absolute -bottom-2 -right-2 p-4 opacity-10 rotate-12"><PartyPopper className="w-20 h-20 text-primary"/></div>}
                                         </label>
                                     );
                                 })}
@@ -2054,25 +2205,26 @@ function SimuladorContent() {
                                 <p className="text-center text-sm text-slate-500">No hay paquetes aplicables para el tipo de evento seleccionado.</p>
                             )}
 
-                            <div className="rounded-2xl border border-blue-100 bg-blue-50 p-4 text-sm text-blue-900">
+                            <div className="rounded-md border border-slate-200 bg-slate-50 p-4 text-sm text-slate-700">
                               <strong>Precios {currentYear}</strong>
                               {stats.annualProjection.applies
                                 ? <> — Ajuste anual proyectado del <strong>{stats.annualProjection.adjustmentPct}%</strong> para eventos en {stats.annualProjection.eventYear}.</>
-                                : <> — El total mostrado corresponde al precio vigente.</>}
+                                : <> — El total corresponde al precio vigente.</>}
                             </div>
                         </div>
                     )}
                     {step === 5 && (
-                        <div className="space-y-8 animate-in fade-in slide-in-from-right-4 duration-700 text-left">
-                            <div>
-                                <h2 className="text-xl font-black text-slate-900">Personalización del paquete</h2>
-                                <p className="mt-1 text-sm text-slate-500">Podés cambiar la fecha e invitados, y quitar servicios opcionales de tu paquete contratado para adaptar el presupuesto a tu gusto. El total se actualizará automáticamente:</p>
+                        <div className="space-y-10 animate-in fade-in slide-in-from-right-4 duration-700 text-left">
+                            <div className="border-b border-slate-100 pb-5">
+                                <h2 className="text-3xl font-bold text-slate-900">Personalización de tu presupuesto</h2>
+                                <p className="mt-2 text-sm text-slate-500 font-semibold leading-relaxed">
+                                    ¡Llegamos a la etapa final! Ajustá la fecha y los invitados, quitá opcionales de tu paquete o agregá extras a tu gusto. El total se recalcula al instante.
+                                </p>
                             </div>
 
-                            {/* EDITOR RÁPIDO DE FECHA E INVITADOS */}
-                            <div className="p-5 bg-slate-50 border border-slate-100 rounded-3xl space-y-4">
+                            <div className="space-y-4 rounded-md border border-slate-200 bg-slate-50 p-6">
                                 <h3 className="text-xs font-black uppercase tracking-wider text-slate-400 flex items-center gap-2">
-                                    <CalendarDays className="w-4 h-4 text-slate-500"/> Información General del Evento
+                                    <CalendarDays className="w-[18px] h-[18px] text-slate-500"/> Información General del Evento
                                 </h3>
                                 <div className="grid gap-4 sm:grid-cols-3 items-end">
                                     <div className="space-y-2">
@@ -2086,7 +2238,7 @@ function SimuladorContent() {
                                             min={1}
                                             value={adultos || ''}
                                             onChange={e => setAdultos(Math.max(1, Number(e.target.value) || 0))}
-                                            className="h-12 rounded-xl bg-white text-slate-900 border-slate-200"
+                                            className="h-12 rounded-xl bg-white text-slate-900 border-slate-200 focus-visible:ring-primary font-bold"
                                         />
                                     </div>
                                     <div className="space-y-2">
@@ -2096,7 +2248,7 @@ function SimuladorContent() {
                                             min={0}
                                             value={ninosYAdolescentes || ''}
                                             onChange={e => setNinosYAdolescentes(Math.max(0, Number(e.target.value) || 0))}
-                                            className="h-12 rounded-xl bg-white text-slate-900 border-slate-200"
+                                            className="h-12 rounded-xl bg-white text-slate-900 border-slate-200 focus-visible:ring-primary font-bold"
                                         />
                                     </div>
                                 </div>
@@ -2105,7 +2257,7 @@ function SimuladorContent() {
                                         <p className="text-sm font-bold text-amber-900">{dateWarning}</p>
                                         <div className="mt-3 flex flex-wrap gap-2">
                                             {dateSuggestions.map(date => (
-                                                <button key={date} type="button" className="rounded-md bg-white px-3 py-2 text-xs font-bold text-amber-900 shadow-sm border" onClick={() => handleEventoFechaChange(new Date(`${date}T12:00:00`))}>
+                                                <button key={date} type="button" className="rounded-md bg-white px-3 py-2 text-xs font-bold text-amber-900 shadow-sm border hover:bg-amber-100 transition" onClick={() => handleEventoFechaChange(new Date(`${date}T12:00:00`))}>
                                                     {new Intl.DateTimeFormat('es-UY').format(new Date(`${date}T12:00:00`))}
                                                 </button>
                                             ))}
@@ -2114,30 +2266,43 @@ function SimuladorContent() {
                                 )}
                             </div>
 
-                            {/* SERVICIOS DETALLADOS AGRUPADOS POR CATEGORÍA */}
                             <div className="space-y-6">
+                                <h3 className="text-sm font-black uppercase tracking-wider text-slate-800 flex items-center gap-2 pl-2">
+                                    <ListPlus className="w-[18px] h-[18px] text-slate-500" /> Servicios contratados en tu propuesta
+                                </h3>
+
                                 {Object.entries(groupedDetallados).map(([category, items]) => {
                                     const activeItems = items.filter(item => !excludedPackageServiceIds.includes(item.id));
                                     if (activeItems.length === 0) return null;
+
+                                    const style = getCategoryStyle(category);
+                                    const CatIcon = style.icon;
+
                                     return (
-                                        <div key={category} className="p-6 bg-white border border-slate-200 rounded-[2rem] shadow-sm space-y-4">
-                                            <h3 className="text-xs font-black uppercase tracking-wider text-slate-400 border-b pb-2 flex items-center justify-between">
-                                                <span>{formatCategoriaText(category)}</span>
-                                                <Badge variant="secondary" className="font-bold text-[9px]">{activeItems.length}</Badge>
-                                            </h3>
+                                        <div key={category} className="relative space-y-4 overflow-hidden rounded-md border border-slate-200 bg-white p-6">
+                                            <div className="absolute left-0 top-0 h-full w-1 bg-slate-800" />
+                                            <div className="flex items-center justify-between border-b pb-3 pl-2">
+                                                <div className="flex items-center gap-2">
+                                                    <span className="flex h-7 w-7 items-center justify-center rounded-md bg-slate-900 text-white">
+                                                        <CatIcon className="w-4 h-4" />
+                                                    </span>
+                                                    <span className="font-black text-slate-800 text-xs uppercase tracking-wider">{formatCategoriaText(category)}</span>
+                                                </div>
+                                                <Badge className="bg-slate-100 text-[9px] font-bold text-slate-600 hover:bg-slate-100">{activeItems.length} activos</Badge>
+                                            </div>
                                             <div className="grid gap-3 sm:grid-cols-2">
                                                 {activeItems.map(item => {
                                                     return (
                                                         <div
                                                             key={item.id}
-                                                            className="flex items-center justify-between gap-3 rounded-2xl border border-slate-200 p-3.5 transition-all duration-300 bg-white hover:border-slate-300 shadow-sm"
+                                                            className="flex items-center justify-between gap-3 rounded-md border border-slate-200 bg-slate-50 p-4 transition-colors hover:bg-white"
                                                         >
                                                             <div className="min-w-0 flex-1 text-left">
-                                                                <span className="block font-bold text-slate-800 text-xs truncate">
+                                                                <span className="block font-black text-slate-800 text-xs truncate">
                                                                     {item.nombre}
                                                                 </span>
-                                                                <div className="flex items-center gap-2 mt-0.5 text-[9px] font-semibold text-slate-400 uppercase tracking-tight">
-                                                                    <span>{item.esRegalo ? "Regalo incluido" : (item.subcategoria || formatCategoriaText(item.categoria) || 'Servicio activo')}</span>
+                                                                <div className="flex items-center gap-2 mt-1 text-[9px] font-bold text-slate-400 uppercase tracking-wider">
+                                                                    <span className={item.esRegalo ? "text-emerald-600 font-black" : ""}>{item.esRegalo ? "Regalo incluido" : (item.subcategoria || formatCategoriaText(item.categoria) || 'Servicio activo')}</span>
                                                                     {!item.esRegalo && (
                                                                         <>
                                                                             <span>•</span>
@@ -2147,7 +2312,7 @@ function SimuladorContent() {
                                                                                     <span className="text-amber-600 font-black">{formatCurrency(item.costoTotal)} (50% OFF)</span>
                                                                                 </span>
                                                                             ) : (
-                                                                                <span className="text-slate-500 font-bold">{formatCurrency(item.costoTotal)}</span>
+                                                                                <span className="font-bold text-slate-700">{formatCurrency(item.costoTotal)}</span>
                                                                             )}
                                                                         </>
                                                                     )}
@@ -2160,7 +2325,7 @@ function SimuladorContent() {
                                                                     size="icon"
                                                                     variant="ghost"
                                                                     onClick={() => setServiceToDelete(item)}
-                                                                    className="h-8 w-8 rounded-lg text-slate-450 hover:text-red-650 hover:bg-red-50 shrink-0"
+                                                                    className="h-8 w-8 rounded-xl text-slate-400 hover:text-red-600 hover:bg-red-50 transition shrink-0"
                                                                     title="Retirar servicio"
                                                                 >
                                                                     <Trash2 className="w-4 h-4"/>
@@ -2175,12 +2340,12 @@ function SimuladorContent() {
                                 })}
                             </div>
 
-                            {/* SERVICIOS RETIRADOS / OPCIONALES DISPONIBLES */}
                             {excludedPackageServiceIds.length > 0 && (
-                                <div className="p-6 bg-slate-50/50 border border-dashed border-slate-200 rounded-[2rem] space-y-4">
+                                <div className="p-6 bg-slate-50/50 border border-dashed border-slate-300 rounded-[2rem] space-y-4">
                                     <h3 className="text-xs font-black uppercase tracking-wider text-slate-400 flex items-center gap-2 text-left">
+                                        <Info className="w-[18px] h-[18px] text-slate-500" />
                                         <span>Servicios retirados del paquete (Opcionales)</span>
-                                        <Badge className="bg-slate-200 text-slate-700 hover:bg-slate-200 font-bold text-[9px]">{excludedPackageServiceIds.length}</Badge>
+                                        <Badge className="bg-slate-200 text-slate-700 hover:bg-slate-200 font-black text-[9px]">{excludedPackageServiceIds.length}</Badge>
                                     </h3>
                                     <div className="grid gap-3 sm:grid-cols-2">
                                         {excludedPackageServiceIds.map(excludedId => {
@@ -2190,16 +2355,16 @@ function SimuladorContent() {
                                             return (
                                                 <div
                                                     key={excludedId}
-                                                    className="flex items-center justify-between gap-3 rounded-2xl border border-dashed border-slate-200 bg-white p-3.5 opacity-70 hover:opacity-100 transition-all duration-300"
+                                                    className="flex items-center justify-between gap-3 rounded-2xl border border-dashed border-slate-200 bg-white p-3.5 opacity-70 hover:opacity-100 transition-all duration-200"
                                                 >
                                                     <div className="min-w-0 flex-1 text-left">
-                                                        <span className="block font-bold text-slate-400 line-through text-xs truncate">
+                                                        <span className="block font-black text-slate-400 line-through text-xs truncate">
                                                             {service.nombre}
                                                         </span>
-                                                        <div className="flex items-center gap-2 mt-0.5 text-[9px] font-semibold text-slate-400 uppercase tracking-tight">
+                                                        <div className="flex items-center gap-2 mt-0.5 text-[9px] font-bold text-slate-400 uppercase tracking-wider">
                                                             <span>{service.subcategoria || formatCategoriaText(service.categoria)}</span>
                                                             <span>•</span>
-                                                            <span className="text-slate-550 font-bold">-{formatCurrency(calculated.total)}</span>
+                                                            <span className="text-slate-500 font-bold">-{formatCurrency(calculated.total)}</span>
                                                         </div>
                                                     </div>
                                                     <Button
@@ -2207,7 +2372,7 @@ function SimuladorContent() {
                                                         size="icon"
                                                         variant="ghost"
                                                         onClick={() => handleToggleServiceInBudget(excludedId, 'include')}
-                                                        className="h-8 w-8 rounded-lg text-emerald-600 hover:text-emerald-700 hover:bg-emerald-50 shrink-0"
+                                                        className="h-8 w-8 rounded-xl text-emerald-600 hover:text-emerald-700 hover:bg-emerald-50 shrink-0"
                                                         title="Volver a agregar"
                                                     >
                                                         <Plus className="w-4 h-4"/>
@@ -2219,25 +2384,24 @@ function SimuladorContent() {
                                 </div>
                             )}
 
-                            {/* 2. SERVICIOS SUGERIDOS Y EL BUSCADOR */}
-                            <div className="space-y-6 pt-6 border-t border-slate-200">
+                            <div className="space-y-6 rounded-md border border-slate-200 bg-white p-6">
                                 <div className="space-y-4">
                                     <h4 className="font-black text-slate-800 uppercase text-xs tracking-wider flex items-center gap-2">
-                                        <Search className="w-4.5 h-4.5 text-slate-500"/> ¿Querés agregar otro servicio?
+                                        <Search className="w-[18px] h-[18px] text-slate-500"/> ¿Querés agregar algún servicio extra?
                                     </h4>
                                     <div className="relative">
                                         <div className="relative flex-1">
                                             <Search className="absolute left-4 top-3.5 h-5 w-5 text-slate-400" />
                                             <Input
                                                 type="text"
-                                                placeholder="Buscá por nombre de servicio (ej: cabina, plataforma, buffet, barra)..."
+                                                placeholder="Buscá servicios adicionales por nombre (ej: cabina, plataforma, barra, cascada)..."
                                                 value={serviceSearchTerm}
                                                 onChange={e => setServiceSearchTerm(e.target.value)}
                                                 onFocus={() => setIsSearchFocused(true)}
                                                 onBlur={() => {
                                                     setTimeout(() => setIsSearchFocused(false), 200);
                                                 }}
-                                                className="h-12 pl-12 rounded-xl border-slate-200 bg-white text-slate-900"
+                                                className="h-12 pl-12 rounded-xl border-slate-200 bg-white text-slate-900 focus-visible:ring-primary"
                                             />
                                             {serviceSearchTerm && (
                                                 <button
@@ -2250,9 +2414,8 @@ function SimuladorContent() {
                                             )}
                                         </div>
 
-                                        {/* Dropdown de resultados de búsqueda */}
                                         {isSearchFocused && filteredSearchServices.length > 0 && (
-                                            <div className="absolute left-0 right-0 z-50 mt-2 bg-white border border-slate-200 rounded-2xl shadow-2xl overflow-hidden animate-in fade-in slide-in-from-top-2 duration-200">
+                                            <div className="absolute left-0 right-0 z-50 mt-2 overflow-hidden rounded-md border border-slate-200 bg-white shadow-lg animate-in fade-in slide-in-from-top-2 duration-200">
                                                 <div className="p-3 bg-slate-50 border-b text-[10px] font-black text-slate-400 uppercase tracking-widest">
                                                     Servicios encontrados ({filteredSearchServices.length})
                                                 </div>
@@ -2278,7 +2441,7 @@ function SimuladorContent() {
                                                                 className="w-full p-4 text-left hover:bg-slate-50 flex items-center justify-between gap-4 transition"
                                                             >
                                                                 <div>
-                                                                    <span className="block font-black text-sm text-slate-800">{service.nombre}</span>
+                                                                    <span className="block text-sm font-bold text-slate-800">{service.nombre}</span>
                                                                     <span className="block text-[10px] text-slate-400 font-semibold uppercase mt-0.5">
                                                                         {formatCategoriaText(service.categoria)} {service.subcategoria ? `· ${service.subcategoria}` : ''}
                                                                     </span>
@@ -2296,32 +2459,23 @@ function SimuladorContent() {
                                     </div>
                                 </div>
 
-                                {/* SERVICIOS SUGERIDOS */}
                                 {suggestedServices.length > 0 && (
-                                    <div className="space-y-4">
-                                        <h4 className="font-black text-slate-800 uppercase text-[10px] tracking-widest flex items-center gap-2">
-                                            <Sparkles className="w-4 h-4 text-amber-500 animate-pulse"/> Adicionales sugeridos para vos
-                                        </h4>
-                                        <div className="grid gap-4 md:grid-cols-2">
+                                    <div className="space-y-3 pt-2">
+                                        <h5 className="text-[10px] font-black uppercase tracking-widest text-slate-400 flex items-center gap-1.5 text-left">
+                                            <Sparkles className="h-3.5 w-3.5 text-slate-600" /> Mejoras disponibles para tu evento
+                                        </h5>
+                                        <div className="grid gap-3">
                                             {suggestedServices.map(service => {
                                                 const calculated = getSimulatorServiceCalculatedData(service, adultos, ninosYAdolescentes);
                                                 return (
-                                                    <div
-                                                        key={service.id}
-                                                        className="flex items-start justify-between gap-4 rounded-2xl border border-slate-200 bg-amber-50/10 hover:bg-amber-50/20 p-5 shadow-sm transition-all"
-                                                    >
-                                                        <div className="min-w-0 flex-1">
-                                                            <span className="block font-black text-slate-900 text-sm">{service.nombre}</span>
-                                                            <span className="block text-[10px] text-slate-400 font-semibold uppercase mt-0.5">
-                                                                {formatCategoriaText(service.categoria)}
-                                                            </span>
-                                                            <span className="mt-2 block text-sm font-black text-primary">
-                                                                {formatCurrency(calculated.total)}
-                                                            </span>
+                                                    <div key={service.id} className="p-4 bg-white border border-slate-200/80 rounded-2xl flex items-center justify-between gap-3 shadow-sm hover:border-slate-400 hover:shadow-md transition duration-200">
+                                                        <div className="min-w-0 flex-1 text-left">
+                                                            <span className="block font-black text-xs text-slate-800 truncate">{service.nombre}</span>
+                                                            <span className="block text-[9px] text-slate-400 font-bold uppercase tracking-wider mt-0.5">{formatCategoriaText(service.categoria)}</span>
+                                                            <span className="block text-xs font-black text-primary mt-1">{formatCurrency(calculated.total)}</span>
                                                         </div>
                                                         <Button
                                                             type="button"
-                                                            size="sm"
                                                             onClick={() => {
                                                                 handleToggleServiceInBudget(service.id, 'include');
                                                                 toast({
@@ -2329,9 +2483,9 @@ function SimuladorContent() {
                                                                     description: `${service.nombre} se agregó al presupuesto.`,
                                                                 });
                                                             }}
-                                                            className="rounded-xl bg-primary text-white text-[10px] font-black uppercase tracking-widest shrink-0 px-4"
+                                                            className="rounded-xl bg-slate-950 hover:bg-red-700 text-white text-[9px] font-black uppercase tracking-widest px-4 py-2 h-9 transition shrink-0"
                                                         >
-                                                            Agregar
+                                                            Agregar +
                                                         </Button>
                                                     </div>
                                                 );
@@ -2341,50 +2495,38 @@ function SimuladorContent() {
                                 )}
                             </div>
 
-                            {/* 3. COMPARADOR DE PAQUETES */}
-                            <div className="space-y-4 pt-6 border-t border-slate-200">
-                                <h4 className="font-black text-slate-800 uppercase text-xs tracking-wider">
-                                    ¿Querés comparar con otros paquetes para esta misma configuración?
-                                </h4>
+                            <div className="p-6 bg-white border border-slate-200 rounded-[2rem] shadow-sm space-y-4">
+                                <h4 className="font-black text-slate-800 uppercase text-xs tracking-wider text-left">¿Querés comparar con otros paquetes?</h4>
                                 <div className="grid gap-4 sm:grid-cols-2">
-                                    {config?.paquetes
-                                        ?.filter(p => p.id !== selectedPaqueteId)
-                                        .map(p => {
-                                            const totalInvitados = adultos + ninosYAdolescentes;
-                                            const precioActual = stats.totalFinal;
-                                            const precioAlternativo = packageSummaries.get(p.id)?.total || 0;
-                                            const diffTotal = precioAlternativo - precioActual;
-                                            const diffPorPersona = Math.round(Math.abs(diffTotal) / (totalInvitados || 1));
-                                            const esMejora = diffTotal > 0;
-
-                                            return (
-                                                <div key={p.id} className="p-6 bg-slate-50 border border-slate-100 rounded-3xl flex flex-col justify-between gap-4">
-                                                    <div>
-                                                        <span className="text-[10px] font-black text-slate-400 uppercase tracking-widest">Paquete disponible</span>
-                                                        <h5 className="text-lg font-black text-slate-800 uppercase tracking-tight">{p.nombre}</h5>
-                                                        <p className="mt-2 text-xl font-black text-primary">{formatCurrency(precioAlternativo)}</p>
-                                                        <p className="mt-1 text-xs text-slate-500 font-bold">
-                                                            {esMejora
-                                                                ? `Mejorá por ${formatCurrency(diffPorPersona)} más por persona`
-                                                                : `Ahorrás ${formatCurrency(diffPorPersona)} por persona`}
-                                                        </p>
-                                                    </div>
-                                                    <Button
-                                                        onClick={() => {
-                                                            setSelectedPaqueteId(p.id);
-                                                            setExcludedPackageServiceIds([]);
-                                                            toast({
-                                                                title: "Paquete cambiado",
-                                                                description: `Cambiado a ${p.nombre} con éxito.`
-                                                            });
-                                                        }}
-                                                        className="rounded-xl font-bold uppercase tracking-wider text-[10px] h-10 w-full"
-                                                    >
-                                                        Cambiar a Paquete {p.nombre}
-                                                    </Button>
+                                    {config?.paquetes?.filter(p => p.id !== selectedPaqueteId).map(p => {
+                                        const totalInvitados = adultos + ninosYAdolescentes;
+                                        const precioActual = stats.totalFinal;
+                                        const precioAlternativo = packageSummaries.get(p.id)?.total || 0;
+                                        const diffTotal = precioAlternativo - precioActual;
+                                        const diffPorPersona = Math.round(Math.abs(diffTotal) / (totalInvitados || 1));
+                                        const esMejora = diffTotal > 0;
+                                        return (
+                                            <div key={p.id} className="p-6 bg-slate-50/50 border border-slate-100 rounded-3xl flex flex-col justify-between gap-4 hover:bg-slate-50 transition duration-200 text-left">
+                                                <div>
+                                                    <span className="text-[9px] font-black text-slate-400 uppercase tracking-widest">Alternativa</span>
+                                                    <h5 className="text-base font-bold text-slate-800">{p.nombre}</h5>
+                                                    <p className="mt-2 text-xl font-black text-primary">{formatCurrency(precioAlternativo)}</p>
+                                                    <p className="mt-0.5 text-[9px] text-slate-500 font-bold uppercase tracking-wider">
+                                                        {esMejora
+                                                            ? `+ ${formatCurrency(diffPorPersona)} por persona`
+                                                            : `- ${formatCurrency(diffPorPersona)} por persona`}
+                                                    </p>
                                                 </div>
-                                            );
-                                        })}
+                                                <Button
+                                                    onClick={() => void handleSwitchPackage(p.id)}
+                                                    disabled={isGenerating}
+                                                    className="rounded-xl font-black uppercase tracking-widest text-[9px] h-9 w-full bg-slate-900 hover:bg-red-700 text-white transition"
+                                                >
+                                                    Cambiar a {p.nombre}
+                                                </Button>
+                                            </div>
+                                        );
+                                    })}
                                 </div>
                             </div>
 
@@ -2402,7 +2544,7 @@ function SimuladorContent() {
                     <div className="flex flex-col sm:flex-row items-center gap-4 w-full sm:w-auto justify-between sm:justify-start">
                         <Button variant="ghost" onClick={handlePrev} disabled={step === 1 || isSavingProgress || isGenerating} className="w-full sm:w-auto rounded-md h-12 px-7 font-bold text-slate-500">Anterior</Button>
                         {stats.ahorroRegalos > 0 && (
-                            <span className="bg-emerald-50 text-emerald-700 text-[10px] font-black px-4 py-2 rounded-full border border-emerald-100 flex items-center gap-1.5 shadow-sm animate-pulse shrink-0">
+                            <span className="flex shrink-0 items-center gap-1.5 rounded-md border border-emerald-200 bg-emerald-50 px-4 py-2 text-[10px] font-bold text-emerald-800">
                                 🎁 ¡Ahorrás {formatCurrency(stats.ahorroRegalos)} en regalos incluidos!
                             </span>
                         )}

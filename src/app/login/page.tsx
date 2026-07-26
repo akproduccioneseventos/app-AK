@@ -23,6 +23,7 @@ import {
   loginWithPassword,
   loginWithGoogleIdToken,
 } from '@/app/actions/simple-auth';
+import { loginUser } from '@/app/actions/auth';
 
 type RecoveryStatus = Awaited<ReturnType<typeof getPublicSecurityRecoveryStatus>>;
 
@@ -81,6 +82,7 @@ export default function LoginPage() {
   const [selectedMethod, setSelectedMethod] = useState<'email' | 'google' | 'backup' | 'questions' | null>(null);
   const [codeSent, setCodeSent] = useState(false);
   const [googleIdToken, setGoogleIdToken] = useState('');
+  const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [resetCode, setResetCode] = useState('');
   const [backupCode, setBackupCode] = useState('');
@@ -153,9 +155,12 @@ export default function LoginPage() {
     setNotice('');
 
     try {
-      const result = await loginWithPassword(password);
+      const normalizedEmail = email.trim().toLowerCase();
+      const result = normalizedEmail
+        ? await loginUser(normalizedEmail, password)
+        : await loginWithPassword(password);
       if (!result.success) {
-        setError(result.error || 'Contraseña incorrecta.');
+        setError(result.error || 'Correo o contraseña incorrectos.');
         setIsSubmitting(false);
         return;
       }
@@ -218,17 +223,22 @@ export default function LoginPage() {
     setIsSubmitting(true);
     setError('');
     setNotice('');
-    const result = await requestPasswordResetEmail();
-    if (result.success) {
-      setNotice(result.sent ? 'Te enviamos un codigo al mail de recuperacion.' : result.warning || 'Codigo generado.');
-      setCodeSent(true);
-    } else {
-      setError(result.error || 'No se pudo enviar el codigo.');
-      if (result.error && !recovery?.gmailConnected) {
-        setRecovery((current) => current ? { ...current, gmailWarning: result.error } : current);
+    try {
+      const result = await requestPasswordResetEmail();
+      if (result.success) {
+        setNotice(result.sent ? 'Te enviamos un codigo al mail de recuperacion.' : result.warning || 'Codigo generado.');
+        setCodeSent(true);
+      } else {
+        setError(result.error || 'No se pudo enviar el codigo.');
+        if (result.error && !recovery?.gmailConnected) {
+          setRecovery((current) => current ? { ...current, gmailWarning: result.error } : current);
+        }
       }
+    } catch {
+      setError('No se pudo solicitar el codigo. Intenta nuevamente.');
+    } finally {
+      setIsSubmitting(false);
     }
-    setIsSubmitting(false);
   };
 
   const handleVerifyEmailCode = async (event: FormEvent<HTMLFormElement>) => {
@@ -378,7 +388,7 @@ export default function LoginPage() {
           </CardTitle>
           <CardDescription>
             {mode === 'login'
-              ? 'Ingresa la contraseña para acceder.'
+              ? 'Ingresa con tu correo y contraseña.'
               : recoveryStep === 'method'
               ? 'Elige un método para recuperar tu acceso.'
               : recoveryStep === 'verify'
@@ -390,6 +400,19 @@ export default function LoginPage() {
         {mode === 'login' ? (
           <form onSubmit={handleLogin}>
             <CardContent className="space-y-4">
+              <div className="space-y-2">
+                <Label htmlFor="login-email">Correo electrónico</Label>
+                <Input
+                  id="login-email"
+                  data-testid="login-email"
+                  type="email"
+                  placeholder="nombre@correo.com"
+                  value={email}
+                  onChange={(event) => setEmail(event.target.value)}
+                  autoComplete="username"
+                  disabled={isSubmitting}
+                />
+              </div>
               <div className="space-y-2">
                 <Label htmlFor="login-password">Contraseña</Label>
                 <Input

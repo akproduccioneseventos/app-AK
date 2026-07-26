@@ -660,17 +660,32 @@ export async function loginWithGoogleIdToken(idToken: string): Promise<{ success
   try {
     if (!idToken) return { success: false, error: 'Google no devolvio una credencial valida.' };
     const decodedToken = await verifyIdToken(idToken);
+    const normalizedEmail = decodedToken?.email?.trim().toLowerCase() || '';
+    const storedUserSnapshot = dbAdmin && normalizedEmail
+      ? await dbAdmin.collection('users').where('email', '==', normalizedEmail).limit(1).get()
+      : null;
+    const storedUserDoc = storedUserSnapshot && !storedUserSnapshot.empty
+      ? storedUserSnapshot.docs[0]
+      : null;
+    const storedUser = storedUserDoc?.data();
+    const allowedEmails = parseAllowedGoogleEmails(
+      process.env.AUTH_ALLOWED_EMAILS || process.env.NEXT_PUBLIC_AUTH_ALLOWED_EMAILS
+    );
+    if (storedUserDoc && normalizedEmail && !allowedEmails.has(normalizedEmail)) {
+      allowedEmails.add(normalizedEmail);
+    }
     const validation = validateGoogleIdentityClaims(
       decodedToken,
-      parseAllowedGoogleEmails(process.env.AUTH_ALLOWED_EMAILS || process.env.NEXT_PUBLIC_AUTH_ALLOWED_EMAILS)
+      allowedEmails
     );
     if (!validation.success) return validation;
 
     const { writeSessionCookie } = await import('@/lib/auth/session-token');
     await writeSessionCookie({
       email: decodedToken?.email ?? 'google-user@akproducciones.com',
-      role: 'admin',
-      userId: decodedToken?.uid ?? 'google-uid',
+      role: storedUser?.role || 'admin',
+      userId: storedUserDoc?.id || decodedToken?.uid || 'google-uid',
+      modules: Array.isArray(storedUser?.modules) ? storedUser.modules : ['all'],
     });
     await clearLoginProtection();
     return { success: true };

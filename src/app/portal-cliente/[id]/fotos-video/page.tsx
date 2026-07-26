@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from 'react';
 import { useParams, useRouter } from 'next/navigation';
-import { getFiestaById } from '@/app/actions/fiesta/fiesta.actions';
+import { getFiestaForPortalSession, initializePortalSession } from '@/app/actions/fiesta/portal.actions';
 import { getSocialPosts } from '@/app/actions/social-gallery';
 import { getDedications } from '@/app/actions/social-interactive';
 import { getContractedDownloads } from '@/lib/experience-ak/post-event-utils';
@@ -62,13 +62,14 @@ export default function FotosVideoPortalPage() {
     }
     
     Promise.all([
-      getFiestaById(fiestaId),
+      initializePortalSession(fiestaId, accessKey).then(session => session.success ? getFiestaForPortalSession(fiestaId) : null),
       getSocialPosts(fiestaId),
       getDedications(fiestaId)
     ])
       .then(([fiestaData, postsData, dedsData]) => {
         if (!fiestaData) { 
-          setError('Evento no encontrado.'); 
+          sessionStorage.removeItem(SESSION_KEY_PREFIX + fiestaId);
+          setError('La sesión del portal venció o no corresponde a este evento.');
           return; 
         }
         setFiesta(fiestaData);

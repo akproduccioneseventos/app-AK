@@ -1,17 +1,17 @@
-'use server';
+"use server";
 
-import { ai } from '@/ai/genkit';
-import { getFiestaById } from '@/app/actions/fiesta/fiesta.actions';
-import { hasEntertainmentGuestAccess } from '@/lib/auth/entertainment-token';
-import { getEntertainmentStationConfig } from '@/lib/entertainment/station-config';
-import * as logger from '@/lib/logger';
+import { getFiestaById } from "@/app/actions/fiesta/fiesta.actions";
+import { hasEntertainmentGuestAccess } from "@/lib/auth/entertainment-token";
+import { getEntertainmentStationConfig } from "@/lib/entertainment/station-config";
+import { generateGeminiImage } from "@/lib/ai/gemini-image";
+import * as logger from "@/lib/logger";
 
 type FaceSwapCategoryId =
-  | 'showbiz'
-  | 'cinema'
-  | 'fantasy'
-  | 'corporate'
-  | 'fun';
+  | "showbiz"
+  | "cinema"
+  | "fantasy"
+  | "corporate"
+  | "fun";
 
 interface CategoryDefinition {
   id: FaceSwapCategoryId;
@@ -20,11 +20,11 @@ interface CategoryDefinition {
 }
 
 const FACESWAP_CATEGORIES: CategoryDefinition[] = [
-  { id: 'showbiz', label: 'Estrellas & Farándula', emoji: '🌟' },
-  { id: 'cinema', label: 'Cine & Acción', emoji: '🎬' },
-  { id: 'fantasy', label: 'Fantasía e Historia', emoji: '🏰' },
-  { id: 'corporate', label: 'Estilo de Vida & Pro', emoji: '👔' },
-  { id: 'fun', label: 'Divertidos & Niños', emoji: '🤪' },
+  { id: "showbiz", label: "Estrellas & Farándula", emoji: "🌟" },
+  { id: "cinema", label: "Cine & Acción", emoji: "🎬" },
+  { id: "fantasy", label: "Fantasía e Historia", emoji: "🏰" },
+  { id: "corporate", label: "Estilo de Vida & Pro", emoji: "👔" },
+  { id: "fun", label: "Divertidos & Niños", emoji: "🤪" },
 ];
 
 interface EspejoTemplateDefinition {
@@ -38,365 +38,294 @@ interface EspejoTemplateDefinition {
 const ESPEJO_TEMPLATES: Record<string, EspejoTemplateDefinition> = {
   // Estrellas & farandula
   kpop_stars: {
-    id: 'kpop_stars',
-    categoryId: 'showbiz',
-    label: 'K-Pop Star',
+    id: "kpop_stars",
+    categoryId: "showbiz",
+    label: "K-Pop Star",
     promptDescription:
-      'a famous K-pop music idol performing on a massive stage under colorful spotlights and flashing purple neon lasers, wearing a highly stylish modern streetwear outfit with chains, shiny makeup, dynamic concert crowd in background',
+      "a famous K-pop music idol performing on a massive stage under colorful spotlights and flashing purple neon lasers, wearing a highly stylish modern streetwear outfit with chains, shiny makeup, dynamic concert crowd in background",
   },
   rockstar: {
-    id: 'rockstar',
-    categoryId: 'showbiz',
-    label: 'Rock Star',
+    id: "rockstar",
+    categoryId: "showbiz",
+    label: "Rock Star",
     promptDescription:
-      'an electrifying rock star on stage, wearing a black studded leather jacket and distressed jeans, holding a vintage electric guitar, surrounded by smoke machines, warm backlighting, and a roaring concert audience',
+      "an electrifying rock star on stage, wearing a black studded leather jacket and distressed jeans, holding a vintage electric guitar, surrounded by smoke machines, warm backlighting, and a roaring concert audience",
   },
   pop_idol: {
-    id: 'pop_idol',
-    categoryId: 'showbiz',
-    label: 'Pop Icon',
+    id: "pop_idol",
+    categoryId: "showbiz",
+    label: "Pop Icon",
     promptDescription:
-      'a glamorous pop music icon dancing under glittering disco ball reflections, wearing a sparkling metallic silver outfit, holding a glowing wireless microphone, bokeh light circles in background',
+      "a glamorous pop music icon dancing under glittering disco ball reflections, wearing a sparkling metallic silver outfit, holding a glowing wireless microphone, bokeh light circles in background",
   },
   dj_premium: {
-    id: 'dj_premium',
-    categoryId: 'showbiz',
-    label: 'DJ Set Club',
+    id: "dj_premium",
+    categoryId: "showbiz",
+    label: "DJ Set Club",
     promptDescription:
-      'a professional electronic music DJ wearing cool headphones around the neck, standing behind a glowing high-tech Pioneer DJ deck and mixer setup in a premium nightclub with laser beams and dancing crowd in background',
+      "a professional electronic music DJ wearing cool headphones around the neck, standing behind a glowing high-tech Pioneer DJ deck and mixer setup in a premium nightclub with laser beams and dancing crowd in background",
   },
 
   // Cine & accion
   movie_poster: {
-    id: 'movie_poster',
-    categoryId: 'cinema',
-    label: 'Afiche de Cine',
+    id: "movie_poster",
+    categoryId: "cinema",
+    label: "Afiche de Cine",
     promptDescription:
-      'a heroic protagonist inside an epic action movie poster billboard, dramatic orange fire and blue sparks explosion in the background, debris flying, cinematic high contrast lighting, movie title text overlay simulated at the bottom',
+      "a heroic protagonist inside an epic action movie poster billboard, dramatic orange fire and blue sparks explosion in the background, debris flying, cinematic high contrast lighting, movie title text overlay simulated at the bottom",
   },
   superhero: {
-    id: 'superhero',
-    categoryId: 'cinema',
-    label: 'Superhéroe',
+    id: "superhero",
+    categoryId: "cinema",
+    label: "Superhéroe",
     promptDescription:
-      'a powerful superhero wearing a detailed high-tech metallic skintight suit with a glowing emblem on the chest, a long cape flowing dramatically in the wind, standing in a heroic power pose on a skyscraper rooftop overlooking a city skyline at sunset',
+      "a powerful superhero wearing a detailed high-tech metallic skintight suit with a glowing emblem on the chest, a long cape flowing dramatically in the wind, standing in a heroic power pose on a skyscraper rooftop overlooking a city skyline at sunset",
   },
   secret_agent: {
-    id: 'secret_agent',
-    categoryId: 'cinema',
-    label: 'Agente Secreto',
+    id: "secret_agent",
+    categoryId: "cinema",
+    label: "Agente Secreto",
     promptDescription:
-      'a sophisticated secret agent wearing a classic tailored black tuxedo or an elegant evening gown, standing in a high-tech modern glass building looking over a city at night, holding a prop, James Bond aesthetic',
+      "a sophisticated secret agent wearing a classic tailored black tuxedo or an elegant evening gown, standing in a high-tech modern glass building looking over a city at night, holding a prop, James Bond aesthetic",
   },
   cyberpunk_warrior: {
-    id: 'cyberpunk_warrior',
-    categoryId: 'cinema',
-    label: 'Guerrero Cyberpunk',
+    id: "cyberpunk_warrior",
+    categoryId: "cinema",
+    label: "Guerrero Cyberpunk",
     promptDescription:
-      'a futuristic cyberpunk mercenary with glowing blue cybernetic implants on the face and arms, wearing a technical high-collar jacket, standing on a rainy neo-tokyo street filled with neon signs and flying vehicles',
+      "a futuristic cyberpunk mercenary with glowing blue cybernetic implants on the face and arms, wearing a technical high-collar jacket, standing on a rainy neo-tokyo street filled with neon signs and flying vehicles",
   },
 
   // Fantasia e historia
   medieval_legends: {
-    id: 'medieval_legends',
-    categoryId: 'fantasy',
-    label: 'Caballero / Hada',
+    id: "medieval_legends",
+    categoryId: "fantasy",
+    label: "Caballero / Hada",
     promptDescription:
-      'a legendary medieval figure: either a brave knight in detailed shining silver armor holding a sword, or a magical fairy with iridescent wings, standing in a dreamy enchanted meadow next to an old stone castle',
+      "a legendary medieval figure: either a brave knight in detailed shining silver armor holding a sword, or a magical fairy with iridescent wings, standing in a dreamy enchanted meadow next to an old stone castle",
   },
   royalty: {
-    id: 'royalty',
-    categoryId: 'fantasy',
-    label: 'Regal / Realeza',
+    id: "royalty",
+    categoryId: "fantasy",
+    label: "Regal / Realeza",
     promptDescription:
-      'a grand royal king or queen wearing heavy red velvet robes trimmed with luxurious white fur, a magnificent golden crown adorned with rubies and emeralds, holding a royal scepter, sitting on a massive carved golden throne inside a grand castle hall',
+      "a grand royal king or queen wearing heavy red velvet robes trimmed with luxurious white fur, a magnificent golden crown adorned with rubies and emeralds, holding a royal scepter, sitting on a massive carved golden throne inside a grand castle hall",
   },
   gatsby_1920s: {
-    id: 'gatsby_1920s',
-    categoryId: 'fantasy',
-    label: 'Gran Gatsby 1920s',
+    id: "gatsby_1920s",
+    categoryId: "fantasy",
+    label: "Gran Gatsby 1920s",
     promptDescription:
-      'a glamorous guest at a 1920s Gatsby party, wearing a black tuxedo or a sparkling flapper dress with pearl necklaces and a feathered headband, holding a champagne glass, gold art deco background pattern with warm luxury lighting',
+      "a glamorous guest at a 1920s Gatsby party, wearing a black tuxedo or a sparkling flapper dress with pearl necklaces and a feathered headband, holding a champagne glass, gold art deco background pattern with warm luxury lighting",
   },
   pirate_captain: {
-    id: 'pirate_captain',
-    categoryId: 'fantasy',
-    label: 'Capitán Pirata',
+    id: "pirate_captain",
+    categoryId: "fantasy",
+    label: "Capitán Pirata",
     promptDescription:
-      'a pirate captain wearing a weathered leather tricorn hat, a long dramatic coat, standing at the wooden helm of a grand pirate ship with the ocean waves crashing around and a dark storm brewing in the background',
+      "a pirate captain wearing a weathered leather tricorn hat, a long dramatic coat, standing at the wooden helm of a grand pirate ship with the ocean waves crashing around and a dark storm brewing in the background",
   },
   oil_painting: {
-    id: 'oil_painting',
-    categoryId: 'fantasy',
-    label: 'Pintura al Óleo',
+    id: "oil_painting",
+    categoryId: "fantasy",
+    label: "Pintura al Óleo",
     promptDescription:
-      'a classical renaissance oil painting portrait, showing rich brush strokes, fine canvas texture, warm Rembrandt-style chiascuro lighting, rich classical clothing, making the person look like a masterpiece hanging in a museum',
+      "a classical renaissance oil painting portrait, showing rich brush strokes, fine canvas texture, warm Rembrandt-style chiascuro lighting, rich classical clothing, making the person look like a masterpiece hanging in a museum",
   },
 
   // Estilo de vida & pro
   space_commander: {
-    id: 'space_commander',
-    categoryId: 'corporate',
-    label: 'Astronauta',
+    id: "space_commander",
+    categoryId: "corporate",
+    label: "Astronauta",
     promptDescription:
-      'a space commander wearing a detailed white NASA spacesuit with patches, helmet visor open to reveal the face, floating in zero gravity inside a space station cockpit with planet Earth visible through the window behind them',
+      "a space commander wearing a detailed white NASA spacesuit with patches, helmet visor open to reveal the face, floating in zero gravity inside a space station cockpit with planet Earth visible through the window behind them",
   },
   master_chef: {
-    id: 'master_chef',
-    categoryId: 'corporate',
-    label: 'Master Chef',
+    id: "master_chef",
+    categoryId: "corporate",
+    label: "Master Chef",
     promptDescription:
-      'a professional gourmet master chef wearing a clean double-breasted white chef jacket and a tall white chef hat, standing in a premium modern stainless steel restaurant kitchen preparing a beautifully plated dish',
+      "a professional gourmet master chef wearing a clean double-breasted white chef jacket and a tall white chef hat, standing in a premium modern stainless steel restaurant kitchen preparing a beautifully plated dish",
   },
   linkedin_premium: {
-    id: 'linkedin_premium',
-    categoryId: 'corporate',
-    label: 'LinkedIn Premium',
+    id: "linkedin_premium",
+    categoryId: "corporate",
+    label: "LinkedIn Premium",
     promptDescription:
-      'a confident professional wearing a smart tailored blazer and crisp white shirt, standing in a modern sunlit corporate office building, warm professional corporate headshot photography',
+      "a confident professional wearing a smart tailored blazer and crisp white shirt, standing in a modern sunlit corporate office building, warm professional corporate headshot photography",
   },
   f1_driver: {
-    id: 'f1_driver',
-    categoryId: 'corporate',
-    label: 'Piloto de F1',
+    id: "f1_driver",
+    categoryId: "corporate",
+    label: "Piloto de F1",
     promptDescription:
-      'a professional racing car driver wearing a detailed red racing suit covered in sponsor patches, holding a helmet under one arm, standing in the pit lane of a race track with garage and F1 car blurred in background',
+      "a professional racing car driver wearing a detailed red racing suit covered in sponsor patches, holding a helmet under one arm, standing in the pit lane of a race track with garage and F1 car blurred in background",
   },
 
   // Divertidos & ninos
   tiny_pirate: {
-    id: 'tiny_pirate',
-    categoryId: 'fun',
-    label: 'Pequeño Pirata',
+    id: "tiny_pirate",
+    categoryId: "fun",
+    label: "Pequeño Pirata",
     promptDescription:
-      'a cute cartoon pirate character wearing an oversized floppy pirate hat with a friendly skull illustration, standing next to a wooden treasure chest filled with gold coins on a bright sunny tropical beach, fun friendly cartoon style',
+      "a cute cartoon pirate character wearing an oversized floppy pirate hat with a friendly skull illustration, standing next to a wooden treasure chest filled with gold coins on a bright sunny tropical beach, fun friendly cartoon style",
   },
   cartoon_3d: {
-    id: 'cartoon_3d',
-    categoryId: 'fun',
-    label: 'Avatar 3D Pixar',
+    id: "cartoon_3d",
+    categoryId: "fun",
+    label: "Avatar 3D Pixar",
     promptDescription:
-      'a highly expressive 3D cartoon character in the style of a modern animated movie, clean rendering, soft lighting, friendly features, vibrant colorful clothing, standing in a cheerful fantasy park background',
+      "a highly expressive 3D cartoon character in the style of a modern animated movie, clean rendering, soft lighting, friendly features, vibrant colorful clothing, standing in a cheerful fantasy park background",
   },
   classic_comic: {
-    id: 'classic_comic',
-    categoryId: 'fun',
-    label: 'Pop Art Comic',
+    id: "classic_comic",
+    categoryId: "fun",
+    label: "Pop Art Comic",
     promptDescription:
-      'a classic comic book illustration with bold black outlines, high contrast pop art colors (bright cyan, yellow, magenta), retro dot halftone pattern background, speech bubble next to the person with party sparkles',
+      "a classic comic book illustration with bold black outlines, high contrast pop art colors (bright cyan, yellow, magenta), retro dot halftone pattern background, speech bubble next to the person with party sparkles",
   },
   supermodel: {
-    id: 'supermodel',
-    categoryId: 'showbiz',
-    label: 'Supermodelo Pasarela',
+    id: "supermodel",
+    categoryId: "showbiz",
+    label: "Supermodelo Pasarela",
     promptDescription:
-      'a high-fashion supermodel walking down a premium fashion runway, flashing camera lights from photographers in the dark background, wearing an elegant designer outfit, haute couture aesthetic',
+      "a high-fashion supermodel walking down a premium fashion runway, flashing camera lights from photographers in the dark background, wearing an elegant designer outfit, haute couture aesthetic",
   },
   rock_legend: {
-    id: 'rock_legend',
-    categoryId: 'showbiz',
-    label: 'Leyenda del Rock',
+    id: "rock_legend",
+    categoryId: "showbiz",
+    label: "Leyenda del Rock",
     promptDescription:
-      'a legendary rock singer performing live on a huge stadium stage with dramatic red and orange spotlights, pyrotechnics fire erupting, holding a vintage microphone stand, massive cheering crowd in background',
+      "a legendary rock singer performing live on a huge stadium stage with dramatic red and orange spotlights, pyrotechnics fire erupting, holding a vintage microphone stand, massive cheering crowd in background",
   },
   steampunk_explorer: {
-    id: 'steampunk_explorer',
-    categoryId: 'cinema',
-    label: 'Viajero Steampunk',
+    id: "steampunk_explorer",
+    categoryId: "cinema",
+    label: "Viajero Steampunk",
     promptDescription:
-      'a steampunk explorer wearing brass goggles, a leather vest with gears, standing on the deck of a wooden flying airship amidst high altitude clouds and mechanical details, warm brass and copper tones',
+      "a steampunk explorer wearing brass goggles, a leather vest with gears, standing on the deck of a wooden flying airship amidst high altitude clouds and mechanical details, warm brass and copper tones",
   },
   anime_hero: {
-    id: 'anime_hero',
-    categoryId: 'cinema',
-    label: 'Héroe Anime',
+    id: "anime_hero",
+    categoryId: "cinema",
+    label: "Héroe Anime",
     promptDescription:
-      'a powerful 2D anime hero with spiky hair, wearing detailed combat robes, surrounded by an intense glowing blue energy aura, standing in a dynamic action pose in a fantasy valley landscape',
+      "a powerful 2D anime hero with spiky hair, wearing detailed combat robes, surrounded by an intense glowing blue energy aura, standing in a dynamic action pose in a fantasy valley landscape",
   },
   cyber_elf: {
-    id: 'cyber_elf',
-    categoryId: 'fantasy',
-    label: 'Elfo Cyberpunk',
+    id: "cyber_elf",
+    categoryId: "fantasy",
+    label: "Elfo Cyberpunk",
     promptDescription:
-      'a high-tech cyber elf with pointed ears, wearing glowing holographic garments, standing in a magical bioluminescent futuristic garden under neon-colored alien trees',
+      "a high-tech cyber elf with pointed ears, wearing glowing holographic garments, standing in a magical bioluminescent futuristic garden under neon-colored alien trees",
   },
   viking_warrior: {
-    id: 'viking_warrior',
-    categoryId: 'fantasy',
-    label: 'Guerrero Vikingo',
+    id: "viking_warrior",
+    categoryId: "fantasy",
+    label: "Guerrero Vikingo",
     promptDescription:
-      'a rugged viking warrior with braided hair, wearing fur-lined leather armor, standing on the deck of a longship under a spectacular green aurora borealis sky with ocean waves crashing',
+      "a rugged viking warrior with braided hair, wearing fur-lined leather armor, standing on the deck of a longship under a spectacular green aurora borealis sky with ocean waves crashing",
   },
   silicon_founder: {
-    id: 'silicon_founder',
-    categoryId: 'corporate',
-    label: 'Presentador Tech',
+    id: "silicon_founder",
+    categoryId: "corporate",
+    label: "Presentador Tech",
     promptDescription:
-      'a confident tech founder giving a keynote presentation on a modern stage, wearing a smart casual blazer and t-shirt, warm stage lighting, large presentation screen blurred in the background',
+      "a confident tech founder giving a keynote presentation on a modern stage, wearing a smart casual blazer and t-shirt, warm stage lighting, large presentation screen blurred in the background",
   },
   influencer_travel: {
-    id: 'influencer_travel',
-    categoryId: 'corporate',
-    label: 'Influencer Viajes',
+    id: "influencer_travel",
+    categoryId: "corporate",
+    label: "Influencer Viajes",
     promptDescription:
-      'a stylish travel blogger wearing fashionable sunglasses and summer outfit, standing on a luxury terrace in Santorini overlooking the deep blue Aegean sea at golden sunset',
+      "a stylish travel blogger wearing fashionable sunglasses and summer outfit, standing on a luxury terrace in Santorini overlooking the deep blue Aegean sea at golden sunset",
   },
   plastic_toy: {
-    id: 'plastic_toy',
-    categoryId: 'fun',
-    label: 'Muñeco de Acción',
+    id: "plastic_toy",
+    categoryId: "fun",
+    label: "Muñeco de Acción",
     promptDescription:
-      'a vintage plastic action figure toy inside an unopened retro collector box with colorful packaging and retro brand logo, plastic glossy texture, toy store display lighting',
+      "a vintage plastic action figure toy inside an unopened retro collector box with colorful packaging and retro brand logo, plastic glossy texture, toy store display lighting",
   },
   chibi_avatar: {
-    id: 'chibi_avatar',
-    categoryId: 'fun',
-    label: 'Avatar Chibi 3D',
+    id: "chibi_avatar",
+    categoryId: "fun",
+    label: "Avatar Chibi 3D",
     promptDescription:
-      'a cute 3D chibi character with oversized head and big expressive eyes, wearing pastel-colored clothes, standing in a dreamy wonderland filled with candy canes, giant lollipops, and cotton candy clouds',
+      "a cute 3D chibi character with oversized head and big expressive eyes, wearing pastel-colored clothes, standing in a dreamy wonderland filled with candy canes, giant lollipops, and cotton candy clouds",
   },
 };
 
 const MAX_IMAGE_SIZE = 10 * 1024 * 1024; // 10 MB
 const ESPEJO_AI_TIMEOUT_MS = 60_000;
-const ESPEJO_IMAGE_MODEL =
-  process.env.GEMINI_IMAGE_MODEL?.trim() || 'googleai/imagen3';
 
-async function ensureEspejoAccess(fiestaId: string, accessToken?: string): Promise<void> {
+async function ensureEspejoAccess(
+  fiestaId: string,
+  accessToken?: string,
+): Promise<void> {
   const authorized = await hasEntertainmentGuestAccess(
     fiestaId,
-    'espejoMagicoIA',
-    accessToken
+    "espejoMagicoIA",
+    accessToken,
   );
-  if (!authorized) throw new Error('Acceso de cabina Face Swap IA no autorizado.');
+  if (!authorized)
+    throw new Error("Acceso de cabina Face Swap IA no autorizado.");
   const fiesta = await getFiestaById(fiestaId);
-  if (!fiesta) throw new Error('Evento no encontrado.');
-  if (!getEntertainmentStationConfig(fiesta, 'espejoMagicoIA').enabled) {
-    throw new Error('La cabina Face Swap IA esta desactivada.');
-  }
-}
-
-async function generateEspejoImage(options: Parameters<typeof ai.generate>[0]): Promise<any> {
-  let timeout: ReturnType<typeof setTimeout> | undefined;
-  try {
-    return await Promise.race([
-      ai.generate(options),
-      new Promise<never>((_, reject) => {
-        timeout = setTimeout(
-          () => reject(new Error('La generación de imagen superó el tiempo máximo.')),
-          ESPEJO_AI_TIMEOUT_MS
-        );
-      }),
-    ]);
-  } finally {
-    if (timeout) clearTimeout(timeout);
+  if (!fiesta) throw new Error("Evento no encontrado.");
+  if (!getEntertainmentStationConfig(fiesta, "espejoMagicoIA").enabled) {
+    throw new Error("La cabina Face Swap IA esta desactivada.");
   }
 }
 
 async function fileToBase64(file: File): Promise<string> {
   const buffer = Buffer.from(await file.arrayBuffer());
-  return buffer.toString('base64');
+  return buffer.toString("base64");
 }
 
 function resolveContentType(file: File): string {
-  if (file.type && file.type.startsWith('image/')) return file.type;
-  const ext = file.name.split('.').pop()?.toLowerCase();
+  if (file.type && file.type.startsWith("image/")) return file.type;
+  const ext = file.name.split(".").pop()?.toLowerCase();
   switch (ext) {
-    case 'png':
-      return 'image/png';
-    case 'webp':
-      return 'image/webp';
-    case 'gif':
-      return 'image/gif';
+    case "png":
+      return "image/png";
+    case "webp":
+      return "image/webp";
+    case "gif":
+      return "image/gif";
     default:
-      return 'image/jpeg';
+      return "image/jpeg";
   }
 }
 
 async function validateAndExtractImage(
   file: File | null,
-  fieldName: string
+  fieldName: string,
 ): Promise<
   | { ok: true; base64: string; contentType: string }
   | { ok: false; error: string }
 > {
   if (!file || !(file instanceof File) || file.size === 0) {
-    return { ok: false, error: `No se recibió un archivo válido en "${fieldName}".` };
+    return {
+      ok: false,
+      error: `No se recibió un archivo válido en "${fieldName}".`,
+    };
   }
-  if (!file.type.startsWith('image/')) {
-    return { ok: false, error: `El archivo "${fieldName}" no es una imagen válida.` };
+  if (!file.type.startsWith("image/")) {
+    return {
+      ok: false,
+      error: `El archivo "${fieldName}" no es una imagen válida.`,
+    };
   }
   if (file.size > MAX_IMAGE_SIZE) {
-    return { ok: false, error: `La imagen "${fieldName}" supera el límite de 10 MB.` };
+    return {
+      ok: false,
+      error: `La imagen "${fieldName}" supera el límite de 10 MB.`,
+    };
   }
   const base64 = await fileToBase64(file);
   const contentType = resolveContentType(file);
   return { ok: true, base64, contentType };
-}
-
-function stripDataUri(dataUri: string): string | null {
-  const commaIndex = dataUri.indexOf(',');
-  return commaIndex !== -1 ? dataUri.substring(commaIndex + 1) : null;
-}
-
-function isLikelyBase64Image(value: string) {
-  return value.length > 500 && /^[A-Za-z0-9+/\n\r]+=*$/.test(value.trim());
-}
-
-function extractImageFromResult(result: any): string | null {
-  try {
-    const topMedia = typeof result.media === 'function' ? result.media() : result.media;
-    if (topMedia && typeof topMedia.url === 'string') {
-      if (topMedia.url.startsWith('data:')) {
-        return stripDataUri(topMedia.url);
-      }
-      if (isLikelyBase64Image(topMedia.url)) {
-        return topMedia.url;
-      }
-    }
-
-    const messageParts: any[] | undefined = result.message?.content;
-    if (Array.isArray(messageParts)) {
-      for (const part of messageParts) {
-        if (part.media?.url && typeof part.media.url === 'string') {
-          if (part.media.url.startsWith('data:')) {
-            return stripDataUri(part.media.url);
-          }
-          if (isLikelyBase64Image(part.media.url)) return part.media.url;
-        }
-      }
-    }
-
-    const candidates = result.candidates;
-    if (Array.isArray(candidates)) {
-      for (const candidate of candidates) {
-        const parts = candidate.message?.content ?? candidate.content ?? [];
-        if (Array.isArray(parts)) {
-          for (const part of parts) {
-            if (part.media?.url && typeof part.media.url === 'string') {
-              const url = part.media.url;
-              if (url.startsWith('data:')) return stripDataUri(url);
-              if (isLikelyBase64Image(url)) return url;
-            }
-            if (part.inlineData?.data && typeof part.inlineData.data === 'string') {
-              return part.inlineData.data;
-            }
-          }
-        }
-      }
-    }
-
-    const text = typeof result.text === 'function' ? result.text() : result.text;
-    if (
-      typeof text === 'string' &&
-      isLikelyBase64Image(text)
-    ) {
-      return text.trim();
-    }
-  } catch (e) {
-    logger.warn('[espejo-magico-ai] extractImageFromResult error:', e);
-  }
-  return null;
 }
 
 export interface FaceSwapResult {
@@ -413,43 +342,57 @@ export interface FaceSwapResult {
  * that enforces Dynamic Landmark Mapping (facial alignment, lighting match, shadow blending).
  */
 export async function applyEspejoFaceSwap(
-  formData: FormData
+  formData: FormData,
 ): Promise<FaceSwapResult> {
-  const fiestaId = formData.get('fiestaId') as string;
-  const accessToken = formData.get('accessToken') as string | null;
-  const templateId = formData.get('templateId') as string | null;
-  const sourceFile = formData.get('sourceFile') as File | null;
+  const fiestaId = formData.get("fiestaId") as string;
+  const accessToken = formData.get("accessToken") as string | null;
+  const templateId = formData.get("templateId") as string | null;
+  const sourceFile = formData.get("sourceFile") as File | null;
 
   if (!fiestaId) {
-    return { success: false, error: 'Falta el ID de fiesta.' };
+    return { success: false, error: "Falta el ID de fiesta." };
   }
-  if (formData.get('consentAccepted') !== 'true') {
-    return { success: false, error: 'Debes aceptar el procesamiento temporal con IA.' };
+  if (formData.get("consentAccepted") !== "true") {
+    return {
+      success: false,
+      error: "Debes aceptar el procesamiento temporal con IA.",
+    };
   }
 
   try {
     await ensureEspejoAccess(fiestaId, accessToken || undefined);
   } catch (error: any) {
-    return { success: false, error: error.message || 'Sesión no autorizada.' };
+    return { success: false, error: error.message || "Sesión no autorizada." };
   }
 
   const template = templateId ? ESPEJO_TEMPLATES[templateId] : null;
   if (!template) {
-    return { success: false, error: 'Debe seleccionar una plantilla de Face Swap IA válida.' };
+    return {
+      success: false,
+      error: "Debe seleccionar una plantilla de Face Swap IA válida.",
+    };
   }
 
-  const sourceExtraction = await validateAndExtractImage(sourceFile, 'sourceFile');
+  const sourceExtraction = await validateAndExtractImage(
+    sourceFile,
+    "sourceFile",
+  );
   if (!sourceExtraction.ok) {
     return { success: false, error: sourceExtraction.error };
   }
 
-  const { base64: sourceBase64, contentType: sourceContentType } = sourceExtraction;
-  logger.info(`[espejo-magico-ai] applyEspejoFaceSwap: template=${templateId}, fiesta=${fiestaId}`);
+  const { base64: sourceBase64, contentType: sourceContentType } =
+    sourceExtraction;
+  logger.info(
+    `[espejo-magico-ai] applyEspejoFaceSwap: template=${templateId}, fiesta=${fiestaId}`,
+  );
 
   try {
     const apiKey = process.env.GOOGLE_API_KEY || process.env.GEMINI_API_KEY;
     if (!apiKey) {
-      logger.warn('[espejo-magico-ai] No API key configured — returning original.');
+      logger.warn(
+        "[espejo-magico-ai] No API key configured — returning original.",
+      );
       return {
         success: true,
         imageBase64: sourceBase64,
@@ -457,45 +400,19 @@ export async function applyEspejoFaceSwap(
       };
     }
 
-    // Step 1: Analyze face using Gemini 1.5 Flash
-    let faceDesc = "a person";
-    try {
-      const faceAnalyzeResult = await ai.generate({
-        model: 'googleai/gemini-1.5-flash',
-        prompt: [
-          {
-            media: {
-              contentType: sourceContentType,
-              url: `data:${sourceContentType};base64,${sourceBase64}`,
-            },
-          },
-          {
-            text: 'Analyze the person\'s face in this photo. Describe their facial features (apparent gender, hair color and style, skin tone, facial structure, eye shape, and facial expression) in detail but concisely in English. Focus only on the head and face. Do not describe clothing, body, or background. Output only the description.',
-          }
-        ]
-      });
-      if (faceAnalyzeResult.text) {
-        faceDesc = faceAnalyzeResult.text.trim();
-      }
-    } catch (err) {
-      logger.warn('[espejo-magico-ai] Face analysis failed, using generic: ', err);
-    }
-
-    // Step 2: Generate the avatar using Imagen 3
-    const imagePrompt = [
-      `A high-quality, professional photograph of ${template.promptDescription}.`,
-      `The character must have the face of ${faceDesc}.`,
-      `Ensure the facial features look natural, integrated into the scene lighting, photorealistic, high resolution, no text, no watermarks, no distorted features.`
-    ].join(' ');
-
-    const response = await generateEspejoImage({
-      model: ESPEJO_IMAGE_MODEL,
-      prompt: imagePrompt,
+    const transformedBase64 = await generateGeminiImage({
+      images: [{ base64: sourceBase64, contentType: sourceContentType }],
+      prompt: [
+        "Use the provided event photo as the identity reference.",
+        `Create one professional photorealistic portrait of ${template.promptDescription}.`,
+        "Preserve the person's exact recognizable face, skin tone, expression, and facial proportions from the reference image.",
+        "Blend the face naturally into the new character, matching angle, perspective, lighting, and shadows.",
+        "Do not add text, logos, watermarks, borders, extra people, or distorted features.",
+      ].join("\n"),
+      timeoutMs: ESPEJO_AI_TIMEOUT_MS,
     });
-
-    const transformedBase64 = extractImageFromResult(response);
     if (!transformedBase64) {
-      throw new Error('El modelo de IA no devolvió una imagen válida.');
+      throw new Error("El modelo de IA no devolvió una imagen válida.");
     }
 
     return {
@@ -504,10 +421,12 @@ export async function applyEspejoFaceSwap(
       faceSwapApplied: true,
     };
   } catch (error: any) {
-    logger.error('[espejo-magico-ai] error during applyEspejoFaceSwap:', error);
+    logger.error("[espejo-magico-ai] error during applyEspejoFaceSwap:", error);
     return {
       success: false,
-      error: error.message || 'Error al procesar el Face Swap con Inteligencia Artificial.',
+      error:
+        error.message ||
+        "Error al procesar el Face Swap con Inteligencia Artificial.",
     };
   }
 }

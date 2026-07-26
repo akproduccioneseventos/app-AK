@@ -1,25 +1,22 @@
-'use client';
-import Image from 'next/image';
+"use client";
+
+import Image from "next/image";
+import Link from "next/link";
 import {
-  Building2,  Calendar,  ChevronRight,  Crown,  Heart,  MessageSquare,  Sparkles,  type LucideIcon,
-}
- from 'lucide-react';
-import {
- cn 
-}
- from '@/lib/utils';
-import {
- motion 
-}
- from 'framer-motion';
-import {
- AK_WHATSAPP_NUMBER 
-}
- from '@/lib/public-contact';
-import {
- canUseNextImage 
-}
- from '@/lib/next-image-url';
+  ArrowRight,
+  Building2,
+  Check,
+  Crown,
+  Heart,
+  MessageCircle,
+  Sparkles,
+  type LucideIcon,
+} from "lucide-react";
+import { motion, useReducedMotion } from "framer-motion";
+import { PUBLIC_EVENT_TYPE_IMAGES } from "@/components/landing/event-type-images";
+import { canUseNextImage } from "@/lib/next-image-url";
+import { AK_WHATSAPP_NUMBER } from "@/lib/public-contact";
+
 export interface ServiceItem {
   id: string;
   title: string;
@@ -32,118 +29,255 @@ export interface ServiceItem {
   emoji: string;
   whatsappMessage?: string;
   icon?: LucideIcon;
+  badge?: string;
 }
+
 const PARTY_TYPES: Array<{
- title: string;
- icon: LucideIcon;
- desc: string 
-}
-> = [  {
- title: 'Bodas', icon: Heart, desc: 'Producción integral de ceremonias y fiestas.' 
-}
-,  {
- title: '15 Años', icon: Crown, desc: 'Pistas LED, cabinas interactivas y temáticas exclusivas.' 
-}
-,  {
- title: 'Cumpleaños & Sociales', icon: Sparkles, desc: 'Aniversarios y festejos familiares únicos.' 
-}
-,  {
- title: 'Corporativos', icon: Building2, desc: 'Lanzamientos, cenas empresariales y conferencias.' 
-}
-,];
-const DEFAULT_SERVICES: ServiceItem[] = [  {
-    id: 'bodas',    title: 'Bodas',    subtitle: 'El día más especial',    description: 'Tranquilidad total en el día más importante, con un diseño floral y gastronómico coordinado.',    features: ['Gastronomía premium', 'Decoración y flores exclusivas', 'Coordinación integral del día'],    imageUrl: '/media/catalogo-servicios/boda_persuasiva.png',    imageHint: 'wedding ceremony',    accentColor: 'bg-red-600',    emoji: 'AK',    whatsappMessage: '¡Hola AK Producciones! Me gustaría cotizar el paquete de Boda.',    icon: Heart,  
-}
-,  {
-    id: 'xv-anos',    title: 'XV Años',    subtitle: 'Una noche de ensueño',    description: 'Hacemos realidad la fiesta que soñaste con shows de luces interactivos y la tecnología que divierte a tus amigos.',    features: ['Pistas LED interactivas', 'Cabinas y recuerdos en vivo', 'Ambientación temática a medida'],    imageUrl: '/media/catalogo-servicios/quinceanera_persuasiva.png',    imageHint: 'quinceañera party',    accentColor: 'bg-emerald-600',    emoji: 'XV',    whatsappMessage: '¡Hola AK Producciones! Me gustaría cotizar el paquete de XV Años.',    icon: Crown,  
-}
-,  {
-    id: 'cumpleanos',    title: 'Cumpleaños & Sociales',    subtitle: 'Celebraciones sin límites',    description: 'El festejo familiar perfecto con la mejor discoteca, barra de tragos y ambientación a tu medida.',    features: ['Discoteca y luces pro', 'Animación y barras exclusivas', 'Organización de tiempos y sorpresas'],    imageUrl: '/media/catalogo-servicios/social_persuasivo.png',    imageHint: 'birthday party lights',    accentColor: 'bg-red-600',    emoji: 'AK',    whatsappMessage: '¡Hola AK Producciones! Me gustaría cotizar un cumpleaños.',    icon: Sparkles,  
-}
-,  {
-    id: 'corporativos',    title: 'Eventos Corporativos',    subtitle: 'Imagen corporativa premium',    description: 'La imagen de tu empresa con logística de vanguardia, sonido profesional y pantallas de alta definición.',    features: ['Pantallas LED gigantes', 'Sonido y microfonía de fidelidad', 'Recepción y livings premium'],    imageUrl: '/media/catalogo-servicios/corporativo_persuasivo.png',    imageHint: 'corporate event',    accentColor: 'bg-slate-800',    emoji: 'AK',    whatsappMessage: '¡Hola AK Producciones! Me gustaría cotizar un evento corporativo.',    icon: Building2,  
-}
-,];
+  title: string;
+  description: string;
+  imageUrl: string;
+  href: string;
+  icon: LucideIcon;
+}> = [
+  {
+    title: "Bodas",
+    description: "Ceremonia, cena y fiesta coordinadas por un mismo equipo.",
+    imageUrl: PUBLIC_EVENT_TYPE_IMAGES.boda,
+    href: "/simulador-de-presupuesto?tipo=boda",
+    icon: Heart,
+  },
+  {
+    title: "Fiestas de 15",
+    description: "Una noche personal, con pista, recuerdos y energía para celebrar.",
+    imageUrl: PUBLIC_EVENT_TYPE_IMAGES.xv,
+    href: "/simulador-de-presupuesto?tipo=15-anos",
+    icon: Crown,
+  },
+  {
+    title: "Cumpleaños y sociales",
+    description: "Gastronomía, barra y música pensadas según cada grupo.",
+    imageUrl: PUBLIC_EVENT_TYPE_IMAGES.social,
+    href: "/simulador-de-presupuesto?tipo=social",
+    icon: Sparkles,
+  },
+  {
+    title: "Eventos empresariales",
+    description: "Recepciones y encuentros con puesta técnica y operativa.",
+    imageUrl: PUBLIC_EVENT_TYPE_IMAGES.corporativo,
+    href: "/simulador-de-presupuesto?tipo=corporativo",
+    icon: Building2,
+  },
+];
+
+const DEFAULT_SERVICES: ServiceItem[] = [
+  {
+    id: "bodas",
+    title: "Bodas Inolvidables",
+    subtitle: "Producción integral",
+    description: "Una propuesta unificada para que la pareja no tenga que coordinar proveedores por separado.",
+    features: ["Coordinación del evento", "Catering y barra", "Ambientación, música y luces"],
+    imageUrl: PUBLIC_EVENT_TYPE_IMAGES.boda,
+    imageHint: "Boda AK Producciones",
+    accentColor: "",
+    emoji: "AK",
+    whatsappMessage: "Hola AK Producciones, quisiera consultar por una boda.",
+    icon: Heart,
+  },
+  {
+    id: "xv-anos",
+    title: "15 Años de Vanguardia",
+    subtitle: "Una experiencia completa",
+    description: "Una producción con identidad propia, tecnología y una coordinación que cuida cada momento.",
+    features: ["Pista y luces LED", "Muro social y recuerdos", "Catering y coordinación"],
+    imageUrl: PUBLIC_EVENT_TYPE_IMAGES.xv,
+    imageHint: "Fiesta de quince años AK Producciones",
+    accentColor: "",
+    emoji: "XV",
+    whatsappMessage: "Hola AK Producciones, quisiera consultar por una fiesta de 15 años.",
+    icon: Crown,
+  },
+  {
+    id: "cumpleanos",
+    title: "Cumpleaños y Aniversarios",
+    subtitle: "A medida",
+    description: "Una celebración con la escala correcta: comida, barra, música y el equipo necesario para disfrutarla.",
+    features: ["Menú según invitados", "Barra y discoteca", "Montaje y logística"],
+    imageUrl: PUBLIC_EVENT_TYPE_IMAGES.social,
+    imageHint: "Evento social AK Producciones",
+    accentColor: "",
+    emoji: "AK",
+    whatsappMessage: "Hola AK Producciones, quisiera consultar por un evento social.",
+    icon: Sparkles,
+  },
+];
+
 interface ServicesSectionProps {
   whatsappNumber?: string;
   services?: ServiceItem[];
 }
-export 
-function ServicesSection({
- whatsappNumber = AK_WHATSAPP_NUMBER, services 
+
+const SERVICE_ALREADY_REPRESENTED_PATTERN =
+  /\b(bodas?|casamientos?|xv|15 a[nñ]os|cumplea[nñ]os|social(?:es)?|corporativ\w*|empresarial\w*|club uruguay|tecnolog[ií]a)\b/i;
+
+export function isAdditionalLandingService(service: Pick<ServiceItem, "title">): boolean {
+  return !SERVICE_ALREADY_REPRESENTED_PATTERN.test(service.title);
 }
-: ServicesSectionProps) {
-const displayServices = services && services.length > 0 ? services : DEFAULT_SERVICES;
-const containerVariants = {
-    hidden: {
+
+function ServiceImage({ service }: { service: ServiceItem }) {
+  if (canUseNextImage(service.imageUrl)) {
+    return (
+      <Image
+        src={service.imageUrl}
+        alt={service.imageHint || service.title}
+        fill
+        sizes="(max-width: 768px) 100vw, 33vw"
+        className="object-cover transition-transform duration-700 motion-safe:group-hover:scale-[1.035]"
+      />
+    );
+  }
+
+  return (
+    // eslint-disable-next-line @next/next/no-img-element
+    <img
+      src={service.imageUrl}
+      alt={service.imageHint || service.title}
+      className="h-full w-full object-cover transition-transform duration-700 motion-safe:group-hover:scale-[1.035]"
+    />
+  );
 }
-,    visible: {
-      transition: {
-        staggerChildren: 0.05,      
+
+export function ServicesSection({
+  whatsappNumber = AK_WHATSAPP_NUMBER,
+  services,
+}: ServicesSectionProps) {
+  const displayServices = services && services.length > 0 ? services : DEFAULT_SERVICES;
+  const additionalServices = displayServices.filter(isAdditionalLandingService);
+  const reduceMotion = useReducedMotion();
+  const reveal = reduceMotion
+    ? {}
+    : {
+        initial: { opacity: 0, y: 20 },
+        whileInView: { opacity: 1, y: 0 },
+        viewport: { once: true, amount: 0.16 },
+        transition: { duration: 0.48, ease: [0.22, 1, 0.36, 1] as const },
+      };
+
+  return (
+    <section id="landing-services" className="border-y border-neutral-200 bg-white py-20 text-slate-950 sm:py-28">
+      <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
+        <motion.div {...reveal} className="grid gap-8 border-b border-neutral-200 pb-12 lg:grid-cols-[1.2fr_0.8fr] lg:items-end">
+          <div>
+            <p className="text-sm font-bold text-red-700">Producción integral AK</p>
+            <h2 className="mt-3 max-w-3xl font-headline text-4xl font-black leading-tight text-slate-950 sm:text-5xl">
+              Una sola conversación. Todos los servicios que tu fiesta necesita.
+            </h2>
+          </div>
+          <p className="max-w-xl text-base leading-relaxed text-slate-600 sm:text-lg">
+            Reunimos catering, barra, ambientación, mobiliario, discoteca, tecnología y coordinación. Cada propuesta se adapta a tu fecha, estilo e invitados.
+          </p>
+        </motion.div>
+
+        <motion.div {...reveal} className="mt-10 grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
+          {PARTY_TYPES.map((party) => {
+            const Icon = party.icon;
+            return (
+              <Link
+                key={party.title}
+                href={party.href}
+                className="group overflow-hidden border border-neutral-200 bg-neutral-50 shadow-sm transition-shadow hover:shadow-xl"
+              >
+                <div className="relative aspect-[4/3] overflow-hidden bg-neutral-200">
+                  <Image
+                    src={party.imageUrl}
+                    alt={`${party.title} producida por AK Producciones`}
+                    fill
+                    sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 25vw"
+                    className="object-cover transition-transform duration-700 motion-safe:group-hover:scale-[1.035]"
+                  />
+                </div>
+                <div className="p-5">
+                  <Icon className="h-5 w-5 text-red-700" aria-hidden="true" />
+                  <h3 className="mt-3 font-headline text-xl font-black text-slate-950">{party.title}</h3>
+                  <p className="mt-2 text-sm leading-relaxed text-slate-600">{party.description}</p>
+                  <span className="mt-4 inline-flex items-center gap-2 text-sm font-bold text-red-700">
+                    Ver propuesta <ArrowRight className="h-4 w-4" aria-hidden="true" />
+                  </span>
+                </div>
+              </Link>
+            );
+          })}
+        </motion.div>
+
+        {additionalServices.length > 0 && (
+          <>
+        <div className="mt-20 flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
+          <div>
+            <p className="text-sm font-bold text-red-700">Servicios adicionales</p>
+            <h2 className="mt-2 font-headline text-3xl font-black text-slate-950 sm:text-4xl">Sumá una experiencia especial.</h2>
+          </div>
+          <Link href="/simulador-de-presupuesto" className="inline-flex min-h-11 items-center gap-2 text-sm font-bold text-slate-700 transition-colors hover:text-red-700">
+            Cotizar mi fiesta <ArrowRight className="h-4 w-4" aria-hidden="true" />
+          </Link>
+        </div>
+
+        <motion.div
+          initial={reduceMotion ? false : "hidden"}
+          whileInView={reduceMotion ? undefined : "visible"}
+          viewport={{ once: true, margin: "-60px" }}
+          variants={{ hidden: {}, visible: { transition: { staggerChildren: 0.08 } } }}
+          className="mt-8 grid gap-5 md:grid-cols-2 lg:grid-cols-3"
+        >
+          {additionalServices.map((service) => {
+            const Icon = service.icon;
+            const waHref = `https://wa.me/${whatsappNumber}?text=${encodeURIComponent(
+              service.whatsappMessage || `Hola AK Producciones, quisiera consultar por ${service.title}.`,
+            )}`;
+            return (
+              <motion.article
+                key={service.id}
+                variants={reduceMotion ? undefined : { hidden: { opacity: 0, y: 18 }, visible: { opacity: 1, y: 0, transition: { duration: 0.45 } } }}
+                className="group flex h-full flex-col overflow-hidden border border-neutral-200 bg-white shadow-sm transition-shadow hover:shadow-xl"
+              >
+                <div className="relative aspect-[16/10] overflow-hidden bg-neutral-200">
+                  <ServiceImage service={service} />
+                </div>
+                <div className="flex flex-1 flex-col p-6">
+                  <div className="flex items-start justify-between gap-4">
+                    <div>
+                      <p className="text-sm font-bold text-red-700">{service.subtitle}</p>
+                      <h3 className="mt-1 font-headline text-2xl font-black text-slate-950">{service.title}</h3>
+                    </div>
+                    {Icon && <Icon className="mt-1 h-5 w-5 shrink-0 text-slate-500" aria-hidden="true" />}
+                  </div>
+                  <p className="mt-4 text-sm leading-relaxed text-slate-600">{service.description}</p>
+                  <div className="mt-6 border-t border-neutral-200 pt-4">
+                    <p className="text-xs font-bold text-slate-700">Incluye</p>
+                    <ul className="mt-3 space-y-2 text-sm text-slate-600">
+                      {service.features.slice(0, 3).map((feature) => (
+                        <li key={feature} className="flex gap-2">
+                          <Check className="mt-0.5 h-4 w-4 shrink-0 text-red-700" aria-hidden="true" />
+                          {feature}
+                        </li>
+                      ))}
+                    </ul>
+                  </div>
+                  <a
+                    href={waHref}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="mt-7 inline-flex min-h-11 items-center justify-center gap-2 border border-slate-300 px-4 py-2.5 text-sm font-bold text-slate-800 transition-colors hover:border-red-700 hover:text-red-700"
+                  >
+                    <MessageCircle className="h-4 w-4" aria-hidden="true" />
+                    Consultar esta propuesta
+                  </a>
+                </div>
+              </motion.article>
+            );
+          })}
+        </motion.div>
+          </>
+        )}
+      </div>
+    </section>
+  );
 }
-,    
-}
-,  
-}
-;
-const cardVariants = {
-    hidden: {
- opacity: 0, y: 15 
-}
-,    visible: {
- opacity: 1, y: 0, transition: {
- duration: 0.4, ease: 'easeOut' 
-}
-}
-,  
-}
-;
-return (    <section id="servicios" className="relative overflow-hidden bg-zinc-950 py-24 text-white border-y border-white/5">      {
-/* Background gradients */
-}
-      <div className="absolute top-0 left-1/4 h-96 w-96 rounded-full bg-red-500/10 blur-[128px]" />      <div className="absolute bottom-0 right-1/4 h-96 w-96 rounded-full bg-fuchsia-500/10 blur-[128px]" />      <div className="relative z-10 mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">        <div className="mb-16 max-w-3xl">          <span className="mb-4 inline-flex items-center gap-2 rounded-xl border border-white/10 bg-white/5 px-4 py-2 text-xs font-black uppercase tracking-widest text-red-400 backdrop-blur">            <Sparkles className="h-3.5 w-3.5 text-red-500" />            Todo en un solo lugar          </span>          <h2 className="font-headline text-4xl font-black leading-tight text-white sm:text-5xl md:text-6xl">            Producción integral para fiestas bien organizadas          </h2>          <p className="mt-5 max-w-2xl text-lg leading-relaxed text-zinc-400 font-medium">            Coordinamos comida, decoración, luces, fotos y logística con un equipo único. El cliente ve una propuesta clara y AK controla cada detalle.          </p>        </div>        <div className="mb-20">          <div className="mb-8 flex items-center gap-3">            <div className="flex h-11 w-11 items-center justify-center rounded-xl bg-red-500/10 text-red-400 border border-red-500/20">              <Calendar className="h-6 w-6" />            </div>            <div>              <h3 className="font-headline text-2xl font-black text-white">Celebraciones que producimos</h3>              <p className="mt-1 text-sm font-medium text-zinc-500">Cada tipo de evento conserva su estética, tiempos y prioridades.</p>            </div>          </div>          <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">            {
-PARTY_TYPES.map((party) => {
-const Icon = party.icon;
-return (                <div                  key={
-party.title
-}
-                  className="rounded-2xl border border-white/5 bg-white/[0.02] backdrop-blur-md p-5 transition-all duration-300 hover:-translate-y-1 hover:border-white/10 hover:bg-white/[0.04]"                >                  <div className="mb-4 flex h-11 w-11 items-center justify-center rounded-xl border border-white/10 bg-white/5 text-red-400">                    <Icon className="h-5 w-5" />                  </div>                  <h4 className="font-headline text-lg font-black text-white">{
-party.title
-}
-</h4>                  <p className="mt-2 text-sm font-medium leading-relaxed text-zinc-400">{
-party.desc
-}
-</p>                </div>              );
-}
-)
-}
-          </div>        </div>        <div>          <div className="mb-10">            <h3 className="font-headline text-2xl font-black text-white">              Servicios principales            </h3>            <p className="mt-1 text-sm font-medium text-zinc-500">              La propuesta muestra beneficios concretos y deja un camino directo para consultar por WhatsApp.            </p>          </div>          <motion.div            variants={
-containerVariants
-}
-            initial="hidden"            whileInView="visible"            viewport={
-{
- once: true, margin: '-100px' 
-}
-}
-            className="grid gap-6 md:grid-cols-2 lg:grid-cols-3"          >            {
-displayServices.map((service) => {
-const waHref = `https://wa.me/${whatsappNumber}?text=${encodeURIComponent(                service.whatsappMessage || `¡Hola AK Producciones! Me gustaría consultar por el servicio de ${
-service.title
-}
- para mi evento.`              )}`;
-const Icon = service.icon;
-return (                <motion.article                  key={
-service.id
-}
-                  variants={
-cardVariants
-}
-                  className="group flex flex-col justify-between overflow-hidden rounded-2xl border border-white/5 bg-white/[0.02] backdrop-blur-md shadow-sm transition-all duration-300 hover:-translate-y-1 hover:border-white/15 hover:bg-white/[0.03] hover:shadow-xl hover:shadow-red-500/[0.02]"                >                  <div>                    <div className="relative aspect-[4/3] w-full overflow-hidden bg-zinc-900">                      {
-canUseNextImage(service.imageUrl) ? (                        <Image                          src={
-service.imageUrl
-}
-                          alt={
-service.title
-}
-                          fill                          className="object-cover transition-transform duration-500 group-hover:scale-[1.03]"                          sizes="(max-width: 768px) 100vw, 30vw"                        />                      ) : (                        
-/* eslint-disable-next-line @next/next/no-img-element -- User-managed service media may use an unconfigured host. */                        <img                          src={service.imageUrl}                          alt={service.title}                          className="h-full w-full object-cover transition-transform duration-500 group-hover:scale-[1.03]"                        />                      )}                      <div className="absolute inset-0 bg-gradient-to-t from-zinc-950 via-transparent to-transparent" />                      <div className="absolute left-4 top-4 flex h-11 w-11 items-center justify-center rounded-xl border border-white/10 bg-zinc-950/80 text-sm font-black text-white shadow-sm backdrop-blur">                        {Icon ? <Icon className="h-5 w-5 text-red-400" /> : service.emoji}                      </div>                    </div>                    <div className="space-y-4 p-6 text-left">                      <div>                        <p className="text-xs font-black uppercase tracking-widest text-red-400">{service.subtitle}</p>                        <h4 className="mt-2 font-headline text-xl font-black text-white">                          {service.title}                        </h4>                      </div>                      <p className="text-sm font-medium leading-relaxed text-zinc-400">                        {service.description}                      </p>                      <ul className="space-y-2 pt-1">                        {service.features.map((feat) => (                          <li key={feat} className="flex items-start gap-2 text-sm font-medium text-zinc-300">                            <span className="mt-2 h-1.5 w-1.5 shrink-0 rounded-full bg-red-500" />                            <span>{feat}</span>                          </li>                        ))}                      </ul>                    </div>                  </div>                  <div className="p-6 pt-0">                    <a                      href={waHref}                      target="_blank"                      rel="noopener noreferrer"                      className={cn(                        'mt-5 flex w-full items-center justify-center gap-2 rounded-xl px-4 py-4',                        'border border-white/10 bg-white/5 text-xs font-black uppercase tracking-widest text-white backdrop-blur-md',                        'shadow-sm transition-all duration-300 hover:border-red-500 hover:bg-red-600 hover:scale-[1.02] active:scale-[0.98]'                      )}                    >                      <MessageSquare className="h-4 w-4 shrink-0" />                      Consultar servicio                      <ChevronRight className="h-3.5 w-3.5 text-zinc-400 group-hover:text-white" />                    </a>                  </div>                </motion.article>              );            })}          </motion.div>        </div>      </div>    </section>  );}

@@ -1,23 +1,100 @@
-'use client';
-import React from 'react';
-import Link from 'next/link';
-import {
- ArrowRight, BookOpen 
+"use client";
+
+import Image from "next/image";
+import Link from "next/link";
+import { ArrowRight, BookOpen } from "lucide-react";
+import { motion } from "framer-motion";
+import { blogPosts } from "@/data/blog-posts";
+import { getBlogIcon } from "@/lib/blog-icons";
+import { getBlogCategoryLabel, getBlogPostImage, getBlogPostImageAlt } from "@/lib/blog-display";
+import type { BlogPost } from "@/types/blog";
+
+interface BlogSectionProps {
+  posts?: BlogPost[];
 }
- from 'lucide-react';
-import * as Lucide from 'lucide-react';
-import {
- motion 
+
+export function BlogSection({ posts }: BlogSectionProps) {
+  const postsToShow = (posts?.length ? posts : blogPosts).slice(0, 3);
+  const containerVariants = {
+    hidden: {},
+    visible: { transition: { staggerChildren: 0.1 } },
+  };
+  const cardVariants = {
+    hidden: { opacity: 0, y: 20 },
+    visible: { opacity: 1, y: 0, transition: { duration: 0.5, ease: "easeOut" } },
+  };
+
+  return (
+    <section id="blog" className="overflow-hidden border-y border-slate-200 bg-white py-24 text-slate-950">
+      <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
+        <div className="mb-14 flex flex-col justify-between gap-6 md:flex-row md:items-end">
+          <div className="max-w-2xl">
+            <span className="mb-4 inline-flex items-center gap-2 rounded-md border border-red-100 bg-red-50 px-3 py-1 text-xs font-black uppercase tracking-widest text-red-700">
+              <BookOpen className="h-3.5 w-3.5" />
+              Consejos AK
+            </span>
+            <h2 className="font-headline text-4xl font-black leading-tight text-slate-950 sm:text-5xl">
+              Contenido para planificar tu evento sin estrés
+            </h2>
+            <p className="mt-4 text-lg leading-relaxed text-slate-600">
+              Guías simples sobre presupuesto, comida, XV años, bodas y listas de organización.
+            </p>
+          </div>
+          <Link
+            href="/public/blog"
+            className="inline-flex shrink-0 items-center justify-center gap-2 rounded-md border border-slate-300 bg-white px-6 py-3.5 text-xs font-black uppercase tracking-widest text-slate-950 transition-all hover:scale-[1.02] hover:border-slate-400 hover:bg-slate-50 active:scale-95"
+          >
+            Ver todos los artículos
+            <ArrowRight className="h-4 w-4 text-red-700" />
+          </Link>
+        </div>
+
+        <motion.div
+          variants={containerVariants}
+          initial="hidden"
+          whileInView="visible"
+          viewport={{ once: true, margin: "-100px" }}
+          className="grid gap-8 md:grid-cols-3"
+        >
+          {postsToShow.map((post) => {
+            const Icon = getBlogIcon(post.icon);
+            return (
+              <motion.div key={post.slug} variants={cardVariants} className="h-full">
+                <Link
+                  href={`/public/blog/${post.slug}`}
+                  className="group flex h-full flex-col overflow-hidden rounded-lg border border-slate-200 bg-white shadow-sm transition-all duration-300 hover:-translate-y-1 hover:border-slate-300 hover:shadow-xl"
+                >
+                  <div className="relative aspect-[16/10] overflow-hidden bg-slate-100">
+                    <Image
+                      src={getBlogPostImage(post)}
+                      alt={getBlogPostImageAlt(post)}
+                      fill
+                      className="object-cover transition-transform duration-500 group-hover:scale-[1.03]"
+                      sizes="(max-width: 768px) 100vw, 33vw"
+                    />
+                  </div>
+                  <div className="flex flex-1 flex-col justify-between space-y-6 p-7">
+                    <div>
+                      <span className="flex items-center gap-2 text-[10px] font-black uppercase tracking-[0.2em] text-red-700">
+                        <Icon className="h-3.5 w-3.5" />
+                        {getBlogCategoryLabel(post.category)} - {post.readTime}
+                      </span>
+                      <h3 className="mt-3 text-xl font-black leading-tight text-slate-950 transition-colors duration-200 group-hover:text-red-700">
+                        {post.title}
+                      </h3>
+                      <p className="mt-3 line-clamp-3 text-sm leading-relaxed text-slate-600">{post.excerpt}</p>
+                    </div>
+                    <div className="mt-8 flex items-center gap-2 border-t border-slate-100 pt-4 text-xs font-black uppercase tracking-wider text-red-700 transition-colors group-hover:text-slate-950">
+                      <span>Leer artículo</span>
+                      <ArrowRight className="h-3.5 w-3.5 transition-transform duration-300 group-hover:translate-x-1" />
+                    </div>
+                  </div>
+                </Link>
+              </motion.div>
+            );
+          })}
+        </motion.div>
+      </div>
+    </section>
+  );
 }
- from 'framer-motion';
-import {
- blogPosts 
-}
- from '@/data/blog-posts';
-function getIconComponent(name: string) {
-const IconComp = (Lucide as any)[name];
-return IconComp || Lucide.BookOpen;
-}
-export 
-function BlogSection() {
-/* Show the latest 3 blog posts */  const postsToShow = blogPosts.slice(0, 3);  const containerVariants = {    hidden: {},    visible: {      transition: {        staggerChildren: 0.1,      },    },  };  const cardVariants = {    hidden: { opacity: 0, y: 20 },    visible: { opacity: 1, y: 0, transition: { duration: 0.5, ease: 'easeOut' } },  };  return (    <section id="blog" className="py-24 bg-zinc-950 overflow-hidden text-white border-y border-white/5">      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">        <div className="flex flex-col md:flex-row md:items-end justify-between mb-14 gap-6">          <div className="max-w-2xl">            <span className="inline-flex items-center gap-2 px-3 py-1 rounded-xl bg-white/5 border border-white/10 text-xs font-black uppercase tracking-widest text-red-400 mb-4">              <BookOpen className="w-3.5 h-3.5" />              Consejos AK            </span>            <h2 className="font-headline text-4xl sm:text-5xl font-black text-white leading-tight">              Contenido para planificar tu evento sin estrés            </h2>            <p className="text-zinc-400 text-lg mt-4 leading-relaxed">              Leé guías simples redactadas por nuestros coordinadores sobre presupuesto, comida, XV años, bodas y checklists de organización.            </p>          </div>          <Link            href="/public/blog"            className="inline-flex items-center justify-center gap-2 rounded-2xl bg-white/5 hover:bg-white/10 border border-white/10 hover:border-white/20 px-6 py-3.5 text-xs font-black uppercase tracking-widest text-white transition-all hover:scale-[1.02] active:scale-95 shrink-0"          >            Ver todos los artículos            <ArrowRight className="w-4 h-4 text-red-400" />          </Link>        </div>        <motion.div          variants={containerVariants}          initial="hidden"          whileInView="visible"          viewport={{ once: true, margin: '-100px' }}          className="grid gap-8 md:grid-cols-3"        >          {postsToShow.map((post) => {            const Icon = getIconComponent(post.icon);            return (              <motion.div key={post.slug} variants={cardVariants} className="h-full">                <Link                  href={`/public/blog/${post.slug}`}                  className="group flex flex-col justify-between h-full rounded-3xl border border-white/10 bg-white/[0.02] hover:bg-white/[0.04] p-8 shadow-xl hover:shadow-2xl transition-all duration-300 relative overflow-hidden"                >                  {/* Subtle top light glow on hover */}                  <div className="absolute top-0 left-0 right-0 h-px bg-gradient-to-r from-transparent via-red-500/50 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500" />                  <div className="space-y-6">                    <div className={`flex h-12 w-12 items-center justify-center rounded-2xl bg-gradient-to-br ${post.accent} text-white shadow-lg`}>                      <Icon className="h-6 w-6" />                    </div>                    <div>                      <span className="text-[10px] font-black uppercase tracking-[0.2em] text-zinc-500 block">                        {post.category} • {post.readTime}                      </span>                      <h3 className="mt-3 text-xl font-black leading-tight text-white group-hover:text-red-400 transition-colors duration-200">                        {post.title}                      </h3>                      <p className="mt-3 text-sm leading-relaxed text-zinc-400 line-clamp-3">                        {post.excerpt}                      </p>                    </div>                  </div>                  <div className="mt-8 pt-4 border-t border-white/5 flex items-center gap-2 text-xs font-black uppercase tracking-wider text-red-400 group-hover:text-white transition-colors">                    <span>Leer artículo</span>                    <ArrowRight className="h-3.5 w-3.5 transition-transform duration-300 group-hover:translate-x-1" />                  </div>                </Link>              </motion.div>            );          })}        </motion.div>      </div>    </section>  );}
