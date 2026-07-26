@@ -23,7 +23,6 @@ import {
     Share2, Gift, ListPlus, ShieldCheck, Zap, Star,
     Building2,
     CheckCircle2,
-    ChevronDown,
     FileDown,
     MapPin,
     PackageCheck,
@@ -36,7 +35,8 @@ import {
     Settings2,
     Plus,
     Trash2,
-    AlertTriangle
+    AlertTriangle,
+    ChevronDown
 } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { captureSimulatorLeadProgress, generateBudgetAndLeadFromSimulator, getPublicBudgetsByPhone } from '@/app/actions/armado-rapido';
@@ -59,9 +59,8 @@ import { cn } from '@/lib/utils';
 import {
   DEFAULT_ANNUAL_ADJUSTMENT_PERCENTAGE,
 } from '@/lib/budget/formal-budget';
-import { ScrollArea } from '@/components/ui/scroll-area';
 import { Badge } from '@/components/ui/badge';
-import { motion, AnimatePresence } from 'framer-motion';
+import { motion } from 'framer-motion';
 import { CompanyLogo } from '@/components/company-logo';
 import { getCateringDishImage, getCateringMenuImage } from '@/lib/catering/menu-images';
 import {
@@ -72,11 +71,26 @@ import {
 } from '@/lib/simulator/pricing';
 import { commercialAttributionFromSearchParams } from '@/lib/commercial/acquisition';
 import { isValidUruguayMobile, normalizeUruguayPhone, toWhatsAppNumber } from '@/lib/commercial/contact';
-import { getRemovablePackageServices, isPremiumSimulatorPackage } from '@/lib/simulator/package-customization';
+import {
+  getPackageChangeResult,
+  getPackageRecommendations,
+  getRemovablePackageServices,
+} from '@/lib/simulator/package-customization';
+import { downloadSimulatorBudgetPdf } from '@/lib/budget/simulator-budget-pdf';
+
+const COMMERCIAL_TIMER_SECONDS = 15 * 60;
+const COMMERCIAL_TIMER_STORAGE_KEY = 'ak-simulator-commercial-timer';
+const LEAD_PROGRESS_WAIT_MS = 4500;
 
 const formatCurrency = (amount?: number) => {
     if (amount === undefined || isNaN(amount)) return 'N/A';
     return new Intl.NumberFormat('es-UY', { style: 'currency', currency: 'UYU', minimumFractionDigits: 0, maximumFractionDigits: 0 }).format(amount);
+};
+
+const formatCountdown = (seconds: number) => {
+    const safeSeconds = Math.max(0, seconds);
+    const minutes = Math.floor(safeSeconds / 60);
+    return `${String(minutes).padStart(2, '0')}:${String(safeSeconds % 60).padStart(2, '0')}`;
 };
 
 const safeImageUrl = (url?: string): string | undefined => {
@@ -115,7 +129,7 @@ const getServiceOrDishImage = (s?: { id?: string; nombre?: string; title?: strin
 async function withFallbackTimeout<T>(
     promise: Promise<T>,
     fallback: T,
-    timeoutMs = 12000,
+    timeoutMs = 20000,
 ): Promise<T> {
     let timeout: ReturnType<typeof setTimeout> | undefined;
     try {
@@ -168,7 +182,7 @@ const menuItemToServicioEmpresa = (item: MenuItem & { precioVenta: number; image
         precioVenta: item.precioVenta,
         precioBase: item.precioVenta,
         valorUnitarioEstimado: item.totalDishCost,
-        imageUrl: item.imageUrl || getCateringDishImage(item),
+        imageUrl: getCateringDishImage(item) || item.imageUrl,
         isFeatured: item.isFeatured,
     };
 };
@@ -265,6 +279,7 @@ function SimuladorContent() {
     const [selectedPrincipal, setSelectedPrincipal] = useState<string>('');
     const [selectedInfantil, setSelectedInfantil] = useState<string>('');
     const [selectedPaqueteId, setSelectedPaqueteId] = useState<string>('');
+    const [expandedPackageId, setExpandedPackageId] = useState<string | null>(null);
     const [salonChoice, setSalonChoice] = useState<'propio' | 'club' | ''>(prefillSalonChoice);
     const [excludedPackageServiceIds, setExcludedPackageServiceIds] = useState<string[]>([]);
     const [dateSuggestions, setDateSuggestions] = useState<string[]>([]);
@@ -284,7 +299,8 @@ function SimuladorContent() {
     const [serviceToDelete, setServiceToDelete] = useState<SimulatorDetailedService | null>(null);
     const [generatedPresupuestoId, setGeneratedPresupuestoId] = useState<string | null>(null);
     const [generatedToken, setGeneratedToken] = useState<string | null>(null);
-    const budgetDocumentRef = useRef<HTMLDivElement>(null);
+    const [commercialTimerEndsAt, setCommercialTimerEndsAt] = useState<number | null>(null);
+    const [commercialTimerSeconds, setCommercialTimerSeconds] = useState(COMMERCIAL_TIMER_SECONDS);
 
     const [existingBudgets, setExistingBudgets] = useState<any[]>([]);
     const [isSearchingBudgets, setIsSearchingBudgets] = useState(false);
@@ -296,9 +312,33 @@ function SimuladorContent() {
             : `visual_${Date.now()}_${Math.random().toString(36).slice(2, 10)}`
     );
 
-    const [expandedPackages, setExpandedPackages] = useState<Record<string, boolean>>({});
-
     const maxEntradas = useMemo(() => (duracionHoras > 4 ? 2 : 1), [duracionHoras]);
+
+    useEffect(() => {
+        const stored = Number(window.sessionStorage.getItem(COMMERCIAL_TIMER_STORAGE_KEY));
+        if (Number.isFinite(stored) && stored > Date.now()) {
+            setCommercialTimerEndsAt(stored);
+            setCommercialTimerSeconds(Math.max(0, Math.ceil((stored - Date.now()) / 1000)));
+        }
+    }, []);
+
+    useEffect(() => {
+        if (!commercialTimerEndsAt) return;
+        const updateTimer = () => {
+            setCommercialTimerSeconds(Math.max(0, Math.ceil((commercialTimerEndsAt - Date.now()) / 1000)));
+        };
+        updateTimer();
+        const interval = window.setInterval(updateTimer, 1000);
+        return () => window.clearInterval(interval);
+    }, [commercialTimerEndsAt]);
+
+    const startCommercialTimer = useCallback(() => {
+        if (commercialTimerEndsAt && commercialTimerEndsAt > Date.now()) return;
+        const expiresAt = Date.now() + COMMERCIAL_TIMER_SECONDS * 1000;
+        window.sessionStorage.setItem(COMMERCIAL_TIMER_STORAGE_KEY, String(expiresAt));
+        setCommercialTimerEndsAt(expiresAt);
+        setCommercialTimerSeconds(COMMERCIAL_TIMER_SECONDS);
+    }, [commercialTimerEndsAt]);
 
     const { entradasDisponibles, principalesDisponibles, menusNinoDisponibles } = useMemo(() => {
         if (!config || !allMenus.length) {
@@ -530,42 +570,67 @@ function SimuladorContent() {
     const suggestedServices = useMemo(() => {
         if (!config || !selectedPaqueteId) return [];
         const currentPackage = config?.paquetes?.find(p => p.id === selectedPaqueteId);
-        const otherPackages = config?.paquetes?.filter(p => p.id !== selectedPaqueteId) || [];
-
-        const otherServicesIds = new Set<string>();
-        otherPackages.forEach(p => {
-            p.serviciosIncluidos?.forEach(s => otherServicesIds.add(s.id));
-        });
-
-        if (currentPackage) {
-            currentPackage.serviciosIncluidos?.forEach(s => otherServicesIds.delete(s.id));
-        }
-
         const currentSelectedIds = new Set([
             ...Array.from(formData.serviciosSeleccionados.keys()),
             ...selectedEntradas,
             ...(selectedPrincipal ? [selectedPrincipal] : []),
             ...(selectedInfantil ? [selectedInfantil] : []),
         ]);
+        return getPackageRecommendations({
+            currentPackage,
+            otherPackages: config.paquetes.filter(packageItem => packageItem.id !== selectedPaqueteId),
+            services: serviciosCatalogo,
+            selectedServiceIds: currentSelectedIds,
+            visibleServiceIds: budgetSettings.serviciosAdicionalesVisibles?.length
+                ? budgetSettings.serviciosAdicionalesVisibles
+                : null,
+            limit: 3,
+        });
+    }, [
+        budgetSettings.serviciosAdicionalesVisibles,
+        config,
+        formData.serviciosSeleccionados,
+        selectedEntradas,
+        selectedInfantil,
+        selectedPaqueteId,
+        selectedPrincipal,
+        serviciosCatalogo,
+    ]);
 
-        currentSelectedIds.forEach(id => otherServicesIds.delete(id));
-
-        const suggested = serviciosCatalogo.filter(s => otherServicesIds.has(s.id));
-
-        const packageServiceIds = new Set(currentPackage?.serviciosIncluidos?.map(s => s.id) || []);
-
-        if (suggested.length < 3) {
-            const popularIds = ['serv_barra_tragos', 'serv_pista_led', 'serv_plataforma_360', 'serv_cabina_fotos'];
-            popularIds.forEach(id => {
-                if (!currentSelectedIds.has(id) && !packageServiceIds.has(id) && !suggested.some(s => s.id === id)) {
-                    const serv = serviciosCatalogo.find(s => s.id === id);
-                    if (serv) suggested.push(serv);
-                }
-            });
+    const selectPackage = (paqueteId: string) => {
+        const currentPackage = config?.paquetes.find(packageItem => packageItem.id === selectedPaqueteId);
+        const nextPackage = config?.paquetes.find(packageItem => packageItem.id === paqueteId);
+        if (currentPackage?.id === nextPackage?.id) {
+            return {
+                nextPackage,
+                nextManualServices: new Map(formData.serviciosSeleccionados),
+                packageChange: {
+                    selectedServiceIds: Array.from(formData.serviciosSeleccionados.keys()),
+                    excludedPackageServiceIds,
+                },
+            };
         }
+        const packageChange = getPackageChangeResult({
+            currentPackage,
+            nextPackage,
+            selectedServiceIds: formData.serviciosSeleccionados.keys(),
+        });
+        const nextManualServices = new Map<string, ServicioSeleccionadoValue>();
 
-        return suggested.slice(0, 4);
-    }, [config, selectedPaqueteId, serviciosCatalogo, selectedEntradas, selectedPrincipal, selectedInfantil, formData.serviciosSeleccionados]);
+        packageChange.selectedServiceIds.forEach((serviceId) => {
+            const selected = formData.serviciosSeleccionados.get(serviceId);
+            if (selected) nextManualServices.set(serviceId, selected);
+        });
+
+        setSelectedPaqueteId(paqueteId);
+        setExcludedPackageServiceIds(packageChange.excludedPackageServiceIds);
+        setFormData(previous => ({
+            ...previous,
+            serviciosSeleccionados: nextManualServices,
+        }));
+
+        return { nextPackage, nextManualServices, packageChange };
+    };
 
     const handleToggleServiceInBudget = useCallback((serviceId: string, action: 'include' | 'exclude') => {
         const packageItem = config?.paquetes?.find(p => p.id === selectedPaqueteId);
@@ -652,7 +717,7 @@ function SimuladorContent() {
     const saveProgress = async (includeEventDetails: boolean) => {
         setIsSavingProgress(true);
         try {
-            const result = await captureSimulatorLeadProgress({
+            const persistence = captureSimulatorLeadProgress({
                 clienteNombre: clienteNombre.trim(),
                 clienteContacto: normalizeUruguayPhone(clienteContacto),
                 eventoTipo: includeEventDetails ? eventoTipo : undefined,
@@ -664,6 +729,30 @@ function SimuladorContent() {
                 acquisition,
                 marketingConsent,
             });
+            let timeout: ReturnType<typeof setTimeout> | undefined;
+            const result = await Promise.race([
+                persistence,
+                new Promise<{ success: true; deferred: true }>((resolve) => {
+                    timeout = setTimeout(
+                        () => resolve({ success: true, deferred: true }),
+                        LEAD_PROGRESS_WAIT_MS,
+                    );
+                }),
+            ]);
+            if (timeout) clearTimeout(timeout);
+
+            if ('deferred' in result) {
+                void persistence
+                    .then((lateResult) => {
+                        if (!lateResult.success) {
+                            console.warn('[simulador] El guardado diferido del prospecto no se completo.', lateResult.error);
+                        }
+                    })
+                    .catch((error) => {
+                        console.warn('[simulador] El guardado diferido del prospecto fallo.', error);
+                    });
+                return;
+            }
             if (!result.success) throw new Error(result.error);
         } finally {
             setIsSavingProgress(false);
@@ -772,6 +861,7 @@ function SimuladorContent() {
                 if (result.success && result.presupuestoId) {
                     setGeneratedPresupuestoId(result.presupuestoId);
                     if (result.token) setGeneratedToken(result.token);
+                    startCommercialTimer();
                     setStep(6);
                 } else throw new Error(result.error || "Error al generar.");
             } catch (e: any) {
@@ -937,31 +1027,24 @@ function SimuladorContent() {
     };
 
     const handleDownloadBudgetPdf = async () => {
-        if (!generatedPresupuestoId || !budgetDocumentRef.current || isDownloadingPdf) return;
+        if (!generatedPresupuestoId || isDownloadingPdf) return;
         setIsDownloadingPdf(true);
         try {
-            const { jsPDF } = await import('jspdf');
-            const pdf = new jsPDF({ orientation: 'portrait', unit: 'mm', format: 'a4' });
-            await pdf.html(budgetDocumentRef.current, {
-                autoPaging: 'text',
-                margin: [12, 12, 16, 12],
-                width: 186,
-                windowWidth: 1024,
-                html2canvas: {
-                    backgroundColor: '#ffffff',
-                    scale: 0.8,
-                    useCORS: true,
-                    ignoreElements: (element: Element) => element.hasAttribute('data-pdf-exclude'),
-                },
+            const publicUrl = `${window.location.origin}/presupuestos/${generatedPresupuestoId}/ver?cliente=1&token=${generatedToken || ''}`;
+            const packageName = config?.paquetes.find(packageItem => packageItem.id === selectedPaqueteId)?.nombre;
+            await downloadSimulatorBudgetPdf({
+                documentId: generatedPresupuestoId,
+                publicUrl,
+                clientName: clienteNombre,
+                eventType: eventoTipo,
+                eventDate: eventoFecha,
+                adults: adultos,
+                childrenAndTeens: ninosYAdolescentes,
+                packageName,
+                items: stats.detallados,
+                stats,
+                bookingTerms: budgetSettings.bookingTerms,
             });
-            const totalPages = pdf.getNumberOfPages();
-            for (let page = 1; page <= totalPages; page += 1) {
-                pdf.setPage(page);
-                pdf.setFontSize(8);
-                pdf.setTextColor(100);
-                pdf.text(`Página ${page} de ${totalPages}`, 198, 285, { align: 'right' });
-            }
-            pdf.save(`presupuesto-ak-${generatedPresupuestoId}.pdf`);
         } catch (error: any) {
             toast({
                 title: 'No pudimos descargar el PDF',
@@ -1006,10 +1089,8 @@ function SimuladorContent() {
     const handleSwitchPackage = async (paqueteId: string) => {
         if (!config) return;
         setIsGenerating(true);
-        setSelectedPaqueteId(paqueteId);
-        setExcludedPackageServiceIds([]);
-
-        const newPackageName = config.paquetes.find(p => p.id === paqueteId)?.nombre;
+        const { nextPackage: newPackage, nextManualServices } = selectPackage(paqueteId);
+        const newPackageName = newPackage?.nombre;
 
         // Calculate new pricing stats
         const newStats = calculateSimulatorPricing({
@@ -1019,7 +1100,7 @@ function SimuladorContent() {
             ninosYAdolescentes,
             selectedPaqueteId: paqueteId,
             excludedPackageServiceIds: [],
-            selectedServices: Array.from(formData.serviciosSeleccionados.entries()).map(([id, data]) => ({
+            selectedServices: Array.from(nextManualServices.entries()).map(([id, data]) => ({
                 id,
                 esRegalo: data.esRegalo,
             })),
@@ -1042,10 +1123,11 @@ function SimuladorContent() {
             ajusteAnualActivo: newStats.annualProjection.applies,
             ajusteAnualPorcentaje: newStats.annualProjection.adjustmentPct,
             serviciosIncluidos: newStats.detallados.map(s => s.id),
-            selectedServiceIds: Array.from(formData.serviciosSeleccionados.keys()),
+            selectedServiceIds: Array.from(nextManualServices.keys()),
             excludedPackageServiceIds: [],
             paqueteId,
             paqueteNombre: newPackageName ? `${newPackageName} — ${eventoTipo}` : undefined,
+            includeClubUruguay: salonChoice === 'club',
             items: simulatorDetailsToBudgetItems(newStats.detallados)
         };
 
@@ -1149,7 +1231,6 @@ function SimuladorContent() {
         () => sortedPaquetes.find(packageItem => packageItem.id === selectedPaqueteId),
         [selectedPaqueteId, sortedPaquetes]
     );
-    const isPremiumPackage = isPremiumSimulatorPackage(selectedPackage?.nombre);
     const removablePackageServices = useMemo(() => {
         return getRemovablePackageServices(selectedPackage, allSimuladorServices, {
             serviceDependencies: config?.serviceDependencies,
@@ -1397,10 +1478,15 @@ function SimuladorContent() {
                                     <span className="mt-0.5 grid h-9 w-9 shrink-0 place-items-center rounded-md bg-white text-slate-700 shadow-sm">
                                         <ShieldCheck className="h-5 w-5" />
                                     </span>
-                                    <div>
-                                        <p className="text-sm font-black text-slate-900">Próximo paso: confirmar disponibilidad</p>
+                                    <div className="min-w-0 flex-1">
+                                        <div className="flex flex-wrap items-center justify-between gap-2">
+                                            <p className="text-sm font-black text-slate-900">Coordiná tu consulta comercial</p>
+                                            <span className="rounded-md bg-slate-950 px-3 py-1 font-mono text-sm font-black text-white">
+                                                {commercialTimerSeconds > 0 ? formatCountdown(commercialTimerSeconds) : 'Consulta abierta'}
+                                            </span>
+                                        </div>
                                         <p className="mt-1 text-xs font-medium leading-relaxed text-slate-600">
-                                            El presupuesto es válido por 30 días. Con una seña de $5.000 podés solicitar la reserva; AK confirma la fecha y las condiciones antes de registrar el pago.
+                                            El presupuesto es válido por 30 días. Durante estos 15 minutos podés coordinar una revisión prioritaria de disponibilidad, promociones y regalos; la reserva queda confirmada únicamente cuando AK valida la fecha.
                                         </p>
                                     </div>
                                 </div>
@@ -1441,7 +1527,7 @@ function SimuladorContent() {
                         </CardContent>
                     </Card>
 
-                    <Card ref={budgetDocumentRef} className="overflow-hidden rounded-md border border-slate-300 bg-white shadow-sm print:bg-white print:shadow-none">
+                    <Card className="overflow-hidden rounded-md border border-slate-300 bg-white shadow-sm print:bg-white print:shadow-none">
                         <CardHeader className="text-center bg-white p-6 sm:p-10 border-b border-slate-200">
                             <div className="flex justify-center mb-4">
                               <CompanyLogo size="sm" src={logoUrl || undefined} className="print:brightness-100" />
@@ -1671,24 +1757,6 @@ function SimuladorContent() {
 
     return (
         <div className="ak-public-page flex min-h-screen flex-col items-center justify-center gap-4 p-2 sm:p-6 lg:p-8">
-            {/* Chat Simulator Banner */}
-            <div className="w-full max-w-3xl print:hidden">
-              <Link href="/simulador-ak">
-                <div className="group flex cursor-pointer items-center justify-between gap-3 rounded-lg border border-slate-800 bg-slate-950 px-5 py-4 text-white shadow-lg transition-all hover:bg-slate-900">
-                  <div className="flex items-center gap-3">
-                    <MessageSquare className="h-6 w-6 shrink-0 text-emerald-300" />
-                    <div>
-                      <p className="font-black text-sm">También podés armarlo con el Asistente AK</p>
-                      <p className="text-xs text-white/70">La IA usa los mismos paquetes, servicios y precios de este simulador manual</p>
-                    </div>
-                  </div>
-                  <div className="shrink-0 bg-white/20 group-hover:bg-white/30 rounded-xl px-3 py-1.5 text-xs font-black uppercase tracking-widest transition-colors">
-                    Probar IA →
-                  </div>
-                </div>
-              </Link>
-            </div>
-
             <Card className="w-full max-w-4xl overflow-hidden rounded-lg border border-slate-200 bg-white shadow-xl">
                 <CardHeader className="text-center bg-slate-50 p-6 sm:p-10 border-b border-slate-200">
                     <div className="flex justify-center mb-4">
@@ -2040,16 +2108,8 @@ function SimuladorContent() {
                             <RadioGroup
                                 value={selectedPaqueteId}
                                 onValueChange={value => {
-                                    setSelectedPaqueteId(value);
-                                    setExcludedPackageServiceIds([]);
-                                    const pkg = config?.paquetes?.find(item => item.id === value);
-                                    if (pkg) {
-                                        setFormData(prev => {
-                                            const newSelected = new Map(prev.serviciosSeleccionados);
-                                            pkg.serviciosIncluidos?.forEach((item: any) => newSelected.delete(item.id));
-                                            return { ...prev, serviciosSeleccionados: newSelected };
-                                        });
-                                    }
+                                    selectPackage(value);
+                                    setExpandedPackageId(null);
                                 }}
                                 className="grid grid-cols-1 md:grid-cols-2 gap-6"
                             >
@@ -2063,7 +2123,16 @@ function SimuladorContent() {
                                     });
 
                                     const estimatedTotal = calculatePackageEstimatedPrice(p);
-                                    const isExpanded = !!expandedPackages[p.id];
+                                    const estimatedPricePerPerson = estimatedTotal / Math.max(1, adultos + ninosYAdolescentes);
+                                    const includedServices = sortedIncluded
+                                        .map(serviceItem => ({
+                                            serviceItem,
+                                            service: allSimuladorServices.find(candidate => candidate.id === serviceItem.id),
+                                        }))
+                                        .filter((item): item is { serviceItem: typeof sortedIncluded[number]; service: ServicioEmpresa } => Boolean(item.service));
+                                    const giftCount = includedServices.filter(item => item.serviceItem.esRegalo).length;
+                                    const isExpanded = expandedPackageId === p.id;
+                                    const visibleIncluded = isExpanded ? includedServices : includedServices.slice(0, 3);
 
                                     return (
                                         <label key={p.id} className={cn(
@@ -2080,58 +2149,53 @@ function SimuladorContent() {
                                                 <div className="space-y-1">
                                                     <p className="font-black uppercase tracking-tight text-xl text-slate-800 leading-none">{p.nombre}</p>
                                                     <p className="text-sm font-black text-primary">{formatCurrency(estimatedTotal)} <span className="text-[8px] uppercase tracking-widest text-slate-400 ml-1">Presupuesto Estimado</span></p>
+                                                    <p className="text-[10px] font-bold text-slate-500">{formatCurrency(estimatedPricePerPerson)} por persona</p>
                                                 </div>
                                                 <RadioGroupItem value={p.id} className="h-6 w-6"/>
                                             </div>
 
-                                            <div className="space-y-2">
-                                                <button
-                                                    type="button"
-                                                    onClick={(e) => {
-                                                        e.preventDefault();
-                                                        e.stopPropagation();
-                                                        setExpandedPackages(prev => ({ ...prev, [p.id]: !prev[p.id] }));
-                                                    }}
-                                                    className="flex items-center gap-1.5 text-xs font-black text-primary hover:text-red-700 transition"
-                                                >
-                                                    <ChevronDown className={cn("w-4 h-4 transition-transform duration-200", isExpanded && "rotate-180")} />
-                                                    {isExpanded ? "Ocultar servicios incluidos" : "Ver servicios incluidos"}
-                                                </button>
-
-                                                <AnimatePresence initial={false}>
-                                                    {isExpanded && (
-                                                        <motion.div
-                                                            initial={{ height: 0, opacity: 0 }}
-                                                            animate={{ height: "auto", opacity: 1 }}
-                                                            exit={{ height: 0, opacity: 0 }}
-                                                            transition={{ duration: 0.3 }}
-                                                            className="overflow-hidden space-y-3 pt-2"
+                                            <div className="space-y-3 border-t border-slate-200 pt-4">
+                                                <div className="flex items-center justify-between gap-3 text-[10px] font-bold text-slate-600">
+                                                    <span>{includedServices.length} servicios{giftCount > 0 ? ` · ${giftCount} regalo${giftCount === 1 ? '' : 's'}` : ''}</span>
+                                                    {includedServices.length > 3 && (
+                                                        <Button
+                                                            type="button"
+                                                            variant="ghost"
+                                                            size="sm"
+                                                            onClick={(event) => {
+                                                                event.preventDefault();
+                                                                event.stopPropagation();
+                                                                setExpandedPackageId(current => current === p.id ? null : p.id);
+                                                            }}
+                                                            className="h-8 gap-1 px-2 text-[10px] font-bold text-slate-700 hover:bg-slate-100"
                                                         >
-                                                            <Label className="text-[9px] font-black uppercase tracking-widest text-slate-400 flex items-center gap-2">
-                                                                <ListPlus className="w-3 h-3"/> Servicios Incluidos:
-                                                            </Label>
-                                                            <ScrollArea className="h-48 pr-3 border rounded-2xl bg-white shadow-inner p-2">
-                                                                <ul className="text-[10px] space-y-2 text-slate-500 font-bold uppercase tracking-tight">
-                                                                    {sortedIncluded.map(s => {
-                                                                        const serv = allSimuladorServices.find(os => os.id === s.id);
-                                                                        return serv && (
-                                                                            <li key={s.id} className={cn(
-                                                                                "flex items-center justify-between gap-3 p-2 rounded-xl border",
-                                                                                s.esRegalo ? "bg-emerald-50 border-emerald-100 text-emerald-700" : "bg-slate-50 border-slate-100 text-slate-600"
-                                                                            )}>
-                                                                                <div className="flex items-center gap-2 min-w-0">
-                                                                                    {s.esRegalo ? <Gift className="w-3.5 h-3.5 shrink-0"/> : <Check className="w-3.5 h-3.5 opacity-40 shrink-0"/>}
-                                                                                    <span className="truncate">{serv.nombre}</span>
-                                                                                </div>
-                                                                                {s.esRegalo && <Badge className="bg-emerald-600 text-white border-none font-black text-[8px] px-1.5 h-4">REGALO</Badge>}
-                                                                            </li>
-                                                                        );
-                                                                    })}
-                                                                </ul>
-                                                            </ScrollArea>
-                                                        </motion.div>
+                                                            {isExpanded ? 'Ver resumen' : 'Ver todo'}
+                                                            <ChevronDown className={cn('h-3.5 w-3.5 transition-transform', isExpanded && 'rotate-180')} />
+                                                        </Button>
                                                     )}
-                                                </AnimatePresence>
+                                                </div>
+                                                <ul className="space-y-2 text-[10px] font-bold uppercase tracking-tight text-slate-600">
+                                                    {visibleIncluded.map(({ serviceItem, service }) => (
+                                                            <li key={serviceItem.id} className={cn(
+                                                                "flex items-center justify-between gap-3 rounded-md border px-3 py-2",
+                                                                serviceItem.esRegalo
+                                                                    ? "border-emerald-200 bg-emerald-50 text-emerald-800"
+                                                                    : "border-slate-200 bg-slate-50 text-slate-700"
+                                                            )}>
+                                                                <div className="flex min-w-0 items-center gap-2">
+                                                                    {serviceItem.esRegalo
+                                                                        ? <Gift className="h-3.5 w-3.5 shrink-0"/>
+                                                                        : <Check className="h-3.5 w-3.5 shrink-0 text-emerald-700"/>}
+                                                                    <span className="whitespace-normal">{service.nombre}</span>
+                                                                </div>
+                                                                {serviceItem.esRegalo && (
+                                                                    <Badge className="h-5 shrink-0 border-none bg-emerald-700 px-2 text-[8px] font-black text-white">
+                                                                        REGALO
+                                                                    </Badge>
+                                                                )}
+                                                            </li>
+                                                        ))}
+                                                </ul>
                                             </div>
                                         </label>
                                     );
@@ -2398,9 +2462,9 @@ function SimuladorContent() {
                                 {suggestedServices.length > 0 && (
                                     <div className="space-y-3 pt-2">
                                         <h5 className="text-[10px] font-black uppercase tracking-widest text-slate-400 flex items-center gap-1.5 text-left">
-                                            <Sparkles className="h-3.5 w-3.5 text-slate-600" /> Recomendados para tu evento:
+                                            <Sparkles className="h-3.5 w-3.5 text-slate-600" /> Mejoras disponibles para tu evento
                                         </h5>
-                                        <div className="grid gap-3 sm:grid-cols-2">
+                                        <div className="grid gap-3">
                                             {suggestedServices.map(service => {
                                                 const calculated = getSimulatorServiceCalculatedData(service, adultos, ninosYAdolescentes);
                                                 return (
@@ -2454,19 +2518,8 @@ function SimuladorContent() {
                                                     </p>
                                                 </div>
                                                 <Button
-                                                    onClick={() => {
-                                                        setSelectedPaqueteId(p.id);
-                                                        setExcludedPackageServiceIds([]);
-                                                        setFormData(prev => {
-                                                            const newSelected = new Map(prev.serviciosSeleccionados);
-                                                            p.serviciosIncluidos?.forEach((item: any) => newSelected.delete(item.id));
-                                                            return { ...prev, serviciosSeleccionados: newSelected };
-                                                        });
-                                                        toast({
-                                                            title: "Paquete cambiado",
-                                                            description: `Cambiado a ${p.nombre} con éxito.`
-                                                        });
-                                                    }}
+                                                    onClick={() => void handleSwitchPackage(p.id)}
+                                                    disabled={isGenerating}
                                                     className="rounded-xl font-black uppercase tracking-widest text-[9px] h-9 w-full bg-slate-900 hover:bg-red-700 text-white transition"
                                                 >
                                                     Cambiar a {p.nombre}

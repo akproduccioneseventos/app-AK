@@ -1,4 +1,4 @@
-import { ai, getGeminiModelForAgent } from '@/ai/genkit';
+import { generateWithGeminiFallback, getGeminiModelForAgent } from '@/ai/genkit';
 import { z } from 'zod';
 
 export const GenerateDjProfileSchema = z.object({
@@ -31,7 +31,7 @@ Por favor genera un reporte profesional y estructurado con:
 Responde directamente con el texto en formato legible (usando saltos de línea y viñetas). NO devuelvas JSON.`;
 
     const model = getGeminiModelForAgent('fiestas_general');
-    const result = await ai.generate({
+    const result = await generateWithGeminiFallback({
       model,
       prompt,
     });

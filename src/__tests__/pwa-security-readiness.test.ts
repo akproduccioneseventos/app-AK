@@ -35,6 +35,8 @@ describe('PWA and practical security readiness', () => {
     expect(isPublicPathPrefix('/evento/actual')).toBe(true);
     expect(isPublicPathPrefix('/evento/actual/checkin')).toBe(false);
     expect(isPublicPathPrefix('/evento/actual/mesa')).toBe(false);
+    expect(isPublicPathPrefix('/blog')).toBe(true);
+    expect(isPublicPathPrefix('/blog/como-elegir-el-menu')).toBe(true);
     expect(isPublicPathPrefix('/eventos')).toBe(false);
     expect(PUBLIC_EXACT_PATHS.has('/evento')).toBe(false);
     expect(PUBLIC_EXACT_PATHS.has('/api/health')).toBe(true);

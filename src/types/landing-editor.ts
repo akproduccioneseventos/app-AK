@@ -115,7 +115,7 @@ export const defaultLandingSettings: LandingSettings = {
     description:
       'Producción integral de eventos en Uruguay. Bodas, XV años, cumpleaños y eventos corporativos. ¡Cotizá hoy y hacé realidad tu celebración soñada!',
     ogImageUrl:
-      '/media/catalogo-servicios/boda-decoracion-dorada-01.jpeg',
+      '/media/catalogo-servicios/decoracion-boda-mesa-01.jpeg',
   },
   faqs: [
     {

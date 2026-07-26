@@ -41,7 +41,7 @@ const FALLBACK_SERVICES = fallbackServicesJson as unknown as ServicioEmpresa[];
 async function withBootstrapFallback<T>(
   promise: Promise<T>,
   fallback: T,
-  timeoutMs = 6_500,
+  timeoutMs = 4_500,
 ): Promise<T> {
   let timeout: ReturnType<typeof setTimeout> | undefined;
 

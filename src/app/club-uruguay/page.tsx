@@ -84,7 +84,7 @@ export default async function ClubUruguayPage() {
 
   return (
     <div className="min-h-screen bg-[#0b0b0c] text-white selection:bg-red-700">
-      <LandingNav whatsappNumber={WHATSAPP} />
+      <LandingNav />
 
       <main>
         <section className="relative flex min-h-[78vh] items-end overflow-hidden border-b border-white/10 pt-24">

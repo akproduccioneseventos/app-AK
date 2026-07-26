@@ -66,7 +66,11 @@ export function PublicFooter({ className }: PublicFooterProps) {
     if (href.startsWith('#')) {
       e.preventDefault();
       const el = document.querySelector(href);
-      if (el) el.scrollIntoView({ behavior: 'smooth' });
+      if (el) {
+        el.scrollIntoView({ behavior: 'smooth' });
+      } else {
+        window.location.assign(`/${href}`);
+      }
     }
   };
 
@@ -79,10 +83,6 @@ export function PublicFooter({ className }: PublicFooterProps) {
     >
       {/* Top glowing ambient gradient line */}
       <div className="absolute top-0 left-0 right-0 h-px bg-gradient-to-r from-transparent via-red-500/70 to-transparent" />
-
-      {/* Glow decorative background blobs */}
-      <div className="absolute -bottom-20 right-0 w-[500px] h-[500px] rounded-full bg-red-600/10 blur-[150px] pointer-events-none" />
-      <div className="absolute -top-20 left-1/4 w-[400px] h-[400px] rounded-full bg-purple-600/10 blur-[140px] pointer-events-none" />
 
       <div className="max-w-7xl mx-auto relative z-10 space-y-16">
         

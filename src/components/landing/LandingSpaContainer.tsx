@@ -1,5 +1,5 @@
 "use client";
-import type { ReactNode } from "react";
+import { Fragment, type ReactNode } from "react";
 import { motion, useReducedMotion, useScroll, useSpring } from "framer-motion";
 interface LandingSpaContainerProps {
   hero: ReactNode;
@@ -11,7 +11,6 @@ interface LandingSpaContainerProps {
   team: ReactNode;
   process: ReactNode;
   gallery: ReactNode;
-  instagram: ReactNode;
   blog: ReactNode;
   video: ReactNode;
   testimonials: ReactNode;
@@ -32,7 +31,6 @@ export function LandingSpaContainer({
   team,
   process,
   gallery,
-  instagram,
   blog,
   video,
   testimonials,
@@ -70,77 +68,75 @@ export function LandingSpaContainer({
         {...revealProps}
         className={`relative w-full scroll-mt-20 ${DEFERRED_SECTIONS.has(key) ? "ak-deferred-section" : ""} ${justify === "between" ? "md:flex md:min-h-screen md:flex-col md:justify-between" : ""}`}
       >
-        {" "}
-        {children}{" "}
+        <div className="contents">{children}</div>
       </motion.section>
     );
   };
   return (
-    <div className="min-h-screen text-white selection:bg-red-700 selection:text-white">
-      {" "}
+    <div className="min-h-screen bg-white text-slate-950 selection:bg-red-700 selection:text-white">
       <motion.div
         style={{ scaleX: progressScale }}
         className="fixed left-0 top-0 z-[70] h-1 w-full origin-left bg-red-600"
-      />{" "}
-{" "}
+      />
       <motion.div
         key="landing-scroll"
         initial={{ opacity: 0 }}
         animate={{ opacity: 1 }}
         className="ak-landing-experience"
       >
-        {" "}
         {dashboardSection(
           "hero",
           <>
-            {hero}
-            {stats}
+            <Fragment key="hero">{hero}</Fragment>
+            <Fragment key="stats">{stats}</Fragment>
           </>,
           "between",
-        )}{" "}
-        {dashboardSection("difference", difference)}{" "}
-        {dashboardSection("services", services)}{" "}
-        {dashboardSection("technology", technology)}{" "}
-        {dashboardSection("salon", salon)}{" "}
+        )}
+        {dashboardSection("difference", difference)}
+        {dashboardSection("services", services)}
+        {dashboardSection("technology", technology)}
+        {dashboardSection("salon", salon)}
         {dashboardSection(
           "team-process",
           team || process ? (
             <div className="w-full">
-              {" "}
-              {team} {process}{" "}
+              <Fragment key="team">{team}</Fragment>
+              <Fragment key="process">{process}</Fragment>
             </div>
           ) : null,
-        )}{" "}
-        {dashboardSection("gallery", gallery)}{" "}
-        {instagram && dashboardSection("instagram", instagram)}{" "}
+        )}
+        {dashboardSection("gallery", gallery)}
         {dashboardSection(
           "blog-video",
           blog || video ? (
             <div className="w-full">
-              {" "}
-              {blog} {video}{" "}
+              <Fragment key="blog">{blog}</Fragment>
+              <Fragment key="video">{video}</Fragment>
             </div>
           ) : null,
-        )}{" "}
+        )}
         {dashboardSection(
           "testimonials-faq",
           testimonials || faq ? (
             <div className="w-full">
-              {" "}
-              {testimonials} {faq}{" "}
+              <Fragment key="testimonials">{testimonials}</Fragment>
+              <Fragment key="faq">{faq}</Fragment>
             </div>
           ) : null,
-        )}{" "}
+        )}
         {dashboardSection(
           "cta-footer",
           <>
-            {cta}
-            {footer}
+            <Fragment key="cta">{cta}</Fragment>
+            <Fragment key="footer">{footer}</Fragment>
           </>,
           "between",
-        )}{" "}
-      </motion.div>{" "}
-      {floatingActions} {winSech}{" "}
+        )}
+      </motion.div>
+      <div className="contents">
+        <Fragment key="floating-actions">{floatingActions}</Fragment>
+        <Fragment key="win-sech">{winSech}</Fragment>
+      </div>
     </div>
   );
 }

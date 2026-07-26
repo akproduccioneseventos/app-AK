@@ -27,6 +27,6 @@ describe('public simulator identity boundaries', () => {
 
     expect(source).not.toContain('setTimeLeft');
     expect(source).not.toContain('antes de que expire la reserva');
-    expect(source).toContain('AK confirma la fecha y las condiciones antes de registrar el pago');
+    expect(source).toContain('la reserva queda confirmada únicamente cuando AK valida la fecha');
   });
 });

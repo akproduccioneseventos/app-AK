@@ -94,9 +94,9 @@ export function TestimonialsSection({ testimonials = [], whatsappNumber = AK_WHA
   if (stories.length === 0) return null;
 
   return (
-    <section id="landing-testimonials" className="py-24 bg-zinc-950 text-white relative overflow-hidden border-t border-white/5">
+    <section id="landing-testimonials" className="relative overflow-hidden border-t border-slate-200 bg-white py-24 text-slate-950">
       <div className="absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-red-500/40 to-transparent pointer-events-none" />
-      <div className="absolute inset-x-0 bottom-0 h-px bg-gradient-to-r from-transparent via-white/10 to-transparent pointer-events-none" />
+      <div className="absolute inset-x-0 bottom-0 h-px bg-gradient-to-r from-transparent via-slate-200 to-transparent pointer-events-none" />
       
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
         
@@ -112,10 +112,10 @@ export function TestimonialsSection({ testimonials = [], whatsappNumber = AK_WHA
             <HeartHandshake className="w-3.5 h-3.5" />
             Reseñas de clientes
           </span>
-          <h2 className="font-headline text-5xl sm:text-6xl font-black text-white leading-tight mb-4">
+          <h2 className="mb-4 font-headline text-5xl font-black leading-tight text-slate-950 sm:text-6xl">
             Experiencias compartidas
           </h2>
-          <p className="text-zinc-400 text-lg max-w-xl mx-auto leading-relaxed">
+          <p className="mx-auto max-w-xl text-lg leading-relaxed text-slate-600">
             Opiniones compartidas por clientes sobre su experiencia con AK Producciones.
           </p>
         </motion.div>
@@ -133,12 +133,12 @@ export function TestimonialsSection({ testimonials = [], whatsappNumber = AK_WHA
               whileHover={{ y: -6, scale: 1.01 }}
               onClick={() => openStory(story)}
               aria-label={`Ver reseña de ${story.clientName}`}
-              className="flex w-full flex-col justify-between rounded-3xl bg-white/[0.02] border border-white/10 p-6 cursor-pointer shadow-xl hover:shadow-[0_10px_35px_rgba(239,68,68,0.15)] hover:border-red-500/20 group transition-all relative overflow-hidden text-left focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-red-400 focus-visible:ring-offset-2 focus-visible:ring-offset-zinc-950"
+              className="group relative flex w-full cursor-pointer flex-col justify-between overflow-hidden rounded-lg border border-slate-200 bg-white p-6 text-left shadow-sm transition-all hover:-translate-y-1 hover:border-red-300 hover:shadow-xl focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-red-500 focus-visible:ring-offset-2 focus-visible:ring-offset-white"
             >
               <div className="space-y-4">
                 <div className="flex items-center justify-between">
-                  <Quote className="w-8 h-8 text-red-500/20 fill-red-500/20" />
-                  <span className="px-2.5 py-1 rounded-lg bg-red-950/40 border border-red-500/25 text-[9px] font-black uppercase tracking-widest text-red-400">
+                  <Quote className="h-8 w-8 fill-red-100 text-red-100" />
+                  <span className="rounded-md border border-red-200 bg-red-50 px-2.5 py-1 text-[9px] font-black uppercase tracking-widest text-red-700">
                     {story.eventType}
                   </span>
                 </div>
@@ -149,18 +149,18 @@ export function TestimonialsSection({ testimonials = [], whatsappNumber = AK_WHA
                   ))}
                 </div>
                 
-                <h3 className="font-headline text-lg font-black text-white group-hover:text-red-400 transition-colors">
+                <h3 className="font-headline text-lg font-black text-slate-950 transition-colors group-hover:text-red-700">
                   {story.title}
                 </h3>
-                <p className="text-zinc-400 text-xs font-semibold leading-relaxed line-clamp-5 italic">
+                <p className="line-clamp-5 text-xs font-semibold italic leading-relaxed text-slate-600">
                   &ldquo;{story.text}&rdquo;
                 </p>
               </div>
 
-              <div className="border-t border-white/5 pt-4 mt-6 flex items-center justify-between gap-2">
+              <div className="mt-6 flex items-center justify-between gap-2 border-t border-slate-200 pt-4">
                 <div className="min-w-0">
-                  <p className="font-black text-xs text-white truncate">{story.clientName}</p>
-                  <p className="text-[10px] text-zinc-500 font-bold uppercase tracking-wider mt-0.5">{story.role}</p>
+                  <p className="truncate text-xs font-black text-slate-950">{story.clientName}</p>
+                  <p className="mt-0.5 text-[10px] font-bold uppercase tracking-wider text-slate-500">{story.role}</p>
                 </div>
                 <span className="inline-flex items-center gap-1 text-[9px] font-black uppercase tracking-widest bg-emerald-500/10 text-emerald-400 px-2 py-1 rounded-md">
                   <CheckCircle2 className="w-3.5 h-3.5" />

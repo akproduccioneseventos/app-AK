@@ -1,6 +1,6 @@
 'use server';
 
-import { ai, getGeminiGenerationConfigForAgent, getGeminiModelForAgent } from '@/ai/genkit';
+import { generateWithGeminiFallback, getGeminiGenerationConfigForAgent, getGeminiModelForAgent } from '@/ai/genkit';
 import { chatWithMarketingAgent } from '@/ai/flows/marketing-agent-flow';
 import type { AkAgentType, AkMultiAgentInput, AkMultiAgentOutput } from '@/types/multiagent';
 import { getAgentMemoryProfile, saveAgentLearning } from '@/lib/multiagent/memory-store';
@@ -428,7 +428,7 @@ export async function runMultiAgent(input: AkMultiAgentInput): Promise<AkMultiAg
       `\nMENSAJE DE ALEXANDER:\n${input.message}`,
     ].filter(Boolean).join('\n');
 
-    const { text } = await ai.generate({
+    const { text } = await generateWithGeminiFallback({
       model,
       system: buildSystemPrompt(agentType),
       prompt,

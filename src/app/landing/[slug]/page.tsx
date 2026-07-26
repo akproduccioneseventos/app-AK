@@ -79,7 +79,7 @@ const PROMO_PAGES: Record<string, PromoConfig> = {
           'Traslado de novios',
           'Mesa dulce premium',
         ],
-        imageUrl: '/media/catalogo-servicios/boda-decoracion-dorada-01.jpeg',
+        imageUrl: '/media/catalogo-servicios/decoracion-boda-mesa-01.jpeg',
         imageHint: 'wedding decoration flowers',
         accentColor: 'bg-pink-500',
         emoji: '💍',
@@ -168,7 +168,7 @@ export default async function PromoLandingPage({ params }: PromoPageProps) {
 
   return (
     <div className="min-h-screen bg-white">
-      <LandingNav whatsappNumber={whatsappNumber} />
+      <LandingNav />
       <HeroSection
         whatsappNumber={whatsappNumber}
         headline={config.hero.headline}
