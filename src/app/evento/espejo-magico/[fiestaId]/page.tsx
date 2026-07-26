@@ -338,6 +338,7 @@ export default function EspejoMagicoPage() {
       console.error(err);
       setErrorMsg(err.message || 'La IA no pudo procesar tu avatar. Mostrando foto original.');
       speak("Ocurrió un inconveniente, pero aquí está tu foto original.");
+      setLocalStatus('review');
     } finally {
       clearTimeout(stepTimer1);
       clearTimeout(stepTimer2);

@@ -53,14 +53,16 @@ export const defaultCateringDishImages: Record<string, string> = {
   dish_child_4: `${DEFAULT_MENU_IMAGE_BASE}/dish_child_4.jpeg`,
 };
 
+const FALLBACK_MENU_DISH_IMAGE = `${DEFAULT_MENU_IMAGE_BASE}/dish_entrada_12.jpeg`;
+
 export function getCateringDishImage(
   item: Pick<MenuItem, "id" | "imageUrl"> | null | undefined,
 ): string | undefined {
   if (!item) return undefined;
   const local = defaultCateringDishImages[item.id];
-  const isLegacyCanvaImage = item.imageUrl?.includes(LEGACY_CANVA_IMAGE_HOST);
+  const isLegacyCanvaImage = item.imageUrl ? item.imageUrl.toLowerCase().includes("canva") : false;
   if (item.imageUrl && !isLegacyCanvaImage) return item.imageUrl;
-  return local || item.imageUrl;
+  return local || (isLegacyCanvaImage ? FALLBACK_MENU_DISH_IMAGE : item.imageUrl);
 }
 
 export function getCateringMenuImage(
