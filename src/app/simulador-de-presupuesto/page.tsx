@@ -36,7 +36,9 @@ import {
     Plus,
     Trash2,
     AlertTriangle,
-    ChevronDown
+    ChevronDown,
+    Timer,
+    HelpCircle,
 } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { captureSimulatorLeadProgress, generateBudgetAndLeadFromSimulator, getPublicBudgetsByPhone } from '@/app/actions/armado-rapido';
@@ -519,14 +521,26 @@ function SimuladorContent() {
 
     const clubUruguayDetails = useMemo(() => {
         const club = config?.clubUruguayConfig;
-        if (!club?.activo || salonChoice !== 'club') return null;
-        const baseCosto = Number(club.precio) || 25000;
+        if (salonChoice !== 'club') return null;
+        const precioReal = 36000;
+        const precioBasePromo = 16900;
+        
+        const eventYear = eventoFecha ? new Date(eventoFecha).getFullYear() : 2026;
+        const diffYears = Math.max(0, eventYear - 2026);
+        const adjustmentPct = DEFAULT_ANNUAL_ADJUSTMENT_PERCENTAGE || 15;
+        const multiplier = 1 + (diffYears * (adjustmentPct / 100));
+        const costoFinal = Math.round(precioBasePromo * multiplier);
+
         return {
             nombre: 'Salón Club Uruguay',
-            costo: baseCosto,
-            aclaracion: `El costo del alquiler del Salón Club Uruguay (${formatCurrency(baseCosto)}) NO está incluido en la suma del total de este presupuesto de AK Producciones, ya que se abona mediante contrato y recibo de alquiler independiente emitido directamente por la administración del Club Uruguay.`,
+            precioReal,
+            precioPromo: precioBasePromo,
+            costo: costoFinal,
+            eventYear,
+            diffYears,
+            aclaracion: `El alquiler del Salón Club Uruguay (Precio Real: ${formatCurrency(precioReal)}, Precio Promo: ${formatCurrency(precioBasePromo)}${diffYears > 0 ? `, con ajuste ${eventYear}: ${formatCurrency(costoFinal)}` : ''}) NO se suma en el total de este presupuesto de AK Producciones. Se abona mediante contrato y recibo de alquiler independiente directamente en la administración del Club Uruguay.`,
         };
-    }, [config?.clubUruguayConfig, salonChoice]);
+    }, [config?.clubUruguayConfig, salonChoice, eventoFecha]);
 
     const technologyServices = useMemo(() => {
         if (budgetSettings?.serviciosAdicionalesVisibles !== undefined && budgetSettings?.serviciosAdicionalesVisibles !== null) {
@@ -1484,26 +1498,30 @@ function SimuladorContent() {
                                 </p>
                             </div>
 
-                            <div className="mx-auto w-full max-w-lg space-y-4 rounded-md border border-slate-200 bg-slate-50 p-6 text-left">
-                                <div className="flex items-start gap-3">
-                                    <span className="mt-0.5 grid h-9 w-9 shrink-0 place-items-center rounded-md bg-white text-slate-700 shadow-sm">
-                                        <ShieldCheck className="h-5 w-5" />
+                            <div className="mx-auto w-full max-w-lg space-y-4 rounded-2xl border-2 border-red-500/40 bg-gradient-to-br from-red-50 via-white to-amber-50 p-6 text-left shadow-lg relative overflow-hidden animate-pulse">
+                                <div className="flex items-center justify-between border-b border-red-200 pb-3">
+                                    <h3 className="text-xs font-black uppercase text-red-700 flex items-center gap-2">
+                                        <Timer className="w-4 h-4 text-red-600 animate-spin" />
+                                        Asegurá tu promoción antes de que termine el tiempo
+                                    </h3>
+                                    <span className="rounded-xl bg-red-700 px-3 py-1 font-mono text-sm font-black text-white shadow-md">
+                                        {commercialTimerSeconds > 0 ? formatCountdown(commercialTimerSeconds) : '15:00'}
                                     </span>
-                                    <div className="min-w-0 flex-1">
-                                        <div className="flex flex-wrap items-center justify-between gap-2">
-                                            <p className="text-sm font-black text-slate-900">Coordiná tu consulta comercial</p>
-                                            <span className="rounded-md bg-slate-950 px-3 py-1 font-mono text-sm font-black text-white">
-                                                {commercialTimerSeconds > 0 ? formatCountdown(commercialTimerSeconds) : 'Consulta abierta'}
-                                            </span>
-                                        </div>
-                                        <p className="mt-1 text-xs font-semibold leading-relaxed text-slate-700">
-                                            🔥 ¡Para acceder a la promoción y asegurar el descuento de tu presupuesto, comunicate con nosotros ahora mismo! Quedan muy pocos cupos y fechas disponibles en la agenda 2026/2027. Reservás y asegurás tu fecha con una seña de solo $5.000.
-                                        </p>
-                                    </div>
+                                </div>
+                                <div className="space-y-2 text-xs leading-relaxed text-slate-700">
+                                    <p className="font-bold text-slate-900">
+                                        ⏳ Aprovechá estos <strong>15 minutos</strong> para mantener la promoción y los descuentos incluidos en tu presupuesto.
+                                    </p>
+                                    <p className="text-slate-600">
+                                        Coordiná una entrevista sin costo con AK Producciones, contanos cómo imaginás tu fiesta y recibí asesoramiento para elegir la fecha, los servicios y la mejor opción para tu presupuesto.
+                                    </p>
+                                    <p className="font-black text-red-700">
+                                        📲 Comunicate ahora y empezá a organizar tu fiesta completa con todo resuelto en un solo lugar.
+                                    </p>
                                 </div>
                                 <Button
                                     onClick={handleShareBudgetWhatsApp}
-                                    className="flex h-12 w-full items-center justify-center gap-2 rounded-md bg-red-700 text-sm font-bold text-white hover:bg-red-800"
+                                    className="flex h-12 w-full items-center justify-center gap-2 rounded-xl bg-red-700 text-sm font-black uppercase tracking-wider text-white shadow-md hover:bg-red-800 transition"
                                 >
                                     <MessageSquare className="h-4 w-4" /> Consultar disponibilidad por WhatsApp
                                 </Button>
@@ -1735,13 +1753,19 @@ function SimuladorContent() {
                             )}
                         </CardContent>
                         <CardFooter className="bg-slate-50 p-8 border-t flex flex-col items-center gap-4">
-                            <div className="w-full rounded-md border border-slate-200 bg-white p-6">
-                                <h4 className="mb-2 flex items-center gap-2 text-[10px] font-bold uppercase tracking-widest text-slate-700"><Info className="w-4 h-4"/> Condiciones de reserva</h4>
-                                <p className="text-xs font-semibold leading-relaxed text-slate-700">
-                                    Con una seña de $5.000 podés solicitar la reserva de la fecha y de todos los servicios incluidos. El presupuesto es válido por 30 días para mantener el precio de la promoción y todos los regalos incluidos. El total mostrado corresponde al precio promocional vigente del año 2026. Para eventos en años posteriores (2027 en adelante), se aplica un ajuste del 15% por cada año adicional transcurrido. Quedan pocos cupos y fechas disponibles en agenda; la reserva queda confirmada únicamente cuando AK valida la disponibilidad de la fecha.
-                                </p>
+                            <div className="w-full rounded-2xl border border-slate-200 bg-white p-6 shadow-sm">
+                                <h4 className="mb-3 flex items-center gap-2 text-xs font-black uppercase tracking-wider text-slate-800">
+                                    <ShieldCheck className="w-4 h-4 text-emerald-600"/>
+                                    Reservá tu fecha y asegurá la promoción
+                                </h4>
+                                <div className="space-y-2 text-xs font-semibold leading-relaxed text-slate-700 text-left">
+                                    <p>Confirmá tu evento con una seña de solo $5.000 y la firma del contrato. La fecha se reserva para la primera persona que complete ambos pasos.</p>
+                                    <p>El presupuesto tiene una validez de 30 días, manteniendo durante ese período el precio promocional y todos los regalos incluidos.</p>
+                                    <p>Los valores corresponden a eventos realizados en 2026. Para fechas desde 2027 se aplicará un ajuste acumulativo del 15% por cada año adicional.</p>
+                                    <p className="font-bold text-slate-900 pt-1">No dejes pasar tu fecha: firmá el contrato, aboná la seña y empezá a preparar tu fiesta con AK Producciones.</p>
+                                </div>
                                 {budgetSettings.bookingTerms && (
-                                    <p className="mt-2 text-xs leading-relaxed text-slate-600">{budgetSettings.bookingTerms}</p>
+                                    <p className="mt-3 text-xs leading-relaxed text-slate-500 border-t pt-2">{budgetSettings.bookingTerms}</p>
                                 )}
                             </div>
                             <div data-pdf-exclude="true" className="flex flex-col sm:flex-row items-center gap-3 print:hidden">
@@ -2273,7 +2297,7 @@ function SimuladorContent() {
                             </div>
 
                             {salonChoice === 'club' && clubUruguayDetails && (
-                                <div className="rounded-2xl border border-amber-200 bg-amber-50/90 p-6 text-left shadow-sm">
+                                <div className="rounded-2xl border border-amber-300 bg-amber-50/90 p-6 text-left shadow-sm">
                                     <div className="flex flex-wrap items-center justify-between gap-4">
                                         <div className="flex items-center gap-3">
                                             <span className="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl bg-amber-600 text-white font-black text-xl shadow-sm">
@@ -2281,12 +2305,22 @@ function SimuladorContent() {
                                             </span>
                                             <div>
                                                 <h3 className="font-black text-slate-900 text-base">{clubUruguayDetails.nombre}</h3>
-                                                <p className="text-xs font-bold text-amber-900 mt-0.5">Contrato y recibo de alquiler independiente con el Club Uruguay</p>
+                                                <p className="text-xs font-bold text-amber-900 mt-0.5">Contrato y recibo de alquiler independiente directo con el Club Uruguay</p>
                                             </div>
                                         </div>
-                                        <Badge className="bg-amber-600 text-white font-black text-xs px-3.5 py-1.5 rounded-xl shadow-sm">
-                                            Costo Salón: {formatCurrency(clubUruguayDetails.costo)}
-                                        </Badge>
+                                        <div className="text-right">
+                                            <div className="flex items-center gap-2 justify-end">
+                                                <span className="text-xs text-amber-800/60 line-through font-bold">{formatCurrency(clubUruguayDetails.precioReal)}</span>
+                                                <Badge className="bg-amber-600 text-white font-black text-xs px-3.5 py-1.5 rounded-xl shadow-sm">
+                                                    Promo: {formatCurrency(clubUruguayDetails.precioPromo)}
+                                                </Badge>
+                                            </div>
+                                            {clubUruguayDetails.diffYears > 0 && (
+                                                <p className="text-[10px] font-black text-amber-900 mt-1 uppercase">
+                                                    Con ajuste {clubUruguayDetails.eventYear} (+{clubUruguayDetails.diffYears * 15}%): {formatCurrency(clubUruguayDetails.costo)}
+                                                </p>
+                                            )}
+                                        </div>
                                     </div>
                                     <p className="mt-4 text-xs font-semibold leading-relaxed text-amber-950 border-t border-amber-200/80 pt-3">
                                         {clubUruguayDetails.aclaracion}
@@ -2610,6 +2644,18 @@ function SimuladorContent() {
                                     ? <> — El presupuesto lleva un ajuste anual proyectado del <strong>{stats.annualProjection.adjustmentPct}%</strong> para eventos en {stats.annualProjection.eventYear}.</>
                                     : <> — El total mostrado corresponde al precio vigente.</>}
                             </div>
+                            
+                            <div className="pt-2 flex justify-center">
+                                <Button
+                                    type="button"
+                                    variant="outline"
+                                    onClick={() => setIsFaqOpen(true)}
+                                    className="rounded-2xl border-2 border-indigo-500/30 bg-gradient-to-r from-indigo-50 to-purple-50 hover:from-indigo-100 hover:to-purple-100 text-indigo-950 font-black text-xs uppercase tracking-widest px-6 py-3 shadow-md transition-all hover:scale-105"
+                                >
+                                    <HelpCircle className="w-4 h-4 mr-2 text-indigo-600 animate-pulse" />
+                                    Ver Preguntas Frecuentes (FAQ)
+                                </Button>
+                            </div>
                         </div>
                     )}
                 </CardContent>
@@ -2717,8 +2763,6 @@ function SimuladorContent() {
                     </DialogFooter>
                 </DialogContent>
             </Dialog>
-
-            <FloatingWhatsApp phoneNumber={whatsappNumber} />
         </div>
     );
 }
