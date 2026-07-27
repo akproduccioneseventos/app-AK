@@ -36,6 +36,22 @@ describe("public guest portal data", () => {
       },
     ],
     gestionCostos: { total: 200000 },
+    invitacionConfig: {
+      rsvpActivo: false,
+      colorPrincipal: "#4f46e5",
+    },
+    menuMesa: {
+      entrada: "",
+      platoPrincipal: "",
+    },
+    menuSeleccionPortal: {
+      entrada: "Bruschettas",
+      principal: "Pollo con guarnicion",
+      postre: "Torta",
+      bebidas: "Refrescos",
+      restriccionesAlimentarias: "Dato interno",
+      confirmado: true,
+    },
     programa: [
       {
         id: "public",
@@ -77,6 +93,17 @@ describe("public guest portal data", () => {
     expect(result.fiesta.programa).toEqual([
       expect.objectContaining({ id: "public", titulo: "Recepción" }),
     ]);
+    expect(result.fiesta.invitacionConfig?.rsvpActivo).toBe(false);
+    expect(result.fiesta.menuSeleccionPortal).toEqual({
+      entrada: "Bruschettas",
+      principal: "Pollo con guarnicion",
+      postre: "Torta",
+      bebidas: "Refrescos",
+    });
+    expect(result.fiesta.menuSeleccionPortal).not.toHaveProperty(
+      "restriccionesAlimentarias",
+    );
+    expect(result.fiesta.menuSeleccionPortal).not.toHaveProperty("confirmado");
   });
 
   it("rejects a guest id that does not belong to the event", () => {

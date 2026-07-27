@@ -64,16 +64,6 @@ const formatCurrency = (amount?: number) => {
   return new Intl.NumberFormat('es-UY', { style: 'currency', currency: 'UYU', minimumFractionDigits: 0, maximumFractionDigits: 0 }).format(amount);
 };
 
-const sanitizeImageUrl = (url?: string): string | undefined => {
-  if (!url) return undefined;
-  try {
-    const parsed = new URL(url);
-    if (parsed.protocol === 'http:' || parsed.protocol === 'https:') return url;
-  } catch { /* invalid URL */ }
-  return undefined;
-};
-
-
 export default function CatalogoPlatosPage() {
   const { toast } = useToast();
   const [allMenus, setAllMenus] = useState<FullMenu[]>([]);

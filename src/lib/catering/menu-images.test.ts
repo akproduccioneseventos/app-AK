@@ -34,6 +34,15 @@ describe("catering menu images", () => {
     ).toBe("/uploads/catering/custom-dish.jpeg");
   });
 
+  it("does not mistake a custom filename containing canva for the legacy host", () => {
+    expect(
+      getCateringDishImage({
+        id: "dish_entrada_9",
+        imageUrl: "/uploads/catering/canva-design.jpeg",
+      }),
+    ).toBe("/uploads/catering/canva-design.jpeg");
+  });
+
   it("replaces the legacy Canva URL with the verified canonical photo", () => {
     expect(
       getCateringDishImage({

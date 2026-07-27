@@ -476,6 +476,7 @@ export default function MuroEnVivoPage() {
             }}
             className="grid h-9 w-9 place-items-center rounded-md text-white/60 transition-colors hover:bg-white/10 hover:text-white"
             title="Pantalla completa"
+            aria-label="Pantalla completa"
           >
             <Maximize className="w-4 h-4" />
           </button>

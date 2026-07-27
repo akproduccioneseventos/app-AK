@@ -4,6 +4,7 @@ import type {
   GuestExperienceSettings,
   GuestPortalSettings,
   Invitado,
+  MenuSeleccionPortal,
   ModulosContratados,
   ZonaDigitalAdolescentesSettings,
 } from "@/types/fiesta";
@@ -45,6 +46,7 @@ export interface PublicGuestEvent {
     >["dressCode"];
     colorPrincipal?: string;
     fotoPortada?: string;
+    rsvpActivo?: boolean;
   };
   invitacionSlug?: string;
   programa: PublicGuestProgramItem[];
@@ -55,6 +57,10 @@ export interface PublicGuestEvent {
     postres?: string;
     bebidas?: string;
   };
+  menuSeleccionPortal?: Pick<
+    MenuSeleccionPortal,
+    "entrada" | "principal" | "postre" | "bebidas"
+  >;
   zonaDigitalAdolescentes?: ZonaDigitalAdolescentesSettings;
   modulosContratados?: ModulosContratados;
 }
@@ -108,6 +114,7 @@ export function buildPublicGuestEvent(
           dressCode: invitation.dressCode,
           colorPrincipal: invitation.colorPrincipal,
           fotoPortada: invitation.fotoPortada,
+          rsvpActivo: invitation.rsvpActivo,
         }
       : undefined,
     invitacionSlug: fiesta.invitacionSlug,
@@ -127,6 +134,14 @@ export function buildPublicGuestEvent(
           adolescentes: fiesta.menuMesa.adolescentes,
           postres: fiesta.menuMesa.postres,
           bebidas: fiesta.menuMesa.bebidas,
+        }
+      : undefined,
+    menuSeleccionPortal: fiesta.menuSeleccionPortal
+      ? {
+          entrada: fiesta.menuSeleccionPortal.entrada,
+          principal: fiesta.menuSeleccionPortal.principal,
+          postre: fiesta.menuSeleccionPortal.postre,
+          bebidas: fiesta.menuSeleccionPortal.bebidas,
         }
       : undefined,
     zonaDigitalAdolescentes: fiesta.zonaDigitalAdolescentes,
