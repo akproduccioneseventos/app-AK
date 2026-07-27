@@ -3,6 +3,16 @@ import type { ElementoDecorativo } from '@/types/fiesta';
 export type TipoElemento = ElementoDecorativo['tipo'];
 
 export const TIPOS_ELEMENTOS: { tipo: TipoElemento; emoji: string; label: string; maxColores: number }[] = [
+  { tipo: 'panelCircular', emoji: '⭕', label: 'Panel Circular', maxColores: 2 },
+  { tipo: 'arcoRomano', emoji: '🏛️', label: 'Arco Romano', maxColores: 2 },
+  { tipo: 'paredFollaje', emoji: '🌿', label: 'Pared Follaje', maxColores: 2 },
+  { tipo: 'shimmerWall', emoji: '✨', label: 'Shimmer Wall', maxColores: 2 },
+  { tipo: 'trioCilindros', emoji: '🛢️', label: 'Trío Cilindros', maxColores: 3 },
+  { tipo: 'mesaCandyBar', emoji: '🍬', label: 'Mesa Candy Bar', maxColores: 2 },
+  { tipo: 'cartelNeon', emoji: '💡', label: 'Cartel Neón', maxColores: 1 },
+  { tipo: 'lucesEdison', emoji: '🕯️', label: 'Luces Edison', maxColores: 1 },
+  { tipo: 'estructuraGeometria', emoji: '⬡', label: 'Hexágono Metal', maxColores: 1 },
+  { tipo: 'sillon15s', emoji: '👑', label: 'Sillón Throne 15s', maxColores: 2 },
   { tipo: 'globo', emoji: '🎈', label: 'Globo', maxColores: 1 },
   { tipo: 'globosMacizos', emoji: '🫧', label: 'Racimo Globos', maxColores: 3 },
   { tipo: 'flor', emoji: '🌸', label: 'Flor', maxColores: 2 },

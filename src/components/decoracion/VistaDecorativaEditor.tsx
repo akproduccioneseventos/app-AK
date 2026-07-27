@@ -26,9 +26,7 @@ import DecoTemplateGallery from '@/components/decoracion/DecoTemplateGallery';
 import { saveDecoCanvasTemplate } from '@/app/actions/deco-canvas-templates';
 import { useToast } from '@/hooks/use-toast';
 
-const VISTA_TIPOS_ELEMENTOS = TIPOS_ELEMENTOS.filter(t =>
-  ['globo', 'globosMacizos', 'flor', 'centroMesa', 'arco', 'lazo', 'candelabro', 'mesaTorta', 'tela'].includes(t.tipo)
-);
+const VISTA_TIPOS_ELEMENTOS = TIPOS_ELEMENTOS;
 const CANVAS_W = 900;
 const CANVAS_H = 550;
 // Spawn zone centered in the visible canvas area.

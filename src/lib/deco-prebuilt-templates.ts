@@ -132,6 +132,31 @@ export const DECO_PREBUILT_TEMPLATES: DecoCanvasTemplate[] = [
     ],
   },
   {
+    id: 'preset_15_neon_glamour',
+    nombre: '15 Años Neón Glamour (Panel + Cilindros)',
+    fondoColor: '#120E24',
+    creadoEn: PRESET_DATE,
+    elementos: [
+      el('png_1', 'panelCircular', 450, 180, ['#E6BFB2', '#D9B8FF'], 1, 0, 1.6),
+      el('png_2', 'cartelNeon', 450, 160, ['#FF007F'], 2, 0, 1.2),
+      el('png_3', 'trioCilindros', 450, 340, ['#FFFFFF', '#FFB3C1', '#D4AF37'], 3, 0, 1.2),
+      el('png_4', 'globosMacizos', 260, 190, ['#FF007F', '#D9B8FF', '#FFD700'], 4, -15, 1.2),
+    ],
+  },
+  {
+    id: 'preset_boda_boho_shimmer',
+    nombre: 'Boda Boho & Shimmer Wall',
+    fondoColor: '#FAF7F2',
+    creadoEn: PRESET_DATE,
+    elementos: [
+      el('bbs_1', 'shimmerWall', 450, 180, ['#FFD700', '#C9A96E'], 1, 0, 1.8),
+      el('bbs_2', 'paredFollaje', 220, 190, ['#2ECC71', '#1E8449'], 2, 0, 1.3),
+      el('bbs_3', 'trioCilindros', 450, 340, ['#F5F0E8', '#C9A96E', '#FFFFFF'], 3, 0, 1.2),
+      el('bbs_4', 'sillon15s', 670, 310, ['#C9A96E', '#FFFFFF'], 4, 0, 1.1),
+      el('bbs_5', 'lucesEdison', 450, 60, ['#FFDD57'], 5, 0, 1.3),
+    ],
+  },
+  {
     id: 'preset_ano_nuevo',
     nombre: 'Año Nuevo',
     fondoColor: '#0F172A',

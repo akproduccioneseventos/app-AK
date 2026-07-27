@@ -21,31 +21,58 @@ export interface LibraryElement {
 }
 
 const LIBRARY_ELEMENTS: LibraryElement[] = [
+  // Paneles y Fondos
+  { id: 'panelCircular', tipo: 'panelCircular', label: 'Panel Circular Fondo', categoria: 'Paneles y Fondos', emoji: '⭕', maxColores: 2 },
+  { id: 'arcoRomano', tipo: 'arcoRomano', label: 'Arco Romano Escénico', categoria: 'Paneles y Fondos', emoji: '🏛️', maxColores: 2 },
+  { id: 'paredFollaje', tipo: 'paredFollaje', label: 'Pared de Follaje Verde', categoria: 'Paneles y Fondos', emoji: '🌿', maxColores: 2 },
+  { id: 'shimmerWall', tipo: 'shimmerWall', label: 'Pared Shimmer Lentejuelas', categoria: 'Paneles y Fondos', emoji: '✨', maxColores: 2 },
+  
+  // Cilindros y Pedestales
+  { id: 'trioCilindros', tipo: 'trioCilindros', label: 'Trío de Cilindros Torta', categoria: 'Cilindros y Mesas', emoji: '🛢️', maxColores: 3 },
+  { id: 'mesaCandyBar', tipo: 'mesaCandyBar', label: 'Mesa Candy Bar / Buffet', categoria: 'Cilindros y Mesas', emoji: '🍬', maxColores: 2 },
+  { id: 'mesaTorta', tipo: 'mesaTorta', label: 'Mesa Torta Tradicional', categoria: 'Cilindros y Mesas', emoji: '🎂', maxColores: 1 },
+
+  // Cartelería y Neón
+  { id: 'cartelNeon', tipo: 'cartelNeon', label: 'Cartel Neón "Mis 15s"', categoria: 'Cartelería Neón', emoji: '💡', maxColores: 1 },
+  { id: 'lucesEdison', tipo: 'lucesEdison', label: 'Guirnalda Luces Edison', categoria: 'Cartelería Neón', emoji: '🕯️', maxColores: 1 },
+  { id: 'estructuraGeometria', tipo: 'estructuraGeometria', label: 'Hexágono Metal Dorado', categoria: 'Cartelería Neón', emoji: '⬡', maxColores: 1 },
+
+  // Mobiliario VIP
+  { id: 'sillon15s', tipo: 'sillon15s', label: 'Sillón Throne 15s / Novios', categoria: 'Mobiliario VIP', emoji: '👑', maxColores: 2 },
+
   // Globos
-  { id: 'globo', tipo: 'globo', label: 'Globo', categoria: 'Globos', emoji: '🎈', maxColores: 1 },
-  { id: 'globosMacizos', tipo: 'globosMacizos', label: 'Racimo de Globos', categoria: 'Globos', emoji: '🫧', maxColores: 3 },
+  { id: 'globo', tipo: 'globo', label: 'Globo Individual', categoria: 'Globos', emoji: '🎈', maxColores: 1 },
+  { id: 'globosMacizos', tipo: 'globosMacizos', label: 'Racimo de Globos Orgánico', categoria: 'Globos', emoji: '🫧', maxColores: 3 },
+  { id: 'arco', tipo: 'arco', label: 'Arco de Globos', categoria: 'Globos', emoji: '🌈', maxColores: 3 },
+
   // Flores y Plantas
-  { id: 'flor', tipo: 'flor', label: 'Flor', categoria: 'Flores y Plantas', emoji: '🌸', maxColores: 2 },
+  { id: 'flor', tipo: 'flor', label: 'Flor Individual', categoria: 'Flores y Plantas', emoji: '🌸', maxColores: 2 },
   { id: 'centroMesa', tipo: 'centroMesa', label: 'Centro de Mesa', categoria: 'Flores y Plantas', emoji: '💐', maxColores: 2 },
-  // Arcos
-  { id: 'arco', tipo: 'arco', label: 'Arco de Globos', categoria: 'Arcos', emoji: '🌈', maxColores: 3 },
-  // Lazos
-  { id: 'lazo', tipo: 'lazo', label: 'Lazo / Moño', categoria: 'Lazos', emoji: '🎀', maxColores: 1 },
-  // Candelabros
-  { id: 'candelabro', tipo: 'candelabro', label: 'Candelabro', categoria: 'Candelabros', emoji: '🕯️', maxColores: 1 },
-  // Mesas
-  { id: 'mesaTorta', tipo: 'mesaTorta', label: 'Mesa Torta', categoria: 'Mesas', emoji: '🎂', maxColores: 1 },
-  // Telas
-  { id: 'tela', tipo: 'tela', label: 'Tela / Cortina', categoria: 'Telas', emoji: '🪩', maxColores: 1 },
-  // Iluminación
-  { id: 'estrella', tipo: 'estrella', label: 'Estrella', categoria: 'Iluminación', emoji: '⭐', maxColores: 1 },
-  // Otros
-  { id: 'corazon', tipo: 'corazon', label: 'Corazón', categoria: 'Otros', emoji: '💖', maxColores: 1 },
-  { id: 'mariposa', tipo: 'mariposa', label: 'Mariposa', categoria: 'Otros', emoji: '🦋', maxColores: 2 },
-  { id: 'corona', tipo: 'corona', label: 'Corona', categoria: 'Otros', emoji: '👑', maxColores: 1 },
+
+  // Lazos, Candelabros, Telas
+  { id: 'lazo', tipo: 'lazo', label: 'Lazo / Moño', categoria: 'Lazos y Telas', emoji: '🎀', maxColores: 1 },
+  { id: 'tela', tipo: 'tela', label: 'Tela / Cortina', categoria: 'Lazos y Telas', emoji: '🪩', maxColores: 1 },
+  { id: 'candelabro', tipo: 'candelabro', label: 'Candelabro Elegante', categoria: 'Candelabros', emoji: '🕯️', maxColores: 1 },
+
+  // Iluminación y Adornos
+  { id: 'estrella', tipo: 'estrella', label: 'Estrella Luminosa', categoria: 'Iluminación', emoji: '⭐', maxColores: 1 },
+  { id: 'corazon', tipo: 'corazon', label: 'Corazón Decorativo', categoria: 'Otros', emoji: '💖', maxColores: 1 },
+  { id: 'mariposa', tipo: 'mariposa', label: 'Mariposa 3D', categoria: 'Otros', emoji: '🦋', maxColores: 2 },
+  { id: 'corona', tipo: 'corona', label: 'Corona Realeza', categoria: 'Otros', emoji: '👑', maxColores: 1 },
 ];
 
-const CATEGORIES = ['Globos', 'Flores y Plantas', 'Arcos', 'Lazos', 'Candelabros', 'Mesas', 'Telas', 'Iluminación', 'Otros'];
+const CATEGORIES = [
+  'Paneles y Fondos',
+  'Cilindros y Mesas',
+  'Cartelería Neón',
+  'Mobiliario VIP',
+  'Globos',
+  'Flores y Plantas',
+  'Lazos y Telas',
+  'Candelabros',
+  'Iluminación',
+  'Otros',
+];
 
 const FAV_KEY_PREFIX = 'deco-favoritos-';
 
