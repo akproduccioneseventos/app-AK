@@ -2432,7 +2432,7 @@ function SimuladorContent() {
                                             </p>
                                             <div className="grid gap-3 sm:grid-cols-2">
                                                 {tierMissingData.missingServices.map(service => {
-                                                    const isSelected = selectedServicesMap.has(service.id);
+                                                    const isSelected = stats.detallados.some(s => s.id === service.id);
                                                     const calculated = getSimulatorServiceCalculatedData(service, adultos, ninosYAdolescentes);
                                                     return (
                                                         <div
