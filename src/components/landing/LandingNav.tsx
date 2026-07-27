@@ -6,7 +6,11 @@ import { Menu, X } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { CompanyLogo } from '@/components/company-logo';
 
-export function LandingNav() {
+export interface LandingNavProps {
+  whatsappNumber?: string;
+}
+
+export function LandingNav(_props: LandingNavProps = {}) {
   const [isScrolled, setIsScrolled] = useState(false);
   const [isMenuOpen, setIsMenuOpen] = useState(false);
 

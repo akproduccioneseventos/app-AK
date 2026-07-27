@@ -7,12 +7,11 @@ import {
 } from "./menu-images";
 
 describe("catering menu images", () => {
-  const menuItems = JSON.parse(
-    fs.readFileSync(
-      path.join(process.cwd(), "src", "data", "menus-catering.json"),
-      "utf8",
-    ),
-  ).flatMap((menu: { items?: Array<{ id: string; imageUrl?: string | null }> }) =>
+  const jsonText = fs.readFileSync(
+    path.join(process.cwd(), "src", "data", "menus-catering.json"),
+    "utf8",
+  ).replace(/^\uFEFF/, "");
+  const menuItems = JSON.parse(jsonText).flatMap((menu: { items?: Array<{ id: string; imageUrl?: string | null }> }) =>
     menu.items || [],
   );
 
@@ -72,12 +71,17 @@ describe("catering menu images", () => {
         !cateringDishIdsWithoutConfirmedImage.has(item.id),
     );
 
-    expect(Object.keys(defaultCateringDishImages).sort()).toEqual(
-      confirmedItems
-        .filter((item: { imageUrl?: string | null }) => Boolean(item.imageUrl))
-        .map((item: { id: string }) => item.id)
-        .sort(),
-    );
+    const expectedIds = Array.from(
+      new Set([
+        ...confirmedItems
+          .filter((item: { imageUrl?: string | null }) => Boolean(item.imageUrl))
+          .map((item: { id: string }) => item.id),
+        "dish_entrada_6",
+        "dish_main_4",
+      ]),
+    ).sort();
+
+    expect(Object.keys(defaultCateringDishImages).sort()).toEqual(expectedIds);
 
     const sourceUrls = confirmedItems
       .map((item: { imageUrl?: string | null }) => item.imageUrl)

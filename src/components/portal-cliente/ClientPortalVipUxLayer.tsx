@@ -56,14 +56,14 @@ function addInternalOverview() {
 
   section.innerHTML = `
     <div class="space-y-1">
-      <p class="text-lg font-black text-foreground">Portal Cliente VIP — estructura correcta</p>
-      <p>Este panel configura el portal privado que ve el cliente. La vista pública debe respetar estos mismos nombres y secciones.</p>
+      <p class="text-lg font-black text-foreground">Portal Cliente VIP â€” estructura correcta</p>
+      <p>Este panel configura el portal privado que ve el cliente. La vista pÃºblica debe respetar estos mismos nombres y secciones.</p>
     </div>
     <div class="grid gap-2 sm:grid-cols-2">
       ${cards}
     </div>
     <div class="rounded-2xl border border-amber-200 bg-amber-50 px-3 py-2 text-xs text-amber-800">
-      Pagos, seña y saldo van siempre en <strong>Pagos y documentos</strong>. No deben quedar dentro de tareas o “lo que debe llevar”.
+      Pagos, seÃ±a y saldo van siempre en <strong>Pagos y documentos</strong>. No deben quedar dentro de tareas o â€œlo que debe llevarâ€.
     </div>
   `;
 
@@ -84,8 +84,8 @@ function addInternalDefaultLinkWarning() {
   warning.id = 'portal-cliente-default-link-warning';
   warning.className = 'rounded-3xl border border-red-200 bg-red-50 p-4 text-sm text-red-800 space-y-1';
   warning.innerHTML = `
-    <p class="font-black">Atención: este portal sigue usando el link de prueba CLIENTE1.</p>
-    <p>Antes de enviarlo al cliente, cambiá el link personalizado por un nombre real del evento. Ejemplo: <strong>cliente-vip-rocio-15</strong>.</p>
+    <p class="font-black">AtenciÃ³n: este portal sigue usando el link de prueba CLIENTE1.</p>
+    <p>Antes de enviarlo al cliente, cambiÃ¡ el link personalizado por un nombre real del evento. Ejemplo: <strong>cliente-vip-rocio-15</strong>.</p>
   `;
 
   header.insertAdjacentElement('afterend', warning);
@@ -113,8 +113,8 @@ function addPublicUnconfiguredWarning() {
   warning.className = 'mx-auto max-w-3xl px-4 -mt-5 mb-4 relative z-30';
   warning.innerHTML = `
     <div class="rounded-3xl border border-amber-200 bg-amber-50 p-4 shadow-xl text-amber-900 space-y-2">
-      <p class="text-base font-black">Portal sin datos reales todavía</p>
-      <p class="text-sm leading-relaxed">Este link está funcionando, pero el evento todavía no tiene configurados los datos reales del cliente, fecha, lugar, presupuesto o contrato. No conviene enviarlo al cliente hasta completar esos datos desde Planificador.</p>
+      <p class="text-base font-black">Portal sin datos reales todavÃ­a</p>
+      <p class="text-sm leading-relaxed">Este link estÃ¡ funcionando, pero el evento todavÃ­a no tiene configurados los datos reales del cliente, fecha, lugar, presupuesto o contrato. No conviene enviarlo al cliente hasta completar esos datos desde Planificador.</p>
       <div class="grid grid-cols-2 gap-2 text-xs">
         <div class="rounded-2xl bg-white/70 border border-amber-100 p-2"><strong>1.</strong> Cambiar CLIENTE1 por link personalizado.</div>
         <div class="rounded-2xl bg-white/70 border border-amber-100 p-2"><strong>2.</strong> Cargar nombre real del evento.</div>
@@ -148,10 +148,10 @@ function correctFalsePublicProcessStates() {
     let changed = false;
 
     const replacements: Array<[string, string]> = [
-      ['Pago completado ✓', 'Pago sin configurar'],
+      ['Pago completado âœ“', 'Pago sin configurar'],
       ['Pago completado', 'Pago sin configurar'],
       ['Contrato pendiente de firma', 'Contrato sin configurar'],
-      ['Sin confirmaciones aún', 'Invitados sin configurar'],
+      ['Sin confirmaciones aÃºn', 'Invitados sin configurar'],
       ['PAGADO', 'PAGO'],
     ];
 
@@ -180,9 +180,9 @@ function addPublicQuickGuide() {
     <div class="rounded-3xl bg-white border border-slate-100 shadow-lg p-4 space-y-3">
       <p class="text-sm font-black text-slate-900">Tu portal VIP</p>
       <div class="grid grid-cols-2 gap-2 text-xs text-slate-600">
-        <div class="rounded-2xl bg-slate-50 p-3"><strong>Próximos pasos</strong><br/>Tareas pendientes y mensajes.</div>
+        <div class="rounded-2xl bg-slate-50 p-3"><strong>PrÃ³ximos pasos</strong><br/>Tareas pendientes y mensajes.</div>
         <div class="rounded-2xl bg-slate-50 p-3"><strong>Pagos</strong><br/>Saldo, comprobantes y documentos.</div>
-        <div class="rounded-2xl bg-slate-50 p-3"><strong>Evento</strong><br/>Organización, menú, fotos e invitados.</div>
+        <div class="rounded-2xl bg-slate-50 p-3"><strong>Evento</strong><br/>OrganizaciÃ³n, menÃº, fotos e invitados.</div>
         <div class="rounded-2xl bg-slate-50 p-3"><strong>Ayuda</strong><br/>Preguntas frecuentes y contacto.</div>
       </div>
     </div>
@@ -233,7 +233,7 @@ export default function ClientPortalVipUxLayer({ mode }: { mode: 'admin' | 'publ
         return changedNodes.length === 0 || changedNodes.some((node) => !isVipNode(node));
       });
 
-      if (hasExternalMutation) apply();
+      if (hasExternalMutation && !isApplying) apply();
     });
     observer.observe(document.body, { childList: true, subtree: true });
 

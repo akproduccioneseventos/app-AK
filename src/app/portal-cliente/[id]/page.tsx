@@ -214,11 +214,7 @@ export default function PortalClientePage() {
         toast({ title: 'Error', description: 'No se pudo guardar la mesa.', variant: 'destructive' });
       }
     } catch {
-      toast({
-        title: 'Error de conexión',
-        description: 'No se pudo guardar la mesa. Verificá tu conexión e intentá nuevamente.',
-        variant: 'destructive',
-      });
+      toast({ title: 'Error de conexión', description: 'No se pudo guardar la mesa. Verificá tu conexión e intentá nuevamente.', variant: 'destructive' });
     } finally {
       setEditingId(null);
       setIsSavingSeat(false);
@@ -465,11 +461,11 @@ export default function PortalClientePage() {
             { label: 'Fotos & Video', emoji: '📸', href: `/portal-cliente/${fiestaId}/fotos-video`, desc: 'Archivos y entregables' },
             { label: 'Invitados', emoji: '👥', href: `/portal-cliente/${fiestaId}/confirmar-invitados`, desc: 'Confirmaciones' },
           ].map((item, i) => (
-            <Link key={i} href={item.href} className="group block">
-              <div className="space-y-1 rounded-lg border border-slate-200 bg-white p-4 text-center transition duration-200 group-hover:-translate-y-0.5 group-hover:border-indigo-300 group-hover:shadow-md">
-                <span className="block text-3xl transition-transform duration-200 group-hover:scale-105">{item.emoji}</span>
-                <p className="text-sm font-black text-slate-800 transition-colors group-hover:text-indigo-700">{item.label}</p>
-                <p className="text-xs text-slate-400">{item.desc}</p>
+            <Link key={i} href={item.href} className="block group">
+              <div className="space-y-1.5 rounded-2xl border border-slate-200 bg-white p-4 text-center transition-all duration-300 group-hover:border-red-300 group-hover:shadow-lg group-hover:-translate-y-1">
+                <span className="text-3xl block transition-transform duration-300 group-hover:scale-110">{item.emoji}</span>
+                <p className="font-black text-sm text-slate-800 group-hover:text-red-700 transition-colors">{item.label}</p>
+                <p className="text-[11px] text-slate-400 font-medium">{item.desc}</p>
               </div>
             </Link>
           ))}
