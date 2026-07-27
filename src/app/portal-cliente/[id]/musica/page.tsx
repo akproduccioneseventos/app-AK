@@ -65,13 +65,18 @@ export default function MusicaPortalPage() {
 
   const handleSave = async () => {
     setIsSaving(true);
-    const result = await saveListaMusica(fiestaId, lista);
-    if (result.success) {
-      toast({ title: '✅ Lista guardada', description: 'Tu lista de música fue enviada al DJ.' });
-    } else {
-      toast({ title: 'Error', description: result.error ?? 'No se pudo guardar.', variant: 'destructive' });
+    try {
+      const result = await saveListaMusica(fiestaId, lista);
+      if (result.success) {
+        toast({ title: '✅ Lista guardada', description: 'Tu lista de música fue enviada al DJ.' });
+      } else {
+        toast({ title: 'Error', description: result.error ?? 'No se pudo guardar.', variant: 'destructive' });
+      }
+    } catch {
+      toast({ title: 'Error de conexión', description: 'No se pudo guardar la lista. Intentá nuevamente.', variant: 'destructive' });
+    } finally {
+      setIsSaving(false);
     }
-    setIsSaving(false);
   };
 
   if (isLoading) return (

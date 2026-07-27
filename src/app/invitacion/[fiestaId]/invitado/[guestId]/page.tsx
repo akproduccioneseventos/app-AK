@@ -42,6 +42,7 @@ import { trackGuestCtaClick } from '@/app/actions/fiesta/invitados.actions';
 import { Button } from '@/components/ui/button';
 import { appendCommercialAttribution } from '@/lib/commercial/acquisition';
 import { withGuestAccess } from '@/lib/guest-portal/public-event-navigation';
+import { getPublicGuestMenuSections } from '@/lib/guest-portal/public-menu';
 import type { PublicGuest, PublicGuestEvent } from '@/lib/guest-portal-public-data';
 import type { SocialConnection } from '@/types/settings';
 import type { GuestPortalSettings } from '@/types/fiesta';
@@ -188,6 +189,7 @@ function GuestPortalContent() {
   const tableEnabled = gps.showMesaAsignada !== false && (!modules || modules.numerosMesa !== false);
   const checkinEnabled = gps.showCheckin !== false && (!modules || modules.checkin !== false);
   const menuEnabled = guestExp?.showMenu !== false && (!modules || modules.menuMesa !== false);
+  const rsvpEnabled = fiesta.invitacionConfig?.rsvpActivo !== false;
   const giftsEnabled = gps.showRegalos === true && (!modules || modules.regalos !== false);
   const programaEnabled = gps.showItinerario !== false && (!modules || modules.itinerario !== false) && fiesta.programa.length > 0;
 
@@ -226,6 +228,7 @@ function GuestPortalContent() {
     : guest.rsvp === 'Rechazado'
       ? { label: 'Asistencia cancelada', className: 'border-red-200 bg-red-50 text-red-800' }
       : { label: 'Confirmacion pendiente', className: 'border-amber-200 bg-amber-50 text-amber-800' };
+  const menuSections = getPublicGuestMenuSections(fiesta);
   const instagramUrl = guestExp?.instagramUrl || getSocialUrl(socialConnections, 'Instagram');
   const facebookUrl = guestExp?.facebookUrl || getSocialUrl(socialConnections, 'Facebook');
   const tiktokUrl = guestExp?.tiktokUrl || getSocialUrl(socialConnections, 'TikTok');
@@ -412,13 +415,14 @@ function GuestPortalContent() {
             {guest.mensaje && <div data-testid="guest-portal-message" className="flex items-start gap-3 text-sm"><Heart className="mt-0.5 h-5 w-5 text-slate-500" /><p className="italic">&ldquo;{guest.mensaje}&rdquo;</p></div>}
           </div>
           {checkinEnabled && guest.rsvp === 'Confirmado' && <div data-testid="guest-portal-qr" className="mt-6 border-t border-slate-200 pt-5"><div className="flex flex-col items-center gap-4 sm:flex-row sm:justify-between"><div><p className="text-xs font-black uppercase tracking-widest text-slate-500">Pase de entrada</p><p className="mt-1 text-sm text-slate-600">Mostra este codigo al ingresar al evento.</p></div><div className="rounded-lg border border-slate-200 bg-white p-3"><QRCodeStylized id="qr-guest-portal" value={qrValue} size={160} level="H" /></div><Button onClick={downloadQR} variant="outline" className="min-h-11 rounded-lg"><Download className="mr-2 h-4 w-4" />Guardar QR</Button></div></div>}
-          {checkinEnabled && guest.rsvp !== 'Confirmado' && <p data-testid="guest-portal-qr-pending" className="mt-5 text-sm text-slate-500">Tu QR de entrada estara disponible una vez que confirmes tu asistencia.</p>}
-          {guest.rsvp === 'Confirmado' && fiesta.configuracion?.fechaEvento && (() => { const deadline = new Date(fiesta.configuracion.fechaEvento); deadline.setDate(deadline.getDate() - 7); return new Date() < deadline ? <div className="mt-5 border-t border-slate-200 pt-4 text-sm"><p className="text-slate-600">Podes cancelar hasta el <strong>{deadline.toLocaleDateString('es-UY', { day: 'numeric', month: 'long' })}</strong>.</p><a href={`/invitacion/${fiestaId}/rsvp`} className="mt-2 inline-flex font-bold text-slate-950 underline">Cancelar confirmacion</a></div> : null; })()}
+          {checkinEnabled && guest.rsvp !== 'Confirmado' && <p data-testid="guest-portal-qr-pending" className="mt-5 text-sm text-slate-500">{rsvpEnabled ? 'Tu QR de entrada estara disponible una vez que confirmes tu asistencia.' : 'El organizador habilitara tu pase cuando confirme tu asistencia.'}</p>}
+          {rsvpEnabled && guest.rsvp !== 'Confirmado' && <a href={`/invitacion/${fiestaId}/rsvp`} className="mt-5 inline-flex min-h-11 items-center rounded-lg px-4 text-sm font-black text-white" style={{ backgroundColor: accentColor }}>{guest.rsvp === 'Rechazado' ? 'Actualizar respuesta' : 'Confirmar asistencia'}</a>}
+          {rsvpEnabled && guest.rsvp === 'Confirmado' && fiesta.configuracion?.fechaEvento && (() => { const deadline = new Date(fiesta.configuracion.fechaEvento); deadline.setDate(deadline.getDate() - 7); return new Date() < deadline ? <div className="mt-5 border-t border-slate-200 pt-4 text-sm"><p className="text-slate-600">Podes cancelar hasta el <strong>{deadline.toLocaleDateString('es-UY', { day: 'numeric', month: 'long' })}</strong>.</p><a href={`/invitacion/${fiestaId}/rsvp`} className="mt-2 inline-flex font-bold text-slate-950 underline">Cancelar confirmacion</a></div> : null; })()}
         </section>
 
         {(config?.nombreLugar || fecha || dressCode?.tipo) && <section id="datos-evento" className="rounded-lg border border-slate-200 bg-white p-5 shadow-sm"><p className="text-xs font-black uppercase tracking-widest text-slate-500">Datos del evento</p><div className="mt-5 grid gap-4 sm:grid-cols-2">{config?.nombreLugar && <div className="flex items-start gap-3"><MapPin className="mt-0.5 h-5 w-5 text-slate-500" /><div><p className="font-bold">{config.nombreLugar}</p>{config.direccionLugar && <p className="mt-1 text-sm text-slate-500">{config.direccionLugar}</p>}</div></div>}{fecha && <div className="flex items-start gap-3"><CalendarDays className="mt-0.5 h-5 w-5 text-slate-500" /><p className="text-sm capitalize">{fecha}{hora ? ` - ${hora} hs` : ''}</p></div>}{dressCode?.tipo && dressCode.tipo !== 'casual' && <div data-testid="guest-portal-dresscode" className="flex items-start gap-3"><Shirt className="mt-0.5 h-5 w-5 text-slate-500" /><div><p className="text-xs text-slate-500">Dress code</p><p className="text-sm font-bold capitalize">{dressCode.tipo === 'personalizado' ? dressCode.textoPersonalizado : dressCode.tipo}{dressCode.colorSugerido ? ` - ${dressCode.colorSugerido}` : ''}</p></div></div>}</div>{mapsUrl && <a href={mapsUrl} target="_blank" rel="noopener noreferrer" className="mt-5 inline-flex items-center gap-2 text-sm font-bold underline" style={{ color: accentColor }}><Navigation className="h-4 w-4" />Ver en Google Maps</a>}</section>}
 
-        {menuEnabled && fiesta.menuMesa && <section id="menu-evento" className="rounded-lg border border-slate-200 bg-white p-5 shadow-sm"><p className="text-xs font-black uppercase tracking-widest text-slate-500">Menu del evento</p><div className="mt-4 grid gap-3 text-sm sm:grid-cols-2">{fiesta.menuMesa.entrada && <p><strong>Entrada:</strong> {fiesta.menuMesa.entrada}</p>}{fiesta.menuMesa.platoPrincipal && <p><strong>Plato principal:</strong> {fiesta.menuMesa.platoPrincipal}</p>}{fiesta.menuMesa.adolescentes && <p><strong>Menu adolescente:</strong> {fiesta.menuMesa.adolescentes}</p>}{fiesta.menuMesa.postres && <p><strong>Postres:</strong> {fiesta.menuMesa.postres}</p>}{fiesta.menuMesa.bebidas && <p><strong>Bebidas:</strong> {fiesta.menuMesa.bebidas}</p>}</div></section>}
+        {menuEnabled && menuSections.length > 0 && <section id="menu-evento" className="rounded-lg border border-slate-200 bg-white p-5 shadow-sm"><p className="text-xs font-black uppercase tracking-widest text-slate-500">Menu del evento</p><div className="mt-4 grid gap-3 text-sm sm:grid-cols-2">{menuSections.map((item) => <p key={item.key}><strong>{item.label}:</strong> {item.value}</p>)}</div></section>}
 
         {giftsEnabled && <section className="rounded-lg border border-slate-200 bg-white p-5 shadow-sm"><p className="text-xs font-black uppercase tracking-widest text-slate-500">Regalos</p><p className="mt-2 text-sm text-slate-600">Consulta las opciones de regalo de este evento.</p><a href={`${invitacionUrl}#regalos`} target="_blank" rel="noopener noreferrer" className="mt-4 inline-flex min-h-10 items-center rounded-lg border border-slate-300 px-3 text-sm font-bold">Ver regalos</a></section>}
 

@@ -14,6 +14,11 @@ export type SimulatorBudgetPdfInput = {
   childrenAndTeens: number;
   packageName?: string;
   items: SimulatorDetailedService[];
+  salonDetails?: {
+    nombre: string;
+    costo: number;
+    aclaracion: string;
+  };
   stats: Pick<
     SimulatorPriceStats,
     | "subtotalBruto"
@@ -52,6 +57,7 @@ export function buildSimulatorBudgetPdfModel(
 ): SimulatorBudgetPdfModel {
   const grouped = new Map<string, SimulatorDetailedService[]>();
   input.items.forEach((item) => {
+    if (item.id === 'serv_salon_club_uruguay' || /salón club uruguay/i.test(item.nombre)) return;
     const category = item.categoria?.trim() || "Otros servicios";
     const current = grouped.get(category) || [];
     current.push(item);
@@ -309,23 +315,67 @@ export async function createSimulatorBudgetPdf(
     y += 10;
   }
 
-  const terms =
-    input.bookingTerms?.trim() ||
-    "El presupuesto es válido por 30 días. Con una seña de $5.000 se puede solicitar la reserva; AK confirma disponibilidad y condiciones antes de registrar el pago.";
-  const termLines = pdf.splitTextToSize(terms, 169) as string[];
-  const termsHeight = Math.max(25, 14 + termLines.length * 4);
-  // Keep the conditions and the personalized link together so a long budget
-  // never creates an almost-empty page containing only the URL.
-  ensureSpace(termsHeight + 20);
+  if (input.salonDetails) {
+    ensureSpace(26);
+    pdf.setFillColor(254, 243, 199);
+    pdf.setDrawColor(245, 158, 11);
+    pdf.roundedRect(marginX, y, contentWidth, 24, 1.5, 1.5, "FD");
+    pdf.setFont("helvetica", "bold");
+    pdf.setFontSize(8.5);
+    pdf.setTextColor(146, 64, 14);
+    pdf.text(`LOCACIÓN: ${input.salonDetails.nombre.toUpperCase()}`, marginX + 4, y + 5.5);
+    writeRightAligned(pdf, `Precio Real: $36.000 | Promo: ${formatCurrency(input.salonDetails.costo)}`, 191, y + 5.5);
+    pdf.setFont("helvetica", "normal");
+    pdf.setFontSize(7);
+    pdf.setTextColor(180, 83, 9);
+    const salonNoteLines = pdf.splitTextToSize(
+      input.salonDetails.aclaracion ||
+        `El alquiler del Salón Club Uruguay (Precio Real: $36.000, Precio Promo: $16.900) NO se suma en el total de este presupuesto de AK Producciones. Se abona mediante contrato y recibo de alquiler independiente directamente en la administración del Club Uruguay.`,
+      172
+    ) as string[];
+    pdf.text(salonNoteLines, marginX + 4, y + 11);
+    y += 28;
+  }
+
+  // 15-Minute Promo Urgency Box in PDF
+  ensureSpace(32);
+  pdf.setFillColor(254, 242, 242);
+  pdf.setDrawColor(239, 68, 68);
+  pdf.roundedRect(marginX, y, contentWidth, 30, 1.5, 1.5, "FD");
+  pdf.setFont("helvetica", "bold");
+  pdf.setFontSize(8.5);
+  pdf.setTextColor(185, 28, 28);
+  pdf.text("ASEGURÁ TU PROMOCIÓN ANTES DE QUE TERMINE EL TIEMPO", marginX + 4, y + 6);
+  pdf.setFont("helvetica", "normal");
+  pdf.setFontSize(7.2);
+  pdf.setTextColor(30, 41, 59);
+  pdf.text("Aprovecha estos 15 minutos para mantener la promocion y los descuentos incluidos en tu presupuesto.", marginX + 4, y + 11);
+  pdf.text("Coordina una entrevista sin costo con AK Producciones, contanos como imaginas tu fiesta y recibi asesoramiento", marginX + 4, y + 16);
+  pdf.text("para elegir la fecha, los servicios y la mejor opcion para tu presupuesto.", marginX + 4, y + 21);
+  pdf.setFont("helvetica", "bold");
+  pdf.setTextColor(185, 28, 28);
+  pdf.text("Comunicate ahora y me empeza a organizar tu fiesta completa con todo resuelto en un solo lugar.", marginX + 4, y + 26);
+  y += 34;
+
+  const termsText = [
+    "Confirmá tu evento con una seña de solo $5.000 y la firma del contrato. La fecha se reserva para la primera persona que complete ambos pasos.",
+    "El presupuesto tiene una validez de 30 días, manteniendo durante ese período el precio promocional y todos los regalos incluidos.",
+    "Los valores corresponden a eventos realizados en 2026. Para fechas desde 2027 se aplicará un ajuste acumulativo del 15% por cada año adicional.",
+    "No dejes pasar tu fecha: firmá el contrato, aboná la seña y empezá a preparar tu fiesta con AK Producciones."
+  ].join("\n");
+
+  const termLines = pdf.splitTextToSize(termsText, 169) as string[];
+  const termsHeight = Math.max(30, 12 + termLines.length * 4.5);
+  ensureSpace(termsHeight + 15);
   pdf.setDrawColor(203, 213, 225);
   pdf.roundedRect(marginX, y, contentWidth, termsHeight, 1.5, 1.5);
   pdf.setFont("helvetica", "bold");
-  pdf.setFontSize(7.5);
-  pdf.setTextColor(51, 65, 85);
-  pdf.text("CONDICIONES", marginX + 4, y + 6);
+  pdf.setFontSize(8);
+  pdf.setTextColor(15, 23, 42);
+  pdf.text("RESERVÁ TU FECHA Y ASEGURÁ LA PROMOCIÓN", marginX + 4, y + 6);
   pdf.setFont("helvetica", "normal");
   pdf.setFontSize(7.2);
-  pdf.setTextColor(71, 85, 105);
+  pdf.setTextColor(51, 65, 85);
   pdf.text(termLines, marginX + 4, y + 11);
   y += termsHeight + 5;
 

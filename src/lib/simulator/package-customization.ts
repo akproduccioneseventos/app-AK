@@ -140,3 +140,45 @@ export function getRemovablePackageServices(
     .map(item => serviceById.get(item.id))
     .filter((service): service is ServicioEmpresa => Boolean(service));
 }
+
+export type TierMissingServicesResult = {
+  nextPackageName: string;
+  targetPackageId: string;
+  missingServices: ServicioEmpresa[];
+};
+
+export function getTierMissingServices(
+  config: Pick<ArmadoRapidoConfig, 'paquetes'>,
+  selectedPackageId: string | undefined,
+  services: ServicioEmpresa[],
+): TierMissingServicesResult {
+  if (!selectedPackageId) {
+    return { nextPackageName: '', targetPackageId: '', missingServices: [] };
+  }
+  const packages = config.paquetes || [];
+  const currentIndex = packages.findIndex((p) => p.id === selectedPackageId);
+  if (currentIndex === -1 || currentIndex >= packages.length - 1) {
+    return { nextPackageName: '', targetPackageId: '', missingServices: [] };
+  }
+  const currentPkg = packages[currentIndex];
+  const nextPkg = packages[currentIndex + 1];
+  const currentServiceIds = new Set(currentPkg.serviciosIncluidos.map((s) => s.id));
+  const serviceById = new Map(services.map((s) => [s.id, s]));
+
+  const missingServices: ServicioEmpresa[] = [];
+  nextPkg.serviciosIncluidos.forEach((item) => {
+    if (!currentServiceIds.has(item.id)) {
+      const found = serviceById.get(item.id);
+      if (found && (found.cantidadDisponible === undefined || found.cantidadDisponible > 0)) {
+        missingServices.push(found);
+      }
+    }
+  });
+
+  return {
+    nextPackageName: nextPkg.nombre,
+    targetPackageId: nextPkg.id,
+    missingServices,
+  };
+}
+

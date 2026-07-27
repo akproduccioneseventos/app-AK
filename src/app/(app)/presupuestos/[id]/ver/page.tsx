@@ -33,6 +33,8 @@ import { Badge } from '@/components/ui/badge';
 import { motion } from 'framer-motion';
 import BudgetDocument from '@/components/budget/BudgetDocument';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from '@/components/ui/dialog';
+import { CompanyLogo } from '@/components/company-logo';
+import { FloatingWhatsApp } from '@/components/ui/floating-whatsapp';
 import {
   buildAnnualAdjustmentProjection,
   calculatePricePerPerson,
@@ -1288,6 +1290,7 @@ function VerPresupuestoContent({ params }: { params: { id: string } }) {
                 .rounded-\\[2rem\\], .rounded-\\[2\\.5rem\\] { border-radius: 0 !important; }
             }
         `}</style>
+        <FloatingWhatsApp phoneNumber={whatsappNumber} />
     </div>
   );
 }

@@ -45,13 +45,18 @@ export default function MenuPortalPage() {
 
   const handleSave = async () => {
     setIsSaving(true);
-    const result = await saveMenuSeleccion(fiestaId, form);
-    if (result.success) {
-      toast({ title: '✅ Menú guardado', description: 'Tu selección de menú fue enviada.' });
-    } else {
-      toast({ title: 'Error', description: result.error ?? 'No se pudo guardar.', variant: 'destructive' });
+    try {
+      const result = await saveMenuSeleccion(fiestaId, form);
+      if (result.success) {
+        toast({ title: '✅ Menú guardado', description: 'Tu selección de menú fue enviada.' });
+      } else {
+        toast({ title: 'Error', description: result.error ?? 'No se pudo guardar.', variant: 'destructive' });
+      }
+    } catch {
+      toast({ title: 'Error de conexión', description: 'No se pudo guardar la selección. Intentá nuevamente.', variant: 'destructive' });
+    } finally {
+      setIsSaving(false);
     }
-    setIsSaving(false);
   };
 
   if (isLoading) return (

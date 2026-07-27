@@ -197,6 +197,166 @@ export function CoronaSvg({ color = '#FFD700', size = 60 }: SvgProps) {
   );
 }
 
+// ─── NUEVOS ELEMENTOS CREADOR PARTY / TRENDS ──────────────────────────────────
+
+export function PanelCircularSvg({ color = '#E6BFB2', color2 = '#D9B8FF', size = 90 }: SvgProps) {
+  return (
+    <svg width={size} height={size} viewBox="0 0 100 100" fill="none" xmlns="http://www.w3.org/2000/svg">
+      <circle cx="50" cy="50" r="45" fill={color} stroke="#D4AF37" strokeWidth="2.5" />
+      <circle cx="50" cy="50" r="38" fill={color2} opacity="0.4" />
+      <ellipse cx="35" cy="30" rx="14" ry="8" fill="rgba(255,255,255,0.3)" transform="rotate(-25,35,30)" />
+      <line x1="50" y1="95" x2="50" y2="100" stroke="#888" strokeWidth="3" />
+      <rect x="35" y="94" width="30" height="4" rx="2" fill="#555" />
+    </svg>
+  );
+}
+
+export function ArcoRomanoSvg({ color = '#8B6A3E', color2 = '#F5F0E8', size = 90 }: SvgProps) {
+  return (
+    <svg width={size * 0.75} height={size} viewBox="0 0 75 100" fill="none" xmlns="http://www.w3.org/2000/svg">
+      <path d="M10 100 L10 40 A 27.5 27.5 0 0 1 65 40 L65 100 Z" fill={color2} stroke={color} strokeWidth="3" />
+      <path d="M18 100 L18 42 A 19.5 19.5 0 0 1 57 42 L57 100 Z" fill={color} opacity="0.15" />
+      <rect x="5" y="96" width="65" height="4" rx="1" fill={color} />
+    </svg>
+  );
+}
+
+export function ParedFollajeSvg({ color = '#2ECC71', color2 = '#1E8449', size = 90 }: SvgProps) {
+  return (
+    <svg width={size * 1.2} height={size * 0.9} viewBox="0 0 120 90" fill="none" xmlns="http://www.w3.org/2000/svg">
+      <rect x="4" y="4" width="112" height="82" rx="6" fill={color2} stroke="#145A32" strokeWidth="2" />
+      {Array.from({ length: 24 }).map((_, i) => {
+        const x = 12 + (i % 6) * 18 + ((Math.floor(i / 6) % 2) * 8);
+        const y = 14 + Math.floor(i / 6) * 18;
+        return (
+          <g key={i}>
+            <ellipse cx={x} cy={y} rx="7" ry="5" fill={color} transform={`rotate(${i * 35},${x},${y})`} />
+            <ellipse cx={x + 3} cy={y - 2} rx="4" ry="2.5" fill="#58D68D" transform={`rotate(${i * 35},${x + 3},${y - 2})`} />
+          </g>
+        );
+      })}
+    </svg>
+  );
+}
+
+export function ShimmerWallSvg({ color = '#FFD700', color2 = '#C9A96E', size = 90 }: SvgProps) {
+  return (
+    <svg width={size} height={size} viewBox="0 0 90 90" fill="none" xmlns="http://www.w3.org/2000/svg">
+      <rect x="3" y="3" width="84" height="84" rx="4" fill="#1A1A1A" stroke={color2} strokeWidth="2" />
+      {Array.from({ length: 16 }).map((_, i) => {
+        const x = 12 + (i % 4) * 19;
+        const y = 12 + Math.floor(i / 4) * 19;
+        return (
+          <rect
+            key={i}
+            x={x}
+            y={y}
+            width="15"
+            height="15"
+            rx="2"
+            fill={i % 2 === 0 ? color : color2}
+            transform={`rotate(${((i * 17) % 30) - 15}, ${x + 7.5}, ${y + 7.5})`}
+          />
+        );
+      })}
+    </svg>
+  );
+}
+
+export function TrioCilindrosSvg({ color = '#F5F0E8', color2 = '#C9A96E', color3 = '#E8E8E8', size = 90 }: SvgProps) {
+  return (
+    <svg width={size * 1.2} height={size * 0.8} viewBox="0 0 120 80" fill="none" xmlns="http://www.w3.org/2000/svg">
+      {/* Cilindro Alto - Centro */}
+      <rect x="44" y="16" width="32" height="58" rx="3" fill={color} stroke={color2} strokeWidth="1.5" />
+      <ellipse cx="60" cy="16" rx="16" ry="4" fill={color2} />
+      
+      {/* Cilindro Izquierdo - Medio */}
+      <rect x="12" y="28" width="28" height="46" rx="3" fill={color2} stroke="#B89758" strokeWidth="1.5" />
+      <ellipse cx="26" cy="28" rx="14" ry="3.5" fill="#E8D5B0" />
+
+      {/* Cilindro Derecho - Bajo */}
+      <rect x="80" y="40" width="28" height="34" rx="3" fill={color3} stroke="#BBB" strokeWidth="1.5" />
+      <ellipse cx="94" cy="40" rx="14" ry="3.5" fill="#FFF" />
+    </svg>
+  );
+}
+
+export function MesaCandyBarSvg({ color = '#FFB3C1', color2 = '#FFF', size = 90 }: SvgProps) {
+  return (
+    <svg width={size * 1.3} height={size * 0.7} viewBox="0 0 130 70" fill="none" xmlns="http://www.w3.org/2000/svg">
+      <rect x="10" y="32" width="110" height="32" rx="3" fill={color} stroke="#E87A90" strokeWidth="1.5" />
+      <path d="M10 32 Q 37.5 44 65 32 Q 92.5 44 120 32 L 120 40 Q 92.5 52 65 40 Q 37.5 52 10 40 Z" fill={color2} opacity="0.6" />
+      {/* Alzada izquierda */}
+      <rect x="25" y="20" width="22" height="12" rx="2" fill="#FFF" stroke="#DDD" strokeWidth="1" />
+      <rect x="32" y="10" width="8" height="10" fill="#DDD" />
+      {/* Alzada derecha */}
+      <rect x="83" y="20" width="22" height="12" rx="2" fill="#FFF" stroke="#DDD" strokeWidth="1" />
+      <rect x="90" y="10" width="8" height="10" fill="#DDD" />
+    </svg>
+  );
+}
+
+export function Sillon15sSvg({ color = '#C9A96E', color2 = '#9C27B0', size = 80 }: SvgProps) {
+  return (
+    <svg width={size} height={size * 1.1} viewBox="0 0 80 88" fill="none" xmlns="http://www.w3.org/2000/svg">
+      {/* Respaldo Alto Throne */}
+      <path d="M15 8 C 15 0, 65 0, 65 8 L 60 52 L 20 52 Z" fill={color2} stroke={color} strokeWidth="3" />
+      {/* Asiento */}
+      <rect x="12" y="50" width="56" height="18" rx="4" fill={color2} stroke={color} strokeWidth="2" />
+      {/* Apoyabrazos */}
+      <rect x="6" y="44" width="10" height="24" rx="3" fill={color} />
+      <rect x="64" y="44" width="10" height="24" rx="3" fill={color} />
+      {/* Patas */}
+      <rect x="14" y="68" width="6" height="16" fill={color} />
+      <rect x="60" y="68" width="6" height="16" fill={color} />
+    </svg>
+  );
+}
+
+export function LucesEdisonSvg({ color = '#FFDD57', size = 100 }: SvgProps) {
+  return (
+    <svg width={size * 1.4} height={size * 0.4} viewBox="0 0 140 40" fill="none" xmlns="http://www.w3.org/2000/svg">
+      <path d="M0 8 Q 35 22 70 8 Q 105 22 140 8" stroke="#333" strokeWidth="2" fill="none" />
+      {[25, 55, 85, 115].map((cx, i) => (
+        <g key={i}>
+          <line x1={cx} y1={i % 2 === 0 ? 15 : 12} x2={cx} y2={i % 2 === 0 ? 25 : 22} stroke="#333" strokeWidth="1.5" />
+          <circle cx={cx} cy={i % 2 === 0 ? 29 : 26} r="6" fill={color} />
+          <circle cx={cx} cy={i % 2 === 0 ? 29 : 26} r="10" fill={color} opacity="0.35" />
+        </g>
+      ))}
+    </svg>
+  );
+}
+
+export function EstructuraGeometriaSvg({ color = '#C9A96E', size = 80 }: SvgProps) {
+  return (
+    <svg width={size} height={size} viewBox="0 0 80 80" fill="none" xmlns="http://www.w3.org/2000/svg">
+      <polygon points="40,5 73,24 73,62 40,80 7,62 7,24" fill="none" stroke={color} strokeWidth="3" />
+      <polygon points="40,12 67,28 67,58 40,73 13,58 13,28" fill="none" stroke={color} strokeWidth="1.5" opacity="0.6" />
+    </svg>
+  );
+}
+
+export function CartelNeonSvg({ color = '#FF007F', size = 100 }: SvgProps) {
+  return (
+    <svg width={size * 1.3} height={size * 0.5} viewBox="0 0 130 50" fill="none" xmlns="http://www.w3.org/2000/svg">
+      <rect x="5" y="5" width="120" height="40" rx="10" fill="#0F0F1A" stroke={color} strokeWidth="2.5" />
+      <text
+        x="65"
+        y="30"
+        fill={color}
+        fontSize="18"
+        fontWeight="bold"
+        fontFamily="cursive, sans-serif"
+        textAnchor="middle"
+        style={{ filter: `drop-shadow(0px 0px 6px ${color})` }}
+      >
+        Mis 15s Neón
+      </text>
+    </svg>
+  );
+}
+
 // Map from tipo to SVG component
 export function DecoElementSvg({ tipo, colores, size = 60 }: { tipo: string; colores: string[]; size?: number }) {
   const c0 = colores[0] || '#888888';
@@ -216,6 +376,19 @@ export function DecoElementSvg({ tipo, colores, size = 60 }: { tipo: string; col
     case 'estrella': return <EstrellaSvg color={c0} size={size} />;
     case 'mariposa': return <MaripozaSvg color={c0} color2={c1} size={size} />;
     case 'corona': return <CoronaSvg color={c0} size={size} />;
+    
+    // Trend & Backdrop categories
+    case 'panelCircular': return <PanelCircularSvg color={c0} color2={c1} size={size} />;
+    case 'arcoRomano': return <ArcoRomanoSvg color={c0} color2={c1} size={size} />;
+    case 'paredFollaje': return <ParedFollajeSvg color={c0} color2={c1} size={size} />;
+    case 'shimmerWall': return <ShimmerWallSvg color={c0} color2={c1} size={size} />;
+    case 'trioCilindros': return <TrioCilindrosSvg color={c0} color2={c1} color3={c2} size={size} />;
+    case 'mesaCandyBar': return <MesaCandyBarSvg color={c0} color2={c1} size={size} />;
+    case 'sillon15s': return <Sillon15sSvg color={c0} color2={c1} size={size} />;
+    case 'lucesEdison': return <LucesEdisonSvg color={c0} size={size} />;
+    case 'estructuraGeometria': return <EstructuraGeometriaSvg color={c0} size={size} />;
+    case 'cartelNeon': return <CartelNeonSvg color={c0} size={size} />;
+
     default: return (
       <div style={{ width: size, height: size, display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: size * 0.5, background: 'rgba(0,0,0,0.05)', borderRadius: 8 }}>
         🎪
@@ -223,3 +396,4 @@ export function DecoElementSvg({ tipo, colores, size = 60 }: { tipo: string; col
     );
   }
 }
+

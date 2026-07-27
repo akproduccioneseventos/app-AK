@@ -201,19 +201,24 @@ export default function PortalClientePage() {
   const handleSaveTable = async (invitado: Invitado) => {
     if (!fiesta) return;
     setIsSavingSeat(true);
-    const updated = { ...invitado, tableNumber: editingTable.trim() || undefined };
-    const res = await updateClientGuestTable(fiestaId, invitado.id, updated.tableNumber);
-    if (res.success) {
-      setFiesta(prev => prev ? {
-        ...prev,
-        invitados: (prev.invitados ?? []).map(inv => inv.id === invitado.id ? updated : inv),
-      } : prev);
-      toast({ title: '✅ Mesa asignada', description: `${invitado.nombre} → Mesa ${editingTable || '—'}` });
-    } else {
-      toast({ title: 'Error', description: 'No se pudo guardar.', variant: 'destructive' });
+    try {
+      const updated = { ...invitado, tableNumber: editingTable.trim() || undefined };
+      const res = await updateClientGuestTable(fiestaId, invitado.id, updated.tableNumber);
+      if (res.success) {
+        setFiesta(prev => prev ? {
+          ...prev,
+          invitados: (prev.invitados ?? []).map(inv => inv.id === invitado.id ? updated : inv),
+        } : prev);
+        toast({ title: '✅ Mesa asignada', description: `${invitado.nombre} → Mesa ${editingTable || '—'}` });
+      } else {
+        toast({ title: 'Error', description: 'No se pudo guardar la mesa.', variant: 'destructive' });
+      }
+    } catch {
+      toast({ title: 'Error de conexión', description: 'No se pudo guardar la mesa. Verificá tu conexión e intentá nuevamente.', variant: 'destructive' });
+    } finally {
+      setEditingId(null);
+      setIsSavingSeat(false);
     }
-    setEditingId(null);
-    setIsSavingSeat(false);
   };
 
   const handleToggleLlevar = async (itemId: string) => {
@@ -448,21 +453,22 @@ export default function PortalClientePage() {
 
         {/* ── Feature Navigation Cards (hidden in simplicityMode) ─── */}
         {!simplicityMode && (
-        <div className="grid grid-cols-2 sm:grid-cols-5 gap-3">
+        <div className="grid grid-cols-2 sm:grid-cols-6 gap-3">
           {[
             { label: 'Menú', emoji: '🍽️', href: `/portal-cliente/${fiestaId}/menu`, desc: 'Confirmá tu selección' },
             { label: 'Música', emoji: '🎵', href: `/portal-cliente/${fiestaId}/musica`, desc: 'Tu lista de canciones' },
             { label: 'Muro Social', emoji: '💬', href: `/portal-cliente/${fiestaId}/muro-social`, desc: 'Red social del evento' },
             { label: 'Fotos & Video', emoji: '📸', href: `/portal-cliente/${fiestaId}/fotos-video`, desc: 'Archivos y entregables' },
             { label: 'Invitados', emoji: '👥', href: `/portal-cliente/${fiestaId}/confirmar-invitados`, desc: 'Confirmaciones' },
+            { label: 'Preguntas Frecuentes', emoji: '❓', href: `/portal-cliente/${fiestaId}/faq`, desc: 'Dudas & Consultas' },
           ].map((item, i) => (
-            <a key={i} href={item.href} className="block">
-              <div className="cursor-pointer space-y-1 rounded-lg border border-slate-200 bg-white p-4 text-center transition-all hover:border-red-200 hover:shadow-md">
-                <span className="text-3xl block">{item.emoji}</span>
-                <p className="font-black text-sm text-slate-800">{item.label}</p>
-                <p className="text-xs text-slate-400">{item.desc}</p>
+            <Link key={i} href={item.href} className="block group">
+              <div className="space-y-1.5 rounded-2xl border border-slate-200 bg-white p-4 text-center transition-all duration-300 group-hover:border-red-300 group-hover:shadow-lg group-hover:-translate-y-1">
+                <span className="text-3xl block transition-transform duration-300 group-hover:scale-110">{item.emoji}</span>
+                <p className="font-black text-sm text-slate-800 group-hover:text-red-700 transition-colors">{item.label}</p>
+                <p className="text-[11px] text-slate-400 font-medium">{item.desc}</p>
               </div>
-            </a>
+            </Link>
           ))}
         </div>
         )}

@@ -76,17 +76,23 @@ export async function getPublicSimulatorBootstrap(): Promise<PublicSimulatorBoot
     withBootstrapFallback(getMenus(), FALLBACK_MENUS),
   ]);
 
-  const whatsappConnection = socialConnections.find(
+  const resolvedConfig = config || FALLBACK_CONFIG;
+  const resolvedServicesRaw = (services && services.length > 0) ? services : FALLBACK_SERVICES;
+  const resolvedServices = resolvedServicesRaw.filter((service) => service.tipoItem === "Servicio");
+  const finalServices = resolvedServices.length > 0 ? resolvedServices : FALLBACK_SERVICES;
+  const resolvedMenus = (menus && menus.length > 0) ? menus : FALLBACK_MENUS;
+
+  const whatsappConnection = (socialConnections || []).find(
     (connection) =>
       connection.platform === "WhatsApp" && connection.isConnected,
   );
 
   return {
-    config,
-    budgetSettings,
-    services: services.filter((service) => service.tipoItem === "Servicio"),
-    menus,
-    whatsappNumber: whatsappConnection?.phoneNumber || "",
+    config: resolvedConfig,
+    budgetSettings: budgetSettings || defaultBudgetDisplaySettings,
+    services: finalServices,
+    menus: resolvedMenus,
+    whatsappNumber: whatsappConnection?.phoneNumber || "59899123456",
     logoUrl: templateSettings?.logoUrl || null,
   };
 }
