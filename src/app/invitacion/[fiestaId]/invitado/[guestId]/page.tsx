@@ -228,58 +228,376 @@ function GuestPortalContent() {
   const dressCode = fiesta.invitacionConfig?.dressCode;
 
   return (
-    <main className="min-h-screen bg-slate-50 pb-24 text-slate-950 sm:pb-10">
-      <section className="relative flex min-h-[56svh] items-end overflow-hidden bg-slate-950 text-white">
-        {heroImage && <img src={heroImage} alt={config?.nombreEvento || 'Evento'} className="absolute inset-0 h-full w-full object-cover" decoding="async" />}
-        <div className="absolute inset-0 bg-black/65" />
-        <div className="relative z-10 mx-auto flex min-h-[56svh] w-full max-w-4xl flex-col justify-end px-5 py-8 sm:px-8 sm:py-12">
-          <p className="text-xs font-black uppercase tracking-widest text-white/75">Portal del invitado</p>
-          <h1 className="mt-3 text-4xl font-black leading-tight sm:text-5xl">{config?.nombreEvento || 'Tu evento'}</h1>
-          <p className="mt-3 text-lg text-white/90">Hola, <strong>{guest.nombre}</strong></p>
-          {gps.welcomeMessage && <p className="mt-2 max-w-2xl text-sm leading-relaxed text-white/80">{gps.welcomeMessage}</p>}
-          {(fecha || config?.nombreLugar) && <div className="mt-5 flex flex-wrap gap-x-5 gap-y-2 text-sm font-semibold text-white/85">{fecha && <span className="inline-flex items-center gap-2 capitalize"><CalendarDays className="h-4 w-4" />{fecha}{hora ? ` - ${hora} hs` : ''}</span>}{config?.nombreLugar && <span className="inline-flex items-center gap-2"><MapPin className="h-4 w-4" />{config.nombreLugar}</span>}</div>}
-          {daysUntil !== null && <p className="mt-4 w-fit rounded-lg border border-white/25 bg-black/20 px-3 py-2 text-sm font-bold">{daysUntil === 0 ? 'El evento es hoy' : daysUntil > 0 ? `Faltan ${daysUntil} dia${daysUntil === 1 ? '' : 's'}` : `El evento fue hace ${Math.abs(daysUntil)} dia${Math.abs(daysUntil) === 1 ? '' : 's'}`}</p>}
-          <div className="mt-6 flex flex-wrap gap-2">
-            <a href={hubHref} className="inline-flex min-h-11 items-center gap-2 rounded-lg px-4 text-sm font-black text-white" style={{ backgroundColor: accentColor }}><Home className="h-4 w-4" />Hub del evento<ChevronRight className="h-4 w-4" /></a>
-            {mapsUrl && <a href={mapsUrl} target="_blank" rel="noopener noreferrer" className="inline-flex min-h-11 items-center gap-2 rounded-lg border border-white/25 bg-black/20 px-4 text-sm font-bold"><Navigation className="h-4 w-4" />Como llegar</a>}
-            {gps.showInvitacionWeb !== false && <a href={invitacionUrl} target="_blank" rel="noopener noreferrer" className="inline-flex min-h-11 items-center gap-2 rounded-lg border border-white/25 bg-black/20 px-4 text-sm font-bold"><ExternalLink className="h-4 w-4" />Ver invitacion</a>}
+    <main className="min-h-screen bg-gradient-to-b from-slate-950 via-slate-900 to-slate-950 pb-24 text-slate-100 sm:pb-12">
+      <section className="relative flex min-h-[58svh] items-end overflow-hidden text-white">
+        {heroImage && <img src={heroImage} alt={config?.nombreEvento || 'Evento'} className="absolute inset-0 h-full w-full object-cover transition-transform duration-700 hover:scale-105" decoding="async" />}
+        <div className="absolute inset-0 bg-gradient-to-t from-slate-950 via-slate-950/70 to-black/50" />
+        <div className="relative z-10 mx-auto flex min-h-[58svh] w-full max-w-4xl flex-col justify-end px-5 py-8 sm:px-8 sm:py-12">
+          <div className="flex items-center gap-2">
+            <span className="h-2 w-2 rounded-full bg-emerald-400 shadow-[0_0_10px_rgba(52,211,153,0.8)] animate-pulse" />
+            <p className="text-xs font-black uppercase tracking-widest text-emerald-400">Portal VIP del Invitado</p>
+          </div>
+          <h1 className="mt-3 text-4xl font-black tracking-tight text-white sm:text-6xl">{config?.nombreEvento || 'Tu evento'}</h1>
+          <p className="mt-3 text-xl font-medium text-slate-200">Hola, <span className="font-black text-white">{guest.nombre}</span> ✨</p>
+          {gps.welcomeMessage && <p className="mt-2 max-w-2xl text-sm leading-relaxed text-slate-300/90">{gps.welcomeMessage}</p>}
+          {(fecha || config?.nombreLugar) && (
+            <div className="mt-5 flex flex-wrap gap-x-5 gap-y-2 text-sm font-semibold text-slate-200">
+              {fecha && <span className="inline-flex items-center gap-2 capitalize"><CalendarDays className="h-4 w-4 text-rose-400" />{fecha}{hora ? ` - ${hora} hs` : ''}</span>}
+              {config?.nombreLugar && <span className="inline-flex items-center gap-2"><MapPin className="h-4 w-4 text-amber-400" />{config.nombreLugar}</span>}
+            </div>
+          )}
+          {daysUntil !== null && (
+            <div className="mt-4 flex w-fit items-center gap-2 rounded-xl border border-white/20 bg-white/10 px-4 py-2.5 text-sm font-black text-white backdrop-blur-md shadow-lg">
+              <Clock className="h-4 w-4 text-amber-300 animate-spin-slow" />
+              <span>{daysUntil === 0 ? '🎉 ¡El evento es HOY!' : daysUntil > 0 ? `Faltan ${daysUntil} día${daysUntil === 1 ? '' : 's'} para la gran fiesta` : `El evento fue hace ${Math.abs(daysUntil)} día${Math.abs(daysUntil) === 1 ? '' : 's'}`}</span>
+            </div>
+          )}
+          <div className="mt-6 flex flex-wrap gap-3">
+            <a href={hubHref} className="inline-flex min-h-12 items-center gap-2 rounded-xl px-5 text-sm font-black text-white shadow-lg transition-transform active:scale-95 hover:brightness-110" style={{ backgroundColor: accentColor }}>
+              <Home className="h-4 w-4" />Hub del evento<ChevronRight className="h-4 w-4" />
+            </a>
+            {mapsUrl && (
+              <a href={mapsUrl} target="_blank" rel="noopener noreferrer" className="inline-flex min-h-12 items-center gap-2 rounded-xl border border-white/25 bg-white/10 px-5 text-sm font-bold text-white backdrop-blur-md transition-all hover:bg-white/20">
+                <Navigation className="h-4 w-4 text-cyan-300" />Cómo llegar
+              </a>
+            )}
+            {gps.showInvitacionWeb !== false && (
+              <a href={invitacionUrl} target="_blank" rel="noopener noreferrer" className="inline-flex min-h-12 items-center gap-2 rounded-xl border border-white/25 bg-white/10 px-5 text-sm font-bold text-white backdrop-blur-md transition-all hover:bg-white/20">
+                <ExternalLink className="h-4 w-4 text-purple-300" />Ver invitación
+              </a>
+            )}
           </div>
         </div>
       </section>
 
       <div className="mx-auto w-full max-w-4xl space-y-8 px-4 py-8 sm:px-8 sm:py-12">
-        <section id="mi-pase" className="rounded-lg border border-slate-200 bg-white p-5 shadow-sm">
-          <div className="flex flex-wrap items-start justify-between gap-4"><div><p className="text-xs font-black uppercase tracking-widest text-slate-500">Mi asistencia</p><h2 className="mt-2 text-2xl font-black">{guest.nombre}</h2></div><span className={`rounded-lg border px-3 py-2 text-sm font-bold ${rsvpBadge.className}`}>{rsvpBadge.label}</span></div>
-          <div className="mt-5 grid gap-4 sm:grid-cols-2">
-            {tableEnabled && guest.tableNumber && <div data-testid="guest-portal-table" className="flex items-center gap-3"><Armchair className="h-5 w-5 text-slate-500" /><div><p className="text-xs text-slate-500">Mesa asignada</p><p className="font-black">Mesa {guest.tableNumber}</p></div></div>}
-            {dietLabel && <div data-testid="guest-portal-dietary" className="flex items-start gap-3"><UtensilsCrossed className="mt-0.5 h-5 w-5 text-slate-500" /><p className="text-sm"><span className="font-bold">{dietLabel}</span>{guest.alergiasEspecificas && <span className="text-slate-500"> - {guest.alergiasEspecificas}</span>}</p></div>}
-            {guest.requiereAccesibilidad && <div className="flex items-center gap-3 text-sm"><Accessibility className="h-5 w-5 text-slate-500" />Asistencia especial registrada</div>}
-            {guest.mensaje && <div data-testid="guest-portal-message" className="flex items-start gap-3 text-sm"><Heart className="mt-0.5 h-5 w-5 text-slate-500" /><p className="italic">&ldquo;{guest.mensaje}&rdquo;</p></div>}
+        {/* Mi Asistencia / Pase VIP */}
+        <section id="mi-pase" className="relative overflow-hidden rounded-3xl border border-white/15 bg-slate-900/90 p-6 shadow-2xl backdrop-blur-xl sm:p-8">
+          <div className="absolute top-0 right-0 h-40 w-40 rounded-full bg-gradient-to-br from-amber-500/10 via-rose-500/10 to-transparent blur-3xl pointer-events-none" />
+          <div className="flex flex-wrap items-start justify-between gap-4">
+            <div>
+              <p className="text-xs font-black uppercase tracking-widest text-amber-400">Pase VIP de Asistencia</p>
+              <h2 className="mt-2 text-3xl font-black text-white">{guest.nombre}</h2>
+            </div>
+            <span className={`rounded-xl border px-4 py-2 text-sm font-black shadow-sm ${rsvpBadge.className}`}>{rsvpBadge.label}</span>
           </div>
-          {checkinEnabled && guest.rsvp === 'Confirmado' && <div data-testid="guest-portal-qr" className="mt-6 border-t border-slate-200 pt-5"><div className="flex flex-col items-center gap-4 sm:flex-row sm:justify-between"><div><p className="text-xs font-black uppercase tracking-widest text-slate-500">Pase de entrada</p><p className="mt-1 text-sm text-slate-600">Mostra este codigo al ingresar al evento.</p></div><div className="rounded-lg border border-slate-200 bg-white p-3"><QRCodeStylized id="qr-guest-portal" value={qrValue} size={160} level="H" /></div><Button onClick={downloadQR} variant="outline" className="min-h-11 rounded-lg"><Download className="mr-2 h-4 w-4" />Guardar QR</Button></div></div>}
-          {checkinEnabled && guest.rsvp !== 'Confirmado' && <p data-testid="guest-portal-qr-pending" className="mt-5 text-sm text-slate-500">{rsvpEnabled ? 'Tu QR de entrada estara disponible una vez que confirmes tu asistencia.' : 'El organizador habilitara tu pase cuando confirme tu asistencia.'}</p>}
-          {rsvpEnabled && guest.rsvp !== 'Confirmado' && <a href={`/invitacion/${fiestaId}/rsvp`} className="mt-5 inline-flex min-h-11 items-center rounded-lg px-4 text-sm font-black text-white" style={{ backgroundColor: accentColor }}>{guest.rsvp === 'Rechazado' ? 'Actualizar respuesta' : 'Confirmar asistencia'}</a>}
-          {rsvpEnabled && guest.rsvp === 'Confirmado' && fiesta.configuracion?.fechaEvento && (() => { const deadline = new Date(fiesta.configuracion.fechaEvento); deadline.setDate(deadline.getDate() - 7); return new Date() < deadline ? <div className="mt-5 border-t border-slate-200 pt-4 text-sm"><p className="text-slate-600">Podes cancelar hasta el <strong>{deadline.toLocaleDateString('es-UY', { day: 'numeric', month: 'long' })}</strong>.</p><a href={`/invitacion/${fiestaId}/rsvp`} className="mt-2 inline-flex font-bold text-slate-950 underline">Cancelar confirmacion</a></div> : null; })()}
+          <div className="mt-6 grid gap-4 sm:grid-cols-2">
+            {tableEnabled && guest.tableNumber && (
+              <div data-testid="guest-portal-table" className="flex items-center gap-4 rounded-2xl border border-white/10 bg-white/5 p-4 backdrop-blur-sm">
+                <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-xl bg-amber-500/20 text-amber-300">
+                  <Armchair className="h-6 w-6" />
+                </div>
+                <div>
+                  <p className="text-xs font-bold uppercase tracking-wider text-slate-400">Mesa Asignada</p>
+                  <p className="text-xl font-black text-white">Mesa {guest.tableNumber}</p>
+                </div>
+              </div>
+            )}
+            {dietLabel && (
+              <div data-testid="guest-portal-dietary" className="flex items-start gap-4 rounded-2xl border border-white/10 bg-white/5 p-4 backdrop-blur-sm">
+                <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-xl bg-rose-500/20 text-rose-300">
+                  <UtensilsCrossed className="h-6 w-6" />
+                </div>
+                <div>
+                  <p className="text-xs font-bold uppercase tracking-wider text-slate-400">Menú Especial</p>
+                  <p className="text-base font-bold text-white">{dietLabel}{guest.alergiasEspecificas && <span className="text-slate-300 font-normal"> - {guest.alergiasEspecificas}</span>}</p>
+                </div>
+              </div>
+            )}
+            {guest.requiereAccesibilidad && (
+              <div className="flex items-center gap-3 text-sm font-semibold text-emerald-400 rounded-2xl border border-emerald-500/20 bg-emerald-500/10 p-4">
+                <Accessibility className="h-5 w-5" />Asistencia especial registrada
+              </div>
+            )}
+            {guest.mensaje && (
+              <div data-testid="guest-portal-message" className="flex items-start gap-3 rounded-2xl border border-white/10 bg-white/5 p-4 text-sm text-slate-200 italic">
+                <Heart className="mt-0.5 h-5 w-5 shrink-0 text-rose-400" />
+                <p>&ldquo;{guest.mensaje}&rdquo;</p>
+              </div>
+            )}
+          </div>
+
+          {checkinEnabled && guest.rsvp === 'Confirmado' && (
+            <div data-testid="guest-portal-qr" className="mt-8 border-t border-white/10 pt-6">
+              <div className="flex flex-col items-center gap-6 sm:flex-row sm:justify-between">
+                <div>
+                  <div className="flex items-center gap-2">
+                    <TicketCheck className="h-5 w-5 text-emerald-400" />
+                    <p className="text-xs font-black uppercase tracking-widest text-emerald-400">Credencial de Entrada</p>
+                  </div>
+                  <h3 className="mt-1 text-lg font-bold text-white">Presentá este código QR al ingresar</h3>
+                  <p className="mt-1 text-xs text-slate-400">Escáner automático en recepción para acceso sin demoras.</p>
+                </div>
+                <div className="rounded-2xl border border-white/20 bg-white p-4 shadow-2xl">
+                  <QRCodeStylized id="qr-guest-portal" value={qrValue} size={170} level="H" />
+                </div>
+                <Button onClick={downloadQR} variant="outline" className="min-h-12 rounded-xl border-white/20 bg-white/10 text-white hover:bg-white/20 backdrop-blur-md">
+                  <Download className="mr-2 h-4 w-4 text-emerald-400" />Guardar QR
+                </Button>
+              </div>
+            </div>
+          )}
+
+          {checkinEnabled && guest.rsvp !== 'Confirmado' && (
+            <p data-testid="guest-portal-qr-pending" className="mt-6 text-sm font-semibold text-amber-300/90 bg-amber-500/10 border border-amber-500/20 rounded-xl p-4">
+              ⚠️ Tu código QR de entrada estará disponible tan pronto como confirmes tu asistencia.
+            </p>
+          )}
+
+          {rsvpEnabled && guest.rsvp !== 'Confirmado' && (
+            <a href={`/invitacion/${fiestaId}/rsvp`} className="mt-6 inline-flex min-h-12 items-center rounded-xl px-5 text-sm font-black text-white shadow-lg transition-transform active:scale-95 hover:brightness-110" style={{ backgroundColor: accentColor }}>
+              {guest.rsvp === 'Rechazado' ? 'Actualizar respuesta' : 'Confirmar asistencia'}
+            </a>
+          )}
+
+          {guest.rsvp === 'Confirmado' && fiesta.configuracion?.fechaEvento && (() => {
+            const deadline = new Date(fiesta.configuracion.fechaEvento);
+            deadline.setDate(deadline.getDate() - 7);
+            return new Date() < deadline ? (
+              <div className="mt-6 border-t border-white/10 pt-4 text-xs text-slate-400">
+                <p>Podés modificar o cancelar hasta el <strong className="text-white">{deadline.toLocaleDateString('es-UY', { day: 'numeric', month: 'long' })}</strong>.</p>
+                <a href={`/invitacion/${fiestaId}/rsvp`} className="mt-2 inline-flex font-bold text-rose-400 hover:underline">Modificar confirmación</a>
+              </div>
+            ) : null;
+          })()}
         </section>
 
-        {(config?.nombreLugar || fecha || dressCode?.tipo) && <section id="datos-evento" className="rounded-lg border border-slate-200 bg-white p-5 shadow-sm"><p className="text-xs font-black uppercase tracking-widest text-slate-500">Datos del evento</p><div className="mt-5 grid gap-4 sm:grid-cols-2">{config?.nombreLugar && <div className="flex items-start gap-3"><MapPin className="mt-0.5 h-5 w-5 text-slate-500" /><div><p className="font-bold">{config.nombreLugar}</p>{config.direccionLugar && <p className="mt-1 text-sm text-slate-500">{config.direccionLugar}</p>}</div></div>}{fecha && <div className="flex items-start gap-3"><CalendarDays className="mt-0.5 h-5 w-5 text-slate-500" /><p className="text-sm capitalize">{fecha}{hora ? ` - ${hora} hs` : ''}</p></div>}{dressCode?.tipo && dressCode.tipo !== 'casual' && <div data-testid="guest-portal-dresscode" className="flex items-start gap-3"><Shirt className="mt-0.5 h-5 w-5 text-slate-500" /><div><p className="text-xs text-slate-500">Dress code</p><p className="text-sm font-bold capitalize">{dressCode.tipo === 'personalizado' ? dressCode.textoPersonalizado : dressCode.tipo}{dressCode.colorSugerido ? ` - ${dressCode.colorSugerido}` : ''}</p></div></div>}</div>{mapsUrl && <a href={mapsUrl} target="_blank" rel="noopener noreferrer" className="mt-5 inline-flex items-center gap-2 text-sm font-bold underline" style={{ color: accentColor }}><Navigation className="h-4 w-4" />Ver en Google Maps</a>}</section>}
+        {/* Datos del Evento */}
+        {(config?.nombreLugar || fecha || dressCode?.tipo) && (
+          <section id="datos-evento" className="rounded-3xl border border-white/10 bg-slate-900/80 p-6 shadow-xl backdrop-blur-xl sm:p-8">
+            <p className="text-xs font-black uppercase tracking-widest text-cyan-400">Datos Clave del Evento</p>
+            <div className="mt-6 grid gap-6 sm:grid-cols-2">
+              {config?.nombreLugar && (
+                <div className="flex items-start gap-4">
+                  <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-cyan-500/20 text-cyan-300">
+                    <MapPin className="h-5 w-5" />
+                  </div>
+                  <div>
+                    <p className="font-bold text-white text-base">{config.nombreLugar}</p>
+                    {config.direccionLugar && <p className="mt-1 text-sm text-slate-400">{config.direccionLugar}</p>}
+                  </div>
+                </div>
+              )}
+              {fecha && (
+                <div className="flex items-start gap-4">
+                  <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-purple-500/20 text-purple-300">
+                    <CalendarDays className="h-5 w-5" />
+                  </div>
+                  <p className="text-base font-bold capitalize text-white">{fecha}{hora ? ` - ${hora} hs` : ''}</p>
+                </div>
+              )}
+              {dressCode?.tipo && dressCode.tipo !== 'casual' && (
+                <div data-testid="guest-portal-dresscode" className="flex items-start gap-4">
+                  <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-rose-500/20 text-rose-300">
+                    <Shirt className="h-5 w-5" />
+                  </div>
+                  <div>
+                    <p className="text-xs font-bold uppercase tracking-wider text-slate-400">Código de Vestimenta</p>
+                    <p className="text-base font-bold capitalize text-white">
+                      {dressCode.tipo === 'personalizado' ? dressCode.textoPersonalizado : dressCode.tipo}
+                      {dressCode.colorSugerido ? ` (${dressCode.colorSugerido})` : ''}
+                    </p>
+                  </div>
+                </div>
+              )}
+            </div>
+            {mapsUrl && (
+              <a href={mapsUrl} target="_blank" rel="noopener noreferrer" className="mt-6 inline-flex items-center gap-2 text-sm font-bold text-cyan-400 hover:underline">
+                <Navigation className="h-4 w-4" />Ver en Google Maps
+              </a>
+            )}
+          </section>
+        )}
 
-        {menuEnabled && menuSections.length > 0 && <section id="menu-evento" className="rounded-lg border border-slate-200 bg-white p-5 shadow-sm"><p className="text-xs font-black uppercase tracking-widest text-slate-500">Menu del evento</p><div className="mt-4 grid gap-3 text-sm sm:grid-cols-2">{menuSections.map((item) => <p key={item.key}><strong>{item.label}:</strong> {item.value}</p>)}</div></section>}
+        {/* Menú del Evento */}
+        {menuEnabled && (fiesta.menuMesa || menuSections.length > 0) && (
+          <section id="menu-evento" className="rounded-3xl border border-white/10 bg-slate-900/80 p-6 shadow-xl backdrop-blur-xl sm:p-8">
+            <p className="text-xs font-black uppercase tracking-widest text-amber-400">Gastronomía & Menú</p>
+            <h2 className="mt-1 text-2xl font-black text-white">Menú Seleccionado</h2>
+            <div className="mt-6 grid gap-4 text-sm sm:grid-cols-2">
+              {menuSections.length > 0 ? (
+                menuSections.map((item) => (
+                  <div key={item.key} className="rounded-2xl border border-white/5 bg-white/5 p-4">
+                    <p className="text-xs font-bold uppercase text-slate-400">{item.label}</p>
+                    <p className="mt-1 font-semibold text-white">{item.value}</p>
+                  </div>
+                ))
+              ) : (
+                <>
+                  {fiesta.menuMesa?.entrada && <div className="rounded-2xl border border-white/5 bg-white/5 p-4"><p className="text-xs font-bold uppercase text-slate-400">Entrada</p><p className="mt-1 font-semibold text-white">{fiesta.menuMesa.entrada}</p></div>}
+                  {fiesta.menuMesa?.platoPrincipal && <div className="rounded-2xl border border-white/5 bg-white/5 p-4"><p className="text-xs font-bold uppercase text-slate-400">Plato Principal</p><p className="mt-1 font-semibold text-white">{fiesta.menuMesa.platoPrincipal}</p></div>}
+                  {fiesta.menuMesa?.adolescentes && <div className="rounded-2xl border border-white/5 bg-white/5 p-4"><p className="text-xs font-bold uppercase text-slate-400">Menú Adolescente</p><p className="mt-1 font-semibold text-white">{fiesta.menuMesa.adolescentes}</p></div>}
+                  {fiesta.menuMesa?.postres && <div className="rounded-2xl border border-white/5 bg-white/5 p-4"><p className="text-xs font-bold uppercase text-slate-400">Postres</p><p className="mt-1 font-semibold text-white">{fiesta.menuMesa.postres}</p></div>}
+                  {fiesta.menuMesa?.bebidas && <div className="rounded-2xl border border-white/5 bg-white/5 p-4"><p className="text-xs font-bold uppercase text-slate-400">Bebidas</p><p className="mt-1 font-semibold text-white">{fiesta.menuMesa.bebidas}</p></div>}
+                </>
+              )}
+            </div>
+          </section>
+        )}
 
-        {giftsEnabled && <section className="rounded-lg border border-slate-200 bg-white p-5 shadow-sm"><p className="text-xs font-black uppercase tracking-widest text-slate-500">Regalos</p><p className="mt-2 text-sm text-slate-600">Consulta las opciones de regalo de este evento.</p><a href={`${invitacionUrl}#regalos`} target="_blank" rel="noopener noreferrer" className="mt-4 inline-flex min-h-10 items-center rounded-lg border border-slate-300 px-3 text-sm font-bold">Ver regalos</a></section>}
+        {/* Regalos */}
+        {giftsEnabled && (
+          <section className="rounded-3xl border border-white/10 bg-slate-900/80 p-6 shadow-xl backdrop-blur-xl sm:p-8">
+            <p className="text-xs font-black uppercase tracking-widest text-violet-400">Mesa de Regalos</p>
+            <p className="mt-2 text-sm text-slate-300">Consultá las opciones de obsequios o transferencia de este evento.</p>
+            <a href={`${invitacionUrl}#regalos`} target="_blank" rel="noopener noreferrer" className="mt-4 inline-flex min-h-11 items-center rounded-xl border border-white/20 bg-white/10 px-5 text-sm font-bold text-white hover:bg-white/20 transition-all">
+              Ver opciones de regalo
+            </a>
+          </section>
+        )}
 
-        {(socialEnabled || photosEnabled) && <section id="recuerdos" className="overflow-hidden rounded-lg border border-slate-200 bg-white shadow-sm"><div className="flex flex-col justify-between gap-4 p-5 sm:flex-row sm:items-center"><div className="flex items-center gap-3"><Camera className="h-5 w-5" style={{ color: accentColor }} /><div><p className="font-black">Recuerdos de la fiesta</p><p className="text-sm text-slate-500">Compartí y mira los momentos publicados.</p></div></div><div className="flex flex-wrap gap-2">{socialEnabled && <a href={socialHref} className="inline-flex min-h-10 items-center gap-2 rounded-lg border border-slate-300 px-3 text-sm font-bold"><Camera className="h-4 w-4" />Muro social</a>}{photosEnabled && <a href={galleryHref} className="inline-flex min-h-10 items-center gap-2 rounded-lg border border-slate-300 px-3 text-sm font-bold"><Images className="h-4 w-4" />Galeria</a>}</div></div>{photosEnabled && <SocialPhotosPreview fiestaId={fiestaId} />}</section>}
+        {/* Recuerdos & Fotos */}
+        {(socialEnabled || photosEnabled) && (
+          <section id="recuerdos" className="overflow-hidden rounded-3xl border border-white/10 bg-slate-900/80 shadow-xl backdrop-blur-xl">
+            <div className="flex flex-col justify-between gap-4 p-6 sm:flex-row sm:items-center sm:p-8">
+              <div className="flex items-center gap-4">
+                <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-purple-500/20 text-purple-300">
+                  <Camera className="h-6 w-6" />
+                </div>
+                <div>
+                  <h2 className="text-xl font-black text-white">Recuerdos en Vivo</h2>
+                  <p className="text-xs text-slate-400">Compartí fotos e interaccioná en la pantalla gigante.</p>
+                </div>
+              </div>
+              <div className="flex flex-wrap gap-3">
+                {socialEnabled && (
+                  <a href={socialHref} className="inline-flex min-h-11 items-center gap-2 rounded-xl border border-white/20 bg-white/10 px-4 text-sm font-bold text-white hover:bg-white/20 transition-all">
+                    <Camera className="h-4 w-4 text-rose-400" />Muro Social
+                  </a>
+                )}
+                {photosEnabled && (
+                  <a href={galleryHref} className="inline-flex min-h-11 items-center gap-2 rounded-xl border border-white/20 bg-white/10 px-4 text-sm font-bold text-white hover:bg-white/20 transition-all">
+                    <Images className="h-4 w-4 text-cyan-400" />Galería
+                  </a>
+                )}
+              </div>
+            </div>
+            {photosEnabled && <SocialPhotosPreview fiestaId={fiestaId} />}
+          </section>
+        )}
 
-        {musicEnabled && <section className="rounded-lg border border-slate-200 bg-white p-5 shadow-sm"><div className="flex flex-wrap items-center justify-between gap-3"><div><p className="text-xs font-black uppercase tracking-widest text-slate-500">Musica</p><h2 className="mt-2 text-xl font-black">Tus canciones sugeridas</h2></div><a href={songsHref} className="inline-flex min-h-10 items-center gap-2 rounded-lg border border-slate-300 px-3 text-sm font-bold"><Music className="h-4 w-4" />Pedir cancion</a></div>{guest.cancionesDJ && guest.cancionesDJ.length > 0 && <ul className="mt-4 space-y-2 border-t border-slate-200 pt-4">{guest.cancionesDJ.map((song, index) => <li key={index} className="flex items-center gap-2 text-sm"><Music className="h-4 w-4 text-slate-400" />{song}</li>)}</ul>}</section>}
+        {/* Música */}
+        {musicEnabled && (
+          <section className="rounded-3xl border border-white/10 bg-slate-900/80 p-6 shadow-xl backdrop-blur-xl sm:p-8">
+            <div className="flex flex-wrap items-center justify-between gap-4">
+              <div>
+                <p className="text-xs font-black uppercase tracking-widest text-fuchsia-400">Peticiones Musicales</p>
+                <h2 className="mt-1 text-2xl font-black text-white">Tus canciones para el DJ</h2>
+              </div>
+              <a href={songsHref} className="inline-flex min-h-11 items-center gap-2 rounded-xl border border-white/20 bg-white/10 px-4 text-sm font-bold text-white hover:bg-white/20 transition-all">
+                <Music className="h-4 w-4 text-fuchsia-400" />Pedir canción
+              </a>
+            </div>
+            {guest.cancionesDJ && guest.cancionesDJ.length > 0 && (
+              <ul className="mt-5 space-y-2 border-t border-white/10 pt-4">
+                {guest.cancionesDJ.map((song, index) => (
+                  <li key={index} className="flex items-center gap-3 text-sm font-medium text-slate-200">
+                    <Music className="h-4 w-4 text-fuchsia-400" />{song}
+                  </li>
+                ))}
+              </ul>
+            )}
+          </section>
+        )}
 
-        {barEnabled && <section className="rounded-lg border border-slate-200 bg-white p-5 shadow-sm"><div className="flex flex-col justify-between gap-4 sm:flex-row sm:items-center"><div><p className="text-xs font-black uppercase tracking-widest text-slate-500">Barra tecnologica</p><h2 className="mt-2 text-xl font-black">Pedi tu trago</h2><p className="mt-1 text-sm text-slate-500">Segui el estado de tu pedido desde tu telefono.</p></div><div className="flex flex-wrap gap-2"><button onClick={() => setShowQuiosco(true)} className="inline-flex min-h-11 items-center gap-2 rounded-lg px-4 text-sm font-black text-white" style={{ backgroundColor: accentColor }}><TicketCheck className="h-4 w-4" />Abrir quiosco</button><a href={barHref} className="inline-flex min-h-11 items-center gap-2 rounded-lg border border-slate-300 px-4 text-sm font-bold">Ver carta</a></div></div></section>}
+        {/* Barra Tecnológica */}
+        {barEnabled && (
+          <section className="rounded-3xl border border-white/10 bg-slate-900/80 p-6 shadow-xl backdrop-blur-xl sm:p-8">
+            <div className="flex flex-col justify-between gap-4 sm:flex-row sm:items-center">
+              <div>
+                <p className="text-xs font-black uppercase tracking-widest text-rose-400">Barra Tecnológica VIP</p>
+                <h2 className="mt-1 text-2xl font-black text-white">Pedí tu trago desde el celu</h2>
+                <p className="mt-1 text-xs text-slate-400">Seguí el estado de preparación de tu pedido en tiempo real.</p>
+              </div>
+              <div className="flex flex-wrap gap-3">
+                <button onClick={() => setShowQuiosco(true)} className="inline-flex min-h-11 items-center gap-2 rounded-xl px-5 text-sm font-black text-white shadow-lg transition-transform active:scale-95 hover:brightness-110" style={{ backgroundColor: accentColor }}>
+                  <TicketCheck className="h-4 w-4" />Abrir quiosco
+                </button>
+                <a href={barHref} className="inline-flex min-h-11 items-center gap-2 rounded-xl border border-white/20 bg-white/10 px-4 text-sm font-bold text-white hover:bg-white/20 transition-all">
+                  Ver carta
+                </a>
+              </div>
+            </div>
+          </section>
+        )}
 
-        {programaEnabled && <section className="rounded-lg border border-slate-200 bg-white p-5 shadow-sm"><p className="text-xs font-black uppercase tracking-widest text-slate-500"><Clock className="mr-1 inline h-4 w-4" />Programa del evento</p><ul className="mt-5 space-y-4">{fiesta.programa.map((item) => <li key={item.id} className="flex gap-4"><span className="w-14 shrink-0 text-sm font-bold text-slate-500">{item.hora}</span><div><p className="font-bold">{item.titulo}</p>{item.descripcion && <p className="mt-1 text-sm text-slate-500">{item.descripcion}</p>}</div></li>)}</ul></section>}
+        {/* Programa del Evento */}
+        {programaEnabled && (
+          <section className="rounded-3xl border border-white/10 bg-slate-900/80 p-6 shadow-xl backdrop-blur-xl sm:p-8">
+            <p className="text-xs font-black uppercase tracking-widest text-emerald-400"><Clock className="mr-1.5 inline h-4 w-4" />Programa & Cronograma</p>
+            <ul className="mt-6 space-y-4">
+              {fiesta.programa.map((item) => (
+                <li key={item.id} className="flex gap-4 items-start">
+                  <span className="w-16 shrink-0 text-sm font-black text-emerald-400">{item.hora}</span>
+                  <div>
+                    <p className="font-bold text-white text-base">{item.titulo}</p>
+                    {item.descripcion && <p className="mt-1 text-sm text-slate-400">{item.descripcion}</p>}
+                  </div>
+                </li>
+              ))}
+            </ul>
+          </section>
+        )}
 
-        {showAkCta && <section data-testid="guest-portal-ak-cta" className="border-t border-slate-200 pt-8 text-center"><p className="text-xs font-black uppercase tracking-widest text-slate-500">Experiencia creada por</p><p className="mt-2 text-xl font-black">AK PRODUCCIONES</p><p className="mx-auto mt-3 max-w-xl text-sm leading-relaxed text-slate-600">{guestExp?.ctaDescription || guestExp?.ctaText || 'Conoce como organizamos eventos completos e inolvidables.'}</p><div className="mt-5 flex flex-wrap justify-center gap-2">{instagramUrl && guestExp?.showSocialCta !== false && <a href={instagramUrl} target="_blank" rel="noopener noreferrer" data-testid="guest-portal-cta-instagram" onClick={() => trackGuestCtaClick(fiestaId, guest.id, 'clickedInstagram').catch(() => {})} className="inline-flex min-h-10 items-center gap-2 rounded-lg border border-slate-300 px-3 text-sm font-bold"><Instagram className="h-4 w-4" />Instagram</a>}{facebookUrl && guestExp?.showSocialCta !== false && <a href={facebookUrl} target="_blank" rel="noopener noreferrer" className="inline-flex min-h-10 items-center gap-2 rounded-lg border border-slate-300 px-3 text-sm font-bold"><Facebook className="h-4 w-4" />Facebook</a>}{tiktokUrl && guestExp?.showSocialCta !== false && <a href={tiktokUrl} target="_blank" rel="noopener noreferrer" className="inline-flex min-h-10 items-center gap-2 rounded-lg border border-slate-300 px-3 text-sm font-bold">TikTok</a>}{whatsappUrl && guestExp?.showSocialCta !== false && <a href={whatsappUrl} target="_blank" rel="noopener noreferrer" data-testid="guest-portal-cta-whatsapp" onClick={() => trackGuestCtaClick(fiestaId, guest.id, 'clickedWhatsapp').catch(() => {})} className="inline-flex min-h-10 items-center gap-2 rounded-lg border border-slate-300 px-3 text-sm font-bold"><MessageCircle className="h-4 w-4" />WhatsApp</a>}</div>{landingUrl && guestExp?.showLandingCta !== false && <a href={landingUrl} target="_blank" rel="noopener noreferrer" data-testid="guest-portal-cta-landing" onClick={() => trackGuestCtaClick(fiestaId, guest.id, 'clickedLanding').catch(() => {})} className="mt-4 inline-flex min-h-11 items-center gap-2 rounded-lg border px-4 text-sm font-bold" style={{ borderColor: accentColor, color: accentColor }}><Globe className="h-4 w-4" />Quiero organizar mi evento</a>}{simulatorUrl && guestExp?.showBudgetSimulatorCta && <a href={simulatorUrl} target="_blank" rel="noopener noreferrer" data-testid="guest-portal-cta-simulator" onClick={() => trackGuestCtaClick(fiestaId, guest.id, 'clickedSimulator').catch(() => {})} className="mt-4 inline-flex min-h-11 items-center gap-2 rounded-lg bg-slate-950 px-4 text-sm font-bold text-white">Simular presupuesto</a>}</section>}
+        {/* Branding & CTA AK Producciones */}
+        {showAkCta && (
+          <section data-testid="guest-portal-ak-cta" className="border-t border-white/10 pt-10 text-center">
+            <p className="text-xs font-black uppercase tracking-widest text-amber-400">Experiencia Producida por</p>
+            <p className="mt-2 text-2xl font-black text-white tracking-wider">AK PRODUCCIONES</p>
+            <p className="mx-auto mt-3 max-w-xl text-sm leading-relaxed text-slate-400">
+              {guestExp?.ctaDescription || guestExp?.ctaText || 'Conocé cómo organizamos eventos completos, tranquilos e inolvidables.'}
+            </p>
+            <div className="mt-6 flex flex-wrap justify-center gap-3">
+              {instagramUrl && guestExp?.showSocialCta !== false && (
+                <a href={instagramUrl} target="_blank" rel="noopener noreferrer" data-testid="guest-portal-cta-instagram" onClick={() => trackGuestCtaClick(fiestaId, guest.id, 'clickedInstagram').catch(() => {})} className="inline-flex min-h-11 items-center gap-2 rounded-xl border border-white/20 bg-white/10 px-4 text-sm font-bold text-white hover:bg-white/20 transition-all">
+                  <Instagram className="h-4 w-4 text-pink-400" />Instagram
+                </a>
+              )}
+              {facebookUrl && guestExp?.showSocialCta !== false && (
+                <a href={facebookUrl} target="_blank" rel="noopener noreferrer" className="inline-flex min-h-11 items-center gap-2 rounded-xl border border-white/20 bg-white/10 px-4 text-sm font-bold text-white hover:bg-white/20 transition-all">
+                  <Facebook className="h-4 w-4 text-blue-400" />Facebook
+                </a>
+              )}
+              {tiktokUrl && guestExp?.showSocialCta !== false && (
+                <a href={tiktokUrl} target="_blank" rel="noopener noreferrer" className="inline-flex min-h-11 items-center gap-2 rounded-xl border border-white/20 bg-white/10 px-4 text-sm font-bold text-white hover:bg-white/20 transition-all">
+                  TikTok
+                </a>
+              )}
+              {whatsappUrl && guestExp?.showSocialCta !== false && (
+                <a href={whatsappUrl} target="_blank" rel="noopener noreferrer" data-testid="guest-portal-cta-whatsapp" onClick={() => trackGuestCtaClick(fiestaId, guest.id, 'clickedWhatsapp').catch(() => {})} className="inline-flex min-h-11 items-center gap-2 rounded-xl border border-white/20 bg-white/10 px-4 text-sm font-bold text-white hover:bg-white/20 transition-all">
+                  <MessageCircle className="h-4 w-4 text-emerald-400" />WhatsApp
+                </a>
+              )}
+            </div>
+            {landingUrl && guestExp?.showLandingCta !== false && (
+              <a href={landingUrl} target="_blank" rel="noopener noreferrer" data-testid="guest-portal-cta-landing" onClick={() => trackGuestCtaClick(fiestaId, guest.id, 'clickedLanding').catch(() => {})} className="mt-5 inline-flex min-h-12 items-center gap-2 rounded-xl border border-amber-400/40 bg-amber-400/10 px-6 text-sm font-bold text-amber-300 hover:bg-amber-400/20 transition-all">
+                <Globe className="h-4 w-4" />Quiero organizar mi evento
+              </a>
+            )}
+            {simulatorUrl && guestExp?.showBudgetSimulatorCta && (
+              <a href={simulatorUrl} target="_blank" rel="noopener noreferrer" data-testid="guest-portal-cta-simulator" onClick={() => trackGuestCtaClick(fiestaId, guest.id, 'clickedSimulator').catch(() => {})} className="mt-5 inline-flex min-h-12 items-center gap-2 rounded-xl bg-white px-6 text-sm font-black text-slate-950 shadow-lg hover:bg-slate-100 transition-all">
+                Simular mi presupuesto
+              </a>
+            )}
+          </section>
+        )}
       </div>
 
-      <nav aria-label="Navegacion del invitado" className="fixed inset-x-0 bottom-0 z-40 border-t border-slate-200 bg-white/95 px-3 py-2 shadow-sm backdrop-blur sm:hidden"><div className="mx-auto grid max-w-md grid-cols-3"><a href="#mi-pase" className="flex min-h-12 flex-col items-center justify-center gap-1 text-[10px] font-bold text-slate-600"><TicketCheck className="h-5 w-5" />Mi pase</a><a href={hubHref} className="flex min-h-12 flex-col items-center justify-center gap-1 text-[10px] font-black" style={{ color: accentColor }}><Home className="h-5 w-5" />Hub</a><a href="#datos-evento" className="flex min-h-12 flex-col items-center justify-center gap-1 text-[10px] font-bold text-slate-600"><MapPin className="h-5 w-5" />Evento</a></div></nav>
+      {/* Dock de Navegación Flotante estilo iOS */}
+      <nav aria-label="Navegacion del invitado" className="fixed inset-x-4 bottom-4 z-40 mx-auto max-w-md rounded-2xl border border-white/20 bg-slate-950/90 p-2 shadow-2xl backdrop-blur-xl sm:hidden">
+        <div className="grid grid-cols-3 gap-1">
+          <a href="#mi-pase" className="flex min-h-12 flex-col items-center justify-center gap-1 text-[11px] font-bold text-slate-300 transition-colors hover:text-white">
+            <TicketCheck className="h-5 w-5 text-emerald-400" />Pase VIP
+          </a>
+          <a href={hubHref} className="flex min-h-12 flex-col items-center justify-center gap-1 text-[11px] font-black text-white" style={{ color: accentColor }}>
+            <Home className="h-5 w-5" />Hub
+          </a>
+          <a href="#datos-evento" className="flex min-h-12 flex-col items-center justify-center gap-1 text-[11px] font-bold text-slate-300 transition-colors hover:text-white">
+            <MapPin className="h-5 w-5 text-cyan-400" />Evento
+          </a>
+        </div>
+      </nav>
+
       {showQuiosco && <MiniQuiosco fiestaId={fiestaId} guest={guest} guestAccessToken={guestAccessToken} canShareToSocial={socialEnabled && photosEnabled} onClose={() => setShowQuiosco(false)} />}
     </main>
   );
