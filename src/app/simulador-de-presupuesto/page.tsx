@@ -75,8 +75,10 @@ import {
   getPackageChangeResult,
   getPackageRecommendations,
   getRemovablePackageServices,
+  getTierMissingServices,
 } from '@/lib/simulator/package-customization';
 import { downloadSimulatorBudgetPdf } from '@/lib/budget/simulator-budget-pdf';
+import { FloatingWhatsApp } from '@/components/ui/floating-whatsapp';
 
 const COMMERCIAL_TIMER_SECONDS = 15 * 60;
 const COMMERCIAL_TIMER_STORAGE_KEY = 'ak-simulator-commercial-timer';
@@ -290,6 +292,8 @@ function SimuladorContent() {
     const [gastronomiaSearchTerm, setGastronomiaSearchTerm] = useState('');
     const [serviceSearchTerm, setServiceSearchTerm] = useState('');
     const [isSearchFocused, setIsSearchFocused] = useState(false);
+    const [isFaqOpen, setIsFaqOpen] = useState(false);
+    const [isUpsellWidgetDismissed, setIsUpsellWidgetDismissed] = useState(false);
 
     const [isLoading, setIsLoading] = useState(true);
     const [errorLoading, setErrorLoading] = useState(false);
@@ -510,19 +514,18 @@ function SimuladorContent() {
     }, [entradasDisponibles, principalesDisponibles, menusNinoDisponibles, serviciosCatalogo]);
 
     const clubUruguaySyntheticService = useMemo(() => {
+        return [];
+    }, []);
+
+    const clubUruguayDetails = useMemo(() => {
         const club = config?.clubUruguayConfig;
-        if (!club?.activo || salonChoice !== 'club') return [];
-        return [{
-            servicio: {
-                id: 'serv_salon_club_uruguay',
-                nombre: 'Salón Club Uruguay',
-                tipoItem: 'Servicio' as const,
-                categoria: 'Otros servicios' as const,
-                precioVenta: Number(club.precio) || 0,
-                precioBase: Number(club.precio) || 0,
-                calculationMethod: 'fijo' as const,
-            },
-        }];
+        if (!club?.activo || salonChoice !== 'club') return null;
+        const baseCosto = Number(club.precio) || 25000;
+        return {
+            nombre: 'Salón Club Uruguay',
+            costo: baseCosto,
+            aclaracion: `El costo del alquiler del Salón Club Uruguay (${formatCurrency(baseCosto)}) NO está incluido en la suma del total de este presupuesto de AK Producciones, ya que se abona mediante contrato y recibo de alquiler independiente emitido directamente por la administración del Club Uruguay.`,
+        };
     }, [config?.clubUruguayConfig, salonChoice]);
 
     const technologyServices = useMemo(() => {
@@ -539,6 +542,13 @@ function SimuladorContent() {
             )
             .sort((a, b) => Number(Boolean(b.isFeatured)) - Number(Boolean(a.isFeatured)) || a.nombre.localeCompare(b.nombre));
     }, [serviciosCatalogo, budgetSettings?.serviciosAdicionalesVisibles]);
+
+    const tierMissingData = useMemo(() => {
+        if (!config || !allSimuladorServices.length || !selectedPaqueteId) {
+            return { nextPackageName: '', targetPackageId: '', missingServices: [] };
+        }
+        return getTierMissingServices(config, selectedPaqueteId, allSimuladorServices);
+    }, [config, selectedPaqueteId, allSimuladorServices]);
 
     const toggleTechnologyService = useCallback((service: ServicioEmpresa, selected: boolean) => {
         setFormData(previous => {
@@ -1042,6 +1052,7 @@ function SimuladorContent() {
                 childrenAndTeens: ninosYAdolescentes,
                 packageName,
                 items: stats.detallados,
+                salonDetails: clubUruguayDetails || undefined,
                 stats,
                 bookingTerms: budgetSettings.bookingTerms,
             });
@@ -1485,8 +1496,8 @@ function SimuladorContent() {
                                                 {commercialTimerSeconds > 0 ? formatCountdown(commercialTimerSeconds) : 'Consulta abierta'}
                                             </span>
                                         </div>
-                                        <p className="mt-1 text-xs font-medium leading-relaxed text-slate-600">
-                                            El presupuesto es válido por 30 días. Durante estos 15 minutos podés coordinar una revisión prioritaria de disponibilidad, promociones y regalos; la reserva queda confirmada únicamente cuando AK valida la fecha.
+                                        <p className="mt-1 text-xs font-semibold leading-relaxed text-slate-700">
+                                            🔥 ¡Para acceder a la promoción y asegurar el descuento de tu presupuesto, comunicate con nosotros ahora mismo! Quedan muy pocos cupos y fechas disponibles en la agenda 2026/2027. Reservás y asegurás tu fecha con una seña de solo $5.000.
                                         </p>
                                     </div>
                                 </div>
@@ -1726,12 +1737,8 @@ function SimuladorContent() {
                         <CardFooter className="bg-slate-50 p-8 border-t flex flex-col items-center gap-4">
                             <div className="w-full rounded-md border border-slate-200 bg-white p-6">
                                 <h4 className="mb-2 flex items-center gap-2 text-[10px] font-bold uppercase tracking-widest text-slate-700"><Info className="w-4 h-4"/> Condiciones de reserva</h4>
-                                <p className="text-xs font-medium leading-relaxed text-slate-600">
-                                    {stats.annualProjection.applies ? (
-                                        <>Con una seña de $5.000 podés solicitar la reserva de la fecha y del servicio. El presupuesto es válido por 30 días para mantener el precio de la promoción y los regalos incluidos. Los eventos programados para años posteriores al vigente tendrán un ajuste anual proyectado del {stats.annualProjection.adjustmentPct}% de acuerdo a lo establecido en el contrato.</>
-                                    ) : (
-                                        <>Con una seña de $5.000 podés solicitar la reserva de la fecha y del servicio. El presupuesto es válido por 30 días para mantener el precio de la promoción y los regalos incluidos. El total mostrado corresponde al precio vigente del año {currentYear}.</>
-                                    )}
+                                <p className="text-xs font-semibold leading-relaxed text-slate-700">
+                                    Con una seña de $5.000 podés solicitar la reserva de la fecha y de todos los servicios incluidos. El presupuesto es válido por 30 días para mantener el precio de la promoción y todos los regalos incluidos. El total mostrado corresponde al precio promocional vigente del año 2026. Para eventos en años posteriores (2027 en adelante), se aplica un ajuste del 15% por cada año adicional transcurrido. Quedan pocos cupos y fechas disponibles en agenda; la reserva queda confirmada únicamente cuando AK valida la disponibilidad de la fecha.
                                 </p>
                                 {budgetSettings.bookingTerms && (
                                     <p className="mt-2 text-xs leading-relaxed text-slate-600">{budgetSettings.bookingTerms}</p>
@@ -1739,14 +1746,13 @@ function SimuladorContent() {
                             </div>
                             <div data-pdf-exclude="true" className="flex flex-col sm:flex-row items-center gap-3 print:hidden">
                               <Button variant="ghost" onClick={() => setStep(1)} className="rounded-md text-xs font-bold text-slate-500">Iniciar nueva simulación</Button>
-                              <a
-                                href="https://akproduccioneseventos.com/#faq"
-                                target="_blank"
-                                rel="noopener noreferrer"
-                                className="inline-flex items-center gap-2 rounded-md border border-slate-300 px-4 py-2 text-xs font-bold text-slate-700 transition-colors hover:bg-slate-50"
+                              <Button
+                                type="button"
+                                onClick={() => setIsFaqOpen(true)}
+                                className="inline-flex items-center gap-2 rounded-md bg-gradient-to-r from-red-600 to-amber-600 px-5 py-2.5 text-xs font-black text-white shadow-md hover:from-red-700 hover:to-amber-700 transition-all transform hover:scale-105"
                               >
-                                <Info className="w-3.5 h-3.5" /> Preguntas Frecuentes
-                              </a>
+                                <Info className="w-4 h-4" /> Preguntas Frecuentes
+                              </Button>
                             </div>
                         </CardFooter>
                     </Card>
@@ -2266,6 +2272,28 @@ function SimuladorContent() {
                                 )}
                             </div>
 
+                            {salonChoice === 'club' && clubUruguayDetails && (
+                                <div className="rounded-2xl border border-amber-200 bg-amber-50/90 p-6 text-left shadow-sm">
+                                    <div className="flex flex-wrap items-center justify-between gap-4">
+                                        <div className="flex items-center gap-3">
+                                            <span className="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl bg-amber-600 text-white font-black text-xl shadow-sm">
+                                                🏛️
+                                            </span>
+                                            <div>
+                                                <h3 className="font-black text-slate-900 text-base">{clubUruguayDetails.nombre}</h3>
+                                                <p className="text-xs font-bold text-amber-900 mt-0.5">Contrato y recibo de alquiler independiente con el Club Uruguay</p>
+                                            </div>
+                                        </div>
+                                        <Badge className="bg-amber-600 text-white font-black text-xs px-3.5 py-1.5 rounded-xl shadow-sm">
+                                            Costo Salón: {formatCurrency(clubUruguayDetails.costo)}
+                                        </Badge>
+                                    </div>
+                                    <p className="mt-4 text-xs font-semibold leading-relaxed text-amber-950 border-t border-amber-200/80 pt-3">
+                                        {clubUruguayDetails.aclaracion}
+                                    </p>
+                                </div>
+                            )}
+
                             <div className="space-y-6">
                                 <h3 className="text-sm font-black uppercase tracking-wider text-slate-800 flex items-center gap-2 pl-2">
                                     <ListPlus className="w-[18px] h-[18px] text-slate-500" /> Servicios contratados en tu propuesta
@@ -2389,6 +2417,52 @@ function SimuladorContent() {
                                     <h4 className="font-black text-slate-800 uppercase text-xs tracking-wider flex items-center gap-2">
                                         <Search className="w-[18px] h-[18px] text-slate-500"/> ¿Querés agregar algún servicio extra?
                                     </h4>
+
+                                    {tierMissingData.missingServices.length > 0 && (
+                                        <div className="rounded-2xl border border-red-200 bg-gradient-to-r from-red-50 to-amber-50 p-5 space-y-3 text-left">
+                                            <div className="flex items-center justify-between">
+                                                <span className="text-xs font-black uppercase tracking-wider text-red-700 flex items-center gap-2">
+                                                    <Sparkles className="w-4 h-4 text-red-600" />
+                                                    Adicionales del Plan {tierMissingData.nextPackageName}
+                                                </span>
+                                                <Badge className="bg-red-600 text-white font-black text-[9px] uppercase">Recomendados</Badge>
+                                            </div>
+                                            <p className="text-xs font-semibold text-slate-600">
+                                                Sumá a tu propuesta los servicios incluidos en el paquete superior {tierMissingData.nextPackageName}:
+                                            </p>
+                                            <div className="grid gap-3 sm:grid-cols-2">
+                                                {tierMissingData.missingServices.map(service => {
+                                                    const isSelected = selectedServicesMap.has(service.id);
+                                                    const calculated = getSimulatorServiceCalculatedData(service, adultos, ninosYAdolescentes);
+                                                    return (
+                                                        <div
+                                                            key={service.id}
+                                                            className={cn(
+                                                                "flex items-center justify-between gap-3 rounded-xl border p-3.5 transition-all",
+                                                                isSelected ? "border-emerald-300 bg-emerald-50" : "border-slate-200 bg-white hover:border-red-200 shadow-sm"
+                                                            )}
+                                                        >
+                                                            <div className="min-w-0 flex-1">
+                                                                <span className="block font-bold text-xs text-slate-900 truncate">{service.nombre}</span>
+                                                                <span className="block text-[10px] text-slate-500 font-semibold mt-0.5">+{formatCurrency(calculated.total)}</span>
+                                                            </div>
+                                                            <Button
+                                                                type="button"
+                                                                size="sm"
+                                                                onClick={() => handleToggleServiceInBudget(service.id, isSelected ? 'exclude' : 'include')}
+                                                                className={cn(
+                                                                    "h-8 px-3 text-xs font-bold rounded-lg transition shrink-0",
+                                                                    isSelected ? "bg-emerald-600 hover:bg-emerald-700 text-white" : "bg-red-600 hover:bg-red-700 text-white"
+                                                                )}
+                                                            >
+                                                                {isSelected ? 'Agregado ✓' : 'Agregar +'}
+                                                            </Button>
+                                                        </div>
+                                                    );
+                                                })}
+                                            </div>
+                                        </div>
+                                    )}
                                     <div className="relative">
                                         <div className="relative flex-1">
                                             <Search className="absolute left-4 top-3.5 h-5 w-5 text-slate-400" />
@@ -2584,6 +2658,67 @@ function SimuladorContent() {
                     </DialogFooter>
                 </DialogContent>
             </Dialog>
+
+            <Dialog open={isFaqOpen} onOpenChange={setIsFaqOpen}>
+                <DialogContent className="max-w-xl rounded-2xl bg-white p-6 sm:p-8 text-left shadow-2xl">
+                    <DialogHeader>
+                        <DialogTitle className="flex items-center gap-2 text-2xl font-black text-slate-900">
+                            <Info className="h-6 w-6 text-red-600" /> Preguntas Frecuentes
+                        </DialogTitle>
+                        <DialogDescription className="text-xs text-slate-500 font-semibold">
+                            Respuestas claras a las consultas habituales sobre la reserva y vigencia de tu evento.
+                        </DialogDescription>
+                    </DialogHeader>
+
+                    <div className="mt-4 space-y-4 max-h-[60vh] overflow-y-auto pr-1">
+                        <div className="rounded-xl border border-slate-200 bg-slate-50 p-4">
+                            <h4 className="font-black text-sm text-slate-900">1. ¿Cómo solicito la reserva de mi fecha?</h4>
+                            <p className="mt-1 text-xs leading-relaxed text-slate-600 font-semibold">
+                                Con una seña de $5.000 podés solicitar la reserva de la fecha y de todos los servicios incluidos. AK confirma la disponibilidad de la fecha antes de registrar el pago definitivo.
+                            </p>
+                        </div>
+
+                        <div className="rounded-xl border border-slate-200 bg-slate-50 p-4">
+                            <h4 className="font-black text-sm text-slate-900">2. ¿Cuánto tiempo dura la validez del presupuesto?</h4>
+                            <p className="mt-1 text-xs leading-relaxed text-slate-600 font-semibold">
+                                El presupuesto es válido por 30 días para mantener el precio de la promoción y los regalos incluidos en tu propuesta.
+                            </p>
+                        </div>
+
+                        <div className="rounded-xl border border-slate-200 bg-slate-50 p-4">
+                            <h4 className="font-black text-sm text-slate-900">3. ¿Cómo funciona la locación del Salón Club Uruguay?</h4>
+                            <p className="mt-1 text-xs leading-relaxed text-slate-600 font-semibold">
+                                El costo del alquiler del Salón Club Uruguay no se incluye en la suma de este presupuesto porque se abona mediante un contrato y recibo de alquiler independiente directamente en la administración del Club Uruguay.
+                            </p>
+                        </div>
+
+                        <div className="rounded-xl border border-slate-200 bg-slate-50 p-4">
+                            <h4 className="font-black text-sm text-slate-900">4. ¿Cómo aplica el ajuste para eventos en 2027 o 2028?</h4>
+                            <p className="mt-1 text-xs leading-relaxed text-slate-600 font-semibold">
+                                El total mostrado corresponde al precio promocional vigente del año 2026. Para eventos en años posteriores (2027 en adelante), se aplica un ajuste del 15% por cada año adicional transcurrido.
+                            </p>
+                        </div>
+
+                        <div className="rounded-xl border border-slate-200 bg-slate-50 p-4">
+                            <h4 className="font-black text-sm text-slate-900">5. ¿Puedo modificar menús o agregar adicionales después?</h4>
+                            <p className="mt-1 text-xs leading-relaxed text-slate-600 font-semibold">
+                                ¡Sí! Podés personalizar menús, tecnología y opcionales hasta 30 días antes del evento.
+                            </p>
+                        </div>
+                    </div>
+
+                    <DialogFooter className="mt-6 flex flex-col sm:flex-row gap-3">
+                        <Button
+                            onClick={() => setIsFaqOpen(false)}
+                            className="w-full sm:w-auto bg-slate-900 text-white font-bold rounded-xl hover:bg-slate-800"
+                        >
+                            Entendido, cerrar
+                        </Button>
+                    </DialogFooter>
+                </DialogContent>
+            </Dialog>
+
+            <FloatingWhatsApp phoneNumber={whatsappNumber} />
         </div>
     );
 }

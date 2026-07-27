@@ -20,6 +20,7 @@ import { getServiciosEmpresa } from '@/app/actions/servicios-empresa';
 import { getMenus } from '@/app/actions/menus-catering';
 import { getPublicWhatsAppNumber } from '@/app/actions/whatsapp';
 import { CompanyLogo } from '@/components/company-logo';
+import { FloatingWhatsApp } from '@/components/ui/floating-whatsapp';
 import BudgetDocument from '@/components/budget/BudgetDocument';
 import { cn } from '@/lib/utils';
 import { DatePickerDemo } from '@/components/date-picker-demo';
@@ -1353,7 +1354,7 @@ ${generatedId ? `*Link:* ${window.location.origin}/presupuestos/${generatedId}/v
             <Send className="w-4 h-4" />
           </Button>
         </div>
-
+        <FloatingWhatsApp />
       </div>
     );
   }

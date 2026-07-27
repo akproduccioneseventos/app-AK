@@ -14,6 +14,11 @@ export type SimulatorBudgetPdfInput = {
   childrenAndTeens: number;
   packageName?: string;
   items: SimulatorDetailedService[];
+  salonDetails?: {
+    nombre: string;
+    costo: number;
+    aclaracion: string;
+  };
   stats: Pick<
     SimulatorPriceStats,
     | "subtotalBruto"
@@ -52,6 +57,7 @@ export function buildSimulatorBudgetPdfModel(
 ): SimulatorBudgetPdfModel {
   const grouped = new Map<string, SimulatorDetailedService[]>();
   input.items.forEach((item) => {
+    if (item.id === 'serv_salon_club_uruguay' || /salón club uruguay/i.test(item.nombre)) return;
     const category = item.categoria?.trim() || "Otros servicios";
     const current = grouped.get(category) || [];
     current.push(item);
@@ -309,9 +315,31 @@ export async function createSimulatorBudgetPdf(
     y += 10;
   }
 
+  if (input.salonDetails) {
+    ensureSpace(24);
+    pdf.setFillColor(254, 243, 199);
+    pdf.setDrawColor(245, 158, 11);
+    pdf.roundedRect(marginX, y, contentWidth, 22, 1.5, 1.5, "FD");
+    pdf.setFont("helvetica", "bold");
+    pdf.setFontSize(8);
+    pdf.setTextColor(146, 64, 14);
+    pdf.text(`LOCACIÓN: ${input.salonDetails.nombre.toUpperCase()}`, marginX + 4, y + 5.5);
+    writeRightAligned(pdf, `Costo Salón: ${formatCurrency(input.salonDetails.costo)}`, 191, y + 5.5);
+    pdf.setFont("helvetica", "normal");
+    pdf.setFontSize(6.8);
+    pdf.setTextColor(180, 83, 9);
+    const salonNoteLines = pdf.splitTextToSize(
+      input.salonDetails.aclaracion ||
+        `El valor del Salón Club Uruguay (${formatCurrency(input.salonDetails.costo)}) NO está incluido en la suma del total de este presupuesto de AK Producciones. Se abona por separado directamente en la administración del Club Uruguay, con contrato y recibo de alquiler independiente.`,
+      172
+    ) as string[];
+    pdf.text(salonNoteLines, marginX + 4, y + 10.5);
+    y += 26;
+  }
+
   const terms =
     input.bookingTerms?.trim() ||
-    "El presupuesto es válido por 30 días. Con una seña de $5.000 se puede solicitar la reserva; AK confirma disponibilidad y condiciones antes de registrar el pago.";
+    "Con una seña de $5.000 podés solicitar la reserva de la fecha y del servicio. El presupuesto es válido por 30 días para mantener el precio de la promoción y los regalos incluidos. El total mostrado corresponde al precio promocional vigente del año 2026. Para eventos en años posteriores (2027 en adelante), se aplica un ajuste del 15% por cada año adicional transcurrido. Quedan pocos cupos y fechas disponibles en la agenda; la reserva queda confirmada únicamente cuando AK valida la disponibilidad de la fecha.";
   const termLines = pdf.splitTextToSize(terms, 169) as string[];
   const termsHeight = Math.max(25, 14 + termLines.length * 4);
   // Keep the conditions and the personalized link together so a long budget

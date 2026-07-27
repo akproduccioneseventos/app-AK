@@ -1,8 +1,8 @@
-﻿[
+[
   {
     "id": "menu_entradas_maestro",
-    "name": "CatÃ¡logo Maestro de Entradas",
-    "description": "SelecciÃ³n completa de las 25 entradas disponibles.",
+    "name": "Catálogo Maestro de Entradas",
+    "description": "Selección completa de las 25 entradas disponibles.",
     "items": [
       {
         "id": "dish_entrada_2",
@@ -40,7 +40,7 @@
         "totalDishCost": 40,
         "profitMargin": 248,
         "suggestedSellingPrice": 139,
-        "imageUrl": "/catering/menus/xv/dish_entrada_2.jpeg"
+        "imageUrl": "https://ak-producciones-fiestas-y-eventos.my.canva.site/servicio-de-catering/images/bb05990f36f2bed48ad92af7d739d8f1.jpg"
       },
       {
         "id": "dish_entrada_3",
@@ -132,7 +132,7 @@
         "totalDishCost": 64.4,
         "profitMargin": 131,
         "suggestedSellingPrice": 149,
-        "imageUrl": "/catering/menus/xv/dish_entrada_3.jpeg"
+        "imageUrl": "https://ak-producciones-fiestas-y-eventos.my.canva.site/servicio-de-catering/images/a8a03621d15f95a669a3945d20903390.jpg"
       },
       {
         "id": "dish_entrada_4",
@@ -188,7 +188,7 @@
         "totalDishCost": 49.2,
         "profitMargin": 203,
         "suggestedSellingPrice": 149,
-        "imageUrl": "/catering/menus/xv/dish_entrada_4.jpeg"
+        "imageUrl": "https://ak-producciones-fiestas-y-eventos.my.canva.site/servicio-de-catering/images/763afa7e08236db6707e69d5a32e95a8.jpg"
       },
       {
         "id": "dish_entrada_5",
@@ -244,7 +244,7 @@
         "totalDishCost": 45.5,
         "profitMargin": 271,
         "suggestedSellingPrice": 169,
-        "imageUrl": "/catering/menus/xv/dish_entrada_5.jpeg"
+        "imageUrl": "https://ak-producciones-fiestas-y-eventos.my.canva.site/servicio-de-catering/images/35e5fc2632a2bd6fc5ed9835ed4da7c6.jpg"
       },
       {
         "id": "dish_entrada_6",
@@ -282,7 +282,7 @@
         "totalDishCost": 50,
         "profitMargin": 198,
         "suggestedSellingPrice": 149,
-        "imageUrl": "/catering/menus/xv/dish_entrada_6.jpeg"
+        "imageUrl": null
       },
       {
         "id": "dish_entrada_7",
@@ -347,7 +347,7 @@
         "totalDishCost": 57.199999999999996,
         "profitMargin": 213,
         "suggestedSellingPrice": 179,
-        "imageUrl": "/catering/menus/xv/dish_entrada_7.jpeg"
+        "imageUrl": "https://ak-producciones-fiestas-y-eventos.my.canva.site/servicio-de-catering/images/8407a860b0f4f953abe17e94d36630df.jpg"
       },
       {
         "id": "dish_entrada_8",
@@ -493,7 +493,7 @@
         "totalDishCost": 38.152,
         "profitMargin": 395,
         "suggestedSellingPrice": 189,
-        "imageUrl": "/catering/menus/xv/dish_entrada_8.jpeg"
+        "imageUrl": "https://ak-producciones-fiestas-y-eventos.my.canva.site/servicio-de-catering/images/1b56526e1f32a9eaf8b93dd3dbf91a04.jpg"
       },
       {
         "id": "dish_entrada_9",
@@ -558,7 +558,7 @@
         "totalDishCost": 66,
         "profitMargin": 171,
         "suggestedSellingPrice": 179,
-        "imageUrl": "/catering/menus/xv/dish_entrada_9.jpeg"
+        "imageUrl": "https://ak-producciones-fiestas-y-eventos.my.canva.site/servicio-de-catering/images/bd861ee979a9d96acf5bf6caf2850aad.jpg"
       },
       {
         "id": "dish_entrada_10",
@@ -632,7 +632,7 @@
         "totalDishCost": 61.199999999999996,
         "profitMargin": 192,
         "suggestedSellingPrice": 179,
-        "imageUrl": "/catering/menus/xv/dish_entrada_10.jpeg"
+        "imageUrl": "https://ak-producciones-fiestas-y-eventos.my.canva.site/servicio-de-catering/images/0b29c5f0f0915b7dd3a879fc4afd673e.jpg"
       },
       {
         "id": "dish_entrada_11",
@@ -697,7 +697,7 @@
         "totalDishCost": 57.2,
         "profitMargin": 160,
         "suggestedSellingPrice": 149,
-        "imageUrl": "/catering/menus/xv/dish_entrada_11.jpeg"
+        "imageUrl": "https://ak-producciones-fiestas-y-eventos.my.canva.site/servicio-de-catering/images/355672672221b79e73f67792beb31e70.jpg"
       },
       {
         "id": "dish_entrada_12",
@@ -780,7 +780,7 @@
         "totalDishCost": 85.842,
         "profitMargin": 109,
         "suggestedSellingPrice": 179,
-        "imageUrl": "/catering/menus/xv/dish_entrada_12.jpeg"
+        "imageUrl": "https://ak-producciones-fiestas-y-eventos.my.canva.site/servicio-de-catering/images/15fa77d1df475c633c716409700caebf.jpg"
       },
       {
         "id": "dish_entrada_14",
@@ -816,7 +816,7 @@
           },
           {
             "id": "i4",
-            "name": "JamÃ³n",
+            "name": "Jamón",
             "quantityPerPerson": "8",
             "unit": "Gramos",
             "costoUnitario": 180,
@@ -917,7 +917,7 @@
         "totalDishCost": 78.61999999999999,
         "profitMargin": 153,
         "suggestedSellingPrice": 199,
-        "imageUrl": "/catering/menus/xv/dish_entrada_14.jpeg"
+        "imageUrl": "https://ak-producciones-fiestas-y-eventos.my.canva.site/servicio-de-catering/images/21788fef65eeea6656bf17c86706868b.jpg"
       },
       {
         "id": "dish_entrada_16",
@@ -1000,7 +1000,7 @@
         "totalDishCost": 91,
         "profitMargin": 119,
         "suggestedSellingPrice": 199,
-        "imageUrl": "/catering/menus/xv/dish_entrada_16.jpeg"
+        "imageUrl": "https://ak-producciones-fiestas-y-eventos.my.canva.site/servicio-de-catering/images/8a4c0cc604885f5a2c6cb5b50052a97f.jpg"
       },
       {
         "id": "dish_entrada_17",
@@ -1036,7 +1036,7 @@
           },
           {
             "id": "i4",
-            "name": "MorrÃ³n rojo",
+            "name": "Morrón rojo",
             "quantityPerPerson": "15",
             "unit": "Gramos",
             "costoUnitario": 180,
@@ -1045,7 +1045,7 @@
           },
           {
             "id": "i5",
-            "name": "MorrÃ³n verde",
+            "name": "Morrón verde",
             "quantityPerPerson": "15",
             "unit": "Gramos",
             "costoUnitario": 120,
@@ -1128,7 +1128,7 @@
         "totalDishCost": 88.05000000000001,
         "profitMargin": 206,
         "suggestedSellingPrice": 269,
-        "imageUrl": "/catering/menus/xv/dish_entrada_17.jpeg"
+        "imageUrl": "https://ak-producciones-fiestas-y-eventos.my.canva.site/servicio-de-catering/images/3c9c8d8d48fbe044efb72e2dbce0eb49.jpg"
       },
       {
         "id": "dish_entrada_18",
@@ -1347,7 +1347,7 @@
         "totalDishCost": 91.56599999999999,
         "profitMargin": 139,
         "suggestedSellingPrice": 219,
-        "imageUrl": "/catering/menus/xv/dish_entrada_19.jpeg"
+        "imageUrl": "https://ak-producciones-fiestas-y-eventos.my.canva.site/servicio-de-catering/images/e8a817e1b5c8b8030db71517f29e334d.jpg"
       },
       {
         "id": "dish_entrada_20",
@@ -1475,7 +1475,7 @@
         "totalDishCost": 68.13999999999999,
         "profitMargin": 192,
         "suggestedSellingPrice": 199,
-        "imageUrl": "/catering/menus/xv/dish_entrada_20.jpeg"
+        "imageUrl": "https://ak-producciones-fiestas-y-eventos.my.canva.site/servicio-de-catering/images/7f551858d4c122c3e2553cabb4710eca.jpg"
       },
       {
         "id": "dish_entrada_21",
@@ -1520,7 +1520,7 @@
           },
           {
             "id": "i5",
-            "name": "Papas rÃºsticas",
+            "name": "Papas rústicas",
             "quantityPerPerson": "52",
             "unit": "Gramos",
             "costoUnitario": 180,
@@ -1567,7 +1567,7 @@
         "totalDishCost": 97.119,
         "profitMargin": 105,
         "suggestedSellingPrice": 199,
-        "imageUrl": "/catering/menus/xv/dish_entrada_21.jpeg"
+        "imageUrl": "https://ak-producciones-fiestas-y-eventos.my.canva.site/servicio-de-catering/images/36a980719a3f41081369e6b8b7f9cd2e.jpg"
       },
       {
         "id": "dish_entrada_22",
@@ -1677,7 +1677,7 @@
         "totalDishCost": 95.22,
         "profitMargin": 130,
         "suggestedSellingPrice": 219,
-        "imageUrl": "/catering/menus/xv/dish_entrada_22.jpeg"
+        "imageUrl": "https://ak-producciones-fiestas-y-eventos.my.canva.site/servicio-de-catering/images/8c21f793b9149c3b121c693b97e8bbb3.jpg"
       },
       {
         "id": "dish_entrada_23",
@@ -1740,7 +1740,7 @@
           },
           {
             "id": "i7",
-            "name": "CaÃ±oncitos",
+            "name": "Cañoncitos",
             "quantityPerPerson": "0.3",
             "unit": "Unidades",
             "costoUnitario": 12.5,
@@ -1832,7 +1832,7 @@
         "totalDishCost": 74.8,
         "profitMargin": 206,
         "suggestedSellingPrice": 229,
-        "imageUrl": "/catering/menus/xv/dish_entrada_23.jpeg"
+        "imageUrl": "https://ak-producciones-fiestas-y-eventos.my.canva.site/servicio-de-catering/images/d15dccc1d439a383e3c904c46d40bcdb.jpg"
       },
       {
         "id": "dish_entrada_24",
@@ -1906,7 +1906,7 @@
         "totalDishCost": 89.8,
         "profitMargin": 233,
         "suggestedSellingPrice": 299,
-        "imageUrl": "/catering/menus/xv/dish_entrada_24.jpeg"
+        "imageUrl": "https://ak-producciones-fiestas-y-eventos.my.canva.site/servicio-de-catering/images/15e129b2d2545aa3c373e8fa7f9c0264.jpg"
       },
       {
         "id": "dish_entrada_25",
@@ -2070,19 +2070,19 @@
         "totalDishCost": 122.905,
         "profitMargin": 135,
         "suggestedSellingPrice": 289,
-        "imageUrl": "/catering/menus/xv/dish_entrada_25.jpeg"
+        "imageUrl": "https://ak-producciones-fiestas-y-eventos.my.canva.site/servicio-de-catering/images/56cca6a7dbfa919c866ba951e52ccdf0.jpg"
       }
     ],
     "updatedAt": "2026-03-18T11:29:06.387Z"
   },
   {
     "id": "menu_principales_maestro",
-    "name": "CatÃ¡logo Maestro de Platos Principales",
-    "description": "SelecciÃ³n completa de las 19 opciones principales.",
+    "name": "Catálogo Maestro de Platos Principales",
+    "description": "Selección completa de las 19 opciones principales.",
     "items": [
       {
         "id": "dish_main_2",
-        "name": "POLLO ARROLLADO C/ GUARNICIÃ“N",
+        "name": "POLLO ARROLLADO C/ GUARNICIÓN",
         "type": "Plato Principal",
         "ingredients": [
           {
@@ -2107,11 +2107,11 @@
         "totalDishCost": 189.4,
         "profitMargin": 137,
         "suggestedSellingPrice": 449,
-        "imageUrl": "/catering/menus/xv/dish_main_2.jpeg"
+        "imageUrl": "https://ak-producciones-fiestas-y-eventos.my.canva.site/servicio-de-catering/images/8d5475b4eb9db364e519628bd870de93.jpg"
       },
       {
         "id": "dish_main_3",
-        "name": "CERDO BRASEADO A LA MOSTAZA C/ GUARNICIÃ“N",
+        "name": "CERDO BRASEADO A LA MOSTAZA C/ GUARNICIÓN",
         "type": "Plato Principal",
         "ingredients": [
           {
@@ -2172,11 +2172,11 @@
         "totalDishCost": 106.69999999999999,
         "profitMargin": 274,
         "suggestedSellingPrice": 399,
-        "imageUrl": "/catering/menus/xv/dish_main_3.jpeg"
+        "imageUrl": "https://ak-producciones-fiestas-y-eventos.my.canva.site/servicio-de-catering/images/8fb9002cf7d9689ef57328e25bbba819.jpg"
       },
       {
         "id": "dish_main_4",
-        "name": "CERDO BRASEADO A LA BARBACOA C/ GUARNICIÃ“N",
+        "name": "CERDO BRASEADO A LA BARBACOA C/ GUARNICIÓN",
         "type": "Plato Principal",
         "ingredients": [
           {
@@ -2237,7 +2237,7 @@
         "totalDishCost": 102.1,
         "profitMargin": 291,
         "suggestedSellingPrice": 399,
-        "imageUrl": "/catering/menus/xv/dish_main_4.jpeg"
+        "imageUrl": null
       },
       {
         "id": "dish_main_5",
@@ -2302,11 +2302,11 @@
         "totalDishCost": 115.5,
         "profitMargin": 237,
         "suggestedSellingPrice": 389,
-        "imageUrl": "/catering/menus/xv/dish_main_5.jpeg"
+        "imageUrl": "https://ak-producciones-fiestas-y-eventos.my.canva.site/servicio-de-catering/images/caa614df1ec5f43530abc2922de7f9e0.jpg"
       },
       {
         "id": "dish_main_6",
-        "name": "Ã‘OQUIS AL QUESO",
+        "name": "ÑOQUIS AL QUESO",
         "type": "Plato Principal",
         "ingredients": [
           {
@@ -2394,11 +2394,11 @@
         "totalDishCost": 155.5,
         "profitMargin": 150,
         "suggestedSellingPrice": 389,
-        "imageUrl": "/catering/menus/xv/dish_main_6.jpeg"
+        "imageUrl": "https://ak-producciones-fiestas-y-eventos.my.canva.site/servicio-de-catering/images/dea21504f075327f4c275fc55c3592b5.jpg"
       },
       {
         "id": "dish_main_7",
-        "name": "CERDO ARROLLADO C/ GUARNICIÃ“N",
+        "name": "CERDO ARROLLADO C/ GUARNICIÓN",
         "type": "Plato Principal",
         "ingredients": [
           {
@@ -2412,7 +2412,7 @@
           },
           {
             "id": "i2",
-            "name": "guarniciÃ³n",
+            "name": "guarnición",
             "quantityPerPerson": "1",
             "unit": "Unidades",
             "costoUnitario": 40,
@@ -2423,11 +2423,11 @@
         "totalDishCost": 150,
         "profitMargin": 199,
         "suggestedSellingPrice": 449,
-        "imageUrl": "/catering/menus/xv/dish_main_7.jpeg"
+        "imageUrl": "https://ak-producciones-fiestas-y-eventos.my.canva.site/servicio-de-catering/images/f8d5ba53b620fa79c9318a0fba5f17a4.jpg"
       },
       {
         "id": "dish_main_8",
-        "name": "POLLO A LA CREMA C/ GUARNICIÃ“N",
+        "name": "POLLO A LA CREMA C/ GUARNICIÓN",
         "type": "Plato Principal",
         "ingredients": [
           {
@@ -2441,7 +2441,7 @@
           },
           {
             "id": "i2",
-            "name": "guarniciÃ³n",
+            "name": "guarnición",
             "quantityPerPerson": "1",
             "unit": "Unidades",
             "costoUnitario": 40,
@@ -2497,7 +2497,7 @@
         "totalDishCost": 175.6,
         "profitMargin": 127,
         "suggestedSellingPrice": 399,
-        "imageUrl": "/catering/menus/xv/dish_main_8.jpeg"
+        "imageUrl": "https://ak-producciones-fiestas-y-eventos.my.canva.site/servicio-de-catering/images/5008cd701d1296ea375592540e27a7e3.jpg"
       },
       {
         "id": "dish_main_9",
@@ -2562,7 +2562,7 @@
         "totalDishCost": 170.75,
         "profitMargin": 157,
         "suggestedSellingPrice": 439,
-        "imageUrl": "/catering/menus/xv/dish_main_9.jpeg"
+        "imageUrl": "https://ak-producciones-fiestas-y-eventos.my.canva.site/servicio-de-catering/images/ba7bf2e79345a3c6b95cb8e4dafc3a77.jpg"
       },
       {
         "id": "dish_main_10",
@@ -2672,7 +2672,7 @@
         "totalDishCost": 178.80000000000004,
         "profitMargin": 151,
         "suggestedSellingPrice": 449,
-        "imageUrl": "/catering/menus/xv/dish_main_10.jpeg"
+        "imageUrl": "https://ak-producciones-fiestas-y-eventos.my.canva.site/servicio-de-catering/images/fa917ea28c0456f63a061b26bceeaab9.jpg"
       },
       {
         "id": "dish_main_11",
@@ -2773,7 +2773,7 @@
         "totalDishCost": 174.2,
         "profitMargin": 129,
         "suggestedSellingPrice": 399,
-        "imageUrl": "/catering/menus/xv/dish_main_11.jpeg"
+        "imageUrl": "https://ak-producciones-fiestas-y-eventos.my.canva.site/servicio-de-catering/images/986d0e33bbba90b39e78b327e99357a2.jpg"
       },
       {
         "id": "dish_main_12",
@@ -2892,11 +2892,11 @@
         "totalDishCost": 179.6,
         "profitMargin": 117,
         "suggestedSellingPrice": 389,
-        "imageUrl": "/catering/menus/xv/dish_main_12.jpeg"
+        "imageUrl": "https://ak-producciones-fiestas-y-eventos.my.canva.site/servicio-de-catering/images/34f54f57f9113df32abff833555c7378.jpg"
       },
       {
         "id": "dish_main_13",
-        "name": "STROGONOFT DE POLLO C/ GUARNICIÃ“N",
+        "name": "STROGONOFT DE POLLO C/ GUARNICIÓN",
         "type": "Plato Principal",
         "ingredients": [
           {
@@ -2937,7 +2937,7 @@
           },
           {
             "id": "i5",
-            "name": "ChampiÃ±on",
+            "name": "Champiñon",
             "quantityPerPerson": "100",
             "unit": "Gramos",
             "costoUnitario": 500,
@@ -2966,11 +2966,11 @@
         "totalDishCost": 190.1,
         "profitMargin": 126,
         "suggestedSellingPrice": 429,
-        "imageUrl": "/catering/menus/xv/dish_main_13.jpeg"
+        "imageUrl": "https://ak-producciones-fiestas-y-eventos.my.canva.site/servicio-de-catering/images/682c2090b459d0add6f6c69cf7205ddb.jpg"
       },
       {
         "id": "dish_main_14",
-        "name": "MERLUZA A LA CREMA C/ GUARNICIÃ“N",
+        "name": "MERLUZA A LA CREMA C/ GUARNICIÓN",
         "type": "Plato Principal",
         "ingredients": [
           {
@@ -3049,11 +3049,11 @@
         "totalDishCost": 197.35,
         "profitMargin": 102,
         "suggestedSellingPrice": 399,
-        "imageUrl": "/catering/menus/xv/dish_main_14.jpeg"
+        "imageUrl": "https://ak-producciones-fiestas-y-eventos.my.canva.site/servicio-de-catering/images/aeb98c7a317b5574466fac391ad07408.jpg"
       },
       {
         "id": "dish_main_15",
-        "name": "SUSHI C/ GUARNICIÃ“N",
+        "name": "SUSHI C/ GUARNICIÓN",
         "type": "Plato Principal",
         "ingredients": [
           {
@@ -3132,11 +3132,11 @@
         "totalDishCost": 202.35,
         "profitMargin": 147,
         "suggestedSellingPrice": 499,
-        "imageUrl": "/catering/menus/xv/dish_main_15.jpeg"
+        "imageUrl": "https://ak-producciones-fiestas-y-eventos.my.canva.site/servicio-de-catering/images/8d0bfc2c2a91b7ce8b0ccb4b35ef24a9.jpg"
       },
       {
         "id": "dish_main_16",
-        "name": "BIFE AL CHAMPIÃ‘ON C/ GUARNICIÃ“N",
+        "name": "BIFE AL CHAMPIÑON C/ GUARNICIÓN",
         "type": "Plato Principal",
         "ingredients": [
           {
@@ -3177,7 +3177,7 @@
           },
           {
             "id": "i5",
-            "name": "ChampiÃ±on",
+            "name": "Champiñon",
             "quantityPerPerson": "100",
             "unit": "Gramos",
             "costoUnitario": 500,
@@ -3206,11 +3206,11 @@
         "totalDishCost": 225.1,
         "profitMargin": 99,
         "suggestedSellingPrice": 449,
-        "imageUrl": "/catering/menus/xv/dish_main_16.jpeg"
+        "imageUrl": "https://ak-producciones-fiestas-y-eventos.my.canva.site/servicio-de-catering/images/bf1351da006a63605be67b44a56e07af.jpg"
       },
       {
         "id": "dish_main_17",
-        "name": "CORDERO ASADO C/ GUARNICIÃ“N",
+        "name": "CORDERO ASADO C/ GUARNICIÓN",
         "type": "Plato Principal",
         "ingredients": [
           {
@@ -3235,11 +3235,11 @@
         "totalDishCost": 255,
         "profitMargin": 186,
         "suggestedSellingPrice": 729,
-        "imageUrl": "/catering/menus/xv/dish_main_17.jpeg"
+        "imageUrl": "https://ak-producciones-fiestas-y-eventos.my.canva.site/servicio-de-catering/images/015589054e085c1770b7056b77c17459.jpg"
       },
       {
         "id": "dish_main_18",
-        "name": "ASADO COMPLETO C/ GUARNICIÃ“N",
+        "name": "ASADO COMPLETO C/ GUARNICIÓN",
         "type": "Plato Principal",
         "ingredients": [
           {
@@ -3280,7 +3280,7 @@
           },
           {
             "id": "i5",
-            "name": "LeÃ±a",
+            "name": "Leña",
             "quantityPerPerson": "3500",
             "unit": "Gramos",
             "costoUnitario": 3,
@@ -3291,7 +3291,7 @@
         "totalDishCost": 287.4,
         "profitMargin": 108,
         "suggestedSellingPrice": 599,
-        "imageUrl": "/catering/menus/xv/dish_main_18.jpeg"
+        "imageUrl": "https://ak-producciones-fiestas-y-eventos.my.canva.site/servicio-de-catering/images/9ca8d23607e60f67e0e712458b9550a1.jpg"
       },
       {
         "id": "dish_main_19",
@@ -3417,7 +3417,7 @@
           },
           {
             "id": "i14",
-            "name": "BoÃ±ato",
+            "name": "Boñato",
             "quantityPerPerson": "50",
             "unit": "Gramos",
             "costoUnitario": 80,
@@ -3426,7 +3426,7 @@
           },
           {
             "id": "i15",
-            "name": "LimÃ³n",
+            "name": "Limón",
             "quantityPerPerson": "20",
             "unit": "Gramos",
             "costoUnitario": 75,
@@ -3509,20 +3509,20 @@
         "totalDishCost": 53.426,
         "profitMargin": 254,
         "suggestedSellingPrice": 189,
-        "imageUrl": "/catering/menus/xv/dish_main_19.jpeg"
+        "imageUrl": null
       }
     ],
     "updatedAt": "2026-03-18T11:42:13.623Z"
   },
   {
     "id": "menu_infantil_maestro",
-    "name": "CatÃ¡logo Maestro Infantil",
-    "description": "MenÃºs diseÃ±ados para niÃ±os y adolescentes.",
+    "name": "Catálogo Maestro Infantil",
+    "description": "Menús diseñados para niños y adolescentes.",
     "items": [
       {
         "id": "dish_child_1",
         "name": "PANCHOS MEDIO METRO C/ FRITAS",
-        "type": "MenÃº Infantil/Adolescente",
+        "type": "Menú Infantil/Adolescente",
         "ingredients": [
           {
             "id": "i1",
@@ -3600,12 +3600,12 @@
         "totalDishCost": 164.3,
         "profitMargin": 82,
         "suggestedSellingPrice": 299,
-        "imageUrl": "/catering/menus/xv/dish_child_1.png"
+        "imageUrl": null
       },
       {
         "id": "dish_child_2",
         "name": "PANCHOS C/ FRITAS",
-        "type": "MenÃº Infantil/Adolescente",
+        "type": "Menú Infantil/Adolescente",
         "ingredients": [
           {
             "id": "i1",
@@ -3665,12 +3665,12 @@
         "totalDishCost": 93.2,
         "profitMargin": 114,
         "suggestedSellingPrice": 199,
-        "imageUrl": "/catering/menus/xv/dish_child_2.jpeg"
+        "imageUrl": "https://ak-producciones-fiestas-y-eventos.my.canva.site/servicio-de-catering/images/2f543cc99bb66cf58ee20f3a66a5025f.jpg"
       },
       {
         "id": "dish_child_3",
         "name": "HAMBURGUESA C/ FRITAS",
-        "type": "MenÃº Infantil/Adolescente",
+        "type": "Menú Infantil/Adolescente",
         "ingredients": [
           {
             "id": "i1",
@@ -3775,12 +3775,12 @@
         "totalDishCost": 138.3,
         "profitMargin": 116,
         "suggestedSellingPrice": 299,
-        "imageUrl": "/catering/menus/xv/dish_child_3.jpeg"
+        "imageUrl": "https://ak-producciones-fiestas-y-eventos.my.canva.site/servicio-de-catering/images/bf11e7a1d5ad72114a72ca5e7e78972d.jpg"
       },
       {
         "id": "dish_child_4",
         "name": "CHIVITO C/ FRITAS",
-        "type": "MenÃº Infantil/Adolescente",
+        "type": "Menú Infantil/Adolescente",
         "ingredients": [
           {
             "id": "i1",
@@ -3894,7 +3894,7 @@
         "totalDishCost": 148.151,
         "profitMargin": 136,
         "suggestedSellingPrice": 349,
-        "imageUrl": "/catering/menus/xv/dish_child_4.jpeg"
+        "imageUrl": "https://ak-producciones-fiestas-y-eventos.my.canva.site/servicio-de-catering/images/c6cd55bfec5c2d4dd88edf6808a65e0f.jpg"
       }
     ],
     "updatedAt": "2026-03-18T11:27:51.944Z"

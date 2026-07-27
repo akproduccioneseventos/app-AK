@@ -41,7 +41,12 @@ export function FloatingActions({
   const waHref = `https://wa.me/${whatsappNumber}?text=${encodeURIComponent(whatsappMessage)}`;
 
   return (
-    <div className="fixed bottom-6 right-6 z-50 flex flex-col items-center gap-3">
+    <motion.div
+      drag
+      dragMomentum={false}
+      dragElastic={0.1}
+      className="fixed bottom-6 right-6 z-50 flex flex-col items-center gap-3 cursor-grab active:cursor-grabbing select-none"
+    >
       <AnimatePresence>
         {isVisible && (
           <>
@@ -98,6 +103,6 @@ export function FloatingActions({
           </>
         )}
       </AnimatePresence>
-    </div>
+    </motion.div>
   );
 }
