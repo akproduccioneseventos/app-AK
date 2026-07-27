@@ -37,6 +37,7 @@ import { trackGuestCtaClick } from '@/app/actions/fiesta/invitados.actions';
 import { Button } from '@/components/ui/button';
 import { appendCommercialAttribution } from '@/lib/commercial/acquisition';
 import { withGuestAccess } from '@/lib/guest-portal/public-event-navigation';
+import { getPublicGuestMenuSections } from '@/lib/guest-portal/public-menu';
 import type { PublicGuest, PublicGuestEvent } from '@/lib/guest-portal-public-data';
 import type { SocialConnection } from '@/types/settings';
 import type { GuestPortalSettings } from '@/types/fiesta';
@@ -182,6 +183,7 @@ function GuestPortalContent() {
   const tableEnabled = gps.showMesaAsignada !== false && (!modules || modules.numerosMesa !== false);
   const checkinEnabled = gps.showCheckin !== false && (!modules || modules.checkin !== false);
   const menuEnabled = guestExp?.showMenu !== false && (!modules || modules.menuMesa !== false);
+  const rsvpEnabled = fiesta.invitacionConfig?.rsvpActivo !== false;
   const giftsEnabled = gps.showRegalos === true && (!modules || modules.regalos !== false);
   const programaEnabled = gps.showItinerario !== false && (!modules || modules.itinerario !== false) && fiesta.programa.length > 0;
 
@@ -210,6 +212,7 @@ function GuestPortalContent() {
     : guest.rsvp === 'Rechazado'
       ? { label: 'Asistencia cancelada', className: 'border-red-200 bg-red-50 text-red-800' }
       : { label: 'Confirmacion pendiente', className: 'border-amber-200 bg-amber-50 text-amber-800' };
+  const menuSections = getPublicGuestMenuSections(fiesta);
   const instagramUrl = guestExp?.instagramUrl || getSocialUrl(socialConnections, 'Instagram');
   const facebookUrl = guestExp?.facebookUrl || getSocialUrl(socialConnections, 'Facebook');
   const tiktokUrl = guestExp?.tiktokUrl || getSocialUrl(socialConnections, 'TikTok');
@@ -278,7 +281,6 @@ function GuestPortalContent() {
             </div>
             <span className={`rounded-xl border px-4 py-2 text-sm font-black shadow-sm ${rsvpBadge.className}`}>{rsvpBadge.label}</span>
           </div>
-
           <div className="mt-6 grid gap-4 sm:grid-cols-2">
             {tableEnabled && guest.tableNumber && (
               <div data-testid="guest-portal-table" className="flex items-center gap-4 rounded-2xl border border-white/10 bg-white/5 p-4 backdrop-blur-sm">
@@ -342,6 +344,12 @@ function GuestPortalContent() {
             </p>
           )}
 
+          {rsvpEnabled && guest.rsvp !== 'Confirmado' && (
+            <a href={`/invitacion/${fiestaId}/rsvp`} className="mt-6 inline-flex min-h-12 items-center rounded-xl px-5 text-sm font-black text-white shadow-lg transition-transform active:scale-95 hover:brightness-110" style={{ backgroundColor: accentColor }}>
+              {guest.rsvp === 'Rechazado' ? 'Actualizar respuesta' : 'Confirmar asistencia'}
+            </a>
+          )}
+
           {guest.rsvp === 'Confirmado' && fiesta.configuracion?.fechaEvento && (() => {
             const deadline = new Date(fiesta.configuracion.fechaEvento);
             deadline.setDate(deadline.getDate() - 7);
@@ -402,16 +410,27 @@ function GuestPortalContent() {
         )}
 
         {/* Menú del Evento */}
-        {menuEnabled && fiesta.menuMesa && (
+        {menuEnabled && (fiesta.menuMesa || menuSections.length > 0) && (
           <section id="menu-evento" className="rounded-3xl border border-white/10 bg-slate-900/80 p-6 shadow-xl backdrop-blur-xl sm:p-8">
             <p className="text-xs font-black uppercase tracking-widest text-amber-400">Gastronomía & Menú</p>
             <h2 className="mt-1 text-2xl font-black text-white">Menú Seleccionado</h2>
             <div className="mt-6 grid gap-4 text-sm sm:grid-cols-2">
-              {fiesta.menuMesa.entrada && <div className="rounded-2xl border border-white/5 bg-white/5 p-4"><p className="text-xs font-bold uppercase text-slate-400">Entrada</p><p className="mt-1 font-semibold text-white">{fiesta.menuMesa.entrada}</p></div>}
-              {fiesta.menuMesa.platoPrincipal && <div className="rounded-2xl border border-white/5 bg-white/5 p-4"><p className="text-xs font-bold uppercase text-slate-400">Plato Principal</p><p className="mt-1 font-semibold text-white">{fiesta.menuMesa.platoPrincipal}</p></div>}
-              {fiesta.menuMesa.adolescentes && <div className="rounded-2xl border border-white/5 bg-white/5 p-4"><p className="text-xs font-bold uppercase text-slate-400">Menú Adolescente</p><p className="mt-1 font-semibold text-white">{fiesta.menuMesa.adolescentes}</p></div>}
-              {fiesta.menuMesa.postres && <div className="rounded-2xl border border-white/5 bg-white/5 p-4"><p className="text-xs font-bold uppercase text-slate-400">Postres</p><p className="mt-1 font-semibold text-white">{fiesta.menuMesa.postres}</p></div>}
-              {fiesta.menuMesa.bebidas && <div className="rounded-2xl border border-white/5 bg-white/5 p-4"><p className="text-xs font-bold uppercase text-slate-400">Bebidas</p><p className="mt-1 font-semibold text-white">{fiesta.menuMesa.bebidas}</p></div>}
+              {menuSections.length > 0 ? (
+                menuSections.map((item) => (
+                  <div key={item.key} className="rounded-2xl border border-white/5 bg-white/5 p-4">
+                    <p className="text-xs font-bold uppercase text-slate-400">{item.label}</p>
+                    <p className="mt-1 font-semibold text-white">{item.value}</p>
+                  </div>
+                ))
+              ) : (
+                <>
+                  {fiesta.menuMesa?.entrada && <div className="rounded-2xl border border-white/5 bg-white/5 p-4"><p className="text-xs font-bold uppercase text-slate-400">Entrada</p><p className="mt-1 font-semibold text-white">{fiesta.menuMesa.entrada}</p></div>}
+                  {fiesta.menuMesa?.platoPrincipal && <div className="rounded-2xl border border-white/5 bg-white/5 p-4"><p className="text-xs font-bold uppercase text-slate-400">Plato Principal</p><p className="mt-1 font-semibold text-white">{fiesta.menuMesa.platoPrincipal}</p></div>}
+                  {fiesta.menuMesa?.adolescentes && <div className="rounded-2xl border border-white/5 bg-white/5 p-4"><p className="text-xs font-bold uppercase text-slate-400">Menú Adolescente</p><p className="mt-1 font-semibold text-white">{fiesta.menuMesa.adolescentes}</p></div>}
+                  {fiesta.menuMesa?.postres && <div className="rounded-2xl border border-white/5 bg-white/5 p-4"><p className="text-xs font-bold uppercase text-slate-400">Postres</p><p className="mt-1 font-semibold text-white">{fiesta.menuMesa.postres}</p></div>}
+                  {fiesta.menuMesa?.bebidas && <div className="rounded-2xl border border-white/5 bg-white/5 p-4"><p className="text-xs font-bold uppercase text-slate-400">Bebidas</p><p className="mt-1 font-semibold text-white">{fiesta.menuMesa.bebidas}</p></div>}
+                </>
+              )}
             </div>
           </section>
         )}

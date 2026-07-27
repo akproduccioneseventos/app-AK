@@ -63,8 +63,8 @@ export default function FotosVideoPortalPage() {
     
     Promise.all([
       initializePortalSession(fiestaId, accessKey).then(session => session.success ? getFiestaForPortalSession(fiestaId) : null),
-      getSocialPosts(fiestaId),
-      getDedications(fiestaId)
+      getSocialPosts(fiestaId).catch(() => []),
+      getDedications(fiestaId).catch(() => [])
     ])
       .then(([fiestaData, postsData, dedsData]) => {
         if (!fiestaData) { 

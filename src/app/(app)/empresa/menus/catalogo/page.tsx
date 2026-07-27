@@ -9,6 +9,7 @@ import { ArrowLeft, ChefHat, Loader2, Info, Edit, Percent, DollarSign, Copy, Tra
 import { useToast } from '@/hooks/use-toast';
 import type { FullMenu, MenuItem } from '@/types/catering';
 import { getMenus, saveMenu, deleteMenu, duplicateMenu } from '@/app/actions/menus-catering';
+import { getCateringDishImage } from '@/lib/catering/menu-images';
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '@/components/ui/accordion';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogFooter, DialogClose } from "@/components/ui/dialog";
 import {
@@ -62,16 +63,6 @@ const formatCurrency = (amount?: number) => {
   if (amount === undefined || isNaN(amount)) return 'N/A';
   return new Intl.NumberFormat('es-UY', { style: 'currency', currency: 'UYU', minimumFractionDigits: 0, maximumFractionDigits: 0 }).format(amount);
 };
-
-const sanitizeImageUrl = (url?: string): string | undefined => {
-  if (!url) return undefined;
-  try {
-    const parsed = new URL(url);
-    if (parsed.protocol === 'http:' || parsed.protocol === 'https:') return url;
-  } catch { /* invalid URL */ }
-  return undefined;
-};
-
 
 export default function CatalogoPlatosPage() {
   const { toast } = useToast();
@@ -284,10 +275,10 @@ export default function CatalogoPlatosPage() {
                 </DialogDescription>
             </DialogHeader>
             <div className="space-y-4 py-2">
-                {sanitizeImageUrl(editingDish?.imageUrl) && (
+                {getCateringDishImage(editingDish) && (
                   <div className="w-full h-40 rounded-lg border overflow-hidden">
                     {/* eslint-disable-next-line @next/next/no-img-element */}
-                    <img src={sanitizeImageUrl(editingDish?.imageUrl)!} alt={editingDish?.name} className="w-full h-full object-cover" />
+                    <img src={getCateringDishImage(editingDish)!} alt={editingDish?.name} className="w-full h-full object-cover" />
                   </div>
                 )}
                 {(editingDish?.allergenTags || []).length > 0 && (
@@ -344,9 +335,9 @@ export default function CatalogoPlatosPage() {
                                     <li key={`${plato.menuId}-${plato.id}`} className="p-2 border-b last:border-b-0 text-sm flex justify-between items-center gap-2">
                                       <div className="flex items-center gap-2 min-w-0">
                                         <div className="w-10 h-10 rounded-md border bg-muted/40 overflow-hidden shrink-0 flex items-center justify-center">
-                                          {sanitizeImageUrl(plato.imageUrl) ? (
+                                          {getCateringDishImage(plato) ? (
                                             // eslint-disable-next-line @next/next/no-img-element
-                                            <img src={sanitizeImageUrl(plato.imageUrl)!} alt={plato.name} className="w-full h-full object-cover" onError={(e) => { (e.target as HTMLImageElement).style.display='none'; }} />
+                                            <img src={getCateringDishImage(plato)!} alt={plato.name} className="w-full h-full object-cover" onError={(e) => { (e.target as HTMLImageElement).style.display='none'; }} />
                                           ) : (
                                             <span className="text-lg">{DISH_TYPE_EMOJI[plato.type || ''] || '🍴'}</span>
                                           )}

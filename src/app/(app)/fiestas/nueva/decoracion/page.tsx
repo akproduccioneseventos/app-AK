@@ -65,8 +65,12 @@ const ESTILOS_DECORACION = [
 ];
 
 const CATALOGO_ITEMS: { categoria: string; emoji: string; items: string[] }[] = [
+  { categoria: 'Paneles y Fondos', emoji: '⭕', items: ['Panel circular de tela', 'Arco romano escénico', 'Pared de follaje verde', 'Shimmer wall lentejuelas', 'Panel listonado madera', 'Arco floral doble'] },
+  { categoria: 'Cilindros y Pedestales', emoji: '🛢️', items: ['Trío de cilindros torta', 'Cilindro acanalado', 'Cilindro espejado dorado', 'Mesa Candy Bar dulce', 'Pedestal porta torta acrílico'] },
+  { categoria: 'Cartelería Neón', emoji: '💡', items: ['Cartel neón Mis 15s', 'Cartel neón Boda / Love', 'Guirnalda luces Edison', 'Letras iluminadas LED', 'Hexágono geométrico dorado'] },
+  { categoria: 'Mobiliario VIP', emoji: '👑', items: ['Sillón Throne 15s', 'Sillón novios vintage', 'Juego de livings lounge', 'Puf de pana / velvet'] },
   { categoria: 'Centros de Mesa', emoji: '🌸', items: ['Flores naturales', 'Flores artificiales', 'Velas flotantes', 'Jarrones con ramas', 'Terrarios', 'Fanales con flores', 'Candelabros', 'Arreglo tropical'] },
-  { categoria: 'Globos', emoji: '🎈', items: ['Arco de globos', 'Columna de globos', 'Bouquet de globos', 'Globos con confetti', 'Globos metálicos', 'Globos personalizados', 'Guirnalda de globos'] },
+  { categoria: 'Globos', emoji: '🎈', items: ['Arco de globos orgánico', 'Columna de globos', 'Bouquet de globos cromo', 'Globos con confetti', 'Globos metálicos', 'Globos personalizados', 'Guirnalda de globos'] },
   { categoria: 'Guirnaldas', emoji: '✨', items: ['Fairy lights', 'Banderines de tela', 'Banderines de papel', 'Flores colgantes', 'Guirnalda de hojas', 'Luces LED', 'Tul colgante'] },
   { categoria: 'Fundas y Lazos', emoji: '🪑', items: ['Fundas de silla blancas', 'Fundas de silla de color', 'Lazos de organza', 'Lazos de raso', 'Fajas para silla', 'Telas para mesas'] },
   { categoria: 'Iluminación', emoji: '🕯️', items: ['Velas LED de mesa', 'Spots de color', 'Gobos personalizados', 'Luces de uplighting', 'Iluminación de piso', 'Disco ball', 'Lámpara araña'] },

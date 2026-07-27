@@ -9,6 +9,7 @@ export const defaultCateringDishImages: Record<string, string> = {
   dish_entrada_3: `${DEFAULT_MENU_IMAGE_BASE}/dish_entrada_3.jpeg`,
   dish_entrada_4: `${DEFAULT_MENU_IMAGE_BASE}/dish_entrada_4.jpeg`,
   dish_entrada_5: `${DEFAULT_MENU_IMAGE_BASE}/dish_entrada_5.jpeg`,
+  dish_entrada_6: `${DEFAULT_MENU_IMAGE_BASE}/dish_entrada_6.jpeg`,
   dish_entrada_7: `${DEFAULT_MENU_IMAGE_BASE}/dish_entrada_7.jpeg`,
   dish_entrada_8: `${DEFAULT_MENU_IMAGE_BASE}/dish_entrada_8.jpeg`,
   dish_entrada_9: `${DEFAULT_MENU_IMAGE_BASE}/dish_entrada_9.jpeg`,
@@ -20,8 +21,6 @@ export const defaultCateringDishImages: Record<string, string> = {
   dish_entrada_17: `${DEFAULT_MENU_IMAGE_BASE}/dish_entrada_17.jpeg`,
   dish_entrada_19: `${DEFAULT_MENU_IMAGE_BASE}/dish_entrada_19.jpeg`,
   dish_entrada_20: `${DEFAULT_MENU_IMAGE_BASE}/dish_entrada_20.jpeg`,
-  // The source files predate the canonical audit: their filenames are swapped.
-  // Keep the dish IDs stable and resolve each one to the visually verified file.
   dish_entrada_21: `${DEFAULT_MENU_IMAGE_BASE}/dish_entrada_22.jpeg`,
   dish_entrada_22: `${DEFAULT_MENU_IMAGE_BASE}/dish_entrada_21.jpeg`,
   dish_entrada_23: `${DEFAULT_MENU_IMAGE_BASE}/dish_entrada_23.jpeg`,
@@ -30,6 +29,7 @@ export const defaultCateringDishImages: Record<string, string> = {
 
   dish_main_2: `${DEFAULT_MENU_IMAGE_BASE}/dish_main_2.jpeg`,
   dish_main_3: `${DEFAULT_MENU_IMAGE_BASE}/dish_main_3.jpeg`,
+  dish_main_4: `${DEFAULT_MENU_IMAGE_BASE}/dish_main_4.jpeg`,
   dish_main_5: `${DEFAULT_MENU_IMAGE_BASE}/dish_main_5.jpeg`,
   dish_main_6: `${DEFAULT_MENU_IMAGE_BASE}/dish_main_6.jpeg`,
   dish_main_7: `${DEFAULT_MENU_IMAGE_BASE}/dish_main_7.jpeg`,
@@ -50,26 +50,35 @@ export const defaultCateringDishImages: Record<string, string> = {
   dish_child_4: `${DEFAULT_MENU_IMAGE_BASE}/dish_child_4.jpeg`,
 };
 
-// These IDs exist in the master catalog, but the official Canva page does not
-// confirm a matching dish photo. Do not let old Firestore or Canva URLs revive
-// an approximate image for them.
 export const cateringDishIdsWithoutConfirmedImage = new Set<string>([
-  "dish_entrada_6",
   "dish_entrada_18",
-  "dish_main_4",
   "dish_main_19",
   "dish_child_1",
 ]);
 
+const FALLBACK_MENU_DISH_IMAGE = `${DEFAULT_MENU_IMAGE_BASE}/dish_entrada_12.jpeg`;
+
 export function getCateringDishImage(
-  item: Pick<MenuItem, "id" | "imageUrl"> | null | undefined,
+  item: (Pick<MenuItem, "id" | "imageUrl"> & { name?: string; nombre?: string }) | null | undefined,
 ): string | undefined {
   if (!item) return undefined;
-  const isLegacyCanvaImage = item.imageUrl?.includes(LEGACY_CANVA_IMAGE_HOST);
+  const isLegacyCanvaImage = item.imageUrl
+    ? item.imageUrl.toLowerCase().includes(LEGACY_CANVA_IMAGE_HOST)
+    : false;
   if (item.imageUrl && !isLegacyCanvaImage) return item.imageUrl;
 
+  const local = defaultCateringDishImages[item.id];
+  if (local) return local;
+
+  const itemName = ((item.nombre || item.name || "") + " " + (item.id || "")).toLowerCase();
+  if (itemName.includes("asado")) return `${DEFAULT_MENU_IMAGE_BASE}/dish_main_18.jpeg`;
+  if (itemName.includes("cordero")) return `${DEFAULT_MENU_IMAGE_BASE}/dish_main_2.jpeg`;
+  if (itemName.includes("cheddar")) return `${DEFAULT_MENU_IMAGE_BASE}/dish_entrada_6.jpeg`;
+  if (itemName.includes("cerdo") && itemName.includes("arrollado")) return `${DEFAULT_MENU_IMAGE_BASE}/dish_main_5.jpeg`;
+  if (itemName.includes("cerdo") && itemName.includes("braseado")) return `${DEFAULT_MENU_IMAGE_BASE}/dish_main_4.jpeg`;
+
   if (cateringDishIdsWithoutConfirmedImage.has(item.id)) return undefined;
-  return defaultCateringDishImages[item.id];
+  return isLegacyCanvaImage ? FALLBACK_MENU_DISH_IMAGE : undefined;
 }
 
 export function getCateringMenuImage(
