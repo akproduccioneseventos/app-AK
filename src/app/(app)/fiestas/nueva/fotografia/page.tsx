@@ -232,8 +232,8 @@ function FotografiaContent() {
                                 )}
                            </div>
                             <div className="space-y-1">
-                                <Label htmlFor="item-link">Enlace de Galería Digital (Ej: Google Drive, WeTransfer)</Label>
-                                <Input id="item-link" type="url" value={currentItem.linkEntrega || ''} onChange={e => setCurrentItem(p => p ? {...p, linkEntrega: e.target.value} : null)} placeholder="https://..."/>
+                                <Label htmlFor="item-link">Enlace del Álbum Digital / Wfolio Premium (o Drive)</Label>
+                                <Input id="item-link" type="url" value={currentItem.linkEntrega || ''} onChange={e => setCurrentItem(p => p ? {...p, linkEntrega: e.target.value} : null)} placeholder="https://galeria.akproducciones.com/... o https://wfolio.com/..."/>
                            </div>
                         </div>
                     )}

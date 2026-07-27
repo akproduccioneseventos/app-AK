@@ -460,6 +460,11 @@ function GuestPortalContent() {
                 </div>
               </div>
               <div className="flex flex-wrap gap-3">
+                {fiesta.galeriaUrl && (
+                  <a href={fiesta.galeriaUrl} target="_blank" rel="noopener noreferrer" className="inline-flex min-h-11 items-center gap-2 rounded-xl border border-amber-400/40 bg-amber-400/10 px-4 text-sm font-bold text-amber-300 hover:bg-amber-400/20 transition-all">
+                    <ExternalLink className="h-4 w-4 text-amber-300" />Álbum Oficial Wfolio
+                  </a>
+                )}
                 {socialEnabled && (
                   <a href={socialHref} className="inline-flex min-h-11 items-center gap-2 rounded-xl border border-white/20 bg-white/10 px-4 text-sm font-bold text-white hover:bg-white/20 transition-all">
                     <Camera className="h-4 w-4 text-rose-400" />Muro Social
