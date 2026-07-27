@@ -80,7 +80,6 @@ import {
   getTierMissingServices,
 } from '@/lib/simulator/package-customization';
 import { downloadSimulatorBudgetPdf } from '@/lib/budget/simulator-budget-pdf';
-import { FloatingWhatsApp } from '@/components/ui/floating-whatsapp';
 
 const COMMERCIAL_TIMER_SECONDS = 15 * 60;
 const COMMERCIAL_TIMER_STORAGE_KEY = 'ak-simulator-commercial-timer';
@@ -295,7 +294,6 @@ function SimuladorContent() {
     const [serviceSearchTerm, setServiceSearchTerm] = useState('');
     const [isSearchFocused, setIsSearchFocused] = useState(false);
     const [isFaqOpen, setIsFaqOpen] = useState(false);
-    const [isUpsellWidgetDismissed, setIsUpsellWidgetDismissed] = useState(false);
 
     const [isLoading, setIsLoading] = useState(true);
     const [errorLoading, setErrorLoading] = useState(false);
