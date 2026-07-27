@@ -59,7 +59,7 @@ export const cateringDishIdsWithoutConfirmedImage = new Set<string>([
 const FALLBACK_MENU_DISH_IMAGE = `${DEFAULT_MENU_IMAGE_BASE}/dish_entrada_12.jpeg`;
 
 export function getCateringDishImage(
-  item: Pick<MenuItem, "id" | "imageUrl"> | null | undefined,
+  item: (Pick<MenuItem, "id" | "imageUrl"> & { name?: string; nombre?: string }) | null | undefined,
 ): string | undefined {
   if (!item) return undefined;
   const isLegacyCanvaImage = item.imageUrl
@@ -69,6 +69,13 @@ export function getCateringDishImage(
 
   const local = defaultCateringDishImages[item.id];
   if (local) return local;
+
+  const itemName = ((item.nombre || item.name || "") + " " + (item.id || "")).toLowerCase();
+  if (itemName.includes("asado")) return `${DEFAULT_MENU_IMAGE_BASE}/dish_main_18.jpeg`;
+  if (itemName.includes("cordero")) return `${DEFAULT_MENU_IMAGE_BASE}/dish_main_2.jpeg`;
+  if (itemName.includes("cheddar")) return `${DEFAULT_MENU_IMAGE_BASE}/dish_entrada_6.jpeg`;
+  if (itemName.includes("cerdo") && itemName.includes("arrollado")) return `${DEFAULT_MENU_IMAGE_BASE}/dish_main_5.jpeg`;
+  if (itemName.includes("cerdo") && itemName.includes("braseado")) return `${DEFAULT_MENU_IMAGE_BASE}/dish_main_4.jpeg`;
 
   if (cateringDishIdsWithoutConfirmedImage.has(item.id)) return undefined;
   return isLegacyCanvaImage ? FALLBACK_MENU_DISH_IMAGE : undefined;
