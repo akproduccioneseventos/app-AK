@@ -226,6 +226,7 @@ export default function ClientPortalVipUxLayer({ mode }: { mode: 'admin' | 'publ
     };
 
     apply();
+    const observer = new MutationObserver((mutations) => {
       const hasExternalMutation = mutations.some((mutation) => {
         if (isVipNode(mutation.target)) return false;
         const changedNodes = [...mutation.addedNodes, ...mutation.removedNodes];

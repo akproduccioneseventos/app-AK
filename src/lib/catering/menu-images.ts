@@ -62,7 +62,9 @@ export function getCateringDishImage(
   item: Pick<MenuItem, "id" | "imageUrl"> | null | undefined,
 ): string | undefined {
   if (!item) return undefined;
-  const isLegacyCanvaImage = item.imageUrl ? item.imageUrl.toLowerCase().includes(LEGACY_CANVA_IMAGE_HOST) || item.imageUrl.toLowerCase().includes("canva") : false;
+  const isLegacyCanvaImage = item.imageUrl
+    ? item.imageUrl.toLowerCase().includes(LEGACY_CANVA_IMAGE_HOST)
+    : false;
   if (item.imageUrl && !isLegacyCanvaImage) return item.imageUrl;
 
   const local = defaultCateringDishImages[item.id];
