@@ -167,7 +167,7 @@ function getDefaultServiceImage(title: string): string {
   ) {
     return "/media/catalogo-servicios/blog_comida.png";
   }
-  return "/media/catalogo-servicios/blog_presupuesto.png";
+  return "/media/catalogo-servicios/organizador_equipo.png";
 }
 
 function getSemanticServiceImage(title: string, configuredImage?: string): string {

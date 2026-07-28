@@ -22,6 +22,11 @@ export function LandingNav(_props: LandingNavProps = {}) {
 
   const handleAnchorClick = useCallback((e: React.MouseEvent<HTMLAnchorElement>, href: string) => {
     e.preventDefault();
+    if (href === '#faq' && typeof window !== 'undefined' && window.location.pathname.includes('simulador')) {
+      window.dispatchEvent(new CustomEvent('ak-open-faq'));
+      setIsMenuOpen(false);
+      return;
+    }
     const el = document.querySelector(href);
     if (el) {
       el.scrollIntoView({ behavior: 'smooth' });
@@ -36,6 +41,7 @@ export function LandingNav(_props: LandingNavProps = {}) {
     { label: 'Servicios', href: '#landing-services', isExternal: false },
     { label: 'Simulador', href: '/simulador-de-presupuesto', isExternal: true },
     { label: 'Blog', href: '/public/blog', isExternal: true },
+    { label: 'Preguntas Frecuentes', href: '#faq', isExternal: false },
     { label: 'Club Uruguay', href: '/club-uruguay', isExternal: true },
   ];
 
