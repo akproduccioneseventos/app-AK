@@ -51,7 +51,8 @@ import {
   Mail,
 } from 'lucide-react';
 import Link from 'next/link';
-import { getCalendarEvents, updateFiestaDate, getAppointments, createAppointment, updateAppointmentStatus, buildWhatsAppReminderUrl, buildGoogleCalendarAppointmentUrl, buildGmailAppointmentInviteUrl } from '@/app/actions/agenda';
+import { getCalendarEvents, updateFiestaDate, getAppointments, createAppointment, updateAppointmentStatus } from '@/app/actions/agenda';
+import { buildWhatsAppReminderUrl, buildGoogleCalendarAppointmentUrl, buildGmailAppointmentInviteUrl } from '@/lib/agenda-utils';
 import type { CalendarEvent } from '@/app/actions/agenda';
 import type { CrmAppointment } from '@/types/crm';
 import { useToast } from '@/hooks/use-toast';
