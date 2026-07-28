@@ -120,3 +120,82 @@ export async function getOcupiedDates(): Promise<string[]> {
     return [];
   }
 }
+
+// ──────────────────────────────────────────────────────────────────────────────
+// CITAS Y REUNIONES COMERCIALES (CRM & AGENDA)
+// ──────────────────────────────────────────────────────────────────────────────
+
+import { readData, writeData } from '@/lib/data-service';
+import type { CrmAppointment } from '@/types/crm';
+
+const APPOINTMENTS_FILE = 'crm-appointments.json';
+
+export async function getAppointments(): Promise<CrmAppointment[]> {
+  try {
+    const items = await readData<CrmAppointment[]>(APPOINTMENTS_FILE, []);
+    return Array.isArray(items) ? items : [];
+  } catch (error) {
+    console.error("Error loading appointments:", error);
+    return [];
+  }
+}
+
+export async function createAppointment(data: Omit<CrmAppointment, 'id' | 'creadoEn' | 'estado'> & { estado?: CrmAppointment['estado'] }): Promise<{ success: boolean; appointment?: CrmAppointment; whatsappUrl?: string; error?: string }> {
+  try {
+    const appointments = await getAppointments();
+    const newAppointment: CrmAppointment = {
+      ...data,
+      id: `cita_${Date.now()}_${Math.random().toString(36).substring(7)}`,
+      estado: data.estado || 'Agendada',
+      creadoEn: new Date().toISOString(),
+    };
+
+    appointments.push(newAppointment);
+    await writeData(APPOINTMENTS_FILE, appointments);
+
+    const whatsappUrl = buildWhatsAppReminderUrl(newAppointment);
+
+    return {
+      success: true,
+      appointment: newAppointment,
+      whatsappUrl,
+    };
+  } catch (e: any) {
+    return { success: false, error: e.message || 'No se pudo agendar la cita' };
+  }
+}
+
+export async function updateAppointmentStatus(
+  id: string,
+  estado: CrmAppointment['estado']
+): Promise<{ success: boolean; error?: string }> {
+  try {
+    const appointments = await getAppointments();
+    const idx = appointments.findIndex(a => a.id === id);
+    if (idx === -1) return { success: false, error: 'Cita no encontrada' };
+
+    appointments[idx].estado = estado;
+    if (estado === 'Confirmada') {
+      appointments[idx].recordatorioEnviado = true;
+    }
+
+    await writeData(APPOINTMENTS_FILE, appointments);
+    return { success: true };
+  } catch (e: any) {
+    return { success: false, error: e.message || 'Error al actualizar cita' };
+  }
+}
+
+export function buildWhatsAppReminderUrl(appointment: CrmAppointment): string {
+  const phoneClean = appointment.clienteContacto.replace(/\D/g, '');
+  const phoneUruguay = phoneClean.startsWith('598') ? phoneClean : `598${phoneClean.replace(/^0/, '')}`;
+  
+  const dateObj = new Date(appointment.fechaHora);
+  const fechaFormatted = dateObj.toLocaleDateString('es-UY', { weekday: 'long', day: 'numeric', month: 'long' });
+  const horaFormatted = dateObj.toLocaleTimeString('es-UY', { hour: '2-digit', minute: '2-digit' });
+
+  const text = `¡Hola ${appointment.clienteNombre}! 👋 Te escribimos de *AK Producciones*. Te recordamos nuestra reunión agendada para el *${fechaFormatted}* a las *${horaFormatted} hs* ${appointment.lugar ? `en ${appointment.lugar}` : ''} para coordinar todos los detalles de tu evento. ¡Te esperamos! ✨`;
+
+  return `https://wa.me/${phoneUruguay}?text=${encodeURIComponent(text)}`;
+}
+

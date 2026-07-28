@@ -25,6 +25,18 @@ import {
   SheetDescription,
 } from '@/components/ui/sheet';
 import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogDescription,
+  DialogFooter,
+  DialogClose,
+} from '@/components/ui/dialog';
+import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
+import { Input } from '@/components/ui/input';
+import { Label } from '@/components/ui/label';
+import {
   ChevronLeft,
   ChevronRight,
   ArrowLeft,
@@ -38,8 +50,9 @@ import {
   GripVertical,
 } from 'lucide-react';
 import Link from 'next/link';
-import { getCalendarEvents, updateFiestaDate } from '@/app/actions/agenda';
+import { getCalendarEvents, updateFiestaDate, getAppointments, createAppointment, updateAppointmentStatus, buildWhatsAppReminderUrl } from '@/app/actions/agenda';
 import type { CalendarEvent } from '@/app/actions/agenda';
+import type { CrmAppointment } from '@/types/crm';
 import { useToast } from '@/hooks/use-toast';
 import { cn } from '@/lib/utils';
 import {
@@ -335,17 +348,69 @@ export default function CalendarioInteractivoPage() {
     useSensor(TouchSensor, { activationConstraint: { delay: 200, tolerance: 5 } })
   );
 
+  const [appointments, setAppointments] = useState<CrmAppointment[]>([]);
+  const [isCitaModalOpen, setIsCitaModalOpen] = useState(false);
+  const [citaNombre, setCitaNombre] = useState('');
+  const [citaTelefono, setCitaTelefono] = useState('');
+  const [citaTipo, setCitaTipo] = useState('Fiesta de 15');
+  const [citaFecha, setCitaFecha] = useState('');
+  const [citaHora, setCitaHora] = useState('18:00');
+  const [citaLugar, setCitaLugar] = useState('Oficina AK Salto');
+  const [citaNotas, setCitaNotas] = useState('');
+  const [isSubmittingCita, setIsSubmittingCita] = useState(false);
+
   const fetchEvents = useCallback(async () => {
     setIsLoading(true);
     try {
-      const data = await getCalendarEvents();
-      setEvents(data);
+      const [eventsData, apptData] = await Promise.all([
+        getCalendarEvents(),
+        getAppointments(),
+      ]);
+      setEvents(eventsData);
+      setAppointments(apptData);
     } catch {
       toast({ title: 'Error', description: 'No se pudieron cargar los eventos.', variant: 'destructive' });
     } finally {
       setIsLoading(false);
     }
   }, [toast]);
+
+  const handleCreateCita = async () => {
+    if (!citaNombre || !citaTelefono || !citaFecha) {
+      toast({ title: 'Datos incompletos', description: 'Ingresá el nombre, teléfono y fecha de la cita.', variant: 'destructive' });
+      return;
+    }
+    setIsSubmittingCita(true);
+    try {
+      const fullDateTime = new Date(`${citaFecha}T${citaHora}`).toISOString();
+      const res = await createAppointment({
+        clienteNombre: citaNombre,
+        clienteContacto: citaTelefono,
+        eventoTipo: citaTipo,
+        fechaHora: fullDateTime,
+        lugar: citaLugar,
+        notas: citaNotas,
+      });
+
+      if (res.success && res.appointment) {
+        toast({ title: '¡Cita agendada!', description: `Cita con ${citaNombre} creada correctamente.` });
+        if (res.whatsappUrl) {
+          window.open(res.whatsappUrl, '_blank');
+        }
+        setIsCitaModalOpen(false);
+        setCitaNombre('');
+        setCitaTelefono('');
+        setCitaNotas('');
+        fetchEvents();
+      } else {
+        toast({ title: 'Error', description: res.error || 'No se pudo crear la cita', variant: 'destructive' });
+      }
+    } catch {
+      toast({ title: 'Error', description: 'Error al agendar la cita.', variant: 'destructive' });
+    } finally {
+      setIsSubmittingCita(false);
+    }
+  };
 
   useEffect(() => {
     fetchEvents();
@@ -426,10 +491,15 @@ export default function CalendarioInteractivoPage() {
             Arrastra eventos para reprogramarlos. Haz clic para ver los detalles.
           </p>
         </div>
-        <Button asChild variant="outline" size="sm"><Link href="/">
-            <ArrowLeft className="w-4 h-4 mr-2" />
-            Volver
-          </Link></Button>
+        <div className="flex items-center gap-2">
+          <Button onClick={() => setIsCitaModalOpen(true)} className="bg-emerald-600 hover:bg-emerald-700 text-white font-bold size-sm gap-2">
+            <Users className="w-4 h-4" /> + Agendar Cita Comercial
+          </Button>
+          <Button asChild variant="outline" size="sm"><Link href="/">
+              <ArrowLeft className="w-4 h-4 mr-2" />
+              Volver
+            </Link></Button>
+        </div>
       </div>
 
       {/* Legend + counters */}
@@ -500,6 +570,134 @@ export default function CalendarioInteractivoPage() {
           </DragOverlay>
         </DndContext>
       )}
+
+      {/* Seccion de Citas y Entrevistas Comerciales */}
+      <Card className="border-emerald-200 bg-emerald-50/20 shadow-sm mt-8">
+        <CardHeader className="flex flex-row items-center justify-between pb-2">
+          <div>
+            <CardTitle className="text-lg font-bold flex items-center gap-2 text-emerald-900 font-headline">
+              <Users className="w-5 h-5 text-emerald-600" /> Agenda de Citas & Entrevistas Comerciales
+            </CardTitle>
+            <CardDescription className="text-xs text-emerald-700">
+              Reuniones agendadas con futuros clientes. Generá el recordatorio WhatsApp con 1 clic.
+            </CardDescription>
+          </div>
+          <Button onClick={() => setIsCitaModalOpen(true)} size="sm" className="bg-emerald-600 hover:bg-emerald-700 text-white font-bold gap-2">
+            + Agendar Cita
+          </Button>
+        </CardHeader>
+        <CardContent>
+          {appointments.length === 0 ? (
+            <p className="text-xs text-muted-foreground py-4 text-center">No hay citas agendadas aún. ¡Agendá una nueva cita con el botón de arriba!</p>
+          ) : (
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3 pt-2">
+              {appointments.map((appt) => {
+                const waUrl = buildWhatsAppReminderUrl(appt);
+                const dateObj = new Date(appt.fechaHora);
+                const fechaStr = dateObj.toLocaleDateString('es-UY', { day: '2-digit', month: 'short', year: 'numeric' });
+                const horaStr = dateObj.toLocaleTimeString('es-UY', { hour: '2-digit', minute: '2-digit' });
+
+                return (
+                  <div key={appt.id} className="p-4 rounded-xl border bg-white shadow-xs space-y-2 flex flex-col justify-between">
+                    <div>
+                      <div className="flex items-center justify-between gap-2">
+                        <span className="font-bold text-sm text-slate-900">{appt.clienteNombre}</span>
+                        <span className={cn(
+                          'text-[10px] font-black px-2 py-0.5 rounded-full uppercase tracking-wider',
+                          appt.estado === 'Confirmada' ? 'bg-green-100 text-green-700' :
+                          appt.estado === 'Realizada' ? 'bg-slate-100 text-slate-600' :
+                          appt.estado === 'Cancelada' ? 'bg-red-100 text-red-700' :
+                          'bg-amber-100 text-amber-700'
+                        )}>
+                          {appt.estado}
+                        </span>
+                      </div>
+                      <p className="text-xs text-slate-500 font-medium mt-0.5">{appt.eventoTipo || 'Entrevista Comercial'}</p>
+                      <div className="mt-2 space-y-1 text-xs text-slate-600">
+                        <p className="flex items-center gap-1.5"><CalendarDays className="w-3.5 h-3.5 text-slate-400" />{fechaStr} - {horaStr} hs</p>
+                        {appt.lugar && <p className="flex items-center gap-1.5"><MapPin className="w-3.5 h-3.5 text-slate-400" />{appt.lugar}</p>}
+                        {appt.notas && <p className="text-[11px] italic text-slate-400 mt-1">"{appt.notas}"</p>}
+                      </div>
+                    </div>
+
+                    <div className="pt-3 border-t border-slate-100 flex items-center justify-between gap-2">
+                      <a href={waUrl} target="_blank" rel="noopener noreferrer" className="inline-flex min-h-8 items-center gap-1.5 rounded-lg bg-green-600 px-3 text-xs font-bold text-white hover:bg-green-700 transition-all">
+                        📲 Recordatorio WA
+                      </a>
+                      {appt.estado === 'Agendada' && (
+                        <Button variant="ghost" size="sm" className="h-8 text-xs font-semibold text-slate-600" onClick={async () => {
+                          await updateAppointmentStatus(appt.id, 'Confirmada');
+                          fetchEvents();
+                        }}>
+                          Marcar Confirmada ✓
+                        </Button>
+                      )}
+                    </div>
+                  </div>
+                );
+              })}
+            </div>
+          )}
+        </CardContent>
+      </Card>
+
+      {/* Modal para Crear Cita Comercial */}
+      <Dialog open={isCitaModalOpen} onOpenChange={setIsCitaModalOpen}>
+        <DialogContent className="sm:max-w-md">
+          <DialogHeader>
+            <DialogTitle className="font-headline text-xl">Agendar Cita / Entrevista Comercial</DialogTitle>
+            <DialogDescription className="text-xs text-muted-foreground">
+              Agendá una reunión de ventas. Se abrirá WhatsApp para enviarle el recordatorio al cliente.
+            </DialogDescription>
+          </DialogHeader>
+
+          <div className="space-y-3 py-2 text-xs">
+            <div className="space-y-1">
+              <Label htmlFor="cita-nombre">Nombre del Cliente *</Label>
+              <Input id="cita-nombre" value={citaNombre} onChange={e => setCitaNombre(e.target.value)} placeholder="Ej: María Rodríguez" />
+            </div>
+
+            <div className="space-y-1">
+              <Label htmlFor="cita-tel">Celular / WhatsApp *</Label>
+              <Input id="cita-tel" value={citaTelefono} onChange={e => setCitaTelefono(e.target.value)} placeholder="Ej: 099123456" />
+            </div>
+
+            <div className="grid grid-cols-2 gap-3">
+              <div className="space-y-1">
+                <Label htmlFor="cita-tipo">Tipo de Evento</Label>
+                <Input id="cita-tipo" value={citaTipo} onChange={e => setCitaTipo(e.target.value)} placeholder="Ej: Fiesta de 15, Boda" />
+              </div>
+              <div className="space-y-1">
+                <Label htmlFor="cita-lugar">Lugar / Medio</Label>
+                <Input id="cita-lugar" value={citaLugar} onChange={e => setCitaLugar(e.target.value)} placeholder="Oficina AK Salto" />
+              </div>
+            </div>
+
+            <div className="grid grid-cols-2 gap-3">
+              <div className="space-y-1">
+                <Label htmlFor="cita-fecha">Fecha *</Label>
+                <Input id="cita-fecha" type="date" value={citaFecha} onChange={e => setCitaFecha(e.target.value)} />
+              </div>
+              <div className="space-y-1">
+                <Label htmlFor="cita-hora">Hora</Label>
+                <Input id="cita-hora" type="time" value={citaHora} onChange={e => setCitaHora(e.target.value)} />
+              </div>
+            </div>
+
+            <div className="space-y-1">
+              <Label htmlFor="cita-notas">Notas adicionales</Label>
+              <Input id="cita-notas" value={citaNotas} onChange={e => setCitaNotas(e.target.value)} placeholder="Notas para la entrevista..." />
+            </div>
+          </div>
+
+          <DialogFooter>
+            <DialogClose asChild><Button variant="outline">Cancelar</Button></DialogClose>
+            <Button onClick={handleCreateCita} disabled={isSubmittingCita} className="bg-emerald-600 hover:bg-emerald-700 text-white font-bold">
+              {isSubmittingCita ? 'Agendando...' : 'Agendar & Abrir WhatsApp'}
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
 
       {/* Event detail sheet */}
       <EventDetailSheet event={selectedEvent} open={sheetOpen} onClose={() => setSheetOpen(false)} />
