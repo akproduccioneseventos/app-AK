@@ -22,6 +22,11 @@ export function LandingNav(_props: LandingNavProps = {}) {
 
   const handleAnchorClick = useCallback((e: React.MouseEvent<HTMLAnchorElement>, href: string) => {
     e.preventDefault();
+    if (href === '#faq' && typeof window !== 'undefined' && window.location.pathname.includes('simulador')) {
+      window.dispatchEvent(new CustomEvent('ak-open-faq'));
+      setIsMenuOpen(false);
+      return;
+    }
     const el = document.querySelector(href);
     if (el) {
       el.scrollIntoView({ behavior: 'smooth' });

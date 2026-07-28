@@ -326,6 +326,12 @@ function SimuladorContent() {
     const maxEntradas = useMemo(() => (duracionHoras > 4 ? 2 : 1), [duracionHoras]);
 
     useEffect(() => {
+        const handleOpenFaq = () => setIsFaqOpen(true);
+        window.addEventListener('ak-open-faq', handleOpenFaq);
+        return () => window.removeEventListener('ak-open-faq', handleOpenFaq);
+    }, []);
+
+    useEffect(() => {
         const stored = Number(window.sessionStorage.getItem(COMMERCIAL_TIMER_STORAGE_KEY));
         if (Number.isFinite(stored) && stored > Date.now()) {
             setCommercialTimerEndsAt(stored);
@@ -2785,9 +2791,9 @@ function SimuladorContent() {
                     <DialogFooter className="mt-6 flex flex-col sm:flex-row gap-3">
                         <Button
                             onClick={() => setIsFaqOpen(false)}
-                            className="w-full sm:w-auto bg-slate-900 text-white font-bold rounded-xl hover:bg-slate-800"
+                            className="w-full sm:w-auto bg-emerald-700 hover:bg-emerald-800 text-white font-black rounded-xl text-xs uppercase tracking-wider h-11 px-6 shadow-md transition"
                         >
-                            Entendido, cerrar
+                            ← Volver a mi Presupuesto
                         </Button>
                     </DialogFooter>
                 </DialogContent>
