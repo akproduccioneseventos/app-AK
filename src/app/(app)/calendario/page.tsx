@@ -48,9 +48,10 @@ import {
   CircleDollarSign,
   ExternalLink,
   GripVertical,
+  Mail,
 } from 'lucide-react';
 import Link from 'next/link';
-import { getCalendarEvents, updateFiestaDate, getAppointments, createAppointment, updateAppointmentStatus, buildWhatsAppReminderUrl } from '@/app/actions/agenda';
+import { getCalendarEvents, updateFiestaDate, getAppointments, createAppointment, updateAppointmentStatus, buildWhatsAppReminderUrl, buildGoogleCalendarAppointmentUrl, buildGmailAppointmentInviteUrl } from '@/app/actions/agenda';
 import type { CalendarEvent } from '@/app/actions/agenda';
 import type { CrmAppointment } from '@/types/crm';
 import { useToast } from '@/hooks/use-toast';
@@ -593,12 +594,15 @@ export default function CalendarioInteractivoPage() {
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3 pt-2">
               {appointments.map((appt) => {
                 const waUrl = buildWhatsAppReminderUrl(appt);
+                const gCalUrl = buildGoogleCalendarAppointmentUrl(appt);
+                const gmailUrl = buildGmailAppointmentInviteUrl(appt);
+
                 const dateObj = new Date(appt.fechaHora);
                 const fechaStr = dateObj.toLocaleDateString('es-UY', { day: '2-digit', month: 'short', year: 'numeric' });
                 const horaStr = dateObj.toLocaleTimeString('es-UY', { hour: '2-digit', minute: '2-digit' });
 
                 return (
-                  <div key={appt.id} className="p-4 rounded-xl border bg-white shadow-xs space-y-2 flex flex-col justify-between">
+                  <div key={appt.id} className="p-4 rounded-xl border bg-white shadow-xs space-y-3 flex flex-col justify-between">
                     <div>
                       <div className="flex items-center justify-between gap-2">
                         <span className="font-bold text-sm text-slate-900">{appt.clienteNombre}</span>
@@ -620,12 +624,21 @@ export default function CalendarioInteractivoPage() {
                       </div>
                     </div>
 
-                    <div className="pt-3 border-t border-slate-100 flex items-center justify-between gap-2">
-                      <a href={waUrl} target="_blank" rel="noopener noreferrer" className="inline-flex min-h-8 items-center gap-1.5 rounded-lg bg-green-600 px-3 text-xs font-bold text-white hover:bg-green-700 transition-all">
-                        📲 Recordatorio WA
-                      </a>
+                    <div className="pt-3 border-t border-slate-100 space-y-2">
+                      <div className="flex flex-wrap gap-1.5">
+                        <a href={waUrl} target="_blank" rel="noopener noreferrer" title="Mandar recordatorio por WhatsApp" className="inline-flex min-h-8 items-center gap-1 rounded-lg bg-green-600 px-2.5 text-[11px] font-bold text-white hover:bg-green-700 transition-all">
+                          📲 WA
+                        </a>
+                        <a href={gCalUrl} target="_blank" rel="noopener noreferrer" title="Agregar a Google Calendar" className="inline-flex min-h-8 items-center gap-1 rounded-lg bg-blue-600 px-2.5 text-[11px] font-bold text-white hover:bg-blue-700 transition-all">
+                          📅 GCal
+                        </a>
+                        <a href={gmailUrl} target="_blank" rel="noopener noreferrer" title="Enviar correo por Gmail" className="inline-flex min-h-8 items-center gap-1 rounded-lg bg-rose-600 px-2.5 text-[11px] font-bold text-white hover:bg-rose-700 transition-all">
+                          <Mail className="w-3 h-3" /> Gmail
+                        </a>
+                      </div>
+
                       {appt.estado === 'Agendada' && (
-                        <Button variant="ghost" size="sm" className="h-8 text-xs font-semibold text-slate-600" onClick={async () => {
+                        <Button variant="ghost" size="sm" className="w-full h-7 text-[11px] font-semibold text-slate-600 hover:text-slate-900" onClick={async () => {
                           await updateAppointmentStatus(appt.id, 'Confirmada');
                           fetchEvents();
                         }}>
