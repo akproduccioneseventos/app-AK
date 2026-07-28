@@ -804,6 +804,22 @@ function SimuladorContent() {
 
             if (Object.keys(errors).length > 0) {
                 setFieldErrors(errors);
+                const missingItems: string[] = [];
+                if (errors.nombre) missingItems.push("tu nombre");
+                if (errors.contacto) missingItems.push("un celular WhatsApp válido");
+                if (errors.adultos) missingItems.push("la cantidad de adultos");
+                if (errors.salon) missingItems.push("la opción de salón de fiestas");
+                if (errors.fecha) missingItems.push("la fecha del evento");
+
+                const descriptionText = missingItems.length === 1
+                    ? `Te falta completar: ${missingItems[0]}.`
+                    : `Te falta completar: ${missingItems.join(", ")}.`;
+
+                toast({
+                    title: "Faltan datos para continuar",
+                    description: descriptionText,
+                    variant: "destructive",
+                });
                 return;
             }
             setFieldErrors({});
