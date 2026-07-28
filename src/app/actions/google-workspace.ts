@@ -21,6 +21,7 @@ import {
   sendGoogleGmailMessage,
   upsertGoogleCalendarEvent,
   findExistingGoogleCalendarEvent,
+  type GoogleWorkspaceEventInput,
 } from '@/lib/google-workspace';
 import type { Empleado } from '@/types/empleado';
 import type { FiestaEnPlanificacion, PersonalAsignadoDetalleStorage } from '@/types/fiesta';
@@ -399,6 +400,7 @@ export async function syncAppointmentToGoogleWorkspace(appointment: CrmAppointme
       };
     }
 
+    const clientEmail = appointment.clienteEmail || (appointment.clienteContacto.includes('@') ? appointment.clienteContacto : null);
     const startIso = new Date(appointment.fechaHora).toISOString();
     const endIso = new Date(new Date(appointment.fechaHora).getTime() + 60 * 60 * 1000).toISOString();
 
@@ -408,6 +410,7 @@ export async function syncAppointmentToGoogleWorkspace(appointment: CrmAppointme
       location: appointment.lugar || 'Oficina AK Producciones Salto',
       startIso,
       endIso,
+      attendees: clientEmail ? [clientEmail] : undefined,
     };
 
     try {

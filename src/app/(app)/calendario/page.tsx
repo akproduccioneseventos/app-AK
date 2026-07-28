@@ -353,6 +353,7 @@ export default function CalendarioInteractivoPage() {
   const [isCitaModalOpen, setIsCitaModalOpen] = useState(false);
   const [citaNombre, setCitaNombre] = useState('');
   const [citaTelefono, setCitaTelefono] = useState('');
+  const [citaEmail, setCitaEmail] = useState('');
   const [citaTipo, setCitaTipo] = useState('Fiesta de 15');
   const [citaFecha, setCitaFecha] = useState('');
   const [citaHora, setCitaHora] = useState('18:00');
@@ -387,6 +388,7 @@ export default function CalendarioInteractivoPage() {
       const res = await createAppointment({
         clienteNombre: citaNombre,
         clienteContacto: citaTelefono,
+        clienteEmail: citaEmail || undefined,
         eventoTipo: citaTipo,
         fechaHora: fullDateTime,
         lugar: citaLugar,
@@ -401,6 +403,7 @@ export default function CalendarioInteractivoPage() {
         setIsCitaModalOpen(false);
         setCitaNombre('');
         setCitaTelefono('');
+        setCitaEmail('');
         setCitaNotas('');
         fetchEvents();
       } else {
@@ -673,6 +676,11 @@ export default function CalendarioInteractivoPage() {
             <div className="space-y-1">
               <Label htmlFor="cita-tel">Celular / WhatsApp *</Label>
               <Input id="cita-tel" value={citaTelefono} onChange={e => setCitaTelefono(e.target.value)} placeholder="Ej: 099123456" />
+            </div>
+
+            <div className="space-y-1">
+              <Label htmlFor="cita-email">Email del Cliente (Opcional - para enviar invitación a su Google Calendar)</Label>
+              <Input id="cita-email" type="email" value={citaEmail} onChange={e => setCitaEmail(e.target.value)} placeholder="ejemplo@gmail.com" />
             </div>
 
             <div className="grid grid-cols-2 gap-3">
