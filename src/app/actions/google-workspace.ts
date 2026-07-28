@@ -447,7 +447,6 @@ export async function syncAppointmentToGoogleWorkspace(appointment: CrmAppointme
       warnings.push(`Gmail error notificando a la empresa: ${err?.message || err}`);
     }
 
-    const clientEmail = appointment.clienteEmail || (appointment.clienteContacto.includes('@') ? appointment.clienteContacto : null);
     if (clientEmail) {
       const clientEmailText = `
         <div style="font-family: sans-serif; padding: 20px; color: #1e293b;">
