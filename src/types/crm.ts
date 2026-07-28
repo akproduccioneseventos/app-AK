@@ -98,6 +98,7 @@ export interface CrmAppointment {
   presupuestoId?: string;
   clienteNombre: string;
   clienteContacto: string;
+  clienteEmail?: string;
   eventoTipo?: string;
   fechaHora: string;
   lugar?: string;

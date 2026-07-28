@@ -162,6 +162,12 @@ export async function createAppointment(data: Omit<CrmAppointment, 'id' | 'cread
     appointments.push(newAppointment);
     await writeData(APPOINTMENTS_FILE, appointments);
 
+    // Sincronizacion automatica con Google Workspace (Calendar + Gmail de la Empresa & Cliente)
+    const { syncAppointmentToGoogleWorkspace } = await import('@/app/actions/google-workspace');
+    syncAppointmentToGoogleWorkspace(newAppointment).catch((err) => {
+      console.warn('[agenda] Google Workspace appointment sync failed:', err);
+    });
+
     const whatsappUrl = buildWhatsAppReminderUrl(newAppointment);
     const googleCalendarUrl = buildGoogleCalendarAppointmentUrl(newAppointment);
     const gmailInviteUrl = buildGmailAppointmentInviteUrl(newAppointment);
