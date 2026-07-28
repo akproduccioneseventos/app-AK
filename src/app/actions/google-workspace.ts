@@ -21,6 +21,7 @@ import {
   sendGoogleGmailMessage,
   upsertGoogleCalendarEvent,
   findExistingGoogleCalendarEvent,
+  type GoogleWorkspaceEventInput,
 } from '@/lib/google-workspace';
 import type { Empleado } from '@/types/empleado';
 import type { FiestaEnPlanificacion, PersonalAsignadoDetalleStorage } from '@/types/fiesta';
@@ -370,3 +371,115 @@ export async function getEmployeeWorkspacePortal(empleadoId: string) {
     events,
   };
 }
+
+import type { CrmAppointment } from '@/types/crm';
+
+export async function syncAppointmentToGoogleWorkspace(appointment: CrmAppointment): Promise<{
+  success: boolean;
+  calendarSynced?: boolean;
+  emailSentCompany?: boolean;
+  emailSentClient?: boolean;
+  warnings?: string[];
+  error?: string;
+}> {
+  try {
+    const accounts = await readAccounts();
+    const companyAccount = accounts.find((account) => account.kind === 'company');
+    const freshCompany = await freshConnectedAccount(companyAccount);
+
+    const warnings: string[] = [];
+    let calendarSynced = false;
+    let emailSentCompany = false;
+    let emailSentClient = false;
+
+    if (!freshCompany || freshCompany.status !== 'connected') {
+      return {
+        success: true,
+        calendarSynced: false,
+        warnings: ['Cuenta Google de la empresa no conectada para sync en segundo plano. Podés usar los botones directos de GCal / Gmail.'],
+      };
+    }
+
+    const clientEmail = appointment.clienteEmail || (appointment.clienteContacto.includes('@') ? appointment.clienteContacto : null);
+    const startIso = new Date(appointment.fechaHora).toISOString();
+    const endIso = new Date(new Date(appointment.fechaHora).getTime() + 60 * 60 * 1000).toISOString();
+
+    const calendarEventInput: GoogleWorkspaceEventInput = {
+      summary: `Entrevista AK Producciones - ${appointment.clienteNombre} (${appointment.eventoTipo || 'Cita Comercial'})`,
+      description: `Cita Comercial agendada con ${appointment.clienteNombre}.\nContacto: ${appointment.clienteContacto}\nTipo: ${appointment.eventoTipo || 'Fiesta'}\nLugar: ${appointment.lugar || 'Oficina AK Salto'}\nNotas: ${appointment.notas || 'Sin notas'}`,
+      location: appointment.lugar || 'Oficina AK Producciones Salto',
+      startIso,
+      endIso,
+      attendees: clientEmail ? [clientEmail] : undefined,
+    };
+
+    try {
+      await upsertGoogleCalendarEvent(freshCompany, calendarEventInput);
+      calendarSynced = true;
+    } catch (err: any) {
+      warnings.push(`Google Calendar sync error: ${err?.message || err}`);
+    }
+
+    const dateFormatted = new Date(appointment.fechaHora).toLocaleDateString('es-UY', { weekday: 'long', day: 'numeric', month: 'long' });
+    const timeFormatted = new Date(appointment.fechaHora).toLocaleTimeString('es-UY', { hour: '2-digit', minute: '2-digit' });
+
+    const companyEmailText = `
+      <div style="font-family: sans-serif; padding: 20px; color: #1e293b;">
+        <h2 style="color: #059669;">✨ Nueva Cita Comercial Agendada</h2>
+        <p>Se ha registrado una nueva entrevista con cliente:</p>
+        <ul>
+          <li><strong>Cliente:</strong> ${appointment.clienteNombre}</li>
+          <li><strong>Contacto:</strong> ${appointment.clienteContacto}</li>
+          <li><strong>Tipo de Evento:</strong> ${appointment.eventoTipo || 'Fiesta'}</li>
+          <li><strong>Fecha:</strong> ${dateFormatted} a las ${timeFormatted} hs</li>
+          <li><strong>Lugar:</strong> ${appointment.lugar || 'Oficina AK Salto'}</li>
+          ${appointment.notas ? `<li><strong>Notas:</strong> ${appointment.notas}</li>` : ''}
+        </ul>
+        <p style="font-size: 12px; color: #64748b;">AK Producciones — Ecosistema Digital</p>
+      </div>
+    `;
+
+    try {
+      const companyEmail = process.env.AUTH_RECOVERY_EMAIL || 'akproduccionessalto@gmail.com';
+      await sendGoogleGmailMessage(freshCompany, companyEmail, `✨ Nueva Cita: ${appointment.clienteNombre} (${dateFormatted})`, companyEmailText);
+      emailSentCompany = true;
+    } catch (err: any) {
+      warnings.push(`Gmail error notificando a la empresa: ${err?.message || err}`);
+    }
+
+    if (clientEmail) {
+      const clientEmailText = `
+        <div style="font-family: sans-serif; padding: 20px; color: #1e293b;">
+          <h2 style="color: #059669;">AK Producciones — Confirmación de Cita</h2>
+          <p>Hola <strong>${appointment.clienteNombre}</strong>,</p>
+          <p>Te confirmamos que tu cita para coordinar tu fiesta ha sido agendada con éxito:</p>
+          <div style="background: #f1f5f9; padding: 15px; border-radius: 8px; margin: 15px 0;">
+            <p style="margin: 4px 0;"><strong>📅 Fecha:</strong> ${dateFormatted}</p>
+            <p style="margin: 4px 0;"><strong>⏰ Hora:</strong> ${timeFormatted} hs</p>
+            <p style="margin: 4px 0;"><strong>📍 Lugar:</strong> ${appointment.lugar || 'Oficina AK Producciones Salto'}</p>
+            <p style="margin: 4px 0;"><strong>🎉 Tipo de Celebración:</strong> ${appointment.eventoTipo || 'Evento'}</p>
+          </div>
+          <p>En esta entrevista repasaremos la propuesta, presupuestos y tecnología para tu gran día.</p>
+          <p style="font-size: 13px; color: #64748b; margin-top: 20px;">AK Producciones | WhatsApp: 098 355 530 | Salto, Uruguay</p>
+        </div>
+      `;
+      try {
+        await sendGoogleGmailMessage(freshCompany, clientEmail, `Confirmación de Cita — AK Producciones`, clientEmailText);
+        emailSentClient = true;
+      } catch (err: any) {
+        warnings.push(`Gmail error notificando al cliente: ${err?.message || err}`);
+      }
+    }
+
+    return {
+      success: true,
+      calendarSynced,
+      emailSentCompany,
+      emailSentClient,
+      warnings,
+    };
+  } catch (error: any) {
+    return { success: false, error: error?.message || 'Error al sincronizar cita con Google' };
+  }
+}
+
