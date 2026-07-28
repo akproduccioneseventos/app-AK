@@ -697,62 +697,73 @@ export default function CalendarioInteractivoPage() {
 
       {/* Modal para Crear Cita Comercial */}
       <Dialog open={isCitaModalOpen} onOpenChange={setIsCitaModalOpen}>
-        <DialogContent className="sm:max-w-md">
+        <DialogContent className="sm:max-w-lg border-emerald-500/30 bg-slate-950 text-white">
           <DialogHeader>
-            <DialogTitle className="font-headline text-xl">Agendar Cita / Entrevista Comercial</DialogTitle>
-            <DialogDescription className="text-xs text-muted-foreground">
-              Agendá una reunión de ventas. Se abrirá WhatsApp para enviarle el recordatorio al cliente.
+            <DialogTitle className="font-headline text-xl font-black text-white flex items-center gap-2">
+              <div className="grid h-8 w-8 place-items-center rounded-lg bg-emerald-500/20 border border-emerald-500/40">
+                <Users className="w-4 h-4 text-emerald-400" />
+              </div>
+              Agendar Entrevista Comercial
+            </DialogTitle>
+            <DialogDescription className="text-xs text-slate-400">
+              Agendá una reunión de ventas. Se sincroniza automáticamente con Google Calendar, Gmail y se abre WhatsApp para enviarle el recordatorio al cliente.
             </DialogDescription>
           </DialogHeader>
 
-          <div className="space-y-3 py-2 text-xs">
-            <div className="space-y-1">
-              <Label htmlFor="cita-nombre">Nombre del Cliente *</Label>
-              <Input id="cita-nombre" value={citaNombre} onChange={e => setCitaNombre(e.target.value)} placeholder="Ej: María Rodríguez" />
-            </div>
-
-            <div className="space-y-1">
-              <Label htmlFor="cita-tel">Celular / WhatsApp *</Label>
-              <Input id="cita-tel" value={citaTelefono} onChange={e => setCitaTelefono(e.target.value)} placeholder="Ej: 099123456" />
-            </div>
-
-            <div className="space-y-1">
-              <Label htmlFor="cita-email">Email del Cliente (Opcional - para enviar invitación a su Google Calendar)</Label>
-              <Input id="cita-email" type="email" value={citaEmail} onChange={e => setCitaEmail(e.target.value)} placeholder="ejemplo@gmail.com" />
+          <div className="space-y-4 py-3 text-sm">
+            <div className="space-y-1.5">
+              <Label htmlFor="cita-nombre" className="text-slate-200 font-bold text-xs">Nombre del Cliente *</Label>
+              <Input id="cita-nombre" value={citaNombre} onChange={e => setCitaNombre(e.target.value)} placeholder="Ej: María Rodríguez" className="bg-white/5 border-white/15 text-white placeholder:text-slate-500 focus:border-emerald-400" />
             </div>
 
             <div className="grid grid-cols-2 gap-3">
-              <div className="space-y-1">
-                <Label htmlFor="cita-tipo">Tipo de Evento</Label>
-                <Input id="cita-tipo" value={citaTipo} onChange={e => setCitaTipo(e.target.value)} placeholder="Ej: Fiesta de 15, Boda" />
+              <div className="space-y-1.5">
+                <Label htmlFor="cita-tel" className="text-slate-200 font-bold text-xs">Celular / WhatsApp *</Label>
+                <Input id="cita-tel" value={citaTelefono} onChange={e => setCitaTelefono(e.target.value)} placeholder="Ej: 099123456" className="bg-white/5 border-white/15 text-white placeholder:text-slate-500 focus:border-emerald-400" />
               </div>
-              <div className="space-y-1">
-                <Label htmlFor="cita-lugar">Lugar / Medio</Label>
-                <Input id="cita-lugar" value={citaLugar} onChange={e => setCitaLugar(e.target.value)} placeholder="Oficina AK Salto" />
+              <div className="space-y-1.5">
+                <Label htmlFor="cita-email" className="text-slate-200 font-bold text-xs">Email (Opcional)</Label>
+                <Input id="cita-email" type="email" value={citaEmail} onChange={e => setCitaEmail(e.target.value)} placeholder="ejemplo@gmail.com" className="bg-white/5 border-white/15 text-white placeholder:text-slate-500 focus:border-emerald-400" />
               </div>
             </div>
 
             <div className="grid grid-cols-2 gap-3">
-              <div className="space-y-1">
-                <Label htmlFor="cita-fecha">Fecha *</Label>
-                <Input id="cita-fecha" type="date" value={citaFecha} onChange={e => setCitaFecha(e.target.value)} />
+              <div className="space-y-1.5">
+                <Label htmlFor="cita-tipo" className="text-slate-200 font-bold text-xs">Tipo de Evento</Label>
+                <Input id="cita-tipo" value={citaTipo} onChange={e => setCitaTipo(e.target.value)} placeholder="Ej: Fiesta de 15, Boda" className="bg-white/5 border-white/15 text-white placeholder:text-slate-500 focus:border-emerald-400" />
               </div>
-              <div className="space-y-1">
-                <Label htmlFor="cita-hora">Hora</Label>
-                <Input id="cita-hora" type="time" value={citaHora} onChange={e => setCitaHora(e.target.value)} />
+              <div className="space-y-1.5">
+                <Label htmlFor="cita-lugar" className="text-slate-200 font-bold text-xs">Lugar / Medio</Label>
+                <Input id="cita-lugar" value={citaLugar} onChange={e => setCitaLugar(e.target.value)} placeholder="Oficina AK Salto" className="bg-white/5 border-white/15 text-white placeholder:text-slate-500 focus:border-emerald-400" />
               </div>
             </div>
 
-            <div className="space-y-1">
-              <Label htmlFor="cita-notas">Notas adicionales</Label>
-              <Input id="cita-notas" value={citaNotas} onChange={e => setCitaNotas(e.target.value)} placeholder="Notas para la entrevista..." />
+            <div className="grid grid-cols-2 gap-3">
+              <div className="space-y-1.5">
+                <Label htmlFor="cita-fecha" className="text-slate-200 font-bold text-xs">Fecha *</Label>
+                <Input id="cita-fecha" type="date" value={citaFecha} onChange={e => setCitaFecha(e.target.value)} className="bg-white/5 border-white/15 text-white placeholder:text-slate-500 focus:border-emerald-400" />
+              </div>
+              <div className="space-y-1.5">
+                <Label htmlFor="cita-hora" className="text-slate-200 font-bold text-xs">Hora</Label>
+                <Input id="cita-hora" type="time" value={citaHora} onChange={e => setCitaHora(e.target.value)} className="bg-white/5 border-white/15 text-white placeholder:text-slate-500 focus:border-emerald-400" />
+              </div>
+            </div>
+
+            <div className="space-y-1.5">
+              <Label htmlFor="cita-notas" className="text-slate-200 font-bold text-xs">Notas adicionales</Label>
+              <Input id="cita-notas" value={citaNotas} onChange={e => setCitaNotas(e.target.value)} placeholder="Notas para la entrevista..." className="bg-white/5 border-white/15 text-white placeholder:text-slate-500 focus:border-emerald-400" />
+            </div>
+
+            <div className="rounded-xl bg-emerald-500/10 border border-emerald-500/20 p-3 text-[11px] text-emerald-300 space-y-1">
+              <p className="font-bold">📅 Sincronización Automática</p>
+              <p className="text-slate-400">Al confirmar, la cita se agrega al Google Calendar de la empresa, se envía un correo de confirmación a ambas partes y se abre WhatsApp para el recordatorio directo.</p>
             </div>
           </div>
 
-          <DialogFooter>
-            <DialogClose asChild><Button variant="outline">Cancelar</Button></DialogClose>
-            <Button onClick={handleCreateCita} disabled={isSubmittingCita} className="bg-emerald-600 hover:bg-emerald-700 text-white font-bold">
-              {isSubmittingCita ? 'Agendando...' : 'Agendar & Abrir WhatsApp'}
+          <DialogFooter className="gap-2">
+            <DialogClose asChild><Button variant="outline" className="border-white/20 text-slate-300 hover:text-white hover:bg-white/10">Cancelar</Button></DialogClose>
+            <Button onClick={handleCreateCita} disabled={isSubmittingCita} className="bg-emerald-500 hover:bg-emerald-600 text-slate-950 font-black rounded-xl shadow-lg transition-transform active:scale-95">
+              {isSubmittingCita ? 'Agendando...' : '✨ Agendar Cita'}
             </Button>
           </DialogFooter>
         </DialogContent>

@@ -36,14 +36,14 @@ export interface CrmTimelineItem {
 
 export interface CrmStage {
   id: string;
-  name: string; 
-  order: number; 
+  name: string;
+  order: number;
   // Tailwind classes for styling
-  bgColor: string; 
-  borderColor: string; 
-  textColor: string; 
-  headerBgColor: string; 
-  headerTextColor: string; 
+  bgColor: string;
+  borderColor: string;
+  textColor: string;
+  headerBgColor: string;
+  headerTextColor: string;
   isConversionStage?: boolean; // Optional flag for special stages
 }
 

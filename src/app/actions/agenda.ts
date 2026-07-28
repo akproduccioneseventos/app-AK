@@ -112,7 +112,7 @@ export async function getOcupiedDates(): Promise<string[]> {
         occupiedDates.push(new Date(fiesta.configuracion.fechaEvento).toISOString().split('T')[0]);
       }
     });
-    
+
     // Return unique dates
     return [...new Set(occupiedDates)];
   } catch (error) {
@@ -216,7 +216,7 @@ export async function updateAppointmentStatus(
 export function buildWhatsAppReminderUrl(appointment: CrmAppointment): string {
   const phoneClean = appointment.clienteContacto.replace(/\D/g, '');
   const phoneUruguay = phoneClean.startsWith('598') ? phoneClean : `598${phoneClean.replace(/^0/, '')}`;
-  
+
   const dateObj = new Date(appointment.fechaHora);
   const fechaFormatted = dateObj.toLocaleDateString('es-UY', { weekday: 'long', day: 'numeric', month: 'long' });
   const horaFormatted = dateObj.toLocaleTimeString('es-UY', { hour: '2-digit', minute: '2-digit' });
