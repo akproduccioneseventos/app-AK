@@ -170,11 +170,10 @@ export async function createAppointment(data: Omit<CrmAppointment, 'id' | 'cread
 
     // Registrar en el historial del CRM si está vinculado a un prospecto
     if (newAppointment.leadId) {
-      const { addTimelineEventToLead } = await import('@/app/actions/crm');
-      addTimelineEventToLead(newAppointment.leadId, {
-        type: 'meeting_scheduled',
-        description: `Cita agendada para el ${new Date(newAppointment.fechaHora).toLocaleDateString('es-UY')} a las ${new Date(newAppointment.fechaHora).toLocaleTimeString('es-UY', { hour: '2-digit', minute: '2-digit' })} hs (${newAppointment.lugar || 'Oficina AK'})`,
-      }).catch(() => {});
+      const { scheduleCrmMeeting } = await import('@/app/actions/crm');
+      scheduleCrmMeeting(newAppointment.leadId, newAppointment.fechaHora, `Cita Comercial (${newAppointment.lugar || 'Oficina AK'})`).catch((err) => {
+        console.warn('[agenda] CRM meeting schedule failed:', err);
+      });
     }
 
     const whatsappUrl = buildWhatsAppReminderUrl(newAppointment);
