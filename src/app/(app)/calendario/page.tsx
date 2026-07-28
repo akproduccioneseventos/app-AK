@@ -575,73 +575,111 @@ export default function CalendarioInteractivoPage() {
         </DndContext>
       )}
 
-      {/* Seccion de Citas y Entrevistas Comerciales */}
-      <Card className="border-emerald-200 bg-emerald-50/20 shadow-sm mt-8">
-        <CardHeader className="flex flex-row items-center justify-between pb-2">
-          <div>
-            <CardTitle className="text-lg font-bold flex items-center gap-2 text-emerald-900 font-headline">
-              <Users className="w-5 h-5 text-emerald-600" /> Agenda de Citas & Entrevistas Comerciales
-            </CardTitle>
-            <CardDescription className="text-xs text-emerald-700">
-              Reuniones agendadas con futuros clientes. Generá el recordatorio WhatsApp con 1 clic.
-            </CardDescription>
+      {/* Seccion Agenda Secretaria AK & Citas CRM */}
+      <Card className="border-emerald-500/20 bg-gradient-to-br from-slate-950 via-slate-900 to-emerald-950 text-white shadow-2xl rounded-3xl overflow-hidden mt-10">
+        <CardHeader className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-white/10 pb-5">
+          <div className="flex items-center gap-3">
+            <div className="grid h-12 w-12 place-items-center rounded-2xl bg-emerald-500/20 border border-emerald-500/40 text-emerald-400 shadow-lg">
+              <Users className="w-6 h-6" />
+            </div>
+            <div>
+              <CardTitle className="text-xl font-black text-white tracking-tight font-headline flex items-center gap-2">
+                Agenda de la Secretaria AK
+                <span className="text-xs font-bold px-2.5 py-0.5 rounded-full bg-emerald-500/20 border border-emerald-400/30 text-emerald-300">
+                  {appointments.length} cita(s)
+                </span>
+              </CardTitle>
+              <CardDescription className="text-xs text-slate-300 mt-0.5">
+                Gestión ejecutiva de entrevistas comerciales con sincronización automática en Google Calendar, Gmail y WhatsApp.
+              </CardDescription>
+            </div>
           </div>
-          <Button onClick={() => setIsCitaModalOpen(true)} size="sm" className="bg-emerald-600 hover:bg-emerald-700 text-white font-bold gap-2">
+          <Button onClick={() => setIsCitaModalOpen(true)} size="sm" className="bg-emerald-500 hover:bg-emerald-600 text-slate-950 font-black h-11 px-5 rounded-xl shadow-lg transition-transform active:scale-95">
             + Agendar Cita
           </Button>
         </CardHeader>
-        <CardContent>
+        <CardContent className="p-6">
           {appointments.length === 0 ? (
-            <p className="text-xs text-muted-foreground py-4 text-center">No hay citas agendadas aún. ¡Agendá una nueva cita con el botón de arriba!</p>
+            <div className="py-12 text-center border border-dashed border-white/15 rounded-2xl bg-white/5">
+              <Users className="w-10 h-10 mx-auto text-emerald-400/60 mb-2" />
+              <p className="text-sm font-bold text-slate-200">No hay entrevistas comerciales agendadas aún</p>
+              <p className="text-xs text-slate-400 mt-1">Tocá en "+ Agendar Cita" para programar la primera entrevista con cliente.</p>
+            </div>
           ) : (
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3 pt-2">
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
               {appointments.map((appt) => {
                 const waUrl = buildWhatsAppReminderUrl(appt);
                 const gCalUrl = buildGoogleCalendarAppointmentUrl(appt);
                 const gmailUrl = buildGmailAppointmentInviteUrl(appt);
 
                 const dateObj = new Date(appt.fechaHora);
-                const fechaStr = dateObj.toLocaleDateString('es-UY', { day: '2-digit', month: 'short', year: 'numeric' });
+                const fechaStr = dateObj.toLocaleDateString('es-UY', { weekday: 'short', day: '2-digit', month: 'short' });
                 const horaStr = dateObj.toLocaleTimeString('es-UY', { hour: '2-digit', minute: '2-digit' });
+                const initial = appt.clienteNombre ? appt.clienteNombre.charAt(0).toUpperCase() : 'C';
 
                 return (
-                  <div key={appt.id} className="p-4 rounded-xl border bg-white shadow-xs space-y-3 flex flex-col justify-between">
+                  <div key={appt.id} className="group relative rounded-2xl border border-white/15 bg-white/5 p-5 shadow-xl backdrop-blur-xl transition-all hover:border-emerald-400/50 hover:bg-white/10 flex flex-col justify-between">
                     <div>
-                      <div className="flex items-center justify-between gap-2">
-                        <span className="font-bold text-sm text-slate-900">{appt.clienteNombre}</span>
+                      <div className="flex items-start justify-between gap-3">
+                        <div className="flex items-center gap-3">
+                          <div className="grid h-10 w-10 flex-none place-items-center rounded-xl bg-gradient-to-br from-emerald-500 to-teal-600 font-black text-slate-950 text-base shadow-md">
+                            {initial}
+                          </div>
+                          <div className="min-w-0">
+                            <span className="block font-black text-base text-white truncate">{appt.clienteNombre}</span>
+                            <span className="block text-xs font-semibold text-emerald-400">{appt.eventoTipo || 'Entrevista Comercial'}</span>
+                          </div>
+                        </div>
                         <span className={cn(
-                          'text-[10px] font-black px-2 py-0.5 rounded-full uppercase tracking-wider',
-                          appt.estado === 'Confirmada' ? 'bg-green-100 text-green-700' :
-                          appt.estado === 'Realizada' ? 'bg-slate-100 text-slate-600' :
-                          appt.estado === 'Cancelada' ? 'bg-red-100 text-red-700' :
-                          'bg-amber-100 text-amber-700'
+                          'text-[10px] font-black px-2.5 py-1 rounded-lg uppercase tracking-widest border',
+                          appt.estado === 'Confirmada' ? 'bg-green-500/20 text-green-300 border-green-500/40' :
+                          appt.estado === 'Realizada' ? 'bg-slate-500/20 text-slate-300 border-slate-500/40' :
+                          appt.estado === 'Cancelada' ? 'bg-rose-500/20 text-rose-300 border-rose-500/40' :
+                          'bg-amber-500/20 text-amber-300 border-amber-500/40'
                         )}>
                           {appt.estado}
                         </span>
                       </div>
-                      <p className="text-xs text-slate-500 font-medium mt-0.5">{appt.eventoTipo || 'Entrevista Comercial'}</p>
-                      <div className="mt-2 space-y-1 text-xs text-slate-600">
-                        <p className="flex items-center gap-1.5"><CalendarDays className="w-3.5 h-3.5 text-slate-400" />{fechaStr} - {horaStr} hs</p>
-                        {appt.lugar && <p className="flex items-center gap-1.5"><MapPin className="w-3.5 h-3.5 text-slate-400" />{appt.lugar}</p>}
-                        {appt.notas && <p className="text-[11px] italic text-slate-400 mt-1">"{appt.notas}"</p>}
+
+                      <div className="mt-4 space-y-2 rounded-xl bg-slate-900/60 p-3 text-xs border border-white/10">
+                        <div className="flex items-center justify-between text-slate-200">
+                          <span className="flex items-center gap-2 font-bold text-white">
+                            <CalendarDays className="w-4 h-4 text-emerald-400" />
+                            {fechaStr}
+                          </span>
+                          <span className="font-mono font-black text-emerald-300 bg-emerald-500/10 px-2 py-0.5 rounded-md border border-emerald-500/20">
+                            {horaStr} hs
+                          </span>
+                        </div>
+                        {appt.lugar && (
+                          <div className="flex items-center gap-2 text-slate-300">
+                            <MapPin className="w-3.5 h-3.5 text-slate-400 flex-none" />
+                            <span className="truncate">{appt.lugar}</span>
+                          </div>
+                        )}
+                        {appt.notas && (
+                          <p className="text-[11px] text-slate-400 italic pt-1 border-t border-white/5">
+                            "{appt.notas}"
+                          </p>
+                        )}
                       </div>
                     </div>
 
-                    <div className="pt-3 border-t border-slate-100 space-y-2">
-                      <div className="flex flex-wrap gap-1.5">
-                        <a href={waUrl} target="_blank" rel="noopener noreferrer" title="Mandar recordatorio por WhatsApp" className="inline-flex min-h-8 items-center gap-1 rounded-lg bg-green-600 px-2.5 text-[11px] font-bold text-white hover:bg-green-700 transition-all">
+                    <div className="mt-4 pt-3 border-t border-white/10 space-y-2">
+                      <div className="grid grid-cols-3 gap-1.5">
+                        <a href={waUrl} target="_blank" rel="noopener noreferrer" title="Enviar recordatorio WhatsApp" className="inline-flex min-h-9 items-center justify-center gap-1 rounded-xl bg-emerald-500/20 border border-emerald-500/40 text-xs font-bold text-emerald-300 hover:bg-emerald-500/30 transition-all">
                           📲 WA
                         </a>
-                        <a href={gCalUrl} target="_blank" rel="noopener noreferrer" title="Agregar a Google Calendar" className="inline-flex min-h-8 items-center gap-1 rounded-lg bg-blue-600 px-2.5 text-[11px] font-bold text-white hover:bg-blue-700 transition-all">
+                        <a href={gCalUrl} target="_blank" rel="noopener noreferrer" title="Ver en Google Calendar" className="inline-flex min-h-9 items-center justify-center gap-1 rounded-xl bg-blue-500/20 border border-blue-500/40 text-xs font-bold text-blue-300 hover:bg-blue-500/30 transition-all">
                           📅 GCal
                         </a>
-                        <a href={gmailUrl} target="_blank" rel="noopener noreferrer" title="Enviar correo por Gmail" className="inline-flex min-h-8 items-center gap-1 rounded-lg bg-rose-600 px-2.5 text-[11px] font-bold text-white hover:bg-rose-700 transition-all">
-                          <Mail className="w-3 h-3" /> Gmail
+                        <a href={gmailUrl} target="_blank" rel="noopener noreferrer" title="Enviar mail Gmail" className="inline-flex min-h-9 items-center justify-center gap-1 rounded-xl bg-rose-500/20 border border-rose-500/40 text-xs font-bold text-rose-300 hover:bg-rose-500/30 transition-all">
+                          <Mail className="w-3.5 h-3.5" /> Gmail
                         </a>
                       </div>
 
                       {appt.estado === 'Agendada' && (
-                        <Button variant="ghost" size="sm" className="w-full h-7 text-[11px] font-semibold text-slate-600 hover:text-slate-900" onClick={async () => {
+                        <Button variant="ghost" size="sm" className="w-full h-8 text-xs font-bold text-emerald-400 hover:text-emerald-300 hover:bg-emerald-500/10" onClick={async () => {
                           await updateAppointmentStatus(appt.id, 'Confirmada');
                           fetchEvents();
                         }}>
