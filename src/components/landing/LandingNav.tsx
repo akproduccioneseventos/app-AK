@@ -36,6 +36,7 @@ export function LandingNav(_props: LandingNavProps = {}) {
     { label: 'Servicios', href: '#landing-services', isExternal: false },
     { label: 'Simulador', href: '/simulador-de-presupuesto', isExternal: true },
     { label: 'Blog', href: '/public/blog', isExternal: true },
+    { label: 'Preguntas Frecuentes', href: '#faq', isExternal: false },
     { label: 'Club Uruguay', href: '/club-uruguay', isExternal: true },
   ];
 

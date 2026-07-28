@@ -88,6 +88,24 @@ function writeRightAligned(
   pdf.text(text, x, y, { align: "right" });
 }
 
+async function loadLogoBase64(): Promise<string | null> {
+  try {
+    if (typeof window !== "undefined") {
+      const response = await fetch("/logo_ak_producciones.png");
+      const blob = await response.blob();
+      return new Promise<string>((resolve) => {
+        const reader = new FileReader();
+        reader.onloadend = () => resolve(reader.result as string);
+        reader.onerror = () => resolve(null);
+        reader.readAsDataURL(blob);
+      });
+    }
+  } catch (e) {
+    console.warn("Could not load logo image for PDF", e);
+  }
+  return null;
+}
+
 export async function createSimulatorBudgetPdf(
   input: SimulatorBudgetPdfInput,
 ) {
@@ -98,6 +116,7 @@ export async function createSimulatorBudgetPdf(
     format: "a4",
     compress: true,
   });
+  const logoDataUrl = await loadLogoBase64();
   const model = buildSimulatorBudgetPdfModel(input);
   const marginX = 15;
   const contentWidth = 180;
@@ -108,18 +127,51 @@ export async function createSimulatorBudgetPdf(
   const renderBrandHeader = (continuation = false) => {
     pdf.setFillColor(185, 28, 28);
     pdf.rect(0, 0, 210, 5, "F");
-    pdf.setTextColor(15, 23, 42);
-    pdf.setFont("helvetica", "bold");
-    pdf.setFontSize(continuation ? 12 : 17);
-    pdf.text("AK PRODUCCIONES", marginX, continuation ? 16 : 18);
-    pdf.setFont("helvetica", "normal");
-    pdf.setFontSize(8);
-    pdf.setTextColor(100, 116, 139);
-    pdf.text(
-      continuation ? "Presupuesto - continuación" : "FIESTAS Y EVENTOS",
-      marginX,
-      continuation ? 21 : 23,
-    );
+
+    if (logoDataUrl) {
+      try {
+        pdf.addImage(logoDataUrl, "PNG", marginX, 6, 22, 18);
+        pdf.setTextColor(15, 23, 42);
+        pdf.setFont("helvetica", "bold");
+        pdf.setFontSize(continuation ? 11 : 15);
+        pdf.text("AK PRODUCCIONES", marginX + 25, continuation ? 14 : 16);
+        pdf.setFont("helvetica", "normal");
+        pdf.setFontSize(8);
+        pdf.setTextColor(100, 116, 139);
+        pdf.text(
+          continuation ? "Presupuesto - continuación" : "FIESTAS Y EVENTOS",
+          marginX + 25,
+          continuation ? 19 : 21,
+        );
+      } catch {
+        pdf.setTextColor(15, 23, 42);
+        pdf.setFont("helvetica", "bold");
+        pdf.setFontSize(continuation ? 12 : 17);
+        pdf.text("AK PRODUCCIONES", marginX, continuation ? 16 : 18);
+        pdf.setFont("helvetica", "normal");
+        pdf.setFontSize(8);
+        pdf.setTextColor(100, 116, 139);
+        pdf.text(
+          continuation ? "Presupuesto - continuación" : "FIESTAS Y EVENTOS",
+          marginX,
+          continuation ? 21 : 23,
+        );
+      }
+    } else {
+      pdf.setTextColor(15, 23, 42);
+      pdf.setFont("helvetica", "bold");
+      pdf.setFontSize(continuation ? 12 : 17);
+      pdf.text("AK PRODUCCIONES", marginX, continuation ? 16 : 18);
+      pdf.setFont("helvetica", "normal");
+      pdf.setFontSize(8);
+      pdf.setTextColor(100, 116, 139);
+      pdf.text(
+        continuation ? "Presupuesto - continuación" : "FIESTAS Y EVENTOS",
+        marginX,
+        continuation ? 21 : 23,
+      );
+    }
+
     writeRightAligned(pdf, `Ref. ${input.documentId}`, 195, 16);
     y = continuation ? 29 : 31;
   };
