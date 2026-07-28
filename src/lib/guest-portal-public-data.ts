@@ -63,6 +63,7 @@ export interface PublicGuestEvent {
   >;
   zonaDigitalAdolescentes?: ZonaDigitalAdolescentesSettings;
   modulosContratados?: ModulosContratados;
+  galeriaUrl?: string;
 }
 
 export type PublicGuest = Pick<
@@ -90,6 +91,7 @@ export function buildPublicGuestEvent(
   const invitation = fiesta.invitacionConfig;
 
   return {
+    galeriaUrl: fiesta.galeriaUrl,
     configuracion: {
       nombreEvento: config.nombreEvento,
       nombreAgasajado: config.nombreAgasajado,
