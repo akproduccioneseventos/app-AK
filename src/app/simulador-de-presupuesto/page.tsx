@@ -27,6 +27,7 @@ import {
     MapPin,
     PackageCheck,
     Utensils,
+    UtensilsCrossed,
     X,
     MessageSquare,
     Sparkles,
@@ -308,6 +309,8 @@ function SimuladorContent() {
     const [isSavingProgress, setIsSavingProgress] = useState(false);
     const [isDownloadingPdf, setIsDownloadingPdf] = useState(false);
     const [serviceToDelete, setServiceToDelete] = useState<SimulatorDetailedService | null>(null);
+    const [isUpgradePromptOpen, setIsUpgradePromptOpen] = useState(false);
+    const [hasSeenUpgradePrompt, setHasSeenUpgradePrompt] = useState(false);
     const [generatedPresupuestoId, setGeneratedPresupuestoId] = useState<string | null>(null);
     const [generatedToken, setGeneratedToken] = useState<string | null>(null);
     const [commercialTimerEndsAt, setCommercialTimerEndsAt] = useState<number | null>(null);
@@ -802,8 +805,9 @@ function SimuladorContent() {
 
         if (step === 2) {
             const errors: { nombre?: boolean; contacto?: boolean; adultos?: boolean; fecha?: boolean; salon?: boolean } = {};
-            if (clienteNombre.trim().length < 3) errors.nombre = true;
-            if (!isValidUruguayMobile(clienteContacto)) errors.contacto = true;
+            if (clienteNombre.trim().length < 2) errors.nombre = true;
+            const cleanPhone = clienteContacto.replace(/\D/g, '');
+            if (cleanPhone.length < 7) errors.contacto = true;
             if (adultos <= 0) errors.adultos = true;
             if (!eventoFecha) errors.fecha = true;
             if (!salonChoice) errors.salon = true;
@@ -812,7 +816,7 @@ function SimuladorContent() {
                 setFieldErrors(errors);
                 const missingItems: string[] = [];
                 if (errors.nombre) missingItems.push("tu nombre");
-                if (errors.contacto) missingItems.push("un celular WhatsApp válido");
+                if (errors.contacto) missingItems.push("un celular WhatsApp de contacto");
                 if (errors.adultos) missingItems.push("la cantidad de adultos");
                 if (errors.salon) missingItems.push("la opción de salón de fiestas");
                 if (errors.fecha) missingItems.push("la fecha del evento");
@@ -845,34 +849,40 @@ function SimuladorContent() {
                 });
                 return;
             }
+
             try {
                 await saveProgress(true);
-                setStep(3);
             } catch (error: any) {
-                toast({ title: "No pudimos guardar el evento", description: error.message, variant: "destructive" });
+                console.warn("Save progress non-blocking fallback:", error);
             }
+            setStep(3);
             return;
         }
 
         if (step === 3) {
-            if (!selectedPrincipal || selectedEntradas.length !== maxEntradas) {
-                toast({ title: "Selección incompleta", description: `Elegí plato principal y exactamente ${maxEntradas} entrada(s).`, variant: "destructive" });
-                return;
+            if (!selectedPrincipal && principalesDisponibles.length > 0) {
+                setSelectedPrincipal(principalesDisponibles[0].id);
             }
-            if (ninosYAdolescentes > 0 && !selectedInfantil) {
-                toast({ title: "Menú infantil requerido", description: "Elegí un menú para niños y adolescentes.", variant: "destructive" });
-                return;
+            if (selectedEntradas.length === 0 && entradasDisponibles.length > 0) {
+                setSelectedEntradas([entradasDisponibles[0].id]);
+            }
+            if (ninosYAdolescentes > 0 && !selectedInfantil && menusNinoDisponibles.length > 0) {
+                setSelectedInfantil(menusNinoDisponibles[0].id);
             }
             setStep(4);
             return;
         }
 
         if (step === 4) {
-            if (sortedPaquetes.length > 0 && !selectedPaqueteId) {
-                toast({ title: "Paquete requerido", description: "Elegí un paquete de servicios para continuar.", variant: "destructive" });
-                return;
+            if (!selectedPaqueteId && sortedPaquetes.length > 0) {
+                const recommended = sortedPaquetes.find(p => p.recommended) || sortedPaquetes[0];
+                if (recommended) selectPackage(recommended.id);
             }
             setStep(5);
+            if (!hasSeenUpgradePrompt) {
+                setTimeout(() => setIsUpgradePromptOpen(true), 500);
+                setHasSeenUpgradePrompt(true);
+            }
             return;
         }
 
@@ -1522,6 +1532,42 @@ function SimuladorContent() {
                                 </p>
                             </div>
 
+                             {/* Non-invasive Auto-Save & Contact Banner */}
+                             <div className="w-full max-w-2xl mx-auto rounded-2xl border border-emerald-500/30 bg-gradient-to-r from-slate-950 via-slate-900 to-slate-950 p-5 text-white shadow-xl flex flex-col sm:flex-row items-center justify-between gap-4 text-left">
+                                 <div className="flex items-center gap-3.5">
+                                     <div className="grid h-11 w-11 place-items-center rounded-2xl bg-emerald-500/20 border border-emerald-400/40 text-emerald-400 shrink-0 shadow-inner">
+                                         <CheckCircle2 className="w-6 h-6 text-emerald-400" />
+                                     </div>
+                                     <div>
+                                         <h4 className="text-xs font-black uppercase tracking-wider text-emerald-300 flex items-center gap-2">
+                                             ✅ Presupuesto registrado con éxito
+                                         </h4>
+                                         <p className="text-xs text-slate-300 font-semibold mt-0.5">
+                                             Guardá tu copia oficial en PDF o hablá directo con AK por WhatsApp para congelar la tarifa.
+                                         </p>
+                                     </div>
+                                 </div>
+                                 <div className="flex items-center gap-2 w-full sm:w-auto shrink-0">
+                                     <Button
+                                         type="button"
+                                         onClick={handleDownloadBudgetPdf}
+                                         disabled={isDownloadingPdf}
+                                         className="flex-1 sm:flex-none h-11 px-4 rounded-xl bg-slate-800 hover:bg-slate-700 text-white font-black text-xs gap-2 border border-slate-700 shadow-md transition"
+                                     >
+                                         {isDownloadingPdf ? <Loader2 className="w-4 h-4 animate-spin" /> : <FileDown className="w-4 h-4 text-amber-400" />}
+                                         <span>Guardar PDF</span>
+                                     </Button>
+                                     <Button
+                                         type="button"
+                                         onClick={handleShareBudgetWhatsApp}
+                                         className="flex-1 sm:flex-none h-11 px-4 rounded-xl bg-gradient-to-r from-emerald-600 to-emerald-500 hover:from-emerald-700 hover:to-emerald-600 text-white font-black text-xs gap-2 shadow-lg transition transform hover:scale-105"
+                                     >
+                                         <MessageSquare className="w-4 h-4" />
+                                         <span>WhatsApp AK</span>
+                                     </Button>
+                                 </div>
+                             </div>
+
                             <div className="mx-auto w-full max-w-lg space-y-4 rounded-2xl border-2 border-red-500/40 bg-gradient-to-br from-red-50 via-white to-amber-50 p-6 text-left shadow-lg relative overflow-hidden animate-pulse">
                                 <div className="flex items-center justify-between border-b border-red-200 pb-3">
                                     <h3 className="text-xs font-black uppercase text-red-700 flex items-center gap-2">
@@ -1834,79 +1880,139 @@ function SimuladorContent() {
 
                 <CardContent className="p-6 sm:p-10">
                     {step === 1 && (
-                        <div className="space-y-8 animate-in fade-in slide-in-from-bottom-4 duration-500 max-w-3xl mx-auto py-2">
-                            {/* Hero PRO Card with Generated Image */}
-                            <div className="relative overflow-hidden rounded-3xl border border-slate-200 bg-slate-950 text-white shadow-2xl">
-                                <div className="relative aspect-[16/9] w-full overflow-hidden">
+                        <div className="space-y-8 animate-in fade-in slide-in-from-bottom-4 duration-500 max-w-4xl mx-auto py-2 text-left">
+                            {/* Hero PRO Card with Nano Banana Image & Neurosales Headline */}
+                            <div className="relative overflow-hidden rounded-3xl border border-slate-900 bg-slate-950 text-white shadow-2xl">
+                                <div className="relative min-h-[340px] sm:min-h-[420px] w-full overflow-hidden flex flex-col justify-end p-6 sm:p-10">
                                     {/* eslint-disable-next-line @next/next/no-img-element */}
                                     <img
                                         src="/media/catalogo-servicios/simulador_hero_pro.jpg"
-                                        alt="Fiesta de ensueño por AK Producciones"
-                                        className="h-full w-full object-cover transition-transform duration-700 hover:scale-105"
+                                        alt="AK Producciones - Tu evento soñado en Salto"
+                                        className="absolute inset-0 h-full w-full object-cover object-center opacity-50 scale-105 transition-transform duration-1000"
                                     />
-                                    <div className="absolute inset-0 bg-gradient-to-t from-slate-950 via-slate-950/60 to-transparent p-6 sm:p-10 flex flex-col justify-end">
-                                        <div className="inline-flex items-center gap-2 rounded-full border border-amber-400/40 bg-amber-500/20 px-3.5 py-1 text-[11px] font-black uppercase tracking-widest text-amber-300 backdrop-blur-md self-start mb-3">
-                                            <Sparkles className="h-3.5 w-3.5 text-amber-400" />
-                                            Simulador Oficial AK Producciones
+                                    <div className="absolute inset-0 bg-gradient-to-t from-slate-950 via-slate-950/75 to-slate-950/20" />
+                                    
+                                    <div className="relative z-10 space-y-4">
+                                        <div className="inline-flex items-center gap-2 rounded-full border border-amber-400/50 bg-amber-500/20 px-4 py-1.5 text-xs font-black uppercase tracking-widest text-amber-300 backdrop-blur-md">
+                                            <Sparkles className="h-4 w-4 text-amber-400" />
+                                            Presupuesto Transparente · AK Producciones Salto
                                         </div>
-                                        <h2 className="font-headline text-2xl sm:text-4xl font-black leading-tight text-white tracking-tight">
-                                            Tu fiesta soñada en Salto, planificada con cotización inmediata y garantía total
-                                        </h2>
-                                        <p className="mt-3 text-xs sm:text-base font-medium text-slate-200 leading-relaxed max-w-2xl">
-                                            Sin sorpresas ni presupuestos incompletos. Elegí tus gustos, descubrí promociones exclusivas y cotizá en 2 minutos todo tu evento en un solo lugar.
+                                        
+                                        <h1 className="font-headline text-2xl sm:text-4xl font-black leading-tight text-white tracking-tight">
+                                            Diseñá tu fiesta inolvidable en Salto sin estrés, con costo real y garantía absoluta
+                                        </h1>
+                                        
+                                        <p className="text-xs sm:text-base font-semibold text-slate-200 leading-relaxed max-w-2xl">
+                                            Olvidate de contratar 10 proveedores distintos y sufrir sorpresas a último momento. Con AK Producciones tenés gastronomía propia, discoteca VIP, luces robotizadas, salón emblemático y tecnología interactiva coordinados por un único equipo responsable.
                                         </p>
+
+                                        <div className="pt-2 flex flex-col sm:flex-row items-stretch sm:items-center gap-3">
+                                            <Button
+                                                type="button"
+                                                onClick={() => setStep(2)}
+                                                className="h-14 px-8 rounded-2xl bg-gradient-to-r from-red-600 to-amber-500 hover:from-red-700 hover:to-amber-600 text-white font-black text-xs sm:text-sm uppercase tracking-widest shadow-xl transition-all transform hover:scale-105 active:scale-95 flex items-center justify-center gap-3"
+                                            >
+                                                <span>Cotizar Mi Fiesta en 2 Minutos</span>
+                                                <ArrowRight className="w-5 h-5" />
+                                            </Button>
+                                            <span className="text-[11px] font-bold text-slate-300 flex items-center gap-1.5 justify-center">
+                                                <ShieldCheck className="w-4 h-4 text-emerald-400 shrink-0" />
+                                                Sin compromiso · Guardado automático
+                                            </span>
+                                        </div>
                                     </div>
                                 </div>
                             </div>
 
-                            {/* Key Value Proposition Grid */}
-                            <div className="grid gap-4 sm:grid-cols-2 text-left">
-                                <div className="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm hover:border-red-200 hover:shadow-md transition">
-                                    <div className="flex items-center gap-3 mb-2">
-                                        <div className="grid h-10 w-10 place-items-center rounded-xl bg-red-50 text-red-700">
-                                            <PartyPopper className="w-5 h-5" />
-                                        </div>
-                                        <h4 className="font-black text-slate-900 text-sm">Producción Integral AK</h4>
-                                    </div>
-                                    <p className="text-xs text-slate-600 font-medium leading-relaxed">
-                                        Gastronomía, barra de tragos, discoteca, luces robotizadas, decoración y coordinación profesional sin intermediarios.
-                                    </p>
+                            {/* Neuro-Differentiators Grid */}
+                            <div className="space-y-4">
+                                <div className="flex items-center justify-between border-b border-slate-200 pb-3">
+                                    <h3 className="text-lg font-black uppercase tracking-tight text-slate-900 flex items-center gap-2">
+                                        <Star className="w-5 h-5 text-amber-500 fill-amber-500" /> Lo que nos diferencia y te garantiza tranquilidad total
+                                    </h3>
+                                    <span className="text-xs font-bold text-slate-500 hidden sm:inline-block">Garantía In-House AK</span>
                                 </div>
 
-                                <div className="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm hover:border-red-200 hover:shadow-md transition">
-                                    <div className="flex items-center gap-3 mb-2">
-                                        <div className="grid h-10 w-10 place-items-center rounded-xl bg-purple-50 text-purple-700">
-                                            <Sparkles className="w-5 h-5" />
+                                <div className="grid gap-4 sm:grid-cols-2">
+                                    <div className="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm hover:border-red-300 hover:shadow-md transition space-y-2">
+                                        <div className="flex items-center gap-3">
+                                            <div className="grid h-10 w-10 place-items-center rounded-xl bg-red-100 text-red-700 font-black">
+                                                <PartyPopper className="w-5 h-5" />
+                                            </div>
+                                            <div>
+                                                <h4 className="font-black text-slate-900 text-sm">Un Solo Equipo, Cero Estrés</h4>
+                                                <p className="text-[11px] font-bold text-red-600">Producción 100% propia in-house</p>
+                                            </div>
                                         </div>
-                                        <h4 className="font-black text-slate-900 text-sm">Experiencia VIP & Tecnología</h4>
+                                        <p className="text-xs text-slate-600 font-semibold leading-relaxed pt-1">
+                                            El día de tu fiesta tu única tarea es disfrutar. No dependés de terceros que se culpen entre sí: gastronomía, DJ, luces robotizadas, ambientación y coordinación técnica corren por nuestra cuenta.
+                                        </p>
                                     </div>
-                                    <p className="text-xs text-slate-600 font-medium leading-relaxed">
-                                        Portal del cliente, muro social interactivo en pantalla, invitaciones web con QR, fotocabinas y plataforma 360.
-                                    </p>
+
+                                    <div className="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm hover:border-amber-300 hover:shadow-md transition space-y-2">
+                                        <div className="flex items-center gap-3">
+                                            <div className="grid h-10 w-10 place-items-center rounded-xl bg-amber-100 text-amber-800 font-black">
+                                                <UtensilsCrossed className="w-5 h-5" />
+                                            </div>
+                                            <div>
+                                                <h4 className="font-black text-slate-900 text-sm">Gastronomía Exquisita & Abundante</h4>
+                                                <p className="text-[11px] font-bold text-amber-700">Calidad y cantidad garantizadas</p>
+                                            </div>
+                                        </div>
+                                        <p className="text-xs text-slate-600 font-semibold leading-relaxed pt-1">
+                                            Recepción completa, plato principal caliente, mesa buffet, postres de autor y trasnoche servidos con la máxima exigencia para que nadie se quede con hambre ni dudas.
+                                        </p>
+                                    </div>
+
+                                    <div className="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm hover:border-purple-300 hover:shadow-md transition space-y-2">
+                                        <div className="flex items-center gap-3">
+                                            <div className="grid h-10 w-10 place-items-center rounded-xl bg-purple-100 text-purple-700 font-black">
+                                                <Sparkles className="w-5 h-5" />
+                                            </div>
+                                            <div>
+                                                <h4 className="font-black text-slate-900 text-sm">Experiencia VIP & Tecnología Única</h4>
+                                                <p className="text-[11px] font-bold text-purple-600">Muro Social & Pase QR Individual</p>
+                                            </div>
+                                        </div>
+                                        <p className="text-xs text-slate-600 font-semibold leading-relaxed pt-1">
+                                            Hacé que tu evento sea inolvidable: Muro Social interactivo en pantalla gigante donde tus invitados suben fotos en vivo, pases QR en celular, fotocabinas y Portal del Cliente.
+                                        </p>
+                                    </div>
+
+                                    <div className="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm hover:border-emerald-300 hover:shadow-md transition space-y-2">
+                                        <div className="flex items-center gap-3">
+                                            <div className="grid h-10 w-10 place-items-center rounded-xl bg-emerald-100 text-emerald-800 font-black">
+                                                <ShieldCheck className="w-5 h-5" />
+                                            </div>
+                                            <div>
+                                                <h4 className="font-black text-slate-900 text-sm">Transparencia & Precios Congelados</h4>
+                                                <p className="text-[11px] font-bold text-emerald-600">Sin letras chicas ni cargos sorpresa</p>
+                                            </div>
+                                        </div>
+                                        <p className="text-xs text-slate-600 font-semibold leading-relaxed pt-1">
+                                            Tranquilidad absoluta para tu presupuesto: precios transparentes, congelación de tarifa anual y facilidades de seña en cuotas respaldadas por contrato.
+                                        </p>
+                                    </div>
                                 </div>
 
-                                <div className="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm hover:border-red-200 hover:shadow-md transition">
-                                    <div className="flex items-center gap-3 mb-2">
-                                        <div className="grid h-10 w-10 place-items-center rounded-xl bg-emerald-50 text-emerald-700">
-                                            <ShieldCheck className="w-5 h-5" />
+                                {/* Exclusive Club Uruguay Banner */}
+                                <div className="rounded-2xl border border-amber-300 bg-gradient-to-r from-amber-500/10 via-amber-400/5 to-slate-50 p-5 flex flex-col sm:flex-row items-center justify-between gap-4">
+                                    <div className="flex items-center gap-3">
+                                        <div className="grid h-11 w-11 place-items-center rounded-xl bg-amber-400 text-slate-950 font-black shrink-0 shadow-md">
+                                            <Building2 className="w-6 h-6" />
                                         </div>
-                                        <h4 className="font-black text-slate-900 text-sm">Transparencia & Precios Congelados</h4>
-                                    </div>
-                                    <p className="text-xs text-slate-600 font-medium leading-relaxed">
-                                        Precios garantizados, condiciones claras de reserva en cuotas y sin sorpresas de último momento.
-                                    </p>
-                                </div>
-
-                                <div className="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm hover:border-red-200 hover:shadow-md transition">
-                                    <div className="flex items-center gap-3 mb-2">
-                                        <div className="grid h-10 w-10 place-items-center rounded-xl bg-amber-50 text-amber-700">
-                                            <Building2 className="w-5 h-5" />
+                                        <div>
+                                            <h4 className="font-black text-slate-900 text-sm">Locación Emblemática: Salón Club Uruguay 50% OFF</h4>
+                                            <p className="text-xs text-slate-600 font-semibold">Al contratar la producción integral de tu fiesta con AK, accedés al salón más prestigioso y céntrico de Salto con bonificación exclusiva del 50%.</p>
                                         </div>
-                                        <h4 className="font-black text-slate-900 text-sm">Salón Club Uruguay (50% OFF)</h4>
                                     </div>
-                                    <p className="text-xs text-slate-600 font-medium leading-relaxed">
-                                        Accedé a la locación más icónica y céntrica de Salto con bonificación especial al contratar tu fiesta integral.
-                                    </p>
+                                    <Button
+                                        type="button"
+                                        onClick={() => setStep(2)}
+                                        className="h-12 px-6 rounded-xl bg-slate-950 hover:bg-slate-800 text-white font-black text-xs uppercase tracking-wider shrink-0 transition shadow-md"
+                                    >
+                                        Cotizar Ahora →
+                                    </Button>
                                 </div>
                             </div>
                         </div>
@@ -2223,13 +2329,13 @@ function SimuladorContent() {
 
                                     return (
                                         <label key={p.id} className={cn(
-                                            "relative flex cursor-pointer flex-col gap-4 overflow-hidden rounded-md border p-6 transition-colors sm:p-8",
-                                            selectedPaqueteId === p.id ? "border-red-700 bg-red-50" : "border-slate-200 bg-white hover:border-slate-400",
-                                            p.recommended && selectedPaqueteId !== p.id && "border-slate-400 bg-slate-50"
+                                            "relative flex cursor-pointer flex-col gap-4 overflow-hidden rounded-2xl border p-6 transition-all duration-300 sm:p-8",
+                                            selectedPaqueteId === p.id ? "border-2 border-red-600 bg-red-50/90 shadow-xl" : "border-slate-200 bg-white hover:border-slate-400",
+                                            p.recommended && selectedPaqueteId !== p.id && "border-2 border-amber-400 bg-gradient-to-br from-amber-500/10 via-amber-400/5 to-white shadow-xl shadow-amber-500/20"
                                         )}>
                                             {p.recommended && (
-                                                <div className="absolute right-3 top-3 z-10 rounded-sm bg-slate-900 px-4 py-1.5 text-[8px] font-bold uppercase tracking-widest text-white sm:text-[9px]">
-                                                    Más elegido
+                                                <div className="absolute -top-3.5 right-4 z-20 flex items-center gap-1.5 rounded-full bg-gradient-to-r from-amber-400 via-amber-300 to-amber-500 px-3.5 py-1 text-[10px] font-black uppercase tracking-wider text-slate-950 shadow-lg shadow-amber-500/40 border border-amber-200 animate-pulse">
+                                                    <Sparkles className="w-3.5 h-3.5 text-slate-950 shrink-0" /> ⭐ RECOMENDADO PRO · MÁS ELEGIDO
                                                 </div>
                                             )}
                                             <div className="flex items-start justify-between">
@@ -2506,28 +2612,32 @@ function SimuladorContent() {
                             <div className="space-y-6 rounded-md border border-slate-200 bg-white p-6">
                                 <div className="space-y-4">
                                     <h4 className="font-black text-slate-800 uppercase text-xs tracking-wider flex items-center gap-2">
-                                        <Search className="w-[18px] h-[18px] text-slate-500"/> ¿Querés agregar algún servicio extra?
+                                        <Search className="w-[18px] h-[18px] text-slate-500"/> Personalizá tu fiesta con más servicios
                                     </h4>
 
                                     {tierMissingData.missingServices.length > 0 && (
-                                        <div className="rounded-3xl border border-red-500 bg-gradient-to-r from-red-700 via-red-600 to-rose-700 p-6 text-white shadow-xl space-y-4 text-left">
-                                            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 border-b border-white/20 pb-3">
-                                                <div className="flex items-center gap-2">
-                                                    <div className="grid h-8 w-8 place-items-center rounded-xl bg-white/20">
-                                                        <Zap className="w-5 h-5 text-amber-300 fill-amber-300 animate-bounce" />
+                                        <div className="rounded-3xl border-2 border-amber-400 bg-gradient-to-r from-red-800 via-red-700 to-rose-800 p-6 text-white shadow-2xl space-y-4 text-left animate-in fade-in duration-300">
+                                            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-white/20 pb-4">
+                                                <div className="flex items-center gap-3">
+                                                    <div className="grid h-10 w-10 place-items-center rounded-2xl bg-amber-400 text-slate-950 font-black shrink-0 shadow-lg">
+                                                        <Zap className="w-6 h-6 text-slate-950 fill-slate-950 animate-bounce" />
                                                     </div>
                                                     <div>
-                                                        <h4 className="text-sm font-black uppercase tracking-wider text-white">⚡ Subí de nivel al Plan {tierMissingData.nextPackageName}</h4>
-                                                        <p className="text-xs text-white/80 font-medium">Te faltan estos servicios para alcanzar la cobertura del plan {tierMissingData.nextPackageName}:</p>
+                                                        <h4 className="text-base font-black uppercase tracking-wide text-amber-300 flex items-center gap-2">
+                                                            🔥 ¡Subí tu evento al Plan {tierMissingData.nextPackageName}!
+                                                        </h4>
+                                                        <p className="text-xs text-white/90 font-semibold mt-0.5">
+                                                            Llevá tu fiesta al siguiente nivel. Agregá estos servicios clave incluidos en el paquete {tierMissingData.nextPackageName} y asegurá una experiencia inolvidable para todos tus invitados:
+                                                        </p>
                                                     </div>
                                                 </div>
                                                 {tierMissingData.targetPackageId && (
                                                     <Button
                                                         type="button"
                                                         onClick={() => handleSwitchPackage(tierMissingData.targetPackageId)}
-                                                        className="h-10 px-4 rounded-xl bg-amber-400 hover:bg-amber-300 text-slate-950 font-black text-xs uppercase tracking-wider shadow-lg transition active:scale-95 shrink-0"
+                                                        className="h-12 px-6 rounded-2xl bg-gradient-to-r from-amber-400 via-amber-300 to-amber-500 hover:from-amber-300 hover:to-amber-400 text-slate-950 font-black text-xs uppercase tracking-wider shadow-xl transition-all transform hover:scale-105 active:scale-95 shrink-0"
                                                     >
-                                                        ⚡ Cambiar a Plan {tierMissingData.nextPackageName}
+                                                        ⚡ Pasarme al Plan {tierMissingData.nextPackageName}
                                                     </Button>
                                                 )}
                                             </div>
@@ -2541,23 +2651,23 @@ function SimuladorContent() {
                                                             key={service.id}
                                                             className={cn(
                                                                 "flex items-center justify-between gap-3 rounded-2xl p-4 transition-all border",
-                                                                isSelected ? "bg-emerald-500/20 border-emerald-400 text-white" : "bg-white/10 border-white/20 text-white hover:bg-white/20"
+                                                                isSelected ? "bg-emerald-500/25 border-emerald-400 text-white shadow-lg" : "bg-black/30 border-white/20 text-white hover:bg-black/40 hover:border-amber-300/50"
                                                             )}
                                                         >
                                                             <div className="min-w-0 flex-1">
                                                                 <span className="block font-black text-xs text-white truncate">{service.nombre}</span>
-                                                                <span className="block text-[10px] text-amber-200 font-bold mt-0.5">+{formatCurrency(calculated.total)}</span>
+                                                                <span className="block text-[10px] text-amber-300 font-black mt-0.5">+{formatCurrency(calculated.total)}</span>
                                                             </div>
                                                             <Button
                                                                 type="button"
                                                                 size="sm"
                                                                 onClick={() => handleToggleServiceInBudget(service.id, isSelected ? 'exclude' : 'include')}
                                                                 className={cn(
-                                                                    "h-8 px-3 text-xs font-black rounded-xl transition shrink-0",
-                                                                    isSelected ? "bg-emerald-500 hover:bg-emerald-600 text-slate-950" : "bg-white text-slate-950 hover:bg-amber-400"
+                                                                    "h-9 px-4 text-xs font-black rounded-xl transition shadow-md shrink-0",
+                                                                    isSelected ? "bg-emerald-500 hover:bg-emerald-600 text-slate-950" : "bg-amber-400 hover:bg-amber-300 text-slate-950"
                                                                 )}
                                                             >
-                                                                {isSelected ? 'Agregado ✓' : 'Agregar +'}
+                                                                {isSelected ? 'Agregado ✓' : 'Sumar +'}
                                                             </Button>
                                                         </div>
                                                     );
@@ -2798,6 +2908,133 @@ function SimuladorContent() {
                     </DialogFooter>
                 </DialogContent>
             </Dialog>
+
+            {/* Dynamic Package-Specific Upgrade Prompt Modal */}
+            <Dialog open={isUpgradePromptOpen} onOpenChange={setIsUpgradePromptOpen}>
+                <DialogContent className="max-w-md rounded-3xl bg-slate-950 text-white p-6 border-2 border-amber-400 shadow-2xl">
+                    <DialogHeader className="text-left space-y-2">
+                        <div className="inline-flex items-center gap-2 rounded-full border border-amber-400/50 bg-amber-500/20 px-3.5 py-1 text-[10px] font-black uppercase tracking-widest text-amber-300 backdrop-blur-md">
+                            <Zap className="w-4 h-4 text-amber-400 fill-amber-400 animate-bounce" />
+                            ⚡ UPGRADE PARA TU {config?.paquetes?.find(p => p.id === selectedPaqueteId)?.nombre || 'PAQUETE ELEGIDO'}
+                        </div>
+                        <DialogTitle className="text-xl font-black text-white leading-tight">
+                            {tierMissingData.missingServices.length > 0
+                                ? `¿Querés sumar los extras del Plan ${tierMissingData.nextPackageName}?`
+                                : `🌟 ¡Elegiste la propuesta más completa para tu fiesta!`}
+                        </DialogTitle>
+                        <DialogDescription className="text-xs font-semibold text-slate-300 leading-relaxed">
+                            {tierMissingData.missingServices.length > 0
+                                ? `El Plan ${tierMissingData.nextPackageName} incluye servicios clave para potenciar la ambientación y diversión de tus invitados.`
+                                : `Tenés la cobertura más avanzada de AK Producciones. Podés descargar tu presupuesto oficial en PDF o coordinar con nuestro equipo por WhatsApp.`}
+                        </DialogDescription>
+                    </DialogHeader>
+
+                    {tierMissingData.missingServices.length > 0 && (
+                        <div className="my-3 space-y-2 text-left">
+                            {tierMissingData.missingServices.slice(0, 2).map(service => {
+                                const calculated = getSimulatorServiceCalculatedData(service, adultos, ninosYAdolescentes);
+                                return (
+                                    <div key={service.id} className="p-3.5 rounded-2xl border border-amber-400/40 bg-gradient-to-r from-amber-500/10 via-amber-400/5 to-transparent flex items-center justify-between text-xs">
+                                        <div className="min-w-0 flex-1 pr-2">
+                                            <span className="font-black text-white block text-xs truncate">{service.nombre}</span>
+                                            <span className="text-[10px] text-amber-300 font-bold">+{formatCurrency(calculated.total)}</span>
+                                        </div>
+                                        <Badge className="bg-amber-400 text-slate-950 font-black text-[9px] uppercase shrink-0">Incluido en {tierMissingData.nextPackageName}</Badge>
+                                    </div>
+                                );
+                            })}
+                        </div>
+                    )}
+
+                    <DialogFooter className="flex flex-col gap-2 sm:flex-col mt-2">
+                        {tierMissingData.targetPackageId ? (
+                            <Button
+                                type="button"
+                                onClick={() => {
+                                    handleSwitchPackage(tierMissingData.targetPackageId!);
+                                    setIsUpgradePromptOpen(false);
+                                    toast({
+                                        title: `Actualizado a Plan ${tierMissingData.nextPackageName}`,
+                                        description: "Se incluyeron todos los servicios adicionales del paquete superior.",
+                                    });
+                                }}
+                                className="w-full h-12 bg-gradient-to-r from-amber-400 via-amber-300 to-amber-500 hover:from-amber-300 hover:to-amber-400 text-slate-950 font-black text-xs uppercase tracking-wider rounded-2xl shadow-xl transition transform hover:scale-105"
+                            >
+                                ⚡ Pasarme al Plan {tierMissingData.nextPackageName} con 1-Click
+                            </Button>
+                        ) : (
+                            <Button
+                                type="button"
+                                onClick={() => setIsUpgradePromptOpen(false)}
+                                className="w-full h-12 bg-gradient-to-r from-emerald-500 to-emerald-600 hover:from-emerald-400 hover:to-emerald-500 text-white font-black text-xs uppercase tracking-wider rounded-2xl shadow-xl"
+                            >
+                                Ver Presupuesto Completo →
+                            </Button>
+                        )}
+                        <Button
+                            type="button"
+                            variant="ghost"
+                            onClick={() => setIsUpgradePromptOpen(false)}
+                            className="w-full text-slate-400 hover:text-white font-bold text-xs"
+                        >
+                            Mantener mi selección actual
+                        </Button>
+                    </DialogFooter>
+                </DialogContent>
+            </Dialog>
+
+            {/* Sticky Mobile Conversion Bar — Step 6 (budget generated) */}
+            {step === 6 && generatedPresupuestoId && (
+                <div className="fixed bottom-0 left-0 right-0 z-50 p-3 bg-slate-950/95 border-t-2 border-amber-400/40 backdrop-blur-xl shadow-2xl lg:hidden animate-in slide-in-from-bottom-4 duration-300">
+                    <div className="flex items-center justify-between gap-2 max-w-md mx-auto">
+                        <div className="min-w-0 flex-1 text-left">
+                            <p className="text-[10px] font-black text-emerald-400 uppercase tracking-widest truncate">✅ Presupuesto listo</p>
+                            <p className="text-xs font-black text-white truncate">{formatCurrency(stats.totalFinal)}</p>
+                        </div>
+                        <div className="flex items-center gap-2 shrink-0">
+                            <Button
+                                size="sm"
+                                variant="outline"
+                                onClick={handleDownloadBudgetPdf}
+                                disabled={isDownloadingPdf}
+                                className="h-11 px-3.5 rounded-xl border-slate-700 bg-slate-900 text-white font-black text-xs gap-1.5 shadow-md"
+                            >
+                                {isDownloadingPdf ? <Loader2 className="w-4 h-4 animate-spin" /> : <FileDown className="w-4 h-4 text-amber-400" />}
+                                <span>PDF</span>
+                            </Button>
+                            <Button
+                                size="sm"
+                                onClick={handleShareBudgetWhatsApp}
+                                className="h-11 px-4 rounded-xl bg-gradient-to-r from-emerald-600 to-emerald-500 hover:from-emerald-700 hover:to-emerald-600 text-white font-black text-xs gap-1.5 shadow-lg"
+                            >
+                                <MessageSquare className="w-4 h-4" />
+                                <span>WhatsApp</span>
+                            </Button>
+                        </div>
+                    </div>
+                </div>
+            )}
+
+            {/* Sticky Mobile Total Bar — Step 5 (reviewing budget) */}
+            {step === 5 && (
+                <div className="fixed bottom-0 left-0 right-0 z-50 p-3 bg-slate-950/95 border-t border-slate-800 backdrop-blur-xl shadow-2xl lg:hidden animate-in slide-in-from-bottom-4 duration-300">
+                    <div className="flex items-center justify-between gap-2 max-w-md mx-auto">
+                        <div className="min-w-0 flex-1 text-left">
+                            <p className="text-[10px] font-black text-amber-400 uppercase tracking-widest truncate">📋 Tu presupuesto actual</p>
+                            <p className="text-xs font-black text-white truncate">{formatCurrency(stats.totalFinal)} · {formatCurrency(stats.precioPorPersona)} p/p</p>
+                        </div>
+                        <Button
+                            size="sm"
+                            onClick={() => handleNext()}
+                            disabled={isGenerating}
+                            className="h-11 px-5 rounded-xl bg-gradient-to-r from-red-600 to-amber-500 hover:from-red-700 hover:to-amber-600 text-white font-black text-xs gap-1.5 shadow-lg shrink-0"
+                        >
+                            {isGenerating ? <Loader2 className="w-4 h-4 animate-spin" /> : <Zap className="w-4 h-4" />}
+                            <span>Generar</span>
+                        </Button>
+                    </div>
+                </div>
+            )}
         </div>
     );
 }
