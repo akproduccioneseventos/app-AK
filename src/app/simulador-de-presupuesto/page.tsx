@@ -1529,7 +1529,41 @@ function SimuladorContent() {
                                 <p className="text-slate-500 font-medium max-w-md mx-auto leading-relaxed mb-6">
                                     {budgetSettings.successMessage}
                                 </p>
-                            </div>
+                             {/* Non-invasive Auto-Save & Contact Banner */}
+                             <div className="w-full max-w-2xl mx-auto rounded-2xl border border-emerald-500/30 bg-gradient-to-r from-slate-950 via-slate-900 to-slate-950 p-5 text-white shadow-xl flex flex-col sm:flex-row items-center justify-between gap-4 text-left">
+                                 <div className="flex items-center gap-3.5">
+                                     <div className="grid h-11 w-11 place-items-center rounded-2xl bg-emerald-500/20 border border-emerald-400/40 text-emerald-400 shrink-0 shadow-inner">
+                                         <CheckCircle2 className="w-6 h-6 text-emerald-400" />
+                                     </div>
+                                     <div>
+                                         <h4 className="text-xs font-black uppercase tracking-wider text-emerald-300 flex items-center gap-2">
+                                             ✅ Presupuesto registrado con éxito
+                                         </h4>
+                                         <p className="text-xs text-slate-300 font-semibold mt-0.5">
+                                             Guardá tu copia oficial en PDF o hablá directo con AK por WhatsApp para congelar la tarifa.
+                                         </p>
+                                     </div>
+                                 </div>
+                                 <div className="flex items-center gap-2 w-full sm:w-auto shrink-0">
+                                     <Button
+                                         type="button"
+                                         onClick={handleDownloadBudgetPdf}
+                                         disabled={isDownloadingPdf}
+                                         className="flex-1 sm:flex-none h-11 px-4 rounded-xl bg-slate-800 hover:bg-slate-700 text-white font-black text-xs gap-2 border border-slate-700 shadow-md transition"
+                                     >
+                                         {isDownloadingPdf ? <Loader2 className="w-4 h-4 animate-spin" /> : <FileDown className="w-4 h-4 text-amber-400" />}
+                                         <span>Guardar PDF</span>
+                                     </Button>
+                                     <Button
+                                         type="button"
+                                         onClick={handleShareBudgetWhatsApp}
+                                         className="flex-1 sm:flex-none h-11 px-4 rounded-xl bg-gradient-to-r from-emerald-600 to-emerald-500 hover:from-emerald-700 hover:to-emerald-600 text-white font-black text-xs gap-2 shadow-lg transition transform hover:scale-105"
+                                     >
+                                         <MessageSquare className="w-4 h-4" />
+                                         <span>WhatsApp AK</span>
+                                     </Button>
+                                 </div>
+                             </div>
 
                             <div className="mx-auto w-full max-w-lg space-y-4 rounded-2xl border-2 border-red-500/40 bg-gradient-to-br from-red-50 via-white to-amber-50 p-6 text-left shadow-lg relative overflow-hidden animate-pulse">
                                 <div className="flex items-center justify-between border-b border-red-200 pb-3">
@@ -2872,55 +2906,75 @@ function SimuladorContent() {
                 </DialogContent>
             </Dialog>
 
-            {/* Interactive Upgrade Prompt Modal */}
+            {/* Dynamic Package-Specific Upgrade Prompt Modal */}
             <Dialog open={isUpgradePromptOpen} onOpenChange={setIsUpgradePromptOpen}>
                 <DialogContent className="max-w-md rounded-3xl bg-slate-950 text-white p-6 border-2 border-amber-400 shadow-2xl">
                     <DialogHeader className="text-left space-y-2">
                         <div className="inline-flex items-center gap-2 rounded-full border border-amber-400/50 bg-amber-500/20 px-3.5 py-1 text-[10px] font-black uppercase tracking-widest text-amber-300 backdrop-blur-md">
                             <Zap className="w-4 h-4 text-amber-400 fill-amber-400 animate-bounce" />
-                            ⚡ Recomendación VIP para tu Fiesta
+                            ⚡ UPGRADE PARA TU {config?.paquetes?.find(p => p.id === selectedPaqueteId)?.nombre || 'PAQUETE ELEGIDO'}
                         </div>
                         <DialogTitle className="text-xl font-black text-white leading-tight">
-                            ¿Querés sumar experiencias exclusivas a tu presupuesto?
+                            {tierMissingData.missingServices.length > 0
+                                ? `¿Querés sumar los extras del Plan ${tierMissingData.nextPackageName}?`
+                                : `🌟 ¡Elegiste la propuesta más completa para tu fiesta!`}
                         </DialogTitle>
                         <DialogDescription className="text-xs font-semibold text-slate-300 leading-relaxed">
-                            Potenciá tu fiesta sumando el <strong className="text-amber-300">Muro Social Interactivo en Pantalla Gigante</strong>, <strong className="text-purple-300">Fotocabina VIP 360</strong> o <strong className="text-emerald-300">Barra Premium de Tragos</strong> antes de descargar tu PDF oficial.
+                            {tierMissingData.missingServices.length > 0
+                                ? `El Plan ${tierMissingData.nextPackageName} incluye servicios clave para potenciar la ambientación y diversión de tus invitados.`
+                                : `Tenés la cobertura más avanzada de AK Producciones. Podés descargar tu presupuesto oficial en PDF o coordinar con nuestro equipo por WhatsApp.`}
                         </DialogDescription>
                     </DialogHeader>
 
-                    <div className="my-3 space-y-2 text-left">
-                        <div className="p-4 rounded-2xl border border-amber-400/40 bg-gradient-to-r from-amber-500/10 via-amber-400/5 to-transparent flex items-center justify-between text-xs">
-                            <div>
-                                <span className="font-black text-white block text-xs">Muro Social Interactivo + Pase QR</span>
-                                <span className="text-[10px] text-amber-200 font-bold">Tus invitados suben fotos en vivo a pantalla gigante</span>
-                            </div>
-                            <Badge className="bg-amber-400 text-slate-950 font-black text-[9px] uppercase shrink-0">Más Elegido</Badge>
+                    {tierMissingData.missingServices.length > 0 && (
+                        <div className="my-3 space-y-2 text-left">
+                            {tierMissingData.missingServices.slice(0, 2).map(service => {
+                                const calculated = getSimulatorServiceCalculatedData(service, adultos, ninosYAdolescentes);
+                                return (
+                                    <div key={service.id} className="p-3.5 rounded-2xl border border-amber-400/40 bg-gradient-to-r from-amber-500/10 via-amber-400/5 to-transparent flex items-center justify-between text-xs">
+                                        <div className="min-w-0 flex-1 pr-2">
+                                            <span className="font-black text-white block text-xs truncate">{service.nombre}</span>
+                                            <span className="text-[10px] text-amber-300 font-bold">+{formatCurrency(calculated.total)}</span>
+                                        </div>
+                                        <Badge className="bg-amber-400 text-slate-950 font-black text-[9px] uppercase shrink-0">Incluido en {tierMissingData.nextPackageName}</Badge>
+                                    </div>
+                                );
+                            })}
                         </div>
-                    </div>
+                    )}
 
                     <DialogFooter className="flex flex-col gap-2 sm:flex-col mt-2">
-                        <Button
-                            type="button"
-                            onClick={() => {
-                                setIsUpgradePromptOpen(false);
-                                const el = document.getElementById('search-additional-services');
-                                if (el) el.scrollIntoView({ behavior: 'smooth' });
-                                toast({
-                                    title: "Explorá servicios adicionales",
-                                    description: "Sumá servicios extra directamente desde el buscador.",
-                                });
-                            }}
-                            className="w-full h-12 bg-gradient-to-r from-amber-400 via-amber-300 to-amber-500 hover:from-amber-300 hover:to-amber-400 text-slate-950 font-black text-xs uppercase tracking-wider rounded-2xl shadow-xl transition transform hover:scale-105"
-                        >
-                            ⚡ Ver Servicios Adicionales en mi Presupuesto
-                        </Button>
+                        {tierMissingData.targetPackageId ? (
+                            <Button
+                                type="button"
+                                onClick={() => {
+                                    handleSwitchPackage(tierMissingData.targetPackageId!);
+                                    setIsUpgradePromptOpen(false);
+                                    toast({
+                                        title: `Actualizado a Plan ${tierMissingData.nextPackageName}`,
+                                        description: "Se incluyeron todos los servicios adicionales del paquete superior.",
+                                    });
+                                }}
+                                className="w-full h-12 bg-gradient-to-r from-amber-400 via-amber-300 to-amber-500 hover:from-amber-300 hover:to-amber-400 text-slate-950 font-black text-xs uppercase tracking-wider rounded-2xl shadow-xl transition transform hover:scale-105"
+                            >
+                                ⚡ Pasarme al Plan {tierMissingData.nextPackageName} con 1-Click
+                            </Button>
+                        ) : (
+                            <Button
+                                type="button"
+                                onClick={() => setIsUpgradePromptOpen(false)}
+                                className="w-full h-12 bg-gradient-to-r from-emerald-500 to-emerald-600 hover:from-emerald-400 hover:to-emerald-500 text-white font-black text-xs uppercase tracking-wider rounded-2xl shadow-xl"
+                            >
+                                Ver Presupuesto Completo →
+                            </Button>
+                        )}
                         <Button
                             type="button"
                             variant="ghost"
                             onClick={() => setIsUpgradePromptOpen(false)}
                             className="w-full text-slate-400 hover:text-white font-bold text-xs"
                         >
-                            Continuar a mi Presupuesto Final →
+                            Mantener mi selección actual
                         </Button>
                     </DialogFooter>
                 </DialogContent>
