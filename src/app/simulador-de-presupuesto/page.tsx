@@ -1834,79 +1834,139 @@ function SimuladorContent() {
 
                 <CardContent className="p-6 sm:p-10">
                     {step === 1 && (
-                        <div className="space-y-8 animate-in fade-in slide-in-from-bottom-4 duration-500 max-w-3xl mx-auto py-2">
-                            {/* Hero PRO Card with Generated Image */}
-                            <div className="relative overflow-hidden rounded-3xl border border-slate-200 bg-slate-950 text-white shadow-2xl">
-                                <div className="relative aspect-[16/9] w-full overflow-hidden">
+                        <div className="space-y-8 animate-in fade-in slide-in-from-bottom-4 duration-500 max-w-4xl mx-auto py-2 text-left">
+                            {/* Hero PRO Card with Nano Banana Image & Neurosales Headline */}
+                            <div className="relative overflow-hidden rounded-3xl border border-slate-900 bg-slate-950 text-white shadow-2xl">
+                                <div className="relative min-h-[340px] sm:min-h-[420px] w-full overflow-hidden flex flex-col justify-end p-6 sm:p-10">
                                     {/* eslint-disable-next-line @next/next/no-img-element */}
                                     <img
                                         src="/media/catalogo-servicios/simulador_hero_pro.jpg"
-                                        alt="Fiesta de ensueño por AK Producciones"
-                                        className="h-full w-full object-cover transition-transform duration-700 hover:scale-105"
+                                        alt="AK Producciones - Tu evento soñado en Salto"
+                                        className="absolute inset-0 h-full w-full object-cover object-center opacity-50 scale-105 transition-transform duration-1000"
                                     />
-                                    <div className="absolute inset-0 bg-gradient-to-t from-slate-950 via-slate-950/60 to-transparent p-6 sm:p-10 flex flex-col justify-end">
-                                        <div className="inline-flex items-center gap-2 rounded-full border border-amber-400/40 bg-amber-500/20 px-3.5 py-1 text-[11px] font-black uppercase tracking-widest text-amber-300 backdrop-blur-md self-start mb-3">
-                                            <Sparkles className="h-3.5 w-3.5 text-amber-400" />
-                                            Simulador Oficial AK Producciones
+                                    <div className="absolute inset-0 bg-gradient-to-t from-slate-950 via-slate-950/75 to-slate-950/20" />
+                                    
+                                    <div className="relative z-10 space-y-4">
+                                        <div className="inline-flex items-center gap-2 rounded-full border border-amber-400/50 bg-amber-500/20 px-4 py-1.5 text-xs font-black uppercase tracking-widest text-amber-300 backdrop-blur-md">
+                                            <Sparkles className="h-4 w-4 text-amber-400" />
+                                            Presupuesto Transparente · AK Producciones Salto
                                         </div>
-                                        <h2 className="font-headline text-2xl sm:text-4xl font-black leading-tight text-white tracking-tight">
-                                            Tu fiesta soñada en Salto, planificada con cotización inmediata y garantía total
-                                        </h2>
-                                        <p className="mt-3 text-xs sm:text-base font-medium text-slate-200 leading-relaxed max-w-2xl">
-                                            Sin sorpresas ni presupuestos incompletos. Elegí tus gustos, descubrí promociones exclusivas y cotizá en 2 minutos todo tu evento en un solo lugar.
+                                        
+                                        <h1 className="font-headline text-2xl sm:text-4xl font-black leading-tight text-white tracking-tight">
+                                            Diseñá tu fiesta inolvidable en Salto sin estrés, con costo real y garantía absoluta
+                                        </h1>
+                                        
+                                        <p className="text-xs sm:text-base font-semibold text-slate-200 leading-relaxed max-w-2xl">
+                                            Olvidate de contratar 10 proveedores distintos y sufrir sorpresas a último momento. Con AK Producciones tenés gastronomía propia, discoteca VIP, luces robotizadas, salón emblemático y tecnología interactiva coordinados por un único equipo responsable.
                                         </p>
+
+                                        <div className="pt-2 flex flex-col sm:flex-row items-stretch sm:items-center gap-3">
+                                            <Button
+                                                type="button"
+                                                onClick={() => setStep(2)}
+                                                className="h-14 px-8 rounded-2xl bg-gradient-to-r from-red-600 to-amber-500 hover:from-red-700 hover:to-amber-600 text-white font-black text-xs sm:text-sm uppercase tracking-widest shadow-xl transition-all transform hover:scale-105 active:scale-95 flex items-center justify-center gap-3"
+                                            >
+                                                <span>Cotizar Mi Fiesta en 2 Minutos</span>
+                                                <ArrowRight className="w-5 h-5" />
+                                            </Button>
+                                            <span className="text-[11px] font-bold text-slate-300 flex items-center gap-1.5 justify-center">
+                                                <ShieldCheck className="w-4 h-4 text-emerald-400 shrink-0" />
+                                                Sin compromiso · Guardado automático
+                                            </span>
+                                        </div>
                                     </div>
                                 </div>
                             </div>
 
-                            {/* Key Value Proposition Grid */}
-                            <div className="grid gap-4 sm:grid-cols-2 text-left">
-                                <div className="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm hover:border-red-200 hover:shadow-md transition">
-                                    <div className="flex items-center gap-3 mb-2">
-                                        <div className="grid h-10 w-10 place-items-center rounded-xl bg-red-50 text-red-700">
-                                            <PartyPopper className="w-5 h-5" />
-                                        </div>
-                                        <h4 className="font-black text-slate-900 text-sm">Producción Integral AK</h4>
-                                    </div>
-                                    <p className="text-xs text-slate-600 font-medium leading-relaxed">
-                                        Gastronomía, barra de tragos, discoteca, luces robotizadas, decoración y coordinación profesional sin intermediarios.
-                                    </p>
+                            {/* Neuro-Differentiators Grid */}
+                            <div className="space-y-4">
+                                <div className="flex items-center justify-between border-b border-slate-200 pb-3">
+                                    <h3 className="text-lg font-black uppercase tracking-tight text-slate-900 flex items-center gap-2">
+                                        <Star className="w-5 h-5 text-amber-500 fill-amber-500" /> Lo que nos diferencia y te garantiza tranquilidad total
+                                    </h3>
+                                    <span className="text-xs font-bold text-slate-500 hidden sm:inline-block">Garantía In-House AK</span>
                                 </div>
 
-                                <div className="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm hover:border-red-200 hover:shadow-md transition">
-                                    <div className="flex items-center gap-3 mb-2">
-                                        <div className="grid h-10 w-10 place-items-center rounded-xl bg-purple-50 text-purple-700">
-                                            <Sparkles className="w-5 h-5" />
+                                <div className="grid gap-4 sm:grid-cols-2">
+                                    <div className="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm hover:border-red-300 hover:shadow-md transition space-y-2">
+                                        <div className="flex items-center gap-3">
+                                            <div className="grid h-10 w-10 place-items-center rounded-xl bg-red-100 text-red-700 font-black">
+                                                <PartyPopper className="w-5 h-5" />
+                                            </div>
+                                            <div>
+                                                <h4 className="font-black text-slate-900 text-sm">Un Solo Equipo, Cero Estrés</h4>
+                                                <p className="text-[11px] font-bold text-red-600">Producción 100% propia in-house</p>
+                                            </div>
                                         </div>
-                                        <h4 className="font-black text-slate-900 text-sm">Experiencia VIP & Tecnología</h4>
+                                        <p className="text-xs text-slate-600 font-semibold leading-relaxed pt-1">
+                                            El día de tu fiesta tu única tarea es disfrutar. No dependés de terceros que se culpen entre sí: gastronomía, DJ, luces robotizadas, ambientación y coordinación técnica corren por nuestra cuenta.
+                                        </p>
                                     </div>
-                                    <p className="text-xs text-slate-600 font-medium leading-relaxed">
-                                        Portal del cliente, muro social interactivo en pantalla, invitaciones web con QR, fotocabinas y plataforma 360.
-                                    </p>
+
+                                    <div className="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm hover:border-amber-300 hover:shadow-md transition space-y-2">
+                                        <div className="flex items-center gap-3">
+                                            <div className="grid h-10 w-10 place-items-center rounded-xl bg-amber-100 text-amber-800 font-black">
+                                                <UtensilsCrossed className="w-5 h-5" />
+                                            </div>
+                                            <div>
+                                                <h4 className="font-black text-slate-900 text-sm">Gastronomía Exquisita & Abundante</h4>
+                                                <p className="text-[11px] font-bold text-amber-700">Calidad y cantidad garantizadas</p>
+                                            </div>
+                                        </div>
+                                        <p className="text-xs text-slate-600 font-semibold leading-relaxed pt-1">
+                                            Recepción completa, plato principal caliente, mesa buffet, postres de autor y trasnoche servidos con la máxima exigencia para que nadie se quede con hambre ni dudas.
+                                        </p>
+                                    </div>
+
+                                    <div className="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm hover:border-purple-300 hover:shadow-md transition space-y-2">
+                                        <div className="flex items-center gap-3">
+                                            <div className="grid h-10 w-10 place-items-center rounded-xl bg-purple-100 text-purple-700 font-black">
+                                                <Sparkles className="w-5 h-5" />
+                                            </div>
+                                            <div>
+                                                <h4 className="font-black text-slate-900 text-sm">Experiencia VIP & Tecnología Única</h4>
+                                                <p className="text-[11px] font-bold text-purple-600">Muro Social & Pase QR Individual</p>
+                                            </div>
+                                        </div>
+                                        <p className="text-xs text-slate-600 font-semibold leading-relaxed pt-1">
+                                            Hacé que tu evento sea inolvidable: Muro Social interactivo en pantalla gigante donde tus invitados suben fotos en vivo, pases QR en celular, fotocabinas y Portal del Cliente.
+                                        </p>
+                                    </div>
+
+                                    <div className="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm hover:border-emerald-300 hover:shadow-md transition space-y-2">
+                                        <div className="flex items-center gap-3">
+                                            <div className="grid h-10 w-10 place-items-center rounded-xl bg-emerald-100 text-emerald-800 font-black">
+                                                <ShieldCheck className="w-5 h-5" />
+                                            </div>
+                                            <div>
+                                                <h4 className="font-black text-slate-900 text-sm">Transparencia & Precios Congelados</h4>
+                                                <p className="text-[11px] font-bold text-emerald-600">Sin letras chicas ni cargos sorpresa</p>
+                                            </div>
+                                        </div>
+                                        <p className="text-xs text-slate-600 font-semibold leading-relaxed pt-1">
+                                            Tranquilidad absoluta para tu presupuesto: precios transparentes, congelación de tarifa anual y facilidades de seña en cuotas respaldadas por contrato.
+                                        </p>
+                                    </div>
                                 </div>
 
-                                <div className="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm hover:border-red-200 hover:shadow-md transition">
-                                    <div className="flex items-center gap-3 mb-2">
-                                        <div className="grid h-10 w-10 place-items-center rounded-xl bg-emerald-50 text-emerald-700">
-                                            <ShieldCheck className="w-5 h-5" />
+                                {/* Exclusive Club Uruguay Banner */}
+                                <div className="rounded-2xl border border-amber-300 bg-gradient-to-r from-amber-500/10 via-amber-400/5 to-slate-50 p-5 flex flex-col sm:flex-row items-center justify-between gap-4">
+                                    <div className="flex items-center gap-3">
+                                        <div className="grid h-11 w-11 place-items-center rounded-xl bg-amber-400 text-slate-950 font-black shrink-0 shadow-md">
+                                            <Building2 className="w-6 h-6" />
                                         </div>
-                                        <h4 className="font-black text-slate-900 text-sm">Transparencia & Precios Congelados</h4>
-                                    </div>
-                                    <p className="text-xs text-slate-600 font-medium leading-relaxed">
-                                        Precios garantizados, condiciones claras de reserva en cuotas y sin sorpresas de último momento.
-                                    </p>
-                                </div>
-
-                                <div className="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm hover:border-red-200 hover:shadow-md transition">
-                                    <div className="flex items-center gap-3 mb-2">
-                                        <div className="grid h-10 w-10 place-items-center rounded-xl bg-amber-50 text-amber-700">
-                                            <Building2 className="w-5 h-5" />
+                                        <div>
+                                            <h4 className="font-black text-slate-900 text-sm">Locación Emblemática: Salón Club Uruguay 50% OFF</h4>
+                                            <p className="text-xs text-slate-600 font-semibold">Al contratar la producción integral de tu fiesta con AK, accedés al salón más prestigioso y céntrico de Salto con bonificación exclusiva del 50%.</p>
                                         </div>
-                                        <h4 className="font-black text-slate-900 text-sm">Salón Club Uruguay (50% OFF)</h4>
                                     </div>
-                                    <p className="text-xs text-slate-600 font-medium leading-relaxed">
-                                        Accedé a la locación más icónica y céntrica de Salto con bonificación especial al contratar tu fiesta integral.
-                                    </p>
+                                    <Button
+                                        type="button"
+                                        onClick={() => setStep(2)}
+                                        className="h-12 px-6 rounded-xl bg-slate-950 hover:bg-slate-800 text-white font-black text-xs uppercase tracking-wider shrink-0 transition shadow-md"
+                                    >
+                                        Cotizar Ahora →
+                                    </Button>
                                 </div>
                             </div>
                         </div>
