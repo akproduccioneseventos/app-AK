@@ -2283,13 +2283,13 @@ function SimuladorContent() {
 
                                     return (
                                         <label key={p.id} className={cn(
-                                            "relative flex cursor-pointer flex-col gap-4 overflow-hidden rounded-md border p-6 transition-colors sm:p-8",
-                                            selectedPaqueteId === p.id ? "border-red-700 bg-red-50" : "border-slate-200 bg-white hover:border-slate-400",
-                                            p.recommended && selectedPaqueteId !== p.id && "border-slate-400 bg-slate-50"
+                                            "relative flex cursor-pointer flex-col gap-4 overflow-hidden rounded-2xl border p-6 transition-all duration-300 sm:p-8",
+                                            selectedPaqueteId === p.id ? "border-2 border-red-600 bg-red-50/90 shadow-xl" : "border-slate-200 bg-white hover:border-slate-400",
+                                            p.recommended && selectedPaqueteId !== p.id && "border-2 border-amber-400 bg-gradient-to-br from-amber-500/10 via-amber-400/5 to-white shadow-xl shadow-amber-500/20"
                                         )}>
                                             {p.recommended && (
-                                                <div className="absolute right-3 top-3 z-10 rounded-sm bg-slate-900 px-4 py-1.5 text-[8px] font-bold uppercase tracking-widest text-white sm:text-[9px]">
-                                                    Más elegido
+                                                <div className="absolute -top-3.5 right-4 z-20 flex items-center gap-1.5 rounded-full bg-gradient-to-r from-amber-400 via-amber-300 to-amber-500 px-3.5 py-1 text-[10px] font-black uppercase tracking-wider text-slate-950 shadow-lg shadow-amber-500/40 border border-amber-200 animate-pulse">
+                                                    <Sparkles className="w-3.5 h-3.5 text-slate-950 shrink-0" /> ⭐ RECOMENDADO PRO · MÁS ELEGIDO
                                                 </div>
                                             )}
                                             <div className="flex items-start justify-between">
@@ -2570,24 +2570,28 @@ function SimuladorContent() {
                                     </h4>
 
                                     {tierMissingData.missingServices.length > 0 && (
-                                        <div className="rounded-3xl border border-red-500 bg-gradient-to-r from-red-700 via-red-600 to-rose-700 p-6 text-white shadow-xl space-y-4 text-left">
-                                            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 border-b border-white/20 pb-3">
-                                                <div className="flex items-center gap-2">
-                                                    <div className="grid h-8 w-8 place-items-center rounded-xl bg-white/20">
-                                                        <Zap className="w-5 h-5 text-amber-300 fill-amber-300 animate-bounce" />
+                                        <div className="rounded-3xl border-2 border-amber-400 bg-gradient-to-r from-red-800 via-red-700 to-rose-800 p-6 text-white shadow-2xl space-y-4 text-left animate-in fade-in duration-300">
+                                            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-white/20 pb-4">
+                                                <div className="flex items-center gap-3">
+                                                    <div className="grid h-10 w-10 place-items-center rounded-2xl bg-amber-400 text-slate-950 font-black shrink-0 shadow-lg">
+                                                        <Zap className="w-6 h-6 text-slate-950 fill-slate-950 animate-bounce" />
                                                     </div>
                                                     <div>
-                                                        <h4 className="text-sm font-black uppercase tracking-wider text-white">⚡ Subí de nivel al Plan {tierMissingData.nextPackageName}</h4>
-                                                        <p className="text-xs text-white/80 font-medium">Te faltan estos servicios para alcanzar la cobertura del plan {tierMissingData.nextPackageName}:</p>
+                                                        <h4 className="text-base font-black uppercase tracking-wide text-amber-300 flex items-center gap-2">
+                                                            🔥 ¡Subí tu evento al Plan {tierMissingData.nextPackageName}!
+                                                        </h4>
+                                                        <p className="text-xs text-white/90 font-semibold mt-0.5">
+                                                            Llevá tu fiesta al siguiente nivel. Agregá estos servicios clave incluidos en el paquete {tierMissingData.nextPackageName} y asegurá una experiencia inolvidable para todos tus invitados:
+                                                        </p>
                                                     </div>
                                                 </div>
                                                 {tierMissingData.targetPackageId && (
                                                     <Button
                                                         type="button"
                                                         onClick={() => handleSwitchPackage(tierMissingData.targetPackageId)}
-                                                        className="h-10 px-4 rounded-xl bg-amber-400 hover:bg-amber-300 text-slate-950 font-black text-xs uppercase tracking-wider shadow-lg transition active:scale-95 shrink-0"
+                                                        className="h-12 px-6 rounded-2xl bg-gradient-to-r from-amber-400 via-amber-300 to-amber-500 hover:from-amber-300 hover:to-amber-400 text-slate-950 font-black text-xs uppercase tracking-wider shadow-xl transition-all transform hover:scale-105 active:scale-95 shrink-0"
                                                     >
-                                                        ⚡ Cambiar a Plan {tierMissingData.nextPackageName}
+                                                        ⚡ Pasarme al Plan {tierMissingData.nextPackageName}
                                                     </Button>
                                                 )}
                                             </div>
@@ -2601,23 +2605,23 @@ function SimuladorContent() {
                                                             key={service.id}
                                                             className={cn(
                                                                 "flex items-center justify-between gap-3 rounded-2xl p-4 transition-all border",
-                                                                isSelected ? "bg-emerald-500/20 border-emerald-400 text-white" : "bg-white/10 border-white/20 text-white hover:bg-white/20"
+                                                                isSelected ? "bg-emerald-500/25 border-emerald-400 text-white shadow-lg" : "bg-black/30 border-white/20 text-white hover:bg-black/40 hover:border-amber-300/50"
                                                             )}
                                                         >
                                                             <div className="min-w-0 flex-1">
                                                                 <span className="block font-black text-xs text-white truncate">{service.nombre}</span>
-                                                                <span className="block text-[10px] text-amber-200 font-bold mt-0.5">+{formatCurrency(calculated.total)}</span>
+                                                                <span className="block text-[10px] text-amber-300 font-black mt-0.5">+{formatCurrency(calculated.total)}</span>
                                                             </div>
                                                             <Button
                                                                 type="button"
                                                                 size="sm"
                                                                 onClick={() => handleToggleServiceInBudget(service.id, isSelected ? 'exclude' : 'include')}
                                                                 className={cn(
-                                                                    "h-8 px-3 text-xs font-black rounded-xl transition shrink-0",
-                                                                    isSelected ? "bg-emerald-500 hover:bg-emerald-600 text-slate-950" : "bg-white text-slate-950 hover:bg-amber-400"
+                                                                    "h-9 px-4 text-xs font-black rounded-xl transition shadow-md shrink-0",
+                                                                    isSelected ? "bg-emerald-500 hover:bg-emerald-600 text-slate-950" : "bg-amber-400 hover:bg-amber-300 text-slate-950"
                                                                 )}
                                                             >
-                                                                {isSelected ? 'Agregado ✓' : 'Agregar +'}
+                                                                {isSelected ? 'Agregado ✓' : 'Sumar +'}
                                                             </Button>
                                                         </div>
                                                     );
