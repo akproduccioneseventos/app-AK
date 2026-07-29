@@ -27,6 +27,7 @@ import {
     MapPin,
     PackageCheck,
     Utensils,
+    UtensilsCrossed,
     X,
     MessageSquare,
     Sparkles,
@@ -1529,6 +1530,8 @@ function SimuladorContent() {
                                 <p className="text-slate-500 font-medium max-w-md mx-auto leading-relaxed mb-6">
                                     {budgetSettings.successMessage}
                                 </p>
+                            </div>
+
                              {/* Non-invasive Auto-Save & Contact Banner */}
                              <div className="w-full max-w-2xl mx-auto rounded-2xl border border-emerald-500/30 bg-gradient-to-r from-slate-950 via-slate-900 to-slate-950 p-5 text-white shadow-xl flex flex-col sm:flex-row items-center justify-between gap-4 text-left">
                                  <div className="flex items-center gap-3.5">
@@ -2609,7 +2612,7 @@ function SimuladorContent() {
                             <div className="space-y-6 rounded-md border border-slate-200 bg-white p-6">
                                 <div className="space-y-4">
                                     <h4 className="font-black text-slate-800 uppercase text-xs tracking-wider flex items-center gap-2">
-                                        <Search className="w-[18px] h-[18px] text-slate-500"/> ¿Querés agregar algún servicio extra?
+                                        <Search className="w-[18px] h-[18px] text-slate-500"/> Personalizá tu fiesta con más servicios
                                     </h4>
 
                                     {tierMissingData.missingServices.length > 0 && (
@@ -2980,13 +2983,13 @@ function SimuladorContent() {
                 </DialogContent>
             </Dialog>
 
-            {/* Sticky Mobile Conversion Bar on Step 5 */}
-            {step === 5 && (
+            {/* Sticky Mobile Conversion Bar — Step 6 (budget generated) */}
+            {step === 6 && generatedPresupuestoId && (
                 <div className="fixed bottom-0 left-0 right-0 z-50 p-3 bg-slate-950/95 border-t-2 border-amber-400/40 backdrop-blur-xl shadow-2xl lg:hidden animate-in slide-in-from-bottom-4 duration-300">
                     <div className="flex items-center justify-between gap-2 max-w-md mx-auto">
                         <div className="min-w-0 flex-1 text-left">
-                            <p className="text-[10px] font-black text-amber-400 uppercase tracking-widest truncate">📲 Guardá tu propuesta</p>
-                            <p className="text-xs font-black text-white truncate">{formatCurrency(stats.totalFinal)} total</p>
+                            <p className="text-[10px] font-black text-emerald-400 uppercase tracking-widest truncate">✅ Presupuesto listo</p>
+                            <p className="text-xs font-black text-white truncate">{formatCurrency(stats.totalFinal)}</p>
                         </div>
                         <div className="flex items-center gap-2 shrink-0">
                             <Button
@@ -3002,12 +3005,33 @@ function SimuladorContent() {
                             <Button
                                 size="sm"
                                 onClick={handleShareBudgetWhatsApp}
-                                className="h-11 px-4 rounded-xl bg-gradient-to-r from-emerald-600 to-emerald-500 hover:from-emerald-700 hover:to-emerald-600 text-white font-black text-xs gap-1.5 shadow-lg animate-pulse"
+                                className="h-11 px-4 rounded-xl bg-gradient-to-r from-emerald-600 to-emerald-500 hover:from-emerald-700 hover:to-emerald-600 text-white font-black text-xs gap-1.5 shadow-lg"
                             >
                                 <MessageSquare className="w-4 h-4" />
                                 <span>WhatsApp</span>
                             </Button>
                         </div>
+                    </div>
+                </div>
+            )}
+
+            {/* Sticky Mobile Total Bar — Step 5 (reviewing budget) */}
+            {step === 5 && (
+                <div className="fixed bottom-0 left-0 right-0 z-50 p-3 bg-slate-950/95 border-t border-slate-800 backdrop-blur-xl shadow-2xl lg:hidden animate-in slide-in-from-bottom-4 duration-300">
+                    <div className="flex items-center justify-between gap-2 max-w-md mx-auto">
+                        <div className="min-w-0 flex-1 text-left">
+                            <p className="text-[10px] font-black text-amber-400 uppercase tracking-widest truncate">📋 Tu presupuesto actual</p>
+                            <p className="text-xs font-black text-white truncate">{formatCurrency(stats.totalFinal)} · {formatCurrency(stats.precioPorPersona)} p/p</p>
+                        </div>
+                        <Button
+                            size="sm"
+                            onClick={() => handleNext()}
+                            disabled={isGenerating}
+                            className="h-11 px-5 rounded-xl bg-gradient-to-r from-red-600 to-amber-500 hover:from-red-700 hover:to-amber-600 text-white font-black text-xs gap-1.5 shadow-lg shrink-0"
+                        >
+                            {isGenerating ? <Loader2 className="w-4 h-4 animate-spin" /> : <Zap className="w-4 h-4" />}
+                            <span>Generar</span>
+                        </Button>
                     </div>
                 </div>
             )}
