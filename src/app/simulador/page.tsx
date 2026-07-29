@@ -78,22 +78,22 @@ export default async function SimulatorHubPage(props: SimulatorHubProps) {
             Simulador Oficial AK Producciones · Salto, Uruguay
           </div>
           <h1 className="max-w-4xl font-headline text-3xl font-black leading-tight text-white sm:text-6xl tracking-tight">
-            La fiesta de tus sueños, planificada con garantía total de excelencia
+            Diseñá tu fiesta inolvidable en Salto sin estrés, con costo real y garantía absoluta
           </h1>
           <p className="mt-4 max-w-3xl text-base font-semibold leading-relaxed text-slate-200 sm:text-xl">
-            Sin sorpresas ni presupuestos incompletos. Elegí cómo preferís armar tu cotización instantánea y descubrí los beneficios exclusivos de contratar con AK Producciones.
+            Olvidate de contratar 10 proveedores distintos y sufrir sorpresas a último momento. Con AK Producciones tenés gastronomía propia, discoteca VIP, luces robotizadas, salón emblemático y tecnología interactiva coordinados por un único equipo responsable.
           </p>
 
           {/* Quick Value Badges */}
           <div className="mt-8 flex flex-wrap gap-3 text-xs font-bold text-slate-300">
             <span className="flex items-center gap-1.5 rounded-full bg-slate-900/80 px-3.5 py-1.5 border border-slate-700">
-              <PartyPopper className="h-4 w-4 text-red-500" /> Producción Integral AK
+              <PartyPopper className="h-4 w-4 text-red-500" /> Producción 100% In-House (Cero Estrés)
             </span>
             <span className="flex items-center gap-1.5 rounded-full bg-slate-900/80 px-3.5 py-1.5 border border-slate-700">
               <Building2 className="h-4 w-4 text-amber-400" /> Salón Club Uruguay 50% OFF
             </span>
             <span className="flex items-center gap-1.5 rounded-full bg-slate-900/80 px-3.5 py-1.5 border border-slate-700">
-              <Zap className="h-4 w-4 text-emerald-400" /> Precios Congelados
+              <Zap className="h-4 w-4 text-emerald-400" /> Precios Congelados & Seña en Cuotas
             </span>
           </div>
         </div>
