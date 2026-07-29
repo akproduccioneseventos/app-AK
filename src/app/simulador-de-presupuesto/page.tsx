@@ -1881,56 +1881,52 @@ function SimuladorContent() {
                 <CardContent className="p-6 sm:p-10">
                     {step === 1 && (
                         <div className="space-y-8 animate-in fade-in slide-in-from-bottom-4 duration-500 max-w-4xl mx-auto py-2 text-left">
-                            {/* Hero PRO Card with Nano Banana Image & Neurosales Headline */}
+                            {/* Hero PRO Card with Nano Banana Image */}
                             <div className="relative overflow-hidden rounded-3xl border border-slate-900 bg-slate-950 text-white shadow-2xl">
-                                <div className="relative min-h-[340px] sm:min-h-[420px] w-full overflow-hidden flex flex-col justify-end p-6 sm:p-10">
+                                <div className="relative min-h-[320px] sm:min-h-[400px] w-full overflow-hidden flex flex-col justify-end p-6 sm:p-10">
                                     {/* eslint-disable-next-line @next/next/no-img-element */}
                                     <img
                                         src="/media/catalogo-servicios/simulador_hero_pro.jpg"
-                                        alt="AK Producciones - Tu evento soñado en Salto"
+                                        alt="AK Producciones - Presupuesto para tu evento"
                                         className="absolute inset-0 h-full w-full object-cover object-center opacity-50 scale-105 transition-transform duration-1000"
                                     />
-                                    <div className="absolute inset-0 bg-gradient-to-t from-slate-950 via-slate-950/75 to-slate-950/20" />
+                                    <div className="absolute inset-0 bg-gradient-to-t from-slate-950 via-slate-950/70 to-slate-950/20" />
                                     
                                     <div className="relative z-10 space-y-4">
                                         <div className="inline-flex items-center gap-2 rounded-full border border-amber-400/50 bg-amber-500/20 px-4 py-1.5 text-xs font-black uppercase tracking-widest text-amber-300 backdrop-blur-md">
                                             <Sparkles className="h-4 w-4 text-amber-400" />
-                                            Presupuesto Transparente · AK Producciones Salto
+                                            Presupuesto para tu evento
                                         </div>
                                         
                                         <h1 className="font-headline text-2xl sm:text-4xl font-black leading-tight text-white tracking-tight">
-                                            Diseñá tu fiesta inolvidable en Salto sin estrés, con costo real y garantía absoluta
+                                            La fiesta de tus sueños en Salto, planificada con cotización inmediata y garantía total
                                         </h1>
                                         
                                         <p className="text-xs sm:text-base font-semibold text-slate-200 leading-relaxed max-w-2xl">
-                                            Olvidate de contratar 10 proveedores distintos y sufrir sorpresas a último momento. Con AK Producciones tenés gastronomía propia, discoteca VIP, luces robotizadas, salón emblemático y tecnología interactiva coordinados por un único equipo responsable.
+                                            Armá una propuesta con gastronomía, salón, tecnología y servicios reales de AK Producciones. Vas a ver el precio vigente, el valor por persona y la proyección para la fecha elegida.
                                         </p>
 
-                                        <div className="pt-2 flex flex-col sm:flex-row items-stretch sm:items-center gap-3">
+                                        <div className="pt-2">
                                             <Button
                                                 type="button"
                                                 onClick={() => setStep(2)}
-                                                className="h-14 px-8 rounded-2xl bg-gradient-to-r from-red-600 to-amber-500 hover:from-red-700 hover:to-amber-600 text-white font-black text-xs sm:text-sm uppercase tracking-widest shadow-xl transition-all transform hover:scale-105 active:scale-95 flex items-center justify-center gap-3"
+                                                className="h-14 px-8 rounded-2xl bg-gradient-to-r from-red-600 to-amber-500 hover:from-red-700 hover:to-amber-600 text-white font-black text-sm uppercase tracking-widest shadow-xl transition-all transform hover:scale-105 active:scale-95 flex items-center gap-3"
                                             >
-                                                <span>Cotizar Mi Fiesta en 2 Minutos</span>
+                                                <span>Comenzar mi presupuesto</span>
                                                 <ArrowRight className="w-5 h-5" />
                                             </Button>
-                                            <span className="text-[11px] font-bold text-slate-300 flex items-center gap-1.5 justify-center">
-                                                <ShieldCheck className="w-4 h-4 text-emerald-400 shrink-0" />
-                                                Sin compromiso · Guardado automático
-                                            </span>
                                         </div>
                                     </div>
                                 </div>
                             </div>
 
-                            {/* Neuro-Differentiators Grid */}
+                            {/* Company Pillars Grid */}
                             <div className="space-y-4">
                                 <div className="flex items-center justify-between border-b border-slate-200 pb-3">
                                     <h3 className="text-lg font-black uppercase tracking-tight text-slate-900 flex items-center gap-2">
-                                        <Star className="w-5 h-5 text-amber-500 fill-amber-500" /> Lo que nos diferencia y te garantiza tranquilidad total
+                                        <Star className="w-5 h-5 text-amber-500 fill-amber-500" /> ¿Por qué planificar tu evento con AK Producciones?
                                     </h3>
-                                    <span className="text-xs font-bold text-slate-500 hidden sm:inline-block">Garantía In-House AK</span>
+                                    <span className="text-xs font-bold text-slate-500 hidden sm:inline-block">Garantía de Excelencia & Respaldo</span>
                                 </div>
 
                                 <div className="grid gap-4 sm:grid-cols-2">
@@ -1940,12 +1936,12 @@ function SimuladorContent() {
                                                 <PartyPopper className="w-5 h-5" />
                                             </div>
                                             <div>
-                                                <h4 className="font-black text-slate-900 text-sm">Un Solo Equipo, Cero Estrés</h4>
-                                                <p className="text-[11px] font-bold text-red-600">Producción 100% propia in-house</p>
+                                                <h4 className="font-black text-slate-900 text-sm">Organización Integral</h4>
+                                                <p className="text-[11px] font-bold text-red-600">Un solo equipo para coordinar todo</p>
                                             </div>
                                         </div>
                                         <p className="text-xs text-slate-600 font-semibold leading-relaxed pt-1">
-                                            El día de tu fiesta tu única tarea es disfrutar. No dependés de terceros que se culpen entre sí: gastronomía, DJ, luces robotizadas, ambientación y coordinación técnica corren por nuestra cuenta.
+                                            Gastronomía, dj, discoteca, luces robotizadas, decoración y supervisión técnica en vivo. Todo producido por nuestro propio equipo sin intermediarios.
                                         </p>
                                     </div>
 
@@ -1955,12 +1951,12 @@ function SimuladorContent() {
                                                 <UtensilsCrossed className="w-5 h-5" />
                                             </div>
                                             <div>
-                                                <h4 className="font-black text-slate-900 text-sm">Gastronomía Exquisita & Abundante</h4>
-                                                <p className="text-[11px] font-bold text-amber-700">Calidad y cantidad garantizadas</p>
+                                                <h4 className="font-black text-slate-900 text-sm">Gastronomía Real & Abundante</h4>
+                                                <p className="text-[11px] font-bold text-amber-700">Catálogo directo de AK</p>
                                             </div>
                                         </div>
                                         <p className="text-xs text-slate-600 font-semibold leading-relaxed pt-1">
-                                            Recepción completa, plato principal caliente, mesa buffet, postres de autor y trasnoche servidos con la máxima exigencia para que nadie se quede con hambre ni dudas.
+                                            Menús deliciosos, recepción completa, mesa buffet, postres y trasnoche servidos con la más alta exigencia y cantidad garantizada para todos tus invitados.
                                         </p>
                                     </div>
 
@@ -1970,12 +1966,12 @@ function SimuladorContent() {
                                                 <Sparkles className="w-5 h-5" />
                                             </div>
                                             <div>
-                                                <h4 className="font-black text-slate-900 text-sm">Experiencia VIP & Tecnología Única</h4>
-                                                <p className="text-[11px] font-bold text-purple-600">Muro Social & Pase QR Individual</p>
+                                                <h4 className="font-black text-slate-900 text-sm">Tecnología & Diversión VIP</h4>
+                                                <p className="text-[11px] font-bold text-purple-600">Experiencias exclusivas para tus invitados</p>
                                             </div>
                                         </div>
                                         <p className="text-xs text-slate-600 font-semibold leading-relaxed pt-1">
-                                            Hacé que tu evento sea inolvidable: Muro Social interactivo en pantalla gigante donde tus invitados suben fotos en vivo, pases QR en celular, fotocabinas y Portal del Cliente.
+                                            Muro social interactivo en pantalla gigante, invitaciones web personalizadas con QR, portal del cliente, fotocabinas y plataforma 360.
                                         </p>
                                     </div>
 
@@ -1985,33 +1981,33 @@ function SimuladorContent() {
                                                 <ShieldCheck className="w-5 h-5" />
                                             </div>
                                             <div>
-                                                <h4 className="font-black text-slate-900 text-sm">Transparencia & Precios Congelados</h4>
-                                                <p className="text-[11px] font-bold text-emerald-600">Sin letras chicas ni cargos sorpresa</p>
+                                                <h4 className="font-black text-slate-900 text-sm">Trayectoria & Respaldo</h4>
+                                                <p className="text-[11px] font-bold text-emerald-600">Presupuesto registrado y revisable</p>
                                             </div>
                                         </div>
                                         <p className="text-xs text-slate-600 font-semibold leading-relaxed pt-1">
-                                            Tranquilidad absoluta para tu presupuesto: precios transparentes, congelación de tarifa anual y facilidades de seña en cuotas respaldadas por contrato.
+                                            Años liderando los eventos más destacados de Salto. Tu presupuesto queda guardado, transparente, con precios congelados y condiciones claras de reserva.
                                         </p>
                                     </div>
                                 </div>
 
                                 {/* Exclusive Club Uruguay Banner */}
-                                <div className="rounded-2xl border border-amber-300 bg-gradient-to-r from-amber-500/10 via-amber-400/5 to-slate-50 p-5 flex flex-col sm:flex-row items-center justify-between gap-4">
+                                <div className="rounded-2xl border border-amber-300 bg-gradient-to-r from-amber-500/10 via-amber-400/5 to-slate-50 p-4 flex flex-col sm:flex-row items-center justify-between gap-4">
                                     <div className="flex items-center gap-3">
-                                        <div className="grid h-11 w-11 place-items-center rounded-xl bg-amber-400 text-slate-950 font-black shrink-0 shadow-md">
-                                            <Building2 className="w-6 h-6" />
+                                        <div className="grid h-10 w-10 place-items-center rounded-xl bg-amber-400 text-slate-950 font-black shrink-0">
+                                            <Building2 className="w-5 h-5" />
                                         </div>
                                         <div>
-                                            <h4 className="font-black text-slate-900 text-sm">Locación Emblemática: Salón Club Uruguay 50% OFF</h4>
-                                            <p className="text-xs text-slate-600 font-semibold">Al contratar la producción integral de tu fiesta con AK, accedés al salón más prestigioso y céntrico de Salto con bonificación exclusiva del 50%.</p>
+                                            <h4 className="font-black text-slate-900 text-sm">Beneficio Exclusivo: Salón Club Uruguay con 50% OFF</h4>
+                                            <p className="text-xs text-slate-600 font-semibold">Al contratar tu propuesta integral con AK Producciones, accedés a la locación más icónica de Salto con bonificación del 50%.</p>
                                         </div>
                                     </div>
                                     <Button
                                         type="button"
                                         onClick={() => setStep(2)}
-                                        className="h-12 px-6 rounded-xl bg-slate-950 hover:bg-slate-800 text-white font-black text-xs uppercase tracking-wider shrink-0 transition shadow-md"
+                                        className="h-11 px-6 rounded-xl bg-slate-950 hover:bg-slate-800 text-white font-black text-xs uppercase tracking-wider shrink-0 transition"
                                     >
-                                        Cotizar Ahora →
+                                        Comenzar ahora →
                                     </Button>
                                 </div>
                             </div>
