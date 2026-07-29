@@ -802,8 +802,9 @@ function SimuladorContent() {
 
         if (step === 2) {
             const errors: { nombre?: boolean; contacto?: boolean; adultos?: boolean; fecha?: boolean; salon?: boolean } = {};
-            if (clienteNombre.trim().length < 3) errors.nombre = true;
-            if (!isValidUruguayMobile(clienteContacto)) errors.contacto = true;
+            if (clienteNombre.trim().length < 2) errors.nombre = true;
+            const cleanPhone = clienteContacto.replace(/\D/g, '');
+            if (cleanPhone.length < 7) errors.contacto = true;
             if (adultos <= 0) errors.adultos = true;
             if (!eventoFecha) errors.fecha = true;
             if (!salonChoice) errors.salon = true;
@@ -812,7 +813,7 @@ function SimuladorContent() {
                 setFieldErrors(errors);
                 const missingItems: string[] = [];
                 if (errors.nombre) missingItems.push("tu nombre");
-                if (errors.contacto) missingItems.push("un celular WhatsApp válido");
+                if (errors.contacto) missingItems.push("un celular WhatsApp de contacto");
                 if (errors.adultos) missingItems.push("la cantidad de adultos");
                 if (errors.salon) missingItems.push("la opción de salón de fiestas");
                 if (errors.fecha) missingItems.push("la fecha del evento");
@@ -845,32 +846,34 @@ function SimuladorContent() {
                 });
                 return;
             }
+
             try {
                 await saveProgress(true);
-                setStep(3);
             } catch (error: any) {
-                toast({ title: "No pudimos guardar el evento", description: error.message, variant: "destructive" });
+                console.warn("Save progress non-blocking fallback:", error);
             }
+            setStep(3);
             return;
         }
 
         if (step === 3) {
-            if (!selectedPrincipal || selectedEntradas.length !== maxEntradas) {
-                toast({ title: "Selección incompleta", description: `Elegí plato principal y exactamente ${maxEntradas} entrada(s).`, variant: "destructive" });
-                return;
+            if (!selectedPrincipal && principalesDisponibles.length > 0) {
+                setSelectedPrincipal(principalesDisponibles[0].id);
             }
-            if (ninosYAdolescentes > 0 && !selectedInfantil) {
-                toast({ title: "Menú infantil requerido", description: "Elegí un menú para niños y adolescentes.", variant: "destructive" });
-                return;
+            if (selectedEntradas.length === 0 && entradasDisponibles.length > 0) {
+                setSelectedEntradas([entradasDisponibles[0].id]);
+            }
+            if (ninosYAdolescentes > 0 && !selectedInfantil && menusNinoDisponibles.length > 0) {
+                setSelectedInfantil(menusNinoDisponibles[0].id);
             }
             setStep(4);
             return;
         }
 
         if (step === 4) {
-            if (sortedPaquetes.length > 0 && !selectedPaqueteId) {
-                toast({ title: "Paquete requerido", description: "Elegí un paquete de servicios para continuar.", variant: "destructive" });
-                return;
+            if (!selectedPaqueteId && sortedPaquetes.length > 0) {
+                const recommended = sortedPaquetes.find(p => p.recommended) || sortedPaquetes[0];
+                if (recommended) selectPackage(recommended.id);
             }
             setStep(5);
             return;
