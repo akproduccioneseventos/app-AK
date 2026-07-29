@@ -308,6 +308,8 @@ function SimuladorContent() {
     const [isSavingProgress, setIsSavingProgress] = useState(false);
     const [isDownloadingPdf, setIsDownloadingPdf] = useState(false);
     const [serviceToDelete, setServiceToDelete] = useState<SimulatorDetailedService | null>(null);
+    const [isUpgradePromptOpen, setIsUpgradePromptOpen] = useState(false);
+    const [hasSeenUpgradePrompt, setHasSeenUpgradePrompt] = useState(false);
     const [generatedPresupuestoId, setGeneratedPresupuestoId] = useState<string | null>(null);
     const [generatedToken, setGeneratedToken] = useState<string | null>(null);
     const [commercialTimerEndsAt, setCommercialTimerEndsAt] = useState<number | null>(null);
@@ -876,6 +878,10 @@ function SimuladorContent() {
                 if (recommended) selectPackage(recommended.id);
             }
             setStep(5);
+            if (!hasSeenUpgradePrompt) {
+                setTimeout(() => setIsUpgradePromptOpen(true), 500);
+                setHasSeenUpgradePrompt(true);
+            }
             return;
         }
 
@@ -2865,6 +2871,92 @@ function SimuladorContent() {
                     </DialogFooter>
                 </DialogContent>
             </Dialog>
+
+            {/* Interactive Upgrade Prompt Modal */}
+            <Dialog open={isUpgradePromptOpen} onOpenChange={setIsUpgradePromptOpen}>
+                <DialogContent className="max-w-md rounded-3xl bg-slate-950 text-white p-6 border-2 border-amber-400 shadow-2xl">
+                    <DialogHeader className="text-left space-y-2">
+                        <div className="inline-flex items-center gap-2 rounded-full border border-amber-400/50 bg-amber-500/20 px-3.5 py-1 text-[10px] font-black uppercase tracking-widest text-amber-300 backdrop-blur-md">
+                            <Zap className="w-4 h-4 text-amber-400 fill-amber-400 animate-bounce" />
+                            ⚡ Recomendación VIP para tu Fiesta
+                        </div>
+                        <DialogTitle className="text-xl font-black text-white leading-tight">
+                            ¿Querés sumar experiencias exclusivas a tu presupuesto?
+                        </DialogTitle>
+                        <DialogDescription className="text-xs font-semibold text-slate-300 leading-relaxed">
+                            Potenciá tu fiesta sumando el <strong className="text-amber-300">Muro Social Interactivo en Pantalla Gigante</strong>, <strong className="text-purple-300">Fotocabina VIP 360</strong> o <strong className="text-emerald-300">Barra Premium de Tragos</strong> antes de descargar tu PDF oficial.
+                        </DialogDescription>
+                    </DialogHeader>
+
+                    <div className="my-3 space-y-2 text-left">
+                        <div className="p-4 rounded-2xl border border-amber-400/40 bg-gradient-to-r from-amber-500/10 via-amber-400/5 to-transparent flex items-center justify-between text-xs">
+                            <div>
+                                <span className="font-black text-white block text-xs">Muro Social Interactivo + Pase QR</span>
+                                <span className="text-[10px] text-amber-200 font-bold">Tus invitados suben fotos en vivo a pantalla gigante</span>
+                            </div>
+                            <Badge className="bg-amber-400 text-slate-950 font-black text-[9px] uppercase shrink-0">Más Elegido</Badge>
+                        </div>
+                    </div>
+
+                    <DialogFooter className="flex flex-col gap-2 sm:flex-col mt-2">
+                        <Button
+                            type="button"
+                            onClick={() => {
+                                setIsUpgradePromptOpen(false);
+                                const el = document.getElementById('search-additional-services');
+                                if (el) el.scrollIntoView({ behavior: 'smooth' });
+                                toast({
+                                    title: "Explorá servicios adicionales",
+                                    description: "Sumá servicios extra directamente desde el buscador.",
+                                });
+                            }}
+                            className="w-full h-12 bg-gradient-to-r from-amber-400 via-amber-300 to-amber-500 hover:from-amber-300 hover:to-amber-400 text-slate-950 font-black text-xs uppercase tracking-wider rounded-2xl shadow-xl transition transform hover:scale-105"
+                        >
+                            ⚡ Ver Servicios Adicionales en mi Presupuesto
+                        </Button>
+                        <Button
+                            type="button"
+                            variant="ghost"
+                            onClick={() => setIsUpgradePromptOpen(false)}
+                            className="w-full text-slate-400 hover:text-white font-bold text-xs"
+                        >
+                            Continuar a mi Presupuesto Final →
+                        </Button>
+                    </DialogFooter>
+                </DialogContent>
+            </Dialog>
+
+            {/* Sticky Mobile Conversion Bar on Step 5 */}
+            {step === 5 && (
+                <div className="fixed bottom-0 left-0 right-0 z-50 p-3 bg-slate-950/95 border-t-2 border-amber-400/40 backdrop-blur-xl shadow-2xl lg:hidden animate-in slide-in-from-bottom-4 duration-300">
+                    <div className="flex items-center justify-between gap-2 max-w-md mx-auto">
+                        <div className="min-w-0 flex-1 text-left">
+                            <p className="text-[10px] font-black text-amber-400 uppercase tracking-widest truncate">📲 Guardá tu propuesta</p>
+                            <p className="text-xs font-black text-white truncate">{formatCurrency(stats.totalFinal)} total</p>
+                        </div>
+                        <div className="flex items-center gap-2 shrink-0">
+                            <Button
+                                size="sm"
+                                variant="outline"
+                                onClick={handleDownloadBudgetPdf}
+                                disabled={isDownloadingPdf}
+                                className="h-11 px-3.5 rounded-xl border-slate-700 bg-slate-900 text-white font-black text-xs gap-1.5 shadow-md"
+                            >
+                                {isDownloadingPdf ? <Loader2 className="w-4 h-4 animate-spin" /> : <FileDown className="w-4 h-4 text-amber-400" />}
+                                <span>PDF</span>
+                            </Button>
+                            <Button
+                                size="sm"
+                                onClick={handleShareBudgetWhatsApp}
+                                className="h-11 px-4 rounded-xl bg-gradient-to-r from-emerald-600 to-emerald-500 hover:from-emerald-700 hover:to-emerald-600 text-white font-black text-xs gap-1.5 shadow-lg animate-pulse"
+                            >
+                                <MessageSquare className="w-4 h-4" />
+                                <span>WhatsApp</span>
+                            </Button>
+                        </div>
+                    </div>
+                </div>
+            )}
         </div>
     );
 }
