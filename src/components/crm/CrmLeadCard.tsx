@@ -83,12 +83,23 @@ export const CrmLeadCard = memo(function CrmLeadCard({ lead, onDeleteLead, isDel
   };
   
   const budgetSource = useMemo(() => {
-    if (lead.budgetSource === 'simulator_assistant' || lead.budgetSource === 'simulator_common' || lead.budgetSource === 'simulator') {
-      return { text: '⚡ Simulador', className: 'bg-amber-100 text-amber-900 border border-amber-300 font-bold' };
+    if (lead.budgetSource === 'simulator_assistant') {
+      return { text: 'Simulador IA', className: 'border-indigo-300 bg-indigo-50 text-indigo-800' };
     }
-    if (lead.budgetSource === 'portal_led') return { text: '🖥️ Portal LED', className: 'bg-fuchsia-100 text-fuchsia-800 font-bold' };
-    return { text: '💬 Consulta WhatsApp', className: 'bg-emerald-100 text-emerald-800 border border-emerald-300 font-bold' };
-  }, [lead.budgetSource]);
+    if (lead.budgetSource === 'simulator_common') {
+      return { text: 'Simulador visual', className: 'border-sky-300 bg-sky-50 text-sky-800' };
+    }
+    if (lead.budgetSource === 'simulator') {
+      return { text: 'Simulador', className: 'border-sky-300 bg-sky-50 text-sky-800' };
+    }
+    if (lead.budgetSource === 'portal_led') {
+      return { text: 'Portal LED', className: 'border-fuchsia-300 bg-fuchsia-50 text-fuchsia-800' };
+    }
+    if (lead.acquisition?.source === 'whatsapp') {
+      return { text: 'WhatsApp', className: 'border-emerald-300 bg-emerald-50 text-emerald-800' };
+    }
+    return { text: 'Manual', className: 'border-slate-300 bg-slate-50 text-slate-700' };
+  }, [lead.acquisition?.source, lead.budgetSource]);
 
   const hasBudget = !!lead.presupuestoId;
   const isBudgetFacturado = lead.presupuestoEstado === 'Facturado';

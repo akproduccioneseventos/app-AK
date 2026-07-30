@@ -6,7 +6,7 @@ import Link from 'next/link';
 import type { DragEndEvent } from '@dnd-kit/core';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
-import { KanbanSquare, Users, Clock, TrendingUp, Wallet, CheckCircle, Loader2, ArrowLeft, Search, X, AlertTriangle, User, RotateCcw, CalendarDays, Gift, Sparkles, Monitor } from 'lucide-react';
+import { KanbanSquare, Users, Clock, TrendingUp, Wallet, CheckCircle, Loader2, ArrowLeft, Search, X, AlertTriangle, RotateCcw, CalendarDays, Gift, Sparkles, SlidersHorizontal } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import type { CrmLead } from '@/types/crm';
 import { getPresupuestoById } from '@/app/actions/presupuestos';
@@ -36,6 +36,15 @@ import {
   AlertDialogTrigger,
 } from "@/components/ui/alert-dialog";
 import { resetCrm } from '@/app/actions/crm';
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuLabel,
+  DropdownMenuRadioGroup,
+  DropdownMenuRadioItem,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger,
+} from '@/components/ui/dropdown-menu';
 
 const INACTIVITY_DAYS = 7;
 
@@ -304,6 +313,16 @@ export default function CrmPage() {
     { key: 'today', label: 'Citas Hoy', icon: <Clock className="w-3 h-3 text-emerald-500" /> },
     { key: 'inactive', label: `Sin actividad (${inactiveCount})`, icon: <AlertTriangle className="w-3 h-3 text-rose-500" /> },
   ];
+  const secondaryFilters: { key: QuickFilter; label: string }[] = [
+    { key: 'portal_led', label: 'Portal LED' },
+    { key: 'this_week', label: 'Citas esta semana' },
+    { key: 'no_followup', label: 'Sin cita' },
+    { key: 'my_leads', label: 'Con responsable' },
+    { key: 'birthday_30', label: 'Cumple en 30 días' },
+    { key: 'birthday_60', label: 'Cumple en 60 días' },
+    { key: 'birthday_90', label: 'Cumple en 90 días' },
+  ];
+  const activeSecondaryFilter = secondaryFilters.find((filter) => filter.key === quickFilter);
 
   return (
       <div className="h-full flex flex-col space-y-4">
@@ -393,6 +412,32 @@ export default function CrmPage() {
                 {f.icon}{f.label}
               </Button>
             ))}
+            <DropdownMenu>
+              <DropdownMenuTrigger asChild>
+                <Button
+                  variant={activeSecondaryFilter ? 'secondary' : 'outline'}
+                  size="sm"
+                  className="h-7 gap-1 text-xs"
+                >
+                  <SlidersHorizontal className="h-3 w-3" />
+                  {activeSecondaryFilter?.label || 'Más filtros'}
+                </Button>
+              </DropdownMenuTrigger>
+              <DropdownMenuContent align="start" className="w-56">
+                <DropdownMenuLabel>Seguimiento y origen</DropdownMenuLabel>
+                <DropdownMenuSeparator />
+                <DropdownMenuRadioGroup
+                  value={activeSecondaryFilter?.key || ''}
+                  onValueChange={(value) => setQuickFilter(value as QuickFilter)}
+                >
+                  {secondaryFilters.map((filter) => (
+                    <DropdownMenuRadioItem key={filter.key} value={filter.key}>
+                      {filter.label}
+                    </DropdownMenuRadioItem>
+                  ))}
+                </DropdownMenuRadioGroup>
+              </DropdownMenuContent>
+            </DropdownMenu>
             {/* Stage filter */}
             <div className="flex gap-1 ml-2 flex-wrap">
               {stages.map(s => (

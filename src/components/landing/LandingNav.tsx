@@ -39,7 +39,7 @@ export function LandingNav(_props: LandingNavProps = {}) {
   const navLinks = [
     { label: 'Inicio', href: '#landing-hero', isExternal: false },
     { label: 'Servicios', href: '#landing-services', isExternal: false },
-    { label: 'Galería HD', href: 'https://galeria.akproducciones.uy', isExternal: true },
+    { label: 'Galería', href: '#galeria', isExternal: false },
     { label: 'Simulador', href: '/simulador-de-presupuesto', isExternal: true },
     { label: 'Blog', href: '/public/blog', isExternal: true },
     { label: 'Preguntas Frecuentes', href: '#faq', isExternal: false },
