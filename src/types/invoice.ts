@@ -17,9 +17,12 @@ export interface Payment {
   id: string;
   paymentDate: string; // ISO date string
   amount: number;
-  method?: 'Transferencia' | 'Efectivo' | 'Tarjeta' | 'Otro';
+  method?: 'Transferencia' | 'Efectivo' | 'Tarjeta' | 'MercadoPago' | 'Otro';
   notes?: string;
   transactionProofUrl?: string; // URL to the uploaded image
+  baseAmount?: number;
+  surchargeAmount?: number;
+  installments?: number;
 }
 
 export interface Invoice {

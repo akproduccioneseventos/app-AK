@@ -13,6 +13,7 @@ import {
   buildFormalBudgetBookingNote,
   DEFAULT_BOOKING_DEPOSIT_AMOUNT,
 } from '@/lib/budget/formal-budget';
+import { calculateMercadoPagoCuotas } from '@/lib/payments/mercadopago-calculator';
 
 // ── Company constants ─────────────────────────────────────────────────────────
 const COMPANY_NAME = 'AK PRODUCCIONES';
@@ -142,6 +143,10 @@ export default function BudgetDocument({
 
   const subtotalBruto = subtotalBrutoOverride ?? presupuesto.costoTotalEstimado;
   const totalFinal = totalFinalOverride ?? presupuesto.totalConDescuento ?? presupuesto.costoTotalEstimado;
+  const mercadoPagoCalculation = calculateMercadoPagoCuotas(totalFinal);
+  const mercadoPagoTwelveInstallments = mercadoPagoCalculation.options.find(
+    (option) => option.installments === 12,
+  );
   const descuentoPromo = descuentoPromoOverride ?? Math.max(0, subtotalBruto - totalFinal);
 
   const projectionRows = annualProjection?.rows?.length
@@ -545,10 +550,10 @@ export default function BudgetDocument({
                 <span className="text-[9px] bg-amber-100 text-amber-900 px-1.5 py-0.5 rounded">+10% Recargo MP</span>
               </p>
               <p className="text-amber-900 font-black text-sm mt-1">
-                {formatCurrency(Math.round(totalFinal * 1.10))}
+                {formatCurrency(mercadoPagoCalculation.totalWithSurcharge)}
               </p>
               <p className="text-[10px] text-slate-500 mt-1 leading-snug">
-                Hasta 12 cuotas de {formatCurrency(Math.round((totalFinal * 1.10) / 12))}/mes.
+                {mercadoPagoTwelveInstallments?.label}.
               </p>
             </div>
           </div>

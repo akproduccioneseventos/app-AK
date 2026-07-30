@@ -1,6 +1,6 @@
 import type { ServicioEmpresa } from './empresa';
 
-export type MetodoPago = 'Efectivo' | 'Transferencia Bancaria' | 'MercadoPago' | 'MercadoPago (Cuotas +10%)' | 'Cheque' | 'Tarjeta' | 'Otro';
+export type MetodoPago = 'Efectivo' | 'Transferencia Bancaria' | 'MercadoPago' | 'Cheque' | 'Tarjeta' | 'Otro';
 export type PresupuestoSource =
   | 'manual'
   | 'simulator'
@@ -11,10 +11,9 @@ export type PresupuestoSource =
 export const ALL_METODOS_PAGO: MetodoPago[] = [
   'Efectivo',
   'Transferencia Bancaria',
-  'MercadoPago (Cuotas +10%)',
   'MercadoPago',
-  'Tarjeta',
   'Cheque',
+  'Tarjeta',
   'Otro',
 ];
 
@@ -29,6 +28,9 @@ export interface PagoCliente {
   estadoPago?: EstadoPago; // Payment confirmation status
   comprobanteUrl?: string; // URL or base64 of payment receipt image
   motivoRechazo?: string; // Reason for rejection (if rejected by admin)
+  montoCobrado?: number; // Gross amount charged by the payment processor
+  recargoFinanciero?: number; // Processor financing surcharge, excluded from service balance
+  cuotasFinanciacion?: number;
 }
 
 export type TipoEvento =
