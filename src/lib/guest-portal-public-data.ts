@@ -84,6 +84,20 @@ export interface PublicGuestPortalData {
   guest: PublicGuest;
 }
 
+export function hasPublicGuestAccess(
+  guest: Pick<Invitado, "id" | "guestAccessToken"> | undefined,
+  guestId: string,
+  guestAccessToken: string,
+): guest is Pick<Invitado, "id" | "guestAccessToken"> {
+  return Boolean(
+    guest
+      && guest.id === guestId
+      && guest.guestAccessToken
+      && guestAccessToken
+      && guest.guestAccessToken === guestAccessToken,
+  );
+}
+
 export function buildPublicGuestEvent(
   fiesta: FiestaEnPlanificacion,
 ): PublicGuestEvent {
@@ -157,7 +171,7 @@ export function buildPublicGuestPortalData(
   guestAccessToken: string,
 ): PublicGuestPortalData | null {
   const guest = (fiesta.invitados || []).find((item) => item.id === guestId);
-  if (!guest || !guest.guestAccessToken || guest.guestAccessToken !== guestAccessToken) return null;
+  if (!hasPublicGuestAccess(guest, guestId, guestAccessToken)) return null;
 
   return {
     fiesta: buildPublicGuestEvent(fiesta),

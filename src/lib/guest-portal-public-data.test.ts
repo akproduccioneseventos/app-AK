@@ -1,5 +1,6 @@
 import {
   buildPublicGuestPortalData,
+  hasPublicGuestAccess,
   type PublicGuestPortalData,
 } from "./guest-portal-public-data";
 import type { FiestaEnPlanificacion } from "@/types/fiesta";
@@ -113,5 +114,14 @@ describe("public guest portal data", () => {
   it("rejects a missing or incorrect guest token", () => {
     expect(buildPublicGuestPortalData(fiesta, "guest-1", "")).toBeNull();
     expect(buildPublicGuestPortalData(fiesta, "guest-1", "wrong-token")).toBeNull();
+  });
+
+  it("validates the guest id and token together", () => {
+    const guest = { id: "guest-1", guestAccessToken: "token-guest-1" };
+
+    expect(hasPublicGuestAccess(guest, "guest-1", "token-guest-1")).toBe(true);
+    expect(hasPublicGuestAccess(guest, "guest-2", "token-guest-1")).toBe(false);
+    expect(hasPublicGuestAccess(guest, "guest-1", "wrong-token")).toBe(false);
+    expect(hasPublicGuestAccess(guest, "guest-1", "")).toBe(false);
   });
 });
