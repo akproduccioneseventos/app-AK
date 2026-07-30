@@ -6,7 +6,7 @@ import Link from 'next/link';
 import type { DragEndEvent } from '@dnd-kit/core';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
-import { KanbanSquare, Users, Clock, TrendingUp, Wallet, CheckCircle, Loader2, ArrowLeft, Search, X, AlertTriangle, User, RotateCcw, CalendarDays, Gift, Sparkles, Monitor, ListFilter } from 'lucide-react';
+import { KanbanSquare, Users, Clock, TrendingUp, Wallet, CheckCircle, Loader2, ArrowLeft, Search, X, AlertTriangle, User, RotateCcw, CalendarDays, Gift, Sparkles, Monitor, ListFilter, SlidersHorizontal } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import type { CrmLead } from '@/types/crm';
 import { getPresupuestoById } from '@/app/actions/presupuestos';
@@ -44,6 +44,8 @@ import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
+  DropdownMenuLabel,
+  DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
 
@@ -329,6 +331,16 @@ export default function CrmPage() {
     { key: 'birthday_60', label: 'Cumple en 60 días', icon: <CalendarDays className="h-3.5 w-3.5" /> },
     { key: 'birthday_90', label: 'Cumple en 90 días', icon: <CalendarDays className="h-3.5 w-3.5" /> },
   ];
+  const secondaryFilters: { key: QuickFilter; label: string }[] = [
+    { key: 'portal_led', label: 'Portal LED' },
+    { key: 'this_week', label: 'Citas esta semana' },
+    { key: 'no_followup', label: 'Sin cita' },
+    { key: 'my_leads', label: 'Con responsable' },
+    { key: 'birthday_30', label: 'Cumple en 30 días' },
+    { key: 'birthday_60', label: 'Cumple en 60 días' },
+    { key: 'birthday_90', label: 'Cumple en 90 días' },
+  ];
+  const activeSecondaryFilter = secondaryFilters.find((filter) => filter.key === quickFilter);
 
   return (
       <div className="h-full flex flex-col space-y-4">
