@@ -31,9 +31,9 @@ const options = [
     description: 'Compara menus, paquetes de servicios y tecnologia mientras ves como cambia el presupuesto en tiempo real.',
     href: '/simulador-de-presupuesto',
     icon: Calculator,
-    accent: 'bg-red-700 hover:bg-red-800',
+    accent: 'bg-indigo-700 hover:bg-indigo-800',
     border: 'border-amber-400/50 shadow-xl shadow-amber-500/10',
-    features: ['Seleccion visual de platos y bebidas', 'Precios congelados y garantia de calidad', 'Incluye Salón Club Uruguay 50% OFF y Tecnologia VIP'],
+    features: ['Seleccion visual de platos y bebidas', 'Precio vigente y proyeccion para la fecha', 'Incluye Salón Club Uruguay 50% OFF y Tecnologia VIP'],
   },
   {
     id: 'assistant',
@@ -60,7 +60,7 @@ export default async function SimulatorHubPage(props: SimulatorHubProps) {
   const whatsappHref = `https://wa.me/59898355530?text=${encodeURIComponent(whatsappText)}`;
 
   return (
-    <main className="min-h-screen bg-slate-950 text-white selection:bg-red-700 selection:text-white">
+    <main className="min-h-screen bg-slate-950 text-white selection:bg-indigo-700 selection:text-white">
       {/* Hero Header section with Nano Banana PRO image */}
       <section className="relative min-h-[55vh] overflow-hidden border-b border-slate-800">
         <Image
@@ -87,13 +87,13 @@ export default async function SimulatorHubPage(props: SimulatorHubProps) {
           {/* Quick Value Badges */}
           <div className="mt-8 flex flex-wrap gap-3 text-xs font-bold text-slate-300">
             <span className="flex items-center gap-1.5 rounded-full bg-slate-900/80 px-3.5 py-1.5 border border-slate-700">
-              <PartyPopper className="h-4 w-4 text-red-500" /> Producción 100% In-House (Cero Estrés)
+              <PartyPopper className="h-4 w-4 text-indigo-400" /> Producción 100% In-House (Cero Estrés)
             </span>
             <span className="flex items-center gap-1.5 rounded-full bg-slate-900/80 px-3.5 py-1.5 border border-slate-700">
               <Building2 className="h-4 w-4 text-amber-400" /> Salón Club Uruguay 50% OFF
             </span>
             <span className="flex items-center gap-1.5 rounded-full bg-slate-900/80 px-3.5 py-1.5 border border-slate-700">
-              <Zap className="h-4 w-4 text-emerald-400" /> Precios Congelados & Seña en Cuotas
+              <Zap className="h-4 w-4 text-emerald-400" /> Precio Vigente & Condiciones Claras
             </span>
           </div>
         </div>
@@ -115,7 +115,7 @@ export default async function SimulatorHubPage(props: SimulatorHubProps) {
               simulatorMode: option.id,
             });
             return (
-              <article key={option.id} className={`relative flex flex-col rounded-3xl border bg-slate-900/90 p-8 backdrop-blur-xl transition duration-300 hover:border-red-500/60 hover:shadow-2xl ${option.border}`}>
+              <article key={option.id} className={`relative flex flex-col rounded-3xl border bg-slate-900/90 p-8 backdrop-blur-xl transition duration-300 hover:border-indigo-400/60 hover:shadow-2xl ${option.border}`}>
                 <div className="flex items-center justify-between">
                   <span className="flex h-14 w-14 items-center justify-center rounded-2xl bg-white/10 text-white border border-white/10">
                     <Icon className="h-7 w-7 text-amber-400" />
@@ -136,6 +136,7 @@ export default async function SimulatorHubPage(props: SimulatorHubProps) {
                 </ul>
                 <Link
                   href={href}
+                  data-testid={`simulator-option-${option.id}`}
                   className={`mt-8 inline-flex h-14 w-full items-center justify-center gap-3 rounded-2xl text-xs font-black uppercase tracking-widest text-white transition-all shadow-lg active:scale-95 ${option.accent}`}
                 >
                   Iniciar Cotización <ArrowRight className="h-4 w-4" />

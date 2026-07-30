@@ -1473,6 +1473,7 @@ function SimuladorContent() {
                             </p>
                             <Button
                                 onClick={() => setHasStarted(true)}
+                                data-testid="simulator-cover-start"
                                 className="mt-8 h-14 rounded-md bg-red-600 px-8 text-base font-black text-white hover:bg-red-700"
                                 disabled={isLoading}
                             >
@@ -1910,7 +1911,8 @@ function SimuladorContent() {
                                             <Button
                                                 type="button"
                                                 onClick={() => setStep(2)}
-                                                className="h-14 px-8 rounded-2xl bg-gradient-to-r from-red-600 to-amber-500 hover:from-red-700 hover:to-amber-600 text-white font-black text-xs sm:text-sm uppercase tracking-widest shadow-xl transition-all transform hover:scale-105 active:scale-95 flex items-center justify-center gap-3"
+                                                data-testid="simulator-first-step-cta"
+                                                className="h-14 px-8 rounded-2xl bg-indigo-700 hover:bg-indigo-800 text-white font-black text-xs sm:text-sm uppercase tracking-widest shadow-xl transition-all transform hover:scale-105 active:scale-95 flex items-center justify-center gap-3"
                                             >
                                                 <span>Cotizar Mi Fiesta en 2 Minutos</span>
                                                 <ArrowRight className="w-5 h-5" />
@@ -1934,18 +1936,18 @@ function SimuladorContent() {
                                 </div>
 
                                 <div className="grid gap-4 sm:grid-cols-2">
-                                    <div className="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm hover:border-red-300 hover:shadow-md transition space-y-2">
+                                    <div className="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm hover:border-indigo-300 hover:shadow-md transition space-y-2">
                                         <div className="flex items-center gap-3">
-                                            <div className="grid h-10 w-10 place-items-center rounded-xl bg-red-100 text-red-700 font-black">
+                                            <div className="grid h-10 w-10 place-items-center rounded-xl bg-indigo-100 text-indigo-700 font-black">
                                                 <PartyPopper className="w-5 h-5" />
                                             </div>
                                             <div>
                                                 <h4 className="font-black text-slate-900 text-sm">Un Solo Equipo, Cero Estrés</h4>
-                                                <p className="text-[11px] font-bold text-red-600">Producción 100% propia in-house</p>
+                                                <p className="text-[11px] font-bold text-indigo-700">Producción 100% propia in-house</p>
                                             </div>
                                         </div>
                                         <p className="text-xs text-slate-600 font-semibold leading-relaxed pt-1">
-                                            El día de tu fiesta tu única tarea es disfrutar. No dependés de terceros que se culpen entre sí: gastronomía, DJ, luces robotizadas, ambientación y coordinación técnica corren por nuestra cuenta.
+                                            El día de tu fiesta tu única tarea es disfrutar. Gastronomía, discoteca, luces robotizadas, ambientación y coordinación técnica corren por cuenta del mismo equipo.
                                         </p>
                                     </div>
 
@@ -1985,12 +1987,12 @@ function SimuladorContent() {
                                                 <ShieldCheck className="w-5 h-5" />
                                             </div>
                                             <div>
-                                                <h4 className="font-black text-slate-900 text-sm">Transparencia & Precios Congelados</h4>
+                                                <h4 className="font-black text-slate-900 text-sm">Transparencia & Ajustes Informados</h4>
                                                 <p className="text-[11px] font-bold text-emerald-600">Sin letras chicas ni cargos sorpresa</p>
                                             </div>
                                         </div>
                                         <p className="text-xs text-slate-600 font-semibold leading-relaxed pt-1">
-                                            Tranquilidad absoluta para tu presupuesto: precios transparentes, congelación de tarifa anual y facilidades de seña en cuotas respaldadas por contrato.
+                                            Ves el precio vigente, la proyección anual para la fecha elegida y las condiciones de seña que se confirman en el contrato.
                                         </p>
                                     </div>
                                 </div>

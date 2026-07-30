@@ -39,6 +39,48 @@ export async function GET(request: Request, props: { params: Promise<{ fiestaId:
       return NextResponse.json({ error: 'No messages found for this event mailbox.' }, { status: 404 });
     }
 
+    const messageId = new URL(request.url).searchParams.get('messageId');
+    if (messageId) {
+      const message = messages.find((item) => item.id === messageId);
+      if (!message?.mediaUrl) {
+        return NextResponse.json({ error: 'Message not found.' }, { status: 404 });
+      }
+      if (!/^https?:\/\//i.test(message.mediaUrl) || !isUrlAllowed(message.mediaUrl)) {
+        return NextResponse.json({ error: 'Message media is not available for download.' }, { status: 400 });
+      }
+
+      const mediaResponse = await fetch(message.mediaUrl);
+      if (!mediaResponse.ok) {
+        return NextResponse.json({ error: 'Message media could not be downloaded.' }, { status: 502 });
+      }
+      const contentLength = Number(mediaResponse.headers.get('content-length') || 0);
+      if (contentLength > MAX_TOTAL_SIZE) {
+        return NextResponse.json({ error: 'Message media exceeds the download limit.' }, { status: 413 });
+      }
+
+      const mediaBuffer = Buffer.from(await mediaResponse.arrayBuffer());
+      if (mediaBuffer.length > MAX_TOTAL_SIZE) {
+        return NextResponse.json({ error: 'Message media exceeds the download limit.' }, { status: 413 });
+      }
+
+      const rawExtension = message.storagePath?.split('.').pop();
+      const extension = rawExtension && /^[a-z0-9]{1,8}$/i.test(rawExtension)
+        ? `.${rawExtension.toLowerCase()}`
+        : message.mediaType === 'audio' ? '.webm' : '.mp4';
+      const cleanAuthor = message.authorName.replace(/[^a-zA-Z0-9-_]/g, '_');
+      const filename = `${message.mediaType}_${cleanAuthor}_${message.id}${extension}`;
+      const headers = new Headers();
+      headers.set(
+        'Content-Type',
+        mediaResponse.headers.get('content-type')
+          || (message.mediaType === 'audio' ? 'audio/webm' : 'video/mp4'),
+      );
+      headers.set('Content-Disposition', `attachment; filename="${filename}"`);
+      headers.set('Content-Length', String(mediaBuffer.length));
+
+      return new NextResponse(new Uint8Array(mediaBuffer), { status: 200, headers });
+    }
+
     const zip = new JSZip();
     let totalSize = 0;
     let limitExceeded = false;

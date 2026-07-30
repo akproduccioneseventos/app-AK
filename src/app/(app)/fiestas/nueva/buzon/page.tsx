@@ -701,10 +701,7 @@ function BuzonAdminContent() {
 
           <div className="flex items-center justify-between border-t border-slate-100 pt-3 mt-4">
             <a
-              href={msg.mediaUrl}
-              target="_blank"
-              rel="noopener noreferrer"
-              download={`saludo_${msg.authorName}_${msg.id}`}
+              href={`/api/buzon/${encodeURIComponent(fiestaId || '')}/download?messageId=${encodeURIComponent(msg.id)}`}
               className="inline-flex items-center gap-1.5 text-xs font-semibold text-indigo-600 hover:text-indigo-800 hover:underline"
             >
               <Download className="w-3.5 h-3.5" /> Descargar
