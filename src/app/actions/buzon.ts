@@ -261,7 +261,7 @@ export async function deleteWelcomeAudio(
     return { success: false, error: error.message || 'Error al borrar audio de bienvenida.' };
   }
 }
-export async function updateBuzonFrameTemplate(fiestaId: string, template: string): Promise<{ success: boolean; error?: string }> {
+export async function updateBuzonFrameTemplate(fiestaId: string, template: string, customText?: string): Promise<{ success: boolean; error?: string }> {
   try {
     const fiesta = await getFiestaById(fiestaId);
     if (!fiesta) return { success: false, error: 'Fiesta no encontrada.' };
@@ -271,6 +271,7 @@ export async function updateBuzonFrameTemplate(fiestaId: string, template: strin
       buzonConfig: {
         ...fiesta.buzonConfig,
         videoFrameTemplate: template,
+        customText: customText || fiesta.buzonConfig?.customText || '',
       }
     };
 
