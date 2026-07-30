@@ -7,6 +7,11 @@ import { addChatMessage } from '@/app/actions/social-gallery';
 import { requireAppSession } from '@/lib/auth/require-session';
 import * as logger from '@/lib/logger';
 import path from 'path';
+import { hasEntertainmentGuestAccess } from '@/lib/auth/entertainment-token';
+import { getEntertainmentStationConfig } from '@/lib/entertainment/station-config';
+import { enforcePublicRateLimit } from '@/lib/commercial/public-rate-limit';
+import { detectBuzonMedia } from '@/lib/buzon/media-upload';
+import { isFrameTemplateId } from '@/lib/buzon/video-frame-templates';
 
 const BUZON_COLLECTION = 'buzon_messages';
 const MAX_AUDIO_SIZE = 15 * 1024 * 1024; // 15MB
@@ -36,6 +41,7 @@ async function getDb(): Promise<Firestore> {
 export async function getBuzonMessages(fiestaId: string): Promise<BuzonMessage[]> {
   if (!fiestaId) return [];
   try {
+    await requireAppSession();
     const db = await getDb();
     const snapshot = await db
       .collection(BUZON_COLLECTION)
@@ -59,43 +65,68 @@ export async function uploadBuzonMessage(
 ): Promise<{ success: boolean; message?: BuzonMessage; error?: string }> {
   const fiestaId = formData.get('fiestaId') as string;
   const file = formData.get('file') as File;
-  const authorName = (formData.get('authorName') as string) || 'Anónimo';
+  const accessToken = String(formData.get('accessToken') || '');
+  const authorName = String(formData.get('authorName') || '').trim().slice(0, 80) || 'Anónimo';
   const mediaType = formData.get('mediaType') as 'audio' | 'video';
-  const durationSeconds = Number(formData.get('durationSeconds')) || 0;
 
-  if (!fiestaId || !file) {
+  if (!fiestaId || !file || file.size <= 0) {
     return { success: false, error: 'Faltan datos obligatorios (fiestaId o archivo).' };
   }
 
-  const isAudio = file.type.startsWith('audio/') || mediaType === 'audio';
-  const isVideo = file.type.startsWith('video/') || mediaType === 'video';
-
-  if (!isAudio && !isVideo) {
+  if (mediaType !== 'audio' && mediaType !== 'video') {
     return { success: false, error: 'Formato de archivo no soportado (solo audio o video).' };
   }
 
-  const limitSize = isAudio ? MAX_AUDIO_SIZE : MAX_VIDEO_SIZE;
+  const limitSize = mediaType === 'audio' ? MAX_AUDIO_SIZE : MAX_VIDEO_SIZE;
   if (file.size > limitSize) {
     return {
       success: false,
-      error: `El archivo supera el límite permitido (${isAudio ? '15MB' : '40MB'}).`,
+      error: `El archivo supera el límite permitido (${mediaType === 'audio' ? '15MB' : '40MB'}).`,
     };
   }
 
   try {
-    const db = await getDb();
-    const fileExtension = path.extname(file.name) || (isAudio ? '.webm' : '.mp4');
-    const messageId = `msg_${Date.now()}_${Math.random().toString(36).substring(2, 9)}`;
-    const storagePath = `fiestas/${fiestaId}/buzon/${messageId}${fileExtension}`;
+    if (!(await hasEntertainmentGuestAccess(fiestaId, 'capsulaTiempo', accessToken))) {
+      return { success: false, error: 'Acceso de estación no autorizado.' };
+    }
+    const fiesta = await getFiestaById(fiestaId);
+    if (!fiesta) return { success: false, error: 'Fiesta no encontrada.' };
+    const station = getEntertainmentStationConfig(fiesta, 'capsulaTiempo');
+    if (
+      !station.enabled
+      || fiesta.buzonConfig?.enabled === false
+      || fiesta.guestPortalSettings?.showBuzon === false
+    ) {
+      return { success: false, error: 'El buzón no está habilitado para esta fiesta.' };
+    }
 
-    const bytes = await file.arrayBuffer();
-    const buffer = Buffer.from(bytes);
+    await enforcePublicRateLimit({
+      scope: 'buzon-upload',
+      identity: fiestaId,
+      limit: 30,
+      windowMs: 10 * 60 * 1000,
+    });
+
+    const bytes = new Uint8Array(await file.arrayBuffer());
+    const detectedMedia = detectBuzonMedia(bytes, mediaType, file.type);
+    if (!detectedMedia) {
+      return { success: false, error: 'El contenido del archivo no coincide con un audio o video válido.' };
+    }
+
+    const db = await getDb();
+    const messageId = `msg_${Date.now()}_${Math.random().toString(36).substring(2, 9)}`;
+    const storagePath = `fiestas/${fiestaId}/buzon/${messageId}${detectedMedia.extension}`;
+    const durationLimit = detectedMedia.mediaType === 'audio' ? 60 : 15;
+    const durationSeconds = Math.min(
+      durationLimit,
+      Math.max(0, Math.round(Number(formData.get('durationSeconds')) || 0)),
+    );
 
     // Upload to Firebase Storage
     const mediaUrl = await uploadToStorage(
-      buffer,
+      Buffer.from(bytes),
       storagePath,
-      file.type || (isAudio ? 'audio/webm' : 'video/mp4'),
+      detectedMedia.contentType,
       true // make public so the client/host can reproduce it directly
     );
 
@@ -104,7 +135,7 @@ export async function uploadBuzonMessage(
       fiestaId,
       authorName,
       mediaUrl,
-      mediaType: isAudio ? 'audio' : 'video',
+      mediaType: detectedMedia.mediaType,
       durationSeconds,
       timestamp: new Date().toISOString(),
       storagePath,
@@ -114,7 +145,7 @@ export async function uploadBuzonMessage(
     await db.collection(BUZON_COLLECTION).doc(messageId).set(newMessage);
 
     // Notify the screen visually by adding a system chat message
-    const alertText = isAudio
+    const alertText = detectedMedia.mediaType === 'audio'
       ? '🎙️ Dejó un saludo de voz en el buzón'
       : '📹 Subió un video al buzón';
 
@@ -263,6 +294,10 @@ export async function deleteWelcomeAudio(
 }
 export async function updateBuzonFrameTemplate(fiestaId: string, template: string, customText?: string): Promise<{ success: boolean; error?: string }> {
   try {
+    await requireAppSession();
+    if (!isFrameTemplateId(template)) {
+      return { success: false, error: 'Plantilla de video no válida.' };
+    }
     const fiesta = await getFiestaById(fiestaId);
     if (!fiesta) return { success: false, error: 'Fiesta no encontrada.' };
 
@@ -271,7 +306,9 @@ export async function updateBuzonFrameTemplate(fiestaId: string, template: strin
       buzonConfig: {
         ...fiesta.buzonConfig,
         videoFrameTemplate: template,
-        customText: customText || fiesta.buzonConfig?.customText || '',
+        customText: typeof customText === 'string'
+          ? customText.trim().slice(0, 80)
+          : fiesta.buzonConfig?.customText || '',
       }
     };
 

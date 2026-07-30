@@ -243,12 +243,8 @@ function BuzonAdminContent() {
   const [isFrameSaving, setIsFrameSaving] = useState(false);
 
   useEffect(() => {
-    if (fiesta?.buzonConfig?.videoFrameTemplate) {
-      setFrameTemplate(fiesta.buzonConfig.videoFrameTemplate);
-    }
-    if (fiesta?.buzonConfig?.customText) {
-      setCustomFrameText(fiesta.buzonConfig.customText);
-    }
+    setFrameTemplate(fiesta?.buzonConfig?.videoFrameTemplate || 'default');
+    setCustomFrameText(fiesta?.buzonConfig?.customText || '');
   }, [fiesta]);
 
   const handleSaveFrameTemplate = async () => {
@@ -702,7 +698,7 @@ function BuzonAdminContent() {
               <div>
                 <p className="font-black text-sm text-slate-800 line-clamp-1">{msg.authorName}</p>
                 <p className="text-[10px] text-slate-400 font-bold mt-0.5">
-                  {new Date(msg.timestamp).toLocaleString('es-ES', {
+                  {new Date(msg.timestamp).toLocaleString('es-UY', {
                     day: 'numeric', month: 'short', hour: '2-digit', minute: '2-digit'
                   })}
                 </p>
