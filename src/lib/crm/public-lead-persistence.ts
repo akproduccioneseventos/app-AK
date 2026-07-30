@@ -177,7 +177,14 @@ function buildLead(
       || (input.marketingConsent ? input.marketingConsentSource || acquisition.source : undefined),
     referrerEventName: existing?.referrerEventName || input.referrerEventName,
     lastInboundAt: now,
-    currentStageId: shouldAdvanceToBudget ? (budgetStage?.id || initialStageId) : (existing?.currentStageId || initialStageId),
+    currentStageId: (() => {
+      const isSimulatorLead = Boolean(input.budgetSource?.includes('simulator') || input.presupuestoId);
+      if (existing?.currentStageId) {
+        if (shouldAdvanceToBudget && budgetStage) return budgetStage.id;
+        return existing.currentStageId;
+      }
+      return isSimulatorLead ? (budgetStage?.id || 's3') : initialStageId;
+    })(),
     createdAt: existing?.createdAt || now,
     updatedAt: now,
   } as CrmLead);
