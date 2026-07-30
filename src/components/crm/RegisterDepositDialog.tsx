@@ -80,13 +80,40 @@ export function RegisterDepositDialog({ isOpen, onOpenChange, fiestaId, onComple
             <Select value={method} onValueChange={setMethod}>
               <SelectTrigger><SelectValue /></SelectTrigger>
               <SelectContent>
-                <SelectItem value="Transferencia">Transferencia Bancaria</SelectItem>
-                <SelectItem value="Efectivo">Efectivo</SelectItem>
-                <SelectItem value="Tarjeta">Tarjeta de Crédito/Débito</SelectItem>
+                <SelectItem value="Transferencia Bancaria">Transferencia Bancaria (Contado)</SelectItem>
+                <SelectItem value="Efectivo">Efectivo (Contado)</SelectItem>
+                <SelectItem value="MercadoPago (Cuotas +10%)">Mercado Pago / Tarjeta en Cuotas (+10% recargo)</SelectItem>
+                <SelectItem value="Tarjeta">Tarjeta de Débito / Crédito 1 Pago</SelectItem>
                 <SelectItem value="Otro">Otro</SelectItem>
               </SelectContent>
             </Select>
           </div>
+
+          {method === 'MercadoPago (Cuotas +10%)' && amount && parseFloat(amount) > 0 && (
+            <div className="rounded-xl border border-amber-200 bg-amber-50/80 p-3 space-y-2 text-xs">
+              <div className="flex justify-between font-bold text-amber-900">
+                <span>Monto Base:</span>
+                <span>$ {parseFloat(amount).toLocaleString('es-UY')}</span>
+              </div>
+              <div className="flex justify-between text-amber-800">
+                <span>Recargo Mercado Pago / Tarjeta (+10%):</span>
+                <span>+$ {Math.round(parseFloat(amount) * 0.10).toLocaleString('es-UY')}</span>
+              </div>
+              <div className="flex justify-between font-extrabold text-amber-950 border-t border-amber-300/60 pt-1.5 text-sm">
+                <span>Total a Cobrar:</span>
+                <span>$ {Math.round(parseFloat(amount) * 1.10).toLocaleString('es-UY')}</span>
+              </div>
+              <div className="pt-1 text-[11px] text-amber-800 space-y-1">
+                <p className="font-semibold text-amber-900">Desglose de Cuotas sugeridas:</p>
+                <div className="grid grid-cols-2 gap-1 bg-white/70 p-2 rounded-lg border border-amber-200/80">
+                  <p>• 1 pago: <strong>$ {Math.round(parseFloat(amount) * 1.10).toLocaleString('es-UY')}</strong></p>
+                  <p>• 3 cuotas: <strong>$ {Math.round((parseFloat(amount) * 1.10) / 3).toLocaleString('es-UY')}/m</strong></p>
+                  <p>• 6 cuotas: <strong>$ {Math.round((parseFloat(amount) * 1.10) / 6).toLocaleString('es-UY')}/m</strong></p>
+                  <p>• 12 cuotas: <strong>$ {Math.round((parseFloat(amount) * 1.10) / 12).toLocaleString('es-UY')}/m</strong></p>
+                </div>
+              </div>
+            </div>
+          )}
 
           <div className="space-y-2">
             <Label>Fecha del Pago</Label>

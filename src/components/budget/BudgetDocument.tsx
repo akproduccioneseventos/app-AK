@@ -522,6 +522,26 @@ export default function BudgetDocument({
           </section>
         )}
 
+        {/* Mercado Pago & Credit Card Payment Options Box */}
+        <section className="mb-4 border border-amber-200 rounded-xl p-3 bg-amber-50/40 print:border-amber-300 budget-print-avoid-break">
+          <div className="flex items-center justify-between font-headline font-black text-xs text-amber-950 uppercase tracking-tight mb-1">
+            <span>💳 Opciones de Pago & Financiación</span>
+            <span className="text-[10px] text-amber-800 bg-amber-200/60 px-2 py-0.5 rounded-full font-bold">Mercado Pago / Tarjeta</span>
+          </div>
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 text-[11px] text-slate-700">
+            <div className="bg-white/80 p-2 rounded-lg border border-amber-200/60">
+              <p className="font-bold text-slate-900">1. Contado / Transferencia Bancaria:</p>
+              <p className="text-emerald-700 font-bold mt-0.5">{formatCurrency(totalFinal)} (Sin recargo)</p>
+            </div>
+            <div className="bg-white/80 p-2 rounded-lg border border-amber-200/60">
+              <p className="font-bold text-slate-900">2. Mercado Pago / Tarjetas en Cuotas (+10% recargo):</p>
+              <p className="text-amber-900 font-bold mt-0.5">
+                Total: {formatCurrency(Math.round(totalFinal * 1.10))} <span className="font-normal text-[10px] text-slate-500">(Hasta 12 cuotas de {formatCurrency(Math.round((totalFinal * 1.10) / 12))}/m)</span>
+              </p>
+            </div>
+          </div>
+        </section>
+
         {projectionRows.length > 0 && (
           <section className="mb-4 budget-print-avoid-break">
             <h3
