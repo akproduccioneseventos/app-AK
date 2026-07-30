@@ -66,9 +66,14 @@ test('prospect completes the simulator and downloads a formal future-year PDF', 
   }
   await page.getByRole('button', { name: /Continuar/i }).click();
 
+  // La sugerencia de paquete superior se abre medio segundo despues de entrar al
+  // paso 5. Se espera de forma explicita para que el recorrido no dependa del
+  // instante exacto en que aparece.
   const keepSelection = page.getByRole('button', { name: /Mantener mi selecci[oó]n actual/i });
-  if (await keepSelection.isVisible({ timeout: 3_000 }).catch(() => false)) {
+  await keepSelection.waitFor({ state: 'visible', timeout: 10_000 }).catch(() => undefined);
+  if (await keepSelection.isVisible().catch(() => false)) {
     await keepSelection.click();
+    await keepSelection.waitFor({ state: 'hidden', timeout: 10_000 }).catch(() => undefined);
   }
 
   await expect(page.getByText(/Paso 5 de 5/i)).toBeVisible();
