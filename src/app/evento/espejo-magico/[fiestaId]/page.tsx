@@ -978,15 +978,67 @@ export default function EspejoMagicoPage() {
             <div className="absolute inset-0 flex flex-col items-center justify-center text-center p-6 bg-gradient-to-t from-zinc-950 via-zinc-950/30 to-zinc-950/80">
               <div className="relative z-10 space-y-6 max-w-sm">
                 {mode === 'ia' && (
-                  <label className="flex cursor-pointer items-start gap-3 rounded-lg border border-rose-400/30 bg-black/45 p-4 text-left text-sm text-zinc-200">
-                    <input
-                      type="checkbox"
-                      checked={consentAccepted}
-                      onChange={(event) => setConsentAccepted(event.target.checked)}
-                      className="mt-0.5 h-4 w-4 accent-rose-500"
-                    />
-                    <span>Acepto el procesamiento temporal de esta foto para generar el retrato con IA.</span>
-                  </label>
+                  <div className="w-full space-y-3 text-left bg-black/60 backdrop-blur-md p-4 rounded-2xl border border-rose-500/30">
+                    <div className="flex items-center justify-between">
+                      <p className="text-xs font-black uppercase tracking-widest text-amber-400 flex items-center gap-1.5">
+                        <Zap className="w-3.5 h-3.5 text-amber-400" /> 1. Elegí tu Estilo IA
+                      </p>
+                      <span className="text-[10px] text-zinc-400 bg-white/10 px-2 py-0.5 rounded-full font-bold">
+                        {ESPEJO_TEMPLATES[selectedTemplateId]?.label || 'K-Pop Star'}
+                      </span>
+                    </div>
+
+                    {/* Category Tabs */}
+                    <div className="flex gap-1.5 overflow-x-auto pb-1 no-scrollbar">
+                      {FACESWAP_CATEGORIES.map((cat) => (
+                        <button
+                          key={cat.id}
+                          type="button"
+                          onClick={() => setSelectedCategory(cat.id)}
+                          className={`text-[10px] font-extrabold uppercase px-2.5 py-1 rounded-full whitespace-nowrap transition-all ${
+                            selectedCategory === cat.id
+                              ? 'bg-rose-500 text-white shadow-md'
+                              : 'bg-white/10 text-zinc-400 hover:bg-white/20'
+                          }`}
+                        >
+                          {cat.label}
+                        </button>
+                      ))}
+                    </div>
+
+                    {/* Template Pills Grid */}
+                    <div className="grid grid-cols-2 gap-1.5 max-h-36 overflow-y-auto pr-1">
+                      {Object.values(ESPEJO_TEMPLATES)
+                        .filter((t) => t.categoryId === selectedCategory)
+                        .map((template) => {
+                          const isSelected = selectedTemplateId === template.id;
+                          return (
+                            <button
+                              key={template.id}
+                              type="button"
+                              onClick={() => setSelectedTemplateId(template.id)}
+                              className={`p-2 rounded-xl text-left border transition-all ${
+                                isSelected
+                                  ? 'border-amber-400 bg-amber-500/25 text-white font-bold shadow-[0_0_12px_rgba(251,191,36,0.4)]'
+                                  : 'border-white/10 bg-white/5 text-zinc-300 hover:bg-white/10'
+                              }`}
+                            >
+                              <p className="text-xs font-extrabold truncate">{template.label}</p>
+                            </button>
+                          );
+                        })}
+                    </div>
+
+                    <label className="flex cursor-pointer items-start gap-2.5 pt-2 border-t border-white/10 text-xs text-zinc-300">
+                      <input
+                        type="checkbox"
+                        checked={consentAccepted}
+                        onChange={(event) => setConsentAccepted(event.target.checked)}
+                        className="mt-0.5 h-4 w-4 accent-rose-500 shrink-0"
+                      />
+                      <span>Acepto el procesamiento temporal de mi foto para generar la transformación con IA.</span>
+                    </label>
+                  </div>
                 )}
                 <button
                   onClick={takePhoto}
