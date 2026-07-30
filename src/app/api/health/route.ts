@@ -23,6 +23,10 @@ export async function GET() {
     (process.env.INSTAGRAM_ACCESS_TOKEN || process.env.META_INSTAGRAM_ACCESS_TOKEN) &&
     (process.env.INSTAGRAM_BUSINESS_ACCOUNT_ID || process.env.INSTAGRAM_USER_ID)
   );
+  const mercadoPagoOk = Boolean(
+    process.env.MERCADO_PAGO_ACCESS_TOKEN &&
+    process.env.MERCADO_PAGO_WEBHOOK_SECRET
+  );
 
   return NextResponse.json({
     status: 'ok',
@@ -33,6 +37,7 @@ export async function GET() {
       googleWorkspace: googleWorkspaceOk,
       mail: mailOk,
       instagram: instagramOk,
+      mercadoPago: mercadoPagoOk,
     },
     environment: process.env.NODE_ENV ?? 'unknown',
     uptime: Math.floor((Date.now() - startTime) / 1000),

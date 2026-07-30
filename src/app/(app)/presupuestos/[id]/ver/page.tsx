@@ -40,6 +40,7 @@ import {
   calculatePricePerPerson,
   DEFAULT_BOOKING_DEPOSIT_AMOUNT,
 } from '@/lib/budget/formal-budget';
+import { calculateMercadoPagoCuotas } from '@/lib/payments/mercadopago-calculator';
 
 const formatCurrency = (amount?: number) => {
   if (amount === undefined || isNaN(amount)) return 'N/A';
@@ -126,6 +127,7 @@ function VerPresupuestoContent({ params }: { params: { id: string } }) {
   const [clientPagoMetodo, setClientPagoMetodo] = useState<MetodoPago>('Transferencia Bancaria');
   const [clientPagoReferencia, setClientPagoReferencia] = useState('');
   const [clientPagoComprobante, setClientPagoComprobante] = useState<string | undefined>(undefined);
+  const [startingMercadoPago, setStartingMercadoPago] = useState<'deposit' | 'balance' | null>(null);
 
   // Budget audit state
   const [isAuditing, setIsAuditing] = useState(false);
@@ -384,6 +386,16 @@ function VerPresupuestoContent({ params }: { params: { id: string } }) {
     () => (presupuesto?.pagosCliente || []).some((p) => isConfirmedClientPayment(p) && p.monto > 0),
     [presupuesto]
   );
+  const mercadoPagoDepositTotal = useMemo(
+    () => calculateMercadoPagoCuotas(
+      Math.min(DEFAULT_BOOKING_DEPOSIT_AMOUNT, pagosSummary.saldoPendiente),
+    ).totalWithSurcharge,
+    [pagosSummary.saldoPendiente],
+  );
+  const mercadoPagoBalanceTotal = useMemo(
+    () => calculateMercadoPagoCuotas(pagosSummary.saldoPendiente).totalWithSurcharge,
+    [pagosSummary.saldoPendiente],
+  );
 
   const handleAddPago = async () => {
     const monto = parseFloat(newPagoMonto);
@@ -454,6 +466,34 @@ function VerPresupuestoContent({ params }: { params: { id: string } }) {
       toast({ title: 'Error', description: e.message, variant: 'destructive' });
     } finally {
       setIsSavingClientPago(false);
+    }
+  };
+
+  const handleMercadoPagoCheckout = async (purpose: 'deposit' | 'balance') => {
+    if (!presupuesto || !publicToken || startingMercadoPago) return;
+    setStartingMercadoPago(purpose);
+    try {
+      const response = await fetch('/api/payments/mercadopago/checkout', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          presupuestoId: presupuesto.id,
+          token: publicToken,
+          purpose,
+        }),
+      });
+      const payload = await response.json() as { checkoutUrl?: string; error?: string };
+      if (!response.ok || !payload.checkoutUrl) {
+        throw new Error(payload.error || 'No se pudo iniciar el pago.');
+      }
+      window.location.assign(payload.checkoutUrl);
+    } catch (checkoutError) {
+      toast({
+        title: 'Mercado Pago no disponible',
+        description: checkoutError instanceof Error ? checkoutError.message : 'Intenta nuevamente.',
+        variant: 'destructive',
+      });
+      setStartingMercadoPago(null);
     }
   };
 
@@ -928,6 +968,60 @@ function VerPresupuestoContent({ params }: { params: { id: string } }) {
                 </Card>
             </motion.div>
             </>
+            )}
+
+            {shouldShowPublicBudgetActions
+              && publicToken
+              && ['Enviado', 'Aceptado', 'Facturado'].includes(presupuesto.estado)
+              && pagosSummary.saldoPendiente > 0 && (
+              <motion.div
+                initial={{ opacity: 0, y: 16 }}
+                animate={{ opacity: 1, y: 0 }}
+                className="print:hidden"
+              >
+                <Card className="overflow-hidden rounded-lg border border-sky-200 bg-white shadow-sm">
+                  <CardContent className="p-6 sm:p-8">
+                    <div className="flex flex-col gap-5 sm:flex-row sm:items-center sm:justify-between">
+                      <div className="max-w-xl">
+                        <div className="flex items-center gap-2">
+                          <CreditCard className="h-5 w-5 text-[#009EE3]" />
+                          <h3 className="text-lg font-black text-slate-900">Pagar con Mercado Pago</h3>
+                        </div>
+                        <p className="mt-2 text-sm leading-6 text-slate-600">
+                          Pago protegido. El total incluye el 10% de recargo financiero informado en el presupuesto.
+                        </p>
+                      </div>
+                      <div className="flex w-full flex-col gap-2 sm:w-auto">
+                        {!hasDepositPayment && pagosSummary.saldoPendiente > DEFAULT_BOOKING_DEPOSIT_AMOUNT && (
+                          <Button
+                            type="button"
+                            variant="outline"
+                            onClick={() => void handleMercadoPagoCheckout('deposit')}
+                            disabled={Boolean(startingMercadoPago)}
+                            className="min-w-52 rounded-lg border-[#009EE3] text-[#007eb5] hover:bg-sky-50"
+                          >
+                            {startingMercadoPago === 'deposit'
+                              ? <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                              : <CreditCard className="mr-2 h-4 w-4" />}
+                            Pagar sena {formatCurrency(mercadoPagoDepositTotal)}
+                          </Button>
+                        )}
+                        <Button
+                          type="button"
+                          onClick={() => void handleMercadoPagoCheckout('balance')}
+                          disabled={Boolean(startingMercadoPago)}
+                          className="min-w-52 rounded-lg bg-[#009EE3] text-white hover:bg-[#0089c7]"
+                        >
+                          {startingMercadoPago === 'balance'
+                            ? <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                            : <ShieldCheck className="mr-2 h-4 w-4" />}
+                          Pagar saldo {formatCurrency(mercadoPagoBalanceTotal)}
+                        </Button>
+                      </div>
+                    </div>
+                  </CardContent>
+                </Card>
+              </motion.div>
             )}
 
             {/* ── INFORMAR PAGO — Client-facing payment notification ── */}
