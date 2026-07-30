@@ -139,6 +139,19 @@ export default function EspejoMagicoPage() {
   const [errorMsg, setErrorMsg] = useState<string | null>(null);
   const [consentAccepted, setConsentAccepted] = useState(false);
 
+  const selectAiCategory = (categoryId: FaceSwapCategoryId) => {
+    setSelectedCategory(categoryId);
+    setSelectedTemplateId((currentTemplateId) => {
+      const currentTemplate = ESPEJO_TEMPLATES[currentTemplateId];
+      if (currentTemplate?.categoryId === categoryId) return currentTemplateId;
+      return (
+        Object.values(ESPEJO_TEMPLATES).find(
+          (template) => template.categoryId === categoryId,
+        )?.id || currentTemplateId
+      );
+    });
+  };
+
   const [fiesta, setFiesta] = useState<PublicEntertainmentEvent | null>(null);
   const [isEventLoading, setIsEventLoading] = useState(true);
   const [voiceEnabled, setVoiceEnabled] = useState(true);
@@ -975,26 +988,33 @@ export default function EspejoMagicoPage() {
               className={`absolute inset-0 w-full h-full object-cover opacity-40 ${facingMode === 'user' ? 'scale-x-[-1]' : ''}`}
             />
 
-            <div className="absolute inset-0 flex flex-col items-center justify-center text-center p-6 bg-gradient-to-t from-zinc-950 via-zinc-950/30 to-zinc-950/80">
-              <div className="relative z-10 space-y-6 max-w-sm">
+            <div className="absolute inset-0 flex touch-pan-y flex-col items-center overflow-y-auto bg-gradient-to-t from-zinc-950 via-zinc-950/30 to-zinc-950/80 px-4 pb-8 pt-24 text-center">
+              <div className="relative z-10 my-auto w-full max-w-sm space-y-4 sm:space-y-6">
                 {mode === 'ia' && (
                   <div className="w-full space-y-3 text-left bg-black/60 backdrop-blur-md p-4 rounded-2xl border border-rose-500/30">
                     <div className="flex items-center justify-between">
                       <p className="text-xs font-black uppercase tracking-widest text-amber-400 flex items-center gap-1.5">
                         <Zap className="w-3.5 h-3.5 text-amber-400" /> 1. Elegí tu Estilo IA
                       </p>
-                      <span className="text-[10px] text-zinc-400 bg-white/10 px-2 py-0.5 rounded-full font-bold">
+                      <span
+                        data-testid="selected-ai-style"
+                        className="text-[10px] text-zinc-400 bg-white/10 px-2 py-0.5 rounded-full font-bold"
+                      >
                         {ESPEJO_TEMPLATES[selectedTemplateId]?.label || 'K-Pop Star'}
                       </span>
                     </div>
 
                     {/* Category Tabs */}
-                    <div className="flex gap-1.5 overflow-x-auto pb-1 no-scrollbar">
+                    <div
+                      className="hide-scrollbar flex touch-pan-x gap-1.5 overflow-x-auto pb-1"
+                      aria-label="Categorías de estilos IA"
+                    >
                       {FACESWAP_CATEGORIES.map((cat) => (
                         <button
                           key={cat.id}
                           type="button"
-                          onClick={() => setSelectedCategory(cat.id)}
+                          onClick={() => selectAiCategory(cat.id)}
+                          aria-pressed={selectedCategory === cat.id}
                           className={`text-[10px] font-extrabold uppercase px-2.5 py-1 rounded-full whitespace-nowrap transition-all ${
                             selectedCategory === cat.id
                               ? 'bg-rose-500 text-white shadow-md'
@@ -1007,7 +1027,10 @@ export default function EspejoMagicoPage() {
                     </div>
 
                     {/* Template Pills Grid */}
-                    <div className="grid grid-cols-2 gap-1.5 max-h-36 overflow-y-auto pr-1">
+                    <div
+                      className="grid max-h-36 touch-pan-y grid-cols-2 gap-1.5 overflow-y-auto pr-1"
+                      aria-label="Estilos IA disponibles"
+                    >
                       {Object.values(ESPEJO_TEMPLATES)
                         .filter((t) => t.categoryId === selectedCategory)
                         .map((template) => {
@@ -1017,6 +1040,7 @@ export default function EspejoMagicoPage() {
                               key={template.id}
                               type="button"
                               onClick={() => setSelectedTemplateId(template.id)}
+                              aria-pressed={isSelected}
                               className={`p-2 rounded-xl text-left border transition-all ${
                                 isSelected
                                   ? 'border-amber-400 bg-amber-500/25 text-white font-bold shadow-[0_0_12px_rgba(251,191,36,0.4)]'
@@ -1309,73 +1333,10 @@ export default function EspejoMagicoPage() {
       </AnimatePresence>
 
       {/* BOTTOM CONTROLS */}
-      <div className="h-[200px] shrink-0 pb-safe z-20 flex flex-col justify-end bg-zinc-950">
+      {(mode !== 'ia' || localStatus !== 'idle' || capturedImage) && (
+        <div className="h-[200px] shrink-0 pb-safe z-20 flex flex-col justify-end bg-zinc-950">
         {localStatus === 'idle' && !capturedImage ? (
-          mode === 'ia' ? (
-            <div className="flex flex-col gap-3 px-4 pb-4 w-full h-[180px] justify-between">
-              {/* Category tabs */}
-              <div className="flex gap-2 justify-start border-b border-zinc-800/60 pb-2 overflow-x-auto hide-scrollbar shrink-0">
-                {FACESWAP_CATEGORIES.map(cat => (
-                  <button
-                    key={cat.id}
-                    onClick={() => setSelectedCategory(cat.id)}
-                    className={`px-3 py-1.5 rounded-full text-[10px] font-black uppercase tracking-wider transition whitespace-nowrap border flex items-center gap-1.5
-                      ${selectedCategory === cat.id ? 'border-cyan-500 bg-cyan-500/20 text-cyan-400' : 'border-zinc-800 bg-zinc-900 text-zinc-400'}`}
-                  >
-                    <span>{cat.label}</span>
-                  </button>
-                ))}
-              </div>
-
-              {/* Template list */}
-              <div className="flex overflow-x-auto gap-3 py-1 hide-scrollbar flex-1 items-center">
-                {Object.values(ESPEJO_TEMPLATES)
-                  .filter(t => t.categoryId === selectedCategory)
-                  .map(t => (
-                    <button
-                      key={t.id}
-                      onClick={() => {
-                        setSelectedTemplateId(t.id);
-                        playBeep(600, 0.05);
-                      }}
-                      className={`shrink-0 px-4 py-2.5 rounded-2xl border transition-all flex flex-col items-center justify-center gap-1 text-center w-28 h-12
-                        ${selectedTemplateId === t.id ? 'border-cyan-400 bg-cyan-500/10 shadow-[0_0_12px_rgba(6,182,212,0.3)] scale-105' : 'border-zinc-800 bg-zinc-900/60 hover:border-zinc-700 text-zinc-400'}`}
-                    >
-                      <span className="text-[10px] font-black tracking-tight leading-none uppercase truncate w-full">{t.label}</span>
-                    </button>
-                  ))}
-              </div>
-
-              <label className="rounded-lg border border-cyan-500/30 bg-cyan-950/30 px-3 py-2 flex items-center justify-center gap-2 text-[10px] text-zinc-200">
-                  <input
-                    type="checkbox"
-                    checked={consentAccepted}
-                    onChange={(event) => setConsentAccepted(event.target.checked)}
-                    className="h-4 w-4 accent-cyan-500"
-                  />
-                  Acepto el procesamiento temporal de mi foto con IA para generar este recuerdo.
-              </label>
-
-              {/* Action Bar */}
-              <div className="flex items-center justify-center pb-2 shrink-0">
-                <button
-                  onClick={takePhoto}
-                  aria-label="Tomar fotografía"
-                  disabled={
-                    countdown !== null ||
-                    !!errorMsg ||
-                    !consentAccepted
-                  }
-                  className="w-14 h-14 rounded-full bg-gradient-to-tr from-cyan-500 to-indigo-500 p-1 shadow-[0_0_20px_rgba(6,182,212,0.3)] transition-transform active:scale-95 disabled:opacity-50"
-                >
-                  <div className="w-full h-full rounded-full bg-white flex items-center justify-center text-cyan-500">
-                    <Camera className="w-6 h-6 shrink-0" />
-                  </div>
-                </button>
-              </div>
-            </div>
-          ) : (
-            <>
+          <>
               {/* Filter Selector */}
               <div className="flex overflow-x-auto gap-3 px-4 py-3 hide-scrollbar">
                 {FILTERS.map(f => (
@@ -1414,8 +1375,7 @@ export default function EspejoMagicoPage() {
 
                 <div className="w-14" />
               </div>
-            </>
-          )
+          </>
         ) : capturedImage && localStatus !== 'done' ? (
           /* Drawing / Review Controls */
           <div className="flex flex-col gap-3 px-6 pb-6 pt-2">
@@ -1473,7 +1433,8 @@ export default function EspejoMagicoPage() {
             </div>
           </div>
         ) : null}
-      </div>
+        </div>
+      )}
 
       {showKioskUnlock && <KioskUnlockButton />}
     </div>
