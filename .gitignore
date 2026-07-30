@@ -70,6 +70,7 @@ src/data/last-auto-backup.txt
 /playwright-report/
 /test-results/
 /playwright/.auth/
+/tmp/
 functions/package-lock.json
 
 # graphify

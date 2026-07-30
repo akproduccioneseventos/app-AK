@@ -25,12 +25,12 @@ test('protected access screen remains usable', async ({ page }) => {
   await expect(page.getByText('Acceso Protegido', { exact: true })).toBeVisible();
   await expect(page.getByTestId('login-password')).toBeVisible();
   await expect(page.getByTestId('login-submit')).toBeEnabled();
-  await expect(page.getByRole('button', { name: /Olvide mi contrase/i })).toBeVisible();
+  await expect(page.getByRole('link', { name: /Olvide mi contrase/i })).toBeVisible();
 });
 
 test('password recovery keeps the configured AK email visible when status verification is slow', async ({ page }) => {
   await page.goto('/login', { waitUntil: 'domcontentloaded' });
-  const recoveryButton = page.getByRole('button', { name: /Olvide mi contrase/i });
+  const recoveryButton = page.getByRole('link', { name: /Olvide mi contrase/i });
   await expect(recoveryButton).toHaveCount(1);
   await recoveryButton.click();
 

@@ -200,6 +200,11 @@ function GuestPortalContent() {
   const [isLoading, setIsLoading] = useState(true);
   const [loadError, setLoadError] = useState<string | null>(null);
   const [showQuiosco, setShowQuiosco] = useState(false);
+  const [isInteractive, setIsInteractive] = useState(false);
+
+  useEffect(() => {
+    setIsInteractive(true);
+  }, []);
 
   const loadData = useCallback(async () => {
     if (!fiestaId || !guestId || !guestAccessToken) {
@@ -314,7 +319,7 @@ function GuestPortalContent() {
     ...(rsvpEnabled && guest.rsvp !== 'Confirmado'
       ? [{ id: 'rsvp', label: 'Confirmar asistencia', icon: CheckCircle2, href: rsvpHref }]
       : []),
-    ...publicTools.map((tool): PortalAction => ({
+    ...publicTools.filter(tool => tool.id !== 'bar' || isInteractive).map((tool): PortalAction => ({
       id: tool.id,
       label: tool.label,
       icon: PUBLIC_TOOL_ICONS[tool.id],
@@ -457,7 +462,7 @@ function GuestPortalContent() {
                   <p className="mt-1 text-xs text-slate-500">Tu pase es personal.</p>
                 </div>
                 <div className="rounded-lg border border-slate-200 bg-white p-4 shadow-sm">
-                  <QRCodeStylized id="qr-guest-portal" value={qrValue} size={170} level="H" />
+                  <QRCodeStylized id="qr-guest-portal" value={qrValue} size={170} level="H" renderAs="canvas" />
                 </div>
                 <Button onClick={downloadQR} variant="outline" className="min-h-12 rounded-lg border-slate-300 bg-white text-slate-950 hover:bg-slate-100">
                   <Download className="mr-2 h-4 w-4 text-emerald-400" />Guardar QR

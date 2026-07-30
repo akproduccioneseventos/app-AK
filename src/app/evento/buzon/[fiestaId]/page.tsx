@@ -700,10 +700,10 @@ export default function GuestBuzonPage() {
     }
 
     const mimeType = [
-      'video/mp4',
       'video/webm;codecs=vp9,opus',
       'video/webm;codecs=vp8,opus',
       'video/webm',
+      'video/mp4',
     ].find((candidate) => MediaRecorder.isTypeSupported(candidate)) || '';
 
     const chunks: Blob[] = [];
@@ -731,7 +731,7 @@ export default function GuestBuzonPage() {
       stopCamera();
     };
 
-    recorder.start();
+    recorder.start(1_000);
 
     // Timer limit 15s
     let elapsed = 0;

@@ -2,6 +2,7 @@ jest.mock('server-only', () => ({}));
 
 jest.mock('@/ai/genkit', () => ({
   ai: { generate: jest.fn() },
+  generateWithGeminiFallback: jest.fn(),
   geminiProModel: 'googleai/test-model',
 }));
 jest.mock('@/lib/data-service', () => ({ readData: jest.fn(), writeData: jest.fn() }));
@@ -9,7 +10,7 @@ jest.mock('@/lib/ai/gemini-image', () => ({ generateGeminiImage: jest.fn() }));
 jest.mock('@/lib/firebase/storage', () => ({ uploadToStorage: jest.fn() }));
 jest.mock('@/data/blog-posts', () => ({ getPostImage: jest.fn(() => '/media/catalogo-servicios/blog_salon.png') }));
 
-import { ai } from '@/ai/genkit';
+import { generateWithGeminiFallback } from '@/ai/genkit';
 import { readData, writeData } from '@/lib/data-service';
 import { generateGeminiImage } from '@/lib/ai/gemini-image';
 import { uploadToStorage } from '@/lib/firebase/storage';
@@ -19,7 +20,7 @@ describe('blog-ai-generator', () => {
   beforeEach(() => {
     jest.clearAllMocks();
     (readData as jest.Mock).mockResolvedValue([]);
-    (ai.generate as jest.Mock).mockResolvedValue({
+    (generateWithGeminiFallback as jest.Mock).mockResolvedValue({
       output: {
         slug: 'guia-de-catering-en-salto',
         title: 'Guia de catering en Salto',

@@ -13,8 +13,10 @@ export interface LandingNavProps {
 export function LandingNav(_props: LandingNavProps = {}) {
   const [isScrolled, setIsScrolled] = useState(false);
   const [isMenuOpen, setIsMenuOpen] = useState(false);
+  const [isHydrated, setIsHydrated] = useState(false);
 
   useEffect(() => {
+    setIsHydrated(true);
     const handleScroll = () => setIsScrolled(window.scrollY > 20);
     window.addEventListener('scroll', handleScroll, { passive: true });
     return () => window.removeEventListener('scroll', handleScroll);
@@ -91,7 +93,7 @@ export function LandingNav(_props: LandingNavProps = {}) {
               ) : (
                 <a
                   key={link.href}
-                  href={link.href}
+                  href={`/${link.href}`}
                   target={link.openInNewTab ? '_blank' : undefined}
                   rel={link.openInNewTab ? 'noreferrer' : undefined}
                   onClick={(e) => handleAnchorClick(e, link.href)}
@@ -122,6 +124,7 @@ export function LandingNav(_props: LandingNavProps = {}) {
             {/* Mobile Menu button */}
             <button
               onClick={() => setIsMenuOpen((o) => !o)}
+              disabled={!isHydrated}
               className={cn(
                 "rounded-lg p-2.5 transition-colors md:hidden",
                 isScrolled
@@ -154,7 +157,7 @@ export function LandingNav(_props: LandingNavProps = {}) {
               ) : (
                 <a
                   key={link.href}
-                  href={link.href}
+                  href={`/${link.href}`}
                   onClick={(e) => handleAnchorClick(e, link.href)}
                   className="block rounded-lg px-4 py-3.5 text-xs font-black uppercase tracking-widest text-slate-700 transition-all hover:bg-slate-100 hover:text-red-700"
                 >

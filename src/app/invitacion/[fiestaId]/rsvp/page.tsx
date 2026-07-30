@@ -148,7 +148,7 @@ function RsvpFormContent() {
   const baseUrl = process.env.NEXT_PUBLIC_BASE_URL || (typeof window !== 'undefined' ? window.location.origin : '');
 
   if (confirmedGuest) {
-    const qrValue = `${baseUrl}/evento/accesos/${fiestaId}?fiestaId=${fiestaId}&guestId=${confirmedGuest.id}`;
+    const qrValue = `${baseUrl}/evento/accesos/${fiestaId}?fiestaId=${encodeURIComponent(fiestaId)}&guestId=${encodeURIComponent(confirmedGuest.id)}&token=${encodeURIComponent(confirmedGuest.guestAccessToken || '')}`;
     const guestExp = fiesta.guestExperienceSettings;
     const showAkCta = guestExp?.enabled && guestExp?.showAkBranding;
     const eventName = fiesta.configuracion?.nombreEvento || 'El Evento';
@@ -200,7 +200,7 @@ function RsvpFormContent() {
                   Guarda tu pase digital. Lo necesitarás en la entrada.
                 </p>
                 <div className="rounded-lg border border-slate-100 bg-white p-6 shadow-inner" data-testid="guest-qr-container">
-                  <QRCodeStylized id="qr-rsvp-guest" value={qrValue} size={180} level="H" />
+                  <QRCodeStylized id="qr-rsvp-guest" value={qrValue} size={180} level="H" renderAs="canvas" />
                 </div>
 
                 {/* Event details for guest */}

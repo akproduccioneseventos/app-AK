@@ -20,13 +20,32 @@ import {
 } from 'lucide-react';
 import type { LucideIcon } from 'lucide-react';
 
-import { sendPersistentMultiAgentMessage } from '@/app/actions/multiagent';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Textarea } from '@/components/ui/textarea';
 import { cn } from '@/lib/utils';
-import type { AkAgentType, AkMultiAgentMessage } from '@/types/multiagent';
+import type { AkAgentType, AkMultiAgentMessage, AkPersistentMultiAgentOutput } from '@/types/multiagent';
+
+async function sendPersistentMultiAgentMessage(input: {
+  message: string;
+  history: AkMultiAgentMessage[];
+  pathname?: string;
+  fiestaId?: string;
+  agentType?: AkAgentType;
+  sessionId?: string;
+}): Promise<AkPersistentMultiAgentOutput> {
+  const response = await fetch('/api/multiagent/message', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify(input),
+  });
+  const result = await response.json().catch(() => null);
+  if (!response.ok || !result) {
+    throw new Error(result?.error || 'No se pudo contactar al Multiagente AK.');
+  }
+  return result as AkPersistentMultiAgentOutput;
+}
 
 type ChatMessage = AkMultiAgentMessage & {
   id: string;

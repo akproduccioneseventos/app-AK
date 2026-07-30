@@ -39,9 +39,17 @@ export const PUBLIC_PATH_PREFIXES = [
   '/evento/buzon',
   '/invitado',
   '/club-uruguay',
+  '/pago',
 ] as const;
 
-export const PUBLIC_EXACT_PATHS = new Set(['/', '/api/health']);
+export const PUBLIC_EXACT_PATHS = new Set([
+  '/',
+  '/api/health',
+  '/api/whatsapp/webhook',
+  '/api/payments/mercadopago/checkout',
+  '/api/payments/mercadopago/status',
+  '/api/payments/mercadopago/webhook',
+]);
 
 export const BUDGET_VIEW_REGEX = /^\/presupuestos\/[^/]+\/ver\/?$/;
 

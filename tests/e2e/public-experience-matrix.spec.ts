@@ -172,7 +172,10 @@ test('client and guest portals load as public experiences without admin links', 
   await expect(page.getByTestId('guest-portal-table')).toContainText('Mesa 8');
   await expect(page.getByTestId('guest-portal-qr')).toBeVisible();
   await expect(page.getByRole('link', { name: 'Muro social' })).toBeVisible();
-  await expect(page.getByRole('link', { name: 'Ver carta' })).toBeVisible();
+  const drinksButton = page.getByRole('button', { name: 'Carta de tragos' });
+  await expect(drinksButton).toBeVisible();
+  await drinksButton.click();
+  await expect(page.getByRole('heading', { name: 'Elegí tu trago' })).toBeVisible();
   await expectHealthyPublicPage(page);
 });
 

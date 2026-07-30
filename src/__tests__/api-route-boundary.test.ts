@@ -5,6 +5,9 @@ const API_ROOT = path.join(process.cwd(), 'src', 'app', 'api');
 const PUBLIC_ROUTES = new Set([
   'health/route.ts',
   'imports/confirmed-events-29/route.ts',
+  'payments/mercadopago/checkout/route.ts',
+  'payments/mercadopago/status/route.ts',
+  'payments/mercadopago/webhook/route.ts',
   'public-page-assets/[...parts]/route.ts',
   'social-gallery/[fiestaId]/[filename]/route.ts',
   'social-media-assets/[filename]/route.ts',
@@ -58,5 +61,17 @@ describe('API route authentication boundary', () => {
     expect(source).toContain('verifyMetaWebhookSignature(');
     expect(source).toContain('verifyTwilioWebhookSignature({');
     expect(source).toContain("contentType.includes('application/x-www-form-urlencoded')");
+  });
+
+  it('protects every public Mercado Pago boundary', () => {
+    expect(read('payments/mercadopago/checkout/route.ts')).toContain(
+      'getPresupuestoById(presupuestoId, token)',
+    );
+    expect(read('payments/mercadopago/status/route.ts')).toContain(
+      "/^[a-f0-9-]{36}$/i.test(sessionId)",
+    );
+    expect(read('payments/mercadopago/webhook/route.ts')).toContain(
+      'verifyMercadoPagoWebhookSignature({',
+    );
   });
 });

@@ -35,6 +35,7 @@ import { hasAppSession, requireAppSession } from '@/lib/auth/require-session';
 import { isSharedKioskUpload, shouldQueueForManualReview } from '@/lib/social-fiesta/guardrails';
 import { toPublicSocialEvent, type PublicSocialEvent } from '@/lib/social-fiesta/public-event';
 import { enforcePublicRateLimit } from '@/lib/commercial/public-rate-limit';
+import { readData } from '@/lib/data-service';
 
 // Firestore collection names
 const GALLERY_COLLECTION = 'social_gallery_posts';
@@ -51,12 +52,26 @@ async function getDb(): Promise<Firestore> {
   return dbAdmin as Firestore;
 }
 
+async function getLocalSocialPosts(fiestaId: string): Promise<SocialGalleryPost[]> {
+  const posts = await readData<SocialGalleryPost[]>('social-gallery/metadata.json', []);
+  return posts
+    .filter((post) => post.fiestaId === fiestaId)
+    .sort((a, b) => new Date(b.timestamp).getTime() - new Date(a.timestamp).getTime());
+}
+
 // ──────────────────── Photo Gallery ────────────────────
 
 export async function getSocialPosts(fiestaId: string): Promise<SocialGalleryPost[]> {
   try {
-    const db = await getDb();
     const canModerate = await hasAppSession();
+    if (process.env.AK_USE_LOCAL_JSON_ONLY === 'true') {
+      const posts = await getLocalSocialPosts(fiestaId);
+      return canModerate
+        ? posts
+        : posts.filter((post) => (post.moderationStatus ?? 'approved') === 'approved');
+    }
+
+    const db = await getDb();
     // Single equality filter — uses the auto-created single-field index on fiestaId.
     const snapshot = await db
       .collection(GALLERY_COLLECTION)
@@ -109,6 +124,10 @@ export async function getSocialPostsByClient(
     if (!fiesta) return { success: false, error: 'Evento no encontrado.' };
     if (fiesta.clientPortalSettings?.accessKey !== accessKey) {
       return { success: false, error: 'Código de acceso incorrecto.' };
+    }
+
+    if (process.env.AK_USE_LOCAL_JSON_ONLY === 'true') {
+      return { success: true, posts: await getLocalSocialPosts(fiestaId) };
     }
 
     const db = await getDb();

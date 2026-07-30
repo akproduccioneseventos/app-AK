@@ -6,6 +6,7 @@ import { addCrmLead, getCrmLeads } from '@/app/actions/crm';
 import { createNotification } from '@/lib/notifications/create-notification';
 import { requireAppSession } from '@/lib/auth/require-session';
 import { WHATSAPP_WEBHOOK_INTERNAL_TOKEN } from '@/lib/whatsapp/internal-token';
+import { sendMetaWhatsAppMessage } from '@/lib/whatsapp/meta-sender';
 
 const CONFIG_FILE = 'whatsapp-config.json';
 const CONVERSATIONS_FILE = 'whatsapp-conversations.json';
@@ -13,6 +14,7 @@ const CONVERSATIONS_FILE = 'whatsapp-conversations.json';
 const defaultConfig: WhatsAppConfig = {
   enabled: false,
   phoneNumber: '',
+  phoneNumberId: '',
   apiKey: '',
   verifyToken: '',
   appSecret: '',
@@ -64,6 +66,20 @@ export async function saveWhatsAppConfig(
       schedule: { ...current.schedule, ...(config.schedule ?? {}) },
       integrations: { ...current.integrations, ...(config.integrations ?? {}) },
     };
+    if (toSave.enabled && toSave.provider === 'meta') {
+      const missing = [
+        !toSave.apiKey.trim() && 'API Key',
+        !toSave.phoneNumberId?.trim() && 'Phone Number ID',
+        !toSave.verifyToken.trim() && 'token de verificación',
+        !toSave.appSecret?.trim() && 'Meta App Secret',
+      ].filter(Boolean);
+      if (missing.length > 0) {
+        return {
+          success: false,
+          error: `Para activar Meta faltan: ${missing.join(', ')}.`,
+        };
+      }
+    }
     await writeData(CONFIG_FILE, toSave);
     return { success: true, config: toSave };
   } catch (error: any) {
@@ -92,18 +108,44 @@ export async function sendWhatsAppMessage(
 ): Promise<{ success: boolean; message?: WhatsAppMessage; error?: string }> {
   await requireAppSession();
   try {
-    const conversations = await readData<WhatsAppConversation[]>(CONVERSATIONS_FILE, []);
+    const normalizedMessage = message.trim();
+    if (!normalizedMessage || normalizedMessage.length > 4096) {
+      return { success: false, error: 'El mensaje debe tener entre 1 y 4096 caracteres.' };
+    }
+    const [conversations, config] = await Promise.all([
+      readData<WhatsAppConversation[]>(CONVERSATIONS_FILE, []),
+      getWhatsAppConfig(),
+    ]);
     const idx = conversations.findIndex(c => c.id === conversationId);
     if (idx === -1) return { success: false, error: 'Conversación no encontrada.' };
+    if (!config.enabled) {
+      return { success: false, error: 'WhatsApp Business no está activado.' };
+    }
+    if (config.provider !== 'meta') {
+      return { success: false, error: `El envío manual real todavía no está configurado para ${config.provider}.` };
+    }
+
+    const conversation = conversations[idx];
+    const delivery = await sendMetaWhatsAppMessage({
+      to: conversation.clientPhone,
+      text: normalizedMessage,
+      apiToken: config.apiKey,
+      phoneNumberId: config.phoneNumberId || '',
+    });
+    if (!delivery.success) {
+      return { success: false, error: delivery.error || 'Meta rechazó el mensaje.' };
+    }
 
     const now = new Date().toISOString();
     const newMsg: WhatsAppMessage = {
       id: `msg_${Date.now()}_${Math.random().toString(36).substring(2, 7)}`,
       conversationId,
-      from: conversations[idx].mode === 'human' ? 'human' : 'bot',
-      content: message,
+      from: conversation.mode === 'human' ? 'human' : 'bot',
+      content: normalizedMessage,
       timestamp: now,
       read: true,
+      deliveryStatus: 'sent',
+      providerMessageId: delivery.messageId,
     };
 
     conversations[idx].messages.push(newMsg);
@@ -168,6 +210,7 @@ export async function processIncomingMessage(
       content: message,
       timestamp: now,
       read: false,
+      deliveryStatus: 'received',
     };
     conversations[convIdx].messages.push(incomingMsg);
     conversations[convIdx].updatedAt = now;
@@ -224,8 +267,33 @@ export async function processIncomingMessage(
         botResponse = generateAutoResponse(message, config, conv.messages.length === 1);
       }
 
-      // Save bot response message
+      // Send and persist the bot response with its real delivery state.
       if (botResponse) {
+        let deliveryStatus: WhatsAppMessage['deliveryStatus'] = 'sent';
+        let providerMessageId: string | undefined;
+        let deliveryError: string | undefined;
+
+        if (config.provider === 'meta') {
+          const delivery = await sendMetaWhatsAppMessage({
+            to: phone,
+            text: botResponse,
+            apiToken: config.apiKey,
+            phoneNumberId: config.phoneNumberId || '',
+          });
+          if (delivery.success) {
+            providerMessageId = delivery.messageId;
+          } else {
+            deliveryStatus = 'failed';
+            deliveryError = delivery.error || 'Meta rechazó la respuesta automática.';
+            conversations[convIdx].status = 'waiting_human';
+            await createNotification({
+              mensaje: `WhatsApp no pudo responder a ${conv.clientName}. Requiere atención manual.`,
+              href: `/settings/whatsapp-business/conversations`,
+              icono: 'MessageCircle',
+            });
+          }
+        }
+
         const botMsg: WhatsAppMessage = {
           id: `msg_${Date.now() + 1}_${Math.random().toString(36).substring(2, 7)}`,
           conversationId: conv.id,
@@ -233,6 +301,9 @@ export async function processIncomingMessage(
           content: botResponse,
           timestamp: new Date().toISOString(),
           read: true,
+          deliveryStatus,
+          providerMessageId,
+          deliveryError,
         };
         conversations[convIdx].messages.push(botMsg);
         conversations[convIdx].updatedAt = new Date().toISOString();

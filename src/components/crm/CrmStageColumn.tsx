@@ -30,6 +30,7 @@ export const CrmStageColumn = memo(function CrmStageColumn({
 }: CrmStageColumnProps) {
   const { setNodeRef, isOver } = useDroppable({
     id: stage.id,
+    data: { stageId: stage.id },
   });
   
   const leadIds = leads.map(l => l.id);

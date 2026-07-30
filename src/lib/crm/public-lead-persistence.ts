@@ -10,6 +10,7 @@ import type { SimulatorConversionPlan } from '@/lib/commercial/simulator-convers
 import { normalizeBirthdayMonthDay } from '@/lib/commercial/birthday';
 import { normalizeUruguayPhone } from '@/lib/commercial/contact';
 import { resolvePublicLeadStage } from '@/lib/crm/lead-stage';
+import { DEFAULT_CRM_STAGES } from '@/lib/crm/default-stages';
 
 const LEADS_FILE = 'crm-leads.json';
 const STAGES_FILE = 'crm-stages.json';
@@ -194,7 +195,8 @@ export async function upsertPublicCommercialLead(
   input: PublicLeadPersistenceInput
 ): Promise<{ lead: CrmLead; isNew: boolean }> {
   const leads = await readData<CrmLead[]>(LEADS_FILE, []);
-  const stages = await readData<CrmStage[]>(STAGES_FILE, []);
+  const loadedStages = await readData<CrmStage[]>(STAGES_FILE, DEFAULT_CRM_STAGES);
+  const stages = loadedStages.length > 0 ? loadedStages : DEFAULT_CRM_STAGES;
   const now = new Date().toISOString();
   const phone = normalizeUruguayPhone(input.phone);
   const name = normalizeName(input.name);
@@ -212,21 +214,23 @@ export async function upsertPublicCommercialLead(
   const existing = existingIndex >= 0 ? leads[existingIndex] : undefined;
   const leadId = existing?.id || `lead_public_${identityKey.slice(0, 24)}`;
 
-  try {
-    const { dbAdmin } = await import('@/lib/firebase/server');
-    if (dbAdmin) {
-      const ref = dbAdmin.collection('prospectos').doc(leadId);
-      const lead = await dbAdmin.runTransaction(async (transaction) => {
-        const snapshot = await transaction.get(ref);
-        const stored = snapshot.exists ? snapshot.data() as CrmLead : existing;
-        const next = buildLead(stored, input, stages, now, identityKey);
-        transaction.set(ref, { ...next, _syncedAt: now }, { merge: false });
-        return next;
-      });
-      return { lead, isNew: !existing };
+  if (process.env.AK_USE_LOCAL_JSON_ONLY !== 'true') {
+    try {
+      const { dbAdmin } = await import('@/lib/firebase/server');
+      if (dbAdmin) {
+        const ref = dbAdmin.collection('prospectos').doc(leadId);
+        const lead = await dbAdmin.runTransaction(async (transaction) => {
+          const snapshot = await transaction.get(ref);
+          const stored = snapshot.exists ? snapshot.data() as CrmLead : existing;
+          const next = buildLead(stored, input, stages, now, identityKey);
+          transaction.set(ref, { ...next, _syncedAt: now }, { merge: false });
+          return next;
+        });
+        return { lead, isNew: !existing };
+      }
+    } catch (error) {
+      console.warn('[public-lead] Firestore transaction unavailable, using data-service fallback.', error);
     }
-  } catch (error) {
-    console.warn('[public-lead] Firestore transaction unavailable, using data-service fallback.', error);
   }
 
   const lead = buildLead(existing, input, stages, now, identityKey);

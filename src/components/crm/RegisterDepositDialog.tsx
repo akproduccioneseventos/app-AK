@@ -164,7 +164,7 @@ export function RegisterDepositDialog({ isOpen, onOpenChange, fiestaId, onComple
         </div>
 
         <DialogFooter>
-          <Button variant="outline" onClick={() => onOpenChange(false)}>Omitir por ahora</Button>
+          <Button variant="outline" onClick={() => onOpenChange(false)} disabled={isSaving}>Omitir por ahora</Button>
           <Button onClick={handleSave} disabled={isSaving}>
             {isSaving ? <Loader2 className="w-4 h-4 mr-2 animate-spin" /> : <ReceiptText className="w-4 h-4 mr-2" />}
             Generar Recibo y Finalizar
