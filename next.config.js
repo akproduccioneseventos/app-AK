@@ -17,6 +17,27 @@ const nextConfig = {
   output: 'standalone',
   compress: true,
   /* config options here */
+  async headers() {
+    return [
+      {
+        source: '/(.*)',
+        headers: [
+          // Evita que el sitio sea embebido en iframes (clickjacking)
+          { key: 'X-Frame-Options', value: 'DENY' },
+          // Desactiva detección de MIME-type automática del navegador
+          { key: 'X-Content-Type-Options', value: 'nosniff' },
+          // Fuerza HTTPS por 1 año, incluye subdominios
+          { key: 'Strict-Transport-Security', value: 'max-age=31536000; includeSubDomains' },
+          // Controla información de referencia enviada a terceros
+          { key: 'Referrer-Policy', value: 'strict-origin-when-cross-origin' },
+          // Desactiva features de navegador no necesarias
+          { key: 'Permissions-Policy', value: 'camera=(), microphone=(), geolocation=()' },
+          // Protección XSS básica para navegadores legacy
+          { key: 'X-XSS-Protection', value: '1; mode=block' },
+        ],
+      },
+    ];
+  },
   typescript: {
     ignoreBuildErrors: false,
   },
