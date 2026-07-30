@@ -1,7 +1,7 @@
 'use server';
 
 import type { Invoice, InvoiceItem, Payment } from '@/types/invoice';
-import type { MetodoPago, Presupuesto } from '@/types/presupuesto';
+import type { Presupuesto } from '@/types/presupuesto';
 import { readData, writeData } from '@/lib/data-service';
 import { addPagoToPresupuesto, markPresupuestoAsFacturado } from './presupuestos';
 import { addInvoiceId, removeInvoiceId } from './fiesta/fiesta.actions';
@@ -13,6 +13,11 @@ import { findExistingDepositReceipt } from '@/lib/commercial-flow/ledger-service
 import { triggerWhatsAppAutomation } from '@/lib/whatsapp-automation-engine';
 import { getScheduledMessages } from '@/app/actions/scheduled-messages';
 import { invoiceMoneyTolerance, roundInvoiceMoney } from '@/lib/invoice-money';
+import {
+  buildDepositPaymentBreakdown,
+  mapDepositMethodToBudgetMethod,
+  mapDepositMethodToInvoiceMethod,
+} from '@/lib/payments/deposit-payment';
 
 const INVOICES_FILE = 'invoices.json';
 
@@ -20,14 +25,6 @@ type NewInvoiceInput = Omit<Invoice, 'id' | 'items' | 'payments'> & {
   items: Omit<InvoiceItem, 'id'>[];
   payments?: Payment[];
 };
-
-function mapDepositMethodToInvoiceMethod(method: string): 'Transferencia' | 'Efectivo' | 'Tarjeta' | 'Otro' {
-  const m = (method || '').trim().toLowerCase();
-  if (m === 'efectivo') return 'Efectivo';
-  if (m === 'tarjeta') return 'Tarjeta';
-  if (m === 'transferencia' || m === 'transferencia bancaria' || m === 'transferencia_bancaria') return 'Transferencia';
-  return 'Otro';
-}
 
 function normalizeQuantity(value: unknown): number {
   const parsed = Number(value ?? 0);
@@ -47,14 +44,6 @@ function getInvoicePaidAmount(invoice: Pick<Invoice, 'payments' | 'currency'>): 
 
 function getInvoiceBalance(invoice: Pick<Invoice, 'totalAmount' | 'payments' | 'currency'>): number {
   return Math.max(0, roundInvoiceMoney(invoice.totalAmount, invoice.currency) - getInvoicePaidAmount(invoice));
-}
-
-function mapDepositMethodToBudgetMethod(method: string): MetodoPago {
-  if (method === 'Efectivo') return 'Efectivo';
-  if (method === 'Tarjeta') return 'Tarjeta';
-  if (method === 'MercadoPago') return 'MercadoPago';
-  if (method === 'Transferencia Bancaria' || method === 'Transferencia') return 'Transferencia Bancaria';
-  return 'Otro';
 }
 
 export async function getInvoices(): Promise<Invoice[]> {
@@ -199,21 +188,35 @@ export async function registerBookingDeposit(data: {
   amount: number;
   method: string;
   date: string;
+  installments?: number;
   skipBudgetPayment?: boolean;
   skipFiestaSave?: boolean;
 }): Promise<{ success: boolean; invoiceId?: string; error?: string }> {
   try {
     const auth = await verifySession();
     if (!auth.success) return { success: false, error: auth.error };
-    const amount = parseCleanMoney(data.amount);
-    if (amount <= 0) return { success: false, error: 'El monto de la seña debe ser mayor a cero.' };
+    const baseAmount = parseCleanMoney(data.amount);
+    if (baseAmount <= 0) return { success: false, error: 'El monto de la seña debe ser mayor a cero.' };
     if (!data.date || Number.isNaN(new Date(data.date).getTime())) return { success: false, error: 'La fecha de la seña no es válida.' };
+    const paymentBreakdown = buildDepositPaymentBreakdown(
+      baseAmount,
+      data.method,
+      data.installments,
+    );
+    const chargedAmount = paymentBreakdown.chargedAmount;
 
     const fiesta = await readData<any>(`fiestas/${data.fiestaId}.json`, null);
     if (!fiesta) throw new Error('Fiesta no encontrada.');
 
     const paymentDay = new Date(data.date).toISOString().slice(0, 10);
-    const paymentReference = `Seña registrada:${data.fiestaId}:${paymentDay}:${amount}`;
+    const paymentReference = [
+      'Seña registrada',
+      data.fiestaId,
+      paymentDay,
+      baseAmount,
+      chargedAmount,
+      paymentBreakdown.installments ?? 0,
+    ].join(':');
     let linkedBudget: Presupuesto | null = null;
 
     if (fiesta.presupuestoId) {
@@ -224,7 +227,7 @@ export async function registerBookingDeposit(data: {
     const existingReceipt = findExistingDepositReceipt(await getInvoices(), {
       fiestaId: data.fiestaId,
       invoiceIds: fiesta.invoiceIds,
-      amount,
+      amount: chargedAmount,
       date: data.date,
     });
 
@@ -232,16 +235,19 @@ export async function registerBookingDeposit(data: {
       if (linkedBudget && !data.skipBudgetPayment) {
         const paymentAlreadyRegistered = Boolean(findMatchingClientPayment(
           linkedBudget.pagosCliente,
-          amount,
+          baseAmount,
           data.date,
         ));
         if (!paymentAlreadyRegistered) {
           const paymentResult = await addPagoToPresupuesto(fiesta.presupuestoId, {
             fecha: data.date,
-            monto: amount,
-            metodoPago: mapDepositMethodToBudgetMethod(data.method),
+            monto: baseAmount,
+            metodoPago: paymentBreakdown.budgetMethod,
             referencia: paymentReference,
             estadoPago: 'confirmado',
+            montoCobrado: chargedAmount,
+            recargoFinanciero: paymentBreakdown.surchargeAmount,
+            cuotasFinanciacion: paymentBreakdown.installments,
           });
           if (!paymentResult.success) return { success: false, error: paymentResult.error };
         }
@@ -255,9 +261,24 @@ export async function registerBookingDeposit(data: {
     if (linkedBudget && !data.skipBudgetPayment) {
       const { validatePaymentAgainstBudget } = await import('@/lib/budget/financial-guardrails');
       if (linkedBudget) {
-        const validation = validatePaymentAgainstBudget(linkedBudget, amount, { includePendingForLimit: true });
+        const validation = validatePaymentAgainstBudget(linkedBudget, baseAmount, { includePendingForLimit: true });
         if (!validation.ok) return { success: false, error: validation.error };
       }
+    }
+
+    const invoiceItems: Omit<InvoiceItem, 'id'>[] = [{
+      description: `Seña para reserva de evento: ${fiesta.configuracion.nombreEvento}`,
+      quantity: 1,
+      unitPrice: baseAmount,
+      total: baseAmount,
+    }];
+    if (paymentBreakdown.surchargeAmount > 0) {
+      invoiceItems.push({
+        description: `Recargo de financiación Mercado Pago (${paymentBreakdown.installments} cuotas)`,
+        quantity: 1,
+        unitPrice: paymentBreakdown.surchargeAmount,
+        total: paymentBreakdown.surchargeAmount,
+      });
     }
 
     const newInvoice: NewInvoiceInput = {
@@ -265,16 +286,11 @@ export async function registerBookingDeposit(data: {
       customer: { id: fiesta.configuracion.clienteId, name: fiesta.configuracion.clienteNombre || fiesta.configuracion.nombreEvento?.split(' de ')[1] || 'Cliente' },
       issueDate: data.date,
       dueDate: data.date,
-      items: [{
-        description: `Seña para reserva de evento: ${fiesta.configuracion.nombreEvento}`,
-        quantity: 1,
-        unitPrice: amount,
-        total: amount,
-      }],
-      subtotal: amount,
+      items: invoiceItems,
+      subtotal: chargedAmount,
       taxRate: 0,
       taxAmount: 0,
-      totalAmount: amount,
+      totalAmount: chargedAmount,
       status: 'Paid',
       currency: 'UYU',
       vendorName: 'AK Producciones',
@@ -284,9 +300,14 @@ export async function registerBookingDeposit(data: {
       payments: [{
         id: `pay_dep_${Date.now()}`,
         paymentDate: data.date,
-        amount,
-        method: mapDepositMethodToInvoiceMethod(data.method),
-        notes: 'Seña inicial de contratación',
+        amount: chargedAmount,
+        method: paymentBreakdown.invoiceMethod,
+        notes: paymentBreakdown.installmentOption
+          ? `Seña inicial. ${paymentBreakdown.installmentOption.label}.`
+          : 'Seña inicial de contratación',
+        baseAmount,
+        surchargeAmount: paymentBreakdown.surchargeAmount,
+        installments: paymentBreakdown.installments,
       }],
     };
 
@@ -296,10 +317,13 @@ export async function registerBookingDeposit(data: {
     if (fiesta.presupuestoId && !data.skipBudgetPayment) {
       const paymentResult = await addPagoToPresupuesto(fiesta.presupuestoId, {
         fecha: data.date,
-        monto: amount,
-        metodoPago: mapDepositMethodToBudgetMethod(data.method),
+        monto: baseAmount,
+        metodoPago: paymentBreakdown.budgetMethod,
         referencia: paymentReference,
         estadoPago: 'confirmado',
+        montoCobrado: chargedAmount,
+        recargoFinanciero: paymentBreakdown.surchargeAmount,
+        cuotasFinanciacion: paymentBreakdown.installments,
       });
       if (!paymentResult.success) {
         const invoicesWithoutDeposit = (await getInvoices()).filter((invoice) => invoice.id !== invoiceResult.id);

@@ -14,10 +14,17 @@ import {
   DialogFooter,
 } from "@/components/ui/dialog";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { Banknote, Loader2, Save, ReceiptText } from 'lucide-react';
+import { Banknote, Loader2, ReceiptText } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { registerBookingDeposit } from '@/app/actions/invoices';
 import { DatePickerDemo } from '../date-picker-demo';
+import {
+  calculateMercadoPagoCuotas,
+  isMercadoPagoInstallmentCount,
+  MERCADO_PAGO_INSTALLMENT_COUNTS,
+  MERCADO_PAGO_INSTALLMENTS_METHOD,
+  type MercadoPagoInstallmentCount,
+} from '@/lib/payments/mercadopago-calculator';
 
 interface Props {
   isOpen: boolean;
@@ -31,8 +38,14 @@ export function RegisterDepositDialog({ isOpen, onOpenChange, fiestaId, onComple
   const { toast } = useToast();
 
   const [amount, setAmount] = useState('20000');
-  const [method, setMethod] = useState('Transferencia');
+  const [method, setMethod] = useState('Transferencia Bancaria');
+  const [installments, setInstallments] = useState<MercadoPagoInstallmentCount>(12);
   const [date, setDate] = useState<Date | undefined>(new Date());
+  const parsedAmount = Number.parseFloat(amount);
+  const financing = calculateMercadoPagoCuotas(parsedAmount);
+  const selectedFinancing = financing.options.find(
+    (option) => option.installments === installments,
+  );
 
   const handleSave = async () => {
     if (!amount || !date) return;
@@ -42,7 +55,8 @@ export function RegisterDepositDialog({ isOpen, onOpenChange, fiestaId, onComple
         fiestaId,
         amount: parseFloat(amount),
         method,
-        date: date.toISOString()
+        installments: method === MERCADO_PAGO_INSTALLMENTS_METHOD ? installments : undefined,
+        date: date.toISOString(),
       });
 
       if (result.success) {
@@ -80,13 +94,68 @@ export function RegisterDepositDialog({ isOpen, onOpenChange, fiestaId, onComple
             <Select value={method} onValueChange={setMethod}>
               <SelectTrigger><SelectValue /></SelectTrigger>
               <SelectContent>
-                <SelectItem value="Transferencia">Transferencia Bancaria</SelectItem>
-                <SelectItem value="Efectivo">Efectivo</SelectItem>
-                <SelectItem value="Tarjeta">Tarjeta de Crédito/Débito</SelectItem>
+                <SelectItem value="Transferencia Bancaria">Transferencia Bancaria (Contado)</SelectItem>
+                <SelectItem value="Efectivo">Efectivo (Contado)</SelectItem>
+                <SelectItem value={MERCADO_PAGO_INSTALLMENTS_METHOD}>Mercado Pago / Tarjeta en Cuotas (+10% recargo)</SelectItem>
+                <SelectItem value="Tarjeta">Tarjeta de Débito / Crédito 1 Pago</SelectItem>
                 <SelectItem value="Otro">Otro</SelectItem>
               </SelectContent>
             </Select>
           </div>
+
+          {method === MERCADO_PAGO_INSTALLMENTS_METHOD && (
+            <div className="space-y-2">
+              <Label>Cantidad de Cuotas</Label>
+              <Select
+                value={String(installments)}
+                onValueChange={(value) => {
+                  if (isMercadoPagoInstallmentCount(value)) {
+                    setInstallments(Number(value) as MercadoPagoInstallmentCount);
+                  }
+                }}
+              >
+                <SelectTrigger><SelectValue /></SelectTrigger>
+                <SelectContent>
+                  {MERCADO_PAGO_INSTALLMENT_COUNTS.map((count) => (
+                    <SelectItem key={count} value={String(count)}>
+                      {count === 1 ? '1 pago' : `${count} cuotas`}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
+          )}
+
+          {method === MERCADO_PAGO_INSTALLMENTS_METHOD && parsedAmount > 0 && selectedFinancing && (
+            <div className="rounded-xl border border-amber-200 bg-amber-50/80 p-3 space-y-2 text-xs">
+              <div className="flex justify-between font-bold text-amber-900">
+                <span>Monto Base:</span>
+                <span>$ {financing.baseAmount.toLocaleString('es-UY')}</span>
+              </div>
+              <div className="flex justify-between text-amber-800">
+                <span>Recargo Mercado Pago / Tarjeta (+10%):</span>
+                <span>+$ {financing.surchargeAmount.toLocaleString('es-UY')}</span>
+              </div>
+              <div className="flex justify-between font-extrabold text-amber-950 border-t border-amber-300/60 pt-1.5 text-sm">
+                <span>Total a Cobrar:</span>
+                <span>$ {financing.totalWithSurcharge.toLocaleString('es-UY')}</span>
+              </div>
+              <div className="pt-1 text-[11px] text-amber-800 space-y-1">
+                <p className="font-semibold text-amber-900">Plan seleccionado:</p>
+                <div className="bg-white/70 p-2 rounded-lg border border-amber-200/80">
+                  <p><strong>{selectedFinancing.label}</strong></p>
+                  <p className="mt-1">
+                    Total exacto: <strong>$ {selectedFinancing.installmentAmounts
+                      .reduce((sum, installmentAmount) => sum + installmentAmount, 0)
+                      .toLocaleString('es-UY')}</strong>
+                  </p>
+                </div>
+                <p className="text-[10px] text-amber-900 italic pt-1">
+                  ℹ️ <strong>Nota de Transparencia</strong>: El monto del servicio para AK es $ {financing.baseAmount.toLocaleString('es-UY')}. El 10% adicional cubre la comisión y financiación de Mercado Pago. AK recibe el importe neto.
+                </p>
+              </div>
+            </div>
+          )}
 
           <div className="space-y-2">
             <Label>Fecha del Pago</Label>

@@ -6,7 +6,7 @@ import Link from 'next/link';
 import type { DragEndEvent } from '@dnd-kit/core';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
-import { KanbanSquare, Users, Clock, TrendingUp, Wallet, CheckCircle, Loader2, ArrowLeft, Search, X, AlertTriangle, RotateCcw, CalendarDays, Gift, Sparkles, SlidersHorizontal } from 'lucide-react';
+import { KanbanSquare, Users, Clock, TrendingUp, Wallet, CheckCircle, Loader2, ArrowLeft, Search, X, AlertTriangle, User, RotateCcw, CalendarDays, Gift, Sparkles, Monitor, ListFilter, SlidersHorizontal } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import type { CrmLead } from '@/types/crm';
 import { getPresupuestoById } from '@/app/actions/presupuestos';
@@ -37,11 +37,14 @@ import {
 } from "@/components/ui/alert-dialog";
 import { resetCrm } from '@/app/actions/crm';
 import {
+  isDirectCrmLead,
+  isSimulatorCrmLead,
+} from '@/lib/crm/lead-presentation';
+import {
   DropdownMenu,
   DropdownMenuContent,
+  DropdownMenuItem,
   DropdownMenuLabel,
-  DropdownMenuRadioGroup,
-  DropdownMenuRadioItem,
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
@@ -81,6 +84,7 @@ type QuickFilter =
   | 'this_week'
   | 'inactive'
   | 'my_leads'
+  | 'direct'
   | 'guest'
   | 'simulator'
   | 'portal_led'
@@ -123,6 +127,8 @@ export default function CrmPage() {
   const requestedView = searchParams.get('view');
   const initialQuickFilter: QuickFilter = requestedView === 'guest'
     ? 'guest'
+    : requestedView === 'direct'
+      ? 'direct'
     : requestedView === 'simulator'
       ? 'simulator'
       : requestedView === 'portal_led'
@@ -173,10 +179,12 @@ export default function CrmPage() {
         // Filter by assignedTo matching current user — we don't have auth context so we use a simple "has assignedTo" filter
         // In a real app this would compare to the logged-in user's name
         if (!lead.assignedTo) return false;
+      } else if (quickFilter === 'direct') {
+        if (!isDirectCrmLead(lead)) return false;
       } else if (quickFilter === 'guest') {
         if (lead.acquisition?.source !== 'guest_portal' || !lead.marketingConsent) return false;
       } else if (quickFilter === 'simulator') {
-        if (!['simulator', 'simulator_common', 'simulator_assistant'].includes(lead.budgetSource || '')) return false;
+        if (!isSimulatorCrmLead(lead)) return false;
       } else if (quickFilter === 'portal_led') {
         if (lead.acquisition?.source !== 'portal_led' && lead.budgetSource !== 'portal_led') return false;
       } else if (quickFilter.startsWith('birthday_')) {
@@ -309,9 +317,19 @@ export default function CrmPage() {
   const quickFilters: { key: QuickFilter; label: string; icon?: React.ReactNode }[] = [
     { key: 'all', label: 'Todos' },
     { key: 'simulator', label: 'Presupuestos (Simulador)', icon: <Sparkles className="w-3 h-3 text-amber-500" /> },
-    { key: 'guest', label: 'Consultas Directas', icon: <Gift className="w-3 h-3 text-sky-500" /> },
+    { key: 'direct', label: 'WhatsApp y manuales', icon: <Gift className="w-3 h-3 text-sky-500" /> },
     { key: 'today', label: 'Citas Hoy', icon: <Clock className="w-3 h-3 text-emerald-500" /> },
     { key: 'inactive', label: `Sin actividad (${inactiveCount})`, icon: <AlertTriangle className="w-3 h-3 text-rose-500" /> },
+  ];
+  const secondaryQuickFilters: { key: QuickFilter; label: string; icon?: React.ReactNode }[] = [
+    { key: 'guest', label: 'Invitados interesados', icon: <Gift className="h-3.5 w-3.5" /> },
+    { key: 'portal_led', label: 'Portal LED', icon: <Monitor className="h-3.5 w-3.5" /> },
+    { key: 'no_followup', label: 'Sin cita', icon: <X className="h-3.5 w-3.5" /> },
+    { key: 'this_week', label: 'Citas esta semana', icon: <Clock className="h-3.5 w-3.5" /> },
+    { key: 'my_leads', label: 'Con responsable', icon: <User className="h-3.5 w-3.5" /> },
+    { key: 'birthday_30', label: 'Cumple en 30 días', icon: <CalendarDays className="h-3.5 w-3.5" /> },
+    { key: 'birthday_60', label: 'Cumple en 60 días', icon: <CalendarDays className="h-3.5 w-3.5" /> },
+    { key: 'birthday_90', label: 'Cumple en 90 días', icon: <CalendarDays className="h-3.5 w-3.5" /> },
   ];
   const secondaryFilters: { key: QuickFilter; label: string }[] = [
     { key: 'portal_led', label: 'Portal LED' },
@@ -415,27 +433,25 @@ export default function CrmPage() {
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
                 <Button
-                  variant={activeSecondaryFilter ? 'secondary' : 'outline'}
+                  variant={secondaryQuickFilters.some((filter) => filter.key === quickFilter) ? 'secondary' : 'outline'}
                   size="sm"
                   className="h-7 gap-1 text-xs"
                 >
-                  <SlidersHorizontal className="h-3 w-3" />
-                  {activeSecondaryFilter?.label || 'Más filtros'}
+                  <ListFilter className="h-3.5 w-3.5" />
+                  Más filtros
                 </Button>
               </DropdownMenuTrigger>
-              <DropdownMenuContent align="start" className="w-56">
-                <DropdownMenuLabel>Seguimiento y origen</DropdownMenuLabel>
-                <DropdownMenuSeparator />
-                <DropdownMenuRadioGroup
-                  value={activeSecondaryFilter?.key || ''}
-                  onValueChange={(value) => setQuickFilter(value as QuickFilter)}
-                >
-                  {secondaryFilters.map((filter) => (
-                    <DropdownMenuRadioItem key={filter.key} value={filter.key}>
-                      {filter.label}
-                    </DropdownMenuRadioItem>
-                  ))}
-                </DropdownMenuRadioGroup>
+              <DropdownMenuContent align="start">
+                {secondaryQuickFilters.map((filter) => (
+                  <DropdownMenuItem
+                    key={filter.key}
+                    onSelect={() => setQuickFilter(filter.key)}
+                    className={cn('gap-2', quickFilter === filter.key && 'bg-accent font-semibold')}
+                  >
+                    {filter.icon}
+                    {filter.label}
+                  </DropdownMenuItem>
+                ))}
               </DropdownMenuContent>
             </DropdownMenu>
             {/* Stage filter */}

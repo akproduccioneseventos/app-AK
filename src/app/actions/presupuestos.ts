@@ -143,23 +143,7 @@ async function syncLinkedFiesta(presupuesto: Presupuesto) {
         const allFiestas = await getAllFiestas();
         const linkedFiesta = allFiestas.find(f => f.presupuestoId === presupuesto.id);
         if (linkedFiesta) {
-            if (presupuesto.estado === 'Aceptado' || presupuesto.estado === 'Facturado') {
-                await syncFiestaFromBudget(linkedFiesta.id);
-            } else {
-                linkedFiesta.configuracion = {
-                    ...linkedFiesta.configuracion,
-                    nombreEvento: buildFiestaNameFromBudget(presupuesto),
-                    fechaEvento: presupuesto.eventoFecha,
-                    invitadosEstimados: presupuesto.invitadosCantidad,
-                    invitadosAdultos: presupuesto.invitadosAdultos,
-                    invitadosNinos: presupuesto.invitadosNinos,
-                    invitadosAdolescentes: presupuesto.invitadosAdolescentes,
-                    presupuestoEstimado: presupuesto.totalConDescuento ?? presupuesto.costoTotalEstimado,
-                    nombreLugar: presupuesto.salonFiestas,
-                };
-                await saveFiesta(linkedFiesta);
-                await syncLaundryCosts(linkedFiesta.id, presupuesto.invitadosCantidad, presupuesto.itemsPresupuestados);
-            }
+            await syncFiestaFromBudget(linkedFiesta.id);
         }
     } catch (e) {
         console.error("Error auto-syncing fiesta from budget:", e);
@@ -758,6 +742,14 @@ export async function createFiestaFromPresupuesto(
   const allFiestas = await getAllFiestas();
   const existing = allFiestas.find(f => f.presupuestoId === presupuestoId);
   if (existing) {
+    const syncResult = await syncFiestaFromBudget(existing.id);
+    if (!syncResult.success) {
+      return {
+        success: false,
+        fiestaId: existing.id,
+        error: syncResult.error || 'La fiesta existe, pero no se pudo sincronizar con el presupuesto.',
+      };
+    }
     return { success: true, fiestaId: existing.id };
   }
 
@@ -786,6 +778,15 @@ export async function createFiestaFromPresupuesto(
   const result = await saveFiesta(newFiesta);
   if (!result.success || !result.fiesta) {
     return { success: false, error: result.error || 'Error al crear el evento.' };
+  }
+
+  const syncResult = await syncFiestaFromBudget(result.fiesta.id);
+  if (!syncResult.success) {
+    return {
+      success: false,
+      fiestaId: result.fiesta.id,
+      error: syncResult.error || 'La fiesta se creó, pero no se pudo completar la sincronización del presupuesto.',
+    };
   }
 
   await createNotification({

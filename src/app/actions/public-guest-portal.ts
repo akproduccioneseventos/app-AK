@@ -13,6 +13,7 @@ import {
   getEntertainmentStationConfig,
   type EntertainmentModuleId,
 } from '@/lib/entertainment/station-config';
+import { isGuestEntertainmentAvailable } from '@/lib/guest-portal/guest-entertainment';
 import { enforcePublicRateLimit } from '@/lib/commercial/public-rate-limit';
 import type { FiestaEnPlanificacion } from '@/types/fiesta';
 
@@ -41,9 +42,23 @@ const GUEST_ENTERTAINMENT_MODULES: Array<{ id: EntertainmentModuleId; label: str
   { id: 'espejoMagicoFirma', label: 'Espejo con firma' },
   { id: 'espejoMagicoIA', label: 'Espejo IA' },
   { id: 'bogue', label: 'Bogue' },
-  { id: 'totems', label: 'Tótem interactivo' },
   { id: 'capsulaTiempo', label: 'Buzón de recuerdos' },
 ];
+
+function buildGuestEntertainmentLinks(
+  fiesta: FiestaEnPlanificacion,
+): PublicGuestEntertainmentLink[] {
+  return GUEST_ENTERTAINMENT_MODULES.flatMap(({ id, label }) => {
+    if (!isGuestEntertainmentAvailable(fiesta, id)) return [];
+
+    const station = getEntertainmentStationConfig(fiesta, id);
+    if (!station.enabled) return [];
+
+    const token = createEntertainmentAccessToken(fiesta.id, id, 'guest');
+    const href = getEntertainmentGuestPath(fiesta.id, id, token);
+    return href ? [{ id, label, href }] : [];
+  });
+}
 
 export async function getPublicGuestEvent(
   fiestaId: string,
@@ -56,10 +71,15 @@ export async function getPublicGuestPortalData(
   fiestaId: string,
   guestId: string,
   guestAccessToken: string,
-): Promise<PublicGuestPortalData | null> {
+): Promise<(PublicGuestPortalData & { entertainmentLinks: PublicGuestEntertainmentLink[] }) | null> {
   if (!guestAccessToken) return null;
   const fiesta = await getFiestaById(fiestaId);
-  return fiesta ? buildPublicGuestPortalData(fiesta, guestId, guestAccessToken) : null;
+  if (!fiesta) return null;
+
+  const portalData = buildPublicGuestPortalData(fiesta, guestId, guestAccessToken);
+  return portalData
+    ? { ...portalData, entertainmentLinks: buildGuestEntertainmentLinks(fiesta) }
+    : null;
 }
 
 export async function getPublicLiveDisplayEvent(
@@ -84,14 +104,7 @@ export async function getPublicGuestEntertainmentLinks(
 ): Promise<PublicGuestEntertainmentLink[]> {
   const fiesta = await getFiestaById(fiestaId);
   if (!fiesta || !buildPublicGuestPortalData(fiesta, guestId, guestAccessToken)) return [];
-
-  return GUEST_ENTERTAINMENT_MODULES.flatMap(({ id, label }) => {
-    const station = getEntertainmentStationConfig(fiesta, id);
-    if (!station.enabled) return [];
-    const token = createEntertainmentAccessToken(fiestaId, id, 'guest');
-    const href = getEntertainmentGuestPath(fiestaId, id, token);
-    return href ? [{ id, label, href }] : [];
-  });
+  return buildGuestEntertainmentLinks(fiesta);
 }
 
 function normalizeGuestLookup(value: string): string {
