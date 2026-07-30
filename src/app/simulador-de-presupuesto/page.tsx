@@ -334,6 +334,22 @@ function SimuladorContent() {
         return () => window.removeEventListener('ak-open-faq', handleOpenFaq);
     }, []);
 
+    // La sugerencia de paquete superior solo aparece mientras el visitante sigue
+    // revisando el paso 5. Si ya avanzo a generar su presupuesto, el temporizador
+    // se cancela para que el modal nunca tape el resultado final.
+    useEffect(() => {
+        if (step !== 5) {
+            setIsUpgradePromptOpen(false);
+            return;
+        }
+        if (hasSeenUpgradePrompt) return;
+        const timer = setTimeout(() => {
+            setIsUpgradePromptOpen(true);
+            setHasSeenUpgradePrompt(true);
+        }, 500);
+        return () => clearTimeout(timer);
+    }, [step, hasSeenUpgradePrompt]);
+
     useEffect(() => {
         const stored = Number(window.sessionStorage.getItem(COMMERCIAL_TIMER_STORAGE_KEY));
         if (Number.isFinite(stored) && stored > Date.now()) {
@@ -879,10 +895,6 @@ function SimuladorContent() {
                 if (recommended) selectPackage(recommended.id);
             }
             setStep(5);
-            if (!hasSeenUpgradePrompt) {
-                setTimeout(() => setIsUpgradePromptOpen(true), 500);
-                setHasSeenUpgradePrompt(true);
-            }
             return;
         }
 
