@@ -39,6 +39,7 @@ export function LandingNav(_props: LandingNavProps = {}) {
   const navLinks = [
     { label: 'Inicio', href: '#landing-hero', isExternal: false },
     { label: 'Servicios', href: '#landing-services', isExternal: false },
+    { label: 'Galería HD', href: 'https://galeria.akproducciones.uy', isExternal: true, openInNewTab: true },
     { label: 'Simulador', href: '/simulador-de-presupuesto', isExternal: true },
     { label: 'Blog', href: '/public/blog', isExternal: true },
     { label: 'Preguntas Frecuentes', href: '#faq', isExternal: false },
@@ -78,6 +79,8 @@ export function LandingNav(_props: LandingNavProps = {}) {
                 <Link
                   key={link.href}
                   href={link.href}
+                  target={link.openInNewTab ? '_blank' : undefined}
+                  rel={link.openInNewTab ? 'noreferrer' : undefined}
                   className={cn(
                     "px-3.5 py-2 text-xs font-black uppercase tracking-widest transition-colors",
                     isScrolled ? "text-slate-600 hover:text-red-700" : "text-zinc-200 hover:text-white",
@@ -89,6 +92,8 @@ export function LandingNav(_props: LandingNavProps = {}) {
                 <a
                   key={link.href}
                   href={link.href}
+                  target={link.openInNewTab ? '_blank' : undefined}
+                  rel={link.openInNewTab ? 'noreferrer' : undefined}
                   onClick={(e) => handleAnchorClick(e, link.href)}
                   className={cn(
                     "px-3.5 py-2 text-xs font-black uppercase tracking-widest transition-colors",

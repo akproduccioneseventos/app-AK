@@ -28,6 +28,7 @@ import { CrmLeadTimeline } from './CrmLeadTimeline';
 import { describeCommercialSource } from '@/lib/commercial/acquisition';
 import { daysUntilBirthday } from '@/lib/commercial/birthday';
 import { toWhatsAppNumber } from '@/lib/commercial/contact';
+import { getCrmLeadSourceBadge } from '@/lib/crm/lead-presentation';
 
 const INACTIVITY_DAYS = 7;
 const CONTRACT_TYPE_LABELS: Record<string, string> = {
@@ -83,12 +84,8 @@ export const CrmLeadCard = memo(function CrmLeadCard({ lead, onDeleteLead, isDel
   };
   
   const budgetSource = useMemo(() => {
-    if (lead.budgetSource === 'simulator_assistant') return { text: 'Sim. asistido', className: 'bg-indigo-100 text-indigo-800' };
-    if (lead.budgetSource === 'simulator_common') return { text: 'Sim. común', className: 'bg-blue-100 text-blue-800' };
-    if (lead.budgetSource === 'portal_led') return { text: 'Portal LED', className: 'bg-fuchsia-100 text-fuchsia-800' };
-    if (lead.budgetSource === 'simulator') return { text: 'Simulador', className: 'bg-blue-100 text-blue-800' };
-    return { text: 'Manual', className: 'bg-gray-100 text-gray-700' };
-  }, [lead.budgetSource]);
+    return getCrmLeadSourceBadge(lead);
+  }, [lead]);
 
   const hasBudget = !!lead.presupuestoId;
   const isBudgetFacturado = lead.presupuestoEstado === 'Facturado';
