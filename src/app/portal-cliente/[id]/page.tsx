@@ -815,6 +815,17 @@ export default function PortalClientePage() {
                 ) : (
                   <p className="text-sm text-slate-400 text-center py-4">No hay plan de pagos cargado aún.</p>
                 )}
+                {fiesta.presupuestoId && (
+                  <div className="pt-2">
+                    <Link
+                      href={`/presupuestos/${fiesta.presupuestoId}/ver`}
+                      target="_blank"
+                      className="inline-flex items-center justify-center gap-2 w-full h-11 rounded-xl bg-slate-900 text-white font-bold text-xs uppercase tracking-wider hover:bg-slate-800 transition-colors shadow-sm"
+                    >
+                      📄 Ver Presupuesto Oficial / Contrato
+                    </Link>
+                  </div>
+                )}
               </AccordionContent>
             </AccordionItem>
           )}

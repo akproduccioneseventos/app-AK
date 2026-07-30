@@ -147,8 +147,8 @@ function RsvpFormContent() {
   const eventName = fiesta.configuracion?.nombreEvento || 'El Evento';
   const baseUrl = process.env.NEXT_PUBLIC_BASE_URL || (typeof window !== 'undefined' ? window.location.origin : '');
 
-  if (confirmedGuest) {
-    const qrValue = `${baseUrl}/evento/accesos/${fiestaId}?fiestaId=${fiestaId}&guestId=${confirmedGuest.id}`;
+    const tokenParam = confirmedGuest.guestAccessToken ? `&token=${encodeURIComponent(confirmedGuest.guestAccessToken)}` : '';
+    const qrValue = `${baseUrl}/evento/accesos/${fiestaId}?fiestaId=${fiestaId}&guestId=${confirmedGuest.id}${tokenParam}`;
     const guestExp = fiesta.guestExperienceSettings;
     const showAkCta = guestExp?.enabled && guestExp?.showAkBranding;
     const eventName = fiesta.configuracion?.nombreEvento || 'El Evento';
