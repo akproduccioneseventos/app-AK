@@ -19,6 +19,13 @@ function shouldUseLocalJsonOnly(): boolean {
   return process.env.AK_USE_LOCAL_JSON_ONLY === "true";
 }
 
+function shouldAllowLocalJsonWrites(): boolean {
+  return (
+    shouldUseLocalJsonOnly() &&
+    process.env.AK_ALLOW_LOCAL_JSON_WRITES === "true"
+  );
+}
+
 async function scheduleAutoBackupAfterWrite(
   normalizedFilePath: string,
   options?: WriteDataOptions,
@@ -172,6 +179,10 @@ export async function writeData<T>(
     dataToWrite = [...data].sort(sortFn) as unknown as T;
 
   if (shouldUseLocalJsonOnly()) {
+    if (shouldAllowLocalJsonWrites()) {
+      await writeLocalJsonFallback(normalizedFilePath, dataToWrite);
+      return;
+    }
     throw new Error(
       "La escritura esta deshabilitada en el modo local de pruebas.",
     );

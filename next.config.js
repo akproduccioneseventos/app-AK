@@ -14,7 +14,9 @@ const withPWA = require('@ducanh2912/next-pwa').default({
 
 /** @type {import('next').NextConfig} */
 const nextConfig = {
-  output: 'standalone',
+  // Windows without Developer Mode cannot create the pnpm symlinks used by
+  // Next standalone tracing. Production keeps standalone unless explicitly disabled.
+  output: process.env.AK_DISABLE_STANDALONE === 'true' ? undefined : 'standalone',
   compress: true,
   /* config options here */
   async headers() {

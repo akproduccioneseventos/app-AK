@@ -1,9 +1,7 @@
 'use server';
 
 import { readData, writeData } from '@/lib/data-service';
-import { verifySession } from '@/lib/auth/session-token';
 import { requireAppSession } from '@/lib/auth/require-session';
-import { generateBlogPostAndSocialDraft } from '@/lib/blog-ai-generator';
 import type { BlogPost } from '@/types/blog';
 
 const BLOG_FILE = 'blog-posts.json';
@@ -16,7 +14,6 @@ export async function getBlogPosts(): Promise<BlogPost[]> {
     return [];
   }
 }
-
 export async function saveBlogPost(
   post: BlogPost
 ): Promise<{ success: boolean; error?: string }> {
@@ -73,34 +70,4 @@ export async function getRelatedPosts(post: BlogPost): Promise<BlogPost[]> {
 
   if (related.length > 0) return related;
   return posts.filter(item => item.slug !== post.slug && item.category === post.category).slice(0, 2);
-}
-
-export async function generateAIBlogPostFromAdmin(): Promise<{
-  success: boolean;
-  error?: string;
-  blogPost?: {
-    slug: string;
-    title: string;
-    category: string;
-  };
-  socialPost?: {
-    id: string;
-    platform: string;
-  };
-}> {
-  const session = await verifySession();
-  if (!session.success || session.user?.role !== 'admin') {
-    return { success: false, error: 'Solo un administrador puede generar articulos por IA.' };
-  }
-
-  try {
-    const result = await generateBlogPostAndSocialDraft();
-    return { success: true, ...result };
-  } catch (error: any) {
-    console.error('[blog-actions] Error generating AI blog post:', error);
-    return {
-      success: false,
-      error: error.message || 'No se pudo generar el articulo por IA.',
-    };
-  }
 }

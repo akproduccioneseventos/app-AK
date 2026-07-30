@@ -31,7 +31,7 @@ test.beforeEach(async ({ context, baseURL }) => {
   ]);
 });
 
-test('core internal modules load with an authenticated session', async ({ context, page }) => {
+test('core internal modules load with an authenticated session', async ({ page }) => {
   test.setTimeout(240_000);
   const routes = [
     '/empresa/dashboard',
@@ -43,10 +43,10 @@ test('core internal modules load with an authenticated session', async ({ contex
   ];
 
   for (const route of routes) {
-    const response = await context.request.get(route);
+    const response = await page.goto(route, { waitUntil: 'domcontentloaded' });
+    if (!response) throw new Error(`${route} no devolvió una respuesta HTTP.`);
     expect(response.status(), `${route} debe responder sin error HTTP`).toBeLessThan(400);
 
-    await page.goto(route, { waitUntil: 'domcontentloaded' });
     await page.waitForTimeout(500);
     expect(page.url(), `${route} no debe expulsar una sesion valida`).not.toContain('/login');
 

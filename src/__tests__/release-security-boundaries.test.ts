@@ -182,10 +182,50 @@ describe('release security boundaries', () => {
     expect(simulator).not.toContain('getWhatsAppConfig()');
   });
 
+  it('waits for real Meta delivery and never records a rejected manual message as sent', () => {
+    const whatsapp = readSource('src/app/actions/whatsapp.ts');
+    expect(whatsapp).toContain('const delivery = await sendMetaWhatsAppMessage');
+    expect(whatsapp).toContain("if (!delivery.success) {\n      return { success: false");
+    expect(whatsapp.match(/await sendMetaWhatsAppMessage/g)?.length).toBeGreaterThanOrEqual(2);
+    expect(whatsapp).not.toContain('[WhatsApp Bot] Error enviando');
+    expect(whatsapp).toContain("deliveryStatus = 'failed'");
+  });
+
   it('uses cryptographic provider tokens and rejects inactive portal mutations', () => {
     const provider = readSource('src/app/actions/provider-portal.ts');
     expect(provider).toContain('token: randomUUID()');
     expect(provider).toContain('const access = await getProveedorByToken(token)');
-    expect(provider).toContain('if (!access.success) return { success: false, error: access.error }');
+    expect(provider).toContain('if (!access.success || !access.data) return { success: false, error: access.error }');
+  });
+
+  it('requires an app session before mutating agenda appointments', () => {
+    const agenda = readSource('src/app/actions/agenda.ts');
+    expect(agenda).toContain("import { requireAppSession } from '@/lib/auth/require-session'");
+    expect(agenda.match(/await requireAppSession\(\)/g)).toHaveLength(2);
+  });
+
+  it('limits destructive CRM reset to administrators', () => {
+    const crm = readSource('src/app/actions/crm.ts');
+    const resetStart = crm.indexOf('export async function resetCrm');
+    const resetEnd = crm.indexOf('export async function ', resetStart + 1);
+    const resetSource = crm.slice(resetStart, resetEnd);
+    expect(resetSource).toContain("auth.user?.role !== 'admin'");
+    expect(resetSource).toContain('Acceso restringido a administradores.');
+  });
+
+  it('rejects a mismatched guest token at event access control', () => {
+    const rsvp = readSource('src/app/invitacion/[fiestaId]/rsvp/page.tsx');
+    const accessControl = readSource('src/app/evento/accesos/[fiestaId]/page.tsx');
+    expect(rsvp).toContain('&token=${encodeURIComponent(confirmedGuest.guestAccessToken');
+    expect(rsvp).toContain('renderAs="canvas"');
+    expect(accessControl).toContain('El token del QR no es válido para este invitado.');
+    expect(accessControl).not.toContain('Possible QR tampering');
+  });
+
+  it('does not mutate portal DOM or inject duplicate panels after hydration', () => {
+    const portalLayer = readSource('src/components/portal-cliente/ClientPortalVipUxLayer.tsx');
+    expect(portalLayer).not.toContain('MutationObserver');
+    expect(portalLayer).not.toContain('insertAdjacentElement');
+    expect(portalLayer).toContain('return null');
   });
 });

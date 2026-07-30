@@ -34,7 +34,9 @@ export function CrmDesktopBoard({
   onHire,
   onDragEnd,
 }: CrmDesktopBoardProps) {
-  const sensors = useSensors(useSensor(PointerSensor));
+  const sensors = useSensors(
+    useSensor(PointerSensor, { activationConstraint: { distance: 5 } }),
+  );
 
   return (
     <DndContext sensors={sensors} onDragEnd={onDragEnd}>
