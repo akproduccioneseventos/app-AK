@@ -5,6 +5,7 @@ import type { FiestaEnPlanificacion, Invitado, RsvpStatus, CategoriaInvitado, Di
 import { getFiestaById, saveFiesta } from './fiesta.actions';
 import { writeData } from '@/lib/data-service';
 import { enforcePublicRateLimit } from '@/lib/commercial/public-rate-limit';
+import { hasPublicGuestAccess } from '@/lib/guest-portal-public-data';
 
 // ─── Core helper ────────────────────────────────────────────────────────────
 
@@ -450,9 +451,15 @@ type GuestCtaStat = 'clickedWhatsapp' | 'clickedInstagram' | 'clickedLanding' | 
 export async function trackGuestCtaClick(
   fiestaId: string,
   guestId: string,
+  guestAccessToken: string,
   stat: GuestCtaStat
 ): Promise<{ success: boolean }> {
   const result = await updateFiestaData(fiestaId, data => {
+    const currentGuest = (data.invitados || []).find(inv => inv.id === guestId);
+    if (!hasPublicGuestAccess(currentGuest, guestId, guestAccessToken)) {
+      throw new Error('Acceso de invitado no autorizado.');
+    }
+
     const invitados = (data.invitados || []).map(inv => {
       if (inv.id !== guestId) return inv;
       return {
@@ -464,6 +471,6 @@ export async function trackGuestCtaClick(
       };
     });
     return { ...data, invitados };
-  });
+  }, { publicRsvp: true });
   return { success: result.success };
 }

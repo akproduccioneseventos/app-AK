@@ -257,3 +257,45 @@ test('time capsule bakes the configured frame into an uploaded gallery video', a
     return floralPixels;
   })).toBeGreaterThan(20);
 });
+
+test('AI mirror keeps one coherent touch selector on desktop and mobile', async ({ context, page }, testInfo) => {
+  const baseURL = testInfo.project.use.baseURL as string;
+  await addAppSession(context, baseURL);
+  await page.addInitScript(() => {
+    const getUserMedia = async () => {
+      const canvas = document.createElement('canvas');
+      canvas.width = 720;
+      canvas.height = 1280;
+      canvas.getContext('2d')?.fillRect(0, 0, canvas.width, canvas.height);
+      return canvas.captureStream(30);
+    };
+    Object.defineProperty(navigator, 'mediaDevices', {
+      configurable: true,
+      value: { getUserMedia },
+    });
+  });
+
+  const response = await page.goto(
+    `/evento/espejo-magico/${FIESTA_ID}?mode=ia`,
+    { waitUntil: 'domcontentloaded' },
+  );
+  expect(response?.status()).toBeLessThan(400);
+  await expect(page.getByText('1. Elegí tu Estilo IA')).toBeVisible();
+  await expect(page.getByRole('checkbox')).toHaveCount(1);
+
+  const captureButton = page.getByRole('button', { name: 'Crear avatar IA' });
+  await expect(captureButton).toBeDisabled();
+  await page.getByRole('button', { name: 'Cine & Accion' }).click();
+  await expect(page.getByTestId('selected-ai-style')).toHaveText('Afiche de Cine');
+  await expect(
+    page.getByRole('button', { name: 'Afiche de Cine' }),
+  ).toHaveAttribute('aria-pressed', 'true');
+
+  await page.getByRole('checkbox').check();
+  await expect(captureButton).toBeEnabled();
+  expect(
+    await page.evaluate(
+      () => document.documentElement.scrollWidth <= window.innerWidth + 1,
+    ),
+  ).toBe(true);
+});
