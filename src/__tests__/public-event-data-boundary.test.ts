@@ -16,6 +16,7 @@ describe('public event data boundary', () => {
   });
 
   it.each([
+    'src/app/proveedor/[id]/page.tsx',
     'src/app/evento/mi-mesa/[fiestaId]/page.tsx',
     'src/app/evento/logistica/[fiestaId]/page.tsx',
     'src/app/evento/en-vivo/[fiestaId]/invitados/page.tsx',
