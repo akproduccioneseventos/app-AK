@@ -26,14 +26,14 @@ const nextConfig = {
           { key: 'X-Frame-Options', value: 'DENY' },
           // Desactiva detección de MIME-type automática del navegador
           { key: 'X-Content-Type-Options', value: 'nosniff' },
-          // Fuerza HTTPS por 1 año, incluye subdominios
-          { key: 'Strict-Transport-Security', value: 'max-age=31536000; includeSubDomains' },
+          // Fuerza HTTPS por 1 ano solo en el host actual
+          { key: 'Strict-Transport-Security', value: 'max-age=31536000' },
           // Controla información de referencia enviada a terceros
           { key: 'Referrer-Policy', value: 'strict-origin-when-cross-origin' },
-          // Desactiva features de navegador no necesarias
-          { key: 'Permissions-Policy', value: 'camera=(), microphone=(), geolocation=()' },
-          // Protección XSS básica para navegadores legacy
-          { key: 'X-XSS-Protection', value: '1; mode=block' },
+          // Permite multimedia local y desactiva geolocalizacion
+          { key: 'Permissions-Policy', value: 'camera=(self), microphone=(self), geolocation=()' },
+          // Desactiva el filtro XSS obsoleto de navegadores antiguos
+          { key: 'X-XSS-Protection', value: '0' },
         ],
       },
     ];
