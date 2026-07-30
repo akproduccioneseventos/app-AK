@@ -137,7 +137,23 @@ export async function getCrmStages(): Promise<CrmStage[]> {
 export async function getCrmLeads(page?: number, limit = 50): Promise<CrmLead[]> {
   const auth = await verifySession();
   if (!auth.success) throw new Error('No autorizado');
-  const allLeads = await readData<CrmLead[]>(LEADS_FILE, []);
+  let allLeads: CrmLead[] = [];
+  try {
+    const { dbAdmin } = await import('@/lib/firebase/server');
+    if (dbAdmin) {
+      const snap = await dbAdmin.collection('prospectos').get();
+      const firestoreLeads = snap.docs.map(doc => doc.data() as CrmLead);
+      const localLeads = await readData<CrmLead[]>(LEADS_FILE, []);
+      const leadMap = new Map<string, CrmLead>();
+      localLeads.forEach(l => leadMap.set(l.id, l));
+      firestoreLeads.forEach(l => leadMap.set(l.id, l));
+      allLeads = Array.from(leadMap.values());
+    } else {
+      allLeads = await readData<CrmLead[]>(LEADS_FILE, []);
+    }
+  } catch {
+    allLeads = await readData<CrmLead[]>(LEADS_FILE, []);
+  }
   const decoratedLeads = await (async () => {
     try {
       const fiestas = await getFiestas(true);

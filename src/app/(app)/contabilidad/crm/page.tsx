@@ -299,17 +299,10 @@ export default function CrmPage() {
 
   const quickFilters: { key: QuickFilter; label: string; icon?: React.ReactNode }[] = [
     { key: 'all', label: 'Todos' },
-    { key: 'guest', label: 'Invitados interesados', icon: <Gift className="w-3 h-3" /> },
-    { key: 'simulator', label: 'Simuladores', icon: <Sparkles className="w-3 h-3" /> },
-    { key: 'portal_led', label: 'Portal LED', icon: <Monitor className="w-3 h-3" /> },
-    { key: 'birthday_30', label: 'Cumple 30 dias', icon: <CalendarDays className="w-3 h-3" /> },
-    { key: 'birthday_60', label: 'Cumple 60 dias', icon: <CalendarDays className="w-3 h-3" /> },
-    { key: 'birthday_90', label: 'Cumple 90 dias', icon: <CalendarDays className="w-3 h-3" /> },
-    { key: 'today', label: 'Hoy', icon: <Clock className="w-3 h-3" /> },
-    { key: 'this_week', label: 'Esta semana', icon: <Clock className="w-3 h-3" /> },
-    { key: 'no_followup', label: 'Sin cita', icon: <X className="w-3 h-3" /> },
-    { key: 'inactive', label: `Sin actividad (${inactiveCount})`, icon: <AlertTriangle className="w-3 h-3" /> },
-    { key: 'my_leads', label: 'Con responsable', icon: <User className="w-3 h-3" /> },
+    { key: 'simulator', label: 'Presupuestos (Simulador)', icon: <Sparkles className="w-3 h-3 text-amber-500" /> },
+    { key: 'guest', label: 'Consultas Directas', icon: <Gift className="w-3 h-3 text-sky-500" /> },
+    { key: 'today', label: 'Citas Hoy', icon: <Clock className="w-3 h-3 text-emerald-500" /> },
+    { key: 'inactive', label: `Sin actividad (${inactiveCount})`, icon: <AlertTriangle className="w-3 h-3 text-rose-500" /> },
   ];
 
   return (

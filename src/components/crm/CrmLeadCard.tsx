@@ -83,11 +83,11 @@ export const CrmLeadCard = memo(function CrmLeadCard({ lead, onDeleteLead, isDel
   };
   
   const budgetSource = useMemo(() => {
-    if (lead.budgetSource === 'simulator_assistant') return { text: 'Sim. asistido', className: 'bg-indigo-100 text-indigo-800' };
-    if (lead.budgetSource === 'simulator_common') return { text: 'Sim. común', className: 'bg-blue-100 text-blue-800' };
-    if (lead.budgetSource === 'portal_led') return { text: 'Portal LED', className: 'bg-fuchsia-100 text-fuchsia-800' };
-    if (lead.budgetSource === 'simulator') return { text: 'Simulador', className: 'bg-blue-100 text-blue-800' };
-    return { text: 'Manual', className: 'bg-gray-100 text-gray-700' };
+    if (lead.budgetSource === 'simulator_assistant' || lead.budgetSource === 'simulator_common' || lead.budgetSource === 'simulator') {
+      return { text: '⚡ Simulador', className: 'bg-amber-100 text-amber-900 border border-amber-300 font-bold' };
+    }
+    if (lead.budgetSource === 'portal_led') return { text: '🖥️ Portal LED', className: 'bg-fuchsia-100 text-fuchsia-800 font-bold' };
+    return { text: '💬 Consulta WhatsApp', className: 'bg-emerald-100 text-emerald-800 border border-emerald-300 font-bold' };
   }, [lead.budgetSource]);
 
   const hasBudget = !!lead.presupuestoId;
