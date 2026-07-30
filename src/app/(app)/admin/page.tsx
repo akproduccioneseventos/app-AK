@@ -45,7 +45,6 @@ import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Separator } from '@/components/ui/separator';
 import { KpiCard } from '@/components/dashboard/kpi-card';
-import { PublicFooter } from '@/components/public-footer';
 import { PwaInstallPrompt } from '@/components/pwa-install-prompt';
 import { PushNotificationPrompt } from '@/components/push-notification-prompt';
 import { getDashboardKpiData, type GlobalAlert } from '@/app/actions/dashboard';
@@ -350,17 +349,32 @@ export default function MainDashboardPage() {
         <AnimatePresence>
           {mainHubItems.map((item, idx) => (
             <motion.div key={item.title} className={cn(item.featured ? 'sm:col-span-2 xl:col-span-1 2xl:col-span-2' : '')} initial={{ opacity: 0, scale: 0.95 }} animate={{ opacity: 1, scale: 1 }} transition={{ delay: idx * 0.03 + 0.2 }}>
-              <Card className={cn('group flex h-full min-h-[13.75rem] flex-col overflow-hidden rounded-xl border border-slate-200 bg-white shadow-sm transition-all duration-300 hover:-translate-y-1 hover:shadow-xl', item.featured && 'border-indigo-200 ring-2 ring-indigo-500/80 ring-offset-2')}>
-                <CardHeader className="space-y-3 p-5 pb-3"><div className={cn('flex h-12 w-12 shrink-0 items-center justify-center rounded-lg shadow-lg shadow-black/5 transition-all duration-300 group-hover:rotate-3', item.featured ? 'bg-gradient-to-br from-indigo-600 to-purple-600 text-white' : item.lightColor)}><item.icon className="h-6 w-6" /></div><CardTitle className={cn('text-base font-black leading-tight tracking-tight sm:text-lg', item.featured ? 'text-indigo-700' : 'text-slate-800')}>{item.title}</CardTitle></CardHeader>
-                <CardContent className="flex-grow px-5 pb-5"><p className="text-sm font-medium leading-relaxed text-slate-500">{item.description}</p></CardContent>
-                <CardFooter className="px-5 pb-5 pt-0"><Button asChild variant={item.featured ? 'default' : 'secondary'} className={cn('h-10 w-full justify-between rounded-lg px-4 text-[10px] font-black uppercase tracking-widest shadow-sm transition-all duration-300', item.featured ? 'bg-gradient-to-r from-indigo-600 to-purple-600 text-white hover:from-indigo-700 hover:to-purple-700' : 'group-hover:bg-gradient-to-r group-hover:from-indigo-600 group-hover:to-purple-600 group-hover:text-white')}><Link href={item.href} className="w-full">Abrir <ArrowRight className="w-4 h-4 ml-2 group-hover:translate-x-2 transition-transform duration-500" /></Link></Button></CardFooter>
+              <Card className={cn('group flex h-full min-h-[14rem] flex-col overflow-hidden rounded-2xl border border-slate-200/80 bg-white shadow-sm transition-all duration-300 hover:-translate-y-1 hover:border-indigo-300 hover:shadow-xl hover:shadow-indigo-500/10', item.featured && 'border-indigo-300 bg-gradient-to-br from-white via-indigo-50/20 to-purple-50/20 shadow-md ring-2 ring-indigo-500/30')}>
+                <CardHeader className="space-y-3 p-6 pb-3">
+                  <div className={cn('flex h-12 w-12 shrink-0 items-center justify-center rounded-xl shadow-md transition-all duration-300 group-hover:scale-110 group-hover:rotate-3', item.featured ? 'bg-gradient-to-br from-indigo-600 to-purple-600 text-white shadow-indigo-500/30' : item.lightColor)}>
+                    <item.icon className="h-6 w-6 shrink-0" />
+                  </div>
+                  <CardTitle className={cn('text-lg font-bold leading-snug tracking-tight', item.featured ? 'text-indigo-900' : 'text-slate-900')}>
+                    {item.title}
+                  </CardTitle>
+                </CardHeader>
+                <CardContent className="flex-grow px-6 pb-5">
+                  <p className="text-sm font-medium leading-relaxed text-slate-600">{item.description}</p>
+                </CardContent>
+                <CardFooter className="px-6 pb-6 pt-0">
+                  <Button asChild variant={item.featured ? 'default' : 'secondary'} className={cn('h-11 w-full justify-between rounded-xl px-5 text-xs font-bold tracking-wide shadow-sm transition-all duration-300', item.featured ? 'bg-gradient-to-r from-indigo-600 to-purple-600 text-white hover:from-indigo-700 hover:to-purple-700 hover:shadow-lg hover:shadow-indigo-500/25' : 'bg-slate-100 text-slate-800 hover:bg-indigo-600 hover:text-white hover:shadow-lg hover:shadow-indigo-500/20')}>
+                    <Link href={item.href} className="w-full flex items-center justify-between">
+                      <span>Abrir módulo</span>
+                      <ArrowRight className="w-4 h-4 shrink-0 transition-transform duration-300 group-hover:translate-x-1" />
+                    </Link>
+                  </Button>
+                </CardFooter>
               </Card>
             </motion.div>
           ))}
         </AnimatePresence>
       </div>
 
-      <PublicFooter className="rounded-[1.5rem]" />
       <PwaInstallPrompt />
       <PushNotificationPrompt />
     </div>
@@ -369,11 +383,11 @@ export default function MainDashboardPage() {
 
 function UnavailablePanel({ title, onRetry }: { title: string; onRetry: () => void }) {
   return (
-    <Card className="flex min-h-[300px] items-center justify-center border-amber-200 bg-amber-50/60">
-      <CardContent className="space-y-4 text-center">
+    <Card className="flex min-h-[300px] items-center justify-center rounded-2xl border border-amber-200 bg-amber-50/60 p-6">
+      <CardContent className="space-y-4 text-center p-0">
         <AlertTriangle className="mx-auto h-8 w-8 text-amber-700" />
-        <p className="text-sm font-black text-amber-950">{title}</p>
-        <Button type="button" variant="outline" size="sm" onClick={onRetry} className="border-amber-300 bg-white text-amber-900">
+        <p className="text-sm font-bold text-amber-950">{title}</p>
+        <Button type="button" variant="outline" size="sm" onClick={onRetry} className="rounded-xl border-amber-300 bg-white text-amber-900 hover:bg-amber-100">
           <RefreshCw className="mr-2 h-4 w-4" />
           Reintentar
         </Button>
@@ -385,10 +399,15 @@ function UnavailablePanel({ title, onRetry }: { title: string; onRetry: () => vo
 function QuickTool({ href, icon: Icon, title, description }: { href: string; icon: any; title: string; description: string }) {
   return (
     <Link href={href} className="block h-full">
-      <div className="group flex h-full min-h-[92px] cursor-pointer items-center gap-3 rounded-lg border border-slate-200 bg-white p-3.5 transition-colors hover:border-indigo-300 hover:bg-slate-50">
-        <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-lg bg-indigo-50 text-indigo-600 shadow-inner transition-all duration-300 group-hover:bg-indigo-600 group-hover:text-white"><Icon className="h-5 w-5" /></div>
-        <div className="min-w-0 flex-1"><h3 className="text-sm font-black leading-tight text-slate-800">{title}</h3><p className="mt-1 text-xs font-semibold leading-snug text-slate-500">{description}</p></div>
-        <ArrowRight className="ml-auto h-4 w-4 shrink-0 text-slate-300 transition-all group-hover:translate-x-1 group-hover:text-indigo-500" />
+      <div className="group flex h-full min-h-[96px] cursor-pointer items-center gap-3.5 rounded-xl border border-slate-200/80 bg-white p-4 shadow-sm transition-all duration-200 hover:border-indigo-300 hover:bg-slate-50/80 hover:shadow-md">
+        <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl bg-indigo-50 text-indigo-600 shadow-inner transition-all duration-300 group-hover:bg-indigo-600 group-hover:text-white group-hover:shadow-indigo-600/20">
+          <Icon className="h-5 w-5 shrink-0" />
+        </div>
+        <div className="min-w-0 flex-1">
+          <h3 className="text-sm font-bold leading-snug text-slate-900 group-hover:text-indigo-600 transition-colors">{title}</h3>
+          <p className="mt-0.5 text-xs font-medium leading-snug text-slate-500">{description}</p>
+        </div>
+        <ArrowRight className="ml-auto h-4 w-4 shrink-0 text-slate-400 transition-all group-hover:translate-x-1 group-hover:text-indigo-600" />
       </div>
     </Link>
   );
