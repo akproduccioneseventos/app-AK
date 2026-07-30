@@ -143,23 +143,7 @@ async function syncLinkedFiesta(presupuesto: Presupuesto) {
         const allFiestas = await getAllFiestas();
         const linkedFiesta = allFiestas.find(f => f.presupuestoId === presupuesto.id);
         if (linkedFiesta) {
-            if (presupuesto.estado === 'Aceptado' || presupuesto.estado === 'Facturado') {
-                await syncFiestaFromBudget(linkedFiesta.id);
-            } else {
-                linkedFiesta.configuracion = {
-                    ...linkedFiesta.configuracion,
-                    nombreEvento: buildFiestaNameFromBudget(presupuesto),
-                    fechaEvento: presupuesto.eventoFecha,
-                    invitadosEstimados: presupuesto.invitadosCantidad,
-                    invitadosAdultos: presupuesto.invitadosAdultos,
-                    invitadosNinos: presupuesto.invitadosNinos,
-                    invitadosAdolescentes: presupuesto.invitadosAdolescentes,
-                    presupuestoEstimado: presupuesto.totalConDescuento ?? presupuesto.costoTotalEstimado,
-                    nombreLugar: presupuesto.salonFiestas,
-                };
-                await saveFiesta(linkedFiesta);
-                await syncLaundryCosts(linkedFiesta.id, presupuesto.invitadosCantidad, presupuesto.itemsPresupuestados);
-            }
+            await syncFiestaFromBudget(linkedFiesta.id);
         }
     } catch (e) {
         console.error("Error auto-syncing fiesta from budget:", e);
@@ -787,6 +771,10 @@ export async function createFiestaFromPresupuesto(
   if (!result.success || !result.fiesta) {
     return { success: false, error: result.error || 'Error al crear el evento.' };
   }
+
+  // Automatic budget reader: sync menu, staff, contracted modules and tasks from budget
+  const { syncFiestaFromBudget } = await import('@/app/actions/fiesta/fiesta.actions');
+  await syncFiestaFromBudget(result.fiesta.id);
 
   await createNotification({
     mensaje: `Nuevo evento creado desde presupuesto: ${newFiesta.configuracion.nombreEvento}`,
