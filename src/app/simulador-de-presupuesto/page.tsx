@@ -2865,7 +2865,7 @@ function SimuladorContent() {
                         <div className="rounded-xl border border-slate-200 bg-slate-50 p-4">
                             <h4 className="font-black text-sm text-slate-900">1. ¿Cómo solicito la reserva de mi fecha?</h4>
                             <p className="mt-1 text-xs leading-relaxed text-slate-600 font-semibold">
-                                Con una seña de $5.000 podés solicitar la reserva de la fecha y de todos los servicios incluidos. AK confirma la disponibilidad de la fecha antes de registrar el pago definitivo.
+                                Con una seña de $5.000 podés solicitar la reserva de la fecha y de todos los servicios incluidos. La reserva queda confirmada únicamente cuando AK valida la fecha, antes de registrar el pago definitivo.
                             </p>
                         </div>
 

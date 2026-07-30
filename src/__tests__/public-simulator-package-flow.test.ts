@@ -8,7 +8,7 @@ const simulatorSource = fs.readFileSync(
 
 describe('public simulator package flow contract', () => {
   it('starts the commercial timer only after the budget is generated', () => {
-    expect(simulatorSource).toContain('startCommercialTimer();\n                    setStep(6);');
+    expect(simulatorSource).toMatch(/startCommercialTimer\(\);\s+setStep\(6\);/);
     expect(simulatorSource).not.toContain('await saveProgress(true);\n                startCommercialTimer();');
     expect(simulatorSource).not.toContain('{step >= 3 && commercialTimerEndsAt && (');
   });
