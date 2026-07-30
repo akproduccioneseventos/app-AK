@@ -9,7 +9,7 @@ import { describeCommercialSource, sanitizeCommercialAttribution } from '@/lib/c
 import type { SimulatorConversionPlan } from '@/lib/commercial/simulator-conversion-engine';
 import { normalizeBirthdayMonthDay } from '@/lib/commercial/birthday';
 import { normalizeUruguayPhone } from '@/lib/commercial/contact';
-import { resolvePublicLeadStageId } from '@/lib/crm/public-lead-stage';
+import { resolvePublicLeadStage } from '@/lib/crm/lead-stage';
 
 const LEADS_FILE = 'crm-leads.json';
 const STAGES_FILE = 'crm-stages.json';
@@ -178,10 +178,11 @@ function buildLead(
       || (input.marketingConsent ? input.marketingConsentSource || acquisition.source : undefined),
     referrerEventName: existing?.referrerEventName || input.referrerEventName,
     lastInboundAt: now,
-    currentStageId: resolvePublicLeadStageId({
+    currentStageId: resolvePublicLeadStage({
       existingStageId: existing?.currentStageId,
       initialStageId,
       budgetStageId: budgetStage?.id,
+      isSimulatorLead: Boolean(input.budgetSource?.includes('simulator') || input.presupuestoId),
       shouldAdvanceToBudget,
     }),
     createdAt: existing?.createdAt || now,

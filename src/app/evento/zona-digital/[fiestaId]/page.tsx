@@ -29,7 +29,6 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Progress } from '@/components/ui/progress';
 import {
-  getPublicGuestEntertainmentLinks,
   getPublicGuestPortalData,
   type PublicGuestEntertainmentLink,
 } from '@/app/actions/public-guest-portal';
@@ -80,12 +79,9 @@ export default function ZonaDigitalPublicPage() {
   useEffect(() => {
     async function load() {
       setIsLoading(true);
-      const [current, links] = await Promise.all([
-        getPublicGuestPortalData(fiestaId, guestId, guestAccessToken),
-        getPublicGuestEntertainmentLinks(fiestaId, guestId, guestAccessToken),
-      ]);
+      const current = await getPublicGuestPortalData(fiestaId, guestId, guestAccessToken);
       setPortal(current);
-      setEntertainmentLinks(links);
+      setEntertainmentLinks(current?.entertainmentLinks ?? []);
       if (current?.guest.nombre) setNickname(current.guest.nombre);
       setIsLoading(false);
     }

@@ -28,6 +28,7 @@ import { CrmLeadTimeline } from './CrmLeadTimeline';
 import { describeCommercialSource } from '@/lib/commercial/acquisition';
 import { daysUntilBirthday } from '@/lib/commercial/birthday';
 import { toWhatsAppNumber } from '@/lib/commercial/contact';
+import { getCrmLeadSourceBadge } from '@/lib/crm/lead-presentation';
 
 const INACTIVITY_DAYS = 7;
 const CONTRACT_TYPE_LABELS: Record<string, string> = {
@@ -83,23 +84,8 @@ export const CrmLeadCard = memo(function CrmLeadCard({ lead, onDeleteLead, isDel
   };
   
   const budgetSource = useMemo(() => {
-    if (lead.budgetSource === 'simulator_assistant') {
-      return { text: 'Simulador IA', className: 'border-indigo-300 bg-indigo-50 text-indigo-800' };
-    }
-    if (lead.budgetSource === 'simulator_common') {
-      return { text: 'Simulador visual', className: 'border-sky-300 bg-sky-50 text-sky-800' };
-    }
-    if (lead.budgetSource === 'simulator') {
-      return { text: 'Simulador', className: 'border-sky-300 bg-sky-50 text-sky-800' };
-    }
-    if (lead.budgetSource === 'portal_led') {
-      return { text: 'Portal LED', className: 'border-fuchsia-300 bg-fuchsia-50 text-fuchsia-800' };
-    }
-    if (lead.acquisition?.source === 'whatsapp') {
-      return { text: 'WhatsApp', className: 'border-emerald-300 bg-emerald-50 text-emerald-800' };
-    }
-    return { text: 'Manual', className: 'border-slate-300 bg-slate-50 text-slate-700' };
-  }, [lead.acquisition?.source, lead.budgetSource]);
+    return getCrmLeadSourceBadge(lead);
+  }, [lead]);
 
   const hasBudget = !!lead.presupuestoId;
   const isBudgetFacturado = lead.presupuestoEstado === 'Facturado';
