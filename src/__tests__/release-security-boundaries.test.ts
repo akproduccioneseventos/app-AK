@@ -186,6 +186,6 @@ describe('release security boundaries', () => {
     const provider = readSource('src/app/actions/provider-portal.ts');
     expect(provider).toContain('token: randomUUID()');
     expect(provider).toContain('const access = await getProveedorByToken(token)');
-    expect(provider).toContain('if (!access.success) return { success: false, error: access.error }');
+    expect(provider).toContain('if (!access.success || !access.data) return { success: false, error: access.error }');
   });
 });
