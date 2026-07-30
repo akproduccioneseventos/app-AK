@@ -213,28 +213,27 @@ export default function MainDashboardPage() {
 
   return (
     <div className="space-y-6 sm:space-y-10 pb-4">
-      <header className="flex flex-col md:flex-row md:items-end justify-between gap-4 sm:gap-6 overflow-hidden">
-        <motion.div initial={{ opacity: 0, x: -20 }} animate={{ opacity: 1, x: 0 }} className="space-y-2 min-w-0">
-          {greeting && (
-            <p className="flex max-w-full flex-wrap items-center gap-x-1.5 gap-y-1 text-xs font-semibold leading-snug text-indigo-500 sm:text-sm">
-              <span>{greetingEmoji}</span>
-              <span>{greeting},</span>
-              <span className="break-words">AK Producciones</span>
-            </p>
-          )}
-          <h1 className="text-2xl sm:text-3xl md:text-5xl font-black tracking-tight text-slate-900">
-            <span className="bg-gradient-to-r from-indigo-600 to-purple-600 bg-clip-text text-transparent italic inline-block pb-1">Inicio</span>
+      <header className="flex flex-col md:flex-row md:items-center justify-between gap-4 sm:gap-6 pb-2">
+        <motion.div initial={{ opacity: 0, y: -10 }} animate={{ opacity: 1, y: 0 }} className="space-y-1.5 min-w-0">
+          <div className="flex items-center gap-2 text-xs font-bold uppercase tracking-widest text-indigo-600">
+            <span className="text-base">{greetingEmoji}</span>
+            <span>{greeting || 'Bienvenido'}, AK Producciones</span>
+          </div>
+          <h1 className="text-2xl sm:text-4xl md:text-5xl font-black tracking-tight text-slate-900 leading-tight">
+            Panel de Control <span className="bg-gradient-to-r from-indigo-600 via-purple-600 to-indigo-700 bg-clip-text text-transparent italic">General</span>
           </h1>
-          <p className="text-slate-500 font-semibold flex items-center gap-2 text-xs sm:text-base min-w-0">
-            <span className="w-2 h-2 rounded-full bg-green-500 animate-pulse shrink-0 inline-block" />
-            <span className="truncate">Gestión operativa y financiera de AK Producciones.</span>
+          <p className="text-slate-600 font-medium text-xs sm:text-sm leading-normal flex items-center gap-2 max-w-2xl">
+            <span className="w-2.5 h-2.5 rounded-full bg-emerald-500 shadow-[0_0_10px_rgba(16,185,129,0.5)] animate-pulse shrink-0" />
+            <span>Gestión operativa, comercial y financiera en tiempo real.</span>
           </p>
         </motion.div>
-        <motion.div initial={{ opacity: 0, scale: 0.9 }} animate={{ opacity: 1, scale: 1 }} className="hidden sm:flex items-center gap-3">
-          <Badge variant="outline" className="bg-white text-indigo-600 border-indigo-200 py-2 px-4 shadow-sm rounded-full font-black text-[10px] tracking-widest uppercase">
-            <Sparkles className="w-3.5 h-3.5 mr-2 text-indigo-400 animate-spin-slow" /> Sistema Optimizado
+        <motion.div initial={{ opacity: 0, scale: 0.95 }} animate={{ opacity: 1, scale: 1 }} className="flex flex-wrap items-center gap-3 shrink-0">
+          <Badge variant="outline" className="bg-indigo-50/80 text-indigo-700 border-indigo-200/80 py-2 px-4 shadow-sm rounded-xl font-bold text-xs gap-2">
+            <Sparkles className="w-4 h-4 text-indigo-500 animate-spin-slow shrink-0" /> Sistema Optimizado
           </Badge>
-          <Button asChild variant="outline" className="rounded-full border-indigo-200 text-indigo-600 hover:bg-indigo-50 font-black text-xs gap-2"><Link href="/settings"><SettingsIcon className="w-4 h-4" /> Centro de Control</Link></Button>
+          <Button asChild variant="default" className="rounded-xl bg-gradient-to-r from-indigo-600 to-purple-600 text-white hover:from-indigo-700 hover:to-purple-700 font-bold text-xs h-10 px-4 shadow-md gap-2 transition-all">
+            <Link href="/settings"><SettingsIcon className="w-4 h-4" /> Centro de Control</Link>
+          </Button>
         </motion.div>
       </header>
 
