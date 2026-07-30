@@ -68,25 +68,53 @@ const PaymentStatusPieChart = dynamic(
   { loading: dashboardChartLoading },
 );
 
-const mainHubItems = [
-  { title: 'Nuevo Lead / Contacto', description: 'Registrar un nuevo prospecto en el CRM.', href: '/contabilidad/crm', icon: UserPlus, lightColor: 'bg-violet-50 text-violet-600', featured: false },
-  { title: 'CRM / Seguimiento', description: 'Ver y gestionar todos los prospectos activos.', href: '/contabilidad/crm', icon: ListChecks, lightColor: 'bg-blue-50 text-blue-600', featured: false },
-  { title: 'Nuevo Presupuesto', description: 'Crear una nueva cotización para un cliente.', href: '/presupuestos/nuevo/crear', icon: FileText, lightColor: 'bg-indigo-50 text-indigo-600', featured: true },
-  { title: 'Ver Presupuestos', description: 'Consultar todos los presupuestos generados.', href: '/presupuestos', icon: Files, lightColor: 'bg-slate-50 text-slate-600', featured: false },
-  { title: 'Eventos Activos', description: 'Planificación y seguimiento de eventos en curso.', href: '/eventos', icon: CalendarClock, lightColor: 'bg-indigo-50 text-indigo-600', featured: false },
-  { title: 'Redes sociales y marketing', description: 'Contenido, campanas, demo comercial, plantilla LED y redes de AK.', href: '/marketing', icon: MessageCircle, lightColor: 'bg-fuchsia-50 text-fuchsia-600', featured: false },
-  { title: 'Calendario', description: 'Vista de agenda y próximas fechas importantes.', href: '/calendario', icon: CalendarDays, lightColor: 'bg-teal-50 text-teal-600', featured: false },
-  { title: 'Cobros / Pagos Rápidos', description: 'Registrar cobros y enviar recibos al instante.', href: '/pagos-rapidos', icon: Wallet, lightColor: 'bg-emerald-50 text-emerald-600', featured: false },
-  { title: 'Base de Clientes', description: 'Directorio completo de clientes y contactos.', href: '/customers', icon: Users, lightColor: 'bg-amber-50 text-amber-600', featured: false },
-  { title: 'Gestión de Empresa', description: 'Empleados, servicios, galería, landing page y más.', href: '/empresa', icon: Building2, lightColor: 'bg-cyan-50 text-cyan-600', featured: false },
-  { title: 'Activos Fijos', description: 'Inventario de equipos y bienes.', href: '/empresa/activos-fijos', icon: Package, lightColor: 'bg-slate-50 text-slate-600', featured: false },
-  { title: 'Contabilidad', description: 'Panel financiero, facturas, flujo de caja y reportes.', href: '/empresa/contabilidad', icon: BarChart3, lightColor: 'bg-orange-50 text-orange-600', featured: false },
-  { title: 'Envíos de WhatsApp', description: 'Mensajes programados y envíos del día vía WhatsApp.', href: '/contabilidad/crm/outbox', icon: MessageCircle, lightColor: 'bg-green-50 text-green-600', featured: false },
-  { title: 'Catálogo de Servicios', description: 'Presentación digital del catálogo por tipo de fiesta.', href: '/catalogo', icon: BookOpen, lightColor: 'bg-sky-50 text-sky-600', featured: false },
-  { title: 'Planificador Gastronómico', description: 'Menús, recetas, bebidas y repostería maestra.', href: '/empresa/menus', icon: ChefHat, lightColor: 'bg-amber-50 text-amber-600', featured: false },
-  { title: 'Marketing 360', description: 'Organiza venta, web publica, redes, demos y materiales comerciales.', href: '/marketing', icon: Wand2, lightColor: 'bg-pink-50 text-pink-600', featured: false },
-  { title: 'Contratos', description: 'Gestionar plantillas de contrato y cláusulas editables.', href: '/settings/contratos', icon: FileSignature, lightColor: 'bg-blue-50 text-blue-600', featured: false },
-  { title: 'Facturas', description: 'Gestión completa de facturación.', href: '/invoices', icon: FileText, lightColor: 'bg-slate-50 text-slate-600', featured: false },
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import { Layers } from 'lucide-react';
+
+export interface HubItem {
+  title: string;
+  description: string;
+  href: string;
+  icon: React.ElementType;
+  lightColor: string;
+  featured?: boolean;
+  category: 'comercial' | 'operaciones' | 'finanzas' | 'marketing';
+}
+
+const CATEGORIES = [
+  { id: 'todos', label: 'Todos los módulos', icon: Layers },
+  { id: 'comercial', label: 'Ventas & CRM', icon: UserPlus },
+  { id: 'operaciones', label: 'Operaciones & Eventos', icon: CalendarClock },
+  { id: 'finanzas', label: 'Finanzas & Facturación', icon: BarChart3 },
+  { id: 'marketing', label: 'Marketing & Empresa', icon: Wand2 },
+];
+
+const mainHubItems: HubItem[] = [
+  // Comercial & CRM
+  { title: 'Nuevo Lead / Contacto', description: 'Registrar un nuevo prospecto en el CRM.', href: '/contabilidad/crm', icon: UserPlus, lightColor: 'bg-violet-50 text-violet-600', featured: false, category: 'comercial' },
+  { title: 'CRM / Seguimiento', description: 'Ver y gestionar todos los prospectos activos.', href: '/contabilidad/crm', icon: ListChecks, lightColor: 'bg-blue-50 text-blue-600', featured: false, category: 'comercial' },
+  { title: 'Nuevo Presupuesto', description: 'Crear una nueva cotización para un cliente.', href: '/presupuestos/nuevo/crear', icon: FileText, lightColor: 'bg-indigo-50 text-indigo-600', featured: true, category: 'comercial' },
+  { title: 'Ver Presupuestos', description: 'Consultar todos los presupuestos generados.', href: '/presupuestos', icon: Files, lightColor: 'bg-slate-50 text-slate-600', featured: false, category: 'comercial' },
+  { title: 'Base de Clientes', description: 'Directorio completo de clientes y contactos.', href: '/customers', icon: Users, lightColor: 'bg-amber-50 text-amber-600', featured: false, category: 'comercial' },
+
+  // Operación & Eventos
+  { title: 'Eventos Activos', description: 'Planificación y seguimiento de eventos en curso.', href: '/eventos', icon: CalendarClock, lightColor: 'bg-indigo-50 text-indigo-600', featured: false, category: 'operaciones' },
+  { title: 'Calendario', description: 'Vista de agenda y próximas fechas importantes.', href: '/calendario', icon: CalendarDays, lightColor: 'bg-teal-50 text-teal-600', featured: false, category: 'operaciones' },
+  { title: 'Planificador Gastronómico', description: 'Menús, recetas, bebidas y repostería maestra.', href: '/empresa/menus', icon: ChefHat, lightColor: 'bg-amber-50 text-amber-600', featured: false, category: 'operaciones' },
+  { title: 'Catálogo de Servicios', description: 'Presentación digital del catálogo por tipo de fiesta.', href: '/catalogo', icon: BookOpen, lightColor: 'bg-sky-50 text-sky-600', featured: false, category: 'operaciones' },
+
+  // Finanzas & Facturación
+  { title: 'Cobros / Pagos Rápidos', description: 'Registrar cobros y enviar recibos al instante.', href: '/pagos-rapidos', icon: Wallet, lightColor: 'bg-emerald-50 text-emerald-600', featured: false, category: 'finanzas' },
+  { title: 'Contabilidad', description: 'Panel financiero, facturas, flujo de caja y reportes.', href: '/empresa/contabilidad', icon: BarChart3, lightColor: 'bg-orange-50 text-orange-600', featured: false, category: 'finanzas' },
+  { title: 'Facturas', description: 'Gestión completa de facturación.', href: '/invoices', icon: FileText, lightColor: 'bg-slate-50 text-slate-600', featured: false, category: 'finanzas' },
+  { title: 'Activos Fijos', description: 'Inventario de equipos y bienes.', href: '/empresa/activos-fijos', icon: Package, lightColor: 'bg-slate-50 text-slate-600', featured: false, category: 'finanzas' },
+
+  // Marketing & Empresa
+  { title: 'Redes Sociales y Marketing', description: 'Contenido, campañas, demo comercial, plantilla LED y redes de AK.', href: '/marketing', icon: MessageCircle, lightColor: 'bg-fuchsia-50 text-fuchsia-600', featured: false, category: 'marketing' },
+  { title: 'Marketing 360', description: 'Organiza venta, web pública, redes, demos y materiales comerciales.', href: '/marketing', icon: Wand2, lightColor: 'bg-pink-50 text-pink-600', featured: false, category: 'marketing' },
+  { title: 'Gestión de Empresa', description: 'Empleados, servicios, galería, landing page y más.', href: '/empresa', icon: Building2, lightColor: 'bg-cyan-50 text-cyan-600', featured: false, category: 'marketing' },
+  { title: 'Envíos de WhatsApp', description: 'Mensajes programados y envíos del día vía WhatsApp.', href: '/contabilidad/crm/outbox', icon: MessageCircle, lightColor: 'bg-green-50 text-green-600', featured: false, category: 'marketing' },
+  { title: 'Contratos', description: 'Gestionar plantillas de contrato y cláusulas editables.', href: '/settings/contratos', icon: FileSignature, lightColor: 'bg-blue-50 text-blue-600', featured: false, category: 'marketing' },
 ];
 
 function alertIcon(alert: GlobalAlert) {
@@ -343,37 +371,83 @@ export default function MainDashboardPage() {
           : <UnavailablePanel title="Distribución de pagos no disponible" onRetry={fetchData} />}
       </div>
 
-      <Separator className="opacity-30" />
+      <section className="space-y-6 pt-4">
+        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-slate-200/80 pb-4">
+          <div>
+            <h2 className="text-xl sm:text-2xl font-black text-slate-900 tracking-tight">Directorio de Módulos</h2>
+            <p className="text-xs sm:text-sm font-medium text-slate-500 mt-0.5">Accedé a las distintas áreas operativas de AK Producciones organizadas por categoría.</p>
+          </div>
+        </div>
 
-      <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3 2xl:grid-cols-4">
-        <AnimatePresence>
-          {mainHubItems.map((item, idx) => (
-            <motion.div key={item.title} className={cn(item.featured ? 'sm:col-span-2 xl:col-span-1 2xl:col-span-2' : '')} initial={{ opacity: 0, scale: 0.95 }} animate={{ opacity: 1, scale: 1 }} transition={{ delay: idx * 0.03 + 0.2 }}>
-              <Card className={cn('group flex h-full min-h-[14rem] flex-col overflow-hidden rounded-2xl border border-slate-200/80 bg-white shadow-sm transition-all duration-300 hover:-translate-y-1 hover:border-indigo-300 hover:shadow-xl hover:shadow-indigo-500/10', item.featured && 'border-indigo-300 bg-gradient-to-br from-white via-indigo-50/20 to-purple-50/20 shadow-md ring-2 ring-indigo-500/30')}>
-                <CardHeader className="space-y-3 p-6 pb-3">
-                  <div className={cn('flex h-12 w-12 shrink-0 items-center justify-center rounded-xl shadow-md transition-all duration-300 group-hover:scale-110 group-hover:rotate-3', item.featured ? 'bg-gradient-to-br from-indigo-600 to-purple-600 text-white shadow-indigo-500/30' : item.lightColor)}>
-                    <item.icon className="h-6 w-6 shrink-0" />
-                  </div>
-                  <CardTitle className={cn('text-lg font-bold leading-snug tracking-tight', item.featured ? 'text-indigo-900' : 'text-slate-900')}>
-                    {item.title}
-                  </CardTitle>
-                </CardHeader>
-                <CardContent className="flex-grow px-6 pb-5">
-                  <p className="text-sm font-medium leading-relaxed text-slate-600">{item.description}</p>
-                </CardContent>
-                <CardFooter className="px-6 pb-6 pt-0">
-                  <Button asChild variant={item.featured ? 'default' : 'secondary'} className={cn('h-11 w-full justify-between rounded-xl px-5 text-xs font-bold tracking-wide shadow-sm transition-all duration-300', item.featured ? 'bg-gradient-to-r from-indigo-600 to-purple-600 text-white hover:from-indigo-700 hover:to-purple-700 hover:shadow-lg hover:shadow-indigo-500/25' : 'bg-slate-100 text-slate-800 hover:bg-indigo-600 hover:text-white hover:shadow-lg hover:shadow-indigo-500/20')}>
-                    <Link href={item.href} className="w-full flex items-center justify-between">
-                      <span>Abrir módulo</span>
-                      <ArrowRight className="w-4 h-4 shrink-0 transition-transform duration-300 group-hover:translate-x-1" />
-                    </Link>
-                  </Button>
-                </CardFooter>
-              </Card>
-            </motion.div>
-          ))}
-        </AnimatePresence>
-      </div>
+        <Tabs defaultValue="todos" className="w-full space-y-6">
+          <TabsList className="flex flex-wrap h-auto p-1.5 bg-slate-100/80 rounded-2xl border border-slate-200/60 gap-1">
+            {CATEGORIES.map((cat) => {
+              const Icon = cat.icon;
+              const count = cat.id === 'todos' ? mainHubItems.length : mainHubItems.filter(i => i.category === cat.id).length;
+              return (
+                <TabsTrigger
+                  key={cat.id}
+                  value={cat.id}
+                  className="rounded-xl px-4 py-2.5 text-xs font-bold text-slate-600 transition-all data-[state=active]:bg-white data-[state=active]:text-indigo-600 data-[state=active]:shadow-md flex items-center gap-2"
+                >
+                  <Icon className="w-4 h-4 shrink-0" />
+                  <span>{cat.label}</span>
+                  <Badge variant="secondary" className="ml-1 bg-slate-200/60 text-slate-700 text-[10px] px-1.5 py-0 rounded-full font-bold">
+                    {count}
+                  </Badge>
+                </TabsTrigger>
+              );
+            })}
+          </TabsList>
+
+          {CATEGORIES.map((cat) => {
+            const items = cat.id === 'todos' ? mainHubItems : mainHubItems.filter(i => i.category === cat.id);
+            return (
+              <TabsContent key={cat.id} value={cat.id} className="space-y-4 focus-visible:outline-none">
+                <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3 2xl:grid-cols-4">
+                  <AnimatePresence mode="popLayout">
+                    {items.map((item, idx) => (
+                      <motion.div
+                        key={item.title}
+                        className={cn(item.featured ? 'sm:col-span-2 xl:col-span-1 2xl:col-span-2' : '')}
+                        initial={{ opacity: 0, scale: 0.95 }}
+                        animate={{ opacity: 1, scale: 1 }}
+                        exit={{ opacity: 0, scale: 0.95 }}
+                        transition={{ delay: idx * 0.02 }}
+                      >
+                        <Card className={cn(
+                          'group flex h-full min-h-[14rem] flex-col overflow-hidden rounded-2xl border border-slate-200/80 bg-white shadow-sm transition-all duration-300 hover:-translate-y-1 hover:border-indigo-300 hover:shadow-xl hover:shadow-indigo-500/10',
+                          item.featured && 'border-indigo-300 bg-gradient-to-br from-white via-indigo-50/20 to-purple-50/20 shadow-md ring-2 ring-indigo-500/30'
+                        )}>
+                          <CardHeader className="space-y-3 p-6 pb-3">
+                            <div className={cn('flex h-12 w-12 shrink-0 items-center justify-center rounded-xl shadow-md transition-all duration-300 group-hover:scale-110 group-hover:rotate-3', item.featured ? 'bg-gradient-to-br from-indigo-600 to-purple-600 text-white shadow-indigo-500/30' : item.lightColor)}>
+                              <item.icon className="h-6 w-6 shrink-0" />
+                            </div>
+                            <CardTitle className={cn('text-lg font-bold leading-snug tracking-tight', item.featured ? 'text-indigo-900' : 'text-slate-900')}>
+                              {item.title}
+                            </CardTitle>
+                          </CardHeader>
+                          <CardContent className="flex-grow px-6 pb-5">
+                            <p className="text-sm font-medium leading-relaxed text-slate-600">{item.description}</p>
+                          </CardContent>
+                          <CardFooter className="px-6 pb-6 pt-0">
+                            <Button asChild variant={item.featured ? 'default' : 'secondary'} className={cn('h-11 w-full justify-between rounded-xl px-5 text-xs font-bold tracking-wide shadow-sm transition-all duration-300', item.featured ? 'bg-gradient-to-r from-indigo-600 to-purple-600 text-white hover:from-indigo-700 hover:to-purple-700 hover:shadow-lg hover:shadow-indigo-500/25' : 'bg-slate-100 text-slate-800 hover:bg-indigo-600 hover:text-white hover:shadow-lg hover:shadow-indigo-500/20')}>
+                              <Link href={item.href} className="w-full flex items-center justify-between">
+                                <span>Abrir módulo</span>
+                                <ArrowRight className="w-4 h-4 shrink-0 transition-transform duration-300 group-hover:translate-x-1" />
+                              </Link>
+                            </Button>
+                          </CardFooter>
+                        </Card>
+                      </motion.div>
+                    ))}
+                  </AnimatePresence>
+                </div>
+              </TabsContent>
+            );
+          })}
+        </Tabs>
+      </section>
 
       <PwaInstallPrompt />
       <PushNotificationPrompt />
