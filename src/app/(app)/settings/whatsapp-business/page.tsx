@@ -274,6 +274,20 @@ export default function WhatsAppBusinessPage() {
             </div>
 
             <div className="space-y-2">
+              <Label htmlFor="phone-number-id">Phone Number ID <span className="text-xs text-muted-foreground">(Meta)</span></Label>
+              <Input
+                id="phone-number-id"
+                placeholder="Ej: 123456789012345"
+                value={(config as any).phoneNumberId || ''}
+                onChange={e => set('phoneNumberId' as any, e.target.value)}
+                disabled={isSaving}
+              />
+              <p className="text-xs text-muted-foreground">
+                Lo encontrás en Meta for Developers → Tu App → WhatsApp → Configuración de la API. Es el ID numérico del número remitente (distinto al número de teléfono).
+              </p>
+            </div>
+
+            <div className="space-y-2">
               <Label htmlFor="verify-token">Token de Verificación del Webhook</Label>
               <Input
                 id="verify-token"
