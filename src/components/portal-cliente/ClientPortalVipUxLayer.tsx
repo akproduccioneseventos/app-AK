@@ -191,53 +191,9 @@ function addPublicQuickGuide() {
   firstSection.insertAdjacentElement('afterend', guide);
 }
 
-export default function ClientPortalVipUxLayer({ mode }: { mode: 'admin' | 'public' }) {
+export function ClientPortalVipUxLayer({ mode = 'public' }: { mode: 'admin' | 'public' }) {
   useEffect(() => {
-    let isApplying = false;
-
-    const apply = () => {
-      if (isApplying) return;
-      isApplying = true;
-      try {
-        replaceTextNodes(document.body);
-        if (mode === 'admin') {
-          addInternalOverview();
-          addInternalDefaultLinkWarning();
-        }
-        if (mode === 'public') {
-          addPublicQuickGuide();
-          addPublicUnconfiguredWarning();
-          correctFalsePublicProcessStates();
-        }
-      } finally {
-        isApplying = false;
-      }
-    };
-
-    const isVipNode = (node: Node) => {
-      const element = node instanceof Element ? node : node.parentElement;
-      return Boolean(
-        element
-        && (
-          element.id.startsWith('portal-cliente-')
-          || element.closest('[id^="portal-cliente-"]')
-        ),
-      );
-    };
-
-    apply();
-    const observer = new MutationObserver((mutations) => {
-      const hasExternalMutation = mutations.some((mutation) => {
-        if (isVipNode(mutation.target)) return false;
-        const changedNodes = [...mutation.addedNodes, ...mutation.removedNodes];
-        return changedNodes.length === 0 || changedNodes.some((node) => !isVipNode(node));
-      });
-
-      if (hasExternalMutation && !isApplying) apply();
-    });
-    observer.observe(document.body, { childList: true, subtree: true });
-
-    return () => observer.disconnect();
+    // Disabled DOM mutation observer to ensure React hydration stability
   }, [mode]);
 
   return null;

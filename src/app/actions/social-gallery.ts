@@ -185,7 +185,7 @@ export async function uploadSocialPost(
   try {
     await enforcePublicRateLimit({
       scope: 'social-media-upload',
-      identity: fiestaId,
+      identity: guestId ? `${fiestaId}:${guestId}` : `${fiestaId}:${file.name}`,
       limit: 12,
       windowMs: 60_000,
     });

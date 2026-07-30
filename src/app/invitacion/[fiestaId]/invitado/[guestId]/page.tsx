@@ -457,7 +457,7 @@ function GuestPortalContent() {
                   <p className="mt-1 text-xs text-slate-500">Tu pase es personal.</p>
                 </div>
                 <div className="rounded-lg border border-slate-200 bg-white p-4 shadow-sm">
-                  <QRCodeStylized id="qr-guest-portal" value={qrValue} size={170} level="H" />
+                  <QRCodeStylized id="qr-guest-portal" value={qrValue} size={170} level="H" renderAs="canvas" />
                 </div>
                 <Button onClick={downloadQR} variant="outline" className="min-h-12 rounded-lg border-slate-300 bg-white text-slate-950 hover:bg-slate-100">
                   <Download className="mr-2 h-4 w-4 text-emerald-400" />Guardar QR

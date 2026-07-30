@@ -348,6 +348,9 @@ export async function resetCrm(): Promise<{ success: boolean; deletedCount?: num
     try {
         const auth = await verifySession();
         if (!auth.success) return { success: false, error: auth.error };
+        if (auth.session?.role !== 'admin') {
+            return { success: false, error: 'Acceso denegado: solo los administradores pueden reiniciar el CRM.' };
+        }
         const leads = await getCrmLeads();
         const deletedCount = leads.length;
 

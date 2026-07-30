@@ -99,6 +99,12 @@ export default function ConfirmarInvitadosPortalPage() {
   const pendientes        = invitados.filter(i => i.rsvp === 'Pendiente');
   const conNecesidades    = invitados.filter(hasAccessibilityNeeds);
   const totalPersonas     = invitados.reduce((s, i) => s + (i.partySize ?? 1), 0);
+
+  const confirmadosPersonas = confirmados.reduce((acc, i) => acc + (i.partySize ?? 1), 0);
+  const pendientesPersonas  = pendientes.reduce((acc, i) => acc + (i.partySize ?? 1), 0);
+  const rechazadosPersonas  = rechazados.reduce((acc, i) => acc + (i.partySize ?? 1), 0);
+  const talVezPersonas      = talVez.reduce((acc, i) => acc + (i.partySize ?? 1), 0);
+
   const conDieta          = invitados.filter(i => i.dietaryRestriction && i.dietaryRestriction !== 'Ninguna');
   const conCanciones      = invitados.filter(i => i.cancionesDJ && i.cancionesDJ.length > 0);
   const checkedIn         = invitados.filter(i => i.checkedIn);
@@ -123,12 +129,12 @@ export default function ConfirmarInvitadosPortalPage() {
   const TABS: FilterTab[] = ['Todos', 'Confirmado', 'Pendiente', 'Rechazado', 'Tal vez', 'Con necesidades'];
   const tabCount = (tab: FilterTab): number => {
     switch (tab) {
-      case 'Confirmado':      return confirmados.length;
-      case 'Rechazado':       return rechazados.length;
-      case 'Tal vez':         return talVez.length;
-      case 'Pendiente':       return pendientes.length;
+      case 'Confirmado':      return confirmadosPersonas;
+      case 'Rechazado':       return rechazadosPersonas;
+      case 'Tal vez':         return talVezPersonas;
+      case 'Pendiente':       return pendientesPersonas;
       case 'Con necesidades': return conNecesidades.length;
-      default:                return invitados.length;
+      default:                return totalPersonas;
     }
   };
 
@@ -142,7 +148,7 @@ export default function ConfirmarInvitadosPortalPage() {
             <ArrowLeft className="w-4 h-4" />
           </Button>
           <div className="flex-1 min-w-0">
-            <p className="text-sm font-black text-slate-900">👥 Invitados</p>
+            <p className="text-sm font-black text-slate-900">👥 Invitados ({totalPersonas} personas)</p>
             <p className="text-xs text-slate-500">{fiesta.configuracion?.nombreEvento}</p>
           </div>
           <Button variant="ghost" size="icon" onClick={() => setShowSearch(v => !v)}>
@@ -166,16 +172,16 @@ export default function ConfirmarInvitadosPortalPage() {
 
         <div>
           <h1 className="text-2xl font-black text-slate-900">👥 Estado de Confirmaciones</h1>
-          <p className="text-slate-500 text-sm mt-1">Seguimiento de los RSVP de tus invitados</p>
+          <p className="text-slate-500 text-sm mt-1">Seguimiento de las {totalPersonas} personas invitadas</p>
         </div>
 
         {/* Summary cards */}
         <div className="grid grid-cols-2 gap-3 sm:grid-cols-4">
           {[
-            { label: 'Confirmados',  count: confirmados.length,  cls: 'text-green-700 bg-green-50 border-green-200',   icon: CheckCircle2 },
-            { label: 'Pendientes',   count: pendientes.length,   cls: 'text-slate-700 bg-slate-50 border-slate-200',   icon: HelpCircle   },
-            { label: 'Rechazados',   count: rechazados.length,   cls: 'text-red-700 bg-red-50 border-red-200',         icon: XCircle      },
-            { label: 'Tal vez',      count: talVez.length,       cls: 'text-amber-700 bg-amber-50 border-amber-200',   icon: HelpCircle   },
+            { label: 'Confirmados',  count: confirmadosPersonas,  subLabel: `${confirmados.length} invitaciones`, cls: 'text-green-700 bg-green-50 border-green-200',   icon: CheckCircle2 },
+            { label: 'Pendientes',   count: pendientesPersonas,   subLabel: `${pendientes.length} invitaciones`, cls: 'text-slate-700 bg-slate-50 border-slate-200',   icon: HelpCircle   },
+            { label: 'Rechazados',   count: rechazadosPersonas,   subLabel: `${rechazados.length} invitaciones`, cls: 'text-red-700 bg-red-50 border-red-200',         icon: XCircle      },
+            { label: 'Tal vez',      count: talVezPersonas,       subLabel: `${talVez.length} invitaciones`, cls: 'text-amber-700 bg-amber-50 border-amber-200',   icon: HelpCircle   },
           ].map((item) => {
             const Icon = item.icon;
             return (
