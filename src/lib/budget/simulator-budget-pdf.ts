@@ -93,7 +93,7 @@ async function loadLogoBase64(): Promise<string | null> {
     if (typeof window !== "undefined") {
       const response = await fetch("/logo_ak_producciones.png");
       const blob = await response.blob();
-      return new Promise<string>((resolve) => {
+      return new Promise<string | null>((resolve) => {
         const reader = new FileReader();
         reader.onloadend = () => resolve(reader.result as string);
         reader.onerror = () => resolve(null);

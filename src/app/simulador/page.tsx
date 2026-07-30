@@ -1,6 +1,16 @@
 import Image from 'next/image';
 import Link from 'next/link';
-import { ArrowRight, Bot, Calculator, CheckCircle2, MessageCircle, ShieldCheck } from 'lucide-react';
+import {
+  ArrowRight,
+  Bot,
+  Building2,
+  Calculator,
+  CheckCircle2,
+  MessageCircle,
+  PartyPopper,
+  ShieldCheck,
+  Zap,
+} from 'lucide-react';
 import {
   appendCommercialAttribution,
   commercialAttributionFromRecord,
