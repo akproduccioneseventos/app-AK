@@ -128,12 +128,30 @@ function VerPresupuestoContent({ params }: { params: { id: string } }) {
   const [clientPagoReferencia, setClientPagoReferencia] = useState('');
   const [clientPagoComprobante, setClientPagoComprobante] = useState<string | undefined>(undefined);
   const [startingMercadoPago, setStartingMercadoPago] = useState<'deposit' | 'balance' | null>(null);
+  const [mercadoPagoAvailable, setMercadoPagoAvailable] = useState(false);
 
   // Budget audit state
   const [isAuditing, setIsAuditing] = useState(false);
   const [auditResult, setAuditResult] = useState<AuditResult | null>(null);
   const [showAudit, setShowAudit] = useState(false);
   const publicToken = searchParams.get('token') || undefined;
+
+  useEffect(() => {
+    if (!publicToken) {
+      setMercadoPagoAvailable(false);
+      return;
+    }
+    const controller = new AbortController();
+    void fetch('/api/health', { cache: 'no-store', signal: controller.signal })
+      .then(async (response) => response.ok ? response.json() : null)
+      .then((health) => {
+        setMercadoPagoAvailable(Boolean(health?.integrations?.mercadoPago));
+      })
+      .catch(() => {
+        if (!controller.signal.aborted) setMercadoPagoAvailable(false);
+      });
+    return () => controller.abort();
+  }, [publicToken]);
 
   const fetchPresupuestoAndSettings = useCallback(async () => {
     if (!presupuestoId) return;
@@ -970,7 +988,8 @@ function VerPresupuestoContent({ params }: { params: { id: string } }) {
             </>
             )}
 
-            {shouldShowPublicBudgetActions
+            {mercadoPagoAvailable
+              && shouldShowPublicBudgetActions
               && publicToken
               && ['Enviado', 'Aceptado', 'Facturado'].includes(presupuesto.estado)
               && pagosSummary.saldoPendiente > 0 && (
