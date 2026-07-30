@@ -14,6 +14,9 @@ import { getPublicEntertainmentEvent } from '@/app/actions/fiesta/entretenimient
 import type { PublicEntertainmentEvent } from '@/lib/entertainment/station-config';
 import { KioskUnlockButton } from '@/components/kiosk/kiosk-unlock-button';
 import { cn } from '@/lib/utils';
+import { drawBuzonVideoFrame } from '@/lib/buzon/video-frame-canvas';
+import { renderUploadedVideoWithFrame } from '@/lib/buzon/video-frame-processor';
+import { normalizeFrameTemplateId } from '@/lib/buzon/video-frame-templates';
 
 export default function GuestBuzonPage() {
   const params = useParams();
@@ -41,8 +44,42 @@ export default function GuestBuzonPage() {
     }
   };
 
+  const releaseActiveMedia = () => {
+    if (recordingIntervalRef.current) {
+      clearInterval(recordingIntervalRef.current);
+      recordingIntervalRef.current = null;
+    }
+    if (videoRenderFrameRef.current !== null) {
+      cancelAnimationFrame(videoRenderFrameRef.current);
+      videoRenderFrameRef.current = null;
+    }
+
+    const audioRecorder = mediaRecorderRef.current;
+    if (audioRecorder) {
+      audioRecorder.ondataavailable = null;
+      audioRecorder.onstop = null;
+      if (audioRecorder.state !== 'inactive') audioRecorder.stop();
+      audioRecorder.stream.getTracks().forEach((track) => track.stop());
+      mediaRecorderRef.current = null;
+    }
+
+    const videoRecorder = vhsRecorderRef.current;
+    if (videoRecorder) {
+      videoRecorder.ondataavailable = null;
+      videoRecorder.onstop = null;
+      if (videoRecorder.state !== 'inactive') videoRecorder.stop();
+      videoRecorder.stream.getTracks().forEach((track) => track.stop());
+      vhsRecorderRef.current = null;
+    }
+
+    streamRef.current?.getTracks().forEach((track) => track.stop());
+    streamRef.current = null;
+  };
+
   const handleGoBack = () => {
-    stopCamera();
+    releaseActiveMedia();
+    setIsRecording(false);
+    setStream(null);
     resetAudioRecording();
     resetVideoUpload();
     setSelectedMode(null);
@@ -66,18 +103,20 @@ export default function GuestBuzonPage() {
   // Video VHS State
   const [videoState, setVideoState] = useState<'idle' | 'recording' | 'processing' | 'review'>('idle');
   const [stream, setStream] = useState<MediaStream | null>(null);
+  const streamRef = useRef<MediaStream | null>(null);
   const videoRef = useRef<HTMLVideoElement>(null);
   const vhsCanvasRef = useRef<HTMLCanvasElement>(null);
   const vhsRecorderRef = useRef<MediaRecorder | null>(null);
+  const videoRenderFrameRef = useRef<number | null>(null);
 
   const [videoFile, setVideoFile] = useState<File | null>(null);
   const [videoUrl, setVideoUrl] = useState<string | null>(null);
   const [videoDuration, setVideoDuration] = useState<number>(0);
+  const [videoProcessingProgress, setVideoProcessingProgress] = useState(0);
   const videoInputRef = useRef<HTMLInputElement | null>(null);
 
   const audioCtxRef = useRef<AudioContext | null>(null);
 
-  const [audioOption, setAudioOption] = useState<'direct' | 'retro' | 'upload'>('direct');
   const audioInputRef = useRef<HTMLInputElement | null>(null);
 
   const handleAudioFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -228,7 +267,12 @@ export default function GuestBuzonPage() {
     async function loadData() {
       try {
         const res = await getPublicEntertainmentEvent(fiestaId, 'capsulaTiempo', accessToken);
-        if (res.success && res.event) {
+        if (
+          res.success
+          && res.event
+          && res.event.showBuzon
+          && res.event.buzonConfig?.enabled !== false
+        ) {
           setFiesta(res.event);
         }
       } catch (err) {
@@ -240,14 +284,20 @@ export default function GuestBuzonPage() {
     loadData();
   }, [accessToken, fiestaId]);
 
-  useEffect(() => {
-    return () => {
-      if (recordingIntervalRef.current) clearInterval(recordingIntervalRef.current);
-      if (audioUrl) URL.revokeObjectURL(audioUrl);
-      if (videoUrl) URL.revokeObjectURL(videoUrl);
-      stopCamera();
-    };
-  }, [audioUrl, videoUrl]); // eslint-disable-line react-hooks/exhaustive-deps
+  useEffect(() => () => {
+    releaseActiveMedia();
+    welcomeAudioRef.current?.pause();
+    previewAudioRef.current?.pause();
+    void audioCtxRef.current?.close().catch(() => undefined);
+  }, []); // eslint-disable-line react-hooks/exhaustive-deps
+
+  useEffect(() => () => {
+    if (audioUrl) URL.revokeObjectURL(audioUrl);
+  }, [audioUrl]);
+
+  useEffect(() => () => {
+    if (videoUrl) URL.revokeObjectURL(videoUrl);
+  }, [videoUrl]);
 
   // Welcome Audio Control
   const toggleWelcomeAudio = () => {
@@ -410,10 +460,10 @@ export default function GuestBuzonPage() {
       return;
     }
 
-    if (file.size > 50 * 1024 * 1024) {
+    if (file.size > 40 * 1024 * 1024) {
       toast({
         title: 'Video demasiado grande',
-        description: 'El video no debe superar los 50MB.',
+        description: 'El video no debe superar los 40MB.',
         variant: 'destructive',
       });
       return;
@@ -424,9 +474,8 @@ export default function GuestBuzonPage() {
     videoElement.src = tempUrl;
     videoElement.preload = 'metadata';
 
-    videoElement.onloadedmetadata = () => {
+    videoElement.onloadedmetadata = async () => {
       const duration = videoElement.duration;
-      setVideoDuration(duration);
       URL.revokeObjectURL(tempUrl);
 
       if (duration > 16.5 || duration === Infinity) {
@@ -438,10 +487,42 @@ export default function GuestBuzonPage() {
         setVideoFile(null);
         setVideoUrl(null);
       } else {
-        setVideoFile(file);
-        setVideoUrl(URL.createObjectURL(file));
-        setVideoState('review');
+        setVideoState('processing');
+        setVideoProcessingProgress(0);
+        try {
+          const processed = await renderUploadedVideoWithFrame({
+            file,
+            template: fiesta?.buzonConfig?.videoFrameTemplate,
+            displayText: fiesta?.buzonConfig?.customText || fiesta?.eventName || 'AK PRODUCCIONES',
+            onProgress: setVideoProcessingProgress,
+          });
+          if (videoUrl) URL.revokeObjectURL(videoUrl);
+          setVideoFile(processed.file);
+          setVideoUrl(processed.url);
+          setVideoDuration(processed.durationSeconds);
+          setVideoState('review');
+        } catch (error) {
+          setVideoFile(null);
+          setVideoUrl(null);
+          setVideoState('idle');
+          if (videoInputRef.current) videoInputRef.current.value = '';
+          toast({
+            title: 'No se pudo preparar el video',
+            description: error instanceof Error
+              ? error.message
+              : 'Intenta grabarlo directamente con la cámara.',
+            variant: 'destructive',
+          });
+        }
       }
+    };
+    videoElement.onerror = () => {
+      URL.revokeObjectURL(tempUrl);
+      toast({
+        title: 'Video inválido',
+        description: 'No se pudo leer el archivo seleccionado.',
+        variant: 'destructive',
+      });
     };
   };
 
@@ -453,6 +534,7 @@ export default function GuestBuzonPage() {
         audio: true
       });
       setStream(mediaStream);
+      streamRef.current = mediaStream;
       if (videoRef.current) {
         videoRef.current.srcObject = mediaStream;
       }
@@ -471,10 +553,13 @@ export default function GuestBuzonPage() {
   };
 
   const stopCamera = () => {
-    if (stream) {
-      stream.getTracks().forEach(track => track.stop());
-      setStream(null);
+    if (videoRenderFrameRef.current !== null) {
+      cancelAnimationFrame(videoRenderFrameRef.current);
+      videoRenderFrameRef.current = null;
     }
+    streamRef.current?.getTracks().forEach(track => track.stop());
+    streamRef.current = null;
+    setStream(null);
   };
 
   const startVHSRenderLoop = (activeStream: MediaStream) => {
@@ -482,14 +567,45 @@ export default function GuestBuzonPage() {
     const canvas = vhsCanvasRef.current;
     if (!video || !canvas) return;
 
+    if (video.srcObject !== activeStream) {
+      video.srcObject = activeStream;
+    }
+
     const ctx = canvas.getContext('2d');
     if (!ctx) return;
 
     canvas.width = 640;
     canvas.height = 480;
 
-    const render = () => {
-      if (video.paused || video.ended || activeStream.getTracks()[0].readyState === 'ended') return;
+    const scanlineCanvas = document.createElement('canvas');
+    scanlineCanvas.width = 1;
+    scanlineCanvas.height = 4;
+    const scanlineContext = scanlineCanvas.getContext('2d');
+    if (scanlineContext) {
+      scanlineContext.fillStyle = 'rgba(0, 0, 0, 0.15)';
+      scanlineContext.fillRect(0, 0, 1, 2);
+    }
+    const scanlinePattern = ctx.createPattern(scanlineCanvas, 'repeat');
+    const dateStr = new Date().toLocaleDateString('es-UY', {
+      day: '2-digit',
+      month: 'short',
+      year: 'numeric',
+    }).toUpperCase();
+    const frameInterval = 1000 / 20;
+    let lastFrameAt = -frameInterval;
+
+    const render = (timestamp: number) => {
+      if (video.ended || activeStream.getVideoTracks()[0]?.readyState === 'ended') return;
+      if (video.paused) {
+        void video.play().catch(() => undefined);
+        videoRenderFrameRef.current = requestAnimationFrame(render);
+        return;
+      }
+      if (timestamp - lastFrameAt < frameInterval) {
+        videoRenderFrameRef.current = requestAnimationFrame(render);
+        return;
+      }
+      lastFrameAt = timestamp;
 
       // Draw video mirrored
       ctx.save();
@@ -503,34 +619,43 @@ export default function GuestBuzonPage() {
       ctx.fillRect(0, 0, canvas.width, canvas.height);
 
       // CRT Scanlines effect
-      ctx.fillStyle = 'rgba(0, 0, 0, 0.15)';
-      for (let y = 0; y < canvas.height; y += 4) {
-        ctx.fillRect(0, y, canvas.width, 2);
+      if (scanlinePattern) {
+        ctx.fillStyle = scanlinePattern;
+        ctx.fillRect(0, 0, canvas.width, canvas.height);
       }
 
       // flasing record dot
       const now = Date.now();
+      const activeTemplate = normalizeFrameTemplateId(fiesta?.buzonConfig?.videoFrameTemplate);
+      const hasCustomFrame = activeTemplate !== 'default';
+      const topMetadataY = hasCustomFrame ? 90 : 40;
       if (Math.floor(now / 500) % 2 === 0) {
         ctx.fillStyle = '#ef4444';
         ctx.beginPath();
-        ctx.arc(40, 40, 8, 0, Math.PI * 2);
+        ctx.arc(40, topMetadataY, 8, 0, Math.PI * 2);
         ctx.fill();
         ctx.fillStyle = '#ffffff';
         ctx.font = 'bold 16px "Courier New", monospace';
-        ctx.fillText('REC', 60, 46);
+        ctx.fillText('REC', 60, topMetadataY + 6);
       }
 
       // Video Timer or timestamp
-      const date = new Date();
-      const timeStr = date.toTimeString().split(' ')[0];
-      const dateStr = date.toLocaleDateString('es-ES', { day: '2-digit', month: 'short', year: 'numeric' }).toUpperCase();
+      const timeStr = new Date().toTimeString().split(' ')[0];
 
       ctx.fillStyle = '#ffffff';
       ctx.font = 'bold 16px "Courier New", monospace';
-      ctx.fillText(timeStr, 40, canvas.height - 60);
-      ctx.fillText(dateStr, 40, canvas.height - 35);
-      ctx.fillText('PLAY ▶', canvas.width - 110, 46);
-      ctx.fillText('VHS SP', canvas.width - 110, canvas.height - 35);
+      ctx.fillText(timeStr, 40, canvas.height - (hasCustomFrame ? 105 : 60));
+      ctx.fillText(dateStr, 40, canvas.height - (hasCustomFrame ? 80 : 35));
+      ctx.fillText('PLAY ▶', canvas.width - 110, topMetadataY + 6);
+      ctx.fillText('VHS SP', canvas.width - 110, canvas.height - (hasCustomFrame ? 80 : 35));
+
+      drawBuzonVideoFrame(
+        ctx,
+        activeTemplate,
+        fiesta?.buzonConfig?.customText || fiesta?.eventName || 'AK PRODUCCIONES',
+        canvas.width,
+        canvas.height,
+      );
 
       // Random tracking error line (VHSDistortion)
       if (Math.random() < 0.1) {
@@ -540,10 +665,10 @@ export default function GuestBuzonPage() {
         ctx.fillRect(0, errorY, canvas.width, errorH);
       }
 
-      requestAnimationFrame(render);
+      videoRenderFrameRef.current = requestAnimationFrame(render);
     };
 
-    render();
+    videoRenderFrameRef.current = requestAnimationFrame(render);
   };
 
   const handleStartVideoWithCountdown = () => {
@@ -574,11 +699,17 @@ export default function GuestBuzonPage() {
       canvasStream.addTrack(audioTrack);
     }
 
-    let mimeType = 'video/webm';
-    if (!MediaRecorder.isTypeSupported(mimeType)) mimeType = 'video/mp4';
+    const mimeType = [
+      'video/mp4',
+      'video/webm;codecs=vp9,opus',
+      'video/webm;codecs=vp8,opus',
+      'video/webm',
+    ].find((candidate) => MediaRecorder.isTypeSupported(candidate)) || '';
 
     const chunks: Blob[] = [];
-    const recorder = new MediaRecorder(canvasStream, { mimeType });
+    const recorder = mimeType
+      ? new MediaRecorder(canvasStream, { mimeType })
+      : new MediaRecorder(canvasStream);
     vhsRecorderRef.current = recorder;
 
     recorder.ondataavailable = (e) => {
@@ -586,8 +717,14 @@ export default function GuestBuzonPage() {
     };
 
     recorder.onstop = () => {
-      const blob = new Blob(chunks, { type: mimeType });
-      const file = new File([blob], `capsulavideo-${Date.now()}.mp4`, { type: mimeType });
+      const outputType = recorder.mimeType || mimeType || 'video/webm';
+      const extension = outputType.includes('mp4') ? 'mp4' : 'webm';
+      const blob = new Blob(chunks, { type: outputType });
+      const file = new File(
+        [blob],
+        `capsulavideo-${Date.now()}.${extension}`,
+        { type: outputType },
+      );
       setVideoFile(file);
       setVideoUrl(URL.createObjectURL(blob));
       setVideoState('review');
@@ -622,6 +759,7 @@ export default function GuestBuzonPage() {
     setVideoFile(null);
     setVideoUrl(null);
     setVideoDuration(0);
+    setVideoProcessingProgress(0);
     setVideoState('idle');
     stopCamera();
     if (videoInputRef.current) videoInputRef.current.value = '';
@@ -648,6 +786,7 @@ export default function GuestBuzonPage() {
     const formData = new FormData();
     formData.append('fiestaId', fiestaId);
     formData.append('authorName', trimmedName);
+    if (accessToken) formData.append('accessToken', accessToken);
 
     if (activeTab === 'audio' && audioBlob) {
       const audioFileName = audioBlob instanceof File ? audioBlob.name : 'saludo_voz.webm';
@@ -722,7 +861,7 @@ export default function GuestBuzonPage() {
   const customAccent = fiesta.station.accentColor || '#6366f1';
 
   return (
-    <div className="min-h-screen bg-[radial-gradient(ellipse_at_top,_#1e1b4b_0%,_#09090b_60%)] text-white flex flex-col justify-between select-none">
+    <div className="min-h-screen bg-[radial-gradient(ellipse_at_top,_#1e1b4b_0%,_#09090b_60%)] text-white flex flex-col justify-between">
 
       {/* HEADER */}
       <header className="px-4 py-5 flex items-center justify-between border-b border-white/5 bg-zinc-950/80 backdrop-blur-md sticky top-0 z-30">
@@ -844,6 +983,35 @@ export default function GuestBuzonPage() {
                   <ChevronRight className="h-6 w-6 text-indigo-500/50 transition-transform group-hover:translate-x-1 group-hover:text-indigo-400" />
                 </div>
               </motion.button>
+
+              <div className="grid grid-cols-2 gap-3">
+                <button
+                  onClick={() => handleSelectMode('vhs_upload')}
+                  className="min-h-24 rounded-2xl border border-zinc-700 bg-zinc-900/60 px-3 py-4 text-left hover:border-indigo-500/60 hover:bg-indigo-950/30 transition"
+                >
+                  <Upload className="w-5 h-5 text-indigo-300 mb-2" />
+                  <span className="block text-xs font-black text-white uppercase">Subir video</span>
+                  <span className="block text-[10px] text-zinc-300 mt-1">Desde la galería</span>
+                </button>
+                <button
+                  onClick={() => handleSelectMode('audio_upload')}
+                  className="min-h-24 rounded-2xl border border-zinc-700 bg-zinc-900/60 px-3 py-4 text-left hover:border-indigo-500/60 hover:bg-indigo-950/30 transition"
+                >
+                  <Upload className="w-5 h-5 text-indigo-300 mb-2" />
+                  <span className="block text-xs font-black text-white uppercase">Subir audio</span>
+                  <span className="block text-[10px] text-zinc-300 mt-1">Archivo grabado</span>
+                </button>
+                <button
+                  onClick={() => handleSelectMode('audio_retro')}
+                  className="col-span-2 min-h-16 rounded-2xl border border-zinc-700 bg-zinc-900/60 px-4 py-3 flex items-center gap-3 text-left hover:border-amber-500/60 hover:bg-amber-950/20 transition"
+                >
+                  <Phone className="w-5 h-5 text-amber-300 shrink-0" />
+                  <span>
+                    <span className="block text-xs font-black text-white uppercase">Cabina telefónica retro</span>
+                    <span className="block text-[10px] text-zinc-300 mt-0.5">Dejá tu mensaje después del tono</span>
+                  </span>
+                </button>
+              </div>
             </div>
           </div>
         ) : (
@@ -909,25 +1077,6 @@ export default function GuestBuzonPage() {
                       {/* Video y Overlays */}
                       <div className="w-full aspect-[4/3] rounded-3xl overflow-hidden border-2 border-rose-500/30 bg-black relative shadow-2xl">
                         <canvas ref={vhsCanvasRef} className="w-full h-full object-cover" />
-
-                        {/* Overlay VHS Effect */}
-                        <div className="absolute inset-0 bg-[linear-gradient(rgba(18,16,16,0)_50%,rgba(0,0,0,0.25)_50%),linear-gradient(90deg,rgba(255,0,0,0.06),rgba(0,255,0,0.02),rgba(0,0,255,0.06))] pointer-events-none bg-[size:100%_4px,3px_100%]" />
-
-                        {/* Marco CSS Personalizado */}
-                        {fiesta?.buzonConfig?.videoFrameTemplate && fiesta.buzonConfig.videoFrameTemplate !== 'default' && (
-                          <div className={cn(
-                            "absolute inset-0 pointer-events-none z-10 border-[12px] rounded-2xl",
-                            fiesta.buzonConfig.videoFrameTemplate === 'neon' ? 'border-fuchsia-500 shadow-[inset_0_0_20px_rgba(217,70,239,0.8)]' : '',
-                            fiesta.buzonConfig.videoFrameTemplate === 'elegante' ? 'border-amber-200/80 shadow-[inset_0_0_15px_rgba(253,230,138,0.5)]' : '',
-                            fiesta.buzonConfig.videoFrameTemplate === 'cumple-infantil' ? 'border-sky-400 border-dashed border-[16px]' : '',
-                            fiesta.buzonConfig.videoFrameTemplate === 'quince' ? 'border-pink-300 border-double border-[16px]' : '',
-                            fiesta.buzonConfig.videoFrameTemplate === 'vintage' ? 'border-[#8B4513] opacity-80 mix-blend-overlay' : '',
-                            fiesta.buzonConfig.videoFrameTemplate === 'glamour' ? 'border-yellow-500/90 shadow-[inset_0_0_30px_rgba(234,179,8,0.4)]' : '',
-                            fiesta.buzonConfig.videoFrameTemplate === 'floral' ? 'border-emerald-200 border-[16px] border-dotted' : '',
-                            fiesta.buzonConfig.videoFrameTemplate === 'urbano' ? 'border-zinc-800 border-[20px] shadow-[inset_0_0_15px_#000]' : '',
-                            fiesta.buzonConfig.videoFrameTemplate === 'minimalista' ? 'border-white border-[8px]' : ''
-                          )} />
-                        )}
 
                         {/* Cuenta regresiva Overlay */}
                         {countdown !== null && (
@@ -1091,7 +1240,22 @@ export default function GuestBuzonPage() {
               {selectedMode === 'vhs_upload' && (
                 <div className="w-full">
                   <input type="file" accept="video/*" onChange={handleVideoChange} ref={videoInputRef} className="hidden" />
-                  {videoState !== 'review' ? (
+                  {videoState === 'processing' ? (
+                    <div className="w-full p-8 rounded-3xl border border-indigo-500/30 bg-indigo-500/5 flex flex-col items-center gap-4 text-center">
+                      <Loader2 className="w-8 h-8 text-indigo-400 animate-spin" />
+                      <div>
+                        <p className="text-xs font-black text-white uppercase tracking-wider">Preparando video con marco</p>
+                        <p className="text-[10px] text-zinc-300 mt-1">No cierres esta pantalla.</p>
+                      </div>
+                      <div className="w-full h-2 rounded-full overflow-hidden bg-zinc-800">
+                        <div
+                          className="h-full bg-indigo-500 transition-[width]"
+                          style={{ width: `${videoProcessingProgress}%` }}
+                        />
+                      </div>
+                      <p className="text-[10px] font-bold text-indigo-200">{videoProcessingProgress}%</p>
+                    </div>
+                  ) : videoState !== 'review' ? (
                     <button
                       onClick={() => videoInputRef.current?.click()}
                       className="w-full p-8 rounded-3xl border-2 border-dashed border-indigo-500/30 bg-indigo-500/5 hover:bg-indigo-500/10 transition-all flex flex-col items-center justify-center gap-3.5"
