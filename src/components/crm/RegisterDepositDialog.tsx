@@ -111,6 +111,9 @@ export function RegisterDepositDialog({ isOpen, onOpenChange, fiestaId, onComple
                   <p>• 6 cuotas: <strong>$ {Math.round((parseFloat(amount) * 1.10) / 6).toLocaleString('es-UY')}/m</strong></p>
                   <p>• 12 cuotas: <strong>$ {Math.round((parseFloat(amount) * 1.10) / 12).toLocaleString('es-UY')}/m</strong></p>
                 </div>
+                <p className="text-[10px] text-amber-900 italic pt-1">
+                  ℹ️ <strong>Nota de Transparencia</strong>: El monto del servicio para AK es $ {parseFloat(amount).toLocaleString('es-UY')}. El 10% adicional cubre la comisión y financiación de Mercado Pago. AK recibe el importe neto.
+                </p>
               </div>
             </div>
           )}

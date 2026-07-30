@@ -523,22 +523,40 @@ export default function BudgetDocument({
         )}
 
         {/* Mercado Pago & Credit Card Payment Options Box */}
-        <section className="mb-4 border border-amber-200 rounded-xl p-3 bg-amber-50/40 print:border-amber-300 budget-print-avoid-break">
-          <div className="flex items-center justify-between font-headline font-black text-xs text-amber-950 uppercase tracking-tight mb-1">
-            <span>💳 Opciones de Pago & Financiación</span>
-            <span className="text-[10px] text-amber-800 bg-amber-200/60 px-2 py-0.5 rounded-full font-bold">Mercado Pago / Tarjeta</span>
+        <section className="mb-4 border border-amber-200 rounded-xl p-3.5 bg-amber-50/50 print:border-amber-300 budget-print-avoid-break">
+          <div className="flex items-center justify-between font-headline font-black text-xs text-amber-950 uppercase tracking-tight mb-2">
+            <span>💳 Opciones de Pago & Transparencia Financiera</span>
+            <span className="text-[10px] text-amber-900 bg-amber-200/80 px-2.5 py-0.5 rounded-full font-bold">Mercado Pago / Transferencia</span>
           </div>
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 text-[11px] text-slate-700">
-            <div className="bg-white/80 p-2 rounded-lg border border-amber-200/60">
-              <p className="font-bold text-slate-900">1. Contado / Transferencia Bancaria:</p>
-              <p className="text-emerald-700 font-bold mt-0.5">{formatCurrency(totalFinal)} (Sin recargo)</p>
+          
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 text-[11px] text-slate-700">
+            <div className="bg-white p-2.5 rounded-xl border border-emerald-200 shadow-sm">
+              <p className="font-extrabold text-slate-900 flex items-center justify-between">
+                <span>1. Contado / Transferencia Bancaria</span>
+                <span className="text-[9px] bg-emerald-100 text-emerald-800 px-1.5 py-0.5 rounded">Precio Base Neto</span>
+              </p>
+              <p className="text-emerald-700 font-black text-sm mt-1">{formatCurrency(totalFinal)}</p>
+              <p className="text-[10px] text-slate-500 mt-1">Sin costos de intermediación financiera. AK Producciones recibe el 100% neto.</p>
             </div>
-            <div className="bg-white/80 p-2 rounded-lg border border-amber-200/60">
-              <p className="font-bold text-slate-900">2. Mercado Pago / Tarjetas en Cuotas (+10% recargo):</p>
-              <p className="text-amber-900 font-bold mt-0.5">
-                Total: {formatCurrency(Math.round(totalFinal * 1.10))} <span className="font-normal text-[10px] text-slate-500">(Hasta 12 cuotas de {formatCurrency(Math.round((totalFinal * 1.10) / 12))}/m)</span>
+
+            <div className="bg-white p-2.5 rounded-xl border border-amber-200 shadow-sm">
+              <p className="font-extrabold text-slate-900 flex items-center justify-between">
+                <span>2. Mercado Pago / Tarjetas (Hasta 12 Cuotas)</span>
+                <span className="text-[9px] bg-amber-100 text-amber-900 px-1.5 py-0.5 rounded">+10% Recargo MP</span>
+              </p>
+              <p className="text-amber-900 font-black text-sm mt-1">
+                {formatCurrency(Math.round(totalFinal * 1.10))}
+              </p>
+              <p className="text-[10px] text-slate-500 mt-1 leading-snug">
+                Hasta 12 cuotas de {formatCurrency(Math.round((totalFinal * 1.10) / 12))}/mes.
               </p>
             </div>
+          </div>
+
+          <div className="mt-2.5 pt-2 border-t border-amber-200/60 text-[10px] text-amber-900 leading-tight">
+            <p className="font-medium">
+              ℹ️ <strong>Nota de Transparencia Financiera</strong>: El importe del servicio contratado para AK Producciones es exactamente el mismo en ambas opciones ({formatCurrency(totalFinal)}). El recargo adicional del 10% corresponde a la tasa de comisión y servicio de financiación cobrado por la plataforma Mercado Pago / emisor de la tarjeta. AK Producciones recibe el importe neto.
+            </p>
           </div>
         </section>
 
