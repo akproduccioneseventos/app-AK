@@ -6,6 +6,7 @@ import { addCrmLead, getCrmLeads } from '@/app/actions/crm';
 import { createNotification } from '@/lib/notifications/create-notification';
 import { requireAppSession } from '@/lib/auth/require-session';
 import { WHATSAPP_WEBHOOK_INTERNAL_TOKEN } from '@/lib/whatsapp/internal-token';
+import { sendMetaWhatsAppMessage } from '@/lib/whatsapp/meta-sender';
 
 const CONFIG_FILE = 'whatsapp-config.json';
 const CONVERSATIONS_FILE = 'whatsapp-conversations.json';
@@ -92,15 +93,35 @@ export async function sendWhatsAppMessage(
 ): Promise<{ success: boolean; message?: WhatsAppMessage; error?: string }> {
   await requireAppSession();
   try {
-    const conversations = await readData<WhatsAppConversation[]>(CONVERSATIONS_FILE, []);
+    const [conversations, config] = await Promise.all([
+      readData<WhatsAppConversation[]>(CONVERSATIONS_FILE, []),
+      getWhatsAppConfig(),
+    ]);
     const idx = conversations.findIndex(c => c.id === conversationId);
     if (idx === -1) return { success: false, error: 'Conversación no encontrada.' };
+
+    const conv = conversations[idx];
+
+    // ── Envío real a Meta WhatsApp Business API ──────────────────────────
+    if (config.enabled && config.provider === 'meta' && config.apiKey && config.phoneNumberId) {
+      const metaResult = await sendMetaWhatsAppMessage({
+        to: conv.clientPhone,
+        text: message,
+        apiToken: config.apiKey,
+        phoneNumberId: config.phoneNumberId,
+      });
+      if (!metaResult.success) {
+        // Logueamos el error pero NO bloqueamos: el mensaje igual queda en Firestore
+        console.error('[WhatsApp] Error enviando a Meta API:', metaResult.error);
+      }
+    }
+    // ─────────────────────────────────────────────────────────────────────
 
     const now = new Date().toISOString();
     const newMsg: WhatsAppMessage = {
       id: `msg_${Date.now()}_${Math.random().toString(36).substring(2, 7)}`,
       conversationId,
-      from: conversations[idx].mode === 'human' ? 'human' : 'bot',
+      from: conv.mode === 'human' ? 'human' : 'bot',
       content: message,
       timestamp: now,
       read: true,
@@ -224,8 +245,21 @@ export async function processIncomingMessage(
         botResponse = generateAutoResponse(message, config, conv.messages.length === 1);
       }
 
-      // Save bot response message
+      // Save bot response message and send to Meta API
       if (botResponse) {
+        // ── Envío real a Meta WhatsApp Business API ──────────────────────
+        if (config.provider === 'meta' && config.apiKey && config.phoneNumberId) {
+          sendMetaWhatsAppMessage({
+            to: phone,
+            text: botResponse,
+            apiToken: config.apiKey,
+            phoneNumberId: config.phoneNumberId,
+          }).catch(err =>
+            console.error('[WhatsApp Bot] Error enviando respuesta automática a Meta:', err)
+          );
+        }
+        // ─────────────────────────────────────────────────────────────────
+
         const botMsg: WhatsAppMessage = {
           id: `msg_${Date.now() + 1}_${Math.random().toString(36).substring(2, 7)}`,
           conversationId: conv.id,
