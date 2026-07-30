@@ -1457,6 +1457,7 @@ export interface BuzonConfig {
   welcomeAudioPath?: string;
   enabled?: boolean;
   videoFrameTemplate?: string;
+  customText?: string;
 }
 
 export interface ContratoFirmaInfo {

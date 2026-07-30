@@ -17,6 +17,8 @@ import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import { Input } from '@/components/ui/input';
+import { VideoFrameOverlay, FRAME_TEMPLATES } from '@/components/buzon/VideoFrameOverlay';
 import { cn } from '@/lib/utils';
 
 function BuzonAdminContent() {
@@ -236,13 +238,13 @@ function BuzonAdminContent() {
     }
   };
 
-  const [frameTemplate, setFrameTemplate] = useState<string>('');
+  const [frameTemplate, setFrameTemplate] = useState<string>('default');
+  const [customFrameText, setCustomFrameText] = useState<string>('');
   const [isFrameSaving, setIsFrameSaving] = useState(false);
 
   useEffect(() => {
-    if (fiesta?.buzonConfig?.videoFrameTemplate) {
-      setFrameTemplate(fiesta.buzonConfig.videoFrameTemplate);
-    }
+    setFrameTemplate(fiesta?.buzonConfig?.videoFrameTemplate || 'default');
+    setCustomFrameText(fiesta?.buzonConfig?.customText || '');
   }, [fiesta]);
 
   const handleSaveFrameTemplate = async () => {
@@ -250,9 +252,10 @@ function BuzonAdminContent() {
     setIsFrameSaving(true);
     try {
       const { updateBuzonFrameTemplate } = await import('@/app/actions/buzon');
-      const res = await updateBuzonFrameTemplate(fiestaId, frameTemplate);
+      const res = await updateBuzonFrameTemplate(fiestaId, frameTemplate, customFrameText);
       if (res.success) {
-        toast({ title: 'Marco actualizado correctamente' });
+        toast({ title: 'Plantilla y marco de video guardados' });
+        await loadData(true);
       } else {
         toast({ title: 'Error al actualizar marco', description: res.error, variant: 'destructive' });
       }
@@ -441,49 +444,85 @@ function BuzonAdminContent() {
           <div className="space-y-6">
 
             {/* FRAME SETTINGS */}
-            <Card className="border-none shadow-xl mb-6">
+            <Card className="border-none shadow-xl mb-6 overflow-hidden">
               <CardHeader className="bg-slate-50/50 border-b">
                 <CardTitle className="flex items-center gap-2 text-xl font-bold">
                   <Square className="h-5 w-5 text-indigo-600" />
                   Marco de Video (Overlay)
                 </CardTitle>
                 <CardDescription>
-                  Elegí la plantilla que aparecerá superpuesta en los videos de los invitados.
+                  Elegí la plantilla y personalizá el texto superpuesto para los videos de los invitados.
                 </CardDescription>
               </CardHeader>
-              <CardContent className="p-6 space-y-4">
-                <div className="grid grid-cols-2 sm:grid-cols-3 gap-3">
-                  {[
-                    { id: 'default', label: 'Sin Marco' },
-                    { id: 'neon', label: 'Neón Party' },
-                    { id: 'elegante', label: 'Boda Elegante' },
-                    { id: 'cumple-infantil', label: 'Cumple Infantil' },
-                    { id: 'quince', label: 'Mis 15' },
-                    { id: 'vintage', label: 'Retro Vintage' },
-                    { id: 'glamour', label: 'VIP Glamour' },
-                    { id: 'floral', label: 'Romántico Floral' },
-                    { id: 'urbano', label: 'Urbano Trap' },
-                    { id: 'minimalista', label: 'Minimalista Blanco' },
-                  ].map(t => (
-                    <button
-                      key={t.id}
-                      onClick={() => setFrameTemplate(t.id)}
-                      className={cn(
-                        "p-3 text-sm font-bold rounded-xl border-2 transition-all",
-                        frameTemplate === t.id ? "border-indigo-600 bg-indigo-50 text-indigo-700" : "border-slate-200 text-slate-600 hover:border-slate-300 hover:bg-slate-50"
-                      )}
-                    >
-                      {t.label}
-                    </button>
-                  ))}
+              <CardContent className="p-6 space-y-6">
+
+                {/* VISTA PREVIA EN VIVO DEL MARCO */}
+                <div className="space-y-2">
+                  <label className="text-xs font-bold text-slate-700 uppercase tracking-wider">Vista Previa en Vivo</label>
+                  <div className="relative w-full aspect-[16/9] sm:aspect-[4/3] rounded-2xl bg-zinc-950 overflow-hidden border border-slate-800 shadow-inner flex items-center justify-center">
+                    <div className="text-center p-4">
+                      <p className="text-xs text-zinc-500 font-mono">CÁMARA DEL INVITADO</p>
+                      <p className="text-[10px] text-zinc-600 mt-1 font-mono">Simulación de video 15s</p>
+                    </div>
+                    <VideoFrameOverlay
+                      template={frameTemplate}
+                      customText={customFrameText}
+                      eventName={fiesta?.configuracion?.nombreEvento}
+                    />
+                  </div>
                 </div>
+
+                {/* CAMPO DE TEXTO PERSONALIZADO */}
+                <div className="space-y-2">
+                  <label className="text-xs font-bold text-slate-700">Texto Personalizado del Marco</label>
+                  <Input
+                    type="text"
+                    placeholder="Ej: Boda Sofía & Lucas 2026"
+                    value={customFrameText}
+                    onChange={(e) => setCustomFrameText(e.target.value)}
+                    className="rounded-xl border-slate-200"
+                    maxLength={35}
+                  />
+                  <p className="text-[10px] text-slate-400">Este texto aparecerá estampado dentro de los marcos Neón, Boda Elegante, Mis 15, etc.</p>
+                </div>
+
+                {/* GRILLA DE PLANTILLAS */}
+                <div className="space-y-2">
+                  <label className="text-xs font-bold text-slate-700">Elegir Plantilla de Diseño</label>
+                  <div className="grid grid-cols-2 sm:grid-cols-3 gap-2.5">
+                    {FRAME_TEMPLATES.map(t => (
+                      <button
+                        key={t.id}
+                        onClick={() => setFrameTemplate(t.id)}
+                        className={cn(
+                          "p-3 text-left rounded-xl border-2 transition-all flex flex-col justify-between h-20",
+                          frameTemplate === t.id
+                            ? "border-indigo-600 bg-indigo-50/80 text-indigo-950 shadow-sm ring-1 ring-indigo-500"
+                            : "border-slate-200 text-slate-700 hover:border-slate-300 hover:bg-slate-50"
+                        )}
+                      >
+                        <div>
+                          <p className="font-bold text-xs">{t.label}</p>
+                          <p className="text-[10px] text-slate-500 line-clamp-1 mt-0.5">{t.description}</p>
+                        </div>
+                        <span className={cn(
+                          "text-[9px] font-black uppercase tracking-wider self-start px-1.5 py-0.5 rounded-full mt-1",
+                          frameTemplate === t.id ? "bg-indigo-600 text-white" : "bg-slate-100 text-slate-600"
+                        )}>
+                          {t.badge}
+                        </span>
+                      </button>
+                    ))}
+                  </div>
+                </div>
+
                 <Button
                   onClick={handleSaveFrameTemplate}
-                  disabled={isFrameSaving || frameTemplate === (fiesta?.buzonConfig?.videoFrameTemplate || '')}
-                  className="w-full sm:w-auto"
+                  disabled={isFrameSaving}
+                  className="w-full bg-indigo-600 hover:bg-indigo-700 text-white rounded-xl h-11 font-bold"
                 >
                   {isFrameSaving ? <Loader2 className="w-4 h-4 animate-spin mr-2" /> : null}
-                  Guardar Plantilla
+                  Guardar Plantilla y Personalización
                 </Button>
               </CardContent>
             </Card>
