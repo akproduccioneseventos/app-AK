@@ -4,6 +4,7 @@ export type WhatsAppMode = 'automatic' | 'semi-automatic' | 'manual';
 export interface WhatsAppConfig {
   enabled: boolean;
   phoneNumber: string;
+  phoneNumberId?: string; // Meta: ID del número en el panel de Meta for Developers (≠ phoneNumber)
   apiKey: string;
   verifyToken: string;
   appSecret?: string;
