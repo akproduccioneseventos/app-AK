@@ -768,13 +768,13 @@ export default function PortalClientePage() {
 
           {/* ── Estado Financiero / Pagos ────────────────── */}
           {showFinancials && (
-            <AccordionItem value="pagos" id="pagos" className="border rounded-2xl overflow-hidden bg-white shadow-sm">
-              <AccordionTrigger className="px-5 py-4 hover:no-underline hover:bg-slate-50">
+            <section id="pagos" className="border rounded-2xl overflow-hidden bg-white shadow-sm">
+              <div className="px-5 py-4 border-b border-slate-100">
                 <span className="flex items-center gap-2 text-base font-black">
                   <DollarSign className="w-5 h-5 text-green-600" /> Estado Financiero
                 </span>
-              </AccordionTrigger>
-              <AccordionContent className="px-5 pb-5 space-y-6">
+              </div>
+              <div className="px-5 py-5 space-y-6">
                 <div className="grid grid-cols-3 gap-3">
                   <FinancialStat label="Total"    value={formatCurrency(totalCost)}  color="text-slate-900" />
                   <FinancialStat label="Pagado"   value={formatCurrency(totalPaid)}  color="text-green-700" />
@@ -815,8 +815,8 @@ export default function PortalClientePage() {
                 ) : (
                   <p className="text-sm text-slate-400 text-center py-4">No hay plan de pagos cargado aún.</p>
                 )}
-              </AccordionContent>
-            </AccordionItem>
+              </div>
+            </section>
           )}
 
           {/* ── Invitados ────────────────────────────────── */}
