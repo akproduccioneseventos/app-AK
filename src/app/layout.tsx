@@ -51,18 +51,18 @@ const dancingScript = localFont({
 });
 
 export const viewport: Viewport = {
-  themeColor: '#4f46e5',
+  themeColor: '#d71920',
   width: 'device-width',
   initialScale: 1,
 };
 
 export const metadata: Metadata = {
-  title: 'AK Producciones',
-  description: 'Plataforma integral para la planificación y gestión de eventos de AK Producciones.',
+  title: 'AK Producciones | Producción Integral de Fiestas y Eventos en Uruguay',
+  description: 'Plataforma inteligente de AK Producciones para cotizar, organizar y disfrutar de eventos inolvidables: Fiestas de 15, Bodas y Cumpleaños.',
   manifest: '/manifest.webmanifest',
   appleWebApp: {
     capable: true,
-    statusBarStyle: 'default',
+    statusBarStyle: 'black-translucent',
     title: 'AK Producciones',
   },
   formatDetection: {
