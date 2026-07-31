@@ -50,11 +50,11 @@ export function LeadCaptureForm({
       ? 'campaign'
       : fuente === 'landing-bodas'
         ? 'landing_bodas'
-        : fuente === 'landing-xv'
+        : (fuente === 'landing-xv' || fuente === 'landing-quince')
           ? 'landing_xv'
-          : fuente === 'landing-eventos'
+          : (fuente === 'landing-eventos' || fuente === 'landing-cumpleanos')
             ? 'landing_eventos'
-            : fuente;
+            : (fuente as CommercialSource);
 
     const data: LandingLeadData = {
       nombre: form.nombre.trim(),

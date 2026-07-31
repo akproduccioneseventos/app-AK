@@ -3,7 +3,7 @@ import type { Metadata } from 'next';
 const SITE_URL = 'https://akproducciones.uy';
 
 export interface EventLandingSeoInput {
-  slug: 'bodas' | 'xv-anos' | 'eventos';
+  slug: 'bodas' | 'xv-anos' | 'eventos' | 'quinceaneras' | 'cumpleanos';
   title: string;
   description: string;
   image: string;

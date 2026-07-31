@@ -938,7 +938,7 @@ export interface LandingLeadData {
   fechaEstimada?: string;
   invitados?: number;
   mensaje?: string;
-  fuente: CommercialSource | 'promo-widget' | 'landing-bodas' | 'landing-xv' | 'landing-eventos';
+  fuente: CommercialSource | 'promo-widget' | 'landing-bodas' | 'landing-xv' | 'landing-eventos' | 'landing-quince' | 'landing-cumpleanos';
   acquisition?: CommercialAttribution;
 }
 
@@ -961,9 +961,9 @@ export async function saveLead(data: LandingLeadData): Promise<{ success: boolea
       ? 'campaign'
       : data.fuente === 'landing-bodas'
         ? 'landing_bodas'
-        : data.fuente === 'landing-xv'
+        : (data.fuente === 'landing-xv' || data.fuente === 'landing-quince')
           ? 'landing_xv'
-          : data.fuente === 'landing-eventos'
+          : (data.fuente === 'landing-eventos' || data.fuente === 'landing-cumpleanos')
             ? 'landing_eventos'
             : data.fuente;
     const acquisition = sanitizeCommercialAttribution({
