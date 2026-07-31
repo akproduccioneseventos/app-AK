@@ -19,7 +19,7 @@ function createSessionToken() {
   return `${payload}.${crypto.createHmac('sha256', SESSION_SECRET).update(payload).digest('hex')}`;
 }
 
-const RUTAS_INTERNAS = ['/admin', '/customers', '/presupuestos', '/eventos', '/pagos-rapidos'];
+const RUTAS_INTERNAS = ['/admin', '/customers', '/presupuestos', '/eventos', '/pagos-rapidos', '/empresa/menus', '/alertas'];
 const RUTAS_PUBLICAS = ['/', '/simulador-de-presupuesto'];
 
 /** Margen de 2px: los navegadores redondean subpixeles al medir. */
@@ -45,7 +45,10 @@ test.describe('sin desborde horizontal en celular', () => {
 
     for (const ruta of RUTAS_INTERNAS) {
       await page.goto(ruta, { waitUntil: 'domcontentloaded' });
-      await page.waitForTimeout(2500);
+      // Se mide el estado ya asentado: mientras cargan datos, algunas pantallas
+      // muestran anchos provisorios que no reflejan lo que termina viendo el usuario.
+      await page.waitForLoadState('networkidle').catch(() => {});
+      await page.waitForTimeout(4000);
       const desborde = await medirDesborde(page);
       expect(desborde, `${ruta} desborda ${desborde}px a lo ancho en celular`).toBeLessThanOrEqual(TOLERANCIA);
     }
@@ -55,7 +58,10 @@ test.describe('sin desborde horizontal en celular', () => {
     test.setTimeout(180_000);
     for (const ruta of RUTAS_PUBLICAS) {
       await page.goto(ruta, { waitUntil: 'domcontentloaded' });
-      await page.waitForTimeout(2500);
+      // Se mide el estado ya asentado: mientras cargan datos, algunas pantallas
+      // muestran anchos provisorios que no reflejan lo que termina viendo el usuario.
+      await page.waitForLoadState('networkidle').catch(() => {});
+      await page.waitForTimeout(4000);
       const desborde = await medirDesborde(page);
       expect(desborde, `${ruta} desborda ${desborde}px a lo ancho en celular`).toBeLessThanOrEqual(TOLERANCIA);
     }

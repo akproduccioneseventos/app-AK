@@ -16,6 +16,12 @@ const CATALOGOS = [
   { ruta: '/catalogo/fiestas', titulo: /fiesta/i },
 ];
 
+/**
+ * La presentacion LED enlaza la galeria desde tres de sus laminas para que el
+ * prospecto vea fotos; si la galeria pide sesion, ese recorrido se corta.
+ */
+const GALERIA = '/galeria-led';
+
 test.describe('catalogo digital publico', () => {
   for (const { ruta, titulo } of CATALOGOS) {
     test(`${ruta} se ve sin iniciar sesion`, async ({ page }) => {
@@ -27,4 +33,11 @@ test.describe('catalogo digital publico', () => {
       await expect(page.locator('h1').first(), `${ruta} debe mostrar su titulo`).toHaveText(titulo);
     });
   }
+
+  test(`${GALERIA} se ve sin iniciar sesion`, async ({ page }) => {
+    test.setTimeout(180_000);
+    await page.goto(`${GALERIA}?categoria=Entrada`, { waitUntil: 'domcontentloaded' });
+    await page.waitForTimeout(2500);
+    expect(page.url(), 'la galeria enlazada desde la presentacion no debe mandar al login').not.toContain('/login');
+  });
 });
