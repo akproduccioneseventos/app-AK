@@ -24,6 +24,11 @@ export const PUBLIC_PATH_PREFIXES = [
   '/simulador-ak',
   '/simulador-v2',
   '/proveedor',
+  // Catalogo digital por tipo de fiesta: es material de venta pensado para
+  // compartirle el enlace a un prospecto. Vive fuera del grupo (app), no
+  // consulta la sesion y solo carga textos publicos y el WhatsApp de contacto,
+  // pero faltaba declararlo aca, asi que el visitante chocaba con el login.
+  '/catalogo',
   '/presentacion',
   '/presentacion-led',
   '/evento/mi-mesa',
