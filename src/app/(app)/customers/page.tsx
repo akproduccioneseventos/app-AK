@@ -45,7 +45,10 @@ const CustomerTable = ({ title, customers, deletingId, onDelete }: { title: stri
     }
 
     return (
-        <div>
+        // `min-w-0` permite que este bloque se encoja dentro de su contenedor:
+        // sin eso, el ancho minimo de la tabla desbordaba la pantalla en celular
+        // en vez de desplazarse dentro de su propia caja.
+        <div className="min-w-0">
             <h2 className="text-xl font-semibold font-headline mb-3">{title} ({customers.length})</h2>
             <div className="overflow-x-auto border rounded-lg">
               <Table>

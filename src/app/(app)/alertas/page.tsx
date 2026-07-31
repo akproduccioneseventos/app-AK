@@ -192,7 +192,10 @@ export default function AlertasPage() {
       </div>
 
       {/* Summary cards */}
-      <div className="grid grid-cols-3 gap-4">
+      {/* Tres columnas fijas no entran en un celular: la etiqueta mas larga
+          ("Info / Recordatorio") estiraba la fila y obligaba a desplazar la
+          pagina de costado. Se apilan en pantalla chica. */}
+      <div className="grid grid-cols-1 gap-3 sm:grid-cols-3 sm:gap-4">
         <Card className="border-red-100 bg-red-50/50">
           <CardContent className="p-4 flex items-center gap-3">
             <div className="p-2 bg-red-100 rounded-xl">
