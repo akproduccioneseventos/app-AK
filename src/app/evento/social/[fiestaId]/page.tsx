@@ -60,6 +60,7 @@ import type { PublicSocialEvent } from '@/lib/social-fiesta/public-event';
 import type { ChatMessage, Dedication, SocialGalleryPost, SocialPoll, SongRequest } from '@/types/social-gallery';
 import type { SocialGallerySettings } from '@/types/fiesta';
 import PostEventMemoryHub from '@/components/social-wall/PostEventMemoryHub';
+import { FaceGalleryStrip } from '@/components/entertainment/FaceGalleryStrip';
 
 type SocialSection = 'feed' | 'songs' | 'dedications' | 'chat' | 'poll' | 'game';
 
@@ -248,6 +249,7 @@ export default function SocialEventPage() {
   const [submitting, setSubmitting] = useState(false);
   const [votedPollId, setVotedPollId] = useState<string | null>(null);
   const [votedGameId, setVotedGameId] = useState<string | null>(null);
+  const [filteredPosts, setFilteredPosts] = useState<SocialGalleryPost[] | null>(null);
   const recorderRef = useRef<MediaRecorder | null>(null);
   const audioChunksRef = useRef<Blob[]>([]);
   const recordingTimerRef = useRef<ReturnType<typeof setInterval> | null>(null);

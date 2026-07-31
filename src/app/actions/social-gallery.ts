@@ -676,3 +676,29 @@ export async function moderateSocialPostByClient(
     return { success: false, error: error.message || 'Error al moderar.' };
   }
 }
+
+/**
+ * Tags a face (by author name/faceId) with a specific guest name.
+ * We store these tags in a separate collection or inside the fiesta document.
+ * For simplicity in this social gallery actions file, we'll store it as a document in
+ * `social_gallery_tags/{fiestaId}/tags/{faceId}`.
+ */
+export async function tagFaceNameAction(
+  fiestaId: string,
+  faceId: string,
+  taggedName: string
+): Promise<{ success: boolean; error?: string }> {
+  try {
+    const db = await getDb();
+    const ref = db.collection('social_gallery_tags').doc(fiestaId).collection('tags').doc(faceId);
+    
+    await ref.set({
+      taggedName,
+      taggedAt: new Date().toISOString()
+    }, { merge: true });
+    
+    return { success: true };
+  } catch (error: any) {
+    return { success: false, error: error.message || 'Error al etiquetar persona.' };
+  }
+}
