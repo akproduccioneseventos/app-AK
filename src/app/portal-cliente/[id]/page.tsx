@@ -36,6 +36,7 @@ import {
   AccordionItem,
   AccordionTrigger,
 } from '@/components/ui/accordion';
+import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
 import type { FiestaEnPlanificacion, Invitado, CuotaPlanPago, ClienteDebeLlevarItem, ClientePortalExperience } from '@/types/fiesta';
 import NextImage from 'next/image';
 import Link from 'next/link';
@@ -670,8 +671,15 @@ export default function PortalClientePage() {
         })()}
 
         {/* ── Secciones plegables ──────────────────────── */}
-        <Accordion type="multiple" value={openSections} onValueChange={setOpenSections} className="space-y-3">
+        <Tabs defaultValue="progreso" className="w-full">
+          <TabsList className="grid w-full grid-cols-3 mb-4 h-auto p-1">
+            <TabsTrigger value="progreso" className="py-2.5 text-sm font-bold">Progreso</TabsTrigger>
+            <TabsTrigger value="invitados" className="py-2.5 text-sm font-bold">Invitados</TabsTrigger>
+            <TabsTrigger value="pagos" className="py-2.5 text-sm font-bold">Pagos</TabsTrigger>
+          </TabsList>
 
+          <TabsContent value="progreso" className="mt-0">
+        <Accordion type="multiple" value={openSections} onValueChange={setOpenSections} className="space-y-3">
           {/* ── Resumen del Evento ──────────────────────── */}
           <AccordionItem value="resumen" id="resumen" className="border rounded-2xl overflow-hidden bg-white shadow-sm">
             <AccordionTrigger className="px-5 py-4 hover:no-underline hover:bg-slate-50">
@@ -765,136 +773,6 @@ export default function PortalClientePage() {
               </div>
             </AccordionContent>
           </AccordionItem>
-
-          {/* ── Estado Financiero / Pagos ────────────────── */}
-          {showFinancials && (
-            <section id="pagos" className="border rounded-2xl overflow-hidden bg-white shadow-sm">
-              <div className="px-5 py-4 border-b border-slate-100">
-                <span className="flex items-center gap-2 text-base font-black">
-                  <DollarSign className="w-5 h-5 text-green-600" /> Estado Financiero
-                </span>
-              </div>
-              <div className="px-5 py-5 space-y-6">
-                <div className="grid grid-cols-3 gap-3">
-                  <FinancialStat label="Total"    value={formatCurrency(totalCost)}  color="text-slate-900" />
-                  <FinancialStat label="Pagado"   value={formatCurrency(totalPaid)}  color="text-green-700" />
-                  <FinancialStat label="Saldo"    value={formatCurrency(balance)}    color={balance > 0 ? 'text-red-600' : 'text-green-700'} />
-                </div>
-                {totalCost > 0 && (
-                  <div>
-                    <div className="flex justify-between text-xs text-slate-500 mb-1">
-                      <span>Progreso de pagos</span>
-                      <span>{Math.round((totalPaid / totalCost) * 100)}%</span>
-                    </div>
-                    <div className="h-2 rounded-full bg-slate-100 overflow-hidden">
-                      <div
-                        className="h-full rounded-full bg-green-500 transition-all"
-                        style={{ width: `${Math.min(100, (totalPaid / totalCost) * 100)}%` }}
-                      />
-                    </div>
-                  </div>
-                )}
-                {cuotas.length > 0 ? (
-                  <div className="space-y-2">
-                    <p className="text-xs font-black uppercase tracking-wider text-slate-500">Detalle de cuotas</p>
-                    {cuotas.map(cuota => (
-                      <div key={cuota.id} className="flex items-center justify-between gap-3 p-3 bg-slate-50 rounded-xl border border-slate-100 text-sm">
-                        <div className="flex-1 min-w-0">
-                          <p className="font-semibold text-slate-800 truncate">{cuota.descripcion}</p>
-                          <p className="text-xs text-slate-500">Vence: {formatDate(cuota.fechaVencimiento)}</p>
-                        </div>
-                        <div className="text-right shrink-0">
-                          <p className="font-black text-slate-900">{formatCurrency(cuota.monto)}</p>
-                          <span className={`text-xs px-2 py-0.5 rounded-full border font-semibold ${cuotaStatusColor(cuota.estado)}`}>
-                            {cuotaStatusLabel(cuota.estado)}
-                          </span>
-                        </div>
-                      </div>
-                    ))}
-                  </div>
-                ) : (
-                  <p className="text-sm text-slate-400 text-center py-4">No hay plan de pagos cargado aún.</p>
-                )}
-              </div>
-            </section>
-          )}
-
-          {/* ── Invitados ────────────────────────────────── */}
-          {showInvitados && (
-            <AccordionItem value="invitados" id="invitados" className="border rounded-2xl overflow-hidden bg-white shadow-sm">
-              <AccordionTrigger className="px-5 py-4 hover:no-underline hover:bg-slate-50">
-                <span className="flex items-center gap-2 text-base font-black">
-                  <Users className="w-5 h-5 text-blue-600" /> Invitados
-                  <span className="ml-1 text-xs font-normal text-slate-500">
-                    {confirmed.length} confirmados · {pending.length} pendientes
-                  </span>
-                </span>
-              </AccordionTrigger>
-              <AccordionContent className="px-5 pb-5 space-y-5">
-                {/* RSVP Tracker */}
-                <div>
-                  <p className="text-xs font-black uppercase tracking-wider text-slate-500 mb-2">
-                    Estado RSVP — Confirmados: {confirmed.length} · No asisten: {declined.length} · Pendientes: {pending.length}
-                  </p>
-                  {invitados.length === 0 ? (
-                    <p className="text-sm text-slate-400 text-center py-4">Todavía no hay invitados cargados.</p>
-                  ) : (
-                    <div className="space-y-2 max-h-72 overflow-y-auto pr-1">
-                      {[...confirmed, ...declined, ...pending].map(inv => (
-                        <div key={inv.id} className="flex items-center gap-2 p-2.5 bg-slate-50 rounded-xl border border-slate-100 text-sm">
-                          {rsvpIcon(inv.rsvp)}
-                          <span className="flex-1 font-medium text-slate-800 truncate">{inv.nombre}</span>
-                          {inv.categoria && (
-                            <Badge variant="outline" className="text-xs shrink-0">{inv.categoria}</Badge>
-                          )}
-                        </div>
-                      ))}
-                    </div>
-                  )}
-                </div>
-
-                {/* Seating Plan */}
-                {confirmed.length > 0 && (
-                  <div>
-                    <p className="text-xs font-black uppercase tracking-wider text-slate-500 mb-2 flex items-center gap-1.5">
-                      <MapPin className="w-3.5 h-3.5 text-orange-500" /> Plan de Mesas
-                    </p>
-                    <div className="space-y-2">
-                      {confirmed.map(inv => (
-                        <div key={inv.id} className="flex items-center gap-3 p-3 bg-slate-50 rounded-xl border border-slate-100 text-sm">
-                          <span className="flex-1 font-medium text-slate-800 truncate">{inv.nombre}</span>
-                          {editingId === inv.id ? (
-                            <div className="flex items-center gap-2 shrink-0">
-                              <Input
-                                className="h-7 w-20 text-xs"
-                                placeholder="N° mesa"
-                                value={editingTable}
-                                onChange={e => setEditingTable(e.target.value)}
-                                autoFocus
-                                onKeyDown={e => { if (e.key === 'Enter') handleSaveTable(inv); if (e.key === 'Escape') setEditingId(null); }}
-                              />
-                              <Button size="sm" className="h-7 px-2 text-xs" onClick={() => handleSaveTable(inv)} disabled={isSavingSeat}>
-                                {isSavingSeat ? <Loader2 className="w-3 h-3 animate-spin" /> : '✓'}
-                              </Button>
-                              <Button size="sm" variant="ghost" className="h-7 px-2 text-xs" onClick={() => setEditingId(null)}>✕</Button>
-                            </div>
-                          ) : (
-                            <button
-                              onClick={() => { setEditingId(inv.id); setEditingTable(inv.tableNumber ?? ''); }}
-                              className="flex items-center gap-1 text-xs text-purple-600 hover:text-purple-800 font-semibold shrink-0"
-                            >
-                              {inv.tableNumber ? `Mesa ${inv.tableNumber}` : <span className="text-slate-400">Sin mesa</span>}
-                              <ChevronRight className="w-3 h-3" />
-                            </button>
-                          )}
-                        </div>
-                      ))}
-                    </div>
-                  </div>
-                )}
-              </AccordionContent>
-            </AccordionItem>
-          )}
 
           {/* ── Menú y Cronograma ────────────────────────── */}
           {(showCatering || showTimeline) && (
@@ -1063,8 +941,145 @@ export default function PortalClientePage() {
               </AccordionContent>
             </AccordionItem>
           )}
-
         </Accordion>
+          </TabsContent>
+
+          <TabsContent value="invitados" className="mt-0">
+          {/* ── Invitados ────────────────────────────────── */}
+          {showInvitados && (
+            <section id="invitados" className="border rounded-2xl overflow-hidden bg-white shadow-sm">
+              <div className="px-5 py-4 border-b border-slate-100">
+                <span className="flex items-center gap-2 text-base font-black">
+                  <Users className="w-5 h-5 text-blue-600" /> Invitados
+                  <span className="ml-1 text-xs font-normal text-slate-500">
+                    {confirmed.length} confirmados · {pending.length} pendientes
+                  </span>
+                </span>
+              </div>
+              <div className="px-5 py-5 space-y-5">
+                {/* RSVP Tracker */}
+                <div>
+                  <p className="text-xs font-black uppercase tracking-wider text-slate-500 mb-2">
+                    Estado RSVP — Confirmados: {confirmed.length} · No asisten: {declined.length} · Pendientes: {pending.length}
+                  </p>
+                  {invitados.length === 0 ? (
+                    <p className="text-sm text-slate-400 text-center py-4">Todavía no hay invitados cargados.</p>
+                  ) : (
+                    <div className="space-y-2 max-h-72 overflow-y-auto pr-1">
+                      {[...confirmed, ...declined, ...pending].map(inv => (
+                        <div key={inv.id} className="flex items-center gap-2 p-2.5 bg-slate-50 rounded-xl border border-slate-100 text-sm">
+                          {rsvpIcon(inv.rsvp)}
+                          <span className="flex-1 font-medium text-slate-800 truncate">{inv.nombre}</span>
+                          {inv.categoria && (
+                            <Badge variant="outline" className="text-xs shrink-0">{inv.categoria}</Badge>
+                          )}
+                        </div>
+                      ))}
+                    </div>
+                  )}
+                </div>
+
+                {/* Seating Plan */}
+                {confirmed.length > 0 && (
+                  <div>
+                    <p className="text-xs font-black uppercase tracking-wider text-slate-500 mb-2 flex items-center gap-1.5">
+                      <MapPin className="w-3.5 h-3.5 text-orange-500" /> Plan de Mesas
+                    </p>
+                    <div className="space-y-2">
+                      {confirmed.map(inv => (
+                        <div key={inv.id} className="flex items-center gap-3 p-3 bg-slate-50 rounded-xl border border-slate-100 text-sm">
+                          <span className="flex-1 font-medium text-slate-800 truncate">{inv.nombre}</span>
+                          {editingId === inv.id ? (
+                            <div className="flex items-center gap-2 shrink-0">
+                              <Input
+                                className="h-7 w-20 text-xs"
+                                placeholder="N° mesa"
+                                value={editingTable}
+                                onChange={e => setEditingTable(e.target.value)}
+                                autoFocus
+                                onKeyDown={e => { if (e.key === 'Enter') handleSaveTable(inv); if (e.key === 'Escape') setEditingId(null); }}
+                              />
+                              <Button size="sm" className="h-7 px-2 text-xs" onClick={() => handleSaveTable(inv)} disabled={isSavingSeat}>
+                                {isSavingSeat ? <Loader2 className="w-3 h-3 animate-spin" /> : '✓'}
+                              </Button>
+                              <Button size="sm" variant="ghost" className="h-7 px-2 text-xs" onClick={() => setEditingId(null)}>✕</Button>
+                            </div>
+                          ) : (
+                            <button
+                              onClick={() => { setEditingId(inv.id); setEditingTable(inv.tableNumber ?? ''); }}
+                              className="flex items-center gap-1 text-xs text-purple-600 hover:text-purple-800 font-semibold shrink-0"
+                            >
+                              {inv.tableNumber ? `Mesa ${inv.tableNumber}` : <span className="text-slate-400">Sin mesa</span>}
+                              <ChevronRight className="w-3 h-3" />
+                            </button>
+                          )}
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                )}
+              </div>
+            </section>
+          )}
+
+          </TabsContent>
+
+          <TabsContent value="pagos" className="mt-0">
+          {/* ── Estado Financiero / Pagos ────────────────── */}
+          {showFinancials && (
+            <section id="pagos" className="border rounded-2xl overflow-hidden bg-white shadow-sm">
+              <div className="px-5 py-4 border-b border-slate-100">
+                <span className="flex items-center gap-2 text-base font-black">
+                  <DollarSign className="w-5 h-5 text-green-600" /> Estado Financiero
+                </span>
+              </div>
+              <div className="px-5 py-5 space-y-6">
+                <div className="grid grid-cols-3 gap-3">
+                  <FinancialStat label="Total"    value={formatCurrency(totalCost)}  color="text-slate-900" />
+                  <FinancialStat label="Pagado"   value={formatCurrency(totalPaid)}  color="text-green-700" />
+                  <FinancialStat label="Saldo"    value={formatCurrency(balance)}    color={balance > 0 ? 'text-red-600' : 'text-green-700'} />
+                </div>
+                {totalCost > 0 && (
+                  <div>
+                    <div className="flex justify-between text-xs text-slate-500 mb-1">
+                      <span>Progreso de pagos</span>
+                      <span>{Math.round((totalPaid / totalCost) * 100)}%</span>
+                    </div>
+                    <div className="h-2 rounded-full bg-slate-100 overflow-hidden">
+                      <div
+                        className="h-full rounded-full bg-green-500 transition-all"
+                        style={{ width: `${Math.min(100, (totalPaid / totalCost) * 100)}%` }}
+                      />
+                    </div>
+                  </div>
+                )}
+                {cuotas.length > 0 ? (
+                  <div className="space-y-2">
+                    <p className="text-xs font-black uppercase tracking-wider text-slate-500">Detalle de cuotas</p>
+                    {cuotas.map(cuota => (
+                      <div key={cuota.id} className="flex items-center justify-between gap-3 p-3 bg-slate-50 rounded-xl border border-slate-100 text-sm">
+                        <div className="flex-1 min-w-0">
+                          <p className="font-semibold text-slate-800 truncate">{cuota.descripcion}</p>
+                          <p className="text-xs text-slate-500">Vence: {formatDate(cuota.fechaVencimiento)}</p>
+                        </div>
+                        <div className="text-right shrink-0">
+                          <p className="font-black text-slate-900">{formatCurrency(cuota.monto)}</p>
+                          <span className={`text-xs px-2 py-0.5 rounded-full border font-semibold ${cuotaStatusColor(cuota.estado)}`}>
+                            {cuotaStatusLabel(cuota.estado)}
+                          </span>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                ) : (
+                  <p className="text-sm text-slate-400 text-center py-4">No hay plan de pagos cargado aún.</p>
+                )}
+              </div>
+            </section>
+          )}
+
+          </TabsContent>
+        </Tabs>
 
       </main>
 

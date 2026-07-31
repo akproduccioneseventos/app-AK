@@ -23,6 +23,19 @@ Ahorrar tokens siempre. El modelo principal actúa como **director**, no como pe
 - Pedile a cada agente hechos verificables con `archivo:línea`, y que NO modifique
   archivos salvo que se le indique explícitamente.
 
+### El dueño NO es programador
+
+Regla principal: **resolver, no delegar en el usuario.**
+
+- No le pidas que corra comandos, aplique parches, edite archivos ni configure nada.
+  Si algo hay que hacer, hacelo vos. Si de verdad no se puede, decí en una linea qué
+  está bloqueado y por qué, sin instrucciones técnicas.
+- Escribí siempre en castellano rioplatense simple. Nada de jerga sin traducir:
+  no "hydration", "cascada CSS", "rate limit", "specificity", "blob SHA".
+  Decí qué le pasa AL USUARIO en pantalla y qué cambia para su negocio.
+- Nada de bloques de comandos ni rutas de archivo en la respuesta salvo que los pida.
+- Antes de mandar una respuesta, releerla y sacar todo lo que él no podría entender.
+
 ### Presupuesto de tokens
 
 El dueño trabaja con plan Pro y necesita que el consumo rinda. Administrar siempre:

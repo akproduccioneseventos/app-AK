@@ -146,23 +146,16 @@ main.flex-1,
 .ak-red-premium-public a,
 .ak-red-premium-client a { text-decoration-color: rgba(185, 28, 28, 0.34); }
 
-.ak-red-premium-client {
-  background: #f8fafc;
-}
+/* `.ak-red-premium-client` (fondo) se define en ak-public-experience.css, que se
+   carga despues y redefine todas estas propiedades. No duplicar aca. */
 
 .ak-red-premium-client .ak-event-personalized-accent,
 .ak-red-premium-client [style*="--inv-primary"] {
   accent-color: var(--inv-primary, var(--ak-red));
 }
 
-.ak-red-premium-live {
-  color: #ffffff;
-  background:
-    radial-gradient(circle at 18% 12%, rgba(185, 28, 28, 0.30), transparent 24rem),
-    radial-gradient(circle at 84% 12%, rgba(56, 189, 248, 0.18), transparent 18rem),
-    radial-gradient(circle at 55% 100%, rgba(245, 158, 11, 0.16), transparent 20rem),
-    linear-gradient(135deg, #09090b 0%, #450a0a 54%, #18181b 100%);
-}
+/* `.ak-red-premium-live` (color y fondo) se define en ak-public-experience.css,
+   que se carga despues y redefine todas estas propiedades. No duplicar aca. */
 
 .ak-red-premium-live main,
 .ak-red-premium-live section,
