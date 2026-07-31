@@ -243,12 +243,8 @@ function BuzonAdminContent() {
   const [isFrameSaving, setIsFrameSaving] = useState(false);
 
   useEffect(() => {
-    if (fiesta?.buzonConfig?.videoFrameTemplate) {
-      setFrameTemplate(fiesta.buzonConfig.videoFrameTemplate);
-    }
-    if (fiesta?.buzonConfig?.customText) {
-      setCustomFrameText(fiesta.buzonConfig.customText);
-    }
+    setFrameTemplate(fiesta?.buzonConfig?.videoFrameTemplate || 'default');
+    setCustomFrameText(fiesta?.buzonConfig?.customText || '');
   }, [fiesta]);
 
   const handleSaveFrameTemplate = async () => {
@@ -695,19 +691,19 @@ function BuzonAdminContent() {
     const isPlaying = playingMsgId === msg.id;
 
     return (
-      <Card className="border border-slate-100 shadow-md hover:shadow-lg transition overflow-hidden">
+      <Card className="border border-slate-200/80 shadow-sm hover:shadow-md transition-all rounded-2xl overflow-hidden bg-white">
         <CardContent className="p-4 flex flex-col justify-between h-full min-h-[160px]">
           <div>
-            <div className="flex items-start justify-between">
+            <div className="flex items-start justify-between gap-2">
               <div>
-                <p className="font-black text-sm text-slate-800 line-clamp-1">{msg.authorName}</p>
-                <p className="text-[10px] text-slate-400 font-bold mt-0.5">
-                  {new Date(msg.timestamp).toLocaleString('es-ES', {
+                <p className="font-bold text-sm text-slate-900 line-clamp-1">{msg.authorName}</p>
+                <p className="text-[10px] text-slate-400 font-semibold mt-0.5">
+                  {new Date(msg.timestamp).toLocaleString('es-UY', {
                     day: 'numeric', month: 'short', hour: '2-digit', minute: '2-digit'
                   })}
                 </p>
               </div>
-              <Badge variant="secondary" className="text-[9px] font-black uppercase tracking-wider">
+              <Badge variant="secondary" className="text-[10px] font-bold uppercase tracking-wider bg-slate-100 text-slate-700 shrink-0">
                 {isAudio ? '🎙️ Voz' : '📹 Video'}
               </Badge>
             </div>
@@ -715,22 +711,22 @@ function BuzonAdminContent() {
             {/* Media Area */}
             <div className="mt-4">
               {isAudio ? (
-                <div className="flex items-center gap-3 bg-slate-50 p-2.5 rounded-xl border">
+                <div className="flex items-center gap-3 bg-slate-50/80 p-3 rounded-xl border border-slate-200/60">
                   <Button
                     size="icon"
                     variant="ghost"
                     onClick={() => handlePlayMessage(msg)}
-                    className="w-9 h-9 rounded-full bg-white hover:bg-slate-100 border text-slate-700 shadow-sm shrink-0"
+                    className="w-9 h-9 rounded-full bg-indigo-600 hover:bg-indigo-700 text-white shadow-sm shrink-0"
                   >
-                    {isPlaying ? <Pause className="w-4 h-4" /> : <Play className="w-4 h-4 fill-slate-700 ml-0.5" />}
+                    {isPlaying ? <Pause className="w-4 h-4" /> : <Play className="w-4 h-4 fill-white ml-0.5" />}
                   </Button>
                   <div className="flex-1 min-w-0">
-                    <p className="text-xs font-bold text-slate-600">Mensaje de audio</p>
-                    <p className="text-[10px] text-slate-400">Duración: {msg.durationSeconds}s</p>
+                    <p className="text-xs font-bold text-slate-800">Mensaje de voz</p>
+                    <p className="text-[10px] text-slate-500 font-medium">Duración: {msg.durationSeconds > 0 ? `${msg.durationSeconds}s` : 'Audio corto'}</p>
                   </div>
                 </div>
               ) : (
-                <div className="rounded-xl overflow-hidden bg-black aspect-[4/3] relative border group">
+                <div className="rounded-xl overflow-hidden bg-black aspect-[4/3] relative border border-slate-200 group">
                   <video
                     src={msg.mediaUrl}
                     controls
@@ -742,13 +738,19 @@ function BuzonAdminContent() {
             </div>
           </div>
 
-          <div className="flex justify-end border-t pt-3 mt-4">
+          <div className="flex items-center justify-between border-t border-slate-100 pt-3 mt-4">
+            <a
+              href={`/api/buzon/${encodeURIComponent(fiestaId || '')}/download?messageId=${encodeURIComponent(msg.id)}`}
+              className="inline-flex items-center gap-1.5 text-xs font-semibold text-indigo-600 hover:text-indigo-800 hover:underline"
+            >
+              <Download className="w-3.5 h-3.5" /> Descargar
+            </a>
             <Button
               size="sm"
               variant="ghost"
               disabled={isDeleting === msg.id}
               onClick={() => handleDeleteMessage(msg.id)}
-              className="text-red-500 hover:text-red-600 hover:bg-red-50 px-2.5 py-1 h-8 text-xs font-bold rounded-lg flex items-center gap-1.5"
+              className="text-rose-600 hover:text-rose-700 hover:bg-rose-50 px-2.5 py-1 h-8 text-xs font-bold rounded-lg flex items-center gap-1.5"
             >
               {isDeleting === msg.id ? (
                 <Loader2 className="w-3.5 h-3.5 animate-spin" />

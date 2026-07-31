@@ -25,12 +25,12 @@ test('protected access screen remains usable', async ({ page }) => {
   await expect(page.getByText('Acceso Protegido', { exact: true })).toBeVisible();
   await expect(page.getByTestId('login-password')).toBeVisible();
   await expect(page.getByTestId('login-submit')).toBeEnabled();
-  await expect(page.getByRole('button', { name: /Olvide mi contrase/i })).toBeVisible();
+  await expect(page.getByRole('link', { name: /Olvide mi contrase/i })).toBeVisible();
 });
 
 test('password recovery keeps the configured AK email visible when status verification is slow', async ({ page }) => {
   await page.goto('/login', { waitUntil: 'domcontentloaded' });
-  const recoveryButton = page.getByRole('button', { name: /Olvide mi contrase/i });
+  const recoveryButton = page.getByRole('link', { name: /Olvide mi contrase/i });
   await expect(recoveryButton).toHaveCount(1);
   await recoveryButton.click();
 
@@ -46,6 +46,24 @@ test('manual budget simulator remains publicly reachable', async ({ page }) => {
   expect(response?.status()).toBe(200);
   expect(page.url()).toContain('/simulador-de-presupuesto');
   await expect(page.locator('body')).toBeVisible();
+});
+
+test('simulator hub connects both options with the visual first step', async ({ page }) => {
+  test.setTimeout(240_000);
+  await page.goto('/simulador', { waitUntil: 'domcontentloaded' });
+
+  const visualOption = page.getByTestId('simulator-option-visual');
+  const assistantOption = page.getByTestId('simulator-option-assistant');
+  await expect(visualOption).toHaveAttribute('href', /\/simulador-de-presupuesto/);
+  await expect(assistantOption).toHaveAttribute('href', /\/simulador-ak/);
+
+  await visualOption.click();
+  await expect(page).toHaveURL(/\/simulador-de-presupuesto/);
+  await page.getByTestId('simulator-cover-start').click();
+  const firstStepCta = page.getByTestId('simulator-first-step-cta');
+  await expect(firstStepCta).toBeVisible();
+  await firstStepCta.click();
+  await expect(page.getByRole('heading', { name: 'Ingresá tus datos y los del evento' })).toBeVisible();
 });
 
 test('public homepage fits the viewport without horizontal overflow', async ({ page }) => {
@@ -89,11 +107,11 @@ test('secondary public navigation returns to the matching homepage section', asy
 
 test('simulator input keeps typed text visible and the flow fits the viewport', async ({ page }) => {
   await page.goto('/simulador-de-presupuesto', { waitUntil: 'domcontentloaded' });
-  const startButton = page.getByRole('button', { name: 'Comenzar mi presupuesto' });
+  const startButton = page.getByTestId('simulator-cover-start');
   await expect(startButton).toBeVisible();
   await startButton.click();
 
-  const continueButton = page.getByRole('button', { name: 'Continuar' });
+  const continueButton = page.getByTestId('simulator-first-step-cta');
   await expect(continueButton).toBeEnabled();
   await continueButton.click();
 

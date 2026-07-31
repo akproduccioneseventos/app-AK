@@ -23,7 +23,6 @@ import {
   TicketCheck,
 } from 'lucide-react';
 import {
-  getPublicGuestEntertainmentLinks,
   getPublicGuestPortalData,
   type PublicGuestEntertainmentLink,
 } from '@/app/actions/public-guest-portal';
@@ -84,14 +83,13 @@ export default function EventoHubPage() {
     let active = true;
     async function load() {
       setIsLoading(true);
-      const [portalData, entertainmentLinks, posts] = await Promise.all([
+      const [portalData, posts] = await Promise.all([
         getPublicGuestPortalData(fiestaId, guestId, guestAccessToken),
-        getPublicGuestEntertainmentLinks(fiestaId, guestId, guestAccessToken),
         getPublicSocialPosts(fiestaId).catch(() => []),
       ]);
       if (!active) return;
       setPortal(portalData);
-      setStations(entertainmentLinks);
+      setStations(portalData?.entertainmentLinks ?? []);
       setPhotoCount(posts.length);
       setIsLoading(false);
     }

@@ -37,7 +37,10 @@ describe('PWA and practical security readiness', () => {
     expect(isPublicPathPrefix('/evento/actual/mesa')).toBe(false);
     expect(isPublicPathPrefix('/blog')).toBe(true);
     expect(isPublicPathPrefix('/blog/como-elegir-el-menu')).toBe(true);
+    expect(isPublicPathPrefix('/pago/mercadopago')).toBe(true);
     expect(isPublicPathPrefix('/eventos')).toBe(false);
+    expect(PUBLIC_EXACT_PATHS.has('/api/whatsapp/webhook')).toBe(true);
+    expect(PUBLIC_EXACT_PATHS.has('/api/payments/mercadopago/webhook')).toBe(true);
     expect(PUBLIC_EXACT_PATHS.has('/evento')).toBe(false);
     expect(PUBLIC_EXACT_PATHS.has('/api/health')).toBe(true);
   });

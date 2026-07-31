@@ -1347,7 +1347,7 @@ function MuroSocialContent() {
             <p className="text-xs text-muted-foreground leading-relaxed">
               Recibí mensajes de texto y audios directo en tu celular sin que pasen por la pantalla. Vos configurás si querés que los invitados vean el muro de saludos o si preferís que sea un buzón de mensajes 100% privado solo para vos.
             </p>
-            
+
             <div className="grid grid-cols-3 gap-2 py-1 text-center">
               <div className="rounded-xl border border-indigo-100 bg-white/60 p-2.5 shadow-sm transition-all hover:scale-[1.02]">
                 <span className="block text-lg mb-1" role="img" aria-label="chat">💬</span>
@@ -2369,4 +2369,3 @@ export default function MuroSocialPage() {
     </Suspense>
   );
 }
-

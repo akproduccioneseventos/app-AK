@@ -63,6 +63,7 @@ export interface PublicGuestEvent {
   >;
   zonaDigitalAdolescentes?: ZonaDigitalAdolescentesSettings;
   modulosContratados?: ModulosContratados;
+  galeriaUrl?: string;
 }
 
 export type PublicGuest = Pick<
@@ -83,6 +84,20 @@ export interface PublicGuestPortalData {
   guest: PublicGuest;
 }
 
+export function hasPublicGuestAccess(
+  guest: Pick<Invitado, "id" | "guestAccessToken"> | undefined,
+  guestId: string,
+  guestAccessToken: string,
+): guest is Pick<Invitado, "id" | "guestAccessToken"> {
+  return Boolean(
+    guest
+      && guest.id === guestId
+      && guest.guestAccessToken
+      && guestAccessToken
+      && guest.guestAccessToken === guestAccessToken,
+  );
+}
+
 export function buildPublicGuestEvent(
   fiesta: FiestaEnPlanificacion,
 ): PublicGuestEvent {
@@ -90,6 +105,7 @@ export function buildPublicGuestEvent(
   const invitation = fiesta.invitacionConfig;
 
   return {
+    galeriaUrl: fiesta.galeriaUrl,
     configuracion: {
       nombreEvento: config.nombreEvento,
       nombreAgasajado: config.nombreAgasajado,
@@ -155,7 +171,7 @@ export function buildPublicGuestPortalData(
   guestAccessToken: string,
 ): PublicGuestPortalData | null {
   const guest = (fiesta.invitados || []).find((item) => item.id === guestId);
-  if (!guest || !guest.guestAccessToken || guest.guestAccessToken !== guestAccessToken) return null;
+  if (!hasPublicGuestAccess(guest, guestId, guestAccessToken)) return null;
 
   return {
     fiesta: buildPublicGuestEvent(fiesta),

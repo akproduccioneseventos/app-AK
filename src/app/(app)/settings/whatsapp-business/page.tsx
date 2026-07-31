@@ -105,7 +105,12 @@ export default function WhatsAppBusinessPage() {
     ? `${window.location.origin}/api/whatsapp/webhook`
     : '/api/whatsapp/webhook';
 
-  const missingApiKey = config.enabled && !config.apiKey.trim();
+  const missingMetaCredentials = config.enabled && config.provider === 'meta' && (
+    !config.apiKey.trim()
+    || !config.phoneNumberId?.trim()
+    || !config.verifyToken.trim()
+    || !config.appSecret?.trim()
+  );
   const qrPhone = config.phoneNumber.replace(/\D/g, '');
   const whatsAppWebUrl = qrPhone ? `https://web.whatsapp.com/send?phone=${qrPhone}` : '';
 
@@ -191,10 +196,10 @@ export default function WhatsAppBusinessPage() {
               />
             </div>
 
-            {missingApiKey && (
+            {missingMetaCredentials && (
               <div className="mt-3 flex items-start gap-2 text-sm text-amber-700 bg-amber-50 border border-amber-200 rounded-md p-3">
                 <AlertTriangle className="w-4 h-4 mt-0.5 shrink-0" />
-                <span>El bot está activado pero no tiene una API Key configurada. Agregá tu API key para que funcione.</span>
+                <span>Meta no puede activarse hasta completar API Key, Phone Number ID, token de verificación y App Secret.</span>
               </div>
             )}
 
@@ -272,6 +277,23 @@ export default function WhatsAppBusinessPage() {
                 </Button>
               </div>
             </div>
+
+            {config.provider === 'meta' && (
+              <div className="space-y-2">
+                <Label htmlFor="phone-number-id">Phone Number ID</Label>
+                <Input
+                  id="phone-number-id"
+                  inputMode="numeric"
+                  placeholder="ID numérico configurado en Meta"
+                  value={config.phoneNumberId || ''}
+                  onChange={e => set('phoneNumberId', e.target.value.replace(/\D/g, ''))}
+                  disabled={isSaving}
+                />
+                <p className="text-xs text-muted-foreground">
+                  Es el identificador del número remitente en Meta, no el número de teléfono.
+                </p>
+              </div>
+            )}
 
             <div className="space-y-2">
               <Label htmlFor="verify-token">Token de Verificación del Webhook</Label>

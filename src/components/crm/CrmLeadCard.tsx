@@ -28,6 +28,7 @@ import { CrmLeadTimeline } from './CrmLeadTimeline';
 import { describeCommercialSource } from '@/lib/commercial/acquisition';
 import { daysUntilBirthday } from '@/lib/commercial/birthday';
 import { toWhatsAppNumber } from '@/lib/commercial/contact';
+import { getCrmLeadSourceBadge } from '@/lib/crm/lead-presentation';
 
 const INACTIVITY_DAYS = 7;
 const CONTRACT_TYPE_LABELS: Record<string, string> = {
@@ -55,7 +56,11 @@ export const CrmLeadCard = memo(function CrmLeadCard({ lead, onDeleteLead, isDel
     transform,
     transition,
     isDragging,
-  } = useSortable({ id: lead.id, disabled: isMobile });
+  } = useSortable({
+    id: lead.id,
+    disabled: isMobile,
+    data: { stageId: lead.currentStageId },
+  });
 
   const [isTimelineOpen, setIsTimelineOpen] = useState(false);
   const [isEditingNotes, setIsEditingNotes] = useState(false);
@@ -83,12 +88,8 @@ export const CrmLeadCard = memo(function CrmLeadCard({ lead, onDeleteLead, isDel
   };
   
   const budgetSource = useMemo(() => {
-    if (lead.budgetSource === 'simulator_assistant') return { text: 'Sim. asistido', className: 'bg-indigo-100 text-indigo-800' };
-    if (lead.budgetSource === 'simulator_common') return { text: 'Sim. común', className: 'bg-blue-100 text-blue-800' };
-    if (lead.budgetSource === 'portal_led') return { text: 'Portal LED', className: 'bg-fuchsia-100 text-fuchsia-800' };
-    if (lead.budgetSource === 'simulator') return { text: 'Simulador', className: 'bg-blue-100 text-blue-800' };
-    return { text: 'Manual', className: 'bg-gray-100 text-gray-700' };
-  }, [lead.budgetSource]);
+    return getCrmLeadSourceBadge(lead);
+  }, [lead]);
 
   const hasBudget = !!lead.presupuestoId;
   const isBudgetFacturado = lead.presupuestoEstado === 'Facturado';
@@ -195,6 +196,20 @@ export const CrmLeadCard = memo(function CrmLeadCard({ lead, onDeleteLead, isDel
                       {isMeetingTomorrow && !isMeetingToday && (
                         <Badge variant="outline" className="text-[9px] h-4 px-1 bg-blue-50 text-blue-700 border-blue-300" title="Reunión mañana">
                           <Bell className="w-2.5 h-2.5 mr-0.5" />Mañana
+                        </Badge>
+                      )}
+                      {lead.leadTemperature && (
+                        <Badge
+                          variant="outline"
+                          className={cn(
+                            "text-[9px] h-4 px-1 font-bold",
+                            (lead.leadTemperature === 'caliente' || lead.leadTemperature === 'urgente' || (lead.leadTemperature as string) === 'hot') && "bg-red-50 text-red-700 border-red-200",
+                            (lead.leadTemperature === 'tibio' || (lead.leadTemperature as string) === 'warm') && "bg-amber-50 text-amber-700 border-amber-200",
+                            (lead.leadTemperature === 'frio' || (lead.leadTemperature as string) === 'cold') && "bg-slate-50 text-slate-600 border-slate-200"
+                          )}
+                          title={`Temperatura comercial: ${lead.leadTemperature}`}
+                        >
+                          {(lead.leadTemperature === 'caliente' || lead.leadTemperature === 'urgente' || (lead.leadTemperature as string) === 'hot') ? '🔥 Alta' : (lead.leadTemperature === 'tibio' || (lead.leadTemperature as string) === 'warm') ? '⚡ Media' : '❄️ Baja'}
                         </Badge>
                       )}
                       <Badge variant="outline" className={cn("text-[10px] h-4 px-1 font-bold", budgetSource.className)}>

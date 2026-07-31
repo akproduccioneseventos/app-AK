@@ -1,8 +1,8 @@
-[
+﻿[
   {
     "id": "menu_entradas_maestro",
-    "name": "Catálogo Maestro de Entradas",
-    "description": "Selección completa de las 25 entradas disponibles.",
+    "name": "CatÃ¡logo Maestro de Entradas",
+    "description": "SelecciÃ³n completa de las 25 entradas disponibles.",
     "items": [
       {
         "id": "dish_entrada_2",
@@ -282,7 +282,7 @@
         "totalDishCost": 50,
         "profitMargin": 198,
         "suggestedSellingPrice": 149,
-        "imageUrl": null
+        "imageUrl": "/catering/menus/xv/dish_entrada_6.jpeg"
       },
       {
         "id": "dish_entrada_7",
@@ -816,7 +816,7 @@
           },
           {
             "id": "i4",
-            "name": "Jamón",
+            "name": "JamÃ³n",
             "quantityPerPerson": "8",
             "unit": "Gramos",
             "costoUnitario": 180,
@@ -1036,7 +1036,7 @@
           },
           {
             "id": "i4",
-            "name": "Morrón rojo",
+            "name": "MorrÃ³n rojo",
             "quantityPerPerson": "15",
             "unit": "Gramos",
             "costoUnitario": 180,
@@ -1045,7 +1045,7 @@
           },
           {
             "id": "i5",
-            "name": "Morrón verde",
+            "name": "MorrÃ³n verde",
             "quantityPerPerson": "15",
             "unit": "Gramos",
             "costoUnitario": 120,
@@ -1520,7 +1520,7 @@
           },
           {
             "id": "i5",
-            "name": "Papas rústicas",
+            "name": "Papas rÃºsticas",
             "quantityPerPerson": "52",
             "unit": "Gramos",
             "costoUnitario": 180,
@@ -1740,7 +1740,7 @@
           },
           {
             "id": "i7",
-            "name": "Cañoncitos",
+            "name": "CaÃ±oncitos",
             "quantityPerPerson": "0.3",
             "unit": "Unidades",
             "costoUnitario": 12.5,
@@ -2077,12 +2077,12 @@
   },
   {
     "id": "menu_principales_maestro",
-    "name": "Catálogo Maestro de Platos Principales",
-    "description": "Selección completa de las 19 opciones principales.",
+    "name": "CatÃ¡logo Maestro de Platos Principales",
+    "description": "SelecciÃ³n completa de las 19 opciones principales.",
     "items": [
       {
         "id": "dish_main_2",
-        "name": "POLLO ARROLLADO C/ GUARNICIÓN",
+        "name": "POLLO ARROLLADO C/ GUARNICIÃ“N",
         "type": "Plato Principal",
         "ingredients": [
           {
@@ -2111,7 +2111,7 @@
       },
       {
         "id": "dish_main_3",
-        "name": "CERDO BRASEADO A LA MOSTAZA C/ GUARNICIÓN",
+        "name": "CERDO BRASEADO A LA MOSTAZA C/ GUARNICIÃ“N",
         "type": "Plato Principal",
         "ingredients": [
           {
@@ -2176,7 +2176,7 @@
       },
       {
         "id": "dish_main_4",
-        "name": "CERDO BRASEADO A LA BARBACOA C/ GUARNICIÓN",
+        "name": "CERDO BRASEADO A LA BARBACOA C/ GUARNICIÃ“N",
         "type": "Plato Principal",
         "ingredients": [
           {
@@ -2237,7 +2237,7 @@
         "totalDishCost": 102.1,
         "profitMargin": 291,
         "suggestedSellingPrice": 399,
-        "imageUrl": null
+        "imageUrl": "/catering/menus/xv/dish_main_4.jpeg"
       },
       {
         "id": "dish_main_5",
@@ -2306,7 +2306,7 @@
       },
       {
         "id": "dish_main_6",
-        "name": "ÑOQUIS AL QUESO",
+        "name": "Ã‘OQUIS AL QUESO",
         "type": "Plato Principal",
         "ingredients": [
           {
@@ -2398,7 +2398,7 @@
       },
       {
         "id": "dish_main_7",
-        "name": "CERDO ARROLLADO C/ GUARNICIÓN",
+        "name": "CERDO ARROLLADO C/ GUARNICIÃ“N",
         "type": "Plato Principal",
         "ingredients": [
           {
@@ -2412,7 +2412,7 @@
           },
           {
             "id": "i2",
-            "name": "guarnición",
+            "name": "guarniciÃ³n",
             "quantityPerPerson": "1",
             "unit": "Unidades",
             "costoUnitario": 40,
@@ -2427,7 +2427,7 @@
       },
       {
         "id": "dish_main_8",
-        "name": "POLLO A LA CREMA C/ GUARNICIÓN",
+        "name": "POLLO A LA CREMA C/ GUARNICIÃ“N",
         "type": "Plato Principal",
         "ingredients": [
           {
@@ -2441,7 +2441,7 @@
           },
           {
             "id": "i2",
-            "name": "guarnición",
+            "name": "guarniciÃ³n",
             "quantityPerPerson": "1",
             "unit": "Unidades",
             "costoUnitario": 40,
@@ -2896,7 +2896,7 @@
       },
       {
         "id": "dish_main_13",
-        "name": "STROGONOFT DE POLLO C/ GUARNICIÓN",
+        "name": "STROGONOFT DE POLLO C/ GUARNICIÃ“N",
         "type": "Plato Principal",
         "ingredients": [
           {
@@ -2937,7 +2937,7 @@
           },
           {
             "id": "i5",
-            "name": "Champiñon",
+            "name": "ChampiÃ±on",
             "quantityPerPerson": "100",
             "unit": "Gramos",
             "costoUnitario": 500,
@@ -2970,7 +2970,7 @@
       },
       {
         "id": "dish_main_14",
-        "name": "MERLUZA A LA CREMA C/ GUARNICIÓN",
+        "name": "MERLUZA A LA CREMA C/ GUARNICIÃ“N",
         "type": "Plato Principal",
         "ingredients": [
           {
@@ -3053,7 +3053,7 @@
       },
       {
         "id": "dish_main_15",
-        "name": "SUSHI C/ GUARNICIÓN",
+        "name": "SUSHI C/ GUARNICIÃ“N",
         "type": "Plato Principal",
         "ingredients": [
           {
@@ -3136,7 +3136,7 @@
       },
       {
         "id": "dish_main_16",
-        "name": "BIFE AL CHAMPIÑON C/ GUARNICIÓN",
+        "name": "BIFE AL CHAMPIÃ‘ON C/ GUARNICIÃ“N",
         "type": "Plato Principal",
         "ingredients": [
           {
@@ -3177,7 +3177,7 @@
           },
           {
             "id": "i5",
-            "name": "Champiñon",
+            "name": "ChampiÃ±on",
             "quantityPerPerson": "100",
             "unit": "Gramos",
             "costoUnitario": 500,
@@ -3210,7 +3210,7 @@
       },
       {
         "id": "dish_main_17",
-        "name": "CORDERO ASADO C/ GUARNICIÓN",
+        "name": "CORDERO ASADO C/ GUARNICIÃ“N",
         "type": "Plato Principal",
         "ingredients": [
           {
@@ -3239,7 +3239,7 @@
       },
       {
         "id": "dish_main_18",
-        "name": "ASADO COMPLETO C/ GUARNICIÓN",
+        "name": "ASADO COMPLETO C/ GUARNICIÃ“N",
         "type": "Plato Principal",
         "ingredients": [
           {
@@ -3280,7 +3280,7 @@
           },
           {
             "id": "i5",
-            "name": "Leña",
+            "name": "LeÃ±a",
             "quantityPerPerson": "3500",
             "unit": "Gramos",
             "costoUnitario": 3,
@@ -3417,7 +3417,7 @@
           },
           {
             "id": "i14",
-            "name": "Boñato",
+            "name": "BoÃ±ato",
             "quantityPerPerson": "50",
             "unit": "Gramos",
             "costoUnitario": 80,
@@ -3426,7 +3426,7 @@
           },
           {
             "id": "i15",
-            "name": "Limón",
+            "name": "LimÃ³n",
             "quantityPerPerson": "20",
             "unit": "Gramos",
             "costoUnitario": 75,
@@ -3509,20 +3509,20 @@
         "totalDishCost": 53.426,
         "profitMargin": 254,
         "suggestedSellingPrice": 189,
-        "imageUrl": null
+        "imageUrl": "/catering/menus/xv/dish_main_19.jpeg"
       }
     ],
     "updatedAt": "2026-03-18T11:42:13.623Z"
   },
   {
     "id": "menu_infantil_maestro",
-    "name": "Catálogo Maestro Infantil",
-    "description": "Menús diseñados para niños y adolescentes.",
+    "name": "CatÃ¡logo Maestro Infantil",
+    "description": "MenÃºs diseÃ±ados para niÃ±os y adolescentes.",
     "items": [
       {
         "id": "dish_child_1",
         "name": "PANCHOS MEDIO METRO C/ FRITAS",
-        "type": "Menú Infantil/Adolescente",
+        "type": "MenÃº Infantil/Adolescente",
         "ingredients": [
           {
             "id": "i1",
@@ -3600,12 +3600,12 @@
         "totalDishCost": 164.3,
         "profitMargin": 82,
         "suggestedSellingPrice": 299,
-        "imageUrl": null
+        "imageUrl": "/catering/menus/xv/dish_child_1.png"
       },
       {
         "id": "dish_child_2",
         "name": "PANCHOS C/ FRITAS",
-        "type": "Menú Infantil/Adolescente",
+        "type": "MenÃº Infantil/Adolescente",
         "ingredients": [
           {
             "id": "i1",
@@ -3670,7 +3670,7 @@
       {
         "id": "dish_child_3",
         "name": "HAMBURGUESA C/ FRITAS",
-        "type": "Menú Infantil/Adolescente",
+        "type": "MenÃº Infantil/Adolescente",
         "ingredients": [
           {
             "id": "i1",
@@ -3780,7 +3780,7 @@
       {
         "id": "dish_child_4",
         "name": "CHIVITO C/ FRITAS",
-        "type": "Menú Infantil/Adolescente",
+        "type": "MenÃº Infantil/Adolescente",
         "ingredients": [
           {
             "id": "i1",

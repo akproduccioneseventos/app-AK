@@ -4,6 +4,7 @@ export type WhatsAppMode = 'automatic' | 'semi-automatic' | 'manual';
 export interface WhatsAppConfig {
   enabled: boolean;
   phoneNumber: string;
+  phoneNumberId?: string;
   apiKey: string;
   verifyToken: string;
   appSecret?: string;
@@ -52,6 +53,9 @@ export interface WhatsAppMessage {
   timestamp: string;
   read: boolean;
   mediaUrl?: string;
+  deliveryStatus?: 'received' | 'sent' | 'failed';
+  providerMessageId?: string;
+  deliveryError?: string;
 }
 
 export interface WhatsAppStats {

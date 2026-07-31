@@ -36,7 +36,7 @@ export function HeroSection({
   promoActiva,
   whatsappMessage = "Hola AK Producciones, quisiera cotizar mi evento.",
   ctaLabel = "Hablar con AK",
-  simulatorHref = "/simulador-de-presupuesto",
+  simulatorHref = "/simulador",
   simulatorLabel = "Cotizar mi fiesta",
   backgroundImageAlt = "Fiesta de quince años producida por AK Producciones",
 }: HeroSectionProps) {

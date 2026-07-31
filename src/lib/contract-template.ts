@@ -14,45 +14,63 @@
 
 export const CONTRACT_TEMPLATE = `CONTRATO DE PRESTACIÓN DE SERVICIOS PARA EVENTOS
 
+En la ciudad de {{CIUDAD_FECHA}}, comparecen por una parte AK PRODUCCIONES EVENTOS, RUT 220372680019, Nº de Empresa 0000008898364, representada por el Tec. Alexander Nicolás Knuth Canto, C.I. 4.617.350-8, con domicilio en Gaboto 3390, Salto, Uruguay, en adelante “LA EMPRESA”; y por otra parte {{CLIENTE_NOMBRE}}, C.I. {{CLIENTE_CI}}, domicilio {{CLIENTE_DOMICILIO}}, teléfono {{CLIENTE_TELEFONO}}, en adelante “EL/LA CLIENTE”.
+- - - - -
+CLÁUSULA 1 - OBJETO DEL CONTRATO:
+LA EMPRESA prestará los servicios indicados en el presupuesto firmado para el evento del {{FECHA_EVENTO}}, en {{SALON}}, con una duración máxima de siete (7) horas. Toda hora extra costará $5.000 por hora o fracción. Todo servicio no incluido será adicional.
+
+Ante enfermedad, rotura, desperfecto o imprevisto, LA EMPRESA podrá sustituir personal, equipos o elementos por otros similares. Si un servicio puntual no pudiera prestarse, podrá sustituirse por otro equivalente o acreditarse únicamente su importe, sin afectar el resto del contrato.
+- - - - -
+CLÁUSULA 2 - PRESUPUESTO VIGENTE Y AJUSTE ANUAL:
+El presupuesto vigente será el original firmado más cambios, agregados, reducciones y ajustes. Si el evento es en un año posterior al de contratación, se aplicará un ajuste del 15% cada 1.º de enero, acumulativo. Los pagos parciales no congelan el precio. Los servicios agregados se cobrarán al precio vigente al momento de contratarlos.
+- - - - -
+CLÁUSULA 3 - PLAN DE PAGOS, SEÑA E INCUMPLIMIENTO:
+EL/LA CLIENTE abonará una seña de {{MONTO_SENA}}. No podrá permanecer más de tres meses sin pagar y deberá abonar como mínimo $5.000 cada tres meses. El total deberá quedar cancelado 30 días antes del evento. Ante incumplimiento, LA EMPRESA podrá intimar por cinco días; si no se regulariza, podrá resolver el contrato, liberar la fecha y aplicar la cancelación. Aceptar pagos atrasados no modifica los demás vencimientos.
+- - - - -
+CLÁUSULA 4 - CAMBIO DE FECHA Y CANCELACIÓN:
+El cambio de fecha deberá solicitarse por escrito con 30 días de anticipación, sujeto a disponibilidad, y tendrá un costo del 10% del presupuesto vigente. La cancelación total o parcial tendrá una multa del 30% del valor cancelado. La multa compensa reserva de fecha, planificación, trabajo administrativo, pérdida de otras contrataciones y compromisos asumidos. La seña y los pagos se imputarán a la multa. También podrán descontarse gastos directos, comprobables y no recuperables, sin duplicar conceptos.
+- - - - -
+CLÁUSULA 5 - INVITADOS Y MENÚES:
+La lista final deberá entregarse siete días antes. Podrá reducirse hasta 10% de los invitados, ajustando solo servicios por persona, y aumentarse hasta 30%, sujeto a disponibilidad y pago previo. No habrá devolución por inasistencias. Alergias, intolerancias o menúes especiales deberán informarse por escrito 15 días antes.
+- - - - -
+CLÁUSULA 6 - CONTRATO PERSONAL Y PAGOS:
+El contrato es personal e intransferible. La persona firmante será la única responsable, aunque terceros colaboren, organicen o paguen. Los recibos se emitirán a nombre de EL/LA CLIENTE.
+- - - - -
+CLÁUSULA 7 - MENORES, DAÑOS Y RESPONSABILIDAD:
+LA EMPRESA no tendrá funciones de cuidado de menores. EL/LA CLIENTE responderá por daños causados por él/ella, invitados, menores o proveedores externos. Los daños podrán probarse con fotos, videos, inventarios, presupuestos o facturas y deberán abonarse dentro de 15 días. LA EMPRESA no responderá por hurtos, conflictos, fallas del salón, cortes, clima u otros hechos no imputables y fuera de su control razonable.
+- - - - -
+CLÁUSULA 8 - SEGURIDAD Y SUSPENSIÓN:
+EL/LA CLIENTE deberá colaborar con el personal de seguridad y respetar las normas del salón. Ante violencia, amenazas, agresiones, armas, daños o riesgo para personas o equipos, LA EMPRESA podrá suspender el servicio, retirar al personal o solicitar intervención de la autoridad. Si la situación fue causada por EL/LA CLIENTE, invitados o proveedores, no corresponderá devolución.
+- - - - -
+CLÁUSULA 9 - ELEMENTOS PROVISTOS:
+Los elementos de decoración, discoteca, barra, comida, iluminación, mobiliario, vajilla, mantelería y estructuras pertenecen a LA EMPRESA o a terceros contratados. No podrán retirarse ni retenerse. Los sobrantes se entregarán solo cuando las condiciones del servicio y conservación lo permitan.
+- - - - -
+CLÁUSULA 10 - USO DE IMAGEN:
+EL/LA CLIENTE autoriza expresamente a AK PRODUCCIONES EVENTOS a utilizar fotografías y videos del evento con fines promocionales en redes sociales, página web y publicidad. Esta autorización no genera derecho a pago. Si no autoriza, deberá comunicarlo por escrito antes del evento.
+- - - - -
+CLÁUSULA 11 - FUERZA MAYOR:
+Ante pandemia, emergencia, prohibición de eventos, cierre del salón, incendio, inundación, clima grave o medida oficial, el contrato no se cancelará automáticamente. Los pagos pasarán a una nueva fecha, sujeta a disponibilidad y ajustes correspondientes. Si EL/LA CLIENTE no desea reprogramar, se aplicarán las condiciones de cancelación y podrán descontarse gastos comprobables y no recuperables.
+- - - - -
+CLÁUSULA 12 - AGADU Y SALÓN:
+AGADU, permisos y trámites serán responsabilidad de EL/LA CLIENTE. Cuando el salón no sea propiedad de LA EMPRESA, también serán responsabilidad de EL/LA CLIENTE sus condiciones de uso, horarios, energía, agua, acceso y seguridad, salvo pacto escrito distinto.
+- - - - -
+CLÁUSULA 13 - MODIFICACIONES Y WHATSAPP:
+El presupuesto firmado forma parte del contrato. WhatsApp y otros medios electrónicos podrán usarse para coordinación y constancia de conversaciones, pero no modificarán por sí solos la fecha, precio, servicios, multas ni condiciones. Todo cambio importante, cancelación, cambio de fecha o modificación económica deberá documentarse mediante adenda, nuevo presupuesto o escrito aceptado expresamente por ambas partes.
+- - - - -
+CLÁUSULA 14 - NOTIFICACIONES:
+Las intimaciones, cancelaciones por incumplimiento y comunicaciones con efectos legales deberán realizarse por telegrama colacionado, carta documento, acta notarial u otro medio fehaciente.
+- - - - -
+CLÁUSULA 15 - PROVEEDORES EXTERNOS:
+Los proveedores contratados por EL/LA CLIENTE actuarán bajo su responsabilidad y deberán respetar horarios, seguridad, normas del salón y coordinación de LA EMPRESA. LA EMPRESA no responderá por daños, retrasos o incumplimientos de dichos proveedores.
+- - - - -
+CLÁUSULA 16 - JURISDICCIÓN:
+Para cualquier conflicto serán competentes los tribunales que correspondan conforme a la normativa vigente. Las partes procurarán previamente una solución directa y documentada.
+- - - - -
+CLÁUSULA 17 - ACEPTACIÓN FINAL:
+Leído el contrato, las partes declaran comprenderlo y aceptarlo. Se firman dos ejemplares junto con el presupuesto correspondiente.
 
 
-En la ciudad de {{CIUDAD_FECHA}}, comparecen por una parte AK PRODUCCIONES EVENTOS, RUT 220372680019, Nº de Empresa 0000008898364, representada en este acto por el Tec. Alexander Knuth, C.I. 4.617.350-8, con domicilio en Gaboto 3390, Salto, Uruguay, en adelante "LA EMPRESA"; y por otra parte {{CLIENTE_NOMBRE}}, C.I. {{CLIENTE_CI}}, con domicilio en {{CLIENTE_DOMICILIO}}, teléfono {{CLIENTE_TELEFONO}}, en adelante "LA CLIENTE". Ambas partes acuerdan celebrar el presente contrato, sujeto a las siguientes cláusulas: - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-
-CLÁUSULA 1 – OBJETO DEL CONTRATO: LA EMPRESA brindará a LA CLIENTE el servicio integral para la organización y realización del evento contratado, cuya fecha es el {{FECHA_EVENTO}}, con una duración máxima de siete (7) horas desde el inicio del evento. Toda hora extra tendrá un costo de $5.000 (pesos uruguayos cinco mil) por cada hora o fracción. El evento se realizará en salón a convenir, cuyo costo será asumido exclusivamente por LA CLIENTE. Los servicios incluidos serán únicamente los que figuren en el presupuesto firmado por ambas partes. Todo servicio que no figure allí se considerará adicional y deberá abonarse por separado. - - - - - - -
-
-CLÁUSULA 2 – PRESUPUESTO VIGENTE Y AJUSTE ANUAL: a) El presupuesto vigente será el presupuesto original firmado, más cualquier cambio, agregado, reducción o adenda firmada por ambas partes y, cuando corresponda, más el ajuste anual previsto en esta cláusula. b) Sobre ese monto se calcularán saldos, multas, reintegros, pagos mínimos y cualquier otro importe previsto en este contrato. c) El ajuste anual del quince por ciento (15%) se aplicará únicamente cuando el evento sea en un año posterior al de la firma del contrato. d) Si corresponde, el ajuste se aplicará cada 1° de enero y será acumulativo y progresivo, o sea, cada nuevo ajuste se calculará sobre el monto ya ajustado del año anterior. e) Si el evento se realiza dentro del mismo año de la firma no se aplicará el aumento anual. - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-
-CLÁUSULA 3 – PLAN DE PAGOS, PAGO MÍNIMO E INCUMPLIMIENTO: a) LA CLIENTE entregará una seña de {{MONTO_SENA}} al firmar este contrato. Esa seña forma parte del precio total del evento y, si hay cancelación, también se tomará como parte de la multa que corresponda. b) LA CLIENTE deberá completar como mínimo el treinta por ciento (30%) del presupuesto vigente dentro del plazo de doce (12) meses desde la firma del contrato. c) El resto podrá abonarse en pagos parciales, pero el total del presupuesto deberá quedar pago como mínimo treinta (30) días corridos antes del evento. d) Desde la firma del contrato y hasta la fecha del evento, en cada período de tres (3) meses LA CLIENTE deberá abonar como mínimo un total de $5.000 (pesos uruguayos cinco mil), ya sea en un solo pago o en varios pagos dentro de ese mismo período. e) Si en un período de tres meses no se alcanza ese mínimo de $5.000, o si no se completa el 30% dentro del plazo pactado, LA EMPRESA podrá intimar a LA CLIENTE para que regularice la situación dentro de quince (15) días corridos. f) Si LA CLIENTE no regulariza dentro de ese plazo, LA EMPRESA podrá dar por terminado el contrato por incumplimiento, cancelar el evento y aplicar la multa correspondiente. - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-
-CLÁUSULA 4 – CAMBIO DE FECHA Y CANCELACIÓN: a) Si LA CLIENTE quiere cambiar la fecha del evento, deberá avisar con al menos treinta (30) días corridos de anticipación. El cambio dependerá de la disponibilidad de LA EMPRESA. b) Cada cambio de fecha tendrá una multa equivalente al diez por ciento (10%) del presupuesto vigente, que deberá abonarse al confirmar la nueva fecha. c) Si la nueva fecha pasa a otro año, además se aplicará el ajuste anual que corresponda. d) Si no hay disponibilidad o no se respeta el plazo mínimo de aviso, se aplicarán las reglas de cancelación. e) Si LA CLIENTE cancela total o parcialmente el evento, o elimina servicios ya contratados a ese año, deberá pagar una multa equivalente al treinta por ciento (30%) del presupuesto vigente ajustado al momento de la cancelación. f) Si la cancelación es total, la multa se calcula sobre el total del presupuesto ajustado a ese año. Si es parcial, sobre el valor ajustado a ese año de los servicios que se eliminan o reducen. g) La seña entregada se tomará como parte de esa multa. h) Si LA CLIENTE ya hubiera pagado más de lo que corresponde por multa, se devolverá solo la diferencia, si correspondiera. i) Si LA CLIENTE no paga esa multa, LA EMPRESA podrá intimar por medio fehaciente y darle un plazo de quince (15) días corridos para regularizar. Si no cumple, LA EMPRESA podrá iniciar las acciones legales correspondientes. - - - -
-
-CLÁUSULA 5 – LISTA FINAL DE INVITADOS, AUMENTO O DISMINUCIÓN DE INVITADOS, MENÚS Y AJUSTES: a) LA CLIENTE deberá entregar a LA EMPRESA la lista final de invitados con una anticipación mínima de siete (7) días corridos al evento. En esa lista deberán incluirse todas las personas que asistirán, sin excepción. b) LA CLIENTE podrá reducir hasta un diez por ciento (10%) del total de invitados contratados. Asimismo, podrá aumentar hasta un treinta por ciento (30%), sujeto a disponibilidad de LA EMPRESA, con una anticipación mínima de quince (15) días corridos y abonando previamente la diferencia. Si el día del evento faltaran invitados por inasistencia, no corresponderá devolución de dinero. c) Si LA CLIENTE contrata por su cuenta personal o servicios externos ajenos a LA EMPRESA (fotografía, show, músicos, etc.), deberá avisarlo con anticipación. La comida, bebida o atención de esas personas no estará incluida en el servicio contratado con LA EMPRESA. - - - - - - - - - - - - - - - - - - - - - - - -
-
-CLÁUSULA 6 – CONTRATO PERSONAL, PAGOS DE TERCEROS Y RECIBOS: a) Este contrato es personal e intransferible. b) La única responsable frente a LA EMPRESA será siempre la persona que firma este contrato. c) LA EMPRESA podrá recibir pagos hechos por terceros, pero eso no cambia quién es la responsable del contrato. d) Todos los recibos y comprobantes se emitirán a nombre de LA CLIENTE. e) LA EMPRESA solo tomará como válidas las indicaciones hechas directamente por LA CLIENTE, salvo autorización escrita de su parte. - -
-
-CLÁUSULA 7 – MENORES, ADOLESCENTES, DAÑOS Y RESPONSABILIDAD: a) LA EMPRESA no tendrá funciones de cuidado, control, guarda ni vigilancia de menores de edad o adolescentes. Esa responsabilidad será exclusivamente de LA CLIENTE y de los adultos designados por ella. b) También será responsabilidad de LA CLIENTE cualquier daño causado por ella, sus invitados o terceros a instalaciones, mobiliario, decoración, vajilla, sonido, iluminación, barra, utilería u otros elementos provistos por LA EMPRESA. c) Ese daño deberá pagarse dentro de quince (15) días corridos desde que sea notificado. d) LA EMPRESA tampoco será responsable por pérdidas, hurtos, conflictos entre asistentes, problemas del local, cortes de servicios, fenómenos climáticos u otras situaciones fuera de su control directo. - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-
-CLÁUSULA 8 – ELEMENTOS PROVISTOS: Todos los elementos usados para decoración, discoteca, barra, catering, iluminación, mobiliario, vajilla, manteleria, estructuras, utilería y demás servicios contratados pertenecen a LA EMPRESA. Ni LA CLIENTE ni sus invitados podrán retirarlos, quedárselos o retenerlos. Al finalizar el evento, solo se entregarán a LA CLIENTE los sobrantes de comida del catering, la porción correspondiente de torta o postres, y la bebida comprada por LA CLIENTE. - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-
-CLÁUSULA 9 – USO DE IMAGEN: LA CLIENTE autoriza a LA EMPRESA a usar fotos y videos del evento con fines promocionales y publicitarios, en redes sociales, sitio web y otros medios. Si no autoriza ese uso, deberá comunicarlo por escrito antes del evento. - - - - - - - - - - - - -
-
-CLÁUSULA 10 – FUERZA MAYOR O CASO FORTUITO: a) Solo se considerarán casos de fuerza mayor o caso fortuito aquellos hechos extraordinarios, imprevisibles o inevitables, ajenos a la voluntad de las partes, que hagan imposible de verdad la realización del evento y que además puedan ser probados. b) No se considerarán fuerza mayor problemas económicos, enfermedades leves, conflictos familiares, separaciones, arrepentimientos o falta de pago. c) Si la situación realmente configura fuerza mayor y permite reprogramar, las partes procurarán acordar una nueva fecha, manteníndose la vigencia económica del contrato con los ajustes que correspondan. - - - - - - - - - -
-
-CLÁUSULA 11 – AGADU: Todos los pagos, permisos, declaraciones y trámites vinculados a AGADU serán responsabilidad exclusiva de LA CLIENTE. LA EMPRESA no será responsable por multas, recargos o sanciones relacionadas con ese tema. - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-
-CLÁUSULA 12 – PRESUPUESTO FIRMADO Y MODIFICACIONES: El presupuesto firmado por ambas partes forma parte de este contrato. Cualquier cambio, agregado, reducción o modificación de servicios deberá hacerse por escrito y con firma de ambas partes. No serán válidos los cambios hechos solo de palabra o por mensajes informales. Toda modificación económica deberá quedar documentada y pasará a formar parte del presupuesto vigente. - - - - - - - - - - - - - - - - - - -
-
-CLÁUSULA 13 – NOTIFICACIONES Y DOMICILIOS: Para este contrato, serán válidos los domicilios indicados al comienzo y el número de teléfono denunciado por LA CLIENTE. Toda notificación o intimación podrá hacerse por telegrama colacionado, carta documento, acta notarial u otro medio fehaciente. Si LA CLIENTE cambia de domicilio o de número de teléfono, deberá comunicarlo formalmente. - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-
-CLÁUSULA 14 – JURISDICCIÓN: Para cualquier conflicto derivado de este contrato, las partes acuerdan someterse a la competencia de los Juzgados Letrados de Salto, renunciando a cualquier otro fuero o jurisdicción. - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-
-CLÁUSULA 15 – ACEPTACIÓN FINAL: Leído el presente contrato, las partes manifiestan comprenderlo y aceptarlo en todos sus términos, firmando dos ejemplares del mismo tenor en el lugar y fecha indicados. - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-
-
-
-
-______________________________
-
+____________________________________
 POR AK PRODUCCIONES EVENTOS
 
 Tec. Alexander Knuth

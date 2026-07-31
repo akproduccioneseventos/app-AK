@@ -11,6 +11,10 @@ export const blogPosts: BlogPost[] = [
     accent: 'from-purple-700 to-slate-950',
     icon: 'CalendarCheck',
     takeaway: 'Primero se define fecha, cantidad de invitados y prioridades. Despues se habla de decoracion, musica y extras.',
+    image: {
+      url: '/media/catalogo-servicios/organizador_equipo.png',
+      alt: 'Organización integral de eventos y fiestas sin estrés',
+    },
     sections: [
       {
         heading: 'Empeza por las decisiones que bloquean todo lo demas',
@@ -52,6 +56,10 @@ export const blogPosts: BlogPost[] = [
     accent: 'from-slate-900 to-emerald-800',
     icon: 'CreditCard',
     takeaway: 'Un presupuesto profesional no solo dice el total: explica servicios, cantidades, regalos, seña, saldo y validez.',
+    image: {
+      url: '/media/catalogo-servicios/familia_feliz_evento.png',
+      alt: 'Presupuesto transparente para familias y clientes',
+    },
     sections: [
       {
         heading: 'El total solo no alcanza',
@@ -93,6 +101,10 @@ export const blogPosts: BlogPost[] = [
     accent: 'from-amber-700 to-red-800',
     icon: 'Utensils',
     takeaway: 'El menu se elige por tipo de evento, horario, duracion, publico y presupuesto. No solo por el plato que mas gusta.',
+    image: {
+      url: '/media/catalogo-servicios/catering-mesa-ak-01.jpeg',
+      alt: 'Mesa de catering y gastronomía profesional AK',
+    },
     sections: [
       {
         heading: 'La comida tiene que acompañar el ritmo de la fiesta',
@@ -134,6 +146,10 @@ export const blogPosts: BlogPost[] = [
     accent: 'from-fuchsia-700 to-purple-950',
     icon: 'PartyPopper',
     takeaway: 'Una fiesta de XV funciona mejor cuando el estilo, la musica, la entrada y los detalles cuentan algo de la quinceanera.',
+    image: {
+      url: '/media/catalogo-servicios/quinceanera_persuasiva.png',
+      alt: 'Fiesta de XV años inolvidable en Salto',
+    },
     sections: [
       {
         heading: 'El estilo no empieza en Pinterest',
@@ -175,6 +191,10 @@ export const blogPosts: BlogPost[] = [
     accent: 'from-rose-700 to-slate-900',
     icon: 'Heart',
     takeaway: 'La boda necesita un plan operativo, no solo una lista de deseos. Horarios, responsables y pagos deben estar cerrados.',
+    image: {
+      url: '/media/catalogo-servicios/boda_persuasiva.png',
+      alt: 'Organización elegante de bodas y matrimonios',
+    },
     sections: [
       {
         heading: 'Elegir proveedores sin una linea comun',
@@ -216,6 +236,10 @@ export const blogPosts: BlogPost[] = [
     accent: 'from-blue-800 to-slate-950',
     icon: 'ClipboardCheck',
     takeaway: 'La semana previa no es para inventar la fiesta: es para confirmar que todo lo prometido esta listo.',
+    image: {
+      url: '/media/catalogo-servicios/montaje_equipo.png',
+      alt: 'Montaje profesional y checklist operativo de fiesta',
+    },
     sections: [
       {
         heading: 'Revisar lo que afecta a todos los equipos',
@@ -264,12 +288,12 @@ export function getRelatedPosts(post: BlogPost) {
 }
 
 const postImages: Record<string, string> = {
-  'como-empezar-a-organizar-una-fiesta-sin-estres': '/media/catalogo-servicios/blog_presupuesto.png',
-  'presupuesto-de-fiesta-que-debe-incluir': '/media/catalogo-servicios/blog_presupuesto.png',
-  'como-elegir-el-menu-para-un-evento': '/media/catalogo-servicios/blog_comida.png',
+  'como-empezar-a-organizar-una-fiesta-sin-estres': '/media/catalogo-servicios/organizador_equipo.png',
+  'presupuesto-de-fiesta-que-debe-incluir': '/media/catalogo-servicios/familia_feliz_evento.png',
+  'como-elegir-el-menu-para-un-evento': '/media/catalogo-servicios/catering-mesa-ak-01.jpeg',
   'ideas-para-fiesta-de-xv-en-salto': '/media/catalogo-servicios/quinceanera_persuasiva.png',
   'errores-comunes-al-organizar-una-boda': '/media/catalogo-servicios/boda_persuasiva.png',
-  'checklist-final-antes-del-evento': '/media/catalogo-servicios/tecnologia_fiesta.png',
+  'checklist-final-antes-del-evento': '/media/catalogo-servicios/montaje_equipo.png',
 };
 
 export function getPostImage(slug: string, title?: string, category?: string): string {
@@ -281,7 +305,7 @@ export function getPostImage(slug: string, title?: string, category?: string): s
     return '/media/catalogo-servicios/blog_bebidas.png';
   }
   if (text.includes('catering') || text.includes('comida') || text.includes('plato') || text.includes('menú') || text.includes('finger') || text.includes('gastro')) {
-    return '/media/catalogo-servicios/blog_comida.png';
+    return '/media/catalogo-servicios/catering-mesa-ak-01.jpeg';
   }
   if (text.includes('luz') || text.includes('luces') || text.includes('pantalla') || text.includes('led') || text.includes('robotizada') || text.includes('disco') || text.includes('pista')) {
     return '/media/catalogo-servicios/blog_iluminacion.png';
@@ -290,7 +314,7 @@ export function getPostImage(slug: string, title?: string, category?: string): s
     return '/media/catalogo-servicios/blog_salon.png';
   }
   if (text.includes('presupuesto') || text.includes('planific') || text.includes('calcular') || text.includes('estrés') || text.includes('organizar') || text.includes('checklist') || text.includes('semana') || text.includes('costo')) {
-    return '/media/catalogo-servicios/blog_presupuesto.png';
+    return '/media/catalogo-servicios/organizador_equipo.png';
   }
   if (text.includes('boda') || text.includes('casamiento') || text.includes('novia')) {
     return '/media/catalogo-servicios/boda_persuasiva.png';
@@ -299,5 +323,5 @@ export function getPostImage(slug: string, title?: string, category?: string): s
     return '/media/catalogo-servicios/quinceanera_persuasiva.png';
   }
 
-  return '/media/catalogo-servicios/blog_salon.png';
+  return '/media/catalogo-servicios/organizador_equipo.png';
 }

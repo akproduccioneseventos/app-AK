@@ -1,10 +1,7 @@
 'use server';
 
 import { verifySession } from '@/lib/auth/session-token';
-import {
-  runMarketingAutomation,
-  type MarketingAutomationResult,
-} from '@/lib/marketing-automation';
+import type { MarketingAutomationResult } from '@/lib/marketing-automation';
 
 export async function runMarketingAutomationFromAdmin(
   options?: { force?: boolean }
@@ -23,6 +20,7 @@ export async function runMarketingAutomationFromAdmin(
   }
 
   try {
+    const { runMarketingAutomation } = await import('@/lib/marketing-automation');
     return await runMarketingAutomation({
       source: 'admin',
       force: options?.force === true,

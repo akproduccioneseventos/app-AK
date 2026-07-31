@@ -13,8 +13,10 @@ export interface LandingNavProps {
 export function LandingNav(_props: LandingNavProps = {}) {
   const [isScrolled, setIsScrolled] = useState(false);
   const [isMenuOpen, setIsMenuOpen] = useState(false);
+  const [isHydrated, setIsHydrated] = useState(false);
 
   useEffect(() => {
+    setIsHydrated(true);
     const handleScroll = () => setIsScrolled(window.scrollY > 20);
     window.addEventListener('scroll', handleScroll, { passive: true });
     return () => window.removeEventListener('scroll', handleScroll);
@@ -22,6 +24,11 @@ export function LandingNav(_props: LandingNavProps = {}) {
 
   const handleAnchorClick = useCallback((e: React.MouseEvent<HTMLAnchorElement>, href: string) => {
     e.preventDefault();
+    if (href === '#faq' && typeof window !== 'undefined' && window.location.pathname.includes('simulador')) {
+      window.dispatchEvent(new CustomEvent('ak-open-faq'));
+      setIsMenuOpen(false);
+      return;
+    }
     const el = document.querySelector(href);
     if (el) {
       el.scrollIntoView({ behavior: 'smooth' });
@@ -34,8 +41,10 @@ export function LandingNav(_props: LandingNavProps = {}) {
   const navLinks = [
     { label: 'Inicio', href: '#landing-hero', isExternal: false },
     { label: 'Servicios', href: '#landing-services', isExternal: false },
+    { label: 'Galería HD', href: 'https://galeria.akproducciones.uy', isExternal: true, openInNewTab: true },
     { label: 'Simulador', href: '/simulador-de-presupuesto', isExternal: true },
     { label: 'Blog', href: '/public/blog', isExternal: true },
+    { label: 'Preguntas Frecuentes', href: '#faq', isExternal: false },
     { label: 'Club Uruguay', href: '/club-uruguay', isExternal: true },
   ];
 
@@ -72,6 +81,8 @@ export function LandingNav(_props: LandingNavProps = {}) {
                 <Link
                   key={link.href}
                   href={link.href}
+                  target={link.openInNewTab ? '_blank' : undefined}
+                  rel={link.openInNewTab ? 'noreferrer' : undefined}
                   className={cn(
                     "px-3.5 py-2 text-xs font-black uppercase tracking-widest transition-colors",
                     isScrolled ? "text-slate-600 hover:text-red-700" : "text-zinc-200 hover:text-white",
@@ -82,7 +93,9 @@ export function LandingNav(_props: LandingNavProps = {}) {
               ) : (
                 <a
                   key={link.href}
-                  href={link.href}
+                  href={`/${link.href}`}
+                  target={link.openInNewTab ? '_blank' : undefined}
+                  rel={link.openInNewTab ? 'noreferrer' : undefined}
                   onClick={(e) => handleAnchorClick(e, link.href)}
                   className={cn(
                     "px-3.5 py-2 text-xs font-black uppercase tracking-widest transition-colors",
@@ -111,6 +124,7 @@ export function LandingNav(_props: LandingNavProps = {}) {
             {/* Mobile Menu button */}
             <button
               onClick={() => setIsMenuOpen((o) => !o)}
+              disabled={!isHydrated}
               className={cn(
                 "rounded-lg p-2.5 transition-colors md:hidden",
                 isScrolled
@@ -143,7 +157,7 @@ export function LandingNav(_props: LandingNavProps = {}) {
               ) : (
                 <a
                   key={link.href}
-                  href={link.href}
+                  href={`/${link.href}`}
                   onClick={(e) => handleAnchorClick(e, link.href)}
                   className="block rounded-lg px-4 py-3.5 text-xs font-black uppercase tracking-widest text-slate-700 transition-all hover:bg-slate-100 hover:text-red-700"
                 >

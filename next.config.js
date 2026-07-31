@@ -14,9 +14,32 @@ const withPWA = require('@ducanh2912/next-pwa').default({
 
 /** @type {import('next').NextConfig} */
 const nextConfig = {
-  output: 'standalone',
+  // Windows without Developer Mode cannot create the pnpm symlinks used by
+  // Next standalone tracing. Production keeps standalone unless explicitly disabled.
+  output: process.env.AK_DISABLE_STANDALONE === 'true' ? undefined : 'standalone',
   compress: true,
   /* config options here */
+  async headers() {
+    return [
+      {
+        source: '/(.*)',
+        headers: [
+          // Evita que el sitio sea embebido en iframes (clickjacking)
+          { key: 'X-Frame-Options', value: 'DENY' },
+          // Desactiva detección de MIME-type automática del navegador
+          { key: 'X-Content-Type-Options', value: 'nosniff' },
+          // Fuerza HTTPS por 1 ano solo en el host actual
+          { key: 'Strict-Transport-Security', value: 'max-age=31536000' },
+          // Controla información de referencia enviada a terceros
+          { key: 'Referrer-Policy', value: 'strict-origin-when-cross-origin' },
+          // Permite multimedia local y desactiva geolocalizacion
+          { key: 'Permissions-Policy', value: 'camera=(self), microphone=(self), geolocation=()' },
+          // Desactiva el filtro XSS obsoleto de navegadores antiguos
+          { key: 'X-XSS-Protection', value: '0' },
+        ],
+      },
+    ];
+  },
   typescript: {
     ignoreBuildErrors: false,
   },

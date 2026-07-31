@@ -28,6 +28,14 @@ export interface PagoCliente {
   estadoPago?: EstadoPago; // Payment confirmation status
   comprobanteUrl?: string; // URL or base64 of payment receipt image
   motivoRechazo?: string; // Reason for rejection (if rejected by admin)
+  montoCobrado?: number; // Gross amount charged by the payment processor
+  montoReintegrado?: number;
+  recargoFinanciero?: number; // Processor financing surcharge, excluded from service balance
+  cuotasFinanciacion?: number;
+  proveedorPago?: 'mercadopago';
+  proveedorPagoId?: string;
+  sesionPagoId?: string;
+  estadoProveedorPago?: string;
 }
 
 export type TipoEvento =

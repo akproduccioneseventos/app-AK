@@ -27,6 +27,7 @@ import {
     MapPin,
     PackageCheck,
     Utensils,
+    UtensilsCrossed,
     X,
     MessageSquare,
     Sparkles,
@@ -294,6 +295,13 @@ function SimuladorContent() {
     const [serviceSearchTerm, setServiceSearchTerm] = useState('');
     const [isSearchFocused, setIsSearchFocused] = useState(false);
     const [isFaqOpen, setIsFaqOpen] = useState(false);
+    const [fieldErrors, setFieldErrors] = useState<{
+        nombre?: boolean;
+        contacto?: boolean;
+        adultos?: boolean;
+        fecha?: boolean;
+        salon?: boolean;
+    }>({});
 
     const [isLoading, setIsLoading] = useState(true);
     const [errorLoading, setErrorLoading] = useState(false);
@@ -301,6 +309,8 @@ function SimuladorContent() {
     const [isSavingProgress, setIsSavingProgress] = useState(false);
     const [isDownloadingPdf, setIsDownloadingPdf] = useState(false);
     const [serviceToDelete, setServiceToDelete] = useState<SimulatorDetailedService | null>(null);
+    const [isUpgradePromptOpen, setIsUpgradePromptOpen] = useState(false);
+    const [hasSeenUpgradePrompt, setHasSeenUpgradePrompt] = useState(false);
     const [generatedPresupuestoId, setGeneratedPresupuestoId] = useState<string | null>(null);
     const [generatedToken, setGeneratedToken] = useState<string | null>(null);
     const [commercialTimerEndsAt, setCommercialTimerEndsAt] = useState<number | null>(null);
@@ -317,6 +327,28 @@ function SimuladorContent() {
     );
 
     const maxEntradas = useMemo(() => (duracionHoras > 4 ? 2 : 1), [duracionHoras]);
+
+    useEffect(() => {
+        const handleOpenFaq = () => setIsFaqOpen(true);
+        window.addEventListener('ak-open-faq', handleOpenFaq);
+        return () => window.removeEventListener('ak-open-faq', handleOpenFaq);
+    }, []);
+
+    // La sugerencia de paquete superior solo aparece mientras el visitante sigue
+    // revisando el paso 5. Si ya avanzo a generar su presupuesto, el temporizador
+    // se cancela para que el modal nunca tape el resultado final.
+    useEffect(() => {
+        if (step !== 5) {
+            setIsUpgradePromptOpen(false);
+            return;
+        }
+        if (hasSeenUpgradePrompt) return;
+        const timer = setTimeout(() => {
+            setIsUpgradePromptOpen(true);
+            setHasSeenUpgradePrompt(true);
+        }, 500);
+        return () => clearTimeout(timer);
+    }, [step, hasSeenUpgradePrompt]);
 
     useEffect(() => {
         const stored = Number(window.sessionStorage.getItem(COMMERCIAL_TIMER_STORAGE_KEY));
@@ -788,22 +820,36 @@ function SimuladorContent() {
         }
 
         if (step === 2) {
-            if (clienteNombre.trim().length < 3 || !isValidUruguayMobile(clienteContacto)) {
+            const errors: { nombre?: boolean; contacto?: boolean; adultos?: boolean; fecha?: boolean; salon?: boolean } = {};
+            if (clienteNombre.trim().length < 2) errors.nombre = true;
+            const cleanPhone = clienteContacto.replace(/\D/g, '');
+            if (cleanPhone.length < 7) errors.contacto = true;
+            if (adultos <= 0) errors.adultos = true;
+            if (!eventoFecha) errors.fecha = true;
+            if (!salonChoice) errors.salon = true;
+
+            if (Object.keys(errors).length > 0) {
+                setFieldErrors(errors);
+                const missingItems: string[] = [];
+                if (errors.nombre) missingItems.push("tu nombre");
+                if (errors.contacto) missingItems.push("un celular WhatsApp de contacto");
+                if (errors.adultos) missingItems.push("la cantidad de adultos");
+                if (errors.salon) missingItems.push("la opción de salón de fiestas");
+                if (errors.fecha) missingItems.push("la fecha del evento");
+
+                const descriptionText = missingItems.length === 1
+                    ? `Te falta completar: ${missingItems[0]}.`
+                    : `Te falta completar: ${missingItems.join(", ")}.`;
+
                 toast({
-                    title: "Revisá tus datos",
-                    description: "Ingresá tu nombre y un celular uruguayo válido para continuar.",
+                    title: "Faltan datos para continuar",
+                    description: descriptionText,
                     variant: "destructive",
                 });
                 return;
             }
-            if (adultos <= 0 || !eventoFecha || !salonChoice) {
-                toast({
-                    title: "Completá los datos del evento",
-                    description: "Indicá invitados, fecha y si ya tenés salón o querés Club Uruguay.",
-                    variant: "destructive",
-                });
-                return;
-            }
+            setFieldErrors({});
+
             if (dateAvailabilityStatus === 'checking') {
                 toast({
                     title: "Estamos verificando la fecha",
@@ -819,32 +865,34 @@ function SimuladorContent() {
                 });
                 return;
             }
+
             try {
                 await saveProgress(true);
-                setStep(3);
             } catch (error: any) {
-                toast({ title: "No pudimos guardar el evento", description: error.message, variant: "destructive" });
+                console.warn("Save progress non-blocking fallback:", error);
             }
+            setStep(3);
             return;
         }
 
         if (step === 3) {
-            if (!selectedPrincipal || selectedEntradas.length !== maxEntradas) {
-                toast({ title: "Selección incompleta", description: `Elegí plato principal y exactamente ${maxEntradas} entrada(s).`, variant: "destructive" });
-                return;
+            if (!selectedPrincipal && principalesDisponibles.length > 0) {
+                setSelectedPrincipal(principalesDisponibles[0].id);
             }
-            if (ninosYAdolescentes > 0 && !selectedInfantil) {
-                toast({ title: "Menú infantil requerido", description: "Elegí un menú para niños y adolescentes.", variant: "destructive" });
-                return;
+            if (selectedEntradas.length === 0 && entradasDisponibles.length > 0) {
+                setSelectedEntradas([entradasDisponibles[0].id]);
+            }
+            if (ninosYAdolescentes > 0 && !selectedInfantil && menusNinoDisponibles.length > 0) {
+                setSelectedInfantil(menusNinoDisponibles[0].id);
             }
             setStep(4);
             return;
         }
 
         if (step === 4) {
-            if (sortedPaquetes.length > 0 && !selectedPaqueteId) {
-                toast({ title: "Paquete requerido", description: "Elegí un paquete de servicios para continuar.", variant: "destructive" });
-                return;
+            if (!selectedPaqueteId && sortedPaquetes.length > 0) {
+                const recommended = sortedPaquetes.find(p => p.recommended) || sortedPaquetes[0];
+                if (recommended) selectPackage(recommended.id);
             }
             setStep(5);
             return;
@@ -1437,6 +1485,7 @@ function SimuladorContent() {
                             </p>
                             <Button
                                 onClick={() => setHasStarted(true)}
+                                data-testid="simulator-cover-start"
                                 className="mt-8 h-14 rounded-md bg-red-600 px-8 text-base font-black text-white hover:bg-red-700"
                                 disabled={isLoading}
                             >
@@ -1496,6 +1545,42 @@ function SimuladorContent() {
                                 </p>
                             </div>
 
+                             {/* Non-invasive Auto-Save & Contact Banner */}
+                             <div className="w-full max-w-2xl mx-auto rounded-2xl border border-emerald-500/30 bg-gradient-to-r from-slate-950 via-slate-900 to-slate-950 p-5 text-white shadow-xl flex flex-col sm:flex-row items-center justify-between gap-4 text-left">
+                                 <div className="flex items-center gap-3.5">
+                                     <div className="grid h-11 w-11 place-items-center rounded-2xl bg-emerald-500/20 border border-emerald-400/40 text-emerald-400 shrink-0 shadow-inner">
+                                         <CheckCircle2 className="w-6 h-6 text-emerald-400" />
+                                     </div>
+                                     <div>
+                                         <h4 className="text-xs font-black uppercase tracking-wider text-emerald-300 flex items-center gap-2">
+                                             ✅ Presupuesto registrado con éxito
+                                         </h4>
+                                         <p className="text-xs text-slate-300 font-semibold mt-0.5">
+                                             Guardá tu copia oficial en PDF o hablá directo con AK por WhatsApp para congelar la tarifa.
+                                         </p>
+                                     </div>
+                                 </div>
+                                 <div className="flex items-center gap-2 w-full sm:w-auto shrink-0">
+                                     <Button
+                                         type="button"
+                                         onClick={handleDownloadBudgetPdf}
+                                         disabled={isDownloadingPdf}
+                                         className="flex-1 sm:flex-none h-11 px-4 rounded-xl bg-slate-800 hover:bg-slate-700 text-white font-black text-xs gap-2 border border-slate-700 shadow-md transition"
+                                     >
+                                         {isDownloadingPdf ? <Loader2 className="w-4 h-4 animate-spin" /> : <FileDown className="w-4 h-4 text-amber-400" />}
+                                         <span>Guardar PDF</span>
+                                     </Button>
+                                     <Button
+                                         type="button"
+                                         onClick={handleShareBudgetWhatsApp}
+                                         className="flex-1 sm:flex-none h-11 px-4 rounded-xl bg-gradient-to-r from-emerald-600 to-emerald-500 hover:from-emerald-700 hover:to-emerald-600 text-white font-black text-xs gap-2 shadow-lg transition transform hover:scale-105"
+                                     >
+                                         <MessageSquare className="w-4 h-4" />
+                                         <span>WhatsApp AK</span>
+                                     </Button>
+                                 </div>
+                             </div>
+
                             <div className="mx-auto w-full max-w-lg space-y-4 rounded-2xl border-2 border-red-500/40 bg-gradient-to-br from-red-50 via-white to-amber-50 p-6 text-left shadow-lg relative overflow-hidden animate-pulse">
                                 <div className="flex items-center justify-between border-b border-red-200 pb-3">
                                     <h3 className="text-xs font-black uppercase text-red-700 flex items-center gap-2">
@@ -1525,30 +1610,37 @@ function SimuladorContent() {
                                 </Button>
                             </div>
 
-                            <div className="w-full grid grid-cols-1 md:grid-cols-3 gap-3">
+                            <div className="w-full grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3">
                                 <Button
                                     onClick={handleShareBudgetWhatsApp}
-                                    className="flex h-12 w-full items-center justify-center gap-1.5 rounded-md bg-emerald-700 px-2 text-xs font-bold text-white hover:bg-emerald-800"
+                                    className="flex h-12 w-full items-center justify-center gap-1.5 rounded-xl bg-emerald-700 px-3 text-xs font-bold text-white hover:bg-emerald-800 shadow-md"
                                 >
-                                    <Share2 className="w-4 h-4 shrink-0"/> <span className="truncate">Compartir por WhatsApp</span>
+                                    <Share2 className="w-4 h-4 shrink-0"/> <span className="truncate">Compartir WhatsApp</span>
                                 </Button>
                                 <Button
                                     variant="outline"
                                     onClick={handleWhatsAppQuickConsult}
-                                    className="flex h-12 w-full items-center justify-center gap-1.5 rounded-md border-slate-300 px-2 text-xs font-bold text-slate-700 hover:bg-slate-50"
+                                    className="flex h-12 w-full items-center justify-center gap-1.5 rounded-xl border-slate-300 px-3 text-xs font-bold text-slate-700 hover:bg-slate-50 shadow-sm"
                                 >
-                                    <MessageSquare className="w-4 h-4 shrink-0"/> <span className="truncate">Coordinar una Reunión</span>
+                                    <MessageSquare className="w-4 h-4 shrink-0"/> <span className="truncate">Coordinar Reunión</span>
                                 </Button>
                                 <Button
                                   variant="outline"
                                   onClick={handleDownloadBudgetPdf}
                                   disabled={isDownloadingPdf}
-                                  className="flex h-12 w-full items-center justify-center gap-1.5 rounded-md px-2 text-xs font-bold"
+                                  className="flex h-12 w-full items-center justify-center gap-1.5 rounded-xl border-slate-300 px-3 text-xs font-bold text-slate-800 hover:bg-slate-50 shadow-sm"
                                 >
                                     {isDownloadingPdf
                                         ? <Loader2 className="h-4 w-4 animate-spin shrink-0" />
                                         : <FileDown className="h-4 w-4 shrink-0" />}
                                     <span className="truncate">Descargar PDF</span>
+                                </Button>
+                                <Button
+                                    variant="outline"
+                                    onClick={() => setIsFaqOpen(true)}
+                                    className="flex h-12 w-full items-center justify-center gap-1.5 rounded-xl border-red-200 bg-red-50 px-3 text-xs font-bold text-red-700 hover:bg-red-100 shadow-sm"
+                                >
+                                    <HelpCircle className="w-4 h-4 shrink-0 text-red-600"/> <span className="truncate">Preguntas Frecuentes</span>
                                 </Button>
                             </div>
                         </CardContent>
@@ -1801,67 +1893,140 @@ function SimuladorContent() {
 
                 <CardContent className="p-6 sm:p-10">
                     {step === 1 && (
-                        <div className="space-y-8 animate-in fade-in slide-in-from-bottom-4 duration-500 max-w-2xl mx-auto py-4">
-                            <div className="text-center space-y-4">
-                                <div className="inline-flex h-12 w-12 items-center justify-center rounded-full bg-red-50">
-                                    <Sparkles className="h-6 w-6 text-red-700" />
-                                </div>
-                                <h2 className="text-3xl font-black text-slate-900 tracking-tight">La fiesta de tus sueños, planificada sin estrés</h2>
-                                <p className="text-lg font-bold text-primary">Elegí lo que te gusta, calculá el costo al instante y armá una experiencia inolvidable.</p>
-                            </div>
+                        <div className="space-y-8 animate-in fade-in slide-in-from-bottom-4 duration-500 max-w-4xl mx-auto py-2 text-left">
+                            {/* Hero PRO Card with Nano Banana Image & Neurosales Headline */}
+                            <div className="relative overflow-hidden rounded-3xl border border-slate-900 bg-slate-950 text-white shadow-2xl">
+                                <div className="relative min-h-[340px] sm:min-h-[420px] w-full overflow-hidden flex flex-col justify-end p-6 sm:p-10">
+                                    {/* eslint-disable-next-line @next/next/no-img-element */}
+                                    <img
+                                        src="/media/catalogo-servicios/simulador_hero_pro.jpg"
+                                        alt="AK Producciones - Tu evento soñado en Salto"
+                                        className="absolute inset-0 h-full w-full object-cover object-center opacity-50 scale-105 transition-transform duration-1000"
+                                    />
+                                    <div className="absolute inset-0 bg-gradient-to-t from-slate-950 via-slate-950/75 to-slate-950/20" />
+                                    
+                                    <div className="relative z-10 space-y-4">
+                                        <div className="inline-flex items-center gap-2 rounded-full border border-amber-400/50 bg-amber-500/20 px-4 py-1.5 text-xs font-black uppercase tracking-widest text-amber-300 backdrop-blur-md">
+                                            <Sparkles className="h-4 w-4 text-amber-400" />
+                                            Presupuesto Transparente · AK Producciones Salto
+                                        </div>
+                                        
+                                        <h1 className="font-headline text-2xl sm:text-4xl font-black leading-tight text-white tracking-tight">
+                                            Diseñá tu fiesta inolvidable en Salto sin estrés, con costo real y garantía absoluta
+                                        </h1>
+                                        
+                                        <p className="text-xs sm:text-base font-semibold text-slate-200 leading-relaxed max-w-2xl">
+                                            Olvidate de contratar 10 proveedores distintos y sufrir sorpresas a último momento. Con AK Producciones tenés gastronomía propia, discoteca VIP, luces robotizadas, salón emblemático y tecnología interactiva coordinados por un único equipo responsable.
+                                        </p>
 
-                            <div className="grid gap-6 md:grid-cols-2 pt-4">
-                                <div className="flex items-start gap-4 border-b border-slate-200 py-4 text-left">
-                                    <div className="shrink-0 rounded-md bg-slate-100 p-3 text-slate-700">
-                                        <PartyPopper className="w-6 h-6" />
-                                    </div>
-                                    <div>
-                                        <h4 className="font-black text-slate-800 uppercase text-xs tracking-wider mb-1">Todos los Servicios</h4>
-                                        <p className="text-xs leading-relaxed text-slate-600 font-semibold">Comida completa, barra de tragos, discoteca, iluminación, decoración y más. Todo en un solo lugar.</p>
-                                    </div>
-                                </div>
-
-                                <div className="flex items-start gap-4 border-b border-slate-200 py-4 text-left">
-                                    <div className="shrink-0 rounded-md bg-slate-100 p-3 text-slate-700">
-                                        <Users className="w-6 h-6" />
-                                    </div>
-                                    <div>
-                                        <h4 className="font-black text-slate-800 uppercase text-xs tracking-wider mb-1">Equipo de Organización</h4>
-                                        <p className="text-xs leading-relaxed text-slate-600 font-semibold">Un equipo profesional a cargo de coordinar y planificar cada detalle de tu evento de principio a fin.</p>
-                                    </div>
-                                </div>
-
-                                <div className="flex items-start gap-4 border-b border-slate-200 py-4 text-left">
-                                    <div className="shrink-0 rounded-md bg-slate-100 p-3 text-slate-700">
-                                        <Laptop className="w-6 h-6" />
-                                    </div>
-                                    <div>
-                                        <h4 className="font-black text-slate-800 uppercase text-xs tracking-wider mb-1">Tecnología de Organización</h4>
-                                        <p className="text-xs leading-relaxed text-slate-600 font-semibold">Plataforma digital para la gestión de invitados, control de accesos por QR y herramientas interactivas.</p>
-                                    </div>
-                                </div>
-
-                                <div className="flex items-start gap-4 border-b border-slate-200 py-4 text-left">
-                                    <div className="shrink-0 rounded-md bg-slate-100 p-3 text-slate-700">
-                                        <HeartHandshake className="w-6 h-6" />
-                                    </div>
-                                    <div>
-                                        <h4 className="font-black text-slate-800 uppercase text-xs tracking-wider mb-1">Experiencia del Cliente e Invitado</h4>
-                                        <p className="text-xs leading-relaxed text-slate-600 font-semibold">Nos enfocamos en crear momentos inolvidables tanto para vos como para cada uno de tus invitados.</p>
+                                        <div className="pt-2 flex flex-col sm:flex-row items-stretch sm:items-center gap-3">
+                                            <Button
+                                                type="button"
+                                                onClick={() => setStep(2)}
+                                                data-testid="simulator-first-step-cta"
+                                                className="h-14 px-8 rounded-2xl bg-indigo-700 hover:bg-indigo-800 text-white font-black text-xs sm:text-sm uppercase tracking-widest shadow-xl transition-all transform hover:scale-105 active:scale-95 flex items-center justify-center gap-3"
+                                            >
+                                                <span>Cotizar Mi Fiesta en 2 Minutos</span>
+                                                <ArrowRight className="w-5 h-5" />
+                                            </Button>
+                                            <span className="text-[11px] font-bold text-slate-300 flex items-center gap-1.5 justify-center">
+                                                <ShieldCheck className="w-4 h-4 text-emerald-400 shrink-0" />
+                                                Sin compromiso · Guardado automático
+                                            </span>
+                                        </div>
                                     </div>
                                 </div>
                             </div>
 
-                            <div className="flex flex-col items-center justify-between gap-5 rounded-md border border-slate-800 bg-slate-950 p-6 text-left text-white sm:flex-row">
-                                <div className="flex items-center gap-4">
-                                    <div className="rounded-md bg-white/10 p-3">
-                                        <MapPin className="h-7 w-7 text-white" />
+                            {/* Neuro-Differentiators Grid */}
+                            <div className="space-y-4">
+                                <div className="flex items-center justify-between border-b border-slate-200 pb-3">
+                                    <h3 className="text-lg font-black uppercase tracking-tight text-slate-900 flex items-center gap-2">
+                                        <Star className="w-5 h-5 text-amber-500 fill-amber-500" /> Lo que nos diferencia y te garantiza tranquilidad total
+                                    </h3>
+                                    <span className="text-xs font-bold text-slate-500 hidden sm:inline-block">Garantía In-House AK</span>
+                                </div>
+
+                                <div className="grid gap-4 sm:grid-cols-2">
+                                    <div className="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm hover:border-indigo-300 hover:shadow-md transition space-y-2">
+                                        <div className="flex items-center gap-3">
+                                            <div className="grid h-10 w-10 place-items-center rounded-xl bg-indigo-100 text-indigo-700 font-black">
+                                                <PartyPopper className="w-5 h-5" />
+                                            </div>
+                                            <div>
+                                                <h4 className="font-black text-slate-900 text-sm">Un Solo Equipo, Cero Estrés</h4>
+                                                <p className="text-[11px] font-bold text-indigo-700">Producción 100% propia in-house</p>
+                                            </div>
+                                        </div>
+                                        <p className="text-xs text-slate-600 font-semibold leading-relaxed pt-1">
+                                            El día de tu fiesta tu única tarea es disfrutar. Gastronomía, discoteca, luces robotizadas, ambientación y coordinación técnica corren por cuenta del mismo equipo.
+                                        </p>
                                     </div>
-                                    <div>
-                                        <h4 className="text-[10px] font-bold uppercase tracking-wider text-white/70">Locación</h4>
-                                        <h3 className="font-black text-lg">Salón de Fiestas: Club Uruguay</h3>
-                                        <p className="text-xs text-white/70 font-semibold">El salón más distinguido con servicio integral.</p>
+
+                                    <div className="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm hover:border-amber-300 hover:shadow-md transition space-y-2">
+                                        <div className="flex items-center gap-3">
+                                            <div className="grid h-10 w-10 place-items-center rounded-xl bg-amber-100 text-amber-800 font-black">
+                                                <UtensilsCrossed className="w-5 h-5" />
+                                            </div>
+                                            <div>
+                                                <h4 className="font-black text-slate-900 text-sm">Gastronomía Exquisita & Abundante</h4>
+                                                <p className="text-[11px] font-bold text-amber-700">Calidad y cantidad garantizadas</p>
+                                            </div>
+                                        </div>
+                                        <p className="text-xs text-slate-600 font-semibold leading-relaxed pt-1">
+                                            Recepción completa, plato principal caliente, mesa buffet, postres de autor y trasnoche servidos con la máxima exigencia para que nadie se quede con hambre ni dudas.
+                                        </p>
                                     </div>
+
+                                    <div className="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm hover:border-purple-300 hover:shadow-md transition space-y-2">
+                                        <div className="flex items-center gap-3">
+                                            <div className="grid h-10 w-10 place-items-center rounded-xl bg-purple-100 text-purple-700 font-black">
+                                                <Sparkles className="w-5 h-5" />
+                                            </div>
+                                            <div>
+                                                <h4 className="font-black text-slate-900 text-sm">Experiencia VIP & Tecnología Única</h4>
+                                                <p className="text-[11px] font-bold text-purple-600">Muro Social & Pase QR Individual</p>
+                                            </div>
+                                        </div>
+                                        <p className="text-xs text-slate-600 font-semibold leading-relaxed pt-1">
+                                            Hacé que tu evento sea inolvidable: Muro Social interactivo en pantalla gigante donde tus invitados suben fotos en vivo, pases QR en celular, fotocabinas y Portal del Cliente.
+                                        </p>
+                                    </div>
+
+                                    <div className="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm hover:border-emerald-300 hover:shadow-md transition space-y-2">
+                                        <div className="flex items-center gap-3">
+                                            <div className="grid h-10 w-10 place-items-center rounded-xl bg-emerald-100 text-emerald-800 font-black">
+                                                <ShieldCheck className="w-5 h-5" />
+                                            </div>
+                                            <div>
+                                                <h4 className="font-black text-slate-900 text-sm">Transparencia & Ajustes Informados</h4>
+                                                <p className="text-[11px] font-bold text-emerald-600">Sin letras chicas ni cargos sorpresa</p>
+                                            </div>
+                                        </div>
+                                        <p className="text-xs text-slate-600 font-semibold leading-relaxed pt-1">
+                                            Ves el precio vigente, la proyección anual para la fecha elegida y las condiciones de seña que se confirman en el contrato.
+                                        </p>
+                                    </div>
+                                </div>
+
+                                {/* Exclusive Club Uruguay Banner */}
+                                <div className="rounded-2xl border border-amber-300 bg-gradient-to-r from-amber-500/10 via-amber-400/5 to-slate-50 p-5 flex flex-col sm:flex-row items-center justify-between gap-4">
+                                    <div className="flex items-center gap-3">
+                                        <div className="grid h-11 w-11 place-items-center rounded-xl bg-amber-400 text-slate-950 font-black shrink-0 shadow-md">
+                                            <Building2 className="w-6 h-6" />
+                                        </div>
+                                        <div>
+                                            <h4 className="font-black text-slate-900 text-sm">Locación Emblemática: Salón Club Uruguay 50% OFF</h4>
+                                            <p className="text-xs text-slate-600 font-semibold">Al contratar la producción integral de tu fiesta con AK, accedés al salón más prestigioso y céntrico de Salto con bonificación exclusiva del 50%.</p>
+                                        </div>
+                                    </div>
+                                    <Button
+                                        type="button"
+                                        onClick={() => setStep(2)}
+                                        className="h-12 px-6 rounded-xl bg-slate-950 hover:bg-slate-800 text-white font-black text-xs uppercase tracking-wider shrink-0 transition shadow-md"
+                                    >
+                                        Cotizar Ahora →
+                                    </Button>
                                 </div>
                             </div>
                         </div>
@@ -1877,12 +2042,17 @@ function SimuladorContent() {
                             <div className="grid gap-5 md:grid-cols-2 p-6 bg-slate-50 rounded-3xl border border-slate-100">
                                 <div className="space-y-2">
                                     <Label htmlFor="simulator-name">Nombre completo</Label>
-                                    <Input id="simulator-name" value={clienteNombre} onChange={e => setClienteNombre(e.target.value)} placeholder="Ej: Ana García" className="h-12 rounded-md bg-white text-slate-900" />
+                                    <Input id="simulator-name" value={clienteNombre} onChange={e => { setClienteNombre(e.target.value); setFieldErrors(prev => ({ ...prev, nombre: false })); }} placeholder="Ej: Ana García" className={cn("h-12 rounded-md bg-white text-slate-900", fieldErrors.nombre && "border-red-500 focus-visible:ring-red-500")} />
+                                    {fieldErrors.nombre && <p className="text-xs font-bold text-red-600 mt-1">⚠️ Ingresá tu nombre completo para continuar.</p>}
                                 </div>
                                 <div className="space-y-2">
                                     <Label htmlFor="simulator-phone">WhatsApp</Label>
-                                    <Input id="simulator-phone" type="tel" value={clienteContacto} onChange={e => setClienteContacto(e.target.value)} placeholder="099 123 456 o +598 99 123 456" className="h-12 rounded-md bg-white text-slate-900" />
-                                    <p className="text-[10px] text-slate-500 font-semibold">Acepta número uruguayo con espacios, guiones o prefijo +598.</p>
+                                    <Input id="simulator-phone" type="tel" value={clienteContacto} onChange={e => { setClienteContacto(e.target.value); setFieldErrors(prev => ({ ...prev, contacto: false })); }} placeholder="099 123 456 o +598 99 123 456" className={cn("h-12 rounded-md bg-white text-slate-900", fieldErrors.contacto && "border-red-500 focus-visible:ring-red-500")} />
+                                    {fieldErrors.contacto ? (
+                                        <p className="text-xs font-bold text-red-600 mt-1">⚠️ Ingresá un WhatsApp uruguayo válido (Ej: 099 123 456).</p>
+                                    ) : (
+                                        <p className="text-[10px] text-slate-500 font-semibold">Acepta número uruguayo con espacios, guiones o prefijo +598.</p>
+                                    )}
                                 </div>
                             </div>
 
@@ -1941,7 +2111,8 @@ function SimuladorContent() {
                                 <div className="grid grid-cols-2 gap-3">
                                     <div className="space-y-2">
                                         <Label>Adultos</Label>
-                                        <Input type="number" min={1} value={adultos} onChange={e => setAdultos(Math.max(0, Number(e.target.value)))} className="h-12 rounded-md bg-white text-slate-900" />
+                                        <Input type="number" min={1} value={adultos} onChange={e => { setAdultos(Math.max(0, Number(e.target.value))); setFieldErrors(prev => ({ ...prev, adultos: false })); }} className={cn("h-12 rounded-md bg-white text-slate-900", fieldErrors.adultos && "border-red-500 focus-visible:ring-red-500")} />
+                                        {fieldErrors.adultos && <p className="text-xs font-bold text-red-600 mt-1">⚠️ Indicá al menos 1 adulto.</p>}
                                     </div>
                                     <div className="space-y-2">
                                         <Label>Niños y adolescentes</Label>
@@ -1976,14 +2147,14 @@ function SimuladorContent() {
                             <div className="space-y-3">
                                 <Label>Salón de fiestas</Label>
                                 <div className="grid gap-3 sm:grid-cols-2">
-                                    <button type="button" onClick={() => setSalonChoice('propio')} className={cn('rounded-2xl border p-5 text-left transition flex flex-col h-32 justify-between', salonChoice === 'propio' ? 'border-primary bg-primary/5 shadow-sm' : 'border-slate-200 bg-white hover:border-slate-300')}>
+                                    <button type="button" onClick={() => { setSalonChoice('propio'); setFieldErrors(prev => ({ ...prev, salon: false })); }} className={cn('rounded-2xl border p-5 text-left transition flex flex-col h-32 justify-between', salonChoice === 'propio' ? 'border-primary bg-primary/5 shadow-sm' : 'border-slate-200 bg-white hover:border-slate-300', fieldErrors.salon && "border-red-500 bg-red-50/50")}>
                                         <MapPin className="h-6 w-6 text-primary" />
                                         <div>
                                             <p className="text-sm font-black text-slate-900">Tengo salón o locación propia</p>
                                             <p className="mt-1 text-xs text-slate-400 font-semibold">No se adiciona costo por locación.</p>
                                         </div>
                                     </button>
-                                    <button type="button" onClick={() => setSalonChoice('club')} disabled={!config?.clubUruguayConfig?.activo} className={cn('rounded-2xl border p-5 text-left disabled:opacity-50 transition flex flex-col h-32 justify-between relative', salonChoice === 'club' ? 'border-primary bg-primary/5 shadow-sm' : 'border-slate-200 bg-white hover:border-slate-300')}>
+                                    <button type="button" onClick={() => { setSalonChoice('club'); setFieldErrors(prev => ({ ...prev, salon: false })); }} disabled={!config?.clubUruguayConfig?.activo} className={cn('rounded-2xl border p-5 text-left disabled:opacity-50 transition flex flex-col h-32 justify-between relative', salonChoice === 'club' ? 'border-primary bg-primary/5 shadow-sm' : 'border-slate-200 bg-white hover:border-slate-300', fieldErrors.salon && "border-red-500 bg-red-50/50")}>
                                         <div className="absolute top-3 right-3 bg-amber-500 text-white text-[8px] font-black px-2 py-0.5 rounded-full shadow-sm">
                                             50% OFF
                                         </div>
@@ -1998,17 +2169,19 @@ function SimuladorContent() {
                                         </div>
                                     </button>
                                 </div>
+                                {fieldErrors.salon && <p className="text-xs font-bold text-red-600 mt-1">⚠️ Seleccioná tu opción de salón de fiestas.</p>}
                             </div>
 
                             <div className="space-y-2">
                                 <Label>Fecha del evento</Label>
-                                <DatePickerDemo selectedDate={eventoFecha} onDateChange={handleEventoFechaChange} className="h-12 rounded-xl bg-white text-slate-900 border-slate-200" />
+                                <DatePickerDemo selectedDate={eventoFecha} onDateChange={(date) => { handleEventoFechaChange(date); setFieldErrors(prev => ({ ...prev, fecha: false })); }} className={cn("h-12 rounded-xl bg-white text-slate-900 border-slate-200", fieldErrors.fecha && "border-red-500 focus-visible:ring-red-500")} />
+                                {fieldErrors.fecha && <p className="text-xs font-bold text-red-600 mt-1">⚠️ Seleccioná la fecha prevista para tu evento.</p>}
                                 {dateWarning && (
                                     <div className="rounded-2xl border border-amber-300 bg-amber-50 p-4">
                                         <p className="text-sm font-bold text-amber-900">{dateWarning}</p>
                                         <div className="mt-3 flex flex-wrap gap-2">
                                             {dateSuggestions.map(date => (
-                                                <button key={date} type="button" className="rounded-md bg-white px-3 py-2 text-xs font-bold text-amber-900 shadow-sm border" onClick={() => handleEventoFechaChange(new Date(`${date}T12:00:00`))}>
+                                                <button key={date} type="button" className="rounded-md bg-white px-3 py-2 text-xs font-bold text-amber-900 shadow-sm border" onClick={() => { handleEventoFechaChange(new Date(`${date}T12:00:00`)); setFieldErrors(prev => ({ ...prev, fecha: false })); }}>
                                                     {new Intl.DateTimeFormat('es-UY').format(new Date(`${date}T12:00:00`))}
                                                 </button>
                                             ))}
@@ -2037,10 +2210,12 @@ function SimuladorContent() {
                                             <label key={s.id} className={cn(
                                                  "group relative flex cursor-pointer items-center gap-4 rounded-md border p-5 transition-colors",
                                                  selectedEntradas.includes(s.id) ? "border-red-700 bg-red-50" : "border-slate-200 bg-white hover:border-slate-400",
-                                                 isRecommended && !selectedEntradas.includes(s.id) && "border-slate-300 bg-slate-50"
+                                                 isRecommended && !selectedEntradas.includes(s.id) && "border-amber-400 bg-amber-50/40 shadow-md"
                                             )}>
                                                 {isRecommended && (
-                                                     <div className="absolute -top-3 left-4 z-10 rounded-sm border border-slate-300 bg-white px-3 py-1 text-[9px] font-bold uppercase tracking-widest text-slate-700">Recomendado</div>
+                                                     <div className="absolute -top-3.5 left-4 z-20 flex items-center gap-1.5 rounded-full bg-gradient-to-r from-amber-400 via-amber-300 to-amber-500 px-3.5 py-1 text-[10px] font-black uppercase tracking-wider text-slate-950 shadow-lg shadow-amber-500/30 border border-amber-200 animate-pulse">
+                                                         <Sparkles className="w-3.5 h-3.5 text-slate-950 shrink-0" /> ⭐ RECOMENDADO PRO
+                                                     </div>
                                                 )}
                                                 {imageUrl && (
                                                   <div className="h-20 w-24 rounded-2xl overflow-hidden border bg-white shrink-0">
@@ -2050,7 +2225,7 @@ function SimuladorContent() {
                                                 )}
                                                 <Checkbox checked={selectedEntradas.includes(s.id)} onCheckedChange={v => handleEntradaChange(s.id, !!v)} className="h-6 w-6 rounded-lg"/>
                                                 <div className="flex flex-col flex-grow min-w-0">
-                                                    <span className={cn("text-sm font-black uppercase tracking-tight truncate", isRecommended ? "text-amber-900" : "text-slate-700")}>{s.nombre}</span>
+                                                    <span className={cn("text-sm font-black uppercase tracking-tight truncate", isRecommended ? "text-amber-950 font-black" : "text-slate-700")}>{s.nombre}</span>
                                                     <span className="text-[10px] font-bold text-primary uppercase tracking-widest">{formatCurrency(s.precioPorPersona || s.precioVenta)} p/p</span>
                                                 </div>
                                             </label>
@@ -2071,10 +2246,12 @@ function SimuladorContent() {
                                             <label key={s.id} className={cn(
                                                  "group relative flex cursor-pointer items-center gap-4 rounded-md border p-5 transition-colors",
                                                  selectedPrincipal === s.id ? "border-red-700 bg-red-50" : "border-slate-200 bg-white hover:border-slate-400",
-                                                 isRecommended && selectedPrincipal !== s.id && "border-slate-300 bg-slate-50"
+                                                 isRecommended && selectedPrincipal !== s.id && "border-amber-400 bg-amber-50/40 shadow-md"
                                             )}>
                                                 {isRecommended && (
-                                                     <div className="absolute -top-3 left-4 z-10 rounded-sm border border-slate-300 bg-white px-3 py-1 text-[9px] font-bold uppercase tracking-widest text-slate-700">Recomendado</div>
+                                                     <div className="absolute -top-3.5 left-4 z-20 flex items-center gap-1.5 rounded-full bg-gradient-to-r from-amber-400 via-amber-300 to-amber-500 px-3.5 py-1 text-[10px] font-black uppercase tracking-wider text-slate-950 shadow-lg shadow-amber-500/30 border border-amber-200 animate-pulse">
+                                                         <Sparkles className="w-3.5 h-3.5 text-slate-950 shrink-0" /> ⭐ RECOMENDADO PRO
+                                                     </div>
                                                 )}
                                                 {imageUrl && (
                                                   <div className="h-20 w-24 rounded-2xl overflow-hidden border bg-white shrink-0">
@@ -2084,7 +2261,7 @@ function SimuladorContent() {
                                                 )}
                                                 <RadioGroupItem value={s.id} className="h-6 w-6"/>
                                                 <div className="flex flex-col flex-grow min-w-0">
-                                                    <span className={cn("text-sm font-black uppercase tracking-tight truncate", isRecommended ? "text-amber-900" : "text-slate-700")}>{s.nombre}</span>
+                                                    <span className={cn("text-sm font-black uppercase tracking-tight truncate", isRecommended ? "text-amber-950 font-black" : "text-slate-700")}>{s.nombre}</span>
                                                     <span className="text-[10px] font-bold text-primary uppercase tracking-widest">{formatCurrency(s.precioPorPersona || s.precioVenta)} p/p</span>
                                                 </div>
                                             </label>
@@ -2106,10 +2283,12 @@ function SimuladorContent() {
                                                 <label key={s.id} className={cn(
                                                      "group relative flex cursor-pointer items-center gap-4 rounded-md border p-5 transition-colors",
                                                      selectedInfantil === s.id ? "border-red-700 bg-red-50" : "border-slate-200 bg-white hover:border-slate-400",
-                                                     isRecommended && selectedInfantil !== s.id && "border-slate-300 bg-slate-50"
+                                                     isRecommended && selectedInfantil !== s.id && "border-amber-400 bg-amber-50/40 shadow-md"
                                                 )}>
                                                     {isRecommended && (
-                                                         <div className="absolute -top-3 left-4 z-10 rounded-sm border border-slate-300 bg-white px-3 py-1 text-[9px] font-bold uppercase tracking-widest text-slate-700">Recomendado</div>
+                                                         <div className="absolute -top-3.5 left-4 z-20 flex items-center gap-1.5 rounded-full bg-gradient-to-r from-amber-400 via-amber-300 to-amber-500 px-3.5 py-1 text-[10px] font-black uppercase tracking-wider text-slate-950 shadow-lg shadow-amber-500/30 border border-amber-200 animate-pulse">
+                                                             <Sparkles className="w-3.5 h-3.5 text-slate-950 shrink-0" /> ⭐ RECOMENDADO PRO
+                                                         </div>
                                                     )}
                                                     {imageUrl && (
                                                       <div className="h-20 w-24 rounded-2xl overflow-hidden border bg-white shrink-0">
@@ -2164,13 +2343,13 @@ function SimuladorContent() {
 
                                     return (
                                         <label key={p.id} className={cn(
-                                            "relative flex cursor-pointer flex-col gap-4 overflow-hidden rounded-md border p-6 transition-colors sm:p-8",
-                                            selectedPaqueteId === p.id ? "border-red-700 bg-red-50" : "border-slate-200 bg-white hover:border-slate-400",
-                                            p.recommended && selectedPaqueteId !== p.id && "border-slate-400 bg-slate-50"
+                                            "relative flex cursor-pointer flex-col gap-4 overflow-hidden rounded-2xl border p-6 transition-all duration-300 sm:p-8",
+                                            selectedPaqueteId === p.id ? "border-2 border-red-600 bg-red-50/90 shadow-xl" : "border-slate-200 bg-white hover:border-slate-400",
+                                            p.recommended && selectedPaqueteId !== p.id && "border-2 border-amber-400 bg-gradient-to-br from-amber-500/10 via-amber-400/5 to-white shadow-xl shadow-amber-500/20"
                                         )}>
                                             {p.recommended && (
-                                                <div className="absolute right-3 top-3 z-10 rounded-sm bg-slate-900 px-4 py-1.5 text-[8px] font-bold uppercase tracking-widest text-white sm:text-[9px]">
-                                                    Más elegido
+                                                <div className="absolute -top-3.5 right-4 z-20 flex items-center gap-1.5 rounded-full bg-gradient-to-r from-amber-400 via-amber-300 to-amber-500 px-3.5 py-1 text-[10px] font-black uppercase tracking-wider text-slate-950 shadow-lg shadow-amber-500/40 border border-amber-200 animate-pulse">
+                                                    <Sparkles className="w-3.5 h-3.5 text-slate-950 shrink-0" /> ⭐ RECOMENDADO PRO · MÁS ELEGIDO
                                                 </div>
                                             )}
                                             <div className="flex items-start justify-between">
@@ -2447,21 +2626,36 @@ function SimuladorContent() {
                             <div className="space-y-6 rounded-md border border-slate-200 bg-white p-6">
                                 <div className="space-y-4">
                                     <h4 className="font-black text-slate-800 uppercase text-xs tracking-wider flex items-center gap-2">
-                                        <Search className="w-[18px] h-[18px] text-slate-500"/> ¿Querés agregar algún servicio extra?
+                                        <Search className="w-[18px] h-[18px] text-slate-500"/> Personalizá tu fiesta con más servicios
                                     </h4>
 
                                     {tierMissingData.missingServices.length > 0 && (
-                                        <div className="rounded-2xl border border-red-200 bg-gradient-to-r from-red-50 to-amber-50 p-5 space-y-3 text-left">
-                                            <div className="flex items-center justify-between">
-                                                <span className="text-xs font-black uppercase tracking-wider text-red-700 flex items-center gap-2">
-                                                    <Sparkles className="w-4 h-4 text-red-600" />
-                                                    Adicionales del Plan {tierMissingData.nextPackageName}
-                                                </span>
-                                                <Badge className="bg-red-600 text-white font-black text-[9px] uppercase">Recomendados</Badge>
+                                        <div className="rounded-3xl border-2 border-amber-400 bg-gradient-to-r from-red-800 via-red-700 to-rose-800 p-6 text-white shadow-2xl space-y-4 text-left animate-in fade-in duration-300">
+                                            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-white/20 pb-4">
+                                                <div className="flex items-center gap-3">
+                                                    <div className="grid h-10 w-10 place-items-center rounded-2xl bg-amber-400 text-slate-950 font-black shrink-0 shadow-lg">
+                                                        <Zap className="w-6 h-6 text-slate-950 fill-slate-950 animate-bounce" />
+                                                    </div>
+                                                    <div>
+                                                        <h4 className="text-base font-black uppercase tracking-wide text-amber-300 flex items-center gap-2">
+                                                            🔥 ¡Subí tu evento al Plan {tierMissingData.nextPackageName}!
+                                                        </h4>
+                                                        <p className="text-xs text-white/90 font-semibold mt-0.5">
+                                                            Llevá tu fiesta al siguiente nivel. Agregá estos servicios clave incluidos en el paquete {tierMissingData.nextPackageName} y asegurá una experiencia inolvidable para todos tus invitados:
+                                                        </p>
+                                                    </div>
+                                                </div>
+                                                {tierMissingData.targetPackageId && (
+                                                    <Button
+                                                        type="button"
+                                                        onClick={() => handleSwitchPackage(tierMissingData.targetPackageId)}
+                                                        className="h-12 px-6 rounded-2xl bg-gradient-to-r from-amber-400 via-amber-300 to-amber-500 hover:from-amber-300 hover:to-amber-400 text-slate-950 font-black text-xs uppercase tracking-wider shadow-xl transition-all transform hover:scale-105 active:scale-95 shrink-0"
+                                                    >
+                                                        ⚡ Pasarme al Plan {tierMissingData.nextPackageName}
+                                                    </Button>
+                                                )}
                                             </div>
-                                            <p className="text-xs font-semibold text-slate-600">
-                                                Sumá a tu propuesta los servicios incluidos en el paquete superior {tierMissingData.nextPackageName}:
-                                            </p>
+
                                             <div className="grid gap-3 sm:grid-cols-2">
                                                 {tierMissingData.missingServices.map(service => {
                                                     const isSelected = stats.detallados.some(s => s.id === service.id);
@@ -2470,24 +2664,24 @@ function SimuladorContent() {
                                                         <div
                                                             key={service.id}
                                                             className={cn(
-                                                                "flex items-center justify-between gap-3 rounded-xl border p-3.5 transition-all",
-                                                                isSelected ? "border-emerald-300 bg-emerald-50" : "border-slate-200 bg-white hover:border-red-200 shadow-sm"
+                                                                "flex items-center justify-between gap-3 rounded-2xl p-4 transition-all border",
+                                                                isSelected ? "bg-emerald-500/25 border-emerald-400 text-white shadow-lg" : "bg-black/30 border-white/20 text-white hover:bg-black/40 hover:border-amber-300/50"
                                                             )}
                                                         >
                                                             <div className="min-w-0 flex-1">
-                                                                <span className="block font-bold text-xs text-slate-900 truncate">{service.nombre}</span>
-                                                                <span className="block text-[10px] text-slate-500 font-semibold mt-0.5">+{formatCurrency(calculated.total)}</span>
+                                                                <span className="block font-black text-xs text-white truncate">{service.nombre}</span>
+                                                                <span className="block text-[10px] text-amber-300 font-black mt-0.5">+{formatCurrency(calculated.total)}</span>
                                                             </div>
                                                             <Button
                                                                 type="button"
                                                                 size="sm"
                                                                 onClick={() => handleToggleServiceInBudget(service.id, isSelected ? 'exclude' : 'include')}
                                                                 className={cn(
-                                                                    "h-8 px-3 text-xs font-bold rounded-lg transition shrink-0",
-                                                                    isSelected ? "bg-emerald-600 hover:bg-emerald-700 text-white" : "bg-red-600 hover:bg-red-700 text-white"
+                                                                    "h-9 px-4 text-xs font-black rounded-xl transition shadow-md shrink-0",
+                                                                    isSelected ? "bg-emerald-500 hover:bg-emerald-600 text-slate-950" : "bg-amber-400 hover:bg-amber-300 text-slate-950"
                                                                 )}
                                                             >
-                                                                {isSelected ? 'Agregado ✓' : 'Agregar +'}
+                                                                {isSelected ? 'Agregado ✓' : 'Sumar +'}
                                                             </Button>
                                                         </div>
                                                     );
@@ -2565,40 +2759,7 @@ function SimuladorContent() {
                                     </div>
                                 </div>
 
-                                {suggestedServices.length > 0 && (
-                                    <div className="space-y-3 pt-2">
-                                        <h5 className="text-[10px] font-black uppercase tracking-widest text-slate-400 flex items-center gap-1.5 text-left">
-                                            <Sparkles className="h-3.5 w-3.5 text-slate-600" /> Mejoras disponibles para tu evento
-                                        </h5>
-                                        <div className="grid gap-3">
-                                            {suggestedServices.map(service => {
-                                                const calculated = getSimulatorServiceCalculatedData(service, adultos, ninosYAdolescentes);
-                                                return (
-                                                    <div key={service.id} className="p-4 bg-white border border-slate-200/80 rounded-2xl flex items-center justify-between gap-3 shadow-sm hover:border-slate-400 hover:shadow-md transition duration-200">
-                                                        <div className="min-w-0 flex-1 text-left">
-                                                            <span className="block font-black text-xs text-slate-800 truncate">{service.nombre}</span>
-                                                            <span className="block text-[9px] text-slate-400 font-bold uppercase tracking-wider mt-0.5">{formatCategoriaText(service.categoria)}</span>
-                                                            <span className="block text-xs font-black text-primary mt-1">{formatCurrency(calculated.total)}</span>
-                                                        </div>
-                                                        <Button
-                                                            type="button"
-                                                            onClick={() => {
-                                                                handleToggleServiceInBudget(service.id, 'include');
-                                                                toast({
-                                                                    title: "Servicio agregado",
-                                                                    description: `${service.nombre} se agregó al presupuesto.`,
-                                                                });
-                                                            }}
-                                                            className="rounded-xl bg-slate-950 hover:bg-red-700 text-white text-[9px] font-black uppercase tracking-widest px-4 py-2 h-9 transition shrink-0"
-                                                        >
-                                                            Agregar +
-                                                        </Button>
-                                                    </div>
-                                                );
-                                            })}
-                                        </div>
-                                    </div>
-                                )}
+
                             </div>
 
                             <div className="p-6 bg-white border border-slate-200 rounded-[2rem] shadow-sm space-y-4">
@@ -2718,7 +2879,7 @@ function SimuladorContent() {
                         <div className="rounded-xl border border-slate-200 bg-slate-50 p-4">
                             <h4 className="font-black text-sm text-slate-900">1. ¿Cómo solicito la reserva de mi fecha?</h4>
                             <p className="mt-1 text-xs leading-relaxed text-slate-600 font-semibold">
-                                Con una seña de $5.000 podés solicitar la reserva de la fecha y de todos los servicios incluidos. AK confirma la disponibilidad de la fecha antes de registrar el pago definitivo.
+                                Con una seña de $5.000 podés solicitar la reserva de la fecha y de todos los servicios incluidos. La reserva queda confirmada únicamente cuando AK valida la fecha, antes de registrar el pago definitivo.
                             </p>
                         </div>
 
@@ -2754,13 +2915,140 @@ function SimuladorContent() {
                     <DialogFooter className="mt-6 flex flex-col sm:flex-row gap-3">
                         <Button
                             onClick={() => setIsFaqOpen(false)}
-                            className="w-full sm:w-auto bg-slate-900 text-white font-bold rounded-xl hover:bg-slate-800"
+                            className="w-full sm:w-auto bg-emerald-700 hover:bg-emerald-800 text-white font-black rounded-xl text-xs uppercase tracking-wider h-11 px-6 shadow-md transition"
                         >
-                            Entendido, cerrar
+                            ← Volver a mi Presupuesto
                         </Button>
                     </DialogFooter>
                 </DialogContent>
             </Dialog>
+
+            {/* Dynamic Package-Specific Upgrade Prompt Modal */}
+            <Dialog open={isUpgradePromptOpen} onOpenChange={setIsUpgradePromptOpen}>
+                <DialogContent className="max-w-md rounded-3xl bg-slate-950 text-white p-6 border-2 border-amber-400 shadow-2xl">
+                    <DialogHeader className="text-left space-y-2">
+                        <div className="inline-flex items-center gap-2 rounded-full border border-amber-400/50 bg-amber-500/20 px-3.5 py-1 text-[10px] font-black uppercase tracking-widest text-amber-300 backdrop-blur-md">
+                            <Zap className="w-4 h-4 text-amber-400 fill-amber-400 animate-bounce" />
+                            ⚡ UPGRADE PARA TU {config?.paquetes?.find(p => p.id === selectedPaqueteId)?.nombre || 'PAQUETE ELEGIDO'}
+                        </div>
+                        <DialogTitle className="text-xl font-black text-white leading-tight">
+                            {tierMissingData.missingServices.length > 0
+                                ? `¿Querés sumar los extras del Plan ${tierMissingData.nextPackageName}?`
+                                : `🌟 ¡Elegiste la propuesta más completa para tu fiesta!`}
+                        </DialogTitle>
+                        <DialogDescription className="text-xs font-semibold text-slate-300 leading-relaxed">
+                            {tierMissingData.missingServices.length > 0
+                                ? `El Plan ${tierMissingData.nextPackageName} incluye servicios clave para potenciar la ambientación y diversión de tus invitados.`
+                                : `Tenés la cobertura más avanzada de AK Producciones. Podés descargar tu presupuesto oficial en PDF o coordinar con nuestro equipo por WhatsApp.`}
+                        </DialogDescription>
+                    </DialogHeader>
+
+                    {tierMissingData.missingServices.length > 0 && (
+                        <div className="my-3 space-y-2 text-left">
+                            {tierMissingData.missingServices.slice(0, 2).map(service => {
+                                const calculated = getSimulatorServiceCalculatedData(service, adultos, ninosYAdolescentes);
+                                return (
+                                    <div key={service.id} className="p-3.5 rounded-2xl border border-amber-400/40 bg-gradient-to-r from-amber-500/10 via-amber-400/5 to-transparent flex items-center justify-between text-xs">
+                                        <div className="min-w-0 flex-1 pr-2">
+                                            <span className="font-black text-white block text-xs truncate">{service.nombre}</span>
+                                            <span className="text-[10px] text-amber-300 font-bold">+{formatCurrency(calculated.total)}</span>
+                                        </div>
+                                        <Badge className="bg-amber-400 text-slate-950 font-black text-[9px] uppercase shrink-0">Incluido en {tierMissingData.nextPackageName}</Badge>
+                                    </div>
+                                );
+                            })}
+                        </div>
+                    )}
+
+                    <DialogFooter className="flex flex-col gap-2 sm:flex-col mt-2">
+                        {tierMissingData.targetPackageId ? (
+                            <Button
+                                type="button"
+                                onClick={() => {
+                                    handleSwitchPackage(tierMissingData.targetPackageId!);
+                                    setIsUpgradePromptOpen(false);
+                                    toast({
+                                        title: `Actualizado a Plan ${tierMissingData.nextPackageName}`,
+                                        description: "Se incluyeron todos los servicios adicionales del paquete superior.",
+                                    });
+                                }}
+                                className="w-full h-12 bg-gradient-to-r from-amber-400 via-amber-300 to-amber-500 hover:from-amber-300 hover:to-amber-400 text-slate-950 font-black text-xs uppercase tracking-wider rounded-2xl shadow-xl transition transform hover:scale-105"
+                            >
+                                ⚡ Pasarme al Plan {tierMissingData.nextPackageName} con 1-Click
+                            </Button>
+                        ) : (
+                            <Button
+                                type="button"
+                                onClick={() => setIsUpgradePromptOpen(false)}
+                                className="w-full h-12 bg-gradient-to-r from-emerald-500 to-emerald-600 hover:from-emerald-400 hover:to-emerald-500 text-white font-black text-xs uppercase tracking-wider rounded-2xl shadow-xl"
+                            >
+                                Ver Presupuesto Completo →
+                            </Button>
+                        )}
+                        <Button
+                            type="button"
+                            variant="ghost"
+                            onClick={() => setIsUpgradePromptOpen(false)}
+                            className="w-full text-slate-400 hover:text-white font-bold text-xs"
+                        >
+                            Mantener mi selección actual
+                        </Button>
+                    </DialogFooter>
+                </DialogContent>
+            </Dialog>
+
+            {/* Sticky Mobile Conversion Bar — Step 6 (budget generated) */}
+            {step === 6 && generatedPresupuestoId && (
+                <div className="fixed bottom-0 left-0 right-0 z-50 p-3 bg-slate-950/95 border-t-2 border-amber-400/40 backdrop-blur-xl shadow-2xl lg:hidden animate-in slide-in-from-bottom-4 duration-300">
+                    <div className="flex items-center justify-between gap-2 max-w-md mx-auto">
+                        <div className="min-w-0 flex-1 text-left">
+                            <p className="text-[10px] font-black text-emerald-400 uppercase tracking-widest truncate">✅ Presupuesto listo</p>
+                            <p className="text-xs font-black text-white truncate">{formatCurrency(stats.totalFinal)}</p>
+                        </div>
+                        <div className="flex items-center gap-2 shrink-0">
+                            <Button
+                                size="sm"
+                                variant="outline"
+                                onClick={handleDownloadBudgetPdf}
+                                disabled={isDownloadingPdf}
+                                className="h-11 px-3.5 rounded-xl border-slate-700 bg-slate-900 text-white font-black text-xs gap-1.5 shadow-md"
+                            >
+                                {isDownloadingPdf ? <Loader2 className="w-4 h-4 animate-spin" /> : <FileDown className="w-4 h-4 text-amber-400" />}
+                                <span>PDF</span>
+                            </Button>
+                            <Button
+                                size="sm"
+                                onClick={handleShareBudgetWhatsApp}
+                                className="h-11 px-4 rounded-xl bg-gradient-to-r from-emerald-600 to-emerald-500 hover:from-emerald-700 hover:to-emerald-600 text-white font-black text-xs gap-1.5 shadow-lg"
+                            >
+                                <MessageSquare className="w-4 h-4" />
+                                <span>WhatsApp</span>
+                            </Button>
+                        </div>
+                    </div>
+                </div>
+            )}
+
+            {/* Sticky Mobile Total Bar — Step 5 (reviewing budget) */}
+            {step === 5 && (
+                <div className="fixed bottom-0 left-0 right-0 z-50 p-3 bg-slate-950/95 border-t border-slate-800 backdrop-blur-xl shadow-2xl lg:hidden animate-in slide-in-from-bottom-4 duration-300">
+                    <div className="flex items-center justify-between gap-2 max-w-md mx-auto">
+                        <div className="min-w-0 flex-1 text-left">
+                            <p className="text-[10px] font-black text-amber-400 uppercase tracking-widest truncate">📋 Tu presupuesto actual</p>
+                            <p className="text-xs font-black text-white truncate">{formatCurrency(stats.totalFinal)} · {formatCurrency(stats.precioPorPersona)} p/p</p>
+                        </div>
+                        <Button
+                            size="sm"
+                            onClick={() => handleNext()}
+                            disabled={isGenerating}
+                            className="h-11 px-5 rounded-xl bg-gradient-to-r from-red-600 to-amber-500 hover:from-red-700 hover:to-amber-600 text-white font-black text-xs gap-1.5 shadow-lg shrink-0"
+                        >
+                            {isGenerating ? <Loader2 className="w-4 h-4 animate-spin" /> : <Zap className="w-4 h-4" />}
+                            <span>Generar</span>
+                        </Button>
+                    </div>
+                </div>
+            )}
         </div>
     );
 }

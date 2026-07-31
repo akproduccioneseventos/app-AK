@@ -138,14 +138,14 @@ export default function FotosVideoPortalPage() {
               <div>
                 <h3 className="font-black text-sm text-slate-900">Álbum Digital Oficial</h3>
                 <p className="text-xs text-slate-500 mt-1 leading-relaxed">
-                  Para optimizar la calidad de descarga y evitar cargos de transferencia, todo el material social se compila en tu carpeta de Google Drive / Wfolio.
+                  Para optimizar la calidad de descarga en alta resolución sin compresión, todo el material fotográfico de tu fiesta está disponible en tu galería digital oficial.
                 </p>
               </div>
             </div>
             <a href={customAlbumUrl} target="_blank" rel="noopener noreferrer" className="block">
               <Button className="w-full bg-purple-600 hover:bg-purple-700 text-white rounded-xl font-bold h-11 shadow-md">
                 <ExternalLink className="w-4 h-4 mr-2" />
-                Acceder a Google Drive / Wfolio
+                Acceder al Álbum Digital Oficial
               </Button>
             </a>
           </CardContent>

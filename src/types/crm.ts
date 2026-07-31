@@ -36,14 +36,14 @@ export interface CrmTimelineItem {
 
 export interface CrmStage {
   id: string;
-  name: string; 
-  order: number; 
+  name: string;
+  order: number;
   // Tailwind classes for styling
-  bgColor: string; 
-  borderColor: string; 
-  textColor: string; 
-  headerBgColor: string; 
-  headerTextColor: string; 
+  bgColor: string;
+  borderColor: string;
+  textColor: string;
+  headerBgColor: string;
+  headerTextColor: string;
   isConversionStage?: boolean; // Optional flag for special stages
 }
 
@@ -91,3 +91,19 @@ export interface CrmLead {
 }
 
 export type NewCrmLeadData = Omit<CrmLead, 'id' | 'createdAt' | 'updatedAt' | 'history' | 'presupuestoEstado' | 'invoiceId' >;
+
+export interface CrmAppointment {
+  id: string;
+  leadId?: string;
+  presupuestoId?: string;
+  clienteNombre: string;
+  clienteContacto: string;
+  clienteEmail?: string;
+  eventoTipo?: string;
+  fechaHora: string;
+  lugar?: string;
+  notas?: string;
+  estado: 'Agendada' | 'Confirmada' | 'Realizada' | 'Cancelada';
+  recordatorioEnviado?: boolean;
+  creadoEn: string;
+}

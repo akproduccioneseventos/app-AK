@@ -581,13 +581,13 @@ function mergeEntertainmentData(
   origin = ''
 ): EntertainmentData {
   const defaults = makeDefaultEntertainment(fiesta, origin);
-  
+
   // Migración del antiguo espejoMagico unificado a las nuevas variantes divididas
   const storedOldEspejo = (stored?.modules as any)?.[ 'espejoMagico' ];
 
   const modules = STATION_IDS.reduce((acc, stationId) => {
     let storedStation = stored?.modules?.[stationId];
-    
+
     // Si no hay datos específicos de la estación dividida, pero existía la unificada, la heredamos
     if (!storedStation && storedOldEspejo && (stationId === 'espejoMagicoFoto' || stationId === 'espejoMagicoFirma' || stationId === 'espejoMagicoIA')) {
       storedStation = {
@@ -718,7 +718,7 @@ function EntretenimientoContent() {
   const [recordingSeconds, setRecordingSeconds] = useState(0);
   const [audioBlob, setAudioBlob] = useState<Blob | null>(null);
   const [audioUrl, setAudioUrl] = useState<string | null>(null);
-  
+
   const mediaRecorderRef = useRef<MediaRecorder | null>(null);
   const recordingIntervalRef = useRef<NodeJS.Timeout | null>(null);
   const [isWelcomePlaying, setIsWelcomePlaying] = useState(false);
@@ -756,7 +756,7 @@ function EntretenimientoContent() {
       setFiesta(result.fiesta);
       setData(mergeEntertainmentData(result.data, result.fiesta, window.location.origin));
       setIsLoading(false);
-      
+
       // Cargar mensajes de buzon para capsula de tiempo
       await loadBuzonData();
     };
@@ -851,7 +851,7 @@ function EntretenimientoContent() {
 
   const uploadMedia = useCallback(async (file: File, stationId: StationId) => {
     if (!fiestaId) return;
-    
+
     // Si la estación es la Cápsula del Tiempo, subimos de forma diferente si es el audio de bienvenida
     setUploadingStation(stationId);
     const formData = new FormData();
@@ -1056,7 +1056,7 @@ function EntretenimientoContent() {
   return (
     <div className="min-h-screen bg-[#09090b] text-white px-4 py-8 sm:px-6 lg:px-8 font-sans">
       <div className="mx-auto max-w-7xl space-y-8">
-        
+
         {/* HEADER GENERAL */}
         <div className="flex flex-col gap-6 md:flex-row md:items-center md:justify-between border-b border-zinc-800/60 pb-8">
           <div className="flex items-start gap-4">
@@ -1082,7 +1082,7 @@ function EntretenimientoContent() {
               </p>
             </div>
           </div>
-          
+
           <div className="flex flex-wrap gap-3">
             <Button asChild variant="outline" className="rounded-xl border-zinc-800 bg-zinc-900/40 text-zinc-300 hover:bg-zinc-800 hover:text-white font-black">
               <Link href={`/fiestas/nueva/muro-social?fiestaId=${fiestaId}`}>
@@ -1100,7 +1100,7 @@ function EntretenimientoContent() {
         {/* SI NO HAY NINGUNA ESTACION SELECCIONADA: MOSTRAR DASHBOARD DE TARJETAS */}
         {!activeStationId ? (
           <div className="space-y-8 animate-[fadeIn_0.4s_ease-out]">
-            
+
             {/* PANEL DE PROGRESO GENERAL */}
             <Card className="border-zinc-800/80 bg-zinc-950/80 backdrop-blur-md shadow-2xl relative overflow-hidden">
               <div className="absolute top-0 right-0 h-32 w-32 bg-rose-500/10 rounded-full blur-3xl" />
@@ -1118,7 +1118,7 @@ function EntretenimientoContent() {
                     Sincronizá el checklist operativo de todas las cabinas contratadas para garantizar un evento sin fallas.
                   </p>
                 </div>
-                
+
                 <div className="grid grid-cols-2 gap-4 border-t border-zinc-800/80 pt-4 md:border-t-0 md:border-l md:pt-0 md:pl-6">
                   <div className="bg-zinc-900/40 border border-zinc-800/50 rounded-2xl p-4">
                     <Users className="h-5 w-5 text-rose-400 mb-2" />
@@ -1143,13 +1143,13 @@ function EntretenimientoContent() {
                   const meta = STATION_META[stationId];
                   const Icon = meta.icon;
                   const score = stationScore(station);
-                  const activeStyle = station.enabled 
-                    ? 'border-rose-500/40 bg-zinc-950/90 shadow-[0_0_30px_rgba(244,63,94,0.05)]' 
+                  const activeStyle = station.enabled
+                    ? 'border-rose-500/40 bg-zinc-950/90 shadow-[0_0_30px_rgba(244,63,94,0.05)]'
                     : 'border-zinc-800 bg-zinc-950/40 opacity-70';
 
                   return (
-                    <div 
-                      key={stationId} 
+                    <div
+                      key={stationId}
                       className={cn(
                         'rounded-[2rem] border p-6 flex flex-col justify-between transition-all duration-300 hover:-translate-y-1',
                         activeStyle
@@ -1165,14 +1165,14 @@ function EntretenimientoContent() {
                           </div>
                           <StatusBadge status={station.status} />
                         </div>
-                        
+
                         <div>
                           <h3 className="text-lg font-black leading-tight text-white">{meta.shortLabel}</h3>
                           <p className="text-xs text-zinc-400 mt-1 line-clamp-2 leading-relaxed">
                             {meta.description}
                           </p>
                         </div>
-                        
+
                         <div className="space-y-1">
                           <div className="flex items-center justify-between text-[10px] font-black uppercase tracking-widest text-zinc-500">
                             <span>Preparación</span>
@@ -1186,7 +1186,7 @@ function EntretenimientoContent() {
                         <div className="text-[10px] font-black uppercase text-zinc-500">
                           {station.enabled ? 'Activa' : 'Inactiva'}
                         </div>
-                        <Button 
+                        <Button
                           onClick={() => {
                             setActiveStationId(stationId);
                             setWizardStep(1);
@@ -1222,17 +1222,17 @@ function EntretenimientoContent() {
 
           </div>
         ) : (
-          
+
           /* SI HAY UNA ESTACION SELECCIONADA: MOSTRAR EL ASISTENTE PROGRESIVO (WIZARD) */
           <div className="space-y-6 animate-[fadeIn_0.3s_ease-out]">
-            
+
             {/* CABECERA DEL WIZARD */}
             <div className="flex flex-col gap-4 lg:flex-row lg:items-center lg:justify-between bg-zinc-950/90 border border-zinc-800/80 rounded-[2rem] p-6">
               <div className="flex items-center gap-4">
-                <Button 
+                <Button
                   onClick={() => setActiveStationId(null)}
-                  variant="outline" 
-                  size="icon" 
+                  variant="outline"
+                  size="icon"
                   className="rounded-xl border-zinc-800 bg-zinc-900/60 text-zinc-300 hover:bg-zinc-800"
                 >
                   <ArrowLeft className="h-4 w-4" />
@@ -1260,10 +1260,10 @@ function EntretenimientoContent() {
                       disabled
                       className={cn(
                         'flex items-center gap-1.5 rounded-full px-3 py-1.5 text-[10px] font-black uppercase tracking-wider transition-all',
-                        active 
-                          ? 'bg-rose-600 text-white font-black' 
-                          : done 
-                            ? 'bg-zinc-800 text-zinc-300 border border-zinc-700/50' 
+                        active
+                          ? 'bg-rose-600 text-white font-black'
+                          : done
+                            ? 'bg-zinc-800 text-zinc-300 border border-zinc-700/50'
                             : 'bg-zinc-900/40 text-zinc-600 border border-zinc-900'
                       )}
                     >
@@ -1279,7 +1279,7 @@ function EntretenimientoContent() {
 
             {/* CONTENIDO DEL PASO ACTIVO */}
             <div className="bg-zinc-950/60 border border-zinc-800/40 rounded-[2rem] p-6 lg:p-8 min-h-[400px]">
-              
+
               {/* PASO 1: DATOS OPERATIVOS */}
               {wizardStep === 1 && (
                 <div className="space-y-8 animate-[fadeIn_0.2s_ease-out]">
@@ -1296,18 +1296,18 @@ function EntretenimientoContent() {
                       <Label className="text-zinc-400 text-xs font-black uppercase tracking-widest">Estado de Módulo</Label>
                       <div className="flex items-center justify-between mt-4">
                         <span className="text-sm font-bold text-white">{activeStation.enabled ? 'Habilitado' : 'Deshabilitado'}</span>
-                        <Switch 
-                          checked={activeStation.enabled} 
-                          onCheckedChange={(enabled) => updateStation(activeStationId, { enabled })} 
+                        <Switch
+                          checked={activeStation.enabled}
+                          onCheckedChange={(enabled) => updateStation(activeStationId, { enabled })}
                         />
                       </div>
                     </div>
 
                     <div className="space-y-2">
                       <Label className="text-xs font-black uppercase tracking-widest text-zinc-400">Responsable / Operador</Label>
-                      <Input 
-                        value={activeStation.operatorName} 
-                        onChange={(e) => updateStation(activeStationId, { operatorName: e.target.value })} 
+                      <Input
+                        value={activeStation.operatorName}
+                        onChange={(e) => updateStation(activeStationId, { operatorName: e.target.value })}
                         placeholder="Nombre del personal AK"
                         className="bg-zinc-900/40 border-zinc-800 text-white rounded-xl"
                       />
@@ -1315,9 +1315,9 @@ function EntretenimientoContent() {
 
                     <div className="space-y-2">
                       <Label className="text-xs font-black uppercase tracking-widest text-zinc-400">Ubicación en Salón</Label>
-                      <Input 
-                        value={activeStation.location} 
-                        onChange={(e) => updateStation(activeStationId, { location: e.target.value })} 
+                      <Input
+                        value={activeStation.location}
+                        onChange={(e) => updateStation(activeStationId, { location: e.target.value })}
                         placeholder="Ej: Entrada, Pista de Baile"
                         className="bg-zinc-900/40 border-zinc-800 text-white rounded-xl"
                       />
@@ -1325,9 +1325,9 @@ function EntretenimientoContent() {
 
                     <div className="space-y-2">
                       <Label className="text-xs font-black uppercase tracking-widest text-zinc-400">Hora Programada Inicio</Label>
-                      <Input 
-                        value={activeStation.startTime} 
-                        onChange={(e) => updateStation(activeStationId, { startTime: e.target.value })} 
+                      <Input
+                        value={activeStation.startTime}
+                        onChange={(e) => updateStation(activeStationId, { startTime: e.target.value })}
                         placeholder="Ej: 22:30"
                         className="bg-zinc-900/40 border-zinc-800 text-white rounded-xl"
                       />
@@ -1346,8 +1346,8 @@ function EntretenimientoContent() {
                             onClick={() => updateStation(activeStationId, { status })}
                             className={cn(
                               'rounded-2xl border p-4 text-left transition-all duration-200',
-                              active 
-                                ? 'border-rose-500 bg-rose-950/20 text-white shadow-xl' 
+                              active
+                                ? 'border-rose-500 bg-rose-950/20 text-white shadow-xl'
                                 : 'border-zinc-800/80 bg-zinc-900/20 text-zinc-400 hover:border-zinc-700 hover:text-white'
                             )}
                           >
@@ -1407,8 +1407,8 @@ function EntretenimientoContent() {
                               onClick={() => updateStation(activeStationId, templatePresetToPatch(activeStation, preset))}
                               className={cn(
                                 'rounded-[1.5rem] border p-5 text-left transition-all duration-200 hover:-translate-y-0.5',
-                                active 
-                                  ? 'border-rose-500 bg-rose-950/20 text-white shadow-xl' 
+                                active
+                                  ? 'border-rose-500 bg-rose-950/20 text-white shadow-xl'
                                   : 'border-zinc-800 bg-zinc-900/20 text-zinc-400 hover:border-zinc-700'
                               )}
                             >
@@ -1439,33 +1439,33 @@ function EntretenimientoContent() {
                       <div className="space-y-3">
                         <div className="space-y-2">
                           <Label className="text-xs text-zinc-400 font-bold">Título del Evento (Brand Text)</Label>
-                          <Input 
-                            value={activeStation.brandText} 
-                            onChange={(e) => updateStation(activeStationId, { brandText: e.target.value })} 
+                          <Input
+                            value={activeStation.brandText}
+                            onChange={(e) => updateStation(activeStationId, { brandText: e.target.value })}
                             className="bg-zinc-900/40 border-zinc-800 text-white rounded-xl"
                           />
                         </div>
                         <div className="space-y-2">
                           <Label className="text-xs text-zinc-400 font-bold">Pie de Impresión / Copyright</Label>
-                          <Input 
-                            value={activeStation.footerText} 
-                            onChange={(e) => updateStation(activeStationId, { footerText: e.target.value })} 
+                          <Input
+                            value={activeStation.footerText}
+                            onChange={(e) => updateStation(activeStationId, { footerText: e.target.value })}
                             className="bg-zinc-900/40 border-zinc-800 text-white rounded-xl"
                           />
                         </div>
                         <div className="space-y-2">
                           <Label className="text-xs text-zinc-400 font-bold">Llamado al QR de Descarga</Label>
-                          <Input 
-                            value={activeStation.qrCallout} 
-                            onChange={(e) => updateStation(activeStationId, { qrCallout: e.target.value })} 
+                          <Input
+                            value={activeStation.qrCallout}
+                            onChange={(e) => updateStation(activeStationId, { qrCallout: e.target.value })}
                             className="bg-zinc-900/40 border-zinc-800 text-white rounded-xl"
                           />
                         </div>
                         <div className="space-y-2">
                           <Label className="text-xs text-zinc-400 font-bold">Overlay / Nombre del Marco</Label>
-                          <Input 
-                            value={activeStation.overlayName} 
-                            onChange={(e) => updateStation(activeStationId, { overlayName: e.target.value })} 
+                          <Input
+                            value={activeStation.overlayName}
+                            onChange={(e) => updateStation(activeStationId, { overlayName: e.target.value })}
                             className="bg-zinc-900/40 border-zinc-800 text-white rounded-xl"
                           />
                         </div>
@@ -1474,7 +1474,7 @@ function EntretenimientoContent() {
 
                     <div className="space-y-4">
                       <h4 className="text-sm font-black uppercase tracking-wider text-zinc-300">Canales y Modos de Captura</h4>
-                      
+
                       {activeStationId !== 'capsulaTiempo' && (
                         <div className="space-y-3">
                           <Label className="text-xs text-zinc-400 font-bold">Modos de Captura Habilitados</Label>
@@ -1488,8 +1488,8 @@ function EntretenimientoContent() {
                                   onClick={() => toggleArrayValue(activeStationId, 'captureModes', mode)}
                                   className={cn(
                                     'rounded-full border px-4 py-2 text-xs font-black uppercase tracking-widest transition-all',
-                                    active 
-                                      ? 'border-rose-500 bg-rose-500/10 text-rose-400' 
+                                    active
+                                      ? 'border-rose-500 bg-rose-500/10 text-rose-400'
                                       : 'border-zinc-800 bg-zinc-900/40 text-zinc-500 hover:border-zinc-700'
                                   )}
                                 >
@@ -1514,8 +1514,8 @@ function EntretenimientoContent() {
                                 onClick={() => toggleArrayValue(activeStationId, 'deliveryChannels', channel.id)}
                                 className={cn(
                                   'flex items-center gap-2 rounded-xl border p-3 text-xs font-black uppercase tracking-widest transition-all',
-                                  active 
-                                    ? 'border-rose-500 bg-rose-500/10 text-rose-400' 
+                                  active
+                                    ? 'border-rose-500 bg-rose-500/10 text-rose-400'
                                     : 'border-zinc-800 bg-zinc-900/40 text-zinc-500 hover:border-zinc-700'
                                 )}
                               >
@@ -1530,26 +1530,26 @@ function EntretenimientoContent() {
                       <div className="grid gap-4 sm:grid-cols-2">
                         <div className="space-y-2">
                           <Label className="text-xs text-zinc-400 font-bold">Copias de Impresión</Label>
-                          <Input 
+                          <Input
                             type="number"
                             min={0}
-                            value={activeStation.printCopies} 
-                            onChange={(e) => updateStation(activeStationId, { printCopies: Number(e.target.value) || 0 })} 
+                            value={activeStation.printCopies}
+                            onChange={(e) => updateStation(activeStationId, { printCopies: Number(e.target.value) || 0 })}
                             className="bg-zinc-900/40 border-zinc-800 text-white rounded-xl"
                           />
                         </div>
                         <div className="space-y-2">
                           <Label className="text-xs text-zinc-400 font-bold">Color Acento</Label>
                           <div className="flex gap-2">
-                            <Input 
+                            <Input
                               type="color"
-                              value={activeStation.accentColor} 
-                              onChange={(e) => updateStation(activeStationId, { accentColor: e.target.value })} 
+                              value={activeStation.accentColor}
+                              onChange={(e) => updateStation(activeStationId, { accentColor: e.target.value })}
                               className="h-10 w-12 bg-zinc-900/40 border-zinc-800 text-white rounded-xl p-1 shrink-0 cursor-pointer"
                             />
-                            <Input 
-                              value={activeStation.accentColor} 
-                              onChange={(e) => updateStation(activeStationId, { accentColor: e.target.value })} 
+                            <Input
+                              value={activeStation.accentColor}
+                              onChange={(e) => updateStation(activeStationId, { accentColor: e.target.value })}
                               className="bg-zinc-900/40 border-zinc-800 text-white rounded-xl"
                             />
                           </div>
@@ -1634,18 +1634,18 @@ function EntretenimientoContent() {
                     <div className="grid gap-4 md:grid-cols-2">
                       <div className="space-y-2">
                         <Label className="text-xs text-zinc-400 font-bold">Mensaje a Compartir (WhatsApp/Mail)</Label>
-                        <Textarea 
-                          value={activeStation.shareMessage} 
-                          onChange={(e) => updateStation(activeStationId, { shareMessage: e.target.value })} 
+                        <Textarea
+                          value={activeStation.shareMessage}
+                          onChange={(e) => updateStation(activeStationId, { shareMessage: e.target.value })}
                           rows={3}
                           className="bg-zinc-900/40 border-zinc-800 text-white rounded-xl"
                         />
                       </div>
                       <div className="space-y-2">
                         <Label className="text-xs text-zinc-400 font-bold">Plan B Operativo (Falla técnica)</Label>
-                        <Textarea 
-                          value={activeStation.backupPlan} 
-                          onChange={(e) => updateStation(activeStationId, { backupPlan: e.target.value })} 
+                        <Textarea
+                          value={activeStation.backupPlan}
+                          onChange={(e) => updateStation(activeStationId, { backupPlan: e.target.value })}
                           rows={3}
                           className="bg-zinc-900/40 border-zinc-800 text-white rounded-xl"
                         />
@@ -1671,8 +1671,8 @@ function EntretenimientoContent() {
                       <span>Tareas completadas</span>
                       <span>{activeStation.checklist.filter(i => i.done).length} de {activeStation.checklist.length}</span>
                     </div>
-                    <Progress 
-                      value={activeStation.checklist.length ? (activeStation.checklist.filter(i => i.done).length / activeStation.checklist.length) * 100 : 0} 
+                    <Progress
+                      value={activeStation.checklist.length ? (activeStation.checklist.filter(i => i.done).length / activeStation.checklist.length) * 100 : 0}
                       className="h-2 bg-zinc-900"
                     />
 
@@ -1684,15 +1684,15 @@ function EntretenimientoContent() {
                           onClick={() => toggleChecklist(activeStationId, item.id)}
                           className={cn(
                             'flex w-full items-center gap-4 rounded-2xl border p-4 text-left transition-all duration-200',
-                            item.done 
-                              ? 'border-emerald-500/30 bg-emerald-950/10 text-emerald-300' 
+                            item.done
+                              ? 'border-emerald-500/30 bg-emerald-950/10 text-emerald-300'
                               : 'border-zinc-800 bg-zinc-900/20 text-zinc-400 hover:border-zinc-700'
                           )}
                         >
                           <span className={cn(
                             'flex h-7 w-7 items-center justify-center rounded-full border shrink-0',
-                            item.done 
-                              ? 'border-emerald-500 bg-emerald-500/20 text-emerald-400' 
+                            item.done
+                              ? 'border-emerald-500 bg-emerald-500/20 text-emerald-400'
                               : 'border-zinc-700 bg-zinc-950 text-zinc-600'
                           )}>
                             <CheckCircle2 className="h-4 w-4" />
@@ -1717,14 +1717,14 @@ function EntretenimientoContent() {
                   </div>
 
                   <div className="grid gap-8 lg:grid-cols-[1.2fr_0.8fr]">
-                    
+
                     {/* PANEL IZQUIERDO: CONTROLES / BUZÓN DE RECUERDOS SI ES CÁPSULA DEL TIEMPO */}
                     <div className="space-y-6">
-                      
+
                       {/* SI ES LA CÁPSULA DEL TIEMPO, RENDERIZAMOS LA INTERFAZ DE CONFIGURACIÓN DEL BUZÓN */}
                       {activeStationId === 'capsulaTiempo' ? (
                         <div className="space-y-6">
-                          
+
                           {/* SALUDO DE BIENVENIDA DEL ANFITRIÓN */}
                           <Card className="border-zinc-800 bg-zinc-900/30">
                             <CardHeader>
@@ -1737,7 +1737,7 @@ function EntretenimientoContent() {
                               </CardDescription>
                             </CardHeader>
                             <CardContent className="space-y-4">
-                              
+
                               {/* Estado del audio actual */}
                               {fiesta?.buzonConfig?.welcomeAudioUrl ? (
                                 <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 bg-zinc-950/80 border border-zinc-800/80 rounded-2xl p-4">
@@ -1752,19 +1752,19 @@ function EntretenimientoContent() {
                                   </div>
 
                                   <div className="flex items-center gap-2">
-                                    <Button 
+                                    <Button
                                       onClick={toggleWelcomePlay}
-                                      variant="outline" 
-                                      size="sm" 
+                                      variant="outline"
+                                      size="sm"
                                       className="rounded-xl border-zinc-800 bg-zinc-900 text-xs font-bold"
                                     >
                                       {isWelcomePlaying ? <Pause className="h-3.5 w-3.5 mr-1" /> : <Play className="h-3.5 w-3.5 mr-1" />}
                                       {isWelcomePlaying ? 'Pausar' : 'Escuchar'}
                                     </Button>
-                                    <Button 
+                                    <Button
                                       onClick={handleDeleteWelcome}
-                                      variant="destructive" 
-                                      size="sm" 
+                                      variant="destructive"
+                                      size="sm"
                                       className="rounded-xl text-xs font-bold"
                                     >
                                       <Trash2 className="h-3.5 w-3.5" />
@@ -1783,7 +1783,7 @@ function EntretenimientoContent() {
                                 <div className="bg-zinc-950/80 border border-zinc-800/60 rounded-2xl p-4 flex flex-col items-center justify-center text-center space-y-3">
                                   <Mic className="h-6 w-6 text-rose-400" />
                                   <p className="text-xs font-bold">Grabar desde micrófono</p>
-                                  
+
                                   {isRecording ? (
                                     <div className="flex flex-col items-center gap-2">
                                       <span className="text-xs font-black text-rose-500 animate-pulse uppercase">Grabando... {recordingSeconds}s</span>
@@ -1813,10 +1813,10 @@ function EntretenimientoContent() {
                                   <label className="cursor-pointer inline-flex items-center justify-center bg-zinc-900 hover:bg-zinc-800 border border-zinc-800 rounded-xl px-4 py-2 text-xs font-bold text-zinc-300">
                                     {isWelcomeSaving ? <Loader2 className="h-3 w-3 animate-spin mr-1" /> : <Upload className="h-3 w-3 mr-1.5" />}
                                     Seleccionar
-                                    <input 
-                                      type="file" 
-                                      accept="audio/*" 
-                                      className="hidden" 
+                                    <input
+                                      type="file"
+                                      accept="audio/*"
+                                      className="hidden"
                                       disabled={isWelcomeSaving}
                                       onChange={async (e) => {
                                         const file = e.target.files?.[0];
@@ -1877,29 +1877,29 @@ function EntretenimientoContent() {
 
                                     <div className="flex items-center gap-2">
                                       {msg.mediaType === 'audio' ? (
-                                        <Button 
+                                        <Button
                                           onClick={() => handlePlayMessage(msg)}
-                                          variant="outline" 
-                                          size="sm" 
+                                          variant="outline"
+                                          size="sm"
                                           className="rounded-lg text-[10px] font-bold"
                                         >
                                           {playingMsgId === msg.id ? <Pause className="h-3 w-3 mr-1" /> : <Play className="h-3 w-3 mr-1" />}
                                           {playingMsgId === msg.id ? 'Pausar' : 'Escuchar'}
                                         </Button>
                                       ) : (
-                                        <Button 
+                                        <Button
                                           asChild
-                                          variant="outline" 
-                                          size="sm" 
+                                          variant="outline"
+                                          size="sm"
                                           className="rounded-lg text-[10px] font-bold"
                                         >
                                           <a href={msg.mediaUrl} target="_blank" rel="noopener noreferrer">Ver Video</a>
                                         </Button>
                                       )}
-                                      <Button 
+                                      <Button
                                         onClick={() => handleDeleteMessage(msg.id)}
-                                        variant="ghost" 
-                                        size="sm" 
+                                        variant="ghost"
+                                        size="sm"
                                         className="text-rose-500 hover:text-rose-400 hover:bg-rose-950/20 rounded-lg"
                                         disabled={isDeletingMsg === msg.id}
                                       >
@@ -1914,7 +1914,7 @@ function EntretenimientoContent() {
 
                         </div>
                       ) : (
-                        
+
                         /* SI NO ES CÁPSULA DEL TIEMPO, MOSTRAMOS LA SUBIDA DE ARCHIVOS DE PRUEBA Y GUION */
                         <div className="space-y-6">
                           <Card className="border-zinc-800 bg-zinc-900/30">
@@ -1981,18 +1981,18 @@ function EntretenimientoContent() {
                           <div className="grid gap-4 md:grid-cols-2">
                             <div className="space-y-2">
                               <Label className="text-xs font-black uppercase tracking-widest text-zinc-400">Guion del Operador</Label>
-                              <Textarea 
-                                value={activeStation.script} 
-                                onChange={(e) => updateStation(activeStationId, { script: e.target.value })} 
+                              <Textarea
+                                value={activeStation.script}
+                                onChange={(e) => updateStation(activeStationId, { script: e.target.value })}
                                 rows={3}
                                 className="bg-zinc-900/40 border-zinc-800 text-white rounded-xl text-xs"
                               />
                             </div>
                             <div className="space-y-2">
                               <Label className="text-xs font-black uppercase tracking-widest text-zinc-400">Notas de Montaje Técnico</Label>
-                              <Textarea 
-                                value={activeStation.notes} 
-                                onChange={(e) => updateStation(activeStationId, { notes: e.target.value })} 
+                              <Textarea
+                                value={activeStation.notes}
+                                onChange={(e) => updateStation(activeStationId, { notes: e.target.value })}
                                 rows={3}
                                 placeholder="Ej: llevar trípode de repuesto, asegurar wifi, probar sensor."
                                 className="bg-zinc-900/40 border-zinc-800 text-white rounded-xl text-xs"
@@ -2001,12 +2001,12 @@ function EntretenimientoContent() {
                           </div>
                         </div>
                       )}
-                      
+
                     </div>
 
                     {/* PANEL DERECHO: QR DE ACCESO Y ENLACES DE OPERACIÓN */}
                     <div className="space-y-6">
-                      
+
                       {/* CARTEL DE QR DE LA ESTACIÓN */}
                       <Card className="overflow-hidden border-zinc-800 bg-zinc-950/80 text-white flex flex-col items-center p-6 text-center">
                         <div className="mb-4 flex items-center justify-between w-full border-b border-zinc-900 pb-3">
@@ -2018,9 +2018,9 @@ function EntretenimientoContent() {
                         </div>
 
                         <div className="rounded-3xl bg-white p-5 shadow-2xl shadow-rose-500/5 my-3">
-                          <QRCodeSVG 
+                          <QRCodeSVG
                             value={`${origin}${getGuestLaunchLink(activeStationId)}`}
-                            size={180} 
+                            size={180}
                           />
                         </div>
 
@@ -2043,15 +2043,15 @@ function EntretenimientoContent() {
                           <p className="text-xs text-zinc-400 leading-relaxed">
                             Copiá o abrí estos enlaces en el dispositivo operativo (tablet, celular o notebook del operador) para iniciar el funcionamiento interactivo.
                           </p>
-                          
+
                           <div className="grid gap-2 sm:grid-cols-2">
-                            <Button 
-                              asChild 
+                            <Button
+                              asChild
                               className="w-full rounded-xl bg-rose-600 hover:bg-rose-500 text-white font-black text-xs uppercase tracking-wider shadow-[0_0_15px_rgba(225,29,72,0.15)]"
                             >
-                              <a 
+                              <a
                                 href={getGuestLaunchLink(activeStationId)}
-                                target="_blank" 
+                                target="_blank"
                                 rel="noopener noreferrer"
                               >
                                 <ExternalLink className="mr-2 h-4 w-4" />
@@ -2070,12 +2070,12 @@ function EntretenimientoContent() {
                                 </a>
                               </Button>
                             )}
-                            <Button 
+                            <Button
                               onClick={() => {
                                 navigator.clipboard.writeText(`${origin}${getGuestLaunchLink(activeStationId)}`);
                                 toast({ title: 'Enlace de invitado copiado.' });
                               }}
-                              variant="outline" 
+                              variant="outline"
                               className="w-full rounded-xl border-zinc-800 bg-zinc-900/60 text-zinc-300 hover:bg-zinc-800 text-xs font-black uppercase tracking-wider"
                             >
                               Copiar Invitado
@@ -2106,7 +2106,7 @@ function EntretenimientoContent() {
 
             {/* BOTONES DE NAVEGACIÓN DEL WIZARD */}
             <div className="flex items-center justify-between bg-zinc-950/90 border border-zinc-800/80 rounded-[2rem] p-6">
-              <Button 
+              <Button
                 onClick={() => {
                   if (wizardStep === 1) {
                     setActiveStationId(null);
@@ -2114,14 +2114,14 @@ function EntretenimientoContent() {
                     setWizardStep(prev => prev - 1);
                   }
                 }}
-                variant="outline" 
+                variant="outline"
                 className="rounded-xl border-zinc-800 bg-zinc-900/60 text-zinc-300 hover:bg-zinc-800 hover:text-white font-black text-xs uppercase tracking-wider"
               >
                 <ChevronLeft className="h-4 w-4 mr-1.5" />
                 {wizardStep === 1 ? 'Dashboard' : 'Anterior'}
               </Button>
 
-              <Button 
+              <Button
                 onClick={() => {
                   if (wizardStep === 4) {
                     saveNow();

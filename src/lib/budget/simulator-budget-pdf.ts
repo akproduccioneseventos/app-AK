@@ -88,6 +88,24 @@ function writeRightAligned(
   pdf.text(text, x, y, { align: "right" });
 }
 
+async function loadLogoBase64(): Promise<string | null> {
+  try {
+    if (typeof window !== "undefined") {
+      const response = await fetch("/logo_ak_producciones.png");
+      const blob = await response.blob();
+      return new Promise<string | null>((resolve) => {
+        const reader = new FileReader();
+        reader.onloadend = () => resolve(reader.result as string);
+        reader.onerror = () => resolve(null);
+        reader.readAsDataURL(blob);
+      });
+    }
+  } catch (e) {
+    console.warn("Could not load logo image for PDF", e);
+  }
+  return null;
+}
+
 export async function createSimulatorBudgetPdf(
   input: SimulatorBudgetPdfInput,
 ) {
@@ -98,6 +116,7 @@ export async function createSimulatorBudgetPdf(
     format: "a4",
     compress: true,
   });
+  const logoDataUrl = await loadLogoBase64();
   const model = buildSimulatorBudgetPdfModel(input);
   const marginX = 15;
   const contentWidth = 180;
@@ -108,18 +127,51 @@ export async function createSimulatorBudgetPdf(
   const renderBrandHeader = (continuation = false) => {
     pdf.setFillColor(185, 28, 28);
     pdf.rect(0, 0, 210, 5, "F");
-    pdf.setTextColor(15, 23, 42);
-    pdf.setFont("helvetica", "bold");
-    pdf.setFontSize(continuation ? 12 : 17);
-    pdf.text("AK PRODUCCIONES", marginX, continuation ? 16 : 18);
-    pdf.setFont("helvetica", "normal");
-    pdf.setFontSize(8);
-    pdf.setTextColor(100, 116, 139);
-    pdf.text(
-      continuation ? "Presupuesto - continuación" : "FIESTAS Y EVENTOS",
-      marginX,
-      continuation ? 21 : 23,
-    );
+
+    if (logoDataUrl) {
+      try {
+        pdf.addImage(logoDataUrl, "PNG", marginX, 6, 22, 18);
+        pdf.setTextColor(15, 23, 42);
+        pdf.setFont("helvetica", "bold");
+        pdf.setFontSize(continuation ? 11 : 15);
+        pdf.text("AK PRODUCCIONES", marginX + 25, continuation ? 14 : 16);
+        pdf.setFont("helvetica", "normal");
+        pdf.setFontSize(8);
+        pdf.setTextColor(100, 116, 139);
+        pdf.text(
+          continuation ? "Presupuesto - continuación" : "FIESTAS Y EVENTOS",
+          marginX + 25,
+          continuation ? 19 : 21,
+        );
+      } catch {
+        pdf.setTextColor(15, 23, 42);
+        pdf.setFont("helvetica", "bold");
+        pdf.setFontSize(continuation ? 12 : 17);
+        pdf.text("AK PRODUCCIONES", marginX, continuation ? 16 : 18);
+        pdf.setFont("helvetica", "normal");
+        pdf.setFontSize(8);
+        pdf.setTextColor(100, 116, 139);
+        pdf.text(
+          continuation ? "Presupuesto - continuación" : "FIESTAS Y EVENTOS",
+          marginX,
+          continuation ? 21 : 23,
+        );
+      }
+    } else {
+      pdf.setTextColor(15, 23, 42);
+      pdf.setFont("helvetica", "bold");
+      pdf.setFontSize(continuation ? 12 : 17);
+      pdf.text("AK PRODUCCIONES", marginX, continuation ? 16 : 18);
+      pdf.setFont("helvetica", "normal");
+      pdf.setFontSize(8);
+      pdf.setTextColor(100, 116, 139);
+      pdf.text(
+        continuation ? "Presupuesto - continuación" : "FIESTAS Y EVENTOS",
+        marginX,
+        continuation ? 21 : 23,
+      );
+    }
+
     writeRightAligned(pdf, `Ref. ${input.documentId}`, 195, 16);
     y = continuation ? 29 : 31;
   };
@@ -337,32 +389,18 @@ export async function createSimulatorBudgetPdf(
     y += 28;
   }
 
-  // 15-Minute Promo Urgency Box in PDF
-  ensureSpace(32);
-  pdf.setFillColor(254, 242, 242);
-  pdf.setDrawColor(239, 68, 68);
-  pdf.roundedRect(marginX, y, contentWidth, 30, 1.5, 1.5, "FD");
-  pdf.setFont("helvetica", "bold");
-  pdf.setFontSize(8.5);
-  pdf.setTextColor(185, 28, 28);
-  pdf.text("ASEGURÁ TU PROMOCIÓN ANTES DE QUE TERMINE EL TIEMPO", marginX + 4, y + 6);
-  pdf.setFont("helvetica", "normal");
-  pdf.setFontSize(7.2);
-  pdf.setTextColor(30, 41, 59);
-  pdf.text("Aprovecha estos 15 minutos para mantener la promocion y los descuentos incluidos en tu presupuesto.", marginX + 4, y + 11);
-  pdf.text("Coordina una entrevista sin costo con AK Producciones, contanos como imaginas tu fiesta y recibi asesoramiento", marginX + 4, y + 16);
-  pdf.text("para elegir la fecha, los servicios y la mejor opcion para tu presupuesto.", marginX + 4, y + 21);
-  pdf.setFont("helvetica", "bold");
-  pdf.setTextColor(185, 28, 28);
-  pdf.text("Comunicate ahora y me empeza a organizar tu fiesta completa con todo resuelto en un solo lugar.", marginX + 4, y + 26);
-  y += 34;
-
+  const configuredTerms = input.bookingTerms?.trim()
+    || "Confirmá tu evento con una seña de solo $5.000 y la firma del contrato.";
   const termsText = [
-    "Confirmá tu evento con una seña de solo $5.000 y la firma del contrato. La fecha se reserva para la primera persona que complete ambos pasos.",
-    "El presupuesto tiene una validez de 30 días, manteniendo durante ese período el precio promocional y todos los regalos incluidos.",
-    "Los valores corresponden a eventos realizados en 2026. Para fechas desde 2027 se aplicará un ajuste acumulativo del 15% por cada año adicional.",
-    "No dejes pasar tu fecha: firmá el contrato, aboná la seña y empezá a preparar tu fiesta con AK Producciones."
-  ].join("\n");
+    configuredTerms,
+    /30\s+d[ií]as/i.test(configuredTerms)
+      ? ""
+      : "El presupuesto tiene una validez de 30 días, manteniendo durante ese período el precio promocional y todos los regalos incluidos.",
+    input.stats.annualProjection.applies
+      ? `El precio principal corresponde a ${input.stats.annualProjection.currentYear}. Para fechas desde ${input.stats.annualProjection.currentYear + 1} se aplica un ajuste acumulativo del ${input.stats.annualProjection.adjustmentPct}% por cada año adicional.`
+      : `Los valores corresponden a eventos realizados en ${input.stats.annualProjection.currentYear}.`,
+    "La fecha se reserva cuando AK Producciones confirma la disponibilidad, recibe la seña y se firma el contrato.",
+  ].filter(Boolean).join("\n");
 
   const termLines = pdf.splitTextToSize(termsText, 169) as string[];
   const termsHeight = Math.max(30, 12 + termLines.length * 4.5);

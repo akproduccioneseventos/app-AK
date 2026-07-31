@@ -208,23 +208,26 @@ export async function getPublicBudgetsByPhone(rawPhone: string): Promise<{
 
     let matchingBudgets: any[] = [];
 
-    // 1. Try querying Firestore if available
-    try {
-      const { dbAdmin } = await import('@/lib/firebase/server');
-      if (dbAdmin) {
-        const snapshot = await dbAdmin
-          .collection('presupuestos')
-          .where('clienteContacto', '==', phone)
-          .orderBy('timestamp', 'desc')
-          .limit(20)
-          .get();
-        
-        snapshot.forEach((doc) => {
-          matchingBudgets.push(doc.data());
-        });
+    // 1. Try querying Firestore if available. Local-only mode must never wait
+    // for credentials before using the deterministic JSON test data.
+    if (process.env.AK_USE_LOCAL_JSON_ONLY !== 'true') {
+      try {
+        const { dbAdmin } = await import('@/lib/firebase/server');
+        if (dbAdmin) {
+          const snapshot = await dbAdmin
+            .collection('presupuestos')
+            .where('clienteContacto', '==', phone)
+            .orderBy('timestamp', 'desc')
+            .limit(20)
+            .get();
+
+          snapshot.forEach((doc) => {
+            matchingBudgets.push(doc.data());
+          });
+        }
+      } catch (firebaseError) {
+        console.warn('[getPublicBudgetsByPhone] Firestore query failed, falling back to JSON file:', firebaseError);
       }
-    } catch (firebaseError) {
-      console.warn('[getPublicBudgetsByPhone] Firestore query failed, falling back to JSON file:', firebaseError);
     }
 
     // 2. If no budgets fetched from Firestore (or failed), fallback to reading local JSON

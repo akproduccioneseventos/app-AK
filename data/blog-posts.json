@@ -9,6 +9,10 @@
     "accent": "from-amber-600 to-amber-955",
     "icon": "CupSoda",
     "takeaway": "El promedio ideal es 1.5 litros de bebida sin alcohol por persona, y para la barra, calcular de 3 a 4 tragos promedio por adulto.",
+    "image": {
+      "url": "/media/catalogo-servicios/blog_bebidas.png",
+      "alt": "Barra de bebidas y tragos para eventos en Salto"
+    },
     "sections": [
       {
         "heading": "El factor clima en Salto y el perfil de tus invitados",
@@ -50,6 +54,10 @@
     "accent": "from-orange-600 to-red-955",
     "icon": "Utensils",
     "takeaway": "Las islas temáticas ganan por goleada en dinamismo y variedad, pero el plato servido sigue siendo el rey de la elegancia formal.",
+    "image": {
+      "url": "/media/catalogo-servicios/catering-mesa-ak-01.jpeg",
+      "alt": "Catering y estaciones de comida gourmet AK"
+    },
     "sections": [
       {
         "heading": "La cena formal: Sentados y bien atendidos",
@@ -91,6 +99,10 @@
     "accent": "from-purple-600 to-indigo-955",
     "icon": "Tv",
     "takeaway": "La iluminación perimetral, las pantallas LED de alta definición y el show control sincronizado definen la energía de la fiesta.",
+    "image": {
+      "url": "/media/catalogo-servicios/blog_iluminacion.png",
+      "alt": "Iluminación robotizada y pantallas LED para eventos"
+    },
     "sections": [
       {
         "heading": "Pantallas LED de alta definición en cabina de DJ",
@@ -132,6 +144,10 @@
     "accent": "from-rose-600 to-rose-955",
     "icon": "Heart",
     "takeaway": "Organizar con tiempo te permite congelar precios de proveedores clave y evitar el estrés del último mes.",
+    "image": {
+      "url": "/media/catalogo-servicios/boda_persuasiva.png",
+      "alt": "Organización completa de bodas y matrimonios en Uruguay"
+    },
     "sections": [
       {
         "heading": "De 12 a 9 meses antes: La base de todo",
@@ -173,6 +189,10 @@
     "accent": "from-cyan-600 to-cyan-955",
     "icon": "Plane",
     "takeaway": "La fiesta celebra con toda la familia y amigos en una noche única, mientras que el viaje es una experiencia de independencia grupal.",
+    "image": {
+      "url": "/media/catalogo-servicios/quinceanera_persuasiva.png",
+      alt: "Fiesta de XV años memorable en Salto"
+    },
     "sections": [
       {
         "heading": "La magia de la noche única",

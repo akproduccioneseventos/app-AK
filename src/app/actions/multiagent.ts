@@ -1,11 +1,11 @@
 'use server';
 
-import { runMultiAgent } from '@/ai/flows/multiagent-flow';
 import { saveAgentLearning, listAgentMemoryProfiles } from '@/lib/multiagent/memory-store';
 import { appendMultiAgentChatTurn, listMultiAgentChatSessions } from '@/lib/multiagent/chat-store';
 import { buildMultiAgentTeamBriefing, summarizeDiagnosticsForLearning } from '@/lib/multiagent/diagnostics';
 import { getFiestaById, saveFiesta } from '@/app/actions/fiesta/fiesta.actions';
 import { createNotification } from '@/lib/notifications/create-notification';
+import { verifySession } from '@/lib/auth/session-token';
 import type { Tarea } from '@/types/fiesta';
 import type { AkAgentChatSession, AkAgentType, AkMultiAgentMessage, AkMultiAgentOutput, AkPersistentMultiAgentOutput } from '@/types/multiagent';
 
@@ -19,7 +19,20 @@ export async function sendMultiAgentMessage(
     imageDataUri?: string;
   }
 ): Promise<AkMultiAgentOutput> {
+  const session = await verifySession();
+  if (!session.success) {
+    return {
+      success: false,
+      response: 'Inicia sesion para usar el Multiagente AK.',
+      agentType: options?.agentType ?? 'central',
+      agentName: 'Multiagente AK',
+      action: { type: 'none' },
+      error: 'No autorizado',
+    };
+  }
+
   try {
+    const { runMultiAgent } = await import('@/ai/flows/multiagent-flow');
     return await runMultiAgent({
       message,
       history,

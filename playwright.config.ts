@@ -4,6 +4,13 @@ const port = Number(process.env.PLAYWRIGHT_PORT || 3100);
 const externalBaseUrl = process.env.PLAYWRIGHT_BASE_URL?.replace(/\/$/, '');
 const baseURL = externalBaseUrl || `http://127.0.0.1:${port}`;
 
+// Allows running against a Chromium already present in the machine or container
+// (CI images, sandboxes) instead of forcing a Playwright browser download.
+const chromiumExecutablePath = process.env.PLAYWRIGHT_CHROMIUM_EXECUTABLE_PATH;
+const chromiumLaunchOverride = chromiumExecutablePath
+  ? { launchOptions: { executablePath: chromiumExecutablePath } }
+  : {};
+
 const testEnvironment = {
   GOOGLE_API_KEY: 'dummy',
   GEMINI_API_KEY: 'dummy',
@@ -42,11 +49,11 @@ export default defineConfig({
   projects: [
     {
       name: 'chromium-desktop',
-      use: { ...devices['Desktop Chrome'] },
+      use: { ...devices['Desktop Chrome'], ...chromiumLaunchOverride },
     },
     {
       name: 'chromium-mobile',
-      use: { ...devices['Pixel 7'] },
+      use: { ...devices['Pixel 7'], ...chromiumLaunchOverride },
     },
   ],
   webServer: externalBaseUrl
