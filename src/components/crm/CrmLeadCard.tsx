@@ -203,13 +203,13 @@ export const CrmLeadCard = memo(function CrmLeadCard({ lead, onDeleteLead, isDel
                           variant="outline"
                           className={cn(
                             "text-[9px] h-4 px-1 font-bold",
-                            lead.leadTemperature === 'hot' && "bg-red-50 text-red-700 border-red-200",
-                            lead.leadTemperature === 'warm' && "bg-amber-50 text-amber-700 border-amber-200",
-                            lead.leadTemperature === 'cold' && "bg-slate-50 text-slate-600 border-slate-200"
+                            (lead.leadTemperature === 'caliente' || lead.leadTemperature === 'urgente' || (lead.leadTemperature as string) === 'hot') && "bg-red-50 text-red-700 border-red-200",
+                            (lead.leadTemperature === 'tibio' || (lead.leadTemperature as string) === 'warm') && "bg-amber-50 text-amber-700 border-amber-200",
+                            (lead.leadTemperature === 'frio' || (lead.leadTemperature as string) === 'cold') && "bg-slate-50 text-slate-600 border-slate-200"
                           )}
                           title={`Temperatura comercial: ${lead.leadTemperature}`}
                         >
-                          {lead.leadTemperature === 'hot' ? '🔥 Alta' : lead.leadTemperature === 'warm' ? '⚡ Media' : '❄️ Baja'}
+                          {(lead.leadTemperature === 'caliente' || lead.leadTemperature === 'urgente' || (lead.leadTemperature as string) === 'hot') ? '🔥 Alta' : (lead.leadTemperature === 'tibio' || (lead.leadTemperature as string) === 'warm') ? '⚡ Media' : '❄️ Baja'}
                         </Badge>
                       )}
                       <Badge variant="outline" className={cn("text-[10px] h-4 px-1 font-bold", budgetSource.className)}>
