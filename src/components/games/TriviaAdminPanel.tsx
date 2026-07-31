@@ -13,8 +13,8 @@ interface Props {
 }
 
 export default function TriviaAdminPanel({ fiestaId }: Props) {
-  const [questions, setQuestions] = useState<TriviaQuestion[]>(DEFAULT_TRIVIA_QUESTIONS);
-  const [missions, setMissions] = useState<PhotoMission[]>(DEFAULT_PHOTO_MISSIONS);
+  const [questions, setQuestions] = useState<TriviaQuestion[]>([]);
+  const [missions, setMissions] = useState<PhotoMission[]>([]);
   const [status, setStatus] = useState<'draft' | 'active' | 'finished'>('draft');
 
   const handleSaveTrivia = () => {

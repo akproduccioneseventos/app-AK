@@ -203,6 +203,7 @@ function GuestPortalContent() {
   const [loadError, setLoadError] = useState<string | null>(null);
   const [showQuiosco, setShowQuiosco] = useState(false);
   const [isInteractive, setIsInteractive] = useState(false);
+  const [isGiftModalOpen, setIsGiftModalOpen] = useState(false);
 
   useEffect(() => {
     setIsInteractive(true);

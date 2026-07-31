@@ -100,69 +100,16 @@ export async function getMetaAdsSummary(inputLeadsCount = 18, inputRevenueUsd = 
     }
   }
 
-  // Datos representativos de negocio para demostración comercial inmediata
-  const mockCampaigns: MetaAdCampaign[] = [
-    {
-      id: 'camp-15-anos',
-      name: 'Fiestas de 15 años - Salto & Región',
-      objective: 'LEAD_GENERATION',
-      status: 'ACTIVE',
-      spendUsd: 140,
-      impressions: 18500,
-      clicks: 920,
-      ctrPct: 4.97,
-      cplUsd: 4.37,
-      leadsCount: 32,
-      conversionsCount: 3,
-      revenueUsd: 8700,
-      roasRatio: 62.1,
-    },
-    {
-      id: 'camp-bodas-gala',
-      name: 'Bodas de Gala & Casamientos 2026',
-      objective: 'CONVERSIONS',
-      status: 'ACTIVE',
-      spendUsd: 180,
-      impressions: 14200,
-      clicks: 610,
-      ctrPct: 4.3,
-      cplUsd: 12.0,
-      leadsCount: 15,
-      conversionsCount: 2,
-      revenueUsd: 9600,
-      roasRatio: 53.3,
-    },
-    {
-      id: 'camp-cumpleanos-sociales',
-      name: 'Cumpleaños de Adultos & Eventos Sociales',
-      objective: 'MESSAGES',
-      status: 'ACTIVE',
-      spendUsd: 85,
-      impressions: 11100,
-      clicks: 480,
-      ctrPct: 4.32,
-      cplUsd: 4.25,
-      leadsCount: 20,
-      conversionsCount: 2,
-      revenueUsd: 4200,
-      roasRatio: 49.4,
-    },
-  ];
-
-  const totalSpend = mockCampaigns.reduce((acc, c) => acc + c.spendUsd, 0);
-  const totalLeads = mockCampaigns.reduce((acc, c) => acc + c.leadsCount, 0);
-  const totalConversions = mockCampaigns.reduce((acc, c) => acc + c.conversionsCount, 0);
-  const totalRevenue = mockCampaigns.reduce((acc, c) => acc + c.revenueUsd, 0);
-
+  // Si no hay token o falló la API, retornar cero en lugar de datos de prueba falsos
   return {
-    totalSpendUsd: totalSpend,
-    totalLeads,
-    totalConversions,
-    totalRevenueUsd: totalRevenue,
-    averageCplUsd: Number((totalSpend / totalLeads).toFixed(2)),
-    overallRoas: Number((totalRevenue / totalSpend).toFixed(1)),
-    activeCampaignsCount: mockCampaigns.length,
-    campaigns: mockCampaigns,
+    totalSpendUsd: 0,
+    totalLeads: 0,
+    totalConversions: 0,
+    totalRevenueUsd: 0,
+    averageCplUsd: 0,
+    overallRoas: 0,
+    activeCampaignsCount: 0,
+    campaigns: [],
   };
 }
 
@@ -207,6 +154,13 @@ export function generateMetaCommercialAIRecommendations(summary: MetaAdsSummary)
 /**
  * Envía un evento a Meta Conversions API (CAPI) desde el servidor
  */
+import crypto from 'crypto';
+
+function hashData(data?: string): string[] | undefined {
+  if (!data) return undefined;
+  return [crypto.createHash('sha256').update(data).digest('hex')];
+}
+
 export async function trackMetaConversionEvent(payload: {
   eventName: 'Lead' | 'Contact' | 'Schedule' | 'InitiateCheckout';
   email?: string;
@@ -218,7 +172,7 @@ export async function trackMetaConversionEvent(payload: {
   const accessToken = process.env.META_ADS_ACCESS_TOKEN;
 
   if (!pixelId || !accessToken) {
-    return { success: true }; // Modo desarrollo sin credenciales explícitas
+    return { success: false, error: 'Meta credenciales no configuradas.' };
   }
 
   try {
@@ -230,8 +184,8 @@ export async function trackMetaConversionEvent(payload: {
           event_time: Math.floor(Date.now() / 1000),
           action_source: 'website',
           user_data: {
-            em: payload.email ? [payload.email.trim().toLowerCase()] : undefined,
-            ph: payload.phone ? [payload.phone.replace(/\D/g, '')] : undefined,
+            em: hashData(payload.email?.trim().toLowerCase()),
+            ph: hashData(payload.phone?.replace(/\D/g, '')),
           },
           custom_data: {
             currency: 'USD',

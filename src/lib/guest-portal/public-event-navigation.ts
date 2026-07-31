@@ -98,8 +98,5 @@ export function buildPublicEventTools({
       href: accessiblePath("barra"),
     });
   }
-
-  }
-
   return tools;
 }

@@ -1,4 +1,4 @@
-﻿'use client';
+'use client';
 
 import { Star, MapPin, ExternalLink, CheckCircle2 } from 'lucide-react';
 import { Card, CardContent } from '@/components/ui/card';
@@ -9,7 +9,7 @@ export function GoogleBusinessProfileWidget() {
       <CardContent className="p-6 space-y-4">
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-2">
-            <span className="text-xl">ðŸ“</span>
+            <span className="text-xl">📍</span>
             <div>
               <p className="font-black text-base text-amber-300">AK Producciones Eventos</p>
               <p className="text-xs text-slate-400 flex items-center gap-1">

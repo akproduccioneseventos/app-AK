@@ -23,7 +23,7 @@ export function RsvpReminderPanel({ fiestaId }: RsvpReminderPanelProps) {
         const result = await getRsvpReminderPreview(fiestaId);
         setData(result);
       } catch (error) {
-        console.error('Error fetching RSVP preview', error);
+        // Silenciosamente ignorado en prod para evitar fuga de logs.
       } finally {
         setLoading(false);
       }

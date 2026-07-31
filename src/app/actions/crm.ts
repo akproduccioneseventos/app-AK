@@ -124,6 +124,8 @@ function toTitleCase(name: string): string {
 }
 
 export async function getCrmStages(): Promise<CrmStage[]> {
+  const auth = await verifySession();
+  if (!auth.success) throw new Error('No autorizado');
   const stages = await readData<CrmStage[]>(STAGES_FILE, DEFAULT_CRM_STAGES);
   return stages.length > 0 ? stages : DEFAULT_CRM_STAGES;
 }
@@ -431,6 +433,9 @@ export async function registerContractDeposit(params: {
   // TODO(Fase 3): accept metodoPago from form when the booking flow collects it.
   metodoPago?: MetodoPago;
 }): Promise<{ updatedPresupuesto: Presupuesto; pagoId: string }> {
+  const auth = await verifySession();
+  if (!auth.success) throw new Error('No autorizado');
+
   const { presupuesto, monto, referencia, metodoPago } = params;
   const paymentValidation = validatePaymentAgainstBudget(presupuesto, monto, { includePendingForLimit: true });
   if (!paymentValidation.ok) {
@@ -946,10 +951,10 @@ export async function saveLead(data: LandingLeadData): Promise<{ success: boolea
   try {
     const phone = normalizeUruguayPhone(data.telefono);
     if (data.nombre.trim().length < 3) {
-      return { success: false, error: 'Ingresa un nombre valido.' };
+      return { success: false, error: 'Ingresa un nombre válido.' };
     }
     if (!/^09\d{7}$/.test(phone)) {
-      return { success: false, error: 'Ingresa un celular uruguayo valido.' };
+      return { success: false, error: 'Ingresa un celular uruguayo válido.' };
     }
     await enforcePublicRateLimit({
       scope: 'landing-lead',
