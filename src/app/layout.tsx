@@ -1,4 +1,4 @@
-import type { Metadata, Viewport } from 'next';
+﻿import type { Metadata, Viewport } from 'next';
 import './globals.css';
 import './ak-global-premium.css';
 import './ak-public-experience.css';
@@ -58,7 +58,7 @@ export const viewport: Viewport = {
 
 export const metadata: Metadata = {
   title: 'AK Producciones',
-  description: 'Plataforma integral para la planificación y gestión de eventos de AK Producciones.',
+  description: 'Plataforma integral para la planificaciÃ³n y gestiÃ³n de eventos de AK Producciones.',
   manifest: '/manifest.webmanifest',
   appleWebApp: {
     capable: true,
@@ -73,6 +73,8 @@ export const metadata: Metadata = {
   },
 };
 
+import { GoogleAnalytics } from '@/components/google-analytics';
+
 export default function RootLayout({
   children,
 }: Readonly<{
@@ -83,6 +85,7 @@ export default function RootLayout({
       <head>
       </head>
       <body className="ak-motion-system font-body antialiased">
+        <GoogleAnalytics />
         <DeploymentRecovery />
         {children}
         <Toaster />
