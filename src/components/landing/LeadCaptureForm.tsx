@@ -6,7 +6,6 @@ import { MessageSquare, Send, Loader2, Check } from 'lucide-react';
 import { saveLead, type LandingLeadData } from '@/app/actions/crm';
 import { cn } from '@/lib/utils';
 import { commercialAttributionFromSearchParams } from '@/lib/commercial/acquisition';
-import type { CommercialSource } from '@/lib/commercial/acquisition';
 import { AK_WHATSAPP_NUMBER } from '@/lib/public-contact';
 
 interface LeadCaptureFormProps {
@@ -37,6 +36,7 @@ export function LeadCaptureForm({
   const [loading, setLoading] = useState(false);
   const [sent, setSent] = useState(false);
   const [error, setError] = useState('');
+  const [whatsappUrl, setWhatsappUrl] = useState('');
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -46,15 +46,8 @@ export function LeadCaptureForm({
     }
     setError('');
     setLoading(true);
-    const fallbackSource: CommercialSource = fuente === 'promo-widget'
-      ? 'campaign'
-      : fuente === 'landing-bodas'
-        ? 'landing_bodas'
-        : fuente === 'landing-xv'
-          ? 'landing_xv'
-          : fuente === 'landing-eventos'
-            ? 'landing_eventos'
-            : fuente;
+
+    const parsedInvitados = form.invitados ? parseInt(form.invitados, 10) : undefined;
 
     const data: LandingLeadData = {
       nombre: form.nombre.trim(),
@@ -62,11 +55,11 @@ export function LeadCaptureForm({
       email: form.email.trim() || undefined,
       tipoEvento: form.tipoEvento || undefined,
       fechaEstimada: form.fechaEstimada || undefined,
-      invitados: form.invitados ? parseInt(form.invitados) : undefined,
+      invitados: Number.isNaN(parsedInvitados) ? undefined : parsedInvitados,
       mensaje: form.mensaje.trim() || undefined,
       fuente,
       acquisition: {
-        ...commercialAttributionFromSearchParams(searchParams, fallbackSource),
+        ...commercialAttributionFromSearchParams(searchParams, 'landing'),
         entryPath: window.location.pathname,
       },
     };
@@ -76,8 +69,6 @@ export function LeadCaptureForm({
       setLoading(false);
 
       if (res.success) {
-        setSent(true);
-        // Open WhatsApp with pre-filled message
         const parts = [
           `Hola AK Producciones! 👋`,
           `Mi nombre es *${data.nombre}*.`,
@@ -88,16 +79,20 @@ export function LeadCaptureForm({
           `\n¡Me gustaría cotizar mi evento!`,
         ].filter(Boolean).join('\n');
 
-        setTimeout(() => {
-          window.open(
-            `https://wa.me/${whatsappNumber}?text=${encodeURIComponent(parts)}`,
-            '_blank'
-          );
-        }, 500);
+        const waUrl = `https://wa.me/${whatsappNumber}?text=${encodeURIComponent(parts)}`;
+        setWhatsappUrl(waUrl);
+        setSent(true);
+
+        // Intentar abrir WhatsApp automáticamente (puede ser bloqueado por el navegador)
+        try {
+          window.open(waUrl, '_blank');
+        } catch {
+          // Si el navegador lo bloquea, el usuario tiene el botón manual abajo
+        }
       } else {
         setError(res.error || 'Error al enviar. Intentá de nuevo.');
       }
-    } catch (err: any) {
+    } catch {
       setLoading(false);
       setError('Error de conexión. Verificá tu internet e intentá de nuevo.');
     }
@@ -110,15 +105,32 @@ export function LeadCaptureForm({
           <Check className="w-8 h-8 text-green-600" />
         </div>
         <h3 className="text-xl font-black text-slate-900 mb-2">¡Gracias!</h3>
-        <p className="text-slate-600 text-sm mb-4">
-          Recibimos tu consulta. Te abrimos WhatsApp para que podamos continuar la conversación.
+        <p className="text-slate-600 text-sm mb-5">
+          Recibimos tu consulta. Continuá la conversación por WhatsApp para coordinar tu evento.
         </p>
-        <button
-          onClick={() => setSent(false)}
-          className="text-xs text-slate-400 hover:text-slate-600 underline transition-colors"
-        >
-          Enviar otra consulta
-        </button>
+        {whatsappUrl && (
+          <a
+            href={whatsappUrl}
+            target="_blank"
+            rel="noopener noreferrer"
+            className={cn(
+              'inline-flex items-center justify-center gap-2 rounded-lg px-6 py-3',
+              'bg-green-600 hover:bg-green-700 text-white font-bold text-sm',
+              'transition-all duration-200 shadow-lg shadow-green-600/20',
+            )}
+          >
+            <MessageSquare className="w-4 h-4" />
+            Abrir WhatsApp
+          </a>
+        )}
+        <div className="mt-4">
+          <button
+            onClick={() => { setSent(false); setWhatsappUrl(''); }}
+            className="text-xs text-slate-400 hover:text-slate-600 underline transition-colors"
+          >
+            Enviar otra consulta
+          </button>
+        </div>
       </div>
     );
   }
@@ -130,50 +142,57 @@ export function LeadCaptureForm({
         <p className="text-slate-500 text-sm">{subtitle}</p>
       </div>
 
-      <form onSubmit={handleSubmit} className="space-y-4">
+      <form onSubmit={handleSubmit} className="space-y-4" noValidate>
         <div className="grid grid-cols-2 gap-4">
           <div className="col-span-2 sm:col-span-1">
-            <label className="block text-xs font-bold text-slate-700 uppercase tracking-widest mb-1">
+            <label htmlFor="lead-nombre" className="block text-xs font-bold text-slate-700 uppercase tracking-widest mb-1">
               Nombre *
             </label>
             <input
+              id="lead-nombre"
               type="text"
               value={form.nombre}
               onChange={(e) => setForm({ ...form, nombre: e.target.value })}
               className={cn(
-                'w-full px-4 py-3 rounded-lg border border-zinc-300 text-sm',
+                'w-full px-4 py-3 rounded-lg border text-sm',
                 'focus:outline-none focus:ring-2 focus:ring-red-500 focus:border-transparent',
-                'transition-all placeholder:text-slate-400'
+                'transition-all placeholder:text-slate-400',
+                error && !form.nombre.trim() ? 'border-red-400' : 'border-zinc-300'
               )}
               placeholder="Tu nombre"
-              required
+              autoComplete="name"
+              aria-required="true"
             />
           </div>
           <div className="col-span-2 sm:col-span-1">
-            <label className="block text-xs font-bold text-slate-700 uppercase tracking-widest mb-1">
+            <label htmlFor="lead-telefono" className="block text-xs font-bold text-slate-700 uppercase tracking-widest mb-1">
               WhatsApp / Teléfono *
             </label>
             <input
+              id="lead-telefono"
               type="tel"
               value={form.telefono}
               onChange={(e) => setForm({ ...form, telefono: e.target.value })}
               className={cn(
-                'w-full px-4 py-3 rounded-lg border border-zinc-300 text-sm',
+                'w-full px-4 py-3 rounded-lg border text-sm',
                 'focus:outline-none focus:ring-2 focus:ring-red-500 focus:border-transparent',
-                'transition-all placeholder:text-slate-400'
+                'transition-all placeholder:text-slate-400',
+                error && !form.telefono.trim() ? 'border-red-400' : 'border-zinc-300'
               )}
               placeholder="099 123 456"
-              required
+              autoComplete="tel"
+              aria-required="true"
             />
           </div>
         </div>
 
         <div className="grid grid-cols-2 gap-4">
           <div>
-            <label className="block text-xs font-bold text-slate-700 uppercase tracking-widest mb-1">
+            <label htmlFor="lead-fecha" className="block text-xs font-bold text-slate-700 uppercase tracking-widest mb-1">
               Fecha estimada
             </label>
             <input
+              id="lead-fecha"
               type="date"
               value={form.fechaEstimada}
               onChange={(e) => setForm({ ...form, fechaEstimada: e.target.value })}
@@ -185,10 +204,11 @@ export function LeadCaptureForm({
             />
           </div>
           <div>
-            <label className="block text-xs font-bold text-slate-700 uppercase tracking-widest mb-1">
+            <label htmlFor="lead-invitados" className="block text-xs font-bold text-slate-700 uppercase tracking-widest mb-1">
               Invitados estimados
             </label>
             <input
+              id="lead-invitados"
               type="number"
               value={form.invitados}
               onChange={(e) => setForm({ ...form, invitados: e.target.value })}
@@ -199,15 +219,17 @@ export function LeadCaptureForm({
               )}
               placeholder="Ej: 150"
               min="1"
+              inputMode="numeric"
             />
           </div>
         </div>
 
         <div>
-          <label className="block text-xs font-bold text-slate-700 uppercase tracking-widest mb-1">
+          <label htmlFor="lead-email" className="block text-xs font-bold text-slate-700 uppercase tracking-widest mb-1">
             Email (opcional)
           </label>
           <input
+            id="lead-email"
             type="email"
             value={form.email}
             onChange={(e) => setForm({ ...form, email: e.target.value })}
@@ -217,14 +239,16 @@ export function LeadCaptureForm({
               'transition-all placeholder:text-slate-400'
             )}
             placeholder="tu@email.com"
+            autoComplete="email"
           />
         </div>
 
         <div>
-          <label className="block text-xs font-bold text-slate-700 uppercase tracking-widest mb-1">
+          <label htmlFor="lead-mensaje" className="block text-xs font-bold text-slate-700 uppercase tracking-widest mb-1">
             ¿Algo que quieras contarnos?
           </label>
           <textarea
+            id="lead-mensaje"
             value={form.mensaje}
             onChange={(e) => setForm({ ...form, mensaje: e.target.value })}
             rows={3}
@@ -238,7 +262,7 @@ export function LeadCaptureForm({
         </div>
 
         {error && (
-          <p className="text-red-500 text-sm">{error}</p>
+          <p className="text-red-500 text-sm" role="alert">{error}</p>
         )}
 
         <button
@@ -259,6 +283,10 @@ export function LeadCaptureForm({
             <><Send className="w-5 h-5" />Enviar Consulta</>
           )}
         </button>
+
+        <div className="flex items-center justify-center gap-1.5 text-[11px] text-slate-400">
+          <span>🔒 Tus datos están 100% seguros. Sin compromiso ni spam.</span>
+        </div>
 
         <p className="text-center text-xs text-slate-400">
           También podés escribirnos directo por{' '}

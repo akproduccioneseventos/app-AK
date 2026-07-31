@@ -938,7 +938,7 @@ export interface LandingLeadData {
   fechaEstimada?: string;
   invitados?: number;
   mensaje?: string;
-  fuente: CommercialSource | 'promo-widget' | 'landing-bodas' | 'landing-xv' | 'landing-eventos';
+  fuente: CommercialSource | 'promo-widget' | 'landing-bodas' | 'landing-xv' | 'landing-eventos' | 'landing-quince' | 'landing-cumpleanos';
   acquisition?: CommercialAttribution;
 }
 
@@ -961,9 +961,9 @@ export async function saveLead(data: LandingLeadData): Promise<{ success: boolea
       ? 'campaign'
       : data.fuente === 'landing-bodas'
         ? 'landing_bodas'
-        : data.fuente === 'landing-xv'
+        : (data.fuente === 'landing-xv' || data.fuente === 'landing-quince')
           ? 'landing_xv'
-          : data.fuente === 'landing-eventos'
+          : (data.fuente === 'landing-eventos' || data.fuente === 'landing-cumpleanos')
             ? 'landing_eventos'
             : data.fuente;
     const acquisition = sanitizeCommercialAttribution({
@@ -987,6 +987,20 @@ export async function saveLead(data: LandingLeadData): Promise<{ success: boolea
       marketingConsent: true,
       marketingConsentSource: 'formulario-landing',
     });
+
+    // Disparo asíncrono de evento de conversión CAPI a Meta Ads para optimizar algoritmo
+    try {
+      const { trackMetaConversionEvent } = await import('@/lib/marketing/meta-ads');
+      void trackMetaConversionEvent({
+        eventName: 'Lead',
+        email: data.email,
+        phone,
+        source: data.fuente,
+      });
+    } catch {
+      // Ignorar si falla el rastreo CAPI
+    }
+
     return { success: true };
   } catch (error: any) {
     return { success: false, error: error.message };

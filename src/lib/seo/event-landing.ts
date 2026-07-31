@@ -3,7 +3,7 @@ import type { Metadata } from 'next';
 const SITE_URL = 'https://akproducciones.uy';
 
 export interface EventLandingSeoInput {
-  slug: 'bodas' | 'xv-anos' | 'eventos';
+  slug: 'bodas' | 'xv-anos' | 'eventos' | 'quinceaneras' | 'cumpleanos';
   title: string;
   description: string;
   image: string;
@@ -17,7 +17,7 @@ export function createEventLandingMetadata({
   image,
   imageAlt,
 }: EventLandingSeoInput): Metadata {
-  const path = `/landing/${slug}`;
+  const path = `/${slug}`;
   const url = new URL(path, SITE_URL).toString();
 
   return {
