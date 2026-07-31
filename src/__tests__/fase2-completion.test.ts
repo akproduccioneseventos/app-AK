@@ -53,6 +53,13 @@ jest.mock('@/lib/auth/require-session', () => ({
   requireAppSession: jest.fn().mockResolvedValue(undefined),
 }));
 
+// `registerContractDeposit` valida la sesion con `verifySession`, que lee la
+// cookie de la peticion y no existe fuera de una. Estas pruebas verifican el
+// calculo del saldo, no el permiso, asi que se da la sesion por valida.
+jest.mock('@/lib/auth/session-token', () => ({
+  verifySession: jest.fn().mockResolvedValue({ success: true }),
+}));
+
 // ─── Mock customers ───────────────────────────────────────────────────────────
 jest.mock('@/app/actions/customers', () => ({
   saveCustomer: jest.fn().mockResolvedValue({ success: true, id: 'cust_test_1' }),

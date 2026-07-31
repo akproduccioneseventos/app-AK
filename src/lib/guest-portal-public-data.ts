@@ -49,6 +49,8 @@ export interface PublicGuestEvent {
     rsvpActivo?: boolean;
   };
   invitacionSlug?: string;
+  /** Mesa de regalos configurada en la invitacion digital, si la hay. */
+  regalos?: import('@/types/fiesta').InvitacionDigitalRegalos;
   programa: PublicGuestProgramItem[];
   menuMesa?: {
     entrada?: string;
@@ -134,6 +136,7 @@ export function buildPublicGuestEvent(
         }
       : undefined,
     invitacionSlug: fiesta.invitacionSlug,
+    regalos: invitation?.regalos,
     programa: (fiesta.programa || [])
       .filter((item) => item.visibleParaCliente !== false)
       .map((item) => ({

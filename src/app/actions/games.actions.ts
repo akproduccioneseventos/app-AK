@@ -1,15 +1,21 @@
 'use server';
 
-import { getFiestaById, updateFiestaById } from '@/app/actions/fiesta-actual';
+import { getFiestaById, saveFiesta } from '@/app/actions/fiesta-actual';
 import { TriviaGame, PhotoMission } from '@/lib/games/game-engine';
-import { requireAppSession } from '@/lib/auth';
+import { requireAppSession } from '@/lib/auth/require-session';
 
+/**
+ * No existe un `updateFiestaById` parcial: la fiesta se guarda entera con
+ * `saveFiesta`, asi que se parte de la fiesta ya leida y se reemplaza solo el
+ * campo correspondiente.
+ */
 export async function saveTriviaGame(fiestaId: string, game: TriviaGame): Promise<boolean> {
   await requireAppSession();
   const fiesta = await getFiestaById(fiestaId);
   if (!fiesta) throw new Error('Fiesta no encontrada');
-  
-  await updateFiestaById(fiestaId, { triviaGame: game });
+
+  const result = await saveFiesta({ ...fiesta, triviaGame: game });
+  if (!result?.success) throw new Error(result?.error || 'No se pudo guardar el juego.');
   return true;
 }
 
@@ -23,8 +29,9 @@ export async function savePhotoMissions(fiestaId: string, missions: PhotoMission
   await requireAppSession();
   const fiesta = await getFiestaById(fiestaId);
   if (!fiesta) throw new Error('Fiesta no encontrada');
-  
-  await updateFiestaById(fiestaId, { photoMissions: missions });
+
+  const result = await saveFiesta({ ...fiesta, photoMissions: missions });
+  if (!result?.success) throw new Error(result?.error || 'No se pudieron guardar las misiones.');
   return true;
 }
 

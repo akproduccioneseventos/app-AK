@@ -111,7 +111,16 @@ export function RsvpReminderPanel({ fiestaId }: RsvpReminderPanelProps) {
       </CardContent>
 
       <CardFooter className="bg-slate-50 border-t flex justify-end p-4">
-        <Button className="bg-emerald-600 hover:bg-emerald-700 text-white">
+        {/* El envio masivo todavia no esta implementado: el boton estaba
+            habilitado pero sin accion, con lo que parecia que los mensajes
+            salian y en realidad no pasaba nada. Se deja visible y deshabilitado
+            hasta que exista el envio. Mientras tanto, cada mensaje de la lista
+            se puede mandar de a uno. */}
+        <Button
+          className="bg-emerald-600 hover:bg-emerald-700 text-white"
+          disabled
+          title="El envío masivo todavía no está disponible. Enviá los mensajes de a uno desde la lista."
+        >
           <ExternalLink className="h-4 w-4 mr-2" />
           Enviar a Todos los Pendientes
         </Button>

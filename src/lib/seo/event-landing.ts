@@ -17,7 +17,9 @@ export function createEventLandingMetadata({
   image,
   imageAlt,
 }: EventLandingSeoInput): Metadata {
-  const path = `/${slug}`;
+  // Estas paginas viven bajo `/landing/<slug>`; sin el prefijo, la direccion
+  // canonica que se le declara a los buscadores apunta a una URL inexistente.
+  const path = `/landing/${slug}`;
   const url = new URL(path, SITE_URL).toString();
 
   return {

@@ -33,7 +33,13 @@ describe('API route authentication boundary', () => {
   it('classifies every API route as protected or deliberately public', () => {
     const unclassified = listRoutes(API_ROOT).filter((route) => {
       if (PUBLIC_ROUTES.has(route)) return false;
-      return !/requireAppSession|hasAppSession|verifySession|CRON_SECRET/.test(read(route));
+      // Las rutas pensadas para consumo automatico (Looker Studio, panel de
+      // marketing) no usan la sesion del navegador: validan una clave
+      // compartida contra su variable de entorno y responden 401. Se listan por
+      // nombre a proposito, para que una ruta nueva sin proteccion siga fallando.
+      return !/requireAppSession|hasAppSession|verifySession|CRON_SECRET|LOOKER_STUDIO_TOKEN|MARKETING_API_SECRET_KEY/.test(
+        read(route),
+      );
     });
 
     expect(unclassified).toEqual([]);
