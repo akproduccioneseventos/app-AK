@@ -1,0 +1,184 @@
+import Link from 'next/link';
+import {
+  ArrowLeft,
+  Camera,
+  ExternalLink,
+  Martini,
+  MonitorPlay,
+  Music4,
+  QrCode,
+  ScanFace,
+  ShieldCheck,
+  Images,
+  Search,
+  Users,
+} from 'lucide-react';
+import { getFiestaById } from '@/app/actions/fiesta-actual';
+import { buildAk100Readiness } from '@/lib/ak-100/ak-100-readiness';
+import { Button } from '@/components/ui/button';
+import { Card, CardContent } from '@/components/ui/card';
+
+/**
+ * Centro de Fiesta: una sola pantalla para dirigir la noche.
+ *
+ * Reemplaza en la practica a los tableros que se enlazaban entre si sin llevar
+ * a las herramientas reales del evento. Aca cada boton abre algo que se usa
+ * durante la fiesta, agrupado por donde ocurre: lo que se proyecta, donde juega
+ * la gente, y lo que maneja el organizador.
+ *
+ * Pensado para usarse desde el celular, de pie y con poca luz: botones grandes,
+ * texto corto y contraste alto.
+ */
+
+type PageProps = { params: Promise<{ id: string }> };
+
+type Herramienta = {
+  titulo: string;
+  detalle: string;
+  ruta: string;
+  icono: typeof Camera;
+};
+
+type Bloque = {
+  titulo: string;
+  bajada: string;
+  acento: string;
+  herramientas: Herramienta[];
+};
+
+function construirBloques(fiestaId: string): Bloque[] {
+  const e = (tool: string) => `/evento/${tool}/${encodeURIComponent(fiestaId)}`;
+  return [
+    {
+      titulo: 'En las pantallas del salón',
+      bajada: 'Lo que ve todo el mundo. Abrilo en la pantalla o el proyector.',
+      acento: 'text-violet-700 bg-violet-50 border-violet-100',
+      herramientas: [
+        { titulo: 'Muro en vivo', detalle: 'Las fotos de los invitados, en vivo', ruta: e('muro-en-vivo'), icono: MonitorPlay },
+        { titulo: 'Galería', detalle: 'Repaso de todas las fotos del evento', ruta: e('galeria'), icono: Images },
+      ],
+    },
+    {
+      titulo: 'Estaciones para los invitados',
+      bajada: 'Cada una se abre en su propia tablet o pantalla.',
+      acento: 'text-rose-700 bg-rose-50 border-rose-100',
+      herramientas: [
+        { titulo: 'Fotocabina', detalle: 'Fotos con marco del evento', ruta: e('fotocabina'), icono: Camera },
+        { titulo: 'Espejo mágico', detalle: 'Espejo interactivo', ruta: e('espejo-magico'), icono: ScanFace },
+        { titulo: 'Plataforma 360', detalle: 'Video giratorio', ruta: e('plataforma-360'), icono: MonitorPlay },
+        { titulo: 'Barra', detalle: 'Pedidos y carta de tragos', ruta: e('barra'), icono: Martini },
+      ],
+    },
+    {
+      titulo: 'Lo que manejás vos',
+      bajada: 'Control de la noche. Esto queda en tu celular.',
+      acento: 'text-emerald-700 bg-emerald-50 border-emerald-100',
+      herramientas: [
+        { titulo: 'Accesos', detalle: 'Escanear el QR de los invitados', ruta: e('accesos'), icono: QrCode },
+        { titulo: 'Moderar fotos', detalle: 'Aprobar antes de que salgan al muro', ruta: e('moderacion'), icono: ShieldCheck },
+        { titulo: 'DJ', detalle: 'Pedidos de canciones', ruta: e('dj'), icono: Music4 },
+        { titulo: 'Buscador de mesas', detalle: 'Dónde se sienta cada invitado', ruta: e('mi-mesa'), icono: Search },
+      ],
+    },
+  ];
+}
+
+/** Cuenta personas, no filas: cada invitado puede venir acompañado. */
+function contarConfirmados(invitados: { rsvp?: string; partySize?: number }[] | undefined) {
+  if (!Array.isArray(invitados)) return null;
+  return invitados
+    .filter((i) => i.rsvp === 'Confirmado')
+    .reduce((total, i) => total + Math.max(1, Math.floor(Number(i.partySize) || 1)), 0);
+}
+
+function formatearFecha(iso?: string) {
+  if (!iso) return null;
+  const d = new Date(iso);
+  if (Number.isNaN(d.getTime())) return null;
+  return d.toLocaleDateString('es-UY', { weekday: 'long', day: '2-digit', month: 'long' });
+}
+
+export default async function CentroDeFiestaPage(props: PageProps) {
+  const params = await props.params;
+  const fiesta = await getFiestaById(params.id);
+
+  if (!fiesta) {
+    return (
+      <main className="mx-auto flex min-h-[70vh] max-w-2xl items-center justify-center p-6">
+        <Card className="rounded-3xl bg-white shadow-xl">
+          <CardContent className="p-8 text-center">
+            <h1 className="text-2xl font-black text-slate-950">No encontré esta fiesta</h1>
+            <Button asChild className="mt-6 rounded-2xl bg-red-600 font-bold hover:bg-red-700">
+              <Link href="/eventos">Volver a eventos</Link>
+            </Button>
+          </CardContent>
+        </Card>
+      </main>
+    );
+  }
+
+  const nombre = buildAk100Readiness(fiesta).eventName;
+  const fecha = formatearFecha(fiesta.configuracion?.fechaEvento);
+  const hora = fiesta.configuracion?.horaInicio;
+  const confirmados = contarConfirmados(fiesta.invitados);
+  const bloques = construirBloques(params.id);
+
+  return (
+    <main className="min-h-screen bg-slate-950 px-4 py-6 text-white sm:px-6 lg:px-8">
+      <div className="mx-auto max-w-5xl space-y-7">
+        <Button asChild variant="outline" className="rounded-2xl border-white/20 bg-white/5 font-bold text-white hover:bg-white/10 hover:text-white">
+          <Link href="/eventos">
+            <ArrowLeft className="mr-2 h-4 w-4" />
+            Volver a eventos
+          </Link>
+        </Button>
+
+        <header className="rounded-[2rem] border border-white/10 bg-gradient-to-br from-red-950/60 via-slate-900 to-slate-900 p-6 shadow-2xl md:p-8">
+          <p className="text-xs font-black uppercase tracking-[0.25em] text-red-300">Centro de fiesta</p>
+          <h1 className="mt-2 text-3xl font-black tracking-tight md:text-5xl">{nombre}</h1>
+          <div className="mt-4 flex flex-wrap gap-x-6 gap-y-2 text-sm font-semibold text-slate-300">
+            {fecha && <span className="capitalize">{fecha}{hora ? ` · ${hora}` : ''}</span>}
+            {confirmados !== null && (
+              <span className="flex items-center gap-2">
+                <Users className="h-4 w-4 text-red-300" />
+                {confirmados} {confirmados === 1 ? 'persona confirmada' : 'personas confirmadas'}
+              </span>
+            )}
+          </div>
+        </header>
+
+        {bloques.map((bloque) => (
+          <section key={bloque.titulo} className="space-y-3">
+            <div>
+              <h2 className="text-lg font-black tracking-tight md:text-xl">{bloque.titulo}</h2>
+              <p className="text-sm font-medium text-slate-400">{bloque.bajada}</p>
+            </div>
+            <div className="grid gap-3 sm:grid-cols-2">
+              {bloque.herramientas.map((h) => {
+                const Icono = h.icono;
+                return (
+                  <Link
+                    key={h.ruta}
+                    href={h.ruta}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="group flex items-center gap-4 rounded-2xl border border-white/10 bg-white/5 p-4 transition-colors hover:bg-white/10 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-red-400"
+                  >
+                    <span className={`shrink-0 rounded-xl border p-3 ${bloque.acento}`}>
+                      <Icono className="h-6 w-6" />
+                    </span>
+                    <span className="min-w-0 flex-1">
+                      <span className="block text-base font-black leading-tight">{h.titulo}</span>
+                      <span className="block text-sm font-medium text-slate-400">{h.detalle}</span>
+                    </span>
+                    <ExternalLink className="h-4 w-4 shrink-0 text-slate-500 transition-colors group-hover:text-white" />
+                  </Link>
+                );
+              })}
+            </div>
+          </section>
+        ))}
+      </div>
+    </main>
+  );
+}
