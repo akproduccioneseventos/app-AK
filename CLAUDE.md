@@ -8,3 +8,40 @@ Rules:
 - Read graphify-out/GRAPH_REPORT.md only for broad architecture review or when query/path/explain do not surface enough context.
 - After modifying code, run `graphify update .` to keep the graph current (AST-only, no API cost).
 - Follow the shared quality commands and testing rules in `AGENTS.md`.
+
+## Delegación de trabajo (preferencia del dueño del proyecto)
+
+Ahorrar tokens siempre. El modelo principal actúa como **director**, no como peón:
+
+- Delegá las tareas mecánicas y de sólo lectura a agentes con modelos económicos
+  (`model: haiku`): auditorías, inventarios, conteos, búsquedas amplias, verificación
+  de enlaces, lectura de archivos largos para extraer datos.
+- Lanzalos en paralelo y en segundo plano (`run_in_background: true`) cuando no
+  dependan entre sí.
+- El modelo principal se reserva para: decidir qué se toca y qué no, editar código,
+  resolver ambigüedad, evaluar riesgo de regresión y redactar el reporte final.
+- Pedile a cada agente hechos verificables con `archivo:línea`, y que NO modifique
+  archivos salvo que se le indique explícitamente.
+
+### El dueño NO es programador
+
+Regla principal: **resolver, no delegar en el usuario.**
+
+- No le pidas que corra comandos, aplique parches, edite archivos ni configure nada.
+  Si algo hay que hacer, hacelo vos. Si de verdad no se puede, decí en una linea qué
+  está bloqueado y por qué, sin instrucciones técnicas.
+- Escribí siempre en castellano rioplatense simple. Nada de jerga sin traducir:
+  no "hydration", "cascada CSS", "rate limit", "specificity", "blob SHA".
+  Decí qué le pasa AL USUARIO en pantalla y qué cambia para su negocio.
+- Nada de bloques de comandos ni rutas de archivo en la respuesta salvo que los pida.
+- Antes de mandar una respuesta, releerla y sacar todo lo que él no podría entender.
+
+### Presupuesto de tokens
+
+El dueño trabaja con plan Pro y necesita que el consumo rinda. Administrar siempre:
+
+- Leer sólo los rangos de línea necesarios, no archivos enteros.
+- No re-leer un archivo ya editado para verificarlo: si `Edit` no falló, el cambio se aplicó.
+- Agrupar comandos de shell independientes en una sola llamada.
+- Filtrar la salida de comandos largos (`| tail -15`) en vez de volcarla completa.
+- Respuestas al usuario: directas y sin relleno.

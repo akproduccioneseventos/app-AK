@@ -202,9 +202,14 @@ export async function uploadSocialPost(
   }
 
   try {
+    // El limite se aplica por invitado, no por evento: en un salon todos los
+    // invitados comparten el WiFi (misma IP), asi que usar solo `fiestaId` como
+    // identidad convertia esto en un tope global de 12 subidas por minuto para
+    // toda la fiesta. El tope real por evento y por persona se controla mas
+    // abajo con `eventLimit` / `personLimit`.
     await enforcePublicRateLimit({
       scope: 'social-media-upload',
-      identity: fiestaId,
+      identity: `${fiestaId}|${authorName.trim().toLowerCase()}`,
       limit: 12,
       windowMs: 60_000,
     });

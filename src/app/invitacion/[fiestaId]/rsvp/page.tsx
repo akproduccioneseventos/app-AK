@@ -633,6 +633,8 @@ function RsvpFormContent() {
               >
                 {isSubmitting ? (
                   <><Loader2 className="w-5 h-5 mr-2 animate-spin" /> Enviando…</>
+                ) : asistencia === 'Rechazado' ? (
+                  'Confirmar cancelación'
                 ) : (
                   'Confirmar asistencia'
                 )}
