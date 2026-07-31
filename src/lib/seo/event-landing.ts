@@ -17,7 +17,7 @@ export function createEventLandingMetadata({
   image,
   imageAlt,
 }: EventLandingSeoInput): Metadata {
-  const path = `/landing/${slug}`;
+  const path = `/${slug}`;
   const url = new URL(path, SITE_URL).toString();
 
   return {

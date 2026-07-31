@@ -5,9 +5,16 @@ export async function GET(request: Request) {
   const { searchParams } = new URL(request.url);
   const authHeader = request.headers.get('x-api-key');
   const tokenParam = searchParams.get('token');
-  const secretKey = process.env.MARKETING_API_SECRET_KEY || 'ak-marketing-ai-token-2026';
+  const secretKey = process.env.MARKETING_API_SECRET_KEY;
 
-  const isAuthorized = authHeader === secretKey || tokenParam === secretKey || process.env.NODE_ENV === 'development';
+  if (!secretKey) {
+    return NextResponse.json(
+      { error: 'API de marketing no configurada. Definí MARKETING_API_SECRET_KEY en las variables de entorno.' },
+      { status: 503 }
+    );
+  }
+
+  const isAuthorized = authHeader === secretKey || tokenParam === secretKey;
 
   if (!isAuthorized) {
     return NextResponse.json(

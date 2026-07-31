@@ -95,8 +95,8 @@ export async function getMetaAdsSummary(inputLeadsCount = 18, inputRevenueUsd = 
           };
         }
       }
-    } catch {
-      // Fallback amigable si falla la conexión externa
+    } catch (err) {
+      console.error('[meta-ads] Error al consultar Meta Graph API:', err instanceof Error ? err.message : err);
     }
   }
 

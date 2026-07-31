@@ -70,7 +70,7 @@ export function EventLandingPage({
             </div>
             <div className="mt-10 grid gap-4 md:grid-cols-3">
               {services.map(({ title, description, icon: Icon }) => (
-                <article key={title} className="rounded-lg border border-zinc-200 bg-white p-6 shadow-sm">
+                <article key={title} className="rounded-lg border border-zinc-200 bg-white p-6 shadow-sm transition-all duration-200 hover:shadow-md hover:-translate-y-1 hover:border-red-200">
                   <Icon className="h-6 w-6 text-red-700" aria-hidden="true" />
                   <h3 className="mt-5 text-lg font-bold text-zinc-950">{title}</h3>
                   <p className="mt-2 text-sm leading-relaxed text-zinc-600">{description}</p>

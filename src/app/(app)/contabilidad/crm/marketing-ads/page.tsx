@@ -1,5 +1,5 @@
 import type { Metadata } from 'next';
-import { DollarSign, TrendingUp, Users, Target, Sparkles, ArrowUpRight, Megaphone, ShieldCheck } from 'lucide-react';
+import { DollarSign, TrendingUp, Users, Target, Sparkles, Megaphone, ShieldCheck } from 'lucide-react';
 import { getMetaAdsSummary, generateMetaCommercialAIRecommendations } from '@/lib/marketing/meta-ads';
 
 export const metadata: Metadata = {
@@ -157,18 +157,13 @@ export default async function MarketingAdsPage() {
             <p className="mt-1 text-xs text-zinc-600 leading-relaxed">
               Podés usar la URL de API de tu aplicación para que tus otros agentes de inteligencia artificial lean estas métricas y te ayuden a redactar posteos, imágenes y videos para redes sociales.
             </p>
-            <div className="mt-3 flex flex-col sm:flex-row items-stretch sm:items-center gap-3">
-              <code className="rounded-lg bg-zinc-900 px-3 py-2 text-xs font-mono text-emerald-400 overflow-x-auto">
-                GET /api/v1/marketing/insights?token=ak-marketing-ai-token-2026
+            <div className="mt-3 flex flex-col gap-2">
+              <code className="rounded-lg bg-zinc-900 px-3 py-2 text-xs font-mono text-emerald-400 overflow-x-auto block">
+                GET /api/v1/marketing/insights
               </code>
-              <a
-                href="/api/v1/marketing/insights?token=ak-marketing-ai-token-2026"
-                target="_blank"
-                rel="noreferrer"
-                className="inline-flex items-center justify-center gap-1.5 rounded-lg bg-zinc-900 px-4 py-2 text-xs font-bold text-white hover:bg-zinc-800 transition-colors"
-              >
-                Probar API <ArrowUpRight className="h-3.5 w-3.5" />
-              </a>
+              <p className="text-[11px] text-zinc-500">
+                Autenticación: enviá el header <code className="bg-zinc-200 px-1 rounded text-zinc-700">x-api-key</code> o el parámetro <code className="bg-zinc-200 px-1 rounded text-zinc-700">?token=</code> con el valor de la variable de entorno <code className="bg-zinc-200 px-1 rounded text-zinc-700">MARKETING_API_SECRET_KEY</code>.
+              </p>
             </div>
           </div>
         </div>
