@@ -220,7 +220,10 @@ export default function MainDashboardPage() {
             <span>{greeting || 'Bienvenido'}, AK Producciones</span>
           </div>
           <h1 className="text-2xl sm:text-4xl md:text-5xl font-black tracking-tight text-slate-900 leading-tight">
-            Panel de Control <span className="bg-gradient-to-r from-indigo-600 via-purple-600 to-indigo-700 bg-clip-text text-transparent italic">General</span>
+            {/* `bg-clip-text` recorta el texto a su caja: en cursiva, la
+                inclinacion de la ultima letra sobresale y queda cortada.
+                `inline-block` + un pelin de padding derecho amplian la caja. */}
+            Panel de Control <span className="inline-block pr-[0.12em] bg-gradient-to-r from-indigo-600 via-purple-600 to-indigo-700 bg-clip-text text-transparent italic">General</span>
           </h1>
           <p className="text-slate-600 font-medium text-xs sm:text-sm leading-normal flex items-center gap-2 max-w-2xl">
             <span className="w-2.5 h-2.5 rounded-full bg-emerald-500 shadow-[0_0_10px_rgba(16,185,129,0.5)] animate-pulse shrink-0" />
