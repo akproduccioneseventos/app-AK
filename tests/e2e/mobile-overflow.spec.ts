@@ -19,7 +19,7 @@ function createSessionToken() {
   return `${payload}.${crypto.createHmac('sha256', SESSION_SECRET).update(payload).digest('hex')}`;
 }
 
-const RUTAS_INTERNAS = ['/admin', '/customers', '/presupuestos', '/eventos', '/pagos-rapidos', '/empresa/menus', '/alertas'];
+const RUTAS_INTERNAS = ['/admin', '/customers', '/presupuestos', '/eventos', '/pagos-rapidos', '/empresa/menus', '/alertas', '/empresa/contabilidad/reportes'];
 const RUTAS_PUBLICAS = ['/', '/simulador-de-presupuesto'];
 
 /** Margen de 2px: los navegadores redondean subpixeles al medir. */
