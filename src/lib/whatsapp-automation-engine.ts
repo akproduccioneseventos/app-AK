@@ -23,13 +23,13 @@ type TemplateVariables = Record<string, string>;
 
 function buildVariables(ctx: AutomationContext): TemplateVariables {
   return {
-    NOMBRE: ctx.nombre || ctx.targetName || '',
-    FECHA: ctx.fecha || ctx.fechaEvento || '',
-    HORA: ctx.hora || '',
-    FECHA_EVENTO: ctx.fechaEvento || ctx.fecha || '',
-    SALDO: ctx.saldo || '',
+    NOMBRE: ctx.nombre || ctx.targetName ? `*${ctx.nombre || ctx.targetName}*` : '',
+    FECHA: ctx.fecha || ctx.fechaEvento ? `*${ctx.fecha || ctx.fechaEvento}*` : '',
+    HORA: ctx.hora ? `*${ctx.hora}*` : '',
+    FECHA_EVENTO: ctx.fechaEvento || ctx.fecha ? `*${ctx.fechaEvento || ctx.fecha}*` : '',
+    SALDO: ctx.saldo ? `*${ctx.saldo}*` : '',
     LINK: ctx.link || '',
-    SALON: ctx.salon || '',
+    SALON: ctx.salon ? `*${ctx.salon}*` : '',
   };
 }
 
@@ -134,7 +134,7 @@ export async function triggerWhatsAppAutomation(
       }
     }
   } catch (e: any) {
-    errors.push(`Error en motor de automatizaciÃ³n: ${e.message}`);
+    errors.push(`Error en motor de automatizaciÃƒÂ³n: ${e.message}`);
   }
 
   return { scheduled, errors };
