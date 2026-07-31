@@ -117,3 +117,23 @@ export function calculateLeaderboard(participants: TriviaParticipant[]): Leaderb
 export function checkTriviaAnswer(question: TriviaQuestion, answerId: string): boolean {
   return question.correctOptionId === answerId;
 }
+
+const SECRET_MISSIONS = [
+  "Buscá a alguien de corbata azul y sacate una selfie",
+  "Hacé un brindis secreto con la mesa de al lado",
+  "Encontrá al invitado más alto y sacate una foto",
+  "Pedile al DJ que ponga tu canción favorita pero en secreto",
+  "Sacate una foto haciendo una cara graciosa con los padres del/la festejado/a",
+  "Desafiá a alguien a un duelo de baile rápido",
+  "Armá un trencito con al menos 5 personas que no conozcas",
+  "Conseguí que 3 personas de otra mesa brinden por vos"
+];
+
+export function getSecretMissionForGuest(guestName: string): string {
+  let hash = 0;
+  for (let i = 0; i < guestName.length; i++) {
+    hash = guestName.charCodeAt(i) + ((hash << 5) - hash);
+  }
+  const index = Math.abs(hash) % SECRET_MISSIONS.length;
+  return SECRET_MISSIONS[index];
+}

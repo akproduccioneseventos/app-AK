@@ -1,9 +1,10 @@
 'use client';
 
 import React, { useState } from 'react';
-import { PhotoMission, DEFAULT_PHOTO_MISSIONS } from '@/lib/games/game-engine';
+import { PhotoMission, DEFAULT_PHOTO_MISSIONS, getSecretMissionForGuest } from '@/lib/games/game-engine';
 import { Card, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
+import { Lock } from 'lucide-react';
 
 interface Props {
   fiestaId: string;
@@ -24,11 +25,30 @@ export default function PhotoMissionScreen({ fiestaId, guestName }: Props) {
       <div className="max-w-4xl mx-auto">
         <h1 className="text-3xl md:text-4xl font-bold mb-2 text-center">Misiones Fotográficas</h1>
         <p className="text-slate-400 text-center mb-8">Completá las misiones para ganar puntos</p>
-        
+
+        <div className="mb-8 p-1 rounded-xl bg-gradient-to-r from-purple-500 via-pink-500 to-amber-500 animate-pulse">
+          <Card className="bg-slate-900 border-none relative overflow-hidden h-full rounded-lg">
+            <CardContent className="p-6 md:p-8 flex flex-col md:flex-row items-center gap-6">
+              <div className="bg-slate-800/80 p-4 rounded-full shadow-inner border border-slate-700">
+                <Lock className="w-8 h-8 text-amber-400" />
+              </div>
+              <div className="flex-1 text-center md:text-left">
+                <div className="inline-block bg-amber-500/20 text-amber-400 px-3 py-1 rounded-full text-xs font-bold uppercase tracking-wider mb-2 border border-amber-500/30">
+                  Top Secret
+                </div>
+                <h3 className="text-xl md:text-2xl font-bold mb-2 text-white">Tu Misión Secreta</h3>
+                <p className="text-slate-300 text-lg">
+                  {getSecretMissionForGuest(guestName)}
+                </p>
+              </div>
+            </CardContent>
+          </Card>
+        </div>
+
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
           {missions.map(mission => {
             const isCompleted = completedMissions.has(mission.id);
-            
+
             return (
               <Card key={mission.id} className={`bg-gradient-to-br from-slate-800 to-slate-900 border-slate-700 overflow-hidden relative ${isCompleted ? 'opacity-70' : ''}`}>
                 {isCompleted && (
@@ -46,7 +66,7 @@ export default function PhotoMissionScreen({ fiestaId, guestName }: Props) {
                   <p className="text-slate-300 flex-1">{mission.description}</p>
                   <div className="mt-4 flex items-center justify-between">
                     <span className="text-amber-400 font-bold">{mission.points} pts</span>
-                    <Button 
+                    <Button
                       onClick={() => handleComplete(mission.id)}
                       disabled={isCompleted}
                       variant={isCompleted ? "secondary" : "default"}

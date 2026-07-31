@@ -4,6 +4,7 @@ import { useCallback, useEffect, useMemo, useRef, useState, type ChangeEvent, ty
 import { useParams } from 'next/navigation';
 import { formatDistanceToNow } from 'date-fns';
 import { es } from 'date-fns/locale';
+import { AnimatePresence, motion } from 'framer-motion';
 import {
   ArrowLeft,
   BarChart3,
@@ -42,6 +43,7 @@ import {
   getSongRequests,
   uploadDedicationAudio,
   votePoll,
+  voteSongRequest,
 } from '@/app/actions/social-interactive';
 import { voteActiveGameOption } from '@/app/actions/fiesta/screen-mode.actions';
 import { Button } from '@/components/ui/button';
@@ -61,6 +63,7 @@ import type { ChatMessage, Dedication, SocialGalleryPost, SocialPoll, SongReques
 import type { SocialGallerySettings } from '@/types/fiesta';
 import PostEventMemoryHub from '@/components/social-wall/PostEventMemoryHub';
 import { FaceGalleryStrip } from '@/components/entertainment/FaceGalleryStrip';
+import { PaparazziOverlay } from '@/components/social-wall/PaparazziOverlay';
 
 type SocialSection = 'feed' | 'songs' | 'dedications' | 'chat' | 'poll' | 'game';
 
@@ -243,6 +246,7 @@ export default function SocialEventPage() {
   const [uploadCaption, setUploadCaption] = useState('');
   const [uploading, setUploading] = useState(false);
   const [likedPosts, setLikedPosts] = useState<Set<string>>(new Set());
+  const [votedSongs, setVotedSongs] = useState<Set<string>>(new Set());
   const [songDraft, setSongDraft] = useState('');
   const [dedicationDraft, setDedicationDraft] = useState('');
   const [chatDraft, setChatDraft] = useState('');
@@ -258,6 +262,7 @@ export default function SocialEventPage() {
   const [recordingSeconds, setRecordingSeconds] = useState(0);
   const [audioBlob, setAudioBlob] = useState<Blob | null>(null);
   const [audioPreview, setAudioPreview] = useState<string | null>(null);
+  const [isPaparazziOpen, setIsPaparazziOpen] = useState(false);
 
   const settings = useMemo(() => mergeSettings(event?.socialGallerySettings), [event?.socialGallerySettings]);
   const accentColor = settings.accentColor || '#c81e2a';
@@ -293,6 +298,11 @@ export default function SocialEventPage() {
       setLikedPosts(new Set(JSON.parse(sessionStorage.getItem(`likedPosts_${fiestaId}`) || '[]')));
     } catch {
       setLikedPosts(new Set());
+    }
+    try {
+      setVotedSongs(new Set(JSON.parse(sessionStorage.getItem(`votedSongs_${fiestaId}`) || '[]')));
+    } catch {
+      setVotedSongs(new Set());
     }
     setVotedPollId(localStorage.getItem(`votedPoll_${fiestaId}`));
     setVotedGameId(localStorage.getItem(`votedGame_${fiestaId}`));
@@ -353,6 +363,15 @@ export default function SocialEventPage() {
     if (uploadPreview) URL.revokeObjectURL(uploadPreview);
     if (audioPreview) URL.revokeObjectURL(audioPreview);
   }, [audioPreview, uploadPreview]);
+
+  useEffect(() => {
+    // Check for Paparazzi moment in real-time or simulate
+    if ((event as any)?.momentoPaparazziActivo) {
+      setIsPaparazziOpen(true);
+    } else {
+      setIsPaparazziOpen(false);
+    }
+  }, [(event as any)?.momentoPaparazziActivo]);
 
   const availableSections = useMemo(() => [
     { id: 'feed' as const, label: 'Inicio', icon: MessageCircle },
@@ -463,6 +482,20 @@ export default function SocialEventPage() {
       await loadSection('songs');
     } else toast({ title: 'No se pudo enviar', description: result.error, variant: 'destructive' });
     setSubmitting(false);
+  };
+
+  const voteSong = async (songId: string, like: boolean) => {
+    const next = new Set(votedSongs).add(songId);
+    setVotedSongs(next);
+    sessionStorage.setItem(`votedSongs_${fiestaId}`, JSON.stringify([...next]));
+
+    if (like) {
+      setSongs((current) => current.map((s) => s.id === songId ? { ...s, votes: (s.votes || 0) + 1 } : s));
+      const result = await voteSongRequest(fiestaId, songId);
+      if (!result.success) {
+        toast({ title: 'No se pudo votar', description: result.error, variant: 'destructive' });
+      }
+    }
   };
 
   const startRecording = async () => {
@@ -593,6 +626,21 @@ export default function SocialEventPage() {
 
   return (
     <div className="min-h-screen bg-[#f0f2f5] text-slate-950">
+      <PaparazziOverlay 
+        fiestaId={fiestaId} 
+        isOpen={isPaparazziOpen} 
+        onUpload={() => { setIsPaparazziOpen(false); setUploadOpen(true); }} 
+        onClose={() => setIsPaparazziOpen(false)} 
+      />
+
+      {/* Hidden button for testing Paparazzi locally without backend updates */}
+      <button 
+        onClick={() => setIsPaparazziOpen(true)}
+        className="fixed bottom-4 left-4 z-50 opacity-0 hover:opacity-100 bg-red-600 text-white rounded p-2 text-xs"
+      >
+        Test Paparazzi
+      </button>
+
       <Dialog open={nameDialogOpen} onOpenChange={(open) => authorName && setNameDialogOpen(open)}>
         <DialogContent hideCloseButton className="max-w-sm rounded-md border-0 bg-white p-6">
           <DialogHeader className="text-center">
@@ -675,7 +723,89 @@ export default function SocialEventPage() {
             </div>
           )}
 
-          {section === 'songs' && <SectionShell key="songs" title="Pedí una canción" text="Tu pedido entra en la lista que revisa el DJ."><form onSubmit={submitSong} className="flex gap-2"><Input value={songDraft} onChange={(change) => setSongDraft(change.target.value)} maxLength={120} placeholder="Canción y artista" className="h-12 bg-white text-slate-950" /><Button type="submit" disabled={!songDraft.trim() || submitting} className="h-12 px-4" style={{ backgroundColor: accentColor }}><Send className="h-5 w-5" /></Button></form><div className="divide-y divide-slate-100">{songs.map((song, index) => <div key={song.id} className="flex items-center gap-3 py-4"><span className="grid h-9 w-9 shrink-0 place-items-center rounded-full bg-slate-100 text-sm font-black">{index + 1}</span><div className="min-w-0 flex-1"><p className="font-bold text-slate-900">{song.song}</p><p className="text-xs text-slate-500">Pedido por {song.requestedBy}</p></div>{song.played && <span className="flex items-center gap-1 text-xs font-bold text-emerald-700"><Play className="h-3 w-3 fill-current" /> Sonó</span>}</div>)}{songs.length === 0 && <EmptyState icon={Music2} title="Sin pedidos todavía" text="Pedí la primera canción de la fiesta." />}</div></SectionShell>}
+          {section === 'songs' && (
+            <SectionShell key="songs" title="Votá la música" text="Elegí qué canciones querés que suenen.">
+              <form onSubmit={submitSong} className="mb-6 flex gap-2">
+                <Input value={songDraft} onChange={(change) => setSongDraft(change.target.value)} maxLength={120} placeholder="Pedí otra canción y artista..." className="h-12 bg-white text-slate-950" />
+                <Button type="submit" disabled={!songDraft.trim() || submitting} className="h-12 px-4" style={{ backgroundColor: accentColor }}><Send className="h-5 w-5" /></Button>
+              </form>
+              
+              <div className="relative flex h-[350px] w-full items-center justify-center overflow-hidden rounded-xl bg-slate-50 border border-slate-200">
+                <AnimatePresence mode="popLayout">
+                  {(() => {
+                    const activeSong = songs.find(s => !votedSongs.has(s.id) && !s.played);
+                    if (!activeSong) {
+                      return (
+                        <motion.div key="empty" initial={{ opacity: 0, scale: 0.9 }} animate={{ opacity: 1, scale: 1 }} exit={{ opacity: 0, scale: 0.9 }} className="absolute inset-0 grid place-items-center">
+                          <EmptyState icon={Music2} title="¡Ya votaste todo!" text="Pedí una nueva canción arriba." />
+                        </motion.div>
+                      );
+                    }
+                    return (
+                      <motion.div
+                        key={activeSong.id}
+                        initial={{ opacity: 0, scale: 0.8, y: 50, rotate: -5 }}
+                        animate={{ opacity: 1, scale: 1, y: 0, rotate: 0 }}
+                        exit={{ opacity: 0, scale: 1.1, y: -50, rotate: 5 }}
+                        transition={{ type: 'spring', stiffness: 300, damping: 25 }}
+                        className="absolute inset-0 flex flex-col items-center justify-center bg-white p-6 text-center shadow-sm"
+                      >
+                        <div className="mb-8 w-full flex-1 flex flex-col items-center justify-center">
+                          <div className="mb-6 grid h-20 w-20 place-items-center rounded-full bg-slate-100">
+                            <Music2 className="h-10 w-10 text-slate-400" />
+                          </div>
+                          <h3 className="mb-3 text-3xl font-black leading-tight text-slate-900 line-clamp-3">{activeSong.song}</h3>
+                          <p className="text-sm font-semibold text-slate-500">Pedido por {activeSong.requestedBy}</p>
+                        </div>
+                        <div className="flex w-full justify-center gap-6 pb-4">
+                          <button
+                            type="button"
+                            onClick={() => voteSong(activeSong.id, false)}
+                            className="grid h-16 w-16 place-items-center rounded-full bg-white text-slate-400 shadow-[0_8px_30px_rgb(0,0,0,0.08)] transition hover:scale-110 hover:bg-slate-50 hover:text-slate-600 active:scale-95"
+                            aria-label="No me gusta"
+                          >
+                            <X className="h-7 w-7" strokeWidth={3} />
+                          </button>
+                          <button
+                            type="button"
+                            onClick={() => voteSong(activeSong.id, true)}
+                            className="grid h-16 w-16 place-items-center rounded-full bg-white shadow-[0_8px_30px_rgb(0,0,0,0.08)] transition hover:scale-110 hover:bg-slate-50 active:scale-95"
+                            style={{ color: accentColor }}
+                            aria-label="Me gusta"
+                          >
+                            <Heart className="h-7 w-7 fill-current" />
+                          </button>
+                        </div>
+                      </motion.div>
+                    );
+                  })()}
+                </AnimatePresence>
+              </div>
+              
+              <div className="mt-8">
+                <h4 className="mb-4 text-sm font-bold text-slate-500">Ranking actual</h4>
+                <div className="divide-y divide-slate-100">
+                  {songs.filter(s => s.votes > 0 || s.played).sort((a, b) => {
+                    if (a.played !== b.played) return a.played ? 1 : -1;
+                    return (b.votes || 0) - (a.votes || 0);
+                  }).slice(0, 5).map((song, index) => (
+                    <div key={song.id} className="flex items-center gap-3 py-3">
+                      <span className="grid h-8 w-8 shrink-0 place-items-center rounded-full bg-slate-100 text-xs font-black" style={index < 3 && !song.played ? { backgroundColor: accentColor, color: 'white' } : {}}>{index + 1}</span>
+                      <div className="min-w-0 flex-1">
+                        <p className={`truncate font-bold ${song.played ? 'text-slate-500 line-through' : 'text-slate-900'}`}>{song.song}</p>
+                      </div>
+                      {song.played ? (
+                        <span className="flex items-center gap-1 text-xs font-bold text-emerald-600"><Play className="h-3 w-3 fill-current" /> Sonó</span>
+                      ) : (
+                        <span className="text-xs font-bold text-slate-500">{song.votes} votos</span>
+                      )}
+                    </div>
+                  ))}
+                  {songs.length === 0 && <p className="py-2 text-sm text-slate-500">Aún no hay canciones en el ranking.</p>}
+                </div>
+              </div>
+            </SectionShell>
+          )}
 
           {section === 'dedications' && <SectionShell key="dedications" title={settings.privateDedicationsMode ? 'Mensaje privado' : 'Mensajes para la fiesta'} text={settings.privateDedicationsMode ? 'Solo el equipo organizador podrá leerlo.' : 'Dejá un texto o una nota de voz.'}><form onSubmit={submitDedication} className="space-y-3"><Textarea value={dedicationDraft} onChange={(change) => setDedicationDraft(change.target.value)} maxLength={1000} placeholder="Escribí tu mensaje" className="min-h-28 bg-white text-slate-950" /><div className="flex flex-wrap items-center gap-2">{recording ? <Button type="button" variant="destructive" onClick={stopRecording}><Square className="mr-2 h-4 w-4 fill-current" />Detener {recordingSeconds}s</Button> : <Button type="button" variant="outline" onClick={startRecording}><Mic className="mr-2 h-4 w-4" />Grabar voz</Button>}{audioPreview && <><audio src={audioPreview} controls className="h-10 max-w-full" /><button type="button" onClick={clearAudio} className="grid h-9 w-9 place-items-center rounded-full bg-slate-100" aria-label="Quitar audio"><X className="h-4 w-4" /></button></>}<Button type="submit" disabled={(!dedicationDraft.trim() && !audioBlob) || submitting} className="ml-auto" style={{ backgroundColor: accentColor }}><Send className="mr-2 h-4 w-4" />Enviar</Button></div></form>{!settings.privateDedicationsMode && <div className="mt-6 space-y-3">{dedications.slice().reverse().map((dedication) => <article key={dedication.id} className="border-t border-slate-100 pt-4"><div className="flex items-center gap-2"><div className="grid h-9 w-9 place-items-center rounded-full bg-slate-200 text-xs font-black">{initials(dedication.authorName)}</div><div><p className="text-sm font-bold">{dedication.authorName}</p><p className="text-xs text-slate-500">{formatDistanceToNow(new Date(dedication.timestamp), { addSuffix: true, locale: es })}</p></div></div><p className="mt-3 text-sm leading-relaxed text-slate-700">{dedication.message}</p>{dedication.audioUrl && <audio src={dedication.audioUrl} controls className="mt-3 h-10 w-full" />}</article>)}{dedications.length === 0 && <EmptyState icon={Heart} title="Todavía no hay mensajes" text="Dejá el primero para los protagonistas." />}</div>}</SectionShell>}
 
