@@ -91,9 +91,6 @@ export function EventLandingPage({
             <span className="flex items-center gap-1.5 text-amber-300">
               <Clock className="h-4 w-4" /> Reserva Tentativa de Fecha
             </span>
-            <span className="flex items-center gap-1.5 text-red-300">
-              <Sparkles className="h-4 w-4" /> Beneficios Exclusivos 2026/2027
-            </span>
           </div>
         </div>
 
@@ -184,7 +181,7 @@ export function EventLandingPage({
                 </div>
                 <div className="flex items-center gap-2">
                   <CheckCircle2 className="h-4 w-4 text-emerald-600 shrink-0" />
-                  <span>Presupuestos congelados por escrito</span>
+                  <span>Presupuestos detallados por escrito</span>
                 </div>
                 <div className="flex items-center gap-2">
                   <CheckCircle2 className="h-4 w-4 text-emerald-600 shrink-0" />
