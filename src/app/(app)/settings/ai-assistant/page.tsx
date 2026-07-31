@@ -9,7 +9,8 @@ import { Label } from '@/components/ui/label';
 import { Input } from '@/components/ui/input';
 import { ArrowLeft, Bot, Save, Loader2, CheckCircle2, AlertCircle, RefreshCw, Wifi, WifiOff, ShieldCheck, ShieldOff, Wrench, FileText } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
-import { getAiAssistantSettings, saveAiAssistantSettings, testGeminiConnection, scanAiAssistantAppContext, getAssistantOperationalStatus, type AssistantOperationalStatus } from '@/app/actions/settings';
+import { getAiAssistantSettings, saveAiAssistantSettings, testGeminiConnection, scanAiAssistantAppContext } from '@/app/actions/settings';
+import { getAssistantOperationalStatus, type AssistantOperationalStatus } from '@/app/actions/assistant-operational-status';
 
 type KnowledgeDocument = {
   id: string;

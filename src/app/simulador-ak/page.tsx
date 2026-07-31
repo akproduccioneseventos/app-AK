@@ -1354,7 +1354,10 @@ ${generatedId ? `*Link:* ${window.location.origin}/presupuestos/${generatedId}/v
             <Send className="w-4 h-4" />
           </Button>
         </div>
-        <FloatingWhatsApp />
+        {/* El boton flotante vive abajo a la derecha, justo donde esta el campo
+            para escribirle a Sofia: tapaba el boton de enviar y el clic se lo
+            llevaba WhatsApp. Se sube para dejar libre la barra de escritura. */}
+        <FloatingWhatsApp className="bottom-28" />
       </div>
     );
   }

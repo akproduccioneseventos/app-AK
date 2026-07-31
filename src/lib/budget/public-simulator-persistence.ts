@@ -155,36 +155,38 @@ async function persistBudgetAtomically(
   presupuesto: Presupuesto,
   maxExistingNumber: number,
 ): Promise<{ presupuesto: Presupuesto; reused: boolean }> {
-  try {
-    const { dbAdmin } = await import('@/lib/firebase/server');
-    if (dbAdmin) {
-      const budgetRef = dbAdmin.collection('presupuestos').doc(presupuesto.id);
-      const counterRef = dbAdmin.collection('commercial_counters').doc('presupuestos');
-      return await dbAdmin.runTransaction(async (transaction) => {
-        const [budgetSnapshot, counterSnapshot] = await Promise.all([
-          transaction.get(budgetRef),
-          transaction.get(counterRef),
-        ]);
-        const stored = budgetSnapshot.exists ? budgetSnapshot.data() as Presupuesto : undefined;
-        if (stored && stored.estado !== 'Pendiente Verificación') {
-          throw new Error('Este presupuesto ya fue revisado. Genera una nueva propuesta.');
-        }
-        const currentCounter = Number(counterSnapshot.data()?.lastNumber || maxExistingNumber);
-        const numero = stored?.numero || Math.max(maxExistingNumber, currentCounter) + 1;
-        const next = stripUndefined({ ...presupuesto, numero });
-        transaction.set(budgetRef, { ...next, _syncedAt: new Date().toISOString() }, { merge: false });
-        if (!stored) {
-          transaction.set(counterRef, {
-            lastNumber: numero,
-            updatedAt: new Date().toISOString(),
-          }, { merge: true });
-        }
-        return { presupuesto: next, reused: Boolean(stored) };
-      });
+  if (process.env.AK_USE_LOCAL_JSON_ONLY !== 'true') {
+    try {
+      const { dbAdmin } = await import('@/lib/firebase/server');
+      if (dbAdmin) {
+        const budgetRef = dbAdmin.collection('presupuestos').doc(presupuesto.id);
+        const counterRef = dbAdmin.collection('commercial_counters').doc('presupuestos');
+        return await dbAdmin.runTransaction(async (transaction) => {
+          const [budgetSnapshot, counterSnapshot] = await Promise.all([
+            transaction.get(budgetRef),
+            transaction.get(counterRef),
+          ]);
+          const stored = budgetSnapshot.exists ? budgetSnapshot.data() as Presupuesto : undefined;
+          if (stored && stored.estado !== 'Pendiente Verificación') {
+            throw new Error('Este presupuesto ya fue revisado. Genera una nueva propuesta.');
+          }
+          const currentCounter = Number(counterSnapshot.data()?.lastNumber || maxExistingNumber);
+          const numero = stored?.numero || Math.max(maxExistingNumber, currentCounter) + 1;
+          const next = stripUndefined({ ...presupuesto, numero });
+          transaction.set(budgetRef, { ...next, _syncedAt: new Date().toISOString() }, { merge: false });
+          if (!stored) {
+            transaction.set(counterRef, {
+              lastNumber: numero,
+              updatedAt: new Date().toISOString(),
+            }, { merge: true });
+          }
+          return { presupuesto: next, reused: Boolean(stored) };
+        });
+      }
+    } catch (error) {
+      if (error instanceof Error && error.message.includes('ya fue revisado')) throw error;
+      console.warn('[public-budget] Firestore transaction unavailable, using data-service fallback.', error);
     }
-  } catch (error) {
-    if (error instanceof Error && error.message.includes('ya fue revisado')) throw error;
-    console.warn('[public-budget] Firestore transaction unavailable, using data-service fallback.', error);
   }
 
   const presupuestos = await readData<Presupuesto[]>(PRESUPUESTOS_FILE, []);

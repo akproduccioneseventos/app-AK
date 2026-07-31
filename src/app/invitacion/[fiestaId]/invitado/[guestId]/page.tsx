@@ -200,6 +200,11 @@ function GuestPortalContent() {
   const [isLoading, setIsLoading] = useState(true);
   const [loadError, setLoadError] = useState<string | null>(null);
   const [showQuiosco, setShowQuiosco] = useState(false);
+  const [isInteractive, setIsInteractive] = useState(false);
+
+  useEffect(() => {
+    setIsInteractive(true);
+  }, []);
 
   const loadData = useCallback(async () => {
     if (!fiestaId || !guestId || !guestAccessToken) {
@@ -314,7 +319,7 @@ function GuestPortalContent() {
     ...(rsvpEnabled && guest.rsvp !== 'Confirmado'
       ? [{ id: 'rsvp', label: 'Confirmar asistencia', icon: CheckCircle2, href: rsvpHref }]
       : []),
-    ...publicTools.map((tool): PortalAction => ({
+    ...publicTools.filter(tool => tool.id !== 'bar' || isInteractive).map((tool): PortalAction => ({
       id: tool.id,
       label: tool.label,
       icon: PUBLIC_TOOL_ICONS[tool.id],

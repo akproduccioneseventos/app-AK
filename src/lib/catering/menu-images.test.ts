@@ -65,6 +65,21 @@ describe("catering menu images", () => {
     }
   });
 
+  it.each([
+    ["CERDO ARROLLADO CON MESA BUFET", "dish_main_7.jpeg"],
+    ["CORDERO ASADO CON MESA BUFET", "dish_main_17.jpeg"],
+    ["ASADO COMPLETO CON MESA BUFET", "dish_main_18.jpeg"],
+  ])("keeps menu variants associated with the correct dish photo: %s", (name, localFile) => {
+    expect(
+      getCateringDishImage({
+        id: `event-${name}`,
+        name,
+        imageUrl:
+          "https://ak-producciones-fiestas-y-eventos.my.canva.site/servicio-de-catering/images/old.jpg",
+      }),
+    ).toBe(`/catering/menus/xv/${localFile}`);
+  });
+
   it("has one canonical source per confirmed catalog dish", () => {
     const confirmedItems = menuItems.filter(
       (item: { id: string; imageUrl?: string | null }) =>

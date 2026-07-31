@@ -35,11 +35,7 @@ export function CrmDesktopBoard({
   onDragEnd,
 }: CrmDesktopBoardProps) {
   const sensors = useSensors(
-    useSensor(PointerSensor, {
-      activationConstraint: {
-        distance: 5,
-      },
-    })
+    useSensor(PointerSensor, { activationConstraint: { distance: 5 } }),
   );
 
   return (

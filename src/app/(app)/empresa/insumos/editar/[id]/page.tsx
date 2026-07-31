@@ -1,6 +1,10 @@
 import { redirect } from 'next/navigation';
 
-export default async function EditarInsumoRedirectPage({ params }: { params: Promise<{ id: string }> }) {
+export default async function EditarInsumoRedirectPage({
+  params,
+}: {
+  params: Promise<{ id: string }>;
+}) {
   const { id } = await params;
-  redirect(`/empresa/insumos/${id}/editar`);
+  redirect(`/empresa/insumos/${encodeURIComponent(id)}/editar`);
 }

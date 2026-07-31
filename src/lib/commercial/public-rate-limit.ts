@@ -54,6 +54,11 @@ export async function enforcePublicRateLimit(input: RateLimitInput): Promise<voi
   const key = await buildKey(input.scope, input.identity);
   const now = Date.now();
 
+  if (process.env.AK_USE_LOCAL_JSON_ONLY === 'true') {
+    enforceLocalLimit(key, input);
+    return;
+  }
+
   try {
     const { dbAdmin } = await import('@/lib/firebase/server');
     if (!dbAdmin) {

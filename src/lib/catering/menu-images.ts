@@ -66,8 +66,8 @@ export function getCateringDishImage(
   const itemName = ((item.nombre || item.name || "") + " " + (item.id || "")).toLowerCase();
   
   // Specific dish image fixes requested by user (Cerdo Arrollado y Cordero Asado con Guarnición / Mesa Buffet)
-  if (itemName.includes("cerdo") && itemName.includes("arrollado")) return `${DEFAULT_MENU_IMAGE_BASE}/dish_main_5.jpeg`;
-  if (itemName.includes("cordero")) return `${DEFAULT_MENU_IMAGE_BASE}/dish_main_18.jpeg`;
+  if (itemName.includes("cerdo") && itemName.includes("arrollado")) return `${DEFAULT_MENU_IMAGE_BASE}/dish_main_7.jpeg`;
+  if (itemName.includes("cordero")) return `${DEFAULT_MENU_IMAGE_BASE}/dish_main_17.jpeg`;
   if (itemName.includes("asado")) return `${DEFAULT_MENU_IMAGE_BASE}/dish_main_18.jpeg`;
 
   const isLegacyCanvaImage = item.imageUrl

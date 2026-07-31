@@ -56,7 +56,11 @@ export const CrmLeadCard = memo(function CrmLeadCard({ lead, onDeleteLead, isDel
     transform,
     transition,
     isDragging,
-  } = useSortable({ id: lead.id, disabled: isMobile });
+  } = useSortable({
+    id: lead.id,
+    disabled: isMobile,
+    data: { stageId: lead.currentStageId },
+  });
 
   const [isTimelineOpen, setIsTimelineOpen] = useState(false);
   const [isEditingNotes, setIsEditingNotes] = useState(false);

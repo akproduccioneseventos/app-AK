@@ -148,10 +148,10 @@ function RsvpFormContent() {
   const baseUrl = process.env.NEXT_PUBLIC_BASE_URL || (typeof window !== 'undefined' ? window.location.origin : '');
 
   if (confirmedGuest) {
-    const tokenParam = confirmedGuest.guestAccessToken ? `&token=${encodeURIComponent(confirmedGuest.guestAccessToken)}` : '';
-    const qrValue = `${baseUrl}/evento/accesos/${fiestaId}?fiestaId=${fiestaId}&guestId=${confirmedGuest.id}${tokenParam}`;
+    const qrValue = `${baseUrl}/evento/accesos/${fiestaId}?fiestaId=${encodeURIComponent(fiestaId)}&guestId=${encodeURIComponent(confirmedGuest.id)}&token=${encodeURIComponent(confirmedGuest.guestAccessToken || '')}`;
     const guestExp = fiesta.guestExperienceSettings;
     const showAkCta = guestExp?.enabled && guestExp?.showAkBranding;
+    const eventName = fiesta.configuracion?.nombreEvento || 'El Evento';
     const venue = fiesta.configuracion?.nombreLugar;
     const address = fiesta.configuracion?.direccionLugar;
     const fecha = fiesta.configuracion?.fechaEvento
@@ -248,19 +248,45 @@ function RsvpFormContent() {
                   {confirmedGuest.dietaryRestriction && confirmedGuest.dietaryRestriction !== 'Ninguna' && (
                     <div className="w-full rounded-lg border border-amber-200 bg-amber-50 p-3 text-center">
                       <p className="text-xs font-bold uppercase tracking-widest text-amber-600 mb-1">Menú especial</p>
-                      <p className="text-sm font-semibold text-amber-900">{confirmedGuest.dietaryRestriction}</p>
+                      <p className="text-sm font-semibold text-amber-800">{confirmedGuest.dietaryRestriction}</p>
                     </div>
                   )}
                 </div>
 
-                {/* Event Hub Shortcut */}
-                <div className="w-full space-y-3 pt-2">
-                  <div className="ak-public-card-soft flex items-center gap-3 p-3">
-                    <div className="grid h-10 w-10 shrink-0 place-items-center rounded-lg bg-indigo-100 text-indigo-700">
-                      <Music className="h-5 w-5" />
+                {/* Cancellation policy */}
+                {fiesta.configuracion?.fechaEvento && (() => {
+                  const eventDate = new Date(fiesta.configuracion!.fechaEvento!);
+                  const cancelDeadline = new Date(eventDate);
+                  cancelDeadline.setDate(cancelDeadline.getDate() - 7);
+                  const today = new Date();
+                  const canStillCancel = today < cancelDeadline;
+                  const deadlineStr = cancelDeadline.toLocaleDateString('es-UY', { weekday: 'long', day: 'numeric', month: 'long' });
+                  return canStillCancel ? (
+                    <div className="w-full space-y-2 rounded-lg border border-amber-200 bg-amber-50 p-4">
+                      <div className="flex items-center gap-2">
+                        <span className="text-lg">⚠️</span>
+                        <p className="text-sm font-bold text-amber-800">¿Necesitás cancelar?</p>
+                      </div>
+                      <p className="text-xs text-amber-700 leading-relaxed">
+                        Si por algún motivo no podés asistir, tenés tiempo hasta el <strong>{deadlineStr}</strong> para cancelar tu confirmación.
+                        Pasada esa fecha, no será posible realizar cambios.
+                      </p>
+                      <a
+                        href={`/invitacion/${fiestaId}/rsvp`}
+                        className="inline-flex items-center gap-1 text-xs font-semibold text-amber-600 hover:text-amber-800 transition"
+                      >
+                        Cancelar mi confirmación →
+                      </a>
                     </div>
+                  ) : null;
+                })()}
+
+                {/* Social wall QR */}
+                <div className="w-full space-y-3 rounded-lg border border-indigo-100 bg-indigo-50 p-4">
+                  <div className="flex items-center gap-2">
+                    <span className="text-lg">📸</span>
                     <div>
-                      <p className="text-xs font-bold uppercase tracking-wider text-indigo-900">Muro Social & Pedidos de canciones</p>
+                      <p className="text-sm font-bold text-indigo-800">Muro social del evento</p>
                       <p className="text-xs text-indigo-600">Subí fotos y mensajes desde tu celular durante la fiesta</p>
                     </div>
                   </div>
@@ -270,7 +296,6 @@ function RsvpFormContent() {
                       size={120}
                       level="M"
                       id="qr-social-rsvp"
-                      renderAs="canvas"
                     />
                   </div>
                   <a
@@ -608,6 +633,8 @@ function RsvpFormContent() {
               >
                 {isSubmitting ? (
                   <><Loader2 className="w-5 h-5 mr-2 animate-spin" /> Enviando…</>
+                ) : asistencia === 'Rechazado' ? (
+                  'Confirmar cancelación'
                 ) : (
                   'Confirmar asistencia'
                 )}

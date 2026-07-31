@@ -10,6 +10,7 @@ import type { SimulatorConversionPlan } from '@/lib/commercial/simulator-convers
 import { normalizeBirthdayMonthDay } from '@/lib/commercial/birthday';
 import { normalizeUruguayPhone } from '@/lib/commercial/contact';
 import { resolvePublicLeadStage } from '@/lib/crm/lead-stage';
+import { DEFAULT_CRM_STAGES } from '@/lib/crm/default-stages';
 
 const LEADS_FILE = 'crm-leads.json';
 const STAGES_FILE = 'crm-stages.json';
@@ -194,14 +195,8 @@ export async function upsertPublicCommercialLead(
   input: PublicLeadPersistenceInput
 ): Promise<{ lead: CrmLead; isNew: boolean }> {
   const leads = await readData<CrmLead[]>(LEADS_FILE, []);
-  const loadedStages = await readData<CrmStage[]>(STAGES_FILE, []);
-  const stages = loadedStages.length > 0 ? loadedStages : [
-    { id: 's1', name: 'Consultó', order: 1, headerBgColor: "bg-sky-500", headerTextColor: 'text-sky-50', bgColor: 'bg-sky-100', borderColor: 'border-sky-500', textColor: 'text-sky-700' },
-    { id: 's2', name: 'Agendó entrevista', order: 2, headerBgColor: "bg-teal-500", headerTextColor: 'text-teal-50', bgColor: 'bg-teal-100', borderColor: 'border-teal-500', textColor: 'text-teal-700' },
-    { id: 's3', name: 'Con presupuesto', order: 3, headerBgColor: "bg-amber-500", headerTextColor: 'text-amber-900', bgColor: 'bg-amber-100', borderColor: 'border-amber-500', textColor: 'text-amber-700' },
-    { id: 's4', name: 'Firmó contrato', order: 4, headerBgColor: "bg-emerald-500", headerTextColor: 'text-emerald-50', bgColor: 'bg-emerald-100', borderColor: 'border-emerald-500', textColor: 'text-emerald-700', isConversionStage: true },
-    { id: 's5', name: 'No contrató', order: 5, headerBgColor: "bg-rose-500", headerTextColor: 'text-rose-50', bgColor: 'bg-rose-100', borderColor: 'border-rose-500', textColor: 'text-rose-700' },
-  ];
+  const loadedStages = await readData<CrmStage[]>(STAGES_FILE, DEFAULT_CRM_STAGES);
+  const stages = loadedStages.length > 0 ? loadedStages : DEFAULT_CRM_STAGES;
   const now = new Date().toISOString();
   const phone = normalizeUruguayPhone(input.phone);
   const name = normalizeName(input.name);
@@ -219,21 +214,23 @@ export async function upsertPublicCommercialLead(
   const existing = existingIndex >= 0 ? leads[existingIndex] : undefined;
   const leadId = existing?.id || `lead_public_${identityKey.slice(0, 24)}`;
 
-  try {
-    const { dbAdmin } = await import('@/lib/firebase/server');
-    if (dbAdmin) {
-      const ref = dbAdmin.collection('prospectos').doc(leadId);
-      const lead = await dbAdmin.runTransaction(async (transaction) => {
-        const snapshot = await transaction.get(ref);
-        const stored = snapshot.exists ? snapshot.data() as CrmLead : existing;
-        const next = buildLead(stored, input, stages, now, identityKey);
-        transaction.set(ref, { ...next, _syncedAt: now }, { merge: false });
-        return next;
-      });
-      return { lead, isNew: !existing };
+  if (process.env.AK_USE_LOCAL_JSON_ONLY !== 'true') {
+    try {
+      const { dbAdmin } = await import('@/lib/firebase/server');
+      if (dbAdmin) {
+        const ref = dbAdmin.collection('prospectos').doc(leadId);
+        const lead = await dbAdmin.runTransaction(async (transaction) => {
+          const snapshot = await transaction.get(ref);
+          const stored = snapshot.exists ? snapshot.data() as CrmLead : existing;
+          const next = buildLead(stored, input, stages, now, identityKey);
+          transaction.set(ref, { ...next, _syncedAt: now }, { merge: false });
+          return next;
+        });
+        return { lead, isNew: !existing };
+      }
+    } catch (error) {
+      console.warn('[public-lead] Firestore transaction unavailable, using data-service fallback.', error);
     }
-  } catch (error) {
-    console.warn('[public-lead] Firestore transaction unavailable, using data-service fallback.', error);
   }
 
   const lead = buildLead(existing, input, stages, now, identityKey);

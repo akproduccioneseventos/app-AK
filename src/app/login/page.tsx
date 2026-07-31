@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, type FormEvent, useEffect } from 'react';
+import { useState, type FormEvent, type MouseEvent, useEffect } from 'react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
@@ -89,7 +89,7 @@ export default function LoginPage() {
   const [resetPassword, setResetPassword] = useState('');
   const [resetConfirmPassword, setResetConfirmPassword] = useState('');
   const [answers, setAnswers] = useState({ q1: '', q2: '', q3: '' });
-  const [recovery, setRecovery] = useState<RecoveryStatus | null>(null);
+  const [recovery, setRecovery] = useState<RecoveryStatus>(RECOVERY_STATUS_FALLBACK);
   const [error, setError] = useState('');
   const [notice, setNotice] = useState('');
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -97,6 +97,10 @@ export default function LoginPage() {
 
   useEffect(() => {
     let active = true;
+
+    if (new URLSearchParams(window.location.search).get('mode') === 'recovery') {
+      setMode('recovery');
+    }
 
     async function loadLoginData() {
       const hasServerSession = await withTimeout(getSessionStatus(), false);
@@ -147,6 +151,14 @@ export default function LoginPage() {
       active = false;
     };
   }, []);
+
+  const openRecovery = (event: MouseEvent<HTMLAnchorElement>) => {
+    event.preventDefault();
+    window.history.pushState({}, '', '/login?mode=recovery');
+    setMode('recovery');
+    setError('');
+    setNotice('');
+  };
 
   const handleLogin = async (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault();
@@ -453,8 +465,10 @@ export default function LoginPage() {
                 Ingresar con Google
               </Button>
 
-              <Button type="button" variant="link" className="h-auto p-0 text-xs mt-2" onClick={() => { setMode('recovery'); setError(''); setNotice(''); }}>
+              <Button asChild variant="link" className="h-auto p-0 text-xs mt-2">
+                <a href="/login?mode=recovery" onClick={openRecovery}>
                 Olvide mi contraseña
+                </a>
               </Button>
             </CardFooter>
           </form>

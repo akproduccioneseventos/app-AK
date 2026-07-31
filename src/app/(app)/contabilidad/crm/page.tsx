@@ -259,14 +259,12 @@ export default function CrmPage() {
     const { active, over } = event;
     if (over && active.id !== over.id) {
       const leadToMove = leads.find(l => l.id === active.id);
-      if (!leadToMove) return;
-
-      let targetStageId = stages.find(s => s.id === over.id)?.id;
-      if (!targetStageId) {
-        targetStageId = leads.find(l => l.id === over.id)?.currentStageId;
-      }
+      const targetStageId = typeof over.data.current?.stageId === 'string'
+        ? over.data.current.stageId
+        : String(over.id);
       const targetStage = stages.find(s => s.id === targetStageId);
-      if (!targetStage) return;
+      if (!leadToMove || !targetStage) return;
+      if (leadToMove.currentStageId === targetStage.id) return;
 
       if (targetStage.name.toLowerCase().includes('entrevista')) {
         setLeadForMeeting({ ...leadToMove, currentStageId: targetStage.id });
@@ -276,7 +274,7 @@ export default function CrmPage() {
       }
       if (targetStage.isConversionStage) {
         handleHireClick(leadToMove);
-        return;
+        return; 
       }
 
       await moveLead(leadToMove.id, targetStage.id);

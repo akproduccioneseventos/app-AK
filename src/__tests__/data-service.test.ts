@@ -39,6 +39,7 @@ describe("data-service — writeData validation", () => {
     jest.clearAllMocks();
     process.env = { ...originalEnv };
     delete process.env.VERCEL;
+    delete process.env.AK_ALLOW_LOCAL_JSON_WRITES;
   });
 
   afterAll(() => {
@@ -66,6 +67,17 @@ describe("data-service — writeData validation", () => {
     await expect(writeData("test.json", [{ id: "1" }])).rejects.toThrow(
       "La escritura esta deshabilitada en el modo local de pruebas.",
     );
+  });
+
+  it("allows isolated local writes only when the explicit test flag is enabled", async () => {
+    process.env.AK_USE_LOCAL_JSON_ONLY = "true";
+    process.env.AK_ALLOW_LOCAL_JSON_WRITES = "true";
+
+    const fs = await import("fs/promises");
+    const { writeData } = await import("@/lib/data-service");
+    await writeData("test.json", [{ id: "1" }]);
+
+    expect(fs.writeFile).toHaveBeenCalled();
   });
 
   it("blocks partial updates while browser tests use local JSON data", async () => {

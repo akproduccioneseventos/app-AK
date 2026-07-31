@@ -335,6 +335,11 @@ function MessageBubble({ msg }: { msg: WhatsAppMessage }) {
         <p className={cn('text-xs mt-1 opacity-60', isClient ? 'text-right' : '')}>
           {new Date(msg.timestamp).toLocaleTimeString('es-UY', { hour: '2-digit', minute: '2-digit' })}
         </p>
+        {msg.deliveryStatus === 'failed' && (
+          <p className="mt-1 text-xs font-semibold text-red-100">
+            No enviado: {msg.deliveryError || 'el proveedor rechazó el mensaje'}
+          </p>
+        )}
       </div>
     </div>
   );

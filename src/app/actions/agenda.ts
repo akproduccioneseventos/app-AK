@@ -2,6 +2,7 @@
 
 import { getFiestas, getHistorialFiestas, saveFiesta } from './fiesta/fiesta.actions';
 import { syncFiestaToGoogleWorkspace } from './google-workspace';
+import { requireAppSession } from '@/lib/auth/require-session';
 import type { FiestaEnPlanificacion } from '@/types/fiesta';
 
 export interface CalendarEvent {
@@ -155,6 +156,7 @@ export async function createAppointment(data: Omit<CrmAppointment, 'id' | 'cread
   error?: string;
 }> {
   try {
+    await requireAppSession();
     const appointments = await getAppointments();
     const newAppointment: CrmAppointment = {
       ...data,
@@ -201,6 +203,7 @@ export async function updateAppointmentStatus(
   estado: CrmAppointment['estado']
 ): Promise<{ success: boolean; error?: string }> {
   try {
+    await requireAppSession();
     const appointments = await getAppointments();
     const idx = appointments.findIndex(a => a.id === id);
     if (idx === -1) return { success: false, error: 'Cita no encontrada' };

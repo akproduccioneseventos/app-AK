@@ -163,7 +163,7 @@ export function ServicesSection({
       };
 
   return (
-    <section id="landing-services" className="border-y border-neutral-200 bg-white py-20 text-slate-950 sm:py-28">
+    <section className="border-y border-neutral-200 bg-white py-20 text-slate-950 sm:py-28">
       <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
         <motion.div {...reveal} className="grid gap-8 border-b border-neutral-200 pb-12 lg:grid-cols-[1.2fr_0.8fr] lg:items-end">
           <div>
