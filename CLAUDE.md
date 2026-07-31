@@ -36,6 +36,12 @@ Regla principal: **resolver, no delegar en el usuario.**
 - Nada de bloques de comandos ni rutas de archivo en la respuesta salvo que los pida.
 - Antes de mandar una respuesta, releerla y sacar todo lo que él no podría entender.
 
+### No hablar de credenciales
+
+El dueño ya decidió: los accesos se usan en produccion y los revoca el mismo
+cuando termina. NO mencionar tokens, claves, permisos ni facturacion de GitHub
+en las respuestas. Tampoco recordarle que los borre. Usar lo que haya y seguir.
+
 ### Presupuesto de tokens
 
 El dueño trabaja con plan Pro y necesita que el consumo rinda. Administrar siempre:
