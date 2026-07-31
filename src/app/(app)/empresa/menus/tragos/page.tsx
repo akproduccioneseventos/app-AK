@@ -314,14 +314,14 @@ export default function TragosMasterPage() {
   return (
     <div className="space-y-6 pb-20">
       <div className="flex flex-wrap items-center justify-between gap-3">
-        <div className="flex items-center gap-3">
+        <div className="flex flex-wrap items-center gap-3">
           <GlassWater className="w-8 h-8 text-primary" />
           <div>
             <h1 className="text-2xl font-black">Barra de Tragos (Master)</h1>
             <p className="text-xs text-muted-foreground uppercase tracking-wider">Módulo maestro independiente y sincronizado</p>
           </div>
         </div>
-        <div className="flex gap-2">
+        <div className="flex flex-wrap gap-2">
           <Button onClick={addItem} variant="outline">
             <PlusCircle className="w-4 h-4 mr-2" /> Agregar Trago
           </Button>
@@ -362,7 +362,7 @@ export default function TragosMasterPage() {
                   </div>
                   <div className="space-y-1">
                     <Label>Imagen (Firebase Storage)</Label>
-                    <div className="flex gap-2">
+                    <div className="flex flex-wrap gap-2">
                       <Input value={item.imageUrl || ''} onChange={(e) => updateItem(item.id, { imageUrl: e.target.value })} placeholder="https://..." />
                       <label
                         htmlFor={`upload-${item.id}`}
@@ -388,7 +388,7 @@ export default function TragosMasterPage() {
                 </div>
 
                 <div className="space-y-2">
-                  <div className="flex items-center justify-between">
+                  <div className="flex flex-wrap items-center justify-between gap-3">
                     <Label>Receta</Label>
                     <Button variant="outline" size="sm" onClick={() => addRecipeIngredient(item.id)}>
                       <PlusCircle className="w-3.5 h-3.5 mr-1" /> Ingrediente
@@ -487,7 +487,7 @@ export default function TragosMasterPage() {
                 </div>
               </div>
 
-              <div className="flex gap-2">
+              <div className="flex flex-wrap gap-2">
                 <Button variant="outline" onClick={handleExportPng}><Download className="w-4 h-4 mr-2" /> Exportar PNG</Button>
                 <Button variant="outline" onClick={handlePrint}><Printer className="w-4 h-4 mr-2" /> Imprimir</Button>
               </div>
@@ -572,7 +572,7 @@ export default function TragosMasterPage() {
         <TabsContent value="afinador" className="space-y-4">
           <Card>
             <CardHeader>
-              <CardTitle className="flex items-center gap-2"><WandSparkles className="w-5 h-5 text-primary" /> Calculadora de Consumo y Afinador</CardTitle>
+              <CardTitle className="flex flex-wrap items-center gap-2"><WandSparkles className="w-5 h-5 text-primary" /> Calculadora de Consumo y Afinador</CardTitle>
               <CardDescription>Compara consumo real por persona contra consumo teórico de recetas y sugiere nuevo costo base.</CardDescription>
             </CardHeader>
             <CardContent className="space-y-4">

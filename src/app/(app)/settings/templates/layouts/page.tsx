@@ -62,14 +62,14 @@ export default function LayoutTemplatesPage() {
 
   return (
     <div className="space-y-6">
-      <div className="flex items-center justify-between">
-        <div className="flex items-center gap-3">
+      <div className="flex flex-wrap items-center justify-between gap-3">
+        <div className="flex flex-wrap items-center gap-3">
           <LayoutDashboard className="w-8 h-8 text-primary" />
           <h1 className="text-3xl font-bold tracking-tight font-headline">
             Plantillas de Diseño de Salón
           </h1>
         </div>
-        <div className="flex gap-2">
+        <div className="flex flex-wrap gap-2">
             <Button asChild variant="default"><Link href="/fiestas/nueva/invitados/layout"><PlusCircle className="w-4 h-4 mr-2"/>Crear/Editar en el Diseñador</Link></Button>
             <Button asChild variant="outline"><Link href="/settings"><ArrowLeft className="w-4 h-4 mr-2" />Volver a Configuración</Link></Button>
         </div>

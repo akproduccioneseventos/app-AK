@@ -142,7 +142,7 @@ export default function AccesosPersonalPage() {
             <div className="space-y-2"><Label>Permisos *</Label>
               <div className="space-y-2 p-3 border rounded-md">
                 {MODULOS_PERMITIDOS.filter(m => m.type === tipoAcceso).map(modulo => (
-                  <div key={modulo.id} className="flex items-center gap-3">
+                  <div key={modulo.id} className="flex flex-wrap items-center gap-3">
                     <Checkbox
                       id={`permiso-${modulo.id}`}
                       checked={permisos.has(modulo.id)}
@@ -167,8 +167,8 @@ export default function AccesosPersonalPage() {
           </form>
         </DialogContent>
       </Dialog>
-      <div className="flex items-center justify-between">
-        <div className="flex items-center gap-3">
+      <div className="flex flex-wrap items-center justify-between gap-3">
+        <div className="flex flex-wrap items-center gap-3">
           <KeyRound className="w-8 h-8 text-primary" />
           <h1 className="text-3xl font-bold tracking-tight font-headline">Accesos para Colaboradores</h1>
         </div>

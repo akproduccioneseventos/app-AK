@@ -198,7 +198,9 @@ export default function RedSocialEventosPage() {
             <CardTitle className="text-xl font-black tracking-tight">Feeds de Eventos</CardTitle>
             <CardDescription>Ciclo de vida automático (activación 30 días antes y desactivación 30 días después).</CardDescription>
           </CardHeader>
-          <div className="overflow-x-auto">
+          {/* `min-w-0`: sin esto el bloque no se encoge y el ancho minimo de
+              la tabla se propaga al documento en vez de desplazarse aca dentro. */}
+          <div className="min-w-0 overflow-x-auto">
             <table className="w-full text-sm text-left border-collapse">
               <thead>
                 <tr className="border-b border-slate-100 text-xs font-bold text-slate-400 uppercase tracking-wider">
