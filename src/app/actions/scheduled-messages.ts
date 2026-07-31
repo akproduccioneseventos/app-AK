@@ -73,19 +73,35 @@ export async function rescheduleMessage(
 }
 
 export async function cancelScheduledMessage(
-  messageId: string
+  messageId: string,
+  reason?: string
 ): Promise<{ success: boolean; error?: string }> {
   await requireAppSession();
   try {
     const messages = await getScheduledMessages();
     const updated = messages.map(m =>
-      m.id === messageId ? { ...m, status: 'cancelado' as ScheduledMessageStatus } : m
+      m.id === messageId
+        ? {
+            ...m,
+            status: 'cancelado' as ScheduledMessageStatus,
+            cancelReason: reason || 'Cancelado manualmente',
+          }
+        : m
     );
     await writeData(SCHEDULED_MESSAGES_FILE, updated);
     return { success: true };
   } catch (e: any) {
     return { success: false, error: e.message };
   }
+}
+
+export async function generateWhatsAppClickUrl(
+  messageText: string,
+  targetPhone?: string
+): Promise<string> {
+  const phone = (targetPhone || '').replace(/[^\d]/g, '');
+  const cleanPhone = phone.startsWith('598') ? phone : `598${phone.replace(/^0/, '')}`;
+  return `https://wa.me/${cleanPhone}?text=${encodeURIComponent(messageText)}`;
 }
 
 export async function getPendingMessagesForToday(): Promise<ScheduledMessage[]> {

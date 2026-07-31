@@ -1,4 +1,4 @@
-import type { AutomationTrigger, ScheduledMessage } from '@/types/whatsapp-automation';
+﻿import type { AutomationTrigger, ScheduledMessage } from '@/types/whatsapp-automation';
 import { getWhatsAppSettings, getWhatsAppTemplates } from '@/app/actions/settings';
 import { saveScheduledMessage } from '@/app/actions/scheduled-messages';
 
@@ -23,13 +23,13 @@ type TemplateVariables = Record<string, string>;
 
 function buildVariables(ctx: AutomationContext): TemplateVariables {
   return {
-    NOMBRE: ctx.nombre || ctx.targetName || '',
-    FECHA: ctx.fecha || ctx.fechaEvento || '',
-    HORA: ctx.hora || '',
-    FECHA_EVENTO: ctx.fechaEvento || ctx.fecha || '',
-    SALDO: ctx.saldo || '',
+    NOMBRE: ctx.nombre || ctx.targetName ? `*${ctx.nombre || ctx.targetName}*` : '',
+    FECHA: ctx.fecha || ctx.fechaEvento ? `*${ctx.fecha || ctx.fechaEvento}*` : '',
+    HORA: ctx.hora ? `*${ctx.hora}*` : '',
+    FECHA_EVENTO: ctx.fechaEvento || ctx.fecha ? `*${ctx.fechaEvento || ctx.fecha}*` : '',
+    SALDO: ctx.saldo ? `*${ctx.saldo}*` : '',
     LINK: ctx.link || '',
-    SALON: ctx.salon || '',
+    SALON: ctx.salon ? `*${ctx.salon}*` : '',
   };
 }
 
@@ -117,6 +117,7 @@ export async function triggerWhatsAppAutomation(
           messageText,
           scheduledAt,
           status: 'pendiente',
+          sendingMode: rule.sendingMode || 'manual_click',
           leadId: ctx.leadId,
           fiestaId: ctx.fiestaId,
           automationRuleId: rule.id,
@@ -133,8 +134,34 @@ export async function triggerWhatsAppAutomation(
       }
     }
   } catch (e: any) {
-    errors.push(`Error en motor de automatización: ${e.message}`);
+    errors.push(`Error en motor de automatizaciÃƒÂ³n: ${e.message}`);
   }
 
   return { scheduled, errors };
+}
+
+/**
+ * Auto-cancels pending scheduled messages when an action has already been performed
+ * (e.g. payment received, contract signed, meeting completed).
+ */
+export async function cancelObsoleteWhatsAppMessages(
+  targetId: string,
+  reason: string
+): Promise<{ cancelledCount: number }> {
+  try {
+    const { cancelScheduledMessage, getScheduledMessages } = await import('@/app/actions/scheduled-messages');
+    const messages = await getScheduledMessages();
+    const pending = messages.filter(
+      m => (m.targetId === targetId || m.fiestaId === targetId || m.leadId === targetId) && m.status === 'pendiente'
+    );
+
+    let cancelledCount = 0;
+    for (const msg of pending) {
+      const res = await cancelScheduledMessage(msg.id, `Autocancelado: ${reason}`);
+      if (res.success) cancelledCount++;
+    }
+    return { cancelledCount };
+  } catch {
+    return { cancelledCount: 0 };
+  }
 }

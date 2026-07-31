@@ -1,4 +1,4 @@
-// Trigger types for automation rules
+﻿// Trigger types for automation rules
 export type AutomationTrigger =
   | 'simulador_completado'
   | 'presupuesto_generado'
@@ -24,6 +24,8 @@ export type MessageTemplateType =
   | 'lead_estado_cambiado'
   | 'personalizado';
 
+export type WhatsAppSendingMode = 'manual_click' | 'automatic';
+
 export interface WhatsAppAutomationRule {
   id: string;
   name: string;
@@ -33,6 +35,7 @@ export interface WhatsAppAutomationRule {
   customTemplate?: string; // If templateType === 'personalizado'
   enabled: boolean;
   targetType: 'prospecto' | 'cliente';
+  sendingMode?: WhatsAppSendingMode; // 'manual_click' (default) or 'automatic'
   createdAt: string;
 }
 
@@ -51,6 +54,8 @@ export interface ScheduledMessage {
   // Scheduling
   scheduledAt: string; // ISO - when it should be sent
   status: ScheduledMessageStatus;
+  sendingMode?: WhatsAppSendingMode;
+  cancelReason?: string;
   // Tracking
   sentAt?: string; // when it was actually sent
   sentBy?: string; // who triggered the send
