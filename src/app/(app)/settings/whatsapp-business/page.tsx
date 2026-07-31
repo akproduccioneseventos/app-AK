@@ -117,8 +117,8 @@ export default function WhatsAppBusinessPage() {
   return (
     <div className="max-w-3xl mx-auto space-y-8">
       {/* Header */}
-      <div className="flex items-center justify-between">
-        <div className="flex items-center gap-3">
+      <div className="flex flex-wrap items-center justify-between gap-3">
+        <div className="flex flex-wrap items-center gap-3">
           <div className="p-2 bg-green-100 rounded-xl">
             <MessageCircle className="w-8 h-8 text-green-600" />
           </div>
@@ -127,7 +127,7 @@ export default function WhatsAppBusinessPage() {
             <p className="text-muted-foreground text-sm">Atendé clientes automáticamente desde WhatsApp</p>
           </div>
         </div>
-        <div className="flex items-center gap-2">
+        <div className="flex flex-wrap items-center gap-2">
           <Button asChild variant="outline" size="sm"><Link href="/settings/whatsapp-business/conversations">
               <Users className="w-4 h-4 mr-2" />
               Ver conversaciones
@@ -149,7 +149,7 @@ export default function WhatsAppBusinessPage() {
             { label: 'Tiempo respuesta', value: stats.avgResponseTime, icon: Clock },
           ].map(s => (
             <Card key={s.label} className="p-3">
-              <div className="flex items-center gap-2">
+              <div className="flex flex-wrap items-center gap-2">
                 <s.icon className="w-4 h-4 text-primary shrink-0" />
                 <div>
                   <p className="text-xs text-muted-foreground">{s.label}</p>
@@ -326,7 +326,7 @@ export default function WhatsAppBusinessPage() {
 
             <div className="space-y-2">
               <Label htmlFor="webhook">URL del Webhook</Label>
-              <div className="flex gap-2">
+              <div className="flex flex-wrap gap-2">
                 <Input
                   id="webhook"
                   readOnly

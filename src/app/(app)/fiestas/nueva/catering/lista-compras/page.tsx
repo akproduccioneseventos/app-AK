@@ -310,7 +310,7 @@ function ListaDeComprasContent() {
       <div className="max-w-5xl mx-auto space-y-6 pb-20 p-4">
         <div className="flex justify-between items-center mb-6">
           <Skeleton className="h-10 w-64" />
-          <div className="flex gap-2">
+          <div className="flex flex-wrap gap-2">
             <Skeleton className="h-10 w-32" />
             <Skeleton className="h-10 w-24" />
           </div>
@@ -347,11 +347,11 @@ function ListaDeComprasContent() {
   return (
       <div className="max-w-5xl mx-auto space-y-6 pb-20">
         <div className="flex items-center justify-between print:hidden">
-          <div className="flex items-center gap-3">
+          <div className="flex flex-wrap items-center gap-3">
             <ShoppingCart className="w-8 h-8 text-primary" />
             <h1 className="text-3xl font-bold tracking-tight font-headline">Lista de Compras y Pedidos</h1>
           </div>
-          <div className="flex gap-2">
+          <div className="flex flex-wrap gap-2">
             <Button variant="ghost" onClick={() => loadData(true)}><RefreshCw className="w-4 h-4 mr-2"/>Actualizar</Button>
             <Button onClick={() => window.print()} variant="outline"><Printer className="w-4 h-4 mr-2"/>PDF</Button>
             <Button asChild><Link href={`/fiestas/nueva?fiestaId=${fiestaId}`}><ArrowLeft className="w-4 h-4 mr-2"/>Volver</Link></Button>
@@ -367,7 +367,7 @@ function ListaDeComprasContent() {
                 return (
                     <Card key={providerId} className="shadow-lg border-none rounded-[2rem] overflow-hidden bg-white print:shadow-none print:border">
                         <CardHeader className="bg-slate-50 border-b border-slate-100 p-6 flex flex-col xl:flex-row justify-between xl:items-center gap-4">
-                            <div className="flex items-center gap-3">
+                            <div className="flex flex-wrap items-center gap-3">
                                 <div className="p-3 bg-white rounded-2xl shadow-sm border border-slate-100">
                                     <Truck className="w-6 h-6 text-primary"/>
                                 </div>
@@ -377,7 +377,7 @@ function ListaDeComprasContent() {
                                 </div>
                             </div>
                             <div className="flex flex-wrap items-center gap-4 bg-white p-3 px-6 rounded-2xl border shadow-sm print:hidden">
-                                <div className="flex items-center gap-2">
+                                <div className="flex flex-wrap items-center gap-2">
                                     <Switch id={`pedido-${providerId}`} checked={estadoActual.pedido} onCheckedChange={(val) => handleStatusChange(providerId, providerName, 'pedido', val)} disabled={isSavingThis} />
                                     <Label htmlFor={`pedido-${providerId}`} className="font-black text-[10px] uppercase tracking-widest text-slate-600">PEDIDO</Label>
                                 </div>
@@ -386,12 +386,12 @@ function ListaDeComprasContent() {
                                     <Label htmlFor={`entregado-${providerId}`} className="font-black text-[10px] uppercase tracking-widest text-blue-600">ENTREGADO</Label>
                                 </div>
                                 <div className="h-6 w-px bg-slate-200 mx-2 hidden sm:block"></div>
-                                <div className="flex items-center gap-2">
+                                <div className="flex flex-wrap items-center gap-2">
                                     <Switch id={`pagado-${providerId}`} checked={estadoActual.pagado} onCheckedChange={(val) => handleStatusChange(providerId, providerName, 'pagado', val)} disabled={isSavingThis} />
                                     <Label htmlFor={`pagado-${providerId}`} className="font-black text-[10px] uppercase tracking-widest text-emerald-600">PAGADO TOTAL</Label>
                                 </div>
                                 {!estadoActual.pagado && (
-                                    <div className="flex items-center gap-2">
+                                    <div className="flex flex-wrap items-center gap-2">
                                         <Label htmlFor={`monto-${providerId}`} className="font-bold text-[10px] uppercase text-slate-400">A Cuenta:</Label>
                                         <div className="relative">
                                             <span className="absolute left-2.5 top-1/2 -translate-y-1/2 text-xs font-bold text-slate-400">$</span>
@@ -423,7 +423,7 @@ function ListaDeComprasContent() {
                                     {items.map(item => (
                                         <TableRow key={item.id} className="border-slate-50 hover:bg-slate-50/50 group">
                                             <TableCell className="pl-8 py-4">
-                                                <div className="flex items-center gap-2">
+                                                <div className="flex flex-wrap items-center gap-2">
                                                     {item.isOrder && <Cake className="w-3.5 h-3.5 text-primary opacity-60"/>}
                                                     <p className="font-bold text-slate-700">{item.nombre}</p>
                                                 </div>
@@ -444,7 +444,7 @@ function ListaDeComprasContent() {
 
         <div className="fixed bottom-0 left-0 right-0 p-4 bg-white/80 backdrop-blur-xl border-t border-slate-100 z-50 print:hidden">
             <div className="max-w-5xl mx-auto flex justify-between items-center">
-                <div className="flex items-center gap-3">
+                <div className="flex flex-wrap items-center gap-3">
                     <Info className="w-5 h-5 text-blue-500"/>
                     <p className="text-xs font-bold text-slate-500 uppercase tracking-widest">Inversión Total Proyectada:</p>
                 </div>

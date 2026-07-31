@@ -60,7 +60,6 @@ import {
 import type { SocialConnection } from '@/types/settings';
 import type { GuestPortalSettings } from '@/types/fiesta';
 import { MiniQuiosco } from './MiniQuiosco';
-import { GiftRegistryModal } from '@/components/invitacion/GiftRegistryModal';
 
 const DIETARY_LABELS: Record<string, string> = {
   Ninguna: '',
@@ -203,7 +202,6 @@ function GuestPortalContent() {
   const [loadError, setLoadError] = useState<string | null>(null);
   const [showQuiosco, setShowQuiosco] = useState(false);
   const [isInteractive, setIsInteractive] = useState(false);
-  const [isGiftModalOpen, setIsGiftModalOpen] = useState(false);
 
   useEffect(() => {
     setIsInteractive(true);
@@ -260,7 +258,7 @@ function GuestPortalContent() {
   const guestExp = fiesta.guestExperienceSettings;
   const gps: GuestPortalSettings = { ...DEFAULT_GPS, ...(fiesta.guestPortalSettings ?? {}) };
   const modules = fiesta.modulosContratados;
-  const regalosConfig = fiesta.invitacionDigital?.regalos || fiesta.regalos;
+  const regalosConfig = fiesta.regalos;
   const socialEnabled = gps.showMural !== false && (!modules || (modules.redSocial ?? modules.muroSocial) !== false);
   const photosEnabled = gps.showFotos !== false && (!modules || modules.fotografia !== false);
   const tableEnabled = gps.showMesaAsignada !== false && (!modules || modules.numerosMesa !== false);
@@ -331,7 +329,10 @@ function GuestPortalContent() {
       onClick: tool.id === 'bar' ? () => setShowQuiosco(true) : undefined,
     })),
     ...(giftsEnabled
-      ? [{ id: 'gifts', label: 'Regalos', icon: Gift, onClick: () => setIsGiftModalOpen(true) }]
+      // El acceso a regalos lleva a la seccion real de la invitacion, que es
+      // donde vive el contenido completo. Abrirlo en una ventana aparte dejaba
+      // al invitado sin ver el resto de la invitacion.
+      ? [{ id: 'gifts', label: 'Regalos', icon: Gift, href: `${invitacionUrl}#regalos`, external: true }]
       : []),
     ...entertainmentLinks.map((link): PortalAction => ({
       id: `entertainment-${link.id}`,
@@ -680,8 +681,18 @@ function GuestPortalContent() {
         </div>
       </nav>
 
-      <MiniQuiosco isOpen={showQuiosco} onOpenChange={setShowQuiosco} fiestaId={fiestaId} />
-      <GiftRegistryModal isOpen={isGiftModalOpen} onOpenChange={setIsGiftModalOpen} config={regalosConfig} />
+      {/* `MiniQuiosco` no recibe `isOpen`: se monta solo cuando corresponde y
+          avisa su cierre con `onClose`. Necesita ademas el invitado y su token
+          para poder tomar el pedido. */}
+      {showQuiosco && (
+        <MiniQuiosco
+          fiestaId={fiestaId}
+          guest={{ id: guest.id, nombre: guest.nombre, tableNumber: guest.tableNumber }}
+          guestAccessToken={guestAccessToken}
+          canShareToSocial={socialEnabled}
+          onClose={() => setShowQuiosco(false)}
+        />
+      )}
 
       <style jsx global>{`
         @keyframes guestHero {

@@ -2,7 +2,9 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Separator } from '@/components/ui/separator';
 import { Clock } from 'lucide-react';
 
-export default function MorningRecapPage({ params }: { params: { fiestaId: string } }) {
+// La pantalla no usa `params`, y en esta version de Next los parametros de ruta
+// llegan como promesa: declararlos con la forma vieja rompe la compilacion.
+export default function MorningRecapPage() {
   return (
     <div className="min-h-screen bg-[#fdfbf7] text-[#2c2c2c] font-serif p-6 md:p-12 flex flex-col items-center justify-center">
       <div className="max-w-2xl mx-auto text-center">

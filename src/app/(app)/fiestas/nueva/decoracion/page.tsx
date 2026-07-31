@@ -1827,7 +1827,11 @@ function DecoracionYDisenoEventoContent() {
                         <PlusCircle className="w-3.5 h-3.5" /> Agregar elemento personalizado
                       </Button>
                     </div>
-                    <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 xl:grid-cols-5 gap-3">
+                    {/* `[&>*]:min-w-0`: las celdas de una grilla no se encogen
+                        por debajo del ancho de su contenido, asi que los nombres
+                        largos estiraban la fila y el recorte de texto no llegaba
+                        a aplicarse. */}
+                    <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 xl:grid-cols-5 gap-3 [&>*]:min-w-0">
                       {CATALOGO_ITEMS.map(cat => {
                         const countInZone = (decoracionData.itemsDecoracion || []).filter(di => di.categoria === cat.categoria && di.zona === currentZona?.id).length;
                         return (

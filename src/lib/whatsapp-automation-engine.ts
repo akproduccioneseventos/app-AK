@@ -134,7 +134,7 @@ export async function triggerWhatsAppAutomation(
       }
     }
   } catch (e: any) {
-    errors.push(`Error en motor de automatizaciÃƒÂ³n: ${e.message}`);
+    errors.push(`Error en motor de automatización: ${e.message}`);
   }
 
   return { scheduled, errors };

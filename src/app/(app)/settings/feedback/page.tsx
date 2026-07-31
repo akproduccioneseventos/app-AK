@@ -148,8 +148,8 @@ export default function FeedbackPage() {
           postToDuplicate={postToCreate as import('@/types/social-media').SocialPost | null} // Using duplicate to pre-fill text
       />
      
-      <div className="flex items-center justify-between">
-        <div className="flex items-center gap-3">
+      <div className="flex flex-wrap items-center justify-between gap-3">
+        <div className="flex flex-wrap items-center gap-3">
           <Star className="w-8 h-8 text-primary" />
           <h1 className="text-3xl font-bold tracking-tight font-headline">Feedback y Testimonios</h1>
         </div>
@@ -177,7 +177,7 @@ export default function FeedbackPage() {
       {feedbackList.length > 0 && (
         <Card className="shadow-md">
           <CardHeader>
-            <CardTitle className="flex items-center gap-2">
+            <CardTitle className="flex flex-wrap items-center gap-2">
               <Star className="w-5 h-5 text-amber-500" />
               Análisis NPS &amp; Satisfacción
             </CardTitle>
@@ -287,12 +287,12 @@ export default function FeedbackPage() {
                 <p className="text-sm font-medium text-right">- {t.clientName}, {t.fiestaNombre}</p>
                 <Separator/>
                 <div className="flex justify-between items-center">
-                    <div className="flex items-center gap-2">
+                    <div className="flex flex-wrap items-center gap-2">
                         <Switch id={`approve-${t.id}`} checked={t.isApproved} onCheckedChange={() => handleToggleApproval(t.id, t.isApproved)}/>
                         <Label htmlFor={`approve-${t.id}`}>{t.isApproved ? "Aprobado" : "Aprobar"}</Label>
                         {t.isApproved && <CheckCircle className="w-4 h-4 text-green-500"/>}
                     </div>
-                    <div className="flex gap-2">
+                    <div className="flex flex-wrap gap-2">
                          <Button variant="secondary" size="sm" onClick={() => handlePublishTestimonial(t)} disabled={!t.isApproved}>
                             <Send className="w-4 h-4 mr-2"/> Publicar
                          </Button>

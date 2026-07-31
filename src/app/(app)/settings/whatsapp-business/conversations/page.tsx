@@ -122,7 +122,7 @@ export default function WhatsAppConversationsPage() {
     <div className="h-full flex flex-col space-y-4">
       {/* Header */}
       <div className="flex items-center justify-between shrink-0">
-        <div className="flex items-center gap-3">
+        <div className="flex flex-wrap items-center gap-3">
           <div className="p-2 bg-green-100 rounded-xl">
             <MessageCircle className="w-7 h-7 text-green-600" />
           </div>
@@ -131,7 +131,7 @@ export default function WhatsAppConversationsPage() {
             <p className="text-sm text-muted-foreground">{conversations.length} conversaciones</p>
           </div>
         </div>
-        <div className="flex items-center gap-2">
+        <div className="flex flex-wrap items-center gap-2">
           <Button variant="outline" size="sm" onClick={() => { setIsLoading(true); load(); }}>
             <RefreshCw className="w-4 h-4 mr-2" />
             Actualizar
@@ -181,7 +181,7 @@ export default function WhatsAppConversationsPage() {
                       <PhoneCall className="w-3 h-3 text-muted-foreground shrink-0" />
                       <p className="text-xs text-muted-foreground">{conv.clientPhone}</p>
                     </div>
-                    <div className="flex items-center justify-between">
+                    <div className="flex flex-wrap items-center justify-between gap-3">
                       {modeBadge(conv.mode)}
                       <span className="text-xs text-muted-foreground">
                         {new Date(conv.updatedAt).toLocaleDateString('es-UY', { day: '2-digit', month: '2-digit', hour: '2-digit', minute: '2-digit' })}
@@ -216,8 +216,8 @@ export default function WhatsAppConversationsPage() {
               <Card className="h-full flex flex-col">
                 {/* Chat header */}
                 <CardHeader className="pb-3 border-b shrink-0">
-                  <div className="flex items-center justify-between">
-                    <div className="flex items-center gap-3">
+                  <div className="flex flex-wrap items-center justify-between gap-3">
+                    <div className="flex flex-wrap items-center gap-3">
                       <div className="w-9 h-9 rounded-full bg-green-100 flex items-center justify-center">
                         <User className="w-5 h-5 text-green-600" />
                       </div>
@@ -226,7 +226,7 @@ export default function WhatsAppConversationsPage() {
                         <CardDescription className="text-xs">{selected.clientPhone}</CardDescription>
                       </div>
                     </div>
-                    <div className="flex items-center gap-2">
+                    <div className="flex flex-wrap items-center gap-2">
                       {statusBadge(selected.status)}
                       {modeBadge(selected.mode)}
                       {selected.leadId && (
@@ -282,7 +282,7 @@ export default function WhatsAppConversationsPage() {
 
                 {/* Input */}
                 <div className="p-3 border-t shrink-0">
-                  <div className="flex gap-2">
+                  <div className="flex flex-wrap gap-2">
                     <Input
                       placeholder="Escribí un mensaje..."
                       value={message}

@@ -1397,6 +1397,9 @@ export interface FiestaEnPlanificacion {
   tareas?: Tarea[];
   decoracion?: DecoracionData;
   invitados?: Invitado[];
+  /** Juegos del evento. Los guarda y lee `games.actions.ts`. */
+  triviaGame?: import('@/lib/games/game-engine').TriviaGame;
+  photoMissions?: import('@/lib/games/game-engine').PhotoMission[];
   clientChecklist?: ClientTarea[];
   clientNotes?: string;
   invitacionDigital?: InvitacionDigitalData;

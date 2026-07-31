@@ -116,14 +116,14 @@ export default function NotificationsSettingsPage() {
 
   return (
     <div className="max-w-2xl mx-auto space-y-8">
-      <div className="flex items-center justify-between">
-        <div className="flex items-center gap-3">
+      <div className="flex flex-wrap items-center justify-between gap-3">
+        <div className="flex flex-wrap items-center gap-3">
           <BellRing className="w-8 h-8 text-primary" />
           <h1 className="text-3xl font-bold tracking-tight font-headline">
             Configuración de Notificaciones
           </h1>
         </div>
-        <div className="flex items-center gap-3">
+        <div className="flex flex-wrap items-center gap-3">
           <AutoSaveIndicator isSaving={isSaving} lastSaved={lastSaved} saveError={saveError} />
           <Button asChild variant="outline"><Link href="/settings">
               <ArrowLeft className="w-4 h-4 mr-2" />
@@ -149,7 +149,7 @@ export default function NotificationsSettingsPage() {
                     <p className="text-sm text-muted-foreground">{section.description}</p>
                   </div>
                   <div className="grid grid-cols-1 sm:grid-cols-2 gap-x-8 gap-y-4 p-3 border rounded-md bg-muted/30">
-                    <div className="flex items-center justify-between">
+                    <div className="flex flex-wrap items-center justify-between gap-3">
                       <Label htmlFor={`${section.id}-email`} className="flex flex-col space-y-1">
                         <span>Email</span>
                         <span className="font-normal leading-snug text-muted-foreground text-xs">
@@ -163,7 +163,7 @@ export default function NotificationsSettingsPage() {
                         disabled={isSaving || section.isDisabled}
                       />
                     </div>
-                    <div className="flex items-center justify-between">
+                    <div className="flex flex-wrap items-center justify-between gap-3">
                       <Label htmlFor={`${section.id}-app`} className="flex flex-col space-y-1">
                         <span>Notificación en App</span>
                         <span className="font-normal leading-snug text-muted-foreground text-xs">

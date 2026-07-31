@@ -27,14 +27,14 @@ export function getPendingRsvpGuests(invitados: Invitado[]): Invitado[] {
 
 export function buildRsvpReminders(fiesta: FiestaEnPlanificacion, baseUrl: string): RsvpReminderMessage[] {
   const pendingGuests = getPendingRsvpGuests(fiesta.invitados || []);
-  const eventDate = new Date(fiesta.fecha);
+  const eventDate = new Date(fiesta.configuracion?.fechaEvento ?? '');
   const now = new Date();
   const diffTime = Math.abs(eventDate.getTime() - now.getTime());
   const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
 
   return pendingGuests.map(guest => {
     const rsvpLink = `${baseUrl}/rsvp/${guest.guestAccessToken}`;
-    const message = generateRsvpMessage(guest.nombre, fiesta.nombre, fiesta.fecha, rsvpLink, diffDays);
+    const message = generateRsvpMessage(guest.nombre, fiesta.configuracion?.nombreEvento ?? 'la fiesta', fiesta.configuracion?.fechaEvento ?? '', rsvpLink, diffDays);
 
     return {
       guestId: guest.id,

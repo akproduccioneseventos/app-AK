@@ -302,12 +302,12 @@ function GestionReunionesContent() {
         </DialogContent>
       </Dialog>
 
-      <div className="flex items-center justify-between">
-        <div className="flex items-center gap-3">
+      <div className="flex flex-wrap items-center justify-between gap-3">
+        <div className="flex flex-wrap items-center gap-3">
           <MessageSquareText className="w-8 h-8 text-primary" />
           <h1 className="text-3xl font-bold tracking-tight font-headline">Reuniones con Cliente</h1>
         </div>
-        <div className="flex gap-2">
+        <div className="flex flex-wrap gap-2">
             <Button asChild variant="secondary" size="sm"><Link href={`/fiestas/nueva/resumen-planificacion?fiestaId=${fiestaId}`}>
                     <ClipboardCheck className="w-4 h-4 mr-2"/> Ver Planificacion Actual
                 </Link></Button>

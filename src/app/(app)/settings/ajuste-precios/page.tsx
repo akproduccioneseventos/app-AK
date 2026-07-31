@@ -128,8 +128,8 @@ export default function AjustePreciosPage() {
 
   return (
     <div className="max-w-4xl mx-auto space-y-8">
-      <div className="flex items-center justify-between">
-        <div className="flex items-center gap-3">
+      <div className="flex flex-wrap items-center justify-between gap-3">
+        <div className="flex flex-wrap items-center gap-3">
           <TrendingUp className="w-8 h-8 text-primary" />
           <div>
             <h1 className="text-2xl sm:text-3xl font-bold tracking-tight font-headline">Ajuste Anual de Precios</h1>
@@ -142,7 +142,7 @@ export default function AjustePreciosPage() {
       {/* Apply Adjustment Card */}
       <Card>
         <CardHeader>
-          <CardTitle className="flex items-center gap-2"><Percent className="w-5 h-5" /> Aplicar Nuevo Ajuste</CardTitle>
+          <CardTitle className="flex flex-wrap items-center gap-2"><Percent className="w-5 h-5" /> Aplicar Nuevo Ajuste</CardTitle>
           <CardDescription>Configura el porcentaje y tipo de ajuste a aplicar sobre todos los servicios del catálogo.</CardDescription>
         </CardHeader>
         <CardContent className="space-y-6">
@@ -181,7 +181,7 @@ export default function AjustePreciosPage() {
             </div>
           </div>
 
-          <div className="flex gap-3">
+          <div className="flex flex-wrap gap-3">
             <Button variant="outline" className="flex-1 h-12" onClick={handlePreview} disabled={isPreviewing}>
               {isPreviewing ? <Loader2 className="w-4 h-4 mr-2 animate-spin" /> : <Eye className="w-4 h-4 mr-2" />}
               Previsualizar Cambios
@@ -215,7 +215,7 @@ export default function AjustePreciosPage() {
       {preview && preview.length > 0 && (
         <Card>
           <CardHeader>
-            <CardTitle className="flex items-center gap-2">
+            <CardTitle className="flex flex-wrap items-center gap-2">
               <Eye className="w-5 h-5" /> Previsualización del Ajuste
               <Badge variant="secondary" className="ml-2">{preview.length} servicios</Badge>
             </CardTitle>
@@ -291,7 +291,7 @@ export default function AjustePreciosPage() {
       {/* History */}
       <Card>
         <CardHeader>
-          <CardTitle className="flex items-center gap-2"><History className="w-5 h-5" /> Historial de Ajustes</CardTitle>
+          <CardTitle className="flex flex-wrap items-center gap-2"><History className="w-5 h-5" /> Historial de Ajustes</CardTitle>
           <CardDescription>Registro de todos los ajustes aplicados. Puedes revertir los ajustes más recientes.</CardDescription>
         </CardHeader>
         <CardContent>

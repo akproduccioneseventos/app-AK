@@ -17,6 +17,32 @@ export default function TriviaAdminPanel({ fiestaId }: Props) {
   const [missions, setMissions] = useState<PhotoMission[]>([]);
   const [status, setStatus] = useState<'draft' | 'active' | 'finished'>('draft');
 
+  /** Los botones existian sin accion: agregan una fila vacia para completar. */
+  const nuevoId = () => `${Date.now()}-${Math.random().toString(36).slice(2, 8)}`;
+
+  const agregarPregunta = () => {
+    const id = nuevoId();
+    setQuestions((previas) => [
+      ...previas,
+      {
+        id,
+        question: '',
+        options: [
+          { id: `${id}-a`, text: '' },
+          { id: `${id}-b`, text: '' },
+        ],
+        correctOptionId: `${id}-a`,
+      },
+    ]);
+  };
+
+  const agregarMision = () => {
+    setMissions((previas) => [
+      ...previas,
+      { id: nuevoId(), title: '', description: '', emoji: '📸', points: 10 },
+    ]);
+  };
+
   const handleSaveTrivia = () => {
     alert('Trivia guardada correctamente');
   };
@@ -101,7 +127,7 @@ export default function TriviaAdminPanel({ fiestaId }: Props) {
               </div>
             </div>
           ))}
-          <Button variant="outline" className="w-full">Agregar Pregunta</Button>
+          <Button variant="outline" className="w-full" onClick={agregarPregunta}>Agregar Pregunta</Button>
         </CardContent>
       </Card>
 
@@ -157,7 +183,7 @@ export default function TriviaAdminPanel({ fiestaId }: Props) {
               </div>
             </div>
           ))}
-          <Button variant="outline" className="w-full">Agregar Misión</Button>
+          <Button variant="outline" className="w-full" onClick={agregarMision}>Agregar Misión</Button>
         </CardContent>
       </Card>
     </div>

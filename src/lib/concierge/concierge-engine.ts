@@ -23,8 +23,8 @@ export const QUICK_SUGGESTIONS = [
 
 export function buildConciergeContext(fiesta: FiestaEnPlanificacion): string {
   const totalInvitados = fiesta.invitados?.length || 0;
-  const confirmados = fiesta.invitados?.filter(i => i.rsvp === 'confirmado').length || 0;
-  return `Fiesta: ${fiesta.configuracion?.nombre || 'Sin nombre'}, Lugar: ${fiesta.configuracion?.nombreLugar || 'A definir'}, Fecha: ${fiesta.configuracion?.fecha || 'A definir'}, Invitados: ${confirmados}/${totalInvitados}`;
+  const confirmados = fiesta.invitados?.filter(i => i.rsvp === 'Confirmado').length || 0;
+  return `Fiesta: ${fiesta.configuracion?.nombreEvento || 'Sin nombre'}, Lugar: ${fiesta.configuracion?.nombreLugar || 'A definir'}, Fecha: ${fiesta.configuracion?.fechaEvento || 'A definir'}, Invitados: ${confirmados}/${totalInvitados}`;
 }
 
 export function answerConciergeQuestion(fiesta: FiestaEnPlanificacion, question: string): ConciergeAnswer {
@@ -32,9 +32,9 @@ export function answerConciergeQuestion(fiesta: FiestaEnPlanificacion, question:
 
   if (q.includes('invitados') || q.includes('confirmados') || q.includes('cuántos') || q.includes('cuantos')) {
     const total = fiesta.invitados?.length || 0;
-    const confirmados = fiesta.invitados?.filter(i => i.rsvp === 'confirmado').length || 0;
-    const pendientes = fiesta.invitados?.filter(i => i.rsvp === 'pendiente').length || 0;
-    const rechazados = fiesta.invitados?.filter(i => i.rsvp === 'rechazado').length || 0;
+    const confirmados = fiesta.invitados?.filter(i => i.rsvp === 'Confirmado').length || 0;
+    const pendientes = fiesta.invitados?.filter(i => i.rsvp === 'Pendiente').length || 0;
+    const rechazados = fiesta.invitados?.filter(i => i.rsvp === 'Rechazado').length || 0;
     return {
       answer: `Tienen ${confirmados} invitados confirmados de un total de ${total}.`,
       dataPoints: [
@@ -48,8 +48,11 @@ export function answerConciergeQuestion(fiesta: FiestaEnPlanificacion, question:
   }
 
   if (q.includes('pagar') || q.includes('saldo') || q.includes('deuda') || q.includes('pagos')) {
-    const pagos = fiesta.pagos || [];
-    const totalPagado = pagos.reduce((acc, curr) => acc + curr.monto, 0);
+    // El plan vive en `planDePagos.cuotas`; no existe un `fiesta.pagos`.
+    const cuotas = fiesta.planDePagos?.cuotas ?? [];
+    const totalPagado = cuotas
+      .filter((cuota) => cuota.estado === 'pagado')
+      .reduce((acc, cuota) => acc + (Number(cuota.monto) || 0), 0);
     return {
       answer: `Han pagado un total de $${totalPagado}.`,
       suggestedFollowUps: ['¿Cuándo es el próximo pago?']

@@ -14,7 +14,12 @@ const TabsList = React.forwardRef<
   <TabsPrimitive.List
     ref={ref}
     className={cn(
-      "inline-flex h-10 items-center justify-center rounded-md bg-muted p-1 text-muted-foreground",
+      // `max-w-full` + `overflow-x-auto`: una fila con varias solapas (por
+      // ejemplo los filtros de presupuestos: Todos, Borrador, Enviado,
+      // Aprobado, Facturado) supera el ancho de un telefono y, al ser
+      // `inline-flex`, estiraba la pagina entera en vez de desplazarse. Ahora
+      // la fila se desplaza dentro de su propia caja.
+      "inline-flex h-10 max-w-full items-center justify-center overflow-x-auto rounded-md bg-muted p-1 text-muted-foreground",
       className
     )}
     {...props}

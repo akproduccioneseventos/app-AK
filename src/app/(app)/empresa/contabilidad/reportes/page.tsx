@@ -52,14 +52,17 @@ export default function GananciasYPerdidasPage() {
 
   return (
     <div className="max-w-6xl mx-auto space-y-6">
-      <div className="flex items-center justify-between print:hidden">
-        <div className="flex items-center gap-3">
-          <TrendingUp className="w-8 h-8 text-primary" />
-          <h1 className="text-3xl font-bold tracking-tight font-headline">
+      {/* Los tres botones suman 516px y no se pueden partir (`whitespace-nowrap`),
+          asi que en un telefono de 412px estiraban la pagina y obligaban a
+          desplazarla de costado. Con `flex-wrap` bajan a la linea siguiente. */}
+      <div className="flex flex-wrap items-center justify-between gap-3 print:hidden">
+        <div className="flex min-w-0 items-center gap-3">
+          <TrendingUp className="w-8 h-8 shrink-0 text-primary" />
+          <h1 className="text-2xl font-bold tracking-tight font-headline sm:text-3xl">
             Reporte de Ganancias y Pérdidas
           </h1>
         </div>
-        <div className="flex gap-2">
+        <div className="flex flex-wrap gap-2">
             <Button onClick={handlePrint} variant="outline" size="sm"><Eye className="w-4 h-4 mr-1.5"/>Vista Previa</Button>
             <Button onClick={handlePrint} size="sm"><Printer className="w-4 h-4 mr-1.5"/>Imprimir / PDF</Button>
             <Button asChild variant="outline"><Link href="/empresa/contabilidad">

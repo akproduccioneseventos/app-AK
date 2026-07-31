@@ -98,5 +98,18 @@ export function buildPublicEventTools({
       href: accessiblePath("barra"),
     });
   }
+
+  // La zona digital ya estaba declarada como herramienta ("games") y contratable
+  // por modulo, pero nadie la agregaba a la lista: el invitado nunca llegaba a
+  // los juegos aunque el evento los tuviera contratados.
+  if (modules?.zonaDigital === true && event.zonaDigitalAdolescentes?.enabled === true) {
+    tools.push({
+      id: "games",
+      label: "Juegos",
+      description: "Trivia y misiones de fotos durante la fiesta.",
+      href: accessiblePath("zona-digital"),
+    });
+  }
+
   return tools;
 }

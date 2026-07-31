@@ -233,15 +233,15 @@ export default function CuponesPage() {
 
   return (
     <div className="max-w-5xl mx-auto space-y-8">
-      <div className="flex items-center justify-between">
-        <div className="flex items-center gap-3">
+      <div className="flex flex-wrap items-center justify-between gap-3">
+        <div className="flex flex-wrap items-center gap-3">
           <Ticket className="w-8 h-8 text-primary" />
           <div>
             <h1 className="text-2xl sm:text-3xl font-bold tracking-tight font-headline">Cupones y Descuentos</h1>
             <p className="text-muted-foreground text-sm">Crea y gestiona cupones promocionales para tus presupuestos.</p>
           </div>
         </div>
-        <div className="flex gap-2">
+        <div className="flex flex-wrap gap-2">
           <Button asChild variant="outline" size="sm"><Link href="/settings"><ArrowLeft className="w-4 h-4 mr-2" />Volver</Link></Button>
           <Button size="sm" onClick={handleNewCupon}>
             <Plus className="w-4 h-4 mr-2" />Nuevo Cupón
@@ -263,7 +263,7 @@ export default function CuponesPage() {
             <div className="grid grid-cols-2 gap-4">
               <div className="space-y-2">
                 <Label>Código</Label>
-                <div className="flex gap-2">
+                <div className="flex flex-wrap gap-2">
                   <Input
                     value={formData.codigo}
                     onChange={e => setFormData({ ...formData, codigo: e.target.value.toUpperCase() })}
@@ -477,7 +477,7 @@ export default function CuponesPage() {
       {/* Cupones List */}
       <Card>
         <CardHeader>
-          <CardTitle className="flex items-center gap-2">
+          <CardTitle className="flex flex-wrap items-center gap-2">
             <Ticket className="w-5 h-5" /> Cupones
             <Badge variant="secondary" className="ml-2">{cupones.length}</Badge>
           </CardTitle>
