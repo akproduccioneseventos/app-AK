@@ -36,6 +36,7 @@ import {
 } from '@/lib/guest-portal/public-event-navigation';
 import type { EntertainmentModuleId } from '@/lib/entertainment/station-config';
 import { canUseNextImage } from '@/lib/next-image-url';
+import { ConciergeWidget } from '@/components/concierge/ConciergeWidget';
 
 const STATION_ICONS: Record<EntertainmentModuleId, typeof Camera> = {
   fotocabina: Camera,
@@ -288,6 +289,9 @@ export default function EventoHubPage() {
           })}
         </div>
       </nav>
+
+      {/* AK Concierge IA Bubble */}
+      <ConciergeWidget fiestaId={fiestaId} />
     </main>
   );
 }
