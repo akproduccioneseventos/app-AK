@@ -98,15 +98,5 @@ export function buildPublicEventTools({
       href: accessiblePath("barra"),
     });
   }
-
-  if (modules?.zonaDigital === true && event.zonaDigitalAdolescentes?.enabled !== false) {
-    tools.push({
-      id: "games",
-      label: "Juegos y retos",
-      description: "Participá en las actividades habilitadas para la fiesta.",
-      href: accessiblePath("zona-digital"),
-    });
-  }
-
   return tools;
 }

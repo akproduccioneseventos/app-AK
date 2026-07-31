@@ -217,10 +217,11 @@ export async function uploadSocialPost(
     const fiestaData = await getFiestaById(fiestaId);
     if (!fiestaData) return { success: false, error: 'Evento no encontrado.' };
     if (fiestaData.socialGallerySettings?.enabled === false) {
-      return { success: false, error: 'El muro social no esta habilitado para este evento.' };
+      return { success: false, error: 'El muro social no está habilitado para este evento.' };
     }
-    if (fiestaData.socialGallerySettings?.uploadsActive === false) {
-      return { success: false, error: 'Las cargas estan pausadas para este evento.' };
+    const active = fiestaData.socialGallerySettings?.uploadsActive !== false;
+    if (!active) {
+      return { success: false, error: 'Las cargas están pausadas para este evento.' };
     }
     const eventLimit = fiestaData?.socialGallerySettings?.maxPhotos ?? MAX_PHOTOS_PER_EVENT;
     const personLimit = fiestaData?.socialGallerySettings?.maxPhotosPerPerson ?? MAX_PHOTOS_PER_PERSON;
@@ -338,6 +339,7 @@ export async function createSocialMediaPostFromUrl(input: {
   drinkId?: string;
   drinkName?: string;
 }): Promise<{ success: boolean; post?: SocialGalleryPost; error?: string }> {
+  await requireAppSession();
   if (!input.fiestaId || !input.mediaUrl) {
     return { success: false, error: 'Faltan datos para publicar en el muro social.' };
   }
@@ -674,5 +676,33 @@ export async function moderateSocialPostByClient(
     return { success: true };
   } catch (error: any) {
     return { success: false, error: error.message || 'Error al moderar.' };
+  }
+}
+
+/**
+ * Tags a face (by author name/faceId) with a specific guest name.
+ * We store these tags in a separate collection or inside the fiesta document.
+ * For simplicity in this social gallery actions file, we'll store it as a document in
+ * `social_gallery_tags/{fiestaId}/tags/{faceId}`.
+ */
+export async function tagFaceNameAction(
+  fiestaId: string,
+  faceId: string,
+  taggedName: string
+): Promise<{ success: boolean; error?: string }> {
+  await requireAppSession();
+  try {
+    if (!fiestaId || !faceId || !taggedName) return { success: false, error: 'Datos inválidos' };
+    const db = await getDb();
+    const ref = db.collection('social_gallery_tags').doc(fiestaId).collection('tags').doc(faceId);
+    
+    await ref.set({
+      taggedName: sanitizeSocialText(taggedName),
+      taggedAt: new Date().toISOString()
+    }, { merge: true });
+    
+    return { success: true };
+  } catch (error: any) {
+    return { success: false, error: error.message || 'Error al etiquetar persona.' };
   }
 }

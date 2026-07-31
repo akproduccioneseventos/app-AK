@@ -13,6 +13,7 @@ import { uploadBuzonMessage } from '@/app/actions/buzon';
 import { getPublicEntertainmentEvent } from '@/app/actions/fiesta/entretenimiento.actions';
 import type { PublicEntertainmentEvent } from '@/lib/entertainment/station-config';
 import { KioskUnlockButton } from '@/components/kiosk/kiosk-unlock-button';
+import { VideoFrameOverlay } from '@/components/buzon/VideoFrameOverlay';
 import { cn } from '@/lib/utils';
 import { drawBuzonVideoFrame } from '@/lib/buzon/video-frame-canvas';
 import { renderUploadedVideoWithFrame } from '@/lib/buzon/video-frame-processor';
@@ -640,7 +641,9 @@ export default function GuestBuzonPage() {
       }
 
       // Video Timer or timestamp
-      const timeStr = new Date().toTimeString().split(' ')[0];
+      const date = new Date();
+      const timeStr = date.toTimeString().split(' ')[0];
+      const dateStr = date.toLocaleDateString('es-UY', { day: '2-digit', month: 'short', year: 'numeric' }).toUpperCase();
 
       ctx.fillStyle = '#ffffff';
       ctx.font = 'bold 16px "Courier New", monospace';
@@ -656,6 +659,65 @@ export default function GuestBuzonPage() {
         canvas.width,
         canvas.height,
       );
+
+      // Frame Border Overlay directly on Canvas
+      const activeTemplate = fiesta?.buzonConfig?.videoFrameTemplate || 'default';
+      const frameText = (fiesta?.buzonConfig?.customText || fiesta?.eventName || 'AK PRODUCCIONES').toUpperCase();
+
+      if (activeTemplate !== 'default') {
+        const borderWidth = 14;
+        ctx.lineWidth = borderWidth;
+
+        if (activeTemplate === 'neon') {
+          ctx.strokeStyle = '#d946ef';
+          ctx.strokeRect(borderWidth / 2, borderWidth / 2, canvas.width - borderWidth, canvas.height - borderWidth);
+          ctx.fillStyle = '#22d3ee';
+          ctx.font = 'bold 14px sans-serif';
+          ctx.textAlign = 'center';
+          ctx.fillText(`✨ ${frameText} ✨`, canvas.width / 2, canvas.height - 24);
+          ctx.textAlign = 'left';
+        } else if (activeTemplate === 'elegante') {
+          ctx.strokeStyle = '#fde047';
+          ctx.strokeRect(borderWidth / 2, borderWidth / 2, canvas.width - borderWidth, canvas.height - borderWidth);
+          ctx.fillStyle = '#fef08a';
+          ctx.font = 'bold 14px Georgia, serif';
+          ctx.textAlign = 'center';
+          ctx.fillText(`✦ ${frameText} ✦`, canvas.width / 2, canvas.height - 24);
+          ctx.textAlign = 'left';
+        } else if (activeTemplate === 'quince') {
+          ctx.strokeStyle = '#f472b6';
+          ctx.strokeRect(borderWidth / 2, borderWidth / 2, canvas.width - borderWidth, canvas.height - borderWidth);
+          ctx.fillStyle = '#fbcfe8';
+          ctx.font = 'bold 14px sans-serif';
+          ctx.textAlign = 'center';
+          ctx.fillText(`👑 ${frameText} 👑`, canvas.width / 2, canvas.height - 24);
+          ctx.textAlign = 'left';
+        } else if (activeTemplate === 'cumple-infantil') {
+          ctx.strokeStyle = '#38bdf8';
+          ctx.strokeRect(borderWidth / 2, borderWidth / 2, canvas.width - borderWidth, canvas.height - borderWidth);
+          ctx.fillStyle = '#fde047';
+          ctx.font = 'bold 14px sans-serif';
+          ctx.textAlign = 'center';
+          ctx.fillText(`🎈 ${frameText} 🎂`, canvas.width / 2, canvas.height - 24);
+          ctx.textAlign = 'left';
+        } else if (activeTemplate === 'glamour') {
+          ctx.strokeStyle = '#eab308';
+          ctx.strokeRect(borderWidth / 2, borderWidth / 2, canvas.width - borderWidth, canvas.height - borderWidth);
+          ctx.fillStyle = '#fef08a';
+          ctx.font = 'bold 14px sans-serif';
+          ctx.textAlign = 'center';
+          ctx.fillText(`⭐ ${frameText} ⭐`, canvas.width / 2, canvas.height - 24);
+          ctx.textAlign = 'left';
+        } else if (activeTemplate === 'minimalista') {
+          ctx.strokeStyle = '#ffffff';
+          ctx.strokeRect(borderWidth / 2, borderWidth / 2, canvas.width - borderWidth, canvas.height - borderWidth);
+          ctx.fillStyle = '#ffffff';
+          ctx.font = 'bold 14px sans-serif';
+          ctx.textAlign = 'center';
+          ctx.fillText(frameText, canvas.width / 2, canvas.height - 24);
+          ctx.textAlign = 'left';
+        }
+      }
 
       // Random tracking error line (VHSDistortion)
       if (Math.random() < 0.1) {
@@ -1078,6 +1140,15 @@ export default function GuestBuzonPage() {
                       <div className="w-full aspect-[4/3] rounded-3xl overflow-hidden border-2 border-rose-500/30 bg-black relative shadow-2xl">
                         <canvas ref={vhsCanvasRef} className="w-full h-full object-cover" />
 
+                        {/* Overlay VHS Effect */}
+                        <div className="absolute inset-0 bg-[linear-gradient(rgba(18,16,16,0)_50%,rgba(0,0,0,0.25)_50%),linear-gradient(90deg,rgba(255,0,0,0.06),rgba(0,255,0,0.02),rgba(0,0,255,0.06))] pointer-events-none bg-[size:100%_4px,3px_100%]" />
+
+                        {/* Marco de Video Personalizado */}
+                        <VideoFrameOverlay
+                          template={fiesta?.buzonConfig?.videoFrameTemplate}
+                          customText={fiesta?.buzonConfig?.customText}
+                          eventName={fiesta?.eventName}
+                        />
                         {/* Cuenta regresiva Overlay */}
                         {countdown !== null && (
                           <div className="absolute inset-0 z-20 flex items-center justify-center bg-black/60 backdrop-blur-sm">
@@ -1126,6 +1197,11 @@ export default function GuestBuzonPage() {
                     <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} className="w-full flex flex-col items-center gap-4 text-center">
                       <div className="w-full aspect-[4/3] rounded-3xl overflow-hidden bg-black border border-white/10 relative shadow-2xl">
                         <video src={videoUrl} controls className="w-full h-full object-contain" />
+                        <VideoFrameOverlay
+                          template={fiesta?.buzonConfig?.videoFrameTemplate}
+                          customText={fiesta?.buzonConfig?.customText}
+                          eventName={fiesta?.eventName}
+                        />
                       </div>
                       <div className="flex items-center justify-between w-full px-2">
                         <div className="text-left">

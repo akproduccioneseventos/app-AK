@@ -17,6 +17,9 @@ import {
 import { useSearchParams } from 'next/navigation';
 
 const links = [
+  // Pantalla unica para dirigir la noche: agrupa las herramientas reales del
+  // evento (pantallas del salon, estaciones y control) en un solo lugar.
+  { label: 'Centro de fiesta', href: '/eventos', icon: ClipboardCheck, eventPath: 'centro' },
   { label: 'Comando', href: '/eventos', icon: ClipboardCheck, eventPath: 'comando-total' },
   { label: 'Final', href: '/settings/cierre-operativo-final', icon: Rocket },
   { label: 'Portfolio fiesta', href: '/presentacion-led/portafolio', icon: Monitor, portfolioEvent: true },

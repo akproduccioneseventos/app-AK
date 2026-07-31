@@ -1450,6 +1450,8 @@ export interface FiestaEnPlanificacion {
   guestExperienceSettings?: GuestExperienceSettings;
   clientePortalExperience?: ClientePortalExperience;
   buzonConfig?: BuzonConfig;
+  momentoPaparazziActivo?: boolean;
+  momentoPaparazziTimestamp?: string;
 }
 
 export interface BuzonConfig {

@@ -32,6 +32,7 @@ import {
   TicketCheck,
   UtensilsCrossed,
   Wine,
+  Newspaper,
   type LucideIcon,
 } from 'lucide-react';
 import QRCodeStylized from 'qrcode.react';
@@ -59,6 +60,7 @@ import {
 import type { SocialConnection } from '@/types/settings';
 import type { GuestPortalSettings } from '@/types/fiesta';
 import { MiniQuiosco } from './MiniQuiosco';
+import { GiftRegistryModal } from '@/components/invitacion/GiftRegistryModal';
 
 const DIETARY_LABELS: Record<string, string> = {
   Ninguna: '',
@@ -201,6 +203,7 @@ function GuestPortalContent() {
   const [loadError, setLoadError] = useState<string | null>(null);
   const [showQuiosco, setShowQuiosco] = useState(false);
   const [isInteractive, setIsInteractive] = useState(false);
+  const [isGiftModalOpen, setIsGiftModalOpen] = useState(false);
 
   useEffect(() => {
     setIsInteractive(true);
@@ -257,13 +260,14 @@ function GuestPortalContent() {
   const guestExp = fiesta.guestExperienceSettings;
   const gps: GuestPortalSettings = { ...DEFAULT_GPS, ...(fiesta.guestPortalSettings ?? {}) };
   const modules = fiesta.modulosContratados;
+  const regalosConfig = fiesta.invitacionDigital?.regalos || fiesta.regalos;
   const socialEnabled = gps.showMural !== false && (!modules || (modules.redSocial ?? modules.muroSocial) !== false);
   const photosEnabled = gps.showFotos !== false && (!modules || modules.fotografia !== false);
   const tableEnabled = gps.showMesaAsignada !== false && (!modules || modules.numerosMesa !== false);
   const checkinEnabled = gps.showCheckin !== false && (!modules || modules.checkin !== false);
   const menuEnabled = guestExp?.showMenu !== false && (!modules || modules.menuMesa !== false);
   const rsvpEnabled = fiesta.invitacionConfig?.rsvpActivo !== false;
-  const giftsEnabled = gps.showRegalos === true && (!modules || modules.regalos !== false);
+  const giftsEnabled = (gps.showRegalos === true || gps.showRegalos === undefined) && regalosConfig && regalosConfig.tipo !== 'ninguno';
   const programaEnabled = gps.showItinerario !== false && (!modules || modules.itinerario !== false) && fiesta.programa.length > 0;
 
   if (guestExp?.allowGuestPortal === false) {
@@ -327,7 +331,7 @@ function GuestPortalContent() {
       onClick: tool.id === 'bar' ? () => setShowQuiosco(true) : undefined,
     })),
     ...(giftsEnabled
-      ? [{ id: 'gifts', label: 'Regalos', icon: Gift, href: `${invitacionUrl}#regalos`, external: true }]
+      ? [{ id: 'gifts', label: 'Regalos', icon: Gift, onClick: () => setIsGiftModalOpen(true) }]
       : []),
     ...entertainmentLinks.map((link): PortalAction => ({
       id: `entertainment-${link.id}`,
@@ -335,6 +339,7 @@ function GuestPortalContent() {
       icon: Sparkles,
       href: link.href,
     })),
+    { id: 'recap', label: 'Ver Recapitulador', icon: Newspaper, href: guestPath(`/invitacion/${fiestaId}/recap`) },
   ];
   const cancellationDeadline = parseEventDate(config?.fechaEvento);
   cancellationDeadline?.setDate(cancellationDeadline.getDate() - 7);
@@ -675,7 +680,9 @@ function GuestPortalContent() {
         </div>
       </nav>
 
-      {showQuiosco && <MiniQuiosco fiestaId={fiestaId} guest={guest} guestAccessToken={guestAccessToken} canShareToSocial={socialEnabled && photosEnabled} onClose={() => setShowQuiosco(false)} />}
+      <MiniQuiosco isOpen={showQuiosco} onOpenChange={setShowQuiosco} fiestaId={fiestaId} />
+      <GiftRegistryModal isOpen={isGiftModalOpen} onOpenChange={setIsGiftModalOpen} config={regalosConfig} />
+
       <style jsx global>{`
         @keyframes guestHero {
           from {

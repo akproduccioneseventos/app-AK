@@ -124,6 +124,8 @@ function toTitleCase(name: string): string {
 }
 
 export async function getCrmStages(): Promise<CrmStage[]> {
+  const auth = await verifySession();
+  if (!auth.success) throw new Error('No autorizado');
   const stages = await readData<CrmStage[]>(STAGES_FILE, DEFAULT_CRM_STAGES);
   return stages.length > 0 ? stages : DEFAULT_CRM_STAGES;
 }
@@ -431,6 +433,9 @@ export async function registerContractDeposit(params: {
   // TODO(Fase 3): accept metodoPago from form when the booking flow collects it.
   metodoPago?: MetodoPago;
 }): Promise<{ updatedPresupuesto: Presupuesto; pagoId: string }> {
+  const auth = await verifySession();
+  if (!auth.success) throw new Error('No autorizado');
+
   const { presupuesto, monto, referencia, metodoPago } = params;
   const paymentValidation = validatePaymentAgainstBudget(presupuesto, monto, { includePendingForLimit: true });
   if (!paymentValidation.ok) {
@@ -938,7 +943,7 @@ export interface LandingLeadData {
   fechaEstimada?: string;
   invitados?: number;
   mensaje?: string;
-  fuente: CommercialSource | 'promo-widget' | 'landing-bodas' | 'landing-xv' | 'landing-eventos';
+  fuente: CommercialSource | 'promo-widget' | 'landing-bodas' | 'landing-xv' | 'landing-eventos' | 'landing-quince' | 'landing-cumpleanos';
   acquisition?: CommercialAttribution;
 }
 
@@ -946,10 +951,10 @@ export async function saveLead(data: LandingLeadData): Promise<{ success: boolea
   try {
     const phone = normalizeUruguayPhone(data.telefono);
     if (data.nombre.trim().length < 3) {
-      return { success: false, error: 'Ingresa un nombre valido.' };
+      return { success: false, error: 'Ingresa un nombre válido.' };
     }
     if (!/^09\d{7}$/.test(phone)) {
-      return { success: false, error: 'Ingresa un celular uruguayo valido.' };
+      return { success: false, error: 'Ingresa un celular uruguayo válido.' };
     }
     await enforcePublicRateLimit({
       scope: 'landing-lead',
@@ -961,9 +966,9 @@ export async function saveLead(data: LandingLeadData): Promise<{ success: boolea
       ? 'campaign'
       : data.fuente === 'landing-bodas'
         ? 'landing_bodas'
-        : data.fuente === 'landing-xv'
+        : (data.fuente === 'landing-xv' || data.fuente === 'landing-quince')
           ? 'landing_xv'
-          : data.fuente === 'landing-eventos'
+          : (data.fuente === 'landing-eventos' || data.fuente === 'landing-cumpleanos')
             ? 'landing_eventos'
             : data.fuente;
     const acquisition = sanitizeCommercialAttribution({
@@ -987,6 +992,20 @@ export async function saveLead(data: LandingLeadData): Promise<{ success: boolea
       marketingConsent: true,
       marketingConsentSource: 'formulario-landing',
     });
+
+    // Disparo asíncrono de evento de conversión CAPI a Meta Ads para optimizar algoritmo
+    try {
+      const { trackMetaConversionEvent } = await import('@/lib/marketing/meta-ads');
+      void trackMetaConversionEvent({
+        eventName: 'Lead',
+        email: data.email,
+        phone,
+        source: data.fuente,
+      });
+    } catch {
+      // Ignorar si falla el rastreo CAPI
+    }
+
     return { success: true };
   } catch (error: any) {
     return { success: false, error: error.message };
