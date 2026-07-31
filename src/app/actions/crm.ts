@@ -987,6 +987,20 @@ export async function saveLead(data: LandingLeadData): Promise<{ success: boolea
       marketingConsent: true,
       marketingConsentSource: 'formulario-landing',
     });
+
+    // Disparo asíncrono de evento de conversión CAPI a Meta Ads para optimizar algoritmo
+    try {
+      const { trackMetaConversionEvent } = await import('@/lib/marketing/meta-ads');
+      void trackMetaConversionEvent({
+        eventName: 'Lead',
+        email: data.email,
+        phone,
+        source: data.fuente,
+      });
+    } catch {
+      // Ignorar si falla el rastreo CAPI
+    }
+
     return { success: true };
   } catch (error: any) {
     return { success: false, error: error.message };

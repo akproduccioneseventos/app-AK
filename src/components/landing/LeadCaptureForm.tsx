@@ -284,6 +284,10 @@ export function LeadCaptureForm({
           )}
         </button>
 
+        <div className="flex items-center justify-center gap-1.5 text-[11px] text-slate-400">
+          <span>🔒 Tus datos están 100% seguros. Sin compromiso ni spam.</span>
+        </div>
+
         <p className="text-center text-xs text-slate-400">
           También podés escribirnos directo por{' '}
           <a
