@@ -194,12 +194,12 @@ export default function ContenidoPublicoSettingsPage() {
 
   return (
     <div className="space-y-6 pb-24">
-      <div className="flex items-center justify-between gap-3">
+      <div className="flex flex-wrap items-center justify-between gap-3">
         <div className="space-y-1">
           <h1 className="text-3xl font-bold">Contenido Público</h1>
           <p className="text-sm text-muted-foreground">Editá textos e imágenes de /presentacion-led y /catalogo/[tipo].</p>
         </div>
-        <div className="flex items-center gap-3">
+        <div className="flex min-w-0 flex-wrap items-center gap-3">
           <AutoSaveIndicator isSaving={saving} lastSaved={lastSaved} saveError={saveError} />
           <Button asChild variant="outline"><Link href="/settings"><ArrowLeft className="w-4 h-4 mr-2" />Volver</Link></Button>
           <Button onClick={() => window.open('/presentacion-led', '_blank')} variant="outline"><ExternalLink className="w-4 h-4 mr-2" />Ver preview LED</Button>

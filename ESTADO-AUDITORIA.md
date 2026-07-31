@@ -1,0 +1,153 @@
+# Estado de la auditoría — qué está hecho y qué falta
+
+Documento vivo. Sirve para no repetir trabajo entre sesiones.
+Última actualización: 31 de julio de 2026.
+
+---
+
+## ✅ HECHO (no volver a revisar)
+
+### Defectos funcionales corregidos
+
+| # | Qué pasaba | Dónde | PR |
+|---|---|---|---|
+| 1 | El muro social bloqueaba a **toda la fiesta**: el tope de subidas usaba `IP + fiestaId`, y en un salón todos comparten el WiFi. Eran 12 fotos por minuto para el evento entero. | `actions/social-gallery.ts` | 808 |
+| 2 | Los 20 ítems del menú del staff generaban `<a><button></button></a>`: HTML inválido que rompe teclado y lectores de pantalla. | `components/main-nav.tsx` | 808 |
+| 3 | El botón del RSVP decía "Confirmar asistencia" aunque el invitado eligiera "No puedo ir". | `invitacion/[fiestaId]/rsvp` | 808 |
+| 4 | El saldo del cliente estaba escondido dentro de un acordeón cerrado. | `portal-cliente/[id]` | 808 |
+| 5 | **Sofía quedaba inusable**: el botón flotante de WhatsApp cubría el 67 % del botón de enviar y se quedaba con el clic. | `simulador-ak` | 809 |
+| 6 | Menú lateral duplicado (17 KB) sin un solo importador: editarlo no producía ningún efecto. | `app/components/main-nav.tsx` | 809 |
+| 7 | **El catálogo digital pedía iniciar sesión.** Nueve láminas por tipo de fiesta con botón para cotizar, invisibles para el prospecto. | `lib/auth/public-paths.ts` | 818 |
+| 8 | La galería enlazada desde tres láminas de la presentación LED **también pedía sesión**. | `lib/auth/public-paths.ts` | 819 |
+| 9 | **La app no compilaba**: `activeTemplate` declarada dos veces por un choque de fusión. | `evento/buzon/[fiestaId]` | 819 |
+| 10 | 22 errores de tipos de funciones fusionadas a medio terminar (juegos, conserjería, recordatorios RSVP, portal del invitado). | varios | 819 |
+| 11 | Acentos rotos: el mensaje decía "automatizaciAAA3n". | `whatsapp-automation-engine.ts` | 819 |
+| 12 | Dirección canónica equivocada: declaraba `/bodas` cuando las páginas viven en `/landing/bodas`. | `lib/seo/event-landing.ts` | 819 |
+| 13 | **La zona digital era inalcanzable**: se podía contratar pero nadie la agregaba al menú del invitado. | `guest-portal/public-event-navigation.ts` | 819 |
+| 14 | Botones habilitados sin acción: "Agregar Pregunta", "Agregar Misión" (conectados) y "Enviar a Todos los Pendientes" (deshabilitado a propósito: el envío masivo no existe). | paneles de juegos y RSVP | 819 |
+| 15 | 13 pantallas se salían de la pantalla en celular. Ver detalle abajo. | varios | 818, 819 |
+
+### Desborde horizontal en celular
+
+Causa dominante (11 pantallas): filas de botones con `whitespace-nowrap` en
+contenedores `flex` sin `flex-wrap`.
+
+Arreglos de fondo, que protegen a toda la app:
+
+- `components/ui/sidebar.tsx`: el `main` del armazón sin `min-w-0` no podía encogerse.
+- `components/ui/tabs.tsx`: las filas de solapas son `inline-flex` sin límite de ancho.
+- `components/ui/toast.tsx`: el contenedor de avisos crecía con textos largos.
+
+Pantallas corregidas: clientes, alertas, menús, tragos, reportes de contabilidad,
+lista de compras, reuniones, accesos del personal (×2), ajuste de precios,
+cupones, feedback, notificaciones, plantillas, WhatsApp Business (×2), muro
+social y decoración.
+
+### Construido
+
+- **Centro de Fiesta** (`fiestas/[id]/centro`): una sola pantalla para dirigir la
+  noche desde el celular. Agrupa las herramientas reales por dónde ocurren.
+- **Portal del cliente en 3 pestañas**: Progreso, Invitados y Pagos.
+- **Menú del staff en 5 módulos**: CRM, Fiestas, Contabilidad, Insumos y Configuración.
+  Ninguna página cambió de ruta: es reagrupación, no mudanza.
+
+### Alarmas automáticas creadas
+
+| Archivo | Qué protege |
+|---|---|
+| `tests/e2e/mobile-overflow.spec.ts` | 14 rutas internas + 2 públicas sin desborde en celular |
+| `tests/e2e/catalogo-publico.spec.ts` | El catálogo y la galería siguen abiertos al prospecto |
+| `tests/e2e/sofia-composer.spec.ts` | El botón de WhatsApp no vuelve a tapar el de enviar |
+| `src/__tests__/ak-css-cascade-guard.test.ts` | El orden de carga de las 8 hojas de estilo |
+| `src/__tests__/api-route-boundary.test.ts` (ampliada) | Rutas de API nuevas sin protección |
+
+### Verificado y SANO (no hace falta volver)
+
+- **Seguridad**: barrido de las 53 páginas públicas sin sesión. Todas las
+  internas (`/admin/*`, `/analytics`, `/compras`, `/control-tower/*`,
+  `/secretaria-ak`, `/marketing/*`) piden ingreso correctamente. Sin filtraciones.
+- **Descarga de QR**: funciona. El envoltorio de `qrcode.react` renderiza canvas
+  cuando no se declara `renderAs`. Se sospechó un fallo y se descartó midiendo.
+- **Conteo de invitados**: ya suma `partySize` (personas, no filas).
+- **Validaciones del RSVP**: no hay regex rígidos de teléfono ni fecha.
+- **Reglas de seguridad de la base**: 4 pruebas en verde.
+- **Herramientas del proyecto**: Playwright solo con Chromium, `@firebase/rules-unit-testing`,
+  CodeQL y Knip (manual) están correctamente configurados.
+
+---
+
+## ⏳ PENDIENTE
+
+### 1. Tres pantallas con desborde residual
+
+Medido y documentado; la causa está más adentro de lo que se alcanzó.
+
+| Pantalla | Desborde | Origen medido |
+|---|---|---|
+| `/fiestas/nueva/decoracion` | 489 px | Bajó de 538. Panel de contenido dentro de un contenedor en columna. |
+| `/settings/contenido-publico` | 82 px | Bajó de 337. |
+| `/empresa/red-social-eventos` | 47 px | La tabla **está bien contenida** (430 px dentro de 284 con desplazamiento propio). El ancho lo produce el contenedor de avisos, que mide 459 px pese a tener los bordes fijados en 0: algún ancestro actúa como su marco de referencia. |
+
+### 2. Fotos del catálogo digital — ✅ HECHO
+
+El catálogo ahora muestra las fotos reales, con este orden de preferencia:
+fotos etiquetadas para ese tipo de fiesta → galería configurada a mano →
+imágenes de ejemplo. **Cargar fotos desde la pantalla de Galería alcanza para
+que aparezcan al mostrarle el catálogo a un cliente**, sin tocar código.
+
+### 3. Decidir qué pantallas archivar (decisión del dueño)
+
+323 pantallas en total: 213 internas y 110 públicas. Listado navegable generado
+en sesión anterior, agrupado y explicado en castellano.
+
+Ya resuelto: de los "4 simuladores" hay en realidad **2 reales** (el de la web y
+Sofía, ambos se quedan), una puerta de entrada y un atajo (`/simulador-v2`, solo
+redirige, se puede borrar).
+
+Falta decidir:
+- **6 pantallas de presentación** — ¿cuál se usa para mostrar el trabajo?
+- **6 centros de control de fiesta** — se creó uno nuevo y simple; los otros
+  cinco no se tocaron. Probar el nuevo en una fiesta real y archivar los que sobren.
+
+### 4. Limpieza del diseño (trabajo grande)
+
+8 hojas de estilo, 1414 líneas, 142 `!important` y 11 selectores definidos en
+2-3 archivos distintos. Es la causa de fondo del "arreglo una cosa y se rompe otra".
+
+**No se hizo a propósito**: sin capturas de referencia no hay forma de comprobar
+que una limpieza no descoloque pantallas. El paso previo es generar esa línea
+base visual. Mientras tanto, la guarda de cascada evita que empeore.
+
+### 5. Código sin uso — ✅ REVISADO
+
+Knip reporta 124 archivos, pero la lista **no se puede aplicar a ciegas**:
+incluye los dos pasos de `npm run build`, la configuración de las pruebas, el
+servicio de notificaciones y la entrada de las funciones de Firebase. Borrarlos
+dejaría la app sin compilar.
+
+Lo único verificable como descartable era `scratch/` (scripts sueltos y volcados
+de diferencias); ya se eliminó. El resto son mayormente tipos de TypeScript, que
+no ocupan espacio en la app compilada: riesgo sin beneficio medible.
+
+### 6. Módulos nunca auditados en profundidad
+
+Contabilidad interna y facturas · Compras e insumos · Secretaría IA y
+control-tower · Multiagente · Blog, marketing y galería LED.
+
+Las sesiones se concentraron en lo que ve el cliente y el invitado, que es donde
+se cae una venta o se arruina una fiesta.
+
+### 7. Rutas dinámicas — ✅ VERIFICADAS
+
+15 rutas de tipo `[id]` recorridas con navegador: **cero caídas**, sin errores de
+JavaScript ni desbordes. 11 muestran correctamente su estado de "no encontrada"
+al no existir el evento, que es el comportamiento esperado. Degradan bien.
+
+---
+
+## 💡 Recomendación de fondo
+
+Lo que dejó la app sin poder publicarse **no fue mala suerte**: se fusionó
+trabajo de varios asistentes sin que nadie compilara después. Un solo filtro
+—confirmar que `npm run build` pasa antes de fusionar— evita la mayoría de estos
+episodios.
