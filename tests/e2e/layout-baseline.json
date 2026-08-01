@@ -83,20 +83,6 @@
     "enlaces": 1,
     "colores": 1048792844
   },
-  "chromium-desktop /empresa/presentacion-led": {
-    "anchoDocumento": 1280,
-    "desborde": 0,
-    "h1X": -1,
-    "h1Y": -1,
-    "h1W": -1,
-    "headerY": -1,
-    "headerH": -1,
-    "mainX": -1,
-    "mainW": -1,
-    "botones": 0,
-    "enlaces": 1,
-    "colores": -1498265350
-  },
   "chromium-desktop /fiestas/nueva/portal-cliente": {
     "anchoDocumento": 1280,
     "desborde": 0,
@@ -197,7 +183,7 @@
   },
   "chromium-mobile /catalogo/bodas": {
     "anchoDocumento": 466,
-    "desborde": 54,
+    "desborde": 0,
     "h1X": 32,
     "h1Y": 309,
     "h1W": 348,
@@ -208,20 +194,6 @@
     "botones": 21,
     "enlaces": 1,
     "colores": 1048792844
-  },
-  "chromium-mobile /empresa/presentacion-led": {
-    "anchoDocumento": 412,
-    "desborde": 0,
-    "h1X": -1,
-    "h1Y": -1,
-    "h1W": -1,
-    "headerY": -1,
-    "headerH": -1,
-    "mainX": -1,
-    "mainW": -1,
-    "botones": 0,
-    "enlaces": 1,
-    "colores": -1498265350
   },
   "chromium-mobile /fiestas/nueva/portal-cliente": {
     "anchoDocumento": 412,

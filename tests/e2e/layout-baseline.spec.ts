@@ -27,7 +27,7 @@ const SESSION_SECRET = 'playwright-session-secret-with-enough-entropy';
 const REFERENCIA = path.join(__dirname, 'layout-baseline.json');
 
 /** Tolerancia en píxeles: distintas versiones del navegador redondean distinto. */
-const TOLERANCIA = 4;
+const TOLERANCIA = 2;
 
 const RUTAS = [
   { ruta: '/admin', conSesion: true },
@@ -38,7 +38,7 @@ const RUTAS = [
   { ruta: '/catalogo/bodas', conSesion: false },
   // Cubren los tres modos de `ak-red-premium-surface`, que es donde viven los
   // estilos globales mas agresivos: "live", "client" y "public".
-  { ruta: '/empresa/presentacion-led', conSesion: true },
+  { ruta: '/presentacion-led', conSesion: false },
   { ruta: '/fiestas/nueva/portal-cliente', conSesion: true },
   { ruta: '/contabilidad/comercial-360', conSesion: true },
 ];
@@ -123,7 +123,9 @@ test.describe('huella de maquetación', () => {
     const desvios: string[] = [];
 
     for (const { ruta } of RUTAS) {
-      await page.goto(ruta, { waitUntil: 'domcontentloaded' });
+      const response = await page.goto(ruta, { waitUntil: 'domcontentloaded' });
+      expect(response?.status(), `${ruta} devolvio una respuesta invalida`).toBeLessThan(400);
+      expect(new URL(page.url()).pathname, `${ruta} redirigio inesperadamente`).toBe(ruta);
       await page.waitForLoadState('networkidle').catch(() => {});
       await page.waitForTimeout(2500);
       actual[clave(ruta)] = await medirHuella(page);
@@ -135,7 +137,7 @@ test.describe('huella de maquetación', () => {
         const antes = esperado[medida];
         if (typeof antes !== 'number') continue;
         // Los conteos son exactos; las medidas geométricas admiten redondeo.
-        const margen = medida === 'botones' || medida === 'enlaces' ? 0 : TOLERANCIA;
+        const margen = medida === 'botones' || medida === 'enlaces' || medida === 'desborde' ? 0 : TOLERANCIA;
         if (Math.abs(valor - antes) > margen) {
           desvios.push(`${ruta} · ${medida}: era ${antes}, ahora ${valor}`);
         }
