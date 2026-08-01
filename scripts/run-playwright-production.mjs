@@ -12,6 +12,9 @@ const testEnvironment = {
   GOOGLE_API_KEY: "dummy",
   GEMINI_API_KEY: "dummy",
   AK_USE_LOCAL_JSON_ONLY: "true",
+  // Permite que las pruebas comprueben que un dato se guarda de verdad
+  // (por ejemplo, la confirmacion de un invitado), no solo que la pantalla abre.
+  AK_ALLOW_LOCAL_JSON_WRITES: "true",
   AK_SESSION_SECRET: "playwright-session-secret-with-enough-entropy",
   FIREBASE_PROJECT_ID: "demo-ak-producciones",
   NEXT_PUBLIC_FIREBASE_PROJECT_ID: "demo-ak-producciones",

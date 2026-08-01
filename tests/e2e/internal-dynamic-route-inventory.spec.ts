@@ -195,7 +195,8 @@ test('every dynamic internal route responds with representative local data', asy
   test.setTimeout(30 * 60 * 1000);
 
   const routes = getDynamicInternalRoutes();
-  expect(routes).toHaveLength(32);
+  // 33 = las 32 de siempre mas el Centro de Fiesta (`/fiestas/[id]/centro`).
+  expect(routes).toHaveLength(33);
 
   await context.addCookies([
     {

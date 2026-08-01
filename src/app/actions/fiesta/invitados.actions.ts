@@ -4,6 +4,7 @@ import { randomUUID } from 'crypto';
 import type { FiestaEnPlanificacion, Invitado, RsvpStatus, CategoriaInvitado, DietaryRestriction } from '@/types/fiesta';
 import { getFiestaById, saveFiesta } from './fiesta.actions';
 import { writeData } from '@/lib/data-service';
+import { preserveFiestaSecrets } from '@/lib/fiesta/get-fiesta-raw';
 import { enforcePublicRateLimit } from '@/lib/commercial/public-rate-limit';
 import { hasPublicGuestAccess } from '@/lib/guest-portal-public-data';
 
@@ -55,7 +56,10 @@ async function updateFiestaData(
       fiesta?: FiestaEnPlanificacion;
       error?: string;
     } = options.publicRsvp
-      ? await writeData(`fiestas/${fiestaId}.json`, updatedData).then(() => ({
+      ? await writeData(
+          `fiestas/${fiestaId}.json`,
+          await preserveFiestaSecrets(fiestaId, updatedData),
+        ).then(() => ({
           success: true,
           fiesta: updatedData,
         }))

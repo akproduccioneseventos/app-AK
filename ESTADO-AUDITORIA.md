@@ -26,6 +26,7 @@ Documento vivo. Sirve para no repetir trabajo entre sesiones.
 | 13 | **La zona digital era inalcanzable**: se podía contratar pero nadie la agregaba al menú del invitado. | `guest-portal/public-event-navigation.ts` | 819 |
 | 14 | Botones habilitados sin acción: "Agregar Pregunta", "Agregar Misión" (conectados) y "Enviar a Todos los Pendientes" (deshabilitado a propósito: el envío masivo no existe). | paneles de juegos y RSVP | 819 |
 | 15 | 13 pantallas se salían de la pantalla en celular. Ver detalle abajo. | varios | 818, 819 |
+| 16 | **El primer invitado que confirmaba dejaba al cliente afuera de su portal.** Al guardar la confirmación se borraba la contraseña del portal del cliente. Y una vez borrada, ese portal quedaba abierto: el control comparaba "vacío contra vacío" y daba por buena la entrada. | `lib/fiesta/get-fiesta-raw.ts`, `portal.actions.ts` | 825 |
 
 ### Desborde horizontal en celular
 
@@ -55,6 +56,7 @@ social y decoración.
 
 | Archivo | Qué protege |
 |---|---|
+| `tests/e2e/viaje-invitado.spec.ts` | El recorrido completo del invitado **con datos de verdad**: confirma, su QR se dibuja, la confirmación queda guardada, el equipo la ve en el Centro de Fiesta y el cliente entra a su portal y la encuentra |
 | `tests/e2e/mobile-overflow.spec.ts` | 14 rutas internas + 2 públicas sin desborde en celular |
 | `tests/e2e/catalogo-publico.spec.ts` | El catálogo y la galería siguen abiertos al prospecto |
 | `tests/e2e/sofia-composer.spec.ts` | El botón de WhatsApp no vuelve a tapar el de enviar |
@@ -170,8 +172,9 @@ al login ni muestra mensajes de fallo.
 son **pantallas-índice** (4 y 10 enlaces respectivamente hacia sus subsecciones),
 así que es el comportamiento correcto, no un defecto.
 
-Pendiente sólo la prueba de operaciones reales de escritura (cargar un gasto,
-emitir una factura), que necesita datos de la base y no se puede hacer en local.
+Pendiente sólo la prueba de operaciones reales de escritura del lado del staff
+(cargar un gasto, emitir una factura). El lado del invitado y del cliente **ya se
+prueba de verdad**: ver el punto 8.
 
 Las sesiones se concentraron en lo que ve el cliente y el invitado, que es donde
 se cae una venta o se arruina una fiesta.
@@ -181,6 +184,27 @@ se cae una venta o se arruina una fiesta.
 15 rutas de tipo `[id]` recorridas con navegador: **cero caídas**, sin errores de
 JavaScript ni desbordes. 11 muestran correctamente su estado de "no encontrada"
 al no existir el evento, que es el comportamiento esperado. Degradan bien.
+
+### 8. Pruebas actuando como invitado de verdad — ✅ FUNCIONANDO
+
+Hasta ahora las pruebas de navegador comprobaban que las pantallas **abren**.
+Ahora hay una que comprueba que **funcionan**: crea una fiesta, entra como
+invitado, completa la confirmación diciendo que van tres personas, y después
+verifica que el dato quedó guardado, que el equipo lo ve en el Centro de Fiesta
+y que el cliente entra a su portal con su contraseña y encuentra ahí al invitado.
+
+Lo que lo destrabó: la app ya tenía un modo que guarda los eventos como archivos
+en vez de en la base. Faltaba permitir que en ese modo el guardado ocurriera de
+verdad. Con eso, el recorrido es el mismo que en producción salvo por dónde
+termina el dato.
+
+**La primera corrida encontró un defecto grave que ninguna prueba anterior podía
+ver** (defecto 16 de la tabla de arriba): confirmar la asistencia le borraba al
+cliente la contraseña de su portal. Ya está arreglado y la prueba lo vigila.
+
+Lo único del recorrido que sigue sin poder probarse acá: **subir una foto al muro
+social**, porque esa parte guarda la imagen en el servicio de archivos de
+Firebase, que no existe en este entorno.
 
 ---
 

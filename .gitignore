@@ -76,3 +76,7 @@ functions/package-lock.json
 # graphify
 /graphify-out/
 
+
+# Eventos de prueba creados por el viaje del invitado (se borran solos).
+data/fiestas/e2e_*.json
+src/data/fiestas/e2e_*.json

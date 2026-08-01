@@ -49,6 +49,7 @@ import * as logger from '@/lib/logger';
 import { normalizeInvitationSlug, isValidInvitationSlug } from '@/lib/invitacion-slug';
 import { buildAkDemoFiesta, type AkDemoFiestaKind } from '@/lib/experience-ak/demo-fiesta-factory';
 import { hasAppSession, requireAppSession } from '@/lib/auth/require-session';
+import { preserveFiestaSecrets } from '@/lib/fiesta/get-fiesta-raw';
 import { verifyPortalSession } from '@/lib/security/portal-session';
 
 const FIESTAS_DIR = 'fiestas';
@@ -157,7 +158,7 @@ export async function saveFiesta(fiestaData: FiestaEnPlanificacion): Promise<{ s
   await requireFiestaWriteAccess(fiestaData.id);
   try {
     const filePath = path.join(FIESTAS_DIR, `${fiestaData.id}.json`);
-    await writeData(filePath, fiestaData);
+    await writeData(filePath, await preserveFiestaSecrets(fiestaData.id, fiestaData));
     return { success: true, fiesta: fiestaData };
   } catch (error: any) {
     return { success: false, error: "No se pudo guardar el evento." };
