@@ -848,20 +848,24 @@ export default function CatalogoTipoPage() {
 
       {/* Bottom navigation */}
       <footer className="sticky bottom-0 z-30 bg-white/95 backdrop-blur-xl border-t border-slate-100 shadow-[0_-4px_20px_rgba(0,0,0,0.04)]">
-        <div className="max-w-5xl mx-auto px-4 py-4 flex items-center justify-between gap-4">
+        {/* En un celular los dos botones y los puntos no entran en 412px: por eso
+            se achican los costados y los botones, y los puntos pueden encogerse.
+            Sin esto la lamina se salia 54px y el boton "Siguiente" quedaba cortado
+            justo cuando se le muestra el catalogo a un cliente. */}
+        <div className="max-w-5xl mx-auto px-3 sm:px-4 py-4 flex items-center justify-between gap-2 sm:gap-4">
           <Button
             onClick={goPrev}
             disabled={isFirstSlide}
             variant="outline"
             size="lg"
-            className="h-12 px-6 rounded-2xl font-semibold disabled:opacity-30"
+            className="h-12 shrink-0 px-4 sm:px-6 rounded-2xl font-semibold disabled:opacity-30"
           >
             <ChevronLeft className="h-5 w-5 mr-1" />
             Anterior
           </Button>
 
           {/* Dot indicators */}
-          <div className="flex items-center gap-1.5">
+          <div className="flex min-w-0 flex-1 items-center justify-center gap-1.5 overflow-x-auto">
             {SLIDE_ORDER.map((_, idx) => (
               <button
                 key={idx}
@@ -881,7 +885,7 @@ export default function CatalogoTipoPage() {
               onClick={handleCreateBudget}
               size="lg"
               className={cn(
-                'h-12 px-6 rounded-2xl font-bold text-white shadow-lg',
+                'h-12 shrink-0 px-4 sm:px-6 rounded-2xl font-bold text-white shadow-lg',
                 `bg-gradient-to-r ${accent.gradient} hover:opacity-90`,
               )}
             >
@@ -893,7 +897,7 @@ export default function CatalogoTipoPage() {
               onClick={goNext}
               size="lg"
               className={cn(
-                'h-12 px-6 rounded-2xl font-semibold text-white',
+                'h-12 shrink-0 px-4 sm:px-6 rounded-2xl font-semibold text-white',
                 `bg-gradient-to-r ${accent.gradient} hover:opacity-90`,
               )}
             >

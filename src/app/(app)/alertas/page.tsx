@@ -173,7 +173,9 @@ export default function AlertasPage() {
             <p className="text-sm text-slate-500">Notificaciones automáticas de todas las fiestas activas</p>
           </div>
         </div>
-        <div className="flex gap-2">
+        {/* En celular estos tres botones no entran en una sola fila: sin
+            `flex-wrap` la pantalla se salia 43px de ancho. */}
+        <div className="flex flex-wrap gap-2">
           {alertas.some(a => !a.leida) && (
             <Button variant="outline" size="sm" onClick={handleMarcarTodasLeidas} disabled={isMarkingAll || isLoading}>
               {isMarkingAll ? <Loader2 className="w-4 h-4 mr-2 animate-spin" /> : <CheckCircle2 className="w-4 h-4 mr-2" />}
@@ -310,7 +312,9 @@ export default function AlertasPage() {
                           {alerta.mensaje}
                         </p>
                       </div>
-                      <div className="flex items-center gap-2 shrink-0">
+                      {/* `shrink-0` obligaba a la fila a mantener su ancho aunque
+                          no entrara: en celular empujaba la tarjeta fuera de la pantalla. */}
+                      <div className="flex flex-wrap items-center gap-2">
                         {alerta.accionUrl && (
                           <Button asChild size="sm" variant="outline" className="h-7 px-2 text-xs"><Link href={alerta.accionUrl}>
                               <ExternalLink className="w-3 h-3 mr-1" />

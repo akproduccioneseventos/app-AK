@@ -23,7 +23,11 @@ const RUTAS_INTERNAS = ['/admin', '/customers', '/presupuestos', '/eventos', '/p
   '/empresa/menus/tragos', '/fiestas/nueva/reuniones', '/settings/cupones',
   '/settings/notifications', '/settings/whatsapp-business', '/settings/templates/layouts',
   '/empresa/red-social-eventos', '/fiestas/nueva/decoracion', '/settings/contenido-publico'];
-const RUTAS_PUBLICAS = ['/', '/simulador-de-presupuesto'];
+// El catálogo se muestra en persona, con el cliente al lado: que se corte el
+// botón de avanzar es de lo peor que puede pasar. Va con los cinco tipos.
+const RUTAS_PUBLICAS = ['/', '/simulador-de-presupuesto', '/presentacion-led',
+  '/catalogo/bodas', '/catalogo/xv-anos', '/catalogo/cumpleanos',
+  '/catalogo/corporativos', '/catalogo/aniversarios'];
 
 /** Margen de 2px: los navegadores redondean subpixeles al medir. */
 const TOLERANCIA = 2;

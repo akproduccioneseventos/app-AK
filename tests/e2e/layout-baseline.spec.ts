@@ -38,7 +38,10 @@ const RUTAS = [
   { ruta: '/catalogo/bodas', conSesion: false },
   // Cubren los tres modos de `ak-red-premium-surface`, que es donde viven los
   // estilos globales mas agresivos: "live", "client" y "public".
-  { ruta: '/empresa/presentacion-led', conSesion: true },
+  // Ojo: la presentacion LED vive en `/presentacion-led`, no bajo `/empresa`.
+  // Antes se media `/empresa/presentacion-led`, que no existe, y la referencia
+  // guardaba una pantalla vacia: parecia cubierta y no cubria nada.
+  { ruta: '/presentacion-led', conSesion: false },
   { ruta: '/fiestas/nueva/portal-cliente', conSesion: true },
   { ruta: '/contabilidad/comercial-360', conSesion: true },
 ];
@@ -121,12 +124,26 @@ test.describe('huella de maquetación', () => {
     const referencia = leerReferencia();
     const actual: Record<string, Huella> = {};
     const desvios: string[] = [];
+    /** Fallas que valen aunque la referencia diga que "siempre fue asi". */
+    const absolutos: string[] = [];
 
     for (const { ruta } of RUTAS) {
       await page.goto(ruta, { waitUntil: 'domcontentloaded' });
       await page.waitForLoadState('networkidle').catch(() => {});
       await page.waitForTimeout(2500);
-      actual[clave(ruta)] = await medirHuella(page);
+      const huella = await medirHuella(page);
+      actual[clave(ruta)] = huella;
+
+      // Reglas absolutas: no dependen de la referencia. Sin esto, la referencia
+      // congelaba defectos como si fueran lo normal (paso de verdad: el catalogo
+      // se salia 54px en celular y la prueba lo daba por bueno porque "no habia
+      // cambiado").
+      if (huella.desborde > 2) {
+        absolutos.push(`${ruta} · se sale ${huella.desborde}px a lo ancho`);
+      }
+      if (huella.h1W === -1 && huella.mainX === -1) {
+        absolutos.push(`${ruta} · no tiene ni titulo ni contenido: la ruta no existe o no carga`);
+      }
 
       const esperado = referencia[clave(ruta)];
       if (!esperado) continue;
@@ -142,14 +159,17 @@ test.describe('huella de maquetación', () => {
       }
     }
 
-    // Primera corrida (o referencia borrada a proposito): se genera y no se falla.
+    // Primera corrida (o referencia borrada a proposito): se genera la referencia
+    // pero las reglas absolutas se exigen igual, para no grabar un defecto.
     const faltaEsteperfil = !Object.keys(referencia).some((k) => k.startsWith(`${perfil} `));
     if (Object.keys(referencia).length === 0 || faltaEsteperfil) {
       fs.writeFileSync(REFERENCIA, `${JSON.stringify({ ...referencia, ...actual }, null, 2)}\n`);
       test.info().annotations.push({ type: 'referencia', description: `Huella generada para ${perfil}.` });
+      expect(absolutos, `Pantallas con defectos propios:\n  ${absolutos.join('\n  ')}`).toEqual([]);
       return;
     }
 
+    expect(absolutos, `Pantallas con defectos propios:\n  ${absolutos.join('\n  ')}`).toEqual([]);
     expect(desvios, `La maquetación cambió:\n  ${desvios.join('\n  ')}`).toEqual([]);
   });
 });

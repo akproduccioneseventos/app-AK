@@ -192,10 +192,14 @@ export default function RedSocialEventosPage() {
         </Card>
       </div>
 
-      <div className="grid grid-cols-1 lg:grid-cols-[1fr_450px] gap-6">
+      {/* `minmax(0,1fr)` en vez de `1fr`: una columna `1fr` no baja de su ancho
+          natural, asi que el ancho minimo de la tabla empujaba toda la pantalla
+          hacia afuera (112px en escritorio, 200px en celular) en vez de dejar
+          que la tabla se desplace sola. */}
+      <div className="grid grid-cols-1 lg:grid-cols-[minmax(0,1fr)_450px] gap-6">
 
         {/* Main section: Feeds list */}
-        <Card className="rounded-[2rem] border-none shadow-sm bg-white p-6">
+        <Card className="min-w-0 rounded-[2rem] border-none shadow-sm bg-white p-6">
           <CardHeader className="px-0 pt-0">
             <CardTitle className="text-xl font-black tracking-tight">Feeds de Eventos</CardTitle>
             <CardDescription>Ciclo de vida automático (activación 30 días antes y desactivación 30 días después).</CardDescription>
@@ -267,7 +271,7 @@ export default function RedSocialEventosPage() {
         </Card>
 
         {/* Sidebar section: Ads and Monetization */}
-        <div className="space-y-6">
+        <div className="min-w-0 space-y-6">
           <Card className="rounded-[2.0rem] border-none shadow-sm bg-white p-6 space-y-4">
             <CardHeader className="px-0 pt-0">
               <CardTitle className="text-xl font-black tracking-tight flex items-center gap-2">
