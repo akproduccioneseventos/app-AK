@@ -1,0 +1,80 @@
+{
+  "/admin": {
+    "anchoDocumento": 1280,
+    "desborde": 0,
+    "h1X": 321,
+    "h1Y": 18,
+    "h1W": 129,
+    "headerY": 0,
+    "headerH": 64,
+    "mainX": 257,
+    "mainW": 1023,
+    "botones": 14,
+    "enlaces": 49
+  },
+  "/customers": {
+    "anchoDocumento": 1280,
+    "desborde": 0,
+    "h1X": 321,
+    "h1Y": 18,
+    "h1W": 72,
+    "headerY": 0,
+    "headerH": 64,
+    "mainX": 257,
+    "mainW": 1023,
+    "botones": 7,
+    "enlaces": 27
+  },
+  "/presupuestos": {
+    "anchoDocumento": 1280,
+    "desborde": 0,
+    "h1X": 321,
+    "h1Y": 18,
+    "h1W": 212,
+    "headerY": 0,
+    "headerH": 64,
+    "mainX": 257,
+    "mainW": 1023,
+    "botones": 14,
+    "enlaces": 27
+  },
+  "/": {
+    "anchoDocumento": 1280,
+    "desborde": 0,
+    "h1X": 32,
+    "h1Y": 148,
+    "h1W": 768,
+    "headerY": 0,
+    "headerH": 80,
+    "mainX": -1,
+    "mainW": -1,
+    "botones": 46,
+    "enlaces": 50
+  },
+  "/simulador-de-presupuesto": {
+    "anchoDocumento": 1280,
+    "desborde": 0,
+    "h1X": 112,
+    "h1Y": 262,
+    "h1W": 768,
+    "headerY": -1,
+    "headerH": -1,
+    "mainX": 0,
+    "mainW": 1280,
+    "botones": 1,
+    "enlaces": 0
+  },
+  "/catalogo/bodas": {
+    "anchoDocumento": 1280,
+    "desborde": 0,
+    "h1X": 332,
+    "h1Y": 365,
+    "h1W": 617,
+    "headerY": 0,
+    "headerH": 125,
+    "mainX": 0,
+    "mainW": 1280,
+    "botones": 21,
+    "enlaces": 1
+  }
+}
