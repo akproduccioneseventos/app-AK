@@ -38,6 +38,7 @@ import { PublicEntertainmentEventStatus } from '@/components/entertainment/publi
 import { KioskUnlockButton } from '@/components/kiosk/kiosk-unlock-button';
 import { isVideoFrameReady } from '@/lib/entertainment/camera-readiness';
 import { waitForInitialPublicLoad } from '@/lib/public-experience/wait-for-initial-public-load';
+import { parseEventDate } from '@/lib/public-experience/event-date';
 
 /* ───────────────────── Theme Definitions ───────────────────── */
 
@@ -211,8 +212,10 @@ export default function TouchpixPage() {
     let eventDateStr = '';
     if (rawDate) {
       try {
-        const date = new Date(rawDate);
-        eventDateStr = date.toLocaleDateString('es-ES', { day: '2-digit', month: '2-digit', year: 'numeric' });
+        // `parseEventDate`: sin esto la marca de agua de la foto salia con la
+        // fecha del dia anterior a la fiesta.
+        const date = parseEventDate(rawDate);
+        eventDateStr = date ? date.toLocaleDateString('es-UY', { day: '2-digit', month: '2-digit', year: 'numeric' }) : rawDate;
       } catch {
         eventDateStr = rawDate;
       }

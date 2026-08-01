@@ -1,5 +1,5 @@
 import { expect, test, type Page } from '@playwright/test';
-import { borrarFiesta, crearCookieDeSesion, crearFiestaDeEstaNoche } from './helpers/fiesta-de-prueba';
+import { borrarFiesta, crearCookieDeSesion, crearFiestaDeEstaNoche, crearPermisoDeEstacion, leerFiesta, borrarOpinionesDePrueba } from './helpers/fiesta-de-prueba';
 
 /**
  * La noche de la fiesta, pantalla por pantalla.
@@ -20,6 +20,9 @@ const ID = fiesta.id;
 
 test.afterAll(() => {
   if (!process.env.AK_E2E_ID) borrarFiesta(ID);
+  // La opinión de prueba se guarda de verdad, así que hay que sacarla: si no,
+  // queda mezclada con las opiniones reales de los clientes.
+  borrarOpinionesDePrueba();
 });
 
 /** Textos que delatan que la pantalla no encontró con qué trabajar. */
@@ -28,6 +31,9 @@ const SENALES_DE_FALLA = [
   /no encontr[ée]/i,
   /evento no encontrado/i,
   /fiesta no encontrada/i,
+  // La encuesta rechazaba su propio enlace diciendo esto.
+  /no corresponde al evento/i,
+  /enlace (invalido|inválido|vencido)/i,
   /application error/i,
   /something went wrong/i,
   /internal server error/i,
@@ -104,13 +110,15 @@ const PANTALLAS_DEL_INVITADO = [
   `/evento/social/${ID}`,
   `/evento/galeria/${ID}`,
   `/evento/barra/${ID}`,
-  `/evento/buzon/${ID}`,
   `/evento/zona-digital/${ID}`,
-  `/evento/fotocabina/${ID}`,
-  `/evento/plataforma-360/${ID}`,
+  // Las estaciones se abren con el permiso que lleva el QR del salón, igual que
+  // en una fiesta real. Sin él la app tiene que negar el acceso, no fallar.
+  `/evento/buzon/${ID}?access=${crearPermisoDeEstacion(ID, 'capsulaTiempo')}`,
+  `/evento/fotocabina/${ID}?access=${crearPermisoDeEstacion(ID, 'fotocabina')}`,
+  `/evento/plataforma-360/${ID}?access=${crearPermisoDeEstacion(ID, 'plataforma360')}`,
   `/evento/touchpix/${ID}`,
-  `/evento/espejo-magico/${ID}`,
-  `/evento/bogue/${ID}`,
+  `/evento/espejo-magico/${ID}?access=${crearPermisoDeEstacion(ID, 'espejoMagico')}`,
+  `/evento/bogue/${ID}?access=${crearPermisoDeEstacion(ID, 'bogue')}`,
   `/evento/en-vivo/${ID}/invitados`,
   `/invitacion/${ID}`,
   `/invitacion/${ID}/rsvp`,
@@ -166,5 +174,46 @@ test.describe('noche de fiesta', () => {
       problemas,
       `Pantallas del equipo con problemas:\n  ${problemas.map((p) => `${p.ruta} → ${p.problema}`).join('\n  ')}`,
     ).toEqual([]);
+  });
+
+  test('el control de entrada marca el ingreso de un invitado', async ({ page, context, baseURL }) => {
+    test.setTimeout(180_000);
+    await context.addInitScript(() => {
+      window.localStorage.setItem('ak_session', 'true');
+      window.sessionStorage.setItem('ak_session', 'true');
+    });
+    await context.addCookies([
+      { name: 'ak_session', value: crearCookieDeSesion(), url: baseURL!, httpOnly: true, sameSite: 'Lax' },
+    ]);
+
+    // Esto es lo que pasa cuando en la puerta se escanea el QR de una invitada.
+    await page.goto(`/evento/actual/checkin?fiestaId=${ID}&guestId=${INVITADO.id}`, { waitUntil: 'domcontentloaded' });
+
+    await expect(page.getByText(/Lucía Fernández/)).toBeVisible({ timeout: 45_000 });
+    await expect(page.getByText(/no corresponde|no encontramos/i)).toHaveCount(0);
+
+    // Y tiene que quedar registrado en la fiesta, no sólo mostrarse en pantalla.
+    await expect(async () => {
+      const guardado = leerFiesta(ID);
+      const invitado = (guardado?.invitados ?? []).find((i: any) => i.id === INVITADO.id);
+      expect(invitado?.checkedIn, 'La entrada no quedó registrada').toBe(true);
+    }).toPass({ timeout: 30_000 });
+  });
+
+  test('el invitado deja su opinión y queda registrada', async ({ page }) => {
+    test.setTimeout(180_000);
+
+    await page.goto(`/feedback/${ID}`, { waitUntil: 'domcontentloaded' });
+    await expect(page.getByRole('button', { name: /Enviar Mis Comentarios/i })).toBeVisible({ timeout: 45_000 });
+
+    await page.getByRole('button', { name: '9', exact: true }).click();
+    await page.locator('#client-name').fill('Lucía Fernández');
+    await page.locator('#enjoyed-most').fill('La barra y la pantalla del salón.');
+    await page.locator('#to-improve').fill('Más variedad de postres.');
+    await page.getByRole('button', { name: /Enviar Mis Comentarios/i }).click();
+
+    // Tiene que confirmar en pantalla: si el envío falla en silencio, el invitado
+    // se va creyendo que opinó y AK nunca se entera.
+    await expect(page.getByText(/gracias/i).first()).toBeVisible({ timeout: 45_000 });
   });
 });

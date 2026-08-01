@@ -10,7 +10,7 @@ import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
 import { Loader2, AlertTriangle, CheckCircle, Send, PartyPopper, Star } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
-import { getFiestaActual } from '@/app/actions/fiesta-actual';
+import { getPublicGuestEvent } from '@/app/actions/public-guest-portal';
 import { saveFeedback } from '@/app/actions/feedback';
 import { CompanyLogo } from '@/components/company-logo';
 import { PublicFooter } from '@/components/public-footer';
@@ -93,11 +93,16 @@ function FeedbackContent({ fiestaId }: { fiestaId: string | null }) {
         return;
       }
       try {
-        const fiestaData = await getFiestaActual();
-        if (fiestaData.id !== fiestaId) {
-            setError("Este enlace de encuesta no corresponde al evento actual.");
+        // Antes se comparaba contra "la fiesta actual": el enlace de la encuesta
+        // servia unicamente mientras esa fiesta seguia siendo la mas reciente.
+        // Como la encuesta se manda DESPUES del evento, para cuando el invitado
+        // la abria ya habia otra fiesta adelante y el enlace quedaba muerto. Con
+        // varias fiestas activas a la vez, funcionaba solo una.
+        const fiestaData = await getPublicGuestEvent(fiestaId);
+        if (!fiestaData) {
+            setError("No encontramos este evento. Pedile el enlace al equipo de AK.");
         } else {
-            setFiestaNombre(fiestaData.configuracion.nombreEvento);
+            setFiestaNombre(fiestaData.configuracion?.nombreEvento || 'tu evento');
         }
       } catch {
         setError("No se pudo cargar la información del evento.");

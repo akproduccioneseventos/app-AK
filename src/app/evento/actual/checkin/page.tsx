@@ -7,7 +7,7 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Loader2, AlertTriangle, CheckCircle, Ticket } from 'lucide-react';
 import type { Invitado } from '@/types/invitado';
 import { checkInGuestFiestaActual } from '@/app/actions/fiesta-actual';
-import { getFiestaActual } from '@/app/actions/fiesta-actual';
+import { getFiestaById } from '@/app/actions/fiesta-actual';
 
 function CheckInContent() {
   const searchParams = useSearchParams();
@@ -27,11 +27,15 @@ function CheckInContent() {
         return;
       }
       try {
-        const fiesta = await getFiestaActual();
-        if (fiesta.id !== fiestaId) {
-          throw new Error("El QR no corresponde a este evento.");
+        // Antes se comparaba contra "la fiesta actual", que es la de fecha mas
+        // proxima entre TODAS las cargadas. Con una fiesta agendada mas adelante,
+        // esa era la "actual" y todos los QR de la fiesta de esta noche se
+        // rechazaban en la puerta. Ahora se busca la fiesta del QR.
+        const fiesta = await getFiestaById(fiestaId);
+        if (!fiesta) {
+          throw new Error("No encontramos la fiesta de este QR.");
         }
-        
+
         const invitadoOriginal = fiesta.invitados?.find(i => i.id === guestId);
         
         if (invitadoOriginal?.checkedIn) {

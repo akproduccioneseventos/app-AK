@@ -28,6 +28,13 @@ export default function GuestBuzonPage() {
   const accessToken = searchParams.get('access') || undefined;
 
   const [fiesta, setFiesta] = useState<PublicEntertainmentEvent | null>(null);
+  /**
+   * Por que se guarda el motivo: cuando la estacion no esta habilitada, o el
+   * enlace no trae el permiso del equipo, la pantalla mostraba "Evento no
+   * encontrado". Al invitado le hacia pensar que la fiesta no existe y al
+   * equipo, que la app esta rota. Ahora dice lo que realmente pasa.
+   */
+  const [motivoSinBuzon, setMotivoSinBuzon] = useState<string | null>(null);
   const [activeTab, setActiveTab] = useState<'audio' | 'video'>('audio');
   const [isLoading, setIsLoading] = useState(true);
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -275,9 +282,14 @@ export default function GuestBuzonPage() {
           && res.event.buzonConfig?.enabled !== false
         ) {
           setFiesta(res.event);
+        } else if (!res.success) {
+          setMotivoSinBuzon(res.error || 'No se pudo abrir el buzón.');
+        } else {
+          setMotivoSinBuzon('El buzón de recuerdos no está activado para esta fiesta.');
         }
       } catch (err) {
         console.error(err);
+        setMotivoSinBuzon('No se pudo abrir el buzón. Probá de nuevo en un momento.');
       } finally {
         setIsLoading(false);
       }
@@ -854,7 +866,13 @@ export default function GuestBuzonPage() {
     return (
       <div className="flex flex-col items-center justify-center min-h-screen bg-zinc-950 text-white p-6 text-center">
         <AlertCircle className="w-12 h-12 text-red-500 mb-4" />
-        <h1 className="text-xl font-bold">Evento no encontrado</h1>
+        <h1 className="text-xl font-bold">Buzón no disponible</h1>
+        <p className="mt-2 max-w-xs text-sm text-zinc-400">
+          {motivoSinBuzon ?? 'No encontramos esta fiesta.'}
+        </p>
+        <p className="mt-3 max-w-xs text-xs text-zinc-500">
+          Si llegaste por un enlace viejo, pedile el QR del buzón al equipo de AK.
+        </p>
         <button onClick={() => router.back()} className="mt-4 px-4 py-2 bg-zinc-800 rounded-xl text-xs font-bold">Volver</button>
       </div>
     );

@@ -26,7 +26,13 @@ Documento vivo. Sirve para no repetir trabajo entre sesiones.
 | 13 | **La zona digital era inalcanzable**: se podía contratar pero nadie la agregaba al menú del invitado. | `guest-portal/public-event-navigation.ts` | 819 |
 | 14 | Botones habilitados sin acción: "Agregar Pregunta", "Agregar Misión" (conectados) y "Enviar a Todos los Pendientes" (deshabilitado a propósito: el envío masivo no existe). | paneles de juegos y RSVP | 819 |
 | 15 | 13 pantallas se salían de la pantalla en celular. Ver detalle abajo. | varios | 818, 819 |
-| 16 | **El primer invitado que confirmaba dejaba al cliente afuera de su portal.** Al guardar la confirmación se borraba la contraseña del portal del cliente. Y una vez borrada, ese portal quedaba abierto: el control comparaba "vacío contra vacío" y daba por buena la entrada. | `lib/fiesta/get-fiesta-raw.ts`, `portal.actions.ts` | 825 |
+| 16 | **El primer invitado que confirmaba dejaba al cliente afuera de su portal.** Al guardar la confirmación se borraba la contraseña del portal del cliente. Y una vez borrada, ese portal quedaba abierto: el control comparaba "vacío contra vacío" y daba por buena la entrada. | `lib/fiesta/get-fiesta-raw.ts`, `portal.actions.ts` | rama pruebas en vivo |
+| 17 | **La invitación mostraba el día equivocado.** Para una fiesta del sábado 1 de agosto decía "viernes 31 de julio", porque la fecha se leía como medianoche en Londres y Uruguay tiene tres horas menos. Encima el servidor y el celular del invitado mostraban días distintos en la misma pantalla. | `lib/fecha-evento.ts`, `invitacion-publica-client.tsx` | rama pruebas en vivo |
+| 18 | El catálogo se veía **cortado en el celular**: el botón "Siguiente" quedaba fuera de la pantalla. Justo lo que se le muestra al cliente en persona. | `catalogo/[tipo]` | rama pruebas en vivo |
+| 19 | El centro de alertas se salía 43px y la pantalla de red social de eventos 112px en computadora y 200px en celular (la tabla empujaba todo). | `alertas`, `empresa/red-social-eventos` | rama pruebas en vivo |
+| 20 | El buzón de recuerdos decía **"Evento no encontrado"** cuando en realidad la estación estaba apagada o el enlace no traía el permiso. Al invitado le hacía pensar que la fiesta no existe. | `evento/buzon/[fiestaId]` | rama pruebas en vivo |
+| 21 | **El enlace de la encuesta se moría solo.** Sólo funcionaba mientras esa fiesta fuera la más reciente. Como la encuesta se manda *después* del evento, para cuando el invitado la abría ya había otra fiesta adelante y el enlace decía "no corresponde al evento actual". Con varias fiestas activas, andaba una sola. | `feedback/[fiestaId]` | rama pruebas en vivo |
+| 22 | La fecha corrida al día anterior aparecía además en el RSVP, la pantalla de cómo llegar, el portal del cliente y **la marca de agua de las fotos** de las cuatro estaciones (fotocabina, espejo mágico, 360 y bogue). | 8 pantallas | rama pruebas en vivo |
 
 ### Desborde horizontal en celular
 
@@ -56,6 +62,8 @@ social y decoración.
 
 | Archivo | Qué protege |
 |---|---|
+| `tests/e2e/noche-de-fiesta.spec.ts` | Las 27 pantallas que se usan **mientras la fiesta pasa**, con una fiesta de esta noche, invitados confirmados y mesas asignadas: ninguna se cuelga, se vacía, se sale de la pantalla ni tarda más de 12 segundos |
+| `src/__tests__/fecha-evento.test.ts` | Que la fecha de la fiesta no se corra al día anterior |
 | `tests/e2e/viaje-invitado.spec.ts` | El recorrido completo del invitado **con datos de verdad**: confirma, su QR se dibuja, la confirmación queda guardada, el equipo la ve en el Centro de Fiesta y el cliente entra a su portal y la encuentra |
 | `tests/e2e/mobile-overflow.spec.ts` | 14 rutas internas + 2 públicas sin desborde en celular |
 | `tests/e2e/catalogo-publico.spec.ts` | El catálogo y la galería siguen abiertos al prospecto |

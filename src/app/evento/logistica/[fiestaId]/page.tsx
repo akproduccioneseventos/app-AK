@@ -11,6 +11,7 @@ import {
   Loader2, AlertTriangle, ParkingCircle, Accessibility, Phone,
   CloudRain, MapPin, Navigation, Clock, ExternalLink, Info
 } from 'lucide-react';
+import { parseEventDate } from '@/lib/public-experience/event-date';
 
 export default function LogisticaPage() {
   const params = useParams<{ fiestaId: string }>();
@@ -49,7 +50,7 @@ export default function LogisticaPage() {
   );
 
   const config = fiesta.configuracion;
-  const fechaEvento = config?.fechaEvento ? new Date(config.fechaEvento) : null;
+  const fechaEvento = parseEventDate(config?.fechaEvento);
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-blue-50 via-white to-indigo-50">

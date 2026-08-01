@@ -7,6 +7,7 @@ import { QRCodeSVG } from 'qrcode.react';
 import { AnimatePresence, motion, useReducedMotion } from 'framer-motion';
 import { Maximize, QrCode, RefreshCw, Sparkles } from 'lucide-react';
 import { getPublicSocialEvent, getPublicSocialPosts } from '@/app/actions/social-gallery';
+import { getEntertainmentLaunchToken } from '@/app/actions/fiesta/entretenimiento.actions';
 import type { TotemScreenSettings } from '@/types/fiesta';
 import type { SocialGalleryPost } from '@/types/social-gallery';
 import type { PublicSocialEvent } from '@/lib/social-fiesta/public-event';
@@ -152,11 +153,35 @@ export default function TotemPublicPage() {
     }
   };
 
+  /**
+   * Permiso del salon para el QR del totem.
+   *
+   * El QR de la pantalla es uno solo para todos los invitados, asi que no puede
+   * llevar el enlace personal de nadie. Sin un permiso propio, el invitado que
+   * lo escanea puede mirar el muro pero no subir su foto, que es justo para lo
+   * que esta puesto el totem.
+   *
+   * El permiso lo pide la pantalla al abrirse, y el servidor solo lo entrega si
+   * quien la abrio es del equipo de AK. Asi el permiso queda en la pantalla del
+   * salon, no repartido por internet.
+   */
+  const [permisoDeSalon, setPermisoDeSalon] = useState('');
+
+  useEffect(() => {
+    let vigente = true;
+    getEntertainmentLaunchToken(fiestaId, 'totems')
+      .then((res) => {
+        if (vigente && res.success && res.guestToken) setPermisoDeSalon(res.guestToken);
+      })
+      .catch(() => {});
+    return () => { vigente = false; };
+  }, [fiestaId]);
+
   const qrUrl = useMemo(() => {
-    if (totem?.qrUrl) return totem.qrUrl;
-    if (!origin) return '';
-    return `${origin}/evento/social/${fiestaId}`;
-  }, [fiestaId, origin, totem?.qrUrl]);
+    const base = totem?.qrUrl || (origin ? `${origin}/evento/social/${fiestaId}` : '');
+    if (!base || !permisoDeSalon) return base;
+    return `${base}${base.includes('?') ? '&' : '?'}estacion=totems&access=${encodeURIComponent(permisoDeSalon)}`;
+  }, [fiestaId, origin, permisoDeSalon, totem?.qrUrl]);
 
   if (!isLoaded) {
     return <div className="fixed inset-0 flex items-center justify-center bg-slate-950 text-white">Cargando tótem AK...</div>;

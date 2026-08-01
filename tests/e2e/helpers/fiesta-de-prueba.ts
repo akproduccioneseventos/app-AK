@@ -23,6 +23,29 @@ export function crearCookieDeSesion() {
   return `${payload}.${crypto.createHmac('sha256', SESSION_SECRET).update(payload).digest('hex')}`;
 }
 
+/**
+ * Permiso de estación, igual que el que genera el equipo desde el Centro de
+ * Fiesta. Las estaciones (buzón, fotocabina, espejo, 360) no se abren con el
+ * link pelado: hay que llegar con este permiso, que es lo que lleva el QR.
+ *
+ * Se reproduce acá el mismo formato que usa la app (`ent-v2` + firma) para poder
+ * probar el camino real del invitado y no una versión inventada.
+ */
+export function crearPermisoDeEstacion(fiestaId: string, moduloId: string, horas = 18) {
+  const datos = Buffer.from(
+    JSON.stringify({
+      version: 'ent-v2',
+      fiestaId,
+      moduleId: moduloId,
+      scope: 'guest',
+      expiresAt: Date.now() + horas * 60 * 60 * 1000,
+      nonce: crypto.randomUUID(),
+    }),
+  ).toString('base64url');
+  const firma = crypto.createHmac('sha256', SESSION_SECRET).update(datos).digest('base64url');
+  return `${datos}.${firma}`;
+}
+
 const CARPETAS_DATOS = [
   path.join(process.cwd(), 'data', 'fiestas'),
   path.join(process.cwd(), 'src', 'data', 'fiestas'),
@@ -99,4 +122,27 @@ export function crearFiestaDeEstaNoche(opciones: { id?: string; clavePortal?: st
 
   guardarFiesta(fiesta);
   return fiesta;
+}
+
+/**
+ * Quita del archivo de opiniones las que dejó la prueba.
+ *
+ * El envío se guarda de verdad (esa es la gracia), así que sin esto las
+ * opiniones inventadas quedarían mezcladas con las de los clientes reales.
+ */
+export function borrarOpinionesDePrueba() {
+  for (const carpeta of ['data', path.join('src', 'data')]) {
+    const archivo = path.join(process.cwd(), carpeta, 'feedback.json');
+    if (!fs.existsSync(archivo)) continue;
+    try {
+      const opiniones = JSON.parse(fs.readFileSync(archivo, 'utf8'));
+      if (!Array.isArray(opiniones)) continue;
+      const limpias = opiniones.filter((o: any) => !String(o?.fiestaId || '').startsWith('e2e_'));
+      if (limpias.length !== opiniones.length) {
+        fs.writeFileSync(archivo, `${JSON.stringify(limpias, null, 2)}\n`);
+      }
+    } catch {
+      // Si el archivo no se puede leer, no es la prueba quien tiene que arreglarlo.
+    }
+  }
 }

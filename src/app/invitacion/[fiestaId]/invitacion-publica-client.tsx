@@ -13,6 +13,7 @@ import { Input } from '@/components/ui/input';
 import { cn } from '@/lib/utils';
 import { SplashScreen } from '@/components/invitacion/SplashScreen';
 import { buildGoogleCalendarUrl } from '@/lib/calendar-links';
+import { formatEventDate } from '@/lib/public-experience/event-date';
 import { XVThemeEffects } from '@/components/invitacion/xv-theme-effects';
 import { canUseNextImage } from '@/lib/next-image-url';
 
@@ -1027,13 +1028,12 @@ export function InvitacionPublicaClient({ config, fiestaId, socialConnections = 
     return () => window.removeEventListener('keydown', handleKeyDown);
   }, [activePhotoIndex, config.galeriaFotos]);
 
-  const formatDate = (dateStr: string) => {
-    try {
-      const date = new Date(dateStr);
-      if (isNaN(date.getTime())) return 'Fecha por confirmar';
-      return date.toLocaleDateString('es-AR', { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric' });
-    } catch { return 'Fecha por confirmar'; }
-  };
+  // Antes se armaba con `new Date(texto)` y se formateaba sin zona horaria: la
+  // fecha "2026-08-01" se leia como medianoche en Londres y en Uruguay caia el
+  // dia anterior. El invitado veia "viernes 31 de julio" para una fiesta del
+  // sabado 1 de agosto, y ademas el servidor y su celular mostraban dias
+  // distintos en la misma pantalla.
+  const formatDate = (dateStr: string) => formatEventDate(dateStr) ?? 'Fecha por confirmar';
 
   const hasLocation = !!(config.nombreSalon || config.direccionSalon || config.linkMaps);
   const calendarUrl = buildGoogleCalendarUrl({
