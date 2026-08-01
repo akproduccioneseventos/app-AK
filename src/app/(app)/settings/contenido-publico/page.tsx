@@ -314,7 +314,7 @@ export default function ContenidoPublicoSettingsPage() {
             <CardTitle>Blog Corporativo</CardTitle>
             <CardDescription>SEO automatico: revisa Instagram cada 6 horas y crea articulos de valor semanalmente.</CardDescription>
           </div>
-          <div className="flex items-center gap-2">
+          <div className="flex flex-wrap items-center gap-2">
             <Button
               onClick={() => handleRunMarketingAutomation(true)}
               disabled={generatingAI}
@@ -368,7 +368,7 @@ export default function ContenidoPublicoSettingsPage() {
                     URL: /public/blog/{post.slug} | Categoría: <span className="font-semibold">{post.category}</span>
                   </p>
                 </div>
-                <div className="flex items-center gap-2">
+                <div className="flex flex-wrap items-center gap-2">
                   <Button onClick={() => setEditingPost(post)} variant="outline" size="sm">
                     Editar
                   </Button>

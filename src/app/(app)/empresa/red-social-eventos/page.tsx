@@ -151,7 +151,9 @@ export default function RedSocialEventosPage() {
           <h1 className="text-3xl font-black tracking-tight font-headline text-slate-900">Muro Social General</h1>
           <p className="text-sm text-slate-500">Gestión de feeds de eventos y parametrización de publicidad de AK Producciones.</p>
         </div>
-        <div className="flex items-center gap-3">
+        {/* Los dos botones no caben juntos en un telefono y, al llevar
+            `whitespace-nowrap`, estiraban la pagina en vez de bajar de linea. */}
+        <div className="flex flex-wrap items-center gap-3">
           <Button onClick={fetchData} variant="outline" className="rounded-xl border-slate-200">
             Actualizar Lista
           </Button>

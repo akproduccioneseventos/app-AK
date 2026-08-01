@@ -224,9 +224,8 @@
   border-color: color-mix(in srgb, var(--inv-primary) 26%, transparent);
 }
 
-.ak-red-premium-client :where([style*="--inv-primary"] .bg-white, [style*="--inv-primary"] .bg-white\/90, [style*="--inv-primary"] .bg-white\/95) {
-  box-shadow: 0 22px 62px color-mix(in srgb, var(--inv-primary) 13%, transparent) !important;
-}
+/* El box-shadow de este selector se define en ak-release-polish.css, que se
+   carga despues y lo pisa por completo. No duplicar aca. */
 
 .ak-red-premium-client section:first-of-type {
   isolation: isolate;
@@ -244,16 +243,8 @@
   border-top: 1px solid rgba(24,24,27,0.12);
 }
 
-.ak-red-premium-live {
-  min-height: 100%;
-  color: #ffffff;
-  background:
-    repeating-linear-gradient(90deg, rgba(255,255,255,0.05) 0 1px, transparent 1px 88px),
-    radial-gradient(circle at 18% 12%, rgba(215,25,32,0.35), transparent 22rem),
-    radial-gradient(circle at 86% 12%, rgba(37,99,235,0.22), transparent 18rem),
-    radial-gradient(circle at 50% 100%, rgba(245,158,11,0.18), transparent 22rem),
-    linear-gradient(135deg, #111111 0%, #520708 42%, #d71920 100%);
-}
+/* `.ak-red-premium-live` (min-height, color y fondo) se define en
+   ak-release-polish.css, que se carga despues y redefine las tres. No duplicar. */
 
 .ak-red-premium-live::before {
   content: "";
