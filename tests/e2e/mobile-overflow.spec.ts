@@ -23,7 +23,7 @@ const RUTAS_INTERNAS = ['/admin', '/customers', '/presupuestos', '/eventos', '/p
   '/empresa/menus/tragos', '/fiestas/nueva/reuniones', '/settings/cupones',
   '/settings/notifications', '/settings/whatsapp-business', '/settings/templates/layouts',
   '/empresa/red-social-eventos', '/fiestas/nueva/decoracion', '/settings/contenido-publico'];
-const RUTAS_PUBLICAS = ['/', '/simulador-de-presupuesto'];
+const RUTAS_PUBLICAS = ['/', '/simulador-de-presupuesto', '/catalogo/bodas'];
 
 /** Margen de 2px: los navegadores redondean subpixeles al medir. */
 const TOLERANCIA = 2;

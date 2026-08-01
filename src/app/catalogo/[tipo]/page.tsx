@@ -848,26 +848,26 @@ export default function CatalogoTipoPage() {
 
       {/* Bottom navigation */}
       <footer className="sticky bottom-0 z-30 bg-white/95 backdrop-blur-xl border-t border-slate-100 shadow-[0_-4px_20px_rgba(0,0,0,0.04)]">
-        <div className="max-w-5xl mx-auto px-4 py-4 flex items-center justify-between gap-4">
+        <div className="max-w-5xl mx-auto px-4 py-4 grid grid-cols-[minmax(0,1fr)_auto_minmax(0,1fr)] items-center gap-2 sm:flex sm:justify-between sm:gap-4">
           <Button
             onClick={goPrev}
             disabled={isFirstSlide}
             variant="outline"
             size="lg"
-            className="h-12 px-6 rounded-2xl font-semibold disabled:opacity-30"
+            className="h-12 min-w-0 w-full px-2 text-xs sm:w-auto sm:px-6 sm:text-base rounded-2xl font-semibold disabled:opacity-30"
           >
-            <ChevronLeft className="h-5 w-5 mr-1" />
-            Anterior
+            <ChevronLeft className="h-5 w-5 mr-1 shrink-0" />
+            <span className="min-w-0 whitespace-normal text-center">Anterior</span>
           </Button>
 
           {/* Dot indicators */}
-          <div className="flex items-center gap-1.5">
+          <div className="flex min-w-0 items-center justify-center gap-1.5" aria-label="Progreso del catálogo">
             {SLIDE_ORDER.map((_, idx) => (
               <button
                 key={idx}
                 onClick={() => goToSlide(idx)}
                 className={cn(
-                  'h-2 rounded-full transition-all duration-300',
+                  'h-2 shrink-0 rounded-full transition-all duration-300',
                   currentSlide === idx
                     ? `w-6 bg-gradient-to-r ${accent.gradient}`
                     : 'w-2 bg-slate-200 hover:bg-slate-300',
@@ -881,24 +881,24 @@ export default function CatalogoTipoPage() {
               onClick={handleCreateBudget}
               size="lg"
               className={cn(
-                'h-12 px-6 rounded-2xl font-bold text-white shadow-lg',
+                'h-12 min-w-0 w-full px-2 text-xs sm:w-auto sm:px-6 sm:text-base rounded-2xl font-bold text-white shadow-lg',
                 `bg-gradient-to-r ${accent.gradient} hover:opacity-90`,
               )}
             >
-              <FileText className="h-4 w-4 mr-2" />
-              Crear presupuesto
+              <FileText className="h-4 w-4 mr-2 shrink-0" />
+              <span className="min-w-0 whitespace-normal text-center">Crear presupuesto</span>
             </Button>
           ) : (
             <Button
               onClick={goNext}
               size="lg"
               className={cn(
-                'h-12 px-6 rounded-2xl font-semibold text-white',
+                'h-12 min-w-0 w-full px-2 text-xs sm:w-auto sm:px-6 sm:text-base rounded-2xl font-semibold text-white',
                 `bg-gradient-to-r ${accent.gradient} hover:opacity-90`,
               )}
             >
-              Siguiente
-              <ChevronRight className="h-5 w-5 ml-1" />
+              <span className="min-w-0 whitespace-normal text-center">Siguiente</span>
+              <ChevronRight className="h-5 w-5 ml-1 shrink-0" />
             </Button>
           )}
         </div>
