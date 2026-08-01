@@ -128,9 +128,16 @@ bloques inertes que quedaban (`.ak-red-premium-live` y el `box-shadow` de
 `.ak-red-premium-client`, ambos redefinidos por completo en
 `ak-release-polish.css`, que carga después). La huella no se movió.
 
-Segunda pasada: se quitaron los 9 `!important` de `ak-motion-effects.css` y
-`ak-no-red-experience.css` y la huella no se movió, con lo que quedó demostrado
-que eran innecesarios. **Quedan 133** en las hojas grandes, que se pueden ir
+Pasadas siguientes: se quitaron **26 `!important`** de cuatro hojas
+(`ak-motion-effects`, `ak-no-red-experience`, `ak-internal-experience-polish` y
+`ak-release-polish`) y la huella no se movió, con lo que quedó demostrado que
+eran innecesarios.
+
+Se probó también sacar los 65 de `ak-global-premium` y `ak-public-experience`:
+la huella tampoco se movió, **pero se revirtieron**. Esas dos hojas gobiernan las
+pantallas de evento en vivo, que la huella todavía no cubre, así que el "pasó" no
+alcanzaba como prueba. Para avanzar ahí primero hay que sumar esas pantallas a la
+referencia. **Quedan 116** en las hojas grandes, que se pueden ir
 sacando por tandas con el mismo método: quitar, comprobar, y revertir si algo se
 mueve.
 
