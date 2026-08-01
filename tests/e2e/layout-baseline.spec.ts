@@ -36,6 +36,11 @@ const RUTAS = [
   { ruta: '/', conSesion: false },
   { ruta: '/simulador-de-presupuesto', conSesion: false },
   { ruta: '/catalogo/bodas', conSesion: false },
+  // Cubren los tres modos de `ak-red-premium-surface`, que es donde viven los
+  // estilos globales mas agresivos: "live", "client" y "public".
+  { ruta: '/empresa/presentacion-led', conSesion: true },
+  { ruta: '/fiestas/nueva/portal-cliente', conSesion: true },
+  { ruta: '/contabilidad/comercial-360', conSesion: true },
 ];
 
 function createSessionToken() {
@@ -47,6 +52,21 @@ type Huella = Record<string, number>;
 
 async function medirHuella(page: import('@playwright/test').Page): Promise<Huella> {
   return page.evaluate(() => {
+    /** Resume en un numero el color de fondo y de texto de los puntos clave. */
+    const huellaDeColor = () => {
+      const partes: string[] = [];
+      for (const sel of ['body', 'main', 'header', 'h1', 'button', 'a']) {
+        const el = document.querySelector(sel);
+        if (!el) { partes.push('-'); continue; }
+        const c = getComputedStyle(el);
+        partes.push(`${c.color}|${c.backgroundColor}|${c.borderColor}`);
+      }
+      const texto = partes.join('~');
+      let h = 0;
+      for (let i = 0; i < texto.length; i += 1) h = (h * 31 + texto.charCodeAt(i)) | 0;
+      return h;
+    };
+
     const doc = document.documentElement;
     const caja = (selector: string) => {
       const el = document.querySelector(selector) as HTMLElement | null;
@@ -65,6 +85,9 @@ async function medirHuella(page: import('@playwright/test').Page): Promise<Huell
       mainX: main.x, mainW: main.w,
       botones: document.querySelectorAll('button').length,
       enlaces: document.querySelectorAll('a[href]').length,
+      // Los colores no se ven en la geometria, y buena parte de las reglas
+      // globales los controlan. Se resumen en un numero para poder compararlos.
+      colores: huellaDeColor(),
     };
   });
 }

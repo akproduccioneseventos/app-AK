@@ -128,18 +128,23 @@ bloques inertes que quedaban (`.ak-red-premium-live` y el `box-shadow` de
 `.ak-red-premium-client`, ambos redefinidos por completo en
 `ak-release-polish.css`, que carga después). La huella no se movió.
 
-Pasadas siguientes: se quitaron **26 `!important`** de cuatro hojas
-(`ak-motion-effects`, `ak-no-red-experience`, `ak-internal-experience-polish` y
-`ak-release-polish`) y la huella no se movió, con lo que quedó demostrado que
-eran innecesarios.
+Pasadas siguientes, todas comprobadas: se quitaron **91 `!important`** de seis
+hojas. Quedan **50**, sólo en `globals.css` (25) y `ak-budget-mobile-fixes.css`
+(25, todos dentro de plantillas de impresión).
 
-Se probó también sacar los 65 de `ak-global-premium` y `ak-public-experience`:
-la huella tampoco se movió, **pero se revirtieron**. Esas dos hojas gobiernan las
-pantallas de evento en vivo, que la huella todavía no cubre, así que el "pasó" no
-alcanzaba como prueba. Para avanzar ahí primero hay que sumar esas pantallas a la
-referencia. **Quedan 116** en las hojas grandes, que se pueden ir
-sacando por tandas con el mismo método: quitar, comprobar, y revertir si algo se
-mueve.
+Para llegar ahí hubo que reforzar la red dos veces, porque la primera versión
+daba falsa confianza:
+
+1. **Cobertura**: medía seis pantallas que no incluían ninguna de modo "live" ni
+   "client". Se sumaron `/empresa/presentacion-led`, `/fiestas/nueva/portal-cliente`
+   y `/contabilidad/comercial-360`, que cubren los tres modos de
+   `ak-red-premium-surface`, donde viven las reglas globales más agresivas.
+2. **Qué medía**: sólo geometría. Buena parte de esas reglas controla colores y
+   fondos, que no mueven nada de lugar. Se agregó una huella de color (texto,
+   fondo y borde de los puntos clave).
+
+Recién con las dos correcciones el "pasó" significa algo. Con la red anterior
+estos 65 habrían entrado sin verificación real.
 
 ### 5. Código sin uso — ✅ REVISADO
 

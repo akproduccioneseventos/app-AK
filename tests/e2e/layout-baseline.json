@@ -10,7 +10,8 @@
     "mainX": 257,
     "mainW": 1023,
     "botones": 14,
-    "enlaces": 49
+    "enlaces": 49,
+    "colores": 2034977308
   },
   "chromium-desktop /customers": {
     "anchoDocumento": 1280,
@@ -23,7 +24,8 @@
     "mainX": 257,
     "mainW": 1023,
     "botones": 7,
-    "enlaces": 27
+    "enlaces": 27,
+    "colores": 2034977308
   },
   "chromium-desktop /presupuestos": {
     "anchoDocumento": 1280,
@@ -36,7 +38,8 @@
     "mainX": 257,
     "mainW": 1023,
     "botones": 14,
-    "enlaces": 27
+    "enlaces": 27,
+    "colores": 2034977308
   },
   "chromium-desktop /": {
     "anchoDocumento": 1280,
@@ -49,7 +52,8 @@
     "mainX": -1,
     "mainW": -1,
     "botones": 46,
-    "enlaces": 50
+    "enlaces": 50,
+    "colores": -883377086
   },
   "chromium-desktop /simulador-de-presupuesto": {
     "anchoDocumento": 1280,
@@ -62,7 +66,8 @@
     "mainX": 0,
     "mainW": 1280,
     "botones": 1,
-    "enlaces": 0
+    "enlaces": 0,
+    "colores": -1634398827
   },
   "chromium-desktop /catalogo/bodas": {
     "anchoDocumento": 1280,
@@ -75,7 +80,50 @@
     "mainX": 0,
     "mainW": 1280,
     "botones": 21,
-    "enlaces": 1
+    "enlaces": 1,
+    "colores": 1048792844
+  },
+  "chromium-desktop /empresa/presentacion-led": {
+    "anchoDocumento": 1280,
+    "desborde": 0,
+    "h1X": -1,
+    "h1Y": -1,
+    "h1W": -1,
+    "headerY": -1,
+    "headerH": -1,
+    "mainX": -1,
+    "mainW": -1,
+    "botones": 0,
+    "enlaces": 1,
+    "colores": -1498265350
+  },
+  "chromium-desktop /fiestas/nueva/portal-cliente": {
+    "anchoDocumento": 1280,
+    "desborde": 0,
+    "h1X": 321,
+    "h1Y": 18,
+    "h1W": 150,
+    "headerY": 0,
+    "headerH": 64,
+    "mainX": 257,
+    "mainW": 1023,
+    "botones": 6,
+    "enlaces": 23,
+    "colores": 2034977308
+  },
+  "chromium-desktop /contabilidad/comercial-360": {
+    "anchoDocumento": 1280,
+    "desborde": 0,
+    "h1X": 281,
+    "h1Y": 18,
+    "h1W": 150,
+    "headerY": 0,
+    "headerH": 64,
+    "mainX": 257,
+    "mainW": 1023,
+    "botones": 6,
+    "enlaces": 28,
+    "colores": 2034977308
   },
   "chromium-mobile /admin": {
     "anchoDocumento": 412,
@@ -88,7 +136,8 @@
     "mainX": 0,
     "mainW": 412,
     "botones": 14,
-    "enlaces": 26
+    "enlaces": 26,
+    "colores": -863612555
   },
   "chromium-mobile /customers": {
     "anchoDocumento": 412,
@@ -101,7 +150,8 @@
     "mainX": 0,
     "mainW": 412,
     "botones": 7,
-    "enlaces": 4
+    "enlaces": 4,
+    "colores": -119857316
   },
   "chromium-mobile /presupuestos": {
     "anchoDocumento": 412,
@@ -114,7 +164,8 @@
     "mainX": 0,
     "mainW": 412,
     "botones": 14,
-    "enlaces": 4
+    "enlaces": 4,
+    "colores": -119857316
   },
   "chromium-mobile /": {
     "anchoDocumento": 412,
@@ -127,7 +178,8 @@
     "mainX": -1,
     "mainW": -1,
     "botones": 46,
-    "enlaces": 50
+    "enlaces": 50,
+    "colores": -883377086
   },
   "chromium-mobile /simulador-de-presupuesto": {
     "anchoDocumento": 412,
@@ -140,7 +192,8 @@
     "mainX": 0,
     "mainW": 412,
     "botones": 1,
-    "enlaces": 0
+    "enlaces": 0,
+    "colores": -1634398827
   },
   "chromium-mobile /catalogo/bodas": {
     "anchoDocumento": 466,
@@ -153,6 +206,49 @@
     "mainX": 0,
     "mainW": 412,
     "botones": 21,
-    "enlaces": 1
+    "enlaces": 1,
+    "colores": 1048792844
+  },
+  "chromium-mobile /empresa/presentacion-led": {
+    "anchoDocumento": 412,
+    "desborde": 0,
+    "h1X": -1,
+    "h1Y": -1,
+    "h1W": -1,
+    "headerY": -1,
+    "headerH": -1,
+    "mainX": -1,
+    "mainW": -1,
+    "botones": 0,
+    "enlaces": 1,
+    "colores": -1498265350
+  },
+  "chromium-mobile /fiestas/nueva/portal-cliente": {
+    "anchoDocumento": 412,
+    "desborde": 0,
+    "h1X": 96,
+    "h1Y": 22,
+    "h1W": 117,
+    "headerY": 0,
+    "headerH": 64,
+    "mainX": 0,
+    "mainW": 412,
+    "botones": 6,
+    "enlaces": 0,
+    "colores": 746517800
+  },
+  "chromium-mobile /contabilidad/comercial-360": {
+    "anchoDocumento": 412,
+    "desborde": 0,
+    "h1X": 56,
+    "h1Y": 22,
+    "h1W": 117,
+    "headerY": 0,
+    "headerH": 64,
+    "mainX": 0,
+    "mainW": 412,
+    "botones": 6,
+    "enlaces": 5,
+    "colores": 1757470788
   }
 }
