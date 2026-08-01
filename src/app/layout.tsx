@@ -75,6 +75,7 @@ export const metadata: Metadata = {
 
 import { GoogleAnalytics } from '@/components/google-analytics';
 import { MicrosoftClarity } from '@/components/microsoft-clarity';
+import { TikTokPixel } from '@/components/tiktok-pixel';
 
 export default function RootLayout({
   children,
@@ -88,6 +89,7 @@ export default function RootLayout({
       <body className="ak-motion-system font-body antialiased">
         <GoogleAnalytics />
         <MicrosoftClarity />
+        <TikTokPixel />
         <DeploymentRecovery />
         {children}
         <Toaster />
