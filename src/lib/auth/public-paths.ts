@@ -22,7 +22,6 @@ export const PUBLIC_PATH_PREFIXES = [
   '/portal-cliente',
   '/simulador',
   '/simulador-ak',
-  '/simulador-v2',
   '/proveedor',
   // Catalogo digital por tipo de fiesta: es material de venta pensado para
   // compartirle el enlace a un prospecto. Vive fuera del grupo (app), no

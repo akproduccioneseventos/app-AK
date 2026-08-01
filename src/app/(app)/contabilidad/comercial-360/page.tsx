@@ -82,7 +82,7 @@ export default function Commercial360Page() {
           ].map(group => <Card key={group.title}><CardHeader><CardTitle>{group.title}</CardTitle></CardHeader><CardContent className="space-y-3">{group.items.map(item => <div key={item} className="flex gap-3 rounded-lg bg-white p-3"><CheckCircle2 className="mt-0.5 h-4 w-4 shrink-0 text-emerald-600" /><p className="text-sm text-muted-foreground">{item}</p></div>)}</CardContent></Card>)}
         </section>
 
-        <Card><CardContent className="flex flex-col gap-4 p-5 sm:flex-row sm:items-center sm:justify-between"><div><h2 className="font-semibold text-slate-950">Resultado buscado</h2><p className="text-sm text-muted-foreground">Que cada consulta comercial tenga presentacion, presupuesto, seguimiento y material visual conectados.</p></div><Button asChild><Link href="/simulador-v2"><BadgeDollarSign className="mr-2 h-4 w-4" />Abrir simulador</Link></Button></CardContent></Card>
+        <Card><CardContent className="flex flex-col gap-4 p-5 sm:flex-row sm:items-center sm:justify-between"><div><h2 className="font-semibold text-slate-950">Resultado buscado</h2><p className="text-sm text-muted-foreground">Que cada consulta comercial tenga presentacion, presupuesto, seguimiento y material visual conectados.</p></div><Button asChild><Link href="/simulador-de-presupuesto"><BadgeDollarSign className="mr-2 h-4 w-4" />Abrir simulador</Link></Button></CardContent></Card>
       </div>
     </main>
   );

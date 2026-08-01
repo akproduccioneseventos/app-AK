@@ -21,15 +21,15 @@
 
 .ak-led-stage-safe,
 .bg-gradient-to-br.from-slate-950.via-indigo-950.to-slate-900 {
-  background-color: #020617 !important;
-  background-image: linear-gradient(rgba(255,255,255,0.035) 1px, transparent 1px) !important;
-  background-size: 100% 42px !important;
+  background-color: #020617;
+  background-image: linear-gradient(rgba(255,255,255,0.035) 1px, transparent 1px);
+  background-size: 100% 42px;
 }
 
 .bg-indigo-600\/20.blur-3xl,
 .bg-emerald-600\/20.blur-3xl,
 .bg-purple-600\/10.blur-3xl {
-  display: none !important;
+  display: none;
 }
 
 .ak-deferred-section {
@@ -77,9 +77,9 @@
   *,
   *::before,
   *::after {
-    animation-duration: 0.01ms !important;
-    animation-iteration-count: 1 !important;
-    scroll-behavior: auto !important;
-    transition-duration: 0.01ms !important;
+    animation-duration: 0.01ms;
+    animation-iteration-count: 1;
+    scroll-behavior: auto;
+    transition-duration: 0.01ms;
   }
 }

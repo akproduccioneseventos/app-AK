@@ -105,9 +105,9 @@ que aparezcan al mostrarle el catálogo a un cliente**, sin tocar código.
 323 pantallas en total: 213 internas y 110 públicas. Listado navegable generado
 en sesión anterior, agrupado y explicado en castellano.
 
-Ya resuelto: de los "4 simuladores" hay en realidad **2 reales** (el de la web y
-Sofía, ambos se quedan), una puerta de entrada y un atajo (`/simulador-v2`, solo
-redirige, se puede borrar).
+Ya resuelto: de los "4 simuladores" quedan **2 reales** (el de la web y Sofía) más
+la puerta de entrada. `/simulador-v2` **ya se eliminó**: sólo redirigía, y sus dos
+referencias se apuntaron al simulador real.
 
 Falta decidir:
 - **6 pantallas de presentación** — ¿cuál se usa para mostrar el trabajo?
@@ -128,8 +128,11 @@ bloques inertes que quedaban (`.ak-red-premium-live` y el `box-shadow` de
 `.ak-red-premium-client`, ambos redefinidos por completo en
 `ak-release-polish.css`, que carga después). La huella no se movió.
 
-**Queda**: el grueso de las 1414 líneas y los 142 `!important`. Ahora se puede
-hacer por tandas, comprobando cada una.
+Segunda pasada: se quitaron los 9 `!important` de `ak-motion-effects.css` y
+`ak-no-red-experience.css` y la huella no se movió, con lo que quedó demostrado
+que eran innecesarios. **Quedan 133** en las hojas grandes, que se pueden ir
+sacando por tandas con el mismo método: quitar, comprobar, y revertir si algo se
+mueve.
 
 ### 5. Código sin uso — ✅ REVISADO
 
