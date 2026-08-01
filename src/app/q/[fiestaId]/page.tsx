@@ -113,7 +113,7 @@ export default async function SmartQrPage(props: PageProps) {
             </Link>
           </Button>
           <Button asChild variant="outline" className="rounded-2xl bg-white font-bold">
-            <Link href={`/fiestas/nueva/centro-total?fiestaId=${encodeURIComponent(fiesta.id)}`}>
+            <Link href={`/fiestas/nueva/centro?fiestaId=${encodeURIComponent(fiesta.id)}`}>
               <ShieldCheck className="mr-2 h-4 w-4" /> Centro total AK
             </Link>
           </Button>

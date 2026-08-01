@@ -34,10 +34,7 @@ describe('action link integrity', () => {
     }
   });
 
-  it('labels the center score as configuration state, not a production test', () => {
-    const source = read('src/app/(app)/fiestas/nueva/centro-total/page.tsx');
-    expect(source).toContain('Estado de configuración');
-    expect(source).toContain('No reemplaza una prueba real de producción.');
-    expect(source).not.toContain('Salud real de la app');
-  });
+  // La pantalla "Centro Total AK" que esta prueba vigilaba ya no existe: se
+  // unificó en el Centro de Fiesta, que no muestra ningún puntaje de salud. Sin
+  // pantalla que vigilar, la regla quedó sin objeto.
 });

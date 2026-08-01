@@ -36,11 +36,12 @@ describe('internal operations integrity', () => {
   });
 
   it('pauses administrative polling while its tab is hidden', () => {
+    // Antes también se vigilaba `mission-control`, que se unificó en el Centro
+    // de Fiesta. El Centro no consulta en bucle: el reloj se calcula solo en el
+    // navegador, sin pedirle nada al servidor.
     const carga = read('src/app/(app)/fiestas/nueva/carga-operativa/page.tsx');
-    const missionControl = read('src/app/(app)/fiestas/nueva/mission-control/page.tsx');
 
     expect(carga).toContain("document.visibilityState !== 'visible'");
     expect(carga).toContain('15_000');
-    expect(missionControl).toContain("document.visibilityState === 'visible'");
   });
 });

@@ -20,10 +20,8 @@ const links = [
   // Pantalla unica para dirigir la noche: agrupa las herramientas reales del
   // evento (pantallas del salon, estaciones y control) en un solo lugar.
   { label: 'Centro de fiesta', href: '/eventos', icon: ClipboardCheck, eventPath: 'centro' },
-  { label: 'Comando', href: '/eventos', icon: ClipboardCheck, eventPath: 'comando-total' },
   { label: 'Final', href: '/settings/cierre-operativo-final', icon: Rocket },
   { label: 'Portfolio fiesta', href: '/presentacion-led/portafolio', icon: Monitor, portfolioEvent: true },
-  { label: 'Experiencia', href: '/eventos', icon: Sparkles, eventPath: 'centro-experiencia' },
   { label: 'Cierre mundial', href: '/eventos', icon: Rocket, eventPath: 'cierre-mundial' },
   { label: 'Global', href: '/settings/cierre-global-producto', icon: Route },
   { label: 'Visuales', href: '/settings/biblioteca-visual-ak', icon: ImagePlus },
