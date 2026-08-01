@@ -137,10 +137,21 @@ Lo único verificable como descartable era `scratch/` (scripts sueltos y volcado
 de diferencias); ya se eliminó. El resto son mayormente tipos de TypeScript, que
 no ocupan espacio en la app compilada: riesgo sin beneficio medible.
 
-### 6. Módulos nunca auditados en profundidad
+### 6. Módulos internos — ✅ AUDITADOS
 
-Contabilidad interna y facturas · Compras e insumos · Secretaría IA y
-control-tower · Multiagente · Blog, marketing y galería LED.
+Doce módulos recorridos con navegador y sesión válida: contabilidad, facturas,
+compras, insumos, activos fijos, secretaría AK, control tower, marketing,
+catálogo de servicios, proveedores, personal y calendario.
+
+**Todos cargan con contenido real, título propio y sin errores.** Ninguno expulsa
+al login ni muestra mensajes de fallo.
+
+`/compras` y `/control-tower` aparecían con cero botones activos; se verificó que
+son **pantallas-índice** (4 y 10 enlaces respectivamente hacia sus subsecciones),
+así que es el comportamiento correcto, no un defecto.
+
+Pendiente sólo la prueba de operaciones reales de escritura (cargar un gasto,
+emitir una factura), que necesita datos de la base y no se puede hacer en local.
 
 Las sesiones se concentraron en lo que ve el cliente y el invitado, que es donde
 se cae una venta o se arruina una fiesta.
