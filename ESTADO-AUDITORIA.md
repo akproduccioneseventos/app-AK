@@ -124,7 +124,9 @@ Ya resuelto también:
   celebraciones (PR 825). Las otras láminas de ejemplo quedan de lado.
 - **Fotos del catálogo**: la galería ya tiene más de 100 fotos cargadas, así que
   el catálogo digital muestra material real y reemplaza al impreso.
-- **Centro de control**: queda **uno solo**, rehecho para la noche de la fiesta.
+- **Centro de control**: quedaba **uno solo** de seis. Los otros cinco redirigen
+  a él, así que ningún enlace guardado se rompe. Está rehecho para la noche de la
+  fiesta.
   Muestra cuánto falta para empezar (o cuánto lleva andando), qué toca en este
   momento y qué sigue según el cronograma, cuánta gente confirmó y cuánta llegó,
   quién trabaja esa noche con su rol, lo que quedó sin hacer, y recién después
