@@ -20,7 +20,7 @@ const ToastViewport = React.forwardRef<
       // que un aviso con texto largo empuje la pagina de costado; el aviso se
       // monta en toda la app, asi que sin esto el desborde aparece en cualquier
       // pantalla que muestre un mensaje.
-      "fixed top-0 z-[100] box-border flex max-h-screen w-full max-w-full flex-col-reverse p-4 sm:bottom-0 sm:right-0 sm:top-auto sm:flex-col md:max-w-[420px]",
+      "fixed inset-x-0 top-0 z-[100] box-border flex max-h-screen max-w-full flex-col-reverse p-4 sm:bottom-0 sm:right-0 sm:top-auto sm:flex-col md:max-w-[420px]",
       className
     )}
     {...props}

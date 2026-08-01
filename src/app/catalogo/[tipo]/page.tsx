@@ -31,6 +31,21 @@ import { cn } from '@/lib/utils';
 import { getCatalogBySlug } from '@/data/event-catalogs';
 import type { EventCatalogData, ServiceItem } from '@/types/public-landing';
 import { getCatalogoSettings } from '@/app/actions/contenido-publico';
+import { getCatalogoFotosByTipoFiesta } from '@/app/actions/catalogo-fotos';
+import type { CatalogoFoto } from '@/types/catalogo';
+
+/**
+ * Las fotos se etiquetan con el tipo de fiesta (`TIPOS_FIESTA_CATALOGO`), pero la
+ * URL del catalogo usa un slug. Este mapa une ambos mundos. `fiestas` queda
+ * afuera a proposito: es el catalogo general y no corresponde a un unico tipo.
+ */
+const TIPO_FIESTA_POR_SLUG: Record<string, string> = {
+  bodas: 'Casamiento',
+  'xv-anos': 'XV Años',
+  cumpleanos: 'Cumpleaños Adulto',
+  corporativos: 'Corporativo',
+  aniversarios: 'Aniversario',
+};
 import type { CatalogoSettings } from '@/types/contenido-publico';
 import { DEFAULT_CATALOGO_PRESENTACION_TEXT, DEFAULT_CATALOGO_POR_QUE_TEXT } from '@/lib/public-content-defaults';
 import { AK_WHATSAPP_NUMBER } from '@/lib/public-contact';
@@ -605,6 +620,7 @@ export default function CatalogoTipoPage() {
   const tipo = Array.isArray(params.tipo) ? params.tipo[0] : params.tipo;
   const catalog = tipo ? getCatalogBySlug(tipo) : null;
   const [catalogSettings, setCatalogSettings] = useState<CatalogoSettings | null>(null);
+  const [fotosDelTipo, setFotosDelTipo] = useState<CatalogoFoto[]>([]);
 
   const [currentSlide, setCurrentSlide] = useState(0);
   const [direction, setDirection] = useState(1);
@@ -615,6 +631,17 @@ export default function CatalogoTipoPage() {
     getCatalogoSettings(tipo)
       .then((settings) => setCatalogSettings(settings))
       .catch(() => setCatalogSettings(null));
+  }, [tipo]);
+
+  // Las fotos cargadas desde Galeria quedan etiquetadas por tipo de fiesta, pero
+  // no llegaban nunca al catalogo: mostraba solo imagenes fijas de ejemplo. Por
+  // eso no servia para reemplazar al catalogo impreso, que es su proposito.
+  useEffect(() => {
+    const tipoFiesta = tipo ? TIPO_FIESTA_POR_SLUG[tipo] : undefined;
+    if (!tipoFiesta) return;
+    getCatalogoFotosByTipoFiesta(tipoFiesta)
+      .then((fotos) => setFotosDelTipo(Array.isArray(fotos) ? fotos : []))
+      .catch(() => setFotosDelTipo([]));
   }, [tipo]);
 
   const mergedCatalog = useMemo(() => {
@@ -628,9 +655,15 @@ export default function CatalogoTipoPage() {
         subheadline: catalogSettings.hero.subtitulo || catalog.hero.subheadline,
         accentColor: catalogSettings.hero.color || catalog.hero.accentColor,
       },
-      gallery: catalogSettings.galeria.length > 0
-        ? catalogSettings.galeria.map((item, idx) => ({ id: `cfg-gallery-${idx}`, src: item.url, alt: item.alt || `Foto ${idx + 1}` }))
-        : catalog.gallery,
+      // Preferencia: fotos reales etiquetadas para este tipo de fiesta, luego la
+      // galeria configurada a mano, y recien al final las imagenes de ejemplo.
+      gallery: fotosDelTipo.length > 0
+        ? [...fotosDelTipo]
+            .sort((x, y) => Number(y.destacada) - Number(x.destacada) || x.orden - y.orden)
+            .map((foto) => ({ id: foto.id, src: foto.url, alt: foto.titulo || foto.servicioNombre || catalog.name }))
+        : catalogSettings.galeria.length > 0
+          ? catalogSettings.galeria.map((item, idx) => ({ id: `cfg-gallery-${idx}`, src: item.url, alt: item.alt || `Foto ${idx + 1}` }))
+          : catalog.gallery,
       testimonials: catalogSettings.testimonios.length > 0
         ? catalogSettings.testimonios.map((text, idx) => ({
           id: `cfg-testimonial-${idx}`,
@@ -640,7 +673,7 @@ export default function CatalogoTipoPage() {
         }))
         : catalog.testimonials,
     };
-  }, [catalog, catalogSettings]);
+  }, [catalog, catalogSettings, fotosDelTipo]);
 
   const selectedPackage = useMemo(
     () => (mergedCatalog ? mergedCatalog.services.find((s) => s.id === selectedPackageId) ?? null : null),

@@ -1469,7 +1469,7 @@ function DecoracionYDisenoEventoContent() {
             </div>
 
             {/* CENTER: Canvas + properties */}
-            <div className="flex-1 min-w-0 space-y-4">
+            <div className="w-full flex-1 min-w-0 space-y-4">
               {/* Toolbar */}
               <div className="flex items-center gap-2 flex-wrap">
                 <div className="flex items-center gap-2 md:hidden">
