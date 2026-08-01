@@ -78,15 +78,20 @@ social y decoración.
 
 ## ⏳ PENDIENTE
 
-### 1. Tres pantallas con desborde residual
+### 1. Desborde en celular — ✅ RESUELTO
 
-Medido y documentado; la causa está más adentro de lo que se alcanzó.
+Las tres que quedaban están en **cero**:
 
-| Pantalla | Desborde | Origen medido |
-|---|---|---|
-| `/fiestas/nueva/decoracion` | 489 px | Bajó de 538. Panel de contenido dentro de un contenedor en columna. |
-| `/settings/contenido-publico` | 82 px | Bajó de 337. |
-| `/empresa/red-social-eventos` | 47 px | La tabla **está bien contenida** (430 px dentro de 284 con desplazamiento propio). El ancho lo produce el contenedor de avisos, que mide 459 px pese a tener los bordes fijados en 0: algún ancestro actúa como su marco de referencia. |
+| Pantalla | Antes | Ahora | Causa real |
+|---|---|---|---|
+| `/empresa/red-social-eventos` | 47 px | **0** | Botón "Guardar Configuración" en una fila sin `flex-wrap` |
+| `/fiestas/nueva/decoracion` | 538 px | **0** | Fila de 885 px con "Exportar" y "Pantalla completa" |
+| `/settings/contenido-publico` | 337 px | **0** | Fila con "Actualizar ahora" y "Nuevo artículo" |
+
+La técnica que lo destrabó: buscar el elemento cuyo **borde derecho coincide con
+el ancho del documento**, en vez de listar todo lo que sobresale. Se descartaron
+antes dos hipótesis equivocadas (el contenedor de avisos y un ancestro
+transformado), ambas revertidas al no poder demostrarlas.
 
 ### 2. Fotos del catálogo digital — ✅ HECHO
 
@@ -109,14 +114,22 @@ Falta decidir:
 - **6 centros de control de fiesta** — se creó uno nuevo y simple; los otros
   cinco no se tocaron. Probar el nuevo en una fiesta real y archivar los que sobren.
 
-### 4. Limpieza del diseño (trabajo grande)
+### 4. Limpieza del diseño — 🟡 DESBLOQUEADA, primera pasada hecha
 
-8 hojas de estilo, 1414 líneas, 142 `!important` y 11 selectores definidos en
-2-3 archivos distintos. Es la causa de fondo del "arreglo una cosa y se rompe otra".
+Lo que la frenaba era no poder comprobar que un cambio de estilos no descolocara
+una pantalla que nadie tocó. **Esa red de seguridad ya existe**:
+`tests/e2e/layout-baseline.spec.ts` mide la geometría de seis pantallas
+representativas y avisa con el número exacto si algo se mueve. Se comprobó que
+detecta de verdad: se introdujo a propósito un corrimiento de 40 px y lo señaló
+en cinco pantallas a la vez.
 
-**No se hizo a propósito**: sin capturas de referencia no hay forma de comprobar
-que una limpieza no descoloque pantallas. El paso previo es generar esa línea
-base visual. Mientras tanto, la guarda de cascada evita que empeore.
+Primera pasada de limpieza hecha y verificada con esa red: se eliminaron los
+bloques inertes que quedaban (`.ak-red-premium-live` y el `box-shadow` de
+`.ak-red-premium-client`, ambos redefinidos por completo en
+`ak-release-polish.css`, que carga después). La huella no se movió.
+
+**Queda**: el grueso de las 1414 líneas y los 142 `!important`. Ahora se puede
+hacer por tandas, comprobando cada una.
 
 ### 5. Código sin uso — ✅ REVISADO
 
@@ -129,10 +142,21 @@ Lo único verificable como descartable era `scratch/` (scripts sueltos y volcado
 de diferencias); ya se eliminó. El resto son mayormente tipos de TypeScript, que
 no ocupan espacio en la app compilada: riesgo sin beneficio medible.
 
-### 6. Módulos nunca auditados en profundidad
+### 6. Módulos internos — ✅ AUDITADOS
 
-Contabilidad interna y facturas · Compras e insumos · Secretaría IA y
-control-tower · Multiagente · Blog, marketing y galería LED.
+Doce módulos recorridos con navegador y sesión válida: contabilidad, facturas,
+compras, insumos, activos fijos, secretaría AK, control tower, marketing,
+catálogo de servicios, proveedores, personal y calendario.
+
+**Todos cargan con contenido real, título propio y sin errores.** Ninguno expulsa
+al login ni muestra mensajes de fallo.
+
+`/compras` y `/control-tower` aparecían con cero botones activos; se verificó que
+son **pantallas-índice** (4 y 10 enlaces respectivamente hacia sus subsecciones),
+así que es el comportamiento correcto, no un defecto.
+
+Pendiente sólo la prueba de operaciones reales de escritura (cargar un gasto,
+emitir una factura), que necesita datos de la base y no se puede hacer en local.
 
 Las sesiones se concentraron en lo que ve el cliente y el invitado, que es donde
 se cae una venta o se arruina una fiesta.
