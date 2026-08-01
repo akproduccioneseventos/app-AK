@@ -15,6 +15,10 @@ const testEnvironment = {
   GOOGLE_API_KEY: 'dummy',
   GEMINI_API_KEY: 'dummy',
   AK_USE_LOCAL_JSON_ONLY: 'true',
+  // Habilita el guardado en archivos locales. Sin esto las pruebas solo pueden
+  // comprobar que las pantallas abren; con esto se puede comprobar que un
+  // invitado confirma de verdad y el dato queda registrado en el evento.
+  AK_ALLOW_LOCAL_JSON_WRITES: 'true',
   AK_SESSION_SECRET: 'playwright-session-secret-with-enough-entropy',
   FIREBASE_PROJECT_ID: 'demo-ak-producciones',
   NEXT_PUBLIC_FIREBASE_PROJECT_ID: 'demo-ak-producciones',

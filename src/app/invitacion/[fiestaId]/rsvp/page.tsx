@@ -16,6 +16,7 @@ import { motion } from 'framer-motion';
 import QRCodeStylized from 'qrcode.react';
 import { useToast } from '@/hooks/use-toast';
 import { cn } from '@/lib/utils';
+import { parseEventDate } from '@/lib/public-experience/event-date';
 
 const DIETARY_OPTIONS: { value: DietaryRestriction; label: string; emoji: string }[] = [
   { value: 'Ninguna', label: 'Sin restricciones', emoji: '🍽️' },
@@ -155,7 +156,7 @@ function RsvpFormContent() {
     const venue = fiesta.configuracion?.nombreLugar;
     const address = fiesta.configuracion?.direccionLugar;
     const fecha = fiesta.configuracion?.fechaEvento
-      ? new Date(fiesta.configuracion.fechaEvento).toLocaleDateString('es-UY', { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric' })
+      ? parseEventDate(fiesta.configuracion.fechaEvento)?.toLocaleDateString('es-UY', { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric' }) ?? null
       : null;
     const hora = fiesta.configuracion?.horaInicio;
     const dressCode = fiesta.invitacionConfig?.dressCode;
@@ -255,7 +256,7 @@ function RsvpFormContent() {
 
                 {/* Cancellation policy */}
                 {fiesta.configuracion?.fechaEvento && (() => {
-                  const eventDate = new Date(fiesta.configuracion!.fechaEvento!);
+                  const eventDate = parseEventDate(fiesta.configuracion!.fechaEvento!)!;
                   const cancelDeadline = new Date(eventDate);
                   cancelDeadline.setDate(cancelDeadline.getDate() - 7);
                   const today = new Date();

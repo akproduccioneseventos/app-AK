@@ -37,6 +37,7 @@ import { PublicEntertainmentEventStatus } from '@/components/entertainment/publi
 import { KioskUnlockButton } from '@/components/kiosk/kiosk-unlock-button';
 import { isVideoFrameReady } from '@/lib/entertainment/camera-readiness';
 import { waitForInitialPublicLoad } from '@/lib/public-experience/wait-for-initial-public-load';
+import { parseEventDate } from '@/lib/public-experience/event-date';
 
 const FRAMES = [
   { id: 'none', label: 'Sin Marco', bg: 'transparent' },
@@ -328,8 +329,8 @@ export default function FotocabinaPage() {
     let eventDateStr = '';
     if (rawDate) {
       try {
-        const date = new Date(rawDate);
-        eventDateStr = date.toLocaleDateString('es-ES', { day: '2-digit', month: '2-digit', year: 'numeric' });
+        const date = parseEventDate(rawDate);
+        eventDateStr = date ? date.toLocaleDateString('es-UY', { day: '2-digit', month: '2-digit', year: 'numeric' }) : rawDate;
       } catch (e) {
         eventDateStr = rawDate;
       }

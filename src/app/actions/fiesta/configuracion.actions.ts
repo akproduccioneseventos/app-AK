@@ -11,6 +11,7 @@ import { readData, writeData } from '@/lib/data-service';
 import { syncCustomerFromFiestaConfig } from '@/app/actions/customers';
 import path from 'path';
 import { getFiestaById, saveFiesta } from './fiesta.actions';
+import { preserveFiestaSecrets } from '@/lib/fiesta/get-fiesta-raw';
 
 const FIESTAS_DIR = 'fiestas';
 
@@ -28,7 +29,7 @@ async function updateFiestaData(
       throw new Error(`No se encontró la fiesta con ID ${fiestaId}`);
     }
     const updatedData = updateFn(currentData);
-    await writeData(FIESTA_FILE_PATH, updatedData);
+    await writeData(FIESTA_FILE_PATH, await preserveFiestaSecrets(fiestaId, updatedData));
 
     // Sync changes to the customer file if a customer is linked
     if (updatedData.configuracion.clienteId) {

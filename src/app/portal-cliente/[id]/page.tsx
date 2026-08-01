@@ -51,6 +51,7 @@ import { EventProgressBar } from '@/components/portal/EventProgressBar';
 import { calcFiestaProgress } from '@/lib/fiesta-progress';
 import { defaultClienteDebeLlevar } from '@/lib/fiesta-defaults';
 import { getPaymentPlanSummary } from '@/lib/budget/payment-summary';
+import { parseEventDate } from '@/lib/public-experience/event-date';
 
 const SESSION_KEY_PREFIX = 'portal_auth_';
 
@@ -70,7 +71,7 @@ function formatCurrency(amount: number) {
 
 function formatDate(iso?: string) {
   if (!iso) return '—';
-  return new Date(iso).toLocaleDateString('es-UY', { day: '2-digit', month: 'long', year: 'numeric' });
+  return parseEventDate(iso)?.toLocaleDateString('es-UY', { day: '2-digit', month: 'long', year: 'numeric' }) ?? '—';
 }
 
 function cuotaStatusColor(estado: CuotaPlanPago['estado']) {

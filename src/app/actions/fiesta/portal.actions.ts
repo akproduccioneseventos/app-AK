@@ -58,7 +58,16 @@ import { getFiestaByIdRaw } from '@/lib/fiesta/get-fiesta-raw';
 export async function initializePortalSession(fiestaId: string, accessKey: string): Promise<{ success: boolean; error?: string }> {
   try {
     const fiesta = await getFiestaByIdRaw(fiestaId);
-    if (!fiesta || !fiesta.clientPortalSettings?.enabled || fiesta.clientPortalSettings.accessKey !== accessKey) {
+    const claveGuardada = fiesta?.clientPortalSettings?.accessKey;
+    // Sin clave guardada no se entra. Antes, un evento sin clave dejaba pasar a
+    // cualquiera que llamara sin clave, porque "vacio" coincidia con "vacio".
+    if (
+      !fiesta ||
+      !fiesta.clientPortalSettings?.enabled ||
+      typeof claveGuardada !== 'string' ||
+      claveGuardada.length === 0 ||
+      claveGuardada !== accessKey
+    ) {
       return { success: false, error: 'Acceso denegado.' };
     }
     await setPortalSessionCookie(fiestaId, accessKey);

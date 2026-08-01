@@ -38,6 +38,7 @@ import type { PublicEntertainmentEvent } from '@/lib/entertainment/station-confi
 import { KioskUnlockButton } from '@/components/kiosk/kiosk-unlock-button';
 import { isVideoFrameReady } from '@/lib/entertainment/camera-readiness';
 import { withPublicRequestTimeout } from '@/lib/public-experience/wait-for-initial-public-load';
+import { parseEventDate } from '@/lib/public-experience/event-date';
 
 const BOGUE_FRAMES = [
   { id: 'none', label: 'Sin Marco', border: 'transparent' },
@@ -480,7 +481,8 @@ export default function BoguePage() {
     let dateStr = '';
     if (rawDate) {
       try {
-        dateStr = new Date(rawDate).toLocaleDateString('es-ES', {
+        // `parseEventDate`: sin esto la marca de agua salia con el dia anterior.
+        dateStr = (parseEventDate(rawDate) ?? new Date(rawDate)).toLocaleDateString('es-UY', {
           day: '2-digit',
           month: '2-digit',
           year: 'numeric',
