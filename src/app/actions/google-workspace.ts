@@ -16,6 +16,7 @@ import {
   getFiestaTitle,
   getGoogleRedirectUri,
   getGoogleUserEmail,
+  hasGoogleContactsScope,
   getMissingGoogleConfig,
   getRoleName,
   sendGoogleGmailMessage,
@@ -190,6 +191,7 @@ export async function getGoogleWorkspaceDashboard(): Promise<GoogleWorkspaceDash
     syncedFiestas: syncedIds.size,
     pendingFiestas: datedFiestas.filter((fiesta) => !syncedIds.has(fiesta.id)).length,
     lastSyncedAt,
+    contactsEnabled: hasGoogleContactsScope(company),
   };
 }
 

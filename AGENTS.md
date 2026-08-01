@@ -66,3 +66,18 @@ Rules:
 - **Verificación de PR Abierta (OBLIGATORIO)**: Antes de empezar una tarea, crear una rama o subir commits, es obligatorio verificar en GitHub qué Pull Requests están abiertas y sus estados. Si la PR de la rama actual ya fue cerrada, archivada o fusionada, **está estrictamente prohibido seguir subiendo cambios a esa rama**. En su lugar, debés sincronizarte localmente con `main` actualizado, crear una rama nueva y limpia, y generar una nueva PR abierta para la tarea actual, asegurando así un despliegue limpio sin mezclar código viejo.
 - **Prohibido Fusionar PRs**: Las IA tienen estrictamente prohibido fusionar (mergear) Pull Requests por sí solas. Deben crear la PR en GitHub y dejarla abierta para que el usuario la revise y fusione a mano.
 - **Honestidad Absoluta (0 Humo)**: El título y la descripción de las PRs y de los commits deben describir **únicamente los cambios reales y precisos** que hiciste. No prometas mejoras estéticas, rediseños premium ni optimizaciones que no estén implementadas concretamente. Cero promesas que no sean reales.
+## Direccion multiagente obligatoria
+
+Aplicar en todos los chats y tareas, salvo que el usuario pida expresamente otra cosa:
+
+1. El modelo principal actua como director: define alcance, arquitectura, riesgos y criterio final.
+2. Delegar por defecto las tareas separables y de bajo riesgo a `gpt-5.6-luna` con razonamiento `low`.
+3. Usar agentes economicos para busquedas, lectura de diffs, inventarios, UX repetitiva, copy,
+   pruebas focalizadas y revision visual. Ejecutarlos en paralelo cuando sus archivos no se solapen.
+4. El modelo principal conserva autenticacion, seguridad, dinero, contabilidad, datos, Firebase,
+   despliegue, conflictos, decisiones de merge y aprobacion final de PR.
+5. No repetir localmente el trabajo delegado. Revisar solo el resultado, los archivos cambiados y
+   los hallazgos P0/P1 antes de integrarlos.
+6. Cerrar los agentes al terminar para no ocupar cupos. Reutilizar evidencia asociada al mismo SHA.
+7. Si multiagente no esta disponible, seguir el flujo de bajo consumo sin inventar resultados.
+8. La delegacion ahorra tiempo y tokens, pero nunca reemplaza la validacion final del modelo principal.

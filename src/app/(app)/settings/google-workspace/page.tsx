@@ -223,7 +223,14 @@ export default function GoogleWorkspaceSettingsPage() {
             </CardTitle>
           </CardHeader>
           <CardContent className="text-sm text-muted-foreground">
-            {dashboard?.companyAccount?.email || 'Conecta la cuenta que enviara mails y administrara el calendario general.'}
+            <p>{dashboard?.companyAccount?.email || 'Conecta la cuenta que enviara mails y administrara el calendario general.'}</p>
+            {dashboard?.companyAccount && (
+              <p className={`mt-2 font-medium ${dashboard.contactsEnabled ? 'text-emerald-700' : 'text-amber-700'}`}>
+                {dashboard.contactsEnabled
+                  ? 'Contactos de prospectos habilitados.'
+                  : 'Vuelve a conectar la cuenta para habilitar Contactos.'}
+              </p>
+            )}
           </CardContent>
         </Card>
 
