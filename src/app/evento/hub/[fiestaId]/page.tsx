@@ -26,7 +26,7 @@ import {
   getPublicGuestPortalData,
   type PublicGuestEntertainmentLink,
 } from '@/app/actions/public-guest-portal';
-import { getPublicSocialPosts } from '@/app/actions/social-gallery';
+import { getPublicSocialPostCount } from '@/app/actions/social-gallery';
 import { CompanyLogo } from '@/components/company-logo';
 import type { PublicGuestPortalData } from '@/lib/guest-portal-public-data';
 import {
@@ -84,14 +84,14 @@ export default function EventoHubPage() {
     let active = true;
     async function load() {
       setIsLoading(true);
-      const [portalData, posts] = await Promise.all([
+      const [portalData, approvedPostCount] = await Promise.all([
         getPublicGuestPortalData(fiestaId, guestId, guestAccessToken),
-        getPublicSocialPosts(fiestaId).catch(() => []),
+        getPublicSocialPostCount(fiestaId, guestId, guestAccessToken).catch(() => 0),
       ]);
       if (!active) return;
       setPortal(portalData);
       setStations(portalData?.entertainmentLinks ?? []);
-      setPhotoCount(posts.length);
+      setPhotoCount(approvedPostCount);
       setIsLoading(false);
     }
     void load();
@@ -291,7 +291,11 @@ export default function EventoHubPage() {
       </nav>
 
       {/* AK Concierge IA Bubble */}
-      <ConciergeWidget fiestaId={fiestaId} />
+      <ConciergeWidget
+        fiestaId={fiestaId}
+        guestId={guestId}
+        guestAccessToken={guestAccessToken}
+      />
     </main>
   );
 }

@@ -945,6 +945,7 @@ export interface LandingLeadData {
   mensaje?: string;
   fuente: CommercialSource | 'promo-widget' | 'landing-bodas' | 'landing-xv' | 'landing-eventos' | 'landing-quince' | 'landing-cumpleanos';
   acquisition?: CommercialAttribution;
+  marketingConsent?: boolean;
 }
 
 export async function saveLead(data: LandingLeadData): Promise<{ success: boolean; error?: string }> {
@@ -989,21 +990,26 @@ export async function saveLead(data: LandingLeadData): Promise<{ success: boolea
       ].filter(Boolean).join('\n'),
       budgetSource: 'manual',
       acquisition,
-      marketingConsent: true,
-      marketingConsentSource: 'formulario-landing',
+      marketingConsent: data.marketingConsent === true,
+      marketingConsentSource: data.marketingConsent === true ? 'formulario-landing' : undefined,
     });
 
-    // Disparo asíncrono de evento de conversión CAPI a Meta Ads para optimizar algoritmo
-    try {
-      const { trackMetaConversionEvent } = await import('@/lib/marketing/meta-ads');
-      void trackMetaConversionEvent({
-        eventName: 'Lead',
-        email: data.email,
-        phone,
-        source: data.fuente,
-      });
-    } catch {
-      // Ignorar si falla el rastreo CAPI
+    if (data.marketingConsent === true) {
+      const trackingTask = import('@/lib/marketing/meta-ads')
+        .then(({ trackMetaConversionEvent }) => trackMetaConversionEvent({
+          eventName: 'Lead',
+          email: data.email,
+          phone,
+          source: data.fuente,
+        }))
+        .catch(() => ({ success: false }));
+      try {
+        const nextServer = (await import('next/server')) as { after?: (task: Promise<unknown>) => void };
+        if (typeof nextServer.after === 'function') nextServer.after(trackingTask);
+        else void trackingTask;
+      } catch {
+        void trackingTask;
+      }
     }
 
     return { success: true };

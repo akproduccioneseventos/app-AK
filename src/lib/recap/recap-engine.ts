@@ -1,28 +1,56 @@
-export function generateMorningRecapContext(fiesta: any, posts: any[], songs: any[], trivia: any[]): string {
-  return `
-Contexto para IA:
-Fiesta ID: ${fiesta?.id}
-Posts totales: ${posts?.length || 0}
-Canciones solicitadas: ${songs?.length || 0}
-Preguntas de trivia jugadas: ${trivia?.length || 0}
-  `;
+import type { PublicGuestEvent } from '@/lib/guest-portal-public-data';
+import type { SocialGalleryPost } from '@/types/social-gallery';
+
+interface RecapEventLike {
+  configuracion?: PublicGuestEvent['configuracion'];
+  zonaDigitalAdolescentes?: PublicGuestEvent['zonaDigitalAdolescentes'];
+  programa?: PublicGuestEvent['programa'];
 }
 
-export const DUMMY_RECAP = {
-  title: "¡La Noche Inolvidable!",
-  sections: [
-    {
-      title: "Escándalo en la mesa 4",
-      content: "Fuentes cercanas (y varios videos comprometedores) confirman que la coreografía improvisada de anoche pasará a la historia. La energía estuvo por las nubes y nadie se quedó sentado en toda la noche."
-    },
-    {
-      title: "La foto del siglo",
-      content: "Entre risas y flashes, se capturó el momento perfecto. Los invitados demostraron ser los más fotogénicos de la temporada, dejando anécdotas que se contarán por años y años."
-    },
-    {
-      title: "El veredicto de la trivia",
-      content: "Hubo de todo: sorpresas, empates técnicos y algunos reclamos divertidos al juez. Quedó claro quiénes son los que realmente conocen a los homenajeados y quiénes venían solo por la comida."
-    }
-  ],
-  footer: "Gracias por hacer de esta celebración un evento de primera plana."
-};
+export interface MorningRecap {
+  eventName: string;
+  eventDate: string;
+  venueName: string;
+  photoCount: number;
+  photos: SocialGalleryPost[];
+  programHighlights: string[];
+}
+
+function nextLocalDay(value: string): Date | null {
+  const match = /^(\d{4})-(\d{2})-(\d{2})/.exec(value);
+  if (!match) return null;
+  const year = Number(match[1]);
+  const month = Number(match[2]);
+  const day = Number(match[3]);
+  const date = new Date(year, month - 1, day + 1);
+  return Number.isNaN(date.getTime()) ? null : date;
+}
+
+export function isRecapAvailable(fiesta: RecapEventLike, now = new Date()): boolean {
+  if (
+    fiesta.zonaDigitalAdolescentes?.enabled !== true ||
+    fiesta.zonaDigitalAdolescentes?.recapEnabled !== true
+  ) return false;
+
+  const availableAt = nextLocalDay(fiesta.configuracion?.fechaEvento || '');
+  return Boolean(availableAt && now >= availableAt);
+}
+
+export function buildMorningRecap(
+  fiesta: RecapEventLike,
+  posts: SocialGalleryPost[],
+): MorningRecap {
+  const approvedPosts = posts.filter(
+    (post) => (post.moderationStatus ?? 'approved') === 'approved',
+  );
+  const imagePosts = approvedPosts.filter((post) => post.mediaType !== 'video');
+
+  return {
+    eventName: fiesta.configuracion?.nombreEvento || 'Evento AK',
+    eventDate: fiesta.configuracion?.fechaEvento || '',
+    venueName: fiesta.configuracion?.nombreLugar || '',
+    photoCount: imagePosts.length,
+    photos: imagePosts.slice(0, 12),
+    programHighlights: (fiesta.programa || []).map((item) => item.titulo).filter(Boolean).slice(0, 6),
+  };
+}

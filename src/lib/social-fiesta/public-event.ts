@@ -8,6 +8,7 @@ export type PublicSocialEvent = Pick<
   | 'zonaDigitalAdolescentes'
   | 'buzonConfig'
   | 'galeriaUrl'
+  | 'momentoPaparazziActivo'
 > & {
   configuracion: Pick<FiestaEnPlanificacion['configuracion'], 'nombreEvento' | 'fechaEvento'>;
   clientAccessGranted: boolean;
@@ -28,6 +29,7 @@ export function toPublicSocialEvent(
     zonaDigitalAdolescentes: fiesta.zonaDigitalAdolescentes,
     buzonConfig: fiesta.buzonConfig,
     galeriaUrl: fiesta.galeriaUrl,
+    momentoPaparazziActivo: fiesta.momentoPaparazziActivo,
     clientAccessGranted,
   };
 }

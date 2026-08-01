@@ -667,6 +667,8 @@ export async function uploadTouchpixPhoto(
     socialFormData.set("momentTag", "touchpix");
     socialFormData.set("source", "entertainment");
     socialFormData.set("sourceModule", "espejoMagicoIA");
+    socialFormData.set("moduleId", "espejoMagicoIA");
+    if (accessToken) socialFormData.set("accessToken", accessToken);
 
     // Compose a dedication describing the transformation.
     const parts: string[] = ["📸 Touchpix AI"];

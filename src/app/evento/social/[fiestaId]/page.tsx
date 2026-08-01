@@ -1,7 +1,7 @@
 'use client';
 
 import { useCallback, useEffect, useMemo, useRef, useState, type ChangeEvent, type FormEvent } from 'react';
-import { useParams } from 'next/navigation';
+import { useParams, useSearchParams } from 'next/navigation';
 import { formatDistanceToNow } from 'date-fns';
 import { es } from 'date-fns/locale';
 import { AnimatePresence, motion } from 'framer-motion';
@@ -226,7 +226,10 @@ function FeedPost({
 
 export default function SocialEventPage() {
   const params = useParams<{ fiestaId: string }>();
+  const searchParams = useSearchParams();
   const fiestaId = params.fiestaId;
+  const guestId = searchParams.get('guestId') || '';
+  const guestAccessToken = searchParams.get('token') || '';
   const { toast } = useToast();
   const [event, setEvent] = useState<PublicSocialEvent | null>(null);
   const [posts, setPosts] = useState<SocialGalleryPost[]>([]);
@@ -268,6 +271,8 @@ export default function SocialEventPage() {
   const accentColor = settings.accentColor || '#c81e2a';
   const eventName = settings.title || event?.configuracion.nombreEvento || 'Red social del evento';
   const activeGame = settings.activeGame;
+  const canUpload = Boolean(guestId && guestAccessToken);
+  const visiblePosts = filteredPosts ?? posts;
 
   const loadCore = useCallback(async (showLoader = false) => {
     if (showLoader) setRefreshing(true);
@@ -366,12 +371,12 @@ export default function SocialEventPage() {
 
   useEffect(() => {
     // Check for Paparazzi moment in real-time or simulate
-    if ((event as any)?.momentoPaparazziActivo) {
+    if (event?.momentoPaparazziActivo) {
       setIsPaparazziOpen(true);
     } else {
       setIsPaparazziOpen(false);
     }
-  }, [(event as any)?.momentoPaparazziActivo]);
+  }, [event?.momentoPaparazziActivo]);
 
   const availableSections = useMemo(() => [
     { id: 'feed' as const, label: 'Inicio', icon: MessageCircle },
@@ -431,6 +436,10 @@ export default function SocialEventPage() {
     formData.append('file', uploadFile);
     formData.append('authorName', authorName || 'Invitado');
     formData.append('dedication', uploadCaption.trim());
+    if (guestId && guestAccessToken) {
+      formData.append('guestId', guestId);
+      formData.append('guestAccessToken', guestAccessToken);
+    }
     if (uploadFile.type.startsWith('image/') && crypto.subtle) {
       const digest = await crypto.subtle.digest('SHA-256', await uploadFile.arrayBuffer());
       formData.append('imageHash', Array.from(new Uint8Array(digest)).map((byte) => byte.toString(16).padStart(2, '0')).join(''));
@@ -709,11 +718,12 @@ export default function SocialEventPage() {
         <div>
           {section === 'feed' && (
             <div className="space-y-4">
+              <FaceGalleryStrip posts={posts} onFilterChange={setFilteredPosts} />
               <section className="border-y border-slate-200 bg-white p-4 sm:rounded-md sm:border">
-                <div className="flex items-center gap-3"><div className="grid h-11 w-11 shrink-0 place-items-center rounded-full text-xs font-black text-white" style={{ backgroundColor: accentColor }}>{initials(authorName)}</div><button type="button" onClick={() => setUploadOpen(true)} disabled={!settings.uploadsActive} className="min-h-11 flex-1 rounded-md bg-slate-100 px-4 text-left text-sm font-semibold text-slate-600 transition hover:bg-slate-200 disabled:opacity-50">{settings.uploadsActive ? '¿Qué querés compartir?' : 'Las publicaciones están pausadas'}</button></div>
-                <div className="mt-3 grid grid-cols-2 border-t border-slate-100 pt-2"><button type="button" onClick={() => setUploadOpen(true)} disabled={!settings.uploadsActive} className="flex min-h-10 items-center justify-center gap-2 rounded-md text-sm font-bold text-slate-600 hover:bg-slate-100"><Camera className="h-5 w-5 text-emerald-600" />Foto</button><button type="button" onClick={() => setUploadOpen(true)} disabled={!settings.uploadsActive} className="flex min-h-10 items-center justify-center gap-2 rounded-md text-sm font-bold text-slate-600 hover:bg-slate-100"><Video className="h-5 w-5 text-red-600" />Video</button></div>
+                <div className="flex items-center gap-3"><div className="grid h-11 w-11 shrink-0 place-items-center rounded-full text-xs font-black text-white" style={{ backgroundColor: accentColor }}>{initials(authorName)}</div><button type="button" onClick={() => setUploadOpen(true)} disabled={!settings.uploadsActive || !canUpload} className="min-h-11 flex-1 rounded-md bg-slate-100 px-4 text-left text-sm font-semibold text-slate-600 transition hover:bg-slate-200 disabled:opacity-50">{!canUpload ? 'Abrí tu enlace personal para publicar' : settings.uploadsActive ? '¿Qué querés compartir?' : 'Las publicaciones están pausadas'}</button></div>
+                <div className="mt-3 grid grid-cols-2 border-t border-slate-100 pt-2"><button type="button" onClick={() => setUploadOpen(true)} disabled={!settings.uploadsActive || !canUpload} className="flex min-h-10 items-center justify-center gap-2 rounded-md text-sm font-bold text-slate-600 hover:bg-slate-100 disabled:opacity-50"><Camera className="h-5 w-5 text-emerald-600" />Foto</button><button type="button" onClick={() => setUploadOpen(true)} disabled={!settings.uploadsActive || !canUpload} className="flex min-h-10 items-center justify-center gap-2 rounded-md text-sm font-bold text-slate-600 hover:bg-slate-100 disabled:opacity-50"><Video className="h-5 w-5 text-red-600" />Video</button></div>
               </section>
-              {posts.length ? posts.map((post) => <FeedPost key={post.id} post={post} authorName={authorName} accentColor={accentColor} allowLikes={settings.allowLikes !== false} allowComments={settings.allowComments !== false} liked={likedPosts.has(post.id)} onLike={() => void likePost(post.id)} onComment={(text) => commentPost(post.id, text)} />) : <EmptyState icon={Camera} title="Todavía no hay publicaciones" text="Sé la primera persona en compartir un momento." />}
+              {visiblePosts.length ? visiblePosts.map((post) => <FeedPost key={post.id} post={post} authorName={authorName} accentColor={accentColor} allowLikes={settings.allowLikes !== false} allowComments={settings.allowComments !== false} liked={likedPosts.has(post.id)} onLike={() => void likePost(post.id)} onComment={(text) => commentPost(post.id, text)} />) : <EmptyState icon={Camera} title="Todavía no hay publicaciones" text={posts.length ? 'No hay publicaciones de este autor.' : 'Sé la primera persona en compartir un momento.'} />}
             </div>
           )}
 

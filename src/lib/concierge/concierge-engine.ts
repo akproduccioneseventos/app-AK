@@ -1,4 +1,4 @@
-import { FiestaEnPlanificacion } from '@/types/fiesta';
+import type { PublicGuestEvent } from '@/lib/guest-portal-public-data';
 
 export interface ConciergeQuestion {
   fiestaId: string;
@@ -13,87 +13,84 @@ export interface ConciergeAnswer {
 }
 
 export const QUICK_SUGGESTIONS = [
-  '¿Cuántos invitados confirmaron?',
-  '¿Cuánto falta pagar?',
-  '¿A qué hora es la mesa dulce?',
-  '¿Qué menú se eligió?',
-  '¿Cuántos vegetarianos hay?',
-  '¿Dónde es la fiesta?'
+  '¿A qué hora empieza?',
+  '¿Dónde es la fiesta?',
+  '¿Qué menú se servirá?',
+  '¿Cuál es el programa?',
 ];
 
-export function buildConciergeContext(fiesta: FiestaEnPlanificacion): string {
-  const totalInvitados = fiesta.invitados?.length || 0;
-  const confirmados = fiesta.invitados?.filter(i => i.rsvp === 'Confirmado').length || 0;
-  return `Fiesta: ${fiesta.configuracion?.nombreEvento || 'Sin nombre'}, Lugar: ${fiesta.configuracion?.nombreLugar || 'A definir'}, Fecha: ${fiesta.configuracion?.fechaEvento || 'A definir'}, Invitados: ${confirmados}/${totalInvitados}`;
+function listDefined(values: Array<string | undefined>): string {
+  return values.map((value) => value?.trim()).filter(Boolean).join(', ');
 }
 
-export function answerConciergeQuestion(fiesta: FiestaEnPlanificacion, question: string): ConciergeAnswer {
+export function buildConciergeContext(fiesta: PublicGuestEvent): string {
+  return `Fiesta: ${fiesta.configuracion?.nombreEvento || 'Sin nombre'}, Lugar: ${fiesta.configuracion?.nombreLugar || 'A definir'}, Fecha: ${fiesta.configuracion?.fechaEvento || 'A definir'}, Hora: ${fiesta.configuracion?.horaInicio || 'A definir'}`;
+}
+
+export function answerConciergeQuestion(fiesta: PublicGuestEvent, question: string): ConciergeAnswer {
   const q = question.toLowerCase();
 
-  if (q.includes('invitados') || q.includes('confirmados') || q.includes('cuántos') || q.includes('cuantos')) {
-    const total = fiesta.invitados?.length || 0;
-    const confirmados = fiesta.invitados?.filter(i => i.rsvp === 'Confirmado').length || 0;
-    const pendientes = fiesta.invitados?.filter(i => i.rsvp === 'Pendiente').length || 0;
-    const rechazados = fiesta.invitados?.filter(i => i.rsvp === 'Rechazado').length || 0;
+  if (
+    q.includes('pagar') || q.includes('saldo') || q.includes('deuda') ||
+    q.includes('pagos') || q.includes('invitados') || q.includes('confirmados')
+  ) {
     return {
-      answer: `Tienen ${confirmados} invitados confirmados de un total de ${total}.`,
-      dataPoints: [
-        { label: 'Total', value: total.toString() },
-        { label: 'Confirmados', value: confirmados.toString() },
-        { label: 'Pendientes', value: pendientes.toString() },
-        { label: 'Rechazados', value: rechazados.toString() }
-      ],
-      suggestedFollowUps: ['¿Cuántos vegetarianos hay?']
+      answer: 'Esa información es privada de la organización. Puedo ayudarte con el horario, el lugar, el menú o el programa del evento.',
+      suggestedFollowUps: QUICK_SUGGESTIONS.slice(0, 3),
     };
   }
 
-  if (q.includes('pagar') || q.includes('saldo') || q.includes('deuda') || q.includes('pagos')) {
-    // El plan vive en `planDePagos.cuotas`; no existe un `fiesta.pagos`.
-    const cuotas = fiesta.planDePagos?.cuotas ?? [];
-    const totalPagado = cuotas
-      .filter((cuota) => cuota.estado === 'pagado')
-      .reduce((acc, cuota) => acc + (Number(cuota.monto) || 0), 0);
+  if (q.includes('itinerario') || q.includes('programa') || q.includes('mesa dulce')) {
+    const program = fiesta.programa || [];
+    if (program.length === 0) return { answer: 'El programa todavía no fue publicado.' };
+
+    const requestedItem = q.includes('mesa dulce')
+      ? program.find((item) => item.titulo.toLowerCase().includes('mesa dulce'))
+      : undefined;
+    if (requestedItem) {
+      return { answer: `${requestedItem.titulo} está prevista para las ${requestedItem.hora}.` };
+    }
     return {
-      answer: `Han pagado un total de $${totalPagado}.`,
-      suggestedFollowUps: ['¿Cuándo es el próximo pago?']
+      answer: program.map((item) => `${item.hora}: ${item.titulo}`).join(' · '),
+      suggestedFollowUps: ['¿Dónde es la fiesta?'],
     };
   }
 
-  if (q.includes('hora') || q.includes('itinerario') || q.includes('mesa dulce')) {
+  if (q.includes('hora') || q.includes('empieza') || q.includes('comienza')) {
+    const hora = fiesta.configuracion?.horaInicio || 'a definir';
     return {
-      answer: 'El itinerario detallado se puede ver en la sección de Programa del Evento.',
-      suggestedFollowUps: ['¿Dónde es la fiesta?']
+      answer: `El evento comienza a las ${hora}.`,
+      suggestedFollowUps: ['¿Dónde es la fiesta?', '¿Cuál es el programa?'],
     };
   }
 
-  if (q.includes('menu') || q.includes('menú')) {
+  if (q.includes('menu') || q.includes('menú') || q.includes('comida')) {
+    const menu = fiesta.menuSeleccionPortal;
+    const legacyMenu = fiesta.menuMesa;
+    const description = listDefined([
+      menu?.entrada || legacyMenu?.entrada,
+      menu?.principal || legacyMenu?.platoPrincipal,
+      menu?.postre || legacyMenu?.postres,
+      menu?.bebidas || legacyMenu?.bebidas,
+    ]);
     return {
-      answer: 'El menú elegido está configurado en la sección de Catering.',
-      suggestedFollowUps: ['¿Cuántos vegetarianos hay?']
+      answer: description ? `El menú publicado incluye: ${description}.` : 'El menú todavía no fue publicado.',
     };
   }
 
-  if (q.includes('vegetariano') || q.includes('celiaco') || q.includes('dieta')) {
-    const veggies = fiesta.invitados?.filter(i => i.dietaryRestriction?.toLowerCase().includes('vegetariano')).length || 0;
-    const celiacos = fiesta.invitados?.filter(i => i.dietaryRestriction?.toLowerCase().includes('celiaco')).length || 0;
-    return {
-      answer: `Tienen ${veggies} vegetarianos y ${celiacos} celíacos.`,
-      dataPoints: [
-        { label: 'Vegetarianos', value: veggies.toString() },
-        { label: 'Celíacos', value: celiacos.toString() }
-      ]
-    };
-  }
-
-  if (q.includes('lugar') || q.includes('salon') || q.includes('dirección') || q.includes('donde') || q.includes('dónde')) {
+  if (
+    q.includes('lugar') || q.includes('salon') || q.includes('salón') ||
+    q.includes('direccion') || q.includes('dirección') || q.includes('donde') || q.includes('dónde')
+  ) {
     const lugar = fiesta.configuracion?.nombreLugar || 'A definir';
+    const direccion = fiesta.configuracion?.direccionLugar;
     return {
-      answer: `La fiesta se realizará en ${lugar}.`
+      answer: `La fiesta se realizará en ${lugar}${direccion ? `, ${direccion}` : ''}.`,
     };
   }
 
   return {
-    answer: 'No estoy seguro, pero puedes revisar las diferentes secciones de la planificación para encontrar la respuesta.',
-    suggestedFollowUps: QUICK_SUGGESTIONS.slice(0, 3)
+    answer: 'Puedo ayudarte con el horario, el lugar, el menú y el programa publicado del evento.',
+    suggestedFollowUps: QUICK_SUGGESTIONS.slice(0, 3),
   };
 }

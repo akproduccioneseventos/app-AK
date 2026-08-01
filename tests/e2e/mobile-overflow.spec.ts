@@ -23,7 +23,7 @@ const RUTAS_INTERNAS = ['/admin', '/customers', '/presupuestos', '/eventos', '/p
   '/empresa/menus/tragos', '/fiestas/nueva/reuniones', '/settings/cupones',
   '/settings/notifications', '/settings/whatsapp-business', '/settings/templates/layouts',
   '/empresa/red-social-eventos', '/fiestas/nueva/decoracion', '/settings/contenido-publico'];
-const RUTAS_PUBLICAS = ['/', '/simulador-de-presupuesto'];
+const RUTAS_PUBLICAS = ['/', '/simulador-de-presupuesto', '/catalogo/bodas'];
 
 /** Margen de 2px: los navegadores redondean subpixeles al medir. */
 const TOLERANCIA = 2;
@@ -47,10 +47,12 @@ test.describe('sin desborde horizontal en celular', () => {
     ]);
 
     for (const ruta of RUTAS_INTERNAS) {
-      await page.goto(ruta, { waitUntil: 'domcontentloaded' });
+      const response = await page.goto(ruta, { waitUntil: 'domcontentloaded' });
+      expect(response?.status(), `${ruta} devolvio una respuesta invalida`).toBeLessThan(400);
+      expect(new URL(page.url()).pathname, `${ruta} redirigio inesperadamente`).toBe(ruta);
       // Se mide el estado ya asentado: mientras cargan datos, algunas pantallas
       // muestran anchos provisorios que no reflejan lo que termina viendo el usuario.
-      await page.waitForLoadState('networkidle').catch(() => {});
+      await page.waitForLoadState('networkidle', { timeout: 5_000 }).catch(() => {});
       await page.waitForTimeout(4000);
       const desborde = await medirDesborde(page);
       expect(desborde, `${ruta} desborda ${desborde}px a lo ancho en celular`).toBeLessThanOrEqual(TOLERANCIA);
@@ -60,10 +62,12 @@ test.describe('sin desborde horizontal en celular', () => {
   test('rutas publicas', async ({ page }) => {
     test.setTimeout(180_000);
     for (const ruta of RUTAS_PUBLICAS) {
-      await page.goto(ruta, { waitUntil: 'domcontentloaded' });
+      const response = await page.goto(ruta, { waitUntil: 'domcontentloaded' });
+      expect(response?.status(), `${ruta} devolvio una respuesta invalida`).toBeLessThan(400);
+      expect(new URL(page.url()).pathname, `${ruta} redirigio inesperadamente`).toBe(ruta);
       // Se mide el estado ya asentado: mientras cargan datos, algunas pantallas
       // muestran anchos provisorios que no reflejan lo que termina viendo el usuario.
-      await page.waitForLoadState('networkidle').catch(() => {});
+      await page.waitForLoadState('networkidle', { timeout: 5_000 }).catch(() => {});
       await page.waitForTimeout(4000);
       const desborde = await medirDesborde(page);
       expect(desborde, `${ruta} desborda ${desborde}px a lo ancho en celular`).toBeLessThanOrEqual(TOLERANCIA);

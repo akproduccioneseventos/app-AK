@@ -2,7 +2,7 @@
 
 import path from 'path';
 import { getFiestaById, saveFiesta } from './fiesta.actions';
-import { createSocialMediaPostFromUrl } from '@/app/actions/social-gallery';
+import { createSocialMediaPostFromUrlForStation } from '@/app/actions/social-gallery';
 import { uploadToStorage } from '@/lib/firebase/storage';
 import { requireAppSession } from '@/lib/auth/require-session';
 import {
@@ -184,7 +184,7 @@ export async function uploadEntretenimientoMedia(formData: FormData) {
     const bytes = await file.arrayBuffer();
     const url = await uploadToStorage(Buffer.from(bytes), storagePath, file.type, true);
 
-    const socialPostResult = await createSocialMediaPostFromUrl({
+    const socialPostResult = await createSocialMediaPostFromUrlForStation({
       fiestaId,
       mediaUrl: url,
       mediaType: file.type.startsWith('video/') ? 'video' : 'image',
@@ -193,7 +193,7 @@ export async function uploadEntretenimientoMedia(formData: FormData) {
       source: 'entertainment',
       sourceModule: moduleId,
       momentTag: MODULE_MOMENT_TAGS[moduleId] || 'Entretenimiento',
-    });
+    }, accessToken);
 
     const mediaItem = {
       id: mediaId,
