@@ -1,30 +1,46 @@
+import crypto from 'crypto';
 import { NextResponse } from 'next/server';
+import { buildLookerExportRows } from '@/lib/analytics/looker-export';
+import { readData } from '@/lib/data-service';
+import type { CrmLead } from '@/types/crm';
+import type { Presupuesto } from '@/types/presupuesto';
 
-/**
- * Endpoint connector for Google Looker Studio analytics export.
- */
+const schema = [
+  { name: 'fecha', label: 'Fecha', dataType: 'STRING', semantics: { conceptType: 'DIMENSION' } },
+  { name: 'cotizaciones', label: 'Cotizaciones Simulador', dataType: 'NUMBER', semantics: { conceptType: 'METRIC' } },
+  { name: 'leads_whatsapp', label: 'Contactos WhatsApp', dataType: 'NUMBER', semantics: { conceptType: 'METRIC' } },
+  { name: 'contratos_firmados', label: 'Contratos Firmados', dataType: 'NUMBER', semantics: { conceptType: 'METRIC' } },
+];
+
+function secretsMatch(received: string, expected: string): boolean {
+  const receivedBuffer = Buffer.from(received);
+  const expectedBuffer = Buffer.from(expected);
+  return receivedBuffer.length === expectedBuffer.length && crypto.timingSafeEqual(receivedBuffer, expectedBuffer);
+}
+
 export async function GET(request: Request): Promise<NextResponse> {
-  const authHeader = request.headers.get('authorization');
-  if (authHeader !== `Bearer ${process.env.LOOKER_STUDIO_TOKEN || 'secure-ak-token-2026'}`) {
+  const configuredToken = process.env.LOOKER_STUDIO_TOKEN;
+  if (!configuredToken) {
+    return NextResponse.json({ error: 'Looker Studio no está configurado.' }, { status: 503 });
+  }
+
+  const authHeader = request.headers.get('authorization') || '';
+  const receivedToken = authHeader.startsWith('Bearer ') ? authHeader.slice(7) : '';
+  if (!receivedToken || !secretsMatch(receivedToken, configuredToken)) {
     return new NextResponse('Unauthorized', { status: 401 });
   }
 
-  const schema = [
-    { name: 'fecha', label: 'Fecha', dataType: 'STRING', semantics: { conceptType: 'DIMENSION' } },
-    { name: 'cotizaciones', label: 'Cotizaciones Simulador', dataType: 'NUMBER', semantics: { conceptType: 'METRIC' } },
-    { name: 'leads_whatsapp', label: 'Contactos WhatsApp', dataType: 'NUMBER', semantics: { conceptType: 'METRIC' } },
-    { name: 'contratos_firmados', label: 'Contratos Firmados', dataType: 'NUMBER', semantics: { conceptType: 'METRIC' } },
-  ];
-
   try {
-    // TODO: Connect to real CRM stats when available.
-    const emptyRows: any[] = [];
+    const [budgets, leads] = await Promise.all([
+      readData<Presupuesto[]>('presupuestos.json', []),
+      readData<CrmLead[]>('crm-leads.json', []),
+    ]);
     return NextResponse.json({
       schema,
-      rows: emptyRows,
+      rows: buildLookerExportRows(budgets, leads),
       updatedAt: new Date().toISOString(),
     });
-  } catch (error) {
+  } catch {
     return new NextResponse('Internal Server Error', { status: 500 });
   }
 }

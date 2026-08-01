@@ -185,7 +185,7 @@ describe('release security boundaries', () => {
   it('waits for real Meta delivery and never records a rejected manual message as sent', () => {
     const whatsapp = readSource('src/app/actions/whatsapp.ts');
     expect(whatsapp).toContain('const delivery = await sendMetaWhatsAppMessage');
-    expect(whatsapp).toContain("if (!delivery.success) {\n      return { success: false");
+    expect(whatsapp).toMatch(/if \(!delivery\.success\)\s*\{\s*return \{ success: false/);
     expect(whatsapp.match(/await sendMetaWhatsAppMessage/g)?.length).toBeGreaterThanOrEqual(2);
     expect(whatsapp).not.toContain('[WhatsApp Bot] Error enviando');
     expect(whatsapp).toContain("deliveryStatus = 'failed'");

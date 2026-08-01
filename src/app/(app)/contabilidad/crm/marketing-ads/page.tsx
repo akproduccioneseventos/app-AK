@@ -1,6 +1,7 @@
 import type { Metadata } from 'next';
 import { DollarSign, TrendingUp, Users, Target, Sparkles, Megaphone, ShieldCheck } from 'lucide-react';
 import { getMetaAdsSummary, generateMetaCommercialAIRecommendations } from '@/lib/marketing/meta-ads';
+import { loadMetaCommercialMetrics } from '@/lib/marketing/meta-commercial-metrics';
 
 export const metadata: Metadata = {
   title: 'Meta Ads & Inteligencia Comercial | CRM AK Producciones',
@@ -8,7 +9,7 @@ export const metadata: Metadata = {
 };
 
 export default async function MarketingAdsPage() {
-  const summary = await getMetaAdsSummary();
+  const summary = await getMetaAdsSummary(await loadMetaCommercialMetrics());
   const recommendations = generateMetaCommercialAIRecommendations(summary);
 
   return (
@@ -39,8 +40,8 @@ export default async function MarketingAdsPage() {
               <DollarSign className="h-5 w-5" />
             </div>
           </div>
-          <p className="mt-4 text-3xl font-black text-zinc-950">US$ {summary.totalSpendUsd.toLocaleString()}</p>
-          <p className="mt-1 text-xs font-medium text-zinc-500">{summary.activeCampaignsCount} campañas activas</p>
+          <p className="mt-4 text-3xl font-black text-zinc-950">{summary.adCurrency} {summary.totalSpend.toLocaleString()}</p>
+          <p className="mt-1 text-xs font-medium text-zinc-500">{summary.reportedCampaignsCount} campañas con datos en 30 días</p>
         </div>
 
         <div className="rounded-xl border border-zinc-200 bg-white p-5 shadow-sm">
@@ -51,7 +52,7 @@ export default async function MarketingAdsPage() {
             </div>
           </div>
           <p className="mt-4 text-3xl font-black text-zinc-950">{summary.totalLeads}</p>
-          <p className="mt-1 text-xs font-medium text-emerald-600">Costo prom.: US$ {summary.averageCplUsd} / lead</p>
+          <p className="mt-1 text-xs font-medium text-emerald-600">Costo prom.: {summary.adCurrency} {summary.averageCpl.toFixed(2)} / lead atribuido</p>
         </div>
 
         <div className="rounded-xl border border-zinc-200 bg-white p-5 shadow-sm">
@@ -61,7 +62,7 @@ export default async function MarketingAdsPage() {
               <TrendingUp className="h-5 w-5" />
             </div>
           </div>
-          <p className="mt-4 text-3xl font-black text-emerald-700">US$ {summary.totalRevenueUsd.toLocaleString()}</p>
+          <p className="mt-4 text-3xl font-black text-emerald-700">{summary.revenueCurrency} {summary.totalRevenue.toLocaleString()}</p>
           <p className="mt-1 text-xs font-medium text-emerald-600">{summary.totalConversions} fiestas cerradas</p>
         </div>
 
@@ -72,8 +73,8 @@ export default async function MarketingAdsPage() {
               <Target className="h-5 w-5" />
             </div>
           </div>
-          <p className="mt-4 text-3xl font-black text-amber-600">{summary.overallRoas}x</p>
-          <p className="mt-1 text-xs font-medium text-zinc-500">Retorno por dólar invertido</p>
+          <p className="mt-4 text-3xl font-black text-amber-600">{summary.overallRoas === null ? 'No comparable' : `${summary.overallRoas.toFixed(2)}x`}</p>
+          <p className="mt-1 text-xs font-medium text-zinc-500">{summary.currencyComparable ? 'Retorno por unidad monetaria invertida' : 'La inversión y los contratos usan monedas distintas'}</p>
         </div>
       </div>
 
@@ -94,7 +95,7 @@ export default async function MarketingAdsPage() {
             <div key={rec.id} className="rounded-xl border border-red-900/60 bg-red-950/40 p-4 backdrop-blur-sm">
               <div className="flex items-center justify-between">
                 <span className="text-[10px] font-bold uppercase tracking-wider text-red-400 bg-red-900/60 px-2 py-0.5 rounded">
-                  {rec.impactLevel === 'alto' ? '🔥 Alto Impacto' : rec.impactLevel === 'medio' ? '⚡ Recomendado' : '💡 Sugerencia'}
+                  {rec.impactLevel === 'alto' ? 'Prioridad alta' : rec.impactLevel === 'medio' ? 'Recomendado' : 'Sugerencia'}
                 </span>
               </div>
               <h3 className="mt-3 text-sm font-bold text-white">{rec.title}</h3>
@@ -108,7 +109,9 @@ export default async function MarketingAdsPage() {
       <div className="rounded-xl border border-zinc-200 bg-white p-6 shadow-sm">
         <div className="flex items-center justify-between border-b border-zinc-100 pb-4">
           <h2 className="text-lg font-bold text-zinc-950">Campañas Publicitarias Activas</h2>
-          <span className="text-xs font-semibold text-zinc-500">Sincronizado con Meta Graph API</span>
+          <span className="text-xs font-semibold text-zinc-500">
+            {summary.connectionStatus === 'connected' ? 'Datos reales de Meta y CRM · últimos 30 días' : summary.connectionMessage}
+          </span>
         </div>
 
         <div className="mt-4 overflow-x-auto">
@@ -132,17 +135,20 @@ export default async function MarketingAdsPage() {
                     <span className="h-2 w-2 rounded-full bg-emerald-500 shrink-0"></span>
                     {camp.name}
                   </td>
-                  <td className="px-4 py-4 font-medium text-zinc-900">US$ {camp.spendUsd}</td>
+                  <td className="px-4 py-4 font-medium text-zinc-900">{summary.adCurrency} {camp.spend.toFixed(2)}</td>
                   <td className="px-4 py-4">{camp.clicks.toLocaleString()}</td>
                   <td className="px-4 py-4 font-semibold text-zinc-700">{camp.ctrPct}%</td>
-                  <td className="px-4 py-4 font-semibold text-purple-700">US$ {camp.cplUsd}</td>
+                  <td className="px-4 py-4 font-semibold text-purple-700">{camp.leadsCount > 0 ? `${summary.adCurrency} ${camp.cpl.toFixed(2)}` : 'Sin leads atribuidos'}</td>
                   <td className="px-4 py-4 font-bold text-emerald-700">{camp.conversionsCount}</td>
-                  <td className="px-4 py-4 font-bold text-zinc-950">US$ {camp.revenueUsd.toLocaleString()}</td>
-                  <td className="px-4 py-4 text-right font-black text-amber-600">{camp.roasRatio}x</td>
+                  <td className="px-4 py-4 font-bold text-zinc-950">{summary.revenueCurrency} {camp.revenue.toLocaleString()}</td>
+                  <td className="px-4 py-4 text-right font-black text-amber-600">{camp.roasRatio === null ? '—' : `${camp.roasRatio.toFixed(2)}x`}</td>
                 </tr>
               ))}
             </tbody>
           </table>
+          {summary.campaigns.length === 0 && (
+            <p className="py-8 text-center text-sm text-zinc-500">No hay campañas de Meta disponibles para este período.</p>
+          )}
         </div>
       </div>
 
@@ -162,7 +168,7 @@ export default async function MarketingAdsPage() {
                 GET /api/v1/marketing/insights
               </code>
               <p className="text-[11px] text-zinc-500">
-                Autenticación: enviá el header <code className="bg-zinc-200 px-1 rounded text-zinc-700">x-api-key</code> o el parámetro <code className="bg-zinc-200 px-1 rounded text-zinc-700">?token=</code> con el valor de la variable de entorno <code className="bg-zinc-200 px-1 rounded text-zinc-700">MARKETING_API_SECRET_KEY</code>.
+                Autenticación: enviá el header <code className="bg-zinc-200 px-1 rounded text-zinc-700">x-api-key</code> con el valor de la variable de entorno <code className="bg-zinc-200 px-1 rounded text-zinc-700">MARKETING_API_SECRET_KEY</code>.
               </p>
             </div>
           </div>

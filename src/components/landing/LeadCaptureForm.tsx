@@ -37,6 +37,7 @@ export function LeadCaptureForm({
   const [sent, setSent] = useState(false);
   const [error, setError] = useState('');
   const [whatsappUrl, setWhatsappUrl] = useState('');
+  const [marketingConsent, setMarketingConsent] = useState(false);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -62,6 +63,7 @@ export function LeadCaptureForm({
         ...commercialAttributionFromSearchParams(searchParams, 'landing'),
         entryPath: window.location.pathname,
       },
+      marketingConsent,
     };
 
     try {
@@ -265,6 +267,16 @@ export function LeadCaptureForm({
           <p className="text-red-500 text-sm" role="alert">{error}</p>
         )}
 
+        <label className="flex cursor-pointer items-start gap-3 rounded-md border border-zinc-200 bg-zinc-50 p-3 text-xs leading-relaxed text-slate-600">
+          <input
+            type="checkbox"
+            checked={marketingConsent}
+            onChange={(event) => setMarketingConsent(event.target.checked)}
+            className="mt-0.5 h-4 w-4 shrink-0 accent-red-700"
+          />
+          <span>Acepto que AK Producciones use mis datos para medir esta campaña y enviarme promociones. Es opcional.</span>
+        </label>
+
         <button
           type="submit"
           disabled={loading}
@@ -285,7 +297,7 @@ export function LeadCaptureForm({
         </button>
 
         <div className="flex items-center justify-center gap-1.5 text-[11px] text-slate-400">
-          <span>🔒 Tus datos están 100% seguros. Sin compromiso ni spam.</span>
+          <span>Tus datos se usan para responder esta consulta. La medición publicitaria es opcional.</span>
         </div>
 
         <p className="text-center text-xs text-slate-400">

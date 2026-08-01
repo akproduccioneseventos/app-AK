@@ -39,7 +39,7 @@ import {
 import { cn } from '@/lib/utils';
 import {
   DEVICE_PRESETS,
-  HERO_IMAGES,
+  LED_EVENT_CATALOGS,
   LED_CLIENT_DECISION_SCENES,
   LED_SALES_IMPACT_STATS,
   INVITATION_TEMPLATES,
@@ -48,6 +48,7 @@ import {
   SERVICE_MAP,
   TECHNOLOGY_STEPS,
   type DeviceMode,
+  type LedEventCatalog,
   type PortfolioIcon,
   type PortfolioPhase,
 } from '@/lib/portfolio-experience/portfolio-experience-data';
@@ -102,14 +103,24 @@ function colorWithAlpha(hex: string, alpha: number) {
   return `rgba(${r}, ${g}, ${b}, ${alpha})`;
 }
 
-function ImagePanel({ src, alt, className }: { src: string; alt: string; className?: string }) {
+function ImagePanel({
+  src,
+  alt,
+  className,
+  priority = false,
+}: {
+  src: string;
+  alt: string;
+  className?: string;
+  priority?: boolean;
+}) {
   return (
     <Image
       src={src}
       alt={alt}
       fill
       sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
-      unoptimized
+      priority={priority}
       className={cn('h-full w-full object-cover', className)}
     />
   );
@@ -126,6 +137,7 @@ function SectionEyebrow({ children }: { children: ReactNode }) {
 
 export function PortafolioLedClient() {
   const [deviceMode, setDeviceMode] = useState<DeviceMode>('led');
+  const [selectedCatalogId, setSelectedCatalogId] = useState<LedEventCatalog['id']>('xv');
   const [selectedServiceId, setSelectedServiceId] = useState(SERVICE_MAP[0].id);
   const [activeStepId, setActiveStepId] = useState(TECHNOLOGY_STEPS[0].id);
   const [activeSceneId, setActiveSceneId] = useState(LED_CLIENT_DECISION_SCENES[0].id);
@@ -159,6 +171,11 @@ export function PortafolioLedClient() {
     [activeSceneId],
   );
 
+  const activeCatalog = useMemo(
+    () => LED_EVENT_CATALOGS.find((catalog) => catalog.id === selectedCatalogId) ?? LED_EVENT_CATALOGS[0],
+    [selectedCatalogId],
+  );
+
   const serviceCounts = useMemo(() => ({
     Antes: SERVICE_MAP.filter((service) => service.phase === 'Antes').length,
     Durante: SERVICE_MAP.filter((service) => service.phase === 'Durante').length,
@@ -179,6 +196,11 @@ export function PortafolioLedClient() {
       simulatorMode: 'visual',
     },
   );
+
+  const handleCatalogSelect = (catalog: LedEventCatalog) => {
+    setSelectedCatalogId(catalog.id);
+    setDemo((current) => ({ ...current, tipo: catalog.eventType }));
+  };
 
   const handleSaveLeadAndContinue = async () => {
     setLeadError('');
@@ -230,7 +252,7 @@ export function PortafolioLedClient() {
           </Link>
 
           <nav className="hidden items-center gap-2 lg:flex">
-            {['Impacto', 'Mapa', 'Vendedor', 'Experiencia', 'Invitaciones'].map((item) => (
+            {['Catalogos', 'Impacto', 'Mapa', 'Vendedor', 'Experiencia'].map((item) => (
               <a
                 key={item}
                 href={`#${item.toLowerCase()}`}
@@ -243,9 +265,11 @@ export function PortafolioLedClient() {
 
           <Link
             href="/presentacion-led"
-            className="inline-flex items-center gap-2 rounded-full bg-slate-950 px-4 py-2 text-xs font-black uppercase tracking-[0.14em] text-white shadow-lg shadow-slate-900/20 transition hover:bg-red-700"
+            aria-label="Volver a la presentacion LED"
+            title="Presentacion LED"
+            className="inline-flex h-11 w-11 shrink-0 items-center justify-center gap-2 rounded-full bg-slate-950 p-0 text-xs font-black uppercase tracking-[0.14em] text-white shadow-lg shadow-slate-900/20 transition hover:bg-red-700 sm:w-auto sm:px-4"
           >
-            Presentacion
+            <span className="hidden sm:inline">Presentacion</span>
             <ArrowRight className="h-4 w-4" />
           </Link>
         </div>
@@ -260,12 +284,12 @@ export function PortafolioLedClient() {
             transition={{ duration: 0.6 }}
             className="relative z-10"
           >
-            <SectionEyebrow>Venta visual para clientes</SectionEyebrow>
+            <SectionEyebrow>Catalogo interactivo AK</SectionEyebrow>
             <h1 className="mt-6 max-w-3xl text-4xl font-black leading-[0.95] tracking-tight text-slate-950 sm:text-6xl xl:text-7xl">
-              Una plataforma de venta para que el cliente vea, entienda y quiera su fiesta.
+              Tu fiesta completa se puede ver antes de contratarla.
             </h1>
             <p className="mt-6 max-w-2xl text-base font-medium leading-8 text-slate-600 sm:text-lg">
-              Un showroom comercial adaptable para pantalla gigante, PC, tablet y celular. Usa fotos de ejemplo reemplazables, movimiento y un recorrido claro por toda la tecnologia que AK entrega antes, durante y despues del evento.
+              Explora bodas, XV y celebraciones con fotos AK, servicios concretos y un recorrido claro por todo lo que se organiza antes, durante y despues del evento.
             </p>
 
             <div className="mt-8 grid gap-3 sm:grid-cols-3">
@@ -324,7 +348,7 @@ export function PortafolioLedClient() {
                   className={cn('relative h-full w-full overflow-hidden bg-white', activeDevice.screenClassName)}
                 >
                   <div className="absolute inset-0">
-                    <ImagePanel src={HERO_IMAGES[0]} alt="Fiesta AK de ejemplo" />
+                    <ImagePanel src={activeCatalog.heroImage} alt={activeCatalog.imageAlt} priority />
                     <div className="absolute inset-0 bg-[linear-gradient(90deg,rgba(15,23,42,0.82)_0%,rgba(15,23,42,0.48)_42%,rgba(220,38,38,0.18)_100%)]" />
                   </div>
 
@@ -359,9 +383,110 @@ export function PortafolioLedClient() {
         </div>
       </section>
 
+      <section id="catalogos" className="border-y border-white/10 bg-slate-950 py-20 text-white sm:py-24">
+        <div className="mx-auto max-w-[1600px] px-4 sm:px-6 lg:px-10">
+          <div className="grid gap-8 lg:grid-cols-[0.8fr_1.2fr] lg:items-end">
+            <div>
+              <SectionEyebrow>Propuestas por celebracion</SectionEyebrow>
+              <h2 className="mt-5 max-w-3xl text-4xl font-black leading-none text-white sm:text-5xl">
+                Elige tu tipo de evento y mira una propuesta real.
+              </h2>
+              <p className="mt-5 max-w-2xl text-base font-medium leading-8 text-white/68">
+                Las imagenes y servicios parten de los catalogos de AK. La seleccion tambien prepara el tipo de fiesta para continuar al simulador.
+              </p>
+            </div>
+
+            <div className="flex flex-wrap gap-2 lg:justify-end" role="tablist" aria-label="Tipo de evento">
+              {LED_EVENT_CATALOGS.map((catalog) => {
+                const isActive = catalog.id === activeCatalog.id;
+                return (
+                  <button
+                    key={catalog.id}
+                    type="button"
+                    role="tab"
+                    aria-selected={isActive}
+                    aria-controls={`catalogo-${catalog.id}`}
+                    onClick={() => handleCatalogSelect(catalog)}
+                    className={cn(
+                      'min-h-12 rounded-full border px-5 py-3 text-sm font-black transition focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-red-600 focus-visible:ring-offset-2',
+                      isActive
+                        ? 'border-transparent text-white shadow-lg'
+                        : 'border-white/20 bg-white/10 text-white/76 hover:border-white/40 hover:bg-white/15 hover:text-white',
+                    )}
+                    style={isActive ? { backgroundColor: catalog.accent } : undefined}
+                  >
+                    {catalog.label}
+                  </button>
+                );
+              })}
+            </div>
+          </div>
+
+          <AnimatePresence mode="wait">
+            <motion.div
+              key={activeCatalog.id}
+              id={`catalogo-${activeCatalog.id}`}
+              role="tabpanel"
+              initial={{ opacity: 0, y: 14 }}
+              animate={{ opacity: 1, y: 0 }}
+              exit={{ opacity: 0, y: -10 }}
+              transition={{ duration: 0.3 }}
+              className="mt-10 grid gap-8 lg:grid-cols-[1.18fr_0.82fr] lg:items-center"
+            >
+              <div>
+                <div className="relative aspect-[16/9] overflow-hidden rounded-[2rem] bg-slate-200 shadow-2xl shadow-slate-950/10">
+                  <ImagePanel src={activeCatalog.heroImage} alt={activeCatalog.imageAlt} />
+                  <div className="absolute inset-0 bg-gradient-to-t from-slate-950/60 via-transparent to-transparent" />
+                  <span className="absolute bottom-5 left-5 rounded-full bg-white/92 px-4 py-2 text-xs font-black uppercase text-slate-950 shadow-lg backdrop-blur">
+                    Fotos y referencias AK
+                  </span>
+                </div>
+
+                <div className="mt-3 grid grid-cols-3 gap-3">
+                  {activeCatalog.galleryImages.map((image) => (
+                    <div key={image.src} className="relative aspect-[4/3] overflow-hidden rounded-xl bg-slate-200">
+                      <ImagePanel src={image.src} alt={image.alt} />
+                    </div>
+                  ))}
+                </div>
+              </div>
+
+              <div>
+                <p className="text-xs font-black uppercase tracking-[0.18em]" style={{ color: activeCatalog.accent }}>
+                  {activeCatalog.eyebrow}
+                </p>
+                <h3 className="mt-3 text-3xl font-black leading-tight text-white sm:text-4xl">
+                  {activeCatalog.title}
+                </h3>
+                <p className="mt-5 text-base font-medium leading-8 text-white/68">
+                  {activeCatalog.description}
+                </p>
+
+                <ul className="mt-7 space-y-4">
+                  {activeCatalog.highlights.map((highlight) => (
+                    <li key={highlight} className="flex items-start gap-3 text-sm font-bold leading-6 text-white/86">
+                      <CheckCircle2 className="mt-0.5 h-5 w-5 shrink-0" style={{ color: activeCatalog.accent }} />
+                      {highlight}
+                    </li>
+                  ))}
+                </ul>
+
+                <a
+                  href="#mapa"
+                  className="mt-8 inline-flex min-h-12 items-center gap-2 rounded-full bg-white px-5 py-3 text-sm font-black text-slate-950 transition hover:bg-red-600 hover:text-white focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-red-500 focus-visible:ring-offset-2 focus-visible:ring-offset-slate-950"
+                >
+                  Ver todos los servicios
+                  <ArrowRight className="h-4 w-4" />
+                </a>
+              </div>
+            </motion.div>
+          </AnimatePresence>
+        </div>
+      </section>
+
       <section id="impacto" className="relative overflow-hidden bg-slate-950 py-20 text-white sm:py-24">
         <div className="absolute inset-0">
-          <ImagePanel src={HERO_IMAGES[1]} alt="Showroom comercial AK" className="opacity-28" />
+          <ImagePanel src="/media/catalogo-servicios/tecnologia_fiesta.png" alt="Tecnologia AK integrada a la fiesta" className="opacity-28" />
           <div className="absolute inset-0 bg-[radial-gradient(circle_at_18%_20%,rgba(220,38,38,0.32),transparent_34%),radial-gradient(circle_at_82%_18%,rgba(14,165,233,0.22),transparent_32%),linear-gradient(135deg,rgba(2,6,23,0.96),rgba(15,23,42,0.90))]" />
         </div>
 
