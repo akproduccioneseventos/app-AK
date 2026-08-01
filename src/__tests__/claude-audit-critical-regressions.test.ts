@@ -110,6 +110,7 @@ describe('critical corrections from the Claude PR audit', () => {
     const lookerRoute = read('src/app/api/analytics/looker-export/route.ts');
     const crmAction = read('src/app/actions/crm.ts');
     const socialAction = read('src/app/actions/social-gallery.ts');
+    const entertainmentAction = read('src/app/actions/fiesta/entretenimiento.actions.ts');
 
     expect(marketingRoute).not.toContain("searchParams.get('token')");
     expect(lookerRoute).not.toContain('secure-ak-token-2026');
@@ -118,5 +119,7 @@ describe('critical corrections from the Claude PR audit', () => {
     expect(socialAction).toContain('verifyEntertainmentAccessToken');
     expect(socialAction).toContain('hasPublicGuestAccess');
     expect(socialAction).not.toContain('isSharedKioskUpload(');
+    expect(entertainmentAction).toContain('createSocialMediaPostFromUrlForStation');
+    expect(entertainmentAction).toContain('}, accessToken);');
   });
 });

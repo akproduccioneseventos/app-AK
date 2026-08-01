@@ -995,16 +995,20 @@ export async function saveLead(data: LandingLeadData): Promise<{ success: boolea
     });
 
     if (data.marketingConsent === true) {
-      try {
-        const { trackMetaConversionEvent } = await import('@/lib/marketing/meta-ads');
-        await trackMetaConversionEvent({
+      const trackingTask = import('@/lib/marketing/meta-ads')
+        .then(({ trackMetaConversionEvent }) => trackMetaConversionEvent({
           eventName: 'Lead',
           email: data.email,
           phone,
           source: data.fuente,
-        });
+        }))
+        .catch(() => ({ success: false }));
+      try {
+        const nextServer = (await import('next/server')) as { after?: (task: Promise<unknown>) => void };
+        if (typeof nextServer.after === 'function') nextServer.after(trackingTask);
+        else void trackingTask;
       } catch {
-        // El registro comercial ya quedó guardado; una falla de Meta no debe perder el lead.
+        void trackingTask;
       }
     }
 

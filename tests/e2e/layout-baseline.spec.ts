@@ -28,8 +28,9 @@ const REFERENCIA = path.join(__dirname, 'layout-baseline.json');
 
 /** Tolerancia en píxeles: distintas versiones del navegador redondean distinto. */
 const TOLERANCIA = 2;
+const ACTUALIZAR_REFERENCIAS_FALTANTES = process.env.UPDATE_MISSING_LAYOUT_BASELINE === 'true';
 
-const RUTAS = [
+const TODAS_LAS_RUTAS = [
   { ruta: '/admin', conSesion: true },
   { ruta: '/customers', conSesion: true },
   { ruta: '/presupuestos', conSesion: true },
@@ -42,6 +43,12 @@ const RUTAS = [
   { ruta: '/fiestas/nueva/portal-cliente', conSesion: true },
   { ruta: '/contabilidad/comercial-360', conSesion: true },
 ];
+const filtroRutas = new Set(
+  (process.env.LAYOUT_BASELINE_ROUTES || '').split(',').map((route) => route.trim()).filter(Boolean),
+);
+const RUTAS = filtroRutas.size > 0
+  ? TODAS_LAS_RUTAS.filter(({ ruta }) => filtroRutas.has(ruta))
+  : TODAS_LAS_RUTAS;
 
 function createSessionToken() {
   const payload = `v1.${Date.now() + 60 * 60 * 1000}.${crypto.randomUUID()}`;
@@ -120,18 +127,26 @@ test.describe('huella de maquetación', () => {
 
     const referencia = leerReferencia();
     const actual: Record<string, Huella> = {};
+    const referenciasFaltantes: Record<string, Huella> = {};
     const desvios: string[] = [];
 
     for (const { ruta } of RUTAS) {
       const response = await page.goto(ruta, { waitUntil: 'domcontentloaded' });
       expect(response?.status(), `${ruta} devolvio una respuesta invalida`).toBeLessThan(400);
       expect(new URL(page.url()).pathname, `${ruta} redirigio inesperadamente`).toBe(ruta);
-      await page.waitForLoadState('networkidle').catch(() => {});
+      await page.waitForLoadState('networkidle', { timeout: 5_000 }).catch(() => {});
+      if (ruta === '/presentacion-led') {
+        await expect(page.getByText(/Cargando presentaci/i)).toBeHidden({ timeout: 45_000 });
+      }
       await page.waitForTimeout(2500);
       actual[clave(ruta)] = await medirHuella(page);
 
       const esperado = referencia[clave(ruta)];
-      if (!esperado) continue;
+      if (!esperado) {
+        referenciasFaltantes[clave(ruta)] = actual[clave(ruta)];
+        if (!ACTUALIZAR_REFERENCIAS_FALTANTES) desvios.push(`${ruta} · falta referencia para ${perfil}`);
+        continue;
+      }
 
       for (const [medida, valor] of Object.entries(actual[clave(ruta)])) {
         const antes = esperado[medida];
@@ -150,6 +165,10 @@ test.describe('huella de maquetación', () => {
       fs.writeFileSync(REFERENCIA, `${JSON.stringify({ ...referencia, ...actual }, null, 2)}\n`);
       test.info().annotations.push({ type: 'referencia', description: `Huella generada para ${perfil}.` });
       return;
+    }
+
+    if (ACTUALIZAR_REFERENCIAS_FALTANTES && Object.keys(referenciasFaltantes).length > 0) {
+      fs.writeFileSync(REFERENCIA, `${JSON.stringify({ ...referencia, ...referenciasFaltantes }, null, 2)}\n`);
     }
 
     expect(desvios, `La maquetación cambió:\n  ${desvios.join('\n  ')}`).toEqual([]);

@@ -182,7 +182,7 @@
     "colores": -1634398827
   },
   "chromium-mobile /catalogo/bodas": {
-    "anchoDocumento": 466,
+    "anchoDocumento": 412,
     "desborde": 0,
     "h1X": 32,
     "h1Y": 309,
@@ -222,5 +222,33 @@
     "botones": 6,
     "enlaces": 5,
     "colores": 1757470788
+  },
+  "chromium-desktop /presentacion-led": {
+    "anchoDocumento": 1280,
+    "desborde": 0,
+    "h1X": 64,
+    "h1Y": 239,
+    "h1W": 528,
+    "headerY": -1,
+    "headerH": -1,
+    "mainX": -1,
+    "mainW": -1,
+    "botones": 13,
+    "enlaces": 1,
+    "colores": 2137917199
+  },
+  "chromium-mobile /presentacion-led": {
+    "anchoDocumento": 412,
+    "desborde": 0,
+    "h1X": 20,
+    "h1Y": 339,
+    "h1W": 372,
+    "headerY": -1,
+    "headerH": -1,
+    "mainX": -1,
+    "mainW": -1,
+    "botones": 13,
+    "enlaces": 1,
+    "colores": 2137917199
   }
 }

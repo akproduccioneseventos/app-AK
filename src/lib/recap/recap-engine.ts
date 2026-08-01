@@ -43,13 +43,14 @@ export function buildMorningRecap(
   const approvedPosts = posts.filter(
     (post) => (post.moderationStatus ?? 'approved') === 'approved',
   );
+  const imagePosts = approvedPosts.filter((post) => post.mediaType !== 'video');
 
   return {
     eventName: fiesta.configuracion?.nombreEvento || 'Evento AK',
     eventDate: fiesta.configuracion?.fechaEvento || '',
     venueName: fiesta.configuracion?.nombreLugar || '',
-    photoCount: approvedPosts.length,
-    photos: approvedPosts.filter((post) => post.mediaType !== 'video').slice(0, 12),
+    photoCount: imagePosts.length,
+    photos: imagePosts.slice(0, 12),
     programHighlights: (fiesta.programa || []).map((item) => item.titulo).filter(Boolean).slice(0, 6),
   };
 }

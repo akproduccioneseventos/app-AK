@@ -388,7 +388,7 @@ export async function uploadSocialPost(
   }
 }
 
-export async function createSocialMediaPostFromUrl(input: {
+interface CreateSocialMediaPostFromUrlInput {
   fiestaId: string;
   mediaUrl: string;
   mediaType?: 'image' | 'video';
@@ -399,8 +399,11 @@ export async function createSocialMediaPostFromUrl(input: {
   sourceModule?: string;
   drinkId?: string;
   drinkName?: string;
-}): Promise<{ success: boolean; post?: SocialGalleryPost; error?: string }> {
-  await requireAppSession();
+}
+
+async function persistSocialMediaPostFromUrl(
+  input: CreateSocialMediaPostFromUrlInput,
+): Promise<{ success: boolean; post?: SocialGalleryPost; error?: string }> {
   if (!input.fiestaId || !input.mediaUrl) {
     return { success: false, error: 'Faltan datos para publicar en el muro social.' };
   }
@@ -738,4 +741,27 @@ export async function moderateSocialPostByClient(
   } catch (error: any) {
     return { success: false, error: error.message || 'Error al moderar.' };
   }
+}
+
+export async function createSocialMediaPostFromUrl(
+  input: CreateSocialMediaPostFromUrlInput,
+): Promise<{ success: boolean; post?: SocialGalleryPost; error?: string }> {
+  await requireAppSession();
+  return persistSocialMediaPostFromUrl(input);
+}
+
+export async function createSocialMediaPostFromUrlForStation(
+  input: CreateSocialMediaPostFromUrlInput & { sourceModule: string },
+  accessToken: string,
+): Promise<{ success: boolean; post?: SocialGalleryPost; error?: string }> {
+  if (
+    !isEntertainmentModuleId(input.sourceModule) ||
+    !verifyEntertainmentAccessToken(accessToken, input.fiestaId, input.sourceModule, 'guest')
+  ) {
+    return { success: false, error: 'Acceso de estación no autorizado.' };
+  }
+  return persistSocialMediaPostFromUrl({
+    ...input,
+    source: 'entertainment',
+  });
 }

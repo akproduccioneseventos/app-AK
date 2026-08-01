@@ -78,7 +78,7 @@ export default async function MorningRecapPage({ params, searchParams }: Morning
 
         {recap.programHighlights.length > 0 && (
           <section className="border-b border-stone-300 py-7">
-            <h2 className="text-xl font-black">Momentos del programa</h2>
+            <h2 className="text-xl font-black">Programa publicado</h2>
             <p className="mt-2 leading-relaxed text-stone-700">{recap.programHighlights.join(' · ')}</p>
           </section>
         )}

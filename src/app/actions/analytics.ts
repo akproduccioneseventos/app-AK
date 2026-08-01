@@ -14,6 +14,12 @@ function isAcceptedBudget(status?: string) {
   return status === 'Aceptado' || status === 'Facturado';
 }
 
+function parseAnalyticsDate(value: string): Date {
+  return /^\d{4}-\d{2}-\d{2}$/.test(value)
+    ? new Date(`${value}T12:00:00`)
+    : new Date(value);
+}
+
 export interface MonthlyProfitabilityData {
   month: string;
   ingresos: number;
@@ -106,7 +112,7 @@ export async function getAnalyticsData(): Promise<{ success: boolean; data?: Ana
 
     // Revenue from invoices (by issue date)
     invoicesData.filter(isFirmSalesInvoice).forEach(inv => {
-      const key = format(new Date(inv.issueDate), 'MMM yyyy', { locale: es });
+      const key = format(parseAnalyticsDate(inv.issueDate), 'MMM yyyy', { locale: es });
       const entry = monthlyMap.get(key);
       if (entry) entry.ingresos += inv.totalAmount;
     });
@@ -120,7 +126,7 @@ export async function getAnalyticsData(): Promise<{ success: boolean; data?: Ana
       if (!isAcceptedBudget(pres.estado)) return;
       if (invoicedPresupuestoIds.has(pres.id)) return;
       if (!pres.eventoFecha) return;
-      const key = format(new Date(pres.eventoFecha), 'MMM yyyy', { locale: es });
+      const key = format(parseAnalyticsDate(pres.eventoFecha), 'MMM yyyy', { locale: es });
       const entry = monthlyMap.get(key);
       if (entry) entry.ingresos += pres.totalConDescuento || pres.costoTotalEstimado || 0;
     });
@@ -128,7 +134,7 @@ export async function getAnalyticsData(): Promise<{ success: boolean; data?: Ana
     // Costs from fiestas (gestionCostos + pagosProveedores + staff salaries)
     fiestasData.forEach(fiesta => {
       if (!fiesta.configuracion?.fechaEvento) return;
-      const key = format(new Date(fiesta.configuracion.fechaEvento), 'MMM yyyy', { locale: es });
+      const key = format(parseAnalyticsDate(fiesta.configuracion.fechaEvento), 'MMM yyyy', { locale: es });
       const entry = monthlyMap.get(key);
       if (!entry) return;
 
@@ -197,7 +203,7 @@ export async function getAnalyticsData(): Promise<{ success: boolean; data?: Ana
 
     // ─── Summary KPIs ─────────────────────────────────────────────────────────
     const totalEventosRealizados = fiestasData.filter(
-      f => f.configuracion.fechaEvento && new Date(f.configuracion.fechaEvento) < today
+      f => f.configuracion.fechaEvento && parseAnalyticsDate(f.configuracion.fechaEvento) < today
     ).length;
 
     const totalRevenue = monthlyProfitability.reduce((s, m) => s + m.ingresos, 0);
@@ -305,11 +311,11 @@ export async function getAnalyticsData(): Promise<{ success: boolean; data?: Ana
     // 2. Overdue tasks in upcoming events
     fiestasData.forEach(fiesta => {
       if (!fiesta.configuracion?.fechaEvento) return;
-      const eventDate = new Date(fiesta.configuracion.fechaEvento);
+      const eventDate = parseAnalyticsDate(fiesta.configuracion.fechaEvento);
       if (eventDate < today) return; // Skip past events
       fiesta.tareas?.forEach(tarea => {
         if (tarea.completada || !tarea.fechaLimite) return;
-        const daysOverdue = differenceInDays(today, new Date(tarea.fechaLimite));
+        const daysOverdue = differenceInDays(today, parseAnalyticsDate(tarea.fechaLimite));
         if (daysOverdue > 0) {
           bottleneckAlerts.push({
             id: `overdue-task-${fiesta.id}-${tarea.id}`,
@@ -327,7 +333,7 @@ export async function getAnalyticsData(): Promise<{ success: boolean; data?: Ana
     // 3. Events within 30 days with no linked budget
     fiestasData.forEach(fiesta => {
       if (!fiesta.configuracion?.fechaEvento) return;
-      const eventDate = new Date(fiesta.configuracion.fechaEvento);
+      const eventDate = parseAnalyticsDate(fiesta.configuracion.fechaEvento);
       const daysUntil = differenceInDays(eventDate, today);
       if (daysUntil < 0 || daysUntil > 30) return;
       if (!fiesta.presupuestoId) {

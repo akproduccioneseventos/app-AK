@@ -33,7 +33,6 @@ import {
   getChatMessages,
   getPublicSocialEvent,
   getPublicSocialPosts,
-  getSocialAdminAccess,
   uploadSocialPost,
 } from '@/app/actions/social-gallery';
 import {
@@ -258,7 +257,6 @@ export default function SocialEventPage() {
   const [votedPollId, setVotedPollId] = useState<string | null>(null);
   const [votedGameId, setVotedGameId] = useState<string | null>(null);
   const [filteredPosts, setFilteredPosts] = useState<SocialGalleryPost[] | null>(null);
-  const [hasInternalAccess, setHasInternalAccess] = useState(false);
   const recorderRef = useRef<MediaRecorder | null>(null);
   const audioChunksRef = useRef<Blob[]>([]);
   const recordingTimerRef = useRef<ReturnType<typeof setInterval> | null>(null);
@@ -273,12 +271,8 @@ export default function SocialEventPage() {
   const accentColor = settings.accentColor || '#c81e2a';
   const eventName = settings.title || event?.configuracion.nombreEvento || 'Red social del evento';
   const activeGame = settings.activeGame;
-  const canUpload = hasInternalAccess || Boolean(guestId && guestAccessToken);
+  const canUpload = Boolean(guestId && guestAccessToken);
   const visiblePosts = filteredPosts ?? posts;
-
-  useEffect(() => {
-    void getSocialAdminAccess().then(setHasInternalAccess).catch(() => setHasInternalAccess(false));
-  }, []);
 
   const loadCore = useCallback(async (showLoader = false) => {
     if (showLoader) setRefreshing(true);
@@ -377,12 +371,12 @@ export default function SocialEventPage() {
 
   useEffect(() => {
     // Check for Paparazzi moment in real-time or simulate
-    if ((event as any)?.momentoPaparazziActivo) {
+    if (event?.momentoPaparazziActivo) {
       setIsPaparazziOpen(true);
     } else {
       setIsPaparazziOpen(false);
     }
-  }, [(event as any)?.momentoPaparazziActivo]);
+  }, [event?.momentoPaparazziActivo]);
 
   const availableSections = useMemo(() => [
     { id: 'feed' as const, label: 'Inicio', icon: MessageCircle },
