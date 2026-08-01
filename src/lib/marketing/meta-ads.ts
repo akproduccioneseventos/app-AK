@@ -1,32 +1,35 @@
-/**
- * Módulo de Integración con Meta Ads (Facebook e Instagram Ads)
- * Conversions API (CAPI) + Performance Intelligence
- */
+import crypto from 'crypto';
+import type { MetaCommercialMetrics } from '@/lib/marketing/meta-commercial-metrics-core';
+import { normalizeMetaCampaign } from '@/lib/marketing/meta-commercial-metrics-core';
 
 export interface MetaAdCampaign {
   id: string;
   name: string;
-  objective: string;
-  status: 'ACTIVE' | 'PAUSED' | 'ARCHIVED';
-  spendUsd: number;
+  spend: number;
   impressions: number;
   clicks: number;
   ctrPct: number;
-  cplUsd: number;
+  cpl: number;
   leadsCount: number;
   conversionsCount: number;
-  revenueUsd: number;
-  roasRatio: number;
+  revenue: number;
+  roasRatio: number | null;
 }
 
 export interface MetaAdsSummary {
-  totalSpendUsd: number;
+  connectionStatus: 'connected' | 'not_configured' | 'error';
+  connectionMessage?: string;
+  adCurrency: string;
+  revenueCurrency: string;
+  currencyComparable: boolean;
+  totalSpend: number;
   totalLeads: number;
   totalConversions: number;
-  totalRevenueUsd: number;
-  averageCplUsd: number;
-  overallRoas: number;
-  activeCampaignsCount: number;
+  totalRevenue: number;
+  averageCpl: number;
+  overallRoas: number | null;
+  reportedCampaignsCount: number;
+  topEventType?: string;
   campaigns: MetaAdCampaign[];
 }
 
@@ -39,122 +42,165 @@ export interface MetaCommercialAIRecommendation {
   targetCampaignId?: string;
 }
 
-/**
- * Obtiene el resumen de rendimiento de Meta Ads.
- * Si las credenciales no están configuradas en entorno, genera datos sintéticos de demostración
- * cruzados con las métricas reales de conversión del sistema.
- */
-export async function getMetaAdsSummary(inputLeadsCount = 18, inputRevenueUsd = 12500): Promise<MetaAdsSummary> {
-  const accessToken = process.env.META_ADS_ACCESS_TOKEN;
-  const adAccountId = process.env.META_ADS_ACCOUNT_ID;
-
-  if (accessToken && adAccountId) {
-    try {
-      const url = `https://graph.facebook.com/v19.0/act_${adAccountId}/insights?fields=campaign_name,spend,impressions,clicks,ctr,actions&date_preset=last_30d&access_token=${accessToken}`;
-      const res = await fetch(url, { next: { revalidate: 300 } });
-      if (res.ok) {
-        const data = await res.json();
-        if (data && Array.isArray(data.data)) {
-          // Procesamiento real si hay token configurado
-          let totalSpend = 0;
-          let totalClicks = 0;
-          let totalImpressions = 0;
-          const campaigns: MetaAdCampaign[] = data.data.map((item: Record<string, unknown>, idx: number) => {
-            const spend = Number(item.spend || 0);
-            const clicks = Number(item.clicks || 0);
-            const impressions = Number(item.impressions || 0);
-            totalSpend += spend;
-            totalClicks += clicks;
-            totalImpressions += impressions;
-            return {
-              id: String(item.campaign_id || `camp-${idx}`),
-              name: String(item.campaign_name || 'Campaña Meta Ads'),
-              objective: 'LEAD_GENERATION',
-              status: 'ACTIVE',
-              spendUsd: spend,
-              impressions,
-              clicks,
-              ctrPct: impressions > 0 ? Number(((clicks / impressions) * 100).toFixed(2)) : 0,
-              cplUsd: spend > 0 ? Number((spend / Math.max(1, inputLeadsCount)).toFixed(2)) : 0,
-              leadsCount: Math.round(inputLeadsCount / (data.data.length || 1)),
-              conversionsCount: 1,
-              revenueUsd: Math.round(inputRevenueUsd / (data.data.length || 1)),
-              roasRatio: spend > 0 ? Number((inputRevenueUsd / spend).toFixed(1)) : 0,
-            };
-          });
-
-          return {
-            totalSpendUsd: Number(totalSpend.toFixed(2)),
-            totalLeads: inputLeadsCount,
-            totalConversions: Math.max(1, Math.round(inputLeadsCount * 0.15)),
-            totalRevenueUsd: inputRevenueUsd,
-            averageCplUsd: Number((totalSpend / Math.max(1, inputLeadsCount)).toFixed(2)),
-            overallRoas: totalSpend > 0 ? Number((inputRevenueUsd / totalSpend).toFixed(1)) : 0,
-            activeCampaignsCount: campaigns.length,
-            campaigns,
-          };
-        }
-      }
-    } catch (err) {
-      console.error('[meta-ads] Error al consultar Meta Graph API:', err instanceof Error ? err.message : err);
-    }
-  }
-
-  // Si no hay token o falló la API, retornar cero en lugar de datos de prueba falsos
+function emptySummary(
+  metrics: MetaCommercialMetrics,
+  connectionStatus: MetaAdsSummary['connectionStatus'],
+  connectionMessage: string,
+): MetaAdsSummary {
   return {
-    totalSpendUsd: 0,
-    totalLeads: 0,
-    totalConversions: 0,
-    totalRevenueUsd: 0,
-    averageCplUsd: 0,
-    overallRoas: 0,
-    activeCampaignsCount: 0,
+    connectionStatus,
+    connectionMessage,
+    adCurrency: 'Sin datos',
+    revenueCurrency: metrics.revenueCurrency,
+    currencyComparable: false,
+    totalSpend: 0,
+    totalLeads: metrics.totalLeads,
+    totalConversions: metrics.totalConversions,
+    totalRevenue: metrics.totalRevenue,
+    averageCpl: 0,
+    overallRoas: null,
+    reportedCampaignsCount: 0,
+    topEventType: metrics.topEventType,
     campaigns: [],
   };
 }
 
-/**
- * Genera recomendaciones comerciales automatizadas basadas en las métricas de las campañas
- */
+export async function getMetaAdsSummary(metrics: MetaCommercialMetrics): Promise<MetaAdsSummary> {
+  const accessToken = process.env.META_ADS_ACCESS_TOKEN;
+  const adAccountId = process.env.META_ADS_ACCOUNT_ID;
+  if (!accessToken || !adAccountId) {
+    return emptySummary(metrics, 'not_configured', 'Falta configurar la cuenta publicitaria o el token de Meta.');
+  }
+
+  try {
+    const apiVersion = process.env.META_GRAPH_API_VERSION || 'v25.0';
+    const fields = 'account_currency,campaign_id,campaign_name,spend,impressions,clicks,ctr';
+    const url = new URL(`https://graph.facebook.com/${apiVersion}/act_${adAccountId}/insights`);
+    url.searchParams.set('fields', fields);
+    url.searchParams.set('date_preset', 'last_30d');
+    url.searchParams.set('level', 'campaign');
+    url.searchParams.set('limit', '500');
+    const response = await fetch(url, {
+      headers: { Authorization: `Bearer ${accessToken}` },
+      next: { revalidate: 300 },
+      signal: AbortSignal.timeout(10_000),
+    });
+    if (!response.ok) {
+      return emptySummary(metrics, 'error', `Meta respondió con estado ${response.status}.`);
+    }
+
+    const payload = await response.json() as { data?: Array<Record<string, unknown>> };
+    const rows = Array.isArray(payload.data) ? payload.data : [];
+    const adCurrency = String(rows[0]?.account_currency || 'Sin datos');
+    const currencyComparable = adCurrency !== 'Sin datos' && adCurrency === metrics.revenueCurrency;
+    let totalSpend = 0;
+
+    const campaigns = rows.map((item, index): MetaAdCampaign => {
+      const id = String(item.campaign_id || `campaign-${index}`);
+      const name = String(item.campaign_name || 'Campaña sin nombre');
+      const spend = Number(item.spend || 0);
+      const impressions = Number(item.impressions || 0);
+      const clicks = Number(item.clicks || 0);
+      const commercial = metrics.campaigns[normalizeMetaCampaign(name)];
+      const leadsCount = commercial?.leadsCount || 0;
+      const conversionsCount = commercial?.conversionsCount || 0;
+      const revenue = commercial?.revenue || 0;
+      totalSpend += Number.isFinite(spend) ? spend : 0;
+
+      return {
+        id,
+        name,
+        spend,
+        impressions,
+        clicks,
+        ctrPct: Number(item.ctr || (impressions > 0 ? (clicks / impressions) * 100 : 0)),
+        cpl: leadsCount > 0 ? spend / leadsCount : 0,
+        leadsCount,
+        conversionsCount,
+        revenue,
+        roasRatio: currencyComparable && spend > 0 ? revenue / spend : null,
+      };
+    });
+
+    return {
+      connectionStatus: 'connected',
+      adCurrency,
+      revenueCurrency: metrics.revenueCurrency,
+      currencyComparable,
+      totalSpend,
+      totalLeads: metrics.totalLeads,
+      totalConversions: metrics.totalConversions,
+      totalRevenue: metrics.totalRevenue,
+      averageCpl: metrics.totalLeads > 0 ? totalSpend / metrics.totalLeads : 0,
+      overallRoas: currencyComparable && totalSpend > 0 ? metrics.totalRevenue / totalSpend : null,
+      reportedCampaignsCount: campaigns.length,
+      topEventType: metrics.topEventType,
+      campaigns,
+    };
+  } catch (error) {
+    const message = error instanceof Error ? error.message : 'No se pudo consultar Meta.';
+    return emptySummary(metrics, 'error', message);
+  }
+}
+
 export function generateMetaCommercialAIRecommendations(summary: MetaAdsSummary): MetaCommercialAIRecommendation[] {
-  const recommendations: MetaCommercialAIRecommendation[] = [];
-
-  const topCampaign = summary.campaigns.reduce((best, cur) => (cur.roasRatio > best.roasRatio ? cur : best), summary.campaigns[0]);
-
-  if (topCampaign) {
-    recommendations.push({
-      id: 'rec-scaling',
-      type: 'scaling',
-      title: `Escalar presupuesto en "${topCampaign.name}"`,
-      message: `Esta campaña tiene un retorno de ${topCampaign.roasRatio}x (generó US$ ${topCampaign.revenueUsd.toLocaleString()} con una inversión de US$ ${topCampaign.spendUsd}). Te sugerimos aumentar un 20% su presupuesto diario.`,
+  if (summary.connectionStatus !== 'connected') {
+    return [{
+      id: 'rec-connection',
+      type: 'optimization',
+      title: 'Completar conexión con Meta Ads',
+      message: summary.connectionMessage || 'No hay una conexión activa con Meta Ads.',
       impactLevel: 'alto',
-      targetCampaignId: topCampaign.id,
+    }];
+  }
+  if (summary.campaigns.length === 0) {
+    return [{
+      id: 'rec-no-data',
+      type: 'optimization',
+      title: 'Sin actividad publicitaria en los últimos 30 días',
+      message: 'Meta no devolvió campañas para este período. No se generan recomendaciones sin datos.',
+      impactLevel: 'sugerencia',
+    }];
+  }
+
+  const recommendations: MetaCommercialAIRecommendation[] = [];
+  const bestRoas = summary.campaigns
+    .filter((campaign) => campaign.roasRatio !== null && campaign.conversionsCount > 0)
+    .sort((a, b) => (b.roasRatio || 0) - (a.roasRatio || 0))[0];
+  if (bestRoas) {
+    recommendations.push({
+      id: 'rec-best-roas',
+      type: 'scaling',
+      title: `Revisar crecimiento de "${bestRoas.name}"`,
+      message: `Es la campaña con mejor retorno medido: ${bestRoas.roasRatio?.toFixed(2)}x, con ${bestRoas.conversionsCount} contratos atribuidos. Confirmá capacidad operativa antes de aumentar inversión.`,
+      impactLevel: 'alto',
+      targetCampaignId: bestRoas.id,
     });
   }
 
-  recommendations.push({
-    id: 'rec-creative',
-    type: 'creative',
-    title: 'Optimización de Creativos en Instagram Reels',
-    message: 'Los videos cortos mostrando el Espejo Mágico IA y la Barra de Tragos sin Alcohol tienen un CTR un 35% más alto que las fotos estáticas. Priorizá formatos de video vertical (9:16).',
-    impactLevel: 'medio',
-  });
+  const bestCtr = [...summary.campaigns].sort((a, b) => b.ctrPct - a.ctrPct)[0];
+  if (bestCtr?.ctrPct > 0) {
+    recommendations.push({
+      id: 'rec-best-ctr',
+      type: 'creative',
+      title: `Analizar los creativos de "${bestCtr.name}"`,
+      message: `Registró el CTR más alto del período (${bestCtr.ctrPct.toFixed(2)}%). Usá sus piezas como referencia y validá también contratos, no sólo clics.`,
+      impactLevel: 'medio',
+      targetCampaignId: bestCtr.id,
+    });
+  }
 
-  recommendations.push({
-    id: 'rec-whatsapp-cta',
-    type: 'budget',
-    title: 'Destino a WhatsApp Directo vs. Formulario Web',
-    message: 'Los prospectos que entran por el botón directo a WhatsApp convierten un 40% más rápido que los que completan formularios largos. Mantené la ruta rápida de consulta.',
-    impactLevel: 'sugerencia',
-  });
-
+  if (!summary.currencyComparable) {
+    recommendations.push({
+      id: 'rec-currency',
+      type: 'optimization',
+      title: 'Unificar moneda para calcular ROAS',
+      message: `Meta informa inversión en ${summary.adCurrency} y los presupuestos están en ${summary.revenueCurrency}. El ROAS queda oculto hasta contar con una conversión de moneda confiable.`,
+      impactLevel: 'sugerencia',
+    });
+  }
   return recommendations;
 }
-
-/**
- * Envía un evento a Meta Conversions API (CAPI) desde el servidor
- */
-import crypto from 'crypto';
 
 function hashData(data?: string): string[] | undefined {
   if (!data) return undefined;
@@ -170,16 +216,18 @@ export async function trackMetaConversionEvent(payload: {
 }): Promise<{ success: boolean; error?: string }> {
   const pixelId = process.env.META_PIXEL_ID;
   const accessToken = process.env.META_ADS_ACCESS_TOKEN;
-
-  if (!pixelId || !accessToken) {
-    return { success: false, error: 'Meta credenciales no configuradas.' };
-  }
+  if (!pixelId || !accessToken) return { success: false, error: 'Meta credenciales no configuradas.' };
 
   try {
-    const url = `https://graph.facebook.com/v19.0/${pixelId}/events?access_token=${accessToken}`;
-    const eventData = {
-      data: [
-        {
+    const apiVersion = process.env.META_GRAPH_API_VERSION || 'v25.0';
+    const response = await fetch(`https://graph.facebook.com/${apiVersion}/${pixelId}/events`, {
+      method: 'POST',
+      headers: {
+        Authorization: `Bearer ${accessToken}`,
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({
+        data: [{
           event_name: payload.eventName,
           event_time: Math.floor(Date.now() / 1000),
           action_source: 'website',
@@ -192,18 +240,12 @@ export async function trackMetaConversionEvent(payload: {
             value: payload.valueUsd ?? 0,
             content_name: payload.source ?? 'ak_lead',
           },
-        },
-      ],
-    };
-
-    const res = await fetch(url, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify(eventData),
+        }],
+      }),
+      signal: AbortSignal.timeout(10_000),
     });
-
-    return { success: res.ok };
-  } catch (err) {
-    return { success: false, error: err instanceof Error ? err.message : 'Error al enviar evento CAPI' };
+    return { success: response.ok, error: response.ok ? undefined : `Meta respondió ${response.status}.` };
+  } catch (error) {
+    return { success: false, error: error instanceof Error ? error.message : 'Error al enviar evento CAPI' };
   }
 }

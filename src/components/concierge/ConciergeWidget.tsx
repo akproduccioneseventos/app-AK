@@ -5,7 +5,7 @@ import { Sparkles, Send, X, MessageCircle, Loader2 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { askConcierge } from '@/app/actions/concierge.actions';
-import { QUICK_SUGGESTIONS, ConciergeAnswer } from '@/lib/concierge/concierge-engine';
+import { QUICK_SUGGESTIONS } from '@/lib/concierge/concierge-engine';
 
 interface Message {
   role: 'user' | 'concierge';
@@ -14,7 +14,15 @@ interface Message {
   suggestedFollowUps?: string[];
 }
 
-export function ConciergeWidget({ fiestaId }: { fiestaId: string }) {
+export function ConciergeWidget({
+  fiestaId,
+  guestId,
+  guestAccessToken,
+}: {
+  fiestaId: string;
+  guestId: string;
+  guestAccessToken: string;
+}) {
   const [isOpen, setIsOpen] = useState(false);
   const [messages, setMessages] = useState<Message[]>([]);
   const [input, setInput] = useState('');
@@ -29,7 +37,7 @@ export function ConciergeWidget({ fiestaId }: { fiestaId: string }) {
     setIsLoading(true);
 
     try {
-      const response = await askConcierge(fiestaId, question);
+      const response = await askConcierge(fiestaId, guestId, guestAccessToken, question);
       const conciergeMessage: Message = {
         role: 'concierge',
         content: response.answer,

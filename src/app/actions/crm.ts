@@ -945,6 +945,7 @@ export interface LandingLeadData {
   mensaje?: string;
   fuente: CommercialSource | 'promo-widget' | 'landing-bodas' | 'landing-xv' | 'landing-eventos' | 'landing-quince' | 'landing-cumpleanos';
   acquisition?: CommercialAttribution;
+  marketingConsent?: boolean;
 }
 
 export async function saveLead(data: LandingLeadData): Promise<{ success: boolean; error?: string }> {
@@ -989,21 +990,22 @@ export async function saveLead(data: LandingLeadData): Promise<{ success: boolea
       ].filter(Boolean).join('\n'),
       budgetSource: 'manual',
       acquisition,
-      marketingConsent: true,
-      marketingConsentSource: 'formulario-landing',
+      marketingConsent: data.marketingConsent === true,
+      marketingConsentSource: data.marketingConsent === true ? 'formulario-landing' : undefined,
     });
 
-    // Disparo asíncrono de evento de conversión CAPI a Meta Ads para optimizar algoritmo
-    try {
-      const { trackMetaConversionEvent } = await import('@/lib/marketing/meta-ads');
-      void trackMetaConversionEvent({
-        eventName: 'Lead',
-        email: data.email,
-        phone,
-        source: data.fuente,
-      });
-    } catch {
-      // Ignorar si falla el rastreo CAPI
+    if (data.marketingConsent === true) {
+      try {
+        const { trackMetaConversionEvent } = await import('@/lib/marketing/meta-ads');
+        await trackMetaConversionEvent({
+          eventName: 'Lead',
+          email: data.email,
+          phone,
+          source: data.fuente,
+        });
+      } catch {
+        // El registro comercial ya quedó guardado; una falla de Meta no debe perder el lead.
+      }
     }
 
     return { success: true };

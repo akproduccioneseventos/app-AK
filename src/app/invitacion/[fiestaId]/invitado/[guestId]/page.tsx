@@ -59,6 +59,7 @@ import {
 } from '@/lib/public-experience/event-date';
 import type { SocialConnection } from '@/types/settings';
 import type { GuestPortalSettings } from '@/types/fiesta';
+import { isRecapAvailable } from '@/lib/recap/recap-engine';
 import { MiniQuiosco } from './MiniQuiosco';
 
 const DIETARY_LABELS: Record<string, string> = {
@@ -340,7 +341,9 @@ function GuestPortalContent() {
       icon: Sparkles,
       href: link.href,
     })),
-    { id: 'recap', label: 'Ver Recapitulador', icon: Newspaper, href: guestPath(`/invitacion/${fiestaId}/recap`) },
+    ...(isRecapAvailable(fiesta)
+      ? [{ id: 'recap', label: 'Ver Recapitulador', icon: Newspaper, href: guestPath(`/invitacion/${fiestaId}/recap`) }]
+      : []),
   ];
   const cancellationDeadline = parseEventDate(config?.fechaEvento);
   cancellationDeadline?.setDate(cancellationDeadline.getDate() - 7);

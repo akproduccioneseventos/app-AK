@@ -32,10 +32,14 @@ import * as logger from '@/lib/logger';
 import { reviewSocialContent, sanitizeSocialText } from '@/lib/social-fiesta/content-review';
 import { checkImageSafety } from '@/lib/social-fiesta/content-safety-ai';
 import { hasAppSession, requireAppSession } from '@/lib/auth/require-session';
-import { isSharedKioskUpload, shouldQueueForManualReview } from '@/lib/social-fiesta/guardrails';
+import { shouldQueueForManualReview } from '@/lib/social-fiesta/guardrails';
 import { toPublicSocialEvent, type PublicSocialEvent } from '@/lib/social-fiesta/public-event';
 import { enforcePublicRateLimit } from '@/lib/commercial/public-rate-limit';
 import { readData } from '@/lib/data-service';
+import { hasPublicGuestAccess, buildPublicGuestPortalData } from '@/lib/guest-portal-public-data';
+import { verifyEntertainmentAccessToken } from '@/lib/auth/entertainment-token';
+import { isEntertainmentModuleId } from '@/lib/entertainment/station-config';
+import { resolveSocialUploadAccess } from '@/lib/social-fiesta/upload-access';
 
 // Firestore collection names
 const GALLERY_COLLECTION = 'social_gallery_posts';
@@ -100,6 +104,34 @@ export async function getSocialPosts(fiestaId: string): Promise<SocialGalleryPos
 export async function getPublicSocialPosts(fiestaId: string): Promise<SocialGalleryPost[]> {
   const posts = await getSocialPosts(fiestaId);
   return posts.filter((post) => (post.moderationStatus ?? 'approved') === 'approved');
+}
+
+export async function getPublicSocialPostCount(
+  fiestaId: string,
+  guestId: string,
+  guestAccessToken: string,
+): Promise<number> {
+  try {
+    const fiesta = await getFiestaById(fiestaId);
+    if (!fiesta || !buildPublicGuestPortalData(fiesta, guestId, guestAccessToken)) return 0;
+
+    if (process.env.AK_USE_LOCAL_JSON_ONLY === 'true') {
+      const posts = await getLocalSocialPosts(fiestaId);
+      return posts.filter((post) => (post.moderationStatus ?? 'approved') === 'approved').length;
+    }
+
+    const db = await getDb();
+    const baseQuery = db.collection(GALLERY_COLLECTION).where('fiestaId', '==', fiestaId);
+    const [total, pending, hidden] = await Promise.all([
+      baseQuery.count().get(),
+      baseQuery.where('moderationStatus', '==', 'pending').count().get(),
+      baseQuery.where('moderationStatus', '==', 'hidden').count().get(),
+    ]);
+    return Math.max(0, total.data().count - pending.data().count - hidden.data().count);
+  } catch (error) {
+    logger.warn('[social-gallery] getPublicSocialPostCount failed:', error);
+    return 0;
+  }
 }
 
 export async function getPublicSocialEvent(
@@ -177,21 +209,18 @@ export async function uploadSocialPost(
 ): Promise<{ success: boolean; post?: SocialGalleryPost; error?: string }> {
   const fiestaId = formData.get('fiestaId') as string;
   const file = formData.get('file') as File;
-  const authorName = (formData.get('authorName') as string) || 'Anónimo';
+  const submittedAuthorName = (formData.get('authorName') as string) || 'Invitado';
   const dedication = (formData.get('dedication') as string) || undefined;
   const momentTag = (formData.get('momentTag') as string) || undefined;
   const imageHash = (formData.get('imageHash') as string) || undefined;
-  const source = (formData.get('source') as string) || 'guest';
-  const sourceModule = (formData.get('sourceModule') as string) || undefined;
+  const submittedSource = (formData.get('source') as string) || undefined;
+  const submittedSourceModule = (formData.get('sourceModule') as string) || undefined;
+  const requestedModuleId = (formData.get('moduleId') as string) || submittedSourceModule;
+  const stationAccessToken = (formData.get('accessToken') as string) || undefined;
+  const guestId = (formData.get('guestId') as string) || '';
+  const guestAccessToken = (formData.get('guestAccessToken') as string) || '';
 
   if (!fiestaId || !file) return { success: false, error: 'Faltan datos (ID de fiesta o archivo).' };
-  const textReview = reviewSocialContent({
-    type: 'text',
-    text: [authorName, dedication].filter(Boolean).join(' '),
-    authorName,
-    moderationMode: 'automatico',
-  });
-  if (textReview.status === 'blocked') return { success: false, error: textReview.message };
 
   const isVideo = file.type.startsWith('video/');
   const isImage = file.type.startsWith('image/');
@@ -202,20 +231,54 @@ export async function uploadSocialPost(
   }
 
   try {
-    // El limite se aplica por invitado, no por evento: en un salon todos los
-    // invitados comparten el WiFi (misma IP), asi que usar solo `fiestaId` como
-    // identidad convertia esto en un tope global de 12 subidas por minuto para
-    // toda la fiesta. El tope real por evento y por persona se controla mas
-    // abajo con `eventLimit` / `personLimit`.
+    const fiestaData = await getFiestaById(fiestaId);
+    if (!fiestaData) return { success: false, error: 'Evento no encontrado.' };
+
+    const appSession = await hasAppSession();
+    const guest = fiestaData.invitados?.find((item) => item.id === guestId);
+    const guestAuthorized = hasPublicGuestAccess(guest, guestId, guestAccessToken);
+    const stationModuleId = requestedModuleId && isEntertainmentModuleId(requestedModuleId)
+      ? requestedModuleId
+      : undefined;
+    const stationAuthorized = Boolean(
+      stationModuleId && verifyEntertainmentAccessToken(
+        stationAccessToken,
+        fiestaId,
+        stationModuleId,
+        'guest',
+      ),
+    );
+    const uploadAccess = resolveSocialUploadAccess({
+      fiestaId,
+      submittedAuthorName,
+      submittedSource,
+      submittedSourceModule,
+      appSession,
+      guest: guest ? { id: guest.id, nombre: guest.nombre } : undefined,
+      guestAuthorized,
+      stationModuleId,
+      stationAuthorized,
+    });
+    if (!uploadAccess) {
+      return { success: false, error: 'Acceso no autorizado para publicar en este evento.' };
+    }
+
+    const { authorName, source, sourceModule, rateIdentity, sharedStation } = uploadAccess;
+    const textReview = reviewSocialContent({
+      type: 'text',
+      text: [authorName, dedication].filter(Boolean).join(' '),
+      authorName,
+      moderationMode: 'automatico',
+    });
+    if (textReview.status === 'blocked') return { success: false, error: textReview.message };
+
     await enforcePublicRateLimit({
       scope: 'social-media-upload',
-      identity: `${fiestaId}|${authorName.trim().toLowerCase()}`,
+      identity: rateIdentity,
       limit: 12,
       windowMs: 60_000,
     });
     const db = await getDb();
-    const fiestaData = await getFiestaById(fiestaId);
-    if (!fiestaData) return { success: false, error: 'Evento no encontrado.' };
     if (fiestaData.socialGallerySettings?.enabled === false) {
       return { success: false, error: 'El muro social no está habilitado para este evento.' };
     }
@@ -237,9 +300,7 @@ export async function uploadSocialPost(
     }
 
     // Per-person limit — only applied to named (non-anonymous) users.
-    const isAnonymous = !authorName || authorName.toLowerCase() === 'anónimo' || authorName.toLowerCase() === 'anonimo';
-    const sharedKioskUpload = isSharedKioskUpload(source, sourceModule);
-    if (!isAnonymous && !sharedKioskUpload) {
+    if (!sharedStation) {
       const personSnap = await db
         .collection(GALLERY_COLLECTION)
         .where('fiestaId', '==', fiestaId)
@@ -676,33 +737,5 @@ export async function moderateSocialPostByClient(
     return { success: true };
   } catch (error: any) {
     return { success: false, error: error.message || 'Error al moderar.' };
-  }
-}
-
-/**
- * Tags a face (by author name/faceId) with a specific guest name.
- * We store these tags in a separate collection or inside the fiesta document.
- * For simplicity in this social gallery actions file, we'll store it as a document in
- * `social_gallery_tags/{fiestaId}/tags/{faceId}`.
- */
-export async function tagFaceNameAction(
-  fiestaId: string,
-  faceId: string,
-  taggedName: string
-): Promise<{ success: boolean; error?: string }> {
-  await requireAppSession();
-  try {
-    if (!fiestaId || !faceId || !taggedName) return { success: false, error: 'Datos inválidos' };
-    const db = await getDb();
-    const ref = db.collection('social_gallery_tags').doc(fiestaId).collection('tags').doc(faceId);
-    
-    await ref.set({
-      taggedName: sanitizeSocialText(taggedName),
-      taggedAt: new Date().toISOString()
-    }, { merge: true });
-    
-    return { success: true };
-  } catch (error: any) {
-    return { success: false, error: error.message || 'Error al etiquetar persona.' };
   }
 }
