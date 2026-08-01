@@ -1003,10 +1003,25 @@ export async function saveLead(data: LandingLeadData): Promise<{ success: boolea
           source: data.fuente,
         }))
         .catch(() => ({ success: false }));
+        
+      const contactsTask = import('@/lib/google-contacts')
+        .then(({ createGoogleContact }) => createGoogleContact({
+          nombre: data.nombre,
+          telefono: phone,
+          email: data.email,
+          etiqueta: `Lead de Web - ${data.tipoEvento || 'Sin definir'}`,
+        }))
+        .catch(() => ({ success: false }));
+
       try {
         const nextServer = (await import('next/server')) as { after?: (task: Promise<unknown>) => void };
-        if (typeof nextServer.after === 'function') nextServer.after(trackingTask);
-        else void trackingTask;
+        if (typeof nextServer.after === 'function') {
+          nextServer.after(trackingTask);
+          nextServer.after(contactsTask);
+        } else {
+          void trackingTask;
+          void contactsTask;
+        }
       } catch {
         void trackingTask;
       }
