@@ -1,4 +1,6 @@
 import {
+  INVITATION_TEMPLATES,
+  LED_EVENT_CATALOGS,
   LED_SALES_STORYLINE,
   LED_CLIENT_DECISION_SCENES,
   LED_SALES_IMPACT_STATS,
@@ -14,6 +16,25 @@ import {
 import { buildAkTechnologySuite } from '@/lib/technology-ak/fiesta-technology-products';
 
 describe('LED technology seller readiness', () => {
+  it('uses the three AK event catalogs with local imagery', () => {
+    expect(LED_EVENT_CATALOGS.map(catalog => catalog.id)).toEqual(['xv', 'boda', 'fiesta']);
+    expect(LED_EVENT_CATALOGS.every(catalog => (
+      catalog.heroImage.startsWith('/media/catalogo-servicios/')
+      && catalog.galleryImages.length >= 3
+      && catalog.galleryImages.every(image => image.src.startsWith('/media/catalogo-servicios/'))
+      && catalog.highlights.length === 4
+    ))).toBe(true);
+
+    const experienceImages = [
+      ...SERVICE_MAP.map(service => service.imageUrl),
+      ...TECHNOLOGY_STEPS.map(step => step.imageUrl),
+      ...LED_CLIENT_DECISION_SCENES.map(scene => scene.imageUrl),
+      ...INVITATION_TEMPLATES.map(template => template.imageUrl),
+    ];
+
+    expect(experienceImages.every(image => image.startsWith('/media/catalogo-servicios/'))).toBe(true);
+  });
+
   it('shows the party technology zone in the portfolio map', () => {
     const serviceIds = SERVICE_MAP.map(service => service.id);
     const stepIds = TECHNOLOGY_STEPS.map(step => step.id);

@@ -97,6 +97,20 @@ export type LedClientDecisionScene = {
   accent: string;
 };
 
+export type LedEventCatalog = {
+  id: 'boda' | 'xv' | 'fiesta';
+  label: string;
+  eventType: string;
+  eyebrow: string;
+  title: string;
+  description: string;
+  heroImage: string;
+  imageAlt: string;
+  accent: string;
+  highlights: string[];
+  galleryImages: Array<{ src: string; alt: string }>;
+};
+
 export const DEVICE_PRESETS: DevicePreset[] = [
   {
     id: 'led',
@@ -128,12 +142,76 @@ export const DEVICE_PRESETS: DevicePreset[] = [
   },
 ];
 
-export const HERO_IMAGES = [
-  'https://images.unsplash.com/photo-1519225421980-715cb0215aed?auto=format&fit=crop&w=1800&q=82',
-  'https://images.unsplash.com/photo-1464366400600-7168b8af9bc3?auto=format&fit=crop&w=1800&q=82',
-  'https://images.unsplash.com/photo-1527529482837-4698179dc6ce?auto=format&fit=crop&w=1800&q=82',
-  'https://images.unsplash.com/photo-1511795409834-ef04bbd61622?auto=format&fit=crop&w=1800&q=82',
+export const LED_EVENT_CATALOGS: LedEventCatalog[] = [
+  {
+    id: 'xv',
+    label: 'XV anos',
+    eventType: 'XV anos',
+    eyebrow: 'Catalogo XV',
+    title: 'Tus XV, desde la entrada hasta el ultimo baile.',
+    description: 'Ambientacion, catering, discoteca, fotografia, filmacion, entretenimiento, barra y reposteria coordinados por un solo equipo.',
+    heroImage: '/media/catalogo-servicios/quinceanera_hero.png',
+    imageAlt: 'Quinceanera celebrando en una pista iluminada',
+    accent: '#db2777',
+    highlights: [
+      'Decoracion y mesa principal personalizadas',
+      'Discoteca, iluminacion y momentos especiales',
+      'Catering para adultos y adolescentes',
+      'Foto, video y entretenimiento para compartir',
+    ],
+    galleryImages: [
+      { src: '/media/catalogo-servicios/xv-pista-iluminada-01.jpeg', alt: 'Baile de quince en pista iluminada' },
+      { src: '/media/catalogo-servicios/xv-mesa-principal-ak-02.jpeg', alt: 'Mesa principal de quince con equipo AK' },
+      { src: '/media/catalogo-servicios/candy-bar-xv-luces-04.jpeg', alt: 'Candy bar iluminado para fiesta de quince' },
+    ],
+  },
+  {
+    id: 'boda',
+    label: 'Bodas',
+    eventType: 'Boda',
+    eyebrow: 'Catalogo bodas',
+    title: 'Una boda completa, cuidada como una sola experiencia.',
+    description: 'Salon, montaje, catering, decoracion, discoteca, fotografia, filmacion, barra y recuerdos organizados sin proveedores sueltos.',
+    heroImage: '/media/catalogo-servicios/boda_persuasiva.png',
+    imageAlt: 'Pareja celebrando su boda con familiares e invitados',
+    accent: '#be123c',
+    highlights: [
+      'Montaje, manteleria, vajilla y personal',
+      'Decoracion de ceremonia y fiesta',
+      'Fotografia y filmacion de cada momento',
+      'Barra, reposteria y servicios adicionales',
+    ],
+    galleryImages: [
+      { src: '/media/catalogo-servicios/decoracion-boda-mesa-01.jpeg', alt: 'Decoracion de mesa principal para boda' },
+      { src: '/media/catalogo-servicios/catering-mesa-ak-01.jpeg', alt: 'Servicio de catering preparado por AK Producciones' },
+      { src: '/media/catalogo-servicios/barra-tragos-ak-01.jpeg', alt: 'Barra de tragos AK para bodas y eventos' },
+    ],
+  },
+  {
+    id: 'fiesta',
+    label: 'Fiestas',
+    eventType: 'Fiesta',
+    eyebrow: 'Catalogo celebraciones',
+    title: 'Cumpleanos y celebraciones con todo resuelto en un lugar.',
+    description: 'Una propuesta flexible para aniversarios, cumpleanos y fiestas sociales, con servicios combinables segun tus invitados y tu estilo.',
+    heroImage: '/media/catalogo-servicios/familia_feliz_evento.png',
+    imageAlt: 'Familia celebrando una fiesta producida por AK',
+    accent: '#2563eb',
+    highlights: [
+      'Catering y bebidas segun el tipo de fiesta',
+      'Discoteca, pista y entretenimiento',
+      'Decoracion, torta y mesa de postres',
+      'Fotos, recuerdos y experiencia social',
+    ],
+    galleryImages: [
+      { src: '/media/catalogo-servicios/discoteca-salon-ak-02.jpeg', alt: 'Salon con discoteca e iluminacion AK' },
+      { src: '/media/catalogo-servicios/social_persuasivo.png', alt: 'Invitados compartiendo durante una fiesta' },
+      { src: '/media/catalogo-servicios/reposteria-tortas-ak-03.jpeg', alt: 'Mesa de tortas y reposteria AK' },
+    ],
+  },
 ];
+
+export const HERO_IMAGES = LED_EVENT_CATALOGS.map((catalog) => catalog.heroImage);
 
 export const SERVICE_MAP: PortfolioService[] = [
   {
@@ -143,7 +221,7 @@ export const SERVICE_MAP: PortfolioService[] = [
     icon: 'salon',
     tagline: 'El lugar se muestra como experiencia, no como una lista.',
     details: 'Fotos de referencia, capacidad, sectores, estilo de mesa y recorrido visual para que el cliente imagine la fiesta armada.',
-    imageUrl: 'https://images.unsplash.com/photo-1464366400600-7168b8af9bc3?auto=format&fit=crop&w=1400&q=82',
+    imageUrl: '/media/catalogo-servicios/salon-discoteca-ak-01.jpeg',
     accent: '#dc2626',
   },
   {
@@ -153,7 +231,7 @@ export const SERVICE_MAP: PortfolioService[] = [
     icon: 'decoracion',
     tagline: 'Colores, ambientacion y mesa dulce con vista previa.',
     details: 'La propuesta visual puede partir de ejemplos y luego reemplazarse con fotos reales del evento o del salon elegido.',
-    imageUrl: 'https://images.unsplash.com/photo-1510076857177-7470076d4098?auto=format&fit=crop&w=1400&q=82',
+    imageUrl: '/media/catalogo-servicios/decoracion-xv-lila-01.jpeg',
     accent: '#e11d48',
   },
   {
@@ -163,7 +241,7 @@ export const SERVICE_MAP: PortfolioService[] = [
     icon: 'catering',
     tagline: 'El cliente entiende que va a comer y como se sirve.',
     details: 'Entradas, menu adolescente/adulto, opciones y fotos de ejemplo para que la decision sea simple y visual.',
-    imageUrl: 'https://images.unsplash.com/photo-1555244162-803834f70033?auto=format&fit=crop&w=1400&q=82',
+    imageUrl: '/media/catalogo-servicios/catering-mesa-ak-01.jpeg',
     accent: '#f59e0b',
   },
   {
@@ -173,7 +251,7 @@ export const SERVICE_MAP: PortfolioService[] = [
     icon: 'barra',
     tagline: 'La barra se vende por energia y momentos.',
     details: 'Tragos, brindis, sectores de servicio y fotos para que se vea premium antes de hablar de precio.',
-    imageUrl: 'https://images.unsplash.com/photo-1470337458703-46ad1756a187?auto=format&fit=crop&w=1400&q=82',
+    imageUrl: '/media/catalogo-servicios/barra-tragos-ak-01.jpeg',
     accent: '#06b6d4',
   },
   {
@@ -183,7 +261,7 @@ export const SERVICE_MAP: PortfolioService[] = [
     icon: 'musica',
     tagline: 'La pista se muestra con ritmo, luces y participacion.',
     details: 'DJ, playlist, momentos especiales, entrada, vals o baile principal conectados a la experiencia del evento.',
-    imageUrl: 'https://images.unsplash.com/photo-1505236858219-8359eb29e329?auto=format&fit=crop&w=1400&q=82',
+    imageUrl: '/media/catalogo-servicios/discoteca-salon-ak-02.jpeg',
     accent: '#7c3aed',
   },
   {
@@ -193,7 +271,7 @@ export const SERVICE_MAP: PortfolioService[] = [
     icon: 'fotoVideo',
     tagline: 'El recuerdo se vende viendo recuerdos.',
     details: 'Galerias de ejemplo, momentos destacados y entrega posterior integrada a la experiencia digital.',
-    imageUrl: 'https://images.unsplash.com/photo-1519741497674-611481863552?auto=format&fit=crop&w=1400&q=82',
+    imageUrl: '/media/catalogo-servicios/fotografia_cabina_img_268_p29_x1727.jpeg',
     accent: '#2563eb',
   },
   {
@@ -203,7 +281,7 @@ export const SERVICE_MAP: PortfolioService[] = [
     icon: 'invitacion',
     tagline: 'La primera impresion de la fiesta empieza en el celular.',
     details: 'Fotos de ejemplo, nombre, fecha, ubicacion, RSVP y opcion de sumar la fiesta al calendario.',
-    imageUrl: 'https://images.unsplash.com/photo-1522673607200-164d1b6ce486?auto=format&fit=crop&w=1400&q=82',
+    imageUrl: '/media/catalogo-servicios/recepcion-display-evento-01.jpeg',
     accent: '#db2777',
   },
   {
@@ -213,7 +291,7 @@ export const SERVICE_MAP: PortfolioService[] = [
     icon: 'portalCliente',
     tagline: 'El cliente ve todo claro sin pedirlo por WhatsApp.',
     details: 'Pagos, documentos, reuniones, tareas, invitados y decisiones importantes ordenadas por evento.',
-    imageUrl: 'https://images.unsplash.com/photo-1551836022-d5d88e9218df?auto=format&fit=crop&w=1400&q=82',
+    imageUrl: '/media/catalogo-servicios/organizador_equipo.png',
     accent: '#dc2626',
   },
   {
@@ -223,7 +301,7 @@ export const SERVICE_MAP: PortfolioService[] = [
     icon: 'portalInvitado',
     tagline: 'Confirmar asistencia tiene que ser facil desde el celular.',
     details: 'RSVP, ubicacion, calendario, mensajes, datos utiles y acceso a la experiencia social privada.',
-    imageUrl: 'https://images.unsplash.com/photo-1511988617509-a57c8a288659?auto=format&fit=crop&w=1400&q=82',
+    imageUrl: '/media/catalogo-servicios/social_persuasivo.png',
     accent: '#16a34a',
   },
   {
@@ -233,7 +311,7 @@ export const SERVICE_MAP: PortfolioService[] = [
     icon: 'muroSocial',
     tagline: 'Lo que la gente sube se convierte en parte de la fiesta.',
     details: 'Mensajes, fotos, destacados y moderacion para pantalla grande durante el evento.',
-    imageUrl: 'https://images.unsplash.com/photo-1519671482749-fd09be7ccebf?auto=format&fit=crop&w=1400&q=82',
+    imageUrl: '/media/catalogo-servicios/tecnologia_fiesta.png',
     accent: '#f97316',
   },
   {
@@ -243,7 +321,7 @@ export const SERVICE_MAP: PortfolioService[] = [
     icon: 'zonaDigital',
     tagline: 'Retos, juegos, emojis, ranking y QR para que los adolescentes participen.',
     details: 'Se vende como una zona propia de la fiesta: el invitado entra con QR, elige retos, sube fotos, vota, reacciona y aparece en pantalla si el operador lo aprueba.',
-    imageUrl: 'https://images.unsplash.com/photo-1492684223066-81342ee5ff30?auto=format&fit=crop&w=1400&q=82',
+    imageUrl: '/media/catalogo-servicios/quinceanera_persuasiva.png',
     accent: '#ec4899',
   },
   {
@@ -253,7 +331,7 @@ export const SERVICE_MAP: PortfolioService[] = [
     icon: 'fotocabina',
     tagline: 'Estaciones para crear fotos, loops y clips listos para compartir.',
     details: 'La pantalla LED muestra que cada estacion puede tener plantilla, filtro, marca del evento, QR, galeria y salida hacia el muro social.',
-    imageUrl: 'https://images.unsplash.com/photo-1516321497487-e288fb19713f?auto=format&fit=crop&w=1400&q=82',
+    imageUrl: '/media/catalogo-servicios/photobooth-vogue-01.jpeg',
     accent: '#8b5cf6',
   },
   {
@@ -263,7 +341,7 @@ export const SERVICE_MAP: PortfolioService[] = [
     icon: 'barra',
     tagline: 'El invitado elige tragos y el barman recibe la cola en otra pantalla.',
     details: 'La venta no es solo bebida: es una experiencia interactiva con descripcion, video, pedidos en pantalla, fotos y reglas para seguir redes antes de compartir.',
-    imageUrl: 'https://images.unsplash.com/photo-1470337458703-46ad1756a187?auto=format&fit=crop&w=1400&q=82',
+    imageUrl: '/media/catalogo-servicios/barra-tragos-ak-01.jpeg',
     accent: '#06b6d4',
   },
   {
@@ -273,7 +351,7 @@ export const SERVICE_MAP: PortfolioService[] = [
     icon: 'pantallaLed',
     tagline: 'La tecnologia se ve en vivo, no queda escondida.',
     details: 'Presentacion, agenda, mensajes, fotos y momentos preparados para verse bien en formato gigante.',
-    imageUrl: 'https://images.unsplash.com/photo-1511795409834-ef04bbd61622?auto=format&fit=crop&w=1400&q=82',
+    imageUrl: '/media/catalogo-servicios/tecnologia_fiesta.png',
     accent: '#dc2626',
   },
   {
@@ -283,7 +361,7 @@ export const SERVICE_MAP: PortfolioService[] = [
     icon: 'totems',
     tagline: 'Pantallas verticales con fondos movibles, QR, fotos y nombre del evento.',
     details: 'Sirven para entrada, barra, pista o selfie point. Se pueden personalizar por fiesta y sincronizar con muro social, invitacion y pantalla LED.',
-    imageUrl: 'https://images.unsplash.com/photo-1551818255-e6e10975bc17?auto=format&fit=crop&w=1400&q=82',
+    imageUrl: '/media/catalogo-servicios/recepcion-display-evento-01.jpeg',
     accent: '#14b8a6',
   },
   {
@@ -293,7 +371,7 @@ export const SERVICE_MAP: PortfolioService[] = [
     icon: 'audioRitmico',
     tagline: 'Visuales que se mueven con el momento de baile.',
     details: 'La pantalla deja de ser solo mural y pasa a modo show: figuras, pulsos, colores, nombres, hashtag y QR para seguir participando.',
-    imageUrl: 'https://images.unsplash.com/photo-1514525253161-7a46d19cd819?auto=format&fit=crop&w=1400&q=82',
+    imageUrl: '/media/catalogo-servicios/xv-pista-iluminada-01.jpeg',
     accent: '#f43f5e',
   },
   {
@@ -303,7 +381,7 @@ export const SERVICE_MAP: PortfolioService[] = [
     icon: 'coordinacion',
     tagline: 'Cada decision queda conectada con el equipo.',
     details: 'Responsables, reuniones, tareas, pendientes y avisos para que nada dependa de acordarse de memoria.',
-    imageUrl: 'https://images.unsplash.com/photo-1556761175-b413da4baf72?auto=format&fit=crop&w=1400&q=82',
+    imageUrl: '/media/catalogo-servicios/montaje_equipo.png',
     accent: '#0f766e',
   },
   {
@@ -313,7 +391,7 @@ export const SERVICE_MAP: PortfolioService[] = [
     icon: 'agenda',
     tagline: 'Reuniones y momentos importantes sincronizados.',
     details: 'Fechas, reuniones, recordatorios por mail y calendario para clientes, equipo e invitados cuando corresponda.',
-    imageUrl: 'https://images.unsplash.com/photo-1497366754035-f200968a6e72?auto=format&fit=crop&w=1400&q=82',
+    imageUrl: '/media/catalogo-servicios/organizador_equipo.png',
     accent: '#4f46e5',
   },
   {
@@ -323,7 +401,7 @@ export const SERVICE_MAP: PortfolioService[] = [
     icon: 'postFiesta',
     tagline: 'El evento no termina cuando se apagan las luces.',
     details: 'Album final, recuerdos, agradecimientos, referidos y material para seguir vendiendo la experiencia.',
-    imageUrl: 'https://images.unsplash.com/photo-1529636798458-92182e662485?auto=format&fit=crop&w=1400&q=82',
+    imageUrl: '/media/catalogo-servicios/familia_feliz_evento.png',
     accent: '#0891b2',
   },
 ];
@@ -334,7 +412,7 @@ export const TECHNOLOGY_STEPS: TechnologyStep[] = [
     eyebrow: 'Primer contacto',
     title: 'Invitacion personalizada',
     description: 'El invitado recibe una pagina linda, con fotos de ejemplo reemplazables, fecha, lugar y confirmacion rapida.',
-    imageUrl: 'https://images.unsplash.com/photo-1522673607200-164d1b6ce486?auto=format&fit=crop&w=1400&q=82',
+    imageUrl: '/media/catalogo-servicios/recepcion-display-evento-01.jpeg',
     accent: '#e11d48',
   },
   {
@@ -342,7 +420,7 @@ export const TECHNOLOGY_STEPS: TechnologyStep[] = [
     eyebrow: 'Organizacion',
     title: 'Portal del cliente',
     description: 'El cliente ve pagos, documentos, reuniones, invitados, tareas y todo lo que falta para llegar tranquilo.',
-    imageUrl: 'https://images.unsplash.com/photo-1551836022-d5d88e9218df?auto=format&fit=crop&w=1400&q=82',
+    imageUrl: '/media/catalogo-servicios/organizador_equipo.png',
     accent: '#dc2626',
   },
   {
@@ -350,7 +428,7 @@ export const TECHNOLOGY_STEPS: TechnologyStep[] = [
     eyebrow: 'Invitados',
     title: 'Portal del invitado',
     description: 'Cada invitado confirma, guarda la fecha y entra al espacio social sin necesitar computadora.',
-    imageUrl: 'https://images.unsplash.com/photo-1511988617509-a57c8a288659?auto=format&fit=crop&w=1400&q=82',
+    imageUrl: '/media/catalogo-servicios/social_persuasivo.png',
     accent: '#16a34a',
   },
   {
@@ -358,7 +436,7 @@ export const TECHNOLOGY_STEPS: TechnologyStep[] = [
     eyebrow: 'En la fiesta',
     title: 'Muro social en vivo',
     description: 'Fotos, mensajes y momentos destacados pueden verse en pantalla grande con moderacion.',
-    imageUrl: 'https://images.unsplash.com/photo-1519671482749-fd09be7ccebf?auto=format&fit=crop&w=1400&q=82',
+    imageUrl: '/media/catalogo-servicios/tecnologia_fiesta.png',
     accent: '#f97316',
   },
   {
@@ -366,7 +444,7 @@ export const TECHNOLOGY_STEPS: TechnologyStep[] = [
     eyebrow: 'Adolescentes',
     title: 'Zona digital con retos y juegos',
     description: 'El invitado entra con QR, juega, vota, reacciona con emojis, sube fotos y participa sin instalar nada.',
-    imageUrl: 'https://images.unsplash.com/photo-1492684223066-81342ee5ff30?auto=format&fit=crop&w=1400&q=82',
+    imageUrl: '/media/catalogo-servicios/quinceanera_persuasiva.png',
     accent: '#ec4899',
   },
   {
@@ -374,7 +452,7 @@ export const TECHNOLOGY_STEPS: TechnologyStep[] = [
     eyebrow: 'Contenido',
     title: 'Fotocabina, 360, Bogue y espejo',
     description: 'Las estaciones generan fotos, GIFs, loops o videos con plantilla del evento, QR y salida hacia galeria o muro social.',
-    imageUrl: 'https://images.unsplash.com/photo-1516321497487-e288fb19713f?auto=format&fit=crop&w=1400&q=82',
+    imageUrl: '/media/catalogo-servicios/photobooth-vogue-01.jpeg',
     accent: '#8b5cf6',
   },
   {
@@ -382,7 +460,7 @@ export const TECHNOLOGY_STEPS: TechnologyStep[] = [
     eyebrow: 'Barra',
     title: 'Pedidos tactiles y pantalla del barman',
     description: 'El invitado elige el trago, ve ingredientes o video, confirma el pedido y el barman lo recibe ordenado en otra pantalla.',
-    imageUrl: 'https://images.unsplash.com/photo-1470337458703-46ad1756a187?auto=format&fit=crop&w=1400&q=82',
+    imageUrl: '/media/catalogo-servicios/barra-tragos-ak-01.jpeg',
     accent: '#06b6d4',
   },
   {
@@ -390,7 +468,7 @@ export const TECHNOLOGY_STEPS: TechnologyStep[] = [
     eyebrow: 'Show visual',
     title: 'Pantalla LED y recorrido',
     description: 'El evento se presenta con agenda, recuerdos, tecnologia y momentos para que se vea premium.',
-    imageUrl: 'https://images.unsplash.com/photo-1511795409834-ef04bbd61622?auto=format&fit=crop&w=1400&q=82',
+    imageUrl: '/media/catalogo-servicios/tecnologia_fiesta.png',
     accent: '#7c3aed',
   },
   {
@@ -398,7 +476,7 @@ export const TECHNOLOGY_STEPS: TechnologyStep[] = [
     eyebrow: 'Pantallas',
     title: 'Totems y LED sincronizados',
     description: 'Entrada, barra, pista y selfie points pueden mostrar fondo animado, QR, fotos, nombre del protagonista y llamados a participar.',
-    imageUrl: 'https://images.unsplash.com/photo-1551818255-e6e10975bc17?auto=format&fit=crop&w=1400&q=82',
+    imageUrl: '/media/catalogo-servicios/recepcion-display-evento-01.jpeg',
     accent: '#14b8a6',
   },
   {
@@ -406,7 +484,7 @@ export const TECHNOLOGY_STEPS: TechnologyStep[] = [
     eyebrow: 'Despues',
     title: 'Album y cierre',
     description: 'AK puede dejar un resumen final para recuerdos, referidos y comunicacion posterior.',
-    imageUrl: 'https://images.unsplash.com/photo-1529636798458-92182e662485?auto=format&fit=crop&w=1400&q=82',
+    imageUrl: '/media/catalogo-servicios/familia_feliz_evento.png',
     accent: '#0891b2',
   },
 ];
@@ -532,7 +610,7 @@ export const LED_CLIENT_DECISION_SCENES: LedClientDecisionScene[] = [
     description: 'La venta arranca mostrando el nombre, el tipo de evento, fotos de referencia y el recorrido antes/durante/despues.',
     sellerLine: 'No te estoy contando la fiesta: te la estoy mostrando.',
     bullets: ['Foto grande', 'Nombre del protagonista', 'Mapa de servicios', 'Vista celular'],
-    imageUrl: 'https://images.unsplash.com/photo-1519225421980-715cb0215aed?auto=format&fit=crop&w=1500&q=82',
+    imageUrl: '/media/catalogo-servicios/boda_persuasiva.png',
     accent: '#dc2626',
   },
   {
@@ -542,7 +620,7 @@ export const LED_CLIENT_DECISION_SCENES: LedClientDecisionScene[] = [
     description: 'Portal, reuniones, pagos, invitados, documentos y recordatorios se presentan como tranquilidad, no como botones tecnicos.',
     sellerLine: 'Todo lo importante queda ordenado en tu portal.',
     bullets: ['Portal cliente', 'Agenda', 'Pagos visibles', 'Pendientes claros'],
-    imageUrl: 'https://images.unsplash.com/photo-1551836022-d5d88e9218df?auto=format&fit=crop&w=1500&q=82',
+    imageUrl: '/media/catalogo-servicios/organizador_equipo.png',
     accent: '#2563eb',
   },
   {
@@ -552,7 +630,7 @@ export const LED_CLIENT_DECISION_SCENES: LedClientDecisionScene[] = [
     description: 'Retos, juegos, emojis, ranking, fotocabina, 360, Bogue, espejo y QR se muestran como entretenimiento real de la fiesta.',
     sellerLine: 'No es una pantalla decorativa: es una zona viva para participar.',
     bullets: ['Retos y juegos', 'Fotos y clips', 'Ranking', 'Moderacion'],
-    imageUrl: 'https://images.unsplash.com/photo-1492684223066-81342ee5ff30?auto=format&fit=crop&w=1500&q=82',
+    imageUrl: '/media/catalogo-servicios/quinceanera_persuasiva.png',
     accent: '#ec4899',
   },
   {
@@ -562,7 +640,7 @@ export const LED_CLIENT_DECISION_SCENES: LedClientDecisionScene[] = [
     description: 'Pantalla LED, totems, barra tactil, muro social y modo audiorritmico se conectan para que el valor se vea en vivo.',
     sellerLine: 'La fiesta se vuelve interactiva en todos los sectores.',
     bullets: ['LED', 'Totems', 'Barra tactil', 'Audio ritmo'],
-    imageUrl: 'https://images.unsplash.com/photo-1514525253161-7a46d19cd819?auto=format&fit=crop&w=1500&q=82',
+    imageUrl: '/media/catalogo-servicios/tecnologia_fiesta.png',
     accent: '#14b8a6',
   },
   {
@@ -572,7 +650,7 @@ export const LED_CLIENT_DECISION_SCENES: LedClientDecisionScene[] = [
     description: 'Despues del impacto visual se marcan los paquetes que interesan y se pasa al presupuesto con una historia ya entendida.',
     sellerLine: 'Ahora elegimos que experiencia queres activar para tu fiesta.',
     bullets: ['Incluido', 'Opcional', 'Regalo', 'Presupuesto'],
-    imageUrl: 'https://images.unsplash.com/photo-1556761175-b413da4baf72?auto=format&fit=crop&w=1500&q=82',
+    imageUrl: '/media/catalogo-servicios/familia_feliz_evento.png',
     accent: '#16a34a',
   },
 ];
@@ -583,7 +661,7 @@ export const INVITATION_TEMPLATES: InvitationTemplate[] = [
     title: 'XV Glow',
     mood: 'Juvenil, luces y entrada fuerte',
     description: 'Ideal para quinceanera con portada visual, musica, RSVP y acceso a muro social.',
-    imageUrl: 'https://images.unsplash.com/photo-1504196606672-aef5c9cefc92?auto=format&fit=crop&w=1400&q=82',
+    imageUrl: '/media/catalogo-servicios/quinceanera_hero.png',
     accent: '#e11d48',
   },
   {
@@ -591,7 +669,7 @@ export const INVITATION_TEMPLATES: InvitationTemplate[] = [
     title: 'Boda elegante',
     mood: 'Blanco, flores, ceremonia y fiesta',
     description: 'Muestra historia, fecha, ubicacion, galeria y confirmacion simple para invitados.',
-    imageUrl: 'https://images.unsplash.com/photo-1519741497674-611481863552?auto=format&fit=crop&w=1400&q=82',
+    imageUrl: '/media/catalogo-servicios/boda_persuasiva.png',
     accent: '#b91c1c',
   },
   {
@@ -599,7 +677,7 @@ export const INVITATION_TEMPLATES: InvitationTemplate[] = [
     title: 'Club Uruguay',
     mood: 'Salon historico, montaje y experiencia premium',
     description: 'Pensada para vender el salon con fotos de ejemplo, distribucion, servicios y tecnologia incluida.',
-    imageUrl: 'https://images.unsplash.com/photo-1464366400600-7168b8af9bc3?auto=format&fit=crop&w=1400&q=82',
+    imageUrl: '/media/catalogo-servicios/salon-discoteca-ak-01.jpeg',
     accent: '#dc2626',
   },
   {
@@ -607,7 +685,7 @@ export const INVITATION_TEMPLATES: InvitationTemplate[] = [
     title: 'Cumple premium',
     mood: 'Divertido, social y muy visual',
     description: 'Combina invitacion, asistencia, fotos, mensajes y pantalla en vivo.',
-    imageUrl: 'https://images.unsplash.com/photo-1530103862676-de8c9debad1d?auto=format&fit=crop&w=1400&q=82',
+    imageUrl: '/media/catalogo-servicios/familia_feliz_evento.png',
     accent: '#f97316',
   },
 ];
