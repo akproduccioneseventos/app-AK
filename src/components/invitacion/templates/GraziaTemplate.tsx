@@ -430,9 +430,24 @@ export const GraziaTemplate: React.FC<TemplateProps> = ({ fiesta, invitacionData
                     <p className="text-xs md:text-sm text-slate-400 font-medium leading-relaxed">{detalle.direccionLugar}</p>
                     <div className="flex flex-col sm:flex-row items-center gap-2 justify-center mt-2 md:mt-4">
                       {detalle.mapaUrl && /^https?:\/\//i.test(detalle.mapaUrl) && (
-                        <Button asChild variant="outline" className="rounded-xl h-10 md:h-12 px-6 md:px-8 border-slate-200 hover:bg-primary/5 hover:border-primary/20 hover:text-primary transition-all font-bold text-xs md:text-sm">
-                          <a href={detalle.mapaUrl} target="_blank" rel="noopener noreferrer"><MapPin className="w-3 h-3 md:w-4 md:h-4 mr-2"/> VER UBICACIÓN</a>
-                        </Button>
+                        <div className="flex flex-col gap-4 w-full mt-4">
+                          <div className="w-full aspect-video rounded-2xl overflow-hidden shadow-lg border border-slate-100 relative bg-slate-100">
+                            <iframe
+                              width="100%"
+                              height="100%"
+                              style={{ border: 0 }}
+                              loading="lazy"
+                              allowFullScreen
+                              src={`https://maps.google.com/maps?q=${encodeURIComponent(detalle.direccionLugar || detalle.nombreLugar || '')}&t=&z=15&ie=UTF8&iwloc=&output=embed`}
+                              className="absolute top-0 left-0"
+                            ></iframe>
+                          </div>
+                          <div className="flex justify-center">
+                            <Button asChild variant="outline" className="rounded-xl h-10 md:h-12 px-6 md:px-8 border-slate-200 hover:bg-primary/5 hover:border-primary/20 hover:text-primary transition-all font-bold text-xs md:text-sm">
+                              <a href={detalle.mapaUrl} target="_blank" rel="noopener noreferrer"><MapPin className="w-3 h-3 md:w-4 md:h-4 mr-2"/> Cómo llegar 📍</a>
+                            </Button>
+                          </div>
+                        </div>
                       )}
                       {(detalle.fecha || fiesta.configuracion.fechaEvento) && (
                         <AddToCalendarButton
