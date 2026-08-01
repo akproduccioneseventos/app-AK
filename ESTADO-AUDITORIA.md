@@ -109,14 +109,22 @@ Falta decidir:
 - **6 centros de control de fiesta** — se creó uno nuevo y simple; los otros
   cinco no se tocaron. Probar el nuevo en una fiesta real y archivar los que sobren.
 
-### 4. Limpieza del diseño (trabajo grande)
+### 4. Limpieza del diseño — 🟡 DESBLOQUEADA, primera pasada hecha
 
-8 hojas de estilo, 1414 líneas, 142 `!important` y 11 selectores definidos en
-2-3 archivos distintos. Es la causa de fondo del "arreglo una cosa y se rompe otra".
+Lo que la frenaba era no poder comprobar que un cambio de estilos no descolocara
+una pantalla que nadie tocó. **Esa red de seguridad ya existe**:
+`tests/e2e/layout-baseline.spec.ts` mide la geometría de seis pantallas
+representativas y avisa con el número exacto si algo se mueve. Se comprobó que
+detecta de verdad: se introdujo a propósito un corrimiento de 40 px y lo señaló
+en cinco pantallas a la vez.
 
-**No se hizo a propósito**: sin capturas de referencia no hay forma de comprobar
-que una limpieza no descoloque pantallas. El paso previo es generar esa línea
-base visual. Mientras tanto, la guarda de cascada evita que empeore.
+Primera pasada de limpieza hecha y verificada con esa red: se eliminaron los
+bloques inertes que quedaban (`.ak-red-premium-live` y el `box-shadow` de
+`.ak-red-premium-client`, ambos redefinidos por completo en
+`ak-release-polish.css`, que carga después). La huella no se movió.
+
+**Queda**: el grueso de las 1414 líneas y los 142 `!important`. Ahora se puede
+hacer por tandas, comprobando cada una.
 
 ### 5. Código sin uso — ✅ REVISADO
 
