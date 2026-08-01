@@ -36,9 +36,11 @@ export async function GET(request: NextRequest, props: { params: Promise<{ parts
   if (filename === 'download-all.zip') {
     if (!hasAdminAccess) return new NextResponse('Forbidden', { status: 403 });
     try {
-      const fiesta = await getFiestaActual();
-      if (fiesta.id !== fiestaId) {
-        return NextResponse.json({ error: 'Fiesta ID mismatch' }, { status: 400 });
+      // Antes se pedia "la fiesta actual" y se comparaba: descargar los
+      // documentos de una fiesta fallaba en cuanto habia otra mas proxima.
+      const fiesta = await getFiestaByIdRaw(fiestaId);
+      if (!fiesta) {
+        return NextResponse.json({ error: 'Fiesta no encontrada' }, { status: 404 });
       }
 
       const zip = new JSZip();

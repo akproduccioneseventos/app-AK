@@ -135,7 +135,7 @@ export async function deleteReunionFromFiestaActual(fiestaId: string, reunionId:
 
 // --- CATERING Y OTROS ---
 export async function updateMenuAsignadoFiestaActual(fiestaId: string, menuId?: string) { return await CateringModule.updateMenuAsignado(fiestaId, menuId); }
-export async function updateVideoVidaSettingsFiestaActual(videoVidaData: VideoVidaData) { return await VideoModule.updateVideoVidaSettings(videoVidaData); }
+export async function updateVideoVidaSettingsFiestaActual(fiestaId: string, videoVidaData: VideoVidaData) { return await VideoModule.updateVideoVidaSettings(fiestaId, videoVidaData); }
 export async function claimGiftFiestaActual(fiestaId: string, giftId: string, guestName: string) { return await RegalosModule.claimGift(fiestaId, giftId, guestName); }
 export async function addGiftToRegistryFiestaActual(fiestaId: string, newGiftData: Omit<GiftItem, 'id' | 'isClaimed'>) { return await RegalosModule.addGiftToRegistry(fiestaId, newGiftData); }
 

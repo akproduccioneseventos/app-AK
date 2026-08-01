@@ -82,9 +82,11 @@ export function borrarFiesta(fiestaId: string) {
  * La fecha es hoy a propósito: varias pantallas de la noche sólo muestran
  * contenido real el día del evento.
  */
-export function crearFiestaDeEstaNoche(opciones: { id?: string; clavePortal?: string } = {}) {
+export function crearFiestaDeEstaNoche(
+  opciones: { id?: string; clavePortal?: string; fechaEvento?: string } = {},
+) {
   const base = buildAkDemoFiesta('tecnologia-total');
-  const hoy = new Date().toISOString().split('T')[0];
+  const hoy = opciones.fechaEvento ?? new Date().toISOString().split('T')[0];
 
   const invitados = [
     { nombre: 'Lucía Fernández', mesa: '1', partySize: 2 },
@@ -118,6 +120,9 @@ export function crearFiestaDeEstaNoche(opciones: { id?: string; clavePortal?: st
       enabled: true,
       accessKey: opciones.clavePortal ?? 'clave-de-prueba-e2e',
     },
+    // Con la galería apagada, la pantalla del video de vida contesta "no está
+    // habilitada" y no se puede comprobar nada de lo que hay detrás.
+    videoVida: { ...(base.videoVida ?? {}), galleryEnabled: true, photoCount: 12 },
   } as FiestaEnPlanificacion;
 
   guardarFiesta(fiesta);
