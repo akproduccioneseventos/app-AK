@@ -21,7 +21,8 @@ function createSessionToken() {
 
 const RUTAS_INTERNAS = ['/admin', '/customers', '/presupuestos', '/eventos', '/pagos-rapidos', '/empresa/menus', '/alertas', '/empresa/contabilidad/reportes',
   '/empresa/menus/tragos', '/fiestas/nueva/reuniones', '/settings/cupones',
-  '/settings/notifications', '/settings/whatsapp-business', '/settings/templates/layouts'];
+  '/settings/notifications', '/settings/whatsapp-business', '/settings/templates/layouts',
+  '/empresa/red-social-eventos', '/fiestas/nueva/decoracion', '/settings/contenido-publico'];
 const RUTAS_PUBLICAS = ['/', '/simulador-de-presupuesto'];
 
 /** Margen de 2px: los navegadores redondean subpixeles al medir. */

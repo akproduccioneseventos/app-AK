@@ -78,15 +78,20 @@ social y decoración.
 
 ## ⏳ PENDIENTE
 
-### 1. Tres pantallas con desborde residual
+### 1. Desborde en celular — ✅ RESUELTO
 
-Medido y documentado; la causa está más adentro de lo que se alcanzó.
+Las tres que quedaban están en **cero**:
 
-| Pantalla | Desborde | Origen medido |
-|---|---|---|
-| `/fiestas/nueva/decoracion` | 489 px | Bajó de 538. Panel de contenido dentro de un contenedor en columna. |
-| `/settings/contenido-publico` | 82 px | Bajó de 337. |
-| `/empresa/red-social-eventos` | 47 px | La tabla **está bien contenida** (430 px dentro de 284 con desplazamiento propio). El ancho lo produce el contenedor de avisos, que mide 459 px pese a tener los bordes fijados en 0: algún ancestro actúa como su marco de referencia. |
+| Pantalla | Antes | Ahora | Causa real |
+|---|---|---|---|
+| `/empresa/red-social-eventos` | 47 px | **0** | Botón "Guardar Configuración" en una fila sin `flex-wrap` |
+| `/fiestas/nueva/decoracion` | 538 px | **0** | Fila de 885 px con "Exportar" y "Pantalla completa" |
+| `/settings/contenido-publico` | 337 px | **0** | Fila con "Actualizar ahora" y "Nuevo artículo" |
+
+La técnica que lo destrabó: buscar el elemento cuyo **borde derecho coincide con
+el ancho del documento**, en vez de listar todo lo que sobresale. Se descartaron
+antes dos hipótesis equivocadas (el contenedor de avisos y un ancestro
+transformado), ambas revertidas al no poder demostrarlas.
 
 ### 2. Fotos del catálogo digital — ✅ HECHO
 

@@ -1543,7 +1543,7 @@ function DecoracionYDisenoEventoContent() {
                     </Button>
                   )}
                 </div>
-                <div className="ml-auto flex items-center gap-2">
+                <div className="ml-auto flex flex-wrap items-center justify-end gap-2">
                   {isAutoSaving && <span className="text-[10px] text-slate-400 animate-pulse">Guardando...</span>}
                   {canvasHasChanges && !isAutoSaving && <span className="text-[10px] text-amber-500">● Sin guardar</span>}
                   <Badge variant="secondary" className="rounded-full h-6 text-[10px] px-2.5">
