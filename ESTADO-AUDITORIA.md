@@ -119,10 +119,16 @@ Ya resuelto: de los "4 simuladores" quedan **2 reales** (el de la web y Sofía) 
 la puerta de entrada. `/simulador-v2` **ya se eliminó**: sólo redirigía, y sus dos
 referencias se apuntaron al simulador real.
 
-Falta decidir:
-- **6 pantallas de presentación** — ¿cuál se usa para mostrar el trabajo?
-- **6 centros de control de fiesta** — se creó uno nuevo y simple; los otros
-  cinco no se tocaron. Probar el nuevo en una fiesta real y archivar los que sobren.
+Ya resuelto también:
+- **Presentación**: se usa el portal LED con los catálogos reales de bodas, XV y
+  celebraciones (PR 825). Las otras láminas de ejemplo quedan de lado.
+- **Fotos del catálogo**: la galería ya tiene más de 100 fotos cargadas, así que
+  el catálogo digital muestra material real y reemplaza al impreso.
+- **Centro de control**: queda **uno solo**, rehecho para la noche de la fiesta.
+  Muestra cuánto falta para empezar (o cuánto lleva andando), qué toca en este
+  momento y qué sigue según el cronograma, cuánta gente confirmó y cuánta llegó,
+  quién trabaja esa noche con su rol, lo que quedó sin hacer, y recién después
+  los botones a las herramientas.
 
 ### 4. Limpieza del diseño — 🟡 DESBLOQUEADA, primera pasada hecha
 
