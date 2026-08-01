@@ -230,6 +230,8 @@ export default function SocialEventPage() {
   const fiestaId = params.fiestaId;
   const guestId = searchParams.get('guestId') || '';
   const guestAccessToken = searchParams.get('token') || '';
+  const stationModuleId = searchParams.get('estacion') || '';
+  const stationAccessToken = searchParams.get('access') || '';
   const { toast } = useToast();
   const [event, setEvent] = useState<PublicSocialEvent | null>(null);
   const [posts, setPosts] = useState<SocialGalleryPost[]>([]);
@@ -271,7 +273,16 @@ export default function SocialEventPage() {
   const accentColor = settings.accentColor || '#c81e2a';
   const eventName = settings.title || event?.configuracion.nombreEvento || 'Red social del evento';
   const activeGame = settings.activeGame;
-  const canUpload = Boolean(guestId && guestAccessToken);
+  const canParticipate = Boolean(
+    (guestId && guestAccessToken) || (stationModuleId && stationAccessToken),
+  );
+  const canUpload = canParticipate;
+  const interactionCredentials = {
+    guestId,
+    guestAccessToken,
+    stationModuleId,
+    stationAccessToken,
+  };
   const visiblePosts = filteredPosts ?? posts;
 
   const loadCore = useCallback(async (showLoader = false) => {
@@ -440,6 +451,11 @@ export default function SocialEventPage() {
       formData.append('guestId', guestId);
       formData.append('guestAccessToken', guestAccessToken);
     }
+    if (stationModuleId && stationAccessToken) {
+      formData.append('moduleId', stationModuleId);
+      formData.append('sourceModule', stationModuleId);
+      formData.append('accessToken', stationAccessToken);
+    }
     if (uploadFile.type.startsWith('image/') && crypto.subtle) {
       const digest = await crypto.subtle.digest('SHA-256', await uploadFile.arrayBuffer());
       formData.append('imageHash', Array.from(new Uint8Array(digest)).map((byte) => byte.toString(16).padStart(2, '0')).join(''));
@@ -465,7 +481,7 @@ export default function SocialEventPage() {
     setLikedPosts(next);
     sessionStorage.setItem(`likedPosts_${fiestaId}`, JSON.stringify([...next]));
     setPosts((current) => current.map((post) => post.id === postId ? { ...post, likes: (post.likes || 0) + 1 } : post));
-    const result = await addLikeToPost(postId);
+    const result = await addLikeToPost(postId, interactionCredentials);
     if (!result.success) {
       next.delete(postId);
       setLikedPosts(new Set(next));
@@ -475,7 +491,7 @@ export default function SocialEventPage() {
   };
 
   const commentPost = async (postId: string, text: string) => {
-    const result = await addCommentToPost(postId, text, authorName || 'Invitado');
+    const result = await addCommentToPost(postId, text, authorName || 'Invitado', interactionCredentials);
     if (!result.success) toast({ title: 'No se pudo comentar', description: result.error, variant: 'destructive' });
     await loadCore();
   };
@@ -580,7 +596,7 @@ export default function SocialEventPage() {
     const text = chatDraft.trim();
     if (!text || submitting) return;
     setSubmitting(true);
-    const result = await addChatMessage(fiestaId, text, authorName || 'Invitado');
+    const result = await addChatMessage(fiestaId, text, authorName || 'Invitado', interactionCredentials);
     if (result.success) {
       setChatDraft('');
       await loadSection('chat');
@@ -723,7 +739,7 @@ export default function SocialEventPage() {
                 <div className="flex items-center gap-3"><div className="grid h-11 w-11 shrink-0 place-items-center rounded-full text-xs font-black text-white" style={{ backgroundColor: accentColor }}>{initials(authorName)}</div><button type="button" onClick={() => setUploadOpen(true)} disabled={!settings.uploadsActive || !canUpload} className="min-h-11 flex-1 rounded-md bg-slate-100 px-4 text-left text-sm font-semibold text-slate-600 transition hover:bg-slate-200 disabled:opacity-50">{!canUpload ? 'Abrí tu enlace personal para publicar' : settings.uploadsActive ? '¿Qué querés compartir?' : 'Las publicaciones están pausadas'}</button></div>
                 <div className="mt-3 grid grid-cols-2 border-t border-slate-100 pt-2"><button type="button" onClick={() => setUploadOpen(true)} disabled={!settings.uploadsActive || !canUpload} className="flex min-h-10 items-center justify-center gap-2 rounded-md text-sm font-bold text-slate-600 hover:bg-slate-100 disabled:opacity-50"><Camera className="h-5 w-5 text-emerald-600" />Foto</button><button type="button" onClick={() => setUploadOpen(true)} disabled={!settings.uploadsActive || !canUpload} className="flex min-h-10 items-center justify-center gap-2 rounded-md text-sm font-bold text-slate-600 hover:bg-slate-100 disabled:opacity-50"><Video className="h-5 w-5 text-red-600" />Video</button></div>
               </section>
-              {visiblePosts.length ? visiblePosts.map((post) => <FeedPost key={post.id} post={post} authorName={authorName} accentColor={accentColor} allowLikes={settings.allowLikes !== false} allowComments={settings.allowComments !== false} liked={likedPosts.has(post.id)} onLike={() => void likePost(post.id)} onComment={(text) => commentPost(post.id, text)} />) : <EmptyState icon={Camera} title="Todavía no hay publicaciones" text={posts.length ? 'No hay publicaciones de este autor.' : 'Sé la primera persona en compartir un momento.'} />}
+              {visiblePosts.length ? visiblePosts.map((post) => <FeedPost key={post.id} post={post} authorName={authorName} accentColor={accentColor} allowLikes={settings.allowLikes !== false && canParticipate} allowComments={settings.allowComments !== false && canParticipate} liked={likedPosts.has(post.id)} onLike={() => void likePost(post.id)} onComment={(text) => commentPost(post.id, text)} />) : <EmptyState icon={Camera} title="Todavía no hay publicaciones" text={posts.length ? 'No hay publicaciones de este autor.' : 'Sé la primera persona en compartir un momento.'} />}
             </div>
           )}
 
@@ -813,7 +829,7 @@ export default function SocialEventPage() {
 
           {section === 'dedications' && <SectionShell key="dedications" title={settings.privateDedicationsMode ? 'Mensaje privado' : 'Mensajes para la fiesta'} text={settings.privateDedicationsMode ? 'Solo el equipo organizador podrá leerlo.' : 'Dejá un texto o una nota de voz.'}><form onSubmit={submitDedication} className="space-y-3"><Textarea value={dedicationDraft} onChange={(change) => setDedicationDraft(change.target.value)} maxLength={1000} placeholder="Escribí tu mensaje" className="min-h-28 bg-white text-slate-950" /><div className="flex flex-wrap items-center gap-2">{recording ? <Button type="button" variant="destructive" onClick={stopRecording}><Square className="mr-2 h-4 w-4 fill-current" />Detener {recordingSeconds}s</Button> : <Button type="button" variant="outline" onClick={startRecording}><Mic className="mr-2 h-4 w-4" />Grabar voz</Button>}{audioPreview && <><audio src={audioPreview} controls className="h-10 max-w-full" /><button type="button" onClick={clearAudio} className="grid h-9 w-9 place-items-center rounded-full bg-slate-100" aria-label="Quitar audio"><X className="h-4 w-4" /></button></>}<Button type="submit" disabled={(!dedicationDraft.trim() && !audioBlob) || submitting} className="ml-auto" style={{ backgroundColor: accentColor }}><Send className="mr-2 h-4 w-4" />Enviar</Button></div></form>{!settings.privateDedicationsMode && <div className="mt-6 space-y-3">{dedications.slice().reverse().map((dedication) => <article key={dedication.id} className="border-t border-slate-100 pt-4"><div className="flex items-center gap-2"><div className="grid h-9 w-9 place-items-center rounded-full bg-slate-200 text-xs font-black">{initials(dedication.authorName)}</div><div><p className="text-sm font-bold">{dedication.authorName}</p><p className="text-xs text-slate-500">{formatDistanceToNow(new Date(dedication.timestamp), { addSuffix: true, locale: es })}</p></div></div><p className="mt-3 text-sm leading-relaxed text-slate-700">{dedication.message}</p>{dedication.audioUrl && <audio src={dedication.audioUrl} controls className="mt-3 h-10 w-full" />}</article>)}{dedications.length === 0 && <EmptyState icon={Heart} title="Todavía no hay mensajes" text="Dejá el primero para los protagonistas." />}</div>}</SectionShell>}
 
-          {section === 'chat' && <SectionShell key="chat" title="Chat en vivo" text="Mensajes cortos para compartir durante la fiesta."><div className="max-h-[55vh] min-h-72 space-y-3 overflow-y-auto rounded-md bg-slate-50 p-3">{messages.map((message) => { const own = message.authorName === authorName; return <div key={message.id} className={`flex ${own ? 'justify-end' : 'justify-start'}`}><div className={`max-w-[85%] rounded-md px-3 py-2 text-sm ${own ? 'text-white' : 'bg-white text-slate-800 shadow-sm'}`} style={own ? { backgroundColor: accentColor } : undefined}><p className={`text-[10px] font-bold ${own ? 'text-white/75' : 'text-slate-500'}`}>{message.authorName}</p><p className="break-words">{message.text}</p></div></div>; })}{messages.length === 0 && <EmptyState icon={MessageCircle} title="El chat está vacío" text="Mandá el primer saludo." />}</div><form onSubmit={submitChat} className="mt-3 flex gap-2"><Input value={chatDraft} onChange={(change) => setChatDraft(change.target.value)} maxLength={500} placeholder="Escribí un mensaje" className="h-12 bg-white text-slate-950" /><Button type="submit" disabled={!chatDraft.trim() || submitting} className="h-12" style={{ backgroundColor: accentColor }}><Send className="h-5 w-5" /></Button></form></SectionShell>}
+          {section === 'chat' && <SectionShell key="chat" title="Chat en vivo" text="Mensajes cortos para compartir durante la fiesta."><div className="max-h-[55vh] min-h-72 space-y-3 overflow-y-auto rounded-md bg-slate-50 p-3">{messages.map((message) => { const own = message.authorName === authorName; return <div key={message.id} className={`flex ${own ? 'justify-end' : 'justify-start'}`}><div className={`max-w-[85%] rounded-md px-3 py-2 text-sm ${own ? 'text-white' : 'bg-white text-slate-800 shadow-sm'}`} style={own ? { backgroundColor: accentColor } : undefined}><p className={`text-[10px] font-bold ${own ? 'text-white/75' : 'text-slate-500'}`}>{message.authorName}</p><p className="break-words">{message.text}</p></div></div>; })}{messages.length === 0 && <EmptyState icon={MessageCircle} title="El chat está vacío" text="Mandá el primer saludo." />}</div><form onSubmit={submitChat} className="mt-3 flex gap-2"><Input value={chatDraft} onChange={(change) => setChatDraft(change.target.value)} maxLength={500} disabled={!canParticipate} placeholder={canParticipate ? 'Escribí un mensaje' : 'Abrí tu enlace personal para participar'} className="h-12 bg-white text-slate-950" /><Button type="submit" disabled={!canParticipate || !chatDraft.trim() || submitting} className="h-12" style={{ backgroundColor: accentColor }}><Send className="h-5 w-5" /></Button></form></SectionShell>}
 
           {section === 'poll' && <SectionShell key="poll" title={poll?.question || 'Encuesta'} text="Elegí una opción. Cada invitado puede votar una vez.">{poll ? <VoteOptions options={poll.options} voted={votedPollId === poll.id} accentColor={accentColor} onVote={submitPollVote} /> : <EmptyState icon={BarChart3} title="No hay encuesta activa" text="Cuando el equipo publique una, aparecerá acá." />}</SectionShell>}
 

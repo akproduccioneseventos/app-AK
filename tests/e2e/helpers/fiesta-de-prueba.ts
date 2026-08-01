@@ -3,6 +3,7 @@ import fs from 'node:fs';
 import path from 'node:path';
 import { buildAkDemoFiesta } from '../../../src/lib/experience-ak/demo-fiesta-factory';
 import type { FiestaEnPlanificacion } from '../../../src/types/fiesta';
+import { getUruguayParts } from '../../../src/lib/utils';
 
 /**
  * Fiesta de prueba con datos de verdad.
@@ -84,7 +85,8 @@ export function borrarFiesta(fiestaId: string) {
  */
 export function crearFiestaDeEstaNoche(opciones: { id?: string; clavePortal?: string } = {}) {
   const base = buildAkDemoFiesta('tecnologia-total');
-  const hoy = new Date().toISOString().split('T')[0];
+  const { year, month, day } = getUruguayParts();
+  const hoy = `${year}-${String(month).padStart(2, '0')}-${String(day).padStart(2, '0')}`;
 
   const invitados = [
     { nombre: 'Lucía Fernández', mesa: '1', partySize: 2 },
