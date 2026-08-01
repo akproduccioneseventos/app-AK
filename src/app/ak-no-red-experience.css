@@ -1,5 +1,5 @@
 /* Eliminado el contenido destructivo.
-   Ya no necesitamos sobreescribir colores con !important porque hemos arreglado
+   Ya no necesitamos sobreescribir colores con porque hemos arreglado
    la paleta base premium desde su origen.
    Esto permite que los botones, hovers y modales funcionen correctamente. */
 :root {

@@ -126,11 +126,6 @@ test.describe('huella de maquetación', () => {
       test.info().annotations.push({ type: 'referencia', description: `Huella generada para ${perfil}.` });
       return;
     }
-    if (false) {
-      fs.writeFileSync(REFERENCIA, `${JSON.stringify(actual, null, 2)}\n`);
-      test.info().annotations.push({ type: 'referencia', description: 'Huella generada por primera vez.' });
-      return;
-    }
 
     expect(desvios, `La maquetación cambió:\n  ${desvios.join('\n  ')}`).toEqual([]);
   });
