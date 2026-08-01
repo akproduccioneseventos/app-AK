@@ -161,15 +161,15 @@ export default async function CentroDeFiestaPage(props: PageProps) {
         {/* La gente: lo segundo que se mira en la puerta y durante la cena. */}
         <section className="grid gap-3 sm:grid-cols-3">
           {[
-            { etiqueta: 'Confirmadas', valor: confirmados, icono: Users, tono: 'text-slate-300' },
-            { etiqueta: 'Ya llegaron', valor: llegaron, icono: UserCheck, tono: 'text-emerald-300' },
-            { etiqueta: 'Faltan llegar', valor: faltan, icono: Users, tono: 'text-amber-300' },
+            { etiqueta: 'Confirmadas', valor: confirmados, icono: Users, tono: 'text-slate-300', marca: 'confirmadas' },
+            { etiqueta: 'Ya llegaron', valor: llegaron, icono: UserCheck, tono: 'text-emerald-300', marca: 'llegaron' },
+            { etiqueta: 'Faltan llegar', valor: faltan, icono: Users, tono: 'text-amber-300', marca: 'faltan' },
           ].map((dato) => (
             <div key={dato.etiqueta} className="rounded-[1.5rem] border border-white/10 bg-white/5 p-5">
               <p className={`flex items-center gap-2 text-xs font-black uppercase tracking-widest ${dato.tono}`}>
                 <dato.icono className="h-4 w-4" /> {dato.etiqueta}
               </p>
-              <p className="mt-1 text-4xl font-black">{dato.valor}</p>
+              <p className="mt-1 text-4xl font-black" data-testid={`centro-${dato.marca}`}>{dato.valor}</p>
               <p className="text-xs font-semibold text-slate-500">personas</p>
             </div>
           ))}
