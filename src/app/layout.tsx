@@ -74,6 +74,7 @@ export const metadata: Metadata = {
 };
 
 import { GoogleAnalytics } from '@/components/google-analytics';
+import { MicrosoftClarity } from '@/components/microsoft-clarity';
 
 export default function RootLayout({
   children,
@@ -86,6 +87,7 @@ export default function RootLayout({
       </head>
       <body className="ak-motion-system font-body antialiased">
         <GoogleAnalytics />
+        <MicrosoftClarity />
         <DeploymentRecovery />
         {children}
         <Toaster />
