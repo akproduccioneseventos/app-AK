@@ -75,17 +75,22 @@ export function AhoraEnVivo({ fechaEvento, horaInicio, horaFin, programa }: Prop
   let titular = 'Sin hora de inicio cargada';
   let detalle = 'Cargá la hora en la configuración de la fiesta.';
 
-  if (inicio) {
+  // Una fiesta recien creada todavia no tiene hora cargada. Sin este cuidado la
+  // pantalla decia "Arranca a las undefined".
+  const hayHoraInicio = Boolean(aMinutos(horaInicio));
+  const hayHoraFin = Boolean(aMinutos(horaFin));
+
+  if (inicio && hayHoraInicio) {
     const faltan = inicio.getTime() - ahora.getTime();
     if (faltan > 0) {
       titular = `Faltan ${enPalabras(faltan)}`;
       detalle = `Arranca a las ${horaInicio}`;
-    } else if (fin && ahora.getTime() > fin.getTime()) {
+    } else if (fin && hayHoraFin && ahora.getTime() > fin.getTime()) {
       titular = 'La fiesta terminó';
       detalle = `Cerró a las ${horaFin}`;
     } else {
       titular = `Arrancó hace ${enPalabras(faltan)}`;
-      detalle = fin ? `Termina a las ${horaFin}` : `Empezó a las ${horaInicio}`;
+      detalle = fin && hayHoraFin ? `Termina a las ${horaFin}` : `Empezó a las ${horaInicio}`;
     }
   }
 
