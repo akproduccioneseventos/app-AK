@@ -17,6 +17,7 @@ import Image from 'next/image';
 import { motion } from 'framer-motion';
 import { getBudgetPaymentSummary } from '@/lib/budget/financial-guardrails';
 import { buildAnnualAdjustmentProjection } from '@/lib/budget/formal-budget';
+import { calcularEstadoDeCuenta } from '@/lib/budget/saldo-con-ajuste';
 
 const formatCurrency = (amount?: number) => {
   if (amount === undefined || isNaN(amount)) return 'N/A';
@@ -122,34 +123,19 @@ function EstadoDeCuentaContent({ params }: { params: { id: string } }) {
         baseTotal: 0,
       };
     }
-    const paymentSummary = getBudgetPaymentSummary(presupuesto);
-    const baseTotal = paymentSummary.total;
-    const adjustmentPct = presupuesto.ajusteAnualPorcentaje ?? annualAdjustmentPercentage;
-    const creationYear = new Date(presupuesto.timestamp).getFullYear();
-
-    const projection = buildAnnualAdjustmentProjection({
-      baseTotal,
-      eventDate: presupuesto.eventoFecha,
-      currentYear: creationYear,
-      adjustmentPct,
-    });
-
-    const isContracted = presupuesto.estado === 'Aceptado' || presupuesto.estado === 'Facturado';
-    const applies = isContracted && presupuesto.ajusteAnualActivo && projection.applies;
-    const annualAdjustment = applies ? projection.adjustmentAmount : 0;
-    const total = applies ? projection.adjustedTotal : baseTotal;
-    const yearsDiff = applies ? (projection.eventYear - projection.currentYear) : 0;
+    // La misma cuenta que usa el recibo de pago: un solo lugar para el saldo.
+    const cuenta = calcularEstadoDeCuenta(presupuesto, annualAdjustmentPercentage);
     const pagos: PagoCliente[] = presupuesto.pagosCliente || [];
 
     return {
-      totalCosto: total,
-      totalPagado: paymentSummary.paid,
-      saldoPendiente: Math.max(0, total - paymentSummary.paid),
+      totalCosto: cuenta.total,
+      totalPagado: cuenta.pagado,
+      saldoPendiente: cuenta.saldo,
       pagos,
-      annualAdjustment,
-      adjustmentPct,
-      yearsDiff,
-      baseTotal,
+      annualAdjustment: cuenta.ajusteAnual,
+      adjustmentPct: cuenta.porcentajeAjuste,
+      yearsDiff: cuenta.aniosDeAjuste,
+      baseTotal: cuenta.totalBase,
     };
   }, [presupuesto, annualAdjustmentPercentage]);
 
