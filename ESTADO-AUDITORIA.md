@@ -32,9 +32,9 @@ Documento vivo. Sirve para no repetir trabajo entre sesiones.
 | 19 | El centro de alertas se salía 43px y la pantalla de red social de eventos 112px en computadora y 200px en celular (la tabla empujaba todo). | `alertas`, `empresa/red-social-eventos` | rama pruebas en vivo |
 | 20 | El buzón de recuerdos decía **"Evento no encontrado"** cuando en realidad la estación estaba apagada o el enlace no traía el permiso. Al invitado le hacía pensar que la fiesta no existe. | `evento/buzon/[fiestaId]` | rama pruebas en vivo |
 | 21 | **El enlace de la encuesta se moría solo.** Sólo funcionaba mientras esa fiesta fuera la más reciente. Como la encuesta se manda *después* del evento, para cuando el invitado la abría ya había otra fiesta adelante y el enlace decía "no corresponde al evento actual". Con varias fiestas activas, andaba una sola. | `feedback/[fiestaId]` | rama pruebas en vivo |
+| 22 | La fecha corrida al día anterior aparecía además en el RSVP, la pantalla de cómo llegar, el portal del cliente y **la marca de agua de las fotos** de las cuatro estaciones (fotocabina, espejo mágico, 360 y bogue). | 8 pantallas | rama pruebas en vivo |
 | 23 | **El enlace para subir las fotos del video de vida dejaba de andar** en cuanto había otra fiesta agendada más adelante: la familia recibía "acceso no válido". Y las fotos que sí entraban marcaban "ya subieron fotos" en el evento equivocado, igual que los ajustes del video. | `video-vida` (3 pantallas y 2 acciones) | rama pruebas en vivo |
 | 24 | Con **dos fiestas vencidas sin archivar**, la pantalla de eventos se salía 204px en celular. Y todos los botones decían igual "Archivar", sin decir cuál. | `eventos` | rama pruebas en vivo |
-| 22 | La fecha corrida al día anterior aparecía además en el RSVP, la pantalla de cómo llegar, el portal del cliente y **la marca de agua de las fotos** de las cuatro estaciones (fotocabina, espejo mágico, 360 y bogue). | 8 pantallas | rama pruebas en vivo |
 
 ### Desborde horizontal en celular
 
