@@ -18,7 +18,21 @@ import { borrarFiesta, crearCookieDeSesion, crearFiestaDeEstaNoche, crearPermiso
 const fiesta = crearFiestaDeEstaNoche({ id: process.env.AK_E2E_ID });
 const ID = fiesta.id;
 
+/**
+ * Fiesta señuelo, agendada para dentro de un año.
+ *
+ * Varias pantallas cargaban "la fiesta actual" (la de fecha más próxima entre
+ * todas) en vez de la del enlace. Con una sola fiesta cargada eso funcionaba de
+ * casualidad y ninguna prueba lo veía. Con esta señuelo por delante, cualquier
+ * pantalla que vuelva a caer en la trampa falla enseguida.
+ */
+const SENUELO = crearFiestaDeEstaNoche({
+  id: `${ID}_senuelo`,
+  fechaEvento: new Date(Date.now() + 365 * 24 * 60 * 60 * 1000).toISOString().split('T')[0],
+});
+
 test.afterAll(() => {
+  borrarFiesta(SENUELO.id);
   if (!process.env.AK_E2E_ID) borrarFiesta(ID);
   // La opinión de prueba se guarda de verdad, así que hay que sacarla: si no,
   // queda mezclada con las opiniones reales de los clientes.
@@ -128,6 +142,8 @@ const PANTALLAS_DEL_INVITADO = [
   `/invitacion/${ID}/rsvp`,
   `/portal-invitado/${ID}/${INVITADO.id}?token=${INVITADO.token}`,
   `/feedback/${ID}`,
+  // La familia sube acá las fotos del video de vida.
+  `/video-vida/${ID}`,
 ];
 
 /** Lo que maneja el equipo de AK durante la fiesta. */

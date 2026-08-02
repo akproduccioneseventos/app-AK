@@ -142,9 +142,6 @@ Si el mensaje contiene líneas con nombres de servicios y precios (ej: "Sonido $
 
 ## DETECCIÓN DE PRESUPUESTO EN IMAGEN/PDF:
 Si hay imageDataUri y el archivo parece presupuesto, cotización, captura con precios o lista de servicios, usá action.type = import_budget_from_image. No devuelvas texto como servicio. No pongas frases de charla en action.data.servicios. Usá el catálogo del contexto cuando haya coincidencia.`,
-  config: {
-    temperature: 0.1,
-  },
 });
 
 export const chatWithAssistant = ai.defineFlow(

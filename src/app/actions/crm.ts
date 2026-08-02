@@ -21,9 +21,16 @@ import { upsertPublicCommercialLead } from '@/lib/crm/public-lead-persistence';
 import { normalizeUruguayPhone } from '@/lib/commercial/contact';
 import { enforcePublicRateLimit } from '@/lib/commercial/public-rate-limit';
 import { DEFAULT_CRM_STAGES } from '@/lib/crm/default-stages';
+import {
+  ensureFreshGoogleAccount,
+  hasGoogleContactsScope,
+  upsertGoogleContact,
+} from '@/lib/google-workspace';
+import type { GoogleWorkspaceAccount } from '@/types/google-workspace';
 
 const LEADS_FILE = 'crm-leads.json';
 const STAGES_FILE = 'crm-stages.json';
+const GOOGLE_ACCOUNTS_FILE = '_google-workspace-accounts.json';
 const TRASH_NAMES = ['test', 'prueba', 'asdf', 'qwerty', 'xxx', 'zzz', 'aaa', 'bbb', 'admin', 'usuario', 'user', 'nombre'];
 
 /** Normalizes a phone number: removes spaces, dashes, parens and keeps the last 9 digits. */
@@ -948,6 +955,28 @@ export interface LandingLeadData {
   marketingConsent?: boolean;
 }
 
+async function syncLandingLeadToGoogleContacts(data: LandingLeadData, phone: string) {
+  const accounts = await readData<GoogleWorkspaceAccount[]>(GOOGLE_ACCOUNTS_FILE, []);
+  const accountIndex = accounts.findIndex((account) => account.kind === 'company');
+  if (accountIndex === -1) return;
+
+  const account = await ensureFreshGoogleAccount(accounts[accountIndex]);
+  if (account !== accounts[accountIndex]) {
+    const nextAccounts = [...accounts];
+    nextAccounts[accountIndex] = account;
+    await writeData(GOOGLE_ACCOUNTS_FILE, nextAccounts);
+  }
+  if (account.status !== 'connected' || !account.accessToken || !hasGoogleContactsScope(account)) return;
+
+  await upsertGoogleContact(account, {
+    name: data.nombre,
+    email: data.email,
+    phone,
+    organization: 'Prospectos AK Producciones',
+    notes: [data.tipoEvento, data.fechaEstimada, data.mensaje].filter(Boolean).join(' | '),
+  });
+}
+
 export async function saveLead(data: LandingLeadData): Promise<{ success: boolean; error?: string }> {
   try {
     const phone = normalizeUruguayPhone(data.telefono);
@@ -995,14 +1024,16 @@ export async function saveLead(data: LandingLeadData): Promise<{ success: boolea
     });
 
     if (data.marketingConsent === true) {
-      const trackingTask = import('@/lib/marketing/meta-ads')
-        .then(({ trackMetaConversionEvent }) => trackMetaConversionEvent({
-          eventName: 'Lead',
-          email: data.email,
-          phone,
-          source: data.fuente,
-        }))
-        .catch(() => ({ success: false }));
+      const trackingTask = Promise.allSettled([
+        import('@/lib/marketing/meta-ads')
+          .then(({ trackMetaConversionEvent }) => trackMetaConversionEvent({
+            eventName: 'Lead',
+            email: data.email,
+            phone,
+            source: data.fuente,
+          })),
+        syncLandingLeadToGoogleContacts(data, phone),
+      ]);
       try {
         const nextServer = (await import('next/server')) as { after?: (task: Promise<unknown>) => void };
         if (typeof nextServer.after === 'function') nextServer.after(trackingTask);

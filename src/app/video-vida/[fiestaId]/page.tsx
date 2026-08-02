@@ -9,7 +9,7 @@ import { Button } from '@/components/ui/button';
 import { Camera, Loader2, AlertTriangle, Upload, CheckCircle, PartyPopper } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import type { FiestaEnPlanificacion, VideoVidaData } from '@/types/fiesta';
-import { getFiestaActual } from '@/app/actions/fiesta-actual';
+import { getFiestaById } from '@/app/actions/fiesta-actual';
 import { saveLifeStoryVideoPhoto, getLifeStoryVideoPhotos } from '@/app/actions/fiesta/video-vida.actions';
 import { CompanyLogo } from '@/components/company-logo';
 import { Input } from '@/components/ui/input';
@@ -109,8 +109,11 @@ function VideoVidaClientPageContent({ params }: { params: { fiestaId: string } }
     setIsLoading(true);
     setError(null);
     try {
-      const fiestaData = await getFiestaActual();
-      if (fiestaData.id !== params.fiestaId) throw new Error("Acceso no válido para este evento.");
+      // Antes se cargaba "la fiesta actual" (la de fecha mas proxima entre todas)
+      // y se comparaba contra la del enlace: con otra fiesta agendada mas
+      // adelante, la familia recibia "acceso no valido" con un enlace correcto.
+      const fiestaData = await getFiestaById(params.fiestaId as string);
+      if (!fiestaData) throw new Error("No encontramos este evento. Pedile el enlace al equipo de AK.");
       if (!fiestaData.videoVida?.galleryEnabled) throw new Error("La carga de fotos no está habilitada para este evento.");
 
       setFiesta(fiestaData);

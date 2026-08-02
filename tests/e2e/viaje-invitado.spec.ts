@@ -164,11 +164,19 @@ test.describe('viaje del invitado', () => {
       { name: 'ak_session', value: createSessionToken(), url: baseURL!, httpOnly: true, sameSite: 'Lax' },
     ]);
 
+    // Antes de mirar la pantalla: el dato tiene que seguir en el evento. Si esto
+    // falla, el problema es el guardado, no la pantalla.
+    const guardado = leerEventoGuardado();
+    expect(
+      (guardado?.invitados ?? []).map((i: any) => i.nombre),
+      'El invitado desaparecio del evento entre una pantalla y otra',
+    ).toContain(NOMBRE_INVITADO);
+
     await page.goto(`/fiestas/${fiesta.id}/centro`, { waitUntil: 'domcontentloaded' });
 
     // El invitado dijo que venian tres personas: el centro tiene que contar
     // personas, no filas de la lista.
-    await expect(page.getByText('3 personas confirmadas')).toBeVisible({ timeout: 45_000 });
+    await expect(page.getByTestId('centro-confirmadas')).toHaveText('3', { timeout: 45_000 });
     await expect(page.getByRole('heading', { name: 'Fiesta de prueba automatica' })).toBeVisible();
   });
 

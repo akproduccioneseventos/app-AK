@@ -59,9 +59,9 @@ export default async function Ak100Page(props: PageProps) {
       <div className="mx-auto max-w-7xl space-y-6">
         <div className="flex flex-wrap items-center justify-between gap-3">
           <Button asChild variant="outline" className="rounded-2xl bg-white font-bold">
-            <Link href={`/fiestas/${encodeURIComponent(params.id)}/comando-total`}>
+            <Link href={`/fiestas/${encodeURIComponent(params.id)}/centro`}>
               <ArrowLeft className="mr-2 h-4 w-4" />
-              Volver al comando
+              Volver al Centro de Fiesta
             </Link>
           </Button>
           <Badge className="bg-red-600 text-white">AK 100%</Badge>
@@ -76,8 +76,8 @@ export default async function Ak100Page(props: PageProps) {
               <div className="mt-5 flex flex-wrap gap-3">
                 <Ak100CreateTasksButton fiestaId={params.id} disabled={readiness.nextWork.length === 0} />
                 <Button asChild variant="outline" className="rounded-2xl bg-white font-black">
-                  <Link href={`/fiestas/${encodeURIComponent(params.id)}/comando-total`}>
-                    Abrir Comando Total <ArrowRight className="ml-2 h-4 w-4" />
+                  <Link href={`/fiestas/${encodeURIComponent(params.id)}/centro`}>
+                    Abrir Centro de Fiesta <ArrowRight className="ml-2 h-4 w-4" />
                   </Link>
                 </Button>
               </div>

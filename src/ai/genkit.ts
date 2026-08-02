@@ -17,7 +17,7 @@ type GeminiModelRole = 'default' | 'fast' | 'pro' | 'marketing' | 'commercial';
 type GeminiGenerationConfig = Record<string, never>;
 
 const configuredGeminiModel = process.env.GEMINI_MODEL?.trim();
-const automaticUpgradeEnabled = process.env.GEMINI_AUTO_UPGRADE !== 'false';
+const automaticUpgradeEnabled = process.env.GEMINI_AUTO_UPGRADE === 'true';
 
 function resolveGeminiModel(value: string | undefined, fallback: string, label: GeminiModelRole): string {
   const configured = value?.trim();

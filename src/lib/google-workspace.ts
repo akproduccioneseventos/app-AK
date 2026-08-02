@@ -7,6 +7,8 @@ const GOOGLE_AUTH_URL = 'https://accounts.google.com/o/oauth2/v2/auth';
 const GOOGLE_TOKEN_URL = 'https://oauth2.googleapis.com/token';
 const GOOGLE_CALENDAR_API = 'https://www.googleapis.com/calendar/v3';
 const GOOGLE_GMAIL_API = 'https://gmail.googleapis.com/gmail/v1';
+const GOOGLE_PEOPLE_API = 'https://people.googleapis.com/v1';
+const GOOGLE_PEOPLE_TIMEOUT_MS = 8_000;
 const MONTEVIDEO_TZ = 'America/Montevideo';
 
 export const GOOGLE_WORKSPACE_SCOPES = [
@@ -15,7 +17,23 @@ export const GOOGLE_WORKSPACE_SCOPES = [
   'profile',
   'https://www.googleapis.com/auth/calendar.events',
   'https://www.googleapis.com/auth/gmail.send',
+  'https://www.googleapis.com/auth/contacts',
 ];
+
+export const GOOGLE_CONTACTS_SCOPE = 'https://www.googleapis.com/auth/contacts';
+
+export interface GoogleContactInput {
+  name: string;
+  email?: string;
+  phone?: string;
+  organization?: string;
+  notes?: string;
+}
+
+export interface GoogleContactSyncResult {
+  created: boolean;
+  resourceName: string;
+}
 
 export interface GoogleOAuthState {
   kind: GoogleWorkspaceAccountKind;
@@ -213,6 +231,107 @@ export async function ensureFreshGoogleAccount(account: GoogleWorkspaceAccount) 
     return account;
   }
   return refreshGoogleAccount(account);
+}
+
+export function hasGoogleContactsScope(account?: Pick<GoogleWorkspaceAccount, 'scope'>) {
+  return Boolean(account?.scope?.split(/\s+/).includes(GOOGLE_CONTACTS_SCOPE));
+}
+
+function normalizeContactEmail(value?: string) {
+  return value?.trim().toLowerCase() || '';
+}
+
+function normalizeContactPhone(value?: string) {
+  return (value || '').replace(/\D/g, '').slice(-9);
+}
+
+function normalizeContactName(value?: string) {
+  return value?.trim().toLowerCase().replace(/\s+/g, ' ') || '';
+}
+
+async function fetchGooglePeople(url: string | URL, init?: RequestInit) {
+  const controller = new AbortController();
+  const timeout = setTimeout(() => controller.abort(), GOOGLE_PEOPLE_TIMEOUT_MS);
+  try {
+    return await fetch(url, { ...init, signal: controller.signal });
+  } finally {
+    clearTimeout(timeout);
+  }
+}
+
+export async function upsertGoogleContact(
+  account: GoogleWorkspaceAccount,
+  input: GoogleContactInput,
+): Promise<GoogleContactSyncResult> {
+  if (!hasGoogleContactsScope(account)) {
+    throw new Error('Vuelve a conectar Google Workspace para habilitar la sincronizacion de contactos.');
+  }
+
+  const email = normalizeContactEmail(input.email);
+  const phone = normalizeContactPhone(input.phone);
+  const name = normalizeContactName(input.name);
+  const query = email || input.phone?.trim() || input.name.trim();
+  const searchUrl = new URL(`${GOOGLE_PEOPLE_API}/people:searchContacts`);
+  searchUrl.searchParams.set('query', query);
+  searchUrl.searchParams.set('readMask', 'names,emailAddresses,phoneNumbers');
+  searchUrl.searchParams.set('pageSize', '30');
+
+  const searchResponse = await fetchGooglePeople(searchUrl, {
+    headers: { Authorization: `Bearer ${account.accessToken}` },
+    cache: 'no-store',
+  });
+  if (!searchResponse.ok) {
+    throw new Error(`Google Contacts no pudo buscar el contacto: ${await searchResponse.text()}`);
+  }
+
+  const searchData = await searchResponse.json() as {
+    results?: Array<{
+      person?: {
+        resourceName?: string;
+        names?: Array<{ displayName?: string; givenName?: string }>;
+        emailAddresses?: Array<{ value?: string }>;
+        phoneNumbers?: Array<{ value?: string }>;
+      };
+    }>;
+  };
+  const existing = searchData.results
+    ?.map((result) => result.person)
+    .find((person) => {
+      const sameEmail = email && person?.emailAddresses?.some((item) => normalizeContactEmail(item.value) === email);
+      const samePhone = phone && person?.phoneNumbers?.some((item) => normalizeContactPhone(item.value) === phone);
+      const sameName = !email && !phone && name && person?.names?.some((item) => (
+        normalizeContactName(item.displayName || item.givenName) === name
+      ));
+      return Boolean(sameEmail || samePhone || sameName);
+    });
+
+  if (existing?.resourceName) {
+    return { created: false, resourceName: existing.resourceName };
+  }
+
+  const createResponse = await fetchGooglePeople(`${GOOGLE_PEOPLE_API}/people:createContact`, {
+    method: 'POST',
+    headers: {
+      Authorization: `Bearer ${account.accessToken}`,
+      'Content-Type': 'application/json',
+    },
+    body: JSON.stringify({
+      names: [{ givenName: input.name.trim() }],
+      emailAddresses: email ? [{ value: email }] : [],
+      phoneNumbers: input.phone?.trim() ? [{ value: input.phone.trim() }] : [],
+      organizations: input.organization ? [{ name: input.organization }] : [],
+      biographies: input.notes ? [{ value: input.notes, contentType: 'TEXT_PLAIN' }] : [],
+    }),
+  });
+  if (!createResponse.ok) {
+    throw new Error(`Google Contacts no pudo crear el contacto: ${await createResponse.text()}`);
+  }
+
+  const created = await createResponse.json() as { resourceName?: string };
+  if (!created.resourceName) {
+    throw new Error('Google Contacts no devolvio el identificador del contacto creado.');
+  }
+  return { created: true, resourceName: created.resourceName };
 }
 
 export function getFiestaTitle(fiesta: FiestaEnPlanificacion) {

@@ -64,6 +64,7 @@ import type { SocialGallerySettings } from '@/types/fiesta';
 import PostEventMemoryHub from '@/components/social-wall/PostEventMemoryHub';
 import { FaceGalleryStrip } from '@/components/entertainment/FaceGalleryStrip';
 import { PaparazziOverlay } from '@/components/social-wall/PaparazziOverlay';
+import { SpotifySongSearch } from '@/components/invitacion/SpotifySongSearch';
 
 type SocialSection = 'feed' | 'songs' | 'dedications' | 'chat' | 'poll' | 'game';
 
@@ -746,7 +747,7 @@ export default function SocialEventPage() {
           {section === 'songs' && (
             <SectionShell key="songs" title="Votá la música" text="Elegí qué canciones querés que suenen.">
               <form onSubmit={submitSong} className="mb-6 flex gap-2">
-                <Input value={songDraft} onChange={(change) => setSongDraft(change.target.value)} maxLength={120} placeholder="Pedí otra canción y artista..." className="h-12 bg-white text-slate-950" />
+                <SpotifySongSearch value={songDraft} onChange={setSongDraft} />
                 <Button type="submit" disabled={!songDraft.trim() || submitting} className="h-12 px-4" style={{ backgroundColor: accentColor }}><Send className="h-5 w-5" /></Button>
               </form>
               

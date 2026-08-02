@@ -551,15 +551,18 @@ export default function GestorFiestasPage() {
                 </p>
                 <div className="space-y-1">
                   {fiestas.map(f => (
-                    <div key={f.id} className="flex items-center justify-between">
-                      <div>
-                        <span className="text-sm font-semibold text-slate-700">{f.configuracion.nombreEvento}</span>
-                        <span className="text-xs text-slate-400 ml-2">
+                    // `min-w-0` y `gap-2`: sin esto, un nombre de evento largo
+                    // junto al salon empujaba la fila fuera de la pantalla en un
+                    // celular, igual que pasaba con los botones de archivar.
+                    <div key={f.id} className="flex items-center justify-between gap-2">
+                      <div className="min-w-0">
+                        <span className="block truncate text-sm font-semibold text-slate-700">{f.configuracion.nombreEvento}</span>
+                        <span className="block truncate text-xs text-slate-400">
                           {f.configuracion.horaInicio && `${f.configuracion.horaInicio}hs`}
                           {f.configuracion.nombreLugar && ` · ${f.configuracion.nombreLugar}`}
                         </span>
                       </div>
-                      <Button asChild size="sm" variant="outline" className="text-xs h-7 border-red-200 text-red-700 hover:bg-red-100"><Link href={`/fiestas/nueva?fiestaId=${f.id}`}>
+                      <Button asChild size="sm" variant="outline" className="h-7 shrink-0 border-red-200 text-xs text-red-700 hover:bg-red-100"><Link href={`/fiestas/nueva?fiestaId=${f.id}`}>
                           Ver evento
                         </Link></Button>
                     </div>
@@ -575,10 +578,13 @@ export default function GestorFiestasPage() {
 
       {pastActiveEvents.length > 0 && !isLoading && (
         <Card className="bg-amber-50 border-amber-200 shadow-sm print:hidden mb-6">
-          <CardContent className="p-4 flex items-center justify-between">
-            <div className="flex items-center gap-3">
-              <AlertTriangle className="w-5 h-5 text-amber-600" />
-              <div>
+          {/* En un celular, con dos o mas eventos vencidos, la fila de botones
+              "Archivar" no entraba y empujaba la pantalla 204px hacia afuera.
+              Ahora el aviso se apila y los botones bajan de linea. */}
+          <CardContent className="p-4 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+            <div className="flex min-w-0 items-center gap-3">
+              <AlertTriangle className="w-5 h-5 shrink-0 text-amber-600" />
+              <div className="min-w-0">
                 <p className="font-semibold text-amber-800 text-sm">
                   {pastActiveEvents.length} evento(s) con fecha pasada necesitan ser archivados
                 </p>
@@ -587,18 +593,20 @@ export default function GestorFiestasPage() {
                 </p>
               </div>
             </div>
-            <div className="flex gap-2">
+            <div className="flex flex-wrap gap-2">
               {pastActiveEvents.map(fiesta => (
                 <Button
                   key={fiesta.id}
                   variant="outline"
                   size="sm"
-                  className="border-amber-300 text-amber-800 hover:bg-amber-100"
+                  className="max-w-full border-amber-300 text-amber-800 hover:bg-amber-100"
                   onClick={() => handleArchivar(fiesta.id)}
                   disabled={isProcessing === fiesta.id}
                 >
-                  {isProcessing === fiesta.id ? <Loader2 className="w-4 h-4 animate-spin" /> : <Archive className="w-4 h-4 mr-1" />}
-                  Archivar
+                  {isProcessing === fiesta.id ? <Loader2 className="w-4 h-4 shrink-0 animate-spin" /> : <Archive className="w-4 h-4 mr-1 shrink-0" />}
+                  {/* Con varios eventos vencidos, botones que decian todos
+                      "Archivar" no dejaban saber cual se estaba archivando. */}
+                  <span className="truncate">Archivar {fiesta.configuracion?.nombreEvento || 'evento'}</span>
                 </Button>
               ))}
             </div>
