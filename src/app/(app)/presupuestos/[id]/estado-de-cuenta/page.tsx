@@ -18,6 +18,7 @@ import { motion } from 'framer-motion';
 import { getBudgetPaymentSummary } from '@/lib/budget/financial-guardrails';
 import { buildAnnualAdjustmentProjection } from '@/lib/budget/formal-budget';
 import { calcularEstadoDeCuenta } from '@/lib/budget/saldo-con-ajuste';
+import { rellenarPlantilla } from '@/lib/whatsapp/plantilla-mensaje';
 
 const formatCurrency = (amount?: number) => {
   if (amount === undefined || isNaN(amount)) return 'N/A';
@@ -151,11 +152,15 @@ function EstadoDeCuentaContent({ params }: { params: { id: string } }) {
 
     let texto: string;
     if (waTemplate) {
-      texto = waTemplate
-        .replace(/\{\{NOMBRE\}\}/g, presupuesto.clienteNombre)
-        .replace(/\{\{SALDO\}\}/g, formatCurrency(saldoPendiente))
-        .replace(/\{\{FECHA_EVENTO\}\}/g, formatDate(presupuesto.eventoFecha))
-        .replace(/\{\{LINK\}\}/g, url);
+      // `rellenarPlantilla` limpia los marcadores que queden sin dato: si la
+      // plantilla usa uno que acá no existe, el cliente recibía el marcador
+      // crudo, tipo "el saldo es {{TOTAL}}".
+      texto = rellenarPlantilla(waTemplate, {
+        NOMBRE: presupuesto.clienteNombre,
+        SALDO: formatCurrency(saldoPendiente),
+        FECHA_EVENTO: formatDate(presupuesto.eventoFecha),
+        LINK: url,
+      });
     } else {
       texto =
         `📋 *Estado de Cuenta — ${companyName}*\n` +
