@@ -3,6 +3,7 @@ import fs from 'node:fs';
 import path from 'node:path';
 import { buildAkDemoFiesta } from '../../../src/lib/experience-ak/demo-fiesta-factory';
 import type { FiestaEnPlanificacion } from '../../../src/types/fiesta';
+import { getUruguayParts } from '../../../src/lib/utils';
 
 /**
  * Fiesta de prueba con datos de verdad.
@@ -86,7 +87,9 @@ export function crearFiestaDeEstaNoche(
   opciones: { id?: string; clavePortal?: string; fechaEvento?: string } = {},
 ) {
   const base = buildAkDemoFiesta('tecnologia-total');
-  const hoy = opciones.fechaEvento ?? new Date().toISOString().split('T')[0];
+  const { year, month, day } = getUruguayParts();
+  const fechaHoyUruguay = `${year}-${String(month).padStart(2, '0')}-${String(day).padStart(2, '0')}`;
+  const hoy = opciones.fechaEvento ?? fechaHoyUruguay;
 
   /**
    * Lista de invitados de tamaño real.
