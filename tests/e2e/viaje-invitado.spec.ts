@@ -180,6 +180,27 @@ test.describe('viaje del invitado', () => {
     await expect(page.getByRole('heading', { name: 'Fiesta de prueba automatica' })).toBeVisible();
   });
 
+  test('el invitado que se arrepiente no queda contado dos veces', async ({ page }) => {
+    test.setTimeout(180_000);
+
+    // La gente cancela. Vuelve a entrar por el mismo enlace, pone el mismo
+    // nombre y dice que no va: tiene que actualizar su confirmacion, no crear
+    // un invitado nuevo, y el total de personas tiene que bajar.
+    await page.goto(`/invitacion/${fiesta.id}/rsvp`, { waitUntil: 'domcontentloaded' });
+    await expect(page.getByRole('button', { name: 'Confirmar asistencia' })).toBeVisible({ timeout: 45_000 });
+
+    await page.locator('#nombre').fill(NOMBRE_INVITADO);
+    await page.getByRole('button', { name: '❌ No puedo ir' }).click();
+    await page.getByRole('button', { name: 'Confirmar cancelación' }).click();
+
+    await expect(async () => {
+      const guardado = leerEventoGuardado();
+      const conEseNombre = (guardado?.invitados ?? []).filter((i: any) => i.nombre === NOMBRE_INVITADO);
+      expect(conEseNombre, 'Se creo un invitado duplicado en vez de actualizar el existente').toHaveLength(1);
+      expect(conEseNombre[0].rsvp).toBe('Rechazado');
+    }).toPass({ timeout: 30_000 });
+  });
+
   test('el cliente entra a su portal con su clave y ve a su invitado', async ({ page }) => {
     test.setTimeout(120_000);
 

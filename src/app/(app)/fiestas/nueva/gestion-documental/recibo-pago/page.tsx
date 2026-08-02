@@ -19,6 +19,7 @@ import { getInvoiceById } from '@/app/actions/invoices';
 import { getCompanyInfo, getInvoiceTemplateSettings, getContractTemplate } from '@/app/actions/settings';
 import { Badge } from '@/components/ui/badge';
 import { cn } from '@/lib/utils';
+import { calcularEstadoDeCuenta } from '@/lib/budget/saldo-con-ajuste';
 
 /** Allow only http/https/relative URLs to prevent javascript: or data: URI injection */
 const sanitizeImageUrl = (url: string | null | undefined): string | null => {
@@ -278,7 +279,11 @@ function ReciboPagoContent({ fiestaId }: { fiestaId: string | null }) {
   });
   allPayments.sort((a, b) => new Date(a.paymentDate).getTime() - new Date(b.paymentDate).getTime());
 
-  const costoTotal = presupuesto?.totalConDescuento ?? presupuesto?.costoTotalEstimado ?? 0;
+  // El recibo no sumaba el ajuste anual por inflacion, y el estado de cuenta si.
+  // Con un evento agendado para el ano siguiente, el cliente veia un saldo en el
+  // papel y otro distinto en la pantalla. Ahora los dos usan la misma cuenta.
+  const estadoDeCuenta = calcularEstadoDeCuenta(presupuesto);
+  const costoTotal = estadoDeCuenta.total;
   const totalPagado = allPayments.reduce((sum, p) => sum + p.amount, 0);
   const saldoPendiente = costoTotal - totalPagado;
   const lastPayment = allPayments.length > 0 ? allPayments[allPayments.length - 1] : null;

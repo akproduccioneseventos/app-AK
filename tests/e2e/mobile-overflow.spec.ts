@@ -22,7 +22,13 @@ function createSessionToken() {
 const RUTAS_INTERNAS = ['/admin', '/customers', '/presupuestos', '/eventos', '/pagos-rapidos', '/empresa/menus', '/alertas', '/empresa/contabilidad/reportes',
   '/empresa/menus/tragos', '/fiestas/nueva/reuniones', '/settings/cupones',
   '/settings/notifications', '/settings/whatsapp-business', '/settings/templates/layouts',
-  '/empresa/red-social-eventos', '/fiestas/nueva/decoracion', '/settings/contenido-publico'];
+  '/empresa/red-social-eventos', '/fiestas/nueva/decoracion', '/settings/contenido-publico',
+  // Pantallas que listan mucha gente o muchos ítems: con la fiesta de prueba de
+  // 80 invitados en diez mesas es donde aparecen los desbordes de verdad.
+  '/fiestas/nueva/invitados', '/fiestas/nueva/invitados/layout',
+  '/fiestas/nueva/personal', '/fiestas/nueva/carga-operativa',
+  '/fiestas/nueva/gestion-costos-rentabilidad',
+  '/empresa/insumos', '/empresa/activos-fijos'];
 // El catálogo se muestra en persona, con el cliente al lado: que se corte el
 // botón de avanzar es de lo peor que puede pasar. Va con los cinco tipos.
 const RUTAS_PUBLICAS = ['/', '/simulador-de-presupuesto', '/presentacion-led',
