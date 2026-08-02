@@ -3,7 +3,7 @@
 
 import path from 'path';
 import type { VideoVidaData } from '@/types/fiesta';
-import { getFiestaActual } from '@/app/actions/fiesta-actual';
+import { getFiestaById } from '@/app/actions/fiesta-actual';
 import { saveFiesta } from '@/app/actions/fiesta/fiesta.actions';
 import { uploadToStorage, deleteFromStorage } from '@/lib/firebase/storage';
 import admin from 'firebase-admin';
@@ -24,11 +24,19 @@ type StorageFile = {
   delete: () => Promise<unknown>;
 };
 
+/**
+ * `fiestaId` es obligatorio a proposito: antes esta funcion guardaba siempre en
+ * "la fiesta actual" (la de fecha mas proxima entre todas). Con otra fiesta
+ * agendada mas adelante, los ajustes del video de vida terminaban en el evento
+ * equivocado.
+ */
 export async function updateVideoVidaSettings(
+    fiestaId: string,
     videoVidaData: VideoVidaData
   ): Promise<{ success: boolean; error?: string }> {
   try {
-    const fiesta = await getFiestaActual();
+    const fiesta = await getFiestaById(fiestaId);
+    if (!fiesta) throw new Error('No encontramos la fiesta.');
     const updatedFiesta = {
       ...fiesta,
       videoVida: videoVidaData,
@@ -72,10 +80,12 @@ export async function saveLifeStoryVideoPhoto(
       true
     );
 
-    // Mark photos as uploaded in fiesta data
-    const fiesta = await getFiestaActual();
+    // La marca de "ya subieron fotos" tiene que ir en la fiesta de la foto.
+    // Antes se pedia "la fiesta actual", asi que si habia otra fiesta agendada
+    // mas adelante la marca terminaba en el evento equivocado.
+    const fiesta = await getFiestaById(fiestaId);
     if (fiesta && fiesta.videoVida && !fiesta.videoVida.photosUploaded) {
-      await updateVideoVidaSettings({ ...fiesta.videoVida, photosUploaded: true });
+      await updateVideoVidaSettings(fiestaId, { ...fiesta.videoVida, photosUploaded: true });
     }
 
     return { success: true, url: publicUrl };

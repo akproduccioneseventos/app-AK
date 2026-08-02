@@ -93,13 +93,12 @@ const modules: ModuleDefinition[] = [
 
   // 6. PANTALLA GIGANTE AK
   { id: 'enVivo', title: "Evento en Vivo", href: "en-vivo", icon: Zap, description: "Centro de operaciones para el día de la fiesta.", category: 'PANTALLA GIGANTE AK', color: "bg-primary text-white shadow-xl shadow-primary/30", badge: 'Pantalla' },
-  { id: 'missionControl', title: "Mission Control", href: "mission-control", icon: Activity, description: "Control táctico minuto a minuto en tiempo real.", category: 'PANTALLA GIGANTE AK', color: "bg-indigo-600 text-white shadow-xl shadow-indigo-500/30", badge: 'Pantalla' },
+  { id: 'centroFiesta', title: "Centro de Fiesta", href: "centro", icon: Activity, description: "La pantalla para dirigir la noche: el reloj y el cronograma, cuánta gente llegó, quién trabaja y los accesos a cada herramienta.", category: 'PANTALLA GIGANTE AK', color: "bg-indigo-600 text-white shadow-xl shadow-indigo-500/30", badge: 'Pantalla' },
   { id: 'muroSocial', title: "Muro Social & Pantalla", href: "muro-social", icon: Gamepad2, description: "Mural de fotos, playlist de pantalla, juegos interactivos y configuración de la pantalla gigante.", category: 'PANTALLA GIGANTE AK', color: "bg-violet-100 text-violet-700", badge: 'Pantalla' },
   { id: 'zonaDigital', title: "Zona Digital AK", href: "zona-digital", icon: Sparkles, description: "Retos, juegos, emojis, fotos, redes y experiencias para adolescentes.", category: 'PANTALLA GIGANTE AK', color: "bg-red-50 text-red-700", badge: 'Invitado' },
   { id: 'pantallasTotem', title: "Pantallas Tótem", href: "pantallas-totem", icon: Tv, description: "Tótems personalizados con QR, fotos sincronizadas, fondos en movimiento y modo pista.", category: 'PANTALLA GIGANTE AK', color: "bg-cyan-100 text-cyan-700", badge: 'Pantalla' },
   { id: 'readiness', title: "Readiness Score", href: "readiness", icon: ShieldCheck, description: "Semáforo de preparación del evento.", category: 'PANTALLA GIGANTE AK', color: "bg-emerald-100 text-emerald-700", badge: 'Interno' },
   { id: 'fiestaLista', title: "Fiesta Lista 100%", href: "fiesta-lista", icon: ClipboardCheck, description: "Checklist simple de demo, plantillas y salida a la luz.", category: 'PANTALLA GIGANTE AK', color: "bg-red-600 text-white shadow-xl shadow-red-500/25", badge: 'Interno' },
-  { id: 'centroTotal', title: "Centro Total AK", href: "centro-total", icon: ShieldCheck, description: "Prueba de fiesta, salud, QR unico, post-fiesta, modo vendedor, agente y offline.", category: 'PANTALLA GIGANTE AK', color: "bg-slate-950 text-white shadow-xl shadow-slate-950/25", badge: 'Interno' },
 
   // 7. DISEÑO, SALÓN Y AMBIENTACIÓN
   { id: 'decoracion', title: "Decoración", href: "decoracion", icon: Palette, description: "Estilo, moodboard y ambientación del salón.", category: 'DISEÑO, SALÓN Y AMBIENTACIÓN', color: "bg-pink-100 text-pink-600", badge: 'Interno' },

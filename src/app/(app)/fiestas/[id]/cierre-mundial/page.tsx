@@ -195,7 +195,7 @@ export default async function CierreMundialPage(props: PageProps) {
       <div className="mx-auto max-w-7xl space-y-6">
         <div className="flex flex-wrap items-center justify-between gap-3">
           <Button asChild variant="outline" className="border-slate-200 bg-white/85">
-            <Link href={`/fiestas/${encodeURIComponent(params.id)}/centro-experiencia`}>
+            <Link href={`/fiestas/${encodeURIComponent(params.id)}/centro`}>
               <ArrowLeft className="mr-2 h-4 w-4" />
               Centro experiencia
             </Link>

@@ -42,8 +42,8 @@ export default async function ExperienciaTecnologicaAkPage(props: PageProps) {
       <div className="mx-auto max-w-7xl space-y-6">
         <div className="flex flex-wrap items-center justify-between gap-3">
           <Button asChild variant="outline" className="rounded-2xl bg-white font-bold">
-            <Link href={`/fiestas/${encodeURIComponent(params.id)}/comando-total`}>
-              <ArrowLeft className="mr-2 h-4 w-4" /> Volver al comando
+            <Link href={`/fiestas/${encodeURIComponent(params.id)}/centro`}>
+              <ArrowLeft className="mr-2 h-4 w-4" /> Volver al Centro de Fiesta
             </Link>
           </Button>
           <Badge className="bg-red-600 text-white">Tecnología AK</Badge>

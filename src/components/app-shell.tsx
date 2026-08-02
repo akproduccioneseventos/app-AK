@@ -111,7 +111,7 @@ const getPageTitle = (pathname: string): string => {
   if (pathname === '/fiestas/nueva/pagina-web') return 'Página Pública del Evento';
   if (pathname === '/fiestas/nueva/en-vivo') return 'Evento en Vivo (Táctico)';
   if (pathname === '/fiestas/nueva/readiness') return 'Readiness Score & Riesgos';
-  if (pathname === '/fiestas/nueva/mission-control') return 'Mission Control - Día del Evento';
+  if (pathname === '/fiestas/nueva/centro') return 'Centro de Fiesta';
   if (pathname === '/fiestas/nueva/planner-costo-fiesta') return 'Planificador Gastronómico Integral';
 
   if (pathname === '/multiagente') return 'Multiagente AK';

@@ -33,6 +33,9 @@ Documento vivo. Sirve para no repetir trabajo entre sesiones.
 | 20 | El buzón de recuerdos decía **"Evento no encontrado"** cuando en realidad la estación estaba apagada o el enlace no traía el permiso. Al invitado le hacía pensar que la fiesta no existe. | `evento/buzon/[fiestaId]` | rama pruebas en vivo |
 | 21 | **El enlace de la encuesta se moría solo.** Sólo funcionaba mientras esa fiesta fuera la más reciente. Como la encuesta se manda *después* del evento, para cuando el invitado la abría ya había otra fiesta adelante y el enlace decía "no corresponde al evento actual". Con varias fiestas activas, andaba una sola. | `feedback/[fiestaId]` | rama pruebas en vivo |
 | 22 | La fecha corrida al día anterior aparecía además en el RSVP, la pantalla de cómo llegar, el portal del cliente y **la marca de agua de las fotos** de las cuatro estaciones (fotocabina, espejo mágico, 360 y bogue). | 8 pantallas | rama pruebas en vivo |
+| 23 | **El enlace para subir las fotos del video de vida dejaba de andar** en cuanto había otra fiesta agendada más adelante: la familia recibía "acceso no válido". Y las fotos que sí entraban marcaban "ya subieron fotos" en el evento equivocado, igual que los ajustes del video. | `video-vida` (3 pantallas y 2 acciones) | rama pruebas en vivo |
+| 25 | En el portal del cliente, el botón para **avisar un pago** quedaba habilitado aunque el monto escrito no fuera un número. El cliente lo tocaba, no pasaba nada y no recibía ningún aviso: se quedaba creyendo que ya había informado el pago. | `portal/c/[accessKey]` | rama pruebas en vivo |
+| 24 | Con **dos fiestas vencidas sin archivar**, la pantalla de eventos se salía 204px en celular. Y todos los botones decían igual "Archivar", sin decir cuál. | `eventos` | rama pruebas en vivo |
 
 ### Desborde horizontal en celular
 
@@ -62,6 +65,7 @@ social y decoración.
 
 | Archivo | Qué protege |
 |---|---|
+| `tests/e2e/noche-de-fiesta.spec.ts` (fiesta señuelo) | Que ninguna pantalla vuelva a cargar "la fiesta más próxima" en vez de la del enlace: hay una segunda fiesta agendada a un año, así que la trampa se dispara sola |
 | `tests/e2e/noche-de-fiesta.spec.ts` | Las 27 pantallas que se usan **mientras la fiesta pasa**, con una fiesta de esta noche, invitados confirmados y mesas asignadas: ninguna se cuelga, se vacía, se sale de la pantalla ni tarda más de 12 segundos |
 | `src/__tests__/fecha-evento.test.ts` | Que la fecha de la fiesta no se corra al día anterior |
 | `tests/e2e/viaje-invitado.spec.ts` | El recorrido completo del invitado **con datos de verdad**: confirma, su QR se dibuja, la confirmación queda guardada, el equipo la ve en el Centro de Fiesta y el cliente entra a su portal y la encuentra |
@@ -119,10 +123,18 @@ Ya resuelto: de los "4 simuladores" quedan **2 reales** (el de la web y Sofía) 
 la puerta de entrada. `/simulador-v2` **ya se eliminó**: sólo redirigía, y sus dos
 referencias se apuntaron al simulador real.
 
-Falta decidir:
-- **6 pantallas de presentación** — ¿cuál se usa para mostrar el trabajo?
-- **6 centros de control de fiesta** — se creó uno nuevo y simple; los otros
-  cinco no se tocaron. Probar el nuevo en una fiesta real y archivar los que sobren.
+Ya resuelto también:
+- **Presentación**: se usa el portal LED con los catálogos reales de bodas, XV y
+  celebraciones (PR 825). Las otras láminas de ejemplo quedan de lado.
+- **Fotos del catálogo**: la galería ya tiene más de 100 fotos cargadas, así que
+  el catálogo digital muestra material real y reemplaza al impreso.
+- **Centro de control**: quedaba **uno solo** de seis. Los otros cinco redirigen
+  a él, así que ningún enlace guardado se rompe. Está rehecho para la noche de la
+  fiesta.
+  Muestra cuánto falta para empezar (o cuánto lleva andando), qué toca en este
+  momento y qué sigue según el cronograma, cuánta gente confirmó y cuánta llegó,
+  quién trabaja esa noche con su rol, lo que quedó sin hacer, y recién después
+  los botones a las herramientas.
 
 ### 4. Limpieza del diseño — 🟡 DESBLOQUEADA, primera pasada hecha
 
@@ -213,6 +225,26 @@ cliente la contraseña de su portal. Ya está arreglado y la prueba lo vigila.
 Lo único del recorrido que sigue sin poder probarse acá: **subir una foto al muro
 social**, porque esa parte guarda la imagen en el servicio de archivos de
 Firebase, que no existe en este entorno.
+
+---
+
+### 9. Dos cosas de plata que quedan a decisión del dueño
+
+No las cambié: tocar una fórmula de dinero sin confirmarlo con quien factura es
+peor que dejarla como está. Las dejo anotadas con lo que encontré.
+
+**El ajuste anual no se aplica en todos lados.** La pantalla de estado de cuenta
+suma el ajuste por inflación cuando el contrato está aceptado o facturado. El
+recibo de pago y el saldo que ve el cliente en su portal **no lo suman**. Con un
+contrato con ajuste activo, el cliente ve un saldo menor que el que figura en el
+estado de cuenta. Hay que decidir cuál es el número bueno y usar ese en los tres
+lugares.
+
+**El precio tachado del simulador.** Cuando el cliente elige el Club Uruguay, la
+pantalla muestra el precio tachado al doble y "(50% OFF)". Ese precio tachado no
+sale de ninguna lista: se calcula multiplicando por dos el precio real. Es una
+decisión comercial, no una falla —hay hasta un módulo en el código pensado para
+eso— pero un cliente que compare precios lo puede notar.
 
 ---
 

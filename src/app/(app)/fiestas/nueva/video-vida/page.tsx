@@ -165,9 +165,11 @@ export default function VideoVidaAdminPage() {
   };
   
   const handleSaveSettings = async () => {
-    if (!videoVidaData) return;
+    if (!videoVidaData || !fiesta?.id) return;
     setIsSaving(true);
-    const result = await updateVideoVidaSettings(videoVidaData);
+    // Se manda el id explicito: guardar "en la fiesta actual" hacia que los
+    // ajustes cayeran en el evento equivocado si habia otro mas proximo.
+    const result = await updateVideoVidaSettings(fiesta.id, videoVidaData);
     if(result.success) {
       toast({title: "Configuración Guardada"});
       await loadData(); // Reload to reflect changes like photoCount

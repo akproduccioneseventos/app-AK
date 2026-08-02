@@ -70,9 +70,9 @@ export default async function PortfolioFiestaPage(props: PageProps) {
       ready: Boolean(fiesta.socialGallerySettings || fiesta.eventoEnVivo || fiesta.socialScreenConfig),
     },
     {
-      title: 'Comando total',
+      title: 'Centro de fiesta',
       description: 'Estado completo de la fiesta, faltantes, equipo y sincronizaciones.',
-      href: `/fiestas/${encodeURIComponent(params.id)}/comando-total`,
+      href: `/fiestas/${encodeURIComponent(params.id)}/centro`,
       ready: true,
     },
   ];
@@ -133,9 +133,9 @@ export default async function PortfolioFiestaPage(props: PageProps) {
                 </p>
                 <div className="mt-6 flex flex-wrap gap-3">
                   <Button asChild className="rounded-full bg-white text-slate-950 hover:bg-red-50">
-                    <Link href={`/fiestas/${encodeURIComponent(params.id)}/comando-total`}>
+                    <Link href={`/fiestas/${encodeURIComponent(params.id)}/centro`}>
                       <MonitorPlay className="mr-2 h-4 w-4" />
-                      Comando total
+                      Centro de fiesta
                     </Link>
                   </Button>
                   <Button asChild variant="outline" className="rounded-full border-white/30 bg-white/10 text-white hover:bg-white/20">
