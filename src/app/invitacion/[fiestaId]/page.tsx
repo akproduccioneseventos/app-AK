@@ -15,10 +15,21 @@ export async function generateMetadata(props: PageProps): Promise<Metadata> {
     if (!fiesta) return { title: 'Invitación no encontrada' };
 
     const config = buildInvitacionConfigFromFiesta(fiesta, fiesta.invitacionConfig);
-    const title = config.nombreHomenajeada
-      ? `${TIPO_EVENTO_LABELS[config.tipoEvento]} - ${config.nombreHomenajeada}`
-      : fiesta.configuracion.nombreEvento || 'Invitación Digital';
+
+    // La tarjeta que aparece al pegar el enlace en WhatsApp decia "Evento
+    // Especial - Valentina" para una fiesta llamada "XV de Valentina": se
+    // armaba con una etiqueta generica en vez del nombre real del evento.
+    // Ahora manda el nombre que cargo el equipo, y la etiqueta generica queda
+    // solo para cuando no hay nombre.
+    const etiquetaTipo = TIPO_EVENTO_LABELS[config.tipoEvento];
+    const nombreDelEvento = fiesta.configuracion?.nombreEvento?.trim();
+    const title = nombreDelEvento
+      || (config.nombreHomenajeada ? `${etiquetaTipo} - ${config.nombreHomenajeada}` : 'Invitación Digital');
     const description = config.textoBienvenida || `¡Estás invitado/a a ${title}!`;
+
+    // Sin imagen, WhatsApp muestra el enlace pelado. Si no hay foto de portada
+    // cargada, sirve la del protagonista.
+    const imagen = config.fotoPortada || fiesta.configuracion?.protagonistaFotoUrl || '';
 
     return {
       title,
@@ -27,13 +38,13 @@ export async function generateMetadata(props: PageProps): Promise<Metadata> {
         title,
         description,
         type: 'website',
-        ...(config.fotoPortada ? { images: [{ url: config.fotoPortada, width: 1200, height: 630 }] } : {}),
+        ...(imagen ? { images: [{ url: imagen, width: 1200, height: 630 }] } : {}),
       },
       twitter: {
         card: 'summary_large_image',
         title,
         description,
-        ...(config.fotoPortada ? { images: [config.fotoPortada] } : {}),
+        ...(imagen ? { images: [imagen] } : {}),
       },
     };
   } catch {
