@@ -304,9 +304,21 @@ export default function PublicPortalView({
     reader.readAsDataURL(file);
   };
 
+  /**
+   * Lo que el cliente escribio, convertido a numero.
+   *
+   * Se usa el mismo criterio para habilitar el boton y para enviar. Antes el
+   * boton miraba `parseFloat(pagoMonto)` en crudo: si el cliente escribia algo
+   * que no era un numero, eso daba "no es un numero", la comparacion con cero
+   * daba falso y el boton quedaba habilitado. El cliente lo tocaba, no pasaba
+   * nada y no recibia ningun aviso.
+   */
+  const montoIngresado = Number.parseFloat(String(pagoMonto).replace(/[^\d.]/g, ''));
+  const montoValido = Number.isFinite(montoIngresado) && montoIngresado > 0;
+
   const handleSubmitPago = async () => {
-    const monto = parseFloat(pagoMonto.replace(/[^\d.]/g, ''));
-    if (!monto || monto <= 0) return;
+    const monto = montoIngresado;
+    if (!montoValido) return;
     setPagoSubmitting(true);
     try {
       let base64: string | undefined;
@@ -1954,7 +1966,7 @@ export default function PublicPortalView({
 
             <Button
               onClick={handleSubmitPago}
-              disabled={pagoSubmitting || !pagoMonto || parseFloat(pagoMonto) <= 0}
+              disabled={pagoSubmitting || !montoValido}
               className="w-full h-12 rounded-2xl font-black bg-gradient-to-r from-violet-600 to-primary hover:from-violet-500 hover:to-primary/90"
             >
               {pagoSubmitting ? (

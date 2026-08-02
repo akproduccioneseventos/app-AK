@@ -88,16 +88,31 @@ export function crearFiestaDeEstaNoche(
   const base = buildAkDemoFiesta('tecnologia-total');
   const hoy = opciones.fechaEvento ?? new Date().toISOString().split('T')[0];
 
+  /**
+   * Lista de invitados de tamaño real.
+   *
+   * Con cuatro invitados de prueba, las pantallas que listan gente entraban
+   * siempre y los defectos de ancho no aparecían nunca. Una fiesta de AK tiene
+   * ochenta invitados repartidos en diez mesas, y así se prueba.
+   */
+  const NOMBRES = ['Lucía Fernández', 'Martín Rodríguez', 'Sofía Pereyra', 'Diego Silva'];
+  const RELLENO = Array.from({ length: 76 }, (_, i) => ({
+    nombre: `Invitado de prueba número ${i + 5} con apellido largo`,
+    mesa: String((i % 10) + 1),
+    partySize: (i % 3) + 1,
+  }));
+
   const invitados = [
-    { nombre: 'Lucía Fernández', mesa: '1', partySize: 2 },
-    { nombre: 'Martín Rodríguez', mesa: '1', partySize: 1 },
-    { nombre: 'Sofía Pereyra', mesa: '2', partySize: 3 },
-    { nombre: 'Diego Silva', mesa: '2', partySize: 1 },
+    { nombre: NOMBRES[0], mesa: '1', partySize: 2 },
+    { nombre: NOMBRES[1], mesa: '1', partySize: 1 },
+    { nombre: NOMBRES[2], mesa: '2', partySize: 3 },
+    { nombre: NOMBRES[3], mesa: '2', partySize: 1 },
+    ...RELLENO,
   ].map((g, i) => ({
     id: `inv_prueba_${i}`,
     guestAccessToken: `token-prueba-${i}`,
     nombre: g.nombre,
-    rsvp: 'Confirmado' as const,
+    rsvp: (i < 4 || i % 4 !== 0 ? 'Confirmado' : 'Pendiente') as 'Confirmado' | 'Pendiente',
     categoria: 'Adulto' as const,
     contacto: `09911122${i}`,
     partySize: g.partySize,
