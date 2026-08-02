@@ -26,6 +26,22 @@ const DIETARY_OPTIONS: { value: DietaryRestriction; label: string; emoji: string
   { value: 'Otro', label: 'Otra restricción', emoji: '⚠️' },
 ];
 
+/**
+ * Convierte una falla tecnica en algo que el invitado pueda entender.
+ *
+ * Con el WiFi del salon saturado, la pantalla llegaba a mostrar "Failed to
+ * fetch" en ingles. El invitado no sabe que hacer con eso; con "revisa tu
+ * conexion" sabe que tiene que moverse o esperar.
+ */
+function mensajeParaElInvitado(error: unknown, porDefecto: string) {
+  const texto = error instanceof Error ? error.message : String(error ?? '');
+  const esDeRed = /failed to fetch|network|load failed|fetch failed|timeout|abort/i.test(texto);
+  if (esDeRed || !texto.trim()) {
+    return 'No pudimos cargar los datos. Revisá tu conexión y probá de nuevo en unos segundos.';
+  }
+  return texto.length > 120 ? porDefecto : texto;
+}
+
 function RsvpFormContent() {
   const params = useParams();
   const fiestaId = params.fiestaId as string;
@@ -60,7 +76,7 @@ function RsvpFormContent() {
       if (!data) throw new Error('Evento no encontrado.');
       setFiesta(data);
     } catch (e: any) {
-      setError(e.message || 'No se pudo cargar el evento.');
+      setError(mensajeParaElInvitado(e, 'No se pudo cargar el evento.'));
     } finally {
       setIsLoading(false);
     }

@@ -13,6 +13,22 @@ import NextImage from 'next/image';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 
+/**
+ * Convierte una falla tecnica en algo que el invitado pueda entender.
+ *
+ * Con el WiFi del salon saturado, la pantalla llegaba a mostrar "Failed to
+ * fetch" en ingles. El invitado no sabe que hacer con eso; con "revisa tu
+ * conexion" sabe que tiene que moverse o esperar.
+ */
+function mensajeParaElInvitado(error: unknown, porDefecto: string) {
+  const texto = error instanceof Error ? error.message : String(error ?? '');
+  const esDeRed = /failed to fetch|network|load failed|fetch failed|timeout|abort/i.test(texto);
+  if (esDeRed || !texto.trim()) {
+    return 'No pudimos cargar los datos. Revisá tu conexión y probá de nuevo en unos segundos.';
+  }
+  return texto.length > 120 ? porDefecto : texto;
+}
+
 interface PhotoSlot {
   number: number;
   imageUrl: string | null;
@@ -132,7 +148,7 @@ function VideoVidaClientPageContent({ fiestaId }: { fiestaId: string | null }) {
       setPhotoSlots(slots);
 
     } catch (err: any) {
-      setError(err.message || "No se pudo cargar la página.");
+      setError(mensajeParaElInvitado(err, 'No se pudo cargar la página.'));
     } finally {
       setIsLoading(false);
     }
