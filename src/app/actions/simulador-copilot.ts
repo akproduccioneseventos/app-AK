@@ -204,9 +204,6 @@ const copilotPrompt = ai.definePrompt({
 
 ## MENSAJE DEL USUARIO A RESPONDER:
 {{{message}}}`,
-  config: {
-    temperature: 0.2,
-  },
 });
 
 /**

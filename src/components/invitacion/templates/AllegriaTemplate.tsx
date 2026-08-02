@@ -26,6 +26,7 @@ import { Switch } from '@/components/ui/switch';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { AddToCalendarButton } from '@/components/invitacion/AddToCalendarButton';
 import { EventParticles } from '@/components/invitacion/EventParticles';
+import { EventLocationMap } from '@/components/invitacion/EventLocationMap';
 
 interface TemplateProps {
   fiesta: FiestaEnPlanificacion;
@@ -313,11 +314,12 @@ export const AllegriaTemplate: React.FC<TemplateProps> = ({
                                         <span>{detalle.nombreLugar}</span>
                                     </div>
                                 </div>
-                                {detalle.mapaUrl && /^https?:\/\//i.test(detalle.mapaUrl) && (
-                                  <Button asChild className="w-full h-12 sm:h-16 md:h-20 rounded-2xl md:rounded-[2rem] text-sm sm:text-lg md:text-xl font-black shadow-2xl shadow-primary/30" style={{ backgroundColor: primaryColor }}>
-                                      <a href={detalle.mapaUrl} target="_blank" rel="noopener noreferrer">VER UBICACIÓN</a>
-                                  </Button>
-                                )}
+                                <EventLocationMap
+                                  address={detalle.direccionLugar}
+                                  venueName={detalle.nombreLugar}
+                                  mapsUrl={detalle.mapaUrl}
+                                  primaryColor={primaryColor}
+                                />
                                 {(detalle.fecha || fiesta.configuracion.fechaEvento) && (
                                   <div className="flex justify-center">
                                     <AddToCalendarButton

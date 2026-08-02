@@ -54,6 +54,7 @@ export interface GoogleWorkspaceDashboard {
   syncedFiestas: number;
   pendingFiestas: number;
   lastSyncedAt?: string;
+  contactsEnabled: boolean;
 }
 
 export interface GoogleTokenResponse {

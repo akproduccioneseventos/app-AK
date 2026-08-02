@@ -25,9 +25,6 @@ const prompt = ai.definePrompt({
   model: geminiModel,
   input: { schema: ExtractContractInputSchema },
   output: { schema: ExtractContractOutputSchema },
-  config: {
-    temperature: 0,
-  },
   prompt: `Actúa como un asistente experto de AK Producciones. Tu misión es extraer datos de un presupuesto o contrato que puede tener varias páginas.
 
     GUÍA DE EXTRACCIÓN ESPECÍFICA PARA EL FORMATO VISUAL ADJUNTO:

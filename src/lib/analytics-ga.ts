@@ -1,9 +1,9 @@
-﻿export const GA_MEASUREMENT_ID = process.env.NEXT_PUBLIC_GA_MEASUREMENT_ID || 'G-AKPRODUCCIONES2026';
+export const GA_MEASUREMENT_ID = process.env.NEXT_PUBLIC_GA_MEASUREMENT_ID?.trim() || '';
 
 declare global {
   interface Window {
     gtag?: (
-      command: 'config' | 'event' | 'js',
+      command: 'config' | 'consent' | 'event' | 'js',
       targetId: string,
       config?: Record<string, any>
     ) => void;
@@ -11,9 +11,7 @@ declare global {
   }
 }
 
-/**
- * Tracks custom marketing events in Google Analytics (GA4).
- */
+/** Tracks custom marketing events when public measurement has been accepted. */
 export function trackGaEvent(
   action: string,
   params: {
