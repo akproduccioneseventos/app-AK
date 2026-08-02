@@ -551,15 +551,18 @@ export default function GestorFiestasPage() {
                 </p>
                 <div className="space-y-1">
                   {fiestas.map(f => (
-                    <div key={f.id} className="flex items-center justify-between">
-                      <div>
-                        <span className="text-sm font-semibold text-slate-700">{f.configuracion.nombreEvento}</span>
-                        <span className="text-xs text-slate-400 ml-2">
+                    // `min-w-0` y `gap-2`: sin esto, un nombre de evento largo
+                    // junto al salon empujaba la fila fuera de la pantalla en un
+                    // celular, igual que pasaba con los botones de archivar.
+                    <div key={f.id} className="flex items-center justify-between gap-2">
+                      <div className="min-w-0">
+                        <span className="block truncate text-sm font-semibold text-slate-700">{f.configuracion.nombreEvento}</span>
+                        <span className="block truncate text-xs text-slate-400">
                           {f.configuracion.horaInicio && `${f.configuracion.horaInicio}hs`}
                           {f.configuracion.nombreLugar && ` · ${f.configuracion.nombreLugar}`}
                         </span>
                       </div>
-                      <Button asChild size="sm" variant="outline" className="text-xs h-7 border-red-200 text-red-700 hover:bg-red-100"><Link href={`/fiestas/nueva?fiestaId=${f.id}`}>
+                      <Button asChild size="sm" variant="outline" className="h-7 shrink-0 border-red-200 text-xs text-red-700 hover:bg-red-100"><Link href={`/fiestas/nueva?fiestaId=${f.id}`}>
                           Ver evento
                         </Link></Button>
                     </div>
