@@ -166,3 +166,27 @@ export function borrarOpinionesDePrueba() {
     }
   }
 }
+
+/**
+ * Quita del CRM los prospectos que dejó la prueba del simulador.
+ *
+ * El simulador registra el avance del visitante paso a paso, así que la prueba
+ * crea un prospecto de verdad aunque nunca llegue a generar el presupuesto. Sin
+ * esto, queda gente inventada mezclada con los prospectos reales del negocio.
+ */
+export function borrarProspectosDePrueba() {
+  for (const carpeta of ['data', path.join('src', 'data')]) {
+    const archivo = path.join(process.cwd(), carpeta, 'crm-leads.json');
+    if (!fs.existsSync(archivo)) continue;
+    try {
+      const leads = JSON.parse(fs.readFileSync(archivo, 'utf8'));
+      if (!Array.isArray(leads)) continue;
+      const limpios = leads.filter((l: any) => !String(l?.name ?? '').startsWith('Prospecto de prueba'));
+      if (limpios.length !== leads.length) {
+        fs.writeFileSync(archivo, `${JSON.stringify(limpios, null, 2)}\n`);
+      }
+    } catch {
+      // Si el archivo no se puede leer, no es la prueba quien tiene que arreglarlo.
+    }
+  }
+}

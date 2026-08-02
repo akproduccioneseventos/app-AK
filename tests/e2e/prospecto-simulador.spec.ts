@@ -1,4 +1,5 @@
 import { expect, test } from '@playwright/test';
+import { borrarProspectosDePrueba } from './helpers/fiesta-de-prueba';
 
 /**
  * El recorrido del que todavía no es cliente.
@@ -13,6 +14,13 @@ import { expect, test } from '@playwright/test';
  */
 
 const NOMBRE = 'Prospecto de prueba';
+
+// El simulador registra el avance paso a paso, así que el recorrido crea un
+// prospecto de verdad. Se borra al terminar: el CRM es del negocio, no de las
+// pruebas.
+test.afterAll(() => {
+  borrarProspectosDePrueba();
+});
 const TELEFONO = '099 123 456';
 
 test.describe('recorrido del prospecto', () => {
