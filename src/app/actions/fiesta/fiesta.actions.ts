@@ -739,7 +739,7 @@ export async function syncFiestaFromBudget(fiestaId: string) {
         nombreEvento: `${presupuesto.eventoTipo} de ${
             presupuesto.protagonista1Nombre
                 ? (presupuesto.protagonista2Nombre ? `${presupuesto.protagonista1Nombre} y ${presupuesto.protagonista2Nombre}` : presupuesto.protagonista1Nombre)
-                : (presupuesto.eventoTipo === 'XV años' ? 'la Quinceañera' : (presupuesto.eventoTipo === 'Boda' ? 'los Novios' : 'el Agasajado'))
+                : presupuesto.clienteNombre ? presupuesto.clienteNombre : (presupuesto.eventoTipo === 'XV años' ? 'la Quinceañera' : (presupuesto.eventoTipo === 'Boda' ? 'los Novios' : 'el Agasajado'))
         }`,
         fechaEvento: presupuesto.eventoFecha,
         invitadosEstimados: guests,

@@ -3,7 +3,9 @@
 import { readData, writeData } from '@/lib/data-service';
 import type { Coupon, CouponUsage, CouponValidationResult } from '@/types/coupon';
 import { requireAppSession } from '@/lib/auth/require-session';
+import { AsyncMutex } from '@/lib/mutex';
 
+const cuponMutex = new AsyncMutex();
 const CUPONES_FILE = 'cupones.json';
 const CUPONES_USAGE_FILE = 'cupones-usage.json';
 
@@ -28,73 +30,75 @@ export async function saveCupon(
 ): Promise<{ success: boolean; error?: string; cupon?: Coupon }> {
   await requireAppSession();
   try {
-    let cupones = await getCupones();
+    return await cuponMutex.runExclusive(async () => {
+      let cupones = await getCupones();
 
-    // Validaciones
-    if (!data.codigo || data.codigo.trim() === '') {
-      return { success: false, error: 'El código del cupón es obligatorio.' };
-    }
-    if (!data.nombre || data.nombre.trim() === '') {
-      return { success: false, error: 'El nombre del cupón es obligatorio.' };
-    }
-    const valor = Number(data.valor);
-    if (isNaN(valor) || valor <= 0) {
-      return { success: false, error: 'El valor del cupón debe ser un número válido mayor a cero.' };
-    }
-    if (data.tipo === 'porcentaje' && valor > 100) {
-      return { success: false, error: 'El porcentaje no puede ser mayor a 100%.' };
-    }
+      // Validaciones
+      if (!data.codigo || data.codigo.trim() === '') {
+        return { success: false, error: 'El código del cupón es obligatorio.' };
+      }
+      if (!data.nombre || data.nombre.trim() === '') {
+        return { success: false, error: 'El nombre del cupón es obligatorio.' };
+      }
+      const valor = Number(data.valor);
+      if (isNaN(valor) || valor <= 0) {
+        return { success: false, error: 'El valor del cupón debe ser un número válido mayor a cero.' };
+      }
+      if (data.tipo === 'porcentaje' && valor > 100) {
+        return { success: false, error: 'El porcentaje no puede ser mayor a 100%.' };
+      }
 
-    const codigoNorm = data.codigo.trim().toUpperCase();
+      const codigoNorm = data.codigo.trim().toUpperCase();
 
-    if (data.id) {
-      // Editar existente
-      const idx = cupones.findIndex(c => c.id === data.id);
-      if (idx === -1) return { success: false, error: 'Cupón no encontrado.' };
+      if (data.id) {
+        // Editar existente
+        const idx = cupones.findIndex(c => c.id === data.id);
+        if (idx === -1) return { success: false, error: 'Cupón no encontrado.' };
 
-      // Verificar código duplicado (excluyendo el actual)
-      const duplicado = cupones.find(c => c.codigo === codigoNorm && c.id !== data.id);
-      if (duplicado) return { success: false, error: `Ya existe un cupón con el código "${codigoNorm}".` };
+        // Verificar código duplicado (excluyendo el actual)
+        const duplicado = cupones.find(c => c.codigo === codigoNorm && c.id !== data.id);
+        if (duplicado) return { success: false, error: `Ya existe un cupón con el código "${codigoNorm}".` };
 
-      cupones[idx] = {
-        ...cupones[idx],
-        ...data,
-        codigo: codigoNorm,
-        actualizadoEn: new Date().toISOString(),
-      };
+        cupones[idx] = {
+          ...cupones[idx],
+          ...data,
+          codigo: codigoNorm,
+          actualizadoEn: new Date().toISOString(),
+        };
 
-      await writeData(CUPONES_FILE, cupones);
-      return { success: true, cupon: cupones[idx] };
-    } else {
-      // Crear nuevo
-      const duplicado = cupones.find(c => c.codigo === codigoNorm);
-      if (duplicado) return { success: false, error: `Ya existe un cupón con el código "${codigoNorm}".` };
+        await writeData(CUPONES_FILE, cupones);
+        return { success: true, cupon: cupones[idx] };
+      } else {
+        // Crear nuevo
+        const duplicado = cupones.find(c => c.codigo === codigoNorm);
+        if (duplicado) return { success: false, error: `Ya existe un cupón con el código "${codigoNorm}".` };
 
-      const nuevo: Coupon = {
-        id: `cup_${Date.now()}_${Math.random().toString(36).substring(2, 7)}`,
-        codigo: codigoNorm,
-        nombre: data.nombre.trim(),
-        descripcion: data.descripcion?.trim() || undefined,
-        tipo: data.tipo,
-        valor: data.valor,
-        fechaInicio: data.fechaInicio,
-        fechaFin: data.fechaFin,
-        usosMaximos: Number(data.usosMaximos) || 0,
-        usosActuales: 0,
-        activo: data.activo ?? true,
-        tipoEvento: data.tipoEvento || undefined,
-        montoMinimo: data.montoMinimo || undefined,
-        creadoPor: data.creadoPor || 'Admin',
-        creadoEn: new Date().toISOString(),
-        esRegalo: data.esRegalo || undefined,
-        serviciosRegalados: data.serviciosRegalados?.length ? data.serviciosRegalados : undefined,
-        mensajeOferta: data.mensajeOferta || undefined,
-      };
+        const nuevo: Coupon = {
+          id: `cup_${Date.now()}_${Math.random().toString(36).substring(2, 7)}`,
+          codigo: codigoNorm,
+          nombre: data.nombre.trim(),
+          descripcion: data.descripcion?.trim() || undefined,
+          tipo: data.tipo,
+          valor: data.valor,
+          fechaInicio: data.fechaInicio,
+          fechaFin: data.fechaFin,
+          usosMaximos: Number(data.usosMaximos) || 0,
+          usosActuales: 0,
+          activo: data.activo ?? true,
+          tipoEvento: data.tipoEvento || undefined,
+          montoMinimo: data.montoMinimo || undefined,
+          creadoPor: data.creadoPor || 'Admin',
+          creadoEn: new Date().toISOString(),
+          esRegalo: data.esRegalo || undefined,
+          serviciosRegalados: data.serviciosRegalados?.length ? data.serviciosRegalados : undefined,
+          mensajeOferta: data.mensajeOferta || undefined,
+        };
 
-      cupones.push(nuevo);
-      await writeData(CUPONES_FILE, cupones);
-      return { success: true, cupon: nuevo };
-    }
+        cupones.push(nuevo);
+        await writeData(CUPONES_FILE, cupones);
+        return { success: true, cupon: nuevo };
+      }
+    });
   } catch (error: any) {
     console.error('Error guardando cupón:', error);
     return { success: false, error: error.message || 'Error al guardar el cupón.' };
@@ -104,14 +108,16 @@ export async function saveCupon(
 export async function toggleCuponActivo(id: string): Promise<{ success: boolean; error?: string }> {
   await requireAppSession();
   try {
-    const cupones = await getCupones();
-    const idx = cupones.findIndex(c => c.id === id);
-    if (idx === -1) return { success: false, error: 'Cupón no encontrado.' };
+    return await cuponMutex.runExclusive(async () => {
+      const cupones = await getCupones();
+      const idx = cupones.findIndex(c => c.id === id);
+      if (idx === -1) return { success: false, error: 'Cupón no encontrado.' };
 
-    cupones[idx].activo = !cupones[idx].activo;
-    cupones[idx].actualizadoEn = new Date().toISOString();
-    await writeData(CUPONES_FILE, cupones);
-    return { success: true };
+      cupones[idx].activo = !cupones[idx].activo;
+      cupones[idx].actualizadoEn = new Date().toISOString();
+      await writeData(CUPONES_FILE, cupones);
+      return { success: true };
+    });
   } catch (error: any) {
     return { success: false, error: error.message };
   }
@@ -120,10 +126,12 @@ export async function toggleCuponActivo(id: string): Promise<{ success: boolean;
 export async function deleteCupon(id: string): Promise<{ success: boolean; error?: string }> {
   await requireAppSession();
   try {
-    let cupones = await getCupones();
-    cupones = cupones.filter(c => c.id !== id);
-    await writeData(CUPONES_FILE, cupones);
-    return { success: true };
+    return await cuponMutex.runExclusive(async () => {
+      let cupones = await getCupones();
+      cupones = cupones.filter(c => c.id !== id);
+      await writeData(CUPONES_FILE, cupones);
+      return { success: true };
+    });
   } catch (error: any) {
     return { success: false, error: error.message };
   }
@@ -232,30 +240,32 @@ export async function registrarUsoCupon(
 ): Promise<{ success: boolean; error?: string }> {
   await requireAppSession();
   try {
-    // Incrementar usos del cupón
-    const cupones = await getCupones();
-    const idx = cupones.findIndex(c => c.id === couponId);
-    if (idx === -1) return { success: false, error: 'Cupón no encontrado.' };
+    return await cuponMutex.runExclusive(async () => {
+      // Incrementar usos del cupón
+      const cupones = await getCupones();
+      const idx = cupones.findIndex(c => c.id === couponId);
+      if (idx === -1) return { success: false, error: 'Cupón no encontrado.' };
 
-    cupones[idx].usosActuales += 1;
-    cupones[idx].actualizadoEn = new Date().toISOString();
-    await writeData(CUPONES_FILE, cupones);
+      cupones[idx].usosActuales += 1;
+      cupones[idx].actualizadoEn = new Date().toISOString();
+      await writeData(CUPONES_FILE, cupones);
 
-    // Registrar uso
-    const usages = await readData<CouponUsage[]>(CUPONES_USAGE_FILE, []);
-    usages.push({
-      id: `cupu_${Date.now()}`,
-      couponId,
-      codigoCupon: cupones[idx].codigo,
-      presupuestoId,
-      clienteNombre,
-      montoDescuento,
-      montoPresupuesto,
-      fechaUso: new Date().toISOString(),
+      // Registrar uso
+      const usages = await readData<CouponUsage[]>(CUPONES_USAGE_FILE, []);
+      usages.push({
+        id: `cupu_${Date.now()}`,
+        couponId,
+        codigoCupon: cupones[idx].codigo,
+        presupuestoId,
+        clienteNombre,
+        fechaUso: new Date().toISOString(),
+        montoDescuento,
+        montoPresupuesto
+      });
+      await writeData(CUPONES_USAGE_FILE, usages);
+
+      return { success: true };
     });
-    await writeData(CUPONES_USAGE_FILE, usages);
-
-    return { success: true };
   } catch (error: any) {
     return { success: false, error: error.message };
   }

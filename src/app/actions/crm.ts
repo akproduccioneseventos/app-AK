@@ -28,6 +28,9 @@ import {
 } from '@/lib/google-workspace';
 import type { GoogleWorkspaceAccount } from '@/types/google-workspace';
 
+import { AsyncMutex } from '@/lib/mutex';
+
+const crmMutex = new AsyncMutex();
 const LEADS_FILE = 'crm-leads.json';
 const STAGES_FILE = 'crm-stages.json';
 const GOOGLE_ACCOUNTS_FILE = '_google-workspace-accounts.json';
@@ -56,8 +59,10 @@ async function createCrmLeadDocument(newLead: CrmLead, knownLeads?: CrmLead[]): 
     });
     return;
   }
-  const leads = knownLeads ?? await readData<CrmLead[]>(LEADS_FILE, []);
-  await writeData(LEADS_FILE, [...leads, newLead]);
+  await crmMutex.runExclusive(async () => {
+    const leads = knownLeads ?? await readData<CrmLead[]>(LEADS_FILE, []);
+    await writeData(LEADS_FILE, [...leads, newLead]);
+  });
 }
 
 async function mutateCrmLeadDocument(
@@ -82,12 +87,14 @@ async function mutateCrmLeadDocument(
     return updated;
   }
 
-  const leads = await readData<CrmLead[]>(LEADS_FILE, []);
-  const index = leads.findIndex((lead) => lead.id === leadId);
-  if (index === -1) return null;
-  leads[index] = mutate(leads[index]);
-  await writeData(LEADS_FILE, leads);
-  return leads[index];
+  return crmMutex.runExclusive(async () => {
+    const leads = await readData<CrmLead[]>(LEADS_FILE, []);
+    const index = leads.findIndex((lead) => lead.id === leadId);
+    if (index === -1) return null;
+    leads[index] = mutate(leads[index]);
+    await writeData(LEADS_FILE, leads);
+    return leads[index];
+  });
 }
 
 async function deleteCrmLeadDocument(leadId: string): Promise<boolean> {
@@ -99,11 +106,13 @@ async function deleteCrmLeadDocument(leadId: string): Promise<boolean> {
     await ref.delete();
     return true;
   }
-  const leads = await readData<CrmLead[]>(LEADS_FILE, []);
-  const next = leads.filter((lead) => lead.id !== leadId);
-  if (next.length === leads.length) return false;
-  await writeData(LEADS_FILE, next);
-  return true;
+  return crmMutex.runExclusive(async () => {
+    const leads = await readData<CrmLead[]>(LEADS_FILE, []);
+    const next = leads.filter((lead) => lead.id !== leadId);
+    if (next.length === leads.length) return false;
+    await writeData(LEADS_FILE, next);
+    return true;
+  });
 }
 
 const MIN_NAME_LENGTH_FOR_PARTIAL_MATCH = 6;
