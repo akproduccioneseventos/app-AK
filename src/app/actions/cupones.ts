@@ -37,10 +37,11 @@ export async function saveCupon(
     if (!data.nombre || data.nombre.trim() === '') {
       return { success: false, error: 'El nombre del cupón es obligatorio.' };
     }
-    if (data.valor <= 0) {
-      return { success: false, error: 'El valor del cupón debe ser mayor a cero.' };
+    const valor = Number(data.valor);
+    if (isNaN(valor) || valor <= 0) {
+      return { success: false, error: 'El valor del cupón debe ser un número válido mayor a cero.' };
     }
-    if (data.tipo === 'porcentaje' && data.valor > 100) {
+    if (data.tipo === 'porcentaje' && valor > 100) {
       return { success: false, error: 'El porcentaje no puede ser mayor a 100%.' };
     }
 
@@ -78,7 +79,7 @@ export async function saveCupon(
         valor: data.valor,
         fechaInicio: data.fechaInicio,
         fechaFin: data.fechaFin,
-        usosMaximos: data.usosMaximos || 0,
+        usosMaximos: Number(data.usosMaximos) || 0,
         usosActuales: 0,
         activo: data.activo ?? true,
         tipoEvento: data.tipoEvento || undefined,
@@ -151,58 +152,73 @@ export async function validarCupon(
   montoPresupuesto: number,
   tipoEvento?: string
 ): Promise<CouponValidationResult> {
-  if (!codigo || codigo.trim() === '') {
-    return { valid: false, error: 'Ingresa un código de cupón.' };
+  try {
+    if (!codigo || codigo.trim() === '') {
+      return { valid: false, error: 'Ingresa un código de cupón.' };
+    }
+
+    const monto = Number(montoPresupuesto);
+    if (isNaN(monto) || monto < 0) {
+      return { valid: false, error: 'El monto del presupuesto debe ser un número válido.' };
+    }
+
+    const cupones = await getCupones();
+    const cupon = cupones.find(c => c.codigo === codigo.trim().toUpperCase());
+
+    if (!cupon) {
+      return { valid: false, error: 'Código de cupón no válido.' };
+    }
+
+    if (!cupon.activo) {
+      return { valid: false, error: 'Este cupón está desactivado.' };
+    }
+
+    const ahora = new Date();
+    const inicio = new Date(cupon.fechaInicio);
+    const fin = new Date(cupon.fechaFin);
+
+    if (isNaN(inicio.getTime()) || isNaN(fin.getTime())) {
+      return { valid: false, error: 'Las fechas del cupón no son válidas.' };
+    }
+
+    fin.setHours(23, 59, 59, 999); // Include the full last day
+
+    if (ahora < inicio) {
+      return { valid: false, error: 'Este cupón aún no está vigente.' };
+    }
+    if (ahora > fin) {
+      return { valid: false, error: 'Este cupón ha expirado.' };
+    }
+
+    if (cupon.usosMaximos > 0 && cupon.usosActuales >= cupon.usosMaximos) {
+      return { valid: false, error: 'Este cupón ya alcanzó el límite de usos.' };
+    }
+
+    if (cupon.tipoEvento && tipoEvento && cupon.tipoEvento !== tipoEvento) {
+      return { valid: false, error: `Este cupón solo aplica para eventos de tipo "${cupon.tipoEvento}".` };
+    }
+
+    if (cupon.montoMinimo && monto < cupon.montoMinimo) {
+      return { valid: false, error: `El monto mínimo para usar este cupón es $${cupon.montoMinimo.toLocaleString()}.` };
+    }
+
+    // Calcular descuento
+    let descuentoCalculado = 0;
+    if (cupon.tipo === 'porcentaje') {
+      descuentoCalculado = Math.round((monto * (Number(cupon.valor) || 0)) / 100);
+    } else {
+      descuentoCalculado = Math.min(Number(cupon.valor) || 0, monto); // No puede ser mayor al monto
+    }
+
+    return {
+      valid: true,
+      coupon: cupon,
+      descuentoCalculado,
+    };
+  } catch (error) {
+    console.error('Error en validarCupon:', error);
+    return { valid: false, error: 'Ocurrió un error al validar el cupón.' };
   }
-
-  const cupones = await getCupones();
-  const cupon = cupones.find(c => c.codigo === codigo.trim().toUpperCase());
-
-  if (!cupon) {
-    return { valid: false, error: 'Código de cupón no válido.' };
-  }
-
-  if (!cupon.activo) {
-    return { valid: false, error: 'Este cupón está desactivado.' };
-  }
-
-  const ahora = new Date();
-  const inicio = new Date(cupon.fechaInicio);
-  const fin = new Date(cupon.fechaFin);
-  fin.setHours(23, 59, 59, 999); // Include the full last day
-
-  if (ahora < inicio) {
-    return { valid: false, error: 'Este cupón aún no está vigente.' };
-  }
-  if (ahora > fin) {
-    return { valid: false, error: 'Este cupón ha expirado.' };
-  }
-
-  if (cupon.usosMaximos > 0 && cupon.usosActuales >= cupon.usosMaximos) {
-    return { valid: false, error: 'Este cupón ya alcanzó el límite de usos.' };
-  }
-
-  if (cupon.tipoEvento && tipoEvento && cupon.tipoEvento !== tipoEvento) {
-    return { valid: false, error: `Este cupón solo aplica para eventos de tipo "${cupon.tipoEvento}".` };
-  }
-
-  if (cupon.montoMinimo && montoPresupuesto < cupon.montoMinimo) {
-    return { valid: false, error: `El monto mínimo para usar este cupón es $${cupon.montoMinimo.toLocaleString()}.` };
-  }
-
-  // Calcular descuento
-  let descuentoCalculado = 0;
-  if (cupon.tipo === 'porcentaje') {
-    descuentoCalculado = Math.round((montoPresupuesto * cupon.valor) / 100);
-  } else {
-    descuentoCalculado = Math.min(cupon.valor, montoPresupuesto); // No puede ser mayor al monto
-  }
-
-  return {
-    valid: true,
-    coupon: cupon,
-    descuentoCalculado,
-  };
 }
 
 // ===== REGISTRAR USO =====
@@ -257,7 +273,7 @@ export async function getCuponStats(couponId: string): Promise<{
 
   return {
     totalUsos: cuponUsages.length,
-    totalDescuento: cuponUsages.reduce((sum, u) => sum + u.montoDescuento, 0),
+    totalDescuento: cuponUsages.reduce((sum, u) => sum + (Number(u.montoDescuento) || 0), 0),
     usos: cuponUsages,
   };
 }

@@ -1,4 +1,4 @@
-﻿
+
 import type { Invoice } from '@/types/invoice';
 import { TableRow, TableCell } from '@/components/ui/table';
 import { Button } from '@/components/ui/button';
@@ -40,9 +40,9 @@ export function InvoiceListItem({
   const formatDate = (dateString: string) => {
     try {
       const d = new Date(dateString);
-      if (isNaN(d.getTime())) return 'Fecha invÃ¡lida';
+      if (isNaN(d.getTime())) return 'Fecha inválida';
       return d.toLocaleDateString('es-ES', { day: '2-digit', month: '2-digit', year: 'numeric', timeZone: 'UTC' });
-    } catch { return "Fecha invÃ¡lida"; }
+    } catch { return "Fecha inválida"; }
   };
 
   const formatCurrency = (amount: number, currency: string = 'UYU') => {
@@ -100,14 +100,14 @@ export function InvoiceListItem({
             </AlertDialogTrigger>
             <AlertDialogContent>
               <AlertDialogHeader>
-                <AlertDialogTitle>Â¿Confirmas la eliminaciÃ³n?</AlertDialogTitle>
-                <AlertDialogDescription>La factura "{invoice.invoiceNumber}" serÃ¡ eliminada. Esta acciÃ³n no se puede deshacer.</AlertDialogDescription>
+                <AlertDialogTitle>¿Confirmas la eliminación?</AlertDialogTitle>
+                <AlertDialogDescription>La factura "{invoice.invoiceNumber}" será eliminada. Esta acción no se puede deshacer.</AlertDialogDescription>
               </AlertDialogHeader>
               <AlertDialogFooter>
                 <AlertDialogCancel disabled={isDeleting}>Cancelar</AlertDialogCancel>
                 <AlertDialogAction onClick={() => onDelete(invoice.id, invoice.invoiceNumber)} disabled={isDeleting} className="bg-destructive hover:bg-destructive/90">
                   {isDeleting ? <Loader2 className="w-4 h-4 mr-2 animate-spin" /> : null}
-                  SÃ­, eliminar
+                  Sí, eliminar
                 </AlertDialogAction>
               </AlertDialogFooter>
             </AlertDialogContent>

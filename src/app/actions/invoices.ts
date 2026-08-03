@@ -1,4 +1,4 @@
-﻿'use server';
+'use server';
 
 import type { Invoice, InvoiceItem, Payment } from '@/types/invoice';
 import type { Presupuesto } from '@/types/presupuesto';
@@ -359,7 +359,7 @@ export async function deleteInvoice(id: string, linkedFiestaId?: string): Promis
       const unlinkResult = await removeInvoiceId(linkedFiestaId, id);
       if (!unlinkResult.success) {
         await writeData(INVOICES_FILE, originalInvoices);
-        return { success: false, error: 'No se pudo desvincular la factura del evento. La eliminaciÃ³n fue revertida.' };
+        return { success: false, error: 'No se pudo desvincular la factura del evento. La eliminación fue revertida.' };
       }
     }
   } catch (writeError: any) {
@@ -369,7 +369,7 @@ export async function deleteInvoice(id: string, linkedFiestaId?: string): Promis
         await writeData(INVOICES_FILE, originalInvoices);
       } catch (rollbackError) {
         console.error('Error restoring invoice after unlink failure:', rollbackError);
-        return { success: false, error: 'La factura quedÃ³ en un estado inconsistente. RecargÃ¡ y no repitas la operaciÃ³n.' };
+        return { success: false, error: 'La factura quedó en un estado inconsistente. Recargá y no repitas la operación.' };
       }
     }
     return { success: false, error: writeError.message || 'Error al eliminar la factura.' };

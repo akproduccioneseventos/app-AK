@@ -320,14 +320,14 @@ export async function scheduleCrmMeeting(leadId: string, date: string, title?: s
         ...current,
         followUpDate: normalizedDate,
         updatedAt: now,
-        ...(title ? { notes: `${existingNotes}\n[REUNIÓN AGENDADA: ${meetingTitle} para el ${parsedDate.toLocaleString('es-ES')}]`.trim() } : {}),
+        ...(title ? { notes: `${existingNotes}\n[REUNIÓN AGENDADA: ${meetingTitle} para el ${parsedDate.toLocaleString('es-ES', { timeZone: 'America/Montevideo' })}]`.trim() } : {}),
         timeline: [
           ...(current.timeline || []),
           {
             id: `tl_meeting_${Date.now()}`,
             type: 'meeting_scheduled',
             timestamp: now,
-            description: `${meetingTitle}: ${parsedDate.toLocaleString('es-ES')}`,
+            description: `${meetingTitle}: ${parsedDate.toLocaleString('es-ES', { timeZone: 'America/Montevideo' })}`,
           },
         ],
       };
@@ -338,6 +338,7 @@ export async function scheduleCrmMeeting(leadId: string, date: string, title?: s
 export async function deleteCrmLead(leadId: string): Promise<{ success: boolean; error?: string }> {
     const auth = await verifySession();
     if (!auth.success) return { success: false, error: auth.error };
+    if (auth.user?.role !== 'admin') return { success: false, error: 'Solo administradores pueden eliminar leads.' };
     return await deleteCrmLeadDocument(leadId)
       ? { success: true }
       : { success: false, error: 'No encontrado' };
@@ -393,7 +394,7 @@ export async function recordWhatsAppOpened(leadId: string, message: string): Pro
     const auth = await verifySession();
     if (!auth.success) return { success: false, error: auth.error };
     const now = new Date().toISOString();
-    const noteEntry = `[WhatsApp abierto ${new Date(now).toLocaleString('es-ES')}]: ${message.slice(0, 120)}${message.length > 120 ? '…' : ''}`;
+    const noteEntry = `[WhatsApp abierto ${new Date(now).toLocaleString('es-ES', { timeZone: 'America/Montevideo' })}]: ${message.slice(0, 120)}${message.length > 120 ? '…' : ''}`;
     const timelineEntry: CrmTimelineItem = {
         id: `tl_${Date.now()}`,
         type: 'whatsapp_opened',
@@ -467,7 +468,7 @@ export async function registerContractDeposit(params: {
   const updatedPresupuesto: Presupuesto = normalizePresupuestoFinancials({
     ...presupuesto,
     pagosCliente: updatedPagosCliente,
-    senia: roundMoney((presupuesto.senia ?? 0) + normalizedAmount),
+    senia: roundMoney((Number(presupuesto.senia) || 0) + (Number(normalizedAmount) || 0)),
   }, { preserveStoredTotal: true });
 
   // Sync invoice payments if invoice exists
@@ -805,7 +806,7 @@ export async function getCrmKpiData() {
     const activeLeads = leads.filter(l => l.currentStageId !== 's4' && l.currentStageId !== 's5');
     const pipelineValue = (presupuestos || [])
         .filter(p => activeLeads.some(l => l.presupuestoId === p.id))
-        .reduce((sum, p) => sum + ((p.totalConDescuento ?? p.costoTotalEstimado) ?? 0), 0);
+        .reduce((sum, p) => sum + (Number(p.totalConDescuento ?? p.costoTotalEstimado) || 0), 0);
 
     const wonCount = leads.filter(l => l.currentStageId === 's4').length;
     const lostCount = leads.filter(l => l.currentStageId === 's5').length;
@@ -839,7 +840,7 @@ export async function getCrmBoardData(): Promise<{
         const activeLeads = leads.filter(lead => lead.currentStageId !== 's4' && lead.currentStageId !== 's5');
         const pipelineValue = presupuestos
             .filter(presupuesto => activeLeads.some(lead => lead.presupuestoId === presupuesto.id))
-            .reduce((sum, presupuesto) => sum + (presupuesto.totalConDescuento ?? presupuesto.costoTotalEstimado ?? 0), 0);
+            .reduce((sum, presupuesto) => sum + (Number(presupuesto.totalConDescuento ?? presupuesto.costoTotalEstimado) || 0), 0);
         const wonLeads = leads.filter(lead => lead.currentStageId === 's4').length;
         const lostLeads = leads.filter(lead => lead.currentStageId === 's5').length;
         const totalFinished = wonLeads + lostLeads;

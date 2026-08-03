@@ -4,25 +4,25 @@ import type { ItemPresupuestado } from '@/types/presupuesto';
  * MOTOR DE CÁLCULO UNIFICADO - PASO 1: Determinar el universo de personas para el ítem.
  */
 export function getGuestCountForItem(item: { nombreServicio: string, categoriaServicio?: string, subcategoria?: string }, adultos: number, adolescentes: number, ninos: number): number {
-  if (!item) return adultos + (adolescentes || 0) + (ninos || 0);
-  
+  if (!item) return (Number(adultos) || 0) + (Number(adolescentes) || 0) + (Number(ninos) || 0);
+
   const name = (item.nombreServicio || '').toLowerCase();
   const cat = (item.categoriaServicio || '').toLowerCase();
   const sub = (item.subcategoria || '').toLowerCase();
   const ninosYAdolescentes = (ninos || 0) + (adolescentes || 0);
-  
+
   // Regla A: Servicios exclusivos para menores
   if (cat.includes('infantil') || cat.includes('adolescente') || sub.includes('infantil') || sub.includes('adolescente') || name.includes('niño')) {
     return ninosYAdolescentes;
   }
-  
+
   // Regla B: Platos principales para adultos (excluyendo si dice infantil)
   if ((cat.includes('plato principal') || sub.includes('plato principal') || name.includes('principal')) && !name.includes('niño')) {
     return adultos;
   }
-  
+
   // Regla C: Servicios generales (Torta, Bebidas, Discoteca, Salón, etc.) -> Total de personas
-  return adultos + ninosYAdolescentes;
+  return (Number(adultos) || 0) + ninosYAdolescentes;
 }
 
 /**
@@ -30,7 +30,7 @@ export function getGuestCountForItem(item: { nombreServicio: string, categoriaSe
  */
 export function calculateSuggestedQuantity(item: { calculationMethod?: string, invitadosPorUnidad?: number, cantidad?: number, nombreServicio: string, categoriaServicio?: string, subcategoria?: string }, adultos: number, ninos: number): number {
     const totalGuests = getGuestCountForItem(item, adultos, 0, ninos);
-    
+  
     switch (item.calculationMethod) {
         case 'porPersona':
             return totalGuests;
@@ -51,20 +51,20 @@ export function calculateSuggestedQuantity(item: { calculationMethod?: string, i
 export function recalcularCostoItem(item: ItemPresupuestado, adultos: number, adolescentes: number, ninos: number): number {
   if (!item) return 0;
   if (item.esRegalo) return 0;
-  
-  const totalInvitados = adultos + (adolescentes || 0) + (ninos || 0);
-  const cantidadInvitadosTarget = getGuestCountForItem(item, adultos, adolescentes, ninos);
-  
+
+  const totalInvitados = (Number(adultos) || 0) + (Number(adolescentes) || 0) + (Number(ninos) || 0);
+  const cantidadInvitadosTarget = getGuestCountForItem(item, Number(adultos) || 0, Number(adolescentes) || 0, Number(ninos) || 0);
+
   if (cantidadInvitadosTarget === 0 && (item.calculationMethod === 'porPersona' || item.calculationMethod === 'ratio')) {
     return 0;
   }
-  
+
   let itemTotal = 0;
-  const precioAplicado = item.precioUnitarioPresupuesto ?? item.precioUnitario;
+  const precioAplicado = Number(item.precioUnitarioPresupuesto ?? item.precioUnitario) || 0;
 
   switch (item.calculationMethod) {
     case 'fijo':
-      itemTotal = precioAplicado * (item.cantidad > 0 ? item.cantidad : 1);
+      itemTotal = precioAplicado * ((Number(item.cantidad) || 0) > 0 ? Number(item.cantidad) : 1);
       break;
     case 'porPersona':
       itemTotal = precioAplicado * cantidadInvitadosTarget;
@@ -85,7 +85,7 @@ export function recalcularCostoItem(item: ItemPresupuestado, adultos: number, ad
       itemTotal = tramo?.precio || 0;
       break;
     default:
-      itemTotal = item.cantidad * precioAplicado;
+      itemTotal = (Number(item.cantidad) || 1) * precioAplicado;
   }
-  return Math.round(itemTotal);
+  return Math.round(Number(itemTotal) || 0);
 }
