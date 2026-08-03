@@ -380,6 +380,7 @@ export default function Plataforma360Page() {
     setIsUploading(true);
     setProgressMsg('Subiendo tu video 360 al muro...');
 
+    try {
       const ext = blob.type.includes('webm') ? '.webm' : '.mp4';
       const file = new File([blob], `360-video-${Date.now()}${ext}`, { type: blob.type });
       const formData = new FormData();

@@ -1,9 +1,19 @@
 ﻿import { NextResponse } from 'next/server';
+import { verifySession } from '@/app/actions/session';
 
 /**
- * Endpoint connector for Google Looker Studio analytics export.
+ * Looker Studio data connector endpoint.
+ * Protected by session auth â€” only authenticated admin users can query.
+ *
+ * TODO: Replace sample rows with real Firestore queries when Looker Studio
+ * is connected in production.
  */
 export async function GET() {
+  const auth = await verifySession();
+  if (!auth.success) {
+    return NextResponse.json({ error: 'No autorizado' }, { status: 401 });
+  }
+
   const schema = [
     { name: 'fecha', label: 'Fecha', dataType: 'STRING', semantics: { conceptType: 'DIMENSION' } },
     { name: 'cotizaciones', label: 'Cotizaciones Simulador', dataType: 'NUMBER', semantics: { conceptType: 'METRIC' } },
@@ -12,7 +22,7 @@ export async function GET() {
   ];
 
   const sampleRows = [
-    { values: [new Date().toISOString().slice(0, 10), '12', '8', '2'] },
+    { values: [new Date().toISOString().slice(0, 10), 0, 0, 0] },
   ];
 
   return NextResponse.json({

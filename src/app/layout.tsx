@@ -9,6 +9,7 @@ import './ak-no-red-experience.css';
 import './ak-budget-mobile-fixes.css';
 import { Toaster } from "@/components/ui/toaster";
 import { DeploymentRecovery } from '@/components/deployment-recovery';
+import { GoogleAnalytics } from '@/components/google-analytics';
 import localFont from 'next/font/local';
 
 const inter = localFont({
@@ -73,7 +74,6 @@ export const metadata: Metadata = {
   },
 };
 
-import { GoogleAnalytics } from '@/components/google-analytics';
 
 export default function RootLayout({
   children,

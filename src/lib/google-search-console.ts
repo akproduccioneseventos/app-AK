@@ -1,14 +1,22 @@
-﻿export const GOOGLE_SEARCH_CONSOLE_VERIFICATION = process.env.NEXT_PUBLIC_GOOGLE_SITE_VERIFICATION || 'google-site-verification-ak-producciones-2026';
+﻿/**
+ * Google Search Console â€” site verification and indexing utilities.
+ *
+ * NOTE: The old Google Ping endpoint (google.com/ping?sitemap=) was deprecated
+ * and removed in late 2023. Modern indexing uses the Google Indexing API
+ * or submitting sitemaps via Search Console UI / API.
+ *
+ * This module provides the verification tag for layout.tsx metadata and
+ * a placeholder for future Indexing API integration.
+ */
+
+export const GOOGLE_SEARCH_CONSOLE_VERIFICATION =
+  process.env.NEXT_PUBLIC_GOOGLE_SITE_VERIFICATION || '';
 
 /**
- * Pings Google Search Console to re-index the sitemap after publishing new blog posts or landing pages.
+ * Returns the Search Console verification metadata for use in layout.tsx.
+ * Only returns the tag if the env var is configured.
  */
-export async function pingGoogleSitemap(siteUrl = 'https://akproducciones.uy'): Promise<boolean> {
-  try {
-    const sitemapUrl = `${siteUrl}/sitemap.xml`;
-    const res = await fetch(`https://www.google.com/ping?sitemap=${encodeURIComponent(sitemapUrl)}`);
-    return res.ok;
-  } catch {
-    return false;
-  }
+export function getSearchConsoleVerification(): { google?: string } | undefined {
+  if (!GOOGLE_SEARCH_CONSOLE_VERIFICATION) return undefined;
+  return { google: GOOGLE_SEARCH_CONSOLE_VERIFICATION };
 }
