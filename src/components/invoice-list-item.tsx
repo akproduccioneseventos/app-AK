@@ -1,4 +1,4 @@
-
+﻿
 import type { Invoice } from '@/types/invoice';
 import { TableRow, TableCell } from '@/components/ui/table';
 import { Button } from '@/components/ui/button';
@@ -28,9 +28,9 @@ interface InvoiceListItemProps {
   fiestaActual?: FiestaEnPlanificacion | null;
 }
 
-export function InvoiceListItem({ 
-  invoice, 
-  onDelete, 
+export function InvoiceListItem({
+  invoice,
+  onDelete,
   isDeleting,
   isAssignedToCurrentFiesta,
   onToggleAssign,
@@ -39,13 +39,15 @@ export function InvoiceListItem({
 }: InvoiceListItemProps) {
   const formatDate = (dateString: string) => {
     try {
-      return new Date(dateString).toLocaleDateString('es-ES', { day: '2-digit', month: '2-digit', year: 'numeric' });
-    } catch(e) { return "Fecha inválida"; }
+      const d = new Date(dateString);
+      if (isNaN(d.getTime())) return 'Fecha invÃ¡lida';
+      return d.toLocaleDateString('es-ES', { day: '2-digit', month: '2-digit', year: 'numeric', timeZone: 'UTC' });
+    } catch { return "Fecha invÃ¡lida"; }
   };
 
   const formatCurrency = (amount: number, currency: string = 'UYU') => {
-    if (isNaN(amount)) return 'N/A';
-    return new Intl.NumberFormat('es-UY', { style: 'currency', currency: currency }).format(amount);
+    const val = Number(amount) || 0;
+    return new Intl.NumberFormat('es-UY', { style: 'currency', currency: currency }).format(val);
   };
 
 
@@ -63,9 +65,9 @@ export function InvoiceListItem({
       </TableCell>
       <TableCell className="text-center">
         {onToggleAssign && (
-          <Button 
-            variant={isAssignedToCurrentFiesta ? "secondary" : "outline"} 
-            size="sm" 
+          <Button
+            variant={isAssignedToCurrentFiesta ? "secondary" : "outline"}
+            size="sm"
             onClick={onToggleAssign}
             disabled={isAssigning}
             className="w-full max-w-[120px] text-xs h-8" // Adjusted width and height
@@ -98,14 +100,14 @@ export function InvoiceListItem({
             </AlertDialogTrigger>
             <AlertDialogContent>
               <AlertDialogHeader>
-                <AlertDialogTitle>¿Confirmas la eliminación?</AlertDialogTitle>
-                <AlertDialogDescription>La factura "{invoice.invoiceNumber}" será eliminada. Esta acción no se puede deshacer.</AlertDialogDescription>
+                <AlertDialogTitle>Â¿Confirmas la eliminaciÃ³n?</AlertDialogTitle>
+                <AlertDialogDescription>La factura "{invoice.invoiceNumber}" serÃ¡ eliminada. Esta acciÃ³n no se puede deshacer.</AlertDialogDescription>
               </AlertDialogHeader>
               <AlertDialogFooter>
                 <AlertDialogCancel disabled={isDeleting}>Cancelar</AlertDialogCancel>
                 <AlertDialogAction onClick={() => onDelete(invoice.id, invoice.invoiceNumber)} disabled={isDeleting} className="bg-destructive hover:bg-destructive/90">
                   {isDeleting ? <Loader2 className="w-4 h-4 mr-2 animate-spin" /> : null}
-                  Sí, eliminar
+                  SÃ­, eliminar
                 </AlertDialogAction>
               </AlertDialogFooter>
             </AlertDialogContent>
