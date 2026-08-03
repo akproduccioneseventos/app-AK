@@ -149,7 +149,10 @@ export async function uploadBuzonMessage(
       ? '🎙️ Dejó un saludo de voz en el buzón'
       : '📹 Subió un video al buzón';
 
-    await addChatMessage(fiestaId, alertText, authorName).catch((err) => {
+    await addChatMessage(fiestaId, alertText, authorName, {
+      stationModuleId: 'capsulaTiempo',
+      stationAccessToken: accessToken,
+    }).catch((err) => {
       logger.warn('[buzon] Failed to send chat notification:', err);
     });
 

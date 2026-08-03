@@ -21,7 +21,7 @@
  */
 
 import type { SocialGalleryPost, SocialComment, ChatMessage } from '@/types/social-gallery';
-import type { SocialGallerySettings } from '@/types/fiesta';
+import type { FiestaEnPlanificacion, SocialGallerySettings } from '@/types/fiesta';
 import { uploadToStorage, deleteFromStorage } from '@/lib/firebase/storage';
 import type { Firestore, QueryDocumentSnapshot, Transaction } from 'firebase-admin/firestore';
 import admin from 'firebase-admin';
@@ -40,6 +40,8 @@ import { hasPublicGuestAccess, buildPublicGuestPortalData } from '@/lib/guest-po
 import { verifyEntertainmentAccessToken } from '@/lib/auth/entertainment-token';
 import { isEntertainmentModuleId } from '@/lib/entertainment/station-config';
 import { resolveSocialUploadAccess } from '@/lib/social-fiesta/upload-access';
+import { verifyPortalSession } from '@/lib/security/portal-session';
+import { getFiestaByIdRaw } from '@/lib/fiesta/get-fiesta-raw';
 
 // Firestore collection names
 const GALLERY_COLLECTION = 'social_gallery_posts';
@@ -61,6 +63,71 @@ async function getLocalSocialPosts(fiestaId: string): Promise<SocialGalleryPost[
   return posts
     .filter((post) => post.fiestaId === fiestaId)
     .sort((a, b) => new Date(b.timestamp).getTime() - new Date(a.timestamp).getTime());
+}
+
+export interface SocialInteractionCredentials {
+  guestId?: string;
+  guestAccessToken?: string;
+  stationModuleId?: string;
+  stationAccessToken?: string;
+}
+
+async function resolveSocialInteractionContext(
+  fiestaId: string,
+  submittedAuthorName: string,
+  credentials: SocialInteractionCredentials = {},
+) {
+  const fiesta = await getFiestaById(fiestaId);
+  if (!fiesta) return null;
+
+  const appSession = await hasAppSession();
+  const guest = fiesta.invitados?.find((item) => item.id === credentials.guestId);
+  const guestAuthorized = hasPublicGuestAccess(
+    guest,
+    credentials.guestId || '',
+    credentials.guestAccessToken || '',
+  );
+  const stationModuleId = credentials.stationModuleId
+    && isEntertainmentModuleId(credentials.stationModuleId)
+    ? credentials.stationModuleId
+    : undefined;
+  const stationAuthorized = Boolean(
+    stationModuleId && verifyEntertainmentAccessToken(
+      credentials.stationAccessToken,
+      fiestaId,
+      stationModuleId,
+      'guest',
+    ),
+  );
+  const access = resolveSocialUploadAccess({
+    fiestaId,
+    submittedAuthorName,
+    submittedSource: 'social-interaction',
+    submittedSourceModule: stationModuleId,
+    appSession,
+    guest: guest ? { id: guest.id, nombre: guest.nombre } : undefined,
+    guestAuthorized,
+    stationModuleId,
+    stationAuthorized,
+  });
+
+  return access ? { fiesta, access } : null;
+}
+
+async function getClientSocialFiesta(
+  fiestaId: string,
+  accessKey: string,
+): Promise<FiestaEnPlanificacion | null> {
+  if (!(await verifyPortalSession(fiestaId))) return null;
+  const fiesta = await getFiestaByIdRaw(fiestaId);
+  if (
+    !fiesta?.clientPortalSettings?.enabled
+    || !accessKey
+    || fiesta.clientPortalSettings.accessKey !== accessKey
+  ) {
+    return null;
+  }
+  return fiesta;
 }
 
 // ──────────────────── Photo Gallery ────────────────────
@@ -152,11 +219,8 @@ export async function getSocialPostsByClient(
   accessKey: string
 ): Promise<{ success: boolean; posts?: SocialGalleryPost[]; error?: string }> {
   try {
-    const fiesta = await getFiestaById(fiestaId);
-    if (!fiesta) return { success: false, error: 'Evento no encontrado.' };
-    if (fiesta.clientPortalSettings?.accessKey !== accessKey) {
-      return { success: false, error: 'Código de acceso incorrecto.' };
-    }
+    const fiesta = await getClientSocialFiesta(fiestaId, accessKey);
+    if (!fiesta) return { success: false, error: 'Sesión del portal no autorizada.' };
 
     if (process.env.AK_USE_LOCAL_JSON_ONLY === 'true') {
       return { success: true, posts: await getLocalSocialPosts(fiestaId) };
@@ -468,17 +532,26 @@ export async function moderateSocialPost(
 }
 
 export async function addLikeToPost(
-  postId: string
+  postId: string,
+  credentials: SocialInteractionCredentials = {},
 ): Promise<{ success: boolean; post?: SocialGalleryPost; error?: string }> {
   try {
+    const db = await getDb();
+    const ref = db.collection(GALLERY_COLLECTION).doc(postId);
+    const current = await ref.get();
+    if (!current.exists) return { success: false, error: 'Publicación no encontrada.' };
+    const currentPost = current.data() as SocialGalleryPost;
+    const context = await resolveSocialInteractionContext(currentPost.fiestaId, 'Invitado', credentials);
+    if (!context) return { success: false, error: 'Acceso no autorizado para reaccionar.' };
+    if (context.fiesta.socialGallerySettings?.enabled === false || context.fiesta.socialGallerySettings?.allowLikes === false) {
+      return { success: false, error: 'Las reacciones no están habilitadas para este evento.' };
+    }
     await enforcePublicRateLimit({
       scope: 'social-post-like',
-      identity: postId,
+      identity: `${context.access.rateIdentity}|${postId}`,
       limit: 40,
       windowMs: 60_000,
     });
-    const db = await getDb();
-    const ref = db.collection(GALLERY_COLLECTION).doc(postId);
     // FieldValue.increment is a server-side atomic operation — never loses a like.
     await ref.update({ likes: admin.firestore.FieldValue.increment(1) });
     const updated = await ref.get();
@@ -492,25 +565,35 @@ export async function addLikeToPost(
 export async function addCommentToPost(
   postId: string,
   text: string,
-  authorName: string = 'Anónimo'
+  authorName: string = 'Anónimo',
+  credentials: SocialInteractionCredentials = {},
 ): Promise<{ success: boolean; comment?: SocialComment; error?: string }> {
   try {
+    const db = await getDb();
+    const ref = db.collection(GALLERY_COLLECTION).doc(postId);
+    const current = await ref.get();
+    if (!current.exists) return { success: false, error: 'Publicación no encontrada.' };
+    const currentPost = current.data() as SocialGalleryPost;
+    const context = await resolveSocialInteractionContext(currentPost.fiestaId, authorName, credentials);
+    if (!context) return { success: false, error: 'Acceso no autorizado para comentar.' };
+    if (context.fiesta.socialGallerySettings?.enabled === false || context.fiesta.socialGallerySettings?.allowComments === false) {
+      return { success: false, error: 'Los comentarios no están habilitados para este evento.' };
+    }
     await enforcePublicRateLimit({
       scope: 'social-post-comment',
-      identity: postId,
+      identity: `${context.access.rateIdentity}|${postId}`,
       limit: 20,
       windowMs: 60_000,
     });
-    const review = reviewSocialContent({ type: 'text', text, authorName, moderationMode: 'automatico' });
+    const resolvedAuthorName = context.access.authorName;
+    const review = reviewSocialContent({ type: 'text', text, authorName: resolvedAuthorName, moderationMode: 'automatico' });
     if (review.status === 'blocked') return { success: false, error: review.message };
-    const db = await getDb();
     const newComment: SocialComment = {
       id: `comment_${Date.now()}_${Math.random().toString(36).substring(2, 7)}`,
-      authorName: sanitizeSocialText(authorName) || 'Anónimo',
+      authorName: sanitizeSocialText(resolvedAuthorName) || 'Anónimo',
       text: review.sanitizedText || sanitizeSocialText(text),
       timestamp: new Date().toISOString(),
     };
-    const ref = db.collection(GALLERY_COLLECTION).doc(postId);
     // arrayUnion is atomic — concurrent comments on the same post are all preserved.
     await ref.update({ comments: admin.firestore.FieldValue.arrayUnion(newComment) });
     return { success: true, comment: newComment };
@@ -638,17 +721,24 @@ export async function getChatMessages(fiestaId: string): Promise<ChatMessage[]> 
 export async function addChatMessage(
   fiestaId: string,
   text: string,
-  authorName: string = 'Anónimo'
+  authorName: string = 'Anónimo',
+  credentials: SocialInteractionCredentials = {},
 ): Promise<{ success: boolean; message?: ChatMessage; error?: string }> {
   if (!fiestaId || !text.trim()) {
     return { success: false, error: 'Datos del mensaje incompletos.' };
   }
-  const review = reviewSocialContent({ type: 'text', text, authorName, moderationMode: 'automatico' });
-  if (review.status === 'blocked') return { success: false, error: review.message };
   try {
+    const context = await resolveSocialInteractionContext(fiestaId, authorName, credentials);
+    if (!context) return { success: false, error: 'Acceso no autorizado para participar del chat.' };
+    if (context.fiesta.socialGallerySettings?.enabled === false || context.fiesta.socialGallerySettings?.chatEnabled === false) {
+      return { success: false, error: 'El chat no está habilitado para este evento.' };
+    }
+    const resolvedAuthorName = context.access.authorName;
+    const review = reviewSocialContent({ type: 'text', text, authorName: resolvedAuthorName, moderationMode: 'automatico' });
+    if (review.status === 'blocked') return { success: false, error: review.message };
     await enforcePublicRateLimit({
       scope: 'social-live-chat',
-      identity: fiestaId,
+      identity: context.access.rateIdentity,
       limit: 30,
       windowMs: 60_000,
     });
@@ -657,7 +747,7 @@ export async function addChatMessage(
     const newMessage: ChatMessage = {
       id: msgId,
       fiestaId,
-      authorName: sanitizeSocialText(authorName) || 'Anónimo',
+      authorName: sanitizeSocialText(resolvedAuthorName) || 'Anónimo',
       text: review.sanitizedText || sanitizeSocialText(text),
       timestamp: new Date().toISOString(),
     };
@@ -676,11 +766,8 @@ export async function saveSocialSettingsByClient(
   mobileControlCoverUrl?: string
 ): Promise<{ success: boolean; error?: string }> {
   try {
-    const fiesta = await getFiestaById(fiestaId);
-    if (!fiesta) return { success: false, error: 'Evento no encontrado.' };
-    if (fiesta.clientPortalSettings?.accessKey !== accessKey) {
-      return { success: false, error: 'Código de acceso incorrecto.' };
-    }
+    const fiesta = await getClientSocialFiesta(fiestaId, accessKey);
+    if (!fiesta) return { success: false, error: 'Sesión del portal no autorizada.' };
     const updatedSettings = {
       ...(fiesta.socialGallerySettings || {
         enabled: true,
@@ -716,11 +803,8 @@ export async function moderateSocialPostByClient(
   moderationStatus: 'pending' | 'approved' | 'hidden'
 ): Promise<{ success: boolean; error?: string }> {
   try {
-    const fiesta = await getFiestaById(fiestaId);
-    if (!fiesta) return { success: false, error: 'Evento no encontrado.' };
-    if (fiesta.clientPortalSettings?.accessKey !== accessKey) {
-      return { success: false, error: 'Código de acceso incorrecto.' };
-    }
+    const fiesta = await getClientSocialFiesta(fiestaId, accessKey);
+    if (!fiesta) return { success: false, error: 'Sesión del portal no autorizada.' };
     const db = await getDb();
     const ref = db.collection(GALLERY_COLLECTION).doc(postId);
     const snap = await ref.get();

@@ -33,7 +33,6 @@ const meetingIntelligencePrompt = ai.definePrompt({
   model: geminiModel,
   input: { schema: MeetingIntelligenceInputSchema },
   output: { schema: MeetingIntelligenceOutputSchema },
-  config: { temperature: 0.15 },
   prompt: `Sos el agente de fiesta de AK Producciones. Tu trabajo es convertir una reunion real con cliente en un acta util, simple y accionable.
 
 Reglas:

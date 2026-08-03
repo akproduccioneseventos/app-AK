@@ -51,6 +51,9 @@ const SENALES_DE_FALLA = [
   /application error/i,
   /something went wrong/i,
   /internal server error/i,
+  /experiencia no disponible/i,
+  /este acceso no es válido/i,
+  /acceso (denegado|restringido|no autorizado)/i,
 ];
 
 type Resultado = { ruta: string; problema: string };
@@ -69,7 +72,7 @@ async function revisarPantalla(page: Page, ruta: string): Promise<Resultado[]> {
 
   if (!respuesta) {
     problemas.push({ ruta, problema: 'no respondió' });
-  } else if (respuesta.status() >= 500) {
+  } else if (respuesta.status() >= 400) {
     problemas.push({ ruta, problema: `el servidor respondió ${respuesta.status()}` });
   }
 
@@ -121,7 +124,8 @@ const INVITADO = { id: 'inv_prueba_0', token: 'token-prueba-0' };
 const PANTALLAS_DEL_INVITADO = [
   `/evento/hub/${ID}?guestId=${INVITADO.id}&token=${INVITADO.token}`,
   `/evento/mi-mesa/${ID}`,
-  `/evento/social/${ID}`,
+  `/evento/social/${ID}?guestId=${INVITADO.id}&token=${INVITADO.token}`,
+  `/evento/social/${ID}?estacion=totems&access=${crearPermisoDeEstacion(ID, 'totems')}`,
   `/evento/galeria/${ID}`,
   `/evento/barra/${ID}`,
   `/evento/zona-digital/${ID}`,
@@ -130,8 +134,8 @@ const PANTALLAS_DEL_INVITADO = [
   `/evento/buzon/${ID}?access=${crearPermisoDeEstacion(ID, 'capsulaTiempo')}`,
   `/evento/fotocabina/${ID}?access=${crearPermisoDeEstacion(ID, 'fotocabina')}`,
   `/evento/plataforma-360/${ID}?access=${crearPermisoDeEstacion(ID, 'plataforma360')}`,
-  `/evento/touchpix/${ID}`,
-  `/evento/espejo-magico/${ID}?access=${crearPermisoDeEstacion(ID, 'espejoMagico')}`,
+  `/evento/touchpix/${ID}?access=${crearPermisoDeEstacion(ID, 'espejoMagicoIA')}`,
+  `/evento/espejo-magico/${ID}?access=${crearPermisoDeEstacion(ID, 'espejoMagicoFirma')}`,
   `/evento/bogue/${ID}?access=${crearPermisoDeEstacion(ID, 'bogue')}`,
   `/evento/en-vivo/${ID}/invitados`,
   `/invitacion/${ID}`,
@@ -161,7 +165,7 @@ const PANTALLAS_DEL_EQUIPO = [
 
 test.describe('noche de fiesta', () => {
   test('las pantallas del invitado funcionan con una fiesta real', async ({ page }) => {
-    test.setTimeout(600_000);
+    test.setTimeout(900_000);
     const problemas: Resultado[] = [];
     for (const ruta of PANTALLAS_DEL_INVITADO) {
       problemas.push(...(await revisarPantalla(page, ruta)));
@@ -173,7 +177,7 @@ test.describe('noche de fiesta', () => {
   });
 
   test('las pantallas del equipo funcionan con una fiesta real', async ({ page, context, baseURL }) => {
-    test.setTimeout(600_000);
+    test.setTimeout(900_000);
     await context.addInitScript(() => {
       window.localStorage.setItem('ak_session', 'true');
       window.sessionStorage.setItem('ak_session', 'true');

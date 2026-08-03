@@ -222,5 +222,14 @@ test.describe('viaje del invitado', () => {
     // Y el saldo tiene que verse sin abrir acordeones.
     await page.getByRole('tab', { name: 'Pagos' }).click();
     await expect(page.getByText(/Saldo/i).first()).toBeVisible({ timeout: 45_000 });
+
+    // El centro del muro usa la misma sesión del portal. Antes volvía a
+    // comparar la clave contra una copia censurada y rechazaba al cliente aun
+    // después de haber entrado correctamente.
+    await page.goto(`/portal-cliente/${fiesta.id}/muro-social`, { waitUntil: 'domcontentloaded' });
+    await expect(page.getByRole('heading', { name: 'Centro de Control Muro' })).toBeVisible({ timeout: 45_000 });
+    await page.getByRole('tab', { name: 'Diseño' }).click();
+    await page.getByRole('button', { name: 'Guardar Configuración' }).click();
+    await expect(page.getByText('Configuración guardada 🎉')).toBeVisible({ timeout: 30_000 });
   });
 });
