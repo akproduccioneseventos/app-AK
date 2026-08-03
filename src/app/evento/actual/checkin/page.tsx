@@ -9,6 +9,22 @@ import type { Invitado } from '@/types/invitado';
 import { checkInGuestFiestaActual } from '@/app/actions/fiesta-actual';
 import { getFiestaById } from '@/app/actions/fiesta-actual';
 
+/**
+ * Convierte una falla tecnica en algo que el invitado pueda entender.
+ *
+ * Con el WiFi del salon saturado, la pantalla llegaba a mostrar "Failed to
+ * fetch" en ingles. El invitado no sabe que hacer con eso; con "revisa tu
+ * conexion" sabe que tiene que moverse o esperar.
+ */
+function mensajeParaElInvitado(error: unknown, porDefecto: string) {
+  const texto = error instanceof Error ? error.message : String(error ?? '');
+  const esDeRed = /failed to fetch|network|load failed|fetch failed|timeout|abort/i.test(texto);
+  if (esDeRed || !texto.trim()) {
+    return 'No pudimos cargar los datos. Revisá tu conexión y probá de nuevo en unos segundos.';
+  }
+  return texto.length > 120 ? porDefecto : texto;
+}
+
 function CheckInContent() {
   const searchParams = useSearchParams();
   const guestId = searchParams.get('guestId');
@@ -50,7 +66,7 @@ function CheckInContent() {
             }
         }
       } catch (err: any) {
-        setError(err.message);
+        setError(mensajeParaElInvitado(err, 'No se pudo registrar la entrada.'));
       } finally {
         setIsLoading(false);
       }

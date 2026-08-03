@@ -14,6 +14,7 @@ import type { WhatsAppSettings } from '@/types/settings';
 import { isSameDay, startOfToday, format } from 'date-fns';
 import { es } from 'date-fns/locale';
 import { ScheduleNewMeetingDialog } from '@/components/crm/ScheduleNewMeetingDialog';
+import { rellenarPlantilla } from '@/lib/whatsapp/plantilla-mensaje';
 
 export default function CrmAgendaPage() {
   const [allMeetings, setAllMeetings] = useState<CrmAgendaEntry[]>([]);
@@ -70,12 +71,17 @@ export default function CrmAgendaPage() {
     const date = new Date(meeting.followUpDate!);
     const fecha = format(date, "EEEE d 'de' MMMM", { locale: es });
     const hora = format(date, 'HH:mm');
+    // "tienes" era tuteo: el resto de la app le habla de vos al cliente, como se
+    // habla en Uruguay. Un mensaje que cambia de trato se nota.
     const template = waSettings?.reminderMessageTemplate ??
-      'Hola {{NOMBRE}}, te recordamos que tienes una reunión con *AK Producciones* el {{FECHA}} a las {{HORA}} hs. ¡Te esperamos!';
-    const mensaje = template
-      .replace(/\{\{NOMBRE\}\}/g, meeting.name)
-      .replace(/\{\{FECHA\}\}/g, fecha)
-      .replace(/\{\{HORA\}\}/g, hora);
+      'Hola {{NOMBRE}}, te recordamos que tenés una reunión con *AK Producciones* el {{FECHA}} a las {{HORA}} hs. ¡Te esperamos!';
+    // `rellenarPlantilla` limpia los marcadores que queden sin dato: sin esto el
+    // cliente podía recibir "Hola {{NOMBRE}}" o "Hola undefined".
+    const mensaje = rellenarPlantilla(template, {
+      NOMBRE: meeting.name,
+      FECHA: fecha,
+      HORA: hora,
+    });
     const phone = meeting.phone?.replace(/\D/g, '') ?? '';
     return phone
       ? `https://wa.me/${phone}?text=${encodeURIComponent(mensaje)}`

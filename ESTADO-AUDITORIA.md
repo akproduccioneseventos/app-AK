@@ -34,8 +34,13 @@ Documento vivo. Sirve para no repetir trabajo entre sesiones.
 | 21 | **El enlace de la encuesta se moría solo.** Sólo funcionaba mientras esa fiesta fuera la más reciente. Como la encuesta se manda *después* del evento, para cuando el invitado la abría ya había otra fiesta adelante y el enlace decía "no corresponde al evento actual". Con varias fiestas activas, andaba una sola. | `feedback/[fiestaId]` | rama pruebas en vivo |
 | 22 | La fecha corrida al día anterior aparecía además en el RSVP, la pantalla de cómo llegar, el portal del cliente y **la marca de agua de las fotos** de las cuatro estaciones (fotocabina, espejo mágico, 360 y bogue). | 8 pantallas | rama pruebas en vivo |
 | 23 | **El enlace para subir las fotos del video de vida dejaba de andar** en cuanto había otra fiesta agendada más adelante: la familia recibía "acceso no válido". Y las fotos que sí entraban marcaban "ya subieron fotos" en el evento equivocado, igual que los ajustes del video. | `video-vida` (3 pantallas y 2 acciones) | rama pruebas en vivo |
-| 25 | En el portal del cliente, el botón para **avisar un pago** quedaba habilitado aunque el monto escrito no fuera un número. El cliente lo tocaba, no pasaba nada y no recibía ningún aviso: se quedaba creyendo que ya había informado el pago. | `portal/c/[accessKey]` | rama pruebas en vivo |
 | 24 | Con **dos fiestas vencidas sin archivar**, la pantalla de eventos se salía 204px en celular. Y todos los botones decían igual "Archivar", sin decir cuál. | `eventos` | rama pruebas en vivo |
+| 25 | En el portal del cliente, el botón para **avisar un pago** quedaba habilitado aunque el monto escrito no fuera un número. El cliente lo tocaba, no pasaba nada y no recibía ningún aviso: se quedaba creyendo que ya había informado el pago. | `portal/c/[accessKey]` | rama pruebas en vivo |
+| 26 | El Centro de Fiesta decía **"Arranca a las undefined"** en una fiesta a la que todavía no se le cargó la hora. | `fiestas/[id]/centro` | rama pruebas en vivo |
+| 27 | El **saldo del recibo y el del estado de cuenta no coincidían**: uno sumaba el ajuste anual y el otro no. Con una fiesta al año siguiente, el cliente veía un número en el papel y otro en la pantalla. | `lib/budget/saldo-con-ajuste.ts` | rama pruebas en vivo |
+| 28 | **29 platos con los acentos rotos** en el catálogo de menús que el cliente lee al armar su comida: "JamÃ³n", "ChampiÃ±on", "GUARNICIÃ“N". | `data/menus-catering.json` | rama pruebas en vivo |
+| 29 | **Lo que se comparte por WhatsApp llegaba pelado**: el catálogo y el simulador mostraban el título genérico de toda la app y ninguna imagen, y la invitación decía "Evento Especial" en vez del nombre real de la fiesta, también sin foto. | `catalogo`, `simulador`, `invitacion` | rama pruebas en vivo |
+| 30 | Sin señal (el WiFi saturado de un salón lleno), el invitado veía **"Failed to fetch"** en inglés al querer confirmar. Lo mismo en el control de entrada y en la carga de fotos del video de vida. | 3 pantallas | rama pruebas en vivo |
 
 ### Desborde horizontal en celular
 
@@ -65,6 +70,14 @@ social y decoración.
 
 | Archivo | Qué protege |
 |---|---|
+| `tests/e2e/impresion-a4.spec.ts` | Que el contrato, el recibo y el resumen **entren en la hoja A4** y que el menú de la app no se imprima. Se mide con el navegador en modo impresión: ya no hace falta imprimir para saberlo |
+| `tests/e2e/senal-mala.spec.ts` | La fiesta con el WiFi saturado: seis pantallas del invitado con la señal lenta y con la señal cortada, exigiendo que ninguna quede girando ni muda |
+| `tests/e2e/muro-subir-foto.spec.ts` | Que el invitado encuentre cómo subir su foto y que, si falla, se entere |
+| `tests/e2e/prospecto-simulador.spec.ts` | El camino por donde entra la plata: del simulador al precio, sin trabarse |
+| `tests/e2e/tarjetas-whatsapp.spec.ts` | Que la invitación, el catálogo y el simulador no vuelvan a compartirse sin título ni foto |
+| `src/__tests__/acentos-rotos.test.ts` | Que ningún archivo de datos vuelva a tener los acentos rotos |
+| `src/__tests__/saldo-con-ajuste.test.ts` | Que el saldo con ajuste anual dé lo mismo en todos lados |
+| `tests/firebase/firestore.rules.test.ts` (ampliada) | Que nadie entre directo a la base: las ocho colecciones con datos sensibles |
 | `tests/e2e/noche-de-fiesta.spec.ts` (fiesta señuelo) | Que ninguna pantalla vuelva a cargar "la fiesta más próxima" en vez de la del enlace: hay una segunda fiesta agendada a un año, así que la trampa se dispara sola |
 | `tests/e2e/noche-de-fiesta.spec.ts` | Las 27 pantallas que se usan **mientras la fiesta pasa**, con una fiesta de esta noche, invitados confirmados y mesas asignadas: ninguna se cuelga, se vacía, se sale de la pantalla ni tarda más de 12 segundos |
 | `src/__tests__/fecha-evento.test.ts` | Que la fecha de la fiesta no se corra al día anterior |
