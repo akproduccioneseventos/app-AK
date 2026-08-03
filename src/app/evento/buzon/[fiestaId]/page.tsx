@@ -641,13 +641,9 @@ export default function GuestBuzonPage() {
       }
 
       // Video Timer or timestamp
-<<<<<<< HEAD
       const date = new Date();
       const timeStr = date.toTimeString().split(' ')[0];
       const dateStr = date.toLocaleDateString('es-UY', { day: '2-digit', month: 'short', year: 'numeric' }).toUpperCase();
-=======
-      const timeStr = new Date().toTimeString().split(' ')[0];
->>>>>>> origin/main
 
       ctx.fillStyle = '#ffffff';
       ctx.font = 'bold 16px "Courier New", monospace';
@@ -665,7 +661,6 @@ export default function GuestBuzonPage() {
       );
 
       // Frame Border Overlay directly on Canvas
-      const activeTemplate = fiesta?.buzonConfig?.videoFrameTemplate || 'default';
       const frameText = (fiesta?.buzonConfig?.customText || fiesta?.eventName || 'AK PRODUCCIONES').toUpperCase();
 
       if (activeTemplate !== 'default') {
@@ -1144,19 +1139,8 @@ export default function GuestBuzonPage() {
                       <div className="w-full aspect-[4/3] rounded-3xl overflow-hidden border-2 border-rose-500/30 bg-black relative shadow-2xl">
                         <canvas ref={vhsCanvasRef} className="w-full h-full object-cover" />
 
-<<<<<<< HEAD
                         {/* Overlay VHS Effect */}
                         <div className="absolute inset-0 bg-[linear-gradient(rgba(18,16,16,0)_50%,rgba(0,0,0,0.25)_50%),linear-gradient(90deg,rgba(255,0,0,0.06),rgba(0,255,0,0.02),rgba(0,0,255,0.06))] pointer-events-none bg-[size:100%_4px,3px_100%]" />
-
-                        {/* Marco de Video Personalizado */}
-                        <VideoFrameOverlay
-                          template={fiesta?.buzonConfig?.videoFrameTemplate}
-                          customText={fiesta?.buzonConfig?.customText}
-                          eventName={fiesta?.eventName}
-                        />
-
-=======
->>>>>>> origin/main
                         {/* Cuenta regresiva Overlay */}
                         {countdown !== null && (
                           <div className="absolute inset-0 z-20 flex items-center justify-center bg-black/60 backdrop-blur-sm">

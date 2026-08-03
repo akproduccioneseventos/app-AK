@@ -697,7 +697,7 @@ export default function CatalogoTipoPage() {
       // sessionStorage unavailable (e.g. private browsing quota) — log and navigate anyway
       console.warn('[CatalogoWizard] Could not write to sessionStorage:', err);
     }
-    router.push('/presupuestos/nuevo/crear');
+    router.push('/simulador-de-presupuesto');
   }, [mergedCatalog, selectedPackage, router]);
 
   // Not found
