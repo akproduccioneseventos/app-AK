@@ -46,19 +46,30 @@ export default function PortalFaqPage() {
   const [newQuestion, setNewQuestion] = useState('');
   const [isSubmitting, setIsSubmitting] = useState(false);
 
-  const handleAskQuestion = (e: React.FormEvent) => {
+  const handleAskQuestion = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!newQuestion.trim()) return;
+    const qText = newQuestion.trim();
+    if (!qText) return;
     setIsSubmitting(true);
-    setTimeout(() => {
-      setUserQuestions(prev => [...prev, { q: newQuestion.trim(), status: 'Enviada al equipo' }]);
+    try {
+      const { addChatMessage } = await import('@/app/actions/social-gallery');
+      const fiestaId = params.id;
+      await addChatMessage(fiestaId, `❓ Consulta de Cliente: ${qText}`, 'Cliente VIP Portal');
+      setUserQuestions(prev => [...prev, { q: qText, status: 'Enviada al equipo' }]);
       setNewQuestion('');
-      setIsSubmitting(false);
       toast({
         title: '✅ Consulta enviada',
         description: 'Tu pregunta fue recibida por nuestro equipo. Te responderemos a la brevedad.',
       });
-    }, 600);
+    } catch {
+      toast({
+        title: 'Error al enviar',
+        description: 'No se pudo enviar la consulta. Verificá tu conexión e intentá de nuevo.',
+        variant: 'destructive',
+      });
+    } finally {
+      setIsSubmitting(false);
+    }
   };
 
   return (

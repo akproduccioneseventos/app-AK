@@ -43,7 +43,7 @@ export default async function BlogPage() {
                   Consejos claros para decidir mejor tu evento.
                 </h1>
                 <p className="max-w-2xl text-base leading-8 text-slate-300 sm:text-lg">
-                  GuÃ­as para elegir salÃ³n, menÃº, presupuesto, tiempos y servicios antes de contratar.
+                  GuÃƒÂ­as para elegir salÃƒÂ³n, menÃƒÂº, presupuesto, tiempos y servicios antes de contratar.
                 </p>
               </div>
               <div className="flex flex-col gap-3 sm:flex-row">
@@ -72,7 +72,7 @@ export default async function BlogPage() {
               <div className="space-y-4 p-6">
                 <p className="inline-flex items-center gap-2 text-[11px] font-black uppercase tracking-[0.2em] text-red-700">
                   <FeaturedIcon className="h-3.5 w-3.5" />
-                  ArtÃ­culo destacado
+                  ArtÃƒÂ­culo destacado
                 </p>
                 <h2 className="text-2xl font-black leading-tight transition-colors group-hover:text-red-700">{featured.title}</h2>
                 <p className="line-clamp-3 text-sm font-medium leading-7 text-slate-600">{featured.excerpt}</p>
@@ -89,11 +89,11 @@ export default async function BlogPage() {
           <div className="mx-auto max-w-6xl space-y-8">
             <div className="flex flex-col gap-3 md:flex-row md:items-end md:justify-between">
               <div>
-                <p className="text-[11px] font-black uppercase tracking-[0.24em] text-red-700">GuÃ­as prÃ¡cticas</p>
+                <p className="text-[11px] font-black uppercase tracking-[0.24em] text-red-700">GuÃƒÂ­as prÃƒÂ¡cticas</p>
                 <h2 className="mt-2 text-3xl font-black text-slate-950">Contenido para decidir mejor</h2>
               </div>
               <p className="max-w-xl text-sm font-medium leading-7 text-slate-600">
-                Cada artÃ­culo responde dudas frecuentes y ayuda a tomar decisiones inteligentes antes de tu evento.
+                Cada artÃƒÂ­culo responde dudas frecuentes y ayuda a tomar decisiones inteligentes antes de tu evento.
               </p>
             </div>
             <BlogInteractiveList posts={posts} />
@@ -107,9 +107,9 @@ export default async function BlogPage() {
                 <Sparkles className="h-6 w-6" />
               </div>
               <div>
-                <h2 className="text-2xl font-black text-slate-950">Â¿TenÃ©s una duda puntual sobre tu evento?</h2>
+                <h2 className="text-2xl font-black text-slate-950">Ã‚Â¿TenÃƒÂ©s una duda puntual sobre tu evento?</h2>
                 <p className="mt-2 max-w-2xl text-sm font-medium leading-7 text-slate-600">
-                  Contanos fecha, cantidad de invitados y prioridades. Te orientamos antes de que gastes de mÃ¡s.
+                  Contanos fecha, cantidad de invitados y prioridades. Te orientamos antes de que gastes de mÃƒÂ¡s.
                 </p>
               </div>
             </div>

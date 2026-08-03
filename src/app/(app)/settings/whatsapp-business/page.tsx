@@ -1,4 +1,4 @@
-'use client';
+﻿'use client';
 
 import React, { useState, useEffect, useCallback, type FormEvent } from 'react';
 import Link from 'next/link';
@@ -25,10 +25,10 @@ import { QRCodeSVG } from 'qrcode.react';
 const DAYS = [
   { id: 'mon', label: 'Lun' },
   { id: 'tue', label: 'Mar' },
-  { id: 'wed', label: 'Mié' },
+  { id: 'wed', label: 'MiÃ©' },
   { id: 'thu', label: 'Jue' },
   { id: 'fri', label: 'Vie' },
-  { id: 'sat', label: 'Sáb' },
+  { id: 'sat', label: 'SÃ¡b' },
   { id: 'sun', label: 'Dom' },
 ];
 
@@ -47,7 +47,7 @@ export default function WhatsAppBusinessPage() {
       setConfig(cfg);
       setStats(st);
     } catch {
-      toast({ title: 'Error', description: 'No se pudo cargar la configuración.', variant: 'destructive' });
+      toast({ title: 'Error', description: 'No se pudo cargar la configuraciÃ³n.', variant: 'destructive' });
     } finally {
       setIsLoading(false);
     }
@@ -82,7 +82,7 @@ export default function WhatsAppBusinessPage() {
     try {
       const result = await saveWhatsAppConfig(config);
       if (result.success) {
-        toast({ title: '✅ Configuración guardada', description: 'Las opciones del bot de WhatsApp fueron actualizadas.' });
+        toast({ title: 'âœ… ConfiguraciÃ³n guardada', description: 'Las opciones del bot de WhatsApp fueron actualizadas.' });
       } else {
         toast({ title: 'Error', description: result.error || 'No se pudo guardar.', variant: 'destructive' });
       }
@@ -93,10 +93,21 @@ export default function WhatsAppBusinessPage() {
     }
   };
 
-  if (isLoading || !config) {
+  if (isLoading) {
     return (
-      <div className="flex items-center justify-center p-8">
+      <div className="flex items-center justify-center min-h-[400px] p-8">
         <Loader2 className="w-8 h-8 animate-spin text-primary" />
+      </div>
+    );
+  }
+
+  if (!config) {
+    return (
+      <div className="p-8 text-center space-y-4 max-w-md mx-auto">
+        <p className="text-red-600 font-bold">No se pudo cargar la configuraciÃ³n de WhatsApp.</p>
+        <Button onClick={() => load()} className="bg-primary text-white font-bold rounded-xl">
+          Reintentar Carga
+        </Button>
       </div>
     );
   }
@@ -124,7 +135,7 @@ export default function WhatsAppBusinessPage() {
           </div>
           <div>
             <h1 className="text-3xl font-bold tracking-tight font-headline">WhatsApp Business Bot</h1>
-            <p className="text-muted-foreground text-sm">Atendé clientes automáticamente desde WhatsApp</p>
+            <p className="text-muted-foreground text-sm">AtendÃ© clientes automÃ¡ticamente desde WhatsApp</p>
           </div>
         </div>
         <div className="flex items-center gap-2">
@@ -180,12 +191,12 @@ export default function WhatsAppBusinessPage() {
             <div className="flex items-center justify-between p-4 border rounded-lg bg-white">
               <Label htmlFor="bot-enabled" className="flex flex-col gap-1 cursor-pointer">
                 <span className="text-base font-semibold">
-                  {config.enabled ? '🟢 Bot activado' : '⚫ Bot desactivado'}
+                  {config.enabled ? 'ðŸŸ¢ Bot activado' : 'âš« Bot desactivado'}
                 </span>
                 <span className="font-normal text-muted-foreground text-sm">
                   {config.enabled
-                    ? 'El bot está respondiendo mensajes de WhatsApp.'
-                    : 'Cuando contrates un servicio de WhatsApp API (Twilio, Meta, etc.), configurá tu API key acá y activá el bot.'}
+                    ? 'El bot estÃ¡ respondiendo mensajes de WhatsApp.'
+                    : 'Cuando contrates un servicio de WhatsApp API (Twilio, Meta, etc.), configurÃ¡ tu API key acÃ¡ y activÃ¡ el bot.'}
                 </span>
               </Label>
               <Switch
@@ -199,18 +210,18 @@ export default function WhatsAppBusinessPage() {
             {missingMetaCredentials && (
               <div className="mt-3 flex items-start gap-2 text-sm text-amber-700 bg-amber-50 border border-amber-200 rounded-md p-3">
                 <AlertTriangle className="w-4 h-4 mt-0.5 shrink-0" />
-                <span>Meta no puede activarse hasta completar API Key, Phone Number ID, token de verificación y App Secret.</span>
+                <span>Meta no puede activarse hasta completar API Key, Phone Number ID, token de verificaciÃ³n y App Secret.</span>
               </div>
             )}
 
             {!config.enabled && (
               <div className="mt-3 p-4 bg-slate-50 border rounded-lg text-sm text-slate-600">
-                <p className="font-semibold mb-2">📋 Vista previa del flujo cuando esté activo:</p>
+                <p className="font-semibold mb-2">ðŸ“‹ Vista previa del flujo cuando estÃ© activo:</p>
                 <ol className="space-y-1 list-decimal list-inside">
                   <li>Cliente escribe a tu WhatsApp Business</li>
-                  <li>El bot responde automáticamente según el modo configurado</li>
-                  <li>Se crea un lead en el CRM automáticamente</li>
-                  <li>Recibís una notificación si necesita atención humana</li>
+                  <li>El bot responde automÃ¡ticamente segÃºn el modo configurado</li>
+                  <li>Se crea un lead en el CRM automÃ¡ticamente</li>
+                  <li>RecibÃ­s una notificaciÃ³n si necesita atenciÃ³n humana</li>
                 </ol>
               </div>
             )}
@@ -220,13 +231,13 @@ export default function WhatsAppBusinessPage() {
         {/* Connection settings */}
         <Card className={`shadow-lg transition-opacity ${!config.enabled ? 'opacity-60' : ''}`}>
           <CardHeader>
-            <CardTitle className="font-headline text-xl">Conexión y API</CardTitle>
-            <CardDescription>Configurá tu número y las credenciales de tu proveedor de WhatsApp.</CardDescription>
+            <CardTitle className="font-headline text-xl">ConexiÃ³n y API</CardTitle>
+            <CardDescription>ConfigurÃ¡ tu nÃºmero y las credenciales de tu proveedor de WhatsApp.</CardDescription>
           </CardHeader>
           <CardContent className="space-y-4">
             <div className="grid gap-4 sm:grid-cols-2">
               <div className="space-y-2">
-                <Label htmlFor="phone">Número de WhatsApp Business</Label>
+                <Label htmlFor="phone">NÃºmero de WhatsApp Business</Label>
                 <Input
                   id="phone"
                   placeholder="+598 99 999 999"
@@ -260,7 +271,7 @@ export default function WhatsAppBusinessPage() {
                 <Input
                   id="apikey"
                   type={showApiKey ? 'text' : 'password'}
-                  placeholder="Pegá tu API Key acá..."
+                  placeholder="PegÃ¡ tu API Key acÃ¡..."
                   value={config.apiKey}
                   onChange={e => set('apiKey', e.target.value)}
                   disabled={isSaving}
@@ -284,19 +295,19 @@ export default function WhatsAppBusinessPage() {
                 <Input
                   id="phone-number-id"
                   inputMode="numeric"
-                  placeholder="ID numérico configurado en Meta"
+                  placeholder="ID numÃ©rico configurado en Meta"
                   value={config.phoneNumberId || ''}
                   onChange={e => set('phoneNumberId', e.target.value.replace(/\D/g, ''))}
                   disabled={isSaving}
                 />
                 <p className="text-xs text-muted-foreground">
-                  Es el identificador del número remitente en Meta, no el número de teléfono.
+                  Es el identificador del nÃºmero remitente en Meta, no el nÃºmero de telÃ©fono.
                 </p>
               </div>
             )}
 
             <div className="space-y-2">
-              <Label htmlFor="verify-token">Token de Verificación del Webhook</Label>
+              <Label htmlFor="verify-token">Token de VerificaciÃ³n del Webhook</Label>
               <Input
                 id="verify-token"
                 placeholder="Tu token secreto para verificar el webhook..."
@@ -305,7 +316,7 @@ export default function WhatsAppBusinessPage() {
                 disabled={isSaving}
               />
               <p className="text-xs text-muted-foreground">
-                Ingresá este mismo token en la configuración de webhooks de tu proveedor (Meta, Twilio, etc.).
+                IngresÃ¡ este mismo token en la configuraciÃ³n de webhooks de tu proveedor (Meta, Twilio, etc.).
               </p>
             </div>
 
@@ -314,13 +325,13 @@ export default function WhatsAppBusinessPage() {
               <Input
                 id="app-secret"
                 type="password"
-                placeholder="El App Secret de tu aplicación de Meta..."
+                placeholder="El App Secret de tu aplicaciÃ³n de Meta..."
                 value={config.appSecret || ''}
                 onChange={e => set('appSecret', e.target.value)}
                 disabled={isSaving}
               />
               <p className="text-xs text-muted-foreground">
-                Requerido en producción para validar que las peticiones del webhook provienen legítimamente de Meta.
+                Requerido en producciÃ³n para validar que las peticiones del webhook provienen legÃ­timamente de Meta.
               </p>
             </div>
 
@@ -343,7 +354,7 @@ export default function WhatsAppBusinessPage() {
                 </Button>
               </div>
               <p className="text-xs text-muted-foreground">
-                Copiá esta URL y pegala en la configuración de webhooks de tu proveedor.
+                CopiÃ¡ esta URL y pegala en la configuraciÃ³n de webhooks de tu proveedor.
               </p>
             </div>
           </CardContent>
@@ -353,10 +364,10 @@ export default function WhatsAppBusinessPage() {
           <Card className={`shadow-lg transition-opacity ${!config.enabled ? 'opacity-60' : ''}`}>
             <CardHeader>
               <CardTitle className="font-headline text-xl flex items-center gap-2">
-                <QrCode className="w-5 h-5" /> Acceso semi-automático con QR
+                <QrCode className="w-5 h-5" /> Acceso semi-automÃ¡tico con QR
               </CardTitle>
               <CardDescription>
-                Escaneá este QR con WhatsApp Web para tomar rápidamente conversaciones en modo semi-automático.
+                EscaneÃ¡ este QR con WhatsApp Web para tomar rÃ¡pidamente conversaciones en modo semi-automÃ¡tico.
               </CardDescription>
             </CardHeader>
             <CardContent>
@@ -366,21 +377,21 @@ export default function WhatsAppBusinessPage() {
                     <QRCodeSVG value={whatsAppWebUrl} size={160} />
                   </div>
                   <div className="space-y-2 text-sm text-muted-foreground">
-                    <p>1) Abrí WhatsApp en tu teléfono.</p>
-                    <p>2) Escaneá el código para abrir WhatsApp Web con el número configurado.</p>
+                    <p>1) AbrÃ­ WhatsApp en tu telÃ©fono.</p>
+                    <p>2) EscaneÃ¡ el cÃ³digo para abrir WhatsApp Web con el nÃºmero configurado.</p>
                     <a
                       href={whatsAppWebUrl}
                       target="_blank"
                       rel="noopener noreferrer"
                       className="inline-flex text-primary underline underline-offset-2"
                     >
-                      Abrir también en nueva pestaña
+                      Abrir tambiÃ©n en nueva pestaÃ±a
                     </a>
                   </div>
                 </div>
               ) : (
                 <p className="text-sm text-amber-700 bg-amber-50 border border-amber-200 rounded-md p-3">
-                  Ingresá primero un número de WhatsApp Business para generar el QR.
+                  IngresÃ¡ primero un nÃºmero de WhatsApp Business para generar el QR.
                 </p>
               )}
             </CardContent>
@@ -390,8 +401,8 @@ export default function WhatsAppBusinessPage() {
         {/* Operating mode */}
         <Card className={`shadow-lg transition-opacity ${!config.enabled ? 'opacity-60' : ''}`}>
           <CardHeader>
-            <CardTitle className="font-headline text-xl">Modo de Operación</CardTitle>
-            <CardDescription>Elegí cómo querés que el bot maneje las conversaciones.</CardDescription>
+            <CardTitle className="font-headline text-xl">Modo de OperaciÃ³n</CardTitle>
+            <CardDescription>ElegÃ­ cÃ³mo querÃ©s que el bot maneje las conversaciones.</CardDescription>
           </CardHeader>
           <CardContent>
             <RadioGroup
@@ -404,20 +415,20 @@ export default function WhatsAppBusinessPage() {
                 {
                   value: 'automatic',
                   icon: <Zap className="w-5 h-5 text-primary shrink-0" />,
-                  title: 'Automático',
+                  title: 'AutomÃ¡tico',
                   desc: 'El bot responde todo. Solo te notifica cuando no sabe responder.',
                 },
                 {
                   value: 'semi-automatic',
                   icon: <Bot className="w-5 h-5 text-green-600 shrink-0" />,
-                  title: 'Semi-automático (recomendado)',
-                  desc: 'El bot responde preguntas frecuentes y consultas de precios. Te notifica para que tomes la conversación cuando el cliente quiere algo específico.',
+                  title: 'Semi-automÃ¡tico (recomendado)',
+                  desc: 'El bot responde preguntas frecuentes y consultas de precios. Te notifica para que tomes la conversaciÃ³n cuando el cliente quiere algo especÃ­fico.',
                 },
                 {
                   value: 'manual',
                   icon: <Hand className="w-5 h-5 text-orange-500 shrink-0" />,
                   title: 'Manual',
-                  desc: 'El bot solo registra el mensaje y te notifica. No responde nada automáticamente.',
+                  desc: 'El bot solo registra el mensaje y te notifica. No responde nada automÃ¡ticamente.',
                 },
               ].map(opt => (
                 <label
@@ -449,7 +460,7 @@ export default function WhatsAppBusinessPage() {
             {[
               { key: 'welcome' as const, label: 'Mensaje de Bienvenida', rows: 2 },
               { key: 'offHours' as const, label: 'Fuera de Horario', rows: 2 },
-              { key: 'followUp' as const, label: 'Seguimiento Automático', rows: 2 },
+              { key: 'followUp' as const, label: 'Seguimiento AutomÃ¡tico', rows: 2 },
               { key: 'farewell' as const, label: 'Despedida', rows: 2 },
             ].map(({ key, label, rows }) => (
               <div key={key} className="space-y-2">
@@ -470,13 +481,13 @@ export default function WhatsAppBusinessPage() {
         <Card className={`shadow-lg transition-opacity ${!config.enabled ? 'opacity-60' : ''}`}>
           <CardHeader>
             <CardTitle className="font-headline text-xl flex items-center gap-2">
-              <Clock className="w-5 h-5" /> Horario de Atención
+              <Clock className="w-5 h-5" /> Horario de AtenciÃ³n
             </CardTitle>
-            <CardDescription>El bot responde mensajes solo en este horario. Fuera de él, envía el mensaje de fuera de horario.</CardDescription>
+            <CardDescription>El bot responde mensajes solo en este horario. Fuera de Ã©l, envÃ­a el mensaje de fuera de horario.</CardDescription>
           </CardHeader>
           <CardContent className="space-y-4">
             <div>
-              <Label className="text-sm font-semibold mb-2 block">Días activos</Label>
+              <Label className="text-sm font-semibold mb-2 block">DÃ­as activos</Label>
               <div className="flex flex-wrap gap-2">
                 {DAYS.map(d => (
                   <button
@@ -524,24 +535,24 @@ export default function WhatsAppBusinessPage() {
         <Card className="shadow-lg">
           <CardHeader>
             <CardTitle className="font-headline text-xl">Integraciones</CardTitle>
-            <CardDescription>Conectá el bot con los demás módulos de la app.</CardDescription>
+            <CardDescription>ConectÃ¡ el bot con los demÃ¡s mÃ³dulos de la app.</CardDescription>
           </CardHeader>
           <CardContent className="space-y-4">
             {[
               {
                 key: 'createCrmLead' as const,
-                title: 'Crear lead en CRM automáticamente',
+                title: 'Crear lead en CRM automÃ¡ticamente',
                 desc: 'Cada nuevo contacto de WhatsApp se registra como prospecto en el CRM.',
               },
               {
                 key: 'sendMarketingFollowUp' as const,
                 title: 'Enviar seguimiento de Marketing',
-                desc: 'Los leads sin respuesta reciben un mensaje de seguimiento automático.',
+                desc: 'Los leads sin respuesta reciben un mensaje de seguimiento automÃ¡tico.',
               },
               {
                 key: 'logMessageHistory' as const,
                 title: 'Registrar historial de mensajes',
-                desc: 'Guardá todas las conversaciones para revisarlas después.',
+                desc: 'GuardÃ¡ todas las conversaciones para revisarlas despuÃ©s.',
               },
             ].map(({ key, title, desc }) => (
               <div key={key} className="flex items-center justify-between p-4 border rounded-lg">
@@ -560,7 +571,7 @@ export default function WhatsAppBusinessPage() {
           <CardFooter className="border-t pt-6">
             <Button type="submit" disabled={isSaving} className="bg-green-600 hover:bg-green-700">
               {isSaving ? <Loader2 className="w-4 h-4 mr-2 animate-spin" /> : <Save className="w-4 h-4 mr-2" />}
-              {isSaving ? 'Guardando...' : 'Guardar Configuración'}
+              {isSaving ? 'Guardando...' : 'Guardar ConfiguraciÃ³n'}
             </Button>
           </CardFooter>
         </Card>
