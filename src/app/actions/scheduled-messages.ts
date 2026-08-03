@@ -1,4 +1,4 @@
-'use server';
+﻿'use server';
 
 import { readData, writeData } from '@/lib/data-service';
 import type { ScheduledMessage, ScheduledMessageStatus } from '@/types/whatsapp-automation';
@@ -101,7 +101,7 @@ export async function generateWhatsAppClickUrl(
 ): Promise<string> {
   const phone = (targetPhone || '').replace(/[^\d]/g, '');
   const cleanPhone = phone.startsWith('598') ? phone : `598${phone.replace(/^0/, '')}`;
-  return `https://wa.me/${cleanPhone}?text=${encodeURIComponent(messageText)}`;
+  return `https://wa.me/${cleanPhone || '59898355530'}?text=${encodeURIComponent(messageText)}`;
 }
 
 export async function getPendingMessagesForToday(): Promise<ScheduledMessage[]> {

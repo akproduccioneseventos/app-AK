@@ -672,6 +672,64 @@ export default function GuestBuzonPage() {
         canvas.height,
       );
 
+      // Frame Border Overlay directly on Canvas
+      const frameText = (fiesta?.buzonConfig?.customText || fiesta?.eventName || 'AK PRODUCCIONES').toUpperCase();
+
+      if (activeTemplate !== 'default') {
+        const borderWidth = 14;
+        ctx.lineWidth = borderWidth;
+
+        if (activeTemplate === 'neon') {
+          ctx.strokeStyle = '#d946ef';
+          ctx.strokeRect(borderWidth / 2, borderWidth / 2, canvas.width - borderWidth, canvas.height - borderWidth);
+          ctx.fillStyle = '#22d3ee';
+          ctx.font = 'bold 14px sans-serif';
+          ctx.textAlign = 'center';
+          ctx.fillText(`✨ ${frameText} ✨`, canvas.width / 2, canvas.height - 24);
+          ctx.textAlign = 'left';
+        } else if (activeTemplate === 'elegante') {
+          ctx.strokeStyle = '#fde047';
+          ctx.strokeRect(borderWidth / 2, borderWidth / 2, canvas.width - borderWidth, canvas.height - borderWidth);
+          ctx.fillStyle = '#fef08a';
+          ctx.font = 'bold 14px Georgia, serif';
+          ctx.textAlign = 'center';
+          ctx.fillText(`✦ ${frameText} ✦`, canvas.width / 2, canvas.height - 24);
+          ctx.textAlign = 'left';
+        } else if (activeTemplate === 'quince') {
+          ctx.strokeStyle = '#f472b6';
+          ctx.strokeRect(borderWidth / 2, borderWidth / 2, canvas.width - borderWidth, canvas.height - borderWidth);
+          ctx.fillStyle = '#fbcfe8';
+          ctx.font = 'bold 14px sans-serif';
+          ctx.textAlign = 'center';
+          ctx.fillText(`👑 ${frameText} 👑`, canvas.width / 2, canvas.height - 24);
+          ctx.textAlign = 'left';
+        } else if (activeTemplate === 'cumple-infantil') {
+          ctx.strokeStyle = '#38bdf8';
+          ctx.strokeRect(borderWidth / 2, borderWidth / 2, canvas.width - borderWidth, canvas.height - borderWidth);
+          ctx.fillStyle = '#fde047';
+          ctx.font = 'bold 14px sans-serif';
+          ctx.textAlign = 'center';
+          ctx.fillText(`🎈 ${frameText} 🎂`, canvas.width / 2, canvas.height - 24);
+          ctx.textAlign = 'left';
+        } else if (activeTemplate === 'glamour') {
+          ctx.strokeStyle = '#eab308';
+          ctx.strokeRect(borderWidth / 2, borderWidth / 2, canvas.width - borderWidth, canvas.height - borderWidth);
+          ctx.fillStyle = '#fef08a';
+          ctx.font = 'bold 14px sans-serif';
+          ctx.textAlign = 'center';
+          ctx.fillText(`⭐ ${frameText} ⭐`, canvas.width / 2, canvas.height - 24);
+          ctx.textAlign = 'left';
+        } else if (activeTemplate === 'minimalista') {
+          ctx.strokeStyle = '#ffffff';
+          ctx.strokeRect(borderWidth / 2, borderWidth / 2, canvas.width - borderWidth, canvas.height - borderWidth);
+          ctx.fillStyle = '#ffffff';
+          ctx.font = 'bold 14px sans-serif';
+          ctx.textAlign = 'center';
+          ctx.fillText(frameText, canvas.width / 2, canvas.height - 24);
+          ctx.textAlign = 'left';
+        }
+      }
+
       // Random tracking error line (VHSDistortion)
       if (Math.random() < 0.1) {
         const errorY = Math.floor(Math.random() * canvas.height);
@@ -1101,13 +1159,6 @@ export default function GuestBuzonPage() {
 
                         {/* Overlay VHS Effect */}
                         <div className="absolute inset-0 bg-[linear-gradient(rgba(18,16,16,0)_50%,rgba(0,0,0,0.25)_50%),linear-gradient(90deg,rgba(255,0,0,0.06),rgba(0,255,0,0.02),rgba(0,0,255,0.06))] pointer-events-none bg-[size:100%_4px,3px_100%]" />
-
-                        {/* Marco de Video Personalizado */}
-                        <VideoFrameOverlay
-                          template={fiesta?.buzonConfig?.videoFrameTemplate}
-                          customText={fiesta?.buzonConfig?.customText}
-                          eventName={fiesta?.eventName}
-                        />
                         {/* Cuenta regresiva Overlay */}
                         {countdown !== null && (
                           <div className="absolute inset-0 z-20 flex items-center justify-center bg-black/60 backdrop-blur-sm">

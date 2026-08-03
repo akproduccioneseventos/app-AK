@@ -1,4 +1,4 @@
-import type { Metadata } from 'next';
+﻿import type { Metadata } from 'next';
 import Image from 'next/image';
 import Link from 'next/link';
 import { ArrowRight, BookOpen, MessageSquare, Sparkles } from 'lucide-react';
@@ -12,11 +12,13 @@ import { getBlogCategoryLabel, getBlogPostImage, getBlogPostImageAlt } from '@/l
 
 export const metadata: Metadata = {
   title: 'Consejos para organizar eventos | Blog AK Producciones',
-  description: 'Guías prácticas para organizar fiestas, XV años, bodas, comida y presupuestos en Salto, Uruguay.',
+  description: 'GuÃ­as prÃ¡cticas para organizar fiestas, XV aÃ±os, bodas, comida y presupuestos en Salto, Uruguay.',
 };
 
-const WHATSAPP_NUMBER = '59898355530';
-const WHATSAPP_MESSAGE = 'Hola AK Producciones, leí el blog y quiero asesoramiento para organizar mi evento.';
+import { AK_WHATSAPP_NUMBER } from '@/lib/public-contact';
+
+const WHATSAPP_NUMBER = AK_WHATSAPP_NUMBER;
+const WHATSAPP_MESSAGE = 'Hola AK Producciones, leÃ­ el blog y quiero asesoramiento para organizar mi evento.';
 
 export default async function BlogPage() {
   const postsFromDb = await getBlogPosts().catch(() => []);
@@ -41,7 +43,7 @@ export default async function BlogPage() {
                   Consejos claros para decidir mejor tu evento.
                 </h1>
                 <p className="max-w-2xl text-base leading-8 text-slate-300 sm:text-lg">
-                  Guías para elegir salón, menú, presupuesto, tiempos y servicios antes de contratar.
+                  GuÃƒÂ­as para elegir salÃƒÂ³n, menÃƒÂº, presupuesto, tiempos y servicios antes de contratar.
                 </p>
               </div>
               <div className="flex flex-col gap-3 sm:flex-row">
@@ -70,7 +72,7 @@ export default async function BlogPage() {
               <div className="space-y-4 p-6">
                 <p className="inline-flex items-center gap-2 text-[11px] font-black uppercase tracking-[0.2em] text-red-700">
                   <FeaturedIcon className="h-3.5 w-3.5" />
-                  Artículo destacado
+                  ArtÃƒÂ­culo destacado
                 </p>
                 <h2 className="text-2xl font-black leading-tight transition-colors group-hover:text-red-700">{featured.title}</h2>
                 <p className="line-clamp-3 text-sm font-medium leading-7 text-slate-600">{featured.excerpt}</p>
@@ -87,11 +89,11 @@ export default async function BlogPage() {
           <div className="mx-auto max-w-6xl space-y-8">
             <div className="flex flex-col gap-3 md:flex-row md:items-end md:justify-between">
               <div>
-                <p className="text-[11px] font-black uppercase tracking-[0.24em] text-red-700">Guías prácticas</p>
+                <p className="text-[11px] font-black uppercase tracking-[0.24em] text-red-700">GuÃƒÂ­as prÃƒÂ¡cticas</p>
                 <h2 className="mt-2 text-3xl font-black text-slate-950">Contenido para decidir mejor</h2>
               </div>
               <p className="max-w-xl text-sm font-medium leading-7 text-slate-600">
-                Cada artículo responde dudas frecuentes y ayuda a tomar decisiones inteligentes antes de tu evento.
+                Cada artÃƒÂ­culo responde dudas frecuentes y ayuda a tomar decisiones inteligentes antes de tu evento.
               </p>
             </div>
             <BlogInteractiveList posts={posts} />
@@ -105,9 +107,9 @@ export default async function BlogPage() {
                 <Sparkles className="h-6 w-6" />
               </div>
               <div>
-                <h2 className="text-2xl font-black text-slate-950">¿Tenés una duda puntual sobre tu evento?</h2>
+                <h2 className="text-2xl font-black text-slate-950">Ã‚Â¿TenÃƒÂ©s una duda puntual sobre tu evento?</h2>
                 <p className="mt-2 max-w-2xl text-sm font-medium leading-7 text-slate-600">
-                  Contanos fecha, cantidad de invitados y prioridades. Te orientamos antes de que gastes de más.
+                  Contanos fecha, cantidad de invitados y prioridades. Te orientamos antes de que gastes de mÃƒÂ¡s.
                 </p>
               </div>
             </div>

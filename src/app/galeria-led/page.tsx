@@ -1,4 +1,4 @@
-'use client';
+﻿'use client';
 
 import { useState, useEffect, useMemo, Suspense } from 'react';
 import { useSearchParams } from 'next/navigation';
@@ -61,7 +61,7 @@ function GaleriaLedContent() {
     } catch {
       // ignore
     }
-    window.location.assign('/presentacion-led');
+    router.push('/presentacion-led');
   };
 
   const titulo = subCategoria

@@ -1,9 +1,9 @@
-
+﻿
 'use server';
 
 import type { CrmLead, CrmStage, NewCrmLeadData, CrmTimelineItem } from '@/types/crm';
 import { readData, writeData } from '@/lib/data-service';
-import { saveCustomer, getCustomers } from '@/app/actions/customers'; 
+import { saveCustomer, getCustomers } from '@/app/actions/customers';
 import { getPresupuestoById, updatePresupuesto } from '@/app/actions/presupuestos';
 import { saveFiesta, syncFiestaFromBudget, getFiestas } from '@/app/actions/fiesta/fiesta.actions';
 import { getInvoiceById, saveInvoice } from '@/app/actions/invoices';
@@ -109,7 +109,7 @@ async function deleteCrmLeadDocument(leadId: string): Promise<boolean> {
 const MIN_NAME_LENGTH_FOR_PARTIAL_MATCH = 6;
 const getBudgetSourceLabel = (source?: string) => {
   if (source === 'simulator_assistant') return 'Simulador con asistente';
-  if (source === 'simulator_common') return 'Simulador común';
+  if (source === 'simulator_common') return 'Simulador comÃºn';
   if (source === 'portal_led') return 'Portal LED';
   if (source === 'simulator') return 'Simulador';
   return 'Manual';
@@ -206,16 +206,16 @@ export async function addCrmLead(leadData: NewCrmLeadData): Promise<{ success: b
   const nameCleaned = (leadData.name || '').trim().replace(/\s+/g, ' ');
   const nameOnlyLetters = nameCleaned.replace(/\p{Emoji}/gu, '').replace(/\d/g, '').trim();
   if (nameCleaned.length < 3) {
-    return { success: false, error: 'El nombre es demasiado corto (mínimo 3 caracteres).' };
+    return { success: false, error: 'El nombre es demasiado corto (mÃ­nimo 3 caracteres).' };
   }
   if (nameOnlyLetters.length < 2) {
     return { success: false, error: 'El nombre debe contener al menos 2 letras reales.' };
   }
   if (/^\d+$/.test(nameCleaned)) {
-    return { success: false, error: 'El nombre no puede ser solo números.' };
+    return { success: false, error: 'El nombre no puede ser solo nÃºmeros.' };
   }
   if (TRASH_NAMES.includes(nameCleaned.toLowerCase())) {
-    return { success: false, error: 'El nombre no es válido.' };
+    return { success: false, error: 'El nombre no es vÃ¡lido.' };
   }
 
   // Sanitize other fields
@@ -243,8 +243,8 @@ export async function addCrmLead(leadData: NewCrmLeadData): Promise<{ success: b
       return true;
     });
     if (duplicate) {
-      logger.warn('[CRM] Duplicado detectado por teléfono:', { existing: duplicate.name, incoming: nameNormalized });
-      return { success: false, error: `Ya existe un prospecto con este teléfono: "${duplicate.name}".`, duplicate };
+      logger.warn('[CRM] Duplicado detectado por telÃ©fono:', { existing: duplicate.name, incoming: nameNormalized });
+      return { success: false, error: `Ya existe un prospecto con este telÃ©fono: "${duplicate.name}".`, duplicate };
     }
   }
 
@@ -276,7 +276,7 @@ export async function addCrmLead(leadData: NewCrmLeadData): Promise<{ success: b
   };
   await createCrmLeadDocument(newLead, leads);
 
-  // Notificación de negocio: nuevo prospecto/lead ingresado
+  // NotificaciÃ³n de negocio: nuevo prospecto/lead ingresado
   createNotification({
     titulo: 'Nuevo Prospecto',
     mensaje: `Nuevo lead registrado: ${newLead.name}${newLead.partyType ? ` (${newLead.partyType})` : ''}.`,
@@ -309,18 +309,18 @@ export async function scheduleCrmMeeting(leadId: string, date: string, title?: s
     if (!auth.success) return { success: false, error: auth.error };
     const parsedDate = new Date(date);
     if (!date || Number.isNaN(parsedDate.getTime())) {
-      return { success: false, error: 'La fecha de la reunión no es válida.' };
+      return { success: false, error: 'La fecha de la reuniÃ³n no es vÃ¡lida.' };
     }
     const normalizedDate = parsedDate.toISOString();
     const lead = await mutateCrmLeadDocument(leadId, (current) => {
       const existingNotes = current.notes || '';
       const now = new Date().toISOString();
-      const meetingTitle = title?.trim() || 'Reunión de seguimiento';
+      const meetingTitle = title?.trim() || 'ReuniÃ³n de seguimiento';
       return {
         ...current,
         followUpDate: normalizedDate,
         updatedAt: now,
-        ...(title ? { notes: `${existingNotes}\n[REUNIÓN AGENDADA: ${meetingTitle} para el ${parsedDate.toLocaleString('es-ES')}]`.trim() } : {}),
+        ...(title ? { notes: `${existingNotes}\n[REUNIÃ“N AGENDADA: ${meetingTitle} para el ${parsedDate.toLocaleString('es-ES')}]`.trim() } : {}),
         timeline: [
           ...(current.timeline || []),
           {
@@ -393,12 +393,12 @@ export async function recordWhatsAppOpened(leadId: string, message: string): Pro
     const auth = await verifySession();
     if (!auth.success) return { success: false, error: auth.error };
     const now = new Date().toISOString();
-    const noteEntry = `[WhatsApp abierto ${new Date(now).toLocaleString('es-ES')}]: ${message.slice(0, 120)}${message.length > 120 ? '…' : ''}`;
+    const noteEntry = `[WhatsApp abierto ${new Date(now).toLocaleString('es-ES')}]: ${message.slice(0, 120)}${message.length > 120 ? 'â€¦' : ''}`;
     const timelineEntry: CrmTimelineItem = {
         id: `tl_${Date.now()}`,
         type: 'whatsapp_opened',
         timestamp: now,
-        description: `WhatsApp abierto con mensaje preparado: ${message.slice(0, 80)}${message.length > 80 ? '…' : ''}`,
+        description: `WhatsApp abierto con mensaje preparado: ${message.slice(0, 80)}${message.length > 80 ? 'â€¦' : ''}`,
     };
     const lead = await mutateCrmLeadDocument(leadId, (current) => ({
       ...current,
@@ -458,7 +458,7 @@ export async function registerContractDeposit(params: {
     fecha: now,
     monto: normalizedAmount,
     metodoPago: metodoPago ?? 'Efectivo',
-    referencia: referencia ?? 'Seña registrada al firmar contrato',
+    referencia: referencia ?? 'SeÃ±a registrada al firmar contrato',
     estadoPago: 'confirmado',
   };
 
@@ -486,7 +486,7 @@ export async function registerContractDeposit(params: {
           paymentDate: now,
           amount: normalizedAmount,
           method: invoiceMethod,
-          notes: referencia ?? 'Seña registrada al firmar contrato',
+          notes: referencia ?? 'SeÃ±a registrada al firmar contrato',
         };
         const updatedInvoice = {
           ...invoice,
@@ -546,13 +546,13 @@ export async function confirmBookingWithContract(formData: FormData): Promise<{ 
     // Idempotency: Check if a Fiesta for this budget already exists
     const existingFiesta = fiestas.find(f => f.presupuestoId === presupuestoId);
     if (existingFiesta) {
-      logger.info(`[CRM] Reservación ya confirmada para presupuestoId ${presupuestoId}. Retornando fiesta existente: ${existingFiesta.id}`);
+      logger.info(`[CRM] ReservaciÃ³n ya confirmada para presupuestoId ${presupuestoId}. Retornando fiesta existente: ${existingFiesta.id}`);
       return { success: true, fiestaId: existingFiesta.id };
     }
 
     const conversionStage = stages.find(s => s.isConversionStage);
 
-    // Usar datos del formulario cuando estén disponibles; fallback a los datos del lead/presupuesto
+    // Usar datos del formulario cuando estÃ©n disponibles; fallback a los datos del lead/presupuesto
     const finalName = formName || lead.name;
     const finalPhone = formPhone || lead.phone;
     const finalSalon = formSalon || presupuesto.salonFiestas;
@@ -605,7 +605,7 @@ export async function confirmBookingWithContract(formData: FormData): Promise<{ 
       method: 'physical' as const,
       signedAt: now,
       signedBy: finalName,
-      notes: `Firma registrada al confirmar contratación. CI: ${ci || 'N/D'}. Domicilio: ${address || 'N/D'}.`,
+      notes: `Firma registrada al confirmar contrataciÃ³n. CI: ${ci || 'N/D'}. Domicilio: ${address || 'N/D'}.`,
     };
 
     // 3. Update Presupuesto FIRST with form data, set estado='Aceptado'
@@ -625,7 +625,7 @@ export async function confirmBookingWithContract(formData: FormData): Promise<{ 
       const { updatedPresupuesto } = await registerContractDeposit({
         presupuesto: presupuestoWithFormData,
         monto: formMontoSenia,
-        referencia: 'Seña registrada al firmar contrato',
+        referencia: 'SeÃ±a registrada al firmar contrato',
         metodoPago: formMetodoPago,
       });
       finalPresupuesto = updatedPresupuesto;
@@ -664,7 +664,7 @@ export async function confirmBookingWithContract(formData: FormData): Promise<{ 
             id: `tl_contract_${Date.now()}`,
             type: 'contract_signed',
             timestamp: now,
-            description: `Contrato firmado. CI: ${ci || 'N/D'}. Salón: ${finalSalon || 'N/D'}.`,
+            description: `Contrato firmado. CI: ${ci || 'N/D'}. SalÃ³n: ${finalSalon || 'N/D'}.`,
           },
       ];
       if (formMontoSenia !== undefined && formMontoSenia > 0) {
@@ -672,7 +672,7 @@ export async function confirmBookingWithContract(formData: FormData): Promise<{ 
           id: `tl_deposit_${Date.now()}`,
           type: 'deposit_registered',
           timestamp: now,
-          description: `Seña registrada: $${formMontoSenia.toLocaleString('es-UY')} UYU.`,
+          description: `SeÃ±a registrada: $${formMontoSenia.toLocaleString('es-UY')} UYU.`,
           meta: { monto: formMontoSenia },
         });
       }
@@ -695,7 +695,7 @@ export async function confirmBookingWithContract(formData: FormData): Promise<{ 
     }
 
     await createNotification({
-      mensaje: `¡Contratación Confirmada! ${finalName} es ahora cliente. ${contractFileName ? 'Contrato vinculado.' : 'El borrador del contrato está listo para revisar.'}`,
+      mensaje: `Â¡ContrataciÃ³n Confirmada! ${finalName} es ahora cliente. ${contractFileName ? 'Contrato vinculado.' : 'El borrador del contrato estÃ¡ listo para revisar.'}`,
       href: `/fiestas/nueva?fiestaId=${newFiesta.id}`,
       icono: 'PartyPopper'
     });
@@ -724,7 +724,7 @@ export async function confirmBooking(leadId: string, presupuestoId: string, arch
     // Idempotency: Check if a Fiesta for this budget already exists
     const existingFiesta = fiestas.find(f => f.presupuestoId === presupuestoId);
     if (existingFiesta) {
-      logger.info(`[CRM] Reservación ya confirmada para presupuestoId ${presupuestoId}. Retornando fiesta existente: ${existingFiesta.id}`);
+      logger.info(`[CRM] ReservaciÃ³n ya confirmada para presupuestoId ${presupuestoId}. Retornando fiesta existente: ${existingFiesta.id}`);
       return { success: true, fiestaId: existingFiesta.id };
     }
 
@@ -769,24 +769,24 @@ export async function confirmBooking(leadId: string, presupuestoId: string, arch
         presupuestoEstimado: presupuesto.totalConDescuento ?? presupuesto.costoTotalEstimado,
       }
     };
-    
+
     newFiesta.modulosContratados = { ...defaultModulosContratados };
 
     await saveFiesta(newFiesta);
 
-    // 3. Disparar Sincronización Maestra (Personal, Lavadero, etc.)
+    // 3. Disparar SincronizaciÃ³n Maestra (Personal, Lavadero, etc.)
     await syncFiestaFromBudget(newFiesta.id);
 
     // 4. Actualizar Presupuesto
     await updatePresupuesto({ ...presupuesto, estado: 'Aceptado' });
 
-    // 5. Mover Lead a conversión solo si el usuario lo solicitó explícitamente
+    // 5. Mover Lead a conversiÃ³n solo si el usuario lo solicitÃ³ explÃ­citamente
     if (archiveLead && conversionStage) {
       await moveCrmLead(lead.id, conversionStage.id);
     }
 
     await createNotification({
-      mensaje: `¡Contratación Confirmada! ${lead.name} es ahora cliente.`,
+      mensaje: `Â¡ContrataciÃ³n Confirmada! ${lead.name} es ahora cliente.`,
       href: `/fiestas/nueva?fiestaId=${newFiesta.id}`,
       icono: 'PartyPopper'
     });
@@ -805,7 +805,7 @@ export async function getCrmKpiData() {
     const activeLeads = leads.filter(l => l.currentStageId !== 's4' && l.currentStageId !== 's5');
     const pipelineValue = (presupuestos || [])
         .filter(p => activeLeads.some(l => l.presupuestoId === p.id))
-        .reduce((sum, p) => sum + (p.totalConDescuento ?? p.costoTotalEstimado), 0);
+        .reduce((sum, p) => sum + ((p.totalConDescuento ?? p.costoTotalEstimado) ?? 0), 0);
 
     const wonCount = leads.filter(l => l.currentStageId === 's4').length;
     const lostCount = leads.filter(l => l.currentStageId === 's5').length;
@@ -868,23 +868,23 @@ export async function findLeadByBudgetOrCreate(presupuesto: any) {
     const stages = await getCrmStages();
     const budgetSource = presupuesto.source || 'manual';
     const budgetTimestamp = presupuesto.timestamp || new Date().toISOString();
-    
-    // Normalizar datos de búsqueda para evitar duplicados
+
+    // Normalizar datos de bÃºsqueda para evitar duplicados
     const searchName = presupuesto.clienteNombre?.toLowerCase().trim().replace(/\s+/g, ' ');
     const searchPhone = presupuesto.clienteContacto ? normalizePhone(presupuesto.clienteContacto) : undefined;
 
     // 1. Intentar encontrar por ID vinculada o ID de presupuesto
-    let leadIndex = leads.findIndex(l => 
-        (presupuesto.leadId && l.id === presupuesto.leadId) || 
+    let leadIndex = leads.findIndex(l =>
+        (presupuesto.leadId && l.id === presupuesto.leadId) ||
         (l.presupuestoId === presupuesto.id)
     );
-    
-    // 2. Intentar encontrar por Nombre o Teléfono Normalizado (Evita duplicados)
+
+    // 2. Intentar encontrar por Nombre o TelÃ©fono Normalizado (Evita duplicados)
     if (leadIndex === -1 && (searchName || searchPhone)) {
         leadIndex = leads.findIndex(l => {
             const leadName = l.name?.toLowerCase().trim().replace(/\s+/g, ' ');
             const leadPhone = l.phone ? normalizePhone(l.phone) : undefined;
-            return (searchName && leadName === searchName) || 
+            return (searchName && leadName === searchName) ||
                    (searchPhone && leadPhone && leadPhone === searchPhone);
         });
     }

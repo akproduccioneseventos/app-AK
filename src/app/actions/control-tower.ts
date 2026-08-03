@@ -1,4 +1,4 @@
-'use server';
+﻿'use server';
 
 import { getDashboardKpiData } from '@/app/actions/dashboard';
 import { getAllFiestas } from '@/app/actions/fiesta/fiesta.actions';
@@ -37,7 +37,10 @@ function money(value: number) {
   }).format(value || 0);
 }
 
+import { requireAppSession } from '@/lib/auth/require-session';
+
 export async function getControlTowerData() {
+  await requireAppSession();
   const [dashboardResult, fiestas, presupuestos, leads, notifications] = await Promise.all([
     getDashboardKpiData(),
     getAllFiestas().catch(() => []),
@@ -59,7 +62,7 @@ export async function getControlTowerData() {
       items.push({
         id: `event_${fiesta.id}`,
         title: `${eventName} se acerca`,
-        description: d === 0 ? `Es hoy. Tiene ${pendingTasks} pendiente(s) para revisar.` : `Faltan ${d} día(s). Tiene ${pendingTasks} pendiente(s) para revisar.`,
+        description: d === 0 ? `Es hoy. Tiene ${pendingTasks} pendiente(s) para revisar.` : `Faltan ${d} dÃ­a(s). Tiene ${pendingTasks} pendiente(s) para revisar.`,
         href: `/fiestas/nueva?fiestaId=${fiesta.id}`,
         priority: d <= 7 || pendingTasks >= 5 ? 'alta' : 'media',
         area: 'fiesta',
@@ -75,7 +78,7 @@ export async function getControlTowerData() {
         items.push({
           id: `task_${tarea.id}`,
           title: tarea.texto || 'Tarea pendiente',
-          description: dTask < 0 ? `Pasó la fecha indicada. Fiesta: ${eventName}.` : dTask === 0 ? `Para hoy. Fiesta: ${eventName}.` : `Para dentro de ${dTask} día(s). Fiesta: ${eventName}.`,
+          description: dTask < 0 ? `PasÃ³ la fecha indicada. Fiesta: ${eventName}.` : dTask === 0 ? `Para hoy. Fiesta: ${eventName}.` : `Para dentro de ${dTask} dÃ­a(s). Fiesta: ${eventName}.`,
           href: `/fiestas/nueva/tareas?fiestaId=${fiesta.id}`,
           priority: dTask <= 1 ? 'alta' : 'media',
           area: 'agenda',
@@ -92,7 +95,7 @@ export async function getControlTowerData() {
       items.push({
         id: `lead_${lead.id}`,
         title: `Seguimiento comercial: ${lead.name || 'prospecto'}`,
-        description: d < 0 ? 'Tiene seguimiento pendiente.' : d === 0 ? 'Seguimiento para hoy.' : `Seguimiento en ${d} día(s).`,
+        description: d < 0 ? 'Tiene seguimiento pendiente.' : d === 0 ? 'Seguimiento para hoy.' : `Seguimiento en ${d} dÃ­a(s).`,
         href: '/contabilidad/crm',
         priority: d <= 0 ? 'alta' : 'media',
         area: 'comercial',
@@ -108,7 +111,7 @@ export async function getControlTowerData() {
       items.push({
         id: `budget_${pres.id}`,
         title: `Presupuesto para revisar: ${pres.clienteNombre || 'Cliente'}`,
-        description: `Hace ${age} día(s) que está enviado. Conviene hacer seguimiento.`,
+        description: `Hace ${age} dÃ­a(s) que estÃ¡ enviado. Conviene hacer seguimiento.`,
         href: `/presupuestos/${pres.id}/ver`,
         priority: age >= 5 ? 'alta' : 'media',
         area: 'comercial',
@@ -121,8 +124,8 @@ export async function getControlTowerData() {
     .slice(0, 6)
     .map(n => ({
       id: `notif_${n.id}`,
-      title: n.titulo || 'Notificación pendiente',
-      description: n.mensaje || 'Hay una notificación para revisar.',
+      title: n.titulo || 'NotificaciÃ³n pendiente',
+      description: n.mensaje || 'Hay una notificaciÃ³n para revisar.',
       href: n.href || '/alertas',
       priority: n.tipo === 'urgente' ? 'alta' : 'normal',
       area: 'sistema',
