@@ -130,7 +130,7 @@ export function calculateDiscountAmount(subtotal: number, presupuesto: Pick<Pres
   if (!presupuesto.descuentoTipo || discountValue <= 0) return 0;
 
   const rawDiscount = presupuesto.descuentoTipo === 'porcentaje'
-    ? Math.round(subtotal * discountValue / 100)
+    ? roundMoney((Number(subtotal) || 0) * discountValue / 100)
     : discountValue;
 
   return Math.min(subtotal, Math.max(0, rawDiscount));
@@ -258,11 +258,11 @@ export function getBudgetPaymentSummary(presupuesto?: Presupuesto | null): Budge
     };
   }
 
-  const total = roundMoney(presupuesto.totalConDescuento ?? presupuesto.costoTotalEstimado);
+  const total = roundMoney(Number(presupuesto.totalConDescuento ?? presupuesto.costoTotalEstimado) || 0);
   const paid = sumConfirmedClientPayments(presupuesto.pagosCliente ?? []);
   const pendingReview = sumPendingClientPayments(presupuesto.pagosCliente ?? []);
-  const balance = Math.max(0, total - paid);
-  const paidPercent = total > 0 ? Math.min(100, Math.round((paid / total) * 100)) : 0;
+  const balance = Math.max(0, (Number(total) || 0) - (Number(paid) || 0));
+  const paidPercent = (Number(total) || 0) > 0 ? Math.min(100, Math.round(((Number(paid) || 0) / (Number(total) || 1)) * 100)) : 0;
 
   return {
     total,

@@ -2831,7 +2831,7 @@ function SimuladorContent() {
                     <div className="flex flex-col items-center sm:items-end gap-3 w-full sm:w-auto">
                         <Button onClick={handleNext} disabled={isGenerating || isSavingProgress} className="w-full sm:w-auto rounded-md h-14 px-10 font-black text-base">
                             {(isGenerating || isSavingProgress) ? <Loader2 className="animate-spin mr-3"/> : null}
-                            {step === 5 ? "Generar presupuesto" : "Continuar"}
+                            {step === 5 ? "Ver Resumen y Propuesta" : "Continuar"}
                             {step < 5 && <ArrowRight className="ml-3 w-5 h-5"/>}
                         </Button>
                         <div className="flex items-center gap-3 bg-white px-4 py-2 rounded-md border">

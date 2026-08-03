@@ -22,7 +22,9 @@ import * as logger from '@/lib/logger';
 import { forceDeleteDocFromFirestore, forceDeleteCollectionFromFirestore } from '@/lib/firebase-sync';
 import { verifySession } from '@/lib/auth/session-token';
 import { migrateVerifiedBudgetDates } from '@/lib/budget/verified-budget-date-migration';
+import { AsyncMutex } from '@/lib/mutex';
 
+const presupuestosMutex = new AsyncMutex();
 const PRESUPUESTOS_FILE = 'presupuestos.json';
 
 function shouldDedupePaymentReference(referencia?: string): boolean {
@@ -156,7 +158,9 @@ export async function savePresupuesto(
 ): Promise<{ success: boolean, id?: string, error?: string, presupuesto?: Presupuesto, leadId?: string }> {
   const auth = await verifySession();
   if (!auth.success) return { success: false, error: auth.error };
-  let presupuestos = await getPresupuestos(true);
+
+  return await presupuestosMutex.runExclusive(async () => {
+    let presupuestos = await getPresupuestos(true);
 
   const maxNumero = presupuestos.reduce((max, p) => Math.max(max, p.numero || 0), 0);
   const nuevoNumero = maxNumero + 1;
@@ -244,6 +248,7 @@ export async function savePresupuesto(
   }).catch(err => console.warn('Error firing presupuesto_generado automation:', err));
 
   return { success: true, id: presupuestoId, presupuesto: nuevoPresupuesto, leadId: nuevoPresupuesto.leadId };
+  });
 }
 
 async function isBudgetContractSigned(presupuestoId: string): Promise<boolean> {
@@ -284,6 +289,7 @@ export async function updatePresupuesto(
   presupuestoData: Presupuesto,
   options: { preserveStoredTotal?: boolean } = {},
 ): Promise<{ success: boolean; id?: string; presupuesto?: Presupuesto; error?: string }> {
+  return await presupuestosMutex.runExclusive(async () => {
     const auth = await verifySession();
     if (!auth.success) return { success: false, error: auth.error };
     let presupuestos = await getPresupuestos(true);
@@ -342,139 +348,150 @@ export async function updatePresupuesto(
     await syncLinkedFiesta(updated);
 
     return { success: true, id: updated.id, presupuesto: updated };
+  });
 }
 
 /** Soft-delete: marks the presupuesto as archived so it disappears from active lists. */
 export async function archivePresupuesto(id: string): Promise<{ success: boolean; error?: string }> {
   const auth = await verifySession();
   if (!auth.success) return { success: false, error: auth.error };
+  if (auth.user?.role !== 'admin') return { success: false, error: 'Solo administradores pueden archivar presupuestos.' };
   const isSigned = await isBudgetContractSigned(id);
   if (isSigned) {
     return { success: false, error: 'No se puede archivar un presupuesto con contrato firmado.' };
   }
-  const all = await readData<Presupuesto[]>(PRESUPUESTOS_FILE, []);
-  const index = all.findIndex(p => p.id === id);
-  if (index === -1) return { success: false, error: 'Presupuesto no encontrado.' };
-  all[index] = { ...all[index], archived: true, archivedAt: new Date().toISOString() };
-  try {
-    await writeData(PRESUPUESTOS_FILE, all);
-  } catch (e: any) {
-    return { success: false, error: e.message || 'Error al archivar.' };
-  }
-  return { success: true };
+
+  return await presupuestosMutex.runExclusive(async () => {
+    const all = await getPresupuestos(true);
+    const index = all.findIndex(p => p.id === id);
+    if (index === -1) return { success: false, error: 'Presupuesto no encontrado.' };
+    all[index] = { ...all[index], archived: true, archivedAt: new Date().toISOString() };
+    try {
+      await writeData(PRESUPUESTOS_FILE, all);
+      return { success: true };
+    } catch (e: any) {
+      return { success: false, error: e.message || 'Error al archivar.' };
+    }
+  });
 }
 
 /** Hard-delete: permanently removes the presupuesto and cleans up CRM lead references and linked fiesta. */
 export async function deletePresupuesto(id: string): Promise<{ success: boolean; error?: string }> {
   const auth = await verifySession();
   if (!auth.success) return { success: false, error: auth.error };
+  if (auth.user?.role !== 'admin') return { success: false, error: 'Solo administradores pueden eliminar presupuestos.' };
   const isSigned = await isBudgetContractSigned(id);
   if (isSigned) {
     return { success: false, error: 'No se puede eliminar un presupuesto con contrato firmado.' };
   }
-  const all = await readData<Presupuesto[]>(PRESUPUESTOS_FILE, []);
-  const target = all.find(p => p.id === id);
-  const remaining = all.filter(p => p.id !== id);
-  try {
-    await writeData(PRESUPUESTOS_FILE, remaining);
-  } catch (writeError: any) {
-    console.error("Error deleting presupuesto:", writeError);
-    return { success: false, error: writeError.message || "Error al eliminar el presupuesto." };
-  }
 
-  // Explicitly delete the Firestore document to avoid it being restored on the next read
-  // (the empty-array safety guard in syncToFirestore can prevent orphan deletion when remaining is []).
-  try {
-    await forceDeleteDocFromFirestore('presupuestos', id);
-  } catch (e) {
-    // Non-fatal: the writeData above already updated the canonical list
-    console.warn('Could not force-delete presupuesto doc from Firestore:', e);
-  }
-
-  // Clean up CRM lead reference to avoid dangling pointer
-  if (target?.leadId) {
+  return await presupuestosMutex.runExclusive(async () => {
+    const all = await getPresupuestos(true);
+    const target = all.find(p => p.id === id);
+    const remaining = all.filter(p => p.id !== id);
     try {
-      type CrmLeadRaw = { id: string; presupuestoId?: string; presupuestoEstado?: string; [key: string]: unknown };
-      const allLeads = await readData<CrmLeadRaw[]>('crm-leads.json', []);
-      const idx = allLeads.findIndex(l => l.id === target.leadId);
-      if (idx !== -1) {
-        const { presupuestoId: _pid, presupuestoEstado: _pe, ...rest } = allLeads[idx];
-        allLeads[idx] = rest;
-        await writeData('crm-leads.json', allLeads);
-      }
-    } catch (e) {
-      // Non-fatal: log and continue
-      console.warn('Could not clean CRM lead presupuestoId after delete:', e);
+      await writeData(PRESUPUESTOS_FILE, remaining);
+    } catch (writeError: any) {
+      console.error("Error deleting presupuesto:", writeError);
+      return { success: false, error: writeError.message || "Error al eliminar el presupuesto." };
     }
-  }
 
-  // Unlink any fiesta that was linked to this presupuesto to keep planner sync healthy.
-  if (target) {
+    // Explicitly delete the Firestore document to avoid it being restored on the next read
+    // (the empty-array safety guard in syncToFirestore can prevent orphan deletion when remaining is []).
     try {
-      const allFiestas = await getAllFiestas();
-      const linked = allFiestas.filter(f => f.presupuestoId === id);
-      for (const fiesta of linked) {
-        await saveFiesta({ ...fiesta, presupuestoId: undefined });
-      }
+      await forceDeleteDocFromFirestore('presupuestos', id);
     } catch (e) {
-      // Non-fatal: log and continue
-      console.warn('Could not unlink fiesta presupuestoId after delete:', e);
+      // Non-fatal: the writeData above already updated the canonical list
+      console.warn('Could not force-delete presupuesto doc from Firestore:', e);
     }
-  }
 
-  return { success: true };
+    // Clean up CRM lead reference to avoid dangling pointer
+    if (target?.leadId) {
+      try {
+        type CrmLeadRaw = { id: string; presupuestoId?: string; presupuestoEstado?: string; [key: string]: unknown };
+        const allLeads = await readData<CrmLeadRaw[]>('crm-leads.json', []);
+        const idx = allLeads.findIndex(l => l.id === target.leadId);
+        if (idx !== -1) {
+          const { presupuestoId: _pid, presupuestoEstado: _pe, ...rest } = allLeads[idx];
+          allLeads[idx] = rest;
+          await writeData('crm-leads.json', allLeads);
+        }
+      } catch (e) {
+        // Non-fatal: log and continue
+        console.warn('Could not clean CRM lead presupuestoId after delete:', e);
+      }
+    }
+
+    // Unlink any fiesta that was linked to this presupuesto to keep planner sync healthy.
+    if (target) {
+      try {
+        const allFiestas = await getAllFiestas();
+        const linked = allFiestas.filter(f => f.presupuestoId === id);
+        for (const fiesta of linked) {
+          await saveFiesta({ ...fiesta, presupuestoId: undefined });
+        }
+      } catch (e) {
+        // Non-fatal: log and continue
+        console.warn('Could not unlink fiesta presupuestoId after delete:', e);
+      }
+    }
+
+    return { success: true };
+  });
 }
 
 export async function markPresupuestoAsFacturado(
   presupuestoId: string,
   invoiceId: string
 ): Promise<{ success: boolean; error?: string; suggestContractFlow?: boolean }> {
-  const auth = await verifySession();
-  if (!auth.success) return { success: false, error: auth.error };
-  let presupuestos = await getPresupuestos();
-  const index = presupuestos.findIndex(p => p.id === presupuestoId);
+  return await presupuestosMutex.runExclusive(async () => {
+    const auth = await verifySession();
+    if (!auth.success) return { success: false, error: auth.error };
+    let presupuestos = await getPresupuestos(true);
+    const index = presupuestos.findIndex(p => p.id === presupuestoId);
 
-  if (index === -1) {
-    return { success: false, error: "No encontrado" };
-  }
-
-  presupuestos[index].estado = 'Facturado';
-  presupuestos[index].invoiceId = invoiceId;
-  presupuestos[index].ajusteAnualActivo = true;
-
-  try {
-    const syncRes = await findLeadByBudgetOrCreate(presupuestos[index]);
-    presupuestos[index].leadId = syncRes.lead.id;
-  } catch (e) {
-    console.warn("CRM Sync error on invoice", e);
-  }
-
-  try {
-    await writeData(PRESUPUESTOS_FILE, presupuestos);
-  } catch (writeError: any) {
-    console.error("Error saving presupuesto on invoice:", writeError);
-    return { success: false, error: writeError.message || "Error al actualizar el estado del presupuesto." };
-  }
-
-  // Sincronizar con la fiesta si ya existe. No crear una nueva fiesta
-  // automáticamente sin contrato firmado: el flujo de contratación debe
-  // iniciarse desde el CRM con confirmBookingWithContract.
-  try {
-    const fiestas = await getAllFiestas();
-    const existingFiesta = fiestas.find(f => f.presupuestoId === presupuestoId);
-
-    if (existingFiesta) {
-      await syncFiestaFromBudget(existingFiesta.id);
-      return { success: true };
+    if (index === -1) {
+      return { success: false, error: "No encontrado" };
     }
 
-    // No hay evento creado aún → sugerir flujo de contratación al llamador
-    return { success: true, suggestContractFlow: true };
-  } catch (e) {
-    console.warn("Error syncing fiesta on invoice", e);
-  }
+    presupuestos[index].estado = 'Facturado';
+    presupuestos[index].invoiceId = invoiceId;
+    presupuestos[index].ajusteAnualActivo = true;
 
-  return { success: true };
+    try {
+      const syncRes = await findLeadByBudgetOrCreate(presupuestos[index]);
+      presupuestos[index].leadId = syncRes.lead.id;
+    } catch (e) {
+      console.warn("CRM Sync error on invoice", e);
+    }
+
+    try {
+      await writeData(PRESUPUESTOS_FILE, presupuestos);
+    } catch (writeError: any) {
+      console.error("Error saving presupuesto on invoice:", writeError);
+      return { success: false, error: writeError.message || "Error al actualizar el estado del presupuesto." };
+    }
+
+    // Sincronizar con la fiesta si ya existe. No crear una nueva fiesta
+    // automáticamente sin contrato firmado: el flujo de contratación debe
+    // iniciarse desde el CRM con confirmBookingWithContract.
+    try {
+      const fiestas = await getAllFiestas();
+      const existingFiesta = fiestas.find(f => f.presupuestoId === presupuestoId);
+
+      if (existingFiesta) {
+        await syncFiestaFromBudget(existingFiesta.id);
+        return { success: true };
+      }
+
+      // No hay evento creado aún → sugerir flujo de contratación al llamador
+      return { success: true, suggestContractFlow: true };
+    } catch (e) {
+      console.warn("Error syncing fiesta on invoice", e);
+    }
+
+    return { success: true };
+  });
 }
 
 export async function recalculatePresupuestoFromCatalog(presupuestoId: string): Promise<{ success: boolean; presupuesto?: Presupuesto; error?: string }> {
@@ -801,32 +818,34 @@ export async function createFiestaFromPresupuesto(
 export async function approvePresupuesto(
   presupuestoId: string
 ): Promise<{ success: boolean; error?: string }> {
-  try {
-    const auth = await verifySession();
-    if (!auth.success) return { success: false, error: auth.error };
-    const presupuestos = await getPresupuestos();
-    const index = presupuestos.findIndex(p => p.id === presupuestoId);
-    if (index === -1) return { success: false, error: 'Presupuesto no encontrado' };
+  return await presupuestosMutex.runExclusive(async () => {
+    try {
+      const auth = await verifySession();
+      if (!auth.success) return { success: false, error: auth.error };
+      const presupuestos = await getPresupuestos();
+      const index = presupuestos.findIndex(p => p.id === presupuestoId);
+      if (index === -1) return { success: false, error: 'Presupuesto no encontrado' };
 
-    presupuestos[index].estado = 'Enviado';
-    await writeData(PRESUPUESTOS_FILE, presupuestos);
+      presupuestos[index].estado = 'Enviado';
+      await writeData(PRESUPUESTOS_FILE, presupuestos);
 
-    // Automation: fire presupuesto_enviado rules (non-blocking)
-    const p = presupuestos[index];
-    triggerWhatsAppAutomation('presupuesto_enviado', {
-      targetId: p.leadId || presupuestoId,
-      targetName: p.clienteNombre,
-      targetType: 'prospecto',
-      leadId: p.leadId,
-      nombre: p.clienteNombre,
-      fechaEvento: p.eventoFecha,
-      link: `/presupuestos/${presupuestoId}/ver`,
-    }).catch(err => console.warn('Error firing presupuesto_enviado automation:', err));
+      // Automation: fire presupuesto_enviado rules (non-blocking)
+      const p = presupuestos[index];
+      triggerWhatsAppAutomation('presupuesto_enviado', {
+        targetId: p.leadId || presupuestoId,
+        targetName: p.clienteNombre,
+        targetType: 'prospecto',
+        leadId: p.leadId,
+        nombre: p.clienteNombre,
+        fechaEvento: p.eventoFecha,
+        link: `/presupuestos/${presupuestoId}/ver`,
+      }).catch(err => console.warn('Error firing presupuesto_enviado automation:', err));
 
-    return { success: true };
-  } catch (e: any) {
-    return { success: false, error: e.message };
-  }
+      return { success: true };
+    } catch (e: any) {
+      return { success: false, error: e.message };
+    }
+  });
 }
 
 // ── Payment confirmation/rejection actions ──────────────────────────
@@ -964,61 +983,65 @@ export async function resetAllPresupuestos(): Promise<{ success: boolean; delete
   try {
     const auth = await verifySession();
     if (!auth.success) return { success: false, error: auth.error };
-    const all = await getPresupuestos(true);
-    const deletedIds = new Set(all.map(p => p.id));
-    const deletedCount = all.length;
+    if (auth.user?.role !== 'admin') return { success: false, error: 'Solo administradores pueden formatear la base de datos de presupuestos.' };
 
-    // Directly delete all docs from Firestore — bypasses the empty-array safety guard
-    // in syncToFirestore that would otherwise prevent deletion of existing documents.
-    try {
-      await forceDeleteCollectionFromFirestore('presupuestos');
-    } catch (e) {
-      // Non-fatal: fall through to local JSON cleanup and CRM cleanup.
-      logger.warn('[Presupuestos] forceDeleteCollectionFromFirestore falló, se continúa con limpieza local:', e);
-    }
+    return await presupuestosMutex.runExclusive(async () => {
+      const all = await getPresupuestos(true);
+      const deletedIds = new Set(all.map(p => p.id));
+      const deletedCount = all.length;
 
-    // Keep local JSON fallbacks in sync so the UI doesn't resurrect deleted presupuestos.
-    try {
-      const fs = await import('fs/promises');
-      const path = await import('path');
-      const localCandidates = [
-        path.join(process.cwd(), 'data', PRESUPUESTOS_FILE),
-        path.join(process.cwd(), 'src', 'data', PRESUPUESTOS_FILE),
-      ];
-      for (const localPath of localCandidates) {
-        try {
-          await fs.writeFile(localPath, JSON.stringify([], null, 2), 'utf-8');
-        } catch {
-          // ignore missing local fallback file
+      // Directly delete all docs from Firestore — bypasses the empty-array safety guard
+      // in syncToFirestore that would otherwise prevent deletion of existing documents.
+      try {
+        await forceDeleteCollectionFromFirestore('presupuestos');
+      } catch (e) {
+        // Non-fatal: fall through to local JSON cleanup and CRM cleanup.
+        logger.warn('[Presupuestos] forceDeleteCollectionFromFirestore falló, se continúa con limpieza local:', e);
+      }
+
+      // Keep local JSON fallbacks in sync so the UI doesn't resurrect deleted presupuestos.
+      try {
+        const fs = await import('fs/promises');
+        const path = await import('path');
+        const localCandidates = [
+          path.join(process.cwd(), 'data', PRESUPUESTOS_FILE),
+          path.join(process.cwd(), 'src', 'data', PRESUPUESTOS_FILE),
+        ];
+        for (const localPath of localCandidates) {
+          try {
+            await fs.writeFile(localPath, JSON.stringify([], null, 2), 'utf-8');
+          } catch {
+            // ignore missing local fallback file
+          }
+        }
+      } catch {
+        // ignore local fallback write errors in restricted environments
+      }
+
+      // Clean stale CRM references to deleted presupuestos.
+      if (deletedIds.size > 0) {
+        type CrmLeadRaw = { presupuestoId?: string; presupuestoEstado?: string; [key: string]: unknown };
+        const leads = await readData<CrmLeadRaw[]>('crm-leads.json', []);
+        const cleanedLeads = leads.map((lead) => {
+          if (lead.presupuestoId && deletedIds.has(lead.presupuestoId)) {
+            const { presupuestoId: _pid, presupuestoEstado: _pestado, ...rest } = lead;
+            return rest;
+          }
+          return lead;
+        });
+        await writeData('crm-leads.json', cleanedLeads);
+
+        // Unlink fiestas that referenced deleted presupuestos to keep planner synchronization healthy.
+        const allFiestas = await getAllFiestas();
+        const fiestasToUnlink = allFiestas.filter(fiesta => fiesta.presupuestoId && deletedIds.has(fiesta.presupuestoId));
+        for (const fiesta of fiestasToUnlink) {
+          await saveFiesta({ ...fiesta, presupuestoId: undefined });
         }
       }
-    } catch {
-      // ignore local fallback write errors in restricted environments
-    }
 
-    // Clean stale CRM references to deleted presupuestos.
-    if (deletedIds.size > 0) {
-      type CrmLeadRaw = { presupuestoId?: string; presupuestoEstado?: string; [key: string]: unknown };
-      const leads = await readData<CrmLeadRaw[]>('crm-leads.json', []);
-      const cleanedLeads = leads.map((lead) => {
-        if (lead.presupuestoId && deletedIds.has(lead.presupuestoId)) {
-          const { presupuestoId: _pid, presupuestoEstado: _pestado, ...rest } = lead;
-          return rest;
-        }
-        return lead;
-      });
-      await writeData('crm-leads.json', cleanedLeads);
-
-      // Unlink fiestas that referenced deleted presupuestos to keep planner synchronization healthy.
-      const allFiestas = await getAllFiestas();
-      const fiestasToUnlink = allFiestas.filter(fiesta => fiesta.presupuestoId && deletedIds.has(fiesta.presupuestoId));
-      for (const fiesta of fiestasToUnlink) {
-        await saveFiesta({ ...fiesta, presupuestoId: undefined });
-      }
-    }
-
-    logger.info('[Presupuestos] Todos los presupuestos eliminados por admin.', { deletedCount });
-    return { success: true, deletedCount };
+      logger.info('[Presupuestos] Todos los presupuestos eliminados por admin.', { deletedCount });
+      return { success: true, deletedCount };
+    });
   } catch (error: any) {
     logger.error('[Presupuestos] Error al reiniciar presupuestos:', error);
     return { success: false, error: error.message || 'Error al reiniciar los presupuestos.' };

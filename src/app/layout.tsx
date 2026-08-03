@@ -9,6 +9,7 @@ import './ak-no-red-experience.css';
 import './ak-budget-mobile-fixes.css';
 import { Toaster } from "@/components/ui/toaster";
 import { DeploymentRecovery } from '@/components/deployment-recovery';
+import { GoogleAnalytics } from '@/components/google-analytics';
 import localFont from 'next/font/local';
 
 const inter = localFont({
@@ -57,8 +58,8 @@ export const viewport: Viewport = {
 };
 
 export const metadata: Metadata = {
-  title: 'AK Producciones | Producción Integral de Fiestas y Eventos en Uruguay',
-  description: 'Plataforma inteligente de AK Producciones para cotizar, organizar y disfrutar de eventos inolvidables: Fiestas de 15, Bodas y Cumpleaños.',
+  title: 'AK Producciones',
+  description: 'Plataforma integral para la planificación y gestión de eventos de AK Producciones.',
   manifest: '/manifest.webmanifest',
   appleWebApp: {
     capable: true,
@@ -73,7 +74,6 @@ export const metadata: Metadata = {
   },
 };
 
-import { GoogleAnalytics } from '@/components/google-analytics';
 
 export default function RootLayout({
   children,

@@ -37,7 +37,10 @@ function money(value: number) {
   }).format(value || 0);
 }
 
+import { requireAppSession } from '@/lib/auth/require-session';
+
 export async function getControlTowerData() {
+  await requireAppSession();
   const [dashboardResult, fiestas, presupuestos, leads, notifications] = await Promise.all([
     getDashboardKpiData(),
     getAllFiestas().catch(() => []),

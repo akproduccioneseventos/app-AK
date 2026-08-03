@@ -15,7 +15,9 @@ export const metadata: Metadata = {
   description: 'Guías prácticas para organizar fiestas, XV años, bodas, comida y presupuestos en Salto, Uruguay.',
 };
 
-const WHATSAPP_NUMBER = '59898355530';
+import { AK_WHATSAPP_NUMBER } from '@/lib/public-contact';
+
+const WHATSAPP_NUMBER = AK_WHATSAPP_NUMBER;
 const WHATSAPP_MESSAGE = 'Hola AK Producciones, leí el blog y quiero asesoramiento para organizar mi evento.';
 
 export default async function BlogPage() {

@@ -623,7 +623,7 @@ export default function BarraTecnologicaTouchPage() {
       const bytes = new Uint8Array(binary.length);
       for (let i = 0; i < binary.length; i++) bytes[i] = binary.charCodeAt(i);
 
-      const fileExt = mime === 'video/webm' ? 'webm' : 'jpg';
+      const fileExt = mime.includes('video') ? (mime.includes('mp4') ? 'mp4' : 'webm') : 'jpg';
       const file = new File([bytes], `totem-${Date.now()}.${fileExt}`, { type: mime });
 
       const formData = new FormData();

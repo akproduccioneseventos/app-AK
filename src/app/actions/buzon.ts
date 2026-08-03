@@ -146,7 +146,7 @@ export async function uploadBuzonMessage(
 
     // Notify the screen visually by adding a system chat message
     const alertText = detectedMedia.mediaType === 'audio'
-      ? '🎙️ Dejó un saludo de voz en el buzón'
+      ? '🎙ï¸ Dejó un saludo de voz en el buzón'
       : '📹 Subió un video al buzón';
 
     await addChatMessage(fiestaId, alertText, authorName, {
@@ -308,7 +308,6 @@ export async function updateBuzonFrameTemplate(fiestaId: string, template: strin
       ...fiesta,
       buzonConfig: {
         ...fiesta.buzonConfig,
-        videoFrameTemplate: template,
         customText: typeof customText === 'string'
           ? customText.trim().slice(0, 80)
           : fiesta.buzonConfig?.customText || '',

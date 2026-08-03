@@ -1,4 +1,4 @@
-﻿export interface GoogleCalendarEventDetails {
+export interface GoogleCalendarEventDetails {
   title: string;
   description: string;
   location?: string;
@@ -7,22 +7,33 @@
 }
 
 /**
- * Builds a direct Google Calendar event creation URL for 1-click adding to user's Google Calendar.
+ * Builds a direct Google Calendar event creation URL.
+ * Uses manual string concatenation for `dates` to avoid URLSearchParams encoding the `/` separator.
  */
 export function buildGoogleCalendarUrl(details: GoogleCalendarEventDetails): string {
   const startDate = new Date(details.startIso);
-  const endDate = details.endIso ? new Date(details.endIso) : new Date(startDate.getTime() + 4 * 60 * 60 * 1000);
+  if (isNaN(startDate.getTime())) {
+    throw new Error(`[GoogleCalendar] Fecha de inicio inválida: ${details.startIso}`);
+  }
 
-  const formatGoogleDate = (date: Date) => date.toISOString().replace(/-|:|\.\d\d\d/g, '');
+  const endDate = details.endIso
+    ? new Date(details.endIso)
+    : new Date(startDate.getTime() + 4 * 60 * 60 * 1000);
 
-  const dates = `${formatGoogleDate(startDate)}/${formatGoogleDate(endDate)}`;
+  if (isNaN(endDate.getTime())) {
+    throw new Error(`[GoogleCalendar] Fecha de fin inválida: ${details.endIso}`);
+  }
+
+  const fmt = (d: Date) => d.toISOString().replace(/-|:|\.\d{3}/g, '');
+  const dates = `${fmt(startDate)}/${fmt(endDate)}`;
+  const location = details.location || 'AK Producciones - Montevideo, Uruguay';
+
   const params = new URLSearchParams({
     action: 'TEMPLATE',
     text: details.title,
     details: details.description,
-    location: details.location || 'AK Producciones - Montevideo, Uruguay',
-    dates,
+    location,
   });
 
-  return `https://calendar.google.com/calendar/render?${params.toString()}`;
+  return `https://calendar.google.com/calendar/render?${params.toString()}&dates=${dates}`;
 }

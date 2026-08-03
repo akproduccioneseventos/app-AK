@@ -855,8 +855,9 @@ export default function PortalClientePage() {
                   <CheckCircle2 className="w-4 h-4 text-green-500 shrink-0" />
                   <span className="font-semibold">¡Fotos recibidas! Tu organizador está trabajando en el video.</span>
                 </div>
-              ) : (
-                <a
+              ) : null}
+              {!fiesta.videoVida?.photosUploaded && (
+                <Link
                   href={`/portal-cliente/${fiestaId}/fotos-video`}
                   className="flex items-center justify-between p-3.5 rounded-xl border-2 border-amber-200 bg-amber-50 text-sm hover:bg-amber-100 transition-colors"
                 >
@@ -865,10 +866,10 @@ export default function PortalClientePage() {
                     <span className="font-semibold text-amber-800">Subir fotos para video de vida</span>
                   </div>
                   <ChevronRight className="w-4 h-4 text-amber-500 shrink-0" />
-                </a>
+                </Link>
               )}
               {!fiesta.musica?.sugerenciasInvitados && !fiesta.musica?.playlistFiesta && (
-                <a
+                <Link
                   href={`/portal-cliente/${fiestaId}/musica`}
                   className="flex items-center justify-between p-3.5 rounded-xl border-2 border-blue-200 bg-blue-50 text-sm hover:bg-blue-100 transition-colors"
                 >
@@ -877,7 +878,7 @@ export default function PortalClientePage() {
                     <span className="font-semibold text-blue-800">Cargar lista de canciones</span>
                   </div>
                   <ChevronRight className="w-4 h-4 text-blue-500 shrink-0" />
-                </a>
+                </Link>
               )}
             </AccordionContent>
           </AccordionItem>

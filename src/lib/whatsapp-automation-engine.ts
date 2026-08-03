@@ -1,4 +1,4 @@
-﻿import type { AutomationTrigger, ScheduledMessage } from '@/types/whatsapp-automation';
+import type { AutomationTrigger, ScheduledMessage } from '@/types/whatsapp-automation';
 import { getWhatsAppSettings, getWhatsAppTemplates } from '@/app/actions/settings';
 import { saveScheduledMessage } from '@/app/actions/scheduled-messages';
 

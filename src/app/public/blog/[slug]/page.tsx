@@ -16,7 +16,9 @@ interface Props {
   params: Promise<{ slug: string }>;
 }
 
-const WHATSAPP_NUMBER = '59898355530';
+import { AK_WHATSAPP_NUMBER } from '@/lib/public-contact';
+
+const WHATSAPP_NUMBER = AK_WHATSAPP_NUMBER;
 
 export async function generateStaticParams() {
   const postsFromDb = await getBlogPosts();

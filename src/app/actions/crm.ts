@@ -3,7 +3,7 @@
 
 import type { CrmLead, CrmStage, NewCrmLeadData, CrmTimelineItem } from '@/types/crm';
 import { readData, writeData } from '@/lib/data-service';
-import { saveCustomer, getCustomers } from '@/app/actions/customers'; 
+import { saveCustomer, getCustomers } from '@/app/actions/customers';
 import { getPresupuestoById, updatePresupuesto } from '@/app/actions/presupuestos';
 import { saveFiesta, syncFiestaFromBudget, getFiestas } from '@/app/actions/fiesta/fiesta.actions';
 import { getInvoiceById, saveInvoice } from '@/app/actions/invoices';
@@ -28,6 +28,9 @@ import {
 } from '@/lib/google-workspace';
 import type { GoogleWorkspaceAccount } from '@/types/google-workspace';
 
+import { AsyncMutex } from '@/lib/mutex';
+
+const crmMutex = new AsyncMutex();
 const LEADS_FILE = 'crm-leads.json';
 const STAGES_FILE = 'crm-stages.json';
 const GOOGLE_ACCOUNTS_FILE = '_google-workspace-accounts.json';
@@ -56,8 +59,10 @@ async function createCrmLeadDocument(newLead: CrmLead, knownLeads?: CrmLead[]): 
     });
     return;
   }
-  const leads = knownLeads ?? await readData<CrmLead[]>(LEADS_FILE, []);
-  await writeData(LEADS_FILE, [...leads, newLead]);
+  await crmMutex.runExclusive(async () => {
+    const leads = knownLeads ?? await readData<CrmLead[]>(LEADS_FILE, []);
+    await writeData(LEADS_FILE, [...leads, newLead]);
+  });
 }
 
 async function mutateCrmLeadDocument(
@@ -82,12 +87,14 @@ async function mutateCrmLeadDocument(
     return updated;
   }
 
-  const leads = await readData<CrmLead[]>(LEADS_FILE, []);
-  const index = leads.findIndex((lead) => lead.id === leadId);
-  if (index === -1) return null;
-  leads[index] = mutate(leads[index]);
-  await writeData(LEADS_FILE, leads);
-  return leads[index];
+  return crmMutex.runExclusive(async () => {
+    const leads = await readData<CrmLead[]>(LEADS_FILE, []);
+    const index = leads.findIndex((lead) => lead.id === leadId);
+    if (index === -1) return null;
+    leads[index] = mutate(leads[index]);
+    await writeData(LEADS_FILE, leads);
+    return leads[index];
+  });
 }
 
 async function deleteCrmLeadDocument(leadId: string): Promise<boolean> {
@@ -99,11 +106,13 @@ async function deleteCrmLeadDocument(leadId: string): Promise<boolean> {
     await ref.delete();
     return true;
   }
-  const leads = await readData<CrmLead[]>(LEADS_FILE, []);
-  const next = leads.filter((lead) => lead.id !== leadId);
-  if (next.length === leads.length) return false;
-  await writeData(LEADS_FILE, next);
-  return true;
+  return crmMutex.runExclusive(async () => {
+    const leads = await readData<CrmLead[]>(LEADS_FILE, []);
+    const next = leads.filter((lead) => lead.id !== leadId);
+    if (next.length === leads.length) return false;
+    await writeData(LEADS_FILE, next);
+    return true;
+  });
 }
 
 const MIN_NAME_LENGTH_FOR_PARTIAL_MATCH = 6;
@@ -320,14 +329,14 @@ export async function scheduleCrmMeeting(leadId: string, date: string, title?: s
         ...current,
         followUpDate: normalizedDate,
         updatedAt: now,
-        ...(title ? { notes: `${existingNotes}\n[REUNIÓN AGENDADA: ${meetingTitle} para el ${parsedDate.toLocaleString('es-ES')}]`.trim() } : {}),
+        ...(title ? { notes: `${existingNotes}\n[REUNIÓN AGENDADA: ${meetingTitle} para el ${parsedDate.toLocaleString('es-ES', { timeZone: 'America/Montevideo' })}]`.trim() } : {}),
         timeline: [
           ...(current.timeline || []),
           {
             id: `tl_meeting_${Date.now()}`,
             type: 'meeting_scheduled',
             timestamp: now,
-            description: `${meetingTitle}: ${parsedDate.toLocaleString('es-ES')}`,
+            description: `${meetingTitle}: ${parsedDate.toLocaleString('es-ES', { timeZone: 'America/Montevideo' })}`,
           },
         ],
       };
@@ -338,6 +347,7 @@ export async function scheduleCrmMeeting(leadId: string, date: string, title?: s
 export async function deleteCrmLead(leadId: string): Promise<{ success: boolean; error?: string }> {
     const auth = await verifySession();
     if (!auth.success) return { success: false, error: auth.error };
+    if (auth.user?.role !== 'admin') return { success: false, error: 'Solo administradores pueden eliminar leads.' };
     return await deleteCrmLeadDocument(leadId)
       ? { success: true }
       : { success: false, error: 'No encontrado' };
@@ -393,7 +403,7 @@ export async function recordWhatsAppOpened(leadId: string, message: string): Pro
     const auth = await verifySession();
     if (!auth.success) return { success: false, error: auth.error };
     const now = new Date().toISOString();
-    const noteEntry = `[WhatsApp abierto ${new Date(now).toLocaleString('es-ES')}]: ${message.slice(0, 120)}${message.length > 120 ? '…' : ''}`;
+    const noteEntry = `[WhatsApp abierto ${new Date(now).toLocaleString('es-ES', { timeZone: 'America/Montevideo' })}]: ${message.slice(0, 120)}${message.length > 120 ? '…' : ''}`;
     const timelineEntry: CrmTimelineItem = {
         id: `tl_${Date.now()}`,
         type: 'whatsapp_opened',
@@ -467,7 +477,7 @@ export async function registerContractDeposit(params: {
   const updatedPresupuesto: Presupuesto = normalizePresupuestoFinancials({
     ...presupuesto,
     pagosCliente: updatedPagosCliente,
-    senia: roundMoney((presupuesto.senia ?? 0) + normalizedAmount),
+    senia: roundMoney((Number(presupuesto.senia) || 0) + (Number(normalizedAmount) || 0)),
   }, { preserveStoredTotal: true });
 
   // Sync invoice payments if invoice exists
@@ -769,7 +779,7 @@ export async function confirmBooking(leadId: string, presupuestoId: string, arch
         presupuestoEstimado: presupuesto.totalConDescuento ?? presupuesto.costoTotalEstimado,
       }
     };
-    
+
     newFiesta.modulosContratados = { ...defaultModulosContratados };
 
     await saveFiesta(newFiesta);
@@ -805,7 +815,7 @@ export async function getCrmKpiData() {
     const activeLeads = leads.filter(l => l.currentStageId !== 's4' && l.currentStageId !== 's5');
     const pipelineValue = (presupuestos || [])
         .filter(p => activeLeads.some(l => l.presupuestoId === p.id))
-        .reduce((sum, p) => sum + (p.totalConDescuento ?? p.costoTotalEstimado), 0);
+        .reduce((sum, p) => sum + (Number(p.totalConDescuento ?? p.costoTotalEstimado) || 0), 0);
 
     const wonCount = leads.filter(l => l.currentStageId === 's4').length;
     const lostCount = leads.filter(l => l.currentStageId === 's5').length;
@@ -839,7 +849,7 @@ export async function getCrmBoardData(): Promise<{
         const activeLeads = leads.filter(lead => lead.currentStageId !== 's4' && lead.currentStageId !== 's5');
         const pipelineValue = presupuestos
             .filter(presupuesto => activeLeads.some(lead => lead.presupuestoId === presupuesto.id))
-            .reduce((sum, presupuesto) => sum + (presupuesto.totalConDescuento ?? presupuesto.costoTotalEstimado ?? 0), 0);
+            .reduce((sum, presupuesto) => sum + (Number(presupuesto.totalConDescuento ?? presupuesto.costoTotalEstimado) || 0), 0);
         const wonLeads = leads.filter(lead => lead.currentStageId === 's4').length;
         const lostLeads = leads.filter(lead => lead.currentStageId === 's5').length;
         const totalFinished = wonLeads + lostLeads;
@@ -868,23 +878,23 @@ export async function findLeadByBudgetOrCreate(presupuesto: any) {
     const stages = await getCrmStages();
     const budgetSource = presupuesto.source || 'manual';
     const budgetTimestamp = presupuesto.timestamp || new Date().toISOString();
-    
+
     // Normalizar datos de búsqueda para evitar duplicados
     const searchName = presupuesto.clienteNombre?.toLowerCase().trim().replace(/\s+/g, ' ');
     const searchPhone = presupuesto.clienteContacto ? normalizePhone(presupuesto.clienteContacto) : undefined;
 
     // 1. Intentar encontrar por ID vinculada o ID de presupuesto
-    let leadIndex = leads.findIndex(l => 
-        (presupuesto.leadId && l.id === presupuesto.leadId) || 
+    let leadIndex = leads.findIndex(l =>
+        (presupuesto.leadId && l.id === presupuesto.leadId) ||
         (l.presupuestoId === presupuesto.id)
     );
-    
+
     // 2. Intentar encontrar por Nombre o Teléfono Normalizado (Evita duplicados)
     if (leadIndex === -1 && (searchName || searchPhone)) {
         leadIndex = leads.findIndex(l => {
             const leadName = l.name?.toLowerCase().trim().replace(/\s+/g, ' ');
             const leadPhone = l.phone ? normalizePhone(l.phone) : undefined;
-            return (searchName && leadName === searchName) || 
+            return (searchName && leadName === searchName) ||
                    (searchPhone && leadPhone && leadPhone === searchPhone);
         });
     }

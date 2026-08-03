@@ -93,10 +93,21 @@ export default function WhatsAppBusinessPage() {
     }
   };
 
-  if (isLoading || !config) {
+  if (isLoading) {
     return (
-      <div className="flex items-center justify-center p-8">
+      <div className="flex items-center justify-center min-h-[400px] p-8">
         <Loader2 className="w-8 h-8 animate-spin text-primary" />
+      </div>
+    );
+  }
+
+  if (!config) {
+    return (
+      <div className="p-8 text-center space-y-4 max-w-md mx-auto">
+        <p className="text-red-600 font-bold">No se pudo cargar la configuración de WhatsApp.</p>
+        <Button onClick={() => load()} className="bg-primary text-white font-bold rounded-xl">
+          Reintentar Carga
+        </Button>
       </div>
     );
   }
