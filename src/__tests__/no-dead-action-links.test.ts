@@ -24,12 +24,22 @@ describe('action link integrity', () => {
   });
 
   it('only exposes public map links with an http or https URL', () => {
+    // La validacion vivia dentro de cada plantilla de invitacion; al agregarse el
+    // mapa de Google se mudo a un componente comun. Se sigue el dato hasta donde
+    // esta ahora, en vez de dar por perdida la proteccion.
+    const mapa = read('src/components/invitacion/EventLocationMap.tsx');
+    expect(mapa).toContain("url.protocol === 'https:' || url.protocol === 'http:'");
+    expect(mapa).toContain('safeExternalUrl(input.mapsUrl)');
+
+    // Y las plantillas tienen que pasar el enlace por ese componente, no
+    // escribirlo directo en un `href`.
     for (const template of [
       'src/components/invitacion/templates/AllegriaTemplate.tsx',
       'src/components/invitacion/templates/GraziaTemplate.tsx',
     ]) {
       const source = read(template);
-      expect(source).toContain("/^https?:\\/\\//i.test(detalle.mapaUrl)");
+      expect(source).toContain('mapsUrl={detalle.mapaUrl}');
+      expect(source).not.toContain("href={detalle.mapaUrl");
       expect(source).not.toContain("detalle.mapaUrl || '#'");
     }
   });
