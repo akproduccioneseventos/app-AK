@@ -355,7 +355,9 @@ export async function updatePresupuesto(
 export async function archivePresupuesto(id: string): Promise<{ success: boolean; error?: string }> {
   const auth = await verifySession();
   if (!auth.success) return { success: false, error: auth.error };
-  if (auth.user?.role !== 'admin') return { success: false, error: 'Solo administradores pueden archivar presupuestos.' };
+  // Archivar es reversible y es tarea de rutina del equipo: no se restringe a
+  // admin. La proteccion real de esta accion es el contrato firmado, mas abajo.
+  // El borrado definitivo (`deletePresupuesto`) si queda solo para admin.
   const isSigned = await isBudgetContractSigned(id);
   if (isSigned) {
     return { success: false, error: 'No se puede archivar un presupuesto con contrato firmado.' };
