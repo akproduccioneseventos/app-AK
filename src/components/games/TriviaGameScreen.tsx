@@ -26,9 +26,9 @@ export default function TriviaGameScreen({ fiestaId, guestName }: Props) {
     }
     const timer = setInterval(() => setTimeLeft(prev => prev - 1), 1000);
     return () => clearInterval(timer);
-  }, [timeLeft, isFinished, selectedAnswer]);
+  }, [timeLeft, isFinished, selectedAnswer, handleAnswer]);
 
-  const handleAnswer = (answerId: string) => {
+  const handleAnswer = React.useCallback((answerId: string) => {
     if (selectedAnswer !== null) return;
     setSelectedAnswer(answerId);
 
@@ -46,7 +46,7 @@ export default function TriviaGameScreen({ fiestaId, guestName }: Props) {
         setIsFinished(true);
       }
     }, 2000);
-  };
+  }, [currentIndex, questions, selectedAnswer]);
 
   if (isFinished) {
     return (
