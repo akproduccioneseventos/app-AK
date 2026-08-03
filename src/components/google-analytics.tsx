@@ -1,15 +1,11 @@
 'use client';
 
-import { useEffect } from 'react';
+import { Suspense, useEffect } from 'react';
 import { usePathname, useSearchParams } from 'next/navigation';
 import Script from 'next/script';
 import { GA_MEASUREMENT_ID } from '@/lib/analytics-ga';
 
-/**
- * Google Analytics GA4 component with SPA pageview tracking.
- * Only renders when NEXT_PUBLIC_GA_MEASUREMENT_ID is configured.
- */
-export function GoogleAnalytics() {
+function GoogleAnalyticsInner() {
   const gaId = GA_MEASUREMENT_ID;
   const pathname = usePathname();
   const searchParams = useSearchParams();
@@ -19,6 +15,16 @@ export function GoogleAnalytics() {
     const url = pathname + (searchParams?.toString() ? `?${searchParams.toString()}` : '');
     window.gtag('config', gaId, { page_path: url });
   }, [gaId, pathname, searchParams]);
+
+  return null;
+}
+
+/**
+ * Google Analytics GA4 component with SPA pageview tracking.
+ * Only renders when NEXT_PUBLIC_GA_MEASUREMENT_ID is configured.
+ */
+export function GoogleAnalytics() {
+  const gaId = GA_MEASUREMENT_ID;
 
   if (!gaId) return null;
 
@@ -36,6 +42,9 @@ export function GoogleAnalytics() {
           gtag('config', '${gaId}', { send_page_view: false });
         `}
       </Script>
+      <Suspense fallback={null}>
+        <GoogleAnalyticsInner />
+      </Suspense>
     </>
   );
 }
