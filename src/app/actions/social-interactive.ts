@@ -205,7 +205,7 @@ export async function addSongRequest(
   try {
     await enforcePublicRateLimit({
       scope: 'social-song-request',
-      identity: fiestaId,
+      identity: `${fiestaId}|${(requestedBy || 'invitado').trim().toLowerCase()}`,
       limit: 12,
       windowMs: 60_000,
     });
@@ -327,7 +327,7 @@ export async function addDedication(
   try {
     await enforcePublicRateLimit({
       scope: 'social-dedication',
-      identity: fiestaId,
+      identity: `${fiestaId}|${(authorName || 'invitado').trim().toLowerCase()}`,
       limit: 12,
       windowMs: 60_000,
     });
@@ -380,6 +380,14 @@ export async function addSorteoParticipanteRedes(
   nombre: string
 ): Promise<{ success: boolean; error?: string }> {
   try {
+    // Sin tope, cualquiera podia anotarse infinitas veces cambiando el nombre, y
+    // cada intento reescribia la ficha entera de la fiesta.
+    await enforcePublicRateLimit({
+      scope: 'social-sorteo',
+      identity: `${fiestaId}|${String(nombre || 'invitado').trim().toLowerCase()}`,
+      limit: 5,
+      windowMs: 60_000,
+    });
     const review = reviewSocialContent({ type: 'text', text: nombre, authorName: nombre, moderationMode: 'automatico' });
     if (review.status === 'blocked') return { success: false, error: review.message };
     const safeName = sanitizeSocialText(nombre);
@@ -447,9 +455,12 @@ export async function uploadDedicationAudio(
   formData: FormData
 ): Promise<{ success: boolean; audioUrl?: string; error?: string }> {
   try {
+    // El tope se aplica por persona, no por evento: en un salon todos comparten
+    // el WiFi, asi que un tope por fiesta dejaba mudos a los demas invitados.
+    const autorDelAudio = String(formData.get('autor') || formData.get('authorName') || 'invitado');
     await enforcePublicRateLimit({
       scope: 'social-dedication-audio',
-      identity: fiestaId,
+      identity: `${fiestaId}|${autorDelAudio.trim().toLowerCase()}`,
       limit: 8,
       windowMs: 60_000,
     });
