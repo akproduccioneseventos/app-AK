@@ -1,4 +1,4 @@
-﻿export interface GoogleCalendarEventDetails {
+export interface GoogleCalendarEventDetails {
   title: string;
   description: string;
   location?: string;
@@ -13,7 +13,7 @@
 export function buildGoogleCalendarUrl(details: GoogleCalendarEventDetails): string {
   const startDate = new Date(details.startIso);
   if (isNaN(startDate.getTime())) {
-    throw new Error(`[GoogleCalendar] Fecha de inicio invÃ¡lida: ${details.startIso}`);
+    throw new Error(`[GoogleCalendar] Fecha de inicio inválida: ${details.startIso}`);
   }
 
   const endDate = details.endIso
@@ -21,7 +21,7 @@ export function buildGoogleCalendarUrl(details: GoogleCalendarEventDetails): str
     : new Date(startDate.getTime() + 4 * 60 * 60 * 1000);
 
   if (isNaN(endDate.getTime())) {
-    throw new Error(`[GoogleCalendar] Fecha de fin invÃ¡lida: ${details.endIso}`);
+    throw new Error(`[GoogleCalendar] Fecha de fin inválida: ${details.endIso}`);
   }
 
   const fmt = (d: Date) => d.toISOString().replace(/-|:|\.\d{3}/g, '');

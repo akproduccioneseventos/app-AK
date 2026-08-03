@@ -1,4 +1,4 @@
-﻿'use client';
+'use client';
 
 import React, { useState, useEffect, useCallback } from 'react';
 import Link from 'next/link';
@@ -93,8 +93,8 @@ export default function AiAssistantSettingsPage() {
       if (isTextReadable) {
         content = (await file.text()).slice(0, KNOWLEDGE_DOC_MAX_CHARS);
       } else if (isPdfOrDoc) {
-        // PDF/DOC Ã¢â‚¬â€ no se puede leer el contenido automÃƒÂ¡ticamente en el navegador.
-        // Mostramos advertencia y dejamos el contenido vacÃƒÂ­o para que el usuario lo complete.
+        // PDF/DOC — no se puede leer el contenido automáticamente en el navegador.
+        // Mostramos advertencia y dejamos el contenido vacío para que el usuario lo complete.
         skipped.push(file.name);
         content = '';
       } else {
@@ -116,17 +116,17 @@ export default function AiAssistantSettingsPage() {
     if (skipped.length > 0) {
       const plural = skipped.length > 1;
       toast({
-        title: 'Ã¢Å¡Â Ã¯Â¸Â Archivos no leÃƒÂ­dos automÃƒÂ¡ticamente',
+        title: 'âÅ¡ ï¸ Archivos no leídos automáticamente',
         description: plural
-          ? `Estos archivos no fueron leÃƒÂ­dos automÃƒÂ¡ticamente: ${skipped.join(', ')}. PegÃƒÂ¡ el texto o subÃƒÂ­ versiÃƒÂ³n TXT.`
-          : `${skipped[0]}: Este archivo no fue leÃƒÂ­do automÃƒÂ¡ticamente; pegÃƒÂ¡ el texto o subÃƒÂ­ versiÃƒÂ³n TXT.`,
+          ? `Estos archivos no fueron leídos automáticamente: ${skipped.join(', ')}. Pegá el texto o subí versión TXT.`
+          : `${skipped[0]}: Este archivo no fue leído automáticamente; pegá el texto o subí versión TXT.`,
         variant: 'destructive',
       });
     }
 
     const readCount = docs.length - skipped.length;
     if (readCount > 0) {
-      toast({ title: 'Documentos cargados', description: `Se agregaron ${readCount} documento(s) leÃƒÂ­do(s) a la base de conocimiento.` });
+      toast({ title: 'Documentos cargados', description: `Se agregaron ${readCount} documento(s) leído(s) a la base de conocimiento.` });
     }
   }, [toast]);
 
@@ -138,16 +138,16 @@ export default function AiAssistantSettingsPage() {
       const result = await testGeminiConnection();
       if (result.ok) {
         setApiStatus('ok');
-        toast({ title: 'Ã¢Å“â€¦ ConexiÃƒÂ³n exitosa', description: 'La API de Gemini estÃƒÂ¡ funcionando correctamente.' });
+        toast({ title: 'âÅ“… Conexión exitosa', description: 'La API de Gemini está funcionando correctamente.' });
       } else {
         setApiStatus('error');
         setApiError(result.error || 'Error desconocido');
-        toast({ title: 'Ã¢ÂÅ’ Error de conexiÃƒÂ³n', description: result.error || 'No se pudo conectar a Gemini.', variant: 'destructive' });
+        toast({ title: 'âÅ’ Error de conexión', description: result.error || 'No se pudo conectar a Gemini.', variant: 'destructive' });
       }
     } catch {
       setApiStatus('error');
       setApiError('No se pudo contactar al servidor.');
-      toast({ title: 'Ã¢ÂÅ’ Error', description: 'No se pudo probar la conexiÃƒÂ³n.', variant: 'destructive' });
+      toast({ title: 'âÅ’ Error', description: 'No se pudo probar la conexión.', variant: 'destructive' });
     } finally {
       setIsTesting(false);
     }
@@ -167,7 +167,7 @@ export default function AiAssistantSettingsPage() {
     setIsSaving(false);
     if (result.success) {
       setUpdatedAt(new Date().toISOString());
-      toast({ title: 'Guardado', description: 'ConfiguraciÃƒÂ³n del Asistente AK actualizada.' });
+      toast({ title: 'Guardado', description: 'Configuración del Asistente AK actualizada.' });
     } else {
       toast({ title: 'Error', description: result.error || 'No se pudo guardar.', variant: 'destructive' });
     }
@@ -179,7 +179,7 @@ export default function AiAssistantSettingsPage() {
     setIsScanningApp(false);
     if (result.success && result.context) {
       setAppFunctionalityContext(result.context);
-      toast({ title: 'Escaneo completado', description: 'Se actualizÃƒÂ³ el contexto funcional de la app.' });
+      toast({ title: 'Escaneo completado', description: 'Se actualizó el contexto funcional de la app.' });
       return;
     }
     toast({ title: 'Error de escaneo', description: result.error || 'No se pudo escanear la app.', variant: 'destructive' });
@@ -201,9 +201,9 @@ export default function AiAssistantSettingsPage() {
           <Bot className="w-6 h-6 text-violet-600" />
         </div>
         <div>
-          <h1 className="text-2xl font-bold tracking-tight">Asistente IA Ã¢â‚¬â€ ConfiguraciÃƒÂ³n</h1>
+          <h1 className="text-2xl font-bold tracking-tight">Asistente IA — Configuración</h1>
           <p className="text-sm text-muted-foreground">
-            PersonalizÃƒÂ¡ el comportamiento del Asistente AK con instrucciones y conocimiento empresarial.
+            Personalizá el comportamiento del Asistente AK con instrucciones y conocimiento empresarial.
           </p>
         </div>
       </div>
@@ -222,13 +222,13 @@ export default function AiAssistantSettingsPage() {
           </CardTitle>
           <CardDescription>
             {apiStatus === 'ok' && (
-              <span className="text-green-700 font-medium">Ã¢Å“â€¦ Conectada Ã¢â‚¬â€ La API de Gemini estÃƒÂ¡ funcionando correctamente.</span>
+              <span className="text-green-700 font-medium">âÅ“… Conectada — La API de Gemini está funcionando correctamente.</span>
             )}
             {apiStatus === 'error' && (
-              <span className="text-red-700 font-medium">Ã¢ÂÅ’ Sin conexiÃƒÂ³n Ã¢â‚¬â€ El Asistente AK no puede funcionar sin esta API.</span>
+              <span className="text-red-700 font-medium">âÅ’ Sin conexión — El Asistente AK no puede funcionar sin esta API.</span>
             )}
             {apiStatus === 'unknown' && (
-              <span className="text-slate-500">VerificÃƒÂ¡ si la API key de Gemini estÃƒÂ¡ configurada y es vÃƒÂ¡lida.</span>
+              <span className="text-slate-500">Verificá si la API key de Gemini está configurada y es válida.</span>
             )}
           </CardDescription>
         </CardHeader>
@@ -252,12 +252,12 @@ export default function AiAssistantSettingsPage() {
             {isTesting ? (
               <>
                 <Loader2 className="w-4 h-4 mr-2 animate-spin" />
-                Probando conexiÃƒÂ³n...
+                Probando conexión...
               </>
             ) : (
               <>
                 <RefreshCw className="w-4 h-4 mr-2" />
-                Probar conexiÃƒÂ³n con Gemini
+                Probar conexión con Gemini
               </>
             )}
           </Button>
@@ -272,7 +272,7 @@ export default function AiAssistantSettingsPage() {
               Estado real del Asistente AK
             </CardTitle>
             <CardDescription>
-              DiagnÃƒÂ³stico del estado actual del asistente y sus componentes.
+              Diagnóstico del estado actual del asistente y sus componentes.
             </CardDescription>
           </CardHeader>
           <CardContent>
@@ -306,8 +306,8 @@ export default function AiAssistantSettingsPage() {
               <div className="flex items-center gap-2">
                 <FileText className="w-4 h-4 text-slate-500 shrink-0" />
                 <span className="text-slate-700">
-                  Documentos leÃƒÂ­dos: {knowledgeDocuments.filter(d => d.content.trim().length > 0).length}
-                  {' '}/ No leÃƒÂ­dos: {knowledgeDocuments.filter(d => !d.content.trim()).length}
+                  Documentos leídos: {knowledgeDocuments.filter(d => d.content.trim().length > 0).length}
+                  {' '}/ No leídos: {knowledgeDocuments.filter(d => !d.content.trim()).length}
                 </span>
               </div>
             </div>
@@ -315,8 +315,8 @@ export default function AiAssistantSettingsPage() {
               <div className="mt-3 flex gap-2 p-3 bg-amber-50 border border-amber-200 rounded-md text-xs text-amber-800">
                 <ShieldOff className="w-3.5 h-3.5 shrink-0 mt-0.5" />
                 <span>
-                  El modo operativo estÃƒÂ¡ desactivado. Para habilitar acciones de escritura (crear presupuesto, cliente, pago, evento, contrato),
-                  configurÃƒÂ¡ la variable de entorno <span className="font-mono font-bold">ASSISTANT_WRITE_ACTIONS_ENABLED=true</span> en el servidor.
+                  El modo operativo está desactivado. Para habilitar acciones de escritura (crear presupuesto, cliente, pago, evento, contrato),
+                  configurá la variable de entorno <span className="font-mono font-bold">ASSISTANT_WRITE_ACTIONS_ENABLED=true</span> en el servidor.
                 </span>
               </div>
             )}
@@ -328,14 +328,14 @@ export default function AiAssistantSettingsPage() {
         <CardHeader>
           <CardTitle>Instrucciones personalizadas</CardTitle>
           <CardDescription>
-            Reglas de comportamiento que el asistente debe seguir en cada conversaciÃƒÂ³n.
+            Reglas de comportamiento que el asistente debe seguir en cada conversación.
           </CardDescription>
         </CardHeader>
         <CardContent className="space-y-4">
           {isLoading ? (
             <div className="flex items-center gap-2 text-muted-foreground py-8 justify-center">
               <Loader2 className="w-5 h-5 animate-spin" />
-              <span>Cargando configuraciÃƒÂ³n...</span>
+              <span>Cargando configuración...</span>
             </div>
           ) : (
             <div className="space-y-2">
@@ -356,7 +356,7 @@ export default function AiAssistantSettingsPage() {
         <CardHeader>
           <CardTitle>Perfiles de asistentes</CardTitle>
           <CardDescription>
-            ConfigurÃƒÂ¡ la base de instrucciones para el modo Operativo y para Ventas/Marketing.
+            Configurá la base de instrucciones para el modo Operativo y para Ventas/Marketing.
           </CardDescription>
         </CardHeader>
         <CardContent className="space-y-4">
@@ -385,14 +385,14 @@ export default function AiAssistantSettingsPage() {
 
       <Card>
         <CardHeader>
-          <CardTitle>Entrenamiento dinÃƒÂ¡mico</CardTitle>
+          <CardTitle>Entrenamiento dinámico</CardTitle>
           <CardDescription>
-            AgregÃƒÂ¡ reglas de negocio, lecciones aprendidas y correcciones sin tocar cÃƒÂ³digo.
+            Agregá reglas de negocio, lecciones aprendidas y correcciones sin tocar código.
           </CardDescription>
         </CardHeader>
         <CardContent className="space-y-4">
           <div className="space-y-2">
-            <Label htmlFor="dynamicBusinessRules">Reglas dinÃƒÂ¡micas</Label>
+            <Label htmlFor="dynamicBusinessRules">Reglas dinámicas</Label>
             <Textarea
               id="dynamicBusinessRules"
               value={dynamicBusinessRules}
@@ -418,7 +418,7 @@ export default function AiAssistantSettingsPage() {
         <CardHeader>
           <CardTitle>Escaneo funcional de la app</CardTitle>
           <CardDescription>
-            GenerÃƒÂ¡ un resumen automÃƒÂ¡tico de rutas/mÃƒÂ³dulos para que el asistente entienda mejor cÃƒÂ³mo funciona la app.
+            Generá un resumen automático de rutas/módulos para que el asistente entienda mejor cómo funciona la app.
           </CardDescription>
         </CardHeader>
         <CardContent className="space-y-3">
@@ -448,12 +448,12 @@ export default function AiAssistantSettingsPage() {
         <CardHeader>
           <CardTitle>Base de conocimiento empresarial</CardTitle>
           <CardDescription>
-            SubÃƒÂ­ documentos y editÃƒÂ¡ su contenido para que el asistente use esta informaciÃƒÂ³n como contexto.
+            Subí documentos y editá su contenido para que el asistente use esta información como contexto.
           </CardDescription>
         </CardHeader>
         <CardContent className="space-y-4">
           <div className="space-y-2">
-            <Label htmlFor="knowledgeUpload">Subir documentos (mÃƒÂºltiple)</Label>
+            <Label htmlFor="knowledgeUpload">Subir documentos (múltiple)</Label>
             <Input id="knowledgeUpload" type="file" multiple onChange={handleKnowledgeFilesUpload} />
           </div>
           <div className="space-y-2">
@@ -495,7 +495,7 @@ export default function AiAssistantSettingsPage() {
                       <div className="flex items-start gap-2 p-2 bg-amber-100 border border-amber-200 rounded text-xs text-amber-800">
                         <AlertCircle className="w-3.5 h-3.5 shrink-0 mt-0.5" />
                         <span>
-                          Este archivo no fue leÃƒÂ­do automÃƒÂ¡ticamente; pegÃƒÂ¡ el texto o subÃƒÂ­ versiÃƒÂ³n TXT.
+                          Este archivo no fue leído automáticamente; pegá el texto o subí versión TXT.
                         </span>
                       </div>
                     )}
@@ -504,7 +504,7 @@ export default function AiAssistantSettingsPage() {
                       onChange={(e) => setKnowledgeDocuments((prev) => prev.map((d) => d.id === doc.id ? { ...d, content: e.target.value } : d))}
                       rows={4}
                       className="text-xs"
-                      placeholder={isUnread ? 'PegÃƒÂ¡ acÃƒÂ¡ el contenido del documento...' : undefined}
+                      placeholder={isUnread ? 'Pegá acá el contenido del documento...' : undefined}
                     />
                   </div>
                 );
@@ -516,7 +516,7 @@ export default function AiAssistantSettingsPage() {
             <div className="flex items-center gap-1.5 text-xs text-muted-foreground">
               <CheckCircle2 className="w-3.5 h-3.5 text-green-500" />
               <span>
-                ÃƒÅ¡ltima actualizaciÃƒÂ³n:{' '}
+                Última actualización:{' '}
                 {new Date(updatedAt).toLocaleString('es-UY', {
                   day: '2-digit',
                   month: 'short',
@@ -536,7 +536,7 @@ export default function AiAssistantSettingsPage() {
             ) : (
               <>
                 <Save className="w-4 h-4 mr-2" />
-                Guardar configuraciÃƒÂ³n
+                Guardar configuración
               </>
             )}
           </Button>

@@ -1,7 +1,7 @@
-﻿'use client';
+'use client';
 
 import { useState, useEffect, useMemo, Suspense } from 'react';
-import { useSearchParams } from 'next/navigation';
+import { useRouter, useSearchParams } from 'next/navigation';
 import { ArrowLeft, Camera, Loader2, MonitorPlay, X } from 'lucide-react';
 import { getGaleriaItems } from '@/app/actions/galeria';
 import type { GaleriaFoto } from '@/types/galeria';
@@ -54,6 +54,8 @@ function GaleriaLedContent() {
       return true;
     });
   }, [fotos, categoria, subCategoria]);
+
+  const router = useRouter();
 
   const handleVolver = () => {
     try {

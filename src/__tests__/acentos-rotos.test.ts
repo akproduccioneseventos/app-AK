@@ -6,7 +6,7 @@ import path from 'node:path';
  *
  * Defecto real: el catálogo de menús que ve el cliente en el simulador tenía 29
  * platos con los acentos rotos — "JamÃ³n", "ChampiÃ±on", "POLLO ARROLLADO C/
- * GUARNICIÃ“N". Pasa cuando un archivo se guarda leyendo bytes en castellano
+ * GUARNICIÓN". Pasa cuando un archivo se guarda leyendo bytes en castellano
  * como si fueran de otro idioma, normalmente al editarlo con una herramienta mal
  * configurada.
  *

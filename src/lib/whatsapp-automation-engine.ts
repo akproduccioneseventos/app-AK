@@ -1,4 +1,4 @@
-﻿import type { AutomationTrigger, ScheduledMessage } from '@/types/whatsapp-automation';
+import type { AutomationTrigger, ScheduledMessage } from '@/types/whatsapp-automation';
 import { getWhatsAppSettings, getWhatsAppTemplates } from '@/app/actions/settings';
 import { saveScheduledMessage } from '@/app/actions/scheduled-messages';
 
@@ -134,7 +134,7 @@ export async function triggerWhatsAppAutomation(
       }
     }
   } catch (e: any) {
-    errors.push(`Error en motor de automatizaciÃƒÂ³n: ${e.message}`);
+    errors.push(`Error en motor de automatización: ${e.message}`);
   }
 
   return { scheduled, errors };

@@ -1,16 +1,18 @@
-﻿import { NextResponse } from 'next/server';
-import { verifySession } from '@/app/actions/session';
+import { NextResponse } from 'next/server';
+import { hasAppSession } from '@/lib/auth/require-session';
 
 /**
  * Looker Studio data connector endpoint.
- * Protected by session auth â€” only authenticated admin users can query.
+ * Protegido por sesión: sólo el equipo con sesión válida puede consultar.
  *
  * TODO: Replace sample rows with real Firestore queries when Looker Studio
  * is connected in production.
  */
 export async function GET() {
-  const auth = await verifySession();
-  if (!auth.success) {
+  // `hasAppSession` es la comprobacion estandar del proyecto: la misma que usan
+  // el resto de las rutas protegidas.
+  const tieneSesion = await hasAppSession();
+  if (!tieneSesion) {
     return NextResponse.json({ error: 'No autorizado' }, { status: 401 });
   }
 

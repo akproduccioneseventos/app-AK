@@ -855,6 +855,7 @@ export default function PortalClientePage() {
                   <CheckCircle2 className="w-4 h-4 text-green-500 shrink-0" />
                   <span className="font-semibold">¡Fotos recibidas! Tu organizador está trabajando en el video.</span>
                 </div>
+              ) : null}
               {!fiesta.videoVida?.photosUploaded && (
                 <Link
                   href={`/portal-cliente/${fiestaId}/fotos-video`}

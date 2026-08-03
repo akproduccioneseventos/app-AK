@@ -1,5 +1,5 @@
-﻿/**
- * Google Search Console â€” site verification and indexing utilities.
+/**
+ * Google Search Console — site verification and indexing utilities.
  *
  * NOTE: The old Google Ping endpoint (google.com/ping?sitemap=) was deprecated
  * and removed in late 2023. Modern indexing uses the Google Indexing API

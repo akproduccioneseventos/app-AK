@@ -1,4 +1,4 @@
-﻿'use server';
+'use server';
 
 import type { Firestore, QueryDocumentSnapshot } from 'firebase-admin/firestore';
 import { uploadToStorage, deleteFromStorage } from '@/lib/firebase/storage';
@@ -66,7 +66,7 @@ export async function uploadBuzonMessage(
   const fiestaId = formData.get('fiestaId') as string;
   const file = formData.get('file') as File;
   const accessToken = String(formData.get('accessToken') || '');
-  const authorName = String(formData.get('authorName') || '').trim().slice(0, 80) || 'AnÃ³nimo';
+  const authorName = String(formData.get('authorName') || '').trim().slice(0, 80) || 'Anónimo';
   const mediaType = formData.get('mediaType') as 'audio' | 'video';
 
   if (!fiestaId || !file || file.size <= 0) {
@@ -81,13 +81,13 @@ export async function uploadBuzonMessage(
   if (file.size > limitSize) {
     return {
       success: false,
-      error: `El archivo supera el lÃ­mite permitido (${mediaType === 'audio' ? '15MB' : '40MB'}).`,
+      error: `El archivo supera el límite permitido (${mediaType === 'audio' ? '15MB' : '40MB'}).`,
     };
   }
 
   try {
     if (!(await hasEntertainmentGuestAccess(fiestaId, 'capsulaTiempo', accessToken))) {
-      return { success: false, error: 'Acceso de estaciÃ³n no autorizado.' };
+      return { success: false, error: 'Acceso de estación no autorizado.' };
     }
     const fiesta = await getFiestaById(fiestaId);
     if (!fiesta) return { success: false, error: 'Fiesta no encontrada.' };
@@ -97,7 +97,7 @@ export async function uploadBuzonMessage(
       || fiesta.buzonConfig?.enabled === false
       || fiesta.guestPortalSettings?.showBuzon === false
     ) {
-      return { success: false, error: 'El buzÃ³n no estÃ¡ habilitado para esta fiesta.' };
+      return { success: false, error: 'El buzón no está habilitado para esta fiesta.' };
     }
 
     await enforcePublicRateLimit({
@@ -110,7 +110,7 @@ export async function uploadBuzonMessage(
     const bytes = new Uint8Array(await file.arrayBuffer());
     const detectedMedia = detectBuzonMedia(bytes, mediaType, file.type);
     if (!detectedMedia) {
-      return { success: false, error: 'El contenido del archivo no coincide con un audio o video vÃ¡lido.' };
+      return { success: false, error: 'El contenido del archivo no coincide con un audio o video válido.' };
     }
 
     const db = await getDb();
@@ -146,8 +146,8 @@ export async function uploadBuzonMessage(
 
     // Notify the screen visually by adding a system chat message
     const alertText = detectedMedia.mediaType === 'audio'
-      ? 'ðŸŽ™ï¸ DejÃ³ un saludo de voz en el buzÃ³n'
-      : 'ðŸ“¹ SubiÃ³ un video al buzÃ³n';
+      ? '🎙ï¸ Dejó un saludo de voz en el buzón'
+      : '📹 Subió un video al buzón';
 
     await addChatMessage(fiestaId, alertText, authorName, {
       stationModuleId: 'capsulaTiempo',
@@ -286,7 +286,7 @@ export async function deleteWelcomeAudio(
 
     const result = await saveFiesta(updatedFiesta);
     if (!result.success) {
-      return { success: false, error: result.error || 'Error al actualizar configuraciÃ³n.' };
+      return { success: false, error: result.error || 'Error al actualizar configuración.' };
     }
 
     return { success: true };
@@ -299,7 +299,7 @@ export async function updateBuzonFrameTemplate(fiestaId: string, template: strin
   try {
     await requireAppSession();
     if (!isFrameTemplateId(template)) {
-      return { success: false, error: 'Plantilla de video no vÃ¡lida.' };
+      return { success: false, error: 'Plantilla de video no válida.' };
     }
     const fiesta = await getFiestaById(fiestaId);
     if (!fiesta) return { success: false, error: 'Fiesta no encontrada.' };

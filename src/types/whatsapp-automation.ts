@@ -1,4 +1,4 @@
-﻿// Trigger types for automation rules
+// Trigger types for automation rules
 export type AutomationTrigger =
   | 'simulador_completado'
   | 'presupuesto_generado'

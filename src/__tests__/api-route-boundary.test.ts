@@ -12,6 +12,10 @@ const PUBLIC_ROUTES = new Set([
   'social-gallery/[fiestaId]/[filename]/route.ts',
   'social-media-assets/[filename]/route.ts',
   'whatsapp/webhook/route.ts',
+  // El invitado busca su cancion desde la invitacion, sin sesion. Es publica a
+  // proposito: no devuelve datos del evento, solo resultados de Spotify, y tiene
+  // tope de 30 busquedas por minuto.
+  'integrations/spotify/search/route.ts',
 ]);
 
 function listRoutes(directory: string): string[] {

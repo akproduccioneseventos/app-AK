@@ -1,4 +1,4 @@
-﻿'use client';
+'use client';
 
 import { Star, MapPin, ExternalLink, CheckCircle2 } from 'lucide-react';
 import { Card, CardContent } from '@/components/ui/card';
