@@ -258,6 +258,8 @@ test.describe('viaje del invitado', () => {
     await expect(page.getByRole('heading', { name: 'Centro de Control Muro' })).toBeVisible({ timeout: 45_000 });
     await page.getByRole('tab', { name: 'Diseño' }).click();
     await page.getByRole('button', { name: 'Guardar Configuración' }).click();
-    await expect(page.getByText('Configuración guardada 🎉')).toBeVisible({ timeout: 30_000 });
+    // El aviso aparece dos veces a proposito: el cartel visible y el texto que
+    // anuncia el lector de pantalla. Alcanza con encontrar uno.
+    await expect(page.getByText('Configuración guardada 🎉').first()).toBeVisible({ timeout: 30_000 });
   });
 });
