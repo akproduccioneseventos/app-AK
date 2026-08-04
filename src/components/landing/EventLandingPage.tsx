@@ -1,3 +1,4 @@
+import { Suspense } from 'react';
 import Image from 'next/image';
 import Link from 'next/link';
 import type { LucideIcon } from 'lucide-react';
@@ -189,7 +190,12 @@ export function EventLandingPage({
                 </div>
               </div>
             </div>
-            <LeadCaptureForm fuente={source} tipoEventoDefault={eventType} title={`Cotizá ${eventType}`} subtitle="Dejanos tus datos y te contactamos con una propuesta para tu evento." />
+            {/* LeadCaptureForm usa useSearchParams para saber de que campania
+                viene el prospecto. Sin este Suspense, Next no puede generar la
+                landing y la compilacion de toda la app falla. */}
+            <Suspense fallback={null}>
+              <LeadCaptureForm fuente={source} tipoEventoDefault={eventType} title={`Cotizá ${eventType}`} subtitle="Dejanos tus datos y te contactamos con una propuesta para tu evento." />
+            </Suspense>
           </div>
         </section>
       </main>
