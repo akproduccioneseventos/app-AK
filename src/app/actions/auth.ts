@@ -360,6 +360,17 @@ export async function updateSecurityQuestions(
     q3: { question: string; answer: string };
   }
 ): Promise<{ success: boolean; error?: string }> {
+  // Las preguntas de seguridad son lo que permite recuperar una cuenta. Esta
+  // funcion aceptaba cualquier usuario sin comprobar nada: alguien de afuera
+  // podia ponerle sus propias respuestas a la cuenta de otro y despues entrar
+  // por el camino de "olvide mi clave". Cada uno cambia las suyas; el
+  // administrador puede cambiar las de cualquiera.
+  const auth = await verifySession();
+  if (!auth.success) return { success: false, error: auth.error ?? 'Sesion no autorizada.' };
+  if (auth.user?.role !== 'admin' && auth.user?.userId !== userId) {
+    return { success: false, error: 'Solo podes cambiar tus propias preguntas de seguridad.' };
+  }
+
   if (!dbAdmin) return { success: false, error: 'Base de datos no disponible.' };
 
   try {
