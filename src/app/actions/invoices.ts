@@ -390,22 +390,28 @@ export async function resetAllInvoices(): Promise<{ success: boolean; deletedCou
     const auth = await verifySession();
     if (!auth.success) return { success: false, error: auth.error };
     if (auth.user?.role !== 'admin') return { success: false, error: 'Solo administradores pueden resetear facturas.' };
-    const { dbAdmin } = await import('@/lib/firebase/server');
-    let deletedCount = 0;
-    if (dbAdmin) {
-      const snapshot = await dbAdmin.collection('facturas').get();
-      deletedCount = snapshot.size;
-      const batchSize = 450;
-      const docs = snapshot.docs;
-      for (let i = 0; i < docs.length; i += batchSize) {
-        const batch = dbAdmin.batch();
-        docs.slice(i, i + batchSize).forEach((doc: { ref: any }) => batch.delete(doc.ref));
-        await batch.commit();
-      }
-    }
 
-    logger.info('[Facturas] Todas las facturas eliminadas por admin.', { deletedCount });
-    return { success: true, deletedCount };
+    // Borrar todo tiene que esperar su turno igual que guardar y eliminar de a
+    // una. Sin esto, un guardado en curso podia escribir una factura justo
+    // despues del borrado y quedaba una factura suelta despues de "formatear".
+    return await invoicesMutex.runExclusive(async () => {
+      const { dbAdmin } = await import('@/lib/firebase/server');
+      let deletedCount = 0;
+      if (dbAdmin) {
+        const snapshot = await dbAdmin.collection('facturas').get();
+        deletedCount = snapshot.size;
+        const batchSize = 450;
+        const docs = snapshot.docs;
+        for (let i = 0; i < docs.length; i += batchSize) {
+          const batch = dbAdmin.batch();
+          docs.slice(i, i + batchSize).forEach((doc: { ref: any }) => batch.delete(doc.ref));
+          await batch.commit();
+        }
+      }
+
+      logger.info('[Facturas] Todas las facturas eliminadas por admin.', { deletedCount });
+      return { success: true, deletedCount };
+    });
   } catch (error: any) {
     logger.error('[Facturas] Error al reiniciar facturas:', error);
     return { success: false, error: error.message || 'Error al reiniciar las facturas.' };
