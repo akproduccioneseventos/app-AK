@@ -19,7 +19,10 @@ import {
   mapDepositMethodToInvoiceMethod,
 } from '@/lib/payments/deposit-payment';
 
+import { AsyncMutex } from '@/lib/mutex';
+
 const INVOICES_FILE = 'invoices.json';
+const invoicesMutex = new AsyncMutex();
 
 type NewInvoiceInput = Omit<Invoice, 'id' | 'items' | 'payments'> & {
   items: Omit<InvoiceItem, 'id'>[];
@@ -74,109 +77,111 @@ export async function saveInvoice(
   }
 
   try {
-    let invoices = await getInvoices();
-    let finalInvoiceData: Invoice;
-    let invoiceId: string;
+    return await invoicesMutex.runExclusive(async () => {
+      let invoices = await getInvoices();
+      let finalInvoiceData: Invoice;
+      let invoiceId: string;
 
-    if ('id' in invoiceDataInput && invoiceDataInput.id) {
-      invoiceId = invoiceDataInput.id;
-      const index = invoices.findIndex(inv => inv.id === invoiceId);
-      if (index === -1) {
-        return { success: false, error: `Factura con ID ${invoiceId} no encontrada.` };
-      }
-      const { id, ...dataToUpdate } = invoiceDataInput;
-      const currency = dataToUpdate.currency || invoices[index].currency || 'UYU';
+      if ('id' in invoiceDataInput && invoiceDataInput.id) {
+        invoiceId = invoiceDataInput.id;
+        const index = invoices.findIndex(inv => inv.id === invoiceId);
+        if (index === -1) {
+          return { success: false, error: `Factura con ID ${invoiceId} no encontrada.` };
+        }
+        const { id, ...dataToUpdate } = invoiceDataInput;
+        const currency = dataToUpdate.currency || invoices[index].currency || 'UYU';
 
-      const updatedItems = (dataToUpdate.items || invoices[index].items).map((item, idx) => {
-        const quantity = normalizeQuantity(item.quantity);
-        const unitPrice = roundInvoiceMoney(item.unitPrice, currency);
-        const total = roundInvoiceMoney(quantity * unitPrice, currency);
-        return {
-          ...item,
-          quantity,
-          unitPrice,
-          total,
-          id: (item as InvoiceItem).id || `item_${invoiceId}_${idx + 1}_${Date.now()}_update`,
+        const updatedItems = (dataToUpdate.items || invoices[index].items).map((item, idx) => {
+          const quantity = normalizeQuantity(item.quantity);
+          const unitPrice = roundInvoiceMoney(item.unitPrice, currency);
+          const total = roundInvoiceMoney(quantity * unitPrice, currency);
+          return {
+            ...item,
+            quantity,
+            unitPrice,
+            total,
+            id: (item as InvoiceItem).id || `item_${invoiceId}_${idx + 1}_${Date.now()}_update`,
+          };
+        });
+
+        const subtotal = updatedItems.reduce((sum, item) => sum + roundInvoiceMoney(item.total, currency), 0);
+        const taxRate = normalizeTaxRate(dataToUpdate.taxRate ?? invoices[index].taxRate ?? 0);
+        const taxAmount = roundInvoiceMoney((subtotal * taxRate) / 100, currency);
+        const totalAmount = roundInvoiceMoney(subtotal + taxAmount, currency);
+        const payments = (dataToUpdate.payments || invoices[index].payments || []).map(payment => ({
+          ...payment,
+          amount: roundInvoiceMoney(payment.amount, currency),
+        }));
+        const totalPaid = getInvoicePaidAmount({ payments, currency });
+        if (totalPaid > totalAmount + invoiceMoneyTolerance(currency)) {
+          return { success: false, error: 'Los pagos registrados superan el total de la factura.' };
+        }
+
+        invoices[index] = {
+          ...invoices[index],
+          ...dataToUpdate,
+          items: updatedItems as InvoiceItem[],
+          payments,
+          currency,
+          subtotal,
+          taxRate,
+          taxAmount,
+          totalAmount,
         };
-      });
-
-      const subtotal = updatedItems.reduce((sum, item) => sum + roundInvoiceMoney(item.total, currency), 0);
-      const taxRate = normalizeTaxRate(dataToUpdate.taxRate ?? invoices[index].taxRate ?? 0);
-      const taxAmount = roundInvoiceMoney((subtotal * taxRate) / 100, currency);
-      const totalAmount = roundInvoiceMoney(subtotal + taxAmount, currency);
-      const payments = (dataToUpdate.payments || invoices[index].payments || []).map(payment => ({
-        ...payment,
-        amount: roundInvoiceMoney(payment.amount, currency),
-      }));
-      const totalPaid = getInvoicePaidAmount({ payments, currency });
-      if (totalPaid > totalAmount + invoiceMoneyTolerance(currency)) {
-        return { success: false, error: 'Los pagos registrados superan el total de la factura.' };
-      }
-
-      invoices[index] = {
-        ...invoices[index],
-        ...dataToUpdate,
-        items: updatedItems as InvoiceItem[],
-        payments,
-        currency,
-        subtotal,
-        taxRate,
-        taxAmount,
-        totalAmount,
-      };
-      finalInvoiceData = invoices[index];
-    } else {
-      invoiceId = `inv_${Date.now()}_${Math.random().toString(36).substring(2, 9)}`;
-      const currency = invoiceDataInput.currency || 'UYU';
-      const itemsWithIds: InvoiceItem[] = invoiceDataInput.items.map((item, index) => {
-        const quantity = normalizeQuantity(item.quantity);
-        const unitPrice = roundInvoiceMoney(item.unitPrice, currency);
-        const total = roundInvoiceMoney(quantity * unitPrice, currency);
-        return {
-          ...item,
-          quantity,
-          unitPrice,
-          total,
-          id: `item_${invoiceId}_${index + 1}_${Date.now()}_create`,
+        finalInvoiceData = invoices[index];
+      } else {
+        invoiceId = `inv_${Date.now()}_${Math.random().toString(36).substring(2, 9)}`;
+        const currency = invoiceDataInput.currency || 'UYU';
+        const itemsWithIds: InvoiceItem[] = invoiceDataInput.items.map((item, index) => {
+          const quantity = normalizeQuantity(item.quantity);
+          const unitPrice = roundInvoiceMoney(item.unitPrice, currency);
+          const total = roundInvoiceMoney(quantity * unitPrice, currency);
+          return {
+            ...item,
+            quantity,
+            unitPrice,
+            total,
+            id: `item_${invoiceId}_${index + 1}_${Date.now()}_create`,
+          };
+        });
+        const subtotal = itemsWithIds.reduce((sum, item) => sum + roundInvoiceMoney(item.total, currency), 0);
+        const taxRate = normalizeTaxRate(invoiceDataInput.taxRate ?? 0);
+        const taxAmount = roundInvoiceMoney((subtotal * taxRate) / 100, currency);
+        const totalAmount = roundInvoiceMoney(subtotal + taxAmount, currency);
+        const inputPayments = ('payments' in invoiceDataInput ? invoiceDataInput.payments : []) || [];
+        const payments = inputPayments.map((payment) => ({
+          ...payment,
+          amount: roundInvoiceMoney(payment.amount, currency),
+        }));
+        const totalPaid = payments.reduce((sum, payment) => sum + payment.amount, 0);
+        if (totalPaid > totalAmount + invoiceMoneyTolerance(currency)) {
+          return { success: false, error: 'Los pagos registrados superan el total de la factura.' };
+        }
+        finalInvoiceData = {
+          ...(invoiceDataInput as Omit<Invoice, 'id' | 'items' | 'payments'> & { items: Omit<InvoiceItem, 'id'>[] }),
+          id: invoiceId,
+          items: itemsWithIds,
+          subtotal,
+          taxRate,
+          taxAmount,
+          totalAmount,
+          currency,
+          payments,
+          status: totalAmount > 0 && totalPaid >= totalAmount - invoiceMoneyTolerance(currency)
+            ? 'Paid'
+            : invoiceDataInput.status,
+          sourcePresupuestoId: invoiceDataInput.sourcePresupuestoId || sourcePresupuestoId,
         };
-      });
-      const subtotal = itemsWithIds.reduce((sum, item) => sum + roundInvoiceMoney(item.total, currency), 0);
-      const taxRate = normalizeTaxRate(invoiceDataInput.taxRate ?? 0);
-      const taxAmount = roundInvoiceMoney((subtotal * taxRate) / 100, currency);
-      const totalAmount = roundInvoiceMoney(subtotal + taxAmount, currency);
-      const inputPayments = ('payments' in invoiceDataInput ? invoiceDataInput.payments : []) || [];
-      const payments = inputPayments.map((payment) => ({
-        ...payment,
-        amount: roundInvoiceMoney(payment.amount, currency),
-      }));
-      const totalPaid = payments.reduce((sum, payment) => sum + payment.amount, 0);
-      if (totalPaid > totalAmount + invoiceMoneyTolerance(currency)) {
-        return { success: false, error: 'Los pagos registrados superan el total de la factura.' };
+        invoices.push(finalInvoiceData);
       }
-      finalInvoiceData = {
-        ...(invoiceDataInput as Omit<Invoice, 'id' | 'items' | 'payments'> & { items: Omit<InvoiceItem, 'id'>[] }),
-        id: invoiceId,
-        items: itemsWithIds,
-        subtotal,
-        taxRate,
-        taxAmount,
-        totalAmount,
-        currency,
-        payments,
-        status: totalAmount > 0 && totalPaid >= totalAmount - invoiceMoneyTolerance(currency)
-          ? 'Paid'
-          : invoiceDataInput.status,
-        sourcePresupuestoId: invoiceDataInput.sourcePresupuestoId || sourcePresupuestoId,
-      };
-      invoices.push(finalInvoiceData);
-    }
-    await writeData(INVOICES_FILE, invoices, (a,b) => new Date(b.issueDate).getTime() - new Date(a.issueDate).getTime());
+      await writeData(INVOICES_FILE, invoices, (a,b) => new Date(b.issueDate).getTime() - new Date(a.issueDate).getTime());
 
-    if (sourcePresupuestoId && !('id' in invoiceDataInput)) {
-      await markPresupuestoAsFacturado(sourcePresupuestoId, finalInvoiceData.id);
-    }
+      if (sourcePresupuestoId && !('id' in invoiceDataInput)) {
+        await markPresupuestoAsFacturado(sourcePresupuestoId, finalInvoiceData.id);
+      }
 
-    return { success: true, id: invoiceId, invoice: finalInvoiceData };
+      return { success: true, id: invoiceId, invoice: finalInvoiceData };
+    });
   } catch (error: any) {
     console.error('Error guardando factura:', error);
     return { success: false, error: error.message || 'Error al guardar la factura.' };
@@ -345,36 +350,39 @@ export async function deleteInvoice(id: string, linkedFiestaId?: string): Promis
   const auth = await verifySession();
   if (!auth.success) return { success: false, error: auth.error };
   if (auth.user?.role !== 'admin') return { success: false, error: 'Solo administradores pueden eliminar facturas.' };
-  const originalInvoices = await getInvoices();
-  const initialLength = originalInvoices.length;
-  const invoices = originalInvoices.filter(inv => inv.id !== id);
-  if (invoices.length === initialLength) {
-    return { success: false, error: `Factura con ID ${id} no encontrada para eliminar.` };
-  }
-  let deletionPersisted = false;
-  try {
-    await writeData(INVOICES_FILE, invoices);
-    deletionPersisted = true;
-    if (linkedFiestaId) {
-      const unlinkResult = await removeInvoiceId(linkedFiestaId, id);
-      if (!unlinkResult.success) {
-        await writeData(INVOICES_FILE, originalInvoices);
-        return { success: false, error: 'No se pudo desvincular la factura del evento. La eliminación fue revertida.' };
-      }
+
+  return invoicesMutex.runExclusive(async () => {
+    const originalInvoices = await getInvoices();
+    const initialLength = originalInvoices.length;
+    const invoices = originalInvoices.filter(inv => inv.id !== id);
+    if (invoices.length === initialLength) {
+      return { success: false, error: `Factura con ID ${id} no encontrada para eliminar.` };
     }
-  } catch (writeError: any) {
-    console.error('Error deleting invoice:', writeError);
-    if (deletionPersisted) {
-      try {
-        await writeData(INVOICES_FILE, originalInvoices);
-      } catch (rollbackError) {
-        console.error('Error restoring invoice after unlink failure:', rollbackError);
-        return { success: false, error: 'La factura quedó en un estado inconsistente. Recargá y no repitas la operación.' };
+    let deletionPersisted = false;
+    try {
+      await writeData(INVOICES_FILE, invoices);
+      deletionPersisted = true;
+      if (linkedFiestaId) {
+        const unlinkResult = await removeInvoiceId(linkedFiestaId, id);
+        if (!unlinkResult.success) {
+          await writeData(INVOICES_FILE, originalInvoices);
+          return { success: false, error: 'No se pudo desvincular la factura del evento. La eliminación fue revertida.' };
+        }
       }
+      return { success: true };
+    } catch (writeError: any) {
+      console.error('Error deleting invoice:', writeError);
+      if (deletionPersisted) {
+        try {
+          await writeData(INVOICES_FILE, originalInvoices);
+        } catch (rollbackError) {
+          console.error('Error restoring invoice after unlink failure:', rollbackError);
+          return { success: false, error: 'La factura quedó en un estado inconsistente. Recargá y no repitas la operación.' };
+        }
+      }
+      return { success: false, error: writeError.message || 'Error al eliminar la factura.' };
     }
-    return { success: false, error: writeError.message || 'Error al eliminar la factura.' };
-  }
-  return { success: true };
+  });
 }
 
 export async function resetAllInvoices(): Promise<{ success: boolean; deletedCount?: number; error?: string }> {
