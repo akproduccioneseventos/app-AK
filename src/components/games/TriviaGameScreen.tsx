@@ -18,8 +18,10 @@ export default function TriviaGameScreen({ fiestaId, guestName }: Props) {
   const [isFinished, setIsFinished] = useState(false);
   const [selectedAnswer, setSelectedAnswer] = useState<string | null>(null);
 
-  // `handleAnswer` va declarado ANTES del useEffect que lo usa como dependencia.
-  // Al reves es un error de compilacion y tumba el build de toda la app.
+  // El reloj de la pregunta usa `handleAnswer`, asi que tiene que declararse
+  // despues. Al reves, la pantalla del juego reventaba apenas se abria: la lista
+  // de dependencias se arma mientras se dibuja, cuando `handleAnswer` todavia no
+  // existe. Ademas TypeScript lo rechaza y tumbaba el build de toda la app.
   const handleAnswer = React.useCallback((answerId: string) => {
     if (selectedAnswer !== null) return;
     setSelectedAnswer(answerId);

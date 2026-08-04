@@ -18,6 +18,15 @@ Rules:
 - After modifying code, run `graphify update .` to keep the graph current (AST-only, no API cost).
 - Follow the shared quality commands and testing rules in `AGENTS.md`.
 
+## Entorno de Ejecución (Windows PowerShell & GitHub PRs)
+
+- **Sistema Operativo**: Windows con **PowerShell** (NO es Linux/Bash).
+- **Prohibido el uso de `&&`**: En PowerShell `&&` produce error de sintaxis (`El token '&&' no es un separador de instrucciones válido`). Usar `;` o comandos independientes.
+- **Flujo de Git & GitHub CLI (`gh`)**:
+  - **Sincronización antes de trabajar**: Ejecutar `git fetch origin main ; git checkout main ; git reset --hard origin/main` para asegurar base limpia.
+  - **Ramas independientes**: Crear SIEMPRE una rama nueva (`git checkout -b fix/nombre-descriptivo`) para cada tarea. NUNCA trabajar sobre ramas con PRs ya mergeadas.
+  - **Crear PR (Sin Automerge)**: Subir la rama (`git push origin fix/nombre-descriptivo`) e invocar `gh pr create --title "..." --body "..." --base main`. Dejar la PR abierta para revisión manual del usuario.
+
 ## Atajos del entorno (ahorran tiempo y contexto)
 
 Verificado en este contenedor; releer antes de pelear con las herramientas:
@@ -82,3 +91,28 @@ El dueño trabaja con plan Pro y necesita que el consumo rinda. Administrar siem
 - Agrupar comandos de shell independientes en una sola llamada.
 - Filtrar la salida de comandos largos (`| tail -15`) en vez de volcarla completa.
 - Respuestas al usuario: directas y sin relleno.
+
+### PARAR ANTE UN MURO (regla dura)
+
+Pasó una vez: hora y media y todos los tokens del día quemados persiguiendo un
+problema que no existía. **No puede volver a pasar.** Ante cualquiera de estas
+señales, PARAR EN EL ACTO y avisar en dos líneas. No investigar, no reintentar,
+no "una prueba más":
+
+1. **GitHub rechaza escribir.** Si `git push` o abrir la propuesta de cambios da
+   403, no hay segundo camino que probar: ninguno funciona. Avisar y dar el
+   enlace de comparación para que la abra él con un clic. Fin.
+2. **La misma prueba falla dos veces seguidas.** No hay tercer intento
+   "arreglando" algo distinto. Parar y contar qué falla.
+3. **Falla algo que antes andaba y no se tocó.** Casi siempre es el servidor de
+   prueba sirviendo una versión vieja, no la app. Primero reiniciar el servidor;
+   si igual falla, parar. Nunca leer código buscando un defecto antes de
+   descartar esto.
+4. **Más de 20 minutos en un solo problema.** Parar y contar el estado.
+
+Además: **nunca recompilar mientras corre una prueba de navegador** (produce
+fallas falsas), y **nunca correr una sola prueba con filtro por nombre** en un
+archivo donde las pruebas dependen entre sí (da fallas inventadas).
+
+Regla de fondo: es mejor entregar nueve cosas y decir "la décima está trabada"
+que gastar todo el día en la décima.
