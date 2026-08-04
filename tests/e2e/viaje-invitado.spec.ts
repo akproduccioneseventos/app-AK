@@ -204,6 +204,34 @@ test.describe('viaje del invitado', () => {
   test('el cliente entra a su portal con su clave y ve a su invitado', async ({ page }) => {
     test.setTimeout(120_000);
 
+    // Esta prueba mira el portal del cliente, no el recorrido del invitado. Para
+    // que no dependa de como lo dejaron las pruebas anteriores (la ultima cancela
+    // al invitado), deja el evento con un invitado confirmado escrito a mano.
+    const previo = leerEventoGuardado() ?? fiesta;
+    for (const archivo of archivosDelEvento()) {
+      fs.mkdirSync(path.dirname(archivo), { recursive: true });
+      fs.writeFileSync(
+        archivo,
+        `${JSON.stringify(
+          {
+            ...previo,
+            invitados: [
+              {
+                id: 'inv_portal_e2e',
+                nombre: NOMBRE_INVITADO,
+                rsvp: 'Confirmado',
+                categoria: 'Adulto',
+                partySize: 3,
+                contacto: '099 111 222',
+              },
+            ],
+          },
+          null,
+          2,
+        )}\n`,
+      );
+    }
+
     await page.goto(`/portal-cliente/${fiesta.id}`, { waitUntil: 'domcontentloaded' });
 
     const clave = page.locator('input[type="password"]');
