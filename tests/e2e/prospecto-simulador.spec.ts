@@ -92,6 +92,16 @@ test.describe('recorrido del prospecto', () => {
     expect(montos.length, `No apareció ningún precio en el recorrido:\n${textoFinal.slice(0, 400)}`).toBeGreaterThan(0);
     expect(textoFinal).not.toMatch(/NaN|Infinity|\[object Object\]/);
 
+    // El último paso no dice "Continuar" sino "Ver Resumen y Propuesta": ahí es
+    // donde aparece la propuesta con el precio congelado y el botón para
+    // escribirle a AK. Sin este clic, el recorrido se cortaba una pantalla antes.
+    const verResumen = page.getByRole('button', { name: /Ver Resumen y Propuesta/i }).first();
+    if (await verResumen.isVisible().catch(() => false)) {
+      await expect(verResumen, 'El botón que abre la propuesta final quedó bloqueado').toBeEnabled({ timeout: 20_000 });
+      await verResumen.click();
+      await page.waitForTimeout(2500);
+    }
+
     // Y tiene que poder cerrar: o generar el presupuesto o escribirle a AK.
     const cierre = page.getByRole('button', { name: /WhatsApp|Generar presupuesto/i }).first();
     await expect(cierre, 'El prospecto llegó al final pero no tiene cómo cerrar').toBeVisible({ timeout: 20_000 });
