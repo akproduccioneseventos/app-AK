@@ -418,84 +418,87 @@ export async function addPaymentToInvoice(
 ): Promise<{ success: boolean; invoice?: Invoice; error?: string }> {
   const auth = await verifySession();
   if (!auth.success) return { success: false, error: auth.error };
-  const paymentDate = formData.get('paymentDate') as string || new Date().toISOString();
-  const amountStr = formData.get('amount') as string;
-  const rawMethod = formData.get('method') as string || 'Transferencia';
-  const method = mapDepositMethodToInvoiceMethod(rawMethod);
-  const notes = formData.get('notes') as string | undefined;
-  const transactionProofFile = formData.get('transactionProof') as File | null;
 
-  let invoices = await getInvoices();
-  const invoiceIndex = invoices.findIndex(inv => inv.id === invoiceId);
-  if (invoiceIndex === -1) return { success: false, error: `Factura con ID ${invoiceId} no encontrada.` };
+  return invoicesMutex.runExclusive(async () => {
+    const paymentDate = formData.get('paymentDate') as string || new Date().toISOString();
+    const amountStr = formData.get('amount') as string;
+    const rawMethod = formData.get('method') as string || 'Transferencia';
+    const method = mapDepositMethodToInvoiceMethod(rawMethod);
+    const notes = formData.get('notes') as string | undefined;
+    const transactionProofFile = formData.get('transactionProof') as File | null;
 
-  const invoice = invoices[invoiceIndex];
-  const amount = roundInvoiceMoney(parseCleanMoney(amountStr), invoice.currency);
-  const balance = getInvoiceBalance(invoice);
+    let invoices = await getInvoices();
+    const invoiceIndex = invoices.findIndex(inv => inv.id === invoiceId);
+    if (invoiceIndex === -1) return { success: false, error: `Factura con ID ${invoiceId} no encontrada.` };
 
-  if (amount <= 0) return { success: false, error: 'El monto del pago debe ser mayor a cero.' };
-  if (amount > balance + invoiceMoneyTolerance(invoice.currency)) return { success: false, error: `El pago supera el saldo pendiente. Saldo: ${balance.toLocaleString('es-UY')} ${invoice.currency}.` };
-  if (!paymentDate || Number.isNaN(new Date(paymentDate).getTime())) return { success: false, error: 'La fecha del pago no es vÃ¡lida.' };
+    const invoice = invoices[invoiceIndex];
+    const amount = roundInvoiceMoney(parseCleanMoney(amountStr), invoice.currency);
+    const balance = getInvoiceBalance(invoice);
 
-  const payments = invoice.payments || [];
-  const paymentId = `pay_${invoiceId}_${Date.now()}_${Math.random().toString(36).substring(2, 7)}`;
-  let transactionProofUrl: string | undefined = undefined;
+    if (amount <= 0) return { success: false, error: 'El monto del pago debe ser mayor a cero.' };
+    if (amount > balance + invoiceMoneyTolerance(invoice.currency)) return { success: false, error: `El pago supera el saldo pendiente. Saldo: ${balance.toLocaleString('es-UY')} ${invoice.currency}.` };
+    if (!paymentDate || Number.isNaN(new Date(paymentDate).getTime())) return { success: false, error: 'La fecha del pago no es válida.' };
 
-  if (transactionProofFile && transactionProofFile.size > 0) {
-    try {
-      const bytes = await transactionProofFile.arrayBuffer();
-      const buffer = Buffer.from(bytes);
-      const uniqueFilename = `proof_${paymentId}_${transactionProofFile.name.replace(/[^a-zA-Z0-9.-]/g, '_')}`;
-      const storagePath = `payment-proofs/${uniqueFilename}`;
-      transactionProofUrl = await uploadToStorage(buffer, storagePath, transactionProofFile.type || 'application/octet-stream', false);
-    } catch (fileError: any) {
-      console.error('Error saving payment proof file:', fileError);
-      return { success: false, error: `Error al guardar el comprobante: ${fileError.message}` };
-    }
-  }
+    const payments = invoice.payments || [];
+    const paymentId = `pay_${invoiceId}_${Date.now()}_${Math.random().toString(36).substring(2, 7)}`;
+    let transactionProofUrl: string | undefined = undefined;
 
-  const newPayment: Payment = {
-    id: paymentId,
-    paymentDate,
-    amount,
-    method,
-    notes: notes?.trim() || undefined,
-    transactionProofUrl,
-  };
-
-  const updatedPayments = [...payments, newPayment];
-  const totalPaid = updatedPayments.reduce((sum, p) => sum + roundInvoiceMoney(p.amount, invoice.currency), 0);
-  let newStatus = invoice.status;
-  if (totalPaid >= roundInvoiceMoney(invoice.totalAmount, invoice.currency) - invoiceMoneyTolerance(invoice.currency)) {
-    newStatus = 'Paid';
-  } else if (totalPaid > 0 && invoice.status !== 'Overdue' && invoice.status !== 'Paid') {
-    newStatus = invoice.status === 'Draft' ? 'Sent' : invoice.status;
-  }
-
-  invoices[invoiceIndex] = { ...invoice, payments: updatedPayments, status: newStatus };
-  await writeData(INVOICES_FILE, invoices);
-
-  if (invoice.sourcePresupuestoId) {
-    const budgetPaymentResult = await addPagoToPresupuesto(invoice.sourcePresupuestoId, {
-      fecha: paymentDate,
-      monto: amount,
-      metodoPago: mapDepositMethodToBudgetMethod(method),
-      referencia: `AK_SYNC:invoice:${invoiceId}:payment:${paymentId}`,
-      estadoPago: 'confirmado',
-    });
-    if (!budgetPaymentResult.success) {
-      invoices[invoiceIndex] = invoice;
+    if (transactionProofFile && transactionProofFile.size > 0) {
       try {
-        await writeData(INVOICES_FILE, invoices);
-      } catch (rollbackError) {
-        logger.error('[Facturas] No se pudo revertir un pago sin sincronizar:', rollbackError);
-        return { success: false, error: 'El pago quedÃ³ pendiente de conciliaciÃ³n. No lo ingreses nuevamente y revisa el presupuesto vinculado.' };
+        const bytes = await transactionProofFile.arrayBuffer();
+        const buffer = Buffer.from(bytes);
+        const uniqueFilename = `proof_${paymentId}_${transactionProofFile.name.replace(/[^a-zA-Z0-9.-]/g, '_')}`;
+        const storagePath = `payment-proofs/${uniqueFilename}`;
+        transactionProofUrl = await uploadToStorage(buffer, storagePath, transactionProofFile.type || 'application/octet-stream', false);
+      } catch (fileError: any) {
+        console.error('Error saving payment proof file:', fileError);
+        return { success: false, error: `Error al guardar el comprobante: ${fileError.message}` };
       }
-      return { success: false, error: budgetPaymentResult.error || 'No se pudo sincronizar el pago con el presupuesto vinculado.' };
     }
-  }
 
-  return { success: true, invoice: invoices[invoiceIndex] };
+    const newPayment: Payment = {
+      id: paymentId,
+      paymentDate,
+      amount,
+      method,
+      notes: notes?.trim() || undefined,
+      transactionProofUrl,
+    };
+
+    const updatedPayments = [...payments, newPayment];
+    const totalPaid = updatedPayments.reduce((sum, p) => sum + roundInvoiceMoney(p.amount, invoice.currency), 0);
+    let newStatus = invoice.status;
+    if (totalPaid >= roundInvoiceMoney(invoice.totalAmount, invoice.currency) - invoiceMoneyTolerance(invoice.currency)) {
+      newStatus = 'Paid';
+    } else if (totalPaid > 0 && invoice.status !== 'Overdue' && invoice.status !== 'Paid') {
+      newStatus = invoice.status === 'Draft' ? 'Sent' : invoice.status;
+    }
+
+    invoices[invoiceIndex] = { ...invoice, payments: updatedPayments, status: newStatus };
+    await writeData(INVOICES_FILE, invoices);
+
+    if (invoice.sourcePresupuestoId) {
+      const budgetPaymentResult = await addPagoToPresupuesto(invoice.sourcePresupuestoId, {
+        fecha: paymentDate,
+        monto: amount,
+        metodoPago: mapDepositMethodToBudgetMethod(method),
+        referencia: `AK_SYNC:invoice:${invoiceId}:payment:${paymentId}`,
+        estadoPago: 'confirmado',
+      });
+      if (!budgetPaymentResult.success) {
+        invoices[invoiceIndex] = invoice;
+        try {
+          await writeData(INVOICES_FILE, invoices);
+        } catch (rollbackError) {
+          logger.error('[Facturas] No se pudo revertir un pago sin sincronizar:', rollbackError);
+          return { success: false, error: 'El pago quedó pendiente de conciliación. No lo ingreses nuevamente y revisa el presupuesto vinculado.' };
+        }
+        return { success: false, error: budgetPaymentResult.error || 'No se pudo sincronizar el pago con el presupuesto vinculado.' };
+      }
+    }
+
+    return { success: true, invoice: invoices[invoiceIndex] };
+  });
 }
 
 function parseDateStringLocal(dateStr: string): Date {
