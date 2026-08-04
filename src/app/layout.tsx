@@ -1,4 +1,5 @@
 import type { Metadata, Viewport } from 'next';
+import { Suspense } from 'react';
 import './globals.css';
 import './ak-global-premium.css';
 import './ak-public-experience.css';
@@ -85,7 +86,9 @@ export default function RootLayout({
       <head>
       </head>
       <body className="ak-motion-system font-body antialiased">
-        <GoogleAnalytics />
+        <Suspense fallback={null}>
+          <GoogleAnalytics />
+        </Suspense>
         <DeploymentRecovery />
         {children}
         <Toaster />
