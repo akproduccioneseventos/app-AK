@@ -18,16 +18,8 @@ export default function TriviaGameScreen({ fiestaId, guestName }: Props) {
   const [isFinished, setIsFinished] = useState(false);
   const [selectedAnswer, setSelectedAnswer] = useState<string | null>(null);
 
-  useEffect(() => {
-    if (isFinished || selectedAnswer !== null) return;
-    if (timeLeft <= 0) {
-      handleAnswer('timeout');
-      return;
-    }
-    const timer = setInterval(() => setTimeLeft(prev => prev - 1), 1000);
-    return () => clearInterval(timer);
-  }, [timeLeft, isFinished, selectedAnswer, handleAnswer]);
-
+  // `handleAnswer` va declarado ANTES del useEffect que lo usa como dependencia.
+  // Al reves es un error de compilacion y tumba el build de toda la app.
   const handleAnswer = React.useCallback((answerId: string) => {
     if (selectedAnswer !== null) return;
     setSelectedAnswer(answerId);
@@ -47,6 +39,16 @@ export default function TriviaGameScreen({ fiestaId, guestName }: Props) {
       }
     }, 2000);
   }, [currentIndex, questions, selectedAnswer]);
+
+  useEffect(() => {
+    if (isFinished || selectedAnswer !== null) return;
+    if (timeLeft <= 0) {
+      handleAnswer('timeout');
+      return;
+    }
+    const timer = setInterval(() => setTimeLeft(prev => prev - 1), 1000);
+    return () => clearInterval(timer);
+  }, [timeLeft, isFinished, selectedAnswer, handleAnswer]);
 
   if (isFinished) {
     return (
