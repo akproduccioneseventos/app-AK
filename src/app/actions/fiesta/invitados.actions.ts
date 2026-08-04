@@ -7,6 +7,7 @@ import { writeData } from '@/lib/data-service';
 import { preserveFiestaSecrets } from '@/lib/fiesta/get-fiesta-raw';
 import { enforcePublicRateLimit } from '@/lib/commercial/public-rate-limit';
 import { hasPublicGuestAccess } from '@/lib/guest-portal-public-data';
+import { requireAppSession } from '@/lib/auth/require-session';
 
 // ─── Core helper ────────────────────────────────────────────────────────────
 
@@ -90,7 +91,18 @@ export async function getConfirmedRsvpCount(fiestaId: string): Promise<number> {
 
 // ─── Guest CRUD ──────────────────────────────────────────────────────────────
 
+/**
+ * Alta, cambio y baja de invitados: son cosa del equipo, no del invitado.
+ *
+ * El invitado tiene su propio camino para confirmar (mas abajo, con su enlace
+ * firmado) y el cliente tiene el suyo desde el portal, con su clave. Estas tres
+ * no tenian ninguna comprobacion: con solo conocer el codigo de una fiesta,
+ * cualquiera podia agregar invitados inventados o borrarle la lista entera al
+ * cliente. Todas las pantallas que las usan son internas, asi que pedir la sesion
+ * del equipo no le cambia nada a nadie de afuera.
+ */
 export async function addInvitado(fiestaId: string, nuevoInvitadoData: Omit<Invitado, 'id'>) {
+  await requireAppSession();
   let nuevoInvitado: Invitado | null = null;
   const result = await updateFiestaData(fiestaId, data => {
     nuevoInvitado = {
@@ -105,6 +117,7 @@ export async function addInvitado(fiestaId: string, nuevoInvitadoData: Omit<Invi
 }
 
 export async function updateInvitado(fiestaId: string, invitadoActualizado: Invitado) {
+  await requireAppSession();
   const result = await updateFiestaData(fiestaId, data => {
     const invitados = (data.invitados || []).map(inv =>
       inv.id === invitadoActualizado.id ? invitadoActualizado : inv
@@ -115,6 +128,7 @@ export async function updateInvitado(fiestaId: string, invitadoActualizado: Invi
 }
 
 export async function deleteInvitado(fiestaId: string, invitadoId: string) {
+  await requireAppSession();
   return updateFiestaData(fiestaId, data => {
     const invitados = (data.invitados || []).filter(inv => inv.id !== invitadoId);
     return { ...data, invitados };
