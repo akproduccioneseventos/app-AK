@@ -18,6 +18,15 @@ Rules:
 - After modifying code, run `graphify update .` to keep the graph current (AST-only, no API cost).
 - Follow the shared quality commands and testing rules in `AGENTS.md`.
 
+## Entorno de Ejecución (Windows PowerShell & GitHub PRs)
+
+- **Sistema Operativo**: Windows con **PowerShell** (NO es Linux/Bash).
+- **Prohibido el uso de `&&`**: En PowerShell `&&` produce error de sintaxis (`El token '&&' no es un separador de instrucciones válido`). Usar `;` o comandos independientes.
+- **Flujo de Git & GitHub CLI (`gh`)**:
+  - **Sincronización antes de trabajar**: Ejecutar `git fetch origin main ; git checkout main ; git reset --hard origin/main` para asegurar base limpia.
+  - **Ramas independientes**: Crear SIEMPRE una rama nueva (`git checkout -b fix/nombre-descriptivo`) para cada tarea. NUNCA trabajar sobre ramas con PRs ya mergeadas.
+  - **Crear PR (Sin Automerge)**: Subir la rama (`git push origin fix/nombre-descriptivo`) e invocar `gh pr create --title "..." --body "..." --base main`. Dejar la PR abierta para revisión manual del usuario.
+
 ## Atajos del entorno (ahorran tiempo y contexto)
 
 Verificado en este contenedor; releer antes de pelear con las herramientas:
