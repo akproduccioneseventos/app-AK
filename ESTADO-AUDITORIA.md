@@ -1,7 +1,87 @@
 # Estado de la auditoría — qué está hecho y qué falta
 
 Documento vivo. Sirve para no repetir trabajo entre sesiones.
-Última actualización: 31 de julio de 2026.
+Última actualización: 4 de agosto de 2026.
+
+---
+
+## 🔴 LO MÁS IMPORTANTE DE LA TANDA DEL 4 DE AGOSTO
+
+**La app no compilaba.** `npm run build` terminaba en 1. Por eso la CI venía roja
+y no había nada publicable, sin importar el estado del despliegue.
+
+Causa: la PR 837 (arreglo de `exhaustive-deps`) agregó `handleAnswer` a las
+dependencias del `useEffect` de `TriviaGameScreen`, pero el `useEffect` está
+declarado **antes** del `useCallback`. TypeScript lo rechaza con
+*"Block-scoped variable used before its declaration"* y el build worker muere.
+Una pantalla de juegos tumbaba la compilación de toda la aplicación.
+
+Ya corregido (se movió el `useEffect` debajo del `useCallback`). Verificado:
+`npm run build` termina en 0.
+
+**Antes de fusionar cualquier cosa, correr `npm run build`.** Es el único filtro
+que hubiera evitado esto, y es el mismo consejo que ya estaba al final de este
+documento sin aplicarse.
+
+### Agujeros de permisos cerrados en esta tanda
+
+| # | Qué pasaba | Dónde |
+|---|---|---|
+| 31 | **`deleteAllFiestas()` no comprobaba NADA**, ni sesión. El comentario del código delegaba la protección en la confirmación de la pantalla; una server action se invoca sin pasar por la pantalla. | `actions/fiesta/fiesta.actions.ts` |
+| 32 | `resetAllCustomers()` y `resetAppCompleto()` sólo pedían sesión. Cualquier colaborador podía borrar la cartera entera de clientes o resetear la app. | `actions/customers.ts`, `actions/admin-reset.ts` |
+| 33 | **Se podía perder una factura entera**: `invoices.ts` hacía leer-modificar-escribir sin turno, así que dos guardados simultáneos se pisaban. `presupuestos.ts` ya usaba `AsyncMutex`; facturas no. | `actions/invoices.ts` |
+| 34 | Archivar presupuestos había quedado restringido a admin junto con el borrado. Archivar es rutina diaria y reversible: se destrabó. El borrado definitivo sigue siendo de admin. | `actions/presupuestos.ts` |
+| 35 | La exportación a Looker Studio devolvía **ceros fijos**: se le habían quitado los datos reales al cambiarle la autenticación. Además exigía sesión de navegador, cosa que un informe que se refresca solo no tiene. | `api/analytics/looker-export` |
+
+Se agregó `requireAdminSession()` en `lib/auth/require-session.ts` como guarda
+común para acciones destructivas.
+
+### Sobre los roles: NO existen los que se creía
+
+Verificado en código. Sólo hay **dos** roles: `admin` y `user`. No existe
+contador, marketing ni ventas.
+
+Peor: la pantalla de usuarios permite asignar **"módulos"** por persona (crm,
+presupuestos, clientes…), pero esos módulos **no se validan en ningún servidor**.
+Se guardan y se muestran como etiquetas, nada más. Cualquiera con sesión accede
+igual a todo. Ver `admin/usuarios/page.tsx` (asignación) contra las server
+actions (ninguna los consulta).
+
+Decisión pendiente del dueño: o se implementa la validación por módulo, o se
+saca la pantalla para no dar una sensación falsa de control.
+
+### Hallazgos verificados que NO se tocaron (riesgo de romper en plena fiesta)
+
+1. **Fotos del muro social descargables sin permiso.**
+   `api/social-gallery/[fiestaId]/[filename]` no valida nada. Los nombres no son
+   triviales de adivinar (`post_<timestamp>_<7 al azar>`), así que no se puede
+   enumerar, pero cualquiera con la dirección exacta baja la foto. Exigir sesión
+   rompería el muro para los invitados, que no tienen cuenta: el arreglo correcto
+   es pedir el mismo token de invitado que usa la invitación.
+2. **La clave del portal del cliente es adivinable y no caduca.**
+   `buildAccessKey()` arma `{nombre-evento}-{últimos 6 del id}`. El nombre del
+   evento es público. Además se compara con `===`, no con comparación de tiempo
+   constante. Cambiarla invalida los enlaces ya enviados a clientes.
+3. **Doble aviso de pago.** `submitClientPayment()` agrega la notificación sin
+   control de duplicados: doble clic del cliente = dos avisos idénticos.
+4. **Redondeo distinto según la moneda.** `roundMoney()` (presupuestos) redondea
+   a entero siempre; `roundInvoiceMoney()` (facturas) usa 2 decimales para lo que
+   no sea UYU. Un presupuesto en dólares pierde los centavos.
+5. **El simulador Sofía se comparte pelado** por WhatsApp: su layout no define
+   metadata, a diferencia del simulador público.
+
+### Áreas revisadas y sanas en esta tanda
+
+- **Invitado**: verificado punto por punto que todas las pantallas toman el id de
+  la fiesta de la dirección (ninguna usa "la fiesta más próxima"), que los envíos
+  tienen try/catch, que las fechas pasan `es-UY`, que los botones se deshabilitan
+  al enviar y que las subidas validan tamaño (15 MB audio, 40 MB video).
+- **Contabilidad**: orden de redondeo correcto (redondea cada ítem y después
+  suma), descuentos que nunca dejan el total negativo, IVA sobre el bruto,
+  ningún divisor que pueda ser cero, y todos los caminos de escritura de
+  presupuestos pasan por `normalizePresupuestoFinancials()`.
+- **Ventas**: validación de teléfono uruguayo, rutas públicas bien declaradas,
+  metadata del catálogo, plantillas de WhatsApp sin variables sin reemplazar.
 
 ---
 
