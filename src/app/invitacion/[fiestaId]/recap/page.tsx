@@ -90,7 +90,7 @@ export default async function MorningRecapPage({ params, searchParams }: Morning
               {recap.photos.map((post) => (
                 <figure key={post.id} className="min-w-0">
                   <div className="relative aspect-square overflow-hidden bg-stone-200">
-                    <Image src={post.imageUrl} alt={post.dedication || `Foto compartida por ${post.authorName}`} fill sizes="(max-width: 640px) 50vw, 25vw" className="object-cover" unoptimized />
+                    <Image src={post.imageUrl} alt={post.dedication || (post.authorName ? `Foto compartida por ${post.authorName}` : 'Foto compartida en la fiesta')} fill sizes="(max-width: 640px) 50vw, 25vw" className="object-cover" unoptimized />
                   </div>
                   <figcaption className="mt-2 truncate text-xs font-semibold text-stone-600">{post.authorName}</figcaption>
                 </figure>
