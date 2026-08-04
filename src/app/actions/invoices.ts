@@ -67,10 +67,10 @@ export async function saveInvoice(
   const auth = await verifySession();
   if (!auth.success) return { success: false, error: auth.error };
   if (!invoiceDataInput.items || invoiceDataInput.items.some(item => normalizeQuantity(item.quantity) <= 0)) {
-    return { success: false, error: 'La cantidad de cada Ã­tem debe ser un nÃºmero positivo.' };
+    return { success: false, error: 'La cantidad de cada ítem debe ser un número positivo.' };
   }
   if (invoiceDataInput.items.some(item => !item.description || item.description.trim() === '')) {
-    return { success: false, error: 'Todos los Ã­tems de la factura deben tener una descripciÃ³n.' };
+    return { success: false, error: 'Todos los ítems de la factura deben tener una descripción.' };
   }
 
   try {
@@ -196,8 +196,8 @@ export async function registerBookingDeposit(data: {
     const auth = await verifySession();
     if (!auth.success) return { success: false, error: auth.error };
     const baseAmount = parseCleanMoney(data.amount);
-    if (baseAmount <= 0) return { success: false, error: 'El monto de la seÃ±a debe ser mayor a cero.' };
-    if (!data.date || Number.isNaN(new Date(data.date).getTime())) return { success: false, error: 'La fecha de la seÃ±a no es vÃ¡lida.' };
+    if (baseAmount <= 0) return { success: false, error: 'El monto de la seña debe ser mayor a cero.' };
+    if (!data.date || Number.isNaN(new Date(data.date).getTime())) return { success: false, error: 'La fecha de la seña no es válida.' };
     const paymentBreakdown = buildDepositPaymentBreakdown(
       baseAmount,
       data.method,
@@ -210,7 +210,7 @@ export async function registerBookingDeposit(data: {
 
     const paymentDay = new Date(data.date).toISOString().slice(0, 10);
     const paymentReference = [
-      'SeÃ±a registrada',
+      'Seña registrada',
       data.fiestaId,
       paymentDay,
       baseAmount,
@@ -267,14 +267,14 @@ export async function registerBookingDeposit(data: {
     }
 
     const invoiceItems: Omit<InvoiceItem, 'id'>[] = [{
-      description: `SeÃ±a para reserva de evento: ${fiesta.configuracion.nombreEvento}`,
+      description: `Seña para reserva de evento: ${fiesta.configuracion.nombreEvento}`,
       quantity: 1,
       unitPrice: baseAmount,
       total: baseAmount,
     }];
     if (paymentBreakdown.surchargeAmount > 0) {
       invoiceItems.push({
-        description: `Recargo de financiaciÃ³n Mercado Pago (${paymentBreakdown.installments} cuotas)`,
+        description: `Recargo de financiación Mercado Pago (${paymentBreakdown.installments} cuotas)`,
         quantity: 1,
         unitPrice: paymentBreakdown.surchargeAmount,
         total: paymentBreakdown.surchargeAmount,
@@ -282,7 +282,7 @@ export async function registerBookingDeposit(data: {
     }
 
     const newInvoice: NewInvoiceInput = {
-      invoiceNumber: `SEÃ‘A-${data.fiestaId.slice(-5)}`,
+      invoiceNumber: `SEÑA-${data.fiestaId.slice(-5)}`,
       customer: { id: fiesta.configuracion.clienteId, name: fiesta.configuracion.clienteNombre || fiesta.configuracion.nombreEvento?.split(' de ')[1] || 'Cliente' },
       issueDate: data.date,
       dueDate: data.date,
@@ -303,8 +303,8 @@ export async function registerBookingDeposit(data: {
         amount: chargedAmount,
         method: paymentBreakdown.invoiceMethod,
         notes: paymentBreakdown.installmentOption
-          ? `SeÃ±a inicial. ${paymentBreakdown.installmentOption.label}.`
-          : 'SeÃ±a inicial de contrataciÃ³n',
+          ? `Seña inicial. ${paymentBreakdown.installmentOption.label}.`
+          : 'Seña inicial de contratación',
         baseAmount,
         surchargeAmount: paymentBreakdown.surchargeAmount,
         installments: paymentBreakdown.installments,
@@ -312,7 +312,7 @@ export async function registerBookingDeposit(data: {
     };
 
     const invoiceResult = await saveInvoice(newInvoice);
-    if (!invoiceResult.success || !invoiceResult.id) throw new Error(invoiceResult.error || 'Error al crear recibo de seÃ±a.');
+    if (!invoiceResult.success || !invoiceResult.id) throw new Error(invoiceResult.error || 'Error al crear recibo de seña.');
 
     if (fiesta.presupuestoId && !data.skipBudgetPayment) {
       const paymentResult = await addPagoToPresupuesto(fiesta.presupuestoId, {
@@ -427,7 +427,7 @@ export async function addPaymentToInvoice(
 
   if (amount <= 0) return { success: false, error: 'El monto del pago debe ser mayor a cero.' };
   if (amount > balance + invoiceMoneyTolerance(invoice.currency)) return { success: false, error: `El pago supera el saldo pendiente. Saldo: ${balance.toLocaleString('es-UY')} ${invoice.currency}.` };
-  if (!paymentDate || Number.isNaN(new Date(paymentDate).getTime())) return { success: false, error: 'La fecha del pago no es vÃ¡lida.' };
+  if (!paymentDate || Number.isNaN(new Date(paymentDate).getTime())) return { success: false, error: 'La fecha del pago no es válida.' };
 
   const payments = invoice.payments || [];
   const paymentId = `pay_${invoiceId}_${Date.now()}_${Math.random().toString(36).substring(2, 7)}`;
@@ -481,7 +481,7 @@ export async function addPaymentToInvoice(
         await writeData(INVOICES_FILE, invoices);
       } catch (rollbackError) {
         logger.error('[Facturas] No se pudo revertir un pago sin sincronizar:', rollbackError);
-        return { success: false, error: 'El pago quedÃ³ pendiente de conciliaciÃ³n. No lo ingreses nuevamente y revisa el presupuesto vinculado.' };
+        return { success: false, error: 'El pago quedó pendiente de conciliación. No lo ingreses nuevamente y revisa el presupuesto vinculado.' };
       }
       return { success: false, error: budgetPaymentResult.error || 'No se pudo sincronizar el pago con el presupuesto vinculado.' };
     }

@@ -763,6 +763,13 @@ function SimuladorAKContent() {
       toast({ title: 'Presupuesto actualizado', description: `Cambiado a ${pkg?.nombre} con éxito.` });
     } catch (err) {
       console.error(err);
+      // El visitante escribia su cambio y no pasaba nada: el mensaje quedaba en
+      // la nada y el chat volvia a quedar listo, como si lo hubiera ignorado.
+      setChatHistory(prev => [...prev, {
+        role: 'assistant',
+        text: 'Uy, no pude aplicar ese cambio. Probá escribirlo de nuevo, o mandanos un WhatsApp y lo vemos juntos.',
+        key: `${botMsgKey}_error`,
+      }]);
     } finally {
       setIsAiLoading(false);
       setCurrentChatStep('budget_ready');
