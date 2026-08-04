@@ -91,3 +91,28 @@ El dueño trabaja con plan Pro y necesita que el consumo rinda. Administrar siem
 - Agrupar comandos de shell independientes en una sola llamada.
 - Filtrar la salida de comandos largos (`| tail -15`) en vez de volcarla completa.
 - Respuestas al usuario: directas y sin relleno.
+
+### PARAR ANTE UN MURO (regla dura)
+
+Pasó una vez: hora y media y todos los tokens del día quemados persiguiendo un
+problema que no existía. **No puede volver a pasar.** Ante cualquiera de estas
+señales, PARAR EN EL ACTO y avisar en dos líneas. No investigar, no reintentar,
+no "una prueba más":
+
+1. **GitHub rechaza escribir.** Si `git push` o abrir la propuesta de cambios da
+   403, no hay segundo camino que probar: ninguno funciona. Avisar y dar el
+   enlace de comparación para que la abra él con un clic. Fin.
+2. **La misma prueba falla dos veces seguidas.** No hay tercer intento
+   "arreglando" algo distinto. Parar y contar qué falla.
+3. **Falla algo que antes andaba y no se tocó.** Casi siempre es el servidor de
+   prueba sirviendo una versión vieja, no la app. Primero reiniciar el servidor;
+   si igual falla, parar. Nunca leer código buscando un defecto antes de
+   descartar esto.
+4. **Más de 20 minutos en un solo problema.** Parar y contar el estado.
+
+Además: **nunca recompilar mientras corre una prueba de navegador** (produce
+fallas falsas), y **nunca correr una sola prueba con filtro por nombre** en un
+archivo donde las pruebas dependen entre sí (da fallas inventadas).
+
+Regla de fondo: es mejor entregar nueve cosas y decir "la décima está trabada"
+que gastar todo el día en la décima.
