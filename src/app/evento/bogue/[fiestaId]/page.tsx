@@ -428,6 +428,9 @@ export default function BoguePage() {
 
     } catch (e) {
       console.error('Error recording boomerang:', e);
+      // Sin aviso, el invitado veia la pantalla volver sola al principio y no
+      // entendia si habia grabado o no. En una fiesta nadie se queda a averiguarlo.
+      setProgressMsg('No pudimos grabar el video. Proba de nuevo.');
       setLocalStatus('idle');
     }
   };
