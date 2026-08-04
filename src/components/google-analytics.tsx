@@ -1,24 +1,29 @@
 'use client';
 
 import { useEffect } from 'react';
-import { usePathname, useSearchParams } from 'next/navigation';
+import { usePathname } from 'next/navigation';
 import Script from 'next/script';
 import { GA_MEASUREMENT_ID } from '@/lib/analytics-ga';
 
 /**
  * Google Analytics GA4 component with SPA pageview tracking.
  * Only renders when NEXT_PUBLIC_GA_MEASUREMENT_ID is configured.
+ *
+ * NOTE: We intentionally avoid useSearchParams() here because this
+ * component is rendered in the root layout. useSearchParams forces
+ * a client-side rendering bailout which breaks static generation
+ * of /_not-found (404 page) during the Next.js build.
+ * We read query params from window.location.search inside useEffect instead.
  */
 export function GoogleAnalytics() {
   const gaId = GA_MEASUREMENT_ID;
   const pathname = usePathname();
-  const searchParams = useSearchParams();
 
   useEffect(() => {
     if (!gaId || typeof window === 'undefined' || !window.gtag) return;
-    const url = pathname + (searchParams?.toString() ? `?${searchParams.toString()}` : '');
+    const url = pathname + window.location.search;
     window.gtag('config', gaId, { page_path: url });
-  }, [gaId, pathname, searchParams]);
+  }, [gaId, pathname]);
 
   if (!gaId) return null;
 
