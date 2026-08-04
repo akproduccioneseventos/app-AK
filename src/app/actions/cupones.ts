@@ -246,6 +246,25 @@ export async function registrarUsoCupon(
       const idx = cupones.findIndex(c => c.id === couponId);
       if (idx === -1) return { success: false, error: 'Cupón no encontrado.' };
 
+      // `validarCupon` corre antes, pero afuera de este turno: entre la
+      // validacion y el registro el cupon pudo vencerse, desactivarse o llegar
+      // a su tope por otro uso simultaneo. Se revalida aca adentro, que es
+      // donde el chequeo y el incremento son un solo paso.
+      const cupon = cupones[idx];
+      if (!cupon.activo) {
+        return { success: false, error: 'Este cupón está desactivado.' };
+      }
+      const fin = new Date(cupon.fechaFin);
+      if (!isNaN(fin.getTime())) {
+        fin.setHours(23, 59, 59, 999);
+        if (new Date() > fin) {
+          return { success: false, error: 'Este cupón ha expirado.' };
+        }
+      }
+      if (cupon.usosMaximos > 0 && cupon.usosActuales >= cupon.usosMaximos) {
+        return { success: false, error: 'Este cupón ya alcanzó el límite de usos.' };
+      }
+
       cupones[idx].usosActuales += 1;
       cupones[idx].actualizadoEn = new Date().toISOString();
       await writeData(CUPONES_FILE, cupones);

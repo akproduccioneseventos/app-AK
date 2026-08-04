@@ -32,6 +32,9 @@ documento sin aplicarse.
 | 33 | **Se podía perder una factura entera**: `invoices.ts` hacía leer-modificar-escribir sin turno, así que dos guardados simultáneos se pisaban. `presupuestos.ts` ya usaba `AsyncMutex`; facturas no. | `actions/invoices.ts` |
 | 34 | Archivar presupuestos había quedado restringido a admin junto con el borrado. Archivar es rutina diaria y reversible: se destrabó. El borrado definitivo sigue siendo de admin. | `actions/presupuestos.ts` |
 | 35 | La exportación a Looker Studio devolvía **ceros fijos**: se le habían quitado los datos reales al cambiarle la autenticación. Además exigía sesión de navegador, cosa que un informe que se refresca solo no tiene. | `api/analytics/looker-export` |
+| 36 | **El cliente podía informar el mismo pago dos veces.** Si el envío fallaba, la rama de error estaba vacía y no había `catch`: la ventana quedaba abierta sin ningún aviso, así que volvía a tocar. Ahora muestra el motivo, y distingue el fallo del servidor del corte de señal. | `portal/c/[accessKey]/PublicPortalView.tsx` |
+| 37 | `registrarUsoCupon()` incrementaba el uso **sin revalidar**. `validarCupon` corre antes pero fuera del turno: entre una cosa y la otra el cupón podía vencerse, desactivarse o pasarse del tope por otro uso simultáneo. Ahora se revalida adentro del turno, donde chequeo e incremento son un solo paso. | `actions/cupones.ts` |
+| 38 | El simulador **Sofía** se compartía por WhatsApp sin título ni foto. El simulador público ya tenía su tarjeta; este no. | `simulador-ak/layout.tsx` |
 
 Se agregó `requireAdminSession()` en `lib/auth/require-session.ts` como guarda
 común para acciones destructivas.
