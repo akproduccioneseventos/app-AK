@@ -1,3 +1,5 @@
+import { AK_WHATSAPP_NUMBER } from '@/lib/public-contact';
+
 export type PortalGuest = {
   rsvp?: string | null;
   partySize?: number | null;
@@ -235,5 +237,8 @@ export function buildWhatsAppHref(contact: string | undefined, eventName: string
     return `https://wa.me/${digits}?text=${text}`;
   }
 
-  return `https://wa.me/?text=${text}`;
+  // Sin numero, el enlace abre WhatsApp pero no le escribe a nadie: la consulta
+  // del cliente se pierde. Si el contacto del evento vino vacio, se usa el numero
+  // de la empresa, que es a quien queria escribirle igual.
+  return `https://wa.me/${AK_WHATSAPP_NUMBER}?text=${text}`;
 }

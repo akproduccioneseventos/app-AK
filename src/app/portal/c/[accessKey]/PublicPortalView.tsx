@@ -69,6 +69,7 @@ import { updateClientChecklist, updateClientNotes, submitClientPayment, submitCl
 import { updateClienteDebeLlevar } from '@/app/actions/fiesta/fiesta.actions';
 import { defaultBebidaItems } from '@/lib/fiesta-defaults';
 import { PublicFooter } from '@/components/public-footer';
+import { AK_WHATSAPP_NUMBER } from '@/lib/public-contact';
 import { calculateMenuSimulationTotals, resolveMenuUnitPrices, simulateGuestCostImpact } from '@/lib/portal-menu-simulator';
 import { CateringSimulator } from '@/components/portal/CateringSimulator';
 import { getBudgetPaymentSummary } from '@/lib/budget/financial-guardrails';
@@ -450,9 +451,9 @@ export default function PublicPortalView({
   const whatsappMessage = encodeURIComponent(
     `Hola! Te escribo por el evento "${config.nombreEvento}"${config.fechaEvento ? ` (${eventDate})` : ''}.`
   );
-  const whatsappHref = hasValidPhone
-    ? `https://wa.me/${whatsappNumber}?text=${whatsappMessage}`
-    : `https://wa.me/?text=${whatsappMessage}`;
+  // Sin numero, el enlace abre WhatsApp pero no le escribe a nadie y la consulta
+  // del cliente se pierde. Se cae al numero de la empresa.
+  const whatsappHref = `https://wa.me/${hasValidPhone ? whatsappNumber : AK_WHATSAPP_NUMBER}?text=${whatsappMessage}`;
 
   // Payments data
   const paymentSummary = getBudgetPaymentSummary(presupuesto);
