@@ -416,7 +416,10 @@ export async function uploadSocialPost(
     );
 
     const requireApproval = fiestaData?.socialGallerySettings?.requireApproval === true;
-    const queueForReview = shouldQueueForManualReview(requireApproval, safetyResult);
+    // Los videos no los puede revisar el analisis automatico, que mira imagenes
+    // fijas. Van siempre a aprobacion: es la unica forma de que no aparezca algo
+    // indebido en la pantalla grande delante de toda la fiesta.
+    const queueForReview = shouldQueueForManualReview(requireApproval, safetyResult, isVideo);
     const mediaReview = reviewSocialContent({
       type: isVideo ? 'video' : 'image',
       text: dedication,
@@ -463,6 +466,8 @@ interface CreateSocialMediaPostFromUrlInput {
   sourceModule?: string;
   drinkId?: string;
   drinkName?: string;
+  /** La estacion lo marca cuando lo subido no se pudo revisar automaticamente. */
+  revisionManual?: boolean;
 }
 
 async function persistSocialMediaPostFromUrl(
@@ -482,12 +487,17 @@ async function persistSocialMediaPostFromUrl(
     });
     if (review.status === 'blocked') return { success: false, error: review.message };
     const postId = `post_${Date.now()}_${Math.random().toString(36).substring(2, 9)}`;
+    // `revisionManual` lo manda la estacion cuando lo que se subio no se pudo
+    // revisar solo: los videos, y las fotos cuando el analisis automatico no
+    // estuvo disponible. En ese caso queda esperando el visto bueno en vez de
+    // salir directo a la pantalla grande.
+    const esperaAprobacion = review.status === 'pending_review' || input.revisionManual === true;
     const newPost: SocialGalleryPost = {
       id: postId,
       fiestaId: input.fiestaId,
       imageUrl: input.mediaUrl,
       mediaType: input.mediaType ?? 'image',
-      moderationStatus: review.status === 'pending_review' ? 'pending' : 'approved',
+      moderationStatus: esperaAprobacion ? 'pending' : 'approved',
       timestamp: new Date().toISOString(),
       authorName: sanitizeSocialText(input.authorName || 'AK Producciones') || 'AK Producciones',
       likes: 0,
