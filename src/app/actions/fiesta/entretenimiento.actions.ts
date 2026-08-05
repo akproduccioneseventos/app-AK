@@ -4,6 +4,7 @@ import path from 'path';
 import { getFiestaById, saveFiesta } from './fiesta.actions';
 import { createSocialMediaPostFromUrlForStation } from '@/app/actions/social-gallery';
 import { uploadToStorage } from '@/lib/firebase/storage';
+import { checkImageSafety } from '@/lib/social-fiesta/content-safety-ai';
 import { requireAppSession } from '@/lib/auth/require-session';
 import {
   createEntertainmentAccessToken,
@@ -182,12 +183,36 @@ export async function uploadEntretenimientoMedia(formData: FormData) {
     const mediaId = `ent_${Date.now()}_${Math.random().toString(36).slice(2, 8)}`;
     const storagePath = `entertainment/${fiestaId}/${moduleId}/${mediaId}${extension}`;
     const bytes = await file.arrayBuffer();
-    const url = await uploadToStorage(Buffer.from(bytes), storagePath, file.type, true);
+    const buffer = Buffer.from(bytes);
+    const esVideo = file.type.startsWith('video/');
+
+    /**
+     * Todo lo que sale de una estacion va a la pantalla grande de la fiesta, asi
+     * que antes se revisa. Hasta ahora no se revisaba nada: la fotocabina, el
+     * espejo, la plataforma 360 y el boomerang publicaban directo.
+     *
+     * Las fotos pasan por el analisis automatico y se rechazan en el acto si dan
+     * riesgo de contenido adulto o violento. Los videos no se pueden analizar
+     * solos, y las fotos tampoco cuando el analisis no esta disponible: en esos
+     * casos la publicacion queda esperando el visto bueno del equipo en vez de
+     * salir a la pantalla.
+     */
+    let revisionManual = esVideo;
+    if (!esVideo) {
+      const seguridad = await checkImageSafety(buffer);
+      if (!seguridad.safe) {
+        return { success: false, error: 'La foto fue bloqueada por riesgo de contenido inapropiado.' };
+      }
+      if (seguridad.reason === 'error') revisionManual = true;
+    }
+
+    const url = await uploadToStorage(buffer, storagePath, file.type, true);
 
     const socialPostResult = await createSocialMediaPostFromUrlForStation({
       fiestaId,
       mediaUrl: url,
-      mediaType: file.type.startsWith('video/') ? 'video' : 'image',
+      revisionManual,
+      mediaType: esVideo ? 'video' : 'image',
       authorName,
       caption,
       source: 'entertainment',
