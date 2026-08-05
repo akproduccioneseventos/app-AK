@@ -21,7 +21,7 @@ export default function TriviaGameScreen({ fiestaId, guestName }: Props) {
   // El reloj de la pregunta usa `handleAnswer`, asi que tiene que declararse
   // despues. Al reves, la pantalla del juego reventaba apenas se abria: la lista
   // de dependencias se arma mientras se dibuja, cuando `handleAnswer` todavia no
-  // existe.
+  // existe. Ademas TypeScript lo rechaza y tumbaba el build de toda la app.
   const handleAnswer = React.useCallback((answerId: string) => {
     if (selectedAnswer !== null) return;
     setSelectedAnswer(answerId);

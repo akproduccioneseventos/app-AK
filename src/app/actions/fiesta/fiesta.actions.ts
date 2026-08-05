@@ -938,6 +938,12 @@ export async function resetAllActiveFiestas(): Promise<{ success: boolean; archi
  * This is a destructive admin-only operation; the UI must require explicit confirmation.
  */
 export async function deleteAllFiestas(): Promise<{ success: boolean; deletedCount?: number; error?: string }> {
+  // Esta accion no comprobaba NADA: ni sesion. El comentario de arriba delegaba
+  // la proteccion en la confirmacion de la pantalla, y una server action se
+  // puede invocar sin pasar por la pantalla.
+  const { requireAdminSession } = await import('@/lib/auth/require-session');
+  const guard = await requireAdminSession();
+  if (!guard.ok) return { success: false, error: guard.error };
   try {
     const activas = await getFiestas(false);
     const deletedCount = activas.length;
