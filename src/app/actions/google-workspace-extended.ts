@@ -415,6 +415,10 @@ export async function notifyGuestsWithCalendarLinks(fiestaId: string, options: {
   for (const invitado of fiesta.invitados || []) {
     const email = getGuestEmail(invitado);
     if (!email) continue;
+    // Al que ya dijo que no va no se le manda una invitacion. Antes se le mandaba
+    // igual, con el asunto "Invitacion": la persona habia avisado que no podia ir
+    // y recibia el mail como si nadie la hubiera escuchado.
+    if (invitado.rsvp === 'Rechazado') continue;
     if (guestEmailLog[invitado.id] && !options.forceEmail) continue;
     const result = await sendCompanyEmail({
       to: email,
