@@ -18,6 +18,7 @@ import { requireAppSession } from '@/lib/auth/require-session';
 import { transitionPaymentNotification } from '@/lib/client-portal/payment-notifications';
 import { mapFiestaToClientPortal } from '@/lib/client-portal/public-fiesta';
 import { motivoClaveInvalida, taparCorreo } from '@/lib/client-portal/clave-portal';
+import { enforcePublicRateLimit } from '@/lib/commercial/public-rate-limit';
 
 
 const MUSIC_LIST_KEYS = ['imprescindibles', 'siEsPosible', 'noQuiero'] as const;
@@ -1281,6 +1282,17 @@ export async function recuperarClavePortal(
   fiestaId: string,
 ): Promise<{ success: boolean; pista?: string; error?: string }> {
   try {
+    // Este boton lo puede tocar cualquiera que abra el portal, sin clave. Sin
+    // tope, alguien le llena la casilla de correo al cliente y de paso quema el
+    // envio de correos de la empresa. Tres por hora alcanzan de sobra para
+    // alguien que de verdad se la olvido.
+    await enforcePublicRateLimit({
+      scope: 'portal-clave-recuperacion',
+      identity: fiestaId,
+      limit: 3,
+      windowMs: 60 * 60 * 1000,
+    });
+
     const { notifyClientPortalKeyRecovery } = await import('../google-workspace-extended');
     const resultado = await notifyClientPortalKeyRecovery(fiestaId);
 
