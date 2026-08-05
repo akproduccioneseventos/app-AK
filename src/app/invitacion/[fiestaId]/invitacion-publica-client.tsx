@@ -13,7 +13,7 @@ import { Input } from '@/components/ui/input';
 import { cn } from '@/lib/utils';
 import { SplashScreen } from '@/components/invitacion/SplashScreen';
 import { buildGoogleCalendarUrl } from '@/lib/calendar-links';
-import { formatEventDate } from '@/lib/public-experience/event-date';
+import { formatEventDate, parseEventDate } from '@/lib/public-experience/event-date';
 import { XVThemeEffects } from '@/components/invitacion/xv-theme-effects';
 import { canUseNextImage } from '@/lib/next-image-url';
 
@@ -101,7 +101,10 @@ function Countdown({ fechaEvento }: { fechaEvento: string }) {
   const [timeLeft, setTimeLeft] = useState({ dias: 0, horas: 0, minutos: 0, segundos: 0 });
 
   useEffect(() => {
-    const target = new Date(fechaEvento).getTime();
+    // La fecha viene sin hora. Leida de la forma directa apunta a las nueve de la
+    // noche del dia anterior, asi que la cuenta regresiva llegaba a cero antes de
+    // tiempo. `parseEventDate` la ubica en el dia correcto.
+    const target = parseEventDate(fechaEvento)?.getTime() ?? new Date(fechaEvento).getTime();
     let timeoutId: ReturnType<typeof setTimeout>;
 
     const update = () => {

@@ -1,5 +1,5 @@
 import { expect, test } from '@playwright/test';
-import { borrarProspectosDePrueba } from './helpers/fiesta-de-prueba';
+import { borrarPresupuestosDePrueba, borrarProspectosDePrueba } from './helpers/fiesta-de-prueba';
 
 /**
  * El recorrido del que todavía no es cliente.
@@ -20,6 +20,7 @@ const NOMBRE = 'Prospecto de prueba';
 // pruebas.
 test.afterAll(() => {
   borrarProspectosDePrueba();
+  borrarPresupuestosDePrueba();
 });
 const TELEFONO = '099 123 456';
 

@@ -3,6 +3,7 @@
 import type { Invoice, InvoiceItem, Payment } from '@/types/invoice';
 import type { Presupuesto } from '@/types/presupuesto';
 import { readData, writeData } from '@/lib/data-service';
+import { AsyncMutex } from '@/lib/mutex';
 import { addPagoToPresupuesto, markPresupuestoAsFacturado } from './presupuestos';
 import { addInvoiceId, removeInvoiceId } from './fiesta/fiesta.actions';
 import * as logger from '@/lib/logger';
@@ -63,7 +64,36 @@ export async function getInvoiceById(id: string): Promise<Invoice | null> {
   return invoices.find(inv => inv.id === id) || null;
 }
 
+// Todas estas funciones hacen leer-modificar-escribir sobre el mismo archivo de
+// facturas. Sin turno, dos guardados simultaneos se pisan y se pierde una
+// factura entera. `presupuestos.ts` ya usaba este mismo mecanismo; facturas no.
+// OJO: `registerBookingDeposit` NO se envuelve, porque llama a `saveInvoice`
+// aca adentro y el turno no es reentrante: se colgaria la app al cobrar una sena.
+const invoicesMutex = new AsyncMutex();
+
 export async function saveInvoice(
+  ...args: Parameters<typeof saveInvoiceInner>
+): ReturnType<typeof saveInvoiceInner> {
+  return invoicesMutex.runExclusive(() => saveInvoiceInner(...args));
+}
+
+export async function deleteInvoice(
+  ...args: Parameters<typeof deleteInvoiceInner>
+): ReturnType<typeof deleteInvoiceInner> {
+  return invoicesMutex.runExclusive(() => deleteInvoiceInner(...args));
+}
+
+export async function resetAllInvoices(): ReturnType<typeof resetAllInvoicesInner> {
+  return invoicesMutex.runExclusive(() => resetAllInvoicesInner());
+}
+
+export async function addPaymentToInvoice(
+  ...args: Parameters<typeof addPaymentToInvoiceInner>
+): ReturnType<typeof addPaymentToInvoiceInner> {
+  return invoicesMutex.runExclusive(() => addPaymentToInvoiceInner(...args));
+}
+
+async function saveInvoiceInner(
   invoiceDataInput: NewInvoiceInput | Invoice,
   sourcePresupuestoId?: string
 ): Promise<{ success: boolean; id?: string; invoice?: Invoice; error?: string }> {
@@ -331,8 +361,12 @@ export async function registerBookingDeposit(data: {
         cuotasFinanciacion: paymentBreakdown.installments,
       });
       if (!paymentResult.success) {
-        const invoicesWithoutDeposit = (await getInvoices()).filter((invoice) => invoice.id !== invoiceResult.id);
-        await writeData(INVOICES_FILE, invoicesWithoutDeposit);
+        // Deshacer el recibo recien creado tambien es leer-modificar-escribir:
+        // va con turno, o pisa lo que otro guardo entremedio.
+        await invoicesMutex.runExclusive(async () => {
+          const invoicesWithoutDeposit = (await getInvoices()).filter((invoice) => invoice.id !== invoiceResult.id);
+          await writeData(INVOICES_FILE, invoicesWithoutDeposit);
+        });
         throw new Error(paymentResult.error || 'No se pudo registrar la sena en el presupuesto.');
       }
     }
@@ -346,7 +380,7 @@ export async function registerBookingDeposit(data: {
   }
 }
 
-export async function deleteInvoice(id: string, linkedFiestaId?: string): Promise<{ success: boolean; error?: string }> {
+async function deleteInvoiceInner(id: string, linkedFiestaId?: string): Promise<{ success: boolean; error?: string }> {
   const auth = await verifySession();
   if (!auth.success) return { success: false, error: auth.error };
   if (auth.user?.role !== 'admin') return { success: false, error: 'Solo administradores pueden eliminar facturas.' };
@@ -385,7 +419,7 @@ export async function deleteInvoice(id: string, linkedFiestaId?: string): Promis
   });
 }
 
-export async function resetAllInvoices(): Promise<{ success: boolean; deletedCount?: number; error?: string }> {
+async function resetAllInvoicesInner(): Promise<{ success: boolean; deletedCount?: number; error?: string }> {
   try {
     const auth = await verifySession();
     if (!auth.success) return { success: false, error: auth.error };
@@ -418,7 +452,7 @@ export async function resetAllInvoices(): Promise<{ success: boolean; deletedCou
   }
 }
 
-export async function addPaymentToInvoice(
+async function addPaymentToInvoiceInner(
   invoiceId: string,
   formData: FormData
 ): Promise<{ success: boolean; invoice?: Invoice; error?: string }> {

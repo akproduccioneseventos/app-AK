@@ -5,10 +5,9 @@ jest.mock('@/lib/data-service', () => ({
 // Borrar una factura pasó a ser cosa de administradores, así que la sesión de
 // prueba tiene que serlo. Abajo se comprueba además que a los demás se les niegue.
 jest.mock('@/lib/auth/session-token', () => ({
-  verifySession: jest.fn().mockResolvedValue({
-    success: true,
-    user: { email: 'admin@akproducciones.com', role: 'admin', userId: 'admin' },
-  }),
+  // Sin valor por defecto aca: el `beforeEach` lo fija con `adminSession`, y asi
+  // cada prueba que necesita otro rol lo cambia sin pelear con este mock.
+  verifySession: jest.fn(),
 }));
 jest.mock('@/app/actions/fiesta/fiesta.actions', () => ({
   addInvoiceId: jest.fn(),
@@ -25,6 +24,11 @@ import { readData, writeData } from '@/lib/data-service';
 import { removeInvoiceId } from '@/app/actions/fiesta/fiesta.actions';
 import { verifySession } from '@/lib/auth/session-token';
 
+const adminSession = {
+  success: true,
+  user: { email: 'admin@akproducciones.com', role: 'admin', userId: 'admin' },
+};
+
 const invoice = {
   id: 'invoice-1',
   invoiceNumber: 'A-1',
@@ -35,8 +39,22 @@ const invoice = {
 describe('invoice deletion integrity', () => {
   beforeEach(() => {
     jest.clearAllMocks();
+    (verifySession as jest.Mock).mockResolvedValue(adminSession);
     (readData as jest.Mock).mockResolvedValue([invoice]);
     (writeData as jest.Mock).mockResolvedValue(undefined);
+  });
+
+  it('rejects deletion when the session is not an admin', async () => {
+    (verifySession as jest.Mock).mockResolvedValue({
+      success: true,
+      user: { email: 'staff@akproducciones.com', role: 'staff', userId: 'staff' },
+    });
+
+    const result = await deleteInvoice(invoice.id, 'fiesta-1');
+
+    expect(result.success).toBe(false);
+    expect(writeData).not.toHaveBeenCalled();
+    expect(removeInvoiceId).not.toHaveBeenCalled();
   });
 
   it('restores the invoice when unlinking it from the event is rejected', async () => {
