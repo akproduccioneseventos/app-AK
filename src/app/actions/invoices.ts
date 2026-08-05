@@ -3,6 +3,7 @@
 import type { Invoice, InvoiceItem, Payment } from '@/types/invoice';
 import type { Presupuesto } from '@/types/presupuesto';
 import { readData, writeData } from '@/lib/data-service';
+import { AsyncMutex } from '@/lib/mutex';
 import { addPagoToPresupuesto, markPresupuestoAsFacturado } from './presupuestos';
 import { addInvoiceId, removeInvoiceId } from './fiesta/fiesta.actions';
 import * as logger from '@/lib/logger';
@@ -63,17 +64,46 @@ export async function getInvoiceById(id: string): Promise<Invoice | null> {
   return invoices.find(inv => inv.id === id) || null;
 }
 
+// Todas estas funciones hacen leer-modificar-escribir sobre el mismo archivo de
+// facturas. Sin turno, dos guardados simultaneos se pisan y se pierde una
+// factura entera. `presupuestos.ts` ya usaba este mismo mecanismo; facturas no.
+// OJO: `registerBookingDeposit` NO se envuelve, porque llama a `saveInvoice`
+// aca adentro y el turno no es reentrante: se colgaria la app al cobrar una sena.
+const invoicesMutex = new AsyncMutex();
+
 export async function saveInvoice(
+  ...args: Parameters<typeof saveInvoiceInner>
+): ReturnType<typeof saveInvoiceInner> {
+  return invoicesMutex.runExclusive(() => saveInvoiceInner(...args));
+}
+
+export async function deleteInvoice(
+  ...args: Parameters<typeof deleteInvoiceInner>
+): ReturnType<typeof deleteInvoiceInner> {
+  return invoicesMutex.runExclusive(() => deleteInvoiceInner(...args));
+}
+
+export async function resetAllInvoices(): ReturnType<typeof resetAllInvoicesInner> {
+  return invoicesMutex.runExclusive(() => resetAllInvoicesInner());
+}
+
+export async function addPaymentToInvoice(
+  ...args: Parameters<typeof addPaymentToInvoiceInner>
+): ReturnType<typeof addPaymentToInvoiceInner> {
+  return invoicesMutex.runExclusive(() => addPaymentToInvoiceInner(...args));
+}
+
+async function saveInvoiceInner(
   invoiceDataInput: NewInvoiceInput | Invoice,
   sourcePresupuestoId?: string
 ): Promise<{ success: boolean; id?: string; invoice?: Invoice; error?: string }> {
   const auth = await verifySession();
   if (!auth.success) return { success: false, error: auth.error };
   if (!invoiceDataInput.items || invoiceDataInput.items.some(item => normalizeQuantity(item.quantity) <= 0)) {
-    return { success: false, error: 'La cantidad de cada Ã­tem debe ser un nÃºmero positivo.' };
+    return { success: false, error: 'La cantidad de cada ítem debe ser un número positivo.' };
   }
   if (invoiceDataInput.items.some(item => !item.description || item.description.trim() === '')) {
-    return { success: false, error: 'Todos los Ã­tems de la factura deben tener una descripciÃ³n.' };
+    return { success: false, error: 'Todos los ítems de la factura deben tener una descripción.' };
   }
 
   try {
@@ -201,8 +231,8 @@ export async function registerBookingDeposit(data: {
     const auth = await verifySession();
     if (!auth.success) return { success: false, error: auth.error };
     const baseAmount = parseCleanMoney(data.amount);
-    if (baseAmount <= 0) return { success: false, error: 'El monto de la seÃ±a debe ser mayor a cero.' };
-    if (!data.date || Number.isNaN(new Date(data.date).getTime())) return { success: false, error: 'La fecha de la seÃ±a no es vÃ¡lida.' };
+    if (baseAmount <= 0) return { success: false, error: 'El monto de la seña debe ser mayor a cero.' };
+    if (!data.date || Number.isNaN(new Date(data.date).getTime())) return { success: false, error: 'La fecha de la seña no es válida.' };
     const paymentBreakdown = buildDepositPaymentBreakdown(
       baseAmount,
       data.method,
@@ -215,7 +245,7 @@ export async function registerBookingDeposit(data: {
 
     const paymentDay = new Date(data.date).toISOString().slice(0, 10);
     const paymentReference = [
-      'SeÃ±a registrada',
+      'Seña registrada',
       data.fiestaId,
       paymentDay,
       baseAmount,
@@ -272,14 +302,14 @@ export async function registerBookingDeposit(data: {
     }
 
     const invoiceItems: Omit<InvoiceItem, 'id'>[] = [{
-      description: `SeÃ±a para reserva de evento: ${fiesta.configuracion.nombreEvento}`,
+      description: `Seña para reserva de evento: ${fiesta.configuracion.nombreEvento}`,
       quantity: 1,
       unitPrice: baseAmount,
       total: baseAmount,
     }];
     if (paymentBreakdown.surchargeAmount > 0) {
       invoiceItems.push({
-        description: `Recargo de financiaciÃ³n Mercado Pago (${paymentBreakdown.installments} cuotas)`,
+        description: `Recargo de financiación Mercado Pago (${paymentBreakdown.installments} cuotas)`,
         quantity: 1,
         unitPrice: paymentBreakdown.surchargeAmount,
         total: paymentBreakdown.surchargeAmount,
@@ -287,7 +317,7 @@ export async function registerBookingDeposit(data: {
     }
 
     const newInvoice: NewInvoiceInput = {
-      invoiceNumber: `SEÃ‘A-${data.fiestaId.slice(-5)}`,
+      invoiceNumber: `SEÑA-${data.fiestaId.slice(-5)}`,
       customer: { id: fiesta.configuracion.clienteId, name: fiesta.configuracion.clienteNombre || fiesta.configuracion.nombreEvento?.split(' de ')[1] || 'Cliente' },
       issueDate: data.date,
       dueDate: data.date,
@@ -308,8 +338,8 @@ export async function registerBookingDeposit(data: {
         amount: chargedAmount,
         method: paymentBreakdown.invoiceMethod,
         notes: paymentBreakdown.installmentOption
-          ? `SeÃ±a inicial. ${paymentBreakdown.installmentOption.label}.`
-          : 'SeÃ±a inicial de contrataciÃ³n',
+          ? `Seña inicial. ${paymentBreakdown.installmentOption.label}.`
+          : 'Seña inicial de contratación',
         baseAmount,
         surchargeAmount: paymentBreakdown.surchargeAmount,
         installments: paymentBreakdown.installments,
@@ -317,7 +347,7 @@ export async function registerBookingDeposit(data: {
     };
 
     const invoiceResult = await saveInvoice(newInvoice);
-    if (!invoiceResult.success || !invoiceResult.id) throw new Error(invoiceResult.error || 'Error al crear recibo de seÃ±a.');
+    if (!invoiceResult.success || !invoiceResult.id) throw new Error(invoiceResult.error || 'Error al crear recibo de seña.');
 
     if (fiesta.presupuestoId && !data.skipBudgetPayment) {
       const paymentResult = await addPagoToPresupuesto(fiesta.presupuestoId, {
@@ -331,8 +361,12 @@ export async function registerBookingDeposit(data: {
         cuotasFinanciacion: paymentBreakdown.installments,
       });
       if (!paymentResult.success) {
-        const invoicesWithoutDeposit = (await getInvoices()).filter((invoice) => invoice.id !== invoiceResult.id);
-        await writeData(INVOICES_FILE, invoicesWithoutDeposit);
+        // Deshacer el recibo recien creado tambien es leer-modificar-escribir:
+        // va con turno, o pisa lo que otro guardo entremedio.
+        await invoicesMutex.runExclusive(async () => {
+          const invoicesWithoutDeposit = (await getInvoices()).filter((invoice) => invoice.id !== invoiceResult.id);
+          await writeData(INVOICES_FILE, invoicesWithoutDeposit);
+        });
         throw new Error(paymentResult.error || 'No se pudo registrar la sena en el presupuesto.');
       }
     }
@@ -346,7 +380,7 @@ export async function registerBookingDeposit(data: {
   }
 }
 
-export async function deleteInvoice(id: string, linkedFiestaId?: string): Promise<{ success: boolean; error?: string }> {
+async function deleteInvoiceInner(id: string, linkedFiestaId?: string): Promise<{ success: boolean; error?: string }> {
   const auth = await verifySession();
   if (!auth.success) return { success: false, error: auth.error };
   if (auth.user?.role !== 'admin') return { success: false, error: 'Solo administradores pueden eliminar facturas.' };
@@ -385,34 +419,40 @@ export async function deleteInvoice(id: string, linkedFiestaId?: string): Promis
   });
 }
 
-export async function resetAllInvoices(): Promise<{ success: boolean; deletedCount?: number; error?: string }> {
+async function resetAllInvoicesInner(): Promise<{ success: boolean; deletedCount?: number; error?: string }> {
   try {
     const auth = await verifySession();
     if (!auth.success) return { success: false, error: auth.error };
     if (auth.user?.role !== 'admin') return { success: false, error: 'Solo administradores pueden resetear facturas.' };
-    const { dbAdmin } = await import('@/lib/firebase/server');
-    let deletedCount = 0;
-    if (dbAdmin) {
-      const snapshot = await dbAdmin.collection('facturas').get();
-      deletedCount = snapshot.size;
-      const batchSize = 450;
-      const docs = snapshot.docs;
-      for (let i = 0; i < docs.length; i += batchSize) {
-        const batch = dbAdmin.batch();
-        docs.slice(i, i + batchSize).forEach((doc: { ref: any }) => batch.delete(doc.ref));
-        await batch.commit();
-      }
-    }
 
-    logger.info('[Facturas] Todas las facturas eliminadas por admin.', { deletedCount });
-    return { success: true, deletedCount };
+    // Borrar todo tiene que esperar su turno igual que guardar y eliminar de a
+    // una. Sin esto, un guardado en curso podia escribir una factura justo
+    // despues del borrado y quedaba una factura suelta despues de "formatear".
+    return await invoicesMutex.runExclusive(async () => {
+      const { dbAdmin } = await import('@/lib/firebase/server');
+      let deletedCount = 0;
+      if (dbAdmin) {
+        const snapshot = await dbAdmin.collection('facturas').get();
+        deletedCount = snapshot.size;
+        const batchSize = 450;
+        const docs = snapshot.docs;
+        for (let i = 0; i < docs.length; i += batchSize) {
+          const batch = dbAdmin.batch();
+          docs.slice(i, i + batchSize).forEach((doc: { ref: any }) => batch.delete(doc.ref));
+          await batch.commit();
+        }
+      }
+
+      logger.info('[Facturas] Todas las facturas eliminadas por admin.', { deletedCount });
+      return { success: true, deletedCount };
+    });
   } catch (error: any) {
     logger.error('[Facturas] Error al reiniciar facturas:', error);
     return { success: false, error: error.message || 'Error al reiniciar las facturas.' };
   }
 }
 
-export async function addPaymentToInvoice(
+async function addPaymentToInvoiceInner(
   invoiceId: string,
   formData: FormData
 ): Promise<{ success: boolean; invoice?: Invoice; error?: string }> {

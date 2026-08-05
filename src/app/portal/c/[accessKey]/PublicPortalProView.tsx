@@ -30,7 +30,9 @@ import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
 import { submitClientPayment } from '@/app/actions/fiesta/portal.actions';
 import { PublicFooter } from '@/components/public-footer';
+import { AK_WHATSAPP_NUMBER } from '@/lib/public-contact';
 import { getBudgetPaymentSummary } from '@/lib/budget/financial-guardrails';
+import { calcularEstadoDeCuenta } from '@/lib/budget/saldo-con-ajuste';
 
 interface PublicPortalProViewProps {
   fiesta: any;
@@ -127,11 +129,17 @@ export default function PublicPortalProView({ fiesta, companyContact, companyNam
   const cancelados = invitados.filter((inv: any) => inv.rsvp === 'Rechazado' || inv.rsvp === 'Cancelado');
   const pendientes = invitados.filter((inv: any) => !inv.rsvp || inv.rsvp === 'Pendiente' || inv.rsvp === 'Tal vez');
 
+  // Mismo criterio que el estado de cuenta de AK: con el ajuste anual incluido.
+  // Sin esto, el cliente veia un saldo menor al real y la diferencia aparecia
+  // recien al ir a pagar la ultima cuota.
   const paymentSummary = getBudgetPaymentSummary(presupuesto);
-  const totalPresupuesto = paymentSummary.total || getTotalPresupuesto(presupuesto);
-  const totalPagado = paymentSummary.paid;
-  const saldoPendiente = paymentSummary.balance;
-  const porcentajePagado = paymentSummary.paidPercent;
+  const estadoDeCuenta = calcularEstadoDeCuenta(presupuesto ?? null);
+  const totalPresupuesto = estadoDeCuenta.total || paymentSummary.total || getTotalPresupuesto(presupuesto);
+  const totalPagado = estadoDeCuenta.pagado;
+  const saldoPendiente = estadoDeCuenta.saldo;
+  const porcentajePagado = totalPresupuesto > 0
+    ? Math.min(100, Math.round((totalPagado / totalPresupuesto) * 100))
+    : 0;
 
   const pendingTasks = [
     ...(fiesta?.clienteDebeLlevar ?? []).map((item: any) => ({ id: item.id, text: item.texto || item.nombre, done: item.completado || item.estado === 'listo' || item.estado === 'revisado' })),
@@ -194,7 +202,9 @@ export default function PublicPortalProView({ fiesta, companyContact, companyNam
 
   const whatsappNumber = companyContact.replace(/\D/g, '');
   const whatsappText = encodeURIComponent(`Hola AK, soy cliente del evento "${eventName}" y quiero hacer una consulta.`);
-  const whatsappHref = whatsappNumber.length >= 7 ? `https://wa.me/${whatsappNumber}?text=${whatsappText}` : `https://wa.me/?text=${whatsappText}`;
+  // Sin numero, el enlace abre WhatsApp pero no le escribe a nadie. Se cae al
+  // numero de la empresa, que es a quien el cliente queria escribirle igual.
+  const whatsappHref = `https://wa.me/${whatsappNumber.length >= 7 ? whatsappNumber : AK_WHATSAPP_NUMBER}?text=${whatsappText}`;
 
   const [showPagoModal, setShowPagoModal] = useState(false);
   const [showDocuments, setShowDocuments] = useState(false);

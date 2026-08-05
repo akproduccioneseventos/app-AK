@@ -7,6 +7,7 @@ import { getPublicGuestEvent } from '@/app/actions/public-guest-portal';
 import { submitPublicRsvp } from '@/app/actions/fiesta/invitados.actions';
 import type { DietaryRestriction, Invitado } from '@/types/fiesta';
 import type { PublicGuestEvent } from '@/lib/guest-portal-public-data';
+import { AK_WHATSAPP_NUMBER } from '@/lib/public-contact';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
@@ -380,7 +381,7 @@ function RsvpFormContent() {
                   )}
                   {(guestExp?.whatsappUrl || guestExp?.whatsappNumber) && (
                     <a
-                      href={guestExp.whatsappUrl ?? `https://wa.me/${(guestExp.whatsappNumber ?? '').replace(/\D/g, '')}`}
+                      href={guestExp.whatsappUrl ?? `https://wa.me/${(guestExp.whatsappNumber ?? '').replace(/\D/g, '') || AK_WHATSAPP_NUMBER}`}
                       target="_blank"
                       rel="noopener noreferrer"
                       className="flex items-center gap-1.5 rounded-lg bg-green-500 px-3 py-2 text-xs font-bold text-white transition-opacity hover:opacity-90"

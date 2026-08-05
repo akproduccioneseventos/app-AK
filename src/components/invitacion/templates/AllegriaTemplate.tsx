@@ -27,6 +27,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { AddToCalendarButton } from '@/components/invitacion/AddToCalendarButton';
 import { EventParticles } from '@/components/invitacion/EventParticles';
 import { EventLocationMap } from '@/components/invitacion/EventLocationMap';
+import { parseEventDate } from '@/lib/public-experience/event-date';
 
 interface TemplateProps {
   fiesta: FiestaEnPlanificacion;
@@ -78,8 +79,10 @@ export const AllegriaTemplate: React.FC<TemplateProps> = ({
     const [isSendingChat, setIsSendingChat] = useState(false);
     const chatEndRef = useRef<HTMLDivElement>(null);
 
-    const eventDate = fiesta.configuracion.fechaEvento ? new Date(fiesta.configuracion.fechaEvento) : null;
-    const isPostEvent = eventDate ? new Date() > eventDate : false;
+    // Igual que en Grazia: el modo "ya pasó" arranca cuando termina el dia de la
+    // fiesta, no a las nueve de la noche del dia anterior.
+    const eventDate = parseEventDate(fiesta.configuracion.fechaEvento);
+    const isPostEvent = eventDate ? Date.now() > eventDate.getTime() + 86_400_000 : false;
 
     useEffect(() => {
         if (!isPreview && fiesta.id) {
@@ -126,8 +129,10 @@ export const AllegriaTemplate: React.FC<TemplateProps> = ({
     }, [rsvpGuests]);
 
     const formatDate = (dateString?: string) => {
-        if (!dateString) return "PRÓXIMAMENTE";
-        return new Date(dateString).toLocaleDateString('es-ES', { day: '2-digit', month: 'short', year: 'numeric' }).toUpperCase();
+        // Sin esto el invitado veia el dia anterior al de la fiesta.
+        const date = parseEventDate(dateString);
+        if (!date) return "PRÓXIMAMENTE";
+        return date.toLocaleDateString('es-ES', { day: '2-digit', month: 'short', year: 'numeric' }).toUpperCase();
     };
 
     const handleCopyAccount = (text: string) => {

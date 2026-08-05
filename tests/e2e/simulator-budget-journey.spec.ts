@@ -79,9 +79,15 @@ test('prospect completes the simulator and downloads a formal future-year PDF', 
   await expect(page.getByText(/Paso 5 de 5/i)).toBeVisible();
   await expect(page.getByText(new RegExp(`ajuste anual proyectado.*${targetYear}`, 'i')).first()).toBeVisible();
   await expect(page.getByText(/p\/p|por persona/i).first()).toBeVisible();
-  await page.getByRole('button', { name: /Generar presupuesto/i }).click();
 
-  await expect(page.getByRole('heading', { name: /Tu presupuesto est[aá] listo/i })).toBeVisible();
+  // El paso 5 cierra con "Ver Resumen y Propuesta" en pantalla grande y con
+  // "Generar" en la barra fija del celular. Ese es el boton que arma el
+  // presupuesto: ya no existe uno que diga "Generar presupuesto".
+  const openSummary = page.getByRole('button', { name: /Ver Resumen y Propuesta|^Generar$/i }).first();
+  await expect(openSummary, 'No se encontro el boton que arma la propuesta final').toBeVisible({ timeout: 20_000 });
+  await openSummary.click();
+
+  await expect(page.getByRole('heading', { name: /Tu presupuesto est[aá] listo/i })).toBeVisible({ timeout: 60_000 });
   await expect(page.getByText(/15 minutos/i).first()).toBeVisible();
 
   const downloadPromise = page.waitForEvent('download');

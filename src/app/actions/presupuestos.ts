@@ -2,7 +2,11 @@
 
 import type { Presupuesto, ItemPresupuestado, PagoCliente, EstadoPago, PresupuestoSource } from '@/types/presupuesto';
 import { readData, writeData } from '@/lib/data-service';
-import { getInvoiceById, saveInvoice } from './invoices';
+// Nota: este archivo NO debe llamar a `saveInvoice` ni a `addPaymentToInvoice`.
+// Esas dos esperan el turno del candado de facturas, y a su vez llaman de vuelta
+// a los presupuestos: si el llamado va en ese sentido, la operacion se queda
+// esperando un turno que nunca llega y la pantalla queda colgada para siempre.
+// Habia un import de `saveInvoice` sin usar, listo para caer en la trampa.
 import type { Invoice, InvoiceItem } from '@/types/invoice';
 import { findLeadByBudgetOrCreate, getCrmStages, moveCrmLead } from './crm';
 import { createNotification } from '@/lib/notifications/create-notification';
@@ -355,7 +359,9 @@ export async function updatePresupuesto(
 export async function archivePresupuesto(id: string): Promise<{ success: boolean; error?: string }> {
   const auth = await verifySession();
   if (!auth.success) return { success: false, error: auth.error };
-  if (auth.user?.role !== 'admin') return { success: false, error: 'Solo administradores pueden archivar presupuestos.' };
+  // Archivar es reversible y es tarea de rutina del equipo: no se restringe a
+  // admin. La proteccion real de esta accion es el contrato firmado, mas abajo.
+  // El borrado definitivo (`deletePresupuesto`) si queda solo para admin.
   const isSigned = await isBudgetContractSigned(id);
   if (isSigned) {
     return { success: false, error: 'No se puede archivar un presupuesto con contrato firmado.' };

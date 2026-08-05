@@ -171,6 +171,36 @@ export function borrarOpinionesDePrueba() {
 }
 
 /**
+ * Quita los presupuestos que dejó la prueba del simulador.
+ *
+ * El simulador genera un presupuesto de verdad al final del recorrido. Sin esto
+ * queda en la lista de presupuestos del negocio, y además hace fallar la guarda
+ * de maquetación: la pantalla de presupuestos tiene una fila de más y la guarda
+ * lo lee como un cambio de diseño.
+ */
+export function borrarPresupuestosDePrueba() {
+  const esDePrueba = (p: any) => {
+    const nombre = String(p?.clienteNombre ?? p?.cliente?.nombre ?? p?.nombreCliente ?? '');
+    return nombre.startsWith('Prospecto de prueba') || nombre.startsWith('Prospecto E2E');
+  };
+
+  for (const carpeta of ['data', path.join('src', 'data')]) {
+    const archivo = path.join(process.cwd(), carpeta, 'presupuestos.json');
+    if (!fs.existsSync(archivo)) continue;
+    try {
+      const presupuestos = JSON.parse(fs.readFileSync(archivo, 'utf8'));
+      if (!Array.isArray(presupuestos)) continue;
+      const limpios = presupuestos.filter((p: any) => !esDePrueba(p));
+      if (limpios.length !== presupuestos.length) {
+        fs.writeFileSync(archivo, `${JSON.stringify(limpios, null, 2)}\n`);
+      }
+    } catch {
+      // Si el archivo no se puede leer, no es la prueba quien tiene que arreglarlo.
+    }
+  }
+}
+
+/**
  * Quita del CRM los prospectos que dejó la prueba del simulador.
  *
  * El simulador registra el avance del visitante paso a paso, así que la prueba

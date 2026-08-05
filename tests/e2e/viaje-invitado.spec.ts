@@ -204,6 +204,34 @@ test.describe('viaje del invitado', () => {
   test('el cliente entra a su portal con su clave y ve a su invitado', async ({ page }) => {
     test.setTimeout(120_000);
 
+    // Esta prueba mira el portal del cliente, no el recorrido del invitado. Para
+    // que no dependa de como lo dejaron las pruebas anteriores (la ultima cancela
+    // al invitado), deja el evento con un invitado confirmado escrito a mano.
+    const previo = leerEventoGuardado() ?? fiesta;
+    for (const archivo of archivosDelEvento()) {
+      fs.mkdirSync(path.dirname(archivo), { recursive: true });
+      fs.writeFileSync(
+        archivo,
+        `${JSON.stringify(
+          {
+            ...previo,
+            invitados: [
+              {
+                id: 'inv_portal_e2e',
+                nombre: NOMBRE_INVITADO,
+                rsvp: 'Confirmado',
+                categoria: 'Adulto',
+                partySize: 3,
+                contacto: '099 111 222',
+              },
+            ],
+          },
+          null,
+          2,
+        )}\n`,
+      );
+    }
+
     await page.goto(`/portal-cliente/${fiesta.id}`, { waitUntil: 'domcontentloaded' });
 
     const clave = page.locator('input[type="password"]');
@@ -230,6 +258,8 @@ test.describe('viaje del invitado', () => {
     await expect(page.getByRole('heading', { name: 'Centro de Control Muro' })).toBeVisible({ timeout: 45_000 });
     await page.getByRole('tab', { name: 'Diseño' }).click();
     await page.getByRole('button', { name: 'Guardar Configuración' }).click();
-    await expect(page.getByText('Configuración guardada 🎉')).toBeVisible({ timeout: 30_000 });
+    // El aviso aparece dos veces a proposito: el cartel visible y el texto que
+    // anuncia el lector de pantalla. Alcanza con encontrar uno.
+    await expect(page.getByText('Configuración guardada 🎉').first()).toBeVisible({ timeout: 30_000 });
   });
 });
