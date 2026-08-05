@@ -784,11 +784,11 @@ export async function confirmBooking(leadId: string, presupuestoId: string, arch
 
     await saveFiesta(newFiesta);
 
-    // 3. Disparar Sincronización Maestra (Personal, Lavadero, etc.)
-    await syncFiestaFromBudget(newFiesta.id);
-
-    // 4. Actualizar Presupuesto
+    // 3. Actualizar Presupuesto a Aceptado
     await updatePresupuesto({ ...presupuesto, estado: 'Aceptado' });
+
+    // 4. Disparar Sincronización Maestra (Personal, Lavadero, etc.)
+    await syncFiestaFromBudget(newFiesta.id);
 
     // 5. Mover Lead a conversión solo si el usuario lo solicitó explícitamente
     if (archiveLead && conversionStage) {

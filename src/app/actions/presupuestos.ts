@@ -2,7 +2,11 @@
 
 import type { Presupuesto, ItemPresupuestado, PagoCliente, EstadoPago, PresupuestoSource } from '@/types/presupuesto';
 import { readData, writeData } from '@/lib/data-service';
-import { getInvoiceById, saveInvoice } from './invoices';
+// Nota: este archivo NO debe llamar a `saveInvoice` ni a `addPaymentToInvoice`.
+// Esas dos esperan el turno del candado de facturas, y a su vez llaman de vuelta
+// a los presupuestos: si el llamado va en ese sentido, la operacion se queda
+// esperando un turno que nunca llega y la pantalla queda colgada para siempre.
+// Habia un import de `saveInvoice` sin usar, listo para caer en la trampa.
 import type { Invoice, InvoiceItem } from '@/types/invoice';
 import { findLeadByBudgetOrCreate, getCrmStages, moveCrmLead } from './crm';
 import { createNotification } from '@/lib/notifications/create-notification';

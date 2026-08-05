@@ -4,8 +4,10 @@ import { readData, writeData } from '@/lib/data-service';
 import type { ReciboFirmado } from '@/types/empleado';
 import { randomUUID } from 'crypto';
 import { requireAppSession } from '@/lib/auth/require-session';
+import { AsyncMutex } from '@/lib/mutex';
 
 const RECIBOS_PERSONAL_FILE = 'personal-recibos.json';
+const recibosMutex = new AsyncMutex();
 
 const ESTADOS_VALIDOS: ReciboFirmado['estado'][] = ['pendiente', 'pagado', 'firmado_subido'];
 
@@ -66,33 +68,35 @@ export async function saveReciboFirmado(
     return { success: false, error: 'La fiesta es obligatoria.' };
   }
 
-  const all = await getRecibosFirmados();
-  const now = new Date().toISOString();
-  const existingIndex = all.findIndex(
-    (item) =>
-      (payload.id && item.id === payload.id) ||
-      (item.empleadoId === payload.empleadoId && item.fiestaId === payload.fiestaId)
-  );
+  return recibosMutex.runExclusive(async () => {
+    const all = await getRecibosFirmados();
+    const now = new Date().toISOString();
+    const existingIndex = all.findIndex(
+      (item) =>
+        (payload.id && item.id === payload.id) ||
+        (item.empleadoId === payload.empleadoId && item.fiestaId === payload.fiestaId)
+    );
 
-  if (existingIndex >= 0) {
-    const merged = normalizeRecibo({
-      ...all[existingIndex],
+    if (existingIndex >= 0) {
+      const merged = normalizeRecibo({
+        ...all[existingIndex],
+        ...payload,
+        updatedAt: now,
+      });
+      all[existingIndex] = merged;
+      await writeData(RECIBOS_PERSONAL_FILE, all);
+      return { success: true, recibo: merged };
+    }
+
+    const nuevo = normalizeRecibo({
       ...payload,
+      id: payload.id || generateReciboId(),
+      createdAt: now,
       updatedAt: now,
     });
-    all[existingIndex] = merged;
+
+    all.push(nuevo);
     await writeData(RECIBOS_PERSONAL_FILE, all);
-    return { success: true, recibo: merged };
-  }
-
-  const nuevo = normalizeRecibo({
-    ...payload,
-    id: payload.id || generateReciboId(),
-    createdAt: now,
-    updatedAt: now,
+    return { success: true, recibo: nuevo };
   });
-
-  all.push(nuevo);
-  await writeData(RECIBOS_PERSONAL_FILE, all);
-  return { success: true, recibo: nuevo };
 }

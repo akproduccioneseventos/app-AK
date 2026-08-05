@@ -124,15 +124,26 @@ export default function Plataforma360Page() {
       streamRef.current = null;
       setStream(null);
     }
+    if (videoRef.current) {
+      videoRef.current.srcObject = null;
+    }
   }, []);
 
   const startCamera = useCallback(async () => {
     stopCamera();
     try {
-      const mediaStream = await navigator.mediaDevices.getUserMedia({
-        video: { facingMode, width: { ideal: 1080 }, height: { ideal: 1920 } },
-        audio: true,
-      });
+      let mediaStream: MediaStream;
+      try {
+        mediaStream = await navigator.mediaDevices.getUserMedia({
+          video: { facingMode, width: { ideal: 1080 }, height: { ideal: 1920 } },
+          audio: true,
+        });
+      } catch {
+        mediaStream = await navigator.mediaDevices.getUserMedia({
+          video: { facingMode, width: { ideal: 1080 }, height: { ideal: 1920 } },
+          audio: false,
+        });
+      }
       streamRef.current = mediaStream;
       setStream(mediaStream);
       if (videoRef.current) {
