@@ -52,6 +52,9 @@ describe('email user login session', () => {
       email: 'equipo@akproducciones.uy',
       role: 'user',
       userId: 'user-1',
+      // La sesion lleva ahora el perfil, que es lo que decide a que entra. Esta
+      // cuenta no tiene perfil guardado, asi que se deduce del rol viejo.
+      perfil: 'secretaria',
       modules: ['crm', 'fiestas'],
     });
   });
