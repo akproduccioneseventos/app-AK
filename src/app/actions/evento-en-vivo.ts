@@ -157,7 +157,10 @@ export async function addFotoEnVivo(
   try {
     await enforcePublicRateLimit({
       scope: 'legacy-live-photo',
-      identity: fiestaId,
+      // El tope cuenta por persona, no por fiesta. Contando por fiesta, el
+      // primero que subia doce fotos dejaba sin subir a los otros ciento
+      // cuarenta invitados, que ademas comparten el WiFi del salon.
+      identity: `${fiestaId}|${(foto.autor || 'invitado').trim().toLowerCase()}`,
       limit: 12,
       windowMs: 60_000,
     });
@@ -183,7 +186,7 @@ export async function addSolicitudCancion(
   try {
     await enforcePublicRateLimit({
       scope: 'legacy-live-song-request',
-      identity: fiestaId,
+      identity: `${fiestaId}|${(solicitud.invitadoNombre || 'invitado').trim().toLowerCase()}`,
       limit: 12,
       windowMs: 60_000,
     });
@@ -232,7 +235,7 @@ export async function addMensajeEnVivo(
   try {
     await enforcePublicRateLimit({
       scope: 'legacy-live-message',
-      identity: fiestaId,
+      identity: `${fiestaId}|${(mensaje.autor || 'invitado').trim().toLowerCase()}`,
       limit: 20,
       windowMs: 60_000,
     });
