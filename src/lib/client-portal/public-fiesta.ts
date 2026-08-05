@@ -68,6 +68,7 @@ export function mapFiestaToClientPortal(fiesta: FiestaEnPlanificacion | null): F
     clientNotes: fiesta.clientNotes ?? '',
     faqPortal: fiesta.faqPortal ?? [],
     menuSeleccionPortal: fiesta.menuSeleccionPortal ?? {},
+    menuMesa: fiesta.menuMesa,
     listaMusicaPortal: fiesta.listaMusicaPortal ?? {},
     musica: fiesta.musica,
     decoracion: decoration ? {
