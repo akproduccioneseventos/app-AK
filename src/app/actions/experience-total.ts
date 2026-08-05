@@ -9,6 +9,7 @@ import {
   defaultPrograma,
 } from '@/lib/fiesta-defaults';
 import { DEFAULT_MARKETING_TICKER_TEXT } from '@/lib/social-wall-defaults';
+import { construirClavePorDefecto } from '@/lib/client-portal/clave-portal';
 import { defaultZonaDigitalAdolescentesSettings } from '@/lib/zona-digital-adolescentes';
 import { buildUltimateEventSystem } from '@/lib/experience-ak/ultimate-event-system';
 
@@ -27,7 +28,18 @@ function compactKey(value: string) {
     .slice(0, 40);
 }
 
+/**
+ * La clave inicial del portal se arma con el nombre del cliente
+ * (CLIENTEMARIAGONZALEZ), para que la recuerde sin anotarla. Es comoda pero
+ * adivinable, asi que el portal lo obliga a cambiarla la primera vez que entra.
+ *
+ * Antes se armaba con el nombre del EVENTO, que es publico: quedaba adivinable
+ * igual pero sin ningun momento en que el cliente eligiera la suya.
+ */
 function buildAccessKey(fiesta: FiestaEnPlanificacion) {
+  const porNombre = construirClavePorDefecto(fiesta);
+  if (porNombre) return porNombre;
+
   const base = compactKey(fiesta.configuracion?.nombreEvento || fiesta.id || 'fiesta-ak');
   return `${base || 'fiesta-ak'}-${String(fiesta.id).slice(-6)}`;
 }

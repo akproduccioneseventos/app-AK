@@ -679,6 +679,13 @@ export interface FaqItem {
 export interface ClientPortalSettings {
   enabled: boolean;
   accessKey?: string;
+  /**
+   * Queda en true recien cuando el cliente eligio su propia clave. Mientras sea
+   * falso, el portal le pide cambiarla antes de dejarlo entrar: la clave que le
+   * damos al principio se arma con su nombre, asi que es facil de adivinar para
+   * cualquiera que sepa quien contrato la fiesta.
+   */
+  claveCambiadaPorCliente?: boolean;
   clientPassword?: string;
   accessPhase?: 'financiera' | 'organizacion' | 'en_vivo';
   liveAccessDaysBefore?: number;

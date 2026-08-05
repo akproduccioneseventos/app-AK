@@ -17,6 +17,7 @@ import { uploadToStorage } from '@/lib/firebase/storage';
 import { requireAppSession } from '@/lib/auth/require-session';
 import { transitionPaymentNotification } from '@/lib/client-portal/payment-notifications';
 import { mapFiestaToClientPortal } from '@/lib/client-portal/public-fiesta';
+import { motivoClaveInvalida, taparCorreo } from '@/lib/client-portal/clave-portal';
 
 
 const MUSIC_LIST_KEYS = ['imprescindibles', 'siEsPosible', 'noQuiero'] as const;
@@ -1225,3 +1226,79 @@ Firma AK Producciones: _________________   Fecha: __/__/____
 }
 
 
+
+/**
+ * El cliente elige su propia clave.
+ *
+ * La clave que le damos al principio se arma con su nombre, asi que la puede
+ * adivinar cualquiera que sepa quien contrato la fiesta. Por eso el portal lo
+ * obliga a cambiarla la primera vez, y desde ahi la clave es suya: AK no la
+ * conoce y no aparece en ninguna pantalla del equipo.
+ */
+export async function cambiarClavePortal(
+  fiestaId: string,
+  claveActual: string,
+  claveNueva: string,
+): Promise<{ success: boolean; error?: string }> {
+  try {
+    const fiesta = await getFiestaByIdRaw(fiestaId);
+    const guardada = String(fiesta?.clientPortalSettings?.accessKey ?? '');
+    if (!fiesta || !guardada || guardada !== claveActual) {
+      return { success: false, error: 'La clave actual no coincide.' };
+    }
+
+    const motivo = motivoClaveInvalida(claveNueva, fiesta);
+    if (motivo) return { success: false, error: motivo };
+
+    const guardadoOk = await saveFiesta({
+      ...fiesta,
+      clientPortalSettings: {
+        ...(fiesta.clientPortalSettings as ClientPortalSettings),
+        accessKey: claveNueva.trim(),
+        claveCambiadaPorCliente: true,
+      },
+    });
+    if (!guardadoOk?.success) {
+      return { success: false, error: 'No se pudo guardar la clave nueva. Proba de nuevo.' };
+    }
+
+    // La sesion quedo firmada con la clave vieja: se renueva para que el cliente
+    // siga adentro en vez de quedar afuera justo despues de cambiarla.
+    await setPortalSessionCookie(fiestaId, claveNueva.trim());
+    return { success: true };
+  } catch (err: any) {
+    return { success: false, error: sanitizeActionError(err) };
+  }
+}
+
+/**
+ * Manda la clave al correo del cliente cuando se la olvido.
+ *
+ * No dice si el correo existe ni cual es: quien pide esto es cualquiera que abra
+ * el portal. Devuelve apenas una pista tapada del correo al que se mando.
+ */
+export async function recuperarClavePortal(
+  fiestaId: string,
+): Promise<{ success: boolean; pista?: string; error?: string }> {
+  try {
+    const { notifyClientPortalKeyRecovery } = await import('../google-workspace-extended');
+    const resultado = await notifyClientPortalKeyRecovery(fiestaId);
+
+    if (!resultado.success) {
+      if (resultado.error === 'sin-correo') {
+        return {
+          success: false,
+          error: 'No tenemos un correo tuyo registrado. Escribinos por WhatsApp al 098 355 530 y te la pasamos.',
+        };
+      }
+      return {
+        success: false,
+        error: 'No pudimos enviar el correo en este momento. Escribinos por WhatsApp al 098 355 530.',
+      };
+    }
+
+    return { success: true, pista: taparCorreo(resultado.email) };
+  } catch (err: any) {
+    return { success: false, error: sanitizeActionError(err) };
+  }
+}

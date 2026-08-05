@@ -551,3 +551,41 @@ export async function notifyPresupuestoPaymentRegistered(presupuestoId: string, 
     notas: pago.referencia,
   });
 }
+
+/**
+ * Le manda al cliente la clave de su portal al correo que tenemos registrado.
+ *
+ * Es la salida para cuando se la olvida. A proposito NO se devuelve la clave en
+ * la respuesta ni se dice si el correo existe: quien pide la recuperacion es
+ * cualquiera que abra el portal, asi que la clave viaja solo al correo del
+ * cliente y en pantalla queda apenas una pista de a donde se mando.
+ */
+export async function notifyClientPortalKeyRecovery(fiestaId: string) {
+  const fiesta = await getFiestaById(fiestaId);
+  if (!fiesta) return { success: false as const, error: 'Evento no encontrado.' };
+
+  const clave = String(fiesta.clientPortalSettings?.accessKey ?? '').trim();
+  if (!clave) return { success: false as const, error: 'Este portal todavia no tiene clave.' };
+
+  const { email: clientEmail, name: clientName } = await resolveClientContact(fiesta);
+  if (!clientEmail) return { success: false as const, error: 'sin-correo' };
+
+  const result = await sendCompanyEmail({
+    to: clientEmail,
+    subject: `AK Producciones - Tu clave del portal - ${getFiestaTitle(fiesta)}`,
+    html: `
+      <div style="font-family:Arial,sans-serif;font-size:15px;color:#111">
+        <p>Hola ${clientName || ''},</p>
+        <p>Nos pediste la clave de tu portal de <strong>${getFiestaTitle(fiesta)}</strong>. Es esta:</p>
+        <p style="font-size:22px;font-weight:bold;letter-spacing:1px">${clave}</p>
+        <p>Si no fuiste vos quien la pidio, avisanos y te la cambiamos.</p>
+        <p>AK Producciones Eventos · Salto, Uruguay · 098 355 530</p>
+      </div>
+    `,
+  });
+
+  if (!result.success) {
+    return { success: false as const, error: 'no-se-pudo-enviar', warnings: result.warnings };
+  }
+  return { success: true as const, email: clientEmail };
+}
