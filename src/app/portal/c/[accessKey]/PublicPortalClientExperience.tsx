@@ -49,6 +49,7 @@ import {
   getGuestStats,
   getPortalPaymentSummary,
 } from '@/lib/client-portal/client-portal-summary';
+import { calcularEstadoDeCuenta } from '@/lib/budget/saldo-con-ajuste';
 import { resolveClientPortalAccess } from '@/lib/client-portal/access-phases';
 import { buildGoogleCalendarUrl } from '@/lib/calendar-links';
 
@@ -467,7 +468,12 @@ export default function PublicPortalClientExperience({ fiesta, companyContact, c
 
   const invitados = fiesta?.invitados ?? [];
   const guestStats = getGuestStats(invitados);
-  const totalPresupuesto = getTotalPresupuesto(presupuesto);
+  // El total que ve el cliente tiene que ser el mismo que figura en el estado de
+  // cuenta de AK. Antes el portal mostraba el total pelado, sin el ajuste anual,
+  // asi que el cliente creia deber menos de lo que realmente debia y la
+  // diferencia recien aparecia al ir a pagar la ultima cuota.
+  const estadoDeCuenta = calcularEstadoDeCuenta(presupuesto ?? null);
+  const totalPresupuesto = estadoDeCuenta.total || getTotalPresupuesto(presupuesto);
   const paymentSummary = getPortalPaymentSummary({
     total: totalPresupuesto,
     payments: presupuesto?.pagosCliente ?? [],

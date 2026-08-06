@@ -125,7 +125,6 @@ describe('release security boundaries', () => {
     ['fiesta/fiesta.actions.ts', ['updateFiestaPartial', 'deleteFiesta', 'archiveFiesta', 'deleteFiestaArchivada']],
     ['cupones.ts', ['saveCupon', 'toggleCuponActivo', 'deleteCupon', 'registrarUsoCupon']],
     ['feedback.ts', ['getFeedback', 'getAllTestimonials', 'saveTestimonial', 'updateTestimonialApproval', 'deleteTestimonial']],
-    ['recibos-personal.ts', ['getRecibosFirmados', 'saveReciboFirmado']],
     ['audit-log.ts', ['logAuditEvent', 'getAuditLogs']],
     ['alertas.actions.ts', ['getAlertasGlobalesConLeidas']],
     ['provider-portal.ts', ['getProveedoresPortal', 'createProveedorAcceso']],
@@ -139,6 +138,20 @@ describe('release security boundaries', () => {
       const functionSource = source.slice(start, nextExport === -1 ? undefined : nextExport);
       expect(start).toBeGreaterThanOrEqual(0);
       expect(functionSource).toContain('await requireAppSession()');
+    }
+  });
+
+  it('los recibos del personal exigen el permiso de sueldos, no solo tener sesion', () => {
+    // Cuanto cobra cada persona del equipo es del dueno. La secretaria factura y
+    // cobra, pero no tiene por que ver el sueldo de sus companeros: por eso estas
+    // dos piden `requirePermiso(PERMISOS.SUELDOS)` en vez de `requireAppSession`.
+    const source = readSource('src/app/actions/recibos-personal.ts');
+    for (const functionName of ['getRecibosFirmados', 'saveReciboFirmado']) {
+      const start = source.indexOf(`export async function ${functionName}`);
+      const nextExport = source.indexOf('export async function ', start + 1);
+      const functionSource = source.slice(start, nextExport === -1 ? undefined : nextExport);
+      expect(start).toBeGreaterThanOrEqual(0);
+      expect(functionSource).toContain('requirePermiso(PERMISOS.SUELDOS)');
     }
   });
 

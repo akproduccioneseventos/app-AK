@@ -439,11 +439,11 @@ export default function ClientMuroSocialPage() {
 
           {/* TABS SELECTOR - MÃ“VIL OPTIMIZADO */}
           <TabsList className="grid grid-cols-4 w-full bg-slate-900 border border-white/5 p-1 rounded-2xl h-14 shrink-0">
-            <TabsTrigger value="control" className="rounded-xl py-2.5 text-xs font-bold data-[state=active]:bg-amber-400 data-[state=active]:text-slate-950 transition-all flex flex-col sm:flex-row items-center justify-center gap-1">
+            <TabsTrigger value="control" aria-label="Control Vivo" className="rounded-xl py-2.5 text-xs font-bold data-[state=active]:bg-amber-400 data-[state=active]:text-slate-950 transition-all flex flex-col sm:flex-row items-center justify-center gap-1">
               <Activity className="w-4 h-4" />
               <span className="hidden sm:inline">Control Vivo</span>
             </TabsTrigger>
-            <TabsTrigger value="moderacion" className="rounded-xl py-2.5 text-xs font-bold data-[state=active]:bg-amber-400 data-[state=active]:text-slate-950 transition-all flex flex-col sm:flex-row items-center justify-center gap-1">
+            <TabsTrigger value="moderacion" aria-label="Moderar" className="rounded-xl py-2.5 text-xs font-bold data-[state=active]:bg-amber-400 data-[state=active]:text-slate-950 transition-all flex flex-col sm:flex-row items-center justify-center gap-1">
               <div className="relative">
                 <Camera className="w-4 h-4" />
                 {pendingPosts.length > 0 && (
@@ -454,11 +454,11 @@ export default function ClientMuroSocialPage() {
               </div>
               <span className="hidden sm:inline">Moderar</span>
             </TabsTrigger>
-            <TabsTrigger value="diseno" className="rounded-xl py-2.5 text-xs font-bold data-[state=active]:bg-amber-400 data-[state=active]:text-slate-950 transition-all flex flex-col sm:flex-row items-center justify-center gap-1">
+            <TabsTrigger value="diseno" aria-label="Diseño" className="rounded-xl py-2.5 text-xs font-bold data-[state=active]:bg-amber-400 data-[state=active]:text-slate-950 transition-all flex flex-col sm:flex-row items-center justify-center gap-1">
               <Palette className="w-4 h-4" />
               <span className="hidden sm:inline">DiseÃ±o</span>
             </TabsTrigger>
-            <TabsTrigger value="modulos" className="rounded-xl py-2.5 text-xs font-bold data-[state=active]:bg-amber-400 data-[state=active]:text-slate-950 transition-all flex flex-col sm:flex-row items-center justify-center gap-1">
+            <TabsTrigger value="modulos" aria-label="Módulos" className="rounded-xl py-2.5 text-xs font-bold data-[state=active]:bg-amber-400 data-[state=active]:text-slate-950 transition-all flex flex-col sm:flex-row items-center justify-center gap-1">
               <Settings2 className="w-4 h-4" />
               <span className="hidden sm:inline">MÃ³dulos</span>
             </TabsTrigger>

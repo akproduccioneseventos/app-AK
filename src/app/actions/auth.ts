@@ -8,6 +8,7 @@
 import crypto from 'crypto';
 import { dbAdmin } from '@/lib/firebase/server';
 import { verifySession, writeSessionCookie } from '@/lib/auth/session-token';
+import { esPerfilValido, perfilDesdeRolViejo, type Perfil } from '@/lib/auth/perfiles';
 
 // ── Constants ──────────────────────────────────────────────────────────────
 
@@ -65,6 +66,8 @@ export interface UserRecord {
   email: string;
   passwordHash: string;
   role: 'admin' | 'user';
+  /** Perfil que decide a que entra. Ver `lib/auth/perfiles`. */
+  perfil?: Perfil;
   modules: string[];
   securityQuestions: {
     q1?: SecurityQuestion;
@@ -80,6 +83,7 @@ export interface PublicUserRecord {
   id: string;
   email: string;
   role: 'admin' | 'user';
+  perfil?: Perfil;
   modules: string[];
   mustChangePassword?: boolean;
   hasSecurityQuestions: boolean;
@@ -172,6 +176,9 @@ export async function loginUser(
       email: user.email,
       role: user.role,
       userId: user.id,
+      // Las cuentas viejas no tienen perfil guardado: se deduce del rol para que
+      // nadie quede afuera de lo que ya usaba.
+      perfil: esPerfilValido(data.perfil) ? data.perfil : perfilDesdeRolViejo(data.role),
       modules: user.modules,
     });
 
@@ -360,6 +367,17 @@ export async function updateSecurityQuestions(
     q3: { question: string; answer: string };
   }
 ): Promise<{ success: boolean; error?: string }> {
+  // Las preguntas de seguridad son lo que permite recuperar una cuenta. Esta
+  // funcion aceptaba cualquier usuario sin comprobar nada: alguien de afuera
+  // podia ponerle sus propias respuestas a la cuenta de otro y despues entrar
+  // por el camino de "olvide mi clave". Cada uno cambia las suyas; el
+  // administrador puede cambiar las de cualquiera.
+  const auth = await verifySession();
+  if (!auth.success) return { success: false, error: auth.error ?? 'Sesion no autorizada.' };
+  if (auth.user?.role !== 'admin' && auth.user?.userId !== userId) {
+    return { success: false, error: 'Solo podes cambiar tus propias preguntas de seguridad.' };
+  }
+
   if (!dbAdmin) return { success: false, error: 'Base de datos no disponible.' };
 
   try {
@@ -435,6 +453,7 @@ export async function listUsers(): Promise<{
         id: doc.id,
         email: d.email,
         role: d.role,
+        perfil: esPerfilValido(d.perfil) ? d.perfil : perfilDesdeRolViejo(d.role),
         modules: d.modules,
         mustChangePassword: d.mustChangePassword ?? false,
         hasSecurityQuestions: !!(sq.q1?.answer && sq.q2?.answer && sq.q3?.answer),
@@ -453,6 +472,8 @@ export async function createUser(data: {
   email: string;
   password: string;
   role: 'admin' | 'user';
+  /** Perfil que decide a que entra. Si no viene, se deduce del rol. */
+  perfil?: Perfil;
   modules: string[];
 }): Promise<{ success: boolean; id?: string; error?: string }> {
   if (!dbAdmin) return { success: false, error: 'Base de datos no disponible.' };
@@ -483,6 +504,7 @@ export async function createUser(data: {
       email,
       passwordHash: hashValue(data.password),
       role: data.role,
+      perfil: esPerfilValido(data.perfil) ? data.perfil : perfilDesdeRolViejo(data.role),
       modules: data.modules,
       securityQuestions: {},
       mustChangePassword: false,
@@ -500,7 +522,8 @@ export async function createUser(data: {
 export async function updateUserModules(
   userId: string,
   modules: string[],
-  role: 'admin' | 'user'
+  role: 'admin' | 'user',
+  perfil?: Perfil,
 ): Promise<{ success: boolean; error?: string }> {
   if (!dbAdmin) return { success: false, error: 'Base de datos no disponible.' };
 
@@ -512,6 +535,7 @@ export async function updateUserModules(
     await dbAdmin.collection('users').doc(userId).update({
       modules,
       role,
+      perfil: esPerfilValido(perfil) ? perfil : perfilDesdeRolViejo(role),
       updatedAt: new Date().toISOString(),
     });
     return { success: true };

@@ -69,6 +69,7 @@ import { updateClientChecklist, updateClientNotes, submitClientPayment, submitCl
 import { updateClienteDebeLlevar } from '@/app/actions/fiesta/fiesta.actions';
 import { defaultBebidaItems } from '@/lib/fiesta-defaults';
 import { PublicFooter } from '@/components/public-footer';
+import { AK_WHATSAPP_NUMBER } from '@/lib/public-contact';
 import { calculateMenuSimulationTotals, resolveMenuUnitPrices, simulateGuestCostImpact } from '@/lib/portal-menu-simulator';
 import { CateringSimulator } from '@/components/portal/CateringSimulator';
 import { getBudgetPaymentSummary } from '@/lib/budget/financial-guardrails';
@@ -273,6 +274,7 @@ export default function PublicPortalView({
   const [pagoFilePreview, setPagoFilePreview] = useState<string | null>(null);
   const [pagoSubmitting, setPagoSubmitting] = useState(false);
   const [pagoSuccess, setPagoSuccess] = useState(false);
+  const [pagoError, setPagoError] = useState<string | null>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   // Guest simulator state
@@ -320,6 +322,7 @@ export default function PublicPortalView({
     const monto = montoIngresado;
     if (!montoValido) return;
     setPagoSubmitting(true);
+    setPagoError(null);
     try {
       let base64: string | undefined;
       let nombre: string | undefined;
@@ -334,7 +337,14 @@ export default function PublicPortalView({
         setPagoMonto('');
         setPagoFile(null);
         setPagoFilePreview(null);
+      } else {
+        // Antes esta rama no hacia nada: el cliente veia la ventana abierta sin
+        // ningun aviso y volvia a tocar, informando el pago dos veces.
+        setPagoError(res.error || 'No pudimos informar el pago. Probá de nuevo en un momento.');
       }
+    } catch {
+      // Sin catch, un corte de señal en el salon dejaba el error mudo.
+      setPagoError('No pudimos conectarnos. Revisá tu señal y probá de nuevo.');
     } finally {
       setPagoSubmitting(false);
     }
@@ -450,9 +460,9 @@ export default function PublicPortalView({
   const whatsappMessage = encodeURIComponent(
     `Hola! Te escribo por el evento "${config.nombreEvento}"${config.fechaEvento ? ` (${eventDate})` : ''}.`
   );
-  const whatsappHref = hasValidPhone
-    ? `https://wa.me/${whatsappNumber}?text=${whatsappMessage}`
-    : `https://wa.me/?text=${whatsappMessage}`;
+  // Sin numero, el enlace abre WhatsApp pero no le escribe a nadie y la consulta
+  // del cliente se pierde. Se cae al numero de la empresa.
+  const whatsappHref = `https://wa.me/${hasValidPhone ? whatsappNumber : AK_WHATSAPP_NUMBER}?text=${whatsappMessage}`;
 
   // Payments data
   const paymentSummary = getBudgetPaymentSummary(presupuesto);
@@ -1963,6 +1973,12 @@ export default function PublicPortalView({
                 </button>
               )}
             </div>
+
+            {pagoError && (
+              <p className="mb-3 text-sm font-semibold text-red-600 text-center" role="alert">
+                {pagoError}
+              </p>
+            )}
 
             <Button
               onClick={handleSubmitPago}

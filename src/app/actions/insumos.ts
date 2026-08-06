@@ -51,7 +51,13 @@ async function propagateInsumoChangesToMenus(updatedInsumo: ServicioEmpresa) {
                         ...ing,
                         name: updatedInsumo.nombre,
                         unit: updatedInsumo.unidad || ing.unit,
-                        costoUnitario: updatedInsumo.valorUnitarioEstimado || 0,
+                        // Si el insumo quedo sin precio cargado, se respeta el que
+                        // ya tenia el menu. Antes se lo pisaba con cero: el plato
+                        // pasaba a costar de menos y el presupuesto salia barato
+                        // sin que nadie se diera cuenta.
+                        costoUnitario: Number(updatedInsumo.valorUnitarioEstimado) > 0
+                          ? Number(updatedInsumo.valorUnitarioEstimado)
+                          : (ing.costoUnitario ?? 0),
                         proveedor: updatedInsumo.proveedor || undefined,
                     };
                 }

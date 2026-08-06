@@ -1,7 +1,164 @@
 # Estado de la auditoría — qué está hecho y qué falta
 
 Documento vivo. Sirve para no repetir trabajo entre sesiones.
-Última actualización: 31 de julio de 2026.
+Última actualización: 5 de agosto de 2026.
+
+---
+
+## TANDA DEL 5 DE AGOSTO — auditoría completa por áreas
+
+Se recorrieron **todas** las áreas de la aplicación. Estado al cerrar: revisor de
+tipos sin errores, 1266 pruebas unitarias en verde, 94 de navegador, 20 de
+seguridad de la base, y la aplicación compila.
+
+### Corregido en esta tanda
+
+| Qué pasaba | Por qué importaba |
+|---|---|
+| El juego de trivia reventaba apenas se abría | El invitado no veía nada |
+| La fotocabina de video fallaba en silencio | La pantalla volvía sola al principio sin explicar nada |
+| El simulador ignoraba al visitante si fallaba un cambio | El mensaje quedaba en la nada |
+| Acentos rotos en los mensajes de facturas | Lo ve el equipo al cargar una factura |
+| **El cliente veía un saldo menor al real** | El portal no aplicaba el ajuste anual: 18.000 de diferencia en una fiesta de 120.000 |
+| **Cualquiera podía borrar la lista de invitados** | Sin ninguna credencial, sabiendo el código del evento |
+| **Las preguntas de recuperación de cuenta se cambiaban desde afuera** | Camino a quedarse con una cuenta |
+| **El botón de WhatsApp del simulador iba a un número ajeno** | El prospecto que terminaba su presupuesto le escribía a un desconocido |
+| Cuatro botones de consulta abrían WhatsApp sin destinatario | La consulta del cliente no llegaba a nadie |
+| El cartel de la puerta contaba filas, no gente | En una fiesta de 150 mostraba menos de la mitad |
+| El tope de la pantalla en vivo bloqueaba a toda la fiesta | El primero que subía 12 fotos dejaba sin subir a los demás |
+| Videos y estaciones publicaban sin ninguna revisión | Un video podía llegar a la pantalla grande sin que nadie lo mirara |
+| La lista de compras redondeaba para abajo | Faltaba bebida en plena fiesta |
+| **La clave del portal era adivinable y no vencía** | Se rehízo: clave inicial con el nombre del cliente, cambio obligatorio la primera vez y recuperación por correo |
+| Al que dijo que no va se le seguía mandando la invitación | La persona avisaba que no podía ir y recibía el mail igual |
+| Un mensaje sin teléfono quedaba marcado como enviado | La planilla decía que se avisó a alguien que nunca recibió nada |
+| Un insumo sin precio dejaba el plato en cero | El presupuesto salía barato sin que nadie se diera cuenta |
+
+### Trampa que costó una rama rota
+
+Dos propuestas protegieron el archivo de facturas de maneras distintas. Al
+fusionarse quedaron **las dos aplicadas encima**: no compilaba, y además guardar
+una factura habría dejado la pantalla colgada para siempre esperando un permiso
+que ella misma tenía tomado.
+
+**Después de fusionar varias propuestas que tocan los mismos archivos, correr la
+verificación completa de nuevo.** No alcanza con que cada propuesta esté bien
+por separado.
+
+### Áreas revisadas y sanas
+
+- **Seguridad de la base**: 20 pruebas en verde, todo pasa por el servidor.
+- **Sueldos del personal**: las cuentas rechazan negativos e infinitos, y no dejan
+  pagar dos veces el mismo evento a la misma persona.
+- **Permisos** de empleados, insumos y proveedores: exigen sesión del equipo.
+- **Stock de la barra**: no se descuenta dos veces sobre el mismo pedido.
+- **Botones y enlaces** de las pantallas de invitado y cliente: sin enlaces muertos.
+- **Documentos impresos**: entran en la hoja, sin el menú de la app.
+- **Cuentas del invitado**: se suman personas, no filas.
+
+### Pendiente, decidido por el dueño que NO se toca
+
+- Las fotos del muro se descargan con el enlace directo: **lo quiere así**.
+- La lista de compras usa la cantidad contratada, no la de confirmados: **se cocina
+  lo que se contrató**, y agregar invitados sube el presupuesto.
+- Sólo se trabaja en pesos uruguayos.
+
+### Pendiente de verdad
+
+1. **No queda registro de quién marcó un recibo del personal como pagado.** Si
+   algún día hay una discusión, no hay con qué respaldarse.
+2. **En la barra, si un trago necesita más de lo que hay**, el stock queda en cero
+   en vez de avisar que faltó.
+3. **La moderación de la pantalla gigante viene apagada** en las fiestas nuevas. El
+   dueño no decidió todavía si quiere que venga prendida.
+4. **Los "módulos" por usuario no se validan en el servidor**: se asignan y se
+   muestran como etiquetas, pero cualquiera con sesión accede igual a todo. O se
+   implementa, o se saca la pantalla para no dar una sensación falsa de control.
+
+---
+
+## Historial anterior
+
+
+## 🔴 LO MÁS IMPORTANTE DE LA TANDA DEL 4 DE AGOSTO
+
+**La app no compilaba.** `npm run build` terminaba en 1. Por eso la CI venía roja
+y no había nada publicable, sin importar el estado del despliegue.
+
+Causa: la PR 837 (arreglo de `exhaustive-deps`) agregó `handleAnswer` a las
+dependencias del `useEffect` de `TriviaGameScreen`, pero el `useEffect` está
+declarado **antes** del `useCallback`. TypeScript lo rechaza con
+*"Block-scoped variable used before its declaration"* y el build worker muere.
+Una pantalla de juegos tumbaba la compilación de toda la aplicación.
+
+Ya corregido (se movió el `useEffect` debajo del `useCallback`). Verificado:
+`npm run build` termina en 0.
+
+**Antes de fusionar cualquier cosa, correr `npm run build`.** Es el único filtro
+que hubiera evitado esto, y es el mismo consejo que ya estaba al final de este
+documento sin aplicarse.
+
+### Agujeros de permisos cerrados en esta tanda
+
+| # | Qué pasaba | Dónde |
+|---|---|---|
+| 31 | **`deleteAllFiestas()` no comprobaba NADA**, ni sesión. El comentario del código delegaba la protección en la confirmación de la pantalla; una server action se invoca sin pasar por la pantalla. | `actions/fiesta/fiesta.actions.ts` |
+| 32 | `resetAllCustomers()` y `resetAppCompleto()` sólo pedían sesión. Cualquier colaborador podía borrar la cartera entera de clientes o resetear la app. | `actions/customers.ts`, `actions/admin-reset.ts` |
+| 33 | **Se podía perder una factura entera**: `invoices.ts` hacía leer-modificar-escribir sin turno, así que dos guardados simultáneos se pisaban. `presupuestos.ts` ya usaba `AsyncMutex`; facturas no. | `actions/invoices.ts` |
+| 34 | Archivar presupuestos había quedado restringido a admin junto con el borrado. Archivar es rutina diaria y reversible: se destrabó. El borrado definitivo sigue siendo de admin. | `actions/presupuestos.ts` |
+| 35 | La exportación a Looker Studio devolvía **ceros fijos**: se le habían quitado los datos reales al cambiarle la autenticación. Además exigía sesión de navegador, cosa que un informe que se refresca solo no tiene. | `api/analytics/looker-export` |
+| 36 | **El cliente podía informar el mismo pago dos veces.** Si el envío fallaba, la rama de error estaba vacía y no había `catch`: la ventana quedaba abierta sin ningún aviso, así que volvía a tocar. Ahora muestra el motivo, y distingue el fallo del servidor del corte de señal. | `portal/c/[accessKey]/PublicPortalView.tsx` |
+| 37 | `registrarUsoCupon()` incrementaba el uso **sin revalidar**. `validarCupon` corre antes pero fuera del turno: entre una cosa y la otra el cupón podía vencerse, desactivarse o pasarse del tope por otro uso simultáneo. Ahora se revalida adentro del turno, donde chequeo e incremento son un solo paso. | `actions/cupones.ts` |
+| 38 | El simulador **Sofía** se compartía por WhatsApp sin título ni foto. El simulador público ya tenía su tarjeta; este no. | `simulador-ak/layout.tsx` |
+
+Se agregó `requireAdminSession()` en `lib/auth/require-session.ts` como guarda
+común para acciones destructivas.
+
+### Sobre los roles: NO existen los que se creía
+
+Verificado en código. Sólo hay **dos** roles: `admin` y `user`. No existe
+contador, marketing ni ventas.
+
+Peor: la pantalla de usuarios permite asignar **"módulos"** por persona (crm,
+presupuestos, clientes…), pero esos módulos **no se validan en ningún servidor**.
+Se guardan y se muestran como etiquetas, nada más. Cualquiera con sesión accede
+igual a todo. Ver `admin/usuarios/page.tsx` (asignación) contra las server
+actions (ninguna los consulta).
+
+Decisión pendiente del dueño: o se implementa la validación por módulo, o se
+saca la pantalla para no dar una sensación falsa de control.
+
+### Hallazgos verificados que NO se tocaron (riesgo de romper en plena fiesta)
+
+1. **Fotos del muro social descargables sin permiso.**
+   `api/social-gallery/[fiestaId]/[filename]` no valida nada. Los nombres no son
+   triviales de adivinar (`post_<timestamp>_<7 al azar>`), así que no se puede
+   enumerar, pero cualquiera con la dirección exacta baja la foto. Exigir sesión
+   rompería el muro para los invitados, que no tienen cuenta: el arreglo correcto
+   es pedir el mismo token de invitado que usa la invitación.
+2. **La clave del portal del cliente es adivinable y no caduca.**
+   `buildAccessKey()` arma `{nombre-evento}-{últimos 6 del id}`. El nombre del
+   evento es público. Además se compara con `===`, no con comparación de tiempo
+   constante. Cambiarla invalida los enlaces ya enviados a clientes.
+3. **Doble aviso de pago.** `submitClientPayment()` agrega la notificación sin
+   control de duplicados: doble clic del cliente = dos avisos idénticos.
+4. **Redondeo distinto según la moneda.** `roundMoney()` (presupuestos) redondea
+   a entero siempre; `roundInvoiceMoney()` (facturas) usa 2 decimales para lo que
+   no sea UYU. Un presupuesto en dólares pierde los centavos.
+5. **El simulador Sofía se comparte pelado** por WhatsApp: su layout no define
+   metadata, a diferencia del simulador público.
+
+### Áreas revisadas y sanas en esta tanda
+
+- **Invitado**: verificado punto por punto que todas las pantallas toman el id de
+  la fiesta de la dirección (ninguna usa "la fiesta más próxima"), que los envíos
+  tienen try/catch, que las fechas pasan `es-UY`, que los botones se deshabilitan
+  al enviar y que las subidas validan tamaño (15 MB audio, 40 MB video).
+- **Contabilidad**: orden de redondeo correcto (redondea cada ítem y después
+  suma), descuentos que nunca dejan el total negativo, IVA sobre el bruto,
+  ningún divisor que pueda ser cero, y todos los caminos de escritura de
+  presupuestos pasan por `normalizePresupuestoFinancials()`.
+- **Ventas**: validación de teléfono uruguayo, rutas públicas bien declaradas,
+  metadata del catálogo, plantillas de WhatsApp sin variables sin reemplazar.
 
 ---
 

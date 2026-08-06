@@ -10,6 +10,12 @@ import {
   type PublicUserRecord
 } from '@/app/actions/auth';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
+import {
+  NOMBRE_DEL_PERFIL,
+  PERFILES_DEL_EQUIPO,
+  QUE_HACE_CADA_PERFIL,
+  type Perfil,
+} from '@/lib/auth/perfiles';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
@@ -82,11 +88,13 @@ export default function AdminUsuariosPage() {
   const [createEmail, setCreateEmail] = useState('');
   const [createPassword, setCreatePassword] = useState('');
   const [createRole, setCreateRole] = useState<'admin' | 'user'>('user');
+  const [createPerfil, setCreatePerfil] = useState<Perfil>('secretaria');
   const [createModules, setCreateModules] = useState<string[]>([]);
 
   // Form State - Edit Permissions
   const [selectedUser, setSelectedUser] = useState<PublicUserRecord | null>(null);
   const [editRole, setEditRole] = useState<'admin' | 'user'>('user');
+  const [editPerfil, setEditPerfil] = useState<Perfil>('secretaria');
   const [editModules, setEditModules] = useState<string[]>([]);
 
   // Form State - Reset Password
@@ -147,6 +155,7 @@ export default function AdminUsuariosPage() {
         email: createEmail,
         password: createPassword,
         role: createRole,
+        perfil: createPerfil,
         modules: createModules,
       });
 
@@ -183,6 +192,7 @@ export default function AdminUsuariosPage() {
   const handleEditClick = (user: PublicUserRecord) => {
     setSelectedUser(user);
     setEditRole(user.role);
+    setEditPerfil(user.perfil ?? (user.role === 'admin' ? 'dueno' : 'secretaria'));
     setEditModules(user.modules);
     setIsEditOpen(true);
   };
@@ -193,7 +203,7 @@ export default function AdminUsuariosPage() {
 
     setIsProcessing(true);
     try {
-      const res = await updateUserModules(selectedUser.id, editModules, editRole);
+      const res = await updateUserModules(selectedUser.id, editModules, editRole, editPerfil);
       if (res.success) {
         toast({
           title: 'Permisos actualizados',
@@ -385,6 +395,20 @@ export default function AdminUsuariosPage() {
                       required
                     />
                   </div>
+                </div>
+                <div className="space-y-1.5">
+                  <Label htmlFor="create-perfil">Perfil</Label>
+                  <Select value={createPerfil} onValueChange={(val) => setCreatePerfil(val as Perfil)}>
+                    <SelectTrigger id="create-perfil">
+                      <SelectValue placeholder="Seleccionar perfil" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      {PERFILES_DEL_EQUIPO.map((p) => (
+                        <SelectItem key={p} value={p}>{NOMBRE_DEL_PERFIL[p]}</SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                  <p className="text-xs text-muted-foreground">{QUE_HACE_CADA_PERFIL[createPerfil]}</p>
                 </div>
                 <div className="space-y-1.5">
                   <Label htmlFor="create-role">Rol en el Sistema</Label>
@@ -588,6 +612,20 @@ export default function AdminUsuariosPage() {
             </DialogDescription>
           </DialogHeader>
           <form onSubmit={handleUpdatePermissions} className="space-y-4 py-2">
+            <div className="space-y-1.5">
+              <Label htmlFor="edit-perfil">Perfil</Label>
+              <Select value={editPerfil} onValueChange={(val) => setEditPerfil(val as Perfil)}>
+                <SelectTrigger id="edit-perfil">
+                  <SelectValue placeholder="Seleccionar perfil" />
+                </SelectTrigger>
+                <SelectContent>
+                  {PERFILES_DEL_EQUIPO.map((p) => (
+                    <SelectItem key={p} value={p}>{NOMBRE_DEL_PERFIL[p]}</SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+              <p className="text-xs text-muted-foreground">{QUE_HACE_CADA_PERFIL[editPerfil]}</p>
+            </div>
             <div className="space-y-1.5">
               <Label htmlFor="edit-role">Rol en el Sistema</Label>
               <Select

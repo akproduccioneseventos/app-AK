@@ -51,6 +51,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { AddToCalendarButton } from '@/components/invitacion/AddToCalendarButton';
 import { EventParticles } from '@/components/invitacion/EventParticles';
 import { EventLocationMap } from '@/components/invitacion/EventLocationMap';
+import { parseEventDate } from '@/lib/public-experience/event-date';
 
 interface TemplateProps {
   fiesta: FiestaEnPlanificacion;
@@ -70,7 +71,11 @@ const iconMap: Record<string, React.ElementType> = {
 const formatDate = (dateString?: string) => {
   if (!dateString) return "PRÓXIMAMENTE";
   try {
-    const date = new Date(dateString);
+    // La fecha se guarda como "2026-12-15", sin hora. Leida de la forma directa,
+    // el navegador la toma como hora universal y en Uruguay muestra el dia
+    // anterior: el invitado veia el 14 en vez del 15.
+    const date = parseEventDate(dateString);
+    if (!date) return "PRÓXIMAMENTE";
     return date.toLocaleDateString('es-ES', {
       day: 'numeric', month: 'long', year: 'numeric'
     }).toUpperCase();
@@ -244,8 +249,11 @@ export const GraziaTemplate: React.FC<TemplateProps> = ({ fiesta, invitacionData
   const [isSendingChat, setIsSendingChat] = useState(false);
   const chatEndRef = useRef<HTMLDivElement>(null);
 
-  const eventDate = fiesta.configuracion.fechaEvento ? new Date(fiesta.configuracion.fechaEvento) : null;
-  const isPostEvent = eventDate ? new Date() > eventDate : false;
+  // La invitacion pasa a modo "ya pasó" recien cuando termina el dia de la
+  // fiesta. Antes cambiaba a las nueve de la noche del dia anterior, asi que el
+  // invitado que la abria esa noche veia el mensaje de despedida.
+  const eventDate = parseEventDate(fiesta.configuracion.fechaEvento);
+  const isPostEvent = eventDate ? Date.now() > eventDate.getTime() + 86_400_000 : false;
 
   useEffect(() => {
     if (!isPreview && fiesta.id) {

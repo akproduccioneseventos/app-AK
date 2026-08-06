@@ -343,8 +343,11 @@ export async function syncCustomerFromFiestaConfig(
  */
 export async function resetAllCustomers(): Promise<{ success: boolean; deletedCount?: number; error?: string }> {
   try {
-    const auth = await verifySession();
-    if (!auth.success) return { success: false, error: auth.error };
+    // Borra la cartera entera de clientes: mismo criterio que resetAllInvoices
+    // y resetAllPresupuestos, que ya exigian admin.
+    const { requireAdminSession } = await import('@/lib/auth/require-session');
+    const guard = await requireAdminSession();
+    if (!guard.ok) return { success: false, error: guard.error };
     const all = await getCustomers();
     const deletedCount = all.length;
 

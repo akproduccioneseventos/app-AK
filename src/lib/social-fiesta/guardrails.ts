@@ -37,11 +37,22 @@ export function validateDedicationAudioFile(file: Pick<File, 'size' | 'type'>): 
   return null;
 }
 
+/**
+ * Decide si lo que se subio tiene que esperar el visto bueno de una persona
+ * antes de aparecer en la pantalla grande.
+ *
+ * Espera si: el evento pidio aprobar todo, si el analisis automatico no se pudo
+ * hacer, o si lo que se subio es un VIDEO. El analisis automatico mira imagenes
+ * fijas; un video no se puede revisar solo, asi que la unica forma de que no
+ * aparezca algo indebido delante de ciento cincuenta personas es que alguien lo
+ * mire antes.
+ */
 export function shouldQueueForManualReview(
   requireApproval: boolean,
-  safetyResult: ContentSafetyResult
+  safetyResult: ContentSafetyResult,
+  esVideo = false,
 ): boolean {
-  return requireApproval || safetyResult.reason === 'error';
+  return requireApproval || esVideo || safetyResult.reason === 'error';
 }
 
 export function isDedicationAudioOwnedByEvent(audioUrl: string, fiestaId: string): boolean {

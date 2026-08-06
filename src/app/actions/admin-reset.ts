@@ -26,8 +26,11 @@ export async function resetAppCompleto(): Promise<{
   error?: string;
 }> {
   try {
-    const auth = await verifySession();
-    if (!auth.success) return { success: false, error: auth.error };
+    // Borra fiestas, clientes, facturas, presupuestos y CRM de una sola vez.
+    // Es la accion mas destructiva de la app: exige admin, no solo sesion.
+    const { requireAdminSession } = await import('@/lib/auth/require-session');
+    const guard = await requireAdminSession();
+    if (!guard.ok) return { success: false, error: guard.error };
 
     logger.info('[ResetCompleto] Iniciando reset completo de la aplicación...');
 

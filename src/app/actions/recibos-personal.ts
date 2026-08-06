@@ -3,7 +3,8 @@
 import { readData, writeData } from '@/lib/data-service';
 import type { ReciboFirmado } from '@/types/empleado';
 import { randomUUID } from 'crypto';
-import { requireAppSession } from '@/lib/auth/require-session';
+import { requirePermiso } from '@/lib/auth/require-session';
+import { PERMISOS } from '@/lib/auth/perfiles';
 import { AsyncMutex } from '@/lib/mutex';
 
 const RECIBOS_PERSONAL_FILE = 'personal-recibos.json';
@@ -44,7 +45,11 @@ function normalizeRecibo(raw: Partial<ReciboFirmado>): ReciboFirmado {
 }
 
 export async function getRecibosFirmados(): Promise<ReciboFirmado[]> {
-  await requireAppSession();
+  // Los recibos dicen cuanto cobra cada persona del equipo. Eso es del dueno: la
+  // secretaria factura y cobra, pero no tiene por que ver el sueldo de sus
+  // companeros. Antes alcanzaba con tener sesion.
+  const permiso = await requirePermiso(PERMISOS.SUELDOS);
+  if (!permiso.ok) throw new Error(permiso.error);
   const raw = await readData<Partial<ReciboFirmado>[]>(RECIBOS_PERSONAL_FILE, []);
   return (Array.isArray(raw) ? raw : [])
     .map(normalizeRecibo)
@@ -60,7 +65,8 @@ export async function getRecibosFirmadosByEmpleado(empleadoId: string): Promise<
 export async function saveReciboFirmado(
   payload: Partial<ReciboFirmado> & Pick<ReciboFirmado, 'fiestaId' | 'empleadoId'>
 ): Promise<{ success: boolean; recibo?: ReciboFirmado; error?: string }> {
-  await requireAppSession();
+  const permiso = await requirePermiso(PERMISOS.SUELDOS);
+  if (!permiso.ok) return { success: false, error: permiso.error };
   if (!payload.empleadoId?.trim()) {
     return { success: false, error: 'El empleado es obligatorio.' };
   }

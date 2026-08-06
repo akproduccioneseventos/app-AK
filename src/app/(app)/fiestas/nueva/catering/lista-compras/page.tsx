@@ -241,10 +241,17 @@ function ListaDeComprasContent() {
               factor = 1000;
           }
 
+          // Lo que hay que comprar se redondea SIEMPRE para arriba. La receta da
+          // numeros con coma (0,25 litros por persona por 83 personas son 20,75
+          // litros) y en la practica se compran botellas y paquetes enteros:
+          // anotar 20,75 y comprar 20 es quedarse sin bebida en la fiesta. De mas
+          // sobra un poco; de menos no hay como resolverlo a las dos de la manana.
+          const aComprar = Math.ceil(faltante);
+
           return {
               ...item,
-              cantidadAComprar: faltante,
-              costoTotalFaltante: Math.round(item.costoUnitario * (faltante / factor))
+              cantidadAComprar: aComprar,
+              costoTotalFaltante: Math.round(item.costoUnitario * (aComprar / factor))
           };
       }).sort((a,b) => a.proveedor.localeCompare(b.proveedor));
 

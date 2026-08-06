@@ -62,6 +62,22 @@ Ahorrar tokens siempre. El modelo principal actúa como **director**, no como pe
   resolver ambigüedad, evaluar riesgo de regresión y redactar el reporte final.
 - Pedile a cada agente hechos verificables con `archivo:línea`, y que NO modifique
   archivos salvo que se le indique explícitamente.
+- Incluí en cada prompt de agente la regla de graphify: orientarse con
+  `graphify query` antes de leer archivos.
+
+### VERIFICAR lo que reporta el agente antes de tocar nada
+
+**Los agentes baratos se equivocan seguido, y con seguridad.** En una tanda real,
+de diez hallazgos reportados **nueve eran falsa alarma**: el agente afirmaba que en
+pantalla iba a aparecer la palabra "undefined", cuando en React un valor vacío no
+muestra nada. Aplicar eso sin mirar habría tocado nueve archivos al pedo.
+
+Antes de corregir cualquier cosa que reporte un agente, abrí el archivo en la línea
+que indica y confirmá con tus propios ojos que el problema existe. Si no se
+confirma, decilo en el reporte: "de los diez avisos, nueve eran falsa alarma".
+
+El reparto correcto es: los agentes **buscan y leen** (que es lo que consume), el
+modelo principal **confirma y corrige** (que es lo que decide).
 
 ### El dueño NO es programador
 
@@ -91,3 +107,66 @@ El dueño trabaja con plan Pro y necesita que el consumo rinda. Administrar siem
 - Agrupar comandos de shell independientes en una sola llamada.
 - Filtrar la salida de comandos largos (`| tail -15`) en vez de volcarla completa.
 - Respuestas al usuario: directas y sin relleno.
+
+### PARAR ANTE UN MURO (regla dura)
+
+Pasó una vez: hora y media y todos los tokens del día quemados persiguiendo un
+problema que no existía. **No puede volver a pasar.** Ante cualquiera de estas
+señales, PARAR EN EL ACTO y avisar en dos líneas. No investigar, no reintentar,
+no "una prueba más":
+
+1. **GitHub rechaza escribir.** Si `git push` o abrir la propuesta de cambios da
+   403, no hay segundo camino que probar: ninguno funciona. Avisar y dar el
+   enlace de comparación para que la abra él con un clic. Fin.
+2. **La misma prueba falla dos veces seguidas.** No hay tercer intento
+   "arreglando" algo distinto. Parar y contar qué falla.
+3. **Falla algo que antes andaba y no se tocó.** Casi siempre es el servidor de
+   prueba sirviendo una versión vieja, no la app. Primero reiniciar el servidor;
+   si igual falla, parar. Nunca leer código buscando un defecto antes de
+   descartar esto.
+4. **Más de 20 minutos en un solo problema.** Parar y contar el estado.
+
+Además: **nunca recompilar mientras corre una prueba de navegador** (produce
+fallas falsas), y **nunca correr una sola prueba con filtro por nombre** en un
+archivo donde las pruebas dependen entre sí (da fallas inventadas).
+
+Regla de fondo: es mejor entregar nueve cosas y decir "la décima está trabada"
+que gastar todo el día en la décima.
+
+## Decisiones del dueño ya tomadas (NO volver a preguntar)
+
+Cerradas. Si un análisis las marca como problema, es un falso positivo:
+
+- **El ajuste anual del 15% va siempre.** El descuento del 50% del Salón Club
+  Uruguay y el descuento ficticio del presupuesto son decisiones de marketing
+  suyas: no se tocan.
+- **Se cocina lo que se contrató.** La lista de compras usa la cantidad de
+  invitados del presupuesto, no la de confirmados. Si vienen más, el sistema
+  permite agregar invitados y el presupuesto sube. Está bien así.
+- **Las fotos del muro se descargan con el enlace directo, a propósito.** Quiere
+  que cualquiera que tenga el enlace pueda bajarlas.
+- **Se trabaja sólo en pesos uruguayos.** Las diferencias de redondeo en dólares
+  no aplican.
+- **Los controles rojos de GitHub son por facturación bloqueada.** No investigarlos
+  ni reportarlos. Lo que vale es lo que se verifica localmente.
+
+## Cómo se verifica que la app está sana
+
+El orden que funciona, y que ya detectó fallas reales:
+
+1. `npx tsc --noEmit` — cero errores.
+2. `npx jest --silent` — todas en verde.
+3. `npm run build` — tiene que terminar bien.
+4. Servidor compilado en el puerto 3100 y después las pruebas de navegador.
+   Nunca al revés, y nunca recompilar mientras corren.
+5. `npm run test:rules` para la seguridad de la base.
+
+**Después de fusionar varias propuestas que tocan los mismos archivos, correr esto
+de nuevo.** Pasó de verdad: dos propuestas protegieron el archivo de facturas de
+maneras distintas, al fusionarse quedaron las dos aplicadas encima, y además de no
+compilar habría dejado la pantalla colgada para siempre al guardar una factura.
+
+## Estado de la auditoría
+
+`ESTADO-AUDITORIA.md` lleva la cuenta de lo hecho y lo pendiente. Leerlo antes de
+empezar, y actualizarlo al terminar una tanda.

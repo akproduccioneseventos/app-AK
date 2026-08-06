@@ -31,6 +31,16 @@ describe('social feature guardrails', () => {
     expect(shouldQueueForManualReview(true, { safe: true, reason: 'clean' })).toBe(true);
   });
 
+  it('manda siempre los videos a aprobacion, aunque la moderacion este apagada', () => {
+    // El analisis automatico mira imagenes fijas: un video no se puede revisar
+    // solo. La unica garantia de que no aparezca algo indebido en la pantalla
+    // grande de la fiesta es que alguien lo apruebe antes.
+    expect(shouldQueueForManualReview(false, { safe: true, reason: 'clean' }, true)).toBe(true);
+    // Una foto limpia con la moderacion apagada sigue saliendo al instante: es
+    // lo que hace que el muro se sienta vivo durante la fiesta.
+    expect(shouldQueueForManualReview(false, { safe: true, reason: 'clean' }, false)).toBe(false);
+  });
+
   it('accepts only dedication audio owned by the event', () => {
     expect(isDedicationAudioOwnedByEvent('dedications-audio/fiesta_1/audio.webm', 'fiesta_1')).toBe(true);
     expect(

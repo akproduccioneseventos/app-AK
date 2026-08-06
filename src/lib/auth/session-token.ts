@@ -11,6 +11,12 @@ export interface SessionUserData {
   email: string;
   role: string;
   userId: string;
+  /**
+   * Perfil de la persona: dueno, secretaria, operador o personal. Es lo que
+   * decide a que entra. `role` queda para las cuentas viejas que todavia no
+   * tienen perfil cargado; ver `perfilDesdeRolViejo`.
+   */
+  perfil?: string;
   modules?: string[];
 }
 

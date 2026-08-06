@@ -41,11 +41,14 @@ import type { FiestaEnPlanificacion, Invitado, CuotaPlanPago, ClienteDebeLlevarI
 import NextImage from 'next/image';
 import Link from 'next/link';
 import {
+  cambiarClavePortal,
   getFiestaForPortalSession,
   initializePortalSession,
+  recuperarClavePortal,
   updateClientGuestTable,
   updateClientPackingList,
 } from '@/app/actions/fiesta/portal.actions';
+import { construirClavePorDefecto } from '@/lib/client-portal/clave-portal';
 import { useToast } from '@/hooks/use-toast';
 import { EventProgressBar } from '@/components/portal/EventProgressBar';
 import { calcFiestaProgress } from '@/lib/fiesta-progress';
@@ -115,6 +118,16 @@ export default function PortalClientePage() {
   const [isLoading, setIsLoading]     = useState(true);
   const [isAuthenticating, setIsAuthenticating] = useState(false);
   const [pageError, setPageError]     = useState<string | null>(null);
+
+  // Cambio obligatorio de clave la primera vez y recuperacion por correo.
+  const [debeCambiarClave, setDebeCambiarClave] = useState(false);
+  const [claveUsada, setClaveUsada]             = useState('');
+  const [claveNueva, setClaveNueva]             = useState('');
+  const [claveRepetida, setClaveRepetida]       = useState('');
+  const [errorClave, setErrorClave]             = useState<string | null>(null);
+  const [guardandoClave, setGuardandoClave]     = useState(false);
+  const [enviandoRecuperacion, setEnviandoRecuperacion] = useState(false);
+  const [avisoRecuperacion, setAvisoRecuperacion]       = useState<string | null>(null);
   const [openSections, setOpenSections] = useState<string[]>(['resumen']);
 
   // debeLlevar state
@@ -191,12 +204,76 @@ export default function PortalClientePage() {
       sessionStorage.setItem(sessionKey, password);
       setFiesta(data);
       setDebeLlevarItems(data.clienteDebeLlevar?.length ? data.clienteDebeLlevar : defaultClienteDebeLlevar);
+      setClaveUsada(password);
+      setDebeCambiarClave(evaluarClaveInicial(data, password));
       setIsAuth(true);
       setPassword('');
     } catch {
       setAuthError('No se pudo ingresar. Verificá tu conexión e intentá nuevamente.');
     } finally {
       setIsAuthenticating(false);
+    }
+  };
+
+  /**
+   * La clave que le damos al principio se arma con el nombre del cliente, asi
+   * que la puede adivinar cualquiera que sepa quien contrato la fiesta. Mientras
+   * siga usando esa, el portal no lo deja pasar sin elegir una propia.
+   */
+  const evaluarClaveInicial = (data: FiestaEnPlanificacion | null, claveIngresada: string) => {
+    if (!data) return false;
+    if (data.clientPortalSettings?.claveCambiadaPorCliente) return false;
+    const inicial = construirClavePorDefecto(data);
+    return Boolean(inicial) && claveIngresada.trim().toUpperCase() === inicial.toUpperCase();
+  };
+
+  const handleOlvideMiClave = async () => {
+    setEnviandoRecuperacion(true);
+    setAuthError(null);
+    setAvisoRecuperacion(null);
+    try {
+      const res = await recuperarClavePortal(fiestaId);
+      if (res.success) {
+        setAvisoRecuperacion(`Te mandamos la clave a ${res.pista}. Revisá tu correo.`);
+      } else {
+        setAuthError(res.error || 'No pudimos enviarte la clave. Escribinos por WhatsApp.');
+      }
+    } catch {
+      setAuthError('No pudimos enviarte la clave. Revisá tu conexión e intentá de nuevo.');
+    } finally {
+      setEnviandoRecuperacion(false);
+    }
+  };
+
+  const handleCambiarClave = async (e: FormEvent) => {
+    e.preventDefault();
+    setErrorClave(null);
+
+    if (claveNueva !== claveRepetida) {
+      setErrorClave('Las dos claves no coinciden.');
+      return;
+    }
+
+    setGuardandoClave(true);
+    try {
+      const res = await cambiarClavePortal(fiestaId, claveUsada, claveNueva);
+      if (!res.success) {
+        setErrorClave(res.error || 'No se pudo guardar la clave. Probá de nuevo.');
+        return;
+      }
+      sessionStorage.setItem(sessionKey, claveNueva.trim());
+      setDebeCambiarClave(false);
+      setClaveNueva('');
+      setClaveRepetida('');
+      setFiesta(prev => prev ? {
+        ...prev,
+        clientPortalSettings: { ...(prev.clientPortalSettings as any), claveCambiadaPorCliente: true },
+      } : prev);
+      toast({ title: '🔒 Listo', description: 'Tu clave quedó cambiada. Es la que vas a usar de ahora en más.' });
+    } catch {
+      setErrorClave('No se pudo guardar la clave. Revisá tu conexión e intentá de nuevo.');
+    } finally {
+      setGuardandoClave(false);
     }
   };
 
@@ -294,10 +371,81 @@ export default function PortalClientePage() {
                 />
               </div>
               {authError && <p className="text-sm text-red-600 text-center">{authError}</p>}
+              {avisoRecuperacion && <p className="text-sm text-emerald-700 text-center font-semibold">{avisoRecuperacion}</p>}
             </CardContent>
-            <CardFooter>
+            <CardFooter className="flex-col gap-3">
               <Button type="submit" className="w-full bg-red-700 hover:bg-red-800" disabled={isAuthenticating || !password.trim()}>
                 {isAuthenticating ? <Loader2 className="w-4 h-4 mr-2 animate-spin" /> : <LogIn className="w-4 h-4 mr-2" />} Ingresar
+              </Button>
+              {/* La salida para el cliente que se la olvido: la clave se le manda
+                  al correo que tenemos registrado, no aparece en pantalla. */}
+              <button
+                type="button"
+                onClick={handleOlvideMiClave}
+                disabled={enviandoRecuperacion}
+                className="text-xs font-semibold text-slate-500 underline underline-offset-4 disabled:opacity-60"
+              >
+                {enviandoRecuperacion ? 'Enviando…' : 'Olvidé mi clave'}
+              </button>
+            </CardFooter>
+          </form>
+        </Card>
+      </div>
+    );
+  }
+
+  // ── Cambio obligatorio de clave ──────────────────────────────
+  // Entro con la clave que le dimos nosotros. No ve nada de su fiesta hasta
+  // elegir una propia: esa clave la puede adivinar cualquiera que sepa quien
+  // contrato el evento, y de aca para adentro estan sus pagos y sus invitados.
+  if (debeCambiarClave) {
+    return (
+      <div className="ak-public-page flex min-h-screen items-center justify-center p-4">
+        <Card className="w-full max-w-sm rounded-lg border-slate-200 shadow-xl">
+          <CardHeader className="text-center space-y-3">
+            <KeyRound className="w-10 h-10 mx-auto text-red-700" />
+            <CardTitle className="text-xl font-black">Elegí tu clave</CardTitle>
+            <CardDescription>
+              Estás usando la clave que te dimos al principio. Como se arma con tu nombre,
+              cualquiera podría adivinarla. Elegí una tuya para entrar.
+            </CardDescription>
+          </CardHeader>
+          <form onSubmit={handleCambiarClave}>
+            <CardContent className="space-y-4">
+              <div className="space-y-1">
+                <Label htmlFor="clave-nueva">Tu clave nueva</Label>
+                <Input
+                  id="clave-nueva"
+                  type="password"
+                  value={claveNueva}
+                  onChange={e => setClaveNueva(e.target.value)}
+                  autoFocus
+                  placeholder="Al menos 6 caracteres"
+                />
+              </div>
+              <div className="space-y-1">
+                <Label htmlFor="clave-repetida">Repetila</Label>
+                <Input
+                  id="clave-repetida"
+                  type="password"
+                  value={claveRepetida}
+                  onChange={e => setClaveRepetida(e.target.value)}
+                  placeholder="La misma de arriba"
+                />
+              </div>
+              {errorClave && <p className="text-sm text-red-600 text-center">{errorClave}</p>}
+              <p className="text-xs text-slate-500 text-center">
+                Anotala donde la tengas a mano. Si te la olvidás, te la mandamos por correo.
+              </p>
+            </CardContent>
+            <CardFooter>
+              <Button
+                type="submit"
+                className="w-full bg-red-700 hover:bg-red-800"
+                disabled={guardandoClave || !claveNueva.trim() || !claveRepetida.trim()}
+              >
+                {guardandoClave ? <Loader2 className="w-4 h-4 mr-2 animate-spin" /> : <KeyRound className="w-4 h-4 mr-2" />}
+                Guardar mi clave
               </Button>
             </CardFooter>
           </form>

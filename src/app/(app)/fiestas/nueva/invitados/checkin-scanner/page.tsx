@@ -88,7 +88,19 @@ function CheckinScannerContent() {
         throw new Error(result.error || "No se pudo registrar la entrada.");
       }
     } catch (e: any) {
-      toast({ title: "Error en Check-in", description: e.message, variant: "destructive" });
+      // En la puerta, con gente esperando, no sirve un error tecnico en ingles.
+      // Cuando se corta el WiFi del salon el navegador tira "Failed to fetch": se
+      // traduce a algo que se pueda actuar, porque el ingreso NO quedo guardado y
+      // hay que volver a escanear.
+      const bruto = String(e?.message ?? '');
+      const esDeRed = /failed to fetch|networkerror|load failed|fetch failed|timeout/i.test(bruto);
+      toast({
+        title: esDeRed ? 'Sin conexion' : 'No se pudo registrar la entrada',
+        description: esDeRed
+          ? 'El celular perdio la senal del salon. El ingreso no quedo guardado: volve a escanear el QR en unos segundos.'
+          : bruto || 'Proba de nuevo. Si sigue fallando, anotalo a mano desde la lista.',
+        variant: 'destructive',
+      });
     } finally {
       setIsProcessingCheckin(null);
     }
@@ -190,6 +202,22 @@ function CheckinScannerContent() {
 
   const totalConfirmados = React.useMemo(() => allGuests.filter(i => i.rsvp === 'Confirmado').length, [allGuests]);
 
+  /**
+   * En la puerta importa cuanta GENTE entro, no cuantas filas de la lista se
+   * marcaron. Cada invitado puede venir con acompanantes (`partySize`): si Maria
+   * viene con su familia de cinco y se escanea su QR, entraron cinco personas, no
+   * una. El cartel contaba filas, asi que en una fiesta de ciento cincuenta
+   * personas mostraba menos de la mitad y nadie sabia cuanta gente habia adentro.
+   */
+  const personasDe = (invitados: typeof allGuests) =>
+    invitados.reduce((suma, i) => suma + (Number(i.partySize) > 0 ? Number(i.partySize) : 1), 0);
+
+  const personasPresentes = React.useMemo(() => personasDe(checkedInGuests), [checkedInGuests]);
+  const personasEsperadas = React.useMemo(
+    () => personasDe(allGuests.filter(i => i.rsvp === 'Confirmado')),
+    [allGuests],
+  );
+
   return (
     <div className="max-w-6xl mx-auto space-y-6">
       <div className="flex items-center justify-between">
@@ -203,7 +231,9 @@ function CheckinScannerContent() {
       <Card className="shadow-md">
         <CardHeader className="flex-row items-center justify-between">
             <CardTitle>Resumen de Asistencia</CardTitle>
-            <Badge variant="secondary" className="text-lg">{checkedInGuests.length} / {totalConfirmados} Presentes</Badge>
+            <Badge variant="secondary" className="text-lg" data-testid="checkin-presentes">
+              {personasPresentes} / {personasEsperadas} Presentes
+            </Badge>
         </CardHeader>
       </Card>
       

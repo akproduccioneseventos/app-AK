@@ -5,6 +5,10 @@ import { motion } from 'framer-motion';
 import { MessageSquare } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { toWhatsAppNumber } from '@/lib/commercial/contact';
+// El numero de AK vive en un solo lugar. Antes este boton tenia escrito a mano un
+// numero que no es el de la empresa: el prospecto que lo tocaba desde el simulador
+// le escribia a un desconocido.
+import { AK_WHATSAPP_NUMBER } from '@/lib/public-contact';
 
 interface FloatingWhatsAppProps {
   phoneNumber?: string;
@@ -13,12 +17,12 @@ interface FloatingWhatsAppProps {
 }
 
 export function FloatingWhatsApp({
-  phoneNumber = '59899123456',
+  phoneNumber = AK_WHATSAPP_NUMBER,
   message = 'Hola AK Producciones! Quisiera hacer una consulta sobre un evento.',
   className,
 }: FloatingWhatsAppProps) {
   const constraintsRef = useRef<HTMLDivElement>(null);
-  const rawTarget = toWhatsAppNumber(phoneNumber) || '59899123456';
+  const rawTarget = toWhatsAppNumber(phoneNumber) || AK_WHATSAPP_NUMBER;
   const cleanTarget = rawTarget.replace(/[^0-9]/g, '');
   const whatsappUrl = `https://wa.me/${cleanTarget}?text=${encodeURIComponent(message)}`;
 
