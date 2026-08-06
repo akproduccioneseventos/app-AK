@@ -56,6 +56,29 @@ principal. Dos propuestas que pasan por separado pueden romper juntas: ya pasó 
 el archivo de facturas, que quedó protegido dos veces y dejaba la pantalla colgada
 al guardar.
 
+## Propuesta rota: repararla o rehacerla (decidís vos)
+
+**El dueño lo autorizó el 6 de agosto de 2026.** Cuando una propuesta abierta
+llega rota, no hay que elegir entre fusionarla así o tirarla. Hay tres caminos y
+el criterio es tuyo:
+
+1. **Repararla**, si el daño es mecánico y reversible: acentos rotos, un cierre de
+   llave que falta, un archivo mal guardado. Se arregla y se fusiona.
+2. **Sacarle lo bueno y rehacerla**, si el daño es de fondo: código a medio
+   escribir que nunca compiló, pantallas que usan datos que no existen, o cambios
+   que deshacen trabajo más nuevo que ya está en la versión principal. Se rescata
+   lo que sirve, se hace de nuevo limpio en una rama nueva, y la vieja se cierra.
+3. **Dejarla y avisar**, sólo si lo que trae no se entiende o toca plata y
+   permisos de una forma que conviene consultar.
+
+Regla práctica para elegir: si después de arreglar lo mecánico **siguen apareciendo
+errores nuevos y distintos**, no es una propuesta dañada, es una propuesta sin
+terminar. Ahí conviene rehacerla y no seguir remendando.
+
+Y no te olvides: una propuesta hecha sobre una versión principal vieja puede
+**borrar** trabajo más reciente sin que se note. Comparala siempre contra la
+versión principal de ahora, no contra la que tenía cuando se creó.
+
 ## Flujo de Git y propuestas de cambio
 
 - **Flujo de Git & GitHub CLI (`gh`, sólo en la máquina del dueño)**:

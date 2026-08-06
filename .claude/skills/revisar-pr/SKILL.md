@@ -59,6 +59,23 @@ hallazgo que vayas a contarle al dueño, confirmalo con tus propios ojos primero
 7. **¿Toca plata, permisos o datos?** Facturas, cobros, descuentos, presupuestos,
    quién puede ver qué. Eso se mira línea por línea y no se delega.
 
+## Si la propuesta viene rota: reparar o rehacer
+
+No es "fusionar o tirar". Elegí vos, y contale al dueño qué elegiste:
+
+- **Reparar** cuando el daño es mecánico: acentos rotos, una llave que falta, un
+  archivo mal guardado. Se arregla, se verifica y se fusiona.
+- **Sacarle lo bueno y rehacer** cuando el daño es de fondo: código a medio
+  escribir que nunca compiló, pantallas que usan datos que no existen, o cambios
+  que deshacen trabajo más nuevo que ya está en la versión principal. Rama nueva
+  y limpia; la vieja se cierra.
+- **Dejarla y avisar** sólo si no se entiende qué quiso hacer, o si toca plata y
+  permisos de un modo que conviene consultar.
+
+Cómo darte cuenta: arreglá primero lo mecánico y volvé a compilar. Si aparecen
+**errores nuevos y distintos**, no está dañada, está sin terminar: rehacerla sale
+más barato que remendarla. Y si llevás más de veinte minutos remendando, pará.
+
 ## Falsos positivos conocidos: no los reportes
 
 Son decisiones tomadas del dueño, no errores:
