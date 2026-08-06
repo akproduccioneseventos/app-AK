@@ -44,10 +44,9 @@ interface CrmLeadCardProps {
   onDeleteLead: (leadId: string) => Promise<void>;
   isDeleting: boolean;
   isMobile?: boolean;
-  onMove?: (direction: -1 | 1) => void;
 }
 
-export const CrmLeadCard = memo(function CrmLeadCard({ lead, onDeleteLead, isDeleting, isMobile, onMove }: CrmLeadCardProps) {
+export const CrmLeadCard = memo(function CrmLeadCard({ lead, onDeleteLead, isDeleting, isMobile }: CrmLeadCardProps) {
   const {
     attributes,
     listeners,
@@ -57,7 +56,6 @@ export const CrmLeadCard = memo(function CrmLeadCard({ lead, onDeleteLead, isDel
     isDragging,
   } = useSortable({
     id: lead.id,
-    disabled: isMobile,
     data: { stageId: lead.currentStageId },
   });
 
@@ -343,32 +341,6 @@ export const CrmLeadCard = memo(function CrmLeadCard({ lead, onDeleteLead, isDel
               >
                 <MessageCircle className="w-3.5 h-3.5" />
               </Button>
-            )}
-            {isMobile && onMove && (
-              <div className="flex items-center gap-1" aria-label="Cambiar etapa">
-                <Button
-                  type="button"
-                  variant="ghost"
-                  size="icon"
-                  className="h-8 w-8"
-                  onClick={() => onMove(-1)}
-                  title="Mover a la etapa anterior"
-                  aria-label="Mover a la etapa anterior"
-                >
-                  <ChevronLeft className="h-4 w-4" />
-                </Button>
-                <Button
-                  type="button"
-                  variant="ghost"
-                  size="icon"
-                  className="h-8 w-8"
-                  onClick={() => onMove(1)}
-                  title="Mover a la etapa siguiente"
-                  aria-label="Mover a la etapa siguiente"
-                >
-                  <ChevronRight className="h-4 w-4" />
-                </Button>
-              </div>
             )}
             {/* Edit notes button */}
             <Button
