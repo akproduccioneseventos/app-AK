@@ -1494,6 +1494,8 @@ function SlideshowLayout({
     setCurrentIndex((prev) => (prev + 1) % posts.length);
   }, [posts.length]);
 
+  const isMission = post?.momentTag?.toLowerCase().includes('misión') || post?.momentTag?.toLowerCase().includes('mision') || captionText?.toLowerCase().includes('misión') || captionText?.toLowerCase().includes('mision');
+
   // Auto-advance slideshow (dinámico si es video o imagen)
   useEffect(() => {
     if (posts.length <= 1) return;
@@ -1514,13 +1516,18 @@ function SlideshowLayout({
           Cargando publicación...
         </div>
       )}
-      <div className="relative h-full w-full max-w-[min(100%,1500px)] overflow-hidden rounded-md bg-slate-900">
+      <div className={`relative h-full w-full max-w-[min(100%,1500px)] overflow-hidden rounded-md ${isMission ? 'bg-amber-900 ring-4 ring-amber-400/80 shadow-[0_0_40px_rgba(251,191,36,0.4)]' : 'bg-slate-900'}`}>
+        {isMission && (
+          <div className="absolute top-0 inset-x-0 bg-gradient-to-r from-amber-400 via-yellow-300 to-amber-400 text-amber-950 font-black text-center py-2 uppercase tracking-widest text-lg shadow-md z-10">
+            ⭐ Misión Secreta Cumplida ⭐
+          </div>
+        )}
         {isVideo ? (
           <video src={post.imageUrl} className="h-full w-full object-contain" autoPlay muted playsInline preload="auto" onPlay={() => setMediaLoaded(true)} onLoadedData={() => setMediaLoaded(true)} onEnded={advance} />
         ) : (
           <NextImage src={post.imageUrl} alt={post.authorName} fill className="object-contain" unoptimized priority onLoad={() => setMediaLoaded(true)} />
         )}
-        <div className="absolute inset-x-0 bottom-0 bg-black/80 px-6 py-4 text-white">
+        <div className="absolute inset-x-0 bottom-0 bg-black/80 px-6 py-4 text-white z-10">
           <p className="text-2xl font-bold leading-tight">{captionText || 'Momento compartido'}</p>
           <p className="mt-1 text-base text-white/70">{post.authorName}</p>
         </div>
@@ -1564,40 +1571,49 @@ function MasonryLayout({
 function MasonryCard({ post, index }: { post: SocialGalleryPost; index: number }) {
   const [imgError, setImgError] = useState(false);
   const isVideo = post.mediaType === 'video' || isVideoUrl(post.imageUrl);
+  const isMission = post.momentTag?.toLowerCase().includes('misión') || post.momentTag?.toLowerCase().includes('mision') || post.caption?.toLowerCase().includes('misión') || post.caption?.toLowerCase().includes('mision') || post.dedication?.toLowerCase().includes('misión') || post.dedication?.toLowerCase().includes('mision');
 
   return (
     <article
-      className="relative min-h-0 overflow-hidden rounded-md bg-slate-900"
+      className={`relative mb-4 break-inside-avoid overflow-hidden rounded-xl bg-slate-900 shadow-xl ${isMission ? 'ring-4 ring-amber-400 shadow-[0_0_20px_rgba(251,191,36,0.3)]' : ''}`}
       style={{
-        aspectRatio: index % 3 === 0 ? '4/5' : index % 3 === 1 ? '1/1' : '3/4',
+        animation: `fadeInUp 0.6s ease-out ${index * 0.1}s both`,
       }}
     >
-      {isVideo ? (
-        <video
-          src={post.imageUrl}
-          className="h-full w-full object-cover"
-          autoPlay
-          muted
-          loop
-          playsInline
-        />
-      ) : !imgError ? (
-        <NextImage
-          src={post.imageUrl}
-          alt={post.authorName}
-          fill
-          sizes="(max-width: 1920px) 33vw"
-          className="object-cover"
-          onError={() => setImgError(true)}
-          unoptimized
-        />
-      ) : (
-        <div className="absolute inset-0 flex items-center justify-center bg-slate-900">
-          <span className="text-4xl opacity-20">📷</span>
+      {isMission && (
+        <div className="absolute top-0 inset-x-0 bg-gradient-to-r from-amber-400 via-yellow-300 to-amber-400 text-amber-950 font-black text-center py-1 uppercase tracking-widest text-[10px] shadow-sm z-10">
+          ⭐ Misión Secreta ⭐
         </div>
       )}
+      <div className={`relative ${isMission ? 'pt-6' : ''}`}>
+        {post.mediaType === 'video' || isVideoUrl(post.imageUrl) ? (
+          <video
+            src={post.imageUrl}
+            autoPlay
+            muted
+            loop
+            playsInline
+            className="w-full"
+            onError={() => setImgError(true)}
+          />
+        ) : !imgError ? (
+          <NextImage
+            src={post.imageUrl}
+            alt={post.authorName}
+            fill
+            sizes="(max-width: 1920px) 33vw"
+            className="object-cover"
+            onError={() => setImgError(true)}
+            unoptimized
+          />
+        ) : (
+          <div className="absolute inset-0 flex items-center justify-center bg-slate-900">
+            <span className="text-4xl opacity-20">📷</span>
+          </div>
+        )}
+      </div>
 
-      <div className="absolute inset-x-0 bottom-0 bg-black/75 px-3 py-2">
+      <div className="absolute inset-x-0 bottom-0 bg-black/75 px-3 py-2 z-10">
         <p className="truncate text-sm font-semibold text-white">{post.authorName}</p>
       </div>
     </article>

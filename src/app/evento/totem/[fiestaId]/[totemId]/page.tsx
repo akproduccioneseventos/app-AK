@@ -169,17 +169,30 @@ export default function TotemPublicPage() {
 
   useEffect(() => {
     let vigente = true;
-    getEntertainmentLaunchToken(fiestaId, 'totems')
-      .then((res) => {
-        if (vigente && res.success && res.guestToken) setPermisoDeSalon(res.guestToken);
-      })
-      .catch(() => {});
-    return () => { vigente = false; };
+    let timer: NodeJS.Timeout;
+    const fetchToken = () => {
+      getEntertainmentLaunchToken(fiestaId, 'totems')
+        .then((res) => {
+          if (vigente && res.success && res.guestToken) {
+            setPermisoDeSalon(res.guestToken);
+            if (timer) clearInterval(timer);
+          }
+        })
+        .catch(() => {});
+    };
+    
+    fetchToken();
+    timer = setInterval(fetchToken, 4000);
+    
+    return () => { 
+      vigente = false; 
+      clearInterval(timer); 
+    };
   }, [fiestaId]);
 
   const qrUrl = useMemo(() => {
     const base = totem?.qrUrl || (origin ? `${origin}/evento/social/${fiestaId}` : '');
-    if (!base || !permisoDeSalon) return base;
+    if (!base || !permisoDeSalon) return '';
     return `${base}${base.includes('?') ? '&' : '?'}estacion=totems&access=${encodeURIComponent(permisoDeSalon)}`;
   }, [fiestaId, origin, permisoDeSalon, totem?.qrUrl]);
 
@@ -274,9 +287,13 @@ export default function TotemPublicPage() {
                     Activar audio
                   </button>
                 )}
-                {totem.showQr && qrUrl && (
-                  <div className="rounded-lg border border-white/15 bg-white/10 px-5 py-3 text-sm font-black uppercase tracking-wider backdrop-blur">
-                    <QrCode className="mr-2 inline h-4 w-4" /> {totem.qrLabel || 'Escaneá y participá'}
+                {totem.showQr && (
+                  <div className="rounded-lg border border-white/15 bg-white/10 px-5 py-3 text-sm font-black uppercase tracking-wider backdrop-blur flex items-center">
+                    {qrUrl ? (
+                      <><QrCode className="mr-2 inline h-4 w-4" /> {totem.qrLabel || 'Escaneá y participá'}</>
+                    ) : (
+                      <><Loader2 className="mr-2 inline h-4 w-4 animate-spin text-white/50" /> Conectando estación...</>
+                    )}
                   </div>
                 )}
               </div>
@@ -344,13 +361,27 @@ export default function TotemPublicPage() {
                 ))}
               </motion.div>
             </div>
-            {totem.showQr && qrUrl && (
-              <div className="flex items-center gap-4 rounded-lg border border-white/12 bg-white/95 p-4 text-slate-950 shadow-2xl">
-                <QRCodeSVG value={qrUrl} size={132} includeMargin />
-                <div className="max-w-[180px]">
-                  <p className="text-xs font-black uppercase tracking-[0.2em]" style={{ color: accent }}>{totem.qrLabel || 'Participá'}</p>
-                  <p className="mt-1 text-sm font-bold text-slate-600">Escaneá desde tu celular y subí tu foto.</p>
-                </div>
+            {totem.showQr && (
+              <div className="flex shrink-0 items-center justify-end">
+                {qrUrl ? (
+                  <div className="flex flex-col items-end gap-3 rounded-xl bg-black/60 p-5 backdrop-blur-xl">
+                    <p className="max-w-[200px] text-right text-xs font-black uppercase leading-tight tracking-[0.25em] text-white">
+                      {totem.qrLabel || 'Escaneá para participar'}
+                    </p>
+                    <div className="rounded-lg bg-white p-3 shadow-2xl">
+                      <QRCodeSVG value={qrUrl} size={156} includeMargin={false} />
+                    </div>
+                  </div>
+                ) : (
+                  <div className="flex flex-col items-end gap-3 rounded-xl bg-black/60 p-5 backdrop-blur-xl">
+                    <p className="max-w-[200px] text-right text-xs font-black uppercase leading-tight tracking-[0.25em] text-red-400">
+                      Estación no lista
+                    </p>
+                    <div className="flex h-[156px] w-[156px] items-center justify-center rounded-lg border-2 border-dashed border-white/20 bg-black/40">
+                      <Loader2 className="h-8 w-8 animate-spin text-white/50" />
+                    </div>
+                  </div>
+                )}
               </div>
             )}
           </footer>
