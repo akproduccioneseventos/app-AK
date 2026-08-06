@@ -1,3 +1,20 @@
+## Traspaso entre chats (obligatorio, vale para Codex, Gemini y Claude)
+
+Este proyecto se programa entre tres IA sobre el mismo repositorio. Para no
+arrancar cada chat de cero y no pisarse entre ramas:
+
+1. **Al empezar cualquier sesión, leer `ESTADO-ACTUAL.md`.** Es corto a propósito
+   (máximo 40 líneas): dice en qué se está trabajando, en qué rama, qué quedó a
+   medias y qué sigue. Se lee entero, siempre.
+2. **Al terminar una tanda, reescribirlo.** Se pisa, no se acumula. Una sesión
+   que cierra sin dejar el traspaso obliga a la siguiente a redescubrir todo.
+3. `ESTADO-AUDITORIA.md` es el histórico largo. Se abre sólo para buscar algo
+   viejo, nunca de rutina: leerlo entero es caro.
+4. Cada tarea va en una rama nueva desde `main` actualizado. Nunca dos IA en la
+   misma rama, y nunca subir a una rama cuya propuesta ya fue cerrada o fusionada.
+5. Después de fusionar varias propuestas que tocan los mismos archivos, correr la
+   verificación completa de nuevo antes de dar nada por sano.
+
 ## graphify
 
 This project has a knowledge graph at graphify-out/ with god nodes, community structure, and cross-file relationships.

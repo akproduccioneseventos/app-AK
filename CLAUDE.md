@@ -18,11 +18,24 @@ Rules:
 - After modifying code, run `graphify update .` to keep the graph current (AST-only, no API cost).
 - Follow the shared quality commands and testing rules in `AGENTS.md`.
 
-## Entorno de Ejecución (Windows PowerShell & GitHub PRs)
+## Dónde estás corriendo (fijate primero, cambia los comandos)
 
-- **Sistema Operativo**: Windows con **PowerShell** (NO es Linux/Bash).
-- **Prohibido el uso de `&&`**: En PowerShell `&&` produce error de sintaxis (`El token '&&' no es un separador de instrucciones válido`). Usar `;` o comandos independientes.
-- **Flujo de Git & GitHub CLI (`gh`)**:
+Este proyecto se trabaja desde dos lugares distintos. **Averiguá cuál es antes de
+correr nada**; confundirlos hace perder intentos.
+
+- **Máquina del dueño: Windows con PowerShell.** Es donde él trabaja. Ahí `&&` da
+  error de sintaxis: separar con `;` o comandos independientes. Ahí sí existe el
+  comando `gh` de GitHub.
+- **Claude Code en la web: Linux con bash.** Contenedor efímero, se arma solo al
+  arrancar. Ahí `&&` funciona normal, **no existe `gh`** (las operaciones de
+  GitHub van por las herramientas del entorno) y todo lo que no se sube a la rama
+  se pierde al cerrar.
+
+Si el entorno dice que la plataforma es `linux`, estás en el segundo caso.
+
+## Flujo de Git y propuestas de cambio
+
+- **Flujo de Git & GitHub CLI (`gh`, sólo en la máquina del dueño)**:
   - **Sincronización antes de trabajar**: Ejecutar `git fetch origin main ; git checkout main ; git reset --hard origin/main` para asegurar base limpia.
   - **Ramas independientes**: Crear SIEMPRE una rama nueva (`git checkout -b fix/nombre-descriptivo`) para cada tarea. NUNCA trabajar sobre ramas con PRs ya mergeadas.
   - **Crear PR (Sin Automerge)**: Subir la rama (`git push origin fix/nombre-descriptivo`) e invocar `gh pr create --title "..." --body "..." --base main`. Dejar la PR abierta para revisión manual del usuario.
@@ -166,7 +179,48 @@ de nuevo.** Pasó de verdad: dos propuestas protegieron el archivo de facturas d
 maneras distintas, al fusionarse quedaron las dos aplicadas encima, y además de no
 compilar habría dejado la pantalla colgada para siempre al guardar una factura.
 
-## Estado de la auditoría
+## Continuidad entre chats (leer esto primero, siempre)
 
-`ESTADO-AUDITORIA.md` lleva la cuenta de lo hecho y lo pendiente. Leerlo antes de
-empezar, y actualizarlo al terminar una tanda.
+El dueño no tiene que contar de nuevo en qué se estaba trabajando cada vez que
+abre un chat. Para eso hay dos archivos, y se usan distinto:
+
+- **`ESTADO-ACTUAL.md`** — la hoja de traspaso. Corta (máximo 40 líneas) y se
+  **pisa**, no se acumula. Dice en qué se está trabajando, en qué rama, qué quedó
+  a medias y qué sigue. **Se lee entera al empezar cualquier sesión.** En las
+  sesiones web se imprime sola al arrancar.
+- **`ESTADO-AUDITORIA.md`** — el histórico completo. Es largo y caro de leer: se
+  abre sólo cuando hace falta buscar algo viejo, nunca de rutina.
+
+Al terminar una tanda, reescribir `ESTADO-ACTUAL.md` con el comando `/aca-quede`.
+Una sesión que cierra sin dejar el traspaso hace que la siguiente arranque a
+ciegas y gaste el doble.
+
+## Se programa entre tres: Codex, Gemini y Claude
+
+El dueño trabaja con las tres a la vez sobre el mismo repositorio. De ahí salen
+las reglas que más importan:
+
+- **Nunca dos tareas en la misma rama.** Cada una arranca desde la versión
+  principal actualizada, con rama nueva y nombre descriptivo.
+- **Antes de empezar, mirar qué propuestas de cambio están abiertas.** Si la de
+  la rama actual ya se cerró o fusionó, está prohibido seguir subiendo ahí:
+  rama nueva y propuesta nueva.
+- **Después de fusionar varias propuestas que tocan los mismos archivos, correr
+  la verificación completa de nuevo.** Ya pasó: dos propuestas protegieron el
+  archivo de facturas de maneras distintas, al fusionarse quedaron las dos
+  aplicadas encima y la pantalla quedaba colgada al guardar una factura.
+- **La hoja de traspaso es de las tres**, no de una sola. Lo mismo vale para las
+  reglas compartidas de `AGENTS.md`.
+- Ninguna IA fusiona propuestas por su cuenta: se dejan abiertas para el dueño.
+
+## Atajos ya configurados (usarlos, no rehacerlos)
+
+- **`/sano`** — corre los cinco controles de salud en el orden correcto y avisa
+  el resultado en criollo. No hace falta recordar la secuencia.
+- **`/aca-quede`** — reescribe la hoja de traspaso al cerrar la sesión.
+- **Ayudantes económicos ya definidos**, con las reglas del proyecto adentro (no
+  hay que explicárselas cada vez): `ak-buscador` para ubicar dónde vive algo,
+  `ak-auditor` para revisar un área, `ak-inventario` para listas y conteos. Los
+  tres son de sólo lectura y arrancan por el mapa del código.
+- En las sesiones web, el navegador de pruebas se ubica solo al arrancar: no hace
+  falta buscarlo a mano.

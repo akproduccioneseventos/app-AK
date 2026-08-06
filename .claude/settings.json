@@ -1,4 +1,32 @@
 {
+  "permissions": {
+    "allow": [
+      "Bash(graphify:*)",
+      "Bash(npm run lint)",
+      "Bash(npm run typecheck)",
+      "Bash(npm test)",
+      "Bash(npm run test:*)",
+      "Bash(npm run quality:*)",
+      "Bash(npm run build)",
+      "Bash(npm run graphify:update)",
+      "Bash(npm run audit:dead-code)",
+      "Bash(npx tsc --noEmit)",
+      "Bash(npx jest:*)",
+      "Bash(git status:*)",
+      "Bash(git diff:*)",
+      "Bash(git log:*)",
+      "Bash(git show:*)",
+      "Bash(git branch:*)",
+      "Bash(git fetch:*)",
+      "Bash(git add:*)",
+      "Bash(git commit:*)",
+      "Bash(git checkout:*)",
+      "Bash(git push -u origin:*)",
+      "Bash(rg:*)",
+      "Bash(ls:*)",
+      "Bash(find /opt/pw-browsers:*)"
+    ]
+  },
   "hooks": {
     "PreToolUse": [
       {
