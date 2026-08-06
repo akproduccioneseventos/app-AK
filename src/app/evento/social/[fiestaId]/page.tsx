@@ -77,7 +77,9 @@ const DEFAULT_SETTINGS: SocialGallerySettings = {
   showSongRequests: true,
   showDedications: true,
   showPolls: true,
-  requireApproval: false,
+  // Si la fiesta todavia no tiene configuracion propia, se asume moderado. Es el
+  // lado seguro: lo que sale a la pantalla grande no se puede deshacer.
+  requireApproval: true,
   accentColor: '#c81e2a',
   backgroundColor: '#f0f2f5',
 };

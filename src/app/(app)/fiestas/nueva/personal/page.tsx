@@ -11,7 +11,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from '@/components/ui/dialog';
 import { Textarea } from '@/components/ui/textarea';
 import { ArrowLeft, Loader2, Save, Users, UserCheck, AlertTriangle, Info, RefreshCw, UserPlus, Trash2, MessageCircle, Send, CalendarDays, History } from 'lucide-react';
-import { getEmpleados } from '@/app/actions/empleados';
+import { getEmpleados, fiestasDelMismoDiaConEmpleado } from '@/app/actions/empleados';
 import { getRoles } from '@/app/actions/roles';
 import type { Empleado } from '@/types/empleado';
 import type { Rol } from '@/types/rol';
@@ -253,6 +253,25 @@ function AsignarPersonalEventoContent() {
     if (newlyAssignedEmpleadoId && currentFiesta) {
         const empleado = allEmpleados.find(e => e.id === newlyAssignedEmpleadoId);
         const rol = allRoles.find(r => r.id === rolId);
+
+        // Una persona no puede estar en dos salones a la vez. Si ya esta anotada
+        // en otra fiesta del mismo dia se avisa, pero no se bloquea: a veces son
+        // dos eventos en horarios distintos y el equipo sabe lo que hace.
+        const fecha = currentFiesta.configuracion?.fechaEvento;
+        if (empleado && fecha) {
+          fiestasDelMismoDiaConEmpleado(newlyAssignedEmpleadoId, fecha, currentFiesta.id)
+            .then(otras => {
+              if (otras.length === 0) return;
+              toast({
+                title: `${empleado.nombre} ya está anotado ese día`,
+                description: `También figura en ${otras.join(', ')}. Revisá que pueda estar en las dos.`,
+                variant: 'destructive',
+                duration: 10000,
+              });
+            })
+            .catch(() => undefined);
+        }
+
         if (empleado && rol) {
             openWhatsAppDialog(empleado, rol.nombre, assignedSalary);
         }

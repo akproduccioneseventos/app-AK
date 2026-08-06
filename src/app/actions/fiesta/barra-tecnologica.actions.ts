@@ -366,6 +366,13 @@ export async function createBarDrinkOrder(input: CreateBarDrinkOrderInput): Prom
       await saveFallbackOrders(fiesta, [order, ...(stored.orders || [])]);
     }
 
+    // El pedido del invitado tambien consume botellas. Solo descontaba el que
+    // cargaba el barman a mano, asi que durante toda la fiesta el stock quedaba
+    // igual por mas tragos que se pidieran desde la pantalla: el aviso de "sin
+    // stock" nunca saltaba y la barra se quedaba sin bebida con el sistema
+    // marcando que habia de sobra.
+    await descontarStock(drink);
+
     const currentOrders = await getFirestoreOrders(input.fiestaId).catch(() => null);
     const allOrders = currentOrders ?? [order, ...(stored.orders || [])];
     const queuePosition = allOrders.filter(
