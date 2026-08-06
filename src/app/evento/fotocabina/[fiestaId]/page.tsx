@@ -20,6 +20,7 @@ import {
   Check,
 } from 'lucide-react';
 import { QRCodeSVG } from 'qrcode.react';
+import { QrRecuerdo } from '@/components/entretenimiento/QrRecuerdo';
 import {
   getPublicEntertainmentEvent,
   uploadEntretenimientoMedia,
@@ -701,15 +702,24 @@ export default function FotocabinaPage() {
 
             {/* QR sharing code */}
             <div className="flex flex-col items-center text-center space-y-6 max-w-xs">
+              {/* Sin enlace y con error, la subida fallo: hay que decirlo aca.
+                  El aviso de errorMsg vive en otra capa, tapada por esta
+                  pantalla final, asi que el invitado se iba creyendo que su
+                  foto habia quedado publicada. */}
               <div className="space-y-2">
                 <h3 className="text-2xl font-black text-white">
-                  {qrCodeUrl ? 'Tu foto esta lista' : 'Revisa tu foto'}
+                  {qrCodeUrl ? 'Tu foto esta lista' : errorMsg ? 'No se pudo publicar' : 'Revisa tu foto'}
                 </h3>
                 <p className="text-sm text-zinc-400">
                   {qrCodeUrl
                     ? fiesta?.station.qrCallout
-                    : 'Repetila o publicala para recibir un enlace y guardarla.'}
+                    : errorMsg
+                      ? 'Tu foto no llego al muro. Podes descargarla en este dispositivo o volver a intentar.'
+                      : 'Repetila o publicala para recibir un enlace y guardarla.'}
                 </p>
+                {!qrCodeUrl && errorMsg && (
+                  <p className="text-xs font-bold text-rose-400" role="alert">{errorMsg}</p>
+                )}
               </div>
 
               {qrCodeUrl && (

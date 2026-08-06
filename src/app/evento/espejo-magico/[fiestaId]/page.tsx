@@ -19,7 +19,7 @@ import {
   Radio,
   Zap,
 } from 'lucide-react';
-import { QRCodeSVG } from 'qrcode.react';
+import { QrRecuerdo } from '@/components/entretenimiento/QrRecuerdo';
 import {
   getPublicEntertainmentEvent,
   uploadEntretenimientoMedia,
@@ -291,13 +291,22 @@ export default function EspejoMagicoPage() {
   }, [capturedImage]);
 
   // Camera hooks
+  //
+  // La camara vive solo mientras NO hay una foto tomada esperando decision. Sin
+  // el `!capturedImage`, dos momentos quedaban mal: al firmar sobre la foto la
+  // camara seguia prendida detras del dibujo, y si fallaba la subida el estado
+  // volvia a 'recording' y la camara se reencendia encima del cartel de error,
+  // asi que el invitado veia su cara en vivo mientras la pantalla le decia que
+  // algo habia fallado.
   useEffect(() => {
-    if (fiesta && role === 'display' && (localStatus === 'idle' || localStatus === 'countdown' || localStatus === 'recording')) {
+    const esperandoDecision = Boolean(capturedImage);
+    const enVivo = localStatus === 'idle' || localStatus === 'countdown' || localStatus === 'recording';
+    if (fiesta && role === 'display' && enVivo && !esperandoDecision) {
       startCamera();
     } else {
       stopCamera();
     }
-  }, [fiesta, localStatus, role, startCamera, stopCamera]);
+  }, [fiesta, localStatus, role, capturedImage, startCamera, stopCamera]);
 
   // Welcome Speech Cues
   useEffect(() => {
@@ -350,9 +359,16 @@ export default function EspejoMagicoPage() {
       }
     } catch (err: any) {
       console.error(err);
-      setErrorMsg(err.message || 'La IA no pudo procesar tu avatar. Mostrando foto original.');
-      speak("Ocurrió un inconveniente, pero aquí está tu foto original.");
-      setLocalStatus('done');
+      setErrorMsg(err.message || 'La IA no pudo procesar tu avatar. Podés subir igual tu foto original.');
+      speak('La inteligencia artificial no pudo con esta foto, pero tu foto original está lista. Podés subirla igual o volver a intentar.');
+      // Antes esto saltaba a 'done', que es la pantalla de "Escanea tu recuerdo"
+      // con el codigo QR. Pero cuando la IA falla la foto nunca se subio: el QR
+      // se quedaba girando para siempre y el invitado se iba convencido de que
+      // tenia su recuerdo guardado, cuando no habia nada. Se queda en la
+      // pantalla de revision, con la foto original a la vista y los botones
+      // para subirla o reintentar.
+      setLocalStatus('recording');
+      await updateEntertainmentSessionStatus(fiestaId, moduleId, 'idle', {}, accessToken);
     } finally {
       clearTimeout(stepTimer1);
       clearTimeout(stepTimer2);
@@ -1279,13 +1295,7 @@ export default function EspejoMagicoPage() {
 
               {/* QR Container */}
               <div className="bg-white p-4 rounded-3xl shadow-2xl relative">
-                {qrCodeUrl ? (
-                  <QRCodeSVG value={qrCodeUrl} size={180} level="Q" includeMargin={false} />
-                ) : (
-                  <div className="w-44 h-44 flex items-center justify-center">
-                    <Loader2 className="w-8 h-8 animate-spin text-zinc-950" />
-                  </div>
-                )}
+                <QrRecuerdo qrCodeUrl={qrCodeUrl} error={errorMsg} />
               </div>
 
               <div className="flex flex-col gap-2 w-full">

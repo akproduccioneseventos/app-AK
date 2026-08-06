@@ -21,7 +21,7 @@ import {
   Radio,
   Zap,
 } from 'lucide-react';
-import { QRCodeSVG } from 'qrcode.react';
+import { QrRecuerdo } from '@/components/entretenimiento/QrRecuerdo';
 import {
   getPublicEntertainmentEvent,
   uploadEntretenimientoMedia,
@@ -84,6 +84,10 @@ export default function BoguePage() {
   const [isEventLoading, setIsEventLoading] = useState(true);
   const [loadAttempt, setLoadAttempt] = useState(0);
   const [cameraError, setCameraError] = useState<string | null>(null);
+  // Se separa del mensaje de progreso para que la pantalla final sepa si el
+  // video llego al muro o no. Antes no habia forma de distinguirlo y el cuadro
+  // del QR quedaba girando como si todavia estuviera subiendo.
+  const [uploadError, setUploadError] = useState<string | null>(null);
 
   // Audio effect context for high-quality beeps
   const audioCtxRef = useRef<AudioContext | null>(null);
@@ -519,8 +523,9 @@ export default function BoguePage() {
 
   const handleAutoUpload = async (blob: Blob) => {
     setIsUploading(true);
+    setUploadError(null);
     setProgressMsg('Subiendo al muro social de la fiesta...');
-    
+
     try {
       const file = new File([blob], `bogue-${Date.now()}.mp4`, { type: blob.type });
       const formData = new FormData();
@@ -556,6 +561,7 @@ export default function BoguePage() {
     } catch (err) {
       console.error(err);
       setProgressMsg('No se pudo subir al muro. Conservamos el video para reintentar.');
+      setUploadError((err as Error).message || 'No se pudo subir el video al muro.');
       setQrCodeUrl('');
       setLocalStatus('done');
       await updateEntertainmentSessionStatus(fiestaId, 'bogue', 'done', {}, accessToken);
@@ -905,13 +911,7 @@ export default function BoguePage() {
 
               {/* QR Code Container */}
               <div className="bg-white p-4 rounded-3xl shadow-2xl relative">
-                {qrCodeUrl ? (
-                  <QRCodeSVG value={qrCodeUrl} size={180} level="Q" includeMargin={false} />
-                ) : (
-                  <div className="w-44 h-44 flex items-center justify-center">
-                    <Loader2 className="w-8 h-8 animate-spin text-zinc-900" />
-                  </div>
-                )}
+                <QrRecuerdo qrCodeUrl={qrCodeUrl} error={uploadError} />
               </div>
 
               <div className="space-y-3 w-full">

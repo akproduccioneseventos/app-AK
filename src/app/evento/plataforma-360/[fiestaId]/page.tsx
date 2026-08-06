@@ -18,7 +18,7 @@ import {
   Loader2,
   Check,
 } from 'lucide-react';
-import { QRCodeSVG } from 'qrcode.react';
+import { QrRecuerdo } from '@/components/entretenimiento/QrRecuerdo';
 import { getPublicSocialPosts } from '@/app/actions/social-gallery';
 import {
   getPublicEntertainmentEvent,
@@ -737,13 +737,7 @@ export default function Plataforma360Page() {
 
               {/* QR Container */}
               <div className="bg-white p-4 rounded-3xl shadow-2xl relative">
-                {qrCodeUrl ? (
-                  <QRCodeSVG value={qrCodeUrl} size={180} level="Q" includeMargin={false} />
-                ) : (
-                  <div className="w-44 h-44 flex items-center justify-center">
-                    <Loader2 className="w-8 h-8 animate-spin text-zinc-900" />
-                  </div>
-                )}
+                <QrRecuerdo qrCodeUrl={qrCodeUrl} error={uploadError} />
               </div>
 
               <div className="space-y-3 w-full">
