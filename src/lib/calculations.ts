@@ -1,6 +1,29 @@
 import type { ItemPresupuestado } from '@/types/presupuesto';
 
 /**
+ * Quita los acentos para poder comparar sin depender de cómo se haya escrito el
+ * nombre del servicio: "Menú Niños" y "Menu Ninos" tienen que valer lo mismo.
+ */
+function sinAcentos(texto: string): string {
+  return texto.normalize('NFD').replace(/[̀-ͯ]/g, '');
+}
+
+/**
+ * Palabras que marcan a un servicio como exclusivo de menores.
+ *
+ * A propósito NO están "chico" ni "menor" en singular: en este rubro aparecen
+ * en nombres que no tienen nada que ver con la edad ("Salón chico", "pantalla
+ * de menor tamaño"), y darían por infantil un servicio para toda la fiesta.
+ */
+const PALABRAS_DE_MENORES = ['nino', 'ninos', 'infantil', 'infantiles', 'menores', 'kids'];
+
+/** ¿El nombre del servicio dice que es exclusivo para menores? */
+function esParaMenores(nombre: string): boolean {
+  const limpio = sinAcentos(nombre.toLowerCase());
+  return PALABRAS_DE_MENORES.some(palabra => new RegExp(`\\b${palabra}\\b`).test(limpio));
+}
+
+/**
  * MOTOR DE CÁLCULO UNIFICADO - PASO 1: Determinar el universo de personas para el ítem.
  */
 export function getGuestCountForItem(item: { nombreServicio: string, categoriaServicio?: string, subcategoria?: string }, adultos: number, adolescentes: number, ninos: number): number {
@@ -12,12 +35,12 @@ export function getGuestCountForItem(item: { nombreServicio: string, categoriaSe
   const ninosYAdolescentes = (ninos || 0) + (adolescentes || 0);
 
   // Regla A: Servicios exclusivos para menores
-  if (cat.includes('infantil') || cat.includes('adolescente') || sub.includes('infantil') || sub.includes('adolescente') || name.includes('niño')) {
+  if (cat.includes('infantil') || cat.includes('adolescente') || sub.includes('infantil') || sub.includes('adolescente') || esParaMenores(name)) {
     return ninosYAdolescentes;
   }
 
   // Regla B: Platos principales para adultos (excluyendo si dice infantil)
-  if ((cat.includes('plato principal') || sub.includes('plato principal') || name.includes('principal')) && !name.includes('niño')) {
+  if ((cat.includes('plato principal') || sub.includes('plato principal') || name.includes('principal')) && !esParaMenores(name)) {
     return adultos;
   }
 
