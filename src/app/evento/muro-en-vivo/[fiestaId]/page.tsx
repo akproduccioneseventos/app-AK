@@ -18,6 +18,7 @@ import {
 } from '@/lib/public-experience/wait-for-initial-public-load';
 import type { SocialConnection } from '@/types/settings';
 import { Facebook, Instagram, MessageCircle, Music2, Maximize, Camera, QrCode } from 'lucide-react';
+import { ReconnectingIndicator } from '@/components/entretenimiento/ReconnectingIndicator';
 import { getSongRequests } from '@/app/actions/social-interactive';
 import type { SongRequest } from '@/types/social-gallery';
 
@@ -106,6 +107,7 @@ export default function MuroEnVivoPage() {
   const [playlistTick, setPlaylistTick] = useState<number>(Date.now());
   const [qrUrl, setQrUrl] = useState<string>('');
   const [showCameraFlash, setShowCameraFlash] = useState(false);
+  const [isReconnecting, setIsReconnecting] = useState(false);
   const prevPostsCountRef = useRef(0);
   const pollingRef = useRef(false);
 
@@ -205,6 +207,8 @@ export default function MuroEnVivoPage() {
         getChatMessages(fiestaId).catch((err) => { console.warn('[MuroEnVivo] getChatMessages failed:', err); return []; }),
         getSongRequests(fiestaId).catch((err) => { console.warn('[MuroEnVivo] getSongRequests failed:', err); return []; }),
       ]));
+
+      setIsReconnecting(false);
 
       const sorted = [...fetchedPosts].filter(isPostApprovedForScreen).sort(
         (a, b) => new Date(b.timestamp).getTime() - new Date(a.timestamp).getTime()
@@ -353,7 +357,7 @@ export default function MuroEnVivoPage() {
       const globalFallbacks = connections.filter(c => c.isConnected && !coveredPlatforms.has(c.platform));
       setSocialConnections([...brandConnections, ...globalFallbacks]);
     } catch (_) {
-      // Silent fail for projection wall
+      setIsReconnecting(true);
     } finally {
       pollingRef.current = false;
       if (!isLoaded) setIsLoaded(true);
@@ -1061,6 +1065,8 @@ export default function MuroEnVivoPage() {
           }
         }
       `}</style>
+
+      <ReconnectingIndicator isReconnecting={isReconnecting} />
     </div>
   );
 }
