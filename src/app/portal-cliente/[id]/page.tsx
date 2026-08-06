@@ -45,10 +45,12 @@ import {
   getFiestaForPortalSession,
   initializePortalSession,
   recuperarClavePortal,
+  guardarCorreoDeRecuperacion,
   updateClientGuestTable,
   updateClientPackingList,
 } from '@/app/actions/fiesta/portal.actions';
 import { construirClavePorDefecto } from '@/lib/client-portal/clave-portal';
+import { AK_WHATSAPP_NUMBER } from '@/lib/public-contact';
 import { useToast } from '@/hooks/use-toast';
 import { EventProgressBar } from '@/components/portal/EventProgressBar';
 import { calcFiestaProgress } from '@/lib/fiesta-progress';
@@ -121,6 +123,7 @@ export default function PortalClientePage() {
 
   // Cambio obligatorio de clave la primera vez y recuperacion por correo.
   const [debeCambiarClave, setDebeCambiarClave] = useState(false);
+  const [correoRecuperacion, setCorreoRecuperacion] = useState('');
   const [claveUsada, setClaveUsada]             = useState('');
   const [claveNueva, setClaveNueva]             = useState('');
   const [claveRepetida, setClaveRepetida]       = useState('');
@@ -262,6 +265,22 @@ export default function PortalClientePage() {
         return;
       }
       sessionStorage.setItem(sessionKey, claveNueva.trim());
+
+      // Si dejo su correo, se guarda ahora que ya esta adentro del portal. Es el
+      // unico momento por el que pasa seguro, y es lo que le va a permitir
+      // recuperar la clave sola si se la olvida. Si falla no se le corta el paso:
+      // la clave nueva ya quedo guardada, que es lo que vino a hacer.
+      const correo = correoRecuperacion.trim();
+      if (correo) {
+        const guardado = await guardarCorreoDeRecuperacion(fiestaId, correo).catch(() => null);
+        if (guardado && !guardado.success) {
+          toast({
+            title: 'Guardamos tu clave, pero no el correo',
+            description: guardado.error || 'Podés cargarlo más tarde o pedirnos la clave por WhatsApp.',
+          });
+        }
+      }
+
       setDebeCambiarClave(false);
       setClaveNueva('');
       setClaveRepetida('');
@@ -379,14 +398,30 @@ export default function PortalClientePage() {
               </Button>
               {/* La salida para el cliente que se la olvido: la clave se le manda
                   al correo que tenemos registrado, no aparece en pantalla. */}
-              <button
-                type="button"
-                onClick={handleOlvideMiClave}
-                disabled={enviandoRecuperacion}
-                className="text-xs font-semibold text-slate-500 underline underline-offset-4 disabled:opacity-60"
-              >
-                {enviandoRecuperacion ? 'Enviando…' : 'Olvidé mi clave'}
-              </button>
+              <div className="flex flex-col items-center gap-2">
+                <button
+                  type="button"
+                  onClick={handleOlvideMiClave}
+                  disabled={enviandoRecuperacion}
+                  className="text-xs font-semibold text-slate-500 underline underline-offset-4 disabled:opacity-60"
+                >
+                  {enviandoRecuperacion ? 'Enviando…' : 'Olvidé mi clave (por correo)'}
+                </button>
+                {/* La segunda salida, para el que no usa correo: le escribe a AK
+                    por WhatsApp. Es mas seguro que mandarsela a un correo que
+                    escriba cualquiera en esta pantalla, porque del otro lado AK
+                    sabe con quien esta hablando antes de darle nada. */}
+                <a
+                  href={`https://wa.me/${AK_WHATSAPP_NUMBER}?text=${encodeURIComponent(
+                    'Hola AK, me olvidé la clave de mi portal y no tengo correo a mano. ¿Me ayudan a recuperarla?',
+                  )}`}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="text-xs font-semibold text-emerald-700 underline underline-offset-4"
+                >
+                  No uso correo: pedirla por WhatsApp
+                </a>
+              </div>
             </CardFooter>
           </form>
         </Card>
@@ -433,9 +468,25 @@ export default function PortalClientePage() {
                   placeholder="La misma de arriba"
                 />
               </div>
+              {/* El correo es opcional y se pide aca porque es el unico momento
+                  por el que el cliente pasa seguro. Sin correo igual puede
+                  recuperarla, pero tiene que escribirle a AK por WhatsApp. */}
+              <div className="space-y-1 border-t border-slate-100 pt-3">
+                <Label htmlFor="correo-recuperacion">Tu correo (opcional)</Label>
+                <Input
+                  id="correo-recuperacion"
+                  type="email"
+                  value={correoRecuperacion}
+                  onChange={e => setCorreoRecuperacion(e.target.value)}
+                  placeholder="para recuperar la clave si te la olvidás"
+                />
+                <p className="text-xs text-slate-500">
+                  Si no usás correo, dejalo vacío: nos escribís por WhatsApp y te la pasamos.
+                </p>
+              </div>
               {errorClave && <p className="text-sm text-red-600 text-center">{errorClave}</p>}
               <p className="text-xs text-slate-500 text-center">
-                Anotala donde la tengas a mano. Si te la olvidás, te la mandamos por correo.
+                Anotala donde la tengas a mano.
               </p>
             </CardContent>
             <CardFooter>

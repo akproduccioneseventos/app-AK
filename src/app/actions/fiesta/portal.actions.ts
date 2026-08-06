@@ -234,6 +234,35 @@ export async function getFiestaByAccessKey(accessKey: string): Promise<FiestaEnP
   }
 }
 
+/**
+ * El correo donde el cliente quiere recibir su clave si se la olvida.
+ *
+ * Lo puede cargar el propio cliente desde adentro del portal, o AK desde la ficha
+ * del evento. Se pide sesion del portal a proposito: si cualquiera pudiera
+ * escribir este correo desde la pantalla de ingreso, le bastaria con poner el suyo
+ * y pedir la clave para entrar al portal ajeno.
+ */
+export async function guardarCorreoDeRecuperacion(
+  fiestaId: string,
+  correo: string,
+): Promise<{ success: boolean; error?: string }> {
+  if (!(await verifyPortalSession(fiestaId))) return { success: false, error: 'Sesión no autorizada.' };
+
+  const limpio = String(correo ?? '').trim().toLowerCase();
+  if (!limpio) return { success: false, error: 'Escribí tu correo.' };
+  if (!/^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/.test(limpio)) {
+    return { success: false, error: 'Ese correo no parece válido. Revisalo y probá de nuevo.' };
+  }
+
+  return updateFiestaData(fiestaId, data => ({
+    ...data,
+    clientePortalExperience: {
+      ...(data.clientePortalExperience ?? {}),
+      clienteEmail: limpio,
+    },
+  }));
+}
+
 export async function submitClientPayment(
   fiestaId: string,
   monto: number,
