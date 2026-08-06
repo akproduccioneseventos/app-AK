@@ -32,6 +32,7 @@ import {
   Video,
   Wallet,
   X,
+  ExternalLink,
 } from 'lucide-react';
 import { addClientMusicSuggestion, initializePortalSession, submitClientMenuChangeRequest, submitClientPayment, submitClientServiceAddRequest, updateClientePortalExperience, checkDateAvailability, cancelServicesOrParty, changeEventDate } from '@/app/actions/fiesta/portal.actions';
 import { defaultFaq } from '@/lib/fiesta-defaults';
@@ -1106,26 +1107,100 @@ export default function PublicPortalClientExperience({ fiesta, companyContact, c
           </div>
         )}
 
-        <PhaseRoadmap access={access} eventColor={eventColor} />
-
-
-
-        {(access.organizationLocked || access.liveLocked) && (
-          <div className="mb-5 rounded-lg border bg-white p-4 text-sm text-slate-600 shadow-sm">
-            <p className="font-black text-slate-900">{access.label}</p>
-            {access.organizationLocked ? (
-              <p className="mt-1">Por ahora estan visibles presupuesto, pagos, contrato, servicios contratados y solicitudes economicas. La organizacion se abre despues de la reunion con AK.</p>
-            ) : (
-              <p className="mt-1">La organizacion ya esta abierta. La parte en vivo se habilita cuando falten {access.liveAccessDaysBefore} dias para la fiesta.</p>
-            )}
+        {/* Dashboard Superior Destacado */}
+        <div className="mb-8 grid gap-4 md:grid-cols-3">
+          {/* Tarjeta Pagos */}
+          <div 
+            className="ak-public-card p-5 relative overflow-hidden group cursor-pointer hover:shadow-lg transition-all bg-white border border-slate-200"
+            onClick={() => {
+              const el = document.getElementById('portal-contable');
+              if (el) {
+                el.scrollIntoView({ behavior: 'smooth' });
+                el.querySelector('button')?.click();
+              }
+            }}
+          >
+            <div className="absolute -top-10 -right-10 w-32 h-32 bg-emerald-50 rounded-full -z-10 transition-transform duration-500 group-hover:scale-150 opacity-70" />
+            <div className="flex items-center gap-4 mb-5">
+              <div className="bg-emerald-100 text-emerald-600 p-3 rounded-2xl shadow-sm">
+                <CircleDollarSign className="w-7 h-7" />
+              </div>
+              <div>
+                <h3 className="font-black text-xl text-slate-900 tracking-tight">Pagos</h3>
+                <p className="text-xs font-semibold text-emerald-600 uppercase tracking-wider">Estado de Cuenta</p>
+              </div>
+            </div>
+            <div className="flex justify-between items-end">
+              <div className="space-y-1">
+                <p className="text-sm text-slate-500 font-medium">Saldo pendiente</p>
+                <p className="text-3xl font-black text-slate-900 tracking-tight">{formatPortalMoney(paymentSummary.balance)}</p>
+              </div>
+              <div className="w-10 h-10 rounded-full bg-slate-50 flex items-center justify-center group-hover:bg-emerald-50 group-hover:text-emerald-600 transition-colors">
+                <ChevronRight className="w-5 h-5 text-slate-400 group-hover:text-emerald-500" />
+              </div>
+            </div>
           </div>
-        )}
 
-        <div className={`mb-5 grid gap-3 sm:grid-cols-2 lg:grid-cols-4 ${access.canSeeOrganization ? '' : '[&>div:nth-child(-n+2)]:hidden'}`}>
-          <StatTile label="Invitados confirmados" value={guestStats.confirmed} icon={CheckCircle2} tone="bg-emerald-50 text-emerald-700" />
-          <StatTile label="Invitados pendientes" value={guestStats.needsAction} icon={Users} tone="bg-amber-50 text-amber-700" />
-          <StatTile label="Pagado" value={formatPortalMoney(paymentSummary.paid)} icon={Receipt} tone="bg-sky-50 text-sky-700" />
-          <StatTile label="Saldo" value={formatPortalMoney(paymentSummary.balance)} icon={CircleDollarSign} tone="bg-rose-50 text-rose-700" />
+          {/* Tarjeta Menú */}
+          <div 
+            className="ak-public-card p-5 relative overflow-hidden group cursor-pointer hover:shadow-lg transition-all bg-white border border-slate-200"
+            onClick={() => {
+              const el = document.getElementById('portal-organizacion');
+              if (el) {
+                el.scrollIntoView({ behavior: 'smooth' });
+                el.querySelector('button')?.click();
+              }
+            }}
+          >
+            <div className="absolute -top-10 -right-10 w-32 h-32 bg-amber-50 rounded-full -z-10 transition-transform duration-500 group-hover:scale-150 opacity-70" />
+            <div className="flex items-center gap-4 mb-5">
+              <div className="bg-amber-100 text-amber-600 p-3 rounded-2xl shadow-sm">
+                <Utensils className="w-7 h-7" />
+              </div>
+              <div>
+                <h3 className="font-black text-xl text-slate-900 tracking-tight">Menú</h3>
+                <p className="text-xs font-semibold text-amber-600 uppercase tracking-wider">Opciones y Catering</p>
+              </div>
+            </div>
+            <div className="flex justify-between items-end">
+              <div className="space-y-1">
+                <p className="text-sm text-slate-500 font-medium">Plato principal</p>
+                <p className="text-lg font-bold text-slate-800 line-clamp-1">{fiesta?.menuSeleccionPortal?.principal || 'A definir'}</p>
+              </div>
+              <div className="w-10 h-10 rounded-full bg-slate-50 flex items-center justify-center group-hover:bg-amber-50 group-hover:text-amber-600 transition-colors">
+                <ChevronRight className="w-5 h-5 text-slate-400 group-hover:text-amber-500" />
+              </div>
+            </div>
+          </div>
+
+          {/* Tarjeta Link de Invitados */}
+          <div 
+            className="ak-public-card p-5 relative overflow-hidden group cursor-pointer hover:shadow-lg transition-all bg-white border border-slate-200"
+            onClick={() => {
+              const url = fiesta?.invitacionSlug ? `/i/${fiesta.invitacionSlug}` : `/invitacion/${fiesta.id}`;
+              window.open(url, '_blank');
+            }}
+          >
+            <div className="absolute -top-10 -right-10 w-32 h-32 bg-sky-50 rounded-full -z-10 transition-transform duration-500 group-hover:scale-150 opacity-70" />
+            <div className="flex items-center gap-4 mb-5">
+              <div className="bg-sky-100 text-sky-600 p-3 rounded-2xl shadow-sm">
+                <Users className="w-7 h-7" />
+              </div>
+              <div>
+                <h3 className="font-black text-xl text-slate-900 tracking-tight">Invitados</h3>
+                <p className="text-xs font-semibold text-sky-600 uppercase tracking-wider">Link y Confirmaciones</p>
+              </div>
+            </div>
+            <div className="flex justify-between items-end">
+              <div className="space-y-1">
+                <p className="text-sm text-slate-500 font-medium">Confirmados</p>
+                <p className="text-3xl font-black text-slate-900 tracking-tight">{guestStats.confirmed} <span className="text-sm font-semibold text-slate-400">/ {guestStats.total}</span></p>
+              </div>
+              <div className="w-10 h-10 rounded-full bg-slate-50 flex items-center justify-center group-hover:bg-sky-50 group-hover:text-sky-600 transition-colors">
+                <ExternalLink className="w-5 h-5 text-slate-400 group-hover:text-sky-500" />
+              </div>
+            </div>
+          </div>
         </div>
 
         <Accordion type="multiple" defaultValue={access.canSeeOrganization ? ["organizacion", "contable"] : ["contable"]} className="space-y-4">
