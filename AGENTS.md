@@ -1,3 +1,20 @@
+## Traspaso entre chats (obligatorio, vale para Codex, Gemini y Claude)
+
+Este proyecto se programa entre tres IA sobre el mismo repositorio. Para no
+arrancar cada chat de cero y no pisarse entre ramas:
+
+1. **Al empezar cualquier sesión, leer `ESTADO-ACTUAL.md`.** Es corto a propósito
+   (máximo 40 líneas): dice en qué se está trabajando, en qué rama, qué quedó a
+   medias y qué sigue. Se lee entero, siempre.
+2. **Al terminar una tanda, reescribirlo.** Se pisa, no se acumula. Una sesión
+   que cierra sin dejar el traspaso obliga a la siguiente a redescubrir todo.
+3. `ESTADO-AUDITORIA.md` es el histórico largo. Se abre sólo para buscar algo
+   viejo, nunca de rutina: leerlo entero es caro.
+4. Cada tarea va en una rama nueva desde `main` actualizado. Nunca dos IA en la
+   misma rama, y nunca subir a una rama cuya propuesta ya fue cerrada o fusionada.
+5. Después de fusionar varias propuestas que tocan los mismos archivos, correr la
+   verificación completa de nuevo antes de dar nada por sano.
+
 ## graphify
 
 This project has a knowledge graph at graphify-out/ with god nodes, community structure, and cross-file relationships.
@@ -64,7 +81,7 @@ Rules:
 - **Prohibido Alucinar**: Queda estrictamente prohibido alucinar o inventar código, variables, APIs, archivos, rutas o dependencias que no existan. Si no tenés certeza absoluta sobre algo, debés investigarlo en el código o consultarlo. Todo lo programado debe ser 100% real y funcional.
 - **Uso Obligatorio de Graphify**: Antes de iniciar cualquier tarea o responder sobre la arquitectura del código, debés usar `graphify` para mapear el codebase y entender perfectamente las relaciones entre archivos para evitar roturas.
 - **Verificación de PR Abierta (OBLIGATORIO)**: Antes de empezar una tarea, crear una rama o subir commits, es obligatorio verificar en GitHub qué Pull Requests están abiertas y sus estados. Si la PR de la rama actual ya fue cerrada, archivada o fusionada, **está estrictamente prohibido seguir subiendo cambios a esa rama**. En su lugar, debés sincronizarte localmente con `main` actualizado, crear una rama nueva y limpia, y generar una nueva PR abierta para la tarea actual, asegurando así un despliegue limpio sin mezclar código viejo.
-- **Prohibido Fusionar PRs**: Las IA tienen estrictamente prohibido fusionar (mergear) Pull Requests por sí solas. Deben crear la PR en GitHub y dejarla abierta para que el usuario la revise y fusione a mano.
+- **Fusionar PRs (regla actualizada el 6 de agosto de 2026)**: el dueño autorizó a fusionar directamente, sin esperar que lo haga él a mano. **Pero sólo después de pasar todos los controles**: compila sin errores de tipos, las pruebas pasan, no hay acentos rotos (`npm run check:acentos`), no choca con las otras propuestas abiertas al fusionarlas juntas, y no hay cambios sospechosos en plata, cobros o permisos de acceso. Si algo de eso falla, no se fusiona: se le explica al dueño en criollo qué pasa. Después de fusionar, correr la verificación completa de nuevo sobre `main`.
 - **Honestidad Absoluta (0 Humo)**: El título y la descripción de las PRs y de los commits deben describir **únicamente los cambios reales y precisos** que hiciste. No prometas mejoras estéticas, rediseños premium ni optimizaciones que no estén implementadas concretamente. Cero promesas que no sean reales.
 ## Direccion multiagente obligatoria
 

@@ -1,6 +1,12 @@
 # Instrucciones para Gemini (Antigravity)
 
 Para programar y asistir en este proyecto de forma óptima:
+0. **Antes que nada, leé `ESTADO-ACTUAL.md`**: es la hoja de traspaso entre chats
+   (corta, máximo 40 líneas) y dice en qué se está trabajando, en qué rama y qué
+   quedó a medias. Al terminar tu tanda, reescribila. El histórico largo está en
+   `ESTADO-AUDITORIA.md` y sólo se abre si hace falta buscar algo viejo.
+   Recordá que este proyecto lo programan Codex, Gemini y Claude en paralelo:
+   cada tarea va en una rama nueva desde `main` actualizado.
 1. **Siempre consulta el grafo de conocimiento** en `graphify-out/graph.json` y el reporte `graphify-out/GRAPH_REPORT.md` antes de realizar cambios estructurales o responder preguntas complejas de arquitectura.
 2. **Lee las directrices principales** en `AGENTS.md`.
 3. **Respeta las reglas de calidad**:
