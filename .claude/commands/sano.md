@@ -5,8 +5,12 @@ description: Corre los cinco controles de salud de la app en el orden que funcio
 Verificá que la aplicación esté sana. **El orden importa**: correrlos al revés
 da fallas falsas que hacen perder horas.
 
-Corré los cinco pasos, uno detrás del otro, sin saltear ninguno:
+Corré los seis pasos, uno detrás del otro, sin saltear ninguno:
 
+0. `npm run check:acentos` — acentos rotos. Es instantáneo y va primero porque es
+   el más barato: si salta, no tiene sentido seguir. Una sola propuesta llegó a
+   meter 902 acentos rotos, que además de verse mal en pantalla rompen las
+   comparaciones de texto con eñes en silencio.
 1. `npx tsc --noEmit` — el revisor de tipos. Tiene que dar cero errores.
 2. `npx jest --silent` — las pruebas unitarias. Todas en verde.
 3. `npm run build` — la aplicación tiene que compilar.

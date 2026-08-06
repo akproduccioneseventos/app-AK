@@ -33,6 +33,29 @@ correr nada**; confundirlos hace perder intentos.
 
 Si el entorno dice que la plataforma es `linux`, estás en el segundo caso.
 
+## Fusionar propuestas: sí, cuando pasan los controles
+
+**El dueño cambió esta regla el 6 de agosto de 2026.** Antes estaba prohibido
+fusionar; ahora se fusiona directo, sin esperar que lo haga él. Si algún documento
+viejo dice "prohibido fusionar", manda esto.
+
+Condición: **una propuesta se fusiona sólo después de pasar todos los controles**,
+nunca porque parezca bien a simple vista. Antes de fusionar hay que verificar, con
+la habilidad `revisar-pr`:
+
+- Compila (revisor de tipos en cero) y las pruebas pasan.
+- Sin acentos rotos (`npm run check:acentos`).
+- No choca con las otras propuestas abiertas, probando fusionarlas juntas.
+- Nada raro en plata, cobros, permisos ni quién puede ver qué.
+
+Si algo de eso falla, **no se fusiona**: se le cuenta al dueño en criollo qué pasa
+y qué vería el usuario en pantalla si se fusionara igual.
+
+Después de fusionar, volver a correr la verificación completa sobre la versión
+principal. Dos propuestas que pasan por separado pueden romper juntas: ya pasó con
+el archivo de facturas, que quedó protegido dos veces y dejaba la pantalla colgada
+al guardar.
+
 ## Flujo de Git y propuestas de cambio
 
 - **Flujo de Git & GitHub CLI (`gh`, sólo en la máquina del dueño)**:
@@ -63,6 +86,17 @@ Verificado en este contenedor; releer antes de pelear con las herramientas:
   la base, así que las pantallas por `[id]` muestran su estado de "no encontrada".
 
 ## Delegación de trabajo (preferencia del dueño del proyecto)
+
+**Regla fija, pedida por el dueño: delegar SIEMPRE en los ayudantes económicos.**
+No es "cuando convenga": es el modo de trabajo por defecto en toda tarea. El
+modelo principal **dirige y decide**; el trabajo de buscar, leer, contar,
+inventariar, correr verificaciones y esperar resultados va a los agentes baratos.
+Si el modelo principal se pone a leer archivos que podía delegar, está gastando
+plata al pedo.
+
+Ya están configurados y listos para usar (no hay que explicarles las reglas):
+`ak-buscador` para ubicar dónde vive algo, `ak-auditor` para revisar un área,
+`ak-inventario` para listas y conteos. Los tres son de sólo lectura.
 
 Ahorrar tokens siempre. El modelo principal actúa como **director**, no como peón:
 
