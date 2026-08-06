@@ -21,7 +21,7 @@ const formatDate = (dateString?: string) => {
       day: 'numeric', month: 'long', year: 'numeric'
     });
   } catch (e) {
-    return "Fecha inválida";
+    return "Fecha invÃ¡lida";
   }
 };
 
@@ -36,7 +36,7 @@ function MusicaPdfContent({ fiestaId }: { fiestaId: string | null }) {
 
   const loadData = useCallback(async () => {
     if (!fiestaId) {
-      setError("No se especificó un identificador de evento válido.");
+      setError("No se especificÃ³ un identificador de evento vÃ¡lido.");
       setIsLoading(false);
       return;
     }
@@ -52,7 +52,7 @@ function MusicaPdfContent({ fiestaId }: { fiestaId: string | null }) {
       setLogoUrl(templateSettings.logoUrl || null);
     } catch (err: any) {
       console.error("Error loading PDF data:", err);
-      setError(err.message || "Ocurrió un error al cargar los datos.");
+      setError(err.message || "OcurriÃ³ un error al cargar los datos.");
     } finally {
       setIsLoading(false);
     }
@@ -61,16 +61,16 @@ function MusicaPdfContent({ fiestaId }: { fiestaId: string | null }) {
   useEffect(() => {
     loadData();
   }, [loadData]);
-  
+
   const handlePrint = () => {
     window.print();
   };
-  
+
   const handleShare = async () => {
     if (!fiesta) return;
     const shareData = {
       title: `Preferencias Musicales - ${fiesta.configuracion.nombreEvento}`,
-      text: `Aquí tienes las preferencias musicales para el DJ del evento.`,
+      text: `AquÃ­ tienes las preferencias musicales para el DJ del evento.`,
       url: window.location.href,
     };
     try {
@@ -92,18 +92,18 @@ function MusicaPdfContent({ fiestaId }: { fiestaId: string | null }) {
     return <div className="p-8 max-w-3xl mx-auto bg-white"><Skeleton className="h-[80vh] w-full" /></div>;
   }
 
-  if (error || !fiesta || !fiesta.musica) {
+  if (error || !fiesta) {
     return (
       <div className="p-8 max-w-3xl mx-auto bg-white text-center flex flex-col items-center justify-center min-h-[60vh] gap-4">
         <AlertTriangle className="w-16 h-16 text-destructive" />
         <h2 className="text-2xl font-bold text-destructive">Error al Generar Reporte</h2>
-        <p className="text-muted-foreground">{error || "No hay preferencias musicales definidas."}</p>
-        <Button asChild variant="outline"><Link href={`/fiestas/nueva/musica?fiestaId=${fiestaId || ''}`}><ArrowLeft className="w-4 h-4 mr-2" />Volver a la Planificación</Link></Button>
+        <p className="text-muted-foreground">{error || "No se pudo cargar el evento."}</p>
+        <Button asChild variant="outline"><Link href={`/fiestas/nueva/musica?fiestaId=${fiestaId || ''}`}><ArrowLeft className="w-4 h-4 mr-2" />Volver a la PlanificaciÃ³n</Link></Button>
       </div>
     );
   }
 
-  const musica = fiesta.musica;
+  const musica = fiesta.musica || {};
 
   return (
     <div className="bg-gray-100 print:bg-white py-6 print:py-0 font-sans">
@@ -126,7 +126,7 @@ function MusicaPdfContent({ fiestaId }: { fiestaId: string | null }) {
           <p className="text-md text-gray-700 print:text-sm mt-1">{fiesta.configuracion.nombreEvento}</p>
           <p className="text-xs text-gray-500 print:text-[8pt]">{formatDate(fiesta.configuracion.fechaEvento)}</p>
         </header>
-        
+
         <div className="space-y-6 print:space-y-3">
             <section>
                 <h2 className="text-lg font-semibold text-gray-800 print:text-base border-b border-gray-300 pb-1 mb-2">Canciones Clave</h2>
@@ -148,10 +148,10 @@ function MusicaPdfContent({ fiestaId }: { fiestaId: string | null }) {
                 <h2 className="text-lg font-semibold text-gray-800 print:text-base border-b border-gray-300 pb-1 mb-2 flex items-center gap-2">Playlist y Sugerencias</h2>
                 <p className="text-sm print:text-xs text-gray-700 whitespace-pre-line bg-gray-50 p-2 rounded-md">{musica.playlistFiesta || 'No hay sugerencias generales.'}</p>
             </section>
-            
+
             <section>
                 <h2 className="text-lg font-semibold text-red-600 print:text-base border-b border-gray-300 pb-1 mb-2 flex items-center gap-2"><Ban className="w-5 h-5"/>Lista de "NO Reproducir"</h2>
-                <p className="text-sm print:text-xs text-gray-700 whitespace-pre-line bg-red-50 p-2 rounded-md">{musica.listaNoReproducir || 'No hay canciones o artistas en la lista de exclusión.'}</p>
+                <p className="text-sm print:text-xs text-gray-700 whitespace-pre-line bg-red-50 p-2 rounded-md">{musica.listaNoReproducir || 'No hay canciones o artistas en la lista de exclusiÃ³n.'}</p>
             </section>
         </div>
 

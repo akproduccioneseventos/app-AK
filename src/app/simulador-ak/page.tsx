@@ -58,11 +58,11 @@ const SIMULATOR_FALLBACK_CONFIG: ArmadoRapidoConfig = {
 type EventType = 'cumpleanos' | 'cumpleanosInfantil' | 'quince' | 'boda' | 'empresarial';
 
 const EVENT_META: Record<EventType, { label: string; emoji: string }> = {
-  cumpleanos: { label: 'Cumpleaños', emoji: '🎂' },
-  cumpleanosInfantil: { label: 'Cumpleaños infantil', emoji: '🧒' },
-  quince:     { label: '15 años',   emoji: '🎀' },
-  boda:       { label: 'Boda',      emoji: '💍' },
-  empresarial:{ label: 'Evento empresarial', emoji: '🏢' },
+  cumpleanos: { label: 'CumpleaÃ±os', emoji: 'ðŸŽ‚' },
+  cumpleanosInfantil: { label: 'CumpleaÃ±os infantil', emoji: 'ðŸ§’' },
+  quince:     { label: '15 aÃ±os',   emoji: 'ðŸŽ€' },
+  boda:       { label: 'Boda',      emoji: 'ðŸ’' },
+  empresarial:{ label: 'Evento empresarial', emoji: 'ðŸ¢' },
 };
 
 interface ChatMessage {
@@ -158,7 +158,7 @@ function SimuladorAKContent() {
 
   // IA Chat States
   const [chatHistory, setChatHistory] = useState<ChatMessage[]>([
-    { role: 'assistant', text: '¡Hola! Soy Sofía, tu asistente virtual en AK Producciones 👋. Contame, ¿cuál es tu nombre completo?', key: 'welcome_1' },
+    { role: 'assistant', text: 'Â¡Hola! Soy SofÃ­a, tu asistente virtual en AK Producciones ðŸ‘‹. Contame, Â¿cuÃ¡l es tu nombre completo?', key: 'welcome_1' },
   ]);
   const [inputMessage, setInputMessage] = useState('');
   const [isAiLoading, setIsAiLoading] = useState(false);
@@ -253,7 +253,7 @@ function SimuladorAKContent() {
     return {
       entradasDisponibles: enhancedDishes.filter(d => d.type === 'Entrada').map(menuItemToServicioEmpresa),
       principalesDisponibles: enhancedDishes.filter(d => d.type === 'Plato Principal').map(menuItemToServicioEmpresa),
-      menusNinoDisponibles: enhancedDishes.filter(d => d.type === 'Menú Infantil/Adolescente' || d.type === 'Menú Infantil').map(menuItemToServicioEmpresa),
+      menusNinoDisponibles: enhancedDishes.filter(d => d.type === 'MenÃº Infantil/Adolescente' || d.type === 'MenÃº Infantil').map(menuItemToServicioEmpresa),
     };
   }, [config, availableMenus]);
 
@@ -315,7 +315,7 @@ function SimuladorAKContent() {
       ? [{
           servicio: {
             id: 'serv_salon_club_uruguay',
-            nombre: 'Salón Club Uruguay',
+            nombre: 'SalÃ³n Club Uruguay',
             tipoItem: 'Servicio' as const,
             categoria: 'Otros servicios' as const,
             precioVenta: clubUruguayCfg.precio,
@@ -379,7 +379,7 @@ function SimuladorAKContent() {
       descuentoValor: priceStats.discountPercentage,
       totalConDescuento: priceStats.totalFinal,
       timestamp: generatedAt,
-      estado: 'Pendiente Verificación',
+      estado: 'Pendiente VerificaciÃ³n',
       ajusteAnualActivo: priceStats.annualProjection.applies,
       ajusteAnualPorcentaje: priceStats.annualProjection.adjustmentPct,
       source: 'simulator_assistant',
@@ -395,7 +395,7 @@ function SimuladorAKContent() {
     }
     const availability = await checkDateAvailability(date.toISOString());
     if (availability.isOccupied) {
-      setDateWarning('⚠️ Fecha no disponible. Te sugerimos estas fechas cercanas:');
+      setDateWarning('âš ï¸ Fecha no disponible. Te sugerimos estas fechas cercanas:');
       setDateSuggestions(availability.suggestions || []);
     } else {
       setDateWarning('');
@@ -431,7 +431,7 @@ function SimuladorAKContent() {
         setIsAiLoading(false);
         const botMsgKey = `bot_err_${Date.now()}`;
         setChatHistory(prev => [...prev,
-          { role: 'assistant', text: 'Por favor, ingresá un número de teléfono móvil uruguayo de 9 dígitos (ej: 099123456).', key: botMsgKey }
+          { role: 'assistant', text: 'Por favor, ingresÃ¡ un nÃºmero de telÃ©fono mÃ³vil uruguayo de 9 dÃ­gitos (ej: 099123456).', key: botMsgKey }
         ]);
         return;
       }
@@ -447,7 +447,7 @@ function SimuladorAKContent() {
           setIsAiLoading(false);
           const botMsgKey = `bot_err_${Date.now()}`;
           setChatHistory(prev => [...prev,
-            { role: 'assistant', text: 'Por favor, elegí la fecha usando el calendario o ingresala en formato AAAA-MM-DD.', key: botMsgKey }
+            { role: 'assistant', text: 'Por favor, elegÃ­ la fecha usando el calendario o ingresala en formato AAAA-MM-DD.', key: botMsgKey }
           ]);
           return;
         }
@@ -460,17 +460,17 @@ function SimuladorAKContent() {
     } else if (currentChatStep === 'type') {
       const lower = text.toLowerCase();
       let matchedType: EventType | '' = '';
-      if (lower.includes('boda') || lower.includes('casamiento') || lower.includes('💍')) matchedType = 'boda';
-      else if (lower.includes('15') || lower.includes('quince') || lower.includes('🎀')) matchedType = 'quince';
-      else if (lower.includes('infantil') || lower.includes('nene') || lower.includes('🧒')) matchedType = 'cumpleanosInfantil';
-      else if (lower.includes('cumple') || lower.includes('🎂')) matchedType = 'cumpleanos';
-      else if (lower.includes('empresa') || lower.includes('corporativo') || lower.includes('🏢')) matchedType = 'empresarial';
+      if (lower.includes('boda') || lower.includes('casamiento') || lower.includes('ðŸ’')) matchedType = 'boda';
+      else if (lower.includes('15') || lower.includes('quince') || lower.includes('ðŸŽ€')) matchedType = 'quince';
+      else if (lower.includes('infantil') || lower.includes('nene') || lower.includes('ðŸ§’')) matchedType = 'cumpleanosInfantil';
+      else if (lower.includes('cumple') || lower.includes('ðŸŽ‚')) matchedType = 'cumpleanos';
+      else if (lower.includes('empresa') || lower.includes('corporativo') || lower.includes('ðŸ¢')) matchedType = 'empresarial';
 
       if (!matchedType) {
         setIsAiLoading(false);
         const botMsgKey = `bot_err_${Date.now()}`;
         setChatHistory(prev => [...prev,
-          { role: 'assistant', text: 'Por favor, seleccioná uno de los tipos de evento válidos.', key: botMsgKey }
+          { role: 'assistant', text: 'Por favor, seleccionÃ¡ uno de los tipos de evento vÃ¡lidos.', key: botMsgKey }
         ]);
         return;
       }
@@ -484,7 +484,7 @@ function SimuladorAKContent() {
         setIsAiLoading(false);
         const botMsgKey = `bot_err_${Date.now()}`;
         setChatHistory(prev => [...prev,
-          { role: 'assistant', text: 'Por favor, ingresá una cantidad de adultos válida mayor a 0.', key: botMsgKey }
+          { role: 'assistant', text: 'Por favor, ingresÃ¡ una cantidad de adultos vÃ¡lida mayor a 0.', key: botMsgKey }
         ]);
         return;
       }
@@ -500,7 +500,7 @@ function SimuladorAKContent() {
       changesToApply.ninosYAdolescentes = kidsVal;
       changesToApply.currentChatStep = 'hours';
     } else if (currentChatStep === 'hours') {
-      const isMore = text.toLowerCase().includes('mas') || text.toLowerCase().includes('más') || text.includes('5');
+      const isMore = text.toLowerCase().includes('mas') || text.toLowerCase().includes('mÃ¡s') || text.includes('5');
       const hours = isMore ? 5 : 3;
       setDuracionHoras(hours);
       nextStep = 'menu';
@@ -512,7 +512,7 @@ function SimuladorAKContent() {
         setIsAiLoading(false);
         const botMsgKey = `bot_err_${Date.now()}`;
         setChatHistory(prev => [...prev,
-          { role: 'assistant', text: 'Por favor, seleccioná uno de los menús disponibles.', key: botMsgKey }
+          { role: 'assistant', text: 'Por favor, seleccionÃ¡ uno de los menÃºs disponibles.', key: botMsgKey }
         ]);
         return;
       }
@@ -535,7 +535,7 @@ function SimuladorAKContent() {
         setIsAiLoading(false);
         const botMsgKey = `bot_err_${Date.now()}`;
         setChatHistory(prev => [...prev,
-          { role: 'assistant', text: 'Por favor, elegí uno de los paquetes cerrados.', key: botMsgKey }
+          { role: 'assistant', text: 'Por favor, elegÃ­ uno de los paquetes cerrados.', key: botMsgKey }
         ]);
         return;
       }
@@ -630,7 +630,7 @@ function SimuladorAKContent() {
       console.error(err);
       toast({
         title: 'Error de red',
-        description: 'Sofía tuvo un problemita de señal. Probá de nuevo.',
+        description: 'SofÃ­a tuvo un problemita de seÃ±al. ProbÃ¡ de nuevo.',
         variant: 'destructive',
       });
     } finally {
@@ -645,7 +645,7 @@ function SimuladorAKContent() {
     if (normalizedName.length < 3 || !isValidUruguayMobile(normalizedPhone)) {
       toast({
         title: 'Faltan tus datos de contacto',
-        description: 'Ingresá tu nombre y un celular uruguayo válido antes de guardar el presupuesto.',
+        description: 'IngresÃ¡ tu nombre y un celular uruguayo vÃ¡lido antes de guardar el presupuesto.',
         variant: 'destructive',
       });
       return;
@@ -679,7 +679,7 @@ function SimuladorAKContent() {
       }, {
         source: 'simulator_assistant',
         eventoTipo: eventoTipo ? EVENT_META[eventoTipo as EventType]?.label : 'Evento',
-        salonFiestas: tieneSalon === false && incluirClubUruguay ? 'Club Uruguay' : (tieneSalon ? 'Salón propio' : 'A definir'),
+        salonFiestas: tieneSalon === false && incluirClubUruguay ? 'Club Uruguay' : (tieneSalon ? 'SalÃ³n propio' : 'A definir'),
         acquisition,
       });
 
@@ -723,7 +723,7 @@ function SimuladorAKContent() {
     setGeneratedAt(null);
 
     const pkg = config?.paquetes.find(p => p.id === paqueteId);
-    const textToSend = `Quiero cambiar al paquete ${pkg?.nombre || 'básico'}`;
+    const textToSend = `Quiero cambiar al paquete ${pkg?.nombre || 'bÃ¡sico'}`;
 
     // Temporarily trigger message update
     const botMsgKey = `bot_switch_${Date.now()}`;
@@ -760,7 +760,7 @@ function SimuladorAKContent() {
       });
 
       setChatHistory(prev => [...prev, { role: 'assistant', text: res.response, key: botMsgKey }]);
-      toast({ title: 'Presupuesto actualizado', description: `Cambiado a ${pkg?.nombre} con éxito.` });
+      toast({ title: 'Presupuesto actualizado', description: `Cambiado a ${pkg?.nombre} con Ã©xito.` });
     } catch (err) {
       console.error(err);
     } finally {
@@ -772,9 +772,9 @@ function SimuladorAKContent() {
   const buildWhatsAppHref = () => {
     const pkgName = config?.paquetes.find(p => p.id === selectedPaqueteId)?.nombre || 'A medida';
     const totalEst = priceStats ? formatCurrency(priceStats.totalFinal) : '$0';
-    const text = `¡Hola AK Producciones! Estuve chateando con Sofía y armé un presupuesto para mi fiesta.
+    const text = `Â¡Hola AK Producciones! Estuve chateando con SofÃ­a y armÃ© un presupuesto para mi fiesta.
 *Cliente:* ${clienteNombre}
-*Teléfono:* ${clienteContacto}
+*TelÃ©fono:* ${clienteContacto}
 *Fecha:* ${eventoFecha ? eventoFecha.toLocaleDateString('es-UY') : 'A definir'}
 *Fiesta:* ${eventoTipo ? EVENT_META[eventoTipo]?.label : 'A definir'}
 *Invitados:* ${adultos + ninosYAdolescentes} personas
@@ -783,7 +783,7 @@ function SimuladorAKContent() {
 *Presupuesto:* #${generatedId || 'A generar'}
 ${generatedId ? `*Link:* ${window.location.origin}/presupuestos/${generatedId}/ver?cliente=1&token=${token || ''}` : ''}`;
 
-    return `https://wa.me/${empresaPhone}?text=${encodeURIComponent(text)}`;
+    return `https://wa.me/${empresaPhone?.replace(/\D/g, '') || '59898355530'}?text=${encodeURIComponent(text)}`;
   };
 
   const handleDownloadBudgetPdf = async () => {
@@ -808,13 +808,13 @@ ${generatedId ? `*Link:* ${window.location.origin}/presupuestos/${generatedId}/v
         pdf.setPage(page);
         pdf.setFontSize(8);
         pdf.setTextColor(100);
-        pdf.text(`Página ${page} de ${totalPages}`, 198, 285, { align: 'right' });
+        pdf.text(`PÃ¡gina ${page} de ${totalPages}`, 198, 285, { align: 'right' });
       }
       pdf.save(`presupuesto-ak-${generatedId}.pdf`);
     } catch (error: any) {
       toast({
         title: 'No pudimos descargar el PDF',
-        description: error.message || 'Intentá nuevamente.',
+        description: error.message || 'IntentÃ¡ nuevamente.',
         variant: 'destructive',
       });
     } finally {
@@ -836,7 +836,7 @@ ${generatedId ? `*Link:* ${window.location.origin}/presupuestos/${generatedId}/v
               <Sparkles className="w-5 h-5 text-indigo-400" />
               Asistente Inteligente AK
             </h1>
-            <p className="hidden text-xs text-slate-400 sm:block">Chateá con Sofía y armá tu presupuesto de fiesta ideal al instante</p>
+            <p className="hidden text-xs text-slate-400 sm:block">ChateÃ¡ con SofÃ­a y armÃ¡ tu presupuesto de fiesta ideal al instante</p>
           </div>
         </div>
         <div className="flex w-full items-center justify-between gap-2 sm:w-auto sm:justify-end">
@@ -922,7 +922,7 @@ ${generatedId ? `*Link:* ${window.location.origin}/presupuestos/${generatedId}/v
               </div>
               <div className="bg-zinc-800/80 border border-white/5 text-zinc-200 px-4 py-3 rounded-2xl rounded-bl-none text-xs leading-relaxed shadow-lg flex items-center gap-1.5">
                 <Loader2 className="w-3.5 h-3.5 animate-spin text-indigo-400" />
-                <span>Sofía está escribiendo</span>
+                <span>SofÃ­a estÃ¡ escribiendo</span>
                 <span className="flex gap-0.5 ml-1">
                   <span className="h-1 w-1 animate-pulse rounded-full bg-indigo-400" />
                   <span className="h-1 w-1 animate-pulse rounded-full bg-indigo-400 [animation-delay:160ms]" />
@@ -939,7 +939,7 @@ ${generatedId ? `*Link:* ${window.location.origin}/presupuestos/${generatedId}/v
               {/* DATE PICKER WIDGET */}
               {currentChatStep === 'date' && (
                 <div className="flex flex-col gap-3 p-4 bg-zinc-900/60 border border-white/10 rounded-3xl max-w-sm mt-2 shadow-xl">
-                  <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest">Elegí la fecha de tu fiesta:</p>
+                  <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest">ElegÃ­ la fecha de tu fiesta:</p>
                   <DatePickerDemo selectedDate={eventoFecha} onDateChange={handleEventoFechaChange} />
                   {dateWarning && (
                     <div className="text-[10px] text-amber-400 font-bold leading-normal">
@@ -997,7 +997,7 @@ ${generatedId ? `*Link:* ${window.location.origin}/presupuestos/${generatedId}/v
               {/* GUEST ADULTS */}
               {currentChatStep === 'guests_adults' && (
                 <div className="flex flex-col gap-3 p-4 bg-zinc-900/60 border border-white/10 rounded-3xl max-w-sm mt-2 shadow-xl">
-                  <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest">¿Cuántos adultos son?</p>
+                  <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest">Â¿CuÃ¡ntos adultos son?</p>
                   <div className="flex items-center justify-between gap-4 py-2">
                     <Button size="icon" variant="ghost" className="rounded-full border border-white/20 bg-transparent h-10 w-10 text-white hover:bg-white/10 hover:text-white" onClick={() => setAdultos(a => Math.max(10, a - 5))}>-</Button>
                     <span className="text-3xl font-black text-white">{adultos}</span>
@@ -1015,14 +1015,14 @@ ${generatedId ? `*Link:* ${window.location.origin}/presupuestos/${generatedId}/v
               {/* GUEST KIDS */}
               {currentChatStep === 'guests_kids' && (
                 <div className="flex flex-col gap-3 p-4 bg-zinc-900/60 border border-white/10 rounded-3xl max-w-sm mt-2 shadow-xl">
-                  <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest">¿Cuántos niños / adolescentes?</p>
+                  <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest">Â¿CuÃ¡ntos niÃ±os / adolescentes?</p>
                   <div className="flex items-center justify-between gap-4 py-2">
                     <Button size="icon" variant="ghost" className="rounded-full border border-white/20 bg-transparent h-10 w-10 text-white hover:bg-white/10 hover:text-white" onClick={() => setNinosYAdolescentes(k => Math.max(0, k - 5))}>-</Button>
                     <span className="text-3xl font-black text-white">{ninosYAdolescentes}</span>
                     <Button size="icon" variant="ghost" className="rounded-full border border-white/20 bg-transparent h-10 w-10 text-white hover:bg-white/10 hover:text-white" onClick={() => setNinosYAdolescentes(k => Math.min(500, k + 5))}>+</Button>
                   </div>
                   <Button
-                    onClick={() => handleSendMessage(`Son ${ninosYAdolescentes} niños y adolescentes`)}
+                    onClick={() => handleSendMessage(`Son ${ninosYAdolescentes} niÃ±os y adolescentes`)}
                     className="h-10 w-full rounded-xl bg-indigo-700 text-xs font-bold text-white hover:bg-indigo-600"
                   >
                     Confirmar Cantidad <ArrowRight className="w-4 h-4 ml-1.5" />
@@ -1037,15 +1037,15 @@ ${generatedId ? `*Link:* ${window.location.origin}/presupuestos/${generatedId}/v
                     onClick={() => handleSendMessage("Menos de 4 horas")}
                     className="flex-1 p-4 bg-zinc-900/60 hover:bg-zinc-800 border border-white/10 rounded-2xl flex flex-col items-center justify-center gap-1 transition-all text-center"
                   >
-                    <span className="text-[10px] font-black text-slate-400 uppercase tracking-widest">Corta Duración</span>
+                    <span className="text-[10px] font-black text-slate-400 uppercase tracking-widest">Corta DuraciÃ³n</span>
                     <span className="text-xs font-black text-white uppercase mt-1">Menos de 4h</span>
                   </button>
                   <button
-                    onClick={() => handleSendMessage("Más de 4 horas")}
+                    onClick={() => handleSendMessage("MÃ¡s de 4 horas")}
                     className="flex-1 p-4 bg-zinc-900/60 hover:bg-zinc-800 border border-white/10 rounded-2xl flex flex-col items-center justify-center gap-1 transition-all text-center"
                   >
                     <span className="text-[10px] font-black text-slate-400 uppercase tracking-widest">Servicio Completo</span>
-                    <span className="text-xs font-black text-white uppercase mt-1">Más de 4h</span>
+                    <span className="text-xs font-black text-white uppercase mt-1">MÃ¡s de 4h</span>
                   </button>
                 </div>
               )}
@@ -1072,7 +1072,7 @@ ${generatedId ? `*Link:* ${window.location.origin}/presupuestos/${generatedId}/v
                   ) : (
                     <div className="flex min-w-[240px] items-center gap-2 rounded-xl border border-white/10 bg-zinc-900/70 p-4 text-xs text-zinc-300">
                       {isReferenceDataLoading && <Loader2 className="h-4 w-4 animate-spin text-indigo-400" />}
-                      <span>{isReferenceDataLoading ? 'Preparando los menús disponibles...' : 'Los menús se confirman con el equipo AK.'}</span>
+                      <span>{isReferenceDataLoading ? 'Preparando los menÃºs disponibles...' : 'Los menÃºs se confirman con el equipo AK.'}</span>
                     </div>
                   )}
                 </div>
@@ -1085,14 +1085,14 @@ ${generatedId ? `*Link:* ${window.location.origin}/presupuestos/${generatedId}/v
                     onClick={() => handleSendMessage("Quiero hacerlo por paquetes cerrados")}
                     className="flex-1 p-4 bg-zinc-900/60 hover:bg-zinc-800 border border-white/10 rounded-2xl flex flex-col items-center justify-center gap-1 transition-all text-center"
                   >
-                    <span className="text-2xl">📦</span>
+                    <span className="text-2xl">ðŸ“¦</span>
                     <span className="text-[10px] font-black text-white uppercase mt-2">Por Paquetes Cerrados</span>
                   </button>
                   <button
                     onClick={() => handleSendMessage("Quiero elegir servicio a servicio")}
                     className="flex-1 p-4 bg-zinc-900/60 hover:bg-zinc-800 border border-white/10 rounded-2xl flex flex-col items-center justify-center gap-1 transition-all text-center"
                   >
-                    <span className="text-2xl">🛠️</span>
+                    <span className="text-2xl">ðŸ› ï¸</span>
                     <span className="text-[10px] font-black text-white uppercase mt-2">Servicio a Servicio</span>
                   </button>
                 </div>
@@ -1133,7 +1133,7 @@ ${generatedId ? `*Link:* ${window.location.origin}/presupuestos/${generatedId}/v
               {/* SERVICE SELECT WIDGET */}
               {currentChatStep === 'service_select' && (
                 <div className="p-4 bg-zinc-900/60 border border-white/10 rounded-3xl max-w-md mt-2 space-y-4 shadow-xl">
-                  <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest">Elegí los servicios adicionales que querés:</p>
+                  <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest">ElegÃ­ los servicios adicionales que querÃ©s:</p>
                   <div className="max-h-52 overflow-y-auto space-y-2 pr-2 scrollbar-thin">
                     {serviciosCatalogo.length > 0 ? serviciosCatalogo.map(s => {
                       const isChecked = selectedServices.includes(s.id);
@@ -1163,10 +1163,10 @@ ${generatedId ? `*Link:* ${window.location.origin}/presupuestos/${generatedId}/v
                     )}
                   </div>
                   <Button
-                    onClick={() => handleSendMessage("Confirmar selección de servicios")}
+                    onClick={() => handleSendMessage("Confirmar selecciÃ³n de servicios")}
                     className="h-10 w-full rounded-xl bg-indigo-700 text-xs font-bold uppercase tracking-widest text-white hover:bg-indigo-600"
                   >
-                    Confirmar Selección ({selectedServices.length})
+                    Confirmar SelecciÃ³n ({selectedServices.length})
                   </Button>
                 </div>
               )}
@@ -1180,14 +1180,14 @@ ${generatedId ? `*Link:* ${window.location.origin}/presupuestos/${generatedId}/v
                     <CardHeader className="text-center bg-zinc-950/40 p-6 border-b border-white/5">
                       <CompanyLogo className="brightness-0 invert opacity-80 mx-auto mb-2" />
                       <CardTitle className="text-lg font-black uppercase tracking-widest text-white">Tu Presupuesto Estimado</CardTitle>
-                      <p className="text-[10px] text-slate-400">AK Producciones — Salto, Uruguay</p>
+                      <p className="text-[10px] text-slate-400">AK Producciones â€” Salto, Uruguay</p>
                     </CardHeader>
                     <CardContent className="p-4 sm:p-6 space-y-6">
                       <div className="border border-white/5 rounded-2xl overflow-hidden bg-black/20">
                         <Table>
                           <TableHeader className="bg-white/5">
                             <TableRow className="border-white/5 hover:bg-transparent">
-                              <TableHead className="text-[9px] font-black uppercase pl-6 py-3 text-slate-300">Servicio / Categoría</TableHead>
+                              <TableHead className="text-[9px] font-black uppercase pl-6 py-3 text-slate-300">Servicio / CategorÃ­a</TableHead>
                               <TableHead className="text-center text-[9px] font-black uppercase text-slate-300">Cant.</TableHead>
                               <TableHead className="text-right pr-6 text-[9px] font-black uppercase text-slate-300">Subtotal</TableHead>
                             </TableRow>
@@ -1218,7 +1218,7 @@ ${generatedId ? `*Link:* ${window.location.origin}/presupuestos/${generatedId}/v
                         </div>
                         {priceStats.ahorroRegalos > 0 && (
                           <div className="flex justify-between items-center text-[9px] font-black text-emerald-400 uppercase tracking-wider">
-                            <span>Bonificación Regalos:</span>
+                            <span>BonificaciÃ³n Regalos:</span>
                             <span>-{formatCurrency(priceStats.ahorroRegalos)}</span>
                           </div>
                         )}
@@ -1244,7 +1244,7 @@ ${generatedId ? `*Link:* ${window.location.origin}/presupuestos/${generatedId}/v
                       {priceStats.annualProjection.applies && (
                         <section className="rounded-lg border border-white/10 bg-black/25 p-4">
                           <div className="flex flex-wrap items-center justify-between gap-2">
-                            <h4 className="text-[10px] font-black uppercase tracking-widest text-slate-200">Proyección para la fecha elegida</h4>
+                            <h4 className="text-[10px] font-black uppercase tracking-widest text-slate-200">ProyecciÃ³n para la fecha elegida</h4>
                             <span className="text-[10px] font-bold text-slate-400">Ajuste anual {priceStats.annualProjection.adjustmentPct}%</span>
                           </div>
                           <div className="mt-3 divide-y divide-white/10">
@@ -1255,15 +1255,15 @@ ${generatedId ? `*Link:* ${window.location.origin}/presupuestos/${generatedId}/v
                               </div>
                             ))}
                           </div>
-                          <p className="mt-2 text-[10px] leading-relaxed text-slate-500">El total principal conserva el precio vigente. La proyección futura es informativa y se aplica según contrato.</p>
+                          <p className="mt-2 text-[10px] leading-relaxed text-slate-500">El total principal conserva el precio vigente. La proyecciÃ³n futura es informativa y se aplica segÃºn contrato.</p>
                         </section>
                       )}
 
                       {/* RESERVATION BANNER */}
                       <div className="w-full space-y-1 rounded-lg border border-white/10 bg-zinc-950/70 p-4 text-xs text-zinc-300">
-                        <h4 className="font-black uppercase tracking-widest text-[9px] flex items-center gap-1.5"><Info className="w-3.5 h-3.5"/> Información de Contratación</h4>
-                        <p className="leading-relaxed">Con una seña de $5.000 podés solicitar la reserva de la fecha. AK confirma disponibilidad y condiciones antes de registrar el pago.</p>
-                        <p className="leading-relaxed">El presupuesto es válido por 30 días y el saldo se coordina en la propuesta contractual.</p>
+                        <h4 className="font-black uppercase tracking-widest text-[9px] flex items-center gap-1.5"><Info className="w-3.5 h-3.5"/> InformaciÃ³n de ContrataciÃ³n</h4>
+                        <p className="leading-relaxed">Con una seÃ±a de $5.000 podÃ©s solicitar la reserva de la fecha. AK confirma disponibilidad y condiciones antes de registrar el pago.</p>
+                        <p className="leading-relaxed">El presupuesto es vÃ¡lido por 30 dÃ­as y el saldo se coordina en la propuesta contractual.</p>
                       </div>
 
                       {/* ACTIONS */}
@@ -1273,7 +1273,7 @@ ${generatedId ? `*Link:* ${window.location.origin}/presupuestos/${generatedId}/v
                           className="h-11 bg-emerald-600 hover:bg-emerald-700 text-white font-bold text-[11px] sm:text-xs uppercase tracking-wide w-full rounded-xl px-2 flex items-center justify-center gap-1.5"
                         >
                           <a href={buildWhatsAppHref()} target="_blank" rel="noopener noreferrer" className="flex items-center justify-center gap-1.5 w-full h-full">
-                            <Share2 className="w-4 h-4 shrink-0"/> <span className="truncate">Coordinar Reunión</span>
+                            <Share2 className="w-4 h-4 shrink-0"/> <span className="truncate">Coordinar ReuniÃ³n</span>
                           </a>
                         </Button>
                         <Button
@@ -1326,7 +1326,7 @@ ${generatedId ? `*Link:* ${window.location.origin}/presupuestos/${generatedId}/v
               onClick={() => handleSendMessage(suggestionPill.messageToSubmit)}
               className="rounded-full border border-indigo-500/35 bg-indigo-600/20 px-4 py-1.5 text-xs font-bold tracking-wide text-indigo-100 shadow-md transition-all hover:bg-indigo-600/35"
             >
-              ✨ {suggestionPill.label}
+              âœ¨ {suggestionPill.label}
             </button>
           </div>
         )}
@@ -1339,7 +1339,7 @@ ${generatedId ? `*Link:* ${window.location.origin}/presupuestos/${generatedId}/v
             value={inputMessage}
             onChange={(e) => setInputMessage(e.target.value)}
             onKeyDown={(e) => { if (e.key === 'Enter') handleSendMessage(); }}
-            placeholder="Escribile tu respuesta o pregunta a Sofía..."
+            placeholder="Escribile tu respuesta o pregunta a SofÃ­a..."
             disabled={isAiLoading}
             className="flex-1 rounded-xl border border-white/10 bg-zinc-800/80 px-4 py-3 text-sm text-zinc-100 placeholder-zinc-400 focus:outline-none focus:ring-2 focus:ring-red-500 disabled:cursor-not-allowed disabled:opacity-40"
           />

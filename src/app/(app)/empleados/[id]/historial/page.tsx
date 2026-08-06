@@ -37,9 +37,9 @@ const formatCurrency = (value: number) =>
   new Intl.NumberFormat('es-UY', { style: 'currency', currency: 'UYU' }).format(value || 0);
 
 const formatDate = (value?: string) => {
-  if (!value) return '—';
+  if (!value) return 'â€”';
   const d = new Date(`${value}T00:00:00`);
-  return Number.isNaN(d.getTime()) ? '—' : d.toLocaleDateString('es-UY');
+  return Number.isNaN(d.getTime()) ? 'â€”' : d.toLocaleDateString('es-UY');
 };
 
 const getDateTimestamp = (value?: string) => {
@@ -100,14 +100,17 @@ export default function EmpleadoHistorialPage() {
           .map((asig) => roles.find((r) => r.id === asig.rolId)?.nombre || 'Rol desconocido')
           .filter(Boolean);
 
-        const montoBase = asignaciones.reduce((sum, asig) => sum + Number(asig.eventSalary || 0), 0);
+        const montoBase = asignaciones.reduce((sum, asig) => {
+          const asigRol = roles.find((r) => r.id === asig.rolId);
+          return sum + Number(asig.eventSalary || asigRol?.sueldoPorEvento || 0);
+        }, 0);
         const recibo = recibos.find((item) => item.fiestaId === fiesta.id);
 
         return [{
           fiestaId: fiesta.id,
           evento: fiesta.configuracion?.nombreEvento || 'Evento sin nombre',
           fechaEvento: fiesta.configuracion?.fechaEvento,
-          tipoEvento: fiesta.configuracion?.tipoCelebracion || '—',
+          tipoEvento: fiesta.configuracion?.tipoCelebracion || 'â€”',
           rol: rolNombres.join(', '),
           montoBase,
           recibo,
@@ -184,7 +187,7 @@ export default function EmpleadoHistorialPage() {
         return [...withoutCurrent, result.recibo!];
       });
       updateEditable(row.fiestaId, result.recibo);
-      toast({ title: 'Recibo guardado', description: `Se actualizó el recibo de ${row.evento}.` });
+      toast({ title: 'Recibo guardado', description: `Se actualizÃ³ el recibo de ${row.evento}.` });
     } catch (error: any) {
       toast({ title: 'Error', description: error.message || 'No se pudo guardar.', variant: 'destructive' });
     } finally {
@@ -234,7 +237,7 @@ export default function EmpleadoHistorialPage() {
         return [...withoutCurrent, saveResult.recibo!];
       });
       updateEditable(row.fiestaId, saveResult.recibo);
-      toast({ title: 'Recibo firmado subido', description: 'El archivo quedó asociado al evento.' });
+      toast({ title: 'Recibo firmado subido', description: 'El archivo quedÃ³ asociado al evento.' });
     } catch (error: any) {
       toast({ title: 'Error de subida', description: error.message || 'No se pudo subir el archivo.', variant: 'destructive' });
     } finally {
@@ -245,7 +248,7 @@ export default function EmpleadoHistorialPage() {
   const exportPrintable = () => {
     const printWindow = window.open('', '_blank', 'width=1100,height=780');
     if (!printWindow) {
-      toast({ title: 'No se pudo abrir la ventana de impresión', description: 'Habilita popups para exportar el historial.', variant: 'destructive' });
+      toast({ title: 'No se pudo abrir la ventana de impresiÃ³n', description: 'Habilita popups para exportar el historial.', variant: 'destructive' });
       return;
     }
 
@@ -268,7 +271,7 @@ export default function EmpleadoHistorialPage() {
             <td>${index + 1}</td>
             <td>${escapeHtml(row.evento)}</td>
             <td>${escapeHtml(formatDate(row.fechaEvento))}</td>
-            <td>${escapeHtml(String(row.tipoEvento || '—'))}</td>
+            <td>${escapeHtml(String(row.tipoEvento || 'â€”'))}</td>
             <td>${escapeHtml(row.rol)}</td>
             <td style="text-align:right">${escapeHtml(formatCurrency(Number(editable?.monto ?? row.montoBase)))}</td>
             <td>${escapeHtml(formatDate(editable?.fecha))}</td>
@@ -293,8 +296,8 @@ export default function EmpleadoHistorialPage() {
           </style>
         </head>
         <body>
-          <h1>AK Producciones — Historial y Recibos de Personal</h1>
-          <p><strong>Empleado:</strong> ${escapeHtml(empleado?.nombre || '—')}</p>
+          <h1>AK Producciones â€” Historial y Recibos de Personal</h1>
+          <p><strong>Empleado:</strong> ${escapeHtml(empleado?.nombre || 'â€”')}</p>
           <p><strong>Total fiestas:</strong> ${filteredRows.length}</p>
           <table>
             <thead>
@@ -328,7 +331,7 @@ export default function EmpleadoHistorialPage() {
   if (!empleado) {
     return (
       <div className="space-y-4">
-        <p className="text-destructive">No se encontró el empleado solicitado.</p>
+        <p className="text-destructive">No se encontrÃ³ el empleado solicitado.</p>
         <Button asChild variant="outline"><Link href="/empleados"><ArrowLeft className="w-4 h-4 mr-2" />Volver a Personal</Link></Button>
       </div>
     );
@@ -338,7 +341,7 @@ export default function EmpleadoHistorialPage() {
     <div className="space-y-6">
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
         <div>
-          <h1 className="text-2xl font-bold font-headline">Historial y recibos — {empleado.nombre}</h1>
+          <h1 className="text-2xl font-bold font-headline">Historial y recibos â€” {empleado.nombre}</h1>
           <p className="text-sm text-muted-foreground">Fiestas trabajadas, estados de cobro y recibos firmados por evento.</p>
         </div>
         <div className="flex gap-2">
@@ -426,7 +429,7 @@ export default function EmpleadoHistorialPage() {
                       <TableRow key={row.fiestaId}>
                         <TableCell className="font-medium">{row.evento}</TableCell>
                         <TableCell>{formatDate(row.fechaEvento)}</TableCell>
-                        <TableCell>{String(row.tipoEvento || '—')}</TableCell>
+                        <TableCell>{String(row.tipoEvento || 'â€”')}</TableCell>
                         <TableCell>{row.rol}</TableCell>
                         <TableCell className="min-w-[130px]">
                           <Input

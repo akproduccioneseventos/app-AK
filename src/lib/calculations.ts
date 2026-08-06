@@ -1,7 +1,7 @@
 import type { ItemPresupuestado } from '@/types/presupuesto';
 
 /**
- * MOTOR DE CÁLCULO UNIFICADO - PASO 1: Determinar el universo de personas para el ítem.
+ * MOTOR DE CÃLCULO UNIFICADO - PASO 1: Determinar el universo de personas para el Ã­tem.
  */
 export function getGuestCountForItem(item: { nombreServicio: string, categoriaServicio?: string, subcategoria?: string }, adultos: number, adolescentes: number, ninos: number): number {
   if (!item) return (Number(adultos) || 0) + (Number(adolescentes) || 0) + (Number(ninos) || 0);
@@ -12,25 +12,27 @@ export function getGuestCountForItem(item: { nombreServicio: string, categoriaSe
   const ninosYAdolescentes = (ninos || 0) + (adolescentes || 0);
 
   // Regla A: Servicios exclusivos para menores
-  if (cat.includes('infantil') || cat.includes('adolescente') || sub.includes('infantil') || sub.includes('adolescente') || name.includes('niño')) {
+  if (cat.includes('infantil') || cat.includes('adolescente') || cat.includes('chico') ||
+      sub.includes('infantil') || sub.includes('adolescente') || sub.includes('chico') ||
+      name.includes('niÃ±o') || name.includes('chico') || name.includes('menor') || name.includes('infantil')) {
     return ninosYAdolescentes;
   }
 
   // Regla B: Platos principales para adultos (excluyendo si dice infantil)
-  if ((cat.includes('plato principal') || sub.includes('plato principal') || name.includes('principal')) && !name.includes('niño')) {
+  if ((cat.includes('plato principal') || sub.includes('plato principal') || name.includes('principal')) && !name.includes('niÃ±o')) {
     return adultos;
   }
 
-  // Regla C: Servicios generales (Torta, Bebidas, Discoteca, Salón, etc.) -> Total de personas
+  // Regla C: Servicios generales (Torta, Bebidas, Discoteca, SalÃ³n, etc.) -> Total de personas
   return (Number(adultos) || 0) + ninosYAdolescentes;
 }
 
 /**
- * MOTOR DE CÁLCULO UNIFICADO - PASO 2: Calcular la cantidad sugerida basada en el método
+ * MOTOR DE CÃLCULO UNIFICADO - PASO 2: Calcular la cantidad sugerida basada en el mÃ©todo
  */
 export function calculateSuggestedQuantity(item: { calculationMethod?: string, invitadosPorUnidad?: number, cantidad?: number, nombreServicio: string, categoriaServicio?: string, subcategoria?: string }, adultos: number, ninos: number): number {
     const totalGuests = getGuestCountForItem(item, adultos, 0, ninos);
-  
+
     switch (item.calculationMethod) {
         case 'porPersona':
             return totalGuests;
@@ -46,7 +48,7 @@ export function calculateSuggestedQuantity(item: { calculationMethod?: string, i
 }
 
 /**
- * MOTOR DE CÁLCULO UNIFICADO - PASO 3: Calcular el importe total de la línea.
+ * MOTOR DE CÃLCULO UNIFICADO - PASO 3: Calcular el importe total de la lÃ­nea.
  */
 export function recalcularCostoItem(item: ItemPresupuestado, adultos: number, adolescentes: number, ninos: number): number {
   if (!item) return 0;
@@ -72,7 +74,7 @@ export function recalcularCostoItem(item: ItemPresupuestado, adultos: number, ad
     case 'ratio':
       const ratio = Number(item.invitadosPorUnidad);
       if (ratio > 0) {
-        // MATEMÁTICA CRÍTICA: Redondeo hacia arriba para cubrir excedentes
+        // MATEMÃTICA CRÃTICA: Redondeo hacia arriba para cubrir excedentes
         const unidadesNecesarias = Math.ceil(cantidadInvitadosTarget / ratio);
         itemTotal = unidadesNecesarias * precioAplicado;
       } else {
@@ -81,8 +83,23 @@ export function recalcularCostoItem(item: ItemPresupuestado, adultos: number, ad
       break;
     case 'tramos':
       // Para tramos usamos el total general del evento como referencia de escala
-      const tramo = item.tramosDePrecio?.find(t => totalInvitados >= t.desde && totalInvitados <= t.hasta);
-      itemTotal = tramo?.precio || 0;
+      if (item.tramosDePrecio && item.tramosDePrecio.length > 0) {
+        let tramo = item.tramosDePrecio.find(t => totalInvitados >= t.desde && totalInvitados <= t.hasta);
+        if (!tramo) {
+          const maxTramo = [...item.tramosDePrecio].sort((a, b) => b.hasta - a.hasta)[0];
+          if (totalInvitados > maxTramo.hasta) {
+            tramo = maxTramo;
+          } else {
+            const minTramo = [...item.tramosDePrecio].sort((a, b) => a.desde - b.desde)[0];
+            if (totalInvitados < minTramo.desde) {
+              tramo = minTramo;
+            }
+          }
+        }
+        itemTotal = tramo?.precio || 0;
+      } else {
+        itemTotal = 0;
+      }
       break;
     default:
       itemTotal = (Number(item.cantidad) || 1) * precioAplicado;

@@ -8,7 +8,7 @@ import { preserveFiestaSecrets } from '@/lib/fiesta/get-fiesta-raw';
 import { enforcePublicRateLimit } from '@/lib/commercial/public-rate-limit';
 import { hasPublicGuestAccess } from '@/lib/guest-portal-public-data';
 
-// ─── Core helper ────────────────────────────────────────────────────────────
+// â”€â”€â”€ Core helper â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 
 const fiestaUpdateQueues = new Map<string, Promise<void>>();
 
@@ -65,7 +65,7 @@ async function updateFiestaData(
         }))
       : await saveFiesta(updatedData);
     if (!result.success || !result.fiesta) {
-      throw new Error(result.error || 'No se pudo guardar la fiesta después de actualizar los invitados.');
+      throw new Error(result.error || 'No se pudo guardar la fiesta despuÃ©s de actualizar los invitados.');
     }
     return { success: true, updatedFiesta: result.fiesta };
   } catch (e: any) {
@@ -75,7 +75,7 @@ async function updateFiestaData(
   }
 }
 
-// ─── Guest queries ───────────────────────────────────────────────────────────
+// â”€â”€â”€ Guest queries â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 
 export async function getInvitados(fiestaId: string): Promise<Invitado[]> {
   const fiesta = await getFiestaById(fiestaId);
@@ -88,7 +88,7 @@ export async function getConfirmedRsvpCount(fiestaId: string): Promise<number> {
   return fiesta.invitados.filter(i => i.rsvp === 'Confirmado').length;
 }
 
-// ─── Guest CRUD ──────────────────────────────────────────────────────────────
+// â”€â”€â”€ Guest CRUD â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 
 export async function addInvitado(fiestaId: string, nuevoInvitadoData: Omit<Invitado, 'id'>) {
   let nuevoInvitado: Invitado | null = null;
@@ -121,7 +121,7 @@ export async function deleteInvitado(fiestaId: string, invitadoId: string) {
   });
 }
 
-// ─── RSVP ────────────────────────────────────────────────────────────────────
+// â”€â”€â”€ RSVP â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 
 /**
  * Full RSVP update from the individual guest page.
@@ -157,7 +157,7 @@ export async function updateGuestRsvp(
             ? submission.alergiasEspecificas
             : inv.alergiasEspecificas,
         cancionesDJ: submission.cancionesDJ ?? inv.cancionesDJ,
-        isCeliac: submission.dietaryRestriction === 'Celiaco' || inv.isCeliac,
+        isCeliac: submission.dietaryRestriction !== undefined ? submission.dietaryRestriction === 'Celiaco' : inv.isCeliac,
         ...(submission.mensaje !== undefined ? { mensaje: submission.mensaje } : {}),
         ...(submission.requiereAccesibilidad !== undefined ? { requiereAccesibilidad: submission.requiereAccesibilidad } : {}),
       };
@@ -205,7 +205,7 @@ export async function handleRsvpSubmission(
     );
     const confirmedKids = currentInvitados.reduce(
       (sum, inv) => sum + (
-        inv.id !== existingGuest?.id && inv.categoria === 'Niño/Adolescente'
+        inv.id !== existingGuest?.id && inv.categoria === 'NiÃ±o/Adolescente'
           ? (inv.partySize || 1)
           : 0
       ),
@@ -216,10 +216,10 @@ export async function handleRsvpSubmission(
     const limitKids = Number(data.configuracion.invitadosNinos) || 0;
 
     if (confirmedAdults + submission.adultsCount > limitAdults) {
-      throw new Error(`Cupos de ADULTOS agotados. Límite: ${limitAdults}. Contacta al organizador.`);
+      throw new Error(`Cupos de ADULTOS agotados. LÃ­mite: ${limitAdults}. Contacta al organizador.`);
     }
     if (confirmedKids + submission.kidsCount > limitKids) {
-      throw new Error(`Cupos de NIÑOS agotados. Límite: ${limitKids}. Contacta al organizador.`);
+      throw new Error(`Cupos de NIÃ‘OS agotados. LÃ­mite: ${limitKids}. Contacta al organizador.`);
     }
 
     const combinedNotes = [
@@ -230,7 +230,7 @@ export async function handleRsvpSubmission(
       .join('\n---\n');
 
     const mainCategory: CategoriaInvitado =
-      submission.adultsCount >= submission.kidsCount ? 'Adulto' : 'Niño/Adolescente';
+      submission.adultsCount >= submission.kidsCount ? 'Adulto' : 'NiÃ±o/Adolescente';
 
     if (invitadoExistenteIndex > -1) {
       updatedInvitado = {
@@ -264,7 +264,7 @@ export async function handleRsvpSubmission(
   return { ...result, invitado: updatedInvitado };
 }
 
-// ─── Personalized experience ─────────────────────────────────────────────────
+// â”€â”€â”€ Personalized experience â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 
 /**
  * Update the guest's personalized experience fields:
@@ -284,7 +284,7 @@ export async function updateGuestExperience(
   return { success: result.success, error: result.error };
 }
 
-// ─── Restrictions & companions ────────────────────────────────────────────────
+// â”€â”€â”€ Restrictions & companions â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 
 /**
  * Update only the guest's dietary restrictions and companion information
@@ -300,16 +300,21 @@ export async function updateGuestDetails(
     partySize?: number;
     cancionesDJ?: string[];
   }
+    isCeliac?: boolean;
+  }
 ): Promise<{ success: boolean; invitado?: Invitado; error?: string }> {
   let updatedInvitado: Invitado | undefined;
   const result = await updateFiestaData(fiestaId, data => {
     const invitados = (data.invitados || []).map(inv => {
       if (inv.id !== invitadoId) return inv;
-      updatedInvitado = {
-        ...inv,
-        ...details,
-        isCeliac: details.dietaryRestriction === 'Celiaco' || inv.isCeliac,
-      };
+        const nextDietaryRestriction = details.dietaryRestriction ?? inv.dietaryRestriction;
+        const isCeliacExplicit = details.isCeliac !== undefined ? details.isCeliac : inv.isCeliac;
+
+        updatedInvitado = {
+          ...inv,
+          ...details,
+          isCeliac: nextDietaryRestriction === 'Celiaco' || (isCeliacExplicit && nextDietaryRestriction === undefined),
+        };
       return updatedInvitado;
     });
     return { ...data, invitados };
@@ -317,7 +322,7 @@ export async function updateGuestDetails(
   return { ...result, invitado: updatedInvitado };
 }
 
-// ─── Check-in ────────────────────────────────────────────────────────────────
+// â”€â”€â”€ Check-in â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 
 export async function checkInGuest(
   fiestaId: string,
@@ -346,7 +351,7 @@ export async function checkInGuest(
   return { ...result, invitado: invitadoActualizado };
 }
 
-// ─── Public RSVP (invitation page) ───────────────────────────────────────────
+// â”€â”€â”€ Public RSVP (invitation page) â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 
 export async function submitPublicRsvp(
   fiestaId: string,
@@ -444,13 +449,13 @@ export async function submitPublicRsvp(
   return { ...result, invitado: savedInvitado };
 }
 
-// ─── Guest CTA click tracking ──────────────────────────────────────────────
+// â”€â”€â”€ Guest CTA click tracking â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 
 type GuestCtaStat = 'clickedWhatsapp' | 'clickedInstagram' | 'clickedLanding' | 'clickedSimulator';
 
 /**
  * Records a CTA click in the guest's guestExperienceStats.
- * Called fire-and-forget from the client portal — errors are swallowed on the caller side.
+ * Called fire-and-forget from the client portal â€” errors are swallowed on the caller side.
  */
 export async function trackGuestCtaClick(
   fiestaId: string,

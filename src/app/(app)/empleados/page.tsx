@@ -118,20 +118,20 @@ export default function EmpleadosPage() {
 
   const openWhatsApp = (empleado: Empleado) => {
     const phone = empleado.telefono ? sanitizePhone(empleado.telefono) : '';
-    const message = `¡Hola ${empleado.nombre}! Te contactamos desde AK Producciones.`;
+    const message = `Â¡Hola ${empleado.nombre}! Te contactamos desde AK Producciones.`;
     setWhatsAppDialog({ open: true, empleado, phone, message });
   };
 
   const sendWhatsApp = () => {
     const phone = sanitizePhone(whatsAppDialog.phone);
     if (!phone) {
-      toast({ title: 'Teléfono requerido', description: 'Ingresá el número de WhatsApp del empleado.', variant: 'destructive' });
+      toast({ title: 'TelÃ©fono requerido', description: 'IngresÃ¡ el nÃºmero de WhatsApp del empleado.', variant: 'destructive' });
       return;
     }
     const url = `https://wa.me/${phone}?text=${encodeURIComponent(whatsAppDialog.message)}`;
     window.open(url, '_blank');
     setWhatsAppDialog(prev => ({ ...prev, open: false }));
-    toast({ title: '✅ WhatsApp abierto', description: `Se abrió WhatsApp para ${whatsAppDialog.empleado?.nombre}.` });
+    toast({ title: 'âœ… WhatsApp abierto', description: `Se abriÃ³ WhatsApp para ${whatsAppDialog.empleado?.nombre}.` });
   };
 
   const openPartiesReport = async (empleado: Empleado) => {
@@ -157,7 +157,7 @@ export default function EmpleadosPage() {
     if (!empleado) return;
     const phone = sanitizePhone(summaryPhone);
     if (!phone) {
-      toast({ title: 'Teléfono requerido', description: 'Ingresá el número de WhatsApp del empleado.', variant: 'destructive' });
+      toast({ title: 'TelÃ©fono requerido', description: 'IngresÃ¡ el nÃºmero de WhatsApp del empleado.', variant: 'destructive' });
       return;
     }
 
@@ -169,17 +169,17 @@ export default function EmpleadosPage() {
         .filter(p => p.empleadoId === empleado.id)
         .map(p => {
           const rol = roles.find(r => r.id === p.rolId);
-          return `  • ${rol?.nombre || 'Rol desconocido'} — $${p.eventSalary?.toLocaleString('es-UY') || '0'}`;
+          return `  â€¢ ${rol?.nombre || 'Rol desconocido'} â€” $${(p.eventSalary || rol?.sueldoPorEvento || 0).toLocaleString('es-UY')}`;
         }).join('\n');
-      return `${i + 1}. *${cfg.nombreEvento || 'Evento sin nombre'}*\n   📅 ${fecha}\n   📍 ${cfg.nombreLugar || 'Lugar a confirmar'}${asignaciones ? '\n' + asignaciones : ''}`;
+      return `${i + 1}. *${cfg.nombreEvento || 'Evento sin nombre'}*\n   ðŸ“… ${fecha}\n   ðŸ“ ${cfg.nombreLugar || 'Lugar a confirmar'}${asignaciones ? '\n' + asignaciones : ''}`;
     });
 
-    const message = `¡Hola ${empleado.nombre}! 👋\n\nAcá tenés el resumen de tus próximos eventos confirmados con AK Producciones:\n\n${lines.join('\n\n') || 'Sin eventos próximos registrados.'}\n\n¡Cualquier duda, avisanos! 🎉`;
+    const message = `Â¡Hola ${empleado.nombre}! ðŸ‘‹\n\nAcÃ¡ tenÃ©s el resumen de tus prÃ³ximos eventos confirmados con AK Producciones:\n\n${lines.join('\n\n') || 'Sin eventos prÃ³ximos registrados.'}\n\nÂ¡Cualquier duda, avisanos! ðŸŽ‰`;
 
     const url = `https://wa.me/${phone}?text=${encodeURIComponent(message)}`;
     window.open(url, '_blank');
     setPartiesDialog(prev => ({ ...prev, open: false }));
-    toast({ title: '✅ Resumen enviado', description: `Se abrió WhatsApp para enviar el resumen a ${empleado.nombre}.` });
+    toast({ title: 'âœ… Resumen enviado', description: `Se abriÃ³ WhatsApp para enviar el resumen a ${empleado.nombre}.` });
   };
 
   const getPartiesRows = (fiestas: FiestaEnPlanificacion[], empleadoId?: string) => {
@@ -205,7 +205,7 @@ export default function EmpleadosPage() {
           fecha: formatEventDate(cfg.fechaEvento),
           lugar: cfg.nombreLugar || 'Lugar a confirmar',
           rol: rol?.nombre || 'Rol desconocido',
-          monto: asig.eventSalary || 0,
+          monto: asig.eventSalary || rol?.sueldoPorEvento || 0,
         };
       });
     });
@@ -216,10 +216,10 @@ export default function EmpleadosPage() {
     if (!empleado) return '';
     const rows = getPartiesRows(fiestas, empleado.id);
     const total = rows.reduce((sum, row) => sum + row.monto, 0);
-    const lines = rows.map((row, i) => `${i + 1}. ${row.fecha} — ${row.evento} (${row.rol}) ${new Intl.NumberFormat('es-UY', { style: 'currency', currency: 'UYU' }).format(row.monto)}`);
+    const lines = rows.map((row, i) => `${i + 1}. ${row.fecha} â€” ${row.evento} (${row.rol}) ${new Intl.NumberFormat('es-UY', { style: 'currency', currency: 'UYU' }).format(row.monto)}`);
     return [
       `Empleado: ${empleado.nombre}`,
-      `Cédula: ${empleado.cedula || '—'}`,
+      `CÃ©dula: ${empleado.cedula || 'â€”'}`,
       '',
       ...lines,
       '',
@@ -235,10 +235,10 @@ export default function EmpleadosPage() {
     emailValidator.type = 'email';
     emailValidator.value = email;
     if (!email || !emailValidator.checkValidity()) {
-      toast({ title: 'Email inválido', description: 'Ingresá un email válido para enviar el historial.', variant: 'destructive' });
+      toast({ title: 'Email invÃ¡lido', description: 'IngresÃ¡ un email vÃ¡lido para enviar el historial.', variant: 'destructive' });
       return;
     }
-    const subject = `Historial de eventos — ${empleado.nombre}`;
+    const subject = `Historial de eventos â€” ${empleado.nombre}`;
     const body = buildPartiesSummaryText();
     window.location.href = `mailto:${email}?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`;
   };
@@ -259,7 +259,7 @@ export default function EmpleadosPage() {
 
     const printWindow = window.open('', '_blank', 'width=900,height=700');
     if (!printWindow) {
-      toast({ title: 'No se pudo abrir la ventana de impresión', variant: 'destructive' });
+      toast({ title: 'No se pudo abrir la ventana de impresiÃ³n', variant: 'destructive' });
       return;
     }
 
@@ -280,7 +280,7 @@ export default function EmpleadosPage() {
     printWindow.document.write(`
       <html>
         <head>
-          <title>Historial de eventos — ${escapeHtml(empleado.nombre)}</title>
+          <title>Historial de eventos â€” ${escapeHtml(empleado.nombre)}</title>
           <style>
             body { font-family: Arial, sans-serif; color: #111; padding: 24px; }
             .header { display: flex; align-items: center; justify-content: space-between; border-bottom: 2px solid #2563eb; padding-bottom: 12px; margin-bottom: 20px; }
@@ -300,7 +300,7 @@ export default function EmpleadosPage() {
             </div>
           </div>
           <p><strong>Empleado:</strong> ${escapeHtml(empleado.nombre)}</p>
-          <p><strong>Cédula:</strong> ${escapeHtml(empleado.cedula || '—')}</p>
+          <p><strong>CÃ©dula:</strong> ${escapeHtml(empleado.cedula || 'â€”')}</p>
           <table>
             <thead>
               <tr>
@@ -344,7 +344,7 @@ export default function EmpleadosPage() {
         <div className="flex items-center gap-3">
             <Users className="w-8 h-8 text-primary" />
             <h1 className="text-3xl font-bold tracking-tight font-headline">
-                Gestión de Personal
+                GestiÃ³n de Personal
             </h1>
         </div>
         <div className="flex gap-2 flex-wrap">
@@ -355,7 +355,7 @@ export default function EmpleadosPage() {
                 </Link></Button>
             <Button asChild><Link href="/empleados/nuevo">
                 <UserPlus className="w-5 h-5 mr-2" />
-                Añadir Empleado
+                AÃ±adir Empleado
               </Link></Button>
             <Button asChild variant="outline"><Link href="/empresa"><ArrowLeft className="w-4 h-4 mr-2"/>Volver a Empresa</Link></Button>
         </div>
@@ -364,7 +364,7 @@ export default function EmpleadosPage() {
       <Card className="shadow-lg">
         <CardHeader>
           <CardTitle className="font-headline">Listado de Empleados ({empleados.length})</CardTitle>
-          <CardDescription>Consulta y gestiona la información de tu personal. Accede al historial de fiestas y recibos firmados de cada empleado desde la tabla.</CardDescription>
+          <CardDescription>Consulta y gestiona la informaciÃ³n de tu personal. Accede al historial de fiestas y recibos firmados de cada empleado desde la tabla.</CardDescription>
         </CardHeader>
         <CardContent>
           {isLoading ? (
@@ -384,8 +384,8 @@ export default function EmpleadosPage() {
                 <TableHeader>
                   <TableRow>
                     <TableHead>Nombre</TableHead>
-                    <TableHead>Cédula</TableHead>
-                    <TableHead>Teléfono</TableHead>
+                    <TableHead>CÃ©dula</TableHead>
+                    <TableHead>TelÃ©fono</TableHead>
                     <TableHead>Roles Asignados</TableHead>
                     <TableHead className="text-right">Acciones</TableHead>
                   </TableRow>
@@ -406,7 +406,7 @@ export default function EmpleadosPage() {
                           {empleado.nombre}
                         </div>
                       </TableCell>
-                      <TableCell className="min-w-[120px]">{empleado.cedula || '—'}</TableCell>
+                      <TableCell className="min-w-[120px]">{empleado.cedula || 'â€”'}</TableCell>
                       <TableCell className="min-w-[130px]">
                         {empleado.telefono ? (
                           <span className="flex items-center gap-1 text-sm">
@@ -414,7 +414,7 @@ export default function EmpleadosPage() {
                             {empleado.telefono}
                           </span>
                         ) : (
-                          <span className="text-xs text-muted-foreground">Sin teléfono</span>
+                          <span className="text-xs text-muted-foreground">Sin telÃ©fono</span>
                         )}
                       </TableCell>
                       <TableCell className="min-w-[150px]">
@@ -464,16 +464,16 @@ export default function EmpleadosPage() {
                             </AlertDialogTrigger>
                             <AlertDialogContent>
                               <AlertDialogHeader>
-                                <AlertDialogTitle>¿Confirmas la eliminación?</AlertDialogTitle>
+                                <AlertDialogTitle>Â¿Confirmas la eliminaciÃ³n?</AlertDialogTitle>
                                 <AlertDialogDescription>
-                                  Esta acción no se puede deshacer. El empleado "{empleado.nombre}" será eliminado permanentemente.
+                                  Esta acciÃ³n no se puede deshacer. El empleado "{empleado.nombre}" serÃ¡ eliminado permanentemente.
                                 </AlertDialogDescription>
                               </AlertDialogHeader>
                               <AlertDialogFooter>
                                 <AlertDialogCancel disabled={!!deletingId}>Cancelar</AlertDialogCancel>
                                 <AlertDialogAction onClick={() => handleDelete(empleado.id, empleado.nombre)} disabled={!!deletingId} className="bg-destructive hover:bg-destructive/90">
                                   {deletingId === empleado.id ? <Loader2 className="w-4 h-4 mr-2 animate-spin" /> : null}
-                                  Sí, eliminar
+                                  SÃ­, eliminar
                                 </AlertDialogAction>
                               </AlertDialogFooter>
                             </AlertDialogContent>
@@ -488,10 +488,10 @@ export default function EmpleadosPage() {
           ) : (
             <div className="py-10 text-center">
               <Users className="w-16 h-16 mx-auto text-muted-foreground/50 mb-4" />
-              <p className="text-muted-foreground text-lg">No tenés empleados registrados todavía.</p>
+              <p className="text-muted-foreground text-lg">No tenÃ©s empleados registrados todavÃ­a.</p>
               <Button asChild className="mt-6"><Link href="/empleados/nuevo">
                   <UserPlus className="w-5 h-5 mr-2" />
-                  Añadir Primer Empleado
+                  AÃ±adir Primer Empleado
                 </Link></Button>
             </div>
           )}
@@ -504,19 +504,19 @@ export default function EmpleadosPage() {
           <DialogHeader>
             <DialogTitle className="flex items-center gap-2">
               <MessageCircle className="w-5 h-5 text-green-600" />
-              Enviar mensaje por WhatsApp — {whatsAppDialog.empleado?.nombre}
+              Enviar mensaje por WhatsApp â€” {whatsAppDialog.empleado?.nombre}
             </DialogTitle>
           </DialogHeader>
           <div className="space-y-4 py-2">
             <div className="space-y-1">
-              <Label htmlFor="wa-phone">Número de WhatsApp</Label>
+              <Label htmlFor="wa-phone">NÃºmero de WhatsApp</Label>
               <Input
                 id="wa-phone"
-                placeholder="Ej: 59899123456 (con código de país)"
+                placeholder="Ej: 59899123456 (con cÃ³digo de paÃ­s)"
                 value={whatsAppDialog.phone}
                 onChange={e => setWhatsAppDialog(prev => ({ ...prev, phone: e.target.value }))}
               />
-              <p className="text-xs text-muted-foreground">Incluí el código de país (ej: 598 para Uruguay).</p>
+              <p className="text-xs text-muted-foreground">IncluÃ­ el cÃ³digo de paÃ­s (ej: 598 para Uruguay).</p>
             </div>
             <div className="space-y-1">
               <Label htmlFor="wa-message">Mensaje</Label>
@@ -546,7 +546,7 @@ export default function EmpleadosPage() {
           <DialogHeader>
             <DialogTitle className="flex items-center gap-2">
               <CalendarDays className="w-5 h-5 text-blue-600" />
-              Fiestas asignadas — {partiesDialog.empleado?.nombre}
+              Fiestas asignadas â€” {partiesDialog.empleado?.nombre}
             </DialogTitle>
           </DialogHeader>
           <div className="space-y-4 py-2 max-h-96 overflow-y-auto">
@@ -623,7 +623,7 @@ export default function EmpleadosPage() {
                   <p className="text-sm font-medium">Enviar resumen por WhatsApp</p>
                   <div className="flex gap-2">
                     <Input
-                      placeholder="Ej: 59899123456 (con código de país)"
+                      placeholder="Ej: 59899123456 (con cÃ³digo de paÃ­s)"
                       value={partiesDialog.summaryPhone}
                       onChange={e => setPartiesDialog(prev => ({ ...prev, summaryPhone: e.target.value }))}
                       className="flex-1"

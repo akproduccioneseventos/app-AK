@@ -11,15 +11,15 @@ import {
 const cumpleanosData: EventCatalogData = {
   eventType: 'cumpleanos',
   slug: 'cumpleanos',
-  name: 'Cumpleaños',
+  name: 'CumpleaÃ±os',
   hero: {
-    headline: 'Cumpleaños que dejan huella',
+    headline: 'CumpleaÃ±os que dejan huella',
     subheadline:
-      'Desde los primeros añitos hasta el cumple de 100, organizamos celebraciones únicas y llenas de alegría para cada etapa de la vida.',
+      'Desde los primeros aÃ±itos hasta el cumple de 100, organizamos celebraciones Ãºnicas y llenas de alegrÃ­a para cada etapa de la vida.',
     gradientClasses: 'from-sky-50 via-blue-50 to-cyan-50',
     accentColor: 'sky',
-    emoji: '🎂',
-    ctaLabel: '¡Planificar mi cumpleaños!',
+    emoji: 'ðŸŽ‚',
+    ctaLabel: 'Â¡Planificar mi cumpleaÃ±os!',
   },
   services: sharedServices.map((s) =>
     s.id === 'basico'
@@ -27,7 +27,7 @@ const cumpleanosData: EventCatalogData = {
           ...s,
           included: [
             ...s.included,
-            'Temática a elección',
+            'TemÃ¡tica a elecciÃ³n',
             'Globos personalizados',
           ],
         }
@@ -36,54 +36,54 @@ const cumpleanosData: EventCatalogData = {
   testimonials: [
     {
       id: 't1',
-      authorName: 'Familia Pérez',
+      authorName: 'Familia PÃ©rez',
       source: 'instagram',
-      text: '¡El cumple de Valentina fue una maravilla! Globos, decoración, torta y todo a juego. El equipo de AK es increíble. 🎂🎈',
+      text: 'Â¡El cumple de Valentina fue una maravilla! Globos, decoraciÃ³n, torta y todo a juego. El equipo de AK es increÃ­ble. ðŸŽ‚ðŸŽˆ',
       date: 'Agosto 2024',
     },
     {
       id: 't2',
-      authorName: 'José M.',
+      authorName: 'JosÃ© M.',
       source: 'whatsapp',
-      text: 'Organizamos el cumple de 40 de mi esposa y quedó espectacular. Todos los invitados me preguntaron quién fue el organizador. ¡Mil gracias!',
+      text: 'Organizamos el cumple de 40 de mi esposa y quedÃ³ espectacular. Todos los invitados me preguntaron quiÃ©n fue el organizador. Â¡Mil gracias!',
       date: 'Abril 2024',
     },
     {
       id: 't3',
       authorName: 'Andrea L.',
       source: 'google',
-      text: 'Tercer año seguido contratando a AK para el cumpleaños de mis hijos. Cada año lo superan. Confiabilidad y creatividad de primera.',
+      text: 'Tercer aÃ±o seguido contratando a AK para el cumpleaÃ±os de mis hijos. Cada aÃ±o lo superan. Confiabilidad y creatividad de primera.',
       date: 'Julio 2023',
     },
   ],
   promotion: {
     ...sharedPromotion,
-    sectionTitle: '🎁 Regalos incluidos en tus paquetes de cumpleaños',
+    sectionTitle: 'ðŸŽ Regalos incluidos en tus paquetes de cumpleaÃ±os',
     gifts: [
       ...sharedPromotion.gifts,
       {
         id: 'mesa-dulces',
-        icon: '🍭',
-        title: 'Mesa de dulces temática',
-        description: 'Una mesa de candy bar decorada a juego con la temática del cumpleaños.',
+        icon: 'ðŸ­',
+        title: 'Mesa de dulces temÃ¡tica',
+        description: 'Una mesa de candy bar decorada a juego con la temÃ¡tica del cumpleaÃ±os.',
       },
     ],
   },
   faqs: sharedFAQs,
   paymentMethods: sharedPaymentMethods,
   gallery: [
-    { id: 'g1', src: '/images/events/cumpleanos/decoracion.jpg', alt: 'Decoración temática', size: 'wide' },
-    { id: 'g2', src: '/images/events/cumpleanos/torta.jpg', alt: 'Torta de cumpleaños' },
-    { id: 'g3', src: '/images/events/cumpleanos/globos.jpg', alt: 'Globos personalizados' },
-    { id: 'g4', src: '/images/events/cumpleanos/mesa-dulces.jpg', alt: 'Mesa de dulces' },
-    { id: 'g5', src: '/images/events/cumpleanos/fiesta.jpg', alt: 'Fiesta de cumpleaños', size: 'wide' },
-    { id: 'g6', src: '/images/events/cumpleanos/ninos.jpg', alt: 'Festejado feliz' },
+    { id: 'g1', src: '/media/salon-discoteca-ak-01.jpeg', alt: 'DecoraciÃ³n temÃ¡tica', size: 'wide' },
+    { id: 'g2', src: '/media/salon-discoteca-ak-01.jpeg', alt: 'Torta de cumpleaÃ±os' },
+    { id: 'g3', src: '/media/salon-discoteca-ak-01.jpeg', alt: 'Globos personalizados' },
+    { id: 'g4', src: '/media/salon-discoteca-ak-01.jpeg', alt: 'Mesa de dulces' },
+    { id: 'g5', src: '/media/salon-discoteca-ak-01.jpeg', alt: 'Fiesta de cumpleaÃ±os', size: 'wide' },
+    { id: 'g6', src: '/media/salon-discoteca-ak-01.jpeg', alt: 'Festejado feliz' },
   ],
   whyUs: sharedWhyUs,
   process: sharedProcess,
   whatsappNumber: '59899123456',
   whatsappMessage:
-    '¡Hola AK Producciones! Quiero organizar un CUMPLEAÑOS. Me gustaría conocer sus paquetes.',
+    'Â¡Hola AK Producciones! Quiero organizar un CUMPLEAÃ‘OS. Me gustarÃ­a conocer sus paquetes.',
 };
 
 export default cumpleanosData;

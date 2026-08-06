@@ -41,23 +41,24 @@ import type { CatalogoFoto } from '@/types/catalogo';
  */
 const TIPO_FIESTA_POR_SLUG: Record<string, string> = {
   bodas: 'Casamiento',
-  'xv-anos': 'XV Años',
-  cumpleanos: 'Cumpleaños Adulto',
+  'xv-anos': 'XV AÃ±os',
+  cumpleanos: 'CumpleaÃ±os Adulto',
   corporativos: 'Corporativo',
   aniversarios: 'Aniversario',
+  fiestas: 'Otro',
 };
 import type { CatalogoSettings } from '@/types/contenido-publico';
 import { DEFAULT_CATALOGO_PRESENTACION_TEXT, DEFAULT_CATALOGO_POR_QUE_TEXT } from '@/lib/public-content-defaults';
 import { AK_WHATSAPP_NUMBER } from '@/lib/public-contact';
 
-// ─── Session storage keys (must match presupuesto flow) ──────────────────────
+// â”€â”€â”€ Session storage keys (must match presupuesto flow) â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 const PRESUPUESTO_SESSION_KEY = 'presupuestoEnProgreso_v3';
 
-// ─── Default values for budget pre-population ────────────────────────────────
+// â”€â”€â”€ Default values for budget pre-population â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 /** Default guest count to pre-fill in the budget form; user adjusts in Paso 1 */
 const DEFAULT_GUEST_COUNT = 50;
 
-// ─── Slide variants for framer-motion ────────────────────────────────────────
+// â”€â”€â”€ Slide variants for framer-motion â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 const slideVariants = {
   enter: (dir: number) => ({ x: dir > 0 ? '60%' : '-60%', opacity: 0 }),
   center: { x: 0, opacity: 1 },
@@ -65,7 +66,7 @@ const slideVariants = {
 };
 const slideTransition = { duration: 0.35, ease: 'easeInOut' as const };
 
-// ─── Accent color helpers ─────────────────────────────────────────────────────
+// â”€â”€â”€ Accent color helpers â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 const ACCENT_MAP: Record<string, { gradient: string; text: string; bg: string; border: string }> = {
   rose:    { gradient: 'from-rose-500 to-pink-600',    text: 'text-rose-600',    bg: 'bg-rose-50',    border: 'border-rose-200' },
   purple:  { gradient: 'from-purple-500 to-fuchsia-600', text: 'text-purple-600', bg: 'bg-purple-50', border: 'border-purple-200' },
@@ -83,13 +84,14 @@ function getSafeImageUrl(url: string | undefined): string | null {
   return /^https?:\/\//i.test(url) || url.startsWith('/') ? url : null;
 }
 
-// ─── Slide IDs ────────────────────────────────────────────────────────────────
+// â”€â”€â”€ Slide IDs â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 type SlideId =
   | 'portada'
   | 'presentacion'
   | 'por-que-elegirnos'
   | 'proceso'
   | 'servicios'
+  | 'galeria'
   | 'regalos'
   | 'testimonios'
   | 'formas-de-pago'
@@ -101,6 +103,7 @@ const SLIDE_ORDER: SlideId[] = [
   'por-que-elegirnos',
   'proceso',
   'servicios',
+  'galeria',
   'regalos',
   'testimonios',
   'formas-de-pago',
@@ -109,17 +112,18 @@ const SLIDE_ORDER: SlideId[] = [
 
 const SLIDE_LABELS: Record<SlideId, string> = {
   'portada':          'Portada',
-  'presentacion':     'Presentación',
-  'por-que-elegirnos':'Por qué elegirnos',
+  'presentacion':     'PresentaciÃ³n',
+  'por-que-elegirnos':'Por quÃ© elegirnos',
   'proceso':          'El proceso',
   'servicios':        'Servicios',
+  'galeria':          'GalerÃ­a',
   'regalos':          'Regalos incluidos',
   'testimonios':      'Testimonios',
   'formas-de-pago':   'Formas de pago',
   'cierre':           'Resumen',
 };
 
-// ─── Slide Components ─────────────────────────────────────────────────────────
+// â”€â”€â”€ Slide Components â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 
 function PortadaSlide({
   catalog,
@@ -198,16 +202,16 @@ function PortadaSlide({
 function PresentacionSlide({ catalog, textoPresentacion }: { catalog: EventCatalogData; textoPresentacion: string }) {
   const accent = getAccent(catalog.hero.accentColor);
   const stats = [
-    { icon: Award, label: 'Años de experiencia', value: '+10' },
+    { icon: Award, label: 'AÃ±os de experiencia', value: '+10' },
     { icon: Heart, label: 'Eventos realizados', value: '+500' },
     { icon: Users, label: 'Familias felices', value: '+500' },
   ];
   return (
     <div className="max-w-4xl mx-auto py-6">
       <div className="text-center mb-8">
-        <span className={`text-sm font-bold uppercase tracking-widest ${accent.text}`}>Quiénes somos</span>
+        <span className={`text-sm font-bold uppercase tracking-widest ${accent.text}`}>QuiÃ©nes somos</span>
         <h2 className="text-3xl md:text-4xl font-black text-slate-800 mt-1">AK Producciones</h2>
-        <p className="text-slate-500 mt-2">Salto, Uruguay · Producción integral de eventos</p>
+        <p className="text-slate-500 mt-2">Salto, Uruguay Â· ProducciÃ³n integral de eventos</p>
       </div>
 
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
@@ -243,7 +247,7 @@ function PorQueElegernosSlide({ catalog, textoPorQueElegirnos }: { catalog: Even
     <div className="max-w-4xl mx-auto py-6">
       <div className="text-center mb-8">
         <span className={`text-sm font-bold uppercase tracking-widest ${accent.text}`}>Nuestros diferenciales</span>
-        <h2 className="text-3xl md:text-4xl font-black text-slate-800 mt-1">Por qué elegirnos</h2>
+        <h2 className="text-3xl md:text-4xl font-black text-slate-800 mt-1">Por quÃ© elegirnos</h2>
         <p className="text-slate-500 mt-2">{textoPorQueElegirnos}</p>
       </div>
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
@@ -324,7 +328,7 @@ function ServiciosSlide({
       <div className="text-center mb-8">
         <span className={`text-sm font-bold uppercase tracking-widest ${accent.text}`}>Lo que ofrecemos</span>
         <h2 className="text-3xl md:text-4xl font-black text-slate-800 mt-1">Nuestros servicios</h2>
-        <p className="text-slate-500 mt-2 text-sm">Seleccioná el paquete que mejor se adapta a tu evento</p>
+        <p className="text-slate-500 mt-2 text-sm">SeleccionÃ¡ el paquete que mejor se adapta a tu evento</p>
       </div>
       <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
         {catalog.services.map((service, idx) => {
@@ -348,7 +352,7 @@ function ServiciosSlide({
             >
               {isHighlighted && !isSelected && (
                 <div className={`absolute -top-3 left-1/2 -translate-x-1/2 px-3 py-1 rounded-full text-xs font-bold text-white bg-gradient-to-r ${accent.gradient}`}>
-                  ⭐ Más popular
+                  â­ MÃ¡s popular
                 </div>
               )}
               {isSelected && (
@@ -385,11 +389,37 @@ function ServiciosSlide({
                   ? 'bg-white/20 text-white'
                   : `${accent.bg} ${accent.text}`,
               )}>
-                {isSelected ? '✓ Seleccionado' : 'Seleccionar este paquete'}
+                {isSelected ? 'âœ“ Seleccionado' : 'Seleccionar este paquete'}
               </div>
             </motion.div>
           );
         })}
+      </div>
+    </div>
+  );
+}
+
+function GaleriaSlide({ catalog }: { catalog: EventCatalogData }) {
+  const accent = getAccent(catalog.hero.accentColor);
+  return (
+    <div className="max-w-5xl mx-auto py-6">
+      <div className="text-center mb-8">
+        <span className={`text-sm font-bold uppercase tracking-widest ${accent.text}`}>Momentos Ãºnicos</span>
+        <h2 className="text-3xl md:text-4xl font-black text-slate-800 mt-1">GalerÃ­a de fotos</h2>
+      </div>
+      <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4">
+        {catalog.gallery.map((img) => (
+          <div key={img.id} className="relative overflow-hidden rounded-2xl aspect-[4/3] group shadow-sm border border-slate-100 bg-slate-100">
+            {/* eslint-disable-next-line @next/next/no-img-element */}
+            <img src={getSafeImageUrl(img.src) || ''} alt={img.alt} className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110" loading="lazy" />
+            <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex items-end p-4">
+              <span className="text-white font-bold text-sm drop-shadow-md">{img.alt}</span>
+            </div>
+          </div>
+        ))}
+        {catalog.gallery.length === 0 && (
+          <div className="col-span-full py-12 text-center text-slate-400">No hay fotos para mostrar en este momento.</div>
+        )}
       </div>
     </div>
   );
@@ -430,15 +460,15 @@ function RegalosSlide({ catalog }: { catalog: EventCatalogData }) {
 function TestimoniosSlide({ catalog }: { catalog: EventCatalogData }) {
   const accent = getAccent(catalog.hero.accentColor);
   const SOURCE_ICON: Record<string, string> = {
-    instagram: '📸',
-    whatsapp:  '💬',
-    google:    '⭐',
-    text:      '💭',
+    instagram: 'ðŸ“¸',
+    whatsapp:  'ðŸ’¬',
+    google:    'â­',
+    text:      'ðŸ’­',
   };
   return (
     <div className="max-w-4xl mx-auto py-6">
       <div className="text-center mb-8">
-        <span className={`text-sm font-bold uppercase tracking-widest ${accent.text}`}>Clientes que confían en nosotros</span>
+        <span className={`text-sm font-bold uppercase tracking-widest ${accent.text}`}>Clientes que confÃ­an en nosotros</span>
         <h2 className="text-3xl md:text-4xl font-black text-slate-800 mt-1">Lo que dicen</h2>
       </div>
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
@@ -452,7 +482,7 @@ function TestimoniosSlide({ catalog }: { catalog: EventCatalogData }) {
           >
             <div className="flex items-center justify-between">
               <span className="font-bold text-slate-800 text-sm">{testimonial.authorName}</span>
-              <span className="text-lg">{SOURCE_ICON[testimonial.source] ?? '💬'}</span>
+              <span className="text-lg">{SOURCE_ICON[testimonial.source] ?? 'ðŸ’¬'}</span>
             </div>
             <p className="text-slate-600 text-sm leading-relaxed italic">"{testimonial.text}"</p>
             {testimonial.date && (
@@ -493,9 +523,9 @@ function FormasDePagoSlide({ catalog }: { catalog: EventCatalogData }) {
         ))}
       </div>
       <div className={`p-5 rounded-2xl text-center ${accent.bg} ${accent.border} border`}>
-        <p className={`font-bold ${accent.text} mb-1`}>Seña para reservar tu fecha</p>
+        <p className={`font-bold ${accent.text} mb-1`}>SeÃ±a para reservar tu fecha</p>
         <p className="text-slate-600 text-sm">
-          Se requiere el 30 % del total para confirmar la fecha. El saldo se abona en cuotas según lo acordado.
+          Se requiere el 30 % del total para confirmar la fecha. El saldo se abona en cuotas segÃºn lo acordado.
         </p>
       </div>
     </div>
@@ -513,16 +543,16 @@ function CierreSlide({
 }) {
   const accent = getAccent(catalog.hero.accentColor);
   const WHATSAPP_NUMBER = catalog.whatsappNumber ?? AK_WHATSAPP_NUMBER;
-  const waMsg = catalog.whatsappMessage ?? `¡Hola AK Producciones! Quiero cotizar: ${catalog.name}.`;
+  const waMsg = catalog.whatsappMessage ?? `Â¡Hola AK Producciones! Quiero cotizar: ${catalog.name}.`;
   const waHref = `https://wa.me/${WHATSAPP_NUMBER}?text=${encodeURIComponent(waMsg)}`;
 
   return (
     <div className="max-w-4xl mx-auto py-6">
       <div className="text-center mb-8">
-        <span className={`text-sm font-bold uppercase tracking-widest ${accent.text}`}>¡Estamos listos!</span>
-        <h2 className="text-3xl md:text-4xl font-black text-slate-800 mt-1">Siguiente paso 🚀</h2>
+        <span className={`text-sm font-bold uppercase tracking-widest ${accent.text}`}>Â¡Estamos listos!</span>
+        <h2 className="text-3xl md:text-4xl font-black text-slate-800 mt-1">Siguiente paso ðŸš€</h2>
         <p className="text-slate-500 mt-2 max-w-lg mx-auto">
-          Revisá tu selección y convertila en un presupuesto real con un solo clic.
+          RevisÃ¡ tu selecciÃ³n y convertila en un presupuesto real con un solo clic.
         </p>
       </div>
 
@@ -531,7 +561,7 @@ function CierreSlide({
         <div>
           <h3 className="font-bold text-slate-700 mb-3 flex items-center gap-2">
             <FileText className={`h-4 w-4 ${accent.text}`} />
-            Tu selección
+            Tu selecciÃ³n
           </h3>
           {selectedPackage ? (
             <div className={`p-5 rounded-2xl ${accent.bg} ${accent.border} border`}>
@@ -553,8 +583,8 @@ function CierreSlide({
             </div>
           ) : (
             <div className="p-5 rounded-2xl bg-slate-50 border border-slate-200 text-center">
-              <p className="text-slate-400 text-sm">No seleccionaste un paquete todavía.</p>
-              <p className="text-slate-400 text-xs mt-1">Podés volver al paso anterior para elegir uno.</p>
+              <p className="text-slate-400 text-sm">No seleccionaste un paquete todavÃ­a.</p>
+              <p className="text-slate-400 text-xs mt-1">PodÃ©s volver al paso anterior para elegir uno.</p>
             </div>
           )}
         </div>
@@ -564,7 +594,7 @@ function CierreSlide({
           <div>
             <h3 className="font-bold text-slate-700 mb-3 flex items-center gap-2">
               <Gift className={`h-4 w-4 ${accent.text}`} />
-              ¿Qué querés hacer?
+              Â¿QuÃ© querÃ©s hacer?
             </h3>
             <div className="flex flex-col gap-3">
               <Button
@@ -612,7 +642,7 @@ function CierreSlide({
   );
 }
 
-// ─── Main Wizard Page ─────────────────────────────────────────────────────────
+// â”€â”€â”€ Main Wizard Page â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 
 export default function CatalogoTipoPage() {
   const params = useParams();
@@ -705,16 +735,16 @@ export default function CatalogoTipoPage() {
       protagonista1Nombre: '',
       protagonista2Nombre: '',
       nombreEmpresa: '',
-      serviciosSeleccionados: [], // empty Map entries — user configures in budget form
+      serviciosSeleccionados: [], // empty Map entries â€” user configures in budget form
       selectedMenuId: '',
       notas: selectedPackage
-        ? `Catálogo digital — ${mergedCatalog.name}\nPaquete seleccionado: ${selectedPackage.title}\nIncluye: ${selectedPackage.included.join(', ')}`
-        : `Catálogo digital — ${mergedCatalog.name}`,
+        ? `CatÃ¡logo digital â€” ${mergedCatalog.name}\nPaquete seleccionado: ${selectedPackage.title}\nIncluye: ${selectedPackage.included.join(', ')}`
+        : `CatÃ¡logo digital â€” ${mergedCatalog.name}`,
       estado: 'Borrador',
       nombrePromocion: 'Descuento Promocional',
       descuentoTipo: 'porcentaje',
       descuentoValor: '10',
-      vigenciaPromocion: 'Válido por 30 días',
+      vigenciaPromocion: 'VÃ¡lido por 30 dÃ­as',
     };
     try {
       sessionStorage.setItem(PRESUPUESTO_SESSION_KEY, JSON.stringify(presupuestoData));
@@ -727,7 +757,7 @@ export default function CatalogoTipoPage() {
         incluye: selectedPackage?.included ?? [],
       }));
     } catch (err) {
-      // sessionStorage unavailable (e.g. private browsing quota) — log and navigate anyway
+      // sessionStorage unavailable (e.g. private browsing quota) â€” log and navigate anyway
       console.warn('[CatalogoWizard] Could not write to sessionStorage:', err);
     }
     router.push('/simulador-de-presupuesto');
@@ -756,7 +786,7 @@ export default function CatalogoTipoPage() {
               <div className="flex items-center gap-2">
                  <span className="text-xl">{mergedCatalog.hero.emoji}</span>
                  <span className="font-black text-slate-800 text-sm md:text-base truncate">{mergedCatalog.name}</span>
-                <span className="hidden sm:inline text-slate-300">·</span>
+                <span className="hidden sm:inline text-slate-300">Â·</span>
                 <span className="hidden sm:inline text-slate-500 text-sm">{SLIDE_LABELS[currentSlideId]}</span>
               </div>
               {/* Progress bar */}
@@ -825,6 +855,9 @@ export default function CatalogoTipoPage() {
                    onSelect={setSelectedPackageId}
                  />
                )}
+               {currentSlideId === 'galeria' && (
+                 <GaleriaSlide catalog={mergedCatalog} />
+               )}
                {currentSlideId === 'regalos' && (
                  <RegalosSlide catalog={mergedCatalog} />
                )}
@@ -861,7 +894,7 @@ export default function CatalogoTipoPage() {
           </Button>
 
           {/* Dot indicators */}
-          <div className="flex min-w-0 items-center justify-center gap-1.5" aria-label="Progreso del catálogo">
+          <div className="flex min-w-0 items-center justify-center gap-1.5" aria-label="Progreso del catÃ¡logo">
             {SLIDE_ORDER.map((_, idx) => (
               <button
                 key={idx}

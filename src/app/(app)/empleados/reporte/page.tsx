@@ -53,9 +53,9 @@ const getDateTimestamp = (date?: string) => {
 };
 
 const formatDate = (date?: string) => {
-  if (!date) return '—';
+  if (!date) return 'â€”';
   const timestamp = getDateTimestamp(date);
-  if (!timestamp) return '—';
+  if (!timestamp) return 'â€”';
   return new Intl.DateTimeFormat('es-UY', { timeZone: 'UTC' }).format(new Date(timestamp));
 };
 
@@ -91,7 +91,7 @@ export default function ReporteEmpleadosPage() {
       setAllRoles(Array.isArray(rolesData) ? rolesData : []);
       setAllFiestas(Array.isArray(fiestasData) ? fiestasData : []);
     } catch (err: any) {
-      setError("No se pudo cargar la información del reporte de personal.");
+      setError("No se pudo cargar la informaciÃ³n del reporte de personal.");
       toast({ title: "Error", description: err.message, variant: "destructive" });
     } finally {
       setIsLoading(false);
@@ -115,7 +115,7 @@ export default function ReporteEmpleadosPage() {
 
         return asignaciones.map((asignacion) => {
           const rol = allRoles.find((r) => r.id === asignacion.rolId);
-          const montoCobrado = Number(asignacion.eventSalary || 0);
+          const montoCobrado = Number(asignacion.eventSalary || rol?.sueldoPorEvento || 0);
           const aportesPatronales = (montoCobrado * Number(rol?.porcentajeAportesPatronales || 0)) / 100;
           const fecha = fiesta.configuracion?.fechaEvento || '';
 
@@ -123,7 +123,7 @@ export default function ReporteEmpleadosPage() {
             fiestaId: fiesta.id,
             nombreEvento: fiesta.configuracion?.nombreEvento || 'Evento sin nombre',
             fecha,
-            lugar: fiesta.configuracion?.nombreLugar || '—',
+            lugar: fiesta.configuracion?.nombreLugar || 'â€”',
             rol: rol?.nombre || 'Rol desconocido',
             montoCobrado,
             aportesPatronales,
@@ -155,7 +155,7 @@ export default function ReporteEmpleadosPage() {
   const handleDownloadPDF = (resumen: EmpleadoResumen) => {
     const printWindow = window.open('', '_blank');
     if (!printWindow) {
-      toast({ title: 'Error', description: 'No se pudo abrir la ventana de impresión.', variant: 'destructive' });
+      toast({ title: 'Error', description: 'No se pudo abrir la ventana de impresiÃ³n.', variant: 'destructive' });
       return;
     }
 
@@ -187,9 +187,9 @@ export default function ReporteEmpleadosPage() {
         </style>
       </head>
       <body>
-        <h1>AK Producciones — Historial de Personal</h1>
+        <h1>AK Producciones â€” Historial de Personal</h1>
         <h2>${escapeHtml(resumen.empleado.nombre)}</h2>
-        <p>C.I.: ${escapeHtml(resumen.empleado.cedula || '—')}</p>
+        <p>C.I.: ${escapeHtml(resumen.empleado.cedula || 'â€”')}</p>
         <p>Roles: ${escapeHtml(getRolNames(resumen.empleado.rolIds))}</p>
         <table>
           <thead>
@@ -225,7 +225,7 @@ export default function ReporteEmpleadosPage() {
     const subject = `Historial de trabajo - ${resumen.empleado.nombre}`;
     const bodyLines = [
       `Empleado: ${resumen.empleado.nombre}`,
-      `Cédula: ${resumen.empleado.cedula || '—'}`,
+      `CÃ©dula: ${resumen.empleado.cedula || 'â€”'}`,
       `Roles: ${getRolNames(resumen.empleado.rolIds)}`,
       '',
       `Total de fiestas: ${resumen.totalFiestas}`,
@@ -243,16 +243,16 @@ export default function ReporteEmpleadosPage() {
   const handleSendWhatsApp = (resumen: EmpleadoResumen) => {
     const phone = sanitizePhone(resumen.empleado.telefono);
     if (!phone) {
-      toast({ title: 'Teléfono requerido', description: 'El empleado no tiene teléfono cargado.', variant: 'destructive' });
+      toast({ title: 'TelÃ©fono requerido', description: 'El empleado no tiene telÃ©fono cargado.', variant: 'destructive' });
       return;
     }
     const message = [
       `Hola ${resumen.empleado.nombre},`,
       '',
       'Te compartimos tu historial de AK Producciones:',
-      `• Total de fiestas: ${resumen.totalFiestas}`,
-      `• Total cobrado: ${formatCurrency(resumen.totalCobrado)}`,
-      `• Total con aportes: ${formatCurrency(resumen.totalConAportes)}`,
+      `â€¢ Total de fiestas: ${resumen.totalFiestas}`,
+      `â€¢ Total cobrado: ${formatCurrency(resumen.totalCobrado)}`,
+      `â€¢ Total con aportes: ${formatCurrency(resumen.totalConAportes)}`,
     ].join('\n');
     window.open(`https://wa.me/${phone}?text=${encodeURIComponent(message)}`, '_blank');
   };
@@ -260,7 +260,7 @@ export default function ReporteEmpleadosPage() {
   if (isLoading) {
     return <div className="flex justify-center items-center h-screen"><Loader2 className="w-12 h-12 animate-spin text-primary" /></div>;
   }
-  
+
   if (error) {
     return (
       <div className="flex flex-col items-center justify-center h-screen text-center p-4">
@@ -293,10 +293,10 @@ export default function ReporteEmpleadosPage() {
           <TableHeader>
             <TableRow>
               <TableHead>Nombre</TableHead>
-              <TableHead>Cédula</TableHead>
+              <TableHead>CÃ©dula</TableHead>
               <TableHead>Total fiestas</TableHead>
               <TableHead>Total cobrado</TableHead>
-              <TableHead>Último evento</TableHead>
+              <TableHead>Ãšltimo evento</TableHead>
               <TableHead className="text-right">Acciones</TableHead>
             </TableRow>
           </TableHeader>
@@ -304,7 +304,7 @@ export default function ReporteEmpleadosPage() {
             {resumenes.map((item) => (
               <TableRow key={item.empleado.id}>
                 <TableCell className="font-medium">{item.empleado.nombre}</TableCell>
-                <TableCell>{item.empleado.cedula || '—'}</TableCell>
+                <TableCell>{item.empleado.cedula || 'â€”'}</TableCell>
                 <TableCell>{item.totalFiestas}</TableCell>
                 <TableCell>{formatCurrency(item.totalCobrado)}</TableCell>
                 <TableCell>{formatDate(item.ultimoEvento)}</TableCell>
@@ -331,7 +331,7 @@ export default function ReporteEmpleadosPage() {
           {selectedResumen && (
             <div className="space-y-4">
               <div className="space-y-1">
-                <p><span className="font-semibold">C.I.:</span> {selectedResumen.empleado.cedula || '—'}</p>
+                <p><span className="font-semibold">C.I.:</span> {selectedResumen.empleado.cedula || 'â€”'}</p>
                 <div className="flex flex-wrap gap-1 items-center">
                   <span className="font-semibold">Roles:</span>
                   {(selectedResumen.empleado.rolIds || []).length > 0 ? (
@@ -347,7 +347,7 @@ export default function ReporteEmpleadosPage() {
 
               {selectedResumen.historial.length === 0 ? (
                 <div className="text-sm text-muted-foreground border rounded-md p-6 text-center">
-                  Este empleado todavía no tiene fiestas trabajadas.
+                  Este empleado todavÃ­a no tiene fiestas trabajadas.
                 </div>
               ) : (
                 <Table>

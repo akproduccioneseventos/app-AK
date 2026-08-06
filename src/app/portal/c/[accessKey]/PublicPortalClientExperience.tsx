@@ -339,13 +339,13 @@ export default function PublicPortalClientExperience({ fiesta, companyContact, c
     try {
       const result = await updateClientePortalExperience(fiesta.id, { heroImageUrl: url });
       if (result.success) {
-        setCoverNotice({ type: 'success', text: 'Diseño de portada actualizado.' });
+        setCoverNotice({ type: 'success', text: 'DiseÃ±o de portada actualizado.' });
         window.location.reload();
       } else {
         setCoverNotice({ type: 'error', text: result.error || 'No se pudo guardar la portada.' });
       }
     } catch {
-      setCoverNotice({ type: 'error', text: 'Error de conexión.' });
+      setCoverNotice({ type: 'error', text: 'Error de conexiÃ³n.' });
     } finally {
       setIsSavingCover(false);
     }
@@ -369,7 +369,7 @@ export default function PublicPortalClientExperience({ fiesta, companyContact, c
         setCoverNotice({ type: 'error', text: result.error || 'No se pudo guardar el color.' });
       }
     } catch {
-      setCoverNotice({ type: 'error', text: 'Error de conexión.' });
+      setCoverNotice({ type: 'error', text: 'Error de conexiÃ³n.' });
     } finally {
       setIsSavingColor(false);
     }
@@ -476,7 +476,7 @@ export default function PublicPortalClientExperience({ fiesta, companyContact, c
 
   const nextPaymentInfo = (() => {
     if (paymentSummary.balance <= 0) {
-      return { text: '¡Cuenta totalmente saldada! Gracias.', daysLeft: null, dateStr: null, isOverdue: false, amount: 0 };
+      return { text: 'Â¡Cuenta totalmente saldada! Gracias.', daysLeft: null, dateStr: null, isOverdue: false, amount: 0 };
     }
 
     const cuotas = fiesta?.contratoDatos?.planPagos?.cuotas ?? [];
@@ -496,7 +496,7 @@ export default function PublicPortalClientExperience({ fiesta, companyContact, c
         : Math.max(0, nextPending.montoMinimo - (nextPending.montoAcumulado ?? 0));
 
       return {
-        text: `Próximo pago: cuota de ${formatPortalMoney(amount)} vence el ${formattedDue}`,
+        text: `PrÃ³ximo pago: cuota de ${formatPortalMoney(amount)} vence el ${formattedDue}`,
         daysLeft: diffDays,
         dateStr: formattedDue,
         isOverdue: diffDays < 0,
@@ -523,7 +523,7 @@ export default function PublicPortalClientExperience({ fiesta, companyContact, c
     const formattedDue = formatShortDate(targetDate.toISOString());
 
     return {
-      text: `Próximo pago sugerido vence el ${formattedDue}`,
+      text: `PrÃ³ximo pago sugerido vence el ${formattedDue}`,
       daysLeft: diffDays,
       dateStr: formattedDue,
       isOverdue: diffDays < 0,
@@ -546,19 +546,19 @@ export default function PublicPortalClientExperience({ fiesta, companyContact, c
   const nextStep = (() => {
     if (isDefaultLink) return { title: 'Falta personalizar el link', text: 'Antes de enviarlo, AK debe cambiar el link de prueba por uno real.' };
     if (!presupuesto) return { title: 'Falta el presupuesto', text: 'Cuando AK lo cargue, vas a ver pagos, contrato y servicios.' };
-    if (paymentSummary.pendingReviewCount > 0) return { title: 'Pago en revisión', text: `Hay ${paymentSummary.pendingReviewCount} pago(s) esperando confirmación de AK.` };
+    if (paymentSummary.pendingReviewCount > 0) return { title: 'Pago en revisiÃ³n', text: `Hay ${paymentSummary.pendingReviewCount} pago(s) esperando confirmaciÃ³n de AK.` };
     if (paymentSummary.balance > 0) return { title: 'Saldo pendiente', text: `Saldo actual: ${formatPortalMoney(paymentSummary.balance)}.` };
     if (pendingTasks.length > 0) return { title: 'Pendiente para revisar', text: pendingTasks[0].text };
-    if (guestStats.needsAction > 0) return { title: 'Invitados pendientes', text: `${guestStats.needsAction} invitado(s) todavía necesitan respuesta.` };
-    return { title: 'Todo encaminado', text: 'La información principal del evento está ordenada.' };
+    if (guestStats.needsAction > 0) return { title: 'Invitados pendientes', text: `${guestStats.needsAction} invitado(s) todavÃ­a necesitan respuesta.` };
+    return { title: 'Todo encaminado', text: 'La informaciÃ³n principal del evento estÃ¡ ordenada.' };
   })();
 
   const serviceCards = [
     {
-      title: 'Música',
+      title: 'MÃºsica',
       icon: Music,
       badge: 'Cliente participa',
-      active: hasBudgetService(presupuestoText, ['discoteca', 'dj', 'musica', 'música', 'sonido', 'luces', 'vals']) || settings?.musica?.visible,
+      active: hasBudgetService(presupuestoText, ['discoteca', 'dj', 'musica', 'mÃºsica', 'sonido', 'luces', 'vals']) || settings?.musica?.visible,
       text: 'Canciones importantes, lista de no reproducir y momentos especiales.',
     },
     {
@@ -566,7 +566,7 @@ export default function PublicPortalClientExperience({ fiesta, companyContact, c
       icon: Video,
       badge: 'Cliente participa',
       active: (fiesta?.reuniones ?? []).length > 0,
-      text: 'Fechas, acuerdos y próximos encuentros con AK.',
+      text: 'Fechas, acuerdos y prÃ³ximos encuentros con AK.',
     },
     {
       title: 'Fotos y material',
@@ -576,25 +576,25 @@ export default function PublicPortalClientExperience({ fiesta, companyContact, c
       text: 'Fotos para video, mural social y material de la fiesta.',
     },
     {
-      title: 'Menú y bebidas',
+      title: 'MenÃº y bebidas',
       icon: Utensils,
-      badge: 'Solo información',
-      active: hasBudgetService(presupuestoText, ['catering', 'menu', 'menú', 'entrada', 'plato', 'postre', 'barra', 'tragos', 'bebida']) || settings?.menu?.visible || settings?.calculadoraBebidas?.visible,
-      text: 'Menú elegido, bebidas, restricciones y datos gastronómicos.',
+      badge: 'Solo informaciÃ³n',
+      active: hasBudgetService(presupuestoText, ['catering', 'menu', 'menÃº', 'entrada', 'plato', 'postre', 'barra', 'tragos', 'bebida']) || settings?.menu?.visible || settings?.calculadoraBebidas?.visible,
+      text: 'MenÃº elegido, bebidas, restricciones y datos gastronÃ³micos.',
     },
     {
-      title: 'Decoración',
+      title: 'DecoraciÃ³n',
       icon: Palette,
-      badge: 'Solo información',
-      active: hasBudgetService(presupuestoText, ['decoracion', 'decoración', 'globos', 'ambientacion', 'ambientación', 'flores']) || settings?.moodboard?.visible,
+      badge: 'Solo informaciÃ³n',
+      active: hasBudgetService(presupuestoText, ['decoracion', 'decoraciÃ³n', 'globos', 'ambientacion', 'ambientaciÃ³n', 'flores']) || settings?.moodboard?.visible,
       text: 'Colores, referencias visuales y estilo del evento.',
     },
     {
       title: 'Cronograma',
       icon: ClipboardList,
-      badge: 'Solo información',
+      badge: 'Solo informaciÃ³n',
       active: (fiesta?.timeline ?? []).length > 0 || (fiesta?.programa ?? []).length > 0 || settings?.itinerario?.visible,
-      text: 'Momentos importantes del día, ordenados por hora.',
+      text: 'Momentos importantes del dÃ­a, ordenados por hora.',
     },
   ].filter(card => card.active || !presupuesto);
 
@@ -649,7 +649,7 @@ export default function PublicPortalClientExperience({ fiesta, companyContact, c
   const [cancelarModalOpen, setCancelarModalOpen] = useState(false);
   const [cancellationMode, setCancellationMode] = useState<'partial' | 'all'>('partial');
   const [selectedServicesToCancel, setSelectedServicesToCancel] = useState<string[]>([]);
-  
+
   const [cambioFechaModalOpen, setCambioFechaModalOpen] = useState(false);
   const [newProposedDate, setNewProposedDate] = useState('');
   const [dateChecking, setDateChecking] = useState(false);
@@ -663,8 +663,8 @@ export default function PublicPortalClientExperience({ fiesta, companyContact, c
   const [actionSuccessData, setActionSuccessData] = useState<{ fileName: string; refundAmount?: number; pendingDue?: number; penaltyAmount?: number; newBalance?: number } | null>(null);
 
   const getCancellationImpact = () => {
-    const signingYear = fiesta.contratoDatos?.fechaFirmaContrato 
-      ? new Date(fiesta.contratoDatos.fechaFirmaContrato).getFullYear() 
+    const signingYear = fiesta.contratoDatos?.fechaFirmaContrato
+      ? new Date(fiesta.contratoDatos.fechaFirmaContrato).getFullYear()
       : new Date().getFullYear();
     const currentYear = new Date().getFullYear();
     const yearsDiff = Math.max(0, currentYear - signingYear);
@@ -696,13 +696,13 @@ export default function PublicPortalClientExperience({ fiesta, companyContact, c
       const refund = paid > newTotal ? (paid - newTotal) : 0;
       const owed = newTotal > paid ? (newTotal - paid) : 0;
 
-      return { 
-        adjustedTotal: adjustedCancelled, 
-        penalty, 
-        newTotal, 
-        refund, 
-        owed, 
-        factorAjuste, 
+      return {
+        adjustedTotal: adjustedCancelled,
+        penalty,
+        newTotal,
+        refund,
+        owed,
+        factorAjuste,
         yearsDiff,
         cancelledOriginalSum
       };
@@ -756,10 +756,10 @@ export default function PublicPortalClientExperience({ fiesta, companyContact, c
           pendingDue: res.pendingDue
         });
       } else {
-        setPinError(res.error || 'Error al procesar cancelación.');
+        setPinError(res.error || 'Error al procesar cancelaciÃ³n.');
       }
     } catch (e: any) {
-      setPinError('Error de conexión.');
+      setPinError('Error de conexiÃ³n.');
     } finally {
       setActionProcessing(false);
     }
@@ -783,7 +783,7 @@ export default function PublicPortalClientExperience({ fiesta, companyContact, c
         setPinError(res.error || 'Error al procesar cambio de fecha.');
       }
     } catch (e: any) {
-      setPinError('Error de conexión.');
+      setPinError('Error de conexiÃ³n.');
     } finally {
       setActionProcessing(false);
     }
@@ -839,7 +839,7 @@ export default function PublicPortalClientExperience({ fiesta, companyContact, c
     setPaymentNotice(null);
 
     if (!amount || amount <= 0) {
-      setPaymentNotice({ type: 'error', text: 'Ingresá un monto válido.' });
+      setPaymentNotice({ type: 'error', text: 'IngresÃ¡ un monto vÃ¡lido.' });
       return;
     }
 
@@ -847,7 +847,7 @@ export default function PublicPortalClientExperience({ fiesta, companyContact, c
     try {
       const result = await submitClientPayment(fiesta.id, amount, paymentFileBase64, paymentFile?.name || paymentNote || undefined);
       if (result.success) {
-        setPaymentNotice({ type: 'success', text: 'Pago informado. AK lo revisará y lo marcará como confirmado.' });
+        setPaymentNotice({ type: 'success', text: 'Pago informado. AK lo revisarÃ¡ y lo marcarÃ¡ como confirmado.' });
         setPaymentAmount('');
         setPaymentNote('');
         setPaymentFile(null);
@@ -867,7 +867,7 @@ export default function PublicPortalClientExperience({ fiesta, companyContact, c
     setMusicNotice(null);
 
     if (!value) {
-      setMusicNotice({ type: 'error', text: 'Escribí una canción antes de agregarla.' });
+      setMusicNotice({ type: 'error', text: 'EscribÃ­ una canciÃ³n antes de agregarla.' });
       return;
     }
 
@@ -877,12 +877,12 @@ export default function PublicPortalClientExperience({ fiesta, companyContact, c
       if (result.success) {
         setLocalMusicSuggestions(current => [...current, value]);
         setMusicSuggestion('');
-        setMusicNotice({ type: 'success', text: 'Canción agregada. AK ya la verá dentro del evento.' });
+        setMusicNotice({ type: 'success', text: 'CanciÃ³n agregada. AK ya la verÃ¡ dentro del evento.' });
         return;
       }
-      setMusicNotice({ type: 'error', text: result.error || 'No se pudo agregar la canción.' });
+      setMusicNotice({ type: 'error', text: result.error || 'No se pudo agregar la canciÃ³n.' });
     } catch {
-      setMusicNotice({ type: 'error', text: 'No se pudo agregar la canción.' });
+      setMusicNotice({ type: 'error', text: 'No se pudo agregar la canciÃ³n.' });
     } finally {
       setMusicLoading(false);
     }
@@ -891,7 +891,7 @@ export default function PublicPortalClientExperience({ fiesta, companyContact, c
   const submitGuestRequest = async () => {
     setGuestRequestNotice(null);
     if (guestEstimate.adultDelta <= 0 && guestEstimate.childDelta <= 0) {
-      setGuestRequestNotice({ type: 'error', text: 'Agregá al menos una persona para enviar la solicitud.' });
+      setGuestRequestNotice({ type: 'error', text: 'AgregÃ¡ al menos una persona para enviar la solicitud.' });
       return;
     }
 
@@ -923,7 +923,7 @@ export default function PublicPortalClientExperience({ fiesta, companyContact, c
   const submitServiceRequest = async () => {
     setServiceRequestNotice(null);
     if (!selectedService || selectedServiceAdditional <= 0) {
-      setServiceRequestNotice({ type: 'error', text: 'Elegí un servicio del catálogo antes de enviar la solicitud.' });
+      setServiceRequestNotice({ type: 'error', text: 'ElegÃ­ un servicio del catÃ¡logo antes de enviar la solicitud.' });
       return;
     }
 
@@ -942,7 +942,7 @@ export default function PublicPortalClientExperience({ fiesta, companyContact, c
       });
 
       if (result.success) {
-        setServiceRequestNotice({ type: 'success', text: 'Solicitud enviada. AK la revisará antes de cambiar el presupuesto formal.' });
+        setServiceRequestNotice({ type: 'success', text: 'Solicitud enviada. AK la revisarÃ¡ antes de cambiar el presupuesto formal.' });
         setServiceQuantity(1);
         setServiceNote('');
         return;
@@ -1006,18 +1006,18 @@ export default function PublicPortalClientExperience({ fiesta, companyContact, c
               <p className="text-sm font-semibold text-white/80">{config.tipoCelebracion || 'Evento'}</p>
               <h1 className="max-w-3xl text-4xl font-black leading-tight sm:text-5xl lg:text-6xl">{eventName}</h1>
               <p className="max-w-2xl text-base leading-7 text-white/90">
-                {portalExperience.welcomeMessage || portalExperience.organizerMessage || 'Toda la información importante del evento en un solo lugar.'}
+                {portalExperience.welcomeMessage || portalExperience.organizerMessage || 'Toda la informaciÃ³n importante del evento en un solo lugar.'}
               </p>
             </div>
 
             <div className="grid gap-2 text-sm sm:grid-cols-2 lg:grid-cols-4">
               <span className="inline-flex items-center gap-2 rounded-lg bg-white/15 px-3 py-2"><Calendar className="h-4 w-4" />{eventDate}</span>
               <span className="inline-flex items-center gap-2 rounded-lg bg-white/15 px-3 py-2"><Clock className="h-4 w-4" />{config.horaInicio || 'Hora a confirmar'}</span>
-              <span className="inline-flex items-center gap-2 rounded-lg bg-white/15 px-3 py-2"><MapPin className="h-4 w-4" />{config.nombreLugar && config.nombreLugar !== 'Salón a definir' ? config.nombreLugar : 'Lugar a confirmar'}</span>
+              <span className="inline-flex items-center gap-2 rounded-lg bg-white/15 px-3 py-2"><MapPin className="h-4 w-4" />{config.nombreLugar && config.nombreLugar !== 'SalÃ³n a definir' ? config.nombreLugar : 'Lugar a confirmar'}</span>
               {timeLeft ? (
                 timeLeft.isOver ? (
                   <span className="inline-flex items-center gap-2 rounded-lg bg-white/15 px-3 py-2 font-semibold">
-                    <PartyPopper className="h-4 w-4 text-emerald-400" /> ¡Llegó el gran día!
+                    <PartyPopper className="h-4 w-4 text-emerald-400" /> Â¡LlegÃ³ el gran dÃ­a!
                   </span>
                 ) : (
                   <span className="inline-flex items-center gap-2 rounded-lg bg-white/15 px-3 py-2 font-mono">
@@ -1026,7 +1026,7 @@ export default function PublicPortalClientExperience({ fiesta, companyContact, c
                   </span>
                 )
               ) : (
-                <span className="inline-flex items-center gap-2 rounded-lg bg-white/15 px-3 py-2"><PartyPopper className="h-4 w-4" />{days === null ? 'Fecha a confirmar' : `Faltan ${days} días`}</span>
+                <span className="inline-flex items-center gap-2 rounded-lg bg-white/15 px-3 py-2"><PartyPopper className="h-4 w-4" />{days === null ? 'Fecha a confirmar' : `Faltan ${days} dÃ­as`}</span>
               )}
             </div>
           </div>
@@ -1035,20 +1035,20 @@ export default function PublicPortalClientExperience({ fiesta, companyContact, c
             <div className="mb-4 flex items-start gap-3">
               <IconBlock icon={ShieldCheck} color={eventColor} />
               <div>
-                <p className="text-xs font-black uppercase tracking-wide text-slate-500">Próximo paso</p>
+                <p className="text-xs font-black uppercase tracking-wide text-slate-500">PrÃ³ximo paso</p>
                 <p className="text-xl font-black">{nextStep.title}</p>
                 <p className="mt-1 text-sm leading-6 text-slate-600">{nextStep.text}</p>
               </div>
             </div>
-            
+
             <div className="space-y-2">
-              <Button 
+              <Button
                 className="w-full animate-pay-pulse bg-emerald-600 hover:bg-emerald-700 text-white font-extrabold shadow-lg rounded-xl h-11 transition-all"
                 onClick={() => setPaymentModalOpen(true)}
               >
                 <CreditCard className="h-4 w-4" /> Hacer un pago
               </Button>
-              
+
               <div className="grid grid-cols-2 gap-2">
                 <Button variant="outline" className="w-full text-slate-700 border-slate-300 rounded-xl h-10" asChild>
                   <a href={whatsappHref} target="_blank" rel="noopener noreferrer">
@@ -1070,15 +1070,15 @@ export default function PublicPortalClientExperience({ fiesta, companyContact, c
                 <span className="font-bold text-slate-500 block uppercase tracking-wider text-[9px] mb-1">Recordatorio de Pago</span>
                 {nextPaymentInfo.daysLeft < 0 ? (
                   <span className="font-semibold text-rose-600 block">
-                    ⚠️ Cuota de {formatPortalMoney(nextPaymentInfo.amount)} vencida hace {Math.abs(nextPaymentInfo.daysLeft)} días ({nextPaymentInfo.dateStr}).
+                    âš ï¸ Cuota de {formatPortalMoney(nextPaymentInfo.amount)} vencida hace {Math.abs(nextPaymentInfo.daysLeft)} dÃ­as ({nextPaymentInfo.dateStr}).
                   </span>
                 ) : nextPaymentInfo.daysLeft === 0 ? (
                   <span className="font-semibold text-amber-600 block">
-                    ⏰ Hoy vence la cuota de {formatPortalMoney(nextPaymentInfo.amount)}.
+                    â° Hoy vence la cuota de {formatPortalMoney(nextPaymentInfo.amount)}.
                   </span>
                 ) : (
                   <span className="text-slate-600 block">
-                    La próxima cuota de {formatPortalMoney(nextPaymentInfo.amount)} vence el {nextPaymentInfo.dateStr} (en {nextPaymentInfo.daysLeft} días).
+                    La prÃ³xima cuota de {formatPortalMoney(nextPaymentInfo.amount)} vence el {nextPaymentInfo.dateStr} (en {nextPaymentInfo.daysLeft} dÃ­as).
                   </span>
                 )}
               </div>
@@ -1093,7 +1093,7 @@ export default function PublicPortalClientExperience({ fiesta, companyContact, c
             <div className="flex gap-3">
               <AlertTriangle className="mt-0.5 h-5 w-5 shrink-0" />
               <div>
-                <p className="font-black">Este portal todavía necesita datos reales.</p>
+                <p className="font-black">Este portal todavÃ­a necesita datos reales.</p>
                 <p className="mt-1 text-sm leading-6">Falta completar nombre, link, fecha o presupuesto antes de enviarlo al cliente final.</p>
               </div>
             </div>
@@ -1125,7 +1125,7 @@ export default function PublicPortalClientExperience({ fiesta, companyContact, c
         <Accordion type="multiple" defaultValue={access.canSeeOrganization ? ["organizacion", "contable"] : ["contable"]} className="space-y-4">
           {access.canSeeOrganization && <AccordionItem value="organizacion" id="portal-organizacion" className="ak-public-card px-4">
             <AccordionTrigger className="text-left text-lg font-black hover:no-underline">
-              <span className="flex items-center gap-3"><IconBlock icon={ClipboardList} color={eventColor} /> Organización del evento</span>
+              <span className="flex items-center gap-3"><IconBlock icon={ClipboardList} color={eventColor} /> OrganizaciÃ³n del evento</span>
             </AccordionTrigger>
             <AccordionContent className="space-y-4 pb-5">
               <div className="grid gap-3 md:grid-cols-2">
@@ -1149,7 +1149,7 @@ export default function PublicPortalClientExperience({ fiesta, companyContact, c
                 <div className="mb-3 flex items-center gap-3">
                   <IconBlock icon={Music} color={eventColor} />
                   <div>
-                    <p className="font-black">Música</p>
+                    <p className="font-black">MÃºsica</p>
                     <InfoBadge tone="action">Cliente participa</InfoBadge>
                   </div>
                 </div>
@@ -1168,7 +1168,7 @@ export default function PublicPortalClientExperience({ fiesta, companyContact, c
                   </div>
                 </div>
                 <div className="mt-3 grid gap-2 sm:grid-cols-[1fr_auto]">
-                  <Input value={musicSuggestion} onChange={event => setMusicSuggestion(event.target.value)} placeholder="Agregar canción importante" />
+                  <Input value={musicSuggestion} onChange={event => setMusicSuggestion(event.target.value)} placeholder="Agregar canciÃ³n importante" />
                   <Button onClick={submitMusicSuggestion} disabled={musicLoading} style={{ background: eventColor }}>
                     <Plus className="h-4 w-4" /> {musicLoading ? 'Agregando' : 'Agregar'}
                   </Button>
@@ -1185,10 +1185,10 @@ export default function PublicPortalClientExperience({ fiesta, companyContact, c
                       <InfoBadge tone="action">Cliente participa</InfoBadge>
                     </div>
                   </div>
-                  {reuniones.length === 0 ? <EmptyLine text="No hay reuniones cargadas todavía." /> : reuniones.slice(0, 5).map((reunion: any) => (
+                  {reuniones.length === 0 ? <EmptyLine text="No hay reuniones cargadas todavÃ­a." /> : reuniones.slice(0, 5).map((reunion: any) => (
                     <div key={reunion.id} className="mb-2 rounded-lg bg-slate-50 p-3">
-                      <p className="font-semibold">{reunion.titulo || 'Reunión'}</p>
-                      <p className="text-sm text-slate-600">{formatShortDate(reunion.fecha)}{reunion.notas ? ` · ${reunion.notas}` : ''}</p>
+                      <p className="font-semibold">{reunion.titulo || 'ReuniÃ³n'}</p>
+                      <p className="text-sm text-slate-600">{formatShortDate(reunion.fecha)}{reunion.notas ? ` Â· ${reunion.notas}` : ''}</p>
                       {(reunion.link || reunion.meetUrl || reunion.videoUrl) && (
                         <Button variant="outline" size="sm" className="mt-2" asChild>
                           <a href={reunion.link || reunion.meetUrl || reunion.videoUrl} target="_blank" rel="noopener noreferrer">Entrar a la videollamada</a>
@@ -1213,7 +1213,7 @@ export default function PublicPortalClientExperience({ fiesta, companyContact, c
                       <Button variant="outline" asChild>
                         <a href={`/evento/social/${fiesta.id}`} target="_blank" rel="noopener noreferrer"><ImageIcon className="h-4 w-4" /> Abrir mural social</a>
                       </Button>
-                    ) : <EmptyLine text="El mural social todavía no está activo." />}
+                    ) : <EmptyLine text="El mural social todavÃ­a no estÃ¡ activo." />}
                   </div>
                 </div>
               </div>
@@ -1223,34 +1223,40 @@ export default function PublicPortalClientExperience({ fiesta, companyContact, c
                   <div className="mb-3 flex items-center gap-3">
                     <IconBlock icon={Utensils} color={eventColor} />
                     <div>
-                      <p className="font-black">Menú y bebidas</p>
-                      <InfoBadge>Solo información</InfoBadge>
+                      <p className="font-black">MenÃº y bebidas</p>
+                      <InfoBadge>Solo informaciÃ³n</InfoBadge>
                     </div>
                   </div>
                   {fiesta?.menuSeleccionPortal ? (
                     <div className="grid gap-2 text-sm">
+                      {fiesta.menuSeleccionPortal.confirmado && (
+                        <div className="mb-2 flex items-center gap-2 rounded-lg bg-emerald-50 p-3 text-emerald-700">
+                          <CheckCircle2 className="h-5 w-5" />
+                          <p><strong>SelecciÃ³n confirmada</strong> {fiesta.menuSeleccionPortal.fechaConfirmacion ? `el ${new Date(fiesta.menuSeleccionPortal.fechaConfirmacion).toLocaleDateString('es-UY')}` : ''}</p>
+                        </div>
+                      )}
                       {fiesta.menuSeleccionPortal.entrada && <p className="rounded-lg bg-slate-50 p-3"><strong>Entrada:</strong> {fiesta.menuSeleccionPortal.entrada}</p>}
                       {fiesta.menuSeleccionPortal.principal && <p className="rounded-lg bg-slate-50 p-3"><strong>Principal:</strong> {fiesta.menuSeleccionPortal.principal}</p>}
                       {fiesta.menuSeleccionPortal.postre && <p className="rounded-lg bg-slate-50 p-3"><strong>Postre:</strong> {fiesta.menuSeleccionPortal.postre}</p>}
                       {fiesta.menuSeleccionPortal.bebidas && <p className="rounded-lg bg-slate-50 p-3"><strong>Bebidas:</strong> {fiesta.menuSeleccionPortal.bebidas}</p>}
                       {fiesta.menuSeleccionPortal.restriccionesAlimentarias && <p className="rounded-lg bg-amber-50 p-3 text-amber-900"><strong>Restricciones:</strong> {fiesta.menuSeleccionPortal.restriccionesAlimentarias}</p>}
                     </div>
-                  ) : <EmptyLine text="El menú todavía no está cargado." />}
+                  ) : <EmptyLine text="El menÃº todavÃ­a no estÃ¡ cargado." />}
                 </div>
 
                 <div className="rounded-lg border p-4">
                   <div className="mb-3 flex items-center gap-3">
                     <IconBlock icon={Palette} color={eventColor} />
                     <div>
-                      <p className="font-black">Personalización y decoración</p>
-                      <InfoBadge>Solo información</InfoBadge>
+                      <p className="font-black">PersonalizaciÃ³n y decoraciÃ³n</p>
+                      <InfoBadge>Solo informaciÃ³n</InfoBadge>
                     </div>
                   </div>
                   <div className="space-y-2 text-sm text-slate-600">
                     <p className="rounded-lg bg-slate-50 p-3"><strong>Color principal:</strong> <span className="ml-2 inline-block h-3 w-8 rounded-full align-middle" style={{ background: eventColor }} /> {eventColor}</p>
                     {fiesta?.decoracion?.tema && <p className="rounded-lg bg-slate-50 p-3"><strong>Tema:</strong> {fiesta.decoracion.tema}</p>}
                     {fiesta?.decoracion?.generalNotesDecoracion && <p className="rounded-lg bg-slate-50 p-3">{fiesta.decoracion.generalNotesDecoracion}</p>}
-                    {!fiesta?.decoracion?.tema && !fiesta?.decoracion?.generalNotesDecoracion && <EmptyLine text="La decoración todavía no tiene notas visibles." />}
+                    {!fiesta?.decoracion?.tema && !fiesta?.decoracion?.generalNotesDecoracion && <EmptyLine text="La decoraciÃ³n todavÃ­a no tiene notas visibles." />}
                   </div>
                 </div>
               </div>
@@ -1260,10 +1266,10 @@ export default function PublicPortalClientExperience({ fiesta, companyContact, c
                   <IconBlock icon={ListMusic} color={eventColor} />
                   <div>
                     <p className="font-black">Cronograma</p>
-                    <InfoBadge>Solo información</InfoBadge>
+                    <InfoBadge>Solo informaciÃ³n</InfoBadge>
                   </div>
                 </div>
-                {timelineItems.length === 0 ? <EmptyLine text="El cronograma todavía no está cargado." /> : (
+                {timelineItems.length === 0 ? <EmptyLine text="El cronograma todavÃ­a no estÃ¡ cargado." /> : (
                   <div className="space-y-2">
                     {timelineItems.map((item: any) => (
                       <div key={item.id} className="grid gap-2 rounded-lg bg-slate-50 p-3 sm:grid-cols-[120px_1fr]">
@@ -1289,7 +1295,7 @@ export default function PublicPortalClientExperience({ fiesta, companyContact, c
                 <div className="rounded-lg border bg-slate-50 p-4"><p className="text-xs font-bold text-slate-500">Total contratado</p><p className="text-2xl font-black">{formatPortalMoney(paymentSummary.total)}</p></div>
                 <div className="rounded-lg border bg-emerald-50 p-4 text-emerald-900"><p className="text-xs font-bold">Pagado</p><p className="text-2xl font-black">{formatPortalMoney(paymentSummary.paid)}</p></div>
                 <div className="rounded-lg border bg-rose-50 p-4 text-rose-900"><p className="text-xs font-bold">Saldo</p><p className="text-2xl font-black">{formatPortalMoney(paymentSummary.balance)}</p></div>
-                <div className="rounded-lg border bg-amber-50 p-4 text-amber-900"><p className="text-xs font-bold">En revisión</p><p className="text-2xl font-black">{paymentSummary.pendingReviewCount}</p></div>
+                <div className="rounded-lg border bg-amber-50 p-4 text-amber-900"><p className="text-xs font-bold">En revisiÃ³n</p><p className="text-2xl font-black">{paymentSummary.pendingReviewCount}</p></div>
               </div>
               <div className="space-y-2 mt-2">
                 <div className="flex items-center justify-between text-xs font-black text-slate-500">
@@ -1314,14 +1320,14 @@ export default function PublicPortalClientExperience({ fiesta, companyContact, c
                 }`}>
                   <Clock className={`h-5 w-5 shrink-0 mt-0.5 ${nextPaymentInfo.daysLeft < 0 ? 'text-rose-600 animate-pulse' : 'text-slate-500'}`} />
                   <div>
-                    <p className="font-bold mb-0.5 text-slate-900">Recordatorio de Próximo Pago</p>
+                    <p className="font-bold mb-0.5 text-slate-900">Recordatorio de PrÃ³ximo Pago</p>
                     <p className="leading-relaxed text-xs">
                       {nextPaymentInfo.daysLeft < 0 ? (
-                        <>La cuota de <strong className="font-extrabold">{formatPortalMoney(nextPaymentInfo.amount)}</strong> está vencida hace <strong className="font-extrabold">{Math.abs(nextPaymentInfo.daysLeft)} días</strong> (debió abonarse el {nextPaymentInfo.dateStr}). Por favor infórmalo a la brevedad.</>
+                        <>La cuota de <strong className="font-extrabold">{formatPortalMoney(nextPaymentInfo.amount)}</strong> estÃ¡ vencida hace <strong className="font-extrabold">{Math.abs(nextPaymentInfo.daysLeft)} dÃ­as</strong> (debiÃ³ abonarse el {nextPaymentInfo.dateStr}). Por favor infÃ³rmalo a la brevedad.</>
                       ) : nextPaymentInfo.daysLeft === 0 ? (
-                        <>Hoy vence tu cuota de <strong className="font-extrabold">{formatPortalMoney(nextPaymentInfo.amount)}</strong>. Puedes subir tu comprobante de pago con el botón de abajo.</>
+                        <>Hoy vence tu cuota de <strong className="font-extrabold">{formatPortalMoney(nextPaymentInfo.amount)}</strong>. Puedes subir tu comprobante de pago con el botÃ³n de abajo.</>
                       ) : (
-                        <>Tu próxima cuota de <strong className="font-extrabold">{formatPortalMoney(nextPaymentInfo.amount)}</strong> vence el <strong className="font-extrabold">{nextPaymentInfo.dateStr}</strong> (en <strong className="font-extrabold">{nextPaymentInfo.daysLeft} días</strong>).</>
+                        <>Tu prÃ³xima cuota de <strong className="font-extrabold">{formatPortalMoney(nextPaymentInfo.amount)}</strong> vence el <strong className="font-extrabold">{nextPaymentInfo.dateStr}</strong> (en <strong className="font-extrabold">{nextPaymentInfo.daysLeft} dÃ­as</strong>).</>
                       )}
                     </p>
                   </div>
@@ -1330,7 +1336,7 @@ export default function PublicPortalClientExperience({ fiesta, companyContact, c
 
               <div className="grid gap-4 lg:grid-cols-2">
                 <div className="rounded-lg border p-4">
-                  <div className="mb-3 flex items-center gap-3"><IconBlock icon={FileText} color={eventColor} /><div><p className="font-black">Contrato y documentos</p><InfoBadge>Solo información</InfoBadge></div></div>
+                  <div className="mb-3 flex items-center gap-3"><IconBlock icon={FileText} color={eventColor} /><div><p className="font-black">Contrato y documentos</p><InfoBadge>Solo informaciÃ³n</InfoBadge></div></div>
                   <div className="space-y-2">
                     <p className="rounded-lg bg-slate-50 p-3 text-sm">Contrato: {contractStatus}</p>
                     {documentsOrdered.slice(0, 8).map((documento: any) => (
@@ -1340,7 +1346,7 @@ export default function PublicPortalClientExperience({ fiesta, companyContact, c
                         </Button>
                       ) : <p key={documento.id || getDocumentName(documento)} className="rounded-lg bg-slate-50 p-3 text-sm">{getDocumentName(documento)}</p>
                     ))}
-                    {documentos.length === 0 && <EmptyLine text="No hay documentos descargables cargados todavía." />}
+                    {documentos.length === 0 && <EmptyLine text="No hay documentos descargables cargados todavÃ­a." />}
                   </div>
                 </div>
 
@@ -1349,7 +1355,7 @@ export default function PublicPortalClientExperience({ fiesta, companyContact, c
                   <div className="space-y-3 text-sm text-slate-600">
                     {cuentasBancarias.length > 0 && cuentasBancarias.slice(0, 2).map((cuenta: any) => <div key={cuenta.id || cuenta.numero} className="rounded-lg bg-slate-50 p-3"><p className="font-semibold text-slate-900">{cuenta.banco}</p><p>{cuenta.titular}</p><p>{cuenta.numero}</p></div>)}
                     <Button onClick={() => setPaymentModalOpen(true)} style={{ background: eventColor }}><Upload className="h-4 w-4" /> Informar pago</Button>
-                    {paymentSummary.pendingReviewCount > 0 && <p className="rounded-lg bg-amber-50 p-3 text-amber-900">Tenés pagos informados esperando revisión de AK.</p>}
+                    {paymentSummary.pendingReviewCount > 0 && <p className="rounded-lg bg-amber-50 p-3 text-amber-900">TenÃ©s pagos informados esperando revisiÃ³n de AK.</p>}
                   </div>
                 </div>
               </div>
@@ -1366,7 +1372,7 @@ export default function PublicPortalClientExperience({ fiesta, companyContact, c
                   <InfoBadge tone="action">Cliente participa</InfoBadge>
                 </div>
                 <p className="text-xs text-slate-600 mb-3 leading-relaxed">
-                  Podés solicitar la reprogramación de fecha del evento o la cancelación de uno o más servicios contratados de forma directa. Estas acciones requieren verificación de tu PIN/Contraseña y generarán el documento de adenda correspondiente para firma manual.
+                  PodÃ©s solicitar la reprogramaciÃ³n de fecha del evento o la cancelaciÃ³n de uno o mÃ¡s servicios contratados de forma directa. Estas acciones requieren verificaciÃ³n de tu PIN/ContraseÃ±a y generarÃ¡n el documento de adenda correspondiente para firma manual.
                 </p>
                 <div className="flex flex-wrap gap-2 text-sm">
                   <Button variant="outline" size="sm" className="text-xs border-rose-200 text-rose-700 hover:bg-rose-50" onClick={() => { setCancelarModalOpen(true); setSelectedServicesToCancel([]); setCancellationMode('partial'); }}>
@@ -1383,7 +1389,7 @@ export default function PublicPortalClientExperience({ fiesta, companyContact, c
                   <IconBlock icon={Receipt} color={eventColor} />
                   <div>
                     <p className="font-black">Lo contratado</p>
-                    <InfoBadge>Solo información</InfoBadge>
+                    <InfoBadge>Solo informaciÃ³n</InfoBadge>
                   </div>
                 </div>
                 {lineItems.length === 0 ? (
@@ -1422,10 +1428,10 @@ export default function PublicPortalClientExperience({ fiesta, companyContact, c
               </div>
 
               <div className="rounded-lg border p-4">
-                <div className="mb-3 flex items-center gap-3"><IconBlock icon={Plus} color={eventColor} /><div><p className="font-black">Simular más invitados</p><InfoBadge tone="action">Requiere aprobación de AK</InfoBadge></div></div>
+                <div className="mb-3 flex items-center gap-3"><IconBlock icon={Plus} color={eventColor} /><div><p className="font-black">Simular mÃ¡s invitados</p><InfoBadge tone="action">Requiere aprobaciÃ³n de AK</InfoBadge></div></div>
                 <div className="grid gap-3 lg:grid-cols-[1fr_1fr_1.1fr]">
                   <label className="space-y-1 text-sm font-semibold text-slate-700">Adultos a agregar<Input type="number" min={0} value={extraAdults} onChange={event => setExtraAdults(Math.max(0, Number(event.target.value) || 0))} /></label>
-                  <label className="space-y-1 text-sm font-semibold text-slate-700">Niños/adolescentes<Input type="number" min={0} value={extraChildren} onChange={event => setExtraChildren(Math.max(0, Number(event.target.value) || 0))} /></label>
+                  <label className="space-y-1 text-sm font-semibold text-slate-700">NiÃ±os/adolescentes<Input type="number" min={0} value={extraChildren} onChange={event => setExtraChildren(Math.max(0, Number(event.target.value) || 0))} /></label>
                   <div className="rounded-lg bg-slate-50 p-3 text-sm"><p>Extra estimado: <strong>{formatPortalMoney(guestEstimate.additionalTotal)}</strong></p><p>Nuevo total: <strong>{formatPortalMoney(guestEstimate.newTotal)}</strong></p><p className="text-xs text-slate-500">Incluye ajuste anual de {annualAdjustmentPercent}%.</p></div>
                 </div>
                 <Textarea className="mt-3" value={guestNote} onChange={event => setGuestNote(event.target.value)} placeholder="Nota para AK, por ejemplo: necesito sumar 10 personas" />
@@ -1477,9 +1483,9 @@ export default function PublicPortalClientExperience({ fiesta, companyContact, c
                 <StatTile label="No asisten" value={guestStats.rejected} icon={X} tone="bg-rose-50 text-rose-700" />
               </div>
               <div className="rounded-lg border p-4 text-sm leading-6 text-slate-600">
-                <p className="font-semibold text-slate-900">Resumen rápido</p>
-                <p>El cliente ve cuántas personas ya confirmaron y cuántas siguen pendientes, sin tener que buscar en otras pantallas.</p>
-                {settings?.invitados?.visible ? <p className="mt-2">La lista de invitados está activa para este portal.</p> : <p className="mt-2">AK puede activar la lista completa desde la configuración del portal.</p>}
+                <p className="font-semibold text-slate-900">Resumen rÃ¡pido</p>
+                <p>El cliente ve cuÃ¡ntas personas ya confirmaron y cuÃ¡ntas siguen pendientes, sin tener que buscar en otras pantallas.</p>
+                {settings?.invitados?.visible ? <p className="mt-2">La lista de invitados estÃ¡ activa para este portal.</p> : <p className="mt-2">AK puede activar la lista completa desde la configuraciÃ³n del portal.</p>}
               </div>
             </AccordionContent>
           </AccordionItem>}
@@ -1499,7 +1505,7 @@ export default function PublicPortalClientExperience({ fiesta, companyContact, c
           <AccordionItem value="reglas" id="portal-reglas" className="ak-public-card px-4">
             <AccordionTrigger className="text-left text-lg font-black hover:no-underline"><span className="flex items-center gap-3"><IconBlock icon={ShieldCheck} color={eventColor} /> Reglas y preguntas</span></AccordionTrigger>
             <AccordionContent className="space-y-4 pb-5">
-              {faqItems.length === 0 ? <EmptyLine text="No hay reglas o preguntas frecuentes cargadas todavía." /> : faqItems.map((faq: any) => <div key={faq.id || faq.pregunta} className="rounded-lg border bg-slate-50 p-4"><p className="font-black text-slate-900">{faq.pregunta}</p><p className="mt-1 text-sm leading-6 text-slate-600">{faq.respuesta}</p></div>)}
+              {faqItems.length === 0 ? <EmptyLine text="No hay reglas o preguntas frecuentes cargadas todavÃ­a." /> : faqItems.map((faq: any) => <div key={faq.id || faq.pregunta} className="rounded-lg border bg-slate-50 p-4"><p className="font-black text-slate-900">{faq.pregunta}</p><p className="mt-1 text-sm leading-6 text-slate-600">{faq.respuesta}</p></div>)}
             </AccordionContent>
           </AccordionItem>
         </Accordion>
@@ -1511,22 +1517,22 @@ export default function PublicPortalClientExperience({ fiesta, companyContact, c
             <div className="flex items-center justify-between border-b p-4">
               <div>
                 <p className="text-lg font-black text-slate-900">Personalizar portada</p>
-                <p className="text-xs text-slate-500">Seleccioná un diseño premium o subí tu propia foto.</p>
+                <p className="text-xs text-slate-500">SeleccionÃ¡ un diseÃ±o premium o subÃ­ tu propia foto.</p>
               </div>
               <Button variant="ghost" size="icon" aria-label="Cerrar" onClick={() => setCoverModalOpen(false)}>
                 <X className="h-4 w-4" />
               </Button>
             </div>
-            
+
             <div className="p-4 space-y-4 max-h-[75vh] overflow-y-auto">
               <div>
-                <p className="text-xs font-black text-slate-400 uppercase tracking-widest mb-2">Diseños Predeterminados</p>
+                <p className="text-xs font-black text-slate-400 uppercase tracking-widest mb-2">DiseÃ±os Predeterminados</p>
                 <div className="grid grid-cols-2 gap-2">
                   {[
                     { name: 'Negro & Oro Elegante', url: 'https://images.unsplash.com/photo-1513151233558-d860c5398176?q=80&w=1200&auto=format&fit=crop' },
-                    { name: 'Luces de Noche Mágica', url: 'https://images.unsplash.com/photo-1492684223066-81342ee5ff30?q=80&w=1200&auto=format&fit=crop' },
+                    { name: 'Luces de Noche MÃ¡gica', url: 'https://images.unsplash.com/photo-1492684223066-81342ee5ff30?q=80&w=1200&auto=format&fit=crop' },
                     { name: 'Brillos de Fiesta', url: 'https://images.unsplash.com/photo-1507504038482-7621abf83863?q=80&w=1200&auto=format&fit=crop' },
-                    { name: 'Neón Violeta Abstracto', url: 'https://images.unsplash.com/photo-1550684848-fac1c5b4e853?q=80&w=1200&auto=format&fit=crop' },
+                    { name: 'NeÃ³n Violeta Abstracto', url: 'https://images.unsplash.com/photo-1550684848-fac1c5b4e853?q=80&w=1200&auto=format&fit=crop' },
                     { name: 'Champagne & Brindis', url: 'https://images.unsplash.com/photo-1516450360452-9312f5e86fc7?q=80&w=1200&auto=format&fit=crop' },
                     { name: 'Fondo de Color Acento', url: '' },
                   ].map(preset => (
@@ -1575,7 +1581,7 @@ export default function PublicPortalClientExperience({ fiesta, companyContact, c
                   ) : (
                     <Upload className="h-4 w-4 text-slate-500 mr-2" />
                   )}
-                  {isSavingCover ? 'Guardando diseño...' : 'Seleccionar archivo de imagen'}
+                  {isSavingCover ? 'Guardando diseÃ±o...' : 'Seleccionar archivo de imagen'}
                 </Button>
               </div>
 
@@ -1640,7 +1646,7 @@ export default function PublicPortalClientExperience({ fiesta, companyContact, c
           </div>
         </div>
       )}
-      {/* ── MODAL DE CANCELACIÓN DE SERVICIOS O FIESTA ── */}
+      {/* â”€â”€ MODAL DE CANCELACIÃ“N DE SERVICIOS O FIESTA â”€â”€ */}
       {cancelarModalOpen && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 p-4 backdrop-blur-sm overflow-y-auto">
           <div className="w-full max-w-lg rounded-2xl bg-white shadow-2xl overflow-hidden animate-in fade-in zoom-in-95 duration-200">
@@ -1649,13 +1655,13 @@ export default function PublicPortalClientExperience({ fiesta, companyContact, c
                 <p className="text-lg font-black text-rose-950 flex items-center gap-2">
                   <AlertTriangle className="h-5 w-5 text-rose-600" /> Cancelar Servicios o Fiesta
                 </p>
-                <p className="text-xs text-rose-800/80">Recargo por penalización del 30% según contrato</p>
+                <p className="text-xs text-rose-800/80">Recargo por penalizaciÃ³n del 30% segÃºn contrato</p>
               </div>
               <Button variant="ghost" size="icon" className="rounded-full" aria-label="Cerrar" onClick={() => setCancelarModalOpen(false)}>
                 <X className="h-4 w-4" />
               </Button>
             </div>
-            
+
             <div className="p-5 space-y-4 max-h-[70vh] overflow-y-auto">
               <div className="flex gap-4 p-1 bg-slate-100 rounded-xl">
                 <button
@@ -1676,7 +1682,7 @@ export default function PublicPortalClientExperience({ fiesta, companyContact, c
 
               {cancellationMode === 'partial' ? (
                 <div className="space-y-2">
-                  <p className="text-xs font-bold text-slate-500 uppercase tracking-wider">Seleccioná los servicios a quitar:</p>
+                  <p className="text-xs font-bold text-slate-500 uppercase tracking-wider">SeleccionÃ¡ los servicios a quitar:</p>
                   <div className="border rounded-xl divide-y max-h-[200px] overflow-y-auto bg-slate-50/50">
                     {lineItems.filter((item: any) => item.idServicioCatalogo !== 'multa_cancelacion_total' && !item.idServicioCatalogo.startsWith('multa_cancelacion_') && !item.idServicioCatalogo.startsWith('multa_cambio_fecha_')).map((item: any) => {
                       const isChecked = selectedServicesToCancel.includes(item.idServicioCatalogo);
@@ -1697,7 +1703,7 @@ export default function PublicPortalClientExperience({ fiesta, companyContact, c
                           <div className="flex-1 min-w-0">
                             <p className="font-semibold text-slate-800 truncate">{item.nombreServicio}</p>
                             <p className="text-slate-500 text-[10px]">
-                              Cantidad: {item.cantidad ?? 1} {item.unidad ? ` ${item.unidad}` : ''} · Precio: {formatPortalMoney(item.costoTotalItem)}
+                              Cantidad: {item.cantidad ?? 1} {item.unidad ? ` ${item.unidad}` : ''} Â· Precio: {formatPortalMoney(item.costoTotalItem)}
                             </p>
                           </div>
                         </label>
@@ -1707,9 +1713,9 @@ export default function PublicPortalClientExperience({ fiesta, companyContact, c
                 </div>
               ) : (
                 <div className="rounded-xl border border-rose-100 bg-rose-50/40 p-4 text-xs space-y-2 text-rose-900 leading-relaxed">
-                  <p className="font-bold flex items-center gap-1.5"><AlertTriangle className="h-4 w-4 shrink-0 text-rose-600" /> ATENCIÓN: CANCELACIÓN TOTAL</p>
+                  <p className="font-bold flex items-center gap-1.5"><AlertTriangle className="h-4 w-4 shrink-0 text-rose-600" /> ATENCIÃ“N: CANCELACIÃ“N TOTAL</p>
                   <p>
-                    Se cancelará la fiesta en su totalidad. Esta acción es definitiva y dará de baja el evento, generando el contrato de rescisión y la liquidación del 30% de penalización sobre el presupuesto total.
+                    Se cancelarÃ¡ la fiesta en su totalidad. Esta acciÃ³n es definitiva y darÃ¡ de baja el evento, generando el contrato de rescisiÃ³n y la liquidaciÃ³n del 30% de penalizaciÃ³n sobre el presupuesto total.
                   </p>
                 </div>
               )}
@@ -1718,11 +1724,11 @@ export default function PublicPortalClientExperience({ fiesta, companyContact, c
               {(() => {
                 const impact = getCancellationImpact();
                 const hasSelections = cancellationMode === 'all' || selectedServicesToCancel.length > 0;
-                if (!hasSelections) return <p className="text-xs text-slate-500 text-center py-4 bg-slate-50 rounded-xl">Seleccioná al menos un servicio para ver el impacto financiero.</p>;
+                if (!hasSelections) return <p className="text-xs text-slate-500 text-center py-4 bg-slate-50 rounded-xl">SeleccionÃ¡ al menos un servicio para ver el impacto financiero.</p>;
 
                 return (
                   <div className="border rounded-2xl p-4 bg-slate-50 text-xs space-y-2.5">
-                    <p className="font-bold text-slate-800 uppercase tracking-wider text-[10px]">Simulación de impacto financiero:</p>
+                    <p className="font-bold text-slate-800 uppercase tracking-wider text-[10px]">SimulaciÃ³n de impacto financiero:</p>
                     <div className="flex justify-between">
                       <span className="text-slate-600">Total original del contrato:</span>
                       <span className="font-bold">{formatPortalMoney(paymentSummary.total)}</span>
@@ -1735,7 +1741,7 @@ export default function PublicPortalClientExperience({ fiesta, companyContact, c
                     )}
                     {impact.yearsDiff > 0 && (
                       <div className="flex justify-between text-slate-500 text-[10px] italic">
-                        <span>Ajuste acumulado ({impact.yearsDiff} años):</span>
+                        <span>Ajuste acumulado ({impact.yearsDiff} aÃ±os):</span>
                         <span>x{impact.factorAjuste.toFixed(3)}</span>
                       </div>
                     )}
@@ -1752,11 +1758,11 @@ export default function PublicPortalClientExperience({ fiesta, companyContact, c
                       <span className="text-slate-600">Total ya abonado por vos:</span>
                       <span className="font-bold text-emerald-700">{formatPortalMoney(paymentSummary.paid)}</span>
                     </div>
-                    
+
                     <div className={`p-3 rounded-xl border flex items-center justify-between text-sm ${impact.refund > 0 ? 'bg-emerald-50 border-emerald-200 text-emerald-800' : 'bg-amber-50 border-amber-200 text-amber-800'}`}>
                       <span className="font-black flex items-center gap-1.5">
                         {impact.refund > 0 ? <CheckCircle2 className="h-5 w-5 animate-none" /> : <AlertTriangle className="h-5 w-5 animate-none" />}
-                        {impact.refund > 0 ? 'SE TE DEVOLVERÁ:' : 'RESTAS DEBER DE MULTA:'}
+                        {impact.refund > 0 ? 'SE TE DEVOLVERÃ:' : 'RESTAS DEBER DE MULTA:'}
                       </span>
                       <span className="font-black text-base">
                         {impact.refund > 0 ? formatPortalMoney(impact.refund) : formatPortalMoney(impact.owed)}
@@ -1788,7 +1794,7 @@ export default function PublicPortalClientExperience({ fiesta, companyContact, c
         </div>
       )}
 
-      {/* ── MODAL DE CAMBIO DE FECHA ── */}
+      {/* â”€â”€ MODAL DE CAMBIO DE FECHA â”€â”€ */}
       {cambioFechaModalOpen && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 p-4 backdrop-blur-sm overflow-y-auto">
           <div className="w-full max-w-md rounded-2xl bg-white shadow-2xl overflow-hidden animate-in fade-in zoom-in-95 duration-200">
@@ -1803,10 +1809,10 @@ export default function PublicPortalClientExperience({ fiesta, companyContact, c
                 <X className="h-4 w-4" />
               </Button>
             </div>
-            
+
             <div className="p-5 space-y-4">
               <div className="space-y-2">
-                <Label htmlFor="proposed-new-date" className="text-xs font-bold text-slate-500 uppercase tracking-wider">Elegí la nueva fecha solicitada:</Label>
+                <Label htmlFor="proposed-new-date" className="text-xs font-bold text-slate-500 uppercase tracking-wider">ElegÃ­ la nueva fecha solicitada:</Label>
                 <Input
                   id="proposed-new-date"
                   type="date"
@@ -1826,14 +1832,14 @@ export default function PublicPortalClientExperience({ fiesta, companyContact, c
                 <div className="space-y-3">
                   {dateAvailabilityResult.available ? (
                     <div className="rounded-xl border border-emerald-200 bg-emerald-50/50 p-3 text-xs text-emerald-800 space-y-2">
-                      <p className="font-bold flex items-center gap-1.5"><CheckCircle2 className="h-4 w-4 text-emerald-600" /> ¡Fecha disponible!</p>
-                      <p>La fecha elegida no tiene eventos asignados y está libre para agendar.</p>
+                      <p className="font-bold flex items-center gap-1.5"><CheckCircle2 className="h-4 w-4 text-emerald-600" /> Â¡Fecha disponible!</p>
+                      <p>La fecha elegida no tiene eventos asignados y estÃ¡ libre para agendar.</p>
                     </div>
                   ) : (
                     <div className="rounded-xl border border-rose-200 bg-rose-50/50 p-3 text-xs text-rose-800 space-y-2.5">
                       <p className="font-bold flex items-center gap-1.5"><AlertTriangle className="h-4 w-4 text-rose-600" /> Fecha no disponible</p>
                       <p>Lamentablemente ya hay otra fiesta agendada para esa fecha. Te sugerimos las siguientes opciones libres cercanas:</p>
-                      
+
                       {dateAvailabilityResult.suggestions && dateAvailabilityResult.suggestions.length > 0 ? (
                         <div className="grid grid-cols-2 gap-2 mt-1">
                           {dateAvailabilityResult.suggestions.map((sugDate) => {
@@ -1852,7 +1858,7 @@ export default function PublicPortalClientExperience({ fiesta, companyContact, c
                           })}
                         </div>
                       ) : (
-                        <p className="text-[10px] text-rose-700 italic">No se encontraron alternativas libres automáticas. Probá otra fecha.</p>
+                        <p className="text-[10px] text-rose-700 italic">No se encontraron alternativas libres automÃ¡ticas. ProbÃ¡ otra fecha.</p>
                       )}
                     </div>
                   )}
@@ -1867,7 +1873,7 @@ export default function PublicPortalClientExperience({ fiesta, companyContact, c
                           <span className="font-bold">{formatPortalMoney(paymentSummary.total)}</span>
                         </div>
                         <div className="flex justify-between">
-                          <span className="text-slate-600">Multa por reprogramación (10%):</span>
+                          <span className="text-slate-600">Multa por reprogramaciÃ³n (10%):</span>
                           <span className="font-bold text-amber-700">+{formatPortalMoney(impact.penalty)}</span>
                         </div>
                         <div className="border-t my-1" />
@@ -1884,7 +1890,7 @@ export default function PublicPortalClientExperience({ fiesta, companyContact, c
                           <span className="font-black text-amber-700">{formatPortalMoney(impact.newBalance)}</span>
                         </div>
                         <p className="text-[10px] text-slate-500 italic leading-relaxed pt-1 border-t">
-                          * Nota: Si reprogramás para otro año diferente al original, se sumará el ajuste por inflación anual estipulado al momento del cobro.
+                          * Nota: Si reprogramÃ¡s para otro aÃ±o diferente al original, se sumarÃ¡ el ajuste por inflaciÃ³n anual estipulado al momento del cobro.
                         </p>
                       </div>
                     );
@@ -1914,28 +1920,28 @@ export default function PublicPortalClientExperience({ fiesta, companyContact, c
         </div>
       )}
 
-      {/* ── MODAL DE VERIFICACIÓN DE PIN Y CONTRASEÑA ── */}
+      {/* â”€â”€ MODAL DE VERIFICACIÃ“N DE PIN Y CONTRASEÃ‘A â”€â”€ */}
       {pinVerificationOpen && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 p-4 backdrop-blur-sm">
           <div className="w-full max-w-md rounded-2xl bg-white shadow-2xl overflow-hidden animate-in fade-in zoom-in-95 duration-200">
             <div className="flex items-center justify-between border-b p-4 bg-slate-50">
               <div>
-                <p className="text-lg font-black text-slate-800">Autorizar Operación Especial</p>
-                <p className="text-xs text-slate-500">Ingresá tu PIN/Contraseña para validar la acción</p>
+                <p className="text-lg font-black text-slate-800">Autorizar OperaciÃ³n Especial</p>
+                <p className="text-xs text-slate-500">IngresÃ¡ tu PIN/ContraseÃ±a para validar la acciÃ³n</p>
               </div>
               <Button variant="ghost" size="icon" className="rounded-full" aria-label="Cerrar" onClick={() => setPinVerificationOpen(false)} disabled={actionProcessing}>
                 <X className="h-4 w-4" />
               </Button>
             </div>
-            
+
             <div className="p-5 space-y-4">
               {!actionSuccessData ? (
                 <>
                   <p className="text-xs text-slate-600 leading-relaxed">
-                    Para confirmar el cambio e iniciar la generación del contrato/adenda de firma manual, necesitás ingresar la contraseña de operaciones VIP que te fue entregada.
+                    Para confirmar el cambio e iniciar la generaciÃ³n del contrato/adenda de firma manual, necesitÃ¡s ingresar la contraseÃ±a de operaciones VIP que te fue entregada.
                   </p>
                   <div className="space-y-1.5">
-                    <Label htmlFor="operations-pin-code" className="text-xs font-bold text-slate-500 uppercase tracking-wider">PIN / Contraseña de Operaciones:</Label>
+                    <Label htmlFor="operations-pin-code" className="text-xs font-bold text-slate-500 uppercase tracking-wider">PIN / ContraseÃ±a de Operaciones:</Label>
                     <Input
                       id="operations-pin-code"
                       type="password"
@@ -1949,7 +1955,7 @@ export default function PublicPortalClientExperience({ fiesta, companyContact, c
 
                   {pinError && (
                     <p className="text-xs font-semibold text-rose-600 bg-rose-50 border border-rose-100 rounded-xl p-3 text-center">
-                      ⚠️ {pinError}
+                      âš ï¸ {pinError}
                     </p>
                   )}
 
@@ -1972,22 +1978,22 @@ export default function PublicPortalClientExperience({ fiesta, companyContact, c
                     <CheckCircle2 className="h-10 w-10 text-emerald-600" />
                   </div>
                   <div>
-                    <p className="font-black text-xl text-slate-800">¡Acción Autorizada con Éxito!</p>
+                    <p className="font-black text-xl text-slate-800">Â¡AcciÃ³n Autorizada con Ã‰xito!</p>
                     <p className="text-xs text-slate-500 mt-1">
-                      El presupuesto se actualizó y se generó el contrato en PDF/Texto para firmar.
+                      El presupuesto se actualizÃ³ y se generÃ³ el contrato en PDF/Texto para firmar.
                     </p>
                   </div>
 
                   <div className="border border-emerald-100 bg-emerald-50/30 rounded-xl p-4 w-full text-xs text-emerald-900 leading-relaxed text-left space-y-2">
-                    <p className="font-bold flex items-center gap-1.5">📢 INSTRUCCIONES DE ACCIÓN REQUERIDA:</p>
+                    <p className="font-bold flex items-center gap-1.5">ðŸ“¢ INSTRUCCIONES DE ACCIÃ“N REQUERIDA:</p>
                     <p>
-                      1. Descargá el documento de rescisión/adenda generado haciendo clic en el botón de abajo.
+                      1. DescargÃ¡ el documento de rescisiÃ³n/adenda generado haciendo clic en el botÃ³n de abajo.
                     </p>
                     <p>
                       2. Imprimilo y **firmalo manualmente**.
                     </p>
                     <p>
-                      3. **Comunicate de inmediato con nosotros** informándonos de tu decisión para coordinar la entrega física/digital y concretar los saldos correspondientes.
+                      3. **Comunicate de inmediato con nosotros** informÃ¡ndonos de tu decisiÃ³n para coordinar la entrega fÃ­sica/digital y concretar los saldos correspondientes.
                     </p>
                   </div>
 
@@ -2003,6 +2009,85 @@ export default function PublicPortalClientExperience({ fiesta, companyContact, c
                   </div>
                 </div>
               )}
+            </div>
+          </div>
+        </div>
+      {paymentModalOpen && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 p-4 backdrop-blur-sm overflow-y-auto">
+          <div className="w-full max-w-md rounded-2xl bg-white shadow-2xl overflow-hidden animate-in fade-in zoom-in-95 duration-200">
+            <div className="flex items-center justify-between border-b p-4 bg-emerald-50">
+              <div>
+                <p className="text-lg font-black text-emerald-950 flex items-center gap-2">
+                  <CreditCard className="h-5 w-5 text-emerald-600" /> Informar un Pago
+                </p>
+                <p className="text-xs text-emerald-800/80">RegistrÃ¡ tu pago para que AK lo valide</p>
+              </div>
+              <Button variant="ghost" size="icon" className="rounded-full" aria-label="Cerrar" onClick={() => setPaymentModalOpen(false)}>
+                <X className="h-4 w-4" />
+              </Button>
+            </div>
+
+            <div className="p-5 space-y-4">
+              <div className="space-y-1.5">
+                <Label htmlFor="payment-amount" className="text-xs font-bold text-slate-500 uppercase tracking-wider">Monto Abonado ($ UYU):</Label>
+                <Input
+                  id="payment-amount"
+                  type="number"
+                  min={0}
+                  placeholder="Ej: 15000"
+                  value={paymentAmount}
+                  onChange={e => setPaymentAmount(e.target.value)}
+                  className="rounded-xl h-11 text-lg font-semibold"
+                />
+              </div>
+
+              <div className="space-y-1.5">
+                <Label htmlFor="payment-note" className="text-xs font-bold text-slate-500 uppercase tracking-wider">Notas / Referencia (Opcional):</Label>
+                <Input
+                  id="payment-note"
+                  type="text"
+                  placeholder="Ej: Transferencia BROU NÂ° 12345"
+                  value={paymentNote}
+                  onChange={e => setPaymentNote(e.target.value)}
+                  className="rounded-xl h-11"
+                />
+              </div>
+
+              <div className="space-y-1.5">
+                <Label className="text-xs font-bold text-slate-500 uppercase tracking-wider">Comprobante de Pago:</Label>
+                <input
+                  ref={fileInputRef}
+                  type="file"
+                  accept="image/*,application/pdf"
+                  className="hidden"
+                  onChange={event => handlePaymentFile(event.target.files?.[0])}
+                />
+                <Button
+                  variant="outline"
+                  className="w-full justify-start rounded-xl h-11 text-slate-700 border-slate-300 bg-slate-50 hover:bg-slate-100"
+                  onClick={() => fileInputRef.current?.click()}
+                >
+                  <Upload className="h-4 w-4 text-slate-500 mr-2" />
+                  {paymentFile ? paymentFile.name : 'Subir foto o PDF del comprobante'}
+                </Button>
+              </div>
+
+              {paymentNotice && <NoticeBox notice={paymentNotice} />}
+            </div>
+
+            <div className="flex items-center justify-end gap-2 border-t p-4 bg-slate-50">
+              <Button variant="ghost" className="rounded-xl" onClick={() => setPaymentModalOpen(false)}>Cancelar</Button>
+              <Button
+                disabled={!paymentAmount || paymentLoading}
+                onClick={submitPayment}
+                className="rounded-xl font-bold bg-emerald-600 hover:bg-emerald-500 text-white flex items-center justify-center gap-1.5"
+              >
+                {paymentLoading ? (
+                  <Loader2 className="h-4 w-4 animate-spin text-white" />
+                ) : (
+                  'Enviar Comprobante'
+                )}
+              </Button>
             </div>
           </div>
         </div>

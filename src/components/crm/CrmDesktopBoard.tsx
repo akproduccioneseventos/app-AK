@@ -52,7 +52,6 @@ export function CrmDesktopBoard({
               leads={leadsByStage[stage.id] || []}
               onDeleteLead={onDeleteLead}
               deletingLeadId={deletingLeadId}
-              onHire={onHire}
             />
           ))}
         </div>

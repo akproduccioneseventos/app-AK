@@ -59,13 +59,13 @@ function InvitadosEventoContent() {
   const searchParams = useSearchParams();
   const router = useRouter();
   const fiestaId = searchParams.get('fiestaId');
-  
+
   const [fiesta, setFiesta] = useState<FiestaEnPlanificacion | null>(null);
   const [invitados, setInvitados] = useState<Invitado[]>([]);
   const [tableNames, setTableNames] = useState<string[]>([]);
   const [isLoading, setIsLoading] = useState(true);
-  const [isSaving, setIsSaving] = useState(false); 
-  
+  const [isSaving, setIsSaving] = useState(false);
+
   // New guest form state
   const [nuevoNombre, setNuevoNombre] = useState('');
   const [nuevaCategoria, setNewCategoria] = useState<CategoriaInvitado>('Adulto');
@@ -80,14 +80,14 @@ function InvitadosEventoContent() {
 
   // QR modal state
   const [isMesaQrOpen, setIsMesaQrOpen] = useState(false);
-  
+
   const fetchInvitados = useCallback(async () => {
     if (!fiestaId) return;
     setIsLoading(true);
     try {
       const fiestaData = await getFiestaById(fiestaId);
       if (!fiestaData) throw new Error("Fiesta no encontrada");
-      
+
       setFiesta(fiestaData);
       setInvitados((fiestaData.invitados || []).sort((a,b) => a.nombre.localeCompare(b.nombre)));
       const tables = (fiestaData.decoracion?.salonElements || [])
@@ -105,10 +105,10 @@ function InvitadosEventoContent() {
 
   const stats = useMemo(() => {
     const adultsConfirmed = invitados.reduce((sum, i) => sum + (i.rsvp === 'Confirmado' && i.categoria === 'Adulto' ? (i.partySize || 1) : 0), 0);
-    const kidsConfirmed = invitados.reduce((sum, i) => sum + (i.rsvp === 'Confirmado' && i.categoria === 'Niño/Adolescente' ? (i.partySize || 1) : 0), 0);
+    const kidsConfirmed = invitados.reduce((sum, i) => sum + (i.rsvp === 'Confirmado' && i.categoria === 'NiÃ±o/Adolescente' ? (i.partySize || 1) : 0), 0);
     const celiacs = invitados.filter(i => (i.isCeliac || i.dietaryRestriction === 'Celiaco') && i.rsvp === 'Confirmado').length;
     const vips = invitados.filter(i => i.perfil === 'VIP').length;
-    
+
     return {
         adults: { confirmed: adultsConfirmed, contracted: Number(fiesta?.configuracion.invitadosAdultos) || 0 },
         kids: { confirmed: kidsConfirmed, contracted: Number(fiesta?.configuracion.invitadosNinos) || 0 },
@@ -133,7 +133,7 @@ function InvitadosEventoContent() {
     if (result.success) {
       setNuevoNombre(''); setNuevoTag(''); setNuevoCeliaco(false); setNuevoPerfil('General');
       await fetchInvitados();
-      toast({ title: "Invitado Añadido" });
+      toast({ title: "Invitado AÃ±adido" });
     } else {
       toast({ title: "No se pudo agregar", description: result.error || "Intenta nuevamente.", variant: "destructive" });
     }
@@ -163,29 +163,63 @@ function InvitadosEventoContent() {
     if (result.success) {
       await fetchInvitados();
       setIsEditModalOpen(false);
-      toast({ title: "✅ Invitado actualizado" });
+      toast({ title: "âœ… Invitado actualizado" });
     } else {
       toast({ title: "Error", description: result.error ?? "No se pudo guardar.", variant: "destructive" });
     }
     setIsSavingEdit(false);
   };
 
-  if (!fiestaId) return <EventSelectionRequired moduleName="la gestión de invitados" />;
+  const handleExportCSV = () => {
+    if (!fiesta || !invitados.length) return;
+    const headers = ['Nombre', 'CategorÃ­a', 'Perfil', 'RSVP', 'AcompaÃ±antes', 'Mesa', 'RestricciÃ³n DietÃ©tica', 'Alergias', 'Accesibilidad', 'Contacto', 'Check-In'];
+    const rows = invitados.map(inv => [
+      inv.nombre,
+      inv.categoria,
+      inv.perfil || 'General',
+      inv.rsvp,
+      inv.partySize || 1,
+      inv.tableNumber || '',
+      inv.dietaryRestriction || 'Ninguna',
+      inv.alergiasEspecificas || '',
+      inv.requiereAccesibilidad ? 'SÃ­' : 'No',
+      inv.contacto || '',
+      inv.checkedIn ? 'SÃ­' : 'No'
+    ].map(field => `"${String(field).replace(/"/g, '""')}"`).join(','));
+
+    const csvContent = "\uFEFF" + [headers.join(','), ...rows].join('\n');
+    const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+    const url = URL.createObjectURL(blob);
+    const link = document.createElement('a');
+    link.href = url;
+    link.setAttribute('download', `invitados_${fiesta.configuracion.nombreAgasajado || 'evento'}.csv`);
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+  };
+
+  if (!fiestaId) return <EventSelectionRequired moduleName="la gestiÃ³n de invitados" />;
   if (isLoading || !fiesta) return <div className="flex justify-center p-8"><Loader2 className="animate-spin text-primary"/></div>;
 
   return (
     <div className="max-w-4xl mx-auto space-y-6">
       <div className="flex justify-between items-center print:hidden">
-        <h1 className="text-3xl font-bold font-headline">Gestión de Invitados</h1>
+        <h1 className="text-3xl font-bold font-headline">GestiÃ³n de Invitados</h1>
         <div className="flex gap-2">
-          <Button variant="outline" onClick={() => window.print()} className="bg-white"><Printer className="w-4 h-4 mr-2" /> PDF / Imprimir</Button>
-          <Button asChild variant="outline"><Link href={`/fiestas/nueva?fiestaId=${fiestaId}`}><ArrowLeft className="w-4 h-4 mr-2" />Volver</Link></Button>
+          <Button variant="outline" onClick={handleExportCSV} className="bg-white print:hidden"><Download className="w-4 h-4 mr-2" /> CSV</Button>
+          <Button variant="outline" onClick={() => window.print()} className="bg-white print:hidden"><Printer className="w-4 h-4 mr-2" /> PDF / Imprimir</Button>
+          <Button asChild variant="outline" className="print:hidden"><Link href={`/fiestas/nueva?fiestaId=${fiestaId}`}><ArrowLeft className="w-4 h-4 mr-2" />Volver</Link></Button>
         </div>
       </div>
-      
-      <div className="hidden print:block mb-4">
+
+      <div className="hidden print:block mb-4 text-black bg-white">
         <h1 className="text-2xl font-bold">Lista de Invitados - {fiesta?.configuracion.nombreAgasajado || 'Evento'}</h1>
-        <p className="text-sm text-slate-500">Generado el {new Date().toLocaleDateString()}</p>
+        <p className="text-sm text-slate-800">
+          {fiesta?.configuracion.nombreEvento && <span className="font-semibold">{fiesta.configuracion.nombreEvento}</span>}
+          {fiesta?.configuracion.fechaEvento && <span> â€¢ Fecha: {new Date(fiesta.configuracion.fechaEvento).toLocaleDateString('es-UY', { timeZone: 'UTC' })}</span>}
+          {fiesta?.configuracion.nombreLugar && <span> â€¢ Lugar: {fiesta.configuracion.nombreLugar}</span>}
+        </p>
+        <p className="text-xs text-slate-500 mt-1">Generado el {new Date().toLocaleDateString()}</p>
       </div>
 
       {/* Stats */}
@@ -198,14 +232,14 @@ function InvitadosEventoContent() {
               </CardContent>
           </Card>
           <Card className="border-purple-200 bg-purple-50/30">
-              <CardHeader className="p-4"><CardTitle className="text-xs font-black uppercase text-purple-800">Niños/Adol.</CardTitle></CardHeader>
+              <CardHeader className="p-4"><CardTitle className="text-xs font-black uppercase text-purple-800">NiÃ±os/Adol.</CardTitle></CardHeader>
               <CardContent className="p-4 pt-0">
                   <div className="flex justify-between items-end mb-2"><span className="text-2xl font-black">{stats.kids.confirmed}</span><span className="text-xs text-muted-foreground">de {stats.kids.contracted}</span></div>
                   <Progress value={stats.kids.contracted > 0 ? (stats.kids.confirmed / stats.kids.contracted) * 100 : 0} className="h-1.5" />
               </CardContent>
           </Card>
           <Card className="border-amber-200 bg-amber-50/30">
-              <CardHeader className="p-4"><CardTitle className="text-xs font-black uppercase text-amber-800">Celíacos</CardTitle></CardHeader>
+              <CardHeader className="p-4"><CardTitle className="text-xs font-black uppercase text-amber-800">CelÃ­acos</CardTitle></CardHeader>
               <CardContent className="p-4 pt-0"><span className="text-2xl font-black text-amber-600">{stats.celiacs}</span></CardContent>
           </Card>
           <Card className="border-yellow-200 bg-yellow-50/30">
@@ -220,7 +254,7 @@ function InvitadosEventoContent() {
           <CardTitle className="text-sm font-black flex items-center gap-2">
             <QrCode className="w-4 h-4 text-purple-600" /> QR Buscador de Mesas
           </CardTitle>
-          <CardDescription className="text-xs">Imprimí un QR para el banner de entrada.</CardDescription>
+          <CardDescription className="text-xs">ImprimÃ­ un QR para el banner de entrada.</CardDescription>
         </CardHeader>
         <CardContent>
           <Button size="sm" onClick={() => setIsMesaQrOpen(true)} className="w-full bg-purple-700 hover:bg-purple-800">
@@ -240,12 +274,12 @@ function InvitadosEventoContent() {
                 <Input value={nuevoNombre} onChange={e => setNuevoNombre(e.target.value)} required placeholder="Nombre completo" />
               </div>
               <div className="space-y-1.5">
-                <Label>Categoría</Label>
+                <Label>CategorÃ­a</Label>
                 <Select value={nuevaCategoria} onValueChange={v => setNewCategoria(v as CategoriaInvitado)}>
                   <SelectTrigger><SelectValue /></SelectTrigger>
                   <SelectContent>
                     <SelectItem value="Adulto">Adulto</SelectItem>
-                    <SelectItem value="Niño/Adolescente">Niño/Adol.</SelectItem>
+                    <SelectItem value="NiÃ±o/Adolescente">NiÃ±o/Adol.</SelectItem>
                   </SelectContent>
                 </Select>
               </div>
@@ -264,10 +298,10 @@ function InvitadosEventoContent() {
             <div className="flex items-center justify-between">
               <div className="flex items-center space-x-2">
                 <Switch checked={nuevoCeliaco} onCheckedChange={setNuevoCeliaco} />
-                <Label className="text-xs font-bold text-amber-600">Celíaco</Label>
+                <Label className="text-xs font-bold text-amber-600">CelÃ­aco</Label>
               </div>
               <Button type="submit" disabled={isSaving}>
-                <Plus className="w-4 h-4 mr-2"/>Añadir Invitado
+                <Plus className="w-4 h-4 mr-2"/>AÃ±adir Invitado
               </Button>
             </div>
           </form>
@@ -281,16 +315,17 @@ function InvitadosEventoContent() {
             <Table>
                 <TableHeader>
                   <TableRow>
-                    <TableHead>Nombre</TableHead>
-                    <TableHead>Perfil</TableHead>
-                    <TableHead>Estado</TableHead>
-                    <TableHead>Mesa</TableHead>
+                    <TableHead className="text-black">Nombre</TableHead>
+                    <TableHead className="text-black">Perfil</TableHead>
+                    <TableHead className="text-black">Estado</TableHead>
+                    <TableHead className="text-black">AcompaÃ±antes</TableHead>
+                    <TableHead className="text-black">Mesa</TableHead>
                     <TableHead className="text-right print:hidden">Acciones</TableHead>
                   </TableRow>
                 </TableHeader>
                 <TableBody>
                     {invitados.map(inv => (
-                        <TableRow key={inv.id} className={inv.isCeliac || inv.dietaryRestriction === 'Celiaco' ? "bg-amber-50/20" : ""}>
+                        <TableRow key={inv.id} className={inv.isCeliac || inv.dietaryRestriction === 'Celiaco' ? "bg-amber-50/20 print:bg-white" : "print:bg-white"}>
                             <TableCell className="font-bold">
                                 <div className="flex flex-wrap items-center gap-1">
                                   <span>{inv.nombre}</span>
@@ -304,6 +339,17 @@ function InvitadosEventoContent() {
                               <span className="text-[10px] font-black uppercase text-slate-400">{inv.perfil ?? 'General'}</span>
                             </TableCell>
                             <TableCell><RsvpStatusBadge status={inv.rsvp}/></TableCell>
+                            <TableCell>
+                              {inv.companionNames && inv.companionNames.length > 0 ? (
+                                <div className="text-xs text-slate-700">
+                                  {inv.companionNames.filter(Boolean).map((name, i) => (
+                                    <div key={i}>â€¢ {name}</div>
+                                  ))}
+                                </div>
+                              ) : (
+                                <span className="text-slate-400 text-xs">-</span>
+                              )}
+                            </TableCell>
                             <TableCell>{inv.tableNumber || '-'}</TableCell>
                             <TableCell className="text-right print:hidden">
                               <div className="flex justify-end gap-1">
@@ -318,8 +364,8 @@ function InvitadosEventoContent() {
                                   </AlertDialogTrigger>
                                   <AlertDialogContent>
                                     <AlertDialogHeader>
-                                      <AlertDialogTitle>¿Eliminar invitado?</AlertDialogTitle>
-                                      <AlertDialogDescription>Esta acción no se puede deshacer. Se eliminará a {inv.nombre} de la lista.</AlertDialogDescription>
+                                      <AlertDialogTitle>Â¿Eliminar invitado?</AlertDialogTitle>
+                                      <AlertDialogDescription>Esta acciÃ³n no se puede deshacer. Se eliminarÃ¡ a {inv.nombre} de la lista.</AlertDialogDescription>
                                     </AlertDialogHeader>
                                     <AlertDialogFooter>
                                       <AlertDialogCancel>Cancelar</AlertDialogCancel>
@@ -333,7 +379,7 @@ function InvitadosEventoContent() {
                     ))}
                     {invitados.length === 0 && (
                       <TableRow>
-                        <TableCell colSpan={5} className="text-center text-slate-400 py-8">No hay invitados aún. ¡Añadí el primero!</TableCell>
+                        <TableCell colSpan={5} className="text-center text-slate-400 py-8">No hay invitados aÃºn. Â¡AÃ±adÃ­ el primero!</TableCell>
                       </TableRow>
                     )}
                 </TableBody>
@@ -346,7 +392,7 @@ function InvitadosEventoContent() {
         <DialogContent className="max-w-lg max-h-[90vh] overflow-y-auto">
           <DialogHeader>
             <DialogTitle>Editar Invitado</DialogTitle>
-            <DialogDescription>Actualizá los datos del invitado, incluyendo su perfil y restricciones alimentarias.</DialogDescription>
+            <DialogDescription>ActualizÃ¡ los datos del invitado, incluyendo su perfil y restricciones alimentarias.</DialogDescription>
           </DialogHeader>
           {editingInvitado && (
             <div className="space-y-4 py-2">
@@ -362,12 +408,12 @@ function InvitadosEventoContent() {
               </div>
               <div className="grid grid-cols-2 gap-4">
                 <div className="space-y-1.5">
-                  <Label>Categoría</Label>
+                  <Label>CategorÃ­a</Label>
                   <Select value={editingInvitado.categoria ?? 'Adulto'} onValueChange={v => setEditingInvitado(prev => prev ? { ...prev, categoria: v as CategoriaInvitado } : prev)}>
                     <SelectTrigger><SelectValue /></SelectTrigger>
                     <SelectContent>
                       <SelectItem value="Adulto">Adulto</SelectItem>
-                      <SelectItem value="Niño/Adolescente">Niño/Adolescente</SelectItem>
+                      <SelectItem value="NiÃ±o/Adolescente">NiÃ±o/Adolescente</SelectItem>
                     </SelectContent>
                   </Select>
                 </div>
@@ -412,7 +458,7 @@ function InvitadosEventoContent() {
                 </div>
               </div>
               <div className="space-y-1.5">
-                <Label>Restricción alimentaria</Label>
+                <Label>RestricciÃ³n alimentaria</Label>
                 <Select value={editingInvitado.dietaryRestriction ?? 'Ninguna'} onValueChange={v => setEditingInvitado(prev => prev ? { ...prev, dietaryRestriction: v as DietaryRestriction } : prev)}>
                   <SelectTrigger><SelectValue /></SelectTrigger>
                   <SelectContent>
@@ -423,19 +469,19 @@ function InvitadosEventoContent() {
               {editingInvitado.dietaryRestriction && editingInvitado.dietaryRestriction !== 'Ninguna' && (
                 <div className="space-y-1.5">
                   <Label>Detalle de alergias (opcional)</Label>
-                  <Input value={editingInvitado.alergiasEspecificas ?? ''} onChange={e => setEditingInvitado(prev => prev ? { ...prev, alergiasEspecificas: e.target.value } : prev)} placeholder="Ej: alergia a maní..." />
+                  <Input value={editingInvitado.alergiasEspecificas ?? ''} onChange={e => setEditingInvitado(prev => prev ? { ...prev, alergiasEspecificas: e.target.value } : prev)} placeholder="Ej: alergia a manÃ­..." />
                 </div>
               )}
               {editingInvitado.perfil === 'VIP' && (
                 <div className="space-y-1.5">
                   <Label>Mensaje personalizado para VIP</Label>
-                  <Textarea value={editingInvitado.mensajePersonalizado ?? ''} onChange={e => setEditingInvitado(prev => prev ? { ...prev, mensajePersonalizado: e.target.value } : prev)} placeholder="Mensaje especial que verá este invitado en su portal..." rows={3} />
+                  <Textarea value={editingInvitado.mensajePersonalizado ?? ''} onChange={e => setEditingInvitado(prev => prev ? { ...prev, mensajePersonalizado: e.target.value } : prev)} placeholder="Mensaje especial que verÃ¡ este invitado en su portal..." rows={3} />
                 </div>
               )}
               <div className="flex items-center justify-between pt-2 border-t">
                 <div className="flex items-center space-x-2">
                   <Switch checked={editingInvitado.isCeliac ?? false} onCheckedChange={v => setEditingInvitado(prev => prev ? { ...prev, isCeliac: v } : prev)} />
-                  <Label className="text-xs font-bold text-amber-600">Celíaco</Label>
+                  <Label className="text-xs font-bold text-amber-600">CelÃ­aco</Label>
                 </div>
                 <div className="flex items-center space-x-2">
                   <Switch checked={editingInvitado.requiereAccesibilidad ?? false} onCheckedChange={v => setEditingInvitado(prev => prev ? { ...prev, requiereAccesibilidad: v } : prev)} />
@@ -458,9 +504,9 @@ function InvitadosEventoContent() {
       <Dialog open={isMesaQrOpen} onOpenChange={setIsMesaQrOpen}>
         <DialogContent className="max-w-sm">
           <DialogHeader>
-            <DialogTitle>🪑 QR Buscador de Mesas</DialogTitle>
+            <DialogTitle>ðŸª‘ QR Buscador de Mesas</DialogTitle>
             <DialogDescription>
-              Imprimí este QR en un banner para la entrada. Los invitados escanean y encuentran su mesa.
+              ImprimÃ­ este QR en un banner para la entrada. Los invitados escanean y encuentran su mesa.
             </DialogDescription>
           </DialogHeader>
           <div className="flex flex-col items-center gap-4 py-4">

@@ -3,7 +3,7 @@ jest.mock('@/lib/data-service', () => ({
   writeData: jest.fn(),
 }));
 jest.mock('@/lib/auth/session-token', () => ({
-  verifySession: jest.fn().mockResolvedValue({ success: true }),
+  verifySession: jest.fn().mockResolvedValue({ success: true, user: { role: 'admin' } }),
 }));
 jest.mock('@/app/actions/fiesta/fiesta.actions', () => ({
   addInvoiceId: jest.fn(),

@@ -167,7 +167,7 @@ async function persistBudgetAtomically(
             transaction.get(counterRef),
           ]);
           const stored = budgetSnapshot.exists ? budgetSnapshot.data() as Presupuesto : undefined;
-          if (stored && stored.estado !== 'Pendiente Verificación') {
+          if (stored && stored.estado !== 'Pendiente VerificaciÃ³n') {
             throw new Error('Este presupuesto ya fue revisado. Genera una nueva propuesta.');
           }
           const currentCounter = Number(counterSnapshot.data()?.lastNumber || maxExistingNumber);
@@ -192,7 +192,7 @@ async function persistBudgetAtomically(
   const presupuestos = await readData<Presupuesto[]>(PRESUPUESTOS_FILE, []);
   const existingIndex = presupuestos.findIndex((item) => item.id === presupuesto.id);
   const stored = existingIndex >= 0 ? presupuestos[existingIndex] : undefined;
-  if (stored && stored.estado !== 'Pendiente Verificación') {
+  if (stored && stored.estado !== 'Pendiente VerificaciÃ³n') {
     throw new Error('Este presupuesto ya fue revisado. Genera una nueva propuesta.');
   }
   const next = { ...presupuesto, numero: stored?.numero || maxExistingNumber + 1 };
@@ -252,19 +252,8 @@ export async function persistPublicSimulatorBudget(
   const excludedPackageServiceIds = Array.from(new Set(data.excludedPackageServiceIds || []))
     .filter(id => removableIds.has(id));
   const clubConfig = config.clubUruguayConfig || defaultClubUruguayConfig;
-  const syntheticServices = data.includeClubUruguay && clubConfig.activo
-    ? [{
-        servicio: {
-          id: 'serv_salon_club_uruguay',
-          nombre: 'Salon Club Uruguay',
-          tipoItem: 'Servicio' as const,
-          categoria: 'Otros servicios' as const,
-          precioVenta: clubConfig.precio,
-          precioBase: clubConfig.precio,
-          calculationMethod: 'fijo' as const,
-        },
-      }]
-    : [];
+  // El alquiler del Club Uruguay se abona por fuera a la administracion y no se suma al total del evento.
+  const syntheticServices: any[] = [];
   const pricing = calculateSimulatorPricing({
     config,
     services,
@@ -316,7 +305,7 @@ export async function persistPublicSimulatorBudget(
     ajusteAnualActivo: pricing.annualProjection.applies,
     ajusteAnualPorcentaje: pricing.annualProjection.adjustmentPct,
     totalConDescuento: pricing.totalFinal,
-    estado: 'Pendiente Verificación',
+    estado: 'Pendiente VerificaciÃ³n',
     source: options.source,
     acquisition: attribution,
   } as Presupuesto, { preserveStoredTotal: true });

@@ -180,11 +180,18 @@ export default function MuroEnVivoPage() {
   useEffect(() => {
     if (sorteoSpinActive && !sorteoSpinTriggeredRef.current) {
       sorteoSpinTriggeredRef.current = true;
-      // Double RAF ensures the wheel element is painted at rotate(0deg) before applying the
-      // spin angle, allowing the CSS transition to trigger correctly.
       requestAnimationFrame(() => {
         requestAnimationFrame(() => {
-          setSorteoSpinWheelAngle(prev => prev + 3600 + Math.floor(Math.random() * 1440));
+          // Deterministico: Si hay multiples pantallas proyectando el muro, todas se sincronizan
+          // al mismo angulo final basandose en el timestamp de inicio del sorteo.
+          const seedStr = lastSpinTsRef.current || String(Date.now());
+          let hash = 0;
+          for (let i = 0; i < seedStr.length; i++) {
+            hash = (hash << 5) - hash + seedStr.charCodeAt(i);
+            hash |= 0;
+          }
+          const deterministicOffset = Math.abs(hash) % 360;
+          setSorteoSpinWheelAngle(prev => prev + 3600 + deterministicOffset); // 10 spins + offset
         });
       });
     }
@@ -242,7 +249,11 @@ export default function MuroEnVivoPage() {
           Date.now() - new Date(sorteoTs).getTime() < SORTEO_DISPLAY_DURATION_MS;
         setActiveSorteoWinner(sorteoIsFresh ? sorteoWinner : null);
 
-        // Sorteo spin animation — only trigger once per unique spin timestamp
+        if (sorteoIsFresh && sorteoSpinActive) {
+            setSorteoSpinActive(false);
+        }
+
+        // Sorteo spin animation â€” only trigger once per unique spin timestamp
         const spinTs = fiestaData.socialGallerySettings.sorteoSpinStartedAt;
         const spinIsFresh = spinTs && Date.now() - new Date(spinTs).getTime() < SORTEO_SPIN_DISPLAY_DURATION_MS;
         if (spinIsFresh && !sorteoIsFresh && spinTs !== lastSpinTsRef.current) {
@@ -250,12 +261,6 @@ export default function MuroEnVivoPage() {
           // Reset wheel angle to 0 so the new spin starts fresh
           setSorteoSpinWheelAngle(0);
           setSorteoSpinActive(true);
-          // Trigger spin rotation to a large random angle after a brief layout transition
-          setTimeout(() => {
-            const randomOffset = Math.floor(Math.random() * 360);
-            setSorteoSpinWheelAngle(1800 + randomOffset); // 5 full spins + offset
-          }, 50);
-          setTimeout(() => setSorteoSpinActive(false), 6800);
         }
       }
       if (pollData) {
@@ -308,7 +313,7 @@ export default function MuroEnVivoPage() {
 
       setCompanyMarketingText(
         companyInfo?.companyName
-          ? `Seguinos y etiquetanos · ${companyInfo.companyName}${companyInfo.companyContact ? ` · ${companyInfo.companyContact}` : ''}`
+          ? `Seguinos y etiquetanos Â· ${companyInfo.companyName}${companyInfo.companyContact ? ` Â· ${companyInfo.companyContact}` : ''}`
           : DEFAULT_MARKETING_TICKER_TEXT
       );
       // Use socialGallerySettings.brand as primary branding source, fall back to company settings
@@ -444,14 +449,14 @@ export default function MuroEnVivoPage() {
   return (
     <div className="ak-live-stage fixed inset-0 flex select-none flex-col overflow-hidden bg-slate-950 text-white">
 
-      {/* Efecto destello cámara en pantalla completa al entrar foto nueva */}
+      {/* Efecto destello cÃ¡mara en pantalla completa al entrar foto nueva */}
       {showCameraFlash && <div className="ak-live-flash-overlay" />}
 
-      {/* Orbes/partículas flotantes de luz 3D (fireflies) */}
+      {/* Orbes/partÃ­culas flotantes de luz 3D (fireflies) */}
       <div className="absolute inset-0 overflow-hidden pointer-events-none z-0">
       </div>
 
-      {/* Header bar — in flow so it doesn't float over content */}
+      {/* Header bar â€” in flow so it doesn't float over content */}
       <header className="relative z-20 flex shrink-0 items-center justify-between border-b border-white/10 bg-slate-950 px-6 py-3">
         <div className="flex items-center gap-3">
           {companyLogoUrl && (
@@ -483,10 +488,10 @@ export default function MuroEnVivoPage() {
         </div>
       </header>
 
-      {/* Main content row — fills all space between header and bottom bar */}
+      {/* Main content row â€” fills all space between header and bottom bar */}
       <div className="relative flex-1 flex overflow-hidden">
 
-        {/* ── Left / main content pane ── */}
+        {/* â”€â”€ Left / main content pane â”€â”€ */}
         <div className="relative flex-1 overflow-hidden">
 
           {/* Loading state */}
@@ -494,7 +499,7 @@ export default function MuroEnVivoPage() {
             <div className="absolute inset-0 flex items-center justify-center">
               <div className="space-y-4 text-center">
                 <div className={`w-16 h-16 mx-auto rounded-full border-4 animate-spin ${settings.screenDarkMode !== false ? 'border-white/10 border-t-white/60' : 'border-slate-200 border-t-slate-600'}`} />
-                <p className={`text-sm tracking-widest uppercase ${settings.screenDarkMode !== false ? 'text-white/40' : 'text-slate-400'}`}>Cargando muro…</p>
+                <p className={`text-sm tracking-widest uppercase ${settings.screenDarkMode !== false ? 'text-white/40' : 'text-slate-400'}`}>Cargando muroâ€¦</p>
               </div>
             </div>
           )}
@@ -513,13 +518,13 @@ export default function MuroEnVivoPage() {
                   {/* Floating icons animations */}
                   <div className="flex justify-center gap-8 mb-6">
                     <div className="w-20 h-20 rounded-2xl bg-indigo-500/10 border border-indigo-500/30 flex items-center justify-center text-4xl shadow-xl shadow-indigo-500/5 backdrop-blur-md animate-bounce" style={{ animationDelay: '0s' }}>
-                      💬
+                      ðŸ’¬
                     </div>
                     <div className="w-24 h-24 rounded-3xl bg-purple-500/15 border border-purple-500/30 flex items-center justify-center text-5xl shadow-xl shadow-purple-500/10 backdrop-blur-md animate-bounce" style={{ animationDelay: '0.2s' }}>
-                      🎙️
+                      ðŸŽ™ï¸
                     </div>
                     <div className="w-20 h-20 rounded-2xl bg-pink-500/10 border border-pink-500/30 flex items-center justify-center text-4xl shadow-xl shadow-pink-500/5 backdrop-blur-md animate-bounce" style={{ animationDelay: '0.4s' }}>
-                      🔒
+                      ðŸ”’
                     </div>
                   </div>
 
@@ -528,24 +533,24 @@ export default function MuroEnVivoPage() {
                       Palabras y Audios Para Siempre
                     </span>
                     <h1 className="text-5xl md:text-6xl font-black leading-tight bg-gradient-to-r from-white via-indigo-200 to-purple-200 bg-clip-text text-transparent drop-shadow-sm">
-                      Buzón de Mensajes Privado
+                      BuzÃ³n de Mensajes Privado
                     </h1>
                   </div>
 
                   <p className="text-lg md:text-xl text-slate-300/95 max-w-2xl mx-auto font-light leading-relaxed">
-                    Recibí mensajes de texto y audios directo en tu celular sin que pasen por la pantalla.
-                    Los saludos se envían en un buzón de mensajes 100% privado solo para los anfitriones.
+                    RecibÃ­ mensajes de texto y audios directo en tu celular sin que pasen por la pantalla.
+                    Los saludos se envÃ­an en un buzÃ³n de mensajes 100% privado solo para los anfitriones.
                   </p>
 
                   <div className="inline-flex items-center gap-2 rounded-2xl border border-white/10 bg-white/5 px-6 py-3 backdrop-blur-sm">
-                    <span className="text-xl">✨</span>
-                    <span className="text-sm font-semibold tracking-wide text-indigo-200">¡Escaneá el QR en tu mesa para participar y enviar tu mensaje privado!</span>
+                    <span className="text-xl">âœ¨</span>
+                    <span className="text-sm font-semibold tracking-wide text-indigo-200">Â¡EscaneÃ¡ el QR en tu mesa para participar y enviar tu mensaje privado!</span>
                   </div>
                 </div>
               </div>
           )}
 
-          {/* Mural / photo slideshow — only shown when wall is enabled */}
+          {/* Mural / photo slideshow â€” only shown when wall is enabled */}
           {isLoaded && settings.privateDedicationsMode !== true && settings.enabled !== false && (!activeScreenItem || activeScreenItem.type === 'mural') && posts.length > 0 && (
             settings.currentLayout === 'masonry'
               ? <MasonryLayout posts={posts} qrUrl={qrUrl} settings={settings} />
@@ -564,9 +569,9 @@ export default function MuroEnVivoPage() {
                   )
                 : (
                   <div className="absolute inset-0 flex flex-col items-center justify-center gap-6">
-                    <div className="text-9xl">🎮</div>
+                    <div className="text-9xl">ðŸŽ®</div>
                     <p className="text-white/50 text-2xl font-light tracking-widest uppercase">Zona de juegos</p>
-                    <p className="text-white/30 text-base">El operador activará el juego en breve…</p>
+                    <p className="text-white/30 text-base">El operador activarÃ¡ el juego en breveâ€¦</p>
                   </div>
                 )
           )}
@@ -591,20 +596,20 @@ export default function MuroEnVivoPage() {
           {/* Dedicaciones full-screen slide - Omitted as memories go in a separate module */}
           {false && isLoaded && settings.privateDedicationsMode !== true && activeScreenItem?.type === 'dedicaciones' && (
             <div className="absolute inset-0 flex flex-col items-center justify-center gap-8 p-12 overflow-hidden">
-              <p className="text-[11px] font-black uppercase tracking-[0.4em] text-amber-400 mb-2">💌 Dedicatorias</p>
+              <p className="text-[11px] font-black uppercase tracking-[0.4em] text-amber-400 mb-2">ðŸ’Œ Dedicatorias</p>
               {highlightedDedications.length > 0 ? (
                 <div className="space-y-6 w-full max-w-2xl">
                   {highlightedDedications.slice(0, 5).map(d => (
                     <div key={d.id} className="rounded-3xl border border-amber-300/60 bg-black/70 px-8 py-6 shadow-xl backdrop-blur-md text-center">
                       <p className="text-2xl font-semibold leading-snug text-white">"{d.message}"</p>
-                      <p className="mt-3 text-sm font-bold tracking-widest text-amber-300 uppercase">— {d.authorName}</p>
+                      <p className="mt-3 text-sm font-bold tracking-widest text-amber-300 uppercase">â€” {d.authorName}</p>
                     </div>
                   ))}
                 </div>
               ) : (
                 <div className="text-center space-y-4">
-                  <div className="text-8xl opacity-30">💌</div>
-                  <p className="text-white/40 text-xl">Las dedicatorias de los invitados aparecerán aquí</p>
+                  <div className="text-8xl opacity-30">ðŸ’Œ</div>
+                  <p className="text-white/40 text-xl">Las dedicatorias de los invitados aparecerÃ¡n aquÃ­</p>
                 </div>
               )}
             </div>
@@ -613,7 +618,7 @@ export default function MuroEnVivoPage() {
           {/* Chat en Vivo full-screen slide */}
           {isLoaded && settings.privateDedicationsMode !== true && activeScreenItem?.type === 'chat' && (
             <div className="absolute inset-0 flex flex-col items-center justify-center gap-6 p-12 overflow-hidden">
-              <p className="text-[11px] font-black uppercase tracking-[0.4em] text-sky-400 mb-2">💬 Chat en Vivo</p>
+              <p className="text-[11px] font-black uppercase tracking-[0.4em] text-sky-400 mb-2">ðŸ’¬ Chat en Vivo</p>
               {recentChatMessages.length > 0 ? (
                 <div className="space-y-4 w-full max-w-2xl">
                   {recentChatMessages.map(msg => (
@@ -625,8 +630,8 @@ export default function MuroEnVivoPage() {
                 </div>
               ) : (
                 <div className="text-center space-y-4">
-                  <div className="text-8xl opacity-30">💬</div>
-                  <p className="text-white/40 text-xl">Los mensajes del chat en vivo aparecerán aquí</p>
+                  <div className="text-8xl opacity-30">ðŸ’¬</div>
+                  <p className="text-white/40 text-xl">Los mensajes del chat en vivo aparecerÃ¡n aquÃ­</p>
                 </div>
               )}
             </div>
@@ -635,7 +640,7 @@ export default function MuroEnVivoPage() {
           {/* Canciones full-screen slide */}
           {isLoaded && activeScreenItem?.type === 'canciones' && (
             <div className="absolute inset-0 flex flex-col items-center justify-center gap-6 p-12 overflow-hidden">
-              <p className="text-[11px] font-black uppercase tracking-[0.4em] text-green-400 mb-2">🎵 Pedidos de Canciones</p>
+              <p className="text-[11px] font-black uppercase tracking-[0.4em] text-green-400 mb-2">ðŸŽµ Pedidos de Canciones</p>
               {recentSongRequests.length > 0 ? (
                 <div className="space-y-4 w-full max-w-2xl">
                   {recentSongRequests.map(req => (
@@ -647,8 +652,8 @@ export default function MuroEnVivoPage() {
                 </div>
               ) : (
                 <div className="text-center space-y-4">
-                  <div className="text-8xl opacity-30">🎵</div>
-                  <p className="text-white/40 text-xl">Los pedidos de canciones aparecerán aquí</p>
+                  <div className="text-8xl opacity-30">ðŸŽµ</div>
+                  <p className="text-white/40 text-xl">Los pedidos de canciones aparecerÃ¡n aquÃ­</p>
                 </div>
               )}
             </div>
@@ -670,28 +675,28 @@ export default function MuroEnVivoPage() {
               {highlightedDedications.slice(0, 3).map(d => (
                 <div key={d.id} className="ak-live-panel px-5 py-4">
                   <p className="text-base font-semibold leading-snug text-white">"{d.message}"</p>
-                  <p className="mt-1.5 text-xs font-bold tracking-widest text-amber-300 uppercase">— {d.authorName}</p>
+                  <p className="mt-1.5 text-xs font-bold tracking-widest text-amber-300 uppercase">â€” {d.authorName}</p>
                 </div>
               ))}
             </div>
           )}
 
-          {/* Comments overlay — shown when chat is enabled and no dedications */}
+          {/* Comments overlay â€” shown when chat is enabled and no dedications */}
           {isLoaded && settings.privateDedicationsMode !== true && highlightedComments.length > 0 && settings.allowComments && !activePoll && highlightedDedications.length === 0 && (
             <div className={`absolute left-6 top-6 z-10 space-y-3 ${hasSidePanel ? 'w-[28vw] max-w-xs' : 'w-[32vw] max-w-sm'}`}>
               {highlightedComments.slice(0, 3).map(({ comment }) => (
                 <div key={comment.id} className="ak-live-panel px-5 py-4">
                   <p className="text-base font-semibold leading-snug text-white">"{comment.text}"</p>
-                  <p className="mt-1.5 text-xs font-bold tracking-widest text-sky-300 uppercase">— {comment.authorName}</p>
+                  <p className="mt-1.5 text-xs font-bold tracking-widest text-sky-300 uppercase">â€” {comment.authorName}</p>
                 </div>
               ))}
             </div>
           )}
 
-          {/* Live chat messages overlay — bottom-left, always shown when chat is enabled */}
+          {/* Live chat messages overlay â€” bottom-left, always shown when chat is enabled */}
           {isLoaded && settings.privateDedicationsMode !== true && settings.chatEnabled !== false && recentChatMessages.length > 0 && !activePoll && (
             <div className={`absolute left-6 bottom-6 z-10 space-y-1.5 ${hasSidePanel ? 'w-[28vw] max-w-xs' : 'w-[32vw] max-w-xs'}`}>
-              <p className="text-[10px] font-black uppercase tracking-[0.3em] text-white/40 mb-2">💬 Chat en Vivo</p>
+              <p className="text-[10px] font-black uppercase tracking-[0.3em] text-white/40 mb-2">ðŸ’¬ Chat en Vivo</p>
               {recentChatMessages.map(msg => (
                 <div key={msg.id} className="rounded-xl border border-white/10 bg-black/60 px-3 py-2 shadow-md backdrop-blur-sm">
                   <span className="text-[11px] font-black text-sky-300 mr-1.5">{msg.authorName}:</span>
@@ -701,21 +706,21 @@ export default function MuroEnVivoPage() {
             </div>
           )}
 
-          {/* Song requests overlay — bottom-right corner */}
+          {/* Song requests overlay â€” bottom-right corner */}
           {isLoaded && settings.showSongRequests !== false && recentSongRequests.length > 0 && !activePoll && (
             <div className="absolute right-6 bottom-6 z-10 w-[28vw] max-w-xs space-y-1.5">
-              <p className="text-[10px] font-black uppercase tracking-[0.3em] text-white/40 mb-2">🎵 Pedidos de Canciones</p>
+              <p className="text-[10px] font-black uppercase tracking-[0.3em] text-white/40 mb-2">ðŸŽµ Pedidos de Canciones</p>
               {recentSongRequests.map(req => (
                 <div key={req.id} className="rounded-xl border border-green-400/20 bg-black/60 px-3 py-2 shadow-md backdrop-blur-sm">
                   <span className="text-[12px] font-bold text-green-300 mr-1.5">{req.song}</span>
-                  <span className="text-[10px] text-white/50">— {req.requestedBy}</span>
+                  <span className="text-[10px] text-white/50">â€” {req.requestedBy}</span>
                 </div>
               ))}
             </div>
           )}
         </div>
 
-        {/* ── Right side panel: poll or game overlay ── */}
+        {/* â”€â”€ Right side panel: poll or game overlay â”€â”€ */}
         {hasSidePanel && isLoaded && (
           <div className="ak-live-panel w-[38%] shrink-0 flex flex-col items-center justify-center gap-5 overflow-y-auto border-y-0 border-r-0 p-6">
             {/* Active game (when playlist is not on 'juego' slide) */}
@@ -727,7 +732,7 @@ export default function MuroEnVivoPage() {
             {/* Active poll */}
             {activePoll && settings.showPolls !== false && !activeGame && (
               <div className="w-full space-y-5">
-                <p className="text-center text-sm font-black tracking-[0.35em] text-yellow-300 uppercase">🎮 Juego en Vivo</p>
+                <p className="text-center text-sm font-black tracking-[0.35em] text-yellow-300 uppercase">ðŸŽ® Juego en Vivo</p>
                 <h2 className="text-center text-3xl font-black leading-tight text-white">{activePoll.question}</h2>
                 <div className="space-y-4">
                   {activePoll.options.map((option) => {
@@ -752,7 +757,7 @@ export default function MuroEnVivoPage() {
         )}
       </div>
 
-      {/* ── Bottom bar — in flow ── */}
+      {/* â”€â”€ Bottom bar â€” in flow â”€â”€ */}
       <div className="relative z-30 shrink-0">
         <div className={`flex items-center justify-center gap-8 border-t px-6 py-3 backdrop-blur-md ${settings.screenDarkMode !== false ? 'border-white/10 bg-black/75' : 'border-slate-200 bg-white/90'}`}>
           {footerSocials.map((social) => {
@@ -824,9 +829,9 @@ export default function MuroEnVivoPage() {
         )}
       </div>
 
-      {/* ── Full-screen overlays (moment, sorteo) — still absolute/z-40+ ── */}
+      {/* â”€â”€ Full-screen overlays (moment, sorteo) â€” still absolute/z-40+ â”€â”€ */}
       <AnimatePresence>
-        {/* Active moment overlay — only shown when no sorteo winner is active */}
+        {/* Active moment overlay â€” only shown when no sorteo winner is active */}
         {activeMoment && !activeSorteoWinner && (
           <motion.div
             key={activeMoment.timestamp}
@@ -851,7 +856,7 @@ export default function MuroEnVivoPage() {
           </motion.div>
         )}
 
-        {/* Sorteo static preview — shows the wheel on screen before spinning starts */}
+        {/* Sorteo static preview â€” shows the wheel on screen before spinning starts */}
         <AnimatePresence>
           {sorteoOnScreen && !sorteoSpinActive && !activeSorteoWinner && (
             <motion.div
@@ -867,7 +872,7 @@ export default function MuroEnVivoPage() {
                 animate={{ opacity: 1, y: 0 }}
                 className="mb-6 text-3xl font-black uppercase tracking-[0.4em] text-yellow-300 drop-shadow-[0_0_12px_rgba(234,179,8,0.6)]"
               >
-                🎡 Sorteo Sorpresa 🎡
+                ðŸŽ¡ Sorteo Sorpresa ðŸŽ¡
               </motion.p>
               {/* Slowly rotating preview wheel */}
               <div className="relative w-80 h-80">
@@ -892,7 +897,7 @@ export default function MuroEnVivoPage() {
                 transition={{ duration: 2, repeat: Infinity }}
                 className="mt-6 text-xl font-bold text-white/70"
               >
-                🎁 ¡Sorteando en breve!
+                ðŸŽ Â¡Sorteando en breve!
               </motion.p>
               {settings.sorteoPremio && (
                 <motion.div
@@ -901,7 +906,7 @@ export default function MuroEnVivoPage() {
                   transition={{ delay: 0.4 }}
                   className="mt-4 rounded-2xl border-2 border-yellow-400/50 bg-yellow-400/10 px-8 py-3 backdrop-blur-sm"
                 >
-                  <p className="text-sm font-black text-yellow-300 uppercase tracking-widest mb-1">🎁 Premio</p>
+                  <p className="text-sm font-black text-yellow-300 uppercase tracking-widest mb-1">ðŸŽ Premio</p>
                   <p className="text-2xl font-black text-white">{settings.sorteoPremio}</p>
                 </motion.div>
               )}
@@ -920,7 +925,7 @@ export default function MuroEnVivoPage() {
               className="absolute inset-0 z-[45] flex flex-col items-center justify-center bg-black/85 text-center overflow-hidden"
             >
               {/* Floating emoji particles */}
-              {['🎰', '✨', '🎲', '⭐', '🎊', '💫', '🏆', '🎉'].map((e, i) => (
+              {['ðŸŽ°', 'âœ¨', 'ðŸŽ²', 'â­', 'ðŸŽŠ', 'ðŸ’«', 'ðŸ†', 'ðŸŽ‰'].map((e, i) => (
                 <motion.div
                   key={i}
                   className="absolute text-4xl pointer-events-none select-none"
@@ -936,7 +941,7 @@ export default function MuroEnVivoPage() {
                 animate={{ opacity: 1, y: 0 }}
                 className="mb-6 text-3xl font-black uppercase tracking-[0.4em] text-yellow-300 drop-shadow-[0_0_12px_rgba(234,179,8,0.6)]"
               >
-                🎰 ¡Sorteando! 🎰
+                ðŸŽ° Â¡Sorteando! ðŸŽ°
               </motion.p>
               {/* Spinning wheel */}
               <div className="relative w-80 h-80">
@@ -967,7 +972,7 @@ export default function MuroEnVivoPage() {
                 transition={{ duration: 0.8, repeat: Infinity }}
                 className="mt-8 text-2xl font-bold text-white/70"
               >
-                🎲 Eligiendo ganador…
+                ðŸŽ² Eligiendo ganadorâ€¦
               </motion.p>
             </motion.div>
           )}
@@ -983,7 +988,7 @@ export default function MuroEnVivoPage() {
             className="absolute inset-0 z-50 flex flex-col items-center justify-center bg-black/90 text-center"
           >
             {/* Confetti-like decorative elements */}
-            {['🎉', '🎊', '⭐', '✨', '🏆', '🎈'].map((e, i) => (
+            {['ðŸŽ‰', 'ðŸŽŠ', 'â­', 'âœ¨', 'ðŸ†', 'ðŸŽˆ'].map((e, i) => (
               <motion.div
                 key={i}
                 className="absolute text-5xl pointer-events-none"
@@ -1001,9 +1006,9 @@ export default function MuroEnVivoPage() {
               transition={{ duration: 1.0 }}
               className="mb-4 text-9xl"
             >
-              🎉
+              ðŸŽ‰
             </motion.div>
-            <p className="mb-2 text-sm font-black uppercase tracking-[0.6em] text-yellow-300">¡Ganador del Sorteo!</p>
+            <p className="mb-2 text-sm font-black uppercase tracking-[0.6em] text-yellow-300">Â¡Ganador del Sorteo!</p>
             <motion.h1
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
@@ -1019,7 +1024,7 @@ export default function MuroEnVivoPage() {
                 transition={{ delay: 0.9, duration: 0.5 }}
                 className="mt-5 rounded-2xl border-2 border-yellow-400 bg-yellow-400/20 px-8 py-3 backdrop-blur-sm"
               >
-                <p className="text-sm font-black text-yellow-300 uppercase tracking-widest mb-1">🎁 Premio</p>
+                <p className="text-sm font-black text-yellow-300 uppercase tracking-widest mb-1">ðŸŽ Premio</p>
                 <p className="text-3xl font-black text-white">{settings.sorteoPremio}</p>
               </motion.div>
             )}
@@ -1029,13 +1034,13 @@ export default function MuroEnVivoPage() {
               transition={{ delay: 0.8 }}
               className="mt-6 text-xl font-bold text-yellow-200/80 tracking-widest"
             >
-              🏆 ¡Felicitaciones! 🏆
+              ðŸ† Â¡Felicitaciones! ðŸ†
             </motion.p>
           </motion.div>
         )}
       </AnimatePresence>
 
-      {/* Flash de cámara de fotos */}
+      {/* Flash de cÃ¡mara de fotos */}
       <AnimatePresence>
         {showCameraFlash && (
           <motion.div
@@ -1079,10 +1084,10 @@ function EmptyWallState({ eventName, qrUrl }: { eventName: string; qrUrl: string
             <p className="text-base font-black uppercase tracking-[0.28em]">Muro social en vivo</p>
           </div>
           <h1 className="text-5xl font-black leading-tight sm:text-6xl lg:text-7xl">
-            {eventName || 'Compartí este momento'}
+            {eventName || 'CompartÃ­ este momento'}
           </h1>
           <p className="mt-6 max-w-2xl text-xl leading-relaxed text-slate-300 lg:text-2xl">
-            Todavía no hay publicaciones. Escaneá el código, subí tu foto y aparecé en esta pantalla.
+            TodavÃ­a no hay publicaciones. EscaneÃ¡ el cÃ³digo, subÃ­ tu foto y aparecÃ© en esta pantalla.
           </p>
         </div>
 
@@ -1090,7 +1095,7 @@ function EmptyWallState({ eventName, qrUrl }: { eventName: string; qrUrl: string
           <div className="flex min-w-[250px] flex-col items-center rounded-lg border border-white/15 bg-white p-5 text-center text-slate-950 shadow-2xl">
             <QRCodeSVG value={qrUrl} size={190} includeMargin={false} />
             <p className="mt-4 flex items-center gap-2 text-sm font-black uppercase tracking-wider">
-              <QrCode className="h-4 w-4" aria-hidden="true" /> Escaneá para participar
+              <QrCode className="h-4 w-4" aria-hidden="true" /> EscaneÃ¡ para participar
             </p>
           </div>
         ) : (
@@ -1332,9 +1337,9 @@ function ScreenMediaSlide({
     }
     return (
       <div className="absolute inset-0 flex flex-col items-center justify-center gap-4">
-        <div className="text-8xl opacity-20">🎬</div>
+        <div className="text-8xl opacity-20">ðŸŽ¬</div>
         <p className="text-white/40 text-lg tracking-widest uppercase text-center">
-          Subí un video o imagen<br />para esta diapositiva
+          SubÃ­ un video o imagen<br />para esta diapositiva
         </p>
       </div>
     );
@@ -1347,7 +1352,7 @@ function ScreenMediaSlide({
         <div className="absolute inset-0 z-10 flex items-center justify-center bg-black/90 text-white/50">
           <div className="space-y-3 text-center">
             <div className="w-12 h-12 mx-auto rounded-full border-4 border-white/10 border-t-indigo-500 animate-spin" />
-            <p className="text-xs font-black uppercase tracking-[0.25em] text-white/40">Cargando diapositiva…</p>
+            <p className="text-xs font-black uppercase tracking-[0.25em] text-white/40">Cargando diapositivaâ€¦</p>
           </div>
         </div>
       )}
@@ -1442,9 +1447,9 @@ function QRFloatingCard({ qrUrl, settings }: { qrUrl: string; settings: any }) {
       <div className="max-w-[160px] text-left flex flex-col justify-center">
         <div className="flex items-center gap-1.5 text-amber-300">
           <Camera className="h-3.5 w-3.5" />
-          <span className="text-[10px] font-black uppercase">Subí tu foto</span>
+          <span className="text-[10px] font-black uppercase">SubÃ­ tu foto</span>
         </div>
-        <p className="mt-1 text-xs font-bold leading-snug text-white/90">Escaneá para salir en la pantalla en vivo</p>
+        <p className="mt-1 text-xs font-bold leading-snug text-white/90">EscaneÃ¡ para salir en la pantalla en vivo</p>
         {instagram && (
           <p className="mt-1.5 text-[10px] font-bold text-amber-300/75 truncate">{instagram}</p>
         )}
@@ -1488,11 +1493,11 @@ function SlideshowLayout({
     setCurrentIndex((prev) => (prev + 1) % posts.length);
   }, [posts.length]);
 
-  // Auto-advance slideshow (dinámico si es video o imagen)
+  // Auto-advance slideshow (dinÃ¡mico si es video o imagen)
   useEffect(() => {
     if (posts.length <= 1) return;
 
-    // Si es video, dejamos un tiempo de resguardo más largo (35s) para que avance si el video falla
+    // Si es video, dejamos un tiempo de resguardo mÃ¡s largo (35s) para que avance si el video falla
     const duration = isVideo ? 35000 : SLIDESHOW_DURATION_MS;
 
     const timer = setTimeout(advance, duration);
@@ -1505,7 +1510,7 @@ function SlideshowLayout({
     <div className="absolute inset-0 flex items-center justify-center overflow-hidden bg-black p-5">
       {!mediaLoaded && (
         <div className="absolute inset-0 z-10 grid place-items-center bg-slate-950 text-sm text-white/60">
-          Cargando publicación...
+          Cargando publicaciÃ³n...
         </div>
       )}
       <div className="relative h-full w-full max-w-[min(100%,1500px)] overflow-hidden rounded-md bg-slate-900">
@@ -1587,7 +1592,7 @@ function MasonryCard({ post, index }: { post: SocialGalleryPost; index: number }
         />
       ) : (
         <div className="absolute inset-0 flex items-center justify-center bg-slate-900">
-          <span className="text-4xl opacity-20">📷</span>
+          <span className="text-4xl opacity-20">ðŸ“·</span>
         </div>
       )}
 
@@ -1598,15 +1603,15 @@ function MasonryCard({ post, index }: { post: SocialGalleryPost; index: number }
   );
 }
 
-// ─────────────────────────── GAME COMPONENTS ───────────────────────────
+// â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ GAME COMPONENTS â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 
 const GAME_TYPE_META: Record<string, { emoji: string; label: string; bg: string }> = {
-  siONo:           { emoji: '🤔', label: '¿Sí o No?',           bg: 'from-violet-900 via-indigo-900 to-purple-900' },
-  trivia:          { emoji: '🧠', label: 'Trivia',               bg: 'from-blue-900 via-cyan-900 to-teal-900' },
-  encuesta:        { emoji: '📊', label: 'Encuesta',             bg: 'from-amber-900 via-orange-900 to-slate-950' },
-  baileLibre:      { emoji: '🕺', label: '¡Baile libre!',        bg: 'from-fuchsia-900 via-indigo-900 to-slate-950' },
-  verdadODesafio:  { emoji: '🎯', label: 'Verdad o Desafío',     bg: 'from-green-900 via-emerald-900 to-teal-900' },
-  preguntaAbierta: { emoji: '💬', label: 'Pregunta abierta',     bg: 'from-slate-800 via-slate-900 to-neutral-900' },
+  siONo:           { emoji: 'ðŸ¤”', label: 'Â¿SÃ­ o No?',           bg: 'from-violet-900 via-indigo-900 to-purple-900' },
+  trivia:          { emoji: 'ðŸ§ ', label: 'Trivia',               bg: 'from-blue-900 via-cyan-900 to-teal-900' },
+  encuesta:        { emoji: 'ðŸ“Š', label: 'Encuesta',             bg: 'from-amber-900 via-orange-900 to-slate-950' },
+  baileLibre:      { emoji: 'ðŸ•º', label: 'Â¡Baile libre!',        bg: 'from-fuchsia-900 via-indigo-900 to-slate-950' },
+  verdadODesafio:  { emoji: 'ðŸŽ¯', label: 'Verdad o DesafÃ­o',     bg: 'from-green-900 via-emerald-900 to-teal-900' },
+  preguntaAbierta: { emoji: 'ðŸ’¬', label: 'Pregunta abierta',     bg: 'from-slate-800 via-slate-900 to-neutral-900' },
 };
 
 const MAX_GAME_OPTIONS_PER_ROW = 2;
@@ -1623,7 +1628,7 @@ function GameSlide({
   qrUrl?: string;
   settings?: any;
 }) {
-  const meta = GAME_TYPE_META[game.type] ?? { emoji: '🎮', label: 'Juego', bg: 'from-slate-900 to-slate-800' };
+  const meta = GAME_TYPE_META[game.type] ?? { emoji: 'ðŸŽ®', label: 'Juego', bg: 'from-slate-900 to-slate-800' };
 
   // baileLibre: show a fun full-screen dance overlay with photo wall behind
   if (game.type === 'baileLibre') {
@@ -1648,7 +1653,7 @@ function GameSlide({
             />
           ))}
           {/* Floating emojis */}
-          {['🕺', '💃', '🎵', '🎶', '✨', '🔥', '💫', '🎉'].map((emoji, i) => (
+          {['ðŸ•º', 'ðŸ’ƒ', 'ðŸŽµ', 'ðŸŽ¶', 'âœ¨', 'ðŸ”¥', 'ðŸ’«', 'ðŸŽ‰'].map((emoji, i) => (
             <motion.div
               key={emoji}
               className="absolute text-4xl pointer-events-none"
@@ -1730,7 +1735,7 @@ function GameSlide({
                   </p>
                   {totalVotes > 0 && (
                     <p className="mt-1 text-yellow-300 text-[1.8vw] font-black relative z-10">
-                      {pct}% · {option.votes ?? 0} votos
+                      {pct}% Â· {option.votes ?? 0} votos
                     </p>
                   )}
                 </motion.div>
@@ -1745,7 +1750,7 @@ function GameSlide({
 
 /** Compact overlay shown when a game is active on non-juego slides */
 function GameOverlayContent({ game }: { game: ActiveGameData }) {
-  const meta = GAME_TYPE_META[game.type] ?? { emoji: '🎮', label: 'Juego', bg: '' };
+  const meta = GAME_TYPE_META[game.type] ?? { emoji: 'ðŸŽ®', label: 'Juego', bg: '' };
   const totalVotes = (game.options ?? []).reduce((s, o) => s + (o.votes ?? 0), 0);
   return (
     <>
