@@ -18,7 +18,7 @@ export const defaultRsvpConfig: RsvpReminderConfig = {
 };
 
 export function generateRsvpMessage(guestName: string, eventName: string, eventDate: string, rsvpLink: string, daysLeft: number): string {
-  return `¡Hola ${guestName}! 🎉 Faltan ${daysLeft} días para ${eventName}. Confirmá tu asistencia acá: ${rsvpLink}`;
+  return `Â¡Hola ${guestName}! ðŸŽ‰ Faltan ${daysLeft} dÃ­as para ${eventName}. ConfirmÃ¡ tu asistencia acÃ¡: ${rsvpLink}`;
 }
 
 export function getPendingRsvpGuests(invitados: Invitado[]): Invitado[] {
@@ -33,8 +33,14 @@ export function buildRsvpReminders(fiesta: FiestaEnPlanificacion, baseUrl: strin
   const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
 
   return pendingGuests.map(guest => {
-    const rsvpLink = `${baseUrl}/rsvp/${guest.guestAccessToken}`;
-    const message = generateRsvpMessage(guest.nombre, fiesta.configuracion?.nombreEvento ?? 'la fiesta', fiesta.configuracion?.fechaEvento ?? '', rsvpLink, diffDays);
+    const rsvpLink = `${baseUrl}/invitacion/${fiesta.id}/invitado/${guest.id}?token=${guest.guestAccessToken}`;
+    const message = generateRsvpMessage(
+      guest.nombre,
+      fiesta.configuracion?.nombreEvento ?? 'la fiesta',
+      fiesta.configuracion?.fechaEvento ?? '',
+      rsvpLink,
+      diffDays
+    );
 
     return {
       guestId: guest.id,

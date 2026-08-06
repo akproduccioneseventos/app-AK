@@ -3,7 +3,6 @@
 import type { Invoice, InvoiceItem, Payment } from '@/types/invoice';
 import type { Presupuesto } from '@/types/presupuesto';
 import { readData, writeData } from '@/lib/data-service';
-import { AsyncMutex } from '@/lib/mutex';
 import { addPagoToPresupuesto, markPresupuestoAsFacturado } from './presupuestos';
 import { addInvoiceId, removeInvoiceId } from './fiesta/fiesta.actions';
 import * as logger from '@/lib/logger';
@@ -20,7 +19,10 @@ import {
   mapDepositMethodToInvoiceMethod,
 } from '@/lib/payments/deposit-payment';
 
+import { AsyncMutex } from '@/lib/mutex';
+
 const INVOICES_FILE = 'invoices.json';
+const invoicesMutex = new AsyncMutex();
 
 type NewInvoiceInput = Omit<Invoice, 'id' | 'items' | 'payments'> & {
   items: Omit<InvoiceItem, 'id'>[];
@@ -61,152 +63,125 @@ export async function getInvoiceById(id: string): Promise<Invoice | null> {
   return invoices.find(inv => inv.id === id) || null;
 }
 
-// Todas estas funciones hacen leer-modificar-escribir sobre el mismo archivo de
-// facturas. Sin turno, dos guardados simultaneos se pisan y se pierde una
-// factura entera. `presupuestos.ts` ya usaba este mismo mecanismo; facturas no.
-// OJO: `registerBookingDeposit` NO se envuelve, porque llama a `saveInvoice`
-// aca adentro y el turno no es reentrante: se colgaria la app al cobrar una sena.
-const invoicesMutex = new AsyncMutex();
-
 export async function saveInvoice(
-  ...args: Parameters<typeof saveInvoiceInner>
-): ReturnType<typeof saveInvoiceInner> {
-  return invoicesMutex.runExclusive(() => saveInvoiceInner(...args));
-}
-
-export async function deleteInvoice(
-  ...args: Parameters<typeof deleteInvoiceInner>
-): ReturnType<typeof deleteInvoiceInner> {
-  return invoicesMutex.runExclusive(() => deleteInvoiceInner(...args));
-}
-
-export async function resetAllInvoices(): ReturnType<typeof resetAllInvoicesInner> {
-  return invoicesMutex.runExclusive(() => resetAllInvoicesInner());
-}
-
-export async function addPaymentToInvoice(
-  ...args: Parameters<typeof addPaymentToInvoiceInner>
-): ReturnType<typeof addPaymentToInvoiceInner> {
-  return invoicesMutex.runExclusive(() => addPaymentToInvoiceInner(...args));
-}
-
-async function saveInvoiceInner(
   invoiceDataInput: NewInvoiceInput | Invoice,
   sourcePresupuestoId?: string
 ): Promise<{ success: boolean; id?: string; invoice?: Invoice; error?: string }> {
   const auth = await verifySession();
   if (!auth.success) return { success: false, error: auth.error };
   if (!invoiceDataInput.items || invoiceDataInput.items.some(item => normalizeQuantity(item.quantity) <= 0)) {
-    return { success: false, error: 'La cantidad de cada ítem debe ser un número positivo.' };
+    return { success: false, error: 'La cantidad de cada Ã­tem debe ser un nÃºmero positivo.' };
   }
   if (invoiceDataInput.items.some(item => !item.description || item.description.trim() === '')) {
-    return { success: false, error: 'Todos los ítems de la factura deben tener una descripción.' };
+    return { success: false, error: 'Todos los Ã­tems de la factura deben tener una descripciÃ³n.' };
   }
 
   try {
-    let invoices = await getInvoices();
-    let finalInvoiceData: Invoice;
-    let invoiceId: string;
+    return await invoicesMutex.runExclusive(async () => {
+      let invoices = await getInvoices();
+      let finalInvoiceData: Invoice;
+      let invoiceId: string;
 
-    if ('id' in invoiceDataInput && invoiceDataInput.id) {
-      invoiceId = invoiceDataInput.id;
-      const index = invoices.findIndex(inv => inv.id === invoiceId);
-      if (index === -1) {
-        return { success: false, error: `Factura con ID ${invoiceId} no encontrada.` };
-      }
-      const { id, ...dataToUpdate } = invoiceDataInput;
-      const currency = dataToUpdate.currency || invoices[index].currency || 'UYU';
+      if ('id' in invoiceDataInput && invoiceDataInput.id) {
+        invoiceId = invoiceDataInput.id;
+        const index = invoices.findIndex(inv => inv.id === invoiceId);
+        if (index === -1) {
+          return { success: false, error: `Factura con ID ${invoiceId} no encontrada.` };
+        }
+        const { id, ...dataToUpdate } = invoiceDataInput;
+        const currency = dataToUpdate.currency || invoices[index].currency || 'UYU';
 
-      const updatedItems = (dataToUpdate.items || invoices[index].items).map((item, idx) => {
-        const quantity = normalizeQuantity(item.quantity);
-        const unitPrice = roundInvoiceMoney(item.unitPrice, currency);
-        const total = roundInvoiceMoney(quantity * unitPrice, currency);
-        return {
-          ...item,
-          quantity,
-          unitPrice,
-          total,
-          id: (item as InvoiceItem).id || `item_${invoiceId}_${idx + 1}_${Date.now()}_update`,
+        const updatedItems = (dataToUpdate.items || invoices[index].items).map((item, idx) => {
+          const quantity = normalizeQuantity(item.quantity);
+          const unitPrice = roundInvoiceMoney(item.unitPrice, currency);
+          const total = roundInvoiceMoney(quantity * unitPrice, currency);
+          return {
+            ...item,
+            quantity,
+            unitPrice,
+            total,
+            id: (item as InvoiceItem).id || `item_${invoiceId}_${idx + 1}_${Date.now()}_update`,
+          };
+        });
+
+        const subtotal = updatedItems.reduce((sum, item) => sum + roundInvoiceMoney(item.total, currency), 0);
+        const taxRate = normalizeTaxRate(dataToUpdate.taxRate ?? invoices[index].taxRate ?? 0);
+        const taxAmount = roundInvoiceMoney((subtotal * taxRate) / 100, currency);
+        const totalAmount = roundInvoiceMoney(subtotal + taxAmount, currency);
+        const payments = (dataToUpdate.payments || invoices[index].payments || []).map(payment => ({
+          ...payment,
+          amount: roundInvoiceMoney(payment.amount, currency),
+        }));
+        const totalPaid = getInvoicePaidAmount({ payments, currency });
+        if (totalPaid > totalAmount + invoiceMoneyTolerance(currency)) {
+          return { success: false, error: 'Los pagos registrados superan el total de la factura.' };
+        }
+
+        invoices[index] = {
+          ...invoices[index],
+          ...dataToUpdate,
+          items: updatedItems as InvoiceItem[],
+          payments,
+          currency,
+          subtotal,
+          taxRate,
+          taxAmount,
+          totalAmount,
         };
-      });
-
-      const subtotal = updatedItems.reduce((sum, item) => sum + roundInvoiceMoney(item.total, currency), 0);
-      const taxRate = normalizeTaxRate(dataToUpdate.taxRate ?? invoices[index].taxRate ?? 0);
-      const taxAmount = roundInvoiceMoney((subtotal * taxRate) / 100, currency);
-      const totalAmount = roundInvoiceMoney(subtotal + taxAmount, currency);
-      const payments = (dataToUpdate.payments || invoices[index].payments || []).map(payment => ({
-        ...payment,
-        amount: roundInvoiceMoney(payment.amount, currency),
-      }));
-      const totalPaid = getInvoicePaidAmount({ payments, currency });
-      if (totalPaid > totalAmount + invoiceMoneyTolerance(currency)) {
-        return { success: false, error: 'Los pagos registrados superan el total de la factura.' };
-      }
-
-      invoices[index] = {
-        ...invoices[index],
-        ...dataToUpdate,
-        items: updatedItems as InvoiceItem[],
-        payments,
-        currency,
-        subtotal,
-        taxRate,
-        taxAmount,
-        totalAmount,
-      };
-      finalInvoiceData = invoices[index];
-    } else {
-      invoiceId = `inv_${Date.now()}_${Math.random().toString(36).substring(2, 9)}`;
-      const currency = invoiceDataInput.currency || 'UYU';
-      const itemsWithIds: InvoiceItem[] = invoiceDataInput.items.map((item, index) => {
-        const quantity = normalizeQuantity(item.quantity);
-        const unitPrice = roundInvoiceMoney(item.unitPrice, currency);
-        const total = roundInvoiceMoney(quantity * unitPrice, currency);
-        return {
-          ...item,
-          quantity,
-          unitPrice,
-          total,
-          id: `item_${invoiceId}_${index + 1}_${Date.now()}_create`,
+        finalInvoiceData = invoices[index];
+      } else {
+        invoiceId = `inv_${Date.now()}_${Math.random().toString(36).substring(2, 9)}`;
+        const currency = invoiceDataInput.currency || 'UYU';
+        const itemsWithIds: InvoiceItem[] = invoiceDataInput.items.map((item, index) => {
+          const quantity = normalizeQuantity(item.quantity);
+          const unitPrice = roundInvoiceMoney(item.unitPrice, currency);
+          const total = roundInvoiceMoney(quantity * unitPrice, currency);
+          return {
+            ...item,
+            quantity,
+            unitPrice,
+            total,
+            id: `item_${invoiceId}_${index + 1}_${Date.now()}_create`,
+          };
+        });
+        const subtotal = itemsWithIds.reduce((sum, item) => sum + roundInvoiceMoney(item.total, currency), 0);
+        const taxRate = normalizeTaxRate(invoiceDataInput.taxRate ?? 0);
+        const taxAmount = roundInvoiceMoney((subtotal * taxRate) / 100, currency);
+        const totalAmount = roundInvoiceMoney(subtotal + taxAmount, currency);
+        const inputPayments = ('payments' in invoiceDataInput ? invoiceDataInput.payments : []) || [];
+        const payments = inputPayments.map((payment) => ({
+          ...payment,
+          amount: roundInvoiceMoney(payment.amount, currency),
+        }));
+        const totalPaid = payments.reduce((sum, payment) => sum + payment.amount, 0);
+        if (totalPaid > totalAmount + invoiceMoneyTolerance(currency)) {
+          return { success: false, error: 'Los pagos registrados superan el total de la factura.' };
+        }
+        finalInvoiceData = {
+          ...(invoiceDataInput as Omit<Invoice, 'id' | 'items' | 'payments'> & { items: Omit<InvoiceItem, 'id'>[] }),
+          id: invoiceId,
+          items: itemsWithIds,
+          subtotal,
+          taxRate,
+          taxAmount,
+          totalAmount,
+          currency,
+          payments,
+          status: totalAmount > 0 && totalPaid >= totalAmount - invoiceMoneyTolerance(currency)
+            ? 'Paid'
+            : invoiceDataInput.status,
+          sourcePresupuestoId: invoiceDataInput.sourcePresupuestoId || sourcePresupuestoId,
         };
-      });
-      const subtotal = itemsWithIds.reduce((sum, item) => sum + roundInvoiceMoney(item.total, currency), 0);
-      const taxRate = normalizeTaxRate(invoiceDataInput.taxRate ?? 0);
-      const taxAmount = roundInvoiceMoney((subtotal * taxRate) / 100, currency);
-      const totalAmount = roundInvoiceMoney(subtotal + taxAmount, currency);
-      const inputPayments = ('payments' in invoiceDataInput ? invoiceDataInput.payments : []) || [];
-      const payments = inputPayments.map((payment) => ({
-        ...payment,
-        amount: roundInvoiceMoney(payment.amount, currency),
-      }));
-      const totalPaid = payments.reduce((sum, payment) => sum + payment.amount, 0);
-      if (totalPaid > totalAmount + invoiceMoneyTolerance(currency)) {
-        return { success: false, error: 'Los pagos registrados superan el total de la factura.' };
+        invoices.push(finalInvoiceData);
       }
-      finalInvoiceData = {
-        ...(invoiceDataInput as Omit<Invoice, 'id' | 'items' | 'payments'> & { items: Omit<InvoiceItem, 'id'>[] }),
-        id: invoiceId,
-        items: itemsWithIds,
-        subtotal,
-        taxRate,
-        taxAmount,
-        totalAmount,
-        currency,
-        payments,
-        status: totalAmount > 0 && totalPaid >= totalAmount - invoiceMoneyTolerance(currency)
-          ? 'Paid'
-          : invoiceDataInput.status,
-        sourcePresupuestoId: invoiceDataInput.sourcePresupuestoId || sourcePresupuestoId,
-      };
-      invoices.push(finalInvoiceData);
-    }
-    await writeData(INVOICES_FILE, invoices, (a,b) => new Date(b.issueDate).getTime() - new Date(a.issueDate).getTime());
+      await writeData(INVOICES_FILE, invoices, (a,b) => new Date(b.issueDate).getTime() - new Date(a.issueDate).getTime());
 
-    if (sourcePresupuestoId && !('id' in invoiceDataInput)) {
-      await markPresupuestoAsFacturado(sourcePresupuestoId, finalInvoiceData.id);
-    }
+      if (sourcePresupuestoId && !('id' in invoiceDataInput)) {
+        await markPresupuestoAsFacturado(sourcePresupuestoId, finalInvoiceData.id);
+      }
 
-    return { success: true, id: invoiceId, invoice: finalInvoiceData };
+      return { success: true, id: invoiceId, invoice: finalInvoiceData };
+    });
   } catch (error: any) {
     console.error('Error guardando factura:', error);
     return { success: false, error: error.message || 'Error al guardar la factura.' };
@@ -226,8 +201,8 @@ export async function registerBookingDeposit(data: {
     const auth = await verifySession();
     if (!auth.success) return { success: false, error: auth.error };
     const baseAmount = parseCleanMoney(data.amount);
-    if (baseAmount <= 0) return { success: false, error: 'El monto de la seña debe ser mayor a cero.' };
-    if (!data.date || Number.isNaN(new Date(data.date).getTime())) return { success: false, error: 'La fecha de la seña no es válida.' };
+    if (baseAmount <= 0) return { success: false, error: 'El monto de la seÃ±a debe ser mayor a cero.' };
+    if (!data.date || Number.isNaN(new Date(data.date).getTime())) return { success: false, error: 'La fecha de la seÃ±a no es vÃ¡lida.' };
     const paymentBreakdown = buildDepositPaymentBreakdown(
       baseAmount,
       data.method,
@@ -240,7 +215,7 @@ export async function registerBookingDeposit(data: {
 
     const paymentDay = new Date(data.date).toISOString().slice(0, 10);
     const paymentReference = [
-      'Seña registrada',
+      'SeÃ±a registrada',
       data.fiestaId,
       paymentDay,
       baseAmount,
@@ -297,14 +272,14 @@ export async function registerBookingDeposit(data: {
     }
 
     const invoiceItems: Omit<InvoiceItem, 'id'>[] = [{
-      description: `Seña para reserva de evento: ${fiesta.configuracion.nombreEvento}`,
+      description: `SeÃ±a para reserva de evento: ${fiesta.configuracion.nombreEvento}`,
       quantity: 1,
       unitPrice: baseAmount,
       total: baseAmount,
     }];
     if (paymentBreakdown.surchargeAmount > 0) {
       invoiceItems.push({
-        description: `Recargo de financiación Mercado Pago (${paymentBreakdown.installments} cuotas)`,
+        description: `Recargo de financiaciÃ³n Mercado Pago (${paymentBreakdown.installments} cuotas)`,
         quantity: 1,
         unitPrice: paymentBreakdown.surchargeAmount,
         total: paymentBreakdown.surchargeAmount,
@@ -312,7 +287,7 @@ export async function registerBookingDeposit(data: {
     }
 
     const newInvoice: NewInvoiceInput = {
-      invoiceNumber: `SEÑA-${data.fiestaId.slice(-5)}`,
+      invoiceNumber: `SEÃ‘A-${data.fiestaId.slice(-5)}`,
       customer: { id: fiesta.configuracion.clienteId, name: fiesta.configuracion.clienteNombre || fiesta.configuracion.nombreEvento?.split(' de ')[1] || 'Cliente' },
       issueDate: data.date,
       dueDate: data.date,
@@ -333,8 +308,8 @@ export async function registerBookingDeposit(data: {
         amount: chargedAmount,
         method: paymentBreakdown.invoiceMethod,
         notes: paymentBreakdown.installmentOption
-          ? `Seña inicial. ${paymentBreakdown.installmentOption.label}.`
-          : 'Seña inicial de contratación',
+          ? `SeÃ±a inicial. ${paymentBreakdown.installmentOption.label}.`
+          : 'SeÃ±a inicial de contrataciÃ³n',
         baseAmount,
         surchargeAmount: paymentBreakdown.surchargeAmount,
         installments: paymentBreakdown.installments,
@@ -342,7 +317,7 @@ export async function registerBookingDeposit(data: {
     };
 
     const invoiceResult = await saveInvoice(newInvoice);
-    if (!invoiceResult.success || !invoiceResult.id) throw new Error(invoiceResult.error || 'Error al crear recibo de seña.');
+    if (!invoiceResult.success || !invoiceResult.id) throw new Error(invoiceResult.error || 'Error al crear recibo de seÃ±a.');
 
     if (fiesta.presupuestoId && !data.skipBudgetPayment) {
       const paymentResult = await addPagoToPresupuesto(fiesta.presupuestoId, {
@@ -356,13 +331,9 @@ export async function registerBookingDeposit(data: {
         cuotasFinanciacion: paymentBreakdown.installments,
       });
       if (!paymentResult.success) {
-        // Deshacer el recibo recien creado tambien es leer-modificar-escribir:
-        // va con turno, o pisa lo que otro guardo entremedio.
-        await invoicesMutex.runExclusive(async () => {
-          const invoicesWithoutDeposit = (await getInvoices()).filter((invoice) => invoice.id !== invoiceResult.id);
-          await writeData(INVOICES_FILE, invoicesWithoutDeposit);
-        });
-        throw new Error(paymentResult.error || 'No se pudo registrar la sena en el presupuesto.');
+        const invoicesWithoutDeposit = (await getInvoices()).filter((invoice) => invoice.id !== invoiceResult.id);
+        await writeData(INVOICES_FILE, invoicesWithoutDeposit);
+        throw new Error(paymentResult.error || 'No se pudo registrar la seÃ±a en el presupuesto.');
       }
     }
 
@@ -375,43 +346,46 @@ export async function registerBookingDeposit(data: {
   }
 }
 
-async function deleteInvoiceInner(id: string, linkedFiestaId?: string): Promise<{ success: boolean; error?: string }> {
+export async function deleteInvoice(id: string, linkedFiestaId?: string): Promise<{ success: boolean; error?: string }> {
   const auth = await verifySession();
   if (!auth.success) return { success: false, error: auth.error };
   if (auth.user?.role !== 'admin') return { success: false, error: 'Solo administradores pueden eliminar facturas.' };
-  const originalInvoices = await getInvoices();
-  const initialLength = originalInvoices.length;
-  const invoices = originalInvoices.filter(inv => inv.id !== id);
-  if (invoices.length === initialLength) {
-    return { success: false, error: `Factura con ID ${id} no encontrada para eliminar.` };
-  }
-  let deletionPersisted = false;
-  try {
-    await writeData(INVOICES_FILE, invoices);
-    deletionPersisted = true;
-    if (linkedFiestaId) {
-      const unlinkResult = await removeInvoiceId(linkedFiestaId, id);
-      if (!unlinkResult.success) {
-        await writeData(INVOICES_FILE, originalInvoices);
-        return { success: false, error: 'No se pudo desvincular la factura del evento. La eliminación fue revertida.' };
-      }
+
+  return invoicesMutex.runExclusive(async () => {
+    const originalInvoices = await getInvoices();
+    const initialLength = originalInvoices.length;
+    const invoices = originalInvoices.filter(inv => inv.id !== id);
+    if (invoices.length === initialLength) {
+      return { success: false, error: `Factura con ID ${id} no encontrada para eliminar.` };
     }
-  } catch (writeError: any) {
-    console.error('Error deleting invoice:', writeError);
-    if (deletionPersisted) {
-      try {
-        await writeData(INVOICES_FILE, originalInvoices);
-      } catch (rollbackError) {
-        console.error('Error restoring invoice after unlink failure:', rollbackError);
-        return { success: false, error: 'La factura quedó en un estado inconsistente. Recargá y no repitas la operación.' };
+    let deletionPersisted = false;
+    try {
+      await writeData(INVOICES_FILE, invoices);
+      deletionPersisted = true;
+      if (linkedFiestaId) {
+        const unlinkResult = await removeInvoiceId(linkedFiestaId, id);
+        if (!unlinkResult.success) {
+          await writeData(INVOICES_FILE, originalInvoices);
+          return { success: false, error: 'No se pudo desvincular la factura del evento. La eliminaciÃ³n fue revertida.' };
+        }
       }
+      return { success: true };
+    } catch (writeError: any) {
+      console.error('Error deleting invoice:', writeError);
+      if (deletionPersisted) {
+        try {
+          await writeData(INVOICES_FILE, originalInvoices);
+        } catch (rollbackError) {
+          console.error('Error restoring invoice after unlink failure:', rollbackError);
+          return { success: false, error: 'La factura quedÃ³ en un estado inconsistente. RecargÃ¡ y no repitas la operaciÃ³n.' };
+        }
+      }
+      return { success: false, error: writeError.message || 'Error al eliminar la factura.' };
     }
-    return { success: false, error: writeError.message || 'Error al eliminar la factura.' };
-  }
-  return { success: true };
+  });
 }
 
-async function resetAllInvoicesInner(): Promise<{ success: boolean; deletedCount?: number; error?: string }> {
+export async function resetAllInvoices(): Promise<{ success: boolean; deletedCount?: number; error?: string }> {
   try {
     const auth = await verifySession();
     if (!auth.success) return { success: false, error: auth.error };
@@ -438,90 +412,93 @@ async function resetAllInvoicesInner(): Promise<{ success: boolean; deletedCount
   }
 }
 
-async function addPaymentToInvoiceInner(
+export async function addPaymentToInvoice(
   invoiceId: string,
   formData: FormData
 ): Promise<{ success: boolean; invoice?: Invoice; error?: string }> {
   const auth = await verifySession();
   if (!auth.success) return { success: false, error: auth.error };
-  const paymentDate = formData.get('paymentDate') as string || new Date().toISOString();
-  const amountStr = formData.get('amount') as string;
-  const rawMethod = formData.get('method') as string || 'Transferencia';
-  const method = mapDepositMethodToInvoiceMethod(rawMethod);
-  const notes = formData.get('notes') as string | undefined;
-  const transactionProofFile = formData.get('transactionProof') as File | null;
 
-  let invoices = await getInvoices();
-  const invoiceIndex = invoices.findIndex(inv => inv.id === invoiceId);
-  if (invoiceIndex === -1) return { success: false, error: `Factura con ID ${invoiceId} no encontrada.` };
+  return invoicesMutex.runExclusive(async () => {
+    const paymentDate = formData.get('paymentDate') as string || new Date().toISOString();
+    const amountStr = formData.get('amount') as string;
+    const rawMethod = formData.get('method') as string || 'Transferencia';
+    const method = mapDepositMethodToInvoiceMethod(rawMethod);
+    const notes = formData.get('notes') as string | undefined;
+    const transactionProofFile = formData.get('transactionProof') as File | null;
 
-  const invoice = invoices[invoiceIndex];
-  const amount = roundInvoiceMoney(parseCleanMoney(amountStr), invoice.currency);
-  const balance = getInvoiceBalance(invoice);
+    let invoices = await getInvoices();
+    const invoiceIndex = invoices.findIndex(inv => inv.id === invoiceId);
+    if (invoiceIndex === -1) return { success: false, error: `Factura con ID ${invoiceId} no encontrada.` };
 
-  if (amount <= 0) return { success: false, error: 'El monto del pago debe ser mayor a cero.' };
-  if (amount > balance + invoiceMoneyTolerance(invoice.currency)) return { success: false, error: `El pago supera el saldo pendiente. Saldo: ${balance.toLocaleString('es-UY')} ${invoice.currency}.` };
-  if (!paymentDate || Number.isNaN(new Date(paymentDate).getTime())) return { success: false, error: 'La fecha del pago no es válida.' };
+    const invoice = invoices[invoiceIndex];
+    const amount = roundInvoiceMoney(parseCleanMoney(amountStr), invoice.currency);
+    const balance = getInvoiceBalance(invoice);
 
-  const payments = invoice.payments || [];
-  const paymentId = `pay_${invoiceId}_${Date.now()}_${Math.random().toString(36).substring(2, 7)}`;
-  let transactionProofUrl: string | undefined = undefined;
+    if (amount <= 0) return { success: false, error: 'El monto del pago debe ser mayor a cero.' };
+    if (amount > balance + invoiceMoneyTolerance(invoice.currency)) return { success: false, error: `El pago supera el saldo pendiente. Saldo: ${balance.toLocaleString('es-UY')} ${invoice.currency}.` };
+    if (!paymentDate || Number.isNaN(new Date(paymentDate).getTime())) return { success: false, error: 'La fecha del pago no es vÃ¡lida.' };
 
-  if (transactionProofFile && transactionProofFile.size > 0) {
-    try {
-      const bytes = await transactionProofFile.arrayBuffer();
-      const buffer = Buffer.from(bytes);
-      const uniqueFilename = `proof_${paymentId}_${transactionProofFile.name.replace(/[^a-zA-Z0-9.-]/g, '_')}`;
-      const storagePath = `payment-proofs/${uniqueFilename}`;
-      transactionProofUrl = await uploadToStorage(buffer, storagePath, transactionProofFile.type || 'application/octet-stream', false);
-    } catch (fileError: any) {
-      console.error('Error saving payment proof file:', fileError);
-      return { success: false, error: `Error al guardar el comprobante: ${fileError.message}` };
-    }
-  }
+    const payments = invoice.payments || [];
+    const paymentId = `pay_${invoiceId}_${Date.now()}_${Math.random().toString(36).substring(2, 7)}`;
+    let transactionProofUrl: string | undefined = undefined;
 
-  const newPayment: Payment = {
-    id: paymentId,
-    paymentDate,
-    amount,
-    method,
-    notes: notes?.trim() || undefined,
-    transactionProofUrl,
-  };
-
-  const updatedPayments = [...payments, newPayment];
-  const totalPaid = updatedPayments.reduce((sum, p) => sum + roundInvoiceMoney(p.amount, invoice.currency), 0);
-  let newStatus = invoice.status;
-  if (totalPaid >= roundInvoiceMoney(invoice.totalAmount, invoice.currency) - invoiceMoneyTolerance(invoice.currency)) {
-    newStatus = 'Paid';
-  } else if (totalPaid > 0 && invoice.status !== 'Overdue' && invoice.status !== 'Paid') {
-    newStatus = invoice.status === 'Draft' ? 'Sent' : invoice.status;
-  }
-
-  invoices[invoiceIndex] = { ...invoice, payments: updatedPayments, status: newStatus };
-  await writeData(INVOICES_FILE, invoices);
-
-  if (invoice.sourcePresupuestoId) {
-    const budgetPaymentResult = await addPagoToPresupuesto(invoice.sourcePresupuestoId, {
-      fecha: paymentDate,
-      monto: amount,
-      metodoPago: mapDepositMethodToBudgetMethod(method),
-      referencia: `AK_SYNC:invoice:${invoiceId}:payment:${paymentId}`,
-      estadoPago: 'confirmado',
-    });
-    if (!budgetPaymentResult.success) {
-      invoices[invoiceIndex] = invoice;
+    if (transactionProofFile && transactionProofFile.size > 0) {
       try {
-        await writeData(INVOICES_FILE, invoices);
-      } catch (rollbackError) {
-        logger.error('[Facturas] No se pudo revertir un pago sin sincronizar:', rollbackError);
-        return { success: false, error: 'El pago quedó pendiente de conciliación. No lo ingreses nuevamente y revisa el presupuesto vinculado.' };
+        const bytes = await transactionProofFile.arrayBuffer();
+        const buffer = Buffer.from(bytes);
+        const uniqueFilename = `proof_${paymentId}_${transactionProofFile.name.replace(/[^a-zA-Z0-9.-]/g, '_')}`;
+        const storagePath = `payment-proofs/${uniqueFilename}`;
+        transactionProofUrl = await uploadToStorage(buffer, storagePath, transactionProofFile.type || 'application/octet-stream', false);
+      } catch (fileError: any) {
+        console.error('Error saving payment proof file:', fileError);
+        return { success: false, error: `Error al guardar el comprobante: ${fileError.message}` };
       }
-      return { success: false, error: budgetPaymentResult.error || 'No se pudo sincronizar el pago con el presupuesto vinculado.' };
     }
-  }
 
-  return { success: true, invoice: invoices[invoiceIndex] };
+    const newPayment: Payment = {
+      id: paymentId,
+      paymentDate,
+      amount,
+      method,
+      notes: notes?.trim() || undefined,
+      transactionProofUrl,
+    };
+
+    const updatedPayments = [...payments, newPayment];
+    const totalPaid = updatedPayments.reduce((sum, p) => sum + roundInvoiceMoney(p.amount, invoice.currency), 0);
+    let newStatus = invoice.status;
+    if (totalPaid >= roundInvoiceMoney(invoice.totalAmount, invoice.currency) - invoiceMoneyTolerance(invoice.currency)) {
+      newStatus = 'Paid';
+    } else if (totalPaid > 0 && invoice.status !== 'Overdue' && invoice.status !== 'Paid') {
+      newStatus = invoice.status === 'Draft' ? 'Sent' : invoice.status;
+    }
+
+    invoices[invoiceIndex] = { ...invoice, payments: updatedPayments, status: newStatus };
+    await writeData(INVOICES_FILE, invoices);
+
+    if (invoice.sourcePresupuestoId) {
+      const budgetPaymentResult = await addPagoToPresupuesto(invoice.sourcePresupuestoId, {
+        fecha: paymentDate,
+        monto: amount,
+        metodoPago: mapDepositMethodToBudgetMethod(method),
+        referencia: `AK_SYNC:invoice:${invoiceId}:payment:${paymentId}`,
+        estadoPago: 'confirmado',
+      });
+      if (!budgetPaymentResult.success) {
+        invoices[invoiceIndex] = invoice;
+        try {
+          await writeData(INVOICES_FILE, invoices);
+        } catch (rollbackError) {
+          logger.error('[Facturas] No se pudo revertir un pago sin sincronizar:', rollbackError);
+          return { success: false, error: 'El pago quedÃ³ pendiente de conciliaciÃ³n. No lo ingreses nuevamente y revisa el presupuesto vinculado.' };
+        }
+        return { success: false, error: budgetPaymentResult.error || 'No se pudo sincronizar el pago con el presupuesto vinculado.' };
+      }
+    }
+
+    return { success: true, invoice: invoices[invoiceIndex] };
+  });
 }
 
 function parseDateStringLocal(dateStr: string): Date {

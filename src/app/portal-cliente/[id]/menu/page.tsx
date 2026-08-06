@@ -33,7 +33,7 @@ export default function MenuPortalPage() {
       .then(data => {
         if (!data) {
           sessionStorage.removeItem(SESSION_KEY_PREFIX + fiestaId);
-          setError('La sesión del portal venció o no corresponde a este evento.');
+          setError('La sesiÃ³n del portal venciÃ³ o no corresponde a este evento.');
           return;
         }
         setFiesta(data);
@@ -48,12 +48,13 @@ export default function MenuPortalPage() {
     try {
       const result = await saveMenuSeleccion(fiestaId, form);
       if (result.success) {
-        toast({ title: '✅ Menú guardado', description: 'Tu selección de menú fue enviada.' });
+        setForm(prev => ({ ...prev, confirmado: true, fechaConfirmacion: new Date().toISOString() }));
+        toast({ title: 'âœ… MenÃº guardado', description: 'Tu selecciÃ³n de menÃº fue enviada.' });
       } else {
         toast({ title: 'Error', description: result.error ?? 'No se pudo guardar.', variant: 'destructive' });
       }
     } catch {
-      toast({ title: 'Error de conexión', description: 'No se pudo guardar la selección. Intentá nuevamente.', variant: 'destructive' });
+      toast({ title: 'Error de conexiÃ³n', description: 'No se pudo guardar la selecciÃ³n. IntentÃ¡ nuevamente.', variant: 'destructive' });
     } finally {
       setIsSaving(false);
     }
@@ -86,7 +87,7 @@ export default function MenuPortalPage() {
             <ArrowLeft className="w-4 h-4" />
           </Button>
           <div className="flex-1 min-w-0">
-            <p className="text-sm font-black text-slate-900">🍽️ Selección de Menú</p>
+            <p className="text-sm font-black text-slate-900">ðŸ½ï¸ SelecciÃ³n de MenÃº</p>
             <p className="text-xs text-slate-500">{fiesta.configuracion?.nombreEvento}</p>
           </div>
         </div>
@@ -96,7 +97,7 @@ export default function MenuPortalPage() {
         {menuBase && (
           <Card>
             <CardHeader>
-              <CardTitle className="text-base font-black">Menú del Evento</CardTitle>
+              <CardTitle className="text-base font-black">MenÃº del Evento</CardTitle>
             </CardHeader>
             <CardContent className="space-y-2 text-sm text-slate-700">
               {menuBase.entrada && <p><span className="font-semibold">Entrada:</span> {menuBase.entrada}</p>}
@@ -107,14 +108,14 @@ export default function MenuPortalPage() {
 
         <Card>
           <CardHeader>
-            <CardTitle className="text-base font-black">Tu confirmación</CardTitle>
+            <CardTitle className="text-base font-black">Tu confirmaciÃ³n</CardTitle>
           </CardHeader>
           <CardContent className="space-y-4">
             <div className="space-y-1.5">
               <Label htmlFor="restricciones">Restricciones alimentarias</Label>
               <Textarea
                 id="restricciones"
-                placeholder="Ej: soy celíaco, vegetariano, alérgico a los mariscos..."
+                placeholder="Ej: soy celÃ­aco, vegetariano, alÃ©rgico a los mariscos..."
                 value={form.restriccionesAlimentarias ?? ''}
                 onChange={e => setForm(prev => ({ ...prev, restriccionesAlimentarias: e.target.value }))}
                 rows={3}
@@ -122,11 +123,11 @@ export default function MenuPortalPage() {
             </div>
             <Button onClick={handleSave} disabled={isSaving} className="w-full bg-purple-600 hover:bg-purple-700">
               {isSaving ? <Loader2 className="w-4 h-4 animate-spin mr-2" /> : <Save className="w-4 h-4 mr-2" />}
-              Confirmar selección
+              Confirmar selecciÃ³n
             </Button>
             {form.confirmado && form.fechaConfirmacion && (
               <p className="text-xs text-green-600 text-center">
-                ✓ Confirmado el {new Date(form.fechaConfirmacion).toLocaleDateString('es-UY')}
+                âœ“ Confirmado el {new Date(form.fechaConfirmacion).toLocaleDateString('es-UY')}
               </p>
             )}
           </CardContent>

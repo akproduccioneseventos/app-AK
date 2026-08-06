@@ -147,7 +147,7 @@ const formatCurrency = (amount?: number) => {
 };
 
 const formatDate = (dateString?: string) => {
-  if (!dateString) return '—';
+  if (!dateString) return 'â€”';
   try {
     return new Date(dateString).toLocaleDateString('es-ES', {
       day: '2-digit',
@@ -155,7 +155,7 @@ const formatDate = (dateString?: string) => {
       year: 'numeric',
     });
   } catch {
-    return '—';
+    return 'â€”';
   }
 };
 
@@ -208,15 +208,15 @@ const MAX_GUEST_DELTA = 200;
 /** Pick a representative Lucide icon based on itinerary item title keywords */
 function getItineraryIcon(titulo: string): React.ElementType {
   const t = titulo.toLowerCase();
-  if (t.includes('música') || t.includes('musica') || t.includes('baile') || t.includes('vals') || t.includes('dj') || t.includes('show'))
+  if (t.includes('mÃºsica') || t.includes('musica') || t.includes('baile') || t.includes('vals') || t.includes('dj') || t.includes('show'))
     return Music;
-  if (t.includes('cena') || t.includes('comida') || t.includes('menú') || t.includes('brindis') || t.includes('cocktail') || t.includes('cóctel'))
+  if (t.includes('cena') || t.includes('comida') || t.includes('menÃº') || t.includes('brindis') || t.includes('cocktail') || t.includes('cÃ³ctel'))
     return Utensils;
-  if (t.includes('foto') || t.includes('video') || t.includes('filmación') || t.includes('fotografia'))
+  if (t.includes('foto') || t.includes('video') || t.includes('filmaciÃ³n') || t.includes('fotografia'))
     return Camera;
-  if (t.includes('torta') || t.includes('postre') || t.includes('cumpleaños'))
+  if (t.includes('torta') || t.includes('postre') || t.includes('cumpleaÃ±os'))
     return Gift;
-  if (t.includes('entrada') || t.includes('llegada') || t.includes('recepción') || t.includes('ingreso'))
+  if (t.includes('entrada') || t.includes('llegada') || t.includes('recepciÃ³n') || t.includes('ingreso'))
     return Users;
   if (t.includes('bienvenida') || t.includes('apertura') || t.includes('inicio') || t.includes('ceremonia'))
     return Sparkles;
@@ -249,7 +249,7 @@ export default function PublicPortalView({
   const portalExperience = fiesta.clientePortalExperience ?? {};
   const countdown = useCountdown(config.fechaEvento);
 
-  // Dynamic event color — clientePortalExperience.primaryColor has highest priority
+  // Dynamic event color â€” clientePortalExperience.primaryColor has highest priority
   const eventColor =
     portalExperience.primaryColor ||
     config.primaryColor ||
@@ -504,17 +504,17 @@ export default function PublicPortalView({
   // Smart alert banners
   const alertas: { type: 'amber' | 'emerald' | 'blue'; message: string }[] = [];
   if (settings?.pagos?.visible && presupuesto && saldoPendiente > 0) {
-    alertas.push({ type: 'amber', message: `💳 Recordá: tu saldo pendiente es de ${formatCurrency(saldoPendiente)}` });
+    alertas.push({ type: 'amber', message: `ðŸ’³ RecordÃ¡: tu saldo pendiente es de ${formatCurrency(saldoPendiente)}` });
   }
   if (daysUntil !== null && daysUntil <= 30 && daysUntil > 0) {
-    alertas.push({ type: 'blue', message: `⏰ ¡Faltan ${daysUntil} días para tu evento!` });
+    alertas.push({ type: 'blue', message: `â° Â¡Faltan ${daysUntil} dÃ­as para tu evento!` });
   }
   if (settings?.contrato?.visible && fiesta.contratoServicioTexto && !fiesta.contratoFirmaInfo?.isSigned) {
-    alertas.push({ type: 'amber', message: `📝 Tu contrato está pendiente de firma` });
+    alertas.push({ type: 'amber', message: `ðŸ“ Tu contrato estÃ¡ pendiente de firma` });
   }
   const pendingTasks = checklist.filter(t => !t.completada).length;
   if (settings?.checklist?.visible && pendingTasks > 0) {
-    alertas.push({ type: 'blue', message: `✅ Tenés ${pendingTasks} tarea${pendingTasks > 1 ? 's' : ''} pendiente${pendingTasks > 1 ? 's' : ''}` });
+    alertas.push({ type: 'blue', message: `âœ… TenÃ©s ${pendingTasks} tarea${pendingTasks > 1 ? 's' : ''} pendiente${pendingTasks > 1 ? 's' : ''}` });
   }
 
   // Guest simulator
@@ -538,7 +538,7 @@ export default function PublicPortalView({
     kidsUnitPrice: kidsUnit,
     currentTotal: totalCosto,
   });
-  // Real budget-synced simulation — used by the new guest simulator and submission handler
+  // Real budget-synced simulation â€” used by the new guest simulator and submission handler
   const guestSim = presupuesto
     ? simulateGuestCostImpact({ presupuesto, adultDelta, kidsDelta })
     : null;
@@ -592,16 +592,16 @@ export default function PublicPortalView({
     setShowPagoModal(true);
   };
 
-  // Event name display — use eventDisplayName override, fallback to config name
+  // Event name display â€” use eventDisplayName override, fallback to config name
   const rawEventName = portalExperience.eventDisplayName || config.nombreEvento;
   const displayEventName =
     !rawEventName || rawEventName === 'Nuevo Evento'
       ? 'Evento sin configurar'
       : rawEventName;
 
-  // Location display — hide placeholder text
+  // Location display â€” hide placeholder text
   const rawLocation = config.nombreLugar;
-  const isLocationConfirmed = !!rawLocation && rawLocation !== 'Salón a definir';
+  const isLocationConfirmed = !!rawLocation && rawLocation !== 'SalÃ³n a definir';
   const displayLocation = isLocationConfirmed ? rawLocation : 'Lugar a confirmar';
 
   // Sidebar: pending tasks from debeLlevarItems
@@ -613,7 +613,7 @@ export default function PublicPortalView({
     pendiente: 'Pendiente',
     enviado: 'Enviado',
     listo: 'Listo',
-    revisado: 'En revisión',
+    revisado: 'En revisiÃ³n',
   };
 
   // Guest RSVP stats
@@ -626,7 +626,7 @@ export default function PublicPortalView({
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-950 via-purple-950 to-slate-900">
 
-      {/* ── HERO ── */}
+      {/* â”€â”€ HERO â”€â”€ */}
       <div
         className="relative text-white px-4 pb-10 pt-12 overflow-hidden"
         style={{
@@ -683,7 +683,7 @@ export default function PublicPortalView({
                 </h1>
                 {config.protagonista1Nombre && (
                   <p className="text-xl font-bold opacity-95">
-                    ✨ {config.protagonista1Nombre}
+                    âœ¨ {config.protagonista1Nombre}
                     {config.protagonista2Nombre && ` & ${config.protagonista2Nombre}`}
                   </p>
                 )}
@@ -696,7 +696,7 @@ export default function PublicPortalView({
               </h1>
               {config.protagonista1Nombre && (
                 <p className="text-xl font-bold opacity-95">
-                  ✨ {config.protagonista1Nombre}
+                  âœ¨ {config.protagonista1Nombre}
                   {config.protagonista2Nombre && ` & ${config.protagonista2Nombre}`}
                 </p>
               )}
@@ -720,7 +720,7 @@ export default function PublicPortalView({
             {config.horaInicio && (
               <span className="flex items-center gap-1.5 bg-white/15 rounded-full px-3 py-1 font-semibold text-xs">
                 <Clock className="w-3.5 h-3.5" />
-                {config.horaInicio}{config.horaFin ? ` — ${config.horaFin}` : ''}
+                {config.horaInicio}{config.horaFin ? ` â€” ${config.horaFin}` : ''}
               </span>
             )}
             <span className={`flex items-center gap-1.5 rounded-full px-3 py-1 font-semibold text-xs ${isLocationConfirmed ? 'bg-white/15' : 'bg-white/8 opacity-60'}`}>
@@ -735,10 +735,10 @@ export default function PublicPortalView({
             )}
           </div>
 
-          {/* Countdown — 4-unit display using CountdownUnit */}
+          {/* Countdown â€” 4-unit display using CountdownUnit */}
           {config.fechaEvento && countdown && !countdown.isPast && (
             <div className="mt-5 flex justify-center items-center gap-3">
-              <CountdownUnit value={countdown.days} label="días" />
+              <CountdownUnit value={countdown.days} label="dÃ­as" />
               <span className="text-2xl font-black opacity-60 mb-4">:</span>
               <CountdownUnit value={countdown.hours} label="horas" />
               <span className="text-2xl font-black opacity-60 mb-4">:</span>
@@ -749,7 +749,7 @@ export default function PublicPortalView({
           )}
           {config.fechaEvento && countdown?.isPast && (
             <div className="mt-5 text-center">
-              <p className="text-xl font-black opacity-90">🎉 ¡El evento ya fue!</p>
+              <p className="text-xl font-black opacity-90">ðŸŽ‰ Â¡El evento ya fue!</p>
             </div>
           )}
 
@@ -763,7 +763,7 @@ export default function PublicPortalView({
                 className="rounded-full bg-white/20 text-white border border-white/30 text-xs flex items-center gap-1.5 px-3 py-1.5 hover:bg-white/30 transition-colors"
               >
                 <Navigation className="w-3.5 h-3.5" />
-                Cómo llegar
+                CÃ³mo llegar
               </a>
             )}
             {settings?.paginaPublica?.visible && (
@@ -778,7 +778,7 @@ export default function PublicPortalView({
                 }}
               >
                 <ExternalLink className="w-3.5 h-3.5" />
-                Página del evento
+                PÃ¡gina del evento
               </button>
             )}
             {settings?.pagos?.visible && (
@@ -810,11 +810,11 @@ export default function PublicPortalView({
         </div>
       </div>
 
-      {/* ── BODY ── */}
+      {/* â”€â”€ BODY â”€â”€ */}
       <div className="max-w-2xl mx-auto px-4 py-6 pb-24">
         <div className="space-y-5">
 
-          {/* ── Modo Día del Evento ── */}
+          {/* â”€â”€ Modo DÃ­a del Evento â”€â”€ */}
           {countdown && !countdown.isPast && countdown.days === 0 && (
             <div className="rounded-3xl overflow-hidden shadow-xl border-0 bg-gradient-to-br from-amber-400 to-orange-500 text-white p-5">
               <div className="flex items-center gap-3 mb-3">
@@ -822,8 +822,8 @@ export default function PublicPortalView({
                   <Sparkles className="w-6 h-6 text-white" />
                 </div>
                 <div>
-                  <p className="font-black text-lg leading-tight">¡Es hoy! 🎉</p>
-                  <p className="text-sm text-white/80">El gran día de tu evento ha llegado</p>
+                  <p className="font-black text-lg leading-tight">Â¡Es hoy! ðŸŽ‰</p>
+                  <p className="text-sm text-white/80">El gran dÃ­a de tu evento ha llegado</p>
                 </div>
               </div>
               {config.googleMapsUrl && (
@@ -834,7 +834,7 @@ export default function PublicPortalView({
                   className="w-full mt-2 block bg-white/20 hover:bg-white/30 transition-colors rounded-2xl py-3 font-bold text-sm flex items-center justify-center gap-2"
                 >
                   <Navigation className="w-4 h-4" />
-                  Ver cómo llegar
+                  Ver cÃ³mo llegar
                 </a>
               )}
             </div>
@@ -860,7 +860,7 @@ export default function PublicPortalView({
               </div>
             )}
 
-          {/* ── Post-event screen ── */}
+          {/* â”€â”€ Post-event screen â”€â”€ */}
           {isEventPast && (
             <div className="rounded-3xl overflow-hidden shadow-xl border-0 bg-gradient-to-br from-violet-500 to-purple-700 text-white p-5 space-y-3">
               <div className="flex items-center gap-3">
@@ -868,7 +868,7 @@ export default function PublicPortalView({
                   <PartyPopper className="w-6 h-6 text-white" />
                 </div>
                 <div>
-                  <p className="font-black text-lg leading-tight">¡Tu evento fue un éxito! 🎊</p>
+                  <p className="font-black text-lg leading-tight">Â¡Tu evento fue un Ã©xito! ðŸŽŠ</p>
                   <p className="text-sm text-white/80">Gracias por confiar en AK Producciones</p>
                 </div>
               </div>
@@ -876,7 +876,7 @@ export default function PublicPortalView({
                 <a href={fiesta.galeriaUrl} target="_blank" rel="noopener noreferrer" className="block">
                   <button className="w-full bg-white/20 hover:bg-white/30 transition-colors rounded-2xl py-3 font-bold text-sm flex items-center justify-center gap-2">
                     <ImageIcon className="w-4 h-4" />
-                    Ver galería de fotos
+                    Ver galerÃ­a de fotos
                   </button>
                 </a>
               )}
@@ -886,17 +886,17 @@ export default function PublicPortalView({
           {/* Welcome / organizer messages */}
           {portalExperience.welcomeMessage && (
             <div className="rounded-2xl border border-slate-200 bg-white px-4 py-3 text-slate-700 text-sm font-medium shadow-sm">
-              💬 {portalExperience.welcomeMessage}
+              ðŸ’¬ {portalExperience.welcomeMessage}
             </div>
           )}
           {portalExperience.organizerMessage && (
             <div className="rounded-2xl border border-amber-200 bg-amber-50 px-4 py-3 text-amber-800 text-sm shadow-sm">
-              <span className="font-black uppercase tracking-wider text-xs text-amber-600 block mb-1">📌 Nota del organizador</span>
+              <span className="font-black uppercase tracking-wider text-xs text-amber-600 block mb-1">ðŸ“Œ Nota del organizador</span>
               {portalExperience.organizerMessage}
             </div>
           )}
 
-          {/* ── 0. Reuniones coordinadas ── */}
+          {/* â”€â”€ 0. Reuniones coordinadas â”€â”€ */}
           {fiesta.reuniones && fiesta.reuniones.length > 0 && (
             <Card className="shadow-lg border-0 rounded-3xl overflow-hidden">
               <CardHeader className="pb-2 bg-gradient-to-r from-sky-50 to-blue-50">
@@ -936,12 +936,12 @@ export default function PublicPortalView({
               </Card>
             )}
 
-            {/* ── Resumen Ejecutivo ── */}
+            {/* â”€â”€ Resumen Ejecutivo â”€â”€ */}
             {!isEventPast && (
               <div className="grid grid-cols-2 gap-3">
                 <div className="rounded-2xl bg-white border border-slate-100 shadow-sm p-4 space-y-1 text-center">
                   <p className="text-2xl font-black text-emerald-600">
-                    {presupuesto && totalCosto > 0 ? `${Math.round(porcentajePagado)}%` : '—'}
+                    {presupuesto && totalCosto > 0 ? `${Math.round(porcentajePagado)}%` : 'â€”'}
                   </p>
                   <p className="text-[10px] font-bold uppercase tracking-wider text-slate-500">Pagado</p>
                 </div>
@@ -951,9 +951,9 @@ export default function PublicPortalView({
                 </div>
                 <div className="rounded-2xl bg-white border border-slate-100 shadow-sm p-4 space-y-1 text-center">
                   <p className="text-2xl font-black text-sky-600">
-                    {daysUntil === null ? '—' : daysUntil === 0 ? '¡Hoy!' : daysUntil}
+                    {daysUntil === null ? 'â€”' : daysUntil === 0 ? 'Â¡Hoy!' : daysUntil}
                   </p>
-                  <p className="text-[10px] font-bold uppercase tracking-wider text-slate-500">Días para el evento</p>
+                  <p className="text-[10px] font-bold uppercase tracking-wider text-slate-500">DÃ­as para el evento</p>
                 </div>
                 <div className="rounded-2xl bg-white border border-slate-100 shadow-sm p-4 space-y-1 text-center">
                   <p className="text-2xl font-black text-teal-600">{guestConfirmados.length}</p>
@@ -962,7 +962,7 @@ export default function PublicPortalView({
               </div>
             )}
 
-            {/* ── Checklist de Hitos ── */}
+            {/* â”€â”€ Checklist de Hitos â”€â”€ */}
             {!isEventPast && (
               <div className="rounded-2xl bg-white border border-slate-100 shadow-sm p-4 space-y-3">
                 <p className="text-xs font-black uppercase tracking-wider text-slate-500 flex items-center gap-1.5">
@@ -974,13 +974,13 @@ export default function PublicPortalView({
                     <div className={`w-5 h-5 rounded-full shrink-0 flex items-center justify-center ${fiesta.contratoFirmaInfo?.isSigned ? 'bg-emerald-100' : 'bg-amber-100'}`}>
                       {fiesta.contratoFirmaInfo?.isSigned ? <CheckCircle2 className="w-3.5 h-3.5" /> : <Clock className="w-3.5 h-3.5" />}
                     </div>
-                    <span className="font-semibold">Contrato {fiesta.contratoFirmaInfo?.isSigned ? 'firmado ✓' : 'pendiente de firma'}</span>
+                    <span className="font-semibold">Contrato {fiesta.contratoFirmaInfo?.isSigned ? 'firmado âœ“' : 'pendiente de firma'}</span>
                   </div>
                   <div className={`flex items-center gap-3 text-sm ${isPaid ? 'text-emerald-700' : 'text-amber-700'}`}>
                     <div className={`w-5 h-5 rounded-full shrink-0 flex items-center justify-center ${isPaid ? 'bg-emerald-100' : 'bg-amber-100'}`}>
                       {isPaid ? <CheckCircle2 className="w-3.5 h-3.5" /> : <Clock className="w-3.5 h-3.5" />}
                     </div>
-                    <span className="font-semibold">Pago {isPaid ? 'completado ✓' : `pendiente (${Math.round(porcentajePagado)}% pagado)`}</span>
+                    <span className="font-semibold">Pago {isPaid ? 'completado âœ“' : `pendiente (${Math.round(porcentajePagado)}% pagado)`}</span>
                   </div>
                   {isModuleVisible(settings, 'invitados') && (
                     <div className={`flex items-center gap-3 text-sm ${guestConfirmados.length > 0 ? 'text-emerald-700' : 'text-slate-500'}`}>
@@ -988,7 +988,7 @@ export default function PublicPortalView({
                         {guestConfirmados.length > 0 ? <CheckCircle2 className="w-3.5 h-3.5" /> : <Clock className="w-3.5 h-3.5" />}
                       </div>
                       <span className="font-semibold">
-                        {guestConfirmados.length > 0 ? `${guestConfirmados.length} invitados confirmados ✓` : 'Sin confirmaciones aún'}
+                        {guestConfirmados.length > 0 ? `${guestConfirmados.length} invitados confirmados âœ“` : 'Sin confirmaciones aÃºn'}
                       </span>
                     </div>
                   )}
@@ -996,7 +996,7 @@ export default function PublicPortalView({
               </div>
             )}
 
-            {/* ── Plan de Pagos del Contrato ── */}
+            {/* â”€â”€ Plan de Pagos del Contrato â”€â”€ */}
             {fiesta.contratoDatos?.planPagos?.activo && presupuesto && (() => {
               const plan = fiesta.contratoDatos!.planPagos!;
               const formatMoney = (n: number) =>
@@ -1030,12 +1030,12 @@ export default function PublicPortalView({
                         <div>
                           <p className="text-xs font-black text-amber-800">
                             {diasHastaClave !== null && diasHastaClave < 0
-                              ? `🔴 ¡Fecha vencida! Debías completar el ${plan.porcentajeMinimoAntesFecha}%`
-                              : `⏰ ${diasHastaClave === 0 ? '¡Hoy!' : `${diasHastaClave} días`} para completar el ${plan.porcentajeMinimoAntesFecha}%`
+                              ? `ðŸ”´ Â¡Fecha vencida! DebÃ­as completar el ${plan.porcentajeMinimoAntesFecha}%`
+                              : `â° ${diasHastaClave === 0 ? 'Â¡Hoy!' : `${diasHastaClave} dÃ­as`} para completar el ${plan.porcentajeMinimoAntesFecha}%`
                             }
                           </p>
                           <p className="text-[11px] text-amber-700 mt-0.5">
-                            Debés llegar a {formatMoney(plan.montoObjetivo30Porciento)} antes del {formatFecha(cuotaClave.fechaVencimiento)}.
+                            DebÃ©s llegar a {formatMoney(plan.montoObjetivo30Porciento)} antes del {formatFecha(cuotaClave.fechaVencimiento)}.
                           </p>
                         </div>
                       </div>
@@ -1071,10 +1071,10 @@ export default function PublicPortalView({
                             ? 'text-amber-700 bg-amber-50 border-amber-200'
                             : 'text-slate-700 bg-white border-slate-100';
                         const estadoIcon =
-                          cuota.estado === 'completada' ? '✅'
-                          : cuota.estado === 'vencida' ? '🔴'
-                          : cuota.esCuotaClave ? '⭐'
-                          : '⏳';
+                          cuota.estado === 'completada' ? 'âœ…'
+                          : cuota.estado === 'vencida' ? 'ðŸ”´'
+                          : cuota.esCuotaClave ? 'â­'
+                          : 'â³';
                         return (
                           <div key={cuota.id} className={`flex items-center justify-between text-xs p-2.5 rounded-xl border ${estadoColor}`}>
                             <div className="flex items-center gap-2">
@@ -1085,7 +1085,7 @@ export default function PublicPortalView({
                               <p className="font-bold text-[11px]">
                                 {cuota.esCuotaClave
                                   ? formatMoney(cuota.montoObjetivo ?? plan.montoObjetivo30Porciento)
-                                  : `mín. ${formatMoney(cuota.montoMinimo)}`
+                                  : `mÃ­n. ${formatMoney(cuota.montoMinimo)}`
                                 }
                               </p>
                               <p className="text-[10px] opacity-70">{formatFecha(cuota.fechaVencimiento)}</p>
@@ -1098,23 +1098,23 @@ export default function PublicPortalView({
                     {/* Nota ajuste anual */}
                     {fiesta.contratoDatos?.ajusteAnualPorcentaje ? (
                       <div className="bg-slate-50 border border-slate-200 rounded-xl p-3 text-[11px] text-slate-500 leading-relaxed">
-                        ℹ️ Los montos de las cuotas están fijados al precio vigente a la fecha de firma. El saldo final puede estar sujeto al ajuste anual del {fiesta.contratoDatos.ajusteAnualPorcentaje}% pactado en la Cláusula 2 del contrato.
+                        â„¹ï¸ Los montos de las cuotas estÃ¡n fijados al precio vigente a la fecha de firma. El saldo final puede estar sujeto al ajuste anual del {fiesta.contratoDatos.ajusteAnualPorcentaje}% pactado en la ClÃ¡usula 2 del contrato.
                       </div>
                     ) : (
                       <div className="bg-slate-50 border border-slate-200 rounded-xl p-3 text-[11px] text-slate-500 leading-relaxed">
-                        ℹ️ Los montos de las cuotas están fijados al precio vigente a la fecha de firma. El saldo final puede estar sujeto al ajuste anual del 15% pactado en la Cláusula 2 del contrato.
+                        â„¹ï¸ Los montos de las cuotas estÃ¡n fijados al precio vigente a la fecha de firma. El saldo final puede estar sujeto al ajuste anual del 15% pactado en la ClÃ¡usula 2 del contrato.
                       </div>
                     )}
 
-                    {/* Próxima cuota */}
+                    {/* PrÃ³xima cuota */}
                     {proximaCuota && (
                       <div className="bg-blue-50 border border-blue-100 rounded-xl p-3">
-                        <p className="text-[10px] font-black uppercase text-blue-500 tracking-wider">Próximo pago</p>
+                        <p className="text-[10px] font-black uppercase text-blue-500 tracking-wider">PrÃ³ximo pago</p>
                         <p className="text-sm font-bold text-blue-800 mt-0.5">
                           {proximaCuota.esCuotaClave
-                            ? `mín. ${formatMoney(Math.max(0, (proximaCuota.montoObjetivo ?? plan.montoObjetivo30Porciento) - totalPagado))}`
-                            : `mín. ${formatMoney(proximaCuota.montoMinimo - (proximaCuota.montoAcumulado ?? 0))}`
-                          } — antes del {formatFecha(proximaCuota.fechaVencimiento)}
+                            ? `mÃ­n. ${formatMoney(Math.max(0, (proximaCuota.montoObjetivo ?? plan.montoObjetivo30Porciento) - totalPagado))}`
+                            : `mÃ­n. ${formatMoney(proximaCuota.montoMinimo - (proximaCuota.montoAcumulado ?? 0))}`
+                          } â€” antes del {formatFecha(proximaCuota.fechaVencimiento)}
                         </p>
                       </div>
                     )}
@@ -1123,14 +1123,14 @@ export default function PublicPortalView({
               );
             })()}
 
-            {/* ── 1. Datos del evento ── */}
+            {/* â”€â”€ 1. Datos del evento â”€â”€ */}
             <Card id="seccion-organizacion" className="shadow-lg border-0 rounded-3xl overflow-hidden">
               <CardHeader className="pb-2 bg-gradient-to-r from-violet-50 to-purple-50">
                 <CardTitle className="text-base font-bold flex items-center gap-2">
                   <Home className="w-5 h-5 text-violet-600" />
                   Datos del evento
                 </CardTitle>
-                <p className="text-xs text-muted-foreground">Información general de tu evento</p>
+                <p className="text-xs text-muted-foreground">InformaciÃ³n general de tu evento</p>
               </CardHeader>
               <CardContent className="pt-4 space-y-4">
                 {/* Event details grid */}
@@ -1168,7 +1168,7 @@ export default function PublicPortalView({
                     className="flex items-center gap-2 p-3 rounded-xl bg-primary/5 border border-primary/20 hover:bg-primary/10 transition-colors"
                   >
                     <ExternalLink className="w-4 h-4 text-primary shrink-0" />
-                    <p className="text-sm font-semibold text-primary">Ver página pública del evento</p>
+                    <p className="text-sm font-semibold text-primary">Ver pÃ¡gina pÃºblica del evento</p>
                   </a>
                 )}
 
@@ -1184,7 +1184,7 @@ export default function PublicPortalView({
                 {/* Instrucciones de llegada */}
                 {config.instruccionesLlegada && (
                   <div className="rounded-xl bg-amber-50 border border-amber-100 px-3 py-2">
-                    <p className="text-xs font-black uppercase text-amber-600 tracking-wider mb-1">📍 Cómo llegar</p>
+                    <p className="text-xs font-black uppercase text-amber-600 tracking-wider mb-1">ðŸ“ CÃ³mo llegar</p>
                     <p className="text-sm text-amber-800 leading-relaxed">{config.instruccionesLlegada}</p>
                   </div>
                 )}
@@ -1206,7 +1206,7 @@ export default function PublicPortalView({
               </CardContent>
             </Card>
 
-            {/* ── 2. Tareas pendientes ── */}
+            {/* â”€â”€ 2. Tareas pendientes â”€â”€ */}
             {isModuleVisible(settings, 'checklist') && checklist.length > 0 && (
               <Card className="shadow-lg border-0 rounded-3xl overflow-hidden">
                 <CardHeader className="pb-2 bg-gradient-to-r from-teal-50 to-emerald-50">
@@ -1243,7 +1243,7 @@ export default function PublicPortalView({
               </Card>
             )}
 
-            {/* ── 3. Lo que debo llevar (merged: checklist + bebidas clienteLleva) ── */}
+            {/* â”€â”€ 3. Lo que debo llevar (merged: checklist + bebidas clienteLleva) â”€â”€ */}
             {(isModuleVisible(settings, 'calculadoraBebidas') || debeLlevarItems.length > 0) && (() => {
               const bebidasClienteLleva = bebidasItems.filter(b => b.clienteLleva && b.visible);
               const completedCount = debeLlevarItems.filter(i => i.completado).length;
@@ -1256,7 +1256,7 @@ export default function PublicPortalView({
                     Lo que debo llevar
                   </CardTitle>
                   <p className="text-xs text-muted-foreground">
-                    {completedCount} de {totalCount} ítems listos
+                    {completedCount} de {totalCount} Ã­tems listos
                   </p>
                 </CardHeader>
                 <CardContent className="pt-4 space-y-3">
@@ -1276,7 +1276,7 @@ export default function PublicPortalView({
                       <div className={`w-6 h-6 rounded-full border-2 flex items-center justify-center shrink-0 transition-all ${
                         item.completado ? 'border-teal-500 bg-teal-500' : 'border-slate-300 bg-white'
                       }`}>
-                        {item.completado && <span className="text-white text-xs font-black">✓</span>}
+                        {item.completado && <span className="text-white text-xs font-black">âœ“</span>}
                       </div>
                       <div className="flex-1 min-w-0">
                         <p className={`text-sm font-semibold leading-snug ${item.completado ? 'line-through text-muted-foreground' : ''}`}>
@@ -1300,7 +1300,7 @@ export default function PublicPortalView({
                     <>
                       {debeLlevarItems.length > 0 && <Separator className="my-2" />}
                       <p className="text-xs text-amber-700 font-medium bg-amber-50 border border-amber-100 rounded-xl px-3 py-2">
-                        📋 Según tu contrato, vos te encargás de estos ítems para {numInvitados} personas:
+                        ðŸ“‹ SegÃºn tu contrato, vos te encargÃ¡s de estos Ã­tems para {numInvitados} personas:
                       </p>
                       {bebidasClienteLleva.map(item => {
                         const cantidad = Math.round(numInvitados * item.cantidadPorPersona * 10) / 10;
@@ -1326,7 +1326,7 @@ export default function PublicPortalView({
                   )}
                   {debeLlevarItems.length === 0 && bebidasClienteLleva.length === 0 && (
                     <p className="text-sm text-muted-foreground text-center py-3 border border-dashed rounded-xl">
-                      No hay ítems pendientes por ahora.
+                      No hay Ã­tems pendientes por ahora.
                     </p>
                   )}
                 </CardContent>
@@ -1334,7 +1334,7 @@ export default function PublicPortalView({
               );
             })()}
 
-            {/* ── 4. Control de invitados ── */}
+            {/* â”€â”€ 4. Control de invitados â”€â”€ */}
             {isModuleVisible(settings, 'invitados') && invitados.length > 0 && (
               <Card id="seccion-invitados" className="shadow-lg border-0 rounded-3xl overflow-hidden">
                 <CardHeader className="pb-2 bg-gradient-to-r from-blue-50 to-indigo-50">
@@ -1342,7 +1342,7 @@ export default function PublicPortalView({
                     <Users className="w-5 h-5 text-blue-600" />
                     Invitados y mesas
                   </CardTitle>
-                  <p className="text-xs text-muted-foreground">Estado de confirmación de tus invitados</p>
+                  <p className="text-xs text-muted-foreground">Estado de confirmaciÃ³n de tus invitados</p>
                 </CardHeader>
                 <CardContent className="pt-4 space-y-4">
 
@@ -1370,7 +1370,7 @@ export default function PublicPortalView({
                     <p className="text-[10px] font-black uppercase tracking-widest text-muted-foreground">Lista de invitados</p>
                     {/* Search input */}
                     <Input
-                      placeholder="🔍 Buscar invitado por nombre..."
+                      placeholder="ðŸ” Buscar invitado por nombre..."
                       value={guestSearchQuery}
                       onChange={e => setGuestSearchQuery(e.target.value)}
                       className="rounded-xl text-sm"
@@ -1408,7 +1408,7 @@ export default function PublicPortalView({
                                 disabled={isUpdating}
                                 onClick={() => handleUpdateGuestRsvp(inv.id, 'Rechazado')}
                                 className="text-[10px] font-semibold text-red-500 hover:text-red-700 hover:bg-red-50 border border-red-200 rounded-full px-2 py-0.5 transition-colors flex items-center gap-1"
-                                title="Cancelar confirmación"
+                                title="Cancelar confirmaciÃ³n"
                               >
                                 {isUpdating ? <Loader2 className="w-3 h-3 animate-spin" /> : <MinusCircle className="w-3 h-3" />}
                                 Cancelar
@@ -1438,7 +1438,7 @@ export default function PublicPortalView({
               </Card>
             )}
 
-            {/* ── 5. Botón Organización del evento ── */}
+            {/* â”€â”€ 5. BotÃ³n OrganizaciÃ³n del evento â”€â”€ */}
             {hasOrganizacionModules && (
               <button
                 onClick={() => setShowOrganizacionPanel(true)}
@@ -1450,8 +1450,8 @@ export default function PublicPortalView({
                       <ClipboardList className="w-5 h-5 text-violet-600" />
                     </div>
                     <div className="min-w-0">
-                      <p className="font-bold text-sm text-slate-800">📋 Organización del evento</p>
-                      <p className="text-xs text-muted-foreground mt-0.5">Itinerario, menú, música, fotos y más</p>
+                      <p className="font-bold text-sm text-slate-800">ðŸ“‹ OrganizaciÃ³n del evento</p>
+                      <p className="text-xs text-muted-foreground mt-0.5">Itinerario, menÃº, mÃºsica, fotos y mÃ¡s</p>
                     </div>
                   </div>
                   <ChevronRight className="w-5 h-5 text-violet-500 shrink-0" />
@@ -1459,7 +1459,7 @@ export default function PublicPortalView({
               </button>
             )}
 
-            {/* ── 10. Preguntas frecuentes ── */}
+            {/* â”€â”€ 10. Preguntas frecuentes â”€â”€ */}
             {isModuleVisible(settings, 'faq') && faqItems.length > 0 && (
               <Card id="seccion-faq" className="shadow-lg border-0 rounded-3xl overflow-hidden">
                 <CardHeader className="pb-2">
@@ -1467,7 +1467,7 @@ export default function PublicPortalView({
                     <HelpCircle className="w-5 h-5 text-primary" />
                     Preguntas frecuentes
                   </CardTitle>
-                  <p className="text-xs text-muted-foreground">Todo lo que necesitás saber</p>
+                  <p className="text-xs text-muted-foreground">Todo lo que necesitÃ¡s saber</p>
                 </CardHeader>
                 <CardContent className="pt-0 space-y-1">
                   {faqItems.map((faq, idx) => (
@@ -1495,20 +1495,20 @@ export default function PublicPortalView({
               </Card>
             )}
 
-            {/* ── 11. Simulador de invitados ── */}
+            {/* â”€â”€ 11. Simulador de invitados â”€â”€ */}
             {isModuleVisible(settings, 'simuladorInvitados') && (
             <Card id="seccion-simulador" className="shadow-lg border-0 rounded-3xl overflow-hidden">
               <CardHeader className="pb-2" style={{ background: `linear-gradient(135deg, ${eventColor}18, ${eventColor}08)` }}>
                 <CardTitle className="text-base font-bold flex items-center gap-2">
                   <TrendingUp className="w-5 h-5" style={{ color: eventColor }} />
-                  ¿Querés agregar más invitados?
+                  Â¿QuerÃ©s agregar mÃ¡s invitados?
                 </CardTitle>
-                <p className="text-xs text-muted-foreground">Calculá el impacto en el costo si sumás más invitados.</p>
+                <p className="text-xs text-muted-foreground">CalculÃ¡ el impacto en el costo si sumÃ¡s mÃ¡s invitados.</p>
               </CardHeader>
               <CardContent className="pt-4 space-y-4">
                 {(!presupuesto || (presupuesto.itemsPresupuestados?.length ?? 0) === 0) ? (
                   <p className="text-sm text-muted-foreground text-center py-2">
-                    Aún no hay presupuesto cargado para tu evento. Cuando esté listo, podrás simular el impacto de agregar más invitados acá.
+                    AÃºn no hay presupuesto cargado para tu evento. Cuando estÃ© listo, podrÃ¡s simular el impacto de agregar mÃ¡s invitados acÃ¡.
                   </p>
                 ) : (
                   <div className="space-y-4">
@@ -1534,11 +1534,11 @@ export default function PublicPortalView({
                           <PlusCircle className="w-4 h-4" />
                         </button>
                       </div>
-                      <p className="text-[10px] text-muted-foreground text-center">Máx. {effectiveMaxAdult}</p>
+                      <p className="text-[10px] text-muted-foreground text-center">MÃ¡x. {effectiveMaxAdult}</p>
                     </div>
                     <div className="rounded-2xl border bg-muted/20 p-3 space-y-2">
                       <p className="text-xs font-black uppercase tracking-wide text-muted-foreground flex items-center gap-1">
-                        <Users className="w-3 h-3" /> Niños/Adolesc. a agregar
+                        <Users className="w-3 h-3" /> NiÃ±os/Adolesc. a agregar
                       </p>
                       <div className="flex items-center justify-between gap-2">
                         <button
@@ -1557,7 +1557,7 @@ export default function PublicPortalView({
                           <PlusCircle className="w-4 h-4" />
                         </button>
                       </div>
-                      <p className="text-[10px] text-muted-foreground text-center">Máx. {effectiveMaxKids}</p>
+                      <p className="text-[10px] text-muted-foreground text-center">MÃ¡x. {effectiveMaxKids}</p>
                     </div>
                   </div>
 
@@ -1572,14 +1572,14 @@ export default function PublicPortalView({
                             <p className="text-[10px] font-black uppercase tracking-widest text-muted-foreground mb-1">Invitados actuales</p>
                             <p className="text-2xl font-black">{sim.totalActual}</p>
                             <p className="text-[10px] text-muted-foreground mt-0.5">
-                              {sim.adultosActuales} adultos · {sim.ninosActuales} menores
+                              {sim.adultosActuales} adultos Â· {sim.ninosActuales} menores
                             </p>
                           </div>
                           <div className="rounded-2xl border p-3 text-center" style={{ borderColor: hasChanges ? `${eventColor}60` : undefined, backgroundColor: hasChanges ? `${eventColor}08` : '#f8fafc' }}>
                             <p className="text-[10px] font-black uppercase tracking-widest text-muted-foreground mb-1">Nuevos invitados totales</p>
                             <p className="text-2xl font-black" style={{ color: hasChanges ? eventColor : undefined }}>{sim.totalNuevo}</p>
                             <p className="text-[10px] text-muted-foreground mt-0.5">
-                              {sim.adultosNuevos} adultos · {sim.ninosNuevos} menores
+                              {sim.adultosNuevos} adultos Â· {sim.ninosNuevos} menores
                             </p>
                           </div>
                         </div>
@@ -1599,7 +1599,7 @@ export default function PublicPortalView({
                                     </div>
                                   ))}
                                   {sim.serviciosFijos.length > 4 && (
-                                    <p className="text-xs text-slate-400">+{sim.serviciosFijos.length - 4} más...</p>
+                                    <p className="text-xs text-slate-400">+{sim.serviciosFijos.length - 4} mÃ¡s...</p>
                                   )}
                                 </div>
                                 <div className="mt-2 pt-2 border-t border-slate-200 flex justify-between text-xs font-bold">
@@ -1619,12 +1619,12 @@ export default function PublicPortalView({
                                     <div key={i} className="flex justify-between items-center text-xs gap-2">
                                       <span className="text-slate-600 truncate flex-1">{s.nombre}</span>
                                       <span className="text-slate-400 shrink-0">{formatCurrency(s.costoActual)}</span>
-                                      <span className="text-[10px] text-slate-400">→</span>
+                                      <span className="text-[10px] text-slate-400">â†’</span>
                                       <span className="shrink-0 font-bold" style={{ color: eventColor }}>{formatCurrency(s.costoNuevo)}</span>
                                     </div>
                                   ))}
                                   {sim.serviciosVariables.length > 5 && (
-                                    <p className="text-xs text-slate-400">+{sim.serviciosVariables.length - 5} más...</p>
+                                    <p className="text-xs text-slate-400">+{sim.serviciosVariables.length - 5} mÃ¡s...</p>
                                   )}
                                 </div>
                                 <div className="mt-2 pt-2 border-t flex justify-between text-xs font-bold" style={{ borderColor: `${eventColor}20` }}>
@@ -1652,7 +1652,7 @@ export default function PublicPortalView({
                                 </p>
                                 {sim.impacto > 0 && (adultDelta + kidsDelta) > 0 && (
                                   <p className="text-[11px] opacity-80 mt-1">
-                                    ≈ {formatCurrency(Math.round(sim.impacto / (adultDelta + kidsDelta)))} por invitado adicional
+                                    â‰ˆ {formatCurrency(Math.round(sim.impacto / (adultDelta + kidsDelta)))} por invitado adicional
                                   </p>
                                 )}
                               </div>
@@ -1660,14 +1660,14 @@ export default function PublicPortalView({
 
                             <div className="rounded-xl border border-amber-200 bg-amber-50 px-3 py-2 flex items-start gap-2">
                               <AlertTriangle className="w-3.5 h-3.5 text-amber-600 shrink-0 mt-0.5" />
-                              <p className="text-xs text-amber-700">Esta es una estimación basada en el presupuesto. El monto final lo confirma el equipo AK.</p>
+                              <p className="text-xs text-amber-700">Esta es una estimaciÃ³n basada en el presupuesto. El monto final lo confirma el equipo AK.</p>
                             </div>
                           </div>
                         )}
 
                         {!hasChanges && (
                           <p className="text-center text-xs text-muted-foreground py-2">
-                            Ajustá las cantidades para ver el impacto estimado en el costo de tu evento.
+                            AjustÃ¡ las cantidades para ver el impacto estimado en el costo de tu evento.
                           </p>
                         )}
 
@@ -1676,7 +1676,7 @@ export default function PublicPortalView({
                             <Textarea
                               value={simRequestNote}
                               onChange={(e) => setSimRequestNote(e.target.value)}
-                              placeholder="Nota opcional para el equipo (ej: son invitados de última hora de la mesa 5)."
+                              placeholder="Nota opcional para el equipo (ej: son invitados de Ãºltima hora de la mesa 5)."
                               rows={2}
                               className="rounded-xl text-sm"
                             />
@@ -1698,7 +1698,7 @@ export default function PublicPortalView({
                             {menuChangeRequests.slice(-3).reverse().map((request) => (
                               <div key={request.id} className="rounded-xl border bg-muted/30 px-3 py-2 text-xs flex items-center justify-between gap-3">
                                 <div>
-                                  <p className="font-semibold">+{request.adultosDelta} adultos · +{request.ninosAdolescentesDelta} niños/adolescentes</p>
+                                  <p className="font-semibold">+{request.adultosDelta} adultos Â· +{request.ninosAdolescentesDelta} niÃ±os/adolescentes</p>
                                   <p className="text-muted-foreground">{formatDate(request.createdAt)}</p>
                                 </div>
                                 <Badge variant="outline" className="uppercase text-[10px]">{request.status}</Badge>
@@ -1709,7 +1709,7 @@ export default function PublicPortalView({
 
                         {simRequestSuccess && (
                           <div className="rounded-2xl border border-emerald-200 bg-emerald-50 px-4 py-3 text-emerald-800 text-sm font-medium text-center">
-                            ✅ ¡Solicitud enviada! El equipo AK la revisará pronto.
+                            âœ… Â¡Solicitud enviada! El equipo AK la revisarÃ¡ pronto.
                           </div>
                         )}
                       </>
@@ -1721,7 +1721,7 @@ export default function PublicPortalView({
             </Card>
             )}
 
-            {/* ── 6. Botón Finanzas y documentos ── */}
+            {/* â”€â”€ 6. BotÃ³n Finanzas y documentos â”€â”€ */}
             {(isModuleVisible(settings, 'pagos') || isModuleVisible(settings, 'informarPago') || isModuleVisible(settings, 'serviciosContratados') || isModuleVisible(settings, 'contrato') || isModuleVisible(settings, 'documentos')) && (
               <button
                 onClick={() => setShowFinanzasPanel(true)}
@@ -1735,7 +1735,7 @@ export default function PublicPortalView({
                     <div className="min-w-0">
                       {presupuesto ? (
                         <>
-                          <p className="font-bold text-sm text-slate-800">💳 Finanzas y documentos</p>
+                          <p className="font-bold text-sm text-slate-800">ðŸ’³ Finanzas y documentos</p>
                           <div className="flex items-center gap-2 mt-1">
                             <div className="flex-1 h-1.5 rounded-full bg-muted overflow-hidden max-w-[80px]">
                               <div
@@ -1749,13 +1749,13 @@ export default function PublicPortalView({
                               />
                             </div>
                             <span className={`text-xs font-semibold ${isPaid ? 'text-emerald-600' : 'text-amber-600'}`}>
-                              {isPaid ? 'Saldado ✓' : `Saldo: ${formatCurrency(saldoPendiente)}`}
+                              {isPaid ? 'Saldado âœ“' : `Saldo: ${formatCurrency(saldoPendiente)}`}
                             </span>
                           </div>
                         </>
                       ) : (
                         <>
-                          <p className="font-bold text-sm text-slate-800">💳 Finanzas y documentos</p>
+                          <p className="font-bold text-sm text-slate-800">ðŸ’³ Finanzas y documentos</p>
                           <p className="text-xs text-muted-foreground mt-0.5">Ver contrato y documentos</p>
                         </>
                       )}
@@ -1766,7 +1766,7 @@ export default function PublicPortalView({
               </button>
             )}
 
-            {/* ── 13. Mensajes con AK ── */}
+            {/* â”€â”€ 13. Mensajes con AK â”€â”€ */}
             {settings?.notasCliente?.visible && (
               <Card id="seccion-mensajes" className="shadow-lg border-0 rounded-3xl">
                 <CardHeader className="pb-2">
@@ -1775,12 +1775,12 @@ export default function PublicPortalView({
                     Mensajes con AK
                   </CardTitle>
                   <p className="text-xs text-muted-foreground">
-                    Dejá un mensaje o consulta para el equipo de {companyName}.
+                    DejÃ¡ un mensaje o consulta para el equipo de {companyName}.
                   </p>
                 </CardHeader>
                 <CardContent className="pt-0 space-y-3">
                   <Textarea
-                    placeholder="Escribe aquí tus notas, consultas o comentarios..."
+                    placeholder="Escribe aquÃ­ tus notas, consultas o comentarios..."
                     value={notes}
                     onChange={handleNotesChange}
                     disabled={!settings.notasCliente.editable || isSavingNotes}
@@ -1797,7 +1797,7 @@ export default function PublicPortalView({
                       {isSavingNotes ? (
                         <><Loader2 className="w-4 h-4 mr-2 animate-spin" />Guardando...</>
                       ) : notesSaved ? (
-                        '✓ Notas guardadas'
+                        'âœ“ Notas guardadas'
                       ) : (
                         <><Save className="w-4 h-4 mr-2" />Guardar Notas</>
                       )}
@@ -1807,11 +1807,11 @@ export default function PublicPortalView({
               </Card>
             )}
 
-            {/* ── 14. Contact card ── */}
+            {/* â”€â”€ 14. Contact card â”€â”€ */}
             <Card className="shadow-lg border-0 rounded-3xl">
               <CardContent className="py-6 space-y-3">
                 <p className="text-center text-sm font-medium text-muted-foreground">
-                  ¿Tenés alguna consulta?
+                  Â¿TenÃ©s alguna consulta?
                 </p>
                 <a href={whatsappHref} target="_blank" rel="noopener noreferrer" className="block">
                   <Button
@@ -1826,7 +1826,7 @@ export default function PublicPortalView({
               </CardContent>
             </Card>
 
-            {/* ── 15. AK Producciones signature block ── */}
+            {/* â”€â”€ 15. AK Producciones signature block â”€â”€ */}
             {(() => {
               const guestExp = fiesta.guestExperienceSettings;
               const instagramUrl = guestExp?.instagramUrl;
@@ -1848,7 +1848,7 @@ export default function PublicPortalView({
                           rel="noopener noreferrer"
                           className="rounded-full bg-gradient-to-r from-purple-500 to-pink-500 text-white text-xs font-bold px-3 py-1.5 flex items-center gap-1.5 hover:opacity-90 transition-opacity shadow-sm"
                         >
-                          <span>📸</span> Instagram
+                          <span>ðŸ“¸</span> Instagram
                         </a>
                       )}
                       {signatureWhatsappUrl && (
@@ -1873,7 +1873,7 @@ export default function PublicPortalView({
                       )}
                     </div>
                   )}
-                  <p className="text-[10px] text-slate-400">✨ Creado con amor para {config.protagonista1Nombre || 'vos'}</p>
+                  <p className="text-[10px] text-slate-400">âœ¨ Creado con amor para {config.protagonista1Nombre || 'vos'}</p>
                 </div>
               );
             })()}
@@ -1911,7 +1911,7 @@ export default function PublicPortalView({
             </div>
 
             <p className="text-sm text-muted-foreground">
-              Ingresá el monto transferido y subí la foto de tu comprobante.
+              IngresÃ¡ el monto transferido y subÃ­ la foto de tu comprobante.
             </p>
 
             <div className="space-y-2">
@@ -1996,7 +1996,7 @@ export default function PublicPortalView({
         </div>
       )}
 
-      {/* ── Organization Panel ── */}
+      {/* â”€â”€ Organization Panel â”€â”€ */}
       {showOrganizacionPanel && (
         <div className="fixed inset-0 z-50 flex items-end sm:items-center justify-center bg-black/60 backdrop-blur-sm" onClick={() => setShowOrganizacionPanel(false)}>
           <div
@@ -2007,7 +2007,7 @@ export default function PublicPortalView({
             <div className="flex items-center justify-between px-5 py-4 border-b bg-gradient-to-r from-violet-50 to-purple-50 rounded-t-3xl">
               <div className="flex items-center gap-2">
                 <ClipboardList className="w-5 h-5 text-violet-600" />
-                <h2 className="font-black text-base">Organización del evento</h2>
+                <h2 className="font-black text-base">OrganizaciÃ³n del evento</h2>
               </div>
               <button
                 onClick={() => setShowOrganizacionPanel(false)}
@@ -2022,13 +2022,13 @@ export default function PublicPortalView({
                 onClick={() => setOrgActiveTab('ak')}
                 className={`py-3 px-4 text-sm font-bold border-b-2 transition-colors ${orgActiveTab === 'ak' ? 'border-slate-800 text-slate-800' : 'border-transparent text-muted-foreground hover:text-slate-600'}`}
               >
-                📋 Lo que AK prepara
+                ðŸ“‹ Lo que AK prepara
               </button>
               <button
                 onClick={() => setOrgActiveTab('cliente')}
                 className={`py-3 px-4 text-sm font-bold border-b-2 transition-colors ${orgActiveTab === 'cliente' ? 'border-slate-800 text-slate-800' : 'border-transparent text-muted-foreground hover:text-slate-600'}`}
               >
-                🎯 Tu participación
+                ðŸŽ¯ Tu participaciÃ³n
               </button>
             </div>
             {/* Content */}
@@ -2046,7 +2046,7 @@ export default function PublicPortalView({
                       {programa.filter(item => item.visibleParaCliente !== false).length === 0 ? (
                         <div className="text-center py-6 border border-dashed rounded-2xl text-muted-foreground">
                           <Calendar className="w-7 h-7 mx-auto mb-2 opacity-30" />
-                          <p className="text-sm font-semibold">El itinerario no está disponible aún</p>
+                          <p className="text-sm font-semibold">El itinerario no estÃ¡ disponible aÃºn</p>
                           <p className="text-xs mt-1 opacity-60">AK todavia no cargo este dato para tu evento.</p>
                         </div>
                       ) : (
@@ -2103,12 +2103,12 @@ export default function PublicPortalView({
                     </div>
                   )}
 
-                  {/* === MÚSICA === */}
+                  {/* === MÃšSICA === */}
                   {isModuleVisible(settings, 'musica') && (
                     <div>
                       <p className="text-[10px] font-black uppercase tracking-widest text-slate-500 mb-3 flex items-center gap-1.5">
                         <Music className="w-3.5 h-3.5" />
-                        Música
+                        MÃºsica
                       </p>
                       {musica && (musica.cancionEntrada || musica.cancionVals || musica.playlistFiesta || (musica.cancionesTortaBrindis && musica.cancionesTortaBrindis.length > 0)) ? (
                         <div className="rounded-2xl bg-violet-50 border border-violet-100 p-4 space-y-2">
@@ -2156,7 +2156,7 @@ export default function PublicPortalView({
                     <div>
                       <p className="text-[10px] font-black uppercase tracking-widest text-slate-500 mb-3 flex items-center gap-1.5">
                         <Palette className="w-3.5 h-3.5" />
-                        Moodboard / Decoración
+                        Moodboard / DecoraciÃ³n
                       </p>
                       {moodboardItems.length > 0 ? (
                         <div className="grid grid-cols-2 gap-2">
@@ -2189,12 +2189,12 @@ export default function PublicPortalView({
                     </div>
                   )}
 
-                  {/* === MENÚ === */}
+                  {/* === MENÃš === */}
                   {isModuleVisible(settings, 'menu') && (
                     <div>
                       <p className="text-[10px] font-black uppercase tracking-widest text-slate-500 mb-3 flex items-center gap-1.5">
                         <Utensils className="w-3.5 h-3.5" />
-                        Menú
+                        MenÃº
                       </p>
                       {fiesta.menuMesa && (fiesta.menuMesa.entrada || fiesta.menuMesa.platoPrincipal || fiesta.menuMesa.postres) ? (
                         <div className="rounded-2xl bg-amber-50 border border-amber-100 p-4 space-y-2">
@@ -2246,12 +2246,12 @@ export default function PublicPortalView({
                     </div>
                   )}
 
-                  {/* === FOTOS Y FILMACIÓN === */}
+                  {/* === FOTOS Y FILMACIÃ“N === */}
                   {isModuleVisible(settings, 'fotografiaYFilmacion') && (
                     <div>
                       <p className="text-[10px] font-black uppercase tracking-widest text-slate-500 mb-3 flex items-center gap-1.5">
                         <Camera className="w-3.5 h-3.5" />
-                        Fotos y Filmación
+                        Fotos y FilmaciÃ³n
                       </p>
                       {fiesta.fotografiaYFilmacion?.servicios && fiesta.fotografiaYFilmacion.servicios.length > 0 ? (
                         <div className="space-y-2">
@@ -2261,7 +2261,7 @@ export default function PublicPortalView({
                                 <span className="font-semibold text-sm">{servicio.nombre}</span>
                                 <span className={`text-[10px] font-bold uppercase px-2 py-0.5 rounded-full ${
                                   servicio.estado === 'Entregado completo' ? 'bg-emerald-100 text-emerald-700' :
-                                  servicio.estado === 'En edición' ? 'bg-blue-100 text-blue-700' :
+                                  servicio.estado === 'En ediciÃ³n' ? 'bg-blue-100 text-blue-700' :
                                   'bg-amber-100 text-amber-700'
                                 }`}>{servicio.estado}</span>
                               </div>
@@ -2377,7 +2377,7 @@ export default function PublicPortalView({
                           {fiesta.videoVida.songSuggestion && (
                             <div className="flex items-center gap-2 text-sm">
                               <Music className="w-3.5 h-3.5 text-violet-500" />
-                              <span className="text-violet-700">Canción sugerida: {fiesta.videoVida.songSuggestion}</span>
+                              <span className="text-violet-700">CanciÃ³n sugerida: {fiesta.videoVida.songSuggestion}</span>
                             </div>
                           )}
                           {fiesta.videoVida.photoCount !== undefined && fiesta.videoVida.photoCount > 0 && (
@@ -2387,7 +2387,7 @@ export default function PublicPortalView({
                             </div>
                           )}
                           {!fiesta.videoVida.customText && !fiesta.videoVida.songSuggestion && (
-                            <p className="text-sm text-muted-foreground">El equipo AK está preparando el video de vida para tu evento.</p>
+                            <p className="text-sm text-muted-foreground">El equipo AK estÃ¡ preparando el video de vida para tu evento.</p>
                           )}
                         </div>
                       ) : (
@@ -2402,7 +2402,7 @@ export default function PublicPortalView({
                   {!hasOrganizacionModules && (
                     <div className="text-center py-8 border border-dashed rounded-2xl text-muted-foreground">
                       <ClipboardList className="w-8 h-8 mx-auto mb-2 opacity-30" />
-                      <p className="text-sm font-semibold">Sin información disponible aún</p>
+                      <p className="text-sm font-semibold">Sin informaciÃ³n disponible aÃºn</p>
                       <p className="text-xs mt-1">AK todavia no cargo este dato para tu evento.</p>
                     </div>
                   )}
@@ -2410,7 +2410,7 @@ export default function PublicPortalView({
               ) : (
                 <div className="space-y-4">
 
-                  {/* Moodboard liked items — interactive */}
+                  {/* Moodboard liked items â€” interactive */}
                   {isModuleVisible(settings, 'moodboard') && moodboardItems.length > 0 && (
                     <div>
                       <p className="text-[10px] font-black uppercase tracking-widest text-slate-500 mb-3 flex items-center gap-1.5">
@@ -2443,7 +2443,7 @@ export default function PublicPortalView({
                       </div>
                       {likedItems.size > 0 && (
                         <p className="text-xs text-muted-foreground mt-2 text-center">
-                          ❤️ {likedItems.size} {likedItems.size === 1 ? 'ítem marcado' : 'ítems marcados'} como favorito{likedItems.size !== 1 ? 's' : ''}
+                          â¤ï¸ {likedItems.size} {likedItems.size === 1 ? 'Ã­tem marcado' : 'Ã­tems marcados'} como favorito{likedItems.size !== 1 ? 's' : ''}
                         </p>
                       )}
                     </div>
@@ -2493,7 +2493,7 @@ export default function PublicPortalView({
                             <div className={`w-5 h-5 rounded-full border-2 flex items-center justify-center shrink-0 ${
                               item.completado ? 'border-teal-500 bg-teal-500' : 'border-slate-300 bg-white'
                             }`}>
-                              {item.completado && <span className="text-white text-[10px] font-black">✓</span>}
+                              {item.completado && <span className="text-white text-[10px] font-black">âœ“</span>}
                             </div>
                             <span className={`text-sm font-semibold ${item.completado ? 'line-through text-muted-foreground' : ''}`}>{item.texto}</span>
                           </button>
@@ -2502,12 +2502,12 @@ export default function PublicPortalView({
                     </div>
                   )}
 
-                  {/* Ubicación con Google Maps */}
+                  {/* UbicaciÃ³n con Google Maps */}
                   {isModuleVisible(settings, 'ubicacion') && (
                     <div className="rounded-2xl bg-white border border-slate-100 p-4 space-y-2">
                       <p className="text-[10px] font-black uppercase tracking-wider text-slate-400 flex items-center gap-1.5">
                         <MapPin className="w-3.5 h-3.5" />
-                        Ubicación del evento
+                        UbicaciÃ³n del evento
                       </p>
                       {eventDate && (
                         <div className="flex items-center gap-2 text-sm">
@@ -2556,7 +2556,7 @@ export default function PublicPortalView({
         </div>
       )}
 
-      {/* ── Finanzas y documentos Panel (full-screen slide-up) ── */}
+      {/* â”€â”€ Finanzas y documentos Panel (full-screen slide-up) â”€â”€ */}
       {showFinanzasPanel && (
         <div className="fixed inset-0 z-50 flex items-end sm:items-center justify-center bg-black/60 backdrop-blur-sm" onClick={() => setShowFinanzasPanel(false)}>
           <div
@@ -2583,7 +2583,7 @@ export default function PublicPortalView({
               {!presupuesto && (
                 <div className="text-center py-6 border border-dashed rounded-2xl text-muted-foreground">
                   <DollarSign className="w-8 h-8 mx-auto mb-2 opacity-30" />
-                  <p className="text-sm font-semibold">Sin presupuesto cargado aún</p>
+                  <p className="text-sm font-semibold">Sin presupuesto cargado aÃºn</p>
                   <p className="text-xs mt-1">AK todavia no cargo este dato para tu evento.</p>
                 </div>
               )}
@@ -2656,7 +2656,7 @@ export default function PublicPortalView({
                   )}
                   {pagos.length === 0 && (
                     <div className="text-center py-4 text-muted-foreground text-xs border border-dashed rounded-xl">
-                      Sin pagos registrados aún
+                      Sin pagos registrados aÃºn
                     </div>
                   )}
                 </div>
@@ -2671,7 +2671,7 @@ export default function PublicPortalView({
                     </div>
                     <div>
                       <p className="font-black text-lg">Informar un Pago</p>
-                      <p className="text-xs text-white/70">Subí tu comprobante y lo verificamos al instante</p>
+                      <p className="text-xs text-white/70">SubÃ­ tu comprobante y lo verificamos al instante</p>
                     </div>
                   </div>
                   {settings?.cuentasBancarias && settings.cuentasBancarias.length > 0 && (
@@ -2695,9 +2695,9 @@ export default function PublicPortalView({
                   {pagoSuccess ? (
                     <div className="flex flex-col items-center gap-2 py-4 text-center">
                       <CheckCircle2 className="w-10 h-10 text-green-300" />
-                      <p className="font-black text-lg">¡Pago informado!</p>
+                      <p className="font-black text-lg">Â¡Pago informado!</p>
                       <p className="text-sm text-white/70">
-                        Recibirás confirmación cuando lo verifiquemos. 🎉
+                        RecibirÃ¡s confirmaciÃ³n cuando lo verifiquemos. ðŸŽ‰
                       </p>
                     </div>
                   ) : (
@@ -2717,12 +2717,12 @@ export default function PublicPortalView({
                 <div className="space-y-3">
                   <p className="text-[10px] font-black uppercase text-muted-foreground tracking-widest flex items-center gap-1.5">
                     <Package className="w-3.5 h-3.5" />
-                    ¿Qué estoy contratando?
+                    Â¿QuÃ© estoy contratando?
                   </p>
                   {presupuesto?.nombrePromocion && (
                     <div className="flex items-center gap-2 p-2.5 rounded-xl bg-primary/5 border border-primary/20">
                       <Star className="w-4 h-4 text-primary shrink-0" />
-                      <p className="text-xs font-semibold text-primary">Promoción aplicada: {presupuesto.nombrePromocion}</p>
+                      <p className="text-xs font-semibold text-primary">PromociÃ³n aplicada: {presupuesto.nombrePromocion}</p>
                     </div>
                   )}
                   <div className="space-y-1.5">
@@ -2731,12 +2731,12 @@ export default function PublicPortalView({
                         <div className="flex-1 min-w-0">
                           <p className="font-medium leading-snug">{item.nombreServicio}</p>
                           <p className="text-[11px] text-muted-foreground">
-                            {item.cantidad} {item.unidad || 'unidad'}{item.cantidad > 1 ? 'es' : ''}{item.categoriaServicio ? ` · ${item.categoriaServicio}` : ''}
+                            {item.cantidad} {item.unidad || 'unidad'}{item.cantidad > 1 ? 'es' : ''}{item.categoriaServicio ? ` Â· ${item.categoriaServicio}` : ''}
                           </p>
                         </div>
                         {item.esRegalo && (
                           <Badge variant="secondary" className="text-[9px] shrink-0 bg-emerald-100 text-emerald-700 border-emerald-200">
-                            🎁 Incluido
+                            ðŸŽ Incluido
                           </Badge>
                         )}
                       </div>
@@ -2758,11 +2758,11 @@ export default function PublicPortalView({
                         <div className="flex items-center gap-3 p-3 rounded-xl bg-emerald-50 border border-emerald-200">
                           <CheckCircle2 className="w-5 h-5 text-emerald-600 shrink-0" />
                           <div className="flex-1">
-                            <p className="font-bold text-emerald-800 text-sm">Contrato Firmado ✅</p>
+                            <p className="font-bold text-emerald-800 text-sm">Contrato Firmado âœ…</p>
                             {fiesta.contratoFirmaInfo.signedAt && (
                               <p className="text-xs text-emerald-700">
                                 {formatDate(fiesta.contratoFirmaInfo.signedAt)}
-                                {fiesta.contratoFirmaInfo.method === 'digital' ? ' · Digital' : fiesta.contratoFirmaInfo.method === 'physical' ? ' · Físico' : ''}
+                                {fiesta.contratoFirmaInfo.method === 'digital' ? ' Â· Digital' : fiesta.contratoFirmaInfo.method === 'physical' ? ' Â· FÃ­sico' : ''}
                               </p>
                             )}
                           </div>
@@ -2777,8 +2777,8 @@ export default function PublicPortalView({
                           <div className="flex items-center gap-3">
                             <AlertCircle className="w-5 h-5 text-amber-600 shrink-0" />
                             <div>
-                              <p className="font-bold text-amber-800 text-sm">Pendiente de firma ⏳</p>
-                              <p className="text-xs text-amber-700">Tu contrato aún no fue firmado</p>
+                              <p className="font-bold text-amber-800 text-sm">Pendiente de firma â³</p>
+                              <p className="text-xs text-amber-700">Tu contrato aÃºn no fue firmado</p>
                             </div>
                           </div>
                           <a href={`/portal/${fiesta.id}/contrato`}>
@@ -2806,6 +2806,97 @@ export default function PublicPortalView({
                 </div>
               )}
 
+            </div>
+          </div>
+        </div>
+      {showPagoModal && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 p-4 backdrop-blur-sm overflow-y-auto">
+          <div className="w-full max-w-md rounded-2xl bg-white shadow-2xl overflow-hidden animate-in fade-in zoom-in-95 duration-200">
+            <div className="flex items-center justify-between border-b p-4 bg-emerald-50">
+              <div>
+                <p className="text-lg font-black text-emerald-950 flex items-center gap-2">
+                  <CreditCard className="h-5 w-5 text-emerald-600" /> Informar un Pago
+                </p>
+                <p className="text-xs text-emerald-800/80">SubÃ­ el comprobante para que lo verifiquemos</p>
+              </div>
+              <Button variant="ghost" size="icon" className="rounded-full" aria-label="Cerrar" onClick={() => setShowPagoModal(false)}>
+                <X className="h-4 w-4" />
+              </Button>
+            </div>
+
+            <div className="p-5 space-y-4">
+              <div className="space-y-1.5">
+                <Label htmlFor="pago-monto" className="text-xs font-bold text-slate-500 uppercase tracking-wider">Monto Abonado ($ UYU):</Label>
+                <Input
+                  id="pago-monto"
+                  type="number"
+                  min={0}
+                  placeholder="Ej: 15000"
+                  value={pagoAmount}
+                  onChange={e => setPagoAmount(e.target.value)}
+                  className="rounded-xl h-11 text-lg font-semibold"
+                />
+              </div>
+
+              <div className="space-y-1.5">
+                <Label htmlFor="pago-notas" className="text-xs font-bold text-slate-500 uppercase tracking-wider">Notas / Referencia (Opcional):</Label>
+                <Input
+                  id="pago-notas"
+                  type="text"
+                  placeholder="Ej: Transferencia BROU"
+                  value={pagoNote}
+                  onChange={e => setPagoNote(e.target.value)}
+                  className="rounded-xl h-11"
+                />
+              </div>
+
+              <div className="space-y-1.5">
+                <Label className="text-xs font-bold text-slate-500 uppercase tracking-wider">Comprobante (Obligatorio):</Label>
+                <input
+                  id="pago-file"
+                  type="file"
+                  accept="image/*,application/pdf"
+                  className="hidden"
+                  onChange={e => {
+                    const file = e.target.files?.[0];
+                    if (file) {
+                      setPagoFile(file);
+                      const reader = new FileReader();
+                      reader.onloadend = () => setPagoFileBase64(reader.result as string);
+                      reader.readAsDataURL(file);
+                    }
+                  }}
+                />
+                <Button
+                  variant="outline"
+                  className="w-full justify-start rounded-xl h-11 text-slate-700 border-slate-300 bg-slate-50 hover:bg-slate-100"
+                  onClick={() => document.getElementById('pago-file')?.click()}
+                >
+                  <Upload className="h-4 w-4 text-slate-500 mr-2" />
+                  {pagoFile ? pagoFile.name : 'Subir foto o PDF del comprobante'}
+                </Button>
+              </div>
+
+              {pagoError && (
+                <div className="rounded-lg bg-rose-50 border border-rose-200 p-3 text-sm text-rose-800">
+                  {pagoError}
+                </div>
+              )}
+            </div>
+
+            <div className="flex items-center justify-end gap-2 border-t p-4 bg-slate-50">
+              <Button variant="ghost" className="rounded-xl" onClick={() => setShowPagoModal(false)}>Cancelar</Button>
+              <Button
+                disabled={!pagoAmount || isSubmittingPago || !pagoFileBase64}
+                onClick={handleSubmitPago}
+                className="rounded-xl font-bold bg-emerald-600 hover:bg-emerald-500 text-white flex items-center justify-center gap-1.5"
+              >
+                {isSubmittingPago ? (
+                  <Loader2 className="h-4 w-4 animate-spin text-white" />
+                ) : (
+                  'Enviar Comprobante'
+                )}
+              </Button>
             </div>
           </div>
         </div>

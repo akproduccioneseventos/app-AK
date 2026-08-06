@@ -18,10 +18,6 @@ export default function TriviaGameScreen({ fiestaId, guestName }: Props) {
   const [isFinished, setIsFinished] = useState(false);
   const [selectedAnswer, setSelectedAnswer] = useState<string | null>(null);
 
-  // El reloj de la pregunta usa `handleAnswer`, asi que tiene que declararse
-  // despues. Al reves, la pantalla del juego reventaba apenas se abria: la lista
-  // de dependencias se arma mientras se dibuja, cuando `handleAnswer` todavia no
-  // existe. Ademas TypeScript lo rechaza y tumbaba el build de toda la app.
   const handleAnswer = React.useCallback((answerId: string) => {
     if (selectedAnswer !== null) return;
     setSelectedAnswer(answerId);
@@ -55,7 +51,7 @@ export default function TriviaGameScreen({ fiestaId, guestName }: Props) {
   if (isFinished) {
     return (
       <div className="min-h-screen bg-slate-900 text-white flex flex-col items-center justify-center p-4">
-        <h1 className="text-4xl font-bold mb-4">¡Juego Terminado!</h1>
+        <h1 className="text-4xl font-bold mb-4">Â¡Juego Terminado!</h1>
         <p className="text-xl mb-2">{guestName}, tu puntaje final es:</p>
         <div className="text-6xl font-black text-amber-400 mb-8">{score}</div>
         <Button onClick={() => window.location.reload()} size="lg">Volver al inicio</Button>
@@ -73,9 +69,9 @@ export default function TriviaGameScreen({ fiestaId, guestName }: Props) {
         <div className="text-lg font-bold">Pregunta {currentIndex + 1}/{questions.length}</div>
         <div className="text-lg font-bold">Puntos: {score}</div>
       </div>
-      
+
       <div className="w-full bg-slate-700 h-2 rounded-full mb-8 overflow-hidden">
-        <div 
+        <div
           className={`h-full transition-all duration-1000 linear ${isLowTime ? 'bg-rose-500' : 'bg-emerald-500'}`}
           style={{ width: `${progressPercent}%` }}
         />
@@ -91,7 +87,7 @@ export default function TriviaGameScreen({ fiestaId, guestName }: Props) {
             const isSelected = selectedAnswer === option.id;
             const isCorrect = option.id === currentQuestion.correctOptionId;
             let bgColor = 'bg-slate-800 hover:bg-slate-700';
-            
+
             if (selectedAnswer !== null) {
               if (isCorrect) bgColor = 'bg-emerald-500';
               else if (isSelected && !isCorrect) bgColor = 'bg-rose-500';

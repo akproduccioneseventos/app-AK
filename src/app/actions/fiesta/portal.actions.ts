@@ -38,7 +38,7 @@ async function updateFiestaData(
         throw new Error("No se pudo encontrar el archivo de la fiesta activa.");
     }
     const updatedData = await updateFn(currentData);
-    
+
     await saveFiesta(updatedData);
 
     return { success: true };
@@ -91,7 +91,7 @@ export async function updateClientGuestTable(
   guestId: string,
   tableNumber?: string,
 ): Promise<{ success: boolean; error?: string }> {
-  if (!(await verifyPortalSession(fiestaId))) return { success: false, error: 'Sesión no autorizada.' };
+  if (!(await verifyPortalSession(fiestaId))) return { success: false, error: 'SesiÃ³n no autorizada.' };
   return updateFiestaData(fiestaId, data => ({
     ...data,
     invitados: (data.invitados ?? []).map(guest => (
@@ -106,13 +106,13 @@ export async function updateClientPackingList(
   fiestaId: string,
   items: import('@/types/fiesta').ClienteDebeLlevarItem[],
 ): Promise<{ success: boolean; error?: string }> {
-  if (!(await verifyPortalSession(fiestaId))) return { success: false, error: 'Sesión no autorizada.' };
+  if (!(await verifyPortalSession(fiestaId))) return { success: false, error: 'SesiÃ³n no autorizada.' };
   return updateFiestaData(fiestaId, data => ({ ...data, clienteDebeLlevar: items }));
 }
 
 
 export async function updateClientChecklist(fiestaId: string, checklist: ClientTarea[]) {
-  if (!(await verifyPortalSession(fiestaId))) return { success: false, error: 'Sesión no autorizada.' };
+  if (!(await verifyPortalSession(fiestaId))) return { success: false, error: 'SesiÃ³n no autorizada.' };
   return updateFiestaData(fiestaId, data => ({ ...data, clientChecklist: checklist }));
 }
 
@@ -121,7 +121,7 @@ export async function updateClientChecklistItem(
   itemId: string,
   completed: boolean
 ): Promise<{ success: boolean; error?: string }> {
-  if (!(await verifyPortalSession(fiestaId))) return { success: false, error: 'Sesión no autorizada.' };
+  if (!(await verifyPortalSession(fiestaId))) return { success: false, error: 'SesiÃ³n no autorizada.' };
   const result = await updateFiestaData(fiestaId, data => {
     const currentChecklist = data.clientChecklist ?? [];
     return {
@@ -139,7 +139,7 @@ export async function updateClientChecklistItem(
   });
   if (result.success) {
     await createNotification({
-      mensaje: `✅ Cliente actualizó checklist en portal (${completed ? 'completó' : 'desmarcó'} una tarea).`,
+      mensaje: `âœ… Cliente actualizÃ³ checklist en portal (${completed ? 'completÃ³' : 'desmarcÃ³'} una tarea).`,
       href: `/fiestas/nueva?fiestaId=${fiestaId}&tab=portal-cliente`,
       icono: 'CheckCircle2',
     });
@@ -148,11 +148,11 @@ export async function updateClientChecklistItem(
 }
 
 export async function updateClientNotes(fiestaId: string, notes: string) {
-  if (!(await verifyPortalSession(fiestaId))) return { success: false, error: 'Sesión no autorizada.' };
+  if (!(await verifyPortalSession(fiestaId))) return { success: false, error: 'SesiÃ³n no autorizada.' };
   const result = await updateFiestaData(fiestaId, data => ({ ...data, clientNotes: notes }));
   if (result.success) {
     await createNotification({
-      mensaje: '📝 Cliente actualizó notas en el Portal VIP.',
+      mensaje: 'ðŸ“ Cliente actualizÃ³ notas en el Portal VIP.',
       href: `/fiestas/nueva?fiestaId=${fiestaId}&tab=portal-cliente`,
       icono: 'MessageSquare',
     });
@@ -161,7 +161,7 @@ export async function updateClientNotes(fiestaId: string, notes: string) {
 }
 
 export async function updatePortalSettings(
-  fiestaId: string, 
+  fiestaId: string,
   clientSettings: ClientPortalSettings
 ) {
   await requireAppSession();
@@ -178,7 +178,7 @@ export async function updateClientePortalExperience(
   fiestaId: string,
   experience: import('@/types/fiesta').ClientePortalExperience
 ) {
-  if (!(await verifyPortalSession(fiestaId))) return { success: false, error: 'Sesión no autorizada.' };
+  if (!(await verifyPortalSession(fiestaId))) return { success: false, error: 'SesiÃ³n no autorizada.' };
   return updateFiestaData(fiestaId, data => ({
     ...data,
     clientePortalExperience: { ...(data.clientePortalExperience ?? {}), ...experience },
@@ -269,10 +269,10 @@ export async function submitClientPayment(
   comprobanteBase64?: string,
   comprobanteNombre?: string
 ): Promise<{ success: boolean; notificationId?: string; error?: string }> {
-  if (!(await verifyPortalSession(fiestaId))) return { success: false, error: 'Sesión no autorizada.' };
+  if (!(await verifyPortalSession(fiestaId))) return { success: false, error: 'SesiÃ³n no autorizada.' };
   try {
     const safeMonto = normalizeClientPaymentAmount(monto);
-    if (safeMonto <= 0) return { success: false, error: 'Monto inválido' };
+    if (safeMonto <= 0) return { success: false, error: 'Monto invÃ¡lido' };
 
     const fiesta = await getFiestaById(fiestaId);
     if (!fiesta) return { success: false, error: 'Evento no encontrado' };
@@ -296,20 +296,24 @@ export async function submitClientPayment(
     let comprobanteUrl = undefined;
     if (comprobanteBase64) {
       try {
-        const matches = comprobanteBase64.match(/^data:([a-zA-Z0-9]+\/[a-zA-Z0-9-.+]+);base64,(.+)$/);
-        if (matches && matches.length === 3) {
-          const mimeType = matches[1];
-          const base64Data = matches[2];
+        const base64Index = comprobanteBase64.indexOf(';base64,');
+        if (base64Index !== -1) {
+          const mimePart = comprobanteBase64.substring(5, base64Index);
+          const mimeType = mimePart.split(';')[0];
+          const base64Data = comprobanteBase64.substring(base64Index + 8);
           const buffer = Buffer.from(base64Data, 'base64');
           const filename = comprobanteNombre || 'comprobante.png';
           const docId = `cpn_${crypto.randomUUID()}`;
           const storagePath = `payments/${fiestaId}/${docId}_${filename.replace(/[^a-zA-Z0-9._-]/g, '_')}`;
-          
-          await uploadToStorage(buffer, storagePath, mimeType, false);
-          comprobanteUrl = storagePath;
+
+          // Make it public to get a permanent accessible URL for the admin
+          comprobanteUrl = await uploadToStorage(buffer, storagePath, mimeType, true);
+        } else {
+          return { success: false, error: 'Formato de archivo invÃ¡lido.' };
         }
       } catch (uploadError) {
         console.error('[Portal Action] Failed to upload receipt to Storage:', uploadError);
+        return { success: false, error: 'No se pudo subir el comprobante. Intenta nuevamente.' };
       }
     }
 
@@ -333,7 +337,7 @@ export async function submitClientPayment(
     await saveFiesta(updated);
 
     await createNotification({
-      mensaje: `💳 Pago informado por cliente para "${fiesta.configuracion.nombreEvento}": $${safeMonto.toLocaleString('es-UY')}`,
+      mensaje: `ðŸ’³ Pago informado por cliente para "${fiesta.configuracion.nombreEvento}": $${safeMonto.toLocaleString('es-UY')}`,
       href: `/fiestas/nueva?fiestaId=${fiestaId}&tab=pagos`,
       icono: 'CreditCard',
     });
@@ -358,7 +362,7 @@ export async function submitClientMenuChangeRequest(
     notaCliente?: string;
   }
 ): Promise<{ success: boolean; requestId?: string; error?: string }> {
-  if (!(await verifyPortalSession(fiestaId))) return { success: false, error: 'Sesión no autorizada.' };
+  if (!(await verifyPortalSession(fiestaId))) return { success: false, error: 'SesiÃ³n no autorizada.' };
   try {
     if (payload.adultosDelta <= 0 && payload.ninosAdolescentesDelta <= 0) {
       return { success: false, error: 'No hay cambios para solicitar.' };
@@ -385,7 +389,7 @@ export async function submitClientMenuChangeRequest(
     });
 
     await createNotification({
-      mensaje: `🧾 Solicitud de cambio de menú en "${fiesta.configuracion.nombreEvento}": +${nextRequest.adultosDelta} adultos, +${nextRequest.ninosAdolescentesDelta} niños/adolescentes.`,
+      mensaje: `ðŸ§¾ Solicitud de cambio de menÃº en "${fiesta.configuracion.nombreEvento}": +${nextRequest.adultosDelta} adultos, +${nextRequest.ninosAdolescentesDelta} niÃ±os/adolescentes.`,
       href: `/fiestas/nueva?fiestaId=${fiestaId}&tab=portal-cliente`,
       icono: 'Users',
     });
@@ -410,7 +414,7 @@ export async function submitClientServiceAddRequest(
     notaCliente?: string;
   }
 ): Promise<{ success: boolean; requestId?: string; error?: string }> {
-  if (!(await verifyPortalSession(fiestaId))) return { success: false, error: 'Sesión no autorizada.' };
+  if (!(await verifyPortalSession(fiestaId))) return { success: false, error: 'SesiÃ³n no autorizada.' };
   try {
     const cantidad = Math.max(1, Math.round(Number(payload.cantidad) || 1));
     const montoAdicional = normalizeClientPaymentAmount(payload.montoAdicional);
@@ -550,7 +554,7 @@ export async function updatePortalGuestRsvp(
   invitadoId: string,
   rsvp: import('@/types/fiesta').RsvpStatus
 ): Promise<{ success: boolean; error?: string }> {
-  if (!(await verifyPortalSession(fiestaId))) return { success: false, error: 'Sesión no autorizada.' };
+  if (!(await verifyPortalSession(fiestaId))) return { success: false, error: 'SesiÃ³n no autorizada.' };
   const result = await updateFiestaData(fiestaId, fiesta => {
     const invitados = (fiesta.invitados ?? []).map(inv =>
       inv.id === invitadoId ? { ...inv, rsvp } : inv
@@ -559,7 +563,7 @@ export async function updatePortalGuestRsvp(
   });
   if (result.success) {
     await createNotification({
-      mensaje: `🎟️ Un invitado actualizó su confirmación a "${rsvp}" desde el Portal VIP del evento (${fiestaId}).`,
+      mensaje: `ðŸŽŸï¸ Un invitado actualizÃ³ su confirmaciÃ³n a "${rsvp}" desde el Portal VIP del evento (${fiestaId}).`,
       href: `/fiestas/nueva?fiestaId=${fiestaId}&tab=invitados`,
       icono: 'Users',
     });
@@ -567,7 +571,7 @@ export async function updatePortalGuestRsvp(
   return result;
 }
 
-    
+
 export async function saveTimeline(
   fiestaId: string,
   timeline: TimelineHito[]
@@ -583,7 +587,7 @@ export async function saveMenuSeleccion(
   fiestaId: string,
   menuSeleccion: MenuSeleccionPortal
 ): Promise<{ success: boolean; error?: string }> {
-  if (!(await verifyPortalSession(fiestaId))) return { success: false, error: 'Sesión no autorizada.' };
+  if (!(await verifyPortalSession(fiestaId))) return { success: false, error: 'SesiÃ³n no autorizada.' };
   const result = await updateFiestaData(fiestaId, fiesta => ({
     ...fiesta,
     menuSeleccionPortal: {
@@ -594,7 +598,7 @@ export async function saveMenuSeleccion(
   }));
   if (result.success) {
     await createNotification({
-      mensaje: '🍽️ Cliente confirmó/cambió selección de menú desde el Portal VIP.',
+      mensaje: 'ðŸ½ï¸ Cliente confirmÃ³/cambiÃ³ selecciÃ³n de menÃº desde el Portal VIP.',
       href: `/fiestas/nueva?fiestaId=${fiestaId}&tab=portal-cliente`,
       icono: 'UtensilsCrossed',
     });
@@ -606,18 +610,31 @@ export async function saveListaMusica(
   fiestaId: string,
   listaMusica: ListaMusicaPortal
 ): Promise<{ success: boolean; error?: string }> {
-  if (!(await verifyPortalSession(fiestaId))) return { success: false, error: 'Sesión no autorizada.' };
-  const result = await updateFiestaData(fiestaId, fiesta => ({
-    ...fiesta,
-    listaMusicaPortal: {
-      ...listaMusica,
-      fechaActualizacion: new Date().toISOString(),
-    },
-  }));
+  if (!(await verifyPortalSession(fiestaId))) return { success: false, error: 'SesiÃ³n no autorizada.' };
+  const result = await updateFiestaData(fiestaId, fiesta => {
+    const playlistSync = [
+      ...(listaMusica.imprescindibles && listaMusica.imprescindibles.length > 0 ? ['=== IMPRESCINDIBLES ===', ...listaMusica.imprescindibles] : []),
+      ...(listaMusica.siEsPosible && listaMusica.siEsPosible.length > 0 ? ['=== SI ES POSIBLE ===', ...listaMusica.siEsPosible] : [])
+    ].join('\n');
+    const noQuieroSync = listaMusica.noQuiero?.join('\n') || '';
+
+    return {
+      ...fiesta,
+      listaMusicaPortal: {
+        ...listaMusica,
+        fechaActualizacion: new Date().toISOString(),
+      },
+      musica: {
+        ...(fiesta.musica || {}),
+        playlistFiesta: playlistSync,
+        listaNoReproducir: noQuieroSync,
+      }
+    };
+  });
   if (result.success) {
     await createNotification({
-      mensaje: '🎵 Cliente actualizó la lista musical del Portal VIP.',
-      href: `/fiestas/nueva?fiestaId=${fiestaId}&tab=musica`,
+      mensaje: 'ðŸŽµ Cliente actualizÃ³ la lista musical del Portal VIP.',
+      href: `/fiestas/nueva/musica?fiestaId=${fiestaId}`,
       icono: 'Music',
     });
   }
@@ -629,12 +646,12 @@ export async function addClientMusicSuggestion(
   listKey: keyof ListaMusicaPortal,
   suggestion: string
 ): Promise<{ success: boolean; error?: string }> {
-  if (!(await verifyPortalSession(fiestaId))) return { success: false, error: 'Sesión no autorizada.' };
+  if (!(await verifyPortalSession(fiestaId))) return { success: false, error: 'SesiÃ³n no autorizada.' };
   const value = suggestion.trim();
-  if (!value) return { success: false, error: 'Sugerencia vacía' };
+  if (!value) return { success: false, error: 'Sugerencia vacÃ­a' };
 
   if (!MUSIC_LIST_KEYS.includes(listKey as (typeof MUSIC_LIST_KEYS)[number])) {
-    return { success: false, error: 'Lista inválida' };
+    return { success: false, error: 'Lista invÃ¡lida' };
   }
 
   const result = await updateFiestaData(fiestaId, fiesta => {
@@ -651,8 +668,8 @@ export async function addClientMusicSuggestion(
   });
   if (result.success) {
     await createNotification({
-      mensaje: `🎶 Cliente agregó sugerencia musical (${listKey}) desde Portal VIP.`,
-      href: `/fiestas/nueva?fiestaId=${fiestaId}&tab=musica`,
+      mensaje: `ðŸŽ¶ Cliente agregÃ³ sugerencia musical (${listKey}) desde Portal VIP.`,
+      href: `/fiestas/nueva/musica?fiestaId=${fiestaId}`,
       icono: 'Music',
     });
   }
@@ -794,19 +811,19 @@ export async function checkDateAvailability(
   targetDateStr: string
 ): Promise<{ success: boolean; available: boolean; suggestions?: string[]; error?: string }> {
   const { verifyPortalSession } = await import('@/lib/security/portal-session');
-  if (!(await verifyPortalSession(fiestaId))) return { success: false, available: false, error: 'Sesión no autorizada.' };
+  if (!(await verifyPortalSession(fiestaId))) return { success: false, available: false, error: 'SesiÃ³n no autorizada.' };
   try {
     const allFiestas = await getFiestas(false);
     const targetDate = new Date(targetDateStr).toISOString().split('T')[0];
-    const isBusy = allFiestas.some(f => 
-      f.id !== fiestaId && 
-      f.configuracion?.fechaEvento && 
+    const isBusy = allFiestas.some(f =>
+      f.id !== fiestaId &&
+      f.configuracion?.fechaEvento &&
       new Date(f.configuracion.fechaEvento).toISOString().split('T')[0] === targetDate
     );
     if (!isBusy) {
       return { success: true, available: true };
     }
-    
+
     // Find alternative dates (weekends or nearby dates)
     const baseDate = new Date(targetDateStr);
     const suggestions: string[] = [];
@@ -816,9 +833,9 @@ export async function checkDateAvailability(
       const altDate = new Date(baseDate);
       altDate.setDate(altDate.getDate() + offset);
       const altDateStr = altDate.toISOString().split('T')[0];
-      const altBusy = allFiestas.some(f => 
-        f.id !== fiestaId && 
-        f.configuracion?.fechaEvento && 
+      const altBusy = allFiestas.some(f =>
+        f.id !== fiestaId &&
+        f.configuracion?.fechaEvento &&
         new Date(f.configuracion.fechaEvento).toISOString().split('T')[0] === altDateStr
       );
       if (!altBusy) {
@@ -841,14 +858,14 @@ export async function cancelServicesOrParty(
   }
 ): Promise<{ success: boolean; error?: string; fileName?: string; refundAmount?: number; pendingDue?: number }> {
   const { verifyPortalSession } = await import('@/lib/security/portal-session');
-  if (!(await verifyPortalSession(fiestaId))) return { success: false, error: 'Sesión no autorizada.' };
+  if (!(await verifyPortalSession(fiestaId))) return { success: false, error: 'SesiÃ³n no autorizada.' };
   try {
     const fiesta = await getFiestaById(fiestaId);
     if (!fiesta) return { success: false, error: 'Evento no encontrado.' };
 
     const expectedPassword = fiesta.clientPortalSettings?.clientPassword || '';
     if (payload.passwordInput.trim() !== expectedPassword.trim()) {
-      return { success: false, error: 'Contraseña/PIN de operaciones incorrecto.' };
+      return { success: false, error: 'ContraseÃ±a/PIN de operaciones incorrecto.' };
     }
 
     if (!fiesta.presupuestoId) return { success: false, error: 'Este evento no tiene un presupuesto asociado.' };
@@ -868,8 +885,8 @@ export async function cancelServicesOrParty(
     const totalPagado = paymentSummary.paid;
 
     // Calculate inflation adjustment factor based on cancellation year
-    const signingYear = fiesta.contratoDatos?.fechaFirmaContrato 
-      ? new Date(fiesta.contratoDatos.fechaFirmaContrato).getFullYear() 
+    const signingYear = fiesta.contratoDatos?.fechaFirmaContrato
+      ? new Date(fiesta.contratoDatos.fechaFirmaContrato).getFullYear()
       : new Date().getFullYear();
     const cancellationYear = new Date().getFullYear();
     const yearsDiff = Math.max(0, cancellationYear - signingYear);
@@ -893,7 +910,7 @@ export async function cancelServicesOrParty(
       updatedItems = [
         {
           idServicioCatalogo: 'multa_cancelacion_total',
-          nombreServicio: 'Cancelación total de evento - Multa (30%)',
+          nombreServicio: 'CancelaciÃ³n total de evento - Multa (30%)',
           cantidad: 1,
           precioUnitario: penaltyTotal,
           precioUnitarioPresupuesto: penaltyTotal,
@@ -903,7 +920,7 @@ export async function cancelServicesOrParty(
       ];
 
       docContent = `============================================================
-           AK PRODUCCIONES - CONTRATO DE CANCELACIÓN TOTAL
+           AK PRODUCCIONES - CONTRATO DE CANCELACIÃ“N TOTAL
 ============================================================
 
 CLIENTE: ${presupuesto.clienteNombre}
@@ -912,31 +929,31 @@ FECHA ORIGINAL: ${fiesta.configuracion?.fechaEvento || 'A confirmar'}
 FECHA DE SOLICITUD: ${new Date().toLocaleDateString('es-UY')}
 
 ------------------------------------------------------------
-DETALLE DE LA CANCELACIÓN:
+DETALLE DE LA CANCELACIÃ“N:
 - Se cancela la totalidad de la fiesta y los servicios contratados.
-- El contrato queda rescindido aplicando la Cláusula 4 del contrato firmado.
+- El contrato queda rescindido aplicando la ClÃ¡usula 4 del contrato firmado.
 
 ------------------------------------------------------------
-CÁLCULO ECONÓMICO (CLÁUSULA 4):
+CÃLCULO ECONÃ“MICO (CLÃUSULA 4):
 - Total del contrato original: $${totalOriginal.toLocaleString('es-UY')}
-- Factor de ajuste inflacionario aplicado (${porcentajeAjuste}% anual): x${factorAjuste.toFixed(3)} (año firma: ${signingYear} -> año cancelacion: ${cancellationYear})
+- Factor de ajuste inflacionario aplicado (${porcentajeAjuste}% anual): x${factorAjuste.toFixed(3)} (aÃ±o firma: ${signingYear} -> aÃ±o cancelacion: ${cancellationYear})
 - Total del contrato ajustado: $${Math.round(adjustedTotal).toLocaleString('es-UY')}
-- Recargo por penalización (30%): $${penaltyTotal.toLocaleString('es-UY')}
+- Recargo por penalizaciÃ³n (30%): $${penaltyTotal.toLocaleString('es-UY')}
 
 - Monto abonado por el cliente a la fecha: $${totalPagado.toLocaleString('es-UY')}
 - Resultado:
-  ${totalPagado > penaltyTotal 
-    ? `* Se le devolverá al cliente: $${(totalPagado - penaltyTotal).toLocaleString('es-UY')}`
+  ${totalPagado > penaltyTotal
+    ? `* Se le devolverÃ¡ al cliente: $${(totalPagado - penaltyTotal).toLocaleString('es-UY')}`
     : `* El cliente adeuda de saldo pendiente: $${(penaltyTotal - totalPagado).toLocaleString('es-UY')}`}
 
 ------------------------------------------------------------
-DECLARACIÓN Y ACEPTACIÓN:
+DECLARACIÃ“N Y ACEPTACIÃ“N:
 Al firmar este documento de manera manual, las partes aceptan de
-común acuerdo la rescisión del contrato bajo las condiciones pactadas.
+comÃºn acuerdo la rescisiÃ³n del contrato bajo las condiciones pactadas.
 
-Para finalizar este trámite y coordinar la devolución/cobro y la firma
-manual de esta adenda, por favor comuníquese de inmediato con nosotros
-informando esta decisión.
+Para finalizar este trÃ¡mite y coordinar la devoluciÃ³n/cobro y la firma
+manual de esta adenda, por favor comunÃ­quese de inmediato con nosotros
+informando esta decisiÃ³n.
 
 Firma Cliente: ________________________   Fecha: __/__/____
 
@@ -968,13 +985,13 @@ Firma AK Producciones: _________________   Fecha: __/__/____
       }
 
       if (cancelledServicesDetails.length === 0) {
-        return { success: false, error: 'No se seleccionó ningún servicio válido para cancelar.' };
+        return { success: false, error: 'No se seleccionÃ³ ningÃºn servicio vÃ¡lido para cancelar.' };
       }
 
       // Add penalty items to the remaining items list
       remainingItems.push({
         idServicioCatalogo: `multa_cancelacion_${Date.now()}`,
-        nombreServicio: `Penalización por Cancelación de Servicios (30%)`,
+        nombreServicio: `PenalizaciÃ³n por CancelaciÃ³n de Servicios (30%)`,
         cantidad: 1,
         precioUnitario: penaltyTotal,
         precioUnitarioPresupuesto: penaltyTotal,
@@ -988,18 +1005,18 @@ Firma AK Producciones: _________________   Fecha: __/__/____
       const remainingSubtotal = remainingItems
         .filter(item => !item.esRegalo && item.idServicioCatalogo !== 'multa_cancelacion_total' && !item.idServicioCatalogo.startsWith('multa_cancelacion_'))
         .reduce((sum, item) => sum + (item.costoTotalItem || 0), 0);
-      
+
       let discount = 0;
       if (presupuesto.descuentoTipo && presupuesto.descuentoValor) {
         discount = presupuesto.descuentoTipo === 'porcentaje'
           ? Math.round(remainingSubtotal * presupuesto.descuentoValor / 100)
           : presupuesto.descuentoValor;
       }
-      
+
       nuevoTotal = Math.max(0, remainingSubtotal - discount) + penaltyTotal;
 
       docContent = `============================================================
-           AK PRODUCCIONES - CONTRATO DE CANCELACIÓN PARCIAL
+           AK PRODUCCIONES - CONTRATO DE CANCELACIÃ“N PARCIAL
 ============================================================
 
 CLIENTE: ${presupuesto.clienteNombre}
@@ -1012,27 +1029,27 @@ SERVICIOS CANCELADOS:
 ${cancelledServicesDetails.join('\n')}
 
 ------------------------------------------------------------
-CÁLCULO ECONÓMICO (CLÁUSULA 4):
+CÃLCULO ECONÃ“MICO (CLÃUSULA 4):
 - Total del contrato original: $${totalOriginal.toLocaleString('es-UY')}
 - Factor de ajuste inflacionario aplicado (${porcentajeAjuste}% anual): x${factorAjuste.toFixed(3)}
 - Total original cancelado: $${cancelledValueOriginal.toLocaleString('es-UY')}
-- Recargo por penalización (30% de lo cancelado ajustado): $${penaltyTotal.toLocaleString('es-UY')}
+- Recargo por penalizaciÃ³n (30% de lo cancelado ajustado): $${penaltyTotal.toLocaleString('es-UY')}
 - Nuevo total de contrato reestructurado: $${nuevoTotal.toLocaleString('es-UY')}
 
 - Monto abonado por el cliente a la fecha: $${totalPagado.toLocaleString('es-UY')}
 - Resultado:
-  ${totalPagado > nuevoTotal 
-    ? `* Se le devolverá al cliente: $${(totalPagado - nuevoTotal).toLocaleString('es-UY')}`
+  ${totalPagado > nuevoTotal
+    ? `* Se le devolverÃ¡ al cliente: $${(totalPagado - nuevoTotal).toLocaleString('es-UY')}`
     : `* El cliente adeuda de saldo pendiente: $${(nuevoTotal - totalPagado).toLocaleString('es-UY')}`}
 
 ------------------------------------------------------------
-DECLARACIÓN Y ACEPTACIÓN:
+DECLARACIÃ“N Y ACEPTACIÃ“N:
 Al firmar este documento de manera manual, las partes aceptan de
-común acuerdo la reestructuración del contrato bajo las condiciones pactadas.
+comÃºn acuerdo la reestructuraciÃ³n del contrato bajo las condiciones pactadas.
 
-Para finalizar este trámite y coordinar la firma manual de esta
-adenda, por favor comuníquese de inmediato con nosotros informando
-esta decisión.
+Para finalizar este trÃ¡mite y coordinar la firma manual de esta
+adenda, por favor comunÃ­quese de inmediato con nosotros informando
+esta decisiÃ³n.
 
 Firma Cliente: ________________________   Fecha: __/__/____
 
@@ -1051,7 +1068,7 @@ Firma AK Producciones: _________________   Fecha: __/__/____
     presupuesto.costoTotalEstimado = updatedItems
       .filter(item => !item.esRegalo)
       .reduce((sum, item) => sum + (item.costoTotalItem || 0), 0);
-    
+
     let discount = 0;
     if (presupuesto.descuentoTipo && presupuesto.descuentoValor) {
       discount = presupuesto.descuentoTipo === 'porcentaje'
@@ -1067,7 +1084,7 @@ Firma AK Producciones: _________________   Fecha: __/__/____
     // Update Fiesta in database
     const newDoc = {
       id: docId,
-      nombre: payload.cancelAll ? "Contrato de Cancelación Total (Firma Manual)" : "Contrato de Cancelación Parcial (Firma Manual)",
+      nombre: payload.cancelAll ? "Contrato de CancelaciÃ³n Total (Firma Manual)" : "Contrato de CancelaciÃ³n Parcial (Firma Manual)",
       tipo: 'cancelacion',
       fileName: filename,
       timestamp: new Date().toISOString(),
@@ -1082,7 +1099,7 @@ Firma AK Producciones: _________________   Fecha: __/__/____
     // Create system notification
     const { createNotification } = await import('@/lib/notifications/create-notification');
     await createNotification({
-      mensaje: `⚠️ Cliente canceló ${payload.cancelAll ? 'toda la fiesta' : 'servicios'} en "${fiesta.configuracion.nombreEvento}". Contrato generado.`,
+      mensaje: `âš ï¸ Cliente cancelÃ³ ${payload.cancelAll ? 'toda la fiesta' : 'servicios'} en "${fiesta.configuracion.nombreEvento}". Contrato generado.`,
       href: `/fiestas/nueva?fiestaId=${fiestaId}&tab=portal-cliente`,
       icono: 'AlertTriangle',
     });
@@ -1110,20 +1127,20 @@ export async function changeEventDate(
   }
 ): Promise<{ success: boolean; error?: string; fileName?: string; penaltyAmount?: number; newBalance?: number }> {
   const { verifyPortalSession } = await import('@/lib/security/portal-session');
-  if (!(await verifyPortalSession(fiestaId))) return { success: false, error: 'Sesión no autorizada.' };
+  if (!(await verifyPortalSession(fiestaId))) return { success: false, error: 'SesiÃ³n no autorizada.' };
   try {
     const fiesta = await getFiestaById(fiestaId);
     if (!fiesta) return { success: false, error: 'Evento no encontrado.' };
 
     const expectedPassword = fiesta.clientPortalSettings?.clientPassword || '';
     if (payload.passwordInput.trim() !== expectedPassword.trim()) {
-      return { success: false, error: 'Contraseña/PIN de operaciones incorrecto.' };
+      return { success: false, error: 'ContraseÃ±a/PIN de operaciones incorrecto.' };
     }
 
     // Check date availability
     const availRes = await checkDateAvailability(fiestaId, payload.newDate);
     if (!availRes.success || !availRes.available) {
-      return { success: false, error: 'La fecha seleccionada no está disponible.' };
+      return { success: false, error: 'La fecha seleccionada no estÃ¡ disponible.' };
     }
 
     if (!fiesta.presupuestoId) return { success: false, error: 'Este evento no tiene un presupuesto asociado.' };
@@ -1177,12 +1194,12 @@ NUEVA FECHA SOLICITADA: ${newDateFmt}
 FECHA DE SOLICITUD: ${new Date().toLocaleDateString('es-UY')}
 
 ------------------------------------------------------------
-DETALLE DEL CAMBIO (CLÁUSULA 4):
+DETALLE DEL CAMBIO (CLÃUSULA 4):
 - Se reprograma la fecha del evento a solicitud del cliente.
-- Penalización por reprogramación: 10% del total contratado.
+- PenalizaciÃ³n por reprogramaciÃ³n: 10% del total contratado.
 
 ------------------------------------------------------------
-CÁLCULO ECONÓMICO:
+CÃLCULO ECONÃ“MICO:
 - Total del contrato original: $${totalOriginal.toLocaleString('es-UY')}
 - Recargo por cambio de fecha (10%): $${penaltyAmount.toLocaleString('es-UY')}
 - Nuevo total de contrato reestructurado: $${nuevoTotal.toLocaleString('es-UY')}
@@ -1190,17 +1207,17 @@ CÁLCULO ECONÓMICO:
 - Monto abonado por el cliente a la fecha: $${totalPagado.toLocaleString('es-UY')}
 - Saldo pendiente restante a abonar: $${(nuevoTotal - totalPagado).toLocaleString('es-UY')}
 
-* Nota: Si la nueva fecha pasa a otro año, se aplicará el ajuste
-  anual correspondiente según la Cláusula 2 al momento del cobro.
+* Nota: Si la nueva fecha pasa a otro aÃ±o, se aplicarÃ¡ el ajuste
+  anual correspondiente segÃºn la ClÃ¡usula 2 al momento del cobro.
 
 ------------------------------------------------------------
-DECLARACIÓN Y ACEPTACIÓN:
+DECLARACIÃ“N Y ACEPTACIÃ“N:
 Al firmar este documento de manera manual, las partes aceptan de
-común acuerdo el cambio de fecha y la reestructuración del saldo.
+comÃºn acuerdo el cambio de fecha y la reestructuraciÃ³n del saldo.
 
-Para finalizar este trámite y coordinar la firma manual de esta
-adenda, por favor comuníquese de inmediato con nosotros informando
-esta decisión.
+Para finalizar este trÃ¡mite y coordinar la firma manual de esta
+adenda, por favor comunÃ­quese de inmediato con nosotros informando
+esta decisiÃ³n.
 
 Firma Cliente: ________________________   Fecha: __/__/____
 
@@ -1219,7 +1236,7 @@ Firma AK Producciones: _________________   Fecha: __/__/____
     presupuesto.costoTotalEstimado = updatedItems
       .filter(item => !item.esRegalo)
       .reduce((sum, item) => sum + (item.costoTotalItem || 0), 0);
-    
+
     let discount = 0;
     if (presupuesto.descuentoTipo && presupuesto.descuentoValor) {
       discount = presupuesto.descuentoTipo === 'porcentaje'
@@ -1254,7 +1271,7 @@ Firma AK Producciones: _________________   Fecha: __/__/____
     // Create system notification
     const { createNotification } = await import('@/lib/notifications/create-notification');
     await createNotification({
-      mensaje: `📅 Cliente cambió fecha a ${newDateFmt} en "${fiesta.configuracion.nombreEvento}". Adenda generada.`,
+      mensaje: `ðŸ“… Cliente cambiÃ³ fecha a ${newDateFmt} en "${fiesta.configuracion.nombreEvento}". Adenda generada.`,
       href: `/fiestas/nueva?fiestaId=${fiestaId}&tab=portal-cliente`,
       icono: 'Calendar',
     });

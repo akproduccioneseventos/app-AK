@@ -53,38 +53,38 @@ const FILTERS = [
   { id: 'bw', label: 'B&W', css: 'grayscale(1) contrast(1.4)' },
 ];
 
-const STICKERS_LIST = ['★', '♡', '✦', '✧', 'AK', '15', 'VIP', 'Love', 'Party', 'Smile', 'Wow', 'Gold'];
+const STICKERS_LIST = ['â˜…', 'â™¡', 'âœ¦', 'âœ§', 'AK', '15', 'VIP', 'Love', 'Party', 'Smile', 'Wow', 'Gold'];
 
 const MODE_COPY = {
   foto: {
     eyebrow: 'Foto limpia',
-    title: 'Espejo Mágico Foto',
+    title: 'Espejo MÃ¡gico Foto',
     start: 'Tocar para foto',
     subtitle: 'Prepara la pose, captura la foto y revisala antes de guardarla o compartirla.',
     operatorCta: 'Disparar foto',
     doneLabel: 'Foto lista',
-    author: 'Espejo Mágico Foto',
-    review: 'La foto se envía automáticamente al muro de la fiesta.',
+    author: 'Espejo MÃ¡gico Foto',
+    review: 'La foto se envÃ­a automÃ¡ticamente al muro de la fiesta.',
   },
   firma: {
     eyebrow: 'Firma y stickers',
-    title: 'Espejo Mágico Firma',
+    title: 'Espejo MÃ¡gico Firma',
     start: 'Tocar para firmar',
     subtitle: 'Captura la foto, agrega tu firma y revisa el resultado antes de compartirlo.',
     operatorCta: 'Disparar captura',
     doneLabel: 'Foto firmada',
-    author: 'Espejo Mágico Firma',
-    review: 'Firma o dibujá sobre la foto y después subila al muro.',
+    author: 'Espejo MÃ¡gico Firma',
+    review: 'Firma o dibujÃ¡ sobre la foto y despuÃ©s subila al muro.',
   },
   ia: {
     eyebrow: 'Face Swap IA',
-    title: 'Espejo Mágico IA',
+    title: 'Espejo MÃ¡gico IA',
     start: 'Crear avatar IA',
     subtitle: 'Elegis un estilo, aceptas el procesamiento temporal y luego generamos el retrato.',
     operatorCta: 'Disparar IA',
     doneLabel: 'Avatar listo',
     author: 'Face Swap IA',
-    review: 'Podés firmar el resultado o subirlo directo al muro.',
+    review: 'PodÃ©s firmar el resultado o subirlo directo al muro.',
   },
 } as const;
 
@@ -163,11 +163,11 @@ export default function EspejoMagicoPage() {
   const [drawColor, setDrawColor] = useState('#f43f5e');
 
   const DRAW_COLORS = [
-    { id: 'rose', value: '#f43f5e', label: '🌹 Rosa' },
-    { id: 'gold', value: '#fbbf24', label: '⭐ Oro' },
-    { id: 'blue', value: '#3b82f6', label: '💧 Azul' },
-    { id: 'green', value: '#10b981', label: '🍀 Verde' },
-    { id: 'white', value: '#ffffff', label: '⚪ Blanco' },
+    { id: 'rose', value: '#f43f5e', label: 'ðŸŒ¹ Rosa' },
+    { id: 'gold', value: '#fbbf24', label: 'â­ Oro' },
+    { id: 'blue', value: '#3b82f6', label: 'ðŸ’§ Azul' },
+    { id: 'green', value: '#10b981', label: 'ðŸ€ Verde' },
+    { id: 'white', value: '#ffffff', label: 'âšª Blanco' },
   ];
 
   const speak = useCallback((text: string) => {
@@ -216,7 +216,7 @@ export default function EspejoMagicoPage() {
         videoRef.current.srcObject = mediaStream;
       }
     } catch (err) {
-      setErrorMsg('No se pudo acceder a la cámara.');
+      setErrorMsg('No se pudo acceder a la cÃ¡mara.');
     }
   }, [facingMode, stopCamera]);
 
@@ -284,11 +284,11 @@ export default function EspejoMagicoPage() {
 
   // Set drawing canvas dimensions when capturedImage changes
   useEffect(() => {
-    if (capturedImage && drawingCanvasRef.current && containerRef.current) {
-      drawingCanvasRef.current.width = containerRef.current.clientWidth;
-      drawingCanvasRef.current.height = containerRef.current.clientHeight;
+    if (capturedImage && drawingCanvasRef.current && canvasRef.current) {
+      drawingCanvasRef.current.width = canvasRef.current.width;
+      drawingCanvasRef.current.height = canvasRef.current.height;
     }
-  }, [capturedImage]);
+  }, [capturedImage, localStatus, mode]);
 
   // Camera hooks
   useEffect(() => {
@@ -303,7 +303,7 @@ export default function EspejoMagicoPage() {
   useEffect(() => {
     if (role === 'display' && localStatus === 'idle' && !capturedImage) {
       if (mode === 'ia') {
-        speak('Hola. Elegí tu estilo de IA y prepará tu mejor pose.');
+        speak('Hola. ElegÃ­ tu estilo de IA y preparÃ¡ tu mejor pose.');
       } else {
         speak(`Hola. ${modeCopy.start}.`);
       }
@@ -343,7 +343,7 @@ export default function EspejoMagicoPage() {
         if (result.faceSwapApplied === false) {
           speak('Modo prueba. Se muestra la foto original.');
         } else {
-          speak('Listo. Mirá tu avatar de IA. Podés firmarlo si querés.');
+          speak('Listo. MirÃ¡ tu avatar de IA. PodÃ©s firmarlo si querÃ©s.');
         }
       } else {
         throw new Error(result.error || 'Error al procesar la IA.');
@@ -351,7 +351,7 @@ export default function EspejoMagicoPage() {
     } catch (err: any) {
       console.error(err);
       setErrorMsg(err.message || 'La IA no pudo procesar tu avatar. Mostrando foto original.');
-      speak("Ocurrió un inconveniente, pero aquí está tu foto original.");
+      speak("OcurriÃ³ un inconveniente, pero aquÃ­ estÃ¡ tu foto original.");
       setLocalStatus('done');
     } finally {
       clearTimeout(stepTimer1);
@@ -403,22 +403,26 @@ export default function EspejoMagicoPage() {
   const startDrawing = (e: React.PointerEvent<HTMLCanvasElement>) => {
     e.preventDefault();
     const canvas = drawingCanvasRef.current;
-    if (!canvas) return;
+    if (!canvas || !containerRef.current) return;
     const ctx = canvas.getContext('2d');
     if (!ctx) return;
 
+    const scaleFactor = canvas.width / containerRef.current.clientWidth;
     ctx.lineJoin = 'round';
     ctx.lineCap = 'round';
-    ctx.lineWidth = 14;
+    ctx.lineWidth = 14 * scaleFactor;
     ctx.strokeStyle = drawColor;
 
     // Pincel de Neon: shadowBlur + shadowColor matches current brush stroke
-    ctx.shadowBlur = 15;
+    ctx.shadowBlur = 10 * scaleFactor;
     ctx.shadowColor = drawColor;
 
     const rect = canvas.getBoundingClientRect();
-    const x = e.clientX - rect.left;
-    const y = e.clientY - rect.top;
+    const scaleX = canvas.width / rect.width;
+    const scaleY = canvas.height / rect.height;
+    const x = (e.clientX - rect.left) * scaleX;
+    const y = (e.clientY - rect.top) * scaleY;
+
     ctx.beginPath();
     ctx.moveTo(x, y);
     isDrawingActiveRef.current = true;
@@ -432,8 +436,10 @@ export default function EspejoMagicoPage() {
     const ctx = canvas.getContext('2d');
     if (!ctx) return;
     const rect = canvas.getBoundingClientRect();
-    const x = e.clientX - rect.left;
-    const y = e.clientY - rect.top;
+    const scaleX = canvas.width / rect.width;
+    const scaleY = canvas.height / rect.height;
+    const x = (e.clientX - rect.left) * scaleX;
+    const y = (e.clientY - rect.top) * scaleY;
     ctx.lineTo(x, y);
     ctx.stroke();
   };
@@ -458,6 +464,9 @@ export default function EspejoMagicoPage() {
 
     // Scale drawing coordinates back to canvas original size
     ctx.drawImage(drawCanvas, 0, 0, baseCanvas.width, baseCanvas.height);
+
+    const drawCtx = drawCanvas.getContext('2d');
+    drawCtx?.clearRect(0, 0, drawCanvas.width, drawCanvas.height);
   };
 
   const addSticker = (emoji: string) => {
@@ -475,7 +484,7 @@ export default function EspejoMagicoPage() {
   const handlePointerDown = (id: string, e: React.PointerEvent) => {
     if (capturedImage) return; // disable dragging after capture
     e.preventDefault();
-    (e.target as HTMLElement).setPointerCapture(e.pointerId);
+    (e.currentTarget as HTMLElement).setPointerCapture(e.pointerId);
     setDraggingId(id);
   };
 
@@ -489,7 +498,7 @@ export default function EspejoMagicoPage() {
 
   const handlePointerUp = (e: React.PointerEvent) => {
     if (draggingId) {
-      (e.target as HTMLElement).releasePointerCapture(e.pointerId);
+      (e.currentTarget as HTMLElement).releasePointerCapture(e.pointerId);
       setDraggingId(null);
     }
   };
@@ -532,7 +541,7 @@ export default function EspejoMagicoPage() {
         clearInterval(interval);
         setCountdown(null);
         playBeep(1200, 0.3);
-        speak('Sonreí');
+        speak('SonreÃ­');
         captureToCanvas();
       }
     }, 1000);
@@ -603,13 +612,13 @@ export default function EspejoMagicoPage() {
     const contW = containerRef.current.clientWidth;
     const contH = containerRef.current.clientHeight;
 
-    // Configurar canvas con la altura nativa del video pero con la proporción (aspect ratio) del contenedor
+    // Configurar canvas con la altura nativa del video pero con la proporciÃ³n (aspect ratio) del contenedor
     canvas.height = video.videoHeight;
     canvas.width = Math.round(video.videoHeight * (contW / contH));
 
     const scale = canvas.width / contW;
 
-    // Calcular recorte object-cover del video original de la cámara
+    // Calcular recorte object-cover del video original de la cÃ¡mara
     const vr = video.videoWidth / video.videoHeight;
     const cr = contW / contH;
     let sx = 0, sy = 0, sw = video.videoWidth, sh = video.videoHeight;
@@ -665,18 +674,34 @@ export default function EspejoMagicoPage() {
     }
   };
 
-  const handleDownload = () => {
+  const handleDownload = async () => {
     if (!capturedImage || !canvasRef.current) return;
     if (mode !== 'foto') {
       mergeDrawing();
     }
     const dataUrl = canvasRef.current.toDataURL('image/jpeg', 0.9);
-    const a = document.createElement('a');
-    a.href = dataUrl;
-    a.download = `EspejoMagico-${Date.now()}.jpg`;
-    document.body.appendChild(a);
-    a.click();
-    document.body.removeChild(a);
+    try {
+      const res = await fetch(dataUrl);
+      const blob = await res.blob();
+      const file = new File([blob], `EspejoMagico-${Date.now()}.jpg`, { type: 'image/jpeg' });
+      if (navigator.share && navigator.canShare && navigator.canShare({ files: [file] })) {
+        await navigator.share({
+          files: [file],
+          title: 'Mi foto de la fiesta',
+        });
+      } else {
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = file.name;
+        document.body.appendChild(a);
+        a.click();
+        document.body.removeChild(a);
+        URL.revokeObjectURL(url);
+      }
+    } catch (err) {
+      console.error('Download error:', err);
+    }
   };
 
   const handleUpload = async (imageOverride?: string) => {
@@ -729,7 +754,7 @@ export default function EspejoMagicoPage() {
       setErrorMsg((err as Error).message || 'No se pudo subir la foto. Puedes descargarla en este dispositivo.');
       setLocalStatus('recording');
       await updateEntertainmentSessionStatus(fiestaId, moduleId, 'idle', {}, accessToken);
-      speak('No se pudo subir la foto. Podés reintentar o guardarla en este dispositivo.');
+      speak('No se pudo subir la foto. PodÃ©s reintentar o guardarla en este dispositivo.');
     } finally {
       setIsUploading(false);
     }
@@ -849,7 +874,7 @@ export default function EspejoMagicoPage() {
             <div className="mt-5 rounded-2xl border border-rose-500/20 bg-rose-500/10 p-4">
               <p className="text-sm font-semibold text-rose-100">{modeCopy.subtitle}</p>
               <p className="mt-2 text-xs text-rose-100/70">
-                Pantalla: {fiesta?.station.deviceName || 'sin dispositivo'} | Ubicación: {fiesta?.station.location || 'sin asignar'}
+                Pantalla: {fiesta?.station.deviceName || 'sin dispositivo'} | UbicaciÃ³n: {fiesta?.station.location || 'sin asignar'}
               </p>
             </div>
 
@@ -950,7 +975,7 @@ export default function EspejoMagicoPage() {
             <div className="max-w-md">
               <h3 className="text-2xl font-black text-white">No pudimos subir la foto</h3>
               <p className="mt-3 font-medium text-red-300">{errorMsg}</p>
-              <p className="mt-2 text-sm text-zinc-400">El recuerdo sigue en esta pantalla y no mostramos un QR inválido.</p>
+              <p className="mt-2 text-sm text-zinc-400">El recuerdo sigue en esta pantalla y no mostramos un QR invÃ¡lido.</p>
               {capturedImage && (
                 <div className="mt-6 grid gap-3 sm:grid-cols-3">
                   <button
@@ -997,7 +1022,7 @@ export default function EspejoMagicoPage() {
                   <div className="w-full space-y-3 text-left bg-black/60 backdrop-blur-md p-4 rounded-2xl border border-rose-500/30">
                     <div className="flex items-center justify-between">
                       <p className="text-xs font-black uppercase tracking-widest text-amber-400 flex items-center gap-1.5">
-                        <Zap className="w-3.5 h-3.5 text-amber-400" /> 1. Elegí tu Estilo IA
+                        <Zap className="w-3.5 h-3.5 text-amber-400" /> 1. ElegÃ­ tu Estilo IA
                       </p>
                       <span
                         data-testid="selected-ai-style"
@@ -1010,7 +1035,7 @@ export default function EspejoMagicoPage() {
                     {/* Category Tabs */}
                     <div
                       className="hide-scrollbar flex touch-pan-x gap-1.5 overflow-x-auto pb-1"
-                      aria-label="Categorías de estilos IA"
+                      aria-label="CategorÃ­as de estilos IA"
                     >
                       {FACESWAP_CATEGORIES.map((cat) => (
                         <button
@@ -1063,7 +1088,7 @@ export default function EspejoMagicoPage() {
                         onChange={(event) => setConsentAccepted(event.target.checked)}
                         className="mt-0.5 h-4 w-4 accent-rose-500 shrink-0"
                       />
-                      <span>Acepto el procesamiento temporal de mi foto para generar la transformación con IA.</span>
+                      <span>Acepto el procesamiento temporal de mi foto para generar la transformaciÃ³n con IA.</span>
                     </label>
                   </div>
                 )}
@@ -1083,7 +1108,7 @@ export default function EspejoMagicoPage() {
                     <span className="rounded-lg border border-white/10 bg-white/5 px-2 py-2">2 Captura</span>
                     <span className="rounded-lg border border-white/10 bg-white/5 px-2 py-2">3 Revisa</span>
                   </div>
-                  <p className="text-xs text-zinc-500">También puede dispararlo el operador de cabina.</p>
+                  <p className="text-xs text-zinc-500">TambiÃ©n puede dispararlo el operador de cabina.</p>
                 </div>
               </div>
             </div>
@@ -1104,15 +1129,6 @@ export default function EspejoMagicoPage() {
               mode === 'ia' && aiImageBase64 && originalPhotoUrl ? (
                 <div
                   className="absolute inset-0 w-full h-full select-none overflow-hidden touch-none"
-                  onPointerMove={(e) => {
-                    if (isDraggingSlider) {
-                      const rect = e.currentTarget.getBoundingClientRect();
-                      const x = Math.max(0, Math.min(100, ((e.clientX - rect.left) / rect.width) * 100));
-                      setSliderPosition(x);
-                    }
-                  }}
-                  onPointerUp={() => setIsDraggingSlider(false)}
-                  onPointerLeave={() => setIsDraggingSlider(false)}
                 >
                   {/* Base: Original captured image */}
                   {/* eslint-disable-next-line @next/next/no-img-element -- Runtime camera output uses data/blob URLs. */}
@@ -1130,7 +1146,7 @@ export default function EspejoMagicoPage() {
                     <img
                       src={aiImageBase64}
                       className="absolute inset-0 w-full h-full object-cover"
-                      alt="Después"
+                      alt="DespuÃ©s"
                     />
                   </div>
 
@@ -1148,7 +1164,19 @@ export default function EspejoMagicoPage() {
                     style={{ left: `${sliderPosition}%` }}
                     onPointerDown={(e) => {
                       e.preventDefault();
+                      e.currentTarget.setPointerCapture(e.pointerId);
                       setIsDraggingSlider(true);
+                    }}
+                    onPointerMove={(e) => {
+                      if (isDraggingSlider && containerRef.current) {
+                        const rect = containerRef.current.getBoundingClientRect();
+                        const x = Math.max(0, Math.min(100, ((e.clientX - rect.left) / rect.width) * 100));
+                        setSliderPosition(x);
+                      }
+                    }}
+                    onPointerUp={(e) => {
+                      e.currentTarget.releasePointerCapture(e.pointerId);
+                      setIsDraggingSlider(false);
                     }}
                   >
                     <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-8 h-8 rounded-full bg-cyan-400 border-2 border-white flex items-center justify-center shadow-lg">
@@ -1213,14 +1241,14 @@ export default function EspejoMagicoPage() {
         )}
 
         {/* STICKERS LAYER */}
-        {stickers.map(s => (
+        {!capturedImage && stickers.map(s => (
           <div
             key={s.id}
             onPointerDown={(e) => handlePointerDown(s.id, e)}
             className="absolute text-[80px] leading-none select-none cursor-move z-10 touch-none flex items-center justify-center w-[80px] h-[80px]"
             style={{
               transform: `translate(${s.x}px, ${s.y}px)`,
-              filter: capturedImage ? 'none' : 'drop-shadow(0 4px 8px rgba(0,0,0,0.5))'
+              filter: 'drop-shadow(0 4px 8px rgba(0,0,0,0.5))'
             }}
           >
             {s.emoji}
@@ -1274,7 +1302,7 @@ export default function EspejoMagicoPage() {
             <div className="flex flex-col items-center text-center space-y-6 max-w-xs">
               <div className="space-y-2">
                 <h3 className="text-2xl font-black text-white">Escanea tu recuerdo</h3>
-                <p className="text-sm text-zinc-400">Usá este código QR con tu celular para descargarlo o compartirlo.</p>
+                <p className="text-sm text-zinc-400">UsÃ¡ este cÃ³digo QR con tu celular para descargarlo o compartirlo.</p>
               </div>
 
               {/* QR Container */}
@@ -1367,7 +1395,7 @@ export default function EspejoMagicoPage() {
 
                 <button
                   onClick={takePhoto}
-                  aria-label="Tomar fotografía"
+                  aria-label="Tomar fotografÃ­a"
                   disabled={countdown !== null || !!errorMsg}
                   className="w-20 h-20 rounded-full bg-gradient-to-tr from-rose-500 to-amber-500 p-1.5 shadow-[0_0_30px_rgba(244,63,94,0.2)] transition-transform active:scale-95 disabled:opacity-50"
                 >

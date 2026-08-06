@@ -16,12 +16,15 @@ interface LeadCaptureFormProps {
   subtitle?: string;
 }
 
+import { z } from 'zod';
+import { leadFormSchema } from '@/lib/validations/lead';
+
 export function LeadCaptureForm({
   fuente,
   whatsappNumber = AK_WHATSAPP_NUMBER,
   tipoEventoDefault = '',
-  title = 'Diseñá tu evento a medida',
-  subtitle = 'Completá el formulario y te contactamos en menos de 24 horas con tu propuesta.',
+  title = 'DiseÃ±Ã¡ tu evento a medida',
+  subtitle = 'CompletÃ¡ el formulario y te contactamos en menos de 24 horas con tu propuesta.',
 }: LeadCaptureFormProps) {
   const searchParams = useSearchParams();
   const [form, setForm] = useState({
@@ -41,10 +44,22 @@ export function LeadCaptureForm({
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!form.nombre.trim() || !form.telefono.trim()) {
-      setError('Por favor completá nombre y teléfono.');
+
+    // Zod Validation
+    const parseResult = leadFormSchema.safeParse({
+      name: form.nombre,
+      phone: form.telefono,
+      eventType: form.tipoEvento,
+      eventDate: form.fechaEstimada,
+      guests: form.invitados,
+      message: form.mensaje
+    });
+
+    if (!parseResult.success) {
+      setError(parseResult.error.errors[0].message);
       return;
     }
+
     setError('');
     setLoading(true);
 
@@ -72,31 +87,31 @@ export function LeadCaptureForm({
 
       if (res.success) {
         const parts = [
-          `Hola AK Producciones! 👋`,
+          `Hola AK Producciones! ðŸ‘‹`,
           `Mi nombre es *${data.nombre}*.`,
           data.tipoEvento && `Tipo de evento: *${data.tipoEvento}*`,
           data.fechaEstimada && `Fecha estimada: *${data.fechaEstimada}*`,
           data.invitados && `Cantidad de invitados: *${data.invitados}*`,
           data.mensaje && `Mensaje: ${data.mensaje}`,
-          `\n¡Me gustaría cotizar mi evento!`,
+          `\nÂ¡Me gustarÃ­a cotizar mi evento!`,
         ].filter(Boolean).join('\n');
 
         const waUrl = `https://wa.me/${whatsappNumber}?text=${encodeURIComponent(parts)}`;
         setWhatsappUrl(waUrl);
         setSent(true);
 
-        // Intentar abrir WhatsApp automáticamente (puede ser bloqueado por el navegador)
+        // Intentar abrir WhatsApp automÃ¡ticamente (puede ser bloqueado por el navegador)
         try {
           window.open(waUrl, '_blank');
         } catch {
-          // Si el navegador lo bloquea, el usuario tiene el botón manual abajo
+          // Si el navegador lo bloquea, el usuario tiene el botÃ³n manual abajo
         }
       } else {
-        setError(res.error || 'Error al enviar. Intentá de nuevo.');
+        setError(res.error || 'Error al enviar. IntentÃ¡ de nuevo.');
       }
     } catch {
       setLoading(false);
-      setError('Error de conexión. Verificá tu internet e intentá de nuevo.');
+      setError('Error de conexiÃ³n. VerificÃ¡ tu internet e intentÃ¡ de nuevo.');
     }
   };
 
@@ -106,9 +121,9 @@ export function LeadCaptureForm({
         <div className="w-16 h-16 rounded-full bg-green-100 flex items-center justify-center mx-auto mb-4">
           <Check className="w-8 h-8 text-green-600" />
         </div>
-        <h3 className="text-xl font-black text-slate-900 mb-2">¡Gracias!</h3>
+        <h3 className="text-xl font-black text-slate-900 mb-2">Â¡Gracias!</h3>
         <p className="text-slate-600 text-sm mb-5">
-          Recibimos tu consulta. Continuá la conversación por WhatsApp para coordinar tu evento.
+          Recibimos tu consulta. ContinuÃ¡ la conversaciÃ³n por WhatsApp para coordinar tu evento.
         </p>
         {whatsappUrl && (
           <a
@@ -168,7 +183,7 @@ export function LeadCaptureForm({
           </div>
           <div className="col-span-2 sm:col-span-1">
             <label htmlFor="lead-telefono" className="block text-xs font-bold text-slate-700 uppercase tracking-widest mb-1">
-              WhatsApp / Teléfono *
+              WhatsApp / TelÃ©fono *
             </label>
             <input
               id="lead-telefono"
@@ -247,7 +262,7 @@ export function LeadCaptureForm({
 
         <div>
           <label htmlFor="lead-mensaje" className="block text-xs font-bold text-slate-700 uppercase tracking-widest mb-1">
-            ¿Algo que quieras contarnos?
+            Â¿Algo que quieras contarnos?
           </label>
           <textarea
             id="lead-mensaje"
@@ -259,7 +274,7 @@ export function LeadCaptureForm({
               'focus:outline-none focus:ring-2 focus:ring-red-500 focus:border-transparent',
               'transition-all placeholder:text-slate-400'
             )}
-            placeholder="Salón, estilo, colores, ideas..."
+            placeholder="SalÃ³n, estilo, colores, ideas..."
           />
         </div>
 
@@ -274,7 +289,7 @@ export function LeadCaptureForm({
             onChange={(event) => setMarketingConsent(event.target.checked)}
             className="mt-0.5 h-4 w-4 shrink-0 accent-red-700"
           />
-          <span>Acepto que AK Producciones use mis datos para medir esta campaña y enviarme promociones. Es opcional.</span>
+          <span>Acepto que AK Producciones use mis datos para medir esta campaÃ±a y enviarme promociones. Es opcional.</span>
         </label>
 
         <button
@@ -297,13 +312,13 @@ export function LeadCaptureForm({
         </button>
 
         <div className="flex items-center justify-center gap-1.5 text-[11px] text-slate-400">
-          <span>Tus datos se usan para responder esta consulta. La medición publicitaria es opcional.</span>
+          <span>Tus datos se usan para responder esta consulta. La mediciÃ³n publicitaria es opcional.</span>
         </div>
 
         <p className="text-center text-xs text-slate-400">
-          También podés escribirnos directo por{' '}
+          TambiÃ©n podÃ©s escribirnos directo por{' '}
           <a
-            href={`https://wa.me/${whatsappNumber}?text=${encodeURIComponent('¡Hola AK Producciones! Me gustaría cotizar mi evento.')}`}
+            href={`https://wa.me/${whatsappNumber}?text=${encodeURIComponent('Â¡Hola AK Producciones! Me gustarÃ­a cotizar mi evento.')}`}
             target="_blank"
             rel="noopener noreferrer"
             className="text-green-600 font-bold hover:underline"

@@ -18,7 +18,6 @@ interface CrmStageColumnProps {
   leads: CrmLead[];
   onDeleteLead: (leadId: string) => Promise<void>;
   deletingLeadId: string | null;
-  onHire: (lead: CrmLead) => void;
 }
 
 export const CrmStageColumn = memo(function CrmStageColumn({
@@ -26,13 +25,12 @@ export const CrmStageColumn = memo(function CrmStageColumn({
   leads,
   onDeleteLead,
   deletingLeadId,
-  onHire,
 }: CrmStageColumnProps) {
   const { setNodeRef, isOver } = useDroppable({
     id: stage.id,
     data: { stageId: stage.id },
   });
-  
+
   const leadIds = leads.map(l => l.id);
 
   const inactiveCount = leads.filter(l => {
@@ -47,7 +45,7 @@ export const CrmStageColumn = memo(function CrmStageColumn({
           <span>{stage.name}</span>
           <div className="flex items-center gap-1">
             {inactiveCount > 0 && (
-              <Badge variant="outline" className="text-[9px] h-5 px-1 bg-orange-50 text-orange-700 border-orange-300" title={`${inactiveCount} sin actividad hacen +${INACTIVITY_DAYS} días`}>
+              <Badge variant="outline" className="text-[9px] h-5 px-1 bg-orange-50 text-orange-700 border-orange-300" title={`${inactiveCount} sin actividad hacen +${INACTIVITY_DAYS} dÃ­as`}>
                 <AlertTriangle className="w-2.5 h-2.5 mr-0.5" />{inactiveCount}
               </Badge>
             )}
@@ -67,7 +65,6 @@ export const CrmStageColumn = memo(function CrmStageColumn({
                     lead={lead}
                     onDeleteLead={onDeleteLead}
                     isDeleting={deletingLeadId === lead.id}
-                    onHire={() => onHire(lead)}
                 />
                 ))
             ) : (

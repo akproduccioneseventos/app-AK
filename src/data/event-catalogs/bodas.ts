@@ -15,12 +15,12 @@ const bodasData: EventCatalogData = {
   hero: {
     headline: 'Tu boda perfecta, hecha realidad',
     subheadline:
-      'Organizamos cada detalle para que el día más importante de tu vida sea exactamente como lo soñaste. Décor, catering, música, fotografía — todo en un solo lugar.',
+      'Organizamos cada detalle para que el dÃ­a mÃ¡s importante de tu vida sea exactamente como lo soÃ±aste. DÃ©cor, catering, mÃºsica, fotografÃ­a â€” todo en un solo lugar.',
     gradientClasses:
       'from-rose-50 via-pink-50 to-red-50',
     accentColor: 'rose',
-    emoji: '💍',
-    ctaLabel: '¡Cotizar mi boda!',
+    emoji: 'ðŸ’',
+    ctaLabel: 'Â¡Cotizar mi boda!',
   },
   services: sharedServices.map((s) =>
     s.id === 'premium'
@@ -40,21 +40,21 @@ const bodasData: EventCatalogData = {
       id: 't1',
       authorName: 'Valentina y Rodrigo',
       source: 'instagram',
-      text: '¡AK Producciones hizo nuestra boda un sueño! Cada detalle fue perfecto, desde las flores hasta la torta. Eternamente agradecidos. 💕',
+      text: 'Â¡AK Producciones hizo nuestra boda un sueÃ±o! Cada detalle fue perfecto, desde las flores hasta la torta. Eternamente agradecidos. ðŸ’•',
       date: 'Marzo 2024',
     },
     {
       id: 't2',
       authorName: 'Carolina M.',
       source: 'whatsapp',
-      text: 'No puedo creer lo hermoso que quedó todo. El equipo estuvo presente en todo momento y nosotros solo tuvimos que disfrutar. ¡100% recomendados!',
+      text: 'No puedo creer lo hermoso que quedÃ³ todo. El equipo estuvo presente en todo momento y nosotros solo tuvimos que disfrutar. Â¡100% recomendados!',
       date: 'Diciembre 2023',
     },
     {
       id: 't3',
-      authorName: 'Florencia & Matías',
+      authorName: 'Florencia & MatÃ­as',
       source: 'google',
-      text: 'Llevamos años pensando en nuestra boda y AK superó todas nuestras expectativas. Profesionales, cálidos y creativos.',
+      text: 'Llevamos aÃ±os pensando en nuestra boda y AK superÃ³ todas nuestras expectativas. Profesionales, cÃ¡lidos y creativos.',
       date: 'Octubre 2023',
     },
   ],
@@ -64,7 +64,7 @@ const bodasData: EventCatalogData = {
       ...sharedPromotion.gifts,
       {
         id: 'luna-de-miel',
-        icon: '🌙',
+        icon: 'ðŸŒ™',
         title: 'Detalle luna de miel',
         description: 'Un regalo sorpresa para la pareja en su primera noche como casados.',
       },
@@ -74,25 +74,25 @@ const bodasData: EventCatalogData = {
     ...sharedFAQs,
     {
       id: 'ceremonia',
-      question: '¿Organizan la ceremonia religiosa o civil también?',
+      question: 'Â¿Organizan la ceremonia religiosa o civil tambiÃ©n?',
       answer:
-        'Sí. Coordinamos todo lo relacionado con la ceremonia: decoración del espacio, coordinación con el sacerdote o juez de paz, flores, pajes y más.',
+        'SÃ­. Coordinamos todo lo relacionado con la ceremonia: decoraciÃ³n del espacio, coordinaciÃ³n con el sacerdote o juez de paz, flores, pajes y mÃ¡s.',
     },
   ],
   paymentMethods: sharedPaymentMethods,
   gallery: [
-    { id: 'g1', src: '/images/events/bodas/ceremony.jpg', alt: 'Ceremonia nupcial', size: 'wide' },
-    { id: 'g2', src: '/images/events/bodas/reception.jpg', alt: 'Recepción decorada' },
-    { id: 'g3', src: '/images/events/bodas/cake.jpg', alt: 'Torta de bodas' },
-    { id: 'g4', src: '/images/events/bodas/dance.jpg', alt: 'Primer baile' },
-    { id: 'g5', src: '/images/events/bodas/flowers.jpg', alt: 'Arreglos florales', size: 'wide' },
-    { id: 'g6', src: '/images/events/bodas/couple.jpg', alt: 'Los novios' },
+    { id: 'g1', src: '/media/salon-discoteca-ak-01.jpeg', alt: 'Ceremonia nupcial', size: 'wide' },
+    { id: 'g2', src: '/media/salon-discoteca-ak-01.jpeg', alt: 'RecepciÃ³n decorada' },
+    { id: 'g3', src: '/media/salon-discoteca-ak-01.jpeg', alt: 'Torta de bodas' },
+    { id: 'g4', src: '/media/salon-discoteca-ak-01.jpeg', alt: 'Primer baile' },
+    { id: 'g5', src: '/media/salon-discoteca-ak-01.jpeg', alt: 'Arreglos florales', size: 'wide' },
+    { id: 'g6', src: '/media/salon-discoteca-ak-01.jpeg', alt: 'Los novios' },
   ],
   whyUs: sharedWhyUs,
   process: sharedProcess,
   whatsappNumber: '59899123456',
   whatsappMessage:
-    '¡Hola AK Producciones! Quiero cotizar una BODA. Me gustaría conocer sus paquetes.',
+    'Â¡Hola AK Producciones! Quiero cotizar una BODA. Me gustarÃ­a conocer sus paquetes.',
 };
 
 export default bodasData;

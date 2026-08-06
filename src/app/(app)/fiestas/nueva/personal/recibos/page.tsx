@@ -51,9 +51,15 @@ const formatCurrency = (amount?: number) => {
 const formatDate = (dateString?: string) => {
   if (!dateString) return "____________";
   try {
-    return new Date(dateString).toLocaleDateString('es-ES', { day: 'numeric', month: 'long', year: 'numeric' });
+    const date = new Date(dateString);
+    return date.toLocaleDateString('es-ES', {
+      day: 'numeric',
+      month: 'long',
+      year: 'numeric',
+      timeZone: 'UTC'
+    });
   } catch {
-    return "Fecha inválida";
+    return "Fecha invÃ¡lida";
   }
 };
 
@@ -115,7 +121,7 @@ function RecibosDePagoContent() {
       const parsed = JSON.parse(saved) as Partial<RecibosConfig>;
       setRecibosConfig(prev => ({ ...prev, ...parsed }));
     } catch {
-      // Se usa configuración por defecto
+      // Se usa configuraciÃ³n por defecto
     }
   }, []);
 
@@ -129,12 +135,13 @@ function RecibosDePagoContent() {
         const empleado = empleadosData.find(e => e.id === assigned.empleadoId);
         if (!empleado) return null;
         const rol = rolesData.find(r => r.id === assigned.rolId);
-        const contribution = (assigned.eventSalary * (rol?.porcentajeAportesPatronales ?? 0)) / 100;
+        const eventSalary = assigned.eventSalary || rol?.sueldoPorEvento || 0;
+        const contribution = (eventSalary * (rol?.porcentajeAportesPatronales ?? 0)) / 100;
         return {
           empleado,
           rol,
           rolId: assigned.rolId,
-          eventSalary: assigned.eventSalary,
+          eventSalary,
           employerContribution: contribution
         };
       }).filter((item): item is NonNullable<typeof item> => item !== null) as FullStaffDetail[];
@@ -160,7 +167,7 @@ function RecibosDePagoContent() {
 
       const currentFiesta = fiestasData.find(f => f.id === fiestaId);
       if (!currentFiesta) {
-        throw new Error("No se encontró la fiesta seleccionada.");
+        throw new Error("No se encontrÃ³ la fiesta seleccionada.");
       }
 
       setFiesta(currentFiesta);
@@ -187,7 +194,7 @@ function RecibosDePagoContent() {
   useEffect(() => {
     loadData();
   }, [loadData]);
-  
+
   const handlePrint = () => {
     window.print();
   };
@@ -206,14 +213,15 @@ function RecibosDePagoContent() {
           const empleado = allEmpleados.find(e => e.id === assigned.empleadoId);
           if (!empleado) return null;
           const rol = allRoles.find(r => r.id === assigned.rolId);
-          const contribution = (assigned.eventSalary * (rol?.porcentajeAportesPatronales ?? 0)) / 100;
+          const eventSalary = assigned.eventSalary || rol?.sueldoPorEvento || 0;
+          const contribution = (eventSalary * (rol?.porcentajeAportesPatronales ?? 0)) / 100;
           return {
             fiesta: fiestaItem,
             detail: {
               empleado,
               rol,
               rolId: assigned.rolId,
-              eventSalary: assigned.eventSalary,
+              eventSalary,
               employerContribution: contribution,
             },
           };
@@ -244,7 +252,7 @@ function RecibosDePagoContent() {
 
     const printWindow = window.open('', '_blank', 'width=1024,height=768');
     if (!printWindow) {
-      toast({ title: "No se pudo abrir la ventana de impresión", variant: "destructive" });
+      toast({ title: "No se pudo abrir la ventana de impresiÃ³n", variant: "destructive" });
       return;
     }
 
@@ -273,7 +281,7 @@ function RecibosDePagoContent() {
           <div class="grid">
             <div>
               <p><strong>Empleado:</strong> ${escapeHtml(receiptEntry.detail.empleado.nombre)}</p>
-              <p><strong>C.I.:</strong> ${escapeHtml(receiptEntry.detail.empleado.cedula || '—')}</p>
+              <p><strong>C.I.:</strong> ${escapeHtml(receiptEntry.detail.empleado.cedula || 'â€”')}</p>
               <p><strong>Rol:</strong> ${escapeHtml(receiptEntry.detail.rol?.nombre || 'No especificado')}</p>
             </div>
             <div style="text-align:right;">
@@ -342,10 +350,10 @@ function RecibosDePagoContent() {
       printWindow.close();
     }, 200);
   };
-  
+
   const handleSalaryChange = (empleadoId: string, newSalary: string) => {
     const salaryNum = parseFloat(newSalary) || 0;
-    setAssignedStaffDetails(prev => 
+    setAssignedStaffDetails(prev =>
       prev.map(detail => {
         if (detail.empleado.id === empleadoId) {
           const newContribution = (salaryNum * (detail.rol?.porcentajeAportesPatronales ?? 0)) / 100;
@@ -355,11 +363,11 @@ function RecibosDePagoContent() {
       })
     );
   };
-  
+
   const handleSaveChanges = async () => {
     setIsSaving(true);
     if (!fiestaId) {
-      toast({ title: "Error", description: "No se encontró el ID de la fiesta", variant: "destructive" });
+      toast({ title: "Error", description: "No se encontrÃ³ el ID de la fiesta", variant: "destructive" });
       setIsSaving(false);
       return;
     }
@@ -371,7 +379,7 @@ function RecibosDePagoContent() {
     try {
       const result = await updatePersonalFiestaActual(fiestaId, personalToSave);
       if (result.success) {
-        toast({ title: "¡Cambios Guardados!", description: `Se guardaron los nuevos montos de pago.` });
+        toast({ title: "Â¡Cambios Guardados!", description: `Se guardaron los nuevos montos de pago.` });
         await loadData();
       } else {
         throw new Error(result.error || "No se pudieron guardar los cambios.");
@@ -387,17 +395,17 @@ function RecibosDePagoContent() {
     const ids = new Set(allFiestas.flatMap(f => (f.personalAsignado || []).map(p => p.empleadoId)));
     return allEmpleados.filter(e => ids.has(e.id));
   }, [allFiestas, allEmpleados]);
-  
+
   if (isLoading) {
     return <div className="p-8 max-w-4xl mx-auto bg-white"><Skeleton className="h-[80vh] w-full" /></div>;
   }
-  
+
   if (error || !fiesta) {
     return (
       <div className="flex flex-col items-center justify-center h-screen text-center p-4">
           <AlertTriangle className="w-16 h-16 text-destructive mb-4" />
           <h1 className="text-2xl font-bold">Error al Generar Reporte</h1>
-          <p className="text-muted-foreground mt-2">{error || "No se encontró información del evento."}</p>
+          <p className="text-muted-foreground mt-2">{error || "No se encontrÃ³ informaciÃ³n del evento."}</p>
           <Button asChild variant="outline" className="mt-4"><Link href={`/fiestas/nueva/personal?fiestaId=${fiestaId}`}>Volver</Link></Button>
       </div>
     );
@@ -419,7 +427,7 @@ function RecibosDePagoContent() {
 
         <Accordion type="single" collapsible defaultValue="config" className="mb-6 print:hidden">
           <AccordionItem value="config">
-            <AccordionTrigger>Configuración de desglose del recibo</AccordionTrigger>
+            <AccordionTrigger>ConfiguraciÃ³n de desglose del recibo</AccordionTrigger>
             <AccordionContent className="space-y-3 pt-2">
               <div className="flex items-center gap-2">
                 <Checkbox id="show-vacacional" checked={recibosConfig.showVacacional} onCheckedChange={checked => setRecibosConfig(prev => ({ ...prev, showVacacional: checked === true }))} />
@@ -444,10 +452,10 @@ function RecibosDePagoContent() {
               <Separator />
               <div className="grid gap-3 sm:grid-cols-[1fr_auto] sm:items-end">
                 <div className="space-y-1.5">
-                  <Label>Empleado para impresión multi-fiesta</Label>
+                  <Label>Empleado para impresiÃ³n multi-fiesta</Label>
                   <Select value={selectedEmpleadoId} onValueChange={setSelectedEmpleadoId}>
                     <SelectTrigger>
-                      <SelectValue placeholder="Seleccioná empleado o todos" />
+                      <SelectValue placeholder="SeleccionÃ¡ empleado o todos" />
                     </SelectTrigger>
                     <SelectContent>
                       <SelectItem value="all">Todos los empleados</SelectItem>
@@ -465,7 +473,7 @@ function RecibosDePagoContent() {
             </AccordionContent>
           </AccordionItem>
         </Accordion>
-        
+
         <header className="mb-6 print:mb-4 text-center border-b pb-3 print:pb-2">
             {recibosConfig.showLogo && (
               <div className="w-full h-24 print:h-20 mb-4 relative">
@@ -553,7 +561,7 @@ function RecibosDePagoContent() {
                     <p>Monto: {formatCurrency(detail.employerContribution)} ({detail.rol?.porcentajeAportesPatronales || 0}%)</p>
                   </div>
                  )}
-                  
+
                  {recibosConfig.showFirmas && (
                   <div className="mt-8 print:mt-10 flex justify-between items-end">
                     <div className="w-2/5 border-t text-center pt-1"><p className="text-xs print:text-[8pt]">Firma del Empleado</p></div>

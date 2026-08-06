@@ -39,12 +39,12 @@ function daysSince(date: Date) {
 }
 
 function messageForLead(name: string, reason: string) {
-  return `Hola ${name}, ¿cómo estás? Te escribo de AK Producciones para seguir con la organización de tu fiesta. ${reason} Si querés, coordinamos una entrevista sin costo y revisamos juntos las opciones.`;
+  return `Hola ${name}, Â¿cÃ³mo estÃ¡s? Te escribo de AK Producciones para seguir con la organizaciÃ³n de tu fiesta. ${reason} Si querÃ©s, coordinamos una entrevista sin costo y revisamos juntos las opciones.`;
 }
 
 function messageForBudget(name: string, eventType?: string) {
   const tipo = eventType ? ` para ${eventType}` : '';
-  return `Hola ${name}, ¿cómo estás? Te escribo por el presupuesto${tipo} que vimos con AK Producciones. Quería saber si pudiste revisarlo y si querés que coordinemos una entrevista para ajustar detalles y asegurar la fecha.`;
+  return `Hola ${name}, Â¿cÃ³mo estÃ¡s? Te escribo por el presupuesto${tipo} que vimos con AK Producciones. QuerÃ­a saber si pudiste revisarlo y si querÃ©s que coordinemos una entrevista para ajustar detalles y asegurar la fecha.`;
 }
 
 function isRecentDuplicate(notifications: Notificacion[], item: CommercialFollowupItem) {
@@ -61,7 +61,10 @@ function isRecentDuplicate(notifications: Notificacion[], item: CommercialFollow
   });
 }
 
+import { requireAppSession } from '@/lib/auth/require-session';
+
 export async function getCommercialFollowups(): Promise<{ success: boolean; data: CommercialFollowupItem[] }> {
+  await requireAppSession();
   const [leads, presupuestos] = await Promise.all([
     getCrmLeads().catch(() => []),
     getPresupuestos().catch(() => []),
@@ -78,7 +81,7 @@ export async function getCommercialFollowups(): Promise<{ success: boolean; data
     if (followUp) {
       const d = daysUntil(followUp);
       if (d <= 2) {
-        const reason = d < 0 ? 'Tenía seguimiento pendiente.' : d === 0 ? 'Hoy figura como fecha de seguimiento.' : `Tiene seguimiento en ${d} día(s).`;
+        const reason = d < 0 ? 'TenÃ­a seguimiento pendiente.' : d === 0 ? 'Hoy figura como fecha de seguimiento.' : `Tiene seguimiento en ${d} dÃ­a(s).`;
         items.push({
           id: `lead_${lead.id}`,
           name,
@@ -92,7 +95,7 @@ export async function getCommercialFollowups(): Promise<{ success: boolean; data
       }
     } else if (created && daysSince(created) >= 3) {
       const age = daysSince(created);
-      const reason = `Hace ${age} día(s) que está cargado y no tiene seguimiento agendado.`;
+      const reason = `Hace ${age} dÃ­a(s) que estÃ¡ cargado y no tiene seguimiento agendado.`;
       items.push({
         id: `lead_no_follow_${lead.id}`,
         name,
@@ -112,7 +115,7 @@ export async function getCommercialFollowups(): Promise<{ success: boolean; data
     const age = created ? daysSince(created) : 0;
     if (age >= 2) {
       const name = pres.clienteNombre || 'Cliente';
-      const reason = `Presupuesto enviado hace ${age} día(s). Conviene hacer seguimiento.`;
+      const reason = `Presupuesto enviado hace ${age} dÃ­a(s). Conviene hacer seguimiento.`;
       items.push({
         id: `budget_${pres.id}`,
         name,
@@ -136,6 +139,7 @@ export async function getCommercialFollowups(): Promise<{ success: boolean; data
 }
 
 export async function createCommercialFollowupAlerts() {
+  await requireAppSession();
   const result = await getCommercialFollowups();
   const existing: Notificacion[] = await getNotifications().catch((): Notificacion[] => []);
   let created = 0;
@@ -165,7 +169,7 @@ export async function createCommercialFollowupAlerts() {
   await saveAgentLearning({
     agentType: 'comercial',
     module: 'comercial',
-    title: 'Revisión comercial automática',
+    title: 'RevisiÃ³n comercial automÃ¡tica',
     content: `Se detectaron ${result.data.length} seguimiento(s) comerciales, se crearon ${created} aviso(s) y se evitaron ${skipped} repetido(s).`,
     tags: ['crm', 'seguimiento', 'comercial'],
     source: 'system',

@@ -44,7 +44,7 @@ export const defaultClubUruguayConfig: ClubUruguayConfig = {
   precio: 20000,
   prestaciones: [
     'Capacidad 50-200 personas',
-    'Ubicación céntrica en Salto',
+    'UbicaciÃ³n cÃ©ntrica en Salto',
     'Estacionamiento disponible',
   ],
 };
@@ -96,12 +96,37 @@ export function isPackageApplicableToEventType(
   tipoEvento: string | null | undefined
 ): boolean {
   const tipos = (paquete.tiposDeEventoAplicables || []).map((t) => t.trim()).filter(Boolean);
-  if (tipos.length === 0) return true;
+  if (tipos.length === 0) return true; // Si no tiene restricciones, aplica a todos
+
   const selected = normalizeEventType(tipoEvento || '');
   if (!selected) return true;
 
   return tipos.some((tipo) => {
     const normalized = normalizeEventType(tipo);
-    return normalized === selected || normalized.includes(selected) || selected.includes(normalized);
+    if (normalized === selected) return true;
+
+    // Check if the normalized string is a distinct word boundary match inside selected
+    try {
+      const regex1 = new RegExp(`\\b${normalized}\\b`);
+      if (regex1.test(selected)) return true;
+
+      const regex2 = new RegExp(`\\b${selected}\\b`);
+      if (regex2.test(normalized)) return true;
+    } catch {
+      // Fallback a includes normal si la regex falla por caracteres extraÃ±os
+      if (normalized.includes(selected) || selected.includes(normalized)) return true;
+    }
+
+    // Hardcoded logic for "15 aÃ±os" and "quince"
+    if ((normalized.includes('15') || normalized.includes('quince') || normalized.includes('xv')) &&
+        (selected.includes('15') || selected.includes('quince') || selected.includes('xv'))) {
+      // Avoid matching "2015"
+      const selectedWords = selected.split(' ');
+      if (selectedWords.some(w => w === '15' || w === 'quince' || w === 'xv' || w === '15anos' || w === '15a')) {
+        return true;
+      }
+    }
+
+    return false;
   });
 }

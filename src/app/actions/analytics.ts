@@ -16,7 +16,7 @@ function isAcceptedBudget(status?: string) {
 
 function parseAnalyticsDate(value: string): Date {
   return /^\d{4}-\d{2}-\d{2}$/.test(value)
-    ? new Date(`${value}T12:00:00`)
+    ? new Date(`${value}T12:00:00-03:00`)
     : new Date(value);
 }
 
@@ -103,7 +103,7 @@ export async function getAnalyticsData(): Promise<{ success: boolean; data?: Ana
     const now = new Date();
     const today = startOfToday();
 
-    // ─── Monthly Profitability (last 12 months) ───────────────────────────────
+    // â”€â”€â”€ Monthly Profitability (last 12 months) â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
     const monthlyMap = new Map<string, { ingresos: number; costos: number }>();
     for (let i = 11; i >= 0; i--) {
       const key = format(subMonths(now, i), 'MMM yyyy', { locale: es });
@@ -161,7 +161,7 @@ export async function getAnalyticsData(): Promise<{ success: boolean; data?: Ana
       })
     );
 
-    // ─── Conversion Funnel ────────────────────────────────────────────────────
+    // â”€â”€â”€ Conversion Funnel â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
     const total = presupuestosData.filter(p => p.estado !== 'Borrador').length;
     const aceptados = presupuestosData.filter(p => p.estado === 'Aceptado' || p.estado === 'Facturado').length;
     const enviados = presupuestosData.filter(p => p.estado === 'Enviado').length;
@@ -169,12 +169,12 @@ export async function getAnalyticsData(): Promise<{ success: boolean; data?: Ana
 
     const conversionFunnel: ConversionData[] = [
       { name: 'Enviados', value: total, fill: 'hsl(var(--chart-1))' },
-      { name: 'En Negociación', value: enviados, fill: 'hsl(var(--chart-3))' },
+      { name: 'En NegociaciÃ³n', value: enviados, fill: 'hsl(var(--chart-3))' },
       { name: 'Contratados', value: aceptados, fill: 'hsl(var(--chart-2))' },
       { name: 'Rechazados', value: rechazados, fill: 'hsl(var(--chart-5))' },
     ];
 
-    // ─── Top-Selling Services ─────────────────────────────────────────────────
+    // â”€â”€â”€ Top-Selling Services â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
     const serviceMap = new Map<string, { totalVentas: number; cantidadVentas: number; categoria: string }>();
 
     presupuestosData.forEach(pres => {
@@ -201,7 +201,7 @@ export async function getAnalyticsData(): Promise<{ success: boolean; data?: Ana
       .sort((a, b) => b.totalVentas - a.totalVentas)
       .slice(0, 8);
 
-    // ─── Summary KPIs ─────────────────────────────────────────────────────────
+    // â”€â”€â”€ Summary KPIs â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
     const totalEventosRealizados = fiestasData.filter(
       f => f.configuracion.fechaEvento && parseAnalyticsDate(f.configuracion.fechaEvento) < today
     ).length;
@@ -217,7 +217,7 @@ export async function getAnalyticsData(): Promise<{ success: boolean; data?: Ana
 
     const tasaConversion = total > 0 ? Math.round((aceptados / total) * 100) : 0;
 
-    // ─── Simulator Conversion Rate ────────────────────────────────────────────
+    // â”€â”€â”€ Simulator Conversion Rate â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
     const simulatorPresupuestos = presupuestosData.filter(p => isSimulatorBudget(p.source));
     const simulatorAceptados = simulatorPresupuestos.filter(
       p => p.estado === 'Aceptado' || p.estado === 'Facturado'
@@ -227,7 +227,7 @@ export async function getAnalyticsData(): Promise<{ success: boolean; data?: Ana
         ? Math.round((simulatorAceptados / simulatorPresupuestos.length) * 100)
         : 0;
 
-    // ─── Gross Margin Average ─────────────────────────────────────────────────
+    // â”€â”€â”€ Gross Margin Average â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
     const margenBrutoPromedio =
       totalRevenue > 0 ? Math.round(((totalRevenue - totalCosts) / totalRevenue) * 100) : 0;
 
@@ -240,7 +240,7 @@ export async function getAnalyticsData(): Promise<{ success: boolean; data?: Ana
       margenBrutoPromedio,
     };
 
-    // ─── Profitability by Event Type ─────────────────────────────────────────
+    // â”€â”€â”€ Profitability by Event Type â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
     const eventTypeMap = new Map<
       string,
       { ingresos: number; costos: number; cantidad: number }
@@ -289,10 +289,10 @@ export async function getAnalyticsData(): Promise<{ success: boolean; data?: Ana
       };
     }).sort((a, b) => b.ingresos - a.ingresos);
 
-    // ─── Bottleneck Detection ─────────────────────────────────────────────────
+    // â”€â”€â”€ Bottleneck Detection â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
     const bottleneckAlerts: BottleneckAlert[] = [];
 
-    // 1. Budgets in "Borrador" older than 7 days → late delivery
+    // 1. Budgets in "Borrador" older than 7 days â†’ late delivery
     presupuestosData.forEach(pres => {
       if (pres.estado !== 'Borrador') return;
       const age = differenceInDays(today, new Date(pres.timestamp));
@@ -301,8 +301,8 @@ export async function getAnalyticsData(): Promise<{ success: boolean; data?: Ana
           id: `late-budget-${pres.id}`,
           tipo: 'presupuesto_tardio',
           nivel: age >= 14 ? 'critico' : 'advertencia',
-          mensaje: `Presupuesto de "${pres.clienteNombre}" lleva ${age} días como borrador`,
-          detalle: `Tipo: ${pres.eventoTipo} · Creado el ${format(new Date(pres.timestamp), 'dd MMM yyyy', { locale: es })}`,
+          mensaje: `Presupuesto de "${pres.clienteNombre}" lleva ${age} dÃ­as como borrador`,
+          detalle: `Tipo: ${pres.eventoTipo} Â· Creado el ${format(new Date(pres.timestamp), 'dd MMM yyyy', { locale: es })}`,
           dias: age,
         });
       }
@@ -322,7 +322,7 @@ export async function getAnalyticsData(): Promise<{ success: boolean; data?: Ana
             tipo: 'tarea_vencida',
             nivel: daysOverdue >= 3 ? 'critico' : 'advertencia',
             mensaje: `Tarea vencida: "${tarea.texto}"`,
-            detalle: `Evento: ${fiesta.configuracion.nombreEvento || fiesta.id} · Vencida hace ${daysOverdue} día(s)`,
+            detalle: `Evento: ${fiesta.configuracion.nombreEvento || fiesta.id} Â· Vencida hace ${daysOverdue} dÃ­a(s)`,
             fiestaId: fiesta.id,
             dias: daysOverdue,
           });
@@ -341,7 +341,7 @@ export async function getAnalyticsData(): Promise<{ success: boolean; data?: Ana
           id: `no-budget-${fiesta.id}`,
           tipo: 'evento_sin_presupuesto',
           nivel: daysUntil <= 7 ? 'critico' : 'advertencia',
-          mensaje: `Evento sin presupuesto en ${daysUntil} día(s)`,
+          mensaje: `Evento sin presupuesto en ${daysUntil} dÃ­a(s)`,
           detalle: `Evento: ${fiesta.configuracion.nombreEvento || fiesta.id}`,
           fiestaId: fiesta.id,
           dias: daysUntil,
@@ -349,7 +349,7 @@ export async function getAnalyticsData(): Promise<{ success: boolean; data?: Ana
       }
     });
 
-    // Sort alerts: crítico first, then by days
+    // Sort alerts: crÃ­tico first, then by days
     bottleneckAlerts.sort((a, b) => {
       const levelOrder = { critico: 0, advertencia: 1, info: 2 };
       const levelDiff = levelOrder[a.nivel] - levelOrder[b.nivel];
@@ -357,7 +357,7 @@ export async function getAnalyticsData(): Promise<{ success: boolean; data?: Ana
       return (b.dias || 0) - (a.dias || 0);
     });
 
-    // ─── Staff Efficiency ─────────────────────────────────────────────────────
+    // â”€â”€â”€ Staff Efficiency â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
     const staffMap = new Map<
       string,
       { nombre: string; eventosAsignados: number; totalSalario: number; ingresosGenerados: number }
@@ -419,6 +419,6 @@ export async function getAnalyticsData(): Promise<{ success: boolean; data?: Ana
     };
   } catch (error: any) {
     console.error('Error fetching analytics data:', error);
-    return { success: false, error: 'No se pudieron cargar los datos analíticos.' };
+    return { success: false, error: 'No se pudieron cargar los datos analÃ­ticos.' };
   }
 }

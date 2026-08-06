@@ -6,7 +6,7 @@ import Link from 'next/link';
 import type { DragEndEvent } from '@dnd-kit/core';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
-import { KanbanSquare, Users, Clock, TrendingUp, Wallet, CheckCircle, Loader2, ArrowLeft, Search, X, AlertTriangle, User, RotateCcw, CalendarDays, Gift, Sparkles, Monitor, ListFilter, SlidersHorizontal } from 'lucide-react';
+import { KanbanSquare, Users, Clock, TrendingUp, Wallet, CheckCircle, Loader2, ArrowLeft, Search, X, AlertTriangle, User, RotateCcw, CalendarDays, Gift, Sparkles, Monitor, ListFilter } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import type { CrmLead } from '@/types/crm';
 import { getPresupuestoById } from '@/app/actions/presupuestos';
@@ -44,8 +44,6 @@ import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
-  DropdownMenuLabel,
-  DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
 
@@ -281,26 +279,6 @@ export default function CrmPage() {
     }
   }, [leads, stages, moveLead, handleHireClick]);
 
-  const handleMobileMove = useCallback((lead: CrmLead, direction: -1 | 1) => {
-    const currentIndex = stages.findIndex(stage => stage.id === lead.currentStageId);
-    const targetStage = stages[currentIndex + direction];
-    if (!targetStage) {
-      toast({ description: direction < 0 ? 'Este prospecto ya está en la primera etapa.' : 'Este prospecto ya está en la última etapa.' });
-      return;
-    }
-    if (targetStage.name.toLowerCase().includes('entrevista')) {
-      setLeadForMeeting({ ...lead, currentStageId: targetStage.id });
-      setMeetingType('Entrevista');
-      setIsMeetingModalOpen(true);
-      return;
-    }
-    if (targetStage.isConversionStage) {
-      handleHireClick(lead);
-      return;
-    }
-    void moveLead(lead.id, targetStage.id);
-  }, [handleHireClick, moveLead, stages, toast]);
-
   const handleResetCrm = useCallback(async () => {
     setIsResettingCrm(true);
     try {
@@ -511,7 +489,6 @@ export default function CrmPage() {
                           onDeleteLead={deleteLead}
                           isDeleting={deletingLeadId === lead.id}
                           isMobile={true}
-                          onMove={(direction) => handleMobileMove(lead, direction)}
                           onHire={() => handleHireClick(lead)}
                         />
                        ))}

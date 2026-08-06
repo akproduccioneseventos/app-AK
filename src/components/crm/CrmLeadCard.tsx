@@ -5,7 +5,7 @@ import { CSS } from '@dnd-kit/utilities';
 import type { CrmLead } from '@/types/crm';
 import { Card, CardContent, CardFooter, CardHeader } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { Loader2, Trash2, GripVertical, FilePlus2, Users, Building2, Clock, ChevronLeft, ChevronRight, FileText, FileSignature, CheckCircle, Smartphone, MessageCircle, History, AlertTriangle, Bell, Edit3, Save, X, Gift, MapPin } from 'lucide-react';
+import { Loader2, Trash2, GripVertical, FilePlus2, Users, Building2, Clock, FileSignature, CheckCircle, Smartphone, MessageCircle, History, AlertTriangle, Bell, Edit3, Save, X, Gift, MapPin } from 'lucide-react';
 import {
   AlertDialog,
   AlertDialogAction,
@@ -33,10 +33,10 @@ import { getCrmLeadSourceBadge } from '@/lib/crm/lead-presentation';
 const INACTIVITY_DAYS = 7;
 const CONTRACT_TYPE_LABELS: Record<string, string> = {
   servicios: 'Contrato Servicios',
-  cancelacion: 'Cancelación',
-  'cancelacion-servicios': 'Cancelación parcial',
+  cancelacion: 'CancelaciÃ³n',
+  'cancelacion-servicios': 'CancelaciÃ³n parcial',
   'cambio-fecha': 'Cambio de fecha',
-  salon: 'Contrato salón',
+  salon: 'Contrato salÃ³n',
 };
 
 interface CrmLeadCardProps {
@@ -44,11 +44,9 @@ interface CrmLeadCardProps {
   onDeleteLead: (leadId: string) => Promise<void>;
   isDeleting: boolean;
   isMobile?: boolean;
-  onMove?: (direction: -1 | 1) => void;
-  onHire?: () => void;
 }
 
-export const CrmLeadCard = memo(function CrmLeadCard({ lead, onDeleteLead, isDeleting, isMobile, onMove, onHire }: CrmLeadCardProps) {
+export const CrmLeadCard = memo(function CrmLeadCard({ lead, onDeleteLead, isDeleting, isMobile }: CrmLeadCardProps) {
   const {
     attributes,
     listeners,
@@ -58,7 +56,6 @@ export const CrmLeadCard = memo(function CrmLeadCard({ lead, onDeleteLead, isDel
     isDragging,
   } = useSortable({
     id: lead.id,
-    disabled: isMobile,
     data: { stageId: lead.currentStageId },
   });
 
@@ -86,7 +83,7 @@ export const CrmLeadCard = memo(function CrmLeadCard({ lead, onDeleteLead, isDel
     transition,
     opacity: isDragging ? 0.5 : 1,
   };
-  
+
   const budgetSource = useMemo(() => {
     return getCrmLeadSourceBadge(lead);
   }, [lead]);
@@ -140,7 +137,7 @@ export const CrmLeadCard = memo(function CrmLeadCard({ lead, onDeleteLead, isDel
       : lead.acquisition?.source === 'guest_portal'
         ? `Hola ${firstName}, que bueno que compartiste ${lead.referrerEventName ? `la experiencia de ${lead.referrerEventName}` : 'una fiesta AK'}. Como nos autorizaste a contactarte, queremos ayudarte a imaginar tu proximo evento. Podes empezar aca: https://akproducciones.uy/simulador?source=guest_portal`
         : `Hola ${firstName}, te escribo desde AK Producciones para continuar con tu evento. Como podemos ayudarte?`;
-    
+
     const waUrl = `https://wa.me/${cleanPhone}?text=${encodeURIComponent(message)}`;
     window.open(waUrl, '_blank', 'noopener,noreferrer');
 
@@ -150,7 +147,7 @@ export const CrmLeadCard = memo(function CrmLeadCard({ lead, onDeleteLead, isDel
     } catch {
       // non-blocking
     }
-    toast({ description: `WhatsApp abierto para ${lead.name}. Se registró como mensaje preparado, no como enviado.` });
+    toast({ description: `WhatsApp abierto para ${lead.name}. Se registrÃ³ como mensaje preparado, no como enviado.` });
   }, [lead.phone, lead.name, lead.id, lead.acquisition?.source, lead.referrerEventName, isMeetingTomorrow, toast]);
 
   const handleSaveNotes = useCallback(async () => {
@@ -173,9 +170,9 @@ export const CrmLeadCard = memo(function CrmLeadCard({ lead, onDeleteLead, isDel
   return (
     <div ref={setNodeRef} style={style} className="mb-2 touch-none">
       <Card className={cn("shadow-sm hover:shadow-md transition-shadow bg-card flex flex-col h-auto overflow-hidden", isDeleting && "opacity-60 pointer-events-none")}>
-        <CardHeader 
-          {...attributes} 
-          {...listeners} 
+        <CardHeader
+          {...attributes}
+          {...listeners}
           className="p-2 flex flex-row items-center gap-2 border-b cursor-grab flex-shrink-0 bg-muted/20"
         >
            {!isMobile && <GripVertical className="w-4 h-4 text-muted-foreground/50" />}
@@ -184,18 +181,18 @@ export const CrmLeadCard = memo(function CrmLeadCard({ lead, onDeleteLead, isDel
                     <p className="font-bold text-sm truncate" title={lead.name}>{lead.name}</p>
                     <div className="flex items-center gap-1 flex-shrink-0 flex-wrap justify-end">
                       {isInactive && (
-                        <Badge variant="outline" className="text-[9px] h-4 px-1 bg-orange-50 text-orange-700 border-orange-300" title={`Sin actividad hace +${INACTIVITY_DAYS} días`}>
+                        <Badge variant="outline" className="text-[9px] h-4 px-1 bg-orange-50 text-orange-700 border-orange-300" title={`Sin actividad hace +${INACTIVITY_DAYS} dÃ­as`}>
                           <AlertTriangle className="w-2.5 h-2.5 mr-0.5" />Sin actividad
                         </Badge>
                       )}
                       {isMeetingToday && (
-                        <Badge variant="outline" className="text-[9px] h-4 px-1 bg-red-50 text-red-700 border-red-300" title="Reunión hoy">
+                        <Badge variant="outline" className="text-[9px] h-4 px-1 bg-red-50 text-red-700 border-red-300" title="ReuniÃ³n hoy">
                           <Bell className="w-2.5 h-2.5 mr-0.5" />HOY
                         </Badge>
                       )}
                       {isMeetingTomorrow && !isMeetingToday && (
-                        <Badge variant="outline" className="text-[9px] h-4 px-1 bg-blue-50 text-blue-700 border-blue-300" title="Reunión mañana">
-                          <Bell className="w-2.5 h-2.5 mr-0.5" />Mañana
+                        <Badge variant="outline" className="text-[9px] h-4 px-1 bg-blue-50 text-blue-700 border-blue-300" title="ReuniÃ³n maÃ±ana">
+                          <Bell className="w-2.5 h-2.5 mr-0.5" />MaÃ±ana
                         </Badge>
                       )}
                       {lead.leadTemperature && (
@@ -209,7 +206,7 @@ export const CrmLeadCard = memo(function CrmLeadCard({ lead, onDeleteLead, isDel
                           )}
                           title={`Temperatura comercial: ${lead.leadTemperature}`}
                         >
-                          {(lead.leadTemperature === 'caliente' || lead.leadTemperature === 'urgente' || (lead.leadTemperature as string) === 'hot') ? '🔥 Alta' : (lead.leadTemperature === 'tibio' || (lead.leadTemperature as string) === 'warm') ? '⚡ Media' : '❄️ Baja'}
+                          {(lead.leadTemperature === 'caliente' || lead.leadTemperature === 'urgente' || (lead.leadTemperature as string) === 'hot') ? 'ðŸ”¥ Alta' : (lead.leadTemperature === 'tibio' || (lead.leadTemperature as string) === 'warm') ? 'âš¡ Media' : 'â„ï¸ Baja'}
                         </Badge>
                       )}
                       <Badge variant="outline" className={cn("text-[10px] h-4 px-1 font-bold", budgetSource.className)}>
@@ -233,7 +230,7 @@ export const CrmLeadCard = memo(function CrmLeadCard({ lead, onDeleteLead, isDel
                     </div>
                 </div>
                 {lead.assignedTo?.trim() && (
-                  <p className="text-[10px] text-muted-foreground mt-0.5 truncate">👤 {lead.assignedTo}</p>
+                  <p className="text-[10px] text-muted-foreground mt-0.5 truncate">ðŸ‘¤ {lead.assignedTo}</p>
                 )}
             </div>
         </CardHeader>
@@ -327,7 +324,6 @@ export const CrmLeadCard = memo(function CrmLeadCard({ lead, onDeleteLead, isDel
             ) : hasBudget ? (
                 <div className="flex-grow flex gap-1">
                     <Button asChild variant="outline" size="sm" className="h-8 text-[10px] w-full"><Link href={`/presupuestos/${lead.presupuestoId}/ver`} className="flex-grow">VER PRESUPUESTO</Link></Button>
-                    {onHire && <Button onClick={onHire} size="sm" className="h-8 bg-green-600 hover:bg-green-700 px-2"><CheckCircle className="w-4 h-4"/></Button>}
                 </div>
             ) : (
                 <Button asChild variant="outline" size="sm" className="h-8 text-[10px] gap-1 w-full"><Link href={`/presupuestos/nuevo/crear?leadId=${lead.id}&leadName=${encodeURIComponent(lead.name)}`} className="flex-grow">
@@ -345,32 +341,6 @@ export const CrmLeadCard = memo(function CrmLeadCard({ lead, onDeleteLead, isDel
               >
                 <MessageCircle className="w-3.5 h-3.5" />
               </Button>
-            )}
-            {isMobile && onMove && (
-              <div className="flex items-center gap-1" aria-label="Cambiar etapa">
-                <Button
-                  type="button"
-                  variant="ghost"
-                  size="icon"
-                  className="h-8 w-8"
-                  onClick={() => onMove(-1)}
-                  title="Mover a la etapa anterior"
-                  aria-label="Mover a la etapa anterior"
-                >
-                  <ChevronLeft className="h-4 w-4" />
-                </Button>
-                <Button
-                  type="button"
-                  variant="ghost"
-                  size="icon"
-                  className="h-8 w-8"
-                  onClick={() => onMove(1)}
-                  title="Mover a la etapa siguiente"
-                  aria-label="Mover a la etapa siguiente"
-                >
-                  <ChevronRight className="h-4 w-4" />
-                </Button>
-              </div>
             )}
             {/* Edit notes button */}
             <Button
@@ -399,7 +369,7 @@ export const CrmLeadCard = memo(function CrmLeadCard({ lead, onDeleteLead, isDel
                     </Button>
                 </AlertDialogTrigger>
                 <AlertDialogContent>
-                    <AlertDialogHeader><AlertDialogTitle>¿Eliminar Prospecto?</AlertDialogTitle><AlertDialogDescription>Se borrará permanentemente a "{lead.name}".</AlertDialogDescription></AlertDialogHeader>
+                    <AlertDialogHeader><AlertDialogTitle>Â¿Eliminar Prospecto?</AlertDialogTitle><AlertDialogDescription>Se borrarÃ¡ permanentemente a "{lead.name}".</AlertDialogDescription></AlertDialogHeader>
                     <AlertDialogFooter><AlertDialogCancel>Cancelar</AlertDialogCancel><AlertDialogAction onClick={() => onDeleteLead(lead.id)} className="bg-destructive hover:bg-destructive/90" disabled={isDeleting}>Eliminar</AlertDialogAction></AlertDialogFooter>
                 </AlertDialogContent>
               </AlertDialog>
