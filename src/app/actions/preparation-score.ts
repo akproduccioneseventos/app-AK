@@ -8,7 +8,7 @@ import { requireAppSession } from '@/lib/auth/require-session';
 export async function getFiestaPreparationScore(fiestaId: string) {
   await requireAppSession();
   const fiesta = await getFiestaById(fiestaId);
-  if (!fiesta) return { success: false, error: 'No encontrÃ© la fiesta.' };
+  if (!fiesta) return { success: false, error: 'No encontré la fiesta.' };
   return {
     success: true,
     data: {
@@ -39,12 +39,12 @@ export async function getAllFiestasPreparationScores() {
 export async function guardarPreparacionComoAprendizaje(fiestaId: string) {
   await requireAppSession();
   const fiesta = await getFiestaById(fiestaId);
-  if (!fiesta) return { success: false, error: 'No encontrÃ© la fiesta.' };
+  if (!fiesta) return { success: false, error: 'No encontré la fiesta.' };
 
   const score = calculateFiestaPreparationScore(fiesta);
   const nombre = fiesta.configuracion?.nombreEvento || 'Fiesta sin nombre';
   const content = [
-    `Nivel de preparaciÃ³n: ${score.score}% (${score.label})`,
+    `Nivel de preparación: ${score.score}% (${score.label})`,
     score.summary,
     score.importantPending.length
       ? `A revisar: ${score.importantPending.map(item => item.label).join(', ')}`
@@ -54,7 +54,7 @@ export async function guardarPreparacionComoAprendizaje(fiestaId: string) {
   await saveAgentLearning({
     agentType: 'fiesta',
     fiestaId,
-    title: `PreparaciÃ³n de ${nombre}`,
+    title: `Preparación de ${nombre}`,
     content,
     tags: ['preparacion', 'fiesta'],
     source: 'system',
@@ -64,7 +64,7 @@ export async function guardarPreparacionComoAprendizaje(fiestaId: string) {
   await saveAgentLearning({
     agentType: 'fiestas_general',
     module: 'fiestas_general',
-    title: `Nivel de preparaciÃ³n revisado: ${nombre}`,
+    title: `Nivel de preparación revisado: ${nombre}`,
     content,
     tags: ['preparacion', 'retroalimentacion'],
     source: 'system',

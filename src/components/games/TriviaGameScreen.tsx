@@ -51,7 +51,7 @@ export default function TriviaGameScreen({ fiestaId, guestName }: Props) {
   if (isFinished) {
     return (
       <div className="min-h-screen bg-slate-900 text-white flex flex-col items-center justify-center p-4">
-        <h1 className="text-4xl font-bold mb-4">Â¡Juego Terminado!</h1>
+        <h1 className="text-4xl font-bold mb-4">¡Juego Terminado!</h1>
         <p className="text-xl mb-2">{guestName}, tu puntaje final es:</p>
         <div className="text-6xl font-black text-amber-400 mb-8">{score}</div>
         <Button onClick={() => window.location.reload()} size="lg">Volver al inicio</Button>

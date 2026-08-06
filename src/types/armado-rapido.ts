@@ -44,7 +44,7 @@ export const defaultClubUruguayConfig: ClubUruguayConfig = {
   precio: 20000,
   prestaciones: [
     'Capacidad 50-200 personas',
-    'UbicaciÃ³n cÃ©ntrica en Salto',
+    'Ubicación céntrica en Salto',
     'Estacionamiento disponible',
   ],
 };
@@ -113,11 +113,11 @@ export function isPackageApplicableToEventType(
       const regex2 = new RegExp(`\\b${selected}\\b`);
       if (regex2.test(normalized)) return true;
     } catch {
-      // Fallback a includes normal si la regex falla por caracteres extraÃ±os
+      // Fallback a includes normal si la regex falla por caracteres extraños
       if (normalized.includes(selected) || selected.includes(normalized)) return true;
     }
 
-    // Hardcoded logic for "15 aÃ±os" and "quince"
+    // Hardcoded logic for "15 años" and "quince"
     if ((normalized.includes('15') || normalized.includes('quince') || normalized.includes('xv')) &&
         (selected.includes('15') || selected.includes('quince') || selected.includes('xv'))) {
       // Avoid matching "2015"

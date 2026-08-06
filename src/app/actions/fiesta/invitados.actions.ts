@@ -66,7 +66,7 @@ async function updateFiestaData(
         }))
       : await saveFiesta(updatedData);
     if (!result.success || !result.fiesta) {
-      throw new Error(result.error || 'No se pudo guardar la fiesta despuÃ©s de actualizar los invitados.');
+      throw new Error(result.error || 'No se pudo guardar la fiesta después de actualizar los invitados.');
     }
     return { success: true, updatedFiesta: result.fiesta };
   } catch (e: any) {
@@ -219,7 +219,7 @@ export async function handleRsvpSubmission(
     );
     const confirmedKids = currentInvitados.reduce(
       (sum, inv) => sum + (
-        inv.id !== existingGuest?.id && inv.categoria === 'NiÃ±o/Adolescente'
+        inv.id !== existingGuest?.id && inv.categoria === 'Niño/Adolescente'
           ? (inv.partySize || 1)
           : 0
       ),
@@ -230,10 +230,10 @@ export async function handleRsvpSubmission(
     const limitKids = Number(data.configuracion.invitadosNinos) || 0;
 
     if (confirmedAdults + submission.adultsCount > limitAdults) {
-      throw new Error(`Cupos de ADULTOS agotados. LÃ­mite: ${limitAdults}. Contacta al organizador.`);
+      throw new Error(`Cupos de ADULTOS agotados. Límite: ${limitAdults}. Contacta al organizador.`);
     }
     if (confirmedKids + submission.kidsCount > limitKids) {
-      throw new Error(`Cupos de NIÃ‘OS agotados. LÃ­mite: ${limitKids}. Contacta al organizador.`);
+      throw new Error(`Cupos de NIÃ‘OS agotados. Límite: ${limitKids}. Contacta al organizador.`);
     }
 
     const combinedNotes = [
@@ -244,7 +244,7 @@ export async function handleRsvpSubmission(
       .join('\n---\n');
 
     const mainCategory: CategoriaInvitado =
-      submission.adultsCount >= submission.kidsCount ? 'Adulto' : 'NiÃ±o/Adolescente';
+      submission.adultsCount >= submission.kidsCount ? 'Adulto' : 'Niño/Adolescente';
 
     if (invitadoExistenteIndex > -1) {
       updatedInvitado = {
@@ -313,7 +313,6 @@ export async function updateGuestDetails(
     companionNames?: string[];
     partySize?: number;
     cancionesDJ?: string[];
-  }
     isCeliac?: boolean;
   }
 ): Promise<{ success: boolean; invitado?: Invitado; error?: string }> {

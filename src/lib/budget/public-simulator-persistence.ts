@@ -167,7 +167,7 @@ async function persistBudgetAtomically(
             transaction.get(counterRef),
           ]);
           const stored = budgetSnapshot.exists ? budgetSnapshot.data() as Presupuesto : undefined;
-          if (stored && stored.estado !== 'Pendiente VerificaciÃ³n') {
+          if (stored && stored.estado !== 'Pendiente Verificación') {
             throw new Error('Este presupuesto ya fue revisado. Genera una nueva propuesta.');
           }
           const currentCounter = Number(counterSnapshot.data()?.lastNumber || maxExistingNumber);
@@ -192,7 +192,7 @@ async function persistBudgetAtomically(
   const presupuestos = await readData<Presupuesto[]>(PRESUPUESTOS_FILE, []);
   const existingIndex = presupuestos.findIndex((item) => item.id === presupuesto.id);
   const stored = existingIndex >= 0 ? presupuestos[existingIndex] : undefined;
-  if (stored && stored.estado !== 'Pendiente VerificaciÃ³n') {
+  if (stored && stored.estado !== 'Pendiente Verificación') {
     throw new Error('Este presupuesto ya fue revisado. Genera una nueva propuesta.');
   }
   const next = { ...presupuesto, numero: stored?.numero || maxExistingNumber + 1 };
@@ -305,7 +305,7 @@ export async function persistPublicSimulatorBudget(
     ajusteAnualActivo: pricing.annualProjection.applies,
     ajusteAnualPorcentaje: pricing.annualProjection.adjustmentPct,
     totalConDescuento: pricing.totalFinal,
-    estado: 'Pendiente VerificaciÃ³n',
+    estado: 'Pendiente Verificación',
     source: options.source,
     acquisition: attribution,
   } as Presupuesto, { preserveStoredTotal: true });

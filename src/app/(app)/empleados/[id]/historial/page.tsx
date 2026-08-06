@@ -187,7 +187,7 @@ export default function EmpleadoHistorialPage() {
         return [...withoutCurrent, result.recibo!];
       });
       updateEditable(row.fiestaId, result.recibo);
-      toast({ title: 'Recibo guardado', description: `Se actualizÃ³ el recibo de ${row.evento}.` });
+      toast({ title: 'Recibo guardado', description: `Se actualizó el recibo de ${row.evento}.` });
     } catch (error: any) {
       toast({ title: 'Error', description: error.message || 'No se pudo guardar.', variant: 'destructive' });
     } finally {
@@ -237,7 +237,7 @@ export default function EmpleadoHistorialPage() {
         return [...withoutCurrent, saveResult.recibo!];
       });
       updateEditable(row.fiestaId, saveResult.recibo);
-      toast({ title: 'Recibo firmado subido', description: 'El archivo quedÃ³ asociado al evento.' });
+      toast({ title: 'Recibo firmado subido', description: 'El archivo quedó asociado al evento.' });
     } catch (error: any) {
       toast({ title: 'Error de subida', description: error.message || 'No se pudo subir el archivo.', variant: 'destructive' });
     } finally {
@@ -248,7 +248,7 @@ export default function EmpleadoHistorialPage() {
   const exportPrintable = () => {
     const printWindow = window.open('', '_blank', 'width=1100,height=780');
     if (!printWindow) {
-      toast({ title: 'No se pudo abrir la ventana de impresiÃ³n', description: 'Habilita popups para exportar el historial.', variant: 'destructive' });
+      toast({ title: 'No se pudo abrir la ventana de impresión', description: 'Habilita popups para exportar el historial.', variant: 'destructive' });
       return;
     }
 
@@ -331,7 +331,7 @@ export default function EmpleadoHistorialPage() {
   if (!empleado) {
     return (
       <div className="space-y-4">
-        <p className="text-destructive">No se encontrÃ³ el empleado solicitado.</p>
+        <p className="text-destructive">No se encontró el empleado solicitado.</p>
         <Button asChild variant="outline"><Link href="/empleados"><ArrowLeft className="w-4 h-4 mr-2" />Volver a Personal</Link></Button>
       </div>
     );

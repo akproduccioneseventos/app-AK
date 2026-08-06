@@ -169,7 +169,7 @@ export async function getAnalyticsData(): Promise<{ success: boolean; data?: Ana
 
     const conversionFunnel: ConversionData[] = [
       { name: 'Enviados', value: total, fill: 'hsl(var(--chart-1))' },
-      { name: 'En NegociaciÃ³n', value: enviados, fill: 'hsl(var(--chart-3))' },
+      { name: 'En Negociación', value: enviados, fill: 'hsl(var(--chart-3))' },
       { name: 'Contratados', value: aceptados, fill: 'hsl(var(--chart-2))' },
       { name: 'Rechazados', value: rechazados, fill: 'hsl(var(--chart-5))' },
     ];
@@ -301,8 +301,8 @@ export async function getAnalyticsData(): Promise<{ success: boolean; data?: Ana
           id: `late-budget-${pres.id}`,
           tipo: 'presupuesto_tardio',
           nivel: age >= 14 ? 'critico' : 'advertencia',
-          mensaje: `Presupuesto de "${pres.clienteNombre}" lleva ${age} dÃ­as como borrador`,
-          detalle: `Tipo: ${pres.eventoTipo} Â· Creado el ${format(new Date(pres.timestamp), 'dd MMM yyyy', { locale: es })}`,
+          mensaje: `Presupuesto de "${pres.clienteNombre}" lleva ${age} días como borrador`,
+          detalle: `Tipo: ${pres.eventoTipo} · Creado el ${format(new Date(pres.timestamp), 'dd MMM yyyy', { locale: es })}`,
           dias: age,
         });
       }
@@ -322,7 +322,7 @@ export async function getAnalyticsData(): Promise<{ success: boolean; data?: Ana
             tipo: 'tarea_vencida',
             nivel: daysOverdue >= 3 ? 'critico' : 'advertencia',
             mensaje: `Tarea vencida: "${tarea.texto}"`,
-            detalle: `Evento: ${fiesta.configuracion.nombreEvento || fiesta.id} Â· Vencida hace ${daysOverdue} dÃ­a(s)`,
+            detalle: `Evento: ${fiesta.configuracion.nombreEvento || fiesta.id} · Vencida hace ${daysOverdue} día(s)`,
             fiestaId: fiesta.id,
             dias: daysOverdue,
           });
@@ -341,7 +341,7 @@ export async function getAnalyticsData(): Promise<{ success: boolean; data?: Ana
           id: `no-budget-${fiesta.id}`,
           tipo: 'evento_sin_presupuesto',
           nivel: daysUntil <= 7 ? 'critico' : 'advertencia',
-          mensaje: `Evento sin presupuesto en ${daysUntil} dÃ­a(s)`,
+          mensaje: `Evento sin presupuesto en ${daysUntil} día(s)`,
           detalle: `Evento: ${fiesta.configuracion.nombreEvento || fiesta.id}`,
           fiestaId: fiesta.id,
           dias: daysUntil,
@@ -349,7 +349,7 @@ export async function getAnalyticsData(): Promise<{ success: boolean; data?: Ana
       }
     });
 
-    // Sort alerts: crÃ­tico first, then by days
+    // Sort alerts: crítico first, then by days
     bottleneckAlerts.sort((a, b) => {
       const levelOrder = { critico: 0, advertencia: 1, info: 2 };
       const levelDiff = levelOrder[a.nivel] - levelOrder[b.nivel];
@@ -419,6 +419,6 @@ export async function getAnalyticsData(): Promise<{ success: boolean; data?: Ana
     };
   } catch (error: any) {
     console.error('Error fetching analytics data:', error);
-    return { success: false, error: 'No se pudieron cargar los datos analÃ­ticos.' };
+    return { success: false, error: 'No se pudieron cargar los datos analíticos.' };
   }
 }

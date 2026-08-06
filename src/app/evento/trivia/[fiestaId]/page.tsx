@@ -45,7 +45,7 @@ export default function TriviaPublicPage({ params }: { params: { fiestaId: strin
       <div className="min-h-screen bg-slate-900 text-white flex flex-col items-center justify-center p-6 text-center">
         <Wand2 className="w-16 h-16 text-slate-500 mb-6" />
         <h1 className="text-3xl font-bold mb-4">Esperando Trivia...</h1>
-        <p className="text-slate-400">La trivia aÃºn no ha comenzado o ya ha finalizado. EsperÃ¡ a que el animador la lance en pantalla.</p>
+        <p className="text-slate-400">La trivia aún no ha comenzado o ya ha finalizado. Esperá a que el animador la lance en pantalla.</p>
       </div>
     );
   }
@@ -62,7 +62,7 @@ export default function TriviaPublicPage({ params }: { params: { fiestaId: strin
                 <Input
                   value={guestName}
                   onChange={(e) => setGuestName(e.target.value)}
-                  placeholder="Ej: MartÃ­n S."
+                  placeholder="Ej: Martín S."
                   className="bg-slate-900 border-slate-600 text-white placeholder:text-slate-500"
                   required
                   autoFocus

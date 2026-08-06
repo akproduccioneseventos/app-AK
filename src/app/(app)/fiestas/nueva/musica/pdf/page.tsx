@@ -21,7 +21,7 @@ const formatDate = (dateString?: string) => {
       day: 'numeric', month: 'long', year: 'numeric'
     });
   } catch (e) {
-    return "Fecha invÃ¡lida";
+    return "Fecha inválida";
   }
 };
 
@@ -36,7 +36,7 @@ function MusicaPdfContent({ fiestaId }: { fiestaId: string | null }) {
 
   const loadData = useCallback(async () => {
     if (!fiestaId) {
-      setError("No se especificÃ³ un identificador de evento vÃ¡lido.");
+      setError("No se especificó un identificador de evento válido.");
       setIsLoading(false);
       return;
     }
@@ -52,7 +52,7 @@ function MusicaPdfContent({ fiestaId }: { fiestaId: string | null }) {
       setLogoUrl(templateSettings.logoUrl || null);
     } catch (err: any) {
       console.error("Error loading PDF data:", err);
-      setError(err.message || "OcurriÃ³ un error al cargar los datos.");
+      setError(err.message || "Ocurrió un error al cargar los datos.");
     } finally {
       setIsLoading(false);
     }
@@ -70,7 +70,7 @@ function MusicaPdfContent({ fiestaId }: { fiestaId: string | null }) {
     if (!fiesta) return;
     const shareData = {
       title: `Preferencias Musicales - ${fiesta.configuracion.nombreEvento}`,
-      text: `AquÃ­ tienes las preferencias musicales para el DJ del evento.`,
+      text: `Aquí tienes las preferencias musicales para el DJ del evento.`,
       url: window.location.href,
     };
     try {
@@ -98,7 +98,7 @@ function MusicaPdfContent({ fiestaId }: { fiestaId: string | null }) {
         <AlertTriangle className="w-16 h-16 text-destructive" />
         <h2 className="text-2xl font-bold text-destructive">Error al Generar Reporte</h2>
         <p className="text-muted-foreground">{error || "No se pudo cargar el evento."}</p>
-        <Button asChild variant="outline"><Link href={`/fiestas/nueva/musica?fiestaId=${fiestaId || ''}`}><ArrowLeft className="w-4 h-4 mr-2" />Volver a la PlanificaciÃ³n</Link></Button>
+        <Button asChild variant="outline"><Link href={`/fiestas/nueva/musica?fiestaId=${fiestaId || ''}`}><ArrowLeft className="w-4 h-4 mr-2" />Volver a la Planificación</Link></Button>
       </div>
     );
   }
@@ -151,7 +151,7 @@ function MusicaPdfContent({ fiestaId }: { fiestaId: string | null }) {
 
             <section>
                 <h2 className="text-lg font-semibold text-red-600 print:text-base border-b border-gray-300 pb-1 mb-2 flex items-center gap-2"><Ban className="w-5 h-5"/>Lista de "NO Reproducir"</h2>
-                <p className="text-sm print:text-xs text-gray-700 whitespace-pre-line bg-red-50 p-2 rounded-md">{musica.listaNoReproducir || 'No hay canciones o artistas en la lista de exclusiÃ³n.'}</p>
+                <p className="text-sm print:text-xs text-gray-700 whitespace-pre-line bg-red-50 p-2 rounded-md">{musica.listaNoReproducir || 'No hay canciones o artistas en la lista de exclusión.'}</p>
             </section>
         </div>
 

@@ -91,7 +91,7 @@ export default function ReporteEmpleadosPage() {
       setAllRoles(Array.isArray(rolesData) ? rolesData : []);
       setAllFiestas(Array.isArray(fiestasData) ? fiestasData : []);
     } catch (err: any) {
-      setError("No se pudo cargar la informaciÃ³n del reporte de personal.");
+      setError("No se pudo cargar la información del reporte de personal.");
       toast({ title: "Error", description: err.message, variant: "destructive" });
     } finally {
       setIsLoading(false);
@@ -155,7 +155,7 @@ export default function ReporteEmpleadosPage() {
   const handleDownloadPDF = (resumen: EmpleadoResumen) => {
     const printWindow = window.open('', '_blank');
     if (!printWindow) {
-      toast({ title: 'Error', description: 'No se pudo abrir la ventana de impresiÃ³n.', variant: 'destructive' });
+      toast({ title: 'Error', description: 'No se pudo abrir la ventana de impresión.', variant: 'destructive' });
       return;
     }
 
@@ -225,7 +225,7 @@ export default function ReporteEmpleadosPage() {
     const subject = `Historial de trabajo - ${resumen.empleado.nombre}`;
     const bodyLines = [
       `Empleado: ${resumen.empleado.nombre}`,
-      `CÃ©dula: ${resumen.empleado.cedula || 'â€”'}`,
+      `Cédula: ${resumen.empleado.cedula || 'â€”'}`,
       `Roles: ${getRolNames(resumen.empleado.rolIds)}`,
       '',
       `Total de fiestas: ${resumen.totalFiestas}`,
@@ -243,7 +243,7 @@ export default function ReporteEmpleadosPage() {
   const handleSendWhatsApp = (resumen: EmpleadoResumen) => {
     const phone = sanitizePhone(resumen.empleado.telefono);
     if (!phone) {
-      toast({ title: 'TelÃ©fono requerido', description: 'El empleado no tiene telÃ©fono cargado.', variant: 'destructive' });
+      toast({ title: 'Teléfono requerido', description: 'El empleado no tiene teléfono cargado.', variant: 'destructive' });
       return;
     }
     const message = [
@@ -293,7 +293,7 @@ export default function ReporteEmpleadosPage() {
           <TableHeader>
             <TableRow>
               <TableHead>Nombre</TableHead>
-              <TableHead>CÃ©dula</TableHead>
+              <TableHead>Cédula</TableHead>
               <TableHead>Total fiestas</TableHead>
               <TableHead>Total cobrado</TableHead>
               <TableHead>Ãšltimo evento</TableHead>
@@ -347,7 +347,7 @@ export default function ReporteEmpleadosPage() {
 
               {selectedResumen.historial.length === 0 ? (
                 <div className="text-sm text-muted-foreground border rounded-md p-6 text-center">
-                  Este empleado todavÃ­a no tiene fiestas trabajadas.
+                  Este empleado todavía no tiene fiestas trabajadas.
                 </div>
               ) : (
                 <Table>

@@ -59,7 +59,7 @@ const formatDate = (dateString?: string) => {
       timeZone: 'UTC'
     });
   } catch {
-    return "Fecha invÃ¡lida";
+    return "Fecha inválida";
   }
 };
 
@@ -121,7 +121,7 @@ function RecibosDePagoContent() {
       const parsed = JSON.parse(saved) as Partial<RecibosConfig>;
       setRecibosConfig(prev => ({ ...prev, ...parsed }));
     } catch {
-      // Se usa configuraciÃ³n por defecto
+      // Se usa configuración por defecto
     }
   }, []);
 
@@ -167,7 +167,7 @@ function RecibosDePagoContent() {
 
       const currentFiesta = fiestasData.find(f => f.id === fiestaId);
       if (!currentFiesta) {
-        throw new Error("No se encontrÃ³ la fiesta seleccionada.");
+        throw new Error("No se encontró la fiesta seleccionada.");
       }
 
       setFiesta(currentFiesta);
@@ -252,7 +252,7 @@ function RecibosDePagoContent() {
 
     const printWindow = window.open('', '_blank', 'width=1024,height=768');
     if (!printWindow) {
-      toast({ title: "No se pudo abrir la ventana de impresiÃ³n", variant: "destructive" });
+      toast({ title: "No se pudo abrir la ventana de impresión", variant: "destructive" });
       return;
     }
 
@@ -367,7 +367,7 @@ function RecibosDePagoContent() {
   const handleSaveChanges = async () => {
     setIsSaving(true);
     if (!fiestaId) {
-      toast({ title: "Error", description: "No se encontrÃ³ el ID de la fiesta", variant: "destructive" });
+      toast({ title: "Error", description: "No se encontró el ID de la fiesta", variant: "destructive" });
       setIsSaving(false);
       return;
     }
@@ -379,7 +379,7 @@ function RecibosDePagoContent() {
     try {
       const result = await updatePersonalFiestaActual(fiestaId, personalToSave);
       if (result.success) {
-        toast({ title: "Â¡Cambios Guardados!", description: `Se guardaron los nuevos montos de pago.` });
+        toast({ title: "¡Cambios Guardados!", description: `Se guardaron los nuevos montos de pago.` });
         await loadData();
       } else {
         throw new Error(result.error || "No se pudieron guardar los cambios.");
@@ -405,7 +405,7 @@ function RecibosDePagoContent() {
       <div className="flex flex-col items-center justify-center h-screen text-center p-4">
           <AlertTriangle className="w-16 h-16 text-destructive mb-4" />
           <h1 className="text-2xl font-bold">Error al Generar Reporte</h1>
-          <p className="text-muted-foreground mt-2">{error || "No se encontrÃ³ informaciÃ³n del evento."}</p>
+          <p className="text-muted-foreground mt-2">{error || "No se encontró información del evento."}</p>
           <Button asChild variant="outline" className="mt-4"><Link href={`/fiestas/nueva/personal?fiestaId=${fiestaId}`}>Volver</Link></Button>
       </div>
     );
@@ -427,7 +427,7 @@ function RecibosDePagoContent() {
 
         <Accordion type="single" collapsible defaultValue="config" className="mb-6 print:hidden">
           <AccordionItem value="config">
-            <AccordionTrigger>ConfiguraciÃ³n de desglose del recibo</AccordionTrigger>
+            <AccordionTrigger>Configuración de desglose del recibo</AccordionTrigger>
             <AccordionContent className="space-y-3 pt-2">
               <div className="flex items-center gap-2">
                 <Checkbox id="show-vacacional" checked={recibosConfig.showVacacional} onCheckedChange={checked => setRecibosConfig(prev => ({ ...prev, showVacacional: checked === true }))} />
@@ -452,10 +452,10 @@ function RecibosDePagoContent() {
               <Separator />
               <div className="grid gap-3 sm:grid-cols-[1fr_auto] sm:items-end">
                 <div className="space-y-1.5">
-                  <Label>Empleado para impresiÃ³n multi-fiesta</Label>
+                  <Label>Empleado para impresión multi-fiesta</Label>
                   <Select value={selectedEmpleadoId} onValueChange={setSelectedEmpleadoId}>
                     <SelectTrigger>
-                      <SelectValue placeholder="SeleccionÃ¡ empleado o todos" />
+                      <SelectValue placeholder="Seleccioná empleado o todos" />
                     </SelectTrigger>
                     <SelectContent>
                       <SelectItem value="all">Todos los empleados</SelectItem>

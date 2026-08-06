@@ -18,7 +18,7 @@ export const defaultRsvpConfig: RsvpReminderConfig = {
 };
 
 export function generateRsvpMessage(guestName: string, eventName: string, eventDate: string, rsvpLink: string, daysLeft: number): string {
-  return `Â¡Hola ${guestName}! ðŸŽ‰ Faltan ${daysLeft} dÃ­as para ${eventName}. ConfirmÃ¡ tu asistencia acÃ¡: ${rsvpLink}`;
+  return `¡Hola ${guestName}! ðŸŽ‰ Faltan ${daysLeft} días para ${eventName}. Confirmá tu asistencia acá: ${rsvpLink}`;
 }
 
 export function getPendingRsvpGuests(invitados: Invitado[]): Invitado[] {

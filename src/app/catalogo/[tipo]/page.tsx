@@ -41,8 +41,8 @@ import type { CatalogoFoto } from '@/types/catalogo';
  */
 const TIPO_FIESTA_POR_SLUG: Record<string, string> = {
   bodas: 'Casamiento',
-  'xv-anos': 'XV AÃ±os',
-  cumpleanos: 'CumpleaÃ±os Adulto',
+  'xv-anos': 'XV Años',
+  cumpleanos: 'Cumpleaños Adulto',
   corporativos: 'Corporativo',
   aniversarios: 'Aniversario',
   fiestas: 'Otro',
@@ -112,11 +112,11 @@ const SLIDE_ORDER: SlideId[] = [
 
 const SLIDE_LABELS: Record<SlideId, string> = {
   'portada':          'Portada',
-  'presentacion':     'PresentaciÃ³n',
-  'por-que-elegirnos':'Por quÃ© elegirnos',
+  'presentacion':     'Presentación',
+  'por-que-elegirnos':'Por qué elegirnos',
   'proceso':          'El proceso',
   'servicios':        'Servicios',
-  'galeria':          'GalerÃ­a',
+  'galeria':          'Galería',
   'regalos':          'Regalos incluidos',
   'testimonios':      'Testimonios',
   'formas-de-pago':   'Formas de pago',
@@ -202,16 +202,16 @@ function PortadaSlide({
 function PresentacionSlide({ catalog, textoPresentacion }: { catalog: EventCatalogData; textoPresentacion: string }) {
   const accent = getAccent(catalog.hero.accentColor);
   const stats = [
-    { icon: Award, label: 'AÃ±os de experiencia', value: '+10' },
+    { icon: Award, label: 'Años de experiencia', value: '+10' },
     { icon: Heart, label: 'Eventos realizados', value: '+500' },
     { icon: Users, label: 'Familias felices', value: '+500' },
   ];
   return (
     <div className="max-w-4xl mx-auto py-6">
       <div className="text-center mb-8">
-        <span className={`text-sm font-bold uppercase tracking-widest ${accent.text}`}>QuiÃ©nes somos</span>
+        <span className={`text-sm font-bold uppercase tracking-widest ${accent.text}`}>Quiénes somos</span>
         <h2 className="text-3xl md:text-4xl font-black text-slate-800 mt-1">AK Producciones</h2>
-        <p className="text-slate-500 mt-2">Salto, Uruguay Â· ProducciÃ³n integral de eventos</p>
+        <p className="text-slate-500 mt-2">Salto, Uruguay · Producción integral de eventos</p>
       </div>
 
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
@@ -247,7 +247,7 @@ function PorQueElegernosSlide({ catalog, textoPorQueElegirnos }: { catalog: Even
     <div className="max-w-4xl mx-auto py-6">
       <div className="text-center mb-8">
         <span className={`text-sm font-bold uppercase tracking-widest ${accent.text}`}>Nuestros diferenciales</span>
-        <h2 className="text-3xl md:text-4xl font-black text-slate-800 mt-1">Por quÃ© elegirnos</h2>
+        <h2 className="text-3xl md:text-4xl font-black text-slate-800 mt-1">Por qué elegirnos</h2>
         <p className="text-slate-500 mt-2">{textoPorQueElegirnos}</p>
       </div>
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
@@ -328,7 +328,7 @@ function ServiciosSlide({
       <div className="text-center mb-8">
         <span className={`text-sm font-bold uppercase tracking-widest ${accent.text}`}>Lo que ofrecemos</span>
         <h2 className="text-3xl md:text-4xl font-black text-slate-800 mt-1">Nuestros servicios</h2>
-        <p className="text-slate-500 mt-2 text-sm">SeleccionÃ¡ el paquete que mejor se adapta a tu evento</p>
+        <p className="text-slate-500 mt-2 text-sm">Seleccioná el paquete que mejor se adapta a tu evento</p>
       </div>
       <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
         {catalog.services.map((service, idx) => {
@@ -352,7 +352,7 @@ function ServiciosSlide({
             >
               {isHighlighted && !isSelected && (
                 <div className={`absolute -top-3 left-1/2 -translate-x-1/2 px-3 py-1 rounded-full text-xs font-bold text-white bg-gradient-to-r ${accent.gradient}`}>
-                  â­ MÃ¡s popular
+                  ⭐ Más popular
                 </div>
               )}
               {isSelected && (
@@ -404,8 +404,8 @@ function GaleriaSlide({ catalog }: { catalog: EventCatalogData }) {
   return (
     <div className="max-w-5xl mx-auto py-6">
       <div className="text-center mb-8">
-        <span className={`text-sm font-bold uppercase tracking-widest ${accent.text}`}>Momentos Ãºnicos</span>
-        <h2 className="text-3xl md:text-4xl font-black text-slate-800 mt-1">GalerÃ­a de fotos</h2>
+        <span className={`text-sm font-bold uppercase tracking-widest ${accent.text}`}>Momentos únicos</span>
+        <h2 className="text-3xl md:text-4xl font-black text-slate-800 mt-1">Galería de fotos</h2>
       </div>
       <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4">
         {catalog.gallery.map((img) => (
@@ -462,13 +462,13 @@ function TestimoniosSlide({ catalog }: { catalog: EventCatalogData }) {
   const SOURCE_ICON: Record<string, string> = {
     instagram: 'ðŸ“¸',
     whatsapp:  'ðŸ’¬',
-    google:    'â­',
+    google:    '⭐',
     text:      'ðŸ’­',
   };
   return (
     <div className="max-w-4xl mx-auto py-6">
       <div className="text-center mb-8">
-        <span className={`text-sm font-bold uppercase tracking-widest ${accent.text}`}>Clientes que confÃ­an en nosotros</span>
+        <span className={`text-sm font-bold uppercase tracking-widest ${accent.text}`}>Clientes que confían en nosotros</span>
         <h2 className="text-3xl md:text-4xl font-black text-slate-800 mt-1">Lo que dicen</h2>
       </div>
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
@@ -523,9 +523,9 @@ function FormasDePagoSlide({ catalog }: { catalog: EventCatalogData }) {
         ))}
       </div>
       <div className={`p-5 rounded-2xl text-center ${accent.bg} ${accent.border} border`}>
-        <p className={`font-bold ${accent.text} mb-1`}>SeÃ±a para reservar tu fecha</p>
+        <p className={`font-bold ${accent.text} mb-1`}>Seña para reservar tu fecha</p>
         <p className="text-slate-600 text-sm">
-          Se requiere el 30 % del total para confirmar la fecha. El saldo se abona en cuotas segÃºn lo acordado.
+          Se requiere el 30 % del total para confirmar la fecha. El saldo se abona en cuotas según lo acordado.
         </p>
       </div>
     </div>
@@ -543,16 +543,16 @@ function CierreSlide({
 }) {
   const accent = getAccent(catalog.hero.accentColor);
   const WHATSAPP_NUMBER = catalog.whatsappNumber ?? AK_WHATSAPP_NUMBER;
-  const waMsg = catalog.whatsappMessage ?? `Â¡Hola AK Producciones! Quiero cotizar: ${catalog.name}.`;
+  const waMsg = catalog.whatsappMessage ?? `¡Hola AK Producciones! Quiero cotizar: ${catalog.name}.`;
   const waHref = `https://wa.me/${WHATSAPP_NUMBER}?text=${encodeURIComponent(waMsg)}`;
 
   return (
     <div className="max-w-4xl mx-auto py-6">
       <div className="text-center mb-8">
-        <span className={`text-sm font-bold uppercase tracking-widest ${accent.text}`}>Â¡Estamos listos!</span>
+        <span className={`text-sm font-bold uppercase tracking-widest ${accent.text}`}>¡Estamos listos!</span>
         <h2 className="text-3xl md:text-4xl font-black text-slate-800 mt-1">Siguiente paso ðŸš€</h2>
         <p className="text-slate-500 mt-2 max-w-lg mx-auto">
-          RevisÃ¡ tu selecciÃ³n y convertila en un presupuesto real con un solo clic.
+          Revisá tu selección y convertila en un presupuesto real con un solo clic.
         </p>
       </div>
 
@@ -561,7 +561,7 @@ function CierreSlide({
         <div>
           <h3 className="font-bold text-slate-700 mb-3 flex items-center gap-2">
             <FileText className={`h-4 w-4 ${accent.text}`} />
-            Tu selecciÃ³n
+            Tu selección
           </h3>
           {selectedPackage ? (
             <div className={`p-5 rounded-2xl ${accent.bg} ${accent.border} border`}>
@@ -583,8 +583,8 @@ function CierreSlide({
             </div>
           ) : (
             <div className="p-5 rounded-2xl bg-slate-50 border border-slate-200 text-center">
-              <p className="text-slate-400 text-sm">No seleccionaste un paquete todavÃ­a.</p>
-              <p className="text-slate-400 text-xs mt-1">PodÃ©s volver al paso anterior para elegir uno.</p>
+              <p className="text-slate-400 text-sm">No seleccionaste un paquete todavía.</p>
+              <p className="text-slate-400 text-xs mt-1">Podés volver al paso anterior para elegir uno.</p>
             </div>
           )}
         </div>
@@ -594,7 +594,7 @@ function CierreSlide({
           <div>
             <h3 className="font-bold text-slate-700 mb-3 flex items-center gap-2">
               <Gift className={`h-4 w-4 ${accent.text}`} />
-              Â¿QuÃ© querÃ©s hacer?
+              ¿Qué querés hacer?
             </h3>
             <div className="flex flex-col gap-3">
               <Button
@@ -738,13 +738,13 @@ export default function CatalogoTipoPage() {
       serviciosSeleccionados: [], // empty Map entries â€” user configures in budget form
       selectedMenuId: '',
       notas: selectedPackage
-        ? `CatÃ¡logo digital â€” ${mergedCatalog.name}\nPaquete seleccionado: ${selectedPackage.title}\nIncluye: ${selectedPackage.included.join(', ')}`
-        : `CatÃ¡logo digital â€” ${mergedCatalog.name}`,
+        ? `Catálogo digital â€” ${mergedCatalog.name}\nPaquete seleccionado: ${selectedPackage.title}\nIncluye: ${selectedPackage.included.join(', ')}`
+        : `Catálogo digital â€” ${mergedCatalog.name}`,
       estado: 'Borrador',
       nombrePromocion: 'Descuento Promocional',
       descuentoTipo: 'porcentaje',
       descuentoValor: '10',
-      vigenciaPromocion: 'VÃ¡lido por 30 dÃ­as',
+      vigenciaPromocion: 'Válido por 30 días',
     };
     try {
       sessionStorage.setItem(PRESUPUESTO_SESSION_KEY, JSON.stringify(presupuestoData));
@@ -786,7 +786,7 @@ export default function CatalogoTipoPage() {
               <div className="flex items-center gap-2">
                  <span className="text-xl">{mergedCatalog.hero.emoji}</span>
                  <span className="font-black text-slate-800 text-sm md:text-base truncate">{mergedCatalog.name}</span>
-                <span className="hidden sm:inline text-slate-300">Â·</span>
+                <span className="hidden sm:inline text-slate-300">·</span>
                 <span className="hidden sm:inline text-slate-500 text-sm">{SLIDE_LABELS[currentSlideId]}</span>
               </div>
               {/* Progress bar */}
@@ -894,7 +894,7 @@ export default function CatalogoTipoPage() {
           </Button>
 
           {/* Dot indicators */}
-          <div className="flex min-w-0 items-center justify-center gap-1.5" aria-label="Progreso del catÃ¡logo">
+          <div className="flex min-w-0 items-center justify-center gap-1.5" aria-label="Progreso del catálogo">
             {SLIDE_ORDER.map((_, idx) => (
               <button
                 key={idx}

@@ -33,10 +33,10 @@ import { getCrmLeadSourceBadge } from '@/lib/crm/lead-presentation';
 const INACTIVITY_DAYS = 7;
 const CONTRACT_TYPE_LABELS: Record<string, string> = {
   servicios: 'Contrato Servicios',
-  cancelacion: 'CancelaciÃ³n',
-  'cancelacion-servicios': 'CancelaciÃ³n parcial',
+  cancelacion: 'Cancelación',
+  'cancelacion-servicios': 'Cancelación parcial',
   'cambio-fecha': 'Cambio de fecha',
-  salon: 'Contrato salÃ³n',
+  salon: 'Contrato salón',
 };
 
 interface CrmLeadCardProps {
@@ -147,7 +147,7 @@ export const CrmLeadCard = memo(function CrmLeadCard({ lead, onDeleteLead, isDel
     } catch {
       // non-blocking
     }
-    toast({ description: `WhatsApp abierto para ${lead.name}. Se registrÃ³ como mensaje preparado, no como enviado.` });
+    toast({ description: `WhatsApp abierto para ${lead.name}. Se registró como mensaje preparado, no como enviado.` });
   }, [lead.phone, lead.name, lead.id, lead.acquisition?.source, lead.referrerEventName, isMeetingTomorrow, toast]);
 
   const handleSaveNotes = useCallback(async () => {
@@ -181,18 +181,18 @@ export const CrmLeadCard = memo(function CrmLeadCard({ lead, onDeleteLead, isDel
                     <p className="font-bold text-sm truncate" title={lead.name}>{lead.name}</p>
                     <div className="flex items-center gap-1 flex-shrink-0 flex-wrap justify-end">
                       {isInactive && (
-                        <Badge variant="outline" className="text-[9px] h-4 px-1 bg-orange-50 text-orange-700 border-orange-300" title={`Sin actividad hace +${INACTIVITY_DAYS} dÃ­as`}>
+                        <Badge variant="outline" className="text-[9px] h-4 px-1 bg-orange-50 text-orange-700 border-orange-300" title={`Sin actividad hace +${INACTIVITY_DAYS} días`}>
                           <AlertTriangle className="w-2.5 h-2.5 mr-0.5" />Sin actividad
                         </Badge>
                       )}
                       {isMeetingToday && (
-                        <Badge variant="outline" className="text-[9px] h-4 px-1 bg-red-50 text-red-700 border-red-300" title="ReuniÃ³n hoy">
+                        <Badge variant="outline" className="text-[9px] h-4 px-1 bg-red-50 text-red-700 border-red-300" title="Reunión hoy">
                           <Bell className="w-2.5 h-2.5 mr-0.5" />HOY
                         </Badge>
                       )}
                       {isMeetingTomorrow && !isMeetingToday && (
-                        <Badge variant="outline" className="text-[9px] h-4 px-1 bg-blue-50 text-blue-700 border-blue-300" title="ReuniÃ³n maÃ±ana">
-                          <Bell className="w-2.5 h-2.5 mr-0.5" />MaÃ±ana
+                        <Badge variant="outline" className="text-[9px] h-4 px-1 bg-blue-50 text-blue-700 border-blue-300" title="Reunión mañana">
+                          <Bell className="w-2.5 h-2.5 mr-0.5" />Mañana
                         </Badge>
                       )}
                       {lead.leadTemperature && (
@@ -369,7 +369,7 @@ export const CrmLeadCard = memo(function CrmLeadCard({ lead, onDeleteLead, isDel
                     </Button>
                 </AlertDialogTrigger>
                 <AlertDialogContent>
-                    <AlertDialogHeader><AlertDialogTitle>Â¿Eliminar Prospecto?</AlertDialogTitle><AlertDialogDescription>Se borrarÃ¡ permanentemente a "{lead.name}".</AlertDialogDescription></AlertDialogHeader>
+                    <AlertDialogHeader><AlertDialogTitle>¿Eliminar Prospecto?</AlertDialogTitle><AlertDialogDescription>Se borrará permanentemente a "{lead.name}".</AlertDialogDescription></AlertDialogHeader>
                     <AlertDialogFooter><AlertDialogCancel>Cancelar</AlertDialogCancel><AlertDialogAction onClick={() => onDeleteLead(lead.id)} className="bg-destructive hover:bg-destructive/90" disabled={isDeleting}>Eliminar</AlertDialogAction></AlertDialogFooter>
                 </AlertDialogContent>
               </AlertDialog>

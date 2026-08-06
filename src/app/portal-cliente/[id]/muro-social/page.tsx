@@ -55,7 +55,7 @@ const BRAND_PRESET_COLORS = [
   { name: 'Azul Real', value: '#1d4ed8' },
   { name: 'Verde Esmeralda', value: '#047857' },
   { name: 'Violeta Festivo', value: '#7c3aed' },
-  { name: 'Rosa RomÃ¡ntico', value: '#db2777' },
+  { name: 'Rosa Romántico', value: '#db2777' },
 ];
 
 export default function ClientMuroSocialPage() {
@@ -87,13 +87,13 @@ export default function ClientMuroSocialPage() {
   const [isSpinning, setIsSpinning] = useState(false);
   const [sorteoWinner, setSorteoWinner] = useState<string | null>(null);
 
-  // ModeraciÃ³n Express & Posts States
+  // Moderación Express & Posts States
   const [posts, setPosts] = useState<SocialGalleryPost[]>([]);
   const [moderationMode, setModerationMode] = useState<'pending' | 'approved' | 'hidden'>('pending');
   const [moderatingId, setModeratingId] = useState<string | null>(null);
   const sorteoRevealTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
-  // ConfiguraciÃ³n General Form States
+  // Configuración General Form States
   const [enabled, setEnabled] = useState(true);
   const [title, setTitle] = useState('');
   const [subtitle, setSubtitle] = useState('');
@@ -121,7 +121,7 @@ export default function ClientMuroSocialPage() {
         setError(result.error || 'No se pudieron cargar las publicaciones.');
       }
     } catch (e) {
-      console.error('Error al cargar posts para moderaciÃ³n', e);
+      console.error('Error al cargar posts para moderación', e);
     }
   }, [accessKey, fiestaId]);
 
@@ -142,7 +142,7 @@ export default function ClientMuroSocialPage() {
       const settings: Partial<SocialGallerySettings> = data.socialGallerySettings || {};
       setEnabled(settings.enabled ?? true);
       setTitle(settings.title || data.configuracion?.nombreEvento || '');
-      setSubtitle(settings.subtitle || 'Â¡CompartÃ­ tus fotos y saludos en vivo!');
+      setSubtitle(settings.subtitle || '¡Compartí tus fotos y saludos en vivo!');
       setAllowLikes(settings.allowLikes ?? true);
       setAllowComments(settings.allowComments ?? true);
       setUploadsActive(settings.uploadsActive ?? true);
@@ -169,7 +169,7 @@ export default function ClientMuroSocialPage() {
 
       await loadPosts(key);
     } catch {
-      setError('Error al cargar la informaciÃ³n del evento.');
+      setError('Error al cargar la información del evento.');
     } finally {
       setIsLoading(false);
     }
@@ -244,8 +244,8 @@ export default function ClientMuroSocialPage() {
       const result = await saveSocialSettingsByClient(fiestaId, accessKey, settings, coverUrl);
       if (result.success) {
         toast({
-          title: 'ConfiguraciÃ³n guardada ðŸŽ‰',
-          description: 'Los cambios ya estÃ¡n activos en la pantalla gigante.',
+          title: 'Configuración guardada ðŸŽ‰',
+          description: 'Los cambios ya están activos en la pantalla gigante.',
           duration: 2000,
         });
       } else {
@@ -278,14 +278,14 @@ export default function ClientMuroSocialPage() {
       if (res.success) {
         toast({
           title: status === 'approved' ? 'Foto aprobada âœ…' : 'Foto ocultada âŒ',
-          description: status === 'approved' ? 'Ya se muestra en pantalla.' : 'Ocultada de la proyecciÃ³n.',
+          description: status === 'approved' ? 'Ya se muestra en pantalla.' : 'Ocultada de la proyección.',
           duration: 1500,
         });
       } else {
         throw new Error(res.error);
       }
     } catch (err: any) {
-      toast({ title: 'Error de moderaciÃ³n', description: err.message, variant: 'destructive' });
+      toast({ title: 'Error de moderación', description: err.message, variant: 'destructive' });
       loadPosts(); // Revert
     } finally {
       setModeratingId(null);
@@ -307,12 +307,12 @@ export default function ClientMuroSocialPage() {
       if (participants.length === 0) {
         toast({
           title: 'No hay participantes',
-          description: 'Nadie ha subido fotos al muro social todavÃ­a para sortear.',
+          description: 'Nadie ha subido fotos al muro social todavía para sortear.',
           variant: 'destructive',
         });
         return;
       }
-      // Evitar ganadores consecutivos si hay mÃ¡s de 1 participante
+      // Evitar ganadores consecutivos si hay más de 1 participante
       const previousWinner = fiesta?.socialGallerySettings?.activeSorteoWinner;
       if (participants.length > 1 && previousWinner) {
         participants = participants.filter(p => p !== previousWinner);
@@ -328,13 +328,13 @@ export default function ClientMuroSocialPage() {
     await sendRemoteCommand({
       sorteoOnScreen: true,
       sorteoSpinStartedAt: spinStartedAt,
-      sorteoPremio: sorteoPremio || 'Â¡Premio Sorpresa!',
+      sorteoPremio: sorteoPremio || '¡Premio Sorpresa!',
       activeSorteoWinner: '', // Clear previous winner
       activeSorteoTimestamp: ''
     });
 
     toast({
-      title: 'ðŸŽ¡ Â¡Ruleta Girando!',
+      title: 'ðŸŽ¡ ¡Ruleta Girando!',
       description: `Sorteando "${sorteoPremio || 'Premio Sorpresa'}" en la pantalla gigante.`,
     });
 
@@ -352,7 +352,7 @@ export default function ClientMuroSocialPage() {
       });
 
       toast({
-        title: 'ðŸ† Â¡Tenemos un Ganador!',
+        title: 'ðŸ† ¡Tenemos un Ganador!',
         description: `${winner} ha ganado en la pantalla gigante.`,
         duration: 4000
       });
@@ -388,7 +388,7 @@ export default function ClientMuroSocialPage() {
       <Card className="max-w-md text-center border-red-500/20 bg-slate-950 text-white rounded-3xl p-6">
         <CardContent className="pt-6 space-y-4">
           <Info className="w-12 h-12 mx-auto text-red-500" />
-          <p className="text-red-400 font-bold text-lg">{error ?? 'Error de autenticaciÃ³n.'}</p>
+          <p className="text-red-400 font-bold text-lg">{error ?? 'Error de autenticación.'}</p>
           <Button variant="outline" className="mt-4 rounded-xl border-white/10 text-white bg-white/5 hover:bg-white/10" onClick={() => router.back()}>
             <ArrowLeft className="w-4 h-4 mr-1.5" /> Volver al Portal
           </Button>
@@ -424,7 +424,7 @@ export default function ClientMuroSocialPage() {
           </div>
 
           <div className="flex gap-2">
-            <a href={`/evento/muro-en-vivo/${fiestaId}`} target="_blank" rel="noopener noreferrer" title="Ver Pantalla de ProyecciÃ³n">
+            <a href={`/evento/muro-en-vivo/${fiestaId}`} target="_blank" rel="noopener noreferrer" title="Ver Pantalla de Proyección">
               <Button size="sm" className="rounded-xl gap-1.5 text-xs font-bold bg-white text-slate-950 hover:bg-slate-200">
                 <Tv className="w-4 h-4" /> Pantalla <ExternalLink className="w-3 h-3" />
               </Button>
@@ -456,11 +456,11 @@ export default function ClientMuroSocialPage() {
             </TabsTrigger>
             <TabsTrigger value="diseno" aria-label="Diseño" className="rounded-xl py-2.5 text-xs font-bold data-[state=active]:bg-amber-400 data-[state=active]:text-slate-950 transition-all flex flex-col sm:flex-row items-center justify-center gap-1">
               <Palette className="w-4 h-4" />
-              <span className="hidden sm:inline">DiseÃ±o</span>
+              <span className="hidden sm:inline">Diseño</span>
             </TabsTrigger>
             <TabsTrigger value="modulos" aria-label="Módulos" className="rounded-xl py-2.5 text-xs font-bold data-[state=active]:bg-amber-400 data-[state=active]:text-slate-950 transition-all flex flex-col sm:flex-row items-center justify-center gap-1">
               <Settings2 className="w-4 h-4" />
-              <span className="hidden sm:inline">MÃ³dulos</span>
+              <span className="hidden sm:inline">Módulos</span>
             </TabsTrigger>
           </TabsList>
 
@@ -476,10 +476,10 @@ export default function ClientMuroSocialPage() {
                   <div className={`w-3.5 h-3.5 rounded-full animate-pulse ${playlistPlaying && !forcedScreenItem ? 'bg-emerald-400 shadow-[0_0_12px_rgba(52,211,153,0.5)]' : forcedScreenItem ? 'bg-indigo-400 shadow-[0_0_12px_rgba(129,140,248,0.5)]' : 'bg-rose-500'}`} />
                   <div>
                     <h3 className="font-black text-white text-base">
-                      {playlistPlaying && !forcedScreenItem ? 'Modo: RotaciÃ³n AutomÃ¡tica' : forcedScreenItem ? `Modo: ProyecciÃ³n Fija (${forcedScreenItem.toUpperCase()})` : 'Muro Pausado'}
+                      {playlistPlaying && !forcedScreenItem ? 'Modo: Rotación Automática' : forcedScreenItem ? `Modo: Proyección Fija (${forcedScreenItem.toUpperCase()})` : 'Muro Pausado'}
                     </h3>
                     <p className="text-xs text-slate-400 font-semibold leading-normal">
-                      ControlÃ¡ de forma remota e instantÃ¡nea lo que se ve en la pantalla de la fiesta.
+                      Controlá de forma remota e instantánea lo que se ve en la pantalla de la fiesta.
                     </p>
                   </div>
                 </div>
@@ -516,7 +516,7 @@ export default function ClientMuroSocialPage() {
                     <Tv className="w-5 h-5 text-amber-400" /> Proyectar Diapositiva
                   </CardTitle>
                   <CardDescription className="text-xs font-semibold text-slate-400">
-                    HacÃ© click para congelar la pantalla gigante en un contenido especÃ­fico.
+                    Hacé click para congelar la pantalla gigante en un contenido específico.
                   </CardDescription>
                 </CardHeader>
                 <CardContent className="p-6">
@@ -601,10 +601,10 @@ export default function ClientMuroSocialPage() {
               <Card className="border-white/5 bg-slate-900/60 backdrop-blur-md rounded-3xl overflow-hidden shadow-2xl">
                 <CardHeader className="p-6 pb-2">
                   <CardTitle className="text-base font-black text-white flex items-center gap-2">
-                    <Layout className="w-5 h-5 text-amber-400" /> DiseÃ±o del Muro
+                    <Layout className="w-5 h-5 text-amber-400" /> Diseño del Muro
                   </CardTitle>
                   <CardDescription className="text-xs font-semibold text-slate-400">
-                    ElegÃ­ cÃ³mo se proyectan las fotos de tus invitados.
+                    Elegí cómo se proyectan las fotos de tus invitados.
                   </CardDescription>
                 </CardHeader>
                 <CardContent className="p-6 flex flex-col gap-3 justify-center h-[calc(100%-80px)]">
@@ -654,7 +654,7 @@ export default function ClientMuroSocialPage() {
                     <Megaphone className="w-5 h-5 text-amber-400" /> Ticker LED / Marquesina Remota
                   </CardTitle>
                   <CardDescription className="text-xs font-semibold text-slate-400">
-                    EscribÃ­ mensajes especiales que fluyan por la pantalla de la fiesta.
+                    Escribí mensajes especiales que fluyan por la pantalla de la fiesta.
                   </CardDescription>
                 </div>
                 <Switch
@@ -668,7 +668,7 @@ export default function ClientMuroSocialPage() {
               <CardContent className="p-6 space-y-4">
                 <div className="flex gap-2">
                   <Input
-                    placeholder="Ej: Â¡Los novios agradecen su compaÃ±Ã­a! Â· Â¡Feliz cumpleaÃ±os Claudia! Â· Barra abierta libre..."
+                    placeholder="Ej: ¡Los novios agradecen su compañía! · ¡Feliz cumpleaños Claudia! · Barra abierta libre..."
                     value={ledMarqueeText}
                     onChange={(e) => setLedMarqueeText(e.target.value)}
                     className="rounded-xl border-white/10 bg-slate-950 text-white placeholder-slate-500 focus-visible:ring-amber-400 h-12"
@@ -697,7 +697,7 @@ export default function ClientMuroSocialPage() {
                   <Gift className="w-5 h-5 text-amber-400" /> Sorteo Sorpresa Remoto
                 </CardTitle>
                 <CardDescription className="text-xs font-semibold text-slate-400">
-                  LanzÃ¡ la ruleta en vivo y elegÃ­ un ganador de forma aleatoria o directa.
+                  Lanzá la ruleta en vivo y elegí un ganador de forma aleatoria o directa.
                 </CardDescription>
               </CardHeader>
               <CardContent className="p-6 space-y-5">
@@ -706,16 +706,16 @@ export default function ClientMuroSocialPage() {
                   <div className="space-y-2">
                     <Label className="text-xs font-bold text-slate-300">Premio / Regalo</Label>
                     <Input
-                      placeholder="Ej: Botella de Champagne Â· Remera AK"
+                      placeholder="Ej: Botella de Champagne · Remera AK"
                       value={sorteoPremio}
                       onChange={(e) => setSorteoPremio(e.target.value)}
                       className="rounded-xl border-white/10 bg-slate-950 text-white placeholder-slate-500 h-11"
                     />
                   </div>
                   <div className="space-y-2">
-                    <Label className="text-xs font-bold text-slate-300">Ganador Forzado (Dejar vacÃ­o para azar)</Label>
+                    <Label className="text-xs font-bold text-slate-300">Ganador Forzado (Dejar vacío para azar)</Label>
                     <Input
-                      placeholder="Ej: Juan PÃ©rez (Forzar nombre)"
+                      placeholder="Ej: Juan Pérez (Forzar nombre)"
                       value={customWinnerName}
                       onChange={(e) => setCustomWinnerName(e.target.value)}
                       className="rounded-xl border-white/10 bg-slate-950 text-white placeholder-slate-500 h-11"
@@ -744,7 +744,7 @@ export default function ClientMuroSocialPage() {
                       </>
                     ) : (
                       <>
-                        <Gift className="w-5 h-5" /> Â¡Girar Ruleta en Pantalla!
+                        <Gift className="w-5 h-5" /> ¡Girar Ruleta en Pantalla!
                       </>
                     )}
                   </Button>
@@ -794,20 +794,20 @@ export default function ClientMuroSocialPage() {
             {/* LISTADO DE FOTOS A MODERAR */}
             <div className="grid gap-4 sm:grid-cols-2">
 
-              {/* COLA VACÃA */}
+              {/* COLA VACÍA */}
               {moderationMode === 'pending' && pendingPosts.length === 0 && (
                 <div className="col-span-full py-16 text-center space-y-3 bg-slate-900/40 border border-dashed border-white/5 rounded-3xl">
                   <div className="text-5xl opacity-40">ðŸŽ‰</div>
-                  <h4 className="text-white font-bold text-base">Â¡Todo moderado por ahora!</h4>
-                  <p className="text-xs text-slate-500">Las fotos nuevas de los invitados aparecerÃ¡n acÃ¡ automÃ¡ticamente.</p>
+                  <h4 className="text-white font-bold text-base">¡Todo moderado por ahora!</h4>
+                  <p className="text-xs text-slate-500">Las fotos nuevas de los invitados aparecerán acá automáticamente.</p>
                 </div>
               )}
 
               {moderationMode === 'approved' && approvedPosts.length === 0 && (
                 <div className="col-span-full py-16 text-center space-y-3 bg-slate-900/40 border border-dashed border-white/5 rounded-3xl">
                   <div className="text-5xl opacity-40">ðŸ“¸</div>
-                  <h4 className="text-white font-bold text-base">Muro de fotos vacÃ­o</h4>
-                  <p className="text-xs text-slate-500">AprobÃ¡ fotos desde la pestaÃ±a "Pendientes" para que salgan en pantalla.</p>
+                  <h4 className="text-white font-bold text-base">Muro de fotos vacío</h4>
+                  <p className="text-xs text-slate-500">Aprobá fotos desde la pestaña "Pendientes" para que salgan en pantalla.</p>
                 </div>
               )}
 
@@ -815,7 +815,7 @@ export default function ClientMuroSocialPage() {
                 <div className="col-span-full py-16 text-center space-y-3 bg-slate-900/40 border border-dashed border-white/5 rounded-3xl">
                   <div className="text-5xl opacity-40">ðŸ›¡ï¸</div>
                   <h4 className="text-white font-bold text-base">Sin fotos ocultadas</h4>
-                  <p className="text-xs text-slate-500">Las fotos que rechaces se guardarÃ¡n en esta secciÃ³n.</p>
+                  <p className="text-xs text-slate-500">Las fotos que rechaces se guardarán en esta sección.</p>
                 </div>
               )}
 
@@ -899,18 +899,18 @@ export default function ClientMuroSocialPage() {
             <Card className="border-white/5 bg-slate-900/60 backdrop-blur-md rounded-3xl overflow-hidden shadow-2xl">
               <CardHeader className="p-6 pb-2">
                 <CardTitle className="text-base font-black text-white flex items-center gap-2">
-                  <Palette className="w-5 h-5" style={{ color: accentColor }} /> PersonalizaciÃ³n Visual del Muro
+                  <Palette className="w-5 h-5" style={{ color: accentColor }} /> Personalización Visual del Muro
                 </CardTitle>
                 <CardDescription className="text-xs font-semibold text-slate-400">
-                  EstablecÃ© el nombre del evento y ajustÃ¡ los colores a tu temÃ¡tica.
+                  Establecé el nombre del evento y ajustá los colores a tu temática.
                 </CardDescription>
               </CardHeader>
               <CardContent className="p-6 space-y-5">
 
-                {/* TÃ­tulo y SubtÃ­tulo */}
+                {/* Título y Subtítulo */}
                 <div className="grid gap-4 md:grid-cols-2">
                   <div className="space-y-2 text-left">
-                    <Label className="text-xs font-bold text-slate-300">TÃ­tulo Principal</Label>
+                    <Label className="text-xs font-bold text-slate-300">Título Principal</Label>
                     <Input
                       value={title}
                       onChange={(e) => setTitle(e.target.value)}
@@ -919,11 +919,11 @@ export default function ClientMuroSocialPage() {
                     />
                   </div>
                   <div className="space-y-2 text-left">
-                    <Label className="text-xs font-bold text-slate-300">SubtÃ­tulo / Bajada</Label>
+                    <Label className="text-xs font-bold text-slate-300">Subtítulo / Bajada</Label>
                     <Input
                       value={subtitle}
                       onChange={(e) => setSubtitle(e.target.value)}
-                      placeholder="Â¡CompartÃ­ tus fotos en vivo!"
+                      placeholder="¡Compartí tus fotos en vivo!"
                       className="rounded-xl border-white/10 bg-slate-950 text-white placeholder-slate-500 h-11"
                     />
                   </div>
@@ -938,15 +938,15 @@ export default function ClientMuroSocialPage() {
                     placeholder="https://ejemplo.com/portada.jpg"
                     className="rounded-xl border-white/10 bg-slate-950 text-white placeholder-slate-500 h-11"
                   />
-                  <p className="text-[10px] text-slate-500 font-semibold">Portada que verÃ¡n los invitados arriba de su feed mÃ³vil al ingresar.</p>
+                  <p className="text-[10px] text-slate-500 font-semibold">Portada que verán los invitados arriba de su feed móvil al ingresar.</p>
                 </div>
 
                 {/* Modo Oscuro de Pantalla Gigante */}
                 <div className="flex items-center justify-between border-t border-white/5 pt-4">
                   <div className="space-y-0.5 text-left flex-1">
-                    <Label className="text-sm font-bold text-white">Fondo Oscuro de ProyecciÃ³n</Label>
+                    <Label className="text-sm font-bold text-white">Fondo Oscuro de Proyección</Label>
                     <p className="text-[10px] text-slate-400 font-semibold leading-normal">
-                      Cuando estÃ© activo, la pantalla gigante tendrÃ¡ un diseÃ±o nocturno premium de HSL tailored. Si se desactiva pasarÃ¡ a un modo claro elegante.
+                      Cuando esté activo, la pantalla gigante tendrá un diseño nocturno premium de HSL tailored. Si se desactiva pasará a un modo claro elegante.
                     </p>
                   </div>
                   <Switch checked={screenDarkMode} onCheckedChange={setScreenDarkMode} />
@@ -993,7 +993,7 @@ export default function ClientMuroSocialPage() {
                   style={{ backgroundColor: accentColor, color: '#020617' }}
                 >
                   {isSaving ? <Loader2 className="w-5 h-5 animate-spin" /> : <Save className="w-5 h-5" />}
-                  Guardar ConfiguraciÃ³n
+                  Guardar Configuración
                 </Button>
               </CardFooter>
             </Card>
@@ -1011,7 +1011,7 @@ export default function ClientMuroSocialPage() {
                   <Settings2 className="w-5 h-5 text-amber-400" /> Permisos y Toggles Operativos
                 </CardTitle>
                 <CardDescription className="text-xs font-semibold text-slate-400">
-                  PrendÃ© o apagÃ¡ los distintos mÃ³dulos interactivos de los invitados.
+                  Prendé o apagá los distintos módulos interactivos de los invitados.
                 </CardDescription>
               </CardHeader>
               <CardContent className="p-6 divide-y divide-white/5 space-y-4">
@@ -1023,7 +1023,7 @@ export default function ClientMuroSocialPage() {
                       <Tv className="w-4 h-4 text-amber-400" /> Red Social Habilitada
                     </Label>
                     <p className="text-[10px] text-slate-400 font-semibold leading-normal">
-                      Si se apaga, los invitados no podrÃ¡n ingresar al portal ni interactuar con la pantalla gigante.
+                      Si se apaga, los invitados no podrán ingresar al portal ni interactuar con la pantalla gigante.
                     </p>
                   </div>
                   <Switch checked={enabled} onCheckedChange={setEnabled} />
@@ -1036,7 +1036,7 @@ export default function ClientMuroSocialPage() {
                       <Camera className="w-4 h-4 text-slate-400" /> Permitir Subir Fotos y Videos
                     </Label>
                     <p className="text-[10px] text-slate-400 font-semibold leading-normal">
-                      Habilita la cÃ¡mara en el portal de los invitados para que envÃ­en sus fotos en vivo.
+                      Habilita la cámara en el portal de los invitados para que envíen sus fotos en vivo.
                     </p>
                   </div>
                   <Switch checked={uploadsActive} onCheckedChange={setUploadsActive} />
@@ -1046,20 +1046,20 @@ export default function ClientMuroSocialPage() {
                 <div className="flex items-center justify-between gap-4 pt-4">
                   <div className="space-y-0.5 flex-1 text-left">
                     <Label className="text-sm font-bold text-white flex items-center gap-1.5">
-                      <MessageSquare className="w-4 h-4 text-slate-400" /> Chat en Vivo / MensajerÃ­a
+                      <MessageSquare className="w-4 h-4 text-slate-400" /> Chat en Vivo / Mensajería
                     </Label>
                     <p className="text-[10px] text-slate-400 font-semibold leading-normal">
-                      Habilita la solapa de conversaciÃ³n general para los invitados.
+                      Habilita la solapa de conversación general para los invitados.
                     </p>
                   </div>
                   <Switch checked={chatEnabled} onCheckedChange={setChatEnabled} />
                 </div>
 
-                {/* Pedido de MÃºsica */}
+                {/* Pedido de Música */}
                 <div className="flex items-center justify-between gap-4 pt-4">
                   <div className="space-y-0.5 flex-1 text-left">
                     <Label className="text-sm font-bold text-white flex items-center gap-1.5">
-                      <Music className="w-4 h-4 text-slate-400" /> Sugerencias de MÃºsica al DJ
+                      <Music className="w-4 h-4 text-slate-400" /> Sugerencias de Música al DJ
                     </Label>
                     <p className="text-[10px] text-slate-400 font-semibold leading-normal">
                       Permite que la gente pida canciones directamente al panel del DJ de la fiesta.
@@ -1075,30 +1075,30 @@ export default function ClientMuroSocialPage() {
                       <Heart className="w-4 h-4 text-slate-400" /> Dedicatorias y Audios de Voz
                     </Label>
                     <p className="text-[10px] text-slate-400 font-semibold leading-normal">
-                      Muestra el formulario para enviar dedicatorias escritas y audios de felicitaciÃ³n.
+                      Muestra el formulario para enviar dedicatorias escritas y audios de felicitación.
                     </p>
                   </div>
                   <Switch checked={showDedications} onCheckedChange={setShowDedications} />
                 </div>
 
-                {/* BuzÃ³n Privado */}
+                {/* Buzón Privado */}
                 <div className="flex items-center justify-between gap-4 pt-4">
                   <div className="space-y-0.5 flex-1 text-left">
                     <Label className="text-sm font-bold text-white flex items-center gap-1.5">
-                      ðŸ” Modo BuzÃ³n 100% Privado
+                      ðŸ” Modo Buzón 100% Privado
                     </Label>
                     <p className="text-[10px] text-slate-400 font-semibold leading-normal">
-                      Las dedicatorias y mensajes de voz NO se proyectarÃ¡n en la pantalla gigante; irÃ¡n de forma confidencial y directa al celular de los novios.
+                      Las dedicatorias y mensajes de voz NO se proyectarán en la pantalla gigante; irán de forma confidencial y directa al celular de los novios.
                     </p>
                   </div>
                   <Switch checked={privateDedicationsMode} onCheckedChange={setPrivateDedicationsMode} />
                 </div>
 
-                {/* ModeraciÃ³n activa */}
+                {/* Moderación activa */}
                 <div className="flex items-center justify-between gap-4 pt-4">
                   <div className="space-y-0.5 flex-1 text-left">
                     <Label className="text-sm font-bold text-white flex items-center gap-1.5">
-                      ðŸ›¡ï¸ ModeraciÃ³n Previa Exigida
+                      ðŸ›¡ï¸ Moderación Previa Exigida
                     </Label>
                     <p className="text-[10px] text-slate-400 font-semibold leading-normal">
                       Las fotos quedan retenidas en la cola "Pendientes" hasta que las apruebes de forma manual para salir a la pantalla.

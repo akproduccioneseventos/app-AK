@@ -185,10 +185,10 @@ function RsvpSection({ fiestaId, texto, typography, onSuccess }: { fiestaId: str
         setSent(true);
         if (onSuccess) onSuccess();
       } else {
-        setError(result.error || 'No se pudo confirmar. IntentÃ¡ de nuevo.');
+        setError(result.error || 'No se pudo confirmar. Intentá de nuevo.');
       }
     } catch {
-      setError('Error de conexiÃ³n. IntentÃ¡ de nuevo.');
+      setError('Error de conexión. Intentá de nuevo.');
     } finally {
       setIsSubmitting(false);
     }
@@ -197,7 +197,7 @@ function RsvpSection({ fiestaId, texto, typography, onSuccess }: { fiestaId: str
   const nextStep = () => {
     if (step === 1) {
       if (!nombre.trim()) {
-        setError('Por favor ingresÃ¡ tu nombre completo.');
+        setError('Por favor ingresá tu nombre completo.');
         return;
       }
       setError('');
@@ -222,16 +222,16 @@ function RsvpSection({ fiestaId, texto, typography, onSuccess }: { fiestaId: str
   };
 
   const asistenciaOptions: { value: 'Confirmado' | 'Rechazado' | 'Tal vez'; label: string; emoji: string }[] = [
-    { value: 'Confirmado', label: 'AsistirÃ©', emoji: 'âœ…' },
+    { value: 'Confirmado', label: 'Asistiré', emoji: 'âœ…' },
     { value: 'Tal vez', label: 'Tal vez', emoji: 'ðŸ¤”' },
     { value: 'Rechazado', label: 'No puedo', emoji: 'âŒ' },
   ];
 
   if (sent) {
     const confirmLabels: Record<string, string> = {
-      Confirmado: 'Â¡Hasta pronto!',
-      'Tal vez': 'Â¡Gracias por avisarnos!',
-      Rechazado: 'Te vamos a extraÃ±ar.',
+      Confirmado: '¡Hasta pronto!',
+      'Tal vez': '¡Gracias por avisarnos!',
+      Rechazado: 'Te vamos a extrañar.',
     };
     return (
       <motion.div
@@ -242,9 +242,9 @@ function RsvpSection({ fiestaId, texto, typography, onSuccess }: { fiestaId: str
         <div className="w-20 h-20 mx-auto rounded-full flex items-center justify-center shadow-lg bg-green-50 animate-bounce">
           <CheckCircle2 className="w-10 h-10 text-green-500" />
         </div>
-        <h3 className="text-2xl font-bold text-gray-800">Â¡ConfirmaciÃ³n recibida!</h3>
+        <h3 className="text-2xl font-bold text-gray-800">¡Confirmación recibida!</h3>
         <p className="text-gray-500 font-medium">{confirmLabels[asistencia] ?? 'Gracias por responder.'}</p>
-        <p className="text-sm text-gray-400">Hemos guardado tu confirmaciÃ³n para el evento.</p>
+        <p className="text-sm text-gray-400">Hemos guardado tu confirmación para el evento.</p>
       </motion.div>
     );
   }
@@ -304,7 +304,7 @@ function RsvpSection({ fiestaId, texto, typography, onSuccess }: { fiestaId: str
                 </div>
 
                 <div>
-                  <label className="mb-2 block text-xs font-semibold text-gray-600">Â¿AsistirÃ¡s al evento?</label>
+                  <label className="mb-2 block text-xs font-semibold text-gray-600">¿Asistirás al evento?</label>
                   <div className="grid grid-cols-3 gap-2">
                     {asistenciaOptions.map(opt => (
                       <button
@@ -340,7 +340,7 @@ function RsvpSection({ fiestaId, texto, typography, onSuccess }: { fiestaId: str
                 className="space-y-4"
               >
                 <div className="space-y-1.5">
-                  <label className="text-xs font-semibold text-gray-600">Total de personas (incluyÃ©ndote)</label>
+                  <label className="text-xs font-semibold text-gray-600">Total de personas (incluyéndote)</label>
                   <Input
                     type="number"
                     min="1"
@@ -360,29 +360,29 @@ function RsvpSection({ fiestaId, texto, typography, onSuccess }: { fiestaId: str
                     animate={{ opacity: 1, height: 'auto' }}
                     className="space-y-1"
                   >
-                    <label className="mb-1.5 block text-xs font-semibold text-gray-600">Nombres de acompaÃ±antes</label>
+                    <label className="mb-1.5 block text-xs font-semibold text-gray-600">Nombres de acompañantes</label>
                     <Input
                       value={acompanantes}
                       onChange={e => setAcompanantes(e.target.value)}
-                      placeholder="Separados por coma: ej. MarÃ­a, Juan"
+                      placeholder="Separados por coma: ej. María, Juan"
                       className="h-11 rounded-lg border-gray-200"
                     />
                   </motion.div>
                 )}
 
                 <div>
-                  <label className="mb-1.5 block text-xs font-semibold text-gray-600">RestricciÃ³n alimentaria</label>
+                  <label className="mb-1.5 block text-xs font-semibold text-gray-600">Restricción alimentaria</label>
                   <select
                     value={dietaryRestriction}
                     onChange={e => setDietaryRestriction(e.target.value as typeof dietaryRestriction)}
                     className="h-11 w-full rounded-lg border border-gray-200 bg-white p-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-[var(--inv-primary)]"
                   >
-                    <option value="Ninguna">Sin restricciones (MenÃº ComÃºn)</option>
-                    <option value="Celiaco">CelÃ­aco/a (Sin Gluten)</option>
+                    <option value="Ninguna">Sin restricciones (Menú Común)</option>
+                    <option value="Celiaco">Celíaco/a (Sin Gluten)</option>
                     <option value="Vegetariano">Vegetariano/a</option>
                     <option value="Vegano">Vegano/a</option>
                     <option value="Sin Lactosa">Sin Lactosa</option>
-                    <option value="Otro">Otra alergia/restricciÃ³n</option>
+                    <option value="Otro">Otra alergia/restricción</option>
                   </select>
                 </div>
 
@@ -391,11 +391,11 @@ function RsvpSection({ fiestaId, texto, typography, onSuccess }: { fiestaId: str
                     initial={{ opacity: 0, height: 0 }}
                     animate={{ opacity: 1, height: 'auto' }}
                   >
-                    <label className="mb-1.5 block text-xs font-semibold text-gray-600">Detalla tu restricciÃ³n o alergia</label>
+                    <label className="mb-1.5 block text-xs font-semibold text-gray-600">Detalla tu restricción o alergia</label>
                     <Input
                       value={alergiasEspecificas}
                       onChange={e => setAlergiasEspecificas(e.target.value)}
-                      placeholder="Ej. alergia al manÃ­, intolerancia..."
+                      placeholder="Ej. alergia al maní, intolerancia..."
                       className="h-11 rounded-lg border-gray-200"
                     />
                   </motion.div>
@@ -418,7 +418,7 @@ function RsvpSection({ fiestaId, texto, typography, onSuccess }: { fiestaId: str
                     <Input
                       value={cancion}
                       onChange={e => setCancion(e.target.value)}
-                      placeholder="Artista - Nombre de canciÃ³n"
+                      placeholder="Artista - Nombre de canción"
                       className="rounded-xl border-gray-200 h-11"
                     />
                   </div>
@@ -431,7 +431,7 @@ function RsvpSection({ fiestaId, texto, typography, onSuccess }: { fiestaId: str
                     onChange={e => setMensaje(e.target.value)}
                     className="w-full rounded-xl border border-gray-200 p-3 text-sm resize-none focus:outline-none focus:ring-2 focus:ring-[var(--inv-primary)]"
                     rows={3}
-                    placeholder={isNoAsiste ? "EscribÃ­ unas palabras de disculpa o cariÃ±o..." : "DejÃ¡ un mensaje especial..."}
+                    placeholder={isNoAsiste ? "Escribí unas palabras de disculpa o cariño..." : "Dejá un mensaje especial..."}
                   />
                 </div>
 
@@ -462,7 +462,7 @@ function RsvpSection({ fiestaId, texto, typography, onSuccess }: { fiestaId: str
               onClick={prevStep}
               className="flex-1 rounded-xl h-11 border border-gray-300 bg-white text-gray-700 hover:bg-gray-50 font-bold transition-transform active:scale-95"
             >
-              AtrÃ¡s
+              Atrás
             </Button>
           )}
 
@@ -1143,7 +1143,7 @@ export function InvitacionPublicaClient({ config, fiestaId, socialConnections = 
       <TiltCard className="max-w-md mx-auto bg-white/75 backdrop-blur-lg p-8 rounded-[2rem] border border-white/40 shadow-xl">
         <MapPin className="w-8 h-8 mx-auto mb-4 animate-bounce" style={{ color: 'var(--inv-primary)' }} />
         <h2 className={cn(getSectionTitleClass(config.typography), 'mb-2 font-bold', styles.fontHeading)} style={{ color: 'var(--inv-primary)' }}>
-          {config.nombreSalon || 'UbicaciÃ³n'}
+          {config.nombreSalon || 'Ubicación'}
         </h2>
         {config.direccionSalon && (
           <p className={cn(getBodyTextClass(config.typography), 'text-gray-600 mb-6')}>{config.direccionSalon}</p>
@@ -1157,7 +1157,7 @@ export function InvitacionPublicaClient({ config, fiestaId, socialConnections = 
             style={{ backgroundColor: 'var(--inv-primary)' }}
           >
             <MapPin className="w-4 h-4" />
-            CÃ³mo llegar
+            Cómo llegar
           </a>
         )}
       </TiltCard>
@@ -1192,7 +1192,7 @@ export function InvitacionPublicaClient({ config, fiestaId, socialConnections = 
   addSectionEntry('galeria', hasGallery, (
     <Section key="galeria" className={styles.sectionAltBg} typography={config.typography}>
       <h2 className={cn(getSectionTitleClass(config.typography), 'text-center mb-8', styles.fontHeading)} style={{ color: 'var(--inv-primary)' }}>
-        GalerÃ­a
+        Galería
       </h2>
       <div className="grid grid-cols-2 sm:grid-cols-3 gap-3 sm:gap-4 max-w-3xl mx-auto">
         {(config.galeriaFotos ?? []).map((url, i) => (
@@ -1260,7 +1260,7 @@ export function InvitacionPublicaClient({ config, fiestaId, socialConnections = 
               {config.regalos.cuentaNumero && (
                 <div className="flex items-center justify-between">
                   <div>
-                    <span className="text-gray-500 block">NÂ° de Cuenta</span>
+                    <span className="text-gray-500 block">N° de Cuenta</span>
                     <span className="font-mono font-bold">{config.regalos.cuentaNumero}</span>
                   </div>
                   <CopyButton text={config.regalos.cuentaNumero} />
@@ -1314,7 +1314,7 @@ export function InvitacionPublicaClient({ config, fiestaId, socialConnections = 
     <Section key="muroSocial" className="text-center" typography={config.typography}>
       <Camera className="w-8 h-8 mx-auto mb-4" style={{ color: 'var(--inv-primary)' }} />
       <h2 className={cn(getSectionTitleClass(config.typography), 'mb-4', styles.fontHeading)} style={{ color: 'var(--inv-primary)' }}>
-        Â¡CompartÃ­ tus fotos!
+        ¡Compartí tus fotos!
       </h2>
       {config.hashtagEvento && (
         <p className={cn(getBodyTextClass(config.typography), 'font-semibold mb-6')} style={{ color: 'var(--inv-accent)' }}>
@@ -1336,20 +1336,20 @@ export function InvitacionPublicaClient({ config, fiestaId, socialConnections = 
 
   // ---------- DEFAULT VALUES FOR NEW ULTRA-PREMIUM MODULES ----------
   const defaultFAQItems = [
-    { pregunta: 'Â¿CuÃ¡l es el cÃ³digo de vestimenta?', respuesta: `El dress code es ${config.dressCode.tipo === 'personalizado' ? (config.dressCode.textoPersonalizado || 'Personalizado') : (config.dressCode.tipo.charAt(0).toUpperCase() + config.dressCode.tipo.slice(1))}. Â¡Queremos verte brillar!` },
-    { pregunta: 'Â¿A quÃ© hora debemos llegar?', respuesta: `La recepciÃ³n comienza puntualmente a las ${config.horaEvento || '21:00'} hs. Te sugerimos llegar unos minutos antes.` },
-    { pregunta: 'Â¿CÃ³mo confirmo restricciones alimentarias?', respuesta: 'PodÃ©s confirmarlas directamente al completar el formulario de RSVP de esta tarjeta digital.' },
-    { pregunta: 'Â¿Hay estacionamiento en el salÃ³n?', respuesta: 'SÃ­, el salÃ³n cuenta con estacionamiento privado y personal de seguridad.' }
+    { pregunta: '¿Cuál es el código de vestimenta?', respuesta: `El dress code es ${config.dressCode.tipo === 'personalizado' ? (config.dressCode.textoPersonalizado || 'Personalizado') : (config.dressCode.tipo.charAt(0).toUpperCase() + config.dressCode.tipo.slice(1))}. ¡Queremos verte brillar!` },
+    { pregunta: '¿A qué hora debemos llegar?', respuesta: `La recepción comienza puntualmente a las ${config.horaEvento || '21:00'} hs. Te sugerimos llegar unos minutos antes.` },
+    { pregunta: '¿Cómo confirmo restricciones alimentarias?', respuesta: 'Podés confirmarlas directamente al completar el formulario de RSVP de esta tarjeta digital.' },
+    { pregunta: '¿Hay estacionamiento en el salón?', respuesta: 'Sí, el salón cuenta con estacionamiento privado y personal de seguridad.' }
   ];
 
   const defaultHitos = config.tipoEvento === 'boda' ? [
     { fecha: '2021', titulo: 'El Primer Encuentro', descripcion: 'Una mirada, una sonrisa y el comienzo de una linda amistad.' },
     { fecha: '2023', titulo: 'El Noviazgo', descripcion: 'Comenzamos a escribir juntos nuestra propia historia de aventuras.' },
-    { fecha: '2025', titulo: 'La Propuesta', descripcion: 'Bajo las estrellas y con una gran emociÃ³n, dijimos que sÃ­ para siempre.' }
+    { fecha: '2025', titulo: 'La Propuesta', descripcion: 'Bajo las estrellas y con una gran emoción, dijimos que sí para siempre.' }
   ] : [
-    { fecha: '2011', titulo: 'El Nacimiento', descripcion: 'LleguÃ© para llenar de luz y alegrÃ­a el hogar de mi hermosa familia.' },
-    { fecha: '2018', titulo: 'Mi Infancia', descripcion: 'AÃ±os llenos de risas, juegos de escuela y los primeros grandes amigos.' },
-    { fecha: '2026', titulo: 'Mis 15 AÃ±os', descripcion: 'El momento tan esperado, celebrando la vida con la gente que mÃ¡s quiero.' }
+    { fecha: '2011', titulo: 'El Nacimiento', descripcion: 'Llegué para llenar de luz y alegría el hogar de mi hermosa familia.' },
+    { fecha: '2018', titulo: 'Mi Infancia', descripcion: 'Años llenos de risas, juegos de escuela y los primeros grandes amigos.' },
+    { fecha: '2026', titulo: 'Mis 15 Años', descripcion: 'El momento tan esperado, celebrando la vida con la gente que más quiero.' }
   ];
 
   const defaultHospedajes = [
@@ -1416,7 +1416,7 @@ export function InvitacionPublicaClient({ config, fiestaId, socialConnections = 
         {config.fotoPortada && !heroImageError ? (
           <motion.img
             src={config.fotoPortada}
-            alt="Portada de la invitaciÃ³n"
+            alt="Portada de la invitación"
             className="absolute inset-0 w-full h-full object-cover"
             onError={() => setHeroImageError(true)}
             animate={{ scale: [1, 1.06, 1] }}
@@ -1467,7 +1467,7 @@ export function InvitacionPublicaClient({ config, fiestaId, socialConnections = 
             {config.fechaEvento && (
               <p className="text-base sm:text-xl opacity-90 capitalize">
                 {formatDate(config.fechaEvento)}
-                {config.horaEvento && ` Â· ${config.horaEvento} hs`}
+                {config.horaEvento && ` · ${config.horaEvento} hs`}
               </p>
             )}
             {calendarUrl && (
@@ -1507,10 +1507,10 @@ export function InvitacionPublicaClient({ config, fiestaId, socialConnections = 
           <div className="space-y-4 max-w-md mx-auto">
             <p className="text-xs font-black uppercase tracking-[0.3em] text-purple-300">âœ¨ AK Producciones Eventos</p>
             <h2 className={cn('text-2xl sm:text-3xl font-bold', styles.fontHeading)}>
-              {config.ctaAkTitulo || 'Â¿Te gustÃ³ esta experiencia?'}
+              {config.ctaAkTitulo || '¿Te gustó esta experiencia?'}
             </h2>
             <p className="text-sm sm:text-base text-white/80">
-              {config.ctaAkTexto || 'Esto es parte del servicio integral de AK Producciones Eventos. Organizamos tu prÃ³ximo evento con la misma dedicaciÃ³n y elegancia.'}
+              {config.ctaAkTexto || 'Esto es parte del servicio integral de AK Producciones Eventos. Organizamos tu próximo evento con la misma dedicación y elegancia.'}
             </p>
             <div className="flex flex-wrap justify-center gap-3 pt-2">
               {config.ctaAkLandingUrl && (
@@ -1542,12 +1542,12 @@ export function InvitacionPublicaClient({ config, fiestaId, socialConnections = 
       <footer className="py-12 text-center" style={{ backgroundColor: 'var(--inv-primary)', color: 'white' }}>
         <Heart className="w-6 h-6 mx-auto mb-3 opacity-80" />
         <p className={cn('text-xl sm:text-2xl mb-2', styles.fontHeading)}>
-          Â¡Te esperamos!
+          ¡Te esperamos!
         </p>
         <p className="text-sm opacity-70">
           {config.nombreHomenajeada}
           {isBoda && secondName && ` & ${secondName}`}
-          {config.fechaEvento && ` Â· ${formatDate(config.fechaEvento)}`}
+          {config.fechaEvento && ` · ${formatDate(config.fechaEvento)}`}
         </p>
         {(() => {
           const displayedSocials = (socialConnections ?? []).filter(c => c.isConnected && c.platform !== 'WhatsApp');

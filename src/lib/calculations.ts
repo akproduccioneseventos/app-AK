@@ -1,7 +1,7 @@
 import type { ItemPresupuestado } from '@/types/presupuesto';
 
 /**
- * MOTOR DE CÃLCULO UNIFICADO - PASO 1: Determinar el universo de personas para el Ã­tem.
+ * MOTOR DE CÁLCULO UNIFICADO - PASO 1: Determinar el universo de personas para el ítem.
  */
 export function getGuestCountForItem(item: { nombreServicio: string, categoriaServicio?: string, subcategoria?: string }, adultos: number, adolescentes: number, ninos: number): number {
   if (!item) return (Number(adultos) || 0) + (Number(adolescentes) || 0) + (Number(ninos) || 0);
@@ -14,21 +14,21 @@ export function getGuestCountForItem(item: { nombreServicio: string, categoriaSe
   // Regla A: Servicios exclusivos para menores
   if (cat.includes('infantil') || cat.includes('adolescente') || cat.includes('chico') ||
       sub.includes('infantil') || sub.includes('adolescente') || sub.includes('chico') ||
-      name.includes('niÃ±o') || name.includes('chico') || name.includes('menor') || name.includes('infantil')) {
+      name.includes('niño') || name.includes('chico') || name.includes('menor') || name.includes('infantil')) {
     return ninosYAdolescentes;
   }
 
   // Regla B: Platos principales para adultos (excluyendo si dice infantil)
-  if ((cat.includes('plato principal') || sub.includes('plato principal') || name.includes('principal')) && !name.includes('niÃ±o')) {
+  if ((cat.includes('plato principal') || sub.includes('plato principal') || name.includes('principal')) && !name.includes('niño')) {
     return adultos;
   }
 
-  // Regla C: Servicios generales (Torta, Bebidas, Discoteca, SalÃ³n, etc.) -> Total de personas
+  // Regla C: Servicios generales (Torta, Bebidas, Discoteca, Salón, etc.) -> Total de personas
   return (Number(adultos) || 0) + ninosYAdolescentes;
 }
 
 /**
- * MOTOR DE CÃLCULO UNIFICADO - PASO 2: Calcular la cantidad sugerida basada en el mÃ©todo
+ * MOTOR DE CÁLCULO UNIFICADO - PASO 2: Calcular la cantidad sugerida basada en el método
  */
 export function calculateSuggestedQuantity(item: { calculationMethod?: string, invitadosPorUnidad?: number, cantidad?: number, nombreServicio: string, categoriaServicio?: string, subcategoria?: string }, adultos: number, ninos: number): number {
     const totalGuests = getGuestCountForItem(item, adultos, 0, ninos);
@@ -48,7 +48,7 @@ export function calculateSuggestedQuantity(item: { calculationMethod?: string, i
 }
 
 /**
- * MOTOR DE CÃLCULO UNIFICADO - PASO 3: Calcular el importe total de la lÃ­nea.
+ * MOTOR DE CÁLCULO UNIFICADO - PASO 3: Calcular el importe total de la línea.
  */
 export function recalcularCostoItem(item: ItemPresupuestado, adultos: number, adolescentes: number, ninos: number): number {
   if (!item) return 0;
@@ -74,7 +74,7 @@ export function recalcularCostoItem(item: ItemPresupuestado, adultos: number, ad
     case 'ratio':
       const ratio = Number(item.invitadosPorUnidad);
       if (ratio > 0) {
-        // MATEMÃTICA CRÃTICA: Redondeo hacia arriba para cubrir excedentes
+        // MATEMÁTICA CRÍTICA: Redondeo hacia arriba para cubrir excedentes
         const unidadesNecesarias = Math.ceil(cantidadInvitadosTarget / ratio);
         itemTotal = unidadesNecesarias * precioAplicado;
       } else {
