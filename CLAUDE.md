@@ -71,6 +71,9 @@ el criterio es tuyo:
 3. **Dejarla y avisar**, sólo si lo que trae no se entiende o toca plata y
    permisos de una forma que conviene consultar.
 
+Al cerrar una propuesta que no sirve: **se cierra y listo**. Nada de informes
+largos explicando por qué. Una línea al dueño alcanza.
+
 Regla práctica para elegir: si después de arreglar lo mecánico **siguen apareciendo
 errores nuevos y distintos**, no es una propuesta dañada, es una propuesta sin
 terminar. Ahí conviene rehacerla y no seguir remendando.
