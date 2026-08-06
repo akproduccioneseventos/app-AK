@@ -16,6 +16,7 @@ function mapFiestaToPortalDTO(fiesta: any, routeAccessKey: string): any {
   if (!fiesta) return null;
   return {
     id: fiesta.id,
+    invitacionSlug: fiesta.invitacionSlug,
     presupuestoId: fiesta.presupuestoId,
     configuracion: fiesta.configuracion ? {
       clienteId: fiesta.configuracion.clienteId,
