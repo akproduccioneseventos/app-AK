@@ -124,7 +124,11 @@ export async function getSocialFeedsAdmin(): Promise<AdminSocialFeedInfo[]> {
         chatEnabled: true,
         showSongRequests: true,
         showDedications: true,
-        requireApproval: false,
+        // Prendida por defecto: lo que suben los invitados espera el visto bueno
+        // antes de salir en la pantalla grande. Para publicar ahi alcanza con
+        // conocer el codigo del evento, y una vez proyectado delante de ciento
+        // cincuenta personas ya no hay como deshacerlo.
+        requireApproval: true,
         title: '',
         subtitle: '',
         maxPhotos: 200
@@ -163,7 +167,8 @@ export async function toggleFeedOverrideAdmin(fiestaId: string, enabled: boolean
       chatEnabled: true,
       showSongRequests: true,
       showDedications: true,
-      requireApproval: false,
+      // Ver la nota de arriba: la moderacion viene prendida.
+      requireApproval: true,
       title: '',
       subtitle: '',
       maxPhotos: 200

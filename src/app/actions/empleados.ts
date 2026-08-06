@@ -164,6 +164,38 @@ async function fiestasFuturasConEsteEmpleado(empleadoId: string): Promise<string
   }
 }
 
+/**
+ * Otras fiestas del MISMO DIA que ya tienen a este empleado asignado.
+ *
+ * Sirve para avisar al asignarlo: una persona no puede estar en dos salones a la
+ * vez, y si pasa con el DJ hay dos eventos y un solo DJ. Se avisa, no se bloquea:
+ * a veces son dos eventos en horarios distintos y el equipo sabe lo que hace.
+ */
+export async function fiestasDelMismoDiaConEmpleado(
+  empleadoId: string,
+  fechaEvento: string,
+  exceptoFiestaId?: string,
+): Promise<string[]> {
+  await requireAppSession();
+  const dia = String(fechaEvento ?? '').slice(0, 10);
+  if (!empleadoId || !dia) return [];
+
+  try {
+    const { getAllFiestas } = await import('./fiesta/fiesta.actions');
+    const fiestas = await getAllFiestas();
+
+    return fiestas
+      .filter((fiesta: any) => {
+        if (exceptoFiestaId && fiesta?.id === exceptoFiestaId) return false;
+        if (String(fiesta?.configuracion?.fechaEvento ?? '').slice(0, 10) !== dia) return false;
+        return (fiesta?.personalAsignado ?? []).some((p: any) => p?.empleadoId === empleadoId);
+      })
+      .map((fiesta: any) => String(fiesta?.configuracion?.nombreEvento || 'una fiesta sin nombre'));
+  } catch {
+    return [];
+  }
+}
+
 export async function deleteEmpleado(id: string): Promise<{ success: boolean; error?: string }> {
   await requireAppSession();
   let empleados = await getEmpleados();
