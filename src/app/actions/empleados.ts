@@ -139,12 +139,51 @@ export async function saveEmpleado(
   return { success: true, id: empleadoId, empleado: empleadoToSave as Empleado };
 }
 
+/**
+ * Nombres de las fiestas que todavia no pasaron y tienen a este empleado asignado.
+ * Las fiestas ya realizadas no cuentan: ahi el trabajo ya se hizo y lo que importa
+ * es el historial de pagos, que se guarda aparte.
+ */
+async function fiestasFuturasConEsteEmpleado(empleadoId: string): Promise<string[]> {
+  try {
+    const { getAllFiestas } = await import('./fiesta/fiesta.actions');
+    const fiestas = await getAllFiestas();
+    const hoy = new Date().toISOString().slice(0, 10);
+
+    return fiestas
+      .filter((fiesta: any) => {
+        const fecha = String(fiesta?.configuracion?.fechaEvento ?? '').slice(0, 10);
+        if (!fecha || fecha < hoy) return false;
+        return (fiesta?.personalAsignado ?? []).some((p: any) => p?.empleadoId === empleadoId);
+      })
+      .map((fiesta: any) => String(fiesta?.configuracion?.nombreEvento || 'una fiesta sin nombre'));
+  } catch {
+    // Si no se puede leer la agenda, no se inventa una respuesta: se deja pasar
+    // el borrado como antes en vez de bloquearlo por un problema de lectura.
+    return [];
+  }
+}
+
 export async function deleteEmpleado(id: string): Promise<{ success: boolean; error?: string }> {
   await requireAppSession();
   let empleados = await getEmpleados();
   const empleadoToDelete = empleados.find(e => e.id === id);
   if (!empleadoToDelete) {
     return { success: false, error: `Empleado con ID ${id} no encontrado para eliminar.` };
+  }
+
+  // Borrar a alguien que esta asignado a una fiesta que todavia no paso deja esa
+  // fiesta sin esa persona y sin que nadie se entere: la noche del evento falta
+  // un mozo y en la lista figura un asignado que ya no existe. En vez de sacarlo
+  // en silencio, se avisa cual es la fiesta para que se resuelva el reemplazo.
+  const comprometido = await fiestasFuturasConEsteEmpleado(id);
+  if (comprometido.length > 0) {
+    const listado = comprometido.slice(0, 3).join(', ');
+    const resto = comprometido.length > 3 ? ` y ${comprometido.length - 3} más` : '';
+    return {
+      success: false,
+      error: `${empleadoToDelete.nombre} está asignado a ${listado}${resto}. Sacalo de esas fiestas (o asigná un reemplazo) antes de eliminarlo.`,
+    };
   }
 
   const deleted = await deleteDataItem(EMPLEADOS_FILE, EMPLEADOS_COLLECTION, id);
