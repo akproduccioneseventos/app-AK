@@ -8,36 +8,38 @@ Quien cierre una sesión reescribe este archivo. No se acumulan tandas: se pisa.
 
 ---
 
-**Última actualización:** 6 de agosto de 2026
+**Última actualización:** 7 de agosto de 2026
 **Rama:** todo fusionado en `main`. No hay ramas a medias.
+**Estado:** compila, 1291 pruebas en verde, sin acentos rotos.
 
 ## Cómo se trabaja ahora (acordado con el dueño)
 
 Claude audita y deja la orden escrita en `docs/ordenes/`. Gemini programa y sube
 la propuesta. Claude verifica y fusiona. Si viene rota, vuelve a Gemini: no se le
-arregla el trabajo. Plata, cobros y permisos los escribe Claude.
+arregla el trabajo, salvo que sea un renglón. Plata, cobros y permisos los
+escribe Claude. Propuestas completas por bloque, sin mezclar dos bloques.
 
-## Qué quedó terminado
+## Módulo de entretenimiento: qué está hecho
 
-- **Entorno**: traspaso automático al arrancar, tres ayudantes económicos,
-  `/sano`, `/aca-quede`, habilidad `revisar-pr`, detector de acentos rotos.
-- **Entretenimiento, arreglos fusionados**: las cuatro estaciones de captura ya no
-  dicen "escaneá tu recuerdo" cuando la subida falló; la pantalla gigante y el
-  muro avisan si se cortó la conexión; galería y red social distinguen "no hay
-  nada" de "no cargó"; la zona digital ya no tiene tarjetas muertas; el tótem no
-  muestra un QR que no sirve; el operador se entera si la IA no está disponible.
-- **Orden de trabajo** para Gemini en `docs/ordenes/entretenimiento-01.md`.
+- Las cuatro estaciones de captura ya no dicen "escaneá tu recuerdo" cuando la
+  subida falló, y ofrecen descargar o reintentar.
+- Pantalla gigante y muro avisan si se cortó la conexión; galería y red social
+  distinguen "no hay nada" de "no cargó"; la zona digital sin tarjetas muertas;
+  el tótem no muestra un QR que no sirve.
+- El operador se entera al abrir la cabina si la IA no está disponible.
+- El álbum del portal del cliente **ya existía**: la orden lo pedía por error mío.
+  Quedó cubierto con pruebas (#869) y el bloque se cerró.
 
-## Qué quedó a medias
+## Lo que falta, en `docs/ordenes/entretenimiento-02.md`
 
-- **Trivia por mesa (tarea 2.2): a medio hacer.** Gemini armó el ranking por mesa,
-  pero nada le dice en qué mesa está sentado cada invitado, así que en una fiesta
-  real sale siempre vacío. Falta conectarlo con la mesa asignada del invitado.
-- **Tareas 2.1 (saludar por nombre en el muro) y 2.3 (álbum en el portal del
-  cliente): sin empezar.**
-- Dos auditorías quedaron cortadas por límite de sesión: el lado del operador y
-  la verificación de que cada estación funcione sola, sin las otras contratadas.
+- **Bloque A** (el próximo): terminar la trivia por mesa y que el muro salude por
+  nombre. Hoy nada completa el campo de la mesa, así que el ranking sale vacío.
+- **Bloque C**: tope de generaciones con IA. Verificado que no hay ninguno, ni en
+  pantalla ni en servidor. Es lo único que toca la plata del dueño.
+- **Bloque D**: confirmar que cada estación funciona sola, con prueba.
+- **Bloque E**: que el operador se entere de las fallas antes que el invitado.
 
-## Lo próximo, si nadie dice otra cosa
+## Lección de esta tanda
 
-Terminar la trivia por mesa, y retomar las dos auditorías que quedaron cortadas.
+Antes de pedir algo en una orden, verificar que no esté ya hecho. El bloque B le
+hizo perder un viaje a Gemini.
