@@ -343,11 +343,14 @@ export async function uploadSocialPost(
       windowMs: 60_000,
     });
     const db = await getDb();
-    if (fiestaData.socialGallerySettings?.enabled === false && source !== 'entertainment') {
+    const wallEnabled = fiestaData.socialGallerySettings?.enabled !== false;
+    const wallActive = fiestaData.socialGallerySettings?.uploadsActive !== false;
+    const bypassWallCheck = source === 'entertainment';
+
+    if (!wallEnabled && !bypassWallCheck) {
       return { success: false, error: 'El muro social no está habilitado para este evento.' };
     }
-    const active = fiestaData.socialGallerySettings?.uploadsActive !== false;
-    if (!active && source !== 'entertainment') {
+    if (!wallActive && !bypassWallCheck) {
       return { success: false, error: 'Las cargas están pausadas para este evento.' };
     }
     const eventLimit = fiestaData?.socialGallerySettings?.maxPhotos ?? MAX_PHOTOS_PER_EVENT;
@@ -444,6 +447,12 @@ export async function uploadSocialPost(
       ...(momentTag ? { momentTag } : {}),
       ...(imageHash ? { imageHash } : {}),
     };
+
+    // Si el muro está pausado o deshabilitado, pero la estación de entretenimiento sube una foto,
+    // se guarda en storage para generar el QR, pero NO se crea el post en el muro social.
+    if ((!wallEnabled || !wallActive) && bypassWallCheck) {
+      return { success: true, post: newPost };
+    }
 
     // Single-document write — zero write conflict even with 200 simultaneous uploads,
     // because every caller writes to its own unique postId document.
