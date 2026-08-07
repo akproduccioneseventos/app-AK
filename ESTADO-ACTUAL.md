@@ -9,29 +9,35 @@ Quien cierre una sesión reescribe este archivo. No se acumulan tandas: se pisa.
 ---
 
 **Última actualización:** 6 de agosto de 2026
-**Ramas vivas:** `claude/repo-work-guidelines-l4u1tf` (entorno y reglas),
-`fix/858-rescate-acentos` (rescate a medio hacer, NO fusionar)
+**Rama:** todo fusionado en `main`. No hay ramas a medias.
+
+## Cómo se trabaja ahora (acordado con el dueño)
+
+Claude audita y deja la orden escrita en `docs/ordenes/`. Gemini programa y sube
+la propuesta. Claude verifica y fusiona. Si viene rota, vuelve a Gemini: no se le
+arregla el trabajo. Plata, cobros y permisos los escribe Claude.
 
 ## Qué quedó terminado
 
-- Entorno: hoja de traspaso que se muestra sola al arrancar, tres ayudantes
-  económicos configurados, navegador de pruebas ubicado solo, permisos
-  preaprobados, comandos `/sano` y `/aca-quede`, habilidad `revisar-pr`.
-- Detector de acentos rotos (`npm run check:acentos`), ya integrado al `/sano`.
-- Reglas nuevas del dueño, guardadas: delegar siempre en los ayudantes
-  económicos; fusionar directo cuando la propuesta pasa los controles; y decidir
-  por cuenta propia entre reparar una propuesta rota, rehacerla o avisar.
-- Se aclaró qué vale en Windows y qué vale en las sesiones web.
-- **Propuesta 859 (portal del cliente) fusionada.** Verificada antes: tipos en
-  cero, 1279 pruebas en verde, sin acentos rotos, sin choques.
+- **Entorno**: traspaso automático al arrancar, tres ayudantes económicos,
+  `/sano`, `/aca-quede`, habilidad `revisar-pr`, detector de acentos rotos.
+- **Entretenimiento, arreglos fusionados**: las cuatro estaciones de captura ya no
+  dicen "escaneá tu recuerdo" cuando la subida falló; la pantalla gigante y el
+  muro avisan si se cortó la conexión; galería y red social distinguen "no hay
+  nada" de "no cargó"; la zona digital ya no tiene tarjetas muertas; el tótem no
+  muestra un QR que no sirve; el operador se entera si la IA no está disponible.
+- **Orden de trabajo** para Gemini en `docs/ordenes/entretenimiento-01.md`.
 
 ## Qué quedó a medias
 
-**Propuesta 858 ("Limpieza CRM", auditoría de Gemini): NO fusionar.** Traía 902
-acentos rotos y no compilaba. En `fix/858-rescate-acentos` están reparados los
-acentos (947 líneas) y cuatro errores de sintaxis, pero al compilar aparecen 12
-errores nuevos: es trabajo sin terminar, no sólo dañado.
+- **Trivia por mesa (tarea 2.2): a medio hacer.** Gemini armó el ranking por mesa,
+  pero nada le dice en qué mesa está sentado cada invitado, así que en una fiesta
+  real sale siempre vacío. Falta conectarlo con la mesa asignada del invitado.
+- **Tareas 2.1 (saludar por nombre en el muro) y 2.3 (álbum en el portal del
+  cliente): sin empezar.**
+- Dos auditorías quedaron cortadas por límite de sesión: el lado del operador y
+  la verificación de que cada estación funcione sola, sin las otras contratadas.
 
 ## Lo próximo, si nadie dice otra cosa
 
-Rehacer limpio lo que valga de 858 en una rama nueva, y cerrar la vieja.
+Terminar la trivia por mesa, y retomar las dos auditorías que quedaron cortadas.
