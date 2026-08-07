@@ -9,6 +9,7 @@ import {
 import { getEventoEnVivoData } from '@/app/actions/evento-en-vivo';
 import type { EventoEnVivoData, FotoEnVivo, MensajeEnVivo, VotacionEnVivo, PlaylistItem, SocialScreenConfig } from '@/types/fiesta';
 import { Instagram, Facebook, MessageCircle, QrCode } from 'lucide-react';
+import { ReconnectingIndicator } from '@/components/entretenimiento/ReconnectingIndicator';
 
 const REFRESH_INTERVAL = 20_000;
 const DEFAULT_ROTATE_INTERVAL = 5_000;
@@ -199,35 +200,43 @@ export default function PantallaPage() {
   const [visible, setVisible] = useState(true);
   const [playlistMode, setPlaylistMode] = useState(false);
   const [playlistSlides, setPlaylistSlides] = useState<{ type: PlaylistItem['type']; duration: number; config?: SocialScreenConfig }[]>([]);
+  const [isReconnecting, setIsReconnecting] = useState(false);
 
   const fetchData = useCallback(async () => {
-    const [fiestaData, eventoData] = await Promise.all([
-      getPublicLiveDisplayEvent(fiestaId),
-      getEventoEnVivoData(fiestaId),
-    ]);
-    if (fiestaData) {
-      setFiesta(fiestaData);
-      setFiestaName(fiestaData.configuracion?.nombreEvento || fiestaData.configuracion?.nombreAgasajado || 'Evento');
+    try {
+      const [fiestaData, eventoData] = await Promise.all([
+        getPublicLiveDisplayEvent(fiestaId),
+        getEventoEnVivoData(fiestaId),
+      ]);
+      setIsReconnecting(false);
       
-      // Check for playlist
-      const playlist = fiestaData.screenPlaylist;
-      if (playlist && playlist.isPlaying && playlist.items.length > 0) {
-        const enabledItems = playlist.items.filter(i => i.enabled);
-        if (enabledItems.length > 0) {
-          setPlaylistMode(true);
-          setPlaylistSlides(enabledItems.map(item => ({
-            type: item.type,
-            duration: item.durationSeconds,
-            config: item.type === 'redes-sociales' ? fiestaData.socialScreenConfig : undefined,
-          })));
-          return; // skip rebuilding legacy slides when playlist is active
+      if (fiestaData) {
+        setFiesta(fiestaData);
+        setFiestaName(fiestaData.configuracion?.nombreEvento || fiestaData.configuracion?.nombreAgasajado || 'Evento');
+        
+        // Check for playlist
+        const playlist = fiestaData.screenPlaylist;
+        if (playlist && playlist.isPlaying && playlist.items.length > 0) {
+          const enabledItems = playlist.items.filter(i => i.enabled);
+          if (enabledItems.length > 0) {
+            setPlaylistMode(true);
+            setPlaylistSlides(enabledItems.map(item => ({
+              type: item.type,
+              duration: item.durationSeconds,
+              config: item.type === 'redes-sociales' ? fiestaData.socialScreenConfig : undefined,
+            })));
+            return; // skip rebuilding legacy slides when playlist is active
+          }
         }
+        setPlaylistMode(false);
       }
-      setPlaylistMode(false);
+      // Only build legacy slides when not in playlist mode
+      setSlides(buildSlides(eventoData));
+      setData(eventoData);
+    } catch (error) {
+      console.error("Error fetching live display data:", error);
+      setIsReconnecting(true);
     }
-    // Only build legacy slides when not in playlist mode
-    setSlides(buildSlides(eventoData));
-    setData(eventoData);
   }, [fiestaId]);
 
   useEffect(() => {
@@ -350,6 +359,8 @@ export default function PantallaPage() {
           ))}
         </div>
       )}
+
+      <ReconnectingIndicator isReconnecting={isReconnecting} />
     </div>
   );
 }

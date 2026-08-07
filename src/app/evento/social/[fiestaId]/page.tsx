@@ -46,6 +46,7 @@ import {
   voteSongRequest,
 } from '@/app/actions/social-interactive';
 import { voteActiveGameOption } from '@/app/actions/fiesta/screen-mode.actions';
+import { getPublicGuestPortalData } from '@/app/actions/public-guest-portal';
 import { Button } from '@/components/ui/button';
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { Input } from '@/components/ui/input';
@@ -139,9 +140,16 @@ function FeedPost({
     setSending(false);
   };
 
+  const isMission = post.momentTag?.toLowerCase().includes('misión') || post.momentTag?.toLowerCase().includes('mision') || caption?.toLowerCase().includes('misión') || caption?.toLowerCase().includes('mision');
+
   return (
-    <article className="overflow-hidden border-y border-slate-200 bg-white sm:rounded-md sm:border">
-      <header className="flex items-center gap-3 px-4 py-3">
+    <article className={`overflow-hidden border-y sm:rounded-md sm:border relative ${isMission ? 'bg-amber-50 border-amber-300 ring-4 ring-amber-400/50 shadow-xl shadow-amber-500/10' : 'border-slate-200 bg-white'}`}>
+      {isMission && (
+        <div className="absolute top-0 inset-x-0 bg-gradient-to-r from-amber-400 via-yellow-300 to-amber-400 text-amber-950 font-black text-center py-1.5 uppercase tracking-widest text-[10px] shadow-sm z-10">
+          ⭐ Misión Secreta Cumplida ⭐
+        </div>
+      )}
+      <header className={`flex items-center gap-3 px-4 py-3 ${isMission ? 'pt-8' : ''}`}>
         <div className="grid h-10 w-10 shrink-0 place-items-center rounded-full text-sm font-black text-white" style={{ backgroundColor: accentColor }}>
           {initials(post.authorName)}
         </div>
@@ -245,6 +253,7 @@ export default function SocialEventPage() {
   const [section, setSection] = useState<SocialSection>('feed');
   const [loading, setLoading] = useState(true);
   const [refreshing, setRefreshing] = useState(false);
+  const [hasError, setHasError] = useState(false);
   const [authorName, setAuthorName] = useState('');
   const [nameDraft, setNameDraft] = useState('');
   const [nameDialogOpen, setNameDialogOpen] = useState(false);
@@ -290,14 +299,23 @@ export default function SocialEventPage() {
 
   const loadCore = useCallback(async (showLoader = false) => {
     if (showLoader) setRefreshing(true);
+    setHasError(false);
+    let anyError = false;
     const [eventResult, postsResult, pollResult] = await Promise.allSettled([
       getPublicSocialEvent(fiestaId),
       getPublicSocialPosts(fiestaId),
       getActivePoll(fiestaId),
     ]);
     if (eventResult.status === 'fulfilled') setEvent(eventResult.value);
+    else anyError = true;
+    
     if (postsResult.status === 'fulfilled') setPosts(postsResult.value);
+    else anyError = true;
+    
     if (pollResult.status === 'fulfilled') setPoll(pollResult.value);
+    else anyError = true;
+    
+    if (anyError) setHasError(true);
     if (showLoader) setRefreshing(false);
   }, [fiestaId]);
 
@@ -309,10 +327,28 @@ export default function SocialEventPage() {
   }, [fiestaId]);
 
   useEffect(() => {
-    const savedName = sessionStorage.getItem(`socialWallAuthor_${fiestaId}`) || '';
-    setAuthorName(savedName);
-    setNameDraft(savedName);
-    setNameDialogOpen(!savedName);
+    const initName = async () => {
+      let savedName = sessionStorage.getItem(`socialWallAuthor_${fiestaId}`) || '';
+
+      if (guestId && guestAccessToken && !savedName) {
+        try {
+          const portal = await getPublicGuestPortalData(fiestaId, guestId, guestAccessToken);
+          if (portal?.guest?.nombre) {
+            savedName = portal.guest.nombre;
+            sessionStorage.setItem(`socialWallAuthor_${fiestaId}`, savedName);
+          }
+        } catch (error) {
+          console.warn('[SocialEvent] Failed to load guest name:', error);
+        }
+      }
+
+      setAuthorName(savedName);
+      setNameDraft(savedName);
+      setNameDialogOpen(!savedName && !guestId); // Solo abrir si no hay nombre Y no vino por enlace personal
+    };
+    
+    void initName();
+
     try {
       setLikedPosts(new Set(JSON.parse(sessionStorage.getItem(`likedPosts_${fiestaId}`) || '[]')));
     } catch {
@@ -329,7 +365,7 @@ export default function SocialEventPage() {
     if (requestedSection && ['feed', 'songs', 'dedications', 'chat', 'poll', 'game'].includes(requestedSection)) {
       setSection(requestedSection as SocialSection);
     }
-  }, [fiestaId]);
+  }, [fiestaId, guestId, guestAccessToken]);
 
   useEffect(() => {
     let active = true;
@@ -346,6 +382,7 @@ export default function SocialEventPage() {
       })())
         .catch((error) => {
           console.warn('[SocialEvent] public data refresh failed:', error);
+          setHasError(true);
         })
         .finally(() => {
           pollingRef.current = false;
@@ -742,7 +779,13 @@ export default function SocialEventPage() {
                 <div className="flex items-center gap-3"><div className="grid h-11 w-11 shrink-0 place-items-center rounded-full text-xs font-black text-white" style={{ backgroundColor: accentColor }}>{initials(authorName)}</div><button type="button" onClick={() => setUploadOpen(true)} disabled={!settings.uploadsActive || !canUpload} className="min-h-11 flex-1 rounded-md bg-slate-100 px-4 text-left text-sm font-semibold text-slate-600 transition hover:bg-slate-200 disabled:opacity-50">{!canUpload ? 'Abrí tu enlace personal para publicar' : settings.uploadsActive ? '¿Qué querés compartir?' : 'Las publicaciones están pausadas'}</button></div>
                 <div className="mt-3 grid grid-cols-2 border-t border-slate-100 pt-2"><button type="button" onClick={() => setUploadOpen(true)} disabled={!settings.uploadsActive || !canUpload} className="flex min-h-10 items-center justify-center gap-2 rounded-md text-sm font-bold text-slate-600 hover:bg-slate-100 disabled:opacity-50"><Camera className="h-5 w-5 text-emerald-600" />Foto</button><button type="button" onClick={() => setUploadOpen(true)} disabled={!settings.uploadsActive || !canUpload} className="flex min-h-10 items-center justify-center gap-2 rounded-md text-sm font-bold text-slate-600 hover:bg-slate-100 disabled:opacity-50"><Video className="h-5 w-5 text-red-600" />Video</button></div>
               </section>
-              {visiblePosts.length ? visiblePosts.map((post) => <FeedPost key={post.id} post={post} authorName={authorName} accentColor={accentColor} allowLikes={settings.allowLikes !== false && canParticipate} allowComments={settings.allowComments !== false && canParticipate} liked={likedPosts.has(post.id)} onLike={() => void likePost(post.id)} onComment={(text) => commentPost(post.id, text)} />) : <EmptyState icon={Camera} title="Todavía no hay publicaciones" text={posts.length ? 'No hay publicaciones de este autor.' : 'Sé la primera persona en compartir un momento.'} />}
+              {hasError && visiblePosts.length === 0 ? (
+                <div className="flex flex-col items-center justify-center py-16 text-center text-slate-500">
+                  <p className="text-lg font-medium text-red-500 mb-2">No se pudieron cargar las publicaciones.</p>
+                  <p className="text-sm mb-6">Hubo un problema de conexión.</p>
+                  <Button onClick={() => void loadCore(true)} className="px-6" style={{ backgroundColor: accentColor }}>Reintentar</Button>
+                </div>
+              ) : visiblePosts.length ? visiblePosts.map((post) => <FeedPost key={post.id} post={post} authorName={authorName} accentColor={accentColor} allowLikes={settings.allowLikes !== false && canParticipate} allowComments={settings.allowComments !== false && canParticipate} liked={likedPosts.has(post.id)} onLike={() => void likePost(post.id)} onComment={(text) => commentPost(post.id, text)} />) : <EmptyState icon={Camera} title="Todavía no hay publicaciones" text={posts.length ? 'No hay publicaciones de este autor.' : 'Sé la primera persona en compartir un momento.'} />}
             </div>
           )}
 

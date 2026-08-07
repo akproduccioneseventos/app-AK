@@ -19,6 +19,7 @@ export default function GaleriaPage() {
   const [posts, setPosts] = useState<SocialGalleryPost[]>([]);
   const [activeTab, setActiveTab] = useState<FilterTab>('todas');
   const [isLoading, setIsLoading] = useState(true);
+  const [hasError, setHasError] = useState(false);
   
   const [lightboxIndex, setLightboxIndex] = useState<number | null>(null);
 
@@ -26,15 +27,18 @@ export default function GaleriaPage() {
     getPublicSocialEvent(fiestaId).then(setFiesta).catch(() => {});
   }, [fiestaId]);
 
+  const loadPosts = async () => {
+    try {
+      setHasError(false);
+      setPosts(await getPublicSocialPosts(fiestaId));
+    } catch (e) {
+      setHasError(true);
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
   useEffect(() => {
-    const loadPosts = async () => {
-      try {
-        setPosts(await getPublicSocialPosts(fiestaId));
-      } catch (e) {} finally {
-        setIsLoading(false);
-      }
-    };
-    
     loadPosts();
     const interval = setInterval(loadPosts, 10000);
     return () => clearInterval(interval);
@@ -156,9 +160,17 @@ export default function GaleriaPage() {
 
       {/* GALLERY GRID */}
       <div className="max-w-7xl mx-auto px-4 py-6">
-        {isLoading ? (
+        {isLoading && posts.length === 0 ? (
           <div className="flex justify-center items-center py-20">
             <Loader2 className="w-8 h-8 animate-spin text-zinc-600" />
+          </div>
+        ) : hasError && posts.length === 0 ? (
+          <div className="flex flex-col items-center justify-center py-32 text-center text-zinc-500">
+            <p className="text-lg font-medium text-red-400">No se pudieron cargar las fotos.</p>
+            <p className="text-sm mt-1">Hubo un problema de conexión.</p>
+            <button onClick={loadPosts} className="mt-6 px-6 py-2 bg-white text-zinc-950 rounded-full text-sm font-bold hover:bg-zinc-200 transition">
+              Reintentar
+            </button>
           </div>
         ) : filteredPosts.length === 0 ? (
           <div className="flex flex-col items-center justify-center py-32 text-center text-zinc-500">

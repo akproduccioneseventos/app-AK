@@ -21,11 +21,13 @@ export interface TriviaGame {
   questions: TriviaQuestion[];
   createdAt: string;
   status: 'draft' | 'active' | 'finished';
+  participants?: TriviaParticipant[];
 }
 
 export interface TriviaParticipant {
   guestId: string;
   guestName: string;
+  tableNumber?: string;
   score: number;
   answers: { questionId: string; answerId: string; correct: boolean; answeredAt: string }[];
 }
@@ -33,6 +35,7 @@ export interface TriviaParticipant {
 export interface Leaderboard {
   participants: TriviaParticipant[];
   topThree: TriviaParticipant[];
+  tableLeaderboard?: { tableNumber: string; score: number }[];
 }
 
 export const DEFAULT_TRIVIA_QUESTIONS: TriviaQuestion[] = [
@@ -108,9 +111,22 @@ export const DEFAULT_PHOTO_MISSIONS: PhotoMission[] = [
 
 export function calculateLeaderboard(participants: TriviaParticipant[]): Leaderboard {
   const sorted = [...participants].sort((a, b) => b.score - a.score);
+  
+  const tableScores: Record<string, number> = {};
+  participants.forEach(p => {
+    if (p.tableNumber && p.tableNumber !== '') {
+      tableScores[p.tableNumber] = (tableScores[p.tableNumber] || 0) + p.score;
+    }
+  });
+
+  const tableLeaderboard = Object.entries(tableScores)
+    .map(([tableNumber, score]) => ({ tableNumber, score }))
+    .sort((a, b) => b.score - a.score);
+
   return {
     participants: sorted,
-    topThree: sorted.slice(0, 3)
+    topThree: sorted.slice(0, 3),
+    tableLeaderboard
   };
 }
 
