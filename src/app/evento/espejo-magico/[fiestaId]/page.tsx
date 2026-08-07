@@ -37,7 +37,7 @@ import { PublicEntertainmentEventStatus } from '@/components/entertainment/publi
 import { KioskUnlockButton } from '@/components/kiosk/kiosk-unlock-button';
 import { isVideoFrameReady } from '@/lib/entertainment/camera-readiness';
 import { waitForInitialPublicLoad } from '@/lib/public-experience/wait-for-initial-public-load';
-import { applyEspejoFaceSwap } from '@/app/actions/espejo-magico-ai';
+import { applyEspejoFaceSwap, isEspejoIaDisponible } from '@/app/actions/espejo-magico-ai';
 import {
   ESPEJO_TEMPLATES,
   FACESWAP_CATEGORIES,
@@ -138,6 +138,10 @@ export default function EspejoMagicoPage() {
 
   const [isUploading, setIsUploading] = useState(false);
   const [errorMsg, setErrorMsg] = useState<string | null>(null);
+  // null = todavia no se pregunto. Solo le interesa al operador, para saber
+  // antes de abrir la fila si la estacion va a transformar las fotos o las va a
+  // devolver tal cual.
+  const [iaDisponible, setIaDisponible] = useState<boolean | null>(null);
   const [consentAccepted, setConsentAccepted] = useState(false);
 
   const selectAiCategory = (categoryId: FaceSwapCategoryId) => {
@@ -318,6 +322,23 @@ export default function EspejoMagicoPage() {
       }
     }
   }, [localStatus, capturedImage, mode, modeCopy.start, role, speak]);
+
+  // El operador tiene que enterarse antes de la fiesta, no cuando se queja el
+  // primer invitado que eligio "Superheroe" y recibio su foto comun.
+  useEffect(() => {
+    if (role !== 'operator' || mode !== 'ia') return;
+    let vigente = true;
+    isEspejoIaDisponible()
+      .then(res => {
+        if (vigente) setIaDisponible(res.disponible);
+      })
+      .catch(() => {
+        if (vigente) setIaDisponible(false);
+      });
+    return () => {
+      vigente = false;
+    };
+  }, [role, mode]);
 
   const runFaceSwapIA = async (originalPhotoUrl: string) => {
     setAiProcessing(true);
@@ -842,6 +863,19 @@ export default function EspejoMagicoPage() {
             </div>
             <div className="w-9" />
           </div>
+
+          {/* Aviso antes de que llegue el primer invitado: si la IA no esta
+              disponible, la estacion devuelve la foto sin transformar y el
+              invitado se lleva una foto comun creyendo que es su avatar. */}
+          {mode === 'ia' && iaDisponible === false && (
+            <div className="rounded-2xl border border-amber-400/40 bg-amber-500/10 p-4" role="alert">
+              <p className="text-sm font-black text-amber-300">La transformacion con IA no esta disponible</p>
+              <p className="mt-1 text-xs leading-relaxed text-amber-100/80">
+                La estacion funciona igual, pero va a entregar la foto sin transformar. Avisale al
+                equipo antes de abrir la fila: el invitado elige un estilo y recibe su foto comun.
+              </p>
+            </div>
+          )}
 
           <div className="rounded-[2rem] border border-white/10 bg-white/[0.04] p-5 shadow-2xl sm:p-6">
             <div className="grid gap-3 sm:grid-cols-3">
