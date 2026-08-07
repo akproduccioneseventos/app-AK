@@ -69,6 +69,15 @@ import { SpotifySongSearch } from '@/components/invitacion/SpotifySongSearch';
 
 type SocialSection = 'feed' | 'songs' | 'dedications' | 'chat' | 'poll' | 'game';
 
+/**
+ * Tope de duracion para los videos que sube un invitado.
+ *
+ * El tope va aca, en lo que entra, y no en lo que sale: asi la fiesta puede
+ * juntar todos los recuerdos que quiera sin que ninguno se pierda, y ningun
+ * invitado solo acapara la pantalla grande ni el archivo del cliente.
+ */
+const MAX_VIDEO_SEGUNDOS = 15;
+
 const DEFAULT_SETTINGS: SocialGallerySettings = {
   enabled: true,
   allowLikes: true,
@@ -452,7 +461,31 @@ export default function SocialEventPage() {
     setNameDialogOpen(false);
   };
 
-  const selectUpload = (change: ChangeEvent<HTMLInputElement>) => {
+  /**
+   * Duracion de un video elegido por el invitado, en segundos.
+   *
+   * Se lee del propio archivo antes de subir nada: si el navegador no puede
+   * averiguarla, se deja pasar en vez de trabar al invitado. El peso maximo ya
+   * actua de red de contencion.
+   */
+  const duracionDelVideo = (file: File): Promise<number | null> =>
+    new Promise(resolve => {
+      const url = URL.createObjectURL(file);
+      const video = document.createElement('video');
+      video.preload = 'metadata';
+      const limpiar = () => URL.revokeObjectURL(url);
+      video.onloadedmetadata = () => {
+        limpiar();
+        resolve(Number.isFinite(video.duration) ? video.duration : null);
+      };
+      video.onerror = () => {
+        limpiar();
+        resolve(null);
+      };
+      video.src = url;
+    });
+
+  const selectUpload = async (change: ChangeEvent<HTMLInputElement>) => {
     const file = change.target.files?.[0];
     if (!file) return;
     const video = file.type.startsWith('video/');
@@ -466,6 +499,24 @@ export default function SocialEventPage() {
       toast({ title: 'Archivo demasiado grande', description: video ? 'El video puede pesar hasta 60 MB.' : 'La foto puede pesar hasta 10 MB.', variant: 'destructive' });
       return;
     }
+
+    // Los videos van cortos a proposito: en la pantalla grande de la fiesta uno
+    // largo se come el turno de todos los demas, y en el archivo del cliente
+    // ocupa lo que ocuparian decenas de recuerdos. Quince segundos alcanzan
+    // para un saludo.
+    if (video) {
+      const segundos = await duracionDelVideo(file);
+      if (segundos !== null && segundos > MAX_VIDEO_SEGUNDOS + 0.5) {
+        toast({
+          title: 'El video es muy largo',
+          description: `Puede durar hasta ${MAX_VIDEO_SEGUNDOS} segundos. El tuyo dura ${Math.round(segundos)}. Recortalo y volvé a intentar.`,
+          variant: 'destructive',
+        });
+        change.target.value = '';
+        return;
+      }
+    }
+
     if (uploadPreview) URL.revokeObjectURL(uploadPreview);
     setUploadFile(file);
     setUploadPreview(URL.createObjectURL(file));

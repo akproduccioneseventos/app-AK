@@ -48,6 +48,17 @@ export interface EntertainmentSession {
   };
   mediaUrl?: string;
   reviewPending?: boolean;
+  /**
+   * Ultimo problema que vio el invitado parado frente a la estacion.
+   *
+   * Existe porque el operador trabajaba a ciegas: si al invitado no le abria la
+   * camara o le fallaba la subida, el lo veia en su pantalla y el equipo de AK
+   * no se enteraba de nada. Se enteraban cuando alguien se acercaba a quejarse,
+   * y para entonces ya se habian ido varios sin su foto. La sesion ya viaja
+   * entre las dos pantallas, asi que el aviso viaja con ella.
+   */
+  lastError?: string | null;
+  lastErrorAt?: string | null;
   captureId?: string;
   version?: number;
   expiresAt?: string;
@@ -79,16 +90,28 @@ function sanitizeSessionSettings(input: unknown): EntertainmentSession['settings
   };
 }
 
-function sanitizeSessionUpdate(input: unknown): Pick<EntertainmentSession, 'mediaUrl' | 'reviewPending'> {
+function sanitizeSessionUpdate(
+  input: unknown,
+): Pick<EntertainmentSession, 'mediaUrl' | 'reviewPending' | 'lastError' | 'lastErrorAt'> {
   if (!input || typeof input !== 'object' || Array.isArray(input)) return {};
   const source = input as Record<string, unknown>;
   const mediaUrl = boundedText(source.mediaUrl, 2_048);
   const safeMediaUrl = mediaUrl && (/^https?:\/\//i.test(mediaUrl) || mediaUrl.startsWith('/'))
     ? mediaUrl
     : undefined;
+
+  // `lastError: null` limpia el aviso; un texto lo enciende. Si no viene el
+  // campo, el aviso queda como estaba.
+  const traeError = Object.prototype.hasOwnProperty.call(source, 'lastError');
+  const textoError = boundedText(source.lastError, 300);
+  const errorLimpio = traeError
+    ? { lastError: textoError || null, lastErrorAt: textoError ? new Date().toISOString() : null }
+    : {};
+
   return {
     ...(safeMediaUrl ? { mediaUrl: safeMediaUrl } : {}),
     ...(typeof source.reviewPending === 'boolean' ? { reviewPending: source.reviewPending } : {}),
+    ...errorLimpio,
   };
 }
 

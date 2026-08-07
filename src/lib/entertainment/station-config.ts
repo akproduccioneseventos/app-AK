@@ -34,6 +34,16 @@ export interface EntertainmentStationRuntimeConfig {
   consentRequired: boolean;
   captureModes: string[];
   deliveryChannels: string[];
+  /**
+   * Estilos de IA habilitados para esta fiesta, por id.
+   *
+   * Vacio significa "todos", que es como venia funcionando. Sirve para curar la
+   * lista segun el evento: en un cumpleanos de nenes conviene ofrecer el
+   * superheroe animado y la aventura jurasica, y no el agente secreto de
+   * esmoquin. Ofrecer treinta y pico de estilos a un chico de siete tampoco
+   * ayuda: elige mejor entre seis.
+   */
+  allowedTemplateIds: string[];
 }
 
 export interface PublicEntertainmentEvent {
@@ -125,6 +135,9 @@ export function getEntertainmentStationConfig(
     deliveryChannels: Array.isArray(stored.deliveryChannels)
       ? stored.deliveryChannels
       : ['qr', 'galeria'],
+    allowedTemplateIds: Array.isArray(stored.allowedTemplateIds)
+      ? stored.allowedTemplateIds.filter((id: unknown) => typeof id === 'string' && id.length > 0)
+      : [],
   };
 }
 

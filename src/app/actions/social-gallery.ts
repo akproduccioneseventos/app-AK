@@ -46,7 +46,20 @@ import { getFiestaByIdRaw } from '@/lib/fiesta/get-fiesta-raw';
 // Firestore collection names
 const GALLERY_COLLECTION = 'social_gallery_posts';
 const CHAT_COLLECTION = 'social_chat';
-const MAX_PHOTOS_PER_EVENT = 200;
+/**
+ * El tope va en lo que sube CADA invitado, no en lo que junta la fiesta.
+ *
+ * Antes el evento entero se cortaba a las 200 fotos. En una fiesta de 150
+ * personas con tres estaciones eso se alcanza a mitad de la noche, y a partir
+ * de ahi nadie mas puede subir nada: el que llega tarde se queda afuera y el
+ * cliente pierde la mitad de sus recuerdos. Es exactamente lo contrario de lo
+ * que se quiere.
+ *
+ * Ahora el limite del evento es una red de contencion contra un abuso masivo,
+ * no un tope de uso normal. Quien acota de verdad es el limite por persona,
+ * junto con el peso maximo por archivo y los 15 segundos de video.
+ */
+const MAX_PHOTOS_PER_EVENT = 5000;
 const MAX_PHOTOS_PER_PERSON = 10;
 const MAX_IMAGE_UPLOAD_SIZE = 10 * 1024 * 1024;
 const MAX_VIDEO_UPLOAD_SIZE = 60 * 1024 * 1024;

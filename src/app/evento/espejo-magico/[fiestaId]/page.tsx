@@ -1,6 +1,6 @@
 'use client';
 
-import { useCallback, useState, useEffect, useRef } from 'react';
+import { useCallback, useState, useEffect, useMemo, useRef } from 'react';
 import { useParams, useRouter, useSearchParams } from 'next/navigation';
 import { motion, AnimatePresence } from 'framer-motion';
 import {
@@ -20,6 +20,7 @@ import {
   Zap,
 } from 'lucide-react';
 import { QrRecuerdo } from '@/components/entretenimiento/QrRecuerdo';
+import { AvisoDeFallaEnEstacion } from '@/components/entretenimiento/AvisoDeFallaEnEstacion';
 import {
   getPublicEntertainmentEvent,
   uploadEntretenimientoMedia,
@@ -144,20 +145,42 @@ export default function EspejoMagicoPage() {
   const [iaDisponible, setIaDisponible] = useState<boolean | null>(null);
   const [consentAccepted, setConsentAccepted] = useState(false);
 
+  const [fiesta, setFiesta] = useState<PublicEntertainmentEvent | null>(null);
+
+  /**
+   * Estilos que se le ofrecen al invitado en ESTA fiesta.
+   *
+   * Si la fiesta no eligio ninguno en particular, se ofrecen todos, que es como
+   * venia funcionando. Curar la lista importa: en un cumpleanos de nenes no
+   * viene al caso el agente secreto de esmoquin, y ofrecerle cuarenta opciones
+   * a un chico de siete lo marea en vez de entusiasmarlo.
+   */
+  const plantillasHabilitadas = useMemo(() => {
+    const permitidas = fiesta?.station?.allowedTemplateIds ?? [];
+    const todas = Object.values(ESPEJO_TEMPLATES);
+    if (permitidas.length === 0) return todas;
+    const filtradas = todas.filter((t) => permitidas.includes(t.id));
+    // Si la configuracion quedo apuntando a estilos que ya no existen, es mejor
+    // mostrar todos que dejar la pantalla sin ninguna opcion.
+    return filtradas.length > 0 ? filtradas : todas;
+  }, [fiesta]);
+
+  const categoriasHabilitadas = useMemo(
+    () => FACESWAP_CATEGORIES.filter((c) => plantillasHabilitadas.some((t) => t.categoryId === c.id)),
+    [plantillasHabilitadas],
+  );
+
   const selectAiCategory = (categoryId: FaceSwapCategoryId) => {
     setSelectedCategory(categoryId);
     setSelectedTemplateId((currentTemplateId) => {
-      const currentTemplate = ESPEJO_TEMPLATES[currentTemplateId];
+      const currentTemplate = plantillasHabilitadas.find((t) => t.id === currentTemplateId);
       if (currentTemplate?.categoryId === categoryId) return currentTemplateId;
       return (
-        Object.values(ESPEJO_TEMPLATES).find(
-          (template) => template.categoryId === categoryId,
-        )?.id || currentTemplateId
+        plantillasHabilitadas.find((template) => template.categoryId === categoryId)?.id ||
+        currentTemplateId
       );
     });
   };
-
-  const [fiesta, setFiesta] = useState<PublicEntertainmentEvent | null>(null);
   const [isEventLoading, setIsEventLoading] = useState(true);
   const [voiceEnabled, setVoiceEnabled] = useState(true);
   const [watermarkEnabled, setWatermarkEnabled] = useState(true);
@@ -748,7 +771,7 @@ export default function EspejoMagicoPage() {
           fiestaId,
           moduleId,
           'done',
-          { mediaUrl },
+          { mediaUrl, lastError: null },
           accessToken
         );
         speak('Listo. Foto enviada al muro.');
@@ -765,7 +788,13 @@ export default function EspejoMagicoPage() {
       setQrCodeUrl('');
       setErrorMsg((err as Error).message || 'No se pudo subir la foto. Puedes descargarla en este dispositivo.');
       setLocalStatus('recording');
-      await updateEntertainmentSessionStatus(fiestaId, moduleId, 'idle', {}, accessToken);
+      await updateEntertainmentSessionStatus(
+        fiestaId,
+        moduleId,
+        'idle',
+        { lastError: 'No se pudo subir la foto del invitado al muro.' },
+        accessToken,
+      );
       speak('No se pudo subir la foto. Podés reintentar o guardarla en este dispositivo.');
     } finally {
       setIsUploading(false);
@@ -867,6 +896,8 @@ export default function EspejoMagicoPage() {
           {/* Aviso antes de que llegue el primer invitado: si la IA no esta
               disponible, la estacion devuelve la foto sin transformar y el
               invitado se lleva una foto comun creyendo que es su avatar. */}
+          <AvisoDeFallaEnEstacion mensaje={session?.lastError} cuando={session?.lastErrorAt} />
+
           {mode === 'ia' && iaDisponible === false && (
             <div className="rounded-2xl border border-amber-400/40 bg-amber-500/10 p-4" role="alert">
               <p className="text-sm font-black text-amber-300">La transformacion con IA no esta disponible</p>
@@ -1062,7 +1093,7 @@ export default function EspejoMagicoPage() {
                       className="hide-scrollbar flex touch-pan-x gap-1.5 overflow-x-auto pb-1"
                       aria-label="Categorías de estilos IA"
                     >
-                      {FACESWAP_CATEGORIES.map((cat) => (
+                      {categoriasHabilitadas.map((cat) => (
                         <button
                           key={cat.id}
                           type="button"
@@ -1084,7 +1115,7 @@ export default function EspejoMagicoPage() {
                       className="grid max-h-36 touch-pan-y grid-cols-2 gap-1.5 overflow-y-auto pr-1"
                       aria-label="Estilos IA disponibles"
                     >
-                      {Object.values(ESPEJO_TEMPLATES)
+                      {plantillasHabilitadas
                         .filter((t) => t.categoryId === selectedCategory)
                         .map((template) => {
                           const isSelected = selectedTemplateId === template.id;

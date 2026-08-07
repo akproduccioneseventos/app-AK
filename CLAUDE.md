@@ -206,6 +206,23 @@ archivo donde las pruebas dependen entre sí (da fallas inventadas).
 Regla de fondo: es mejor entregar nueve cosas y decir "la décima está trabada"
 que gastar todo el día en la décima.
 
+## Un módulo se termina, no se deja a medias
+
+**Regla del dueño, 7 de agosto de 2026.** Cuando se trabaja un módulo, se deja
+**pronto**. No se para hasta terminarlo. Nada de entregar la mitad y dejar el
+resto anotado para después: eso convierte cada módulo en una deuda que nadie
+salda.
+
+Qué significa en la práctica:
+
+- Si aparecen cosas nuevas mientras se trabaja, se hacen dentro de la misma
+  tanda, no se posponen.
+- Si algo queda sin hacer de verdad, se dice **cuál** y **por qué**, en una
+  línea, y es la excepción, no la costumbre.
+- Terminado quiere decir: compila, pruebas en verde, sin acentos rotos, y
+  probado en un navegador de verdad si toca pantallas que usan cámara,
+  micrófono o pantalla completa.
+
 ## Decisiones del dueño ya tomadas (NO volver a preguntar)
 
 Cerradas. Si un análisis las marca como problema, es un falso positivo:
