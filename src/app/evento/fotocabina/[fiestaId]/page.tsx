@@ -21,6 +21,7 @@ import {
 } from 'lucide-react';
 import { QRCodeSVG } from 'qrcode.react';
 import { QrRecuerdo } from '@/components/entretenimiento/QrRecuerdo';
+import { AvisoDeFallaEnEstacion } from '@/components/entretenimiento/AvisoDeFallaEnEstacion';
 import {
   getPublicEntertainmentEvent,
   uploadEntretenimientoMedia,
@@ -397,7 +398,7 @@ export default function FotocabinaPage() {
           fiestaId,
           'fotocabina',
           'done',
-          { mediaUrl, reviewPending: false },
+          { mediaUrl, reviewPending: false, lastError: null },
           accessToken
         );
         speak("¡Excelente! Tu foto ya está lista.");
@@ -420,7 +421,7 @@ export default function FotocabinaPage() {
         fiestaId,
         'fotocabina',
         'done',
-        {},
+        { lastError: 'No se pudo subir la foto del invitado al muro.' },
         accessToken
       );
       speak("No se pudo subir al muro, pero puedes guardarla");
@@ -485,6 +486,7 @@ export default function FotocabinaPage() {
     return (
       <div className="min-h-screen bg-zinc-950 p-4 text-white sm:p-6">
         <div className="mx-auto max-w-md space-y-5">
+          <AvisoDeFallaEnEstacion mensaje={session?.lastError} cuando={session?.lastErrorAt} />
           <div className="flex items-center justify-between border-b border-white/10 pb-4">
             <button onClick={() => router.back()} aria-label="Volver" title="Volver" className="rounded-lg p-2 transition hover:bg-white/10">
               <ArrowLeft className="w-5 h-5" />

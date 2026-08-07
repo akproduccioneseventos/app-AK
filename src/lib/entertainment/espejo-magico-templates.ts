@@ -237,4 +237,79 @@ export const ESPEJO_TEMPLATES: Record<string, EspejoTemplateDefinition> = {
     promptDescription:
       'a cute 3D chibi character with oversized head and big expressive eyes, wearing pastel-colored clothes, standing in a dreamy wonderland filled with candy canes, giant lollipops, and cotton candy clouds',
   },
+
+  // ── Estilos sumados el 7 de agosto de 2026 ──────────────────────────────
+  // Se eligieron para cubrir los huecos que tenia el catalogo: casi todo
+  // apuntaba a adolescentes y adultos, y faltaba material para quinceaneras,
+  // bodas y cumpleanos de nenes, que son la mayoria de las fiestas.
+  quinceanera_gala: {
+    id: 'quinceanera_gala',
+    categoryId: 'showbiz',
+    label: 'Gala de Quince',
+    promptDescription:
+      'the guest of honor at a grand quinceanera gala, wearing an elegant voluminous ball gown with delicate embroidery and a small tiara, descending a marble staircase decorated with white flowers and warm golden chandeliers',
+  },
+  red_carpet: {
+    id: 'red_carpet',
+    categoryId: 'showbiz',
+    label: 'Alfombra Roja',
+    promptDescription:
+      'a celebrity arriving on a red carpet premiere, wearing haute couture, dozens of paparazzi camera flashes firing in the background, step-and-repeat banner wall, confident glamorous pose',
+  },
+  latin_singer: {
+    id: 'latin_singer',
+    categoryId: 'showbiz',
+    label: 'Cantante Latino',
+    promptDescription:
+      'a charismatic latin music singer performing at an outdoor summer festival, holding a microphone, tropical stage lighting in warm pink and orange, palm trees and a huge cheering crowd behind',
+  },
+  novios_cinematic: {
+    id: 'novios_cinematic',
+    categoryId: 'fantasy',
+    label: 'Boda de Pelicula',
+    promptDescription:
+      'a romantic cinematic wedding portrait, wearing elegant formal wedding attire, standing in a sunlit garden with soft bokeh, petals floating in the air, warm film-like color grading',
+  },
+  vintage_1950s: {
+    id: 'vintage_1950s',
+    categoryId: 'fantasy',
+    label: 'Vintage 1950s',
+    promptDescription:
+      'a classic 1950s portrait, wearing period clothing with polka dots or a sharp suit, styled retro hair, standing next to a pastel vintage car at an american diner, saturated kodachrome colors',
+  },
+  futbolista: {
+    id: 'futbolista',
+    categoryId: 'corporate',
+    label: 'Futbolista',
+    promptDescription:
+      'a professional football player celebrating a goal on a packed stadium pitch at night, wearing a team kit, floodlights flaring, blurred cheering crowd and confetti in the air',
+  },
+  astronauta_nino: {
+    id: 'astronauta_nino',
+    categoryId: 'fun',
+    label: 'Explorador Espacial',
+    promptDescription:
+      'a cheerful young space explorer wearing a colorful cartoon-style spacesuit with a bubble helmet, floating among friendly smiling planets and glittering stars, bright playful illustration',
+  },
+  superheroe_infantil: {
+    id: 'superheroe_infantil',
+    categoryId: 'fun',
+    label: 'Superheroe Animado',
+    promptDescription:
+      'a friendly cartoon superhero for children, wearing a bright colorful costume with a small cape and a star emblem, standing in a heroic pose on a rooftop of a cheerful cartoon city, soft rounded 3d animation style',
+  },
+  dinosaurios: {
+    id: 'dinosaurios',
+    categoryId: 'fun',
+    label: 'Aventura Jurasica',
+    promptDescription:
+      'a brave young explorer wearing a safari hat and vest in a lush prehistoric jungle, friendly cartoon dinosaurs peeking between giant ferns, warm adventurous lighting',
+  },
+  princesa_cuento: {
+    id: 'princesa_cuento',
+    categoryId: 'fun',
+    label: 'Cuento de Hadas',
+    promptDescription:
+      'a storybook fairytale character wearing a shimmering pastel gown or a small prince outfit, surrounded by glowing fireflies in an enchanted forest with a distant castle, soft magical illustration style',
+  },
 };

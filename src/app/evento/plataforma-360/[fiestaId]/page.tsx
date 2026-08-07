@@ -36,6 +36,7 @@ import type { PublicEntertainmentEvent } from '@/lib/entertainment/station-confi
 import { PublicEntertainmentEventStatus } from '@/components/entertainment/public-entertainment-event-status';
 import { KioskUnlockButton } from '@/components/kiosk/kiosk-unlock-button';
 import { waitForInitialPublicLoad } from '@/lib/public-experience/wait-for-initial-public-load';
+import { AvisoDeFallaEnEstacion } from '@/components/entretenimiento/AvisoDeFallaEnEstacion';
 
 const DURATION_OPTIONS = [
   { label: '10 Segundos', value: 10 },
@@ -413,7 +414,7 @@ export default function Plataforma360Page() {
           fiestaId,
           'plataforma360',
           'done',
-          { mediaUrl },
+          { mediaUrl, lastError: null },
           accessToken
         );
         speak("¡Buenísimo! Tu video ya está subido.");
@@ -437,7 +438,7 @@ export default function Plataforma360Page() {
         fiestaId,
         'plataforma360',
         'idle',
-        {},
+        { lastError: 'No se pudo subir el video del invitado al muro.' },
         accessToken
       );
       speak('No se pudo subir el video. Podés reintentar sin volver a grabarlo.');
@@ -477,6 +478,7 @@ export default function Plataforma360Page() {
     return (
       <div className="min-h-screen bg-zinc-950 p-4 text-white sm:p-6">
         <div className="mx-auto max-w-md space-y-5">
+          <AvisoDeFallaEnEstacion mensaje={session?.lastError} cuando={session?.lastErrorAt} />
           
           <div className="flex items-center justify-between border-b border-white/10 pb-4">
             <button onClick={() => router.back()} aria-label="Volver" title="Volver" className="rounded-lg p-2 transition hover:bg-white/10">

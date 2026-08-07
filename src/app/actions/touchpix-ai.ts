@@ -408,6 +408,24 @@ export async function applyTouchpixTheme(
         limit: 3,
         windowMs: 15 * 60_000,
       });
+
+      // Red de contencion por estacion.
+      //
+      // El tope de arriba cuenta por sesion de foto, y la sesion se renueva
+      // cuando el invitado se saca una foto nueva. Eso esta bien: el que
+      // vuelve a posar merece elegir de nuevo. Pero tambien deja la puerta
+      // abierta a que alguien se quede parado ahi repitiendo el ciclo toda la
+      // noche, y cada generacion se paga.
+      //
+      // Este segundo tope esta muy por encima del uso normal: una estacion no
+      // llega a atender ni cuarenta personas por hora, asi que 150 no molesta
+      // a nadie que este usandola de verdad. Solo corta el abuso.
+      await enforcePublicRateLimit({
+        scope: "touchpix-ai-estacion",
+        identity: `fiesta-${fiestaId}`,
+        limit: 150,
+        windowMs: 60 * 60_000,
+      });
     } catch (error: any) {
       if (error.message === "Rate limit exceeded") {
         return { success: false, error: "Límite de 3 intentos alcanzado para esta foto. Por favor, toma una nueva foto." };
