@@ -315,7 +315,9 @@ export async function createVotacion(
 export async function votarEnVivo(
   fiestaId: string,
   votacionId: string,
-  opcionId: string
+  opcionId: string,
+  guestId?: string,
+  guestAccessToken?: string
 ): Promise<{ success: boolean; error?: string }> {
   try {
     await enforcePublicRateLimit({

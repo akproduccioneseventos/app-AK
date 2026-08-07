@@ -113,7 +113,7 @@ export default function TriviaGameScreen({ fiestaId, guestName, guestId, guestAc
                 key={option.id}
                 onClick={() => handleAnswer(option.id)}
                 disabled={selectedAnswer !== null}
-                className={h-24 md:h-32 text-xl md:text-2xl font-bold transition-all }
+                className={`h-24 md:h-32 text-xl md:text-2xl font-bold transition-all ${bgColor}`}
               >
                 {option.text}
               </Button>
@@ -124,4 +124,5 @@ export default function TriviaGameScreen({ fiestaId, guestName, guestId, guestAc
     </div>
   );
 }
+
 

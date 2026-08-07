@@ -1,4 +1,4 @@
-﻿'use server';
+'use server';
 
 import { getFiestaById, saveFiesta } from '@/app/actions/fiesta-actual';
 import { TriviaGame, PhotoMission, TriviaParticipant } from '@/lib/games/game-engine';
@@ -61,7 +61,16 @@ export async function joinTriviaGame(
     const fiesta = await getFiestaById(fiestaId);
     if (!fiesta) return { success: false, error: 'Fiesta no encontrada' };
 
-    const triviaGame = fiesta.triviaGame || { questions: [], participants: [] };
+    const defaultTrivia: TriviaGame = {
+      id: `trivia_${fiestaId}`,
+      fiestaId,
+      title: 'Trivia de la Fiesta',
+      questions: [],
+      createdAt: new Date().toISOString(),
+      status: 'active',
+      participants: [],
+    };
+    const triviaGame: TriviaGame = fiesta.triviaGame || defaultTrivia;
     const participants = triviaGame.participants || [];
     const existingIndex = participants.findIndex(p => p.guestId === guestId);
     
@@ -77,6 +86,7 @@ export async function joinTriviaGame(
         guestName: realName,
         tableNumber: tableNumber,
         score: 0,
+        answers: [],
       });
     }
 
