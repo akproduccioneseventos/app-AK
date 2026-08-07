@@ -55,6 +55,18 @@ export async function GET(request: Request, props: { params: Promise<{ fiestaId:
     const eventName = fiesta.configuracion?.nombreEvento || 'Fiesta';
     const cleanEventName = eventName.replace(/[^a-zA-Z0-9-_]/g, '_');
 
+    // El tipo de fiesta va adelante del nombre para que la carpeta se entienda
+    // de un vistazo cuando se sube a la galeria del cliente: "xv-anos-Sofia"
+    // dice mucho mas que "Sofia" solo.
+    const tipo = (fiesta.configuracion?.tipoCelebracion || 'evento')
+      .toString()
+      .normalize('NFD')
+      .replace(/[̀-ͯ]/g, '')
+      .toLowerCase()
+      .replace(/[^a-z0-9]+/g, '-')
+      .replace(/^-+|-+$/g, '') || 'evento';
+    const nombreDeCarpeta = `${tipo}-${cleanEventName}`;
+
     // 3. Load posts and dedications concurrently
     const [posts, dedications] = await Promise.all([
       getSocialPosts(fiestaId),
@@ -69,6 +81,39 @@ export async function GET(request: Request, props: { params: Promise<{ fiestaId:
     const photosFolder = zip.folder('fotos');
     const videosFolder = zip.folder('videos');
     const audiosFolder = zip.folder('audios_buzon');
+
+    // Dentro de fotos y videos, una subcarpeta por estacion. Cada publicacion
+    // ya sabe de donde salio (`sourceModule`), asi que se puede ordenar sola.
+    //
+    // Por que importa: el material termina subido a mano a la galeria del
+    // cliente, y separar cientos de archivos por estacion es un trabajo largo y
+    // aburrido que hoy se hace despues de cada fiesta. Si el paquete baja ya
+    // ordenado, ese paso se convierte en arrastrar las carpetas una vez.
+    const NOMBRES_DE_ESTACION: Record<string, string> = {
+      fotocabina: 'fotocabina',
+      plataforma360: 'plataforma-360',
+      bogue: 'boomerang',
+      espejoMagicoFoto: 'espejo-magico',
+      espejoMagicoFirma: 'espejo-magico-firma',
+      espejoMagicoIA: 'espejo-magico-ia',
+      totems: 'totems',
+      capsulaTiempo: 'capsula-del-tiempo',
+    };
+
+    // Lo que sube un invitado desde su celular no viene de ninguna estacion.
+    const CARPETA_INVITADOS = 'invitados';
+
+    const subcarpetas = new Map<string, JSZip>();
+    const carpetaDeEstacion = (raiz: JSZip | null, sourceModule?: string): JSZip | null => {
+      if (!raiz) return null;
+      const nombre = (sourceModule && NOMBRES_DE_ESTACION[sourceModule]) || CARPETA_INVITADOS;
+      const clave = `${raiz === videosFolder ? 'videos' : 'fotos'}/${nombre}`;
+      const existente = subcarpetas.get(clave);
+      if (existente) return existente;
+      const creada = raiz.folder(nombre);
+      if (creada) subcarpetas.set(clave, creada);
+      return creada;
+    };
 
     // 4. Add social posts (photos and videos)
     for (const post of posts) {
@@ -109,7 +154,10 @@ export async function GET(request: Request, props: { params: Promise<{ fiestaId:
       const cleanAuthor = post.authorName.replace(/[^a-zA-Z0-9-_]/g, '_');
       const filename = `${cleanAuthor}_${post.id}${ext}`;
 
-      if (isVideo) {
+      const destino = carpetaDeEstacion(isVideo ? videosFolder : photosFolder, post.sourceModule);
+      if (destino) {
+        destino.file(filename, fileContent);
+      } else if (isVideo) {
         videosFolder?.file(filename, fileContent);
       } else {
         photosFolder?.file(filename, fileContent);
@@ -170,7 +218,7 @@ export async function GET(request: Request, props: { params: Promise<{ fiestaId:
 
     const zipBuffer = await zip.generateAsync({ type: 'nodebuffer' });
     const timestamp = new Date().toISOString().replace(/[:.]/g, '-');
-    const zipFilename = `recuerdos_${cleanEventName}_${timestamp}.zip`;
+    const zipFilename = `${nombreDeCarpeta}_${timestamp}.zip`;
 
     const headers = new Headers();
     headers.set('Content-Type', 'application/zip');
