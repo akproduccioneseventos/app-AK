@@ -18,6 +18,7 @@ import { getFiestaById } from "@/app/actions/fiesta/fiesta.actions";
 import { hasEntertainmentGuestAccess } from "@/lib/auth/entertainment-token";
 import { getEntertainmentStationConfig } from "@/lib/entertainment/station-config";
 import { generateGeminiImage } from "@/lib/ai/gemini-image";
+import { enforcePublicRateLimit } from '@/lib/commercial/public-rate-limit';
 import * as logger from "@/lib/logger";
 
 // ──────────────────── Theme Definitions ────────────────────
@@ -390,6 +391,29 @@ export async function applyTouchpixTheme(
 
   try {
     await ensureTouchpixAccess(fiestaId, accessToken || undefined);
+
+    // Limitar a 3 generaciones por sesión/invitado.
+    // Se utiliza el file como identidad de la sesión de foto.
+    // Así se evita el bloqueo de estación y el invitado tiene su propio tope.
+    const photoSessionId = formData.get("photoSessionId") as string | null;
+    const guestIdentity = photoSessionId
+      ? `touchpix-${fiestaId}-${photoSessionId}`
+      : file
+      ? `${file.name}-${file.size}`
+      : `fiesta-${fiestaId}`;
+    try {
+      await enforcePublicRateLimit({
+        scope: "touchpix-ai",
+        identity: guestIdentity,
+        limit: 3,
+        windowMs: 15 * 60_000,
+      });
+    } catch (error: any) {
+      if (error.message === "Rate limit exceeded") {
+        return { success: false, error: "Límite de 3 intentos alcanzado para esta foto. Por favor, toma una nueva foto." };
+      }
+      return { success: false, error: error.message || "Sesión no autorizada." };
+    }
   } catch (error: any) {
     return { success: false, error: error.message || "Sesion no autorizada." };
   }

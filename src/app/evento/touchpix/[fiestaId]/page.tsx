@@ -112,6 +112,7 @@ export default function TouchpixPage() {
   const [showQrModal, setShowQrModal] = useState(false);
   const [session, setSession] = useState<EntertainmentSession | null>(null);
   const [consentAccepted, setConsentAccepted] = useState(false);
+  const [photoSessionId, setPhotoSessionId] = useState<string>(() => `sess_${Date.now()}_${Math.random().toString(36).substring(2, 7)}`);
 
   const eventName = fiesta?.eventName || 'este gran evento';
   
@@ -550,6 +551,7 @@ export default function TouchpixPage() {
       if (accessToken) formData.set('accessToken', accessToken);
       formData.set('consentAccepted', String(consentAccepted));
       formData.set('themeId', themeId);
+      formData.set('photoSessionId', photoSessionId);
       formData.set('file', await dataUrlToFile(rawCapturedImage, `touchpix-theme-${Date.now()}.jpg`));
       const result = await applyTouchpixTheme(formData);
 
@@ -593,6 +595,7 @@ export default function TouchpixPage() {
     setProcessingResult(null);
     setWizardStep(0);
     setConsentAccepted(false);
+    setPhotoSessionId(`sess_${Date.now()}_${Math.random().toString(36).substring(2, 7)}`);
     void completeEntertainmentSessionCycle(fiestaId, 'espejoMagicoIA', accessToken);
     startCamera();
   }, [accessToken, fiestaId, startCamera]);
