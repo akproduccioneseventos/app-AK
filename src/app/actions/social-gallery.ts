@@ -343,11 +343,11 @@ export async function uploadSocialPost(
       windowMs: 60_000,
     });
     const db = await getDb();
-    if (fiestaData.socialGallerySettings?.enabled === false) {
+    if (fiestaData.socialGallerySettings?.enabled === false && source !== 'entertainment') {
       return { success: false, error: 'El muro social no está habilitado para este evento.' };
     }
     const active = fiestaData.socialGallerySettings?.uploadsActive !== false;
-    if (!active) {
+    if (!active && source !== 'entertainment') {
       return { success: false, error: 'Las cargas están pausadas para este evento.' };
     }
     const eventLimit = fiestaData?.socialGallerySettings?.maxPhotos ?? MAX_PHOTOS_PER_EVENT;
