@@ -134,19 +134,24 @@ export async function applyEspejoFaceSwap(
   try {
     await ensureEspejoAccess(fiestaId, accessToken || undefined);
 
-    // Limitar a 3 generaciones por minuto para esta cabina/identidad.
-    // Se utiliza el identity de la estación o fiesta para acotar cuantas fotos
-    // en simultáneo pueden pedir a la API en caso de abuso.
-    await enforcePublicRateLimit({
-      scope: "espejo-magico-ai",
-      identity: accessToken ? `guest-${accessToken}` : `fiesta-${fiestaId}`,
-      limit: 3,
-      windowMs: 60_000,
-    });
-  } catch (error: any) {
-    if (error.message === "Rate limit exceeded") {
-      return { success: false, error: "Límite de generaciones alcanzado. Por favor, espera un momento." };
+    // Limitar a 3 generaciones por sesión/invitado.
+    // Se utiliza el sourceFile como identidad de la sesión de foto.
+    // Así se evita el bloqueo de estación y el invitado tiene su propio tope.
+    const guestIdentity = sourceFile ? `${sourceFile.name}-${sourceFile.size}` : `fiesta-${fiestaId}`;
+    try {
+      await enforcePublicRateLimit({
+        scope: "espejo-magico-ai",
+        identity: guestIdentity,
+        limit: 3,
+        windowMs: 15 * 60_000,
+      });
+    } catch (error: any) {
+      if (error.message === "Rate limit exceeded") {
+        return { success: false, error: "Límite de 3 intentos alcanzado para esta foto. Por favor, toma una nueva foto." };
+      }
+      return { success: false, error: error.message || "Sesión no autorizada." };
     }
+  } catch (error: any) {
     return { success: false, error: error.message || "Sesión no autorizada." };
   }
 
