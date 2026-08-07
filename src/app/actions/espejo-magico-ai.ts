@@ -137,7 +137,12 @@ export async function applyEspejoFaceSwap(
     // Limitar a 3 generaciones por sesión/invitado.
     // Se utiliza el sourceFile como identidad de la sesión de foto.
     // Así se evita el bloqueo de estación y el invitado tiene su propio tope.
-    const guestIdentity = sourceFile ? `${sourceFile.name}-${sourceFile.size}` : `fiesta-${fiestaId}`;
+    const photoSessionId = formData.get("photoSessionId") as string | null;
+    const guestIdentity = photoSessionId
+      ? `espejo-${fiestaId}-${photoSessionId}`
+      : sourceFile
+      ? `${sourceFile.name}-${sourceFile.size}`
+      : `fiesta-${fiestaId}`;
     try {
       await enforcePublicRateLimit({
         scope: "espejo-magico-ai",

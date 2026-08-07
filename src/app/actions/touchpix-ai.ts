@@ -395,7 +395,12 @@ export async function applyTouchpixTheme(
     // Limitar a 3 generaciones por sesión/invitado.
     // Se utiliza el file como identidad de la sesión de foto.
     // Así se evita el bloqueo de estación y el invitado tiene su propio tope.
-    const guestIdentity = file ? `${file.name}-${file.size}` : `fiesta-${fiestaId}`;
+    const photoSessionId = formData.get("photoSessionId") as string | null;
+    const guestIdentity = photoSessionId
+      ? `touchpix-${fiestaId}-${photoSessionId}`
+      : file
+      ? `${file.name}-${file.size}`
+      : `fiesta-${fiestaId}`;
     try {
       await enforcePublicRateLimit({
         scope: "touchpix-ai",

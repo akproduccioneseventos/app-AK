@@ -114,6 +114,7 @@ export default function EspejoMagicoPage() {
 
   const [facingMode, setFacingMode] = useState<'user' | 'environment'>('user');
   const [selectedFilter, setSelectedFilter] = useState(FILTERS[0]);
+  const [photoSessionId, setPhotoSessionId] = useState<string>(() => `sess_${Date.now()}_${Math.random().toString(36).substring(2, 7)}`);
 
   const [stickers, setStickers] = useState<{ id: string; emoji: string; x: number; y: number }[]>([]);
   const [draggingId, setDraggingId] = useState<string | null>(null);
@@ -359,6 +360,7 @@ export default function EspejoMagicoPage() {
       formData.append('consentAccepted', String(consentAccepted));
       formData.append('templateId', selectedTemplateId);
       formData.append('sourceFile', file);
+      formData.append('photoSessionId', photoSessionId);
 
       const result = await applyEspejoFaceSwap(formData);
 
@@ -779,8 +781,10 @@ export default function EspejoMagicoPage() {
     setQrCodeUrl('');
     setOriginalPhotoUrl(null);
     setAiImageBase64(null);
-    setAiProcessing(false);
     setAiStep('idle');
+    setAiProcessing(false);
+    setLocalStatus('idle');
+    setPhotoSessionId(`sess_${Date.now()}_${Math.random().toString(36).substring(2, 7)}`);
     setSliderPosition(50);
     setLocalStatus('idle');
     void completeEntertainmentSessionCycle(fiestaId, moduleId, accessToken);
