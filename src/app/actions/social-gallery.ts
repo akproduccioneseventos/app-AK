@@ -431,12 +431,17 @@ export async function uploadSocialPost(
       imageAiSafe: safetyResult.safe,
     });
     if (mediaReview.status === 'blocked') return { success: false, error: mediaReview.message };
+    const isWallRestricted = (!wallEnabled || !wallActive) && bypassWallCheck;
+    const finalModerationStatus = isWallRestricted
+      ? 'pending'
+      : (mediaReview.status === 'pending_review' ? 'pending' : 'approved');
+
     const newPost: SocialGalleryPost = {
       id: postId,
       fiestaId,
       imageUrl,
       mediaType: isVideo ? 'video' : 'image',
-      moderationStatus: mediaReview.status === 'pending_review' ? 'pending' : 'approved',
+      moderationStatus: finalModerationStatus,
       timestamp: new Date().toISOString(),
       authorName: sanitizeSocialText(authorName) || 'Anónimo',
       likes: 0,
@@ -447,12 +452,6 @@ export async function uploadSocialPost(
       ...(momentTag ? { momentTag } : {}),
       ...(imageHash ? { imageHash } : {}),
     };
-
-    // Si el muro está pausado o deshabilitado, pero la estación de entretenimiento sube una foto,
-    // se guarda en storage para generar el QR, pero NO se crea el post en el muro social.
-    if ((!wallEnabled || !wallActive) && bypassWallCheck) {
-      return { success: true, post: newPost };
-    }
 
     // Single-document write — zero write conflict even with 200 simultaneous uploads,
     // because every caller writes to its own unique postId document.
