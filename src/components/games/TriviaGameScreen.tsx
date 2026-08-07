@@ -1,16 +1,19 @@
-'use client';
+﻿'use client';
 
 import React, { useState, useEffect } from 'react';
 import { TriviaQuestion, DEFAULT_TRIVIA_QUESTIONS } from '@/lib/games/game-engine';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
+import { joinTriviaGame, submitTriviaScore } from '@/app/actions/games.actions';
 
 interface Props {
   fiestaId: string;
   guestName: string;
+  guestId?: string;
+  guestAccessToken?: string;
 }
 
-export default function TriviaGameScreen({ fiestaId, guestName }: Props) {
+export default function TriviaGameScreen({ fiestaId, guestName, guestId, guestAccessToken }: Props) {
   const [questions] = useState<TriviaQuestion[]>(DEFAULT_TRIVIA_QUESTIONS);
   const [currentIndex, setCurrentIndex] = useState(0);
   const [timeLeft, setTimeLeft] = useState(15);
@@ -18,17 +21,24 @@ export default function TriviaGameScreen({ fiestaId, guestName }: Props) {
   const [isFinished, setIsFinished] = useState(false);
   const [selectedAnswer, setSelectedAnswer] = useState<string | null>(null);
 
-  // El reloj de la pregunta usa `handleAnswer`, asi que tiene que declararse
-  // despues. Al reves, la pantalla del juego reventaba apenas se abria: la lista
-  // de dependencias se arma mientras se dibuja, cuando `handleAnswer` todavia no
-  // existe. Ademas TypeScript lo rechaza y tumbaba el build de toda la app.
-  const handleAnswer = React.useCallback((answerId: string) => {
+  useEffect(() => {
+    if (guestId && guestAccessToken) {
+      joinTriviaGame(fiestaId, guestId, guestAccessToken, guestName).catch(console.error);
+    }
+  }, [fiestaId, guestId, guestAccessToken, guestName]);
+
+  const handleAnswer = React.useCallback(async (answerId: string) => {
     if (selectedAnswer !== null) return;
     setSelectedAnswer(answerId);
 
     const question = questions[currentIndex];
-    if (answerId === question.correctOptionId) {
+    const isCorrect = answerId === question.correctOptionId;
+    
+    if (isCorrect) {
       setScore(prev => prev + 100);
+      if (guestId && guestAccessToken) {
+        submitTriviaScore(fiestaId, guestId, guestAccessToken, 100).catch(console.error);
+      }
     }
 
     setTimeout(() => {
@@ -40,7 +50,7 @@ export default function TriviaGameScreen({ fiestaId, guestName }: Props) {
         setIsFinished(true);
       }
     }, 2000);
-  }, [currentIndex, questions, selectedAnswer]);
+  }, [currentIndex, questions, selectedAnswer, fiestaId, guestId, guestAccessToken]);
 
   useEffect(() => {
     if (isFinished || selectedAnswer !== null) return;
@@ -76,7 +86,7 @@ export default function TriviaGameScreen({ fiestaId, guestName }: Props) {
       
       <div className="w-full bg-slate-700 h-2 rounded-full mb-8 overflow-hidden">
         <div 
-          className={`h-full transition-all duration-1000 linear ${isLowTime ? 'bg-rose-500' : 'bg-emerald-500'}`}
+          className={`h-full transition-all duration-1000 linear ${isLowTime ? 'bg-red-500' : 'bg-green-500'}`}
           style={{ width: `${progressPercent}%` }}
         />
       </div>
@@ -99,15 +109,14 @@ export default function TriviaGameScreen({ fiestaId, guestName }: Props) {
             }
 
             return (
-              <button
+              <Button
                 key={option.id}
                 onClick={() => handleAnswer(option.id)}
                 disabled={selectedAnswer !== null}
-                className={`p-6 rounded-xl text-xl md:text-2xl font-semibold transition-all flex items-center justify-center gap-4 ${bgColor}`}
+                className={`h-24 md:h-32 text-xl md:text-2xl font-bold transition-all ${bgColor}`}
               >
-                {option.emoji && <span>{option.emoji}</span>}
-                <span>{option.text}</span>
-              </button>
+                {option.text}
+              </Button>
             );
           })}
         </div>
@@ -115,3 +124,5 @@ export default function TriviaGameScreen({ fiestaId, guestName }: Props) {
     </div>
   );
 }
+
+
