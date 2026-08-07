@@ -10,6 +10,10 @@ const ALLOWED_DOMAINS = [
   'firebasestorage.googleapis.com',
   'storage.googleapis.com',
   'lh3.googleusercontent.com',
+  // La galeria se entrega bajo el dominio propio de AK, no bajo el del
+  // proveedor: es la direccion que recibe el cliente. Sin esto, el material
+  // alojado ahi quedaba afuera de la descarga.
+  'galeria.akproducciones.uy',
   'wfolio.com',
   'wfolio.pro'
 ];

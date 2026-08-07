@@ -261,6 +261,31 @@ segundo es el freno de mano de la moderación durante la fiesta: si el equipo
 pausa, es porque no quiere que algo llegue a la pantalla grande. **Ningún camino
 puede saltear la pausa.**
 
+### D.0 — El botón del álbum no puede llevar al panel del proveedor
+
+**Verificado leyendo el código.** En tres pantallas aparece lo mismo:
+
+```
+const customAlbumUrl = fiesta.galeriaUrl || 'https://wfolio.com/my/disk';
+```
+
+Están en `src/app/portal-cliente/[id]/fotos-video/page.tsx`,
+`src/app/post-fiesta/[fiestaId]/page.tsx` y
+`src/components/social-wall/PostEventMemoryHub.tsx`.
+
+**Qué pasa:** si esa fiesta todavía no tiene su galería cargada, el cliente toca
+"Acceder al Álbum Digital Oficial" y termina en el panel genérico del proveedor
+externo. No es su álbum, no hay nada suyo ahí, y además queda expuesto de dónde
+sale el servicio. AK entrega bajo su propio dominio
+(`https://galeria.akproducciones.uy/...`), que es parte de lo que el cliente paga.
+
+**Qué hay que hacer:** si la fiesta no tiene galería cargada, **no mostrar el
+botón**. En su lugar, una línea que diga que el álbum se está preparando y que se
+avisa cuando esté listo. Nunca mandarlo a una dirección que no es la suya.
+
+Ojo: en esas pantallas el mismo valor se usa en varios botones, no sólo en el
+principal. Revisalos todos.
+
 ## Qué hay que revisar
 
 El dueño vende cada estación por separado. Hay que confirmar que eso funciona de
