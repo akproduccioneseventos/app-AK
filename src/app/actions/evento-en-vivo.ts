@@ -15,6 +15,7 @@ import { normalizeUruguayPhone } from '@/lib/commercial/contact';
 import { enforcePublicRateLimit } from '@/lib/commercial/public-rate-limit';
 import { upsertPublicCommercialLead } from '@/lib/crm/public-lead-persistence';
 import { requireAppSession } from '@/lib/auth/require-session';
+import { getPublicGuestPortalData } from '@/app/actions/public-guest-portal';
 
 export type PublicEventoEnVivoData = Omit<EventoEnVivoData, 'captaciones'>;
 
@@ -152,7 +153,9 @@ export async function registerGuestLiveInterest(
 
 export async function addFotoEnVivo(
   fiestaId: string,
-  foto: Omit<FotoEnVivo, 'id' | 'timestamp'>
+  foto: Omit<FotoEnVivo, 'id' | 'timestamp'>,
+  guestId?: string,
+  guestAccessToken?: string
 ): Promise<{ success: boolean; error?: string }> {
   try {
     await enforcePublicRateLimit({
@@ -166,8 +169,19 @@ export async function addFotoEnVivo(
     });
     const fiesta = await getFiestaById(fiestaId);
     if (!fiesta) return { success: false, error: 'Evento no encontrado.' };
+    
+    let resolvedAuthor = foto.autor;
+    if (guestId && guestAccessToken) {
+      try {
+        const portal = await getPublicGuestPortalData(fiestaId, guestId, guestAccessToken);
+        if (portal?.guest?.nombre) resolvedAuthor = portal.guest.nombre;
+      } catch (err) {
+        console.warn('Failed to resolve guest name', err);
+      }
+    }
+    
     const data = getOrInitData(fiesta);
-    data.fotos.push({ ...foto, id: randomId(), timestamp: new Date().toISOString() });
+    data.fotos.push({ ...foto, autor: resolvedAuthor, id: randomId(), timestamp: new Date().toISOString() });
     return (await saveFiesta({ ...fiesta, eventoEnVivo: data })) as { success: boolean; error?: string };
   } catch {
     return { success: false, error: 'No se pudo guardar la foto.' };

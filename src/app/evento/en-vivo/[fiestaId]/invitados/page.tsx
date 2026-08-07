@@ -1,7 +1,7 @@
 'use client';
 
 import React, { useState, useEffect, useCallback, useRef, type ChangeEvent, type FormEvent } from 'react';
-import { useParams } from 'next/navigation';
+import { useParams, useSearchParams } from 'next/navigation';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -28,6 +28,9 @@ const REFRESH_INTERVAL = 15_000;
 
 export default function InvitadosPage() {
   const { fiestaId } = useParams<{ fiestaId: string }>();
+  const searchParams = useSearchParams();
+  const guestId = searchParams.get('guestId') || '';
+  const guestAccessToken = searchParams.get('token') || '';
   const { toast } = useToast();
 
   const [fiestaName, setFiestaName] = useState('');
@@ -103,16 +106,16 @@ export default function InvitadosPage() {
 
   const handleFotoSubmit = async (e: FormEvent) => {
     e.preventDefault();
-    if (!fotoBase64 || !fotoAutor.trim()) {
+    if (!fotoBase64 || (!fotoAutor.trim() && !guestId)) {
       toast({ title: 'Completá los campos', description: 'Nombre y foto son obligatorios.', variant: 'destructive' });
       return;
     }
     setUploadingFoto(true);
     const result = await addFotoEnVivo(fiestaId, {
       url: fotoBase64,
-      autor: fotoAutor.trim(),
+      autor: fotoAutor.trim() || 'Invitado',
       mensaje: fotoMensaje.trim() || undefined,
-    });
+    }, guestId || undefined, guestAccessToken || undefined);
     setUploadingFoto(false);
     if (result.success) {
       toast({ title: '¡Foto enviada!', description: 'Tu foto ya está en el álbum del evento.' });
@@ -208,9 +211,9 @@ export default function InvitadosPage() {
   const handleVotar = async (votacion: VotacionEnVivo, opcionId: string) => {
     if (votadoIds.has(votacion.id)) return;
     setVotadoIds(prev => new Set([...prev, votacion.id]));
-    const result = await votarEnVivo(fiestaId, votacion.id, opcionId);
+    const result = await votarEnVivo(fiestaId, votacion.id, opcionId, guestId || undefined, guestAccessToken || undefined);
     if (result.success) {
-      toast({ title: '¡Voto registrado!' });
+      toast({ title: '¡Voto registrado!', description: 'Gracias por participar.' });
       fetchData();
     } else {
       setVotadoIds(prev => { const n = new Set(prev); n.delete(votacion.id); return n; });
@@ -279,12 +282,16 @@ export default function InvitadosPage() {
                 <form onSubmit={handleFotoSubmit} className="space-y-3">
                   <div>
                     <Label className="text-purple-200 text-sm">Tu nombre *</Label>
-                    <Input
-                      value={fotoAutor}
-                      onChange={e => setFotoAutor(e.target.value)}
-                      placeholder="¿Cómo te llamás?"
-                      className="bg-purple-800/40 border-purple-600 text-white placeholder:text-purple-400 mt-1"
-                    />
+                    {guestId ? (
+                      <Input disabled placeholder="Tu nombre se agrega automáticamente" className="bg-purple-800/40 border-purple-600 text-purple-300 placeholder:text-purple-300 mt-1 opacity-50" />
+                    ) : (
+                      <Input
+                        value={fotoAutor}
+                        onChange={e => setFotoAutor(e.target.value)}
+                        placeholder="¿Cómo te llamás?"
+                        className="bg-purple-800/40 border-purple-600 text-white placeholder:text-purple-400 mt-1"
+                      />
+                    )}
                   </div>
                   <div>
                     <Label className="text-purple-200 text-sm">Foto *</Label>
@@ -545,12 +552,16 @@ export default function InvitadosPage() {
                   <form onSubmit={handleCrmSubmit} className="space-y-4 mt-2">
                     <div>
                       <Label className="text-purple-200 text-sm">Tu Nombre *</Label>
-                      <Input
-                        value={crmNombre}
-                        onChange={e => setCrmNombre(e.target.value)}
-                        placeholder="Nombre completo"
-                        className="bg-purple-950/60 border-purple-500/50 text-white mt-1 h-12 rounded-xl"
-                      />
+                      {guestId ? (
+                        <Input disabled placeholder="Tu nombre se agrega automáticamente" className="bg-purple-950/60 border-purple-500/50 text-purple-300 mt-1 h-12 rounded-xl opacity-50" />
+                      ) : (
+                        <Input
+                          value={crmNombre}
+                          onChange={e => setCrmNombre(e.target.value)}
+                          placeholder="Nombre completo"
+                          className="bg-purple-950/60 border-purple-500/50 text-white mt-1 h-12 rounded-xl"
+                        />
+                      )}
                     </div>
                     <div>
                       <Label className="text-purple-200 text-sm">Celular para avisarte si ganas *</Label>
