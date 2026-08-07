@@ -5,7 +5,7 @@ import { useParams } from 'next/navigation';
 import NextImage from 'next/image';
 import { QRCodeSVG } from 'qrcode.react';
 import { AnimatePresence, motion, useReducedMotion } from 'framer-motion';
-import { Maximize, QrCode, RefreshCw, Sparkles } from 'lucide-react';
+import { Loader2, Maximize, QrCode, RefreshCw, Sparkles } from 'lucide-react';
 import { getPublicSocialEvent, getPublicSocialPosts } from '@/app/actions/social-gallery';
 import { getEntertainmentLaunchToken } from '@/app/actions/fiesta/entretenimiento.actions';
 import type { TotemScreenSettings } from '@/types/fiesta';
