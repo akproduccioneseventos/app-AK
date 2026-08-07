@@ -1,4 +1,4 @@
-'use server';
+Ôªø'use server';
 
 import { getFiestaById, saveFiesta } from '@/app/actions/fiesta-actual';
 import { TriviaGame, PhotoMission, TriviaParticipant } from '@/lib/games/game-engine';
@@ -13,15 +13,16 @@ import { getPublicGuestPortalData } from '@/app/actions/public-guest-portal';
 export async function saveTriviaGame(fiestaId: string, game: TriviaGame): Promise<boolean> {
   await requireAppSession();
   const fiesta = await getFiestaById(fiestaId);
-  if (!fiesta) throw new Error('Fiesta no encontrada');
+  if (!fiesta) return false;
 
-  const result = await saveFiesta({ ...fiesta, triviaGame: game });
-  if (!result?.success) throw new Error(result?.error || 'No se pudo guardar el juego.');
-  return true;
+  const result = await saveFiesta({
+    ...fiesta,
+    triviaGame: game,
+  });
+  return result.success;
 }
 
 export async function getTriviaGame(fiestaId: string): Promise<TriviaGame | null> {
-  await requireAppSession();
   const fiesta = await getFiestaById(fiestaId);
   return fiesta?.triviaGame || null;
 }
@@ -29,15 +30,16 @@ export async function getTriviaGame(fiestaId: string): Promise<TriviaGame | null
 export async function savePhotoMissions(fiestaId: string, missions: PhotoMission[]): Promise<boolean> {
   await requireAppSession();
   const fiesta = await getFiestaById(fiestaId);
-  if (!fiesta) throw new Error('Fiesta no encontrada');
+  if (!fiesta) return false;
 
-  const result = await saveFiesta({ ...fiesta, photoMissions: missions });
-  if (!result?.success) throw new Error(result?.error || 'No se pudieron guardar las misiones.');
-  return true;
+  const result = await saveFiesta({
+    ...fiesta,
+    photoMissions: missions,
+  });
+  return result.success;
 }
 
 export async function getPhotoMissions(fiestaId: string): Promise<PhotoMission[] | null> {
-  await requireAppSession();
   const fiesta = await getFiestaById(fiestaId);
   return fiesta?.photoMissions || null;
 }
@@ -83,7 +85,7 @@ export async function joinTriviaGame(
       triviaGame: { ...triviaGame, participants }
     });
 
-    if (!result?.success) return { success: false, error: 'No se pudo registrar la participaciÛn' };
+    if (!result?.success) return { success: false, error: 'No se pudo registrar la participaci√≥n' };
     return { success: true };
   } catch (err: any) {
     return { success: false, error: err.message || 'Error al procesar la entrada' };
@@ -98,7 +100,7 @@ export async function submitTriviaScore(
 ): Promise<{ success: boolean; error?: string }> {
   try {
     const portal = await getPublicGuestPortalData(fiestaId, guestId, guestAccessToken);
-    if (!portal) return { success: false, error: 'Credenciales inv·lidas' };
+    if (!portal) return { success: false, error: 'Credenciales inv√°lidas' };
 
     const fiesta = await getFiestaById(fiestaId);
     if (!fiesta) return { success: false, error: 'Fiesta no encontrada' };

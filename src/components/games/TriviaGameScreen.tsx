@@ -1,4 +1,4 @@
-'use client';
+﻿'use client';
 
 import React, { useState, useEffect } from 'react';
 import { TriviaQuestion, DEFAULT_TRIVIA_QUESTIONS } from '@/lib/games/game-engine';
@@ -65,7 +65,7 @@ export default function TriviaGameScreen({ fiestaId, guestName, guestId, guestAc
   if (isFinished) {
     return (
       <div className="min-h-screen bg-slate-900 text-white flex flex-col items-center justify-center p-4">
-        <h1 className="text-4xl font-bold mb-4">�Juego Terminado!</h1>
+        <h1 className="text-4xl font-bold mb-4">¡Juego Terminado!</h1>
         <p className="text-xl mb-2">{guestName}, tu puntaje final es:</p>
         <div className="text-6xl font-black text-amber-400 mb-8">{score}</div>
         <Button onClick={() => window.location.reload()} size="lg">Volver al inicio</Button>
@@ -86,8 +86,8 @@ export default function TriviaGameScreen({ fiestaId, guestName, guestId, guestAc
       
       <div className="w-full bg-slate-700 h-2 rounded-full mb-8 overflow-hidden">
         <div 
-          className={h-full transition-all duration-1000 linear }
-          style={{ width: ${progressPercent}% }}
+          className={`h-full transition-all duration-1000 linear ${isLowTime ? 'bg-red-500' : 'bg-green-500'}`}
+          style={{ width: `${progressPercent}%` }}
         />
       </div>
 
@@ -124,3 +124,4 @@ export default function TriviaGameScreen({ fiestaId, guestName, guestId, guestAc
     </div>
   );
 }
+
