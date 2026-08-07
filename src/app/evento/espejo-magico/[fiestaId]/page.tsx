@@ -65,6 +65,7 @@ const MODE_COPY = {
     doneLabel: 'Foto lista',
     author: 'Espejo Mágico Foto',
     review: 'La foto se envía automáticamente al muro de la fiesta.',
+    reviewStandalone: 'Revisá la foto antes de guardarla en la galería.',
   },
   firma: {
     eyebrow: 'Firma y stickers',
@@ -75,6 +76,7 @@ const MODE_COPY = {
     doneLabel: 'Foto firmada',
     author: 'Espejo Mágico Firma',
     review: 'Firma o dibujá sobre la foto y después subila al muro.',
+    reviewStandalone: 'Firma o dibujá sobre la foto y después guardala.',
   },
   ia: {
     eyebrow: 'Face Swap IA',
@@ -85,6 +87,7 @@ const MODE_COPY = {
     doneLabel: 'Avatar listo',
     author: 'Face Swap IA',
     review: 'Podés firmar el resultado o subirlo directo al muro.',
+    reviewStandalone: 'Podés firmar el resultado o guardarlo directo.',
   },
 } as const;
 
@@ -1307,7 +1310,7 @@ export default function EspejoMagicoPage() {
         {localStatus === 'processing' && (
           <div className="absolute inset-0 z-40 bg-zinc-950/90 backdrop-blur-md flex flex-col items-center justify-center text-center p-6">
             <Loader2 className="w-16 h-16 text-rose-500 animate-spin mb-4" />
-            <h3 className="text-2xl font-black text-white mb-2">Subiendo foto al muro...</h3>
+            <h3 className="text-2xl font-black text-white mb-2">{fiesta?.socialWallEnabled ? 'Subiendo foto al muro...' : 'Guardando foto...'}</h3>
           </div>
         )}
 
@@ -1429,7 +1432,7 @@ export default function EspejoMagicoPage() {
         ) : capturedImage && localStatus !== 'done' ? (
           /* Drawing / Review Controls */
           <div className="flex flex-col gap-3 px-6 pb-6 pt-2">
-            <p className="text-center text-xs font-semibold text-zinc-400">{modeCopy.review}</p>
+            <p className="text-center text-xs font-semibold text-zinc-400">{fiesta?.socialWallEnabled ? modeCopy.review : modeCopy.reviewStandalone}</p>
             {/* Color Palette Selector for Drawing */}
             {mode !== 'foto' && (
               <div className="flex justify-center items-center gap-4 py-2 border-b border-zinc-900">
@@ -1471,7 +1474,7 @@ export default function EspejoMagicoPage() {
                 <div className="w-20 h-20 rounded-full bg-gradient-to-r from-rose-500 to-pink-600 shadow-[0_0_30px_rgba(244,63,94,0.3)] flex items-center justify-center">
                   {isUploading ? <Loader2 className="w-8 h-8 animate-spin" /> : <Send className="w-8 h-8 ml-1" />}
                 </div>
-                <span className="text-sm font-black uppercase tracking-wide">Subir al Muro</span>
+                <span className="text-sm font-black uppercase tracking-wide">{fiesta?.socialWallEnabled ? 'Subir al Muro' : 'Guardar Foto'}</span>
               </button>
 
               <button onClick={handleDownload} className="flex flex-col items-center gap-2 text-zinc-400 hover:text-white transition">

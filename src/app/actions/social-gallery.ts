@@ -343,11 +343,14 @@ export async function uploadSocialPost(
       windowMs: 60_000,
     });
     const db = await getDb();
-    if (fiestaData.socialGallerySettings?.enabled === false) {
+    const wallEnabled = fiestaData.socialGallerySettings?.enabled !== false;
+    const wallActive = fiestaData.socialGallerySettings?.uploadsActive !== false;
+    const bypassWallCheck = source === 'entertainment';
+
+    if (!wallEnabled && !bypassWallCheck) {
       return { success: false, error: 'El muro social no está habilitado para este evento.' };
     }
-    const active = fiestaData.socialGallerySettings?.uploadsActive !== false;
-    if (!active) {
+    if (!wallActive && !bypassWallCheck) {
       return { success: false, error: 'Las cargas están pausadas para este evento.' };
     }
     const eventLimit = fiestaData?.socialGallerySettings?.maxPhotos ?? MAX_PHOTOS_PER_EVENT;
@@ -428,12 +431,17 @@ export async function uploadSocialPost(
       imageAiSafe: safetyResult.safe,
     });
     if (mediaReview.status === 'blocked') return { success: false, error: mediaReview.message };
+    const isWallRestricted = (!wallEnabled || !wallActive) && bypassWallCheck;
+    const finalModerationStatus = isWallRestricted
+      ? 'pending'
+      : (mediaReview.status === 'pending_review' ? 'pending' : 'approved');
+
     const newPost: SocialGalleryPost = {
       id: postId,
       fiestaId,
       imageUrl,
       mediaType: isVideo ? 'video' : 'image',
-      moderationStatus: mediaReview.status === 'pending_review' ? 'pending' : 'approved',
+      moderationStatus: finalModerationStatus,
       timestamp: new Date().toISOString(),
       authorName: sanitizeSocialText(authorName) || 'Anónimo',
       likes: 0,
