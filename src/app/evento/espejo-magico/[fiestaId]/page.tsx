@@ -786,7 +786,6 @@ export default function EspejoMagicoPage() {
     setLocalStatus('idle');
     setPhotoSessionId(`sess_${Date.now()}_${Math.random().toString(36).substring(2, 7)}`);
     setSliderPosition(50);
-    setLocalStatus('idle');
     void completeEntertainmentSessionCycle(fiestaId, moduleId, accessToken);
     if (role === 'display') {
       startCamera();
