@@ -341,6 +341,20 @@ export interface FaceSwapResult {
  * Combines the user photo with the specified template using advanced prompt engineering
  * that enforces Dynamic Landmark Mapping (facial alignment, lighting match, shadow blending).
  */
+/**
+ * Dice si la transformacion con IA esta realmente disponible.
+ *
+ * Existe por un problema de fiesta: sin clave configurada, la estacion no
+ * fallaba, devolvia la foto original y decia apenas "modo prueba". El invitado
+ * elegia "Superheroe", posaba, y se llevaba su foto comun. Nadie del equipo se
+ * enteraba hasta que alguien se quejaba, en plena fiesta y sin margen para
+ * arreglarlo. Con esto el operador lo sabe antes de que llegue el primero.
+ */
+export async function isEspejoIaDisponible(): Promise<{ disponible: boolean }> {
+  const apiKey = process.env.GOOGLE_API_KEY || process.env.GEMINI_API_KEY;
+  return { disponible: Boolean(apiKey) };
+}
+
 export async function applyEspejoFaceSwap(
   formData: FormData,
 ): Promise<FaceSwapResult> {
