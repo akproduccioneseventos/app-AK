@@ -55,15 +55,4 @@ describe('Bloque B: Álbum de la fiesta en el portal del cliente', () => {
     expect(downloads.recuerdosAudio).toBe(true);
   });
 
-  it('la descarga junta funciona permitiendo acceder al álbum digital oficial con todo', () => {
-    // Esta prueba de concepto verifica que el enlace general no dependa de estaciones individuales,
-    // y que siempre que haya algo contratado, el álbum oficial es accesible (comprobado en renderizado React).
-    const fiestaConUrl: Partial<FiestaEnPlanificacion> = {
-      galeriaUrl: 'https://wfolio.com/my/fiesta123'
-    };
-
-    // Simulamos la resolución de URL de álbum oficial (fallback por defecto)
-    const albumUrl = fiestaConUrl.galeriaUrl || 'https://wfolio.com/my/disk';
-    expect(albumUrl).toBe('https://wfolio.com/my/fiesta123');
-  });
 });
