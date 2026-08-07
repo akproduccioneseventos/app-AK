@@ -211,15 +211,91 @@ de un estilo en un solo archivo lo cambia en toda la app.
 roto, decilo y la propuesta queda en las pruebas que lo demuestren: eso también
 vale.
 
+## LA REGLA DEL DUEÑO: guardar y mostrar son dos cosas distintas
+
+**Vayan o no al muro, las fotos y videos de las estaciones se guardan SIEMPRE.**
+El dueño lo dijo así de claro. Es la regla que manda en este bloque.
+
+Guardar y publicar no son lo mismo, y confundirlos fue lo que hundió la propuesta
+#873:
+
+- **Guardar es incondicional.** El material queda registrado siempre, aunque el
+  cliente no haya contratado el muro y aunque el equipo tenga las subidas
+  pausadas. Es lo que le da al invitado su copia y al cliente su álbum.
+- **Mostrar en el muro es condicional.** Depende de que el muro esté contratado,
+  de que las subidas no estén pausadas, y de la moderación.
+
+### Dónde se guarda: hay dos lugares, y no son intercambiables
+
+El dueño usa **dos** almacenamientos, y conviene tenerlo claro antes de tocar nada:
+
+- **Firebase**: donde vive el material **mientras dura la fiesta**. Es el que se
+  usa en vivo y el que cuesta plata, así que es temporal.
+- **wfolio** (`https://wfolio.com/my/disk`): el archivo **permanente e
+  ilimitado**. Es donde termina el material del cliente.
+
+La aplicación ya modela ese recorrido en
+`src/lib/social-fiesta/wfolio-album-delivery.ts`, con estados que van de
+`pendiente` a `muro_descargable`, `descargado_por_ak`, `subiendo_wfolio`,
+`entregado_cliente`, y después el vencimiento y el borrado de los temporales.
+
+**Hoy ese pasaje es manual:** no hay ninguna llamada automática a wfolio, el
+sistema sólo lleva la cuenta de en qué paso va. **No lo automatices en este
+bloque**, no es lo que se pide acá. Pero **no rompas esa cadena**: el material de
+las estaciones tiene que quedar registrado de forma que entre en ese recorrido,
+también cuando el muro no está contratado o está pausado. Si una foto no se
+guarda, nunca va a llegar a wfolio y el cliente se queda sin ella.
+
+**Cómo se hace, sin inventar nada.** La aplicación ya tiene el estado que hace
+falta: cada publicación lleva un `moderationStatus` que puede ser `pending`,
+`approved` o `hidden` (ver `src/app/actions/social-gallery.ts`), y las pantallas
+públicas ya filtran y muestran sólo las aprobadas. Entonces:
+
+> Si el muro no está contratado o las subidas están pausadas, la foto **se guarda
+> igual**, pero no como aprobada. No aparece en el muro y nadie la ve hasta que
+> corresponda.
+
+**Lo que hizo mal la #873 y no se repite:** hacer que las fotos de las estaciones
+**saltearan** el control de "muro no contratado" y el de "subidas pausadas". Ese
+segundo es el freno de mano de la moderación durante la fiesta: si el equipo
+pausa, es porque no quiere que algo llegue a la pantalla grande. **Ningún camino
+puede saltear la pausa.**
+
+### D.0 — El botón del álbum no puede llevar al panel del proveedor
+
+**Verificado leyendo el código.** En tres pantallas aparece lo mismo:
+
+```
+const customAlbumUrl = fiesta.galeriaUrl || 'https://wfolio.com/my/disk';
+```
+
+Están en `src/app/portal-cliente/[id]/fotos-video/page.tsx`,
+`src/app/post-fiesta/[fiestaId]/page.tsx` y
+`src/components/social-wall/PostEventMemoryHub.tsx`.
+
+**Qué pasa:** si esa fiesta todavía no tiene su galería cargada, el cliente toca
+"Acceder al Álbum Digital Oficial" y termina en el panel genérico del proveedor
+externo. No es su álbum, no hay nada suyo ahí, y además queda expuesto de dónde
+sale el servicio. AK entrega bajo su propio dominio
+(`https://galeria.akproducciones.uy/...`), que es parte de lo que el cliente paga.
+
+**Qué hay que hacer:** si la fiesta no tiene galería cargada, **no mostrar el
+botón**. En su lugar, una línea que diga que el álbum se está preparando y que se
+avisa cuando esté listo. Nunca mandarlo a una dirección que no es la suya.
+
+Ojo: en esas pantallas el mismo valor se usa en varios botones, no sólo en el
+principal. Revisalos todos.
+
 ## Qué hay que revisar
 
 El dueño vende cada estación por separado. Hay que confirmar que eso funciona de
 verdad, no que se asume.
 
 1. **¿Alguna estación de captura necesita el muro social para funcionar?** Si el
-   cliente no contrató el muro: ¿la foto se pierde? ¿La pantalla se rompe? ¿El
-   invitado igual puede llevarse su copia? La copia del invitado **nunca** puede
-   depender del muro.
+   cliente no contrató el muro: ¿la foto se guarda igual? ¿La pantalla se rompe?
+   ¿El invitado igual puede llevarse su copia? Ni la copia del invitado ni el
+   guardado **pueden depender del muro**. Lo único que depende del muro es que la
+   foto se vea en el muro.
 2. **El hub y la zona digital son menús.** Si el cliente contrató una sola
    estación, ¿muestran una sola opción o quedan llenos de tarjetas muertas?
 3. **La galería**: si el muro social no está contratado pero sí la fotocabina,
@@ -234,6 +310,15 @@ Archivos por donde empezar: `src/lib/entertainment/station-config.ts`,
 **Qué hay que entregar:** los arreglos de lo que esté mal, **y pruebas que
 simulen una fiesta con una sola estación contratada**. Esa prueba es lo que evita
 que el problema vuelva.
+
+Tres pruebas que no pueden faltar:
+
+1. Muro **no contratado** + foto desde la fotocabina → la foto queda guardada, y
+   **no** aparece en el muro.
+2. Subidas **pausadas** + foto desde una estación → la foto queda guardada, y
+   **no** aparece en el muro. Que nadie pueda saltear la pausa.
+3. Muro contratado y activo + foto desde una estación → se guarda y se ve, igual
+   que hoy.
 
 ---
 
