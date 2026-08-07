@@ -13,15 +13,15 @@ terminado**.
 
 ## Cómo se trabaja esta orden
 
-**Cinco propuestas completas, no veinte chiquitas.** Cada bloque de abajo es una
+**Cuatro propuestas completas, no veinte chiquitas.** Cada bloque de abajo es una
 propuesta entera: se hace completo, se prueba completo y se sube una sola vez.
 Dentro de un bloque, hacé todo lo que dice; no lo partas.
 
 Lo que sí importa: **no mezcles dos bloques en la misma propuesta.** Si el bloque
 C viene con un problema, no puede bloquear al bloque A que estaba bien.
 
-Orden recomendado: **A, luego B, C, D y E en cualquier orden.** El A es el que
-más cambia la experiencia y del que dependen los demás en criterio.
+Orden recomendado: **A, luego C, D y E en cualquier orden.** El bloque B
+quedó cerrado: ya estaba hecho. El A es el que más cambia la experiencia y del que dependen los demás en criterio.
 
 ### Antes de subir, siempre
 
@@ -122,31 +122,28 @@ personal aparece con nombre; una del QR del salón, sin nombre y sin errores.
 
 ---
 
-# BLOQUE B — El álbum de la fiesta en el portal del cliente
+# BLOQUE B — Álbum en el portal del cliente: YA ESTABA HECHO
 
-**Propuesta completa.**
+**No hay nada que programar acá. Bloque cerrado.**
 
-## Por qué
+Al escribir esta orden pedí construir algo que la aplicación ya tenía. El error
+fue mío: no lo verifiqué antes.
 
-Las plataformas de internet guardan las fotos entre 2 meses y 1 año, en su sitio,
-y varias cobran extra por bajarlas en buena calidad. Acá el cliente ya tiene su
-portal: el material de su fiesta tiene que estar ahí, suyo, sin plazo ni costo
-extra. Es un argumento de venta que ninguna de ellas puede igualar.
+Lo que ya existe en `main`:
 
-## Qué hay que hacer
+- La pantalla del portal del cliente con las fotos y videos de la fiesta
+  (`src/app/portal-cliente/[id]/fotos-video/page.tsx`), que carga las
+  publicaciones y las dedicatorias.
+- La función que decide qué mostrar según lo contratado
+  (`getContractedDownloads`, en `src/lib/experience-ak/post-event-utils.ts`),
+  usada también por el centro de recuerdos y la pantalla de post-fiesta.
 
-Una sección nueva en el portal del cliente con todo lo que quedó de la fiesta:
-fotos y videos de las estaciones contratadas, y los mensajes de la cápsula del
-tiempo. Con la posibilidad de descargar todo junto.
+La propuesta #869 no construyó el álbum: agregó las pruebas que dejan fijo que el
+portal muestre **sólo** las estaciones contratadas y ninguna sección vacía. Eso
+faltaba y ya está fusionado.
 
-**Cuidado obligatorio:** sólo el material de las estaciones que ese cliente
-contrató. Si contrató una sola, se ve una sola, **sin secciones vacías** de las
-que no contrató. Nada de mostrarle un cartel de "no tenés videos 360" a alguien
-que nunca los compró: eso parece un error o un intento de venta, y queda mal.
-
-**Cómo se sabe que quedó bien:** un cliente con una sola estación contratada ve
-sólo esa; uno con varias las ve todas; y la descarga junta funciona en las dos
-situaciones.
+**Si algo queda por hacer acá**, es sólo la descarga de todo junto, y sólo si al
+mirarlo se confirma que no existe. Verificalo antes de programar nada.
 
 ---
 
@@ -287,4 +284,4 @@ las páginas de las estaciones.
 ## Cuando termines cada bloque
 
 Avisá el número de la propuesta. Se verifica y se fusiona, o vuelve con el motivo
-en una línea. Cuando estén los cinco, el módulo queda terminado.
+en una línea. Cuando estén los cuatro que quedan, el módulo queda terminado.
