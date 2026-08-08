@@ -117,6 +117,36 @@ anotado, la próxima auditoría lo va a volver a encontrar.
 
 ---
 
+## Planificación — pantallas de plata
+
+- **La merma de bebidas ya no se cuenta dos veces** en el gestor de
+  rentabilidad. `totalBebidasCost` viene con el 5% adentro y la merma figuraba
+  además como item propio, así que el costo salía inflado y el margen más bajo
+  que el real. El reporte de post-evento ya lo descontaba con
+  `costosSinMermaDuplicada`; ahora las dos pantallas dan el mismo número.
+- **El costo de proveedores NO va sumado aparte al margen.** Ya está adentro de
+  `costosItems` como items `auto_prov_*`. `totalProveedorCost` es sólo el
+  subtotal que se muestra en la tabla. **Si una auditoría dice que "falta sumar
+  proveedores", es falso positivo:** sumarlo lo contaría dos veces. Ya se reportó
+  una vez por error.
+
+## Pantallas del planificador: qué está conectado y qué no
+
+Verificado el 8 de agosto de 2026. **No hay una plaga de pantallas huérfanas**,
+como pareció al principio:
+
+- **Los "centros de mando" duplicados no son un problema.** Seis pantallas
+  (`centro-de-mando`, `centro-experiencia`, `comando-total`, `show-control`,
+  `centro-total`, `mission-control`) son redirecciones de 18 líneas a
+  `fiestas/[id]/centro`. Vienen de una unificación deliberada y existen para no
+  romper enlaces guardados. **No las borres.**
+- **Las pantallas de gestión documental están todas enlazadas** desde
+  `gestion-documental/page.tsx`. No están huérfanas.
+- **`planner-costo-fiesta` y `servicios-contratados`** se alcanzan por dirección
+  directa aunque no tengan botón en el tablero.
+- **La única sin ningún enlace es `nueva/playlist-pantalla`** (47 líneas, parece
+  terminada). Falta decidir si se conecta o se retira.
+
 ## Infraestructura y pruebas
 
 - **`tests/e2e/layout-baseline.json` se regeneró el 8 de agosto de 2026.** Estuvo
