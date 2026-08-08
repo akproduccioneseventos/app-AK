@@ -276,7 +276,7 @@ function GuestModuleContent() {
           </div>
 
           {/* Visual Config & Preview */}
-          <div className="space-y-6">
+          <div className="space-y-6 md:sticky md:top-6 self-start">
             {/* Customization */}
             <Card className="border-2">
               <CardHeader className="pb-3">
