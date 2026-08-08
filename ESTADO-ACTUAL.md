@@ -8,40 +8,43 @@ Quien cierre una sesión reescribe este archivo. No se acumulan tandas: se pisa.
 
 ---
 
-**Última actualización:** 7 de agosto de 2026
+**Última actualización:** 8 de agosto de 2026
 **Rama:** todo fusionado en `main`. No hay propuestas abiertas.
-**Estado:** compila, 1295 pruebas en verde, sin acentos rotos.
+**Estado:** compila, 1295 pruebas en verde, 92 de navegador, sin acentos rotos.
 
-## Cómo se trabaja (acordado con el dueño)
+## Cómo se trabaja
 
-Claude audita y deja la orden en `docs/ordenes/`. Gemini programa y sube la
-propuesta. Claude verifica y fusiona; si viene rota vuelve a Gemini, salvo que
-sea un renglón. Plata, cobros y permisos los escribe Claude. **Un módulo se
-termina, no se deja a medias.**
+Claude audita con los ayudantes económicos y **verifica cada hallazgo leyendo el
+código** antes de escribirlo. Deja la orden en `docs/ordenes/`. Gemini programa y
+sube. Claude verifica y fusiona; si viene rota vuelve a Gemini, salvo que sea un
+renglón. Plata, cobros, comida y permisos los escribe Claude.
 
-## Módulo de entretenimiento: TERMINADO
+Dos reglas del dueño: **un módulo se termina, no se deja a medias**, y **no
+alcanza con arreglar** — cada trabajo se mira con tres preguntas: qué está roto,
+qué es incómodo de usar y qué se ve mal.
 
-Los cuatro bloques de `docs/ordenes/entretenimiento-02.md` están fusionados.
+## Entretenimiento: TERMINADO
 
-- **Bloque A**: la trivia sabe en qué mesa está cada invitado y el muro saluda
-  por nombre. El que no tiene mesa juega igual.
-- **Bloque C**: tope de 3 generaciones de IA por sesión de foto, contado en el
-  servidor, más una red de contención de 150 por hora por estación. Una sola
-  lista de estilos.
-- **Bloque D**: las estaciones funcionan sin muro contratado. La foto **se
-  guarda siempre**; si el muro está pausado o no contratado queda pendiente y no
-  se ve. Nadie saltea la pausa de la moderación.
-- **Bloque E**: el operador ve en su cabina si un invitado tuvo una falla, con
-  la hora. Se borra solo cuando la estación vuelve a andar.
-- Además: videos del invitado hasta 15 segundos; el tope del evento pasó de 200
-  a 5000 fotos; el paquete de recuerdos baja ordenado por estación y se puede
-  pedir de a una; 10 estilos nuevos de IA y se eligen por fiesta.
+Los cuatro bloques de `docs/ordenes/entretenimiento-02.md`, fusionados y probados
+en navegador.
 
-**Ojo:** `npm run build` estaba roto en `main` desde la propuesta #856 (la
-pantalla de recepción). Ya está arreglado, pero conviene correr el build y no
-sólo las pruebas antes de dar algo por sano.
+## Organización: EMPEZADO
 
-## Lo próximo, si nadie dice otra cosa
+Ya fusionado (#879), lo que era de Claude por tocar comida, plata y privacidad:
 
-Las pruebas de navegador de las estaciones quedaron corriendo al cerrar. Si
-alguna falla, es lo primero a mirar.
+- Celíacos y el reporte al catering contaban **filas** en vez de **personas**: una
+  familia de cinco celíacos era un solo plato.
+- En la lista de carga, el **precio** de un activo se cargaba como **cantidad**.
+- El PDF del itinerario mostraba las notas internas del organizador y no filtraba
+  los momentos marcados como no visibles. Ese PDF lo ven proveedores.
+- La referencia de maquetación llevaba seis días en rojo por un cambio global del
+  3 de agosto: regenerada.
+
+## Lo que falta: `docs/ordenes/organizacion-01.md`
+
+Cuatro bloques para Gemini. El **A** es el urgente: las bebidas nunca llegan a la
+lista de compras, el autoguardado del diseño de decoración falla en silencio, los
+recibos se pierden al recargar, y el aviso al equipo puede no salir nunca.
+
+**Ojo:** `npm run build` ya es control obligatorio. Estuvo roto seis días porque
+el revisor de tipos pasaba y el build no.
