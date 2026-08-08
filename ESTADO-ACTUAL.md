@@ -30,10 +30,11 @@ verifican en paralelo, no una atrás de la otra.
 
 Cuatro bloques de `docs/ordenes/entretenimiento-02.md`, fusionados y probados.
 
-## Organización: TERMINADO
+## Planificación: A MEDIAS (el modulo es mucho mas grande de lo que parecia)
 
-Cuatro bloques de `docs/ordenes/organizacion-01.md` (#882 a #885), más lo que
-hizo Claude por tocar comida, plata y privacidad (#879).
+**El planificador tiene 79 pantallas, no 18.** El primer inventario sólo listó
+las del menú del tablero central. Se auditaron y arreglaron 22 (#879 y #882 a
+#885); **faltan unas 57**.
 
 Lo más importante que quedó resuelto: las bebidas ahora llegan a la lista de
 compras, el diseño de decoración avisa si el autoguardado falla, los recibos se
@@ -44,7 +45,10 @@ conteos de invitados cuentan personas y no filas.
 sincronización con Google antes del guardado, y mandaba los avisos con la lista
 vieja de personal.
 
-## Lo próximo, si nadie dice otra cosa
+## Lo próximo
 
-Elegir el próximo módulo. Quedan sin auditar el comercial (presupuestos, CRM,
-simulador) y el contable (facturas, cobros, recibos).
+- **Gemini**: los cuatro bloques de `docs/ordenes/planificacion-02.md` (invitado,
+  impresos, herramientas internas, pantallas del salón).
+- **Claude**: las pantallas de plata (costos, plan de pagos, contratos y
+  recibos), las que no las enlaza nadie, y los centros de mando duplicados.
+- Después: el módulo comercial y el contable, sin auditar todavía.
