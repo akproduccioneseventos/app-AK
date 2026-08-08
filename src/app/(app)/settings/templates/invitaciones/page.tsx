@@ -132,36 +132,51 @@ export default function InvitationTemplatesPage() {
         <CardContent className="space-y-3">
           {isLoading ? <div className="text-center p-4"><Loader2 className="w-6 h-6 animate-spin"/></div> :
             templates.length > 0 ? (
-              templates.map(template => (
-                <div key={template.id} className="p-3 border rounded-md flex justify-between items-center bg-muted/40">
-                  <div className="flex items-center gap-4">
-                     <div className="w-20 h-14 bg-white border rounded-sm relative overflow-hidden">
-                        {template.cabecera?.videoFondoUrl && <NextImage src={template.cabecera.videoFondoUrl} alt={`Preview de ${template.name}`} layout="fill" objectFit="contain" />}
-                     </div>
-                     <div>
-                        <p className="font-semibold">{template.name}</p>
-                        <p className="text-xs text-muted-foreground">{template.category} - Estilo: {template.plantilla}</p>
+              templates.map(template => {
+                const palette = template.cabecera?.paletaColores;
+                return (
+                  <div key={template.id} className="p-4 border rounded-xl flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 bg-card shadow-sm hover:shadow-md transition-all">
+                    <div className="flex items-center gap-4 min-w-0 w-full sm:w-auto">
+                       <div className="w-16 h-12 bg-slate-100 border rounded-lg relative overflow-hidden shrink-0 flex items-center justify-center">
+                          {template.cabecera?.videoFondoUrl ? (
+                            <NextImage src={template.cabecera.videoFondoUrl} alt={`Preview de ${template.name}`} layout="fill" objectFit="cover" />
+                          ) : (
+                            <ImageIcon className="w-5 h-5 text-slate-400" />
+                          )}
+                       </div>
+                       <div className="min-w-0 flex-1">
+                          <p className="font-semibold text-sm truncate">{template.name}</p>
+                          <p className="text-xs text-muted-foreground">{template.category} • Estilo: {template.plantilla}</p>
+                          {palette && (
+                            <div className="flex items-center gap-1.5 mt-1.5">
+                              <span className="text-[10px] text-muted-foreground font-medium">Paleta:</span>
+                              <div className="w-3.5 h-3.5 rounded-full border shadow-xs" style={{ backgroundColor: palette.primary }} title={`Principal: ${palette.primary}`} />
+                              <div className="w-3.5 h-3.5 rounded-full border shadow-xs" style={{ backgroundColor: palette.secondary }} title={`Secundario: ${palette.secondary}`} />
+                              <div className="w-3.5 h-3.5 rounded-full border shadow-xs" style={{ backgroundColor: palette.accent }} title={`Acento: ${palette.accent}`} />
+                            </div>
+                          )}
+                       </div>
+                    </div>
+                     <div className="flex items-center gap-2 self-end sm:self-auto shrink-0">
+                          <Button variant="ghost" size="icon" className="h-8 w-8" onClick={() => handleDuplicateTemplate(template.id, template.name)} disabled={!!processingId} title="Duplicar">
+                              {processingId === template.id ? <Loader2 className="w-4 h-4 animate-spin" /> : <Copy className="w-4 h-4" />}
+                          </Button>
+                          <Button asChild variant="outline" size="icon" className="h-8 w-8" title="Editar"><Link href={`/fiestas/nueva/pagina-web?templateId=${template.id}`}><Edit className="w-4 h-4"/></Link></Button>
+                          <AlertDialog>
+                          <AlertDialogTrigger asChild>
+                              <Button variant="destructive" size="icon" className="h-8 w-8" disabled={!!processingId} title="Eliminar">
+                                  {processingId === template.id ? <Loader2 className="w-4 h-4 animate-spin"/> : <Trash2 className="w-4 h-4"/>}
+                              </Button>
+                          </AlertDialogTrigger>
+                          <AlertDialogContent>
+                              <AlertDialogHeader><AlertDialogTitle>¿Confirmar eliminación?</AlertDialogTitle><AlertDialogDescription>La plantilla "{template.name}" será eliminada permanentemente.</AlertDialogDescription></AlertDialogHeader>
+                              <AlertDialogFooter><AlertDialogCancel>Cancelar</AlertDialogCancel><AlertDialogAction onClick={() => handleDeleteTemplate(template.id, template.name)} className="bg-destructive hover:bg-destructive/90">Eliminar</AlertDialogAction></AlertDialogFooter>
+                          </AlertDialogContent>
+                         </AlertDialog>
                      </div>
                   </div>
-                   <div className="flex gap-2">
-                        <Button variant="ghost" size="icon" className="h-8 w-8" onClick={() => handleDuplicateTemplate(template.id, template.name)} disabled={!!processingId} title="Duplicar">
-                            {processingId === template.id ? <Loader2 className="w-4 h-4 animate-spin" /> : <Copy className="w-4 h-4" />}
-                        </Button>
-                        <Button asChild variant="outline" size="icon" className="h-8 w-8"><Link href={`/fiestas/nueva/pagina-web?templateId=${template.id}`}><Edit className="w-4 h-4"/></Link></Button>
-                        <AlertDialog>
-                        <AlertDialogTrigger asChild>
-                            <Button variant="destructive" size="icon" className="h-8 w-8" disabled={!!processingId}>
-                                {processingId === template.id ? <Loader2 className="w-4 h-4 animate-spin"/> : <Trash2 className="w-4 h-4"/>}
-                            </Button>
-                        </AlertDialogTrigger>
-                        <AlertDialogContent>
-                            <AlertDialogHeader><AlertDialogTitle>¿Confirmar eliminación?</AlertDialogTitle><AlertDialogDescription>La plantilla "{template.name}" será eliminada permanentemente.</AlertDialogDescription></AlertDialogHeader>
-                            <AlertDialogFooter><AlertDialogCancel>Cancelar</AlertDialogCancel><AlertDialogAction onClick={() => handleDeleteTemplate(template.id, template.name)} className="bg-destructive hover:bg-destructive/90">Eliminar</AlertDialogAction></AlertDialogFooter>
-                        </AlertDialogContent>
-                       </AlertDialog>
-                   </div>
-                </div>
-              ))
+                );
+              })
             ) : <p className="text-center text-muted-foreground p-4">No hay plantillas de invitación guardadas.</p>}
         </CardContent>
       </Card>

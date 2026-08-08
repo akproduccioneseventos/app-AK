@@ -104,18 +104,31 @@ function MenuDeMesaContent() {
     }
   };
 
+  const lastSavedDataRef = React.useRef<MenuMesaData>(data);
+
+  useEffect(() => {
+    lastSavedDataRef.current = data;
+  }, [fiestaId]);
+
   const handleSave = async () => {
     if (!fiestaId) return;
     setIsSaving(true);
+    const previousSnapshot = data;
     try {
       const result = await updateMenuMesaAction(fiestaId, data);
       if (result.success) {
+        lastSavedDataRef.current = data;
         toast({ title: "¡Guardado!", description: "El menú de mesa ha sido actualizado." });
       } else {
-        throw new Error(result.error);
+        throw new Error(result.error || "No se pudo guardar la configuración.");
       }
     } catch (e: any) {
-       toast({ title: "Error", description: e.message, variant: "destructive" });
+      setData(previousSnapshot);
+      toast({
+        title: "No se pudo guardar la configuración",
+        description: `${e.message || 'Error de conexión'}. Se restauró la versión anterior.`,
+        variant: "destructive"
+      });
     } finally {
         setIsSaving(false);
     }

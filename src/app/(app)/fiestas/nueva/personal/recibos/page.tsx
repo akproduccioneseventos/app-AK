@@ -2,7 +2,7 @@
 
 import React, { useState, useEffect, useCallback, useMemo } from 'react';
 import { Button } from '@/components/ui/button';
-import { ArrowLeft, Share2, Save, Loader2, Download, Printer } from 'lucide-react';
+import { ArrowLeft, Share2, Save, Loader2, Download, Printer, UserCheck } from 'lucide-react';
 import Link from 'next/link';
 import { useToast } from '@/hooks/use-toast';
 import { updatePersonalFiestaActual } from '@/app/actions/fiesta-actual';
@@ -498,8 +498,17 @@ function RecibosDePagoContent() {
         </header>
 
         {assignedStaffDetails.length === 0 ? (
-          <div className="text-center py-10 text-muted-foreground">
-            No hay personal asignado a este evento para generar recibos.
+          <div className="text-center py-12 px-6 border-2 border-dashed border-slate-200 rounded-2xl bg-slate-50/50 my-6">
+            <UserCheck className="w-12 h-12 text-primary/60 mx-auto mb-3" />
+            <h3 className="text-lg font-bold text-slate-800">Sin personal asignado</h3>
+            <p className="text-sm text-slate-500 max-w-md mx-auto mt-1 mb-4">
+              Para generar e imprimir los recibos de pago primero tenés que asignar al equipo que trabajará en la fiesta.
+            </p>
+            <Button asChild className="rounded-xl font-bold px-6 shadow-md print:hidden">
+              <Link href={fiestaId ? `/fiestas/nueva/personal?fiestaId=${fiestaId}` : '/fiestas/nueva/personal'}>
+                <UserCheck className="w-4 h-4 mr-2" /> Ir a Asignar Personal
+              </Link>
+            </Button>
           </div>
         ) : (
           <div className="space-y-8 print:space-y-4">
