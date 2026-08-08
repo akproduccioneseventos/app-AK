@@ -12,8 +12,15 @@ export async function updatePersonal(
     const currentData = await getFiestaById(fiestaId);
     if (!currentData) throw new Error("Fiesta no encontrada");
 
-    let googleSyncWarning = '';
+    // PRIMERO se guarda, DESPUES se sincroniza. El orden no es un detalle:
+    // `syncFiestaToGoogleWorkspace` vuelve a leer la fiesta de la base, asi que
+    // si corre antes del guardado manda los avisos con la asignacion VIEJA. El
+    // mozo nuevo no se entera de que trabaja, y al que sacaron le llega el
+    // correo igual.
+    const result = await saveFiesta({ ...currentData, personalAsignado: personal });
+    if (!result.success) throw new Error(result.error);
 
+    let googleSyncWarning = '';
     try {
       const syncRes = await syncFiestaToGoogleWorkspace(fiestaId, {
         reason: 'personal',
@@ -27,13 +34,13 @@ export async function updatePersonal(
       googleSyncWarning = syncError?.message || 'No se pudo sincronizar los avisos por correo con Google Workspace.';
     }
 
-    const updatedData = {
-      ...currentData,
-      personalAsignado: personal,
-      googleSyncWarning,
-    };
-    const result = await saveFiesta(updatedData);
-    if (!result.success) throw new Error(result.error);
+    // El aviso queda anotado en la fiesta para que el equipo lo vea al volver a
+    // entrar, no solo en el momento. Si esta segunda escritura falla no cambia
+    // el resultado: la asignacion ya quedo guardada, que es lo que importa.
+    if (googleSyncWarning) {
+      const conAviso = await getFiestaById(fiestaId);
+      if (conAviso) await saveFiesta({ ...conAviso, googleSyncWarning });
+    }
 
     return { success: true, googleSyncWarning: googleSyncWarning || undefined };
   } catch (e: any) {
