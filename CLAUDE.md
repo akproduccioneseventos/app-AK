@@ -223,6 +223,29 @@ Qué significa en la práctica:
   probado en un navegador de verdad si toca pantallas que usan cámara,
   micrófono o pantalla completa.
 
+## No alcanza con arreglar: hay que mejorar
+
+**Regla del dueño, 8 de agosto de 2026.** Cada vez que se trabaja algo, la
+mirada no es sólo "¿qué está roto?". Es también **"¿cómo se usa mejor?"** y
+**"¿cómo se ve mejor?"**. Las tres cosas juntas, siempre, sin que haga falta
+pedirlo.
+
+Qué mirar además de los errores:
+
+- **Más práctico.** Pasos de más para hacer algo simple, datos que el equipo
+  tiene que cargar dos veces, cosas que el sistema ya sabe y podría completar
+  solo, pantallas que obligan a ir y volver. Si algo se puede hacer en un toque
+  en vez de cuatro, se hace en uno.
+- **Más lindo.** Es un producto que se le muestra al cliente y compite con
+  plataformas pagas: espaciados desprolijos, textos cortados, tablas que se
+  desbordan en el celular, pantallas vacías sin gracia, botones sin jerarquía.
+  Lo feo también hace perder ventas.
+- **Que se entienda.** Mensajes en criollo y no en jerga, carteles que digan qué
+  hacer y no sólo qué pasó, pantallas vacías que expliquen el próximo paso.
+
+Al auditar, pedirle a los ayudantes las tres listas: qué está roto, qué es
+incómodo de usar y qué se ve mal. Al reportar, separarlas igual.
+
 ## Decisiones del dueño ya tomadas (NO volver a preguntar)
 
 Cerradas. Si un análisis las marca como problema, es un falso positivo:
