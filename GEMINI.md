@@ -1,7 +1,10 @@
 # Instrucciones para Gemini (Antigravity)
 
 Para programar y asistir en este proyecto de forma óptima:
-0. **Leé la lista de errores ya cometidos** en `AGENTS.md`, sección "Errores ya
+0. **Si vas a auditar, leé antes `docs/YA-RESUELTO.md`**: es lo que ya está
+   arreglado y las decisiones tomadas del dueño. Si un hallazgo tuyo figura ahí,
+   es falso positivo. Y cuando arregles algo, agregalo a esa lista.
+0b. **Leé la lista de errores ya cometidos** en `AGENTS.md`, sección "Errores ya
    cometidos". Son diez cosas que salieron mal de verdad en este proyecto y cada
    una costó tiempo, plata o una propuesta entera a la basura. Dos te tocan
    especialmente: los **acentos rotos** (guardá siempre en UTF-8) y las

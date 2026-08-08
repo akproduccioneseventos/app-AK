@@ -1,7 +1,10 @@
 # Copilot Instructions
 
 When assisting developers in this repository:
-0. **Read the "Errores ya cometidos" section in `AGENTS.md` before starting.** Ten
+0. **Before auditing anything, read `docs/YA-RESUELTO.md`** — what is already
+   fixed and the owner's settled decisions. If a finding appears there, it is a
+   false positive. When you fix something new, add it to that list.
+0b. **Read the "Errores ya cometidos" section in `AGENTS.md` before starting.** Ten
    things that actually went wrong in this project, each one costing time, money
    or a whole pull request thrown away.
 1. **Read `ESTADO-ACTUAL.md` first.** It is the short handoff note shared by every
