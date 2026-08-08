@@ -157,6 +157,7 @@ function DecoracionYDisenoEventoContent() {
   const [canvasHasChanges, setCanvasHasChanges] = useState(false);
   const [isSavingCanvas, setIsSavingCanvas] = useState(false);
   const [isAutoSaving, setIsAutoSaving] = useState(false);
+  const [autoSaveError, setAutoSaveError] = useState<string | null>(null);
   const [plantillaNombre, setPlantillaNombre] = useState('');
   const [isPlantillaModalOpen, setIsPlantillaModalOpen] = useState(false);
   const [isLoadPlantillaModalOpen, setIsLoadPlantillaModalOpen] = useState(false);
@@ -336,13 +337,22 @@ function DecoracionYDisenoEventoContent() {
     if (!fiestaId) return;
     const res = await addMoodboardItem(fiestaId, url);
     if (res.success) { toast({ title: "Foto de inspiración añadida" }); loadDecoracionData(false); }
-    else toast({ title: "Error", description: res.error, variant: "destructive" });
+    else toast({ title: "Error al añadir foto", description: res.error || "No se pudo agregar la foto de inspiración. Reintentá nuevamente.", variant: "destructive" });
   };
 
   const handleDeleteMoodboardPhoto = async (itemId: string) => {
     if (!fiestaId) return;
     const res = await deleteMoodboardItem(fiestaId, itemId);
-    if (res.success) { toast({ title: "Foto eliminada" }); loadDecoracionData(false); }
+    if (res.success) {
+      toast({ title: "Foto eliminada" });
+      loadDecoracionData(false);
+    } else {
+      toast({
+        title: "Error al eliminar foto",
+        description: res.error || "No se pudo eliminar la foto de inspiración. Reintentá nuevamente.",
+        variant: "destructive"
+      });
+    }
   };
 
   const saveDecoracion = useCallback(async (data: DecoracionData) => {
@@ -655,10 +665,15 @@ function DecoracionYDisenoEventoContent() {
       const result = await updateDecoracionFiestaActual(fiestaId, updatedDecoracion);
       if (result.success) {
         setCanvasHasChanges(false);
+        setAutoSaveError(null);
         if (!silent) toast({ title: '¡Canvas guardado! ✓' });
-      } else throw new Error(result.error);
+      } else throw new Error(result.error || 'Error al guardar el canvas');
     } catch (err: any) {
-      if (!silent) toast({ title: 'Error al guardar', description: err.message, variant: 'destructive' });
+      if (silent) {
+        setAutoSaveError('No se pudo guardar automáticamente — reintentando...');
+      } else {
+        toast({ title: 'Error al guardar', description: err.message || 'No se pudo guardar el canvas', variant: 'destructive' });
+      }
     } finally {
       if (!silent) setIsSavingCanvas(false);
       else setIsAutoSaving(false);
@@ -717,13 +732,13 @@ function DecoracionYDisenoEventoContent() {
 
   // Auto-save 2 seconds after the last canvas change
   useEffect(() => {
-    if (!canvasHasChanges) return;
+    if (!canvasHasChanges && !autoSaveError) return;
     if (autoSaveTimerRef.current) clearTimeout(autoSaveTimerRef.current);
     autoSaveTimerRef.current = setTimeout(() => {
       saveCanvas(true);
     }, 2000);
     return () => { if (autoSaveTimerRef.current) clearTimeout(autoSaveTimerRef.current); };
-  }, [canvasHasChanges, saveCanvas]);
+  }, [canvasHasChanges, autoSaveError, saveCanvas]);
 
   if (isLoading) {
     return <div className="flex items-center justify-center min-h-[400px]"><Loader2 className="w-12 h-12 animate-spin text-primary" /><p className="ml-3 text-lg">Cargando decoración...</p></div>;
@@ -1544,8 +1559,15 @@ function DecoracionYDisenoEventoContent() {
                   )}
                 </div>
                 <div className="ml-auto flex flex-wrap items-center justify-end gap-2">
-                  {isAutoSaving && <span className="text-[10px] text-slate-400 animate-pulse">Guardando...</span>}
-                  {canvasHasChanges && !isAutoSaving && <span className="text-[10px] text-amber-500">● Sin guardar</span>}
+                  {autoSaveError ? (
+                    <span className="text-[10px] text-rose-500 font-medium animate-pulse border border-rose-200 bg-rose-50 px-1.5 py-0.5 rounded">
+                      ⚠️ {autoSaveError}
+                    </span>
+                  ) : isAutoSaving ? (
+                    <span className="text-[10px] text-slate-400 animate-pulse">Guardando...</span>
+                  ) : canvasHasChanges ? (
+                    <span className="text-[10px] text-amber-500">⚡ Sin guardar</span>
+                  ) : null}
                   <Badge variant="secondary" className="rounded-full h-6 text-[10px] px-2.5">
                     {canvasElementos.length} elementos
                   </Badge>
@@ -1611,8 +1633,15 @@ function DecoracionYDisenoEventoContent() {
                   <div className="flex items-center justify-between mb-2 flex-shrink-0">
                     <div className="flex items-center gap-2">
                       <span className="text-sm font-bold text-slate-700">Modo Pantalla Completa</span>
-                      {isAutoSaving && <span className="text-[10px] text-slate-400 animate-pulse">Guardando...</span>}
-                      {canvasHasChanges && !isAutoSaving && <span className="text-[10px] text-amber-500">● Sin guardar</span>}
+                      {autoSaveError ? (
+                        <span className="text-[10px] text-rose-500 font-medium animate-pulse border border-rose-200 bg-rose-50 px-1.5 py-0.5 rounded">
+                          ⚠️ {autoSaveError}
+                        </span>
+                      ) : isAutoSaving ? (
+                        <span className="text-[10px] text-slate-400 animate-pulse">Guardando...</span>
+                      ) : canvasHasChanges ? (
+                        <span className="text-[10px] text-amber-500">⚡ Sin guardar</span>
+                      ) : null}
                     </div>
                     <div className="flex items-center gap-2">
                       <Button

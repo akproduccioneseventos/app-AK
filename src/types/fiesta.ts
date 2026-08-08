@@ -1419,6 +1419,7 @@ export interface FiestaEnPlanificacion {
   contratoDatos?: ContratoDatos;
   clientPortalSettings?: ClientPortalSettings;
   socialGallerySettings?: SocialGallerySettings;
+  googleSyncWarning?: string;
   musica?: MusicaFiesta;
   reposteria?: ReposteriaData;
   bebidas?: BebidasData;

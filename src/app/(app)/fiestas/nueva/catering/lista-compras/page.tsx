@@ -155,25 +155,61 @@ function ListaDeComprasContent() {
               }
           });
 
-          // 2. PROCESAR BARRA DE TRAGOS
-          const hasBarra = presupuestoData.itemsPresupuestados.some(item => 
-              item.nombreServicio.toLowerCase().includes('barra') || item.nombreServicio.toLowerCase().includes('licuado')
-          );
-          if (hasBarra) {
-              const barraTemplate = defaultBebidasData.categorias.find(c => c.id === 'barra_tragos');
-              barraTemplate?.items.forEach(item => {
-                  const totalNeeded = (item.cantidadNecesaria || 0) * totalInvitados;
-                  const catalogInsumo = catalogoInsumos.find(ci => ci.id === item.origenId);
-                  rawList.push({
-                      nombre: item.nombre,
-                      cantidadNecesaria: totalNeeded,
-                      unit: item.unidadCantidad || 'L',
-                      costoUnitario: catalogInsumo?.valorUnitarioEstimado || item.costoUnitario || 0,
-                      proveedor: catalogInsumo?.proveedor || 'Proveedor Bebidas',
-                      origen: 'Barra de Tragos',
-                      origenId: item.origenId,
+          // 2. PROCESAR BEBIDAS (Todas las categorías activadas)
+          if (fiestaData.bebidas?.categorias) {
+              fiestaData.bebidas.categorias.filter(c => c.activada).forEach(cat => {
+                  cat.items?.forEach(item => {
+                      const catalogInsumo = catalogoInsumos.find(ci => ci.id === item.origenId);
+                      rawList.push({
+                          nombre: item.nombre,
+                          cantidadNecesaria: item.cantidadNecesaria || 1,
+                          unit: item.unidadCantidad || 'Unidad',
+                          costoUnitario: catalogInsumo?.valorUnitarioEstimado || item.costoUnitario || 0,
+                          proveedor: item.proveedorHabitual || catalogInsumo?.proveedor || 'Proveedor Bebidas',
+                          origen: `Bebidas: ${cat.nombreDisplay}`,
+                          origenId: item.origenId,
+                          isOrder: true
+                      });
+                  });
+                  cat.recetas?.forEach((receta: any) => {
+                      const factorEscala = totalInvitados / (receta.porcionesBase || 1);
+                      receta.ingredientes?.forEach((ing: any) => {
+                          const totalNeeded = (ing.cantidad || 0) * (isNaN(factorEscala) ? 1 : factorEscala);
+                          if (totalNeeded > 0) {
+                              const catalogInsumo = catalogoInsumos.find(ci => ci.id === ing.id);
+                              rawList.push({
+                                  nombre: ing.nombre,
+                                  cantidadNecesaria: totalNeeded,
+                                  unit: ing.unidad || 'Unidad',
+                                  costoUnitario: catalogInsumo?.valorUnitarioEstimado || ing.costoUnitario || 0,
+                                  proveedor: catalogInsumo?.proveedor || 'Proveedor Bebidas',
+                                  origen: `Bebidas (Receta): ${receta.nombre}`,
+                                  origenId: ing.id,
+                              });
+                          }
+                      });
                   });
               });
+          } else {
+              const hasBarra = presupuestoData.itemsPresupuestados.some(item => 
+                  item.nombreServicio.toLowerCase().includes('barra') || item.nombreServicio.toLowerCase().includes('licuado')
+              );
+              if (hasBarra) {
+                  const barraTemplate = defaultBebidasData.categorias.find(c => c.id === 'barra_tragos');
+                  barraTemplate?.items.forEach(item => {
+                      const totalNeeded = (item.cantidadNecesaria || 0) * totalInvitados;
+                      const catalogInsumo = catalogoInsumos.find(ci => ci.id === item.origenId);
+                      rawList.push({
+                          nombre: item.nombre,
+                          cantidadNecesaria: totalNeeded,
+                          unit: item.unidadCantidad || 'L',
+                          costoUnitario: catalogInsumo?.valorUnitarioEstimado || item.costoUnitario || 0,
+                          proveedor: catalogInsumo?.proveedor || 'Proveedor Bebidas',
+                          origen: 'Barra de Tragos',
+                          origenId: item.origenId,
+                      });
+                  });
+              }
           }
       }
 
