@@ -343,17 +343,37 @@ function RecibosDePagoContent() {
     }, 200);
   };
   
+  const handleAutoSaveSalary = async (updatedStaff: typeof assignedStaffDetails) => {
+    if (!fiestaId) return;
+    setIsSaving(true);
+    const personalToSave: PersonalAsignadoDetalleStorage[] = updatedStaff.map(item => ({
+      empleadoId: item.empleado.id,
+      rolId: item.rolId,
+      eventSalary: item.eventSalary
+    }));
+    try {
+      const result = await updatePersonalFiestaActual(fiestaId, personalToSave);
+      if (!result.success) {
+        toast({ title: "Error al guardar automáticamente", description: result.error || "No se pudieron guardar los cambios.", variant: "destructive" });
+      }
+    } catch (error: any) {
+      toast({ title: "Error al guardar automáticamente", description: error.message, variant: "destructive" });
+    } finally {
+      setIsSaving(false);
+    }
+  };
+
   const handleSalaryChange = (empleadoId: string, newSalary: string) => {
     const salaryNum = parseFloat(newSalary) || 0;
-    setAssignedStaffDetails(prev => 
-      prev.map(detail => {
-        if (detail.empleado.id === empleadoId) {
-          const newContribution = (salaryNum * (detail.rol?.porcentajeAportesPatronales ?? 0)) / 100;
-          return { ...detail, eventSalary: salaryNum, employerContribution: newContribution };
-        }
-        return detail;
-      })
-    );
+    const updated = assignedStaffDetails.map(detail => {
+      if (detail.empleado.id === empleadoId) {
+        const newContribution = (salaryNum * (detail.rol?.porcentajeAportesPatronales ?? 0)) / 100;
+        return { ...detail, eventSalary: salaryNum, employerContribution: newContribution };
+      }
+      return detail;
+    });
+    setAssignedStaffDetails(updated);
+    handleAutoSaveSalary(updated);
   };
   
   const handleSaveChanges = async () => {
