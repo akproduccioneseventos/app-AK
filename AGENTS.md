@@ -15,6 +15,103 @@ arrancar cada chat de cero y no pisarse entre ramas:
 5. Después de fusionar varias propuestas que tocan los mismos archivos, correr la
    verificación completa de nuevo antes de dar nada por sano.
 
+## Errores ya cometidos (valen para Codex, Gemini y Claude)
+
+Lista corta de cosas que salieron mal **de verdad** en este proyecto. Cada una
+costó tiempo, plata o una propuesta entera a la basura. Releerla antes de una
+tanda grande.
+
+### 1. Acentos rotos: 902 de una sola vez
+
+Una propuesta reescribió 45 archivos con la codificación equivocada. Además de
+verse mal en pantalla (`MenÃº`, `PresentaciÃ³n`), **rompe comparaciones de texto
+en silencio**: el código que buscaba la palabra `niño` dejó de encontrarla y los
+platos de chicos pasaron a contarse como de adultos.
+
+**Guardá siempre en UTF-8** y corré `npm run check:acentos` antes de subir. Si
+salta, no subas.
+
+### 2. Comillas invertidas borradas
+
+En tres propuestas seguidas, la herramienta de edición se comió las comillas
+invertidas de los textos armados (`` `texto ${variable}` ``). El proyecto no
+compilaba, y en un caso se llevó puesta también la variable de adentro: la trivia
+perdió el color verde/rojo de las respuestas sin que se notara en el diff.
+
+**Si `npx tsc --noEmit` marca errores raros de sintaxis, es esto.**
+
+### 3. El revisor de tipos NO es el build
+
+`npx tsc --noEmit` pasaba y `npm run build` fallaba. La aplicación estuvo **seis
+días sin poder publicarse** y nadie lo vio.
+
+**Los cuatro controles antes de subir, siempre:**
+
+```
+npx tsc --noEmit
+npx jest --silent
+npm run check:acentos
+npm run build
+```
+
+### 4. Contar filas en vez de personas
+
+Un invitado puede venir con acompañantes (`partySize`). Contar `.length` de una
+lista de invitados cuenta **filas de tabla, no gente**. Ya pasó tres veces: el
+cartel de la puerta, la cuenta de celíacos y el reporte al catering. Una familia
+de cinco celíacos figuraba como **un** plato especial.
+
+**Cada vez que cuentes invitados, preguntate si querés filas o personas.** Casi
+siempre son personas.
+
+### 5. Guardar y avisar en el orden equivocado
+
+Una propuesta movió la sincronización con Google **antes** del guardado. Como esa
+sincronización vuelve a leer los datos de la base, mandaba los avisos con la
+asignación **vieja**: el mozo nuevo no se enteraba de que trabajaba y al que
+habían sacado le llegaba el correo igual.
+
+**Primero se guarda, después se avisa.** Siempre.
+
+### 6. Pantallas que dicen que algo salió bien cuando falló
+
+El patrón se repitió copiado en cuatro estaciones: al fallar la subida, la
+pantalla igual mostraba "listo, escaneá tu recuerdo" con una rueda girando para
+siempre. La gente se iba de la fiesta creyendo que tenía su foto.
+
+**Si un `catch` no le muestra nada al usuario, está mal.** Y ninguna pantalla
+puede afirmar que algo se guardó si no se guardó.
+
+### 7. Perder trabajo al cambiar de rama
+
+`git stash -u` seguido de `git checkout -- .` borró trabajo sin confirmar. Y
+`git checkout <rama> -- <archivo>` **pisa** una edición del árbol de trabajo en
+vez de traerla.
+
+**Confirmá los cambios antes de cambiar de rama.**
+
+### 8. Programar algo que ya existía
+
+Una orden de trabajo pidió construir el álbum del portal del cliente, que la
+aplicación ya tenía. Se perdió el viaje entero.
+
+**Antes de programar una tarea, verificá que no esté hecha.** Un `graphify query`
+y una mirada al archivo alcanzan.
+
+### 9. Afirmar que algo falta por una búsqueda mal hecha
+
+Se reportó que una pantalla no tenía guardado automático. Sí lo tenía: la
+búsqueda fue `autoSave` y la función se llamaba `handleAutoSaveSalary`. La
+diferencia era una mayúscula.
+
+**Buscá sin distinguir mayúsculas antes de decir que algo no está.**
+
+### 10. Propuestas gigantes
+
+Una propuesta de 45 archivos no la puede revisar nadie, y terminó cerrada sin
+fusionar aunque adentro tenía cosas buenas. **Una tarea o un bloque por
+propuesta.** Si una parte viene mal, no puede bloquear a las otras.
+
 ## graphify
 
 This project has a knowledge graph at graphify-out/ with god nodes, community structure, and cross-file relationships.
