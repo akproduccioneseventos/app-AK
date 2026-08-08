@@ -246,6 +246,16 @@ Qué mirar además de los errores:
 Al auditar, pedirle a los ayudantes las tres listas: qué está roto, qué es
 incómodo de usar y qué se ve mal. Al reportar, separarlas igual.
 
+## Antes de auditar: `docs/YA-RESUELTO.md`
+
+Lista de lo que ya está arreglado y de las decisiones tomadas. **Se lee antes de
+salir a buscar problemas**, y se incluye en el prompt de cada ayudante que audita.
+Si un hallazgo figura ahí, es falso positivo.
+
+Cuando arreglás algo, **lo agregás a esa lista en la misma propuesta**. Si no
+queda anotado, la próxima auditoría lo vuelve a encontrar y alguien lo "arregla"
+de nuevo, a veces peor.
+
 ## Errores ya cometidos (no repetirlos)
 
 Lista corta de cosas que salieron mal de verdad. Se relee antes de una tanda

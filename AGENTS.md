@@ -1,3 +1,14 @@
+## ANTES DE AUDITAR: leé `docs/YA-RESUELTO.md`
+
+En este proyecto trabajan varias IA en paralelo, en cuentas distintas. Sin esa
+lista pasa esto: una auditoría nueva "encuentra" un problema que ya se arregló,
+alguien lo vuelve a tocar, y a veces lo deja peor. Ya paso: dos propuestas
+protegieron el mismo archivo de maneras distintas y al fusionarse dejaron la
+pantalla colgada para siempre.
+
+**Si algo que vas a reportar figura ahí, es falso positivo.** Y cuando arregles
+algo nuevo, **agregalo a esa lista en la misma propuesta**.
+
 ## Traspaso entre chats (obligatorio, vale para Codex, Gemini y Claude)
 
 Este proyecto se programa entre tres IA sobre el mismo repositorio. Para no
