@@ -114,7 +114,7 @@ export default function GoogleWorkspaceSettingsPage() {
     startTransition(async () => {
       const result = await notifyGuestsWithCalendarLinks(fiestaId);
       if (!result.success) {
-        setMessage(result.error || 'No se pudo enviar calendario a invitados.');
+        setMessage(result.error || 'No pudimos conectar con el servicio de calendario. Por favor reintentá en un momento.');
         return;
       }
       setMessage(`Se enviaron ${result.sent} mail(s) de calendario a invitados con email cargado.`);
@@ -126,7 +126,7 @@ export default function GoogleWorkspaceSettingsPage() {
 
   const handleSyncCurrentFiesta = () => {
     if (!fiestaId) {
-      setMessage('Entra desde una fiesta para sincronizar esa fiesta con el equipo.');
+      setMessage('Entrá desde una fiesta para sincronizar esa fiesta con el equipo.');
       return;
     }
     setMessage('');
@@ -134,7 +134,7 @@ export default function GoogleWorkspaceSettingsPage() {
     startTransition(async () => {
       const result = await syncFiestaAndNotifyStaff(fiestaId);
       if (!result.success) {
-        setMessage(result.error || 'No se pudo sincronizar esta fiesta.');
+        setMessage(result.error || 'No pudimos sincronizar esta fiesta con el servidor. Reintentá en unos momentos.');
         return;
       }
       setMessage('Fiesta sincronizada con calendario general, personal asignado y avisos al equipo.');
