@@ -108,8 +108,11 @@ function ItinerarioPdfContent({ fiestaId }: { fiestaId: string | null }) {
   }
 
   // Use current program or fallback to default structure
-  const displayPrograma = (fiesta.programa && fiesta.programa.length > 0) 
-    ? fiesta.programa 
+  // Se respetan los momentos que el organizador marco como no visibles: este
+  // PDF se comparte con proveedores y con el cliente desde el portal de accesos,
+  // igual que hace la Vista Cliente de la pantalla de itinerario.
+  const displayPrograma = (fiesta.programa && fiesta.programa.length > 0)
+    ? fiesta.programa.filter(item => item.visibleParaCliente !== false)
     : defaultPrograma;
 
   return (
@@ -157,7 +160,13 @@ function ItinerarioPdfContent({ fiestaId }: { fiestaId: string | null }) {
                       </div>
                       <div className="pt-3 print:pt-1 min-w-0">
                           <p className="font-bold text-lg print:text-sm leading-none mb-1">{item.titulo}</p>
-                          <p className="text-sm text-muted-foreground print:text-xs leading-relaxed">{item.descripcion}</p>
+                          {/* Solo el texto pensado para afuera. `descripcion` es el
+                              campo rotulado "Notas operativas (solo organizador)":
+                              este PDF se comparte con proveedores y con el cliente
+                              desde el portal de accesos, asi que ahi no va. */}
+                          {item.descripcionCliente && (
+                            <p className="text-sm text-muted-foreground print:text-xs leading-relaxed">{item.descripcionCliente}</p>
+                          )}
                       </div>
                   </div>
               )

@@ -106,7 +106,14 @@ function InvitadosEventoContent() {
   const stats = useMemo(() => {
     const adultsConfirmed = invitados.reduce((sum, i) => sum + (i.rsvp === 'Confirmado' && i.categoria === 'Adulto' ? (i.partySize || 1) : 0), 0);
     const kidsConfirmed = invitados.reduce((sum, i) => sum + (i.rsvp === 'Confirmado' && i.categoria === 'Niño/Adolescente' ? (i.partySize || 1) : 0), 0);
-    const celiacs = invitados.filter(i => (i.isCeliac || i.dietaryRestriction === 'Celiaco') && i.rsvp === 'Confirmado').length;
+    const celiacs = invitados.reduce(
+      (sum, i) =>
+        sum +
+        ((i.isCeliac || i.dietaryRestriction === 'Celiaco') && i.rsvp === 'Confirmado'
+          ? (i.partySize || 1)
+          : 0),
+      0,
+    );
     const vips = invitados.filter(i => i.perfil === 'VIP').length;
     
     return {
