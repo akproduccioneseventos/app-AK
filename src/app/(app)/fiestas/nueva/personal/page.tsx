@@ -10,7 +10,7 @@ import { Label } from '@/components/ui/label';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from '@/components/ui/dialog';
 import { Textarea } from '@/components/ui/textarea';
-import { ArrowLeft, Loader2, Save, Users, UserCheck, AlertTriangle, Info, RefreshCw, UserPlus, Trash2, MessageCircle, Send, CalendarDays, History } from 'lucide-react';
+import { ArrowLeft, Loader2, Save, Users, UserCheck, AlertTriangle, Info, RefreshCw, UserPlus, Trash2, MessageCircle, Send, CalendarDays, History, Search } from 'lucide-react';
 import { getEmpleados, fiestasDelMismoDiaConEmpleado } from '@/app/actions/empleados';
 import { getRoles } from '@/app/actions/roles';
 import type { Empleado } from '@/types/empleado';
@@ -75,6 +75,7 @@ function AsignarPersonalEventoContent() {
   const [isSaving, setIsSaving] = useState(false);
   const [googleSyncWarning, setGoogleSyncWarning] = useState<string | null>(null);
   const [isRetryingSync, setIsRetryingSync] = useState(false);
+  const [searchEmployee, setSearchEmployee] = useState('');
   const [error, setError] = useState<string | null>(null);
   const [currentFiesta, setCurrentFiesta] = useState<FiestaEnPlanificacion | null>(null);
 
@@ -430,7 +431,10 @@ Por favor confirmá tu asistencia respondiendo este mensaje.
   };
 
   const getEmployeesByRole = (roleId: string) => {
-      return allEmpleados.filter(e => e.rolIds?.includes(roleId));
+      return allEmpleados.filter(e => 
+        e.rolIds?.includes(roleId) &&
+        (!searchEmployee.trim() || e.nombre.toLowerCase().includes(searchEmployee.toLowerCase()))
+      );
   };
 
   const assignmentRows = useMemo(() => {
@@ -511,13 +515,23 @@ Por favor confirmá tu asistencia respondiendo este mensaje.
 
       <Card className="shadow-lg">
         <CardHeader className="flex flex-row items-center justify-between">
-          <div>
-            <CardTitle className="font-headline">Lista de Personal por Rol</CardTitle>
-            <CardDescription>Asigna nombres a los puestos requeridos. Solo verás empleados capacitados para cada rol.</CardDescription>
-          </div>
-          <div className="flex items-center gap-2">
-            {isSaving && <Loader2 className="w-4 h-4 animate-spin text-primary"/>}
-            <Button variant="ghost" size="sm" onClick={() => fetchInitialData(true)}><RefreshCw className="w-4 h-4 mr-2"/>Sincronizar</Button>
+          <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 w-full">
+            <div className="flex flex-col">
+              <CardTitle className="font-headline">Asignación de Personal</CardTitle>
+              <CardDescription>Asigna nombres a los puestos requeridos. Solo verás empleados capacitados para cada rol.</CardDescription>
+            </div>
+            <div className="flex items-center gap-2 w-full sm:w-auto">
+              <div className="relative flex-1 sm:w-64">
+                <Search className="w-4 h-4 absolute left-2.5 top-2.5 text-slate-400" />
+                <Input
+                  placeholder="Buscar empleado por nombre..."
+                  value={searchEmployee}
+                  onChange={e => setSearchEmployee(e.target.value)}
+                  className="pl-9 h-9 text-xs rounded-xl"
+                />
+              </div>
+              <Button variant="ghost" size="sm" onClick={() => fetchInitialData(true)}><RefreshCw className="w-4 h-4 mr-2"/>Sincronizar</Button>
+            </div>
           </div>
         </CardHeader>
         <CardContent>

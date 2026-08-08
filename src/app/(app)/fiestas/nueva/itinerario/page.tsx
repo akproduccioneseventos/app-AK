@@ -11,6 +11,8 @@ import { Textarea } from '@/components/ui/textarea';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { ArrowLeft, PlusCircle, Edit, Trash2, Loader2, AlertTriangle, Clock, GripVertical, Utensils, GlassWater, Music, CakeSlice, Camera, Diamond, PartyPopper, Save, FolderOpen, RotateCcw, Printer, Share2, Eye, X, Sparkles } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
+import { Badge } from '@/components/ui/badge';
+import { cn } from '@/lib/utils';
 import type { FiestaEnPlanificacion, ProgramaEventoItem, ItineraryTemplate } from '@/types/fiesta';
 import { getFiestaById, updateProgramaFiestaActual } from '@/app/actions/fiesta-actual';
 import { getItineraryTemplates, saveItineraryTemplate, deleteItineraryTemplate } from '@/app/actions/itinerary-templates';
@@ -60,17 +62,24 @@ const ALL_ICONS = [
   { value: 'PartyPopper', label: 'Fiesta' },
 ];
 
-function SortableItem({ item, onEdit, onDelete }: { item: ProgramaEventoItem, onEdit: (item: ProgramaEventoItem) => void, onDelete: (id: string) => void }) {
+function SortableItem({ item, hasOverlap, onEdit, onDelete }: { item: ProgramaEventoItem, hasOverlap?: boolean, onEdit: (item: ProgramaEventoItem) => void, onDelete: (id: string) => void }) {
   const { attributes, listeners, setNodeRef, transform, transition } = useSortable({ id: item.id });
   const style = { transform: CSS.Transform.toString(transform), transition };
   const Icon = item.icono && iconMap[item.icono] ? iconMap[item.icono] : Clock;
 
   return (
-    <div ref={setNodeRef} style={style} className="flex items-center gap-3 p-3 bg-card border rounded-lg shadow-sm">
+    <div ref={setNodeRef} style={style} className={cn("flex items-center gap-3 p-3 bg-card border rounded-lg shadow-sm", hasOverlap && "border-amber-300 bg-amber-50/40")}>
       <div {...listeners} {...attributes} className="cursor-grab p-1 text-muted-foreground"><GripVertical className="w-5 h-5" /></div>
       <div className="p-2 bg-primary/10 rounded-md"><Icon className="w-5 h-5 text-primary" /></div>
       <div className="flex-grow">
-        <p className="font-semibold">{item.hora} - {item.titulo}</p>
+        <div className="flex items-center gap-2">
+          <p className="font-semibold">{item.hora} - {item.titulo}</p>
+          {hasOverlap && (
+            <Badge variant="outline" className="border-amber-300 bg-amber-100/80 text-amber-900 text-[10px] font-bold">
+              <AlertTriangle className="w-3 h-3 mr-1 text-amber-600 inline" /> Coincide horario
+            </Badge>
+          )}
+        </div>
         <p className="text-sm text-muted-foreground">{item.descripcion}</p>
       </div>
       <div className="flex gap-1">
@@ -236,6 +245,14 @@ function ItinerarioContent() {
       id: currentItem.id || `prog_${Date.now()}`,
       ...currentItem,
     } as ProgramaEventoItem;
+
+    const overlapping = programa.find(p => p.hora === newItem.hora && p.id !== newItem.id);
+    if (overlapping) {
+      toast({
+        title: "⚠️ Advertencia de horario coincidente",
+        description: `"${newItem.titulo}" coincide en horario (${newItem.hora}) con "${overlapping.titulo}". Se permite guardar para momentos simultáneos.`,
+      });
+    }
 
     if (currentItem.id) {
       setPrograma(prev => prev.map(p => p.id === newItem.id ? newItem : p));
@@ -426,9 +443,12 @@ function ItinerarioContent() {
           <DndContext sensors={sensors} collisionDetection={closestCenter} onDragEnd={handleDragEnd}>
             <SortableContext items={programa.map(p => p.id)} strategy={verticalListSortingStrategy}>
               <div className="space-y-3">
-                {programa.map(item => (
-                  <SortableItem key={item.id} item={item} onEdit={openModal} onDelete={handleDeleteItem} />
-                ))}
+                {programa.map(item => {
+                  const hasOverlap = programa.some(p => p.id !== item.id && p.hora === item.hora);
+                  return (
+                    <SortableItem key={item.id} item={item} hasOverlap={hasOverlap} onEdit={openModal} onDelete={handleDeleteItem} />
+                  );
+                })}
               </div>
             </SortableContext>
           </DndContext>

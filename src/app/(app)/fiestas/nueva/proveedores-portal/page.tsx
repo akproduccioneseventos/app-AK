@@ -188,7 +188,7 @@ export default function ProveedoresPortalPlannerPage() {
           .slice(0, 20)
           .map((texto, index) => ({
             id: `tarea-${Date.now()}-${index}`,
-            texto: texto.slice(0, 180),
+            texto: texto.slice(0, 500),
             completada: false,
           })),
         notas: undefined,
@@ -350,6 +350,21 @@ export default function ProveedoresPortalPlannerPage() {
                     onChange={(event) => setForm((current) => ({ ...current, tareas: event.target.value }))}
                     placeholder={'Descargar equipos\nPrueba de sonido\nRetirar materiales'}
                   />
+                  {(() => {
+                    const maxLineLen = form.tareas
+                      .split('\n')
+                      .map((l) => l.trim())
+                      .filter(Boolean)
+                      .reduce((max, line) => Math.max(max, line.length), 0);
+                    return (
+                      <div className="flex items-center justify-between text-[11px] text-muted-foreground mt-1">
+                        <span>Hasta 500 caracteres por línea de tarea.</span>
+                        <span className={maxLineLen > 500 ? "text-rose-600 font-bold" : maxLineLen > 450 ? "text-amber-600 font-medium" : ""}>
+                          Línea más larga: {maxLineLen}/500 {maxLineLen > 500 && "⚠️ (Se recortará a 500)"}
+                        </span>
+                      </div>
+                    );
+                  })()}
                 </div>
               </div>
               <DialogFooter>
