@@ -10,41 +10,41 @@ Quien cierre una sesión reescribe este archivo. No se acumulan tandas: se pisa.
 
 **Última actualización:** 8 de agosto de 2026
 **Rama:** todo fusionado en `main`. No hay propuestas abiertas.
-**Estado:** compila, 1295 pruebas en verde, 92 de navegador, sin acentos rotos.
+**Estado:** compila, 1306 pruebas en verde, 94 de navegador, sin acentos rotos.
+
+## Antes de empezar: leé los errores ya cometidos
+
+Están en `AGENTS.md`, sección "Errores ya cometidos". Son diez, con el caso real
+de cada uno. Los leen las tres IA. Ahorran más tiempo que cualquier otra cosa.
 
 ## Cómo se trabaja
 
-Claude audita con los ayudantes económicos y **verifica cada hallazgo leyendo el
-código** antes de escribirlo. Deja la orden en `docs/ordenes/`. Gemini programa y
-sube. Claude verifica y fusiona; si viene rota vuelve a Gemini, salvo que sea un
-renglón. Plata, cobros, comida y permisos los escribe Claude.
+Claude audita con los ayudantes económicos, **verifica cada hallazgo leyendo el
+código** y deja la orden en `docs/ordenes/`. Gemini programa y sube. Claude
+verifica y fusiona. Plata, cobros, comida y permisos los escribe Claude.
 
-Dos reglas del dueño: **un módulo se termina, no se deja a medias**, y **no
-alcanza con arreglar** — cada trabajo se mira con tres preguntas: qué está roto,
-qué es incómodo de usar y qué se ve mal.
+**Los controles de las propuestas también se delegan**, y si hay varias se
+verifican en paralelo, no una atrás de la otra.
 
 ## Entretenimiento: TERMINADO
 
-Los cuatro bloques de `docs/ordenes/entretenimiento-02.md`, fusionados y probados
-en navegador.
+Cuatro bloques de `docs/ordenes/entretenimiento-02.md`, fusionados y probados.
 
-## Organización: EMPEZADO
+## Organización: TERMINADO
 
-Ya fusionado (#879), lo que era de Claude por tocar comida, plata y privacidad:
+Cuatro bloques de `docs/ordenes/organizacion-01.md` (#882 a #885), más lo que
+hizo Claude por tocar comida, plata y privacidad (#879).
 
-- Celíacos y el reporte al catering contaban **filas** en vez de **personas**: una
-  familia de cinco celíacos era un solo plato.
-- En la lista de carga, el **precio** de un activo se cargaba como **cantidad**.
-- El PDF del itinerario mostraba las notas internas del organizador y no filtraba
-  los momentos marcados como no visibles. Ese PDF lo ven proveedores.
-- La referencia de maquetación llevaba seis días en rojo por un cambio global del
-  3 de agosto: regenerada.
+Lo más importante que quedó resuelto: las bebidas ahora llegan a la lista de
+compras, el diseño de decoración avisa si el autoguardado falla, los recibos se
+autoguardan, el tablero muestra el avance y sugiere el próximo paso, y los
+conteos de invitados cuentan personas y no filas.
 
-## Lo que falta: `docs/ordenes/organizacion-01.md`
+**Se corrigió una regresión de Gemini antes de fusionar:** había movido la
+sincronización con Google antes del guardado, y mandaba los avisos con la lista
+vieja de personal.
 
-Cuatro bloques para Gemini. El **A** es el urgente: las bebidas nunca llegan a la
-lista de compras, el autoguardado del diseño de decoración falla en silencio, los
-recibos se pierden al recargar, y el aviso al equipo puede no salir nunca.
+## Lo próximo, si nadie dice otra cosa
 
-**Ojo:** `npm run build` ya es control obligatorio. Estuvo roto seis días porque
-el revisor de tipos pasaba y el build no.
+Elegir el próximo módulo. Quedan sin auditar el comercial (presupuestos, CRM,
+simulador) y el contable (facturas, cobros, recibos).
