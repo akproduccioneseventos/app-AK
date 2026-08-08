@@ -60,12 +60,26 @@ function AlergiasContent() {
   );
   const guestsWithCeliac = confirmedGuests.filter(g => g.isCeliac);
 
+  /**
+   * Cuenta PERSONAS, no filas de la tabla.
+   *
+   * Un invitado puede venir con acompanantes (`partySize`), y el catering cocina
+   * por persona. Contando filas, una familia de cinco celiacos figuraba como un
+   * solo plato especial y cuatro personas se quedaban sin comer.
+   */
+  const contarPersonas = (lista: typeof allGuests) =>
+    lista.reduce((sum, g) => sum + (g.partySize || 1), 0);
+
+  const totalConfirmados = contarPersonas(confirmedGuests);
+  const personasConRestricciones = contarPersonas(guestsWithRestrictions);
+
   // Count by diet type
   const dietCounts = useMemo(() => {
     const counts: Partial<Record<DietaryRestriction, number>> = {};
     confirmedGuests.forEach(g => {
       if (g.dietaryRestriction && g.dietaryRestriction !== 'Ninguna') {
-        counts[g.dietaryRestriction] = (counts[g.dietaryRestriction] ?? 0) + 1;
+        // Suma las personas del grupo, no una por fila.
+        counts[g.dietaryRestriction] = (counts[g.dietaryRestriction] ?? 0) + (g.partySize || 1);
       }
     });
     return counts;
@@ -87,8 +101,8 @@ function AlergiasContent() {
     const lines = [
       `REPORTE ALIMENTARIO - ${fiesta.configuracion.nombreEvento}`,
       `Fecha: ${fiesta.configuracion.fechaEvento ?? 'Sin fecha'}`,
-      `Total confirmados: ${confirmedGuests.length} personas`,
-      `Con restricciones alimentarias: ${guestsWithRestrictions.length} personas`,
+      `Total confirmados: ${totalConfirmados} personas`,
+      `Con restricciones alimentarias: ${personasConRestricciones} personas`,
       '',
       '=== RESUMEN POR RESTRICCIÓN ===',
       ...PRIORITY_DIETS

@@ -350,9 +350,12 @@ function ListaDeCargaOperativaContent() {
                   qty = String(Math.ceil(totalInvitados / 8));
               } else if (asset.invitadosPorUnidad) {
                   qty = String(Math.ceil(totalInvitados / asset.invitadosPorUnidad));
-              } else if (asset.precioVenta && asset.precioVenta > 0) {
-                  qty = String(asset.precioVenta);
               }
+              // Antes, si el activo no decia cuantos invitados cubre por unidad,
+              // se cargaba como CANTIDAD su precio de venta. Una fuente de 8.500
+              // pesos aparecia como 8.500 fuentes a cargar en el camion. Sin
+              // referencia de cobertura, lo correcto es una unidad y que el
+              // equipo la ajuste.
 
               return {
                 id: `sync_${asset.id}_${Date.now()}_${Math.random().toString(36).substring(7)}`,
