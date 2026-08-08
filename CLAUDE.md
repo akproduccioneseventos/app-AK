@@ -246,6 +246,58 @@ Qué mirar además de los errores:
 Al auditar, pedirle a los ayudantes las tres listas: qué está roto, qué es
 incómodo de usar y qué se ve mal. Al reportar, separarlas igual.
 
+## Errores ya cometidos (no repetirlos)
+
+Lista corta de cosas que salieron mal de verdad. Se relee antes de una tanda
+grande; cada una costó tiempo o plata.
+
+### 1. Verificar propuestas a mano en vez de delegarlo
+
+Correr el revisor de tipos, las pruebas y el build es **apretar un botón y
+esperar**: va a los ayudantes económicos, siempre. El modelo principal se queda
+con leer el cambio y decidir.
+
+Y si hay varias propuestas para revisar, **se verifican en paralelo**, no una
+atrás de la otra. Cuatro builds seguidos son veinte minutos de reloj al pedo.
+
+Lo que sí hace el modelo principal: mirar el cambio con criterio. En una tanda
+real eso encontró que la sincronización con Google se había movido **antes** del
+guardado, y mandaba los avisos con la lista vieja de personal. Un ayudante barato
+no lo agarraba.
+
+### 2. Perder ediciones al cambiar de rama
+
+Pasó dos veces en una misma sesión:
+
+- `git stash -u` seguido de `git checkout -- .` borró trabajo sin commitear.
+- `git checkout <otra-rama> -- <archivo>` **pisó** una edición que estaba en el
+  árbol de trabajo, porque trae la versión commiteada de esa rama.
+
+**Regla: commitear antes de cambiar de rama.** Nunca usar `git checkout <ref> --
+<archivo>` esperando llevarse una edición sin commitear: hace lo contrario.
+
+### 3. Pedir algo que ya estaba hecho
+
+Una orden de trabajo pidió construir el álbum del portal del cliente, que la
+aplicación ya tenía. Gemini perdió el viaje entero.
+
+**Antes de escribir una tarea en una orden, verificar que no exista.** Un
+`graphify query` y una mirada al archivo alcanzan.
+
+### 4. Declarar que algo falta por una búsqueda mal hecha
+
+Se reportó que los recibos no tenían guardado automático. Sí lo tenían: la
+búsqueda fue `autoSave` y la función se llamaba `handleAutoSaveSalary`. La
+diferencia era una mayúscula.
+
+**Buscar sin distinguir mayúsculas antes de afirmar que algo no está.**
+
+### 5. Confiar en el revisor de tipos como si fuera el build
+
+`npx tsc --noEmit` pasaba y `npm run build` fallaba. La aplicación estuvo seis
+días sin poder publicarse y nadie lo vio. **El build es control obligatorio**, no
+un extra.
+
 ## Decisiones del dueño ya tomadas (NO volver a preguntar)
 
 Cerradas. Si un análisis las marca como problema, es un falso positivo:
