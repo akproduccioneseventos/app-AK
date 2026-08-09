@@ -440,6 +440,9 @@ las reglas que más importan:
 
 - **`/sano`** — corre los cinco controles de salud en el orden correcto y avisa
   el resultado en criollo. No hace falta recordar la secuencia.
+- **`/vende`** — mira una pantalla, un texto o algo nuevo con ojo de vendedor.
+  **Toda la app vende**, no sólo el módulo comercial: se usa antes de dar por
+  terminada cualquier pantalla que vea un cliente o un invitado.
 - **`/aca-quede`** — reescribe la hoja de traspaso al cerrar la sesión.
 - **Ayudantes económicos ya definidos**, con las reglas del proyecto adentro (no
   hay que explicárselas cada vez): `ak-buscador` para ubicar dónde vive algo,

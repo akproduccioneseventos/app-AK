@@ -309,6 +309,33 @@ comerciales, 12 contables), no las que aparecen en el menú.
   los prospectos que tienen alguien asignado. La clave interna se llama
   `my_leads` por historia, pero no promete "los míos" ni filtra mal.
 
+## Estética — auditada el 9 de agosto de 2026
+
+La app **no está rota, está despareja**: 925 colores escritos a mano en 211
+pantallas, 582 textos de menos de 12 píxeles y 8 variantes de borde redondeado
+conviviendo. El detalle y el plan están en `docs/ordenes/estetica-01.md`, que le
+toca a Gemini.
+
+### Falsos positivos verificados: NO los vuelvas a reportar
+
+- **Los colores en `style={{ backgroundColor: ... }}` del croquis del salón, la
+  decoración, los números de mesa y las invitaciones NO son colores mal
+  puestos.** Son los que **elige el usuario** para cada elemento. Se reportó una
+  vez como "rompe la paleta" y es al revés: si los cambiás a tokens, el usuario
+  pierde la posibilidad de elegir el color.
+- **El `bg-white` de facturas, recibos y contratos es correcto.** Esos
+  documentos se imprimen en papel.
+
+## Toda la app vende (regla del dueño, 9 de agosto de 2026)
+
+No hay pantallas "internas" y pantallas "comerciales". El invitado que usa la
+fotocabina es el cliente de la fiesta del año que viene, el proveedor que recibe
+un PDF prolijo recomienda, y la pantalla que el equipo usa adelante del cliente
+también vende.
+
+Hay una habilidad con ese criterio ya escrito: **`/vende`**. Se usa antes de dar
+por terminada cualquier pantalla que vea un cliente o un invitado.
+
 ## Infraestructura y pruebas
 
 - **`tests/e2e/layout-baseline.json` se regeneró el 8 de agosto de 2026.** Estuvo
