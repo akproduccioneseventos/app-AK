@@ -43,6 +43,31 @@ anotado, la próxima auditoría lo va a volver a encontrar.
   cada vez que el presupuesto se guarda o se actualiza. **Si los invitados
   aumentan, el conteo se actualiza solo.** El dato que marca el invitado sirve
   para saber a quién llevarle cada menú en la mesa, no para comprar.
+- **Los límites de cambio de invitados salen del contrato y ya están en código.**
+  El contrato (`src/lib/contract-template.ts`) dice: *"La lista final deberá
+  entregarse siete días antes. Podrá reducirse hasta 10% de los invitados,
+  ajustando solo servicios por persona, y aumentarse hasta 30%, sujeto a
+  disponibilidad y pago previo. No habrá devolución por inasistencias."* Eso
+  estaba en el papel y en ningún lado del sistema, así que se podía bajar la
+  cantidad un 40% sin que nada avisara. Ahora la regla vive en
+  `src/lib/budget/cambio-de-invitados.ts`, con diez pruebas. **El redondeo va a
+  favor del cliente** (con 55 contratados puede bajar a 49, no a 50).
+  **Si cambiás un tope, cambialo también en el contrato**, o el sistema y el
+  papel dejan de decir lo mismo.
+- **El cliente puede pedir el cambio de invitados desde su portal.** Bajar hasta
+  10% o subir hasta 30%, poniendo cuántos adultos, adolescentes y niños. Las
+  acciones están en `portal.actions.ts`
+  (`submitClientGuestCountChangeRequest`, `approve...`, `reject...`), con siete
+  pruebas. Decisiones tomadas, **no las cambies sin motivo**:
+  - **El pedido NO se aplica solo.** Queda pendiente y lo resuelve AK, porque
+    subir invitados mueve el precio y hay que confirmar con el salón.
+  - **Fuera de los límites del contrato ni se toma el pedido**: se le explica al
+    cliente el rango en el momento. Tomarlo para rechazarlo después le hace
+    perder el viaje.
+  - **Un pedido pendiente por vez.** Si no, se acumulan tres y no se sabe cuál
+    vale.
+  - **Al aprobar se actualiza el PRESUPUESTO**, no sólo la fiesta: de ahí sale
+    lo que se compra y se cocina.
 - **El "Tal vez" de la invitación se saca: se confirma o no se confirma.** Un
   "tal vez" no sirve para encargar comida ni poner sillas. **Pero el estado
   `'Tal vez'` NO se borra del tipo `RsvpStatus`**: hay invitados guardados con

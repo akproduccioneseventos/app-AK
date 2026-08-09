@@ -1445,6 +1445,8 @@ export interface FiestaEnPlanificacion {
   clientPaymentNotifications?: ClientPaymentNotification[];
   clientMenuChangeRequests?: ClientMenuChangeRequest[];
   clientServiceChangeRequests?: ClientServiceChangeRequest[];
+  /** Pedidos del cliente para cambiar la cantidad de invitados. */
+  clientGuestCountChangeRequests?: ClientGuestCountChangeRequest[];
   timeline?: TimelineHito[];
   menuSeleccionPortal?: MenuSeleccionPortal;
   listaMusicaPortal?: ListaMusicaPortal;
@@ -1692,6 +1694,33 @@ export interface ClientServiceChangeRequest {
   montoAdicional: number;
   nuevoTotalEstimado: number;
   notaCliente?: string;
+}
+
+/**
+ * Pedido del cliente para cambiar la cantidad de invitados desde su portal.
+ *
+ * El contrato deja bajar hasta 10% y subir hasta 30%. El pedido se guarda y lo
+ * aprueba AK: no se aplica solo, porque subir invitados mueve el precio y hay
+ * que confirmar disponibilidad con el salón.
+ */
+export interface ClientGuestCountChangeRequest {
+  id: string;
+  createdAt: string;
+  status: 'pendiente' | 'aprobada' | 'rechazada';
+  /** Cuántos había contratados cuando el cliente pidió el cambio. */
+  contratadosAlPedir: number;
+  /** El desglose que pide el cliente. La suma es el total nuevo. */
+  adultos: number;
+  adolescentes: number;
+  ninos: number;
+  /** Total nuevo, ya sumado. */
+  total: number;
+  /** 'aumento' o 'reduccion', para que el equipo lo lea de un vistazo. */
+  tipo: 'aumento' | 'reduccion';
+  notaCliente?: string;
+  /** Motivo del rechazo, si AK lo rechaza. */
+  motivoRechazo?: string;
+  resueltoAt?: string;
 }
 
 export interface CuentaBancaria {
