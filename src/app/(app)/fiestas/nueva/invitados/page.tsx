@@ -42,6 +42,7 @@ import { Badge } from '@/components/ui/badge';
 import { Suspense } from 'react';
 import { RsvpStatusBadge } from '@/components/presupuestos/rsvp-status-badge';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
+import { getGuestAdultsCount, getGuestKidsCount } from '@/lib/fiesta/guest-counts';
 
 const DIETARY_OPTIONS: DietaryRestriction[] = [
   'Ninguna', 'Celiaco', 'Vegetariano', 'Vegano', 'Sin Gluten', 'Sin Lactosa', 'Alergia Mariscos', 'Alergia Frutos Secos', 'Otro'
@@ -104,8 +105,8 @@ function InvitadosEventoContent() {
   useEffect(() => { fetchInvitados(); }, [fetchInvitados]);
 
   const stats = useMemo(() => {
-    const adultsConfirmed = invitados.reduce((sum, i) => sum + (i.rsvp === 'Confirmado' && i.categoria === 'Adulto' ? (i.partySize || 1) : 0), 0);
-    const kidsConfirmed = invitados.reduce((sum, i) => sum + (i.rsvp === 'Confirmado' && i.categoria === 'Niño/Adolescente' ? (i.partySize || 1) : 0), 0);
+    const adultsConfirmed = invitados.reduce((sum, i) => sum + (i.rsvp === 'Confirmado' ? getGuestAdultsCount(i) : 0), 0);
+    const kidsConfirmed = invitados.reduce((sum, i) => sum + (i.rsvp === 'Confirmado' ? getGuestKidsCount(i) : 0), 0);
     const celiacs = invitados.reduce(
       (sum, i) =>
         sum +

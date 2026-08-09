@@ -1,7 +1,43 @@
 # Estado de la auditoría — qué está hecho y qué falta
 
 Documento vivo. Sirve para no repetir trabajo entre sesiones.
-Última actualización: 5 de agosto de 2026.
+Última actualización: 9 de agosto de 2026.
+
+---
+
+## TANDA DEL 9 DE AGOSTO — PRs de Claude/Gemini posteriores a Codex #769
+
+**Punto de corte verificado:** PR Codex #769, merge `056a5dd8`. Se auditaron sobre
+`main` `96e01a96` las 60 PRs posteriores con evidencia directa de Claude que sí
+fueron fusionadas. Las cerradas sin merge #805, #812 y #846 quedaron fuera. No
+hay una PR posterior atribuible con certeza a Gemini; #775, #776, #781, #799,
+#802, #804 y #832 sólo lo mencionan y no prueban autoría.
+
+**Método compartido:** tres agentes económicos `gpt-5.6-terra`/`low` hicieron
+inventario y primera lectura por áreas; el director Codex confirmó personalmente
+los P0/P1 antes de editar. La preferencia permanente sigue siendo Luna/low, pero
+esta sesión no la ofrecía. Graphify quedó actualizado y operativo sobre el SHA
+auditado; Serena se reinstaló, aunque su indexador no pudo arrancar hasta disponer
+de npm en la copia limpia.
+
+### Defectos confirmados y corregidos
+
+| Origen | Qué quedó corregido |
+|---|---|
+| #561 | La preparación LED ahora lee `screenPlaylist.items`; detecta pantalla y modo audiorrítmico reales. |
+| #850 | Cambiar la clave del portal invalida inmediatamente las cookies antiguas; la cookie guarda huella, no la clave. |
+| #836 | Canciones, dedicatorias, sorteos y audios tienen tope global por evento/IP además del tope por nombre, que el visitante podía cambiar. |
+| #897 | Una factura con pagos ya no permite cambiar cliente, fecha, ítems, impuestos ni borrar/modificar pagos existentes. Sí permite anexar un pago nuevo válido. |
+| #904 | `kidsCount` se guarda en ambos flujos RSVP, se recorta al tamaño del grupo y adultos/niños se cuentan por separado en invitados y mesas. |
+| #877 | Los fallos de cámara de fotocabina, Bogue, 360 y espejo se informan al operador mediante `lastError`. |
+
+### Evidencia de esta rama
+
+- 38 pruebas focalizadas en verde; luego 9/9 tras dos guardas finales.
+- Validación final del árbol definitivo: 200 archivos y 1333 pruebas en verde.
+- TypeScript: sin errores. Lint: sin errores nuevos; conserva 5 avisos previos en
+  archivos no tocados.
+- Falta publicar la rama y abrir su PR. No fusionar automáticamente.
 
 ---
 

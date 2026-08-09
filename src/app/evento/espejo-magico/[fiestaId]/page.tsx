@@ -249,9 +249,17 @@ export default function EspejoMagicoPage() {
         videoRef.current.srcObject = mediaStream;
       }
     } catch (err) {
-      setErrorMsg('No se pudo acceder a la cámara.');
+      const cameraError = 'No se pudo acceder a la cámara. Revisa los permisos del navegador y vuelve a intentar.';
+      setErrorMsg(cameraError);
+      void updateEntertainmentSessionStatus(
+        fiestaId,
+        moduleId,
+        'idle',
+        { lastError: cameraError },
+        accessToken,
+      ).catch((statusError) => console.error('No se pudo avisar la falla de cámara al operador:', statusError));
     }
-  }, [facingMode, stopCamera]);
+  }, [accessToken, facingMode, fiestaId, moduleId, stopCamera]);
 
   // 1. Initial configuration load
   useEffect(() => {

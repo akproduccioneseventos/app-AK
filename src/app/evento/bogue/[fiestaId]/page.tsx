@@ -156,9 +156,17 @@ export default function BoguePage() {
       }
     } catch (err) {
       console.error('Error al acceder a la cámara:', err);
-      setCameraError('No pudimos abrir la cámara. Revisa el permiso del navegador y vuelve a intentar.');
+      const cameraError = 'No pudimos abrir la cámara. Revisa el permiso del navegador y vuelve a intentar.';
+      setCameraError(cameraError);
+      void updateEntertainmentSessionStatus(
+        fiestaId,
+        'bogue',
+        'idle',
+        { lastError: cameraError },
+        accessToken,
+      ).catch((statusError) => console.error('No se pudo avisar la falla de cámara al operador:', statusError));
     }
-  }, [facingMode, stopCamera]);
+  }, [accessToken, facingMode, fiestaId, stopCamera]);
 
   // 1. Initial load
   useEffect(() => {
