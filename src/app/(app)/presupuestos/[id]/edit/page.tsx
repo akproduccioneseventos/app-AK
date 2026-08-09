@@ -154,7 +154,12 @@ export default function EditarPresupuestoPage() {
       const result = await updatePresupuesto(updatedData);
       if (result.success && result.presupuesto) {
         toast({ title: "¡Presupuesto Actualizado!", description: `El presupuesto para "${result.presupuesto.clienteNombre}" ha sido actualizado.` });
-        router.push(`/presupuestos/${presupuestoId}/ver`); 
+        // El guardado anduvo pero el seguimiento comercial no: hay que avisarlo,
+        // antes quedaba solo en el registro del servidor.
+        if (result.avisoCrm) {
+          toast({ title: 'Ojo con el seguimiento', description: result.avisoCrm, variant: 'destructive' });
+        }
+        router.push(`/presupuestos/${presupuestoId}/ver`);
       } else {
         throw new Error(result.error || "Error desconocido al actualizar.");
       }

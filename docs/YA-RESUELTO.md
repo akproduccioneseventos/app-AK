@@ -184,6 +184,34 @@ como pareció al principio:
   enlace, y va en el bloque D de `docs/ordenes/planificacion-02.md`. **No la
   borres ni vuelvas a reportarla como huérfana.**
 
+## Comercial y contable
+
+Auditado el 9 de agosto de 2026. **Son 47 pantallas** entre los dos módulos (35
+comerciales, 12 contables), no las que aparecen en el menú.
+
+- **Guardar un presupuesto avisa si el cliente no quedó en el seguimiento.**
+  Antes, si fallaba la sincronización con el CRM, el presupuesto se guardaba
+  igual y decía "Guardado" a secas: el equipo creía que el cliente estaba
+  cargado y no estaba. El guardado sigue sin bloquearse a propósito (el
+  presupuesto vale más que el CRM), pero ahora vuelve el aviso a la pantalla.
+- **Si el cupón no se pudo registrar, ahora se dice.** El descuento se aplicaba
+  igual y el uso quedaba sin anotar en silencio.
+- **Pagos rápidos no muestra más presupuestos archivados.** Filtraba por estado
+  pero no por archivado, así que uno viejo dado de baja seguía en la lista.
+- **Pagos rápidos muestra lo informado y sin confirmar.** El saldo cuenta sólo
+  los pagos confirmados; si el cliente informaba uno, el saldo no se movía y
+  parecía un error. Ahora aparece aparte, en ámbar.
+- **El motivo del rechazo de un pago se ve en la lista**, sin tener que entrar
+  al presupuesto.
+
+### Falsos positivos ya verificados en estos módulos
+
+- **Los recibos del personal NO dan NaN.** El cálculo del sueldo protege los
+  porcentajes faltantes con `?? 0` y sólo divide si el divisor es mayor a cero.
+- **La deduplicación de señas es deliberada.** Busca por evento, monto y día
+  para no registrar dos veces el mismo pago. Que dos señas idénticas el mismo
+  día se confundan es el precio de esa protección: no lo "arregles" sin hablarlo.
+
 ## Infraestructura y pruebas
 
 - **`tests/e2e/layout-baseline.json` se regeneró el 8 de agosto de 2026.** Estuvo
