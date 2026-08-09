@@ -5,7 +5,7 @@ import React, { useState, useEffect, useCallback, useMemo } from 'react';
 import Link from 'next/link';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { ArrowLeft, Loader2, AlertTriangle, ClipboardList, ChefHat, Palette, Camera, Music2, Shield, Printer } from 'lucide-react';
+import { ArrowLeft, Loader2, AlertTriangle, ClipboardList, ChefHat, Palette, Camera, Music2, Shield, Printer, Users } from 'lucide-react';
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/components/ui/accordion";
 import { useToast } from '@/hooks/use-toast';
 import type { FiestaEnPlanificacion } from '@/types/fiesta';
@@ -122,7 +122,10 @@ export default function ServiciosContratadosPage() {
           decoracion: [],
           fotografia: [],
           musica: [],
-          seguridad: []
+          seguridad: [],
+          // El personal cuyo rol no encaja en ninguna categoria caia en
+          // Catering, asi que un DJ o un chofer aparecia entre los mozos.
+          otros: []
       };
 
       if (menu) {
@@ -150,7 +153,7 @@ export default function ServiciosContratadosPage() {
         } else if (p.rol?.categoriaServicio?.toLowerCase().includes('foto') || p.rol?.categoriaServicio?.toLowerCase().includes('video')) {
           allServices.fotografia.push(item);
         } else {
-            allServices.catering.push(item); // Fallback to catering
+            allServices.otros.push(item);
         }
       });
       presupuesto?.itemsPresupuestados?.forEach(s => {
@@ -274,6 +277,20 @@ export default function ServiciosContratadosPage() {
              {allItems.seguridad.length === 0 && <p className="text-sm text-muted-foreground italic px-4 py-2">No hay servicios de seguridad en el presupuesto.</p>}
           </AccordionContent>
         </AccordionItem>
+
+        {allItems.otros.length > 0 && (
+          <AccordionItem value="otros" className="border rounded-lg shadow-sm">
+            <AccordionTrigger className="px-4 py-3 hover:no-underline text-lg font-medium text-primary hover:bg-muted/50 rounded-t-lg">
+              <div className="flex items-center gap-2"><Users className="w-5 h-5"/>Otro personal</div>
+            </AccordionTrigger>
+            <AccordionContent className="p-4 border-t">
+              <p className="text-xs text-muted-foreground italic mb-3">
+                Personal cuyo rol no tiene una categoría asignada. Si querés que aparezca en su rubro, ponele una categoría al rol en la configuración de personal.
+              </p>
+              {renderSubServicios(allItems.otros)}
+            </AccordionContent>
+          </AccordionItem>
+        )}
       </Accordion>
 
       <div className="pt-6 text-center print:hidden">
