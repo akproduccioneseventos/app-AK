@@ -11,6 +11,7 @@ import { uploadToStorage } from '@/lib/firebase/storage';
 import { verifySession } from '@/lib/auth/session-token';
 import { findMatchingClientPayment, parseCleanMoney } from '@/lib/budget/financial-guardrails';
 import { findExistingDepositReceipt, isDepositReceiptInvoice } from '@/lib/commercial-flow/ledger-service';
+import { calcularAvisosPendientes } from '@/lib/cobros/escaneo-recordatorios';
 import { triggerWhatsAppAutomation } from '@/lib/whatsapp-automation-engine';
 import { getScheduledMessages } from '@/app/actions/scheduled-messages';
 import { invoiceMoneyTolerance, roundInvoiceMoney } from '@/lib/invoice-money';
@@ -569,74 +570,48 @@ function parseDateStringLocal(dateStr: string): Date {
   return new Date(dateStr);
 }
 
-export async function scanAndTriggerPaymentReminders(): Promise<{ success: boolean; triggeredCount: number; errors: string[] }> {
-  const auth = await verifySession();
-  if (!auth.success) throw new Error('No autorizado');
-
+/**
+ * Arma y programa los recordatorios de pago. Lo usan dos caminos: el boton del
+ * equipo (con sesion) y la tarea programada (con su clave). La decision de a
+ * quien avisar vive en `escaneo-recordatorios.ts`, aparte, para poder probarla.
+ */
+export async function ejecutarEscaneoDeRecordatorios(): Promise<{ success: boolean; triggeredCount: number; errors: string[] }> {
   const [invoices, scheduledMessages] = await Promise.all([
     getInvoices(),
     getScheduledMessages().catch(() => [])
   ]);
 
-  const today = new Date();
-  today.setHours(0, 0, 0, 0);
+  const avisos = calcularAvisosPendientes(invoices, scheduledMessages, {
+    saldoDeFactura: getInvoiceBalance,
+    leerFecha: parseDateStringLocal,
+  });
 
   let triggeredCount = 0;
   const errors: string[] = [];
-  const oneDayAgo = new Date(Date.now() - 24 * 60 * 60 * 1000);
 
-  for (const inv of invoices) {
-    if (inv.status === 'Paid') continue;
-    const balance = getInvoiceBalance(inv);
-    if (balance <= 0) continue;
+  for (const { trigger, invoice: inv, balance } of avisos) {
+    const ctx = {
+      targetId: inv.customer.id,
+      targetName: inv.customer.name,
+      targetType: 'cliente' as const,
+      targetPhone: inv.customer.phone,
+      fiestaId: inv.sourceFiestaId,
+      nombre: inv.customer.name,
+      saldo: `${inv.currency || 'UYU'} ${balance}`,
+      fecha: inv.dueDate,
+      link: `${process.env.NEXT_PUBLIC_APP_URL || ''}/portal/${inv.sourceFiestaId || ''}`,
+    };
 
-    const due = parseDateStringLocal(inv.dueDate);
-    due.setHours(0, 0, 0, 0);
-
-    const diffTime = due.getTime() - today.getTime();
-    const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
-
-    // Determine trigger
-    let trigger: 'pago_vencido' | 'pago_por_vencer' | null = null;
-    if (diffDays < 0) {
-      trigger = 'pago_vencido';
-    } else if (diffDays >= 0 && diffDays <= 3) {
-      trigger = 'pago_por_vencer';
-    }
-
-    if (trigger) {
-      // Check for duplicate pending messages or recently sent ones to prevent spam
-      const hasRecentOrPending = scheduledMessages.some(m =>
-        m.targetId === inv.customer.id &&
-        m.templateType === trigger &&
-        (m.status === 'pendiente' || (m.status === 'enviado' && m.sentAt && new Date(m.sentAt) > oneDayAgo))
-      );
-
-      if (hasRecentOrPending) {
-        continue;
-      }
-
-      const ctx = {
-        targetId: inv.customer.id,
-        targetName: inv.customer.name,
-        targetType: 'cliente' as const,
-        targetPhone: inv.customer.phone,
-        fiestaId: inv.sourceFiestaId,
-        nombre: inv.customer.name,
-        saldo: `${inv.currency || 'UYU'} ${balance}`,
-        fecha: inv.dueDate,
-        link: `${process.env.NEXT_PUBLIC_APP_URL || ''}/portal/${inv.sourceFiestaId || ''}`,
-      };
-
-      const result = await triggerWhatsAppAutomation(trigger, ctx);
-      if (result.scheduled > 0) {
-        triggeredCount += result.scheduled;
-      }
-      if (result.errors.length > 0) {
-        errors.push(...result.errors);
-      }
-    }
+    const result = await triggerWhatsAppAutomation(trigger, ctx);
+    if (result.scheduled > 0) triggeredCount += result.scheduled;
+    if (result.errors.length > 0) errors.push(...result.errors);
   }
 
   return { success: true, triggeredCount, errors };
+}
+
+export async function scanAndTriggerPaymentReminders(): Promise<{ success: boolean; triggeredCount: number; errors: string[] }> {
+  const auth = await verifySession();
+  if (!auth.success) throw new Error('No autorizado');
+  return ejecutarEscaneoDeRecordatorios();
 }
