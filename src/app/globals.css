@@ -84,6 +84,17 @@
   h1, h2, h3, h4, h5, h6 { @apply font-headline tracking-tight; }
 }
 
+@layer utilities {
+  /* Legibilidad AK: ninguna utilidad histórica de 8–11 px baja de 12 px en pantalla. */
+  .text-\[8px\],
+  .text-\[9px\],
+  .text-\[10px\],
+  .text-\[11px\] {
+    font-size: 0.75rem !important;
+    line-height: 1rem !important;
+  }
+}
+
 @layer components {
   .canvas-grid-background {
     background-color: hsl(var(--muted));

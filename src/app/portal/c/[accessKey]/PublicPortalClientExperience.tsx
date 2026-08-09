@@ -43,6 +43,7 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
 import { Label } from '@/components/ui/label';
+import { EmptyState } from '@/components/ui/empty-state';
 import {
   buildWhatsAppHref,
   estimateGuestIncrease,
@@ -220,8 +221,15 @@ function StatTile({ label, value, icon: Icon, tone }: { label: string; value: st
   );
 }
 
-function EmptyLine({ text }: { text: string }) {
-  return <p className="ak-public-card-soft border-dashed p-3 text-sm text-slate-500">{text}</p>;
+function PortalEmptyState({ title, description }: { title: string; description: string }) {
+  return (
+    <EmptyState
+      icon={<ClipboardList className="h-7 w-7" />}
+      title={title}
+      description={description}
+      className="ak-public-card-soft py-6"
+    />
+  );
 }
 
 function NoticeBox({ notice }: { notice: Notice }) {
@@ -554,15 +562,23 @@ export default function PublicPortalClientExperience({ fiesta, companyContact, c
     done: item.completado || item.completada || item.estado === 'listo' || item.estado === 'revisado',
   })).filter(task => task.text && !task.done);
 
-  const nextStep = (() => {
-    if (isDefaultLink) return { title: 'Falta personalizar el link', text: 'Antes de enviarlo, AK debe cambiar el link de prueba por uno real.' };
-    if (!presupuesto) return { title: 'Falta el presupuesto', text: 'Cuando AK lo cargue, vas a ver pagos, contrato y servicios.' };
-    if (paymentSummary.pendingReviewCount > 0) return { title: 'Pago en revisión', text: `Hay ${paymentSummary.pendingReviewCount} pago(s) esperando confirmación de AK.` };
-    if (paymentSummary.balance > 0) return { title: 'Saldo pendiente', text: `Saldo actual: ${formatPortalMoney(paymentSummary.balance)}.` };
-    if (pendingTasks.length > 0) return { title: 'Pendiente para revisar', text: pendingTasks[0].text };
-    if (guestStats.needsAction > 0) return { title: 'Invitados pendientes', text: `${guestStats.needsAction} invitado(s) todavía necesitan respuesta.` };
-    return { title: 'Todo encaminado', text: 'La información principal del evento está ordenada.' };
+  const nextStep: { title: string; text: string; action: 'contact' | 'payment' | 'contable' | 'organizacion' | 'invitados'; label: string } = (() => {
+    if (isDefaultLink) return { title: 'Falta personalizar el link', text: 'Antes de enviarlo, AK debe cambiar el link de prueba por uno real.', action: 'contact', label: 'Hablar con AK' };
+    if (!presupuesto) return { title: 'Falta el presupuesto', text: 'Cuando AK lo cargue, vas a ver pagos, contrato y servicios.', action: 'contact', label: 'Consultar con AK' };
+    if (paymentSummary.pendingReviewCount > 0) return { title: 'Pago en revisión', text: `Hay ${paymentSummary.pendingReviewCount} pago(s) esperando confirmación de AK.`, action: 'contable', label: 'Ver pagos' };
+    if (paymentSummary.balance > 0) return { title: 'Saldo pendiente', text: `Saldo actual: ${formatPortalMoney(paymentSummary.balance)}.`, action: 'payment', label: 'Hacer un pago' };
+    if (access.canSeeOrganization && pendingTasks.length > 0) return { title: 'Pendiente para revisar', text: pendingTasks[0].text, action: 'organizacion', label: 'Ver pendientes' };
+    if (access.canSeeOrganization && guestStats.needsAction > 0) return { title: 'Invitados pendientes', text: `${guestStats.needsAction} invitado(s) todavía necesitan respuesta.`, action: 'invitados', label: 'Ver invitados' };
+    return access.canSeeOrganization
+      ? { title: 'Todo encaminado', text: 'La información principal del evento está ordenada.', action: 'organizacion', label: 'Ver resumen' }
+      : { title: 'Todo encaminado', text: 'La información disponible del evento está ordenada.', action: 'contable', label: 'Ver resumen financiero' };
   })();
+
+  const goToPortalSection = (section: 'contable' | 'organizacion' | 'invitados') => {
+    const element = document.getElementById(`portal-${section}`);
+    element?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    element?.querySelector<HTMLButtonElement>('button')?.click();
+  };
 
   const serviceCards = [
     {
@@ -968,24 +984,6 @@ export default function PublicPortalClientExperience({ fiesta, companyContact, c
 
   return (
     <div className="ak-public-page">
-      <style dangerouslySetInnerHTML={{__html: `
-        @keyframes payPulse {
-          0%, 100% {
-            opacity: 1;
-            transform: scale(1);
-            box-shadow: 0 0 0 0 rgba(16, 185, 129, 0.7);
-          }
-          50% {
-            opacity: 0.95;
-            transform: scale(1.015);
-            box-shadow: 0 0 16px 6px rgba(16, 185, 129, 0.45);
-          }
-        }
-        .animate-pay-pulse {
-          animation: payPulse 1.8s infinite ease-in-out;
-        }
-      `}} />
-
       <section
         className="ak-public-hero text-white relative"
         style={{
@@ -1053,12 +1051,28 @@ export default function PublicPortalClientExperience({ fiesta, companyContact, c
             </div>
             
             <div className="space-y-2">
-              <Button 
-                className="w-full animate-pay-pulse bg-emerald-600 hover:bg-emerald-700 text-white font-extrabold shadow-lg rounded-xl h-11 transition-all"
-                onClick={() => setPaymentModalOpen(true)}
-              >
-                <CreditCard className="h-4 w-4" /> Hacer un pago
-              </Button>
+              {nextStep.action === 'payment' ? (
+                <Button className="h-11 w-full font-extrabold" onClick={() => setPaymentModalOpen(true)}>
+                  <CreditCard className="h-4 w-4" /> {nextStep.label}
+                </Button>
+              ) : nextStep.action === 'contact' ? (
+                <Button className="h-11 w-full font-extrabold" asChild>
+                  <a href={whatsappHref} target="_blank" rel="noopener noreferrer">
+                    <MessageCircle className="h-4 w-4" /> {nextStep.label}
+                  </a>
+                </Button>
+              ) : (
+                <Button
+                  className="h-11 w-full font-extrabold"
+                  onClick={() => {
+                    if (nextStep.action === 'contable' || nextStep.action === 'organizacion' || nextStep.action === 'invitados') {
+                      goToPortalSection(nextStep.action);
+                    }
+                  }}
+                >
+                  <ChevronRight className="h-4 w-4" /> {nextStep.label}
+                </Button>
+              )}
               
               <div className="grid grid-cols-2 gap-2">
                 <Button variant="outline" className="w-full text-slate-700 border-slate-300 rounded-xl h-10" asChild>
@@ -1241,15 +1255,15 @@ export default function PublicPortalClientExperience({ fiesta, companyContact, c
                 <div className="grid gap-3 lg:grid-cols-3">
                   <div className="rounded-lg bg-slate-50 p-3">
                     <p className="mb-2 text-sm font-black">Imprescindibles</p>
-                    {musicMust.length === 0 ? <EmptyLine text="Sin canciones cargadas." /> : musicMust.slice(0, 6).map((song: string) => <p key={song} className="mb-2 rounded-md bg-white px-3 py-2 text-sm">{song}</p>)}
+                    {musicMust.length === 0 ? <PortalEmptyState title="Todavía no hay canciones imprescindibles" description="Podés agregarlas desde esta misma sección cuando tengas tus favoritas." /> : musicMust.slice(0, 6).map((song: string) => <p key={song} className="mb-2 rounded-md bg-white px-3 py-2 text-sm">{song}</p>)}
                   </div>
                   <div className="rounded-lg bg-slate-50 p-3">
                     <p className="mb-2 text-sm font-black">Si es posible</p>
-                    {musicMaybe.length === 0 ? <EmptyLine text="Sin sugerencias." /> : musicMaybe.slice(0, 6).map((song: string) => <p key={song} className="mb-2 rounded-md bg-white px-3 py-2 text-sm">{song}</p>)}
+                    {musicMaybe.length === 0 ? <PortalEmptyState title="Todavía no hay sugerencias" description="Usá el formulario de música para compartir canciones que te gustaría escuchar." /> : musicMaybe.slice(0, 6).map((song: string) => <p key={song} className="mb-2 rounded-md bg-white px-3 py-2 text-sm">{song}</p>)}
                   </div>
                   <div className="rounded-lg bg-slate-50 p-3">
                     <p className="mb-2 text-sm font-black">No reproducir</p>
-                    {musicNo.length === 0 ? <EmptyLine text="Sin canciones bloqueadas." /> : musicNo.slice(0, 6).map((song: string) => <p key={song} className="mb-2 rounded-md bg-white px-3 py-2 text-sm">{song}</p>)}
+                    {musicNo.length === 0 ? <PortalEmptyState title="No marcaste canciones para evitar" description="Si hay algún tema que no querés escuchar, podés indicarlo desde el formulario de música." /> : musicNo.slice(0, 6).map((song: string) => <p key={song} className="mb-2 rounded-md bg-white px-3 py-2 text-sm">{song}</p>)}
                   </div>
                 </div>
                 <div className="mt-3 grid gap-2 sm:grid-cols-[1fr_auto]">
@@ -1270,7 +1284,7 @@ export default function PublicPortalClientExperience({ fiesta, companyContact, c
                       <InfoBadge tone="action">Cliente participa</InfoBadge>
                     </div>
                   </div>
-                  {reuniones.length === 0 ? <EmptyLine text="No hay reuniones cargadas todavía." /> : reuniones.slice(0, 5).map((reunion: any) => (
+                  {reuniones.length === 0 ? <PortalEmptyState title="No hay reuniones agendadas" description="AK publicará acá la próxima reunión cuando haya una fecha coordinada." /> : reuniones.slice(0, 5).map((reunion: any) => (
                     <div key={reunion.id} className="mb-2 rounded-lg bg-slate-50 p-3">
                       <p className="font-semibold">{reunion.titulo || 'Reunión'}</p>
                       <p className="text-sm text-slate-600">{formatShortDate(reunion.fecha)}{reunion.notas ? ` · ${reunion.notas}` : ''}</p>
@@ -1298,7 +1312,7 @@ export default function PublicPortalClientExperience({ fiesta, companyContact, c
                       <Button variant="outline" asChild>
                         <a href={`/evento/social/${fiesta.id}`} target="_blank" rel="noopener noreferrer"><ImageIcon className="h-4 w-4" /> Abrir mural social</a>
                       </Button>
-                    ) : <EmptyLine text="El mural social todavía no está activo." />}
+                    ) : <PortalEmptyState title="El mural social todavía no está activo" description="AK lo habilitará cuando el servicio esté listo para tu evento." />}
                   </div>
                 </div>
               </div>
@@ -1320,7 +1334,7 @@ export default function PublicPortalClientExperience({ fiesta, companyContact, c
                       {fiesta.menuSeleccionPortal.bebidas && <p className="rounded-lg bg-slate-50 p-3"><strong>Bebidas:</strong> {fiesta.menuSeleccionPortal.bebidas}</p>}
                       {fiesta.menuSeleccionPortal.restriccionesAlimentarias && <p className="rounded-lg bg-amber-50 p-3 text-amber-900"><strong>Restricciones:</strong> {fiesta.menuSeleccionPortal.restriccionesAlimentarias}</p>}
                     </div>
-                  ) : <EmptyLine text="El menú todavía no está cargado." />}
+                  ) : <PortalEmptyState title="El menú todavía está en preparación" description="AK lo publicará cuando estén definidos los platos del evento." />}
                 </div>
 
                 <div className="rounded-lg border p-4">
@@ -1335,7 +1349,7 @@ export default function PublicPortalClientExperience({ fiesta, companyContact, c
                     <p className="rounded-lg bg-slate-50 p-3"><strong>Color principal:</strong> <span className="ml-2 inline-block h-3 w-8 rounded-full align-middle" style={{ background: eventColor }} /> {eventColor}</p>
                     {fiesta?.decoracion?.tema && <p className="rounded-lg bg-slate-50 p-3"><strong>Tema:</strong> {fiesta.decoracion.tema}</p>}
                     {fiesta?.decoracion?.generalNotesDecoracion && <p className="rounded-lg bg-slate-50 p-3">{fiesta.decoracion.generalNotesDecoracion}</p>}
-                    {!fiesta?.decoracion?.tema && !fiesta?.decoracion?.generalNotesDecoracion && <EmptyLine text="La decoración todavía no tiene notas visibles." />}
+                    {!fiesta?.decoracion?.tema && !fiesta?.decoracion?.generalNotesDecoracion && <PortalEmptyState title="La decoración todavía está en preparación" description="AK publicará acá el concepto y las referencias cuando estén definidos." />}
                   </div>
                 </div>
               </div>
@@ -1348,7 +1362,7 @@ export default function PublicPortalClientExperience({ fiesta, companyContact, c
                     <InfoBadge>Solo información</InfoBadge>
                   </div>
                 </div>
-                {timelineItems.length === 0 ? <EmptyLine text="El cronograma todavía no está cargado." /> : (
+                {timelineItems.length === 0 ? <PortalEmptyState title="El cronograma todavía está en preparación" description="AK lo publicará cuando estén confirmados los horarios principales." /> : (
                   <div className="space-y-2">
                     {timelineItems.map((item: any) => (
                       <div key={item.id} className="grid gap-2 rounded-lg bg-slate-50 p-3 sm:grid-cols-[120px_1fr]">
@@ -1425,7 +1439,7 @@ export default function PublicPortalClientExperience({ fiesta, companyContact, c
                         </Button>
                       ) : <p key={documento.id || getDocumentName(documento)} className="rounded-lg bg-slate-50 p-3 text-sm">{getDocumentName(documento)}</p>
                     ))}
-                    {documentos.length === 0 && <EmptyLine text="No hay documentos descargables cargados todavía." />}
+                    {documentos.length === 0 && <PortalEmptyState title="Todavía no hay documentos para descargar" description="AK los publicará acá cuando estén listos para revisar o firmar." />}
                   </div>
                 </div>
 
@@ -1472,7 +1486,7 @@ export default function PublicPortalClientExperience({ fiesta, companyContact, c
                   </div>
                 </div>
                 {lineItems.length === 0 ? (
-                  <EmptyLine text="No hay servicios cargados en el presupuesto." />
+                  <PortalEmptyState title="El presupuesto todavía no tiene servicios visibles" description="Consultá con AK para vincular o completar la propuesta de tu evento." />
                 ) : (
                   <Accordion type="single" collapsible className="w-full space-y-2">
                     {Object.entries(itemsPorCategoria).map(([categoria, items]: [string, any], catIdx) => (
@@ -1523,7 +1537,7 @@ export default function PublicPortalClientExperience({ fiesta, companyContact, c
 
               <div className="rounded-lg border p-4">
                 <div className="mb-3 flex items-center gap-3"><IconBlock icon={Plus} color={eventColor} /><div><p className="font-black">Agregar servicio del catalogo</p><InfoBadge tone="action">Requiere aprobacion de AK</InfoBadge></div></div>
-                {catalogServices.length === 0 ? <EmptyLine text="No hay servicios con precio cargados en el catalogo." /> : (
+                {catalogServices.length === 0 ? <PortalEmptyState title="El catálogo no está disponible por ahora" description="AK debe publicar los servicios antes de que puedas solicitar un adicional." /> : (
                   <>
                     <div className="grid gap-3 lg:grid-cols-[1.2fr_.5fr_1fr]">
                       <label className="space-y-1 text-sm font-semibold text-slate-700">
@@ -1584,7 +1598,7 @@ export default function PublicPortalClientExperience({ fiesta, companyContact, c
           <AccordionItem value="reglas" id="portal-reglas" className="ak-public-card px-4">
             <AccordionTrigger className="text-left text-lg font-black hover:no-underline"><span className="flex items-center gap-3"><IconBlock icon={ShieldCheck} color={eventColor} /> Reglas y preguntas</span></AccordionTrigger>
             <AccordionContent className="space-y-4 pb-5">
-              {faqItems.length === 0 ? <EmptyLine text="No hay reglas o preguntas frecuentes cargadas todavía." /> : faqItems.map((faq: any) => <div key={faq.id || faq.pregunta} className="rounded-lg border bg-slate-50 p-4"><p className="font-black text-slate-900">{faq.pregunta}</p><p className="mt-1 text-sm leading-6 text-slate-600">{faq.respuesta}</p></div>)}
+              {faqItems.length === 0 ? <PortalEmptyState title="Todavía no hay preguntas frecuentes" description="AK publicará acá la información importante para organizar tu evento." /> : faqItems.map((faq: any) => <div key={faq.id || faq.pregunta} className="rounded-lg border bg-slate-50 p-4"><p className="font-black text-slate-900">{faq.pregunta}</p><p className="mt-1 text-sm leading-6 text-slate-600">{faq.respuesta}</p></div>)}
             </AccordionContent>
           </AccordionItem>
         </Accordion>
