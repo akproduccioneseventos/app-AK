@@ -8,9 +8,10 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
-import { ArrowLeft, Save, Loader2, Film, PlusCircle, Trash2, Camera, RefreshCw, Clock, CheckCircle2, Edit } from 'lucide-react';
+import { ArrowLeft, Save, Loader2, Film, PlusCircle, Trash2, Camera, RefreshCw, Clock, CheckCircle2, Edit, AlertTriangle } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { getFiestaById, updateFotografiaYFilmacionFiestaActual as updateFotografia } from '@/app/actions/fiesta-actual';
+import { verifyAccesoPersonalToken } from '@/app/actions/accesos-personal';
 import type { FotografiaYFilmacionData, ServicioFotografia, EntregaMaterialEstado } from '@/types/fiesta';
 import { DatePickerDemo } from '@/components/date-picker-demo';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
@@ -46,6 +47,8 @@ function FotografiaContent() {
     // Modal state
     const [isModalOpen, setIsModalOpen] = useState(false);
     const [currentItem, setCurrentItem] = useState<Partial<ServicioFotografia> | null>(null);
+    const [accessError, setAccessError] = useState<string | null>(null);
+    const [isExternalProvider, setIsExternalProvider] = useState(false);
 
     const { isSaving, lastSaved, saveError, saveNow } = useAutoSave({
         data: formData,
@@ -58,10 +61,21 @@ function FotografiaContent() {
         enabled: !isLoading && !!fiestaId && !!formData,
     });
 
+    const token = searchParams.get('token') || undefined;
+
     const loadData = useCallback(async (showLoading = true) => {
         if (!fiestaId) return;
         if(showLoading) setIsLoading(true);
+        setAccessError(null);
         try {
+            const auth = await verifyAccesoPersonalToken(fiestaId, 'fotografia', token);
+            if (!auth.authorized) {
+                setAccessError('Acceso no autorizado o token vencido. Verificá el enlace recibido.');
+                setIsLoading(false);
+                return;
+            }
+            setIsExternalProvider(!!auth.isExternalProvider);
+
             const fiesta = await getFiestaById(fiestaId);
             if (!fiesta) throw new Error("Fiesta no encontrada");
             
@@ -69,8 +83,7 @@ function FotografiaContent() {
             let currentFotoData = fiesta.fotografiaYFilmacion || { servicios: [], notasGenerales: '' };
 
             // LOGICA DE SINCRONIZACIÓN ROBUSTA: Sincroniza con el presupuesto actual
-            const isExternalProvider = !!searchParams.get('token');
-            if (fiesta.presupuestoId && !isExternalProvider) {
+            if (fiesta.presupuestoId && !auth.isExternalProvider) {
                 const presupuesto = await getPresupuestoById(fiesta.presupuestoId);
                 if (presupuesto) {
                     const budgetServices = presupuesto.itemsPresupuestados.filter(item => {
@@ -194,6 +207,20 @@ function FotografiaContent() {
         });
     };
 
+    if (accessError) {
+        return (
+            <div className="flex items-center justify-center min-h-[60vh] p-4">
+                <Card className="max-w-md w-full text-center border-destructive/20 bg-destructive/5">
+                    <CardHeader>
+                        <AlertTriangle className="w-12 h-12 text-destructive mx-auto mb-2" />
+                        <CardTitle className="text-xl font-bold font-headline text-destructive">Acceso No Autorizado</CardTitle>
+                        <CardDescription>{accessError}</CardDescription>
+                    </CardHeader>
+                </Card>
+            </div>
+        );
+    }
+
     if (isLoading || !formData) {
         return <div className="p-8 max-w-2xl mx-auto flex flex-col items-center justify-center h-64"><Loader2 className="w-12 h-12 animate-spin text-primary mb-4"/><p>Sincronizando seguimiento...</p></div>
     }
@@ -250,15 +277,15 @@ function FotografiaContent() {
                     <Film className="w-8 h-8 text-primary" />
                     <h1 className="text-3xl font-bold tracking-tight font-headline">Seguimiento de Material</h1>
                 </div>
-                  <div className="flex items-center gap-3">
-                      <AutoSaveIndicator isSaving={isSaving} lastSaved={lastSaved} saveError={saveError} />
-                      {(!searchParams.get('token')) && (
-                          <Button variant="ghost" size="sm" onClick={() => loadData(false)} title="Sincronizar con presupuesto">
-                              <RefreshCw className="w-4 h-4 mr-2"/>Sincronizar con Presupuesto
-                          </Button>
-                      )}
-                      <Button asChild variant="outline"><Link href={`/fiestas/nueva?fiestaId=${fiestaId}`}><ArrowLeft className="w-4 h-4 mr-2" />Volver</Link></Button>
-                  </div>
+                <div className="flex items-center gap-3">
+                    <AutoSaveIndicator isSaving={isSaving} lastSaved={lastSaved} saveError={saveError} />
+                    {!isExternalProvider && (
+                        <Button variant="ghost" size="sm" onClick={() => loadData(false)} title="Sincronizar con presupuesto">
+                            <RefreshCw className="w-4 h-4 mr-2"/>Sincronizar con Presupuesto
+                        </Button>
+                    )}
+                    <Button asChild variant="outline"><Link href={`/fiestas/nueva?fiestaId=${fiestaId}`}><ArrowLeft className="w-4 h-4 mr-2" />Volver</Link></Button>
+                </div>
             </div>
             
             <Card className="bg-blue-50 border-blue-200">

@@ -74,3 +74,31 @@ export async function deleteAccesoPersonal(tokenId: string): Promise<{ success: 
     return { success: false, error: error.message || "Error al eliminar el acceso." };
   }
 }
+
+export async function verifyAccesoPersonalToken(
+  fiestaId: string,
+  modulo: ModuloPermiso,
+  accessToken?: string
+): Promise<{ authorized: boolean; operatorName?: string; isExternalProvider?: boolean }> {
+  const session = await verifySession();
+  if (session.success) {
+    return { authorized: true, isExternalProvider: false };
+  }
+
+  if (!accessToken) {
+    return { authorized: false, isExternalProvider: false };
+  }
+
+  const access = await getAccesoById(accessToken);
+  const authorized = Boolean(
+    access &&
+    access.permisos.includes(modulo) &&
+    (access.fiestaId === fiestaId || !access.fiestaId)
+  );
+
+  return {
+    authorized,
+    operatorName: authorized ? access?.nombreAcceso : undefined,
+    isExternalProvider: authorized,
+  };
+}
