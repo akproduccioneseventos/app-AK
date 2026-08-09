@@ -97,8 +97,8 @@ con poca luz.
    - `src/app/portal-cliente/[id]/confirmar-invitados/page.tsx:202` — las tres
      tarjetas de totales.
    - `src/app/invitacion/[fiestaId]/invitacion-publica-client.tsx:308` — los
-     botones "Sí / Quizás / No". **Este es el peor**: es el botón que el invitado
-     tiene que tocar para confirmar, y queda muy angosto para el dedo.
+     botones de asistencia. **Este es el peor**, y además hay que cambiarle el
+     contenido: ver el bloque E.
    - `src/app/portal-cliente/[id]/muro-social/page.tsx:436` — las cuatro
      solapas.
    - `src/app/portal/c/[accessKey]/PublicPortalProView.tsx:318` — el resumen de
@@ -158,6 +158,43 @@ dos cosas.
 
 Empezá por el portal del cliente y el del invitado, que los usa gente que nunca
 vio el sistema.
+
+---
+
+# BLOQUE E — La confirmación del invitado: sacar el "Tal vez"
+
+**Decisión del dueño, 9 de agosto de 2026: se confirma o no se confirma. El
+"Tal vez" no va.**
+
+`src/app/invitacion/[fiestaId]/invitacion-publica-client.tsx`
+
+Hoy hay tres botones (línea 224): "Asistiré", "Tal vez" y "No puedo". Un "tal
+vez" no sirve para nada: no se sabe cuánta comida encargar ni cuántas sillas
+poner, y el invitado que lo elige no vuelve a responder nunca.
+
+**Qué hacer:**
+
+1. **Sacar el botón "Tal vez"** de la invitación. Quedan dos: asiste o no asiste.
+   Con dos botones además se arregla lo del celular: entran anchos y cómodos para
+   el dedo.
+2. **NO saques `'Tal vez'` del tipo `RsvpStatus`** (está en `src/types/invitado.ts:1`
+   y `src/types/fiesta.ts:24`). Hay invitados ya guardados con ese estado y se
+   romperían las pantallas que los muestran. El equipo lo puede seguir poniendo a
+   mano desde la pantalla interna de invitados si le sirve. **Sólo se saca el
+   botón de la invitación.**
+3. **Decirle al invitado que puede cambiar de opinión.** Esto ya funciona y nadie
+   lo sabe: al responder de nuevo con el mismo nombre, el sistema actualiza su
+   respuesta en vez de duplicarlo (verificado en
+   `src/app/actions/fiesta/invitados.actions.ts:412-418`, busca por nombre
+   normalizado). Pero la pantalla final sólo dice "Hemos guardado tu
+   confirmación" y el invitado se va creyendo que quedó atado.
+
+   En esa pantalla final agregá una línea del estilo: *"¿Te cambian los planes?
+   Volvé a entrar con este mismo enlace y tu mismo nombre, y actualizá tu
+   respuesta."* Y un botón para responder de nuevo ahí mismo, sin recargar.
+
+**Por qué importa:** un invitado que confirmó y después no puede ir, si no tiene
+cómo avisar, no avisa. Y esa comida se paga igual.
 
 ---
 

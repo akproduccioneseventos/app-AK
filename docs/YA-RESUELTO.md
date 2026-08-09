@@ -31,6 +31,14 @@ anotado, la próxima auditoría lo va a volver a encontrar.
   son decisiones de marketing.
 - **La lista de compras usa los invitados del PRESUPUESTO**, no los confirmados.
   Se cocina lo que se contrató. Si vienen más, se agregan y el presupuesto sube.
+- **El "Tal vez" de la invitación se saca: se confirma o no se confirma.** Un
+  "tal vez" no sirve para encargar comida ni poner sillas. **Pero el estado
+  `'Tal vez'` NO se borra del tipo `RsvpStatus`**: hay invitados guardados con
+  ese valor y romperían las pantallas. Sólo se saca el botón de la invitación.
+- **El invitado SÍ puede cambiar su respuesta**, y eso ya funciona: al responder
+  de nuevo con el mismo nombre, `submitPublicRsvp` lo busca por nombre
+  normalizado y lo actualiza, no lo duplica. Lo que falta es decírselo en
+  pantalla. Va en `docs/ordenes/estetica-01.md`, bloque E.
 - **Las fotos del muro se descargan con enlace directo, a propósito.**
 - **Se trabaja sólo en pesos uruguayos.** No hay diferencias de redondeo en
   dólares que corregir.
