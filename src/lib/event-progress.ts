@@ -29,7 +29,11 @@ export function calcularProgresoEvento(fiesta: FiestaEnPlanificacion): ProgresoR
   const allPaid = cuotas.length > 0 && cuotas.every(c => c.estado === 'pagado');
   const senaPagada = cuotas.some(c => c.descripcion?.toLowerCase().includes('seña') && c.estado === 'pagado');
   const menuDefinido = !!(fiesta.menuMesa?.entrada && fiesta.menuMesa?.platoPrincipal);
-  const invitadosConfirmados = (fiesta.invitados ?? []).filter(i => i.rsvp === 'Confirmado').length;
+  // Se compara contra invitadosEstimados, que son PERSONAS. Contar filas acá
+  // daba un avance mucho menor al real cuando los invitados traen acompanantes.
+  const invitadosConfirmados = (fiesta.invitados ?? [])
+    .filter(i => i.rsvp === 'Confirmado')
+    .reduce((total, invitado) => total + (invitado.partySize || 1), 0);
   const invitadosEstimados = Number(fiesta.configuracion?.invitadosEstimados) || 0;
   const listaInvitadosOk = invitadosEstimados > 0 && invitadosConfirmados >= invitadosEstimados * 0.5;
   const pagosAlDia = cuotas.length === 0 || cuotas.filter(c => {

@@ -170,7 +170,10 @@ function evaluarCondicion(condicion: string, fiesta: FiestaEnPlanificacion): boo
   const cuotas = fiesta.planDePagos?.cuotas ?? [];
   const invitados = fiesta.invitados ?? [];
   const estimados = fiesta.configuracion?.invitadosEstimados ?? 0;
-  const confirmados = invitados.filter(i => i.rsvp === 'Confirmado').length;
+  // PERSONAS, no filas: se compara contra estimados, que son personas.
+  const confirmados = invitados
+    .filter(i => i.rsvp === 'Confirmado')
+    .reduce((total, invitado) => total + (invitado.partySize || 1), 0);
 
   switch (condicion) {
     case 'sin_primer_pago':
