@@ -60,6 +60,8 @@ type PublicPortalClientExperienceProps = {
   companyName: string;
   presupuesto?: any | null;
   catalogServices?: CatalogService[];
+  /** Ajuste anual configurado en ajustes. Si no llega, se usa el 15% historico. */
+  ajusteAnualPorcentaje?: number;
 };
 
 type DisplayIcon = ElementType<{ className?: string }>;
@@ -289,7 +291,7 @@ function PhaseRoadmap({ access, eventColor }: { access: ReturnType<typeof resolv
   );
 }
 
-export default function PublicPortalClientExperience({ fiesta, companyContact, companyName, presupuesto, catalogServices = [] }: PublicPortalClientExperienceProps) {
+export default function PublicPortalClientExperience({ fiesta, companyContact, companyName, presupuesto, catalogServices = [], ajusteAnualPorcentaje = 15 }: PublicPortalClientExperienceProps) {
   const config = fiesta?.configuracion ?? {};
   const settings = fiesta?.clientPortalSettings ?? {};
   const access = resolveClientPortalAccess(fiesta);
@@ -473,7 +475,9 @@ export default function PublicPortalClientExperience({ fiesta, companyContact, c
   // cuenta de AK. Antes el portal mostraba el total pelado, sin el ajuste anual,
   // asi que el cliente creia deber menos de lo que realmente debia y la
   // diferencia recien aparecia al ir a pagar la ultima cuota.
-  const estadoDeCuenta = calcularEstadoDeCuenta(presupuesto ?? null);
+  // El porcentaje viene de los ajustes: si no se pasa, el portal se queda
+  // clavado en 15% y el cliente ve un saldo distinto al de la pantalla interna.
+  const estadoDeCuenta = calcularEstadoDeCuenta(presupuesto ?? null, ajusteAnualPorcentaje);
   const totalPresupuesto = estadoDeCuenta.total || getTotalPresupuesto(presupuesto);
   const paymentSummary = getPortalPaymentSummary({
     total: totalPresupuesto,

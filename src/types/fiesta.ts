@@ -1414,6 +1414,8 @@ export interface FiestaEnPlanificacion {
   menuMesa?: MenuMesaData;
   numerosMesa?: NumerosMesaData;
   contratoServicioTexto?: string;
+  /** Texto del contrato del salon, con las ediciones a mano del equipo. */
+  contratoSalonTexto?: string;
   contratoGenerado?: ContratoGeneradoInfo;
   contratoFirmaInfo?: ContratoFirmaInfo;
   contratoDatos?: ContratoDatos;

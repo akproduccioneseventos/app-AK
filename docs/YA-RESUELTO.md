@@ -130,6 +130,24 @@ anotado, la próxima auditoría lo va a volver a encontrar.
   proveedores", es falso positivo:** sumarlo lo contaría dos veces. Ya se reportó
   una vez por error.
 
+- **El porcentaje del ajuste anual se lee de la configuración en TODAS las
+  pantallas.** El estado de cuenta lo hacía; el recibo de pago y las dos vistas
+  del portal del cliente lo tenían clavado en 15%. El día que se cambiara el
+  porcentaje en ajustes, el cliente iba a ver un saldo y AK otro. Ahora las
+  cuatro le pasan el porcentaje configurado a la misma cuenta compartida. **Si
+  agregás una pantalla que muestre saldo, pasale el porcentaje**: sin él vuelve
+  al 15% fijo y reaparece la diferencia.
+- **El contrato del salón ya se guarda.** Antes el botón "Finalizar" sólo cerraba
+  el modo edición: lo que el equipo escribía (cláusulas, montos) se perdía al
+  recargar, y peor, al abrir la pantalla se regeneraba el borrador y pisaba lo
+  editado. Ahora hay botón de guardar, el texto vive en `contratoSalonTexto`, y
+  lo guardado le gana al borrador automático.
+
+- **El plan de pagos avisa si las cuotas no cubren el total del contrato.** Antes
+  el "Total" de esa pantalla era la suma de las cuotas cargadas, así que un plan
+  al que le faltaba plata se veía perfectamente cuadrado. Ahora compara contra el
+  total real del evento (con el ajuste anual) y dice cuánto falta o cuánto sobra.
+
 ## Pantallas del planificador: qué está conectado y qué no
 
 Verificado el 8 de agosto de 2026. **No hay una plaga de pantallas huérfanas**,

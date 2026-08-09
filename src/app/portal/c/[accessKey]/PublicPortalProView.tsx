@@ -39,6 +39,8 @@ interface PublicPortalProViewProps {
   companyContact: string;
   companyName: string;
   presupuesto?: any | null;
+  /** Ajuste anual configurado en ajustes. Si no llega, se usa el 15% historico. */
+  ajusteAnualPorcentaje?: number;
 }
 
 const formatCurrency = (amount?: number | null) => {
@@ -96,7 +98,7 @@ function getTotalPresupuesto(presupuesto?: any | null) {
   );
 }
 
-export default function PublicPortalProView({ fiesta, companyContact, companyName, presupuesto }: PublicPortalProViewProps) {
+export default function PublicPortalProView({ fiesta, companyContact, companyName, presupuesto, ajusteAnualPorcentaje = 15 }: PublicPortalProViewProps) {
   const config = fiesta?.configuracion ?? {};
   const settings = fiesta?.clientPortalSettings ?? {};
   const portalExperience = fiesta?.clientePortalExperience ?? {};
@@ -133,7 +135,7 @@ export default function PublicPortalProView({ fiesta, companyContact, companyNam
   // Sin esto, el cliente veia un saldo menor al real y la diferencia aparecia
   // recien al ir a pagar la ultima cuota.
   const paymentSummary = getBudgetPaymentSummary(presupuesto);
-  const estadoDeCuenta = calcularEstadoDeCuenta(presupuesto ?? null);
+  const estadoDeCuenta = calcularEstadoDeCuenta(presupuesto ?? null, ajusteAnualPorcentaje);
   const totalPresupuesto = estadoDeCuenta.total || paymentSummary.total || getTotalPresupuesto(presupuesto);
   const totalPagado = estadoDeCuenta.pagado;
   const saldoPendiente = estadoDeCuenta.saldo;
