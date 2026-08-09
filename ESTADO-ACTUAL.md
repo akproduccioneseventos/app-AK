@@ -9,7 +9,7 @@ Quien cierre una sesión reescribe este archivo. No se acumulan tandas: se pisa.
 ---
 
 **Última actualización:** 9 de agosto de 2026
-**Rama:** `claude/repo-work-guidelines-l4u1tf`, con el último cambio sin fusionar.
+**Rama:** todo fusionado en `main`. No hay propuestas de Claude abiertas.
 **Estado:** compila, 1308 pruebas en verde, sin acentos rotos.
 
 ## Antes de empezar: leé los errores ya cometidos
@@ -25,16 +25,14 @@ verifica y fusiona. Plata, cobros, comida y permisos los escribe Claude.
 
 ## Entretenimiento: TERMINADO
 
-## Planificación — pantallas de plata (Claude): CASI TERMINADO
+## Planificación — pantallas de plata (Claude): TERMINADO
 
-Fusionadas #892 y #893. Lo resuelto: el saldo del cliente ya no depende de qué
-pantalla mires, el contrato del salón guarda de verdad (antes se perdía todo),
-el contrato de servicio no pisa ediciones sin preguntar y avisa si quedaron
-huecos, el plan de pagos controla que las cuotas cubran el total, borrar un
-documento pide confirmación, y costos no acepta importes negativos.
-
-**Sin fusionar todavía:** el personal sin categoría ya no aparece como Catering
-en servicios contratados. Está en la rama, esperando la verificación.
+Fusionadas #892, #893 y #894. Lo resuelto: el saldo del cliente ya no depende de
+qué pantalla mires, el contrato del salón guarda de verdad (antes se perdía
+todo), el contrato de servicio no pisa ediciones sin preguntar y avisa si
+quedaron huecos, el plan de pagos controla que las cuotas cubran el total,
+borrar un documento pide confirmación, costos no acepta importes negativos, y el
+personal sin categoría no aparece más como Catering.
 
 ## Planificación — el resto: A MEDIAS
 
