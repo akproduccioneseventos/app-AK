@@ -16,7 +16,7 @@ import { getFiestaById } from '@/app/actions/fiesta/fiesta.actions';
 import { getCustomerById } from '@/app/actions/customers';
 import { getPresupuestoById } from '@/app/actions/presupuestos';
 import { getInvoiceById } from '@/app/actions/invoices';
-import { getCompanyInfo, getInvoiceTemplateSettings, getContractTemplate } from '@/app/actions/settings';
+import { getCompanyInfo, getInvoiceTemplateSettings, getContractTemplate, getBudgetDisplaySettings } from '@/app/actions/settings';
 import { Badge } from '@/components/ui/badge';
 import { cn } from '@/lib/utils';
 import { calcularEstadoDeCuenta } from '@/lib/budget/saldo-con-ajuste';
@@ -83,6 +83,7 @@ interface PageData {
   logoUrl: string | null;
   contractText: string | null;
   salonContractText: string | null;
+  ajusteAnualPorcentaje: number;
 }
 
 const CLUB_URUGUAY_PATTERNS = ['club uruguay', 'cluburuguay', 'club_uruguay', 'club-uruguay'];
@@ -127,10 +128,11 @@ function ReciboPagoContent({ fiestaId }: { fiestaId: string | null }) {
     setIsLoading(true);
     setError(null);
     try {
-      const [fiestaData, companyData, settingsData] = await Promise.all([
+      const [fiestaData, companyData, settingsData, budgetSettings] = await Promise.all([
         getFiestaById(fiestaId),
         getCompanyInfo(),
         getInvoiceTemplateSettings(),
+        getBudgetDisplaySettings(),
       ]);
 
       if (!fiestaData) throw new Error('Evento no encontrado.');
@@ -206,6 +208,7 @@ function ReciboPagoContent({ fiestaId }: { fiestaId: string | null }) {
         logoUrl: settingsData.logoUrl || null,
         contractText,
         salonContractText,
+        ajusteAnualPorcentaje: budgetSettings.annualAdjustmentPercentage ?? 15,
       });
     } catch (err: unknown) {
       const message = err instanceof Error ? err.message : 'Error desconocido';
@@ -267,7 +270,7 @@ function ReciboPagoContent({ fiestaId }: { fiestaId: string | null }) {
     );
   }
 
-  const { fiesta, cliente, presupuesto, invoices, companyInfo, logoUrl: rawLogoUrl, contractText, salonContractText } = data;
+  const { fiesta, cliente, presupuesto, invoices, companyInfo, logoUrl: rawLogoUrl, contractText, salonContractText, ajusteAnualPorcentaje } = data;
   const logoUrl = sanitizeImageUrl(rawLogoUrl);
 
   // Aggregate all payments from all invoices, sorted by date
@@ -282,7 +285,9 @@ function ReciboPagoContent({ fiestaId }: { fiestaId: string | null }) {
   // El recibo no sumaba el ajuste anual por inflacion, y el estado de cuenta si.
   // Con un evento agendado para el ano siguiente, el cliente veia un saldo en el
   // papel y otro distinto en la pantalla. Ahora los dos usan la misma cuenta.
-  const estadoDeCuenta = calcularEstadoDeCuenta(presupuesto);
+  // El porcentaje sale de la configuracion: si se deja sin pasar, el recibo se
+  // queda clavado en 15% y vuelve a mostrar un saldo distinto al de la pantalla.
+  const estadoDeCuenta = calcularEstadoDeCuenta(presupuesto, ajusteAnualPorcentaje);
   const costoTotal = estadoDeCuenta.total;
   const totalPagado = allPayments.reduce((sum, p) => sum + p.amount, 0);
   const saldoPendiente = costoTotal - totalPagado;

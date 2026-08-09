@@ -19,6 +19,9 @@ import type { PlanDePagos, CuotaPlanPago, PlanPagoEstadoCuota, ClientPaymentNoti
 import { format } from 'date-fns';
 import { es } from 'date-fns/locale';
 import { getPaymentPlanSummary } from '@/lib/budget/payment-summary';
+import { getPresupuestoById } from '@/app/actions/presupuestos';
+import { getBudgetDisplaySettings } from '@/app/actions/settings';
+import { calcularEstadoDeCuenta } from '@/lib/budget/saldo-con-ajuste';
 
 function PlanPagosContent() {
   const searchParams = useSearchParams();
@@ -36,6 +39,11 @@ function PlanPagosContent() {
   const [processingNotifId, setProcessingNotifId] = useState<string | null>(null);
   const [previewNotif, setPreviewNotif] = useState<ClientPaymentNotification | null>(null);
 
+  // Total real del contrato, con el ajuste anual incluido. Sin esto, el equipo
+  // podia armar cuotas que no llegaban a cubrir lo que el cliente debe pagar y
+  // nadie se enteraba hasta el final del evento.
+  const [totalContrato, setTotalContrato] = useState<number | null>(null);
+
   const fetchPlan = useCallback(async () => {
     if (!fiestaId) { setIsLoading(false); return; }
     setIsLoading(true);
@@ -51,6 +59,15 @@ function PlanPagosContent() {
       }
       if (fiestaData?.clientPaymentNotifications) {
         setClientNotifications(fiestaData.clientPaymentNotifications);
+      }
+
+      if (fiestaData?.presupuestoId) {
+        const [presupuesto, budgetSettings] = await Promise.all([
+          getPresupuestoById(fiestaData.presupuestoId),
+          getBudgetDisplaySettings(),
+        ]);
+        const cuenta = calcularEstadoDeCuenta(presupuesto, budgetSettings.annualAdjustmentPercentage ?? 15);
+        setTotalContrato(cuenta.total || null);
       }
     } catch {
       toast({ title: 'Error', description: 'No se pudo cargar el plan de pagos.', variant: 'destructive' });
@@ -94,6 +111,10 @@ function PlanPagosContent() {
   };
 
   const paymentSummary = getPaymentPlanSummary(cuotas);
+
+  // Un peso de diferencia es redondeo, no un error de carga.
+  const diferenciaConContrato = totalContrato === null ? 0 : Math.round(totalContrato - paymentSummary.total);
+  const cuotasNoCubrenElTotal = totalContrato !== null && cuotas.length > 0 && Math.abs(diferenciaConContrato) > 1;
 
   const addCuota = () => {
     const newCuota: CuotaPlanPago = {
@@ -212,6 +233,26 @@ function PlanPagosContent() {
           </CardContent>
         </Card>
       </div>
+
+      {cuotasNoCubrenElTotal && (
+        <div className={`rounded-lg border p-4 flex gap-3 ${diferenciaConContrato > 0 ? 'border-orange-300 bg-orange-50' : 'border-blue-300 bg-blue-50'}`}>
+          <AlertTriangle className={`w-5 h-5 shrink-0 mt-0.5 ${diferenciaConContrato > 0 ? 'text-orange-600' : 'text-blue-600'}`} />
+          <div className="text-sm">
+            <p className="font-semibold">
+              {diferenciaConContrato > 0
+                ? 'Las cuotas no llegan al total del contrato'
+                : 'Las cuotas superan el total del contrato'}
+            </p>
+            <p className="text-muted-foreground mt-1">
+              El evento tiene un total de <strong>${totalContrato?.toLocaleString('es-UY')}</strong> (con el ajuste anual incluido)
+              y las cuotas suman <strong>${paymentSummary.total.toLocaleString('es-UY')}</strong>.
+              {diferenciaConContrato > 0
+                ? ` Faltan $${Math.abs(diferenciaConContrato).toLocaleString('es-UY')} por repartir en cuotas.`
+                : ` Hay $${Math.abs(diferenciaConContrato).toLocaleString('es-UY')} de más.`}
+            </p>
+          </div>
+        </div>
+      )}
 
       {/* Cuotas */}
       <Card className="shadow-lg">
