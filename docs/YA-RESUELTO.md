@@ -148,6 +148,18 @@ anotado, la próxima auditoría lo va a volver a encontrar.
   al que le faltaba plata se veía perfectamente cuadrado. Ahora compara contra el
   total real del evento (con el ajuste anual) y dice cuánto falta o cuánto sobra.
 
+- **El contrato de servicio no pisa más las ediciones sin avisar.** Cambiar de
+  plantilla o salir del modo edición con cambios sin guardar ahora pregunta
+  antes. El botón dice "Salir sin guardar" para que se entienda que no guarda.
+- **El contrato de servicio avisa si quedaron huecos sin llenar.** Si la
+  plantilla trae un marcador que nadie reemplazó, sale un cartel naranja con la
+  lista antes de imprimir, en vez de que el cliente reciba el contrato con
+  `{{ALGO}}` escrito adentro.
+- **Borrar un documento del evento pide confirmación**, con el nombre del
+  documento. Ahí vive el contrato firmado.
+- **Costos y rentabilidad no acepta importes negativos** ni inválidos, ni en
+  gastos ni en pagos a proveedores. Un negativo inflaba la ganancia en silencio.
+
 ## Pantallas del planificador: qué está conectado y qué no
 
 Verificado el 8 de agosto de 2026. **No hay una plaga de pantallas huérfanas**,
@@ -162,8 +174,11 @@ como pareció al principio:
   `gestion-documental/page.tsx`. No están huérfanas.
 - **`planner-costo-fiesta` y `servicios-contratados`** se alcanzan por dirección
   directa aunque no tengan botón en el tablero.
-- **La única sin ningún enlace es `nueva/playlist-pantalla`** (47 líneas, parece
-  terminada). Falta decidir si se conecta o se retira.
+- **`nueva/playlist-pantalla` SE CONECTA, no se retira.** Verificada el 9 de
+  agosto de 2026: está terminada y funciona (lista de la pantalla en vivo más la
+  configuración del muro social). Lo único que le falta es el botón que la
+  enlace, y va en el bloque D de `docs/ordenes/planificacion-02.md`. **No la
+  borres ni vuelvas a reportarla como huérfana.**
 
 ## Infraestructura y pruebas
 

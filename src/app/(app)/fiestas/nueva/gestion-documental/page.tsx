@@ -271,7 +271,20 @@ function GestionDocumentalContent() {
                     } target="_blank" rel="noopener noreferrer">
                       <Button variant="outline" size="sm">Ver / Descargar</Button>
                     </a>
-                    <Button variant="destructive" size="sm" onClick={() => handleDelete(doc.id)}>Eliminar</Button>
+                    <Button
+                      variant="destructive"
+                      size="sm"
+                      onClick={() => {
+                        // Aca vive el contrato firmado. Borrar sin preguntar era
+                        // perderlo de un click.
+                        const seguro = window.confirm(
+                          `Vas a borrar "${doc.nombre ?? 'este documento'}". No se puede deshacer. ¿Borrar igual?`
+                        );
+                        if (seguro) handleDelete(doc.id);
+                      }}
+                    >
+                      Eliminar
+                    </Button>
                   </div>
                 </div>
               );

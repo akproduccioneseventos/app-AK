@@ -162,6 +162,11 @@ falta es la pantalla desde donde el equipo lo configura.
 
 **Qué mirar:**
 
+- **`playlist-pantalla` hay que CONECTARLA, no retirarla.** Ya se verificó: está
+  terminada y funciona (arma la lista de la pantalla en vivo y la configuración
+  del muro social), pero no la enlaza nadie y sólo se llega por dirección
+  directa. Ponele el botón donde corresponda con las otras pantallas del salón.
+  Decidido, no hay que consultarlo.
 - **¿Lo que se configura acá tiene efecto real?** Un interruptor que no cambia
   nada en la fiesta es peor que no tenerlo.
 - **¿Se puede probar antes de la fiesta?** El operador tiene que poder verificar

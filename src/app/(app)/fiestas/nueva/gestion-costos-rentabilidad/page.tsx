@@ -100,11 +100,17 @@ function GestionCostosRentabilidadContent() {
   const handleAddCostoItem = (e: FormEvent) => {
     e.preventDefault();
     if (!newCostoNombre.trim() || !newCostoMontoEstimado.trim()) return;
+    // Un monto negativo o invalido descuadra el margen sin que se note.
+    const monto = parseFloat(newCostoMontoEstimado);
+    if (!Number.isFinite(monto) || monto < 0) {
+      toast({ title: 'Monto invalido', description: 'Poné un importe mayor o igual a cero.', variant: 'destructive' });
+      return;
+    }
     const newItem: CostoItem = {
       id: `costo_man_${Date.now()}`,
       nombre: newCostoNombre.trim(),
       category: newCostoCategoria,
-      montoEstimado: parseFloat(newCostoMontoEstimado),
+      montoEstimado: monto,
     };
     setGestionCostos(prev => ({ ...prev, costosItems: [...(prev.costosItems || []), newItem] }));
     setNewCostoNombre(''); setNewCostoMontoEstimado('');
@@ -113,11 +119,16 @@ function GestionCostosRentabilidadContent() {
   const handleAddPago = async (e: FormEvent) => {
     e.preventDefault();
     if (!newPagoCostoId || !newPagoMonto || !newPagoFecha || !fiestaId) return;
+    const montoPago = parseFloat(newPagoMonto);
+    if (!Number.isFinite(montoPago) || montoPago < 0) {
+      toast({ title: 'Monto invalido', description: 'Poné un importe mayor o igual a cero.', variant: 'destructive' });
+      return;
+    }
     const newPago: PagoProveedor = {
         id: `pago_${Date.now()}`,
         costoAsociadoId: newPagoCostoId,
         fecha: newPagoFecha.toISOString(),
-        monto: parseFloat(newPagoMonto)
+        monto: montoPago
     };
     const updated = [...pagosProveedores, newPago];
     setIsSaving(true);
