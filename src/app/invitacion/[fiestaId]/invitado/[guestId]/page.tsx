@@ -224,8 +224,8 @@ function GuestPortalContent() {
       setGuest(data.guest);
       setEntertainmentLinks(data.entertainmentLinks);
       setSocialConnections(connections);
-    } catch (error) {
-      setLoadError(error instanceof Error ? error.message : 'No se pudo cargar tu información.');
+    } catch {
+      setLoadError('No pudimos cargar tu invitación.');
     } finally {
       setIsLoading(false);
     }
@@ -245,12 +245,12 @@ function GuestPortalContent() {
   };
 
   if (isLoading) {
-    return <div className="grid min-h-screen place-items-center bg-slate-950"><Loader2 className="h-10 w-10 animate-spin text-white" /></div>;
+    return <div className="grid min-h-screen place-items-center bg-slate-950 p-6 text-center text-white" role="status" aria-live="polite"><div><Loader2 className="mx-auto h-10 w-10 animate-spin" /><p className="mt-4 text-sm font-medium text-slate-200">Estamos preparando tu información del evento.</p></div></div>;
   }
   if (loadError || !fiesta || !guest) {
     return (
       <main className="grid min-h-screen place-items-center bg-slate-950 p-6 text-center text-white">
-        <div className="max-w-md"><AlertTriangle className="mx-auto h-10 w-10 text-red-400" /><h1 className="mt-5 text-2xl font-black">No pudimos abrir tu invitación</h1><p className="mt-3 text-sm text-slate-300">{loadError || 'Verificá el enlace o contactá al organizador.'}</p></div>
+        <div className="max-w-md"><AlertTriangle className="mx-auto h-10 w-10 text-red-400" /><h1 className="mt-5 text-2xl font-black">No pudimos abrir tu invitación</h1><p className="mt-3 text-sm text-slate-300">{loadError || 'Verificá el enlace o contactá al organizador.'}</p><Button onClick={loadData} className="mt-5 bg-white text-slate-950 hover:bg-slate-200">Reintentar</Button></div>
       </main>
     );
   }
@@ -712,5 +712,5 @@ function GuestPortalContent() {
 }
 
 export default function GuestPortalPage() {
-  return <Suspense fallback={<div className="grid min-h-screen place-items-center bg-slate-950"><Loader2 className="h-10 w-10 animate-spin text-white" /></div>}><GuestPortalContent /></Suspense>;
+  return <Suspense fallback={<div className="grid min-h-screen place-items-center bg-slate-950 p-6 text-center text-white" role="status" aria-live="polite"><div><Loader2 className="mx-auto h-10 w-10 animate-spin" /><p className="mt-4 text-sm font-medium text-slate-200">Estamos abriendo tu invitación.</p></div></div>}><GuestPortalContent /></Suspense>;
 }

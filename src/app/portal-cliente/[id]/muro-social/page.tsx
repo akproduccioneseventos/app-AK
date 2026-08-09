@@ -411,8 +411,8 @@ export default function ClientMuroSocialPage() {
             </Button>
             <div>
               <div className="flex items-center gap-2">
-                <span className="text-[9px] font-black text-amber-400 uppercase tracking-widest bg-amber-400/10 px-2 py-0.5 rounded-full">En Vivo</span>
-                <span className="text-[10px] font-semibold text-slate-400">{fiesta.configuracion?.nombreEvento}</span>
+                <span className="rounded-full bg-primary/10 px-2 py-0.5 text-xs font-black uppercase tracking-widest text-primary">En Vivo</span>
+                <span className="text-xs font-semibold text-muted-foreground">{fiesta.configuracion?.nombreEvento}</span>
               </div>
               <h1 className="text-lg font-black text-white leading-tight">Centro de Control Muro</h1>
             </div>
@@ -433,29 +433,29 @@ export default function ClientMuroSocialPage() {
         <Tabs defaultValue="control" className="space-y-6" onValueChange={setActiveTab}>
           
           {/* TABS SELECTOR - MÓVIL OPTIMIZADO */}
-          <TabsList className="grid grid-cols-4 w-full bg-slate-900 border border-white/5 p-1 rounded-2xl h-14 shrink-0">
-            <TabsTrigger value="control" aria-label="Control Vivo" className="rounded-xl py-2.5 text-xs font-bold data-[state=active]:bg-amber-400 data-[state=active]:text-slate-950 transition-all flex flex-col sm:flex-row items-center justify-center gap-1">
+          <TabsList className="grid h-auto min-h-14 w-full shrink-0 grid-cols-2 gap-1 rounded-xl border border-border bg-card p-1 sm:grid-cols-4">
+            <TabsTrigger value="control" aria-label="Control Vivo" className="flex items-center justify-center gap-1 rounded-lg py-2.5 text-xs font-bold transition-all data-[state=active]:bg-primary data-[state=active]:text-primary-foreground">
               <Activity className="w-4 h-4" />
-              <span className="hidden sm:inline">Control Vivo</span>
+              <span>Control Vivo</span>
             </TabsTrigger>
-            <TabsTrigger value="moderacion" aria-label="Moderar" className="rounded-xl py-2.5 text-xs font-bold data-[state=active]:bg-amber-400 data-[state=active]:text-slate-950 transition-all flex flex-col sm:flex-row items-center justify-center gap-1">
+            <TabsTrigger value="moderacion" aria-label="Moderar" className="flex items-center justify-center gap-1 rounded-lg py-2.5 text-xs font-bold transition-all data-[state=active]:bg-primary data-[state=active]:text-primary-foreground">
               <div className="relative">
                 <Camera className="w-4 h-4" />
                 {pendingPosts.length > 0 && (
-                  <span className="absolute -top-1.5 -right-1.5 bg-rose-500 text-white text-[8px] font-black w-3.5 h-3.5 rounded-full flex items-center justify-center animate-pulse">
+                  <span className="absolute -right-2 -top-2 flex h-5 min-w-5 animate-pulse items-center justify-center rounded-full bg-destructive px-1 text-xs font-black text-destructive-foreground">
                     {pendingPosts.length}
                   </span>
                 )}
               </div>
-              <span className="hidden sm:inline">Moderar</span>
+              <span>Moderar</span>
             </TabsTrigger>
-            <TabsTrigger value="diseno" aria-label="Diseño" className="rounded-xl py-2.5 text-xs font-bold data-[state=active]:bg-amber-400 data-[state=active]:text-slate-950 transition-all flex flex-col sm:flex-row items-center justify-center gap-1">
+            <TabsTrigger value="diseno" aria-label="Diseño" className="flex items-center justify-center gap-1 rounded-lg py-2.5 text-xs font-bold transition-all data-[state=active]:bg-primary data-[state=active]:text-primary-foreground">
               <Palette className="w-4 h-4" />
-              <span className="hidden sm:inline">Diseño</span>
+              <span>Diseño</span>
             </TabsTrigger>
-            <TabsTrigger value="modulos" aria-label="Módulos" className="rounded-xl py-2.5 text-xs font-bold data-[state=active]:bg-amber-400 data-[state=active]:text-slate-950 transition-all flex flex-col sm:flex-row items-center justify-center gap-1">
+            <TabsTrigger value="modulos" aria-label="Módulos" className="flex items-center justify-center gap-1 rounded-lg py-2.5 text-xs font-bold transition-all data-[state=active]:bg-primary data-[state=active]:text-primary-foreground">
               <Settings2 className="w-4 h-4" />
-              <span className="hidden sm:inline">Módulos</span>
+              <span>Módulos</span>
             </TabsTrigger>
           </TabsList>
 
@@ -618,7 +618,7 @@ export default function ClientMuroSocialPage() {
                     >
                       <Layers className="w-8 h-8" />
                       <span className="text-xs font-bold">Slideshow Polaroid</span>
-                      <span className="text-[9px] text-slate-500 font-medium leading-tight">De a una foto gigante en 3D</span>
+                      <span className="text-xs font-medium leading-tight text-muted-foreground">De a una foto gigante en 3D</span>
                     </button>
                     <button
                       type="button"
@@ -634,7 +634,7 @@ export default function ClientMuroSocialPage() {
                     >
                       <LayoutGrid className="w-8 h-8" />
                       <span className="text-xs font-bold">Mosaico Fluido</span>
-                      <span className="text-[9px] text-slate-500 font-medium leading-tight">Muro continuo con muchas fotos</span>
+                      <span className="text-xs font-medium leading-tight text-muted-foreground">Muro continuo con muchas fotos</span>
                     </button>
                   </div>
                 </CardContent>
@@ -721,7 +721,7 @@ export default function ClientMuroSocialPage() {
                 {/* STATUS DEL GANADOR DEL SORTEO */}
                 {sorteoWinner && (
                   <div className="bg-emerald-500/10 border border-emerald-500/20 rounded-2xl p-4 text-center">
-                    <p className="text-[10px] font-black uppercase text-emerald-400 tracking-widest mb-1">🎉 Ganador del Sorteo 🎉</p>
+                    <p className="mb-1 text-xs font-black uppercase tracking-widest text-accent">🎉 Ganador del Sorteo 🎉</p>
                     <p className="text-2xl font-black text-white">{sorteoWinner}</p>
                   </div>
                 )}
@@ -776,7 +776,7 @@ export default function ClientMuroSocialPage() {
                     }`}
                   >
                     <span>{label}</span>
-                    <span className={`text-[10px] px-2 py-0.5 rounded-full font-black ${
+                    <span className={`rounded-full px-2 py-0.5 text-xs font-black ${
                       moderationMode === mode ? 'bg-slate-950/20' : 'bg-slate-950/40 text-slate-500'
                     }`}>
                       {count}
@@ -831,10 +831,10 @@ export default function ClientMuroSocialPage() {
                       <div className="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black/90 to-transparent p-3">
                         <span className="text-xs font-bold text-amber-300">@ {post.authorName}</span>
                         {post.dedication && (
-                          <p className="text-[11px] text-white/80 line-clamp-2 mt-0.5 font-medium">"{post.dedication}"</p>
+                          <p className="mt-0.5 line-clamp-2 text-xs font-medium text-white/80">"{post.dedication}"</p>
                         )}
                         {post.drinkName && (
-                          <div className="inline-flex items-center gap-1 bg-rose-600/90 text-[9px] font-black uppercase text-white px-2 py-0.5 rounded-full mt-1.5">
+                          <div className="mt-1.5 inline-flex items-center gap-1 rounded-full bg-destructive/90 px-2 py-0.5 text-xs font-black uppercase text-destructive-foreground">
                             🍹 {post.drinkName}
                           </div>
                         )}
@@ -933,14 +933,14 @@ export default function ClientMuroSocialPage() {
                     placeholder="https://ejemplo.com/portada.jpg"
                     className="rounded-xl border-white/10 bg-slate-950 text-white placeholder-slate-500 h-11"
                   />
-                  <p className="text-[10px] text-slate-500 font-semibold">Portada que verán los invitados arriba de su feed móvil al ingresar.</p>
+                  <p className="text-xs font-semibold text-muted-foreground">Portada que verán los invitados arriba de su feed móvil al ingresar.</p>
                 </div>
 
                 {/* Modo Oscuro de Pantalla Gigante */}
                 <div className="flex items-center justify-between border-t border-white/5 pt-4">
                   <div className="space-y-0.5 text-left flex-1">
                     <Label className="text-sm font-bold text-white">Fondo Oscuro de Proyección</Label>
-                    <p className="text-[10px] text-slate-400 font-semibold leading-normal">
+                    <p className="text-xs font-semibold leading-normal text-muted-foreground">
                       Cuando esté activo, la pantalla gigante tendrá un diseño nocturno premium de HSL tailored. Si se desactiva pasará a un modo claro elegante.
                     </p>
                   </div>
@@ -956,7 +956,7 @@ export default function ClientMuroSocialPage() {
                         key={c.value}
                         type="button"
                         onClick={() => setAccentColor(c.value)}
-                        className="h-8 px-3 rounded-xl border text-[10px] font-black uppercase tracking-wider transition-all"
+                        className="h-8 rounded-lg border px-3 text-xs font-black uppercase tracking-wider transition-all"
                         style={{
                           backgroundColor: accentColor === c.value ? c.value : 'transparent',
                           color: accentColor === c.value ? '#020617' : '#94a3b8',
@@ -1017,7 +1017,7 @@ export default function ClientMuroSocialPage() {
                     <Label className="text-sm font-bold text-white flex items-center gap-1.5">
                       <Tv className="w-4 h-4 text-amber-400" /> Red Social Habilitada
                     </Label>
-                    <p className="text-[10px] text-slate-400 font-semibold leading-normal">
+                    <p className="text-xs font-semibold leading-normal text-muted-foreground">
                       Si se apaga, los invitados no podrán ingresar al portal ni interactuar con la pantalla gigante.
                     </p>
                   </div>
@@ -1030,7 +1030,7 @@ export default function ClientMuroSocialPage() {
                     <Label className="text-sm font-bold text-white flex items-center gap-1.5">
                       <Camera className="w-4 h-4 text-slate-400" /> Permitir Subir Fotos y Videos
                     </Label>
-                    <p className="text-[10px] text-slate-400 font-semibold leading-normal">
+                    <p className="text-xs font-semibold leading-normal text-muted-foreground">
                       Habilita la cámara en el portal de los invitados para que envíen sus fotos en vivo.
                     </p>
                   </div>
@@ -1043,7 +1043,7 @@ export default function ClientMuroSocialPage() {
                     <Label className="text-sm font-bold text-white flex items-center gap-1.5">
                       <MessageSquare className="w-4 h-4 text-slate-400" /> Chat en Vivo / Mensajería
                     </Label>
-                    <p className="text-[10px] text-slate-400 font-semibold leading-normal">
+                    <p className="text-xs font-semibold leading-normal text-muted-foreground">
                       Habilita la solapa de conversación general para los invitados.
                     </p>
                   </div>
@@ -1056,7 +1056,7 @@ export default function ClientMuroSocialPage() {
                     <Label className="text-sm font-bold text-white flex items-center gap-1.5">
                       <Music className="w-4 h-4 text-slate-400" /> Sugerencias de Música al DJ
                     </Label>
-                    <p className="text-[10px] text-slate-400 font-semibold leading-normal">
+                    <p className="text-xs font-semibold leading-normal text-muted-foreground">
                       Permite que la gente pida canciones directamente al panel del DJ de la fiesta.
                     </p>
                   </div>
@@ -1069,7 +1069,7 @@ export default function ClientMuroSocialPage() {
                     <Label className="text-sm font-bold text-white flex items-center gap-1.5">
                       <Heart className="w-4 h-4 text-slate-400" /> Dedicatorias y Audios de Voz
                     </Label>
-                    <p className="text-[10px] text-slate-400 font-semibold leading-normal">
+                    <p className="text-xs font-semibold leading-normal text-muted-foreground">
                       Muestra el formulario para enviar dedicatorias escritas y audios de felicitación.
                     </p>
                   </div>
@@ -1082,7 +1082,7 @@ export default function ClientMuroSocialPage() {
                     <Label className="text-sm font-bold text-white flex items-center gap-1.5">
                       🔐 Modo Buzón 100% Privado
                     </Label>
-                    <p className="text-[10px] text-slate-400 font-semibold leading-normal">
+                    <p className="text-xs font-semibold leading-normal text-muted-foreground">
                       Las dedicatorias y mensajes de voz NO se proyectarán en la pantalla gigante; irán de forma confidencial y directa al celular de los novios.
                     </p>
                   </div>
@@ -1095,7 +1095,7 @@ export default function ClientMuroSocialPage() {
                     <Label className="text-sm font-bold text-white flex items-center gap-1.5">
                       🛡️ Moderación Previa Exigida
                     </Label>
-                    <p className="text-[10px] text-slate-400 font-semibold leading-normal">
+                    <p className="text-xs font-semibold leading-normal text-muted-foreground">
                       Las fotos quedan retenidas en la cola "Pendientes" hasta que las apruebes de forma manual para salir a la pantalla.
                     </p>
                   </div>

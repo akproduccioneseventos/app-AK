@@ -35,6 +35,7 @@ export default function ClientContractPage() {
   const [fiesta, setFiesta] = useState<FiestaEnPlanificacion | null>(null);
   const [companyInfo, setCompanyInfo] = useState<CompanyInfo | null>(null);
   const [isLoading, setIsLoading] = useState(true);
+  const [loadError, setLoadError] = useState(false);
   const [isSigning, setIsSaving] = useState(false);
   const [acceptedTerms, setAcceptedTerms] = useState(false);
   const [acceptedPlanPagos, setAcceptedPlanPagos] = useState(false);
@@ -50,6 +51,7 @@ export default function ClientContractPage() {
 
   const loadData = useCallback(async () => {
     setIsLoading(true);
+    setLoadError(false);
     try {
       const [data, companyData, summaryData] = await Promise.all([
           getFiestaForPortalSession(fiestaId),
@@ -63,7 +65,7 @@ export default function ClientContractPage() {
         setSummary(summaryData.summary);
       }
     } catch (e) {
-      toast({ title: "Error al cargar", variant: "destructive" });
+      setLoadError(true);
     } finally {
       setIsLoading(false);
     }
@@ -86,15 +88,19 @@ export default function ClientContractPage() {
             toast({ title: "¡Contrato Firmado!", description: "Se ha registrado tu firma digital con éxito." });
             await loadData();
         } else throw new Error(result.error);
-    } catch (e: any) {
-        toast({ title: "Error al firmar", description: e.message, variant: "destructive" });
+    } catch {
+        toast({ title: "No pudimos registrar tu firma", description: "Intentá nuevamente. Si el problema continúa, contactá a tu organizador.", variant: "destructive" });
     } finally {
         setIsSaving(false);
     }
   };
 
   if (isLoading) {
-    return <div className="flex items-center justify-center h-screen"><Loader2 className="w-12 h-12 animate-spin text-primary" /></div>;
+    return <div className="flex h-screen flex-col items-center justify-center gap-4" role="status" aria-live="polite"><Loader2 className="h-12 w-12 animate-spin text-primary" /><p className="text-sm font-medium text-slate-600">Estamos preparando tu contrato.</p></div>;
+  }
+
+  if (loadError) {
+    return <div className="flex min-h-screen items-center justify-center bg-slate-50 p-4"><Card className="max-w-md text-center"><CardHeader><AlertTriangle className="mx-auto h-12 w-12 text-amber-500" /><CardTitle>No pudimos cargar tu contrato</CardTitle><CardDescription>Intentá nuevamente. Si el problema continúa, contactá a tu organizador.</CardDescription></CardHeader><CardFooter className="justify-center"><Button onClick={loadData}>Reintentar</Button></CardFooter></Card></div>;
   }
 
   if (!fiesta || !fiesta.contratoServicioTexto) {

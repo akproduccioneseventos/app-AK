@@ -380,6 +380,73 @@ toca a Gemini.
 - **El `bg-white` de facturas, recibos y contratos es correcto.** Esos
   documentos se imprimen en papel.
 
+### Tanda `estetica-01` — propuesta unificada del 9 de agosto de 2026
+
+- **La escala visual queda fijada así: tarjetas `rounded-xl`, botones
+  `rounded-lg` y campos `rounded-lg`.** Los componentes compartidos `Card`,
+  `Button`, `Input`, `Select`, `Textarea` y `EmptyState` usan esa escala y los
+  colores semánticos del tema. Se eligió una diferencia corta entre tarjeta y
+  control para ordenar la interfaz sin volverla ni cuadrada ni exageradamente
+  redonda.
+- **Los botones, tarjetas y campos compartidos dejaron de imponer rojo, blanco
+  y gris escritos a mano.** Ahora usan `primary`, `foreground`, `background`,
+  `border`, `accent` y `destructive`, porque esos tokens ya tienen versión clara
+  y oscura. No se tocaron los colores dinámicos que elige el usuario ni el
+  blanco de los documentos imprimibles.
+- **Alcance manual terminado del bloque de colores:** portal principal del
+  cliente, sus variantes pública/Pro, confirmación de invitados, control del
+  muro social, invitación pública, portal individual del invitado, contrato,
+  moodboard, configuración de la fiesta y bandeja del portal del cliente. El
+  resto de las 211 pantallas todavía necesita recorrerse pantalla por pantalla;
+  no se hizo un reemplazo masivo imposible de revisar. Los componentes
+  compartidos sí mejoran desde ahora toda la app.
+- **Ningún `text-[8px]`, `text-[9px]`, `text-[10px]` o `text-[11px]` se renderiza
+  por debajo de 12 px.** La garantía vive en `globals.css`, para corregir los
+  cientos de usos históricos sin editar mecánicamente 71 pantallas. Las
+  medidas de impresión en puntos no cambian. Además se corrigieron a mano las
+  grillas móviles señaladas: cuenta regresiva, muro social, resumen de
+  invitados y respuesta pública; el mensaje del invitado ya no queda cortado.
+- **Los vacíos del portal explican qué falta y qué ocurre después.** Las líneas
+  grises de checklist, cronograma, tragos, servicios, música, reuniones,
+  decoración, documentos, catálogo y preguntas se reemplazaron por
+  `EmptyState`. No se inventaron acciones de edición donde el cliente no tiene
+  permiso: se aclara cuándo debe publicar o intervenir AK.
+- **Las cargas públicas ya dicen qué están preparando.** Portal, contrato,
+  moodboard, invitación individual y mini quiosco tienen texto y `aria-live`;
+  sus fallos ofrecen reintento o un próximo paso. Las excepciones y mensajes
+  técnicos del servidor ya no quedan expuestos a clientes o invitados en esos
+  recorridos.
+- **La acción principal del portal ahora coincide con el próximo paso real.**
+  Puede llevar a pago, pagos en revisión, organización, invitados o contacto;
+  si una fase no habilita organización, dirige al resumen financiero. Se quitó
+  el pulso que hacía parecer urgente pagar siempre y las acciones posteriores
+  quedan como secundarias.
+- **La invitación pública ya no ofrece “Tal vez”.** Quedan sólo “Asistiré” y
+  “No puedo”, anchos para el dedo. `RsvpStatus` conserva `Tal vez` para datos
+  históricos y uso interno. La confirmación explica que se puede cambiar la
+  respuesta con el mismo enlace y nombre, y “Responder de nuevo” vuelve al
+  formulario sin recargar ni borrar los datos.
+- **El equipo ve el rango contractual al cambiar invitados.** La pantalla de
+  configuración reutiliza `validarCambioDeInvitados`, conserva como base la
+  cantidad originalmente contratada y muestra siempre rango y aviso en verde,
+  ámbar o rojo. El aviso no bloquea el guardado; no se tocaron los topes de 10%,
+  30% ni los siete días.
+- **El pedido de cambio de invitados ya tiene las dos pantallas.** El cliente
+  carga adultos, adolescentes, niños y nota, ve total/rango/errores/avisos y,
+  si ya existe un pedido, ve su estado. El equipo ve anterior, nuevo y desglose;
+  aprobar dice que actualizará el presupuesto y rechazar exige una explicación
+  que luego ve el cliente. Se conectaron las acciones existentes de Claude sin
+  reescribir su lógica.
+- **Coordinación de IA registrada:** el director principal revisó las decisiones
+  de contrato, presupuesto y jerarquía; agentes económicos `gpt-5.6-terra` con
+  razonamiento bajo hicieron inventarios, cambios mecánicos acotados, una prueba
+  de contrato de interfaz y una revisión del diff en paralelo. Luna era el
+  modelo preferido por la guía, pero no estaba disponible en este entorno.
+- **Pruebas focalizadas:** 22 aprobadas entre la nueva prueba de contrato de
+  interfaz y las 17 pruebas existentes de límites/solicitudes. TypeScript quedó
+  sin errores después de corregir el único estrechamiento de tipo detectado. Los
+  cuatro controles finales de la propuesta se anotan al cerrar la tanda.
+
 ## Toda la app vende (regla del dueño, 9 de agosto de 2026)
 
 No hay pantallas "internas" y pantallas "comerciales". El invitado que usa la

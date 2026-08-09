@@ -142,7 +142,7 @@ function Countdown({ fechaEvento }: { fechaEvento: string }) {
 function RsvpSection({ fiestaId, texto, typography, onSuccess }: { fiestaId: string; texto?: string; typography?: InvitacionTypographyConfig; onSuccess?: () => void }) {
   const [nombre, setNombre] = useState('');
   const [contacto, setContacto] = useState('');
-  const [asistencia, setAsistencia] = useState<'Confirmado' | 'Rechazado' | 'Tal vez'>('Confirmado');
+  const [asistencia, setAsistencia] = useState<'Confirmado' | 'Rechazado'>('Confirmado');
   const [personas, setPersonas] = useState('1');
   const [ninos, setNinos] = useState('0');
   const [acompanantes, setAcompanantes] = useState('');
@@ -223,16 +223,20 @@ function RsvpSection({ fiestaId, texto, typography, onSuccess }: { fiestaId: str
     }
   };
 
-  const asistenciaOptions: { value: 'Confirmado' | 'Rechazado' | 'Tal vez'; label: string; emoji: string }[] = [
+  const asistenciaOptions: { value: 'Confirmado' | 'Rechazado'; label: string; emoji: string }[] = [
     { value: 'Confirmado', label: 'Asistiré', emoji: '✅' },
-    { value: 'Tal vez', label: 'Tal vez', emoji: '🤔' },
     { value: 'Rechazado', label: 'No puedo', emoji: '❌' },
   ];
+
+  const handleRespondAgain = () => {
+    setSent(false);
+    setStep(1);
+    setError('');
+  };
 
   if (sent) {
     const confirmLabels: Record<string, string> = {
       Confirmado: '¡Hasta pronto!',
-      'Tal vez': '¡Gracias por avisarnos!',
       Rechazado: 'Te vamos a extrañar.',
     };
     return (
@@ -247,6 +251,15 @@ function RsvpSection({ fiestaId, texto, typography, onSuccess }: { fiestaId: str
         <h3 className="text-2xl font-bold text-gray-800">¡Confirmación recibida!</h3>
         <p className="text-gray-500 font-medium">{confirmLabels[asistencia] ?? 'Gracias por responder.'}</p>
         <p className="text-sm text-gray-400">Hemos guardado tu confirmación para el evento.</p>
+        <p className="text-sm text-gray-500">¿Te cambian los planes? Volvé a entrar con este mismo enlace y tu mismo nombre para actualizar tu respuesta.</p>
+        <Button
+          type="button"
+          onClick={handleRespondAgain}
+          className="rounded-xl px-5 font-bold text-white shadow-md transition-all active:scale-95"
+          style={{ backgroundColor: 'var(--inv-primary)' }}
+        >
+          Responder de nuevo
+        </Button>
       </motion.div>
     );
   }
