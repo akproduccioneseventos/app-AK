@@ -6,8 +6,26 @@ alguien lo vuelve a tocar, y a veces lo deja peor. Ya paso: dos propuestas
 protegieron el mismo archivo de maneras distintas y al fusionarse dejaron la
 pantalla colgada para siempre.
 
-**Si algo que vas a reportar figura ahí, es falso positivo.** Y cuando arregles
-algo nuevo, **agregalo a esa lista en la misma propuesta**.
+**Si algo que vas a reportar figura ahí, es falso positivo.**
+
+### Y ANOTAR SIEMPRE: cada cambio va a esa lista
+
+**Orden del dueño, 9 de agosto de 2026, y vale para las tres IA.** Cada vez que
+modificás algo, lo anotás en `docs/YA-RESUELTO.md` **en la misma propuesta**. No
+es opcional ni depende del tamaño del cambio.
+
+Los tres casos, todos se anotan:
+
+- **Arreglo** → qué estaba mal y qué se hizo, en una frase, en criollo.
+- **Mejora o funcionalidad nueva** → cómo funciona y **por qué se eligió así**.
+  Ese porqué es lo único que impide que otra IA lo deshaga el mes que viene
+  creyendo que mejora.
+- **Falso positivo verificado** → que quedó descartado y por qué. Si no se
+  anota, la próxima auditoría lo vuelve a reportar y se pierde el viaje.
+
+**Una propuesta que toca código y no toca esa lista está incompleta.** Con tres
+IA trabajando en paralelo sobre el mismo repositorio, esa lista es la única
+memoria compartida que hay.
 
 ## Traspaso entre chats (obligatorio, vale para Codex, Gemini y Claude)
 

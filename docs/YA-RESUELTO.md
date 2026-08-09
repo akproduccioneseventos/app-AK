@@ -300,8 +300,18 @@ comerciales, 12 contables), no las que aparecen en el menú.
 
 ## Cómo agregar algo a esta lista
 
-Cuando arregles algo, sumá una línea en el módulo que corresponda, en la misma
-propuesta. Con esto alcanza:
+**Se anota SIEMPRE, en la misma propuesta que toca el código.** Orden del dueño
+del 9 de agosto de 2026: no depende del tamaño del cambio ni de si parece
+importante. Una propuesta que toca código y no toca esta lista está incompleta.
+
+Se anotan las tres cosas, no sólo los arreglos:
+
+- **Arreglos** — qué estaba mal y qué se hizo.
+- **Mejoras y cosas nuevas** — cómo funciona y **por qué se eligió así**.
+- **Falsos positivos verificados** — que quedaron descartados y el motivo, para
+  que la próxima auditoría no los vuelva a reportar.
+
+Sumá una línea en el módulo que corresponda. Con esto alcanza:
 
 - **Qué se arregló**, en una frase, en criollo.
 - **Dónde**, si sirve para ubicarlo.

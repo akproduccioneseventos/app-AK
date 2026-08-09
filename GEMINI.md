@@ -3,7 +3,14 @@
 Para programar y asistir en este proyecto de forma óptima:
 0. **Si vas a auditar, leé antes `docs/YA-RESUELTO.md`**: es lo que ya está
    arreglado y las decisiones tomadas del dueño. Si un hallazgo tuyo figura ahí,
-   es falso positivo. Y cuando arregles algo, agregalo a esa lista.
+   es falso positivo.
+0a. **ANOTÁ SIEMPRE lo que modificás en `docs/YA-RESUELTO.md`, en la misma
+   propuesta.** Orden del dueño del 9 de agosto de 2026: no es opcional ni
+   depende del tamaño del cambio. Se anotan los arreglos (qué estaba mal y qué
+   hiciste), las mejoras y lo nuevo (cómo funciona y **por qué lo elegiste
+   así**) y los falsos positivos que descartaste (con el motivo). Una propuesta
+   que toca código y no toca esa lista está incompleta: es la única memoria
+   compartida entre las tres IA.
 0b. **Leé la lista de errores ya cometidos** en `AGENTS.md`, sección "Errores ya
    cometidos". Son diez cosas que salieron mal de verdad en este proyecto y cada
    una costó tiempo, plata o una propuesta entera a la basura. Dos te tocan

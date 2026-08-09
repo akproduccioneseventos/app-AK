@@ -3,7 +3,14 @@
 When assisting developers in this repository:
 0. **Before auditing anything, read `docs/YA-RESUELTO.md`** — what is already
    fixed and the owner's settled decisions. If a finding appears there, it is a
-   false positive. When you fix something new, add it to that list.
+   false positive.
+0a. **Always record what you change in `docs/YA-RESUELTO.md`, in the same pull
+   request.** Owner's standing order (9 August 2026): not optional, regardless of
+   the size of the change. Record fixes (what was wrong, what you did),
+   improvements and new features (how it works and **why you chose it that
+   way**), and verified false positives (with the reason). A pull request that
+   touches code but not that list is incomplete — it is the only shared memory
+   between the three AIs working on this repository.
 0b. **Read the "Errores ya cometidos" section in `AGENTS.md` before starting.** Ten
    things that actually went wrong in this project, each one costing time, money
    or a whole pull request thrown away.
