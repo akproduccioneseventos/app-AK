@@ -96,6 +96,22 @@ las que se venden hoy:
 - **La galería del operador ya permite reimprimir** una foto que ya salió. No
   hace falta agregarlo.
 
+### Qué produce cada estación (verificado en el código el 9/8/2026)
+
+Lista corta para no volver a confundirse. Ya pasó: se describió el Bogue como
+estación de video cuando es de fotos.
+
+- **Fotocabina** — FOTOS. Tanda de tres, se arma una tira y se imprime.
+- **Bogue** — **FOTOS.** Saca varias seguidas. Hoy sólo guarda el video
+  boomerang que arma con ellas y **descarta las fotos**: eso está mal y va en
+  `docs/ordenes/entretenimiento-03.md`, bloque B.
+- **Espejo mágico foto** — FOTO, con filtro. Imprime.
+- **Espejo mágico firma** — FOTO con firma y stickers encima. Imprime el lienzo.
+- **Espejo mágico IA (touchpix)** — FOTO. Guarda la original y la generada.
+- **Plataforma 360** — VIDEO de verdad, 15 segundos, grabado de la cámara.
+- **Cápsula del tiempo (buzón)** — AUDIO o VIDEO. No se imprime.
+- **Tótem** — NO CAPTURA NADA. Sólo muestra el código y las fotos aprobadas.
+
 ### Topes, ya calibrados
 
 - **Videos del invitado: 15 segundos.** Es a propósito.

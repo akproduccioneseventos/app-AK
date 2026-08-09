@@ -84,22 +84,35 @@ válida.
 
 ---
 
-# BLOQUE B — Bogue
+# BLOQUE B — Bogue: es una estación de FOTOS
 
 **Propuesta completa.**
 
 `src/app/evento/bogue/[fiestaId]/page.tsx`
 
-Saca varias fotos seguidas y las arma en un video. Le falta lo mismo que al 360:
-que el invitado sepa qué está pasando.
+**Corrección del dueño, 9 de agosto de 2026: el Bogue es de fotos, no de video.**
 
-**Qué mirar:**
+Lo que hay hoy, verificado en el código: saca varias fotos seguidas (quedan como
+imágenes sueltas en `capturedFrames`, línea 74) y después las pega en un video
+boomerang de ida y vuelta (`processBoomerangVideo`, línea 345). Lo único que se
+guarda y se sube es ese video `.webm` (línea 391). **Las fotos se descartan.**
 
-- **Guía en pantalla**: cuántas capturas van, cuánto falta, cuándo terminó.
-- **Vista previa antes de subir**: que pueda ver el loop y repetirlo si no le
-  gustó, en vez de subir a ciegas.
-- **Si falla la compilación del video**, que avise y ofrezca reintentar. Hoy no
-  está claro qué pasa si eso falla.
+**Qué hay que hacer:**
+
+1. **Guardar las fotos, no sólo el video.** Son el producto principal de esta
+   estación. Hoy se pierden apenas se arma el boomerang.
+2. **Mostrárselas al invitado por separado**, como quedó la fotocabina: las ve
+   todas, y elige.
+3. **Que se puedan imprimir**, igual que la fotocabina. Usá la función
+   compartida `imprimirRecuerdo` y el armado de `tira-fotocabina.ts`: **no
+   escribas otra**.
+4. **El boomerang queda como extra para el muro**, no como la salida única.
+5. **Guía en pantalla**: cuántas van, cuánto falta, cuándo terminó.
+6. **Si falla el armado del boomerang, que las fotos igual se guarden.** Hoy si
+   eso falla el invitado se va sin nada.
+
+**Ojo:** la fotocabina arma la tira con **tres** fotos. Fijate cuántas saca el
+Bogue y, si son más, hablalo antes de forzarlas todas en una hoja.
 
 ---
 
