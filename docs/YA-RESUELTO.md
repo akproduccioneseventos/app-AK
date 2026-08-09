@@ -22,6 +22,9 @@ anotado, la próxima auditoría lo va a volver a encontrar.
 - **Lo que le toca a Gemini, Claude no lo programa.** Claude escribe código sólo
   en plata, cobros, comida y permisos; el resto va a una orden en
   `docs/ordenes/`. Programarlo igual le cuesta el doble al dueño.
+- **Propuestas grandes, no muchas chicas.** Cada fusión dispara un despliegue y
+  se paga. Se junta la tanda entera en una sola propuesta. La documentación
+  viaja con el código, nunca en una propuesta aparte.
 
 - **El ajuste anual del 15% va siempre.** Aparece en presupuestos y en el portal.
 - **El descuento del 50% del Salón Club Uruguay** y el descuento del presupuesto
