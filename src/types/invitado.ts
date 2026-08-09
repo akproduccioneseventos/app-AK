@@ -14,6 +14,13 @@ export interface Invitado {
   contacto?: string; // Email o teléfono
   rsvp: RsvpStatus;
   partySize?: number; // Cuántas personas vienen con esta invitación (incluyendo el principal)
+  /**
+   * Cuántas de esas personas son niños o adolescentes. El menú y el costo por
+   * cubierto no son iguales para un chico que para un adulto, y `categoria`
+   * guarda una sola etiqueta para todo el grupo: sin este dato, una familia de
+   * dos grandes y tres chicos se cocinaba como cinco adultos.
+   */
+  kidsCount?: number;
   tableNumber?: string; // Número de mesa asignado
   notes?: string; // Notas adicionales (alergias, comentarios)
   companionNames?: string[]; // Nombres de los acompañantes

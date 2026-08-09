@@ -31,6 +31,18 @@ anotado, la próxima auditoría lo va a volver a encontrar.
   son decisiones de marketing.
 - **La lista de compras usa los invitados del PRESUPUESTO**, no los confirmados.
   Se cocina lo que se contrató. Si vienen más, se agregan y el presupuesto sube.
+- **El invitado marca cuántos del grupo son niños o adolescentes.** Antes la
+  invitación pública metía a todos como `'Adulto'` fijo, así que una familia de
+  dos grandes y tres chicos entraba como cinco adultos y el menú salía mal. Ahora
+  se pregunta y se guarda en `kidsCount`, el desglose fino del grupo.
+  **`categoria` sigue existiendo** para las pantallas que muestran una sola
+  etiqueta: no la saques.
+- **El conteo para cocinar sale del PRESUPUESTO, no de los confirmados.** Y eso
+  ya funciona solo: `syncFiestaFromBudget` copia `invitadosAdultos` e
+  `invitadosNinos` del presupuesto a la fiesta, y `syncLinkedFiesta` lo dispara
+  cada vez que el presupuesto se guarda o se actualiza. **Si los invitados
+  aumentan, el conteo se actualiza solo.** El dato que marca el invitado sirve
+  para saber a quién llevarle cada menú en la mesa, no para comprar.
 - **El "Tal vez" de la invitación se saca: se confirma o no se confirma.** Un
   "tal vez" no sirve para encargar comida ni poner sillas. **Pero el estado
   `'Tal vez'` NO se borra del tipo `RsvpStatus`**: hay invitados guardados con

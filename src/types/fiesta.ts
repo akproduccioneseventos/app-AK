@@ -46,6 +46,8 @@ export interface Invitado {
   contacto?: string;
   rsvp: RsvpStatus;
   partySize?: number;
+  /** Cuántos del grupo son niños o adolescentes. Ver `src/types/invitado.ts`. */
+  kidsCount?: number;
   tableNumber?: string;
   notes?: string;
   companionNames?: string[];
