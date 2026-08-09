@@ -108,6 +108,20 @@ async function saveInvoiceInner(
     let finalInvoiceData: Invoice;
     let invoiceId: string;
 
+    // Dos facturas con el mismo numero rompen la busqueda y los reportes.
+    // Los recibos de sena quedan afuera a proposito: comparten el numero por
+    // evento cuando el cliente paga la sena en varias veces, y la duplicacion
+    // real ya la corta findExistingDepositReceipt.
+    const numeroPedido = invoiceDataInput.invoiceNumber?.trim();
+    const idPropio = 'id' in invoiceDataInput ? invoiceDataInput.id : undefined;
+    const esRecibaDeSena = numeroPedido
+      ? isDepositReceiptInvoice({ documentKind: invoiceDataInput.documentKind, invoiceNumber: numeroPedido })
+      : false;
+    if (numeroPedido && !esRecibaDeSena
+        && invoices.some(inv => inv.invoiceNumber?.trim() === numeroPedido && inv.id !== idPropio)) {
+      return { success: false, error: `Ya existe otra factura con el número ${numeroPedido}.` };
+    }
+
     if ('id' in invoiceDataInput && invoiceDataInput.id) {
       invoiceId = invoiceDataInput.id;
       const index = invoices.findIndex(inv => inv.id === invoiceId);
@@ -115,6 +129,24 @@ async function saveInvoiceInner(
         return { success: false, error: `Factura con ID ${invoiceId} no encontrada.` };
       }
       const { id, ...dataToUpdate } = invoiceDataInput;
+      const facturaActual = invoices[index];
+      const tienePagos = (facturaActual.payments ?? []).length > 0;
+
+      // Una factura ya cobrada es un comprobante: no se le cambia el numero, la
+      // moneda ni se la vuelve a poner en borrador. El cliente ya estaba
+      // protegido asi en la pantalla; faltaba el resto, y faltaba en el servidor.
+      if (tienePagos) {
+        if (dataToUpdate.invoiceNumber && dataToUpdate.invoiceNumber !== facturaActual.invoiceNumber) {
+          return { success: false, error: 'No se puede cambiar el número de una factura con pagos registrados.' };
+        }
+        if (dataToUpdate.currency && dataToUpdate.currency !== facturaActual.currency) {
+          return { success: false, error: 'No se puede cambiar la moneda de una factura con pagos registrados.' };
+        }
+      }
+      if (facturaActual.status === 'Paid' && dataToUpdate.status && dataToUpdate.status !== 'Paid') {
+        return { success: false, error: 'Una factura pagada no puede volver a otro estado. Registrá una nota de crédito o un ajuste.' };
+      }
+
       const currency = dataToUpdate.currency || invoices[index].currency || 'UYU';
 
       const updatedItems = (dataToUpdate.items || invoices[index].items).map((item, idx) => {
@@ -380,6 +412,11 @@ async function deleteInvoiceInner(id: string, linkedFiestaId?: string): Promise<
   if (!auth.success) return { success: false, error: auth.error };
   if (auth.user?.role !== 'admin') return { success: false, error: 'Solo administradores pueden eliminar facturas.' };
   const originalInvoices = await getInvoices();
+  // Borrar una factura cobrada hace desaparecer el comprobante del cobro.
+  const aBorrar = originalInvoices.find(inv => inv.id === id);
+  if (aBorrar && ((aBorrar.payments ?? []).length > 0 || aBorrar.status === 'Paid')) {
+    return { success: false, error: 'No se puede eliminar una factura con pagos registrados. Es el comprobante del cobro.' };
+  }
   const initialLength = originalInvoices.length;
   const invoices = originalInvoices.filter(inv => inv.id !== id);
   if (invoices.length === initialLength) {

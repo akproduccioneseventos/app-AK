@@ -176,8 +176,10 @@ export default function CrmPage() {
         const diffDays = (now.getTime() - lastActivity.getTime()) / (1000 * 60 * 60 * 24);
         if (diffDays < INACTIVITY_DAYS) return false;
       } else if (quickFilter === 'my_leads') {
-        // Filter by assignedTo matching current user — we don't have auth context so we use a simple "has assignedTo" filter
-        // In a real app this would compare to the logged-in user's name
+        // No filtra "los mios": filtra los que tienen responsable asignado, que
+        // es lo que dice la etiqueta en pantalla ("Con responsable"). La clave
+        // interna quedo con nombre viejo. No es una filtracion de datos: el
+        // equipo ve el CRM completo igual.
         if (!lead.assignedTo) return false;
       } else if (quickFilter === 'direct') {
         if (!isDirectCrmLead(lead)) return false;
