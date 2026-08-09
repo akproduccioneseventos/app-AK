@@ -27,6 +27,27 @@ Los tres casos, todos se anotan:
 IA trabajando en paralelo sobre el mismo repositorio, esa lista es la única
 memoria compartida que hay.
 
+## SIEMPRE propuestas grandes, nunca muchas chicas
+
+**Orden del dueño, 9 de agosto de 2026. Vale para las tres IA, sin excepción.**
+
+Cada fusión dispara un despliegue y eso se paga. **Se junta todo el trabajo de la
+tanda en UNA sola propuesta y se fusiona una vez, al final.**
+
+- **No abras una propuesta por hallazgo ni por archivo.** Arreglá todo lo de la
+  tanda, corré la verificación una vez sobre el conjunto y recién ahí fusionás.
+- **La documentación viaja con el código.** Anotar en `docs/YA-RESUELTO.md` no
+  justifica una propuesta aparte: va en la misma.
+- **Un cambio de documentación solo no se fusiona solo.** Dejalo commiteado en la
+  rama y juntalo con el próximo trabajo.
+- **Sólo se separa** si algo es urgente y no puede esperar, o si mezclarlo haría
+  imposible entender qué rompió qué.
+
+**Cuanto más grande la propuesta, más importa correr los cuatro controles sobre
+el conjunto entero antes de fusionar**, no sobre cada pedazo suelto. Dos arreglos
+que pasan por separado pueden romper juntos: ya pasó con el archivo de facturas,
+que quedó protegido dos veces y dejaba la pantalla colgada al guardar.
+
 ## Traspaso entre chats (obligatorio, vale para Codex, Gemini y Claude)
 
 Este proyecto se programa entre tres IA sobre el mismo repositorio. Para no

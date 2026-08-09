@@ -111,6 +111,28 @@ Verificado en este contenedor; releer antes de pelear con las herramientas:
   históricas (`src/data/fiestas-historicas.json`). Las fiestas activas viven en
   la base, así que las pantallas por `[id]` muestran su estado de "no encontrada".
 
+## Pocas propuestas y grandes, no muchas chicas
+
+**Orden del dueño, 9 de agosto de 2026.** Cada fusión dispara un despliegue y eso
+se paga. Así que **se junta el trabajo de la tanda en una sola propuesta** y se
+fusiona una vez, al final.
+
+Qué significa en la práctica:
+
+- **No se abre una propuesta por hallazgo.** Se arregla todo lo de la tanda, se
+  corre la verificación una vez sobre el conjunto y recién ahí se fusiona.
+- **La documentación viaja con el código.** Anotar en `docs/YA-RESUELTO.md` no
+  justifica una propuesta aparte: va en la misma.
+- **Un cambio de documentación solo no se fusiona solo.** Se deja commiteado en
+  la rama y se junta con el próximo trabajo.
+- **Sí se separa** cuando algo es urgente y no puede esperar a la tanda, o
+  cuando mezclarlo haría imposible entender qué rompió qué.
+
+Ojo con lo que ya costó caro: **cuanto más grande la propuesta, más importa
+correr los cuatro controles sobre el conjunto entero antes de fusionar**, no
+sobre cada pedazo por separado. Dos arreglos que pasan sueltos pueden romper
+juntos; ya pasó con el archivo de facturas.
+
 ## Lo que programa Gemini NO lo programa Claude
 
 **Orden del dueño, 9 de agosto de 2026.** Cuando una tarea le toca a Gemini, se
@@ -418,6 +440,9 @@ las reglas que más importan:
 
 - **`/sano`** — corre los cinco controles de salud en el orden correcto y avisa
   el resultado en criollo. No hace falta recordar la secuencia.
+- **`/vende`** — mira una pantalla, un texto o algo nuevo con ojo de vendedor.
+  **Toda la app vende**, no sólo el módulo comercial: se usa antes de dar por
+  terminada cualquier pantalla que vea un cliente o un invitado.
 - **`/aca-quede`** — reescribe la hoja de traspaso al cerrar la sesión.
 - **Ayudantes económicos ya definidos**, con las reglas del proyecto adentro (no
   hay que explicárselas cada vez): `ak-buscador` para ubicar dónde vive algo,

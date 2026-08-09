@@ -4,6 +4,13 @@ When assisting developers in this repository:
 0. **Before auditing anything, read `docs/YA-RESUELTO.md`** — what is already
    fixed and the owner's settled decisions. If a finding appears there, it is a
    false positive.
+0aa. **Always prefer one large pull request over several small ones.** Owner's
+   standing order (9 August 2026): every merge triggers a deploy and that costs
+   money. Group the whole batch of work into a single pull request and merge it
+   once, at the end. Documentation travels with the code — never open a separate
+   pull request just to update `docs/YA-RESUELTO.md`. The bigger the pull
+   request, the more it matters to run all four checks over the whole set before
+   merging, not over each piece separately.
 0a. **Always record what you change in `docs/YA-RESUELTO.md`, in the same pull
    request.** Owner's standing order (9 August 2026): not optional, regardless of
    the size of the change. Record fixes (what was wrong, what you did),

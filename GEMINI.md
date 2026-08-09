@@ -4,6 +4,13 @@ Para programar y asistir en este proyecto de forma óptima:
 0. **Si vas a auditar, leé antes `docs/YA-RESUELTO.md`**: es lo que ya está
    arreglado y las decisiones tomadas del dueño. Si un hallazgo tuyo figura ahí,
    es falso positivo.
+0aa. **SIEMPRE propuestas grandes, nunca muchas chicas.** Orden del dueño del 9
+   de agosto de 2026: cada fusión dispara un despliegue y eso se paga. Juntá todo
+   el trabajo de la tanda en UNA propuesta y fusionala una vez, al final. Si una
+   orden de trabajo te pide varios bloques, **podés entregarlos juntos en una
+   sola propuesta**: eso es preferible a abrir una por bloque. Y cuanto más
+   grande, más importa correr los cuatro controles sobre el conjunto entero antes
+   de subir.
 0a. **ANOTÁ SIEMPRE lo que modificás en `docs/YA-RESUELTO.md`, en la misma
    propuesta.** Orden del dueño del 9 de agosto de 2026: no es opcional ni
    depende del tamaño del cambio. Se anotan los arreglos (qué estaba mal y qué
