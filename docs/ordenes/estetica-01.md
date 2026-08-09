@@ -240,6 +240,45 @@ escrito en criollo, listo para mostrar.
 
 ---
 
+# BLOQUE G — Las dos pantallas del cambio de invitados
+
+**Propuesta completa.** Igual que el bloque F: la lógica ya está hecha y
+probada por Claude. Sólo falta la pantalla.
+
+El cliente puede pedir, desde su portal, cambiar la cantidad de invitados: bajar
+hasta 10% o subir hasta 30%. Las acciones ya existen en
+`src/app/actions/fiesta/portal.actions.ts`:
+
+- `submitClientGuestCountChangeRequest(fiestaId, { adultos, adolescentes, ninos, notaCliente })`
+- `approveClientGuestCountChangeRequest(fiestaId, requestId)`
+- `rejectClientGuestCountChangeRequest(fiestaId, requestId, motivo)`
+
+**No las reescribas ni cambies las reglas de adentro.** Están con siete pruebas.
+
+**1. En el portal del cliente:** un formulario con tres campos —adultos,
+adolescentes y niños— más un lugar para dejar una nota.
+
+- **Mostrale el rango permitido antes de que escriba**, sacado del veredicto:
+  "podés mover entre 90 y 130 invitados". Así no pide algo que va a ser
+  rechazado.
+- Mostrale el total sumado a medida que carga, para que no tenga que sumar él.
+- Si la acción devuelve error, ese texto ya está escrito en criollo: mostralo tal
+  cual.
+- Si devuelve `aviso`, mostralo también: significa que el pedido entró pero tiene
+  una advertencia (por ejemplo, que va con pago previo).
+- Cuando ya hay un pedido pendiente, en vez del formulario mostrale el estado de
+  ese pedido.
+
+**2. En la pantalla del equipo** (la solapa del portal del cliente, donde ya
+están los pedidos de servicios y de menú): que aparezca el pedido con el
+desglose, el total anterior y el nuevo, y los botones de aprobar y rechazar. El
+rechazo tiene que pedir el motivo, que se le muestra al cliente.
+
+**Ojo:** aprobar **cambia el presupuesto**. Que el botón lo diga: "Aprobar y
+actualizar el presupuesto", no un "Aceptar" pelado.
+
+---
+
 ## Cuando termines
 
 Avisá el número de la propuesta, contando **hasta dónde llegaste** con los
