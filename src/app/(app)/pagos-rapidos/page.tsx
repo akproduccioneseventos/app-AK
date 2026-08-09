@@ -628,7 +628,8 @@ function PagosRapidosContent() {
                                 <p className="text-[9px] font-black uppercase text-muted-foreground tracking-widest">Pagos anteriores</p>
                                 <div className="space-y-1.5">
                                   {(p.pagosCliente || []).map(pago => (
-                                    <div key={pago.id} className="flex items-center gap-2 text-xs bg-slate-50 rounded-lg p-2.5">
+                                    <div key={pago.id}>
+                                    <div className="flex items-center gap-2 text-xs bg-slate-50 rounded-lg p-2.5">
                                       <MetodoPagoIcon metodo={pago.metodoPago} />
                                       <span className="flex-1 text-slate-600">{formatDate(pago.fecha)}</span>
                                       <span className={cn(
@@ -648,6 +649,7 @@ function PagosRapidosContent() {
                                     {pago.estadoPago === 'rechazado' && pago.motivoRechazo && (
                                       <p className="text-[10px] text-red-600 pl-1 pb-1">Motivo: {pago.motivoRechazo}</p>
                                     )}
+                                    </div>
                                   ))}
                                 </div>
                               </div>
