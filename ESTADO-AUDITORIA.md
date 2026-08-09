@@ -37,7 +37,7 @@ de npm en la copia limpia.
 - Validación final del árbol definitivo: 200 archivos y 1333 pruebas en verde.
 - TypeScript: sin errores. Lint: sin errores nuevos; conserva 5 avisos previos en
   archivos no tocados.
-- Falta publicar la rama y abrir su PR. No fusionar automáticamente.
+- PR #905 abierta en borrador. No fusionar automáticamente.
 
 ---
 

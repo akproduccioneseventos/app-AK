@@ -6,7 +6,8 @@ el histórico y la evidencia larga están en `ESTADO-AUDITORIA.md`.
 **Última actualización:** 9 de agosto de 2026
 **Rama:** `codex/audit-claude-gemini-since-769`
 **Base auditada:** `main` `96e01a96` (PR #904)
-**Estado:** validación final en verde; falta commit, push y PR.
+**PR:** #905, abierta en borrador.
+**Estado:** validación final en verde; no fusionar automáticamente.
 
 ## Alcance ya inventariado
 
