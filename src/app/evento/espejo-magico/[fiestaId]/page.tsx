@@ -18,8 +18,10 @@ import {
   FileImage,
   Radio,
   Zap,
+  Printer,
 } from 'lucide-react';
 import { QrRecuerdo } from '@/components/entretenimiento/QrRecuerdo';
+import { imprimirRecuerdo } from '@/lib/entretenimiento/imprimir-recuerdo';
 import { AvisoDeFallaEnEstacion } from '@/components/entretenimiento/AvisoDeFallaEnEstacion';
 import {
   getPublicEntertainmentEvent,
@@ -744,6 +746,24 @@ export default function EspejoMagicoPage() {
     document.body.removeChild(a);
   };
 
+  /**
+   * Los espejos del rubro imprimen ademas de mandar la copia digital, y en la
+   * version con firma el papel es medio punto del juego: el invitado firma y se
+   * lo lleva. Se imprime lo que esta en el lienzo, asi la firma y los stickers
+   * salen en la hoja.
+   */
+  const handleImprimir = () => {
+    if (!capturedImage || !canvasRef.current) return;
+    if (mode !== 'foto') {
+      mergeDrawing();
+    }
+    const dataUrl = canvasRef.current.toDataURL('image/jpeg', 0.92);
+    const resultado = imprimirRecuerdo(dataUrl);
+    if (!resultado.ok) {
+      setErrorMsg(resultado.aviso || 'No se pudo mandar a imprimir.');
+    }
+  };
+
   const handleUpload = async (imageOverride?: string) => {
     if (!canvasRef.current || (!capturedImage && !imageOverride)) return;
 
@@ -1371,10 +1391,16 @@ export default function EspejoMagicoPage() {
 
               <div className="flex flex-col gap-2 w-full">
                 <button
-                  onClick={handleDownload}
-                  className="w-full h-12 rounded-xl bg-rose-500 hover:bg-rose-600 text-white font-black text-sm uppercase tracking-wider transition-all flex items-center justify-center gap-2"
+                  onClick={handleImprimir}
+                  className="w-full h-14 rounded-xl bg-rose-500 hover:bg-rose-600 text-white font-black text-base uppercase tracking-wider transition-all flex items-center justify-center gap-2"
                 >
-                  <Download className="w-4 h-4" /> Guardar Foto
+                  <Printer className="w-5 h-5" /> Imprimir mi foto
+                </button>
+                <button
+                  onClick={handleDownload}
+                  className="w-full h-12 rounded-xl bg-white/5 hover:bg-white/10 text-white font-bold text-sm border border-white/10 transition flex items-center justify-center gap-2"
+                >
+                  <Download className="w-4 h-4" /> Guardar en el celular
                 </button>
                 {fiesta?.station.allowGuestRetake && fiesta.station.maxRetakes > 0 && (
                   <button
