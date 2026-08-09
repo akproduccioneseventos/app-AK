@@ -413,6 +413,31 @@ Verificado y cerrado el 9 de agosto de 2026.
   de una fiesta vieja hay que pedirle que avise, no dejarlo pensando que se
   equivocó de enlace.
 
+## Automatizaciones — auditadas el 9 de agosto de 2026
+
+- **Los recordatorios de pago ahora se disparan solos.** `scanAndTriggerPaymentReminders`
+  existía y **nadie la llamaba nunca**: ningún cliente con la cuota vencida
+  recibía el aviso y la plata quedaba sin reclamar. Hay una tarea programada en
+  `/api/cron/recordatorios-de-pago`, protegida con `CRON_SECRET` igual que la del
+  blog. **Sin esa clave configurada no corre**, a propósito: es preferible que no
+  salga a que cualquiera pueda dispararle mensajes a los clientes desde afuera.
+- **La decisión de a quién avisarle vive aparte**, en
+  `src/lib/cobros/escaneo-recordatorios.ts`, con diez pruebas. Está separada de
+  la acción de servidor porque la acción exige sesión y una tarea programada no
+  tiene: así la usan las dos sin abrir una acción sin control.
+- **Nadie recibe el mismo aviso dos veces en el día** (ventana de 24 horas), ni
+  se le avisa a quien ya pagó o tiene saldo cero.
+- **El motor de alertas internas no manda nada al cliente**: sólo genera avisos
+  para el equipo, con identificador estable (`regla_fiesta`), así que no se
+  duplican. Si una auditoría dice que "manda mensajes", es falso positivo.
+
+### Lo que falta y NO es un defecto del código
+
+- **Los mensajes del WhatsApp del día se mandan a mano**, abriendo WhatsApp con
+  el texto ya escrito. No hay integración con la API de Meta. Es una decisión
+  pendiente del dueño, no algo roto: no lo "arregles" conectando Meta sin
+  hablarlo.
+
 ## Infraestructura y pruebas
 
 - **`tests/e2e/layout-baseline.json` se regeneró el 8 de agosto de 2026.** Estuvo
