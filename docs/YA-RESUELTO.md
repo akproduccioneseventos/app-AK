@@ -390,6 +390,29 @@ también vende.
 Hay una habilidad con ese criterio ya escrito: **`/vende`**. Se usa antes de dar
 por terminada cualquier pantalla que vea un cliente o un invitado.
 
+## Accesos de proveedores (fotógrafo, catering)
+
+Verificado y cerrado el 9 de agosto de 2026.
+
+- **El enlace del proveedor se valida de verdad.** Las pantallas de fotografía y
+  catering se abrieron para que el proveedor entre sin cuenta, pero al principio
+  **no se comprobaba el token**: alcanzaba con escribir `?token=hola` en la
+  dirección para ver los datos de cualquier fiesta. Ahora
+  `verifyAccesoPersonalToken` comprueba contra `accesos-personal.json` que el
+  token exista, tenga el permiso de ese módulo, sea de esa fiesta y no esté
+  vencido.
+- **Los enlaces vencen a los 90 días** contados desde que se crearon, si no
+  tienen fecha propia (`fechaVencimiento`). Antes no vencían nunca: el fotógrafo
+  de una fiesta de hace ocho meses seguía entrando. Los accesos ya guardados no
+  tienen la fecha, por eso la ventana por defecto se cuenta desde la creación.
+- **Un acceso sin `fiestaId` es global a propósito** (el DJ de siempre, que
+  trabaja en todas las fiestas), pero igual necesita el permiso del módulo.
+- **Al proveedor externo no se le muestra el presupuesto** ni el botón de
+  sincronizar: vería los precios del evento.
+- **El cartel distingue el enlace vencido del que no corresponde.** Al proveedor
+  de una fiesta vieja hay que pedirle que avise, no dejarlo pensando que se
+  equivocó de enlace.
+
 ## Infraestructura y pruebas
 
 - **`tests/e2e/layout-baseline.json` se regeneró el 8 de agosto de 2026.** Estuvo

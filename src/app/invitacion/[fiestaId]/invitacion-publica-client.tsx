@@ -307,7 +307,12 @@ function RsvpSection({ fiestaId, texto, typography, onSuccess }: { fiestaId: str
 
                 <div>
                   <label className="mb-2 block text-xs font-semibold text-gray-600">¿Asistirás al evento?</label>
-                  <div className="grid grid-cols-3 gap-2">
+                  {/* Las columnas se acomodan solas y nunca bajan de 7rem: es
+                      el boton con el que el invitado confirma si viene, y con
+                      tres columnas fijas quedaba de 120px, dificil de tocar.
+                      Asi tambien funciona si quedan dos opciones en vez de
+                      tres. */}
+                  <div className="grid gap-2 grid-cols-[repeat(auto-fit,minmax(7rem,1fr))]">
                     {asistenciaOptions.map(opt => (
                       <button
                         key={opt.value}
@@ -316,7 +321,7 @@ function RsvpSection({ fiestaId, texto, typography, onSuccess }: { fiestaId: str
                           setAsistencia(opt.value);
                         }}
                         className={cn(
-                          'flex flex-col items-center justify-center rounded-lg border-2 px-1 py-2 text-xs font-bold transition-all duration-300 hover:scale-[1.03]',
+                          'flex min-h-[4.5rem] flex-col items-center justify-center rounded-lg border-2 px-2 py-3 text-sm font-bold transition-all duration-300 hover:scale-[1.03]',
                           asistencia === opt.value
                             ? 'border-transparent text-white shadow-md'
                             : 'border-gray-200 text-gray-600 bg-white hover:bg-gray-50'

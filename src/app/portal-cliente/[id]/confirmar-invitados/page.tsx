@@ -198,8 +198,9 @@ export default function ConfirmarInvitadosPortalPage() {
           })}
         </div>
 
-        {/* Extra stats */}
-        <div className="grid grid-cols-3 gap-3">
+        {/* Extra stats. En celular van de a una: con tres columnas quedaban de
+            120px y el numero grande no entraba. */}
+        <div className="grid grid-cols-1 gap-3 sm:grid-cols-3">
           <div className="rounded-xl border border-slate-200 bg-white p-3 text-center">
             <Users className="w-4 h-4 mx-auto text-slate-400 mb-1" />
             <p className="text-xl font-black text-slate-800">{totalPersonas}</p>

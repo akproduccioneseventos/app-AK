@@ -113,7 +113,7 @@ export default function PortalPersonalPage() {
                         if (isEventSpecific && !fiesta) return null;
 
                         const baseHref = isEventSpecific ? `${modulo.href}?fiestaId=${fiesta!.id}` : modulo.href;
-                        const linkHref = permisoId === 'carga-operativa'
+                        const linkHref = isEventSpecific
                           ? `${baseHref}&token=${encodeURIComponent(acceso.id)}&operatorName=${encodeURIComponent(acceso.nombreAcceso)}`
                           : baseHref;
 
