@@ -102,8 +102,14 @@ export default function GananciasYPerdidasPage() {
         </div>
       )}
 
+      {/* El texto del error existia pero no se mostraba: quedaba un triangulo
+          rojo suelto y nadie sabia si reintentar o cambiar las fechas. */}
       {error && (
-         <AlertTriangle className="mx-auto w-8 h-8 mb-2 text-destructive"/>
+        <div className="text-center py-8">
+          <AlertTriangle className="mx-auto w-8 h-8 mb-2 text-destructive"/>
+          <p className="font-semibold text-destructive">No se pudo armar el reporte</p>
+          <p className="text-sm text-muted-foreground mt-1">{error}</p>
+        </div>
       )}
 
       {reportData && (

@@ -217,6 +217,17 @@ comerciales, 12 contables), no las que aparecen en el menú.
   marcarlo como enviado, seguía en la lista y alguien lo mandaba dos veces al
   mismo cliente.
 
+- **El catálogo no acepta precios negativos**, ni en el precio de venta, el
+  precio base, el precio por persona, el costo estimado ni los tramos. Un
+  negativo se arrastraba a todos los presupuestos que usaran ese servicio e
+  inflaba la ganancia. **El cero sí se permite**: hay servicios de cortesía.
+- **El reporte de ganancias y pérdidas muestra el error cuando falla.** Antes
+  aparecía un triángulo rojo suelto, sin texto: nadie sabía si reintentar o
+  cambiar las fechas.
+- **El simulador exige un celular uruguayo de verdad.** Aceptaba cualquier cosa
+  de 7 dígitos aunque el cartel prometiera otra cosa, así que llegaban pedidos
+  de presupuesto a los que después no se les podía contestar.
+
 ### Falsos positivos ya verificados en estos módulos
 
 - **Los recibos del personal NO dan NaN.** El cálculo del sueldo protege los
@@ -224,6 +235,16 @@ comerciales, 12 contables), no las que aparecen en el menú.
 - **La deduplicación de señas es deliberada.** Busca por evento, monto y día
   para no registrar dos veces el mismo pago. Que dos señas idénticas el mismo
   día se confundan es el precio de esa protección: no lo "arregles" sin hablarlo.
+- **El precio tachado del Club Uruguay en el simulador es el doble a propósito.**
+  Es el 50% de descuento que decidió el dueño. No es un error de cálculo.
+- **El filtro "Con responsable" del CRM hace lo que dice la etiqueta.** La clave
+  interna se llama `my_leads` por historia, pero no promete "los míos" en
+  pantalla y el equipo ve el CRM completo igual. No es una filtración.
+- **Las dos pantallas de servicios no están duplicadas por error.** La de
+  ajustes es sólo de lectura y la de empresa es la que edita. Escriben en el
+  mismo lado.
+- **El panel contable no tiene divisiones por cero.** Se verificaron los
+  márgenes, el flujo de caja y los reportes: todos protegen el divisor.
 - **Los regalos del presupuesto NO se muestran mal.** Sale el precio unitario y
   el importe en cero porque **hay una columna de descuento que dice 100%**. Está
   explicado en la propia tabla.
