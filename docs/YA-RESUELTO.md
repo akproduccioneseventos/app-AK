@@ -204,6 +204,19 @@ comerciales, 12 contables), no las que aparecen en el menú.
 - **El motivo del rechazo de un pago se ve en la lista**, sin tener que entrar
   al presupuesto.
 
+- **Las facturas cobradas están protegidas.** Una factura con pagos ya no
+  permite cambiarle el número ni la moneda, una factura pagada no puede volver a
+  borrador, y no se puede eliminar una factura cobrada: es el comprobante del
+  cobro. La validación está en el servidor, no sólo en la pantalla.
+- **No se repiten números de factura.** **Los recibos de seña quedan afuera a
+  propósito:** comparten el número por evento cuando el cliente paga la seña en
+  varias veces, y la duplicación real ya la corta `findExistingDepositReceipt`.
+  Si una auditoría dice que "faltan validar los números de seña", es falso
+  positivo.
+- **El WhatsApp del día avisa si el mensaje quedó pendiente.** Antes, si fallaba
+  marcarlo como enviado, seguía en la lista y alguien lo mandaba dos veces al
+  mismo cliente.
+
 ### Falsos positivos ya verificados en estos módulos
 
 - **Los recibos del personal NO dan NaN.** El cálculo del sueldo protege los
@@ -211,6 +224,15 @@ comerciales, 12 contables), no las que aparecen en el menú.
 - **La deduplicación de señas es deliberada.** Busca por evento, monto y día
   para no registrar dos veces el mismo pago. Que dos señas idénticas el mismo
   día se confundan es el precio de esa protección: no lo "arregles" sin hablarlo.
+- **Los regalos del presupuesto NO se muestran mal.** Sale el precio unitario y
+  el importe en cero porque **hay una columna de descuento que dice 100%**. Está
+  explicado en la propia tabla.
+- **El cartel de "Verificación Pendiente" muestra el total guardado a
+  propósito.** Es lo que se está verificando antes de mandárselo al cliente. No
+  es una inconsistencia con el total recalculado de abajo.
+- **El filtro "Con responsable" del CRM hace lo que dice la etiqueta**: muestra
+  los prospectos que tienen alguien asignado. La clave interna se llama
+  `my_leads` por historia, pero no promete "los míos" ni filtra mal.
 
 ## Infraestructura y pruebas
 

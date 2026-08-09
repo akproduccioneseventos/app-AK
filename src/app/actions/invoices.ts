@@ -10,7 +10,7 @@ import * as logger from '@/lib/logger';
 import { uploadToStorage } from '@/lib/firebase/storage';
 import { verifySession } from '@/lib/auth/session-token';
 import { findMatchingClientPayment, parseCleanMoney } from '@/lib/budget/financial-guardrails';
-import { findExistingDepositReceipt } from '@/lib/commercial-flow/ledger-service';
+import { findExistingDepositReceipt, isDepositReceiptInvoice } from '@/lib/commercial-flow/ledger-service';
 import { triggerWhatsAppAutomation } from '@/lib/whatsapp-automation-engine';
 import { getScheduledMessages } from '@/app/actions/scheduled-messages';
 import { invoiceMoneyTolerance, roundInvoiceMoney } from '@/lib/invoice-money';
