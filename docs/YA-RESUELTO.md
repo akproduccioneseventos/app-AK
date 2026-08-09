@@ -396,3 +396,11 @@ SumÃ¡ una lÃ­nea en el mÃ³dulo que corresponda. Con esto alcanza:
 - **DÃ³nde**, si sirve para ubicarlo.
 - **Si la decisiÃ³n tiene un porquÃ© que no se ve en el cÃ³digo, escribilo.** Ese es
   el dato que evita que otro lo "arregle" al revÃ©s.
+- **Cálculo de invitados (post-evento):** Corregido un falso error (el módulo de check-in asume 1 acompañante y en post-evento se comparaba con la cantidad exacta, provocando un 100% de discrepancia visual que era errónea).
+- **AutoGuardado (Configuración y Fotografía):** Añadidas alertas de uso de auto-guardado en interfaces para evitar que el planificador presione "guardar" y reciba alertas innecesarias.
+- **Acceso a Playlist (Pantallas):** El módulo playlist-pantalla ahora está correctamente enlazado desde la vista de control central.
+- **Muro Social y Totems (Persistencia):** Corregida la ausencia de guardado automático de estado en muro-social/page.tsx para los ajustes de audio rítmico (ahora llama a updateSocialGallerySettingsFiestaActual).
+- **Seguridad en Vistas de Proveedores:**
+  - Los proveedores (DJ, Fotógrafos, Catering) ingresan mediante la generación de URL con token.
+  - La validación del token en /fotografia y /catering mediante useSearchParams **evita** el renderizado o descarga del presupuesto del evento para externos. Se oculta el botón "Sincronizar con presupuesto".
+  - Se modificó middleware.ts y uth-guard.tsx para permitir acceso público sólo si el parámetro 	oken está presente en la URL.

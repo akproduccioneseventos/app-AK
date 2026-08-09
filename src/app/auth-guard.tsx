@@ -39,6 +39,11 @@ function isPublicRoute(pathname: string) {
     if (urlParams.has('token')) isPublic = true;
   }
 
+  if (!isPublic && (pathname.endsWith('/fotografia') || pathname.endsWith('/catering')) && typeof window !== 'undefined') {
+    const urlParams = new URLSearchParams(window.location.search);
+    if (urlParams.has('token')) isPublic = true;
+  }
+
   return isPublic;
 }
 

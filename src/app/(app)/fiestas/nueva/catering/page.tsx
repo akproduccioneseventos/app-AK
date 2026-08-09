@@ -54,7 +54,8 @@ function PlannerGastronomicoFiestaContent() {
       let initialBebidas = fiestaData.bebidas || defaultBebidasData;
       let initialMenuId = fiestaData.menuAsignadoId;
 
-      if (fiestaData.presupuestoId) {
+      const isExternalProvider = !!searchParams.get('token');
+      if (fiestaData.presupuestoId && !isExternalProvider) {
         const presupuestoData = await getPresupuestoById(fiestaData.presupuestoId);
         setPresupuesto(presupuestoData);
         
@@ -125,7 +126,7 @@ function PlannerGastronomicoFiestaContent() {
     } finally {
       setIsLoading(false);
     }
-  }, [toast, fiestaId]);
+  }, [toast, fiestaId, searchParams]);
 
   useEffect(() => {
     loadData();
@@ -210,9 +211,11 @@ function PlannerGastronomicoFiestaContent() {
             </div>
             <div className="flex items-center gap-2">
                 {isSaving && <Loader2 className="w-4 h-4 animate-spin text-primary"/>}
-                <Button variant="ghost" size="sm" onClick={() => loadData(true)} title="Sincronizar con presupuesto">
-                    <RefreshCw className="w-4 h-4 mr-2"/> Sincronizar
-                </Button>
+                {(!searchParams.get('token')) && (
+                    <Button variant="ghost" size="sm" onClick={() => loadData(true)} title="Sincronizar con presupuesto">
+                        <RefreshCw className="w-4 h-4 mr-2"/> Sincronizar
+                    </Button>
+                )}
             </div>
           </CardHeader>
           <CardContent className="grid grid-cols-3 gap-4 text-center">

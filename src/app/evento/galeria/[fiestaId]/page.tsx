@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect, useMemo } from 'react';
+import { useState, useEffect, useMemo, useCallback } from 'react';
 import { useParams, useRouter } from 'next/navigation';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Download, Share2, Heart, ArrowLeft, Loader2, Play, ChevronLeft, ChevronRight, X, ImageIcon } from 'lucide-react';
@@ -27,7 +27,7 @@ export default function GaleriaPage() {
     getPublicSocialEvent(fiestaId).then(setFiesta).catch(() => {});
   }, [fiestaId]);
 
-  const loadPosts = async () => {
+  const loadPosts = useCallback(async () => {
     try {
       setHasError(false);
       setPosts(await getPublicSocialPosts(fiestaId));
@@ -36,13 +36,13 @@ export default function GaleriaPage() {
     } finally {
       setIsLoading(false);
     }
-  };
+  }, [fiestaId]);
 
   useEffect(() => {
     loadPosts();
     const interval = setInterval(loadPosts, 10000);
     return () => clearInterval(interval);
-  }, [fiestaId]);
+  }, [loadPosts]);
 
   const filteredPosts = useMemo(() => {
     if (activeTab === 'todas') return posts;

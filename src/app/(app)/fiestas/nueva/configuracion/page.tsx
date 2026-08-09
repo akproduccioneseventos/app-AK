@@ -291,6 +291,20 @@ function ConfiguracionEventoContent() {
         </div>
       </div>
 
+      {saveError && (
+        <div className="bg-red-50 border border-red-200 text-red-800 p-4 rounded-xl flex items-start gap-3">
+          <AlertTriangle className="w-5 h-5 mt-0.5 shrink-0 text-red-600" />
+          <div>
+            <p className="font-bold text-sm">Error al guardar los cambios</p>
+            <p className="text-sm mt-1">{saveError}</p>
+            <p className="text-xs mt-2 opacity-80">Por favor, revisá tu conexión a internet o intentá guardar manualmente antes de salir de esta página para no perder tu trabajo.</p>
+            <Button onClick={() => saveNow()} variant="outline" size="sm" className="mt-3 bg-white border-red-200 text-red-700 hover:bg-red-50">
+              Reintentar Guardado
+            </Button>
+          </div>
+        </div>
+      )}
+
       <form onSubmit={handleSubmit}>
         <Card className="shadow-lg">
           <CardHeader>

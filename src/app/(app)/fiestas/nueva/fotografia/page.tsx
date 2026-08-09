@@ -69,7 +69,8 @@ function FotografiaContent() {
             let currentFotoData = fiesta.fotografiaYFilmacion || { servicios: [], notasGenerales: '' };
 
             // LOGICA DE SINCRONIZACIÓN ROBUSTA: Sincroniza con el presupuesto actual
-            if (fiesta.presupuestoId) {
+            const isExternalProvider = !!searchParams.get('token');
+            if (fiesta.presupuestoId && !isExternalProvider) {
                 const presupuesto = await getPresupuestoById(fiesta.presupuestoId);
                 if (presupuesto) {
                     const budgetServices = presupuesto.itemsPresupuestados.filter(item => {
@@ -143,7 +144,7 @@ function FotografiaContent() {
         } finally {
             setIsLoading(false);
         }
-    }, [toast, fiestaId]);
+    }, [toast, fiestaId, searchParams]);
 
     useEffect(() => {
         loadData();
@@ -249,13 +250,15 @@ function FotografiaContent() {
                     <Film className="w-8 h-8 text-primary" />
                     <h1 className="text-3xl font-bold tracking-tight font-headline">Seguimiento de Material</h1>
                 </div>
-                <div className="flex items-center gap-3">
-                    <AutoSaveIndicator isSaving={isSaving} lastSaved={lastSaved} saveError={saveError} />
-                    <Button variant="ghost" size="sm" onClick={() => loadData(false)} title="Sincronizar con presupuesto">
-                        <RefreshCw className="w-4 h-4 mr-2"/>Sincronizar con Presupuesto
-                    </Button>
-                    <Button asChild variant="outline"><Link href={`/fiestas/nueva?fiestaId=${fiestaId}`}><ArrowLeft className="w-4 h-4 mr-2" />Volver</Link></Button>
-                </div>
+                  <div className="flex items-center gap-3">
+                      <AutoSaveIndicator isSaving={isSaving} lastSaved={lastSaved} saveError={saveError} />
+                      {(!searchParams.get('token')) && (
+                          <Button variant="ghost" size="sm" onClick={() => loadData(false)} title="Sincronizar con presupuesto">
+                              <RefreshCw className="w-4 h-4 mr-2"/>Sincronizar con Presupuesto
+                          </Button>
+                      )}
+                      <Button asChild variant="outline"><Link href={`/fiestas/nueva?fiestaId=${fiestaId}`}><ArrowLeft className="w-4 h-4 mr-2" />Volver</Link></Button>
+                  </div>
             </div>
             
             <Card className="bg-blue-50 border-blue-200">
