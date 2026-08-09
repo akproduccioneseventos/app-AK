@@ -37,6 +37,9 @@ de npm en la copia limpia.
 - Validación final del árbol definitivo: 200 archivos y 1333 pruebas en verde.
 - TypeScript: sin errores. Lint: sin errores nuevos; conserva 5 avisos previos en
   archivos no tocados.
+- GitHub Actions no ejecutó ningún paso: los 4 jobs de #905 quedaron en rojo
+  porque GitHub informa que la cuenta está bloqueada por un problema de
+  facturación. Regularizar la cuenta y reejecutar CI; no es un fallo del código.
 - PR #905 abierta en borrador. No fusionar automáticamente.
 
 ---

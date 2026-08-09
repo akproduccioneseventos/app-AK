@@ -7,7 +7,7 @@ el histórico y la evidencia larga están en `ESTADO-AUDITORIA.md`.
 **Rama:** `codex/audit-claude-gemini-since-769`
 **Base auditada:** `main` `96e01a96` (PR #904)
 **PR:** #905, abierta en borrador.
-**Estado:** validación final en verde; no fusionar automáticamente.
+**Estado:** validación local final en verde; GitHub Actions no pudo iniciar por bloqueo de facturación de la cuenta. No fusionar automáticamente.
 
 ## Alcance ya inventariado
 
@@ -29,6 +29,7 @@ el histórico y la evidencia larga están en `ESTADO-AUDITORIA.md`.
 - 38/38 pruebas focalizadas y 9/9 tras las dos guardas finales.
 - Suite completa final: 1333/1333; TypeScript sin errores.
 - Lint sin errores nuevos; 5 avisos preexistentes fuera del cambio.
+- CI remoto: 4 jobs con 0 pasos; GitHub informa cuenta bloqueada por facturación.
 
 ## Regla permanente del dueño
 
