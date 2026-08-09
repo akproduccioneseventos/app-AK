@@ -198,6 +198,48 @@ cómo avisar, no avisa. Y esa comida se paga igual.
 
 ---
 
+# BLOQUE F — Mostrar el aviso de los límites del contrato
+
+**Propuesta completa.** La regla ya está escrita y probada: sólo hay que
+mostrarla.
+
+La cantidad de invitados no se puede cambiar libremente. El contrato permite
+**bajar hasta 10%** y **subir hasta 30%**, y la lista final vence **siete días
+antes**. Eso estaba sólo en el papel: el sistema dejaba bajar un 40% sin decir
+nada, y después no había con qué respaldar el cobro.
+
+**La regla ya está hecha por Claude**, en `src/lib/budget/cambio-de-invitados.ts`,
+con diez pruebas. **No la reescribas ni cambies los topes**: si un tope cambia,
+hay que cambiar también el texto del contrato.
+
+Se usa así:
+
+```ts
+import { validarCambioDeInvitados } from '@/lib/budget/cambio-de-invitados';
+
+const veredicto = validarCambioDeInvitados({
+  contratados: fiesta.configuracion.invitadosEstimados ?? 0,
+  nuevos: cantidadQueEstaPoniendoElEquipo,
+  fechaDelEvento: fiesta.configuracion.fechaEvento,
+});
+```
+
+Devuelve `nivel` (`'ok'`, `'atencion'` o `'fuera-de-contrato'`) y un `mensaje` ya
+escrito en criollo, listo para mostrar.
+
+**Qué hacer:**
+
+1. **Mostrar el aviso donde el equipo cambia la cantidad de invitados**, que es
+   la configuración de la fiesta. En verde si está bien, en ámbar si es
+   `atencion`, en rojo si es `fuera-de-contrato`.
+2. **No bloquees el cambio.** El dueño ya decidió que si vienen más se agregan y
+   el presupuesto sube. El aviso es para que el equipo sepa qué está pasando y
+   lo hable con el cliente, no para frenarlo.
+3. **Mostrar siempre el rango permitido** ("podés mover entre 90 y 130"), aunque
+   esté todo bien: sirve para negociar con el cliente en el momento.
+
+---
+
 ## Cuando termines
 
 Avisá el número de la propuesta, contando **hasta dónde llegaste** con los
