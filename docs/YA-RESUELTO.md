@@ -61,6 +61,37 @@ anotado, la próxima auditoría lo va a volver a encontrar.
   si el muro está pausado o no contratado queda como `pending` y no se ve. Nadie
   saltea la pausa de la moderación.
 
+### La fotocabina funciona como las clásicas (9 de agosto de 2026)
+
+Se copió el mecanismo de las cabinas del rubro, después de mirar cómo lo hacen
+las que se venden hoy:
+
+- **Tres fotos por tanda, encadenadas solas.** El invitado no toca nada entre
+  foto y foto.
+- **La primera cuenta es de 10 segundos y las otras de 4.** Es a propósito: en
+  la primera la gente recién se acomoda; después ya está ubicada y una espera
+  larga hace cola. **No las emparejes.**
+- **Sólo se cantan en voz alta los últimos cinco números.** Contar desde diez
+  tapa la música del salón.
+- **La pantalla guía**: "Foto 2 de 3", con puntitos de avance y una frase
+  distinta para cada una. Entre foto y foto sigue viéndose la cámara: si se
+  cambia de estado, la pantalla queda en negro y el invitado se pierde.
+- **Al terminar se arma una sola imagen** con las tres pegadas, el nombre del
+  evento y la fecha, en formato 10x15. Se eligió la postal y no la tira finita
+  de 5x15 porque la tira obliga a una impresora con cortadora.
+- **Imprime sola, sin que el invitado apriete nada**, y después ofrece "quiero
+  otra copia". La copia automática es la única que reinicia la cabina; las
+  copias extra dejan la pantalla quieta para poder pedir más.
+- **El muro es el extra, no el camino principal.** Si el cliente no contrató
+  muro, la cabina imprime igual y no muestra el botón de publicar.
+- **El espejo mágico también imprime**, y en el modo firma se imprime el lienzo
+  para que salgan la firma y los stickers en el papel.
+- **La impresión vive en un solo lugar** (`imprimirRecuerdo`), compartida entre
+  la fotocabina y el espejo. Si agregás impresión a otra estación, usá esa: no
+  armes una propia.
+- **La galería del operador ya permite reimprimir** una foto que ya salió. No
+  hace falta agregarlo.
+
 ### Topes, ya calibrados
 
 - **Videos del invitado: 15 segundos.** Es a propósito.
@@ -269,8 +300,18 @@ comerciales, 12 contables), no las que aparecen en el menú.
 
 ## Cómo agregar algo a esta lista
 
-Cuando arregles algo, sumá una línea en el módulo que corresponda, en la misma
-propuesta. Con esto alcanza:
+**Se anota SIEMPRE, en la misma propuesta que toca el código.** Orden del dueño
+del 9 de agosto de 2026: no depende del tamaño del cambio ni de si parece
+importante. Una propuesta que toca código y no toca esta lista está incompleta.
+
+Se anotan las tres cosas, no sólo los arreglos:
+
+- **Arreglos** — qué estaba mal y qué se hizo.
+- **Mejoras y cosas nuevas** — cómo funciona y **por qué se eligió así**.
+- **Falsos positivos verificados** — que quedaron descartados y el motivo, para
+  que la próxima auditoría no los vuelva a reportar.
+
+Sumá una línea en el módulo que corresponda. Con esto alcanza:
 
 - **Qué se arregló**, en una frase, en criollo.
 - **Dónde**, si sirve para ubicarlo.

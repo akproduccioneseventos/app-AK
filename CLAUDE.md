@@ -252,9 +252,24 @@ Lista de lo que ya está arreglado y de las decisiones tomadas. **Se lee antes d
 salir a buscar problemas**, y se incluye en el prompt de cada ayudante que audita.
 Si un hallazgo figura ahí, es falso positivo.
 
-Cuando arreglás algo, **lo agregás a esa lista en la misma propuesta**. Si no
-queda anotado, la próxima auditoría lo vuelve a encontrar y alguien lo "arregla"
-de nuevo, a veces peor.
+### Anotar SIEMPRE, no sólo cuando parece importante
+
+**Orden del dueño, 9 de agosto de 2026: cada vez que se modifica algo, se
+anota en `docs/YA-RESUELTO.md`, en la misma propuesta.** No es "si te parece"
+ni "si el cambio es grande". Es siempre, sin excepción, y sin que haga falta
+pedirlo.
+
+Vale igual para las tres cosas que se hacen:
+
+- **Un arreglo** → qué estaba mal y qué se hizo, en una frase, en criollo.
+- **Una mejora o algo nuevo** → cómo funciona ahora y **por qué se eligió así**.
+  Ese porqué es lo que evita que otro lo "arregle" al revés el mes que viene.
+- **Un falso positivo verificado** → que quedó descartado y el motivo. Si no se
+  anota, la próxima auditoría lo vuelve a reportar y se gasta el viaje de nuevo.
+
+Una propuesta que toca código y no toca esa lista está incompleta. Si no queda
+anotado, la próxima auditoría lo vuelve a encontrar y alguien lo "arregla" de
+nuevo, a veces peor. Ya pasó.
 
 ## Errores ya cometidos (no repetirlos)
 
