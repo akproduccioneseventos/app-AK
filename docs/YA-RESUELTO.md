@@ -19,6 +19,10 @@ anotado, la próxima auditoría lo va a volver a encontrar.
 
 ## Decisiones del dueño (no son errores, no se discuten)
 
+- **Lo que le toca a Gemini, Claude no lo programa.** Claude escribe código sólo
+  en plata, cobros, comida y permisos; el resto va a una orden en
+  `docs/ordenes/`. Programarlo igual le cuesta el doble al dueño.
+
 - **El ajuste anual del 15% va siempre.** Aparece en presupuestos y en el portal.
 - **El descuento del 50% del Salón Club Uruguay** y el descuento del presupuesto
   son decisiones de marketing.
