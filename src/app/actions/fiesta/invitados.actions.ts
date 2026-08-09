@@ -83,10 +83,18 @@ export async function getInvitados(fiestaId: string): Promise<Invitado[]> {
   return fiesta?.invitados || [];
 }
 
+/**
+ * Cuenta PERSONAS confirmadas, no filas. Un invitado que viene con tres
+ * acompanantes son cuatro personas: contarlo como uno deja sillas y comida
+ * cortas. El que cancela sale del conteo solo, porque deja de estar
+ * 'Confirmado'.
+ */
 export async function getConfirmedRsvpCount(fiestaId: string): Promise<number> {
   const fiesta = await getFiestaById(fiestaId);
   if (!fiesta?.invitados) return 0;
-  return fiesta.invitados.filter(i => i.rsvp === 'Confirmado').length;
+  return fiesta.invitados
+    .filter(i => i.rsvp === 'Confirmado')
+    .reduce((total, invitado) => total + (invitado.partySize || 1), 0);
 }
 
 // ─── Guest CRUD ──────────────────────────────────────────────────────────────

@@ -196,10 +196,13 @@ function countGuestEmails(fiesta: FiestaEnPlanificacion): number {
 }
 
 function countConfirmedGuests(fiesta: FiestaEnPlanificacion): number {
-  return (fiesta.invitados ?? []).filter((guest) => {
-    const rsvp = String(guest.rsvp ?? '').toLowerCase();
-    return rsvp.includes('confirm') || rsvp === 'si' || rsvp === 'sí';
-  }).length;
+  // Cuenta PERSONAS, no filas: un invitado con acompanantes son varios.
+  return (fiesta.invitados ?? [])
+    .filter((guest) => {
+      const rsvp = String(guest.rsvp ?? '').toLowerCase();
+      return rsvp.includes('confirm') || rsvp === 'si' || rsvp === 'sí';
+    })
+    .reduce((total, guest) => total + (guest.partySize || 1), 0);
 }
 
 function countStaff(fiesta: FiestaEnPlanificacion): number {

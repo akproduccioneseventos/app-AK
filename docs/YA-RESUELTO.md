@@ -31,6 +31,14 @@ anotado, la próxima auditoría lo va a volver a encontrar.
   son decisiones de marketing.
 - **La lista de compras usa los invitados del PRESUPUESTO**, no los confirmados.
   Se cocina lo que se contrató. Si vienen más, se agregan y el presupuesto sube.
+- **El "Tal vez" de la invitación se saca: se confirma o no se confirma.** Un
+  "tal vez" no sirve para encargar comida ni poner sillas. **Pero el estado
+  `'Tal vez'` NO se borra del tipo `RsvpStatus`**: hay invitados guardados con
+  ese valor y romperían las pantallas. Sólo se saca el botón de la invitación.
+- **El invitado SÍ puede cambiar su respuesta**, y eso ya funciona: al responder
+  de nuevo con el mismo nombre, `submitPublicRsvp` lo busca por nombre
+  normalizado y lo actualiza, no lo duplica. Lo que falta es decírselo en
+  pantalla. Va en `docs/ordenes/estetica-01.md`, bloque E.
 - **Las fotos del muro se descargan con enlace directo, a propósito.**
 - **Se trabaja sólo en pesos uruguayos.** No hay diferencias de redondeo en
   dólares que corregir.
@@ -134,8 +142,17 @@ estación de video cuando es de fotos.
 ### Arreglado, no lo toques
 
 - **Los conteos cuentan PERSONAS, no filas.** Celíacos en la pantalla de
-  invitados y el reporte al catering ya usan `partySize`. Si ves un `.length`
-  sobre invitados en otro lado, ese sí puede ser un problema nuevo: reportalo.
+  invitados y el reporte al catering ya usan `partySize`.
+- **Los conteos de CONFIRMADOS también cuentan personas (9/8/2026).** Faltaban
+  seis lugares que hacían `.filter(rsvp === 'Confirmado').length`: el avance del
+  evento, las automatizaciones, las dos cuentas de `fiesta-progress`, el centro
+  de experiencia y las plantillas de invitación. **Lo grave era que esos números
+  se comparan contra `invitadosEstimados`, que sí son personas**: con 100
+  estimados y 30 filas que eran 90 personas, el sistema mostraba 30% de avance y
+  disparaba avisos de "faltan confirmaciones" con la fiesta casi llena. Hay una
+  prueba que lo deja clavado: `conteo-confirmados-personas.test.ts`.
+- **El que cancela sale del conteo solo**, porque deja de estar `'Confirmado'`.
+  No hace falta restarlo a mano en ningún lado.
 - **Las bebidas llegan a la lista de compras**, todas las categorías activadas,
   leyendo `fiestaData.bebidas`.
 - **El autoguardado del diseño de decoración avisa cuando falla** y reintenta.
