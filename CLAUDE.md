@@ -111,6 +111,30 @@ Verificado en este contenedor; releer antes de pelear con las herramientas:
   históricas (`src/data/fiestas-historicas.json`). Las fiestas activas viven en
   la base, así que las pantallas por `[id]` muestran su estado de "no encontrada".
 
+## Lo que programa Gemini NO lo programa Claude
+
+**Orden del dueño, 9 de agosto de 2026.** Cuando una tarea le toca a Gemini, se
+le deja la orden escrita en `docs/ordenes/` y **no se programa acá**. Escribir el
+código igual gasta el doble: lo paga el dueño dos veces y Gemini se queda sin
+trabajo.
+
+El reparto, sin vueltas:
+
+- **Claude escribe código sólo en:** plata, cobros, comida, permisos y quién ve
+  qué. Ahí no se delega, aunque sea chico.
+- **Todo lo demás lo programa Gemini**, incluido entretenimiento, pantallas del
+  invitado, impresos y herramientas internas. Claude audita, verifica, decide y
+  escribe la orden.
+- **Excepción única:** un arreglo de una línea que aparece mientras se verifica
+  una propuesta. Eso se corrige en el momento y se sigue.
+
+Ya pasó al revés: se programó la fotocabina entera (tanda de tres fotos,
+impresión, guía en pantalla) cuando era trabajo de Gemini. Salió bien pero costó
+lo que no había que gastar.
+
+**Antes de escribir código, la pregunta es siempre: ¿esto es plata, cobros,
+comida o permisos? Si la respuesta es no, va a una orden.**
+
 ## Delegación de trabajo (preferencia del dueño del proyecto)
 
 **Regla fija, pedida por el dueño: delegar SIEMPRE en los ayudantes económicos.**
