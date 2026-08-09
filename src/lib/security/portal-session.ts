@@ -1,5 +1,5 @@
 import { cookies } from 'next/headers';
-import { createHmac, randomBytes, timingSafeEqual } from 'crypto';
+import { createHash, createHmac, randomBytes, timingSafeEqual } from 'crypto';
 
 const SESSION_COOKIE_NAME = 'ak_portal_session';
 let localDevelopmentSecret: string | undefined;
@@ -28,9 +28,13 @@ function calculateSignature(data: string): string {
   return createHmac('sha256', getPortalSecret()).update(data).digest('hex');
 }
 
+function fingerprintAccessKey(accessKey: string): string {
+  return createHash('sha256').update(accessKey).digest('hex');
+}
+
 export function createPortalSession(fiestaId: string, accessKey: string): string {
   const expires = Date.now() + SESSION_DURATION_MS;
-  const payload = `${fiestaId}:${accessKey}:${expires}`;
+  const payload = `${fiestaId}:${fingerprintAccessKey(accessKey)}:${expires}`;
   const signature = calculateSignature(payload);
   return `${payload}.${signature}`;
 }
@@ -71,11 +75,29 @@ export async function verifyPortalSession(fiestaId: string): Promise<boolean> {
       return false;
     }
 
-    const [sessionFiestaId, sessionAccessKey, expiresStr] = payload.split(':');
+    const [sessionFiestaId, sessionAccessKeyFingerprint, expiresStr] = payload.split(':');
     if (sessionFiestaId !== fiestaId) return false;
 
     const expires = Number(expiresStr);
     if (Number.isNaN(expires) || Date.now() > expires) return false;
+
+    // A valid signature only proves that Codex issued the cookie. The event key
+    // may have changed since then, so compare it with the current stored key to
+    // revoke old sessions immediately instead of keeping them alive for 12 h.
+    const { getFiestaByIdRaw } = await import('@/lib/fiesta/get-fiesta-raw');
+    const fiesta = await getFiestaByIdRaw(fiestaId);
+    const currentAccessKey = fiesta?.clientPortalSettings?.accessKey;
+    if (!fiesta?.clientPortalSettings?.enabled || !currentAccessKey) return false;
+
+    const expectedFingerprint = fingerprintAccessKey(currentAccessKey);
+    const sessionKeyBuffer = Buffer.from(sessionAccessKeyFingerprint || '', 'hex');
+    const expectedKeyBuffer = Buffer.from(expectedFingerprint, 'hex');
+    if (
+      sessionKeyBuffer.length !== expectedKeyBuffer.length
+      || !timingSafeEqual(sessionKeyBuffer, expectedKeyBuffer)
+    ) {
+      return false;
+    }
 
     return true;
   } catch (error) {

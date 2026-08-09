@@ -8,6 +8,7 @@ import { preserveFiestaSecrets } from '@/lib/fiesta/get-fiesta-raw';
 import { enforcePublicRateLimit } from '@/lib/commercial/public-rate-limit';
 import { hasPublicGuestAccess } from '@/lib/guest-portal-public-data';
 import { requireAppSession } from '@/lib/auth/require-session';
+import { getGuestAdultsCount, getGuestKidsCount, getGuestPartySize } from '@/lib/fiesta/guest-counts';
 
 // ─── Core helper ────────────────────────────────────────────────────────────
 
@@ -219,16 +220,16 @@ export async function handleRsvpSubmission(
       : undefined;
     const confirmedAdults = currentInvitados.reduce(
       (sum, inv) => sum + (
-        inv.id !== existingGuest?.id && inv.categoria === 'Adulto'
-          ? (inv.partySize || 1)
+        inv.id !== existingGuest?.id
+          ? getGuestAdultsCount(inv)
           : 0
       ),
       0
     );
     const confirmedKids = currentInvitados.reduce(
       (sum, inv) => sum + (
-        inv.id !== existingGuest?.id && inv.categoria === 'Niño/Adolescente'
-          ? (inv.partySize || 1)
+        inv.id !== existingGuest?.id
+          ? getGuestKidsCount(inv)
           : 0
       ),
       0
@@ -252,13 +253,14 @@ export async function handleRsvpSubmission(
       .join('\n---\n');
 
     const mainCategory: CategoriaInvitado =
-      submission.adultsCount >= submission.kidsCount ? 'Adulto' : 'Niño/Adolescente';
+      totalNew > 0 && submission.kidsCount >= totalNew ? 'Niño/Adolescente' : 'Adulto';
 
     if (invitadoExistenteIndex > -1) {
       updatedInvitado = {
         ...currentInvitados[invitadoExistenteIndex],
         rsvp: submission.confirmacion as RsvpStatus,
         partySize: totalNew,
+        kidsCount: submission.kidsCount,
         categoria: mainCategory,
         notes: combinedNotes,
         companionNames: submission.companionNames,
@@ -272,6 +274,7 @@ export async function handleRsvpSubmission(
         nombre: submission.nombreCompleto,
         rsvp: submission.confirmacion as RsvpStatus,
         partySize: totalNew,
+        kidsCount: submission.kidsCount,
         categoria: mainCategory,
         notes: combinedNotes,
         companionNames: submission.companionNames,
@@ -422,14 +425,10 @@ export async function submitPublicRsvp(
 
   // Cuántos del grupo son chicos. Nunca puede pasarse del total del grupo: si
   // alguien dice "venimos 2 y son 3 niños", se recorta al total.
-  const totalDelGrupo = partySize ?? 1;
-  const kidsCount = submission.kidsCount !== undefined
-    ? Math.max(0, Math.min(totalDelGrupo, Math.round(submission.kidsCount)))
+  const submittedPartySize = getGuestPartySize({ partySize });
+  const submittedKidsCount = submission.kidsCount !== undefined
+    ? getGuestKidsCount({ partySize: submittedPartySize, kidsCount: submission.kidsCount })
     : undefined;
-  // La etiqueta del grupo sigue existiendo para las pantallas que muestran una
-  // sola categoría. El desglose fino vive en kidsCount.
-  const categoriaDelGrupo: CategoriaInvitado =
-    kidsCount !== undefined && kidsCount >= totalDelGrupo ? 'Niño/Adolescente' : 'Adulto';
 
   const result = await updateFiestaData(fiestaId, data => {
     const currentInvitados = data.invitados || [];
@@ -438,28 +437,36 @@ export async function submitPublicRsvp(
     );
 
     if (existingIndex > -1) {
+      const existing = currentInvitados[existingIndex];
+      const effectivePartySize = getGuestPartySize({
+        partySize: partySize ?? existing.partySize,
+      });
+      const effectiveKidsCount = getGuestKidsCount({
+        partySize: effectivePartySize,
+        kidsCount: submittedKidsCount ?? existing.kidsCount,
+        categoria: existing.categoria,
+      });
       savedInvitado = {
-        ...currentInvitados[existingIndex],
+        ...existing,
         // Stamp a token if the existing invitado doesn't have one yet
-        guestAccessToken: currentInvitados[existingIndex].guestAccessToken ?? randomUUID(),
+        guestAccessToken: existing.guestAccessToken ?? randomUUID(),
         rsvp: rsvpStatus,
-        contacto: contacto ?? currentInvitados[existingIndex].contacto,
-        partySize: partySize ?? currentInvitados[existingIndex].partySize,
-        kidsCount: kidsCount ?? currentInvitados[existingIndex].kidsCount,
-        categoria: kidsCount !== undefined
-          ? categoriaDelGrupo
-          : currentInvitados[existingIndex].categoria,
-        companionNames: companionNames ?? currentInvitados[existingIndex].companionNames,
+        contacto: contacto ?? existing.contacto,
+        partySize: effectivePartySize,
+        kidsCount: effectiveKidsCount,
+        categoria: effectiveKidsCount >= effectivePartySize ? 'Niño/Adolescente' : 'Adulto',
+        companionNames: companionNames ?? existing.companionNames,
         dietaryRestriction: dietary,
-        alergiasEspecificas: alergiasEspecificas ?? currentInvitados[existingIndex].alergiasEspecificas,
-        cancionesDJ: cancionesDJ.length > 0 ? cancionesDJ : currentInvitados[existingIndex].cancionesDJ,
-        mensaje: mensaje ?? currentInvitados[existingIndex].mensaje,
-        requiereAccesibilidad: submission.requiereAccesibilidad ?? currentInvitados[existingIndex].requiereAccesibilidad,
+        alergiasEspecificas: alergiasEspecificas ?? existing.alergiasEspecificas,
+        cancionesDJ: cancionesDJ.length > 0 ? cancionesDJ : existing.cancionesDJ,
+        mensaje: mensaje ?? existing.mensaje,
+        requiereAccesibilidad: submission.requiereAccesibilidad ?? existing.requiereAccesibilidad,
         isCeliac: dietary === 'Celiaco',
       };
       currentInvitados[existingIndex] = savedInvitado;
       return { ...data, invitados: [...currentInvitados] };
     } else {
+      const newKidsCount = submittedKidsCount ?? 0;
       savedInvitado = {
         id: `inv_rsvp_${Date.now()}_${Math.random().toString(36).substring(2, 7)}`,
         guestAccessToken: randomUUID(),
@@ -467,10 +474,10 @@ export async function submitPublicRsvp(
         rsvp: rsvpStatus,
         // Antes entraban todos como adulto, aunque fueran chicos: el menú y el
         // costo por cubierto salían mal desde el momento de la confirmación.
-        categoria: categoriaDelGrupo,
+        categoria: newKidsCount >= submittedPartySize ? 'Niño/Adolescente' : 'Adulto',
         contacto,
-        partySize,
-        kidsCount,
+        partySize: submittedPartySize,
+        kidsCount: newKidsCount,
         companionNames,
         dietaryRestriction: dietary,
         alergiasEspecificas,

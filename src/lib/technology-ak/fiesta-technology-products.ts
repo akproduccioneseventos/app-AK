@@ -114,7 +114,12 @@ export function buildAkTechnologySuite(fiestaInput: unknown): AkTechnologySuite 
   const hasGuestQr = guestSettings.enabled === true || hasPublicInvite;
   const hasMusic = countObjectOrArray(fiesta.musica) > 0 || countObjectOrArray(fiesta.listaMusicaPortal) > 0 || countObjectOrArray(live.solicitudesCanciones) > 0;
   const hasLiveWall = social.enabled === true || countObjectOrArray(live.fotos) > 0 || countObjectOrArray(live.mensajes) > 0;
-  const screenPlaylist = [...list(fiesta.screenPlaylist), ...list(screenMode.playlist)];
+  const screenPlaylistConfig = asRecord(fiesta.screenPlaylist);
+  const screenPlaylist = [
+    ...list(screenPlaylistConfig.items),
+    ...list(fiesta.screenPlaylist),
+    ...list(screenMode.playlist),
+  ];
   const hasScreen = screenMode.enabled === true || screenPlaylist.length > 0 || countObjectOrArray(social.screenMediaLibrary) > 0;
   const hasVoting = countObjectOrArray(live.votaciones) > 0;
   const hasEntertainment = countObjectOrArray(entertainment.modules) > 0 || countObjectOrArray(entertainment) > 0;

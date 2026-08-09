@@ -86,4 +86,17 @@ describe("entertainment runtime boundaries", () => {
       expect(source).not.toContain("setQrCodeUrl(window.location.href)");
     },
   );
+
+  it.each([
+    "src/app/evento/fotocabina/[fiestaId]/page.tsx",
+    "src/app/evento/plataforma-360/[fiestaId]/page.tsx",
+    "src/app/evento/bogue/[fiestaId]/page.tsx",
+    "src/app/evento/espejo-magico/[fiestaId]/page.tsx",
+  ])("reports camera failures to the operator in %s", (file) => {
+    const source = read(file);
+
+    expect(source).toContain("updateEntertainmentSessionStatus(");
+    expect(source).toContain("{ lastError:");
+    expect(source).toContain("No se pudo avisar la falla de cámara al operador:");
+  });
 });

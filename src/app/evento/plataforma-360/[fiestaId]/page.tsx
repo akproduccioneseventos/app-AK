@@ -77,6 +77,7 @@ export default function Plataforma360Page() {
   const [uploadedPostUrl, setUploadedPostUrl] = useState<string | null>(null);
   const [qrCodeUrl, setQrCodeUrl] = useState<string>('');
   const [uploadError, setUploadError] = useState<string | null>(null);
+  const [cameraError, setCameraError] = useState<string | null>(null);
   
   const [isUploading, setIsUploading] = useState(false);
   const [progress, setProgress] = useState(0);
@@ -132,6 +133,7 @@ export default function Plataforma360Page() {
 
   const startCamera = useCallback(async () => {
     stopCamera();
+    setCameraError(null);
     try {
       let mediaStream: MediaStream;
       try {
@@ -152,8 +154,17 @@ export default function Plataforma360Page() {
       }
     } catch (err) {
       console.error('No se pudo acceder a la cámara:', err);
+      const message = 'No se pudo acceder a la cámara. Revisa los permisos del navegador y vuelve a intentar.';
+      setCameraError(message);
+      void updateEntertainmentSessionStatus(
+        fiestaId,
+        'plataforma360',
+        'idle',
+        { lastError: message },
+        accessToken,
+      ).catch((statusError) => console.error('No se pudo avisar la falla de cámara al operador:', statusError));
     }
-  }, [facingMode, stopCamera]);
+  }, [accessToken, facingMode, fiestaId, stopCamera]);
 
   const loadRecentVideos = useCallback(async () => {
     try {
@@ -611,6 +622,7 @@ export default function Plataforma360Page() {
                 <div className="space-y-2">
                   <h2 className="text-3xl font-black tracking-tight text-white md:text-4xl">Video 360</h2>
                   <p className="text-sm text-zinc-300">Prepara tu pose. Esta estacion graba un video con la camara web.</p>
+                  {cameraError && <p className="text-sm text-rose-300" role="alert">{cameraError}</p>}
                 </div>
 
                 <div className="pt-4 space-y-3">

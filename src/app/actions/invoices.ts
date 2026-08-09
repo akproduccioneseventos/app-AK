@@ -48,6 +48,31 @@ function getInvoiceBalance(invoice: Pick<Invoice, 'totalAmount' | 'payments' | '
   return Math.max(0, roundInvoiceMoney(invoice.totalAmount, invoice.currency) - getInvoicePaidAmount(invoice));
 }
 
+function hasSameInvoiceItems(
+  current: InvoiceItem[],
+  incoming: Array<InvoiceItem | Omit<InvoiceItem, 'id'>>,
+  currency: string,
+): boolean {
+  return current.length === incoming.length && current.every((item, index) => {
+    const candidate = incoming[index];
+    return item.description.trim() === candidate.description.trim()
+      && normalizeQuantity(item.quantity) === normalizeQuantity(candidate.quantity)
+      && roundInvoiceMoney(item.unitPrice, currency) === roundInvoiceMoney(candidate.unitPrice, currency);
+  });
+}
+
+function hasSamePayment(current: Payment, incoming: Payment, currency: string): boolean {
+  return current.id === incoming.id
+    && current.paymentDate === incoming.paymentDate
+    && roundInvoiceMoney(current.amount, currency) === roundInvoiceMoney(incoming.amount, currency)
+    && (current.method ?? '') === (incoming.method ?? '')
+    && (current.notes ?? '') === (incoming.notes ?? '')
+    && (current.transactionProofUrl ?? '') === (incoming.transactionProofUrl ?? '')
+    && Number(current.baseAmount ?? 0) === Number(incoming.baseAmount ?? 0)
+    && Number(current.surchargeAmount ?? 0) === Number(incoming.surchargeAmount ?? 0)
+    && Number(current.installments ?? 0) === Number(incoming.installments ?? 0);
+}
+
 export async function getInvoices(): Promise<Invoice[]> {
   const auth = await verifySession();
   if (!auth.success) throw new Error('No autorizado');
@@ -142,6 +167,45 @@ async function saveInvoiceInner(
         }
         if (dataToUpdate.currency && dataToUpdate.currency !== facturaActual.currency) {
           return { success: false, error: 'No se puede cambiar la moneda de una factura con pagos registrados.' };
+        }
+        if (dataToUpdate.customer?.id !== facturaActual.customer?.id) {
+          return { success: false, error: 'No se puede cambiar el cliente de una factura con pagos registrados.' };
+        }
+        if (dataToUpdate.issueDate !== facturaActual.issueDate) {
+          return { success: false, error: 'No se puede cambiar la fecha de emisión de una factura con pagos registrados.' };
+        }
+        if (!hasSameInvoiceItems(facturaActual.items, dataToUpdate.items, facturaActual.currency)) {
+          return { success: false, error: 'No se pueden cambiar los ítems de una factura con pagos registrados.' };
+        }
+        if (normalizeTaxRate(dataToUpdate.taxRate) !== normalizeTaxRate(facturaActual.taxRate)) {
+          return { success: false, error: 'No se pueden cambiar los impuestos de una factura con pagos registrados.' };
+        }
+
+        const currentPayments = facturaActual.payments ?? [];
+        const incomingPayments = dataToUpdate.payments;
+        if (incomingPayments) {
+          const preservesExistingPayments = incomingPayments.length >= currentPayments.length
+            && currentPayments.every((payment, paymentIndex) => (
+              hasSamePayment(payment, incomingPayments[paymentIndex], facturaActual.currency)
+            ));
+          if (!preservesExistingPayments) {
+            return { success: false, error: 'Los pagos ya registrados no se pueden borrar ni modificar.' };
+          }
+
+          const appendedPayments = incomingPayments.slice(currentPayments.length);
+          const paymentIds = new Set(currentPayments.map(payment => payment.id));
+          for (const payment of appendedPayments) {
+            if (
+              !payment.id
+              || paymentIds.has(payment.id)
+              || roundInvoiceMoney(payment.amount, facturaActual.currency) <= 0
+              || !payment.paymentDate
+              || Number.isNaN(new Date(payment.paymentDate).getTime())
+            ) {
+              return { success: false, error: 'El pago nuevo no es válido o ya fue registrado.' };
+            }
+            paymentIds.add(payment.id);
+          }
         }
       }
       if (facturaActual.status === 'Paid' && dataToUpdate.status && dataToUpdate.status !== 'Paid') {
