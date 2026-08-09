@@ -8,14 +8,14 @@ Quien cierre una sesión reescribe este archivo. No se acumulan tandas: se pisa.
 
 ---
 
-**Última actualización:** 8 de agosto de 2026
-**Rama:** todo fusionado en `main`. No hay propuestas abiertas.
-**Estado:** compila, 1306 pruebas en verde, 94 de navegador, sin acentos rotos.
+**Última actualización:** 9 de agosto de 2026
+**Rama:** `claude/repo-work-guidelines-l4u1tf`, con el último cambio sin fusionar.
+**Estado:** compila, 1308 pruebas en verde, sin acentos rotos.
 
 ## Antes de empezar: leé los errores ya cometidos
 
-Están en `AGENTS.md`, sección "Errores ya cometidos". Son diez, con el caso real
-de cada uno. Los leen las tres IA. Ahorran más tiempo que cualquier otra cosa.
+Están en `AGENTS.md`, sección "Errores ya cometidos". Los leen las tres IA.
+Y `docs/YA-RESUELTO.md` antes de salir a buscar problemas.
 
 ## Cómo se trabaja
 
@@ -23,32 +23,28 @@ Claude audita con los ayudantes económicos, **verifica cada hallazgo leyendo el
 código** y deja la orden en `docs/ordenes/`. Gemini programa y sube. Claude
 verifica y fusiona. Plata, cobros, comida y permisos los escribe Claude.
 
-**Los controles de las propuestas también se delegan**, y si hay varias se
-verifican en paralelo, no una atrás de la otra.
-
 ## Entretenimiento: TERMINADO
 
-Cuatro bloques de `docs/ordenes/entretenimiento-02.md`, fusionados y probados.
+## Planificación — pantallas de plata (Claude): CASI TERMINADO
 
-## Planificación: A MEDIAS (el modulo es mucho mas grande de lo que parecia)
+Fusionadas #892 y #893. Lo resuelto: el saldo del cliente ya no depende de qué
+pantalla mires, el contrato del salón guarda de verdad (antes se perdía todo),
+el contrato de servicio no pisa ediciones sin preguntar y avisa si quedaron
+huecos, el plan de pagos controla que las cuotas cubran el total, borrar un
+documento pide confirmación, y costos no acepta importes negativos.
 
-**El planificador tiene 79 pantallas, no 18.** El primer inventario sólo listó
-las del menú del tablero central. Se auditaron y arreglaron 22 (#879 y #882 a
-#885); **faltan unas 57**.
+**Sin fusionar todavía:** el personal sin categoría ya no aparece como Catering
+en servicios contratados. Está en la rama, esperando la verificación.
 
-Lo más importante que quedó resuelto: las bebidas ahora llegan a la lista de
-compras, el diseño de decoración avisa si el autoguardado falla, los recibos se
-autoguardan, el tablero muestra el avance y sugiere el próximo paso, y los
-conteos de invitados cuentan personas y no filas.
+## Planificación — el resto: A MEDIAS
 
-**Se corrigió una regresión de Gemini antes de fusionar:** había movido la
-sincronización con Google antes del guardado, y mandaba los avisos con la lista
-vieja de personal.
+De 79 pantallas se auditaron unas 30. Gemini tiene los cuatro bloques de
+`docs/ordenes/planificacion-02.md` (invitado, impresos, herramientas internas,
+pantallas del salón). Todavía no entregó.
 
 ## Lo próximo
 
-- **Gemini**: los cuatro bloques de `docs/ordenes/planificacion-02.md` (invitado,
-  impresos, herramientas internas, pantallas del salón).
-- **Claude**: las pantallas de plata (costos, plan de pagos, contratos y
-  recibos), las que no las enlaza nadie, y los centros de mando duplicados.
-- Después: el módulo comercial y el contable, sin auditar todavía.
+- **Gemini**: terminar `planificacion-02.md`. Incluye conectar
+  `playlist-pantalla`, que ya se decidió que se conecta y no se retira.
+- **Claude**: el módulo comercial (presupuestos, CRM, simulador) y el contable
+  (facturas, cobros). Ninguno auditado todavía.

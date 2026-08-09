@@ -160,6 +160,10 @@ anotado, la próxima auditoría lo va a volver a encontrar.
 - **Costos y rentabilidad no acepta importes negativos** ni inválidos, ni en
   gastos ni en pagos a proveedores. Un negativo inflaba la ganancia en silencio.
 
+- **En servicios contratados, el personal sin categoría ya no aparece como
+  Catering.** Tiene su propia sección "Otro personal", que explica que al rol le
+  falta la categoría. Antes un DJ o un chofer figuraba entre los mozos.
+
 ## Pantallas del planificador: qué está conectado y qué no
 
 Verificado el 8 de agosto de 2026. **No hay una plaga de pantallas huérfanas**,
