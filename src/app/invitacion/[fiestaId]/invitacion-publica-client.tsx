@@ -144,6 +144,7 @@ function RsvpSection({ fiestaId, texto, typography, onSuccess }: { fiestaId: str
   const [contacto, setContacto] = useState('');
   const [asistencia, setAsistencia] = useState<'Confirmado' | 'Rechazado' | 'Tal vez'>('Confirmado');
   const [personas, setPersonas] = useState('1');
+  const [ninos, setNinos] = useState('0');
   const [acompanantes, setAcompanantes] = useState('');
   const [dietaryRestriction, setDietaryRestriction] = useState<DietaryRestriction>('Ninguna');
   const [alergiasEspecificas, setAlergiasEspecificas] = useState('');
@@ -174,6 +175,7 @@ function RsvpSection({ fiestaId, texto, typography, onSuccess }: { fiestaId: str
         contacto: contacto.trim() || undefined,
         asistencia,
         partySize: isNoAsiste ? 1 : parseInt(personas, 10) || 1,
+        kidsCount: isNoAsiste ? undefined : (parseInt(ninos, 10) || 0),
         companionNames: isNoAsiste ? undefined : (companionNames.length > 0 ? companionNames : undefined),
         dietaryRestriction: isNoAsiste ? 'Ninguna' : dietaryRestriction,
         alergiasEspecificas: isNoAsiste ? undefined : (alergiasEspecificas.trim() || undefined),
@@ -349,6 +351,26 @@ function RsvpSection({ fiestaId, texto, typography, onSuccess }: { fiestaId: str
                     onChange={e => setPersonas(e.target.value)}
                     className="h-11 rounded-lg border-gray-200"
                   />
+                </div>
+
+                {/* El menú de un chico no es el de un adulto. Sin este dato el
+                    equipo no sabe cuántos menús infantiles preparar ni a qué
+                    lugar de la mesa llevarlos. */}
+                <div>
+                  <label className="mb-1.5 block text-xs font-semibold text-gray-600">
+                    ¿Cuántos de ellos son niños o adolescentes?
+                  </label>
+                  <Input
+                    type="number"
+                    min="0"
+                    max={parseInt(personas, 10) || 1}
+                    value={ninos}
+                    onChange={e => setNinos(e.target.value)}
+                    className="h-11 rounded-lg border-gray-200"
+                  />
+                  <p className="mt-1 text-[11px] text-gray-400">
+                    Poné 0 si vienen todos adultos. Nos sirve para el menú.
+                  </p>
                 </div>
 
                 {parseInt(personas, 10) > 1 && (

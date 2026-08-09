@@ -377,6 +377,8 @@ export async function submitPublicRsvp(
     contacto?: string;
     asistencia: 'Confirmado' | 'Rechazado' | 'Tal vez';
     partySize?: number;
+    /** Cuántos del grupo son niños o adolescentes. Define el menú y el cubierto. */
+    kidsCount?: number;
     companionNames?: string[];
     dietaryRestriction: DietaryRestriction;
     alergiasEspecificas?: string;
@@ -418,6 +420,17 @@ export async function submitPublicRsvp(
 
   const rsvpStatus: RsvpStatus = submission.asistencia === 'Tal vez' ? 'Tal vez' : submission.asistencia;
 
+  // Cuántos del grupo son chicos. Nunca puede pasarse del total del grupo: si
+  // alguien dice "venimos 2 y son 3 niños", se recorta al total.
+  const totalDelGrupo = partySize ?? 1;
+  const kidsCount = submission.kidsCount !== undefined
+    ? Math.max(0, Math.min(totalDelGrupo, Math.round(submission.kidsCount)))
+    : undefined;
+  // La etiqueta del grupo sigue existiendo para las pantallas que muestran una
+  // sola categoría. El desglose fino vive en kidsCount.
+  const categoriaDelGrupo: CategoriaInvitado =
+    kidsCount !== undefined && kidsCount >= totalDelGrupo ? 'Niño/Adolescente' : 'Adulto';
+
   const result = await updateFiestaData(fiestaId, data => {
     const currentInvitados = data.invitados || [];
     const existingIndex = currentInvitados.findIndex(
@@ -432,6 +445,10 @@ export async function submitPublicRsvp(
         rsvp: rsvpStatus,
         contacto: contacto ?? currentInvitados[existingIndex].contacto,
         partySize: partySize ?? currentInvitados[existingIndex].partySize,
+        kidsCount: kidsCount ?? currentInvitados[existingIndex].kidsCount,
+        categoria: kidsCount !== undefined
+          ? categoriaDelGrupo
+          : currentInvitados[existingIndex].categoria,
         companionNames: companionNames ?? currentInvitados[existingIndex].companionNames,
         dietaryRestriction: dietary,
         alergiasEspecificas: alergiasEspecificas ?? currentInvitados[existingIndex].alergiasEspecificas,
@@ -448,9 +465,12 @@ export async function submitPublicRsvp(
         guestAccessToken: randomUUID(),
         nombre,
         rsvp: rsvpStatus,
-        categoria: 'Adulto',
+        // Antes entraban todos como adulto, aunque fueran chicos: el menú y el
+        // costo por cubierto salían mal desde el momento de la confirmación.
+        categoria: categoriaDelGrupo,
         contacto,
         partySize,
+        kidsCount,
         companionNames,
         dietaryRestriction: dietary,
         alergiasEspecificas,
