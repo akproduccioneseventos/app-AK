@@ -412,9 +412,17 @@ function CrearPresupuestoContent() {
                 await registrarUsoCupon(formData.cuponId, result.id, formData.clienteNombre, formData.cuponDescuento, descuentoValorNum);
               } catch (e) {
                 console.warn('Error registrando uso de cupón:', e);
+                toast({
+                  title: 'El cupón no quedó registrado',
+                  description: 'El descuento se aplicó al presupuesto, pero el uso del cupón no se pudo anotar. Revisalo a mano.',
+                  variant: 'destructive',
+                });
               }
             }
             toast({ title: `Presupuesto ${editingPresupuestoId ? 'Actualizado' : 'Guardado'}` });
+            if (result.avisoCrm) {
+              toast({ title: 'Ojo con el seguimiento', description: result.avisoCrm, variant: 'destructive' });
+            }
             sessionStorage.removeItem(SESSION_STORAGE_KEY);
             router.push(`/presupuestos/${result.id}/ver`);
           } else { throw new Error(result.error || "Error al guardar"); }

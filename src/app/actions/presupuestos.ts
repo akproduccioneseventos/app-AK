@@ -159,7 +159,7 @@ async function syncLinkedFiesta(presupuesto: Presupuesto) {
 export async function savePresupuesto(
   presupuestoData: Omit<Presupuesto, 'id'>,
   options?: { source?: PresupuestoSource, leadId?: string, preserveTotal?: boolean }
-): Promise<{ success: boolean, id?: string, error?: string, presupuesto?: Presupuesto, leadId?: string }> {
+): Promise<{ success: boolean, id?: string, error?: string, presupuesto?: Presupuesto, leadId?: string, avisoCrm?: string }> {
   const auth = await verifySession();
   if (!auth.success) return { success: false, error: auth.error };
 
@@ -211,11 +211,16 @@ export async function savePresupuesto(
     source: options?.source || 'manual',
   }, { preserveStoredTotal: options?.preserveTotal });
 
+  // El presupuesto se guarda igual aunque falle el CRM, pero el aviso vuelve a
+  // la pantalla: antes el equipo creia que el cliente habia quedado cargado en
+  // el seguimiento y no estaba.
+  let avisoCrm: string | undefined;
   try {
     const syncRes = await findLeadByBudgetOrCreate(nuevoPresupuesto);
     nuevoPresupuesto.leadId = syncRes.lead.id;
   } catch (crmError: any) {
     console.warn(`CRM Sync error during save: ${crmError.message}`);
+    avisoCrm = 'El presupuesto se guardó, pero el cliente no se pudo cargar en el seguimiento comercial. Revisalo a mano.';
   }
 
   presupuestos.push(nuevoPresupuesto);
@@ -251,7 +256,7 @@ export async function savePresupuesto(
     link: `/presupuestos/${presupuestoId}/ver`,
   }).catch(err => console.warn('Error firing presupuesto_generado automation:', err));
 
-  return { success: true, id: presupuestoId, presupuesto: nuevoPresupuesto, leadId: nuevoPresupuesto.leadId };
+  return { success: true, id: presupuestoId, presupuesto: nuevoPresupuesto, leadId: nuevoPresupuesto.leadId, avisoCrm };
   });
 }
 
@@ -292,7 +297,7 @@ function hasBudgetStructureChanged(oldBudget: Presupuesto, newBudget: Presupuest
 export async function updatePresupuesto(
   presupuestoData: Presupuesto,
   options: { preserveStoredTotal?: boolean } = {},
-): Promise<{ success: boolean; id?: string; presupuesto?: Presupuesto; error?: string }> {
+): Promise<{ success: boolean; id?: string; presupuesto?: Presupuesto; error?: string; avisoCrm?: string }> {
   return await presupuestosMutex.runExclusive(async () => {
     const auth = await verifySession();
     if (!auth.success) return { success: false, error: auth.error };
@@ -334,11 +339,13 @@ export async function updatePresupuesto(
           : Math.round(totalConDescuento)
     }, { preserveStoredTotal: options.preserveStoredTotal });
 
+    let avisoCrm: string | undefined;
     try {
         const syncRes = await findLeadByBudgetOrCreate(updated);
         updated.leadId = syncRes.lead.id;
     } catch (e) {
         console.warn("CRM Sync error during update", e);
+        avisoCrm = 'El presupuesto se guardó, pero no se pudo actualizar el seguimiento comercial del cliente.';
     }
 
     presupuestos[index] = updated;
