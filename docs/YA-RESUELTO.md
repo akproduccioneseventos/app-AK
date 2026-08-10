@@ -508,6 +508,36 @@ Verificado y cerrado el 9 de agosto de 2026.
   pendiente del dueño, no algo roto: no lo "arregles" conectando Meta sin
   hablarlo.
 
+## Cupones, precios y plantillas de contrato — cerrado el 10 de agosto de 2026
+
+- **El ajuste de precios en masa no acepta bajar 100% o más.** Con -200% el
+  multiplicador quedaba en -1 y **todo el catálogo cambiaba de signo**: el
+  sistema pasaba a cobrar al revés. El `min="-100"` de la pantalla lo controla
+  el navegador y se saltea. También se rechaza más de 1000%, que es error de
+  tipeo.
+- **Los marcadores de contrato tienen sinónimos y viven en un solo lugar**
+  (`src/lib/contratos/marcadores.ts`). Había DOS nombres para lo mismo: el
+  editor ofrece `{{CLIENTE_DIRECCION}}` y el contrato original usa
+  `{{CLIENTE_DOMICILIO}}`; el generador sólo reemplazaba el primero, así que una
+  plantilla copiada del original salía impresa con el hueco escrito. Ahora el
+  generador acepta los dos. **Si agregás un marcador nuevo, sumalo a ese
+  archivo** o el editor lo va a marcar como inventado.
+- **Al guardar una plantilla se avisa si tiene datos que el sistema no sabe
+  completar.** Antes se enteraba cuando el contrato ya estaba impreso.
+- **Un cupón que ya se usó no se puede borrar**, porque es el respaldo del
+  descuento que se le hizo a un cliente. Se desactiva en su lugar.
+- **Editar un presupuesto con cupón ahora sí registra el uso**, y el servidor no
+  lo cuenta dos veces por el mismo presupuesto: antes la condición excluía las
+  ediciones y el uso no quedaba anotado nunca.
+
+### Falsos positivos verificados
+
+- **El tope de usos del cupón NO tiene carrera.** `registrarUsoCupon` revalida
+  el tope y lo incrementa **dentro del mismo turno** (`cuponMutex`), así que dos
+  usos simultáneos no se pasan del límite. Se reportó una vez por error.
+- **Un cupón vencido o desactivado no se puede usar**, y uno de más del 100% se
+  rechaza al crearlo. Ya está controlado.
+
 ## Infraestructura y pruebas
 
 - **`tests/e2e/layout-baseline.json` se regeneró el 8 de agosto de 2026.** Estuvo
