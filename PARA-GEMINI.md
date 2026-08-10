@@ -29,7 +29,7 @@ verde, 20 de seguridad de la base en verde.
 - Sólo se trabaja en pesos uruguayos.
 - **Una misma persona puede tener hasta DOS roles en la misma fiesta** y cobrar los
   dos. Es normal en AK: alguien hace de cocina y de utilero en el mismo evento.
-  Ver el punto 9, que pide poner ese tope.
+  Ver el punto 10, que pide poner ese tope.
 
 ---
 
@@ -168,7 +168,7 @@ faltante y avisar en la pantalla del barman.
 1. **La moderación de la pantalla gigante viene apagada** en las fiestas nuevas. No
    es urgente: las fotos ya se analizan solas y los videos ya esperan aprobación
    siempre.
-4. **Los "módulos" por usuario no se validan en el servidor.** Se asignan y se
+2. **Los "módulos" por usuario no se validan en el servidor.** Se asignan y se
    muestran como etiquetas, pero cualquiera con sesión accede a todo. O se
    implementa la validación, o se saca la pantalla.
 
