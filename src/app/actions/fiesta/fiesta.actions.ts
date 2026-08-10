@@ -148,10 +148,38 @@ export async function getAllFiestas() {
 
 export async function getFiestaActual(): Promise<FiestaEnPlanificacion> {
     const all = await getFiestas(false);
-    if (all.length > 0) {
-        return all.sort((a,b) => new Date(b.configuracion.fechaEvento || 0).getTime() - new Date(a.configuracion.fechaEvento || 0).getTime())[0];
+    if (all.length === 0) {
+        return { ...initialFiestaActualData, id: `fiesta_${Date.now()}_${Math.random().toString(36).substring(2, 9)}`};
     }
-    return { ...initialFiestaActualData, id: `fiesta_${Date.now()}_${Math.random().toString(36).substring(2, 9)}`};
+
+    const { getUruguayParts } = await import('@/lib/utils');
+    const u = getUruguayParts(new Date());
+    const todayStr = `${u.year}-${String(u.month).padStart(2, '0')}-${String(u.day).padStart(2, '0')}`;
+
+    const todayEvents = all.filter(f => (f.configuracion?.fechaEvento || '') === todayStr);
+    if (todayEvents.length > 0) {
+        return todayEvents.sort((a, b) => (a.configuracion?.horaInicio || '').localeCompare(b.configuracion?.horaInicio || ''))[0];
+    }
+
+    const futureEvents = all.filter(f => (f.configuracion?.fechaEvento || '') > todayStr);
+    if (futureEvents.length > 0) {
+        return futureEvents.sort((a, b) => {
+            const cmp = (a.configuracion?.fechaEvento || '').localeCompare(b.configuracion?.fechaEvento || '');
+            if (cmp !== 0) return cmp;
+            return (a.configuracion?.horaInicio || '').localeCompare(b.configuracion?.horaInicio || '');
+        })[0];
+    }
+
+    const pastEvents = all.filter(f => (f.configuracion?.fechaEvento || '') < todayStr);
+    if (pastEvents.length > 0) {
+        return pastEvents.sort((a, b) => {
+            const cmp = (b.configuracion?.fechaEvento || '').localeCompare(a.configuracion?.fechaEvento || '');
+            if (cmp !== 0) return cmp;
+            return (a.configuracion?.horaInicio || '').localeCompare(b.configuracion?.horaInicio || '');
+        })[0];
+    }
+
+    return all[0];
 }
 
 export async function saveFiesta(fiestaData: FiestaEnPlanificacion): Promise<{ success: boolean; fiesta?: FiestaEnPlanificacion; error?: string }> {

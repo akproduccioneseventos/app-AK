@@ -145,12 +145,38 @@ async function descontarStock(drink: Trago) {
       try {
         const insumo = await getInsumoById(ing.insumoId);
         if (insumo && insumo.cantidadDisponible !== undefined) {
+          if (insumo.cantidadDisponible < ing.cantidad) {
+            logger.warn(`[barra-tecnologica] Stock insuficiente para insumo "${insumo.nombre}" (disponible: ${insumo.cantidadDisponible}, requerido: ${ing.cantidad})`);
+          }
           insumo.cantidadDisponible -= ing.cantidad;
           if (insumo.cantidadDisponible < 0) insumo.cantidadDisponible = 0;
           await saveInsumo(insumo);
         }
       } catch (error) {
         logger.error(`[barra-tecnologica] error al descontar stock del insumo ${ing.insumoId}`, error);
+      }
+    }
+  }).catch((err) => {
+    logger.error(`[barra-tecnologica] stockPromiseChain error`, err);
+  });
+
+  stockPromiseChain = nextPromise;
+  await nextPromise;
+}
+
+async function reponerStock(drink: Trago) {
+  const nextPromise = stockPromiseChain.then(async () => {
+    if (!drink.recetaIngredientes) return;
+    for (const ing of drink.recetaIngredientes) {
+      if (!ing.insumoId) continue;
+      try {
+        const insumo = await getInsumoById(ing.insumoId);
+        if (insumo && insumo.cantidadDisponible !== undefined) {
+          insumo.cantidadDisponible += ing.cantidad;
+          await saveInsumo(insumo);
+        }
+      } catch (error) {
+        logger.error(`[barra-tecnologica] error al reponer stock del insumo ${ing.insumoId}`, error);
       }
     }
   }).catch((err) => {
@@ -543,10 +569,10 @@ async function updateBarDrinkOrderStatusInternal(
             return { error: 'Ese cambio de estado no corresponde al paso actual del pedido.' };
           }
 
-          const shouldDiscountStock = shouldDiscountBarStock(currentOrder.status, status);
+          const isCancelling = status === 'cancelado' && currentOrder.status !== 'cancelado';
           const order = { ...currentOrder, status, updatedAt };
           transaction.update(ref, { status, updatedAt });
-          return { order, shouldDiscountStock };
+          return { order, isCancelling };
         });
 
         if (transactionResult.error) {
@@ -555,12 +581,12 @@ async function updateBarDrinkOrderStatusInternal(
         const updatedOrder = transactionResult.order;
         if (!updatedOrder) throw new Error('No se pudo recuperar el pedido actualizado.');
 
-        if (transactionResult.shouldDiscountStock) {
+        if (transactionResult.isCancelling) {
           const fiesta = await getFiestaById(fiestaId);
           if (fiesta) {
             const drinks = await getBarDrinks(fiesta);
             const drink = drinks.find(d => d.id === updatedOrder.drinkId);
-            if (drink) await descontarStock(drink);
+            if (drink) await reponerStock(drink);
           }
         }
 
@@ -579,17 +605,17 @@ async function updateBarDrinkOrderStatusInternal(
     if (!isValidBarOrderTransition(currentOrder.status, status)) {
       return { success: false, error: 'Ese cambio de estado no corresponde al paso actual del pedido.' };
     }
-    const shouldDiscountStock = shouldDiscountBarStock(currentOrder.status, status);
+    const isCancelling = status === 'cancelado' && currentOrder.status !== 'cancelado';
     const orders = (stored.orders || []).map((order) => (
       order.id === orderId ? { ...order, status, updatedAt } : order
     ));
     await saveFallbackOrders(fiesta, orders);
     const updatedOrder = orders.find((order) => order.id === orderId);
 
-    if (shouldDiscountStock && updatedOrder) {
+    if (isCancelling && updatedOrder) {
       const drinks = await getBarDrinks(fiesta);
       const drink = drinks.find(d => d.id === updatedOrder.drinkId);
-      if (drink) await descontarStock(drink);
+      if (drink) await reponerStock(drink);
     }
 
     return { success: true, order: updatedOrder };

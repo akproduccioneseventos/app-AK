@@ -22,6 +22,7 @@ import { normalizePresupuestoFinancials, roundMoney, validatePaymentAgainstBudge
 import type { FiestaEnPlanificacion } from '@/types/fiesta';
 import { initialFiestaActualData, defaultModulosContratados } from '@/lib/fiesta-defaults';
 import { triggerWhatsAppAutomation } from '@/lib/whatsapp-automation-engine';
+import { normalizeUruguayPhone } from '@/lib/commercial/contact';
 import * as logger from '@/lib/logger';
 import { forceDeleteDocFromFirestore, forceDeleteCollectionFromFirestore } from '@/lib/firebase-sync';
 import { verifySession } from '@/lib/auth/session-token';
@@ -30,6 +31,26 @@ import { AsyncMutex } from '@/lib/mutex';
 
 const presupuestosMutex = new AsyncMutex();
 const PRESUPUESTOS_FILE = 'presupuestos.json';
+
+async function resolveLeadPhone(leadId?: string, fallbackContact?: string): Promise<string | undefined> {
+  if (leadId) {
+    try {
+      const leads = await readData<any[]>('crm-leads.json', []);
+      const lead = leads.find(l => l.id === leadId);
+      if (lead && lead.phone) {
+        const norm = normalizeUruguayPhone(lead.phone);
+        if (norm) return norm;
+      }
+    } catch {
+      // fallback
+    }
+  }
+  if (fallbackContact) {
+    const norm = normalizeUruguayPhone(fallbackContact);
+    if (norm) return norm;
+  }
+  return undefined;
+}
 
 function shouldDedupePaymentReference(referencia?: string): boolean {
   return !!referencia && (
@@ -246,15 +267,18 @@ export async function savePresupuesto(
   }).catch(err => console.warn('Error creating budget notification:', err));
 
   // Automation: fire presupuesto_generado rules (non-blocking)
-  triggerWhatsAppAutomation('presupuesto_generado', {
-    targetId: nuevoPresupuesto.leadId || presupuestoId,
-    targetName: nuevoPresupuesto.clienteNombre,
-    targetType: 'prospecto',
-    leadId: nuevoPresupuesto.leadId,
-    nombre: nuevoPresupuesto.clienteNombre,
-    fechaEvento: nuevoPresupuesto.eventoFecha,
-    link: `/presupuestos/${presupuestoId}/ver`,
-  }).catch(err => console.warn('Error firing presupuesto_generado automation:', err));
+  resolveLeadPhone(nuevoPresupuesto.leadId, nuevoPresupuesto.clienteContacto).then(targetPhone => {
+    triggerWhatsAppAutomation('presupuesto_generado', {
+      targetId: nuevoPresupuesto.leadId || presupuestoId,
+      targetName: nuevoPresupuesto.clienteNombre,
+      targetType: 'prospecto',
+      targetPhone,
+      leadId: nuevoPresupuesto.leadId,
+      nombre: nuevoPresupuesto.clienteNombre,
+      fechaEvento: nuevoPresupuesto.eventoFecha,
+      link: `/presupuestos/${presupuestoId}/ver`,
+    }).catch(err => console.warn('Error firing presupuesto_generado automation:', err));
+  });
 
   return { success: true, id: presupuestoId, presupuesto: nuevoPresupuesto, leadId: nuevoPresupuesto.leadId, avisoCrm };
   });
@@ -844,15 +868,18 @@ export async function approvePresupuesto(
 
       // Automation: fire presupuesto_enviado rules (non-blocking)
       const p = presupuestos[index];
-      triggerWhatsAppAutomation('presupuesto_enviado', {
-        targetId: p.leadId || presupuestoId,
-        targetName: p.clienteNombre,
-        targetType: 'prospecto',
-        leadId: p.leadId,
-        nombre: p.clienteNombre,
-        fechaEvento: p.eventoFecha,
-        link: `/presupuestos/${presupuestoId}/ver`,
-      }).catch(err => console.warn('Error firing presupuesto_enviado automation:', err));
+      resolveLeadPhone(p.leadId, p.clienteContacto).then(targetPhone => {
+        triggerWhatsAppAutomation('presupuesto_enviado', {
+          targetId: p.leadId || presupuestoId,
+          targetName: p.clienteNombre,
+          targetType: 'prospecto',
+          targetPhone,
+          leadId: p.leadId,
+          nombre: p.clienteNombre,
+          fechaEvento: p.eventoFecha,
+          link: `/presupuestos/${presupuestoId}/ver`,
+        }).catch(err => console.warn('Error firing presupuesto_enviado automation:', err));
+      });
 
       return { success: true };
     } catch (e: any) {

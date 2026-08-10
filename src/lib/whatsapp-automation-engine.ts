@@ -105,6 +105,11 @@ export async function triggerWhatsAppAutomation(
 
         if (!messageText.trim()) continue;
 
+        if (!ctx.targetPhone || !ctx.targetPhone.trim()) {
+          errors.push(`Regla "${rule.name}": Omitido por falta de número de teléfono del destinatario.`);
+          continue;
+        }
+
         const scheduledAt = new Date(
           Date.now() + rule.delayHours * 60 * 60 * 1000
         ).toISOString();

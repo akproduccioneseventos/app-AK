@@ -80,17 +80,22 @@ export default function BarmanScreenPage() {
   }, []);
 
   const loadData = useCallback(async (playSound = false) => {
-    const result = await getBarraTecnologicaDashboard(fiestaId);
-    if (result.success && result.data) {
-      const activeIds = new Set(result.data.orders.filter((order) => order.status === 'nuevo').map((order) => order.id));
-      const hasNew = [...activeIds].some((id) => !knownOrderIdsRef.current.has(id));
-      if (playSound && hasNew) beep();
-      knownOrderIdsRef.current = activeIds;
-      setDashboard(result.data);
-    } else {
-      toast({ title: 'No se pudo cargar', description: result.error, variant: 'destructive' });
+    try {
+      const result = await getBarraTecnologicaDashboard(fiestaId);
+      if (result.success && result.data) {
+        const activeIds = new Set(result.data.orders.filter((order) => order.status === 'nuevo').map((order) => order.id));
+        const hasNew = [...activeIds].some((id) => !knownOrderIdsRef.current.has(id));
+        if (playSound && hasNew) beep();
+        knownOrderIdsRef.current = activeIds;
+        setDashboard(result.data);
+      } else {
+        toast({ title: 'No se pudo cargar la barra', description: result.error || 'Error inesperado de comunicación.', variant: 'destructive' });
+      }
+    } catch (err: any) {
+      toast({ title: 'Error al conectar con la barra', description: err.message || 'Ocurrió un error inesperado al refrescar los datos.', variant: 'destructive' });
+    } finally {
+      setIsLoading(false);
     }
-    setIsLoading(false);
   }, [beep, fiestaId, toast]);
 
   useEffect(() => {
