@@ -451,9 +451,9 @@ function ResumenPlanificacionContent() {
 
         {/* COLUMNA DERECHA */}
         <div className="lg:col-span-4 space-y-8">
-            <Card className="border-none shadow-xl rounded-[2rem] overflow-hidden bg-white">
-                <CardHeader className="bg-slate-50 border-b border-slate-100 p-6">
-                    <CardTitle className="text-sm font-black uppercase tracking-widest text-slate-800 flex items-center gap-2">
+            <Card className="border-none shadow-xl rounded-[2rem] overflow-hidden bg-card">
+                <CardHeader className="bg-muted/30 border-b border-border p-6">
+                    <CardTitle className="text-sm font-black uppercase tracking-widest text-foreground flex items-center gap-2">
                         <UserCheck className="w-5 h-5 text-primary"/> Personal
                     </CardTitle>
                 </CardHeader>
@@ -463,9 +463,9 @@ function ResumenPlanificacionContent() {
                             const emp = empleados.find(e => e.id === pa.empleadoId);
                             const rol = roles.find(r => r.id === pa.rolId);
                             return (
-                                <div key={idx} className="flex items-center justify-between p-3 bg-slate-50 rounded-2xl border border-slate-100">
+                                <div key={idx} className="flex items-center justify-between p-3 bg-muted/30 rounded-2xl border border-border">
                                     <div className="min-w-0">
-                                        <p className="font-bold text-xs text-slate-800 truncate">{emp?.nombre || 'VACANTE'}</p>
+                                        <p className="font-bold text-xs text-foreground truncate">{emp?.nombre || 'VACANTE'}</p>
                                         <p className="text-[8px] font-black text-primary uppercase tracking-tighter">{rol?.nombre}</p>
                                     </div>
                                     <Badge className={cn("h-5 text-[8px] font-black border-none", emp ? "bg-emerald-500 text-white" : "bg-amber-100 text-amber-600")}>
@@ -500,9 +500,9 @@ function ResumenPlanificacionContent() {
         </div>
       </div>
 
-      <footer className="text-center py-12 border-t border-slate-100 space-y-2 print:mt-10">
-          <p className="text-[10px] text-slate-400 font-black uppercase tracking-[0.3em]">Sistema de Planificación Consolidada AK Producciones</p>
-          <p className="text-[9px] text-slate-300 font-bold uppercase tracking-widest">Generado el {new Date().toLocaleDateString('es-ES')}</p>
+      <footer className="text-center py-12 border-t border-border space-y-2 print:mt-10">
+          <p className="text-[10px] text-muted-foreground font-black uppercase tracking-[0.3em]">Sistema de Planificación Consolidada AK Producciones</p>
+          <p className="text-[9px] text-muted-foreground font-bold uppercase tracking-widest">Generado el {new Date().toLocaleDateString('es-ES')}</p>
       </footer>
     </div>
   );
