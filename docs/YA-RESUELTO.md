@@ -21,10 +21,13 @@ anotado, la prÃ³xima auditorÃ­a lo va a volver a encontrar.
 
 - **Lo que le toca a Gemini, Claude no lo programa.** Claude escribe cÃ³digo sÃ³lo
   en plata, cobros, comida y permisos; el resto va a una orden en
-  `docs/ordenes/`. Programarlo igual le cuesta el doble al dueÃ±o.
-- **Propuestas grandes, no muchas chicas.** Cada fusiÃ³n dispara un despliegue y
-  se paga. Se junta la tanda entera en una sola propuesta. La documentaciÃ³n
-  viaja con el cÃ³digo, nunca en una propuesta aparte.
+  `docs/ordenes/`. Programarlo igual le cuesta el doble al dueño.
+- **Propuestas grandes, no muchas chicas.** Cada fusión dispara un despliegue y
+  se paga. Se junta la tanda entera en una sola propuesta. La documentación
+  viaja con el código, nunca en una propuesta aparte. **Vale también para las
+  órdenes que una IA le escribe a otra**: una orden de cinco bloques se entrega
+  en una sola propuesta con los cinco, no en cinco. El dueño lo tuvo que repetir
+  el 10 de agosto de 2026 porque la orden pedía lo contrario que la regla.
 
 - **El ajuste anual del 15% va siempre.** Aparece en presupuestos y en el portal.
 - **El descuento del 50% del SalÃ³n Club Uruguay** y el descuento del presupuesto
@@ -505,6 +508,36 @@ Verificado y cerrado el 9 de agosto de 2026.
   pendiente del dueÃ±o, no algo roto: no lo "arregles" conectando Meta sin
   hablarlo.
 
+## Cupones, precios y plantillas de contrato — cerrado el 10 de agosto de 2026
+
+- **El ajuste de precios en masa no acepta bajar 100% o más.** Con -200% el
+  multiplicador quedaba en -1 y **todo el catálogo cambiaba de signo**: el
+  sistema pasaba a cobrar al revés. El `min="-100"` de la pantalla lo controla
+  el navegador y se saltea. También se rechaza más de 1000%, que es error de
+  tipeo.
+- **Los marcadores de contrato tienen sinónimos y viven en un solo lugar**
+  (`src/lib/contratos/marcadores.ts`). Había DOS nombres para lo mismo: el
+  editor ofrece `{{CLIENTE_DIRECCION}}` y el contrato original usa
+  `{{CLIENTE_DOMICILIO}}`; el generador sólo reemplazaba el primero, así que una
+  plantilla copiada del original salía impresa con el hueco escrito. Ahora el
+  generador acepta los dos. **Si agregás un marcador nuevo, sumalo a ese
+  archivo** o el editor lo va a marcar como inventado.
+- **Al guardar una plantilla se avisa si tiene datos que el sistema no sabe
+  completar.** Antes se enteraba cuando el contrato ya estaba impreso.
+- **Un cupón que ya se usó no se puede borrar**, porque es el respaldo del
+  descuento que se le hizo a un cliente. Se desactiva en su lugar.
+- **Editar un presupuesto con cupón ahora sí registra el uso**, y el servidor no
+  lo cuenta dos veces por el mismo presupuesto: antes la condición excluía las
+  ediciones y el uso no quedaba anotado nunca.
+
+### Falsos positivos verificados
+
+- **El tope de usos del cupón NO tiene carrera.** `registrarUsoCupon` revalida
+  el tope y lo incrementa **dentro del mismo turno** (`cuponMutex`), así que dos
+  usos simultáneos no se pasan del límite. Se reportó una vez por error.
+- **Un cupón vencido o desactivado no se puede usar**, y uno de más del 100% se
+  rechaza al crearlo. Ya está controlado.
+
 ## Infraestructura y pruebas
 
 - **`tests/e2e/layout-baseline.json` se regenerÃ³ el 8 de agosto de 2026.** Estuvo
@@ -532,10 +565,10 @@ Se anotan las tres cosas, no sÃ³lo los arreglos:
 
 SumÃ¡ una lÃ­nea en el mÃ³dulo que corresponda. Con esto alcanza:
 
-- **QuÃ© se arreglÃ³**, en una frase, en criollo.
-- **DÃ³nde**, si sirve para ubicarlo.
-- **Si la decisiÃ³n tiene un porquÃ© que no se ve en el cÃ³digo, escribilo.** Ese es
-  el dato que evita que otro lo "arregle" al revÃ©s.
+- **Qué se arregló**, en una frase, en criollo.
+- **Dónde**, si sirve para ubicarlo.
+- **Si la decisión tiene un porqué que no se ve en el código, escribilo.** Ese es
+  el dato que evita que otro lo "arregle" al revés.
 - **Cálculo de invitados (post-evento):** Corregido un falso error (el módulo de check-in asume 1 acompañante y en post-evento se comparaba con la cantidad exacta, provocando un 100% de discrepancia visual que era errónea).
 - **AutoGuardado (Configuración y Fotografía):** Añadidas alertas de uso de auto-guardado en interfaces para evitar que el planificador presione "guardar" y reciba alertas innecesarias.
 - **Acceso a Playlist (Pantallas):** El módulo playlist-pantalla ahora está correctamente enlazado desde la vista de control central.
@@ -543,5 +576,7 @@ SumÃ¡ una lÃ­nea en el mÃ³dulo que corresponda. Con esto alcanza:
 - **Seguridad en Vistas de Proveedores:**
   - Los proveedores (DJ, Fotógrafos, Catering) ingresan mediante la generación de URL con token.
   - La validación del token en /fotografia y /catering mediante useSearchParams **evita** el renderizado o descarga del presupuesto del evento para externos. Se oculta el botón "Sincronizar con presupuesto".
-  - Se modificó middleware.ts y  uth-guard.tsx para permitir acceso público sólo si el parámetro 	oken está presente en la URL.
+  - Se modificó middleware.ts y auth-guard.tsx para permitir acceso público sólo si el parámetro token está presente en la URL.
 - **Bloque D ("Entretenimiento: video y guía")**: Verificación integral del sistema de entretenimiento en fiestas (`plataforma-360`, `bogue`, `buzon`, `readiness`). Plataforma 360 configurada con cámara lenta por defecto, música cargable por evento, marca de agua con nombre de la fiesta, guía paso a paso y mensaje de falla amigable sin trabar tablets. Bogue preserva las fotos individuales capturadas en la tanda y las permite imprimir mediante `imprimirRecuerdo` y `tira-fotocabina.ts` sin descartarlas al armar el video boomerang. Cápsula del tiempo con voz de orientación, pre-escucha y aviso antes del corte a los 15s. Verificación de prueba de estación con impresión de hoja de prueba real antes del evento.
+- **Bloque B (Mesa de Regalos - Privacidad):** Protegido el campo `claimedBy` al sanitizar el JSON de React Server Components, evitando que los nombres de los invitados que compraron un regalo se expongan en la vista pública.
+- **Bloque B (Blog y Fallas de Servidor 500):** Solucionado crash de compilación SSR en `/blog/[slug]` añadiendo encadenamiento opcional para secciones heredadas de Firebase y autorizando los dominios de almacenamiento externos.

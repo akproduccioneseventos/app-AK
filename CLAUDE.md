@@ -113,6 +113,23 @@ Verificado en este contenedor; releer antes de pelear con las herramientas:
 
 ## Pocas propuestas y grandes, no muchas chicas
 
+### La regla vale TAMBIÉN para lo que se le pide a las otras IA
+
+**El dueño lo tuvo que repetir el 10 de agosto de 2026, porque ya se falló dos
+veces.** No alcanza con que Claude junte sus propios cambios: **las órdenes de
+trabajo que se escriben para Gemini también tienen que pedir UNA sola
+propuesta.**
+
+Lo que salió mal: se escribió una orden con cinco bloques y arriba decía "una
+propuesta por bloque grande". Eso son cinco fusiones y cinco despliegues cuando
+alcanzaba con uno. Escribir la regla en `CLAUDE.md` y después pedir lo contrario
+en la orden es lo mismo que no tenerla.
+
+**Antes de mandar cualquier orden, releer la parte de cómo se entrega y
+confirmar que diga "una sola propuesta con todos los bloques".** Y decirle qué
+hacer si un bloque se traba: entregar el resto igual, en la misma propuesta,
+avisando cuál faltó.
+
 **Orden del dueño, 9 de agosto de 2026.** Cada fusión dispara un despliegue y eso
 se paga. Así que **se junta el trabajo de la tanda en una sola propuesta** y se
 fusiona una vez, al final.

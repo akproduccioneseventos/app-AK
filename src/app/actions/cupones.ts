@@ -127,6 +127,18 @@ export async function deleteCupon(id: string): Promise<{ success: boolean; error
   await requireAppSession();
   try {
     return await cuponMutex.runExclusive(async () => {
+      // Un cupon ya usado es el respaldo de un descuento que se le hizo a un
+      // cliente. Si se borra, no queda rastro de por que ese presupuesto salio
+      // mas barato. Se desactiva en su lugar: deja de servir y el historial
+      // sigue.
+      const usos = await readData<CouponUsage[]>(CUPONES_USAGE_FILE, []);
+      if (usos.some(u => u.couponId === id)) {
+        return {
+          success: false,
+          error: 'Este cupón ya se usó en presupuestos, así que no se puede borrar: quedaría un descuento sin respaldo. Desactivalo para que deje de servir.',
+        };
+      }
+
       let cupones = await getCupones();
       cupones = cupones.filter(c => c.id !== id);
       await writeData(CUPONES_FILE, cupones);
@@ -271,6 +283,17 @@ export async function registrarUsoCupon(
 
       // Registrar uso
       const usages = await readData<CouponUsage[]>(CUPONES_USAGE_FILE, []);
+
+      // Un presupuesto usa el cupon una sola vez, aunque se edite y se guarde
+      // diez veces. Sin esto, editar un presupuesto con cupon le comeria un uso
+      // al tope en cada guardado.
+      if (usages.some(u => u.couponId === couponId && u.presupuestoId === presupuestoId)) {
+        // Se deshace el incremento de arriba: este presupuesto ya estaba contado.
+        cupones[idx].usosActuales -= 1;
+        await writeData(CUPONES_FILE, cupones);
+        return { success: true };
+      }
+
       usages.push({
         id: `cupu_${Date.now()}`,
         couponId,
