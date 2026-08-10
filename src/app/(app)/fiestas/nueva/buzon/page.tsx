@@ -20,6 +20,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Input } from '@/components/ui/input';
 import { VideoFrameOverlay, FRAME_TEMPLATES } from '@/components/buzon/VideoFrameOverlay';
 import { cn } from '@/lib/utils';
+import { EmptyStateModulo } from '@/components/ui/empty-state-modulo';
 
 function BuzonAdminContent() {
   const searchParams = useSearchParams();
@@ -328,6 +329,16 @@ function BuzonAdminContent() {
     );
   }
 
+  if (fiesta.modulosContratados && !fiesta.modulosContratados.buzon) {
+    return (
+      <EmptyStateModulo
+        titulo="Buzón Telefónico"
+        descripcion="El servicio de buzón de voz y video no está activo para este evento. Habilitalo desde la configuración o tienda."
+        fiestaId={fiestaId}
+      />
+    );
+  }
+
   const hasWelcome = !!fiesta.buzonConfig?.welcomeAudioUrl;
   const audios = messages.filter(m => m.mediaType === 'audio');
   const videos = messages.filter(m => m.mediaType === 'video');
@@ -351,11 +362,22 @@ function BuzonAdminContent() {
                 Audios y videos de felicitaciones grabados por tus invitados desde sus celulares.
               </p>
             </div>
-            {messages.length > 0 && (
-              <Button onClick={handleDownloadZip} className="bg-purple-600 hover:bg-purple-700 text-white rounded-full">
-                <Download className="mr-2 h-4 w-4" /> Descargar Todos (.ZIP)
+            <div className="flex items-center gap-2">
+              <Button asChild variant="outline" size="sm" className="hidden sm:flex bg-white hover:bg-slate-50 text-slate-700">
+                <Link href={`/evento/buzon/${fiestaId}`} target="_blank">
+                  <ExternalLink className="h-4 w-4 mr-2 text-indigo-500" />
+                  Previsualizar
+                </Link>
               </Button>
-            )}
+              <Button onClick={handleRefresh} disabled={isRefreshing} size="sm" className="bg-indigo-600 hover:bg-indigo-700">
+                <RefreshCw className={cn("mr-2 h-4 w-4", isRefreshing && "animate-spin")} /> Refrescar
+              </Button>
+              {messages.length > 0 && (
+                <Button onClick={handleDownloadZip} className="bg-purple-600 hover:bg-purple-700 text-white rounded-full hidden sm:flex">
+                  <Download className="mr-2 h-4 w-4" /> Descargar Todos
+                </Button>
+              )}
+            </div>
           </div>
         </div>
 

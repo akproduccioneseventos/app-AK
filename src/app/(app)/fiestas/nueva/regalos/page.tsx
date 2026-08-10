@@ -9,10 +9,11 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
-import { ArrowLeft, Gift, Save, Loader2, PlusCircle, Trash2, Edit } from 'lucide-react';
+import { ArrowLeft, Gift, Save, Loader2, PlusCircle, Trash2, Edit, ExternalLink } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { getFiestaById } from '@/app/actions/fiesta/fiesta.actions';
 import { updateGiftRegistry } from '@/app/actions/fiesta/regalos.actions';
+import { EmptyStateModulo } from '@/components/ui/empty-state-modulo';
 import type { FiestaEnPlanificacion, GiftItem } from '@/types/fiesta';
 import {
   Dialog,
@@ -32,6 +33,7 @@ function GiftRegistryPageContent() {
 
   const [isLoading, setIsLoading] = useState(true);
   const [isSaving, setIsSaving] = useState(false);
+  const [fiesta, setFiesta] = useState<FiestaEnPlanificacion | null>(null);
   const [giftList, setGiftList] = useState<GiftItem[]>([]);
   
   const [isModalOpen, setIsModalOpen] = useState(false);
@@ -42,6 +44,8 @@ function GiftRegistryPageContent() {
     setIsLoading(true);
     try {
       const fiestaData = await getFiestaById(fiestaId);
+      if (fiestaData) setFiesta(fiestaData);
+      
       let currentGiftList = fiestaData?.invitacionDigital?.regalos?.items || [];
 
       // If the list is empty, populate with defaults
@@ -123,6 +127,16 @@ function GiftRegistryPageContent() {
     return <div className="flex justify-center items-center h-64"><Loader2 className="w-8 h-8 animate-spin text-primary" /></div>;
   }
 
+  if (fiesta && fiesta.modulosContratados && !fiesta.modulosContratados.regalos) {
+    return (
+      <EmptyStateModulo
+        titulo="Lista de Regalos"
+        descripcion="El módulo de Lista de Regalos no está contratado para este evento. Habilitalo desde la configuración o tienda."
+        fiestaId={fiestaId || ''}
+      />
+    );
+  }
+
   return (
     <div className="max-w-3xl mx-auto space-y-6">
        <Dialog open={isModalOpen} onOpenChange={setIsModalOpen}>
@@ -139,7 +153,15 @@ function GiftRegistryPageContent() {
       </Dialog>
       <div className="flex items-center justify-between">
         <div className="flex items-center gap-3"><Gift className="w-8 h-8 text-primary" /><h1 className="text-3xl font-bold tracking-tight font-headline">Lista de Regalos</h1></div>
-        <Button asChild variant="outline" disabled={isSaving}><Link href={`/fiestas/nueva?fiestaId=${fiestaId}`}><ArrowLeft className="w-4 h-4 mr-2" />Volver al Planificador</Link></Button>
+        <div className="flex items-center gap-2">
+          <Button asChild variant="outline" className="hidden sm:flex bg-white hover:bg-slate-50 text-slate-700">
+            <Link href={`/evento/${fiestaId}#regalos`} target="_blank">
+              <ExternalLink className="h-4 w-4 mr-2 text-indigo-500" />
+              Previsualizar
+            </Link>
+          </Button>
+          <Button asChild variant="outline" disabled={isSaving}><Link href={`/fiestas/nueva?fiestaId=${fiestaId}`}><ArrowLeft className="w-4 h-4 mr-2" />Volver al Planificador</Link></Button>
+        </div>
       </div>
 
        <Card className="shadow-lg">

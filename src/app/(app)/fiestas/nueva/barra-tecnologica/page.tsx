@@ -18,7 +18,10 @@ import {
   getBarraTecnologicaDashboard,
   saveBarraTecnologicaSettings,
 } from '@/app/actions/fiesta/barra-tecnologica.actions';
+import { getFiestaById } from '@/app/actions/fiesta/fiesta.actions';
 import { getDrinkDescription } from '@/lib/barra-tecnologica';
+import { EmptyStateModulo } from '@/components/ui/empty-state-modulo';
+import type { FiestaEnPlanificacion } from '@/types/fiesta';
 
 const STATUS_LABELS: Record<BarDrinkOrderStatus, string> = {
   nuevo: 'Nuevos',
@@ -36,6 +39,7 @@ function BarraTecnologicaContent() {
 
   const [dashboard, setDashboard] = useState<BarTechnologyDashboard | null>(null);
   const [settings, setSettings] = useState<BarTechnologySettings | null>(null);
+  const [fiesta, setFiesta] = useState<FiestaEnPlanificacion | null>(null);
   const [origin, setOrigin] = useState('');
   const [isLoading, setIsLoading] = useState(true);
   const [isSaving, setIsSaving] = useState(false);
@@ -47,7 +51,13 @@ function BarraTecnologicaContent() {
       return;
     }
     setIsLoading(true);
-    const result = await getBarraTecnologicaDashboard(fiestaId);
+    const [result, fiestaResult] = await Promise.all([
+      getBarraTecnologicaDashboard(fiestaId),
+      getFiestaById(fiestaId),
+    ]);
+    
+    if (fiestaResult) setFiesta(fiestaResult);
+
     if (result.success && result.data) {
       setDashboard(result.data);
       setSettings(result.data.settings);
@@ -127,6 +137,16 @@ function BarraTecnologicaContent() {
     return <div className="flex h-screen items-center justify-center"><Loader2 className="h-10 w-10 animate-spin text-primary" /></div>;
   }
 
+  if (fiesta && fiesta.modulosContratados && !fiesta.modulosContratados.barraTecnologica) {
+    return (
+      <EmptyStateModulo
+        titulo="Barra Tecnológica"
+        descripcion="El módulo de Barra Tecnológica no está contratado para este evento. Habilitalo desde la configuración o tienda."
+        fiestaId={fiestaId || ''}
+      />
+    );
+  }
+
   return (
     <main className="space-y-6 pb-16">
       <header className="overflow-hidden rounded-[2rem] border bg-white shadow-xl">
@@ -142,6 +162,11 @@ function BarraTecnologicaContent() {
                 Invitados piden tragos en una pantalla, el barman los recibe en otra y la gente puede sacarse fotos tipo espejo magico para subirlas al muro social.
               </p>
               <div className="mt-4 flex flex-wrap gap-2">
+                <Button asChild variant="outline" className="rounded-2xl hidden sm:flex bg-white hover:bg-slate-50 text-slate-700">
+                  <Link href={urls.guest} target="_blank">
+                    <ExternalLink className="mr-2 h-4 w-4 text-indigo-500" /> Previsualizar
+                  </Link>
+                </Button>
                 <Button asChild variant="outline" className="rounded-2xl"><Link href={`/fiestas/nueva?fiestaId=${fiestaId}`}><ArrowLeft className="mr-2 h-4 w-4" /> Volver</Link></Button>
                 <Button className="rounded-2xl font-black" onClick={saveSettings} disabled={isSaving}>
                   {isSaving ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : <Save className="mr-2 h-4 w-4" />}

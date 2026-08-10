@@ -26,10 +26,12 @@ import {
   Users,
   Wand2,
   Wine,
+  ExternalLink,
 } from 'lucide-react';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { EmptyStateModulo } from '@/components/ui/empty-state-modulo';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Progress } from '@/components/ui/progress';
@@ -174,14 +176,32 @@ function ZonaDigitalPageContent() {
     );
   }
 
+  if (fiesta.modulosContratados && !fiesta.modulosContratados.zonaDigital) {
+    return (
+      <EmptyStateModulo
+        titulo="Zona Digital AK"
+        descripcion="El módulo de Zona Digital no está contratado para este evento. Habilitalo desde la configuración o tienda."
+        fiestaId={fiestaId}
+      />
+    );
+  }
+
   return (
     <main className="min-h-screen bg-[radial-gradient(circle_at_top_left,rgba(220,38,38,0.10),transparent_32%),linear-gradient(180deg,#ffffff,#f8fafc)] px-4 py-6 text-slate-950 sm:px-6 lg:px-10">
       <div className="mx-auto max-w-7xl space-y-6">
         <div className="flex flex-col gap-4 lg:flex-row lg:items-end lg:justify-between">
           <div>
-            <Button asChild variant="ghost" className="mb-3 -ml-3">
-              <Link href={`/fiestas/nueva?fiestaId=${fiestaId}`}><ArrowLeft className="mr-2 h-4 w-4" /> Volver</Link>
-            </Button>
+            <div className="flex items-center gap-2 mb-3 -ml-3">
+              <Button asChild variant="ghost">
+                <Link href={`/fiestas/nueva?fiestaId=${fiestaId}`}><ArrowLeft className="mr-2 h-4 w-4" /> Volver</Link>
+              </Button>
+              <Button asChild variant="outline" size="sm" className="hidden sm:flex bg-white hover:bg-slate-50 text-slate-700">
+                <Link href={publicUrl} target="_blank">
+                  <ExternalLink className="h-4 w-4 mr-2 text-red-500" />
+                  Previsualizar
+                </Link>
+              </Button>
+            </div>
             <Badge className="mb-3 border-red-200 bg-red-50 text-red-700">Experiencia adolescente</Badge>
             <h1 className="max-w-4xl text-4xl font-black tracking-tight sm:text-5xl">
               Zona Digital AK

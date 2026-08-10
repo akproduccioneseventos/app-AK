@@ -9,8 +9,9 @@ import { Badge } from '@/components/ui/badge';
 import { Progress } from '@/components/ui/progress';
 import { Separator } from '@/components/ui/separator';
 import { useToast } from '@/hooks/use-toast';
-import { Activity, AlertTriangle, CheckCircle2, ArrowLeft, RefreshCw, ShieldAlert, Target, Loader2 } from 'lucide-react';
+import { Activity, AlertTriangle, CheckCircle2, ArrowLeft, RefreshCw, ShieldAlert, Target, Loader2, Printer } from 'lucide-react';
 import { getFiestaById } from '@/app/actions/fiesta-actual';
+import { imprimirRecuerdo } from '@/lib/entretenimiento/imprimir-recuerdo';
 import { calculateReadinessScore, getReadinessColor, getReadinessLabel } from '@/lib/readiness-score';
 import type { ReadinessReport, NivelRiesgo } from '@/types/readiness';
 import type { FiestaEnPlanificacion } from '@/types/fiesta';
@@ -70,6 +71,58 @@ function ReadinessContent() {
 
   useEffect(() => { load(); }, [load]);
 
+  const imprimirHojaDePrueba = () => {
+    const canvas = document.createElement('canvas');
+    canvas.width = 1200;
+    canvas.height = 1800; // 2:3 ratio (10x15cm)
+    const ctx = canvas.getContext('2d');
+    if (!ctx) return;
+    
+    // Fondo
+    ctx.fillStyle = '#ffffff';
+    ctx.fillRect(0, 0, 1200, 1800);
+    
+    // Margenes
+    ctx.strokeStyle = '#ef4444'; // red-500
+    ctx.lineWidth = 10;
+    ctx.strokeRect(40, 40, 1120, 1720);
+    
+    // Textos
+    ctx.fillStyle = '#18181b';
+    ctx.font = 'bold 80px sans-serif';
+    ctx.textAlign = 'center';
+    ctx.fillText('HOJA DE PRUEBA', 600, 400);
+    
+    ctx.font = '40px sans-serif';
+    ctx.fillText('Si podés leer esto y el marco rojo', 600, 500);
+    ctx.fillText('no está cortado por la impresora,', 600, 560);
+    ctx.fillText('la estación está bien configurada.', 600, 620);
+    
+    // Datos
+    ctx.fillStyle = '#71717a';
+    ctx.font = '30px monospace';
+    ctx.fillText(`FECHA: ${new Date().toLocaleString('es-AR')}`, 600, 800);
+    ctx.fillText(`EVENTO ID: ${fiestaId}`, 600, 860);
+    ctx.fillText('BROWSER: ' + navigator.userAgent.substring(0, 40) + '...', 600, 920);
+
+    // Gradient
+    const grad = ctx.createLinearGradient(0, 1400, 0, 1800);
+    grad.addColorStop(0, '#ec4899');
+    grad.addColorStop(1, '#8b5cf6');
+    ctx.fillStyle = grad;
+    ctx.fillRect(40, 1400, 1120, 360);
+    
+    ctx.fillStyle = '#ffffff';
+    ctx.font = 'bold 60px sans-serif';
+    ctx.fillText('AK PRODUCCIONES', 600, 1580);
+    
+    const dataUrl = canvas.toDataURL('image/jpeg', 0.9);
+    const res = imprimirRecuerdo(dataUrl);
+    if (!res.ok) {
+      toast({ title: 'Error de impresión', description: res.aviso, variant: 'destructive' });
+    }
+  };
+
   if (loading) {
     return (
       <div className="flex items-center justify-center min-h-[400px]">
@@ -120,11 +173,15 @@ function ReadinessContent() {
   return (
     <div className="container mx-auto px-4 py-8 max-w-4xl">
       {/* Header */}
-      <div className="flex items-center gap-2 mb-6">
+      <div className="flex items-center gap-2 mb-6 flex-wrap">
         <Button asChild variant="outline" size="sm"><Link href={`/fiestas/nueva?fiestaId=${fiestaId}`}><ArrowLeft className="h-4 w-4 mr-2" />Volver al Evento</Link></Button>
         <Button variant="outline" size="sm" onClick={load} disabled={loading}>
           <RefreshCw className={`h-4 w-4 mr-2 ${loading ? 'animate-spin' : ''}`} />
           Recalcular
+        </Button>
+        <Button variant="secondary" size="sm" onClick={imprimirHojaDePrueba} className="ml-auto bg-pink-100 hover:bg-pink-200 text-pink-700 border-pink-200">
+          <Printer className="h-4 w-4 mr-2" />
+          Imprimir Hoja de Prueba
         </Button>
       </div>
 
