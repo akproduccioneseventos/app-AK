@@ -69,7 +69,7 @@ export function buildInvitacionConfigFromFiesta(
     'Bautismo': 'bautismo',
   };
 
-  return {
+  const result = {
     ...defaultInvitacionConfig,
     ...saved,
     nombreHomenajeada: saved?.nombreHomenajeada || config.protagonista1Nombre || config.nombreEvento || '',
@@ -82,6 +82,16 @@ export function buildInvitacionConfigFromFiesta(
     linkMaps: config.googleMapsUrl || saved?.linkMaps || '',
     colorPrincipal: saved?.colorPrincipal || config.primaryColor || defaultInvitacionConfig.colorPrincipal,
   };
+
+  // Sanitizar el campo claimedBy para que no se filtre en el JSON enviado al cliente
+  if (result.regalos?.items) {
+    result.regalos.items = result.regalos.items.map((item) => {
+      const { claimedBy, ...rest } = item;
+      return rest;
+    });
+  }
+
+  return result;
 }
 
 export const TIPO_EVENTO_LABELS: Record<InvitacionDigitalConfig['tipoEvento'], string> = {

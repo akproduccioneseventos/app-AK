@@ -1,10 +1,11 @@
 import Link from 'next/link';
-import { ArrowLeft, Camera, Gamepad2, MessageCircle, Monitor, QrCode, ShieldCheck, Sparkles, Trophy, Users } from 'lucide-react';
+import { ArrowLeft, Camera, CheckCircle2, Flame, Gamepad2, Heart, MessageCircle, Monitor, ShieldCheck, Sparkles, Trophy, Users, ExternalLink } from 'lucide-react';
 
 import { getFiestaById } from '@/app/actions/fiesta-actual';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { EmptyStateModulo } from '@/components/ui/empty-state-modulo';
 import { createDefaultFiestaSocialConfig, getFiestaSocialStageLabel } from '@/lib/social-fiesta/social-fiesta-base';
 import { buildAkSoftSellingPosts } from '@/lib/social-fiesta/private-feed';
 import { buildLiveWallEmptyState, buildLiveWallPremiumSlides } from '@/lib/social-fiesta/live-wall-premium';
@@ -55,12 +56,31 @@ export default async function SocialFiestaProPage(props: PageProps) {
   }
 
   const fiesta = await getFiestaById(fiestaId);
+
+  if (!fiesta) {
+    return (
+      <main className="mx-auto max-w-3xl px-4 py-10">
+        <Card><CardHeader><CardTitle>No se encontro la fiesta</CardTitle></CardHeader></Card>
+      </main>
+    );
+  }
+
+  if (fiesta.modulosContratados && !fiesta.modulosContratados.muroSocial && !fiesta.modulosContratados.redSocial) {
+    return (
+      <EmptyStateModulo
+        titulo="Social Fiesta Pro"
+        descripcion="El módulo de Muro Social o Red Social no está contratado para este evento. Habilitalo desde la configuración o tienda."
+        fiestaId={fiestaId}
+      />
+    );
+  }
+
   const eventName = buildEventName(fiesta);
   const preset = inferPreset(fiesta);
   const config = createDefaultFiestaSocialConfig({
     fiestaId,
     nombreEvento: eventName,
-    protagonistaNombre: buildProtagonistName(fiesta),
+    protagonistName: buildProtagonistName(fiesta),
     portadaUrl: fiesta?.clientePortalExperience?.heroImageUrl || fiesta?.configuracion?.protagonistaFotoUrl,
     colorPrincipal: fiesta?.clientePortalExperience?.primaryColor || fiesta?.configuracion?.primaryColor,
     hashtag: `AK${eventName.replace(/[^a-zA-Z0-9]/g, '').slice(0, 24)}`,
@@ -87,10 +107,22 @@ export default async function SocialFiestaProPage(props: PageProps) {
   return (
     <main className="min-h-screen bg-slate-50">
       <div className="mx-auto max-w-7xl space-y-8 px-4 py-8 sm:px-6 lg:px-8">
-        <div className="flex flex-wrap items-center justify-between gap-3">
-          <Button asChild variant="ghost"><Link href={linkFor('/fiestas/nueva', fiestaId)}><ArrowLeft className="mr-2 h-4 w-4" />Volver al evento</Link></Button>
-          <Badge className="bg-violet-100 text-violet-700 hover:bg-violet-100">Social Fiesta Pro</Badge>
+        <div className="flex flex-col gap-4 lg:flex-row lg:items-end lg:justify-between">
+          <div>
+            <div className="flex items-center gap-2 mb-3 -ml-3">
+              <Button asChild variant="ghost">
+                <Link href={`/fiestas/nueva?fiestaId=${fiestaId}`}>Volver</Link>
+              </Button>
+              <Button asChild variant="outline" size="sm" className="hidden sm:flex bg-white hover:bg-slate-50 text-slate-700">
+                <Link href={`/evento/social/${fiestaId}`} target="_blank">
+                  <ExternalLink className="h-4 w-4 mr-2 text-violet-500" />
+                  Previsualizar
+                </Link>
+              </Button>
+            </div>
+            <Badge className="mb-3 border-violet-200 bg-violet-50 text-violet-700">Experiencia gamificada</Badge>
         </div>
+      </div>
 
         <section className="grid gap-6 lg:grid-cols-[1.4fr_0.8fr]">
           <Card><CardContent className="space-y-5 p-6 sm:p-8">

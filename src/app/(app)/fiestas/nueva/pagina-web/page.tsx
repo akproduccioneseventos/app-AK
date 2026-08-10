@@ -15,6 +15,7 @@ import cloneDeep from 'lodash/cloneDeep';
 import merge from 'lodash/merge';
 import { InvitacionPublicaClient } from '@/app/invitacion/[fiestaId]/invitacion-publica-client';
 import { InvitacionConfigPanel } from '@/components/invitacion/InvitacionConfigPanel';
+import { EmptyStateModulo } from '@/components/ui/empty-state-modulo';
 import { getSocialConnections } from '@/app/actions/social-connections';
 import type { SocialConnection } from '@/types/settings';
 import { getInvitationTemplates, type InvitacionDigitalTemplate } from '@/app/actions/invitacion-digital-templates';
@@ -390,6 +391,16 @@ function PaginaWebPageContent() {
     </div>
   );
   
+  if (fiesta && fiesta.modulosContratados && !fiesta.modulosContratados.paginaWeb) {
+    return (
+      <EmptyStateModulo
+        titulo="Página Web / Invitación Digital"
+        descripcion="El módulo de Página Web (Invitación Digital) no está contratado para este evento. Habilitalo desde la configuración o tienda."
+        fiestaId={fiestaId || ''}
+      />
+    );
+  }
+
   return (
     <div className="h-[calc(100vh-64px)] flex flex-col bg-slate-50">
       <header className="flex-shrink-0 flex items-center justify-between p-4 border-b bg-white shadow-sm z-50">
