@@ -27,10 +27,9 @@ verde, 20 de seguridad de la base en verde.
 - Las fotos del muro se descargan con el enlace directo a propósito.
 - La lista de compras usa la cantidad contratada, no la de confirmados.
 - Sólo se trabaja en pesos uruguayos.
-- **Una misma persona puede estar asignada dos veces a la misma fiesta, en dos
-  roles distintos, y cobrar los dos.** Es normal en AK: alguien hace de cocina y
-  de utilero en el mismo evento. No es un defecto: no agregar validación que lo
-  impida (`src/app/(app)/fiestas/nueva/personal/page.tsx:433`).
+- **Una misma persona puede tener hasta DOS roles en la misma fiesta** y cobrar los
+  dos. Es normal en AK: alguien hace de cocina y de utilero en el mismo evento.
+  Ver el punto 9, que pide poner ese tope.
 
 ---
 
@@ -179,7 +178,27 @@ faltante y avisar en la pantalla del barman.
 
 ---
 
-## 9. Sin registro de quién marcó un recibo del personal como pagado
+## 9. Tope de dos roles por persona en la misma fiesta
+
+`src/app/(app)/fiestas/nueva/personal/page.tsx:433`
+
+Hoy no hay ningún límite: se puede asignar a la misma persona todas las veces que
+se quiera en la misma fiesta, y cobra todas. Dos roles es válido y querido (cocina
+y utilero, por ejemplo); tres o más es un error de carga.
+
+**Qué hacer.** Permitir hasta DOS asignaciones por persona en la misma fiesta. Al
+intentar la tercera, no agregarla y avisar en pantalla: decir cuántas veces ya está
+asignada y en qué roles.
+
+En la lista de empleados a elegir, mostrar al lado de cada uno cuántas veces ya
+está asignado en esa fiesta, para que el equipo lo vea antes de agregarlo.
+
+**Pruebas:** una asignación se permite; la segunda se permite; la tercera se
+rechaza sin tocar los datos.
+
+---
+
+## 10. Sin registro de quién marcó un recibo del personal como pagado
 
 Si hay una discusión con un empleado, no hay con qué respaldarse.
 
