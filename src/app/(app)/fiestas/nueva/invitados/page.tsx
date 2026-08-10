@@ -186,14 +186,14 @@ function InvitadosEventoContent() {
       <div className="flex justify-between items-center print:hidden">
         <h1 className="text-3xl font-bold font-headline">Gestión de Invitados</h1>
         <div className="flex gap-2">
-          <Button variant="outline" onClick={() => window.print()} className="bg-white"><Printer className="w-4 h-4 mr-2" /> PDF / Imprimir</Button>
+          <Button variant="outline" onClick={() => window.print()} className="bg-card"><Printer className="w-4 h-4 mr-2" /> PDF / Imprimir</Button>
           <Button asChild variant="outline"><Link href={`/fiestas/nueva?fiestaId=${fiestaId}`}><ArrowLeft className="w-4 h-4 mr-2" />Volver</Link></Button>
         </div>
       </div>
       
       <div className="hidden print:block mb-4">
         <h1 className="text-2xl font-bold">Lista de Invitados - {fiesta?.configuracion.nombreAgasajado || 'Evento'}</h1>
-        <p className="text-sm text-slate-500">Generado el {new Date().toLocaleDateString()}</p>
+        <p className="text-sm text-muted-foreground">Generado el {new Date().toLocaleDateString()}</p>
       </div>
 
       {/* Stats */}
