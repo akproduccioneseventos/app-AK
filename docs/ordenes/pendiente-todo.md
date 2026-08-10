@@ -11,8 +11,14 @@ Junta en un solo lugar todo lo pendiente. Reemplaza a las órdenes anteriores:
 
 ## Reglas que valen para toda esta orden
 
-- **Una propuesta por bloque grande** (A, B, C, D, E). No una por archivo, no
-  una por hallazgo. Cada fusión se paga.
+- **UNA SOLA PROPUESTA CON LOS CINCO BLOQUES.** No una por bloque, no una por
+  archivo, no una por hallazgo. Cada fusión dispara un despliegue y se paga:
+  cinco propuestas son cinco despliegues donde alcanza con uno.
+  - Hacé los cinco bloques, corré los cuatro controles **sobre el conjunto
+    entero** y recién ahí subís.
+  - Si un bloque te queda trabado, entregá los otros cuatro en esa misma
+    propuesta y decí cuál faltó y por qué.
+  - La única excepción es que algo sea urgente y no pueda esperar al resto.
 - Antes de subir, los cuatro controles sobre el conjunto: `npx tsc --noEmit`,
   `npx jest --silent`, `npm run check:acentos`, `npm run build`. **Si alguno
   falla, no subas.**
@@ -87,6 +93,31 @@ averiguá si son lo mismo, **avisá y no borres**), `resumen-imprimible`,
 - **Prueba antes de la fiesta**: que el operador confirme cámara, muro e
   impresora por estación contratada, imprimiendo una hoja de prueba de verdad.
 
+# BLOQUE E-bis — Plata en ajustes: lo ya encontrado (para CLAUDE, no Gemini)
+
+Auditado el 10 de agosto de 2026. **Verificado leyendo el código**, falta
+arreglarlo. Es plata: lo escribe Claude.
+
+1. **Precios negativos por ajuste en masa — ARREGLADO.** `applyPriceAdjustment`
+   aceptaba cualquier porcentaje; con -200 el precio cambiaba de signo y todo el
+   catálogo quedaba en negativo. El `min="-100"` de la pantalla lo controla el
+   navegador y se saltea. Ya se rechaza -100 o menos, y más de 1000%.
+2. **Dos nombres para lo mismo en las plantillas de contrato.** El editor ofrece
+   `{{CLIENTE_DIRECCION}}` y el contrato original usa `{{CLIENTE_DOMICILIO}}`
+   (`contract-template.ts:17`). El generador sólo reemplaza el primero, así que
+   una plantilla copiada del original sale con `{{CLIENTE_DOMICILIO}}` escrito
+   en el papel que firma el cliente. **Arreglo: que el generador acepte los dos
+   nombres.**
+3. **Marcadores inventados se guardan sin avisar.** Se puede escribir
+   `{{LO_QUE_SEA}}` en una plantilla y sale así en el contrato. Hay que avisar
+   **al guardar**, no cuando ya se generó.
+4. **Un cupón con tope se puede pasar del límite** si dos personas lo aplican
+   casi a la vez: se valida fuera del turno y se registra adentro.
+5. **Se puede borrar un cupón ya usado**, y se pierde el rastro de los
+   descuentos aplicados.
+6. **Al editar un presupuesto con cupón, el uso no se registra**
+   (`crear/page.tsx:409`, la condición excluye ediciones).
+
 # BLOQUE E — Ajustes del sistema
 
 **Nunca se auditó y de ahí salen los textos que ve el cliente.**
@@ -102,7 +133,9 @@ WhatsApp, catálogo de menús, salones, empleados y proveedores.
 
 ---
 
-## Cuando termines cada bloque
+## Cuando termines
 
-Avisá el número de la propuesta y **anotá en `docs/YA-RESUELTO.md`** lo que
-tocaste, con el porqué. Es la única memoria compartida entre las tres IA.
+**Recién cuando estén los cinco bloques**, corré los cuatro controles sobre todo
+junto y subí **una sola propuesta**. Avisá el número y **anotá en
+`docs/YA-RESUELTO.md`** todo lo que tocaste, con el porqué. Es la única memoria
+compartida entre las tres IA.

@@ -25,6 +25,13 @@ anotado, la prÃ³xima auditorÃ­a lo va a volver a encontrar.
 - **Propuestas grandes, no muchas chicas.** Cada fusiÃ³n dispara un despliegue y
   se paga. Se junta la tanda entera en una sola propuesta. La documentaciÃ³n
   viaja con el cÃ³digo, nunca en una propuesta aparte.
+  `docs/ordenes/`. Programarlo igual le cuesta el doble al dueño.
+- **Propuestas grandes, no muchas chicas.** Cada fusión dispara un despliegue y
+  se paga. Se junta la tanda entera en una sola propuesta. La documentación
+  viaja con el código, nunca en una propuesta aparte. **Vale también para las
+  órdenes que una IA le escribe a otra**: una orden de cinco bloques se entrega
+  en una sola propuesta con los cinco, no en cinco. El dueño lo tuvo que repetir
+  el 10 de agosto de 2026 porque la orden pedía lo contrario que la regla.
 
 - **El ajuste anual del 15% va siempre.** Aparece en presupuestos y en el portal.
 - **El descuento del 50% del SalÃ³n Club Uruguay** y el descuento del presupuesto
@@ -504,6 +511,36 @@ Verificado y cerrado el 9 de agosto de 2026.
   pendiente del dueÃ±o, no algo roto: no lo "arregles" conectando Meta sin
   hablarlo.
 
+## Cupones, precios y plantillas de contrato — cerrado el 10 de agosto de 2026
+
+- **El ajuste de precios en masa no acepta bajar 100% o más.** Con -200% el
+  multiplicador quedaba en -1 y **todo el catálogo cambiaba de signo**: el
+  sistema pasaba a cobrar al revés. El `min="-100"` de la pantalla lo controla
+  el navegador y se saltea. También se rechaza más de 1000%, que es error de
+  tipeo.
+- **Los marcadores de contrato tienen sinónimos y viven en un solo lugar**
+  (`src/lib/contratos/marcadores.ts`). Había DOS nombres para lo mismo: el
+  editor ofrece `{{CLIENTE_DIRECCION}}` y el contrato original usa
+  `{{CLIENTE_DOMICILIO}}`; el generador sólo reemplazaba el primero, así que una
+  plantilla copiada del original salía impresa con el hueco escrito. Ahora el
+  generador acepta los dos. **Si agregás un marcador nuevo, sumalo a ese
+  archivo** o el editor lo va a marcar como inventado.
+- **Al guardar una plantilla se avisa si tiene datos que el sistema no sabe
+  completar.** Antes se enteraba cuando el contrato ya estaba impreso.
+- **Un cupón que ya se usó no se puede borrar**, porque es el respaldo del
+  descuento que se le hizo a un cliente. Se desactiva en su lugar.
+- **Editar un presupuesto con cupón ahora sí registra el uso**, y el servidor no
+  lo cuenta dos veces por el mismo presupuesto: antes la condición excluía las
+  ediciones y el uso no quedaba anotado nunca.
+
+### Falsos positivos verificados
+
+- **El tope de usos del cupón NO tiene carrera.** `registrarUsoCupon` revalida
+  el tope y lo incrementa **dentro del mismo turno** (`cuponMutex`), así que dos
+  usos simultáneos no se pasan del límite. Se reportó una vez por error.
+- **Un cupón vencido o desactivado no se puede usar**, y uno de más del 100% se
+  rechaza al crearlo. Ya está controlado.
+
 ## Infraestructura y pruebas
 
 - **`tests/e2e/layout-baseline.json` se regenerÃ³ el 8 de agosto de 2026.** Estuvo
@@ -543,3 +580,15 @@ SumÃ¡ una lÃ­nea en el mÃ³dulo que corresponda. Con esto alcanza:
   - Los proveedores (DJ, Fotógrafos, Catering) ingresan mediante la generación de URL con token.
   - La validación del token en /fotografia y /catering mediante useSearchParams **evita** el renderizado o descarga del presupuesto del evento para externos. Se oculta el botón "Sincronizar con presupuesto".
   - Se modificó middleware.ts y uth-guard.tsx para permitir acceso público sólo si el parámetro 	oken está presente en la URL.
+- **Qué se arregló**, en una frase, en criollo.
+- **Dónde**, si sirve para ubicarlo.
+- **Si la decisión tiene un porqué que no se ve en el código, escribilo.** Ese es
+  el dato que evita que otro lo "arregle" al revés.
+- **C�lculo de invitados (post-evento):** Corregido un falso error (el m�dulo de check-in asume 1 acompa�ante y en post-evento se comparaba con la cantidad exacta, provocando un 100% de discrepancia visual que era err�nea).
+- **AutoGuardado (Configuraci�n y Fotograf�a):** A�adidas alertas de uso de auto-guardado en interfaces para evitar que el planificador presione "guardar" y reciba alertas innecesarias.
+- **Acceso a Playlist (Pantallas):** El m�dulo playlist-pantalla ahora est� correctamente enlazado desde la vista de control central.
+- **Muro Social y Totems (Persistencia):** Corregida la ausencia de guardado autom�tico de estado en muro-social/page.tsx para los ajustes de audio r�tmico (ahora llama a updateSocialGallerySettingsFiestaActual).
+- **Seguridad en Vistas de Proveedores:**
+  - Los proveedores (DJ, Fot�grafos, Catering) ingresan mediante la generaci�n de URL con token.
+  - La validaci�n del token en /fotografia y /catering mediante useSearchParams **evita** el renderizado o descarga del presupuesto del evento para externos. Se oculta el bot�n "Sincronizar con presupuesto".
+  - Se modific� middleware.ts y uth-guard.tsx para permitir acceso p�blico s�lo si el par�metro 	oken est� presente en la URL.

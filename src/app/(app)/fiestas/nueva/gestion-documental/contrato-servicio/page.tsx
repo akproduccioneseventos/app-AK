@@ -8,6 +8,7 @@ import { Button } from '@/components/ui/button';
 import { Skeleton } from '@/components/ui/skeleton';
 import { ArrowLeft, Printer as PrinterIcon, Share2, AlertTriangle, Save, Loader2, Edit, CheckCircle2, FileSignature, UploadCloud, FileText, Globe, Info, CreditCard, Calendar, Star } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
+import { conSinonimos } from '@/lib/contratos/marcadores';
 import type { FiestaEnPlanificacion, PlanPagos } from '@/types/fiesta';
 import type { Customer } from '@/types/customer';
 import type { Presupuesto } from '@/types/presupuesto';
@@ -189,7 +190,7 @@ function ContratoServicioContent() {
                   '{{NOMBRE_SALON}}': fiestaData.configuracion.nombreLugar || '____________',
               };
 
-              Object.entries(replacements).forEach(([key, val]) => {
+              Object.entries(conSinonimos(replacements)).forEach(([key, val]) => {
                   text = text.replaceAll(key, val);
               });
               setContractText(text);
@@ -239,7 +240,7 @@ function ContratoServicioContent() {
       '{{PENALIZACION_PORCENTAJE}}': '30%',
       '{{NOMBRE_SALON}}': fiesta.configuracion.nombreLugar || '____________',
     };
-    Object.entries(replacements).forEach(([key, val]) => {
+    Object.entries(conSinonimos(replacements)).forEach(([key, val]) => {
       text = text.replaceAll(key, val);
     });
     setContractText(text);
