@@ -6,9 +6,10 @@ import Link from 'next/link';
 import { useSearchParams } from 'next/navigation';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription, CardFooter } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { ArrowLeft, ShoppingCart, Save, Loader2, Calculator, ChefHat, GlassWater, RefreshCw, Info } from 'lucide-react';
+import { ArrowLeft, ShoppingCart, Save, Loader2, Calculator, ChefHat, GlassWater, RefreshCw, Info, AlertTriangle } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { getFiestaById, updateReposteriaFiestaActual, updateBebidasFiestaActual, updateMenuAsignadoFiestaActual } from '@/app/actions/fiesta-actual';
+import { verifyAccesoPersonalToken } from '@/app/actions/accesos-personal';
 import type { FiestaEnPlanificacion, ReposteriaData, BebidasData, ReposteriaItem } from '@/types/fiesta';
 import { getPresupuestoById } from '@/app/actions/presupuestos';
 import type { Presupuesto } from '@/types/presupuesto';
@@ -36,11 +37,29 @@ function PlannerGastronomicoFiestaContent() {
   
   const [allMenus, setAllMenus] = useState<FullMenu[]>([]);
   const [selectedMenuId, setSelectedMenuId] = useState<string | undefined>(undefined);
+  const [accessError, setAccessError] = useState<string | null>(null);
+  const [isExternalProvider, setIsExternalProvider] = useState(false);
+
+  const token = searchParams.get('token') || undefined;
 
   const loadData = useCallback(async (showLoading = true) => {
     if (!fiestaId) return;
     if (showLoading) setIsLoading(true);
+    setAccessError(null);
     try {
+      const auth = await verifyAccesoPersonalToken(fiestaId, 'reposteria', token);
+      if (!auth.authorized) {
+        // Se distingue el vencido del que nunca tuvo permiso: al proveedor de
+        // una fiesta vieja hay que pedirle que avise, no dejarlo pensando que
+        // se equivoco de enlace.
+        setAccessError(auth.motivo === 'vencido'
+          ? 'Este enlace ya venció. Pedile uno nuevo a AK Producciones.'
+          : 'Este enlace no da acceso a esta pantalla. Revisá el que te pasaron.');
+        setIsLoading(false);
+        return;
+      }
+      setIsExternalProvider(!!auth.isExternalProvider);
+
       const [fiestaData, menuTemplates] = await Promise.all([
         getFiestaById(fiestaId),
         getMenus()
@@ -54,7 +73,7 @@ function PlannerGastronomicoFiestaContent() {
       let initialBebidas = fiestaData.bebidas || defaultBebidasData;
       let initialMenuId = fiestaData.menuAsignadoId;
 
-      if (fiestaData.presupuestoId) {
+      if (fiestaData.presupuestoId && !auth.isExternalProvider) {
         const presupuestoData = await getPresupuestoById(fiestaData.presupuestoId);
         setPresupuesto(presupuestoData);
         
@@ -125,7 +144,7 @@ function PlannerGastronomicoFiestaContent() {
     } finally {
       setIsLoading(false);
     }
-  }, [toast, fiestaId]);
+  }, [toast, fiestaId, searchParams]);
 
   useEffect(() => {
     loadData();
@@ -190,6 +209,20 @@ function PlannerGastronomicoFiestaContent() {
         item.nombreServicio.toLowerCase().includes('licuado')
     );
 
+  if (accessError) {
+    return (
+      <div className="flex items-center justify-center min-h-[60vh] p-4">
+        <Card className="max-w-md w-full text-center border-destructive/20 bg-destructive/5">
+          <CardHeader>
+            <AlertTriangle className="w-12 h-12 text-destructive mx-auto mb-2" />
+            <CardTitle className="text-xl font-bold font-headline text-destructive">Acceso No Autorizado</CardTitle>
+            <CardDescription>{accessError}</CardDescription>
+          </CardHeader>
+        </Card>
+      </div>
+    );
+  }
+
   if (!fiestaId) return <EventSelectionRequired moduleName="la planificación gastronómica" />;
 
   return (
@@ -210,9 +243,11 @@ function PlannerGastronomicoFiestaContent() {
             </div>
             <div className="flex items-center gap-2">
                 {isSaving && <Loader2 className="w-4 h-4 animate-spin text-primary"/>}
-                <Button variant="ghost" size="sm" onClick={() => loadData(true)} title="Sincronizar con presupuesto">
-                    <RefreshCw className="w-4 h-4 mr-2"/> Sincronizar
-                </Button>
+                {!isExternalProvider && (
+                    <Button variant="ghost" size="sm" onClick={() => loadData(true)} title="Sincronizar con presupuesto">
+                        <RefreshCw className="w-4 h-4 mr-2"/> Sincronizar
+                    </Button>
+                )}
             </div>
           </CardHeader>
           <CardContent className="grid grid-cols-3 gap-4 text-center">

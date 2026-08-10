@@ -42,6 +42,7 @@ import { Badge } from '@/components/ui/badge';
 import { Suspense } from 'react';
 import { RsvpStatusBadge } from '@/components/presupuestos/rsvp-status-badge';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
+import { getGuestAdultsCount, getGuestKidsCount } from '@/lib/fiesta/guest-counts';
 
 const DIETARY_OPTIONS: DietaryRestriction[] = [
   'Ninguna', 'Celiaco', 'Vegetariano', 'Vegano', 'Sin Gluten', 'Sin Lactosa', 'Alergia Mariscos', 'Alergia Frutos Secos', 'Otro'
@@ -104,9 +105,16 @@ function InvitadosEventoContent() {
   useEffect(() => { fetchInvitados(); }, [fetchInvitados]);
 
   const stats = useMemo(() => {
-    const adultsConfirmed = invitados.reduce((sum, i) => sum + (i.rsvp === 'Confirmado' && i.categoria === 'Adulto' ? (i.partySize || 1) : 0), 0);
-    const kidsConfirmed = invitados.reduce((sum, i) => sum + (i.rsvp === 'Confirmado' && i.categoria === 'Niño/Adolescente' ? (i.partySize || 1) : 0), 0);
-    const celiacs = invitados.filter(i => (i.isCeliac || i.dietaryRestriction === 'Celiaco') && i.rsvp === 'Confirmado').length;
+    const adultsConfirmed = invitados.reduce((sum, i) => sum + (i.rsvp === 'Confirmado' ? getGuestAdultsCount(i) : 0), 0);
+    const kidsConfirmed = invitados.reduce((sum, i) => sum + (i.rsvp === 'Confirmado' ? getGuestKidsCount(i) : 0), 0);
+    const celiacs = invitados.reduce(
+      (sum, i) =>
+        sum +
+        ((i.isCeliac || i.dietaryRestriction === 'Celiaco') && i.rsvp === 'Confirmado'
+          ? (i.partySize || 1)
+          : 0),
+      0,
+    );
     const vips = invitados.filter(i => i.perfil === 'VIP').length;
     
     return {
@@ -178,14 +186,14 @@ function InvitadosEventoContent() {
       <div className="flex justify-between items-center print:hidden">
         <h1 className="text-3xl font-bold font-headline">Gestión de Invitados</h1>
         <div className="flex gap-2">
-          <Button variant="outline" onClick={() => window.print()} className="bg-white"><Printer className="w-4 h-4 mr-2" /> PDF / Imprimir</Button>
+          <Button variant="outline" onClick={() => window.print()} className="bg-card"><Printer className="w-4 h-4 mr-2" /> PDF / Imprimir</Button>
           <Button asChild variant="outline"><Link href={`/fiestas/nueva?fiestaId=${fiestaId}`}><ArrowLeft className="w-4 h-4 mr-2" />Volver</Link></Button>
         </div>
       </div>
       
       <div className="hidden print:block mb-4">
         <h1 className="text-2xl font-bold">Lista de Invitados - {fiesta?.configuracion.nombreAgasajado || 'Evento'}</h1>
-        <p className="text-sm text-slate-500">Generado el {new Date().toLocaleDateString()}</p>
+        <p className="text-sm text-muted-foreground">Generado el {new Date().toLocaleDateString()}</p>
       </div>
 
       {/* Stats */}

@@ -1,7 +1,7 @@
 
 import { notFound } from 'next/navigation';
 import { getFiestaByAccessKey } from '@/app/actions/fiesta/portal.actions';
-import { getCompanyInfo } from '@/app/actions/settings';
+import { getCompanyInfo, getBudgetDisplaySettings } from '@/app/actions/settings';
 import { getPresupuestoById } from '@/app/actions/presupuestos';
 import { getServiciosEmpresa } from '@/app/actions/servicios-empresa';
 import type { Presupuesto } from '@/types/presupuesto';
@@ -16,6 +16,7 @@ function mapFiestaToPortalDTO(fiesta: any, routeAccessKey: string): any {
   if (!fiesta) return null;
   return {
     id: fiesta.id,
+    invitacionSlug: fiesta.invitacionSlug,
     presupuestoId: fiesta.presupuestoId,
     configuracion: fiesta.configuracion ? {
       clienteId: fiesta.configuracion.clienteId,
@@ -149,9 +150,10 @@ export default async function PublicPortalPage(props: PageProps) {
   const params = await props.params;
   const { accessKey } = params;
 
-  const [fiesta, companyInfo] = await Promise.all([
+  const [fiesta, companyInfo, budgetSettings] = await Promise.all([
     getFiestaByAccessKey(accessKey),
     getCompanyInfo(),
+    getBudgetDisplaySettings(),
   ]);
 
   if (!fiesta || !fiesta.clientPortalSettings?.enabled) {
@@ -189,6 +191,7 @@ export default async function PublicPortalPage(props: PageProps) {
       companyName={companyInfo.companyName}
       presupuesto={portalPresupuesto}
       catalogServices={catalogServices}
+      ajusteAnualPorcentaje={budgetSettings.annualAdjustmentPercentage ?? 15}
     />
   );
 }

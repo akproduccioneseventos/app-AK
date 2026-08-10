@@ -7,6 +7,7 @@ import { Button } from '@/components/ui/button';
 import { Textarea } from '@/components/ui/textarea';
 import { ArrowLeft, Save, Loader2, FileSignature, Info, Trash2, Plus } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
+import { marcadoresDesconocidos } from '@/lib/contratos/marcadores';
 import { getContractTemplates, saveContractTemplate, deleteContractTemplate } from '@/app/actions/settings';
 import type { ContractTemplateItem, ContractType } from '@/types/settings';
 import { Badge } from '@/components/ui/badge';
@@ -88,13 +89,40 @@ export default function ContratosSettingsPage() {
     setEditorText(template.template);
   };
 
+  const desconocidos = marcadoresDesconocidos(editorText);
+
   const handleSave = async () => {
     if (!selected) return;
+
+    // Validar marcadores {{ALGO}} para evitar que queden marcadores no reconocidos en los contratos del cliente
+    const allowedTags = visiblePlaceholders.map(p => p.tag);
+    const matches = editorText.match(/\{\{[A-Za-z0-9_]+\}\}/g) || [];
+    const unknownTags = Array.from(new Set(matches.filter(tag => !allowedTags.includes(tag))));
+    if (unknownTags.length > 0) {
+      toast({
+        title: '⚠️ Marcador no reconocido',
+        description: `La plantilla contiene marcadores que el sistema no sabe completar: ${unknownTags.join(', ')}. Corregilos antes de guardar.`,
+        variant: 'destructive',
+      });
+      return;
+    }
+
     setIsSaving(true);
     try {
       const result = await saveContractTemplate({ ...selected, template: editorText });
       if (!result.success) throw new Error(result.error);
       toast({ title: '✅ Plantilla guardada', description: `"${selected.name}" se actualizó correctamente.` });
+      // Un dato que el sistema no sabe completar sale impreso tal cual en el
+      // contrato que firma el cliente. Se avisa al guardar y no cuando el
+      // contrato ya esta sobre la mesa.
+      if (desconocidos.length > 0) {
+        toast({
+          title: 'Ojo: hay datos que no se van a completar',
+          description: `Estos van a salir escritos tal cual en el contrato: ${desconocidos.join(', ')}. Revisá que estén bien escritos.`,
+          variant: 'destructive',
+          duration: 12000,
+        });
+      }
       await loadTemplates();
     } catch (e: any) {
       toast({ title: 'Error al guardar', description: e.message, variant: 'destructive' });

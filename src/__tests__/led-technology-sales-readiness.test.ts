@@ -130,4 +130,24 @@ describe('LED technology seller readiness', () => {
     expect(digitalZone?.score).toBe(100);
     expect(digitalZone?.alreadyConnected.join(' ')).toContain('Barra tecnologica');
   });
+
+  it('reads configured screen playlist items when scoring screen readiness', () => {
+    const suite = buildAkTechnologySuite({
+      id: 'fiesta-screen-playlist',
+      configuracion: {},
+      screenPlaylist: {
+        items: [{ id: 'audio-1', type: 'audioritmico', enabled: true }],
+        loop: true,
+        orientation: 'landscape',
+        isPlaying: false,
+        currentIndex: 0,
+      },
+    });
+
+    const live = suite.products.find(product => product.id === 'fiesta_en_vivo');
+    const digitalZone = suite.products.find(product => product.id === 'zona_digital');
+
+    expect(live?.alreadyConnected).toContain('Pantalla LED / modo pantalla');
+    expect(digitalZone?.alreadyConnected).toContain('Modo audiorritmico para baile');
+  });
 });

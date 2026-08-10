@@ -46,7 +46,20 @@ import { getFiestaByIdRaw } from '@/lib/fiesta/get-fiesta-raw';
 // Firestore collection names
 const GALLERY_COLLECTION = 'social_gallery_posts';
 const CHAT_COLLECTION = 'social_chat';
-const MAX_PHOTOS_PER_EVENT = 200;
+/**
+ * El tope va en lo que sube CADA invitado, no en lo que junta la fiesta.
+ *
+ * Antes el evento entero se cortaba a las 200 fotos. En una fiesta de 150
+ * personas con tres estaciones eso se alcanza a mitad de la noche, y a partir
+ * de ahi nadie mas puede subir nada: el que llega tarde se queda afuera y el
+ * cliente pierde la mitad de sus recuerdos. Es exactamente lo contrario de lo
+ * que se quiere.
+ *
+ * Ahora el limite del evento es una red de contencion contra un abuso masivo,
+ * no un tope de uso normal. Quien acota de verdad es el limite por persona,
+ * junto con el peso maximo por archivo y los 15 segundos de video.
+ */
+const MAX_PHOTOS_PER_EVENT = 5000;
 const MAX_PHOTOS_PER_PERSON = 10;
 const MAX_IMAGE_UPLOAD_SIZE = 10 * 1024 * 1024;
 const MAX_VIDEO_UPLOAD_SIZE = 60 * 1024 * 1024;
@@ -343,11 +356,14 @@ export async function uploadSocialPost(
       windowMs: 60_000,
     });
     const db = await getDb();
-    if (fiestaData.socialGallerySettings?.enabled === false) {
+    const wallEnabled = fiestaData.socialGallerySettings?.enabled !== false;
+    const wallActive = fiestaData.socialGallerySettings?.uploadsActive !== false;
+    const bypassWallCheck = source === 'entertainment';
+
+    if (!wallEnabled && !bypassWallCheck) {
       return { success: false, error: 'El muro social no está habilitado para este evento.' };
     }
-    const active = fiestaData.socialGallerySettings?.uploadsActive !== false;
-    if (!active) {
+    if (!wallActive && !bypassWallCheck) {
       return { success: false, error: 'Las cargas están pausadas para este evento.' };
     }
     const eventLimit = fiestaData?.socialGallerySettings?.maxPhotos ?? MAX_PHOTOS_PER_EVENT;
@@ -428,12 +444,17 @@ export async function uploadSocialPost(
       imageAiSafe: safetyResult.safe,
     });
     if (mediaReview.status === 'blocked') return { success: false, error: mediaReview.message };
+    const isWallRestricted = (!wallEnabled || !wallActive) && bypassWallCheck;
+    const finalModerationStatus = isWallRestricted
+      ? 'pending'
+      : (mediaReview.status === 'pending_review' ? 'pending' : 'approved');
+
     const newPost: SocialGalleryPost = {
       id: postId,
       fiestaId,
       imageUrl,
       mediaType: isVideo ? 'video' : 'image',
-      moderationStatus: mediaReview.status === 'pending_review' ? 'pending' : 'approved',
+      moderationStatus: finalModerationStatus,
       timestamp: new Date().toISOString(),
       authorName: sanitizeSocialText(authorName) || 'Anónimo',
       likes: 0,

@@ -21,7 +21,8 @@ import {
   Radio,
   Zap,
 } from 'lucide-react';
-import { QRCodeSVG } from 'qrcode.react';
+import { QrRecuerdo } from '@/components/entretenimiento/QrRecuerdo';
+import { AvisoDeFallaEnEstacion } from '@/components/entretenimiento/AvisoDeFallaEnEstacion';
 import {
   getPublicEntertainmentEvent,
   uploadEntretenimientoMedia,
@@ -84,6 +85,10 @@ export default function BoguePage() {
   const [isEventLoading, setIsEventLoading] = useState(true);
   const [loadAttempt, setLoadAttempt] = useState(0);
   const [cameraError, setCameraError] = useState<string | null>(null);
+  // Se separa del mensaje de progreso para que la pantalla final sepa si el
+  // video llego al muro o no. Antes no habia forma de distinguirlo y el cuadro
+  // del QR quedaba girando como si todavia estuviera subiendo.
+  const [uploadError, setUploadError] = useState<string | null>(null);
 
   // Audio effect context for high-quality beeps
   const audioCtxRef = useRef<AudioContext | null>(null);
@@ -151,9 +156,17 @@ export default function BoguePage() {
       }
     } catch (err) {
       console.error('Error al acceder a la cámara:', err);
-      setCameraError('No pudimos abrir la cámara. Revisa el permiso del navegador y vuelve a intentar.');
+      const cameraError = 'No pudimos abrir la cámara. Revisa el permiso del navegador y vuelve a intentar.';
+      setCameraError(cameraError);
+      void updateEntertainmentSessionStatus(
+        fiestaId,
+        'bogue',
+        'idle',
+        { lastError: cameraError },
+        accessToken,
+      ).catch((statusError) => console.error('No se pudo avisar la falla de cámara al operador:', statusError));
     }
-  }, [facingMode, stopCamera]);
+  }, [accessToken, facingMode, fiestaId, stopCamera]);
 
   // 1. Initial load
   useEffect(() => {
@@ -519,8 +532,9 @@ export default function BoguePage() {
 
   const handleAutoUpload = async (blob: Blob) => {
     setIsUploading(true);
+    setUploadError(null);
     setProgressMsg('Subiendo al muro social de la fiesta...');
-    
+
     try {
       const file = new File([blob], `bogue-${Date.now()}.mp4`, { type: blob.type });
       const formData = new FormData();
@@ -541,7 +555,7 @@ export default function BoguePage() {
           fiestaId,
           'bogue',
           'done',
-          { mediaUrl },
+          { mediaUrl, lastError: null },
           accessToken
         );
         speak("¡Listo! Tu Boomerang ya está subido.");
@@ -556,9 +570,16 @@ export default function BoguePage() {
     } catch (err) {
       console.error(err);
       setProgressMsg('No se pudo subir al muro. Conservamos el video para reintentar.');
+      setUploadError((err as Error).message || 'No se pudo subir el video al muro.');
       setQrCodeUrl('');
       setLocalStatus('done');
-      await updateEntertainmentSessionStatus(fiestaId, 'bogue', 'done', {}, accessToken);
+      await updateEntertainmentSessionStatus(
+        fiestaId,
+        'bogue',
+        'done',
+        { lastError: 'No se pudo subir el video del invitado al muro.' },
+        accessToken,
+      );
     } finally {
       setIsUploading(false);
     }
@@ -620,6 +641,7 @@ export default function BoguePage() {
     return (
       <div className="min-h-screen bg-zinc-950 p-4 text-white sm:p-6">
         <div className="mx-auto max-w-md space-y-5">
+          <AvisoDeFallaEnEstacion mensaje={session?.lastError} cuando={session?.lastErrorAt} />
           <div className="flex items-center justify-between border-b border-white/10 pb-4">
             <button onClick={() => router.back()} aria-label="Volver" title="Volver" className="rounded-lg p-2 transition hover:bg-white/10">
               <ArrowLeft className="w-5 h-5" />
@@ -905,13 +927,7 @@ export default function BoguePage() {
 
               {/* QR Code Container */}
               <div className="bg-white p-4 rounded-3xl shadow-2xl relative">
-                {qrCodeUrl ? (
-                  <QRCodeSVG value={qrCodeUrl} size={180} level="Q" includeMargin={false} />
-                ) : (
-                  <div className="w-44 h-44 flex items-center justify-center">
-                    <Loader2 className="w-8 h-8 animate-spin text-zinc-900" />
-                  </div>
-                )}
+                <QrRecuerdo qrCodeUrl={qrCodeUrl} error={uploadError} />
               </div>
 
               <div className="space-y-3 w-full">

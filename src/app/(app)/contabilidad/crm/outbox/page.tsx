@@ -49,14 +49,32 @@ export default function OutboxPage() {
 
   const handleSend = async (msg: ScheduledMessage) => {
     const phone = msg.targetPhone?.replace(/\D/g, '') ?? '';
-    const url = phone
-      ? `https://wa.me/${phone}?text=${encodeURIComponent(msg.messageText)}`
-      : `https://wa.me/?text=${encodeURIComponent(msg.messageText)}`;
-    window.open(url, '_blank');
+
+    // Sin telefono, WhatsApp abria sin destinatario y el mensaje igual quedaba
+    // marcado como enviado: la planilla decia que se aviso a alguien que nunca
+    // recibio nada. Mejor frenar y avisar que falta el contacto.
+    if (!phone) {
+      toast({
+        title: 'Falta el teléfono',
+        description: `${msg.targetName} no tiene un teléfono cargado. Agregalo y volvé a intentar.`,
+        variant: 'destructive',
+      });
+      return;
+    }
+
+    window.open(`https://wa.me/${phone}?text=${encodeURIComponent(msg.messageText)}`, '_blank');
     const result = await markMessageAsSent(msg.id, 'usuario');
     if (result.success) {
       toast({ title: 'Marcado como enviado', description: `Mensaje para ${msg.targetName} marcado como enviado.` });
       fetchMessages();
+    } else {
+      // WhatsApp ya se abrio, pero el mensaje sigue figurando como pendiente.
+      // Si no se avisa, el equipo lo manda dos veces al mismo cliente.
+      toast({
+        title: 'Quedó como pendiente',
+        description: `Se abrió WhatsApp, pero no se pudo marcar el mensaje de ${msg.targetName} como enviado. Marcalo a mano para no mandarlo dos veces.`,
+        variant: 'destructive',
+      });
     }
   };
 

@@ -18,7 +18,7 @@ import {
   Loader2,
   Check,
 } from 'lucide-react';
-import { QRCodeSVG } from 'qrcode.react';
+import { QrRecuerdo } from '@/components/entretenimiento/QrRecuerdo';
 import { getPublicSocialPosts } from '@/app/actions/social-gallery';
 import {
   getPublicEntertainmentEvent,
@@ -36,6 +36,7 @@ import type { PublicEntertainmentEvent } from '@/lib/entertainment/station-confi
 import { PublicEntertainmentEventStatus } from '@/components/entertainment/public-entertainment-event-status';
 import { KioskUnlockButton } from '@/components/kiosk/kiosk-unlock-button';
 import { waitForInitialPublicLoad } from '@/lib/public-experience/wait-for-initial-public-load';
+import { AvisoDeFallaEnEstacion } from '@/components/entretenimiento/AvisoDeFallaEnEstacion';
 
 const DURATION_OPTIONS = [
   { label: '10 Segundos', value: 10 },
@@ -76,6 +77,7 @@ export default function Plataforma360Page() {
   const [uploadedPostUrl, setUploadedPostUrl] = useState<string | null>(null);
   const [qrCodeUrl, setQrCodeUrl] = useState<string>('');
   const [uploadError, setUploadError] = useState<string | null>(null);
+  const [cameraError, setCameraError] = useState<string | null>(null);
   
   const [isUploading, setIsUploading] = useState(false);
   const [progress, setProgress] = useState(0);
@@ -131,6 +133,7 @@ export default function Plataforma360Page() {
 
   const startCamera = useCallback(async () => {
     stopCamera();
+    setCameraError(null);
     try {
       let mediaStream: MediaStream;
       try {
@@ -151,8 +154,17 @@ export default function Plataforma360Page() {
       }
     } catch (err) {
       console.error('No se pudo acceder a la cámara:', err);
+      const message = 'No se pudo acceder a la cámara. Revisa los permisos del navegador y vuelve a intentar.';
+      setCameraError(message);
+      void updateEntertainmentSessionStatus(
+        fiestaId,
+        'plataforma360',
+        'idle',
+        { lastError: message },
+        accessToken,
+      ).catch((statusError) => console.error('No se pudo avisar la falla de cámara al operador:', statusError));
     }
-  }, [facingMode, stopCamera]);
+  }, [accessToken, facingMode, fiestaId, stopCamera]);
 
   const loadRecentVideos = useCallback(async () => {
     try {
@@ -413,7 +425,7 @@ export default function Plataforma360Page() {
           fiestaId,
           'plataforma360',
           'done',
-          { mediaUrl },
+          { mediaUrl, lastError: null },
           accessToken
         );
         speak("¡Buenísimo! Tu video ya está subido.");
@@ -437,7 +449,7 @@ export default function Plataforma360Page() {
         fiestaId,
         'plataforma360',
         'idle',
-        {},
+        { lastError: 'No se pudo subir el video del invitado al muro.' },
         accessToken
       );
       speak('No se pudo subir el video. Podés reintentar sin volver a grabarlo.');
@@ -477,6 +489,7 @@ export default function Plataforma360Page() {
     return (
       <div className="min-h-screen bg-zinc-950 p-4 text-white sm:p-6">
         <div className="mx-auto max-w-md space-y-5">
+          <AvisoDeFallaEnEstacion mensaje={session?.lastError} cuando={session?.lastErrorAt} />
           
           <div className="flex items-center justify-between border-b border-white/10 pb-4">
             <button onClick={() => router.back()} aria-label="Volver" title="Volver" className="rounded-lg p-2 transition hover:bg-white/10">
@@ -609,6 +622,7 @@ export default function Plataforma360Page() {
                 <div className="space-y-2">
                   <h2 className="text-3xl font-black tracking-tight text-white md:text-4xl">Video 360</h2>
                   <p className="text-sm text-zinc-300">Prepara tu pose. Esta estacion graba un video con la camara web.</p>
+                  {cameraError && <p className="text-sm text-rose-300" role="alert">{cameraError}</p>}
                 </div>
 
                 <div className="pt-4 space-y-3">
@@ -737,13 +751,7 @@ export default function Plataforma360Page() {
 
               {/* QR Container */}
               <div className="bg-white p-4 rounded-3xl shadow-2xl relative">
-                {qrCodeUrl ? (
-                  <QRCodeSVG value={qrCodeUrl} size={180} level="Q" includeMargin={false} />
-                ) : (
-                  <div className="w-44 h-44 flex items-center justify-center">
-                    <Loader2 className="w-8 h-8 animate-spin text-zinc-900" />
-                  </div>
-                )}
+                <QrRecuerdo qrCodeUrl={qrCodeUrl} error={uploadError} />
               </div>
 
               <div className="space-y-3 w-full">

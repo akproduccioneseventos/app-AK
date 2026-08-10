@@ -28,7 +28,7 @@ export default async function Cierre100Page(props: PageProps) {
   const fiestaId = params.fiestaId;
 
   return (
-    <main className="min-h-screen bg-slate-50">
+    <main className="min-h-screen bg-background">
       <div className="mx-auto max-w-7xl space-y-8 px-4 py-8 sm:px-6 lg:px-8">
         <div className="flex flex-wrap items-center justify-between gap-3">
           <Button asChild variant="ghost">
@@ -37,17 +37,17 @@ export default async function Cierre100Page(props: PageProps) {
               Volver
             </Link>
           </Button>
-          <Badge className="bg-slate-900 text-white hover:bg-slate-900">Cierre 100%</Badge>
+          <Badge className="bg-primary text-primary-foreground hover:bg-primary">Cierre 100%</Badge>
         </div>
 
         <section className="grid gap-6 lg:grid-cols-[1.2fr_0.8fr]">
           <Card>
             <CardContent className="space-y-5 p-6 sm:p-8">
-              <div className="inline-flex items-center gap-2 rounded-full bg-white px-3 py-1 text-sm text-slate-700 shadow-sm">
-                <Rocket className="h-4 w-4 text-slate-900" />
+              <div className="inline-flex items-center gap-2 rounded-full bg-card px-3 py-1 text-sm text-foreground shadow-sm border border-border">
+                <Rocket className="h-4 w-4 text-primary" />
                 AK Producciones lista para uso real
               </div>
-              <h1 className="text-3xl font-bold tracking-tight text-slate-950 sm:text-4xl">Revision final de producto</h1>
+              <h1 className="text-3xl font-bold tracking-tight text-foreground sm:text-4xl">Revision final de producto</h1>
               <p className="max-w-3xl text-base text-muted-foreground">
                 Esta pantalla ordena las 5 PR de cierre para que la app no quede solo con codigo creado. El objetivo es que todo se pueda abrir, entender, guardar y probar como lo usaria AK y como lo usaria un cliente desde el celular.
               </p>
@@ -65,16 +65,16 @@ export default async function Cierre100Page(props: PageProps) {
           <Card>
             <CardHeader><CardTitle>Regla de cierre</CardTitle></CardHeader>
             <CardContent className="space-y-3 text-sm text-muted-foreground">
-              <div className="rounded-lg bg-white p-4">
-                <p className="font-semibold text-slate-950">No cuenta como listo si esta escondido</p>
+              <div className="rounded-lg bg-card border border-border p-4">
+                <p className="font-semibold text-foreground">No cuenta como listo si esta escondido</p>
                 <p className="mt-1">Tiene que verse con boton o enlace claro.</p>
               </div>
-              <div className="rounded-lg bg-white p-4">
-                <p className="font-semibold text-slate-950">No cuenta como listo si no guarda</p>
+              <div className="rounded-lg bg-card border border-border p-4">
+                <p className="font-semibold text-foreground">No cuenta como listo si no guarda</p>
                 <p className="mt-1">Los datos importantes tienen que entrar en backup.</p>
               </div>
-              <div className="rounded-lg bg-white p-4">
-                <p className="font-semibold text-slate-950">No cuenta como listo si el cliente se pierde</p>
+              <div className="rounded-lg bg-card border border-border p-4">
+                <p className="font-semibold text-foreground">No cuenta como listo si el cliente se pierde</p>
                 <p className="mt-1">La experiencia se mide desde celular.</p>
               </div>
             </CardContent>
@@ -88,8 +88,8 @@ export default async function Cierre100Page(props: PageProps) {
               <Card key={block.id}>
                 <CardHeader className="space-y-3">
                   <div className="flex items-center justify-between gap-3">
-                    <div className="flex h-9 w-9 items-center justify-center rounded-full bg-slate-900 text-sm font-bold text-white">{block.order}</div>
-                    <div className="rounded-lg bg-white p-3 text-slate-900 shadow-sm">
+                    <div className="flex h-9 w-9 items-center justify-center rounded-full bg-primary text-sm font-bold text-primary-foreground">{block.order}</div>
+                    <div className="rounded-lg bg-card p-3 text-foreground shadow-sm border border-border">
                       <Icon className="h-5 w-5" />
                     </div>
                   </div>

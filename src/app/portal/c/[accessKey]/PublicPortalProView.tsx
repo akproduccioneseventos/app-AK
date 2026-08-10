@@ -39,6 +39,8 @@ interface PublicPortalProViewProps {
   companyContact: string;
   companyName: string;
   presupuesto?: any | null;
+  /** Ajuste anual configurado en ajustes. Si no llega, se usa el 15% historico. */
+  ajusteAnualPorcentaje?: number;
 }
 
 const formatCurrency = (amount?: number | null) => {
@@ -96,7 +98,7 @@ function getTotalPresupuesto(presupuesto?: any | null) {
   );
 }
 
-export default function PublicPortalProView({ fiesta, companyContact, companyName, presupuesto }: PublicPortalProViewProps) {
+export default function PublicPortalProView({ fiesta, companyContact, companyName, presupuesto, ajusteAnualPorcentaje = 15 }: PublicPortalProViewProps) {
   const config = fiesta?.configuracion ?? {};
   const settings = fiesta?.clientPortalSettings ?? {};
   const portalExperience = fiesta?.clientePortalExperience ?? {};
@@ -133,7 +135,7 @@ export default function PublicPortalProView({ fiesta, companyContact, companyNam
   // Sin esto, el cliente veia un saldo menor al real y la diferencia aparecia
   // recien al ir a pagar la ultima cuota.
   const paymentSummary = getBudgetPaymentSummary(presupuesto);
-  const estadoDeCuenta = calcularEstadoDeCuenta(presupuesto ?? null);
+  const estadoDeCuenta = calcularEstadoDeCuenta(presupuesto ?? null, ajusteAnualPorcentaje);
   const totalPresupuesto = estadoDeCuenta.total || paymentSummary.total || getTotalPresupuesto(presupuesto);
   const totalPagado = estadoDeCuenta.pagado;
   const saldoPendiente = estadoDeCuenta.saldo;
@@ -273,10 +275,10 @@ export default function PublicPortalProView({ fiesta, companyContact, companyNam
               </div>
             </div>
 
-            <Card className="bg-white/95 text-slate-900 rounded-3xl border-0 shadow-2xl">
+            <Card className="border-0 bg-card/95 text-card-foreground shadow-2xl">
               <CardContent className="p-5 space-y-4">
                 <div className="flex items-center gap-3">
-                  <div className="w-12 h-12 rounded-2xl grid place-items-center text-white" style={{ backgroundColor: eventColor }}>
+                  <div className="grid h-12 w-12 place-items-center rounded-xl text-white" style={{ backgroundColor: eventColor }}>
                     <Sparkles className="w-6 h-6" />
                   </div>
                   <div>
@@ -286,10 +288,10 @@ export default function PublicPortalProView({ fiesta, companyContact, companyNam
                 </div>
                 <p className="text-sm text-slate-600">{nextStep.text}</p>
                 <div className="flex gap-2">
-                  <Button className="flex-1 rounded-2xl" style={{ backgroundColor: eventColor }} onClick={() => setShowPagoModal(true)}>
+                  <Button className="flex-1" style={{ backgroundColor: eventColor }} onClick={() => setShowPagoModal(true)}>
                     <Wallet className="w-4 h-4 mr-2" /> Hacer pago
                   </Button>
-                  <Button variant="outline" className="rounded-2xl" asChild>
+                  <Button variant="outline" asChild>
                     <a href={whatsappHref} target="_blank" rel="noopener noreferrer"><MessageSquare className="w-4 h-4" /></a>
                   </Button>
                 </div>
@@ -301,8 +303,8 @@ export default function PublicPortalProView({ fiesta, companyContact, companyNam
 
       <main className="mx-auto max-w-6xl px-4 py-6 space-y-6">
         {isUnconfigured && (
-          <Card className="rounded-3xl border-amber-200 bg-amber-50">
-            <CardContent className="p-5 space-y-2 text-amber-900">
+          <Card className="border-primary/30 bg-primary/10">
+            <CardContent className="space-y-2 p-5 text-foreground">
               <p className="font-black">Este portal está en preparación</p>
               <p className="text-sm">Funciona el link, pero todavía faltan datos reales: nombre del evento, presupuesto, contrato, pagos o link personalizado. No lo envíes al cliente final hasta completar esos datos.</p>
             </CardContent>
@@ -311,26 +313,26 @@ export default function PublicPortalProView({ fiesta, companyContact, companyNam
 
         <div className="grid gap-6 lg:grid-cols-[.85fr_1.5fr]">
           <aside className="space-y-4">
-            <Card className="rounded-3xl border-0 shadow-sm">
+            <Card className="border-0 shadow-sm">
               <CardHeader><CardTitle className="text-base flex items-center gap-2"><Users className="w-5 h-5" /> Invitados</CardTitle></CardHeader>
-              <CardContent className="grid grid-cols-3 gap-2 text-center">
-                <div className="rounded-2xl bg-emerald-50 p-3"><p className="text-2xl font-black text-emerald-700">{confirmados.length}</p><p className="text-xs text-slate-500">Aceptaron</p></div>
-                <div className="rounded-2xl bg-amber-50 p-3"><p className="text-2xl font-black text-amber-700">{pendientes.length}</p><p className="text-xs text-slate-500">Pendientes</p></div>
-                <div className="rounded-2xl bg-red-50 p-3"><p className="text-2xl font-black text-red-700">{cancelados.length}</p><p className="text-xs text-slate-500">Cancelaron</p></div>
+              <CardContent className="grid grid-cols-1 gap-2 text-center sm:grid-cols-3">
+                <div className="rounded-xl bg-accent/10 p-3"><p className="text-2xl font-black text-accent">{confirmados.length}</p><p className="text-xs text-muted-foreground">Aceptaron</p></div>
+                <div className="rounded-xl bg-muted p-3"><p className="text-2xl font-black text-foreground">{pendientes.length}</p><p className="text-xs text-muted-foreground">Pendientes</p></div>
+                <div className="rounded-xl bg-destructive/10 p-3"><p className="text-2xl font-black text-destructive">{cancelados.length}</p><p className="text-xs text-muted-foreground">Cancelaron</p></div>
               </CardContent>
             </Card>
 
-            <Card className="rounded-3xl border-0 shadow-sm">
+            <Card className="border-0 shadow-sm">
               <CardHeader><CardTitle className="text-base flex items-center gap-2"><MessageSquare className="w-5 h-5" /> Mensajes con AK</CardTitle></CardHeader>
               <CardContent className="space-y-3">
                 <p className="text-sm text-slate-600">{fiesta?.clientNotes || 'No hay mensajes cargados todavía.'}</p>
-                <Button variant="outline" className="w-full rounded-2xl" asChild>
+                <Button variant="outline" className="w-full" asChild>
                   <a href={whatsappHref} target="_blank" rel="noopener noreferrer">Enviar mensaje</a>
                 </Button>
               </CardContent>
             </Card>
 
-            <Card className="rounded-3xl border-0 shadow-sm">
+            <Card className="border-0 shadow-sm">
               <CardHeader><CardTitle className="text-base flex items-center gap-2"><CheckCircle2 className="w-5 h-5" /> Tareas pendientes</CardTitle></CardHeader>
               <CardContent className="space-y-2">
                 {pendingTasks.length === 0 ? (
@@ -343,7 +345,7 @@ export default function PublicPortalProView({ fiesta, companyContact, companyNam
           </aside>
 
           <section className="space-y-4">
-            <Card className="rounded-3xl border-0 shadow-sm overflow-hidden">
+            <Card className="overflow-hidden border-0 shadow-sm">
               <CardHeader>
                 <CardTitle className="flex items-center gap-2"><CreditCard className="w-5 h-5" /> Pagos y documentos</CardTitle>
               </CardHeader>
@@ -359,8 +361,8 @@ export default function PublicPortalProView({ fiesta, companyContact, companyNam
                   </div>
                 )}
                 <div className="flex flex-wrap gap-2">
-                  <Button className="rounded-2xl" style={{ backgroundColor: eventColor }} onClick={() => setShowPagoModal(true)}>Hacer pago</Button>
-                  <Button variant="outline" className="rounded-2xl" onClick={() => setShowDocuments(current => !current)}>
+                  <Button variant="outline" onClick={() => setShowPagoModal(true)}>Hacer otro pago</Button>
+                  <Button variant="ghost" onClick={() => setShowDocuments(current => !current)}>
                     <FileText className="w-4 h-4 mr-2" /> {showDocuments ? 'Ocultar documentos' : 'Ver documentos'}
                   </Button>
                 </div>

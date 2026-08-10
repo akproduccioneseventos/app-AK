@@ -10,14 +10,15 @@ import { Label } from '@/components/ui/label';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from '@/components/ui/dialog';
 import { Textarea } from '@/components/ui/textarea';
-import { ArrowLeft, Loader2, Save, Users, UserCheck, AlertTriangle, Info, RefreshCw, UserPlus, Trash2, MessageCircle, Send, CalendarDays, History } from 'lucide-react';
-import { getEmpleados } from '@/app/actions/empleados';
+import { ArrowLeft, Loader2, Save, Users, UserCheck, AlertTriangle, Info, RefreshCw, UserPlus, Trash2, MessageCircle, Send, CalendarDays, History, Search } from 'lucide-react';
+import { getEmpleados, fiestasDelMismoDiaConEmpleado } from '@/app/actions/empleados';
 import { getRoles } from '@/app/actions/roles';
 import type { Empleado } from '@/types/empleado';
 import type { Rol } from '@/types/rol';
 import { useToast } from '@/hooks/use-toast';
 import type { PersonalAsignadoDetalleStorage, FiestaEnPlanificacion } from '@/types/fiesta';
 import { getFiestaById, updatePersonalFiestaActual } from '@/app/actions/fiesta-actual';
+import { retryPersonalGoogleSync } from '@/app/actions/fiesta/personal.actions';
 import { getPresupuestoById } from '@/app/actions/presupuestos';
 import { getFiestasByEmpleado } from '@/app/actions/personal-fiestas';
 import { Badge } from '@/components/ui/badge';
@@ -72,6 +73,9 @@ function AsignarPersonalEventoContent() {
   const [requiredRoles, setRequiredRoles] = useState<RequiredRole[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [isSaving, setIsSaving] = useState(false);
+  const [googleSyncWarning, setGoogleSyncWarning] = useState<string | null>(null);
+  const [isRetryingSync, setIsRetryingSync] = useState(false);
+  const [searchEmployee, setSearchEmployee] = useState('');
   const [error, setError] = useState<string | null>(null);
   const [currentFiesta, setCurrentFiesta] = useState<FiestaEnPlanificacion | null>(null);
 
@@ -100,6 +104,10 @@ function AsignarPersonalEventoContent() {
       const fiestaActual = await getFiestaById(fiestaId);
       if (!fiestaActual) throw new Error("Fiesta no encontrada");
       setCurrentFiesta(fiestaActual);
+      setAssignedStaff(fiestaActual.personalAsignado || []);
+      if (fiestaActual.googleSyncWarning) {
+        setGoogleSyncWarning(fiestaActual.googleSyncWarning);
+      }
 
       const [empleadosData, rolesData, presupuestoData] = await Promise.all([
         getEmpleados(),
@@ -205,12 +213,36 @@ function AsignarPersonalEventoContent() {
     try {
       const result = await updatePersonalFiestaActual(fiestaId, updatedStaff);
       if (!result.success) throw new Error(result.error || "No se pudo guardar automáticamente.");
+      if (result.googleSyncWarning) {
+        setGoogleSyncWarning(result.googleSyncWarning);
+      } else {
+        setGoogleSyncWarning(null);
+      }
       return true;
     } catch (error: any) {
       toast({ title: "Error en auto-guardado", description: error.message, variant: "destructive" });
       return false;
     } finally {
       setIsSaving(false);
+    }
+  };
+
+  const handleRetrySync = async () => {
+    if (!fiestaId) return;
+    setIsRetryingSync(true);
+    try {
+      const res = await retryPersonalGoogleSync(fiestaId);
+      if (res.success) {
+        setGoogleSyncWarning(null);
+        toast({ title: "Sincronización exitosa", description: "Se enviaron los correos de aviso al personal." });
+      } else {
+        setGoogleSyncWarning(res.warning || res.error || "No se pudo completar la sincronización.");
+        toast({ title: "Error al sincronizar", description: res.warning || res.error, variant: "destructive" });
+      }
+    } catch (e: any) {
+      toast({ title: "Error al reintentar", description: e.message, variant: "destructive" });
+    } finally {
+      setIsRetryingSync(false);
     }
   };
 
@@ -253,6 +285,31 @@ function AsignarPersonalEventoContent() {
     if (newlyAssignedEmpleadoId && currentFiesta) {
         const empleado = allEmpleados.find(e => e.id === newlyAssignedEmpleadoId);
         const rol = allRoles.find(r => r.id === rolId);
+
+        // Una persona no puede estar en dos salones a la vez. Si ya esta anotada
+        // en otra fiesta del mismo dia se avisa, pero no se bloquea: a veces son
+        // dos eventos en horarios distintos y el equipo sabe lo que hace.
+        const fecha = currentFiesta.configuracion?.fechaEvento;
+        if (empleado && fecha) {
+          fiestasDelMismoDiaConEmpleado(newlyAssignedEmpleadoId, fecha, currentFiesta.id)
+            .then(otras => {
+              if (otras.length === 0) return;
+              toast({
+                title: `${empleado.nombre} ya está anotado ese día`,
+                description: `También figura en ${otras.join(', ')}. Revisá que pueda estar en las dos.`,
+                variant: 'destructive',
+                duration: 10000,
+              });
+            })
+            .catch(() => {
+              toast({
+                title: 'Verificación de agenda no disponible',
+                description: `No pudimos verificar si ${empleado.nombre} ya está anotado en otro evento ese día.`,
+                variant: 'destructive',
+              });
+            });
+        }
+
         if (empleado && rol) {
             openWhatsAppDialog(empleado, rol.nombre, assignedSalary);
         }
@@ -374,7 +431,10 @@ Por favor confirmá tu asistencia respondiendo este mensaje.
   };
 
   const getEmployeesByRole = (roleId: string) => {
-      return allEmpleados.filter(e => e.rolIds?.includes(roleId));
+      return allEmpleados.filter(e => 
+        e.rolIds?.includes(roleId) &&
+        (!searchEmployee.trim() || e.nombre.toLowerCase().includes(searchEmployee.toLowerCase()))
+      );
   };
 
   const assignmentRows = useMemo(() => {
@@ -429,15 +489,49 @@ Por favor confirmá tu asistencia respondiendo este mensaje.
         <Button asChild variant="outline" disabled={isSaving}><Link href={`/fiestas/nueva?fiestaId=${fiestaId}`}><ArrowLeft className="w-4 h-4 mr-2" />Volver</Link></Button>
       </div>
 
+      {googleSyncWarning && (
+        <Card className="border-amber-300 bg-amber-50/90 shadow-sm">
+          <CardContent className="p-4 flex flex-col md:flex-row items-start md:items-center justify-between gap-3 text-amber-900">
+            <div className="flex items-start gap-3">
+              <AlertTriangle className="w-5 h-5 text-amber-600 shrink-0 mt-0.5" />
+              <div>
+                <p className="font-semibold text-sm">El aviso por correo al equipo no se pudo enviar automáticamente.</p>
+                <p className="text-xs text-amber-800 mt-0.5">{googleSyncWarning}</p>
+              </div>
+            </div>
+            <Button
+              size="sm"
+              variant="outline"
+              onClick={handleRetrySync}
+              disabled={isRetryingSync}
+              className="bg-white border-amber-300 text-amber-900 hover:bg-amber-100 shrink-0 gap-1.5"
+            >
+              {isRetryingSync ? <Loader2 className="w-3.5 h-3.5 animate-spin" /> : <RefreshCw className="w-3.5 h-3.5" />}
+              Reintentar aviso
+            </Button>
+          </CardContent>
+        </Card>
+      )}
+
       <Card className="shadow-lg">
         <CardHeader className="flex flex-row items-center justify-between">
-          <div>
-            <CardTitle className="font-headline">Lista de Personal por Rol</CardTitle>
-            <CardDescription>Asigna nombres a los puestos requeridos. Solo verás empleados capacitados para cada rol.</CardDescription>
-          </div>
-          <div className="flex items-center gap-2">
-            {isSaving && <Loader2 className="w-4 h-4 animate-spin text-primary"/>}
-            <Button variant="ghost" size="sm" onClick={() => fetchInitialData(true)}><RefreshCw className="w-4 h-4 mr-2"/>Sincronizar</Button>
+          <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 w-full">
+            <div className="flex flex-col">
+              <CardTitle className="font-headline">Asignación de Personal</CardTitle>
+              <CardDescription>Asigna nombres a los puestos requeridos. Solo verás empleados capacitados para cada rol.</CardDescription>
+            </div>
+            <div className="flex items-center gap-2 w-full sm:w-auto">
+              <div className="relative flex-1 sm:w-64">
+                <Search className="w-4 h-4 absolute left-2.5 top-2.5 text-muted-foreground" />
+                <Input
+                  placeholder="Buscar empleado por nombre..."
+                  value={searchEmployee}
+                  onChange={e => setSearchEmployee(e.target.value)}
+                  className="pl-9 h-9 text-xs rounded-xl"
+                />
+              </div>
+              <Button variant="ghost" size="sm" onClick={() => fetchInitialData(true)}><RefreshCw className="w-4 h-4 mr-2"/>Sincronizar</Button>
+            </div>
           </div>
         </CardHeader>
         <CardContent>

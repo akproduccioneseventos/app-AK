@@ -345,6 +345,17 @@ export function AppShell({ children }: { children: ReactNode }) {
               </h1>
             </div>
             <div className="flex shrink-0 items-center gap-2 sm:gap-3">
+              <Link href="/pagos-rapidos">
+                <Button variant="outline" size="sm" className="hidden md:flex gap-2 border-emerald-200 bg-emerald-50 text-emerald-700 hover:bg-emerald-100 hover:text-emerald-800 shadow-sm hover:shadow-md transition-all duration-300">
+                  <CircleDollarSign className="h-4 w-4" />
+                  <span className="font-semibold">Ingreso/Egreso Rápido</span>
+                </Button>
+              </Link>
+              <Link href="/pagos-rapidos" className="md:hidden">
+                <Button variant="outline" size="icon" className="h-10 w-10 rounded-full border-emerald-200 bg-emerald-50 text-emerald-700 hover:bg-emerald-100 shadow-sm hover:shadow-md transition-all duration-300">
+                  <CircleDollarSign className="h-4 w-4" />
+                </Button>
+              </Link>
               <NotificationsHub />
               <DropdownMenu>
                 <DropdownMenuTrigger asChild>

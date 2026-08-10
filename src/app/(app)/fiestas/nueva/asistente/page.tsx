@@ -72,8 +72,8 @@ function FiestaAgentContent() {
           </div>
           <div>
             <Badge className="mb-3 bg-red-600 text-white">Agente por fiesta</Badge>
-            <h1 className="text-3xl font-black tracking-tight text-slate-950">Asistente de esta fiesta</h1>
-            <p className="mt-2 max-w-3xl text-sm font-medium leading-6 text-slate-600">
+            <h1 className="text-3xl font-black tracking-tight text-foreground">Asistente de esta fiesta</h1>
+            <p className="mt-2 max-w-3xl text-sm font-medium leading-6 text-muted-foreground">
               Este agente trabaja solo con la fiesta abierta. Revisa pendientes, riesgos, tareas, pagos, invitados, catering, decoración, música, fotografía y aprendizajes del evento.
             </p>
           </div>
@@ -97,7 +97,7 @@ function FiestaAgentContent() {
             key={prompt}
             type="button"
             onClick={() => askAgent(prompt)}
-            className="rounded-2xl border border-red-100 bg-white p-4 text-left text-sm font-bold text-slate-800 shadow-sm transition hover:-translate-y-0.5 hover:border-red-200 hover:bg-red-50"
+            className="rounded-2xl border border-red-100 bg-card p-4 text-left text-sm font-bold text-foreground shadow-sm transition hover:-translate-y-0.5 hover:border-red-200 hover:bg-red-50"
           >
             <Sparkles className="mb-3 h-5 w-5 text-red-600" />
             {prompt}
@@ -105,18 +105,18 @@ function FiestaAgentContent() {
         ))}
       </div>
 
-      <Card className="rounded-3xl border-red-100 bg-white shadow-xl shadow-red-900/5">
+      <Card className="rounded-3xl border-red-100 bg-card shadow-xl shadow-red-900/5">
         <CardHeader className="border-b border-red-50">
           <CardTitle className="flex items-center gap-2 text-xl font-black">
             <Bot className="h-5 w-5 text-red-600" /> Conversación con el agente
           </CardTitle>
         </CardHeader>
         <CardContent className="space-y-4 p-4">
-          <div className="min-h-[360px] space-y-3 rounded-2xl bg-slate-50 p-4">
+          <div className="min-h-[360px] space-y-3 rounded-2xl bg-muted/30 p-4">
             {messages.length === 0 && (
-              <div className="flex h-[320px] flex-col items-center justify-center text-center text-slate-500">
+              <div className="flex h-[320px] flex-col items-center justify-center text-center text-muted-foreground">
                 <Brain className="mb-4 h-10 w-10 text-red-500" />
-                <p className="font-black text-slate-800">Todavía no hablamos de esta fiesta.</p>
+                <p className="font-black text-foreground">Todavía no hablamos de esta fiesta.</p>
                 <p className="mt-1 max-w-md text-sm">Tocá una sugerencia de arriba o escribime qué querés revisar.</p>
               </div>
             )}
@@ -125,7 +125,7 @@ function FiestaAgentContent() {
               <div key={message.id} className={message.role === 'user' ? 'flex justify-end' : 'flex justify-start'}>
                 <div className={message.role === 'user'
                   ? 'max-w-[84%] rounded-2xl bg-red-600 px-4 py-3 text-sm leading-6 text-white'
-                  : 'max-w-[84%] rounded-2xl border border-slate-200 bg-white px-4 py-3 text-sm leading-6 text-slate-800 shadow-sm'}>
+                  : 'max-w-[84%] rounded-2xl border border-border bg-card px-4 py-3 text-sm leading-6 text-foreground shadow-sm'}>
                   {message.role === 'assistant' && message.agentName && (
                     <p className="mb-1 text-[11px] font-black uppercase tracking-wide text-red-600">{message.agentName}</p>
                   )}
@@ -136,7 +136,7 @@ function FiestaAgentContent() {
 
             {isSending && (
               <div className="flex justify-start">
-                <div className="flex items-center gap-2 rounded-2xl border border-slate-200 bg-white px-4 py-3 text-sm font-semibold text-slate-500 shadow-sm">
+                <div className="flex items-center gap-2 rounded-2xl border border-border bg-card px-4 py-3 text-sm font-semibold text-muted-foreground shadow-sm">
                   <Loader2 className="h-4 w-4 animate-spin" /> Revisando fiesta...
                 </div>
               </div>
@@ -148,7 +148,7 @@ function FiestaAgentContent() {
               value={input}
               onChange={event => setInput(event.target.value)}
               placeholder="Ejemplo: decime qué falta antes del evento..."
-              className="min-h-[52px] resize-none rounded-2xl bg-slate-50 border-none text-slate-900 placeholder-slate-400 focus-visible:ring-red-500 shadow-inner"
+              className="min-h-[52px] resize-none rounded-2xl bg-muted/30 border-none text-foreground placeholder-muted-foreground focus-visible:ring-red-500 shadow-inner"
               onKeyDown={event => {
                 if (event.key === 'Enter' && !event.shiftKey) {
                   event.preventDefault();

@@ -26,6 +26,7 @@ import { useSearchParams, useRouter } from 'next/navigation';
 import { getPresupuestos, getPresupuestoById } from '@/app/actions/presupuestos';
 import { useAutoSave } from '@/hooks/use-auto-save';
 import { AutoSaveIndicator } from '@/components/ui/auto-save-indicator';
+import { validarCambioDeInvitados } from '@/lib/budget/cambio-de-invitados';
 
 interface ConfigFormState extends Omit<ConfigEventoDataStorage, 'fechaEvento' | 'clienteId'> {
   fechaEvento?: Date;
@@ -48,6 +49,7 @@ function ConfiguracionEventoContent() {
   const [allPresupuestos, setAllPresupuestos] = useState<Presupuesto[]>([]);
   const [linkedPresupuestoId, setLinkedPresupuestoId] = useState<string | undefined>(undefined);
   const [isSyncingPresupuesto, setIsSyncingPresupuesto] = useState(false);
+  const [invitadosContratados, setInvitadosContratados] = useState(0);
   const [isLoading, setIsLoading] = useState(true);
   const [isLoadingCustomers, setIsLoadingCustomers] = useState(true);
 
@@ -80,6 +82,7 @@ function ConfiguracionEventoContent() {
         fechaEvento: (fiesta.configuracion?.fechaEvento) ? new Date(fiesta.configuracion.fechaEvento) : (defaultEventConfigFromFiesta.fechaEvento ? new Date(defaultEventConfigFromFiesta.fechaEvento) : undefined),
         clienteId: fiesta.configuracion?.clienteId || undefined,
       };
+      const cantidadContratada = Number(fiesta.configuracion?.invitadosEstimados) || 0;
 
       // Intentar sincronizar con presupuesto si existe
       if (fiesta.presupuestoId) {
@@ -104,6 +107,7 @@ function ConfiguracionEventoContent() {
         }
       }
       setConfig(tempConfig);
+      setInvitadosContratados(cantidadContratada);
 
     } catch (error) {
       console.error("Error loading event configuration or customers:", error);
@@ -276,6 +280,20 @@ function ConfiguracionEventoContent() {
       ? config.tipoCelebracion
       : (config.tipoCelebracion && config.tipoCelebracion.trim() !== "" ? "Otro" : "");
 
+  const fechaEventoContrato = config.fechaEvento
+    ? `${config.fechaEvento.getFullYear()}-${String(config.fechaEvento.getMonth() + 1).padStart(2, '0')}-${String(config.fechaEvento.getDate()).padStart(2, '0')}`
+    : undefined;
+  const veredictoInvitados = validarCambioDeInvitados({
+    contratados: invitadosContratados,
+    nuevos: Number(config.invitadosEstimados) || 0,
+    fechaDelEvento: fechaEventoContrato,
+  });
+  const estiloVeredicto = veredictoInvitados.nivel === 'ok'
+    ? 'border-accent/30 bg-accent/10 text-accent'
+    : veredictoInvitados.nivel === 'atencion'
+      ? 'border-amber-300 bg-amber-50 text-amber-900 dark:border-amber-400/40 dark:bg-amber-400/10 dark:text-amber-100'
+      : 'border-destructive/30 bg-destructive/10 text-destructive';
+
   return (
     <div className="max-w-3xl mx-auto space-y-6">
       <div className="flex items-center justify-between">
@@ -290,6 +308,20 @@ function ConfiguracionEventoContent() {
             </Link></Button>
         </div>
       </div>
+
+      {saveError && (
+        <div className="bg-destructive/10 border border-destructive/30 text-destructive p-4 rounded-xl flex items-start gap-3">
+          <AlertTriangle className="w-5 h-5 mt-0.5 shrink-0 text-destructive" />
+          <div>
+            <p className="font-bold text-sm">Error al guardar los cambios</p>
+            <p className="text-sm mt-1">{saveError}</p>
+            <p className="text-xs mt-2 opacity-80">Por favor, revisá tu conexión a internet o intentá guardar manualmente antes de salir de esta página para no perder tu trabajo.</p>
+            <Button onClick={() => saveNow()} variant="outline" size="sm" className="mt-3 bg-card border-destructive/30 text-destructive hover:bg-destructive/10">
+              Reintentar Guardado
+            </Button>
+          </div>
+        </div>
+      )}
 
       <form onSubmit={handleSubmit}>
         <Card className="shadow-lg">
@@ -426,7 +458,18 @@ function ConfiguracionEventoContent() {
               <div className="space-y-2"><Label htmlFor="google-maps-url" className="text-base">Link Google Maps</Label><Input id="google-maps-url" type="url" value={config.googleMapsUrl || ''} onChange={(e) => handleChange('googleMapsUrl', e.target.value)} placeholder="https://maps.google.com/..." className="text-base p-3" disabled={isSaving}/></div>
             </div>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                <div className="space-y-2"><Label htmlFor="invitados-estimados" className="text-base">Nº Estimado de Invitados</Label><Input id="invitados-estimados" type="number" value={config.invitadosEstimados === undefined || config.invitadosEstimados === null ? '' : String(config.invitadosEstimados)} onChange={(e) => handleChange('invitadosEstimados', e.target.value === '' ? '' : parseInt(e.target.value, 10))} placeholder="Ej: 100" min="0" className="text-base p-3" disabled={isSaving}/></div>
+                <div className="space-y-2">
+                  <Label htmlFor="invitados-estimados" className="text-base">Nº Estimado de Invitados</Label>
+                  <Input id="invitados-estimados" type="number" value={config.invitadosEstimados === undefined || config.invitadosEstimados === null ? '' : String(config.invitadosEstimados)} onChange={(e) => handleChange('invitadosEstimados', e.target.value === '' ? '' : parseInt(e.target.value, 10))} placeholder="Ej: 100" min="0" className="text-base p-3" disabled={isSaving}/>
+                  <div className={`rounded-xl border p-3 text-sm ${estiloVeredicto}`} role="status" aria-live="polite">
+                    <p className="font-bold">
+                      {invitadosContratados > 0
+                        ? `Rango del contrato: entre ${veredictoInvitados.minimoPermitido} y ${veredictoInvitados.maximoPermitido} invitados.`
+                        : 'Rango del contrato: todavía no definido.'}
+                    </p>
+                    <p className="mt-1">{veredictoInvitados.mensaje}</p>
+                  </div>
+                </div>
                  <div className="space-y-2"><Label htmlFor="presupuesto-estimado" className="text-base">Presupuesto Total Pactado (UYU)</Label><Input id="presupuesto-estimado" type="number" value={config.presupuestoEstimado === undefined || config.presupuestoEstimado === null ? '' : String(config.presupuestoEstimado)} onChange={(e) => handleChange('presupuestoEstimado', e.target.value === '' ? '' : parseFloat(e.target.value))} placeholder="Ej: 500000" min="0" step="any" className="text-base p-3" disabled={isSaving}/></div>
             </div>
             <div className="space-y-2"><Label htmlFor="notas-adicionales-config" className="text-base">Notas Adicionales</Label><Textarea id="notas-adicionales-config" value={config.notesAdicionales || ''} onChange={(e) => handleChange('notesAdicionales', e.target.value)} placeholder="Cualquier otro detalle importante." rows={3} className="text-base p-3" disabled={isSaving}/></div>

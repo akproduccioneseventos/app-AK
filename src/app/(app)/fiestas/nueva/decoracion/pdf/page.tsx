@@ -186,32 +186,49 @@ function DecorationPdfPageContent() {
           </section>
         ) : (
             <div className="space-y-4 print:space-y-2">
-              <section className="grid grid-cols-2 gap-4 text-sm print:text-xs">
-                <div><span className="font-semibold">Tema:</span> {decoracion?.tema || 'No definido'}</div>
-                <div className="flex items-center gap-2"><span className="font-semibold">Paleta:</span>
-                  <div className="w-4 h-4 rounded-full border shadow-sm" style={{backgroundColor: decoracion?.paletaColores?.primary}}></div>
-                  <div className="w-4 h-4 rounded-full border shadow-sm" style={{backgroundColor: decoracion?.paletaColores?.secondary}}></div>
-                  <div className="w-4 h-4 rounded-full border shadow-sm" style={{backgroundColor: decoracion?.paletaColores?.accent}}></div>
+              {!(decoracion?.tema || decoracion?.paletaColores?.primary || decoracion?.moodboardImageUrl || Object.keys(itemsDecoracionAgrupados).length > 0 || (decoracion?.zonasContratadas || []).some(z => z.activada) || decoracion?.decoracionTorta?.descripcion || decoracion?.pdfNotasAdicionales) ? (
+                <div className="py-12 px-6 text-center border-2 border-dashed border-slate-200 rounded-2xl my-4 bg-slate-50/50">
+                  <Palette className="w-10 h-10 text-primary/50 mx-auto mb-3" />
+                  <h3 className="text-base font-bold text-slate-800">Sin detalles de decoración cargados</h3>
+                  <p className="text-xs text-slate-500 max-w-md mx-auto mt-1 mb-4">
+                    Todavía no se especificaron el estilo, la paleta de colores ni los ítems de ambientación para esta fiesta.
+                  </p>
+                  <Button asChild variant="outline" size="sm" className="rounded-xl print:hidden">
+                    <Link href={`/fiestas/nueva/decoracion?fiestaId=${fiesta.id}`}>
+                      Ir a Cargar Decoración
+                    </Link>
+                  </Button>
                 </div>
-              </section>
-              {decoracion?.moodboardImageUrl && (
-                <section className="mb-2 print:break-inside-avoid">
-                  <h2 className="font-semibold text-gray-800 text-sm mb-1">Moodboard General</h2>
-                  {/* eslint-disable-next-line @next/next/no-img-element */}
-                  <img src={decoracion.moodboardImageUrl} alt="Moodboard" className="max-w-full h-auto rounded-md border" data-ai-hint="event moodboard inspiration"/>
-                </section>
+              ) : (
+                <>
+                  <section className="grid grid-cols-2 gap-4 text-sm print:text-xs">
+                    <div><span className="font-semibold">Tema:</span> {decoracion?.tema || 'No definido'}</div>
+                    <div className="flex items-center gap-2"><span className="font-semibold">Paleta:</span>
+                      <div className="w-4 h-4 rounded-full border shadow-sm" style={{backgroundColor: decoracion?.paletaColores?.primary}}></div>
+                      <div className="w-4 h-4 rounded-full border shadow-sm" style={{backgroundColor: decoracion?.paletaColores?.secondary}}></div>
+                      <div className="w-4 h-4 rounded-full border shadow-sm" style={{backgroundColor: decoracion?.paletaColores?.accent}}></div>
+                    </div>
+                  </section>
+                  {decoracion?.moodboardImageUrl && (
+                    <section className="mb-2 print:break-inside-avoid">
+                      <h2 className="font-semibold text-gray-800 text-sm mb-1">Moodboard General</h2>
+                      {/* eslint-disable-next-line @next/next/no-img-element */}
+                      <img src={decoracion.moodboardImageUrl} alt="Moodboard" className="max-w-full h-auto rounded-md border" data-ai-hint="event moodboard inspiration"/>
+                    </section>
+                  )}
+                  {Object.entries(itemsDecoracionAgrupados).map(([categoria, items]) => (
+                    <section key={categoria} className="mb-2 print:break-inside-avoid"><h2 className="text-lg font-semibold text-gray-800 print:text-base border-b mb-2 pb-1">{categoria}</h2><ul className="space-y-1 list-disc list-inside pl-2">{items.map(item => <li key={item.id} className="text-sm print:text-xs">{item.quantity}x {item.name} {item.notes ? `- ${item.notes}` : ''}</li>)}</ul></section>
+                  ))}
+                  {(decoracion?.zonasContratadas || []).filter(z => z.activada).length > 0 && <section className="mb-2 print:break-inside-avoid"><h2 className="text-lg font-semibold text-gray-800 print:text-base border-b mb-2 pb-1">Zonas Decorativas Específicas</h2>
+                      <div className="space-y-2">{decoracion!.zonasContratadas!.filter(z => z.activada).map(zona => {
+                          const Icono = getZonaIcon(zona.id);
+                          return (<div key={zona.id}><h3 className="font-medium text-sm flex items-center gap-2"><Icono className="w-4 h-4 text-primary"/>{zona.nombreDisplay}</h3><p className="text-xs text-muted-foreground pl-6">{zona.descripcion || 'Sin descripción detallada.'}</p></div>)
+                      })}</div>
+                  </section>}
+                  {decoracion?.decoracionTorta?.descripcion && <section className="mb-2 print:break-inside-avoid"><h2 className="text-lg font-semibold text-gray-800 print:text-base border-b mb-2 pb-1">Decoración de Torta</h2><p className="text-sm print:text-xs">{decoracion.decoracionTorta.descripcion}</p></section>}
+                  {decoracion?.pdfNotasAdicionales && <section className="mt-4 pt-2 border-t print:break-before-page print:break-inside-avoid"><h2 className="text-lg font-semibold text-gray-800 print:text-base mb-1 flex items-center gap-2"><StickyNote className="w-5 h-5 text-primary"/>Notas Adicionales</h2><p className="text-sm print:text-xs whitespace-pre-wrap">{decoracion.pdfNotasAdicionales}</p></section>}
+                </>
               )}
-              {Object.entries(itemsDecoracionAgrupados).map(([categoria, items]) => (
-                <section key={categoria} className="mb-2 print:break-inside-avoid"><h2 className="text-lg font-semibold text-gray-800 print:text-base border-b mb-2 pb-1">{categoria}</h2><ul className="space-y-1 list-disc list-inside pl-2">{items.map(item => <li key={item.id} className="text-sm print:text-xs">{item.quantity}x {item.name} {item.notes ? `- ${item.notes}` : ''}</li>)}</ul></section>
-              ))}
-              {(decoracion?.zonasContratadas || []).filter(z => z.activada).length > 0 && <section className="mb-2 print:break-inside-avoid"><h2 className="text-lg font-semibold text-gray-800 print:text-base border-b mb-2 pb-1">Zonas Decorativas Específicas</h2>
-                  <div className="space-y-2">{decoracion!.zonasContratadas!.filter(z => z.activada).map(zona => {
-                      const Icono = getZonaIcon(zona.id);
-                      return (<div key={zona.id}><h3 className="font-medium text-sm flex items-center gap-2"><Icono className="w-4 h-4 text-primary"/>{zona.nombreDisplay}</h3><p className="text-xs text-muted-foreground pl-6">{zona.descripcion || 'Sin descripción detallada.'}</p></div>)
-                  })}</div>
-              </section>}
-              {decoracion?.decoracionTorta?.descripcion && <section className="mb-2 print:break-inside-avoid"><h2 className="text-lg font-semibold text-gray-800 print:text-base border-b mb-2 pb-1">Decoración de Torta</h2><p className="text-sm print:text-xs">{decoracion.decoracionTorta.descripcion}</p></section>}
-              {decoracion?.pdfNotasAdicionales && <section className="mt-4 pt-2 border-t print:break-before-page print:break-inside-avoid"><h2 className="text-lg font-semibold text-gray-800 print:text-base mb-1 flex items-center gap-2"><StickyNote className="w-5 h-5 text-primary"/>Notas Adicionales</h2><p className="text-sm print:text-xs whitespace-pre-wrap">{decoracion.pdfNotasAdicionales}</p></section>}
             </div>
         )}
         <footer className="mt-8 pt-4 border-t text-center text-xs text-gray-400 print:mt-5 print:pt-2 print:border-gray-300"><p>Documento generado por {companyName} el: {new Date().toLocaleString('es-ES')}</p></footer>

@@ -327,7 +327,9 @@ function PagosRapidosContent() {
       const activeStates = ['Aceptado', 'Facturado'];
       setPresupuestos(
         allPresupuestos
-          .filter(p => activeStates.includes(p.estado))
+          // Un presupuesto archivado es un borrado blando: no va en la lista de
+          // cobros aunque su estado siga siendo Aceptado o Facturado.
+          .filter(p => activeStates.includes(p.estado) && !p.archived)
           .sort((a, b) => a.clienteNombre.localeCompare(b.clienteNombre))
       );
       setPendingPresupuestos(pendientes);
@@ -541,6 +543,12 @@ function PagosRapidosContent() {
               {filteredPresupuestos.map(p => {
                 const summary = getPresupuestoSummary(p);
                 const isExpanded = expandedId === p.id;
+                // El saldo cuenta solo los pagos confirmados. Si el cliente
+                // informo uno y todavia no se aprobo, el saldo no se movia y
+                // parecia un error del sistema. Ahora se avisa aparte.
+                const informadoSinConfirmar = (p.pagosCliente ?? [])
+                  .filter(pago => pago.estadoPago === 'pendiente_confirmacion')
+                  .reduce((total, pago) => total + (pago.monto || 0), 0);
 
                 return (
                   <Card key={p.id} className="border-slate-100 shadow-md rounded-2xl overflow-hidden">
@@ -568,6 +576,11 @@ function PagosRapidosContent() {
                         <p className="text-[10px] text-slate-400 font-medium">
                           {summary.saldoPendiente > 0 ? 'pendiente' : ''}
                         </p>
+                        {informadoSinConfirmar > 0 && (
+                          <p className="text-[10px] font-bold text-amber-600">
+                            + {formatCurrency(informadoSinConfirmar)} sin confirmar
+                          </p>
+                        )}
                       </div>
                       {isExpanded ? <ChevronUp className="w-5 h-5 text-slate-300 shrink-0" /> : <ChevronDown className="w-5 h-5 text-slate-300 shrink-0" />}
                     </button>
@@ -615,7 +628,8 @@ function PagosRapidosContent() {
                                 <p className="text-[9px] font-black uppercase text-muted-foreground tracking-widest">Pagos anteriores</p>
                                 <div className="space-y-1.5">
                                   {(p.pagosCliente || []).map(pago => (
-                                    <div key={pago.id} className="flex items-center gap-2 text-xs bg-slate-50 rounded-lg p-2.5">
+                                    <div key={pago.id}>
+                                    <div className="flex items-center gap-2 text-xs bg-slate-50 rounded-lg p-2.5">
                                       <MetodoPagoIcon metodo={pago.metodoPago} />
                                       <span className="flex-1 text-slate-600">{formatDate(pago.fecha)}</span>
                                       <span className={cn(
@@ -628,6 +642,13 @@ function PagosRapidosContent() {
                                       {pago.estadoPago === 'rechazado' && (
                                         <Badge className="bg-red-100 text-red-700 text-[8px]">Rechazado</Badge>
                                       )}
+                                    </div>
+                                    {/* El motivo estaba guardado pero no se
+                                        mostraba: habia que abrir otra pantalla
+                                        para saber por que se rechazo. */}
+                                    {pago.estadoPago === 'rechazado' && pago.motivoRechazo && (
+                                      <p className="text-[10px] text-red-600 pl-1 pb-1">Motivo: {pago.motivoRechazo}</p>
+                                    )}
                                     </div>
                                   ))}
                                 </div>

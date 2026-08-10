@@ -151,11 +151,14 @@ function visibleClientModules(fiesta: FiestaEnPlanificacion): number {
 }
 
 function countConfirmedGuests(fiesta: FiestaEnPlanificacion): number {
+  // Cuenta PERSONAS, no filas: un invitado con acompanantes son varios.
   const guests = fiesta.invitados ?? [];
-  return guests.filter((guest) => {
-    const rsvp = String(asRecord(guest).rsvp ?? '').toLowerCase();
-    return rsvp.includes('confirm') || rsvp === 'si' || rsvp === 'sí';
-  }).length;
+  return guests
+    .filter((guest) => {
+      const rsvp = String(asRecord(guest).rsvp ?? '').toLowerCase();
+      return rsvp.includes('confirm') || rsvp === 'si' || rsvp === 'sí';
+    })
+    .reduce((total, guest) => total + (Number(asRecord(guest).partySize) || 1), 0);
 }
 
 function countRejectedGuests(fiesta: FiestaEnPlanificacion): number {

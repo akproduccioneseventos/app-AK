@@ -67,6 +67,7 @@ import { Checkbox } from '@/components/ui/checkbox';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
+import { EmptyState } from '@/components/ui/empty-state';
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '@/components/ui/accordion';
 import { cn } from '@/lib/utils';
 import { getPaymentPlanSummary } from '@/lib/budget/payment-summary';
@@ -164,11 +165,11 @@ function EventCountdown({ fechaEvento }: { fechaEvento: string }) {
   }, [fechaEvento]);
 
   return (
-    <div className="grid grid-cols-4 gap-3 text-center">
+    <div className="grid grid-cols-2 gap-3 text-center sm:grid-cols-4">
       {Object.entries(timeLeft).map(([k, v]) => (
-        <div key={k} className="rounded-lg bg-black/25 px-2 py-3 backdrop-blur-sm">
+        <div key={k} className="rounded-xl border border-primary-foreground/20 bg-background/20 px-2 py-3 backdrop-blur-sm">
           <div className="text-2xl sm:text-3xl font-black tabular-nums">{String(v).padStart(2, '0')}</div>
-          <div className="text-[10px] opacity-70 uppercase tracking-wider">{k}</div>
+          <div className="text-xs font-semibold uppercase tracking-wider opacity-80">{k}</div>
         </div>
       ))}
     </div>
@@ -566,7 +567,11 @@ function ClientPortalContent() {
           {settings.checklist.visible && (
             <PortalSection title="Checklist del Cliente" icon={CheckSquare}>
               {checklistItems.length === 0 ? (
-                <p className="text-sm text-muted-foreground">No hay tareas cargadas todavía.</p>
+                <EmptyState
+                  icon={<CheckSquare className="h-8 w-8" />}
+                  title="Tu checklist todavía está vacío"
+                  description="AK va a publicar acá las tareas que necesiten de tu confirmación. No tenés nada pendiente por ahora."
+                />
               ) : (
                 <div className="grid gap-3">
                   {checklistItems.map((task) => (
@@ -589,7 +594,11 @@ function ClientPortalContent() {
           {settings.itinerario.visible && (
             <PortalSection title="Itinerario del Evento" icon={Clock3}>
               {itinerario.length === 0 ? (
-                <p className="text-sm text-muted-foreground">Aún no se cargó el cronograma.</p>
+                <EmptyState
+                  icon={<Clock3 className="h-8 w-8" />}
+                  title="El cronograma está en preparación"
+                  description="AK lo publicará cuando estén confirmados los horarios principales del evento."
+                />
               ) : (
                 <div className="space-y-4">
                   {itinerario.map((item) => (
@@ -645,7 +654,11 @@ function ClientPortalContent() {
                   ))}
                 </div>
               ) : (
-                <p className="text-sm text-muted-foreground">No hay tragos cargados todavía.</p>
+                <EmptyState
+                  icon={<GlassWater className="h-8 w-8" />}
+                  title="La carta de tragos todavía no está publicada"
+                  description="AK la agregará cuando la selección de bebidas quede definida."
+                />
               )}
             </PortalSection>
           )}
@@ -653,7 +666,11 @@ function ClientPortalContent() {
           {settings.calculadoraBebidas.visible && (
             <PortalSection title="Calculadora de Bebidas y Extras" icon={GlassWater}>
               {bebidaItems.length === 0 ? (
-                <p className="text-sm text-muted-foreground">No hay ítems configurados.</p>
+                <EmptyState
+                  icon={<GlassWater className="h-8 w-8" />}
+                  title="No hay bebidas para calcular todavía"
+                  description="AK debe configurar primero los consumos por persona. Después vas a ver acá las cantidades estimadas."
+                />
               ) : (
                 <div className="space-y-2">
                   {bebidaItems.filter((item) => item.visible).map((item) => {
@@ -684,7 +701,11 @@ function ClientPortalContent() {
                   ))}
                 </div>
               ) : (
-                <p className="text-sm text-muted-foreground">No hay un presupuesto vinculado con servicios detallados.</p>
+                <EmptyState
+                  icon={<Package className="h-8 w-8" />}
+                  title="Los servicios todavía no están vinculados"
+                  description="AK debe asociar el presupuesto del evento para que puedas revisar acá todo lo contratado."
+                />
               )}
             </PortalSection>
           )}
@@ -831,7 +852,11 @@ function ClientPortalContent() {
                   })}
                 </div>
               ) : (
-                <p className="text-sm text-muted-foreground">No hay moodboard cargado todavía.</p>
+                <EmptyState
+                  icon={<Palette className="h-8 w-8" />}
+                  title="El moodboard está en preparación"
+                  description="Cuando AK cargue las referencias de decoración vas a poder revisarlas desde esta sección."
+                />
               )}
             </PortalSection>
           )}
@@ -848,7 +873,11 @@ function ClientPortalContent() {
                   ))}
                 </Accordion>
               ) : (
-                <p className="text-sm text-muted-foreground">No hay preguntas cargadas.</p>
+                <EmptyState
+                  icon={<HelpCircle className="h-8 w-8" />}
+                  title="Todavía no hay preguntas frecuentes"
+                  description="AK publicará acá las respuestas importantes para organizar tu evento."
+                />
               )}
             </PortalSection>
           )}
@@ -918,8 +947,12 @@ export default function ClientPortalPage() {
   return (
     <Suspense
       fallback={
-        <div className="ak-public-page grid min-h-screen place-items-center">
-          <Loader2 className="w-12 h-12 animate-spin text-primary" />
+        <div className="ak-public-page grid min-h-screen place-items-center px-6">
+          <div className="flex flex-col items-center gap-3 text-center" role="status" aria-live="polite">
+            <Loader2 className="h-12 w-12 animate-spin text-primary" />
+            <p className="font-semibold text-foreground">Estamos abriendo tu portal…</p>
+            <p className="text-sm text-muted-foreground">Enseguida vas a ver la información de tu evento.</p>
+          </div>
         </div>
       }
     >

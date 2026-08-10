@@ -30,6 +30,7 @@ import {
   DialogClose,
 } from "@/components/ui/dialog";
 import { Badge } from '@/components/ui/badge';
+import { getGuestAdultsCount, getGuestKidsCount } from '@/lib/fiesta/guest-counts';
 
 function AsignacionMesasContent() {
   const searchParams = useSearchParams();
@@ -100,8 +101,8 @@ function AsignacionMesasContent() {
   const totalContractedAdults = fiesta ? Number(fiesta.configuracion.invitadosAdultos) || 0 : 0;
   const totalContractedKids = fiesta ? Number(fiesta.configuracion.invitadosNinos) || 0 : 0;
   
-  const currentTotalAdults = fiesta?.invitados?.reduce((sum, inv) => sum + (inv.categoria === 'Adulto' ? (inv.partySize || 1) : 0), 0) || 0;
-  const currentTotalKids = fiesta?.invitados?.reduce((sum, inv) => sum + (inv.categoria === 'Niño/Adolescente' ? (inv.partySize || 1) : 0), 0) || 0;
+  const currentTotalAdults = fiesta?.invitados?.reduce((sum, inv) => sum + getGuestAdultsCount(inv), 0) || 0;
+  const currentTotalKids = fiesta?.invitados?.reduce((sum, inv) => sum + getGuestKidsCount(inv), 0) || 0;
 
   const handleAddGuest = async (e: React.FormEvent) => {
     e.preventDefault();

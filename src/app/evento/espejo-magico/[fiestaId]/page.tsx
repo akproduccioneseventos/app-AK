@@ -1,6 +1,6 @@
 'use client';
 
-import { useCallback, useState, useEffect, useRef } from 'react';
+import { useCallback, useState, useEffect, useMemo, useRef } from 'react';
 import { useParams, useRouter, useSearchParams } from 'next/navigation';
 import { motion, AnimatePresence } from 'framer-motion';
 import {
@@ -18,8 +18,11 @@ import {
   FileImage,
   Radio,
   Zap,
+  Printer,
 } from 'lucide-react';
-import { QRCodeSVG } from 'qrcode.react';
+import { QrRecuerdo } from '@/components/entretenimiento/QrRecuerdo';
+import { imprimirRecuerdo } from '@/lib/entretenimiento/imprimir-recuerdo';
+import { AvisoDeFallaEnEstacion } from '@/components/entretenimiento/AvisoDeFallaEnEstacion';
 import {
   getPublicEntertainmentEvent,
   uploadEntretenimientoMedia,
@@ -37,7 +40,7 @@ import { PublicEntertainmentEventStatus } from '@/components/entertainment/publi
 import { KioskUnlockButton } from '@/components/kiosk/kiosk-unlock-button';
 import { isVideoFrameReady } from '@/lib/entertainment/camera-readiness';
 import { waitForInitialPublicLoad } from '@/lib/public-experience/wait-for-initial-public-load';
-import { applyEspejoFaceSwap } from '@/app/actions/espejo-magico-ai';
+import { applyEspejoFaceSwap, isEspejoIaDisponible } from '@/app/actions/espejo-magico-ai';
 import {
   ESPEJO_TEMPLATES,
   FACESWAP_CATEGORIES,
@@ -65,6 +68,7 @@ const MODE_COPY = {
     doneLabel: 'Foto lista',
     author: 'Espejo Mágico Foto',
     review: 'La foto se envía automáticamente al muro de la fiesta.',
+    reviewStandalone: 'Revisá la foto antes de guardarla en la galería.',
   },
   firma: {
     eyebrow: 'Firma y stickers',
@@ -75,6 +79,7 @@ const MODE_COPY = {
     doneLabel: 'Foto firmada',
     author: 'Espejo Mágico Firma',
     review: 'Firma o dibujá sobre la foto y después subila al muro.',
+    reviewStandalone: 'Firma o dibujá sobre la foto y después guardala.',
   },
   ia: {
     eyebrow: 'Face Swap IA',
@@ -85,6 +90,7 @@ const MODE_COPY = {
     doneLabel: 'Avatar listo',
     author: 'Face Swap IA',
     review: 'Podés firmar el resultado o subirlo directo al muro.',
+    reviewStandalone: 'Podés firmar el resultado o guardarlo directo.',
   },
 } as const;
 
@@ -114,6 +120,7 @@ export default function EspejoMagicoPage() {
 
   const [facingMode, setFacingMode] = useState<'user' | 'environment'>('user');
   const [selectedFilter, setSelectedFilter] = useState(FILTERS[0]);
+  const [photoSessionId, setPhotoSessionId] = useState<string>(() => `sess_${Date.now()}_${Math.random().toString(36).substring(2, 7)}`);
 
   const [stickers, setStickers] = useState<{ id: string; emoji: string; x: number; y: number }[]>([]);
   const [draggingId, setDraggingId] = useState<string | null>(null);
@@ -138,22 +145,48 @@ export default function EspejoMagicoPage() {
 
   const [isUploading, setIsUploading] = useState(false);
   const [errorMsg, setErrorMsg] = useState<string | null>(null);
+  // null = todavia no se pregunto. Solo le interesa al operador, para saber
+  // antes de abrir la fila si la estacion va a transformar las fotos o las va a
+  // devolver tal cual.
+  const [iaDisponible, setIaDisponible] = useState<boolean | null>(null);
   const [consentAccepted, setConsentAccepted] = useState(false);
+
+  const [fiesta, setFiesta] = useState<PublicEntertainmentEvent | null>(null);
+
+  /**
+   * Estilos que se le ofrecen al invitado en ESTA fiesta.
+   *
+   * Si la fiesta no eligio ninguno en particular, se ofrecen todos, que es como
+   * venia funcionando. Curar la lista importa: en un cumpleanos de nenes no
+   * viene al caso el agente secreto de esmoquin, y ofrecerle cuarenta opciones
+   * a un chico de siete lo marea en vez de entusiasmarlo.
+   */
+  const plantillasHabilitadas = useMemo(() => {
+    const permitidas = fiesta?.station?.allowedTemplateIds ?? [];
+    const todas = Object.values(ESPEJO_TEMPLATES);
+    if (permitidas.length === 0) return todas;
+    const filtradas = todas.filter((t) => permitidas.includes(t.id));
+    // Si la configuracion quedo apuntando a estilos que ya no existen, es mejor
+    // mostrar todos que dejar la pantalla sin ninguna opcion.
+    return filtradas.length > 0 ? filtradas : todas;
+  }, [fiesta]);
+
+  const categoriasHabilitadas = useMemo(
+    () => FACESWAP_CATEGORIES.filter((c) => plantillasHabilitadas.some((t) => t.categoryId === c.id)),
+    [plantillasHabilitadas],
+  );
 
   const selectAiCategory = (categoryId: FaceSwapCategoryId) => {
     setSelectedCategory(categoryId);
     setSelectedTemplateId((currentTemplateId) => {
-      const currentTemplate = ESPEJO_TEMPLATES[currentTemplateId];
+      const currentTemplate = plantillasHabilitadas.find((t) => t.id === currentTemplateId);
       if (currentTemplate?.categoryId === categoryId) return currentTemplateId;
       return (
-        Object.values(ESPEJO_TEMPLATES).find(
-          (template) => template.categoryId === categoryId,
-        )?.id || currentTemplateId
+        plantillasHabilitadas.find((template) => template.categoryId === categoryId)?.id ||
+        currentTemplateId
       );
     });
   };
-
-  const [fiesta, setFiesta] = useState<PublicEntertainmentEvent | null>(null);
   const [isEventLoading, setIsEventLoading] = useState(true);
   const [voiceEnabled, setVoiceEnabled] = useState(true);
   const [watermarkEnabled, setWatermarkEnabled] = useState(true);
@@ -216,9 +249,17 @@ export default function EspejoMagicoPage() {
         videoRef.current.srcObject = mediaStream;
       }
     } catch (err) {
-      setErrorMsg('No se pudo acceder a la cámara.');
+      const cameraError = 'No se pudo acceder a la cámara. Revisa los permisos del navegador y vuelve a intentar.';
+      setErrorMsg(cameraError);
+      void updateEntertainmentSessionStatus(
+        fiestaId,
+        moduleId,
+        'idle',
+        { lastError: cameraError },
+        accessToken,
+      ).catch((statusError) => console.error('No se pudo avisar la falla de cámara al operador:', statusError));
     }
-  }, [facingMode, stopCamera]);
+  }, [accessToken, facingMode, fiestaId, moduleId, stopCamera]);
 
   // 1. Initial configuration load
   useEffect(() => {
@@ -291,13 +332,22 @@ export default function EspejoMagicoPage() {
   }, [capturedImage]);
 
   // Camera hooks
+  //
+  // La camara vive solo mientras NO hay una foto tomada esperando decision. Sin
+  // el `!capturedImage`, dos momentos quedaban mal: al firmar sobre la foto la
+  // camara seguia prendida detras del dibujo, y si fallaba la subida el estado
+  // volvia a 'recording' y la camara se reencendia encima del cartel de error,
+  // asi que el invitado veia su cara en vivo mientras la pantalla le decia que
+  // algo habia fallado.
   useEffect(() => {
-    if (fiesta && role === 'display' && (localStatus === 'idle' || localStatus === 'countdown' || localStatus === 'recording')) {
+    const esperandoDecision = Boolean(capturedImage);
+    const enVivo = localStatus === 'idle' || localStatus === 'countdown' || localStatus === 'recording';
+    if (fiesta && role === 'display' && enVivo && !esperandoDecision) {
       startCamera();
     } else {
       stopCamera();
     }
-  }, [fiesta, localStatus, role, startCamera, stopCamera]);
+  }, [fiesta, localStatus, role, capturedImage, startCamera, stopCamera]);
 
   // Welcome Speech Cues
   useEffect(() => {
@@ -309,6 +359,23 @@ export default function EspejoMagicoPage() {
       }
     }
   }, [localStatus, capturedImage, mode, modeCopy.start, role, speak]);
+
+  // El operador tiene que enterarse antes de la fiesta, no cuando se queja el
+  // primer invitado que eligio "Superheroe" y recibio su foto comun.
+  useEffect(() => {
+    if (role !== 'operator' || mode !== 'ia') return;
+    let vigente = true;
+    isEspejoIaDisponible()
+      .then(res => {
+        if (vigente) setIaDisponible(res.disponible);
+      })
+      .catch(() => {
+        if (vigente) setIaDisponible(false);
+      });
+    return () => {
+      vigente = false;
+    };
+  }, [role, mode]);
 
   const runFaceSwapIA = async (originalPhotoUrl: string) => {
     setAiProcessing(true);
@@ -329,6 +396,7 @@ export default function EspejoMagicoPage() {
       formData.append('consentAccepted', String(consentAccepted));
       formData.append('templateId', selectedTemplateId);
       formData.append('sourceFile', file);
+      formData.append('photoSessionId', photoSessionId);
 
       const result = await applyEspejoFaceSwap(formData);
 
@@ -350,9 +418,16 @@ export default function EspejoMagicoPage() {
       }
     } catch (err: any) {
       console.error(err);
-      setErrorMsg(err.message || 'La IA no pudo procesar tu avatar. Mostrando foto original.');
-      speak("Ocurrió un inconveniente, pero aquí está tu foto original.");
-      setLocalStatus('done');
+      setErrorMsg(err.message || 'La IA no pudo procesar tu avatar. Podés subir igual tu foto original.');
+      speak('La inteligencia artificial no pudo con esta foto, pero tu foto original está lista. Podés subirla igual o volver a intentar.');
+      // Antes esto saltaba a 'done', que es la pantalla de "Escanea tu recuerdo"
+      // con el codigo QR. Pero cuando la IA falla la foto nunca se subio: el QR
+      // se quedaba girando para siempre y el invitado se iba convencido de que
+      // tenia su recuerdo guardado, cuando no habia nada. Se queda en la
+      // pantalla de revision, con la foto original a la vista y los botones
+      // para subirla o reintentar.
+      setLocalStatus('recording');
+      await updateEntertainmentSessionStatus(fiestaId, moduleId, 'idle', {}, accessToken);
     } finally {
       clearTimeout(stepTimer1);
       clearTimeout(stepTimer2);
@@ -679,6 +754,24 @@ export default function EspejoMagicoPage() {
     document.body.removeChild(a);
   };
 
+  /**
+   * Los espejos del rubro imprimen ademas de mandar la copia digital, y en la
+   * version con firma el papel es medio punto del juego: el invitado firma y se
+   * lo lleva. Se imprime lo que esta en el lienzo, asi la firma y los stickers
+   * salen en la hoja.
+   */
+  const handleImprimir = () => {
+    if (!capturedImage || !canvasRef.current) return;
+    if (mode !== 'foto') {
+      mergeDrawing();
+    }
+    const dataUrl = canvasRef.current.toDataURL('image/jpeg', 0.92);
+    const resultado = imprimirRecuerdo(dataUrl);
+    if (!resultado.ok) {
+      setErrorMsg(resultado.aviso || 'No se pudo mandar a imprimir.');
+    }
+  };
+
   const handleUpload = async (imageOverride?: string) => {
     if (!canvasRef.current || (!capturedImage && !imageOverride)) return;
 
@@ -711,7 +804,7 @@ export default function EspejoMagicoPage() {
           fiestaId,
           moduleId,
           'done',
-          { mediaUrl },
+          { mediaUrl, lastError: null },
           accessToken
         );
         speak('Listo. Foto enviada al muro.');
@@ -728,7 +821,13 @@ export default function EspejoMagicoPage() {
       setQrCodeUrl('');
       setErrorMsg((err as Error).message || 'No se pudo subir la foto. Puedes descargarla en este dispositivo.');
       setLocalStatus('recording');
-      await updateEntertainmentSessionStatus(fiestaId, moduleId, 'idle', {}, accessToken);
+      await updateEntertainmentSessionStatus(
+        fiestaId,
+        moduleId,
+        'idle',
+        { lastError: 'No se pudo subir la foto del invitado al muro.' },
+        accessToken,
+      );
       speak('No se pudo subir la foto. Podés reintentar o guardarla en este dispositivo.');
     } finally {
       setIsUploading(false);
@@ -742,10 +841,11 @@ export default function EspejoMagicoPage() {
     setQrCodeUrl('');
     setOriginalPhotoUrl(null);
     setAiImageBase64(null);
-    setAiProcessing(false);
     setAiStep('idle');
-    setSliderPosition(50);
+    setAiProcessing(false);
     setLocalStatus('idle');
+    setPhotoSessionId(`sess_${Date.now()}_${Math.random().toString(36).substring(2, 7)}`);
+    setSliderPosition(50);
     void completeEntertainmentSessionCycle(fiestaId, moduleId, accessToken);
     if (role === 'display') {
       startCamera();
@@ -826,6 +926,21 @@ export default function EspejoMagicoPage() {
             </div>
             <div className="w-9" />
           </div>
+
+          {/* Aviso antes de que llegue el primer invitado: si la IA no esta
+              disponible, la estacion devuelve la foto sin transformar y el
+              invitado se lleva una foto comun creyendo que es su avatar. */}
+          <AvisoDeFallaEnEstacion mensaje={session?.lastError} cuando={session?.lastErrorAt} />
+
+          {mode === 'ia' && iaDisponible === false && (
+            <div className="rounded-2xl border border-amber-400/40 bg-amber-500/10 p-4" role="alert">
+              <p className="text-sm font-black text-amber-300">La transformacion con IA no esta disponible</p>
+              <p className="mt-1 text-xs leading-relaxed text-amber-100/80">
+                La estacion funciona igual, pero va a entregar la foto sin transformar. Avisale al
+                equipo antes de abrir la fila: el invitado elige un estilo y recibe su foto comun.
+              </p>
+            </div>
+          )}
 
           <div className="rounded-[2rem] border border-white/10 bg-white/[0.04] p-5 shadow-2xl sm:p-6">
             <div className="grid gap-3 sm:grid-cols-3">
@@ -1012,7 +1127,7 @@ export default function EspejoMagicoPage() {
                       className="hide-scrollbar flex touch-pan-x gap-1.5 overflow-x-auto pb-1"
                       aria-label="Categorías de estilos IA"
                     >
-                      {FACESWAP_CATEGORIES.map((cat) => (
+                      {categoriasHabilitadas.map((cat) => (
                         <button
                           key={cat.id}
                           type="button"
@@ -1034,7 +1149,7 @@ export default function EspejoMagicoPage() {
                       className="grid max-h-36 touch-pan-y grid-cols-2 gap-1.5 overflow-y-auto pr-1"
                       aria-label="Estilos IA disponibles"
                     >
-                      {Object.values(ESPEJO_TEMPLATES)
+                      {plantillasHabilitadas
                         .filter((t) => t.categoryId === selectedCategory)
                         .map((template) => {
                           const isSelected = selectedTemplateId === template.id;
@@ -1254,7 +1369,7 @@ export default function EspejoMagicoPage() {
         {localStatus === 'processing' && (
           <div className="absolute inset-0 z-40 bg-zinc-950/90 backdrop-blur-md flex flex-col items-center justify-center text-center p-6">
             <Loader2 className="w-16 h-16 text-rose-500 animate-spin mb-4" />
-            <h3 className="text-2xl font-black text-white mb-2">Subiendo foto al muro...</h3>
+            <h3 className="text-2xl font-black text-white mb-2">{fiesta?.socialWallEnabled ? 'Subiendo foto al muro...' : 'Guardando foto...'}</h3>
           </div>
         )}
 
@@ -1279,21 +1394,21 @@ export default function EspejoMagicoPage() {
 
               {/* QR Container */}
               <div className="bg-white p-4 rounded-3xl shadow-2xl relative">
-                {qrCodeUrl ? (
-                  <QRCodeSVG value={qrCodeUrl} size={180} level="Q" includeMargin={false} />
-                ) : (
-                  <div className="w-44 h-44 flex items-center justify-center">
-                    <Loader2 className="w-8 h-8 animate-spin text-zinc-950" />
-                  </div>
-                )}
+                <QrRecuerdo qrCodeUrl={qrCodeUrl} error={errorMsg} />
               </div>
 
               <div className="flex flex-col gap-2 w-full">
                 <button
-                  onClick={handleDownload}
-                  className="w-full h-12 rounded-xl bg-rose-500 hover:bg-rose-600 text-white font-black text-sm uppercase tracking-wider transition-all flex items-center justify-center gap-2"
+                  onClick={handleImprimir}
+                  className="w-full h-14 rounded-xl bg-rose-500 hover:bg-rose-600 text-white font-black text-base uppercase tracking-wider transition-all flex items-center justify-center gap-2"
                 >
-                  <Download className="w-4 h-4" /> Guardar Foto
+                  <Printer className="w-5 h-5" /> Imprimir mi foto
+                </button>
+                <button
+                  onClick={handleDownload}
+                  className="w-full h-12 rounded-xl bg-white/5 hover:bg-white/10 text-white font-bold text-sm border border-white/10 transition flex items-center justify-center gap-2"
+                >
+                  <Download className="w-4 h-4" /> Guardar en el celular
                 </button>
                 {fiesta?.station.allowGuestRetake && fiesta.station.maxRetakes > 0 && (
                   <button
@@ -1382,7 +1497,7 @@ export default function EspejoMagicoPage() {
         ) : capturedImage && localStatus !== 'done' ? (
           /* Drawing / Review Controls */
           <div className="flex flex-col gap-3 px-6 pb-6 pt-2">
-            <p className="text-center text-xs font-semibold text-zinc-400">{modeCopy.review}</p>
+            <p className="text-center text-xs font-semibold text-zinc-400">{fiesta?.socialWallEnabled ? modeCopy.review : modeCopy.reviewStandalone}</p>
             {/* Color Palette Selector for Drawing */}
             {mode !== 'foto' && (
               <div className="flex justify-center items-center gap-4 py-2 border-b border-zinc-900">
@@ -1424,7 +1539,7 @@ export default function EspejoMagicoPage() {
                 <div className="w-20 h-20 rounded-full bg-gradient-to-r from-rose-500 to-pink-600 shadow-[0_0_30px_rgba(244,63,94,0.3)] flex items-center justify-center">
                   {isUploading ? <Loader2 className="w-8 h-8 animate-spin" /> : <Send className="w-8 h-8 ml-1" />}
                 </div>
-                <span className="text-sm font-black uppercase tracking-wide">Subir al Muro</span>
+                <span className="text-sm font-black uppercase tracking-wide">{fiesta?.socialWallEnabled ? 'Subir al Muro' : 'Guardar Foto'}</span>
               </button>
 
               <button onClick={handleDownload} className="flex flex-col items-center gap-2 text-zinc-400 hover:text-white transition">

@@ -150,6 +150,9 @@ export async function updateContratoFiestaActual(fiestaId: string, text: string,
     }
     return await FiestaModule.updateFiestaPartial(fiestaId, {
       ...(tipo === 'servicios' ? { contratoServicioTexto: text } : {}),
+      // El contrato del salon tambien se edita a mano. Sin esto, lo que el
+      // equipo escribia se perdia al recargar la pantalla.
+      ...(tipo === 'salon' ? { contratoSalonTexto: text } : {}),
       contratoGenerado: {
         tipo,
         fecha: new Date().toISOString(),

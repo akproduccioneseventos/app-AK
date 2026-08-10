@@ -18,6 +18,7 @@ import {
 } from '@/lib/public-experience/wait-for-initial-public-load';
 import type { SocialConnection } from '@/types/settings';
 import { Facebook, Instagram, MessageCircle, Music2, Maximize, Camera, QrCode } from 'lucide-react';
+import { ReconnectingIndicator } from '@/components/entretenimiento/ReconnectingIndicator';
 import { getSongRequests } from '@/app/actions/social-interactive';
 import type { SongRequest } from '@/types/social-gallery';
 
@@ -106,6 +107,7 @@ export default function MuroEnVivoPage() {
   const [playlistTick, setPlaylistTick] = useState<number>(Date.now());
   const [qrUrl, setQrUrl] = useState<string>('');
   const [showCameraFlash, setShowCameraFlash] = useState(false);
+  const [isReconnecting, setIsReconnecting] = useState(false);
   const prevPostsCountRef = useRef(0);
   const pollingRef = useRef(false);
 
@@ -205,6 +207,8 @@ export default function MuroEnVivoPage() {
         getChatMessages(fiestaId).catch((err) => { console.warn('[MuroEnVivo] getChatMessages failed:', err); return []; }),
         getSongRequests(fiestaId).catch((err) => { console.warn('[MuroEnVivo] getSongRequests failed:', err); return []; }),
       ]));
+
+      setIsReconnecting(false);
 
       const sorted = [...fetchedPosts].filter(isPostApprovedForScreen).sort(
         (a, b) => new Date(b.timestamp).getTime() - new Date(a.timestamp).getTime()
@@ -353,7 +357,7 @@ export default function MuroEnVivoPage() {
       const globalFallbacks = connections.filter(c => c.isConnected && !coveredPlatforms.has(c.platform));
       setSocialConnections([...brandConnections, ...globalFallbacks]);
     } catch (_) {
-      // Silent fail for projection wall
+      setIsReconnecting(true);
     } finally {
       pollingRef.current = false;
       if (!isLoaded) setIsLoaded(true);
@@ -689,13 +693,17 @@ export default function MuroEnVivoPage() {
           )}
 
           {/* Live chat messages overlay — bottom-left, always shown when chat is enabled */}
+          {/* Esta esquina se proyecta en una pared y se mira desde diez metros, en
+              un salon a oscuras. Con letra de once pixeles y blanco al 40% no se
+              leia: el invitado veia que su mensaje "salio en la pantalla" y nadie
+              podia leerlo. Va mas grande y con mas contraste. */}
           {isLoaded && settings.privateDedicationsMode !== true && settings.chatEnabled !== false && recentChatMessages.length > 0 && !activePoll && (
-            <div className={`absolute left-6 bottom-6 z-10 space-y-1.5 ${hasSidePanel ? 'w-[28vw] max-w-xs' : 'w-[32vw] max-w-xs'}`}>
-              <p className="text-[10px] font-black uppercase tracking-[0.3em] text-white/40 mb-2">💬 Chat en Vivo</p>
+            <div className={`absolute left-6 bottom-6 z-10 space-y-2 ${hasSidePanel ? 'w-[28vw] max-w-sm' : 'w-[32vw] max-w-sm'}`}>
+              <p className="text-sm font-black uppercase tracking-[0.3em] text-white/70 mb-2">💬 Chat en Vivo</p>
               {recentChatMessages.map(msg => (
-                <div key={msg.id} className="rounded-xl border border-white/10 bg-black/60 px-3 py-2 shadow-md backdrop-blur-sm">
-                  <span className="text-[11px] font-black text-sky-300 mr-1.5">{msg.authorName}:</span>
-                  <span className="text-[12px] text-white/85 leading-snug">{msg.text}</span>
+                <div key={msg.id} className="rounded-xl border border-white/25 bg-black/70 px-4 py-2.5 shadow-md backdrop-blur-sm">
+                  <span className="text-base font-black text-sky-300 mr-1.5">{msg.authorName}:</span>
+                  <span className="text-base text-white leading-snug">{msg.text}</span>
                 </div>
               ))}
             </div>
@@ -703,12 +711,12 @@ export default function MuroEnVivoPage() {
 
           {/* Song requests overlay — bottom-right corner */}
           {isLoaded && settings.showSongRequests !== false && recentSongRequests.length > 0 && !activePoll && (
-            <div className="absolute right-6 bottom-6 z-10 w-[28vw] max-w-xs space-y-1.5">
-              <p className="text-[10px] font-black uppercase tracking-[0.3em] text-white/40 mb-2">🎵 Pedidos de Canciones</p>
+            <div className="absolute right-6 bottom-6 z-10 w-[28vw] max-w-sm space-y-2">
+              <p className="text-sm font-black uppercase tracking-[0.3em] text-white/70 mb-2">🎵 Pedidos de Canciones</p>
               {recentSongRequests.map(req => (
-                <div key={req.id} className="rounded-xl border border-green-400/20 bg-black/60 px-3 py-2 shadow-md backdrop-blur-sm">
-                  <span className="text-[12px] font-bold text-green-300 mr-1.5">{req.song}</span>
-                  <span className="text-[10px] text-white/50">— {req.requestedBy}</span>
+                <div key={req.id} className="rounded-xl border border-green-400/40 bg-black/70 px-4 py-2.5 shadow-md backdrop-blur-sm">
+                  <span className="text-base font-bold text-green-300 mr-1.5">{req.song}</span>
+                  <span className="text-sm text-white/75">— {req.requestedBy}</span>
                 </div>
               ))}
             </div>
@@ -1061,6 +1069,8 @@ export default function MuroEnVivoPage() {
           }
         }
       `}</style>
+
+      <ReconnectingIndicator isReconnecting={isReconnecting} />
     </div>
   );
 }
@@ -1488,6 +1498,8 @@ function SlideshowLayout({
     setCurrentIndex((prev) => (prev + 1) % posts.length);
   }, [posts.length]);
 
+  const isMission = post?.momentTag?.toLowerCase().includes('misión') || post?.momentTag?.toLowerCase().includes('mision') || captionText?.toLowerCase().includes('misión') || captionText?.toLowerCase().includes('mision');
+
   // Auto-advance slideshow (dinámico si es video o imagen)
   useEffect(() => {
     if (posts.length <= 1) return;
@@ -1508,13 +1520,18 @@ function SlideshowLayout({
           Cargando publicación...
         </div>
       )}
-      <div className="relative h-full w-full max-w-[min(100%,1500px)] overflow-hidden rounded-md bg-slate-900">
+      <div className={`relative h-full w-full max-w-[min(100%,1500px)] overflow-hidden rounded-md ${isMission ? 'bg-amber-900 ring-4 ring-amber-400/80 shadow-[0_0_40px_rgba(251,191,36,0.4)]' : 'bg-slate-900'}`}>
+        {isMission && (
+          <div className="absolute top-0 inset-x-0 bg-gradient-to-r from-amber-400 via-yellow-300 to-amber-400 text-amber-950 font-black text-center py-2 uppercase tracking-widest text-lg shadow-md z-10">
+            ⭐ Misión Secreta Cumplida ⭐
+          </div>
+        )}
         {isVideo ? (
           <video src={post.imageUrl} className="h-full w-full object-contain" autoPlay muted playsInline preload="auto" onPlay={() => setMediaLoaded(true)} onLoadedData={() => setMediaLoaded(true)} onEnded={advance} />
         ) : (
           <NextImage src={post.imageUrl} alt={post.authorName} fill className="object-contain" unoptimized priority onLoad={() => setMediaLoaded(true)} />
         )}
-        <div className="absolute inset-x-0 bottom-0 bg-black/80 px-6 py-4 text-white">
+        <div className="absolute inset-x-0 bottom-0 bg-black/80 px-6 py-4 text-white z-10">
           <p className="text-2xl font-bold leading-tight">{captionText || 'Momento compartido'}</p>
           <p className="mt-1 text-base text-white/70">{post.authorName}</p>
         </div>
@@ -1558,40 +1575,49 @@ function MasonryLayout({
 function MasonryCard({ post, index }: { post: SocialGalleryPost; index: number }) {
   const [imgError, setImgError] = useState(false);
   const isVideo = post.mediaType === 'video' || isVideoUrl(post.imageUrl);
+  const isMission = post.momentTag?.toLowerCase().includes('misión') || post.momentTag?.toLowerCase().includes('mision') || post.caption?.toLowerCase().includes('misión') || post.caption?.toLowerCase().includes('mision') || post.dedication?.toLowerCase().includes('misión') || post.dedication?.toLowerCase().includes('mision');
 
   return (
     <article
-      className="relative min-h-0 overflow-hidden rounded-md bg-slate-900"
+      className={`relative mb-4 break-inside-avoid overflow-hidden rounded-xl bg-slate-900 shadow-xl ${isMission ? 'ring-4 ring-amber-400 shadow-[0_0_20px_rgba(251,191,36,0.3)]' : ''}`}
       style={{
-        aspectRatio: index % 3 === 0 ? '4/5' : index % 3 === 1 ? '1/1' : '3/4',
+        animation: `fadeInUp 0.6s ease-out ${index * 0.1}s both`,
       }}
     >
-      {isVideo ? (
-        <video
-          src={post.imageUrl}
-          className="h-full w-full object-cover"
-          autoPlay
-          muted
-          loop
-          playsInline
-        />
-      ) : !imgError ? (
-        <NextImage
-          src={post.imageUrl}
-          alt={post.authorName}
-          fill
-          sizes="(max-width: 1920px) 33vw"
-          className="object-cover"
-          onError={() => setImgError(true)}
-          unoptimized
-        />
-      ) : (
-        <div className="absolute inset-0 flex items-center justify-center bg-slate-900">
-          <span className="text-4xl opacity-20">📷</span>
+      {isMission && (
+        <div className="absolute top-0 inset-x-0 bg-gradient-to-r from-amber-400 via-yellow-300 to-amber-400 text-amber-950 font-black text-center py-1 uppercase tracking-widest text-[10px] shadow-sm z-10">
+          ⭐ Misión Secreta ⭐
         </div>
       )}
+      <div className={`relative ${isMission ? 'pt-6' : ''}`}>
+        {post.mediaType === 'video' || isVideoUrl(post.imageUrl) ? (
+          <video
+            src={post.imageUrl}
+            autoPlay
+            muted
+            loop
+            playsInline
+            className="w-full"
+            onError={() => setImgError(true)}
+          />
+        ) : !imgError ? (
+          <NextImage
+            src={post.imageUrl}
+            alt={post.authorName}
+            fill
+            sizes="(max-width: 1920px) 33vw"
+            className="object-cover"
+            onError={() => setImgError(true)}
+            unoptimized
+          />
+        ) : (
+          <div className="absolute inset-0 flex items-center justify-center bg-slate-900">
+            <span className="text-4xl opacity-20">📷</span>
+          </div>
+        )}
+      </div>
 
-      <div className="absolute inset-x-0 bottom-0 bg-black/75 px-3 py-2">
+      <div className="absolute inset-x-0 bottom-0 bg-black/75 px-3 py-2 z-10">
         <p className="truncate text-sm font-semibold text-white">{post.authorName}</p>
       </div>
     </article>

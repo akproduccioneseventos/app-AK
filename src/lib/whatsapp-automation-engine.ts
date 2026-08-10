@@ -1,6 +1,7 @@
 import type { AutomationTrigger, ScheduledMessage } from '@/types/whatsapp-automation';
 import { getWhatsAppSettings, getWhatsAppTemplates } from '@/app/actions/settings';
 import { saveScheduledMessage } from '@/app/actions/scheduled-messages';
+import { rellenarPlantilla } from '@/lib/whatsapp/plantilla-mensaje';
 
 export interface AutomationContext {
   targetId: string;
@@ -34,12 +35,12 @@ function buildVariables(ctx: AutomationContext): TemplateVariables {
 }
 
 function renderTemplate(template: string, ctx: AutomationContext): string {
-  const vars = buildVariables(ctx);
-  const rendered = Object.entries(vars).reduce(
-    (text, [key, value]) => text.replace(new RegExp(`\\{\\{${key}\\}\\}`, 'g'), () => value),
-    template
-  );
-  return rendered.replace(/ {2,}/g, ' ').trim();
+  // `rellenarPlantilla` ademas de reemplazar borra los marcadores que quedaron
+  // sin valor y limpia la basura que dejan alrededor (comas y parentesis
+  // sueltos). Antes solo se reemplazaban los marcadores conocidos: si alguien
+  // escribia una plantilla propia con {{NUMERO_CLIENTE}}, el cliente recibia el
+  // mensaje con esas llaves adentro, tal cual.
+  return rellenarPlantilla(template, buildVariables(ctx));
 }
 
 /**

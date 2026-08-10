@@ -1,9 +1,122 @@
 # Estado de la auditoría — qué está hecho y qué falta
 
 Documento vivo. Sirve para no repetir trabajo entre sesiones.
-Última actualización: 4 de agosto de 2026.
+Última actualización: 9 de agosto de 2026.
 
 ---
+
+## TANDA DEL 9 DE AGOSTO — PRs de Claude/Gemini posteriores a Codex #769
+
+**Punto de corte verificado:** PR Codex #769, merge `056a5dd8`. Se auditaron sobre
+`main` `96e01a96` las 60 PRs posteriores con evidencia directa de Claude que sí
+fueron fusionadas. Las cerradas sin merge #805, #812 y #846 quedaron fuera. No
+hay una PR posterior atribuible con certeza a Gemini; #775, #776, #781, #799,
+#802, #804 y #832 sólo lo mencionan y no prueban autoría.
+
+**Método compartido:** tres agentes económicos `gpt-5.6-terra`/`low` hicieron
+inventario y primera lectura por áreas; el director Codex confirmó personalmente
+los P0/P1 antes de editar. La preferencia permanente sigue siendo Luna/low, pero
+esta sesión no la ofrecía. Graphify quedó actualizado y operativo sobre el SHA
+auditado; Serena se reinstaló, aunque su indexador no pudo arrancar hasta disponer
+de npm en la copia limpia.
+
+### Defectos confirmados y corregidos
+
+| Origen | Qué quedó corregido |
+|---|---|
+| #561 | La preparación LED ahora lee `screenPlaylist.items`; detecta pantalla y modo audiorrítmico reales. |
+| #850 | Cambiar la clave del portal invalida inmediatamente las cookies antiguas; la cookie guarda huella, no la clave. |
+| #836 | Canciones, dedicatorias, sorteos y audios tienen tope global por evento/IP además del tope por nombre, que el visitante podía cambiar. |
+| #897 | Una factura con pagos ya no permite cambiar cliente, fecha, ítems, impuestos ni borrar/modificar pagos existentes. Sí permite anexar un pago nuevo válido. |
+| #904 | `kidsCount` se guarda en ambos flujos RSVP, se recorta al tamaño del grupo y adultos/niños se cuentan por separado en invitados y mesas. |
+| #877 | Los fallos de cámara de fotocabina, Bogue, 360 y espejo se informan al operador mediante `lastError`. |
+
+### Evidencia de esta rama
+
+- 38 pruebas focalizadas en verde; luego 9/9 tras dos guardas finales.
+- Validación final del árbol definitivo: 200 archivos y 1333 pruebas en verde.
+- TypeScript: sin errores. Lint: sin errores nuevos; conserva 5 avisos previos en
+  archivos no tocados.
+- GitHub Actions no ejecutó ningún paso: los 4 jobs de #905 quedaron en rojo
+  porque GitHub informa que la cuenta está bloqueada por un problema de
+  facturación. Regularizar la cuenta y reejecutar CI; no es un fallo del código.
+- PR #905 abierta en borrador. No fusionar automáticamente.
+
+---
+
+## TANDA DEL 5 DE AGOSTO — auditoría completa por áreas
+
+Se recorrieron **todas** las áreas de la aplicación. Estado al cerrar: revisor de
+tipos sin errores, 1266 pruebas unitarias en verde, 94 de navegador, 20 de
+seguridad de la base, y la aplicación compila.
+
+### Corregido en esta tanda
+
+| Qué pasaba | Por qué importaba |
+|---|---|
+| El juego de trivia reventaba apenas se abría | El invitado no veía nada |
+| La fotocabina de video fallaba en silencio | La pantalla volvía sola al principio sin explicar nada |
+| El simulador ignoraba al visitante si fallaba un cambio | El mensaje quedaba en la nada |
+| Acentos rotos en los mensajes de facturas | Lo ve el equipo al cargar una factura |
+| **El cliente veía un saldo menor al real** | El portal no aplicaba el ajuste anual: 18.000 de diferencia en una fiesta de 120.000 |
+| **Cualquiera podía borrar la lista de invitados** | Sin ninguna credencial, sabiendo el código del evento |
+| **Las preguntas de recuperación de cuenta se cambiaban desde afuera** | Camino a quedarse con una cuenta |
+| **El botón de WhatsApp del simulador iba a un número ajeno** | El prospecto que terminaba su presupuesto le escribía a un desconocido |
+| Cuatro botones de consulta abrían WhatsApp sin destinatario | La consulta del cliente no llegaba a nadie |
+| El cartel de la puerta contaba filas, no gente | En una fiesta de 150 mostraba menos de la mitad |
+| El tope de la pantalla en vivo bloqueaba a toda la fiesta | El primero que subía 12 fotos dejaba sin subir a los demás |
+| Videos y estaciones publicaban sin ninguna revisión | Un video podía llegar a la pantalla grande sin que nadie lo mirara |
+| La lista de compras redondeaba para abajo | Faltaba bebida en plena fiesta |
+| **La clave del portal era adivinable y no vencía** | Se rehízo: clave inicial con el nombre del cliente, cambio obligatorio la primera vez y recuperación por correo |
+| Al que dijo que no va se le seguía mandando la invitación | La persona avisaba que no podía ir y recibía el mail igual |
+| Un mensaje sin teléfono quedaba marcado como enviado | La planilla decía que se avisó a alguien que nunca recibió nada |
+| Un insumo sin precio dejaba el plato en cero | El presupuesto salía barato sin que nadie se diera cuenta |
+
+### Trampa que costó una rama rota
+
+Dos propuestas protegieron el archivo de facturas de maneras distintas. Al
+fusionarse quedaron **las dos aplicadas encima**: no compilaba, y además guardar
+una factura habría dejado la pantalla colgada para siempre esperando un permiso
+que ella misma tenía tomado.
+
+**Después de fusionar varias propuestas que tocan los mismos archivos, correr la
+verificación completa de nuevo.** No alcanza con que cada propuesta esté bien
+por separado.
+
+### Áreas revisadas y sanas
+
+- **Seguridad de la base**: 20 pruebas en verde, todo pasa por el servidor.
+- **Sueldos del personal**: las cuentas rechazan negativos e infinitos, y no dejan
+  pagar dos veces el mismo evento a la misma persona.
+- **Permisos** de empleados, insumos y proveedores: exigen sesión del equipo.
+- **Stock de la barra**: no se descuenta dos veces sobre el mismo pedido.
+- **Botones y enlaces** de las pantallas de invitado y cliente: sin enlaces muertos.
+- **Documentos impresos**: entran en la hoja, sin el menú de la app.
+- **Cuentas del invitado**: se suman personas, no filas.
+
+### Pendiente, decidido por el dueño que NO se toca
+
+- Las fotos del muro se descargan con el enlace directo: **lo quiere así**.
+- La lista de compras usa la cantidad contratada, no la de confirmados: **se cocina
+  lo que se contrató**, y agregar invitados sube el presupuesto.
+- Sólo se trabaja en pesos uruguayos.
+
+### Pendiente de verdad
+
+1. **No queda registro de quién marcó un recibo del personal como pagado.** Si
+   algún día hay una discusión, no hay con qué respaldarse.
+2. **En la barra, si un trago necesita más de lo que hay**, el stock queda en cero
+   en vez de avisar que faltó.
+3. **La moderación de la pantalla gigante viene apagada** en las fiestas nuevas. El
+   dueño no decidió todavía si quiere que venga prendida.
+4. **Los "módulos" por usuario no se validan en el servidor**: se asignan y se
+   muestran como etiquetas, pero cualquiera con sesión accede igual a todo. O se
+   implementa, o se saca la pantalla para no dar una sensación falsa de control.
+
+---
+
+## Historial anterior
+
 
 ## 🔴 LO MÁS IMPORTANTE DE LA TANDA DEL 4 DE AGOSTO
 

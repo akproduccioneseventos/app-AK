@@ -8,6 +8,7 @@ import { Button } from '@/components/ui/button';
 import { Skeleton } from '@/components/ui/skeleton';
 import { ArrowLeft, Printer as PrinterIcon, Share2, AlertTriangle, Save, Loader2, Edit, CheckCircle2, FileSignature, UploadCloud, FileText, Globe, Info, CreditCard, Calendar, Star } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
+import { conSinonimos } from '@/lib/contratos/marcadores';
 import type { FiestaEnPlanificacion, PlanPagos } from '@/types/fiesta';
 import type { Customer } from '@/types/customer';
 import type { Presupuesto } from '@/types/presupuesto';
@@ -59,6 +60,9 @@ function ContratoServicioContent() {
   const [selectedType, setSelectedType] = useState<ContractType>('servicios');
   
   const [contractText, setContractText] = useState('');
+  // Ultimo texto guardado. Sirve para saber si hay ediciones sin guardar y no
+  // pisarlas en silencio al cambiar de plantilla o al salir del modo edicion.
+  const [textoGuardado, setTextoGuardado] = useState('');
   const [isEditing, setIsEditing] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
   const [isSaving, setIsSaving] = useState(false);
@@ -146,6 +150,7 @@ function ContratoServicioContent() {
 
           if (fiestaData.contratoServicioTexto && persistedType === 'servicios') {
               setContractText(fiestaData.contratoServicioTexto);
+              setTextoGuardado(fiestaData.contratoServicioTexto);
           } else {
               const selectedTemplate = templateList.find(t => t.type === persistedType) || templateList.find(t => t.type === 'servicios');
               let text = selectedTemplate?.template || '';
@@ -185,10 +190,11 @@ function ContratoServicioContent() {
                   '{{NOMBRE_SALON}}': fiestaData.configuracion.nombreLugar || '____________',
               };
 
-              Object.entries(replacements).forEach(([key, val]) => {
+              Object.entries(conSinonimos(replacements)).forEach(([key, val]) => {
                   text = text.replaceAll(key, val);
               });
               setContractText(text);
+              setTextoGuardado(text);
           }
       } else {
           setError("El evento debe tener un cliente y un presupuesto asignados para generar este documento.");
@@ -234,11 +240,47 @@ function ContratoServicioContent() {
       '{{PENALIZACION_PORCENTAJE}}': '30%',
       '{{NOMBRE_SALON}}': fiesta.configuracion.nombreLugar || '____________',
     };
-    Object.entries(replacements).forEach(([key, val]) => {
+    Object.entries(conSinonimos(replacements)).forEach(([key, val]) => {
       text = text.replaceAll(key, val);
     });
     setContractText(text);
+    setTextoGuardado(text);
   }, [cliente, companyInfo, fiesta, presupuesto, templates]);
+
+  const hayCambiosSinGuardar = contractText !== textoGuardado;
+
+  // Si la plantilla trae un marcador que nadie reemplazo, el cliente recibe un
+  // contrato con {{ALGO}} escrito adentro. Se avisa antes de imprimirlo.
+  const marcadoresSinCompletar = useMemo(
+    () => Array.from(new Set(contractText.match(/\{\{[^}]+\}\}/g) ?? [])),
+    [contractText],
+  );
+
+  // Cambiar de plantilla reescribe el contrato entero. Antes lo hacia sin
+  // preguntar y se llevaba puestas las clausulas escritas a mano.
+  const handleCambiarTipo = (v: string) => {
+    const type = v as ContractType;
+    if (type === selectedType) return;
+    if (hayCambiosSinGuardar) {
+      const seguir = window.confirm(
+        'Tenes cambios sin guardar en el contrato. Si cambias de plantilla se pierden. ¿Cambiar igual?'
+      );
+      if (!seguir) return;
+    }
+    setSelectedType(type);
+    generateContractText(type);
+  };
+
+  const handleToggleEdicion = () => {
+    if (isEditing && hayCambiosSinGuardar) {
+      const descartar = window.confirm(
+        'Tenes cambios sin guardar. Si salis del modo edicion se pierden. ¿Salir igual?'
+      );
+      if (!descartar) return;
+      setContractText(textoGuardado);
+    }
+    setIsEditing(prev => !prev);
+  };
 
   useEffect(() => {
     loadData();
@@ -254,6 +296,7 @@ function ContratoServicioContent() {
           const result = await updateContratoFiestaActual(fiestaId, contractText, selectedType, selectedTemplate?.id || 'default-servicios');
           if (result.success) {
               toast({ title: "¡Borrador Guardado!", description: "El texto base ha sido actualizado para este evento." });
+              setTextoGuardado(contractText);
               setIsEditing(false);
           } else throw new Error(result.error);
       } catch (e: any) {
@@ -324,8 +367,8 @@ function ContratoServicioContent() {
 
           <div className="flex gap-2">
             {!firma?.isSigned && (
-                <Button onClick={() => setIsEditing(!isEditing)} variant={isEditing ? "default" : "outline"} size="sm" disabled={isSaving}>
-                    {isEditing ? <><CheckCircle2 className="w-4 h-4 mr-2"/> Finalizar</> : <><Edit className="w-4 h-4 mr-2"/> Editar Legal</>}
+                <Button onClick={handleToggleEdicion} variant={isEditing ? "outline" : "outline"} size="sm" disabled={isSaving}>
+                    {isEditing ? <><CheckCircle2 className="w-4 h-4 mr-2"/> Salir sin guardar</> : <><Edit className="w-4 h-4 mr-2"/> Editar Legal</>}
                 </Button>
             )}
             
@@ -358,9 +401,22 @@ function ContratoServicioContent() {
           <Card className="border-dashed">
             <CardHeader className="pb-2">
               <CardTitle className="text-sm">Tipo de contrato</CardTitle>
+              {marcadoresSinCompletar.length > 0 && (
+                <div className="mt-3 rounded-lg border border-orange-300 bg-orange-50 p-3 flex gap-2">
+                  <AlertTriangle className="w-4 h-4 text-orange-600 shrink-0 mt-0.5" />
+                  <div className="text-xs">
+                    <p className="font-semibold text-orange-900">Este contrato tiene datos sin completar</p>
+                    <p className="text-orange-800 mt-1">
+                      Quedaron {marcadoresSinCompletar.length === 1 ? 'este hueco' : 'estos huecos'} sin llenar:{' '}
+                      <strong>{marcadoresSinCompletar.join(', ')}</strong>. Si lo imprimís así, el cliente lo va a ver tal cual.
+                      Completalo con el botón Editar Legal.
+                    </p>
+                  </div>
+                </div>
+              )}
             </CardHeader>
             <CardContent>
-              <Select value={selectedType} onValueChange={(v) => { const type = v as ContractType; setSelectedType(type); generateContractText(type); }}>
+              <Select value={selectedType} onValueChange={handleCambiarTipo}>
                 <SelectTrigger className="w-full sm:w-[360px]">
                   <SelectValue placeholder="Selecciona una plantilla" />
                 </SelectTrigger>

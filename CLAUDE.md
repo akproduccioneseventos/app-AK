@@ -18,11 +18,73 @@ Rules:
 - After modifying code, run `graphify update .` to keep the graph current (AST-only, no API cost).
 - Follow the shared quality commands and testing rules in `AGENTS.md`.
 
-## Entorno de Ejecución (Windows PowerShell & GitHub PRs)
+## Dónde estás corriendo (fijate primero, cambia los comandos)
 
-- **Sistema Operativo**: Windows con **PowerShell** (NO es Linux/Bash).
-- **Prohibido el uso de `&&`**: En PowerShell `&&` produce error de sintaxis (`El token '&&' no es un separador de instrucciones válido`). Usar `;` o comandos independientes.
-- **Flujo de Git & GitHub CLI (`gh`)**:
+Este proyecto se trabaja desde dos lugares distintos. **Averiguá cuál es antes de
+correr nada**; confundirlos hace perder intentos.
+
+- **Máquina del dueño: Windows con PowerShell.** Es donde él trabaja. Ahí `&&` da
+  error de sintaxis: separar con `;` o comandos independientes. Ahí sí existe el
+  comando `gh` de GitHub.
+- **Claude Code en la web: Linux con bash.** Contenedor efímero, se arma solo al
+  arrancar. Ahí `&&` funciona normal, **no existe `gh`** (las operaciones de
+  GitHub van por las herramientas del entorno) y todo lo que no se sube a la rama
+  se pierde al cerrar.
+
+Si el entorno dice que la plataforma es `linux`, estás en el segundo caso.
+
+## Fusionar propuestas: sí, cuando pasan los controles
+
+**El dueño cambió esta regla el 6 de agosto de 2026.** Antes estaba prohibido
+fusionar; ahora se fusiona directo, sin esperar que lo haga él. Si algún documento
+viejo dice "prohibido fusionar", manda esto.
+
+Condición: **una propuesta se fusiona sólo después de pasar todos los controles**,
+nunca porque parezca bien a simple vista. Antes de fusionar hay que verificar, con
+la habilidad `revisar-pr`:
+
+- Compila (revisor de tipos en cero) y las pruebas pasan.
+- Sin acentos rotos (`npm run check:acentos`).
+- No choca con las otras propuestas abiertas, probando fusionarlas juntas.
+- Nada raro en plata, cobros, permisos ni quién puede ver qué.
+
+Si algo de eso falla, **no se fusiona**: se le cuenta al dueño en criollo qué pasa
+y qué vería el usuario en pantalla si se fusionara igual.
+
+Después de fusionar, volver a correr la verificación completa sobre la versión
+principal. Dos propuestas que pasan por separado pueden romper juntas: ya pasó con
+el archivo de facturas, que quedó protegido dos veces y dejaba la pantalla colgada
+al guardar.
+
+## Propuesta rota: repararla o rehacerla (decidís vos)
+
+**El dueño lo autorizó el 6 de agosto de 2026.** Cuando una propuesta abierta
+llega rota, no hay que elegir entre fusionarla así o tirarla. Hay tres caminos y
+el criterio es tuyo:
+
+1. **Repararla**, si el daño es mecánico y reversible: acentos rotos, un cierre de
+   llave que falta, un archivo mal guardado. Se arregla y se fusiona.
+2. **Sacarle lo bueno y rehacerla**, si el daño es de fondo: código a medio
+   escribir que nunca compiló, pantallas que usan datos que no existen, o cambios
+   que deshacen trabajo más nuevo que ya está en la versión principal. Se rescata
+   lo que sirve, se hace de nuevo limpio en una rama nueva, y la vieja se cierra.
+3. **Dejarla y avisar**, sólo si lo que trae no se entiende o toca plata y
+   permisos de una forma que conviene consultar.
+
+Al cerrar una propuesta que no sirve: **se cierra y listo**. Nada de informes
+largos explicando por qué. Una línea al dueño alcanza.
+
+Regla práctica para elegir: si después de arreglar lo mecánico **siguen apareciendo
+errores nuevos y distintos**, no es una propuesta dañada, es una propuesta sin
+terminar. Ahí conviene rehacerla y no seguir remendando.
+
+Y no te olvides: una propuesta hecha sobre una versión principal vieja puede
+**borrar** trabajo más reciente sin que se note. Comparala siempre contra la
+versión principal de ahora, no contra la que tenía cuando se creó.
+
+## Flujo de Git y propuestas de cambio
+
+- **Flujo de Git & GitHub CLI (`gh`, sólo en la máquina del dueño)**:
   - **Sincronización antes de trabajar**: Ejecutar `git fetch origin main ; git checkout main ; git reset --hard origin/main` para asegurar base limpia.
   - **Ramas independientes**: Crear SIEMPRE una rama nueva (`git checkout -b fix/nombre-descriptivo`) para cada tarea. NUNCA trabajar sobre ramas con PRs ya mergeadas.
   - **Crear PR (Sin Automerge)**: Subir la rama (`git push origin fix/nombre-descriptivo`) e invocar `gh pr create --title "..." --body "..." --base main`. Dejar la PR abierta para revisión manual del usuario.
@@ -49,7 +111,81 @@ Verificado en este contenedor; releer antes de pelear con las herramientas:
   históricas (`src/data/fiestas-historicas.json`). Las fiestas activas viven en
   la base, así que las pantallas por `[id]` muestran su estado de "no encontrada".
 
+## Pocas propuestas y grandes, no muchas chicas
+
+### La regla vale TAMBIÉN para lo que se le pide a las otras IA
+
+**El dueño lo tuvo que repetir el 10 de agosto de 2026, porque ya se falló dos
+veces.** No alcanza con que Claude junte sus propios cambios: **las órdenes de
+trabajo que se escriben para Gemini también tienen que pedir UNA sola
+propuesta.**
+
+Lo que salió mal: se escribió una orden con cinco bloques y arriba decía "una
+propuesta por bloque grande". Eso son cinco fusiones y cinco despliegues cuando
+alcanzaba con uno. Escribir la regla en `CLAUDE.md` y después pedir lo contrario
+en la orden es lo mismo que no tenerla.
+
+**Antes de mandar cualquier orden, releer la parte de cómo se entrega y
+confirmar que diga "una sola propuesta con todos los bloques".** Y decirle qué
+hacer si un bloque se traba: entregar el resto igual, en la misma propuesta,
+avisando cuál faltó.
+
+**Orden del dueño, 9 de agosto de 2026.** Cada fusión dispara un despliegue y eso
+se paga. Así que **se junta el trabajo de la tanda en una sola propuesta** y se
+fusiona una vez, al final.
+
+Qué significa en la práctica:
+
+- **No se abre una propuesta por hallazgo.** Se arregla todo lo de la tanda, se
+  corre la verificación una vez sobre el conjunto y recién ahí se fusiona.
+- **La documentación viaja con el código.** Anotar en `docs/YA-RESUELTO.md` no
+  justifica una propuesta aparte: va en la misma.
+- **Un cambio de documentación solo no se fusiona solo.** Se deja commiteado en
+  la rama y se junta con el próximo trabajo.
+- **Sí se separa** cuando algo es urgente y no puede esperar a la tanda, o
+  cuando mezclarlo haría imposible entender qué rompió qué.
+
+Ojo con lo que ya costó caro: **cuanto más grande la propuesta, más importa
+correr los cuatro controles sobre el conjunto entero antes de fusionar**, no
+sobre cada pedazo por separado. Dos arreglos que pasan sueltos pueden romper
+juntos; ya pasó con el archivo de facturas.
+
+## Lo que programa Gemini NO lo programa Claude
+
+**Orden del dueño, 9 de agosto de 2026.** Cuando una tarea le toca a Gemini, se
+le deja la orden escrita en `docs/ordenes/` y **no se programa acá**. Escribir el
+código igual gasta el doble: lo paga el dueño dos veces y Gemini se queda sin
+trabajo.
+
+El reparto, sin vueltas:
+
+- **Claude escribe código sólo en:** plata, cobros, comida, permisos y quién ve
+  qué. Ahí no se delega, aunque sea chico.
+- **Todo lo demás lo programa Gemini**, incluido entretenimiento, pantallas del
+  invitado, impresos y herramientas internas. Claude audita, verifica, decide y
+  escribe la orden.
+- **Excepción única:** un arreglo de una línea que aparece mientras se verifica
+  una propuesta. Eso se corrige en el momento y se sigue.
+
+Ya pasó al revés: se programó la fotocabina entera (tanda de tres fotos,
+impresión, guía en pantalla) cuando era trabajo de Gemini. Salió bien pero costó
+lo que no había que gastar.
+
+**Antes de escribir código, la pregunta es siempre: ¿esto es plata, cobros,
+comida o permisos? Si la respuesta es no, va a una orden.**
+
 ## Delegación de trabajo (preferencia del dueño del proyecto)
+
+**Regla fija, pedida por el dueño: delegar SIEMPRE en los ayudantes económicos.**
+No es "cuando convenga": es el modo de trabajo por defecto en toda tarea. El
+modelo principal **dirige y decide**; el trabajo de buscar, leer, contar,
+inventariar, correr verificaciones y esperar resultados va a los agentes baratos.
+Si el modelo principal se pone a leer archivos que podía delegar, está gastando
+plata al pedo.
+
+Ya están configurados y listos para usar (no hay que explicarles las reglas):
+`ak-buscador` para ubicar dónde vive algo, `ak-auditor` para revisar un área,
+`ak-inventario` para listas y conteos. Los tres son de sólo lectura.
 
 Ahorrar tokens siempre. El modelo principal actúa como **director**, no como peón:
 
@@ -62,6 +198,22 @@ Ahorrar tokens siempre. El modelo principal actúa como **director**, no como pe
   resolver ambigüedad, evaluar riesgo de regresión y redactar el reporte final.
 - Pedile a cada agente hechos verificables con `archivo:línea`, y que NO modifique
   archivos salvo que se le indique explícitamente.
+- Incluí en cada prompt de agente la regla de graphify: orientarse con
+  `graphify query` antes de leer archivos.
+
+### VERIFICAR lo que reporta el agente antes de tocar nada
+
+**Los agentes baratos se equivocan seguido, y con seguridad.** En una tanda real,
+de diez hallazgos reportados **nueve eran falsa alarma**: el agente afirmaba que en
+pantalla iba a aparecer la palabra "undefined", cuando en React un valor vacío no
+muestra nada. Aplicar eso sin mirar habría tocado nueve archivos al pedo.
+
+Antes de corregir cualquier cosa que reporte un agente, abrí el archivo en la línea
+que indica y confirmá con tus propios ojos que el problema existe. Si no se
+confirma, decilo en el reporte: "de los diez avisos, nueve eran falsa alarma".
+
+El reparto correcto es: los agentes **buscan y leen** (que es lo que consume), el
+modelo principal **confirma y corrige** (que es lo que decide).
 
 ### El dueño NO es programador
 
@@ -116,3 +268,202 @@ archivo donde las pruebas dependen entre sí (da fallas inventadas).
 
 Regla de fondo: es mejor entregar nueve cosas y decir "la décima está trabada"
 que gastar todo el día en la décima.
+
+## Un módulo se termina, no se deja a medias
+
+**Regla del dueño, 7 de agosto de 2026.** Cuando se trabaja un módulo, se deja
+**pronto**. No se para hasta terminarlo. Nada de entregar la mitad y dejar el
+resto anotado para después: eso convierte cada módulo en una deuda que nadie
+salda.
+
+Qué significa en la práctica:
+
+- Si aparecen cosas nuevas mientras se trabaja, se hacen dentro de la misma
+  tanda, no se posponen.
+- Si algo queda sin hacer de verdad, se dice **cuál** y **por qué**, en una
+  línea, y es la excepción, no la costumbre.
+- Terminado quiere decir: compila, pruebas en verde, sin acentos rotos, y
+  probado en un navegador de verdad si toca pantallas que usan cámara,
+  micrófono o pantalla completa.
+
+## No alcanza con arreglar: hay que mejorar
+
+**Regla del dueño, 8 de agosto de 2026.** Cada vez que se trabaja algo, la
+mirada no es sólo "¿qué está roto?". Es también **"¿cómo se usa mejor?"** y
+**"¿cómo se ve mejor?"**. Las tres cosas juntas, siempre, sin que haga falta
+pedirlo.
+
+Qué mirar además de los errores:
+
+- **Más práctico.** Pasos de más para hacer algo simple, datos que el equipo
+  tiene que cargar dos veces, cosas que el sistema ya sabe y podría completar
+  solo, pantallas que obligan a ir y volver. Si algo se puede hacer en un toque
+  en vez de cuatro, se hace en uno.
+- **Más lindo.** Es un producto que se le muestra al cliente y compite con
+  plataformas pagas: espaciados desprolijos, textos cortados, tablas que se
+  desbordan en el celular, pantallas vacías sin gracia, botones sin jerarquía.
+  Lo feo también hace perder ventas.
+- **Que se entienda.** Mensajes en criollo y no en jerga, carteles que digan qué
+  hacer y no sólo qué pasó, pantallas vacías que expliquen el próximo paso.
+
+Al auditar, pedirle a los ayudantes las tres listas: qué está roto, qué es
+incómodo de usar y qué se ve mal. Al reportar, separarlas igual.
+
+## Antes de auditar: `docs/YA-RESUELTO.md`
+
+Lista de lo que ya está arreglado y de las decisiones tomadas. **Se lee antes de
+salir a buscar problemas**, y se incluye en el prompt de cada ayudante que audita.
+Si un hallazgo figura ahí, es falso positivo.
+
+### Anotar SIEMPRE, no sólo cuando parece importante
+
+**Orden del dueño, 9 de agosto de 2026: cada vez que se modifica algo, se
+anota en `docs/YA-RESUELTO.md`, en la misma propuesta.** No es "si te parece"
+ni "si el cambio es grande". Es siempre, sin excepción, y sin que haga falta
+pedirlo.
+
+Vale igual para las tres cosas que se hacen:
+
+- **Un arreglo** → qué estaba mal y qué se hizo, en una frase, en criollo.
+- **Una mejora o algo nuevo** → cómo funciona ahora y **por qué se eligió así**.
+  Ese porqué es lo que evita que otro lo "arregle" al revés el mes que viene.
+- **Un falso positivo verificado** → que quedó descartado y el motivo. Si no se
+  anota, la próxima auditoría lo vuelve a reportar y se gasta el viaje de nuevo.
+
+Una propuesta que toca código y no toca esa lista está incompleta. Si no queda
+anotado, la próxima auditoría lo vuelve a encontrar y alguien lo "arregla" de
+nuevo, a veces peor. Ya pasó.
+
+## Errores ya cometidos (no repetirlos)
+
+Lista corta de cosas que salieron mal de verdad. Se relee antes de una tanda
+grande; cada una costó tiempo o plata.
+
+### 1. Verificar propuestas a mano en vez de delegarlo
+
+Correr el revisor de tipos, las pruebas y el build es **apretar un botón y
+esperar**: va a los ayudantes económicos, siempre. El modelo principal se queda
+con leer el cambio y decidir.
+
+Y si hay varias propuestas para revisar, **se verifican en paralelo**, no una
+atrás de la otra. Cuatro builds seguidos son veinte minutos de reloj al pedo.
+
+Lo que sí hace el modelo principal: mirar el cambio con criterio. En una tanda
+real eso encontró que la sincronización con Google se había movido **antes** del
+guardado, y mandaba los avisos con la lista vieja de personal. Un ayudante barato
+no lo agarraba.
+
+### 2. Perder ediciones al cambiar de rama
+
+Pasó dos veces en una misma sesión:
+
+- `git stash -u` seguido de `git checkout -- .` borró trabajo sin commitear.
+- `git checkout <otra-rama> -- <archivo>` **pisó** una edición que estaba en el
+  árbol de trabajo, porque trae la versión commiteada de esa rama.
+
+**Regla: commitear antes de cambiar de rama.** Nunca usar `git checkout <ref> --
+<archivo>` esperando llevarse una edición sin commitear: hace lo contrario.
+
+### 3. Pedir algo que ya estaba hecho
+
+Una orden de trabajo pidió construir el álbum del portal del cliente, que la
+aplicación ya tenía. Gemini perdió el viaje entero.
+
+**Antes de escribir una tarea en una orden, verificar que no exista.** Un
+`graphify query` y una mirada al archivo alcanzan.
+
+### 4. Declarar que algo falta por una búsqueda mal hecha
+
+Se reportó que los recibos no tenían guardado automático. Sí lo tenían: la
+búsqueda fue `autoSave` y la función se llamaba `handleAutoSaveSalary`. La
+diferencia era una mayúscula.
+
+**Buscar sin distinguir mayúsculas antes de afirmar que algo no está.**
+
+### 5. Confiar en el revisor de tipos como si fuera el build
+
+`npx tsc --noEmit` pasaba y `npm run build` fallaba. La aplicación estuvo seis
+días sin poder publicarse y nadie lo vio. **El build es control obligatorio**, no
+un extra.
+
+## Decisiones del dueño ya tomadas (NO volver a preguntar)
+
+Cerradas. Si un análisis las marca como problema, es un falso positivo:
+
+- **El ajuste anual del 15% va siempre.** El descuento del 50% del Salón Club
+  Uruguay y el descuento ficticio del presupuesto son decisiones de marketing
+  suyas: no se tocan.
+- **Se cocina lo que se contrató.** La lista de compras usa la cantidad de
+  invitados del presupuesto, no la de confirmados. Si vienen más, el sistema
+  permite agregar invitados y el presupuesto sube. Está bien así.
+- **Las fotos del muro se descargan con el enlace directo, a propósito.** Quiere
+  que cualquiera que tenga el enlace pueda bajarlas.
+- **Se trabaja sólo en pesos uruguayos.** Las diferencias de redondeo en dólares
+  no aplican.
+- **Los controles rojos de GitHub son por facturación bloqueada.** No investigarlos
+  ni reportarlos. Lo que vale es lo que se verifica localmente.
+
+## Cómo se verifica que la app está sana
+
+El orden que funciona, y que ya detectó fallas reales:
+
+1. `npx tsc --noEmit` — cero errores.
+2. `npx jest --silent` — todas en verde.
+3. `npm run build` — tiene que terminar bien.
+4. Servidor compilado en el puerto 3100 y después las pruebas de navegador.
+   Nunca al revés, y nunca recompilar mientras corren.
+5. `npm run test:rules` para la seguridad de la base.
+
+**Después de fusionar varias propuestas que tocan los mismos archivos, correr esto
+de nuevo.** Pasó de verdad: dos propuestas protegieron el archivo de facturas de
+maneras distintas, al fusionarse quedaron las dos aplicadas encima, y además de no
+compilar habría dejado la pantalla colgada para siempre al guardar una factura.
+
+## Continuidad entre chats (leer esto primero, siempre)
+
+El dueño no tiene que contar de nuevo en qué se estaba trabajando cada vez que
+abre un chat. Para eso hay dos archivos, y se usan distinto:
+
+- **`ESTADO-ACTUAL.md`** — la hoja de traspaso. Corta (máximo 40 líneas) y se
+  **pisa**, no se acumula. Dice en qué se está trabajando, en qué rama, qué quedó
+  a medias y qué sigue. **Se lee entera al empezar cualquier sesión.** En las
+  sesiones web se imprime sola al arrancar.
+- **`ESTADO-AUDITORIA.md`** — el histórico completo. Es largo y caro de leer: se
+  abre sólo cuando hace falta buscar algo viejo, nunca de rutina.
+
+Al terminar una tanda, reescribir `ESTADO-ACTUAL.md` con el comando `/aca-quede`.
+Una sesión que cierra sin dejar el traspaso hace que la siguiente arranque a
+ciegas y gaste el doble.
+
+## Se programa entre tres: Codex, Gemini y Claude
+
+El dueño trabaja con las tres a la vez sobre el mismo repositorio. De ahí salen
+las reglas que más importan:
+
+- **Nunca dos tareas en la misma rama.** Cada una arranca desde la versión
+  principal actualizada, con rama nueva y nombre descriptivo.
+- **Antes de empezar, mirar qué propuestas de cambio están abiertas.** Si la de
+  la rama actual ya se cerró o fusionó, está prohibido seguir subiendo ahí:
+  rama nueva y propuesta nueva.
+- **Después de fusionar varias propuestas que tocan los mismos archivos, correr
+  la verificación completa de nuevo.** Ya pasó: dos propuestas protegieron el
+  archivo de facturas de maneras distintas, al fusionarse quedaron las dos
+  aplicadas encima y la pantalla quedaba colgada al guardar una factura.
+- **La hoja de traspaso es de las tres**, no de una sola. Lo mismo vale para las
+  reglas compartidas de `AGENTS.md`.
+- Ninguna IA fusiona propuestas por su cuenta: se dejan abiertas para el dueño.
+
+## Atajos ya configurados (usarlos, no rehacerlos)
+
+- **`/sano`** — corre los cinco controles de salud en el orden correcto y avisa
+  el resultado en criollo. No hace falta recordar la secuencia.
+- **`/vende`** — mira una pantalla, un texto o algo nuevo con ojo de vendedor.
+  **Toda la app vende**, no sólo el módulo comercial: se usa antes de dar por
+  terminada cualquier pantalla que vea un cliente o un invitado.
+- **`/aca-quede`** — reescribe la hoja de traspaso al cerrar la sesión.
+- **Ayudantes económicos ya definidos**, con las reglas del proyecto adentro (no
+  hay que explicárselas cada vez): `ak-buscador` para ubicar dónde vive algo,
+  `ak-auditor` para revisar un área, `ak-inventario` para listas y conteos. Los
+  tres son de sólo lectura y arrancan por el mapa del código.
+- En las sesiones web, el navegador de pruebas se ubica solo al arrancar: no hace
+  falta buscarlo a mano.

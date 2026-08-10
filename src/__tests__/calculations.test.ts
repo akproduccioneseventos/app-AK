@@ -51,6 +51,36 @@ describe('getGuestCountForItem', () => {
     expect(getGuestCountForItem(item, adultos, adolescentes, ninos)).toBe(adolescentes + ninos);
   });
 
+  // Antes sólo se reconocía la palabra "niño" exacta y con tilde: un servicio
+  // llamado "Menú infantil" o "Menu ninos" se cobraba para toda la mesa de
+  // adultos.
+  it.each([
+    'Menú Niños',
+    'Menu Ninos',
+    'Menú infantil',
+    'Platos infantiles',
+    'Menú para menores',
+    'Kids box',
+  ])('returns only children+adolescents for "%s"', nombreServicio => {
+    expect(getGuestCountForItem({ nombreServicio }, adultos, adolescentes, ninos)).toBe(adolescentes + ninos);
+  });
+
+  // La contracara: palabras que hablan de tamaño, no de edad. Si estas se
+  // tomaran por infantiles, un salón para toda la fiesta se cotizaría sólo
+  // para los chicos.
+  it.each([
+    'Salón chico',
+    'Pantalla de menor tamaño',
+    'Torta chica',
+  ])('still counts every guest for "%s"', nombreServicio => {
+    expect(getGuestCountForItem({ nombreServicio }, adultos, adolescentes, ninos)).toBe(adultos + adolescentes + ninos);
+  });
+
+  it('keeps a kids main dish out of the adults count', () => {
+    const item = { nombreServicio: 'Plato principal infantil', categoriaServicio: 'Comidas' };
+    expect(getGuestCountForItem(item, adultos, adolescentes, ninos)).toBe(adolescentes + ninos);
+  });
+
   it('returns only adults for plato principal category', () => {
     const item = { nombreServicio: 'Carne asada', categoriaServicio: 'Plato Principal' };
     expect(getGuestCountForItem(item, adultos, adolescentes, ninos)).toBe(adultos);

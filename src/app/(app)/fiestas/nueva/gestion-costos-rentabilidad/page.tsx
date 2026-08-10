@@ -100,11 +100,17 @@ function GestionCostosRentabilidadContent() {
   const handleAddCostoItem = (e: FormEvent) => {
     e.preventDefault();
     if (!newCostoNombre.trim() || !newCostoMontoEstimado.trim()) return;
+    // Un monto negativo o invalido descuadra el margen sin que se note.
+    const monto = parseFloat(newCostoMontoEstimado);
+    if (!Number.isFinite(monto) || monto < 0) {
+      toast({ title: 'Monto invalido', description: 'Poné un importe mayor o igual a cero.', variant: 'destructive' });
+      return;
+    }
     const newItem: CostoItem = {
       id: `costo_man_${Date.now()}`,
       nombre: newCostoNombre.trim(),
       category: newCostoCategoria,
-      montoEstimado: parseFloat(newCostoMontoEstimado),
+      montoEstimado: monto,
     };
     setGestionCostos(prev => ({ ...prev, costosItems: [...(prev.costosItems || []), newItem] }));
     setNewCostoNombre(''); setNewCostoMontoEstimado('');
@@ -113,11 +119,16 @@ function GestionCostosRentabilidadContent() {
   const handleAddPago = async (e: FormEvent) => {
     e.preventDefault();
     if (!newPagoCostoId || !newPagoMonto || !newPagoFecha || !fiestaId) return;
+    const montoPago = parseFloat(newPagoMonto);
+    if (!Number.isFinite(montoPago) || montoPago < 0) {
+      toast({ title: 'Monto invalido', description: 'Poné un importe mayor o igual a cero.', variant: 'destructive' });
+      return;
+    }
     const newPago: PagoProveedor = {
         id: `pago_${Date.now()}`,
         costoAsociadoId: newPagoCostoId,
         fecha: newPagoFecha.toISOString(),
-        monto: parseFloat(newPagoMonto)
+        monto: montoPago
     };
     const updated = [...pagosProveedores, newPago];
     setIsSaving(true);
@@ -135,10 +146,28 @@ function GestionCostosRentabilidadContent() {
   };
 
   const stats = useMemo(() => {
-    const projectedCost = (gestionCostos.costosItems || []).reduce((s, i) => s + i.montoEstimado, 0) + 
-                         (gestionCostos.others?.totalCateringCost || 0) + 
-                         (gestionCostos.others?.totalBebidasCost || 0) + 
-                         (gestionCostos.others?.totalReposteriaCost || 0) + 
+    // La merma de bebidas estaba contada DOS veces y achicaba el margen.
+    //
+    // `totalBebidasCost` ya viene con el 5% de merma adentro (se calcula como
+    // base * 1.05 en costos.actions.ts), y ademas la merma figura aparte como
+    // un item propio dentro de `costosItems`. Sumar las dos cosas inflaba el
+    // costo y mostraba una rentabilidad mas baja que la real.
+    //
+    // El reporte de post-evento ya lo descontaba: en reportes.ts existe
+    // `costosSinMermaDuplicada` haciendo exactamente este filtro. Se detecto
+    // alla y no se corrigio aca, asi que las dos pantallas daban numeros
+    // distintos para la misma fiesta.
+    //
+    // Ojo con el costo de proveedores: NO va sumado aparte. Ya esta adentro de
+    // `costosItems` como items `auto_prov_*`; `totalProveedorCost` es solo el
+    // subtotal que se muestra en la tabla. Sumarlo seria contarlo dos veces.
+    const costosSinMermaDuplicada = (gestionCostos.costosItems || [])
+      .filter(item => item.id !== 'auto_merma_bebidas');
+
+    const projectedCost = costosSinMermaDuplicada.reduce((s, i) => s + i.montoEstimado, 0) +
+                         (gestionCostos.others?.totalCateringCost || 0) +
+                         (gestionCostos.others?.totalBebidasCost || 0) +
+                         (gestionCostos.others?.totalReposteriaCost || 0) +
                          (gestionCostos.others?.totalPersonalCost || 0);
 
     const realExpenses = pagosProveedores.reduce((s, p) => s + (p.monto || 0), 0);
