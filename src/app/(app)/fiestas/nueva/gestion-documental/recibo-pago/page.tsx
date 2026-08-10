@@ -7,6 +7,7 @@ import { Button } from '@/components/ui/button';
 import { Skeleton } from '@/components/ui/skeleton';
 import { ArrowLeft, Printer as PrinterIcon, Share2, AlertTriangle, Loader2, CheckCircle2, Clock, FileText } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
+import { conSinonimos } from '@/lib/contratos/marcadores';
 import type { FiestaEnPlanificacion } from '@/types/fiesta';
 import type { Customer } from '@/types/customer';
 import type { Presupuesto } from '@/types/presupuesto';
@@ -184,7 +185,7 @@ function ReciboPagoContent({ fiestaId }: { fiestaId: string | null }) {
             '{{PRESUPUESTO_TOTAL}}': formatCurrency(presupuestoData?.totalConDescuento ?? presupuestoData?.costoTotalEstimado),
             '{{SENIA}}': seniaValue,
           };
-          Object.entries(replacements).forEach(([key, val]) => {
+          Object.entries(conSinonimos(replacements)).forEach(([key, val]) => {
             text = text.replaceAll(key, val);
           });
         }
