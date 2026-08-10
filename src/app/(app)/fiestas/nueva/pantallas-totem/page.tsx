@@ -235,7 +235,7 @@ function PantallasTotemContent() {
 
   return (
     <main className="space-y-6 pb-16">
-      <header className="overflow-hidden rounded-[2rem] border bg-white shadow-xl">
+      <header className="overflow-hidden rounded-[2rem] border border-border bg-card shadow-xl">
         <div className="grid gap-6 p-6 lg:grid-cols-[1fr_320px]">
           <div className="flex items-start gap-4">
             <div className="flex h-16 w-16 shrink-0 items-center justify-center rounded-3xl bg-primary text-white shadow-xl">
@@ -243,8 +243,8 @@ function PantallasTotemContent() {
             </div>
             <div>
               <p className="text-xs font-black uppercase tracking-[0.24em] text-primary/70">Zona tecnológica visual</p>
-              <h1 className="text-3xl font-black tracking-tight text-slate-950 sm:text-5xl">Pantallas Tótem</h1>
-              <p className="mt-2 max-w-3xl text-base font-semibold text-slate-500">
+              <h1 className="text-3xl font-black tracking-tight text-foreground sm:text-5xl">Pantallas Tótem</h1>
+              <p className="mt-2 max-w-3xl text-base font-semibold text-muted-foreground">
                 Creá pantallas verticales u horizontales con nombre, foto, logo, fondos en movimiento, QR y fotos sincronizadas del muro social.
               </p>
               <div className="mt-4 flex flex-wrap gap-2">
@@ -257,12 +257,12 @@ function PantallasTotemContent() {
               </div>
             </div>
           </div>
-          <div className="rounded-[1.5rem] border bg-slate-50 p-4">
-            <p className="text-xs font-black uppercase tracking-[0.22em] text-slate-400">QR principal</p>
-            <div className="mt-3 flex justify-center rounded-3xl bg-white p-4">
+          <div className="rounded-[1.5rem] border border-border bg-muted/30 p-4">
+            <p className="text-xs font-black uppercase tracking-[0.22em] text-muted-foreground">QR principal</p>
+            <div className="mt-3 flex justify-center rounded-3xl bg-card p-4 border border-border">
               <QRCodeSVG value={socialUrl || 'https://akproducciones.uy'} size={150} includeMargin />
             </div>
-            <p className="mt-3 break-all text-xs font-semibold text-slate-500">{socialUrl}</p>
+            <p className="mt-3 break-all text-xs font-semibold text-muted-foreground">{socialUrl}</p>
           </div>
         </div>
       </header>
@@ -271,8 +271,8 @@ function PantallasTotemContent() {
         {totems.map((totem) => {
           const totemUrl = origin && fiestaId ? `${origin}/evento/totem/${fiestaId}/${totem.id}` : '';
           return (
-            <Card key={totem.id} className="overflow-hidden rounded-[2rem] shadow-lg">
-              <CardHeader className="border-b bg-slate-50/70">
+            <Card key={totem.id} className="overflow-hidden rounded-[2rem] shadow-lg border-border">
+              <CardHeader className="border-b border-border bg-muted/30">
                 <div className="flex flex-col gap-3 lg:flex-row lg:items-center lg:justify-between">
                   <div>
                     <CardTitle className="flex items-center gap-2 text-xl">

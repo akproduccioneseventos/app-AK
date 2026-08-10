@@ -248,21 +248,21 @@ function GuestModuleContent() {
           {/* Feature Toggles */}
           <div className="space-y-4">
             <div>
-              <h2 className="text-lg font-bold text-slate-800">¿Qué puede ver el invitado?</h2>
+              <h2 className="text-lg font-bold text-foreground">¿Qué puede ver el invitado?</h2>
               <p className="text-sm text-muted-foreground">Activa o desactiva las secciones que el invitado verá en su portal.</p>
             </div>
             <div className="space-y-3">
               {FEATURE_CONFIG.map(({ key, icon: Icon, label, description, color, bg }) => (
                 <div
                   key={key}
-                  className={`rounded-2xl border-2 p-4 flex items-center justify-between transition-all ${settings[key] ? `${bg} border-transparent` : 'bg-white border-slate-100'}`}
+                  className={`rounded-2xl border-2 p-4 flex items-center justify-between transition-all ${settings[key] ? `${bg} border-transparent` : 'bg-card border-border'}`}
                 >
                   <div className="flex items-center gap-3">
-                    <div className={`w-9 h-9 rounded-xl flex items-center justify-center ${settings[key] ? 'bg-white shadow-sm' : 'bg-slate-100'}`}>
-                      <Icon className={`w-5 h-5 ${settings[key] ? color : 'text-slate-400'}`} />
+                    <div className={`w-9 h-9 rounded-xl flex items-center justify-center ${settings[key] ? 'bg-card shadow-sm' : 'bg-muted'}`}>
+                      <Icon className={`w-5 h-5 ${settings[key] ? color : 'text-muted-foreground'}`} />
                     </div>
                     <div>
-                      <p className={`font-semibold text-sm ${settings[key] ? 'text-slate-800' : 'text-slate-500'}`}>{label}</p>
+                      <p className={`font-semibold text-sm ${settings[key] ? 'text-foreground' : 'text-muted-foreground'}`}>{label}</p>
                       <p className="text-xs text-muted-foreground">{description}</p>
                     </div>
                   </div>
@@ -288,32 +288,32 @@ function GuestModuleContent() {
               <CardContent className="space-y-4">
                 <div className="grid grid-cols-2 gap-3">
                   <div className="space-y-1.5">
-                    <Label className="text-xs font-bold uppercase tracking-wider text-slate-500">Color de Fondo</Label>
+                    <Label className="text-xs font-bold uppercase tracking-wider text-muted-foreground">Color de Fondo</Label>
                     <div className="flex items-center gap-2">
                       <input
                         type="color"
                         value={settings.customBgColor || '#f8f5ff'}
                         onChange={e => setSettings(prev => ({ ...prev, customBgColor: e.target.value }))}
-                        className="w-10 h-9 rounded cursor-pointer border border-slate-200 p-0.5"
+                        className="w-10 h-9 rounded cursor-pointer border border-border p-0.5"
                       />
                       <span className="text-xs text-muted-foreground">{settings.customBgColor || '#f8f5ff'}</span>
                     </div>
                   </div>
                   <div className="space-y-1.5">
-                    <Label className="text-xs font-bold uppercase tracking-wider text-slate-500">Color Acento</Label>
+                    <Label className="text-xs font-bold uppercase tracking-wider text-muted-foreground">Color Acento</Label>
                     <div className="flex items-center gap-2">
                       <input
                         type="color"
                         value={settings.customAccentColor || '#9333ea'}
                         onChange={e => setSettings(prev => ({ ...prev, customAccentColor: e.target.value }))}
-                        className="w-10 h-9 rounded cursor-pointer border border-slate-200 p-0.5"
+                        className="w-10 h-9 rounded cursor-pointer border border-border p-0.5"
                       />
                       <span className="text-xs text-muted-foreground">{settings.customAccentColor || '#9333ea'}</span>
                     </div>
                   </div>
                 </div>
                 <div className="space-y-1.5">
-                  <Label className="text-xs font-bold uppercase tracking-wider text-slate-500">Foto de Portada</Label>
+                  <Label className="text-xs font-bold uppercase tracking-wider text-muted-foreground">Foto de Portada</Label>
                   <p className="text-xs text-muted-foreground">Imagen que aparece como fondo del hero del portal (quinceañera, pareja, etc.)</p>
                   <UploadButton
                     currentUrl={settings.coverImageUrl || undefined}

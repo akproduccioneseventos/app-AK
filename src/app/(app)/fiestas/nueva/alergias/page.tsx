@@ -121,7 +121,7 @@ function AlergiasContent() {
 
   if (isLoading) return (
     <div className="flex items-center justify-center min-h-[60vh]">
-      <Loader2 className="w-10 h-10 animate-spin text-orange-600" />
+      <Loader2 className="w-10 h-10 animate-spin text-primary" />
     </div>
   );
 
@@ -135,11 +135,11 @@ function AlergiasContent() {
           </Link>
         </Button>
         <div>
-          <h1 className="text-xl font-black text-slate-900 flex items-center gap-2">
-            <Utensils className="w-5 h-5 text-orange-600" />
+          <h1 className="text-xl font-black text-foreground flex items-center gap-2">
+            <Utensils className="w-5 h-5 text-primary" />
             Gestión Alimentaria
           </h1>
-          <p className="text-sm text-slate-500">{fiesta?.configuracion.nombreEvento} · Alergias y dietas para catering</p>
+          <p className="text-sm text-muted-foreground">{fiesta?.configuracion.nombreEvento} · Alergias y dietas para catering</p>
         </div>
       </div>
 
@@ -147,20 +147,20 @@ function AlergiasContent() {
       <div className="grid grid-cols-3 gap-3">
         <Card>
           <CardContent className="pt-4 text-center">
-            <p className="text-2xl font-black text-slate-800">{confirmedGuests.length}</p>
-            <p className="text-xs text-slate-500 mt-0.5">Confirmados</p>
+            <p className="text-2xl font-black text-foreground">{confirmedGuests.length}</p>
+            <p className="text-xs text-muted-foreground mt-0.5">Confirmados</p>
           </CardContent>
         </Card>
         <Card className="border-orange-200">
           <CardContent className="pt-4 text-center">
             <p className="text-2xl font-black text-orange-700">{guestsWithRestrictions.length}</p>
-            <p className="text-xs text-slate-500 mt-0.5">Con Restricción</p>
+            <p className="text-xs text-muted-foreground mt-0.5">Con Restricción</p>
           </CardContent>
         </Card>
         <Card className="border-amber-200">
           <CardContent className="pt-4 text-center">
             <p className="text-2xl font-black text-amber-700">{guestsWithCeliac.length}</p>
-            <p className="text-xs text-slate-500 mt-0.5">Celíacos</p>
+            <p className="text-xs text-muted-foreground mt-0.5">Celíacos</p>
           </CardContent>
         </Card>
       </div>
@@ -244,7 +244,7 @@ function AlergiasContent() {
       <Card>
         <CardHeader className="pb-2">
           <CardTitle className="text-base font-black flex items-center gap-2">
-            <Users className="w-5 h-5 text-slate-600" />
+            <Users className="w-5 h-5 text-muted-foreground" />
             Detalle por Invitado
           </CardTitle>
           <CardDescription>
@@ -254,7 +254,7 @@ function AlergiasContent() {
         <CardContent className="space-y-3">
           {guestsWithRestrictions.length > 0 && (
             <div className="relative">
-              <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" />
+              <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
               <Input
                 placeholder="Buscar invitado..."
                 value={searchQuery}
@@ -265,12 +265,12 @@ function AlergiasContent() {
           )}
 
           {guestsWithRestrictions.length === 0 ? (
-            <div className="py-8 text-center text-slate-500">
+            <div className="py-8 text-center text-muted-foreground">
               <Utensils className="w-8 h-8 mx-auto mb-2 opacity-40" />
               <p className="text-sm">No hay invitados confirmados con restricciones alimentarias.</p>
             </div>
           ) : filteredGuests.length === 0 ? (
-            <p className="text-sm text-slate-500 text-center py-4">No se encontraron resultados.</p>
+            <p className="text-sm text-muted-foreground text-center py-4">No se encontraron resultados.</p>
           ) : (
             <div className="space-y-2">
               {filteredGuests.map(guest => {
@@ -278,13 +278,13 @@ function AlergiasContent() {
                 const cfg = diet ? DIET_CONFIG[diet] : null;
                 const Icon = cfg?.icon ?? Utensils;
                 return (
-                  <div key={guest.id} className="flex items-start gap-3 p-3 rounded-lg border border-slate-100 bg-slate-50">
-                    <div className={`p-1.5 rounded-md ${cfg?.bg ?? 'bg-slate-100'} shrink-0 mt-0.5`}>
-                      <Icon className={`w-4 h-4 ${cfg?.color ?? 'text-slate-500'}`} />
+                  <div key={guest.id} className="flex items-start gap-3 p-3 rounded-lg border border-border bg-muted/30">
+                    <div className={`p-1.5 rounded-md ${cfg?.bg ?? 'bg-muted'} shrink-0 mt-0.5`}>
+                      <Icon className={`w-4 h-4 ${cfg?.color ?? 'text-muted-foreground'}`} />
                     </div>
                     <div className="flex-1 min-w-0">
                       <div className="flex items-center gap-2 flex-wrap">
-                        <p className="text-sm font-semibold text-slate-900">{guest.nombre}</p>
+                        <p className="text-sm font-semibold text-foreground">{guest.nombre}</p>
                         {guest.tableNumber && (
                           <Badge variant="outline" className="text-xs">Mesa {guest.tableNumber}</Badge>
                         )}
@@ -301,7 +301,7 @@ function AlergiasContent() {
                         </Badge>
                       )}
                       {guest.alergiasEspecificas && (
-                        <p className="text-xs text-slate-600 mt-1">
+                        <p className="text-xs text-muted-foreground mt-1">
                           <span className="font-medium">Detalle:</span> {guest.alergiasEspecificas}
                         </p>
                       )}
@@ -309,7 +309,7 @@ function AlergiasContent() {
                         <p className="text-xs text-amber-700 mt-1 font-medium">⚠️ También marcado como Celíaco</p>
                       )}
                       {guest.notes && (
-                        <p className="text-xs text-slate-500 mt-1">
+                        <p className="text-xs text-muted-foreground mt-1">
                           <span className="font-medium">Notas:</span> {guest.notes}
                         </p>
                       )}
