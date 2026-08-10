@@ -11,8 +11,14 @@ Junta en un solo lugar todo lo pendiente. Reemplaza a las órdenes anteriores:
 
 ## Reglas que valen para toda esta orden
 
-- **Una propuesta por bloque grande** (A, B, C, D, E). No una por archivo, no
-  una por hallazgo. Cada fusión se paga.
+- **UNA SOLA PROPUESTA CON LOS CINCO BLOQUES.** No una por bloque, no una por
+  archivo, no una por hallazgo. Cada fusión dispara un despliegue y se paga:
+  cinco propuestas son cinco despliegues donde alcanza con uno.
+  - Hacé los cinco bloques, corré los cuatro controles **sobre el conjunto
+    entero** y recién ahí subís.
+  - Si un bloque te queda trabado, entregá los otros cuatro en esa misma
+    propuesta y decí cuál faltó y por qué.
+  - La única excepción es que algo sea urgente y no pueda esperar al resto.
 - Antes de subir, los cuatro controles sobre el conjunto: `npx tsc --noEmit`,
   `npx jest --silent`, `npm run check:acentos`, `npm run build`. **Si alguno
   falla, no subas.**
@@ -102,7 +108,9 @@ WhatsApp, catálogo de menús, salones, empleados y proveedores.
 
 ---
 
-## Cuando termines cada bloque
+## Cuando termines
 
-Avisá el número de la propuesta y **anotá en `docs/YA-RESUELTO.md`** lo que
-tocaste, con el porqué. Es la única memoria compartida entre las tres IA.
+**Recién cuando estén los cinco bloques**, corré los cuatro controles sobre todo
+junto y subí **una sola propuesta**. Avisá el número y **anotá en
+`docs/YA-RESUELTO.md`** todo lo que tocaste, con el porqué. Es la única memoria
+compartida entre las tres IA.

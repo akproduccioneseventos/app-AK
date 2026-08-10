@@ -29,6 +29,11 @@ memoria compartida que hay.
 
 ## SIEMPRE propuestas grandes, nunca muchas chicas
 
+**El dueño lo tuvo que repetir el 10 de agosto de 2026.** La regla vale también
+para **las órdenes de trabajo que una IA le escribe a otra**: si la orden tiene
+cinco bloques, se pide **una sola propuesta con los cinco**, no una por bloque.
+Ya se falló así: la regla estaba escrita y la orden pedía lo contrario.
+
 **Orden del dueño, 9 de agosto de 2026. Vale para las tres IA, sin excepción.**
 
 Cada fusión dispara un despliegue y eso se paga. **Se junta todo el trabajo de la
