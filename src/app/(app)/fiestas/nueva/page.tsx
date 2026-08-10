@@ -15,7 +15,7 @@ import {
     ArrowLeft, Clock, FileSignature, FileText, Receipt, FileX, ChevronDown, Bell,
     Activity, ShieldCheck, Users2, Search, Music, Package, Truck, UserCheck,
     Monitor, Tv, Gamepad2, Sparkles, UtensilsCrossed, Wine, CreditCard,
-    BookOpen, Image, Hash, Lock, X, CheckCircle2, Mic, Smartphone
+    BookOpen, Image, Hash, Lock, X, CheckCircle2, Mic, Smartphone, ListVideo
 } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { getFiestaById, updateModulosContratadosFiestaActual } from '@/app/actions/fiesta-actual';
@@ -99,8 +99,9 @@ const modules: ModuleDefinition[] = [
   { id: 'muroSocial', title: "Muro Social & Pantalla", href: "muro-social", icon: Gamepad2, description: "Mural de fotos, playlist de pantalla, juegos interactivos y configuración de la pantalla gigante.", category: 'PANTALLA GIGANTE AK', color: "bg-violet-100 text-violet-700", badge: 'Pantalla' },
   { id: 'zonaDigital', title: "Zona Digital AK", href: "zona-digital", icon: Sparkles, description: "Retos, juegos, emojis, fotos, redes y experiencias para adolescentes.", category: 'PANTALLA GIGANTE AK', color: "bg-red-50 text-red-700", badge: 'Invitado' },
   { id: 'pantallasTotem', title: "Pantallas Tótem", href: "pantallas-totem", icon: Tv, description: "Tótems personalizados con QR, fotos sincronizadas, fondos en movimiento y modo pista.", category: 'PANTALLA GIGANTE AK', color: "bg-cyan-100 text-cyan-700", badge: 'Pantalla' },
-  { id: 'readiness', title: "Readiness Score", href: "readiness", icon: ShieldCheck, description: "Semáforo de preparación del evento.", category: 'PANTALLA GIGANTE AK', color: "bg-emerald-100 text-emerald-700", badge: 'Interno' },
-  { id: 'fiestaLista', title: "Fiesta Lista 100%", href: "fiesta-lista", icon: ClipboardCheck, description: "Checklist simple de demo, plantillas y salida a la luz.", category: 'PANTALLA GIGANTE AK', color: "bg-red-600 text-white shadow-xl shadow-red-500/25", badge: 'Interno' },
+  { id: 'playlistPantalla', title: "Playlist Pantalla", href: "playlist-pantalla", icon: ListVideo, description: "Lista de reproducción en vivo para la pantalla del salón.", category: 'PANTALLA GIGANTE AK', color: "bg-blue-100 text-blue-700", badge: 'Pantalla' },
+  { id: 'readiness', title: "Control Operativo", href: "readiness", icon: ShieldCheck, description: "Semáforo de preparación y riesgo operativo del evento.", category: 'PANTALLA GIGANTE AK', color: "bg-emerald-100 text-emerald-700", badge: 'Interno' },
+  { id: 'fiestaLista', title: "Calidad de Experiencia", href: "fiesta-lista", icon: ClipboardCheck, description: "Auditoría premium, checklist de demo y salida a la luz.", category: 'PANTALLA GIGANTE AK', color: "bg-red-600 text-white shadow-xl shadow-red-500/25", badge: 'Interno' },
 
   // 7. DISEÑO, SALÓN Y AMBIENTACIÓN
   { id: 'decoracion', title: "Decoración", href: "decoracion", icon: Palette, description: "Estilo, moodboard y ambientación del salón.", category: 'DISEÑO, SALÓN Y AMBIENTACIÓN', color: "bg-pink-100 text-pink-600", badge: 'Interno' },
