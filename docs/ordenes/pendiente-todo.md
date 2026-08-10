@@ -93,6 +93,31 @@ averiguá si son lo mismo, **avisá y no borres**), `resumen-imprimible`,
 - **Prueba antes de la fiesta**: que el operador confirme cámara, muro e
   impresora por estación contratada, imprimiendo una hoja de prueba de verdad.
 
+# BLOQUE E-bis — Plata en ajustes: lo ya encontrado (para CLAUDE, no Gemini)
+
+Auditado el 10 de agosto de 2026. **Verificado leyendo el código**, falta
+arreglarlo. Es plata: lo escribe Claude.
+
+1. **Precios negativos por ajuste en masa — ARREGLADO.** `applyPriceAdjustment`
+   aceptaba cualquier porcentaje; con -200 el precio cambiaba de signo y todo el
+   catálogo quedaba en negativo. El `min="-100"` de la pantalla lo controla el
+   navegador y se saltea. Ya se rechaza -100 o menos, y más de 1000%.
+2. **Dos nombres para lo mismo en las plantillas de contrato.** El editor ofrece
+   `{{CLIENTE_DIRECCION}}` y el contrato original usa `{{CLIENTE_DOMICILIO}}`
+   (`contract-template.ts:17`). El generador sólo reemplaza el primero, así que
+   una plantilla copiada del original sale con `{{CLIENTE_DOMICILIO}}` escrito
+   en el papel que firma el cliente. **Arreglo: que el generador acepte los dos
+   nombres.**
+3. **Marcadores inventados se guardan sin avisar.** Se puede escribir
+   `{{LO_QUE_SEA}}` en una plantilla y sale así en el contrato. Hay que avisar
+   **al guardar**, no cuando ya se generó.
+4. **Un cupón con tope se puede pasar del límite** si dos personas lo aplican
+   casi a la vez: se valida fuera del turno y se registra adentro.
+5. **Se puede borrar un cupón ya usado**, y se pierde el rastro de los
+   descuentos aplicados.
+6. **Al editar un presupuesto con cupón, el uso no se registra**
+   (`crear/page.tsx:409`, la condición excluye ediciones).
+
 # BLOQUE E — Ajustes del sistema
 
 **Nunca se auditó y de ahí salen los textos que ve el cliente.**

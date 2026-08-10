@@ -81,6 +81,16 @@ export async function applyPriceAdjustment(
   if (isNaN(percentage) || percentage === 0) {
     return { success: false, error: 'El porcentaje debe ser un número distinto de cero.' };
   }
+  // La pantalla limita el campo a -100, pero eso lo controla el navegador y se
+  // saltea mandando el pedido a mano. Con -200 el precio cambia de signo y todo
+  // el catalogo queda en negativo: se cobraria al reves.
+  if (percentage <= -100) {
+    return { success: false, error: 'No se puede bajar los precios un 100% o más: quedarían en cero o en negativo.' };
+  }
+  // Un ajuste enorme casi siempre es un error de tipeo (5000 en vez de 50).
+  if (percentage > 1000) {
+    return { success: false, error: 'El ajuste no puede superar el 1000%. Revisá el número que pusiste.' };
+  }
 
   try {
     const servicios = await getServiciosEmpresa();
