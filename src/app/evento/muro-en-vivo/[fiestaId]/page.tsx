@@ -693,13 +693,17 @@ export default function MuroEnVivoPage() {
           )}
 
           {/* Live chat messages overlay — bottom-left, always shown when chat is enabled */}
+          {/* Esta esquina se proyecta en una pared y se mira desde diez metros, en
+              un salon a oscuras. Con letra de once pixeles y blanco al 40% no se
+              leia: el invitado veia que su mensaje "salio en la pantalla" y nadie
+              podia leerlo. Va mas grande y con mas contraste. */}
           {isLoaded && settings.privateDedicationsMode !== true && settings.chatEnabled !== false && recentChatMessages.length > 0 && !activePoll && (
-            <div className={`absolute left-6 bottom-6 z-10 space-y-1.5 ${hasSidePanel ? 'w-[28vw] max-w-xs' : 'w-[32vw] max-w-xs'}`}>
-              <p className="text-[10px] font-black uppercase tracking-[0.3em] text-white/40 mb-2">💬 Chat en Vivo</p>
+            <div className={`absolute left-6 bottom-6 z-10 space-y-2 ${hasSidePanel ? 'w-[28vw] max-w-sm' : 'w-[32vw] max-w-sm'}`}>
+              <p className="text-sm font-black uppercase tracking-[0.3em] text-white/70 mb-2">💬 Chat en Vivo</p>
               {recentChatMessages.map(msg => (
-                <div key={msg.id} className="rounded-xl border border-white/10 bg-black/60 px-3 py-2 shadow-md backdrop-blur-sm">
-                  <span className="text-[11px] font-black text-sky-300 mr-1.5">{msg.authorName}:</span>
-                  <span className="text-[12px] text-white/85 leading-snug">{msg.text}</span>
+                <div key={msg.id} className="rounded-xl border border-white/25 bg-black/70 px-4 py-2.5 shadow-md backdrop-blur-sm">
+                  <span className="text-base font-black text-sky-300 mr-1.5">{msg.authorName}:</span>
+                  <span className="text-base text-white leading-snug">{msg.text}</span>
                 </div>
               ))}
             </div>
@@ -707,12 +711,12 @@ export default function MuroEnVivoPage() {
 
           {/* Song requests overlay — bottom-right corner */}
           {isLoaded && settings.showSongRequests !== false && recentSongRequests.length > 0 && !activePoll && (
-            <div className="absolute right-6 bottom-6 z-10 w-[28vw] max-w-xs space-y-1.5">
-              <p className="text-[10px] font-black uppercase tracking-[0.3em] text-white/40 mb-2">🎵 Pedidos de Canciones</p>
+            <div className="absolute right-6 bottom-6 z-10 w-[28vw] max-w-sm space-y-2">
+              <p className="text-sm font-black uppercase tracking-[0.3em] text-white/70 mb-2">🎵 Pedidos de Canciones</p>
               {recentSongRequests.map(req => (
-                <div key={req.id} className="rounded-xl border border-green-400/20 bg-black/60 px-3 py-2 shadow-md backdrop-blur-sm">
-                  <span className="text-[12px] font-bold text-green-300 mr-1.5">{req.song}</span>
-                  <span className="text-[10px] text-white/50">— {req.requestedBy}</span>
+                <div key={req.id} className="rounded-xl border border-green-400/40 bg-black/70 px-4 py-2.5 shadow-md backdrop-blur-sm">
+                  <span className="text-base font-bold text-green-300 mr-1.5">{req.song}</span>
+                  <span className="text-sm text-white/75">— {req.requestedBy}</span>
                 </div>
               ))}
             </div>
