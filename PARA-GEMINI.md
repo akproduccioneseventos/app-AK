@@ -165,11 +165,7 @@ faltante y avisar en la pantalla del barman.
 
 ## 8. Decisiones que faltan del dueño (no avanzar sin respuesta)
 
-1. **Cambió el color del catálogo de bodas** y el guardián de diseño lo marca. Si
-   el cambio es a propósito, hay que actualizar la referencia de
-   `tests/e2e/layout-baseline.json` para `/catalogo/bodas`. Son las dos únicas
-   pruebas de navegador que fallan hoy.
-2. **La moderación de la pantalla gigante viene apagada** en las fiestas nuevas. No
+1. **La moderación de la pantalla gigante viene apagada** en las fiestas nuevas. No
    es urgente: las fotos ya se analizan solas y los videos ya esperan aprobación
    siempre.
 4. **Los "módulos" por usuario no se validan en el servidor.** Se asignan y se
@@ -178,7 +174,26 @@ faltante y avisar en la pantalla del barman.
 
 ---
 
-## 9. Tope de dos roles por persona en la misma fiesta
+## 9. Actualizar la referencia de diseño del catálogo de bodas
+
+`tests/e2e/layout-baseline.json`, entrada `/catalogo/bodas`
+
+El guardián de diseño falla en las dos versiones (escritorio y celular) porque
+cambió la huella de colores de esa pantalla. **El cambio es intencional y bueno:**
+lo produjo la propuesta 911 ("Unificar estética, legibilidad y flujos de
+portales"), que agregó en `src/app/globals.css` una regla que sube a 12 píxeles
+todo el texto que estaba en 8, 9, 10 u 11. El texto chiquito ahora se lee.
+
+Son las dos únicas pruebas de navegador que fallan hoy.
+
+**Qué hacer.** Regenerar la referencia de `/catalogo/bodas` y dejar escrito en el
+commit que el cambio viene de esa regla de legibilidad, para que se sepa por qué se
+movió. Antes de regenerar, mirar la pantalla y confirmar que se ve bien: la
+referencia se actualiza porque el cambio es correcto, no para tapar el aviso.
+
+---
+
+## 10. Tope de dos roles por persona en la misma fiesta
 
 `src/app/(app)/fiestas/nueva/personal/page.tsx:433`
 
@@ -198,7 +213,7 @@ rechaza sin tocar los datos.
 
 ---
 
-## 10. Sin registro de quién marcó un recibo del personal como pagado
+## 11. Sin registro de quién marcó un recibo del personal como pagado
 
 Si hay una discusión con un empleado, no hay con qué respaldarse.
 
