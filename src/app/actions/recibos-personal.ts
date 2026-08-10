@@ -76,7 +76,7 @@ export async function saveReciboFirmado(
     return { success: false, error: 'La fiesta es obligatoria.' };
   }
 
-  const username = permiso.user?.name || permiso.user?.email || 'Administrador';
+  const username = permiso.user?.email || 'Administrador';
 
   return recibosMutex.runExclusive(async () => {
     const all = await getRecibosFirmados();
