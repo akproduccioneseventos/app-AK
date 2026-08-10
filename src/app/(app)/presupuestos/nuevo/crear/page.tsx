@@ -406,7 +406,10 @@ function CrearPresupuestoContent() {
 
           if (result.success && result.id) {
             // Registrar uso de cupón si se aplicó uno
-            if (formData.cuponId && formData.cuponDescuento && !editingPresupuestoId) {
+            // Tambien al editar: antes se excluia la edicion y el uso del cupon
+            // nunca quedaba anotado. El servidor no lo cuenta dos veces por el
+            // mismo presupuesto.
+            if (formData.cuponId && formData.cuponDescuento) {
               try {
                 const { registrarUsoCupon } = await import('@/app/actions/cupones');
                 await registrarUsoCupon(formData.cuponId, result.id, formData.clienteNombre, formData.cuponDescuento, descuentoValorNum);
