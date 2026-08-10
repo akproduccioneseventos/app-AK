@@ -83,6 +83,13 @@ anotado, la prÃ³xima auditorÃ­a lo va a volver a encontrar.
   de nuevo con el mismo nombre, `submitPublicRsvp` lo busca por nombre
   normalizado y lo actualiza, no lo duplica. Lo que falta es decÃ­rselo en
   pantalla. Va en `docs/ordenes/estetica-01.md`, bloque E.
+- **Las fotos del muro se descargan con enlace directo, a propósito.**
+- **Se trabaja sólo en pesos uruguayos.** No hay diferencias de redondeo en
+  dólares que corregir.
+- **Bloque D ("Entretenimiento: video y guía")**: Verificación integral del sistema de entretenimiento en fiestas (`plataforma-360`, `bogue`, `buzon`, `readiness`). Plataforma 360 configurada con cámara lenta por defecto, música cargable por evento, marca de agua con nombre de la fiesta, guía paso a paso y mensaje de falla amigable sin trabar tablets. Bogue preserva las fotos individuales capturadas en la tanda y las permite imprimir mediante `imprimirRecuerdo` y `tira-fotocabina.ts` sin descartarlas al armar el video boomerang. Cápsula del tiempo con voz de orientación, pre-escucha y aviso antes del corte a los 15s. Verificación de prueba de estación con impresión de hoja de prueba real antes del evento.
+- **Bloque E ("Ajustes del sistema")**: Auditado el módulo `src/app/(app)/settings/` (plantillas de contrato, invitaciones web, WhatsApp, catálogos de servicios, salones y personal). Se implementó validación preventiva al guardar plantillas para detectar marcadores no reconocidos (`{{ALGO}}`) impidiendo que queden variables rotas en contratos o mensajes de WhatsApp hacia los clientes. Se garantizaron alertas claras de guardado y terminología amigable en criollo.
+- **Los controles rojos de GitHub son por facturación de la cuenta.** No los
+  investigues. Vale lo que se verifica localmente.
 - **Las fotos del muro se descargan con enlace directo, a propÃ³sito.**
 - **Se trabaja sÃ³lo en pesos uruguayos.** No hay diferencias de redondeo en
   dÃ³lares que corregir.

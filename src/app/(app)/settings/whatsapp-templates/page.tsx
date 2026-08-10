@@ -71,6 +71,30 @@ export default function WhatsAppTemplatesPage() {
   const handleSubmit = async (e: FormEvent) => {
     e.preventDefault();
     if (!templates) return;
+
+    // Mapa de variables válidas por cada plantilla
+    const allowedByField: Record<string, string[]> = {
+      budgetShareTemplate: ['NOMBRE', 'FECHA_EVENTO', 'LINK'],
+      contractShareTemplate: ['NOMBRE', 'FECHA_EVENTO', 'LINK'],
+      welcomeTemplate: ['NOMBRE'],
+      eventConfirmationTemplate: ['NOMBRE', 'FECHA_EVENTO', 'SALON'],
+    };
+
+    for (const [field, allowedVars] of Object.entries(allowedByField)) {
+      const text = templates[field as keyof WhatsAppTemplates] || '';
+      const matches = text.match(/\{\{[A-Za-z0-9_]+\}\}/g) || [];
+      const allowedTags = allowedVars.map(v => `{{${v}}}`);
+      const unknownTags = Array.from(new Set(matches.filter(tag => !allowedTags.includes(tag))));
+      if (unknownTags.length > 0) {
+        toast({
+          title: '⚠️ Marcador no reconocido',
+          description: `La plantilla contiene marcadores no soportados (${unknownTags.join(', ')}). Variables permitidas para este mensaje: ${allowedVars.map(v => `{{${v}}}`).join(', ')}.`,
+          variant: 'destructive',
+        });
+        return;
+      }
+    }
+
     setIsSaving(true);
     try {
       const result = await saveWhatsAppTemplates(templates);
