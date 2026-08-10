@@ -190,6 +190,61 @@ async function saveFallbackOrders(fiesta: FiestaEnPlanificacion, orders: BarDrin
   });
 }
 
+async function buildStockAlerts(drinks: Trago[]): Promise<import('@/types/barra-tecnologica').BarTechnologyStockAlert[]> {
+  const alerts: import('@/types/barra-tecnologica').BarTechnologyStockAlert[] = [];
+  const insumoMap = new Map<string, { id: string; nombre: string; cantidadDisponible: number; unidad?: string; tragosAfectados: string[] }>();
+
+  for (const drink of drinks) {
+    if (drink.stockDisponible !== undefined && drink.stockDisponible <= 0) {
+      alerts.push({
+        id: `trago_${drink.id}`,
+        nombre: drink.nombre,
+        tipo: 'trago',
+        cantidadDisponible: 0,
+        tragosAfectados: [drink.nombre],
+      });
+    }
+
+    if (drink.recetaIngredientes) {
+      for (const ing of drink.recetaIngredientes) {
+        if (!ing.insumoId) continue;
+        if (!insumoMap.has(ing.insumoId)) {
+          const insumo = await getInsumoById(ing.insumoId).catch(() => null);
+          if (insumo && insumo.cantidadDisponible !== undefined) {
+            insumoMap.set(ing.insumoId, {
+              id: insumo.id,
+              nombre: insumo.nombre,
+              cantidadDisponible: insumo.cantidadDisponible,
+              unidad: insumo.unidad,
+              tragosAfectados: [drink.nombre],
+            });
+          }
+        } else {
+          const entry = insumoMap.get(ing.insumoId)!;
+          if (!entry.tragosAfectados.includes(drink.nombre)) {
+            entry.tragosAfectados.push(drink.nombre);
+          }
+        }
+      }
+    }
+  }
+
+  for (const insumo of insumoMap.values()) {
+    if (insumo.cantidadDisponible <= 0) {
+      alerts.push({
+        id: `insumo_${insumo.id}`,
+        nombre: insumo.nombre,
+        tipo: 'insumo',
+        cantidadDisponible: insumo.cantidadDisponible,
+        unidad: insumo.unidad,
+        tragosAfectados: insumo.tragosAfectados,
+      });
+    }
+  }
+
+  return alerts;
+}
+
 export async function getBarraTecnologicaDashboard(fiestaId: string): Promise<{ success: boolean; data?: BarTechnologyDashboard; error?: string }> {
   try {
     await requireAppSession();
@@ -206,6 +261,8 @@ export async function getBarraTecnologicaDashboard(fiestaId: string): Promise<{ 
       (a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()
     );
 
+    const stockAlerts = await buildStockAlerts(drinks);
+
     return {
       success: true,
       data: {
@@ -214,6 +271,7 @@ export async function getBarraTecnologicaDashboard(fiestaId: string): Promise<{ 
         settings: stored.settings,
         drinks,
         orders,
+        stockAlerts,
         backgroundImageUrl: fiesta.cartaTragos?.backgroundImageUrl || '',
         protagonistaFotoUrl: fiesta.cartaTragos?.protagonistaFotoUrl || '',
       },

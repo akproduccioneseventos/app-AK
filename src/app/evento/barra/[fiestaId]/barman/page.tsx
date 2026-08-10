@@ -162,6 +162,33 @@ export default function BarmanScreenPage() {
         </Button>
       </header>
 
+      {/* Alertas de Stock Afectado / Faltantes */}
+      {dashboard?.stockAlerts && dashboard.stockAlerts.length > 0 && (
+        <section className="mb-4 rounded-xl border border-rose-500/50 bg-rose-950/80 p-4 text-white shadow-xl backdrop-blur-md">
+          <div className="flex items-center gap-3">
+            <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg bg-rose-600 font-bold text-white">
+              ⚠️
+            </div>
+            <div>
+              <h2 className="text-lg font-black text-rose-200">¡Alerta de Insumos Faltantes / Sin Stock!</h2>
+              <p className="text-sm text-rose-300">
+                Se detectó falta de stock en los siguientes insumos o tragos:
+              </p>
+            </div>
+          </div>
+          <div className="mt-3 flex flex-wrap gap-2">
+            {dashboard.stockAlerts.map((alert) => (
+              <Badge key={alert.id} className="bg-rose-900/90 text-rose-100 border border-rose-600 px-3 py-1.5 text-sm font-semibold">
+                {alert.tipo === 'insumo' ? '📦 Insumo' : '🍹 Trago'}: <span className="font-bold text-white">{alert.nombre}</span> (Quedan: {alert.cantidadDisponible} {alert.unidad || ''})
+                {alert.tragosAfectados && alert.tragosAfectados.length > 0 && (
+                  <span className="ml-1 text-xs opacity-80">— Afecta a: {alert.tragosAfectados.join(', ')}</span>
+                )}
+              </Badge>
+            ))}
+          </div>
+        </section>
+      )}
+
       {/* Panel de Consumo Rápido */}
       {dashboard?.drinks && dashboard.drinks.length > 0 && (
         <section className="ak-live-panel mb-4 p-4">

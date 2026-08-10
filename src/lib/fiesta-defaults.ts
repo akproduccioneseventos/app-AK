@@ -366,6 +366,142 @@ export const defaultCartaTragosData: CartaTragosData = {
 export const defaultModulosContratados: ModulosContratados = {
     tareas: true, invitados: true, paginaWeb: true, decoracion: true, catering: true, musica: true, personal: true,
     itinerario: true, documentos: true, costos: true, cargaOperativa: true, fotografia: true, videoVida: true,
+];
+
+export const defaultCartaTragosData: CartaTragosData = {
+  titulo: 'CARTA DE TRAGOS',
+  protagonistaNombre: 'La Agasajada',
+  numeroPrincipal: 'Mis XV',
+  fontFamily: 'Playfair Display',
+  titleSize: 'medium',
+  protagonistaFotoUrl: '',
+  backgroundImageUrl: '',
+  backgroundColor: '#ffffff',
+  paletaColores: { primary: '#9333ea', secondary: '#363636', accent: '#ffffff' },
+  items: [
+    {
+      id: 'trago_1', nombre: 'Gin con Pomelo',
+      imageUrl: 'https://images.unsplash.com/photo-1560512823-829485b8bf24?q=80&w=600&auto=format&fit=crop',
+      aiHint: 'gin grapefruit cocktail',
+      descripcion: 'Fresco y amargo, la combinación perfecta para la pista de baile.',
+      ingredientes: ['Gin', 'Gaseosa de Pomelo', 'Hielo'],
+      stockDisponible: 120,
+      recetaIngredientes: [
+        { insumoId: 'ing-gin', nombre: 'Gin', cantidad: 0.05, unidad: 'Botella' },
+        { insumoId: 'ing-pomelo', nombre: 'Gaseosa de Pomelo', cantidad: 0.2, unidad: 'Litro' },
+      ]
+    },
+    {
+      id: 'trago_2', nombre: 'Ron Cola',
+      imageUrl: 'https://images.unsplash.com/photo-1615887023516-9bfa0dd98ae7?q=80&w=600&auto=format&fit=crop',
+      aiHint: 'rum and cola drink',
+      descripcion: 'El clásico de siempre que nunca falla.',
+      ingredientes: ['Ron', 'Coca-Cola', 'Hielo'],
+      stockDisponible: 120,
+      recetaIngredientes: [
+        { insumoId: 'ing-ron', nombre: 'Ron', cantidad: 0.05, unidad: 'Botella' },
+        { insumoId: 'ing-coca', nombre: 'Coca-Cola', cantidad: 0.2, unidad: 'Litro' },
+      ]
+    },
+    {
+      id: 'trago_3', nombre: 'Vodka Sunrise',
+      imageUrl: 'https://images.unsplash.com/photo-1513558161293-cdaf765ed2fd?q=80&w=600&auto=format&fit=crop',
+      aiHint: 'vodka orange sunrise cocktail',
+      descripcion: 'Divertido, dulce y perfecto para compartir en redes sociales.',
+      ingredientes: ['Vodka', 'Jugo de Naranja', 'Granadina'],
+      stockDisponible: 120,
+      recetaIngredientes: [
+        { insumoId: 'ing-vodka', nombre: 'Vodka', cantidad: 0.05, unidad: 'Botella' },
+        { insumoId: 'ing-naranja', nombre: 'Jugo de Naranja', cantidad: 0.2, unidad: 'Litro' },
+      ]
+    },
+    {
+      id: 'trago_4', nombre: 'Caipirinha',
+      imageUrl: 'https://images.unsplash.com/photo-1556679343-c7306c1976bc?q=80&w=600&auto=format&fit=crop',
+      aiHint: 'caipirinha lime cocktail',
+      descripcion: 'Un clasico fresco y citrico, ideal para quienes quieren un trago con personalidad.',
+      ingredientes: ['Cachaça', 'Lima', 'Azúcar'],
+      stockDisponible: 120,
+      recetaIngredientes: [
+        { insumoId: 'ing-cachaca', nombre: 'Cachaça', cantidad: 0.05, unidad: 'Botella' },
+      ]
+    },
+    {
+      id: 'trago_5', nombre: 'Daiquiri de Frutilla',
+      imageUrl: 'https://images.unsplash.com/photo-1620084360341-38f12a2df7f2?q=80&w=600&auto=format&fit=crop',
+      aiHint: 'strawberry daiquiri cocktail',
+      descripcion: 'Colorido, dulce y muy pedido por quienes buscan un trago vistoso y frutal.',
+      ingredientes: ['Ron', 'Frutilla', 'Jugo de limón'],
+      stockDisponible: 120,
+      recetaIngredientes: [
+        { insumoId: 'ing-ron', nombre: 'Ron', cantidad: 0.05, unidad: 'Botella' },
+      ]
+    },
+    {
+      id: 'trago_6', nombre: 'Atomic Green',
+      imageUrl: 'https://images.unsplash.com/photo-1587223962930-cb7f31384c19?q=80&w=600&auto=format&fit=crop',
+      aiHint: 'green cocktail atomic',
+      descripcion: 'Verde intenso, moderno y llamativo para pantallas, fotos y momentos de discoteca.',
+      ingredientes: ['Vodka', 'Sprite', 'Licor de Melón'],
+      stockDisponible: 120,
+      recetaIngredientes: [
+        { insumoId: 'ing-vodka', nombre: 'Vodka', cantidad: 0.05, unidad: 'Botella' },
+        { insumoId: 'ing-sprite', nombre: 'Sprite', cantidad: 0.2, unidad: 'Litro' },
+      ]
+    },
+    {
+      id: 'trago_7', nombre: 'Sex on the Beach',
+      imageUrl: 'https://images.unsplash.com/photo-1536935338788-846bb9981813?q=80&w=600&auto=format&fit=crop',
+      aiHint: 'sex on the beach cocktail',
+      descripcion: 'Dulce, frutal y clásico para entrar en ambiente de fiesta.',
+      ingredientes: ['Vodka', 'Licor de Durazno', 'Jugo de Naranja', 'Granadina'],
+      stockDisponible: 120,
+      recetaIngredientes: [
+        { insumoId: 'ing-vodka', nombre: 'Vodka', cantidad: 0.05, unidad: 'Botella' },
+        { insumoId: 'ing-naranja', nombre: 'Jugo de Naranja', cantidad: 0.15, unidad: 'Litro' },
+      ]
+    },
+    {
+      id: 'trago_8', nombre: 'Mojito',
+      imageUrl: 'https://images.unsplash.com/photo-1513558161293-cdaf765ed2fd?q=80&w=600&auto=format&fit=crop',
+      aiHint: 'mojito cocktail mint lime',
+      descripcion: 'Súper refrescante con toques cítricos, menta y un dulzor equilibrado.',
+      ingredientes: ['Ron Blanco', 'Menta', 'Limón', 'Azúcar', 'Agua con Gas'],
+      stockDisponible: 120,
+      recetaIngredientes: [
+        { insumoId: 'ing-ron', nombre: 'Ron', cantidad: 0.05, unidad: 'Botella' },
+      ]
+    },
+    {
+      id: 'trago_9', nombre: 'Tequila Sunrise',
+      imageUrl: 'https://images.unsplash.com/photo-1551024709-8f23befc6f87?q=80&w=600&auto=format&fit=crop',
+      aiHint: 'tequila sunrise cocktail orange',
+      descripcion: 'Una puesta de sol en tu copa, de sabor audaz y refrescante.',
+      ingredientes: ['Tequila', 'Jugo de Naranja', 'Granadina'],
+      stockDisponible: 120,
+      recetaIngredientes: [
+        { insumoId: 'ing-naranja', nombre: 'Jugo de Naranja', cantidad: 0.2, unidad: 'Litro' },
+      ]
+    },
+    {
+      id: 'trago_10', nombre: 'Blue Lagoon',
+      imageUrl: 'https://images.unsplash.com/photo-1536935338788-846bb9981813?q=80&w=600&auto=format&fit=crop',
+      aiHint: 'blue lagoon cocktail curaçao',
+      descripcion: 'Color azul eléctrico y sabor súper refrescante de cítrico y gas.',
+      ingredientes: ['Vodka', 'Blue Curaçao', 'Sprite', 'Hielo'],
+      stockDisponible: 120,
+      recetaIngredientes: [
+        { insumoId: 'ing-vodka', nombre: 'Vodka', cantidad: 0.05, unidad: 'Botella' },
+        { insumoId: 'ing-sprite', nombre: 'Sprite', cantidad: 0.2, unidad: 'Litro' },
+      ]
+    }
+  ],
+  empresa: { linea1: 'AK PRODUCCIONES', linea2: 'Servicio de fiestas integral', contacto: '098 355 530' },
+};
+
+export const defaultModulosContratados: ModulosContratados = {
+    tareas: true, invitados: true, paginaWeb: true, decoracion: true, catering: true, musica: true, personal: true,
+    itinerario: true, documentos: true, costos: true, cargaOperativa: true, fotografia: true, videoVida: true,
     reuniones: true, muroSocial: true, redSocial: true, regalos: false, feedback: false, menuMesa: false, buzon: true,
     checkin: false, resumenImprimible: false, configuracion: true, disenoSalon: true, listaCompras: true, portalCliente: true,
     numerosMesa: true, mesasCliente: true, resumenPlanificacion: true, enVivo: true, entretenimiento: true, pantallasTotem: true, barraTecnologica: true, zonaDigital: true, carteleria: true
@@ -402,6 +538,7 @@ export const initialFiestaActualData: FiestaEnPlanificacion = {
     uploadsActive: true,
     chatEnabled: true,
     showPolls: true,
+    requireApproval: true,
     marketingTickerText: DEFAULT_MARKETING_TICKER_TEXT,
     ledMarqueeText: '',
   },

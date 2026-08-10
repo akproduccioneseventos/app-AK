@@ -47,12 +47,22 @@ export interface BarTechnologyData {
   orders?: BarDrinkOrder[];
 }
 
+export interface BarTechnologyStockAlert {
+  id: string;
+  nombre: string;
+  tipo: 'insumo' | 'trago';
+  cantidadDisponible: number;
+  unidad?: string;
+  tragosAfectados?: string[];
+}
+
 export interface BarTechnologyDashboard {
   fiestaId: string;
   eventName: string;
   drinks: Trago[];
   settings: BarTechnologySettings;
   orders: BarDrinkOrder[];
+  stockAlerts?: BarTechnologyStockAlert[];
   backgroundImageUrl?: string;
   protagonistaFotoUrl?: string;
 }
