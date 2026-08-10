@@ -1,6 +1,6 @@
 
 export type SocialPlatform = 'Facebook' | 'Instagram' | 'TikTok' | 'WhatsApp';
-export type PostStatus = 'Programado' | 'Publicado';
+export type PostStatus = 'Programado' | 'Publicado' | 'Error' | 'Pendiente';
 
 export interface PostPerformance {
     likes?: number;
@@ -22,6 +22,9 @@ export interface SocialPost {
     status: PostStatus;
     promotionCost?: number;
     performance?: PostPerformance;
+    metaPostId?: string; // ID asignado por Meta/Instagram
+    metaPostUrl?: string; // Link directo al post publicado
+    publishError?: string; // Error devuelto por Meta en caso de fallo
     createdAt: string;
     updatedAt: string;
 }

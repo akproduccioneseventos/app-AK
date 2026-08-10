@@ -137,6 +137,43 @@ export default function SocialConnectionsPage() {
           </Link></Button>
       </div>
 
+       <Card className="shadow-lg border-blue-200 bg-blue-50/30">
+          <CardHeader>
+              <CardTitle className="font-headline text-xl flex items-center gap-2 text-blue-950">
+                  <Facebook className="w-5 h-5 text-blue-600"/>
+                  <Instagram className="w-5 h-5 text-pink-500"/>
+                  Publicación Automática en Meta (Graph API)
+              </CardTitle>
+              <CardDescription>
+                  Conectá tu cuenta profesional de Instagram y Página de Facebook para publicar directamente desde el planificador.
+              </CardDescription>
+          </CardHeader>
+          <CardContent className="space-y-4">
+              <div className="p-3 bg-white rounded-lg border border-blue-100 space-y-3">
+                  <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-2">
+                      <div>
+                          <p className="text-sm font-bold text-slate-800">Estado de la Conexión de Meta</p>
+                          <p className="text-xs text-slate-500">Requiere permisos de publicación (`instagram_basic`, `instagram_content_publish`, `pages_show_list`).</p>
+                      </div>
+                      <Button 
+                          size="sm" 
+                          className="bg-blue-600 hover:bg-blue-700 text-white"
+                          onClick={() => {
+                              toast({
+                                  title: "Flujo Meta OAuth",
+                                  description: "Redirigiendo a la pantalla de autorización de Facebook / Instagram..."
+                              });
+                              window.open('https://developers.facebook.com/apps/', '_blank');
+                          }}
+                      >
+                          <LinkIcon className="w-4 h-4 mr-2"/>
+                          Conectar con Meta / Facebook
+                      </Button>
+                  </div>
+              </div>
+          </CardContent>
+       </Card>
+
        <Card className="shadow-lg">
           <CardHeader>
               <CardTitle className="font-headline text-xl">Gestionar Enlaces Sociales</CardTitle>

@@ -108,6 +108,10 @@ export interface SocialConnection {
   logoUrl?: string;
   connectedAt?: string;
   phoneNumber?: string;
+  metaAccessToken?: string;
+  metaPageId?: string;
+  metaInstagramAccountId?: string;
+  tokenExpiresAt?: string;
 }
 
 export interface CompanyInfo {
