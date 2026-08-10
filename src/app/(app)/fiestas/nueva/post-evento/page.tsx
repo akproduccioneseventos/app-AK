@@ -179,11 +179,11 @@ function PostEventoContent() {
 
   const config = fiesta.configuracion;
   const invitados = fiesta.invitados ?? [];
-  const confirmados = invitados.filter(i => i.rsvp === 'Confirmado').length;
-  const vips = invitados.filter(i => i.perfil === 'VIP').length;
-  const familia = invitados.filter(i => i.perfil === 'Familia').length;
+  const confirmados = invitados.filter(i => i.rsvp === 'Confirmado').reduce((acc, i) => acc + (i.partySize || 1), 0);
+  const vips = invitados.filter(i => i.perfil === 'VIP').reduce((acc, i) => acc + (i.partySize || 1), 0);
+  const familia = invitados.filter(i => i.perfil === 'Familia').reduce((acc, i) => acc + (i.partySize || 1), 0);
   // Count guests with any allergy/dietary concern (legacy isCeliac + dietaryRestriction + free-text alergiasEspecificas)
-  const conAlergias = invitados.filter(hasAlergiaOrDietaryRestriction).length;
+  const conAlergias = invitados.filter(hasAlergiaOrDietaryRestriction).reduce((acc, i) => acc + (i.partySize || 1), 0);
   const cuotas = fiesta.planDePagos?.cuotas ?? [];
   const totalCobrado = cuotas.filter(c => c.estado === 'pagado').reduce((acc, c) => acc + c.monto, 0);
   const totalPresupuesto = config.presupuestoEstimado ?? 0;

@@ -848,17 +848,27 @@ function MuroSocialContent() {
     }));
   };
 
-  const updateAudioRhythmSettings = (patch: Partial<NonNullable<SocialGallerySettings['audioRhythm']>>) => {
-    setSettings((prev) => {
-      const normalized = withScreenDefaults(prev);
-      return {
-        ...normalized,
-        audioRhythm: {
-          ...normalized.audioRhythm!,
-          ...patch,
-        },
-      };
-    });
+  const updateAudioRhythmSettings = async (patch: Partial<NonNullable<SocialGallerySettings['audioRhythm']>>) => {
+    if (!fiestaId) return;
+
+    const previous = settingsRef.current;
+
+    // Calcula el nuevo estado
+    const newSettings = withScreenDefaults(previous);
+    newSettings.audioRhythm = {
+      ...newSettings.audioRhythm!,
+      ...patch,
+    };
+
+    // Actualiza localmente (optimista)
+    setSettings(newSettings);
+
+    // Persiste en BD
+    const result = await updateSocialGallerySettingsFiestaActual(fiestaId, newSettings);
+    if (!result.success) {
+      setSettings(previous); // Rollback
+      toast({ title: 'Error al guardar configuración', description: result.error, variant: 'destructive' });
+    }
   };
 
   const handleAddCustomMomento = async () => {

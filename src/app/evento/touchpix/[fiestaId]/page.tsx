@@ -574,7 +574,7 @@ export default function TouchpixPage() {
       setProcessingResult('fallback');
       setIsProcessing(false);
     });
-  }, [rawCapturedImage, applyFilterToCanvas, fiestaId, accessToken, consentAccepted]);
+  }, [rawCapturedImage, applyFilterToCanvas, fiestaId, accessToken, consentAccepted, photoSessionId]);
 
   /* ── Download ── */
   const handleDownload = useCallback(() => {
