@@ -24,7 +24,10 @@ anotado, la prÃ³xima auditorÃ­a lo va a volver a encontrar.
   `docs/ordenes/`. Programarlo igual le cuesta el doble al dueÃ±o.
 - **Propuestas grandes, no muchas chicas.** Cada fusiÃ³n dispara un despliegue y
   se paga. Se junta la tanda entera en una sola propuesta. La documentaciÃ³n
-  viaja con el cÃ³digo, nunca en una propuesta aparte.
+  viaja con el cÃ³digo, nunca en una propuesta aparte. **Vale tambiÃ©n para las
+  Ã³rdenes que una IA le escribe a otra**: una orden de cinco bloques se entrega
+  en una sola propuesta con los cinco, no en cinco. El dueÃ±o lo tuvo que repetir
+  el 10 de agosto de 2026 porque la orden pedÃ­a lo contrario que la regla.
 
 - **El ajuste anual del 15% va siempre.** Aparece en presupuestos y en el portal.
 - **El descuento del 50% del SalÃ³n Club Uruguay** y el descuento del presupuesto
@@ -536,11 +539,11 @@ SumÃ¡ una lÃ­nea en el mÃ³dulo que corresponda. Con esto alcanza:
 - **DÃ³nde**, si sirve para ubicarlo.
 - **Si la decisiÃ³n tiene un porquÃ© que no se ve en el cÃ³digo, escribilo.** Ese es
   el dato que evita que otro lo "arregle" al revÃ©s.
-- **Cálculo de invitados (post-evento):** Corregido un falso error (el módulo de check-in asume 1 acompañante y en post-evento se comparaba con la cantidad exacta, provocando un 100% de discrepancia visual que era errónea).
-- **AutoGuardado (Configuración y Fotografía):** Añadidas alertas de uso de auto-guardado en interfaces para evitar que el planificador presione "guardar" y reciba alertas innecesarias.
-- **Acceso a Playlist (Pantallas):** El módulo playlist-pantalla ahora está correctamente enlazado desde la vista de control central.
-- **Muro Social y Totems (Persistencia):** Corregida la ausencia de guardado automático de estado en muro-social/page.tsx para los ajustes de audio rítmico (ahora llama a updateSocialGallerySettingsFiestaActual).
+- **Cï¿½lculo de invitados (post-evento):** Corregido un falso error (el mï¿½dulo de check-in asume 1 acompaï¿½ante y en post-evento se comparaba con la cantidad exacta, provocando un 100% de discrepancia visual que era errï¿½nea).
+- **AutoGuardado (Configuraciï¿½n y Fotografï¿½a):** Aï¿½adidas alertas de uso de auto-guardado en interfaces para evitar que el planificador presione "guardar" y reciba alertas innecesarias.
+- **Acceso a Playlist (Pantallas):** El mï¿½dulo playlist-pantalla ahora estï¿½ correctamente enlazado desde la vista de control central.
+- **Muro Social y Totems (Persistencia):** Corregida la ausencia de guardado automï¿½tico de estado en muro-social/page.tsx para los ajustes de audio rï¿½tmico (ahora llama a updateSocialGallerySettingsFiestaActual).
 - **Seguridad en Vistas de Proveedores:**
-  - Los proveedores (DJ, Fotógrafos, Catering) ingresan mediante la generación de URL con token.
-  - La validación del token en /fotografia y /catering mediante useSearchParams **evita** el renderizado o descarga del presupuesto del evento para externos. Se oculta el botón "Sincronizar con presupuesto".
-  - Se modificó middleware.ts y uth-guard.tsx para permitir acceso público sólo si el parámetro 	oken está presente en la URL.
+  - Los proveedores (DJ, Fotï¿½grafos, Catering) ingresan mediante la generaciï¿½n de URL con token.
+  - La validaciï¿½n del token en /fotografia y /catering mediante useSearchParams **evita** el renderizado o descarga del presupuesto del evento para externos. Se oculta el botï¿½n "Sincronizar con presupuesto".
+  - Se modificï¿½ middleware.ts y uth-guard.tsx para permitir acceso pï¿½blico sï¿½lo si el parï¿½metro 	oken estï¿½ presente en la URL.
