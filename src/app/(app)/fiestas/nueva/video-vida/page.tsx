@@ -85,7 +85,7 @@ const PhotoUploadSlot: React.FC<{
         ) : (
           !isUploading && (
             <div className="flex flex-col items-center">
-              <Camera className="w-5 h-5 mb-1 text-gray-400 group-hover:text-primary transition-colors" />
+              <Camera className="w-5 h-5 mb-1 text-muted-foreground group-hover:text-primary transition-colors" />
               <span className="text-xs font-medium">Subir foto</span>
             </div>
           )

@@ -522,7 +522,7 @@ Por favor confirmá tu asistencia respondiendo este mensaje.
             </div>
             <div className="flex items-center gap-2 w-full sm:w-auto">
               <div className="relative flex-1 sm:w-64">
-                <Search className="w-4 h-4 absolute left-2.5 top-2.5 text-slate-400" />
+                <Search className="w-4 h-4 absolute left-2.5 top-2.5 text-muted-foreground" />
                 <Input
                   placeholder="Buscar empleado por nombre..."
                   value={searchEmployee}

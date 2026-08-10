@@ -7,9 +7,38 @@ Quien cierre una sesión reescribe este archivo. Se pisa, no se acumula.
 
 ---
 
-**Última actualización:** 10 de agosto de 2026
-**Rama:** todo fusionado en `main`. No hay propuestas abiertas.
-**Estado:** compila, 1372 pruebas en verde, sin acentos rotos.
+**Última actualización:** 10 de agosto de 2026 (revisión de las seis propuestas de Gemini)
+**Rama:** `main`. Quedan abiertas las dos del bloque D: **no fusionar**.
+**Estado:** compila, 1378 pruebas en verde, sin acentos rotos.
+
+## Lo último que pasó
+
+Se revisaron las seis propuestas de Gemini (914 a 921) con los siete controles.
+
+**Fusionadas, sanas:** 914 (colores del planificador al tema), 915 (pantallas del
+invitado), 916 (impresión y entrega), 918 (ajustes del sistema; agrega un control
+que avisa si una plantilla de contrato o de WhatsApp tiene un marcador que el
+sistema no sabe completar). Las cuatro chocaban entre sí sólo en
+`docs/YA-RESUELTO.md`, que cada una reescribía entera: se resolvió conservando las
+notas de todos los lados.
+
+**NO fusionar: 917 y 921 (bloque D).** Ninguna de las dos compila por su cuenta.
+921 contiene a 917, así que 917 sobra.
+
+Qué tienen mal, verificado:
+1. `src/lib/fiesta-defaults.ts` — se borraron ~22 banderas de módulos por defecto y
+   quedó `];` en vez de `};`. Si eso entra, las fiestas nuevas nacen sin muro,
+   sin control de entrada, sin 360, sin barra y sin zona digital.
+2. `src/app/evento/plataforma-360/[fiestaId]/page.tsx` — una llave de cierre de más,
+   y se borraron `selectedDuration` y `voiceEnabled` que el archivo sigue usando en
+   diez lugares.
+
+Se intentó rescatarla: restaurando esos dos archivos desde `main` aparecieron
+**nueve errores nuevos y distintos** en otros archivos (`QrCode` y `stripUrl` que no
+existen, `branding` que no está en el tipo, props equivocadas en el QR del bogue).
+O sea: no está dañada, está **sin terminar**. Conviene devolverla a Gemini con la
+lista de errores, no remendarla.
+
 
 ## Antes de empezar
 

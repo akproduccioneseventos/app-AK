@@ -93,6 +93,20 @@ export default function ContratosSettingsPage() {
 
   const handleSave = async () => {
     if (!selected) return;
+
+    // Validar marcadores {{ALGO}} para evitar que queden marcadores no reconocidos en los contratos del cliente
+    const allowedTags = visiblePlaceholders.map(p => p.tag);
+    const matches = editorText.match(/\{\{[A-Za-z0-9_]+\}\}/g) || [];
+    const unknownTags = Array.from(new Set(matches.filter(tag => !allowedTags.includes(tag))));
+    if (unknownTags.length > 0) {
+      toast({
+        title: '⚠️ Marcador no reconocido',
+        description: `La plantilla contiene marcadores que el sistema no sabe completar: ${unknownTags.join(', ')}. Corregilos antes de guardar.`,
+        variant: 'destructive',
+      });
+      return;
+    }
+
     setIsSaving(true);
     try {
       const result = await saveContractTemplate({ ...selected, template: editorText });
