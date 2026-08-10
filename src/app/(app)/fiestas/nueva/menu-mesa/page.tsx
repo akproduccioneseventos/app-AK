@@ -164,8 +164,8 @@ function MenuDeMesaContent() {
   }
   
   return (
-    <div className="bg-gray-100 print:bg-white">
-        <div className="py-2 px-4 print:hidden flex flex-col md:flex-row justify-between items-center gap-4 bg-white shadow-sm sticky top-0 z-50">
+    <div className="bg-background print:bg-white">
+        <div className="py-2 px-4 print:hidden flex flex-col md:flex-row justify-between items-center gap-4 bg-card border-b border-border shadow-sm sticky top-0 z-50">
             <h1 className="font-headline text-lg">Editor de Menú de Mesa</h1>
             <div className="flex flex-wrap gap-2 items-center">
                 <div className="space-y-1"><Label htmlFor="protagonista-foto" className="text-xs">Foto</Label><Input id="protagonista-foto" type="file" accept="image/*" onChange={handlePhotoUpload} className="text-xs w-48" disabled={isUploading}/></div>

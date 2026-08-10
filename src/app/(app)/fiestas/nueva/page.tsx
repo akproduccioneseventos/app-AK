@@ -357,8 +357,8 @@ function PlannerDashboardContent() {
           <div className="p-4 sm:p-5 bg-primary rounded-[1.5rem] shadow-2xl text-white shrink-0"><PartyPopper className="w-8 h-8 sm:w-10 sm:h-10" /></div>
           <div className="min-w-0">
             <p className="text-[10px] font-black uppercase tracking-[0.25em] text-primary/70 mb-0.5">Centro de Producción Premium</p>
-            <h1 className="text-xl sm:text-4xl md:text-5xl font-black tracking-tighter text-slate-900 font-headline uppercase truncate">{fiesta.configuracion.nombreEvento}</h1>
-            <div className="text-slate-500 font-bold flex flex-wrap items-center gap-x-3 gap-y-1 mt-1 text-[10px] sm:text-base">
+            <h1 className="text-xl sm:text-4xl md:text-5xl font-black tracking-tighter text-foreground font-headline uppercase truncate">{fiesta.configuracion.nombreEvento}</h1>
+            <div className="text-muted-foreground font-bold flex flex-wrap items-center gap-x-3 gap-y-1 mt-1 text-[10px] sm:text-base">
                 <span className="flex items-center gap-1.5"><Calendar className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-primary shrink-0"/> {formatDate(fiesta.configuracion.fechaEvento)}</span>
                 <span className="flex items-center gap-1.5"><MapPin className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-primary shrink-0"/> {fiesta.configuracion.nombreLugar}</span>
             </div>
@@ -368,7 +368,7 @@ function PlannerDashboardContent() {
             <Button asChild className="rounded-2xl px-6 sm:px-8 h-12 bg-primary shadow-xl font-black tracking-widest w-full text-xs sm:text-sm"><Link href={`/fiestas/nueva/en-vivo?fiestaId=${fiestaId}`} className="flex-1 sm:flex-none">
                     <Zap className="w-4 h-4 mr-2 sm:mr-3 animate-pulse"/> EN VIVO
                 </Link></Button>
-            <Button asChild variant="outline" className="rounded-2xl px-6 sm:px-8 h-12 border-slate-200 font-bold hover:bg-slate-50 transition-all w-full text-xs sm:text-sm"><Link href="/eventos" className="flex-1 sm:flex-none">
+            <Button asChild variant="outline" className="rounded-2xl px-6 sm:px-8 h-12 border-border font-bold hover:bg-muted/40 transition-all w-full text-xs sm:text-sm"><Link href="/eventos" className="flex-1 sm:flex-none">
                     <ArrowLeft className="w-4 h-4 mr-2 sm:mr-3"/>Volver
                 </Link></Button>
         </div>
@@ -391,7 +391,7 @@ function PlannerDashboardContent() {
         <motion.section
           initial={{ opacity: 0, y: 10 }}
           animate={{ opacity: 1, y: 0 }}
-          className="rounded-2xl border border-slate-200 bg-white p-5 sm:p-6 shadow-md space-y-4"
+          className="rounded-2xl border border-border bg-card p-5 sm:p-6 shadow-md space-y-4"
           aria-labelledby="next-actions-title"
         >
           {/* Métrica principal de Avance General */}
@@ -399,7 +399,7 @@ function PlannerDashboardContent() {
             <div className="flex flex-wrap items-center justify-between gap-3">
               <div>
                 <p className="text-[10px] font-black uppercase tracking-widest text-primary">Avance General del Evento</p>
-                <h2 id="next-actions-title" className="text-xl font-black text-slate-900">Estado de Preparación</h2>
+                <h2 id="next-actions-title" className="text-xl font-black text-foreground">Estado de Preparación</h2>
               </div>
               <Badge
                 variant="outline"
@@ -419,7 +419,7 @@ function PlannerDashboardContent() {
             <div className="space-y-1">
               <Progress
                 value={prepScore.score}
-                className="h-3.5 bg-slate-100 rounded-full"
+                className="h-3.5 bg-muted rounded-full"
                 indicatorClassName={cn(
                   prepScore.level === 'alta'
                     ? 'bg-emerald-500'
@@ -428,7 +428,7 @@ function PlannerDashboardContent() {
                     : 'bg-primary'
                 )}
               />
-              <p className="text-xs text-slate-500 font-medium text-right">
+              <p className="text-xs text-muted-foreground font-medium text-right">
                 {prepScore.checks.filter(c => c.completed).length} de {prepScore.checks.length} áreas completadas
               </p>
             </div>
@@ -444,8 +444,8 @@ function PlannerDashboardContent() {
                       'h-4 w-4 shrink-0',
                       alerta.tipo === 'urgente' ? 'text-rose-600' : 'text-amber-600'
                     )} />
-                    <span className="min-w-0 flex-1 text-sm font-bold text-slate-700">{alerta.mensaje}</span>
-                    {alerta.accionUrl && <ArrowRight className="h-4 w-4 shrink-0 text-slate-400" />}
+                    <span className="min-w-0 flex-1 text-sm font-bold text-foreground">{alerta.mensaje}</span>
+                    {alerta.accionUrl && <ArrowRight className="h-4 w-4 shrink-0 text-muted-foreground" />}
                   </>
                 );
 
@@ -453,12 +453,12 @@ function PlannerDashboardContent() {
                   <Link
                     key={alerta.id}
                     href={alerta.accionUrl}
-                    className="flex min-h-14 items-center gap-3 rounded-xl border border-slate-200 bg-slate-50 px-3 py-2 transition-colors hover:border-primary/40 hover:bg-primary/5"
+                    className="flex min-h-14 items-center gap-3 rounded-xl border border-border bg-muted/30 px-3 py-2 transition-colors hover:border-primary/40 hover:bg-primary/5"
                   >
                     {content}
                   </Link>
                 ) : (
-                  <div key={alerta.id} className="flex min-h-14 items-center gap-3 rounded-xl border border-slate-200 bg-slate-50 px-3 py-2">
+                  <div key={alerta.id} className="flex min-h-14 items-center gap-3 rounded-xl border border-border bg-muted/30 px-3 py-2">
                     {content}
                   </div>
                 );
@@ -529,14 +529,14 @@ function PlannerDashboardContent() {
 
       {/* Generate Documents PDF – Quick Action Dropdown */}
       <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.1 }}>
-        <div className="flex items-center justify-between gap-4 p-4 sm:p-5 bg-white rounded-2xl premium-shadow border border-slate-100">
+        <div className="flex items-center justify-between gap-4 p-4 sm:p-5 bg-card rounded-2xl premium-shadow border border-border">
           <div className="flex items-center gap-4">
             <div className="p-3 bg-primary/10 rounded-xl shrink-0">
               <FileText className="w-5 h-5 text-primary" />
             </div>
             <div>
-              <p className="font-black text-slate-800 text-sm sm:text-base tracking-tight">Generar Documentos PDF</p>
-              <p className="text-[10px] sm:text-xs text-slate-400 font-bold uppercase tracking-widest">Recibo, Contrato y Cancelación — Diseño Premium</p>
+              <p className="font-black text-foreground text-sm sm:text-base tracking-tight">Generar Documentos PDF</p>
+              <p className="text-[10px] sm:text-xs text-muted-foreground font-bold uppercase tracking-widest">Recibo, Contrato y Cancelación — Diseño Premium</p>
             </div>
           </div>
           <DropdownMenu>

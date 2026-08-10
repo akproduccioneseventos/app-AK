@@ -58,7 +58,7 @@ const PROVIDER_TYPES: TipoProveedor[] = [
 ];
 
 const STATUS_STYLES: Record<ProveedorPortalAccess['estadoActual'], string> = {
-  Pendiente: 'border-slate-300 bg-slate-50 text-slate-700',
+  Pendiente: 'border-border bg-muted text-muted-foreground',
   Confirmado: 'border-blue-200 bg-blue-50 text-blue-700',
   'En Camino': 'border-amber-200 bg-amber-50 text-amber-800',
   Llegó: 'border-emerald-200 bg-emerald-50 text-emerald-700',
@@ -246,7 +246,7 @@ export default function ProveedoresPortalPlannerPage() {
               <ArrowLeft className="mr-2 h-4 w-4" />Volver al planificador
             </Link>
           </Button>
-          <h1 className="flex items-center gap-2 text-2xl font-bold text-slate-950">
+          <h1 className="flex items-center gap-2 text-2xl font-bold text-foreground">
             <Truck className="h-6 w-6 text-cyan-700" />
             Proveedores y logística
           </h1>
