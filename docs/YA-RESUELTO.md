@@ -78,10 +78,10 @@ anotado, la prÃ³xima auditorÃ­a lo va a volver a encontrar.
 - **El "Tal vez" de la invitaciÃ³n se saca: se confirma o no se confirma.** Un
   "tal vez" no sirve para encargar comida ni poner sillas. **Pero el estado
   `'Tal vez'` NO se borra del tipo `RsvpStatus`**: hay invitados guardados con
-  ese valor y romperían las pantallas. Sólo se saca el botón de la invitación.
-- **El invitado SÍ puede cambiar su respuesta**, y eso ya funciona: al responder
+  ese valor y romperÃ­an las pantallas. SÃ³lo se saca el botÃ³n de la invitaciÃ³n.
+- **El invitado SÃ� puede cambiar su respuesta**, y eso ya funciona: al responder
   de nuevo con el mismo nombre, `submitPublicRsvp` lo busca por nombre
-  normalizado y lo actualiza, no lo duplica. Lo que falta es decírselo en
+  normalizado y lo actualiza, no lo duplica. Lo que falta es decÃ­rselo en
   pantalla. Va en `docs/ordenes/estetica-01.md`, bloque E.
 - **Las fotos del muro se descargan con enlace directo, a propósito.**
 - **Se trabaja sólo en pesos uruguayos.** No hay diferencias de redondeo en
@@ -90,6 +90,14 @@ anotado, la prÃ³xima auditorÃ­a lo va a volver a encontrar.
 - **Bloque E ("Ajustes del sistema")**: Auditado el módulo `src/app/(app)/settings/` (plantillas de contrato, invitaciones web, WhatsApp, catálogos de servicios, salones y personal). Se implementó validación preventiva al guardar plantillas para detectar marcadores no reconocidos (`{{ALGO}}`) impidiendo que queden variables rotas en contratos o mensajes de WhatsApp hacia los clientes. Se garantizaron alertas claras de guardado y terminología amigable en criollo.
 - **Los controles rojos de GitHub son por facturación de la cuenta.** No los
   investigues. Vale lo que se verifica localmente.
+- **Las fotos del muro se descargan con enlace directo, a propÃ³sito.**
+- **Se trabaja sÃ³lo en pesos uruguayos.** No hay diferencias de redondeo en
+  dÃ³lares que corregir.
+- **Los controles rojos de GitHub son por facturaciÃ³n de la cuenta.** No los
+  investigues. Vale lo que se verifica localmente.
+- **El pasaje a la galerÃ­a del cliente (wfolio) es manual.** No tiene forma
+  documentada de automatizarse; ya se investigÃ³. No armes una integraciÃ³n.
+
 ---
 
 ## MÃ³dulo de entretenimiento â€” TERMINADO
@@ -580,6 +588,9 @@ SumÃ¡ una lÃ­nea en el mÃ³dulo que corresponda. Con esto alcanza:
   - Los proveedores (DJ, Fotógrafos, Catering) ingresan mediante la generación de URL con token.
   - La validación del token en /fotografia y /catering mediante useSearchParams **evita** el renderizado o descarga del presupuesto del evento para externos. Se oculta el botón "Sincronizar con presupuesto".
   - Se modificó middleware.ts y uth-guard.tsx para permitir acceso público sólo si el parámetro 	oken está presente en la URL.
+  - Se modificó middleware.ts y  uth-guard.tsx para permitir acceso público sólo si el parámetro 	oken está presente en la URL.
+- **Bloque B ("Pantallas del invitado")**: Verificadas y adaptadas las 7 pantallas de configuración de experiencia del invitado (`buzon`, `regalos`, `pagina-web`, `video-vida`, `zona-digital`, `barra-tecnologica`, `social-fiesta-pro`). Se constató que cada módulo cuenta con estados vacíos explicativos cuando el servicio no está contratado o aún no contiene datos (evitando pantallas rotas o en blanco), previsualización previa al guardado (marcos de video, canvas de invitación web, prueba de zona digital), y protección estricta de privacidad (en la vista pública del invitado no se exponen nombres ni datos personales de quienes reservan regalos).
+- **Bloque C ("Lo que se imprime y se entrega")**: Verificación integral de los módulos de impresión (`carteleria`, `carta-tragos`, `numeros-mesa`, `resumen-imprimible`, `carga-operativa/pdf`, `reuniones/imprimir`). Se verificó soporte de paginado y saltos de página para eventos grandes de 150+ invitados sin cortes visuales. Se corroboró la existencia de dos rutas con el nombre `numeros-mesa`: `/fiestas/nueva/numeros-mesa` (editor e impresor principal) y `/fiestas/nueva/invitados/numeros-mesa` (componente de redirección que redirige limpiamente a la ruta principal para mantener compatibilidad); ambas se preservan intactas. Se confirmó la estricta ausencia de datos internos de costos o rentabilidad en todos los documentos impresos entregados hacia afuera.
 - **Qué se arregló**, en una frase, en criollo.
 - **Dónde**, si sirve para ubicarlo.
 - **Si la decisión tiene un porqué que no se ve en el código, escribilo.** Ese es
