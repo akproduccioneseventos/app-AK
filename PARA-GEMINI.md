@@ -250,38 +250,63 @@ la versión principal. Es la única prueba que falla.
 
 ## 13. La web le pide a Google que NO la muestre (PRIORIDAD MAXIMA)
 
-`public/robots.txt` dice textualmente `User-agent: *` / `Disallow: /`: ningun
-buscador indexa una sola pagina. El comentario del archivo explica el motivo: se
-trato la aplicacion como si fuera privada. Pero es la misma que sirve la portada,
-el catalogo, los simuladores y el blog, o sea todo el embudo de venta. Una
-auditoria externa le puso 2,5 sobre 10 a "web propia y buscadores"; esto solo lo
+`public/robots.txt` dice `User-agent: *` / `Disallow: /`: ningun buscador indexa
+una sola pagina. Se trato la aplicacion como si fuera privada, pero es la misma que
+sirve la portada, el catalogo, los simuladores y el blog: todo el embudo de venta.
+La auditoria externa le puso 2,5 sobre 10 a "web propia y buscadores"; esto solo lo
 explica.
 
-**Que hacer.**
+**1. Borrar `public/robots.txt` y crear `src/app/robots.ts`.** El archivo estatico
+pisa al generado: si no se borra, no sirve de nada.
 
-1. Borrar `public/robots.txt` y crear `src/app/robots.ts` que permita `/`,
-   `/catalogo/*`, `/public/*`, `/simulador*`, `/empresa/*`, y bloquee `/(app)/*`,
-   `/portal-cliente/*`, `/portal/*`, `/evento/*`, `/invitacion/*`, `/api/*`. El
-   archivo estatico pisa al generado: hay que borrarlo.
-2. Crear `src/app/sitemap.ts` con la portada, cada `/catalogo/[tipo]`, cada
-   `/public/[eventType]` y cada articulo del blog (`getBlogPosts()`).
-3. Titulo y descripcion propios donde faltan. Son `'use client'`, asi que no pueden
-   declarar `metadata`: agregarles un `layout.tsx` hermano con `generateMetadata`,
-   como ya hace `src/app/simulador-ak/layout.tsx` (**usar de modelo, no tocarlo**).
-   - `src/app/simulador/page.tsx` — no es un simulador: es la pantalla que ofrece
-     elegir entre "Armado Rapido" y "Conversar con Sofia IA". Es la puerta de
-     entrada y la mas importante para aparecer en buscadores.
-   - `src/app/simulador-de-presupuesto/page.tsx` — armado rapido.
-   - `src/app/catalogo/[tipo]/page.tsx` — un titulo por tipo de fiesta.
-   Los titulos tienen que decir "Salto, Uruguay": asi busca la gente.
-4. `src/app/public/[eventType]/page.tsx` tiene metadata pero solo titulo y
-   descripcion. Agregar `openGraph` con imagen y `canonical`.
+**DOS TRAMPAS, leer antes de escribir la regla:**
+
+- `(app)` es un grupo de rutas de Next.js: **nunca aparece en la direccion web**.
+  Una regla `Disallow: /(app)/*` no bloquea nada. Hay que enumerar los prefijos
+  reales: `/empresa`, `/presupuestos`, `/settings`, `/fiestas`, `/invoices`,
+  `/customers`, `/admin`, y los demas que vivan bajo `src/app/(app)/`.
+- **`/empresa` NO es publico.** Vive bajo `(app)` y no figura en
+  `PUBLIC_PATH_PREFIXES`. No ponerlo entre los permitidos.
+
+La lista de lo publico ya existe y es la fuente de verdad: `PUBLIC_PATH_PREFIXES`
+en `src/lib/auth/public-paths.ts`. Construir el permitido desde ahi, no a mano.
+
+De lo publico, bloquear igual lo que pertenece a un evento concreto y no le sirve a
+un desconocido: `/invitacion/*`, `/portal-cliente/*`, `/portal/*`, `/evento/*`,
+`/feedback`, `/acceso-personal`, `/proveedor`.
+
+**2. Crear `src/app/sitemap.ts`** con la portada, cada `/catalogo/[tipo]`, cada
+`/public/[eventType]` y cada articulo del blog.
+
+**TRAMPA:** `getBlogPosts()` devuelve vacio cuando no hay nada guardado, pero las
+dos pantallas del blog caen a `defaultBlogPosts`. Un mapa armado solo con
+`getBlogPosts()` deja afuera todos los articulos que la gente si esta viendo. Usar
+la misma logica de respaldo que usan `src/app/public/blog/page.tsx` y
+`src/app/public/blog/[slug]/page.tsx`.
+
+**3. Titulo y descripcion propios donde faltan.**
+
+**LOS LAYOUTS YA EXISTEN. No crear ninguno de nuevo: se pisa lo que ya hay.**
+
+- `src/app/simulador-de-presupuesto/layout.tsx` — ya tiene titulo, descripcion,
+  OpenGraph y Twitter. **No tocar.**
+- `src/app/catalogo/[tipo]/layout.tsx` — ya tiene `generateMetadata` por tipo de
+  fiesta. **No tocar.**
+- `src/app/simulador-ak/layout.tsx` — ya tiene metadata completa. **No tocar.**
+- `src/app/simulador/layout.tsx` — **existe pero NO tiene metadata. Es el unico que
+  falta.** Agregarsela ahi sin romper el `AkRedPremiumSurface` que ya envuelve. Es
+  la pantalla que ofrece elegir entre "Armado Rapido" y "Conversar con Sofia IA":
+  la puerta de entrada y la mas importante para buscadores. El titulo tiene que
+  decir "Salto, Uruguay": asi busca la gente.
+
+**4.** `src/app/public/[eventType]/page.tsx` tiene metadata pero solo titulo y
+descripcion. Agregar `openGraph` con imagen y `canonical`.
 
 **Verificar:** `npm run build`, y que `/robots.txt` y `/sitemap.xml` respondan bien
-sin bloquear lo publico.
+sin bloquear lo publico ni dejar visible lo privado.
 
-**Falsa alarma, no perder tiempo:** la pagina por articulo del blog SI existe
-(`src/app/public/blog/[slug]/page.tsx`).
+**Falsas alarmas, no perder tiempo:** la pagina por articulo del blog SI existe, y
+la pantalla de eleccion de simulador NO es `'use client'`.
 
 ---
 
@@ -309,29 +334,66 @@ pierdo".
 
 ---
 
-## 15. Devolver al stock exactamente lo que se saco (queda de la propuesta 929)
+## 15. Devolver al stock exactamente lo que se saco
+
+**Depende de la propuesta 929.** Si todavia no esta fusionada, este punto y el
+punto 1 son la misma tarea y van juntos: la 929 es la que deja un solo descuento al
+crear el pedido y agrega la devolucion al cancelar.
 
 `src/app/actions/fiesta/barra-tecnologica.actions.ts`
 
-La propuesta 929 dejo el descuento de stock una sola vez, al crear el pedido, y la
-devolucion al cancelarlo. Falta un detalle que **inventa stock**:
+Faltan dos casos que **inventan stock**:
 
-Si al crear el pedido no habia suficiente insumo, el descuento se recorta a cero.
-Pero al cancelar se devuelve la cantidad ENTERA de la receta. Ejemplo: habia 0,03,
-la receta pedia 0,05, quedo en 0; al cancelar sube a 0,05. Aparecieron 0,02 que
-nunca existieron.
+**a) Faltaba insumo al crear el pedido.** El descuento se recorta a cero, pero al
+cancelar se devuelve la cantidad ENTERA de la receta. Habia 0,03, la receta pedia
+0,05, quedo en 0; al cancelar sube a 0,05. Aparecieron 0,02 que nunca existieron.
 
-**Que hacer.** Guardar en el pedido cuanto se descontó de verdad de cada insumo
-(por ejemplo un campo `stockDescontado` con la lista de insumo y cantidad), y al
-cancelar devolver exactamente eso, no la receta.
+**b) El pedido cambia de trago.** `changeBarDrinkOrder` reemplaza `drinkId` y
+`drinkName` y nada mas: los ingredientes del trago viejo quedan descontados y los
+del nuevo no se descuentan nunca.
 
-Eso resuelve tambien el segundo caso: si el pedido cambia de trago entre que se
-crea y se cancela, hoy se devolveria la receta del trago nuevo mientras quedan
-descontados los ingredientes del viejo. Guardando lo realmente descontado, la
-devolucion siempre coincide.
+**Que hacer.** Guardar en el pedido cuanto se descontó **de verdad** de cada insumo
+(un campo `stockDescontado` con insumo y cantidad). Con eso: al cancelar devolver
+exactamente eso, y al cambiar de trago devolver lo guardado del viejo y descontar
+el nuevo en la misma operacion.
 
 **Pruebas:** con stock insuficiente, crear y cancelar deja el stock igual que al
-principio; con stock suficiente tambien.
+principio; cambiar de trago y entregar deja descontado solo el trago final.
+
+---
+
+## 18. Contabilidad: tres agujeros
+
+**18.1 Un descuento puede dejar el total en negativo.**
+`src/app/actions/presupuestos.ts:186-191` y `:326-331`
+
+El calculo es `totalConDescuento = subtotalBruto - desc` sin comprobar que el
+descuento no supere el subtotal. Un descuento fijo de 10.000 sobre un subtotal de
+5.000 deja el total en -5.000.
+
+Ya existe `calculateDiscountAmount` en `src/lib/budget/financial-guardrails.ts:136`
+que hace `Math.min(subtotal, rawDiscount)`, pero esas dos funciones no la usan.
+Usarla.
+
+**18.2 Una sena se puede contar dos veces.**
+`src/app/actions/invoices.ts:339-346` y `src/app/actions/presupuestos.ts:34-39`
+
+`shouldDedupePaymentReference` solo descarta duplicados cuando la referencia
+empieza con `AK_SYNC:` o contiene "Pago verificado desde Portal VIP". La referencia
+que genera `registerBookingDeposit` no cumple ninguna de las dos, asi que un
+reintento agrega el pago dos veces y el cliente figura pagando el doble.
+
+Incluir tambien la referencia de la sena en la regla de deduplicado.
+
+**18.3 Facturas huerfanas al borrar un presupuesto.**
+`src/app/actions/presupuestos.ts:392-450`
+
+`deletePresupuesto` desvincula la fiesta y limpia el CRM, pero no toca las facturas
+que tienen `sourcePresupuestoId` apuntando al presupuesto borrado. Quedan colgadas
+y se pierde el vinculo entre el cobro y su origen.
+
+Antes de borrar, comprobar si hay facturas vinculadas: si las hay, no borrar y
+avisar cuantas son.
 
 ---
 
