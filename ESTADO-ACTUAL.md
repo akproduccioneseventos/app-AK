@@ -7,38 +7,29 @@ Quien cierre una sesión reescribe este archivo. Se pisa, no se acumula.
 
 ---
 
-**Última actualización:** 10 de agosto de 2026 (revisión de las seis propuestas de Gemini)
-**Rama:** `main`. Quedan abiertas las dos del bloque D: **no fusionar**.
-**Estado:** compila, 1378 pruebas en verde, sin acentos rotos.
+**Última actualización:** 11 de agosto de 2026 (auditoría de las áreas que faltaban)
+**Rama:** `main`. **Ninguna propuesta abierta.**
+**Estado:** compila, 1384 pruebas en verde, sin acentos rotos.
 
 ## Lo último que pasó
 
-Se revisaron las seis propuestas de Gemini (914 a 921) con los siete controles.
+**Se terminó de auditar la app.** Ya no quedan áreas sin mirar.
 
-**Fusionadas, sanas:** 914 (colores del planificador al tema), 915 (pantallas del
-invitado), 916 (impresión y entrega), 918 (ajustes del sistema; agrega un control
-que avisa si una plantilla de contrato o de WhatsApp tiene un marcador que el
-sistema no sabe completar). Las cuatro chocaban entre sí sólo en
-`docs/YA-RESUELTO.md`, que cada una reescribía entera: se resolvió conservando las
-notas de todos los lados.
+Se fusionaron tres propuestas, todas verificadas con los siete controles:
 
-**NO fusionar: 917 y 921 (bloque D).** Ninguna de las dos compila por su cuenta.
-921 contiene a 917, así que 917 sobra.
+- **932** (Gemini): la barra descuenta stock de verdad y lo repone al cancelar; los
+  recibos del personal guardan quién pagó y cuándo; no se puede borrar un proveedor
+  con insumos; WhatsApp normaliza el teléfono; los contratos aceptan los nombres
+  viejos de fecha, domicilio, salón y seña.
+- **937**: el catálogo de venta presencial no sumaba el menú al total, así que el
+  número que veía el cliente estaba por debajo del real; se quedaba en blanco si
+  fallaba la carga; la web ofrecía un "Elite" que no se vende y escondía el
+  Intermedio; el plan 30/40/30 estaba escrito cinco veces.
+- **938**: la orden nueva para Gemini.
 
-Qué tienen mal, verificado:
-1. `src/lib/fiesta-defaults.ts` — se borraron ~22 banderas de módulos por defecto y
-   quedó `];` en vez de `};`. Si eso entra, las fiestas nuevas nacen sin muro,
-   sin control de entrada, sin 360, sin barra y sin zona digital.
-2. `src/app/evento/plataforma-360/[fiestaId]/page.tsx` — una llave de cierre de más,
-   y se borraron `selectedDuration` y `voiceEnabled` que el archivo sigue usando en
-   diez lugares.
-
-Se intentó rescatarla: restaurando esos dos archivos desde `main` aparecieron
-**nueve errores nuevos y distintos** en otros archivos (`QrCode` y `stripUrl` que no
-existen, `branding` que no está en el tipo, props equivocadas en el QR del bogue).
-O sea: no está dañada, está **sin terminar**. Conviene devolverla a Gemini con la
-lista de errores, no remendarla.
-
+**Los once pendientes que estaban anotados ya estaban resueltos.** Se verificaron
+uno por uno contra el código: los cerró la 932. El documento venía viejo y mandaba
+a repetir trabajo hecho. **Antes de arrancar por una lista vieja, verificá.**
 
 ## Antes de empezar
 
@@ -48,24 +39,42 @@ también para las órdenes que se le escriben a otra IA) y **lo que le toca a
 Gemini, Claude no lo programa** (Claude sólo escribe plata, cobros, comida y
 permisos).
 
-## El tamaño real: 370 pantallas, unas 130 auditadas
+## El tamaño real: unas 370 pantallas, todas recorridas al menos una vez
+
+Auditadas a fondo en esta última tanda, y **limpias**: configuración (41), las
+pantallas de la noche de fiesta que no son estaciones (18).
+
+Con hallazgos, ya entregados a Gemini en `PARA-GEMINI.md`: empresa (42),
+empleados y sueldos, y las sueltas del panel (15).
 
 ## Lo próximo, en orden
 
-1. **Plata en ajustes (CLAUDE).** Está todo verificado y anotado en
-   `docs/ordenes/pendiente-todo.md`, bloque E-bis: dos nombres distintos para el
-   domicilio del cliente en las plantillas de contrato, marcadores inventados
-   que salen impresos, y tres problemas de cupones. **Lo de precios negativos ya
-   está arreglado.**
-2. **Gemini**: los cinco bloques de `docs/ordenes/pendiente-todo.md`, en **una
-   sola propuesta**. Ninguno empezado.
-3. **Sin auditar nunca**: `(app)/empresa` (42 pantallas), el resto de
-   `(app)/settings` (40), las 25 pantallas de `evento` que no son estaciones,
-   los tres portales, `(app)/empleados` (sueldos, es plata), y las sueltas
-   (alertas, incidentes, aprobaciones, calendario).
+1. **Gemini**: los cuatro bloques de `PARA-GEMINI.md`, en **una sola propuesta**.
+   Ninguno empezado. El más importante es el primero: hoy se pueden borrar insumos,
+   servicios, menús y bienes que están en uso. El caso del insumo es el peor,
+   porque **baja el costo del plato en silencio**.
+2. **Dos decisiones del dueño, sin respuesta todavía:**
+   - ¿La moderación de la pantalla gigante viene prendida en las fiestas nuevas?
+     Hoy viene apagada y lo que sube un invitado sale directo a la pantalla.
+   - Los módulos por usuario se asignan pero **no se validan en ningún lado**:
+     cualquiera con sesión entra a todo. O se implementa o se saca la pantalla.
+
+## Ya está resuelto, no lo busques de nuevo
+
+- Aviso de pago duplicado del cliente: si toca dos veces por el mismo monto dentro
+  de diez minutos, cuenta como uno solo.
+- Clave del portal del cliente: por defecto lleva el nombre del cliente, obliga a
+  cambiarla la primera vez, y hay recuperación por correo con tope de tres intentos
+  por hora.
+- Fotos del muro descargables con el enlace: **es a propósito**, decisión del dueño.
+- Los centavos en dólares: no aplica, se trabaja sólo en pesos.
 
 ## Ojo con esto, ya pasó
 
 Al fusionar una rama que toque `fotografia` o `catering`, **quedate siempre con
 `verifyAccesoPersonalToken`**. Una rama traía la versión vieja y reabría el
 agujero del token de proveedor: ningún control lo habría agarrado.
+
+Y no fusiones dos propuestas que toquen el mismo archivo sin verificar el
+resultado **junto**: la 841 y la 845 protegieron facturas de dos maneras distintas,
+encajaron sin protestar, y dejaban la pantalla colgada para siempre al guardar.
