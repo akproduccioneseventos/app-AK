@@ -28,7 +28,6 @@ type PaymentResult = {
   surchargeAmount: number;
   purpose: 'deposit' | 'balance';
   requiresReview: boolean;
-  budgetUrl: string;
 };
 
 const formatCurrency = (amount: number) => new Intl.NumberFormat('es-UY', {
@@ -41,6 +40,15 @@ export function MercadoPagoResultClient({ sessionId }: { sessionId: string }) {
   const [result, setResult] = useState<PaymentResult | null>(null);
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(true);
+  const [budgetReturnUrl, setBudgetReturnUrl] = useState('/');
+
+  useEffect(() => {
+    if (!sessionId) return;
+    const stored = sessionStorage.getItem(`ak-mp-return:${sessionId}`);
+    if (stored?.startsWith(window.location.origin)) {
+      setBudgetReturnUrl(stored.slice(window.location.origin.length) || '/');
+    }
+  }, [sessionId]);
 
   const loadStatus = useCallback(async () => {
     if (!sessionId) {
@@ -156,7 +164,7 @@ export function MercadoPagoResultClient({ sessionId }: { sessionId: string }) {
           </p>
         </div>
         <Button asChild className="mt-6 w-full bg-[#009EE3] hover:bg-[#0089c7]">
-          <Link href={result.budgetUrl}>Volver al presupuesto</Link>
+          <Link href={budgetReturnUrl}>{budgetReturnUrl === '/' ? 'Volver al inicio' : 'Volver al presupuesto'}</Link>
         </Button>
         <div className="mt-4 flex items-center justify-center gap-2 text-xs text-slate-500">
           <ShieldCheck className="h-4 w-4 text-emerald-600" />

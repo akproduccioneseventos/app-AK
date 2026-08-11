@@ -2,19 +2,28 @@
 
 import { readData, writeData } from '@/lib/data-service';
 import type { ScheduledMessage, ScheduledMessageStatus } from '@/types/whatsapp-automation';
-import { requireAppSession } from '@/lib/auth/require-session';
+import { requirePermiso } from '@/lib/auth/require-session';
+import { PERMISOS } from '@/lib/auth/perfiles';
+import { WHATSAPP_AUTOMATION_INTERNAL_TOKEN } from '@/lib/whatsapp/internal-token';
 
 const SCHEDULED_MESSAGES_FILE = 'scheduled-messages.json';
 
-export async function getScheduledMessages(): Promise<ScheduledMessage[]> {
-  await requireAppSession();
+export async function getScheduledMessages(internalToken?: symbol): Promise<ScheduledMessage[]> {
+  if (internalToken !== WHATSAPP_AUTOMATION_INTERNAL_TOKEN) {
+    const permiso = await requirePermiso(PERMISOS.CRM);
+    if (!permiso.ok) return [];
+  }
   return readData<ScheduledMessage[]>(SCHEDULED_MESSAGES_FILE, []);
 }
 
 export async function saveScheduledMessage(
-  message: Omit<ScheduledMessage, 'id' | 'createdAt'>
+  message: Omit<ScheduledMessage, 'id' | 'createdAt'>,
+  internalToken?: symbol,
 ): Promise<{ success: boolean; message?: ScheduledMessage; error?: string }> {
-  await requireAppSession();
+  if (internalToken !== WHATSAPP_AUTOMATION_INTERNAL_TOKEN) {
+    const permiso = await requirePermiso(PERMISOS.CRM);
+    if (!permiso.ok) return { success: false, error: permiso.error };
+  }
 
   // Sin telefono el aviso se guardaba igual y nadie se enteraba hasta el dia que
   // alguien abria la cola para mandarlo: recien ahi aparecia el error, con el
@@ -28,7 +37,7 @@ export async function saveScheduledMessage(
   }
 
   try {
-    const messages = await getScheduledMessages();
+    const messages = await getScheduledMessages(internalToken);
     const newMessage: ScheduledMessage = {
       ...message,
       id: `msg_${Date.now()}_${Math.random().toString(36).substring(2, 11)}`,
@@ -45,7 +54,8 @@ export async function markMessageAsSent(
   messageId: string,
   sentBy: string
 ): Promise<{ success: boolean; error?: string }> {
-  await requireAppSession();
+  const permiso = await requirePermiso(PERMISOS.CRM);
+  if (!permiso.ok) return { success: false, error: permiso.error };
   try {
     const messages = await getScheduledMessages();
     const updated = messages.map(m =>
@@ -64,7 +74,8 @@ export async function rescheduleMessage(
   messageId: string,
   newDate: string
 ): Promise<{ success: boolean; error?: string }> {
-  await requireAppSession();
+  const permiso = await requirePermiso(PERMISOS.CRM);
+  if (!permiso.ok) return { success: false, error: permiso.error };
   try {
     const messages = await getScheduledMessages();
     const updated = messages.map(m =>
@@ -88,7 +99,8 @@ export async function cancelScheduledMessage(
   messageId: string,
   reason?: string
 ): Promise<{ success: boolean; error?: string }> {
-  await requireAppSession();
+  const permiso = await requirePermiso(PERMISOS.CRM);
+  if (!permiso.ok) return { success: false, error: permiso.error };
   try {
     const messages = await getScheduledMessages();
     const updated = messages.map(m =>
@@ -117,7 +129,8 @@ export async function generateWhatsAppClickUrl(
 }
 
 export async function getPendingMessagesForToday(): Promise<ScheduledMessage[]> {
-  await requireAppSession();
+  const permiso = await requirePermiso(PERMISOS.CRM);
+  if (!permiso.ok) return [];
   const messages = await getScheduledMessages();
   const today = new Date();
   today.setHours(0, 0, 0, 0);

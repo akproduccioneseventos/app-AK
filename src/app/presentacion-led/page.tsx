@@ -45,6 +45,7 @@ import { GaleriaLightboxModal } from './components/galeria-lightbox-modal';
 
 // Types
 import type { PageData, ClientData, CategoriaServicio, ResourceSummary } from './lib/tipos';
+import { calcularTotalServicioLed } from './lib/calculos';
 
 
 // ---- Slide variants & transition ----
@@ -212,9 +213,26 @@ export default function PresentacionLedPage() {
     return [...menuCategories, ...ordered];
   }, [data]);
 
+  const adultMenuOptions = useMemo<FullMenu[]>(() => {
+    if (!data) return [];
+    const seen = new Set<string>();
+    return data.menus.flatMap(menu => menu.items
+      .filter(item => item.type === 'Plato Principal' && !seen.has(item.id))
+      .map(item => {
+        seen.add(item.id);
+        return {
+          id: item.id,
+          name: item.name,
+          description: item.notes || menu.description,
+          imageUrl: item.imageUrl,
+          featured: item.isFeatured || menu.featured,
+          items: [item],
+        };
+      }));
+  }, [data]);
   const selectedMenu = useMemo(
-    () => data?.menus.find((m) => m.id === selectedMenuId) ?? null,
-    [data?.menus, selectedMenuId],
+    () => adultMenuOptions.find((menu) => menu.id === selectedMenuId) ?? null,
+    [adultMenuOptions, selectedMenuId],
   );
   const adolescentMenuOptions = useMemo(() => {
     if (!data) return [] as MenuItem[];
@@ -231,6 +249,22 @@ export default function PresentacionLedPage() {
     return result;
   }, [data]);
   const adolescentCount = Number(clientData.invitadosAdolescentes || '0');
+
+  // Collect entrada items from all menus before calculating the live total.
+  const todasLasEntradas = useMemo<MenuItem[]>(() => {
+    if (!data) return [];
+    const seen = new Set<string>();
+    const result: MenuItem[] = [];
+    for (const menu of data.menus) {
+      for (const item of menu.items) {
+        if (item.type === 'Entrada' && !seen.has(item.id)) {
+          seen.add(item.id);
+          result.push(item);
+        }
+      }
+    }
+    return result;
+  }, [data]);
 
   /**
    * Precio por persona de un menu: la suma de lo que sale cada plato.
@@ -254,26 +288,34 @@ export default function PresentacionLedPage() {
    * por debajo del real y habia que corregirselo para arriba en la cara, que es la
    * peor forma de perder una venta.
    *
-   * Ahora suma los servicios mas el menu de adultos por cada adulto, mas el menu de
-   * adolescentes por cada adolescente.
+   * Ahora suma los servicios con su metodo real, las entradas para todos los invitados,
+   * el menu de adultos por cada adulto y el menu adolescente por cada adolescente.
    */
   const totalEstimadoConMenu = useMemo(() => {
+    const adultos = Math.max(0, Number(clientData.invitadosAdultos || '0'));
+    const adolescentes = Math.max(0, Number(clientData.invitadosAdolescentes || '0'));
     const servicios = selectedServices.reduce((acc, id) => {
       const srv = data?.servicios.find(s => s.id === id);
-      return acc + (Number(srv?.precioVenta) || 0);
+      return srv ? acc + calcularTotalServicioLed(srv, adultos, adolescentes) : acc;
     }, 0);
 
-    const adultos = Math.max(0, Number(clientData.invitadosAdultos || '0'));
+    const entradas = selectedEntradasIds.reduce((acc, id) => {
+      const entrada = todasLasEntradas.find(item => item.id === id);
+      return acc + precioPorPersonaDeMenu(entrada ? [entrada] : []) * (adultos + adolescentes);
+    }, 0);
     const menuAdultos = precioPorPersonaDeMenu(selectedMenu?.items) * adultos;
 
     const platoAdolescente = adolescentMenuOptions.find(opt => opt.id === selectedTeenMenuId);
     const menuAdolescentes = precioPorPersonaDeMenu(platoAdolescente ? [platoAdolescente] : []) * adolescentCount;
 
-    return Math.round(servicios + menuAdultos + menuAdolescentes);
+    return Math.round(servicios + entradas + menuAdultos + menuAdolescentes);
   }, [
     selectedServices,
     data?.servicios,
+    selectedEntradasIds,
+    todasLasEntradas,
     clientData.invitadosAdultos,
+    clientData.invitadosAdolescentes,
     selectedMenu,
     adolescentMenuOptions,
     selectedTeenMenuId,
@@ -382,38 +424,6 @@ export default function PresentacionLedPage() {
     );
     return byCategory.length > 0 ? byCategory : catalogoFotos;
   }, [catalogoFotos, galleryCategoria]);
-
-  // Real-time budget total (services only, for the floating bar)
-  const budgetTotal = useMemo(() => {
-    if (!data) return 0;
-    const adultos = Math.max(0, Number(clientData.invitadosAdultos || '0'));
-    const ninos = Math.max(0, Number(clientData.invitadosAdolescentes || '0'));
-    const total = clientData.invitadosAdultos || 0;
-    return selectedServices.reduce((acc, id) => {
-      const srv = data.servicios.find((s) => s.id === id);
-      if (!srv) return acc;
-      if (srv.calculationMethod === 'porPersona' && srv.precioPorPersona) {
-        return acc + srv.precioPorPersona * (adultos + ninos);
-      }
-      return acc + (srv.precioVenta || 0);
-    }, 0);
-  }, [selectedServices, data, clientData.invitadosAdultos, clientData.invitadosAdolescentes]);
-
-  // Collect entrada items from all menus
-  const todasLasEntradas = useMemo<MenuItem[]>(() => {
-    if (!data) return [];
-    const seen = new Set<string>();
-    const result: MenuItem[] = [];
-    for (const menu of data.menus) {
-      for (const item of menu.items) {
-        if (item.type === 'Entrada' && !seen.has(item.id)) {
-          seen.add(item.id);
-          result.push(item);
-        }
-      }
-    }
-    return result;
-  }, [data]);
 
   const canAdvanceFromEntradas = todasLasEntradas.length === 0 || selectedEntradasIds.length >= requiredEntradasCount;
 
@@ -637,7 +647,7 @@ export default function PresentacionLedPage() {
     );
   }
 
-  const menuOptions = data.menus.map(m => ({ id: m.id, name: m.name }));
+  const menuOptions = adultMenuOptions.map(menu => ({ id: menu.id, name: menu.name }));
 
   return (
     <div
@@ -767,7 +777,7 @@ export default function PresentacionLedPage() {
           )}
           {currentDynamicSlide?.type === 'menu-adulto' && (
             <MenuAdultoSlide
-              menus={data.menus}
+              menus={adultMenuOptions}
               selectedMenuId={selectedMenuId}
               ledFotoMap={presentacionSettings?.ledFotosMenuItems || {}}
               mostrarPrecios={data.mostrarPrecios}
@@ -919,7 +929,7 @@ export default function PresentacionLedPage() {
             </div>
             <div className="h-4 w-px bg-white/20" />
             <span className="text-lg font-black text-white">
-              ${budgetTotal.toLocaleString('es-UY')}
+              ${totalEstimadoConMenu.toLocaleString('es-UY')}
             </span>
             <div className="h-4 w-px bg-white/20" />
             <button

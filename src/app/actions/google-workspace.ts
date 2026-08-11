@@ -1,7 +1,7 @@
 'use server';
 
 import { getEmpleados } from '@/app/actions/empleados';
-import { getFiestaById, getFiestas } from '@/app/actions/fiesta/fiesta.actions';
+import { getFiestas } from '@/app/actions/fiesta/fiesta.actions';
 import { getRoles } from '@/app/actions/roles';
 import { readData, writeData } from '@/lib/data-service';
 import { verifySession } from '@/lib/auth/session-token';
@@ -37,7 +37,8 @@ import type {
   PublicGoogleWorkspaceAccount,
 } from '@/types/google-workspace';
 import type { Rol } from '@/types/rol';
-import { requireAppSession } from '@/lib/auth/require-session';
+import { requirePermiso } from '@/lib/auth/require-session';
+import { requireEventPermission } from '@/lib/auth/event-access';
 
 const ACCOUNTS_FILE = '_google-workspace-accounts.json';
 const SYNC_FILE = '_google-workspace-sync.json';
@@ -148,7 +149,23 @@ export async function saveGoogleWorkspaceAccountFromOAuth(input: {
   employeeId?: string;
   token: GoogleTokenResponse;
 }) {
-  await requireAppSession();
+  const session = await verifySession();
+  if (!session.success || !session.user) throw new Error(session.error || 'Sesion no autorizada.');
+  const canAdminister = puede(session.user, PERMISOS.ADMINISTRACION);
+  if (input.kind === 'company' && !canAdminister) {
+    throw new Error('Solo el dueño puede conectar la cuenta corporativa de Google.');
+  }
+  if (input.kind === 'employee' && !canAdminister) {
+    const employee = (await getEmpleados()).find(item => item.id === input.employeeId);
+    const sessionEmail = session.user.email?.trim().toLowerCase();
+    const isOwnAccount = employee && (
+      employee.id === session.user.userId
+      || [employee.email, employee.googleWorkspaceEmail]
+        .filter(Boolean)
+        .some(email => email?.trim().toLowerCase() === sessionEmail)
+    );
+    if (!isOwnAccount) throw new Error('Solo puedes conectar tu propia cuenta de Google.');
+  }
   const accounts = await readAccounts();
   const existing = accounts.find((account) =>
     input.kind === 'company' ? account.kind === 'company' : account.kind === 'employee' && account.employeeId === input.employeeId
@@ -166,6 +183,8 @@ export async function saveGoogleWorkspaceAccountFromOAuth(input: {
 }
 
 export async function getGoogleWorkspaceDashboard(): Promise<GoogleWorkspaceDashboard> {
+  const permiso = await requirePermiso(PERMISOS.ADMINISTRACION);
+  if (!permiso.ok) throw new Error(permiso.error);
   const [accounts, records, empleados, fiestas] = await Promise.all([
     readAccounts(),
     readSyncRecords(),
@@ -201,20 +220,24 @@ export async function syncFiestaToGoogleWorkspace(
   fiestaId: string,
   options: GoogleWorkspaceSyncOptions = {}
 ): Promise<{ success: boolean; warnings?: string[]; error?: string }> {
+  let fiesta: Awaited<ReturnType<typeof requireEventPermission>>;
+  try {
+    fiesta = await requireEventPermission(fiestaId, PERMISOS.ORGANIZACION);
+  } catch (error) {
+    return { success: false, error: error instanceof Error ? error.message : 'No puedes sincronizar este evento.' };
+  }
   const missingConfig = getMissingGoogleConfig(process.env.NEXT_PUBLIC_APP_URL);
   if (missingConfig.length > 0) {
     return { success: true, warnings: [`Google Workspace no esta configurado: ${missingConfig.join(', ')}`] };
   }
 
-  const [fiesta, empleados, roles, accounts, records] = await Promise.all([
-    getFiestaById(fiestaId),
+  const [empleados, roles, accounts, records] = await Promise.all([
     getEmpleados(),
     getRoles(),
     readAccounts(),
     readSyncRecords(),
   ]);
 
-  if (!fiesta) return { success: false, error: 'Fiesta no encontrada.' };
   if (!fiesta.configuracion?.fechaEvento) {
     return { success: true, warnings: ['La fiesta no tiene fecha; no se sincronizo con Google.'] };
   }
@@ -328,6 +351,8 @@ export async function syncFiestaToGoogleWorkspace(
 }
 
 export async function syncAllFiestasToGoogleWorkspace() {
+  const permiso = await requirePermiso(PERMISOS.ADMINISTRACION);
+  if (!permiso.ok) return { success: false, synced: 0, total: 0, warnings: [permiso.error] };
   const fiestas = await getFiestas(false);
   const datedFiestas = fiestas.filter((fiesta) => Boolean(fiesta.configuracion?.fechaEvento));
   let synced = 0;
@@ -405,6 +430,8 @@ export async function syncAppointmentToGoogleWorkspace(appointment: CrmAppointme
   warnings?: string[];
   error?: string;
 }> {
+  const permiso = await requirePermiso(PERMISOS.CRM);
+  if (!permiso.ok) return { success: false, error: permiso.error };
   try {
     const accounts = await readAccounts();
     const companyAccount = accounts.find((account) => account.kind === 'company');

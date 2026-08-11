@@ -289,11 +289,7 @@ export async function generateMetadata(): Promise<Metadata> {
     robots: { index: true, follow: true },
   };
 }
-interface LandingPageProps {
-  searchParams?: Promise<Record<string, string | string[] | undefined>>;
-}
-export default async function HomePage({ searchParams }: LandingPageProps) {
-  const resolvedSearchParams = await searchParams;
+export default async function HomePage() {
   const [
     promo,
     landingSettings,

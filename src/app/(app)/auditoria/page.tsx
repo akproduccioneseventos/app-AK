@@ -10,8 +10,10 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { Separator } from '@/components/ui/separator';
 import { useToast } from '@/hooks/use-toast';
-import { Shield, Search, Download, Filter, Clock, Loader2, ArrowRight } from 'lucide-react';
+import { Shield, Search, Download, Filter, Clock, Loader2, ArrowRight, Calculator, CheckCircle2, AlertTriangle } from 'lucide-react';
 import { getAuditLogs } from '@/app/actions/audit-log';
+import { getFinancialIntegrityReport } from '@/app/actions/financial-integrity';
+import type { FinancialIntegrityReport } from '@/lib/commercial-flow/financial-integrity';
 import type { AuditLog, ModuloSistema } from '@/types/audit-log';
 
 const MODULOS: ModuloSistema[] = [
@@ -62,6 +64,8 @@ function AuditoriaContent() {
     hasta: '',
   });
   const [search, setSearch] = useState('');
+  const [financialReport, setFinancialReport] = useState<FinancialIntegrityReport | null>(null);
+  const [financialLoading, setFinancialLoading] = useState(false);
 
   const load = async () => {
     setLoading(true);
@@ -81,6 +85,27 @@ function AuditoriaContent() {
   };
 
   useEffect(() => { load(); }, []); // eslint-disable-line react-hooks/exhaustive-deps
+
+  const runFinancialAudit = async () => {
+    setFinancialLoading(true);
+    try {
+      const result = await getFinancialIntegrityReport();
+      if (!result.success || !result.report) throw new Error(result.error || 'No se pudo completar el control.');
+      setFinancialReport(result.report);
+      toast({
+        title: result.report.counts.errors === 0 ? 'Control financiero correcto' : 'Control financiero completado',
+        description: `${result.report.counts.errors} error(es) y ${result.report.counts.warnings} advertencia(s).`,
+      });
+    } catch (error) {
+      toast({
+        title: 'No se pudo revisar',
+        description: error instanceof Error ? error.message : 'Error inesperado.',
+        variant: 'destructive',
+      });
+    } finally {
+      setFinancialLoading(false);
+    }
+  };
 
   const handleExport = () => {
     const headers = ['Fecha', 'Usuario', 'Rol', 'Modulo', 'Accion', 'Descripcion', 'Valor antes', 'Valor despues'];
@@ -129,6 +154,79 @@ function AuditoriaContent() {
           Historial inmutable de todas las acciones realizadas en el sistema.
         </p>
       </div>
+
+      <Card className="mb-6">
+        <CardHeader className="pb-3">
+          <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+            <div>
+              <CardTitle className="text-base flex items-center gap-2">
+                <Calculator className="h-4 w-4" /> Control de numeros y vinculos
+              </CardTitle>
+              <CardDescription>
+                Revisa presupuestos, pagos, facturas y fiestas con los datos actuales, sin modificarlos.
+              </CardDescription>
+            </div>
+            <Button onClick={runFinancialAudit} disabled={financialLoading} size="sm">
+              {financialLoading ? <Loader2 className="h-4 w-4 animate-spin mr-2" /> : <Calculator className="h-4 w-4 mr-2" />}
+              Revisar ahora
+            </Button>
+          </div>
+        </CardHeader>
+        {financialReport && (
+          <CardContent className="space-y-4">
+            <div className="grid grid-cols-2 gap-3 md:grid-cols-5">
+              <div><p className="text-xs text-muted-foreground">Presupuestos</p><p className="text-xl font-semibold">{financialReport.counts.presupuestos}</p></div>
+              <div><p className="text-xs text-muted-foreground">Facturas</p><p className="text-xl font-semibold">{financialReport.counts.facturas}</p></div>
+              <div><p className="text-xs text-muted-foreground">Fiestas</p><p className="text-xl font-semibold">{financialReport.counts.fiestas}</p></div>
+              <div><p className="text-xs text-muted-foreground">Errores</p><p className="text-xl font-semibold text-red-600">{financialReport.counts.errors}</p></div>
+              <div><p className="text-xs text-muted-foreground">Advertencias</p><p className="text-xl font-semibold text-amber-600">{financialReport.counts.warnings}</p></div>
+            </div>
+
+            {financialReport.issues.length === 0 ? (
+              <div className="flex items-center gap-2 border-t pt-4 text-sm text-emerald-700">
+                <CheckCircle2 className="h-4 w-4" /> No se detectaron diferencias contables ni vinculos rotos.
+              </div>
+            ) : (
+              <div className="overflow-x-auto border-t pt-4">
+                <Table>
+                  <TableHeader>
+                    <TableRow>
+                      <TableHead>Estado</TableHead>
+                      <TableHead>Area</TableHead>
+                      <TableHead>ID</TableHead>
+                      <TableHead>Detalle</TableHead>
+                    </TableRow>
+                  </TableHeader>
+                  <TableBody>
+                    {financialReport.issues.slice(0, 50).map((issue, index) => (
+                      <TableRow key={`${issue.scope}-${issue.entityId}-${index}`}>
+                        <TableCell>
+                          <Badge variant={issue.severity === 'error' ? 'destructive' : 'secondary'} className="gap-1">
+                            <AlertTriangle className="h-3 w-3" /> {issue.severity === 'error' ? 'Error' : 'Revisar'}
+                          </Badge>
+                        </TableCell>
+                        <TableCell className="capitalize">{issue.scope}</TableCell>
+                        <TableCell className="font-mono text-xs">{issue.entityId}</TableCell>
+                        <TableCell className="min-w-[280px] text-sm">
+                          {issue.message}
+                          {(issue.expected !== undefined || issue.actual !== undefined) && (
+                            <span className="block text-xs text-muted-foreground">
+                              Esperado: {String(issue.expected ?? '-')} | Guardado: {String(issue.actual ?? '-')}
+                            </span>
+                          )}
+                        </TableCell>
+                      </TableRow>
+                    ))}
+                  </TableBody>
+                </Table>
+                {financialReport.issues.length > 50 && (
+                  <p className="pt-3 text-xs text-muted-foreground">Se muestran los primeros 50 de {financialReport.issues.length} hallazgos.</p>
+                )}
+              </div>
+            )}
+          </CardContent>
+        )}
+      </Card>
 
       {/* Filters */}
       <Card className="mb-6">

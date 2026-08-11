@@ -2,6 +2,7 @@ import type { AutomationTrigger, ScheduledMessage } from '@/types/whatsapp-autom
 import { getWhatsAppSettings, getWhatsAppTemplates } from '@/app/actions/settings';
 import { saveScheduledMessage } from '@/app/actions/scheduled-messages';
 import { rellenarPlantilla } from '@/lib/whatsapp/plantilla-mensaje';
+import { WHATSAPP_AUTOMATION_INTERNAL_TOKEN } from '@/lib/whatsapp/internal-token';
 
 export interface AutomationContext {
   targetId: string;
@@ -52,7 +53,8 @@ function renderTemplate(template: string, ctx: AutomationContext): string {
  */
 export async function triggerWhatsAppAutomation(
   trigger: AutomationTrigger,
-  ctx: AutomationContext
+  ctx: AutomationContext,
+  internalToken?: symbol,
 ): Promise<{ scheduled: number; errors: string[] }> {
   const errors: string[] = [];
   let scheduled = 0;
@@ -128,7 +130,10 @@ export async function triggerWhatsAppAutomation(
           automationRuleId: rule.id,
         };
 
-        const result = await saveScheduledMessage(newMsg);
+        const result = await saveScheduledMessage(
+          newMsg,
+          internalToken === WHATSAPP_AUTOMATION_INTERNAL_TOKEN ? internalToken : undefined,
+        );
         if (result.success) {
           scheduled++;
         } else {

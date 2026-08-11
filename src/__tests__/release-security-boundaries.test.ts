@@ -75,7 +75,12 @@ describe('release security boundaries', () => {
   it('protects both sides of the Google OAuth connection', () => {
     expect(readSource('src/app/api/google/oauth/start/route.ts')).toContain('await hasAppSession()');
     expect(readSource('src/app/api/google/oauth/callback/route.ts')).toContain('await hasAppSession()');
-    expect(readSource('src/app/actions/google-workspace.ts')).toContain('await requireAppSession()');
+    const actions = readSource('src/app/actions/google-workspace.ts');
+    expect(actions).toContain('const session = await verifySession()');
+    expect(actions).toContain('puede(session.user, PERMISOS.ADMINISTRACION)');
+    expect(actions).toContain('requireEventPermission(fiestaId, PERMISOS.ORGANIZACION)');
+    expect(actions).toContain('requirePermiso(PERMISOS.ADMINISTRACION)');
+    expect(actions).toContain('requirePermiso(PERMISOS.CRM)');
   });
 
   it.each([
@@ -139,7 +144,7 @@ describe('release security boundaries', () => {
       const nextExport = source.indexOf('export async function ', start + 1);
       const functionSource = source.slice(start, nextExport === -1 ? undefined : nextExport);
       expect(start).toBeGreaterThanOrEqual(0);
-      expect(functionSource).toContain('await requireAppSession()');
+      expect(functionSource).toMatch(/await require(?:AppSession|Permiso)\(/);
     }
   });
 
