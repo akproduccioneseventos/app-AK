@@ -579,14 +579,22 @@ Verificado y cerrado el 9 de agosto de 2026.
 - **Bloque 1 — Protección contra borrado en uso**:
   - `deleteInsumo`: Bloqueado si el insumo se utiliza en recetas o menús de catering.
   - `deleteServicioEmpresa`: Bloqueado si el servicio está incluido en presupuestos.
-  - `deleteMenu`: Bloqueado si el menú está seleccionado en presupuestos.
+  - `deleteMenu`: Bloqueado si el menú está seleccionado en presupuestos, si uno de sus platos quedó como ítem histórico o si está asignado a una fiesta.
   - `deleteActivoFijo`: Bloqueado si el activo fijo está asignado en la lista de carga de cualquier evento.
-- **Bloque 2 — Protección de sueldos**: En `getEmployeeWorkspacePortal` (`google-workspace.ts`) se exige el permiso `PERMISOS.SUELDOS` antes de devolver sueldos y eventos del empleado.
-- **Bloque 3 — Identidad real en aprobaciones y playbooks**: En `aprobarCambio`, `rechazarCambio` (`approvals.ts`) y `applyPlaybookToFiesta` (`playbooks.ts`) se resuelve la identidad real desde la sesión (`auth?.user?.email`) en el servidor en lugar de confiar en `'admin'` desde el cliente.
+- **Bloque 2 — Protección de sueldos**: El dueño conserva `PERMISOS.SUELDOS`; el perfil `personal` puede abrir únicamente su propio portal cuando coincide el usuario o el correo de su ficha. No puede consultar el portal de otro empleado.
+- **Bloque 3 — Identidad real en aprobaciones y playbooks**: En `aprobarCambio`, `rechazarCambio` (`approvals.ts`) y `applyPlaybookToFiesta` (`playbooks.ts`) la identidad sale solamente de la sesión firmada del servidor. Los nombres enviados por la pantalla se conservan como parámetros antiguos, pero ya no se usan como respaldo.
 - **Bloque 4 — Formatos visuales**:
   - Moneda cambiada de `es-AR` / `ARS` a `es-UY` / `UYU` en la pantalla de aprobaciones.
   - Validación de sueldos no negativos (`min={0}`) en UI (`personal/page.tsx`) y en servidor (`personal.actions.ts`).
   - Fechas ajustadas a formato uruguayo `es-UY` en `auditoria`, `incidentes`, `eventos` y `pagos-rapidos`.
+
+### Revisión cruzada Codex sobre la PR de Claude
+
+- Se corrigió una regresión detectada en revisión: exigir `SUELDOS` sin excepción dejaba al personal con un 404 al abrir su propio portal.
+- Se corrigió la trazabilidad de menús: `selectedMenuId` ahora forma parte del presupuesto persistido y vuelve a cargarse al editarlo.
+- Se eliminó el respaldo de identidad controlado por el navegador en aprobaciones, rechazos y aplicaciones de playbooks.
+- Se corrigió la protección de servicios en presupuestos: Claude consultaba `item.id`, una propiedad inexistente que hacía fallar TypeScript; se usa el ID real `idServicioCatalogo` y el nombre histórico.
+- Se agregaron comprobaciones de regresión en `release-security-boundaries.test.ts` para estos tres límites.
 
 ---
 

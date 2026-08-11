@@ -41,11 +41,12 @@ export async function createAprobacion(
 
 export async function aprobarCambio(
   id: string,
-  aprobadoPor?: string
+  _aprobadoPor?: string
 ): Promise<{ success: boolean; error?: string }> {
   await requireAppSession();
   const session = await verifySession();
-  const usuarioReal = session.user?.email || (aprobadoPor && aprobadoPor !== 'admin' ? aprobadoPor : 'Administrador');
+  if (!session.success || !session.user) return { success: false, error: session.error || 'Sesion no autorizada.' };
+  const usuarioReal = session.user.email || session.user.userId || 'Usuario autenticado';
   try {
     const all = await readData<AprobacionRequest[]>(APROBACIONES_FILE, []);
     const index = all.findIndex(a => a.id === id);
@@ -66,11 +67,12 @@ export async function aprobarCambio(
 export async function rechazarCambio(
   id: string,
   motivoRechazo: string,
-  rechazadoPor?: string
+  _rechazadoPor?: string
 ): Promise<{ success: boolean; error?: string }> {
   await requireAppSession();
   const session = await verifySession();
-  const usuarioReal = session.user?.email || (rechazadoPor && rechazadoPor !== 'admin' ? rechazadoPor : 'Administrador');
+  if (!session.success || !session.user) return { success: false, error: session.error || 'Sesion no autorizada.' };
+  const usuarioReal = session.user.email || session.user.userId || 'Usuario autenticado';
   try {
     const all = await readData<AprobacionRequest[]>(APROBACIONES_FILE, []);
     const index = all.findIndex(a => a.id === id);

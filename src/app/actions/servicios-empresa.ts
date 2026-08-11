@@ -108,7 +108,7 @@ export async function deleteServicioEmpresa(id: string): Promise<{ success: bool
   const presupuestos = await getPresupuestos();
   const presupuestosEnUso = presupuestos.filter(p =>
     p.itemsPresupuestados?.some(item =>
-      item.idServicioCatalogo === id || item.id === id || (targetServicio && item.nombreServicio === targetServicio.nombre)
+      item.idServicioCatalogo === id || (targetServicio && item.nombreServicio === targetServicio.nombre)
     )
   );
   if (presupuestosEnUso.length > 0) {

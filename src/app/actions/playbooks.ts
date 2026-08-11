@@ -79,11 +79,14 @@ export async function deletePlaybook(id: string): Promise<{ success: boolean; er
 export async function applyPlaybookToFiesta(
   playbookId: string,
   fiestaId: string,
-  userId?: string
+  _userId?: string
 ): Promise<{ success: boolean; tareasGeneradas: number; documentosGenerados: number; error?: string }> {
   await requireAppSession();
   const session = await verifySession();
-  const usuarioReal = session.user?.email || (userId && userId !== 'admin' ? userId : 'Administrador');
+  if (!session.success || !session.user) {
+    return { success: false, tareasGeneradas: 0, documentosGenerados: 0, error: session.error || 'Sesion no autorizada.' };
+  }
+  const usuarioReal = session.user.email || session.user.userId || 'Usuario autenticado';
   try {
     const [playbook, fiesta] = await Promise.all([
       getPlaybookById(playbookId),

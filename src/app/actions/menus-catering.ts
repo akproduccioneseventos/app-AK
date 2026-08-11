@@ -200,15 +200,23 @@ export async function saveMenu(
 export async function deleteMenu(id: string): Promise<{ success: boolean; error?: string }> {
   await requireAppSession();
 
-  const { getPresupuestos } = await import('./presupuestos');
-  const presupuestos = await getPresupuestos();
-  const presupuestosEnUso = presupuestos.filter((p: any) =>
-    p.selectedMenuId === id || p.itemsPresupuestados?.some((item: any) => item.idServicioCatalogo === id)
+  const targetMenu = await getMenuById(id);
+  const menuItemIds = new Set(targetMenu?.items.map(item => item.id) || []);
+  const [{ getPresupuestos }, { getFiestas }] = await Promise.all([
+    import('./presupuestos'),
+    import('./fiesta/fiesta.actions'),
+  ]);
+  const [presupuestos, fiestas] = await Promise.all([getPresupuestos(), getFiestas(false)]);
+  const presupuestosEnUso = presupuestos.filter(p =>
+    p.selectedMenuId === id || p.itemsPresupuestados?.some(item =>
+      item.idServicioCatalogo === id || menuItemIds.has(item.idServicioCatalogo)
+    )
   );
-  if (presupuestosEnUso.length > 0) {
+  const fiestasEnUso = fiestas.filter(fiesta => fiesta.menuAsignadoId === id);
+  if (presupuestosEnUso.length > 0 || fiestasEnUso.length > 0) {
     return {
       success: false,
-      error: `No se puede eliminar el menú porque está siendo utilizado en ${presupuestosEnUso.length} presupuesto(s).`,
+      error: `No se puede eliminar el menú porque está en ${presupuestosEnUso.length} presupuesto(s) y ${fiestasEnUso.length} evento(s).`,
     };
   }
 
