@@ -382,6 +382,60 @@ de siete dias, aparece lo de la fiesta en vivo sola.
 
 ---
 
+## 20. Los dos portales del cliente muestran saldos distintos
+
+`src/app/portal-cliente/[id]/page.tsx:541`
+
+**Esto lo dejo a medias una correccion mia (propuesta 843) y hay que terminarlo.**
+
+El ajuste anual se aplica cuando el evento cae en un anio posterior al del
+presupuesto. La propuesta 843 corrigio las pantallas del portal publico
+(`PublicPortalClientExperience` y `PublicPortalProView`) para que usen
+`calcularEstadoDeCuenta`, el mismo calculo que el estado de cuenta de AK.
+
+Pero el portal privado, `/portal-cliente/[id]`, quedo usando
+`getPaymentPlanSummary(cuotas)`, que suma las cuotas sin el ajuste.
+
+Antes los dos estaban igual de mal; ahora uno esta bien y el otro no, asi que el
+mismo cliente ve dos saldos distintos segun por que enlace entre. En una fiesta de
+120.000 la diferencia es de 18.000.
+
+**Que hacer.** Que `/portal-cliente/[id]/page.tsx` use `calcularEstadoDeCuenta` de
+`@/lib/budget/saldo-con-ajuste`, igual que las otras dos. Ojo: esa pantalla arma el
+resumen a partir de las cuotas del plan de pagos, asi que hay que revisar de donde
+saca el presupuesto para pasarselo.
+
+**Verificar:** con un presupuesto aceptado y el evento el anio que viene, el saldo
+tiene que ser el mismo en `/portal-cliente/[id]`, en `/portal/c/[accessKey]` y en el
+estado de cuenta interno.
+
+---
+
+## 21. Cosas del portal del cliente que la hacen llamar por telefono
+
+**21.1 El plan de pagos no se actualiza si cambia el presupuesto.**
+`src/app/actions/fiesta/fiesta.actions.ts:669-833`
+
+`syncFiestaFromBudget` actualiza modulos contratados, personal y costos, pero no
+toca `planDePagos`. Si AK cambia montos en el presupuesto, el cliente sigue viendo
+las cuotas viejas en su portal.
+
+**21.2 Marca que empaco algo y no se guarda.**
+`src/app/portal-cliente/[id]/page.tsx:322-338`
+
+Al marcar un item de "lo que tenes que llevar", la pantalla lo marca al instante.
+Si la conexion falla, aparece un aviso de error pero **el item queda marcado igual**.
+Ella recarga y vuelve a estar sin marcar: creyo que lo guardo y no. Hay que
+devolver la marca a su estado anterior cuando falla.
+
+**21.3 "Todavia no hay invitados cargados" no dice que hacer.**
+`src/app/portal-cliente/[id]/page.tsx:1166-1180`
+
+No distingue entre "AK todavia no los cargo" y "algo se rompio". Aclarar que es
+normal al principio y que los va a ver apenas se carguen.
+
+---
+
 ## Cómo verificar al terminar
 
 1. `npx tsc --noEmit` → 0 errores
