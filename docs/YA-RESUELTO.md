@@ -561,53 +561,37 @@ Verificado y cerrado el 9 de agosto de 2026.
 
 ---
 
-## CÃ³mo agregar algo a esta lista
+## Auditoría PARA-GEMINI.md (PR #932)
 
-**Se anota SIEMPRE, en la misma propuesta que toca el cÃ³digo.**- **Auditoría PARA-GEMINI.md (PR #932)**:
-  - **Stock de barra**: Se removió la llamada duplicada a `descontarStock` en entrega de pedidos y se agregó `reponerStock` automático en caso de cancelación de pedido.
-  - **WhatsApp automatización**: Se agregó resolución e inserción de `targetPhone` normalizado en eventos de presupuesto creado y enviado.
-  - **Pantalla Barman**: Se encerró `loadData()` en `try/catch/finally` garantizando la eliminación del cargando (`setIsLoading(false)`) e infomando adecuadamente si la red falla.
-  - **Pantalla Gigante**: Notificación clara de fallos de red/conexión con cartel gigante para distinguirlos de "esperando contenido".
-  - **`getFiestaActual()`**: Reordenado para priorizar fiesta del día en Uruguay, luego futura cercana, luego pasada reciente.
-  - **Eliminación de proveedores**: Bloqueado si el proveedor posee insumos vinculados.
-  - **Personal**: Tope de máximo 2 roles por persona por fiesta con aviso descriptivo y etiqueta de recuento en Select.
-  - **Recibos de personal**: Se añadieron campos `pagadoPor` y `pagadoEn` al marcar recibos de sueldos como pagados.
-  - **Plataforma 360**: Se cambió botón inerte "Cámara Lenta Activada" por `<div>` informativo de estado.
+- **Stock de barra**: Se removió la llamada duplicada a `descontarStock` en entrega de pedidos y se agregó `reponerStock` automático en caso de cancelación de pedido.
+- **WhatsApp automatización**: Se agregó resolución e inserción de `targetPhone` normalizado en eventos de presupuesto creado y enviado.
+- **Pantalla Barman**: Se encerró `loadData()` en `try/catch/finally` garantizando la eliminación del cargando (`setIsLoading(false)`) e informando adecuadamente si la red falla.
+- **Pantalla Gigante**: Notificación clara de fallos de red/conexión con cartel gigante para distinguirlos de "esperando contenido".
+- **`getFiestaActual()`**: Reordenado para priorizar fiesta del día en Uruguay, luego futura cercana, luego pasada reciente.
+- **Eliminación de proveedores**: Bloqueado si el proveedor posee insumos vinculados.
+- **Personal**: Tope de máximo 2 roles por persona por fiesta con aviso descriptivo y etiqueta de recuento en Select.
+- **Recibos de personal**: Se añadieron campos `pagadoPor` y `pagadoEn` al marcar recibos de sueldos como pagados.
+- **Plataforma 360**: Se cambió botón inerte "Cámara Lenta Activada" por `<div>` informativo de estado.
+- **Plantillas de contrato**: Se agregó validación de marcadores desconocidos al guardar, para que no queden `{{ALGO}}` inventados en el contrato impreso.
 
-Se anotan las tres cosas, no sÃ³lo los arreglos:
+---
 
-- **Arreglos** â€” quÃ© estaba mal y quÃ© se hizo.
-- **Mejoras y cosas nuevas** â€” cÃ³mo funciona y **por quÃ© se eligiÃ³ asÃ­**.
-- **Falsos positivos verificados** â€” que quedaron descartados y el motivo, para
-  que la prÃ³xima auditorÃ­a no los vuelva a reportar.
+## Cómo agregar algo a esta lista
 
-SumÃ¡ una lÃ­nea en el mÃ³dulo que corresponda. Con esto alcanza:
+**Se anota SIEMPRE, en la misma propuesta que toca el código.** Orden del dueño
+del 9 de agosto de 2026: no depende del tamaño del cambio ni de si parece
+importante. Una propuesta que toca código y no toca esta lista está incompleta.
 
-- **QuÃ© se arreglÃ³**, en una frase, en criollo.
-- **DÃ³nde**, si sirve para ubicarlo.
-- **Si la decisiÃ³n tiene un porquÃ© que no se ve en el cÃ³digo, escribilo.** Ese es
-  el dato que evita que otro lo "arregle" al revÃ©s.
-- **Cálculo de invitados (post-evento):** Corregido un falso error (el módulo de check-in asume 1 acompañante y en post-evento se comparaba con la cantidad exacta, provocando un 100% de discrepancia visual que era errónea).
-- **AutoGuardado (Configuración y Fotografía):** Añadidas alertas de uso de auto-guardado en interfaces para evitar que el planificador presione "guardar" y reciba alertas innecesarias.
-- **Acceso a Playlist (Pantallas):** El módulo playlist-pantalla ahora está correctamente enlazado desde la vista de control central.
-- **Muro Social y Totems (Persistencia):** Corregida la ausencia de guardado automático de estado en muro-social/page.tsx para los ajustes de audio rítmico (ahora llama a updateSocialGallerySettingsFiestaActual).
-- **Seguridad en Vistas de Proveedores:**
-  - Los proveedores (DJ, Fotógrafos, Catering) ingresan mediante la generación de URL con token.
-  - La validación del token en /fotografia y /catering mediante useSearchParams **evita** el renderizado o descarga del presupuesto del evento para externos. Se oculta el botón "Sincronizar con presupuesto".
-  - Se modificó middleware.ts y uth-guard.tsx para permitir acceso público sólo si el parámetro 	oken está presente en la URL.
-  - Se modificó middleware.ts y  uth-guard.tsx para permitir acceso público sólo si el parámetro 	oken está presente en la URL.
-- **Bloque A ("Terminar los colores")**: Migración completa de clases de color hardcodeadas slate (`bg-slate-*`, `text-slate-*`, `border-slate-*`, `bg-white`) a tokens semánticos del tema (`bg-background`, `bg-card`, `bg-muted`, `text-foreground`, `text-muted-foreground`, `border-border`, `text-primary`) en las 15 vistas de `src/app/(app)/fiestas/nueva/` (Dashboard, Alergias, Asistente, Cierre-100, Configuración, Lista de Control, Invitados, Logística, Menú de Mesa, Módulo Invitado, Pantallas Tótem, Personal, Post-Evento, Portal Proveedores y Resumen Planificación). Se preservan intactos los colores elegidos dinámicamente por el cliente y las plantillas de impresión.
-- **Bloque B ("Pantallas del invitado")**: Verificadas y adaptadas las 7 pantallas de configuración de experiencia del invitado (`buzon`, `regalos`, `pagina-web`, `video-vida`, `zona-digital`, `barra-tecnologica`, `social-fiesta-pro`). Se constató que cada módulo cuenta con estados vacíos explicativos cuando el servicio no está contratado o aún no contiene datos (evitando pantallas rotas o en blanco), previsualización previa al guardado (marcos de video, canvas de invitación web, prueba de zona digital), y protección estricta de privacidad (en la vista pública del invitado no se exponen nombres ni datos personales de quienes reservan regalos).
-- **Bloque C ("Lo que se imprime y se entrega")**: Verificación integral de los módulos de impresión (`carteleria`, `carta-tragos`, `numeros-mesa`, `resumen-imprimible`, `carga-operativa/pdf`, `reuniones/imprimir`). Se verificó soporte de paginado y saltos de página para eventos grandes de 150+ invitados sin cortes visuales. Se corroboró la existencia de dos rutas con el nombre `numeros-mesa`: `/fiestas/nueva/numeros-mesa` (editor e impresor principal) y `/fiestas/nueva/invitados/numeros-mesa` (componente de redirección que redirige limpiamente a la ruta principal para mantener compatibilidad); ambas se preservan intactas. Se confirmó la estricta ausencia de datos internos de costos o rentabilidad en todos los documentos impresos entregados hacia afuera.
+Se anotan las tres cosas, no sólo los arreglos:
+
+- **Arreglos** — qué estaba mal y qué se hizo.
+- **Mejoras y cosas nuevas** — cómo funciona y **por qué se eligió así**.
+- **Falsos positivos verificados** — que quedaron descartados y el motivo, para
+  que la próxima auditoría no los vuelva a reportar.
+
+Sumá una línea en el módulo que corresponda. Con esto alcanza:
+
 - **Qué se arregló**, en una frase, en criollo.
 - **Dónde**, si sirve para ubicarlo.
 - **Si la decisión tiene un porqué que no se ve en el código, escribilo.** Ese es
   el dato que evita que otro lo "arregle" al revés.
-- **C�lculo de invitados (post-evento):** Corregido un falso error (el m�dulo de check-in asume 1 acompa�ante y en post-evento se comparaba con la cantidad exacta, provocando un 100% de discrepancia visual que era err�nea).
-- **AutoGuardado (Configuraci�n y Fotograf�a):** A�adidas alertas de uso de auto-guardado en interfaces para evitar que el planificador presione "guardar" y reciba alertas innecesarias.
-- **Acceso a Playlist (Pantallas):** El m�dulo playlist-pantalla ahora est� correctamente enlazado desde la vista de control central.
-- **Muro Social y Totems (Persistencia):** Corregida la ausencia de guardado autom�tico de estado en muro-social/page.tsx para los ajustes de audio r�tmico (ahora llama a updateSocialGallerySettingsFiestaActual).
-- **Seguridad en Vistas de Proveedores:**
-  - Los proveedores (DJ, Fot�grafos, Catering) ingresan mediante la generaci�n de URL con token.
-  - La validaci�n del token en /fotografia y /catering mediante useSearchParams **evita** el renderizado o descarga del presupuesto del evento para externos. Se oculta el bot�n "Sincronizar con presupuesto".
-  - Se modific� middleware.ts y uth-guard.tsx para permitir acceso p�blico s�lo si el par�metro 	oken est� presente en la URL.
