@@ -345,7 +345,14 @@ export async function syncFiestaAndNotifyStaff(fiestaId: string) {
   return syncFiestaToGoogleWorkspace(fiestaId, { reason: 'manual', sendEmails: true, forceEmail: true });
 }
 
+import { requirePermiso } from '@/lib/auth/require-session';
+import { PERMISOS } from '@/lib/auth/permisos';
+
 export async function getEmployeeWorkspacePortal(empleadoId: string) {
+  const permiso = await requirePermiso(PERMISOS.SUELDOS);
+  if (!permiso.ok) {
+    return { employee: null, googleAccount: undefined, events: [], error: permiso.error };
+  }
   const [empleados, roles, fiestas, accounts] = await Promise.all([
     getEmpleados(),
     getRoles(),

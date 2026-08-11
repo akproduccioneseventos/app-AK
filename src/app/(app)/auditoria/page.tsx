@@ -37,7 +37,7 @@ const moduloBadgeColor: Record<ModuloSistema, string> = {
 
 const formatDate = (ts: string) => {
   try {
-    return new Date(ts).toLocaleString('es-AR', { dateStyle: 'short', timeStyle: 'short' });
+    return new Date(ts).toLocaleString('es-UY', { dateStyle: 'short', timeStyle: 'short' });
   } catch {
     return ts;
   }

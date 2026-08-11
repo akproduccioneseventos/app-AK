@@ -35,7 +35,7 @@ import { dedupeImportedEventCopies, sortPastEvents, sortUpcomingEvents } from '@
 const formatDate = (dateString?: string) => {
   if (!dateString) return "Fecha no definida";
   try {
-    return new Date(dateString).toLocaleDateString('es-ES', {
+    return new Date(dateString).toLocaleDateString('es-UY', {
       day: 'numeric', month: 'long', year: 'numeric'
     });
   } catch (e) {
@@ -547,7 +547,7 @@ export default function GestorFiestasPage() {
             {conflictingDates.map(({ date, fiestas }) => (
               <div key={date} className="p-3 rounded-lg bg-white border border-red-200">
                 <p className="text-sm font-bold text-red-800 mb-2">
-                  📅 {new Date(date + 'T12:00:00').toLocaleDateString('es-ES', { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric' })}
+                  📅 {new Date(date + 'T12:00:00').toLocaleDateString('es-UY', { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric' })}
                 </p>
                 <div className="space-y-1">
                   {fiestas.map(f => (

@@ -43,7 +43,7 @@ const formatCurrency = (amount?: number) => {
 const formatDate = (dateString?: string) => {
   if (!dateString) return '—';
   try {
-    return new Date(dateString).toLocaleDateString('es-ES', { day: '2-digit', month: 'short', year: 'numeric' });
+    return new Date(dateString).toLocaleDateString('es-UY', { day: '2-digit', month: 'short', year: 'numeric' });
   } catch { return '—'; }
 };
 

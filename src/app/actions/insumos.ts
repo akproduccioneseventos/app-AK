@@ -136,6 +136,20 @@ export async function saveInsumo(
 
 export async function deleteInsumo(id: string): Promise<{ success: boolean; error?: string }> {
   await requireAppSession();
+  const { getMenus } = await import('./menus-catering');
+  const menus = await getMenus();
+  const menusEnUso = menus.filter(m =>
+    m.items?.some(item =>
+      item.ingredients?.some(ing => ing.origenId === id || (ing as any).insumoId === id)
+    )
+  );
+  if (menusEnUso.length > 0) {
+    return {
+      success: false,
+      error: `No se puede eliminar el insumo porque está siendo utilizado en ${menusEnUso.length} menú(s)/receta(s) de catering.`,
+    };
+  }
+
   invalidateInsumosCache();
   let inventario = await getInsumos();
   const initialLength = inventario.length;

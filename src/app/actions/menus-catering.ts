@@ -199,6 +199,19 @@ export async function saveMenu(
 
 export async function deleteMenu(id: string): Promise<{ success: boolean; error?: string }> {
   await requireAppSession();
+
+  const { getPresupuestos } = await import('./presupuestos');
+  const presupuestos = await getPresupuestos();
+  const presupuestosEnUso = presupuestos.filter((p: any) =>
+    p.menuSeleccionadoId === id || p.menuId === id || p.itemsPresupuestados?.some((item: any) => item.menuId === id || item.idServicioCatalogo === id)
+  );
+  if (presupuestosEnUso.length > 0) {
+    return {
+      success: false,
+      error: `No se puede eliminar el menú porque está siendo utilizado en ${presupuestosEnUso.length} presupuesto(s).`,
+    };
+  }
+
   invalidateMenusCache();
   let menus = await readMenusFile();
   const initialLength = menus.length;

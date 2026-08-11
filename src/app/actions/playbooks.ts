@@ -78,9 +78,10 @@ export async function deletePlaybook(id: string): Promise<{ success: boolean; er
 export async function applyPlaybookToFiesta(
   playbookId: string,
   fiestaId: string,
-  userId: string
+  userId?: string
 ): Promise<{ success: boolean; tareasGeneradas: number; documentosGenerados: number; error?: string }> {
-  await requireAppSession();
+  const auth = await requireAppSession();
+  const usuarioReal = auth?.user?.email || (userId && userId !== 'admin' ? userId : 'Administrador');
   try {
     const [playbook, fiesta] = await Promise.all([
       getPlaybookById(playbookId),
@@ -129,7 +130,7 @@ export async function applyPlaybookToFiesta(
       playbookId,
       fiestaId,
       aplicadoEn: new Date().toISOString(),
-      aplicadoPor: userId,
+      aplicadoPor: usuarioReal,
       tareasGeneradas: nuevasTareas.length,
       documentosGenerados: playbook.documentos.length,
     };

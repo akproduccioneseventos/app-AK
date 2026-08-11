@@ -102,6 +102,22 @@ export async function saveServicioEmpresa(
 export async function deleteServicioEmpresa(id: string): Promise<{ success: boolean; error?: string }> {
   await requireAppSession();
   let inventario = await getServiciosEmpresa();
+  const targetServicio = inventario.find(s => s.id === id);
+
+  const { getPresupuestos } = await import('./presupuestos');
+  const presupuestos = await getPresupuestos();
+  const presupuestosEnUso = presupuestos.filter(p =>
+    p.itemsPresupuestados?.some(item =>
+      item.idServicioCatalogo === id || item.id === id || (targetServicio && item.nombreServicio === targetServicio.nombre)
+    )
+  );
+  if (presupuestosEnUso.length > 0) {
+    return {
+      success: false,
+      error: `No se puede eliminar el servicio porque está siendo utilizado en ${presupuestosEnUso.length} presupuesto(s).`,
+    };
+  }
+
   const initialLength = inventario.length;
   inventario = inventario.filter(s => s.id !== id);
   if (inventario.length === initialLength) return { success: false, error: `Servicio con ID ${id} no encontrado para eliminar.` };

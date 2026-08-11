@@ -40,9 +40,10 @@ export async function createAprobacion(
 
 export async function aprobarCambio(
   id: string,
-  aprobadoPor: string
+  aprobadoPor?: string
 ): Promise<{ success: boolean; error?: string }> {
-  await requireAppSession();
+  const auth = await requireAppSession();
+  const usuarioReal = auth?.user?.email || (aprobadoPor && aprobadoPor !== 'admin' ? aprobadoPor : 'Administrador');
   try {
     const all = await readData<AprobacionRequest[]>(APROBACIONES_FILE, []);
     const index = all.findIndex(a => a.id === id);
@@ -50,7 +51,7 @@ export async function aprobarCambio(
     all[index] = {
       ...all[index],
       estadoAprobacion: 'Aprobado' as EstadoAprobacion,
-      aprobadoPor,
+      aprobadoPor: usuarioReal,
       aprobadoEn: new Date().toISOString(),
     };
     await writeData(APROBACIONES_FILE, all);
@@ -63,9 +64,10 @@ export async function aprobarCambio(
 export async function rechazarCambio(
   id: string,
   motivoRechazo: string,
-  rechazadoPor: string
+  rechazadoPor?: string
 ): Promise<{ success: boolean; error?: string }> {
-  await requireAppSession();
+  const auth = await requireAppSession();
+  const usuarioReal = auth?.user?.email || (rechazadoPor && rechazadoPor !== 'admin' ? rechazadoPor : 'Administrador');
   try {
     const all = await readData<AprobacionRequest[]>(APROBACIONES_FILE, []);
     const index = all.findIndex(a => a.id === id);
@@ -73,7 +75,7 @@ export async function rechazarCambio(
     all[index] = {
       ...all[index],
       estadoAprobacion: 'Rechazado' as EstadoAprobacion,
-      aprobadoPor: rechazadoPor,
+      aprobadoPor: usuarioReal,
       aprobadoEn: new Date().toISOString(),
       motivoRechazo,
     };

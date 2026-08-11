@@ -574,6 +574,20 @@ Verificado y cerrado el 9 de agosto de 2026.
 - **Plataforma 360**: Se cambió botón inerte "Cámara Lenta Activada" por `<div>` informativo de estado.
 - **Plantillas de contrato**: Se agregó validación de marcadores desconocidos al guardar, para que no queden `{{ALGO}}` inventados en el contrato impreso.
 
+## Auditoría PARA-GEMINI.md — Nuevos hallazgos (11 de agosto de 2026)
+
+- **Bloque 1 — Protección contra borrado en uso**:
+  - `deleteInsumo`: Bloqueado si el insumo se utiliza en recetas o menús de catering.
+  - `deleteServicioEmpresa`: Bloqueado si el servicio está incluido en presupuestos.
+  - `deleteMenu`: Bloqueado si el menú está seleccionado en presupuestos.
+  - `deleteActivoFijo`: Bloqueado si el activo fijo está asignado en la lista de carga de cualquier evento.
+- **Bloque 2 — Protección de sueldos**: En `getEmployeeWorkspacePortal` (`google-workspace.ts`) se exige el permiso `PERMISOS.SUELDOS` antes de devolver sueldos y eventos del empleado.
+- **Bloque 3 — Identidad real en aprobaciones y playbooks**: En `aprobarCambio`, `rechazarCambio` (`approvals.ts`) y `applyPlaybookToFiesta` (`playbooks.ts`) se resuelve la identidad real desde la sesión (`auth?.user?.email`) en el servidor en lugar de confiar en `'admin'` desde el cliente.
+- **Bloque 4 — Formatos visuales**:
+  - Moneda cambiada de `es-AR` / `ARS` a `es-UY` / `UYU` en la pantalla de aprobaciones.
+  - Validación de sueldos no negativos (`min={0}`) en UI (`personal/page.tsx`) y en servidor (`personal.actions.ts`).
+  - Fechas ajustadas a formato uruguayo `es-UY` en `auditoria`, `incidentes`, `eventos` y `pagos-rapidos`.
+
 ---
 
 ## Cómo agregar algo a esta lista
