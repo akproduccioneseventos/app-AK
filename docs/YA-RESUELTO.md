@@ -563,9 +563,16 @@ Verificado y cerrado el 9 de agosto de 2026.
 
 ## CÃ³mo agregar algo a esta lista
 
-**Se anota SIEMPRE, en la misma propuesta que toca el cÃ³digo.** Orden del dueÃ±o
-del 9 de agosto de 2026: no depende del tamaÃ±o del cambio ni de si parece
-importante. Una propuesta que toca cÃ³digo y no toca esta lista estÃ¡ incompleta.
+**Se anota SIEMPRE, en la misma propuesta que toca el cÃ³digo.**- **Auditoría PARA-GEMINI.md (PR #932)**:
+  - **Stock de barra**: Se removió la llamada duplicada a `descontarStock` en entrega de pedidos y se agregó `reponerStock` automático en caso de cancelación de pedido.
+  - **WhatsApp automatización**: Se agregó resolución e inserción de `targetPhone` normalizado en eventos de presupuesto creado y enviado.
+  - **Pantalla Barman**: Se encerró `loadData()` en `try/catch/finally` garantizando la eliminación del cargando (`setIsLoading(false)`) e infomando adecuadamente si la red falla.
+  - **Pantalla Gigante**: Notificación clara de fallos de red/conexión con cartel gigante para distinguirlos de "esperando contenido".
+  - **`getFiestaActual()`**: Reordenado para priorizar fiesta del día en Uruguay, luego futura cercana, luego pasada reciente.
+  - **Eliminación de proveedores**: Bloqueado si el proveedor posee insumos vinculados.
+  - **Personal**: Tope de máximo 2 roles por persona por fiesta con aviso descriptivo y etiqueta de recuento en Select.
+  - **Recibos de personal**: Se añadieron campos `pagadoPor` y `pagadoEn` al marcar recibos de sueldos como pagados.
+  - **Plataforma 360**: Se cambió botón inerte "Cámara Lenta Activada" por `<div>` informativo de estado.
 
 Se anotan las tres cosas, no sÃ³lo los arreglos:
 

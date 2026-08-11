@@ -269,6 +269,17 @@ export async function saveContractTemplate(input: string | ContractTemplateItem)
   try {
     const auth = await verifySession();
     if (!auth.success) return { success: false, error: auth.error };
+
+    const templateText = typeof input === 'string' ? input : input.template || '';
+    const { marcadoresDesconocidos } = await import('@/lib/contratos/marcadores');
+    const desconocidos = marcadoresDesconocidos(templateText);
+    if (desconocidos.length > 0) {
+      return {
+        success: false,
+        error: `La plantilla contiene marcadores no válidos o desconocidos: ${desconocidos.join(', ')}.`,
+      };
+    }
+
     const now = new Date().toISOString();
     const templates = await getContractTemplates();
 
