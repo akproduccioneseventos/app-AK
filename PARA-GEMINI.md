@@ -1,32 +1,59 @@
 # Traspaso para Gemini, Claude y otros agentes
 
-Ultima revision: 11 de agosto de 2026.
+Última revisión: 11 de agosto de 2026.
 
-Trabajar sobre `release/final-11ago`, PR abierta `#942`. La PR #941 ya fue
-fusionada. Antes de investigar, leer:
+Trabajar sobre `main`. No hay propuestas abiertas. Antes de investigar, leer:
 
 1. `ESTADO-ACTUAL.md`
 2. `docs/YA-RESUELTO.md`
-3. El diff de la PR #942 contra `main`
 
 ## No repetir
 
 - No reabrir arreglos marcados como hechos en esos documentos.
-- No tratar el rojo de GitHub Actions como error de codigo: los jobs no arrancan
-  por facturacion y el dueno no agregara tarjeta.
-- No declarar correctos los 19 eventos usando JSON locales vacios.
-- No inventar publicaciones de Instagram/Facebook, pagos, correos ni resultados
-  de proveedores que no hayan respondido realmente.
-- No crear otra PR para la misma auditoria. Los hallazgos reales van a la #942.
+- No tratar el rojo de GitHub Actions como error de código: los trabajos no
+  arrancan por facturación y el dueño no agregará tarjeta.
+- No declarar correctos los 19 eventos usando los archivos locales vacíos.
+- No inventar publicaciones de Instagram/Facebook, pagos, correos ni resultados de
+  proveedores que no hayan respondido realmente.
+- **Una sola propuesta por tanda**, con todos los bloques adentro. Cada fusión
+  dispara un despliegue y eso se paga. Si un bloque se traba, entregar el resto
+  igual en la misma propuesta y avisar cuál faltó.
 
-## Trabajo activo
+## Falsas alarmas ya verificadas: no las reportes como hallazgo
 
-La matriz local de lanzamiento ya fue ejecutada sobre el candidato de la #942:
-build productivo, E2E interno, Firebase Emulator, autenticacion, simulador,
-experiencias publicas, entretenimiento, visual PC/celular y rendimiento
-representativo. No repetirla si el SHA no cambia.
+- El stock de bebidas no se devuelve al archivar una fiesta: está bien, para ese
+  momento las bebidas se tomaron.
+- Los recordatorios de confirmación cuentan invitados y no personas: está bien, se
+  manda un mensaje por invitado.
+- La lista de compras usa los invitados del presupuesto, no los confirmados: es
+  decisión tomada del dueño. Él cocina lo que se contrató; si se agregan invitados,
+  el presupuesto sube.
+- Las fotos del muro se bajan con el enlace directo, a propósito.
+- Se trabaja sólo en pesos uruguayos.
 
-Quedan solo comprobaciones que requieren el entorno real: los 19 eventos en
-Firebase, respuesta efectiva de Gmail/Instagram/Mercado Pago/Gemini y hardware
-del salon. Reportar aprobaciones en una linea y detallar solamente fallos
-reproducidos, fricciones y mejoras de valor.
+## Lo único pendiente de programar
+
+**Un empleado se puede asignar a dos fiestas del mismo día sin que nada lo impida.**
+
+Hoy aparece un aviso rojo (`src/app/(app)/fiestas/nueva/personal/page.tsx`, cerca
+de la línea 309) que dice que la persona ya figura en otro evento, pero la
+asignación se guarda igual. Si el equipo va rápido y no lee el aviso, queda un mozo
+anotado en dos salones a la misma hora, y eso recién se descubre el día del evento.
+
+Qué hacer: cuando las dos fiestas se solapan en horario, **bloquear** la asignación
+en vez de avisar. Si no se solapan pero son el mismo día, dejar el aviso como está.
+El bloqueo tiene que explicar en pantalla en qué otro evento está la persona y a
+qué hora, para que se pueda resolver sin salir a buscarlo.
+
+Cuidado: la comprobación tiene que hacerse también en el servidor, no sólo en la
+pantalla. Hoy `fiestasDelMismoDiaConEmpleado` se llama desde el navegador.
+
+## Lo pendiente que NO es programación
+
+- Correr `Auditoría > Revisar ahora` con Firebase de producción para comprobar los
+  19 eventos, presupuestos, facturas y pagos que no existen en los archivos locales.
+- Confirmar con credenciales reales el envío de Gmail, la publicación de Instagram,
+  el cobro de Mercado Pago y la generación con Gemini.
+- Probar en el salón la impresora, las cámaras y tablets reales, el brazo 360 y la
+  red del evento. El navegador simula esos dispositivos; no reemplaza la prueba
+  física.
