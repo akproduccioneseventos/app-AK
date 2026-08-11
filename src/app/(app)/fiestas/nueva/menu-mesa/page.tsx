@@ -51,6 +51,7 @@ function MenuDeMesaContent() {
       setLogoUrl(settings.logoUrl ?? null);
       
       const mergedData = { ...defaultMenuMesaData, ...(fiestaData.menuMesa || {}) };
+      lastSavedDataRef.current = mergedData;
       setData(mergedData);
     } catch (e: any) {
       setError("No se pudo cargar la información del evento.");
@@ -106,14 +107,9 @@ function MenuDeMesaContent() {
 
   const lastSavedDataRef = React.useRef<MenuMesaData>(data);
 
-  useEffect(() => {
-    lastSavedDataRef.current = data;
-  }, [fiestaId]);
-
   const handleSave = async () => {
     if (!fiestaId) return;
     setIsSaving(true);
-    const previousSnapshot = data;
     try {
       const result = await updateMenuMesaAction(fiestaId, data);
       if (result.success) {
@@ -123,7 +119,7 @@ function MenuDeMesaContent() {
         throw new Error(result.error || "No se pudo guardar la configuración.");
       }
     } catch (e: any) {
-      setData(previousSnapshot);
+      setData(lastSavedDataRef.current);
       toast({
         title: "No se pudo guardar la configuración",
         description: `${e.message || 'Error de conexión'}. Se restauró la versión anterior.`,

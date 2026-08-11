@@ -36,7 +36,7 @@ export default function ClientMoodboardPage() {
     } finally {
       setIsLoading(false);
     }
-  }, [fiestaId, toast]);
+  }, [fiestaId]);
 
   useEffect(() => {
     loadData();

@@ -87,6 +87,18 @@ export function getPublicAppOrigin(origin?: string) {
   return configuredOrigin.replace(/\/$/g, '');
 }
 
+function isUsableGoogleRedirectOrigin(origin: string) {
+  try {
+    const url = new URL(origin);
+    const isHttp = url.protocol === 'http:' || url.protocol === 'https:';
+    const isOriginOnly = url.origin === origin;
+    const isReachableHost = url.hostname !== '0.0.0.0' && url.hostname !== '[::]';
+    return isHttp && isOriginOnly && isReachableHost;
+  } catch {
+    return false;
+  }
+}
+
 export function getSafeGoogleReturnPath(returnTo: string | undefined, fallbackPath: string) {
   if (!returnTo || !returnTo.startsWith('/') || returnTo.startsWith('//')) {
     return fallbackPath;
@@ -104,7 +116,9 @@ export function getMissingGoogleConfig(origin?: string) {
   const missing: string[] = [];
   if (!process.env.GOOGLE_CLIENT_ID) missing.push('GOOGLE_CLIENT_ID');
   if (!process.env.GOOGLE_CLIENT_SECRET) missing.push('GOOGLE_CLIENT_SECRET');
-  if (!getGoogleRedirectUri(origin)) missing.push('NEXT_PUBLIC_APP_URL');
+  if (!isUsableGoogleRedirectOrigin(getPublicAppOrigin(origin))) {
+    missing.push('NEXT_PUBLIC_APP_URL');
+  }
   return missing;
 }
 

@@ -954,6 +954,8 @@ export default function BoguePage() {
             {/* Strip Display */}
             {finalStripUrl && (
               <div className="flex flex-col items-center gap-4 bg-zinc-900/60 p-6 rounded-2xl border border-white/5 shadow-2xl">
+                {/* La tira es un blob/data URL generado en el navegador y se imprime tal cual. */}
+                {/* eslint-disable-next-line @next/next/no-img-element */}
                 <img 
                   src={finalStripUrl} 
                   alt="Tira de recuerdo" 

@@ -69,7 +69,7 @@ export default function ClientContractPage() {
     } finally {
       setIsLoading(false);
     }
-  }, [fiestaId, toast]);
+  }, [fiestaId]);
 
   useEffect(() => {
     loadData();

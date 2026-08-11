@@ -1,40 +1,81 @@
-# Acá quedé
+# Estado actual de app-AK
 
-Última actualización: 11 de agosto de 2026.
+Ultima actualizacion: 11 de agosto de 2026.
 
-Rama de trabajo: `release/final-11ago`, nacida del `main` que ya incluye la PR
-`#940`. La propuesta final todavía no estaba creada al escribir este traspaso.
+Rama: `release/final-11ago`.
+PR #941: fusionada con el bloque inicial de lanzamiento.
+PR abierta: `#942` contra `main`, con la validacion y correcciones posteriores.
+Base publicada antes de esta continuacion: `80384e07052a4245ef70a81bc69f044859e34c11`.
+Candidato validado: el `HEAD` actual de la PR #942.
 
-## Qué se corrigió en esta tanda
+## Hecho y comprobado en la PR #941
 
-- Portal LED: menú adulto, entradas, menú infantil, total por método de cálculo y
-  traspaso completo al presupuesto manual.
-- Auditoría: control financiero cruzado de presupuestos, pagos, facturas y fiestas.
-- Seguridad: operador limitado a fiestas asignadas; aprobaciones, agenda social,
-  Google Workspace, Mercado Pago y cron del blog protegidos en el servidor.
-- Muro social: moderación encendida por defecto, incluido contenido generado por
-  estaciones de entretenimiento.
-- Rendimiento: la portada pública vuelve a ISR de cinco minutos y deja de
-  recalcular todas las fuentes por visitante.
+- Portal LED: platos adultos, entradas, menu infantil/adolescente, cantidades y
+  metodos de calculo pasan al presupuesto manual y entran en el total.
+- Contabilidad: Auditoria incorpora un control de solo lectura que recalcula
+  presupuestos y facturas y busca pagos repetidos, sobrepagos y vinculos rotos.
+- Seguridad: controles de pantalla limitados a la fiesta asignada; aprobaciones,
+  agenda social, Google Workspace, Mercado Pago y crons protegidos en servidor.
+- Muro social: fotos y videos quedan pendientes de moderacion por defecto.
+- WhatsApp: el cron de recordatorios mantiene su acceso interno sin abrir el CRM
+  ni aceptar secretos en la URL.
+- Google Workspace: una secretaria puede sincronizar la fiesta que organiza; la
+  sincronizacion masiva y la cuenta corporativa siguen reservadas al dueno.
+- Marketing: no se marca una publicacion como enviada a una red externa si el
+  proveedor no respondio realmente.
+- Rendimiento: la portada publica vuelve a ISR de cinco minutos.
+- Mercado Pago: consultar una sesion no genera un acceso nuevo al presupuesto.
 
-El detalle y el motivo de cada decisión están en `docs/YA-RESUELTO.md`.
+## Evidencia del mismo commit
 
-## Evidencia disponible
+- TypeScript completo: aprobado.
+- Lint de archivos tocados: aprobado, sin errores ni advertencias.
+- Jest focalizado: 13 suites y 143/143 pruebas aprobadas.
+- `git diff --check` y busqueda de secretos: aprobados.
+- Graphify: 7.801 nodos, 28.664 relaciones y 377 comunidades.
+- PR #941: fusionada. La diferencia posterior queda aislada en la PR #942.
 
-- Candidato congelado: TypeScript sin errores, lint de archivos tocados sin
-  errores ni advertencias y 143/143 pruebas focalizadas en 13 suites aprobadas.
-- Graphify actualizado: 7.800 nodos, 28.661 relaciones y 376 comunidades.
-- Tandas anteriores reutilizadas: 99/99, 114/114, 18/18 y 104/104.
-- Suite Jest completa: intento superior a diez minutos sin resumen; no contarla
-  como aprobada.
-- Build de producción: intento de treinta minutos sin resumen; no contar como
-  aprobado. E2E de producción pendiente por esa misma razón.
-- Los 19 eventos reales no existen en el respaldo JSON local. Ejecutar el botón
-  `Revisar ahora` de Auditoría dentro de la app conectada a Firebase.
+## Limitaciones aceptadas
 
-## No repetir
+- Los checks de GitHub no comienzan porque la cuenta esta bloqueada por
+  facturacion. El dueno no desea agregar una tarjeta. No investigarlo como error
+  de la app ni crear PR para cambiarlo.
+- Los 19 eventos reales no estan en los JSON locales. La comprobacion contable se
+  hace dentro de la app conectada a Firebase con `Auditoria > Revisar ahora`.
 
-No volver a separar el catálogo maestro de catering de los ítems que entran al
-presupuesto. No declarar saldos reales correctos usando archivos locales vacíos.
-No marcar una publicación como enviada a Instagram o Facebook sin respuesta real
-del proveedor.
+## Evidencia adicional de lanzamiento
+
+- Build Next de produccion utilizable: 265 paginas; el artefacto actual inicio con
+  `next start` y quedo disponible en 5,6 segundos.
+- E2E interno de produccion: 3/3. Carga panel, contabilidad, pagos rapidos,
+  presupuestos, clientes y eventos; tambien valida portales del planificador y
+  que el token de proveedor no exponga datos ajenos.
+- Autenticacion e integraciones: 9 suites, 42/42 pruebas focalizadas.
+- Firestore Emulator: 20/20 reglas aprobadas; los rechazos esperados aparecen
+  como `PERMISSION_DENIED` en el registro.
+- Simulador comercial: 6/6 recorridos PC/celular, incluido PDF formal y ajuste
+  para evento de ano futuro.
+- Portales publicos e invitado: portal cliente, invitado individual, RSVP, QR,
+  clave, sincronizacion con equipo y ausencia de acceso administrativo.
+- Entretenimiento: operador, fotocabina con camara simulada, capsula, espejo IA,
+  muro, barra, carta de tragos y totem recorridos en los tamanos aplicables.
+- Visual movil: los accesos flotantes ya no cubren la galeria y ocupan 48 px de
+  alto; no se detecto desborde horizontal en la matriz publica recorrida.
+- Rendimiento observado: la portada usa ISR de cinco minutos; seis rutas internas
+  y dos portales protegidos completaron la tanda productiva en 53,3 segundos. La
+  compilacion lenta del modo desarrollo no se cuenta como rendimiento publicado.
+
+## Pendiente de comprobacion real
+
+- Ejecutar `Auditoria > Revisar ahora` con Firebase productivo para comprobar los
+  19 eventos, presupuestos, facturas y pagos que no existen en los JSON locales.
+- Confirmar con credenciales reales el envio de Gmail, publicacion de Instagram,
+  cobro de Mercado Pago y generacion Gemini. Las rutas y permisos estan probados;
+  la respuesta del proveedor no se inventa.
+- Probar en el salon impresora, camaras/tablets reales, codecs, brazo 360 y red del
+  evento. El navegador simula esos dispositivos, no reemplaza la prueba fisica.
+- Los checks de GitHub siguen bloqueados por facturacion; es una limitacion
+  aceptada y no una deuda tecnica que deba ocultarse con codigo.
+
+Todo fallo nuevo debe reproducirse primero, corregirse en esta misma rama y
+anotarse en `docs/YA-RESUELTO.md`. No repetir la auditoria mientras el SHA no cambie.

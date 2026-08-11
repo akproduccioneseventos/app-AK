@@ -90,11 +90,6 @@ anotado, la prÃ³xima auditorÃ­a lo va a volver a encontrar.
 - **Bloque E ("Ajustes del sistema")**: Auditado el módulo `src/app/(app)/settings/` (plantillas de contrato, invitaciones web, WhatsApp, catálogos de servicios, salones y personal). Se implementó validación preventiva al guardar plantillas para detectar marcadores no reconocidos (`{{ALGO}}`) impidiendo que queden variables rotas en contratos o mensajes de WhatsApp hacia los clientes. Se garantizaron alertas claras de guardado y terminología amigable en criollo.
 - **Los controles rojos de GitHub son por facturación de la cuenta.** No los
   investigues. Vale lo que se verifica localmente.
-- **Las fotos del muro se descargan con enlace directo, a propÃ³sito.**
-- **Se trabaja sÃ³lo en pesos uruguayos.** No hay diferencias de redondeo en
-  dÃ³lares que corregir.
-- **Los controles rojos de GitHub son por facturaciÃ³n de la cuenta.** No los
-  investigues. Vale lo que se verifica localmente.
 - **El pasaje a la galerÃ­a del cliente (wfolio) es manual.** No tiene forma
   documentada de automatizarse; ya se investigÃ³. No armes una integraciÃ³n.
 
@@ -630,8 +625,8 @@ Verificado y cerrado el 9 de agosto de 2026.
   fiesta configurada expresamente con `requireApproval: false` publica directo.
 - **Google Workspace valida identidad y rol en el servidor.** La cuenta
   corporativa y el panel son del dueño; una cuenta personal sólo la conecta su
-  propio empleado o el dueño; sincronizar asignaciones exige acceso a sueldos y
-  sincronizar citas exige CRM.
+  propio empleado o el dueño; sincronizar una fiesta exige organización y acceso
+  a ese evento, sincronizar todas exige administración y las citas exigen CRM.
 - **Marketing ya no finge una publicación externa.** Guardar un post conserva el
   estado elegido y no lo marca como publicado mediante un `console.log`. La
   sincronización de Instagram y la agenda social exigen permiso de CRM.
@@ -661,9 +656,124 @@ Verificado y cerrado el 9 de agosto de 2026.
   resumen, por lo que tampoco se declara aprobado. El E2E de producción no se
   ejecutó al no existir un build terminado en esta máquina.
 - **Graphify quedó actualizado sobre el candidato.** El índice estructural contiene
-  7.800 nodos, 28.661 relaciones y 376 comunidades. El parser de Graphify avisó
+  7.801 nodos, 28.664 relaciones y 377 comunidades. El parser de Graphify avisó
   20 archivos parcialmente interpretados, pero TypeScript sí compiló todo el
   proyecto; se registra como limitación del índice, no como aprobación omitida.
+
+## Continuacion de lanzamiento iniciada en la PR #941
+
+- **La PR #941 fue fusionada durante la validacion.** Contiene el bloque inicial
+  hasta `80384e07`. Las correcciones y evidencia producidas despues quedaron en
+  la PR `#942`, porque GitHub no permite agregar commits a una PR fusionada.
+- **El rojo de GitHub es una limitacion aceptada.** Firestore rules, CI, browser
+  smoke y CodeQL no ejecutaron pasos: GitHub anoto bloqueo de cuenta por
+  facturacion. El dueno no agregara tarjeta. No se corrige con codigo.
+- **No se reinicia la auditoria terminada.** La continuacion usa este documento y
+  `ESTADO-ACTUAL.md` como matriz. Solo se vuelven a ejecutar controles necesarios
+  para build, E2E, Firebase, roles, integraciones, entretenimiento, visual y
+  rendimiento que aun no tengan evidencia de lanzamiento.
+- **La continuacion tiene una sola PR abierta: #942.** No crear otra propuesta
+  paralela; documentar ahi el fallo reproducido, la correccion y su prueba.
+- **El build de produccion es reproducible.** Sobre el commit publicado
+  `80384e07052a4245ef70a81bc69f044859e34c11`, Next genero las 265 paginas y
+  termino con codigo 0 en 9 minutos 44 segundos. Las advertencias encontradas se
+  mantienen separadas de los errores y se revisan en esta misma continuacion.
+- **Google OAuth ya no acepta una direccion imposible.** La configuracion ahora
+  detecta que falta un origen publico absoluto y rechaza `0.0.0.0` antes de
+  enviar al usuario a Google. Se agrego una prueba para origen ausente,
+  `0.0.0.0` y desarrollo local.
+- **Instagram tiene variables documentadas.** `.env.example` incluye el token
+  privado y el identificador de cuenta profesional que usa la sincronizacion
+  real. No se afirma conexion sin credenciales ni respuesta del proveedor.
+- **La prueba de Instagram refleja el permiso vigente.** La sincronizacion manual
+  ya estaba protegida con permiso CRM, pero su prueba aun simulaba una sesion
+  generica. Se actualizo el doble de prueba sin reducir la seguridad del servidor.
+- **Autenticacion e integraciones tienen una tanda focalizada aprobada.** Nueve
+  suites y 42 pruebas cubrieron sesion, identidad Google, correo Workspace,
+  redireccion OAuth, integraciones externas, Instagram, limites de rutas,
+  Mercado Pago y generacion de imagenes con Gemini.
+- **Las reglas de Firestore se ejecutaron en emulador.** Las 20 pruebas aprobaron;
+  los mensajes `PERMISSION_DENIED` del registro corresponden a escrituras que la
+  prueba esperaba rechazar. Firebase Tools solo aviso que una version futura
+  requerira Java 21; la version actual ejecuto y cerro correctamente.
+- **Los proveedores en vivo siguen siendo evidencia separada.** Estas pruebas no
+  afirman que Gmail envio, Mercado Pago cobro, Instagram publico ni Gemini genero
+  en produccion sin credenciales validas y una respuesta real de cada servicio.
+- **Portales publicos y pantallas del evento aprobaron PC y celular.** Playwright
+  abrio el portal del cliente, el portal individual del invitado, la carta de
+  tragos, la red social, la barra publica, el totem y el mural en vivo. No encontro
+  enlaces administrativos, errores del navegador ni desborde horizontal.
+- **El primer arranque lento no se confundio con un boton roto.** La primera ruta
+  del portal en Next desarrollo necesito compilacion en frio y supero el limite
+  de tres minutos; con la ruta compilada, el mismo recorrido de PC termino en 39
+  segundos y celular tambien aprobo. Se conserva como evidencia de velocidad del
+  entorno de desarrollo, no como fallo funcional de la carta de tragos.
+- **El simulador aprobo su recorrido comercial en ambos tamanos.** Seis pruebas
+  completaron el precio desde el simulador, el ingreso desde catalogo y la
+  descarga de un PDF formal para un evento de ano futuro en PC y celular.
+- **Recuperacion publica y viaje del invitado aprobaron.** Trece recorridos
+  verificaron acceso protegido, recuperacion de clave, portada, campos legibles,
+  confirmacion y rechazo, QR, conteo sin duplicados, sincronizacion con el equipo
+  y acceso del cliente con su clave. El ultimo caso se repitio solo porque el
+  servidor de desarrollo se reinicio durante la primera navegacion; la repeticion
+  termino correctamente y no se cambio codigo por una caida del entorno.
+- **Los accesos flotantes ya no tapan la web en celular.** La revision visual
+  encontro que subir, cotizar y WhatsApp formaban una columna de casi media
+  pantalla sobre la galeria. En movil quedan Cotizar y WhatsApp en una barra
+  compacta inferior; subir se conserva en PC. Se elimino el gradiente violeta
+  ajeno a la marca y se mantuvieron los mismos destinos comerciales. El bloque
+  tambien calcula su visibilidad al montar para funcionar al volver a una
+  posicion guardada o entrar desde un enlace interno.
+- **Las estaciones de entretenimiento aprobaron navegador y responsive.** Las
+  pantallas de operador, la camara simulada de fotocabina, la capsula con sus
+  modos y marco final, y el selector tactil del espejo IA pasaron en PC; los
+  casos aplicables tambien pasaron en celular. Tres pruebas de captura completa
+  se omiten en movil por diseno del dispositivo, no por fallo.
+- **La subida al muro responde y se recupera.** PC y celular mostraron resultado
+  tras publicar y el muro no quedo girando despues de un intento fallido. La
+  primera ejecucion de PC excedio el limite durante compilacion en frio; la misma
+  subida, repetida sola con la ruta compilada, aprobo en 56 segundos.
+- **Hardware fisico no se declara probado.** La camara simulada valida el flujo
+  web, pero esta computadora no demuestra la impresora configurada, codecs de
+  cada tablet, brazo fisico de plataforma 360 ni rendimiento de la red del salon.
+- **El menu de mesa restaura de verdad el ultimo guardado.** La referencia existia
+  pero no se leia al fallar: la pantalla restauraba el mismo borrador. Ahora se
+  actualiza al cargar y al guardar con exito, y se usa ante un error del servidor.
+- **Los accesos por token no quedan viejos al navegar.** Catering y fotografia
+  incluyen el token actual en la carga memorizada; contrato y moodboard eliminan
+  dependencias que no se utilizan. El comportamiento queda expresado sin avisos
+  de hooks.
+- **Los metadatos globales tienen dominio publico.** Open Graph y Twitter ya no
+  resuelven imagenes contra `localhost` cuando una pantalla usa los metadatos del
+  layout raiz.
+- **La imagen de Bogue conserva el elemento imprimible correcto.** La tira es un
+  `blob` o `data URL` generado en el navegador; se mantiene `img` de forma
+  deliberada y se documenta la excepcion local para no fingir una optimizacion
+  incompatible con impresion.
+- **El build completo dejo solo dependencias externas conocidas.** Tras corregir
+  hooks, metadatos y la excepcion de Bogue, las advertencias propias quedaron
+  eliminadas. El aviso restante de Webpack nace en `express` dentro de Genkit y
+  los mensajes de cache describen serializacion del compilador; no corresponden
+  a una ruta rota ni se silencian desde el codigo de negocio.
+- **El candidato productivo abre los modulos internos criticos.** El artefacto de
+  265 paginas inicio en 5,6 segundos y Playwright recorrio dashboard,
+  contabilidad, pagos rapidos, presupuestos, clientes y eventos con una sesion
+  firmada, sin respuestas HTTP de error, expulsion al login, mensaje de panel
+  roto ni desborde horizontal.
+- **Los portales restaurados conservan el alcance de seguridad.** El planificador
+  cargo el evento seleccionado y el acceso por token de proveedor mostro solo su
+  trabajo asignado, sin revelar el nombre del cliente. La tanda de produccion
+  completo 3/3 pruebas en 53,3 segundos.
+- **La velocidad se mide en produccion local, no por compilacion en frio.** El
+  primer acceso a rutas nuevas en `next dev` puede tardar minutos porque compila;
+  el mismo codigo construido sirvio los recorridos internos completos en menos de
+  un minuto. La portada mantiene ISR de cinco minutos para no reconstruir fuentes
+  de galeria y redes en cada visita.
+- **La matriz cerrada no sustituye el mundo real.** Los 19 eventos requieren
+  Firebase productivo; Gmail, Instagram, Mercado Pago y Gemini requieren
+  credenciales y respuesta del proveedor; impresora, camaras, codecs, brazo 360
+  y Wi-Fi requieren prueba fisica en el salon. Esos puntos se dejan explicitamente
+  pendientes en lugar de declararlos aprobados por simulacion.
 
 ## Cómo agregar algo a esta lista
 
