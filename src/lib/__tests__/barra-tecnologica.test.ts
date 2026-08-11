@@ -7,7 +7,7 @@ import {
   isValidBarOrderTransition,
   normalizeBarTime,
   normalizeSocialHandle,
-  shouldDiscountBarStock,
+  shouldRestoreBarStock,
 } from '@/lib/barra-tecnologica';
 
 describe('barra tecnologica helpers', () => {
@@ -68,10 +68,16 @@ describe('barra tecnologica helpers', () => {
     expect(getBarScheduleError(settings, 23 * 60 + 30)).toBe('La barra esta cerrada por hoy.');
   });
 
-  it('discounts stock only on the first transition to delivered', () => {
-    expect(shouldDiscountBarStock('listo', 'entregado')).toBe(true);
-    expect(shouldDiscountBarStock('entregado', 'entregado')).toBe(false);
-    expect(shouldDiscountBarStock('entregado', 'cancelado')).toBe(false);
+  it('devuelve el stock solo cuando el pedido se cancela sin servirse', () => {
+    // El descuento ocurre al crear el pedido, no al entregarlo: entregar ya no
+    // toca el stock. Antes descontaba dos veces por el mismo trago.
+    expect(shouldRestoreBarStock('nuevo', 'cancelado')).toBe(true);
+    expect(shouldRestoreBarStock('preparando', 'cancelado')).toBe(true);
+    expect(shouldRestoreBarStock('listo', 'entregado')).toBe(false);
+    expect(shouldRestoreBarStock('entregado', 'entregado')).toBe(false);
+    // Ya se sirvio: la bebida se consumio, no vuelve.
+    expect(shouldRestoreBarStock('entregado', 'cancelado')).toBe(false);
+    expect(shouldRestoreBarStock('cancelado', 'cancelado')).toBe(false);
   });
 
   it('only accepts the operational bar order sequence', () => {

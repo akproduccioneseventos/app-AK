@@ -18,7 +18,7 @@ import { getCartaTragosMaster } from '@/app/actions/carta-tragos-master.actions'
 import { getFiestaById, saveFiesta } from './fiesta.actions';
 import { uploadToStorage } from '@/lib/firebase/storage';
 import { createSocialMediaPostFromUrl } from '@/app/actions/social-gallery';
-import { getBarScheduleError, isTruthyFollowConfirmation, isValidBarOrderTransition, normalizeBarTime, shouldDiscountBarStock } from '@/lib/barra-tecnologica';
+import { getBarScheduleError, isTruthyFollowConfirmation, isValidBarOrderTransition, normalizeBarTime, shouldRestoreBarStock } from '@/lib/barra-tecnologica';
 import { getInsumoById, saveInsumo } from '@/app/actions/insumos';
 import * as logger from '@/lib/logger';
 import { requireAppSession } from '@/lib/auth/require-session';
@@ -137,7 +137,17 @@ async function getBarDrinks(fiesta: FiestaEnPlanificacion): Promise<Trago[]> {
 
 let stockPromiseChain = Promise.resolve();
 
-async function descontarStock(drink: Trago) {
+/**
+ * Mueve el stock de los insumos de un trago.
+ *
+ * `signo` en -1 descuenta (se pidio un trago) y en +1 repone (se cancelo el
+ * pedido y la botella no se llego a usar).
+ *
+ * El stock nunca baja de cero, pero cuando el descuento lo habria dejado en
+ * negativo se registra el faltante: significa que se pidieron mas tragos de los
+ * que alcanzaba el insumo, y antes eso pasaba en silencio.
+ */
+async function moverStock(drink: Trago, signo: 1 | -1) {
   const nextPromise = stockPromiseChain.then(async () => {
     if (!drink.recetaIngredientes) return;
     for (const ing of drink.recetaIngredientes) {
@@ -145,12 +155,18 @@ async function descontarStock(drink: Trago) {
       try {
         const insumo = await getInsumoById(ing.insumoId);
         if (insumo && insumo.cantidadDisponible !== undefined) {
-          insumo.cantidadDisponible -= ing.cantidad;
-          if (insumo.cantidadDisponible < 0) insumo.cantidadDisponible = 0;
+          const deseado = insumo.cantidadDisponible + signo * ing.cantidad;
+          if (deseado < 0) {
+            logger.warn(
+              `[barra-tecnologica] falto stock del insumo ${ing.insumoId} (${insumo.nombre ?? ''}): ` +
+              `hacian falta ${ing.cantidad} y habia ${insumo.cantidadDisponible}. Queda en cero.`,
+            );
+          }
+          insumo.cantidadDisponible = Math.max(0, deseado);
           await saveInsumo(insumo);
         }
       } catch (error) {
-        logger.error(`[barra-tecnologica] error al descontar stock del insumo ${ing.insumoId}`, error);
+        logger.error(`[barra-tecnologica] error al mover stock del insumo ${ing.insumoId}`, error);
       }
     }
   }).catch((err) => {
@@ -159,6 +175,21 @@ async function descontarStock(drink: Trago) {
 
   stockPromiseChain = nextPromise;
   await nextPromise;
+}
+
+/**
+ * El stock se mueve UNA sola vez por pedido, al crearlo: ahi es cuando se abre la
+ * botella. Antes se descontaba tambien al marcar el pedido como entregado, asi
+ * que cada trago descontaba el doble y el sistema creia que quedaba la mitad de
+ * bebida de la que habia.
+ */
+async function descontarStock(drink: Trago) {
+  await moverStock(drink, -1);
+}
+
+/** Se cancelo el pedido antes de servirlo: la bebida vuelve al stock. */
+async function reponerStock(drink: Trago) {
+  await moverStock(drink, 1);
 }
 
 async function getFirestoreOrders(fiestaId: string): Promise<BarDrinkOrder[] | null> {
@@ -543,10 +574,10 @@ async function updateBarDrinkOrderStatusInternal(
             return { error: 'Ese cambio de estado no corresponde al paso actual del pedido.' };
           }
 
-          const shouldDiscountStock = shouldDiscountBarStock(currentOrder.status, status);
+          const shouldRestoreStock = shouldRestoreBarStock(currentOrder.status, status);
           const order = { ...currentOrder, status, updatedAt };
           transaction.update(ref, { status, updatedAt });
-          return { order, shouldDiscountStock };
+          return { order, shouldRestoreStock };
         });
 
         if (transactionResult.error) {
@@ -555,12 +586,13 @@ async function updateBarDrinkOrderStatusInternal(
         const updatedOrder = transactionResult.order;
         if (!updatedOrder) throw new Error('No se pudo recuperar el pedido actualizado.');
 
-        if (transactionResult.shouldDiscountStock) {
+        // Solo la vuelta atras: el descuento ya ocurrio al crear el pedido.
+        if (transactionResult.shouldRestoreStock) {
           const fiesta = await getFiestaById(fiestaId);
           if (fiesta) {
             const drinks = await getBarDrinks(fiesta);
             const drink = drinks.find(d => d.id === updatedOrder.drinkId);
-            if (drink) await descontarStock(drink);
+            if (drink) await reponerStock(drink);
           }
         }
 
@@ -579,17 +611,17 @@ async function updateBarDrinkOrderStatusInternal(
     if (!isValidBarOrderTransition(currentOrder.status, status)) {
       return { success: false, error: 'Ese cambio de estado no corresponde al paso actual del pedido.' };
     }
-    const shouldDiscountStock = shouldDiscountBarStock(currentOrder.status, status);
+    const shouldRestoreStock = shouldRestoreBarStock(currentOrder.status, status);
     const orders = (stored.orders || []).map((order) => (
       order.id === orderId ? { ...order, status, updatedAt } : order
     ));
     await saveFallbackOrders(fiesta, orders);
     const updatedOrder = orders.find((order) => order.id === orderId);
 
-    if (shouldDiscountStock && updatedOrder) {
+    if (shouldRestoreStock && updatedOrder) {
       const drinks = await getBarDrinks(fiesta);
       const drink = drinks.find(d => d.id === updatedOrder.drinkId);
-      if (drink) await descontarStock(drink);
+      if (drink) await reponerStock(drink);
     }
 
     return { success: true, order: updatedOrder };

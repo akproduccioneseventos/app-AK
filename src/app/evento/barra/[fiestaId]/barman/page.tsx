@@ -58,6 +58,7 @@ export default function BarmanScreenPage() {
   const { toast } = useToast();
   const [dashboard, setDashboard] = useState<BarTechnologyDashboard | null>(null);
   const [isLoading, setIsLoading] = useState(true);
+  const [errorCarga, setErrorCarga] = useState<string | null>(null);
   const [updatingId, setUpdatingId] = useState<string | null>(null);
   const [quickDrink, setQuickDrink] = useState<Trago | null>(null);
   const knownOrderIdsRef = useRef<Set<string>>(new Set());
@@ -80,17 +81,31 @@ export default function BarmanScreenPage() {
   }, []);
 
   const loadData = useCallback(async (playSound = false) => {
-    const result = await getBarraTecnologicaDashboard(fiestaId);
-    if (result.success && result.data) {
-      const activeIds = new Set(result.data.orders.filter((order) => order.status === 'nuevo').map((order) => order.id));
-      const hasNew = [...activeIds].some((id) => !knownOrderIdsRef.current.has(id));
-      if (playSound && hasNew) beep();
-      knownOrderIdsRef.current = activeIds;
-      setDashboard(result.data);
-    } else {
-      toast({ title: 'No se pudo cargar', description: result.error, variant: 'destructive' });
+    try {
+      const result = await getBarraTecnologicaDashboard(fiestaId);
+      if (result.success && result.data) {
+        const activeIds = new Set(result.data.orders.filter((order) => order.status === 'nuevo').map((order) => order.id));
+        const hasNew = [...activeIds].some((id) => !knownOrderIdsRef.current.has(id));
+        if (playSound && hasNew) beep();
+        knownOrderIdsRef.current = activeIds;
+        setDashboard(result.data);
+        // Si la carga fue exitosa, limpiamos cualquier error previo.
+        setErrorCarga(null);
+      } else {
+        // La llamada a la acción devolvió error; lo guardamos en estado para mostrar en UI.
+        const errorMsg = result.error || 'Error desconocido al traer los pedidos';
+        setErrorCarga(errorMsg);
+        toast({ title: 'No se pudo cargar', description: errorMsg, variant: 'destructive' });
+      }
+    } catch (error) {
+      // Si la llamada lanza una excepción, guardamos un mensaje amigable.
+      const errorMsg = 'No pudimos traer los pedidos. Revisá la señal del salón; seguimos reintentando.';
+      setErrorCarga(errorMsg);
+      console.error('Error en loadData:', error);
+    } finally {
+      // Siempre desactivamos el estado de carga, incluso si hubo error.
+      setIsLoading(false);
     }
-    setIsLoading(false);
   }, [beep, fiestaId, toast]);
 
   useEffect(() => {
@@ -161,6 +176,21 @@ export default function BarmanScreenPage() {
           <RefreshCw className="mr-2 h-4 w-4" /> Actualizar
         </Button>
       </header>
+
+      {/* Cartel de error de carga */}
+      {errorCarga && (
+        <section className="ak-live-panel mb-4 p-4 bg-red-900/30 border-l-4 border-red-500">
+          <div className="flex items-center gap-3">
+            <div className="flex-shrink-0">
+              <XCircle className="h-6 w-6 text-red-400" />
+            </div>
+            <div>
+              <p className="font-bold text-red-200">Error de conexión</p>
+              <p className="text-sm text-red-100 mt-1">{errorCarga}</p>
+            </div>
+          </div>
+        </section>
+      )}
 
       {/* Panel de Consumo Rápido */}
       {dashboard?.drinks && dashboard.drinks.length > 0 && (

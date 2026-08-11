@@ -21,11 +21,17 @@ export function isValidBarOrderTransition(
   return previousStatus === nextStatus || BAR_ORDER_TRANSITIONS[previousStatus].includes(nextStatus);
 }
 
-export function shouldDiscountBarStock(
+/**
+ * El stock se descuenta al CREAR el pedido, que es cuando se abre la botella, y
+ * no se vuelve a tocar al entregarlo. Lo unico que queda por resolver en los
+ * cambios de estado es la vuelta atras: si el pedido se cancela sin haberse
+ * servido, la bebida vuelve al stock.
+ */
+export function shouldRestoreBarStock(
   previousStatus: BarDrinkOrderStatus,
   nextStatus: BarDrinkOrderStatus,
 ): boolean {
-  return nextStatus === 'entregado' && previousStatus !== 'entregado';
+  return nextStatus === 'cancelado' && previousStatus !== 'cancelado' && previousStatus !== 'entregado';
 }
 
 export function getDrinkDescription(drink: DrinkMarketingFields): string {

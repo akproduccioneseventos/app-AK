@@ -201,6 +201,7 @@ export default function PantallaPage() {
   const [playlistMode, setPlaylistMode] = useState(false);
   const [playlistSlides, setPlaylistSlides] = useState<{ type: PlaylistItem['type']; duration: number; config?: SocialScreenConfig }[]>([]);
   const [isReconnecting, setIsReconnecting] = useState(false);
+  const [errorCarga, setErrorCarga] = useState(false);
 
   const fetchData = useCallback(async () => {
     try {
@@ -208,12 +209,14 @@ export default function PantallaPage() {
         getPublicLiveDisplayEvent(fiestaId),
         getEventoEnVivoData(fiestaId),
       ]);
+      // Carga exitosa: limpiar estados de error.
       setIsReconnecting(false);
-      
+      setErrorCarga(false);
+
       if (fiestaData) {
         setFiesta(fiestaData);
         setFiestaName(fiestaData.configuracion?.nombreEvento || fiestaData.configuracion?.nombreAgasajado || 'Evento');
-        
+
         // Check for playlist
         const playlist = fiestaData.screenPlaylist;
         if (playlist && playlist.isPlaying && playlist.items.length > 0) {
@@ -234,8 +237,10 @@ export default function PantallaPage() {
       setSlides(buildSlides(eventoData));
       setData(eventoData);
     } catch (error) {
+      // Falla en la carga: marcar que hay error para mostrar cartel diferente.
       console.error("Error fetching live display data:", error);
       setIsReconnecting(true);
+      setErrorCarga(true);
     }
   }, [fiestaId]);
 
@@ -275,6 +280,23 @@ export default function PantallaPage() {
   }, [slides.length, playlistSlides.length]);
 
   const renderSlide = () => {
+    // Si hay error de carga, mostrar cartel destacado y diferente a "esperando contenido".
+    if (errorCarga) {
+      return (
+        <div className="flex flex-col items-center justify-center h-full w-full p-12 text-center space-y-6">
+          <div className="text-6xl animate-pulse">⚠️</div>
+          <div className="max-w-2xl space-y-3">
+            <p className="text-5xl sm:text-6xl font-black text-red-400">
+              Se perdió la conexión
+            </p>
+            <p className="text-2xl sm:text-3xl text-white/80 font-light">
+              Reintentando...
+            </p>
+          </div>
+        </div>
+      );
+    }
+
     if (playlistMode && playlistSlides.length > 0) {
       const playlistItem = playlistSlides[currentSlide];
       if (!playlistItem) return null;

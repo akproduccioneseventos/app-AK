@@ -669,13 +669,17 @@ export default function Plataforma360Page() {
             {/* Slow Motion */}
             <div>
               <p className="text-xs font-bold text-slate-400 uppercase tracking-widest mb-3">Efecto</p>
-              <button
-                type="button"
-                className="flex w-full items-center justify-center gap-2 rounded-lg border border-purple-500 bg-purple-500/10 p-3 text-xs font-bold text-purple-300 transition"
+              {/* Es un cartel de estado, no una accion: la camara lenta viene
+                  siempre activada en esta estacion. Era un boton sin nada
+                  detras, asi que el operador lo tocaba esperando que hiciera
+                  algo y no pasaba nada. */}
+              <div
+                role="status"
+                className="flex w-full items-center justify-center gap-2 rounded-lg border border-purple-500 bg-purple-500/10 p-3 text-xs font-bold text-purple-300"
               >
                 <Zap className="w-4 h-4" />
                 Cámara Lenta (Slow Motion) Activada
-              </button>
+              </div>
             </div>
 
             {/* Remote commands */}

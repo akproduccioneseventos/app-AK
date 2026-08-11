@@ -26,6 +26,7 @@ import * as logger from '@/lib/logger';
 import { forceDeleteDocFromFirestore, forceDeleteCollectionFromFirestore } from '@/lib/firebase-sync';
 import { verifySession } from '@/lib/auth/session-token';
 import { migrateVerifiedBudgetDates } from '@/lib/budget/verified-budget-date-migration';
+import { normalizeUruguayPhone } from '@/lib/commercial/contact';
 import { AsyncMutex } from '@/lib/mutex';
 
 const presupuestosMutex = new AsyncMutex();
@@ -246,10 +247,14 @@ export async function savePresupuesto(
   }).catch(err => console.warn('Error creating budget notification:', err));
 
   // Automation: fire presupuesto_generado rules (non-blocking)
+  // El telefono del prospecto tiene que viajar con la automatizacion. Sin el, el
+  // mensaje de seguimiento quedaba guardado en la bandeja sin destinatario: no se
+  // podia enviar sin editarlo a mano, asi que no salia ninguno.
   triggerWhatsAppAutomation('presupuesto_generado', {
     targetId: nuevoPresupuesto.leadId || presupuestoId,
     targetName: nuevoPresupuesto.clienteNombre,
     targetType: 'prospecto',
+    targetPhone: normalizeUruguayPhone(nuevoPresupuesto.clienteContacto),
     leadId: nuevoPresupuesto.leadId,
     nombre: nuevoPresupuesto.clienteNombre,
     fechaEvento: nuevoPresupuesto.eventoFecha,
@@ -848,6 +853,7 @@ export async function approvePresupuesto(
         targetId: p.leadId || presupuestoId,
         targetName: p.clienteNombre,
         targetType: 'prospecto',
+        targetPhone: normalizeUruguayPhone(p.clienteContacto),
         leadId: p.leadId,
         nombre: p.clienteNombre,
         fechaEvento: p.eventoFecha,
