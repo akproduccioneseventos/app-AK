@@ -554,6 +554,55 @@ existe (`checkedIn` de cada invitado, sumando `partySize`): falta mostrarlo ahi.
 
 ---
 
+## 25. Una plantilla de invitacion sale sin la hora de la fiesta
+
+`src/components/invitacion/templates/AllegriaTemplate.tsx`
+
+La plantilla **Allegria no muestra `horaInicio` en ningun lado**. Verificado: la
+palabra no aparece en todo el archivo. Lo unico parecido es la linea 370, que es la
+hora de cada momento del programa, no la hora de llegada.
+
+La plantilla **Grazia si la muestra** (`GraziaTemplate.tsx:437`, con el "HS" al
+lado de la fecha).
+
+O sea: segun que plantilla se elija, el invitado recibe la invitacion sin saber a
+que hora tiene que llegar. Termina preguntando por WhatsApp, o llegando cuando le
+parece.
+
+**Que hacer.** Mostrar `fiesta.configuracion.horaInicio` en Allegria, junto a la
+fecha y el lugar, con el mismo peso visual que tiene en Grazia. Si la hora esta
+vacia, no mostrar el hueco.
+
+**Y agregar una guarda** que impida que esto vuelva a pasar: una prueba que
+recorra todas las plantillas de invitacion y verifique que cada una muestra fecha,
+hora y lugar. Hoy hay dos plantillas y ya una quedo sin la hora; cuando se agregue
+la tercera va a pasar de nuevo.
+
+---
+
+## 26. La invitacion baja un video sola apenas se abre
+
+`AllegriaTemplate.tsx:229` y `GraziaTemplate.tsx:164`
+
+Las dos plantillas tienen un video de fondo con `autoPlay loop muted playsInline`:
+empieza a descargarse apenas el invitado abre el enlace.
+
+La invitacion llega por WhatsApp y se abre desde el celular, muchas veces con datos
+moviles y mala senal. El invitado no pidio ver un video: le come los datos y hace
+que la invitacion tarde en aparecer, justo cuando lo unico que quiere es confirmar
+en veinte segundos.
+
+**Que hacer.**
+
+- Poner `preload="none"` y un `poster` (una imagen fija) para que se vea algo al
+  instante sin bajar el video.
+- No autoreproducir cuando la conexion es lenta o el ahorro de datos esta activado:
+  se puede consultar `navigator.connection.saveData` y `effectiveType`.
+- Comprobar cuanto pesan los videos que se estan usando. Si pasan de 2 MB, hay que
+  comprimirlos.
+
+---
+
 ## Cómo verificar al terminar
 
 1. `npx tsc --noEmit` → 0 errores
