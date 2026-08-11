@@ -669,13 +669,12 @@ export default function Plataforma360Page() {
             {/* Slow Motion */}
             <div>
               <p className="text-xs font-bold text-slate-400 uppercase tracking-widest mb-3">Efecto</p>
-              <button
-                type="button"
+              <div
                 className="flex w-full items-center justify-center gap-2 rounded-lg border border-purple-500 bg-purple-500/10 p-3 text-xs font-bold text-purple-300 transition"
               >
                 <Zap className="w-4 h-4" />
                 Cámara Lenta (Slow Motion) Activada
-              </button>
+              </div>
             </div>
 
             {/* Remote commands */}

@@ -52,6 +52,14 @@ const nextConfig = {
       bodySizeLimit: '20mb',
     },
   },
+  serverExternalPackages: [
+    'genkit',
+    '@genkit-ai/core',
+    '@genkit-ai/ai',
+    '@opentelemetry/sdk-node',
+    '@opentelemetry/core',
+    '@opentelemetry/semantic-conventions',
+  ],
   images: {
     remotePatterns: [
       {

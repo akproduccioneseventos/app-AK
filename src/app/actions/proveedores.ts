@@ -79,9 +79,22 @@ export async function saveProveedor(
   return { success: true, id: proveedorId, proveedor: finalProveedorData };
 }
 
+import { getInsumos } from './insumos';
+
 export async function deleteProveedor(id: string): Promise<{ success: boolean; error?: string }> {
   await requireAppSession();
   try {
+    const proveedor = await getProveedorById(id);
+    const insumos = await getInsumos();
+    const insumosEnUso = insumos.filter(
+      (ins: any) => ins.proveedorId === id || ins.proveedor === id || (proveedor && (ins.proveedor === proveedor.nombreEmpresa || ins.proveedor === proveedor.nombre))
+    );
+    if (insumosEnUso.length > 0) {
+      return {
+        success: false,
+        error: `No se puede eliminar el proveedor porque tiene ${insumosEnUso.length} insumo(s) asociado(s).`
+      };
+    }
     const deleted = await deleteDataItem(PROVEEDORES_FILE, PROVEEDORES_COLLECTION, id);
     if (!deleted) return { success: false, error: `Proveedor con ID ${id} no encontrado para eliminar.` };
   } catch (writeError: any) {

@@ -247,6 +247,23 @@ function AsignarPersonalEventoContent() {
   };
 
   const handleUpdateAssignment = async (index: number, empleadoId: string | null, rolId: string, defaultSalary?: number) => {
+    if (empleadoId !== null) {
+      const currentAssignedCount = assignedStaff.filter((a, i) => a.empleadoId === empleadoId && i !== index).length;
+      if (currentAssignedCount >= 2) {
+        const empleado = allEmpleados.find(e => e.id === empleadoId);
+        const existingRoles = assignedStaff
+          .filter((a, i) => a.empleadoId === empleadoId && i !== index)
+          .map(a => allRoles.find(r => r.id === a.rolId)?.nombre || 'Rol no especificado')
+          .join(', ');
+        toast({
+          title: 'Límite de asignaciones alcanzado',
+          description: `${empleado?.nombre || 'El empleado'} ya está asignado 2 veces en esta fiesta (${existingRoles}). Máximo 2 roles por persona por evento.`,
+          variant: 'destructive',
+          duration: 7000,
+        });
+        return;
+      }
+    }
     const previousStaff = assignedStaff;
     const updatedStaff = [...assignedStaff];
     let newlyAssignedEmpleadoId: string | null = null;
@@ -573,9 +590,16 @@ Por favor confirmá tu asistencia respondiendo este mensaje.
                           </SelectTrigger>
                           <SelectContent>
                               <SelectItem value="ninguno">-- Sin Asignar --</SelectItem>
-                              {filteredEmpleados.map(emp => (
-                                  <SelectItem key={emp.id} value={emp.id}>{emp.nombre}</SelectItem>
-                              ))}
+                              {filteredEmpleados.map(emp => {
+                                  const count = assignedStaff.filter(a => a.empleadoId === emp.id).length;
+                                  const isCurrent = row.assignedId === emp.id;
+                                  const labelExtra = count > 0 ? ` (${count}/2 asignaciones)` : '';
+                                  return (
+                                      <SelectItem key={emp.id} value={emp.id} disabled={!isCurrent && count >= 2}>
+                                          {emp.nombre}{labelExtra}
+                                      </SelectItem>
+                                  );
+                              })}
                           </SelectContent>
                          </Select>
                       </TableCell>
