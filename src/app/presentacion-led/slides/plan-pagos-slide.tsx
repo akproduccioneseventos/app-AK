@@ -21,6 +21,18 @@ interface PlanPagosSlideProps {
   onContrato?: () => void;
 }
 
+/**
+ * El plan de pagos que se le muestra al cliente: 30% al contratar, 40% un mes
+ * antes y el resto el dia del evento.
+ *
+ * Los porcentajes viven aca y en un solo lugar. Antes estaban escritos cinco
+ * veces: en la cuenta y en los tres carteles. Cambiar la cuenta y olvidarse de un
+ * cartel deja al cliente leyendo un porcentaje que no coincide con el monto que
+ * tiene al lado, que es la clase de detalle que hace desconfiar en plena venta.
+ */
+const PORCENTAJE_RESERVA = 30;
+const PORCENTAJE_SEGUNDO_PAGO = 40;
+
 function calcularCuotas(total: number): Array<{ label: string; monto: number; descripcion: string }> {
   if (total <= 0) {
     return [
@@ -29,13 +41,14 @@ function calcularCuotas(total: number): Array<{ label: string; monto: number; de
       { label: 'Saldo final', monto: 0, descripcion: 'El día del evento' },
     ];
   }
-  const reserva = Math.round(total * 0.3);
-  const segundo = Math.round(total * 0.4);
+  const reserva = Math.round(total * (PORCENTAJE_RESERVA / 100));
+  const segundo = Math.round(total * (PORCENTAJE_SEGUNDO_PAGO / 100));
   const saldo = total - reserva - segundo;
+  const porcentajeSaldo = 100 - PORCENTAJE_RESERVA - PORCENTAJE_SEGUNDO_PAGO;
   return [
-    { label: 'Reserva (30%)', monto: reserva, descripcion: 'Al momento de contratar' },
-    { label: 'Segundo pago (40%)', monto: segundo, descripcion: '30 días antes del evento' },
-    { label: 'Saldo final (30%)', monto: saldo, descripcion: 'El día del evento' },
+    { label: `Reserva (${PORCENTAJE_RESERVA}%)`, monto: reserva, descripcion: 'Al momento de contratar' },
+    { label: `Segundo pago (${PORCENTAJE_SEGUNDO_PAGO}%)`, monto: segundo, descripcion: '30 días antes del evento' },
+    { label: `Saldo final (${porcentajeSaldo}%)`, monto: saldo, descripcion: 'El día del evento' },
   ];
 }
 
