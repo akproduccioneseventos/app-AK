@@ -86,8 +86,14 @@ export default function Plataforma360Page() {
   const [loadError, setLoadError] = useState<string | null>(null);
   const [selectedDuration, setSelectedDuration] = useState(15);
   const [voiceEnabled, setVoiceEnabled] = useState(true);
-
+  const [customAudioUrl, setCustomAudioUrl] = useState<string | null>(null);
+  const [capturedFrames, setCapturedFrames] = useState<HTMLCanvasElement[]>([]);
+  const customAudioRef = useRef<HTMLAudioElement | null>(null);
+  const drawCanvasRef = useRef<HTMLCanvasElement | null>(null);
+  
   const audioCtxRef = useRef<AudioContext | null>(null);
+  const customAudioSourceRef = useRef<MediaElementAudioSourceNode | null>(null);
+  const customAudioDestinationRef = useRef<MediaStreamAudioDestinationNode | null>(null);
 
   const speak = (text: string) => {
     if (!voiceEnabled) return;
@@ -119,6 +125,19 @@ export default function Plataforma360Page() {
       osc.stop(ctx.currentTime + duration);
     } catch (e) {}
   };
+
+  const selectCustomAudio = (file: File) => {
+    setCustomAudioUrl((currentUrl) => {
+      if (currentUrl) URL.revokeObjectURL(currentUrl);
+      return URL.createObjectURL(file);
+    });
+  };
+
+  useEffect(() => {
+    return () => {
+      if (customAudioUrl) URL.revokeObjectURL(customAudioUrl);
+    };
+  }, [customAudioUrl]);
 
   const stopCamera = useCallback(() => {
     if (streamRef.current) {
@@ -254,21 +273,23 @@ export default function Plataforma360Page() {
   };
 
   const resetLocalState = () => {
-    if (mediaRecorderRef.current && mediaRecorderRef.current.state !== 'inactive') {
-      mediaRecorderRef.current.onstop = null;
-      mediaRecorderRef.current.stop();
-    }
     setLocalStatus('idle');
     setCountdown(null);
+    setCapturedFrames([]);
+    setRecordingProgress(0);
+    setRecordingTimeLeft(0);
     setFinalVideoUrl(null);
     setPendingVideoBlob(null);
     setUploadedPostUrl(null);
     setQrCodeUrl('');
     setUploadError(null);
-    setRecordingProgress(0);
     setIsUploading(false);
     setProgress(0);
     setProgressMsg('');
+    if (customAudioRef.current) {
+      customAudioRef.current.pause();
+      customAudioRef.current.currentTime = 0;
+    }
     if (role === 'display') {
       startCamera();
     }
@@ -319,75 +340,170 @@ export default function Plataforma360Page() {
     startDisplayCaptureRef.current = (duration) => { void startDisplayCapture(duration); };
   });
 
-  const recordVideoDuration = async (durationSec: number) => {
+  const drawWatermark = (ctx: CanvasRenderingContext2D, w: number, h: number) => {
+    const eventName = fiesta?.eventName || 'AK Producciones';
+    const bannerHeight = h * 0.12;
+    const grad = ctx.createLinearGradient(0, h - bannerHeight, 0, h);
+    grad.addColorStop(0, 'rgba(0, 0, 0, 0)');
+    grad.addColorStop(0.3, 'rgba(0, 0, 0, 0.7)');
+    grad.addColorStop(1, 'rgba(0, 0, 0, 0.9)');
+    
+    ctx.fillStyle = grad;
+    ctx.fillRect(0, h - bannerHeight, w, bannerHeight);
+
+    ctx.fillStyle = '#ffffff';
+    ctx.textAlign = 'center';
+    ctx.textBaseline = 'middle';
+    ctx.font = `bold ${Math.max(16, h * 0.03)}px sans-serif`;
+    ctx.fillText(eventName, w / 2, h - bannerHeight * 0.4);
+  };
+
+  const recordVideoDuration = async (targetDurationSec: number) => {
     const currentStream = streamRef.current;
-    if (!currentStream) {
-      setProgressMsg('La camara aun no esta lista. Intenta nuevamente.');
+    if (!currentStream || !videoRef.current) {
+      setProgressMsg('La camara aun no esta lista.');
       setLocalStatus('idle');
       return;
     }
 
     setLocalStatus('recording');
-    await updateEntertainmentSessionStatus(
-      fiestaId,
-      'plataforma360',
-      'recording',
-      {},
-      accessToken
-    );
+    await updateEntertainmentSessionStatus(fiestaId, 'plataforma360', 'recording', {}, accessToken);
     speak("¡A bailar!");
+    
+    if (customAudioRef.current) {
+      customAudioRef.current.currentTime = 0;
+      customAudioRef.current.play().catch(() => {});
+    }
 
-    // Set up MediaRecorder
+    // Capturar frames durante targetDurationSec / 3 (ej. si piden 15s, grabamos 5s reales)
+    // para luego expandirlo a cámara lenta.
+    const realCaptureSeconds = Math.max(3, Math.floor(targetDurationSec / 3));
+    const captureFps = 15;
+    const maxFrames = realCaptureSeconds * captureFps;
+    const intervalMs = 1000 / captureFps;
+    
+    const frames: HTMLCanvasElement[] = [];
+    let count = 0;
+    
+    // Setup capture canvas at 480p to avoid memory crash
+    const captureW = 480;
+    const captureH = (videoRef.current.videoHeight / videoRef.current.videoWidth) * captureW || 854;
+
+    const captureTimer = setInterval(() => {
+      count++;
+      setRecordingTimeLeft(realCaptureSeconds - Math.floor(count / captureFps));
+      setRecordingProgress((count / maxFrames) * 100);
+
+      const cvs = document.createElement('canvas');
+      cvs.width = captureW;
+      cvs.height = captureH;
+      const ctx = cvs.getContext('2d');
+      if (ctx && videoRef.current) {
+        ctx.drawImage(videoRef.current, 0, 0, captureW, captureH);
+        drawWatermark(ctx, captureW, captureH);
+        frames.push(cvs);
+      }
+
+      if (count >= maxFrames) {
+        clearInterval(captureTimer);
+        setCapturedFrames(frames);
+        processSlowMotionVideo(frames, targetDurationSec);
+      }
+    }, intervalMs);
+  };
+
+  const processSlowMotionVideo = async (frames: HTMLCanvasElement[], targetDurationSec: number) => {
+    setLocalStatus('processing');
+    await updateEntertainmentSessionStatus(fiestaId, 'plataforma360', 'processing', {}, accessToken);
+    setProgressMsg('Procesando efecto cámara lenta...');
+    
+    if (frames.length === 0) {
+      setProgressMsg('No se capturaron cuadros. Revisa la camara e intenta nuevamente.');
+      setLocalStatus('idle');
+      return;
+    }
+
+    const drawCanvas = document.createElement('canvas');
+    drawCanvas.width = frames[0].width;
+    drawCanvas.height = frames[0].height;
+    const ctx = drawCanvas.getContext('2d');
+    if (!ctx) return;
+
+    // Queremos que el video resultante dure `targetDurationSec`.
+    // Tenemos N frames. Vamos a renderizarlos a una tasa más lenta.
+    const outputFps = frames.length / targetDurationSec; // ej. 75 frames / 15s = 5 fps.
+    
+    const canvasStream = drawCanvas.captureStream(Math.max(12, Math.floor(outputFps))); // Forzar un minimo
+    
+    let combinedStream = canvasStream;
+    // Si hay musica, agregarla al stream
+    if (customAudioRef.current) {
+      if (!audioCtxRef.current) audioCtxRef.current = new (window.AudioContext || (window as any).webkitAudioContext)();
+      if (!customAudioDestinationRef.current) {
+        customAudioDestinationRef.current = audioCtxRef.current.createMediaStreamDestination();
+      }
+      if (!customAudioSourceRef.current) {
+        customAudioSourceRef.current = audioCtxRef.current.createMediaElementSource(customAudioRef.current);
+        customAudioSourceRef.current.connect(customAudioDestinationRef.current);
+        customAudioSourceRef.current.connect(audioCtxRef.current.destination);
+      }
+      
+      const audioTracks = customAudioDestinationRef.current.stream.getAudioTracks();
+      if (audioTracks.length > 0) {
+         combinedStream = new MediaStream([
+           ...canvasStream.getVideoTracks(),
+           ...audioTracks
+         ]);
+      }
+    }
+
     let mimeType = 'video/webm';
-    const formats = ['video/webm;codecs=vp9', 'video/webm;codecs=vp8', 'video/webm', 'video/mp4'];
-    for (const f of formats) {
-      if (MediaRecorder.isTypeSupported(f)) {
-        mimeType = f;
+    const supportedTypes = ['video/webm;codecs=vp9', 'video/webm;codecs=vp8', 'video/webm', 'video/mp4'];
+    for (const t of supportedTypes) {
+      if (MediaRecorder.isTypeSupported(t)) {
+        mimeType = t;
         break;
       }
     }
 
-    const chunks: Blob[] = [];
-    const mediaRecorder = new MediaRecorder(currentStream, { mimeType, videoBitsPerSecond: 3000000 });
-    mediaRecorderRef.current = mediaRecorder;
-
-    mediaRecorder.ondataavailable = (e) => {
-      if (e.data && e.data.size > 0) {
-        chunks.push(e.data);
-      }
-    };
-
-    mediaRecorder.onstop = async () => {
-      const videoBlob = new Blob(chunks, { type: mimeType });
-      const videoUrl = URL.createObjectURL(videoBlob);
-      setFinalVideoUrl(videoUrl);
-      setPendingVideoBlob(videoBlob);
-
-      // Auto upload video
-      await handleVideoUpload(videoBlob);
-    };
-
-    // Start recording
-    mediaRecorder.start();
-
-    // Progress timer
-    setRecordingTimeLeft(durationSec);
-    setRecordingProgress(100);
-
-    let secondsPassed = 0;
-    const interval = setInterval(() => {
-      secondsPassed += 1;
-      const pct = Math.max(0, 100 - (secondsPassed / durationSec) * 100);
-      setRecordingProgress(pct);
-      setRecordingTimeLeft(durationSec - secondsPassed);
-
-      if (secondsPassed >= durationSec) {
-        clearInterval(interval);
-        if (mediaRecorder.state !== 'inactive') {
-          mediaRecorder.stop();
+    try {
+      const mediaRecorder = new MediaRecorder(combinedStream, { mimeType, videoBitsPerSecond: 2500000 });
+      const chunks: Blob[] = [];
+      mediaRecorder.ondataavailable = e => { if (e.data && e.data.size > 0) chunks.push(e.data); };
+      
+      mediaRecorder.onstop = async () => {
+        if (customAudioRef.current) {
+          customAudioRef.current.pause();
+          customAudioRef.current.currentTime = 0;
         }
-      }
-    }, 1000);
+        const videoBlob = new Blob(chunks, { type: mimeType });
+        const videoUrl = URL.createObjectURL(videoBlob);
+        setFinalVideoUrl(videoUrl);
+        setPendingVideoBlob(videoBlob);
+        await handleVideoUpload(videoBlob);
+      };
+
+      mediaRecorder.start();
+
+      let frameIndex = 0;
+      const renderInterval = targetDurationSec * 1000 / frames.length;
+
+      const drawFrame = () => {
+        if (frameIndex >= frames.length) {
+          mediaRecorder.stop();
+          return;
+        }
+        ctx.clearRect(0, 0, drawCanvas.width, drawCanvas.height);
+        ctx.drawImage(frames[frameIndex], 0, 0);
+        frameIndex++;
+        setTimeout(drawFrame, renderInterval);
+      };
+      
+      drawFrame();
+    } catch (e) {
+      console.error(e);
+      setLocalStatus('idle');
+    }
   };
 
   const handleVideoUpload = async (blob: Blob) => {
@@ -510,6 +626,26 @@ export default function Plataforma360Page() {
               </div>
             </div>
 
+            {/* Music Upload */}
+            <div>
+              <p className="text-xs font-bold text-slate-400 uppercase tracking-widest mb-3">Música de Fondo</p>
+              <label className="flex h-12 items-center justify-center gap-2 rounded-lg border border-white/5 bg-black/20 px-4 text-xs font-bold transition hover:border-white/10 cursor-pointer text-purple-300">
+                <Volume2 className="w-4 h-4" />
+                Cargar Archivo MP3
+                <input 
+                  type="file" 
+                  accept="audio/*"
+                  className="hidden" 
+                  onChange={(e) => {
+                    const file = e.target.files?.[0];
+                    // En una app real, esto debería subir a Storage y actualizar Firebase.
+                    // Para el MVP y demostración rápida, alertamos que se cargó:
+                    if (file) selectCustomAudio(file);
+                  }}
+                />
+              </label>
+            </div>
+
             {/* Duration selector */}
             <div>
               <p className="text-xs font-bold text-slate-400 uppercase tracking-widest mb-3">Duración de Captura</p>
@@ -528,6 +664,18 @@ export default function Plataforma360Page() {
                   </button>
                 ))}
               </div>
+            </div>
+
+            {/* Slow Motion */}
+            <div>
+              <p className="text-xs font-bold text-slate-400 uppercase tracking-widest mb-3">Efecto</p>
+              <button
+                type="button"
+                className="flex w-full items-center justify-center gap-2 rounded-lg border border-purple-500 bg-purple-500/10 p-3 text-xs font-bold text-purple-300 transition"
+              >
+                <Zap className="w-4 h-4" />
+                Cámara Lenta (Slow Motion) Activada
+              </button>
             </div>
 
             {/* Remote commands */}
@@ -579,6 +727,24 @@ export default function Plataforma360Page() {
           {fiesta && <p className="text-xs font-semibold text-zinc-300">{fiesta.eventName}</p>}
         </div>
         <div className="flex items-center gap-2">
+          {role === 'operator' && localStatus === 'idle' && (
+            <label className="flex h-11 items-center justify-center gap-2 rounded-lg bg-white/10 px-4 text-xs font-bold transition hover:bg-white/20 cursor-pointer text-purple-300">
+              Música Cargable
+              <input 
+                type="file" 
+                accept="audio/*"
+                className="hidden" 
+                onChange={(e) => {
+                  const file = e.target.files?.[0];
+                  if (file) selectCustomAudio(file);
+                }}
+              />
+            </label>
+          )}
+          {customAudioUrl && (
+            <audio id="custom-music" ref={customAudioRef} src={customAudioUrl} loop crossOrigin="anonymous" />
+          )}
+
           {localStatus === 'idle' && (
             <>
               <button
@@ -620,8 +786,8 @@ export default function Plataforma360Page() {
                   <Play className="w-10 h-10 text-white fill-white ml-1" />
                 </div>
                 <div className="space-y-2">
-                  <h2 className="text-3xl font-black tracking-tight text-white md:text-4xl">Video 360</h2>
-                  <p className="text-sm text-zinc-300">Prepara tu pose. Esta estacion graba un video con la camara web.</p>
+                  <h2 className="text-3xl font-black tracking-tight text-white md:text-4xl">Plataforma 360</h2>
+                  <p className="text-sm text-zinc-300">Preparate. La plataforma empezará a girar y grabará en cámara lenta. ¡Hacé tu mejor pose!</p>
                   {cameraError && <p className="text-sm text-rose-300" role="alert">{cameraError}</p>}
                 </div>
 

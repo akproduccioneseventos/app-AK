@@ -123,11 +123,11 @@ export default async function BlogPostPage({ params }: Props) {
                 <p className="mt-3 text-xl font-black leading-8 text-slate-950">{post.takeaway}</p>
               </div>
 
-              {post.sections.map((section) => (
+              {post.sections?.map((section) => (
                 <section key={section.heading} className="space-y-4">
                   <h2 className="text-2xl font-black text-slate-950">{section.heading}</h2>
                   <div className="space-y-4">
-                    {section.body.map((paragraph) => (
+                    {section.body?.map((paragraph) => (
                       <p key={paragraph} className="text-base leading-8 text-slate-700 font-medium">
                         {paragraph}
                       </p>
@@ -136,7 +136,7 @@ export default async function BlogPostPage({ params }: Props) {
                 </section>
               ))}
 
-              {post.checklist && (
+              {post.checklist && post.checklist.length > 0 && (
                 <section className="rounded-lg border border-slate-200 bg-slate-50 p-6">
                   <h2 className="text-2xl font-black text-slate-950">Checklist práctico</h2>
                   <ul className="mt-5 space-y-3">

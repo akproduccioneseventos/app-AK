@@ -53,7 +53,7 @@ describe('public entertainment guest flows', () => {
     expect(platform).toContain('Grabar otro video');
     expect(bogue).toContain('camara web');
     expect(bogue).toContain('No controla hardware externo.');
-    expect(bogue).toContain('Grabar otro loop');
+    expect(bogue).toContain('Grabar otra vez');
   });
 
   it('requires visible consent before an AI mirror or Touchpix capture', () => {

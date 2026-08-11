@@ -40,14 +40,16 @@ describe("entertainment runtime boundaries", () => {
     expect(unlockSource).not.toContain("localStorage.clear()");
   });
 
-  it("uses the live 360 stream and applies the operator Bogue frame", () => {
+  it("uses the live 360 camera frames and applies the operator Bogue frame", () => {
     const platformSource = read(
       "src/app/evento/plataforma-360/[fiestaId]/page.tsx",
     );
     const bogueSource = read("src/app/evento/bogue/[fiestaId]/page.tsx");
 
     expect(platformSource).toContain("const currentStream = streamRef.current");
-    expect(platformSource).toContain("new MediaRecorder(currentStream");
+    expect(platformSource).toContain("drawCanvas.captureStream");
+    expect(platformSource).toContain("new MediaRecorder(combinedStream");
+    expect(platformSource).toContain("frames.length === 0");
     expect(bogueSource).toContain("const requestedFrame = s.settings?.frameId");
     expect(bogueSource).toContain("setSelectedFrame(requestedFrame)");
   });

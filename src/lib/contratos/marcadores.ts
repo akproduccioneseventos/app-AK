@@ -70,5 +70,10 @@ export function marcadoresDesconocidos(texto: string): string[] {
     ...MARCADORES_CONOCIDOS,
     ...Object.keys(SINONIMOS_DE_MARCADORES),
   ]);
-  return Array.from(new Set(encontrados.filter(m => !validos.has(m))));
+  const desconocidos = encontrados.filter(m => !validos.has(m));
+  const textoSinMarcadores = texto.replace(/\{\{[^}]+\}\}/g, '');
+  if (textoSinMarcadores.includes('{{') || textoSinMarcadores.includes('}}')) {
+    desconocidos.push('marcador incompleto');
+  }
+  return Array.from(new Set(desconocidos));
 }

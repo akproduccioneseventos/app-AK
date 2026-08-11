@@ -51,4 +51,12 @@ describe('marcadores de las plantillas de contrato', () => {
   it('no repite el mismo aviso dos veces', () => {
     expect(marcadoresDesconocidos('{{XX}} y {{XX}}')).toEqual(['{{XX}}']);
   });
+
+  it('rechaza marcadores con espacios, guiones o llaves incompletas', () => {
+    expect(marcadoresDesconocidos('{{ FECHA_EVENTO }} {{NUMERO-CLIENTE}} {{SIN_CERRAR')).toEqual([
+      '{{ FECHA_EVENTO }}',
+      '{{NUMERO-CLIENTE}}',
+      'marcador incompleto',
+    ]);
+  });
 });

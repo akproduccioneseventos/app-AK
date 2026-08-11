@@ -45,6 +45,17 @@ function TemplateField({ id, label, description, variables, value, onChange, dis
   );
 }
 
+function unknownTemplateMarkers(text: string, allowedVariables: string[]): string[] {
+  const markers = text.match(/\{\{[^}]+\}\}/g) ?? [];
+  const allowed = new Set(allowedVariables.map(variable => `{{${variable}}}`));
+  const unknown = markers.filter(marker => !allowed.has(marker));
+  const withoutMarkers = text.replace(/\{\{[^}]+\}\}/g, '');
+  if (withoutMarkers.includes('{{') || withoutMarkers.includes('}}')) {
+    unknown.push('marcador incompleto');
+  }
+  return Array.from(new Set(unknown));
+}
+
 export default function WhatsAppTemplatesPage() {
   const { toast } = useToast();
   const [templates, setTemplates] = useState<WhatsAppTemplates | null>(null);
@@ -82,9 +93,7 @@ export default function WhatsAppTemplatesPage() {
 
     for (const [field, allowedVars] of Object.entries(allowedByField)) {
       const text = templates[field as keyof WhatsAppTemplates] || '';
-      const matches = text.match(/\{\{[A-Za-z0-9_]+\}\}/g) || [];
-      const allowedTags = allowedVars.map(v => `{{${v}}}`);
-      const unknownTags = Array.from(new Set(matches.filter(tag => !allowedTags.includes(tag))));
+      const unknownTags = unknownTemplateMarkers(text, allowedVars);
       if (unknownTags.length > 0) {
         toast({
           title: '⚠️ Marcador no reconocido',
