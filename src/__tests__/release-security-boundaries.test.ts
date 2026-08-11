@@ -80,7 +80,9 @@ describe('release security boundaries', () => {
 
   it.each([
     ['activos-fijos.ts', ['saveActivoFijo', 'deleteActivoFijo']],
-    ['empleados.ts', ['saveEmpleado', 'deleteEmpleado']],
+    // `deleteEmpleado` no esta aca: pide algo mas fuerte que tener sesion. Se
+    // verifica mas abajo, junto con el resto de lo que toca sueldos.
+    ['empleados.ts', ['saveEmpleado']],
     ['insumos.ts', ['saveInsumo', 'deleteInsumo', 'adjustAllInsumoCosts']],
     ['proveedores.ts', ['saveProveedor', 'deleteProveedor']],
     ['roles.ts', ['saveRol', 'deleteRol']],
@@ -147,6 +149,29 @@ describe('release security boundaries', () => {
     // dos piden `requirePermiso(PERMISOS.SUELDOS)` en vez de `requireAppSession`.
     const source = readSource('src/app/actions/recibos-personal.ts');
     for (const functionName of ['getRecibosFirmados', 'saveReciboFirmado']) {
+      const start = source.indexOf(`export async function ${functionName}`);
+      const nextExport = source.indexOf('export async function ', start + 1);
+      const functionSource = source.slice(start, nextExport === -1 ? undefined : nextExport);
+      expect(start).toBeGreaterThanOrEqual(0);
+      expect(functionSource).toContain('requirePermiso(PERMISOS.SUELDOS)');
+    }
+  });
+
+  it('asignar personal a una fiesta y dar de baja a alguien tambien exigen el permiso de sueldos', () => {
+    // `updatePersonal` guarda `eventSalary`: cuanto cobra cada persona por esa
+    // fiesta. Es el mismo dato que los recibos, asi que va con el mismo permiso.
+    // Antes no comprobaba nada: con solo conocer el codigo de una fiesta se podian
+    // cambiar los sueldos desde afuera, y encima se disparaban los correos de
+    // asignacion al equipo.
+    //
+    // `deleteEmpleado` es la ficha de una persona, con su contrato adjunto: no
+    // alcanza con tener sesion.
+    const casos: Array<[string, string]> = [
+      ['fiesta/personal.actions.ts', 'updatePersonal'],
+      ['empleados.ts', 'deleteEmpleado'],
+    ];
+    for (const [archivo, functionName] of casos) {
+      const source = readSource(`src/app/actions/${archivo}`);
       const start = source.indexOf(`export async function ${functionName}`);
       const nextExport = source.indexOf('export async function ', start + 1);
       const functionSource = source.slice(start, nextExport === -1 ? undefined : nextExport);
