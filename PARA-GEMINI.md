@@ -1,258 +1,190 @@
-# Trabajo pendiente — instrucciones para Gemini
+# Orden de trabajo para Gemini
 
-Auditoría del 5 de agosto de 2026. Todo lo de abajo está verificado leyendo el
-código: archivo y línea reales, no suposiciones.
+Ultima revision: 11 de agosto de 2026.
 
-**Revisado el 11 de agosto contra la versión principal: los doce puntos siguen
-abiertos, ninguno está hecho.** Los dos primeros son los que cuestan plata todos
-los días.
+**Todo lo anterior de este archivo esta cerrado.** Los once pendientes que estaban
+anotados se verificaron uno por uno contra el codigo de hoy y ya estaban resueltos
+por la propuesta 932. No hay que volver a mirarlos.
 
-La app está sana: compila, 1378 pruebas unitarias en verde, 92 de navegador en
-verde, 20 de seguridad de la base en verde.
-
----
-
-## REGLAS
-
-- Una rama y una propuesta de cambio por tanda. Nunca commits sobre una propuesta
-  ya fusionada.
-- Verificar siempre: `npx tsc --noEmit`, `npx jest`, `npm run build`.
-- Nunca recompilar mientras corren las pruebas de navegador: da fallas falsas.
-- Nunca correr una sola prueba filtrando por nombre en un archivo donde las
-  pruebas dependen entre sí (`viaje-invitado.spec.ts`): da fallas inventadas.
-- Si algo que antes andaba falla y nadie lo tocó: reiniciar el servidor de prueba
-  antes de buscar el defecto.
-
-## NO TOCAR (decisiones del dueño)
-
-- El ajuste anual del 15% va siempre.
-- El descuento del 50% del Salón Club Uruguay y el descuento ficticio del
-  presupuesto son marketing.
-- Las fotos del muro se descargan con el enlace directo a propósito.
-- La lista de compras usa la cantidad contratada, no la de confirmados.
-- Sólo se trabaja en pesos uruguayos.
-- **Una misma persona puede tener hasta DOS roles en la misma fiesta** y cobrar los
-  dos. Es normal en AK: alguien hace de cocina y de utilero en el mismo evento.
-  Ver el punto 10, que pide poner ese tope.
+Lo que sigue son hallazgos NUEVOS, de areas que nunca se habian auditado. Cada uno
+esta verificado abriendo el archivo: no son sospechas.
 
 ---
 
-## 1. El stock de la barra se descuenta dos veces (PRIORIDAD ALTA)
+## COMO SE ENTREGA (leer antes de empezar)
 
-`src/app/actions/fiesta/barra-tecnologica.actions.ts`
+**UNA SOLA PROPUESTA DE CAMBIO con todos los bloques.** No una por bloque. Cada
+fusion dispara un despliegue y eso se paga.
 
-`descontarStock()` se llama dos veces por el mismo pedido:
+Si un bloque se traba, **entregar el resto igual, en la misma propuesta**, y avisar
+en la descripcion cual quedo afuera y por que.
 
-- línea ~373, en `createBarDrinkOrder`, cuando el invitado pide desde la pantalla
-- líneas ~563 y ~592, en `updateBarDrinkOrderStatusInternal`, cuando el barman lo
-  marca `entregado` (la decide `shouldDiscountBarStock` en
-  `src/lib/barra-tecnologica.ts:24`)
+Antes de entregar, que pasen los cuatro controles:
 
-Alguien agregó el descuento del pedido del invitado sin sacar el de la entrega. El
-sistema cree que hay la mitad de bebida de la que hay: avisa "sin stock" antes de
-tiempo y la lista de compras compra de más.
-
-**Qué hacer.** Dejar un solo descuento, el de `createBarDrinkOrder`: la botella se
-abre cuando se toma el pedido. Sacar las llamadas de las líneas 563 y 592, y
-`shouldDiscountBarStock` si queda sin uso.
-
-Agregar la reposición que falta: si un pedido pasa a `cancelado`, devolver el stock.
-
-**Pruebas:** crear pedido + marcar entregado descuenta una sola vez; crear pedido +
-cancelar deja el stock como estaba.
+- `npx tsc --noEmit` en cero
+- `npm run check:acentos` sin roturas
+- `npx jest` en verde
+- Y que la propuesta este hecha sobre la version principal **de hoy**, no sobre una
+  vieja
 
 ---
 
-## 2. Los mensajes automáticos se guardan sin teléfono (PRIORIDAD ALTA)
+## BLOQUE 1 — Se pueden borrar cosas que estan en uso (lo mas importante)
 
-`src/app/actions/presupuestos.ts:249` y `:847`
+Hay una proteccion que ya existe y funciona bien: **no se puede borrar un proveedor
+que tiene insumos asociados**. Esta en `src/app/actions/proveedores.ts`, en
+`deleteProveedor`: busca los insumos que lo referencian y, si hay, no borra y avisa
+cuantos son.
 
-Las dos llamadas a `triggerWhatsAppAutomation` (`presupuesto_generado` y
-`presupuesto_enviado`) no pasan `targetPhone`. El motor lo guarda tal cual
-(`src/lib/whatsapp-automation-engine.ts:116`), así que el mensaje queda en la
-bandeja de salida sin número: no se puede enviar sin editarlo a mano.
+Ese mismo cuidado **falta en otros cuatro lugares**, y todos dejan datos rotos:
 
-Consecuencia comercial: cada presupuesto generado debería disparar un seguimiento
-automático al prospecto, y no sale ninguno.
+| Que se borra | Donde | Que queda roto |
+|---|---|---|
+| Insumo | `src/app/actions/insumos.ts:137` | Las recetas de menu que lo usaban quedan apuntando a un ingrediente que no existe. El costo del plato se recalcula sin el y **sale mas barato de lo que es**, sin que nadie se entere. |
+| Servicio | `src/app/actions/servicios-empresa.ts:102` | Los presupuestos que lo tienen cargado quedan con un servicio fantasma y el total deja de cuadrar. |
+| Menu | `src/app/actions/menus-catering.ts:200` | El presupuesto pierde la lista de platos que se le habia mostrado al cliente. |
+| Activo fijo | `src/app/actions/activos-fijos.ts:88` | La lista de carga del evento queda pidiendo algo que ya no existe. |
 
-**Qué hacer.** Pasar el teléfono del prospecto en las dos llamadas. Sacarlo del
-lead (`nuevoPresupuesto.leadId` → buscar el lead) o del propio presupuesto si tiene
-el contacto. Normalizar con `normalizeUruguayPhone` de
-`src/lib/commercial/contact.ts`.
+**Que hacer:** repetir en los cuatro el patron que ya esta escrito en
+`deleteProveedor`. Antes de borrar, buscar quien lo usa; si hay uso, no borrar y
+devolver un mensaje que diga **cuantos** lo usan, para que la persona entienda por
+que no se puede.
 
-Además, en el motor: si `targetPhone` viene vacío, no programar el mensaje y dejar
-registro del motivo, en vez de guardar algo inservible.
-
-**Pruebas:** generar un presupuesto con teléfono programa el mensaje con número;
-sin teléfono no programa nada y deja el aviso.
-
----
-
-## 3. La pantalla del barman se queda cargando para siempre
-
-`src/app/evento/barra/[fiestaId]/barman/page.tsx:82-94`
-
-`loadData()` no tiene `try/catch/finally`. Si `getBarraTecnologicaDashboard()`
-lanza una excepción, `setIsLoading(false)` nunca corre: la pantalla queda girando y
-reintentando cada 2,2 segundos, en plena fiesta.
-
-**Qué hacer.** Envolver en `try/catch/finally`, apagar el cargando en el `finally`
-y mostrar un aviso en castellano si falla.
+Cuidado con esto: el costo del plato es lo mas delicado de los cuatro, porque el
+error no se ve. Un presupuesto roto se nota; un plato que salio mas barato porque
+le falta un ingrediente, no.
 
 ---
 
-## 4. La pantalla gigante no distingue "sin contenido" de "falló"
+## BLOQUE 2 — Los sueldos del equipo se pueden leer desde afuera
 
-`src/app/evento/en-vivo/[fiestaId]/pantalla/page.tsx`
+La pantalla `/personal/[empleadoId]` muestra, para un empleado, todas las fiestas
+en las que trabajo **con el sueldo de cada una**.
 
-No hay estado de carga ni de error inicial. Si la carga falla, muestra
-"🎉 Esperando contenido..." igual que cuando todo está bien. El equipo no sabe si
-se rompió o si todavía no subió nadie.
+La pantalla en si esta protegida: sin sesion, el sistema manda al login. **El
+problema es la funcion que trae los datos.** En
+`src/app/actions/google-workspace.ts:347`, `getEmployeeWorkspacePortal` no comprueba
+absolutamente nada: ni sesion, ni permiso, ni token. Y esas funciones se pueden
+invocar directamente desde afuera, sin pasar por ninguna pantalla.
 
-**Qué hacer.** Agregar un estado de error visible, con letra grande legible de
-lejos.
+O sea: quien conozca el identificador de un empleado se entera de cuanto cobra, y
+de cuanto cobra en cada fiesta.
 
----
+**Que hacer:** exigir el permiso de sueldos (`PERMISOS.SUELDOS`), igual que ya hace
+`updatePersonal` en `src/app/actions/fiesta/personal.actions.ts:18`.
 
-## 5. `getFiestaActual()` devuelve la fiesta más lejana
-
-`src/app/actions/fiesta/fiesta.actions.ts:149`
-
-Ordena las fiestas activas por `fechaEvento` DESCENDENTE y devuelve la primera: la
-más lejana en el futuro, no la de hoy. La usan diez pantallas internas, que por
-defecto muestran la fiesta equivocada.
-
-(La pantalla "mi mesa" del invitado NO está afectada: toma el evento de la
-dirección web. El import de `getFiestaActual` que tiene en la línea 11 quedó sin
-usar y se puede borrar.)
-
-**Qué hacer.** Devolver, en este orden:
-
-1. La fiesta cuya `fechaEvento` es HOY en horario de Uruguay. Usar
-   `getUruguayParts()` de `src/lib/utils.ts`. **No** usar `new Date(fecha)` sobre
-   un texto `AAAA-MM-DD`: corre el día para atrás.
-2. Si no hay ninguna hoy, la futura más cercana.
-3. Si no hay futuras, la pasada más reciente.
-4. Si no hay ninguna, dejar el comportamiento actual.
-
-Empate el mismo día: desempatar por `horaInicio` ascendente.
-
-**Pruebas:** una hoy y otra dentro de tres meses devuelve la de hoy; sólo futuras
-devuelve la más cercana; sólo pasadas devuelve la más reciente; ninguna no rompe.
+Si esa pantalla estaba pensada para que el propio empleado vea sus fechas y sus
+pagos desde su celular sin cuenta, **entonces no alcanza con pedir sesion**: hay que
+darle al empleado un enlace con token firmado, como ya se hace con los presupuestos
+compartidos y con los accesos de proveedores. En ese caso, avisar y no improvisar:
+es una decision del dueno.
 
 ---
 
-## 6. Borrar un proveedor deja insumos huérfanos
+## BLOQUE 3 — Las aprobaciones no dicen quien aprobo
 
-`src/app/actions/proveedores.ts:82-92`
+En `src/app/(app)/aprobaciones/page.tsx:157` y `:179`, al aprobar o rechazar un
+cambio se manda el usuario escrito a mano:
 
-`deleteProveedor` no verifica si algún insumo lo está usando. Los insumos quedan
-apuntando a un proveedor que ya no existe. No rompe nada, pero ensucia los reportes
-y la logística.
+```
+aprobarCambio(id, 'admin')
+rechazarCambio(id, motivo, 'admin')
+```
 
-**Qué hacer.** Antes de borrar, contar los insumos que lo usan. Si hay, no borrar y
-devolver el mensaje con la cantidad.
+Lo mismo en `src/app/(app)/playbooks/page.tsx:56` al aplicar un playbook.
 
----
+Resultado: **todo queda firmado como "admin", sin importar quien lo hizo.** Si
+manana hay una discusion sobre quien autorizo un cambio, no hay registro. Una
+pantalla de aprobaciones que no guarda quien aprobo no sirve para lo unico que
+tiene que servir.
 
-## 7. El stock de la barra llega a cero en silencio
-
-`src/app/actions/fiesta/barra-tecnologica.actions.ts:148-149`
-
-Si se piden más tragos de los que alcanza el stock, la cantidad se recorta a cero
-sin avisar. Nadie se entera de que faltó.
-
-**Qué hacer.** Cuando el descuento dejaría el stock en negativo, registrar el
-faltante y avisar en la pantalla del barman.
-
----
-
-## 8. Decisiones que faltan del dueño (no avanzar sin respuesta)
-
-1. **La moderación de la pantalla gigante viene apagada** en las fiestas nuevas. No
-   es urgente: las fotos ya se analizan solas y los videos ya esperan aprobación
-   siempre.
-2. **Los "módulos" por usuario no se validan en el servidor.** Se asignan y se
-   muestran como etiquetas, pero cualquiera con sesión accede a todo. O se
-   implementa la validación, o se saca la pantalla.
+**Que hacer:** tomar la identidad de la sesion en el servidor, no de lo que mande la
+pantalla. El patron ya esta escrito en `src/app/actions/recibos-personal.ts:79`,
+donde se guarda `pagadoPor` con el correo del usuario de la sesion. Que la accion
+del servidor resuelva quien es; la pantalla no deberia poder decidirlo.
 
 ---
 
-## 9. Actualizar la referencia de diseño del catálogo de bodas
+## BLOQUE 4 — Cosas chicas pero que se ven
 
-`tests/e2e/layout-baseline.json`, entrada `/catalogo/bodas`
+**4.1. Moneda equivocada en aprobaciones.** En
+`src/app/(app)/aprobaciones/page.tsx:19` los importes se formatean como **pesos
+argentinos** (`es-AR` / `ARS`). El negocio trabaja solo en pesos uruguayos. Un
+cambio de diez mil pesos se muestra como si fuera plata de otro pais.
 
-El guardián de diseño falla en las dos versiones (escritorio y celular) porque
-cambió la huella de colores de esa pantalla. **El cambio es intencional y bueno:**
-lo produjo la propuesta 911 ("Unificar estética, legibilidad y flujos de
-portales"), que agregó en `src/app/globals.css` una regla que sube a 12 píxeles
-todo el texto que estaba en 8, 9, 10 u 11. El texto chiquito ahora se lee.
+**4.2. Se puede guardar un sueldo negativo.** En la pantalla de personal de una
+fiesta (`src/app/(app)/fiestas/nueva/personal/page.tsx:612`) el campo del monto no
+tiene minimo, y el servidor tampoco lo valida
+(`src/app/actions/fiesta/personal.actions.ts`). Un error de tipeo deja guardado un
+sueldo en negativo, que despues aparece en los recibos como si el empleado le
+pagara a la empresa. Poner minimo cero en la pantalla y validarlo tambien en el
+servidor, que es donde vale.
 
-Son las dos únicas pruebas de navegador que fallan hoy.
+**4.3. Fechas con formato de otro pais.** Cuatro pantallas usan `es-AR` o `es-ES`
+para mostrar fechas: `auditoria/page.tsx:19`, `incidentes/page.tsx:19`,
+`eventos/page.tsx:38` y `pagos-rapidos/page.tsx:46`.
 
-**Qué hacer.** Regenerar la referencia de `/catalogo/bodas` y dejar escrito en el
-commit que el cambio viene de esa regla de legibilidad, para que se sepa por qué se
-movió. Antes de regenerar, mirar la pantalla y confirmar que se ve bien: la
-referencia se actualiza porque el cambio es correcto, no para tapar el aviso.
-
----
-
-## 10. Tope de dos roles por persona en la misma fiesta
-
-`src/app/(app)/fiestas/nueva/personal/page.tsx:433`
-
-Hoy no hay ningún límite: se puede asignar a la misma persona todas las veces que
-se quiera en la misma fiesta, y cobra todas. Dos roles es válido y querido (cocina
-y utilero, por ejemplo); tres o más es un error de carga.
-
-**Qué hacer.** Permitir hasta DOS asignaciones por persona en la misma fiesta. Al
-intentar la tercera, no agregarla y avisar en pantalla: decir cuántas veces ya está
-asignada y en qué roles.
-
-En la lista de empleados a elegir, mostrar al lado de cada uno cuántas veces ya
-está asignado en esa fiesta, para que el equipo lo vea antes de agregarlo.
-
-**Pruebas:** una asignación se permite; la segunda se permite; la tercera se
-rechaza sin tocar los datos.
+**Antes de tocar esto, verificar si el problema es real:** el riesgo no es el
+formato sino el dia corrido. Si la fecha viene sin hora (`2026-08-11`), convertirla
+con `new Date()` la toma como medianoche universal y en Uruguay muestra **el dia
+anterior**. Ya paso en este proyecto y hay ayudantes hechos para eso en
+`src/lib/public-experience/event-date.ts` (`parseEventDate`, `formatEventDate`).
+Comprobar en cada una de las cuatro si la fecha trae hora o no, y usar esos
+ayudantes solo donde haga falta. Si la fecha ya viene con hora completa, dejarla
+como esta y decirlo.
 
 ---
 
-## 11. Sin registro de quién marcó un recibo del personal como pagado
+## LO QUE NO HAY QUE TOCAR (decisiones tomadas del dueno)
 
-Si hay una discusión con un empleado, no hay con qué respaldarse.
+No reportar esto como errores, son decisiones:
 
-**Qué hacer.** Guardar quién y cuándo al marcar un recibo como pagado, y mostrarlo
-en la ficha del recibo.
-
----
-
-## 12. Un botón que no hace nada en la plataforma 360
-
-`src/app/evento/plataforma-360/[fiestaId]/page.tsx:672`
-
-Hay un `<button>` sin `onClick`, sin `type="submit"` y fuera de un formulario. El
-texto dice "Cámara Lenta (Slow Motion) Activada": es un indicador de estado
-disfrazado de botón. El operador lo toca esperando que haga algo y no pasa nada.
-
-Hoy tiene la prueba `src/__tests__/interactive-control-boundary.test.ts` en rojo en
-la versión principal. Es la única prueba que falla.
-
-**Qué hacer.** Decidir cuál de las dos cosas es:
-
-- Si sólo informa que la cámara lenta está activada, no debe ser un `<button>`:
-  cambiarlo por un `<div>` o `<span>` con el mismo estilo.
-- Si tiene que poder prenderse y apagarse, agregarle el `onClick` que cambia el
-  estado, y que el texto diga si está activada o no.
-
-**Verificar:** `npx jest src/__tests__/interactive-control-boundary.test.ts`
+- El ajuste anual del 15% va **siempre**.
+- El descuento del 50% del Salon Club Uruguay y el del presupuesto son marketing.
+- La lista de compras usa los invitados **del presupuesto**, no los confirmados: el
+  dueno cocina lo que se contrato, y para sumar gente el sistema tiene su forma de
+  hacerlo y el presupuesto aumenta.
+- Las fotos del muro se bajan con el enlace directo **a proposito**.
+- Se trabaja **solo en pesos uruguayos**.
+- Los controles rojos de GitHub son por facturacion: no se investigan. Lo que vale
+  es lo que se verifica localmente.
 
 ---
 
-## Cómo verificar al terminar
+## PENDIENTE DE DECISION DEL DUENO (no avanzar sin respuesta)
 
-1. `npx tsc --noEmit` → 0 errores
-2. `npx jest` → todas en verde
-3. `npm run build` → termina bien
-4. Servidor compilado en el puerto 3100 + `npx playwright test` con
-   `PLAYWRIGHT_BASE_URL=http://127.0.0.1:3100`
-5. `npm run test:rules`
+1. **Moderacion de la pantalla gigante en fiestas nuevas.** Hoy viene apagada: lo
+   que sube un invitado sale directo a la pantalla grande. Falta decidir si viene
+   prendida por defecto.
+
+2. **Los modulos por usuario no se validan.** La pantalla de usuarios permite
+   asignar modulos (crm, presupuestos, clientes) a cada persona, pero ninguna accion
+   del servidor los consulta: cualquiera con sesion entra a todo igual. Hay que
+   decidir entre implementar la validacion o sacar la pantalla, porque hoy da una
+   sensacion de control que no existe.
+
+3. **Aviso de pago duplicado.** El cliente puede informar el mismo pago dos veces si
+   hace doble clic. El dueno ya decidio: **tiene que llegar una sola vez.** Falta
+   hacerlo.
+
+---
+
+## AREAS YA AUDITADAS: NO REPETIR
+
+Estas se revisaron a fondo y estan sanas. Volver a mirarlas es tiempo perdido:
+
+- **Configuracion** (`(app)/settings`, 41 pantallas): todas las acciones peligrosas
+  piden confirmacion explicita y verifican administrador en el servidor.
+- **La noche de la fiesta** (`evento/`, 18 pantallas que no son estaciones): manejo
+  de error en castellano, cuentan personas y no filas, aislan bien los datos por
+  evento.
+- **Estaciones de entretenimiento** (fotocabina, bogue, espejo, plataforma 360,
+  buzon, totem).
+- **Portal del cliente y del invitado**, incluido el saldo con ajuste anual, el
+  cambio obligatorio de clave y la recuperacion por correo.
+- **Facturas, presupuestos y cupones**, incluida la proteccion contra guardados
+  simultaneos.
+- **Barra tecnologica**: stock real por insumo, en transaccion, con reposicion al
+  cancelar.
+- **Control de entrada**: cuenta personas, avisa cuando se corta la senal.
+- **Catalogo de venta presencial**: el total ya incluye el menu.
