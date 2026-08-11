@@ -203,7 +203,7 @@ export async function deleteMenu(id: string): Promise<{ success: boolean; error?
   const { getPresupuestos } = await import('./presupuestos');
   const presupuestos = await getPresupuestos();
   const presupuestosEnUso = presupuestos.filter((p: any) =>
-    p.menuSeleccionadoId === id || p.menuId === id || p.itemsPresupuestados?.some((item: any) => item.menuId === id || item.idServicioCatalogo === id)
+    p.selectedMenuId === id || p.itemsPresupuestados?.some((item: any) => item.idServicioCatalogo === id)
   );
   if (presupuestosEnUso.length > 0) {
     return {

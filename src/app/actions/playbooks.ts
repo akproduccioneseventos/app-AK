@@ -6,6 +6,7 @@ import type { Tarea } from '@/types/fiesta';
 import { readData, writeData } from '@/lib/data-service';
 import { getFiestaById, saveFiesta } from '@/app/actions/fiesta/fiesta.actions';
 import { requireAppSession } from '@/lib/auth/require-session';
+import { verifySession } from '@/lib/auth/session-token';
 
 const PLAYBOOKS_FILE = 'playbooks.json';
 const APLICACIONES_FILE = 'playbook-aplicaciones.json';
@@ -80,8 +81,9 @@ export async function applyPlaybookToFiesta(
   fiestaId: string,
   userId?: string
 ): Promise<{ success: boolean; tareasGeneradas: number; documentosGenerados: number; error?: string }> {
-  const auth = await requireAppSession();
-  const usuarioReal = auth?.user?.email || (userId && userId !== 'admin' ? userId : 'Administrador');
+  await requireAppSession();
+  const session = await verifySession();
+  const usuarioReal = session.user?.email || (userId && userId !== 'admin' ? userId : 'Administrador');
   try {
     const [playbook, fiesta] = await Promise.all([
       getPlaybookById(playbookId),

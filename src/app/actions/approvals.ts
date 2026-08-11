@@ -3,6 +3,7 @@
 import type { AprobacionRequest, EstadoAprobacion } from '@/types/approval';
 import { readData, writeData } from '@/lib/data-service';
 import { requireAppSession } from '@/lib/auth/require-session';
+import { verifySession } from '@/lib/auth/session-token';
 
 const APROBACIONES_FILE = 'aprobaciones.json';
 
@@ -42,8 +43,9 @@ export async function aprobarCambio(
   id: string,
   aprobadoPor?: string
 ): Promise<{ success: boolean; error?: string }> {
-  const auth = await requireAppSession();
-  const usuarioReal = auth?.user?.email || (aprobadoPor && aprobadoPor !== 'admin' ? aprobadoPor : 'Administrador');
+  await requireAppSession();
+  const session = await verifySession();
+  const usuarioReal = session.user?.email || (aprobadoPor && aprobadoPor !== 'admin' ? aprobadoPor : 'Administrador');
   try {
     const all = await readData<AprobacionRequest[]>(APROBACIONES_FILE, []);
     const index = all.findIndex(a => a.id === id);
@@ -66,8 +68,9 @@ export async function rechazarCambio(
   motivoRechazo: string,
   rechazadoPor?: string
 ): Promise<{ success: boolean; error?: string }> {
-  const auth = await requireAppSession();
-  const usuarioReal = auth?.user?.email || (rechazadoPor && rechazadoPor !== 'admin' ? rechazadoPor : 'Administrador');
+  await requireAppSession();
+  const session = await verifySession();
+  const usuarioReal = session.user?.email || (rechazadoPor && rechazadoPor !== 'admin' ? rechazadoPor : 'Administrador');
   try {
     const all = await readData<AprobacionRequest[]>(APROBACIONES_FILE, []);
     const index = all.findIndex(a => a.id === id);

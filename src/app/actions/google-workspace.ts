@@ -346,7 +346,7 @@ export async function syncFiestaAndNotifyStaff(fiestaId: string) {
 }
 
 import { requirePermiso } from '@/lib/auth/require-session';
-import { PERMISOS } from '@/lib/auth/permisos';
+import { PERMISOS } from '@/lib/auth/perfiles';
 
 export async function getEmployeeWorkspacePortal(empleadoId: string) {
   const permiso = await requirePermiso(PERMISOS.SUELDOS);
