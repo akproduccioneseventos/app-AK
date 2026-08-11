@@ -2,6 +2,11 @@ import type { Trago } from '@/types/fiesta';
 
 export type BarDrinkOrderStatus = 'nuevo' | 'preparando' | 'listo' | 'entregado' | 'cancelado';
 
+export interface BarStockMovement {
+  insumoId: string;
+  cantidad: number;
+}
+
 export interface BarDrinkOrder {
   id: string;
   fiestaId: string;
@@ -16,6 +21,8 @@ export interface BarDrinkOrder {
   updatedAt: string;
   source: 'touchscreen' | 'staff';
   queuePosition?: number;
+  stockMovements?: BarStockMovement[];
+  stockRestoredAt?: string;
 }
 
 export interface BarTechnologySettings {

@@ -201,6 +201,8 @@ export default function PantallaPage() {
   const [playlistMode, setPlaylistMode] = useState(false);
   const [playlistSlides, setPlaylistSlides] = useState<{ type: PlaylistItem['type']; duration: number; config?: SocialScreenConfig }[]>([]);
   const [isReconnecting, setIsReconnecting] = useState(false);
+  const [loadError, setLoadError] = useState<string | null>(null);
+  const [isLoading, setIsLoading] = useState(true);
 
   const fetchData = useCallback(async () => {
     try {
@@ -209,6 +211,7 @@ export default function PantallaPage() {
         getEventoEnVivoData(fiestaId),
       ]);
       setIsReconnecting(false);
+      setLoadError(null);
       
       if (fiestaData) {
         setFiesta(fiestaData);
@@ -225,6 +228,7 @@ export default function PantallaPage() {
               duration: item.durationSeconds,
               config: item.type === 'redes-sociales' ? fiestaData.socialScreenConfig : undefined,
             })));
+            setIsLoading(false);
             return; // skip rebuilding legacy slides when playlist is active
           }
         }
@@ -233,9 +237,12 @@ export default function PantallaPage() {
       // Only build legacy slides when not in playlist mode
       setSlides(buildSlides(eventoData));
       setData(eventoData);
-    } catch (error) {
+    } catch (error: any) {
       console.error("Error fetching live display data:", error);
       setIsReconnecting(true);
+      setLoadError(error.message || 'No se pudo conectar con el servidor.');
+    } finally {
+      setIsLoading(false);
     }
   }, [fiestaId]);
 
@@ -275,6 +282,17 @@ export default function PantallaPage() {
   }, [slides.length, playlistSlides.length]);
 
   const renderSlide = () => {
+    if (loadError && slides.length === 0 && playlistSlides.length === 0) {
+      return (
+        <div className="text-center text-rose-300 space-y-4 max-w-xl p-8 bg-black/80 rounded-3xl border-2 border-rose-500/50 shadow-2xl backdrop-blur-lg">
+          <div className="text-8xl animate-bounce">⚠️</div>
+          <h2 className="text-4xl font-black uppercase tracking-wider text-rose-400">Error de Conexión</h2>
+          <p className="text-xl text-zinc-200 leading-relaxed">{loadError}</p>
+          <p className="text-sm text-rose-400 font-bold uppercase tracking-widest">Intentando reconectar automáticamente...</p>
+        </div>
+      );
+    }
+
     if (playlistMode && playlistSlides.length > 0) {
       const playlistItem = playlistSlides[currentSlide];
       if (!playlistItem) return null;

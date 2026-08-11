@@ -7,6 +7,7 @@ import { defaultBudgetDisplaySettings, defaultInvoiceTemplateSettings, defaultCo
 import { readdir } from 'node:fs/promises';
 import path from 'node:path';
 import { verifySession } from '@/lib/auth/session-token';
+import { findInvalidWhatsAppTemplateMarkers } from '@/lib/whatsapp-template-markers';
 
 const BUDGET_SETTINGS_FILE = 'budget-display-settings.json';
 const INVOICE_SETTINGS_FILE = 'invoice-template-settings.json';
@@ -269,6 +270,17 @@ export async function saveContractTemplate(input: string | ContractTemplateItem)
   try {
     const auth = await verifySession();
     if (!auth.success) return { success: false, error: auth.error };
+
+    const templateText = typeof input === 'string' ? input : input.template || '';
+    const { marcadoresDesconocidos } = await import('@/lib/contratos/marcadores');
+    const desconocidos = marcadoresDesconocidos(templateText);
+    if (desconocidos.length > 0) {
+      return {
+        success: false,
+        error: `La plantilla contiene marcadores no válidos o desconocidos: ${desconocidos.join(', ')}.`,
+      };
+    }
+
     const now = new Date().toISOString();
     const templates = await getContractTemplates();
 
@@ -460,6 +472,16 @@ export async function saveWhatsAppTemplates(
     if (!auth.success) return { success: false, error: auth.error };
     const currentTemplates = await getWhatsAppTemplates();
     const templatesToSave: WhatsAppTemplates = { ...currentTemplates, ...templates };
+
+    const markerErrors = findInvalidWhatsAppTemplateMarkers(templatesToSave);
+    if (markerErrors.length > 0) {
+      const details = markerErrors.map(({ field, markers }) => `${field}: ${markers.join(', ')}`).join('; ');
+      return {
+        success: false,
+        error: `Las plantillas contienen marcadores no validos: ${details}.`,
+      };
+    }
+
     await writeData(WHATSAPP_TEMPLATES_FILE, templatesToSave);
     return { success: true, templates: templatesToSave };
   } catch (error: any) {

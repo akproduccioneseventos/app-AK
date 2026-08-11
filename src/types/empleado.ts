@@ -24,6 +24,8 @@ export interface ReciboFirmado {
   archivoNombre?: string;
   estado: 'pendiente' | 'pagado' | 'firmado_subido';
   notas?: string;
+  pagadoPor?: string;
+  pagadoEn?: string;
   createdAt: string;
   updatedAt: string;
 }

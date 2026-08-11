@@ -64,6 +64,10 @@ export async function triggerWhatsAppAutomation(
     ]);
 
     if (!settings.enabled) return { scheduled: 0, errors: [] };
+    if (!ctx.targetPhone?.trim()) {
+      errors.push(`Omite programacion para disparador ${trigger}: targetPhone esta vacio`);
+      return { scheduled: 0, errors };
+    }
 
     const rules = (settings.automationRules ?? []).filter(
       r => r.enabled && r.trigger === trigger

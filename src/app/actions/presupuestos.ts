@@ -22,6 +22,7 @@ import { normalizePresupuestoFinancials, roundMoney, validatePaymentAgainstBudge
 import type { FiestaEnPlanificacion } from '@/types/fiesta';
 import { initialFiestaActualData, defaultModulosContratados } from '@/lib/fiesta-defaults';
 import { triggerWhatsAppAutomation } from '@/lib/whatsapp-automation-engine';
+import { normalizeUruguayPhone } from '@/lib/commercial/contact';
 import * as logger from '@/lib/logger';
 import { forceDeleteDocFromFirestore, forceDeleteCollectionFromFirestore } from '@/lib/firebase-sync';
 import { verifySession } from '@/lib/auth/session-token';
@@ -245,10 +246,24 @@ export async function savePresupuesto(
     rolDestino: 'admin',
   }).catch(err => console.warn('Error creating budget notification:', err));
 
+  // Helper to resolve lead phone
+  const phone = await (async () => {
+    if ((nuevoPresupuesto as any).clienteTelefono) return normalizeUruguayPhone((nuevoPresupuesto as any).clienteTelefono);
+    if (nuevoPresupuesto.leadId) {
+      try {
+        const leads = await readData<any[]>('crm-leads.json', []);
+        const lead = leads.find((l) => l.id === nuevoPresupuesto.leadId);
+        if (lead?.telefono) return normalizeUruguayPhone(lead.telefono);
+      } catch {}
+    }
+    return '';
+  })();
+
   // Automation: fire presupuesto_generado rules (non-blocking)
   triggerWhatsAppAutomation('presupuesto_generado', {
     targetId: nuevoPresupuesto.leadId || presupuestoId,
     targetName: nuevoPresupuesto.clienteNombre,
+    targetPhone: phone,
     targetType: 'prospecto',
     leadId: nuevoPresupuesto.leadId,
     nombre: nuevoPresupuesto.clienteNombre,
@@ -844,9 +859,22 @@ export async function approvePresupuesto(
 
       // Automation: fire presupuesto_enviado rules (non-blocking)
       const p = presupuestos[index];
+      const sendPhone = await (async () => {
+        if ((p as any).clienteTelefono) return normalizeUruguayPhone((p as any).clienteTelefono);
+        if (p.leadId) {
+          try {
+            const leads = await readData<any[]>('crm-leads.json', []);
+            const lead = leads.find((l) => l.id === p.leadId);
+            if (lead?.telefono) return normalizeUruguayPhone(lead.telefono);
+          } catch {}
+        }
+        return '';
+      })();
+
       triggerWhatsAppAutomation('presupuesto_enviado', {
         targetId: p.leadId || presupuestoId,
         targetName: p.clienteNombre,
+        targetPhone: sendPhone,
         targetType: 'prospecto',
         leadId: p.leadId,
         nombre: p.clienteNombre,

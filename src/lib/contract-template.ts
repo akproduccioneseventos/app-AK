@@ -100,15 +100,26 @@ export function fillContractTemplate(vars: {
   salon?: string;
   montoSena?: string;
 }): string {
-  return CONTRACT_TEMPLATE
+  return replaceContractPlaceholders(CONTRACT_TEMPLATE, vars);
+}
+
+type ContractTemplateVars = Parameters<typeof fillContractTemplate>[0];
+
+function replaceContractPlaceholders(text: string, vars: ContractTemplateVars): string {
+  return text
     .replace(/\{\{CIUDAD_FECHA\}\}/g, vars.ciudadFecha ?? 'Salto')
+    .replace(/\{\{FECHA_HOY\}\}/g, vars.ciudadFecha ?? 'Salto')
     .replace(/\{\{CLIENTE_NOMBRE\}\}/g, vars.clienteNombre ?? '___________________')
     .replace(/\{\{CLIENTE_DOMICILIO\}\}/g, vars.clienteDomicilio ?? '___________________')
+    .replace(/\{\{CLIENTE_DIRECCION\}\}/g, vars.clienteDomicilio ?? '___________________')
     .replace(/\{\{CLIENTE_CI\}\}/g, vars.clienteCi ?? '___________________')
     .replace(/\{\{CLIENTE_TELEFONO\}\}/g, vars.clienteTelefono ?? '___________________')
     .replace(/\{\{FECHA_EVENTO\}\}/g, vars.fechaEvento ?? '___________________')
+    .replace(/\{\{EVENTO_FECHA\}\}/g, vars.fechaEvento ?? '___________________')
     .replace(/\{\{SALON\}\}/g, vars.salon ?? '___________________')
-    .replace(/\{\{MONTO_SENA\}\}/g, vars.montoSena ?? '___________________');
+    .replace(/\{\{EVENTO_SALON\}\}/g, vars.salon ?? '___________________')
+    .replace(/\{\{MONTO_SENA\}\}/g, vars.montoSena ?? '___________________')
+    .replace(/\{\{SENIA\}\}/g, vars.montoSena ?? '___________________');
 }
 
 import type { ContractSettings } from '@/types/settings';
@@ -127,15 +138,7 @@ export function buildContractFromSettings(
   }
 ): { title: string; intro: string; clauses: { title: string; content: string }[]; signerName: string; signerRole: string } {
   const replacePlaceholders = (text: string): string => {
-    return text
-      .replace(/\{\{CIUDAD_FECHA\}\}/g, vars.ciudadFecha ?? 'Salto')
-      .replace(/\{\{CLIENTE_NOMBRE\}\}/g, vars.clienteNombre ?? '___________________')
-      .replace(/\{\{CLIENTE_DOMICILIO\}\}/g, vars.clienteDomicilio ?? '___________________')
-      .replace(/\{\{CLIENTE_CI\}\}/g, vars.clienteCi ?? '___________________')
-      .replace(/\{\{CLIENTE_TELEFONO\}\}/g, vars.clienteTelefono ?? '___________________')
-      .replace(/\{\{FECHA_EVENTO\}\}/g, vars.fechaEvento ?? '___________________')
-      .replace(/\{\{SALON\}\}/g, vars.salon ?? '___________________')
-      .replace(/\{\{MONTO_SENA\}\}/g, vars.montoSena ?? '___________________');
+    return replaceContractPlaceholders(text, vars);
   };
 
   const activeClauses = settings.clauses

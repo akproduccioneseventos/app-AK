@@ -1,5 +1,6 @@
 import {
   buildInstagramUrl,
+  calculateActualStockMovement,
   getBarScheduleError,
   getDrinkDescription,
   getDrinkTags,
@@ -11,6 +12,12 @@ import {
 } from '@/lib/barra-tecnologica';
 
 describe('barra tecnologica helpers', () => {
+  it('registra solo la cantidad que realmente pudo descontar', () => {
+    expect(calculateActualStockMovement(1, 3)).toBe(1);
+    expect(calculateActualStockMovement(10, 3)).toBe(3);
+    expect(calculateActualStockMovement(0, 3)).toBe(0);
+  });
+
   it('uses custom drink descriptions when available', () => {
     expect(getDrinkDescription({
       nombre: 'Atomic Green',

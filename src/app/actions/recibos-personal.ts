@@ -39,6 +39,8 @@ function normalizeRecibo(raw: Partial<ReciboFirmado>): ReciboFirmado {
     archivoNombre: typeof raw.archivoNombre === 'string' ? raw.archivoNombre : undefined,
     estado: normalizeEstado(raw.estado),
     notas: typeof raw.notas === 'string' ? raw.notas : undefined,
+    pagadoPor: typeof raw.pagadoPor === 'string' ? raw.pagadoPor : undefined,
+    pagadoEn: typeof raw.pagadoEn === 'string' ? raw.pagadoEn : undefined,
     createdAt: typeof raw.createdAt === 'string' ? raw.createdAt : now,
     updatedAt: typeof raw.updatedAt === 'string' ? raw.updatedAt : now,
   };
@@ -74,6 +76,8 @@ export async function saveReciboFirmado(
     return { success: false, error: 'La fiesta es obligatoria.' };
   }
 
+  const username = permiso.user?.email || 'Administrador';
+
   return recibosMutex.runExclusive(async () => {
     const all = await getRecibosFirmados();
     const now = new Date().toISOString();
@@ -83,10 +87,16 @@ export async function saveReciboFirmado(
         (item.empleadoId === payload.empleadoId && item.fiestaId === payload.fiestaId)
     );
 
+    const auditFields = payload.estado === 'pagado' ? {
+      pagadoPor: (existingIndex >= 0 ? all[existingIndex].pagadoPor : undefined) || username,
+      pagadoEn: (existingIndex >= 0 ? all[existingIndex].pagadoEn : undefined) || now,
+    } : {};
+
     if (existingIndex >= 0) {
       const merged = normalizeRecibo({
         ...all[existingIndex],
         ...payload,
+        ...auditFields,
         updatedAt: now,
       });
       all[existingIndex] = merged;
@@ -96,6 +106,7 @@ export async function saveReciboFirmado(
 
     const nuevo = normalizeRecibo({
       ...payload,
+      ...auditFields,
       id: payload.id || generateReciboId(),
       createdAt: now,
       updatedAt: now,
