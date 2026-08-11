@@ -669,13 +669,19 @@ export default function Plataforma360Page() {
             {/* Slow Motion */}
             <div>
               <p className="text-xs font-bold text-slate-400 uppercase tracking-widest mb-3">Efecto</p>
-              <button
-                type="button"
-                className="flex w-full items-center justify-center gap-2 rounded-lg border border-purple-500 bg-purple-500/10 p-3 text-xs font-bold text-purple-300 transition"
+              {/*
+                No es un boton: la camara lenta se aplica siempre a todos los
+                videos de la plataforma. Estaba dibujado como boton y el operador
+                lo tocaba esperando prenderla o apagarla, y no pasaba nada. Ahora
+                es lo que siempre fue: un cartel que avisa que esta activa.
+              */}
+              <div
+                role="status"
+                className="flex w-full items-center justify-center gap-2 rounded-lg border border-purple-500 bg-purple-500/10 p-3 text-xs font-bold text-purple-300"
               >
                 <Zap className="w-4 h-4" />
                 Cámara Lenta (Slow Motion) Activada
-              </button>
+              </div>
             </div>
 
             {/* Remote commands */}
