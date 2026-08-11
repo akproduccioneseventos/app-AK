@@ -248,6 +248,67 @@ la versión principal. Es la única prueba que falla.
 
 ---
 
+## 13. La web le pide a Google que NO la muestre (PRIORIDAD MAXIMA)
+
+`public/robots.txt` dice textualmente `User-agent: *` / `Disallow: /`: ningun
+buscador indexa una sola pagina. El comentario del archivo explica el motivo: se
+trato la aplicacion como si fuera privada. Pero es la misma que sirve la portada,
+el catalogo, los simuladores y el blog, o sea todo el embudo de venta. Una
+auditoria externa le puso 2,5 sobre 10 a "web propia y buscadores"; esto solo lo
+explica.
+
+**Que hacer.**
+
+1. Borrar `public/robots.txt` y crear `src/app/robots.ts` que permita `/`,
+   `/catalogo/*`, `/public/*`, `/simulador*`, `/empresa/*`, y bloquee `/(app)/*`,
+   `/portal-cliente/*`, `/portal/*`, `/evento/*`, `/invitacion/*`, `/api/*`. El
+   archivo estatico pisa al generado: hay que borrarlo.
+2. Crear `src/app/sitemap.ts` con la portada, cada `/catalogo/[tipo]`, cada
+   `/public/[eventType]` y cada articulo del blog (`getBlogPosts()`).
+3. Titulo y descripcion propios donde faltan. Son `'use client'`, asi que no pueden
+   declarar `metadata`: agregarles un `layout.tsx` hermano con `generateMetadata`,
+   como ya hace `src/app/simulador-ak/layout.tsx` (**usar de modelo, no tocarlo**).
+   - `src/app/simulador/page.tsx` — no es un simulador: es la pantalla que ofrece
+     elegir entre "Armado Rapido" y "Conversar con Sofia IA". Es la puerta de
+     entrada y la mas importante para aparecer en buscadores.
+   - `src/app/simulador-de-presupuesto/page.tsx` — armado rapido.
+   - `src/app/catalogo/[tipo]/page.tsx` — un titulo por tipo de fiesta.
+   Los titulos tienen que decir "Salto, Uruguay": asi busca la gente.
+4. `src/app/public/[eventType]/page.tsx` tiene metadata pero solo titulo y
+   descripcion. Agregar `openGraph` con imagen y `canonical`.
+
+**Verificar:** `npm run build`, y que `/robots.txt` y `/sitemap.xml` respondan bien
+sin bloquear lo publico.
+
+**Falsa alarma, no perder tiempo:** la pagina por articulo del blog SI existe
+(`src/app/public/blog/[slug]/page.tsx`).
+
+---
+
+## 14. La medicion esta instalada pero no mide nada
+
+La otra nota mas baja de la auditoria externa, tambien 2,5 sobre 10. Hoy el dueno
+no puede responder "de donde me llegan los que pagan" ni "en que momento los
+pierdo".
+
+1. **Prender la medicion.** `src/lib/analytics-ga.ts` define `trackGaEvent()` y
+   **nadie la llama en toda la aplicacion**; ademas `NEXT_PUBLIC_GA_MEASUREMENT_ID`
+   esta vacio. Llamarla en los momentos que importan: abrir el simulador, completar
+   cada paso, generar el presupuesto, tocar WhatsApp, abrir el catalogo. Dejar
+   anotado que hay que cargar el codigo de medicion en el entorno.
+2. **Medir el abandono del simulador.** En
+   `src/app/simulador-de-presupuesto/page.tsx` el paso vive en la variable `step`.
+   Registrar cada avance (1→2, 2→3, ...) con el mismo identificador de visitante que
+   ya se usa para el lead. Sin eso solo se conoce a quien llego hasta el final.
+3. **Mostrar de donde vienen.** `acquisition.source` **ya se captura y ya se
+   guarda** en el lead y en el presupuesto, pero `src/app/actions/analytics.ts` no
+   lo agrupa nunca. Agregar a `getAnalyticsData()` un corte por fuente: prospectos y
+   presupuestos aceptados por cada origen, y mostrarlo en `/analytics`.
+4. `src/lib/analytics/looker-export.ts` mira la fuente solo para WhatsApp e ignora
+   el resto. Desglosar por todas.
+
+---
+
 ## Cómo verificar al terminar
 
 1. `npx tsc --noEmit` → 0 errores
