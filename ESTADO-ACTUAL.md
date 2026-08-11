@@ -3,9 +3,10 @@
 Ultima actualizacion: 11 de agosto de 2026.
 
 Rama: `release/final-11ago`.
-PR abierta: `#941` contra `main`.
+PR #941: fusionada con el bloque inicial de lanzamiento.
+PR abierta: `#942` contra `main`, con la validacion y correcciones posteriores.
 Base publicada antes de esta continuacion: `80384e07052a4245ef70a81bc69f044859e34c11`.
-Candidato validado: el `HEAD` actual de la PR #941 una vez publicado.
+Candidato validado: el `HEAD` actual de la PR #942.
 
 ## Hecho y comprobado en la PR #941
 
@@ -32,7 +33,7 @@ Candidato validado: el `HEAD` actual de la PR #941 una vez publicado.
 - Jest focalizado: 13 suites y 143/143 pruebas aprobadas.
 - `git diff --check` y busqueda de secretos: aprobados.
 - Graphify: 7.801 nodos, 28.664 relaciones y 377 comunidades.
-- PR #941: GitHub la informa fusionable y sin conflictos.
+- PR #941: fusionada. La diferencia posterior queda aislada en la PR #942.
 
 ## Limitaciones aceptadas
 

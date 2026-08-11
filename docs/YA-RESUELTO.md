@@ -660,10 +660,11 @@ Verificado y cerrado el 9 de agosto de 2026.
   20 archivos parcialmente interpretados, pero TypeScript sí compiló todo el
   proyecto; se registra como limitación del índice, no como aprobación omitida.
 
-## Continuacion de lanzamiento sobre la PR #941
+## Continuacion de lanzamiento iniciada en la PR #941
 
-- **La PR existe y no tiene conflictos.** `release/final-11ago` esta publicada en
-  la PR `#941`; GitHub la informa fusionable sobre `main`.
+- **La PR #941 fue fusionada durante la validacion.** Contiene el bloque inicial
+  hasta `80384e07`. Las correcciones y evidencia producidas despues quedaron en
+  la PR `#942`, porque GitHub no permite agregar commits a una PR fusionada.
 - **El rojo de GitHub es una limitacion aceptada.** Firestore rules, CI, browser
   smoke y CodeQL no ejecutaron pasos: GitHub anoto bloqueo de cuenta por
   facturacion. El dueno no agregara tarjeta. No se corrige con codigo.
@@ -671,8 +672,8 @@ Verificado y cerrado el 9 de agosto de 2026.
   `ESTADO-ACTUAL.md` como matriz. Solo se vuelven a ejecutar controles necesarios
   para build, E2E, Firebase, roles, integraciones, entretenimiento, visual y
   rendimiento que aun no tengan evidencia de lanzamiento.
-- **Toda correccion nueva permanece en la #941.** No se crea una PR duplicada; se
-  documenta el fallo reproducido, la correccion y su prueba en esta seccion.
+- **La continuacion tiene una sola PR abierta: #942.** No crear otra propuesta
+  paralela; documentar ahi el fallo reproducido, la correccion y su prueba.
 - **El build de produccion es reproducible.** Sobre el commit publicado
   `80384e07052a4245ef70a81bc69f044859e34c11`, Next genero las 265 paginas y
   termino con codigo 0 en 9 minutos 44 segundos. Las advertencias encontradas se
