@@ -473,6 +473,43 @@ fiesta en vivo ya se ve.
 
 ---
 
+## 23. Fase de organizacion: el trabajo de la clienta se pierde
+
+Ella carga cosas largas desde el celular, entre otras cosas. Si se va de la
+pantalla sin tocar "Guardar", pierde todo y no se entera hasta que vuelve.
+
+**23.1 La lista de musica.** `src/app/portal-cliente/[id]/musica/page.tsx:34-64`
+
+Arma las tres listas (imprescindibles, si es posible, no quiero) y todo queda en la
+pantalla hasta que toca Guardar. Si recarga, cierra la pestana o se le corta la
+senal, se pierde entero. Es lo mas largo de cargar de todo el portal.
+
+**23.2 Las restricciones del menu.**
+`src/app/portal-cliente/[id]/menu/page.tsx:26, 118-121`
+
+Escribe las alergias y restricciones en un cuadro de texto. Si recarga antes de
+guardar, desaparece sin aviso. Y son datos que importan: un celiaco mal anotado es
+un problema el dia de la fiesta.
+
+**Que hacer en las dos.** Avisar antes de salir cuando hay cambios sin guardar
+(`beforeunload` y aviso al navegar), y mostrar en pantalla un cartel de "tenes
+cambios sin guardar" mientras los haya. Si se puede, guardar solo cada tantos
+segundos.
+
+**23.3 El menu confirmado no aclara que se reemplaza.**
+`src/app/portal-cliente/[id]/menu/page.tsx:127-131`
+
+Dice "Confirmado el [fecha]" pero deja cambiar y guardar de nuevo, sin decir que lo
+nuevo pisa lo anterior. Agregar el aviso: "si guardas ahora, reemplazas lo que
+elegiste antes".
+
+**FALSA ALARMA, no perder tiempo:** se reporto que el refresco automatico cada 4
+segundos del centro del muro le revierte los cambios de diseno sin guardar. **Es
+falso**: ese refresco llama solo a `loadPosts()`, que actualiza las fotos y no toca
+los campos de diseno (`muro-social/page.tsx:189-196`). Verificado.
+
+---
+
 ## Cómo verificar al terminar
 
 1. `npx tsc --noEmit` → 0 errores
