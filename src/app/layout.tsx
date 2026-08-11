@@ -59,6 +59,7 @@ export const viewport: Viewport = {
 };
 
 export const metadata: Metadata = {
+  metadataBase: new URL('https://akproducciones.uy'),
   title: 'AK Producciones',
   description: 'Plataforma integral para la planificación y gestión de eventos de AK Producciones.',
   manifest: '/manifest.webmanifest',

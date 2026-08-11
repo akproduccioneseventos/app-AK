@@ -89,6 +89,18 @@ test('public homepage fits the viewport without horizontal overflow', async ({ p
     scrollWidth: document.documentElement.scrollWidth,
   }));
   expect(overflow.scrollWidth).toBeLessThanOrEqual(overflow.clientWidth + 1);
+
+  if ((page.viewportSize()?.width ?? 1280) < 640) {
+    await page.waitForTimeout(500);
+    await page.evaluate(() => {
+      window.scrollTo(0, 800);
+      window.dispatchEvent(new Event('scroll'));
+    });
+    const floatingActions = page.getByTestId('public-floating-actions');
+    await expect(floatingActions).toBeVisible();
+    const floatingBox = await floatingActions.boundingBox();
+    expect(floatingBox?.height).toBeLessThanOrEqual(64);
+  }
 });
 
 test('secondary public navigation returns to the matching homepage section', async ({ page }) => {

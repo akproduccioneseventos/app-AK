@@ -144,7 +144,7 @@ function PlannerGastronomicoFiestaContent() {
     } finally {
       setIsLoading(false);
     }
-  }, [toast, fiestaId, searchParams]);
+  }, [toast, fiestaId, token]);
 
   useEffect(() => {
     loadData();

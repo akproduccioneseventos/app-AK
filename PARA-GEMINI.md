@@ -1,17 +1,31 @@
-# Traspaso para Gemini
+# Traspaso para Gemini, Claude y otros agentes
 
-Última revisión: 11 de agosto de 2026.
+Ultima revision: 11 de agosto de 2026.
 
-Los bloques anteriores de este archivo ya fueron implementados y verificados. No
-deben ejecutarse de nuevo.
-
-La tanda actual vive en `release/final-11ago`. Antes de proponer cambios, leer:
+Trabajar sobre `release/final-11ago`, PR `#941`. Antes de investigar, leer:
 
 1. `ESTADO-ACTUAL.md`
 2. `docs/YA-RESUELTO.md`
-3. El diff actual contra `main`
+3. El diff de la PR #941 contra `main`
 
-No hay una nueva orden de programación pendiente para Gemini. Si se revisa esta
-rama, buscar solamente regresiones concretas del diff y no reabrir auditorías
-históricas. Los 19 eventos reales se controlan desde Auditoría contra Firebase;
-los JSON locales vacíos no son evidencia contable.
+## No repetir
+
+- No reabrir arreglos marcados como hechos en esos documentos.
+- No tratar el rojo de GitHub Actions como error de codigo: los jobs no arrancan
+  por facturacion y el dueno no agregara tarjeta.
+- No declarar correctos los 19 eventos usando JSON locales vacios.
+- No inventar publicaciones de Instagram/Facebook, pagos, correos ni resultados
+  de proveedores que no hayan respondido realmente.
+- No crear otra PR para la misma auditoria. Los hallazgos reales van a la #941.
+
+## Trabajo activo
+
+La matriz local de lanzamiento ya fue ejecutada sobre el candidato de la #941:
+build productivo, E2E interno, Firebase Emulator, autenticacion, simulador,
+experiencias publicas, entretenimiento, visual PC/celular y rendimiento
+representativo. No repetirla si el SHA no cambia.
+
+Quedan solo comprobaciones que requieren el entorno real: los 19 eventos en
+Firebase, respuesta efectiva de Gmail/Instagram/Mercado Pago/Gemini y hardware
+del salon. Reportar aprobaciones en una linea y detallar solamente fallos
+reproducidos, fricciones y mejoras de valor.

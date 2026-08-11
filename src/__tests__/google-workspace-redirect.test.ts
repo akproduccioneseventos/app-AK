@@ -1,5 +1,6 @@
 import {
   findExistingGoogleCalendarEvent,
+  getMissingGoogleConfig,
   getGoogleRedirectUri,
   getPublicAppOrigin,
   getSafeGoogleReturnPath,
@@ -24,6 +25,14 @@ describe('Google Workspace public redirects', () => {
     expect(getGoogleRedirectUri('https://0.0.0.0:8080')).toBe(
       'https://akproducciones.uy/api/google/oauth/callback'
     );
+  });
+
+  it('rejects a missing or non-navigable public origin before starting OAuth', () => {
+    delete process.env.NEXT_PUBLIC_APP_URL;
+
+    expect(getMissingGoogleConfig()).toContain('NEXT_PUBLIC_APP_URL');
+    expect(getMissingGoogleConfig('https://0.0.0.0:8080')).toContain('NEXT_PUBLIC_APP_URL');
+    expect(getMissingGoogleConfig('http://localhost:3000')).not.toContain('NEXT_PUBLIC_APP_URL');
   });
 
   it('only accepts local return paths', () => {
