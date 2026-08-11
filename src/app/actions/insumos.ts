@@ -153,7 +153,17 @@ export async function adjustAllInsumoCosts(
   if (isNaN(percentage) || percentage === 0) {
     return { success: false, error: "El porcentaje debe ser un número distinto de cero." };
   }
-  
+  // Los mismos dos topes que ya tenian los servicios. Sin ellos, un -200 daba
+  // vuelta el signo y todo el catalogo de insumos quedaba en negativo; y un 5000
+  // mal tipeado (en vez de 50) multiplicaba los costos por cincuenta y uno.
+  if (percentage <= -100) {
+    return { success: false, error: 'No se puede bajar los costos un 100% o más: quedarían en cero o en negativo.' };
+  }
+  if (percentage > 1000) {
+    return { success: false, error: 'El ajuste no puede superar el 1000%. Revisá el número que pusiste.' };
+  }
+
+
   try {
     invalidateInsumosCache();
     const inventario = await getInsumos();
