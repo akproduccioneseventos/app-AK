@@ -309,6 +309,32 @@ pierdo".
 
 ---
 
+## 15. Devolver al stock exactamente lo que se saco (queda de la propuesta 929)
+
+`src/app/actions/fiesta/barra-tecnologica.actions.ts`
+
+La propuesta 929 dejo el descuento de stock una sola vez, al crear el pedido, y la
+devolucion al cancelarlo. Falta un detalle que **inventa stock**:
+
+Si al crear el pedido no habia suficiente insumo, el descuento se recorta a cero.
+Pero al cancelar se devuelve la cantidad ENTERA de la receta. Ejemplo: habia 0,03,
+la receta pedia 0,05, quedo en 0; al cancelar sube a 0,05. Aparecieron 0,02 que
+nunca existieron.
+
+**Que hacer.** Guardar en el pedido cuanto se descontó de verdad de cada insumo
+(por ejemplo un campo `stockDescontado` con la lista de insumo y cantidad), y al
+cancelar devolver exactamente eso, no la receta.
+
+Eso resuelve tambien el segundo caso: si el pedido cambia de trago entre que se
+crea y se cancela, hoy se devolveria la receta del trago nuevo mientras quedan
+descontados los ingredientes del viejo. Guardando lo realmente descontado, la
+devolucion siempre coincide.
+
+**Pruebas:** con stock insuficiente, crear y cancelar deja el stock igual que al
+principio; con stock suficiente tambien.
+
+---
+
 ## Cómo verificar al terminar
 
 1. `npx tsc --noEmit` → 0 errores
