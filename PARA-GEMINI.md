@@ -254,20 +254,42 @@ la versión principal. Es la única prueba que falla.
 
 Los paquetes reales de AK son **Basico, Intermedio y Premium**. La web publica
 ofrece **Basico, Premium y Elite**. "Elite" no existe en el negocio y falta
-"Intermedio". Un cliente puede preguntar por un paquete que no se vende, y el que
-busca el Intermedio no lo encuentra.
+"Intermedio".
 
-**Que hacer. Renombrar UNICAMENTE. El contenido de cada paquete lo armo el dueno:
-no tocar que incluye ninguno, ni el orden, ni los servicios.**
+**Renombrar UNICAMENTE lo que el cliente ve. El contenido de cada paquete lo armo
+el dueno: no tocar que incluye ninguno, ni el orden, ni los servicios.**
+
+Cambios en `src/data/event-catalogs/shared.ts`:
 
 - linea 30: `Paquete Premium` -> `Paquete Intermedio`
 - linea 46: `Paquete Elite` -> `Paquete Premium`
 - linea 17: `Paquete Basico` queda igual
+- **linea 49**: dentro del tercer paquete dice `'Todo lo del Paquete Premium'`.
+  Despues del renombre ese paquete ES el Premium, o sea que diria que se incluye a
+  si mismo. Cambiar a `'Todo lo del Paquete Intermedio'`.
 - linea 251: "paquetes Premium y Elite" -> "paquetes Intermedio y Premium"
-- Las demas menciones de "Elite" en `src/` (14 en total).
 
-No cambiar los identificadores internos (`id`) si hay presupuestos guardados que
-los referencian: cambiar solo el nombre visible.
+**PELIGRO, no hacer un reemplazo global de "Elite".** Hay otros catalogos con las
+mismas tarjetas (`bodas.ts`, `xv-anos.ts`, etc.): esos si van.
+
+Pero **NO tocar** los siguientes, donde "Elite" es un valor interno guardado en
+datos, no un texto que se muestre:
+
+- `src/types/feature-flags.ts` (`ServiceTier = 'Basico' | 'Premium' | 'Elite'`,
+  `availableFrom`, `tier`)
+- `src/app/actions/feature-flags.ts`
+- `src/data/feature-flags.json`
+
+Ahi los valores guardados se comparan exactos contra `TIER_DEFINITIONS` en
+`isModuleEnabled`. Si se renombran sin migrar los datos existentes, dejan de
+coincidir y **todos los modulos quedan apagados**.
+
+Tampoco cambiar los identificadores internos (`id`) de las tarjetas si hay
+presupuestos guardados que los referencian: cambiar solo el nombre visible.
+
+**Verificar:** que no quede ningun texto visible con "Elite", que
+`src/types/feature-flags.ts` siga igual, y que los modulos sigan habilitandose
+(`npx jest`).
 
 ---
 
@@ -280,13 +302,24 @@ falle ahi, falla delante de alguien que esta por firmar.
 **17.1 El total no suma el menu.** `slides/cierre-slide.tsx:80`
 
 `totalEstimado` suma solo los servicios. El menu elegido se busca en la linea 79 y
-se muestra en pantalla en la 157, pero su precio nunca entra en el total. Con un
-menu de cien personas, el numero que ve el cliente esta miles de pesos por debajo
-del real, y hay que corregirlo para arriba delante de el.
+se muestra en pantalla en la 157, pero su precio nunca entra en el total. El numero
+que ve el cliente esta miles de pesos por debajo del real, y hay que corregirlo
+para arriba delante de el.
 
-Sumar el menu (precio por persona x invitados) y mostrar el total desglosado:
-servicios + menu = total. Si la cantidad de invitados no esta en la diapositiva,
-pasarla como propiedad desde la presentacion.
+**Ojo, no alcanza con multiplicar un menu por el total de invitados.** La
+presentacion maneja adultos y menores por separado, y cada grupo puede tener su
+propio menu elegido. El total tiene que ser:
+
+- menu de adultos x cantidad de adultos
+- mas menu de adolescentes x cantidad de menores
+- mas los servicios, respetando los que se cobran por persona en vez de precio fijo
+
+Y ese mismo total tiene que usarse tambien en `slides/plan-pagos-slide.tsx`, que
+hoy hace su propia suma solo con precios fijos: si no, la diapositiva de cierre y
+la del plan de pagos le muestran al cliente dos numeros distintos. Calcularlo una
+sola vez y pasarlo a las dos.
+
+Mostrar el total desglosado: menus + servicios = total.
 
 **17.2 Se cuelga si falla la conexion.** `page.tsx:170-197`
 
