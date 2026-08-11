@@ -510,6 +510,50 @@ los campos de diseno (`muro-social/page.tsx:189-196`). Verificado.
 
 ---
 
+## 24. Fase en vivo: la cuenta de dias y los toques sin vuelta atras
+
+**24.1 La cuenta de dias no usa la hora de Uruguay.**
+`src/lib/client-portal/access-phases.ts:17-31`
+
+`parseEventDate` hace `new Date("AAAA-MM-DDT00:00:00")` sin zona horaria: eso es
+medianoche **del servidor**, no de Uruguay. En un servidor en horario universal,
+esa medianoche son las 21 del dia anterior aca. Con eso, `daysUntilEvent` puede dar
+un dia de mas o de menos, y la fase en vivo se abre o se cierra un dia corrido.
+
+Es el mismo error de fechas que ya se corrigio en las invitaciones. Usar
+`getUruguayParts()` de `src/lib/utils.ts`, o `parseEventDate` de
+`src/lib/public-experience/event-date.ts`, que ya resuelven esto.
+
+**24.2 Despues de la fiesta sigue diciendo "Fiesta en vivo".**
+`access-phases.ts:29-31` y
+`src/app/portal/c/[accessKey]/PublicPortalClientExperience.tsx:1586`
+
+Cuando la fiesta paso, `daysUntilEvent` se vuelve negativo y la condicion
+`daysUntilEvent <= liveDays` queda verdadera para siempre. Que el portal siga
+abierto esta bien —la clienta quiere ver las fotos despues—, pero el cartel sigue
+diciendo "fiesta en vivo" meses despues.
+
+**Que hacer.** Agregar una cuarta etapa, "despues de la fiesta": mismo acceso, pero
+el texto cambia a recuerdos y fotos, y se sacan los controles que ya no sirven
+(sorteo, marquesina, forzar contenido en la pantalla gigante).
+
+**24.3 Rechazar una foto no pide confirmacion.**
+`src/app/portal-cliente/[id]/muro-social/page.tsx:848, 854`
+
+"Rechazar" y "Ocultar de la Pantalla" se aplican al toque. Esa noche ella modera
+desde el celular, apurada y con la fiesta encima: un toque mal dado saca una foto y
+no hay como volver atras rapido.
+
+Pedir confirmacion, o mejor: dejar deshacer durante unos segundos con un aviso
+("foto ocultada — deshacer"), que es mas rapido que confirmar cada una.
+
+**24.4 No tiene a mano cuanta gente llego.** Durante la fiesta, el centro del muro
+tiene moderacion, sorteo, musica y dedicatorias, pero no muestra cuantos invitados
+entraron. Es lo primero que pregunta la duena de la fiesta esa noche. El dato ya
+existe (`checkedIn` de cada invitado, sumando `partySize`): falta mostrarlo ahi.
+
+---
+
 ## Cómo verificar al terminar
 
 1. `npx tsc --noEmit` → 0 errores
