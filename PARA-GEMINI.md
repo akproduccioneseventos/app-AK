@@ -3,6 +3,10 @@
 Auditoría del 5 de agosto de 2026. Todo lo de abajo está verificado leyendo el
 código: archivo y línea reales, no suposiciones.
 
+**Revisado el 11 de agosto contra la versión principal: los doce puntos siguen
+abiertos, ninguno está hecho.** Los dos primeros son los que cuestan plata todos
+los días.
+
 La app está sana: compila, 1378 pruebas unitarias en verde, 92 de navegador en
 verde, 20 de seguridad de la base en verde.
 
@@ -219,6 +223,28 @@ Si hay una discusión con un empleado, no hay con qué respaldarse.
 
 **Qué hacer.** Guardar quién y cuándo al marcar un recibo como pagado, y mostrarlo
 en la ficha del recibo.
+
+---
+
+## 12. Un botón que no hace nada en la plataforma 360
+
+`src/app/evento/plataforma-360/[fiestaId]/page.tsx:672`
+
+Hay un `<button>` sin `onClick`, sin `type="submit"` y fuera de un formulario. El
+texto dice "Cámara Lenta (Slow Motion) Activada": es un indicador de estado
+disfrazado de botón. El operador lo toca esperando que haga algo y no pasa nada.
+
+Hoy tiene la prueba `src/__tests__/interactive-control-boundary.test.ts` en rojo en
+la versión principal. Es la única prueba que falla.
+
+**Qué hacer.** Decidir cuál de las dos cosas es:
+
+- Si sólo informa que la cámara lenta está activada, no debe ser un `<button>`:
+  cambiarlo por un `<div>` o `<span>` con el mismo estilo.
+- Si tiene que poder prenderse y apagarse, agregarle el `onClick` que cambia el
+  estado, y que el texto diga si está activada o no.
+
+**Verificar:** `npx jest src/__tests__/interactive-control-boundary.test.ts`
 
 ---
 
