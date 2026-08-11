@@ -1,5 +1,6 @@
 import { NextResponse } from 'next/server';
 import { ejecutarEscaneoDeRecordatorios } from '@/app/actions/invoices';
+import { WHATSAPP_AUTOMATION_INTERNAL_TOKEN } from '@/lib/whatsapp/internal-token';
 
 /**
  * Dispara los recordatorios de pago vencido y por vencer.
@@ -22,9 +23,7 @@ export async function POST(request: Request) {
 
 async function correrTarea(request: Request) {
   try {
-    const { searchParams } = new URL(request.url);
-    const clave =
-      searchParams.get('secret') || request.headers.get('Authorization')?.replace('Bearer ', '');
+    const clave = request.headers.get('Authorization')?.replace(/^Bearer\s+/i, '');
     const claveEsperada = process.env.CRON_SECRET;
 
     if (!claveEsperada) {
@@ -38,7 +37,7 @@ async function correrTarea(request: Request) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
 
-    const resultado = await ejecutarEscaneoDeRecordatorios();
+    const resultado = await ejecutarEscaneoDeRecordatorios(WHATSAPP_AUTOMATION_INTERNAL_TOKEN);
 
     return NextResponse.json({
       ok: resultado.success,

@@ -5,7 +5,8 @@ import type { SocialPost } from '@/types/social-media';
 import { readData, writeData } from '@/lib/data-service';
 import fs from 'fs/promises';
 import path from 'path';
-import { requireAppSession } from '@/lib/auth/require-session';
+import { requirePermiso } from '@/lib/auth/require-session';
+import { PERMISOS } from '@/lib/auth/perfiles';
 import { MARKETING_AUTOMATION_INTERNAL_TOKEN } from '@/lib/marketing/internal-token';
 import { getPublicInstagramFeed } from '@/lib/instagram/public-feed';
 import { classifyGalleryCategories } from '@/components/landing/gallery-media-utils';
@@ -31,17 +32,19 @@ async function ensureDataDirectoriesExist() {
 ensureDataDirectoriesExist();
 
 export async function getSocialPosts(): Promise<SocialPost[]> {
+  const permiso = await requirePermiso(PERMISOS.CRM);
+  if (!permiso.ok) return [];
   return readData<SocialPost[]>(POSTS_FILE, []);
 }
 
 export async function saveSocialPost(
   formData: FormData
 ): Promise<{ success: boolean; post?: SocialPost; error?: string }> {
-  await requireAppSession();
+  const permiso = await requirePermiso(PERMISOS.CRM);
+  if (!permiso.ok) return { success: false, error: permiso.error };
   let posts = await getSocialPosts();
   const postId = (formData.get('id') as string) || `post_${Date.now()}_${Math.random().toString(36).substring(2, 9)}`;
   const mediaFile = formData.get('mediaFile') as File | null;
-  const autoPublish = formData.get('autoPublish') === 'true';
 
   let mediaUrl: string | undefined = formData.get('existingMediaUrl') as string || undefined;
   let mediaType: 'image' | 'video' | undefined = formData.get('existingMediaType') as 'image' | 'video' || undefined;
@@ -69,7 +72,7 @@ export async function saveSocialPost(
     publishDate: formData.get('publishDate') as string,
     text: formData.get('text') as string,
     link: formData.get('link') as string || undefined,
-    status: autoPublish ? 'Publicado' : (formData.get('status') as SocialPost['status']),
+    status: (formData.get('status') as SocialPost['status']) || 'Programado',
     promotionCost: Number(formData.get('promotionCost')) || undefined,
     performance: {
         likes: Number(formData.get('performance.likes')) || undefined,
@@ -91,17 +94,14 @@ export async function saveSocialPost(
     posts.push(finalPost);
   }
   
-  if (autoPublish) {
-    console.log(`[SocialMedia] Auto-published post ${postId} to ${finalPost.platform}.`);
-  }
-
   await writeData(POSTS_FILE, posts, (a, b) => new Date(b.publishDate).getTime() - new Date(a.publishDate).getTime());
   return { success: true, post: finalPost };
 }
 
 
 export async function deleteSocialPost(postId: string): Promise<{ success: boolean, error?: string }> {
-  await requireAppSession();
+  const permiso = await requirePermiso(PERMISOS.CRM);
+  if (!permiso.ok) return { success: false, error: permiso.error };
   let posts = await getSocialPosts();
   const postToDelete = posts.find(p => p.id === postId);
 
@@ -132,7 +132,10 @@ export async function syncInstagramPosts(
   internalToken?: symbol
 ): Promise<{ success: boolean; photosCount: number; videosCount: number; plannerCount: number; error?: string }> {
   if (internalToken !== MARKETING_AUTOMATION_INTERNAL_TOKEN) {
-    await requireAppSession();
+    const permiso = await requirePermiso(PERMISOS.CRM);
+    if (!permiso.ok) {
+      return { success: false, photosCount: 0, videosCount: 0, plannerCount: 0, error: permiso.error };
+    }
   }
   try {
     // 1. Obtener la conexión de Instagram si está configurada (fallback a posts por defecto)

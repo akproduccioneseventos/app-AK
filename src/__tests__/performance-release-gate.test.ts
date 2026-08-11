@@ -30,6 +30,8 @@ describe("performance release gate", () => {
     expect(styles).toContain("content-visibility: auto");
     expect(youtube).toContain("AbortSignal.timeout(2500)");
     expect(landingPage).toContain("withPublicFallback(getSalones(), [])");
+    expect(landingPage).toContain("export const revalidate = 300");
+    expect(landingPage).not.toContain("searchParams?: Promise");
     expect(clubPage).toContain("getSalonesWithoutBlockingSale");
   });
 

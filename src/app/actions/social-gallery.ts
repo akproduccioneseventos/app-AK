@@ -431,7 +431,7 @@ export async function uploadSocialPost(
       true
     );
 
-    const requireApproval = fiestaData?.socialGallerySettings?.requireApproval === true;
+    const requireApproval = fiestaData?.socialGallerySettings?.requireApproval !== false;
     // Los videos no los puede revisar el analisis automatico, que mira imagenes
     // fijas. Van siempre a aprobacion: es la unica forma de que no aparezca algo
     // indebido en la pantalla grande delante de toda la fiesta.
@@ -512,7 +512,10 @@ async function persistSocialMediaPostFromUrl(
     // revisar solo: los videos, y las fotos cuando el analisis automatico no
     // estuvo disponible. En ese caso queda esperando el visto bueno en vez de
     // salir directo a la pantalla grande.
-    const esperaAprobacion = review.status === 'pending_review' || input.revisionManual === true;
+    const fiesta = await getFiestaById(input.fiestaId);
+    if (!fiesta) return { success: false, error: 'Fiesta no encontrada.' };
+    const requireApproval = fiesta.socialGallerySettings?.requireApproval !== false;
+    const esperaAprobacion = requireApproval || review.status === 'pending_review' || input.revisionManual === true;
     const newPost: SocialGalleryPost = {
       id: postId,
       fiestaId: input.fiestaId,

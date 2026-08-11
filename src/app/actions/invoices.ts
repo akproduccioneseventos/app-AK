@@ -15,6 +15,9 @@ import { calcularAvisosPendientes } from '@/lib/cobros/escaneo-recordatorios';
 import { triggerWhatsAppAutomation } from '@/lib/whatsapp-automation-engine';
 import { getScheduledMessages } from '@/app/actions/scheduled-messages';
 import { invoiceMoneyTolerance, roundInvoiceMoney } from '@/lib/invoice-money';
+import { requirePermiso } from '@/lib/auth/require-session';
+import { PERMISOS } from '@/lib/auth/perfiles';
+import { WHATSAPP_AUTOMATION_INTERNAL_TOKEN } from '@/lib/whatsapp/internal-token';
 import {
   buildDepositPaymentBreakdown,
   mapDepositMethodToBudgetMethod,
@@ -639,10 +642,16 @@ function parseDateStringLocal(dateStr: string): Date {
  * equipo (con sesion) y la tarea programada (con su clave). La decision de a
  * quien avisar vive en `escaneo-recordatorios.ts`, aparte, para poder probarla.
  */
-export async function ejecutarEscaneoDeRecordatorios(): Promise<{ success: boolean; triggeredCount: number; errors: string[] }> {
+export async function ejecutarEscaneoDeRecordatorios(
+  internalToken?: symbol,
+): Promise<{ success: boolean; triggeredCount: number; errors: string[] }> {
+  if (internalToken !== WHATSAPP_AUTOMATION_INTERNAL_TOKEN) {
+    const permiso = await requirePermiso(PERMISOS.CONTABILIDAD);
+    if (!permiso.ok) return { success: false, triggeredCount: 0, errors: [permiso.error] };
+  }
   const [invoices, scheduledMessages] = await Promise.all([
     getInvoices(),
-    getScheduledMessages().catch(() => [])
+    getScheduledMessages(internalToken).catch(() => [])
   ]);
 
   const avisos = calcularAvisosPendientes(invoices, scheduledMessages, {
@@ -666,7 +675,7 @@ export async function ejecutarEscaneoDeRecordatorios(): Promise<{ success: boole
       link: `${process.env.NEXT_PUBLIC_APP_URL || ''}/portal/${inv.sourceFiestaId || ''}`,
     };
 
-    const result = await triggerWhatsAppAutomation(trigger, ctx);
+    const result = await triggerWhatsAppAutomation(trigger, ctx, internalToken);
     if (result.scheduled > 0) triggeredCount += result.scheduled;
     if (result.errors.length > 0) errors.push(...result.errors);
   }

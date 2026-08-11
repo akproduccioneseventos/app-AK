@@ -2,12 +2,15 @@
 
 import type { AprobacionRequest, EstadoAprobacion } from '@/types/approval';
 import { readData, writeData } from '@/lib/data-service';
-import { requireAppSession } from '@/lib/auth/require-session';
+import { requirePermiso } from '@/lib/auth/require-session';
 import { verifySession } from '@/lib/auth/session-token';
+import { PERMISOS } from '@/lib/auth/perfiles';
 
 const APROBACIONES_FILE = 'aprobaciones.json';
 
 export async function getAprobaciones(fiestaId?: string): Promise<AprobacionRequest[]> {
+  const permiso = await requirePermiso(PERMISOS.ORGANIZACION);
+  if (!permiso.ok) return [];
   const all = await readData<AprobacionRequest[]>(APROBACIONES_FILE, []);
   if (fiestaId) return all.filter(a => a.fiestaId === fiestaId);
   return all;
@@ -21,7 +24,8 @@ export async function getAprobacionById(id: string): Promise<AprobacionRequest |
 export async function createAprobacion(
   data: Omit<AprobacionRequest, 'id' | 'solicitadoEn' | 'estadoAprobacion' | 'version'>
 ): Promise<{ success: boolean; aprobacion?: AprobacionRequest; error?: string }> {
-  await requireAppSession();
+  const permiso = await requirePermiso(PERMISOS.ORGANIZACION);
+  if (!permiso.ok) return { success: false, error: permiso.error };
   try {
     const all = await getAprobaciones();
     const newAprobacion: AprobacionRequest = {
@@ -43,7 +47,8 @@ export async function aprobarCambio(
   id: string,
   _aprobadoPor?: string
 ): Promise<{ success: boolean; error?: string }> {
-  await requireAppSession();
+  const permiso = await requirePermiso(PERMISOS.ORGANIZACION);
+  if (!permiso.ok) return { success: false, error: permiso.error };
   const session = await verifySession();
   if (!session.success || !session.user) return { success: false, error: session.error || 'Sesion no autorizada.' };
   const usuarioReal = session.user.email || session.user.userId || 'Usuario autenticado';
@@ -69,7 +74,8 @@ export async function rechazarCambio(
   motivoRechazo: string,
   _rechazadoPor?: string
 ): Promise<{ success: boolean; error?: string }> {
-  await requireAppSession();
+  const permiso = await requirePermiso(PERMISOS.ORGANIZACION);
+  if (!permiso.ok) return { success: false, error: permiso.error };
   const session = await verifySession();
   if (!session.success || !session.user) return { success: false, error: session.error || 'Sesion no autorizada.' };
   const usuarioReal = session.user.email || session.user.userId || 'Usuario autenticado';

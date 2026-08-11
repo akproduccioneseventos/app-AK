@@ -12,7 +12,7 @@ export async function POST(request: Request) {
 async function handleCron(request: Request) {
   try {
     const { searchParams } = new URL(request.url);
-    const secret = searchParams.get('secret') || request.headers.get('Authorization')?.replace('Bearer ', '');
+    const secret = request.headers.get('Authorization')?.replace(/^Bearer\s+/i, '');
     const expectedSecret = process.env.CRON_SECRET;
 
     if (!expectedSecret) {

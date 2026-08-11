@@ -598,6 +598,73 @@ Verificado y cerrado el 9 de agosto de 2026.
 
 ---
 
+## Candidato final del 11 de agosto de 2026
+
+- **Portal LED y presupuesto usan el mismo criterio de catering.** El selector de
+  adultos ya no trata el catálogo completo de platos principales como si fuera un
+  único menú ni suma todos sus platos. Cada plato principal es una opción. Las
+  entradas, el plato adulto y el menú infantil/adolescente se transfieren como
+  ítems reales al presupuesto manual y quedan incluidos en el total.
+- **El total visible del Portal LED dejó de ser un aproximado incompleto.** Ahora
+  suma entradas y aplica el motor central a servicios fijos, por persona, por
+  ratio o por tramos. El importe flotante y el cierre muestran ese total completo.
+- **El total del Portal LED se calcula después de preparar sus entradas.** Se
+  corrigió el orden de declaración que TypeScript detectó en la congelación final.
+- **La importación de catering al presupuesto tiene dependencias estables.** El
+  efecto incluye el conversor de platos que usa, eliminando la advertencia de
+  hooks y evitando cierres con referencias antiguas.
+- **Hay un control financiero cruzado en Auditoría.** El botón `Revisar ahora`
+  recalcula presupuestos y facturas, detecta pagos repetidos, cobros mayores al
+  total, facturas duplicadas y enlaces rotos entre presupuesto, factura y fiesta.
+  Es de sólo lectura: nunca cambia saldos ni documentos automáticamente.
+- **Los 19 eventos reales no se declararon revisados desde JSON local.** La copia
+  local no contiene esos presupuestos, facturas y fiestas. Deben verificarse con
+  el nuevo control dentro de la app autenticada, donde lee los datos actuales de
+  Firebase. Un resultado local vacío no sirve como aprobación contable.
+- **La pantalla gigante exige evento asignado.** Dueño y perfiles autorizados
+  conservan acceso. Un operador sólo puede controlar una fiesta si su usuario o
+  correo coincide con un empleado incluido en `personalAsignado` de esa fiesta.
+  Las votaciones de invitados siguen públicas y limitadas por frecuencia.
+- **La moderación es segura por defecto.** Las fiestas nuevas y las antiguas sin
+  configuración explícita dejan fotos y videos pendientes de aprobación. Sólo una
+  fiesta configurada expresamente con `requireApproval: false` publica directo.
+- **Google Workspace valida identidad y rol en el servidor.** La cuenta
+  corporativa y el panel son del dueño; una cuenta personal sólo la conecta su
+  propio empleado o el dueño; sincronizar asignaciones exige acceso a sueldos y
+  sincronizar citas exige CRM.
+- **Marketing ya no finge una publicación externa.** Guardar un post conserva el
+  estado elegido y no lo marca como publicado mediante un `console.log`. La
+  sincronización de Instagram y la agenda social exigen permiso de CRM.
+- **El secreto del cron de blog viaja sólo en Authorization Bearer.** Ya no se
+  acepta en la URL, donde podía quedar registrado en historial y logs.
+- **Consultar un pago de Mercado Pago ya no crea acceso al presupuesto.** La ruta
+  pública de estado devuelve solamente estado e importes. Para volver, el mismo
+  navegador conserva localmente el enlace que ya tenía antes de ir a Mercado Pago;
+  una sesión filtrada no se transforma en un token nuevo del documento.
+- **El cron de recordatorios conserva la automatización sin abrir el CRM.** Las
+  personas necesitan permiso para leer o crear mensajes; la tarea validada usa un
+  token interno no serializable. Su secreto se acepta sólo en el encabezado y no
+  queda expuesto en la URL.
+- **Agenda y Google Workspace vuelven a respetar el trabajo de secretaría.** La
+  sincronización de una fiesta exige organización y alcance sobre ese evento, no
+  acceso a sueldos. La sincronización masiva permanece reservada al dueño.
+- **La portada vuelve a ser estática con renovación cada cinco minutos.** Se quitó
+  un `searchParams` sin uso que forzaba render dinámico y hacía esperar a cada
+  visitante las fuentes de galería, testimonios, Instagram, YouTube y salones.
+- **Evidencia del candidato congelado:** TypeScript completo quedó sin errores,
+  lint sobre los archivos tocados quedó sin errores ni advertencias y 143/143
+  pruebas focalizadas en 13 suites quedaron aprobadas. Las tandas anteriores de regresión
+  terminaron en 99/99, 114/114, 18/18 y 104/104. La suite Jest completa se
+  intentó una vez, siguió activa más de diez minutos y fue detenida por el límite
+  de la herramienta sin resumen; no se cuenta como verde. El build de producción
+  con datos locales siguió activo durante treinta minutos y fue detenido sin
+  resumen, por lo que tampoco se declara aprobado. El E2E de producción no se
+  ejecutó al no existir un build terminado en esta máquina.
+- **Graphify quedó actualizado sobre el candidato.** El índice estructural contiene
+  7.800 nodos, 28.661 relaciones y 376 comunidades. El parser de Graphify avisó
+  20 archivos parcialmente interpretados, pero TypeScript sí compiló todo el
+  proyecto; se registra como limitación del índice, no como aprobación omitida.
+
 ## Cómo agregar algo a esta lista
 
 **Se anota SIEMPRE, en la misma propuesta que toca el código.** Orden del dueño

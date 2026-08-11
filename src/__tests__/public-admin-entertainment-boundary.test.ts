@@ -41,15 +41,41 @@ describe('public and operator boundaries', () => {
     expect(source).toContain('const { captaciones: _privateCaptures, ...publicData }');
   });
 
-  it('requires an app session for screen administration but keeps voting public', () => {
+  it('requires event-scoped operator access for screen administration but keeps voting public', () => {
     const source = read('src/app/actions/fiesta/screen-mode.actions.ts');
+    const access = read('src/lib/auth/event-access.ts');
     const patchStart = source.indexOf('async function patchScreenMode');
     const patchEnd = source.indexOf('export async function playScreenPlaylist');
-    expect(source.slice(patchStart, patchEnd)).toContain('await requireAppSession()');
+    expect(source.slice(patchStart, patchEnd)).toContain('requireEventPermission(fiestaId, PERMISOS.NOCHE)');
     for (const name of ['nextScreenItem', 'prevScreenItem', 'updateLedMessage', 'uploadScreenMediaAsset', 'launchGame']) {
-      expect(exportedFunction(source, name)).toContain('await requireAppSession()');
+      expect(exportedFunction(source, name)).toContain('requireEventPermission(fiestaId, PERMISOS.NOCHE)');
     }
-    expect(exportedFunction(source, 'voteActiveGameOption')).not.toContain('await requireAppSession()');
+    expect(access).toContain("perfilDe(session.user) !== 'operador'");
+    expect(access).toContain('fiesta.personalAsignado');
+    expect(exportedFunction(source, 'voteActiveGameOption')).not.toContain('requireEventPermission');
+  });
+
+  it('defaults guest media to moderation and keeps the cron secret out of the URL', () => {
+    const gallery = read('src/app/actions/social-gallery.ts');
+    const defaults = read('src/lib/fiesta-defaults.ts');
+    const cron = read('src/app/api/cron/generate-blog-post/route.ts');
+
+    expect(defaults).toContain('requireApproval: true');
+    expect(gallery).toContain('socialGallerySettings?.requireApproval !== false');
+    expect(cron).toContain("request.headers.get('Authorization')");
+    expect(cron).not.toContain("searchParams.get('secret')");
+  });
+
+  it('keeps payment reminders authenticated while allowing the validated cron internally', () => {
+    const messages = read('src/app/actions/scheduled-messages.ts');
+    const invoices = read('src/app/actions/invoices.ts');
+    const cron = read('src/app/api/cron/recordatorios-de-pago/route.ts');
+
+    expect(messages).toContain('internalToken !== WHATSAPP_AUTOMATION_INTERNAL_TOKEN');
+    expect(invoices).toContain('requirePermiso(PERMISOS.CONTABILIDAD)');
+    expect(cron).toContain('WHATSAPP_AUTOMATION_INTERNAL_TOKEN');
+    expect(cron).toContain("request.headers.get('Authorization')");
+    expect(cron).not.toContain("searchParams.get('secret')");
   });
 
   it('builds the printed annual projection from the current total, not the adjusted total', () => {

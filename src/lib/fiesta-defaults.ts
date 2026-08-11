@@ -400,6 +400,7 @@ export const initialFiestaActualData: FiestaEnPlanificacion = {
     allowLikes: true,
     allowComments: true,
     uploadsActive: true,
+    requireApproval: true,
     chatEnabled: true,
     showPolls: true,
     marketingTickerText: DEFAULT_MARKETING_TICKER_TEXT,

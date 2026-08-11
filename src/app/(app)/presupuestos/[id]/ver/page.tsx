@@ -500,9 +500,12 @@ function VerPresupuestoContent({ params }: { params: { id: string } }) {
           purpose,
         }),
       });
-      const payload = await response.json() as { checkoutUrl?: string; error?: string };
+      const payload = await response.json() as { checkoutUrl?: string; sessionId?: string; error?: string };
       if (!response.ok || !payload.checkoutUrl) {
         throw new Error(payload.error || 'No se pudo iniciar el pago.');
+      }
+      if (payload.sessionId) {
+        sessionStorage.setItem(`ak-mp-return:${payload.sessionId}`, window.location.href);
       }
       window.location.assign(payload.checkoutUrl);
     } catch (checkoutError) {

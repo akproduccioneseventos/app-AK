@@ -1,80 +1,40 @@
 # Acá quedé
 
-Hoja de traspaso entre chats. **Corta a propósito**: se lee entera al abrir cada
-sesión. Lo histórico va a `ESTADO-AUDITORIA.md`.
+Última actualización: 11 de agosto de 2026.
 
-Quien cierre una sesión reescribe este archivo. Se pisa, no se acumula.
+Rama de trabajo: `release/final-11ago`, nacida del `main` que ya incluye la PR
+`#940`. La propuesta final todavía no estaba creada al escribir este traspaso.
 
----
+## Qué se corrigió en esta tanda
 
-**Última actualización:** 11 de agosto de 2026 (auditoría de las áreas que faltaban)
-**Rama:** `main`. **Ninguna propuesta abierta.**
-**Estado:** compila, 1384 pruebas en verde, sin acentos rotos.
+- Portal LED: menú adulto, entradas, menú infantil, total por método de cálculo y
+  traspaso completo al presupuesto manual.
+- Auditoría: control financiero cruzado de presupuestos, pagos, facturas y fiestas.
+- Seguridad: operador limitado a fiestas asignadas; aprobaciones, agenda social,
+  Google Workspace, Mercado Pago y cron del blog protegidos en el servidor.
+- Muro social: moderación encendida por defecto, incluido contenido generado por
+  estaciones de entretenimiento.
+- Rendimiento: la portada pública vuelve a ISR de cinco minutos y deja de
+  recalcular todas las fuentes por visitante.
 
-## Lo último que pasó
+El detalle y el motivo de cada decisión están en `docs/YA-RESUELTO.md`.
 
-**Se terminó de auditar la app.** Ya no quedan áreas sin mirar.
+## Evidencia disponible
 
-Se fusionaron tres propuestas, todas verificadas con los siete controles:
+- Candidato congelado: TypeScript sin errores, lint de archivos tocados sin
+  errores ni advertencias y 143/143 pruebas focalizadas en 13 suites aprobadas.
+- Graphify actualizado: 7.800 nodos, 28.661 relaciones y 376 comunidades.
+- Tandas anteriores reutilizadas: 99/99, 114/114, 18/18 y 104/104.
+- Suite Jest completa: intento superior a diez minutos sin resumen; no contarla
+  como aprobada.
+- Build de producción: intento de treinta minutos sin resumen; no contar como
+  aprobado. E2E de producción pendiente por esa misma razón.
+- Los 19 eventos reales no existen en el respaldo JSON local. Ejecutar el botón
+  `Revisar ahora` de Auditoría dentro de la app conectada a Firebase.
 
-- **932** (Gemini): la barra descuenta stock de verdad y lo repone al cancelar; los
-  recibos del personal guardan quién pagó y cuándo; no se puede borrar un proveedor
-  con insumos; WhatsApp normaliza el teléfono; los contratos aceptan los nombres
-  viejos de fecha, domicilio, salón y seña.
-- **937**: el catálogo de venta presencial no sumaba el menú al total, así que el
-  número que veía el cliente estaba por debajo del real; se quedaba en blanco si
-  fallaba la carga; la web ofrecía un "Elite" que no se vende y escondía el
-  Intermedio; el plan 30/40/30 estaba escrito cinco veces.
-- **938**: la orden nueva para Gemini.
+## No repetir
 
-**Los once pendientes que estaban anotados ya estaban resueltos.** Se verificaron
-uno por uno contra el código: los cerró la 932. El documento venía viejo y mandaba
-a repetir trabajo hecho. **Antes de arrancar por una lista vieja, verificá.**
-
-## Antes de empezar
-
-Leé `docs/YA-RESUELTO.md` y **anotá ahí todo lo que modifiques, en la misma
-propuesta**. Reglas del dueño: **una sola propuesta grande por tanda** (vale
-también para las órdenes que se le escriben a otra IA) y **lo que le toca a
-Gemini, Claude no lo programa** (Claude sólo escribe plata, cobros, comida y
-permisos).
-
-## El tamaño real: unas 370 pantallas, todas recorridas al menos una vez
-
-Auditadas a fondo en esta última tanda, y **limpias**: configuración (41), las
-pantallas de la noche de fiesta que no son estaciones (18).
-
-Con hallazgos, ya entregados a Gemini en `PARA-GEMINI.md`: empresa (42),
-empleados y sueldos, y las sueltas del panel (15).
-
-## Lo próximo, en orden
-
-1. **Gemini**: los cuatro bloques de `PARA-GEMINI.md`, en **una sola propuesta**.
-   Ninguno empezado. El más importante es el primero: hoy se pueden borrar insumos,
-   servicios, menús y bienes que están en uso. El caso del insumo es el peor,
-   porque **baja el costo del plato en silencio**.
-2. **Dos decisiones del dueño, sin respuesta todavía:**
-   - ¿La moderación de la pantalla gigante viene prendida en las fiestas nuevas?
-     Hoy viene apagada y lo que sube un invitado sale directo a la pantalla.
-   - Los módulos por usuario se asignan pero **no se validan en ningún lado**:
-     cualquiera con sesión entra a todo. O se implementa o se saca la pantalla.
-
-## Ya está resuelto, no lo busques de nuevo
-
-- Aviso de pago duplicado del cliente: si toca dos veces por el mismo monto dentro
-  de diez minutos, cuenta como uno solo.
-- Clave del portal del cliente: por defecto lleva el nombre del cliente, obliga a
-  cambiarla la primera vez, y hay recuperación por correo con tope de tres intentos
-  por hora.
-- Fotos del muro descargables con el enlace: **es a propósito**, decisión del dueño.
-- Los centavos en dólares: no aplica, se trabaja sólo en pesos.
-
-## Ojo con esto, ya pasó
-
-Al fusionar una rama que toque `fotografia` o `catering`, **quedate siempre con
-`verifyAccesoPersonalToken`**. Una rama traía la versión vieja y reabría el
-agujero del token de proveedor: ningún control lo habría agarrado.
-
-Y no fusiones dos propuestas que toquen el mismo archivo sin verificar el
-resultado **junto**: la 841 y la 845 protegieron facturas de dos maneras distintas,
-encajaron sin protestar, y dejaban la pantalla colgada para siempre al guardar.
+No volver a separar el catálogo maestro de catering de los ítems que entran al
+presupuesto. No declarar saldos reales correctos usando archivos locales vacíos.
+No marcar una publicación como enviada a Instagram o Facebook sin respuesta real
+del proveedor.
