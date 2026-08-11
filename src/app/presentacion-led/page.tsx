@@ -150,6 +150,7 @@ export default function PresentacionLedPage() {
   const [data, setData] = useState<PageData | null>(null);
   const [catalogoFotos, setCatalogoFotos] = useState<CatalogoFoto[]>([]);
   const [loading, setLoading] = useState(true);
+  const [loadError, setLoadError] = useState<string | null>(null);
   const [currentSlide, setCurrentSlide] = useState(0);
   const [direction, setDirection] = useState(1);
   const [selectedServices, setSelectedServices] = useState<string[]>([]);
@@ -189,6 +190,12 @@ export default function PresentacionLedPage() {
         });
         setCatalogoFotos(catalogoData);
         setPresentacionSettings(ledSettings);
+      } catch (e) {
+        // Este catalogo se usa en el salon, con el cliente al lado y con la senal
+        // que haya. Sin este aviso, si una carga fallaba la pantalla quedaba en
+        // blanco para siempre y no habia forma de saber si esperar o reintentar.
+        console.error('[presentacion-led] no se pudo cargar la presentacion', e);
+        setLoadError('No pudimos cargar la presentacion. Revisa la senal y proba de nuevo.');
       } finally {
         setLoading(false);
       }
@@ -224,7 +231,54 @@ export default function PresentacionLedPage() {
     return result;
   }, [data]);
   const adolescentCount = Number(clientData.invitadosAdolescentes || '0');
+
+  /**
+   * Precio por persona de un menu: la suma de lo que sale cada plato.
+   *
+   * Se usa el precio de venta sugerido de cada plato. Si un plato no lo tiene
+   * cargado, se cae a su costo, que es preferible a contarlo como cero: un plato
+   * en cero baja el total y el numero que ve el cliente queda por debajo del real.
+   */
+  const precioPorPersonaDeMenu = (platos: MenuItem[] | undefined) =>
+    (platos ?? []).reduce(
+      (suma, plato) => suma + (Number(plato.suggestedSellingPrice) || Number(plato.totalDishCost) || 0),
+      0,
+    );
   const requireTeenMenu = adolescentCount > 0 && adolescentMenuOptions.length > 0;
+
+  /**
+   * El total que se le muestra al cliente en la tablet.
+   *
+   * Antes sumaba unicamente los servicios. El menu se elegia en pantalla, se veia
+   * elegido, y su precio no entraba nunca: el numero que leia el cliente quedaba
+   * por debajo del real y habia que corregirselo para arriba en la cara, que es la
+   * peor forma de perder una venta.
+   *
+   * Ahora suma los servicios mas el menu de adultos por cada adulto, mas el menu de
+   * adolescentes por cada adolescente.
+   */
+  const totalEstimadoConMenu = useMemo(() => {
+    const servicios = selectedServices.reduce((acc, id) => {
+      const srv = data?.servicios.find(s => s.id === id);
+      return acc + (Number(srv?.precioVenta) || 0);
+    }, 0);
+
+    const adultos = Math.max(0, Number(clientData.invitadosAdultos || '0'));
+    const menuAdultos = precioPorPersonaDeMenu(selectedMenu?.items) * adultos;
+
+    const platoAdolescente = adolescentMenuOptions.find(opt => opt.id === selectedTeenMenuId);
+    const menuAdolescentes = precioPorPersonaDeMenu(platoAdolescente ? [platoAdolescente] : []) * adolescentCount;
+
+    return Math.round(servicios + menuAdultos + menuAdolescentes);
+  }, [
+    selectedServices,
+    data?.servicios,
+    clientData.invitadosAdultos,
+    selectedMenu,
+    adolescentMenuOptions,
+    selectedTeenMenuId,
+    adolescentCount,
+  ]);
   useEffect(() => {
     if (!selectedTeenMenuId) return;
     const stillExists = adolescentMenuOptions.some((opt) => opt.id === selectedTeenMenuId);
@@ -559,7 +613,29 @@ export default function PresentacionLedPage() {
     );
   }
 
-  if (!data) return null;
+  // Antes esto devolvia una pantalla en blanco: el catalogo se usa delante del
+  // cliente y quedaba sin nada, sin explicacion y sin forma de reintentar.
+  if (!data) {
+    return (
+      <div className="flex items-center justify-center min-h-screen bg-slate-950 p-6">
+        <div className="flex max-w-md flex-col items-center gap-5 text-center">
+          <p className="text-xl font-bold text-white">
+            {loadError ?? 'No pudimos cargar la presentacion.'}
+          </p>
+          <p className="text-white/60">
+            Suele ser la senal del salon. Los datos no se perdieron.
+          </p>
+          <button
+            type="button"
+            onClick={() => window.location.reload()}
+            className="min-h-12 rounded-xl bg-indigo-500 px-8 text-base font-bold text-white"
+          >
+            Reintentar
+          </button>
+        </div>
+      </div>
+    );
+  }
 
   const menuOptions = data.menus.map(m => ({ id: m.id, name: m.name }));
 
@@ -752,10 +828,7 @@ export default function PresentacionLedPage() {
               tipoFiesta={clientData.tipoFiesta}
               clienteNombre={clientData.nombre}
               fechaEvento={clientData.fechaEvento}
-              totalEstimado={selectedServices.reduce((acc, id) => {
-                const srv = data.servicios.find(s => s.id === id);
-                return acc + (srv?.precioVenta || 0);
-              }, 0)}
+              totalEstimado={totalEstimadoConMenu}
               mostrarPrecios={data.mostrarPrecios}
               imagenFondoUrl={presentacionSettings?.planPagosImagenUrl}
               onContrato={handleContrato}

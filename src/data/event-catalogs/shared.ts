@@ -27,7 +27,13 @@ export const sharedServices: ServiceItem[] = [
   },
   {
     id: 'premium',
-    title: 'Paquete Premium',
+    // Los paquetes que vende AK son Basico, Intermedio y Premium. La web
+    // publicaba Basico, Premium y Elite: ofrecia un "Elite" que no existe y el
+    // Intermedio no aparecia en ningun lado. Se renombran los carteles nada mas;
+    // el contenido de cada paquete lo armo el dueno y no se toca. Los
+    // identificadores internos (`premium`, `elite`) quedan igual para no romper
+    // los enlaces ya compartidos.
+    title: 'Paquete Intermedio',
     description: 'Experiencia completa con atención personalizada.',
     included: [
       'Todo lo del Paquete Básico',
@@ -43,10 +49,10 @@ export const sharedServices: ServiceItem[] = [
   },
   {
     id: 'elite',
-    title: 'Paquete Elite',
+    title: 'Paquete Premium',
     description: 'La experiencia más exclusiva, sin límites.',
     included: [
-      'Todo lo del Paquete Premium',
+      'Todo lo del Paquete Intermedio',
       'Animación y show en vivo',
       'Carro de candy bar',
       'Photobooth con impresión instantánea',
