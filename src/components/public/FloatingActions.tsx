@@ -44,7 +44,11 @@ export function FloatingActions({
   return (
     <motion.div
       data-testid="public-floating-actions"
-      className="fixed inset-x-4 bottom-4 z-50 flex items-center gap-2 select-none sm:inset-x-auto sm:bottom-6 sm:right-6 sm:flex-col sm:gap-3"
+      /* En el celular son dos botones redondos apilados en la esquina, no una
+         barra cruzando la pantalla: la barra cortaba el pie en todas las
+         pantallas publicas mientras la persona miraba las fotos. En pantalla
+         grande hay lugar de sobra, asi que el de cotizar conserva su texto. */
+      className="fixed bottom-4 right-4 z-50 flex select-none flex-col items-end gap-2 sm:bottom-6 sm:right-6 sm:gap-3"
     >
       <AnimatePresence>
         {isVisible && (
@@ -70,11 +74,13 @@ export function FloatingActions({
               exit={{ opacity: 0, scale: 0.8, y: 10 }}
               transition={{ duration: 0.2, delay: 0.05 }}
               className={cn(
-                "flex min-h-12 flex-1 items-center justify-center gap-2 rounded-lg border border-red-600 bg-red-700 px-4 py-3 text-xs font-black uppercase tracking-widest text-white shadow-xl transition-all hover:bg-red-600 sm:min-h-0 sm:flex-none"
+                "flex h-12 w-12 items-center justify-center gap-2 rounded-full border border-red-600 bg-red-700 text-xs font-black uppercase tracking-widest text-white shadow-xl transition-all hover:bg-red-600",
+                "sm:h-auto sm:w-auto sm:rounded-lg sm:px-4 sm:py-3"
               )}
+              aria-label="Cotizá tu fiesta"
             >
-              <Calculator className="w-4 h-4 shrink-0" />
-              <span>Cotizá tu Fiesta</span>
+              <Calculator className="w-5 h-5 shrink-0 sm:w-4 sm:h-4" />
+              <span className="hidden sm:inline">Cotizá tu Fiesta</span>
             </motion.a>
 
             {/* Direct WhatsApp Button */}

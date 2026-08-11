@@ -96,10 +96,23 @@ test('public homepage fits the viewport without horizontal overflow', async ({ p
       window.scrollTo(0, 800);
       window.dispatchEvent(new Event('scroll'));
     });
+    // Lo que hay que cuidar es que los accesos flotantes NO tapen la galería
+    // mientras la persona mira las fotos. Se comprueban las dos formas de
+    // molestar: ocupar mucho alto (la columna vieja llegaba a media pantalla) y
+    // cruzar todo el ancho como una barra, que corta el pie de la pantalla.
+    const anchoPantalla = page.viewportSize()?.width ?? 412;
+    const altoPantalla = page.viewportSize()?.height ?? 900;
     const floatingActions = page.getByTestId('public-floating-actions');
     await expect(floatingActions).toBeVisible();
     const floatingBox = await floatingActions.boundingBox();
-    expect(floatingBox?.height).toBeLessThanOrEqual(64);
+    expect(
+      floatingBox?.height ?? 0,
+      'Los accesos flotantes ocupan demasiado alto y tapan la galería',
+    ).toBeLessThanOrEqual(altoPantalla * 0.2);
+    expect(
+      floatingBox?.width ?? 0,
+      'Los accesos flotantes cruzan la pantalla como una barra en vez de quedar en la esquina',
+    ).toBeLessThanOrEqual(anchoPantalla * 0.4);
   }
 });
 
