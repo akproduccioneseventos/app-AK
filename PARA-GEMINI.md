@@ -343,6 +343,45 @@ editar y compilar. Sacarlos a la configuracion del negocio.
 
 ---
 
+## 19. Las fases del portal se aplican en una sola de las cuatro pantallas
+
+**Regla del negocio (la dio el dueno):** al principio, apenas se firma, el cliente
+solo tiene que ver **contrato, presupuesto y pagos**. Puede faltar cuatro anos para
+la fiesta: lo demas no le sirve y lo confunde. Mas cerca del evento se activa la
+organizacion, y despues lo de la fiesta en vivo.
+
+Esa regla **ya esta escrita en codigo y esta bien**:
+`src/lib/client-portal/access-phases.ts` define las tres fases (`financiera`,
+`organizacion`, `en_vivo`), arranca en `financiera` por defecto, y abre la de en
+vivo sola unos dias antes (`liveAccessDaysBefore`, 7 por defecto).
+
+**El problema es que solo una pantalla la usa.**
+
+- `src/app/portal/c/[accessKey]/PublicPortalClientExperience.tsx` — **si** aplica
+  las fases.
+- `src/app/portal-cliente/[id]/page.tsx` — **no**.
+- `src/app/portal/c/[accessKey]/PublicPortalProView.tsx` — **no**.
+- `src/app/portal/c/[accessKey]/PublicPortalView.tsx` — **no**.
+
+Segun por que enlace entre, el mismo cliente ve el portal completo desde el primer
+dia: menu, decoracion, musica, invitados y todo lo demas, cuatro anos antes de la
+fiesta. Justo lo que la regla quiere evitar.
+
+**Que hacer.** Aplicar `resolveClientPortalAccess(fiesta)` en las tres pantallas
+que faltan, y esconder los modulos de organizacion cuando `organizationLocked` sea
+verdadero y los de la fiesta en vivo cuando lo sea `liveLocked`. Usar
+`PublicPortalClientExperience.tsx` de modelo: ya resuelve como mostrar lo que
+todavia no esta disponible, sin dejar la pantalla vacia y sin que parezca un error.
+
+Lo financiero (contrato, presupuesto, pagos) se ve siempre: `canSeeFinancial` es
+siempre verdadero.
+
+**Verificar:** con una fiesta a cuatro anos y `accessPhase` en `financiera`, las
+cuatro pantallas muestran solo contrato, presupuesto y pagos. Con la fecha a menos
+de siete dias, aparece lo de la fiesta en vivo sola.
+
+---
+
 ## Cómo verificar al terminar
 
 1. `npx tsc --noEmit` → 0 errores
