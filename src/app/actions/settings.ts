@@ -458,6 +458,43 @@ export async function saveWhatsAppTemplates(
   try {
     const auth = await verifySession();
     if (!auth.success) return { success: false, error: auth.error };
+
+    const validWhatsAppMarkers = new Set([
+      '{{NOMBRE}}',
+      '{{CLIENTE_NOMBRE}}',
+      '{{FECHA_EVENTO}}',
+      '{{EVENTO_FECHA}}',
+      '{{SALON}}',
+      '{{EVENTO_SALON}}',
+      '{{LINK}}',
+      '{{URL_DOCUMENTO}}',
+      '{{SENIA}}',
+      '{{MONTO_SENA}}',
+      '{{PRESUPUESTO_TOTAL}}',
+      '{{TOTAL}}',
+      '{{SALDO}}',
+    ]);
+
+    const unknownMarkers: string[] = [];
+    for (const [, value] of Object.entries(templates)) {
+      if (typeof value === 'string') {
+        const matches = value.match(/\{\{[^}]+\}\}/g) ?? [];
+        for (const m of matches) {
+          if (!validWhatsAppMarkers.has(m)) {
+            unknownMarkers.push(m);
+          }
+        }
+      }
+    }
+
+    if (unknownMarkers.length > 0) {
+      const unique = Array.from(new Set(unknownMarkers));
+      return {
+        success: false,
+        error: `La plantilla contiene marcadores no válidos o desconocidos: ${unique.join(', ')}.`,
+      };
+    }
+
     const currentTemplates = await getWhatsAppTemplates();
     const templatesToSave: WhatsAppTemplates = { ...currentTemplates, ...templates };
     await writeData(WHATSAPP_TEMPLATES_FILE, templatesToSave);
