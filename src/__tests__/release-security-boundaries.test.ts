@@ -157,6 +157,34 @@ describe('release security boundaries', () => {
     }
   });
 
+  it('permite al personal ver solo su propio portal y reserva los demas sueldos', () => {
+    const source = readSource('src/app/actions/google-workspace.ts');
+    expect(source).toContain("perfilDe(session.user) === 'personal'");
+    expect(source).toContain('session.user.userId === empleadoId');
+    expect(source).toContain('employeeEmails.includes(sessionEmail)');
+    expect(source).toContain('puede(session.user, PERMISOS.SUELDOS)');
+    expect(source).toContain('Solo puedes consultar tu propio portal de trabajo.');
+  });
+
+  it('toma la identidad de aprobaciones y playbooks solo de la sesion firmada', () => {
+    for (const file of ['src/app/actions/approvals.ts', 'src/app/actions/playbooks.ts']) {
+      const source = readSource(file);
+      expect(source).toContain("session.user.email || session.user.userId || 'Usuario autenticado'");
+      expect(source).not.toMatch(/session\.user\?\.email \|\| \([^\n]*(aprobadoPor|rechazadoPor|userId)/);
+    }
+  });
+
+  it('conserva el menu elegido en el presupuesto y bloquea borrar referencias activas', () => {
+    const budgetType = readSource('src/types/presupuesto.ts');
+    const builder = readSource('src/app/(app)/presupuestos/nuevo/crear/page.tsx');
+    const menus = readSource('src/app/actions/menus-catering.ts');
+    expect(budgetType).toContain('selectedMenuId?: string');
+    expect(builder).toContain('selectedMenuId: formData.selectedMenuId || undefined');
+    expect(menus).toContain('p.selectedMenuId === id');
+    expect(menus).toContain('fiesta.menuAsignadoId === id');
+    expect(menus).toContain('menuItemIds.has(item.idServicioCatalogo)');
+  });
+
   it('asignar personal a una fiesta y dar de baja a alguien tambien exigen el permiso de sueldos', () => {
     // `updatePersonal` guarda `eventSalary`: cuanto cobra cada persona por esa
     // fiesta. Es el mismo dato que los recibos, asi que va con el mismo permiso.

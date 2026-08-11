@@ -3,6 +3,7 @@
 import type { AprobacionRequest, EstadoAprobacion } from '@/types/approval';
 import { readData, writeData } from '@/lib/data-service';
 import { requireAppSession } from '@/lib/auth/require-session';
+import { verifySession } from '@/lib/auth/session-token';
 
 const APROBACIONES_FILE = 'aprobaciones.json';
 
@@ -40,9 +41,12 @@ export async function createAprobacion(
 
 export async function aprobarCambio(
   id: string,
-  aprobadoPor: string
+  _aprobadoPor?: string
 ): Promise<{ success: boolean; error?: string }> {
   await requireAppSession();
+  const session = await verifySession();
+  if (!session.success || !session.user) return { success: false, error: session.error || 'Sesion no autorizada.' };
+  const usuarioReal = session.user.email || session.user.userId || 'Usuario autenticado';
   try {
     const all = await readData<AprobacionRequest[]>(APROBACIONES_FILE, []);
     const index = all.findIndex(a => a.id === id);
@@ -50,7 +54,7 @@ export async function aprobarCambio(
     all[index] = {
       ...all[index],
       estadoAprobacion: 'Aprobado' as EstadoAprobacion,
-      aprobadoPor,
+      aprobadoPor: usuarioReal,
       aprobadoEn: new Date().toISOString(),
     };
     await writeData(APROBACIONES_FILE, all);
@@ -63,9 +67,12 @@ export async function aprobarCambio(
 export async function rechazarCambio(
   id: string,
   motivoRechazo: string,
-  rechazadoPor: string
+  _rechazadoPor?: string
 ): Promise<{ success: boolean; error?: string }> {
   await requireAppSession();
+  const session = await verifySession();
+  if (!session.success || !session.user) return { success: false, error: session.error || 'Sesion no autorizada.' };
+  const usuarioReal = session.user.email || session.user.userId || 'Usuario autenticado';
   try {
     const all = await readData<AprobacionRequest[]>(APROBACIONES_FILE, []);
     const index = all.findIndex(a => a.id === id);
@@ -73,7 +80,7 @@ export async function rechazarCambio(
     all[index] = {
       ...all[index],
       estadoAprobacion: 'Rechazado' as EstadoAprobacion,
-      aprobadoPor: rechazadoPor,
+      aprobadoPor: usuarioReal,
       aprobadoEn: new Date().toISOString(),
       motivoRechazo,
     };

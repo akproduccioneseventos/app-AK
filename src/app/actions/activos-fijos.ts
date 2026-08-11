@@ -87,6 +87,21 @@ export async function saveActivoFijo(
 
 export async function deleteActivoFijo(id: string): Promise<{ success: boolean; error?: string }> {
   await requireAppSession();
+  const activo = await getActivoFijoById(id);
+  const { getFiestas } = await import('./fiesta/fiesta.actions');
+  const fiestas = await getFiestas(false);
+  const fiestasEnUso = fiestas.filter(f =>
+    f.listaDeCargaOperativa?.categorias?.some(cat =>
+      cat.items?.some(item => item.id === id || (item as any).activoId === id || (activo && item.nombre === activo.nombre))
+    )
+  );
+  if (fiestasEnUso.length > 0) {
+    return {
+      success: false,
+      error: `No se puede eliminar el activo fijo porque está asignado en la lista de carga de ${fiestasEnUso.length} evento(s).`,
+    };
+  }
+
   const deleted = await deleteDataItem(ACTIVOS_FIJOS_FILE, ACTIVOS_FIJOS_COLLECTION, id);
   if (!deleted) return { success: false, error: `Activo Fijo con ID ${id} no encontrado para eliminar.` };
   return { success: true };

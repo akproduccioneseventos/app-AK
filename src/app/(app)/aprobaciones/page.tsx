@@ -17,9 +17,9 @@ import { getAprobaciones, aprobarCambio, rechazarCambio, createAprobacion } from
 import type { AprobacionRequest, TipoCambio, EstadoAprobacion } from '@/types/approval';
 
 const formatCurrency = (amount: number) =>
-  new Intl.NumberFormat('es-AR', { style: 'currency', currency: 'ARS' }).format(amount);
+  new Intl.NumberFormat('es-UY', { style: 'currency', currency: 'UYU', minimumFractionDigits: 0, maximumFractionDigits: 0 }).format(amount);
 
-const formatDate = (dateStr: string) => new Date(dateStr).toLocaleDateString('es-AR');
+const formatDate = (dateStr: string) => new Date(dateStr).toLocaleDateString('es-UY');
 
 const estadoBadge = (estado: EstadoAprobacion) => {
   switch (estado) {

@@ -379,6 +379,7 @@ function CrearPresupuestoContent() {
                 tramosDePrecio: serv.tramosDePrecio,
               };
             }),
+            selectedMenuId: formData.selectedMenuId || undefined,
             costoTotalEstimado: 0, 
             nombrePromocion: formData.nombrePromocion,
             descuentoTipo: formData.descuentoTipo,

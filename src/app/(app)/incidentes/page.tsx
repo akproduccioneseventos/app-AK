@@ -16,9 +16,9 @@ import { AlertTriangle, Plus, CheckCircle2, MessageSquare, Clock, Zap, Loader2, 
 import { getIncidentes, createIncidente, addActualizacionIncidente, resolverIncidente } from '@/app/actions/incidents';
 import type { Incidente, EstadoIncidente, PrioridadIncidente, CategoriaIncidente } from '@/types/incident';
 
-const formatDate = (dateStr: string) => new Date(dateStr).toLocaleDateString('es-AR');
+const formatDate = (dateStr: string) => new Date(dateStr).toLocaleDateString('es-UY');
 const formatDateTime = (dateStr: string) =>
-  new Date(dateStr).toLocaleString('es-AR', { dateStyle: 'short', timeStyle: 'short' });
+  new Date(dateStr).toLocaleString('es-UY', { dateStyle: 'short', timeStyle: 'short' });
 
 const prioridadConfig: Record<PrioridadIncidente, { label: string; className: string }> = {
   Critica: { label: 'Crítica', className: 'bg-red-100 text-red-800 border-red-200' },

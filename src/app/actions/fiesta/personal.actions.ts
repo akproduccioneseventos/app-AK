@@ -19,6 +19,12 @@ export async function updatePersonal(
   if (!permiso.ok) return { success: false, error: permiso.error };
 
   try {
+    for (const p of personal) {
+      if (p.eventSalary !== undefined && p.eventSalary !== null && p.eventSalary < 0) {
+        return { success: false, error: 'El sueldo de un empleado no puede ser un valor negativo.' };
+      }
+    }
+
     const currentData = await getFiestaById(fiestaId);
     if (!currentData) throw new Error("Fiesta no encontrada");
 

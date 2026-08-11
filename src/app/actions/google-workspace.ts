@@ -4,6 +4,8 @@ import { getEmpleados } from '@/app/actions/empleados';
 import { getFiestaById, getFiestas } from '@/app/actions/fiesta/fiesta.actions';
 import { getRoles } from '@/app/actions/roles';
 import { readData, writeData } from '@/lib/data-service';
+import { verifySession } from '@/lib/auth/session-token';
+import { perfilDe, puede, PERMISOS } from '@/lib/auth/perfiles';
 import {
   accountFromToken,
   buildCompanyCalendarEvent,
@@ -346,6 +348,10 @@ export async function syncFiestaAndNotifyStaff(fiestaId: string) {
 }
 
 export async function getEmployeeWorkspacePortal(empleadoId: string) {
+  const session = await verifySession();
+  if (!session.success || !session.user) {
+    return { employee: null, googleAccount: undefined, events: [], error: session.error || 'Sesion no autorizada.' };
+  }
   const [empleados, roles, fiestas, accounts] = await Promise.all([
     getEmpleados(),
     getRoles(),
@@ -355,6 +361,21 @@ export async function getEmployeeWorkspacePortal(empleadoId: string) {
   const employee = empleados.find((item) => item.id === empleadoId) || null;
   if (!employee) {
     return { employee: null, googleAccount: undefined, events: [] };
+  }
+
+  const sessionEmail = session.user.email?.trim().toLowerCase();
+  const employeeEmails = [employee.email, employee.googleWorkspaceEmail]
+    .filter((email): email is string => Boolean(email))
+    .map(email => email.trim().toLowerCase());
+  const isOwnPortal = perfilDe(session.user) === 'personal'
+    && (session.user.userId === empleadoId || Boolean(sessionEmail && employeeEmails.includes(sessionEmail)));
+  if (!puede(session.user, PERMISOS.SUELDOS) && !isOwnPortal) {
+    return {
+      employee: null,
+      googleAccount: undefined,
+      events: [],
+      error: 'Solo puedes consultar tu propio portal de trabajo.',
+    };
   }
 
   const googleAccount = accounts.find((account) => account.kind === 'employee' && account.employeeId === empleadoId);

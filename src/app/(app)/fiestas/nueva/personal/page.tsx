@@ -608,8 +608,9 @@ Por favor confirmá tu asistencia respondiendo este mensaje.
                             <span className="text-xs text-muted-foreground">$</span>
                             <Input
                               type="number"
+                              min={0}
                               value={row.salary || ''}
-                              onChange={(e) => handleSalaryChange(row.originalIndex!, Number(e.target.value))}
+                              onChange={(e) => handleSalaryChange(row.originalIndex!, Math.max(0, Number(e.target.value)))}
                               className="h-8 w-24 text-right text-xs"
                               disabled={!row.assignedId}
                             />
