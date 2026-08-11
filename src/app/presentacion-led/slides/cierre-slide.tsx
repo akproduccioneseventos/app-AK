@@ -36,6 +36,13 @@ interface CierreSlideProps {
     salon: string;
   };
   selectedTeenMenuName?: string | null;
+  /**
+   * El total completo del evento, calculado en la pantalla que arma la
+   * presentacion: servicios con su forma de cobro, entradas, menu de adultos y
+   * menu de adolescentes. Es el mismo numero que muestran el plan de pagos y el
+   * presupuesto que se genera despues.
+   */
+  totalEstimado?: number;
   resourceSummary?: ResourceSummary;
   onGenerateBudget: () => void;
   onPrint?: () => void;
@@ -57,6 +64,7 @@ export function CierreSlide({
   tipoFiesta,
   clientData,
   selectedTeenMenuName,
+  totalEstimado: totalEstimadoRecibido,
   resourceSummary,
   onGenerateBudget,
   onPrint = () => {},
@@ -77,7 +85,21 @@ export function CierreSlide({
 
   const selectedServiciosData = selectedServices.map(id => servicios.find(s => s.id === id)).filter(Boolean) as ServicioEmpresa[];
   const selectedMenu = menus.find(m => m.id === selectedMenuId);
-  const totalEstimado = selectedServiciosData.reduce((acc, servicio) => acc + (servicio.precioVenta || 0), 0);
+  /**
+   * El total que ve el cliente en el cierre tiene que ser el MISMO que ve una
+   * pantalla despues, en el plan de pagos.
+   *
+   * Antes esta pantalla sumaba por su cuenta el precio de lista de cada
+   * servicio, y con eso se quedaba afuera toda la comida (entradas, menu de
+   * adultos, menu de adolescentes) y ademas cobraba mal los servicios que se
+   * cobran por persona o por tramos. En una fiesta de cien personas con menu,
+   * la diferencia entre una pantalla y la siguiente eran decenas de miles de
+   * pesos, con el cliente sentado enfrente mirando las dos.
+   */
+  const totalPorPrecioDeLista = selectedServiciosData.reduce((acc, servicio) => acc + (servicio.precioVenta || 0), 0);
+  const totalEstimado = typeof totalEstimadoRecibido === 'number' && Number.isFinite(totalEstimadoRecibido)
+    ? totalEstimadoRecibido
+    : totalPorPrecioDeLista;
 
   return (
     <SlideLayout overflowScroll>

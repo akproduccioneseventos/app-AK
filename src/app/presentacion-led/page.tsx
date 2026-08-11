@@ -824,6 +824,7 @@ export default function PresentacionLedPage() {
               tipoFiesta={clientData.tipoFiesta}
               clientData={clientData}
               selectedTeenMenuName={adolescentMenuOptions.find((o) => o.id === selectedTeenMenuId)?.name || null}
+              totalEstimado={totalEstimadoConMenu}
               resourceSummary={resourceSummary}
               onGenerateBudget={handleGenerateBudget}
               onPrint={handlePrint}
