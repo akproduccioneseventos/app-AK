@@ -15,6 +15,18 @@ export async function saveScheduledMessage(
   message: Omit<ScheduledMessage, 'id' | 'createdAt'>
 ): Promise<{ success: boolean; message?: ScheduledMessage; error?: string }> {
   await requireAppSession();
+
+  // Sin telefono el aviso se guardaba igual y nadie se enteraba hasta el dia que
+  // alguien abria la cola para mandarlo: recien ahi aparecia el error, con el
+  // cliente ya sin haber recibido nada. Se avisa al programarlo, que es cuando
+  // todavia se puede cargar el numero.
+  if (!String(message.targetPhone ?? '').replace(/\D/g, '')) {
+    return {
+      success: false,
+      error: 'Falta el celular de esta persona. Cargalo en su ficha y volvé a programar el aviso.',
+    };
+  }
+
   try {
     const messages = await getScheduledMessages();
     const newMessage: ScheduledMessage = {
