@@ -248,6 +248,68 @@ la versión principal. Es la única prueba que falla.
 
 ---
 
+## 16. La web ofrece un paquete que no existe
+
+`src/data/event-catalogs/shared.ts` lineas 17, 30 y 46.
+
+Los paquetes reales de AK son **Basico, Intermedio y Premium**. La web publica
+ofrece **Basico, Premium y Elite**. "Elite" no existe en el negocio y falta
+"Intermedio". Un cliente puede preguntar por un paquete que no se vende, y el que
+busca el Intermedio no lo encuentra.
+
+**Que hacer. Renombrar UNICAMENTE. El contenido de cada paquete lo armo el dueno:
+no tocar que incluye ninguno, ni el orden, ni los servicios.**
+
+- linea 30: `Paquete Premium` -> `Paquete Intermedio`
+- linea 46: `Paquete Elite` -> `Paquete Premium`
+- linea 17: `Paquete Basico` queda igual
+- linea 251: "paquetes Premium y Elite" -> "paquetes Intermedio y Premium"
+- Las demas menciones de "Elite" en `src/` (14 en total).
+
+No cambiar los identificadores internos (`id`) si hay presupuestos guardados que
+los referencian: cambiar solo el nombre visible.
+
+---
+
+## 17. El catalogo de venta presencial
+
+`src/app/presentacion-led/`. **Contexto importante: no es una pantalla mas. Es el
+catalogo que el dueno le muestra al cliente en persona para venderle.** Lo que
+falle ahi, falla delante de alguien que esta por firmar.
+
+**17.1 El total no suma el menu.** `slides/cierre-slide.tsx:80`
+
+`totalEstimado` suma solo los servicios. El menu elegido se busca en la linea 79 y
+se muestra en pantalla en la 157, pero su precio nunca entra en el total. Con un
+menu de cien personas, el numero que ve el cliente esta miles de pesos por debajo
+del real, y hay que corregirlo para arriba delante de el.
+
+Sumar el menu (precio por persona x invitados) y mostrar el total desglosado:
+servicios + menu = total. Si la cantidad de invitados no esta en la diapositiva,
+pasarla como propiedad desde la presentacion.
+
+**17.2 Se cuelga si falla la conexion.** `page.tsx:170-197`
+
+De las cargas en paralelo, solo `getMenus()` y `getCatalogoFotos()` tienen
+`.catch()`. Si falla `getServiciosEmpresa()`, `getCompanyInfo()`,
+`getInvoiceTemplateSettings()` o `getBudgetDisplaySettings()`, la pantalla queda en
+"Cargando presentacion..." para siempre, sin aviso ni forma de reintentar.
+
+Se usa presencial, en salones y casas donde la senal es mala. Poner `.catch()` en
+todas, que la presentacion abra igual con lo que si cargo, y mostrar un aviso con
+boton de reintentar.
+
+**17.3 El plan de pagos esta escrito a mano.**
+`slides/plan-pagos-slide.tsx:24-40`
+
+Los porcentajes 30/40/30 estan en el codigo. Si cambia la politica de pagos hay que
+editar y compilar. Sacarlos a la configuracion del negocio.
+
+**17.4 Letra de 12 pixeles.** `cierre-slide.tsx` lineas 112, 127, 159 y 197, y
+`plan-pagos-slide.tsx:150`. Es un catalogo que se mira de lejos: minimo 14.
+
+---
+
 ## Cómo verificar al terminar
 
 1. `npx tsc --noEmit` → 0 errores
