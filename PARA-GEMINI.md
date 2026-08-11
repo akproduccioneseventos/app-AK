@@ -603,6 +603,48 @@ en veinte segundos.
 
 ---
 
+## 27. Borrar algo deja cosas colgadas apuntando a la nada
+
+Ninguna de estas funciones mira que hay vinculado antes de borrar. No se nota en el
+momento: aparece meses despues, cuando alguien busca una factura y no entiende de
+que evento era.
+
+**Ya anotado en el punto 18.3:** borrar un presupuesto deja las facturas con
+`sourcePresupuestoId` apuntando a algo que no existe. Es el peor de todos porque
+ensucia los numeros del negocio.
+
+Los que faltan:
+
+**27.1 Borrar una fiesta deja las facturas colgadas.**
+`src/app/actions/fiesta/fiesta.actions.ts:835-856`
+
+`deleteFiesta` borra el archivo del evento y nada mas. Las facturas que estaban en
+`invoiceIds` de esa fiesta siguen existiendo, apuntando a un evento borrado.
+
+**27.2 Borrar un cliente deja presupuestos y fiestas sin dueno.**
+`src/app/actions/customers.ts:215-250`
+
+No mira si hay presupuestos con ese `customer.id` ni fiestas con ese
+`configuracion.clienteId`. El cliente desaparece y sus eventos quedan sin nombre.
+
+**27.3 Borrar un insumo deja presupuestos con precios que no se pueden recalcular.**
+`src/app/actions/insumos.ts:137-147`
+
+No mira si hay presupuestos que lo usan por `idServicioCatalogo`. Si despues se
+edita ese presupuesto y se intenta recalcular, falla en silencio. Ojo que para los
+menus si hay sincronizacion (lineas 37-84): falta hacer lo mismo para presupuestos.
+
+**Que hacer en las tres, y en la de proveedores del punto 6.** El mismo criterio:
+antes de borrar, contar lo que quedaria colgado. Si hay algo, **no borrar** y
+devolver un mensaje que diga cuantos son y de que tipo ("este cliente tiene 3
+presupuestos y 1 fiesta"). Que el equipo decida que hacer con eso primero.
+
+Para lo que ya esta guardado y quedo colgado de antes, una pantalla o comando de
+mantenimiento que liste las referencias rotas. Sin eso, los datos viejos siguen
+sucios aunque se arregle de aca en adelante.
+
+---
+
 ## Cómo verificar al terminar
 
 1. `npx tsc --noEmit` → 0 errores
