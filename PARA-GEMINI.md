@@ -449,8 +449,19 @@ Hoy el valor por defecto es 7 en tres lugares:
 - `src/app/(app)/fiestas/nueva/portal-cliente/page.tsx:946` — lo que muestra la
   pantalla de configuracion cuando esta vacio: `?? 7`
 
-**Que hacer.** Poner 30 en los tres. Que siga siendo configurable por fiesta: el
-dueno puede querer abrirlo antes en algun caso, pero nunca despues de los 30 dias.
+**Que hacer.** Poner 30 en los tres.
+
+**El dueno tiene que poder cambiarlo el mismo, sin tocar codigo.** Ya existe el
+campo en la configuracion del portal de cada fiesta
+(`src/app/(app)/fiestas/nueva/portal-cliente/page.tsx:941-948`, "Dias previos para
+abrir automaticamente la parte en vivo"). Ese campo **se queda y sigue siendo
+editable**: lo unico que cambia es el numero con el que arranca.
+
+Mejoras a ese campo mientras se toca:
+- Que diga al lado, en criollo, que significa: "la parte de la fiesta en vivo se le
+  abre al cliente esta cantidad de dias antes del evento".
+- Que muestre la fecha resultante para esa fiesta ("se abre el 12 de octubre"), asi
+  no hay que hacer la cuenta mentalmente.
 
 Ojo con las fiestas ya creadas: las que tengan `liveAccessDaysBefore: 7` guardado
 van a seguir con 7. Decidir si se migran a 30 o si se deja el valor guardado y solo
