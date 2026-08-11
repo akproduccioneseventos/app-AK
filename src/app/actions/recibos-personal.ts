@@ -88,8 +88,8 @@ export async function saveReciboFirmado(
     );
 
     const auditFields = payload.estado === 'pagado' ? {
-      pagadoPor: payload.pagadoPor || (existingIndex >= 0 ? all[existingIndex].pagadoPor : undefined) || username,
-      pagadoEn: payload.pagadoEn || (existingIndex >= 0 ? all[existingIndex].pagadoEn : undefined) || now,
+      pagadoPor: (existingIndex >= 0 ? all[existingIndex].pagadoPor : undefined) || username,
+      pagadoEn: (existingIndex >= 0 ? all[existingIndex].pagadoEn : undefined) || now,
     } : {};
 
     if (existingIndex >= 0) {

@@ -182,8 +182,21 @@ export async function getFiestaActual(): Promise<FiestaEnPlanificacion> {
     return all[0];
 }
 
+function validatePersonalAssignments(personalAsignado: FiestaEnPlanificacion['personalAsignado'] | undefined): string | null {
+  const counts = new Map<string, number>();
+  for (const assignment of personalAsignado || []) {
+    if (!assignment.empleadoId) continue;
+    const count = (counts.get(assignment.empleadoId) || 0) + 1;
+    if (count > 2) return 'Cada empleado puede tener como maximo 2 roles por evento.';
+    counts.set(assignment.empleadoId, count);
+  }
+  return null;
+}
+
 export async function saveFiesta(fiestaData: FiestaEnPlanificacion): Promise<{ success: boolean; fiesta?: FiestaEnPlanificacion; error?: string }> {
   await requireFiestaWriteAccess(fiestaData.id);
+  const assignmentError = validatePersonalAssignments(fiestaData.personalAsignado);
+  if (assignmentError) return { success: false, error: assignmentError };
   try {
     const filePath = path.join(FIESTAS_DIR, `${fiestaData.id}.json`);
     await writeData(filePath, await preserveFiestaSecrets(fiestaData.id, fiestaData));
@@ -195,6 +208,8 @@ export async function saveFiesta(fiestaData: FiestaEnPlanificacion): Promise<{ s
 
 export async function updateFiestaPartial(fiestaId: string, partialData: Partial<FiestaEnPlanificacion>): Promise<{ success: boolean; error?: string }> {
   await requireAppSession();
+  const assignmentError = validatePersonalAssignments(partialData.personalAsignado);
+  if (assignmentError) return { success: false, error: assignmentError };
   try {
     const filePath = path.join(FIESTAS_DIR, `${fiestaId}.json`);
     await updateDataPartial<FiestaEnPlanificacion>(filePath, partialData);
