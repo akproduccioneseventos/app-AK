@@ -436,6 +436,32 @@ normal al principio y que los va a ver apenas se carguen.
 
 ---
 
+## 22. La fase en vivo se abre 7 dias antes y tiene que ser 30
+
+**Regla del negocio (la dio el dueno): todo se activa 30 dias antes de la fiesta, o
+antes. No una semana.**
+
+Hoy el valor por defecto es 7 en tres lugares:
+
+- `src/lib/fiesta-defaults.ts:90` — `liveAccessDaysBefore: 7`
+- `src/lib/client-portal/access-phases.ts:26` — el respaldo cuando no hay valor
+  guardado: `?? 7`
+- `src/app/(app)/fiestas/nueva/portal-cliente/page.tsx:946` — lo que muestra la
+  pantalla de configuracion cuando esta vacio: `?? 7`
+
+**Que hacer.** Poner 30 en los tres. Que siga siendo configurable por fiesta: el
+dueno puede querer abrirlo antes en algun caso, pero nunca despues de los 30 dias.
+
+Ojo con las fiestas ya creadas: las que tengan `liveAccessDaysBefore: 7` guardado
+van a seguir con 7. Decidir si se migran a 30 o si se deja el valor guardado y solo
+cambia el defecto para las nuevas. **Lo mas seguro es migrar**, porque el 7 no lo
+eligio nadie: era el numero que venia de fabrica.
+
+**Verificar:** una fiesta nueva arranca en 30. Con la fiesta a 20 dias, la parte de
+fiesta en vivo ya se ve.
+
+---
+
 ## Cómo verificar al terminar
 
 1. `npx tsc --noEmit` → 0 errores
