@@ -165,6 +165,86 @@ async function fiestasFuturasConEsteEmpleado(empleadoId: string): Promise<string
   }
 }
 
+export interface ConflictoAgendaEmpleado {
+  nombreEvento: string;
+  horaInicio: string;
+  horaFin: string;
+  solapaHorario: boolean;
+}
+
+export function getFiestaTimeRange(fiesta: any): { startMs: number; endMs: number; horaInicio: string; horaFin: string; fechaStr: string } {
+  const rawFecha = String(fiesta?.configuracion?.fechaEvento ?? '').slice(0, 10);
+  const horaInicio = fiesta?.configuracion?.horaInicio || '21:00';
+  const horaFin = fiesta?.configuracion?.horaFin || '04:00';
+
+  const start = new Date(`${rawFecha}T${horaInicio}:00-03:00`);
+  let end = new Date(`${rawFecha}T${horaFin}:00-03:00`);
+  if (isNaN(end.getTime()) || isNaN(start.getTime())) {
+    const now = Date.now();
+    return { startMs: now, endMs: now + 6 * 3600 * 1000, horaInicio: '21:00', horaFin: '04:00', fechaStr: rawFecha };
+  }
+  if (end.getTime() <= start.getTime()) {
+    end = new Date(end.getTime() + 24 * 60 * 60 * 1000);
+  }
+  return { startMs: start.getTime(), endMs: end.getTime(), horaInicio, horaFin, fechaStr: rawFecha };
+}
+
+export async function verificarAgendaEmpleado(
+  empleadoId: string,
+  fechaEvento: string,
+  exceptoFiestaId?: string,
+  horaInicioTarget?: string,
+  horaFinTarget?: string,
+): Promise<{ mismoDiaNoSolapado: ConflictoAgendaEmpleado[]; solapadas: ConflictoAgendaEmpleado[] }> {
+  await requireAppSession();
+  const dia = String(fechaEvento ?? '').slice(0, 10);
+  if (!empleadoId || !dia) return { mismoDiaNoSolapado: [], solapadas: [] };
+
+  try {
+    const { getAllFiestas } = await import('./fiesta/fiesta.actions');
+    const fiestas = await getAllFiestas();
+
+    const targetDummy = {
+      configuracion: {
+        fechaEvento: dia,
+        horaInicio: horaInicioTarget || '21:00',
+        horaFin: horaFinTarget || '04:00',
+      },
+    };
+    const targetRange = getFiestaTimeRange(targetDummy);
+
+    const mismoDiaNoSolapado: ConflictoAgendaEmpleado[] = [];
+    const solapadas: ConflictoAgendaEmpleado[] = [];
+
+    for (const fiesta of fiestas as any[]) {
+      if (exceptoFiestaId && fiesta?.id === exceptoFiestaId) continue;
+      const tieneEmpleado = (fiesta?.personalAsignado ?? []).some((p: any) => p?.empleadoId === empleadoId);
+      if (!tieneEmpleado) continue;
+
+      const fRange = getFiestaTimeRange(fiesta);
+      if (fRange.fechaStr === dia) {
+        const solapa = targetRange.startMs < fRange.endMs && fRange.startMs < targetRange.endMs;
+        const conflicto: ConflictoAgendaEmpleado = {
+          nombreEvento: String(fiesta?.configuracion?.nombreEvento || 'Evento sin nombre'),
+          horaInicio: fRange.horaInicio,
+          horaFin: fRange.horaFin,
+          solapaHorario: solapa,
+        };
+
+        if (solapa) {
+          solapadas.push(conflicto);
+        } else {
+          mismoDiaNoSolapado.push(conflicto);
+        }
+      }
+    }
+
+    return { mismoDiaNoSolapado, solapadas };
+  } catch {
+    return { mismoDiaNoSolapado: [], solapadas: [] };
+  }
+}
+
 /**
  * Otras fiestas del MISMO DIA que ya tienen a este empleado asignado.
  *
@@ -177,24 +257,8 @@ export async function fiestasDelMismoDiaConEmpleado(
   fechaEvento: string,
   exceptoFiestaId?: string,
 ): Promise<string[]> {
-  await requireAppSession();
-  const dia = String(fechaEvento ?? '').slice(0, 10);
-  if (!empleadoId || !dia) return [];
-
-  try {
-    const { getAllFiestas } = await import('./fiesta/fiesta.actions');
-    const fiestas = await getAllFiestas();
-
-    return fiestas
-      .filter((fiesta: any) => {
-        if (exceptoFiestaId && fiesta?.id === exceptoFiestaId) return false;
-        if (String(fiesta?.configuracion?.fechaEvento ?? '').slice(0, 10) !== dia) return false;
-        return (fiesta?.personalAsignado ?? []).some((p: any) => p?.empleadoId === empleadoId);
-      })
-      .map((fiesta: any) => String(fiesta?.configuracion?.nombreEvento || 'una fiesta sin nombre'));
-  } catch {
-    return [];
-  }
+  const agenda = await verificarAgendaEmpleado(empleadoId, fechaEvento, exceptoFiestaId);
+  return agenda.mismoDiaNoSolapado.map(c => c.nombreEvento);
 }
 
 export async function deleteEmpleado(id: string): Promise<{ success: boolean; error?: string }> {

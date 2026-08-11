@@ -11,7 +11,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from '@/components/ui/dialog';
 import { Textarea } from '@/components/ui/textarea';
 import { ArrowLeft, Loader2, Save, Users, UserCheck, AlertTriangle, Info, RefreshCw, UserPlus, Trash2, MessageCircle, Send, CalendarDays, History, Search } from 'lucide-react';
-import { getEmpleados, fiestasDelMismoDiaConEmpleado } from '@/app/actions/empleados';
+import { getEmpleados, verificarAgendaEmpleado } from '@/app/actions/empleados';
 import { getRoles } from '@/app/actions/roles';
 import type { Empleado } from '@/types/empleado';
 import type { Rol } from '@/types/rol';
@@ -303,28 +303,52 @@ function AsignarPersonalEventoContent() {
         const empleado = allEmpleados.find(e => e.id === newlyAssignedEmpleadoId);
         const rol = allRoles.find(r => r.id === rolId);
 
-        // Una persona no puede estar en dos salones a la vez. Si ya esta anotada
-        // en otra fiesta del mismo dia se avisa, pero no se bloquea: a veces son
-        // dos eventos en horarios distintos y el equipo sabe lo que hace.
+        // Una persona no puede estar en dos salones a la vez en el mismo horario.
+        // Si hay solapamiento de horario se bloquea; si son en horarios distintos
+        // del mismo día, se muestra un aviso de advertencia.
         const fecha = currentFiesta.configuracion?.fechaEvento;
+        const horaInicio = currentFiesta.configuracion?.horaInicio;
+        const horaFin = currentFiesta.configuracion?.horaFin;
+
         if (empleado && fecha) {
-          fiestasDelMismoDiaConEmpleado(newlyAssignedEmpleadoId, fecha, currentFiesta.id)
-            .then(otras => {
-              if (otras.length === 0) return;
+          try {
+            const agenda = await verificarAgendaEmpleado(
+              newlyAssignedEmpleadoId,
+              fecha,
+              currentFiesta.id,
+              horaInicio,
+              horaFin
+            );
+
+            if (agenda.solapadas.length > 0) {
+              const solapa = agenda.solapadas[0];
               toast({
-                title: `${empleado.nombre} ya está anotado ese día`,
-                description: `También figura en ${otras.join(', ')}. Revisá que pueda estar en las dos.`,
+                title: `${empleado.nombre} tiene superposición de horario`,
+                description: `No se puede asignar: ya figura en "${solapa.nombreEvento}" (${solapa.horaInicio} a ${solapa.horaFin}hs) en el mismo horario.`,
                 variant: 'destructive',
                 duration: 10000,
               });
-            })
-            .catch(() => {
+              setAssignedStaff(previousStaff);
+              await handleAutoSave(previousStaff);
+              return;
+            }
+
+            if (agenda.mismoDiaNoSolapado.length > 0) {
+              const nombres = agenda.mismoDiaNoSolapado.map(c => `"${c.nombreEvento}" (${c.horaInicio} a ${c.horaFin}hs)`).join(', ');
               toast({
-                title: 'Verificación de agenda no disponible',
-                description: `No pudimos verificar si ${empleado.nombre} ya está anotado en otro evento ese día.`,
+                title: `${empleado.nombre} ya está anotado ese día`,
+                description: `También figura en ${nombres}. Revisá que pueda estar en las dos.`,
                 variant: 'destructive',
+                duration: 10000,
               });
+            }
+          } catch {
+            toast({
+              title: 'Verificación de agenda no disponible',
+              description: `No pudimos verificar si ${empleado.nombre} ya está anotado en otro evento ese día.`,
+              variant: 'destructive',
             });
+          }
         }
 
         if (empleado && rol) {

@@ -28,6 +28,32 @@ export async function updatePersonal(
     const currentData = await getFiestaById(fiestaId);
     if (!currentData) throw new Error("Fiesta no encontrada");
 
+    // Verificar en el servidor que ningún empleado tenga solapamiento de horario con otro evento
+    const fecha = currentData.configuracion?.fechaEvento;
+    if (fecha) {
+      const { verificarAgendaEmpleado, getEmpleados } = await import('../empleados');
+      const empleados = await getEmpleados();
+      for (const p of personal) {
+        if (!p.empleadoId) continue;
+        const agenda = await verificarAgendaEmpleado(
+          p.empleadoId,
+          fecha,
+          fiestaId,
+          currentData.configuracion?.horaInicio,
+          currentData.configuracion?.horaFin
+        );
+        if (agenda.solapadas.length > 0) {
+          const emp = empleados.find(e => e.id === p.empleadoId);
+          const empNombre = emp?.nombre || 'El empleado';
+          const conflicto = agenda.solapadas[0];
+          return {
+            success: false,
+            error: `No se puede asignar a ${empNombre} porque se solapa en horario con "${conflicto.nombreEvento}" (${conflicto.horaInicio} a ${conflicto.horaFin}hs).`,
+          };
+        }
+      }
+    }
+
     // PRIMERO se guarda, DESPUES se sincroniza. El orden no es un detalle:
     // `syncFiestaToGoogleWorkspace` vuelve a leer la fiesta de la base, asi que
     // si corre antes del guardado manda los avisos con la asignacion VIEJA. El

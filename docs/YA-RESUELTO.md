@@ -769,6 +769,7 @@ Verificado y cerrado el 9 de agosto de 2026.
   el mismo codigo construido sirvio los recorridos internos completos en menos de
   un minuto. La portada mantiene ISR de cinco minutos para no reconstruir fuentes
   de galeria y redes en cada visita.
+- **Bloqueo por solapamiento de horario de personal**: En `src/app/actions/empleados.ts` (`verificarAgendaEmpleado`), `src/app/actions/fiesta/personal.actions.ts` (`updatePersonal`) y `src/app/(app)/fiestas/nueva/personal/page.tsx`, se implementó el cálculo y verificación de rangos de horario de fiesta (`horaInicio` a `horaFin`). Si un empleado ya está asignado a otro evento el mismo día y sus horarios se solapan, la asignación se **bloquea** tanto en el cliente como en el servidor, informando el nombre del evento y la franja horaria ocupada. Si es el mismo día pero en horarios distintos sin solapamiento, se mantiene la advertencia.
 - **La matriz cerrada no sustituye el mundo real.** Los 19 eventos requieren
   Firebase productivo; Gmail, Instagram, Mercado Pago y Gemini requieren
   credenciales y respuesta del proveedor; impresora, camaras, codecs, brazo 360
