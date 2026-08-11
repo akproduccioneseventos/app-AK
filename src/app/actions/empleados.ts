@@ -5,7 +5,8 @@ import type { Empleado, NuevoEmpleadoFormData } from '@/types/empleado';
 import { createDataItem, deleteDataItem, readData, updateDataItem } from '@/lib/data-service';
 import { randomUUID } from 'crypto';
 import { uploadToStorage, deleteFromStorage } from '@/lib/firebase/storage';
-import { requireAppSession } from '@/lib/auth/require-session';
+import { requireAppSession, requirePermiso } from '@/lib/auth/require-session';
+import { PERMISOS } from '@/lib/auth/perfiles';
 
 const EMPLEADOS_FILE = 'empleados.json';
 const EMPLEADOS_COLLECTION = 'empleados';
@@ -197,7 +198,12 @@ export async function fiestasDelMismoDiaConEmpleado(
 }
 
 export async function deleteEmpleado(id: string): Promise<{ success: boolean; error?: string }> {
-  await requireAppSession();
+  // Dar de baja a alguien del equipo va con el mismo permiso que ver lo que cobra:
+  // es la ficha de una persona, con su contrato adjunto. Antes alcanzaba con tener
+  // sesion, asi que cualquiera del equipo podia borrar a un companero de la lista.
+  const permiso = await requirePermiso(PERMISOS.SUELDOS);
+  if (!permiso.ok) return { success: false, error: permiso.error };
+
   let empleados = await getEmpleados();
   const empleadoToDelete = empleados.find(e => e.id === id);
   if (!empleadoToDelete) {

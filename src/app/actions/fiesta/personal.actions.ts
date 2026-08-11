@@ -3,11 +3,21 @@
 import type { PersonalAsignadoDetalleStorage } from '@/types/fiesta';
 import { syncFiestaToGoogleWorkspace } from '../google-workspace';
 import { getFiestaById, saveFiesta } from './fiesta.actions';
+import { requirePermiso } from '@/lib/auth/require-session';
+import { PERMISOS } from '@/lib/auth/perfiles';
 
 export async function updatePersonal(
   fiestaId: string,
   personal: PersonalAsignadoDetalleStorage[]
 ): Promise<{ success: boolean; error?: string; googleSyncWarning?: string }> {
+  // Lo que se guarda aca incluye `eventSalary`: cuanto cobra cada persona por esa
+  // fiesta. Es el mismo dato que protegen los recibos, asi que pide el mismo
+  // permiso. Antes no comprobaba NADA: con solo conocer el codigo de una fiesta se
+  // podian cambiar los sueldos desde afuera, y ademas se disparaban los correos de
+  // asignacion al equipo.
+  const permiso = await requirePermiso(PERMISOS.SUELDOS);
+  if (!permiso.ok) return { success: false, error: permiso.error };
+
   try {
     const currentData = await getFiestaById(fiestaId);
     if (!currentData) throw new Error("Fiesta no encontrada");
