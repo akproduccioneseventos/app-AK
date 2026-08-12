@@ -23,6 +23,7 @@ export interface BudgetDisplaySettings {
   valuePropositions?: string[]; // Beneficios tipo "Por qué elegirnos"
   assistantWelcomeMessage?: string; // Mensaje inicial del asistente AK
   assistantFinalMessage?: string; // Mensaje final del asistente AK
+  virtualAssistantEnabled?: boolean; // Apagado de fábrica
   // Configuración de bienvenida y adicionales del simulador
   simulatorWelcomeTitle?: string;
   simulatorWelcomeSubtitle?: string;
@@ -43,6 +44,7 @@ export const defaultBudgetDisplaySettings: BudgetDisplaySettings = {
   whatsappMessageTemplate: "Hola, ya generé un presupuesto para mi evento y me gustaría coordinar una reunión para revisar detalles, despejar dudas y confirmar disponibilidad.",
   assistantWelcomeMessage: "¡Hola! Soy el Asistente AK 👋",
   assistantFinalMessage: "¿Hablamos? En una sola reunión resolvés todo y tu fiesta queda lista 🚀",
+  virtualAssistantEnabled: false,
   valuePropositions: [
     "Equipamiento profesional de alta gama",
     "Personal capacitado y con amplia experiencia",

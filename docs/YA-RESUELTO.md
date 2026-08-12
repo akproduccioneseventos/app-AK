@@ -974,6 +974,50 @@ Contenido público, y dos interruptores para lo mismo confunden y se contradicen
   igual, cerrada a propósito, en `src/lib/seo/paginas-publicas.ts`. Poner título en
   una pantalla interna no la publica: sólo mejora el nombre de la pestaña.
 
+## Las cuatro ideas grandes (12 de agosto de 2026)
+
+Llegaron de una propuesta de Gemini que **no compilaba** y traía dos cosas graves.
+Se repararon y se fusionó. Quedó andando:
+
+- **El mensaje de recontacto ahora lo escribe la inteligencia artificial** con los
+  datos de esa persona. Si el servicio falla o se llegó al tope de gasto, **manda el
+  mensaje de siempre**: nadie queda sin mensaje ni recibe uno a medio escribir.
+- **Asistente de ventas en las páginas públicas**, apagado de fábrica.
+- **Video del recuerdo** por evento, armado con las fotos del muro. Sólo entra
+  contenido aprobado, porque lee la lista pública que ya filtra por aprobación.
+- **Repaso de la mañana** en el panel interno: reusa el reporte de "Poner al día" y
+  esconde los cobros a quien no tiene el permiso de Contabilidad.
+
+### Lo que hubo que corregir, y por qué
+
+- **El asistente de ventas aparecía en TODA la aplicación.** Se filtraba con una
+  lista de pantallas prohibidas, incompleta: el globito de ventas salía encima de la
+  invitación de un casamiento, del portal de un cliente que ya contrató, de las
+  estaciones de la fiesta y de la presentación proyectada en el salón. Ahora es al
+  revés, **lista de lo permitido**: sólo las páginas de venta, las mismas que ve
+  Google. Una pantalla nueva queda sin asistente por defecto, que es el error
+  barato. Está en `src/lib/public-experience/donde-va-el-asistente.ts` con pruebas.
+- **Daba por dado el permiso para escribirle al cliente.** Guardaba
+  `marketingConsent: true` fijo cada vez que llegaba a armar el presupuesto, sin
+  importar lo que la persona hubiera contestado. Ese permiso es justo lo que
+  habilita mandarle WhatsApp automático después. Ahora se exige que el resumen lo
+  marque **y** que la última respuesta de la persona sea un sí. Si no, el dato se
+  guarda igual pero sin permiso: se pierde poder escribirle solo, que se arregla
+  llamándola, y no al revés.
+- **No se arma el presupuesto desde el chat.** La propuesta lo intentaba inventando
+  los datos que espera la función real (subtotal, costo estimado, servicios
+  incluidos), que son las cuentas que el cliente ve como precio firme. Sacarlas de
+  una conversación es inventar plata. El dato del interesado se guarda y el equipo
+  arma el presupuesto donde esas cuentas están bien hechas.
+- **Dos textos de venta cambiados sin pedirlo**, y a peor: el cierre del asistente
+  pasaba de invitar a una reunión a un simple "ya anotamos tus datos". Se devolvieron
+  los originales.
+- **La segunda llamada a la inteligencia artificial no se contaba** en el gasto. Ya
+  se cuenta.
+- Errores mecánicos reparados: nombres de campos inexistentes en tres lugares, y la
+  pantalla del video declaraba mal sus datos, lo que hacía fallar la publicación
+  aunque el revisor de tipos pasara.
+
 ## Cómo agregar algo a esta lista
 
 **Se anota SIEMPRE, en la misma propuesta que toca el código.** Orden del dueño

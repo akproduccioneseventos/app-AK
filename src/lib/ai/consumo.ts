@@ -11,7 +11,8 @@
  */
 
 /** Las funciones que consumen plata de verdad: las que generan imágenes. */
-export type FuncionConCosto = 'touchpix' | 'espejo-magico';
+export type FuncionConCosto = 'touchpix' | 'espejo-magico' | 'remarketing' | 'vendedor-virtual';
+
 
 /**
  * Costo estimado por generación, en pesos uruguayos.
@@ -22,6 +23,8 @@ export type FuncionConCosto = 'touchpix' | 'espejo-magico';
 export const COSTO_ESTIMADO_UYU: Record<FuncionConCosto, number> = {
   touchpix: 6,
   'espejo-magico': 6,
+  remarketing: 2,
+  'vendedor-virtual': 4,
 };
 
 /** Cuánto se avisa antes de llegar al tope. */
