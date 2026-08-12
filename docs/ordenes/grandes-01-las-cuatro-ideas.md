@@ -177,3 +177,38 @@ importa **hoy**, sin tener que revisar cinco módulos:
 
 Anotá todo en `docs/YA-RESUELTO.md` y en `docs/QUE-HAY-EN-LA-APP.md`, en esta misma
 propuesta.
+
+
+---
+
+# PENDIENTE de esta orden (12 de agosto de 2026)
+
+Los cuatro bloques se entregaron y están fusionados, con reparaciones. **Queda una
+sola cosa sin hacer, a propósito**, y va en la próxima propuesta:
+
+## Armar el presupuesto desde el chat del asistente
+
+**Qué pasó:** la entrega original lo intentaba, pero llamaba a
+`generateBudgetAndLeadFromSimulator` **inventando los campos**: le pasaba
+`eventoTipo` e `invitadosAdultos`, que no existen. Eso no compilaba, y arreglarlo a
+ojo era peor: esa función necesita `subtotal`, `costoEstimado` y
+`serviciosIncluidos`, que son las cuentas que el cliente después ve como **precio
+firme**. Sacarlas de una conversación es inventar plata.
+
+Por eso se sacó. Hoy el asistente guarda los datos del interesado y le dice que el
+equipo le pasa el presupuesto.
+
+**Qué hay que hacer para completarlo bien:**
+
+- Mirá la forma real que espera, `LeadFromQuickBudget` en
+  `src/types/armado-rapido.ts`: `clienteNombre`, `clienteContacto`, `eventoFecha`,
+  `adultos`, `ninos`, `adolescentes`, `subtotal`, `costoEstimado`,
+  `serviciosIncluidos`, `paqueteId`.
+- Los números **no los inventa la inteligencia artificial**. Se calculan con la
+  misma lógica que usa el simulador, a partir del paquete y la cantidad de
+  invitados. Si el paquete no se puede determinar con certeza, **no armes el
+  presupuesto**: dejá el dato guardado, como está ahora.
+- El asistente puede juntar los datos de la conversación (paquete que le interesa,
+  invitados, fecha), pero el precio sale del catálogo, siempre.
+- La pantalla del chat ya tiene lista la parte visual del enlace al presupuesto
+  (`budgetGenerated` y `budgetUrl`): no hace falta rehacerla.
