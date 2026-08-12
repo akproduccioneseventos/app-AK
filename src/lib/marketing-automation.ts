@@ -4,14 +4,20 @@ import { generateBlogPostAndSocialDraft } from '@/lib/blog-ai-generator';
 import { readData, writeData } from '@/lib/data-service';
 import { syncInstagramPosts } from '@/app/actions/social-media';
 import { MARKETING_AUTOMATION_INTERNAL_TOKEN } from '@/lib/marketing/internal-token';
+import {
+  correrRecontactoAutomatico,
+  type ResultadoDeRecontacto,
+} from '@/lib/marketing/recontacto-automatico';
 
 const AUTOMATION_STATE_FILE = 'marketing-automation-state.json';
 const SEO_INTERVAL_MS = 7 * 24 * 60 * 60 * 1000;
 const INSTAGRAM_INTERVAL_MS = 6 * 60 * 60 * 1000;
+const RECONTACTO_INTERVAL_MS = 6 * 60 * 60 * 1000;
 
 interface MarketingAutomationState {
   lastSeoRunAt?: string;
   lastInstagramSyncAt?: string;
+  lastRecontactoAt?: string;
   lastRunAt?: string;
   updatedAt?: string;
 }
@@ -38,6 +44,7 @@ export interface MarketingAutomationResult {
     videosCount: number;
     plannerCount: number;
   };
+  recontacto?: ResultadoDeRecontacto;
   message: string;
   error?: string;
   warning?: string;
@@ -65,6 +72,7 @@ export async function runMarketingAutomation(options?: {
   source?: 'admin' | 'cron';
   includeSeo?: boolean;
   includeInstagram?: boolean;
+  includeRecontacto?: boolean;
 }): Promise<MarketingAutomationResult> {
   const source = options?.source ?? 'admin';
   const includeSeo = options?.includeSeo !== false;
@@ -76,6 +84,38 @@ export async function runMarketingAutomation(options?: {
   const nowMs = now.getTime();
   const seoDue = includeSeo && (force || isDue(state.lastSeoRunAt, SEO_INTERVAL_MS, nowMs));
   const instagramDue = includeInstagram && (force || isDue(state.lastInstagramSyncAt, INSTAGRAM_INTERVAL_MS, nowMs));
+  const recontactoDue =
+    options?.includeRecontacto !== false &&
+    (force || isDue(state.lastRecontactoAt, RECONTACTO_INTERVAL_MS, nowMs));
+
+  // El recontacto va primero y aparte: se ejecuta aunque no toque ni Instagram ni
+  // el blog, porque escribirle al prospecto que no seno tiene su propio reloj. Se
+  // apaga solo si el dueno no lo prendio en Ajustes, que es como viene de fabrica.
+  let recontacto: ResultadoDeRecontacto | undefined;
+  if (recontactoDue) {
+    try {
+      recontacto = await correrRecontactoAutomatico(now);
+      if (recontacto.corrio) {
+        state.lastRecontactoAt = now.toISOString();
+        await writeData(
+          AUTOMATION_STATE_FILE,
+          { ...state, updatedAt: now.toISOString() },
+          undefined,
+          { skipAutoBackup: true },
+        );
+      }
+    } catch (error) {
+      // Que falle el recontacto no puede tumbar el resto del marketing automatico.
+      recontacto = {
+        corrio: false,
+        motivo: error instanceof Error ? error.message : 'error inesperado en el recontacto',
+        elegidos: 0,
+        enviados: 0,
+        fallados: 0,
+        descartados: 0,
+      };
+    }
+  }
 
   const nextSeoAt = state.lastSeoRunAt ? addMs(state.lastSeoRunAt, SEO_INTERVAL_MS) : now.toISOString();
   const nextInstagramAt = state.lastInstagramSyncAt ? addMs(state.lastInstagramSyncAt, INSTAGRAM_INTERVAL_MS) : now.toISOString();
@@ -89,6 +129,7 @@ export async function runMarketingAutomation(options?: {
       ranInstagram: false,
       nextSeoAt,
       nextInstagramAt,
+      recontacto,
       message: 'Marketing automatico al dia. No habia tareas pendientes.',
     };
   }
@@ -142,6 +183,7 @@ export async function runMarketingAutomation(options?: {
     nextInstagramAt: nextState.lastInstagramSyncAt ? addMs(nextState.lastInstagramSyncAt, INSTAGRAM_INTERVAL_MS) : nextInstagramAt,
     blogPost: blogResult?.blogPost,
     socialPost: blogResult?.socialPost,
+    recontacto,
     instagram: instagramResult
       ? {
           photosCount: instagramResult.photosCount,

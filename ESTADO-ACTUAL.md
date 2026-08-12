@@ -1,52 +1,60 @@
 # Acá quedé
 
 Última actualización: 12 de agosto de 2026.
-Rama: `main`, con las propuestas 943, 944 y 946 fusionadas. No hay propuestas abiertas.
+Rama: `main`, con las propuestas 952, 953 y 954 fusionadas. No hay propuestas
+abiertas. Salud completa en verde: acentos limpios, tipos en cero, 1472 pruebas,
+compila, y 20 de seguridad de la base.
 
 ## Lo más importante de esta tanda
 
-**Se estaba dejando de cobrar el ajuste anual.** La marca que lo activa se ponía
-en un solo lugar: al facturar. Todo contrato firmado y todavía sin facturar quedaba
-sin ella, así que la aplicación mostraba el precio del año en que se firmó. Afecta
-de lleno a los 19 contratos cargados de eventos anteriores, con otros precios y la
-fiesta por venir. Ahora se activa cuando el presupuesto queda contratado, que es la
-regla del dueño. Si él lo apaga a propósito para un cliente, se respeta.
+**El sitio tenía prohibido aparecer en Google.** Había una instrucción, de cuando
+la aplicación era sólo interna, que le decía a todos los buscadores que no
+indexaran ninguna página. La portada, bodas, quince, cumpleaños, catálogo y blog no
+podían salir en una búsqueda. Ya está destrabado, abriendo **página por página**:
+el portal del cliente, las invitaciones con la lista de invitados y las pantallas
+del equipo siguen cerradas a propósito. La lista vive en
+`src/lib/seo/paginas-publicas.ts` y hay seis pruebas que cuidan las dos puntas.
+**Falta que el dueño dé el aviso desde el panel de Google**, que es trámite suyo.
 
-**La presentación mostraba dos precios distintos al cliente.** El cierre calculaba
-su total sin la comida y la pantalla siguiente sí la incluía. Corregido, con una
-guarda para que no vuelva a separarse.
+**Se podía dar por firmado un contrato sin ser del equipo.** Subir el contrato en
+papel no pedía sesión, y esa acción marca el contrato firmado y deja el evento
+como Contratado. Igual pasaba con los documentos adjuntos y con la subida de
+imágenes. Las tres piden sesión ahora.
 
-## Qué quedó terminado
+**Borrar una foto de la galería no la borraba del todo**: quedaba el archivo en el
+depósito y el gemelo en el catálogo, así que el cliente la seguía viendo.
 
-- Pantalla nueva **Auditoría → "Poner al día los eventos"**: sólo lee y muestra
-  fiestas pasadas que siguen abiertas, eventos viejos con equipo asignado o tareas
-  sin terminar, contratos sin el ajuste anual (con cuánto se deja de cobrar) y
-  presupuestos aceptados que nunca se convirtieron en evento.
-- Los accesos flotantes de la web volvieron a la esquina, aprobado por el dueño.
-- Codex revisó la 946 y marcó cinco cosas: **las cinco eran válidas** y están
-  corregidas. La más grave escondía plata: el saldo pendiente no incluía el ajuste.
-- Salud completa sobre la versión principal: acentos limpios, tipos en cero, 1416
-  pruebas unitarias, compila, 94 de navegador y 20 de seguridad de la base.
+## Documentos nuevos que hay que usar
+
+- **`docs/QUE-HAY-EN-LA-APP.md`** — inventario verificado de inteligencia
+  artificial, redes sociales, marketing y posicionamiento, con el estado de cada
+  cosa. **Se lee antes de salir a inventariar nada** y se actualiza en la misma
+  propuesta que toca el código. Está referenciado desde `CLAUDE.md`.
+
+## Lo que le queda a Gemini
+
+`docs/ordenes/marketing-01-testimonios-y-recontacto.md`, cuatro bloques en **una
+sola propuesta**:
+
+1. La presentación grande muestra testimonios inventados en vez de los reales
+   aprobados. **Regla dura del dueño: una opinión mala nunca se publica**; sólo se
+   puede usar `getTestimonials()`, que devuelve nada más que las aprobadas.
+2. El planificador de redes marca como "Publicado" lo que sólo se importó de
+   Instagram. La app no publica en ninguna red: se copia y pega a mano.
+3. El recontacto automático del que no señó está escrito y **nunca se llama**. Hay
+   que engancharlo, apagado de fábrica y una sola vez por persona.
+4. Terminar las páginas de venta para Google (títulos, descripciones y ficha de
+   negocio). **Sin abrir ninguna página nueva por su cuenta.**
 
 ## Falsas alarmas verificadas (no volver a abrirlas)
 
-- El stock de bebidas no se devuelve al archivar una fiesta: está bien, para ese
-  momento se tomaron.
-- Los recordatorios cuentan invitados y no personas: está bien, se manda uno por
-  invitado.
-- Mensajes automáticos: sin hallazgos.
+- "No hay forma de juntar la opinión del cliente después del evento": **sí la hay**,
+  con pantalla propia por evento y conversión a testimonio.
+- Las opiniones malas no se publican solas: hay tres candados y los tres andan.
 
-## Dónde se perdió tiempo (no repetirlo)
+## Ideas que el dueño está evaluando (no empezadas)
 
-Las pruebas de navegador fallaron varias veces por el entorno, no por la app:
-Playwright busca un navegador que este contenedor no tiene (pasarle el de
-`/opt/pw-browsers/chromium-1194`), el puerto 3100 queda ocupado por servidores
-viejos, y al reiniciarse la máquina se borra la versión compilada. **Antes de
-investigar una falla masiva: liberar el puerto, confirmar el navegador y compilar.**
-
-## Lo próximo
-
-Sólo queda lo anotado en `PARA-GEMINI.md`: bloquear (no sólo avisar) cuando se
-asigna un empleado a dos fiestas que se solapan. Lo demás pendiente no es
-programación: son las comprobaciones con Firebase de producción, credenciales
-reales de los proveedores y prueba física en el salón.
+Recontacto personalizado con inteligencia artificial, asistente de venta en la
+página pública, video recuerdo automático de la fiesta, y repaso diario del
+negocio. Falta decidir cuál va primero. **Antes de sumar funciones que consumen
+inteligencia artificial hay que poner el control de gasto: hoy no existe.**
