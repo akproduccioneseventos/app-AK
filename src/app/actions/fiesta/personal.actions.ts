@@ -56,7 +56,8 @@ export async function updatePersonal(
 
     try {
       if (fecha && empleadosNuevos.length > 0) {
-        const { evaluarAgendaEmpleado, getEmpleados } = await import('../empleados');
+        const { getEmpleados } = await import('../empleados');
+        const { evaluarAgendaEmpleado } = await import('@/lib/staff-agenda-conflicts');
         const [empleados, fiestas] = await Promise.all([
           getEmpleados(),
           readActiveFiestasForStaffAgenda(() => getFiestas(false)),

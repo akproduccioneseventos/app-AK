@@ -8,8 +8,10 @@ jest.mock('@/app/actions/fiesta/fiesta.actions', () => ({
   saveFiesta: jest.fn(),
 }));
 
-jest.mock('@/app/actions/empleados', () => ({
+jest.mock('@/lib/staff-agenda-conflicts', () => ({
   evaluarAgendaEmpleado: jest.fn(),
+}));
+jest.mock('@/app/actions/empleados', () => ({
   getEmpleados: jest.fn(),
 }));
 
@@ -28,7 +30,8 @@ jest.mock('@/lib/staff-agenda-data', () => ({
 import { updatePersonal } from '@/app/actions/fiesta/personal.actions';
 import { requirePermiso } from '@/lib/auth/require-session';
 import { getFiestaById, getFiestas, saveFiesta } from '@/app/actions/fiesta/fiesta.actions';
-import { evaluarAgendaEmpleado, getEmpleados } from '@/app/actions/empleados';
+import { getEmpleados } from '@/app/actions/empleados';
+import { evaluarAgendaEmpleado } from '@/lib/staff-agenda-conflicts';
 import { syncFiestaToGoogleWorkspace } from '@/app/actions/google-workspace';
 import { readActiveFiestasForStaffAgenda } from '@/lib/staff-agenda-data';
 

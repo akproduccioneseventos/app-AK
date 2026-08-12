@@ -1,4 +1,4 @@
-import { evaluarAgendaEmpleado, getFiestaTimeRange } from '@/app/actions/empleados';
+import { evaluarAgendaEmpleado, getFiestaTimeRange } from '@/lib/staff-agenda-conflicts';
 
 const empleadoId = 'empleado-1';
 
