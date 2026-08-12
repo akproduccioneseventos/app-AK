@@ -5,6 +5,7 @@ import { syncFiestaToGoogleWorkspace } from '../google-workspace';
 import { getFiestaById, saveFiesta } from './fiesta.actions';
 import { requirePermiso } from '@/lib/auth/require-session';
 import { PERMISOS } from '@/lib/auth/perfiles';
+import { verificarAgendaEmpleado, getEmpleadoById } from '@/app/actions/empleados';
 
 export async function updatePersonal(
   fiestaId: string,
@@ -27,6 +28,22 @@ export async function updatePersonal(
 
     const currentData = await getFiestaById(fiestaId);
     if (!currentData) throw new Error("Fiesta no encontrada");
+
+    const fecha = currentData.configuracion?.fechaEvento;
+    const horaInicio = currentData.configuracion?.horaInicio;
+    const horaFin = currentData.configuracion?.horaFin;
+
+    if (fecha && horaInicio && horaFin) {
+      for (const p of personal) {
+        const agenda = await verificarAgendaEmpleado(p.empleadoId, fecha, horaInicio, horaFin, fiestaId);
+        if (agenda.superpuestas && agenda.superpuestas.length > 0) {
+          const conflict = agenda.superpuestas[0];
+          const emp = await getEmpleadoById(p.empleadoId);
+          const empName = emp ? emp.nombre : 'El empleado';
+          throw new Error(`${empName} ya está asignado a esa hora en "${conflict.nombre}" (de ${conflict.horaInicio} a ${conflict.horaFin}).`);
+        }
+      }
+    }
 
     // PRIMERO se guarda, DESPUES se sincroniza. El orden no es un detalle:
     // `syncFiestaToGoogleWorkspace` vuelve a leer la fiesta de la base, asi que

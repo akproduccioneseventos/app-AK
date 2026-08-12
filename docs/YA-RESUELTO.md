@@ -800,6 +800,13 @@ Verificado y cerrado el 9 de agosto de 2026.
   cliente (`clientChecklist`), que son cosas distintas; y las fiestas archivadas se
   usan solo para saber que un presupuesto ya tiene su evento, sin revisarlas como si
   estuvieran abiertas.
+- **Asignacion de personal bloqueada por solapamiento.** Si se intenta asignar a
+  un empleado a dos eventos el mismo dia y el horario de las fiestas se solapa,
+  ahora el sistema bloquea el autoguardado de la asignacion y avisa en que otra
+  fiesta (y en que horario) esta el empleado. Si son el mismo dia pero los
+  horarios no se pisan (ej: uno al mediodia y otro de noche), no bloquea: se
+  permite y se lanza el aviso para que el equipo lo confirme (el equipo sabe si 
+  le da el tiempo). Esto se verifica en el backend mediante `verificarAgendaEmpleado`.
 
 ## Cómo agregar algo a esta lista
 
