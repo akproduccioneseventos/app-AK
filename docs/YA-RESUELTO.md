@@ -769,7 +769,24 @@ Verificado y cerrado el 9 de agosto de 2026.
   el mismo codigo construido sirvio los recorridos internos completos en menos de
   un minuto. La portada mantiene ISR de cinco minutos para no reconstruir fuentes
   de galeria y redes en cada visita.
-- **Bloqueo por solapamiento de horario de personal**: En `src/app/actions/empleados.ts` (`verificarAgendaEmpleado`), `src/app/actions/fiesta/personal.actions.ts` (`updatePersonal`) y `src/app/(app)/fiestas/nueva/personal/page.tsx`, se implementó el cálculo y verificación de rangos de horario de fiesta (`horaInicio` a `horaFin`). Si un empleado ya está asignado a otro evento el mismo día y sus horarios se solapan, la asignación se **bloquea** tanto en el cliente como en el servidor, informando el nombre del evento y la franja horaria ocupada. Si es el mismo día pero en horarios distintos sin solapamiento, se mantiene la advertencia.
+- **El personal no puede quedar en dos eventos al mismo tiempo.** La validacion
+  usa fecha y horario local de Uruguay, contempla fiestas que cruzan medianoche
+  entre dias consecutivos y permite eventos contiguos. Un choque confirmado se
+  bloquea en el servidor antes de guardar y muestra todos los primeros eventos
+  involucrados. Si falta una hora no inventa `21:00 a 04:00`: guarda con un aviso
+  para que el encargado complete los horarios.
+- **La agenda se lee una sola vez al asignar personal.** Varias personas nuevas
+  se comparan contra la misma foto de fiestas activas. Editar sueldo o rol de una
+  asignacion existente no vuelve a cargar toda la agenda en cada tecla. Si la
+  lectura necesaria falla, no se guarda ni se envian avisos de Google; el equipo
+  recibe el error y puede reintentar sin crear una asignacion sin verificar.
+- **Dos servidores no pueden reservar al mismo empleado a la vez.** Un bloqueo
+  corto por empleado en Firestore cubre la lectura y el guardado; si otra
+  instancia ya esta actualizando esa agenda, la segunda operacion pide reintentar.
+  Los bloqueos vencen solos para no dejar personal inutilizable ante una caida.
+- **Los rechazos de Google Workspace quedan visibles.** Si Google responde
+  `success: false` sin lanzar una excepcion, la asignacion ya guardada se conserva
+  y el motivo queda registrado como aviso para poder reintentar la sincronizacion.
 - **La matriz cerrada no sustituye el mundo real.** Los 19 eventos requieren
   Firebase productivo; Gmail, Instagram, Mercado Pago y Gemini requieren
   credenciales y respuesta del proveedor; impresora, camaras, codecs, brazo 360
