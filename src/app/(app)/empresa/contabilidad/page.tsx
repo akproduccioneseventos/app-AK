@@ -117,7 +117,17 @@ export default function ContabilidadHubPage() {
             Panel Contable y Financiero
           </h1>
         </div>
-        <Button asChild variant="outline"><Link href="/empresa"><ArrowLeft className="w-4 h-4 mr-2" />Volver a Empresa</Link></Button>
+        <div className="flex flex-wrap gap-2">
+          {/* La comparacion entre fiestas entra por aca: es la pregunta contable
+              que decide que conviene vender. Sin este boton la pantalla existe y
+              no la encuentra nadie, que es lo que ya paso con otras dos. */}
+          <Button asChild className="rounded-xl font-bold">
+            <Link href="/comparativa-ganancias">
+              <TrendingUp className="w-4 h-4 mr-2" />Que fiesta deja mas plata
+            </Link>
+          </Button>
+          <Button asChild variant="outline"><Link href="/empresa"><ArrowLeft className="w-4 h-4 mr-2" />Volver a Empresa</Link></Button>
+        </div>
       </div>
       <CardDescription className="text-lg">
         Tu centro de control para todas las operaciones financieras y de ventas.
