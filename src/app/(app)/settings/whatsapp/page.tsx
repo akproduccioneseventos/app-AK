@@ -300,6 +300,37 @@ export default function WhatsAppSettingsPage() {
           </CardContent>
         </Card>
 
+        {/* Remarketing Automático */}
+        <Card className={`shadow-lg transition-opacity ${!settings.enabled ? 'opacity-50 pointer-events-none' : ''}`}>
+          <CardHeader>
+            <CardTitle className="font-headline text-xl flex items-center gap-2">
+              <Wand2 className="w-5 h-5 text-purple-600" />
+              Remarketing Automático
+            </CardTitle>
+            <CardDescription>
+              Activar la secuencia automática a los prospectos (leads) que cotizaron pero no señaron después de 48 horas. Utiliza el enfoque "vender sin vender".
+            </CardDescription>
+          </CardHeader>
+          <CardContent>
+            <div className="flex items-center justify-between p-4 border rounded-md bg-muted/30">
+              <Label htmlFor="remarketing-enabled" className="flex flex-col space-y-1 cursor-pointer">
+                <span className="text-base font-medium">Remarketing de 48hs {settings.whatsappRemarketingEnabled ? 'Activado' : 'Desactivado'}</span>
+                <span className="font-normal text-muted-foreground text-sm">
+                  {settings.whatsappRemarketingEnabled
+                    ? 'El sistema buscará diariamente leads no señados con +48hs de antigüedad y les enviará un WhatsApp automatizado.'
+                    : 'Apagado. No se enviarán recordatorios a leads perdidos o estancados.'}
+                </span>
+              </Label>
+              <Switch
+                id="remarketing-enabled"
+                checked={!!settings.whatsappRemarketingEnabled}
+                onCheckedChange={(val) => setSettings(s => s ? { ...s, whatsappRemarketingEnabled: val } : s)}
+                disabled={isSaving}
+              />
+            </div>
+          </CardContent>
+        </Card>
+
         {/* Message templates */}
         <Card className={`shadow-lg transition-opacity ${!settings.enabled ? 'opacity-50 pointer-events-none' : ''}`}>
           <CardHeader>

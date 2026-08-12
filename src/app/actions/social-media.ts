@@ -304,7 +304,7 @@ export async function syncInstagramPosts(
         link: post.videoUrl || instagramConn?.profileUrl,
         mediaUrl: post.mediaUrl,
         mediaType: post.mediaType === 'video' ? 'video' : 'image',
-        status: 'Publicado',
+        status: 'Importado de IG',
         performance: {
           likes: post.likes,
           interactions: post.likes,

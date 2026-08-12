@@ -101,11 +101,9 @@ andando. No se rompe nada delante del invitado.
 
 ### Ojo con esto
 
-Las publicaciones que se importan de Instagram se guardan con el estado
-**"Publicado"**. Es cierto en el sentido de que ya están publicadas *en Instagram*,
-pero en el planificador se lee como si la app las hubiera publicado. Conviene
-cambiarle el nombre a ese estado (por ejemplo "Ya está en Instagram") para que no
-confunda.
+### Ojo con esto
+
+Las publicaciones que se importan de Instagram se guardaban con el estado **"Publicado"**, lo que confundía. **Ahora se guardan con el estado "Importado de IG"** y todo queda más claro.
 
 ---
 
@@ -131,19 +129,11 @@ confunda.
   cliente deja su opinión, se llega desde la pantalla de post-evento y desde
   Ajustes, y esa opinión se puede convertir en testimonio. La portada del sitio
   muestra los testimonios reales cargados.
-
-### A medias
-
-- **Testimonios en la presentación grande**: la pantalla de testimonios de la
-  presentación muestra una lista **fija escrita a mano**, no los testimonios reales
-  que se van juntando. La portada del sitio sí usa los reales. Conviene unificar.
+- **Testimonios en la presentación grande**: muestra los testimonios reales aprobados, y sólo si no hay ninguno usa ejemplos fijos como respaldo.
 
 ### No está
 
-- **Recontacto automático de los que no contrataron.** La función está escrita, con
-  el mensaje redactado y todo, para escribirle al prospecto que no señó a las 48
-  horas. **Nadie la llama nunca.** Es plata que se deja arriba de la mesa: está
-  hecho el trabajo y falta prenderlo.
+- **Recontacto automático de los que no contrataron.** El trabajo está conectado y cuenta con un interruptor para que el dueño lo encienda desde ajustes (Ajustes -> WhatsApp -> Remarketing). Filtra prospectos >= 48hs sin presupuestos recientes.
 - **Envío de mails masivos.** No hay nada.
 - **Formulario de contacto** aparte del simulador.
 - **Reseñas de Google** u otro servicio de reputación: no hay integración.
@@ -166,16 +156,14 @@ eso puesto, nada de la parte pública podía aparecer en Google. Corregido: ver
 - Las invitaciones arman su título, descripción e imagen con los datos reales de
   cada fiesta, y se actualizan solas al guardar la fiesta.
 - El blog y las páginas por tipo de evento tienen título y descripción.
-- La portada tiene la ficha de negocio (dirección, teléfono, coordenadas de Salto,
+- La portada y las páginas principales (bodas, quince, cumpleaños, blog) tienen la ficha de negocio (dirección, teléfono, coordenadas de Salto,
   redes) que Google usa para mostrar el local.
 - La mayoría de las pantallas públicas se arman del lado del servidor, que es lo
   que Google lee bien.
 
 ### A medias
 
-- Varias pantallas públicas no tienen título ni descripción propios.
-- La ficha de negocio para Google está sólo en la portada, no en las páginas de
-  bodas, quince ni en el blog.
+- Varias pantallas públicas menores no tienen título ni descripción propios.
 
 ### No está
 

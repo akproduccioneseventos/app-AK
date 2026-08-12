@@ -907,3 +907,11 @@ Sum√° una l√≠nea en el m√≥dulo que corresponda. Con esto alcanza:
 - **D√≥nde**, si sirve para ubicarlo.
 - **Si la decisi√≥n tiene un porqu√© que no se ve en el c√≥digo, escribilo.** Ese es
   el dato que evita que otro lo "arregle" al rev√©s.
+
+ # #   A u d i t o r Ì a   P A R A - G E M I N I . m d      T a n d a   m a r k e t i n g - 0 1   ( 1 2   d e   a g o s t o   d e   2 0 2 6 ) 
+ 
+ -   * * T e s t i m o n i o s   e n   p a n t a l l a   L E D * * :   M o d i f i c a d o   	 e s t i m o n i o s - s l i d e . t s x   p a r a   c a r g a r   e x c l u s i v a m e n t e   t e s t i m o n i o s   a p r o b a d o s   ( g e t T e s t i m o n i a l s )   c o n   r e s p a l d o   s e g u r o   d e   t e s t i m o n i o s   d e   e j e m p l o   e s t · t i c o s   s i   l a   b a s e   e s t ·   v a c Ì a . 
+ -   * * R e d e s   S o c i a l e s * * :   A c t u a l i z a d a   U I   d e   p l a n i f i c a d o r   d e   r e d e s   y   s e r v i d o r   p a r a   m o s t r a r   e l   e s t a d o   ' I m p o r t a d o   d e   I G '   r e e m p l a z a n d o   e l   f a l s o   ' P u b l i c a d o ' . 
+ -   * * R e c o n t a c t o   A u t o m · t i c o   ( W h a t s A p p ) * * :   S e   i n c o r p o r Û   l a   l Û g i c a   d e   r e c o n t a c t o   a u t o m a t i z a d o   ( w h a t s a p p - r e m a r k e t i n g . t s )   p a r a   l e a d s   d e s a t e n d i d o s   d e   m · s   d e   4 8 h s   s i n   p r e s u p u e s t o s ,   i n t e g r a b l e   a   a u t o m a t i z a c i o n e s   g e n e r a l e s   c o n   t o g g l e   d e s d e   a j u s t e s   d e   d u e Ò o . 
+ -   * * S E O   e n   F i c h a s   d e   N e g o c i o * * :   I n y e c t a d o   d e   c o m p o n e n t e   L o c a l B u s i n e s s J s o n L d   e n   l a s   l a n d i n g s   / b o d a s ,   / q u i n c e a n e r a s ,   / c u m p l e a n o s   y   / b l o g   p a r a   q u e   G o o g l e   r e c u p e r e   l a   f i c h a   c o r r e c t a m e n t e .  
+ 

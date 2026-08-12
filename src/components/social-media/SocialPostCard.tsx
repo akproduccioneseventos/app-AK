@@ -60,7 +60,12 @@ export function SocialPostCard({ post, onDelete, isDeleting, onUpdate, onDuplica
                 {platformIcons[post.platform]}
                 <CardTitle className="text-lg font-headline">{post.platform}</CardTitle>
             </div>
-            <Badge variant={post.status === 'Publicado' ? 'default' : 'secondary'}>{post.status}</Badge>
+            <Badge 
+              variant={post.status === 'Publicado' ? 'default' : post.status === 'Importado de IG' ? 'outline' : 'secondary'}
+              className={post.status === 'Importado de IG' ? 'border-pink-300 text-pink-700 bg-pink-50 dark:bg-pink-950 dark:text-pink-300' : ''}
+            >
+              {post.status}
+            </Badge>
         </div>
         <CardDescription>
           Para: {post.isGeneralCampaign ? 'Campaña General' : post.eventName || 'Evento Específico'}

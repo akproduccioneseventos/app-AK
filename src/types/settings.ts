@@ -75,6 +75,7 @@ export interface WhatsAppSettings {
   reminderMessageTemplate: string;
   paymentReminderTemplate: string;
   automationRules?: WhatsAppAutomationRule[];
+  whatsappRemarketingEnabled?: boolean;
 }
 
 export const defaultWhatsAppSettings: WhatsAppSettings = {
@@ -82,6 +83,7 @@ export const defaultWhatsAppSettings: WhatsAppSettings = {
   sendingMode: 'manual',
   reminderMessageTemplate: 'Hola {{NOMBRE}}, te recordamos que tienes una reunión con *AK Producciones* el {{FECHA}} a las {{HORA}} hs. ¡Te esperamos!',
   paymentReminderTemplate: 'Hola {{NOMBRE}}, te recordamos que tienes un saldo pendiente de *{{SALDO}}* para tu evento del {{FECHA_EVENTO}}. Podés ver el detalle completo en: {{LINK}}',
+  whatsappRemarketingEnabled: false,
 };
 
 export interface WhatsAppTemplates {

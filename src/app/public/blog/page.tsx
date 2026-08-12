@@ -9,6 +9,7 @@ import { BlogInteractiveList } from '@/components/public/BlogInteractiveList';
 import { blogPosts as defaultBlogPosts } from '@/data/blog-posts';
 import { getBlogIcon } from '@/lib/blog-icons';
 import { getBlogCategoryLabel, getBlogPostImage, getBlogPostImageAlt } from '@/lib/blog-display';
+import { LocalBusinessJsonLd } from '@/components/seo/LocalBusinessJsonLd';
 
 export const metadata: Metadata = {
   title: 'Consejos para organizar eventos | Blog AK Producciones',
@@ -28,6 +29,7 @@ export default async function BlogPage() {
 
   return (
     <div className="min-h-screen bg-white font-body text-slate-900">
+      <LocalBusinessJsonLd url="https://akproducciones.uy/blog" />
       <PublicNavbar whatsappNumber={WHATSAPP_NUMBER} whatsappMessage={WHATSAPP_MESSAGE} />
 
       <main>
