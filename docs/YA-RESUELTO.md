@@ -970,9 +970,12 @@ Contenido público, y dos interruptores para lo mismo confunden y se contradicen
 - **Por qué el del catálogo va en la envoltura y no en la pantalla.** El catálogo se
   dibuja del lado del navegador, y esas pantallas no pueden declarar título. Va en
   `src/app/catalogo/layout.tsx`.
-- **No se abrió ninguna página nueva a Google.** La lista de lo permitido sigue
-  igual, cerrada a propósito, en `src/lib/seo/paginas-publicas.ts`. Poner título en
-  una pantalla interna no la publica: sólo mejora el nombre de la pestaña.
+## Las cuatro ideas grandes (12 de agosto de 2026)
+
+- **Recontacto IA por WhatsApp**: Se personaliza el mensaje de recontacto según datos del prospecto (nombre, evento, fecha, invitados). Incluye fallback al mensaje estático si falla la IA o no hay presupuesto (`hayPresupuestoParaIA`).
+- **Vendedor Virtual 24/7**: Asistente comercial en la web pública (`AsistenteVirtual.tsx`) que chatea con datos reales del catálogo sin inventar precios. Solicita `marketingConsent` antes de crear el lead en el CRM con `generateBudgetAndLeadFromSimulator` y aplica límite de tasa por visitante (`enforcePublicRateLimit`).
+- **Video del Recuerdo**: Slideshow automático determinista en `/evento/[id]/video-recuerdo` que filtra estrictamente las fotos aprobadas (`isApproved === true` / `moderationStatus === 'approved'`).
+- **Repaso de la Mañana**: Tablero matutino de lectura (`/repaso-diario`) que censura datos financieros a roles sin permiso `CONTABILIDAD`.
 
 ## Las cuatro ideas grandes (12 de agosto de 2026)
 

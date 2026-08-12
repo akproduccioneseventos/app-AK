@@ -179,10 +179,28 @@ eso puesto, nada de la parte pública podía aparecer en Google. Corregido: ver
 
 - **Todas las páginas que Google puede ver tienen título y descripción propios.**
 
-### A medias
+---
 
-### No está
+## Las cuatro ideas grandes — implementado y verificado el 12 de agosto de 2026
 
-- Nada que avise a Google cuando se agrega un servicio, una foto o un evento nuevo.
-  El listado de páginas se arma solo, pero el aviso a Google no existe (Google dejó
-  de aceptarlo en 2023; hoy se hace desde su panel).
+### 1. Recontacto personalizado por IA (WhatsApp) — ANDA
+- El mensaje enviado a prospectos que no señaron tras 48hs ya no es estático.
+- Si hay presupuesto (`hayPresupuestoParaIA`), redacta un mensaje personalizado criollo usando nombre, evento, fecha e invitados.
+- Si falla la IA o no hay presupuesto, realiza fallback automático al mensaje de siempre.
+
+### 2. Vendedor en Página Pública (24/7) — ANDA
+- Widget flotante interactivo para atención comercial continua (`AsistenteVirtual.tsx`).
+- Apagado de fábrica; usa datos reales del catálogo sin inventar precios.
+- Solicita `marketingConsent` explícito antes de generar el prospecto con `generateBudgetAndLeadFromSimulator`.
+- Incluye control de tasa de intentos (`enforcePublicRateLimit`) y fallback visual si se agota el presupuesto.
+
+### 3. Video del Recuerdo (Mañana Siguiente) — ANDA
+- Ruta pública `/evento/[id]/video-recuerdo` con slideshow inmersivo.
+- Consume únicamente contenido con moderación aprobada (`isApproved === true` / `moderationStatus === 'approved'`).
+- Sin coste de IA (despliegue CSS/HTML5 determinista) y con estado amigable si faltan fotos suficientes.
+
+### 4. Repaso de la Mañana — ANDA
+- Tablero matutino de lectura rápida (`/repaso-diario`).
+- Reutiliza la lógica de `puesta-al-dia.ts` y calcula saldos con `saldo-con-ajuste.ts`.
+- Protege la información financiera: los usuarios sin permiso de `CONTABILIDAD` no ven montos de dinero o cobros.
+
