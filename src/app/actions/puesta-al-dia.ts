@@ -25,14 +25,32 @@ export async function getPuestaAlDiaReport(): Promise<{
   if (!permiso.ok) return { success: false, error: permiso.error };
 
   try {
-    const [presupuestos, fiestas] = await Promise.all([
+    // Se revisan las fiestas ABIERTAS: son las que pueden estar desacomodadas.
+    // Las archivadas ya están cerradas y no hay nada que ordenar en ellas.
+    //
+    // Pero sí hacen falta para una cosa: saber que un presupuesto ya tiene su
+    // evento. Sin eso, un presupuesto cuyo evento se archivó correctamente
+    // aparecía como si nunca se hubiera creado la fiesta, que es alarma falsa
+    // justo en los eventos viejos, que son los que más se archivan.
+    const [presupuestos, abiertas, todas] = await Promise.all([
       getPresupuestos(true),
       getFiestas(false),
+      getFiestas(true),
     ]);
+
+    const presupuestosConEventoArchivado = new Set(
+      todas.map((f) => f.presupuestoId).filter(Boolean) as string[],
+    );
+
     return {
       success: true,
       generatedAt: new Date().toISOString(),
-      report: buildPuestaAlDiaReporte(fiestas, presupuestos),
+      report: buildPuestaAlDiaReporte(
+        abiertas,
+        presupuestos,
+        new Date(),
+        presupuestosConEventoArchivado,
+      ),
     };
   } catch (error) {
     return {

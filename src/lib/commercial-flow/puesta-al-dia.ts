@@ -1,6 +1,6 @@
 import type { FiestaEnPlanificacion } from '@/types/fiesta';
 import type { Presupuesto } from '@/types/presupuesto';
-import { getBudgetPaymentSummary } from '@/lib/budget/financial-guardrails';
+import { calcularEstadoDeCuenta } from '@/lib/budget/saldo-con-ajuste';
 import { parseEventDate } from '@/lib/public-experience/event-date';
 
 /**
@@ -69,9 +69,17 @@ function nombreDe(fiesta: FiestaEnPlanificacion): string {
 }
 
 export function buildPuestaAlDiaReporte(
+  /** Sólo las fiestas ABIERTAS: son las que pueden estar desacomodadas. */
   fiestas: FiestaEnPlanificacion[],
   presupuestos: Presupuesto[],
   hoy: Date = new Date(),
+  /**
+   * Presupuestos que ya tienen su evento creado, contando también los eventos
+   * archivados. Va aparte porque las fiestas archivadas no se revisan (ya están
+   * cerradas), pero sí cuentan para no decir que a un presupuesto le falta el
+   * evento cuando en realidad está guardado en el historial.
+   */
+  presupuestosConEventoArchivado: Set<string> = new Set(),
 ): PuestaAlDiaReporte {
   const items: PuestaAlDiaItem[] = [];
   const presupuestoPorId = new Map(presupuestos.map((p) => [p.id, p]));
@@ -87,10 +95,14 @@ export function buildPuestaAlDiaReporte(
     const base = { fiestaId: fiesta.id, nombre, fecha: fecha ?? '' };
 
     // 1. Plata primero: la fiesta se hizo y todavía queda saldo sin cobrar.
+    //
+    // Se usa el mismo cálculo que el estado de cuenta, con el ajuste anual
+    // incluido. Con el total pelado, un contrato de 100.000 pagado completo pero
+    // con ajuste del 15% no mostraba nada, cuando en realidad faltan 15.000.
     const presupuesto = fiesta.presupuestoId ? presupuestoPorId.get(fiesta.presupuestoId) : undefined;
     if (presupuesto) {
-      const resumen = getBudgetPaymentSummary(presupuesto);
-      if (resumen.balance > 0) {
+      const resumen = calcularEstadoDeCuenta(presupuesto);
+      if (resumen.saldo > 0) {
         items.push({
           ...base,
           gravedad: 'cobrar',
@@ -99,7 +111,7 @@ export function buildPuestaAlDiaReporte(
           // de entonces, y muchas veces sin los pagos cargados uno por uno. Por eso
           // esto se plantea como algo para mirar, no como una deuda confirmada.
           queHacer: 'Si es un evento viejo cargado para el registro, puede que falten los pagos: revisalo antes de reclamar nada.',
-          montoPendiente: resumen.balance,
+          montoPendiente: resumen.saldo,
         });
       }
     }
@@ -121,7 +133,11 @@ export function buildPuestaAlDiaReporte(
     // cargado para el registro puede dejar gente asignada y tareas pendientes en
     // fechas que ya fueron, ensuciando la operación de lo que sí viene.
     const personal = fiesta.personalAsignado ?? [];
-    const tareasAbiertas = (fiesta.clientChecklist ?? []).filter((t: { completada?: boolean }) => !t?.completada);
+    // Las tareas del equipo viven en `tareas`; `clientChecklist` es la lista que
+    // ve el cliente y es otra cosa. Se miran las dos, separadas.
+    const tareasEquipo = (fiesta.tareas ?? []).filter((t) => !t?.completada);
+    const tareasCliente = (fiesta.clientChecklist ?? []).filter((t: { completada?: boolean }) => !t?.completada);
+    const tareasAbiertas = [...tareasEquipo, ...tareasCliente];
     if (!yaCerrada && (personal.length > 0 || tareasAbiertas.length > 0)) {
       const partes: string[] = [];
       if (personal.length > 0) partes.push(`${personal.length} persona(s) del equipo asignada(s)`);
@@ -156,7 +172,9 @@ export function buildPuestaAlDiaReporte(
     const contratado = presupuesto.estado === 'Aceptado' || presupuesto.estado === 'Facturado';
     if (!contratado) continue;
     if (yaPaso(presupuesto.eventoFecha, hoy)) continue;
-    if (presupuesto.ajusteAnualActivo) continue;
+    // Si el dueño lo apagó a propósito para ese cliente, no se le insiste: sólo
+    // se avisa cuando nunca se decidió.
+    if (presupuesto.ajusteAnualActivo !== undefined) continue;
 
     const anioContrato = anioDe(presupuesto.timestamp ? String(presupuesto.timestamp).slice(0, 10) : undefined);
     const anioEvento = anioDe(presupuesto.eventoFecha);
@@ -164,8 +182,8 @@ export function buildPuestaAlDiaReporte(
 
     const anios = anioEvento - anioContrato;
     const porcentaje = presupuesto.ajusteAnualPorcentaje ?? 15;
-    const resumen = getBudgetPaymentSummary(presupuesto);
-    const seDejaDeCobrar = Math.round(resumen.total * (Math.pow(1 + porcentaje / 100, anios) - 1));
+    const resumen = calcularEstadoDeCuenta(presupuesto);
+    const seDejaDeCobrar = Math.round(resumen.totalBase * (Math.pow(1 + porcentaje / 100, anios) - 1));
 
     items.push({
       gravedad: 'cobrar',
@@ -179,7 +197,10 @@ export function buildPuestaAlDiaReporte(
   }
 
   // 6. Presupuestos cobrados o aceptados que nunca se convirtieron en evento.
-  const fiestaPorPresupuesto = new Set(fiestas.map((f) => f.presupuestoId).filter(Boolean) as string[]);
+  const fiestaPorPresupuesto = new Set([
+    ...(fiestas.map((f) => f.presupuestoId).filter(Boolean) as string[]),
+    ...presupuestosConEventoArchivado,
+  ]);
   for (const presupuesto of presupuestos) {
     const contratado = presupuesto.estado === 'Aceptado' || presupuesto.estado === 'Facturado';
     if (!contratado || fiestaPorPresupuesto.has(presupuesto.id)) continue;

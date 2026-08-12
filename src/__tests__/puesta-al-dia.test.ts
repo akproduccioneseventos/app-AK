@@ -104,3 +104,50 @@ describe('puesta al día de los eventos pasados', () => {
     expect(reporte.items[0].gravedad).toBe('cobrar');
   });
 });
+
+describe('correcciones de la revisión', () => {
+  it('no reclama por un presupuesto cuyo evento quedó archivado', () => {
+    const reporte = buildPuestaAlDiaReporte([], [presupuesto()], HOY, new Set(['p1']));
+
+    expect(reporte.items.some((i) => i.queLePasa.includes('nunca se creó el evento'))).toBe(false);
+  });
+
+  it('el saldo pendiente incluye el ajuste anual', () => {
+    // Contrato de 100.000 pagado completo, pero con ajuste anual del 15%:
+    // faltan 15.000. Con el total pelado no aparecía nada.
+    const conAjuste = presupuesto({
+      ajusteAnualActivo: true,
+      ajusteAnualPorcentaje: 15,
+      timestamp: '2025-02-01T10:00:00.000Z',
+      eventoFecha: '2026-05-10',
+      pagosCliente: [{ id: 'pago1', monto: 100000, estadoPago: 'confirmado', fecha: '2025-03-01' }],
+    });
+    const fiestaPasada = fiesta({ presupuestoId: 'p1', configuracion: { nombreEvento: 'XV', fechaEvento: '2026-05-10' } });
+
+    const reporte = buildPuestaAlDiaReporte([fiestaPasada], [conAjuste], HOY);
+    const cobrar = reporte.items.find((i) => i.gravedad === 'cobrar');
+
+    expect(cobrar).toBeTruthy();
+    expect(cobrar?.montoPendiente).toBeGreaterThan(0);
+  });
+
+  it('no insiste con el ajuste anual si el dueño lo apagó a propósito', () => {
+    const apagado = presupuesto({
+      ajusteAnualActivo: false,
+      timestamp: '2025-02-01T10:00:00.000Z',
+      eventoFecha: '2027-05-10',
+    });
+
+    const reporte = buildPuestaAlDiaReporte([], [apagado], HOY);
+
+    expect(reporte.items.some((i) => i.queLePasa.includes('ajuste anual'))).toBe(false);
+  });
+
+  it('cuenta las tareas del equipo, no sólo la lista del cliente', () => {
+    const conTareas = fiesta({ tareas: [{ id: 't1', texto: 'Cargar fotos', completada: false }] });
+    const reporte = buildPuestaAlDiaReporte([conTareas], [], HOY);
+    const aviso = reporte.items.find((i) => i.queLePasa.includes('tarea(s) sin terminar'));
+
+    expect(aviso).toBeTruthy();
+  });
+});
