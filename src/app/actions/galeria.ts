@@ -26,12 +26,43 @@ export async function addGaleriaVideo(video: GaleriaVideo): Promise<void> {
   await writeData(GALERIA_FILE, data);
 }
 
+/**
+ * Saca una foto o un video de la galería, de verdad.
+ *
+ * Antes sólo se lo sacaba de la lista y quedaban dos rastros: el archivo seguía
+ * en el depósito ocupando lugar (y pagándose), y la foto subida desde acá seguía
+ * apareciendo en el catálogo, porque se guarda un gemelo con el mismo archivo.
+ * Ahora se limpian los tres lugares, y el archivo se borra sólo si es nuestro y
+ * no lo está usando ninguna otra foto ni video.
+ */
 export async function deleteGaleriaItem(id: string): Promise<void> {
   await requireAppSession();
   const data = await getGaleriaItems();
+  const item: GaleriaFoto | GaleriaVideo | undefined =
+    data.fotos.find((f) => f.id === id) ?? data.videos.find((v) => v.id === id);
+  if (!item) return;
+
   data.fotos = data.fotos.filter((f) => f.id !== id);
   data.videos = data.videos.filter((v) => v.id !== id);
   await writeData(GALERIA_FILE, data);
+
+  const { deleteCatalogoFoto, getCatalogoFotos } = await import('./catalogo-fotos');
+  const { archivosHuerfanos } = await import('@/lib/galeria/borrado-seguro');
+  const { deleteFromStorage } = await import('@/lib/firebase/storage');
+
+  // El gemelo del catálogo se crea al subir la foto desde esta pantalla.
+  await deleteCatalogoFoto(`cat_${id}`).catch(() => undefined);
+
+  // Si el depósito falla, la foto igual quedó sacada de la vista del cliente:
+  // no se le devuelve un error al equipo por un archivo que quedó de más.
+  try {
+    const catalogo = await getCatalogoFotos();
+    for (const url of archivosHuerfanos(item, data, catalogo)) {
+      await deleteFromStorage(url).catch(() => undefined);
+    }
+  } catch {
+    // Nada que hacer: el borrado que le importa al usuario ya se guardó.
+  }
 }
 
 export async function updateGaleriaItem(

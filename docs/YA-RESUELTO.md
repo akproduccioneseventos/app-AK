@@ -830,6 +830,36 @@ Verificado y cerrado el 9 de agosto de 2026.
   exacto para poder resolverla, y la accion tiene una prueba que impide leer datos
   si falta el permiso de Contabilidad.
 
+## Galería, subida de archivos y editor de invitación (12 de agosto de 2026)
+
+- **Cualquiera de afuera podía dejar archivos en el depósito de la empresa.** La
+  acción que sube imágenes (`uploadPublicPageAsset`) no pedía sesión, y es la que
+  usan la galería, el editor de la invitación, la portada y las fichas del
+  personal. Cualquiera que conociera la dirección podía subir lo que quisiera y
+  quedaba publicado con una dirección nuestra, ocupando lugar que se paga todos
+  los meses. Ahora pide sesión del equipo. **Por qué se puede pedir sesión sin
+  romper nada:** se revisaron todos los lugares que la usan y son todos pantallas
+  internas; el invitado sube fotos por otro camino distinto (el muro social), que
+  no se tocó.
+- **Sacar una foto de la galería no la sacaba del todo.** Se iba de la lista pero
+  quedaban dos rastros: el archivo seguía para siempre en el depósito, y la foto
+  seguía apareciendo en el catálogo, porque al subirla se guarda un gemelo que
+  apunta al mismo archivo. El dueño borraba una foto y el cliente la seguía
+  viendo. Ahora se limpian los tres lugares. **Por qué se eligió así:** el archivo
+  se borra sólo si es nuestro y si ninguna otra foto ni video lo está usando; si
+  se borrara a ciegas, una foto compartida dejaría un cuadro roto en pantalla. La
+  lógica está en `src/lib/galeria/borrado-seguro.ts` con pruebas propias.
+- **Se podía dar por firmado un contrato sin ser del equipo.** Subir el contrato
+  firmado en papel no pedía sesión, y esa misma acción marca el contrato como
+  firmado y deja el evento como Contratado, que es lo que dispara la seña y la
+  organización. Igual pasaba con los documentos adjuntos del evento. Las dos
+  piden sesión del equipo ahora.
+- **La fecha de la ceremonia se guardaba con hora universal.** En el editor de la
+  invitación, el calendario de cada ceremonia guardaba la fecha con hora, y al
+  volver a abrirlo mostraba el día anterior; si el equipo tocaba el calendario,
+  ese día corrido se guardaba y era el que veía el invitado. Ahora se guarda el
+  día suelto, igual que la fecha del evento, y se lee con `parseEventDate`.
+
 ## Cómo agregar algo a esta lista
 
 **Se anota SIEMPRE, en la misma propuesta que toca el código.** Orden del dueño
