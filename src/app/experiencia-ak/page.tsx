@@ -1,4 +1,10 @@
+import type { Metadata } from 'next';
 import Link from 'next/link';
+
+export const metadata: Metadata = {
+  title: 'La Experiencia AK | AK Producciones Eventos',
+  description: 'Descubrí cómo transformamos la planificación de tu fiesta en una experiencia transparente, predecible y de primer nivel.',
+};
 import {
   ArrowRight,
   BadgeCheck,

@@ -177,9 +177,9 @@ eso puesto, nada de la parte pública podía aparecer en Google. Corregido: ver
 - **La ficha de negocio para Google** (nombre, dirección, teléfono, coordenadas y
   redes) está en la portada y también en bodas, quince, cumpleaños y el blog.
 
-### A medias
+- **Todas las páginas que Google puede ver tienen título y descripción propios.**
 
-- Varias pantallas públicas no tienen título ni descripción propios.
+### A medias
 
 ### No está
 
