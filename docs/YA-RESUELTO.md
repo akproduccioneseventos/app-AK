@@ -859,6 +859,10 @@ Verificado y cerrado el 9 de agosto de 2026.
   volver a abrirlo mostraba el día anterior; si el equipo tocaba el calendario,
   ese día corrido se guardaba y era el que veía el invitado. Ahora se guarda el
   día suelto, igual que la fecha del evento, y se lee con `parseEventDate`.
+- **Editor de invitación y vista previa (12 de agosto de 2026).**
+  - **Bloque 1 — Indicador de guardado en móvil**: En `src/components/ui/auto-save-indicator.tsx` y `pagina-web/page.tsx` se ajustó la visibilidad para que en celulares se muestre el estado de guardado (íconos visibles y texto adaptado a `sm`). En caso de error de guardado, la barra muestra el ícono rojo y al tocarlo salta la explicación completa del error.
+  - **Bloque 2 — Fidelidad en vista previa de plantillas**: Se removió el filtro `!isPreview` de los `EventParticles` en `GraziaTemplate.tsx` y `AllegriaTemplate.tsx` para que las animaciones de fondo se dibujen exactas en la vista previa del editor, sin afectar las restricciones funcionales de RSVP ni contadores.
+  - **Bloque 3 — Verificación de datos mínimos antes de compartir**: En `pagina-web/page.tsx`, al presionar "Ver Real" o copiar el enlace de la invitación, el sistema verifica si faltan datos esenciales (fecha, hora, salón, dirección). Si faltan, no bloquea el guardado pero abre un aviso en criollo detallando exactamente qué falta, con opción de ir directo a completarlo o continuar de todos modos.
 
 ## Cómo agregar algo a esta lista
 

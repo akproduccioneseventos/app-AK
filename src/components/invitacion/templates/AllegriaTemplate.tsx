@@ -212,13 +212,11 @@ export const AllegriaTemplate: React.FC<TemplateProps> = ({
                 onClick={() => onSectionClick?.('cabecera')}
                 className="relative min-h-[60vh] sm:min-h-[70vh] md:min-h-screen flex flex-col items-center justify-end pb-16 sm:pb-24 md:pb-32 overflow-hidden"
             >
-                {!isPreview && (
-                  <EventParticles
-                    tipoCelebracion={fiesta.configuracion.tipoCelebracion}
-                    primaryColor={primaryColor}
-                    count={12}
-                  />
-                )}
+                <EventParticles
+                  tipoCelebracion={fiesta.configuracion.tipoCelebracion}
+                  primaryColor={primaryColor}
+                  count={12}
+                />
                 <motion.div 
                     initial={{ scale: 1.2 }}
                     animate={{ scale: 1 }}

@@ -28,6 +28,7 @@ import { cn } from '@/lib/utils';
 import { useAutoSave } from '@/hooks/use-auto-save';
 import { AutoSaveIndicator } from '@/components/ui/auto-save-indicator';
 import { Sheet, SheetContent } from '@/components/ui/sheet';
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogFooter } from '@/components/ui/dialog';
 import { normalizeInvitationSlug } from '@/lib/invitacion-slug';
 import { getErrorMessage } from '@/lib/error-utils';
 
@@ -72,6 +73,9 @@ function PaginaWebPageContent() {
   const [templates, setTemplates] = useState<InvitacionDigitalTemplate[]>([]);
   const [slugInput, setSlugInput] = useState('');
   const [isSavingSlug, setIsSavingSlug] = useState(false);
+  const [missingDataDialogOpen, setMissingDataDialogOpen] = useState(false);
+  const [missingDataList, setMissingDataList] = useState<string[]>([]);
+  const [pendingAction, setPendingAction] = useState<(() => void) | null>(null);
   
   const [selectedSectionId, setSelectedSectionId] = useState<string | null>(null);
 
@@ -263,9 +267,51 @@ function PaginaWebPageContent() {
     }
   };
 
+  const checkMissingDataBeforeAction = (action: () => void) => {
+    const faltantes: string[] = [];
+
+    const fecha = fiesta?.configuracion?.fechaEvento
+      || invitacionData?.detallesEvento?.celebracion?.fecha
+      || invitacionData?.detallesEvento?.ceremoniaReligiosa?.fecha;
+    if (!fecha) {
+      faltantes.push('Falta la fecha del evento.');
+    }
+
+    const hora = fiesta?.configuracion?.horaInicio
+      || invitacionData?.detallesEvento?.celebracion?.hora
+      || invitacionData?.detallesEvento?.ceremoniaReligiosa?.hora;
+    if (!hora) {
+      faltantes.push('Falta la hora de inicio.');
+    }
+
+    const salon = fiesta?.configuracion?.salonFiestas
+      || invitacionData?.detallesEvento?.celebracion?.nombreLugar
+      || invitacionData?.detallesEvento?.ceremoniaReligiosa?.nombreLugar;
+    if (!salon || salon === '___________________' || salon.trim() === '') {
+      faltantes.push('Falta el nombre del salón o lugar.');
+    }
+
+    const direccion = invitacionData?.detallesEvento?.celebracion?.direccionLugar
+      || invitacionData?.detallesEvento?.ceremoniaReligiosa?.direccionLugar
+      || (fiesta?.configuracion as any)?.salonDireccion;
+    if (!direccion || direccion.trim() === '') {
+      faltantes.push('Falta la dirección de la celebración. Sin eso el invitado no sabe adónde ir.');
+    }
+
+    if (faltantes.length > 0) {
+      setMissingDataList(faltantes);
+      setPendingAction(() => action);
+      setMissingDataDialogOpen(true);
+    } else {
+      action();
+    }
+  };
+
   const handleCopyToClipboard = (url: string) => {
-    navigator.clipboard.writeText(url);
-    toast({ title: "Enlace Copiado" });
+    checkMissingDataBeforeAction(() => {
+      navigator.clipboard.writeText(url);
+      toast({ title: "Enlace Copiado" });
+    });
   };
   
   const downloadQR = (id: string, name: string) => {
@@ -440,12 +486,23 @@ function PaginaWebPageContent() {
         </div>
 
         <div className="flex items-center gap-2">
-            <AutoSaveIndicator isSaving={isSaving} lastSaved={lastSaved} saveError={saveError} className="hidden sm:flex" />
+            <AutoSaveIndicator isSaving={isSaving} lastSaved={lastSaved} saveError={saveError} className="flex" />
             <Button variant="outline" className="rounded-xl font-bold h-9" onClick={() => setTemplateGalleryOpen(true)}>
               <Sparkles className="w-4 h-4 sm:mr-2" /> <span className="hidden sm:inline">Cambiar Plantilla</span>
             </Button>
             {fiestaId ? (
-              <Button asChild variant="outline" className="rounded-xl font-bold h-9"><Link href={slugUrl || getFullLink('/invitacion/[fiestaId]')} target="_blank" className="hidden xs:block"><Eye className="w-4 h-4 mr-2"/>Ver Real</Link></Button>
+              <Button
+                variant="outline"
+                className="rounded-xl font-bold h-9 hidden xs:inline-flex items-center"
+                onClick={() => {
+                  const realUrl = slugUrl || getFullLink('/invitacion/[fiestaId]');
+                  checkMissingDataBeforeAction(() => {
+                    window.open(realUrl, '_blank');
+                  });
+                }}
+              >
+                <Eye className="w-4 h-4 mr-2"/>Ver Real
+              </Button>
             ) : (
               <Button variant="outline" className="hidden h-9 rounded-xl font-bold xs:inline-flex" disabled title="Selecciona una fiesta para abrir su página">
                 <Eye className="mr-2 h-4 w-4"/>Ver Real
@@ -539,6 +596,45 @@ function PaginaWebPageContent() {
         .custom-scrollbar::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 10px; }
         .custom-scrollbar::-webkit-scrollbar-thumb:hover { background: #94a3b8; }
       `}</style>
+      <Dialog open={missingDataDialogOpen} onOpenChange={setMissingDataDialogOpen}>
+        <DialogContent className="sm:max-w-md rounded-2xl">
+          <DialogHeader>
+            <DialogTitle className="flex items-center gap-2 text-amber-600">
+              <AlertTriangle className="w-5 h-5 shrink-0" /> Faltan datos en la invitación
+            </DialogTitle>
+            <DialogDescription className="text-sm text-slate-600 pt-2 space-y-2">
+              <span>Para que la invitación no salga al aire con huecos, te sugerimos completar los siguientes datos:</span>
+              <ul className="list-disc pl-5 text-amber-800 font-medium space-y-1 pt-1">
+                {missingDataList.map((item, idx) => (
+                  <li key={idx}>{item}</li>
+                ))}
+              </ul>
+            </DialogDescription>
+          </DialogHeader>
+          <DialogFooter className="flex flex-col sm:flex-row gap-2 pt-4">
+            <Button
+              variant="outline"
+              className="rounded-xl font-bold"
+              onClick={() => {
+                setMissingDataDialogOpen(false);
+                setEditorMode('avanzado');
+                setSelectedSectionId('detallesEvento');
+              }}
+            >
+              Ir a completarlos
+            </Button>
+            <Button
+              className="rounded-xl font-bold bg-amber-600 hover:bg-amber-700 text-white"
+              onClick={() => {
+                setMissingDataDialogOpen(false);
+                if (pendingAction) pendingAction();
+              }}
+            >
+              Continuar igual
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }
