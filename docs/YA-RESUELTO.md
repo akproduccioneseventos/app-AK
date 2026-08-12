@@ -981,3 +981,13 @@ Sumá una línea en el módulo que corresponda. Con esto alcanza:
 - **Dónde**, si sirve para ubicarlo.
 - **Si la decisión tiene un porqué que no se ve en el código, escribilo.** Ese es
   el dato que evita que otro lo "arregle" al revés.
+
+---
+
+### Bloques A, B, C, D, E (12 de agosto de 2026)
+
+- **Cápsula del tiempo con disparadores y alerta de 15s**: Se agregaron tarjetas de ideas ("¿Qué querés decirle a los agasajados?") y un aviso visual animado cuando restan 3 segundos (`videoDuration >= 12s`) antes del corte automático en `src/app/evento/buzon/[fiestaId]/page.tsx`.
+- **Seating Plan sin recortes en 150+ invitados**: En `carteleria/page.tsx`, se quitó `overflow-hidden` rígido y se agregó `print:overflow-visible print:h-auto` para permitir paginación fluida en eventos masivos.
+- **Prueba previa del operador**: Se creó la pantalla de pre-flight `src/app/evento/prueba-operador/page.tsx` para probar cámara, muro en vivo e impresión de hoja física antes del evento.
+- **Auditoría de plantillas y marcadores de contrato**: Verificada la existencia de validación al guardar marcadores desconocidos en `src/app/actions/settings.ts` y soporte de sinónimos `{{CLIENTE_DIRECCION}}` / `{{CLIENTE_DOMICILIO}}` en el generador de contratos.
+

@@ -1091,7 +1091,7 @@ function CarteleriaContent() {
               </div>
 
               {/* Guest list */}
-              <div className="flex-1 p-8 overflow-hidden">
+              <div className="flex-1 p-8 overflow-hidden print:overflow-visible print:h-auto">
                 {invitadosPorMesa.length > 0 ? (
                   <div className={{ '1': 'columns-1', '2': 'columns-2', '3': 'columns-3', '4': 'columns-4' }[seatingPlanColumns] + ' gap-5 text-sm'}>
                     {invitadosPorMesa.map(([mesa, nombres]) => {

@@ -1015,6 +1015,18 @@ export default function GuestBuzonPage() {
               <p className="text-xs text-zinc-300/85 leading-relaxed max-w-[280px] mx-auto">
                 Elegí el formato que prefieras para grabar o subir tu recuerdo y guardarlo para siempre.
               </p>
+
+              {/* Disparadores / Sugerencias de qué decir */}
+              <div className="rounded-2xl border border-indigo-500/30 bg-indigo-950/30 p-3.5 text-left text-xs backdrop-blur-md">
+                <p className="font-bold text-indigo-300 flex items-center gap-1.5 mb-1">
+                  <Sparkles className="w-3.5 h-3.5 text-amber-400" /> ¿No sabés qué decir? Probá con:
+                </p>
+                <ul className="text-zinc-300 space-y-1 list-disc list-inside text-[11px] leading-tight">
+                  <li>Un deseo especial para los agasajados.</li>
+                  <li>Tu anécdota favorita vivida juntos.</li>
+                  <li>Tu saludo más alegre para el futuro.</li>
+                </ul>
+              </div>
             </div>
 
             <div className="flex flex-col gap-4 mt-2">
@@ -1176,9 +1188,16 @@ export default function GuestBuzonPage() {
 
                         {/* Tiempo de Grabación */}
                         {vhsRecorderRef.current?.state === 'recording' && (
-                          <div className="absolute top-4 right-4 z-20 bg-black/60 backdrop-blur-md px-3 py-1.5 rounded-full flex items-center gap-2 border border-white/20">
-                            <span className="w-2.5 h-2.5 rounded-full bg-red-500 animate-pulse" />
-                            <span className="text-white text-xs font-bold font-mono">{videoDuration}s / 15s</span>
+                          <div className="absolute top-4 right-4 z-20 flex flex-col items-end gap-1">
+                            <div className="bg-black/60 backdrop-blur-md px-3 py-1.5 rounded-full flex items-center gap-2 border border-white/20">
+                              <span className="w-2.5 h-2.5 rounded-full bg-red-500 animate-pulse" />
+                              <span className="text-white text-xs font-bold font-mono">{videoDuration}s / 15s</span>
+                            </div>
+                            {videoDuration >= 12 && (
+                              <span className="bg-amber-500 text-black text-[10px] font-black px-2 py-0.5 rounded-full animate-bounce">
+                                ¡Quedan {15 - videoDuration}s!
+                              </span>
+                            )}
                           </div>
                         )}
                       </div>
