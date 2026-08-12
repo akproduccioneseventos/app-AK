@@ -147,13 +147,11 @@ const GraziaCabecera: React.FC<{ data: any, fiesta: FiestaEnPlanificacion, palet
 
     return (
         <section className="relative min-h-[60vh] sm:min-h-[70vh] md:min-h-screen flex flex-col items-center justify-center text-center overflow-hidden bg-slate-50">
-            {!isPreview && (
-              <EventParticles
-                tipoCelebracion={fiesta.configuracion.tipoCelebracion}
-                primaryColor={paleta.primary || '#8b5cf6'}
-                count={12}
-              />
-            )}
+            <EventParticles
+              tipoCelebracion={fiesta.configuracion.tipoCelebracion}
+              primaryColor={paleta.primary || '#8b5cf6'}
+              count={12}
+            />
             <motion.div 
                 initial={{ scale: 1.2, opacity: 0 }}
                 animate={{ scale: 1, opacity: 1 }}
