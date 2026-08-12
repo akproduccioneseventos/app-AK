@@ -864,6 +864,30 @@ Verificado y cerrado el 9 de agosto de 2026.
   - **Bloque 2 — Fidelidad en vista previa de plantillas**: Se removió el filtro `!isPreview` de los `EventParticles` en `GraziaTemplate.tsx` y `AllegriaTemplate.tsx` para que las animaciones de fondo se dibujen exactas en la vista previa del editor, sin afectar las restricciones funcionales de RSVP ni contadores.
   - **Bloque 3 — Verificación de datos mínimos antes de compartir**: En `pagina-web/page.tsx`, al presionar "Ver Real", copiar el enlace de la invitación, o descargar el código QR, el sistema verifica si faltan datos esenciales (fecha, hora, salón, dirección). Si faltan, no bloquea la acción sino que abre un aviso en criollo detallando qué falta, con opción de completarlo o continuar de todos modos. La función de validación `getDatosMinimosFaltantesInvitacion` fue extraída y exportada correctamente para que la prueba unitaria la ejecute sin fallos.
 
+## El sitio no podía aparecer en Google (12 de agosto de 2026)
+
+- **Google tenía prohibido mostrar todo el sitio.** Había una instrucción, de
+  cuando la aplicación era sólo interna, que le decía a todos los buscadores que no
+  indexaran ninguna página. Con eso puesto, la portada y las páginas de bodas,
+  quince, cumpleaños, catálogo y blog **no podían aparecer en una búsqueda**, por
+  más bien escritas que estuvieran. Ahora se abre página por página.
+- **Por qué se eligió abrir de a una y no todo.** En el mismo dominio conviven las
+  páginas de venta, las pantallas internas del equipo y las pantallas con datos de
+  una persona: el portal del cliente, las invitaciones con la lista de invitados,
+  la opinión post evento y los accesos del personal. Si se abriera todo, la fiesta
+  de un cliente podría aparecer en una búsqueda. Queda **cerrado por defecto** y la
+  lista de lo permitido vive en `src/lib/seo/paginas-publicas.ts`. Si mañana se
+  agrega una pantalla nueva y nadie toca la lista, queda cerrada, que es el error
+  barato.
+- **Se agregó el listado de páginas que se le entrega a Google**, que antes no
+  existía: aunque hubiera tenido permiso, tenía que encontrarlas de casualidad. Sale
+  de la misma lista que los permisos, así que no puede ofrecer una página prohibida
+  ni olvidarse de una permitida. Hay pruebas que verifican las dos cosas.
+- **Inventario nuevo en `docs/QUE-HAY-EN-LA-APP.md`.** Qué existe de verdad en
+  inteligencia artificial, redes sociales, marketing y posicionamiento, con el
+  estado de cada cosa. **Se lee antes de salir a inventariar nada**, para no volver
+  a auditar lo mismo; cuando se toca algo de esa lista, se actualiza ahí mismo.
+
 ## Cómo agregar algo a esta lista
 
 **Se anota SIEMPRE, en la misma propuesta que toca el código.** Orden del dueño

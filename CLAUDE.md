@@ -309,6 +309,20 @@ Qué mirar además de los errores:
 Al auditar, pedirle a los ayudantes las tres listas: qué está roto, qué es
 incómodo de usar y qué se ve mal. Al reportar, separarlas igual.
 
+## Antes de inventariar: `docs/QUE-HAY-EN-LA-APP.md`
+
+**Orden del dueño, 12 de agosto de 2026.** Cuando él pregunta "¿esto está?",
+auditar de nuevo cada vez cuesta tiempo y plata. El inventario de lo que existe
+—inteligencia artificial, redes sociales, marketing, posicionamiento en Google—
+queda escrito ahí, con el estado de cada cosa: anda, está a medias o no está.
+
+- **Se lee antes de salir a inventariar.** Si el dato está ahí, se responde de ahí,
+  sin mandar agentes a buscar de nuevo.
+- **Se actualiza en la misma propuesta que toca el código.** Si se modifica algo que
+  figura en la lista, se corrige la línea. Un inventario desactualizado es peor que
+  no tenerlo.
+- Si aparece un área nueva que no está inventariada, se agrega.
+
 ## Antes de auditar: `docs/YA-RESUELTO.md`
 
 Lista de lo que ya está arreglado y de las decisiones tomadas. **Se lee antes de
