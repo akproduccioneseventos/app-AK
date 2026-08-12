@@ -21,6 +21,7 @@ import { useAutoSave } from '@/hooks/use-auto-save';
 import { AutoSaveIndicator } from '@/components/ui/auto-save-indicator';
 import { getBlogPosts, saveBlogPost, deleteBlogPost } from '@/app/actions/blog';
 import { runMarketingAutomationFromAdmin } from '@/app/actions/marketing-automation';
+import { RecontactoAutomaticoCard } from '@/components/marketing/recontacto-automatico-card';
 import type { BlogPost, BlogCategory } from '@/types/blog';
 
 const CATALOG_TYPES = ['bodas', 'xv-anos', 'cumpleanos', 'fiestas', 'corporativos', 'aniversarios'];
@@ -357,6 +358,8 @@ export default function ContenidoPublicoSettingsPage() {
               <span className="rounded-full bg-white px-3 py-1 shadow-sm">SEO {automationStatus?.ranSeo ? 'generado' : 'programado'}</span>
             </div>
           </div>
+
+          <RecontactoAutomaticoCard />
 
           {/* List of articles */}
           <div className="border rounded-lg divide-y bg-slate-50/50">

@@ -888,6 +888,32 @@ Verificado y cerrado el 9 de agosto de 2026.
   estado de cada cosa. **Se lee antes de salir a inventariar nada**, para no volver
   a auditar lo mismo; cuando se toca algo de esa lista, se actualiza ahí mismo.
 
+## Testimonios reales y recontacto del que no señó (12 de agosto de 2026)
+
+- **La presentación que se le proyecta al cliente mostraba testimonios inventados.**
+  La aplicación junta opiniones reales y el dueño las aprueba una por una, y esas
+  aprobadas ya salían en la portada, pero la pantalla grande —donde más venden—
+  seguía con una lista escrita a mano. Ahora usa las reales aprobadas.
+- **Por qué se controla dos veces que estén aprobadas.** La consulta ya devuelve
+  sólo las aprobadas, y `src/lib/testimonios/para-mostrar.ts` vuelve a filtrar. Es a
+  propósito: **una opinión mala nunca se publica** (orden del dueño), y si alguien
+  cambia la consulta o le pasa la lista completa por error, igual no se cuela.
+  Mientras no haya ninguna aprobada se muestran las de ejemplo, para no dejar la
+  pantalla vacía en medio de una venta.
+- **El recontacto del que pidió presupuesto y no señó estaba escrito y apagado.**
+  La función y el mensaje existían desde hacía tiempo pero **ningún lugar del código
+  la llamaba**: trabajo hecho que no rendía nada. Ahora corre dentro del marketing
+  automático, cada seis horas.
+- **Por qué viene apagado de fábrica y con un interruptor en Ajustes.** Son mensajes
+  de WhatsApp a clientes reales y no se pueden deshacer; nadie los dispara por
+  sorpresa al publicar una versión nueva. El interruptor es sólo para el
+  administrador. Las reglas de a quién se le escribe viven separadas del envío, en
+  `src/lib/marketing/candidatos-recontacto.ts`, con pruebas propias: pasaron 48
+  horas, dio permiso de marketing, **una sola vez en la vida**, nunca a quien ya
+  contrató ni a quien está en una etapa terminada del embudo. Se anota la marca sólo
+  a los que recibieron el mensaje de verdad, así un envío fallido no pierde al
+  prospecto.
+
 ## Cómo agregar algo a esta lista
 
 **Se anota SIEMPRE, en la misma propuesta que toca el código.** Orden del dueño

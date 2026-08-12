@@ -1,9 +1,12 @@
 'use client';
 
+import { useEffect, useState } from 'react';
 import { motion } from 'framer-motion';
 import { SlideLayout } from '../components/slide-layout';
 import { getContenidoPorTipo } from '../lib/contenido-por-tipo';
 import { sharedTestimonials } from '@/data/event-catalogs/shared';
+import { getTestimonials } from '@/app/actions/feedback';
+import { testimoniosParaMostrar } from '@/lib/testimonios/para-mostrar';
 
 const SOURCE_ICON: Record<string, string> = {
   instagram: '📸',
@@ -18,6 +21,29 @@ interface TestimoniosSlideProps {
 
 export function TestimoniosSlide({ tipoFiesta }: TestimoniosSlideProps) {
   const contenido = getContenidoPorTipo(tipoFiesta);
+
+  // Los testimonios reales que el dueño aprobó. `getTestimonials` devuelve nada
+  // más que los aprobados, y `testimoniosParaMostrar` lo vuelve a controlar: una
+  // opinión mala no se proyecta nunca en la pantalla que ve el cliente. Mientras
+  // no haya ninguno aprobado se muestran los de ejemplo, para no dejar la pantalla
+  // vacía en medio de una venta.
+  const [testimonios, setTestimonios] = useState(() =>
+    testimoniosParaMostrar([], sharedTestimonials),
+  );
+
+  useEffect(() => {
+    let vigente = true;
+    getTestimonials()
+      .then((aprobados) => {
+        if (vigente) setTestimonios(testimoniosParaMostrar(aprobados, sharedTestimonials));
+      })
+      .catch(() => {
+        // Si no se pueden leer, quedan los de ejemplo: la presentación no se corta.
+      });
+    return () => {
+      vigente = false;
+    };
+  }, []);
 
   return (
     <SlideLayout overflowScroll>
@@ -44,7 +70,7 @@ export function TestimoniosSlide({ tipoFiesta }: TestimoniosSlideProps) {
 
         {/* Testimonials grid */}
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
-          {sharedTestimonials.map((t, i) => (
+          {testimonios.map((t, i) => (
             <motion.div
               key={t.id}
               initial={{ opacity: 0, y: 20 }}

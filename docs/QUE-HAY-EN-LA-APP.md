@@ -132,18 +132,19 @@ confunda.
   Ajustes, y esa opinión se puede convertir en testimonio. La portada del sitio
   muestra los testimonios reales cargados.
 
-### A medias
-
-- **Testimonios en la presentación grande**: la pantalla de testimonios de la
-  presentación muestra una lista **fija escrita a mano**, no los testimonios reales
-  que se van juntando. La portada del sitio sí usa los reales. Conviene unificar.
+- **Testimonios reales en la presentación grande**: la pantalla de testimonios usa
+  los que el dueño aprobó, igual que la portada. Si todavía no hay ninguno
+  aprobado, muestra los de ejemplo para no quedar vacía. **Una opinión mala nunca
+  se publica**: se controla dos veces.
+- **Recontacto del que pidió presupuesto y no señó**: corre dentro del marketing
+  automático, cada seis horas, y le manda **un** mensaje de WhatsApp. Viene
+  **apagado de fábrica**; se prende desde Ajustes → Contenido público, y sólo puede
+  hacerlo el administrador. Se le escribe una sola vez en la vida, sólo a quien dio
+  permiso de marketing, nunca a quien ya contrató ni a quien está en una etapa
+  terminada del embudo.
 
 ### No está
 
-- **Recontacto automático de los que no contrataron.** La función está escrita, con
-  el mensaje redactado y todo, para escribirle al prospecto que no señó a las 48
-  horas. **Nadie la llama nunca.** Es plata que se deja arriba de la mesa: está
-  hecho el trabajo y falta prenderlo.
 - **Envío de mails masivos.** No hay nada.
 - **Formulario de contacto** aparte del simulador.
 - **Reseñas de Google** u otro servicio de reputación: no hay integración.
