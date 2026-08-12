@@ -33,18 +33,27 @@ depósito y el gemelo en el catálogo, así que el cliente la seguía viendo.
 
 ## Lo que le queda a Gemini
 
-`docs/ordenes/marketing-01-testimonios-y-recontacto.md`, cuatro bloques en **una
-sola propuesta**:
+`docs/ordenes/marketing-01-testimonios-y-recontacto.md`, **dos** bloques en una
+sola propuesta:
 
-1. La presentación grande muestra testimonios inventados en vez de los reales
-   aprobados. **Regla dura del dueño: una opinión mala nunca se publica**; sólo se
-   puede usar `getTestimonials()`, que devuelve nada más que las aprobadas.
-2. El planificador de redes marca como "Publicado" lo que sólo se importó de
+1. El planificador de redes marca como "Publicado" lo que sólo se importó de
    Instagram. La app no publica en ninguna red: se copia y pega a mano.
-3. El recontacto automático del que no señó está escrito y **nunca se llama**. Hay
-   que engancharlo, apagado de fábrica y una sola vez por persona.
-4. Terminar las páginas de venta para Google (títulos, descripciones y ficha de
-   negocio). **Sin abrir ninguna página nueva por su cuenta.**
+2. Terminar las páginas de venta para Google (títulos, descripciones y ficha de
+   negocio). **Sin abrir ninguna página nueva por su cuenta**: la lista de lo
+   permitido está cerrada a propósito.
+
+**Los otros dos bloques ya los hizo Claude, no se los pidas de nuevo:** los
+testimonios reales en la presentación y el recontacto del que no señó. Tampoco se
+tocan `src/lib/testimonios/para-mostrar.ts` ni
+`src/lib/marketing/candidatos-recontacto.ts`: ahí viven dos reglas ya resueltas y
+probadas.
+
+## Lo que el dueño tiene que hacer él
+
+- **Dar el aviso a Google desde su panel**, para que pase a mirar el sitio. La app
+  ya le dio permiso; el trámite es de una vez y necesita su cuenta.
+- **Prender el recontacto automático** en Ajustes → Contenido público, cuando
+  quiera. Viene apagado a propósito.
 
 ## Falsas alarmas verificadas (no volver a abrirlas)
 
