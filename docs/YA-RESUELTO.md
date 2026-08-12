@@ -769,6 +769,24 @@ Verificado y cerrado el 9 de agosto de 2026.
   el mismo codigo construido sirvio los recorridos internos completos en menos de
   un minuto. La portada mantiene ISR de cinco minutos para no reconstruir fuentes
   de galeria y redes en cada visita.
+- **El personal no puede quedar en dos eventos al mismo tiempo.** La validacion
+  usa fecha y horario local de Uruguay, contempla fiestas que cruzan medianoche
+  entre dias consecutivos y permite eventos contiguos. Un choque confirmado se
+  bloquea en el servidor antes de guardar y muestra todos los primeros eventos
+  involucrados. Si falta una hora no inventa `21:00 a 04:00`: guarda con un aviso
+  para que el encargado complete los horarios.
+- **La agenda se lee una sola vez al asignar personal.** Varias personas nuevas
+  se comparan contra la misma foto de fiestas activas. Editar sueldo o rol de una
+  asignacion existente no vuelve a cargar toda la agenda en cada tecla. Si la
+  lectura necesaria falla, no se guarda ni se envian avisos de Google; el equipo
+  recibe el error y puede reintentar sin crear una asignacion sin verificar.
+- **Dos servidores no pueden reservar al mismo empleado a la vez.** Un bloqueo
+  corto por empleado en Firestore cubre la lectura y el guardado; si otra
+  instancia ya esta actualizando esa agenda, la segunda operacion pide reintentar.
+  Los bloqueos vencen solos para no dejar personal inutilizable ante una caida.
+- **Los rechazos de Google Workspace quedan visibles.** Si Google responde
+  `success: false` sin lanzar una excepcion, la asignacion ya guardada se conserva
+  y el motivo queda registrado como aviso para poder reintentar la sincronizacion.
 - **La matriz cerrada no sustituye el mundo real.** Los 19 eventos requieren
   Firebase productivo; Gmail, Instagram, Mercado Pago y Gemini requieren
   credenciales y respuesta del proveedor; impresora, camaras, codecs, brazo 360
@@ -783,8 +801,8 @@ Verificado y cerrado el 9 de agosto de 2026.
   `calcularEstadoDeCuenta` la exige para aplicar el ajuste. Resultado: la aplicacion
   mostraba el precio del anio en que se firmo. En los contratos cargados de eventos
   anteriores son miles de pesos por contrato. Ahora se completa al quedar contratado
-  (Aceptado o Facturado), dentro de `normalizePresupuestoFinancials`, que es por
-  donde pasan todas las escrituras de presupuestos, incluidas las importaciones.
+  (Aceptado o Facturado), dentro de `normalizePresupuestoFinancials`; las
+  importaciones historicas ya activan la misma marca en su flujo propio.
   **Se completa solo cuando nunca se decidio**: si el duenio lo apago a proposito
   para un cliente, se respeta.
 - **Pantalla nueva "Poner al dia los eventos"**, en Auditoria y de solo lectura.
@@ -800,6 +818,17 @@ Verificado y cerrado el 9 de agosto de 2026.
   cliente (`clientChecklist`), que son cosas distintas; y las fiestas archivadas se
   usan solo para saber que un presupuesto ya tiene su evento, sin revisarlas como si
   estuvieran abiertas.
+- **Segunda auditoria contable de la misma propuesta:** el anio se toma desde la
+  fecha real de firma, no desde una creacion anterior del presupuesto; el saldo
+  cobrable, los recibos, pagos rapidos, dashboard, portal y Mercado Pago incluyen
+  el ajuste sin modificar el total base del presupuesto; y el limite de pagos ya
+  permite cobrar exactamente ese saldo ajustado. Las operaciones legales de
+  cancelacion y cambio de fecha conservan el total base para no aplicar el ajuste
+  dos veces.
+- **La pantalla ya no duplica lecturas de Firestore.** Carga activos una vez y el
+  historial por separado. Tambien enlaza cada alerta con el evento o presupuesto
+  exacto para poder resolverla, y la accion tiene una prueba que impide leer datos
+  si falta el permiso de Contabilidad.
 
 ## Cómo agregar algo a esta lista
 

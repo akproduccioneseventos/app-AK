@@ -7,7 +7,11 @@ describe('internal operations integrity', () => {
   it('persists manual staff rows and rolls optimistic edits back on save failure', () => {
     const personal = read('src/app/(app)/fiestas/nueva/personal/page.tsx');
 
-    expect(personal).toContain('Promise<boolean>');
+    // Lo que importa no es el tipo exacto que devuelve el guardado, sino que
+    // ante una falla devuelva algo vacio y la pantalla deshaga el cambio. El
+    // guardado ahora devuelve el resultado completo para poder avisar tambien
+    // del aviso de Google, y `null` cuando falla.
+    expect(personal).toContain('return null;');
     expect(personal).toContain('const saved = await handleAutoSave(updatedStaff)');
     expect(personal).toContain('if (!saved) setAssignedStaff(previousStaff)');
     expect(personal).toContain('const addManualAssignment = async () =>');

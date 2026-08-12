@@ -11,7 +11,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from '@/components/ui/dialog';
 import { Textarea } from '@/components/ui/textarea';
 import { ArrowLeft, Loader2, Save, Users, UserCheck, AlertTriangle, Info, RefreshCw, UserPlus, Trash2, MessageCircle, Send, CalendarDays, History, Search } from 'lucide-react';
-import { getEmpleados, fiestasDelMismoDiaConEmpleado } from '@/app/actions/empleados';
+import { getEmpleados } from '@/app/actions/empleados';
 import { getRoles } from '@/app/actions/roles';
 import type { Empleado } from '@/types/empleado';
 import type { Rol } from '@/types/rol';
@@ -207,8 +207,8 @@ function AsignarPersonalEventoContent() {
     fetchInitialData();
   }, [fetchInitialData]);
 
-  const handleAutoSave = async (updatedStaff: PersonalAsignadoDetalleStorage[]): Promise<boolean> => {
-    if (!fiestaId) return false;
+  const handleAutoSave = async (updatedStaff: PersonalAsignadoDetalleStorage[]) => {
+    if (!fiestaId) return null;
     setIsSaving(true);
     try {
       const result = await updatePersonalFiestaActual(fiestaId, updatedStaff);
@@ -218,10 +218,10 @@ function AsignarPersonalEventoContent() {
       } else {
         setGoogleSyncWarning(null);
       }
-      return true;
+      return result;
     } catch (error: any) {
       toast({ title: "Error en auto-guardado", description: error.message, variant: "destructive" });
-      return false;
+      return null;
     } finally {
       setIsSaving(false);
     }
@@ -303,28 +303,12 @@ function AsignarPersonalEventoContent() {
         const empleado = allEmpleados.find(e => e.id === newlyAssignedEmpleadoId);
         const rol = allRoles.find(r => r.id === rolId);
 
-        // Una persona no puede estar en dos salones a la vez. Si ya esta anotada
-        // en otra fiesta del mismo dia se avisa, pero no se bloquea: a veces son
-        // dos eventos en horarios distintos y el equipo sabe lo que hace.
-        const fecha = currentFiesta.configuracion?.fechaEvento;
-        if (empleado && fecha) {
-          fiestasDelMismoDiaConEmpleado(newlyAssignedEmpleadoId, fecha, currentFiesta.id)
-            .then(otras => {
-              if (otras.length === 0) return;
-              toast({
-                title: `${empleado.nombre} ya está anotado ese día`,
-                description: `También figura en ${otras.join(', ')}. Revisá que pueda estar en las dos.`,
-                variant: 'destructive',
-                duration: 10000,
-              });
-            })
-            .catch(() => {
-              toast({
-                title: 'Verificación de agenda no disponible',
-                description: `No pudimos verificar si ${empleado.nombre} ya está anotado en otro evento ese día.`,
-                variant: 'destructive',
-              });
-            });
+        if (saved.agendaWarning) {
+          toast({
+            title: 'Asignación guardada con aviso de agenda',
+            description: saved.agendaWarning,
+            duration: 10000,
+          });
         }
 
         if (empleado && rol) {

@@ -7,6 +7,13 @@ import { randomUUID } from 'crypto';
 import { uploadToStorage, deleteFromStorage } from '@/lib/firebase/storage';
 import { requireAppSession, requirePermiso } from '@/lib/auth/require-session';
 import { PERMISOS } from '@/lib/auth/perfiles';
+import { readActiveFiestasForStaffAgenda } from '@/lib/staff-agenda-data';
+import { evaluarAgendaEmpleado, getFiestaTimeRange } from '@/lib/staff-agenda-conflicts';
+import type {
+  ConflictoAgendaEmpleado,
+  FiestaTimeRange,
+  ResultadoAgendaEmpleado,
+} from '@/lib/staff-agenda-conflicts';
 
 const EMPLEADOS_FILE = 'empleados.json';
 const EMPLEADOS_COLLECTION = 'empleados';
@@ -165,6 +172,36 @@ async function fiestasFuturasConEsteEmpleado(empleadoId: string): Promise<string
   }
 }
 
+export async function verificarAgendaEmpleado(
+  empleadoId: string,
+  fechaEvento: string,
+  exceptoFiestaId?: string,
+  horaInicioTarget?: string,
+  horaFinTarget?: string,
+): Promise<ResultadoAgendaEmpleado> {
+  const permiso = await requirePermiso(PERMISOS.SUELDOS);
+  if (!permiso.ok) throw new Error(permiso.error);
+  const dia = String(fechaEvento ?? '').slice(0, 10);
+  if (!empleadoId || !dia) {
+    return { mismoDiaNoSolapado: [], solapadas: [], horarioSinConfirmar: [] };
+  }
+
+  const { getFiestas } = await import('./fiesta/fiesta.actions');
+  const fiestas = await readActiveFiestasForStaffAgenda(() => getFiestas(false));
+  return evaluarAgendaEmpleado(
+    fiestas,
+    empleadoId,
+    {
+      configuracion: {
+        fechaEvento: dia,
+        horaInicio: horaInicioTarget || '',
+        horaFin: horaFinTarget || '',
+      },
+    },
+    exceptoFiestaId,
+  );
+}
+
 /**
  * Otras fiestas del MISMO DIA que ya tienen a este empleado asignado.
  *
@@ -177,24 +214,9 @@ export async function fiestasDelMismoDiaConEmpleado(
   fechaEvento: string,
   exceptoFiestaId?: string,
 ): Promise<string[]> {
-  await requireAppSession();
-  const dia = String(fechaEvento ?? '').slice(0, 10);
-  if (!empleadoId || !dia) return [];
-
-  try {
-    const { getAllFiestas } = await import('./fiesta/fiesta.actions');
-    const fiestas = await getAllFiestas();
-
-    return fiestas
-      .filter((fiesta: any) => {
-        if (exceptoFiestaId && fiesta?.id === exceptoFiestaId) return false;
-        if (String(fiesta?.configuracion?.fechaEvento ?? '').slice(0, 10) !== dia) return false;
-        return (fiesta?.personalAsignado ?? []).some((p: any) => p?.empleadoId === empleadoId);
-      })
-      .map((fiesta: any) => String(fiesta?.configuracion?.nombreEvento || 'una fiesta sin nombre'));
-  } catch {
-    return [];
-  }
+  const agenda = await verificarAgendaEmpleado(empleadoId, fechaEvento, exceptoFiestaId);
+  return [...agenda.solapadas, ...agenda.mismoDiaNoSolapado, ...agenda.horarioSinConfirmar]
+    .map(conflicto => conflicto.nombreEvento);
 }
 
 export async function deleteEmpleado(id: string): Promise<{ success: boolean; error?: string }> {

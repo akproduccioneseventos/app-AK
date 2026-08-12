@@ -1,4 +1,8 @@
-import { normalizePresupuestoFinancials } from '@/lib/budget/financial-guardrails';
+import {
+  getBudgetPaymentSummary,
+  normalizePresupuestoFinancials,
+  validatePaymentAgainstBudget,
+} from '@/lib/budget/financial-guardrails';
 import type { Presupuesto } from '@/types/presupuesto';
 
 /**
@@ -57,5 +61,52 @@ describe('el ajuste anual se marca solo cuando el evento queda contratado', () =
       presupuesto({ estado: 'Aceptado', ajusteAnualActivo: true }),
     );
     expect(resultado.ajusteAnualActivo).toBe(true);
+  });
+
+  it('no activa el ajuste cuando firma y evento son del mismo anio', () => {
+    const resultado = normalizePresupuestoFinancials(presupuesto({
+      estado: 'Aceptado',
+      fechaFirmaContrato: '2026-02-20T10:00:00.000Z',
+      eventoFecha: '2026-12-20',
+    }));
+
+    expect(resultado.ajusteAnualActivo).toBeUndefined();
+  });
+
+  it('usa la fecha de firma y no la fecha anterior de creacion', () => {
+    const resultado = normalizePresupuestoFinancials(presupuesto({
+      estado: 'Aceptado',
+      timestamp: '2025-12-20T10:00:00.000Z',
+      fechaFirmaContrato: '2026-01-10T10:00:00.000Z',
+      eventoFecha: '2026-12-20',
+    }));
+
+    expect(resultado.ajusteAnualActivo).toBeUndefined();
+  });
+
+  it('guarda y permite cobrar el saldo ajustado sin cambiar el total base', () => {
+    const resultado = normalizePresupuestoFinancials(presupuesto({
+      estado: 'Aceptado',
+      fechaFirmaContrato: '2026-02-20T10:00:00.000Z',
+      eventoFecha: '2027-12-20',
+      ajusteAnualPorcentaje: 15,
+      totalConDescuento: 100000,
+      pagosCliente: [{
+        id: 'pago-base',
+        monto: 100000,
+        estadoPago: 'confirmado',
+        fecha: '2026-03-01',
+        metodoPago: 'Transferencia',
+      }],
+    }), { preserveStoredTotal: true });
+
+    const cuentaCobrable = getBudgetPaymentSummary(resultado, {
+      includeAnnualAdjustment: true,
+    });
+    expect(resultado.totalConDescuento).toBe(100000);
+    expect(cuentaCobrable.total).toBe(115000);
+    expect(resultado.saldo).toBe(15000);
+    expect(validatePaymentAgainstBudget(resultado, 15000).ok).toBe(true);
+    expect(validatePaymentAgainstBudget(resultado, 15002).ok).toBe(false);
   });
 });
