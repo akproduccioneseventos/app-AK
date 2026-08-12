@@ -914,6 +914,31 @@ Verificado y cerrado el 9 de agosto de 2026.
   a los que recibieron el mensaje de verdad, así un envío fallido no pierde al
   prospecto.
 
+## Planificador de redes y ficha de negocio para Google (12 de agosto de 2026)
+
+- **El planificador decía "Publicado" sobre algo que la app no publicó.** Lo que se
+  importa de Instagram ya está publicado *en Instagram*, pero en el planificador se
+  leía como si la aplicación lo hubiera publicado, y la aplicación **no publica en
+  ninguna red**: el contenido se redacta acá y se copia y pega a mano. Ahora esos
+  quedan como "Importado de IG", con color propio, separados de lo que el equipo
+  todavía tiene que publicar.
+- **La ficha de negocio para Google** (nombre, dirección, teléfono, coordenadas de
+  Salto y redes) estaba sólo en la portada. Ahora también está en bodas, quince,
+  cumpleaños y el blog, que son las páginas que traen clientes.
+- **Por qué la ficha del blog apunta a `/public/blog` y no a `/blog`.** `/blog`
+  sólo redirige, y además está fuera de la lista de páginas que Google puede mirar.
+  Apuntar la ficha a una dirección prohibida no sirve de nada.
+
+### Lo que se descartó de esa propuesta, y por qué
+
+La propuesta traía además su propia versión de los testimonios reales y del
+recontacto del que no señó, que **ya estaban hechos y fusionados** poco antes. De
+haberla tomado entera, habría borrado el filtro doble que impide publicar una
+opinión mala, las reglas probadas de a quién se le puede escribir por WhatsApp y
+sus veinte pruebas. Se rescató sólo lo de arriba. Tampoco se tomó un segundo
+interruptor de recontacto en la pantalla de WhatsApp: ya hay uno en Ajustes →
+Contenido público, y dos interruptores para lo mismo confunden y se contradicen.
+
 ## Cómo agregar algo a esta lista
 
 **Se anota SIEMPRE, en la misma propuesta que toca el código.** Orden del dueño
