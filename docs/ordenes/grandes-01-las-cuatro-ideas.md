@@ -212,3 +212,43 @@ equipo le pasa el presupuesto.
   invitados, fecha), pero el precio sale del catálogo, siempre.
 - La pantalla del chat ya tiene lista la parte visual del enlace al presupuesto
   (`budgetGenerated` y `budgetUrl`): no hace falta rehacerla.
+
+
+## Ponerle la puerta a las dos pantallas nuevas
+
+**Esto es lo más urgente de todo lo que queda, y es poco trabajo.**
+
+El repaso de la mañana y el video del recuerdo están hechos y funcionan, pero
+**no hay un solo botón en toda la aplicación que lleve a ellos**. Se verificó
+buscando en todo el código: las únicas menciones están en un archivo de pruebas.
+Son dos trabajos terminados que hoy no usa nadie porque nadie sabe que existen.
+
+### 1. El repaso de la mañana
+
+Vive en `/repaso-diario` y no aparece en ningún lado.
+
+- Ponelo donde el equipo entra primero, no escondido en Ajustes: es lo que
+  conviene mirar apenas se abre la aplicación.
+- Como referencia de cómo se declara un acceso, mirá
+  `src/app/(app)/settings/page.tsx` alrededor de la línea 276 (título,
+  descripción, dirección e ícono).
+- **Que no lo vea quien no puede ver plata.** La pantalla ya esconde los cobros
+  por su cuenta, pero el acceso también tiene que respetar el permiso de
+  Contabilidad, para no ofrecerle al equipo una puerta que le va a mostrar poco.
+
+### 2. El video del recuerdo
+
+Vive en `/evento/[id]/video-recuerdo` y tampoco tiene entrada.
+
+Tiene que llegar a dos personas distintas:
+
+- **El cliente**, desde su portal: `src/app/portal/c/[accessKey]/PublicPortalView.tsx`.
+- **El invitado**, desde donde ya mira las fotos de la fiesta. Las secciones se
+  arman en `src/app/evento/social/[fiestaId]/page.tsx`, alrededor de la línea 441
+  (`availableSections`). Y también en la pantalla de después del evento,
+  `src/app/post-fiesta/[fiestaId]/page.tsx`, alrededor de la línea 94.
+
+**Cuidado con esto:** la pantalla del video ya se defiende sola cuando hay pocas
+fotos, pero **no ofrezcas el botón si el video no se va a poder armar**. Un botón
+que lleva a "todavía no hay suficientes recuerdos" decepciona al invitado justo el
+día después de la fiesta. Mostralo sólo cuando haya material aprobado suficiente.

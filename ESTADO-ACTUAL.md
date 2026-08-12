@@ -42,8 +42,17 @@ no tiene permiso.
 
 ## Lo que le queda a Gemini
 
-**Una sola cosa**, anotada al final de
-`docs/ordenes/grandes-01-las-cuatro-ideas.md`: armar el presupuesto desde el chat
+**Dos cosas**, las dos anotadas al final de
+`docs/ordenes/grandes-01-las-cuatro-ideas.md`.
+
+**Lo más urgente y lo más barato: ponerle la puerta a las dos pantallas nuevas.**
+El repaso de la mañana y el video del recuerdo están hechos y funcionan, pero no
+hay un solo botón en toda la aplicación que lleve a ellos. Verificado buscando en
+todo el código: las únicas menciones están en un archivo de pruebas. Dos trabajos
+terminados que hoy no usa nadie. En la orden están los archivos y las líneas
+exactas donde van.
+
+**Lo otro:** armar el presupuesto desde el chat
 del asistente. Se sacó a propósito porque la entrega original inventaba las cuentas
 que el cliente ve como precio firme. Ahí está explicada la forma real que espera la
 función y la regla: **los números salen del catálogo, no de la conversación**.
