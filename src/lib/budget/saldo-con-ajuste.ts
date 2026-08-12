@@ -1,5 +1,5 @@
 import type { Presupuesto } from '@/types/presupuesto';
-import { buildAnnualAdjustmentProjection } from '@/lib/budget/formal-budget';
+import { buildAnnualAdjustmentProjection, getYearFromDate } from '@/lib/budget/formal-budget';
 import { getBudgetPaymentSummary } from '@/lib/budget/financial-guardrails';
 
 /**
@@ -38,7 +38,9 @@ export function calcularEstadoDeCuenta(
   presupuesto: Presupuesto | null | undefined,
   porcentajePorDefecto?: number | null,
 ): EstadoDeCuenta {
-  const resumen = getBudgetPaymentSummary(presupuesto ?? null);
+  const resumen = getBudgetPaymentSummary(presupuesto ?? null, {
+    includeAnnualAdjustment: false,
+  });
   const vacio: EstadoDeCuenta = {
     totalBase: resumen.total,
     total: resumen.total,
@@ -52,12 +54,14 @@ export function calcularEstadoDeCuenta(
   if (!presupuesto) return vacio;
 
   const porcentaje = presupuesto.ajusteAnualPorcentaje ?? porcentajePorDefecto ?? undefined;
-  const anioDelPresupuesto = new Date(presupuesto.timestamp).getFullYear();
+  const anioDelContrato = getYearFromDate(
+    presupuesto.fechaFirmaContrato ?? presupuesto.timestamp,
+  );
 
   const proyeccion = buildAnnualAdjustmentProjection({
     baseTotal: resumen.total,
     eventDate: presupuesto.eventoFecha,
-    currentYear: Number.isNaN(anioDelPresupuesto) ? undefined : anioDelPresupuesto,
+    currentYear: anioDelContrato ?? undefined,
     adjustmentPct: porcentaje,
   });
 

@@ -1035,7 +1035,9 @@ export async function cancelServicesOrParty(
     if (budgetIndex === -1) return { success: false, error: 'Presupuesto no encontrado.' };
 
     const presupuesto = budgets[budgetIndex];
-    const paymentSummary = getBudgetPaymentSummary(presupuesto);
+    const paymentSummary = getBudgetPaymentSummary(presupuesto, {
+      includeAnnualAdjustment: false,
+    });
     const totalOriginal = paymentSummary.total;
     const totalPagado = paymentSummary.paid;
 
@@ -1310,7 +1312,9 @@ export async function changeEventDate(
     if (budgetIndex === -1) return { success: false, error: 'Presupuesto no encontrado.' };
 
     const presupuesto = budgets[budgetIndex];
-    const paymentSummary = getBudgetPaymentSummary(presupuesto);
+    const paymentSummary = getBudgetPaymentSummary(presupuesto, {
+      includeAnnualAdjustment: false,
+    });
     const totalOriginal = paymentSummary.total;
     const totalPagado = paymentSummary.paid;
 

@@ -1,7 +1,7 @@
 'use server';
 
 import { getPresupuestos } from '@/app/actions/presupuestos';
-import { getFiestas } from '@/app/actions/fiesta/fiesta.actions';
+import { getFiestas, getHistorialFiestas } from '@/app/actions/fiesta/fiesta.actions';
 import { requirePermiso } from '@/lib/auth/require-session';
 import { PERMISOS } from '@/lib/auth/perfiles';
 import {
@@ -32,14 +32,14 @@ export async function getPuestaAlDiaReport(): Promise<{
     // evento. Sin eso, un presupuesto cuyo evento se archivó correctamente
     // aparecía como si nunca se hubiera creado la fiesta, que es alarma falsa
     // justo en los eventos viejos, que son los que más se archivan.
-    const [presupuestos, abiertas, todas] = await Promise.all([
+    const [presupuestos, abiertas, archivadas] = await Promise.all([
       getPresupuestos(true),
       getFiestas(false),
-      getFiestas(true),
+      getHistorialFiestas(),
     ]);
 
     const presupuestosConEventoArchivado = new Set(
-      todas.map((f) => f.presupuestoId).filter(Boolean) as string[],
+      archivadas.map((f) => f.presupuestoId).filter(Boolean) as string[],
     );
 
     return {

@@ -783,8 +783,8 @@ Verificado y cerrado el 9 de agosto de 2026.
   `calcularEstadoDeCuenta` la exige para aplicar el ajuste. Resultado: la aplicacion
   mostraba el precio del anio en que se firmo. En los contratos cargados de eventos
   anteriores son miles de pesos por contrato. Ahora se completa al quedar contratado
-  (Aceptado o Facturado), dentro de `normalizePresupuestoFinancials`, que es por
-  donde pasan todas las escrituras de presupuestos, incluidas las importaciones.
+  (Aceptado o Facturado), dentro de `normalizePresupuestoFinancials`; las
+  importaciones historicas ya activan la misma marca en su flujo propio.
   **Se completa solo cuando nunca se decidio**: si el duenio lo apago a proposito
   para un cliente, se respeta.
 - **Pantalla nueva "Poner al dia los eventos"**, en Auditoria y de solo lectura.
@@ -800,6 +800,17 @@ Verificado y cerrado el 9 de agosto de 2026.
   cliente (`clientChecklist`), que son cosas distintas; y las fiestas archivadas se
   usan solo para saber que un presupuesto ya tiene su evento, sin revisarlas como si
   estuvieran abiertas.
+- **Segunda auditoria contable de la misma propuesta:** el anio se toma desde la
+  fecha real de firma, no desde una creacion anterior del presupuesto; el saldo
+  cobrable, los recibos, pagos rapidos, dashboard, portal y Mercado Pago incluyen
+  el ajuste sin modificar el total base del presupuesto; y el limite de pagos ya
+  permite cobrar exactamente ese saldo ajustado. Las operaciones legales de
+  cancelacion y cambio de fecha conservan el total base para no aplicar el ajuste
+  dos veces.
+- **La pantalla ya no duplica lecturas de Firestore.** Carga activos una vez y el
+  historial por separado. Tambien enlaza cada alerta con el evento o presupuesto
+  exacto para poder resolverla, y la accion tiene una prueba que impide leer datos
+  si falta el permiso de Contabilidad.
 
 ## Cómo agregar algo a esta lista
 
