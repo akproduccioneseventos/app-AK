@@ -464,6 +464,23 @@ export async function applyTouchpixTheme(
       };
     }
 
+    // Tope de gasto del mes. Si ya se paso, se cae al mismo camino que cuando no
+    // hay servicio configurado: la foto sale igual, con el efecto simple. Nunca
+    // se le corta la foto al invitado por una cuestion de plata.
+    const { hayPresupuestoParaIA, registrarConsumoIA } = await import(
+      "@/lib/ai/consumo-servidor"
+    );
+    if (!(await hayPresupuestoParaIA())) {
+      logger.warn("[touchpix-ai] Tope de gasto mensual alcanzado — se devuelve la foto sin efecto.");
+      return {
+        success: true,
+        imageBase64: base64,
+        themeApplied: false,
+        cssFallbackHint: theme.cssFallbackHint,
+      };
+    }
+    await registrarConsumoIA("touchpix");
+
     const generatedImage = await generateGeminiImage({
       images: [{ base64, contentType }],
       prompt: [

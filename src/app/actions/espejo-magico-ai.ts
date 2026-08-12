@@ -213,6 +213,24 @@ export async function applyEspejoFaceSwap(
       };
     }
 
+    // Tope de gasto del mes. Si ya se paso, se cae al mismo camino que cuando no
+    // hay servicio configurado: la foto sale igual, sin el cambio de cara. Nunca
+    // se le corta la foto al invitado por una cuestion de plata.
+    const { hayPresupuestoParaIA, registrarConsumoIA } = await import(
+      "@/lib/ai/consumo-servidor"
+    );
+    if (!(await hayPresupuestoParaIA())) {
+      logger.warn(
+        "[espejo-magico-ai] Tope de gasto mensual alcanzado — se devuelve la foto original.",
+      );
+      return {
+        success: true,
+        imageBase64: sourceBase64,
+        faceSwapApplied: false,
+      };
+    }
+    await registrarConsumoIA("espejo-magico");
+
     const transformedBase64 = await generateGeminiImage({
       images: [{ base64: sourceBase64, contentType: sourceContentType }],
       prompt: [

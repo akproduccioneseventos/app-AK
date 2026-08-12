@@ -939,6 +939,29 @@ sus veinte pruebas. Se rescató sólo lo de arriba. Tampoco se tomó un segundo
 interruptor de recontacto en la pantalla de WhatsApp: ya hay uno en Ajustes →
 Contenido público, y dos interruptores para lo mismo confunden y se contradicen.
 
+## Control de gasto de la inteligencia artificial (12 de agosto de 2026)
+
+- **Nadie avisaba cuánto se gastaba por mes.** Los topes que ya existían (tres
+  intentos por invitado, ciento cincuenta por hora por estación) frenan el abuso de
+  una persona, pero con cuatro fiestas grandes seguidas el gasto se notaba recién en
+  la factura, cuando ya estaba gastado. Ahora se cuenta cada foto con efecto y se ve
+  en Ajustes → Contenido público, con el gasto estimado del mes.
+- **Se puede poner un tope en pesos**, y al llegar al 80% avisa antes de que se
+  dispare.
+- **Por qué al llegar al tope no se corta nada.** La fotocabina y el espejo siguen
+  andando: sacan la foto igual, con el efecto simple, sin gastar. Es el mismo camino
+  que ya existía para cuando el servicio no está configurado. **Nunca se le corta la
+  foto a un invitado por una cuestión de plata**, y menos en medio de una fiesta.
+- **Por qué ante un error de lectura se deja gastar.** Quedarse sin efectos toda una
+  noche por un problema al leer el contador es peor que gastar de más una vez. Lo
+  mismo al anotar: si falla el guardado, la foto sale igual y se pierde un número del
+  contador.
+- **Se guarda un contador por mes y no un renglón por foto**, para no llenar la base
+  con miles de registros en una sola fiesta.
+- El costo por generación es una **estimación** para ver la tendencia y frenar a
+  tiempo, no la factura del proveedor. Está en `src/lib/ai/consumo.ts` y se cambia
+  ahí si cambia el precio.
+
 ## Cómo agregar algo a esta lista
 
 **Se anota SIEMPRE, en la misma propuesta que toca el código.** Orden del dueño

@@ -22,6 +22,7 @@ import { AutoSaveIndicator } from '@/components/ui/auto-save-indicator';
 import { getBlogPosts, saveBlogPost, deleteBlogPost } from '@/app/actions/blog';
 import { runMarketingAutomationFromAdmin } from '@/app/actions/marketing-automation';
 import { RecontactoAutomaticoCard } from '@/components/marketing/recontacto-automatico-card';
+import { GastoIaCard } from '@/components/marketing/gasto-ia-card';
 import type { BlogPost, BlogCategory } from '@/types/blog';
 
 const CATALOG_TYPES = ['bodas', 'xv-anos', 'cumpleanos', 'fiestas', 'corporativos', 'aniversarios'];
@@ -360,6 +361,8 @@ export default function ContenidoPublicoSettingsPage() {
           </div>
 
           <RecontactoAutomaticoCard />
+
+          <GastoIaCard />
 
           {/* List of articles */}
           <div className="border rounded-lg divide-y bg-slate-50/50">
