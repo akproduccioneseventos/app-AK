@@ -58,10 +58,14 @@ sola**: queda para revisión manual.
 - Corte a los sesenta segundos si una generación se cuelga.
 - Diez megas máximo por imagen.
 
-### Lo que falta
+### Control de gasto — ANDA
 
-- **Control de gasto — NO ESTÁ.** Los topes evitan el abuso pero nadie avisa cuánto
-  se lleva consumido en el mes. No hay tablero ni aviso de consumo.
+Se cuenta cada foto con efecto y se ve en Ajustes → Contenido público: cuántas van
+y cuánto se estima gastado en el mes. Se le puede poner un tope en pesos; al 80%
+avisa, y al llegar al tope los efectos se apagan solos. La fotocabina y el espejo
+**siguen andando igual**: sacan la foto con un efecto simple, sin gastar.
+
+### Lo que falta
 - Dos funciones escritas y nunca conectadas a ninguna pantalla: generación de
   testimonios y asignación automática de invitados a mesas. Ninguna es crítica.
 
