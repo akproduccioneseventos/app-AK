@@ -185,10 +185,32 @@ export function calculateBudgetFinancials(
   };
 }
 
+/**
+ * El ajuste anual corresponde SIEMPRE en un evento contratado que se celebra en
+ * un año posterior al del presupuesto. Es decisión del dueño y no se discute.
+ *
+ * Hasta ahora la marca se ponía únicamente al facturar. Un presupuesto aceptado
+ * y todavía sin facturar quedaba sin ella, y la aplicación le mostraba al cliente
+ * el precio del año en que se firmó. Con los contratos que se cargan de eventos
+ * anteriores eso se nota enseguida: son miles de pesos por contrato, en silencio.
+ *
+ * Sólo se completa cuando nunca se decidió (viene sin definir). Si el dueño la
+ * apagó a propósito para un cliente, se respeta.
+ */
+function conAjusteAnualCuandoCorresponde(presupuesto: Presupuesto): Presupuesto {
+  if (presupuesto.ajusteAnualActivo !== undefined) return presupuesto;
+
+  const contratado = presupuesto.estado === 'Aceptado' || presupuesto.estado === 'Facturado';
+  if (!contratado) return presupuesto;
+
+  return { ...presupuesto, ajusteAnualActivo: true };
+}
+
 export function normalizePresupuestoFinancials(
-  presupuesto: Presupuesto,
+  presupuestoOriginal: Presupuesto,
   options: { preserveStoredTotal?: boolean } = {},
 ): Presupuesto {
+  const presupuesto = conAjusteAnualCuandoCorresponde(presupuestoOriginal);
   const financials = calculateBudgetFinancials(presupuesto, options);
 
   return {
