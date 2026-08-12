@@ -206,7 +206,41 @@ export function buildPuestaAlDiaReporte(
     });
   }
 
-  // 6. Presupuestos cobrados o aceptados que nunca se convirtieron en evento.
+  // 6. Contratos cargados de eventos anteriores a los que les falta la fecha de
+  // firma real.
+  //
+  // El ajuste anual se calcula desde `fechaFirmaContrato`. Esa fecha la escribe
+  // la aplicación sola cuando se confirma la reserva desde el sistema; en un
+  // contrato que se carga desde papel no existe, y entonces se cae a la fecha en
+  // que se creó el registro, que es el día de la carga.
+  //
+  // Consecuencia: un contrato firmado en 2024 para una fiesta de 2026, cargado en
+  // 2026, queda como firmado en 2026 y **no le corresponde ningún ajuste**. Se
+  // pierde el aumento de dos años sin que nada lo avise.
+  for (const presupuesto of presupuestos) {
+    const contratado = presupuesto.estado === 'Aceptado' || presupuesto.estado === 'Facturado';
+    if (!contratado) continue;
+    if (presupuesto.fechaFirmaContrato) continue;
+    if (yaPaso(presupuesto.eventoFecha, hoy)) continue;
+
+    const anioRegistro = anioDe(presupuesto.timestamp ? String(presupuesto.timestamp).slice(0, 10) : undefined);
+    const anioEvento = anioDe(presupuesto.eventoFecha);
+    if (anioRegistro === null || anioEvento === null) continue;
+
+    items.push({
+      gravedad: 'cobrar',
+      fiestaId: '',
+      nombre: presupuesto.clienteNombre?.trim() || `Presupuesto ${presupuesto.numero ?? presupuesto.id}`,
+      fecha: presupuesto.eventoFecha ?? '',
+      href: `/presupuestos/${encodeURIComponent(presupuesto.id)}/ver`,
+      queLePasa: `No tiene guardada la fecha en que se firmó, así que la aplicación la toma del día en que se cargó (${anioRegistro}).`,
+      queHacer: anioEvento <= anioRegistro
+        ? `Si este contrato se firmó antes de ${anioRegistro}, le falta el ajuste anual y se está cobrando de menos.`
+        : 'Cargale la fecha real de firma para que el ajuste anual se cuente desde el año correcto.',
+    });
+  }
+
+  // 7. Presupuestos cobrados o aceptados que nunca se convirtieron en evento.
   const fiestaPorPresupuesto = new Set([
     ...(fiestas.map((f) => f.presupuestoId).filter(Boolean) as string[]),
     ...presupuestosConEventoArchivado,
