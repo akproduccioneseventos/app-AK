@@ -5,20 +5,22 @@ import { VideoRecuerdoClient } from './video-recuerdo-client';
 import { ShieldAlert } from 'lucide-react';
 
 interface Props {
-  params: { id: string };
-  searchParams: { t?: string };
+  params: Promise<{ id: string }>;
+  searchParams: Promise<{ t?: string }>;
 }
 
 export async function generateMetadata({ params, searchParams }: Props): Promise<Metadata> {
-  const event = await getPublicSocialEvent(params.id, searchParams.t);
+  const { id } = await params;
+  const { t } = await searchParams;
+  const event = await getPublicSocialEvent(id, t);
   return {
-    title: event ? `Recuerdos de ${event.nombre}` : 'Video Recuerdo - AK Producciones',
+    title: event ? `Recuerdos de ${event.configuracion.nombreEvento}` : 'Video Recuerdo - AK Producciones',
   };
 }
 
 export default async function VideoRecuerdoPage({ params, searchParams }: Props) {
-  const fiestaId = params.id;
-  const accessKey = searchParams.t;
+  const { id: fiestaId } = await params;
+  const { t: accessKey } = await searchParams;
 
   // 1. Validar evento público o con token
   const event = await getPublicSocialEvent(fiestaId, accessKey);
@@ -45,7 +47,7 @@ export default async function VideoRecuerdoPage({ params, searchParams }: Props)
   if (images.length < 5) {
     return (
       <div className="min-h-screen bg-slate-950 flex flex-col items-center justify-center p-6 text-white text-center space-y-4">
-        <h1 className="text-3xl font-dancing_script">Recuerdos de {event.nombre}</h1>
+        <h1 className="text-3xl font-dancing_script">Recuerdos de {event.configuracion.nombreEvento}</h1>
         <p className="text-slate-400 max-w-sm">
           Todavía se están procesando las fotos o no hay suficientes recuerdos aprobados para armar el video. 
           ¡Volvé a entrar más tarde!
@@ -55,5 +57,5 @@ export default async function VideoRecuerdoPage({ params, searchParams }: Props)
   }
 
   // 4. Renderizar el componente cliente que hace la magia de animación
-  return <VideoRecuerdoClient eventName={event.nombre} images={images} />;
+  return <VideoRecuerdoClient eventName={event.configuracion.nombreEvento} images={images} />;
 }

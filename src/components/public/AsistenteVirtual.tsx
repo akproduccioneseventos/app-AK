@@ -7,6 +7,7 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { Button } from '@/components/ui/button';
 import { getBudgetDisplaySettings } from '@/app/actions/settings';
 import { chatWithVirtualAssistant, type AssistantResponse } from '@/app/actions/asistente-virtual';
+import { mostrarAsistenteEn } from '@/lib/public-experience/donde-va-el-asistente';
 
 // Generar o recuperar sessionId (por simplicidad, un ID aleatorio por recarga/sesión)
 function getSessionId() {
@@ -37,11 +38,10 @@ export function AsistenteVirtual() {
   const [hasFetchedSettings, setHasFetchedSettings] = useState(false);
   const pathname = usePathname();
 
-  const isPublicRoute = !pathname?.startsWith('/fiestas') && 
-                        !pathname?.startsWith('/presupuestos') && 
-                        !pathname?.startsWith('/settings') &&
-                        !pathname?.startsWith('/agenda') &&
-                        !pathname?.startsWith('/clientes');
+  // Solo en las paginas de venta. La lista esta en un archivo aparte, y es una
+  // lista de lo permitido y no de lo prohibido: asi una pantalla nueva no se
+  // llena de globitos de venta por olvido.
+  const isPublicRoute = mostrarAsistenteEn(pathname);
 
   useEffect(() => {
     async function init() {

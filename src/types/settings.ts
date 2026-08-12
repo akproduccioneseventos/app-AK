@@ -43,7 +43,7 @@ export const defaultBudgetDisplaySettings: BudgetDisplaySettings = {
   bookingTerms: "Para confirmar la promoción y reservar todos los servicios, se requiere una seña de $5.000. El presupuesto es válido por 30 días.",
   whatsappMessageTemplate: "Hola, ya generé un presupuesto para mi evento y me gustaría coordinar una reunión para revisar detalles, despejar dudas y confirmar disponibilidad.",
   assistantWelcomeMessage: "¡Hola! Soy el Asistente AK 👋",
-  assistantFinalMessage: "¡Muchas gracias! Ya anotamos tus datos y pronto te pasaremos el presupuesto completo.",
+  assistantFinalMessage: "¿Hablamos? En una sola reunión resolvés todo y tu fiesta queda lista 🚀",
   virtualAssistantEnabled: false,
   valuePropositions: [
     "Equipamiento profesional de alta gama",
@@ -51,7 +51,7 @@ export const defaultBudgetDisplaySettings: BudgetDisplaySettings = {
     "Flexibilidad absoluta en la planificación",
     "Garantía de satisfacción y puntualidad"
   ],
-  simulatorWelcomeTitle: "¡Armemos tu fiesta!",
+  simulatorWelcomeTitle: "Ingresá tus datos de contacto",
   simulatorWelcomeSubtitle: "Guardamos tu avance para que el equipo pueda ayudarte si no terminás la simulación."
 };
 

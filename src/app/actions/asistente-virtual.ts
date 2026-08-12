@@ -2,7 +2,7 @@
 
 import { enforcePublicRateLimit } from '@/lib/commercial/public-rate-limit';
 import { normalizeUruguayPhone } from '@/lib/commercial/contact';
-import { getArmadoRapidoConfig, captureSimulatorLeadProgress, generateBudgetAndLeadFromSimulator } from '@/app/actions/armado-rapido';
+import { getArmadoRapidoConfig, captureSimulatorLeadProgress } from '@/app/actions/armado-rapido';
 import { hayPresupuestoParaIA, registrarConsumoIA } from '@/lib/ai/consumo-servidor';
 import { generateWithGeminiFallback, geminiCommercialModel } from '@/ai/genkit';
 import type { MessageData } from 'genkit';
@@ -13,6 +13,26 @@ export interface AssistantResponse {
   error?: string;
   budgetGenerated?: boolean;
   budgetUrl?: string;
+}
+
+/**
+ * Si la persona dijo que si, con sus palabras.
+ *
+ * No alcanza con que el resumen automatico diga que dio permiso: un resumen puede
+ * equivocarse, y de ese permiso depende que despues se le mande un WhatsApp que no
+ * se puede deshacer. Por eso se pide tambien que su ultimo mensaje sea un si.
+ */
+function esUnSi(mensaje: string): boolean {
+  const limpio = (mensaje || '')
+    .toLowerCase()
+    .normalize('NFD')
+    .replace(/[\u0300-\u036f]/g, '')
+    .trim();
+  if (!limpio) return false;
+  if (/\b(no|nunca|prefiero que no|ni ahi)\b/.test(limpio)) return false;
+  return /\b(si|sii+|dale|ok|oka|okey|obvio|claro|de una|perfecto|listo|acepto|autorizo|por supuesto|correcto|va|bueno)\b/.test(
+    limpio,
+  );
 }
 
 export async function chatWithVirtualAssistant(
@@ -78,7 +98,8 @@ Si el usuario dice algo que no entendés, preguntá amablemente.`;
       // Extraer datos estructurados con JSON
       const extractionResponse = await generateWithGeminiFallback({
         model: geminiCommercialModel,
-        prompt: `Extraé los siguientes datos del historial de chat. Formato JSON estricto con las claves: "nombre" (string), "telefono" (string), "evento" (string), "invitados" (number), "fecha" (string). Si no hay algún dato, poné null.
+        prompt: `Extraé los siguientes datos del historial de chat. Formato JSON estricto con las claves: "nombre" (string), "telefono" (string), "evento" (string), "invitados" (number), "fecha" (string), "permisoContacto" (boolean). Si no hay algún dato, poné null.
+"permisoContacto" es true SOLO si la persona dijo con sus propias palabras que sí acepta que la contacten. Ante la menor duda, false.
 Historial:
 ${JSON.stringify(history)}
 Último mensaje:
@@ -87,41 +108,48 @@ ${newMessage}`,
       });
 
       const data = extractionResponse.output;
+      // La segunda llamada tambien se paga: se cuenta.
+      await registrarConsumoIA('vendedor-virtual');
+
       if (data && data.nombre && data.telefono && data.evento) {
+        // El permiso para escribirle despues NO se deduce ni se asume: es lo que
+        // habilita mandarle WhatsApp automatico mas adelante. Se exige que el
+        // resumen lo marque explicitamente Y que la persona lo haya dicho en su
+        // ultimo mensaje. Si no, el presupuesto se arma igual pero queda sin
+        // permiso: se pierde poder escribirle solo, que se arregla llamandola,
+        // y no al reves.
+        const permisoConcedido =
+          data.permisoContacto === true && esUnSi(newMessage);
+
         const progressRes = await captureSimulatorLeadProgress({
           clienteNombre: data.nombre,
           clienteContacto: data.telefono,
           eventoTipo: data.evento,
           eventoFecha: data.fecha || undefined,
           invitados: Number(data.invitados) || 100,
-          marketingConsent: true,
+          marketingConsent: permisoConcedido,
         });
 
         if (progressRes.success && progressRes.leadId) {
-          const budgetRes = await generateBudgetAndLeadFromSimulator({
-            clienteNombre: data.nombre,
-            clienteContacto: data.telefono,
-            eventoTipo: data.evento,
-            eventoFecha: data.fecha || undefined,
-            invitadosAdultos: Number(data.invitados) || 100,
-            invitadosNinos: 0,
-            invitadosAdolescentes: 0,
-          }, { source: 'simulator_assistant' });
-
-          if (budgetRes.success) {
-            return {
-              success: true,
-              text: '¡Genial! Tu presupuesto está listo.',
-              budgetGenerated: true,
-              budgetUrl: `/presupuestos/${budgetRes.presupuestoId}/ver?token=${budgetRes.token}`
-            };
-          }
+          // A proposito NO se arma el presupuesto desde el chat.
+          //
+          // Armarlo requiere subtotal, costo estimado y la lista de servicios
+          // incluidos, que son las cuentas que despues el cliente ve como precio
+          // firme. Sacarlas de una conversacion es inventar plata, y un numero
+          // mal en esa pantalla se discute delante del cliente. El dato queda
+          // guardado y el equipo arma el presupuesto con el simulador, que es el
+          // unico lugar donde esas cuentas estan bien hechas.
+          return {
+            success: true,
+            text: 'Listo, ya tengo tus datos. En un rato te pasamos el presupuesto armado a medida. Si querés adelantarlo, podés usar el simulador o escribirnos por WhatsApp.',
+          };
         }
       }
-      
+
+      // Si no se pudo guardar el dato, igual no se deja al cliente sin respuesta.
       return {
         success: true,
-        text: 'Ya tomé tus datos, pero tuve un problema armando el link directo. ¡A la brevedad uno de nuestros asesores te va a contactar por WhatsApp con todo armado!'
+        text: 'Anoté lo que me contaste. Para no hacerte esperar, escribinos por WhatsApp y te armamos el presupuesto en el momento.'
       };
     }
 
