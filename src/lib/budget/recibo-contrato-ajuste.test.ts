@@ -13,12 +13,14 @@ describe('Recibo de contrato - Ajuste Anual y Fecha', () => {
       ajusteAnualPorcentaje: 15,
       itemsPresupuestados: [
         {
-          id: 'item-1',
+          idServicioCatalogo: 'srv-dj',
           nombreServicio: 'DJ y Luces',
           categoriaServicio: 'Discoteca',
-          precioCalculado: 100000,
-          tipoCalculo: 'fijo',
           cantidad: 1,
+          precioUnitario: 100000,
+          precioUnitarioPresupuesto: 100000,
+          costoTotalItem: 100000,
+          calculationMethod: 'fijo',
         },
       ],
       pagosCliente: [],

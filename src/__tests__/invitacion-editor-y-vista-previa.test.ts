@@ -1,4 +1,4 @@
-import { getDatosMinimosFaltantesInvitacion } from '@/app/(app)/fiestas/nueva/pagina-web/page';
+import { getDatosMinimosFaltantesInvitacion } from '@/lib/invitacion/datos-minimos';
 import type { FiestaEnPlanificacion, InvitacionDigitalData } from '@/types/fiesta';
 
 describe('Editor de Invitaciones y Vista Previa', () => {

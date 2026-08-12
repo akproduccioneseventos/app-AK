@@ -31,43 +31,10 @@ import { Sheet, SheetContent } from '@/components/ui/sheet';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogFooter } from '@/components/ui/dialog';
 import { normalizeInvitationSlug } from '@/lib/invitacion-slug';
 import { getErrorMessage } from '@/lib/error-utils';
+import { getDatosMinimosFaltantesInvitacion } from '@/lib/invitacion/datos-minimos';
 
 type PreviewMode = 'mobile' | 'tablet' | 'desktop';
 type EditorMode = 'simple' | 'avanzado';
-
-export function getDatosMinimosFaltantesInvitacion(fiesta: FiestaEnPlanificacion | null, invitacionData: InvitacionDigitalData): string[] {
-  const faltantes: string[] = [];
-
-  const fecha = fiesta?.configuracion?.fechaEvento
-    || invitacionData?.detallesEvento?.celebracion?.fecha
-    || invitacionData?.detallesEvento?.ceremoniaReligiosa?.fecha;
-  if (!fecha) {
-    faltantes.push('Falta la fecha del evento.');
-  }
-
-  const hora = fiesta?.configuracion?.horaInicio
-    || invitacionData?.detallesEvento?.celebracion?.hora
-    || invitacionData?.detallesEvento?.ceremoniaReligiosa?.hora;
-  if (!hora) {
-    faltantes.push('Falta la hora de inicio.');
-  }
-
-  const salon = fiesta?.configuracion?.salonFiestas
-    || invitacionData?.detallesEvento?.celebracion?.nombreLugar
-    || invitacionData?.detallesEvento?.ceremoniaReligiosa?.nombreLugar;
-  if (!salon || salon === '___________________' || salon.trim() === '') {
-    faltantes.push('Falta el nombre del salón o lugar.');
-  }
-
-  const direccion = invitacionData?.detallesEvento?.celebracion?.direccionLugar
-    || invitacionData?.detallesEvento?.ceremoniaReligiosa?.direccionLugar
-    || (fiesta?.configuracion as any)?.salonDireccion;
-  if (!direccion || direccion.trim() === '') {
-    faltantes.push('Falta la dirección de la celebración. Sin eso el invitado no sabe adónde ir.');
-  }
-
-  return faltantes;
-}
 
 const AdvancedInvitationCanvas = dynamic(
   () => import('@/components/invitacion/edit/AdvancedInvitationCanvas').then((module) => module.AdvancedInvitationCanvas),
@@ -610,15 +577,17 @@ function PaginaWebPageContent() {
             <DialogTitle className="flex items-center gap-2 text-amber-600">
               <AlertTriangle className="w-5 h-5 shrink-0" /> Faltan datos en la invitación
             </DialogTitle>
-            <DialogDescription className="text-sm text-slate-600 pt-2 space-y-2">
-              <span>Para que la invitación no salga al aire con huecos, te sugerimos completar los siguientes datos:</span>
-              <ul className="list-disc pl-5 text-amber-800 font-medium space-y-1 pt-1">
-                {missingDataList.map((item, idx) => (
-                  <li key={idx}>{item}</li>
-                ))}
-              </ul>
+            <DialogDescription className="text-sm text-slate-600 pt-2">
+              Para que la invitación no salga al aire con huecos, te sugerimos completar los siguientes datos:
             </DialogDescription>
           </DialogHeader>
+          {/* La lista va fuera de la descripción: adentro queda metida dentro de un
+              párrafo y el navegador la desarma, con las viñetas desalineadas. */}
+          <ul className="list-disc space-y-1 pl-5 text-sm font-medium text-amber-800">
+            {missingDataList.map((item, idx) => (
+              <li key={idx}>{item}</li>
+            ))}
+          </ul>
           <DialogFooter className="flex flex-col sm:flex-row gap-2 pt-4">
             <Button
               variant="outline"

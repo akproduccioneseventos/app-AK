@@ -1,5 +1,8 @@
+'use client';
+
 import { Loader2, Check, AlertCircle, Clock } from 'lucide-react';
 import { cn } from '@/lib/utils';
+import { useToast } from '@/hooks/use-toast';
 
 interface AutoSaveIndicatorProps {
   isSaving: boolean;
@@ -9,6 +12,8 @@ interface AutoSaveIndicatorProps {
 }
 
 export function AutoSaveIndicator({ isSaving, lastSaved, saveError, className }: AutoSaveIndicatorProps) {
+  const { toast } = useToast();
+
   if (isSaving) {
     return (
       <span
@@ -24,7 +29,13 @@ export function AutoSaveIndicator({ isSaving, lastSaved, saveError, className }:
     return (
       <span
         title={`Error al guardar: ${saveError}`}
-        onClick={() => alert(`Error al guardar: ${saveError}`)}
+        onClick={() =>
+          toast({
+            variant: 'destructive',
+            title: 'No se pudo guardar',
+            description: `${saveError} Volvé a intentarlo; si sigue igual, revisá la conexión antes de cerrar la pantalla.`,
+          })
+        }
         className={cn('flex items-center gap-1.5 text-xs text-rose-500 font-medium cursor-pointer', className)}
       >
         <AlertCircle className="w-3.5 h-3.5 shrink-0" />
