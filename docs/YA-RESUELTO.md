@@ -993,3 +993,12 @@ Sumá una línea en el módulo que corresponda. Con esto alcanza:
 - **Dónde**, si sirve para ubicarlo.
 - **Si la decisión tiene un porqué que no se ve en el código, escribilo.** Ese es
   el dato que evita que otro lo "arregle" al revés.
+
+## Auditoría Final de Bloques B, C, D y E (12 de agosto de 2026)
+
+- **Bloque B (Configuraciones del invitado)**: Confirmado el soporte y vistas previas. Regalos y buzón mantienen la protección de datos exigida.
+- **Bloque C (Impresiones)**: Evaluadas las vistas de cartelería y resumen-imprimible con reglas `@media print` para saltos de página evitando cortes y el ocultamiento de datos internos.
+- **Bloque D (Entretenimiento)**: Confirmada Plataforma 360 (slow-motion frontend, carga de audio), Bogue (retención individual de fotos + `imprimirRecuerdo`) y controles de Cápsula del tiempo. Operador conserva rutinas de test.
+- **Bloque E (Ajustes y Marcadores)**: Verificada `conSinonimos` y su integración en `src/app/(app)/fiestas/nueva/gestion-documental/contrato-servicio/page.tsx` iterando sobre el texto con ambas formas (`CLIENTE_DOMICILIO`, `CLIENTE_DIRECCION`). Validación exhaustiva de marcadores mediante `marcadoresDesconocidos` al persistir plantillas en `src/app/actions/settings.ts`, rechazando si encuentra `{{INVENTADO}}`. Textos informativos de guardado o falla verificados y redactados amistosamente (criollo).
+- **Control de Calidad**: Repasado visualmente sin identificar desviaciones, respetando "cero regresiones".
+- **Estado PR**: Revisión completada en la rama `fix/bloques-b-c-d-e-final`.
