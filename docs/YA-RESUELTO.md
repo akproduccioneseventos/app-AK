@@ -807,6 +807,9 @@ Verificado y cerrado el 9 de agosto de 2026.
   horarios no se pisan (ej: uno al mediodia y otro de noche), no bloquea: se
   permite y se lanza el aviso para que el equipo lo confirme (el equipo sabe si 
   le da el tiempo). Esto se verifica en el backend mediante `verificarAgendaEmpleado`.
+- **Recibo de contrato corregido con ajuste anual y fecha exacta (12 de agosto de 2026).**
+  - **Bloque 1**: En `src/app/(app)/presupuestos/[id]/recibo-contrato/page.tsx` se reemplazo `getBudgetPaymentSummary` por `calcularEstadoDeCuenta` para que el calculo de total y saldo incluya el ajuste anual del 15% que corresponde cuando el evento es en un anio posterior. Si corresponde ajuste, se despliega el desglose fino (Subtotal base + Ajuste % = Total) para evitar discusiones al firmar.
+  - **Bloque 2**: Se reemplazo `new Date(dateString)` por `parseEventDate(dateString)` en el recibo de contrato para evitar el desfasaje de huso horario UTC que mostraba la fecha del evento un dia antes.
 
 ## Cómo agregar algo a esta lista
 

@@ -27,6 +27,8 @@ import Image from 'next/image';
 import { fillContractTemplate, buildContractFromSettings } from '@/lib/contract-template';
 import type { ContractSettings } from '@/types/settings';
 import { getBudgetPaymentSummary, isConfirmedClientPayment } from '@/lib/budget/financial-guardrails';
+import { parseEventDate } from '@/lib/public-experience/event-date';
+import { calcularEstadoDeCuenta } from '@/lib/budget/saldo-con-ajuste';
 
 /* ── Helpers ─────────────────────────────────────────────────────────── */
 
@@ -42,8 +44,10 @@ const formatCurrency = (amount?: number) => {
 
 const formatDate = (dateString?: string) => {
   if (!dateString) return '—';
+  const parsed = parseEventDate(dateString);
+  if (!parsed) return '—';
   try {
-    return new Date(dateString).toLocaleDateString('es-ES', {
+    return parsed.toLocaleDateString('es-ES', {
       day: '2-digit',
       month: 'long',
       year: 'numeric',
@@ -146,11 +150,19 @@ function ReciboContratoContent({ params }: { params: { id: string } }) {
 
   useEffect(() => { fetchData(); }, [fetchData]);
 
-  const { totalCosto, totalPagado, saldoPendiente, pagos } = useMemo(() => {
-    if (!presupuesto) return { totalCosto: 0, totalPagado: 0, saldoPendiente: 0, pagos: [] as PagoCliente[] };
+  const { totalCosto, totalPagado, saldoPendiente, pagos, totalBase, ajusteAnual, porcentajeAjuste } = useMemo(() => {
+    if (!presupuesto) return { totalCosto: 0, totalPagado: 0, saldoPendiente: 0, pagos: [] as PagoCliente[], totalBase: 0, ajusteAnual: 0, porcentajeAjuste: 0 };
     const pagosList: PagoCliente[] = (presupuesto.pagosCliente || []).filter(isConfirmedClientPayment);
-    const summary = getBudgetPaymentSummary(presupuesto);
-    return { totalCosto: summary.total, totalPagado: summary.paid, saldoPendiente: summary.balance, pagos: pagosList };
+    const cuenta = calcularEstadoDeCuenta(presupuesto);
+    return {
+      totalCosto: cuenta.total,
+      totalPagado: cuenta.pagado,
+      saldoPendiente: cuenta.saldo,
+      pagos: pagosList,
+      totalBase: cuenta.totalBase,
+      ajusteAnual: cuenta.ajusteAnual,
+      porcentajeAjuste: cuenta.porcentajeAjuste,
+    };
   }, [presupuesto]);
 
   /** Build the first seña amount from the first recorded payment, or default to 0. */
@@ -195,7 +207,13 @@ function ReciboContratoContent({ params }: { params: { id: string } }) {
       clienteCi: overriddenCi,
       clienteTelefono: overriddenTelefono || '___________________',
       fechaEvento: overriddenFecha
-        ? `${new Date(overriddenFecha).toLocaleDateString('es-ES', { day: '2-digit', month: '2-digit', year: 'numeric' })}${eventStartTime ? ` a las ${eventStartTime}` : ''}`
+        ? (() => {
+            const parsed = parseEventDate(overriddenFecha);
+            const dateFormatted = parsed
+              ? parsed.toLocaleDateString('es-ES', { day: '2-digit', month: '2-digit', year: 'numeric' })
+              : overriddenFecha;
+            return `${dateFormatted}${eventStartTime ? ` a las ${eventStartTime}` : ''}`;
+          })()
         : '___________________',
       salon: overriddenSalon,
       montoSena: montoSenaStr,
@@ -218,7 +236,13 @@ function ReciboContratoContent({ params }: { params: { id: string } }) {
       clienteCi: overriddenCi,
       clienteTelefono: overriddenTelefono || '___________________',
       fechaEvento: overriddenFecha
-        ? `${new Date(overriddenFecha).toLocaleDateString('es-ES', { day: '2-digit', month: '2-digit', year: 'numeric' })}${eventStartTime ? ` a las ${eventStartTime}` : ''}`
+        ? (() => {
+            const parsed = parseEventDate(overriddenFecha);
+            const dateFormatted = parsed
+              ? parsed.toLocaleDateString('es-ES', { day: '2-digit', month: '2-digit', year: 'numeric' })
+              : overriddenFecha;
+            return `${dateFormatted}${eventStartTime ? ` a las ${eventStartTime}` : ''}`;
+          })()
         : '___________________',
       salon: overriddenSalon,
       montoSena: montoSenaStr,
@@ -387,6 +411,23 @@ function ReciboContratoContent({ params }: { params: { id: string } }) {
                     </p>
                   </div>
                 </div>
+
+                {ajusteAnual > 0 && (
+                  <div className="bg-slate-50 border border-slate-200 rounded-xl p-3 text-xs space-y-1 text-slate-700">
+                    <div className="flex justify-between">
+                      <span className="font-medium text-slate-500">Subtotal contratado:</span>
+                      <span className="font-bold">{formatCurrency(totalBase)}</span>
+                    </div>
+                    <div className="flex justify-between">
+                      <span className="font-medium text-slate-500">Ajuste anual ({porcentajeAjuste}%):</span>
+                      <span className="font-bold">+{formatCurrency(ajusteAnual)}</span>
+                    </div>
+                    <div className="flex justify-between border-t border-slate-200 pt-1 font-black">
+                      <span className="uppercase text-slate-800">Total con ajuste:</span>
+                      <span className="text-slate-900">{formatCurrency(totalCosto)}</span>
+                    </div>
+                  </div>
+                )}
 
                 {/* Balance row */}
                 <div className="flex justify-between items-center rounded-xl px-4 py-3 bg-slate-50 border border-slate-200">
