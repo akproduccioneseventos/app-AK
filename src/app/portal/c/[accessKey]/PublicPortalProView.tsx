@@ -134,7 +134,9 @@ export default function PublicPortalProView({ fiesta, companyContact, companyNam
   // Mismo criterio que el estado de cuenta de AK: con el ajuste anual incluido.
   // Sin esto, el cliente veia un saldo menor al real y la diferencia aparecia
   // recien al ir a pagar la ultima cuota.
-  const paymentSummary = getBudgetPaymentSummary(presupuesto);
+  const paymentSummary = getBudgetPaymentSummary(presupuesto, {
+    includeAnnualAdjustment: true,
+  });
   const estadoDeCuenta = calcularEstadoDeCuenta(presupuesto ?? null, ajusteAnualPorcentaje);
   const totalPresupuesto = estadoDeCuenta.total || paymentSummary.total || getTotalPresupuesto(presupuesto);
   const totalPagado = estadoDeCuenta.pagado;

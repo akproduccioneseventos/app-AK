@@ -28,7 +28,6 @@ import { fillContractTemplate, buildContractFromSettings } from '@/lib/contract-
 import type { ContractSettings } from '@/types/settings';
 import { getBudgetPaymentSummary, isConfirmedClientPayment } from '@/lib/budget/financial-guardrails';
 import { parseEventDate } from '@/lib/public-experience/event-date';
-import { calcularEstadoDeCuenta } from '@/lib/budget/saldo-con-ajuste';
 
 /* ── Helpers ─────────────────────────────────────────────────────────── */
 
@@ -44,17 +43,16 @@ const formatCurrency = (amount?: number) => {
 
 const formatDate = (dateString?: string) => {
   if (!dateString) return '—';
-  const parsed = parseEventDate(dateString);
-  if (!parsed) return '—';
-  try {
-    return parsed.toLocaleDateString('es-ES', {
-      day: '2-digit',
-      month: 'long',
-      year: 'numeric',
-    });
-  } catch {
-    return '—';
-  }
+  // Las fechas del evento se guardan como texto sin hora (2026-12-15). Con
+  // `new Date` se interpretan en horario universal y en Uruguay salen impresas
+  // el dia anterior: un evento del 15 aparecia como 14 en el papel firmado.
+  const fecha = parseEventDate(dateString);
+  if (!fecha) return '—';
+  return fecha.toLocaleDateString('es-ES', {
+    day: '2-digit',
+    month: 'long',
+    year: 'numeric',
+  });
 };
 
 const CONTRACT_MISSING_EVENT_DATA_ERROR = 'No se puede generar el contrato sin la fecha del evento';
@@ -150,18 +148,23 @@ function ReciboContratoContent({ params }: { params: { id: string } }) {
 
   useEffect(() => { fetchData(); }, [fetchData]);
 
-  const { totalCosto, totalPagado, saldoPendiente, pagos, totalBase, ajusteAnual, porcentajeAjuste } = useMemo(() => {
-    if (!presupuesto) return { totalCosto: 0, totalPagado: 0, saldoPendiente: 0, pagos: [] as PagoCliente[], totalBase: 0, ajusteAnual: 0, porcentajeAjuste: 0 };
+  const { totalCosto, totalBase, ajusteAnual, totalPagado, saldoPendiente, pagos } = useMemo(() => {
+    if (!presupuesto) return { totalCosto: 0, totalBase: 0, ajusteAnual: 0, totalPagado: 0, saldoPendiente: 0, pagos: [] as PagoCliente[] };
     const pagosList: PagoCliente[] = (presupuesto.pagosCliente || []).filter(isConfirmedClientPayment);
-    const cuenta = calcularEstadoDeCuenta(presupuesto);
+    const summary = getBudgetPaymentSummary(presupuesto, {
+      includeAnnualAdjustment: true,
+    });
+    // Se guarda tambien el total sin ajuste, para poder mostrarlo desglosado. Si
+    // el cliente ve un numero mas alto que el del presupuesto y nadie se lo
+    // explica, la discusion arranca justo al firmar.
+    const base = getBudgetPaymentSummary(presupuesto).total;
     return {
-      totalCosto: cuenta.total,
-      totalPagado: cuenta.pagado,
-      saldoPendiente: cuenta.saldo,
+      totalCosto: summary.total,
+      totalBase: base,
+      ajusteAnual: Math.max(0, summary.total - base),
+      totalPagado: summary.paid,
+      saldoPendiente: summary.balance,
       pagos: pagosList,
-      totalBase: cuenta.totalBase,
-      ajusteAnual: cuenta.ajusteAnual,
-      porcentajeAjuste: cuenta.porcentajeAjuste,
     };
   }, [presupuesto]);
 
@@ -207,13 +210,7 @@ function ReciboContratoContent({ params }: { params: { id: string } }) {
       clienteCi: overriddenCi,
       clienteTelefono: overriddenTelefono || '___________________',
       fechaEvento: overriddenFecha
-        ? (() => {
-            const parsed = parseEventDate(overriddenFecha);
-            const dateFormatted = parsed
-              ? parsed.toLocaleDateString('es-ES', { day: '2-digit', month: '2-digit', year: 'numeric' })
-              : overriddenFecha;
-            return `${dateFormatted}${eventStartTime ? ` a las ${eventStartTime}` : ''}`;
-          })()
+        ? `${new Date(overriddenFecha).toLocaleDateString('es-ES', { day: '2-digit', month: '2-digit', year: 'numeric' })}${eventStartTime ? ` a las ${eventStartTime}` : ''}`
         : '___________________',
       salon: overriddenSalon,
       montoSena: montoSenaStr,
@@ -236,13 +233,7 @@ function ReciboContratoContent({ params }: { params: { id: string } }) {
       clienteCi: overriddenCi,
       clienteTelefono: overriddenTelefono || '___________________',
       fechaEvento: overriddenFecha
-        ? (() => {
-            const parsed = parseEventDate(overriddenFecha);
-            const dateFormatted = parsed
-              ? parsed.toLocaleDateString('es-ES', { day: '2-digit', month: '2-digit', year: 'numeric' })
-              : overriddenFecha;
-            return `${dateFormatted}${eventStartTime ? ` a las ${eventStartTime}` : ''}`;
-          })()
+        ? `${new Date(overriddenFecha).toLocaleDateString('es-ES', { day: '2-digit', month: '2-digit', year: 'numeric' })}${eventStartTime ? ` a las ${eventStartTime}` : ''}`
         : '___________________',
       salon: overriddenSalon,
       montoSena: montoSenaStr,
@@ -393,6 +384,19 @@ function ReciboContratoContent({ params }: { params: { id: string } }) {
               {/* Financial summary — 3 prominent cards */}
               <section className="space-y-3">
                 <h2 className="text-[10px] font-black uppercase text-slate-400 tracking-widest">Resumen Financiero</h2>
+
+                {ajusteAnual > 0 && (
+                  <div className="rounded-2xl border border-slate-200 bg-white p-3 print:rounded-lg">
+                    <div className="flex items-center justify-between text-xs">
+                      <span className="text-slate-500">Subtotal contratado</span>
+                      <span className="font-semibold text-slate-700">{formatCurrency(totalBase)}</span>
+                    </div>
+                    <div className="mt-1 flex items-center justify-between text-xs">
+                      <span className="text-slate-500">Ajuste anual por evento en anio posterior</span>
+                      <span className="font-semibold text-slate-700">{formatCurrency(ajusteAnual)}</span>
+                    </div>
+                  </div>
+                )}
                 <div className="grid grid-cols-3 gap-3">
                   <div className="bg-slate-50 border border-slate-200 rounded-2xl print:rounded-lg p-4 text-center space-y-1">
                     <p className="text-[9px] font-black uppercase text-slate-400 tracking-widest">Presupuesto Total</p>
@@ -411,23 +415,6 @@ function ReciboContratoContent({ params }: { params: { id: string } }) {
                     </p>
                   </div>
                 </div>
-
-                {ajusteAnual > 0 && (
-                  <div className="bg-slate-50 border border-slate-200 rounded-xl p-3 text-xs space-y-1 text-slate-700">
-                    <div className="flex justify-between">
-                      <span className="font-medium text-slate-500">Subtotal contratado:</span>
-                      <span className="font-bold">{formatCurrency(totalBase)}</span>
-                    </div>
-                    <div className="flex justify-between">
-                      <span className="font-medium text-slate-500">Ajuste anual ({porcentajeAjuste}%):</span>
-                      <span className="font-bold">+{formatCurrency(ajusteAnual)}</span>
-                    </div>
-                    <div className="flex justify-between border-t border-slate-200 pt-1 font-black">
-                      <span className="uppercase text-slate-800">Total con ajuste:</span>
-                      <span className="text-slate-900">{formatCurrency(totalCosto)}</span>
-                    </div>
-                  </div>
-                )}
 
                 {/* Balance row */}
                 <div className="flex justify-between items-center rounded-xl px-4 py-3 bg-slate-50 border border-slate-200">

@@ -366,7 +366,7 @@ function PagosRapidosContent() {
   }, [pendingPresupuestos]);
 
   const getPresupuestoSummary = (p: Presupuesto) => {
-    const summary = getBudgetPaymentSummary(p);
+    const summary = getBudgetPaymentSummary(p, { includeAnnualAdjustment: true });
     return { totalCosto: summary.total, totalPagado: summary.paid, saldoPendiente: summary.balance };
   };
 

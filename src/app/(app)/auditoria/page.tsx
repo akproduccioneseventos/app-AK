@@ -1,6 +1,7 @@
 'use client';
 
 import React, { useState, useEffect, Suspense } from 'react';
+import Link from 'next/link';
 import { useSearchParams } from 'next/navigation';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -234,8 +235,8 @@ function AuditoriaContent() {
                     {puestaAlDia.items.map((item, i) => (
                       <TableRow key={`${item.fiestaId}-${i}`}>
                         <TableCell className="font-medium">
-                          {item.fiestaId ? (
-                            <a className="underline" href={`/fiestas/nueva?fiestaId=${item.fiestaId}`}>{item.nombre}</a>
+                          {item.href ? (
+                            <Link className="underline" href={item.href}>{item.nombre}</Link>
                           ) : item.nombre}
                         </TableCell>
                         <TableCell className="whitespace-nowrap">{item.fecha || '-'}</TableCell>

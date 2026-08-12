@@ -8,6 +8,7 @@ import { getPresupuestoById, updatePresupuesto } from '@/app/actions/presupuesto
 import { saveFiesta, syncFiestaFromBudget, getFiestas } from '@/app/actions/fiesta/fiesta.actions';
 import { getInvoiceById, saveInvoice } from '@/app/actions/invoices';
 import { createNotification } from '@/lib/notifications/create-notification';
+import { idsDeEtapaGanadora, idsDeEtapaPerdida } from '@/lib/crm/etapas-finales';
 import type { FiestaEnPlanificacion } from '@/types/fiesta';
 import type { Presupuesto, PagoCliente, MetodoPago } from '@/types/presupuesto';
 import { initialFiestaActualData, defaultModulosContratados } from '@/lib/fiesta-defaults';
@@ -348,6 +349,23 @@ export async function deleteCrmLead(leadId: string): Promise<{ success: boolean;
     const auth = await verifySession();
     if (!auth.success) return { success: false, error: auth.error };
     if (auth.user?.role !== 'admin') return { success: false, error: 'Solo administradores pueden eliminar leads.' };
+
+    // Un prospecto que ya firmó no se borra. Su presupuesto quedaría sin dueño y
+    // se pierde de dónde vino esa venta: al buscar el origen de un cobro no
+    // aparece nada. Es fácil confundir un contrato viejo con un duplicado.
+    const lead = (await getCrmLeads()).find(l => l.id === leadId);
+    if (lead?.presupuestoId) {
+      const presupuestos = await readData<any[]>('presupuestos.json', []).catch(() => []);
+      const vinculado = (presupuestos || []).find(p => p?.id === lead.presupuestoId);
+      const contratado = vinculado?.estado === 'Aceptado' || vinculado?.estado === 'Facturado';
+      if (contratado) {
+        return {
+          success: false,
+          error: `No se puede borrar: este prospecto tiene el presupuesto ${vinculado?.numero ?? lead.presupuestoId} ya ${String(vinculado.estado).toLowerCase()}. Si es un duplicado, desvinculá primero el presupuesto.`,
+        };
+      }
+    }
+
     return await deleteCrmLeadDocument(leadId)
       ? { success: true }
       : { success: false, error: 'No encontrado' };
@@ -811,14 +829,26 @@ export async function confirmBooking(leadId: string, presupuestoId: string, arch
 export async function getCrmKpiData() {
     const auth = await verifySession();
     if (!auth.success) return { success: false, error: auth.error };
-    const [leads, presupuestos] = await Promise.all([getCrmLeads(), readData<any[]>('presupuestos.json', []).catch(() => [])]);
-    const activeLeads = leads.filter(l => l.currentStageId !== 's4' && l.currentStageId !== 's5');
+    const [leads, presupuestos, stages] = await Promise.all([
+        getCrmLeads(),
+        readData<any[]>('presupuestos.json', []).catch(() => []),
+        getCrmStages(),
+    ]);
+
+    // Las etapas ganadora y perdedora se deducen de la configuracion, no se
+    // escriben a mano: el embudo se puede personalizar y con codigos fijos los
+    // numeros salian mal sin avisar.
+    const ganadoras = idsDeEtapaGanadora(stages);
+    const perdedoras = idsDeEtapaPerdida(stages);
+    const terminadas = new Set([...ganadoras, ...perdedoras]);
+
+    const activeLeads = leads.filter(l => !terminadas.has(l.currentStageId ?? ''));
     const pipelineValue = (presupuestos || [])
         .filter(p => activeLeads.some(l => l.presupuestoId === p.id))
         .reduce((sum, p) => sum + (Number(p.totalConDescuento ?? p.costoTotalEstimado) || 0), 0);
 
-    const wonCount = leads.filter(l => l.currentStageId === 's4').length;
-    const lostCount = leads.filter(l => l.currentStageId === 's5').length;
+    const wonCount = leads.filter(l => ganadoras.has(l.currentStageId ?? '')).length;
+    const lostCount = leads.filter(l => perdedoras.has(l.currentStageId ?? '')).length;
     const totalFinished = wonCount + lostCount;
 
     return {

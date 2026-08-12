@@ -397,7 +397,9 @@ function VerPresupuestoContent({ params }: { params: { id: string } }) {
 
   const pagosSummary = useMemo(() => {
     if (!presupuesto) return { totalPagado: 0, saldoPendiente: 0, totalCosto: 0 };
-    const summary = getBudgetPaymentSummary(presupuesto);
+    const summary = getBudgetPaymentSummary(presupuesto, {
+      includeAnnualAdjustment: true,
+    });
     return { totalCosto: summary.total, totalPagado: summary.paid, saldoPendiente: summary.balance };
   }, [presupuesto]);
   const hasDepositPayment = useMemo(

@@ -1,11 +1,23 @@
 'use server';
 
 import { uploadToStorage } from '@/lib/firebase/storage';
+import { requireAppSession } from '@/lib/auth/require-session';
 import path from 'path';
 
+/**
+ * Sube una imagen o un archivo al depósito de la empresa y devuelve su dirección
+ * pública.
+ *
+ * Pide sesión del equipo: todas las pantallas que la usan son internas (fichas
+ * del personal, editor de la invitación, galería, editor de la portada). Sin la
+ * guarda, cualquiera de afuera podía dejar archivos en el depósito de la empresa
+ * y quedaban publicados con una dirección nuestra.
+ */
 export async function uploadPublicPageAsset(
   formData: FormData
 ): Promise<{ success: boolean; url?: string; error?: string }> {
+  await requireAppSession();
+
   const folder = (formData.get('folder') || formData.get('fiestaId')) as string;
   const file = formData.get('file') as File | null;
 

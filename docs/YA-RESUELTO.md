@@ -769,6 +769,24 @@ Verificado y cerrado el 9 de agosto de 2026.
   el mismo codigo construido sirvio los recorridos internos completos en menos de
   un minuto. La portada mantiene ISR de cinco minutos para no reconstruir fuentes
   de galeria y redes en cada visita.
+- **El personal no puede quedar en dos eventos al mismo tiempo.** La validacion
+  usa fecha y horario local de Uruguay, contempla fiestas que cruzan medianoche
+  entre dias consecutivos y permite eventos contiguos. Un choque confirmado se
+  bloquea en el servidor antes de guardar y muestra todos los primeros eventos
+  involucrados. Si falta una hora no inventa `21:00 a 04:00`: guarda con un aviso
+  para que el encargado complete los horarios.
+- **La agenda se lee una sola vez al asignar personal.** Varias personas nuevas
+  se comparan contra la misma foto de fiestas activas. Editar sueldo o rol de una
+  asignacion existente no vuelve a cargar toda la agenda en cada tecla. Si la
+  lectura necesaria falla, no se guarda ni se envian avisos de Google; el equipo
+  recibe el error y puede reintentar sin crear una asignacion sin verificar.
+- **Dos servidores no pueden reservar al mismo empleado a la vez.** Un bloqueo
+  corto por empleado en Firestore cubre la lectura y el guardado; si otra
+  instancia ya esta actualizando esa agenda, la segunda operacion pide reintentar.
+  Los bloqueos vencen solos para no dejar personal inutilizable ante una caida.
+- **Los rechazos de Google Workspace quedan visibles.** Si Google responde
+  `success: false` sin lanzar una excepcion, la asignacion ya guardada se conserva
+  y el motivo queda registrado como aviso para poder reintentar la sincronizacion.
 - **La matriz cerrada no sustituye el mundo real.** Los 19 eventos requieren
   Firebase productivo; Gmail, Instagram, Mercado Pago y Gemini requieren
   credenciales y respuesta del proveedor; impresora, camaras, codecs, brazo 360
@@ -783,8 +801,8 @@ Verificado y cerrado el 9 de agosto de 2026.
   `calcularEstadoDeCuenta` la exige para aplicar el ajuste. Resultado: la aplicacion
   mostraba el precio del anio en que se firmo. En los contratos cargados de eventos
   anteriores son miles de pesos por contrato. Ahora se completa al quedar contratado
-  (Aceptado o Facturado), dentro de `normalizePresupuestoFinancials`, que es por
-  donde pasan todas las escrituras de presupuestos, incluidas las importaciones.
+  (Aceptado o Facturado), dentro de `normalizePresupuestoFinancials`; las
+  importaciones historicas ya activan la misma marca en su flujo propio.
   **Se completa solo cuando nunca se decidio**: si el duenio lo apago a proposito
   para un cliente, se respeta.
 - **Pantalla nueva "Poner al dia los eventos"**, en Auditoria y de solo lectura.
@@ -800,16 +818,47 @@ Verificado y cerrado el 9 de agosto de 2026.
   cliente (`clientChecklist`), que son cosas distintas; y las fiestas archivadas se
   usan solo para saber que un presupuesto ya tiene su evento, sin revisarlas como si
   estuvieran abiertas.
-- **Asignacion de personal bloqueada por solapamiento.** Si se intenta asignar a
-  un empleado a dos eventos el mismo dia y el horario de las fiestas se solapa,
-  ahora el sistema bloquea el autoguardado de la asignacion y avisa en que otra
-  fiesta (y en que horario) esta el empleado. Si son el mismo dia pero los
-  horarios no se pisan (ej: uno al mediodia y otro de noche), no bloquea: se
-  permite y se lanza el aviso para que el equipo lo confirme (el equipo sabe si 
-  le da el tiempo). Esto se verifica en el backend mediante `verificarAgendaEmpleado`.
-- **Recibo de contrato corregido con ajuste anual y fecha exacta (12 de agosto de 2026).**
-  - **Bloque 1**: En `src/app/(app)/presupuestos/[id]/recibo-contrato/page.tsx` se reemplazo `getBudgetPaymentSummary` por `calcularEstadoDeCuenta` para que el calculo de total y saldo incluya el ajuste anual del 15% que corresponde cuando el evento es en un anio posterior. Si corresponde ajuste, se despliega el desglose fino (Subtotal base + Ajuste % = Total) para evitar discusiones al firmar.
-  - **Bloque 2**: Se reemplazo `new Date(dateString)` por `parseEventDate(dateString)` en el recibo de contrato para evitar el desfasaje de huso horario UTC que mostraba la fecha del evento un dia antes.
+- **Segunda auditoria contable de la misma propuesta:** el anio se toma desde la
+  fecha real de firma, no desde una creacion anterior del presupuesto; el saldo
+  cobrable, los recibos, pagos rapidos, dashboard, portal y Mercado Pago incluyen
+  el ajuste sin modificar el total base del presupuesto; y el limite de pagos ya
+  permite cobrar exactamente ese saldo ajustado. Las operaciones legales de
+  cancelacion y cambio de fecha conservan el total base para no aplicar el ajuste
+  dos veces.
+- **La pantalla ya no duplica lecturas de Firestore.** Carga activos una vez y el
+  historial por separado. Tambien enlaza cada alerta con el evento o presupuesto
+  exacto para poder resolverla, y la accion tiene una prueba que impide leer datos
+  si falta el permiso de Contabilidad.
+
+## Galería, subida de archivos y editor de invitación (12 de agosto de 2026)
+
+- **Cualquiera de afuera podía dejar archivos en el depósito de la empresa.** La
+  acción que sube imágenes (`uploadPublicPageAsset`) no pedía sesión, y es la que
+  usan la galería, el editor de la invitación, la portada y las fichas del
+  personal. Cualquiera que conociera la dirección podía subir lo que quisiera y
+  quedaba publicado con una dirección nuestra, ocupando lugar que se paga todos
+  los meses. Ahora pide sesión del equipo. **Por qué se puede pedir sesión sin
+  romper nada:** se revisaron todos los lugares que la usan y son todos pantallas
+  internas; el invitado sube fotos por otro camino distinto (el muro social), que
+  no se tocó.
+- **Sacar una foto de la galería no la sacaba del todo.** Se iba de la lista pero
+  quedaban dos rastros: el archivo seguía para siempre en el depósito, y la foto
+  seguía apareciendo en el catálogo, porque al subirla se guarda un gemelo que
+  apunta al mismo archivo. El dueño borraba una foto y el cliente la seguía
+  viendo. Ahora se limpian los tres lugares. **Por qué se eligió así:** el archivo
+  se borra sólo si es nuestro y si ninguna otra foto ni video lo está usando; si
+  se borrara a ciegas, una foto compartida dejaría un cuadro roto en pantalla. La
+  lógica está en `src/lib/galeria/borrado-seguro.ts` con pruebas propias.
+- **Se podía dar por firmado un contrato sin ser del equipo.** Subir el contrato
+  firmado en papel no pedía sesión, y esa misma acción marca el contrato como
+  firmado y deja el evento como Contratado, que es lo que dispara la seña y la
+  organización. Igual pasaba con los documentos adjuntos del evento. Las dos
+  piden sesión del equipo ahora.
+- **La fecha de la ceremonia se guardaba con hora universal.** En el editor de la
+  invitación, el calendario de cada ceremonia guardaba la fecha con hora, y al
+  volver a abrirlo mostraba el día anterior; si el equipo tocaba el calendario,
+  ese día corrido se guardaba y era el que veía el invitado. Ahora se guarda el
+  día suelto, igual que la fecha del evento, y se lee con `parseEventDate`.
 
 ## Cómo agregar algo a esta lista
 

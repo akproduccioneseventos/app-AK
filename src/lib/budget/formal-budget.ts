@@ -52,6 +52,20 @@ export type AnnualAdjustmentProjection = {
 
 export function getYearFromDate(value?: string | Date | null): number | null {
   if (!value) return null;
+  if (typeof value === 'string') {
+    const dateOnly = value.trim().match(/^(\d{4})-(\d{2})-(\d{2})(?:$|T)/);
+    if (dateOnly) {
+      const year = Number(dateOnly[1]);
+      const month = Number(dateOnly[2]);
+      const day = Number(dateOnly[3]);
+      const parsed = new Date(Date.UTC(year, month - 1, day));
+      return parsed.getUTCFullYear() === year
+        && parsed.getUTCMonth() === month - 1
+        && parsed.getUTCDate() === day
+        ? year
+        : null;
+    }
+  }
   const date = value instanceof Date ? value : new Date(value);
   if (Number.isNaN(date.getTime())) return null;
   return date.getFullYear();
