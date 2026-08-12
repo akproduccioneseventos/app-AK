@@ -22,6 +22,7 @@ describe('Recibo de contrato - Ajuste Anual y Fecha', () => {
         },
       ],
       pagosCliente: [],
+      costoTotalEstimado: 100000,
     };
 
     const cuenta = calcularEstadoDeCuenta(presupuesto as Presupuesto);
