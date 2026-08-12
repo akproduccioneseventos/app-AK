@@ -23,6 +23,7 @@ export interface BudgetDisplaySettings {
   valuePropositions?: string[]; // Beneficios tipo "Por qué elegirnos"
   assistantWelcomeMessage?: string; // Mensaje inicial del asistente AK
   assistantFinalMessage?: string; // Mensaje final del asistente AK
+  virtualAssistantEnabled?: boolean; // Apagado de fábrica
   // Configuración de bienvenida y adicionales del simulador
   simulatorWelcomeTitle?: string;
   simulatorWelcomeSubtitle?: string;
@@ -42,14 +43,15 @@ export const defaultBudgetDisplaySettings: BudgetDisplaySettings = {
   bookingTerms: "Para confirmar la promoción y reservar todos los servicios, se requiere una seña de $5.000. El presupuesto es válido por 30 días.",
   whatsappMessageTemplate: "Hola, ya generé un presupuesto para mi evento y me gustaría coordinar una reunión para revisar detalles, despejar dudas y confirmar disponibilidad.",
   assistantWelcomeMessage: "¡Hola! Soy el Asistente AK 👋",
-  assistantFinalMessage: "¿Hablamos? En una sola reunión resolvés todo y tu fiesta queda lista 🚀",
+  assistantFinalMessage: "¡Muchas gracias! Ya anotamos tus datos y pronto te pasaremos el presupuesto completo.",
+  virtualAssistantEnabled: false,
   valuePropositions: [
     "Equipamiento profesional de alta gama",
     "Personal capacitado y con amplia experiencia",
     "Flexibilidad absoluta en la planificación",
     "Garantía de satisfacción y puntualidad"
   ],
-  simulatorWelcomeTitle: "Ingresá tus datos de contacto",
+  simulatorWelcomeTitle: "¡Armemos tu fiesta!",
   simulatorWelcomeSubtitle: "Guardamos tu avance para que el equipo pueda ayudarte si no terminás la simulación."
 };
 

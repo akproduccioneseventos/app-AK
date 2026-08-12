@@ -11,6 +11,7 @@ import './ak-budget-mobile-fixes.css';
 import { Toaster } from "@/components/ui/toaster";
 import { DeploymentRecovery } from '@/components/deployment-recovery';
 import { GoogleAnalytics } from '@/components/google-analytics';
+import { AsistenteVirtual } from '@/components/public/AsistenteVirtual';
 import localFont from 'next/font/local';
 
 const inter = localFont({
@@ -92,6 +93,7 @@ export default function RootLayout({
         </Suspense>
         <DeploymentRecovery />
         {children}
+        <AsistenteVirtual />
         <Toaster />
       </body>
     </html>
