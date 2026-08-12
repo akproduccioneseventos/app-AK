@@ -140,7 +140,9 @@ export async function createMercadoPagoCheckout(input: {
   presupuesto: Presupuesto;
   purpose: MercadoPagoCheckoutPurpose;
 }): Promise<{ session: MercadoPagoCheckoutSession; checkoutUrl: string }> {
-  const summary = getBudgetPaymentSummary(input.presupuesto);
+  const summary = getBudgetPaymentSummary(input.presupuesto, {
+    includeAnnualAdjustment: true,
+  });
   const serviceAmount = resolveMercadoPagoCheckoutAmount({
     balance: summary.balance,
     purpose: input.purpose,

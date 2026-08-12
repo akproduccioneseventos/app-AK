@@ -1,5 +1,9 @@
 import type { PagoCliente, Presupuesto } from '@/types/presupuesto';
 import { recalcularCostoItem } from '@/lib/calculations';
+import {
+  buildAnnualAdjustmentProjection,
+  getYearFromDate,
+} from '@/lib/budget/formal-budget';
 
 const MONEY_TOLERANCE = 1;
 
@@ -21,6 +25,12 @@ export type BudgetPaymentSummary = {
   balance: number;
   paidPercent: number;
   isFullyPaid: boolean;
+};
+
+export type BudgetPaymentSummaryOptions = {
+  /** Enable for collection/status views; base-price documents leave it disabled. */
+  includeAnnualAdjustment?: boolean;
+  defaultAnnualAdjustmentPercentage?: number | null;
 };
 
 export type PaymentReceiptSnapshot = BudgetPaymentSummary & {
@@ -167,8 +177,8 @@ export function calculateBudgetFinancials(
   const discount = calculateDiscountAmount(subtotal, presupuesto);
   const baseTotal = Math.max(0, subtotal - discount);
   const storedTotal = roundMoney(presupuesto.totalConDescuento ?? presupuesto.costoTotalEstimado);
-  // The official budget, payments and balance always use today's price.
-  // Future-year adjustments are informative projections built by formal-budget.ts.
+  // The signed budget keeps its base price. Collection summaries add the annual
+  // adjustment separately once the budget is a contract.
   const total = options.preserveStoredTotal && storedTotal > 0 ? storedTotal : baseTotal;
   const confirmedPaid = sumConfirmedClientPayments(presupuesto.pagosCliente ?? []);
   const pendingReview = sumPendingClientPayments(presupuesto.pagosCliente ?? []);
@@ -183,6 +193,42 @@ export function calculateBudgetFinancials(
     pendingReview,
     balance,
   };
+}
+
+function getBudgetContractYear(presupuesto: Presupuesto): number | null {
+  return getYearFromDate(presupuesto.fechaFirmaContrato ?? presupuesto.timestamp);
+}
+
+function getBudgetBaseTotal(presupuesto: Presupuesto): number {
+  return roundMoney(
+    presupuesto.totalConDescuento
+    ?? presupuesto.costoTotalEstimado
+    ?? presupuesto.totalFinal
+    ?? (presupuesto as Presupuesto & { total?: number }).total,
+  );
+}
+
+/** Total currently collectible for a contracted event, including its annual adjustment. */
+export function getBudgetCollectibleTotal(
+  presupuesto: Presupuesto,
+  defaultAnnualAdjustmentPercentage?: number | null,
+): number {
+  const baseTotal = getBudgetBaseTotal(presupuesto);
+  const isContracted = presupuesto.estado === 'Aceptado' || presupuesto.estado === 'Facturado';
+  const contractYear = getBudgetContractYear(presupuesto);
+  if (!isContracted || presupuesto.ajusteAnualActivo !== true || contractYear === null) {
+    return baseTotal;
+  }
+
+  return buildAnnualAdjustmentProjection({
+    baseTotal,
+    eventDate: presupuesto.eventoFecha,
+    currentYear: contractYear,
+    adjustmentPct:
+      presupuesto.ajusteAnualPorcentaje
+      ?? defaultAnnualAdjustmentPercentage
+      ?? undefined,
+  }).adjustedTotal;
 }
 
 /**
@@ -203,6 +249,12 @@ function conAjusteAnualCuandoCorresponde(presupuesto: Presupuesto): Presupuesto 
   const contratado = presupuesto.estado === 'Aceptado' || presupuesto.estado === 'Facturado';
   if (!contratado) return presupuesto;
 
+  const anioContrato = getBudgetContractYear(presupuesto);
+  const anioEvento = getYearFromDate(presupuesto.eventoFecha);
+  if (anioContrato === null || anioEvento === null || anioEvento <= anioContrato) {
+    return presupuesto;
+  }
+
   return { ...presupuesto, ajusteAnualActivo: true };
 }
 
@@ -213,7 +265,7 @@ export function normalizePresupuestoFinancials(
   const presupuesto = conAjusteAnualCuandoCorresponde(presupuestoOriginal);
   const financials = calculateBudgetFinancials(presupuesto, options);
 
-  return {
+  const normalized: Presupuesto = {
     ...presupuesto,
     invitadosAdultos: roundMoney(presupuesto.invitadosAdultos),
     invitadosNinos: roundMoney(presupuesto.invitadosNinos),
@@ -224,6 +276,11 @@ export function normalizePresupuestoFinancials(
     totalConDescuento: financials.total,
     saldo: financials.balance,
   };
+
+  return {
+    ...normalized,
+    saldo: getBudgetPaymentSummary(normalized, { includeAnnualAdjustment: true }).balance,
+  };
 }
 
 export function validatePaymentAgainstBudget(
@@ -232,12 +289,7 @@ export function validatePaymentAgainstBudget(
   options: { excludePaymentId?: string; allowOverpay?: boolean; includePendingForLimit?: boolean } = {},
 ): PaymentGuardrailResult {
   const normalizedAmount = roundMoney(amount);
-  const total = roundMoney(
-    presupuesto.totalConDescuento
-    ?? presupuesto.costoTotalEstimado
-    ?? (presupuesto as { totalFinal?: number; total?: number }).totalFinal
-    ?? (presupuesto as { total?: number }).total,
-  );
+  const total = getBudgetCollectibleTotal(presupuesto);
   const confirmedBefore = sumConfirmedClientPayments(presupuesto.pagosCliente ?? [], options.excludePaymentId);
   const pendingBefore = options.includePendingForLimit
     ? sumPendingClientPayments(presupuesto.pagosCliente ?? [], options.excludePaymentId)
@@ -268,7 +320,10 @@ export function validatePaymentAgainstBudget(
   return { ok: true, remainingBeforePayment, totalConfirmedAfterPayment };
 }
 
-export function getBudgetPaymentSummary(presupuesto?: Presupuesto | null): BudgetPaymentSummary {
+export function getBudgetPaymentSummary(
+  presupuesto?: Presupuesto | null,
+  options: BudgetPaymentSummaryOptions = {},
+): BudgetPaymentSummary {
   if (!presupuesto) {
     return {
       total: 0,
@@ -280,7 +335,12 @@ export function getBudgetPaymentSummary(presupuesto?: Presupuesto | null): Budge
     };
   }
 
-  const total = roundMoney(Number(presupuesto.totalConDescuento ?? presupuesto.costoTotalEstimado) || 0);
+  const total = options.includeAnnualAdjustment === true
+    ? getBudgetCollectibleTotal(
+      presupuesto,
+      options.defaultAnnualAdjustmentPercentage,
+    )
+    : getBudgetBaseTotal(presupuesto);
   const paid = sumConfirmedClientPayments(presupuesto.pagosCliente ?? []);
   const pendingReview = sumPendingClientPayments(presupuesto.pagosCliente ?? []);
   const balance = Math.max(0, (Number(total) || 0) - (Number(paid) || 0));
@@ -300,7 +360,7 @@ export function getPaymentReceiptSnapshot(
   presupuesto: Presupuesto,
   payment: PagoCliente,
 ): PaymentReceiptSnapshot {
-  const summary = getBudgetPaymentSummary(presupuesto);
+  const summary = getBudgetPaymentSummary(presupuesto, { includeAnnualAdjustment: true });
   const paymentAmount = roundMoney(payment.monto);
   const balanceAfterPayment = summary.balance;
   const balanceBeforePayment = isConfirmedClientPayment(payment)
@@ -317,6 +377,7 @@ export function getPaymentReceiptSnapshot(
 
 export function auditPresupuestoFinancialGuardrails(presupuesto: Presupuesto): FinancialGuardrailIssue[] {
   const financials = calculateBudgetFinancials(presupuesto);
+  const paymentSummary = getBudgetPaymentSummary(presupuesto, { includeAnnualAdjustment: true });
   const issues: FinancialGuardrailIssue[] = [];
   const splitTotal = calculateGuestSplitTotal(presupuesto);
 
@@ -351,20 +412,20 @@ export function auditPresupuestoFinancialGuardrails(presupuesto: Presupuesto): F
     });
   }
 
-  if (Math.abs(roundMoney(presupuesto.saldo) - financials.balance) > MONEY_TOLERANCE) {
+  if (Math.abs(roundMoney(presupuesto.saldo) - paymentSummary.balance) > MONEY_TOLERANCE) {
     issues.push({
       field: 'saldo',
       message: 'El saldo guardado no coincide con los pagos confirmados.',
-      expected: financials.balance,
+      expected: paymentSummary.balance,
       actual: roundMoney(presupuesto.saldo),
     });
   }
 
-  if (financials.confirmedPaid > financials.total + MONEY_TOLERANCE) {
+  if (financials.confirmedPaid > paymentSummary.total + MONEY_TOLERANCE) {
     issues.push({
       field: 'pagosCliente',
       message: 'Los pagos confirmados superan el total del presupuesto.',
-      expected: financials.total,
+      expected: paymentSummary.total,
       actual: financials.confirmedPaid,
     });
   }

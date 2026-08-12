@@ -150,4 +150,28 @@ describe('correcciones de la revisión', () => {
 
     expect(aviso).toBeTruthy();
   });
+
+  it('calcula el ajuste desde la firma y enlaza la correccion del presupuesto', () => {
+    const sinMarca = presupuesto({
+      ajusteAnualActivo: undefined,
+      timestamp: '2024-02-01T10:00:00.000Z',
+      fechaFirmaContrato: '2026-02-01T10:00:00.000Z',
+      eventoFecha: '2027-05-10',
+      totalConDescuento: 100000,
+      ajusteAnualPorcentaje: 15,
+    });
+
+    const reporte = buildPuestaAlDiaReporte([], [sinMarca], HOY);
+    const aviso = reporte.items.find((i) => i.queLePasa.includes('ajuste anual'));
+
+    expect(aviso?.montoPendiente).toBe(15000);
+    expect(aviso?.href).toBe('/presupuestos/p1/edit');
+  });
+
+  it('enlaza el presupuesto aceptado que nunca se convirtio en evento', () => {
+    const reporte = buildPuestaAlDiaReporte([], [presupuesto()], HOY);
+    const aviso = reporte.items.find((i) => i.queLePasa.includes('nunca se cre'));
+
+    expect(aviso?.href).toBe('/presupuestos/p1/ver');
+  });
 });

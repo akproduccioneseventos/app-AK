@@ -2,6 +2,7 @@ import {
   buildAnnualAdjustmentProjection,
   buildFormalBudgetBookingNote,
   calculatePricePerPerson,
+  getYearFromDate,
 } from './formal-budget';
 
 describe('formal budget presentation calculations', () => {
@@ -34,6 +35,12 @@ describe('formal budget presentation calculations', () => {
     ]);
     expect(projection.adjustedTotal).toBe(132250);
     expect(projection.adjustmentAmount).toBe(32250);
+  });
+
+  it('keeps the written year for date-only values in every timezone', () => {
+    expect(getYearFromDate('2027-01-01')).toBe(2027);
+    expect(getYearFromDate('2027-01-01T00:00:00.000Z')).toBe(2027);
+    expect(getYearFromDate('2027-02-31')).toBeNull();
   });
 
   it('calculates the marketing price per person without dividing by zero', () => {

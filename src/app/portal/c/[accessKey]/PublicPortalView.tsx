@@ -473,7 +473,9 @@ export default function PublicPortalView({
   const whatsappHref = `https://wa.me/${hasValidPhone ? whatsappNumber : AK_WHATSAPP_NUMBER}?text=${whatsappMessage}`;
 
   // Payments data
-  const paymentSummary = getBudgetPaymentSummary(presupuesto);
+  const paymentSummary = getBudgetPaymentSummary(presupuesto, {
+    includeAnnualAdjustment: true,
+  });
   const totalCosto = paymentSummary.total;
   const pagos: PagoCliente[] = presupuesto?.pagosCliente ?? [];
   const totalPagado = paymentSummary.paid;

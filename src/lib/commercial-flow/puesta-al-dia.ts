@@ -36,6 +36,8 @@ export interface PuestaAlDiaItem {
   queHacer: string;
   /** Plata pendiente, cuando corresponde. */
   montoPendiente?: number;
+  /** Pantalla exacta donde el encargado puede revisar o corregir el caso. */
+  href?: string;
 }
 
 export interface PuestaAlDiaReporte {
@@ -92,7 +94,12 @@ export function buildPuestaAlDiaReporte(
 
     const nombre = nombreDe(fiesta);
     const dias = diasDesde(fecha, hoy);
-    const base = { fiestaId: fiesta.id, nombre, fecha: fecha ?? '' };
+    const base = {
+      fiestaId: fiesta.id,
+      nombre,
+      fecha: fecha ?? '',
+      href: `/fiestas/nueva?fiestaId=${encodeURIComponent(fiesta.id)}`,
+    };
 
     // 1. Plata primero: la fiesta se hizo y todavía queda saldo sin cobrar.
     //
@@ -176,14 +183,16 @@ export function buildPuestaAlDiaReporte(
     // se avisa cuando nunca se decidió.
     if (presupuesto.ajusteAnualActivo !== undefined) continue;
 
-    const anioContrato = anioDe(presupuesto.timestamp ? String(presupuesto.timestamp).slice(0, 10) : undefined);
+    const fechaContrato = presupuesto.fechaFirmaContrato ?? presupuesto.timestamp;
+    const anioContrato = anioDe(fechaContrato ? String(fechaContrato).slice(0, 10) : undefined);
     const anioEvento = anioDe(presupuesto.eventoFecha);
     if (anioContrato === null || anioEvento === null || anioEvento <= anioContrato) continue;
 
-    const anios = anioEvento - anioContrato;
-    const porcentaje = presupuesto.ajusteAnualPorcentaje ?? 15;
-    const resumen = calcularEstadoDeCuenta(presupuesto);
-    const seDejaDeCobrar = Math.round(resumen.totalBase * (Math.pow(1 + porcentaje / 100, anios) - 1));
+    const resumenConAjuste = calcularEstadoDeCuenta({
+      ...presupuesto,
+      ajusteAnualActivo: true,
+    });
+    const seDejaDeCobrar = resumenConAjuste.ajusteAnual;
 
     items.push({
       gravedad: 'cobrar',
@@ -193,6 +202,7 @@ export function buildPuestaAlDiaReporte(
       queLePasa: `Se contrató en ${anioContrato} y la fiesta es en ${anioEvento}, pero no tiene puesto el ajuste anual.`,
       queHacer: `Activale el ajuste anual: se está cobrando el precio de ${anioContrato}.`,
       montoPendiente: seDejaDeCobrar > 0 ? seDejaDeCobrar : undefined,
+      href: `/presupuestos/${encodeURIComponent(presupuesto.id)}/edit`,
     });
   }
 
@@ -211,6 +221,7 @@ export function buildPuestaAlDiaReporte(
       fiestaId: '',
       nombre: presupuesto.clienteNombre?.trim() || `Presupuesto ${presupuesto.numero ?? presupuesto.id}`,
       fecha: presupuesto.eventoFecha ?? '',
+      href: `/presupuestos/${encodeURIComponent(presupuesto.id)}/ver`,
       queLePasa: 'Está aceptado y la fecha ya pasó, pero nunca se creó el evento.',
       queHacer: 'Fijate si la fiesta se hizo y quedó sin cargar, o si el presupuesto tendría que estar rechazado.',
     });

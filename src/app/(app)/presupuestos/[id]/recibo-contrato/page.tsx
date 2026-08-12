@@ -149,7 +149,9 @@ function ReciboContratoContent({ params }: { params: { id: string } }) {
   const { totalCosto, totalPagado, saldoPendiente, pagos } = useMemo(() => {
     if (!presupuesto) return { totalCosto: 0, totalPagado: 0, saldoPendiente: 0, pagos: [] as PagoCliente[] };
     const pagosList: PagoCliente[] = (presupuesto.pagosCliente || []).filter(isConfirmedClientPayment);
-    const summary = getBudgetPaymentSummary(presupuesto);
+    const summary = getBudgetPaymentSummary(presupuesto, {
+      includeAnnualAdjustment: true,
+    });
     return { totalCosto: summary.total, totalPagado: summary.paid, saldoPendiente: summary.balance, pagos: pagosList };
   }, [presupuesto]);
 

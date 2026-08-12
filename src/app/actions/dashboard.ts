@@ -169,7 +169,7 @@ export async function getDashboardKpiData() {
 
     presupuestosData.forEach(pres => {
       if (!isFirmBudgetStatus(pres.estado)) return;
-      const summary = getBudgetPaymentSummary(pres);
+      const summary = getBudgetPaymentSummary(pres, { includeAnnualAdjustment: true });
       if (summary.balance > 0 && pres.eventoFecha && new Date(pres.eventoFecha) <= addDays(today, 7)) {
         alerts.push({
           id: `budget_balance_${pres.id}`,
@@ -325,7 +325,9 @@ export async function getCashFlowProjection() {
       if (!isAfter(eventDate, today) && !isSameDay(eventDate, today)) return;
       const monthEntry = projectionMonths.find(m => m.month === getMonthKey(eventDate));
       if (!monthEntry) return;
-      monthEntry.income += getBudgetPaymentSummary(pres).balance;
+      monthEntry.income += getBudgetPaymentSummary(pres, {
+        includeAnnualAdjustment: true,
+      }).balance;
     });
 
     fiestas.forEach(fiesta => {
