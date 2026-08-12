@@ -175,3 +175,33 @@ describe('correcciones de la revisión', () => {
     expect(aviso?.href).toBe('/presupuestos/p1/ver');
   });
 });
+
+describe('contratos cargados desde papel', () => {
+  it('avisa cuando no tiene la fecha real de firma', () => {
+    // Un contrato cargado en 2026 para una fiesta de 2026: la aplicacion cree que
+    // se firmo este anio y no le aplica ningun ajuste. Si en realidad se firmo en
+    // 2024, se estan perdiendo dos anios de aumento.
+    const cargado = presupuesto({
+      timestamp: '2026-08-01T10:00:00.000Z',
+      eventoFecha: '2026-11-20',
+    });
+
+    const reporte = buildPuestaAlDiaReporte([], [cargado], HOY);
+    const aviso = reporte.items.find((i) => i.queLePasa.includes('fecha en que se firmó'));
+
+    expect(aviso).toBeTruthy();
+    expect(aviso?.queHacer).toMatch(/se está cobrando de menos/i);
+  });
+
+  it('no molesta cuando la fecha de firma esta guardada', () => {
+    const conFirma = presupuesto({
+      fechaFirmaContrato: '2024-05-10T10:00:00.000Z',
+      timestamp: '2026-08-01T10:00:00.000Z',
+      eventoFecha: '2026-11-20',
+    });
+
+    const reporte = buildPuestaAlDiaReporte([], [conFirma], HOY);
+
+    expect(reporte.items.some((i) => i.queLePasa.includes('fecha en que se firmó'))).toBe(false);
+  });
+});
