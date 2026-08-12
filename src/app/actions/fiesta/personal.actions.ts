@@ -2,14 +2,15 @@
 
 import type { PersonalAsignadoDetalleStorage } from '@/types/fiesta';
 import { syncFiestaToGoogleWorkspace } from '../google-workspace';
-import { getFiestaById, saveFiesta } from './fiesta.actions';
+import { getFiestaById, getFiestas, saveFiesta } from './fiesta.actions';
 import { requirePermiso } from '@/lib/auth/require-session';
 import { PERMISOS } from '@/lib/auth/perfiles';
+import { readActiveFiestasForStaffAgenda } from '@/lib/staff-agenda-data';
 
 export async function updatePersonal(
   fiestaId: string,
   personal: PersonalAsignadoDetalleStorage[]
-): Promise<{ success: boolean; error?: string; googleSyncWarning?: string }> {
+): Promise<{ success: boolean; error?: string; googleSyncWarning?: string; agendaWarning?: string }> {
   // Lo que se guarda aca incluye `eventSalary`: cuanto cobra cada persona por esa
   // fiesta. Es el mismo dato que protegen los recibos, asi que pide el mismo
   // permiso. Antes no comprobaba NADA: con solo conocer el codigo de una fiesta se
@@ -28,12 +29,73 @@ export async function updatePersonal(
     const currentData = await getFiestaById(fiestaId);
     if (!currentData) throw new Error("Fiesta no encontrada");
 
-    // PRIMERO se guarda, DESPUES se sincroniza. El orden no es un detalle:
-    // `syncFiestaToGoogleWorkspace` vuelve a leer la fiesta de la base, asi que
-    // si corre antes del guardado manda los avisos con la asignacion VIEJA. El
-    // mozo nuevo no se entera de que trabaja, y al que sacaron le llega el
-    // correo igual.
-    const result = await saveFiesta({ ...currentData, personalAsignado: personal });
+    const contarAsignaciones = (items: PersonalAsignadoDetalleStorage[]) => {
+      const counts = new Map<string, number>();
+      for (const item of items) {
+        if (!item.empleadoId) continue;
+        counts.set(item.empleadoId, (counts.get(item.empleadoId) || 0) + 1);
+      }
+      return counts;
+    };
+    const anteriores = contarAsignaciones(currentData.personalAsignado || []);
+    const siguientes = contarAsignaciones(personal);
+    const empleadosNuevos = [...siguientes.keys()].filter(
+      empleadoId => (siguientes.get(empleadoId) || 0) > (anteriores.get(empleadoId) || 0),
+    );
+
+    // Solo una asignación nueva necesita revisar agenda. Editar un sueldo o rol
+    // existente no vuelve a leer todas las fiestas en cada pulsación.
+    const fecha = currentData.configuracion?.fechaEvento;
+    const avisosAgenda: string[] = [];
+    let releaseAgendaLocks: () => Promise<void> = async () => undefined;
+    if (fecha && empleadosNuevos.length > 0) {
+      const { acquireStaffAgendaLocks } = await import('@/lib/staff-agenda-lock');
+      releaseAgendaLocks = await acquireStaffAgendaLocks(empleadosNuevos);
+    }
+    let result: Awaited<ReturnType<typeof saveFiesta>>;
+
+    try {
+      if (fecha && empleadosNuevos.length > 0) {
+        const { getEmpleados } = await import('../empleados');
+        const { evaluarAgendaEmpleado } = await import('@/lib/staff-agenda-conflicts');
+        const [empleados, fiestas] = await Promise.all([
+          getEmpleados(),
+          readActiveFiestasForStaffAgenda(() => getFiestas(false)),
+        ]);
+
+        for (const empleadoId of empleadosNuevos) {
+          const agenda = evaluarAgendaEmpleado(fiestas, empleadoId, currentData, fiestaId);
+          if (agenda.solapadas.length > 0) {
+            const emp = empleados.find(e => e.id === empleadoId);
+            const empNombre = emp?.nombre || 'El empleado';
+            const conflictos = agenda.solapadas
+              .slice(0, 3)
+              .map(conflicto => `"${conflicto.nombreEvento}" (${conflicto.horaInicio} a ${conflicto.horaFin}hs)`)
+              .join(', ');
+            const restantes = agenda.solapadas.length > 3 ? ` y ${agenda.solapadas.length - 3} evento(s) más` : '';
+            return {
+              success: false,
+              error: `No se puede asignar a ${empNombre}: su horario se solapa con ${conflictos}${restantes}.`,
+            };
+          }
+
+          const empNombre = empleados.find(e => e.id === empleadoId)?.nombre || 'El empleado';
+          if (agenda.horarioSinConfirmar.length > 0) {
+            avisosAgenda.push(
+              `${empNombre}: hay otra asignación ese día con horario a confirmar. Completá ambos horarios para descartar un choque.`,
+            );
+          } else if (agenda.mismoDiaNoSolapado.length > 0) {
+            avisosAgenda.push(`${empNombre}: también trabaja ese día, en un horario que no se solapa.`);
+          }
+        }
+      }
+
+      // La lectura y el guardado quedan dentro del mismo bloqueo por empleado.
+      result = await saveFiesta({ ...currentData, personalAsignado: personal });
+    } finally {
+      await releaseAgendaLocks();
+    }
+
     if (!result.success) throw new Error(result.error);
 
     let googleSyncWarning = '';
@@ -42,7 +104,9 @@ export async function updatePersonal(
         reason: 'personal',
         sendEmails: true,
       });
-      if (syncRes.warnings && syncRes.warnings.length > 0) {
+      if (!syncRes.success) {
+        googleSyncWarning = syncRes.error || syncRes.warnings?.join(' | ') || 'Google Workspace rechazo la sincronización.';
+      } else if (syncRes.warnings && syncRes.warnings.length > 0) {
         googleSyncWarning = syncRes.warnings.join(' | ');
       }
     } catch (syncError: any) {
@@ -58,7 +122,11 @@ export async function updatePersonal(
       if (conAviso) await saveFiesta({ ...conAviso, googleSyncWarning });
     }
 
-    return { success: true, googleSyncWarning: googleSyncWarning || undefined };
+    return {
+      success: true,
+      googleSyncWarning: googleSyncWarning || undefined,
+      agendaWarning: avisosAgenda.length > 0 ? avisosAgenda.join(' ') : undefined,
+    };
   } catch (e: any) {
     return { success: false, error: e.message };
   }
