@@ -775,6 +775,32 @@ Verificado y cerrado el 9 de agosto de 2026.
   y Wi-Fi requieren prueba fisica en el salon. Esos puntos se dejan explicitamente
   pendientes en lugar de declararlos aprobados por simulacion.
 
+## Puesta al dia de los eventos y el ajuste anual (12 de agosto de 2026)
+
+- **El ajuste anual no se aplicaba a los contratos sin facturar.** La marca que lo
+  activa (`ajusteAnualActivo`) se ponia en un solo lugar: al marcar el presupuesto
+  como Facturado. Un presupuesto Aceptado y todavia sin facturar nunca la recibia, y
+  `calcularEstadoDeCuenta` la exige para aplicar el ajuste. Resultado: la aplicacion
+  mostraba el precio del anio en que se firmo. En los contratos cargados de eventos
+  anteriores son miles de pesos por contrato. Ahora se completa al quedar contratado
+  (Aceptado o Facturado), dentro de `normalizePresupuestoFinancials`, que es por
+  donde pasan todas las escrituras de presupuestos, incluidas las importaciones.
+  **Se completa solo cuando nunca se decidio**: si el duenio lo apago a proposito
+  para un cliente, se respeta.
+- **Pantalla nueva "Poner al dia los eventos"**, en Auditoria y de solo lectura.
+  Encuentra fiestas pasadas que siguen abiertas, eventos viejos con equipo asignado
+  o tareas sin terminar, fiestas sin presupuesto vinculado, contratos de anios
+  anteriores sin el ajuste anual (con cuanto se deja de cobrar) y presupuestos
+  aceptados cuya fecha paso sin evento creado. No cierra ni cobra nada por su
+  cuenta.
+- **Correcciones de la revision de Codex, todas validas:** el saldo pendiente usa el
+  estado de cuenta con ajuste (con el total pelado, un contrato pagado al precio
+  viejo no mostraba nada); no se insiste con el ajuste cuando el duenio lo apago a
+  proposito; se cuentan las tareas del equipo (`tareas`) ademas de la lista del
+  cliente (`clientChecklist`), que son cosas distintas; y las fiestas archivadas se
+  usan solo para saber que un presupuesto ya tiene su evento, sin revisarlas como si
+  estuvieran abiertas.
+
 ## Cómo agregar algo a esta lista
 
 **Se anota SIEMPRE, en la misma propuesta que toca el código.** Orden del dueño

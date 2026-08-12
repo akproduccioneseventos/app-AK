@@ -12,6 +12,8 @@ import { Separator } from '@/components/ui/separator';
 import { useToast } from '@/hooks/use-toast';
 import { Shield, Search, Download, Filter, Clock, Loader2, ArrowRight, Calculator, CheckCircle2, AlertTriangle } from 'lucide-react';
 import { getAuditLogs } from '@/app/actions/audit-log';
+import { getPuestaAlDiaReport } from '@/app/actions/puesta-al-dia';
+import type { PuestaAlDiaReporte } from '@/lib/commercial-flow/puesta-al-dia';
 import { getFinancialIntegrityReport } from '@/app/actions/financial-integrity';
 import type { FinancialIntegrityReport } from '@/lib/commercial-flow/financial-integrity';
 import type { AuditLog, ModuloSistema } from '@/types/audit-log';
@@ -86,6 +88,30 @@ function AuditoriaContent() {
 
   useEffect(() => { load(); }, []); // eslint-disable-line react-hooks/exhaustive-deps
 
+  const [puestaAlDia, setPuestaAlDia] = useState<PuestaAlDiaReporte | null>(null);
+  const [puestaAlDiaLoading, setPuestaAlDiaLoading] = useState(false);
+
+  const runPuestaAlDia = async () => {
+    setPuestaAlDiaLoading(true);
+    try {
+      const result = await getPuestaAlDiaReport();
+      if (!result.success || !result.report) throw new Error(result.error || 'No se pudo revisar.');
+      setPuestaAlDia(result.report);
+      toast({
+        title: result.report.items.length === 0 ? 'Esta todo al dia' : 'Revision terminada',
+        description: `${result.report.totales.paraCobrar} para cobrar y ${result.report.totales.paraOrdenar} para ordenar.`,
+      });
+    } catch (error) {
+      toast({
+        title: 'No se pudo revisar',
+        description: error instanceof Error ? error.message : 'Intenta de nuevo en un momento.',
+        variant: 'destructive',
+      });
+    } finally {
+      setPuestaAlDiaLoading(false);
+    }
+  };
+
   const runFinancialAudit = async () => {
     setFinancialLoading(true);
     try {
@@ -154,6 +180,83 @@ function AuditoriaContent() {
           Historial inmutable de todas las acciones realizadas en el sistema.
         </p>
       </div>
+
+      <Card className="mb-6">
+        <CardHeader className="pb-3">
+          <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+            <div>
+              <CardTitle className="text-base flex items-center gap-2">
+                <Clock className="h-4 w-4" /> Poner al dia los eventos
+              </CardTitle>
+              <CardDescription>
+                Busca fiestas que ya pasaron y siguen abiertas, equipo asignado en fechas viejas y
+                contratos de anos anteriores a los que les falta el ajuste anual. No cambia nada: te
+                dice que mirar.
+              </CardDescription>
+            </div>
+            <Button onClick={runPuestaAlDia} disabled={puestaAlDiaLoading} size="sm" variant="outline">
+              {puestaAlDiaLoading ? <Loader2 className="h-4 w-4 animate-spin mr-2" /> : <Clock className="h-4 w-4 mr-2" />}
+              Revisar ahora
+            </Button>
+          </div>
+        </CardHeader>
+        {puestaAlDia && (
+          <CardContent className="space-y-4">
+            <div className="grid grid-cols-2 gap-3 md:grid-cols-4">
+              <div><p className="text-xs text-muted-foreground">Eventos revisados</p><p className="text-xl font-semibold">{puestaAlDia.totales.fiestasRevisadas}</p></div>
+              <div><p className="text-xs text-muted-foreground">Ya pasaron</p><p className="text-xl font-semibold">{puestaAlDia.totales.yaPasaron}</p></div>
+              <div><p className="text-xs text-muted-foreground">Para cobrar</p><p className="text-xl font-semibold text-red-600">{puestaAlDia.totales.paraCobrar}</p></div>
+              <div><p className="text-xs text-muted-foreground">Para ordenar</p><p className="text-xl font-semibold text-amber-600">{puestaAlDia.totales.paraOrdenar}</p></div>
+            </div>
+
+            {puestaAlDia.totales.plataPendiente > 0 && (
+              <p className="text-sm font-semibold text-red-700">
+                Plata a revisar: $ {puestaAlDia.totales.plataPendiente.toLocaleString('es-UY')}
+              </p>
+            )}
+
+            {puestaAlDia.items.length === 0 ? (
+              <div className="flex items-center gap-2 border-t pt-4 text-sm text-emerald-700">
+                <CheckCircle2 className="h-4 w-4" /> Los eventos pasados estan cerrados y al dia.
+              </div>
+            ) : (
+              <div className="overflow-x-auto border-t pt-4">
+                <Table>
+                  <TableHeader>
+                    <TableRow>
+                      <TableHead>Evento</TableHead>
+                      <TableHead>Fecha</TableHead>
+                      <TableHead>Que le pasa</TableHead>
+                      <TableHead>Que hacer</TableHead>
+                    </TableRow>
+                  </TableHeader>
+                  <TableBody>
+                    {puestaAlDia.items.map((item, i) => (
+                      <TableRow key={`${item.fiestaId}-${i}`}>
+                        <TableCell className="font-medium">
+                          {item.fiestaId ? (
+                            <a className="underline" href={`/fiestas/nueva?fiestaId=${item.fiestaId}`}>{item.nombre}</a>
+                          ) : item.nombre}
+                        </TableCell>
+                        <TableCell className="whitespace-nowrap">{item.fecha || '-'}</TableCell>
+                        <TableCell>
+                          {item.queLePasa}
+                          {typeof item.montoPendiente === 'number' && (
+                            <span className="ml-1 font-semibold text-red-700">
+                              ($ {item.montoPendiente.toLocaleString('es-UY')})
+                            </span>
+                          )}
+                        </TableCell>
+                        <TableCell className="text-muted-foreground">{item.queHacer}</TableCell>
+                      </TableRow>
+                    ))}
+                  </TableBody>
+                </Table>
+              </div>
+            )}
+          </CardContent>
+        )}
+      </Card>
 
       <Card className="mb-6">
         <CardHeader className="pb-3">
