@@ -11,6 +11,7 @@ import { createNotification } from '@/lib/notifications/create-notification';
 import { uploadToStorage, deleteFromStorage } from '@/lib/firebase/storage';
 import { getPresupuestoById } from '../presupuestos';
 import { verifyPortalSession } from '@/lib/security/portal-session';
+import { requireAppSession } from '@/lib/auth/require-session';
 
 /** Default deposit amount used only when no presupuesto or plan de pagos seña is available. */
 const DEFAULT_DEPOSIT_AMOUNT = 20000;
@@ -107,7 +108,17 @@ async function resolveDepositAmount(fiesta: FiestaEnPlanificacion): Promise<numb
   return DEFAULT_DEPOSIT_AMOUNT; // fallback default
 }
 
+/**
+ * Guarda un documento adjunto de un evento.
+ *
+ * Pide sesion del equipo: se usa solo desde las pantallas internas de gestion
+ * documental. Antes no la pedia y el archivo se subia al deposito antes de que
+ * nadie comprobara quien era: aunque despues el guardado fallara, el archivo ya
+ * habia quedado ahi, ocupando lugar que se paga.
+ */
 export async function uploadDocumento(formData: FormData): Promise<{ success: boolean; error?: string }> {
+    await requireAppSession();
+
     const file = formData.get('file') as File | null;
     const docType = formData.get('docType') as DocumentoTipo;
     const customName = formData.get('customName') as string;
@@ -185,7 +196,17 @@ export async function signContractDigitally(fiestaId: string, signerName: string
     return { success: false, error: 'La firma digital está deshabilitada. Por favor, firme físicamente el contrato.' };
 }
 
+/**
+ * Sube el contrato firmado en papel y deja el evento como Contratado.
+ *
+ * Pide sesion del equipo. Esto no es solo subir un archivo: marca el contrato
+ * como firmado y cambia el estado del evento, que es lo que dispara el cobro de
+ * la senia y la organizacion. Sin la guarda, cualquiera de afuera podia dar por
+ * firmado un contrato que nadie firmo.
+ */
 export async function uploadPhysicalContract(formData: FormData): Promise<{ success: boolean; error?: string }> {
+    await requireAppSession();
+
     const file = formData.get('file') as File | null;
     const fiestaId = formData.get('fiestaId') as string;
 
