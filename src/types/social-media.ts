@@ -1,6 +1,6 @@
 
 export type SocialPlatform = 'Facebook' | 'Instagram' | 'TikTok' | 'WhatsApp';
-export type PostStatus = 'Programado' | 'Publicado';
+export type PostStatus = 'Programado' | 'Publicado' | 'Importado de IG';
 
 export interface PostPerformance {
     likes?: number;

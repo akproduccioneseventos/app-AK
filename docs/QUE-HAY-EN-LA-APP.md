@@ -99,13 +99,11 @@ andando. No se rompe nada delante del invitado.
 - Sincronización de comentarios, seguidores o "me gusta".
 - Avisos automáticos que lleguen desde las redes hacia la app.
 
-### Ojo con esto
+### Resuelto
 
-Las publicaciones que se importan de Instagram se guardan con el estado
-**"Publicado"**. Es cierto en el sentido de que ya están publicadas *en Instagram*,
-pero en el planificador se lee como si la app las hubiera publicado. Conviene
-cambiarle el nombre a ese estado (por ejemplo "Ya está en Instagram") para que no
-confunda.
+Lo que se importa de Instagram ya no dice "Publicado" (que se leía como si la app
+lo hubiera publicado): queda como **"Importado de IG"**, con color propio, separado
+de lo que el equipo todavía tiene que publicar a mano.
 
 ---
 
@@ -172,11 +170,12 @@ eso puesto, nada de la parte pública podía aparecer en Google. Corregido: ver
 - La mayoría de las pantallas públicas se arman del lado del servidor, que es lo
   que Google lee bien.
 
+- **La ficha de negocio para Google** (nombre, dirección, teléfono, coordenadas y
+  redes) está en la portada y también en bodas, quince, cumpleaños y el blog.
+
 ### A medias
 
 - Varias pantallas públicas no tienen título ni descripción propios.
-- La ficha de negocio para Google está sólo en la portada, no en las páginas de
-  bodas, quince ni en el blog.
 
 ### No está
 
