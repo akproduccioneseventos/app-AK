@@ -72,6 +72,31 @@ build de verdad y revisá a mano lo que toca plata y permisos.**
 `src/lib/seo/paginas-publicas.ts`,
 `src/lib/public-experience/donde-va-el-asistente.ts`.
 
+## Lo próximo (13 de agosto en adelante)
+
+**Para Gemini**, en `docs/ordenes/crecer-01-resenas-y-plan-del-equipo.md`, una sola
+propuesta con dos bloques:
+
+1. **Pedirle la reseña de Google al cliente que quedó contento.** La aplicación ya
+   sabe quién puso 9 o 10 en la encuesta post evento. Hoy esas opiniones buenas no
+   las ve ningún cliente nuevo. Sólo a los de nota alta, una sola vez, apagado de
+   fábrica y con el enlace configurable.
+2. **El plan de la noche en el celular de cada uno del equipo**, por su acceso
+   propio. Cada uno ve sólo lo suyo: nunca sueldos ajenos.
+
+**Para Claude**, porque tocan plata:
+
+- **Cobrar la seña en el momento en que el cliente acepta.** Hoy tiene que esperar a
+  coordinar el pago, y ahí se enfrían las ventas.
+- **Comparar la ganancia entre todas las fiestas.** El Analizador de Rentabilidad ya
+  calcula el margen de cada fiesta una por una, pero no se pueden comparar. La
+  pregunta que decide qué conviene vender —¿los casamientos dejan más que los
+  quince?— hoy no se puede contestar.
+- **Que ese analizador use la plata que salió de verdad** y no la estimada. Los
+  pagos a proveedores se registran, pero la ganancia que se muestra arriba se
+  calcula contra el costo proyectado, así que si se gastó de más el número sigue
+  viéndose lindo.
+
 ## Lo que el dueño tiene que hacer él
 
 - **Dar el aviso a Google desde su panel** para que pase a mirar el sitio. La app ya
