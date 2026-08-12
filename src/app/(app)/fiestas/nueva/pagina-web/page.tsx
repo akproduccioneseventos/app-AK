@@ -35,6 +35,40 @@ import { getErrorMessage } from '@/lib/error-utils';
 type PreviewMode = 'mobile' | 'tablet' | 'desktop';
 type EditorMode = 'simple' | 'avanzado';
 
+export function getDatosMinimosFaltantesInvitacion(fiesta: FiestaEnPlanificacion | null, invitacionData: InvitacionDigitalData): string[] {
+  const faltantes: string[] = [];
+
+  const fecha = fiesta?.configuracion?.fechaEvento
+    || invitacionData?.detallesEvento?.celebracion?.fecha
+    || invitacionData?.detallesEvento?.ceremoniaReligiosa?.fecha;
+  if (!fecha) {
+    faltantes.push('Falta la fecha del evento.');
+  }
+
+  const hora = fiesta?.configuracion?.horaInicio
+    || invitacionData?.detallesEvento?.celebracion?.hora
+    || invitacionData?.detallesEvento?.ceremoniaReligiosa?.hora;
+  if (!hora) {
+    faltantes.push('Falta la hora de inicio.');
+  }
+
+  const salon = fiesta?.configuracion?.salonFiestas
+    || invitacionData?.detallesEvento?.celebracion?.nombreLugar
+    || invitacionData?.detallesEvento?.ceremoniaReligiosa?.nombreLugar;
+  if (!salon || salon === '___________________' || salon.trim() === '') {
+    faltantes.push('Falta el nombre del salón o lugar.');
+  }
+
+  const direccion = invitacionData?.detallesEvento?.celebracion?.direccionLugar
+    || invitacionData?.detallesEvento?.ceremoniaReligiosa?.direccionLugar
+    || (fiesta?.configuracion as any)?.salonDireccion;
+  if (!direccion || direccion.trim() === '') {
+    faltantes.push('Falta la dirección de la celebración. Sin eso el invitado no sabe adónde ir.');
+  }
+
+  return faltantes;
+}
+
 const AdvancedInvitationCanvas = dynamic(
   () => import('@/components/invitacion/edit/AdvancedInvitationCanvas').then((module) => module.AdvancedInvitationCanvas),
   { loading: () => <div className="flex h-full items-center justify-center"><Loader2 className="h-10 w-10 animate-spin text-primary/40" /></div> },
@@ -268,35 +302,7 @@ function PaginaWebPageContent() {
   };
 
   const checkMissingDataBeforeAction = (action: () => void) => {
-    const faltantes: string[] = [];
-
-    const fecha = fiesta?.configuracion?.fechaEvento
-      || invitacionData?.detallesEvento?.celebracion?.fecha
-      || invitacionData?.detallesEvento?.ceremoniaReligiosa?.fecha;
-    if (!fecha) {
-      faltantes.push('Falta la fecha del evento.');
-    }
-
-    const hora = fiesta?.configuracion?.horaInicio
-      || invitacionData?.detallesEvento?.celebracion?.hora
-      || invitacionData?.detallesEvento?.ceremoniaReligiosa?.hora;
-    if (!hora) {
-      faltantes.push('Falta la hora de inicio.');
-    }
-
-    const salon = fiesta?.configuracion?.salonFiestas
-      || invitacionData?.detallesEvento?.celebracion?.nombreLugar
-      || invitacionData?.detallesEvento?.ceremoniaReligiosa?.nombreLugar;
-    if (!salon || salon === '___________________' || salon.trim() === '') {
-      faltantes.push('Falta el nombre del salón o lugar.');
-    }
-
-    const direccion = invitacionData?.detallesEvento?.celebracion?.direccionLugar
-      || invitacionData?.detallesEvento?.ceremoniaReligiosa?.direccionLugar
-      || (fiesta?.configuracion as any)?.salonDireccion;
-    if (!direccion || direccion.trim() === '') {
-      faltantes.push('Falta la dirección de la celebración. Sin eso el invitado no sabe adónde ir.');
-    }
+    const faltantes = getDatosMinimosFaltantesInvitacion(fiesta, invitacionData);
 
     if (faltantes.length > 0) {
       setMissingDataList(faltantes);
@@ -315,16 +321,18 @@ function PaginaWebPageContent() {
   };
   
   const downloadQR = (id: string, name: string) => {
-    const canvas = document.getElementById(id) as HTMLCanvasElement;
-    if (canvas) {
-        const pngUrl = canvas.toDataURL("image/png").replace("image/png", "image/octet-stream");
-        let downloadLink = document.createElement("a");
-        downloadLink.href = pngUrl;
-        downloadLink.download = `${name}.png`;
-        document.body.appendChild(downloadLink);
-        downloadLink.click();
-        document.body.removeChild(downloadLink);
-    }
+    checkMissingDataBeforeAction(() => {
+      const canvas = document.getElementById(id) as HTMLCanvasElement;
+      if (canvas) {
+          const pngUrl = canvas.toDataURL("image/png").replace("image/png", "image/octet-stream");
+          let downloadLink = document.createElement("a");
+          downloadLink.href = pngUrl;
+          downloadLink.download = `${name}.png`;
+          document.body.appendChild(downloadLink);
+          downloadLink.click();
+          document.body.removeChild(downloadLink);
+      }
+    });
   };
 
   const renderEditorPanel = () => (
