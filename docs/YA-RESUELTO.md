@@ -1119,6 +1119,21 @@ nada. Lo único que estaba mal era el monto.
 - **Se borró `quienes-somos-slide`**, que quedaba muerta al lado de la pantalla del
   equipo. Estaba terminada pero nunca enganchada a la presentación.
 
+## Lo común de los tres catálogos se perdía por tipo de fiesta (13 de agosto de 2026)
+
+- **Los tres catálogos de la empresa comparten casi todo y cambian pocas cosas**
+  (sobre todo las fotos). Así está armado el contenido de la presentación: un bloque
+  común y, por tipo de fiesta, sólo la diferencia.
+- **El problema:** se devolvía el bloque del tipo de fiesta **entero**, no combinado
+  con el común. Todo lo que ese bloque no tuviera cargado quedaba vacío. La pantalla
+  del equipo salía sin título ni frase en **todos** los tipos conocidos —casamiento,
+  quince, cumpleaños— y sólo se veía bien cuando el tipo no estaba en la lista, que
+  es justo al revés de lo que uno espera.
+- **Ahora se combinan:** lo común primero, y encima lo propio de ese tipo. Cargar un
+  tipo nuevo es escribir sólo lo que cambia. Hay pruebas que lo cuidan.
+- Los doce logos de empresas **son los mismos en los tres catálogos**, verificado
+  mirándolos: alcanza con un solo juego para todos.
+
 ## Cómo agregar algo a esta lista
 
 **Se anota SIEMPRE, en la misma propuesta que toca el código.** Orden del dueño

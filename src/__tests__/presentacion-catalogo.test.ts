@@ -71,4 +71,37 @@ describe('Pruebas de Integridad - Presentación LED según Catálogo', () => {
       expect(salonInfoTexto).not.toContain('porteria');
     });
   });
+
+  describe('Lo que es igual en los tres catálogos no se pierde', () => {
+    /**
+     * Los tres catálogos de la empresa comparten casi todo y cambian pocas cosas.
+     * Antes se devolvía el bloque del tipo de fiesta entero, así que lo que ese
+     * bloque no tuviera cargado quedaba vacío: la pantalla del equipo salía sin
+     * título ni frase en TODOS los tipos conocidos, y sólo se veía bien cuando el
+     * tipo no estaba en la lista. Justo al revés de lo que se espera.
+     */
+    const tipos = ['Casamiento', 'Boda', 'Cumpleaños 15', '15 años', 'Cumpleaños infantil'];
+
+    it('todos los tipos de fiesta tienen la pantalla del equipo completa', () => {
+      for (const tipo of tipos) {
+        const c = getContenidoPorTipo(tipo);
+        expect(`${tipo} tiene titulo? ${Boolean(c.equipo?.titulo)}`).toBe(`${tipo} tiene titulo? true`);
+        expect(`${tipo} tiene frase? ${Boolean(c.equipo?.frase)}`).toBe(`${tipo} tiene frase? true`);
+      }
+    });
+
+    it('lo propio del tipo de fiesta le gana a lo común', () => {
+      const quince = getContenidoPorTipo('Cumpleaños 15');
+      const boda = getContenidoPorTipo('Casamiento');
+
+      expect(quince.tagline).not.toBe(boda.tagline);
+    });
+
+    it('un tipo de fiesta que no está en la lista igual sale completo', () => {
+      const c = getContenidoPorTipo('Fiesta de la empresa');
+
+      expect(Boolean(c.tagline)).toBe(true);
+      expect(Boolean(c.equipo?.titulo)).toBe(true);
+    });
+  });
 });

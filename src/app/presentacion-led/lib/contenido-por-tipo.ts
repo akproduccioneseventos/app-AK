@@ -141,15 +141,35 @@ const CONTENIDO_POR_TIPO: Record<string, ContenidoTipoFiesta> = {
   },
 };
 
+/**
+ * Lo que es igual para todos, mas lo poco que cambia en este tipo de fiesta.
+ *
+ * **Se combinan, no se reemplazan.** Antes se devolvia el bloque del tipo de fiesta
+ * entero, y lo que ese bloque no tuviera cargado quedaba vacio. Con eso, la
+ * pantalla del equipo aparecia sin titulo ni frase en TODOS los tipos conocidos
+ * —casamiento, quince, cumpleanos— y solo se veia bien cuando el tipo de fiesta no
+ * estaba en la lista, que es justo al reves de lo que se espera.
+ *
+ * Los tres catalogos de la empresa comparten casi todo y cambian pocas cosas: esa
+ * es la forma en que hay que cargar el contenido, poniendo solo la diferencia.
+ */
+function combinarConLoComun(propio: ContenidoTipoFiesta): ContenidoTipoFiesta {
+  return {
+    ...DEFAULT,
+    ...propio,
+    equipo: { ...DEFAULT.equipo, ...(propio.equipo ?? {}) },
+  };
+}
+
 export function getContenidoPorTipo(tipoFiesta: string): ContenidoTipoFiesta {
   if (!tipoFiesta) return DEFAULT;
   const found = CONTENIDO_POR_TIPO[tipoFiesta];
-  if (found) return found;
+  if (found) return combinarConLoComun(found);
   // Try partial match
   const lower = tipoFiesta.toLowerCase();
   for (const [key, value] of Object.entries(CONTENIDO_POR_TIPO)) {
     if (lower.includes(key.toLowerCase()) || key.toLowerCase().includes(lower)) {
-      return value;
+      return combinarConLoComun(value);
     }
   }
   return DEFAULT;
