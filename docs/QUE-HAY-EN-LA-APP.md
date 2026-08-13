@@ -162,9 +162,24 @@ de lo que el equipo todavía tiene que publicar a mano.
   anotado cómo completarlo bien en `docs/ordenes/grandes-01-las-cuatro-ideas.md`.
 - **Envío de mails masivos.** No hay nada.
 - **Formulario de contacto** aparte del simulador.
-- **Reseñas de Google** u otro servicio de reputación: no hay integración.
+- **Reseñas de Google** u otro servicio de reputación: no hay integración. La
+  aplicación sí sabe quién quedó contento (la encuesta post evento guarda una nota
+  del 1 al 10), pero esa opinión no sale nunca hacia afuera. Pedido en
+  `docs/ordenes/crecer-01-resenas-y-plan-del-equipo.md`.
 
 ---
+
+## Plata por evento — revisado el 12 de agosto de 2026
+
+- **Analizador de Rentabilidad — ANDA.** Dentro de cada fiesta muestra lo que se
+  pactó cobrar, lo que va a costar (comida, bebidas con su merma, repostería,
+  sueldos con aportes y proveedores) y la ganancia con su porcentaje. Tiene un botón
+  para sincronizar todo de una.
+- **A medias:** la ganancia se calcula contra el costo **estimado**, no contra lo
+  que se gastó de verdad. Los pagos reales a proveedores se registran aparte, así
+  que si se gastó de más, el número de arriba sigue viéndose bien.
+- **No está:** comparar la ganancia entre todas las fiestas. Se ve de a una por vez,
+  así que no se puede contestar qué tipo de evento deja más.
 
 ## Aparecer en Google (posicionamiento) — revisado el 12 de agosto de 2026
 
