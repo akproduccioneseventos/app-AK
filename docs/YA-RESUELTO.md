@@ -78,7 +78,7 @@ anotado, la próxima auditoría lo va a volver a encontrar.
   "tal vez" no sirve para encargar comida ni poner sillas. **Pero el estado
   `'Tal vez'` NO se borra del tipo `RsvpStatus`**: hay invitados guardados con
   ese valor y romperían las pantallas. Sólo se saca el botón de la invitación.
-- **El invitado SÃ� puede cambiar su respuesta**, y eso ya funciona: al responder
+- **El invitado SÍ puede cambiar su respuesta**, y eso ya funciona: al responder
   de nuevo con el mismo nombre, `submitPublicRsvp` lo busca por nombre
   normalizado y lo actualiza, no lo duplica. Lo que falta es decírselo en
   pantalla. Va en `docs/ordenes/estetica-01.md`, bloque E.
@@ -87,6 +87,10 @@ anotado, la próxima auditoría lo va a volver a encontrar.
   dólares que corregir.
 - **Bloque D ("Entretenimiento: video y guía")**: Verificación integral del sistema de entretenimiento en fiestas (`plataforma-360`, `bogue`, `buzon`, `readiness`). Plataforma 360 configurada con cámara lenta por defecto, música cargable por evento, marca de agua con nombre de la fiesta, guía paso a paso y mensaje de falla amigable sin trabar tablets. Bogue preserva las fotos individuales capturadas en la tanda y las permite imprimir mediante `imprimirRecuerdo` y `tira-fotocabina.ts` sin descartarlas al armar el video boomerang. Cápsula del tiempo con voz de orientación, pre-escucha y aviso antes del corte a los 15s. Verificación de prueba de estación con impresión de hoja de prueba real antes del evento.
 - **Bloque E ("Ajustes del sistema")**: Auditado el módulo `src/app/(app)/settings/` (plantillas de contrato, invitaciones web, WhatsApp, catálogos de servicios, salones y personal). Se implementó validación preventiva al guardar plantillas para detectar marcadores no reconocidos (`{{ALGO}}`) impidiendo que queden variables rotas en contratos o mensajes de WhatsApp hacia los clientes. Se garantizaron alertas claras de guardado y terminología amigable en criollo.
+- **Presentación LED alineada con el catálogo de papel (13 de agosto de 2026)**:
+  - **Bloque 1 — Logos de empresas**: cargados en local (`public/logos/`) con sus 12 nombres reales visibles (Correo Uruguayo, Salto Hotel & Casino, Plus Medical, A.S.DE.M. y A., Woslen, APC Salto, INC, Antel, ABRA, INAU, Intendencia de Salto, Club Uruguay) y administrables desde Ajustes → Contenido público.
+  - **Bloque 2 — Pantalla del equipo ("Hay equipo")**: nueva diapositiva `EquipoSlide` ubicada antes de los precios (después del salón), mostrando fotos del equipo trabajando, cantidad de profesionales (11) y frase en criollo, adaptable por tipo de evento y desde Ajustes.
+  - **Bloque 3 — Salón Club Uruguay**: pantalla actualizada resaltando los 120 años de historia, ubicación céntrica, capacidad +120 personas, limpieza completa incluida y **sin mencionar portero en ningún lado**.
 - **Los controles rojos de GitHub son por facturación de la cuenta.** No los
   investigues. Vale lo que se verifica localmente.
 - **El pasaje a la galería del cliente (wfolio) es manual.** No tiene forma
@@ -1120,10 +1124,64 @@ nada. Lo único que estaba mal era el monto.
   rol, la hora, el lugar, el teléfono del encargado y el programa de la fiesta. No
   ve lo que cobra ni lo que cobran los demás, y hay una prueba que lo cuida.
 - **La documentación tenía 427 acentos rotos.** `docs/YA-RESUELTO.md`, que es
-  justamente lo que todos leen antes de auditar, estaba lleno de "auditorÃ­a" y
-  "dueÃ±o". Pasó desapercibido porque la revisión completa de acentos sólo miraba
+  justamente lo que todos leen antes de auditar, estaba lleno de "auditoría" y
+  "dueño". Pasó desapercibido porque la revisión completa de acentos sólo miraba
   el código, no la documentación. Reparado, y la revisión ahora mira también los
   documentos para que no vuelva a pasar.
+## Los logos de las empresas, de verdad (13 de agosto de 2026)
+
+- **Ahora son los reales y viven adentro de la aplicación.** Se sacaron del catálogo
+  impreso de la empresa, recortados uno por uno y verificados a ojo antes de
+  nombrarlos: Correo Uruguayo, Salto Hotel & Casino, Plus Medical, A.S.DE.M. y A.,
+  Woslen, APC Salto, INC, Antel, ABRA, INAU, Intendencia de Salto y Club Uruguay.
+  Los doce, cada uno con su nombre visible en pantalla.
+- **Por qué no se cargan más desde afuera:** venían del sitio de Canva de la
+  empresa. Si esa página cambiaba o se caía, los logos desaparecían en medio de la
+  presentación, delante del cliente.
+- **Dos cosas que ya salieron mal y no se repiten** (hay pruebas que las cuidan):
+  no se dibujan logos —una entrega los reemplazó por rectángulos de color con el
+  nombre escrito en una tipografía cualquiera, que no es el logo de nadie y usa mal
+  la marca de un tercero—, y no se adivina qué nombre va con qué logo.
+- Se pueden reemplazar y sumar clientes nuevos desde Ajustes → Contenido público.
+- **Se borró `quienes-somos-slide`**, que quedaba muerta al lado de la pantalla del
+  equipo. Estaba terminada pero nunca enganchada a la presentación.
+
+## Lo común de los tres catálogos se perdía por tipo de fiesta (13 de agosto de 2026)
+
+- **Los tres catálogos de la empresa comparten casi todo y cambian pocas cosas**
+  (sobre todo las fotos). Así está armado el contenido de la presentación: un bloque
+  común y, por tipo de fiesta, sólo la diferencia.
+- **El problema:** se devolvía el bloque del tipo de fiesta **entero**, no combinado
+  con el común. Todo lo que ese bloque no tuviera cargado quedaba vacío. La pantalla
+  del equipo salía sin título ni frase en **todos** los tipos conocidos —casamiento,
+  quince, cumpleaños— y sólo se veía bien cuando el tipo no estaba en la lista, que
+  es justo al revés de lo que uno espera.
+- **Ahora se combinan:** lo común primero, y encima lo propio de ese tipo. Cargar un
+  tipo nuevo es escribir sólo lo que cambia. Hay pruebas que lo cuidan.
+- Los doce logos de empresas **son los mismos en los tres catálogos**, verificado
+  mirándolos: alcanza con un solo juego para todos.
+
+## Infantiles y empresariales, sin catálogo impreso (13 de agosto de 2026)
+
+- **El dueño no tiene catálogo de fiestas infantiles ni empresariales**, y no hace
+  falta: la presentación ahora **saca las fotos de la galería** según el tipo de
+  fiesta. Cada fiesta que el equipo sube mejora la presentación sola, y sirve para
+  cualquier tipo que se agregue en el futuro.
+- **El detalle que lo habría dejado sin funcionar:** la presentación y la galería no
+  llaman igual a las mismas cosas. La presentación dice "Empresarial" y la galería
+  "Corporativo"; la presentación escribe "Cumpleaños infantil" con minúscula y la
+  galería con mayúscula. Buscar tal cual no traía **ninguna** foto, y la pantalla
+  quedaba vacía **sin dar ningún error**: nadie se entera hasta que está vendiendo.
+  La traducción vive en `src/lib/presentacion/fotos-por-tipo.ts`, en un solo lugar y
+  con pruebas.
+- **Si para un tipo no hay fotos cargadas, se muestran las generales.** Es mejor una
+  foto linda de otra fiesta que una pantalla vacía delante del cliente.
+- **Lo que cargue el dueño manda siempre**: las fotos de la galería son el respaldo,
+  no el reemplazo.
+- Se escribieron los textos propios de los dos tipos. El de empresariales apoya en
+  las empresas para las que ya se trabajó, que es el argumento que decide una
+  contratación corporativa; el de infantiles habla al padre, no al chico: le promete
+  que él va a poder disfrutar a su hijo en vez de estar trabajando.
 
 ## Cómo agregar algo a esta lista
 
