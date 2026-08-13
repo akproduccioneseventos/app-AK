@@ -1018,6 +1018,35 @@ Se repararon y se fusionó. Quedó andando:
   pantalla del video declaraba mal sus datos, lo que hacía fallar la publicación
   aunque el revisor de tipos pasara.
 
+## Ganancia real y comparación entre fiestas (12 de agosto de 2026)
+
+- **La ganancia se mostraba contra el gasto estimado, no contra el real.** El
+  Analizador de Rentabilidad calculaba lo cobrado menos lo que se *estimaba*
+  gastar. Los pagos a proveedores se registraban aparte y no entraban en la cuenta,
+  así que **si el evento se iba de gasto, el número seguía viéndose lindo**. Ahora
+  manda lo que se pagó de verdad en cada renglón que tenga pagos cargados, y donde
+  no hay pagos se usa el estimado. La tarjeta dice cuál de las dos cosas está
+  mostrando, en vez de decir siempre "estimada".
+- **Pantalla nueva: "Qué fiesta deja más plata".** Compara todas las fiestas juntas,
+  agrupadas por tipo de evento y por mes. Entra desde el Panel Contable. El
+  analizador de siempre muestra una fiesta por vez; esto contesta la pregunta que
+  decide qué conviene vender.
+- **Por qué la cuenta vive en un solo archivo** (`src/lib/costos/ganancia-evento.ts`):
+  antes cada pantalla la rehacía y dos mostraban números distintos de la misma
+  fiesta, porque una se olvidaba de descontar la merma de bebidas, que viene contada
+  dos veces en los datos. Ahora las tres pantallas usan la misma suma y las dos
+  trampas conocidas están resueltas ahí adentro, explicadas: la merma duplicada y
+  el costo de proveedores, que ya está dentro de los renglones y no se suma aparte.
+- **Por qué el margen de un grupo se calcula sobre los totales** y no promediando
+  los porcentajes de cada fiesta: promediar le daría el mismo peso a una fiesta de
+  diez personas que a una de trescientas.
+- **Un pago que no corresponde a ningún renglón igual se cuenta** como plata que
+  salió. Esconderlo mostraría una ganancia que no existe.
+- La pantalla avisa cuántas fiestas todavía no tienen pagos cargados, para que se
+  sepa qué parte del número es estimación.
+- Pide el permiso de Contabilidad, no alcanza con tener sesión: se ve lo que se le
+  cobró a cada cliente y lo que dejó cada evento.
+
 ## La seña se cobraba de menos (12 de agosto de 2026)
 
 - **El botón "Pagar seña" cobraba siempre $5.000**, sin mirar la seña acordada con
