@@ -9,6 +9,21 @@ import { requireAppSession } from '@/lib/auth/require-session';
 const PRESENTACION_LED_SETTINGS_FILE = 'presentacion-led-settings.json';
 const CATALOGO_SETTINGS_FILE = 'catalogo-settings.json';
 
+export const DEFAULT_PARTNER_LOGOS = [
+  { id: '1', url: '/logos/correo-uruguayo.svg', name: 'Correo Uruguayo' },
+  { id: '2', url: '/logos/salto-hotel-casino.svg', name: 'Salto Hotel & Casino' },
+  { id: '3', url: '/logos/plus-medical.svg', name: 'Plus Medical' },
+  { id: '4', url: '/logos/asdemya.svg', name: 'A.S.DE.M. y A.' },
+  { id: '5', url: '/logos/woslen.svg', name: 'Woslen' },
+  { id: '6', url: '/logos/apc-salto.svg', name: 'APC Salto' },
+  { id: '7', url: '/logos/inc.svg', name: 'INC' },
+  { id: '8', url: '/logos/antel.svg', name: 'Antel' },
+  { id: '9', url: '/logos/abra.svg', name: 'ABRA' },
+  { id: '10', url: '/logos/inau.svg', name: 'INAU' },
+  { id: '11', url: '/logos/intendencia-salto.svg', name: 'Intendencia de Salto' },
+  { id: '12', url: '/logos/club-uruguay.svg', name: 'Club Uruguay' },
+];
+
 const DEFAULT_PRESENTACION_LED_SETTINGS: PresentacionLedSettings = {
   portada: {
     tituloPrincipal: 'AK Producciones',
@@ -28,10 +43,17 @@ const DEFAULT_PRESENTACION_LED_SETTINGS: PresentacionLedSettings = {
     imagenLateralUrl: '',
   },
   salon: {
-    titulo: 'Nuestro Salón',
-    descripcion: 'Un espacio pensado para celebrar con comodidad, estilo y soporte integral.',
+    titulo: 'Nuestro Salón - Club Uruguay',
+    descripcion: 'Un salón de primer nivel en pleno centro de Salto, con más de 120 años de historia.',
     fotos: [],
   },
+  equipo: {
+    titulo: 'Hay Equipo 🤝',
+    frase: 'El día de tu fiesta somos 11 personas trabajando para vos.',
+    cantidadPersonas: 11,
+    fotos: [],
+  },
+  empresasColaboradoras: DEFAULT_PARTNER_LOGOS,
   cierre: {
     titulo: 'Contratarnos',
     mensaje: 'Estamos listos para hacer de tu celebración un recuerdo imborrable.',
@@ -91,6 +113,10 @@ export async function getPresentacionLedSettings(): Promise<PresentacionLedSetti
         .slice(0, 6),
     },
     salon: { ...DEFAULT_PRESENTACION_LED_SETTINGS.salon, ...(settings.salon || {}) },
+    equipo: { ...DEFAULT_PRESENTACION_LED_SETTINGS.equipo!, ...(settings.equipo || {}) },
+    empresasColaboradoras: Array.isArray(settings.empresasColaboradoras) && settings.empresasColaboradoras.length > 0
+      ? settings.empresasColaboradoras
+      : DEFAULT_PRESENTACION_LED_SETTINGS.empresasColaboradoras,
     cierre: { ...DEFAULT_PRESENTACION_LED_SETTINGS.cierre, ...(settings.cierre || {}) },
     ledFotosServicios: settings.ledFotosServicios || {},
     ledFotosMenuItems: settings.ledFotosMenuItems || {},
@@ -119,6 +145,19 @@ export async function savePresentacionLedSettings(data: PresentacionLedSettings)
       descripcion: (data.salon?.descripcion || '').trim(),
       fotos: (data.salon?.fotos || []).map((f) => f.trim()).filter(Boolean),
     },
+    equipo: {
+      titulo: (data.equipo?.titulo || 'Hay Equipo 🤝').trim(),
+      frase: (data.equipo?.frase || 'El día de tu fiesta somos 11 personas trabajando para vos.').trim(),
+      cantidadPersonas: Number(data.equipo?.cantidadPersonas) || 11,
+      fotos: (data.equipo?.fotos || []).map((f) => f.trim()).filter(Boolean),
+    },
+    empresasColaboradoras: (data.empresasColaboradoras || [])
+      .map((item) => ({
+        id: item.id || `emp_${Date.now()}_${Math.random().toString(36).substr(2, 4)}`,
+        url: (item.url || '').trim(),
+        name: (item.name || 'Empresa Colaboradora').trim(),
+      }))
+      .filter((item) => item.url),
     cierre: {
       titulo: (data.cierre?.titulo || '').trim(),
       mensaje: (data.cierre?.mensaje || '').trim(),

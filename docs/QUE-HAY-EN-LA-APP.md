@@ -155,6 +155,17 @@ de lo que el equipo todavía tiene que publicar a mano.
 - **Repaso de la mañana** en el panel interno: cobros, equipo incompleto y eventos
   que quedaron abiertos. Los cobros no se le muestran a quien no tiene el permiso.
 
+- **Presentación LED alineada con el catálogo de papel (revisado el 13 de agosto de 2026)**:
+  1. **Logos de empresas**: cargados en local (`/logos/...`), con sus nombres reales
+     visibles (Correo Uruguayo, Antel, Intendencia de Salto, Club Uruguay, etc.) y
+     administrables desde Ajustes → Contenido público.
+  2. **Diapositiva del equipo ("Hay equipo")**: pantalla dedicada ubicada antes de
+     los precios, mostrando la cantidad de profesionales (11) y fotos/frase en
+     criollo por tipo de evento.
+  3. **Salón Club Uruguay**: pantalla actualizada con sus 120 años de historia,
+     ubicación en pleno centro, +120 personas, limpieza completa incluida y **sin
+     mencionar portero en ningún lado**.
+
 ### No está
 
 - **Armar el presupuesto desde el chat del asistente.** Se sacó a propósito: la

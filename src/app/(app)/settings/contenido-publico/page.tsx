@@ -249,7 +249,165 @@ export default function ContenidoPublicoSettingsPage() {
             <Button type="button" variant="outline" onClick={() => setPresentacion((p) => p ? ({ ...p, salon: { ...p.salon, fotos: [...p.salon.fotos, ''] } }) : p)}><PlusCircle className="w-4 h-4 mr-2" />Agregar foto</Button>
           </div>
 
-          <div className="grid md:grid-cols-2 gap-4">
+          {/* Slide Equipo */}
+          <div className="space-y-4 pt-4 border-t border-slate-200">
+            <h4 className="font-bold text-slate-900">Slide del Equipo ("Hay Equipo")</h4>
+            <div className="grid md:grid-cols-2 gap-4">
+              <div className="space-y-2">
+                <Label>Título del Equipo</Label>
+                <Input
+                  value={presentacion.equipo?.titulo || 'Hay Equipo 🤝'}
+                  onChange={(e) => setPresentacion((p) => p ? ({ ...p, equipo: { ...(p.equipo || { titulo: '', frase: '', cantidadPersonas: 11, fotos: [] }), titulo: e.target.value } }) : p)}
+                />
+              </div>
+              <div className="space-y-2">
+                <Label>Cantidad de Personas</Label>
+                <Input
+                  type="number"
+                  value={presentacion.equipo?.cantidadPersonas || 11}
+                  onChange={(e) => setPresentacion((p) => p ? ({ ...p, equipo: { ...(p.equipo || { titulo: '', frase: '', cantidadPersonas: 11, fotos: [] }), cantidadPersonas: Number(e.target.value) || 11 } }) : p)}
+                />
+              </div>
+              <div className="space-y-2 md:col-span-2">
+                <Label>Frase Principal</Label>
+                <Input
+                  value={presentacion.equipo?.frase || 'El día de tu fiesta somos 11 personas trabajando para vos.'}
+                  onChange={(e) => setPresentacion((p) => p ? ({ ...p, equipo: { ...(p.equipo || { titulo: '', frase: '', cantidadPersonas: 11, fotos: [] }), frase: e.target.value } }) : p)}
+                />
+              </div>
+            </div>
+            <div className="space-y-2">
+              <Label>Fotos del Equipo (URLs)</Label>
+              {(presentacion.equipo?.fotos || []).map((foto, idx) => (
+                <div key={idx} className="flex gap-2">
+                  <Input
+                    value={foto}
+                    onChange={(e) => setPresentacion((p) => p ? ({
+                      ...p,
+                      equipo: {
+                        ...(p.equipo || { titulo: '', frase: '', cantidadPersonas: 11, fotos: [] }),
+                        fotos: p.equipo?.fotos.map((f, i) => i === idx ? e.target.value : f) || [],
+                      },
+                    }) : p)}
+                    placeholder="https://..."
+                  />
+                  <Button
+                    type="button"
+                    size="icon"
+                    variant="destructive"
+                    onClick={() => setPresentacion((p) => p ? ({
+                      ...p,
+                      equipo: {
+                        ...(p.equipo || { titulo: '', frase: '', cantidadPersonas: 11, fotos: [] }),
+                        fotos: p.equipo?.fotos.filter((_, i) => i !== idx) || [],
+                      },
+                    }) : p)}
+                  >
+                    <Trash2 className="w-4 h-4" />
+                  </Button>
+                </div>
+              ))}
+              <Button
+                type="button"
+                variant="outline"
+                onClick={() => setPresentacion((p) => p ? ({
+                  ...p,
+                  equipo: {
+                    ...(p.equipo || { titulo: 'Hay Equipo 🤝', frase: 'El día de tu fiesta somos 11 personas trabajando para vos.', cantidadPersonas: 11, fotos: [] }),
+                    fotos: [...(p.equipo?.fotos || []), ''],
+                  },
+                }) : p)}
+              >
+                <PlusCircle className="w-4 h-4 mr-2" />Agregar foto del equipo
+              </Button>
+            </div>
+          </div>
+
+          {/* Empresas Colaboradoras */}
+          <div className="space-y-4 pt-4 border-t border-slate-200">
+            <div className="flex items-center justify-between">
+              <div>
+                <h4 className="font-bold text-slate-900">Empresas Colaboradoras (Logos con Nombre)</h4>
+                <p className="text-xs text-slate-500">Agregá o editá las empresas reales que respaldan a AK Producciones.</p>
+              </div>
+              <Button
+                type="button"
+                variant="outline"
+                size="sm"
+                onClick={() => setPresentacion((p) => p ? ({
+                  ...p,
+                  empresasColaboradoras: [
+                    ...(p.empresasColaboradoras || []),
+                    { id: `emp_${Date.now()}`, name: 'Nueva Empresa', url: '/logos/antel.svg' },
+                  ],
+                }) : p)}
+              >
+                <PlusCircle className="w-4 h-4 mr-2" />Agregar empresa
+              </Button>
+            </div>
+
+            <div className="space-y-3">
+              {(presentacion.empresasColaboradoras || []).map((emp, idx) => (
+                <div key={emp.id || idx} className="grid grid-cols-[1fr_2fr_auto_auto] gap-2 items-center bg-slate-50 p-3 rounded-xl border border-slate-200">
+                  <Input
+                    value={emp.name}
+                    onChange={(e) => setPresentacion((p) => p ? ({
+                      ...p,
+                      empresasColaboradoras: (p.empresasColaboradoras || []).map((item, i) => i === idx ? { ...item, name: e.target.value } : item),
+                    }) : p)}
+                    placeholder="Nombre Empresa"
+                  />
+                  <Input
+                    value={emp.url}
+                    onChange={(e) => setPresentacion((p) => p ? ({
+                      ...p,
+                      empresasColaboradoras: (p.empresasColaboradoras || []).map((item, i) => i === idx ? { ...item, url: e.target.value } : item),
+                    }) : p)}
+                    placeholder="URL del logo (/logos/... o https://...)"
+                  />
+                  <div className="flex gap-1">
+                    <Button
+                      type="button"
+                      size="icon"
+                      variant="ghost"
+                      disabled={idx === 0}
+                      onClick={() => setPresentacion((p) => p ? ({
+                        ...p,
+                        empresasColaboradoras: moveItem(p.empresasColaboradoras || [], idx, -1),
+                      }) : p)}
+                    >
+                      <ArrowUp className="w-4 h-4" />
+                    </Button>
+                    <Button
+                      type="button"
+                      size="icon"
+                      variant="ghost"
+                      disabled={idx === (presentacion.empresasColaboradoras || []).length - 1}
+                      onClick={() => setPresentacion((p) => p ? ({
+                        ...p,
+                        empresasColaboradoras: moveItem(p.empresasColaboradoras || [], idx, 1),
+                      }) : p)}
+                    >
+                      <ArrowDown className="w-4 h-4" />
+                    </Button>
+                  </div>
+                  <Button
+                    type="button"
+                    size="icon"
+                    variant="destructive"
+                    onClick={() => setPresentacion((p) => p ? ({
+                      ...p,
+                      empresasColaboradoras: (p.empresasColaboradoras || []).filter((_, i) => i !== idx),
+                    }) : p)}
+                  >
+                    <Trash2 className="w-4 h-4" />
+                  </Button>
+                </div>
+              ))}
+            </div>
+          </div>
+
+          <div className="grid md:grid-cols-2 gap-4 pt-4 border-t border-slate-200">
             <div className="space-y-2"><Label>Título cierre</Label><Input value={presentacion.cierre.titulo} onChange={(e) => setPresentacion((p) => p ? ({ ...p, cierre: { ...p.cierre, titulo: e.target.value } }) : p)} /></div>
             <div className="space-y-2"><Label>Texto botón CTA</Label><Input value={presentacion.cierre.ctaTexto} onChange={(e) => setPresentacion((p) => p ? ({ ...p, cierre: { ...p.cierre, ctaTexto: e.target.value } }) : p)} /></div>
             <div className="space-y-2 md:col-span-2"><Label>Mensaje cierre</Label><Textarea value={presentacion.cierre.mensaje} onChange={(e) => setPresentacion((p) => p ? ({ ...p, cierre: { ...p.cierre, mensaje: e.target.value } }) : p)} /></div>

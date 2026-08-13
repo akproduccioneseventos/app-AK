@@ -31,6 +31,7 @@ import { PortadaSlide } from './slides/portada-slide';
 import { BeneficiosSlide } from './slides/beneficios-slide';
 import { DatosEventoSlide } from './slides/datos-evento-slide';
 import { SalonSlide } from './slides/salon-slide';
+import { EquipoSlide } from './slides/equipo-slide';
 import { CategoriaServiciosSlide } from './slides/categoria-servicios-slide';
 import { EntradaSlide } from './slides/entradas-slide';
 import { MenuAdolescenteSlide } from './slides/menu-adolescente-slide';
@@ -141,7 +142,7 @@ function isMenuCategory(categoria: CategoriaServicio): boolean {
 }
 
 // ---- Slide index constants ----
-const FIXED_SLIDES_START = 4; // portada, beneficios, datos evento, salon
+const FIXED_SLIDES_START = 5; // portada(0), beneficios(1), datos evento(2), salon(3), equipo(4)
 const FIXED_SLIDES_END = 4;   // regalos, presupuesto, plan de pagos, contratarnos
 
 // ---- Main Component ----
@@ -388,6 +389,7 @@ export default function PresentacionLedPage() {
   const isBeneficiosSlide = currentSlide === 1;
   const isDatosEventoSlide = currentSlide === 2;
   const isSalonSlide = currentSlide === 3;
+  const isEquipoSlide = currentSlide === 4;
   const isDynamicSlide = currentSlide >= dynamicStartIndex && currentSlide < dynamicEndIndex;
   const dynamicIndex = isDynamicSlide ? currentSlide - dynamicStartIndex : -1;
   const currentDynamicSlide = isDynamicSlide ? dynamicSlides[dynamicIndex] : null;
@@ -435,6 +437,7 @@ export default function PresentacionLedPage() {
     if (isBeneficiosSlide) return '¿Por qué elegirnos?';
     if (isDatosEventoSlide) return 'Datos del Evento';
     if (isSalonSlide) return 'Nuestro Salón';
+    if (isEquipoSlide) return 'Hay Equipo';
     if (currentDynamicSlide?.type === 'entradas') return 'Entradas';
     if (currentDynamicSlide?.type === 'menu-adolescente') return 'Menú adolescente';
     if (currentDynamicSlide?.type === 'menu-adulto') return 'Menú adultos';
@@ -753,6 +756,12 @@ export default function PresentacionLedPage() {
               fotosPersonalizadas={presentacionSettings?.salon.fotos}
             />
           )}
+          {isEquipoSlide && (
+            <EquipoSlide
+              tipoFiesta={clientData.tipoFiesta}
+              equipoSettings={presentacionSettings?.equipo}
+            />
+          )}
           {currentDynamicSlide?.type === 'entradas' && (
             <EntradaSlide
               entradas={todasLasEntradas}
@@ -812,7 +821,7 @@ export default function PresentacionLedPage() {
             <TestimoniosSlide tipoFiesta={clientData.tipoFiesta} />
           )}
           {isEmpresasSlide && (
-            <EmpresasSlide />
+            <EmpresasSlide logos={presentacionSettings?.empresasColaboradoras} />
           )}
           {isCierreSlide && (
             <CierreSlide

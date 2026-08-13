@@ -6,6 +6,12 @@ export interface ContenidoTipoFiesta {
   mensajeRegalos: string;
   mensajeCierre: string;
   colorAcento: string;
+  equipo?: {
+    titulo?: string;
+    frase?: string;
+    cantidadPersonas?: number;
+    fotos?: string[];
+  };
 }
 
 const DEFAULT: ContenidoTipoFiesta = {
@@ -16,6 +22,12 @@ const DEFAULT: ContenidoTipoFiesta = {
   mensajeRegalos: 'Al contratar hoy, te incluimos beneficios exclusivos que hacen único tu evento.',
   mensajeCierre: 'Estamos listos para hacer de tu celebración un recuerdo imborrable.',
   colorAcento: 'from-indigo-500 to-emerald-500',
+  equipo: {
+    titulo: 'Hay Equipo 🤝',
+    frase: 'El día de tu fiesta somos 11 personas trabajando para vos.',
+    cantidadPersonas: 11,
+    fotos: [],
+  },
 };
 
 const CONTENIDO_POR_TIPO: Record<string, ContenidoTipoFiesta> = {
