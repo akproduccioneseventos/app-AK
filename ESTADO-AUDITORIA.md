@@ -234,7 +234,7 @@ saca la pantalla para no dar una sensación falsa de control.
 | 25 | En el portal del cliente, el botón para **avisar un pago** quedaba habilitado aunque el monto escrito no fuera un número. El cliente lo tocaba, no pasaba nada y no recibía ningún aviso: se quedaba creyendo que ya había informado el pago. | `portal/c/[accessKey]` | rama pruebas en vivo |
 | 26 | El Centro de Fiesta decía **"Arranca a las undefined"** en una fiesta a la que todavía no se le cargó la hora. | `fiestas/[id]/centro` | rama pruebas en vivo |
 | 27 | El **saldo del recibo y el del estado de cuenta no coincidían**: uno sumaba el ajuste anual y el otro no. Con una fiesta al año siguiente, el cliente veía un número en el papel y otro en la pantalla. | `lib/budget/saldo-con-ajuste.ts` | rama pruebas en vivo |
-| 28 | **29 platos con los acentos rotos** en el catálogo de menús que el cliente lee al armar su comida: "JamÃ³n", "ChampiÃ±on", "GUARNICIÃ“N". | `data/menus-catering.json` | rama pruebas en vivo |
+| 28 | **29 platos con los acentos rotos** en el catálogo de menús que el cliente lee al armar su comida: "Jamón", "Champiñon", "GUARNICIÃ“N". | `data/menus-catering.json` | rama pruebas en vivo |
 | 29 | **Lo que se comparte por WhatsApp llegaba pelado**: el catálogo y el simulador mostraban el título genérico de toda la app y ninguna imagen, y la invitación decía "Evento Especial" en vez del nombre real de la fiesta, también sin foto. | `catalogo`, `simulador`, `invitacion` | rama pruebas en vivo |
 | 30 | Sin señal (el WiFi saturado de un salón lleno), el invitado veía **"Failed to fetch"** en inglés al querer confirmar. Lo mismo en el control de entrada y en la carga de fotos del video de vida. | 3 pantallas | rama pruebas en vivo |
 

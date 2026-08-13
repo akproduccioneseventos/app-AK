@@ -15,6 +15,13 @@ export interface AccesoPersonal {
   nombreAcceso: string;
   /** Sin fiesta asignada el acceso es global a propósito: el DJ de siempre. */
   fiestaId?: string;
+  /**
+   * Con qué persona del equipo se corresponde este acceso, si es alguien de la
+   * lista de empleados. Es lo que permite mostrarle su rol en el plan de la
+   * noche. Va opcional porque muchos accesos son para gente de afuera que no
+   * está en la lista (el fotógrafo contratado, el catering).
+   */
+  empleadoId?: string;
   permisos: ModuloPermiso[];
   fechaCreacion: string; // ISO Date String
   /**

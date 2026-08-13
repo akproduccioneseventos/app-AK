@@ -15,6 +15,12 @@ export interface FeedbackSubmission {
   ratingMusica?: number; // 1-5 star rating
   ratingOrganizacion?: number; // 1-5 star rating
   ratingLugar?: number; // 1-5 star rating
+  /**
+   * Ya se le mandó a este cliente el pedido de reseña en Google por esta fiesta.
+   * Sirve para no escribirle dos veces: la encuesta es pública y se puede
+   * contestar más de una vez.
+   */
+  googleReviewRequested?: boolean;
 }
 
 export interface Testimonial {

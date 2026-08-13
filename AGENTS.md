@@ -79,7 +79,7 @@ tanda grande.
 ### 1. Acentos rotos: 902 de una sola vez
 
 Una propuesta reescribió 45 archivos con la codificación equivocada. Además de
-verse mal en pantalla (`MenÃº`, `PresentaciÃ³n`), **rompe comparaciones de texto
+verse mal en pantalla (`Menú`, `Presentación`), **rompe comparaciones de texto
 en silencio**: el código que buscaba la palabra `niño` dejó de encontrarla y los
 platos de chicos pasaron a contarse como de adultos.
 

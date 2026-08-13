@@ -38,14 +38,6 @@ Trece funciones activas:
 - **Lectura de contratos en PDF**: saca cliente, fecha, tipo de evento y monto.
 - **Discurso de venta** generado.
 
-## Módulos y Funciones - revisado el 13 de agosto de 2026
-
-### Reseñas Automáticas en Google (NPS) - ANDA
-Se habilita desde Ajustes > Empresa con el link de Google. Cuando el cliente completa la encuesta post-evento y deja una nota de 9 o 10 (Promotor), se le envía automáticamente un mensaje de WhatsApp pidiéndole una reseña pública. Se registra para no pedirlo dos veces. También se puede disparar manualmente.
-
-### Plan de la Noche para el Equipo - ANDA
-En el portal del personal, al ingresar con su código, cada empleado ve un resumen "mobile-first" que incluye su rol asignado, lugar y hora del evento, botón para llamar al encargado y el itinerario (programa de la fiesta). Oculta cualquier dato salarial y muestra un mensaje amigable si no tiene próximos eventos.
-
 ### Filtro de contenido de los invitados — ANDA (verificado línea por línea)
 
 Toda **foto** que sube un invitado se revisa antes de publicarse y se bloquea sola
@@ -162,6 +154,19 @@ de lo que el equipo todavía tiene que publicar a mano.
 - **Video del recuerdo** por evento, armado con las fotos aprobadas del muro.
 - **Repaso de la mañana** en el panel interno: cobros, equipo incompleto y eventos
   que quedaron abiertos. Los cobros no se le muestran a quien no tiene el permiso.
+
+- **Pedido de reseña en Google — ANDA (13 de agosto de 2026).** Cuando el cliente
+  contesta la encuesta de después del evento y pone 9 o 10, se le manda solo un
+  WhatsApp con el enlace para que deje la reseña. Se configura en Ajustes →
+  Empresa: hay que pegar el enlace de Google y prender el interruptor, que **viene
+  apagado**. Sin enlace no se puede prender. Con nota menor a 9 no sale nada, y a
+  la misma fiesta **no se le pide dos veces**. Desde la pantalla de opiniones se
+  puede pedir a mano con un botón, con las mismas reglas.
+- **Plan de la noche para el equipo — ANDA (13 de agosto de 2026).** Cada persona
+  entra con su código y ve, pensado para el celular, su rol en esa fiesta, la hora,
+  el lugar con la dirección, un botón para llamar al encargado y el programa de la
+  noche. **No ve sueldos**, ni el suyo ni el de los demás. Si no tiene nada
+  asignado, la pantalla lo dice en vez de quedar vacía.
 
 ### No está
 

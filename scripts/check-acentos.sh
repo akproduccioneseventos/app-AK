@@ -22,7 +22,10 @@ if [ $# -ge 1 ]; then
   ARCHIVOS=$(git diff --name-only "$1"...HEAD -- '*.ts' '*.tsx' '*.js' '*.jsx' '*.json' '*.md')
   AMBITO="lo que cambio contra $1"
 else
-  ARCHIVOS=$(git ls-files -- '*.ts' '*.tsx' '*.js' '*.jsx')
+  # Los .md tambien: las reglas del proyecto viven ahi y se leen antes de cada
+  # auditoria. docs/YA-RESUELTO.md acumulo 427 acentos rotos sin que nadie lo
+  # viera, justamente porque la revision completa no miraba la documentacion.
+  ARCHIVOS=$(git ls-files -- '*.ts' '*.tsx' '*.js' '*.jsx' '*.md')
   AMBITO="todo el codigo versionado"
 fi
 
