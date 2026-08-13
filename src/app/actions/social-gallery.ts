@@ -21,6 +21,7 @@
  */
 
 import type { SocialGalleryPost, SocialComment, ChatMessage } from '@/types/social-gallery';
+import { soloAprobados, esAprobadoParaMostrar } from '@/lib/social-fiesta/visibilidad';
 import type { FiestaEnPlanificacion, SocialGallerySettings } from '@/types/fiesta';
 import { uploadToStorage, deleteFromStorage } from '@/lib/firebase/storage';
 import type { Firestore, QueryDocumentSnapshot, Transaction } from 'firebase-admin/firestore';
@@ -152,7 +153,7 @@ export async function getSocialPosts(fiestaId: string): Promise<SocialGalleryPos
       const posts = await getLocalSocialPosts(fiestaId);
       return canModerate
         ? posts
-        : posts.filter((post) => (post.moderationStatus ?? 'approved') === 'approved');
+        : soloAprobados(posts);
     }
 
     const db = await getDb();
@@ -170,7 +171,7 @@ export async function getSocialPosts(fiestaId: string): Promise<SocialGalleryPos
       .sort((a: SocialGalleryPost, b: SocialGalleryPost) => new Date(b.timestamp).getTime() - new Date(a.timestamp).getTime());
     return canModerate
       ? posts
-      : posts.filter((post) => (post.moderationStatus ?? 'approved') === 'approved');
+      : soloAprobados(posts);
   } catch (e) {
     logger.warn('[social-gallery] getSocialPosts failed:', e);
     return [];
@@ -183,7 +184,7 @@ export async function getSocialPosts(fiestaId: string): Promise<SocialGalleryPos
  */
 export async function getPublicSocialPosts(fiestaId: string): Promise<SocialGalleryPost[]> {
   const posts = await getSocialPosts(fiestaId);
-  return posts.filter((post) => (post.moderationStatus ?? 'approved') === 'approved');
+  return soloAprobados(posts);
 }
 
 export async function getPublicSocialPostCount(
@@ -197,7 +198,7 @@ export async function getPublicSocialPostCount(
 
     if (process.env.AK_USE_LOCAL_JSON_ONLY === 'true') {
       const posts = await getLocalSocialPosts(fiestaId);
-      return posts.filter((post) => (post.moderationStatus ?? 'approved') === 'approved').length;
+      return soloAprobados(posts).length;
     }
 
     const db = await getDb();

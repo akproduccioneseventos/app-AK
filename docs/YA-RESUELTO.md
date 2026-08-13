@@ -1048,6 +1048,26 @@ su presupuesto, con seña y saldo, en cuotas. Y el aviso de pago acreditado entr
 solo por el webhook, que verifica la firma y actualiza el saldo sin que nadie toque
 nada. Lo único que estaba mal era el monto.
 
+## Sin usuario se veía plata, y una prueba que no probaba nada (12 de agosto de 2026)
+
+- **Preguntar por los permisos de alguien que no existe devolvía los de secretaria**,
+  que incluyen ver contabilidad. Venía de la conversión de las cuentas viejas: el que
+  no tiene perfil cargado se trata como secretaria, y eso está bien para una cuenta
+  de verdad, pero no para la ausencia de cuenta. Una pantalla que preguntaba antes de
+  terminar de cargar la sesión mostraba números que no le correspondían. Ahora sin
+  usuario no se puede nada. **La conversión de las cuentas viejas no cambió.**
+- **La regla de qué contenido del muro se muestra estaba copiada en nueve lugares**
+  distintos: el listado público, el tótem del salón, el muro en vivo, la impresión y
+  el video del recuerdo. Nueve copias de la regla que decide si una foto sin revisar
+  aparece proyectada delante de toda la fiesta; alcanzaba con que una quedara vieja.
+  Ahora vive en `src/lib/social-fiesta/visibilidad.ts` y las demás la usan.
+- **Se reescribió una prueba que no podía fallar.** Armaba una lista inventada
+  adentro de la prueba y después la filtraba ahí mismo, así que probaba su propio
+  filtro y no el de la aplicación: si el video hubiera dejado de descartar las fotos
+  pendientes, seguía en verde. Ahora llama a la función de verdad. Una prueba que no
+  puede fallar es peor que no tener prueba, porque el que la lee cree que la regla
+  está protegida.
+
 ## Cómo agregar algo a esta lista
 
 **Se anota SIEMPRE, en la misma propuesta que toca el código.** Orden del dueño
