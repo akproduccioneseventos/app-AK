@@ -1,6 +1,7 @@
 'use client';
 
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
+import { soloAprobados, esAprobadoParaMostrar } from '@/lib/social-fiesta/visibilidad';
 import { useParams } from 'next/navigation';
 import NextImage from 'next/image';
 import { QRCodeSVG } from 'qrcode.react';
@@ -91,7 +92,7 @@ export default function TotemPublicPage() {
       setTotem(selected);
       setPosts(
         socialPosts
-          .filter((post) => (post.moderationStatus ?? 'approved') === 'approved')
+          .filter(esAprobadoParaMostrar)
           .sort((a, b) => new Date(b.timestamp).getTime() - new Date(a.timestamp).getTime())
           .slice(0, 18)
       );

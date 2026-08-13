@@ -1,5 +1,6 @@
 'use client';
 
+import { calcularGananciaDeEvento } from '@/lib/costos/ganancia-evento';
 import React, { useState, useEffect, useCallback, useMemo, type FormEvent, Suspense } from 'react';
 import Link from 'next/link';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription, CardFooter } from '@/components/ui/card';
@@ -146,36 +147,23 @@ function GestionCostosRentabilidadContent() {
   };
 
   const stats = useMemo(() => {
-    // La merma de bebidas estaba contada DOS veces y achicaba el margen.
+    // La cuenta vive en `@/lib/costos/ganancia-evento`, un solo lugar para toda la
+    // aplicacion. Antes cada pantalla la rehacia y dos mostraban numeros distintos
+    // de la misma fiesta, porque una se olvidaba de descontar la merma de bebidas
+    // que viene contada dos veces. Alla adentro estan explicadas esas trampas.
     //
-    // `totalBebidasCost` ya viene con el 5% de merma adentro (se calcula como
-    // base * 1.05 en costos.actions.ts), y ademas la merma figura aparte como
-    // un item propio dentro de `costosItems`. Sumar las dos cosas inflaba el
-    // costo y mostraba una rentabilidad mas baja que la real.
-    //
-    // El reporte de post-evento ya lo descontaba: en reportes.ts existe
-    // `costosSinMermaDuplicada` haciendo exactamente este filtro. Se detecto
-    // alla y no se corrigio aca, asi que las dos pantallas daban numeros
-    // distintos para la misma fiesta.
-    //
-    // Ojo con el costo de proveedores: NO va sumado aparte. Ya esta adentro de
-    // `costosItems` como items `auto_prov_*`; `totalProveedorCost` es solo el
-    // subtotal que se muestra en la tabla. Sumarlo seria contarlo dos veces.
-    const costosSinMermaDuplicada = (gestionCostos.costosItems || [])
-      .filter(item => item.id !== 'auto_merma_bebidas');
-
-    const projectedCost = costosSinMermaDuplicada.reduce((s, i) => s + i.montoEstimado, 0) +
-                         (gestionCostos.others?.totalCateringCost || 0) +
-                         (gestionCostos.others?.totalBebidasCost || 0) +
-                         (gestionCostos.others?.totalReposteriaCost || 0) +
-                         (gestionCostos.others?.totalPersonalCost || 0);
-
-    const realExpenses = pagosProveedores.reduce((s, p) => s + (p.monto || 0), 0);
-    const income = gestionCostos.ingresosTotalesEstimados || 0;
-    const projectedProfit = income - projectedCost;
-    const projectedMargin = income > 0 ? (projectedProfit / income) * 100 : 0;
-
-    return { projectedCost, realExpenses, projectedProfit, projectedMargin };
+    // Ademas ahora la ganancia se muestra contra lo que se gasto DE VERDAD donde
+    // hay pagos cargados. Antes se mostraba siempre contra lo estimado: si el
+    // evento se iba de gasto, el numero seguia viendose lindo.
+    const g = calcularGananciaDeEvento(gestionCostos, pagosProveedores);
+    return {
+      projectedCost: g.costoReal,
+      costoEstimado: g.costoEstimado,
+      realExpenses: g.pagadoAProveedores,
+      projectedProfit: g.gananciaReal,
+      projectedMargin: g.margenReal,
+      hayGastoCargado: g.hayGastoCargado,
+    };
   }, [gestionCostos, pagosProveedores]);
 
   const costItemsForSelect = useMemo(() => {
@@ -228,12 +216,20 @@ function GestionCostosRentabilidadContent() {
               </CardContent>
           </Card>
           <Card className="bg-emerald-600 text-white border-none shadow-xl rounded-[2rem] overflow-hidden">
-              <CardHeader className="pb-2"><CardTitle className="text-[10px] font-black uppercase tracking-widest opacity-60">Ganancia Neta Est.</CardTitle></CardHeader>
+              <CardHeader className="pb-2"><CardTitle className="text-[10px] font-black uppercase tracking-widest opacity-60">{stats.hayGastoCargado ? 'Ganancia con lo pagado' : 'Ganancia estimada'}</CardTitle></CardHeader>
               <CardContent>
                   <p className="text-4xl font-black">{formatCurrency(stats.projectedProfit)}</p>
                   <Badge className="mt-2 bg-white/20 text-white border-none font-black text-[10px] tracking-widest uppercase">
                       {stats.projectedMargin.toFixed(1)}% MARGEN
                   </Badge>
+                  {/* Que el numero diga contra que se compara. Antes decia siempre
+                      "estimada" y usaba el costo estimado, asi que un evento que se
+                      iba de gasto seguia viendose bien. */}
+                  <p className="mt-2 text-[11px] font-medium leading-snug text-white/80">
+                    {stats.hayGastoCargado
+                      ? 'Calculada con los pagos que ya cargaste. Lo que todavia no tiene pago va por lo estimado.'
+                      : 'Todavia no cargaste ningun pago: este numero usa lo que se estima gastar.'}
+                  </p>
               </CardContent>
           </Card>
       </div>
