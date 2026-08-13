@@ -15,6 +15,7 @@ const child = spawn(process.execPath, [nextBin, 'build'], {
   env: {
     ...process.env,
     NEXT_TELEMETRY_DISABLED: process.env.NEXT_TELEMETRY_DISABLED || '1',
+    OTEL_SDK_DISABLED: 'true',
     NODE_OPTIONS: nodeOptions,
   },
 });

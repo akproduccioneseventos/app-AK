@@ -1,3 +1,6 @@
+const path = require('path');
+const webpack = require('webpack');
+
 const withPWA = require('@ducanh2912/next-pwa').default({
   dest: 'public',
   cacheOnFrontEndNav: false,
@@ -109,6 +112,13 @@ const nextConfig = {
 
     config.resolve.alias = {
       ...config.resolve.alias,
+      '@firebase/auth': path.resolve(__dirname, 'node_modules/firebase/node_modules/@firebase/auth/dist/node/index.js'),
+      '@opentelemetry/sdk-node': path.resolve(__dirname, 'src/lib/empty.js'),
+      '@opentelemetry/exporter-jaeger': path.resolve(__dirname, 'src/lib/empty.js'),
+      '@opentelemetry/semantic-conventions': path.resolve(__dirname, 'node_modules/@opentelemetry/semantic-conventions/build/src/index.js'),
+      '@opentelemetry/core': path.resolve(__dirname, 'node_modules/@opentelemetry/core/build/src/index.js'),
+      './SemanticAttributes': path.resolve(__dirname, 'src/lib/empty.js'),
+      './SemanticResourceAttributes': path.resolve(__dirname, 'src/lib/empty.js'),
       'canvg': false,
       'dompurify': false,
     };

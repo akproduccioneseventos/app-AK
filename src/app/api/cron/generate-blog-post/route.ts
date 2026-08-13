@@ -1,6 +1,8 @@
 import { NextResponse } from 'next/server';
 import { runMarketingAutomation } from '@/lib/marketing-automation';
 
+export const dynamic = 'force-dynamic';
+
 export async function GET(request: Request) {
   return handleCron(request);
 }
