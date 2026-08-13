@@ -155,6 +155,29 @@ de lo que el equipo todavía tiene que publicar a mano.
 - **Repaso de la mañana** en el panel interno: cobros, equipo incompleto y eventos
   que quedaron abiertos. Los cobros no se le muestran a quien no tiene el permiso.
 
+- **Pedido de reseña en Google — ANDA (13 de agosto de 2026).** Cuando el cliente
+  contesta la encuesta de después del evento y pone 9 o 10, se le manda solo un
+  WhatsApp con el enlace para que deje la reseña. Se configura en Ajustes →
+  Empresa: hay que pegar el enlace de Google y prender el interruptor, que **viene
+  apagado**. Sin enlace no se puede prender. Con nota menor a 9 no sale nada, y a
+  la misma fiesta **no se le pide dos veces**. Desde la pantalla de opiniones se
+  puede pedir a mano con un botón, con las mismas reglas.
+- **Plan de la noche para el equipo — ANDA (13 de agosto de 2026).** Cada persona
+  entra con su código y ve, pensado para el celular, su rol en esa fiesta, la hora,
+  el lugar con la dirección, un botón para llamar al encargado y el programa de la
+  noche. **No ve sueldos**, ni el suyo ni el de los demás. Si no tiene nada
+  asignado, la pantalla lo dice en vez de quedar vacía.
+- **Presentación LED alineada con el catálogo de papel (revisado el 13 de agosto de 2026)**:
+  1. **Logos de empresas**: cargados en local (`/logos/...`), con sus nombres reales
+     visibles (Correo Uruguayo, Antel, Intendencia de Salto, Club Uruguay, etc.) y
+     administrables desde Ajustes → Contenido público.
+  2. **Diapositiva del equipo ("Hay equipo")**: pantalla dedicada ubicada antes de
+     los precios, mostrando la cantidad de profesionales (11) y fotos/frase en
+     criollo por tipo de evento.
+  3. **Salón Club Uruguay**: pantalla actualizada con sus 120 años de historia,
+     ubicación en pleno centro, +120 personas, limpieza completa incluida y **sin
+     mencionar portero en ningún lado**.
+
 ### No está
 
 - **Armar el presupuesto desde el chat del asistente.** Se sacó a propósito: la

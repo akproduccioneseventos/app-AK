@@ -11,6 +11,8 @@ import { ArrowLeft, PlusCircle, Trash2, Loader2, KeyRound, ClipboardCopy, Share2
 import { useToast } from '@/hooks/use-toast';
 import { createAccesoPersonal, getAccesosGenerales, deleteAccesoPersonal, type AccesoPersonal, type ModuloPermiso } from '@/app/actions/accesos-personal';
 import { getFiestaActual } from '@/app/actions/fiesta-actual';
+import { getEmpleados } from '@/app/actions/empleados';
+import type { Empleado } from '@/types/empleado';
 import {
   Dialog,
   DialogContent,
@@ -54,16 +56,23 @@ export default function AccesosPersonalPage() {
   const [nombreAcceso, setNombreAcceso] = useState('');
   const [permisos, setPermisos] = useState<Set<ModuloPermiso>>(new Set());
   const [tipoAcceso, setTipoAcceso] = useState<'general' | 'evento'>('evento');
+  // Sin persona elegida el acceso sigue funcionando igual: es lo normal para
+  // quien viene de afuera. Elegirla es lo que le muestra su rol en el plan de
+  // la noche.
+  const [empleadoId, setEmpleadoId] = useState<string>('');
+  const [empleados, setEmpleados] = useState<Empleado[]>([]);
 
   const loadData = useCallback(async () => {
     setIsLoading(true);
     try {
-      const [fiesta, fetchedAccesos] = await Promise.all([
+      const [fiesta, fetchedAccesos, fetchedEmpleados] = await Promise.all([
         getFiestaActual(),
-        getAccesosGenerales()
+        getAccesosGenerales(),
+        getEmpleados()
       ]);
       setFiestaActual(fiesta);
       setAccesos(fetchedAccesos);
+      setEmpleados(fetchedEmpleados);
     } catch (e: any) {
       toast({ title: "Error", description: "No se pudieron cargar los datos.", variant: "destructive" });
     } finally {
@@ -85,6 +94,7 @@ export default function AccesosPersonalPage() {
     const result = await createAccesoPersonal({
       nombreAcceso,
       fiestaId: tipoAcceso === 'evento' ? fiestaActual?.id : undefined,
+      empleadoId: empleadoId || undefined,
       permisos: Array.from(permisos)
     });
     if (result.success) {
@@ -92,6 +102,7 @@ export default function AccesosPersonalPage() {
       setIsModalOpen(false);
       setNombreAcceso('');
       setPermisos(new Set());
+      setEmpleadoId('');
       await loadData();
     } else {
       toast({ title: "Error", description: result.error, variant: "destructive" });
@@ -129,7 +140,7 @@ export default function AccesosPersonalPage() {
         <DialogContent>
           <DialogHeader><DialogTitle>Crear Nuevo Acceso para Colaborador</DialogTitle><DialogDescription>Define un nombre y selecciona los módulos a los que tendrá acceso.</DialogDescription></DialogHeader>
           <form onSubmit={handleCreateAcceso} className="space-y-4 py-2">
-            <div className="space-y-1"><Label htmlFor="nombre-acceso">Nombre del Acceso *</Label><Input id="nombre-acceso" value={nombreAcceso} onChange={e => setNombreAcceso(e.target.value)} placeholder="Ej: Acceso Portero, Acceso DJ" required /></div>
+            <div className="space-y-1"><Label htmlFor="nombre-acceso">Nombre del Acceso *</Label><Input id="nombre-acceso" value={nombreAcceso} onChange={e => setNombreAcceso(e.target.value)} placeholder="Ej: Acceso DJ, Acceso Fotógrafo" required /></div>
             <div className="space-y-1"><Label htmlFor="tipo-acceso">Tipo de Acceso</Label>
                 <Select value={tipoAcceso} onValueChange={(v) => {setTipoAcceso(v as 'general' | 'evento'); setPermisos(new Set())}}>
                     <SelectTrigger><SelectValue/></SelectTrigger>
@@ -138,6 +149,18 @@ export default function AccesosPersonalPage() {
                         <SelectItem value="evento">Para el Evento Actual</SelectItem>
                     </SelectContent>
                 </Select>
+            </div>
+            <div className="space-y-1"><Label htmlFor="empleado-acceso">¿Es alguien del equipo?</Label>
+                <Select value={empleadoId || 'ninguno'} onValueChange={(v) => setEmpleadoId(v === 'ninguno' ? '' : v)}>
+                    <SelectTrigger><SelectValue/></SelectTrigger>
+                    <SelectContent>
+                        <SelectItem value="ninguno">No, es alguien de afuera</SelectItem>
+                        {empleados.map(emp => (
+                          <SelectItem key={emp.id} value={emp.id}>{emp.nombre}</SelectItem>
+                        ))}
+                    </SelectContent>
+                </Select>
+                <p className="text-xs text-muted-foreground">Si elegís a alguien del equipo, al entrar va a ver su rol y el plan de la noche de esa fiesta.</p>
             </div>
             <div className="space-y-2"><Label>Permisos *</Label>
               <div className="space-y-2 p-3 border rounded-md">

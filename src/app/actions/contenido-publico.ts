@@ -3,7 +3,7 @@
 import { readData, writeData } from '@/lib/data-service';
 import { getCatalogBySlug } from '@/data/event-catalogs';
 import type { CatalogoSettings, CatalogoSettingsMap, PresentacionLedSettings } from '@/types/contenido-publico';
-import { DEFAULT_CATALOGO_PRESENTACION_TEXT, DEFAULT_CATALOGO_POR_QUE_TEXT } from '@/lib/public-content-defaults';
+import { DEFAULT_CATALOGO_PRESENTACION_TEXT, DEFAULT_CATALOGO_POR_QUE_TEXT, DEFAULT_PARTNER_LOGOS } from '@/lib/public-content-defaults';
 import { requireAppSession } from '@/lib/auth/require-session';
 
 const PRESENTACION_LED_SETTINGS_FILE = 'presentacion-led-settings.json';
@@ -28,10 +28,17 @@ const DEFAULT_PRESENTACION_LED_SETTINGS: PresentacionLedSettings = {
     imagenLateralUrl: '',
   },
   salon: {
-    titulo: 'Nuestro Salón',
-    descripcion: 'Un espacio pensado para celebrar con comodidad, estilo y soporte integral.',
+    titulo: 'Nuestro Salón - Club Uruguay',
+    descripcion: 'Un salón de primer nivel en pleno centro de Salto, con más de 120 años de historia.',
     fotos: [],
   },
+  equipo: {
+    titulo: 'Hay Equipo 🤝',
+    frase: 'El día de tu fiesta somos 11 personas trabajando para vos.',
+    cantidadPersonas: 11,
+    fotos: [],
+  },
+  empresasColaboradoras: DEFAULT_PARTNER_LOGOS,
   cierre: {
     titulo: 'Contratarnos',
     mensaje: 'Estamos listos para hacer de tu celebración un recuerdo imborrable.',
@@ -91,6 +98,10 @@ export async function getPresentacionLedSettings(): Promise<PresentacionLedSetti
         .slice(0, 6),
     },
     salon: { ...DEFAULT_PRESENTACION_LED_SETTINGS.salon, ...(settings.salon || {}) },
+    equipo: { ...DEFAULT_PRESENTACION_LED_SETTINGS.equipo!, ...(settings.equipo || {}) },
+    empresasColaboradoras: Array.isArray(settings.empresasColaboradoras) && settings.empresasColaboradoras.length > 0
+      ? settings.empresasColaboradoras
+      : DEFAULT_PRESENTACION_LED_SETTINGS.empresasColaboradoras,
     cierre: { ...DEFAULT_PRESENTACION_LED_SETTINGS.cierre, ...(settings.cierre || {}) },
     ledFotosServicios: settings.ledFotosServicios || {},
     ledFotosMenuItems: settings.ledFotosMenuItems || {},
@@ -119,6 +130,19 @@ export async function savePresentacionLedSettings(data: PresentacionLedSettings)
       descripcion: (data.salon?.descripcion || '').trim(),
       fotos: (data.salon?.fotos || []).map((f) => f.trim()).filter(Boolean),
     },
+    equipo: {
+      titulo: (data.equipo?.titulo || 'Hay Equipo 🤝').trim(),
+      frase: (data.equipo?.frase || 'El día de tu fiesta somos 11 personas trabajando para vos.').trim(),
+      cantidadPersonas: Number(data.equipo?.cantidadPersonas) || 11,
+      fotos: (data.equipo?.fotos || []).map((f) => f.trim()).filter(Boolean),
+    },
+    empresasColaboradoras: (data.empresasColaboradoras || [])
+      .map((item) => ({
+        id: item.id || `emp_${Date.now()}_${Math.random().toString(36).substr(2, 4)}`,
+        url: (item.url || '').trim(),
+        name: (item.name || 'Empresa Colaboradora').trim(),
+      }))
+      .filter((item) => item.url),
     cierre: {
       titulo: (data.cierre?.titulo || '').trim(),
       mensaje: (data.cierre?.mensaje || '').trim(),

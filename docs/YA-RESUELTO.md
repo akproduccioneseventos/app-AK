@@ -1,30 +1,26 @@
-# Ya resuelto â€” NO lo vuelvas a reportar ni a "arreglar"
+# Ya resuelto — NO lo vuelvas a reportar ni a "arreglar"
 
-**LeÃ© esto ANTES de auditar cualquier cosa.** Vale para Codex, Gemini, Claude y
+**Leé esto ANTES de auditar cualquier cosa.** Vale para Codex, Gemini, Claude y
 cualquier ayudante que salga a buscar problemas.
 
 En este proyecto trabajan varias IA en paralelo, en cuentas distintas. Sin esta
-lista pasa lo siguiente: una auditorÃ­a nueva encuentra "un problema", lo reporta,
+lista pasa lo siguiente: una auditoría nueva encuentra "un problema", lo reporta,
 alguien lo arregla otra vez, y a veces **deshace** el arreglo bueno con uno peor.
-Ya pasÃ³: dos propuestas protegieron el mismo archivo de maneras distintas y al
+Ya pasó: dos propuestas protegieron el mismo archivo de maneras distintas y al
 fusionarse dejaron la pantalla colgada para siempre.
 
-**Regla: si algo de esta lista aparece en tu auditorÃ­a, es falso positivo.** Si
-creÃ©s que igual estÃ¡ mal, no lo arregles: decilo y esperÃ¡ respuesta.
+**Regla: si algo de esta lista aparece en tu auditoría, es falso positivo.** Si
+creés que igual está mal, no lo arregles: decilo y esperá respuesta.
 
-Quien arregle algo nuevo, **lo agrega acÃ¡ en la misma tanda**. Si no queda
-anotado, la prÃ³xima auditorÃ­a lo va a volver a encontrar.
+Quien arregle algo nuevo, **lo agrega acá en la misma tanda**. Si no queda
+anotado, la próxima auditoría lo va a volver a encontrar.
 
 ---
 
-## Decisiones del dueÃ±o (no son errores, no se discuten)
+## Decisiones del dueño (no son errores, no se discuten)
 
-- **Lo que le toca a Gemini, Claude no lo programa.** Claude escribe cÃ³digo sÃ³lo
+- **Lo que le toca a Gemini, Claude no lo programa.** Claude escribe código sólo
   en plata, cobros, comida y permisos; el resto va a una orden en
-  `docs/ordenes/`. Programarlo igual le cuesta el doble al dueÃ±o.
-- **Propuestas grandes, no muchas chicas.** Cada fusiÃ³n dispara un despliegue y
-  se paga. Se junta la tanda entera en una sola propuesta. La documentaciÃ³n
-  viaja con el cÃ³digo, nunca en una propuesta aparte.
   `docs/ordenes/`. Programarlo igual le cuesta el doble al dueño.
 - **Propuestas grandes, no muchas chicas.** Cada fusión dispara un despliegue y
   se paga. Se junta la tanda entera en una sola propuesta. La documentación
@@ -33,14 +29,17 @@ anotado, la prÃ³xima auditorÃ­a lo va a volver a encontrar.
   en una sola propuesta con los cinco, no en cinco. El dueño lo tuvo que repetir
   el 10 de agosto de 2026 porque la orden pedía lo contrario que la regla.
 
+- **Reseñas de Google Automáticas:** Solo se envían a los que tienen NPS >= 9, y solo si el enlace está configurado en Ajustes. No se manda más de una vez.
+- **Plan de la Noche del Equipo:** Los sueldos y `eventSalary` NO deben filtrarse en la vista `getAccesoPersonalPortalView` bajo ningún concepto. La hora de llegada es simplemente `fiesta.configuracion.horaInicio`.
+
 - **El ajuste anual del 15% va siempre.** Aparece en presupuestos y en el portal.
-- **El descuento del 50% del SalÃ³n Club Uruguay** y el descuento del presupuesto
+- **El descuento del 50% del Salón Club Uruguay** y el descuento del presupuesto
   son decisiones de marketing.
 - **La lista de compras usa los invitados del PRESUPUESTO**, no los confirmados.
-  Se cocina lo que se contratÃ³. Si vienen mÃ¡s, se agregan y el presupuesto sube.
-- **El invitado marca cuÃ¡ntos del grupo son niÃ±os o adolescentes.** Antes la
-  invitaciÃ³n pÃºblica metÃ­a a todos como `'Adulto'` fijo, asÃ­ que una familia de
-  dos grandes y tres chicos entraba como cinco adultos y el menÃº salÃ­a mal. Ahora
+  Se cocina lo que se contrató. Si vienen más, se agregan y el presupuesto sube.
+- **El invitado marca cuántos del grupo son niños o adolescentes.** Antes la
+  invitación pública metía a todos como `'Adulto'` fijo, así que una familia de
+  dos grandes y tres chicos entraba como cinco adultos y el menú salía mal. Ahora
   se pregunta y se guarda en `kidsCount`, el desglose fino del grupo.
   **`categoria` sigue existiendo** para las pantallas que muestran una sola
   etiqueta: no la saques.
@@ -49,469 +48,473 @@ anotado, la prÃ³xima auditorÃ­a lo va a volver a encontrar.
   `invitadosNinos` del presupuesto a la fiesta, y `syncLinkedFiesta` lo dispara
   cada vez que el presupuesto se guarda o se actualiza. **Si los invitados
   aumentan, el conteo se actualiza solo.** El dato que marca el invitado sirve
-  para saber a quiÃ©n llevarle cada menÃº en la mesa, no para comprar.
-- **Los lÃ­mites de cambio de invitados salen del contrato y ya estÃ¡n en cÃ³digo.**
-  El contrato (`src/lib/contract-template.ts`) dice: *"La lista final deberÃ¡
-  entregarse siete dÃ­as antes. PodrÃ¡ reducirse hasta 10% de los invitados,
+  para saber a quién llevarle cada menú en la mesa, no para comprar.
+- **Los límites de cambio de invitados salen del contrato y ya están en código.**
+  El contrato (`src/lib/contract-template.ts`) dice: *"La lista final deberá
+  entregarse siete días antes. Podrá reducirse hasta 10% de los invitados,
   ajustando solo servicios por persona, y aumentarse hasta 30%, sujeto a
-  disponibilidad y pago previo. No habrÃ¡ devoluciÃ³n por inasistencias."* Eso
-  estaba en el papel y en ningÃºn lado del sistema, asÃ­ que se podÃ­a bajar la
+  disponibilidad y pago previo. No habrá devolución por inasistencias."* Eso
+  estaba en el papel y en ningún lado del sistema, así que se podía bajar la
   cantidad un 40% sin que nada avisara. Ahora la regla vive en
   `src/lib/budget/cambio-de-invitados.ts`, con diez pruebas. **El redondeo va a
   favor del cliente** (con 55 contratados puede bajar a 49, no a 50).
-  **Si cambiÃ¡s un tope, cambialo tambiÃ©n en el contrato**, o el sistema y el
+  **Si cambiás un tope, cambialo también en el contrato**, o el sistema y el
   papel dejan de decir lo mismo.
 - **El cliente puede pedir el cambio de invitados desde su portal.** Bajar hasta
-  10% o subir hasta 30%, poniendo cuÃ¡ntos adultos, adolescentes y niÃ±os. Las
-  acciones estÃ¡n en `portal.actions.ts`
+  10% o subir hasta 30%, poniendo cuántos adultos, adolescentes y niños. Las
+  acciones están en `portal.actions.ts`
   (`submitClientGuestCountChangeRequest`, `approve...`, `reject...`), con siete
   pruebas. Decisiones tomadas, **no las cambies sin motivo**:
   - **El pedido NO se aplica solo.** Queda pendiente y lo resuelve AK, porque
-    subir invitados mueve el precio y hay que confirmar con el salÃ³n.
-  - **Fuera de los lÃ­mites del contrato ni se toma el pedido**: se le explica al
-    cliente el rango en el momento. Tomarlo para rechazarlo despuÃ©s le hace
+    subir invitados mueve el precio y hay que confirmar con el salón.
+  - **Fuera de los límites del contrato ni se toma el pedido**: se le explica al
+    cliente el rango en el momento. Tomarlo para rechazarlo después le hace
     perder el viaje.
-  - **Un pedido pendiente por vez.** Si no, se acumulan tres y no se sabe cuÃ¡l
+  - **Un pedido pendiente por vez.** Si no, se acumulan tres y no se sabe cuál
     vale.
-  - **Al aprobar se actualiza el PRESUPUESTO**, no sÃ³lo la fiesta: de ahÃ­ sale
+  - **Al aprobar se actualiza el PRESUPUESTO**, no sólo la fiesta: de ahí sale
     lo que se compra y se cocina.
-- **El "Tal vez" de la invitaciÃ³n se saca: se confirma o no se confirma.** Un
+- **El "Tal vez" de la invitación se saca: se confirma o no se confirma.** Un
   "tal vez" no sirve para encargar comida ni poner sillas. **Pero el estado
   `'Tal vez'` NO se borra del tipo `RsvpStatus`**: hay invitados guardados con
-  ese valor y romperÃ­an las pantallas. SÃ³lo se saca el botÃ³n de la invitaciÃ³n.
-- **El invitado SÃ� puede cambiar su respuesta**, y eso ya funciona: al responder
+  ese valor y romperían las pantallas. Sólo se saca el botón de la invitación.
+- **El invitado SÍ puede cambiar su respuesta**, y eso ya funciona: al responder
   de nuevo con el mismo nombre, `submitPublicRsvp` lo busca por nombre
-  normalizado y lo actualiza, no lo duplica. Lo que falta es decÃ­rselo en
+  normalizado y lo actualiza, no lo duplica. Lo que falta es decírselo en
   pantalla. Va en `docs/ordenes/estetica-01.md`, bloque E.
 - **Las fotos del muro se descargan con enlace directo, a propósito.**
 - **Se trabaja sólo en pesos uruguayos.** No hay diferencias de redondeo en
   dólares que corregir.
 - **Bloque D ("Entretenimiento: video y guía")**: Verificación integral del sistema de entretenimiento en fiestas (`plataforma-360`, `bogue`, `buzon`, `readiness`). Plataforma 360 configurada con cámara lenta por defecto, música cargable por evento, marca de agua con nombre de la fiesta, guía paso a paso y mensaje de falla amigable sin trabar tablets. Bogue preserva las fotos individuales capturadas en la tanda y las permite imprimir mediante `imprimirRecuerdo` y `tira-fotocabina.ts` sin descartarlas al armar el video boomerang. Cápsula del tiempo con voz de orientación, pre-escucha y aviso antes del corte a los 15s. Verificación de prueba de estación con impresión de hoja de prueba real antes del evento.
 - **Bloque E ("Ajustes del sistema")**: Auditado el módulo `src/app/(app)/settings/` (plantillas de contrato, invitaciones web, WhatsApp, catálogos de servicios, salones y personal). Se implementó validación preventiva al guardar plantillas para detectar marcadores no reconocidos (`{{ALGO}}`) impidiendo que queden variables rotas en contratos o mensajes de WhatsApp hacia los clientes. Se garantizaron alertas claras de guardado y terminología amigable en criollo.
+- **Presentación LED alineada con el catálogo de papel (13 de agosto de 2026)**:
+  - **Bloque 1 — Logos de empresas**: cargados en local (`public/logos/`) con sus 12 nombres reales visibles (Correo Uruguayo, Salto Hotel & Casino, Plus Medical, A.S.DE.M. y A., Woslen, APC Salto, INC, Antel, ABRA, INAU, Intendencia de Salto, Club Uruguay) y administrables desde Ajustes → Contenido público.
+  - **Bloque 2 — Pantalla del equipo ("Hay equipo")**: nueva diapositiva `EquipoSlide` ubicada antes de los precios (después del salón), mostrando fotos del equipo trabajando, cantidad de profesionales (11) y frase en criollo, adaptable por tipo de evento y desde Ajustes.
+  - **Bloque 3 — Salón Club Uruguay**: pantalla actualizada resaltando los 120 años de historia, ubicación céntrica, capacidad +120 personas, limpieza completa incluida y **sin mencionar portero en ningún lado**.
 - **Los controles rojos de GitHub son por facturación de la cuenta.** No los
   investigues. Vale lo que se verifica localmente.
-- **El pasaje a la galerÃ­a del cliente (wfolio) es manual.** No tiene forma
-  documentada de automatizarse; ya se investigÃ³. No armes una integraciÃ³n.
+- **El pasaje a la galería del cliente (wfolio) es manual.** No tiene forma
+  documentada de automatizarse; ya se investigó. No armes una integración.
 
 ---
 
-## MÃ³dulo de entretenimiento â€” TERMINADO
+## Módulo de entretenimiento — TERMINADO
 
 ### Arreglado, no lo toques
 
 - **Las cuatro estaciones de captura ya no mienten.** Cuando falla la subida no
-  muestran mÃ¡s "escaneÃ¡ tu recuerdo" con el cÃ³digo girando: avisan y ofrecen
+  muestran más "escaneá tu recuerdo" con el código girando: avisan y ofrecen
   descargar o reintentar. Hay un componente compartido, `QrRecuerdo`, para que el
-  defecto no se copie en la prÃ³xima estaciÃ³n.
-- **Espejo mÃ¡gico IA:** al fallar la IA se queda en revisiÃ³n con la foto original
+  defecto no se copie en la próxima estación.
+- **Espejo mágico IA:** al fallar la IA se queda en revisión con la foto original
   y los botones para subirla, en vez de saltar al cartel de recuerdo listo. La
-  cÃ¡mara no se reenciende encima del cartel de error.
+  cámara no se reenciende encima del cartel de error.
 - **El operador ve las fallas del invitado** en su cabina, con la hora, y el
-  aviso se borra solo cuando la estaciÃ³n vuelve a andar (`lastError` en la sesiÃ³n).
-- **El operador sabe si la IA no estÃ¡ disponible** antes de que llegue el primer
+  aviso se borra solo cuando la estación vuelve a andar (`lastError` en la sesión).
+- **El operador sabe si la IA no está disponible** antes de que llegue el primer
   invitado.
-- **Pantalla gigante, muro, galerÃ­a y red social** avisan si se cortÃ³ la conexiÃ³n
+- **Pantalla gigante, muro, galería y red social** avisan si se cortó la conexión
   y distinguen "no hay nada" de "no se pudo cargar".
-- **La zona digital** no tiene mÃ¡s tarjetas muertas; el **tÃ³tem** no muestra un QR
+- **La zona digital** no tiene más tarjetas muertas; el **tótem** no muestra un QR
   que no sirve.
 - **Trivia por mesa:** funciona, arma el ranking por mesa y el invitado sin mesa
   juega igual en el ranking individual.
 - **El muro saluda por nombre** cuando la foto viene del enlace personal, y sigue
-  funcionando sin nombre cuando viene del QR general del salÃ³n.
+  funcionando sin nombre cuando viene del QR general del salón.
 - **Las estaciones funcionan sin muro contratado.** La foto **se guarda siempre**;
-  si el muro estÃ¡ pausado o no contratado queda como `pending` y no se ve. Nadie
-  saltea la pausa de la moderaciÃ³n.
+  si el muro está pausado o no contratado queda como `pending` y no se ve. Nadie
+  saltea la pausa de la moderación.
 
-### La fotocabina funciona como las clÃ¡sicas (9 de agosto de 2026)
+### La fotocabina funciona como las clásicas (9 de agosto de 2026)
 
-Se copiÃ³ el mecanismo de las cabinas del rubro, despuÃ©s de mirar cÃ³mo lo hacen
+Se copió el mecanismo de las cabinas del rubro, después de mirar cómo lo hacen
 las que se venden hoy:
 
 - **Tres fotos por tanda, encadenadas solas.** El invitado no toca nada entre
   foto y foto.
-- **La primera cuenta es de 10 segundos y las otras de 4.** Es a propÃ³sito: en
-  la primera la gente reciÃ©n se acomoda; despuÃ©s ya estÃ¡ ubicada y una espera
+- **La primera cuenta es de 10 segundos y las otras de 4.** Es a propósito: en
+  la primera la gente recién se acomoda; después ya está ubicada y una espera
   larga hace cola. **No las emparejes.**
-- **SÃ³lo se cantan en voz alta los Ãºltimos cinco nÃºmeros.** Contar desde diez
-  tapa la mÃºsica del salÃ³n.
-- **La pantalla guÃ­a**: "Foto 2 de 3", con puntitos de avance y una frase
-  distinta para cada una. Entre foto y foto sigue viÃ©ndose la cÃ¡mara: si se
+- **Sólo se cantan en voz alta los últimos cinco números.** Contar desde diez
+  tapa la música del salón.
+- **La pantalla guía**: "Foto 2 de 3", con puntitos de avance y una frase
+  distinta para cada una. Entre foto y foto sigue viéndose la cámara: si se
   cambia de estado, la pantalla queda en negro y el invitado se pierde.
 - **Al terminar se arma una sola imagen** con las tres pegadas, el nombre del
-  evento y la fecha, en formato 10x15. Se eligiÃ³ la postal y no la tira finita
+  evento y la fecha, en formato 10x15. Se eligió la postal y no la tira finita
   de 5x15 porque la tira obliga a una impresora con cortadora.
-- **Imprime sola, sin que el invitado apriete nada**, y despuÃ©s ofrece "quiero
-  otra copia". La copia automÃ¡tica es la Ãºnica que reinicia la cabina; las
-  copias extra dejan la pantalla quieta para poder pedir mÃ¡s.
-- **El muro es el extra, no el camino principal.** Si el cliente no contratÃ³
-  muro, la cabina imprime igual y no muestra el botÃ³n de publicar.
-- **El espejo mÃ¡gico tambiÃ©n imprime**, y en el modo firma se imprime el lienzo
+- **Imprime sola, sin que el invitado apriete nada**, y después ofrece "quiero
+  otra copia". La copia automática es la única que reinicia la cabina; las
+  copias extra dejan la pantalla quieta para poder pedir más.
+- **El muro es el extra, no el camino principal.** Si el cliente no contrató
+  muro, la cabina imprime igual y no muestra el botón de publicar.
+- **El espejo mágico también imprime**, y en el modo firma se imprime el lienzo
   para que salgan la firma y los stickers en el papel.
-- **La impresiÃ³n vive en un solo lugar** (`imprimirRecuerdo`), compartida entre
-  la fotocabina y el espejo. Si agregÃ¡s impresiÃ³n a otra estaciÃ³n, usÃ¡ esa: no
+- **La impresión vive en un solo lugar** (`imprimirRecuerdo`), compartida entre
+  la fotocabina y el espejo. Si agregás impresión a otra estación, usá esa: no
   armes una propia.
-- **La galerÃ­a del operador ya permite reimprimir** una foto que ya saliÃ³. No
+- **La galería del operador ya permite reimprimir** una foto que ya salió. No
   hace falta agregarlo.
 
-### QuÃ© produce cada estaciÃ³n (verificado en el cÃ³digo el 9/8/2026)
+### Qué produce cada estación (verificado en el código el 9/8/2026)
 
-Lista corta para no volver a confundirse. Ya pasÃ³: se describiÃ³ el Bogue como
-estaciÃ³n de video cuando es de fotos.
+Lista corta para no volver a confundirse. Ya pasó: se describió el Bogue como
+estación de video cuando es de fotos.
 
-- **Fotocabina** â€” FOTOS. Tanda de tres, se arma una tira y se imprime.
-- **Bogue** â€” **FOTOS.** Saca varias seguidas. Hoy sÃ³lo guarda el video
-  boomerang que arma con ellas y **descarta las fotos**: eso estÃ¡ mal y va en
+- **Fotocabina** — FOTOS. Tanda de tres, se arma una tira y se imprime.
+- **Bogue** — **FOTOS.** Saca varias seguidas. Hoy sólo guarda el video
+  boomerang que arma con ellas y **descarta las fotos**: eso está mal y va en
   `docs/ordenes/entretenimiento-03.md`, bloque B.
-- **Espejo mÃ¡gico foto** â€” FOTO, con filtro. Imprime.
-- **Espejo mÃ¡gico firma** â€” FOTO con firma y stickers encima. Imprime el lienzo.
-- **Espejo mÃ¡gico IA (touchpix)** â€” FOTO. Guarda la original y la generada.
-- **Plataforma 360** â€” VIDEO de verdad, 15 segundos, grabado de la cÃ¡mara.
-- **CÃ¡psula del tiempo (buzÃ³n)** â€” AUDIO o VIDEO. No se imprime.
-- **TÃ³tem** â€” NO CAPTURA NADA. SÃ³lo muestra el cÃ³digo y las fotos aprobadas.
+- **Espejo mágico foto** — FOTO, con filtro. Imprime.
+- **Espejo mágico firma** — FOTO con firma y stickers encima. Imprime el lienzo.
+- **Espejo mágico IA (touchpix)** — FOTO. Guarda la original y la generada.
+- **Plataforma 360** — VIDEO de verdad, 15 segundos, grabado de la cámara.
+- **Cápsula del tiempo (buzón)** — AUDIO o VIDEO. No se imprime.
+- **Tótem** — NO CAPTURA NADA. Sólo muestra el código y las fotos aprobadas.
 
 ### Topes, ya calibrados
 
-- **Videos del invitado: 15 segundos.** Es a propÃ³sito.
+- **Videos del invitado: 15 segundos.** Es a propósito.
 - **Tope del evento: 5000 fotos.** Antes eran 200 y cortaba la fiesta a la mitad.
   No lo bajes.
-- **Generaciones de IA: 3 por sesiÃ³n de foto**, contadas en el servidor con un
-  identificador estable, mÃ¡s una red de contenciÃ³n de 150 por hora por estaciÃ³n.
-- **Paquete de recuerdos: 300 MB por pedido**, y se puede pedir por estaciÃ³n
-  (`?estacion=`). El lÃ­mite es de memoria del servidor, no de la fiesta.
+- **Generaciones de IA: 3 por sesión de foto**, contadas en el servidor con un
+  identificador estable, más una red de contención de 150 por hora por estación.
+- **Paquete de recuerdos: 300 MB por pedido**, y se puede pedir por estación
+  (`?estacion=`). El límite es de memoria del servidor, no de la fiesta.
 - **41 estilos de IA**, y se pueden elegir por fiesta con `allowedTemplateIds`.
-  VacÃ­o significa todos.
+  Vacío significa todos.
 
 ---
 
-## MÃ³dulo de organizaciÃ³n â€” TERMINADO
+## Módulo de organización — TERMINADO
 
 ### Arreglado, no lo toques
 
-- **Los conteos cuentan PERSONAS, no filas.** CelÃ­acos en la pantalla de
+- **Los conteos cuentan PERSONAS, no filas.** Celíacos en la pantalla de
   invitados y el reporte al catering ya usan `partySize`.
-- **Los conteos de CONFIRMADOS tambiÃ©n cuentan personas (9/8/2026).** Faltaban
-  seis lugares que hacÃ­an `.filter(rsvp === 'Confirmado').length`: el avance del
+- **Los conteos de CONFIRMADOS también cuentan personas (9/8/2026).** Faltaban
+  seis lugares que hacían `.filter(rsvp === 'Confirmado').length`: el avance del
   evento, las automatizaciones, las dos cuentas de `fiesta-progress`, el centro
-  de experiencia y las plantillas de invitaciÃ³n. **Lo grave era que esos nÃºmeros
-  se comparan contra `invitadosEstimados`, que sÃ­ son personas**: con 100
+  de experiencia y las plantillas de invitación. **Lo grave era que esos números
+  se comparan contra `invitadosEstimados`, que sí son personas**: con 100
   estimados y 30 filas que eran 90 personas, el sistema mostraba 30% de avance y
   disparaba avisos de "faltan confirmaciones" con la fiesta casi llena. Hay una
   prueba que lo deja clavado: `conteo-confirmados-personas.test.ts`.
 - **El que cancela sale del conteo solo**, porque deja de estar `'Confirmado'`.
-  No hace falta restarlo a mano en ningÃºn lado.
-- **Las bebidas llegan a la lista de compras**, todas las categorÃ­as activadas,
+  No hace falta restarlo a mano en ningún lado.
+- **Las bebidas llegan a la lista de compras**, todas las categorías activadas,
   leyendo `fiestaData.bebidas`.
-- **El autoguardado del diseÃ±o de decoraciÃ³n avisa cuando falla** y reintenta.
+- **El autoguardado del diseño de decoración avisa cuando falla** y reintenta.
 - **Borrar una foto del moodboard** confirma o avisa el error.
 - **Los recibos del personal se autoguardan**, igual que la pantalla de personal.
-- **El aviso de doble asignaciÃ³n** dice cuÃ¡ndo no se pudo verificar, en vez de
+- **El aviso de doble asignación** dice cuándo no se pudo verificar, en vez de
   callarse.
-- **Primero se guarda, despuÃ©s se sincroniza con Google.** El orden es
-  deliberado: al revÃ©s mandaba los avisos con la asignaciÃ³n vieja. **No lo
+- **Primero se guarda, después se sincroniza con Google.** El orden es
+  deliberado: al revés mandaba los avisos con la asignación vieja. **No lo
   muevas.**
 - **En la lista de carga, el precio ya no se usa como cantidad.** Sin referencia
   de cobertura queda en 1 unidad.
 - **El PDF del itinerario no muestra las notas internas del organizador** y
   filtra los momentos marcados como no visibles. Ese PDF lo ven proveedores.
-- **El tablero central** muestra el avance por mÃ³dulo, el avance general y el
-  prÃ³ximo paso sugerido con botÃ³n directo.
-- **Buscador de empleados**, sincronizaciÃ³n de carga que no duplica, tareas de
+- **El tablero central** muestra el avance por módulo, el avance general y el
+  próximo paso sugerido con botón directo.
+- **Buscador de empleados**, sincronización de carga que no duplica, tareas de
   proveedores que no se cortan en silencio, aviso de horarios que se pisan en el
   itinerario, y vista previa del portal del invitado.
-- **El menÃº de mesa vuelve atrÃ¡s el color** si el guardado falla, en vez de
+- **El menú de mesa vuelve atrás el color** si el guardado falla, en vez de
   dejarlo visible como si hubiera guardado.
 - **La descarga de recuerdos incluye el dominio propio de AK**
   (`galeria.akproducciones.uy`) en la lista de dominios habilitados.
-- **El paquete de recuerdos baja ordenado por estaciÃ³n** y con el tipo de fiesta
+- **El paquete de recuerdos baja ordenado por estación** y con el tipo de fiesta
   en el nombre.
 
-### Ya existÃ­a antes, no lo construyas de nuevo
+### Ya existía antes, no lo construyas de nuevo
 
-- **El Ã¡lbum del portal del cliente.** EstÃ¡ en
+- **El álbum del portal del cliente.** Está en
   `src/app/portal-cliente/[id]/fotos-video/page.tsx` y `getContractedDownloads`
-  ya decide quÃ© mostrar segÃºn lo contratado. Una orden de trabajo pidiÃ³
-  construirlo y se perdiÃ³ el viaje entero.
+  ya decide qué mostrar según lo contratado. Una orden de trabajo pidió
+  construirlo y se perdió el viaje entero.
 
 ---
 
-## PlanificaciÃ³n â€” pantallas de plata
+## Planificación — pantallas de plata
 
 - **La merma de bebidas ya no se cuenta dos veces** en el gestor de
   rentabilidad. `totalBebidasCost` viene con el 5% adentro y la merma figuraba
-  ademÃ¡s como item propio, asÃ­ que el costo salÃ­a inflado y el margen mÃ¡s bajo
+  además como item propio, así que el costo salía inflado y el margen más bajo
   que el real. El reporte de post-evento ya lo descontaba con
-  `costosSinMermaDuplicada`; ahora las dos pantallas dan el mismo nÃºmero.
-- **El costo de proveedores NO va sumado aparte al margen.** Ya estÃ¡ adentro de
-  `costosItems` como items `auto_prov_*`. `totalProveedorCost` es sÃ³lo el
-  subtotal que se muestra en la tabla. **Si una auditorÃ­a dice que "falta sumar
-  proveedores", es falso positivo:** sumarlo lo contarÃ­a dos veces. Ya se reportÃ³
+  `costosSinMermaDuplicada`; ahora las dos pantallas dan el mismo número.
+- **El costo de proveedores NO va sumado aparte al margen.** Ya está adentro de
+  `costosItems` como items `auto_prov_*`. `totalProveedorCost` es sólo el
+  subtotal que se muestra en la tabla. **Si una auditoría dice que "falta sumar
+  proveedores", es falso positivo:** sumarlo lo contaría dos veces. Ya se reportó
   una vez por error.
 
-- **El porcentaje del ajuste anual se lee de la configuraciÃ³n en TODAS las
-  pantallas.** El estado de cuenta lo hacÃ­a; el recibo de pago y las dos vistas
-  del portal del cliente lo tenÃ­an clavado en 15%. El dÃ­a que se cambiara el
+- **El porcentaje del ajuste anual se lee de la configuración en TODAS las
+  pantallas.** El estado de cuenta lo hacía; el recibo de pago y las dos vistas
+  del portal del cliente lo tenían clavado en 15%. El día que se cambiara el
   porcentaje en ajustes, el cliente iba a ver un saldo y AK otro. Ahora las
   cuatro le pasan el porcentaje configurado a la misma cuenta compartida. **Si
-  agregÃ¡s una pantalla que muestre saldo, pasale el porcentaje**: sin Ã©l vuelve
+  agregás una pantalla que muestre saldo, pasale el porcentaje**: sin él vuelve
   al 15% fijo y reaparece la diferencia.
-- **El contrato del salÃ³n ya se guarda.** Antes el botÃ³n "Finalizar" sÃ³lo cerraba
-  el modo ediciÃ³n: lo que el equipo escribÃ­a (clÃ¡usulas, montos) se perdÃ­a al
+- **El contrato del salón ya se guarda.** Antes el botón "Finalizar" sólo cerraba
+  el modo edición: lo que el equipo escribía (cláusulas, montos) se perdía al
   recargar, y peor, al abrir la pantalla se regeneraba el borrador y pisaba lo
-  editado. Ahora hay botÃ³n de guardar, el texto vive en `contratoSalonTexto`, y
-  lo guardado le gana al borrador automÃ¡tico.
+  editado. Ahora hay botón de guardar, el texto vive en `contratoSalonTexto`, y
+  lo guardado le gana al borrador automático.
 
 - **El plan de pagos avisa si las cuotas no cubren el total del contrato.** Antes
-  el "Total" de esa pantalla era la suma de las cuotas cargadas, asÃ­ que un plan
-  al que le faltaba plata se veÃ­a perfectamente cuadrado. Ahora compara contra el
-  total real del evento (con el ajuste anual) y dice cuÃ¡nto falta o cuÃ¡nto sobra.
+  el "Total" de esa pantalla era la suma de las cuotas cargadas, así que un plan
+  al que le faltaba plata se veía perfectamente cuadrado. Ahora compara contra el
+  total real del evento (con el ajuste anual) y dice cuánto falta o cuánto sobra.
 
-- **El contrato de servicio no pisa mÃ¡s las ediciones sin avisar.** Cambiar de
-  plantilla o salir del modo ediciÃ³n con cambios sin guardar ahora pregunta
-  antes. El botÃ³n dice "Salir sin guardar" para que se entienda que no guarda.
+- **El contrato de servicio no pisa más las ediciones sin avisar.** Cambiar de
+  plantilla o salir del modo edición con cambios sin guardar ahora pregunta
+  antes. El botón dice "Salir sin guardar" para que se entienda que no guarda.
 - **El contrato de servicio avisa si quedaron huecos sin llenar.** Si la
-  plantilla trae un marcador que nadie reemplazÃ³, sale un cartel naranja con la
+  plantilla trae un marcador que nadie reemplazó, sale un cartel naranja con la
   lista antes de imprimir, en vez de que el cliente reciba el contrato con
   `{{ALGO}}` escrito adentro.
-- **Borrar un documento del evento pide confirmaciÃ³n**, con el nombre del
-  documento. AhÃ­ vive el contrato firmado.
-- **Costos y rentabilidad no acepta importes negativos** ni invÃ¡lidos, ni en
+- **Borrar un documento del evento pide confirmación**, con el nombre del
+  documento. Ahí vive el contrato firmado.
+- **Costos y rentabilidad no acepta importes negativos** ni inválidos, ni en
   gastos ni en pagos a proveedores. Un negativo inflaba la ganancia en silencio.
 
-- **En servicios contratados, el personal sin categorÃ­a ya no aparece como
-  Catering.** Tiene su propia secciÃ³n "Otro personal", que explica que al rol le
-  falta la categorÃ­a. Antes un DJ o un chofer figuraba entre los mozos.
+- **En servicios contratados, el personal sin categoría ya no aparece como
+  Catering.** Tiene su propia sección "Otro personal", que explica que al rol le
+  falta la categoría. Antes un DJ o un chofer figuraba entre los mozos.
 
-## Pantallas del planificador: quÃ© estÃ¡ conectado y quÃ© no
+## Pantallas del planificador: qué está conectado y qué no
 
-Verificado el 8 de agosto de 2026. **No hay una plaga de pantallas huÃ©rfanas**,
-como pareciÃ³ al principio:
+Verificado el 8 de agosto de 2026. **No hay una plaga de pantallas huérfanas**,
+como pareció al principio:
 
 - **Los "centros de mando" duplicados no son un problema.** Seis pantallas
   (`centro-de-mando`, `centro-experiencia`, `comando-total`, `show-control`,
-  `centro-total`, `mission-control`) son redirecciones de 18 lÃ­neas a
-  `fiestas/[id]/centro`. Vienen de una unificaciÃ³n deliberada y existen para no
+  `centro-total`, `mission-control`) son redirecciones de 18 líneas a
+  `fiestas/[id]/centro`. Vienen de una unificación deliberada y existen para no
   romper enlaces guardados. **No las borres.**
-- **Las pantallas de gestiÃ³n documental estÃ¡n todas enlazadas** desde
-  `gestion-documental/page.tsx`. No estÃ¡n huÃ©rfanas.
-- **`planner-costo-fiesta` y `servicios-contratados`** se alcanzan por direcciÃ³n
-  directa aunque no tengan botÃ³n en el tablero.
+- **Las pantallas de gestión documental están todas enlazadas** desde
+  `gestion-documental/page.tsx`. No están huérfanas.
+- **`planner-costo-fiesta` y `servicios-contratados`** se alcanzan por dirección
+  directa aunque no tengan botón en el tablero.
 - **`nueva/playlist-pantalla` SE CONECTA, no se retira.** Verificada el 9 de
-  agosto de 2026: estÃ¡ terminada y funciona (lista de la pantalla en vivo mÃ¡s la
-  configuraciÃ³n del muro social). Lo Ãºnico que le falta es el botÃ³n que la
+  agosto de 2026: está terminada y funciona (lista de la pantalla en vivo más la
+  configuración del muro social). Lo único que le falta es el botón que la
   enlace, y va en el bloque D de `docs/ordenes/planificacion-02.md`. **No la
-  borres ni vuelvas a reportarla como huÃ©rfana.**
+  borres ni vuelvas a reportarla como huérfana.**
 
 ## Comercial y contable
 
-Auditado el 9 de agosto de 2026. **Son 47 pantallas** entre los dos mÃ³dulos (35
-comerciales, 12 contables), no las que aparecen en el menÃº.
+Auditado el 9 de agosto de 2026. **Son 47 pantallas** entre los dos módulos (35
+comerciales, 12 contables), no las que aparecen en el menú.
 
-- **Guardar un presupuesto avisa si el cliente no quedÃ³ en el seguimiento.**
-  Antes, si fallaba la sincronizaciÃ³n con el CRM, el presupuesto se guardaba
-  igual y decÃ­a "Guardado" a secas: el equipo creÃ­a que el cliente estaba
-  cargado y no estaba. El guardado sigue sin bloquearse a propÃ³sito (el
-  presupuesto vale mÃ¡s que el CRM), pero ahora vuelve el aviso a la pantalla.
-- **Si el cupÃ³n no se pudo registrar, ahora se dice.** El descuento se aplicaba
+- **Guardar un presupuesto avisa si el cliente no quedó en el seguimiento.**
+  Antes, si fallaba la sincronización con el CRM, el presupuesto se guardaba
+  igual y decía "Guardado" a secas: el equipo creía que el cliente estaba
+  cargado y no estaba. El guardado sigue sin bloquearse a propósito (el
+  presupuesto vale más que el CRM), pero ahora vuelve el aviso a la pantalla.
+- **Si el cupón no se pudo registrar, ahora se dice.** El descuento se aplicaba
   igual y el uso quedaba sin anotar en silencio.
-- **Pagos rÃ¡pidos no muestra mÃ¡s presupuestos archivados.** Filtraba por estado
-  pero no por archivado, asÃ­ que uno viejo dado de baja seguÃ­a en la lista.
-- **Pagos rÃ¡pidos muestra lo informado y sin confirmar.** El saldo cuenta sÃ³lo
-  los pagos confirmados; si el cliente informaba uno, el saldo no se movÃ­a y
-  parecÃ­a un error. Ahora aparece aparte, en Ã¡mbar.
+- **Pagos rápidos no muestra más presupuestos archivados.** Filtraba por estado
+  pero no por archivado, así que uno viejo dado de baja seguía en la lista.
+- **Pagos rápidos muestra lo informado y sin confirmar.** El saldo cuenta sólo
+  los pagos confirmados; si el cliente informaba uno, el saldo no se movía y
+  parecía un error. Ahora aparece aparte, en ámbar.
 - **El motivo del rechazo de un pago se ve en la lista**, sin tener que entrar
   al presupuesto.
 
-- **Las facturas cobradas estÃ¡n protegidas.** Una factura con pagos ya no
-  permite cambiarle el nÃºmero ni la moneda, una factura pagada no puede volver a
+- **Las facturas cobradas están protegidas.** Una factura con pagos ya no
+  permite cambiarle el número ni la moneda, una factura pagada no puede volver a
   borrador, y no se puede eliminar una factura cobrada: es el comprobante del
-  cobro. La validaciÃ³n estÃ¡ en el servidor, no sÃ³lo en la pantalla.
-- **No se repiten nÃºmeros de factura.** **Los recibos de seÃ±a quedan afuera a
-  propÃ³sito:** comparten el nÃºmero por evento cuando el cliente paga la seÃ±a en
-  varias veces, y la duplicaciÃ³n real ya la corta `findExistingDepositReceipt`.
-  Si una auditorÃ­a dice que "faltan validar los nÃºmeros de seÃ±a", es falso
+  cobro. La validación está en el servidor, no sólo en la pantalla.
+- **No se repiten números de factura.** **Los recibos de seña quedan afuera a
+  propósito:** comparten el número por evento cuando el cliente paga la seña en
+  varias veces, y la duplicación real ya la corta `findExistingDepositReceipt`.
+  Si una auditoría dice que "faltan validar los números de seña", es falso
   positivo.
-- **El WhatsApp del dÃ­a avisa si el mensaje quedÃ³ pendiente.** Antes, si fallaba
-  marcarlo como enviado, seguÃ­a en la lista y alguien lo mandaba dos veces al
+- **El WhatsApp del día avisa si el mensaje quedó pendiente.** Antes, si fallaba
+  marcarlo como enviado, seguía en la lista y alguien lo mandaba dos veces al
   mismo cliente.
 
-- **El catÃ¡logo no acepta precios negativos**, ni en el precio de venta, el
+- **El catálogo no acepta precios negativos**, ni en el precio de venta, el
   precio base, el precio por persona, el costo estimado ni los tramos. Un
   negativo se arrastraba a todos los presupuestos que usaran ese servicio e
-  inflaba la ganancia. **El cero sÃ­ se permite**: hay servicios de cortesÃ­a.
-- **El reporte de ganancias y pÃ©rdidas muestra el error cuando falla.** Antes
-  aparecÃ­a un triÃ¡ngulo rojo suelto, sin texto: nadie sabÃ­a si reintentar o
+  inflaba la ganancia. **El cero sí se permite**: hay servicios de cortesía.
+- **El reporte de ganancias y pérdidas muestra el error cuando falla.** Antes
+  aparecía un triángulo rojo suelto, sin texto: nadie sabía si reintentar o
   cambiar las fechas.
 - **El simulador exige un celular uruguayo de verdad.** Aceptaba cualquier cosa
-  de 7 dÃ­gitos aunque el cartel prometiera otra cosa, asÃ­ que llegaban pedidos
-  de presupuesto a los que despuÃ©s no se les podÃ­a contestar.
+  de 7 dígitos aunque el cartel prometiera otra cosa, así que llegaban pedidos
+  de presupuesto a los que después no se les podía contestar.
 
-### Falsos positivos ya verificados en estos mÃ³dulos
+### Falsos positivos ya verificados en estos módulos
 
-- **Los recibos del personal NO dan NaN.** El cÃ¡lculo del sueldo protege los
-  porcentajes faltantes con `?? 0` y sÃ³lo divide si el divisor es mayor a cero.
-- **La deduplicaciÃ³n de seÃ±as es deliberada.** Busca por evento, monto y dÃ­a
-  para no registrar dos veces el mismo pago. Que dos seÃ±as idÃ©nticas el mismo
-  dÃ­a se confundan es el precio de esa protecciÃ³n: no lo "arregles" sin hablarlo.
-- **El precio tachado del Club Uruguay en el simulador es el doble a propÃ³sito.**
-  Es el 50% de descuento que decidiÃ³ el dueÃ±o. No es un error de cÃ¡lculo.
+- **Los recibos del personal NO dan NaN.** El cálculo del sueldo protege los
+  porcentajes faltantes con `?? 0` y sólo divide si el divisor es mayor a cero.
+- **La deduplicación de señas es deliberada.** Busca por evento, monto y día
+  para no registrar dos veces el mismo pago. Que dos señas idénticas el mismo
+  día se confundan es el precio de esa protección: no lo "arregles" sin hablarlo.
+- **El precio tachado del Club Uruguay en el simulador es el doble a propósito.**
+  Es el 50% de descuento que decidió el dueño. No es un error de cálculo.
 - **El filtro "Con responsable" del CRM hace lo que dice la etiqueta.** La clave
-  interna se llama `my_leads` por historia, pero no promete "los mÃ­os" en
-  pantalla y el equipo ve el CRM completo igual. No es una filtraciÃ³n.
-- **Las dos pantallas de servicios no estÃ¡n duplicadas por error.** La de
-  ajustes es sÃ³lo de lectura y la de empresa es la que edita. Escriben en el
+  interna se llama `my_leads` por historia, pero no promete "los míos" en
+  pantalla y el equipo ve el CRM completo igual. No es una filtración.
+- **Las dos pantallas de servicios no están duplicadas por error.** La de
+  ajustes es sólo de lectura y la de empresa es la que edita. Escriben en el
   mismo lado.
 - **El panel contable no tiene divisiones por cero.** Se verificaron los
-  mÃ¡rgenes, el flujo de caja y los reportes: todos protegen el divisor.
+  márgenes, el flujo de caja y los reportes: todos protegen el divisor.
 - **Los regalos del presupuesto NO se muestran mal.** Sale el precio unitario y
-  el importe en cero porque **hay una columna de descuento que dice 100%**. EstÃ¡
+  el importe en cero porque **hay una columna de descuento que dice 100%**. Está
   explicado en la propia tabla.
-- **El cartel de "VerificaciÃ³n Pendiente" muestra el total guardado a
-  propÃ³sito.** Es lo que se estÃ¡ verificando antes de mandÃ¡rselo al cliente. No
+- **El cartel de "Verificación Pendiente" muestra el total guardado a
+  propósito.** Es lo que se está verificando antes de mandárselo al cliente. No
   es una inconsistencia con el total recalculado de abajo.
 - **El filtro "Con responsable" del CRM hace lo que dice la etiqueta**: muestra
   los prospectos que tienen alguien asignado. La clave interna se llama
-  `my_leads` por historia, pero no promete "los mÃ­os" ni filtra mal.
+  `my_leads` por historia, pero no promete "los míos" ni filtra mal.
 
-## EstÃ©tica â€” auditada el 9 de agosto de 2026
+## Estética — auditada el 9 de agosto de 2026
 
-La app **no estÃ¡ rota, estÃ¡ despareja**: 925 colores escritos a mano en 211
-pantallas, 582 textos de menos de 12 pÃ­xeles y 8 variantes de borde redondeado
-conviviendo. El detalle y el plan estÃ¡n en `docs/ordenes/estetica-01.md`, que le
+La app **no está rota, está despareja**: 925 colores escritos a mano en 211
+pantallas, 582 textos de menos de 12 píxeles y 8 variantes de borde redondeado
+conviviendo. El detalle y el plan están en `docs/ordenes/estetica-01.md`, que le
 toca a Gemini.
 
 ### Falsos positivos verificados: NO los vuelvas a reportar
 
-- **Los colores en `style={{ backgroundColor: ... }}` del croquis del salÃ³n, la
-  decoraciÃ³n, los nÃºmeros de mesa y las invitaciones NO son colores mal
-  puestos.** Son los que **elige el usuario** para cada elemento. Se reportÃ³ una
-  vez como "rompe la paleta" y es al revÃ©s: si los cambiÃ¡s a tokens, el usuario
+- **Los colores en `style={{ backgroundColor: ... }}` del croquis del salón, la
+  decoración, los números de mesa y las invitaciones NO son colores mal
+  puestos.** Son los que **elige el usuario** para cada elemento. Se reportó una
+  vez como "rompe la paleta" y es al revés: si los cambiás a tokens, el usuario
   pierde la posibilidad de elegir el color.
 - **El `bg-white` de facturas, recibos y contratos es correcto.** Esos
   documentos se imprimen en papel.
 
-### Tanda `estetica-01` â€” propuesta unificada del 9 de agosto de 2026
+### Tanda `estetica-01` — propuesta unificada del 9 de agosto de 2026
 
-- **La escala visual queda fijada asÃ­: tarjetas `rounded-xl`, botones
+- **La escala visual queda fijada así: tarjetas `rounded-xl`, botones
   `rounded-lg` y campos `rounded-lg`.** Los componentes compartidos `Card`,
   `Button`, `Input`, `Select`, `Textarea` y `EmptyState` usan esa escala y los
-  colores semÃ¡nticos del tema. Se eligiÃ³ una diferencia corta entre tarjeta y
+  colores semánticos del tema. Se eligió una diferencia corta entre tarjeta y
   control para ordenar la interfaz sin volverla ni cuadrada ni exageradamente
   redonda.
 - **Los botones, tarjetas y campos compartidos dejaron de imponer rojo, blanco
   y gris escritos a mano.** Ahora usan `primary`, `foreground`, `background`,
-  `border`, `accent` y `destructive`, porque esos tokens ya tienen versiÃ³n clara
-  y oscura. No se tocaron los colores dinÃ¡micos que elige el usuario ni el
+  `border`, `accent` y `destructive`, porque esos tokens ya tienen versión clara
+  y oscura. No se tocaron los colores dinámicos que elige el usuario ni el
   blanco de los documentos imprimibles.
 - **Alcance manual terminado del bloque de colores:** portal principal del
-  cliente, sus variantes pÃºblica/Pro, confirmaciÃ³n de invitados, control del
-  muro social, invitaciÃ³n pÃºblica, portal individual del invitado, contrato,
-  moodboard, configuraciÃ³n de la fiesta y bandeja del portal del cliente. El
-  resto de las 211 pantallas todavÃ­a necesita recorrerse pantalla por pantalla;
+  cliente, sus variantes pública/Pro, confirmación de invitados, control del
+  muro social, invitación pública, portal individual del invitado, contrato,
+  moodboard, configuración de la fiesta y bandeja del portal del cliente. El
+  resto de las 211 pantallas todavía necesita recorrerse pantalla por pantalla;
   no se hizo un reemplazo masivo imposible de revisar. Los componentes
-  compartidos sÃ­ mejoran desde ahora toda la app.
-- **NingÃºn `text-[8px]`, `text-[9px]`, `text-[10px]` o `text-[11px]` se renderiza
-  por debajo de 12 px.** La garantÃ­a vive en `globals.css`, para corregir los
-  cientos de usos histÃ³ricos sin editar mecÃ¡nicamente 71 pantallas. Las
-  medidas de impresiÃ³n en puntos no cambian. AdemÃ¡s se corrigieron a mano las
-  grillas mÃ³viles seÃ±aladas: cuenta regresiva, muro social, resumen de
-  invitados y respuesta pÃºblica; el mensaje del invitado ya no queda cortado.
-- **Los vacÃ­os del portal explican quÃ© falta y quÃ© ocurre despuÃ©s.** Las lÃ­neas
-  grises de checklist, cronograma, tragos, servicios, mÃºsica, reuniones,
-  decoraciÃ³n, documentos, catÃ¡logo y preguntas se reemplazaron por
-  `EmptyState`. No se inventaron acciones de ediciÃ³n donde el cliente no tiene
-  permiso: se aclara cuÃ¡ndo debe publicar o intervenir AK.
-- **Las cargas pÃºblicas ya dicen quÃ© estÃ¡n preparando.** Portal, contrato,
-  moodboard, invitaciÃ³n individual y mini quiosco tienen texto y `aria-live`;
-  sus fallos ofrecen reintento o un prÃ³ximo paso. Las excepciones y mensajes
-  tÃ©cnicos del servidor ya no quedan expuestos a clientes o invitados en esos
+  compartidos sí mejoran desde ahora toda la app.
+- **Ningún `text-[8px]`, `text-[9px]`, `text-[10px]` o `text-[11px]` se renderiza
+  por debajo de 12 px.** La garantía vive en `globals.css`, para corregir los
+  cientos de usos históricos sin editar mecánicamente 71 pantallas. Las
+  medidas de impresión en puntos no cambian. Además se corrigieron a mano las
+  grillas móviles señaladas: cuenta regresiva, muro social, resumen de
+  invitados y respuesta pública; el mensaje del invitado ya no queda cortado.
+- **Los vacíos del portal explican qué falta y qué ocurre después.** Las líneas
+  grises de checklist, cronograma, tragos, servicios, música, reuniones,
+  decoración, documentos, catálogo y preguntas se reemplazaron por
+  `EmptyState`. No se inventaron acciones de edición donde el cliente no tiene
+  permiso: se aclara cuándo debe publicar o intervenir AK.
+- **Las cargas públicas ya dicen qué están preparando.** Portal, contrato,
+  moodboard, invitación individual y mini quiosco tienen texto y `aria-live`;
+  sus fallos ofrecen reintento o un próximo paso. Las excepciones y mensajes
+  técnicos del servidor ya no quedan expuestos a clientes o invitados en esos
   recorridos.
-- **La acciÃ³n principal del portal ahora coincide con el prÃ³ximo paso real.**
-  Puede llevar a pago, pagos en revisiÃ³n, organizaciÃ³n, invitados o contacto;
-  si una fase no habilita organizaciÃ³n, dirige al resumen financiero. Se quitÃ³
-  el pulso que hacÃ­a parecer urgente pagar siempre y las acciones posteriores
+- **La acción principal del portal ahora coincide con el próximo paso real.**
+  Puede llevar a pago, pagos en revisión, organización, invitados o contacto;
+  si una fase no habilita organización, dirige al resumen financiero. Se quitó
+  el pulso que hacía parecer urgente pagar siempre y las acciones posteriores
   quedan como secundarias.
-- **La invitaciÃ³n pÃºblica ya no ofrece â€œTal vezâ€�.** Quedan sÃ³lo â€œAsistirÃ©â€� y
-  â€œNo puedoâ€�, anchos para el dedo. `RsvpStatus` conserva `Tal vez` para datos
-  histÃ³ricos y uso interno. La confirmaciÃ³n explica que se puede cambiar la
-  respuesta con el mismo enlace y nombre, y â€œResponder de nuevoâ€� vuelve al
+- **La invitación pública ya no ofrece “Tal vez”�.** Quedan sólo “Asistiré”� y
+  “No puedo”�, anchos para el dedo. `RsvpStatus` conserva `Tal vez` para datos
+  históricos y uso interno. La confirmación explica que se puede cambiar la
+  respuesta con el mismo enlace y nombre, y “Responder de nuevo”� vuelve al
   formulario sin recargar ni borrar los datos.
 - **El equipo ve el rango contractual al cambiar invitados.** La pantalla de
-  configuraciÃ³n reutiliza `validarCambioDeInvitados`, conserva como base la
+  configuración reutiliza `validarCambioDeInvitados`, conserva como base la
   cantidad originalmente contratada y muestra siempre rango y aviso en verde,
-  Ã¡mbar o rojo. El aviso no bloquea el guardado; no se tocaron los topes de 10%,
-  30% ni los siete dÃ­as.
+  ámbar o rojo. El aviso no bloquea el guardado; no se tocaron los topes de 10%,
+  30% ni los siete días.
 - **El pedido de cambio de invitados ya tiene las dos pantallas.** El cliente
-  carga adultos, adolescentes, niÃ±os y nota, ve total/rango/errores/avisos y,
+  carga adultos, adolescentes, niños y nota, ve total/rango/errores/avisos y,
   si ya existe un pedido, ve su estado. El equipo ve anterior, nuevo y desglose;
-  aprobar dice que actualizarÃ¡ el presupuesto y rechazar exige una explicaciÃ³n
+  aprobar dice que actualizará el presupuesto y rechazar exige una explicación
   que luego ve el cliente. Se conectaron las acciones existentes de Claude sin
-  reescribir su lÃ³gica.
-- **CoordinaciÃ³n de IA registrada:** el director principal revisÃ³ las decisiones
-  de contrato, presupuesto y jerarquÃ­a; agentes econÃ³micos `gpt-5.6-terra` con
-  razonamiento bajo hicieron inventarios, cambios mecÃ¡nicos acotados, una prueba
-  de contrato de interfaz y una revisiÃ³n del diff en paralelo. Luna era el
-  modelo preferido por la guÃ­a, pero no estaba disponible en este entorno.
+  reescribir su lógica.
+- **Coordinación de IA registrada:** el director principal revisó las decisiones
+  de contrato, presupuesto y jerarquía; agentes económicos `gpt-5.6-terra` con
+  razonamiento bajo hicieron inventarios, cambios mecánicos acotados, una prueba
+  de contrato de interfaz y una revisión del diff en paralelo. Luna era el
+  modelo preferido por la guía, pero no estaba disponible en este entorno.
 - **Pruebas focalizadas:** 22 aprobadas entre la nueva prueba de contrato de
-  interfaz y las 17 pruebas existentes de lÃ­mites/solicitudes. TypeScript quedÃ³
-  sin errores despuÃ©s de corregir el Ãºnico estrechamiento de tipo detectado. Los
+  interfaz y las 17 pruebas existentes de límites/solicitudes. TypeScript quedó
+  sin errores después de corregir el único estrechamiento de tipo detectado. Los
   cuatro controles finales de la propuesta se anotan al cerrar la tanda.
 
-## Toda la app vende (regla del dueÃ±o, 9 de agosto de 2026)
+## Toda la app vende (regla del dueño, 9 de agosto de 2026)
 
 No hay pantallas "internas" y pantallas "comerciales". El invitado que usa la
-fotocabina es el cliente de la fiesta del aÃ±o que viene, el proveedor que recibe
+fotocabina es el cliente de la fiesta del año que viene, el proveedor que recibe
 un PDF prolijo recomienda, y la pantalla que el equipo usa adelante del cliente
-tambiÃ©n vende.
+también vende.
 
 Hay una habilidad con ese criterio ya escrito: **`/vende`**. Se usa antes de dar
 por terminada cualquier pantalla que vea un cliente o un invitado.
 
-## Accesos de proveedores (fotÃ³grafo, catering)
+## Accesos de proveedores (fotógrafo, catering)
 
 Verificado y cerrado el 9 de agosto de 2026.
 
-- **El enlace del proveedor se valida de verdad.** Las pantallas de fotografÃ­a y
+- **El enlace del proveedor se valida de verdad.** Las pantallas de fotografía y
   catering se abrieron para que el proveedor entre sin cuenta, pero al principio
   **no se comprobaba el token**: alcanzaba con escribir `?token=hola` en la
-  direcciÃ³n para ver los datos de cualquier fiesta. Ahora
+  dirección para ver los datos de cualquier fiesta. Ahora
   `verifyAccesoPersonalToken` comprueba contra `accesos-personal.json` que el
-  token exista, tenga el permiso de ese mÃ³dulo, sea de esa fiesta y no estÃ©
+  token exista, tenga el permiso de ese módulo, sea de esa fiesta y no esté
   vencido.
-- **Los enlaces vencen a los 90 dÃ­as** contados desde que se crearon, si no
-  tienen fecha propia (`fechaVencimiento`). Antes no vencÃ­an nunca: el fotÃ³grafo
-  de una fiesta de hace ocho meses seguÃ­a entrando. Los accesos ya guardados no
-  tienen la fecha, por eso la ventana por defecto se cuenta desde la creaciÃ³n.
-- **Un acceso sin `fiestaId` es global a propÃ³sito** (el DJ de siempre, que
-  trabaja en todas las fiestas), pero igual necesita el permiso del mÃ³dulo.
-- **Al proveedor externo no se le muestra el presupuesto** ni el botÃ³n de
-  sincronizar: verÃ­a los precios del evento.
+- **Los enlaces vencen a los 90 días** contados desde que se crearon, si no
+  tienen fecha propia (`fechaVencimiento`). Antes no vencían nunca: el fotógrafo
+  de una fiesta de hace ocho meses seguía entrando. Los accesos ya guardados no
+  tienen la fecha, por eso la ventana por defecto se cuenta desde la creación.
+- **Un acceso sin `fiestaId` es global a propósito** (el DJ de siempre, que
+  trabaja en todas las fiestas), pero igual necesita el permiso del módulo.
+- **Al proveedor externo no se le muestra el presupuesto** ni el botón de
+  sincronizar: vería los precios del evento.
 - **El cartel distingue el enlace vencido del que no corresponde.** Al proveedor
   de una fiesta vieja hay que pedirle que avise, no dejarlo pensando que se
-  equivocÃ³ de enlace.
+  equivocó de enlace.
 
-## Automatizaciones â€” auditadas el 9 de agosto de 2026
+## Automatizaciones — auditadas el 9 de agosto de 2026
 
 - **Los recordatorios de pago ahora se disparan solos.** `scanAndTriggerPaymentReminders`
-  existÃ­a y **nadie la llamaba nunca**: ningÃºn cliente con la cuota vencida
-  recibÃ­a el aviso y la plata quedaba sin reclamar. Hay una tarea programada en
+  existía y **nadie la llamaba nunca**: ningún cliente con la cuota vencida
+  recibía el aviso y la plata quedaba sin reclamar. Hay una tarea programada en
   `/api/cron/recordatorios-de-pago`, protegida con `CRON_SECRET` igual que la del
-  blog. **Sin esa clave configurada no corre**, a propÃ³sito: es preferible que no
+  blog. **Sin esa clave configurada no corre**, a propósito: es preferible que no
   salga a que cualquiera pueda dispararle mensajes a los clientes desde afuera.
-- **La decisiÃ³n de a quiÃ©n avisarle vive aparte**, en
-  `src/lib/cobros/escaneo-recordatorios.ts`, con diez pruebas. EstÃ¡ separada de
-  la acciÃ³n de servidor porque la acciÃ³n exige sesiÃ³n y una tarea programada no
-  tiene: asÃ­ la usan las dos sin abrir una acciÃ³n sin control.
-- **Nadie recibe el mismo aviso dos veces en el dÃ­a** (ventana de 24 horas), ni
-  se le avisa a quien ya pagÃ³ o tiene saldo cero.
-- **El motor de alertas internas no manda nada al cliente**: sÃ³lo genera avisos
-  para el equipo, con identificador estable (`regla_fiesta`), asÃ­ que no se
-  duplican. Si una auditorÃ­a dice que "manda mensajes", es falso positivo.
+- **La decisión de a quién avisarle vive aparte**, en
+  `src/lib/cobros/escaneo-recordatorios.ts`, con diez pruebas. Está separada de
+  la acción de servidor porque la acción exige sesión y una tarea programada no
+  tiene: así la usan las dos sin abrir una acción sin control.
+- **Nadie recibe el mismo aviso dos veces en el día** (ventana de 24 horas), ni
+  se le avisa a quien ya pagó o tiene saldo cero.
+- **El motor de alertas internas no manda nada al cliente**: sólo genera avisos
+  para el equipo, con identificador estable (`regla_fiesta`), así que no se
+  duplican. Si una auditoría dice que "manda mensajes", es falso positivo.
 
-### Lo que falta y NO es un defecto del cÃ³digo
+### Lo que falta y NO es un defecto del código
 
-- **Los mensajes del WhatsApp del dÃ­a se mandan a mano**, abriendo WhatsApp con
-  el texto ya escrito. No hay integraciÃ³n con la API de Meta. Es una decisiÃ³n
-  pendiente del dueÃ±o, no algo roto: no lo "arregles" conectando Meta sin
+- **Los mensajes del WhatsApp del día se mandan a mano**, abriendo WhatsApp con
+  el texto ya escrito. No hay integración con la API de Meta. Es una decisión
+  pendiente del dueño, no algo roto: no lo "arregles" conectando Meta sin
   hablarlo.
 
 ## Cupones, precios y plantillas de contrato — cerrado el 10 de agosto de 2026
@@ -546,13 +549,13 @@ Verificado y cerrado el 9 de agosto de 2026.
 
 ## Infraestructura y pruebas
 
-- **`tests/e2e/layout-baseline.json` se regenerÃ³ el 8 de agosto de 2026.** Estuvo
-  seis dÃ­as en rojo por un cambio global del 3. Si vuelve a fallar, mirÃ¡ primero
+- **`tests/e2e/layout-baseline.json` se regeneró el 8 de agosto de 2026.** Estuvo
+  seis días en rojo por un cambio global del 3. Si vuelve a fallar, mirá primero
   si el cambio fue intencional antes de tocar pantallas.
 - **`npm run check:acentos` existe** y es control obligatorio. No hace falta
   inventar otro.
-- **La pantalla de recepciÃ³n ya estÃ¡ arreglada**: declaraba mal los parÃ¡metros de
-  ruta y rompÃ­a el build entero.
+- **La pantalla de recepción ya está arreglada**: declaraba mal los parámetros de
+  ruta y rompía el build entero.
 
 ---
 
@@ -1096,6 +1099,89 @@ nada. Lo único que estaba mal era el monto.
   pendientes, seguía en verde. Ahora llama a la función de verdad. Una prueba que no
   puede fallar es peor que no tener prueba, porque el que la lee cree que la regla
   está protegida.
+
+## Reseñas de Google y plan de la noche del equipo (13 de agosto de 2026)
+
+- **El pedido automático de reseña no se mandaba nunca.** El cliente contesta la
+  encuesta sin estar logueado, y el envío buscaba el teléfono con una función que
+  exige sesión del equipo: se caía siempre en silencio. El dueño habría prendido
+  el interruptor y no habría salido un solo mensaje. Ahora el teléfono se lee del
+  lado del servidor, sin pedir sesión, y sólo se usa para mandarle el WhatsApp a
+  esa persona.
+- **Se le podía escribir dos y tres veces por la misma fiesta.** La encuesta es
+  pública y se puede contestar hasta tres veces por día; cada respuesta con nota 9
+  o 10 disparaba su propio mensaje. Ahora se mira si a esa fiesta ya se le pidió la
+  reseña: si sí, no se vuelve a escribir. Vale para el envío automático y para el
+  botón manual.
+- **Sólo a promotores y sólo si hay enlace.** Con nota menor a 9 no sale nada, con
+  el enlace de Google vacío tampoco, y el interruptor viene apagado de fábrica.
+  Hay pruebas para las cuatro puertas.
+- **Una prueba que fallaba sola.** Las pruebas de este bloque preparaban respuestas
+  "de un solo uso" que no se consumían y se filtraban a la prueba siguiente,
+  haciéndola fallar sin que hubiera nada roto. Ahora las respuestas quedan fijas
+  por prueba.
+- **El plan de la noche no muestra sueldos.** Cada persona del equipo ve su propio
+  rol, la hora, el lugar, el teléfono del encargado y el programa de la fiesta. No
+  ve lo que cobra ni lo que cobran los demás, y hay una prueba que lo cuida.
+- **La documentación tenía 427 acentos rotos.** `docs/YA-RESUELTO.md`, que es
+  justamente lo que todos leen antes de auditar, estaba lleno de "auditoría" y
+  "dueño". Pasó desapercibido porque la revisión completa de acentos sólo miraba
+  el código, no la documentación. Reparado, y la revisión ahora mira también los
+  documentos para que no vuelva a pasar.
+## Los logos de las empresas, de verdad (13 de agosto de 2026)
+
+- **Ahora son los reales y viven adentro de la aplicación.** Se sacaron del catálogo
+  impreso de la empresa, recortados uno por uno y verificados a ojo antes de
+  nombrarlos: Correo Uruguayo, Salto Hotel & Casino, Plus Medical, A.S.DE.M. y A.,
+  Woslen, APC Salto, INC, Antel, ABRA, INAU, Intendencia de Salto y Club Uruguay.
+  Los doce, cada uno con su nombre visible en pantalla.
+- **Por qué no se cargan más desde afuera:** venían del sitio de Canva de la
+  empresa. Si esa página cambiaba o se caía, los logos desaparecían en medio de la
+  presentación, delante del cliente.
+- **Dos cosas que ya salieron mal y no se repiten** (hay pruebas que las cuidan):
+  no se dibujan logos —una entrega los reemplazó por rectángulos de color con el
+  nombre escrito en una tipografía cualquiera, que no es el logo de nadie y usa mal
+  la marca de un tercero—, y no se adivina qué nombre va con qué logo.
+- Se pueden reemplazar y sumar clientes nuevos desde Ajustes → Contenido público.
+- **Se borró `quienes-somos-slide`**, que quedaba muerta al lado de la pantalla del
+  equipo. Estaba terminada pero nunca enganchada a la presentación.
+
+## Lo común de los tres catálogos se perdía por tipo de fiesta (13 de agosto de 2026)
+
+- **Los tres catálogos de la empresa comparten casi todo y cambian pocas cosas**
+  (sobre todo las fotos). Así está armado el contenido de la presentación: un bloque
+  común y, por tipo de fiesta, sólo la diferencia.
+- **El problema:** se devolvía el bloque del tipo de fiesta **entero**, no combinado
+  con el común. Todo lo que ese bloque no tuviera cargado quedaba vacío. La pantalla
+  del equipo salía sin título ni frase en **todos** los tipos conocidos —casamiento,
+  quince, cumpleaños— y sólo se veía bien cuando el tipo no estaba en la lista, que
+  es justo al revés de lo que uno espera.
+- **Ahora se combinan:** lo común primero, y encima lo propio de ese tipo. Cargar un
+  tipo nuevo es escribir sólo lo que cambia. Hay pruebas que lo cuidan.
+- Los doce logos de empresas **son los mismos en los tres catálogos**, verificado
+  mirándolos: alcanza con un solo juego para todos.
+
+## Infantiles y empresariales, sin catálogo impreso (13 de agosto de 2026)
+
+- **El dueño no tiene catálogo de fiestas infantiles ni empresariales**, y no hace
+  falta: la presentación ahora **saca las fotos de la galería** según el tipo de
+  fiesta. Cada fiesta que el equipo sube mejora la presentación sola, y sirve para
+  cualquier tipo que se agregue en el futuro.
+- **El detalle que lo habría dejado sin funcionar:** la presentación y la galería no
+  llaman igual a las mismas cosas. La presentación dice "Empresarial" y la galería
+  "Corporativo"; la presentación escribe "Cumpleaños infantil" con minúscula y la
+  galería con mayúscula. Buscar tal cual no traía **ninguna** foto, y la pantalla
+  quedaba vacía **sin dar ningún error**: nadie se entera hasta que está vendiendo.
+  La traducción vive en `src/lib/presentacion/fotos-por-tipo.ts`, en un solo lugar y
+  con pruebas.
+- **Si para un tipo no hay fotos cargadas, se muestran las generales.** Es mejor una
+  foto linda de otra fiesta que una pantalla vacía delante del cliente.
+- **Lo que cargue el dueño manda siempre**: las fotos de la galería son el respaldo,
+  no el reemplazo.
+- Se escribieron los textos propios de los dos tipos. El de empresariales apoya en
+  las empresas para las que ya se trabajó, que es el argumento que decide una
+  contratación corporativa; el de infantiles habla al padre, no al chico: le promete
+  que él va a poder disfrutar a su hijo en vez de estar trabajando.
 
 ## Cómo agregar algo a esta lista
 

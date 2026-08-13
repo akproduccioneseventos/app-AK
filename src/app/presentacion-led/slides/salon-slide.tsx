@@ -141,27 +141,34 @@ export function SalonSlide({
             className="flex flex-col gap-4"
           >
             <div className="bg-white/5 border border-white/10 rounded-2xl p-5">
-              <p className="text-white/40 text-xs uppercase tracking-widest font-semibold mb-2">Descripción</p>
+              <p className="text-white/40 text-xs uppercase tracking-widest font-semibold mb-2">Salón de Primer Nivel</p>
               <p className="text-white/80 leading-relaxed text-sm">
-                {companyInfo.companyName || 'AK Producciones'} te ofrece una solución integral para centralizar salón,
-                logística y servicios en un mismo flujo comercial, antes de definir los detalles por tipo de fiesta.
+                {companyInfo.companyName || 'AK Producciones'} te ofrece el emblemático salón del Club Uruguay: un espacio histórico en pleno centro de Salto con infraestructura completa y confort para tu fiesta.
               </p>
             </div>
 
             <div className="bg-white/5 border border-white/10 rounded-2xl p-5">
-              <p className="text-white/40 text-xs uppercase tracking-widest font-semibold mb-3">Características</p>
+              <p className="text-white/40 text-xs uppercase tracking-widest font-semibold mb-3">Puntos Destacados del Salón</p>
               <ul className="space-y-2.5">
                 <li className="text-white/75 text-sm flex items-center gap-2">
-                  <Users className="h-4 w-4 text-emerald-300" />
-                  Capacidad adaptable según cantidad de invitados
+                  <Building2 className="h-4 w-4 text-amber-300 shrink-0" />
+                  Más de 120 años de historia y elegancia en Salto
                 </li>
                 <li className="text-white/75 text-sm flex items-center gap-2">
-                  <MapPin className="h-4 w-4 text-indigo-300" />
-                  Ubicación y accesos coordinables según evento
+                  <MapPin className="h-4 w-4 text-indigo-300 shrink-0" />
+                  Ubicado en pleno centro, súper accesible para todos los invitados
                 </li>
                 <li className="text-white/75 text-sm flex items-center gap-2">
-                  <CheckCircle2 className="h-4 w-4 text-emerald-300" />
-                  Espacio preparado para integrar catering, ambientación y técnica
+                  <Users className="h-4 w-4 text-emerald-300 shrink-0" />
+                  Capacidad para más de 120 personas cómodamente instaladas
+                </li>
+                <li className="text-white/75 text-sm flex items-center gap-2">
+                  <CheckCircle2 className="h-4 w-4 text-sky-300 shrink-0" />
+                  <strong>Incluye la limpieza completa del salón</strong>
+                </li>
+                <li className="text-white/75 text-sm flex items-center gap-2">
+                  <CheckCircle2 className="h-4 w-4 text-emerald-300 shrink-0" />
+                  Precio promocional exclusivo contratando con AK Producciones
                 </li>
               </ul>
             </div>

@@ -5,7 +5,7 @@ import { useParams } from 'next/navigation';
 import Link from 'next/link';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { Loader2, AlertTriangle, KeyRound, ArrowRight, Music2, Clock, PackageSearch, Palette, KanbanSquare, Cake, Camera, FileText, Users, Receipt, UserCog, Truck, Building, Calculator, CalendarCheck } from 'lucide-react';
+import { Loader2, AlertTriangle, KeyRound, ArrowRight, Music2, Clock, PackageSearch, Palette, KanbanSquare, Cake, Camera, FileText, Users, Receipt, UserCog, Truck, Building, Calculator, CalendarCheck, MapPin, Phone, User, Calendar, CheckCircle2 } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { type AccesoPersonal, type ModuloPermiso } from '@/app/actions/accesos-personal';
 import { getAccesoPersonalPortalView } from '@/app/actions/accesos-personal-view';
@@ -34,7 +34,7 @@ export default function PortalPersonalPage() {
   const params = useParams<{ tokenId: string }>();
   const { toast } = useToast();
   const [acceso, setAcceso] = useState<AccesoPersonal | null>(null);
-  const [fiesta, setFiesta] = useState<{ id: string; nombreEvento: string } | null>(null);
+  const [fiesta, setFiesta] = useState<NonNullable<Awaited<ReturnType<typeof getAccesoPersonalPortalView>>>['fiesta'] | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
@@ -97,6 +97,81 @@ export default function PortalPersonalPage() {
                 <h1 className="text-3xl font-bold font-headline">{acceso.nombreAcceso}</h1>
                 <p className="text-lg text-muted-foreground">{portalTitle}</p>
             </header>
+
+            {/* Night Plan Card */}
+            {fiesta ? (
+              <Card className="border-l-4 border-l-primary shadow-md">
+                <CardHeader className="bg-slate-50 border-b rounded-t-lg pb-4">
+                  <CardTitle className="flex items-center gap-2">
+                    <Calendar className="w-5 h-5 text-primary" />
+                    Tu Plan de la Noche
+                  </CardTitle>
+                  <CardDescription>
+                    Detalles de tu asignación para "{fiesta.nombreEvento}"
+                  </CardDescription>
+                </CardHeader>
+                <CardContent className="pt-4 space-y-4">
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                    <div className="flex items-start gap-3">
+                      <User className="w-5 h-5 text-muted-foreground mt-0.5" />
+                      <div>
+                        <p className="text-sm font-semibold">Tu Rol</p>
+                        <p className="text-sm text-slate-700">{fiesta.rolAsignado}</p>
+                      </div>
+                    </div>
+                    <div className="flex items-start gap-3">
+                      <Clock className="w-5 h-5 text-muted-foreground mt-0.5" />
+                      <div>
+                        <p className="text-sm font-semibold">Hora de Inicio</p>
+                        <p className="text-sm text-slate-700">{fiesta.horaInicio || 'A confirmar'}</p>
+                      </div>
+                    </div>
+                    <div className="flex items-start gap-3">
+                      <MapPin className="w-5 h-5 text-muted-foreground mt-0.5" />
+                      <div>
+                        <p className="text-sm font-semibold">Ubicación</p>
+                        <p className="text-sm text-slate-700">{fiesta.lugar || 'A confirmar'}</p>
+                        {fiesta.direccion && <p className="text-xs text-slate-500">{fiesta.direccion}</p>}
+                      </div>
+                    </div>
+                    {fiesta.telefonoEncargado && (
+                      <div className="flex items-start gap-3">
+                        <Phone className="w-5 h-5 text-muted-foreground mt-0.5" />
+                        <div>
+                          <p className="text-sm font-semibold">Encargado / Asistencia</p>
+                          <a href={`tel:${fiesta.telefonoEncargado}`} className="text-sm text-blue-600 hover:underline">Llamar: {fiesta.telefonoEncargado}</a>
+                        </div>
+                      </div>
+                    )}
+                  </div>
+
+                  {fiesta.programa && fiesta.programa.length > 0 && (
+                    <div className="mt-6 pt-4 border-t">
+                      <h4 className="text-sm font-bold text-slate-800 mb-3">Momentos Clave de la Noche</h4>
+                      <div className="space-y-3">
+                        {fiesta.programa.map(item => (
+                          <div key={item.id} className="flex gap-3 text-sm">
+                            <div className="w-12 flex-shrink-0 text-slate-500 font-medium">{item.hora}</div>
+                            <div className="flex-grow">
+                              <p className="font-semibold text-slate-800">{item.titulo}</p>
+                              {item.descripcion && <p className="text-xs text-slate-500">{item.descripcion}</p>}
+                            </div>
+                          </div>
+                        ))}
+                      </div>
+                    </div>
+                  )}
+                </CardContent>
+              </Card>
+            ) : (
+              <Card className="bg-green-50 border-green-200">
+                <CardContent className="pt-6 pb-6 text-center">
+                  <CheckCircle2 className="w-12 h-12 mx-auto text-green-500 mb-2" />
+                  <h3 className="text-lg font-bold text-green-800">Todo libre por ahora</h3>
+                  <p className="text-sm text-green-700 mt-1">No tenés ningún evento próximo asignado. ¡Que disfrutes tu descanso!</p>
+                </CardContent>
+              </Card>
+            )}
 
             <Card>
                 <CardHeader>

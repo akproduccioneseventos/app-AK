@@ -6,6 +6,12 @@ export interface ContenidoTipoFiesta {
   mensajeRegalos: string;
   mensajeCierre: string;
   colorAcento: string;
+  equipo?: {
+    titulo?: string;
+    frase?: string;
+    cantidadPersonas?: number;
+    fotos?: string[];
+  };
 }
 
 const DEFAULT: ContenidoTipoFiesta = {
@@ -16,6 +22,12 @@ const DEFAULT: ContenidoTipoFiesta = {
   mensajeRegalos: 'Al contratar hoy, te incluimos beneficios exclusivos que hacen único tu evento.',
   mensajeCierre: 'Estamos listos para hacer de tu celebración un recuerdo imborrable.',
   colorAcento: 'from-indigo-500 to-emerald-500',
+  equipo: {
+    titulo: 'Hay Equipo 🤝',
+    frase: 'El día de tu fiesta somos 11 personas trabajando para vos.',
+    cantidadPersonas: 11,
+    fotos: [],
+  },
 };
 
 const CONTENIDO_POR_TIPO: Record<string, ContenidoTipoFiesta> = {
@@ -72,6 +84,10 @@ const CONTENIDO_POR_TIPO: Record<string, ContenidoTipoFiesta> = {
     mensajeRegalos: 'Para los cumpleaños infantiles, tenemos regalos y sorpresas pensadas para que los chicos vivan algo mágico.',
     mensajeCierre: 'La felicidad en los ojos de los chicos no tiene precio. Nosotros nos encargamos de crear esos momentos.',
     colorAcento: 'from-yellow-400 to-orange-500',
+    equipo: {
+      titulo: 'Vos disfrutá, de los chicos nos ocupamos nosotros 🎈',
+      frase: 'Somos 11 personas trabajando esa tarde: cocina, servicio y alguien atento a los chicos todo el tiempo. Vos sacás fotos y disfrutás a tu hijo.',
+    },
   },
   'Baby shower': {
     tagline: 'Celebrá la llegada de la nueva vida con todo el amor',
@@ -126,18 +142,42 @@ const CONTENIDO_POR_TIPO: Record<string, ContenidoTipoFiesta> = {
     mensajeRegalos: 'Para eventos empresariales, incluimos servicios adicionales que elevan la imagen de tu empresa.',
     mensajeCierre: 'Un evento empresarial exitoso comienza con la organización correcta. Nosotros somos esa organización.',
     colorAcento: 'from-slate-400 to-indigo-500',
+    equipo: {
+      titulo: 'Un equipo que ya trabajó para Antel, INAU y la Intendencia 🤝',
+      frase: 'Somos 11 personas con protocolo, horarios y un responsable a cargo. Su empresa recibe una sola factura y un solo interlocutor.',
+    },
   },
 };
+
+/**
+ * Lo que es igual para todos, mas lo poco que cambia en este tipo de fiesta.
+ *
+ * **Se combinan, no se reemplazan.** Antes se devolvia el bloque del tipo de fiesta
+ * entero, y lo que ese bloque no tuviera cargado quedaba vacio. Con eso, la
+ * pantalla del equipo aparecia sin titulo ni frase en TODOS los tipos conocidos
+ * —casamiento, quince, cumpleanos— y solo se veia bien cuando el tipo de fiesta no
+ * estaba en la lista, que es justo al reves de lo que se espera.
+ *
+ * Los tres catalogos de la empresa comparten casi todo y cambian pocas cosas: esa
+ * es la forma en que hay que cargar el contenido, poniendo solo la diferencia.
+ */
+function combinarConLoComun(propio: ContenidoTipoFiesta): ContenidoTipoFiesta {
+  return {
+    ...DEFAULT,
+    ...propio,
+    equipo: { ...DEFAULT.equipo, ...(propio.equipo ?? {}) },
+  };
+}
 
 export function getContenidoPorTipo(tipoFiesta: string): ContenidoTipoFiesta {
   if (!tipoFiesta) return DEFAULT;
   const found = CONTENIDO_POR_TIPO[tipoFiesta];
-  if (found) return found;
+  if (found) return combinarConLoComun(found);
   // Try partial match
   const lower = tipoFiesta.toLowerCase();
   for (const [key, value] of Object.entries(CONTENIDO_POR_TIPO)) {
     if (lower.includes(key.toLowerCase()) || key.toLowerCase().includes(lower)) {
-      return value;
+      return combinarConLoComun(value);
     }
   }
   return DEFAULT;

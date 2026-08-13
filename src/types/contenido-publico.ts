@@ -3,6 +3,19 @@ export interface PresentacionLedBeneficioItem {
   texto: string;
 }
 
+export interface PartnerLogo {
+  id: string;
+  url: string;
+  name: string;
+}
+
+export interface PresentacionLedEquipoSettings {
+  titulo: string;
+  frase: string;
+  cantidadPersonas: number;
+  fotos: string[];
+}
+
 export interface PresentacionLedSettings {
   portada: {
     tituloPrincipal: string;
@@ -19,6 +32,8 @@ export interface PresentacionLedSettings {
     descripcion: string;
     fotos: string[];
   };
+  equipo?: PresentacionLedEquipoSettings;
+  empresasColaboradoras?: PartnerLogo[];
   cierre: {
     titulo: string;
     mensaje: string;
