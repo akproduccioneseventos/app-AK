@@ -6,34 +6,38 @@ export const DEFAULT_CATALOGO_PRESENTACION_TEXT = [
 export const DEFAULT_CATALOGO_POR_QUE_TEXT = 'Un solo equipo para coordinar todo, con experiencia, calidad y seguimiento personalizado.';
 
 /**
- * Los logos que se muestran mientras el dueño no cargue los suyos.
+ * Los doce logos de las empresas para las que AK trabajó.
  *
- * **Son las imágenes que ya se venían mostrando**, alojadas en el sitio de Canva de
- * la empresa. Van sin nombre a propósito: en el catálogo impreso hay doce empresas y
- * acá hay once imágenes, y **no se sabe con certeza cuál corresponde a cuál**.
- * Ponerle "Antel" al logo equivocado es peor que no ponerle nada: es mostrarle al
- * cliente que confundimos a nuestros propios clientes.
+ * **Son los reales, sacados del catálogo impreso de la empresa**, recortados uno
+ * por uno y verificados a ojo antes de nombrarlos. Viven acá adentro, no en un
+ * sitio de afuera: antes se cargaban desde el sitio de Canva de la empresa, y si
+ * esa página cambiaba o se caía, los logos desaparecían en medio de la
+ * presentación, delante del cliente.
  *
- * Una entrega anterior resolvió esto dibujando doce rectángulos de color con el
- * nombre escrito en una tipografía cualquiera. Eso no son los logos de esas
- * empresas: se ve barato y usa la marca de un tercero mal. Se descartó.
+ * Cuidado con dos cosas que ya salieron mal:
  *
- * **Lo que corresponde:** el dueño sube los doce logos de verdad desde
- * Ajustes → Contenido público, cada uno con su nombre, y ahí sí los nombres se
- * muestran en pantalla. Hasta entonces esto queda como estaba, sin inventar nada.
+ * 1. **No se dibujan logos.** Una entrega los reemplazó por rectángulos de color
+ *    con el nombre escrito en una tipografía cualquiera. Eso no es el logo de
+ *    Antel: se ve barato y usa mal la marca de un tercero.
+ * 2. **No se adivina el nombre.** Ponerle el nombre de una empresa al logo de otra
+ *    es mostrarle al cliente que confundimos a nuestros propios clientes.
+ *
+ * El dueño puede reemplazarlos o sumar clientes nuevos desde Ajustes → Contenido
+ * público.
  */
 export const DEFAULT_PARTNER_LOGOS = [
-  { id: '1', url: 'https://ak-producciones-fiestas-y-eventos.my.canva.site/servicio-completo-para-fiestas-en-general-sitio-web/_assets/media/fe2d7dfa46dc7147960c514af9542afa.png', name: '' },
-  { id: '2', url: 'https://ak-producciones-fiestas-y-eventos.my.canva.site/servicio-completo-para-fiestas-en-general-sitio-web/_assets/media/2ba335a8ad19794ec5917c23651f8786.jpg', name: '' },
-  { id: '3', url: 'https://ak-producciones-fiestas-y-eventos.my.canva.site/servicio-completo-para-fiestas-en-general-sitio-web/_assets/media/e104d91117bfcf4df0383ac04a53edea.jpg', name: '' },
-  { id: '4', url: 'https://ak-producciones-fiestas-y-eventos.my.canva.site/servicio-completo-para-fiestas-en-general-sitio-web/_assets/media/d81497c5c60f3fa14562a52efce1c1f0.jpg', name: '' },
-  { id: '5', url: 'https://ak-producciones-fiestas-y-eventos.my.canva.site/servicio-completo-para-fiestas-en-general-sitio-web/_assets/media/d9557e28cec3eb2dd748424d592e5eae.png', name: '' },
-  { id: '6', url: 'https://ak-producciones-fiestas-y-eventos.my.canva.site/servicio-completo-para-fiestas-en-general-sitio-web/_assets/media/5e07e7a5f80d64c01109ad4913af5b12.jpg', name: '' },
-  { id: '7', url: 'https://ak-producciones-fiestas-y-eventos.my.canva.site/servicio-completo-para-fiestas-en-general-sitio-web/_assets/media/1e9e70f06c8719b1d3ab987c7f7ab669.jpg', name: '' },
-  { id: '8', url: 'https://ak-producciones-fiestas-y-eventos.my.canva.site/servicio-completo-para-fiestas-en-general-sitio-web/_assets/media/ce9d2b2cdf34375322cc16f6722c35b2.png', name: '' },
-  { id: '9', url: 'https://ak-producciones-fiestas-y-eventos.my.canva.site/servicio-completo-para-fiestas-en-general-sitio-web/_assets/media/4b905537b49f745ed0d75cd51a0bb475.png', name: '' },
-  { id: '10', url: 'https://ak-producciones-fiestas-y-eventos.my.canva.site/servicio-completo-para-fiestas-en-general-sitio-web/_assets/media/dc47158bc14da0d9b32edec66286291e.png', name: '' },
-  { id: '11', url: 'https://ak-producciones-fiestas-y-eventos.my.canva.site/servicio-completo-para-fiestas-en-general-sitio-web/_assets/media/8dae09f60c3d5a787eec748695141348.jpg', name: '' },
+  { id: '1', url: '/logos/correo-uruguayo.png', name: 'Correo Uruguayo' },
+  { id: '2', url: '/logos/salto-hotel-casino.png', name: 'Salto Hotel & Casino' },
+  { id: '3', url: '/logos/plus-medical.png', name: 'Plus Medical' },
+  { id: '4', url: '/logos/asdemya.png', name: 'A.S.DE.M. y A.' },
+  { id: '5', url: '/logos/woslen.png', name: 'Woslen' },
+  { id: '6', url: '/logos/apc-salto.png', name: 'APC Salto' },
+  { id: '7', url: '/logos/inc.png', name: 'INC' },
+  { id: '8', url: '/logos/antel.png', name: 'Antel' },
+  { id: '9', url: '/logos/abra.png', name: 'ABRA' },
+  { id: '10', url: '/logos/inau.png', name: 'INAU' },
+  { id: '11', url: '/logos/intendencia-salto.png', name: 'Intendencia de Salto' },
+  { id: '12', url: '/logos/club-uruguay.png', name: 'Club Uruguay' },
 ];
 
 /** Las doce empresas del catálogo impreso, para la ayuda de la pantalla de Ajustes. */

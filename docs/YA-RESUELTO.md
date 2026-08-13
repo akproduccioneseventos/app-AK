@@ -1101,6 +1101,24 @@ nada. Lo único que estaba mal era el monto.
   puede fallar es peor que no tener prueba, porque el que la lee cree que la regla
   está protegida.
 
+## Los logos de las empresas, de verdad (13 de agosto de 2026)
+
+- **Ahora son los reales y viven adentro de la aplicación.** Se sacaron del catálogo
+  impreso de la empresa, recortados uno por uno y verificados a ojo antes de
+  nombrarlos: Correo Uruguayo, Salto Hotel & Casino, Plus Medical, A.S.DE.M. y A.,
+  Woslen, APC Salto, INC, Antel, ABRA, INAU, Intendencia de Salto y Club Uruguay.
+  Los doce, cada uno con su nombre visible en pantalla.
+- **Por qué no se cargan más desde afuera:** venían del sitio de Canva de la
+  empresa. Si esa página cambiaba o se caía, los logos desaparecían en medio de la
+  presentación, delante del cliente.
+- **Dos cosas que ya salieron mal y no se repiten** (hay pruebas que las cuidan):
+  no se dibujan logos —una entrega los reemplazó por rectángulos de color con el
+  nombre escrito en una tipografía cualquiera, que no es el logo de nadie y usa mal
+  la marca de un tercero—, y no se adivina qué nombre va con qué logo.
+- Se pueden reemplazar y sumar clientes nuevos desde Ajustes → Contenido público.
+- **Se borró `quienes-somos-slide`**, que quedaba muerta al lado de la pantalla del
+  equipo. Estaba terminada pero nunca enganchada a la presentación.
+
 ## Cómo agregar algo a esta lista
 
 **Se anota SIEMPRE, en la misma propuesta que toca el código.** Orden del dueño

@@ -24,9 +24,18 @@ describe('Pruebas de Integridad - Presentación LED según Catálogo', () => {
       }
     });
 
-    it('todos tienen imagen', () => {
+    it('las doce empresas del catálogo están, cada una con su logo', () => {
+      expect(DEFAULT_PARTNER_LOGOS).toHaveLength(12);
+      for (const empresa of EMPRESAS_DEL_CATALOGO) {
+        const tieneLogo = DEFAULT_PARTNER_LOGOS.some((l) => l.name === empresa);
+        expect(`${empresa} tiene logo? ${tieneLogo}`).toBe(`${empresa} tiene logo? true`);
+      }
+    });
+
+    it('los logos viven en la aplicación, no en un sitio de afuera', () => {
       for (const logo of DEFAULT_PARTNER_LOGOS) {
-        expect(logo.url.length).toBeGreaterThan(0);
+        expect(logo.url.startsWith('/logos/')).toBe(true);
+        expect(logo.url).not.toContain('canva.site');
       }
     });
 
