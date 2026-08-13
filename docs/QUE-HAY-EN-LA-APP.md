@@ -145,8 +145,21 @@ de lo que el equipo todavía tiene que publicar a mano.
   permiso de marketing, nunca a quien ya contrató ni a quien está en una etapa
   terminada del embudo.
 
+- **Asistente de ventas en las páginas públicas**: contesta con el catálogo real,
+  no inventa precios ni fechas, y guarda al interesado en el CRM. **Apagado de
+  fábrica**; se prende en Ajustes. Sólo aparece en las páginas de venta, nunca
+  encima de una invitación, del portal del cliente ni de la fiesta.
+- **El mensaje de recontacto se escribe a medida** de cada persona. Si el servicio
+  falla o se llegó al tope de gasto, manda el de siempre.
+- **Video del recuerdo** por evento, armado con las fotos aprobadas del muro.
+- **Repaso de la mañana** en el panel interno: cobros, equipo incompleto y eventos
+  que quedaron abiertos. Los cobros no se le muestran a quien no tiene el permiso.
+
 ### No está
 
+- **Armar el presupuesto desde el chat del asistente.** Se sacó a propósito: la
+  entrega original inventaba las cuentas que el cliente ve como precio firme. Está
+  anotado cómo completarlo bien en `docs/ordenes/grandes-01-las-cuatro-ideas.md`.
 - **Envío de mails masivos.** No hay nada.
 - **Formulario de contacto** aparte del simulador.
 - **Reseñas de Google** u otro servicio de reputación: no hay integración.

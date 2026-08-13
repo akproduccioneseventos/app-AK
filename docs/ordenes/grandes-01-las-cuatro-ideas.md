@@ -177,3 +177,78 @@ importa **hoy**, sin tener que revisar cinco módulos:
 
 Anotá todo en `docs/YA-RESUELTO.md` y en `docs/QUE-HAY-EN-LA-APP.md`, en esta misma
 propuesta.
+
+
+---
+
+# PENDIENTE de esta orden (12 de agosto de 2026)
+
+Los cuatro bloques se entregaron y están fusionados, con reparaciones. **Queda una
+sola cosa sin hacer, a propósito**, y va en la próxima propuesta:
+
+## Armar el presupuesto desde el chat del asistente
+
+**Qué pasó:** la entrega original lo intentaba, pero llamaba a
+`generateBudgetAndLeadFromSimulator` **inventando los campos**: le pasaba
+`eventoTipo` e `invitadosAdultos`, que no existen. Eso no compilaba, y arreglarlo a
+ojo era peor: esa función necesita `subtotal`, `costoEstimado` y
+`serviciosIncluidos`, que son las cuentas que el cliente después ve como **precio
+firme**. Sacarlas de una conversación es inventar plata.
+
+Por eso se sacó. Hoy el asistente guarda los datos del interesado y le dice que el
+equipo le pasa el presupuesto.
+
+**Qué hay que hacer para completarlo bien:**
+
+- Mirá la forma real que espera, `LeadFromQuickBudget` en
+  `src/types/armado-rapido.ts`: `clienteNombre`, `clienteContacto`, `eventoFecha`,
+  `adultos`, `ninos`, `adolescentes`, `subtotal`, `costoEstimado`,
+  `serviciosIncluidos`, `paqueteId`.
+- Los números **no los inventa la inteligencia artificial**. Se calculan con la
+  misma lógica que usa el simulador, a partir del paquete y la cantidad de
+  invitados. Si el paquete no se puede determinar con certeza, **no armes el
+  presupuesto**: dejá el dato guardado, como está ahora.
+- El asistente puede juntar los datos de la conversación (paquete que le interesa,
+  invitados, fecha), pero el precio sale del catálogo, siempre.
+- La pantalla del chat ya tiene lista la parte visual del enlace al presupuesto
+  (`budgetGenerated` y `budgetUrl`): no hace falta rehacerla.
+
+
+## Ponerle la puerta a las dos pantallas nuevas
+
+**Esto es lo más urgente de todo lo que queda, y es poco trabajo.**
+
+El repaso de la mañana y el video del recuerdo están hechos y funcionan, pero
+**no hay un solo botón en toda la aplicación que lleve a ellos**. Se verificó
+buscando en todo el código: las únicas menciones están en un archivo de pruebas.
+Son dos trabajos terminados que hoy no usa nadie porque nadie sabe que existen.
+
+### 1. El repaso de la mañana
+
+Vive en `/repaso-diario` y no aparece en ningún lado.
+
+- Ponelo donde el equipo entra primero, no escondido en Ajustes: es lo que
+  conviene mirar apenas se abre la aplicación.
+- Como referencia de cómo se declara un acceso, mirá
+  `src/app/(app)/settings/page.tsx` alrededor de la línea 276 (título,
+  descripción, dirección e ícono).
+- **Que no lo vea quien no puede ver plata.** La pantalla ya esconde los cobros
+  por su cuenta, pero el acceso también tiene que respetar el permiso de
+  Contabilidad, para no ofrecerle al equipo una puerta que le va a mostrar poco.
+
+### 2. El video del recuerdo
+
+Vive en `/evento/[id]/video-recuerdo` y tampoco tiene entrada.
+
+Tiene que llegar a dos personas distintas:
+
+- **El cliente**, desde su portal: `src/app/portal/c/[accessKey]/PublicPortalView.tsx`.
+- **El invitado**, desde donde ya mira las fotos de la fiesta. Las secciones se
+  arman en `src/app/evento/social/[fiestaId]/page.tsx`, alrededor de la línea 441
+  (`availableSections`). Y también en la pantalla de después del evento,
+  `src/app/post-fiesta/[fiestaId]/page.tsx`, alrededor de la línea 94.
+
+**Cuidado con esto:** la pantalla del video ya se defiende sola cuando hay pocas
+fotos, pero **no ofrezcas el botón si el video no se va a poder armar**. Un botón
+que lleva a "todavía no hay suficientes recuerdos" decepciona al invitado justo el
+día después de la fiesta. Mostralo sólo cuando haya material aprobado suficiente.

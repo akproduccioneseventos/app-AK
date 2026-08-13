@@ -1,8 +1,8 @@
 # Acá quedé
 
 Última actualización: 12 de agosto de 2026.
-Rama: `main`, con las propuestas 952 a 960 fusionadas. **No hay propuestas
-abiertas.** Salud completa verificada: acentos limpios, tipos en cero, 1500 pruebas
+Rama: `main`, con las propuestas 952 a 962 fusionadas. **No hay propuestas
+abiertas.** Salud completa verificada: acentos limpios, tipos en cero, 1505 pruebas
 internas, compila, 20 de seguridad de la base y 94 de navegador.
 
 ## Lo más importante de esta tanda
@@ -26,7 +26,13 @@ andando**: sacan la foto con efecto simple, sin gastar.
 **Los testimonios reales llegan a la presentación**, y una opinión mala no se
 publica nunca: se controla dos veces.
 
-**El recontacto del que no señó** está enganchado y **apagado de fábrica**.
+**El recontacto del que no señó** está enganchado y **apagado de fábrica**, y su
+mensaje ahora se escribe a medida de cada persona.
+
+**Las cuatro ideas grandes están hechas**: recontacto personalizado, asistente de
+ventas en la página (apagado de fábrica y sólo en las páginas de venta), video del
+recuerdo con fotos aprobadas, y repaso de la mañana que esconde los cobros a quien
+no tiene permiso.
 
 ## Documentos que hay que usar
 
@@ -36,33 +42,42 @@ publica nunca: se controla dos veces.
 
 ## Lo que le queda a Gemini
 
-`docs/ordenes/grandes-01-las-cuatro-ideas.md`, las cuatro en **una sola propuesta**:
+**Dos cosas**, las dos anotadas al final de
+`docs/ordenes/grandes-01-las-cuatro-ideas.md`.
 
-1. Que el mensaje de recontacto sea distinto para cada persona.
-2. Un vendedor en la página pública que conteste a cualquier hora.
-3. El video del recuerdo de la fiesta, a la mañana siguiente.
-4. El repaso de la mañana con lo que importa hoy.
+**Lo más urgente y lo más barato: ponerle la puerta a las dos pantallas nuevas.**
+El repaso de la mañana y el video del recuerdo están hechos y funcionan, pero no
+hay un solo botón en toda la aplicación que lleve a ellos. Verificado buscando en
+todo el código: las únicas menciones están en un archivo de pruebas. Dos trabajos
+terminados que hoy no usa nadie. En la orden están los archivos y las líneas
+exactas donde van.
 
-La orden trae cinco reglas que valen para las cuatro: pasar por el control de
-gasto, arrancar apagado todo lo que le hable a un cliente, no inventar precios ni
-fechas, no tocar los archivos protegidos y no romper nunca la pantalla.
+**Lo otro:** armar el presupuesto desde el chat
+del asistente. Se sacó a propósito porque la entrega original inventaba las cuentas
+que el cliente ve como precio firme. Ahí está explicada la forma real que espera la
+función y la regla: **los números salen del catálogo, no de la conversación**.
+
+Ojo con lo que ya pasó dos veces el 12 de agosto. Primero rehizo por su cuenta los
+testimonios y el recontacto, que ya estaban fusionados, y su propuesta habría
+borrado el filtro doble de las opiniones y veinte pruebas. Después entregó las
+cuatro ideas sin compilar y con dos cosas graves: el asistente de ventas aparecía
+en toda la aplicación (encima de la invitación de un casamiento, del portal del
+cliente y de la presentación del salón), y daba por dado el permiso del cliente
+para escribirle. **Compará siempre contra la versión principal de ahora, corré el
+build de verdad y revisá a mano lo que toca plata y permisos.**
 
 **No se tocan:** `src/lib/testimonios/para-mostrar.ts`,
 `src/lib/marketing/candidatos-recontacto.ts`,
 `src/lib/marketing/recontacto-automatico.ts`, `src/lib/ai/consumo.ts`,
-`src/lib/seo/paginas-publicas.ts`.
-
-Ojo con lo que ya pasó el 12 de agosto: Gemini rehízo por su cuenta los testimonios
-y el recontacto, que ya estaban fusionados, y su propuesta habría borrado el filtro
-doble de las opiniones y veinte pruebas. **Compará siempre contra la versión
-principal de ahora antes de fusionar.** De esa propuesta se rescató lo bueno y se
-cerró.
+`src/lib/seo/paginas-publicas.ts`,
+`src/lib/public-experience/donde-va-el-asistente.ts`.
 
 ## Lo que el dueño tiene que hacer él
 
 - **Dar el aviso a Google desde su panel** para que pase a mirar el sitio. La app ya
   le dio permiso; es trámite de una vez con su cuenta.
 - **Prender el recontacto automático** en Ajustes → Contenido público. Viene apagado.
+- **Prender el asistente de ventas de la página**, en Ajustes. También viene apagado.
 - **Poner el tope de gasto mensual** en la misma pantalla, si quiere uno.
 - Las comprobaciones con Firebase de producción, las credenciales reales de
   Instagram y la prueba física en el salón.
