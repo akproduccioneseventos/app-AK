@@ -65,23 +65,46 @@ empresa que muestra logos sin nombre parece que los está inventando.
 - Que los logos vivan **en la aplicación**, no en una dirección de afuera. Subilos a
   donde ya se guardan las imágenes de la empresa (la galería usa
   `uploadPublicPageAsset`).
-- Que cada logo tenga **su nombre real**, y que el nombre se vea o al menos esté
-  como texto alternativo.
+- Que cada logo tenga **su nombre real escrito y visible** debajo o al lado. No
+  alcanza con ponerlo como texto alternativo: el texto alternativo sólo aparece
+  cuando la imagen NO carga, y acá el objetivo es justamente que el cliente lea
+  "Antel" mirando la pantalla. Poné el nombre visible **y además** como texto
+  alternativo, que sirve para quien no ve bien.
 - Que la lista se administre desde Ajustes: agregar, sacar y reordenar, con el
   nombre de cada empresa. **El dueño tiene que poder sumar un cliente nuevo sin
   pedirle nada a nadie.**
 - Dejá la protección que ya existe para cuando una imagen no carga; que la pantalla
   no muestre un hueco roto.
 
-**Los nombres reales, del catálogo:** Correo Uruguayo, Salto Hotel & Casino, Plus
-Medical, A.S.DE.M. y A., Woslen, Asociación Profesionales de la Construcción (APC
-Salto), INC, Antel, ABRA, INAU, Intendencia de Salto, Club Uruguay.
+**Los nombres reales, del catálogo impreso, son DOCE:** Correo Uruguayo, Salto
+Hotel & Casino, Plus Medical, A.S.DE.M. y A., Woslen, Asociación Profesionales de la
+Construcción (APC Salto), INC, Antel, ABRA, INAU, Intendencia de Salto, Club
+Uruguay.
+
+**Ojo con esto: en la pantalla hay once imágenes y en el catálogo hay doce
+empresas.** O sea que falta un logo. No adivines cuál ni le pongas a un logo el
+nombre de otra empresa: **poner el nombre equivocado sobre el logo de un cliente es
+peor que no mostrarlo.** Dejá los once que se puedan identificar con certeza, y en
+la pantalla de Ajustes que quede el lugar para que el dueño suba el que falta con su
+nombre. Avisá en la propuesta cuál quedó sin cargar.
 
 ---
 
-## Bloque 2 — La pantalla del equipo, que hoy no existe
+## Bloque 2 — La pantalla del equipo: está hecha y nadie la muestra
 
-**Qué pasa hoy:** la presentación no muestra al equipo en ningún lado.
+**Qué pasa hoy: la pantalla YA EXISTE y no se muestra.** Está en
+`src/app/presentacion-led/slides/quienes-somos-slide.tsx`, con lugar para la foto
+del equipo, la historia de la empresa y tres números (años de experiencia, eventos
+realizados, familias felices). Nadie la enganchó a la presentación, así que el
+cliente no la ve nunca.
+
+**No hagas una pantalla nueva: usá esa.** Duplicarla dejaría dos versiones y una
+muerta.
+
+Y aprovechá el viaje: hay **otras tres pantallas terminadas y sin usar** en esa
+misma carpeta —`formas-de-pago-slide`, `menu-slide` y `recursos-slide`—. Miralas,
+decidí cuáles vale la pena mostrar y contá en la propuesta qué hiciste con cada una:
+engancharla o borrarla. Lo que no se muestra ni se borra sólo confunde al próximo.
 
 **Por qué importa:** en el catálogo impreso hay una foto de los once —mozos, cocina,
 y el dueño con el micrófono— bajo el título "Hay equipo". Es de lo que más confianza
@@ -89,8 +112,8 @@ transmite: el cliente está por dejar una fiesta cara en manos de alguien y quie
 ver quién la va a hacer. Es una de las pocas cosas que la competencia no puede
 copiar.
 
-**Qué hay que hacer:** una pantalla nueva, ubicada **antes de los precios** (después
-de los beneficios o del salón, no al final), con:
+**Qué hay que hacer:** engancharla a la presentación, ubicada **antes de los
+precios** (después de los beneficios o del salón, no al final), y completarla con:
 
 - Una o dos fotos del equipo trabajando.
 - Un título corto y una frase, en criollo, del estilo "El día de tu fiesta somos
