@@ -68,7 +68,7 @@ export function EmpresasSlide({ logos }: EmpresasSlideProps) {
                 <div className="relative w-full h-16 rounded-xl bg-white/95 p-2 flex items-center justify-center overflow-hidden">
                   <Image
                     src={logo.url}
-                    alt={logo.name}
+                    alt={logo.name || 'Empresa que confia en AK Producciones'}
                     fill
                     sizes="(max-width: 768px) 33vw, 15vw"
                     unoptimized
@@ -76,9 +76,14 @@ export function EmpresasSlide({ logos }: EmpresasSlideProps) {
                     onError={() => handleLogoError(logo.id)}
                   />
                 </div>
-                <p className="text-xs font-bold text-white/90 text-center mt-2.5 line-clamp-2 drop-shadow">
-                  {logo.name}
-                </p>
+                {/* El nombre se muestra solo si esta cargado. Un renglon vacio
+                    debajo de cada logo desalinea la grilla, y poner el nombre
+                    equivocado seria peor que no ponerlo. */}
+                {logo.name ? (
+                  <p className="text-xs font-bold text-white/90 text-center mt-2.5 line-clamp-2 drop-shadow">
+                    {logo.name}
+                  </p>
+                ) : null}
               </motion.div>
             ))}
           </div>

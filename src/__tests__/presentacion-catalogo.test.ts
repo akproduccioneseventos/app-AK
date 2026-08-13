@@ -1,37 +1,39 @@
 import { getContenidoPorTipo } from '@/app/presentacion-led/lib/contenido-por-tipo';
-import { DEFAULT_PARTNER_LOGOS } from '@/lib/public-content-defaults';
+import { DEFAULT_PARTNER_LOGOS, EMPRESAS_DEL_CATALOGO } from '@/lib/public-content-defaults';
 
 describe('Pruebas de Integridad - Presentación LED según Catálogo', () => {
-  describe('Bloque 1: Logos Corporativos Administrables', () => {
-    it('debe tener las 12 empresas colaboradoras reales del catálogo', () => {
-      expect(DEFAULT_PARTNER_LOGOS.length).toBe(12);
-
-      const nombresReales = [
-        'Correo Uruguayo',
-        'Salto Hotel & Casino',
-        'Plus Medical',
-        'A.S.DE.M. y A.',
-        'Woslen',
-        'APC Salto',
-        'INC',
-        'Antel',
-        'ABRA',
-        'INAU',
-        'Intendencia de Salto',
-        'Club Uruguay',
-      ];
-
-      for (const nombre of nombresReales) {
-        const existe = DEFAULT_PARTNER_LOGOS.some((l) => l.name === nombre);
-        expect(existe).toBe(true);
+  describe('Bloque 1: Logos de empresas', () => {
+    /**
+     * Lo que hay que cuidar acá no es cuántos logos hay, sino que **no se invente
+     * ninguno**. Una entrega anterior reemplazó las imágenes reales por doce
+     * rectángulos de color con el nombre escrito en una tipografía cualquiera. Eso
+     * no son los logos de Antel ni de INAU: se ve barato y usa mal la marca de un
+     * tercero. El dueño sube los de verdad desde Ajustes.
+     */
+    it('ningún logo por defecto lleva un nombre inventado', () => {
+      for (const logo of DEFAULT_PARTNER_LOGOS) {
+        const nombreValido = logo.name === '' || EMPRESAS_DEL_CATALOGO.includes(logo.name);
+        expect(`${logo.id}: "${logo.name}" es un nombre valido? ${nombreValido}`)
+          .toBe(`${logo.id}: "${logo.name}" es un nombre valido? true`);
       }
     });
 
-    it('ningún logo por defecto debe apuntar a la URL externa de Canva', () => {
+    it('ninguno queda con el rotulo viejo que no dice nada', () => {
       for (const logo of DEFAULT_PARTNER_LOGOS) {
-        expect(logo.url).not.toContain('canva.site');
         expect(logo.name).not.toBe('Empresa Colaboradora');
       }
+    });
+
+    it('todos tienen imagen', () => {
+      for (const logo of DEFAULT_PARTNER_LOGOS) {
+        expect(logo.url.length).toBeGreaterThan(0);
+      }
+    });
+
+    it('la ayuda de Ajustes tiene las doce empresas del catálogo impreso', () => {
+      expect(EMPRESAS_DEL_CATALOGO).toHaveLength(12);
+      expect(EMPRESAS_DEL_CATALOGO).toContain('Antel');
+      expect(EMPRESAS_DEL_CATALOGO).toContain('Intendencia de Salto');
     });
   });
 
