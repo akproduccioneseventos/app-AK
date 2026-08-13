@@ -1,10 +1,40 @@
 # Orden de trabajo: reseñas en Google y el plan de la noche del equipo
 
-Fecha: 12 de agosto de 2026.
+**SEGUNDA ENTREGA. La primera no trajo el trabajo.** Fecha: 13 de agosto de 2026.
 
-**Entregá UNA SOLA propuesta de cambio con los dos bloques adentro.** Si uno se
-traba, entregá el otro igual en la misma propuesta y avisá cuál faltó y por qué.
-No abras una propuesta por bloque: cada fusión dispara un despliegue y eso se paga.
+La entrega anterior (propuesta 970) cambió siete archivos y **en ninguno estaba lo
+pedido**. Traía un archivo de pruebas de una función que no existe, cambios en la
+configuración de compilación que nadie pidió, un archivo vacío y un script de
+PowerShell de la máquina del dueño. Se cerró sin fusionar.
+
+Antes de entregar, releé esta sección.
+
+## Qué tiene que existir cuando termines
+
+Es una lista, no una sugerencia. Si algo de esto no está, la entrega no sirve:
+
+1. **Una función que decida a quién se le pide la reseña**, separada del envío y con
+   sus pruebas. Recibe las opiniones y devuelve a quiénes corresponde escribirles.
+2. **El envío enganchado** a donde ya se mandan los WhatsApp.
+3. **El interruptor en Ajustes**, apagado, y el campo para pegar el enlace de
+   reseñas de Google.
+4. **La pantalla del plan de la noche**, que se abra desde el acceso propio de cada
+   empleado y se vea bien en un celular.
+5. **Las anotaciones** en `docs/YA-RESUELTO.md` y `docs/QUE-HAY-EN-LA-APP.md`.
+
+## Tres cosas que NO se hacen
+
+- **No entregues una prueba de algo que no construiste.** Una prueba de una función
+  inexistente no protege nada y hace creer que el trabajo está hecho.
+- **No entregues una prueba que no pueda fallar.** Si la prueba arma una lista
+  adentro de sí misma y después la filtra ahí mismo, se está probando a sí misma, no
+  a la aplicación. Tiene que llamar al código de verdad.
+- **No toques nada de lo que no te pidieron.** En concreto: `next.config.js`, la
+  carpeta `scripts/`, los archivos de service worker, ni scripts de PowerShell.
+  Cambiar la configuración de compilación rompe la publicación de la aplicación sin
+  que se entienda por qué, y eso ya dejó la app seis días sin poder publicarse.
+
+**Entregá UNA SOLA propuesta de cambio con los dos bloques adentro.**
 
 Antes de arrancar, leé `docs/QUE-HAY-EN-LA-APP.md`: es el inventario verificado de
 lo que ya existe. **No rehagas nada de lo que figura ahí**, y actualizá esas líneas
