@@ -4,15 +4,13 @@ import { verifySession } from '@/lib/auth/session-token';
 import { puede, PERMISOS } from '@/lib/auth/perfiles';
 import { getFiestas } from '@/app/actions/fiesta/fiesta.actions';
 import { getPresupuestos } from '@/app/actions/presupuestos';
-import { buildPuestaAlDiaReporte, PuestaAlDiaGravedad } from '@/lib/commercial-flow/puesta-al-dia';
-import { 
-  AlertCircle, 
-  CheckCircle2, 
-  DollarSign, 
-  CalendarClock, 
+import { buildPuestaAlDiaReporte } from '@/lib/commercial-flow/puesta-al-dia';
+import {
+  CheckCircle2,
+  DollarSign,
+  CalendarClock,
   ArrowRight,
   TrendingUp,
-  Inbox
 } from 'lucide-react';
 import Link from 'next/link';
 

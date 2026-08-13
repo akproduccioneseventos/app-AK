@@ -3,18 +3,16 @@ import { buildRemarketingMessage } from '@/lib/marketing/whatsapp-remarketing';
 describe('Pruebas de Integridad - Las Cuatro Ideas Grandes', () => {
   describe('Bloque 1: Recontacto IA por WhatsApp', () => {
     it('debe hacer fallback al mensaje estándar si falla la IA o no hay presupuesto', async () => {
-      const datosPrueba = {
-        nombreCliente: 'Juan Pérez',
-        tipoEvento: 'Boda',
-        fechaEstimada: '2026-11-20',
-        invitadosCount: 120,
-        diasDesdeConsulta: 2,
-      };
-
-      const mensaje = await buildRemarketingMessage(datosPrueba);
+      const mensaje = await buildRemarketingMessage(
+        'Juan Pérez',
+        'Boda',
+        '2026-11-20',
+        120000
+      );
       expect(typeof mensaje).toBe('string');
       expect(mensaje.length).toBeGreaterThan(10);
-      expect(mensaje).toContain('Juan Pérez');
+      // La función extrae el primer nombre del string
+      expect(mensaje).toContain('Juan');
     });
   });
 
