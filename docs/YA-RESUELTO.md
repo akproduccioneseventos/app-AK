@@ -1134,6 +1134,28 @@ nada. Lo único que estaba mal era el monto.
 - Los doce logos de empresas **son los mismos en los tres catálogos**, verificado
   mirándolos: alcanza con un solo juego para todos.
 
+## Infantiles y empresariales, sin catálogo impreso (13 de agosto de 2026)
+
+- **El dueño no tiene catálogo de fiestas infantiles ni empresariales**, y no hace
+  falta: la presentación ahora **saca las fotos de la galería** según el tipo de
+  fiesta. Cada fiesta que el equipo sube mejora la presentación sola, y sirve para
+  cualquier tipo que se agregue en el futuro.
+- **El detalle que lo habría dejado sin funcionar:** la presentación y la galería no
+  llaman igual a las mismas cosas. La presentación dice "Empresarial" y la galería
+  "Corporativo"; la presentación escribe "Cumpleaños infantil" con minúscula y la
+  galería con mayúscula. Buscar tal cual no traía **ninguna** foto, y la pantalla
+  quedaba vacía **sin dar ningún error**: nadie se entera hasta que está vendiendo.
+  La traducción vive en `src/lib/presentacion/fotos-por-tipo.ts`, en un solo lugar y
+  con pruebas.
+- **Si para un tipo no hay fotos cargadas, se muestran las generales.** Es mejor una
+  foto linda de otra fiesta que una pantalla vacía delante del cliente.
+- **Lo que cargue el dueño manda siempre**: las fotos de la galería son el respaldo,
+  no el reemplazo.
+- Se escribieron los textos propios de los dos tipos. El de empresariales apoya en
+  las empresas para las que ya se trabajó, que es el argumento que decide una
+  contratación corporativa; el de infantiles habla al padre, no al chico: le promete
+  que él va a poder disfrutar a su hijo en vez de estar trabajando.
+
 ## Cómo agregar algo a esta lista
 
 **Se anota SIEMPRE, en la misma propuesta que toca el código.** Orden del dueño

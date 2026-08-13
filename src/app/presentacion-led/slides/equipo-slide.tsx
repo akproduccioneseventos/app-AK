@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { motion } from 'framer-motion';
 import Image from 'next/image';
 import { Users, ShieldCheck, HeartHandshake, Sparkles } from 'lucide-react';
@@ -8,6 +8,7 @@ import { SlideLayout } from '../components/slide-layout';
 import { ImagePlaceholder } from '../components/image-placeholder';
 import { cn } from '@/lib/utils';
 import type { PresentacionLedEquipoSettings } from '@/types/contenido-publico';
+import { getFotosDePresentacion } from '@/app/actions/fotos-presentacion';
 
 interface EquipoSlideProps {
   tipoFiesta?: string;
@@ -22,7 +23,29 @@ export function EquipoSlide({ tipoFiesta, equipoSettings }: EquipoSlideProps) {
     equipoSettings?.frase ||
     `El día de ${tipoFiesta ? `tu ${tipoFiesta.toLowerCase()}` : 'tu fiesta'} somos 11 personas trabajando para vos.`;
   const cantidadPersonas = equipoSettings?.cantidadPersonas || 11;
-  const fotosRaw = equipoSettings?.fotos || [];
+  // Las fotos que cargo el dueno mandan. Si no cargo ninguna para este tipo de
+  // fiesta, se usan las de la galeria que corresponden: asi los tipos que no
+  // tienen catalogo impreso —los infantiles y los empresariales— igual tienen
+  // fotos propias, y cada fiesta que se sube mejora la presentacion sola.
+  const [fotosDeGaleria, setFotosDeGaleria] = useState<string[]>([]);
+  const fotosCargadas = equipoSettings?.fotos || [];
+
+  useEffect(() => {
+    if (fotosCargadas.length > 0) return;
+    let vigente = true;
+    getFotosDePresentacion(tipoFiesta || '', 4)
+      .then((fotos) => {
+        if (vigente) setFotosDeGaleria(fotos);
+      })
+      .catch(() => {
+        // Sin fotos la pantalla igual se muestra, con su marco de siempre.
+      });
+    return () => {
+      vigente = false;
+    };
+  }, [tipoFiesta, fotosCargadas.length]);
+
+  const fotosRaw = fotosCargadas.length > 0 ? fotosCargadas : fotosDeGaleria;
 
   const handleFotoError = (url: string) => {
     setFailedFotos((prev) => new Set(prev).add(url));
