@@ -1,5 +1,5 @@
 import { getContenidoPorTipo } from '@/app/presentacion-led/lib/contenido-por-tipo';
-import { DEFAULT_PARTNER_LOGOS } from '@/app/actions/contenido-publico';
+import { DEFAULT_PARTNER_LOGOS } from '@/lib/public-content-defaults';
 
 describe('Pruebas de Integridad - Presentación LED según Catálogo', () => {
   describe('Bloque 1: Logos Corporativos Administrables', () => {

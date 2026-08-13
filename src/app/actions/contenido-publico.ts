@@ -3,26 +3,11 @@
 import { readData, writeData } from '@/lib/data-service';
 import { getCatalogBySlug } from '@/data/event-catalogs';
 import type { CatalogoSettings, CatalogoSettingsMap, PresentacionLedSettings } from '@/types/contenido-publico';
-import { DEFAULT_CATALOGO_PRESENTACION_TEXT, DEFAULT_CATALOGO_POR_QUE_TEXT } from '@/lib/public-content-defaults';
+import { DEFAULT_CATALOGO_PRESENTACION_TEXT, DEFAULT_CATALOGO_POR_QUE_TEXT, DEFAULT_PARTNER_LOGOS } from '@/lib/public-content-defaults';
 import { requireAppSession } from '@/lib/auth/require-session';
 
 const PRESENTACION_LED_SETTINGS_FILE = 'presentacion-led-settings.json';
 const CATALOGO_SETTINGS_FILE = 'catalogo-settings.json';
-
-export const DEFAULT_PARTNER_LOGOS = [
-  { id: '1', url: '/logos/correo-uruguayo.svg', name: 'Correo Uruguayo' },
-  { id: '2', url: '/logos/salto-hotel-casino.svg', name: 'Salto Hotel & Casino' },
-  { id: '3', url: '/logos/plus-medical.svg', name: 'Plus Medical' },
-  { id: '4', url: '/logos/asdemya.svg', name: 'A.S.DE.M. y A.' },
-  { id: '5', url: '/logos/woslen.svg', name: 'Woslen' },
-  { id: '6', url: '/logos/apc-salto.svg', name: 'APC Salto' },
-  { id: '7', url: '/logos/inc.svg', name: 'INC' },
-  { id: '8', url: '/logos/antel.svg', name: 'Antel' },
-  { id: '9', url: '/logos/abra.svg', name: 'ABRA' },
-  { id: '10', url: '/logos/inau.svg', name: 'INAU' },
-  { id: '11', url: '/logos/intendencia-salto.svg', name: 'Intendencia de Salto' },
-  { id: '12', url: '/logos/club-uruguay.svg', name: 'Club Uruguay' },
-];
 
 const DEFAULT_PRESENTACION_LED_SETTINGS: PresentacionLedSettings = {
   portada: {

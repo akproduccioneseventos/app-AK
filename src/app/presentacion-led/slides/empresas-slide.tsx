@@ -7,7 +7,7 @@ import { Building2 } from 'lucide-react';
 import { SlideLayout } from '../components/slide-layout';
 import { cn } from '@/lib/utils';
 import type { PartnerLogo } from '@/types/contenido-publico';
-import { DEFAULT_PARTNER_LOGOS } from '@/app/actions/contenido-publico';
+import { DEFAULT_PARTNER_LOGOS } from '@/lib/public-content-defaults';
 
 interface EmpresasSlideProps {
   logos?: PartnerLogo[];
