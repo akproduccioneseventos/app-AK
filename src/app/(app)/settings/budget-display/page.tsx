@@ -455,6 +455,20 @@ export default function BudgetDisplaySettingsPage() {
                         />
                     </div>
                     <div className="space-y-2">
+                        <Label className="text-[10px] font-black uppercase tracking-widest text-slate-400">Monto de la seña</Label>
+                        <Input
+                            inputMode="numeric"
+                            value={budgetSettings?.bookingDepositAmount ?? ''}
+                            onChange={e => setBudgetSettings(s => s ? { ...s, bookingDepositAmount: Number(e.target.value.replace(/[^0-9]/g, '')) || 0 } : null)}
+                            className="rounded-xl bg-slate-50 border-none shadow-inner text-sm"
+                        />
+                        <p className="text-xs text-slate-500">
+                            Lo que se le cobra de seña al cliente cuando el presupuesto no trae una
+                            acordada. Es el monto que aparece en el botón de pago y el que se cobra.
+                            Si en un presupuesto cargás una seña distinta, manda esa.
+                        </p>
+                    </div>
+                    <div className="space-y-2">
                         <Label className="text-[10px] font-black uppercase tracking-widest text-slate-400">Condiciones de Reserva (Seña)</Label>
                         <Textarea
                             value={budgetSettings?.bookingTerms || ''}

@@ -1029,12 +1029,13 @@ Se repararon y se fusionó. Quedó andando:
   muestra al cliente antes de firmar usa la seña acordada, o el 20% del total. Eran
   dos lugares distintos diciendo cosas distintas sobre la misma plata.
 - **Ahora la cuenta vive en un solo lugar** (`src/lib/budget/monto-de-senia.ts`) y la
-  usan el botón y el cobro: primero la seña acordada; si no hay, el 20% del total
-  **con el ajuste anual ya adentro**; y el valor de último recurso sólo si no hay ni
-  total. Nunca se cobra más que el saldo pendiente.
-- **Por qué el 20% y no un monto fijo:** la seña tiene que seguir al tamaño del
-  evento. Un fijo protege igual a un cumpleaños chico que a un casamiento grande, o
-  sea que no protege.
+  usan el botón y el cobro: primero la seña acordada con ese cliente; si no hay, el
+  monto general. Nunca se cobra más que el saldo pendiente.
+- **Decisión del dueño, 12 de agosto de 2026: la seña es un monto fijo, hoy $5.000,
+  no un porcentaje del evento.** Se le preguntó expresamente. Si alguna auditoría
+  marca que "la seña debería seguir al tamaño del evento", es falso positivo.
+- **El monto se edita desde Ajustes → Presentación del presupuesto**, así que el día
+  que suba no hay que tocar código ni pedirle nada a nadie. Empieza en $5.000.
 - **El botón y el cobro leen la misma cuenta**, a propósito. Si el botón dijera un
   número y se cobrara otro, el cliente pierde la confianza justo en el momento en
   que está reservando.

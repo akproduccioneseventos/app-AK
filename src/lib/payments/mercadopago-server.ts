@@ -4,6 +4,7 @@ import { randomUUID } from 'crypto';
 import type { Presupuesto } from '@/types/presupuesto';
 import { DEFAULT_BOOKING_DEPOSIT_AMOUNT } from '@/lib/budget/formal-budget';
 import { montoDeSenia } from '@/lib/budget/monto-de-senia';
+import { getBudgetDisplaySettings } from '@/app/actions/settings';
 import {
   getBudgetPaymentSummary,
   roundMoney,
@@ -155,8 +156,8 @@ export async function createMercadoPagoCheckout(input: {
     purpose: input.purpose,
     depositAmount: montoDeSenia({
       seniaAcordada: input.presupuesto.senia,
-      totalConAjuste: summary.total,
-      porDefecto: DEFAULT_BOOKING_DEPOSIT_AMOUNT,
+      porDefecto: (await getBudgetDisplaySettings().catch(() => null))?.bookingDepositAmount
+        ?? DEFAULT_BOOKING_DEPOSIT_AMOUNT,
     }),
   });
   const financing = calculateMercadoPagoCuotas(serviceAmount);

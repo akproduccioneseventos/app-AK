@@ -413,10 +413,9 @@ function VerPresupuestoContent({ params }: { params: { id: string } }) {
   const seniaDelPresupuesto = useMemo(
     () => montoDeSenia({
       seniaAcordada: presupuesto?.senia,
-      totalConAjuste: pagosSummary.totalCosto,
-      porDefecto: DEFAULT_BOOKING_DEPOSIT_AMOUNT,
+      porDefecto: displaySettings?.bookingDepositAmount ?? DEFAULT_BOOKING_DEPOSIT_AMOUNT,
     }),
-    [presupuesto?.senia, pagosSummary.totalCosto],
+    [presupuesto?.senia, displaySettings?.bookingDepositAmount],
   );
   const mercadoPagoDepositTotal = useMemo(
     () => calculateMercadoPagoCuotas(
