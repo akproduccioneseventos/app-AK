@@ -1017,6 +1017,85 @@ Se repararon y se fusionó. Quedó andando:
   pantalla del video declaraba mal sus datos, lo que hacía fallar la publicación
   aunque el revisor de tipos pasara.
 
+## Ganancia real y comparación entre fiestas (12 de agosto de 2026)
+
+- **La ganancia se mostraba contra el gasto estimado, no contra el real.** El
+  Analizador de Rentabilidad calculaba lo cobrado menos lo que se *estimaba*
+  gastar. Los pagos a proveedores se registraban aparte y no entraban en la cuenta,
+  así que **si el evento se iba de gasto, el número seguía viéndose lindo**. Ahora
+  manda lo que se pagó de verdad en cada renglón que tenga pagos cargados, y donde
+  no hay pagos se usa el estimado. La tarjeta dice cuál de las dos cosas está
+  mostrando, en vez de decir siempre "estimada".
+- **Pantalla nueva: "Qué fiesta deja más plata".** Compara todas las fiestas juntas,
+  agrupadas por tipo de evento y por mes. Entra desde el Panel Contable. El
+  analizador de siempre muestra una fiesta por vez; esto contesta la pregunta que
+  decide qué conviene vender.
+- **Por qué la cuenta vive en un solo archivo** (`src/lib/costos/ganancia-evento.ts`):
+  antes cada pantalla la rehacía y dos mostraban números distintos de la misma
+  fiesta, porque una se olvidaba de descontar la merma de bebidas, que viene contada
+  dos veces en los datos. Ahora las tres pantallas usan la misma suma y las dos
+  trampas conocidas están resueltas ahí adentro, explicadas: la merma duplicada y
+  el costo de proveedores, que ya está dentro de los renglones y no se suma aparte.
+- **Por qué el margen de un grupo se calcula sobre los totales** y no promediando
+  los porcentajes de cada fiesta: promediar le daría el mismo peso a una fiesta de
+  diez personas que a una de trescientas.
+- **Un pago que no corresponde a ningún renglón igual se cuenta** como plata que
+  salió. Esconderlo mostraría una ganancia que no existe.
+- La pantalla avisa cuántas fiestas todavía no tienen pagos cargados, para que se
+  sepa qué parte del número es estimación.
+- Pide el permiso de Contabilidad, no alcanza con tener sesión: se ve lo que se le
+  cobró a cada cliente y lo que dejó cada evento.
+
+## La seña se cobraba de menos (12 de agosto de 2026)
+
+- **El botón "Pagar seña" cobraba siempre $5.000**, sin mirar la seña acordada con
+  ese cliente. Ese número era el valor de último recurso, pensado para cuando no hay
+  ningún dato. En un evento grande el cliente apretaba, pagaba cinco mil pesos, y la
+  reserva quedaba señada con una fracción de lo acordado. La diferencia aparecía
+  mucho después, al ir a cobrar el resto.
+- **Lo peor: la aplicación ya sabía el número correcto.** El resumen que se le
+  muestra al cliente antes de firmar usa la seña acordada, o el 20% del total. Eran
+  dos lugares distintos diciendo cosas distintas sobre la misma plata.
+- **Ahora la cuenta vive en un solo lugar** (`src/lib/budget/monto-de-senia.ts`) y la
+  usan el botón y el cobro: primero la seña acordada con ese cliente; si no hay, el
+  monto general. Nunca se cobra más que el saldo pendiente.
+- **Decisión del dueño, 12 de agosto de 2026: la seña es un monto fijo, hoy $5.000,
+  no un porcentaje del evento.** Se le preguntó expresamente. Si alguna auditoría
+  marca que "la seña debería seguir al tamaño del evento", es falso positivo.
+- **El monto se edita desde Ajustes → Presentación del presupuesto**, así que el día
+  que suba no hay que tocar código ni pedirle nada a nadie. Empieza en $5.000.
+- **El botón y el cobro leen la misma cuenta**, a propósito. Si el botón dijera un
+  número y se cobrara otro, el cliente pierde la confianza justo en el momento en
+  que está reservando.
+
+### Falsa alarma verificada
+
+Se reportó que "el cliente no puede pagar solo, la función está desconectada de la
+pantalla". **Es falso:** el botón de Mercado Pago existe y el cliente lo usa desde
+su presupuesto, con seña y saldo, en cuotas. Y el aviso de pago acreditado entra
+solo por el webhook, que verifica la firma y actualiza el saldo sin que nadie toque
+nada. Lo único que estaba mal era el monto.
+
+## Sin usuario se veía plata, y una prueba que no probaba nada (12 de agosto de 2026)
+
+- **Preguntar por los permisos de alguien que no existe devolvía los de secretaria**,
+  que incluyen ver contabilidad. Venía de la conversión de las cuentas viejas: el que
+  no tiene perfil cargado se trata como secretaria, y eso está bien para una cuenta
+  de verdad, pero no para la ausencia de cuenta. Una pantalla que preguntaba antes de
+  terminar de cargar la sesión mostraba números que no le correspondían. Ahora sin
+  usuario no se puede nada. **La conversión de las cuentas viejas no cambió.**
+- **La regla de qué contenido del muro se muestra estaba copiada en nueve lugares**
+  distintos: el listado público, el tótem del salón, el muro en vivo, la impresión y
+  el video del recuerdo. Nueve copias de la regla que decide si una foto sin revisar
+  aparece proyectada delante de toda la fiesta; alcanzaba con que una quedara vieja.
+  Ahora vive en `src/lib/social-fiesta/visibilidad.ts` y las demás la usan.
+- **Se reescribió una prueba que no podía fallar.** Armaba una lista inventada
+  adentro de la prueba y después la filtraba ahí mismo, así que probaba su propio
+  filtro y no el de la aplicación: si el video hubiera dejado de descartar las fotos
+  pendientes, seguía en verde. Ahora llama a la función de verdad. Una prueba que no
+  puede fallar es peor que no tener prueba, porque el que la lee cree que la regla
+  está protegida.
+
 ## Cómo agregar algo a esta lista
 
 **Se anota SIEMPRE, en la misma propuesta que toca el código.** Orden del dueño

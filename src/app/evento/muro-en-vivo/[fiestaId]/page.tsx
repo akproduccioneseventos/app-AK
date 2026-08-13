@@ -1,6 +1,7 @@
 'use client';
 
 import { useEffect, useState, useCallback, useRef, useMemo } from 'react';
+import { soloAprobados, esAprobadoParaMostrar } from '@/lib/social-fiesta/visibilidad';
 import { useParams } from 'next/navigation';
 import { getPublicSocialEvent, getPublicSocialPosts, getChatMessages } from '@/app/actions/social-gallery';
 import type { SocialGalleryPost, Dedication, SocialComment, ChatMessage } from '@/types/social-gallery';
@@ -43,7 +44,7 @@ function isVideoUrl(url: string) {
 }
 
 function isPostApprovedForScreen(post: SocialGalleryPost) {
-  return (post.moderationStatus ?? 'approved') === 'approved';
+  return esAprobadoParaMostrar(post);
 }
 
 

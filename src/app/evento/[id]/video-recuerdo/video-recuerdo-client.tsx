@@ -2,7 +2,7 @@
 
 import { useState, useEffect, useRef } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Play, Volume2, VolumeX, SkipForward, PlayCircle } from 'lucide-react';
+import { Volume2, VolumeX, SkipForward, PlayCircle } from 'lucide-react';
 import type { SocialGalleryPost } from '@/types/social-gallery';
 
 interface Props {

@@ -1,6 +1,7 @@
 'use client';
 
 import { useState, useEffect, useCallback, useMemo } from 'react';
+import { soloAprobados, esAprobadoParaMostrar } from '@/lib/social-fiesta/visibilidad';
 import { useParams, useRouter } from 'next/navigation';
 import { ArrowLeft, Printer, RefreshCw, Loader2, ToggleLeft, ToggleRight, CheckCircle, Check, Slash, AlertCircle } from 'lucide-react';
 import { getSocialPosts } from '@/app/actions/social-gallery';
@@ -66,7 +67,7 @@ export default function PrintStationPage() {
       
       // Keep only approved image posts (we cannot print videos directly)
       const approvedImages = socialPosts.filter(
-        p => (p.moderationStatus ?? 'approved') === 'approved' && !isVideoPost(p)
+        p => esAprobadoParaMostrar(p) && !isVideoPost(p)
       );
       setPosts(approvedImages);
     } catch {
