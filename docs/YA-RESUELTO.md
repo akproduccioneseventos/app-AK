@@ -22,16 +22,15 @@ anotado, la prÃ³xima auditorÃ­a lo va a volver a encontrar.
 - **Lo que le toca a Gemini, Claude no lo programa.** Claude escribe cÃ³digo sÃ³lo
   en plata, cobros, comida y permisos; el resto va a una orden en
   `docs/ordenes/`. Programarlo igual le cuesta el doble al dueÃ±o.
-- **Propuestas grandes, no muchas chicas.** Cada fusiÃ³n dispara un despliegue y
-  se paga. Se junta la tanda entera en una sola propuesta. La documentaciÃ³n
-  viaja con el cÃ³digo, nunca en una propuesta aparte.
-  `docs/ordenes/`. Programarlo igual le cuesta el doble al dueño.
 - **Propuestas grandes, no muchas chicas.** Cada fusión dispara un despliegue y
   se paga. Se junta la tanda entera en una sola propuesta. La documentación
   viaja con el código, nunca en una propuesta aparte. **Vale también para las
   órdenes que una IA le escribe a otra**: una orden de cinco bloques se entrega
   en una sola propuesta con los cinco, no en cinco. El dueño lo tuvo que repetir
   el 10 de agosto de 2026 porque la orden pedía lo contrario que la regla.
+
+- **Reseñas de Google Automáticas:** Solo se envían a los que tienen NPS >= 9, y solo si el enlace está configurado en Ajustes. No se manda más de una vez.
+- **Plan de la Noche del Equipo:** Los sueldos y `eventSalary` NO deben filtrarse en la vista `getAccesoPersonalPortalView` bajo ningún concepto. La hora de llegada es simplemente `fiesta.configuracion.horaInicio`.
 
 - **El ajuste anual del 15% va siempre.** Aparece en presupuestos y en el portal.
 - **El descuento del 50% del SalÃ³n Club Uruguay** y el descuento del presupuesto

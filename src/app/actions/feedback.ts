@@ -5,6 +5,13 @@ import type { FeedbackSubmission, Testimonial } from '@/types/feedback';
 import { readData, writeData } from '@/lib/data-service';
 import { requireAppSession } from '@/lib/auth/require-session';
 import { enforcePublicRateLimit } from '@/lib/commercial/public-rate-limit';
+import { getCompanyInfo } from '@/app/actions/settings';
+import { getFiestaById } from '@/app/actions/fiesta/fiesta.actions';
+import { getCustomerById } from '@/app/actions/customers';
+import { getWhatsAppConfig } from '@/app/actions/whatsapp';
+import { sendMetaWhatsAppMessage } from '@/lib/whatsapp/meta-sender';
+import { WHATSAPP_WEBHOOK_INTERNAL_TOKEN } from '@/lib/whatsapp/internal-token';
+import type { CompanyInfo } from '@/types/settings';
 
 const FEEDBACK_FILE = 'feedback.json';
 const TESTIMONIALS_FILE = 'testimonials.json';
@@ -24,6 +31,22 @@ export async function saveFeedback(submission: Omit<FeedbackSubmission, 'id' | '
     id: `fb_${Date.now()}`,
     timestamp: new Date().toISOString(),
   };
+
+  // Try to send Google Review automatically if NPS >= 9
+  if ((newFeedback.npsScore ?? 0) >= 9) {
+    try {
+      const company = await getCompanyInfo();
+      if (company.enableGoogleReviewsAutoRequest && company.googleReviewsLink) {
+        const result = await requestGoogleReviewManualInternal(newFeedback, company);
+        if (result.success) {
+           newFeedback.googleReviewRequested = true;
+        }
+      }
+    } catch (e) {
+      console.error("Error auto-requesting Google Review", e);
+    }
+  }
+
   allFeedback.push(newFeedback);
   await writeData(FEEDBACK_FILE, allFeedback, sortFn);
   return { success: true, feedback: newFeedback };
@@ -89,3 +112,75 @@ export async function deleteTestimonial(testimonialId: string): Promise<{ succes
   await writeData(TESTIMONIALS_FILE, allTestimonials);
   return { success: true };
 }
+
+async function requestGoogleReviewManualInternal(feedback: FeedbackSubmission, company: CompanyInfo): Promise<{ success: boolean; error?: string }> {
+  if (!company.googleReviewsLink) {
+    return { success: false, error: "El enlace de Google no está configurado." };
+  }
+  if ((feedback.npsScore ?? 0) < 9) {
+     return { success: false, error: "No se debe pedir reseña pública si la calificación es menor a 9." };
+  }
+
+  // Get phone number from fiesta -> cliente
+  const fiesta = await getFiestaById(feedback.fiestaId);
+  if (!fiesta || !fiesta.configuracion.clienteId) {
+    return { success: false, error: "No se encontró el cliente asociado al evento." };
+  }
+  const cliente = await getCustomerById(fiesta.configuracion.clienteId);
+  if (!cliente || !cliente.telefono) {
+    return { success: false, error: "El cliente no tiene un teléfono guardado." };
+  }
+
+  const waConfig = await getWhatsAppConfig(WHATSAPP_WEBHOOK_INTERNAL_TOKEN);
+  if (!waConfig.enabled || !waConfig.apiToken || !waConfig.phoneNumberId) {
+    return { success: false, error: "WhatsApp no está configurado o está deshabilitado." };
+  }
+
+  const messageText = `¡Hola ${feedback.clientName}! Muchas gracias por tus comentarios sobre la fiesta "${feedback.fiestaNombre}".\n\nNos alegra mucho que hayas disfrutado la experiencia. ¿Te animarías a compartir tu opinión en Google? Nos ayudaría muchísimo:\n\n${company.googleReviewsLink}\n\n¡Un abrazo grande de parte de todo el equipo!`;
+
+  const delivery = await sendMetaWhatsAppMessage({
+    to: cliente.telefono,
+    text: messageText,
+    apiToken: waConfig.apiToken,
+    phoneNumberId: waConfig.phoneNumberId,
+  });
+
+  if (!delivery.success) {
+    return { success: false, error: delivery.error };
+  }
+
+  return { success: true };
+}
+
+export async function requestGoogleReviewManual(feedbackId: string): Promise<{ success: boolean; error?: string }> {
+  await requireAppSession();
+  
+  const allFeedback = await readData<FeedbackSubmission[]>(FEEDBACK_FILE, []);
+  const index = allFeedback.findIndex(fb => fb.id === feedbackId);
+  if (index === -1) {
+    return { success: false, error: "Feedback no encontrado." };
+  }
+
+  const feedback = allFeedback[index];
+  if (feedback.googleReviewRequested) {
+    return { success: false, error: "Ya se le pidió la reseña a este cliente." };
+  }
+  if ((feedback.npsScore ?? 0) < 9) {
+    return { success: false, error: "No se puede pedir reseña pública si la nota es menor a 9." };
+  }
+
+  const company = await getCompanyInfo();
+  if (!company.googleReviewsLink) {
+    return { success: false, error: "El enlace de Google no está configurado en Ajustes de Empresa." };
+  }
+
+  const result = await requestGoogleReviewManualInternal(feedback, company);
+  
+  if (result.success) {
+    allFeedback[index].googleReviewRequested = true;
+    await writeData(FEEDBACK_FILE, allFeedback, sortFn);
+  }
+
+  return result;
+}
+

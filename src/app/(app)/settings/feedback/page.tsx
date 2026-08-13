@@ -12,7 +12,7 @@ import { Separator } from '@/components/ui/separator';
 import { ArrowLeft, Loader2, AlertTriangle, Star, Wand2, Trash2, ClipboardCopy, CheckCircle, Info, Link as LinkIcon, Send } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import type { FeedbackSubmission, Testimonial } from '@/types/feedback';
-import { getFeedback, getAllTestimonials, saveTestimonial, updateTestimonialApproval, deleteTestimonial } from '@/app/actions/feedback';
+import { getFeedback, getAllTestimonials, saveTestimonial, updateTestimonialApproval, deleteTestimonial, requestGoogleReviewManual } from '@/app/actions/feedback';
 import {
   Dialog,
   DialogContent,
@@ -118,6 +118,20 @@ export default function FeedbackPage() {
       isGeneralCampaign: true, // Testimonials are usually general marketing
     });
     setIsPostModalOpen(true);
+  };
+
+  const handleRequestGoogleReview = async (feedbackId: string) => {
+    try {
+      const result = await requestGoogleReviewManual(feedbackId);
+      if (result.success) {
+        toast({ title: 'Reseña Solicitada', description: 'Se envió el mensaje por WhatsApp al cliente.' });
+        await loadData();
+      } else {
+        toast({ title: 'No se pudo enviar', description: result.error, variant: 'destructive' });
+      }
+    } catch (e: any) {
+      toast({ title: 'Error', description: e.message || "Ocurrió un error al enviar el mensaje.", variant: 'destructive' });
+    }
   };
 
   const feedbackSinTestimonio = feedbackList.filter(fb => !testimonials.some(t => t.feedbackId === fb.id));
@@ -250,6 +264,17 @@ export default function FeedbackPage() {
                     <span className="text-xs text-slate-400">
                       ({fb.npsScore >= 9 ? 'Promotor' : fb.npsScore >= 7 ? 'Neutro' : 'Detractor'})
                     </span>
+                    {fb.npsScore >= 9 && (
+                      <span className="ml-auto flex items-center gap-2">
+                        {fb.googleReviewRequested ? (
+                           <span className="text-xs text-green-600 font-semibold bg-green-50 px-2 py-1 rounded-full flex items-center gap-1"><CheckCircle className="w-3 h-3"/> Reseña pedida</span>
+                        ) : (
+                           <Button size="sm" variant="outline" className="h-7 text-xs bg-white" onClick={() => handleRequestGoogleReview(fb.id)}>
+                             Pedir Reseña Google
+                           </Button>
+                        )}
+                      </span>
+                    )}
                   </div>
                 )}
                 {(fb.ratingComida || fb.ratingMusica || fb.ratingOrganizacion || fb.ratingLugar) && (

@@ -121,6 +121,8 @@ export interface CompanyInfo {
     invoiceCustomFooter: string;
     signatureUrl?: string | null;
     cuentasBancariasPortal?: CuentaBancaria[];
+    googleReviewsLink?: string;
+    enableGoogleReviewsAutoRequest?: boolean;
 }
 
 export interface ContractClause {
@@ -250,4 +252,6 @@ export const defaultCompanyInfo: CompanyInfo = {
     invoiceCustomFooter: "Información de pago: Banco X, Cuenta Y, Titular Z.\nConsulte por otros métodos de pago.",
     signatureUrl: null,
     cuentasBancariasPortal: [],
+    googleReviewsLink: "",
+    enableGoogleReviewsAutoRequest: false,
 };

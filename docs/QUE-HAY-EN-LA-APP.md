@@ -38,6 +38,14 @@ Trece funciones activas:
 - **Lectura de contratos en PDF**: saca cliente, fecha, tipo de evento y monto.
 - **Discurso de venta** generado.
 
+## Módulos y Funciones - revisado el 13 de agosto de 2026
+
+### Reseñas Automáticas en Google (NPS) - ANDA
+Se habilita desde Ajustes > Empresa con el link de Google. Cuando el cliente completa la encuesta post-evento y deja una nota de 9 o 10 (Promotor), se le envía automáticamente un mensaje de WhatsApp pidiéndole una reseña pública. Se registra para no pedirlo dos veces. También se puede disparar manualmente.
+
+### Plan de la Noche para el Equipo - ANDA
+En el portal del personal, al ingresar con su código, cada empleado ve un resumen "mobile-first" que incluye su rol asignado, lugar y hora del evento, botón para llamar al encargado y el itinerario (programa de la fiesta). Oculta cualquier dato salarial y muestra un mensaje amigable si no tiene próximos eventos.
+
 ### Filtro de contenido de los invitados — ANDA (verificado línea por línea)
 
 Toda **foto** que sube un invitado se revisa antes de publicarse y se bloquea sola
