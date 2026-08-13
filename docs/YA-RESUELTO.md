@@ -1018,6 +1018,35 @@ Se repararon y se fusionó. Quedó andando:
   pantalla del video declaraba mal sus datos, lo que hacía fallar la publicación
   aunque el revisor de tipos pasara.
 
+## La seña se cobraba de menos (12 de agosto de 2026)
+
+- **El botón "Pagar seña" cobraba siempre $5.000**, sin mirar la seña acordada con
+  ese cliente. Ese número era el valor de último recurso, pensado para cuando no hay
+  ningún dato. En un evento grande el cliente apretaba, pagaba cinco mil pesos, y la
+  reserva quedaba señada con una fracción de lo acordado. La diferencia aparecía
+  mucho después, al ir a cobrar el resto.
+- **Lo peor: la aplicación ya sabía el número correcto.** El resumen que se le
+  muestra al cliente antes de firmar usa la seña acordada, o el 20% del total. Eran
+  dos lugares distintos diciendo cosas distintas sobre la misma plata.
+- **Ahora la cuenta vive en un solo lugar** (`src/lib/budget/monto-de-senia.ts`) y la
+  usan el botón y el cobro: primero la seña acordada; si no hay, el 20% del total
+  **con el ajuste anual ya adentro**; y el valor de último recurso sólo si no hay ni
+  total. Nunca se cobra más que el saldo pendiente.
+- **Por qué el 20% y no un monto fijo:** la seña tiene que seguir al tamaño del
+  evento. Un fijo protege igual a un cumpleaños chico que a un casamiento grande, o
+  sea que no protege.
+- **El botón y el cobro leen la misma cuenta**, a propósito. Si el botón dijera un
+  número y se cobrara otro, el cliente pierde la confianza justo en el momento en
+  que está reservando.
+
+### Falsa alarma verificada
+
+Se reportó que "el cliente no puede pagar solo, la función está desconectada de la
+pantalla". **Es falso:** el botón de Mercado Pago existe y el cliente lo usa desde
+su presupuesto, con seña y saldo, en cuotas. Y el aviso de pago acreditado entra
+solo por el webhook, que verifica la firma y actualiza el saldo sin que nadie toque
+nada. Lo único que estaba mal era el monto.
+
 ## Cómo agregar algo a esta lista
 
 **Se anota SIEMPRE, en la misma propuesta que toca el código.** Orden del dueño

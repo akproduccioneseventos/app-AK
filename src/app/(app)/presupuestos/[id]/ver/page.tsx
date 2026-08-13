@@ -40,6 +40,7 @@ import {
   calculatePricePerPerson,
   DEFAULT_BOOKING_DEPOSIT_AMOUNT,
 } from '@/lib/budget/formal-budget';
+import { montoDeSenia } from '@/lib/budget/monto-de-senia';
 import { calculateMercadoPagoCuotas } from '@/lib/payments/mercadopago-calculator';
 
 const formatCurrency = (amount?: number) => {
@@ -406,11 +407,22 @@ function VerPresupuestoContent({ params }: { params: { id: string } }) {
     () => (presupuesto?.pagosCliente || []).some((p) => isConfirmedClientPayment(p) && p.monto > 0),
     [presupuesto]
   );
+  // La senia de ESTE presupuesto, no un valor fijo. Tiene que coincidir con lo
+  // que despues cobra el link de Mercado Pago: si el boton dice un numero y se
+  // cobra otro, el cliente pierde la confianza en el peor momento.
+  const seniaDelPresupuesto = useMemo(
+    () => montoDeSenia({
+      seniaAcordada: presupuesto?.senia,
+      totalConAjuste: pagosSummary.totalCosto,
+      porDefecto: DEFAULT_BOOKING_DEPOSIT_AMOUNT,
+    }),
+    [presupuesto?.senia, pagosSummary.totalCosto],
+  );
   const mercadoPagoDepositTotal = useMemo(
     () => calculateMercadoPagoCuotas(
-      Math.min(DEFAULT_BOOKING_DEPOSIT_AMOUNT, pagosSummary.saldoPendiente),
+      Math.min(seniaDelPresupuesto, pagosSummary.saldoPendiente),
     ).totalWithSurcharge,
-    [pagosSummary.saldoPendiente],
+    [seniaDelPresupuesto, pagosSummary.saldoPendiente],
   );
   const mercadoPagoBalanceTotal = useMemo(
     () => calculateMercadoPagoCuotas(pagosSummary.saldoPendiente).totalWithSurcharge,
@@ -1016,7 +1028,7 @@ function VerPresupuestoContent({ params }: { params: { id: string } }) {
                         </p>
                       </div>
                       <div className="flex w-full flex-col gap-2 sm:w-auto">
-                        {!hasDepositPayment && pagosSummary.saldoPendiente > DEFAULT_BOOKING_DEPOSIT_AMOUNT && (
+                        {!hasDepositPayment && pagosSummary.saldoPendiente > seniaDelPresupuesto && (
                           <Button
                             type="button"
                             variant="outline"
