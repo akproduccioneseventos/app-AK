@@ -1234,6 +1234,23 @@ no se recupera sola; y el aviso del tótem es demasiado chico.
   panel. **No las borres**: falta que el dueño decida si se conectan o se
   retiran.
 
+### Portales del cliente y del invitado — auditados el 13 de agosto de 2026
+
+- **La distribución de mesas era pública y mostraba los invitados de cualquier
+  fiesta.** `/portal` es público porque ahí vive el portal del invitado, y mesas
+  colgaba de ese mismo prefijo, pero es una herramienta del EQUIPO. Con poner
+  `/portal/mesas?fiestaId=...` se veía la lista entera de invitados de esa
+  fiesta, con sus datos, sin estar logueado: `getFiestaById` sin sesión sólo
+  borra la clave de acceso y devuelve todo lo demás. Cerrado agregándola a
+  `PROTECTED_EVENT_ROUTES`, con prueba (`mesas-no-es-publica.test.ts`).
+  **Ojo con esto al agregar pantallas del equipo bajo `/portal`: hay que sumarlas
+  a esa lista o quedan abiertas.**
+- **El resto de los portales está bien.** Se revisaron los tres (el del invitado,
+  el del cliente con clave y las vistas pública y Pro): la validación de la clave
+  es correcta, no se filtran sueldos, costos, márgenes ni notas del equipo, el
+  guardado avisa cuando falla y los formularios no pierden lo cargado si se corta
+  la conexión.
+
 ## Cómo agregar algo a esta lista
 
 **Se anota SIEMPRE, en la misma propuesta que toca el código.** Orden del dueño
