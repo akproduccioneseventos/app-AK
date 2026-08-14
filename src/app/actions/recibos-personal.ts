@@ -93,6 +93,31 @@ export async function saveReciboFirmado(
     } : {};
 
     if (existingIndex >= 0) {
+      // Un recibo ya pagado o con el papel firmado subido es el comprobante de
+      // lo que se le pago al empleado. Se podia cambiar el monto despues, sin
+      // dejar rastro: en una revision no habia forma de saber si se le pago mil
+      // o cinco mil. El estado puede seguir avanzando (pagado -> firmado), pero
+      // el monto y la fecha quedan cerrados.
+      const anterior = all[existingIndex];
+      const estaCerrado = anterior.estado === 'pagado' || anterior.estado === 'firmado_subido';
+
+      if (estaCerrado) {
+        const cambiaElMonto = payload.monto !== undefined && Number(payload.monto) !== Number(anterior.monto);
+        const cambiaLaFecha = payload.fecha !== undefined && payload.fecha !== anterior.fecha;
+        if (cambiaElMonto || cambiaLaFecha) {
+          return {
+            success: false,
+            error: 'Este recibo ya está pagado: no se puede cambiar el monto ni la fecha. Si hay un error, registrá un ajuste aparte.',
+          };
+        }
+        if (payload.estado === 'pendiente') {
+          return {
+            success: false,
+            error: 'Un recibo pagado no puede volver a quedar pendiente.',
+          };
+        }
+      }
+
       const merged = normalizeRecibo({
         ...all[existingIndex],
         ...payload,

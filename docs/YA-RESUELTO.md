@@ -1183,6 +1183,43 @@ nada. Lo único que estaba mal era el monto.
   contratación corporativa; el de infantiles habla al padre, no al chico: le promete
   que él va a poder disfrutar a su hijo en vez de estar trabajando.
 
+## Sueldos, empresa y la noche de la fiesta (13 de agosto de 2026)
+
+Primera auditoría de tres módulos que nunca se habían revisado.
+
+### Arreglado
+
+- **Un recibo del personal ya pagado no se puede cambiar.** Se podía editar el
+  monto y la fecha de un recibo marcado como pagado o con el papel firmado
+  subido, sin dejar rastro: en una revisión no había forma de saber si se le
+  pagó mil o cinco mil. Ahora quedan cerrados el monto y la fecha, y no se puede
+  volver a "pendiente". **El estado sí puede seguir avanzando** (pagado → con
+  recibo firmado), que es el camino normal. Bloqueado en el servidor y mostrado
+  en gris en la pantalla, para que no falle recién al guardar.
+- **Un menú sin platos no se guarda.** Se podía crear vacío y después aparecía
+  para elegir en un presupuesto: el cliente contrataba un menú sin comida.
+- **Un salón sin capacidad no se guarda.** Un salón para cero personas no sirve
+  y aparecía igual al armar un presupuesto.
+
+### Verificado y sano, no lo vuelvas a reportar
+
+- **Los sueldos están bien protegidos.** No hay doble pago por empleado y fiesta,
+  los importes negativos se rechazan en el servidor, el cálculo protege la
+  división por cero, y **sólo con el permiso de sueldos se ven los sueldos**.
+- **Los borrados de empresa están bien cuidados**: no se puede borrar un menú, un
+  servicio, un insumo ni un activo que esté en uso en presupuestos, fiestas,
+  recetas o listas de carga. Los gastos generales rechazan importes en cero.
+- **Las pantallas de la noche manejan bien los cortes de internet**, salvo tres:
+  la pantalla gigante, la galería y el tótem reintentan solas. Los centros de
+  mando se arman en el servidor. **No hay datos internos a la vista del invitado
+  ni errores en jerga en las pantallas grandes.**
+
+### Lo que quedó para Gemini
+
+`docs/ordenes/pantallas-de-la-noche.md`: la pantalla de impresión sigue mostrando
+fotos viejas cuando se corta internet y el operador no se entera; la presentación
+no se recupera sola; y el aviso del tótem es demasiado chico.
+
 ## Cómo agregar algo a esta lista
 
 **Se anota SIEMPRE, en la misma propuesta que toca el código.** Orden del dueño
