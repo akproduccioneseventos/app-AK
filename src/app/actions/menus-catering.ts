@@ -172,6 +172,14 @@ export async function saveMenu(
   let menuId: string;
 
   const cleanItems = (menuDataInput.items || []).filter(item => !item.id.endsWith('_virtual_buffet'));
+
+  // Un menu sin platos se podia guardar y despues aparecia para elegir en un
+  // presupuesto: el cliente contrataba un menu vacio y la cocina no tenia que
+  // preparar.
+  if (cleanItems.length === 0) {
+    return { success: false, error: 'El menú tiene que tener al menos un plato.' };
+  }
+
   const sanitizedMenuInput = { ...menuDataInput, items: cleanItems } as FullMenu;
 
   const allDishes = menus.flatMap(m => m.items);
