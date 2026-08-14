@@ -1220,6 +1220,20 @@ Primera auditoría de tres módulos que nunca se habían revisado.
 fotos viejas cuando se corta internet y el operador no se entera; la presentación
 no se recupera sola; y el aviso del tótem es demasiado chico.
 
+### Pantallas sueltas — auditadas el 13 de agosto de 2026
+
+- **Alertas, incidentes, aprobaciones, calendario, auditoría, playbooks y
+  eventos están sanas.** Se revisaron las siete: manejan errores con aviso,
+  cargan bien, usan formato uruguayo de fecha y moneda. **No las vuelvas a
+  auditar sin motivo.**
+- **En aprobaciones quedaba un texto que decía "(ARS)"** cuando el sistema
+  trabaja en pesos uruguayos. Figuraba como corregido en esta misma lista pero
+  ese cartel se había salteado. Ya dice "pesos uruguayos".
+- **Incidentes, aprobaciones y playbooks no las enlaza nadie.** Funcionan bien,
+  pero sólo se llega escribiendo la dirección: no hay botón en el menú ni en el
+  panel. **No las borres**: falta que el dueño decida si se conectan o se
+  retiran.
+
 ## Cómo agregar algo a esta lista
 
 **Se anota SIEMPRE, en la misma propuesta que toca el código.** Orden del dueño

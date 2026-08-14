@@ -331,7 +331,7 @@ function AprobacionesContent() {
               </div>
             </div>
             <div>
-              <label className="text-sm font-medium mb-1 block">Impacto Económico (ARS)</label>
+              <label className="text-sm font-medium mb-1 block">Impacto Económico (pesos uruguayos)</label>
               <Input type="number" value={form.impactoEconomico} onChange={(e) => setForm(f => ({ ...f, impactoEconomico: e.target.value }))} />
             </div>
             <div>
