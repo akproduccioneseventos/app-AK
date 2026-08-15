@@ -54,6 +54,7 @@ import {
 import { calcularEstadoDeCuenta } from '@/lib/budget/saldo-con-ajuste';
 import { resolveClientPortalAccess } from '@/lib/client-portal/access-phases';
 import { buildGoogleCalendarUrl } from '@/lib/calendar-links';
+import { textoDeCuentaRegresiva } from '@/lib/portal/cuenta-regresiva';
 
 type PublicPortalClientExperienceProps = {
   fiesta: any;
@@ -998,8 +999,15 @@ export default function PublicPortalClientExperience({ fiesta, companyContact, c
             size="sm"
             className="border-white/25 bg-white/20 text-white backdrop-blur-sm hover:bg-white/30 rounded-full flex items-center gap-1.5"
             onClick={() => setCoverModalOpen(true)}
+            title="Personalizar portada"
+            aria-label="Personalizar portada"
           >
-            <Palette className="h-4 w-4" /> Personalizar portada
+            {/* En el celular queda sólo el ícono: el botón está flotando sobre
+                la esquina y con el texto completo tapaba el nombre de la
+                empresa, que es lo primero que ve el cliente al abrir su
+                portal. */}
+            <Palette className="h-4 w-4" />
+            <span className="hidden sm:inline">Personalizar portada</span>
           </Button>
         </div>
 
@@ -1035,7 +1043,7 @@ export default function PublicPortalClientExperience({ fiesta, companyContact, c
                   </span>
                 )
               ) : (
-                <span className="inline-flex items-center gap-2 rounded-lg bg-white/15 px-3 py-2"><PartyPopper className="h-4 w-4" />{days === null ? 'Fecha a confirmar' : `Faltan ${days} días`}</span>
+                <span className="inline-flex items-center gap-2 rounded-lg bg-white/15 px-3 py-2"><PartyPopper className="h-4 w-4" />{textoDeCuentaRegresiva(days)}</span>
               )}
             </div>
           </div>
