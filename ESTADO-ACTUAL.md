@@ -43,11 +43,11 @@ una cantidad en cero ya no compra una unidad igual.
   vigente pide las ocho pantallas del cliente con más colores a mano, que es
   donde más rinde. Va pantalla por pantalla, nunca buscar y reemplazar masivo, y
   sin tocar los colores que elige el usuario.
-- **Cuatro comodidades chicas de las pantallas internas**, ninguna rota: la
-  pantalla de presupuestos salta directo a "nuevo" y no deja ver el listado; el
-  historial de un empleado no tiene filtro y se hace largo; las citas del
-  calendario no se pueden editar ni borrar después de creadas; y las alertas
-  leídas no se pueden esconder.
+- **Cuatro incomodidades de las pantallas internas**, ninguna rota, ya pedidas en
+  la misma orden y marcadas como más urgentes que los colores: el menú tiene dos
+  botones al mismo lugar; las citas del calendario no se pueden corregir ni
+  cancelar; las alertas leídas no se pueden esconder; y el historial de un
+  empleado se hace largo sin filtro.
 - **Nunca existieron** (decisión comercial del dueño si valen la pena): armar
   presupuesto desde el chat del asistente, mails masivos, formulario de contacto
   aparte del simulador, y traer reseñas de Google.

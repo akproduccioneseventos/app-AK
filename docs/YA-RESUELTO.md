@@ -57,6 +57,7 @@ anotado, la próxima auditoría lo va a volver a encontrar.
   - **La lista de compras avisa cuando un plato contratado no aporta ningún ingrediente**, o cuando el plato ya no está en el menú. Antes se salteaba en silencio y la cocina compraba sin saber que le faltaba un plato entero: se enteraba el día de la fiesta.
   - **Cantidad cero en bebidas o repostería quiere decir "no se pide".** Antes se compraba una unidad igual, porque el código usaba `|| 1`.
 - **La fecha del contrato firmado se muestra en formato uruguayo (15 de agosto de 2026).** Estaba en `es-ES` mientras el resto de esa pantalla usaba `es-UY`.
+- **FALSO POSITIVO verificado: "la pantalla de presupuestos no tiene listado" (15 de agosto de 2026).** `/presupuestos` redirige a `/presupuestos/nuevo`, y esa pantalla **es** la "Central de Presupuestos": trae el listado completo, el conteo y el interruptor de archivados. El listado no falta. Lo que sí sobra es que el menú tenga dos entradas al mismo lugar, y eso quedó pedido en la orden vigente.
 - **El ajuste anual del 15% va siempre.** Aparece en presupuestos y en el portal.
 - **El descuento del 50% del Salón Club Uruguay** y el descuento del presupuesto
   son decisiones de marketing.
