@@ -1,7 +1,7 @@
 'use server';
 
 import { ai, geminiModel } from '@/ai/genkit';
-import { z } from 'genkit';
+import { z } from 'zod';
 import { getArmadoRapidoConfig } from '@/app/actions/armado-rapido';
 import { getServiciosEmpresa } from '@/app/actions/servicios-empresa';
 import { getMenus } from '@/app/actions/menus-catering';

@@ -1,3 +1,16 @@
+jest.mock('@genkit-ai/google-genai', () => ({
+  googleAI: jest.fn(),
+}));
+
+jest.mock('@/ai/genkit', () => ({
+  ai: {
+    definePrompt: jest.fn(),
+    defineFlow: jest.fn(),
+  },
+  getGeminiModelForAgent: jest.fn(),
+  getGeminiGenerationConfigForAgent: jest.fn(),
+}));
+
 import { chatWithBudgetCopilot, type CopilotInput } from '@/app/actions/simulador-copilot';
 
 // Mock getArmadoRapidoConfig to prevent dependencies on Firestore in tests

@@ -39,6 +39,11 @@ anotado, la próxima auditoría lo va a volver a encontrar.
   - **`public/firebase-messaging-sw.js` no se edita a mano ni se commitea con la configuración adentro.** Lo genera `scripts/generate-firebase-messaging-sw.mjs` en cada compilación, y en la versión principal queda la variante que no hace nada. Vino modificado en la entrega y se descartó al fusionar. Si aparece cambiado en una rama, quedarse siempre con la versión de `main`: es la segunda vez que se cuela.
   - **La prueba de estas tres pantallas controla el texto del código fuente, no el navegador.** Se dejó a propósito así (es barata y frena una regresión), pero **no se le agregan colores concretos**: el bloque de colores del tema está a medias y los rompería. Se controla tamaño y peso del texto.
 
+- **Gestión de Promociones — Fechas Obligatorias (15 de agosto de 2026):**
+  - **Validación estricta (`promos.ts` y `settings/promos`):** No se permite guardar ninguna promoción sin `fechaInicio` o sin `fechaFin`, ni con fecha de fin anterior a la de inicio. Previene que queden promociones activas con countdown roto o indefinido en la landing page.
+- **Colores del Tema y Escala Visual — Ajustes y Gestión:**
+  - Recorridas y adaptadas pantallas de Ajustes (`settings/promos`, `settings/catalogo-servicios`, `settings/feature-flags`, `settings/account`, `settings/cupones`) pasando colores hardcoded a tokens semánticos del tema (`text-foreground`, `text-primary`, `text-muted-foreground`, `bg-card`, `bg-muted/40`, `border-border`) y fijando la escala `rounded-xl` para tarjetas y `rounded-lg` para campos/botones.
+
 - **El ajuste anual del 15% va siempre.** Aparece en presupuestos y en el portal.
 - **El descuento del 50% del Salón Club Uruguay** y el descuento del presupuesto
   son decisiones de marketing.

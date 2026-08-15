@@ -113,6 +113,18 @@ export default function PromosAdminPage() {
       toast({ title: 'Error', description: 'El título es obligatorio.', variant: 'destructive' });
       return;
     }
+    if (!form.fechaInicio || !form.fechaInicio.trim()) {
+      toast({ title: 'Error', description: 'La fecha de inicio es obligatoria.', variant: 'destructive' });
+      return;
+    }
+    if (!form.fechaFin || !form.fechaFin.trim()) {
+      toast({ title: 'Error', description: 'La fecha de fin es obligatoria.', variant: 'destructive' });
+      return;
+    }
+    if (new Date(form.fechaInicio) > new Date(form.fechaFin)) {
+      toast({ title: 'Error', description: 'La fecha de fin no puede ser anterior a la de inicio.', variant: 'destructive' });
+      return;
+    }
     setSaving(true);
     const payload = editingId ? { ...form, id: editingId } : form;
     const res = await savePromo(payload as any);
@@ -149,11 +161,11 @@ export default function PromosAdminPage() {
       <div className="flex items-center gap-4">
         <Button asChild variant="ghost" size="icon"><Link href="/settings"><ArrowLeft className="w-4 h-4" /></Link></Button>
         <div>
-          <h1 className="text-2xl font-black text-slate-900 flex items-center gap-2">
-            <Megaphone className="w-6 h-6 text-purple-600" />
+          <h1 className="text-2xl font-black text-foreground flex items-center gap-2">
+            <Megaphone className="w-6 h-6 text-primary" />
             Gestión de Promos
           </h1>
-          <p className="text-sm text-slate-500">Crea y gestiona widgets de promo en la landing page</p>
+          <p className="text-sm text-muted-foreground">Crea y gestiona widgets de promo en la landing page</p>
         </div>
         <div className="ml-auto">
           <Button onClick={openCreate} className="gap-2">
@@ -164,17 +176,17 @@ export default function PromosAdminPage() {
 
       {loading ? (
         <div className="flex justify-center py-20">
-          <Loader2 className="w-8 h-8 animate-spin text-purple-600" />
+          <Loader2 className="w-8 h-8 animate-spin text-primary" />
         </div>
       ) : promos.length === 0 ? (
-        <Card className="border-dashed">
+        <Card className="border-dashed rounded-xl">
           <CardContent className="flex flex-col items-center justify-center py-16 text-center gap-4">
-            <div className="w-16 h-16 rounded-full bg-purple-100 flex items-center justify-center">
-              <Gift className="w-8 h-8 text-purple-600" />
+            <div className="w-16 h-16 rounded-full bg-primary/10 flex items-center justify-center">
+              <Gift className="w-8 h-8 text-primary" />
             </div>
             <div>
-              <p className="font-bold text-slate-900">Sin promos creadas</p>
-              <p className="text-sm text-slate-500">Crea tu primera promo para mostrarla en la landing</p>
+              <p className="font-bold text-foreground">Sin promos creadas</p>
+              <p className="text-sm text-muted-foreground">Crea tu primera promo para mostrarla en la landing</p>
             </div>
             <Button onClick={openCreate} className="gap-2"><Plus className="w-4 h-4" />Crear primera promo</Button>
           </CardContent>
@@ -182,12 +194,12 @@ export default function PromosAdminPage() {
       ) : (
         <div className="grid gap-4">
           {promos.map((promo) => (
-            <Card key={promo.id} className={`border-l-4 ${promo.activa ? 'border-l-green-500' : 'border-l-slate-300'}`}>
+            <Card key={promo.id} className={`rounded-xl border-l-4 ${promo.activa ? 'border-l-green-500' : 'border-l-border'}`}>
               <CardContent className="p-4">
                 <div className="flex items-start justify-between gap-4">
                   <div className="flex-1 min-w-0">
                     <div className="flex items-center gap-2 mb-1">
-                      <h3 className="font-black text-slate-900 truncate">{promo.titulo}</h3>
+                      <h3 className="font-black text-foreground truncate">{promo.titulo}</h3>
                       <Badge variant={promo.activa ? 'default' : 'secondary'} className="shrink-0">
                         {promo.activa ? 'Activa' : 'Inactiva'}
                       </Badge>
@@ -195,11 +207,11 @@ export default function PromosAdminPage() {
                         {posicionLabel[promo.posicion]}
                       </Badge>
                     </div>
-                    {promo.subtitulo && <p className="text-sm text-slate-500">{promo.subtitulo}</p>}
+                    {promo.subtitulo && <p className="text-sm text-muted-foreground">{promo.subtitulo}</p>}
                     {promo.regalo && (
-                      <p className="text-sm text-purple-600 font-semibold mt-1">🎁 {promo.regalo}</p>
+                      <p className="text-sm text-primary font-semibold mt-1">🎁 {promo.regalo}</p>
                     )}
-                    <p className="text-xs text-slate-400 mt-1">
+                    <p className="text-xs text-muted-foreground mt-1">
                       {promo.fechaInicio} → {promo.fechaFin}
                       {promo.codigoCupon && ` · Cupón: ${promo.codigoCupon}`}
                     </p>
@@ -225,7 +237,7 @@ export default function PromosAdminPage() {
                     <AlertDialog>
                       <AlertDialogTrigger asChild>
                         <Button variant="ghost" size="icon" title="Eliminar">
-                          <Trash2 className="w-4 h-4 text-red-500" />
+                          <Trash2 className="w-4 h-4 text-destructive" />
                         </Button>
                       </AlertDialogTrigger>
                       <AlertDialogContent>
@@ -237,7 +249,7 @@ export default function PromosAdminPage() {
                         </AlertDialogHeader>
                         <AlertDialogFooter>
                           <AlertDialogCancel>Cancelar</AlertDialogCancel>
-                          <AlertDialogAction onClick={() => handleDelete(promo.id)} className="bg-red-600 hover:bg-red-700">
+                          <AlertDialogAction onClick={() => handleDelete(promo.id)} className="bg-destructive text-destructive-foreground hover:bg-destructive/90">
                             Eliminar
                           </AlertDialogAction>
                         </AlertDialogFooter>
@@ -253,7 +265,7 @@ export default function PromosAdminPage() {
 
       {/* Form dialog */}
       <Dialog open={dialogOpen} onOpenChange={setDialogOpen}>
-        <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
+        <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto rounded-xl">
           <DialogHeader>
             <DialogTitle>{editingId ? 'Editar Promo' : 'Nueva Promo'}</DialogTitle>
             <DialogDescription>Configura el widget de promo para la landing page</DialogDescription>
@@ -261,10 +273,10 @@ export default function PromosAdminPage() {
 
           <div className="space-y-4">
             {/* Activación */}
-            <div className="flex items-center justify-between p-3 bg-slate-50 rounded-xl">
-              <Label className="font-semibold">Estado</Label>
+            <div className="flex items-center justify-between p-3 bg-muted/40 rounded-xl">
+              <Label className="font-semibold text-foreground">Estado</Label>
               <div className="flex items-center gap-2">
-                <span className="text-sm text-slate-500">{form.activa ? 'Activa' : 'Inactiva'}</span>
+                <span className="text-sm text-muted-foreground">{form.activa ? 'Activa' : 'Inactiva'}</span>
                 <Switch checked={form.activa} onCheckedChange={(v) => setForm({ ...form, activa: v })} />
               </div>
             </div>
@@ -329,19 +341,21 @@ export default function PromosAdminPage() {
             {/* Fechas */}
             <div className="grid grid-cols-2 gap-4">
               <div className="space-y-1">
-                <Label>Fecha inicio</Label>
+                <Label>Fecha inicio *</Label>
                 <Input
                   type="date"
                   value={form.fechaInicio}
                   onChange={(e) => setForm({ ...form, fechaInicio: e.target.value })}
+                  required
                 />
               </div>
               <div className="space-y-1">
-                <Label>Fecha fin (para countdown)</Label>
+                <Label>Fecha fin * (para countdown)</Label>
                 <Input
                   type="date"
                   value={form.fechaFin}
                   onChange={(e) => setForm({ ...form, fechaFin: e.target.value })}
+                  required
                 />
               </div>
             </div>
@@ -410,7 +424,7 @@ export default function PromosAdminPage() {
                 { key: 'mostrarEnLanding', label: 'Mostrar en landing' },
                 { key: 'mostrarEnSimulador', label: 'Mostrar en simulador' },
               ] as const).map(({ key, label }) => (
-                <div key={key} className="flex items-center justify-between p-3 bg-slate-50 rounded-xl">
+                <div key={key} className="flex items-center justify-between p-3 bg-muted/40 rounded-xl">
                   <Label className="text-xs font-semibold">{label}</Label>
                   <Switch
                     checked={form[key]}
