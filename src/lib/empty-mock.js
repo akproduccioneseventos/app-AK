@@ -1,0 +1,4 @@
+module.exports = {
+  SemanticAttributes: {},
+  SemanticResourceAttributes: {},
+};

@@ -478,7 +478,7 @@ export default function PresentacionLedPage() {
     if (index === SALON_SLIDE_INDEX && clientData.tieneSalon === true) {
       return false;
     }
-    
+
     // Check if it's a dynamic slide
     if (index >= DYNAMIC_START && index < dynamicEndIndex) {
       const dynIndex = index - DYNAMIC_START;
@@ -487,7 +487,7 @@ export default function PresentacionLedPage() {
         return false;
       }
     }
-    
+
     return true;
   }, [clientData.tieneSalon, requireTeenMenu, dynamicSlides, dynamicEndIndex]);
 
@@ -879,20 +879,20 @@ export default function PresentacionLedPage() {
       </AnimatePresence>
 
       {/* Navigation buttons */}
-      <div className="absolute bottom-8 left-0 right-0 z-20 flex items-center justify-center gap-4">
+      <div className="absolute bottom-5 sm:bottom-6 left-0 right-0 z-20 flex items-center justify-center gap-3 sm:gap-4 px-4">
         <Button
           onClick={goPrev}
           disabled={currentSlide === 0}
           variant="ghost"
           size="lg"
-          className="h-14 px-8 rounded-2xl text-white/80 hover:text-white hover:bg-white/10 border border-white/20 disabled:opacity-30 disabled:cursor-not-allowed text-lg font-semibold"
+          className="h-12 sm:h-14 px-5 sm:px-8 rounded-2xl text-white/80 hover:text-white hover:bg-white/10 border border-white/20 disabled:opacity-30 disabled:cursor-not-allowed text-base sm:text-lg font-semibold"
         >
-          <ChevronLeft className="h-6 w-6 mr-2" />
+          <ChevronLeft className="h-5 w-5 sm:h-6 sm:w-6 mr-1.5 sm:mr-2" />
           Anterior
         </Button>
 
         {/* Dot indicators */}
-        <div className="flex items-center gap-1.5 mx-4">
+        <div className="flex items-center gap-1.5 mx-2 sm:mx-4">
           {Array.from({ length: Math.min(totalSlides, 9) }).map((_, i) => {
             const slideIdx = totalSlides <= 9 ? i : Math.round(i * (totalSlides - 1) / 8);
             return (
@@ -902,7 +902,7 @@ export default function PresentacionLedPage() {
                 className={cn(
                   'h-2 rounded-full transition-all duration-300',
                   currentSlide === slideIdx
-                    ? 'w-8 bg-white'
+                    ? 'w-6 sm:w-8 bg-white'
                     : 'w-2 bg-white/30 hover:bg-white/60',
                 )}
               />
@@ -915,7 +915,7 @@ export default function PresentacionLedPage() {
           disabled={!isContratarnosSlide && (nextDisabled || currentSlide >= totalSlides - 1)}
           size="lg"
           className={cn(
-            'h-14 px-8 rounded-2xl text-lg font-bold border-0',
+            'h-12 sm:h-14 px-5 sm:px-8 rounded-2xl text-base sm:text-lg font-bold border-0',
             isContratarnosSlide
               ? 'bg-gradient-to-r from-emerald-500 to-indigo-600 hover:from-emerald-600 hover:to-indigo-700 text-white shadow-lg'
               : 'bg-white/15 hover:bg-white/25 text-white border border-white/30 disabled:opacity-50 disabled:cursor-not-allowed',
@@ -926,7 +926,7 @@ export default function PresentacionLedPage() {
           ) : (
             <>
               Siguiente
-              <ChevronRight className="h-6 w-6 ml-2" />
+              <ChevronRight className="h-5 w-5 sm:h-6 sm:w-6 ml-1.5 sm:ml-2" />
             </>
           )}
         </Button>
