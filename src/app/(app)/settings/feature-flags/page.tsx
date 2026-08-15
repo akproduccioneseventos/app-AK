@@ -120,23 +120,23 @@ export default function FeatureFlagsPage() {
       {/* Header */}
       <header>
         <motion.div initial={{ opacity: 0, x: -20 }} animate={{ opacity: 1, x: 0 }} className="space-y-2">
-          <h1 className="text-3xl sm:text-4xl font-black tracking-tighter text-slate-900">
+          <h1 className="text-3xl sm:text-4xl font-black tracking-tighter text-foreground">
             Feature Flags <span className="text-primary italic">&amp; Tiers</span>
           </h1>
-          <p className="text-slate-500 font-semibold text-sm">
+          <p className="text-muted-foreground font-semibold text-sm">
             Controlá qué módulos están habilitados para cada nivel de servicio y aplicá overrides globales.
           </p>
         </motion.div>
       </header>
 
       {/* Default Tier Selector */}
-      <Card className="border-none shadow-2xl rounded-[2rem] overflow-hidden bg-white">
-        <CardHeader className="bg-slate-50 border-b border-slate-100 p-6 sm:p-8">
-          <CardTitle className="text-xl font-black tracking-tight text-slate-800 flex items-center gap-2">
-            <Zap className="w-5 h-5 text-indigo-500" />
+      <Card className="border border-border shadow-sm rounded-xl overflow-hidden bg-card">
+        <CardHeader className="bg-muted/40 border-b border-border p-6 sm:p-8">
+          <CardTitle className="text-xl font-black tracking-tight text-foreground flex items-center gap-2">
+            <Zap className="w-5 h-5 text-primary" />
             Tier por Defecto
           </CardTitle>
-          <CardDescription className="text-slate-400 font-medium">
+          <CardDescription className="text-muted-foreground font-medium">
             Seleccioná el nivel de servicio que se aplica a todos los nuevos eventos (puede sobreescribirse por evento).
           </CardDescription>
         </CardHeader>
@@ -151,7 +151,7 @@ export default function FeatureFlagsPage() {
                   onClick={() => handleTierChange(tierDef.tier)}
                   disabled={saving === 'tier'}
                   className={cn(
-                    'flex items-start gap-4 p-5 rounded-2xl border-2 text-left transition-all duration-200 min-w-[200px] flex-1',
+                    'flex items-start gap-4 p-5 rounded-xl border-2 text-left transition-all duration-200 min-w-[200px] flex-1',
                     isActive ? TIER_ACTIVE_COLORS[tierDef.tier] : TIER_COLORS[tierDef.tier]
                   )}
                 >
@@ -161,12 +161,12 @@ export default function FeatureFlagsPage() {
                     <p className={cn('text-xs font-medium mt-0.5', isActive ? 'opacity-80' : 'opacity-60')}>
                       {tierDef.description}
                     </p>
-                    <p className={cn('text-[11px] font-bold mt-1', isActive ? 'opacity-70' : 'opacity-50')}>
+                    <p className={cn('text-xs font-bold mt-1', isActive ? 'opacity-70' : 'opacity-50')}>
                       {tierDef.modules.length} módulo(s) incluidos
                     </p>
                   </div>
                   {isActive && (
-                    <Badge className="ml-auto shrink-0 bg-white/20 text-current border-0 text-[10px] font-black">
+                    <Badge className="ml-auto shrink-0 bg-white/20 text-current border-0 text-xs font-black">
                       ACTIVO
                     </Badge>
                   )}
@@ -178,29 +178,29 @@ export default function FeatureFlagsPage() {
       </Card>
 
       {/* Module Matrix */}
-      <Card className="border-none shadow-2xl rounded-[2rem] overflow-hidden bg-white">
-        <CardHeader className="bg-slate-50 border-b border-slate-100 p-6 sm:p-8">
-          <CardTitle className="text-xl font-black tracking-tight text-slate-800 flex items-center gap-2">
+      <Card className="border border-border shadow-sm rounded-xl overflow-hidden bg-card">
+        <CardHeader className="bg-muted/40 border-b border-border p-6 sm:p-8">
+          <CardTitle className="text-xl font-black tracking-tight text-foreground flex items-center gap-2">
             <ToggleRight className="w-5 h-5 text-emerald-500" />
             Control de Módulos
           </CardTitle>
-          <CardDescription className="text-slate-400 font-medium">
+          <CardDescription className="text-muted-foreground font-medium">
             Los overrides globales sobreescriben cualquier configuración de tier para todos los eventos.
           </CardDescription>
         </CardHeader>
         <CardContent className="p-0">
           {/* Table header */}
-          <div className="grid grid-cols-[1fr_auto_auto_auto_auto] gap-0 border-b border-slate-100 px-6 py-3 bg-slate-50/50">
-            <span className="text-[10px] font-black uppercase tracking-widest text-slate-400">Módulo</span>
+          <div className="grid grid-cols-[1fr_auto_auto_auto_auto] gap-0 border-b border-border px-6 py-3 bg-muted/20">
+            <span className="text-xs font-black uppercase tracking-widest text-muted-foreground">Módulo</span>
             {TIER_DEFINITIONS.map(t => (
-              <span key={t.tier} className="text-[10px] font-black uppercase tracking-widest text-slate-400 text-center w-20">
+              <span key={t.tier} className="text-xs font-black uppercase tracking-widest text-muted-foreground text-center w-20">
                 {t.tier}
               </span>
             ))}
-            <span className="text-[10px] font-black uppercase tracking-widest text-slate-400 text-center w-20">Override</span>
+            <span className="text-xs font-black uppercase tracking-widest text-muted-foreground text-center w-20">Override</span>
           </div>
 
-          <div className="divide-y divide-slate-100">
+          <div className="divide-y divide-border">
             {ALL_MODULES.map(mod => {
               const globalOverride = flags?.globalOverrides[mod.id];
               const hasOverride = globalOverride !== undefined;
@@ -210,11 +210,11 @@ export default function FeatureFlagsPage() {
                   key={mod.id}
                   initial={{ opacity: 0 }}
                   animate={{ opacity: 1 }}
-                  className="grid grid-cols-[1fr_auto_auto_auto_auto] gap-0 items-center px-6 py-4 hover:bg-slate-50/60 transition-colors"
+                  className="grid grid-cols-[1fr_auto_auto_auto_auto] gap-0 items-center px-6 py-4 hover:bg-muted/30 transition-colors"
                 >
                   <div className="pr-4">
-                    <p className="font-bold text-sm text-slate-800">{mod.label}</p>
-                    <p className="text-xs text-slate-400 font-medium">{mod.description}</p>
+                    <p className="font-bold text-sm text-foreground">{mod.label}</p>
+                    <p className="text-xs text-muted-foreground font-medium">{mod.description}</p>
                   </div>
 
                   {TIER_DEFINITIONS.map(tierDef => {
@@ -222,12 +222,12 @@ export default function FeatureFlagsPage() {
                     return (
                       <div key={tierDef.tier} className="flex items-center justify-center w-20">
                         {active ? (
-                          <span className="w-5 h-5 rounded-full bg-emerald-100 flex items-center justify-center">
+                          <span className="w-5 h-5 rounded-full bg-emerald-500/20 flex items-center justify-center">
                             <span className="w-2 h-2 rounded-full bg-emerald-500" />
                           </span>
                         ) : (
-                          <span className="w-5 h-5 rounded-full bg-slate-100 flex items-center justify-center">
-                            <span className="w-2 h-2 rounded-full bg-slate-300" />
+                          <span className="w-5 h-5 rounded-full bg-muted flex items-center justify-center">
+                            <span className="w-2 h-2 rounded-full bg-muted-foreground/40" />
                           </span>
                         )}
                       </div>
@@ -239,7 +239,7 @@ export default function FeatureFlagsPage() {
                       checked={hasOverride ? (globalOverride as boolean) : isModuleActiveForTier(mod.id, flags?.defaultTier ?? 'Elite')}
                       onCheckedChange={(checked) => handleGlobalOverride(mod.id, checked)}
                       disabled={saving === mod.id}
-                      className={cn(hasOverride && 'ring-2 ring-indigo-400 ring-offset-1')}
+                      className={cn(hasOverride && 'ring-2 ring-primary ring-offset-1')}
                     />
                     {hasOverride && (
                       <button
@@ -255,7 +255,7 @@ export default function FeatureFlagsPage() {
                           setSaving(null);
                           toast({ title: 'Override eliminado' });
                         }}
-                        className="text-[10px] font-black text-indigo-500 hover:text-indigo-700 transition-colors"
+                        className="text-xs font-black text-primary hover:text-primary/80 transition-colors"
                         title="Eliminar override global"
                       >
                         ✕
@@ -270,17 +270,17 @@ export default function FeatureFlagsPage() {
       </Card>
 
       {/* Legend */}
-      <div className="flex flex-wrap items-center gap-4 text-xs font-semibold text-slate-500 px-1">
+      <div className="flex flex-wrap items-center gap-4 text-xs font-semibold text-muted-foreground px-1">
         <div className="flex items-center gap-1.5">
           <span className="w-3 h-3 rounded-full bg-emerald-500" />
           Incluido en tier
         </div>
         <div className="flex items-center gap-1.5">
-          <span className="w-3 h-3 rounded-full bg-slate-300" />
+          <span className="w-3 h-3 rounded-full bg-muted-foreground/40" />
           No incluido
         </div>
         <div className="flex items-center gap-1.5">
-          <span className="inline-block w-6 h-3 rounded-full bg-indigo-200 border border-indigo-400" />
+          <span className="inline-block w-6 h-3 rounded-full bg-primary/20 border border-primary" />
           Override global activo
         </div>
       </div>

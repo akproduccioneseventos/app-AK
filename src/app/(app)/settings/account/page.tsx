@@ -108,7 +108,7 @@ export default function AccountSettingsPage() {
           </Link></Button>
       </div>
 
-      <Card className="shadow-lg">
+      <Card className="shadow-sm rounded-xl">
         <CardHeader>
           <div className="flex items-center gap-2">
             <Lock className="w-6 h-6 text-primary" />
@@ -121,7 +121,7 @@ export default function AccountSettingsPage() {
             <div className="space-y-2">
               <Label htmlFor="current-password">Contraseña actual</Label>
               <div className="relative">
-                <Input id="current-password" type={showCurrentPassword ? 'text' : 'password'} value={currentPassword} onChange={(event) => setCurrentPassword(event.target.value)} required disabled={isSavingPassword} />
+                <Input id="current-password" type={showCurrentPassword ? 'text' : 'password'} value={currentPassword} onChange={(event) => setCurrentPassword(event.target.value)} required disabled={isSavingPassword} className="rounded-lg" />
                 <Button type="button" variant="ghost" size="icon" className="absolute right-1 top-1/2 -translate-y-1/2 h-7 w-7" onClick={() => setShowCurrentPassword(!showCurrentPassword)} tabIndex={-1}>
                   {showCurrentPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
                 </Button>
@@ -130,7 +130,7 @@ export default function AccountSettingsPage() {
             <div className="space-y-2">
               <Label htmlFor="new-password">Nueva contraseña</Label>
               <div className="relative">
-                <Input id="new-password" type={showNewPassword ? 'text' : 'password'} value={newPassword} onChange={(event) => setNewPassword(event.target.value)} minLength={10} required disabled={isSavingPassword} />
+                <Input id="new-password" type={showNewPassword ? 'text' : 'password'} value={newPassword} onChange={(event) => setNewPassword(event.target.value)} minLength={10} required disabled={isSavingPassword} className="rounded-lg" />
                 <Button type="button" variant="ghost" size="icon" className="absolute right-1 top-1/2 -translate-y-1/2 h-7 w-7" onClick={() => setShowNewPassword(!showNewPassword)} tabIndex={-1}>
                   {showNewPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
                 </Button>
@@ -139,7 +139,7 @@ export default function AccountSettingsPage() {
             <div className="space-y-2">
               <Label htmlFor="confirm-new-password">Confirmar nueva contraseña</Label>
               <div className="relative">
-                <Input id="confirm-new-password" type={showConfirmNewPassword ? 'text' : 'password'} value={confirmNewPassword} onChange={(event) => setConfirmNewPassword(event.target.value)} minLength={10} required disabled={isSavingPassword} />
+                <Input id="confirm-new-password" type={showConfirmNewPassword ? 'text' : 'password'} value={confirmNewPassword} onChange={(event) => setConfirmNewPassword(event.target.value)} minLength={10} required disabled={isSavingPassword} className="rounded-lg" />
                 <Button type="button" variant="ghost" size="icon" className="absolute right-1 top-1/2 -translate-y-1/2 h-7 w-7" onClick={() => setShowConfirmNewPassword(!showConfirmNewPassword)} tabIndex={-1}>
                   {showConfirmNewPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
                 </Button>
@@ -147,7 +147,7 @@ export default function AccountSettingsPage() {
             </div>
           </CardContent>
           <CardFooter>
-            <Button type="submit" disabled={isSavingPassword}>
+            <Button type="submit" disabled={isSavingPassword} className="rounded-lg">
               {isSavingPassword && <Loader2 className="w-4 h-4 mr-2 animate-spin" />}
               Guardar contraseña
             </Button>
@@ -155,7 +155,7 @@ export default function AccountSettingsPage() {
         </form>
       </Card>
 
-      <Card className="shadow-lg">
+      <Card className="shadow-sm rounded-xl">
         <CardHeader>
           <div className="flex items-center gap-2">
             <ShieldCheck className="w-6 h-6 text-primary" />
@@ -167,27 +167,27 @@ export default function AccountSettingsPage() {
           <CardContent className="space-y-4">
             <div className="space-y-2">
               <Label htmlFor="recovery-current-password">Contraseña actual para autorizar</Label>
-              <Input id="recovery-current-password" type="password" value={recoveryPassword} onChange={(event) => setRecoveryPassword(event.target.value)} required disabled={isSavingRecovery} />
+              <Input id="recovery-current-password" type="password" value={recoveryPassword} onChange={(event) => setRecoveryPassword(event.target.value)} required disabled={isSavingRecovery} className="rounded-lg" />
             </div>
             <div className="space-y-2">
               <Label htmlFor="recovery-email">Mail de recuperacion</Label>
-              <Input id="recovery-email" type="email" value={recoveryEmail} onChange={(event) => setRecoveryEmail(event.target.value)} placeholder="tu-mail@ejemplo.com" required disabled={isSavingRecovery} />
+              <Input id="recovery-email" type="email" value={recoveryEmail} onChange={(event) => setRecoveryEmail(event.target.value)} placeholder="tu-mail@ejemplo.com" required disabled={isSavingRecovery} className="rounded-lg" />
             </div>
             {(['q1', 'q2', 'q3'] as const).map((key, index) => (
               <div key={key} className="grid gap-2 sm:grid-cols-2">
                 <div className="space-y-2">
                   <Label>Pregunta {index + 1}</Label>
-                  <Input value={questions[key].question} onChange={(event) => setQuestions((current) => ({ ...current, [key]: { ...current[key], question: event.target.value } }))} required disabled={isSavingRecovery} />
+                  <Input value={questions[key].question} onChange={(event) => setQuestions((current) => ({ ...current, [key]: { ...current[key], question: event.target.value } }))} required disabled={isSavingRecovery} className="rounded-lg" />
                 </div>
                 <div className="space-y-2">
                   <Label>Respuesta</Label>
-                  <Input type="password" value={questions[key].answer} onChange={(event) => setQuestions((current) => ({ ...current, [key]: { ...current[key], answer: event.target.value } }))} required disabled={isSavingRecovery} />
+                  <Input type="password" value={questions[key].answer} onChange={(event) => setQuestions((current) => ({ ...current, [key]: { ...current[key], answer: event.target.value } }))} required disabled={isSavingRecovery} className="rounded-lg" />
                 </div>
               </div>
             ))}
           </CardContent>
           <CardFooter>
-            <Button type="submit" disabled={isSavingRecovery}>
+            <Button type="submit" disabled={isSavingRecovery} className="rounded-lg">
               {isSavingRecovery && <Loader2 className="w-4 h-4 mr-2 animate-spin" />}
               Guardar recuperacion
             </Button>
@@ -195,7 +195,7 @@ export default function AccountSettingsPage() {
         </form>
       </Card>
 
-      <Card className="shadow-lg">
+      <Card className="shadow-sm rounded-xl">
         <CardHeader>
           <div className="flex items-center gap-2">
             <KeyRound className="w-6 h-6 text-primary" />
