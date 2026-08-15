@@ -67,6 +67,8 @@ export default function AlertasPage() {
   const [isMarkingAll, setIsMarkingAll] = useState(false);
   const [filtroTipo, setFiltroTipo] = useState<string>('todas');
   const [filtroFiesta, setFiltroFiesta] = useState<string>('todas');
+  // Arranca en "sin leer": es lo que hay que mirar al abrir la pantalla.
+  const [soloSinLeer, setSoloSinLeer] = useState(true);
   const { toast } = useToast();
 
   const fetchAlertas = useCallback(async () => {
@@ -146,9 +148,17 @@ export default function AlertasPage() {
     return alertas.filter(a => {
       if (filtroTipo !== 'todas' && a.tipo !== filtroTipo) return false;
       if (filtroFiesta !== 'todas' && a.fiestaId !== filtroFiesta) return false;
+      // Las leídas tapaban a las nuevas: se quedaban en la lista con el color
+      // apagado. Ahora arranca mostrando sólo las que faltan mirar.
+      if (soloSinLeer && a.leida) return false;
       return true;
     });
-  }, [alertas, filtroTipo, filtroFiesta]);
+  }, [alertas, filtroTipo, filtroFiesta, soloSinLeer]);
+
+  const leidasEscondidas = useMemo(
+    () => (soloSinLeer ? alertas.filter(a => a.leida).length : 0),
+    [alertas, soloSinLeer],
+  );
 
   // Group by fiesta
   const agrupadas = useMemo(() => {
@@ -263,7 +273,29 @@ export default function AlertasPage() {
               </SelectContent>
             </Select>
           </div>
+          <div className="flex-1">
+            <Select value={soloSinLeer ? 'sin-leer' : 'todas'} onValueChange={v => setSoloSinLeer(v === 'sin-leer')}>
+              <SelectTrigger>
+                <SelectValue />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="sin-leer">Sólo sin leer</SelectItem>
+                <SelectItem value="todas">Incluir las ya leídas</SelectItem>
+              </SelectContent>
+            </Select>
+          </div>
         </CardContent>
+        {leidasEscondidas > 0 && (
+          <CardContent className="px-4 pb-4 pt-0">
+            <button
+              type="button"
+              onClick={() => setSoloSinLeer(false)}
+              className="text-xs font-semibold text-muted-foreground underline underline-offset-2 hover:text-foreground"
+            >
+              Hay {leidasEscondidas} {leidasEscondidas === 1 ? 'alerta ya leída' : 'alertas ya leídas'} escondidas. Mostrarlas.
+            </button>
+          </CardContent>
+        )}
       </Card>
 
       {/* Content */}

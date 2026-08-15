@@ -71,8 +71,11 @@ const navGroups: NavGroup[] = [
     emoji: "💼",
     items: [
       { title: "Prospectos", href: "/contabilidad/crm", icon: KanbanSquare, active: (pathname) => isPathActive(pathname, "/contabilidad/crm") && !isPathActive(pathname, "/contabilidad/crm/outbox") },
-      { title: "Nuevo Presupuesto", href: "/presupuestos/nuevo", icon: PlusCircle, highlight: true },
-      { title: "Presupuestos", href: "/presupuestos", icon: FileText, active: (pathname) => isPathActive(pathname, "/presupuestos") && !isPathActive(pathname, "/presupuestos/nuevo") },
+      // Había dos entradas —"Nuevo Presupuesto" y "Presupuestos"— y las dos caían
+      // en la misma pantalla, porque /presupuestos redirige a /presupuestos/nuevo,
+      // que es la Central de Presupuestos y ya trae el listado y el botón de
+      // crear adentro. Queda una sola.
+      { title: "Presupuestos", href: "/presupuestos/nuevo", icon: FileText, highlight: true, active: (pathname) => isPathActive(pathname, "/presupuestos") },
       { title: "Clientes", href: "/customers", icon: Users },
       { title: "Simulador IA", href: "/simulador-ak", icon: Wand2 },
       { title: "WhatsApp del Día", href: "/contabilidad/crm/outbox", icon: Send, highlight: true },

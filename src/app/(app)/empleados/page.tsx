@@ -1,7 +1,7 @@
 
 'use client';
 
-import { useState, useEffect, useCallback } from 'react';
+import { useState, useEffect, useCallback, useMemo } from 'react';
 import Link from 'next/link';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
@@ -74,6 +74,28 @@ export default function EmpleadosPage() {
     open: false, empleado: null, fiestas: [], isLoading: false, summaryPhone: '', summaryEmail: '',
   });
   const [historyLogoUrl, setHistoryLogoUrl] = useState<string | null>(null);
+  // Con alguien que trabajó en treinta eventos, la tabla del historial no
+  // terminaba más. Se filtra por año.
+  const [filtroAnioHistorial, setFiltroAnioHistorial] = useState<string>('todos');
+
+  const anioDeFiesta = (fiesta: FiestaEnPlanificacion) => {
+    const fecha = new Date(fiesta.configuracion?.fechaEvento || '');
+    return Number.isNaN(fecha.getTime()) ? null : String(fecha.getFullYear());
+  };
+
+  const aniosDelHistorial = useMemo(() => {
+    const anios = new Set<string>();
+    partiesDialog.fiestas.forEach(f => {
+      const anio = anioDeFiesta(f);
+      if (anio) anios.add(anio);
+    });
+    return Array.from(anios).sort((a, b) => Number(b) - Number(a));
+  }, [partiesDialog.fiestas]);
+
+  const fiestasDelHistorial = useMemo(() => {
+    if (filtroAnioHistorial === 'todos') return partiesDialog.fiestas;
+    return partiesDialog.fiestas.filter(f => anioDeFiesta(f) === filtroAnioHistorial);
+  }, [partiesDialog.fiestas, filtroAnioHistorial]);
 
   const fetchData = useCallback(async () => {
     setIsLoading(true);
@@ -145,7 +167,15 @@ export default function EmpleadosPage() {
     });
     try {
       const fiestas = await getFiestasByEmpleado(empleado.id);
-      setPartiesDialog(prev => ({ ...prev, fiestas, isLoading: false }));
+      // De la más nueva a la más vieja: antes había que bajar hasta el final de
+      // la tabla para ver el último evento en el que trabajó.
+      const ordenadas = [...fiestas].sort((a, b) => {
+        const fa = new Date(a.configuracion?.fechaEvento || 0).getTime() || 0;
+        const fb = new Date(b.configuracion?.fechaEvento || 0).getTime() || 0;
+        return fb - fa;
+      });
+      setFiltroAnioHistorial('todos');
+      setPartiesDialog(prev => ({ ...prev, fiestas: ordenadas, isLoading: false }));
     } catch {
       setPartiesDialog(prev => ({ ...prev, isLoading: false }));
       toast({ title: 'Error', description: 'No se pudo cargar el historial de eventos.', variant: 'destructive' });
@@ -558,7 +588,34 @@ export default function EmpleadosPage() {
             ) : partiesDialog.fiestas.length === 0 ? (
               <p className="text-center text-muted-foreground py-8">No hay fiestas asignadas a este empleado.</p>
             ) : (
-              <div className="overflow-x-auto border rounded-md">
+              <div className="space-y-3">
+                {aniosDelHistorial.length > 1 && (
+                  <div className="flex flex-wrap items-center gap-2">
+                    <span className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">Año</span>
+                    <Button
+                      type="button"
+                      size="sm"
+                      variant={filtroAnioHistorial === 'todos' ? 'default' : 'outline'}
+                      className="h-7 rounded-lg text-xs"
+                      onClick={() => setFiltroAnioHistorial('todos')}
+                    >
+                      Todos
+                    </Button>
+                    {aniosDelHistorial.map(anio => (
+                      <Button
+                        key={anio}
+                        type="button"
+                        size="sm"
+                        variant={filtroAnioHistorial === anio ? 'default' : 'outline'}
+                        className="h-7 rounded-lg text-xs"
+                        onClick={() => setFiltroAnioHistorial(anio)}
+                      >
+                        {anio}
+                      </Button>
+                    ))}
+                  </div>
+                )}
+                <div className="overflow-x-auto border rounded-md">
                 <Table>
                   <TableHeader>
                     <TableRow>
@@ -570,7 +627,7 @@ export default function EmpleadosPage() {
                     </TableRow>
                   </TableHeader>
                   <TableBody>
-                    {getPartiesRows(partiesDialog.fiestas, partiesDialog.empleado?.id).map(row => (
+                    {getPartiesRows(fiestasDelHistorial, partiesDialog.empleado?.id).map(row => (
                       <TableRow key={row.id}>
                         <TableCell>{row.evento}</TableCell>
                         <TableCell>{row.fecha}</TableCell>
@@ -583,6 +640,7 @@ export default function EmpleadosPage() {
                     ))}
                   </TableBody>
                 </Table>
+                </div>
               </div>
             )}
           </div>

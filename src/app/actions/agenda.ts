@@ -220,5 +220,47 @@ export async function updateAppointmentStatus(
   }
 }
 
+/**
+ * Corregir una cita ya agendada.
+ *
+ * Antes lo único que se podía hacer con una cita era marcarla "Confirmada". Si
+ * el cliente reprogramaba —que pasa siempre— la cita vieja quedaba para siempre
+ * y había que crear otra al lado, con lo cual la agenda mostraba dos.
+ */
+export async function updateAppointment(
+  id: string,
+  cambios: Partial<Pick<CrmAppointment, 'clienteNombre' | 'clienteContacto' | 'clienteEmail' | 'fechaHora' | 'lugar' | 'notas'>>,
+): Promise<{ success: boolean; error?: string }> {
+  try {
+    await requireAppSession();
+    const appointments = await getAppointments();
+    const idx = appointments.findIndex(a => a.id === id);
+    if (idx === -1) return { success: false, error: 'Cita no encontrada' };
+
+    if (appointments[idx].estado === 'Cancelada') {
+      return { success: false, error: 'La cita está cancelada. Agendá una nueva en vez de reescribir ésta.' };
+    }
+
+    const nombre = cambios.clienteNombre?.trim();
+    if (cambios.clienteNombre !== undefined && !nombre) {
+      return { success: false, error: 'La cita necesita el nombre del cliente.' };
+    }
+    if (cambios.fechaHora !== undefined && Number.isNaN(new Date(cambios.fechaHora).getTime())) {
+      return { success: false, error: 'La fecha de la cita no se entiende.' };
+    }
+
+    appointments[idx] = { ...appointments[idx], ...cambios, ...(nombre ? { clienteNombre: nombre } : {}) };
+    await writeData(APPOINTMENTS_FILE, appointments);
+    return { success: true };
+  } catch (e: any) {
+    return { success: false, error: e.message || 'Error al actualizar cita' };
+  }
+}
+
+/** Cancelar una cita. No se borra: queda el registro de que existió. */
+export async function cancelAppointment(id: string): Promise<{ success: boolean; error?: string }> {
+  return updateAppointmentStatus(id, 'Cancelada');
+}
+
 
 
