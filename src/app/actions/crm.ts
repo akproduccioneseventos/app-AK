@@ -657,6 +657,12 @@ export async function confirmBookingWithContract(formData: FormData): Promise<{ 
     // 4. Register deposit via registerContractDeposit
     let finalPresupuesto = presupuestoWithFormData;
     if (formMontoSenia !== undefined && formMontoSenia > 0) {
+      // No se adivina cómo entró la plata: antes, si no venía el método, se
+      // asentaba "Efectivo" y una transferencia quedaba anotada como plata en
+      // mano, también en la factura.
+      if (!formMetodoPago) {
+        throw new Error('Falta indicar cómo entró la seña (efectivo, transferencia, etc.).');
+      }
       const { updatedPresupuesto } = await registerContractDeposit({
         presupuesto: presupuestoWithFormData,
         monto: formMontoSenia,
