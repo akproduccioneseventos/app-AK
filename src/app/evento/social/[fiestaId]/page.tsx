@@ -591,13 +591,33 @@ export default function SocialEventPage() {
   const submitSong = async (eventForm: FormEvent) => {
     eventForm.preventDefault();
     if (!songDraft.trim() || submitting) return;
+
+    const requestedCountKey = `requestedSongsCount_${fiestaId}`;
+    const currentRequestedCount = typeof window !== 'undefined'
+      ? Number(sessionStorage.getItem(requestedCountKey) || 0)
+      : 0;
+
+    if (currentRequestedCount >= 3) {
+      toast({
+        title: 'Límite alcanzado',
+        description: 'Podés pedir hasta 3 canciones por fiesta. ¡Votá los temas de otros invitados!',
+        variant: 'destructive',
+      });
+      return;
+    }
+
     setSubmitting(true);
     const result = await addSongRequest(fiestaId, songDraft.trim(), authorName || 'Invitado');
     if (result.success) {
       setSongDraft('');
+      if (typeof window !== 'undefined') {
+        sessionStorage.setItem(requestedCountKey, String(currentRequestedCount + 1));
+      }
       toast({ title: 'Canción enviada al DJ' });
       await loadSection('songs');
-    } else toast({ title: 'No se pudo enviar', description: result.error, variant: 'destructive' });
+    } else {
+      toast({ title: 'No se pudo enviar', description: result.error, variant: 'destructive' });
+    }
     setSubmitting(false);
   };
 

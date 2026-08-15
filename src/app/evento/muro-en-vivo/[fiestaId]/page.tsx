@@ -1501,18 +1501,106 @@ function SlideshowLayout({
 
   const isMission = post?.momentTag?.toLowerCase().includes('misión') || post?.momentTag?.toLowerCase().includes('mision') || captionText?.toLowerCase().includes('misión') || captionText?.toLowerCase().includes('mision');
 
-  // Auto-advance slideshow (dinámico si es video o imagen)
+  // Bloque F: Detección de la foto más querida de la noche y mesas destacadas
+  const topLikedPost = useMemo(() => {
+    const withLikes = posts.filter((p) => (p.likes || 0) > 0);
+    if (withLikes.length === 0) return null;
+    return [...withLikes].sort((a, b) => (b.likes || 0) - (a.likes || 0))[0];
+  }, [posts]);
+
+  // Mesas / Grupos más participativos (sin nombres propios ni perdedores)
+  const participatingGroups = useMemo(() => {
+    const tableCounts: Record<string, number> = {};
+    posts.forEach((p) => {
+      const text = `${p.caption || ''} ${p.dedication || ''} ${p.momentTag || ''}`;
+      const match = text.match(/mesa\s*([0-9]+|[a-zA-Záéíóúñ]+)/i);
+      const groupName = match ? `Mesa ${match[1].toUpperCase()}` : 'Mesa General';
+      tableCounts[groupName] = (tableCounts[groupName] || 0) + 1;
+    });
+    return Object.entries(tableCounts)
+      .sort((a, b) => b[1] - a[1])
+      .slice(0, 3)
+      .filter(([name]) => name !== 'Mesa General' || Object.keys(tableCounts).length === 1);
+  }, [posts]);
+
+  // Mostrar slide especial de ranking cada 6 publicaciones si hay una foto con corazones
+  const isRankingSlide = Boolean(
+    topLikedPost &&
+    posts.length >= 3 &&
+    currentIndex % 6 === 5
+  );
+
+  // Auto-advance slideshow (dinámico si es ranking, video o imagen)
   useEffect(() => {
     if (posts.length <= 1) return;
 
-    // Si es video, dejamos un tiempo de resguardo más largo (35s) para que avance si el video falla
-    const duration = isVideo ? 35000 : SLIDESHOW_DURATION_MS;
+    const duration = isRankingSlide
+      ? 8000
+      : isVideo
+        ? 35000
+        : SLIDESHOW_DURATION_MS;
 
     const timer = setTimeout(advance, duration);
     return () => clearTimeout(timer);
-  }, [posts.length, currentIndex, isVideo, advance]);
+  }, [posts.length, currentIndex, isVideo, isRankingSlide, advance]);
 
   if (posts.length === 0) return null;
+
+  if (isRankingSlide && topLikedPost) {
+    return (
+      <div className="absolute inset-0 flex items-center justify-center overflow-hidden bg-slate-950 p-6">
+        <div className="relative h-full w-full max-w-[min(100%,1500px)] overflow-hidden rounded-2xl bg-gradient-to-b from-amber-950/80 via-slate-900 to-black border-2 border-amber-400/60 shadow-[0_0_60px_rgba(251,191,36,0.25)] flex flex-col items-center justify-between p-6">
+          {/* Header */}
+          <div className="text-center space-y-1">
+            <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-amber-400/20 border border-amber-400/40 text-amber-300 text-xs font-black uppercase tracking-widest">
+              <span>⭐</span> MOMENTO ESTELAR DE LA NOCHE <span>⭐</span>
+            </div>
+            <h2 className="text-3xl md:text-5xl font-black tracking-tight text-white">
+              La Foto Más Querida de la Fiesta
+            </h2>
+          </div>
+
+          {/* Center: Top Image */}
+          <div className="relative flex-1 w-full max-w-2xl my-4 rounded-xl overflow-hidden shadow-2xl border border-amber-300/30 bg-black/50">
+            <NextImage
+              src={topLikedPost.imageUrl}
+              alt="Foto más querida"
+              fill
+              className="object-contain"
+              unoptimized
+              priority
+            />
+            <div className="absolute top-4 right-4 bg-red-600/95 text-white px-4 py-2 rounded-full font-black text-lg shadow-lg flex items-center gap-2 backdrop-blur-sm animate-pulse">
+              <span>❤️</span> {topLikedPost.likes} {topLikedPost.likes === 1 ? 'corazón' : 'corazones'}
+            </div>
+            <div className="absolute inset-x-0 bottom-0 bg-gradient-to-t from-black/90 via-black/60 to-transparent p-4 text-white text-center">
+              <p className="text-lg font-bold">
+                {topLikedPost.caption || topLikedPost.dedication || '¡El momento más votado por todos!'}
+              </p>
+            </div>
+          </div>
+
+          {/* Footer: Participación colectiva */}
+          <div className="w-full max-w-2xl flex flex-col sm:flex-row items-center justify-between gap-3 bg-white/5 border border-white/10 rounded-xl px-5 py-3 text-white">
+            <div className="text-left">
+              <p className="text-xs uppercase font-black text-amber-400 tracking-wider">
+                Mesas con más buena onda
+              </p>
+              <p className="text-sm font-semibold text-slate-300">
+                {participatingGroups.length > 0
+                  ? participatingGroups.map(([mesa, count]) => `${mesa} (${count} momentos)`).join(' • ')
+                  : '¡Gracias a todas las mesas por festejar con nosotros!'}
+              </p>
+            </div>
+            <div className="text-xs font-bold text-amber-300/80 shrink-0">
+              🎉 ¡Festejamos juntos!
+            </div>
+          </div>
+        </div>
+        {qrUrl && <QRFloatingCard qrUrl={qrUrl} settings={settings} />}
+      </div>
+    );
+  }
 
   return (
     <div className="absolute inset-0 flex items-center justify-center overflow-hidden bg-black p-5">
