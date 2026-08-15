@@ -130,6 +130,8 @@ export async function getLifeStoryVideoPhotos(fiestaId: string): Promise<string[
 
 export async function deleteAllVideoVidaPhotos(fiestaId: string): Promise<{ success: boolean; error?: string }> {
   try {
+    const { requireAppSession } = await import('@/lib/auth/require-session');
+    await requireAppSession();
     if (!admin.apps.length) return { success: true };
     const bucket = admin.storage().bucket(STORAGE_BUCKET);
     const prefix = `${VIDEO_VIDA_STORAGE_PREFIX}/${fiestaId}/`;

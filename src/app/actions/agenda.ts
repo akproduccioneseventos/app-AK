@@ -251,6 +251,13 @@ export async function updateAppointment(
 
     appointments[idx] = { ...appointments[idx], ...cambios, ...(nombre ? { clienteNombre: nombre } : {}) };
     await writeData(APPOINTMENTS_FILE, appointments);
+
+    // Sincronizar actualización con Google Workspace
+    const { syncAppointmentToGoogleWorkspace } = await import('@/app/actions/google-workspace');
+    syncAppointmentToGoogleWorkspace(appointments[idx]).catch((err) => {
+      console.warn('[agenda] Google Workspace appointment update sync failed:', err);
+    });
+
     return { success: true };
   } catch (e: any) {
     return { success: false, error: e.message || 'Error al actualizar cita' };
