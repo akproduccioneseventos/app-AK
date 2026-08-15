@@ -96,14 +96,26 @@ cuando los invitados entren por el enlace de la fotocabina o de la invitación.
 
 # BLOQUE D — Arreglos de estética que están pendientes
 
-Salieron de mirar las pantallas, no de leer código.
+Salieron de **mirar las pantallas**, no de leer código. Se fotografiaron las
+**242 pantallas** de la aplicación, en escritorio y en celular, y se revisaron.
 
-1. **En el celular, el botón flotante de volver tapa el título de TODAS las
-   pantallas internas.** `src/components/module-navigation-dock.tsx:34-38` está
-   clavado en `top-20 left-3` encima del contenido. En Pagos Rápidos se lee
-   "…os Rápidos" y media frase tapada, **justo en la pantalla que dice ser para
-   usar desde el celular**. Bajalo al pie en celular, o dale lugar propio arriba
-   y que el contenido arranque debajo. En escritorio hoy no molesta: no lo rompas.
+**Lo que salió limpio y no hay que tocar:** las pantallas de la noche (hub,
+barra, DJ, impresión, moderación, accesos, mi mesa, logística, pantalla gigante)
+y las veinte de configuración y carga de datos. Están prolijas.
+
+Lo que sigue es lo único que apareció.
+
+1. **El botón flotante de volver se monta sobre el contenido, en celular Y en
+   escritorio.** `src/components/module-navigation-dock.tsx:34-38` está clavado
+   en `top-20 left-3` encima de todo.
+   - **En el celular tapa el título** de todas las pantallas internas. En Pagos
+     Rápidos se lee "…os Rápidos" y media frase tapada, **justo en la pantalla
+     que dice ser para usar desde el celular**.
+   - **En escritorio se monta sobre el recuadro del logo** de la barra lateral,
+     arriba a la izquierda. Se ve en Eventos, en Presupuestos y en el resto.
+   Dale lugar propio en las dos medidas: al pie en celular, y en escritorio
+   dentro de la barra lateral o corrido para que no pise el logo. **Que no quede
+   flotando encima de nada.**
    Donde la pantalla ya tiene su propio "Volver", **dejá uno solo**.
 2. **El botón del asistente tapa botones de verdad.** En el Planificador
    Gastronómico se monta sobre "Añadir postre", que queda cortado. Dejá aire al
@@ -114,6 +126,21 @@ Salieron de mirar las pantallas, no de leer código.
    logo tenue). **Nunca el texto alternativo a la vista.**
 4. **Los botones "Anterior" y "Siguiente" de la presentación se encinan** con la
    línea de abajo. Dejá aire.
+5. **Los botones de borrar todo están en la barra principal de las pantallas de
+   todos los días.** En Eventos (`eventos/page.tsx:459`) hay un "🗑️ Eliminar todo
+   permanentemente" al lado de "Crear Nuevo Evento", y en la Central de
+   Presupuestos (`presupuestos/nuevo/page.tsx:175`) un "🗑️ Borrar todos" al lado
+   de "Nuevo Presupuesto". **Los dos ya existen en Ajustes → Datos**
+   (`settings/datos/page.tsx:223` y `:278`), que es donde corresponde.
+   **Qué hacer:** sacarlos de las dos pantallas de todos los días y dejarlos sólo
+   en Ajustes → Datos. **No toques la confirmación que piden**: está bien hecha,
+   obliga a escribir un texto. Es sólo dónde vive el botón.
+6. **La pantalla de Eventos culpa a una búsqueda que nadie hizo.**
+   `eventos/page.tsx:764` dice siempre *"No hay fiestas activas que coincidan con
+   tu búsqueda"*, aunque el buscador esté vacío. Doce líneas más abajo, en el
+   archivo histórico, **está bien hecho**: distingue si hay búsqueda o no.
+   **Qué hacer:** copiá ese patrón. Sin búsqueda tiene que decir que todavía no
+   hay fiestas activas **y cuál es el próximo paso**, con el botón de crear.
 
 # BLOQUE E — El álbum que el cliente reparte
 
