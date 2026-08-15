@@ -51,7 +51,7 @@ import {
   Mail,
 } from 'lucide-react';
 import Link from 'next/link';
-import { getCalendarEvents, updateFiestaDate, getAppointments, createAppointment, updateAppointmentStatus } from '@/app/actions/agenda';
+import { getCalendarEvents, updateFiestaDate, getAppointments, createAppointment, updateAppointmentStatus, updateAppointment, cancelAppointment } from '@/app/actions/agenda';
 import { buildWhatsAppReminderUrl, buildGoogleCalendarAppointmentUrl, buildGmailAppointmentInviteUrl } from '@/lib/agenda-utils';
 import type { CalendarEvent } from '@/app/actions/agenda';
 import type { CrmAppointment } from '@/types/crm';
@@ -361,6 +361,9 @@ export default function CalendarioInteractivoPage() {
   const [citaLugar, setCitaLugar] = useState('Oficina AK Salto');
   const [citaNotas, setCitaNotas] = useState('');
   const [isSubmittingCita, setIsSubmittingCita] = useState(false);
+  // Cuando está cargada, el formulario de cita edita esa cita en vez de crear una.
+  const [citaEnEdicion, setCitaEnEdicion] = useState<CrmAppointment | null>(null);
+  const [citaACancelar, setCitaACancelar] = useState<CrmAppointment | null>(null);
 
   const fetchEvents = useCallback(async () => {
     setIsLoading(true);
@@ -378,6 +381,42 @@ export default function CalendarioInteractivoPage() {
     }
   }, [toast]);
 
+  /** Abre el mismo formulario, pero con los datos de una cita ya agendada. */
+  const abrirEdicionDeCita = (appt: CrmAppointment) => {
+    const fecha = new Date(appt.fechaHora);
+    const valida = !Number.isNaN(fecha.getTime());
+    setCitaEnEdicion(appt);
+    setCitaNombre(appt.clienteNombre || '');
+    setCitaTelefono(appt.clienteContacto || '');
+    setCitaEmail(appt.clienteEmail || '');
+    setCitaTipo(appt.eventoTipo || 'Fiesta de 15');
+    setCitaFecha(valida ? fecha.toISOString().slice(0, 10) : '');
+    setCitaHora(valida ? fecha.toTimeString().slice(0, 5) : '18:00');
+    setCitaLugar(appt.lugar || 'Oficina AK Salto');
+    setCitaNotas(appt.notas || '');
+    setIsCitaModalOpen(true);
+  };
+
+  const limpiarFormularioDeCita = () => {
+    setCitaEnEdicion(null);
+    setCitaNombre('');
+    setCitaTelefono('');
+    setCitaEmail('');
+    setCitaNotas('');
+  };
+
+  const handleCancelarCita = async () => {
+    if (!citaACancelar) return;
+    const res = await cancelAppointment(citaACancelar.id);
+    if (res.success) {
+      toast({ title: 'Cita cancelada', description: `La cita con ${citaACancelar.clienteNombre} quedó cancelada.` });
+      fetchEvents();
+    } else {
+      toast({ title: 'Error', description: res.error || 'No se pudo cancelar la cita.', variant: 'destructive' });
+    }
+    setCitaACancelar(null);
+  };
+
   const handleCreateCita = async () => {
     if (!citaNombre || !citaTelefono || !citaFecha) {
       toast({ title: 'Datos incompletos', description: 'Ingresá el nombre, teléfono y fecha de la cita.', variant: 'destructive' });
@@ -386,6 +425,27 @@ export default function CalendarioInteractivoPage() {
     setIsSubmittingCita(true);
     try {
       const fullDateTime = new Date(`${citaFecha}T${citaHora}`).toISOString();
+
+      if (citaEnEdicion) {
+        const res = await updateAppointment(citaEnEdicion.id, {
+          clienteNombre: citaNombre,
+          clienteContacto: citaTelefono,
+          clienteEmail: citaEmail || undefined,
+          fechaHora: fullDateTime,
+          lugar: citaLugar,
+          notas: citaNotas,
+        });
+        if (res.success) {
+          toast({ title: 'Cita actualizada', description: `Quedó reprogramada con ${citaNombre}.` });
+          setIsCitaModalOpen(false);
+          limpiarFormularioDeCita();
+          fetchEvents();
+        } else {
+          toast({ title: 'Error', description: res.error || 'No se pudo actualizar la cita', variant: 'destructive' });
+        }
+        return;
+      }
+
       const res = await createAppointment({
         clienteNombre: citaNombre,
         clienteContacto: citaTelefono,
@@ -402,10 +462,7 @@ export default function CalendarioInteractivoPage() {
           window.open(res.whatsappUrl, '_blank');
         }
         setIsCitaModalOpen(false);
-        setCitaNombre('');
-        setCitaTelefono('');
-        setCitaEmail('');
-        setCitaNotas('');
+        limpiarFormularioDeCita();
         fetchEvents();
       } else {
         toast({ title: 'Error', description: res.error || 'No se pudo crear la cita', variant: 'destructive' });
@@ -687,6 +744,30 @@ export default function CalendarioInteractivoPage() {
                           Marcar Confirmada ✓
                         </Button>
                       )}
+
+                      {/* Antes una cita no se podía corregir ni cancelar: si el
+                          cliente reprogramaba había que crear otra al lado y
+                          quedaban las dos en la agenda. */}
+                      {appt.estado !== 'Cancelada' && (
+                        <div className="grid grid-cols-2 gap-1.5">
+                          <Button
+                            variant="ghost"
+                            size="sm"
+                            className="h-8 text-xs font-bold text-slate-300 hover:text-white hover:bg-white/10"
+                            onClick={() => abrirEdicionDeCita(appt)}
+                          >
+                            Reprogramar
+                          </Button>
+                          <Button
+                            variant="ghost"
+                            size="sm"
+                            className="h-8 text-xs font-bold text-rose-400 hover:text-rose-300 hover:bg-rose-500/10"
+                            onClick={() => setCitaACancelar(appt)}
+                          >
+                            Cancelar
+                          </Button>
+                        </div>
+                      )}
                     </div>
                   </div>
                 );
@@ -696,18 +777,20 @@ export default function CalendarioInteractivoPage() {
         </CardContent>
       </Card>
 
-      {/* Modal para Crear Cita Comercial */}
-      <Dialog open={isCitaModalOpen} onOpenChange={setIsCitaModalOpen}>
+      {/* Modal para Crear o Reprogramar Cita Comercial */}
+      <Dialog open={isCitaModalOpen} onOpenChange={open => { setIsCitaModalOpen(open); if (!open) limpiarFormularioDeCita(); }}>
         <DialogContent className="sm:max-w-lg border-emerald-500/30 bg-slate-950 text-white">
           <DialogHeader>
             <DialogTitle className="font-headline text-xl font-black text-white flex items-center gap-2">
               <div className="grid h-8 w-8 place-items-center rounded-lg bg-emerald-500/20 border border-emerald-500/40">
                 <Users className="w-4 h-4 text-emerald-400" />
               </div>
-              Agendar Entrevista Comercial
+              {citaEnEdicion ? 'Reprogramar Entrevista' : 'Agendar Entrevista Comercial'}
             </DialogTitle>
             <DialogDescription className="text-xs text-slate-400">
-              Agendá una reunión de ventas. Se sincroniza automáticamente con Google Calendar, Gmail y se abre WhatsApp para enviarle el recordatorio al cliente.
+              {citaEnEdicion
+                ? 'Cambiá la fecha, la hora o los datos del cliente. La cita es la misma, no se crea otra.'
+                : 'Agendá una reunión de ventas. Se sincroniza automáticamente con Google Calendar, Gmail y se abre WhatsApp para enviarle el recordatorio al cliente.'}
             </DialogDescription>
           </DialogHeader>
 
@@ -764,7 +847,33 @@ export default function CalendarioInteractivoPage() {
           <DialogFooter className="gap-2">
             <DialogClose asChild><Button variant="outline" className="border-white/20 text-slate-300 hover:text-white hover:bg-white/10">Cancelar</Button></DialogClose>
             <Button onClick={handleCreateCita} disabled={isSubmittingCita} className="bg-emerald-500 hover:bg-emerald-600 text-slate-950 font-black rounded-xl shadow-lg transition-transform active:scale-95">
-              {isSubmittingCita ? 'Agendando...' : '✨ Agendar Cita'}
+              {isSubmittingCita
+                ? (citaEnEdicion ? 'Guardando...' : 'Agendando...')
+                : (citaEnEdicion ? 'Guardar cambios' : '✨ Agendar Cita')}
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+
+      {/* Cancelar una cita no se puede deshacer: se pregunta antes. */}
+      <Dialog open={!!citaACancelar} onOpenChange={open => { if (!open) setCitaACancelar(null); }}>
+        <DialogContent className="sm:max-w-md border-rose-500/30 bg-slate-950 text-white">
+          <DialogHeader>
+            <DialogTitle className="font-headline text-lg font-black text-white">
+              ¿Cancelar la cita?
+            </DialogTitle>
+            <DialogDescription className="text-xs text-slate-400">
+              Queda marcada como cancelada, con {citaACancelar?.clienteNombre}. No se borra: sigue en
+              la agenda como registro de que existió. Si el cliente reprogramó, conviene usar
+              Reprogramar en vez de cancelar.
+            </DialogDescription>
+          </DialogHeader>
+          <DialogFooter className="gap-2">
+            <Button variant="outline" onClick={() => setCitaACancelar(null)} className="border-white/20 text-slate-300 hover:text-white hover:bg-white/10">
+              No, dejarla
+            </Button>
+            <Button onClick={handleCancelarCita} className="bg-rose-500 hover:bg-rose-600 text-white font-black rounded-xl">
+              Sí, cancelar
             </Button>
           </DialogFooter>
         </DialogContent>
