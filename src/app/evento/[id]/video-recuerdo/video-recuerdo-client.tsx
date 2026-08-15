@@ -4,7 +4,6 @@ import { useState, useEffect, useRef } from 'react';
 import Image from 'next/image';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Volume2, VolumeX, SkipForward, PlayCircle } from 'lucide-react';
-import Image from 'next/image';
 import type { SocialGalleryPost } from '@/types/social-gallery';
 
 interface Props {
