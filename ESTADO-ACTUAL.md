@@ -29,6 +29,25 @@ cliente con más colores escritos a mano.
 - **Promociones:** no se pueden guardar sin fecha de inicio y de fin.
 - **Colores del tema:** hechas las pantallas de Ajustes. Falta el resto.
 
+## Probada en un navegador de verdad, entera
+
+**94 recorridos en Chrome contra el servidor compilado, en escritorio y en
+celular: todos pasan.** Desde la invitación pública y el simulador de
+presupuesto hasta las pantallas de la noche, el muro, el portal del cliente y
+las internas del equipo.
+
+Tres habían fallado y **ninguna era culpa de la app**:
+
+- Dos pruebas se peleaban por la misma fecha: la de la noche crea una fiesta de
+  mentira a un año justo y la del simulador elegía ese mismo día. El simulador
+  la marcaba ocupada, que es lo correcto porque lo estaba. Se separaron.
+- La huella de las pantallas cambió porque el menú tiene tres botones nuevos y
+  uno repetido menos. Se actualizó la referencia.
+
+**Ojo con cómo se corre:** `npm run test:e2e:production`, nunca `npx playwright
+test` a secas. El segundo levanta el servidor de desarrollo y da fallas falsas;
+ya pasó en esta sesión y costó una corrida entera.
+
 ## Lo revisado en el cierre
 
 Se auditaron las pantallas del cliente e invitado, las internas del equipo y
