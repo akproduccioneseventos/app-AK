@@ -32,7 +32,7 @@ const getPageTitle = (pathname: string): string => {
   const idSegment = pathSegments[pathSegments.length -1];
 
   if (pathname === '/admin') return 'Menú Principal';
-  
+
   if (pathname === '/presupuestos/nuevo') return 'Central de Presupuestos';
   if (pathSegments[0] === 'presupuestos' && pathSegments[2] === 'editar' && pathSegments.length === 3) return `Editar Presupuesto #${idSegment?.substring(0,5)}`;
   if (pathSegments[0] === 'presupuestos' && pathSegments[2] === 'ver' && pathSegments.length === 3) return `Ver Presupuesto #${idSegment?.substring(0,5)}`;
@@ -47,7 +47,7 @@ const getPageTitle = (pathname: string): string => {
   if (pathSegments[0] === 'customers' && pathSegments[2] === 'edit' && pathSegments.length === 3) return `Editar Cliente #${idSegment}`;
   if (pathSegments[0] === 'customers' && pathSegments[1] && pathSegments.length === 2 && !pathname.endsWith('/edit')) return `Detalle de Cliente`;
   if (pathname === '/customers/reporte') return 'Reporte de Clientes';
-  
+
   if (pathname === '/empresa') return 'Gestión de la Empresa';
   if (pathname === '/empresa/salones') return 'Gestor de Salones';
   if (pathname === '/empresa/servicios') return 'Catálogo de Servicios';
@@ -143,9 +143,9 @@ const getPageTitle = (pathname: string): string => {
   if (pathname === '/admin/finanzas') return 'Dashboard de Rentabilidad';
   if (pathname === '/alertas') return 'Centro de Alertas';
   if (pathname === '/pagos-rapidos') return 'Pagos Rápidos';
-  
+
   if (pathname === '/simulador-de-presupuesto') return 'Wand2';
-  
+
   if (pathname === '/evento/actual') return 'PartyPopper';
   if (pathname === '/evento/actual/mesa') return 'Ticket';
   if (pathname === '/evento/actual/checkin') return 'UserCheck';
@@ -199,8 +199,8 @@ const getPageIcon = (pathname: string): React.ElementType | null => {
 
   if (pathname === '/empresa') return Building2;
   if (pathname === '/empresa/servicios' || pathname === '/empresa/servicios/reporte' || pathname === '/empresa/servicios/nuevo' || pathname.startsWith('/empresa/servicios/editar')) return Sparkles;
-  if (pathname === '/empresa/contabilidad') return BarChart3; 
-  if (pathname === '/empresa/contabilidad/reportes') return TrendingUp; 
+  if (pathname === '/empresa/contabilidad') return BarChart3;
+  if (pathname === '/empresa/contabilidad/reportes') return TrendingUp;
   if (pathname === '/empresa/activos-fijos' || pathname === '/empresa/activos-fijos/reporte' || pathname === '/empresa/activos-fijos/nuevo' || pathname.startsWith('/empresa/activos-fijos/editar')) return Package;
   if (pathname === '/empresa/insumos' || pathname === '/empresa/insumos/reporte' || pathname === '/empresa/insumos/nuevo' || pathname.startsWith('/empresa/insumos/editar')) return Package;
   if (pathname.startsWith('/empresa/redes-sociales')) return Sparkles;
@@ -214,7 +214,7 @@ const getPageIcon = (pathname: string): React.ElementType | null => {
 
   if (pathname === '/eventos') return CalendarClock;
   if (pathname === '/calendario') return CalendarDaysIcon;
-  
+
   if (pathname === '/login') return LogInIcon;
 
   if (pathname === '/presupuestos/nuevo') return ListChecks;
@@ -240,9 +240,9 @@ const getPageIcon = (pathname: string): React.ElementType | null => {
   if (pathname === '/admin/finanzas') return TrendingUp;
   if (pathname === '/settings/task-templates') return ListChecks;
   if (pathname === '/settings/accesos-personal') return UserCog;
-  
+
   if (pathname === '/simulador-de-presupuesto') return Wand2;
-  
+
   if (pathname === '/evento/actual') return PartyPopper;
   if (pathname === '/evento/actual/mesa') return Ticket;
   if (pathname === '/evento/actual/checkin') return UserCheck;
@@ -286,7 +286,7 @@ export function AppShell({ children }: { children: ReactNode }) {
   // Define pages that are printable views and should not have the shell.
   const isPdfPage = pathname.endsWith('/pdf') || pathname.endsWith('/resumen-imprimible') || pathname.endsWith('/reporte');
   const isSharedPrintablePage = isPdfPage && searchParams.has('token');
-  
+
   // Define special pages that might have their own layout
   const isBudgetViewPage = /^\/presupuestos\/[^/]+\/ver$/.test(pathname);
   const isInvoiceViewPage = /^\/invoices\/[^/]+$/.test(pathname) && !pathname.endsWith('/edit');
@@ -295,9 +295,9 @@ export function AppShell({ children }: { children: ReactNode }) {
   // has a clean, distraction-free view with no sidebar or top navigation.
   const isMuroSocialIsolatedView = pathname === '/fiestas/nueva/muro-social';
 
-  const isSpecialRender = 
-    isAuthPage || 
-    isPublicEventPage || 
+  const isSpecialRender =
+    isAuthPage ||
+    isPublicEventPage ||
     isClientFacingTool ||
     isPdfPage ||
     isBudgetViewPage ||
@@ -406,7 +406,7 @@ export function AppShell({ children }: { children: ReactNode }) {
               </DropdownMenu>
             </div>
           </header>
-          <main className="flex-1 bg-slate-50/80 p-4 sm:p-6 lg:p-8">
+          <main className="flex-1 bg-slate-50/80 p-4 sm:p-6 lg:p-8 pb-32 sm:pb-36">
             {children}
           </main>
         </div>

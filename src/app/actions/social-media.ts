@@ -337,3 +337,116 @@ export async function syncInstagramPosts(
     return { success: false, photosCount: 0, videosCount: 0, plannerCount: 0, error: error.message };
   }
 }
+
+/**
+ * Bloque J — Genera borradores sugeridos en el planificador a partir de las mejores fotos aprobadas de una fiesta.
+ * IMPORTANTE: Nunca se publica solo; los posteos quedan en estado 'Borrador' esperando aprobación del equipo.
+ */
+export async function generateDraftPostsFromPartyPhotos(
+  fiestaId: string
+): Promise<{ success: boolean; createdCount?: number; posts?: SocialPost[]; error?: string }> {
+  try {
+    const permiso = await requirePermiso(PERMISOS.CRM);
+    if (!permiso.ok) return { success: false, error: permiso.error };
+
+    const { getFiestaById } = await import('@/app/actions/fiesta/fiesta.actions');
+    const { getPublicSocialPosts } = await import('@/app/actions/social-gallery');
+    const { esAprobadoParaMostrar } = await import('@/lib/social-fiesta/visibilidad');
+
+    const [fiesta, allPosts] = await Promise.all([
+      getFiestaById(fiestaId),
+      getPublicSocialPosts(fiestaId).catch(() => []),
+    ]);
+
+    if (!fiesta) {
+      return { success: false, error: 'Fiesta no encontrada.' };
+    }
+
+    const nombreEvento = fiesta.configuracion?.nombreEvento
+      || fiesta.configuracion?.clienteNombre
+      || 'Evento AK';
+    const tipoEvento = String(fiesta.configuracion?.tipoCelebracion || 'fiesta').toLowerCase();
+    const tipoHashtag = tipoEvento.includes('15') || tipoEvento.includes('xv')
+      ? 'QuinceAños'
+      : tipoEvento.includes('boda') || tipoEvento.includes('casam')
+        ? 'Boda'
+        : tipoEvento.includes('cumple')
+          ? 'Cumpleaños'
+          : 'EventoSocial';
+
+    // Filtrar fotos aprobadas (no videos, con imagen válida)
+    const approvedPhotos = allPosts
+      .filter((p) => esAprobadoParaMostrar(p) && p.imageUrl && !p.imageUrl.match(/\.(mp4|webm|mov|ogg)(\?|$)/i))
+      .sort((a, b) => (b.likes || 0) - (a.likes || 0));
+
+    if (approvedPhotos.length === 0) {
+      return {
+        success: false,
+        error: 'No se encontraron fotos aprobadas en esta fiesta para armar los posteos.',
+      };
+    }
+
+    const selectedPhotos = approvedPhotos.slice(0, 4);
+    const existingPlannerPosts = await readData<SocialPost[]>(POSTS_FILE, []);
+    const now = new Date();
+
+    const postTemplates = [
+      {
+        platform: 'Instagram' as const,
+        text: `¡Así se vivió la fiesta de ${nombreEvento}! 📸✨\n\nUna noche llena de emoción, risas y momentos únicos junto a familia y amigos en Salto. ¡Gracias por confiar en el equipo de AK Producciones para hacerla realidad! 🎉\n\n#AKProducciones #EventosSalto #FiestasUruguay #${tipoHashtag} #MomentosInolvidables`,
+      },
+      {
+        platform: 'Instagram' as const,
+        text: `Cada detalle cuenta cuando se trata de celebrar a lo grande. ✨\n\nAsí lució la ambientación y los momentos mágicos de ${nombreEvento}. ¡Nos apasiona crear experiencias que quedan grabadas para siempre! 💫\n\n#Ambientacion #EventosSalto #SaltoUruguay #AKProducciones #${tipoHashtag}`,
+      },
+      {
+        platform: 'Facebook' as const,
+        text: `¡La pista no paró ni un segundo en ${nombreEvento}! 🎶🔥\n\nLuces, buena música y la mejor energía de todos los invitados para festejar como se debe. ¡Felicitaciones! 💃🕺\n\n#Fiesta #Discoteca #EventosUY #AKProducciones #Salto`,
+      },
+      {
+        platform: 'Instagram' as const,
+        text: `Risas, poses y recuerdos que duran para siempre. 📸🥳\n\nLos invitados de ${nombreEvento} coparon la cabina y nos dejaron las mejores postales de la noche. ¿Estuviste ahí? ¡Contanos en los comentarios!\n\n#Fotocabina #Recuerdos #FiestasSalto #AKProducciones`,
+      },
+    ];
+
+    const generatedPosts: SocialPost[] = [];
+
+    selectedPhotos.forEach((photo, idx) => {
+      const template = postTemplates[idx % postTemplates.length];
+      const scheduledDate = new Date(now.getTime() + (idx + 1) * 86400000); // 1 día por post sugerido
+
+      const newPost: SocialPost = {
+        id: `draft_${fiestaId}_${Date.now()}_${idx}`,
+        platform: template.platform,
+        isGeneralCampaign: false,
+        eventId: fiestaId,
+        eventName: nombreEvento,
+        publishDate: scheduledDate.toISOString(),
+        text: template.text,
+        mediaUrl: photo.imageUrl,
+        mediaType: 'image',
+        status: 'Borrador',
+        createdAt: new Date().toISOString(),
+        updatedAt: new Date().toISOString(),
+      };
+
+      generatedPosts.push(newPost);
+      existingPlannerPosts.unshift(newPost);
+    });
+
+    await writeData(
+      POSTS_FILE,
+      existingPlannerPosts,
+      (a, b) => new Date(b.publishDate).getTime() - new Date(a.publishDate).getTime()
+    );
+
+    return {
+      success: true,
+      createdCount: generatedPosts.length,
+      posts: generatedPosts,
+    };
+  } catch (error: any) {
+    return { success: false, error: error.message || 'Error al generar borradores de redes.' };
+  }
+}
+

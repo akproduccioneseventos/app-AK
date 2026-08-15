@@ -66,6 +66,7 @@ import PostEventMemoryHub from '@/components/social-wall/PostEventMemoryHub';
 import { FaceGalleryStrip } from '@/components/entertainment/FaceGalleryStrip';
 import { PaparazziOverlay } from '@/components/social-wall/PaparazziOverlay';
 import { SpotifySongSearch } from '@/components/invitacion/SpotifySongSearch';
+import { appendCommercialAttribution } from '@/lib/commercial/acquisition';
 
 type SocialSection = 'feed' | 'songs' | 'dedications' | 'chat' | 'poll' | 'game';
 
@@ -317,13 +318,13 @@ export default function SocialEventPage() {
     ]);
     if (eventResult.status === 'fulfilled') setEvent(eventResult.value);
     else anyError = true;
-    
+
     if (postsResult.status === 'fulfilled') setPosts(postsResult.value);
     else anyError = true;
-    
+
     if (pollResult.status === 'fulfilled') setPoll(pollResult.value);
     else anyError = true;
-    
+
     if (anyError) setHasError(true);
     if (showLoader) setRefreshing(false);
   }, [fiestaId]);
@@ -355,7 +356,7 @@ export default function SocialEventPage() {
       setNameDraft(savedName);
       setNameDialogOpen(!savedName && !guestId); // Solo abrir si no hay nombre Y no vino por enlace personal
     };
-    
+
     void initName();
 
     try {
@@ -590,13 +591,33 @@ export default function SocialEventPage() {
   const submitSong = async (eventForm: FormEvent) => {
     eventForm.preventDefault();
     if (!songDraft.trim() || submitting) return;
+
+    const requestedCountKey = `requestedSongsCount_${fiestaId}`;
+    const currentRequestedCount = typeof window !== 'undefined'
+      ? Number(sessionStorage.getItem(requestedCountKey) || 0)
+      : 0;
+
+    if (currentRequestedCount >= 3) {
+      toast({
+        title: 'Límite alcanzado',
+        description: 'Podés pedir hasta 3 canciones por fiesta. ¡Votá los temas de otros invitados!',
+        variant: 'destructive',
+      });
+      return;
+    }
+
     setSubmitting(true);
     const result = await addSongRequest(fiestaId, songDraft.trim(), authorName || 'Invitado');
     if (result.success) {
       setSongDraft('');
+      if (typeof window !== 'undefined') {
+        sessionStorage.setItem(requestedCountKey, String(currentRequestedCount + 1));
+      }
       toast({ title: 'Canción enviada al DJ' });
       await loadSection('songs');
-    } else toast({ title: 'No se pudo enviar', description: result.error, variant: 'destructive' });
+    } else {
+      toast({ title: 'No se pudo enviar', description: result.error, variant: 'destructive' });
+    }
     setSubmitting(false);
   };
 
@@ -742,11 +763,11 @@ export default function SocialEventPage() {
 
   return (
     <div className="min-h-screen bg-[#f0f2f5] text-slate-950">
-      <PaparazziOverlay 
-        fiestaId={fiestaId} 
-        isOpen={isPaparazziOpen} 
-        onUpload={() => { setIsPaparazziOpen(false); setUploadOpen(true); }} 
-        onClose={() => setIsPaparazziOpen(false)} 
+      <PaparazziOverlay
+        fiestaId={fiestaId}
+        isOpen={isPaparazziOpen}
+        onUpload={() => { setIsPaparazziOpen(false); setUploadOpen(true); }}
+        onClose={() => setIsPaparazziOpen(false)}
       />
 
 
@@ -846,7 +867,7 @@ export default function SocialEventPage() {
                 <SpotifySongSearch value={songDraft} onChange={setSongDraft} />
                 <Button type="submit" disabled={!songDraft.trim() || submitting} className="h-12 px-4" style={{ backgroundColor: accentColor }}><Send className="h-5 w-5" /></Button>
               </form>
-              
+
               <div className="relative flex h-[350px] w-full items-center justify-center overflow-hidden rounded-xl bg-slate-50 border border-slate-200">
                 <AnimatePresence mode="popLayout">
                   {(() => {
@@ -898,7 +919,7 @@ export default function SocialEventPage() {
                   })()}
                 </AnimatePresence>
               </div>
-              
+
               <div className="mt-8">
                 <h4 className="mb-4 text-sm font-bold text-slate-500">Ranking actual</h4>
                 <div className="divide-y divide-slate-100">
@@ -931,6 +952,22 @@ export default function SocialEventPage() {
           {section === 'poll' && <SectionShell key="poll" title={poll?.question || 'Encuesta'} text="Elegí una opción. Cada invitado puede votar una vez.">{poll ? <VoteOptions options={poll.options} voted={votedPollId === poll.id} accentColor={accentColor} onVote={submitPollVote} /> : <EmptyState icon={BarChart3} title="No hay encuesta activa" text="Cuando el equipo publique una, aparecerá acá." />}</SectionShell>}
 
           {section === 'game' && <SectionShell key="game" title={activeGame?.title || 'Juego'} text={activeGame?.subtitle || 'Participá desde tu celular.'}>{activeGame?.options?.length ? <VoteOptions options={activeGame.options.map((option) => ({ ...option, votes: option.votes || 0 }))} voted={votedGameId === activeGame.launchedAt} accentColor={accentColor} onVote={submitGameVote} /> : <EmptyState icon={Gamepad2} title="Esperando el próximo desafío" text="Mirá la pantalla principal y seguí las indicaciones." />}</SectionShell>}
+
+          <div className="py-8 text-center">
+            <a
+              href={appendCommercialAttribution('/simulador-de-presupuesto', {
+                source: 'guest_portal',
+                campaign: 'muro_social',
+                refFiestaId: fiestaId,
+              })}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="inline-flex items-center gap-1.5 text-xs text-slate-500 hover:text-slate-900 transition-colors"
+            >
+              <span>¿Te toca festejar el año que viene? Mirá cuánto sale tu fiesta</span>
+              <span aria-hidden="true">&rarr;</span>
+            </a>
+          </div>
         </div>
       </main>
     </div>

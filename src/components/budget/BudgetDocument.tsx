@@ -7,13 +7,14 @@ import React from 'react';
 import Image from 'next/image';
 import type { Presupuesto, ItemPresupuestado } from '@/types/presupuesto';
 import type { AnnualAdjustmentProjection } from '@/lib/budget/formal-budget';
-import { Gift, CheckCircle2 } from 'lucide-react';
+import { Gift, CheckCircle2, Sparkles } from 'lucide-react';
 import {
   BUDGET_VALIDITY_DAYS,
   buildFormalBudgetBookingNote,
   DEFAULT_BOOKING_DEPOSIT_AMOUNT,
 } from '@/lib/budget/formal-budget';
 import { calculateMercadoPagoCuotas } from '@/lib/payments/mercadopago-calculator';
+import { buildPresupuestoNarrative } from '@/lib/budget/budget-narrative';
 
 // ── Company constants ─────────────────────────────────────────────────────────
 const COMPANY_NAME = 'AK PRODUCCIONES';
@@ -340,6 +341,27 @@ export default function BudgetDocument({
             )}
           </div>
         </section>
+
+        {/* Narrative description (El presupuesto que se explica solo) */}
+        {(() => {
+          const narrative = buildPresupuestoNarrative(presupuesto);
+          if (!narrative) return null;
+          return (
+            <section className="mb-4 rounded-xl border border-amber-200/80 bg-amber-50/50 p-3.5 print:border-slate-300 print:bg-slate-50 print:p-2.5">
+              <div className="flex items-start gap-2.5">
+                <Sparkles className="w-4 h-4 text-amber-600 mt-0.5 shrink-0 print:hidden" />
+                <div>
+                  <p className="text-[10px] font-black uppercase tracking-wider text-amber-900 print:text-slate-800">
+                    Resumen de tu propuesta
+                  </p>
+                  <p className="mt-0.5 text-xs text-slate-700 leading-relaxed font-medium print:text-[8pt] print:text-slate-700">
+                    {narrative}
+                  </p>
+                </div>
+              </div>
+            </section>
+          );
+        })()}
 
         {/* Items table */}
         {showPriceBreakdown && presupuesto.itemsPresupuestados.length > 0 && (

@@ -118,6 +118,10 @@ de lo que el equipo todavía tiene que publicar a mano.
 - **Simulador de presupuesto público**: cualquiera lo usa sin cuenta, y los datos
   (nombre, teléfono, fecha, invitados, salón) **entran solos al CRM como prospecto**,
   con el presupuesto armado. Es la puerta de entrada de clientes nuevos y funciona.
+- **Atribución de clientes por fiesta (Tanda 1 — ANDA, 15 de agosto de 2026)**:
+  1. La fotocabina, la galería y el muro social muestran un llamado discreto al finalizar ("¿Te toca festejar el año que viene? Mirá cuánto sale tu fiesta") enlazando al simulador con atribución (`refFiestaId` y campaña).
+  2. Tablero en CRM (**Atracción de Clientes por Fiesta**, `/contabilidad/crm/atraccion-fiestas`) que muestra por cada evento cuántos prospectos trajo, cuántos presupuestos se armaron y cuántos contrataron, con filtro por año.
+  3. **Álbum oficial público** (`/evento/album/[fiestaId]` y `/album/[fiestaId]`) con fotos aprobadas en alta definición, lightbox a pantalla completa, botón de compartir por WhatsApp y enlace comercial con atribución al simulador.
 - **Cupones y descuentos**: se configuran, se validan y se aplican solos al armar el
   presupuesto. Hay estadísticas de uso.
 - **Tablero de conversión del CRM**: prospectos activos, valor del embudo, ganados,
@@ -208,6 +212,20 @@ de lo que el equipo todavía tiene que publicar a mano.
   agosto de 2026; antes figuraba acá como "no está"). Hay una pantalla que las
   pone a todas juntas y las agrupa por tipo de evento y por mes, ordenadas por lo
   que dejaron. Se entra desde el Panel Contable.
+
+## Atracción Comercial y Pantallas de la Fiesta — revisado el 15 de agosto de 2026
+
+### Lo que anda
+
+- **Conversión desde la fiesta al simulador de presupuestos — ANDA.** Enlace con atribución (`campaign` y `refFiestaId`) en la pantalla final de la fotocabina (`/evento/fotocabina/[fiestaId]`), galería interactiva (`/evento/galeria/[fiestaId]`), muro social (`/evento/social/[fiestaId]`) y álbum oficial (`/album/[fiestaId]`).
+- **Reporte de Atracción por Fiesta en CRM — ANDA.** Pantalla en `/contabilidad/crm/atraccion-fiestas` accesible desde el CRM que agrupa prospectos, presupuestos enviados y contratos ganados originados en cada fiesta con filtro anual.
+- **Álbum Oficial Público con visor HD y descarga — ANDA.** Ruta pública `/album/[fiestaId]` y `/evento/album/[fiestaId]` con visualizador lightbox, descarga directa de imágenes y botón para compartir por WhatsApp.
+- **Ranking de la noche y foto más querida en el muro — ANDA.** Diapositiva especial rotativa en la pantalla gigante de `/evento/muro-en-vivo/[fiestaId]` que resalta la foto aprobada con más corazones y las mesas más participativas sin nombres individuales ni perdedores.
+- **Cápsula del tiempo en el Buzón de Deseos — ANDA.** Selector en `/evento/buzon/[fiestaId]` para guardar saludos de voz o video con fecha futura de apertura (1, 3, 5, 10 o 15 años), persistidos en Firestore con `unlockDate`.
+- **Pedidos de música para el DJ y vista DJ ordenada — ANDA.** Pantalla para invitados con tope de 3 temas por persona y panel en tiempo real para el DJ en `/evento/dj/[fiestaId]` ordenado por votos con estados sonada/pendiente.
+- **Pedido a proveedores por WhatsApp en lista de compras — ANDA.** Botones en `/fiestas/nueva/catering/lista-compras` para enviar o copiar el pedido de insumos formateado a cada proveedor sin alterar fórmulas de costos.
+- **Generador de borradores para redes sociales desde fiesta — ANDA.** Acción `generateDraftPostsFromPartyPhotos` y botón en `/empresa/redes-sociales` que crea 4 borradores con copy y hashtags listos para que el equipo los revise.
+- **Explicación narrativa del presupuesto — ANDA.** Resumen descriptivo fiel en `BudgetDocument.tsx` y visor de presupuestos que explica los servicios contratados sin inventar números ni precios.
 
 ## Aparecer en Google (posicionamiento) — revisado el 12 de agosto de 2026
 

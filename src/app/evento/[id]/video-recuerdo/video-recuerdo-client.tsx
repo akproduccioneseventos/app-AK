@@ -1,9 +1,9 @@
 'use client';
 
 import { useState, useEffect, useRef } from 'react';
+import Image from 'next/image';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Volume2, VolumeX, SkipForward, PlayCircle } from 'lucide-react';
-import Image from 'next/image';
 import type { SocialGalleryPost } from '@/types/social-gallery';
 
 interface Props {
@@ -18,17 +18,17 @@ export function VideoRecuerdoClient({ eventName, images }: Props) {
   const [started, setStarted] = useState(false);
   const [currentIndex, setCurrentIndex] = useState(0);
   const [isMuted, setIsMuted] = useState(false);
-  
+
   const audioRef = useRef<HTMLAudioElement | null>(null);
 
   // Auto-avance
   useEffect(() => {
     if (!started) return;
-    
+
     const timer = setInterval(() => {
       setCurrentIndex((prev) => (prev + 1) % images.length);
     }, SLIDE_DURATION);
-    
+
     return () => clearInterval(timer);
   }, [started, images.length]);
 
@@ -58,7 +58,7 @@ export function VideoRecuerdoClient({ eventName, images }: Props) {
             {eventName}
           </h2>
         </div>
-        
+
         <button
           onClick={startExperience}
           className="group relative flex items-center gap-3 px-8 py-4 bg-white text-slate-950 rounded-full font-bold text-lg hover:scale-105 transition-transform"
@@ -76,21 +76,21 @@ export function VideoRecuerdoClient({ eventName, images }: Props) {
   return (
     <div className="fixed inset-0 bg-black overflow-hidden flex items-center justify-center">
       {/* Música de fondo (URL pública de prueba, en prod se podría pasar por settings) */}
-      <audio 
-        ref={audioRef} 
-        src="https://cdn.pixabay.com/download/audio/2022/03/15/audio_b8c9103636.mp3?filename=emotional-piano-107684.mp3" 
-        loop 
+      <audio
+        ref={audioRef}
+        src="https://cdn.pixabay.com/download/audio/2022/03/15/audio_b8c9103636.mp3?filename=emotional-piano-107684.mp3"
+        loop
       />
 
       {/* Controles superpuestos */}
       <div className="absolute top-6 right-6 z-50 flex gap-4">
-        <button 
+        <button
           onClick={toggleMute}
           className="p-3 bg-black/40 backdrop-blur-md rounded-full text-white hover:bg-black/60 transition-colors"
         >
           {isMuted ? <VolumeX className="w-5 h-5" /> : <Volume2 className="w-5 h-5" />}
         </button>
-        <button 
+        <button
           onClick={() => setCurrentIndex((prev) => (prev + 1) % images.length)}
           className="p-3 bg-black/40 backdrop-blur-md rounded-full text-white hover:bg-black/60 transition-colors"
         >
@@ -119,7 +119,7 @@ export function VideoRecuerdoClient({ eventName, images }: Props) {
           className="absolute inset-0 w-full h-full"
         >
           {/* Fondo borroso (blur) para rellenar aspect ratios distintos */}
-          <div 
+          <div
             className="absolute inset-0 bg-cover bg-center bg-no-repeat blur-2xl opacity-50 scale-110"
             style={{ backgroundImage: `url(${currentImage?.imageUrl})` }}
           />
@@ -131,7 +131,6 @@ export function VideoRecuerdoClient({ eventName, images }: Props) {
             className="object-contain"
             unoptimized
           />
-          
           {/* Nombre del autor abajo a la derecha */}
           {currentImage?.authorName && (
             <div className="absolute bottom-10 right-10 text-white/70 text-sm drop-shadow-md">

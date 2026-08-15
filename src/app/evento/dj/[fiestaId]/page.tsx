@@ -126,6 +126,14 @@ export default function DJPage() {
         </span>
       </div>
 
+      {/* Info banner */}
+      <div className="max-w-2xl mx-auto px-4 mb-3">
+        <div className="rounded-xl border border-zinc-800 bg-zinc-900/70 px-3.5 py-2.5 flex items-center gap-2.5 text-xs text-zinc-400">
+          <span className="text-emerald-400 text-sm">🎛️</span>
+          <span>Sugerencias del público ordenadas por votos en tiempo real. Como DJ, vos tenés el control total de la pista.</span>
+        </div>
+      </div>
+
       {/* Song list */}
       <main className="max-w-2xl mx-auto px-4 pb-10 space-y-2">
         {isLoading ? (

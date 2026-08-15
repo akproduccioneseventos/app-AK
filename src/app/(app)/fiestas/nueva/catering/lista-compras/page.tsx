@@ -6,7 +6,7 @@ import { Card, CardContent, CardHeader, CardTitle, CardDescription, CardFooter }
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
-import { ArrowLeft, Loader2, AlertTriangle, Printer, ShoppingCart, Truck, RefreshCw, Info, Cake } from 'lucide-react';
+import { ArrowLeft, Loader2, AlertTriangle, Printer, ShoppingCart, Truck, RefreshCw, Info, Cake, MessageSquare, Copy, Check } from 'lucide-react';
 import { Skeleton } from '@/components/ui/skeleton';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow, TableFooter } from '@/components/ui/table';
 import { useToast } from '@/hooks/use-toast';
@@ -367,6 +367,43 @@ function ListaDeComprasContent() {
     }
   };
 
+  const [copiedProviderId, setCopiedProviderId] = useState<string | null>(null);
+
+  const buildProviderOrderMessage = (providerName: string, items: ShoppingListItem[]) => {
+    const nombreEvento = fiesta?.configuracion?.nombreEvento || fiesta?.configuracion?.clienteNombre || 'Evento AK Producciones';
+    const fechaEvento = fiesta?.configuracion?.fechaEvento || '';
+
+    let msg = `*Pedido de Insumos - AK Producciones*\n`;
+    msg += `🎉 *Evento:* ${nombreEvento}${fechaEvento ? ` (${fechaEvento})` : ''}\n`;
+    msg += `📦 *Proveedor:* ${providerName}\n\n`;
+    msg += `*Detalle del pedido:*\n`;
+    items.forEach((item) => {
+      const isInteger = item.unit.toLowerCase() === 'u' || item.unit.toLowerCase() === 'un' || item.unit.toLowerCase() === 'unidad' || item.unit.toLowerCase() === 'unidades';
+      const qty = isInteger ? Math.round(item.cantidadNecesaria) : Number(item.cantidadNecesaria || 0).toFixed(2);
+      msg += `• ${item.nombre}: ${qty} ${item.unit}\n`;
+    });
+    msg += `\nPor favor confirmar disponibilidad y fecha de entrega. ¡Muchas gracias!`;
+    return msg;
+  };
+
+  const handleSendWhatsAppOrder = (providerName: string, items: ShoppingListItem[]) => {
+    const msg = buildProviderOrderMessage(providerName, items);
+    const waUrl = `https://wa.me/?text=${encodeURIComponent(msg)}`;
+    window.open(waUrl, '_blank', 'noopener,noreferrer');
+  };
+
+  const handleCopyOrderText = async (providerId: string, providerName: string, items: ShoppingListItem[]) => {
+    const msg = buildProviderOrderMessage(providerName, items);
+    try {
+      await navigator.clipboard.writeText(msg);
+      setCopiedProviderId(providerId);
+      toast({ title: "Pedido copiado al portapapeles", description: `Listo para enviar a ${providerName}.` });
+      setTimeout(() => setCopiedProviderId(null), 2500);
+    } catch {
+      toast({ title: "No se pudo copiar", description: "Copiá el texto manualmente.", variant: "destructive" });
+    }
+  };
+
   if (isLoading) {
     return (
       <div className="max-w-5xl mx-auto space-y-6 pb-20 p-4">
@@ -484,6 +521,39 @@ function ListaDeComprasContent() {
                                     </div>
                                 )}
                                 {isSavingThis && <Loader2 className="w-4 h-4 animate-spin text-primary ml-auto"/>}
+
+                                <div className="h-6 w-px bg-slate-200 mx-1 hidden xl:block"></div>
+
+                                <div className="flex items-center gap-1.5 ml-auto">
+                                    <Button
+                                        size="sm"
+                                        variant="outline"
+                                        onClick={() => handleCopyOrderText(providerId, providerName, items)}
+                                        className="h-8 text-xs font-bold rounded-xl border-slate-200 hover:bg-slate-100"
+                                        title="Copiar texto del pedido"
+                                    >
+                                        {copiedProviderId === providerId ? (
+                                            <>
+                                                <Check className="w-3.5 h-3.5 mr-1 text-emerald-600" />
+                                                Copiado
+                                            </>
+                                        ) : (
+                                            <>
+                                                <Copy className="w-3.5 h-3.5 mr-1" />
+                                                Copiar
+                                            </>
+                                        )}
+                                    </Button>
+                                    <Button
+                                        size="sm"
+                                        onClick={() => handleSendWhatsAppOrder(providerName, items)}
+                                        className="h-8 text-xs font-bold rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white shadow-sm"
+                                        title="Enviar lista a WhatsApp"
+                                    >
+                                        <MessageSquare className="w-3.5 h-3.5 mr-1.5" />
+                                        WhatsApp
+                                    </Button>
+                                </div>
                             </div>
                         </CardHeader>
                         <CardContent className="p-0">
