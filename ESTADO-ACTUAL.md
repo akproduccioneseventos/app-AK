@@ -9,10 +9,23 @@ Quien cierre una sesión reescribe este archivo. Se pisa, no se acumula.
 
 **Última actualización:** 15 de agosto de 2026.
 **Rama:** todo fusionado en `main`.
-**Estado:** compila, 1591 pruebas en verde, sin acentos rotos.
+**Estado:** compila, 1600 pruebas en verde, sin acentos rotos.
 **Propuestas abiertas:** ninguna.
 
-## Lo hecho en esta tanda
+## Tres pantallas que estaban escondidas ya están en el menú
+
+Incidentes, guías de armado y cambios a aprobar funcionaban bien pero **no había
+ningún botón que llevara ahí**: había que escribir la dirección a mano. Se
+decidió conectarlas y no retirarlas, porque era trabajo ya pagado y sano.
+Incidentes y guías quedaron en Fiestas; cambios a aprobar en Contabilidad,
+porque cada solicitud lleva impacto en pesos.
+
+Al conectarlas aparecieron tres agujeros en las solicitudes de cambio, ya
+cerrados: una solicitud ya rechazada se podía volver a aprobar y se borraba el
+rastro de quién había decidido; dos personas decidiendo al mismo tiempo se
+pisaban; y rechazar aceptaba quedar sin motivo escrito.
+
+## Lo hecho antes en esta tanda
 
 Las tres pantallas que se usan en plena fiesta ya avisan de verdad cuando se
 corta internet:
@@ -36,8 +49,7 @@ En `docs/ordenes/ahora.md` quedan **dos bloques para Gemini, en una sola
 propuesta**: terminar de pasar los colores de las pantallas al tema, y que las
 promociones no se puedan guardar sin fecha de inicio y de fin.
 
-**Para que decida el dueño:** incidentes, aprobaciones y playbooks funcionan pero
-no las enlaza nadie. O se conectan al menú o se retiran.
+No queda nada esperando decisión del dueño.
 
 ## Ojo con esto, ya pasó
 
