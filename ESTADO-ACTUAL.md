@@ -9,8 +9,20 @@ Quien cierre una sesión reescribe este archivo. Se pisa, no se acumula.
 
 **Última actualización:** 15 de agosto de 2026.
 **Rama:** todo fusionado en `main`.
-**Estado:** compila, 1600 pruebas en verde, sin acentos rotos.
+**Estado:** compila, 1602 pruebas en verde, sin acentos rotos.
 **Propuestas abiertas:** ninguna.
+
+## La seña ya no se asienta siempre como efectivo
+
+El paso de cierre de contratación pedía el monto de la seña pero **nunca
+preguntaba cómo había entrado la plata**: quedaba como efectivo aunque el
+cliente hubiera transferido, y ese error se copiaba al pago de la factura. Ahora
+el formulario pregunta el método apenas se escribe un monto, y el servidor
+rechaza el cierre si falta, en vez de adivinar.
+
+**Plata, cobros y permisos quedaron auditados sin hallazgos** (presupuestos,
+facturas, recibos, gastos, cupones, planes de pago y pagos del portal). No hace
+falta volver a mirar esa área.
 
 ## Tres pantallas que estaban escondidas ya están en el menú
 

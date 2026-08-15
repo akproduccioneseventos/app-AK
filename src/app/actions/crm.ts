@@ -465,8 +465,15 @@ export async function registerContractDeposit(params: {
   presupuesto: Presupuesto;
   monto: number;
   referencia?: string;
-  // TODO(Fase 3): accept metodoPago from form when the booking flow collects it.
-  metodoPago?: MetodoPago;
+  /**
+   * Cómo entró la plata. Es obligatorio a propósito.
+   *
+   * Antes era opcional y, si no venía, se guardaba "Efectivo". Un cliente que
+   * transfería quedaba asentado como que pagó en mano, y ese método se copiaba
+   * después al pago de la factura. Adivinar cómo entró la plata desordena la
+   * caja y no se puede reconstruir después.
+   */
+  metodoPago: MetodoPago;
 }): Promise<{ updatedPresupuesto: Presupuesto; pagoId: string }> {
   const auth = await verifySession();
   if (!auth.success) throw new Error('No autorizado');
@@ -485,7 +492,7 @@ export async function registerContractDeposit(params: {
     id: pagoId,
     fecha: now,
     monto: normalizedAmount,
-    metodoPago: metodoPago ?? 'Efectivo',
+    metodoPago,
     referencia: referencia ?? 'Seña registrada al firmar contrato',
     estadoPago: 'confirmado',
   };
@@ -650,6 +657,12 @@ export async function confirmBookingWithContract(formData: FormData): Promise<{ 
     // 4. Register deposit via registerContractDeposit
     let finalPresupuesto = presupuestoWithFormData;
     if (formMontoSenia !== undefined && formMontoSenia > 0) {
+      // No se adivina cómo entró la plata: antes, si no venía el método, se
+      // asentaba "Efectivo" y una transferencia quedaba anotada como plata en
+      // mano, también en la factura.
+      if (!formMetodoPago) {
+        throw new Error('Falta indicar cómo entró la seña (efectivo, transferencia, etc.).');
+      }
       const { updatedPresupuesto } = await registerContractDeposit({
         presupuesto: presupuestoWithFormData,
         monto: formMontoSenia,

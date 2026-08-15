@@ -198,11 +198,16 @@ de lo que el equipo todavía tiene que publicar a mano.
   pactó cobrar, lo que va a costar (comida, bebidas con su merma, repostería,
   sueldos con aportes y proveedores) y la ganancia con su porcentaje. Tiene un botón
   para sincronizar todo de una.
-- **A medias:** la ganancia se calcula contra el costo **estimado**, no contra lo
-  que se gastó de verdad. Los pagos reales a proveedores se registran aparte, así
-  que si se gastó de más, el número de arriba sigue viéndose bien.
-- **No está:** comparar la ganancia entre todas las fiestas. Se ve de a una por vez,
-  así que no se puede contestar qué tipo de evento deja más.
+- **La ganancia contra lo gastado de verdad — ANDA** (verificado el 15 de agosto de
+  2026; antes figuraba acá como "a medias" y ya no lo está). Muestra las dos: la
+  estimada y la real. Para la real usa lo que efectivamente se le pagó a cada
+  proveedor, y para los renglones que todavía nadie rindió usa el estimado, pero
+  los cuenta aparte para que se vea cuánto falta rendir. Los pagos que no
+  corresponden a ningún renglón también se suman: plata que salió no se esconde.
+- **Comparar la ganancia entre todas las fiestas — ANDA** (verificado el 15 de
+  agosto de 2026; antes figuraba acá como "no está"). Hay una pantalla que las
+  pone a todas juntas y las agrupa por tipo de evento y por mes, ordenadas por lo
+  que dejaron. Se entra desde el Panel Contable.
 
 ## Aparecer en Google (posicionamiento) — revisado el 12 de agosto de 2026
 
