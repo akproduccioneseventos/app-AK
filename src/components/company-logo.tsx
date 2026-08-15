@@ -38,6 +38,11 @@ export function CompanyLogo({ size = 'md', className, src, animate = true }: Com
           aria-hidden="true"
           className={cn(
             'absolute inset-0 flex items-center justify-center rounded-full bg-red-600 font-black text-white shadow-md animate-pulse',
+            // Algunas pantallas oscuras pintan el logo de blanco con
+            // `brightness-0 invert`. Ese filtro caía también acá y dejaba un
+            // círculo blanco con letras blancas: un globo vacío en la portada
+            // del simulador, justo donde el cliente arma su presupuesto.
+            '[filter:none]',
             text
           )}
         >

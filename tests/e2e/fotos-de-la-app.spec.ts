@@ -51,8 +51,30 @@ test.describe('fotos de la app', () => {
       test.setTimeout(90_000);
       const dispositivo = testInfo.project.name.includes('mobile') ? 'celular' : 'escritorio';
       await page.goto(pantalla.url, { waitUntil: 'domcontentloaded' });
-      // Un respiro para que terminen de entrar imágenes y animaciones.
-      await page.waitForTimeout(3500);
+      await page.waitForTimeout(2500);
+
+      /**
+       * Bajar despacio hasta el final antes de fotografiar.
+       *
+       * Varias secciones aparecen recién cuando entran en pantalla. Sin este
+       * paseo, la foto de página completa las agarra invisibles y sale medio
+       * blanca: parece una pantalla rota cuando en realidad está bien.
+       */
+      await page.evaluate(async () => {
+        const alto = window.innerHeight;
+        for (let y = 0; y < document.body.scrollHeight; y += alto) {
+          window.scrollTo(0, y);
+          await new Promise(r => setTimeout(r, 250));
+        }
+        window.scrollTo(0, 0);
+        await new Promise(r => setTimeout(r, 400));
+      });
+      await page.waitForTimeout(1200);
+
+      // La primera pantalla, que es la que decide si el cliente sigue mirando.
+      await page.screenshot({
+        path: path.join(SALIDA, `${dispositivo}-${pantalla.nombre}-primera-vista.png`),
+      });
       await page.screenshot({
         path: path.join(SALIDA, `${dispositivo}-${pantalla.nombre}.png`),
         fullPage: true,

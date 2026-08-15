@@ -185,7 +185,7 @@ export async function updateEntertainmentSessionStatus(
       return { success: false, error: 'Modulo de entretenimiento no valido.' };
     }
     if (!(await hasEntertainmentGuestAccess(fiestaId, moduleId, accessToken))) {
-      return { success: false, error: 'Acceso de estacion no autorizado.' };
+      return { success: false, error: 'Esta estación todavía no está habilitada. Pedile al equipo de AK que la active desde el panel de la fiesta.' };
     }
     if (!(await isStationEnabled(fiestaId, moduleId))) {
       return { success: false, error: 'Esta estacion esta desactivada.' };
@@ -279,7 +279,7 @@ export async function completeEntertainmentSessionCycle(
       return { success: false, error: 'Modulo de entretenimiento no valido.' };
     }
     if (!(await hasEntertainmentGuestAccess(fiestaId, moduleId, accessToken))) {
-      return { success: false, error: 'Acceso de estacion no autorizado.' };
+      return { success: false, error: 'Esta estación todavía no está habilitada. Pedile al equipo de AK que la active desde el panel de la fiesta.' };
     }
     if (!(await isStationEnabled(fiestaId, moduleId))) {
       return { success: false, error: 'Esta estacion esta desactivada.' };
