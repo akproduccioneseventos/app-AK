@@ -32,6 +32,13 @@ anotado, la próxima auditoría lo va a volver a encontrar.
 - **Reseñas de Google Automáticas:** Solo se envían a los que tienen NPS >= 9, y solo si el enlace está configurado en Ajustes. No se manda más de una vez.
 - **Plan de la Noche del Equipo:** Los sueldos y `eventSalary` NO deben filtrarse en la vista `getAccesoPersonalPortalView` bajo ningún concepto. La hora de llegada es simplemente `fiesta.configuracion.horaInicio`.
 
+- **Pantallas de la noche — Resiliencia ante cortes (15 de agosto de 2026):**
+  - **Estación de Impresión (`impresion/[fiestaId]`):** Mantiene el estado de error de forma persistente con `hasError`, timestamp de desconexión y `<ReconnectingIndicator />`. No oculta el fallo tras 2 segundos para que el operador no imprima desinformado.
+  - **Presentación LED (`presentacion-led`):** Auto-reintenta la carga cada 10 segundos ante fallos de conexión sin necesidad de refrescar la página entera a mano (evita que la pantalla quede congelada en un salón con mala señal).
+  - **Tótem (`totem/[fiestaId]/[totemId]`):** Mientras no haya conexión (`!qrUrl`), el QR no se muestra disponible y se presenta un aviso grande y visible desde lejos indicando que la estación está conectando, evitando intentos de escaneo fallidos.
+  - **`public/firebase-messaging-sw.js` no se edita a mano ni se commitea con la configuración adentro.** Lo genera `scripts/generate-firebase-messaging-sw.mjs` en cada compilación, y en la versión principal queda la variante que no hace nada. Vino modificado en la entrega y se descartó al fusionar. Si aparece cambiado en una rama, quedarse siempre con la versión de `main`: es la segunda vez que se cuela.
+  - **La prueba de estas tres pantallas controla el texto del código fuente, no el navegador.** Se dejó a propósito así (es barata y frena una regresión), pero **no se le agregan colores concretos**: el bloque de colores del tema está a medias y los rompería. Se controla tamaño y peso del texto.
+
 - **El ajuste anual del 15% va siempre.** Aparece en presupuestos y en el portal.
 - **El descuento del 50% del Salón Club Uruguay** y el descuento del presupuesto
   son decisiones de marketing.

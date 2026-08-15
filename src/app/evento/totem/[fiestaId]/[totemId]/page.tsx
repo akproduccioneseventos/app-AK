@@ -289,13 +289,23 @@ export default function TotemPublicPage() {
                   </button>
                 )}
                 {totem.showQr && (
-                  <div className="rounded-lg border border-white/15 bg-white/10 px-5 py-3 text-sm font-black uppercase tracking-wider backdrop-blur flex items-center">
-                    {qrUrl ? (
-                      <><QrCode className="mr-2 inline h-4 w-4" /> {totem.qrLabel || 'Escaneá y participá'}</>
-                    ) : (
-                      <><Loader2 className="mr-2 inline h-4 w-4 animate-spin text-white/50" /> Conectando estación...</>
-                    )}
-                  </div>
+                  qrUrl ? (
+                    <div className="rounded-lg border border-white/15 bg-white/10 px-5 py-3 text-sm font-black uppercase tracking-wider backdrop-blur flex items-center">
+                      <QrCode className="mr-2 inline h-4 w-4" /> {totem.qrLabel || 'Escaneá y participá'}
+                    </div>
+                  ) : (
+                    <div className="rounded-2xl border-2 border-amber-400/40 bg-amber-500/20 px-6 py-4 backdrop-blur-md flex items-center gap-4 shadow-xl">
+                      <Loader2 className="h-8 w-8 animate-spin text-amber-300 shrink-0" />
+                      <div>
+                        <p className="text-lg sm:text-xl font-black uppercase tracking-wider text-amber-200">
+                          Conectando estación...
+                        </p>
+                        <p className="text-xs font-semibold text-amber-300/80">
+                          Habilitando código de acceso
+                        </p>
+                      </div>
+                    </div>
+                  )
                 )}
               </div>
             </div>
@@ -374,13 +384,14 @@ export default function TotemPublicPage() {
                     </div>
                   </div>
                 ) : (
-                  <div className="flex flex-col items-end gap-3 rounded-xl bg-black/60 p-5 backdrop-blur-xl">
-                    <p className="max-w-[200px] text-right text-xs font-black uppercase leading-tight tracking-[0.25em] text-red-400">
-                      Estación no lista
+                  <div className="flex flex-col items-center justify-center gap-3 rounded-2xl bg-black/80 border-2 border-amber-400/30 p-6 backdrop-blur-xl text-center min-w-[200px] min-h-[200px]">
+                    <Loader2 className="h-10 w-10 animate-spin text-amber-400" />
+                    <p className="text-sm font-black uppercase tracking-wider text-amber-300">
+                      Conectando...
                     </p>
-                    <div className="flex h-[156px] w-[156px] items-center justify-center rounded-lg border-2 border-dashed border-white/20 bg-black/40">
-                      <Loader2 className="h-8 w-8 animate-spin text-white/50" />
-                    </div>
+                    <p className="text-[11px] font-bold text-white/60 max-w-[150px] leading-snug">
+                      El código QR aparecerá al conectar
+                    </p>
                   </div>
                 )}
               </div>

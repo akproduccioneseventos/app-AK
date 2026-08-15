@@ -12,6 +12,7 @@ import { Button } from '@/components/ui/button';
 import { Switch } from '@/components/ui/switch';
 import { Label } from '@/components/ui/label';
 import { useToast } from '@/hooks/use-toast';
+import { ReconnectingIndicator } from '@/components/entretenimiento/ReconnectingIndicator';
 import NextImage from 'next/image';
 import {
   AlertDialog,
@@ -39,6 +40,8 @@ export default function PrintStationPage() {
   const [fiesta, setFiesta] = useState<FiestaEnPlanificacion | null>(null);
   const [posts, setPosts] = useState<SocialGalleryPost[]>([]);
   const [loading, setLoading] = useState(true);
+  const [hasError, setHasError] = useState(false);
+  const [disconnectedSince, setDisconnectedSince] = useState<Date | null>(null);
   const [autoPrint, setAutoPrint] = useState(false);
   const [printedIds, setPrintedIds] = useState<Set<string>>(new Set());
   const [printPost, setPrintPost] = useState<SocialGalleryPost | null>(null);
@@ -70,12 +73,15 @@ export default function PrintStationPage() {
         p => esAprobadoParaMostrar(p) && !isVideoPost(p)
       );
       setPosts(approvedImages);
+      setHasError(false);
+      setDisconnectedSince(null);
     } catch {
-      toast({ title: 'Error al actualizar galería de impresión', variant: 'destructive' });
+      setHasError(true);
+      setDisconnectedSince(prev => prev || new Date());
     } finally {
       if (showIndicator) setLoading(false);
     }
-  }, [fiestaId, toast]);
+  }, [fiestaId]);
 
   useEffect(() => {
     loadData();
@@ -217,6 +223,27 @@ export default function PrintStationPage() {
             <RefreshCw className="w-4 h-4 text-zinc-400" />
           </Button>
         </header>
+
+        {/* PERMANENT OFFLINE / RECONNECTING WARNING BANNER */}
+        {hasError && (
+          <div className="bg-rose-500/20 border-b border-rose-500/40 text-rose-200 px-6 py-2.5 flex items-center justify-between shrink-0">
+            <div className="flex items-center gap-2 text-xs md:text-sm font-bold">
+              <AlertCircle className="w-4 h-4 text-rose-400 shrink-0" />
+              <span>
+                Sin conexión a internet · No se están recibiendo fotos nuevas
+                {disconnectedSince ? ` (desde las ${disconnectedSince.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', second: '2-digit' })})` : ''}
+              </span>
+            </div>
+            <Button
+              size="sm"
+              variant="ghost"
+              onClick={() => loadData(true)}
+              className="h-7 text-xs bg-rose-500/30 hover:bg-rose-500/40 text-white rounded-lg gap-1.5"
+            >
+              <RefreshCw className="w-3 h-3" /> Reintentar ahora
+            </Button>
+          </div>
+        )}
 
         {/* STATUS & CONTROLS DASHBOARD */}
         <div className="p-6 bg-zinc-900/30 border-b border-zinc-900 grid grid-cols-1 md:grid-cols-3 gap-6 shrink-0 items-center">
@@ -377,6 +404,7 @@ export default function PrintStationPage() {
           }
         }
       `}</style>
+      <ReconnectingIndicator isReconnecting={hasError} />
     </div>
   );
 }
