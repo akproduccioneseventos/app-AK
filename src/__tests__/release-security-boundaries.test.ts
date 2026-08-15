@@ -272,7 +272,19 @@ describe('release security boundaries', () => {
   it('requires an app session before mutating agenda appointments', () => {
     const agenda = readSource('src/app/actions/agenda.ts');
     expect(agenda).toContain("import { requireAppSession } from '@/lib/auth/require-session'");
-    expect(agenda.match(/await requireAppSession\(\)/g)).toHaveLength(2);
+
+    // Antes esto contaba las llamadas a mano y esperaba un numero fijo: al
+    // agregar una accion nueva la prueba fallaba aunque el control estuviera
+    // puesto, y la salida no decia cual faltaba. Ahora se controla lo que
+    // importa: TODA funcion exportada que escriba en el archivo tiene que pedir
+    // la sesion antes.
+    const bloques = agenda.split(/^export async function /m).slice(1);
+    const sinControl = bloques
+      .filter(bloque => bloque.includes('writeData('))
+      .filter(bloque => !bloque.includes('await requireAppSession()'))
+      .map(bloque => bloque.slice(0, bloque.indexOf('(')));
+
+    expect(sinControl).toEqual([]);
   });
 
   it('limits destructive CRM reset to administrators', () => {
