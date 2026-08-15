@@ -37,6 +37,9 @@ import {
   ShieldCheck,
   Building2,
   Camera,
+  AlertTriangle,
+  ClipboardList,
+  CheckSquare,
 } from "lucide-react";
 import AppLogo from "./app-logo";
 import { cn } from "@/lib/utils";
@@ -82,6 +85,11 @@ const navGroups: NavGroup[] = [
       { title: "Eventos Activos", href: "/eventos", icon: PartyPopper, active: (pathname) => isPathActive(pathname, "/eventos") || isPathActive(pathname, "/fiestas") },
       { title: "Calendario", href: "/calendario", icon: CalendarDays },
       { title: "Muro Social", href: "/empresa/red-social-eventos", icon: Camera },
+      // Estas dos existian y funcionaban, pero no las enlazaba nadie: habia que
+      // saberse la direccion de memoria para llegar. Van en Fiestas porque se
+      // usan durante el evento y al armarlo.
+      { title: "Incidentes", href: "/incidentes", icon: AlertTriangle },
+      { title: "Guias de Armado", href: "/playbooks", icon: ClipboardList },
     ],
   },
   {
@@ -91,6 +99,9 @@ const navGroups: NavGroup[] = [
       { title: "Pagos Rápidos", href: "/pagos-rapidos", icon: Wallet, highlight: true },
       { title: "Panel Contable", href: "/empresa/contabilidad", icon: BarChart3 },
       { title: "Facturas", href: "/invoices", icon: FileText },
+      // Va en Contabilidad y no en Fiestas porque cada solicitud lleva un
+      // impacto en pesos y la decision la toma quien maneja la plata.
+      { title: "Cambios a Aprobar", href: "/aprobaciones", icon: CheckSquare },
     ],
   },
   {
