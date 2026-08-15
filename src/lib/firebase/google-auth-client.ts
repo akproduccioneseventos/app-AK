@@ -14,7 +14,7 @@ import { app } from '@/lib/firebase/config';
 
 function getGoogleAuth() {
   if (!app) {
-    const error = new Error('Firebase no esta configurado para iniciar con Google.') as Error & { code?: string };
+    const error = new Error('El ingreso con Google no esta disponible.') as Error & { code?: string };
     error.code = 'auth/configuration-not-found';
     throw error;
   }
@@ -76,11 +76,13 @@ export function getGoogleAuthErrorMessage(error: unknown): string {
     case 'auth/operation-not-allowed':
       return 'El acceso con Google todavia no esta habilitado en Firebase Authentication.';
     case 'auth/popup-closed-by-user':
-      return 'Se cerro la ventana de Google antes de completar el ingreso.';
+      return 'Se cerro la ventana de Google antes de terminar. Proba de nuevo.';
     case 'auth/network-request-failed':
       return 'No se pudo conectar con Google. Revisa internet e intenta nuevamente.';
     case 'auth/configuration-not-found':
-      return 'Firebase no esta configurado para iniciar con Google.';
+      // Le habla al usuario, no al programador: antes decia "Firebase no esta
+      // configurado", que no le dice nada a nadie y ademas asusta.
+      return 'El ingreso con Google no esta disponible. Entra con tu correo y contrasena.';
     default:
       return 'No se pudo completar el ingreso con Google.';
   }

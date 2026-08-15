@@ -39,6 +39,13 @@ export function PortadaSlide({
   const accent = colorAcento || contenido.colorAcento;
   const displayTitle = tituloPrincipal || companyInfo.companyName || 'AK Producciones';
 
+  const subtituloElegido = (subtitulo || contenido.subtitulo || '').trim();
+  const mismaFrase = (a: string, b: string) =>
+    a.toLowerCase().replace(/[.\s]+$/, '') === b.toLowerCase().replace(/[.\s]+$/, '');
+  const subtituloVisible = mismaFrase(subtituloElegido, (contenido.tagline || '').trim())
+    ? ''
+    : subtituloElegido;
+
   return (
     <SlideLayout className="text-center">
       <div className="mx-auto grid w-full max-w-7xl grid-cols-1 items-center gap-10 lg:grid-cols-[0.95fr_1.05fr] 2xl:max-w-[1680px]">
@@ -96,14 +103,19 @@ export function PortadaSlide({
             {contenido.tagline}
           </motion.p>
 
-          <motion.p
-            initial={{ opacity: 0, y: 18 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: 0.55, duration: 0.55 }}
-            className="mb-8 max-w-3xl text-lg font-medium leading-8 text-white/60 md:text-xl"
-          >
-            {subtitulo || contenido.subtitulo}
-          </motion.p>
+          {/* Si el subtítulo dice lo mismo que la frase de arriba, no se
+              muestra: quedaba la misma oración dos veces, una grande y otra
+              chica, en la presentación que se le muestra al cliente. */}
+          {subtituloVisible && (
+            <motion.p
+              initial={{ opacity: 0, y: 18 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: 0.55, duration: 0.55 }}
+              className="mb-8 max-w-3xl text-lg font-medium leading-8 text-white/60 md:text-xl"
+            >
+              {subtituloVisible}
+            </motion.p>
+          )}
 
           <motion.div
             initial={{ opacity: 0, y: 18 }}
