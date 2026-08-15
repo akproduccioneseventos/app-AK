@@ -16,6 +16,36 @@ Cada idea dice **qué gana el negocio** y **cuánto cuesta hacerla**, en criollo
 
 ---
 
+## Estado: TODO pedido en una sola orden (15 de agosto de 2026)
+
+El dueño pidió que vaya **todo junto y de una**. Está escrito en
+`docs/ordenes/ahora.md`, con los bloques ordenados por lo que más rinde y la
+instrucción de **entregar igual lo que llegue a hacer, avisando qué faltó**, para
+que un bloque trabado no frene el resto.
+
+**Al escribir la orden se verificó el código y aparecieron TRES cosas que ya
+estaban hechas.** No se pidieron de nuevo:
+
+1. **La app ya sabe de qué fiesta viene cada interesado.**
+   `src/lib/commercial/acquisition.ts` define la fiesta y el invitado de origen, y
+   `public-lead-persistence.ts` ya lo guarda. La idea 2 se abarató a **sólo la
+   pantalla que lo muestre**.
+2. **Los avisos preventivos del evento ya existen** (idea 8). Hay once reglas
+   andando en `src/lib/automatizaciones-engine.ts`: menú sin definir a 20 días,
+   invitados sin confirmar a 10, saldo pendiente a 7, y más. **No hay nada que
+   construir.**
+3. **El pedido de reseña en Google ya anda**, igual que el recontacto del que
+   pidió presupuesto y no señó.
+
+Sin ese chequeo se habrían pedido tres trabajos que ya existen. Ya pasó una vez y
+se perdió el viaje entero.
+
+**Lo único que quedó afuera a propósito es la idea 9**, publicar automático en
+redes: es la que más trámite tiene con Meta y la que menos trae al lado del
+resto.
+
+---
+
 # LO QUE MÁS PLATA TRAE POR LO QUE CUESTA
 
 ## 1. La fiesta se vende sola: el invitado pide su presupuesto esa misma noche
@@ -36,7 +66,8 @@ Sólo falta el puente. **Cien invitados por fiesta, cincuenta fiestas por año.*
 
 ## 2. Saber de qué fiesta salió cada cliente nuevo
 
-**Cuánto cuesta: poco.**
+**Cuánto cuesta: poco** — y menos de lo que parecía: **el dato ya se guarda**,
+falta solamente la pantalla que lo muestre agrupado por fiesta.
 
 Hoy entra un prospecto por el simulador y nadie sabe si vino de Instagram, de la
 publicidad, o porque estuvo bailando en la fiesta de un primo. **Si no se sabe
