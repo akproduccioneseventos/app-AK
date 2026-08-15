@@ -18,6 +18,11 @@ const customJestConfig = {
   ],
   moduleNameMapper: {
     '^@/(.*)$': '<rootDir>/src/$1',
+    '^.*SemanticAttributes.*$': '<rootDir>/src/lib/empty-mock.js',
+    '^.*SemanticResourceAttributes.*$': '<rootDir>/src/lib/empty-mock.js',
+    '^@opentelemetry/sdk-node$': '<rootDir>/src/lib/empty-mock.js',
+    '^@opentelemetry/exporter-trace-otlp-proto$': '<rootDir>/src/lib/empty-mock.js',
+    '^@opentelemetry/otlp-transformer.*$': '<rootDir>/src/lib/empty-mock.js',
   },
 }
 

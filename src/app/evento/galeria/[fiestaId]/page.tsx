@@ -3,7 +3,8 @@
 import { useState, useEffect, useMemo, useCallback } from 'react';
 import { useParams, useRouter } from 'next/navigation';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Download, Share2, Heart, ArrowLeft, Loader2, Play, ChevronLeft, ChevronRight, X, ImageIcon } from 'lucide-react';
+import Link from 'next/link';
+import { Download, Share2, Heart, ArrowLeft, Loader2, Play, ChevronLeft, ChevronRight, X, ImageIcon, Camera } from 'lucide-react';
 import { getPublicSocialEvent, getPublicSocialPosts } from '@/app/actions/social-gallery';
 import type { PublicSocialEvent } from '@/lib/social-fiesta/public-event';
 import type { SocialGalleryPost } from '@/types/social-gallery';
@@ -14,13 +15,13 @@ export default function GaleriaPage() {
   const params = useParams();
   const router = useRouter();
   const fiestaId = params.fiestaId as string;
-  
+
   const [fiesta, setFiesta] = useState<PublicSocialEvent | null>(null);
   const [posts, setPosts] = useState<SocialGalleryPost[]>([]);
   const [activeTab, setActiveTab] = useState<FilterTab>('todas');
   const [isLoading, setIsLoading] = useState(true);
   const [hasError, setHasError] = useState(false);
-  
+
   const [lightboxIndex, setLightboxIndex] = useState<number | null>(null);
 
   useEffect(() => {
@@ -107,14 +108,14 @@ export default function GaleriaPage() {
 
   return (
     <div className="min-h-screen bg-zinc-950 text-white font-sans selection:bg-white/30">
-      
+
       {/* HEADER */}
       <div className="sticky top-0 z-30 bg-zinc-950/80 backdrop-blur-xl border-b border-white/5 pt-safe">
         <div className="max-w-7xl mx-auto px-4 py-4 flex items-center justify-between">
           <button aria-label="Volver al evento" onClick={() => router.back()} className="p-2 -ml-2 text-zinc-400 hover:text-white transition">
             <ArrowLeft className="w-6 h-6" />
           </button>
-          
+
           <div className="text-center">
             <h1 className="text-lg font-black tracking-widest uppercase">Galería Oficial</h1>
             {fiesta && <p className="text-xs text-zinc-400 font-medium">{fiesta.configuracion?.nombreEvento}</p>}
@@ -126,13 +127,15 @@ export default function GaleriaPage() {
         </div>
 
         {/* STATS BAR */}
-        <div className="flex items-center justify-center gap-4 py-2 border-t border-white/5 bg-white/5 text-xs font-bold text-zinc-300">
-          <span>{posts.length} fotos</span>
-          <span className="text-zinc-600">·</span>
-          <span className="flex items-center gap-1"><Heart className="w-3.5 h-3.5 text-rose-500" /> {totalLikes}</span>
-          <span className="text-zinc-600">·</span>
-          <span>{totalComments} comentarios</span>
-        </div>
+        {posts.length > 0 && (
+          <div className="flex items-center justify-center gap-4 py-2 border-t border-white/5 bg-white/5 text-xs font-bold text-zinc-300">
+            <span>{posts.length} fotos</span>
+            <span className="text-zinc-600">·</span>
+            <span className="flex items-center gap-1"><Heart className="w-3.5 h-3.5 text-rose-500" /> {totalLikes}</span>
+            <span className="text-zinc-600">·</span>
+            <span>{totalComments} comentarios</span>
+          </div>
+        )}
 
         {/* FILTER TABS */}
         <div className="px-4 py-3 overflow-x-auto hide-scrollbar flex gap-2">
@@ -147,8 +150,8 @@ export default function GaleriaPage() {
               key={tab.id}
               onClick={() => setActiveTab(tab.id as FilterTab)}
               className={`shrink-0 px-4 py-1.5 rounded-full text-xs font-bold transition-all border ${
-                activeTab === tab.id 
-                  ? 'bg-white text-zinc-950 border-white' 
+                activeTab === tab.id
+                  ? 'bg-white text-zinc-950 border-white'
                   : 'bg-zinc-900 text-zinc-400 border-zinc-800 hover:border-zinc-700 hover:text-zinc-300'
               }`}
             >
@@ -173,10 +176,44 @@ export default function GaleriaPage() {
             </button>
           </div>
         ) : filteredPosts.length === 0 ? (
-          <div className="flex flex-col items-center justify-center py-32 text-center text-zinc-500">
-            <ImageIcon className="w-16 h-16 mb-4 opacity-50" />
-            <p className="text-lg font-medium">Aún no hay fotos en esta categoría.</p>
-            <p className="text-sm">¡Sé el primero en compartir un momento!</p>
+          <div className="flex flex-col items-center justify-center py-20 px-4 text-center max-w-md mx-auto">
+            <div className="w-20 h-20 rounded-full bg-white/5 border border-white/10 flex items-center justify-center mb-5 text-zinc-300">
+              <Camera className="w-9 h-9 text-rose-400" />
+            </div>
+            <h2 className="text-xl font-bold text-white mb-2">
+              {activeTab === 'todas'
+                ? '¡Todavía no hay fotos publicadas!'
+                : `Aún no hay fotos en ${activeTab === 'fotocabina' ? 'la fotocabina' : activeTab === '360' ? 'la plataforma 360°' : activeTab === 'espejo' ? 'el espejo mágico' : 'esta categoría'}.`}
+            </h2>
+            <p className="text-sm text-zinc-400 mb-8 leading-relaxed">
+              {activeTab === 'fotocabina'
+                ? 'Acercate a la fotocabina del salón para sacarte una foto o ingresá desde acá.'
+                : activeTab === '360'
+                ? 'Subite a la plataforma 360° en la pista para grabar tu video del evento.'
+                : activeTab === 'espejo'
+                ? 'Posá frente al espejo mágico interactivo para llevarte tu recuerdo.'
+                : 'Sé el primero en compartir un momento inolvidable con todos los invitados.'}
+            </p>
+            <Link
+              href={
+                activeTab === 'fotocabina'
+                  ? `/evento/fotocabina/${fiestaId}`
+                  : activeTab === '360'
+                  ? `/evento/plataforma-360/${fiestaId}`
+                  : activeTab === 'espejo'
+                  ? `/evento/espejo-magico/${fiestaId}`
+                  : `/evento/social/${fiestaId}`
+              }
+              className="inline-flex items-center justify-center gap-2 px-8 py-3.5 rounded-full bg-white text-zinc-950 font-bold text-sm shadow-xl hover:bg-zinc-200 transition-all hover:scale-105 active:scale-95"
+            >
+              <Camera className="w-4 h-4" />
+              Subí tu primera foto
+            </Link>
+            {activeTab !== 'fotocabina' && (
+              <p className="text-xs text-zinc-500 mt-4">
+                Buscá la fotocabina cerca de la entrada para sacarte fotos impresas
+              </p>
+            )}
           </div>
         ) : (
           <div className="columns-2 md:columns-3 lg:columns-4 gap-4 space-y-4">
@@ -202,7 +239,7 @@ export default function GaleriaPage() {
                     // eslint-disable-next-line @next/next/no-img-element -- Guest media has variable dimensions and may be a data URL.
                     <img src={post.imageUrl} alt={post.authorName || 'Foto'} className="w-full h-auto object-cover transition-transform duration-500 group-hover:scale-105" loading="lazy" />
                   )}
-                  
+
                   {/* Overlay gradient */}
                   <div className="absolute inset-x-0 bottom-0 bg-gradient-to-t from-black/80 via-black/40 to-transparent p-4 pt-12 opacity-0 group-hover:opacity-100 transition-opacity duration-300">
                     <p className="text-sm font-bold truncate">{post.authorName || 'Invitado'}</p>
@@ -234,9 +271,9 @@ export default function GaleriaPage() {
                 <p className="text-xs text-zinc-400">{new Date(filteredPosts[lightboxIndex].timestamp || Date.now()).toLocaleString()}</p>
               </div>
               <div className="flex items-center gap-4">
-                <a 
-                  href={filteredPosts[lightboxIndex].imageUrl} 
-                  download 
+                <a
+                  href={filteredPosts[lightboxIndex].imageUrl}
+                  download
                   target="_blank"
                   rel="noreferrer"
                   className="p-2 bg-white/10 rounded-full hover:bg-white/20 transition"
@@ -261,20 +298,20 @@ export default function GaleriaPage() {
             {/* Media */}
             <div className="w-full h-full p-4 md:p-12 flex items-center justify-center relative" onClick={() => setLightboxIndex(null)}>
               {isVideo(filteredPosts[lightboxIndex].imageUrl) ? (
-                <video 
-                  src={filteredPosts[lightboxIndex].imageUrl} 
-                  controls 
-                  autoPlay 
-                  loop 
+                <video
+                  src={filteredPosts[lightboxIndex].imageUrl}
+                  controls
+                  autoPlay
+                  loop
                   playsInline
                   className="max-w-full max-h-full object-contain rounded-lg shadow-2xl"
                   onClick={e => e.stopPropagation()}
                 />
               ) : (
                 // eslint-disable-next-line @next/next/no-img-element -- Full-size guest media preserves its original dimensions.
-                <img 
-                  src={filteredPosts[lightboxIndex].imageUrl} 
-                  alt="Ampliada" 
+                <img
+                  src={filteredPosts[lightboxIndex].imageUrl}
+                  alt="Ampliada"
                   className="max-w-full max-h-full object-contain rounded-lg shadow-2xl"
                   onClick={e => e.stopPropagation()}
                 />

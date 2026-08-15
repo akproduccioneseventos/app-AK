@@ -34,7 +34,7 @@ function PlannerGastronomicoFiestaContent() {
   const [presupuesto, setPresupuesto] = useState<Presupuesto | null>(null);
   const [reposteriaData, setReposteriaData] = useState<ReposteriaData>(defaultReposteriaData);
   const [bebidasData, setBebidasData] = useState<BebidasData>(defaultBebidasData);
-  
+
   const [allMenus, setAllMenus] = useState<FullMenu[]>([]);
   const [selectedMenuId, setSelectedMenuId] = useState<string | undefined>(undefined);
   const [accessError, setAccessError] = useState<string | null>(null);
@@ -65,10 +65,10 @@ function PlannerGastronomicoFiestaContent() {
         getMenus()
       ]);
       if (!fiestaData) throw new Error("Fiesta no encontrada.");
-      
+
       setFiesta(fiestaData);
       setAllMenus(menuTemplates);
-      
+
       let initialReposteria = fiestaData.reposteria || defaultReposteriaData;
       let initialBebidas = fiestaData.bebidas || defaultBebidasData;
       let initialMenuId = fiestaData.menuAsignadoId;
@@ -76,12 +76,12 @@ function PlannerGastronomicoFiestaContent() {
       if (fiestaData.presupuestoId && !auth.isExternalProvider) {
         const presupuestoData = await getPresupuestoById(fiestaData.presupuestoId);
         setPresupuesto(presupuestoData);
-        
+
         if (presupuestoData && presupuestoData.itemsPresupuestados.length > 0) {
             // Sincronización automática desde el presupuesto
-            
+
             // 1. Repostería
-            const budgetReposteriaItems = presupuestoData.itemsPresupuestados.filter(item => 
+            const budgetReposteriaItems = presupuestoData.itemsPresupuestados.filter(item =>
                 item.categoriaServicio?.toLowerCase().includes('repostería') ||
                 item.nombreServicio.toLowerCase().includes('torta')
             );
@@ -90,7 +90,7 @@ function PlannerGastronomicoFiestaContent() {
                 initialReposteria = {
                     ...initialReposteria,
                     categorias: initialReposteria.categorias.map(cat => {
-                        const itemsInCat = budgetReposteriaItems.filter(bi => 
+                        const itemsInCat = budgetReposteriaItems.filter(bi =>
                             bi.nombreServicio.toLowerCase().includes(cat.nombreDisplay.toLowerCase()) ||
                             (cat.id === 'tortas_personalizadas' && bi.nombreServicio.toLowerCase().includes('torta'))
                         );
@@ -103,17 +103,17 @@ function PlannerGastronomicoFiestaContent() {
             }
 
             // 2. Bebidas y Barra (Mejorado para detectar "Barra de licuados")
-            const budgetBeverageItems = presupuestoData.itemsPresupuestados.filter(item => 
+            const budgetBeverageItems = presupuestoData.itemsPresupuestados.filter(item =>
                 item.categoriaServicio?.toLowerCase().includes('bebida') ||
                 item.nombreServicio.toLowerCase().includes('barra') ||
                 item.nombreServicio.toLowerCase().includes('licuado')
             );
-            
+
             if (budgetBeverageItems.length > 0) {
-                 initialBebidas = { 
-                     ...initialBebidas, 
+                 initialBebidas = {
+                     ...initialBebidas,
                      categorias: initialBebidas.categorias.map(c => {
-                         const match = budgetBeverageItems.some(bi => 
+                         const match = budgetBeverageItems.some(bi =>
                             bi.nombreServicio.toLowerCase().includes(c.nombreDisplay.toLowerCase()) ||
                             (c.id === 'barra_tragos' && (bi.nombreServicio.toLowerCase().includes('barra') || bi.nombreServicio.toLowerCase().includes('licuado')))
                          );
@@ -124,7 +124,7 @@ function PlannerGastronomicoFiestaContent() {
 
             // 3. Menú Principal
             if (!initialMenuId) {
-                const mainDish = presupuestoData.itemsPresupuestados.find(item => 
+                const mainDish = presupuestoData.itemsPresupuestados.find(item =>
                     item.categoriaServicio?.toLowerCase().includes('plato principal')
                 );
                 if (mainDish) {
@@ -134,7 +134,7 @@ function PlannerGastronomicoFiestaContent() {
             }
         }
       }
-      
+
       setReposteriaData(initialReposteria);
       setBebidasData(initialBebidas);
       setSelectedMenuId(initialMenuId);
@@ -198,12 +198,12 @@ function PlannerGastronomicoFiestaContent() {
             setIsSaving(false);
         }
     }
-  
+
     const displayAdultos = presupuesto?.invitadosAdultos ?? (Number(fiesta?.configuracion.invitadosEstimados) || 0);
     const displayNinos = (presupuesto?.invitadosNinos ?? 0) + (presupuesto?.invitadosAdolescentes ?? 0);
     const totalInvitados = displayAdultos + displayNinos;
 
-    const hasBeverageInBudget = presupuesto?.itemsPresupuestados.some(item => 
+    const hasBeverageInBudget = presupuesto?.itemsPresupuestados.some(item =>
         item.categoriaServicio?.toLowerCase().includes('bebida') ||
         item.nombreServicio.toLowerCase().includes('barra') ||
         item.nombreServicio.toLowerCase().includes('licuado')
@@ -226,15 +226,14 @@ function PlannerGastronomicoFiestaContent() {
   if (!fiestaId) return <EventSelectionRequired moduleName="la planificación gastronómica" />;
 
   return (
-    <div data-testid="catering-page" className="max-w-5xl mx-auto space-y-6">
+    <div data-testid="catering-page" className="max-w-5xl mx-auto space-y-6 pb-28 sm:pb-32">
       <div className="flex items-center justify-between">
         <div className="flex items-center gap-3">
           <ChefHat className="w-8 h-8 text-primary" />
           <h1 className="text-3xl font-bold tracking-tight font-headline">Gastronomía del Evento</h1>
         </div>
-        <Button asChild variant="outline"><Link href={`/fiestas/nueva?fiestaId=${fiestaId}`}><ArrowLeft className="w-4 h-4 mr-2" />Volver al Planificador</Link></Button>
       </div>
-      
+
        <Card className="shadow-lg">
           <CardHeader className="flex flex-row items-center justify-between">
             <div>
@@ -281,7 +280,7 @@ function PlannerGastronomicoFiestaContent() {
               </AlertDescription>
           </Alert>
       )}
-      
+
        <div className="flex justify-end gap-2">
          <Button asChild variant="outline" className="bg-primary/5 border-primary/20 hover:bg-primary/10 text-primary"><Link href={`/fiestas/nueva/catering/lista-compras?fiestaId=${fiestaId}`}>
              <ShoppingCart className="w-4 h-4 mr-2"/> Ver Lista de Compras
@@ -311,14 +310,14 @@ function PlannerGastronomicoFiestaContent() {
                 </CardContent>
             </Card>
 
-            <GestionReposteria 
-                initialData={reposteriaData} 
+            <GestionReposteria
+                initialData={reposteriaData}
                 onDataChange={handleSaveReposteria}
-                invitados={{adultos: displayAdultos, ninos: displayNinos, adolescentes: 0}} 
+                invitados={{adultos: displayAdultos, ninos: displayNinos, adolescentes: 0}}
             />
-            
-            <GestionBebidas 
-                initialData={bebidasData} 
+
+            <GestionBebidas
+                initialData={bebidasData}
                 onDataChange={handleSaveBebidas}
                 invitados={{adultos: displayAdultos, ninos: displayNinos, adolescentes: 0}}
             />

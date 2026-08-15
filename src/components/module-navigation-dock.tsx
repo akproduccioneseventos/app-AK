@@ -11,10 +11,10 @@ export function ModuleNavigationDock() {
   const pathname = usePathname() || '/';
   const router = useRouter();
 
-  const isIsolatedRoute = 
-    pathname.startsWith('/evento/') || 
-    pathname.startsWith('/presentacion-led') || 
-    pathname.startsWith('/portal-cliente') || 
+  const isIsolatedRoute =
+    pathname.startsWith('/evento/') ||
+    pathname.startsWith('/presentacion-led') ||
+    pathname.startsWith('/portal-cliente') ||
     pathname.startsWith('/invitacion');
 
   if (pathname === '/' || pathname === '/login' || isIsolatedRoute) return null;
@@ -34,7 +34,7 @@ export function ModuleNavigationDock() {
     <nav
       className={cn(
         'fixed left-3 z-40 flex items-center gap-2 rounded-full border border-slate-200 bg-white/92 p-1.5 shadow-lg shadow-slate-900/10 backdrop-blur print:hidden',
-        isPublicPath ? 'top-3' : 'top-20',
+        isPublicPath ? 'top-3' : 'bottom-4 sm:bottom-auto sm:top-20',
       )}
       aria-label="Navegacion del modulo"
     >
