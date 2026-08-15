@@ -175,80 +175,79 @@ export default function AlertasPage() {
       {/* Header */}
       <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
         <div className="flex items-center gap-3">
-          <div className="p-2 bg-red-50 rounded-xl">
-            <Bell className="w-7 h-7 text-red-500" />
+          <div className="p-2 bg-destructive/10 text-destructive rounded-xl border border-destructive/20">
+            <Bell className="w-7 h-7" />
           </div>
           <div>
-            <h1 className="text-2xl font-black tracking-tight">Centro de Alertas</h1>
-            <p className="text-sm text-slate-500">Notificaciones automáticas de todas las fiestas activas</p>
+            <h1 className="text-2xl font-black tracking-tight text-foreground">Centro de Alertas</h1>
+            <p className="text-sm text-muted-foreground">Notificaciones automáticas de todas las fiestas activas</p>
           </div>
         </div>
         {/* En celular estos tres botones no entran en una sola fila: sin
             `flex-wrap` la pantalla se salia 43px de ancho. */}
         <div className="flex flex-wrap gap-2">
           {alertas.some(a => !a.leida) && (
-            <Button variant="outline" size="sm" onClick={handleMarcarTodasLeidas} disabled={isMarkingAll || isLoading}>
+            <Button variant="outline" size="sm" onClick={handleMarcarTodasLeidas} disabled={isMarkingAll || isLoading} className="rounded-lg border-border">
               {isMarkingAll ? <Loader2 className="w-4 h-4 mr-2 animate-spin" /> : <CheckCircle2 className="w-4 h-4 mr-2" />}
               Marcar todas leídas
             </Button>
           )}
-          <Button variant="outline" size="sm" onClick={fetchAlertas} disabled={isLoading}>
+          <Button variant="outline" size="sm" onClick={fetchAlertas} disabled={isLoading} className="rounded-lg border-border">
             <RefreshCw className={cn('w-4 h-4 mr-2', isLoading && 'animate-spin')} />
             Actualizar
           </Button>
-          <Button asChild variant="outline" size="sm"><Link href="/">
+          <Button asChild variant="outline" size="sm" className="rounded-lg border-border">
+            <Link href="/">
               <ArrowLeft className="w-4 h-4 mr-2" />
               Volver
-            </Link></Button>
+            </Link>
+          </Button>
         </div>
       </div>
 
       {/* Summary cards */}
-      {/* Tres columnas fijas no entran en un celular: la etiqueta mas larga
-          ("Info / Recordatorio") estiraba la fila y obligaba a desplazar la
-          pagina de costado. Se apilan en pantalla chica. */}
       <div className="grid grid-cols-1 gap-3 sm:grid-cols-3 sm:gap-4">
-        <Card className="border-red-100 bg-red-50/50">
+        <Card className="border-border bg-card rounded-xl shadow-sm">
           <CardContent className="p-4 flex items-center gap-3">
-            <div className="p-2 bg-red-100 rounded-xl">
-              <AlertTriangle className="w-5 h-5 text-red-600" />
+            <div className="p-2.5 bg-red-500/10 text-red-500 rounded-xl border border-red-500/20">
+              <AlertTriangle className="w-5 h-5" />
             </div>
             <div>
-              <p className="text-2xl font-black text-red-700">{urgentes}</p>
+              <p className="text-2xl font-black text-foreground">{urgentes}</p>
               <p className="text-xs font-bold text-red-500 uppercase tracking-wide">Urgentes</p>
             </div>
           </CardContent>
         </Card>
-        <Card className="border-amber-100 bg-amber-50/50">
+        <Card className="border-border bg-card rounded-xl shadow-sm">
           <CardContent className="p-4 flex items-center gap-3">
-            <div className="p-2 bg-amber-100 rounded-xl">
-              <AlertTriangle className="w-5 h-5 text-amber-600" />
+            <div className="p-2.5 bg-amber-500/10 text-amber-500 rounded-xl border border-amber-500/20">
+              <AlertTriangle className="w-5 h-5" />
             </div>
             <div>
-              <p className="text-2xl font-black text-amber-700">{atenciones}</p>
+              <p className="text-2xl font-black text-foreground">{atenciones}</p>
               <p className="text-xs font-bold text-amber-500 uppercase tracking-wide">Atención</p>
             </div>
           </CardContent>
         </Card>
-        <Card className="border-blue-100 bg-blue-50/50">
+        <Card className="border-border bg-card rounded-xl shadow-sm">
           <CardContent className="p-4 flex items-center gap-3">
-            <div className="p-2 bg-blue-100 rounded-xl">
-              <Info className="w-5 h-5 text-blue-600" />
+            <div className="p-2.5 bg-primary/10 text-primary rounded-xl border border-primary/20">
+              <Info className="w-5 h-5" />
             </div>
             <div>
-              <p className="text-2xl font-black text-blue-700">{infos}</p>
-              <p className="text-xs font-bold text-blue-500 uppercase tracking-wide">Info / Recordatorio</p>
+              <p className="text-2xl font-black text-foreground">{infos}</p>
+              <p className="text-xs font-bold text-primary uppercase tracking-wide">Info / Recordatorio</p>
             </div>
           </CardContent>
         </Card>
       </div>
 
       {/* Filters */}
-      <Card>
+      <Card className="border-border bg-card rounded-xl">
         <CardContent className="p-4 flex flex-col sm:flex-row gap-3">
           <div className="flex-1">
             <Select value={filtroTipo} onValueChange={setFiltroTipo}>
-              <SelectTrigger>
+              <SelectTrigger className="rounded-lg border-border">
                 <SelectValue placeholder="Tipo de alerta" />
               </SelectTrigger>
               <SelectContent>
@@ -262,7 +261,7 @@ export default function AlertasPage() {
           </div>
           <div className="flex-1">
             <Select value={filtroFiesta} onValueChange={setFiltroFiesta}>
-              <SelectTrigger>
+              <SelectTrigger className="rounded-lg border-border">
                 <SelectValue placeholder="Filtrar por fiesta" />
               </SelectTrigger>
               <SelectContent>
@@ -275,7 +274,7 @@ export default function AlertasPage() {
           </div>
           <div className="flex-1">
             <Select value={soloSinLeer ? 'sin-leer' : 'todas'} onValueChange={v => setSoloSinLeer(v === 'sin-leer')}>
-              <SelectTrigger>
+              <SelectTrigger className="rounded-lg border-border">
                 <SelectValue />
               </SelectTrigger>
               <SelectContent>
@@ -301,63 +300,63 @@ export default function AlertasPage() {
       {/* Content */}
       {isLoading ? (
         <div className="flex justify-center py-12">
-          <Loader2 className="w-8 h-8 animate-spin text-purple-500" />
+          <Loader2 className="w-8 h-8 animate-spin text-primary" />
         </div>
       ) : filtradas.length === 0 ? (
-        <Card>
+        <Card className="border-border bg-card rounded-xl">
           <CardContent className="p-12 text-center">
-            <BellOff className="w-12 h-12 text-slate-300 mx-auto mb-3" />
-            <p className="text-slate-500 font-semibold">Sin alertas activas</p>
-            <p className="text-sm text-slate-400 mt-1">Todo está bajo control 🎉</p>
+            <BellOff className="w-12 h-12 text-muted-foreground mx-auto mb-3" />
+            <p className="text-foreground font-semibold">Sin alertas activas</p>
+            <p className="text-sm text-muted-foreground mt-1">Todo está bajo control 🎉</p>
           </CardContent>
         </Card>
       ) : (
         <div className="space-y-4">
           {Array.from(agrupadas.entries()).map(([fiestaId, items]) => (
-            <Card key={fiestaId} className="overflow-hidden">
-              <CardHeader className="pb-2 pt-4 px-5 bg-slate-50/80 border-b border-slate-100">
-                <CardTitle className="text-sm font-black text-slate-700 flex items-center gap-2">
-                  <span className="w-2 h-2 rounded-full bg-purple-500 shrink-0" />
+            <Card key={fiestaId} className="overflow-hidden border-border bg-card rounded-xl shadow-sm">
+              <CardHeader className="pb-2 pt-4 px-5 bg-muted/40 border-b border-border">
+                <CardTitle className="text-sm font-black text-foreground flex items-center gap-2">
+                  <span className="w-2 h-2 rounded-full bg-primary shrink-0" />
                   {items[0].fiestaName}
-                  <Badge className="ml-auto bg-slate-200 text-slate-600 text-[10px]">
+                  <Badge className="ml-auto bg-muted text-muted-foreground border-border text-[10px]">
                     {items.length} alerta{items.length !== 1 ? 's' : ''}
                   </Badge>
                 </CardTitle>
               </CardHeader>
               <CardContent className="p-0">
-                <div className="divide-y divide-slate-50">
+                <div className="divide-y divide-border">
                   {items.map(alerta => (
                     <div
                       key={alerta.id}
                       className={cn(
                         'flex items-start gap-3 px-5 py-4 transition-colors',
-                        alerta.leida ? 'opacity-50' : 'hover:bg-slate-50/50',
+                        alerta.leida ? 'opacity-50' : 'hover:bg-muted/30',
                       )}
                     >
                       {tipoIcon(alerta.tipo)}
                       <div className="flex-1 min-w-0">
                         <div className="flex items-center gap-2 flex-wrap mb-0.5">
                           {tipoBadge(alerta.tipo)}
-                          <span className="text-xs text-slate-400">{formatFecha(alerta.fechaGenerada)}</span>
+                          <span className="text-xs text-muted-foreground">{formatFecha(alerta.fechaGenerada)}</span>
                         </div>
-                        <p className={cn('text-sm font-semibold', alerta.leida ? 'line-through text-slate-400' : 'text-slate-800')}>
+                        <p className={cn('text-sm font-semibold', alerta.leida ? 'line-through text-muted-foreground' : 'text-foreground')}>
                           {alerta.mensaje}
                         </p>
                       </div>
-                      {/* `shrink-0` obligaba a la fila a mantener su ancho aunque
-                          no entrara: en celular empujaba la tarjeta fuera de la pantalla. */}
                       <div className="flex flex-wrap items-center gap-2">
                         {alerta.accionUrl && (
-                          <Button asChild size="sm" variant="outline" className="h-7 px-2 text-xs"><Link href={alerta.accionUrl}>
+                          <Button asChild size="sm" variant="outline" className="h-7 px-2 text-xs rounded-lg border-border">
+                            <Link href={alerta.accionUrl}>
                               <ExternalLink className="w-3 h-3 mr-1" />
                               {alerta.accionLabel ?? 'Ver'}
-                            </Link></Button>
+                            </Link>
+                          </Button>
                         )}
                         {!alerta.leida && (
                           <Button
                             size="sm"
                             variant="ghost"
-                            className="h-7 px-2 text-xs text-slate-400 hover:text-green-600"
+                            className="h-7 px-2 text-xs text-muted-foreground hover:text-emerald-500 rounded-lg"
                             onClick={() => handleMarcarLeida(alerta.id)}
                             aria-label={`Marcar alerta como leída: ${alerta.mensaje}`}
                           >
@@ -368,7 +367,7 @@ export default function AlertasPage() {
                         <Button
                           size="sm"
                           variant="ghost"
-                          className="h-7 px-2 text-xs text-slate-400 hover:text-red-600"
+                          className="h-7 px-2 text-xs text-muted-foreground hover:text-destructive rounded-lg"
                           onClick={() => handleDescartar(alerta.id)}
                           aria-label={`Eliminar alerta: ${alerta.mensaje}`}
                           title="Eliminar alerta"

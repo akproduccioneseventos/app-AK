@@ -830,24 +830,22 @@ ${generatedId ? `*Link:* ${window.location.origin}/presupuestos/${generatedId}/v
   };
 
   return (
-    <div className="relative flex min-h-screen flex-col bg-zinc-950 font-sans text-zinc-100 selection:bg-indigo-500/30">
-
-      <div className="pointer-events-none absolute inset-0 z-0 bg-[radial-gradient(ellipse_at_top,rgba(127,29,29,0.24)_0%,#09090b_62%)]" />
+    <div className="relative flex min-h-screen flex-col bg-background font-sans text-foreground">
 
       {/* HEADER */}
-      <header className="sticky top-0 z-50 flex flex-col gap-3 border-b border-white/10 bg-black/60 backdrop-blur-xl px-4 py-4 sm:flex-row sm:items-center sm:justify-between sm:py-5 shadow-lg shrink-0">
+      <header className="sticky top-0 z-50 flex flex-col gap-3 border-b border-border bg-card/80 backdrop-blur-xl px-4 py-4 sm:flex-row sm:items-center sm:justify-between sm:py-5 shadow-sm shrink-0">
         <div className="flex min-w-0 items-center gap-3">
-          <CompanyLogo blanco className="h-9 w-auto shrink-0 sm:h-10" />
+          <CompanyLogo className="h-9 w-auto shrink-0 sm:h-10" />
           <div className="min-w-0">
-            <h1 className="flex items-center gap-1.5 text-base font-black uppercase tracking-wider text-white sm:text-xl">
-              <Sparkles className="w-5 h-5 text-indigo-400" />
+            <h1 className="flex items-center gap-1.5 text-base font-black uppercase tracking-wider text-foreground sm:text-xl">
+              <Sparkles className="w-5 h-5 text-primary" />
               Asistente Inteligente AK
             </h1>
-            <p className="hidden text-xs text-slate-400 sm:block">Chateá con Sofía y armá tu presupuesto de fiesta ideal al instante</p>
+            <p className="hidden text-xs text-muted-foreground sm:block">Chateá con Sofía y armá tu presupuesto de fiesta ideal al instante</p>
           </div>
         </div>
         <div className="flex w-full items-center justify-between gap-2 sm:w-auto sm:justify-end">
-          <Button asChild variant="ghost" className="min-w-0 flex-1 rounded-full border border-white/10 px-4 text-xs text-slate-300 bg-white/5 hover:bg-white/10 sm:flex-none">
+          <Button asChild variant="ghost" className="min-w-0 flex-1 rounded-full border border-border px-4 text-xs text-foreground bg-muted/30 hover:bg-muted sm:flex-none">
             <Link href="/simulador-de-presupuesto">
               <span>Simulador Manual</span>
             </Link>
@@ -857,7 +855,7 @@ ${generatedId ? `*Link:* ${window.location.origin}/presupuestos/${generatedId}/v
 
       {/* BODY CHAT CONTAINER */}
       <div className="flex-1 flex justify-center items-center p-0 sm:p-4 md:p-6 z-10 overflow-hidden">
-        <div className="flex h-[calc(100dvh-80px)] sm:h-[80vh] w-full max-w-4xl flex-col overflow-hidden rounded-none sm:rounded-2xl border-0 sm:border border-white/10 bg-zinc-900/70 shadow-2xl backdrop-blur-xl">
+        <div className="flex h-[calc(100dvh-80px)] sm:h-[80vh] w-full max-w-4xl flex-col overflow-hidden rounded-none sm:rounded-xl border-0 sm:border border-border bg-card shadow-sm backdrop-blur-xl">
           <ChatWindow />
         </div>
       </div>
@@ -904,16 +902,16 @@ ${generatedId ? `*Link:* ${window.location.origin}/presupuestos/${generatedId}/v
                 )}
               >
                 {!isUser && (
-                  <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full border border-indigo-500/20 bg-indigo-500/10">
-                    <Sparkles className="w-4 h-4 text-indigo-400" />
+                  <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full border border-primary/20 bg-primary/10">
+                    <Sparkles className="w-4 h-4 text-primary" />
                   </div>
                 )}
                 <div
                   className={cn(
-                    "px-4 py-3 rounded-2xl text-xs max-w-[85%] leading-relaxed shadow-lg font-medium",
+                    "px-4 py-3 rounded-xl text-xs max-w-[85%] leading-relaxed shadow-sm font-medium",
                     isUser
-                      ? "bg-indigo-700 text-white rounded-br-none shadow-indigo-950/30"
-                      : "bg-zinc-800/80 border border-white/5 text-zinc-100 rounded-bl-none"
+                      ? "bg-primary text-primary-foreground rounded-br-none"
+                      : "bg-muted/40 border border-border text-foreground rounded-bl-none"
                   )}
                 >
                   <div className="whitespace-pre-wrap">{msg.text}</div>
@@ -924,16 +922,16 @@ ${generatedId ? `*Link:* ${window.location.origin}/presupuestos/${generatedId}/v
 
           {isAiLoading && (
             <div className="flex w-full items-end gap-2 justify-start">
-              <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full border border-indigo-500/20 bg-indigo-500/10">
-                <Sparkles className="w-4 h-4 text-indigo-400" />
+              <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full border border-primary/20 bg-primary/10">
+                <Sparkles className="w-4 h-4 text-primary" />
               </div>
-              <div className="bg-zinc-800/80 border border-white/5 text-zinc-200 px-4 py-3 rounded-2xl rounded-bl-none text-xs leading-relaxed shadow-lg flex items-center gap-1.5">
-                <Loader2 className="w-3.5 h-3.5 animate-spin text-indigo-400" />
+              <div className="bg-muted/40 border border-border text-foreground px-4 py-3 rounded-xl rounded-bl-none text-xs leading-relaxed shadow-sm flex items-center gap-1.5">
+                <Loader2 className="w-3.5 h-3.5 animate-spin text-primary" />
                 <span>Sofía está escribiendo</span>
                 <span className="flex gap-0.5 ml-1">
-                  <span className="h-1 w-1 animate-pulse rounded-full bg-indigo-400" />
-                  <span className="h-1 w-1 animate-pulse rounded-full bg-indigo-400 [animation-delay:160ms]" />
-                  <span className="h-1 w-1 animate-pulse rounded-full bg-indigo-400 [animation-delay:320ms]" />
+                  <span className="h-1 w-1 animate-pulse rounded-full bg-primary" />
+                  <span className="h-1 w-1 animate-pulse rounded-full bg-primary [animation-delay:160ms]" />
+                  <span className="h-1 w-1 animate-pulse rounded-full bg-primary [animation-delay:320ms]" />
                 </span>
               </div>
             </div>
@@ -945,11 +943,11 @@ ${generatedId ? `*Link:* ${window.location.origin}/presupuestos/${generatedId}/v
 
               {/* DATE PICKER WIDGET */}
               {currentChatStep === 'date' && (
-                <div className="flex flex-col gap-3 p-4 bg-zinc-900/60 border border-white/10 rounded-3xl max-w-sm mt-2 shadow-xl">
-                  <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest">Elegí la fecha de tu fiesta:</p>
+                <div className="flex flex-col gap-3 p-4 bg-card border border-border rounded-xl max-w-sm mt-2 shadow-sm">
+                  <p className="text-[10px] font-black text-muted-foreground uppercase tracking-widest">Elegí la fecha de tu fiesta:</p>
                   <DatePickerDemo selectedDate={eventoFecha} onDateChange={handleEventoFechaChange} />
                   {dateWarning && (
-                    <div className="text-[10px] text-amber-400 font-bold leading-normal">
+                    <div className="text-[10px] text-amber-600 dark:text-amber-400 font-bold leading-normal">
                       {dateWarning}
                     </div>
                   )}
@@ -964,7 +962,7 @@ ${generatedId ? `*Link:* ${window.location.origin}/presupuestos/${generatedId}/v
                             setDateWarning('');
                             setDateSuggestions([]);
                           }}
-                          className="bg-white/5 border border-white/10 hover:bg-white/10 text-white rounded-lg px-2 py-1 text-[10px] font-bold transition-all"
+                          className="bg-muted border border-border hover:bg-muted/80 text-foreground rounded-lg px-2 py-1 text-[10px] font-bold transition-all"
                         >
                           {new Date(`${suggestion}T12:00:00`).toLocaleDateString('es-UY', { day: 'numeric', month: 'short' })}
                         </button>
@@ -974,7 +972,7 @@ ${generatedId ? `*Link:* ${window.location.origin}/presupuestos/${generatedId}/v
                   {eventoFecha && (
                     <Button
                       onClick={() => handleSendMessage(eventoFecha.toISOString().split('T')[0])}
-                      className="h-10 w-full rounded-xl bg-indigo-700 text-xs font-bold text-white hover:bg-indigo-600"
+                      className="h-10 w-full rounded-lg bg-primary text-xs font-bold text-primary-foreground hover:bg-primary/90"
                     >
                       Confirmar Fecha <ArrowRight className="w-4 h-4 ml-1.5" />
                     </Button>
@@ -991,10 +989,10 @@ ${generatedId ? `*Link:* ${window.location.origin}/presupuestos/${generatedId}/v
                       <button
                         key={key}
                         onClick={() => handleSendMessage(meta.label)}
-                        className="p-3 bg-zinc-900/60 hover:bg-zinc-800/80 border border-white/10 rounded-2xl flex flex-col items-center justify-center gap-2 transition-all hover:scale-105"
+                        className="p-3 bg-card hover:bg-muted/40 border border-border rounded-xl flex flex-col items-center justify-center gap-2 transition-all hover:scale-[1.02] shadow-sm"
                       >
                         <span className="text-2xl">{meta.emoji}</span>
-                        <span className="text-[10px] font-black text-zinc-100 uppercase tracking-wider text-center">{meta.label}</span>
+                        <span className="text-[10px] font-black text-foreground uppercase tracking-wider text-center">{meta.label}</span>
                       </button>
                     );
                   })}
@@ -1003,16 +1001,16 @@ ${generatedId ? `*Link:* ${window.location.origin}/presupuestos/${generatedId}/v
 
               {/* GUEST ADULTS */}
               {currentChatStep === 'guests_adults' && (
-                <div className="flex flex-col gap-3 p-4 bg-zinc-900/60 border border-white/10 rounded-3xl max-w-sm mt-2 shadow-xl">
-                  <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest">¿Cuántos adultos son?</p>
+                <div className="flex flex-col gap-3 p-4 bg-card border border-border rounded-xl max-w-sm mt-2 shadow-sm">
+                  <p className="text-[10px] font-black text-muted-foreground uppercase tracking-widest">¿Cuántos adultos son?</p>
                   <div className="flex items-center justify-between gap-4 py-2">
-                    <Button size="icon" variant="ghost" className="rounded-full border border-white/20 bg-transparent h-10 w-10 text-white hover:bg-white/10 hover:text-white" onClick={() => setAdultos(a => Math.max(10, a - 5))}>-</Button>
-                    <span className="text-3xl font-black text-white">{adultos}</span>
-                    <Button size="icon" variant="ghost" className="rounded-full border border-white/20 bg-transparent h-10 w-10 text-white hover:bg-white/10 hover:text-white" onClick={() => setAdultos(a => Math.min(1000, a + 5))}>+</Button>
+                    <Button size="icon" variant="ghost" className="rounded-full border border-border bg-transparent h-10 w-10 text-foreground hover:bg-muted" onClick={() => setAdultos(a => Math.max(10, a - 5))}>-</Button>
+                    <span className="text-3xl font-black text-foreground">{adultos}</span>
+                    <Button size="icon" variant="ghost" className="rounded-full border border-border bg-transparent h-10 w-10 text-foreground hover:bg-muted" onClick={() => setAdultos(a => Math.min(1000, a + 5))}>+</Button>
                   </div>
                   <Button
                     onClick={() => handleSendMessage(`Son ${adultos} adultos`)}
-                    className="h-10 w-full rounded-xl bg-indigo-700 text-xs font-bold text-white hover:bg-indigo-600"
+                    className="h-10 w-full rounded-lg bg-primary text-xs font-bold text-primary-foreground hover:bg-primary/90"
                   >
                     Confirmar Cantidad <ArrowRight className="w-4 h-4 ml-1.5" />
                   </Button>
@@ -1021,16 +1019,16 @@ ${generatedId ? `*Link:* ${window.location.origin}/presupuestos/${generatedId}/v
 
               {/* GUEST KIDS */}
               {currentChatStep === 'guests_kids' && (
-                <div className="flex flex-col gap-3 p-4 bg-zinc-900/60 border border-white/10 rounded-3xl max-w-sm mt-2 shadow-xl">
-                  <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest">¿Cuántos niños / adolescentes?</p>
+                <div className="flex flex-col gap-3 p-4 bg-card border border-border rounded-xl max-w-sm mt-2 shadow-sm">
+                  <p className="text-[10px] font-black text-muted-foreground uppercase tracking-widest">¿Cuántos niños / adolescentes?</p>
                   <div className="flex items-center justify-between gap-4 py-2">
-                    <Button size="icon" variant="ghost" className="rounded-full border border-white/20 bg-transparent h-10 w-10 text-white hover:bg-white/10 hover:text-white" onClick={() => setNinosYAdolescentes(k => Math.max(0, k - 5))}>-</Button>
-                    <span className="text-3xl font-black text-white">{ninosYAdolescentes}</span>
-                    <Button size="icon" variant="ghost" className="rounded-full border border-white/20 bg-transparent h-10 w-10 text-white hover:bg-white/10 hover:text-white" onClick={() => setNinosYAdolescentes(k => Math.min(500, k + 5))}>+</Button>
+                    <Button size="icon" variant="ghost" className="rounded-full border border-border bg-transparent h-10 w-10 text-foreground hover:bg-muted" onClick={() => setNinosYAdolescentes(k => Math.max(0, k - 5))}>-</Button>
+                    <span className="text-3xl font-black text-foreground">{ninosYAdolescentes}</span>
+                    <Button size="icon" variant="ghost" className="rounded-full border border-border bg-transparent h-10 w-10 text-foreground hover:bg-muted" onClick={() => setNinosYAdolescentes(k => Math.min(500, k + 5))}>+</Button>
                   </div>
                   <Button
                     onClick={() => handleSendMessage(`Son ${ninosYAdolescentes} niños y adolescentes`)}
-                    className="h-10 w-full rounded-xl bg-indigo-700 text-xs font-bold text-white hover:bg-indigo-600"
+                    className="h-10 w-full rounded-lg bg-primary text-xs font-bold text-primary-foreground hover:bg-primary/90"
                   >
                     Confirmar Cantidad <ArrowRight className="w-4 h-4 ml-1.5" />
                   </Button>
@@ -1042,17 +1040,17 @@ ${generatedId ? `*Link:* ${window.location.origin}/presupuestos/${generatedId}/v
                 <div className="flex gap-2 max-w-sm mt-2">
                   <button
                     onClick={() => handleSendMessage("Menos de 4 horas")}
-                    className="flex-1 p-4 bg-zinc-900/60 hover:bg-zinc-800 border border-white/10 rounded-2xl flex flex-col items-center justify-center gap-1 transition-all text-center"
+                    className="flex-1 p-4 bg-card hover:bg-muted/40 border border-border rounded-xl flex flex-col items-center justify-center gap-1 transition-all text-center shadow-sm"
                   >
-                    <span className="text-[10px] font-black text-slate-400 uppercase tracking-widest">Corta Duración</span>
-                    <span className="text-xs font-black text-white uppercase mt-1">Menos de 4h</span>
+                    <span className="text-[10px] font-black text-muted-foreground uppercase tracking-widest">Corta Duración</span>
+                    <span className="text-xs font-black text-foreground uppercase mt-1">Menos de 4h</span>
                   </button>
                   <button
                     onClick={() => handleSendMessage("Más de 4 horas")}
-                    className="flex-1 p-4 bg-zinc-900/60 hover:bg-zinc-800 border border-white/10 rounded-2xl flex flex-col items-center justify-center gap-1 transition-all text-center"
+                    className="flex-1 p-4 bg-card hover:bg-muted/40 border border-border rounded-xl flex flex-col items-center justify-center gap-1 transition-all text-center shadow-sm"
                   >
-                    <span className="text-[10px] font-black text-slate-400 uppercase tracking-widest">Servicio Completo</span>
-                    <span className="text-xs font-black text-white uppercase mt-1">Más de 4h</span>
+                    <span className="text-[10px] font-black text-muted-foreground uppercase tracking-widest">Servicio Completo</span>
+                    <span className="text-xs font-black text-foreground uppercase mt-1">Más de 4h</span>
                   </button>
                 </div>
               )}
@@ -1062,23 +1060,23 @@ ${generatedId ? `*Link:* ${window.location.origin}/presupuestos/${generatedId}/v
                 <div className="flex gap-3 overflow-x-auto pb-2 scrollbar-thin max-w-xl mt-2">
                   {availableMenus.length > 0 ? (
                     availableMenus.map((m) => (
-                      <div key={m.id} className="min-w-[220px] max-w-[240px] p-4 bg-zinc-900/60 border border-white/10 rounded-3xl flex flex-col justify-between gap-3 shadow-md shrink-0">
+                      <div key={m.id} className="min-w-[220px] max-w-[240px] p-4 bg-card border border-border rounded-xl flex flex-col justify-between gap-3 shadow-sm shrink-0">
                         <div>
-                          <span className="text-xs font-black text-white uppercase tracking-wider">{m.name}</span>
-                          <p className="text-[10px] text-slate-400 mt-1 leading-normal line-clamp-3">{m.description || 'Comida para todo tipo de eventos'}</p>
+                          <span className="text-xs font-black text-foreground uppercase tracking-wider">{m.name}</span>
+                          <p className="text-[10px] text-muted-foreground mt-1 leading-normal line-clamp-3">{m.description || 'Comida para todo tipo de eventos'}</p>
                         </div>
                         <Button
                           size="sm"
                           onClick={() => handleSendMessage(m.name)}
-                          className="h-8 w-full rounded-xl bg-indigo-700 text-[10px] font-bold uppercase tracking-widest text-white hover:bg-indigo-600"
+                          className="h-8 w-full rounded-lg bg-primary text-[10px] font-bold uppercase tracking-widest text-primary-foreground hover:bg-primary/90"
                         >
                           Elegir {m.name}
                         </Button>
                       </div>
                     ))
                   ) : (
-                    <div className="flex min-w-[240px] items-center gap-2 rounded-xl border border-white/10 bg-zinc-900/70 p-4 text-xs text-zinc-300">
-                      {isReferenceDataLoading && <Loader2 className="h-4 w-4 animate-spin text-indigo-400" />}
+                    <div className="flex min-w-[240px] items-center gap-2 rounded-xl border border-border bg-card p-4 text-xs text-muted-foreground">
+                      {isReferenceDataLoading && <Loader2 className="h-4 w-4 animate-spin text-primary" />}
                       <span>{isReferenceDataLoading ? 'Preparando los menús disponibles...' : 'Los menús se confirman con el equipo AK.'}</span>
                     </div>
                   )}
@@ -1090,17 +1088,17 @@ ${generatedId ? `*Link:* ${window.location.origin}/presupuestos/${generatedId}/v
                 <div className="flex gap-2 max-w-md mt-2">
                   <button
                     onClick={() => handleSendMessage("Quiero hacerlo por paquetes cerrados")}
-                    className="flex-1 p-4 bg-zinc-900/60 hover:bg-zinc-800 border border-white/10 rounded-2xl flex flex-col items-center justify-center gap-1 transition-all text-center"
+                    className="flex-1 p-4 bg-card hover:bg-muted/40 border border-border rounded-xl flex flex-col items-center justify-center gap-1 transition-all text-center shadow-sm"
                   >
                     <span className="text-2xl">📦</span>
-                    <span className="text-[10px] font-black text-white uppercase mt-2">Por Paquetes Cerrados</span>
+                    <span className="text-[10px] font-black text-foreground uppercase mt-2">Por Paquetes Cerrados</span>
                   </button>
                   <button
                     onClick={() => handleSendMessage("Quiero elegir servicio a servicio")}
-                    className="flex-1 p-4 bg-zinc-900/60 hover:bg-zinc-800 border border-white/10 rounded-2xl flex flex-col items-center justify-center gap-1 transition-all text-center"
+                    className="flex-1 p-4 bg-card hover:bg-muted/40 border border-border rounded-xl flex flex-col items-center justify-center gap-1 transition-all text-center shadow-sm"
                   >
                     <span className="text-2xl">🛠️</span>
-                    <span className="text-[10px] font-black text-white uppercase mt-2">Servicio a Servicio</span>
+                    <span className="text-[10px] font-black text-foreground uppercase mt-2">Servicio a Servicio</span>
                   </button>
                 </div>
               )}
@@ -1111,26 +1109,26 @@ ${generatedId ? `*Link:* ${window.location.origin}/presupuestos/${generatedId}/v
                   {config.paquetes.length > 0 ? config.paquetes.map((p) => {
                     const price = packageSummaries.get(p.id)?.total || 0;
                     return (
-                      <div key={p.id} className="min-w-[240px] max-w-[260px] p-4 bg-zinc-900/60 border border-white/10 rounded-3xl flex flex-col justify-between gap-3 shadow-md shrink-0">
+                      <div key={p.id} className="min-w-[240px] max-w-[260px] p-4 bg-card border border-border rounded-xl flex flex-col justify-between gap-3 shadow-sm shrink-0">
                         <div>
                           <div className="flex justify-between items-start gap-1">
-                            <span className="text-xs font-black text-white uppercase tracking-wider truncate">{p.nombre}</span>
+                            <span className="text-xs font-black text-foreground uppercase tracking-wider truncate">{p.nombre}</span>
                           </div>
-                          <p className="text-[10px] text-slate-400 mt-1 leading-normal line-clamp-3">{p.descripcion}</p>
-                          <p className="mt-2 text-sm font-black text-indigo-400">{formatCurrency(price)}</p>
+                          <p className="text-[10px] text-muted-foreground mt-1 leading-normal line-clamp-3">{p.descripcion}</p>
+                          <p className="mt-2 text-sm font-black text-primary">{formatCurrency(price)}</p>
                         </div>
                         <Button
                           size="sm"
                           onClick={() => handleSendMessage(p.nombre)}
-                          className="h-8 w-full rounded-xl bg-indigo-700 text-[10px] font-bold uppercase tracking-widest text-white hover:bg-indigo-600"
+                          className="h-8 w-full rounded-lg bg-primary text-[10px] font-bold uppercase tracking-widest text-primary-foreground hover:bg-primary/90"
                         >
                           Seleccionar
                         </Button>
                       </div>
                     );
                   }) : (
-                    <div className="flex min-w-[240px] items-center gap-2 rounded-xl border border-white/10 bg-zinc-900/70 p-4 text-xs text-zinc-300">
-                      {isReferenceDataLoading && <Loader2 className="h-4 w-4 animate-spin text-indigo-400" />}
+                    <div className="flex min-w-[240px] items-center gap-2 rounded-xl border border-border bg-card p-4 text-xs text-muted-foreground">
+                      {isReferenceDataLoading && <Loader2 className="h-4 w-4 animate-spin text-primary" />}
                       <span>{isReferenceDataLoading ? 'Preparando los paquetes...' : 'Podemos armar una propuesta a medida.'}</span>
                     </div>
                   )}
@@ -1139,13 +1137,13 @@ ${generatedId ? `*Link:* ${window.location.origin}/presupuestos/${generatedId}/v
 
               {/* SERVICE SELECT WIDGET */}
               {currentChatStep === 'service_select' && (
-                <div className="p-4 bg-zinc-900/60 border border-white/10 rounded-3xl max-w-md mt-2 space-y-4 shadow-xl">
-                  <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest">Elegí los servicios adicionales que querés:</p>
+                <div className="p-4 bg-card border border-border rounded-xl max-w-md mt-2 space-y-4 shadow-sm">
+                  <p className="text-[10px] font-black text-muted-foreground uppercase tracking-widest">Elegí los servicios adicionales que querés:</p>
                   <div className="max-h-52 overflow-y-auto space-y-2 pr-2 scrollbar-thin">
                     {serviciosCatalogo.length > 0 ? serviciosCatalogo.map(s => {
                       const isChecked = selectedServices.includes(s.id);
                       return (
-                        <label key={s.id} className="flex items-center gap-3 p-2 rounded-xl hover:bg-white/5 cursor-pointer transition-colors border border-white/5 bg-zinc-950/20">
+                        <label key={s.id} className="flex items-center gap-3 p-2 rounded-lg hover:bg-muted/40 cursor-pointer transition-colors border border-border bg-card">
                           <Checkbox
                             checked={isChecked}
                             onCheckedChange={(checked) => {
@@ -1157,21 +1155,21 @@ ${generatedId ? `*Link:* ${window.location.origin}/presupuestos/${generatedId}/v
                             }}
                           />
                           <div className="flex-1 min-w-0">
-                            <p className="text-[10px] font-bold text-white leading-none truncate">{s.nombre}</p>
-                            <p className="text-[9px] text-slate-400 mt-1">{formatCurrency(s.precioVenta || s.precioPorPersona || 0)}</p>
+                            <p className="text-[10px] font-bold text-foreground leading-none truncate">{s.nombre}</p>
+                            <p className="text-[9px] text-muted-foreground mt-1">{formatCurrency(s.precioVenta || s.precioPorPersona || 0)}</p>
                           </div>
                         </label>
                       );
                     }) : (
-                      <div className="flex items-center gap-2 rounded-xl border border-white/10 bg-zinc-950/30 p-3 text-xs text-zinc-400">
-                        {isReferenceDataLoading && <Loader2 className="h-4 w-4 animate-spin text-indigo-400" />}
+                      <div className="flex items-center gap-2 rounded-xl border border-border bg-card p-3 text-xs text-muted-foreground">
+                        {isReferenceDataLoading && <Loader2 className="h-4 w-4 animate-spin text-primary" />}
                         <span>{isReferenceDataLoading ? 'Cargando servicios...' : 'Los servicios se personalizan con el equipo AK.'}</span>
                       </div>
                     )}
                   </div>
                   <Button
                     onClick={() => handleSendMessage("Confirmar selección de servicios")}
-                    className="h-10 w-full rounded-xl bg-indigo-700 text-xs font-bold uppercase tracking-widest text-white hover:bg-indigo-600"
+                    className="h-10 w-full rounded-lg bg-primary text-xs font-bold uppercase tracking-widest text-primary-foreground hover:bg-primary/90"
                   >
                     Confirmar Selección ({selectedServices.length})
                   </Button>
@@ -1183,33 +1181,33 @@ ${generatedId ? `*Link:* ${window.location.origin}/presupuestos/${generatedId}/v
                 <div className="max-w-2xl mt-4 space-y-6">
 
                   {/* DETAIL SHEET */}
-                  <Card className="border-white/10 shadow-2xl rounded-[2rem] overflow-hidden bg-zinc-900/60 text-white backdrop-blur-md">
-                    <CardHeader className="text-center bg-zinc-950/40 p-6 border-b border-white/5">
-                      <CompanyLogo blanco className="opacity-80 mx-auto mb-2" />
-                      <CardTitle className="text-lg font-black uppercase tracking-widest text-white">Tu Presupuesto Estimado</CardTitle>
-                      <p className="text-[10px] text-slate-400">AK Producciones — Salto, Uruguay</p>
+                  <Card className="border-border shadow-sm rounded-xl overflow-hidden bg-card text-foreground">
+                    <CardHeader className="text-center bg-muted/20 p-6 border-b border-border">
+                      <CompanyLogo className="mx-auto mb-2" />
+                      <CardTitle className="text-lg font-black uppercase tracking-widest text-foreground">Tu Presupuesto Estimado</CardTitle>
+                      <p className="text-[10px] text-muted-foreground">AK Producciones — Salto, Uruguay</p>
                     </CardHeader>
                     <CardContent className="p-4 sm:p-6 space-y-6">
-                      <div className="border border-white/5 rounded-2xl overflow-hidden bg-black/20">
+                      <div className="border border-border rounded-xl overflow-hidden bg-card">
                         <Table>
-                          <TableHeader className="bg-white/5">
-                            <TableRow className="border-white/5 hover:bg-transparent">
-                              <TableHead className="text-[9px] font-black uppercase pl-6 py-3 text-slate-300">Servicio / Categoría</TableHead>
-                              <TableHead className="text-center text-[9px] font-black uppercase text-slate-300">Cant.</TableHead>
-                              <TableHead className="text-right pr-6 text-[9px] font-black uppercase text-slate-300">Subtotal</TableHead>
+                          <TableHeader className="bg-muted/40">
+                            <TableRow className="border-border hover:bg-transparent">
+                              <TableHead className="text-[9px] font-black uppercase pl-6 py-3 text-muted-foreground">Servicio / Categoría</TableHead>
+                              <TableHead className="text-center text-[9px] font-black uppercase text-muted-foreground">Cant.</TableHead>
+                              <TableHead className="text-right pr-6 text-[9px] font-black uppercase text-muted-foreground">Subtotal</TableHead>
                             </TableRow>
                           </TableHeader>
                           <TableBody>
                             {priceStats.detallados.map(item => (
-                              <TableRow key={item.id} className="border-white/5 hover:bg-white/5 transition-colors">
+                              <TableRow key={item.id} className="border-border hover:bg-muted/20 transition-colors">
                                 <TableCell className="pl-6 py-3">
-                                  <p className="font-bold text-xs text-white">{item.nombre}</p>
+                                  <p className="font-bold text-xs text-foreground">{item.nombre}</p>
                                 </TableCell>
-                                <TableCell className="text-center text-xs font-black text-slate-400">{item.cantidad}</TableCell>
+                                <TableCell className="text-center text-xs font-black text-muted-foreground">{item.cantidad}</TableCell>
                                 <TableCell className="text-right pr-6">
                                   {item.esRegalo ? (
-                                    <span className="text-[9px] font-black text-green-400 uppercase tracking-tighter">Regalo</span>
-                                  ) : <span className="text-xs font-black text-slate-200">{formatCurrency(item.costoTotal)}</span>}
+                                    <span className="text-[9px] font-black text-emerald-600 dark:text-emerald-400 uppercase tracking-tighter">Regalo</span>
+                                  ) : <span className="text-xs font-black text-foreground">{formatCurrency(item.costoTotal)}</span>}
                                 </TableCell>
                               </TableRow>
                             ))}
@@ -1218,30 +1216,30 @@ ${generatedId ? `*Link:* ${window.location.origin}/presupuestos/${generatedId}/v
                       </div>
 
                       {/* SUMMARY BLOCK */}
-                      <div className="max-w-sm ml-auto space-y-2.5 py-4 px-6 bg-black/40 rounded-2xl border border-white/5 shadow-inner">
-                        <div className="flex justify-between items-center text-[9px] font-black uppercase text-slate-400 tracking-wider">
+                      <div className="max-w-sm ml-auto space-y-2.5 py-4 px-6 bg-muted/20 rounded-xl border border-border shadow-sm">
+                        <div className="flex justify-between items-center text-[9px] font-black uppercase text-muted-foreground tracking-wider">
                           <span>Subtotal:</span>
                           <span>{formatCurrency(priceStats.subtotalBruto)}</span>
                         </div>
                         {priceStats.ahorroRegalos > 0 && (
-                          <div className="flex justify-between items-center text-[9px] font-black text-emerald-400 uppercase tracking-wider">
+                          <div className="flex justify-between items-center text-[9px] font-black text-emerald-600 dark:text-emerald-400 uppercase tracking-wider">
                             <span>Bonificación Regalos:</span>
                             <span>-{formatCurrency(priceStats.ahorroRegalos)}</span>
                           </div>
                         )}
                         {priceStats.descPromo > 0 && (
-                          <div className="flex justify-between items-center text-[9px] font-black uppercase text-amber-400 tracking-wider">
+                          <div className="flex justify-between items-center text-[9px] font-black uppercase text-amber-600 dark:text-amber-400 tracking-wider">
                             <span>Descuento Especial:</span>
                             <span>-{formatCurrency(priceStats.descPromo)}</span>
                           </div>
                         )}
-                        <Separator className="bg-white/10" />
+                        <Separator className="bg-border" />
                         <div className="flex justify-between items-center pt-1">
-                          <span className="text-xs font-black uppercase text-white">Total Final:</span>
-                          <span className="text-xl font-black text-red-400">{formatCurrency(priceStats.totalFinal)}</span>
+                          <span className="text-xs font-black uppercase text-foreground">Total Final:</span>
+                          <span className="text-xl font-black text-primary">{formatCurrency(priceStats.totalFinal)}</span>
                         </div>
                         {priceStats.precioPorPersona > 0 && (
-                          <div className="flex items-center justify-between text-[10px] font-bold text-slate-300">
+                          <div className="flex items-center justify-between text-[10px] font-bold text-muted-foreground">
                             <span>Valor aproximado por persona</span>
                             <span>{formatCurrency(priceStats.precioPorPersona)}</span>
                           </div>
@@ -1249,35 +1247,35 @@ ${generatedId ? `*Link:* ${window.location.origin}/presupuestos/${generatedId}/v
                       </div>
 
                       {priceStats.annualProjection.applies && (
-                        <section className="rounded-lg border border-white/10 bg-black/25 p-4">
+                        <section className="rounded-xl border border-border bg-muted/20 p-4">
                           <div className="flex flex-wrap items-center justify-between gap-2">
-                            <h4 className="text-[10px] font-black uppercase tracking-widest text-slate-200">Proyección para la fecha elegida</h4>
-                            <span className="text-[10px] font-bold text-slate-400">Ajuste anual {priceStats.annualProjection.adjustmentPct}%</span>
+                            <h4 className="text-[10px] font-black uppercase tracking-widest text-foreground">Proyección para la fecha elegida</h4>
+                            <span className="text-[10px] font-bold text-muted-foreground">Ajuste anual {priceStats.annualProjection.adjustmentPct}%</span>
                           </div>
-                          <div className="mt-3 divide-y divide-white/10">
+                          <div className="mt-3 divide-y divide-border">
                             {priceStats.annualProjection.rows.map((row) => (
                               <div key={row.year} className="flex items-center justify-between py-2 text-xs">
-                                <span className="font-semibold text-slate-400">Total estimado {row.year}</span>
-                                <span className="font-black text-white">{formatCurrency(row.total)}</span>
+                                <span className="font-semibold text-muted-foreground">Total estimado {row.year}</span>
+                                <span className="font-black text-foreground">{formatCurrency(row.total)}</span>
                               </div>
                             ))}
                           </div>
-                          <p className="mt-2 text-[10px] leading-relaxed text-slate-500">El total principal conserva el precio vigente. La proyección futura es informativa y se aplica según contrato.</p>
+                          <p className="mt-2 text-[10px] leading-relaxed text-muted-foreground">El total principal conserva el precio vigente. La proyección futura es informativa y se aplica según contrato.</p>
                         </section>
                       )}
 
                       {/* RESERVATION BANNER */}
-                      <div className="w-full space-y-1 rounded-lg border border-white/10 bg-zinc-950/70 p-4 text-xs text-zinc-300">
-                        <h4 className="font-black uppercase tracking-widest text-[9px] flex items-center gap-1.5"><Info className="w-3.5 h-3.5"/> Información de Contratación</h4>
-                        <p className="leading-relaxed">Con una seña de $5.000 podés solicitar la reserva de la fecha. AK confirma disponibilidad y condiciones antes de registrar el pago.</p>
-                        <p className="leading-relaxed">El presupuesto es válido por 30 días y el saldo se coordina en la propuesta contractual.</p>
+                      <div className="w-full space-y-1 rounded-xl border border-border bg-muted/20 p-4 text-xs text-foreground">
+                        <h4 className="font-black uppercase tracking-widest text-[9px] flex items-center gap-1.5"><Info className="w-3.5 h-3.5 text-primary"/> Información de Contratación</h4>
+                        <p className="leading-relaxed text-muted-foreground">Con una seña de $5.000 podés solicitar la reserva de la fecha. AK confirma disponibilidad y condiciones antes de registrar el pago.</p>
+                        <p className="leading-relaxed text-muted-foreground">El presupuesto es válido por 30 días y el saldo se coordina en la propuesta contractual.</p>
                       </div>
 
                       {/* ACTIONS */}
                       <div className="grid grid-cols-1 md:grid-cols-2 gap-2">
                         <Button
                           asChild
-                          className="h-11 bg-emerald-600 hover:bg-emerald-700 text-white font-bold text-[11px] sm:text-xs uppercase tracking-wide w-full rounded-xl px-2 flex items-center justify-center gap-1.5"
+                          className="h-11 bg-primary hover:bg-primary/90 text-primary-foreground font-bold text-[11px] sm:text-xs uppercase tracking-wide w-full rounded-lg px-2 flex items-center justify-center gap-1.5"
                         >
                           <a href={buildWhatsAppHref()} target="_blank" rel="noopener noreferrer" className="flex items-center justify-center gap-1.5 w-full h-full">
                             <Share2 className="w-4 h-4 shrink-0"/> <span className="truncate">Coordinar Reunión</span>
@@ -1287,7 +1285,7 @@ ${generatedId ? `*Link:* ${window.location.origin}/presupuestos/${generatedId}/v
                           variant="outline"
                           disabled={!generatedId || isDownloadingPdf}
                           onClick={handleDownloadBudgetPdf}
-                          className="h-11 border-white/10 text-slate-300 hover:bg-white/5 hover:text-white font-bold text-[11px] sm:text-xs uppercase tracking-wide w-full rounded-xl bg-transparent px-2 flex items-center justify-center gap-1.5"
+                          className="h-11 border-border text-foreground hover:bg-muted font-bold text-[11px] sm:text-xs uppercase tracking-wide w-full rounded-lg bg-card px-2 flex items-center justify-center gap-1.5"
                         >
                           {isDownloadingPdf ? <Loader2 className="w-4 h-4 shrink-0 animate-spin" /> : <Printer className="w-4 h-4 shrink-0"/>}
                           <span className="truncate">Descargar PDF</span>
@@ -1298,8 +1296,8 @@ ${generatedId ? `*Link:* ${window.location.origin}/presupuestos/${generatedId}/v
 
                   {/* DOWNGRADE / UPGRADE WIDGET */}
                   {selectedPaqueteId && (
-                    <div className="p-4 bg-zinc-900/60 border border-white/10 rounded-3xl space-y-3 shadow-xl">
-                      <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest">Opciones de Ajuste de Presupuesto:</p>
+                    <div className="p-4 bg-card border border-border rounded-xl space-y-3 shadow-sm">
+                      <p className="text-[10px] font-black text-muted-foreground uppercase tracking-widest">Opciones de Ajuste de Presupuesto:</p>
                       <div className="flex flex-wrap gap-2">
                         {config?.paquetes
                           .filter(p => p.id !== selectedPaqueteId)
@@ -1308,7 +1306,7 @@ ${generatedId ? `*Link:* ${window.location.origin}/presupuestos/${generatedId}/v
                               key={p.id}
                               disabled={isAiLoading}
                               onClick={() => handleSwitchPackage(p.id)}
-                              className="px-3 py-2 bg-white/5 hover:bg-white/10 border border-white/10 rounded-xl text-[10px] font-black uppercase text-slate-300 tracking-wider transition-all"
+                              className="px-3 py-2 bg-muted/40 hover:bg-muted border border-border rounded-lg text-[10px] font-black uppercase text-foreground tracking-wider transition-all"
                             >
                               Cambiar a {p.nombre}
                             </button>
@@ -1328,10 +1326,10 @@ ${generatedId ? `*Link:* ${window.location.origin}/presupuestos/${generatedId}/v
 
         {/* QUICK SUGGESTION PILL */}
         {suggestionPill && !isAiLoading && (
-          <div className="px-4 py-2 bg-zinc-900/80 border-t border-white/5 flex items-center justify-start shrink-0">
+          <div className="px-4 py-2 bg-card border-t border-border flex items-center justify-start shrink-0">
             <button
               onClick={() => handleSendMessage(suggestionPill.messageToSubmit)}
-              className="rounded-full border border-indigo-500/35 bg-indigo-600/20 px-4 py-1.5 text-xs font-bold tracking-wide text-indigo-100 shadow-md transition-all hover:bg-indigo-600/35"
+              className="rounded-full border border-primary/30 bg-primary/10 px-4 py-1.5 text-xs font-bold tracking-wide text-primary shadow-sm transition-all hover:bg-primary/20"
             >
               ✨ {suggestionPill.label}
             </button>
@@ -1339,7 +1337,7 @@ ${generatedId ? `*Link:* ${window.location.origin}/presupuestos/${generatedId}/v
         )}
 
         {/* INPUT AREA */}
-        <div className="p-4 border-t border-white/10 bg-zinc-950/60 flex items-center gap-2 shrink-0">
+        <div className="p-4 border-t border-border bg-card flex items-center gap-2 shrink-0">
           <input
             type="text"
             data-ak-tone="dark"
@@ -1348,13 +1346,13 @@ ${generatedId ? `*Link:* ${window.location.origin}/presupuestos/${generatedId}/v
             onKeyDown={(e) => { if (e.key === 'Enter') handleSendMessage(); }}
             placeholder="Escribile tu respuesta o pregunta a Sofía..."
             disabled={isAiLoading}
-            className="flex-1 rounded-xl border border-white/10 bg-zinc-800/80 px-4 py-3 text-sm text-zinc-100 placeholder-zinc-400 focus:outline-none focus:ring-2 focus:ring-red-500 disabled:cursor-not-allowed disabled:opacity-40"
+            className="flex-1 rounded-lg border border-border bg-muted/20 px-4 py-3 text-sm text-foreground placeholder:text-muted-foreground focus:outline-none focus:border-primary disabled:cursor-not-allowed disabled:opacity-40"
           />
           <Button
             size="icon"
             onClick={() => handleSendMessage()}
             disabled={isAiLoading || !inputMessage.trim()}
-            className="h-10 w-10 shrink-0 rounded-xl bg-indigo-700 text-white hover:bg-indigo-600 disabled:opacity-40"
+            className="h-10 w-10 shrink-0 rounded-lg bg-primary text-primary-foreground hover:bg-primary/90 disabled:opacity-40"
             aria-label="Enviar mensaje"
             title="Enviar mensaje"
           >

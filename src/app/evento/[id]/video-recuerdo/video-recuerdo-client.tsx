@@ -4,6 +4,7 @@ import { useState, useEffect, useRef } from 'react';
 import Image from 'next/image';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Volume2, VolumeX, SkipForward, PlayCircle } from 'lucide-react';
+import Image from 'next/image';
 import type { SocialGalleryPost } from '@/types/social-gallery';
 
 interface Props {
@@ -124,16 +125,13 @@ export function VideoRecuerdoClient({ eventName, images }: Props) {
             style={{ backgroundImage: `url(${currentImage?.imageUrl})` }}
           />
           {/* Imagen principal */}
-          {currentImage?.imageUrl && (
-            <Image
-              src={currentImage.imageUrl}
-              alt={currentImage?.authorName || 'Recuerdo'}
-              fill
-              unoptimized
-              className="object-contain"
-            />
-          )}
-
+          <Image
+            src={currentImage?.imageUrl || '/placeholder.png'}
+            alt={currentImage?.authorName || 'Recuerdo'}
+            fill
+            className="object-contain"
+            unoptimized
+          />
           {/* Nombre del autor abajo a la derecha */}
           {currentImage?.authorName && (
             <div className="absolute bottom-10 right-10 text-white/70 text-sm drop-shadow-md">
