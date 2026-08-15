@@ -323,6 +323,41 @@ queda escrito ahí, con el estado de cada cosa: anda, está a medias o no está.
   no tenerlo.
 - Si aparece un área nueva que no está inventariada, se agrega.
 
+## LA APP ESTÁ TERMINADA. No auditar por auditar.
+
+**Orden del dueño, 15 de agosto de 2026, y es la regla que manda sobre todas las
+demás.** Venía pasando esto: cada tanda mandaba ayudantes a buscar problemas, los
+ayudantes siempre encontraban algo —siempre encuentran algo si los mandás— y la
+app nunca terminaba. El dueño lo dijo así: *"siempre quedan cosas, siempre
+encontrás un error nuevo, es un camino sin salida"*. Tenía razón.
+
+**Terminada quiere decir esto, y ya se cumple:**
+
+- Cero errores conocidos sin resolver.
+- Compila, todas las pruebas en verde, sin acentos rotos.
+- Plata, cobros, comida y permisos auditados sin hallazgos.
+- Las pantallas del cliente y del invitado, sin nada roto.
+
+### Qué está prohibido a partir de ahora
+
+- **No se lanzan auditorías generales "a ver qué aparece".** Ni de rutina, ni al
+  abrir una sesión, ni "para ponerse al día".
+- **No se reporta como pendiente** algo que funciona y se ve bien. Un color
+  escrito a mano en una pantalla que anda **no es un error**.
+- **No se abre trabajo por gusto propio.** Si el dueño no lo pidió y no está
+  roto, no existe.
+
+### Qué sí se hace
+
+- **Lo que el dueño pide.** Eso es todo.
+- **Lo que se rompe de verdad**: algo que falla en una fiesta real, una cuenta
+  que da mal, plata que se mueve mal, alguien que ve lo que no tiene que ver.
+- **Verificar una entrega antes de fusionarla.** Eso no es auditar: es controlar
+  lo que entra.
+
+Si aparece la duda "¿no habrá algo más para revisar?", la respuesta es **no**.
+Está terminada. Lo que falte lo va a decir el dueño o lo va a mostrar una fiesta.
+
 ## Antes de auditar: `docs/YA-RESUELTO.md`
 
 Lista de lo que ya está arreglado y de las decisiones tomadas. **Se lee antes de
