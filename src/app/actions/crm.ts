@@ -1101,3 +1101,177 @@ export async function saveLead(data: LandingLeadData): Promise<{ success: boolea
     return { success: false, error: error.message };
   }
 }
+
+export interface FiestaAtraccionItem {
+  fiestaId: string;
+  nombreFiesta: string;
+  fechaFiesta: string;
+  tipoEvento?: string;
+  prospectosCount: number;
+  presupuestosCount: number;
+  contratadosCount: number;
+  prospectos: Array<{
+    id: string;
+    name: string;
+    createdAt: string;
+    presupuestoId?: string;
+    presupuestoEstado?: string;
+    isContracted: boolean;
+    campaign?: string;
+    source?: string;
+  }>;
+}
+
+export interface FiestaAtraccionReportResponse {
+  success: boolean;
+  data?: FiestaAtraccionItem[];
+  totalProspectos: number;
+  totalPresupuestos: number;
+  totalContratados: number;
+  fiestasConAtraccion: number;
+  availableYears: number[];
+  error?: string;
+}
+
+export async function getAtraccionFiestasReport(
+  filterYear?: number
+): Promise<FiestaAtraccionReportResponse> {
+  try {
+    await requireAppSession();
+
+    const [allLeads, allFiestas, stages] = await Promise.all([
+      readData<CrmLead[]>(LEADS_FILE, []),
+      getFiestas(true).catch(() => []),
+      readData<CrmStage[]>(STAGES_FILE, DEFAULT_CRM_STAGES).catch(() => DEFAULT_CRM_STAGES),
+    ]);
+
+    const winningStages = idsDeEtapaGanadora(stages || DEFAULT_CRM_STAGES);
+
+    const fiestasMap = new Map<string, FiestaEnPlanificacion>();
+    const availableYearsSet = new Set<number>();
+    const currentYear = new Date().getFullYear();
+    availableYearsSet.add(currentYear);
+
+    for (const f of allFiestas) {
+      fiestasMap.set(f.id, f);
+      const fecha = f.configuracion?.fechaEvento;
+      if (fecha) {
+        const y = new Date(fecha).getFullYear();
+        if (!Number.isNaN(y)) availableYearsSet.add(y);
+      }
+    }
+
+    // Group leads by fiestaId (using acquisition.refFiestaId or fallback history)
+    const grouped = new Map<string, CrmLead[]>();
+
+    for (const lead of allLeads) {
+      if (lead.createdAt) {
+        const ly = new Date(lead.createdAt).getFullYear();
+        if (!Number.isNaN(ly)) availableYearsSet.add(ly);
+      }
+
+      const fiestaId = lead.acquisition?.refFiestaId
+        || lead.acquisitionHistory?.find((h) => h.refFiestaId)?.refFiestaId;
+
+      if (fiestaId) {
+        const existing = grouped.get(fiestaId) || [];
+        existing.push(lead);
+        grouped.set(fiestaId, existing);
+      }
+    }
+
+    const items: FiestaAtraccionItem[] = [];
+    let totalProspectos = 0;
+    let totalPresupuestos = 0;
+    let totalContratados = 0;
+
+    for (const [fiestaId, leads] of grouped.entries()) {
+      const fiesta = fiestasMap.get(fiestaId);
+      const nombreFiesta = fiesta?.configuracion?.nombreEvento
+        || fiesta?.configuracion?.clienteNombre
+        || leads[0]?.referrerEventName
+        || `Fiesta #${fiestaId}`;
+      const fechaFiesta = fiesta?.configuracion?.fechaEvento || '';
+      const tipoEvento = (fiesta?.configuracion?.tipoCelebracion as string) || leads[0]?.partyType;
+
+      // Filter by year if requested
+      if (filterYear) {
+        const fiestaYear = fechaFiesta ? new Date(fechaFiesta).getFullYear() : undefined;
+        const hasLeadInYear = leads.some((l) => l.createdAt && new Date(l.createdAt).getFullYear() === filterYear);
+        if (fiestaYear !== filterYear && !hasLeadInYear) {
+          continue;
+        }
+      }
+
+      const prospectosCount = leads.length;
+      let presupuestosCount = 0;
+      let contratadosCount = 0;
+
+      const prospectos = leads.map((l) => {
+        const hasBudget = Boolean(l.presupuestoId || l.presupuestoEstado);
+        const stageId = l.currentStageId || '';
+        const isContracted = winningStages.has(stageId)
+          || stageId === 'ganado'
+          || stageId === 's4'
+          || l.presupuestoEstado === 'Facturado'
+          || l.presupuestoEstado === 'Aceptado'
+          || Boolean(l.invoiceId);
+
+        if (hasBudget) presupuestosCount++;
+        if (isContracted) contratadosCount++;
+
+        return {
+          id: l.id,
+          name: l.name,
+          createdAt: l.createdAt,
+          presupuestoId: l.presupuestoId,
+          presupuestoEstado: l.presupuestoEstado,
+          isContracted,
+          campaign: l.acquisition?.campaign,
+          source: l.acquisition?.source,
+        };
+      });
+
+      totalProspectos += prospectosCount;
+      totalPresupuestos += presupuestosCount;
+      totalContratados += contratadosCount;
+
+      items.push({
+        fiestaId,
+        nombreFiesta,
+        fechaFiesta,
+        tipoEvento,
+        prospectosCount,
+        presupuestosCount,
+        contratadosCount,
+        prospectos,
+      });
+    }
+
+    // Sort descending by most prospects attracted, then most contracted
+    items.sort((a, b) => b.prospectosCount - a.prospectosCount || b.contratadosCount - a.contratadosCount);
+
+    const availableYears = Array.from(availableYearsSet).sort((a, b) => b - a);
+
+    return {
+      success: true,
+      data: items,
+      totalProspectos,
+      totalPresupuestos,
+      totalContratados,
+      fiestasConAtraccion: items.length,
+      availableYears,
+    };
+  } catch (error: any) {
+    return {
+      success: false,
+      error: error.message || 'Error al obtener reporte de atracción por fiesta',
+      totalProspectos: 0,
+      totalPresupuestos: 0,
+      totalContratados: 0,
+      fiestasConAtraccion: 0,
+      availableYears: [],
+    };
+  }
+}
+

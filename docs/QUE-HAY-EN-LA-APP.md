@@ -118,6 +118,10 @@ de lo que el equipo todavía tiene que publicar a mano.
 - **Simulador de presupuesto público**: cualquiera lo usa sin cuenta, y los datos
   (nombre, teléfono, fecha, invitados, salón) **entran solos al CRM como prospecto**,
   con el presupuesto armado. Es la puerta de entrada de clientes nuevos y funciona.
+- **Atribución de clientes por fiesta (Tanda 1 — ANDA, 15 de agosto de 2026)**:
+  1. La fotocabina, la galería y el muro social muestran un llamado discreto al finalizar ("¿Te toca festejar el año que viene? Mirá cuánto sale tu fiesta") enlazando al simulador con atribución (`refFiestaId` y campaña).
+  2. Tablero en CRM (**Atracción de Clientes por Fiesta**, `/contabilidad/crm/atraccion-fiestas`) que muestra por cada evento cuántos prospectos trajo, cuántos presupuestos se armaron y cuántos contrataron, con filtro por año.
+  3. **Álbum oficial público** (`/evento/album/[fiestaId]` y `/album/[fiestaId]`) con fotos aprobadas en alta definición, lightbox a pantalla completa, botón de compartir por WhatsApp y enlace comercial con atribución al simulador.
 - **Cupones y descuentos**: se configuran, se validan y se aplican solos al armar el
   presupuesto. Hay estadísticas de uso.
 - **Tablero de conversión del CRM**: prospectos activos, valor del embudo, ganados,

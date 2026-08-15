@@ -8,6 +8,7 @@ import { Download, Share2, Heart, ArrowLeft, Loader2, Play, ChevronLeft, Chevron
 import { getPublicSocialEvent, getPublicSocialPosts } from '@/app/actions/social-gallery';
 import type { PublicSocialEvent } from '@/lib/social-fiesta/public-event';
 import type { SocialGalleryPost } from '@/types/social-gallery';
+import { appendCommercialAttribution } from '@/lib/commercial/acquisition';
 
 type FilterTab = 'todas' | 'fotocabina' | '360' | 'espejo' | 'invitados';
 
@@ -216,23 +217,37 @@ export default function GaleriaPage() {
             )}
           </div>
         ) : (
-          <div className="columns-2 md:columns-3 lg:columns-4 gap-4 space-y-4">
-            {filteredPosts.map((post, index) => {
-              const video = isVideo(post.imageUrl);
-              return (
-                <motion.div
-                  key={post.id}
-                  initial={{ opacity: 0, y: 20 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  transition={{ delay: index * 0.05 }}
-                  className="break-inside-avoid relative group rounded-2xl overflow-hidden bg-zinc-900 border border-white/5 cursor-zoom-in"
-                  onClick={() => setLightboxIndex(index)}
-                >
-                  {video ? (
-                    <>
-                      <video src={post.imageUrl} className="w-full h-auto" autoPlay muted loop playsInline />
-                      <div className="absolute top-2 right-2 bg-black/60 backdrop-blur-md p-1.5 rounded-full">
-                        <Play className="w-3 h-3 text-white" />
+          <>
+            <div className="columns-2 md:columns-3 lg:columns-4 gap-4 space-y-4">
+              {filteredPosts.map((post, index) => {
+                const video = isVideo(post.imageUrl);
+                return (
+                  <motion.div
+                    key={post.id}
+                    initial={{ opacity: 0, y: 20 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    transition={{ delay: index * 0.05 }}
+                    className="break-inside-avoid relative group rounded-2xl overflow-hidden bg-zinc-900 border border-white/5 cursor-zoom-in"
+                    onClick={() => setLightboxIndex(index)}
+                  >
+                    {video ? (
+                      <>
+                        <video src={post.imageUrl} className="w-full h-auto" autoPlay muted loop playsInline />
+                        <div className="absolute top-2 right-2 bg-black/60 backdrop-blur-md p-1.5 rounded-full">
+                          <Play className="w-3 h-3 text-white" />
+                        </div>
+                      </>
+                    ) : (
+                      // eslint-disable-next-line @next/next/no-img-element -- Guest media has variable dimensions and may be a data URL.
+                      <img src={post.imageUrl} alt={post.authorName || 'Foto'} className="w-full h-auto object-cover transition-transform duration-500 group-hover:scale-105" loading="lazy" />
+                    )}
+
+                    {/* Overlay gradient */}
+                    <div className="absolute inset-x-0 bottom-0 bg-gradient-to-t from-black/80 via-black/40 to-transparent p-4 pt-12 opacity-0 group-hover:opacity-100 transition-opacity duration-300">
+                      <p className="text-sm font-bold truncate">{post.authorName || 'Invitado'}</p>
+                      <div className="flex items-center gap-3 mt-1">
+                        <span className="flex items-center gap-1 text-xs text-zinc-300"><Heart className="w-3 h-3 text-rose-500" /> {post.likes || 0}</span>
+                        {post.sourceModule && <span className="text-xs text-zinc-400 capitalize bg-white/10 px-2 py-0.5 rounded-full">{post.sourceModule.replace('_', ' ')}</span>}
                       </div>
                     </>
                   ) : (
@@ -247,11 +262,28 @@ export default function GaleriaPage() {
                       <span className="flex items-center gap-1 text-xs text-zinc-300"><Heart className="w-3 h-3 text-rose-500" /> {post.likes || 0}</span>
                       {post.sourceModule && <span className="text-xs text-zinc-400 capitalize bg-white/10 px-2 py-0.5 rounded-full">{post.sourceModule.replace('_', ' ')}</span>}
                     </div>
-                  </div>
-                </motion.div>
-              );
-            })}
-          </div>
+                  </motion.div>
+                );
+              })}
+            </div>
+
+            {/* Renglón discreto de atribución y presupuesto al pie */}
+            <div className="mt-16 pt-8 pb-4 text-center border-t border-white/5">
+              <a
+                href={appendCommercialAttribution('/simulador-de-presupuesto', {
+                  source: 'guest_portal',
+                  campaign: 'galeria',
+                  refFiestaId: fiestaId,
+                })}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="inline-flex items-center gap-1.5 text-xs text-zinc-500 hover:text-amber-400 transition-colors"
+              >
+                <span>¿Te toca festejar el año que viene? Mirá cuánto sale tu fiesta</span>
+                <span aria-hidden="true">&rarr;</span>
+              </a>
+            </div>
+          </>
         )}
       </div>
 

@@ -39,6 +39,7 @@ import type { PublicEntertainmentEvent } from '@/lib/entertainment/station-confi
 import { PublicEntertainmentEventStatus } from '@/components/entertainment/public-entertainment-event-status';
 import { KioskUnlockButton } from '@/components/kiosk/kiosk-unlock-button';
 import { isVideoFrameReady } from '@/lib/entertainment/camera-readiness';
+import { appendCommercialAttribution } from '@/lib/commercial/acquisition';
 import {
   componerTiraDeFotos,
   FOTOS_POR_TANDA,
@@ -64,7 +65,7 @@ export default function FotocabinaPage() {
   const fiestaId = params.fiestaId as string;
   const role = searchParams.get('role') || 'display'; // 'display' | 'operator'
   const accessToken = searchParams.get('access') || undefined;
-  
+
   const videoRef = useRef<HTMLVideoElement>(null);
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const streamRef = useRef<MediaStream | null>(null);
@@ -76,21 +77,21 @@ export default function FotocabinaPage() {
   const [isEventLoading, setIsEventLoading] = useState(true);
   const [facingMode, setFacingMode] = useState<'user' | 'environment'>('user');
   const [selectedFrame, setSelectedFrame] = useState('none');
-  
+
   // Sync
   const [session, setSession] = useState<EntertainmentSession | null>(null);
   const [localStatus, setLocalStatus] = useState<'idle' | 'countdown' | 'recording' | 'processing' | 'done'>('idle');
   const [countdown, setCountdown] = useState<number | null>(null);
   const [flash, setFlash] = useState(false);
   const [capturedImage, setCapturedImage] = useState<string | null>(null);
-  
+
   const [isUploading, setIsUploading] = useState(false);
   const [showSuccess, setShowSuccess] = useState(false);
   const [errorMsg, setErrorMsg] = useState<string | null>(null);
 
   const [voiceEnabled, setVoiceEnabled] = useState(true);
   const [watermarkEnabled, setWatermarkEnabled] = useState(true);
-  
+
   const [qrCodeUrl, setQrCodeUrl] = useState<string>('');
 
   // Tanda de fotos, como las cabinas clasicas: se sacan varias seguidas y
@@ -294,7 +295,7 @@ export default function FotocabinaPage() {
       setLocalStatus('idle');
       return;
     }
-    
+
     setLocalStatus('recording');
     await updateEntertainmentSessionStatus(fiestaId, 'fotocabina', 'recording', {}, accessToken);
 
@@ -403,9 +404,9 @@ export default function FotocabinaPage() {
 
   const drawFrameOverlay = (ctx: CanvasRenderingContext2D, w: number, h: number) => {
     if (selectedFrame === 'none') return;
-    
+
     ctx.lineWidth = 0;
-    
+
     if (selectedFrame === 'golden') {
       ctx.strokeStyle = 'rgba(251, 191, 36, 0.8)';
       ctx.lineWidth = 40;
@@ -437,7 +438,7 @@ export default function FotocabinaPage() {
 
   const drawWatermark = (ctx: CanvasRenderingContext2D, w: number, h: number) => {
     if (!watermarkEnabled) return;
-    
+
     const eventName = fiesta?.eventName || 'Nuestra Fiesta';
     const rawDate = fiesta?.eventDate;
     let eventDateStr = '';
@@ -455,18 +456,18 @@ export default function FotocabinaPage() {
     grad.addColorStop(0, 'rgba(0, 0, 0, 0)');
     grad.addColorStop(0.3, 'rgba(0, 0, 0, 0.6)');
     grad.addColorStop(1, 'rgba(0, 0, 0, 0.85)');
-    
+
     ctx.fillStyle = grad;
     ctx.fillRect(0, h - bannerHeight, w, bannerHeight);
 
     ctx.fillStyle = '#ffffff';
     ctx.textAlign = 'center';
     ctx.textBaseline = 'middle';
-    
+
     if (eventDateStr) {
       ctx.font = `bold ${Math.max(16, h * 0.022)}px sans-serif`;
       ctx.fillText(eventName, w / 2, h - bannerHeight * 0.58);
-      
+
       ctx.fillStyle = 'rgba(255, 255, 255, 0.8)';
       ctx.font = `${Math.max(12, h * 0.016)}px sans-serif`;
       ctx.fillText(eventDateStr, w / 2, h - bannerHeight * 0.28);
@@ -492,7 +493,7 @@ export default function FotocabinaPage() {
     try {
       const blob = await new Promise<Blob | null>(resolve => canvasRef.current!.toBlob(resolve, 'image/jpeg', 0.9));
       if (!blob) throw new Error('Error al generar la imagen');
-      
+
       const file = new File([blob], `fotocabina-${Date.now()}.jpg`, { type: 'image/jpeg' });
       const formData = new FormData();
       formData.append('fiestaId', fiestaId);
@@ -500,7 +501,7 @@ export default function FotocabinaPage() {
       formData.append('authorName', 'Fotocabina AK');
       formData.append('moduleId', 'fotocabina');
       if (accessToken) formData.append('accessToken', accessToken);
-      
+
       const res = await uploadEntretenimientoMedia(formData);
       if (res.success) {
         const mediaUrl = res.media?.url || '';
@@ -515,7 +516,7 @@ export default function FotocabinaPage() {
         );
         speak("¡Excelente! Tu foto ya está lista.");
         setShowSuccess(true);
-        
+
         // Auto reset after 12 seconds
         setTimeout(() => {
           setShowSuccess(false);
@@ -689,7 +690,7 @@ export default function FotocabinaPage() {
   return (
     <div className="fixed inset-0 bg-zinc-950 text-white flex flex-col overflow-hidden select-none">
       <canvas ref={canvasRef} className="hidden" />
-      
+
       {/* FLASH SCREEN */}
       {flash && <div className="absolute inset-0 bg-white z-50 animate-pulse" />}
 
@@ -707,7 +708,7 @@ export default function FotocabinaPage() {
             <>
               <button
                 type="button"
-                onClick={() => setVoiceEnabled(v => !v)} 
+                onClick={() => setVoiceEnabled(v => !v)}
                 aria-label={voiceEnabled ? 'Desactivar voz' : 'Activar voz'}
                 title={voiceEnabled ? 'Desactivar voz' : 'Activar voz'}
                 className={`flex h-11 w-11 items-center justify-center rounded-full backdrop-blur-md transition ${voiceEnabled ? 'bg-amber-400/20 text-amber-400 border border-amber-400/30' : 'bg-white/10 text-white'}`}
@@ -716,7 +717,7 @@ export default function FotocabinaPage() {
               </button>
               <button
                 type="button"
-                onClick={() => setWatermarkEnabled(w => !w)} 
+                onClick={() => setWatermarkEnabled(w => !w)}
                 aria-label={watermarkEnabled ? 'Quitar marca del evento' : 'Agregar marca del evento'}
                 title={watermarkEnabled ? 'Quitar marca del evento' : 'Agregar marca del evento'}
                 className={`flex h-11 w-11 items-center justify-center rounded-full backdrop-blur-md transition ${watermarkEnabled ? 'bg-amber-400/20 text-amber-400 border border-amber-400/30' : 'bg-white/10 text-white'}`}
@@ -733,7 +734,7 @@ export default function FotocabinaPage() {
 
       {/* VIEWPORT AREA */}
       <div className="flex-1 relative w-full h-full flex items-center justify-center overflow-hidden bg-black">
-        
+
         {errorMsg && (
           <div className="p-6 text-center text-red-400 font-medium z-10">
             <p className="text-5xl mb-4">📷🚫</p>
@@ -744,14 +745,14 @@ export default function FotocabinaPage() {
         {/* State: Idle / Welcome */}
         {localStatus === 'idle' && !capturedImage && !errorMsg && (
           <div className="relative w-full h-full">
-            <video 
-              ref={videoRef} 
-              autoPlay 
-              playsInline 
-              muted 
-              className={`absolute inset-0 w-full h-full object-cover opacity-40 ${facingMode === 'user' ? 'scale-x-[-1]' : ''}`} 
+            <video
+              ref={videoRef}
+              autoPlay
+              playsInline
+              muted
+              className={`absolute inset-0 w-full h-full object-cover opacity-40 ${facingMode === 'user' ? 'scale-x-[-1]' : ''}`}
             />
-            
+
             <div className="absolute inset-0 flex flex-col items-center justify-center text-center p-6 bg-gradient-to-t from-zinc-950 via-zinc-950/40 to-zinc-950/80">
               <div className="relative z-10 space-y-6 max-w-sm">
                 <div
@@ -787,12 +788,12 @@ export default function FotocabinaPage() {
         {/* State: Countdown */}
         {localStatus === 'countdown' && !capturedImage && (
           <div className="relative w-full h-full flex items-center justify-center">
-            <video 
-              ref={videoRef} 
-              autoPlay 
-              playsInline 
-              muted 
-              className={`absolute inset-0 w-full h-full object-cover ${facingMode === 'user' ? 'scale-x-[-1]' : ''}`} 
+            <video
+              ref={videoRef}
+              autoPlay
+              playsInline
+              muted
+              className={`absolute inset-0 w-full h-full object-cover ${facingMode === 'user' ? 'scale-x-[-1]' : ''}`}
             />
             <div className="absolute inset-0 bg-black/45" />
 
@@ -852,7 +853,7 @@ export default function FotocabinaPage() {
         {/* State: Done (Photo Preview + QR Download) */}
         {localStatus === 'done' && capturedImage && (
           <div className="absolute inset-0 z-40 flex flex-col items-center justify-start gap-6 overflow-y-auto overscroll-contain bg-zinc-950 px-4 pb-8 pt-20 md:flex-row md:justify-center md:gap-8 md:p-6">
-            
+
             {/* Captured Image Preview */}
             <div className="relative h-[52dvh] max-h-[32rem] w-auto max-w-full shrink-0 aspect-[9/16] overflow-hidden rounded-lg border border-white/10 bg-black shadow-2xl md:h-[80dvh] md:max-h-[48rem]">
               {/* eslint-disable-next-line @next/next/no-img-element -- Canvas output is generated only in this browser. */}
@@ -945,6 +946,24 @@ export default function FotocabinaPage() {
                   >
                     <RefreshCw className="w-4 h-4" /> Repetir foto
                   </button>
+                )}
+
+                {role !== 'operator' && (
+                  <div className="pt-2 text-center">
+                    <a
+                      href={appendCommercialAttribution('/simulador-de-presupuesto', {
+                        source: 'guest_portal',
+                        campaign: 'fotocabina',
+                        refFiestaId: fiestaId,
+                      })}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="inline-flex items-center gap-1.5 text-xs text-zinc-400 hover:text-amber-300 transition-colors py-1"
+                    >
+                      <span>¿Te toca festejar el año que viene? Mirá cuánto sale tu fiesta</span>
+                      <span aria-hidden="true">&rarr;</span>
+                    </a>
+                  </div>
                 )}
               </div>
             </div>

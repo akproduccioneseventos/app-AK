@@ -19,6 +19,12 @@ anotado, la próxima auditoría lo va a volver a encontrar.
 
 ## Decisiones del dueño (no son errores, no se discuten)
 
+- **Mejoras Tanda 1 — Que la fiesta venda la próxima (15 de agosto de 2026):**
+  - **Fotocabina (`evento/fotocabina/[fiestaId]`):** Añadido renglón discreto al finalizar la tanda de fotos en la pantalla del invitado con enlace atribuido al simulador de presupuesto (`campaign: 'fotocabina'`, `refFiestaId`), sin tapar fotos ni botones y visible solo para invitados (no operadores).
+  - **Galería interactiva y Muro Social (`evento/galeria` y `evento/social`):** Añadido enlace discreto con atribución al simulador de presupuesto (`campaign: 'galeria'` / `'muro_social'`). Ocultada la barra de contadores cuando `posts.length === 0` y añadido botón de llamado a la acción "Subí tu primera foto".
+  - **Atracción de Clientes por Fiesta (`contabilidad/crm/atraccion-fiestas`):** Pantalla en el CRM y acción `getAtraccionFiestasReport` para agrupar prospectos, presupuestos y contratos ganados según el evento del que llegaron (`refFiestaId`), con filtro por año y estado vacío explicativo. Botón de acceso directo en el encabezado del CRM.
+  - **Álbum Oficial Público (`evento/album/[fiestaId]` y `/album/[fiestaId]`):** Página pública del álbum con nombre del evento, fecha, grilla de fotos aprobadas en alta definición, modal lightbox a pantalla completa con descarga directa, botón "Compartir álbum" (copia al portapapeles/WhatsApp) y pie comercial discreto con atribución al simulador.
+
 - **Lo que le toca a Gemini, Claude no lo programa.** Claude escribe código sólo
   en plata, cobros, comida y permisos; el resto va a una orden en
   `docs/ordenes/`. Programarlo igual le cuesta el doble al dueño.
