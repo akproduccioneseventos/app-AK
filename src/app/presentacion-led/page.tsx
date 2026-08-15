@@ -170,40 +170,52 @@ export default function PresentacionLedPage() {
   const [showBudgetPanel, setShowBudgetPanel] = useState(false);
   const containerRef = useRef<HTMLDivElement>(null);
 
-  useEffect(() => {
-    async function load() {
-      try {
-        const [servicios, companyInfo, invoiceSettings, budgetSettings, menus, catalogoData, ledSettings] = await Promise.all([
-          getServiciosEmpresa(),
-          getCompanyInfo(),
-          getInvoiceTemplateSettings(),
-          getBudgetDisplaySettings(),
-          getMenus().catch(() => [] as FullMenu[]),
-          getCatalogoFotos().catch(() => [] as CatalogoFoto[]),
-          getPresentacionLedSettings(),
-        ]);
-        setData({
-          companyInfo,
-          logoUrl: invoiceSettings.logoUrl || null,
-          servicios: servicios.filter(s => s.tipoItem === 'Servicio' || !s.tipoItem),
-          valuePropositions: budgetSettings.valuePropositions || [],
-          mostrarPrecios: budgetSettings.showPriceBreakdown ?? true,
-          menus,
-        });
-        setCatalogoFotos(catalogoData);
-        setPresentacionSettings(ledSettings);
-      } catch (e) {
-        // Este catalogo se usa en el salon, con el cliente al lado y con la senal
-        // que haya. Sin este aviso, si una carga fallaba la pantalla quedaba en
-        // blanco para siempre y no habia forma de saber si esperar o reintentar.
-        console.error('[presentacion-led] no se pudo cargar la presentacion', e);
-        setLoadError('No pudimos cargar la presentacion. Revisa la senal y proba de nuevo.');
-      } finally {
-        setLoading(false);
-      }
+  const load = useCallback(async () => {
+    setLoading(true);
+    try {
+      const [servicios, companyInfo, invoiceSettings, budgetSettings, menus, catalogoData, ledSettings] = await Promise.all([
+        getServiciosEmpresa(),
+        getCompanyInfo(),
+        getInvoiceTemplateSettings(),
+        getBudgetDisplaySettings(),
+        getMenus().catch(() => [] as FullMenu[]),
+        getCatalogoFotos().catch(() => [] as CatalogoFoto[]),
+        getPresentacionLedSettings(),
+      ]);
+      setData({
+        companyInfo,
+        logoUrl: invoiceSettings.logoUrl || null,
+        servicios: servicios.filter(s => s.tipoItem === 'Servicio' || !s.tipoItem),
+        valuePropositions: budgetSettings.valuePropositions || [],
+        mostrarPrecios: budgetSettings.showPriceBreakdown ?? true,
+        menus,
+      });
+      setCatalogoFotos(catalogoData);
+      setPresentacionSettings(ledSettings);
+      setLoadError(null);
+    } catch (e) {
+      // Este catalogo se usa en el salon, con el cliente al lado y con la senal
+      // que haya. Sin este aviso, si una carga fallaba la pantalla quedaba en
+      // blanco para siempre y no habia forma de saber si esperar o reintentar.
+      console.error('[presentacion-led] no se pudo cargar la presentacion', e);
+      setLoadError('No pudimos cargar la presentacion. Revisa la senal y proba de nuevo.');
+    } finally {
+      setLoading(false);
     }
-    load();
   }, []);
+
+  useEffect(() => {
+    load();
+  }, [load]);
+
+  // Reintento automatico cada 10 segundos si falló la carga o no hay datos
+  useEffect(() => {
+    if (!loadError || data) return;
+    const interval = setInterval(() => {
+      load();
+    }, 10000);
+    return () => clearInterval(interval);
+  }, [loadError, data, load]);
 
   // Derive category groups from servicios
   const categorias = useMemo<CategoriaServicio[]>(() => {
@@ -615,7 +627,7 @@ export default function PresentacionLedPage() {
     return () => window.removeEventListener('keydown', handleKey);
   }, [goNext, goPrev, toggleFullscreen]);
 
-  if (loading) {
+  if (loading && !loadError) {
     return (
       <div className="flex items-center justify-center min-h-screen bg-slate-950">
         <div className="flex flex-col items-center gap-4">
@@ -636,14 +648,15 @@ export default function PresentacionLedPage() {
             {loadError ?? 'No pudimos cargar la presentacion.'}
           </p>
           <p className="text-white/60">
-            Suele ser la senal del salon. Los datos no se perdieron.
+            Suele ser la senal del salon. Reintentando automaticamente cada 10 segundos...
           </p>
           <button
             type="button"
-            onClick={() => window.location.reload()}
-            className="min-h-12 rounded-xl bg-indigo-500 px-8 text-base font-bold text-white"
+            onClick={load}
+            className="min-h-12 rounded-xl bg-indigo-500 px-8 text-base font-bold text-white flex items-center justify-center gap-2 hover:bg-indigo-600 transition"
           >
-            Reintentar
+            {loading ? <Loader2 className="h-5 w-5 animate-spin" /> : null}
+            Reintentar ahora
           </button>
         </div>
       </div>
