@@ -837,7 +837,7 @@ ${generatedId ? `*Link:* ${window.location.origin}/presupuestos/${generatedId}/v
       {/* HEADER */}
       <header className="sticky top-0 z-50 flex flex-col gap-3 border-b border-white/10 bg-black/60 backdrop-blur-xl px-4 py-4 sm:flex-row sm:items-center sm:justify-between sm:py-5 shadow-lg shrink-0">
         <div className="flex min-w-0 items-center gap-3">
-          <CompanyLogo className="h-9 w-auto shrink-0 sm:h-10 brightness-0 invert" />
+          <CompanyLogo blanco className="h-9 w-auto shrink-0 sm:h-10" />
           <div className="min-w-0">
             <h1 className="flex items-center gap-1.5 text-base font-black uppercase tracking-wider text-white sm:text-xl">
               <Sparkles className="w-5 h-5 text-indigo-400" />
@@ -1185,7 +1185,7 @@ ${generatedId ? `*Link:* ${window.location.origin}/presupuestos/${generatedId}/v
                   {/* DETAIL SHEET */}
                   <Card className="border-white/10 shadow-2xl rounded-[2rem] overflow-hidden bg-zinc-900/60 text-white backdrop-blur-md">
                     <CardHeader className="text-center bg-zinc-950/40 p-6 border-b border-white/5">
-                      <CompanyLogo className="brightness-0 invert opacity-80 mx-auto mb-2" />
+                      <CompanyLogo blanco className="opacity-80 mx-auto mb-2" />
                       <CardTitle className="text-lg font-black uppercase tracking-widest text-white">Tu Presupuesto Estimado</CardTitle>
                       <p className="text-[10px] text-slate-400">AK Producciones — Salto, Uruguay</p>
                     </CardHeader>

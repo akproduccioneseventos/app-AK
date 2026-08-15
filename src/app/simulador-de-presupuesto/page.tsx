@@ -1478,7 +1478,7 @@ function SimuladorContent() {
                     <div className="absolute inset-0 bg-black/65" />
                     <div className="relative mx-auto flex min-h-[78vh] max-w-6xl flex-col justify-end px-5 pb-12 pt-24 sm:px-8 lg:px-12">
                         <div className="max-w-3xl">
-                            <CompanyLogo size="md" src={logoUrl || undefined} className="mb-8 brightness-0 invert" />
+                            <CompanyLogo size="md" src={logoUrl || undefined} blanco className="mb-8" />
                             <h1 className="text-4xl font-black leading-tight sm:text-6xl">
                                 Presupuesto para tu evento
                             </h1>

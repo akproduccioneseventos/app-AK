@@ -19,13 +19,25 @@ interface CompanyLogoProps {
   className?: string;
   src?: string;
   animate?: boolean;
+  /**
+   * Logo en blanco, para fondos oscuros.
+   *
+   * Antes esto se hacía poniéndole `brightness-0 invert` al componente entero
+   * desde afuera. Un filtro CSS se aplica a todo lo que hay adentro y no se
+   * puede esquivar desde un hijo, así que también blanqueaba el respaldo —el
+   * círculo rojo con "AK" que se ve mientras carga la imagen— y quedaba un
+   * globo blanco vacío en la portada del simulador. Con esta opción el filtro
+   * va sólo sobre la imagen.
+   */
+  blanco?: boolean;
 }
 
-export function CompanyLogo({ size = 'md', className, src, animate = true }: CompanyLogoProps) {
+export function CompanyLogo({ size = 'md', className, src, animate = true, blanco = false }: CompanyLogoProps) {
   const [hasError, setHasError] = useState(false);
   const [isLoaded, setIsLoaded] = useState(false);
   const { container, text, pixels } = SIZE_MAP[size];
   const imgSrc = src || '/logo_ak_producciones.png';
+  const filtroBlanco = blanco ? 'brightness-0 invert' : '';
 
   return (
     <motion.div
@@ -38,11 +50,6 @@ export function CompanyLogo({ size = 'md', className, src, animate = true }: Com
           aria-hidden="true"
           className={cn(
             'absolute inset-0 flex items-center justify-center rounded-full bg-red-600 font-black text-white shadow-md animate-pulse',
-            // Algunas pantallas oscuras pintan el logo de blanco con
-            // `brightness-0 invert`. Ese filtro caía también acá y dejaba un
-            // círculo blanco con letras blancas: un globo vacío en la portada
-            // del simulador, justo donde el cliente arma su presupuesto.
-            '[filter:none]',
             text
           )}
         >
@@ -55,7 +62,7 @@ export function CompanyLogo({ size = 'md', className, src, animate = true }: Com
           alt="AK Producciones"
           width={pixels}
           height={pixels}
-          className={cn('h-full w-full object-contain transition-opacity duration-300', isLoaded ? 'opacity-100' : 'opacity-0')}
+          className={cn('h-full w-full object-contain transition-opacity duration-300', filtroBlanco, isLoaded ? 'opacity-100' : 'opacity-0')}
           onLoad={() => setIsLoaded(true)}
           onError={() => setHasError(true)}
         />
@@ -67,7 +74,7 @@ export function CompanyLogo({ size = 'md', className, src, animate = true }: Com
             alt="AK Producciones"
             width={pixels}
             height={pixels}
-            className={cn('h-full w-full object-contain transition-opacity duration-300', isLoaded ? 'opacity-100' : 'opacity-0')}
+            className={cn('h-full w-full object-contain transition-opacity duration-300', filtroBlanco, isLoaded ? 'opacity-100' : 'opacity-0')}
             onLoad={() => setIsLoaded(true)}
             onError={() => setHasError(true)}
           />
