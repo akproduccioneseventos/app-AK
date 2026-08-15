@@ -7,47 +7,34 @@ Quien cierre una sesión reescribe este archivo. Se pisa, no se acumula.
 
 ---
 
-**Última actualización:** 13 de agosto de 2026, cierre.
+**Última actualización:** 15 de agosto de 2026.
 **Rama:** todo fusionado en `main`.
-**Estado:** compila, 1582 pruebas en verde, sin acentos rotos.
+**Estado:** compila, 1591 pruebas en verde, sin acentos rotos.
 **Propuestas abiertas:** ninguna.
-
-## La aplicación quedó auditada entera
-
-Las 370 pantallas pasaron por auditoría. Lo que falta ahora es **trabajo
-pendiente conocido**, no zonas sin mirar.
-
-## Cómo se trabaja (regla del dueño)
-
-Los **ayudantes económicos auditan**, Claude **verifica cada hallazgo leyendo el
-código** y decide, **Gemini programa** lo que no es plata, y Claude revisa y
-fusiona. Claude escribe código sólo en plata, cobros, comida y permisos.
-
-**Una sola propuesta grande por tanda**, y vale también para las órdenes que se
-le escriben a Gemini. **Todo lo que se toca se anota en `docs/YA-RESUELTO.md`**,
-en la misma propuesta, con el porqué.
-
-## Las órdenes están ordenadas
-
-Había quince archivos con 2700 líneas, casi todos cumplidos. Ahora hay **una sola
-vigente: `docs/ordenes/ahora.md`**, y el resto en `docs/ordenes/hechas/` como
-historia. Cuando una orden se termina, se mueve a `hechas/` en la misma
-propuesta. Está explicado en `docs/ordenes/LEEME.md`.
 
 ## Lo hecho en esta tanda
 
-Recibos pagados que no se pueden cambiar, menús sin platos y salones sin
-capacidad que ya no se guardan, la distribución de mesas que era pública y
-mostraba los invitados de cualquier fiesta, los datos de la empresa y las cuentas
-bancarias que no se pueden dejar vacías, insumos y activos sin negativos, y el
-aviso de unidades que no se pueden convertir en las recetas.
+Las tres pantallas que se usan en plena fiesta ya avisan de verdad cuando se
+corta internet:
+
+- **Impresión:** queda una franja roja fija que dice que no llegan fotos nuevas y
+  desde qué hora, con botón para reintentar. Antes el cartel se iba a los dos
+  segundos y el operador seguía imprimiendo fotos viejas sin enterarse.
+- **Presentación al cliente:** se recupera sola cada 10 segundos. Antes quedaba
+  muerta hasta que alguien apretara el botón.
+- **Tótem:** mientras no está conectado el QR no se muestra, y hay un cartel
+  grande que se lee de lejos. Antes el invitado escaneaba un QR que no andaba.
+
+Lo programó Gemini. Al revisarlo se le sacó un archivo de avisos que se genera
+solo y vino modificado a mano (segunda vez), y se aflojó una prueba que
+controlaba el color exacto de un cartel, para que no choque con el trabajo de
+colores que sigue pendiente.
 
 ## Lo que falta
 
-**Todo lo pendiente está en `docs/ordenes/ahora.md`**, cinco bloques para Gemini
-en una sola propuesta. El más importante: **la pantalla de impresión sigue
-mostrando fotos viejas cuando se corta internet** y el operador no se entera, en
-plena fiesta.
+En `docs/ordenes/ahora.md` quedan **dos bloques para Gemini, en una sola
+propuesta**: terminar de pasar los colores de las pantallas al tema, y que las
+promociones no se puedan guardar sin fecha de inicio y de fin.
 
 **Para que decida el dueño:** incidentes, aprobaciones y playbooks funcionan pero
 no las enlaza nadie. O se conectan al menú o se retiran.
@@ -60,3 +47,5 @@ no las enlaza nadie. O se conectan al menú o se retiran.
   Compará contra `main` de hoy, no contra el de cuando se creó.
 - Un archivo `'use server'` **sólo puede exportar funciones asíncronas**. Hay una
   prueba que lo controla y ya frenó dos entregas.
+- `public/firebase-messaging-sw.js` **no se commitea**: se genera en cada
+  compilación. Si viene cambiado en una rama, quedate con el de `main`.
