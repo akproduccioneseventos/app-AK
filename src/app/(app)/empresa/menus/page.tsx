@@ -250,8 +250,11 @@ export default function GestionMenusPage() {
         <div>
           <AlertTitle className="font-black uppercase text-xs tracking-widest">Aviso de Seguridad del Sistema</AlertTitle>
           <AlertDescription className="text-sm font-medium opacity-90">
-            La gestión de recetas y costos en esta página **no elimina** los servicios de tu catálogo principal. 
-            Puedes seguir cobrando los postres y bebidas individualmente en los presupuestos; aquí solo definimos cuánto te cuesta producirlos y qué ingredientes necesitas comprar.
+            {/* Los asteriscos de negrita se veían tal cual en pantalla: acá no
+                hay nada que los interprete, es texto suelto. */}
+            Lo que cargás acá <strong className="font-black">no borra</strong> los servicios de tu catálogo
+            principal. Seguís cobrando los postres y las bebidas por separado en los presupuestos; acá
+            sólo se define cuánto te cuesta producirlos y qué ingredientes hay que comprar.
           </AlertDescription>
         </div>
       </Alert>

@@ -7,7 +7,10 @@
 
 Ésta es la **única orden vigente**. Lo que está en `hechas/` ya se hizo.
 
-**Los tres bloques van en UNA SOLA PROPUESTA.**
+**Todos los bloques van en UNA SOLA PROPUESTA.**
+
+**Empezá por el BLOQUE D.** Es el que se ve en todas las pantallas y el que más
+barato sale de arreglar.
 
 ## De dónde salió esto
 
@@ -83,6 +86,42 @@ Se ve desprolijo justo cuando el cliente está mirando la pantalla.
 
 **Qué hacer:** que no se pisen. Dejar el aire suficiente abajo del contenido para
 que la barra de navegación no tape nada, en escritorio y en celular.
+
+---
+
+# BLOQUE D — En el celular, dos botones flotantes tapan la pantalla
+
+**Éste primero. Se ve en TODAS las pantallas del equipo, no en una.**
+
+`src/components/module-navigation-dock.tsx:34-38`
+
+Ese botón flotante —la flecha de volver y el cuadradito del panel— está clavado
+en `top-20 left-3`, encima del contenido. En el celular cae **justo arriba del
+título de la pantalla**. Se ve así:
+
+- En Pagos Rápidos: el título dice "…os Rápidos" y abajo "…gistrar y confirmar
+  pagos desde el celular". Media frase tapada, **en la pantalla que dice que es
+  para usar desde el celular**.
+- En el Planificador Gastronómico: la palabra "PLANIFICADOR" queda a medias.
+- Pasa igual en el resto de las pantallas internas.
+
+**Qué hacer:** que en el celular ese botón **no se monte sobre el contenido**.
+Las dos salidas razonables son bajarlo al pie de la pantalla, o dejarle lugar
+propio arriba y que el contenido arranque debajo. Elegí una y aplicala parejo.
+En escritorio hoy no molesta: no lo rompas.
+
+Y de paso, ahí donde la pantalla ya tiene su propio botón "Volver" —el
+Planificador tiene los dos— **dejá uno solo**.
+
+# BLOQUE E — El botón del asistente tapa botones de verdad
+
+En el Planificador Gastronómico, el botón redondo del asistente (abajo a la
+derecha) **se monta sobre el botón "Añadir postre"**, que queda cortado. El
+invitado o el equipo no puede apretar lo que está tapado.
+
+**Qué hacer:** que el asistente no se superponga con botones. Dejar espacio al
+pie de las listas para que el último botón nunca quede debajo, en celular y en
+escritorio.
 
 ---
 
