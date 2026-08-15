@@ -9,10 +9,10 @@ Quien cierre una sesión reescribe este archivo. Se pisa, no se acumula.
 
 **Última actualización:** 15 de agosto de 2026, cierre.
 **Rama:** todo fusionado en `main`.
-**Estado:** compila, 1606 pruebas en verde, sin acentos rotos.
+**Estado:** compila, 1612 pruebas en verde, sin acentos rotos.
 **Propuestas abiertas:** ninguna.
-**Órdenes pendientes para Gemini:** ninguna. `docs/ordenes/` quedó vacío de
-trabajo vigente; todo está en `hechas/`.
+**Orden vigente para Gemini:** `docs/ordenes/ahora.md`, las ocho pantallas del
+cliente con más colores escritos a mano.
 
 ## Lo hecho en esta tanda
 
@@ -29,11 +29,25 @@ trabajo vigente; todo está en `hechas/`.
 - **Promociones:** no se pueden guardar sin fecha de inicio y de fin.
 - **Colores del tema:** hechas las pantallas de Ajustes. Falta el resto.
 
+## Lo revisado en el cierre
+
+Se auditaron las pantallas del cliente e invitado, las internas del equipo y
+toda el área de comida. **Las del cliente salieron limpias.** De comida salieron
+cinco arreglos, ya hechos: no se guardan cantidades ni costos negativos, la
+lista de compras avisa si un plato contratado no tiene ingredientes cargados, y
+una cantidad en cero ya no compra una unidad igual.
+
 ## Lo que falta
 
-- **Terminar los colores del tema** en el resto de las pantallas. Ya están las
-  que ve el cliente y las de Ajustes. Va pantalla por pantalla, nunca buscar y
-  reemplazar masivo, y sin tocar los colores que elige el usuario.
+- **Terminar los colores del tema.** Queda grande: unos 354 archivos. La orden
+  vigente pide las ocho pantallas del cliente con más colores a mano, que es
+  donde más rinde. Va pantalla por pantalla, nunca buscar y reemplazar masivo, y
+  sin tocar los colores que elige el usuario.
+- **Cuatro comodidades chicas de las pantallas internas**, ninguna rota: la
+  pantalla de presupuestos salta directo a "nuevo" y no deja ver el listado; el
+  historial de un empleado no tiene filtro y se hace largo; las citas del
+  calendario no se pueden editar ni borrar después de creadas; y las alertas
+  leídas no se pueden esconder.
 - **Nunca existieron** (decisión comercial del dueño si valen la pena): armar
   presupuesto desde el chat del asistente, mails masivos, formulario de contacto
   aparte del simulador, y traer reseñas de Google.

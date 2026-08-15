@@ -210,9 +210,9 @@ export const GestionReposteria: React.FC<GestionReposteriaProps> = ({ initialDat
             </div>
 
             <div className="grid grid-cols-3 gap-2">
-              <div className="space-y-1"><Label htmlFor="item-qty-manual">Cantidad</Label><Input id="item-qty-manual" type="number" value={currentItem.cantidad || 1} onChange={e => handleItemChange('cantidad', e.target.value)} /></div>
+              <div className="space-y-1"><Label htmlFor="item-qty-manual">Cantidad</Label><Input id="item-qty-manual" type="number" min="0" value={currentItem.cantidad || 1} onChange={e => handleItemChange('cantidad', Math.max(0, Number(e.target.value)))} /></div>
               <div className="space-y-1"><Label htmlFor="item-unit-manual">Unidad</Label><Select value={currentItem.unidad || 'unidad'} onValueChange={(v) => handleItemChange('unidad', v)}><SelectTrigger id="item-unit-manual"><SelectValue /></SelectTrigger><SelectContent>{ALL_UNIDADES_SERVICIO.map(u => <SelectItem key={u} value={u}>{u}</SelectItem>)}</SelectContent></Select></div>
-              <div className="space-y-1 relative"><Label htmlFor="item-cost-manual">Costo Est.</Label><Input id="item-cost-manual" type="number" value={currentItem.costoEstimado || 0} onChange={e => handleItemChange('costoEstimado', e.target.value)} className="pl-6"/><span className="absolute left-2 top-1/2 mt-1 text-muted-foreground">$</span></div>
+              <div className="space-y-1 relative"><Label htmlFor="item-cost-manual">Costo Est.</Label><Input id="item-cost-manual" type="number" min="0" value={currentItem.costoEstimado || 0} onChange={e => handleItemChange('costoEstimado', Math.max(0, Number(e.target.value)))} className="pl-6"/><span className="absolute left-2 top-1/2 mt-1 text-muted-foreground">$</span></div>
             </div>
             <div className="space-y-1"><Label htmlFor="item-notes-manual">Notas</Label><Input id="item-notes-manual" value={currentItem.notas || ''} onChange={e => handleItemChange('notas', e.target.value)} /></div>
           </div>
