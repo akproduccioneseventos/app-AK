@@ -84,3 +84,6 @@ src/data/fiestas/e2e_*.json
 # Datos que generan las pruebas de la noche de fiesta (no son del proyecto).
 data/fiestas/
 src/data/fiestas/
+
+# Fotos de pantallas para revisar a ojo, no van al repositorio
+capturas/
