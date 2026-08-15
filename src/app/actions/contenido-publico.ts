@@ -12,7 +12,10 @@ const CATALOGO_SETTINGS_FILE = 'catalogo-settings.json';
 const DEFAULT_PRESENTACION_LED_SETTINGS: PresentacionLedSettings = {
   portada: {
     tituloPrincipal: 'AK Producciones',
-    subtitulo: 'Tu evento soñado, hecho realidad',
+    // No repetir acá la frase grande de la portada ("Tu evento soñado, hecho
+    // realidad"): salían las dos, una debajo de la otra, en la presentación que
+    // se le muestra al cliente en la reunión de venta.
+    subtitulo: 'Salón, comida, música, fotos y coordinación con un solo equipo.',
     imagenFondoUrl: '',
     colorAcento: 'from-indigo-500 to-emerald-500',
   },
