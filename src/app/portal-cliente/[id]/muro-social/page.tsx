@@ -372,19 +372,19 @@ export default function ClientMuroSocialPage() {
   };
 
   if (isLoading) return (
-    <div className="flex items-center justify-center min-h-screen bg-slate-900 text-white">
-      <Loader2 className="w-10 h-10 animate-spin text-amber-400" />
-      <span className="ml-3 text-sm font-semibold tracking-wider">Cargando Centro de Control...</span>
+    <div className="flex items-center justify-center min-h-screen bg-background text-foreground">
+      <Loader2 className="w-10 h-10 animate-spin text-primary" />
+      <span className="ml-3 text-sm font-semibold tracking-wider text-muted-foreground">Cargando Centro de Control...</span>
     </div>
   );
 
   if (error || !fiesta) return (
-    <div className="flex items-center justify-center min-h-screen p-4 bg-slate-900">
-      <Card className="max-w-md text-center border-red-500/20 bg-slate-950 text-white rounded-3xl p-6">
+    <div className="flex items-center justify-center min-h-screen p-4 bg-background">
+      <Card className="max-w-md text-center rounded-xl border-destructive/30 bg-destructive/10 text-foreground p-6">
         <CardContent className="pt-6 space-y-4">
-          <Info className="w-12 h-12 mx-auto text-red-500" />
-          <p className="text-red-400 font-bold text-lg">{error ?? 'Error de autenticación.'}</p>
-          <Button variant="outline" className="mt-4 rounded-xl border-white/10 text-white bg-white/5 hover:bg-white/10" onClick={() => router.back()}>
+          <Info className="w-12 h-12 mx-auto text-destructive" />
+          <p className="text-destructive font-bold text-lg">{error ?? 'Error de autenticación.'}</p>
+          <Button variant="outline" className="mt-4 rounded-lg border-border" onClick={() => router.back()}>
             <ArrowLeft className="w-4 h-4 mr-1.5" /> Volver al Portal
           </Button>
         </CardContent>
@@ -397,16 +397,12 @@ export default function ClientMuroSocialPage() {
   const hiddenPosts = posts.filter(p => p.moderationStatus === 'hidden');
 
   return (
-    <div className="min-h-screen bg-slate-950 text-slate-100 font-sans pb-12">
-      {/* GLOW DE FONDO */}
-      <div className="fixed top-0 left-1/4 w-96 h-96 bg-purple-500/10 rounded-full blur-[120px] pointer-events-none" />
-      <div className="fixed bottom-0 right-1/4 w-96 h-96 bg-amber-500/5 rounded-full blur-[120px] pointer-events-none" />
-
+    <div className="min-h-screen bg-background text-foreground font-sans pb-12">
       {/* HEADER INTEGRADO */}
-      <header className="sticky top-0 z-40 bg-slate-950/80 backdrop-blur-md border-b border-white/5 px-4 py-4 sm:px-6">
+      <header className="sticky top-0 z-40 bg-card/80 backdrop-blur-md border-b border-border px-4 py-4 sm:px-6">
         <div className="max-w-4xl mx-auto flex items-center justify-between gap-4">
           <div className="flex items-center gap-3">
-            <Button variant="outline" size="icon" onClick={() => router.back()} className="rounded-xl border-white/10 bg-white/5 text-white hover:bg-white/10 h-10 w-10">
+            <Button variant="outline" size="icon" onClick={() => router.back()} className="rounded-lg border-border bg-muted/20 text-foreground hover:bg-muted/40 h-10 w-10">
               <ArrowLeft className="w-4 h-4" />
             </Button>
             <div>
@@ -414,13 +410,13 @@ export default function ClientMuroSocialPage() {
                 <span className="rounded-full bg-primary/10 px-2 py-0.5 text-xs font-black uppercase tracking-widest text-primary">En Vivo</span>
                 <span className="text-xs font-semibold text-muted-foreground">{fiesta.configuracion?.nombreEvento}</span>
               </div>
-              <h1 className="text-lg font-black text-white leading-tight">Centro de Control Muro</h1>
+              <h1 className="text-lg font-black text-foreground leading-tight">Centro de Control Muro</h1>
             </div>
           </div>
 
           <div className="flex gap-2">
             <a href={`/evento/muro-en-vivo/${fiestaId}`} target="_blank" rel="noopener noreferrer" title="Ver Pantalla de Proyección">
-              <Button size="sm" className="rounded-xl gap-1.5 text-xs font-bold bg-white text-slate-950 hover:bg-slate-200">
+              <Button size="sm" className="rounded-lg gap-1.5 text-xs font-bold">
                 <Tv className="w-4 h-4" /> Pantalla <ExternalLink className="w-3 h-3" />
               </Button>
             </a>
@@ -465,15 +461,15 @@ export default function ClientMuroSocialPage() {
           <TabsContent value="control" className="space-y-6 outline-none">
             
             {/* ESTADO DE PANTALLA GIGANTE EN TIEMPO REAL */}
-            <Card className="border-white/5 bg-slate-900/60 backdrop-blur-md rounded-3xl overflow-hidden shadow-2xl">
+            <Card className="border border-border bg-card rounded-xl overflow-hidden shadow-sm">
               <CardContent className="p-6 flex flex-col sm:flex-row items-center justify-between gap-4">
                 <div className="flex items-center gap-3 text-center sm:text-left">
-                  <div className={`w-3.5 h-3.5 rounded-full animate-pulse ${playlistPlaying && !forcedScreenItem ? 'bg-emerald-400 shadow-[0_0_12px_rgba(52,211,153,0.5)]' : forcedScreenItem ? 'bg-indigo-400 shadow-[0_0_12px_rgba(129,140,248,0.5)]' : 'bg-rose-500'}`} />
+                  <div className={`w-3.5 h-3.5 rounded-full animate-pulse ${playlistPlaying && !forcedScreenItem ? 'bg-emerald-500 shadow-[0_0_12px_rgba(16,185,129,0.5)]' : forcedScreenItem ? 'bg-primary shadow-[0_0_12px_rgba(59,130,246,0.5)]' : 'bg-destructive'}`} />
                   <div>
-                    <h3 className="font-black text-white text-base">
+                    <h3 className="font-black text-foreground text-base">
                       {playlistPlaying && !forcedScreenItem ? 'Modo: Rotación Automática' : forcedScreenItem ? `Modo: Proyección Fija (${forcedScreenItem.toUpperCase()})` : 'Muro Pausado'}
                     </h3>
-                    <p className="text-xs text-slate-400 font-semibold leading-normal">
+                    <p className="text-xs text-muted-foreground font-semibold leading-normal">
                       Controlá de forma remota e instantánea lo que se ve en la pantalla de la fiesta.
                     </p>
                   </div>
@@ -486,17 +482,18 @@ export default function ClientMuroSocialPage() {
                     setPlaylistPlaying(next);
                     sendRemoteCommand({ playlistPlaying: next });
                   }}
-                  className={`w-full sm:w-auto px-6 h-12 rounded-xl font-bold flex items-center justify-center gap-2 transition-all ${
-                    playlistPlaying ? 'bg-rose-500/10 hover:bg-rose-500/20 text-rose-400 border border-rose-500/20' : 'bg-emerald-500 hover:bg-emerald-600 text-slate-950'
+                  variant={playlistPlaying ? 'outline' : 'default'}
+                  className={`w-full sm:w-auto px-6 h-11 rounded-lg font-bold flex items-center justify-center gap-2 transition-all ${
+                    playlistPlaying ? 'text-destructive border-destructive/30 hover:bg-destructive/10' : 'bg-emerald-600 hover:bg-emerald-700 text-white'
                   }`}
                 >
                   {playlistPlaying ? (
                     <>
-                      <Pause className="w-5 h-5 fill-current" /> Pausar Pantalla
+                      <Pause className="w-4 h-4 fill-current" /> Pausar Pantalla
                     </>
                   ) : (
                     <>
-                      <Play className="w-5 h-5 fill-current" /> Reanudar Pantalla
+                      <Play className="w-4 h-4 fill-current" /> Reanudar Pantalla
                     </>
                   )}
                 </Button>
@@ -505,12 +502,12 @@ export default function ClientMuroSocialPage() {
 
             <div className="grid gap-6 md:grid-cols-2">
               {/* 1. SELECCIONAR QUÉ PROYECTAR EN VIVO (FORZAR DIAPOSITIVA) */}
-              <Card className="border-white/5 bg-slate-900/60 backdrop-blur-md rounded-3xl overflow-hidden shadow-2xl">
+              <Card className="border border-border bg-card rounded-xl overflow-hidden shadow-sm">
                 <CardHeader className="p-6 pb-2">
-                  <CardTitle className="text-base font-black text-white flex items-center gap-2">
-                    <Tv className="w-5 h-5 text-amber-400" /> Proyectar Diapositiva
+                  <CardTitle className="text-base font-black text-foreground flex items-center gap-2">
+                    <Tv className="w-5 h-5 text-primary" /> Proyectar Diapositiva
                   </CardTitle>
-                  <CardDescription className="text-xs font-semibold text-slate-400">
+                  <CardDescription className="text-xs font-semibold text-muted-foreground">
                     Hacé click para congelar la pantalla gigante en un contenido específico.
                   </CardDescription>
                 </CardHeader>
@@ -522,11 +519,11 @@ export default function ClientMuroSocialPage() {
                         setForcedScreenItem(null);
                         sendRemoteCommand({ forcedScreenItem: null });
                       }}
-                      className={`rounded-xl h-14 border-white/5 font-bold text-xs flex flex-col gap-1 ${
-                        forcedScreenItem === null ? 'bg-amber-400 text-slate-950 hover:bg-amber-400/90 border-transparent' : 'bg-slate-950 text-white hover:bg-slate-900'
+                      className={`rounded-lg h-12 font-bold text-xs flex flex-col gap-1 border-border ${
+                        forcedScreenItem === null ? 'bg-primary text-primary-foreground border-primary' : 'bg-muted/20 text-foreground hover:bg-muted/40'
                       }`}
                     >
-                      <RefreshCw className="w-4 h-4" /> Auto Playlist
+                      <RefreshCw className="w-3.5 h-3.5" /> Auto Playlist
                     </Button>
                     <Button
                       variant="outline"
@@ -534,11 +531,11 @@ export default function ClientMuroSocialPage() {
                         setForcedScreenItem('mural');
                         sendRemoteCommand({ forcedScreenItem: 'mural' });
                       }}
-                      className={`rounded-xl h-14 border-white/5 font-bold text-xs flex flex-col gap-1 ${
-                        forcedScreenItem === 'mural' ? 'bg-amber-400 text-slate-950 hover:bg-amber-400/90 border-transparent' : 'bg-slate-950 text-white hover:bg-slate-900'
+                      className={`rounded-lg h-12 font-bold text-xs flex flex-col gap-1 border-border ${
+                        forcedScreenItem === 'mural' ? 'bg-primary text-primary-foreground border-primary' : 'bg-muted/20 text-foreground hover:bg-muted/40'
                       }`}
                     >
-                      <Camera className="w-4 h-4" /> Muro de Fotos
+                      <Camera className="w-3.5 h-3.5" /> Muro de Fotos
                     </Button>
                     <Button
                       variant="outline"
@@ -546,11 +543,11 @@ export default function ClientMuroSocialPage() {
                         setForcedScreenItem('chat');
                         sendRemoteCommand({ forcedScreenItem: 'chat' });
                       }}
-                      className={`rounded-xl h-14 border-white/5 font-bold text-xs flex flex-col gap-1 ${
-                        forcedScreenItem === 'chat' ? 'bg-amber-400 text-slate-950 hover:bg-amber-400/90 border-transparent' : 'bg-slate-950 text-white hover:bg-slate-900'
+                      className={`rounded-lg h-12 font-bold text-xs flex flex-col gap-1 border-border ${
+                        forcedScreenItem === 'chat' ? 'bg-primary text-primary-foreground border-primary' : 'bg-muted/20 text-foreground hover:bg-muted/40'
                       }`}
                     >
-                      <MessageSquare className="w-4 h-4" /> Chat en Vivo
+                      <MessageSquare className="w-3.5 h-3.5" /> Chat en Vivo
                     </Button>
                     <Button
                       variant="outline"
@@ -558,11 +555,11 @@ export default function ClientMuroSocialPage() {
                         setForcedScreenItem('canciones');
                         sendRemoteCommand({ forcedScreenItem: 'canciones' });
                       }}
-                      className={`rounded-xl h-14 border-white/5 font-bold text-xs flex flex-col gap-1 ${
-                        forcedScreenItem === 'canciones' ? 'bg-amber-400 text-slate-950 hover:bg-amber-400/90 border-transparent' : 'bg-slate-950 text-white hover:bg-slate-900'
+                      className={`rounded-lg h-12 font-bold text-xs flex flex-col gap-1 border-border ${
+                        forcedScreenItem === 'canciones' ? 'bg-primary text-primary-foreground border-primary' : 'bg-muted/20 text-foreground hover:bg-muted/40'
                       }`}
                     >
-                      <Music className="w-4 h-4" /> Pedidos DJ
+                      <Music className="w-3.5 h-3.5" /> Pedidos DJ
                     </Button>
                     <Button
                       variant="outline"
@@ -570,11 +567,11 @@ export default function ClientMuroSocialPage() {
                         setForcedScreenItem('dedicaciones');
                         sendRemoteCommand({ forcedScreenItem: 'dedicaciones' });
                       }}
-                      className={`rounded-xl h-14 border-white/5 font-bold text-xs flex flex-col gap-1 ${
-                        forcedScreenItem === 'dedicaciones' ? 'bg-amber-400 text-slate-950 hover:bg-amber-400/90 border-transparent' : 'bg-slate-950 text-white hover:bg-slate-900'
+                      className={`rounded-lg h-12 font-bold text-xs flex flex-col gap-1 border-border ${
+                        forcedScreenItem === 'dedicaciones' ? 'bg-primary text-primary-foreground border-primary' : 'bg-muted/20 text-foreground hover:bg-muted/40'
                       }`}
                     >
-                      <Heart className="w-4 h-4" /> Dedicatorias
+                      <Heart className="w-3.5 h-3.5" /> Dedicatorias
                     </Button>
                     <Button
                       variant="outline"
@@ -582,23 +579,23 @@ export default function ClientMuroSocialPage() {
                         setForcedScreenItem('juego');
                         sendRemoteCommand({ forcedScreenItem: 'juego' });
                       }}
-                      className={`rounded-xl h-14 border-white/5 font-bold text-xs flex flex-col gap-1 ${
-                        forcedScreenItem === 'juego' ? 'bg-amber-400 text-slate-950 hover:bg-amber-400/90 border-transparent' : 'bg-slate-950 text-white hover:bg-slate-900'
+                      className={`rounded-lg h-12 font-bold text-xs flex flex-col gap-1 border-border ${
+                        forcedScreenItem === 'juego' ? 'bg-primary text-primary-foreground border-primary' : 'bg-muted/20 text-foreground hover:bg-muted/40'
                       }`}
                     >
-                      <Tv className="w-4 h-4" /> Encuesta / Juego
+                      <Tv className="w-3.5 h-3.5" /> Encuesta / Juego
                     </Button>
                   </div>
                 </CardContent>
               </Card>
 
               {/* 2. ALTERNAR EL DISEÑO DE FOTOS EN VIVO (SLIDESHOW VS MASONRY) */}
-              <Card className="border-white/5 bg-slate-900/60 backdrop-blur-md rounded-3xl overflow-hidden shadow-2xl">
+              <Card className="border border-border bg-card rounded-xl overflow-hidden shadow-sm">
                 <CardHeader className="p-6 pb-2">
-                  <CardTitle className="text-base font-black text-white flex items-center gap-2">
-                    <Layout className="w-5 h-5 text-amber-400" /> Diseño del Muro
+                  <CardTitle className="text-base font-black text-foreground flex items-center gap-2">
+                    <Layout className="w-5 h-5 text-primary" /> Diseño del Muro
                   </CardTitle>
-                  <CardDescription className="text-xs font-semibold text-slate-400">
+                  <CardDescription className="text-xs font-semibold text-muted-foreground">
                     Elegí cómo se proyectan las fotos de tus invitados.
                   </CardDescription>
                 </CardHeader>
@@ -610,15 +607,15 @@ export default function ClientMuroSocialPage() {
                         setCurrentLayout('slideshow');
                         sendRemoteCommand({ currentLayout: 'slideshow' });
                       }}
-                      className={`p-4 rounded-2xl border text-center transition-all flex flex-col items-center gap-2 ${
+                      className={`p-4 rounded-xl border text-center transition-all flex flex-col items-center gap-2 ${
                         currentLayout === 'slideshow'
-                          ? 'border-amber-400 bg-amber-400/5 text-amber-300'
-                          : 'border-white/5 bg-slate-950 text-slate-400 hover:text-white'
+                          ? 'border-primary bg-primary/10 text-primary'
+                          : 'border-border bg-muted/20 text-muted-foreground hover:text-foreground'
                       }`}
                     >
-                      <Layers className="w-8 h-8" />
+                      <Layers className="w-7 h-7" />
                       <span className="text-xs font-bold">Slideshow Polaroid</span>
-                      <span className="text-xs font-medium leading-tight text-muted-foreground">De a una foto gigante en 3D</span>
+                      <span className="text-[11px] font-medium leading-tight text-muted-foreground">De a una foto gigante en 3D</span>
                     </button>
                     <button
                       type="button"
@@ -626,15 +623,15 @@ export default function ClientMuroSocialPage() {
                         setCurrentLayout('masonry');
                         sendRemoteCommand({ currentLayout: 'masonry' });
                       }}
-                      className={`p-4 rounded-2xl border text-center transition-all flex flex-col items-center gap-2 ${
+                      className={`p-4 rounded-xl border text-center transition-all flex flex-col items-center gap-2 ${
                         currentLayout === 'masonry'
-                          ? 'border-amber-400 bg-amber-400/5 text-amber-300'
-                          : 'border-white/5 bg-slate-950 text-slate-400 hover:text-white'
+                          ? 'border-primary bg-primary/10 text-primary'
+                          : 'border-border bg-muted/20 text-muted-foreground hover:text-foreground'
                       }`}
                     >
-                      <LayoutGrid className="w-8 h-8" />
+                      <LayoutGrid className="w-7 h-7" />
                       <span className="text-xs font-bold">Mosaico Fluido</span>
-                      <span className="text-xs font-medium leading-tight text-muted-foreground">Muro continuo con muchas fotos</span>
+                      <span className="text-[11px] font-medium leading-tight text-muted-foreground">Muro continuo con muchas fotos</span>
                     </button>
                   </div>
                 </CardContent>
@@ -642,13 +639,13 @@ export default function ClientMuroSocialPage() {
             </div>
 
             {/* 3. MARQUESINA LED DE TEXTO EN VIVO */}
-            <Card className="border-white/5 bg-slate-900/60 backdrop-blur-md rounded-3xl overflow-hidden shadow-2xl">
+            <Card className="border border-border bg-card rounded-xl overflow-hidden shadow-sm">
               <CardHeader className="p-6 pb-2 flex flex-row items-center justify-between">
                 <div>
-                  <CardTitle className="text-base font-black text-white flex items-center gap-2">
-                    <Megaphone className="w-5 h-5 text-amber-400" /> Ticker LED / Marquesina Remota
+                  <CardTitle className="text-base font-black text-foreground flex items-center gap-2">
+                    <Megaphone className="w-5 h-5 text-primary" /> Ticker LED / Marquesina Remota
                   </CardTitle>
-                  <CardDescription className="text-xs font-semibold text-slate-400">
+                  <CardDescription className="text-xs font-semibold text-muted-foreground">
                     Escribí mensajes especiales que fluyan por la pantalla de la fiesta.
                   </CardDescription>
                 </div>
@@ -666,7 +663,7 @@ export default function ClientMuroSocialPage() {
                     placeholder="Ej: ¡Los novios agradecen su compañía! · ¡Feliz cumpleaños Claudia! · Barra abierta libre..."
                     value={ledMarqueeText}
                     onChange={(e) => setLedMarqueeText(e.target.value)}
-                    className="rounded-xl border-white/10 bg-slate-950 text-white placeholder-slate-500 focus-visible:ring-amber-400 h-12"
+                    className="rounded-lg border-border bg-muted/20 text-foreground placeholder:text-muted-foreground focus-visible:ring-primary h-11"
                   />
                   <Button
                     onClick={() => {
@@ -677,7 +674,7 @@ export default function ClientMuroSocialPage() {
                       });
                       toast({ title: 'Marquesina enviada a pantalla 📡' });
                     }}
-                    className="rounded-xl bg-amber-400 text-slate-950 hover:bg-amber-500 font-bold px-6 h-12 shrink-0"
+                    className="rounded-lg font-bold px-6 h-11 shrink-0"
                   >
                     Enviar
                   </Button>
@@ -686,12 +683,12 @@ export default function ClientMuroSocialPage() {
             </Card>
 
             {/* 4. CONTROL DE SORTEOS CON RULETA REMOTA */}
-            <Card className="border-white/5 bg-slate-900/60 backdrop-blur-md rounded-3xl overflow-hidden shadow-2xl">
+            <Card className="border border-border bg-card rounded-xl overflow-hidden shadow-sm">
               <CardHeader className="p-6 pb-2">
-                <CardTitle className="text-base font-black text-white flex items-center gap-2">
-                  <Gift className="w-5 h-5 text-amber-400" /> Sorteo Sorpresa Remoto
+                <CardTitle className="text-base font-black text-foreground flex items-center gap-2">
+                  <Gift className="w-5 h-5 text-primary" /> Sorteo Sorpresa Remoto
                 </CardTitle>
-                <CardDescription className="text-xs font-semibold text-slate-400">
+                <CardDescription className="text-xs font-semibold text-muted-foreground">
                   Lanzá la ruleta en vivo y elegí un ganador de forma aleatoria o directa.
                 </CardDescription>
               </CardHeader>
@@ -699,30 +696,30 @@ export default function ClientMuroSocialPage() {
                 
                 <div className="grid gap-4 md:grid-cols-2">
                   <div className="space-y-2">
-                    <Label className="text-xs font-bold text-slate-300">Premio / Regalo</Label>
+                    <Label className="text-xs font-bold text-foreground">Premio / Regalo</Label>
                     <Input
                       placeholder="Ej: Botella de Champagne · Remera AK"
                       value={sorteoPremio}
                       onChange={(e) => setSorteoPremio(e.target.value)}
-                      className="rounded-xl border-white/10 bg-slate-950 text-white placeholder-slate-500 h-11"
+                      className="rounded-lg border-border bg-muted/20 text-foreground placeholder:text-muted-foreground h-11"
                     />
                   </div>
                   <div className="space-y-2">
-                    <Label className="text-xs font-bold text-slate-300">Ganador Forzado (Dejar vacío para azar)</Label>
+                    <Label className="text-xs font-bold text-foreground">Ganador Forzado (Dejar vacío para azar)</Label>
                     <Input
                       placeholder="Ej: Juan Pérez (Forzar nombre)"
                       value={customWinnerName}
                       onChange={(e) => setCustomWinnerName(e.target.value)}
-                      className="rounded-xl border-white/10 bg-slate-950 text-white placeholder-slate-500 h-11"
+                      className="rounded-lg border-border bg-muted/20 text-foreground placeholder:text-muted-foreground h-11"
                     />
                   </div>
                 </div>
 
                 {/* STATUS DEL GANADOR DEL SORTEO */}
                 {sorteoWinner && (
-                  <div className="bg-emerald-500/10 border border-emerald-500/20 rounded-2xl p-4 text-center">
-                    <p className="mb-1 text-xs font-black uppercase tracking-widest text-accent">🎉 Ganador del Sorteo 🎉</p>
-                    <p className="text-2xl font-black text-white">{sorteoWinner}</p>
+                  <div className="bg-emerald-500/10 border border-emerald-500/20 rounded-xl p-4 text-center">
+                    <p className="mb-1 text-xs font-black uppercase tracking-widest text-emerald-600 dark:text-emerald-400">🎉 Ganador del Sorteo 🎉</p>
+                    <p className="text-2xl font-black text-foreground">{sorteoWinner}</p>
                   </div>
                 )}
 
@@ -731,22 +728,22 @@ export default function ClientMuroSocialPage() {
                   <Button
                     onClick={triggerSorteo}
                     disabled={isSpinning}
-                    className="flex-1 rounded-xl bg-amber-400 text-slate-950 hover:bg-amber-500 font-extrabold h-12 text-sm flex items-center justify-center gap-2 disabled:bg-slate-800 disabled:text-slate-500"
+                    className="flex-1 rounded-lg font-extrabold h-11 text-sm flex items-center justify-center gap-2"
                   >
                     {isSpinning ? (
                       <>
-                        <Loader2 className="w-5 h-5 animate-spin" /> Girando Ruleta...
+                        <Loader2 className="w-4 h-4 animate-spin" /> Girando Ruleta...
                       </>
                     ) : (
                       <>
-                        <Gift className="w-5 h-5" /> ¡Girar Ruleta en Pantalla!
+                        <Gift className="w-4 h-4" /> ¡Girar Ruleta en Pantalla!
                       </>
                     )}
                   </Button>
                   <Button
                     variant="outline"
                     onClick={clearSorteo}
-                    className="rounded-xl border-white/10 bg-white/5 text-white hover:bg-white/10 h-12 px-6"
+                    className="rounded-lg border-border h-11 px-6"
                   >
                     Limpiar Sorteo
                   </Button>
@@ -763,7 +760,7 @@ export default function ClientMuroSocialPage() {
           <TabsContent value="moderacion" className="space-y-6 outline-none">
             
             {/* SUB-TABS INTERNAS DE ESTADO */}
-            <div className="flex gap-2 p-1.5 bg-slate-900 border border-white/5 rounded-2xl w-full max-w-md">
+            <div className="flex gap-2 p-1.5 bg-muted/30 border border-border rounded-xl w-full max-w-md">
               {(['pending', 'approved', 'hidden'] as const).map((mode) => {
                 const count = posts.filter(p => (p.moderationStatus ?? 'approved') === mode).length;
                 const label = mode === 'pending' ? 'Pendientes' : mode === 'approved' ? 'En Muro' : 'Ocultas';
@@ -771,13 +768,13 @@ export default function ClientMuroSocialPage() {
                   <button
                     key={mode}
                     onClick={() => setModerationMode(mode)}
-                    className={`flex-1 py-2 text-xs font-black rounded-xl transition-all flex items-center justify-center gap-1.5 ${
-                      moderationMode === mode ? 'bg-amber-400 text-slate-950 font-bold' : 'text-slate-400 hover:text-white'
+                    className={`flex-1 py-2 text-xs font-black rounded-lg transition-all flex items-center justify-center gap-1.5 ${
+                      moderationMode === mode ? 'bg-primary text-primary-foreground font-bold shadow-sm' : 'text-muted-foreground hover:text-foreground'
                     }`}
                   >
                     <span>{label}</span>
                     <span className={`rounded-full px-2 py-0.5 text-xs font-black ${
-                      moderationMode === mode ? 'bg-slate-950/20' : 'bg-slate-950/40 text-slate-500'
+                      moderationMode === mode ? 'bg-primary-foreground/20 text-primary-foreground' : 'bg-muted text-muted-foreground'
                     }`}>
                       {count}
                     </span>
@@ -791,26 +788,26 @@ export default function ClientMuroSocialPage() {
               
               {/* COLA VACÍA */}
               {moderationMode === 'pending' && pendingPosts.length === 0 && (
-                <div className="col-span-full py-16 text-center space-y-3 bg-slate-900/40 border border-dashed border-white/5 rounded-3xl">
+                <div className="col-span-full py-16 text-center space-y-3 bg-muted/20 border border-dashed border-border rounded-xl">
                   <div className="text-5xl opacity-40">🎉</div>
-                  <h4 className="text-white font-bold text-base">¡Todo moderado por ahora!</h4>
-                  <p className="text-xs text-slate-500">Las fotos nuevas de los invitados aparecerán acá automáticamente.</p>
+                  <h4 className="text-foreground font-bold text-base">¡Todo moderado por ahora!</h4>
+                  <p className="text-xs text-muted-foreground">Las fotos nuevas de los invitados aparecerán acá automáticamente.</p>
                 </div>
               )}
 
               {moderationMode === 'approved' && approvedPosts.length === 0 && (
-                <div className="col-span-full py-16 text-center space-y-3 bg-slate-900/40 border border-dashed border-white/5 rounded-3xl">
+                <div className="col-span-full py-16 text-center space-y-3 bg-muted/20 border border-dashed border-border rounded-xl">
                   <div className="text-5xl opacity-40">📸</div>
-                  <h4 className="text-white font-bold text-base">Muro de fotos vacío</h4>
-                  <p className="text-xs text-slate-500">Aprobá fotos desde la pestaña "Pendientes" para que salgan en pantalla.</p>
+                  <h4 className="text-foreground font-bold text-base">Muro de fotos vacío</h4>
+                  <p className="text-xs text-muted-foreground">Aprobá fotos desde la pestaña "Pendientes" para que salgan en pantalla.</p>
                 </div>
               )}
 
               {moderationMode === 'hidden' && hiddenPosts.length === 0 && (
-                <div className="col-span-full py-16 text-center space-y-3 bg-slate-900/40 border border-dashed border-white/5 rounded-3xl">
+                <div className="col-span-full py-16 text-center space-y-3 bg-muted/20 border border-dashed border-border rounded-xl">
                   <div className="text-5xl opacity-40">🛡️</div>
-                  <h4 className="text-white font-bold text-base">Sin fotos ocultadas</h4>
-                  <p className="text-xs text-slate-500">Las fotos que rechaces se guardarán en esta sección.</p>
+                  <h4 className="text-foreground font-bold text-base">Sin fotos ocultadas</h4>
+                  <p className="text-xs text-muted-foreground">Las fotos que rechaces se guardarán en esta sección.</p>
                 </div>
               )}
 
@@ -818,9 +815,9 @@ export default function ClientMuroSocialPage() {
               {(moderationMode === 'pending' ? pendingPosts : moderationMode === 'approved' ? approvedPosts : hiddenPosts).map((post) => {
                 const isVideo = post.mediaType === 'video' || /\.(mp4|webm|ogg|mov)(\?|$)/i.test(post.imageUrl);
                 return (
-                  <Card key={post.id} className="border-white/5 bg-slate-900/60 rounded-3xl overflow-hidden shadow-xl flex flex-col justify-between">
+                  <Card key={post.id} className="border border-border bg-card rounded-xl overflow-hidden shadow-sm flex flex-col justify-between">
                     
-                    <div className="relative aspect-square w-full overflow-hidden bg-slate-950">
+                    <div className="relative aspect-square w-full overflow-hidden bg-muted/30">
                       {isVideo ? (
                         <video src={post.imageUrl} className="h-full w-full object-cover" muted controls playsInline />
                       ) : (
@@ -829,9 +826,9 @@ export default function ClientMuroSocialPage() {
                       
                       {/* Author Tag Overlay */}
                       <div className="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black/90 to-transparent p-3">
-                        <span className="text-xs font-bold text-amber-300">@ {post.authorName}</span>
+                        <span className="text-xs font-bold text-primary-foreground">@ {post.authorName}</span>
                         {post.dedication && (
-                          <p className="mt-0.5 line-clamp-2 text-xs font-medium text-white/80">"{post.dedication}"</p>
+                          <p className="mt-0.5 line-clamp-2 text-xs font-medium text-white/90">"{post.dedication}"</p>
                         )}
                         {post.drinkName && (
                           <div className="mt-1.5 inline-flex items-center gap-1 rounded-full bg-destructive/90 px-2 py-0.5 text-xs font-black uppercase text-destructive-foreground">
@@ -841,20 +838,21 @@ export default function ClientMuroSocialPage() {
                       </div>
                     </div>
 
-                    <CardFooter className="p-3 bg-slate-950 flex gap-2 justify-end">
+                    <CardFooter className="p-3 bg-muted/20 border-t border-border flex gap-2 justify-end">
                       {moderationMode === 'pending' ? (
                         <>
                           <Button
                             onClick={() => handleModerate(post.id, 'hidden')}
                             disabled={moderatingId === post.id}
-                            className="flex-1 rounded-xl bg-rose-600 hover:bg-rose-700 text-white font-bold text-xs gap-1 h-10"
+                            variant="destructive"
+                            className="flex-1 rounded-lg font-bold text-xs gap-1 h-9"
                           >
                             <X className="w-4 h-4" /> Rechazar
                           </Button>
                           <Button
                             onClick={() => handleModerate(post.id, 'approved')}
                             disabled={moderatingId === post.id}
-                            className="flex-1 rounded-xl bg-emerald-500 hover:bg-emerald-600 text-slate-950 font-bold text-xs gap-1 h-10"
+                            className="flex-1 rounded-lg bg-emerald-600 hover:bg-emerald-700 text-white font-bold text-xs gap-1 h-9"
                           >
                             <Check className="w-4 h-4" /> Aprobar
                           </Button>
@@ -863,7 +861,8 @@ export default function ClientMuroSocialPage() {
                         <Button
                           onClick={() => handleModerate(post.id, 'hidden')}
                           disabled={moderatingId === post.id}
-                          className="w-full rounded-xl bg-rose-600/10 hover:bg-rose-600/20 text-rose-400 border border-rose-600/20 font-bold text-xs gap-1.5 h-10"
+                          variant="outline"
+                          className="w-full rounded-lg text-destructive border-destructive/20 hover:bg-destructive/10 font-bold text-xs gap-1.5 h-9"
                         >
                           <X className="w-4 h-4" /> Ocultar de la Pantalla
                         </Button>
@@ -871,7 +870,7 @@ export default function ClientMuroSocialPage() {
                         <Button
                           onClick={() => handleModerate(post.id, 'approved')}
                           disabled={moderatingId === post.id}
-                          className="w-full rounded-xl bg-emerald-500 hover:bg-emerald-600 text-slate-950 font-bold text-xs gap-1.5 h-10"
+                          className="w-full rounded-lg bg-emerald-600 hover:bg-emerald-700 text-white font-bold text-xs gap-1.5 h-9"
                         >
                           <Check className="w-4 h-4" /> Aprobar / Mostrar
                         </Button>
@@ -891,12 +890,12 @@ export default function ClientMuroSocialPage() {
           {/* ──────────────────────────────────────────────────────── */}
           <TabsContent value="diseno" className="space-y-6 outline-none">
             
-            <Card className="border-white/5 bg-slate-900/60 backdrop-blur-md rounded-3xl overflow-hidden shadow-2xl">
+            <Card className="border border-border bg-card rounded-xl overflow-hidden shadow-sm">
               <CardHeader className="p-6 pb-2">
-                <CardTitle className="text-base font-black text-white flex items-center gap-2">
-                  <Palette className="w-5 h-5" style={{ color: accentColor }} /> Personalización Visual del Muro
+                <CardTitle className="text-base font-black text-foreground flex items-center gap-2">
+                  <Palette className="w-5 h-5 text-primary" /> Personalización Visual del Muro
                 </CardTitle>
-                <CardDescription className="text-xs font-semibold text-slate-400">
+                <CardDescription className="text-xs font-semibold text-muted-foreground">
                   Establecé el nombre del evento y ajustá los colores a tu temática.
                 </CardDescription>
               </CardHeader>
@@ -905,51 +904,51 @@ export default function ClientMuroSocialPage() {
                 {/* Título y Subtítulo */}
                 <div className="grid gap-4 md:grid-cols-2">
                   <div className="space-y-2 text-left">
-                    <Label className="text-xs font-bold text-slate-300">Título Principal</Label>
+                    <Label className="text-xs font-bold text-foreground">Título Principal</Label>
                     <Input
                       value={title}
                       onChange={(e) => setTitle(e.target.value)}
                       placeholder={fiesta.configuracion?.nombreEvento || 'Nuestra Fiesta'}
-                      className="rounded-xl border-white/10 bg-slate-950 text-white placeholder-slate-500 h-11"
+                      className="rounded-lg border-border bg-muted/20 text-foreground placeholder:text-muted-foreground h-11"
                     />
                   </div>
                   <div className="space-y-2 text-left">
-                    <Label className="text-xs font-bold text-slate-300">Subtítulo / Bajada</Label>
+                    <Label className="text-xs font-bold text-foreground">Subtítulo / Bajada</Label>
                     <Input
                       value={subtitle}
                       onChange={(e) => setSubtitle(e.target.value)}
                       placeholder="¡Compartí tus fotos en vivo!"
-                      className="rounded-xl border-white/10 bg-slate-950 text-white placeholder-slate-500 h-11"
+                      className="rounded-lg border-border bg-muted/20 text-foreground placeholder:text-muted-foreground h-11"
                     />
                   </div>
                 </div>
 
                 {/* Foto de portada url */}
                 <div className="space-y-2 text-left">
-                  <Label className="text-xs font-bold text-slate-300">URL de Imagen de Portada del Portal</Label>
+                  <Label className="text-xs font-bold text-foreground">URL de Imagen de Portada del Portal</Label>
                   <Input
                     value={coverUrl}
                     onChange={(e) => setCoverUrl(e.target.value)}
                     placeholder="https://ejemplo.com/portada.jpg"
-                    className="rounded-xl border-white/10 bg-slate-950 text-white placeholder-slate-500 h-11"
+                    className="rounded-lg border-border bg-muted/20 text-foreground placeholder:text-muted-foreground h-11"
                   />
                   <p className="text-xs font-semibold text-muted-foreground">Portada que verán los invitados arriba de su feed móvil al ingresar.</p>
                 </div>
 
                 {/* Modo Oscuro de Pantalla Gigante */}
-                <div className="flex items-center justify-between border-t border-white/5 pt-4">
+                <div className="flex items-center justify-between border-t border-border pt-4">
                   <div className="space-y-0.5 text-left flex-1">
-                    <Label className="text-sm font-bold text-white">Fondo Oscuro de Proyección</Label>
+                    <Label className="text-sm font-bold text-foreground">Fondo Oscuro de Proyección</Label>
                     <p className="text-xs font-semibold leading-normal text-muted-foreground">
-                      Cuando esté activo, la pantalla gigante tendrá un diseño nocturno premium de HSL tailored. Si se desactiva pasará a un modo claro elegante.
+                      Cuando esté activo, la pantalla gigante tendrá un diseño nocturno adaptado. Si se desactiva pasará a un modo claro elegante.
                     </p>
                   </div>
                   <Switch checked={screenDarkMode} onCheckedChange={setScreenDarkMode} />
                 </div>
 
                 {/* Color de Acento */}
-                <div className="space-y-3 pt-4 border-t border-white/5 text-left">
-                  <Label className="text-xs font-bold text-slate-300">Color de Acento del Portal</Label>
+                <div className="space-y-3 pt-4 border-t border-border text-left">
+                  <Label className="text-xs font-bold text-foreground">Color de Acento del Portal</Label>
                   <div className="flex flex-wrap gap-2">
                     {BRAND_PRESET_COLORS.map(c => (
                       <button
@@ -959,8 +958,8 @@ export default function ClientMuroSocialPage() {
                         className="h-8 rounded-lg border px-3 text-xs font-black uppercase tracking-wider transition-all"
                         style={{
                           backgroundColor: accentColor === c.value ? c.value : 'transparent',
-                          color: accentColor === c.value ? '#020617' : '#94a3b8',
-                          borderColor: accentColor === c.value ? c.value : 'rgba(255,255,255,0.08)'
+                          color: accentColor === c.value ? '#ffffff' : 'inherit',
+                          borderColor: accentColor === c.value ? c.value : 'var(--border)'
                         }}
                       >
                         {c.name}
@@ -973,21 +972,20 @@ export default function ClientMuroSocialPage() {
                       type="color"
                       value={accentColor}
                       onChange={(e) => setAccentColor(e.target.value)}
-                      className="h-10 w-20 p-1 rounded-xl cursor-pointer border-white/10 bg-slate-950"
+                      className="h-10 w-20 p-1 rounded-lg cursor-pointer border-border bg-muted/20"
                     />
-                    <span className="text-xs font-semibold text-slate-400">Color elegido: <strong style={{ color: accentColor }}>{accentColor}</strong></span>
+                    <span className="text-xs font-semibold text-muted-foreground">Color elegido: <strong style={{ color: accentColor }}>{accentColor}</strong></span>
                   </div>
                 </div>
 
               </CardContent>
-              <CardFooter className="p-6 bg-slate-900/20 border-t border-white/5 flex justify-end">
+              <CardFooter className="p-6 bg-muted/20 border-t border-border flex justify-end">
                 <Button
                   onClick={handleSaveConfig}
                   disabled={isSaving}
-                  className="w-full sm:w-auto px-8 h-12 rounded-xl font-bold flex items-center justify-center gap-2"
-                  style={{ backgroundColor: accentColor, color: '#020617' }}
+                  className="w-full sm:w-auto px-8 h-11 rounded-lg font-bold flex items-center justify-center gap-2"
                 >
-                  {isSaving ? <Loader2 className="w-5 h-5 animate-spin" /> : <Save className="w-5 h-5" />}
+                  {isSaving ? <Loader2 className="w-4 h-4 animate-spin" /> : <Save className="w-4 h-4" />}
                   Guardar Configuración
                 </Button>
               </CardFooter>
@@ -1000,22 +998,22 @@ export default function ClientMuroSocialPage() {
           {/* ──────────────────────────────────────────────────────── */}
           <TabsContent value="modulos" className="space-y-6 outline-none">
             
-            <Card className="border-white/5 bg-slate-900/60 backdrop-blur-md rounded-3xl overflow-hidden shadow-2xl">
+            <Card className="border border-border bg-card rounded-xl overflow-hidden shadow-sm">
               <CardHeader className="p-6 pb-2">
-                <CardTitle className="text-base font-black text-white flex items-center gap-2">
-                  <Settings2 className="w-5 h-5 text-amber-400" /> Permisos y Toggles Operativos
+                <CardTitle className="text-base font-black text-foreground flex items-center gap-2">
+                  <Settings2 className="w-5 h-5 text-primary" /> Permisos y Toggles Operativos
                 </CardTitle>
-                <CardDescription className="text-xs font-semibold text-slate-400">
+                <CardDescription className="text-xs font-semibold text-muted-foreground">
                   Prendé o apagá los distintos módulos interactivos de los invitados.
                 </CardDescription>
               </CardHeader>
-              <CardContent className="p-6 divide-y divide-white/5 space-y-4">
+              <CardContent className="p-6 divide-y divide-border space-y-4">
 
                 {/* Red Social General Switch */}
                 <div className="flex items-center justify-between gap-4 pt-1">
                   <div className="space-y-0.5 flex-1 text-left">
-                    <Label className="text-sm font-bold text-white flex items-center gap-1.5">
-                      <Tv className="w-4 h-4 text-amber-400" /> Red Social Habilitada
+                    <Label className="text-sm font-bold text-foreground flex items-center gap-1.5">
+                      <Tv className="w-4 h-4 text-primary" /> Red Social Habilitada
                     </Label>
                     <p className="text-xs font-semibold leading-normal text-muted-foreground">
                       Si se apaga, los invitados no podrán ingresar al portal ni interactuar con la pantalla gigante.
@@ -1027,8 +1025,8 @@ export default function ClientMuroSocialPage() {
                 {/* Permitir Subidas */}
                 <div className="flex items-center justify-between gap-4 pt-4">
                   <div className="space-y-0.5 flex-1 text-left">
-                    <Label className="text-sm font-bold text-white flex items-center gap-1.5">
-                      <Camera className="w-4 h-4 text-slate-400" /> Permitir Subir Fotos y Videos
+                    <Label className="text-sm font-bold text-foreground flex items-center gap-1.5">
+                      <Camera className="w-4 h-4 text-muted-foreground" /> Permitir Subir Fotos y Videos
                     </Label>
                     <p className="text-xs font-semibold leading-normal text-muted-foreground">
                       Habilita la cámara en el portal de los invitados para que envíen sus fotos en vivo.
@@ -1040,8 +1038,8 @@ export default function ClientMuroSocialPage() {
                 {/* Chat en vivo */}
                 <div className="flex items-center justify-between gap-4 pt-4">
                   <div className="space-y-0.5 flex-1 text-left">
-                    <Label className="text-sm font-bold text-white flex items-center gap-1.5">
-                      <MessageSquare className="w-4 h-4 text-slate-400" /> Chat en Vivo / Mensajería
+                    <Label className="text-sm font-bold text-foreground flex items-center gap-1.5">
+                      <MessageSquare className="w-4 h-4 text-muted-foreground" /> Chat en Vivo / Mensajería
                     </Label>
                     <p className="text-xs font-semibold leading-normal text-muted-foreground">
                       Habilita la solapa de conversación general para los invitados.
@@ -1053,8 +1051,8 @@ export default function ClientMuroSocialPage() {
                 {/* Pedido de Música */}
                 <div className="flex items-center justify-between gap-4 pt-4">
                   <div className="space-y-0.5 flex-1 text-left">
-                    <Label className="text-sm font-bold text-white flex items-center gap-1.5">
-                      <Music className="w-4 h-4 text-slate-400" /> Sugerencias de Música al DJ
+                    <Label className="text-sm font-bold text-foreground flex items-center gap-1.5">
+                      <Music className="w-4 h-4 text-muted-foreground" /> Sugerencias de Música al DJ
                     </Label>
                     <p className="text-xs font-semibold leading-normal text-muted-foreground">
                       Permite que la gente pida canciones directamente al panel del DJ de la fiesta.
@@ -1066,8 +1064,8 @@ export default function ClientMuroSocialPage() {
                 {/* Dedicatorias */}
                 <div className="flex items-center justify-between gap-4 pt-4">
                   <div className="space-y-0.5 flex-1 text-left">
-                    <Label className="text-sm font-bold text-white flex items-center gap-1.5">
-                      <Heart className="w-4 h-4 text-slate-400" /> Dedicatorias y Audios de Voz
+                    <Label className="text-sm font-bold text-foreground flex items-center gap-1.5">
+                      <Heart className="w-4 h-4 text-muted-foreground" /> Dedicatorias y Audios de Voz
                     </Label>
                     <p className="text-xs font-semibold leading-normal text-muted-foreground">
                       Muestra el formulario para enviar dedicatorias escritas y audios de felicitación.
@@ -1079,7 +1077,7 @@ export default function ClientMuroSocialPage() {
                 {/* Buzón Privado */}
                 <div className="flex items-center justify-between gap-4 pt-4">
                   <div className="space-y-0.5 flex-1 text-left">
-                    <Label className="text-sm font-bold text-white flex items-center gap-1.5">
+                    <Label className="text-sm font-bold text-foreground flex items-center gap-1.5">
                       🔐 Modo Buzón 100% Privado
                     </Label>
                     <p className="text-xs font-semibold leading-normal text-muted-foreground">
@@ -1092,7 +1090,7 @@ export default function ClientMuroSocialPage() {
                 {/* Moderación activa */}
                 <div className="flex items-center justify-between gap-4 pt-4">
                   <div className="space-y-0.5 flex-1 text-left">
-                    <Label className="text-sm font-bold text-white flex items-center gap-1.5">
+                    <Label className="text-sm font-bold text-foreground flex items-center gap-1.5">
                       🛡️ Moderación Previa Exigida
                     </Label>
                     <p className="text-xs font-semibold leading-normal text-muted-foreground">
@@ -1103,14 +1101,13 @@ export default function ClientMuroSocialPage() {
                 </div>
 
               </CardContent>
-              <CardFooter className="p-6 bg-slate-900/20 border-t border-white/5 flex justify-end">
+              <CardFooter className="p-6 bg-muted/20 border-t border-border flex justify-end">
                 <Button
                   onClick={handleSaveConfig}
                   disabled={isSaving}
-                  className="w-full sm:w-auto px-8 h-12 rounded-xl font-bold flex items-center justify-center gap-2"
-                  style={{ backgroundColor: accentColor, color: '#020617' }}
+                  className="w-full sm:w-auto px-8 h-11 rounded-lg font-bold flex items-center justify-center gap-2"
                 >
-                  {isSaving ? <Loader2 className="w-5 h-5 animate-spin" /> : <Save className="w-5 h-5" />}
+                  {isSaving ? <Loader2 className="w-4 h-4 animate-spin" /> : <Save className="w-4 h-4" />}
                   Guardar Permisos
                 </Button>
               </CardFooter>
