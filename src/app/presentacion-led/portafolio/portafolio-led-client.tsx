@@ -128,7 +128,7 @@ function ImagePanel({
 
 function SectionEyebrow({ children }: { children: ReactNode }) {
   return (
-    <span className="inline-flex items-center gap-2 rounded-full border border-red-200 bg-white px-4 py-2 text-[11px] font-black uppercase tracking-[0.22em] text-red-700 shadow-sm">
+    <span className="inline-flex items-center gap-2 rounded-full border border-primary/20 bg-primary/10 px-4 py-2 text-[11px] font-black uppercase tracking-[0.22em] text-primary shadow-sm">
       <Sparkles className="h-3.5 w-3.5" />
       {children}
     </span>
@@ -238,16 +238,16 @@ export function PortafolioLedClient() {
   };
 
   return (
-    <main className="min-h-screen bg-white text-slate-950">
-      <header className="fixed inset-x-0 top-0 z-50 border-b border-slate-200/80 bg-white/90 backdrop-blur-xl">
+    <main className="min-h-screen bg-background text-foreground">
+      <header className="fixed inset-x-0 top-0 z-50 border-b border-border bg-card/80 backdrop-blur-xl">
         <div className="mx-auto flex h-20 max-w-[1600px] items-center justify-between gap-4 px-4 sm:px-6 lg:px-10">
           <Link href="/presentacion-led" className="flex items-center gap-3">
-            <span className="flex h-11 w-11 items-center justify-center rounded-2xl bg-red-600 text-white shadow-lg shadow-red-900/20">
+            <span className="flex h-11 w-11 items-center justify-center rounded-xl bg-primary text-primary-foreground shadow-md">
               <PartyPopper className="h-5 w-5" />
             </span>
             <span>
-              <span className="block text-sm font-black uppercase tracking-[0.24em] text-slate-950">AK Producciones</span>
-              <span className="hidden text-xs font-semibold text-slate-500 sm:block">Portafolio de experiencia tecnologica</span>
+              <span className="block text-sm font-black uppercase tracking-[0.24em] text-foreground">AK Producciones</span>
+              <span className="hidden text-xs font-semibold text-muted-foreground sm:block">Portafolio de experiencia tecnologica</span>
             </span>
           </Link>
 
@@ -256,7 +256,7 @@ export function PortafolioLedClient() {
               <a
                 key={item}
                 href={`#${item.toLowerCase()}`}
-                className="rounded-full px-4 py-2 text-xs font-black uppercase tracking-[0.16em] text-slate-500 transition hover:bg-red-50 hover:text-red-700"
+                className="rounded-full px-4 py-2 text-xs font-black uppercase tracking-[0.16em] text-muted-foreground transition hover:bg-muted hover:text-foreground"
               >
                 {item}
               </a>
@@ -267,7 +267,7 @@ export function PortafolioLedClient() {
             href="/presentacion-led"
             aria-label="Volver a la presentacion LED"
             title="Presentacion LED"
-            className="inline-flex h-11 w-11 shrink-0 items-center justify-center gap-2 rounded-full bg-slate-950 p-0 text-xs font-black uppercase tracking-[0.14em] text-white shadow-lg shadow-slate-900/20 transition hover:bg-red-700 sm:w-auto sm:px-4"
+            className="inline-flex h-11 w-11 shrink-0 items-center justify-center gap-2 rounded-full bg-primary p-0 text-xs font-black uppercase tracking-[0.14em] text-primary-foreground shadow-md transition hover:bg-primary/90 sm:w-auto sm:px-4"
           >
             <span className="hidden sm:inline">Presentacion</span>
             <ArrowRight className="h-4 w-4" />
@@ -276,7 +276,6 @@ export function PortafolioLedClient() {
       </header>
 
       <section className="relative overflow-hidden pt-24">
-        <div className="absolute inset-x-0 top-0 h-40 bg-[linear-gradient(180deg,#fff1f2_0%,rgba(255,255,255,0)_100%)]" />
         <div className="mx-auto grid min-h-[calc(100svh-5rem)] max-w-[1600px] items-center gap-10 px-4 py-10 sm:px-6 lg:grid-cols-[0.82fr_1.18fr] lg:px-10 lg:py-16">
           <motion.div
             initial={{ opacity: 0, y: 24 }}
@@ -285,18 +284,18 @@ export function PortafolioLedClient() {
             className="relative z-10"
           >
             <SectionEyebrow>Catalogo interactivo AK</SectionEyebrow>
-            <h1 className="mt-6 max-w-3xl text-4xl font-black leading-[0.95] tracking-tight text-slate-950 sm:text-6xl xl:text-7xl">
+            <h1 className="mt-6 max-w-3xl text-4xl font-black leading-[0.95] tracking-tight text-foreground sm:text-6xl xl:text-7xl">
               Tu fiesta completa se puede ver antes de contratarla.
             </h1>
-            <p className="mt-6 max-w-2xl text-base font-medium leading-8 text-slate-600 sm:text-lg">
+            <p className="mt-6 max-w-2xl text-base font-medium leading-8 text-muted-foreground sm:text-lg">
               Explora bodas, XV y celebraciones con fotos AK, servicios concretos y un recorrido claro por todo lo que se organiza antes, durante y despues del evento.
             </p>
 
             <div className="mt-8 grid gap-3 sm:grid-cols-3">
               {phaseLabels.map((phase) => (
-                <div key={phase} className="rounded-2xl border border-slate-200 bg-white p-4 shadow-sm">
-                  <span className="text-3xl font-black text-slate-950">{serviceCounts[phase]}</span>
-                  <p className="mt-1 text-xs font-black uppercase tracking-[0.16em] text-slate-500">{phase}</p>
+                <div key={phase} className="rounded-xl border border-border bg-card p-4 shadow-sm">
+                  <span className="text-3xl font-black text-foreground">{serviceCounts[phase]}</span>
+                  <p className="mt-1 text-xs font-black uppercase tracking-[0.16em] text-muted-foreground">{phase}</p>
                 </div>
               ))}
             </div>
@@ -310,10 +309,10 @@ export function PortafolioLedClient() {
           >
             <div className="mb-4 flex flex-wrap items-center justify-between gap-3">
               <div>
-                <p className="text-xs font-black uppercase tracking-[0.18em] text-red-700">Vista adaptable</p>
-                <p className="text-sm font-semibold text-slate-500">La misma idea cambia segun la pantalla.</p>
+                <p className="text-xs font-black uppercase tracking-[0.18em] text-primary">Vista adaptable</p>
+                <p className="text-sm font-semibold text-muted-foreground">La misma idea cambia segun la pantalla.</p>
               </div>
-              <div className="flex rounded-full border border-slate-200 bg-white p-1 shadow-sm">
+              <div className="flex rounded-full border border-border bg-card p-1 shadow-sm">
                 {DEVICE_PRESETS.map((preset) => {
                   const Icon = deviceIcons[preset.id];
                   const isActive = preset.id === deviceMode;
@@ -325,7 +324,7 @@ export function PortafolioLedClient() {
                       onClick={() => setDeviceMode(preset.id)}
                       className={cn(
                         'flex h-10 w-10 items-center justify-center rounded-full transition sm:w-auto sm:px-4',
-                        isActive ? 'bg-red-600 text-white shadow-md shadow-red-900/20' : 'text-slate-500 hover:bg-slate-100 hover:text-slate-950',
+                        isActive ? 'bg-primary text-primary-foreground shadow-sm' : 'text-muted-foreground hover:bg-muted hover:text-foreground',
                       )}
                       title={preset.label}
                     >
@@ -337,7 +336,7 @@ export function PortafolioLedClient() {
               </div>
             </div>
 
-            <div className={cn('mx-auto rounded-[2.5rem] border border-slate-200 bg-slate-950 p-2 shadow-2xl shadow-slate-950/20', activeDevice.frameClassName)}>
+            <div className={cn('mx-auto rounded-2xl border border-border bg-card p-2 shadow-2xl', activeDevice.frameClassName)}>
               <AnimatePresence mode="wait">
                 <motion.div
                   key={deviceMode}
@@ -345,7 +344,7 @@ export function PortafolioLedClient() {
                   animate={{ opacity: 1, scale: 1 }}
                   exit={{ opacity: 0, scale: 0.98 }}
                   transition={{ duration: 0.35 }}
-                  className={cn('relative h-full w-full overflow-hidden bg-white', activeDevice.screenClassName)}
+                  className={cn('relative h-full w-full overflow-hidden bg-card', activeDevice.screenClassName)}
                 >
                   <div className="absolute inset-0">
                     <ImagePanel src={activeCatalog.heroImage} alt={activeCatalog.imageAlt} priority />
@@ -368,7 +367,7 @@ export function PortafolioLedClient() {
 
                     <div className={cn('grid gap-3', isSmallDevice ? 'grid-cols-1' : 'grid-cols-2')}>
                       {TECHNOLOGY_STEPS.slice(0, isSmallDevice ? 3 : 4).map((step) => (
-                        <div key={step.id} className="rounded-2xl border border-white/20 bg-white/10 p-3 backdrop-blur-md">
+                        <div key={step.id} className="rounded-xl border border-white/20 bg-white/10 p-3 backdrop-blur-md">
                           <p className="text-[10px] font-black uppercase tracking-[0.18em] text-white/60">{step.eyebrow}</p>
                           <p className="mt-1 text-sm font-black leading-tight">{step.title}</p>
                         </div>
@@ -378,7 +377,7 @@ export function PortafolioLedClient() {
                 </motion.div>
               </AnimatePresence>
             </div>
-            <p className="mt-3 text-center text-xs font-bold text-slate-500">{activeDevice.description}</p>
+            <p className="mt-3 text-center text-xs font-bold text-muted-foreground">{activeDevice.description}</p>
           </motion.div>
         </div>
       </section>
@@ -601,16 +600,16 @@ export function PortafolioLedClient() {
         </div>
       </section>
 
-      <section id="mapa" className="border-y border-slate-200 bg-slate-50 py-20 sm:py-24">
+      <section id="mapa" className="border-y border-border bg-muted/20 py-20 sm:py-24">
         <div className="mx-auto max-w-[1600px] px-4 sm:px-6 lg:px-10">
           <div className="mb-10 flex flex-col justify-between gap-5 lg:flex-row lg:items-end">
             <div>
               <SectionEyebrow>Mapa semantico de fiesta</SectionEyebrow>
-              <h2 className="mt-5 max-w-4xl text-3xl font-black tracking-tight text-slate-950 sm:text-5xl">
+              <h2 className="mt-5 max-w-4xl text-3xl font-black tracking-tight text-foreground sm:text-5xl">
                 Todo lo que necesita una fiesta, conectado en un solo recorrido.
               </h2>
             </div>
-            <p className="max-w-xl text-base font-medium leading-7 text-slate-600">
+            <p className="max-w-xl text-base font-medium leading-7 text-muted-foreground">
               Cada nodo se puede tocar. La idea es que el cliente no vea una lista fria, sino una experiencia completa que empieza con la invitacion y termina con recuerdos.
             </p>
           </div>
@@ -618,10 +617,10 @@ export function PortafolioLedClient() {
           <div className="grid gap-6 xl:grid-cols-[1fr_460px]">
             <div className="grid gap-5 lg:grid-cols-3">
               {phaseLabels.map((phase) => (
-                <div key={phase} className="rounded-3xl border border-slate-200 bg-white p-4 shadow-sm">
+                <div key={phase} className="rounded-xl border border-border bg-card p-4 shadow-sm">
                   <div className="mb-4 flex items-center justify-between">
-                    <h3 className="text-lg font-black text-slate-950">{phase}</h3>
-                    <span className="rounded-full bg-slate-100 px-3 py-1 text-[10px] font-black uppercase tracking-[0.14em] text-slate-500">
+                    <h3 className="text-lg font-black text-foreground">{phase}</h3>
+                    <span className="rounded-full bg-muted px-3 py-1 text-[10px] font-black uppercase tracking-[0.14em] text-muted-foreground">
                       {serviceCounts[phase]} piezas
                     </span>
                   </div>
@@ -637,8 +636,8 @@ export function PortafolioLedClient() {
                           whileTap={{ scale: 0.98 }}
                           onClick={() => setSelectedServiceId(service.id)}
                           className={cn(
-                            'group flex min-h-[86px] items-start gap-3 rounded-2xl border bg-white p-3 text-left transition',
-                            isActive ? 'border-red-500' : 'border-slate-200 hover:border-red-200 hover:bg-red-50/40',
+                            'group flex min-h-[86px] items-start gap-3 rounded-xl border bg-card p-3 text-left transition',
+                            isActive ? 'border-primary' : 'border-border hover:border-primary/40 hover:bg-muted/20',
                           )}
                           style={isActive ? selectedStyle : undefined}
                         >
@@ -646,8 +645,8 @@ export function PortafolioLedClient() {
                             <Icon className="h-5 w-5" />
                           </span>
                           <span>
-                            <span className="block text-sm font-black text-slate-950">{service.title}</span>
-                            <span className="mt-1 block text-xs font-semibold leading-5 text-slate-500">{service.tagline}</span>
+                            <span className="block text-sm font-black text-foreground">{service.title}</span>
+                            <span className="mt-1 block text-xs font-semibold leading-5 text-muted-foreground">{service.tagline}</span>
                           </span>
                         </motion.button>
                       );
@@ -665,7 +664,7 @@ export function PortafolioLedClient() {
                   animate={{ opacity: 1, y: 0 }}
                   exit={{ opacity: 0, y: -16 }}
                   transition={{ duration: 0.3 }}
-                  className="overflow-hidden rounded-3xl border border-slate-200 bg-white shadow-xl shadow-slate-950/10"
+                  className="overflow-hidden rounded-xl border border-border bg-card shadow-sm"
                 >
                   <div className="relative aspect-[4/3] overflow-hidden">
                     <ImagePanel src={selectedService.imageUrl} alt={selectedService.title} />
@@ -676,12 +675,12 @@ export function PortafolioLedClient() {
                     </div>
                   </div>
                   <div className="p-6">
-                    <p className="text-lg font-black leading-7 text-slate-950">{selectedService.tagline}</p>
-                    <p className="mt-3 text-sm font-medium leading-7 text-slate-600">{selectedService.details}</p>
+                    <p className="text-lg font-black leading-7 text-foreground">{selectedService.tagline}</p>
+                    <p className="mt-3 text-sm font-medium leading-7 text-muted-foreground">{selectedService.details}</p>
                     <div className="mt-5 flex flex-wrap gap-2">
-                      <span className="rounded-full bg-slate-100 px-3 py-1 text-[10px] font-black uppercase tracking-[0.14em] text-slate-500">{selectedService.phase}</span>
-                      <span className="rounded-full bg-red-50 px-3 py-1 text-[10px] font-black uppercase tracking-[0.14em] text-red-700">Conectado</span>
-                      <span className="rounded-full bg-white px-3 py-1 text-[10px] font-black uppercase tracking-[0.14em] text-slate-500 ring-1 ring-slate-200">Adaptable</span>
+                      <span className="rounded-full bg-muted px-3 py-1 text-[10px] font-black uppercase tracking-[0.14em] text-muted-foreground">{selectedService.phase}</span>
+                      <span className="rounded-full bg-primary/10 px-3 py-1 text-[10px] font-black uppercase tracking-[0.14em] text-primary">Conectado</span>
+                      <span className="rounded-full bg-card px-3 py-1 text-[10px] font-black uppercase tracking-[0.14em] text-muted-foreground border border-border">Adaptable</span>
                     </div>
                   </div>
                 </motion.div>
@@ -691,17 +690,16 @@ export function PortafolioLedClient() {
         </div>
       </section>
 
-      <section id="vendedor" className="relative overflow-hidden bg-white py-20 sm:py-24">
-        <div className="absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-red-200 to-transparent" />
+      <section id="vendedor" className="relative overflow-hidden bg-background py-20 sm:py-24">
         <div className="mx-auto max-w-[1600px] px-4 sm:px-6 lg:px-10">
           <div className="grid gap-8 lg:grid-cols-[0.86fr_1.14fr] lg:items-end">
             <div>
               <SectionEyebrow>Vendedor de tecnologia</SectionEyebrow>
-              <h2 className="mt-5 max-w-4xl text-3xl font-black tracking-tight text-slate-950 sm:text-5xl xl:text-6xl">
+              <h2 className="mt-5 max-w-4xl text-3xl font-black tracking-tight text-foreground sm:text-5xl xl:text-6xl">
                 La pantalla LED no vende una lista: vende una experiencia AK por paquetes.
               </h2>
             </div>
-            <p className="max-w-2xl text-base font-medium leading-8 text-slate-600 sm:text-lg">
+            <p className="max-w-2xl text-base font-medium leading-8 text-muted-foreground sm:text-lg">
               El recorrido recomendado es simple: primero se muestra el wow visual, despues el mapa completo de la fiesta,
               luego la tecnologia como producto y al final se cierra con lo elegido para presupuesto o reunion.
             </p>
@@ -715,28 +713,28 @@ export function PortafolioLedClient() {
                 whileInView={{ opacity: 1, y: 0 }}
                 viewport={{ once: true, amount: 0.2 }}
                 transition={{ duration: 0.35, delay: index * 0.04 }}
-                className="rounded-[2rem] border border-slate-200 bg-slate-50 p-5 shadow-sm"
+                className="rounded-xl border border-border bg-card p-5 shadow-sm"
               >
-                <div className="flex h-12 w-12 items-center justify-center rounded-2xl text-lg font-black text-white" style={{ backgroundColor: step.accent }}>
+                <div className="flex h-12 w-12 items-center justify-center rounded-xl text-lg font-black text-white" style={{ backgroundColor: step.accent }}>
                   {index + 1}
                 </div>
-                <h3 className="mt-5 text-xl font-black leading-tight text-slate-950">{step.title}</h3>
-                <p className="mt-3 text-sm font-semibold leading-6 text-slate-600">{step.goal}</p>
-                <div className="mt-5 rounded-2xl bg-white p-4 ring-1 ring-slate-200">
-                  <p className="text-[10px] font-black uppercase tracking-[0.18em] text-slate-400">Como mostrarlo</p>
-                  <p className="mt-2 text-sm font-bold leading-6 text-slate-700">{step.howToShow}</p>
+                <h3 className="mt-5 text-xl font-black leading-tight text-foreground">{step.title}</h3>
+                <p className="mt-3 text-sm font-semibold leading-6 text-muted-foreground">{step.goal}</p>
+                <div className="mt-5 rounded-xl bg-muted/30 p-4 border border-border">
+                  <p className="text-[10px] font-black uppercase tracking-[0.18em] text-muted-foreground">Como mostrarlo</p>
+                  <p className="mt-2 text-sm font-bold leading-6 text-foreground">{step.howToShow}</p>
                 </div>
-                <p className="mt-4 text-xs font-bold leading-5 text-slate-500">{step.proof}</p>
+                <p className="mt-4 text-xs font-bold leading-5 text-muted-foreground">{step.proof}</p>
               </motion.article>
             ))}
           </div>
 
-          <div className="mt-12 rounded-[2.5rem] border border-slate-200 bg-slate-950 p-5 text-white shadow-2xl shadow-slate-950/20 sm:p-7">
+          <div className="mt-12 rounded-xl border border-border bg-card p-5 text-foreground shadow-sm sm:p-7">
             <div className="grid gap-6 lg:grid-cols-[380px_1fr]">
               <div>
-                <p className="text-xs font-black uppercase tracking-[0.24em] text-red-200">Que se vende</p>
-                <h3 className="mt-4 text-3xl font-black leading-none sm:text-4xl">Paquetes de tecnologia activables</h3>
-                <p className="mt-4 text-sm font-medium leading-7 text-white/65">
+                <p className="text-xs font-black uppercase tracking-[0.24em] text-primary">Que se vende</p>
+                <h3 className="mt-4 text-3xl font-black leading-none sm:text-4xl text-foreground">Paquetes de tecnologia activables</h3>
+                <p className="mt-4 text-sm font-medium leading-7 text-muted-foreground">
                   Esto evita prometer cosas sueltas. Si una fiesta no contrato fotocabina, 360 o barra tecnologica,
                   el vendedor lo apaga del paquete y la pantalla conserva una historia coherente.
                 </p>
@@ -747,18 +745,18 @@ export function PortafolioLedClient() {
                   <motion.article
                     key={pack.id}
                     whileHover={{ y: -4 }}
-                    className="rounded-[1.75rem] border border-white/10 bg-white/10 p-5 backdrop-blur"
+                    className="rounded-xl border border-border bg-muted/20 p-5 shadow-sm"
                     style={{ boxShadow: `0 20px 60px ${colorWithAlpha(pack.accent, 0.12)}` }}
                   >
                     <span className="inline-flex rounded-full px-3 py-1 text-[10px] font-black uppercase tracking-[0.16em] text-white" style={{ backgroundColor: pack.accent }}>
                       Producto
                     </span>
-                    <h4 className="mt-4 text-xl font-black leading-tight">{pack.title}</h4>
-                    <p className="mt-2 text-sm font-bold leading-6 text-red-100">{pack.sellAs}</p>
-                    <p className="mt-3 text-sm font-medium leading-6 text-white/62">{pack.clientValue}</p>
+                    <h4 className="mt-4 text-xl font-black leading-tight text-foreground">{pack.title}</h4>
+                    <p className="mt-2 text-sm font-bold leading-6 text-primary">{pack.sellAs}</p>
+                    <p className="mt-3 text-sm font-medium leading-6 text-muted-foreground">{pack.clientValue}</p>
                     <div className="mt-4 flex flex-wrap gap-2">
                       {pack.includes.map((item) => (
-                        <span key={item} className="rounded-full border border-white/10 bg-white/10 px-2.5 py-1 text-[10px] font-black uppercase tracking-[0.12em] text-white/70">
+                        <span key={item} className="rounded-full border border-border bg-card px-2.5 py-1 text-[10px] font-black uppercase tracking-[0.12em] text-foreground">
                           {item}
                         </span>
                       ))}
@@ -771,54 +769,54 @@ export function PortafolioLedClient() {
         </div>
       </section>
 
-      <section id="experiencia" className="bg-white py-20 sm:py-24">
+      <section id="experiencia" className="bg-muted/10 py-20 sm:py-24">
         <div className="mx-auto max-w-[1600px] px-4 sm:px-6 lg:px-10">
           <div className="grid gap-10 lg:grid-cols-[420px_1fr]">
             <div>
               <SectionEyebrow>Bosquejo personalizado</SectionEyebrow>
-              <h2 className="mt-5 text-3xl font-black tracking-tight text-slate-950 sm:text-5xl">
+              <h2 className="mt-5 text-3xl font-black tracking-tight text-foreground sm:text-5xl">
                 Asi vive el cliente la tecnologia de AK.
               </h2>
-              <p className="mt-5 text-base font-medium leading-7 text-slate-600">
+              <p className="mt-5 text-base font-medium leading-7 text-muted-foreground">
                 Cambias los datos de ejemplo y la pantalla muestra un recorrido de la experiencia: invitacion, portal del cliente, invitados, muro social, LED y cierre post fiesta.
               </p>
 
-              <div className="mt-7 grid gap-3 rounded-3xl border border-slate-200 bg-slate-50 p-4">
-                <label className="grid gap-1 text-xs font-black uppercase tracking-[0.14em] text-slate-500">
+              <div className="mt-7 grid gap-3 rounded-xl border border-border bg-card p-4 shadow-sm">
+                <label className="grid gap-1 text-xs font-black uppercase tracking-[0.14em] text-muted-foreground">
                   Tipo de fiesta
                   <input
                     value={demo.tipo}
                     onChange={(event) => setDemo((current) => ({ ...current, tipo: event.target.value }))}
-                    className="h-12 rounded-2xl border border-slate-200 bg-white px-4 text-sm font-bold normal-case tracking-normal text-slate-950 outline-none transition focus:border-red-400 focus:ring-4 focus:ring-red-100"
+                    className="h-11 rounded-lg border border-border bg-muted/20 px-4 text-sm font-bold normal-case tracking-normal text-foreground outline-none transition focus:border-primary"
                   />
                 </label>
-                <label className="grid gap-1 text-xs font-black uppercase tracking-[0.14em] text-slate-500">
+                <label className="grid gap-1 text-xs font-black uppercase tracking-[0.14em] text-muted-foreground">
                   Nombre protagonista
                   <input
                     value={demo.protagonista}
                     onChange={(event) => setDemo((current) => ({ ...current, protagonista: event.target.value }))}
-                    className="h-12 rounded-2xl border border-slate-200 bg-white px-4 text-sm font-bold normal-case tracking-normal text-slate-950 outline-none transition focus:border-red-400 focus:ring-4 focus:ring-red-100"
+                    className="h-11 rounded-lg border border-border bg-muted/20 px-4 text-sm font-bold normal-case tracking-normal text-foreground outline-none transition focus:border-primary"
                   />
                 </label>
                 <div className="grid gap-3 sm:grid-cols-2">
-                  <label className="grid gap-1 text-xs font-black uppercase tracking-[0.14em] text-slate-500">
+                  <label className="grid gap-1 text-xs font-black uppercase tracking-[0.14em] text-muted-foreground">
                     Fecha
                     <input
                       value={demo.fecha}
                       onChange={(event) => setDemo((current) => ({ ...current, fecha: event.target.value }))}
-                      className="h-12 rounded-2xl border border-slate-200 bg-white px-4 text-sm font-bold normal-case tracking-normal text-slate-950 outline-none transition focus:border-red-400 focus:ring-4 focus:ring-red-100"
+                      className="h-11 rounded-lg border border-border bg-muted/20 px-4 text-sm font-bold normal-case tracking-normal text-foreground outline-none transition focus:border-primary"
                     />
                   </label>
-                  <label className="grid gap-1 text-xs font-black uppercase tracking-[0.14em] text-slate-500">
+                  <label className="grid gap-1 text-xs font-black uppercase tracking-[0.14em] text-muted-foreground">
                     Invitados
                     <input
                       value={demo.invitados}
                       onChange={(event) => setDemo((current) => ({ ...current, invitados: event.target.value }))}
-                      className="h-12 rounded-2xl border border-slate-200 bg-white px-4 text-sm font-bold normal-case tracking-normal text-slate-950 outline-none transition focus:border-red-400 focus:ring-4 focus:ring-red-100"
+                      className="h-11 rounded-lg border border-border bg-muted/20 px-4 text-sm font-bold normal-case tracking-normal text-foreground outline-none transition focus:border-primary"
                     />
                   </label>
                 </div>
-                <label className="grid gap-1 text-xs font-black uppercase tracking-[0.14em] text-slate-500">
+                <label className="grid gap-1 text-xs font-black uppercase tracking-[0.14em] text-muted-foreground">
                   Celular del prospecto
                   <input
                     value={demo.telefono}
@@ -828,19 +826,19 @@ export function PortafolioLedClient() {
                     }))}
                     inputMode="numeric"
                     placeholder="099123456"
-                    className="h-12 rounded-2xl border border-slate-200 bg-white px-4 text-sm font-bold normal-case tracking-normal text-slate-950 outline-none transition focus:border-red-400 focus:ring-4 focus:ring-red-100"
+                    className="h-11 rounded-lg border border-border bg-muted/20 px-4 text-sm font-bold normal-case tracking-normal text-foreground outline-none transition focus:border-primary"
                   />
                 </label>
                 <button
                   type="button"
                   onClick={handleSaveLeadAndContinue}
                   disabled={isSavingLead}
-                  className="inline-flex min-h-14 items-center justify-center gap-3 rounded-2xl bg-red-600 px-5 text-sm font-black uppercase tracking-widest text-white transition hover:bg-red-700 disabled:opacity-60"
+                  className="inline-flex min-h-12 items-center justify-center gap-3 rounded-lg bg-primary px-5 text-sm font-black uppercase tracking-widest text-primary-foreground transition hover:bg-primary/90 disabled:opacity-60"
                 >
                   {isSavingLead ? <Loader2 className="h-5 w-5 animate-spin" /> : <Calculator className="h-5 w-5" />}
                   Guardar y presupuestar
                 </button>
-                {leadError && <p className="text-sm font-bold text-red-700">{leadError}</p>}
+                {leadError && <p className="text-sm font-bold text-destructive">{leadError}</p>}
               </div>
             </div>
 
@@ -858,8 +856,8 @@ export function PortafolioLedClient() {
                       transition={{ duration: 0.35, delay: index * 0.04 }}
                       onClick={() => setActiveStepId(step.id)}
                       className={cn(
-                        'overflow-hidden rounded-3xl border bg-white text-left shadow-sm transition',
-                        isActive ? 'border-red-500 shadow-xl shadow-red-900/10' : 'border-slate-200 hover:border-red-200 hover:shadow-lg hover:shadow-slate-950/10',
+                        'overflow-hidden rounded-xl border bg-card text-left shadow-sm transition',
+                        isActive ? 'border-primary' : 'border-border hover:border-primary/40',
                       )}
                     >
                       <div className="relative aspect-[16/10] overflow-hidden">
@@ -871,7 +869,7 @@ export function PortafolioLedClient() {
                         </div>
                       </div>
                       <div className="p-4">
-                        <p className="text-sm font-semibold leading-6 text-slate-600">{step.description}</p>
+                        <p className="text-sm font-semibold leading-6 text-muted-foreground">{step.description}</p>
                       </div>
                     </motion.button>
                   );
@@ -885,30 +883,30 @@ export function PortafolioLedClient() {
                   animate={{ opacity: 1, x: 0 }}
                   exit={{ opacity: 0, x: -18 }}
                   transition={{ duration: 0.32 }}
-                  className="overflow-hidden rounded-[2rem] border border-slate-200 bg-slate-950 text-white shadow-2xl shadow-slate-950/20"
+                  className="overflow-hidden rounded-xl border border-border bg-card text-foreground shadow-sm"
                 >
                   <div className="relative aspect-[9/13] overflow-hidden">
                     <ImagePanel src={activeStep.imageUrl} alt={activeStep.title} />
                     <div className="absolute inset-0 bg-[linear-gradient(180deg,rgba(15,23,42,0.18)_0%,rgba(15,23,42,0.88)_100%)]" />
                     <div className="absolute inset-x-5 top-5 flex items-center justify-between">
-                      <span className="rounded-full bg-white/10 px-3 py-1.5 text-[10px] font-black uppercase tracking-[0.18em] backdrop-blur">Vista cliente</span>
-                      <Heart className="h-5 w-5 text-red-300" />
+                      <span className="rounded-full bg-white/10 px-3 py-1.5 text-[10px] font-black uppercase tracking-[0.18em] backdrop-blur text-white">Vista cliente</span>
+                      <Heart className="h-5 w-5 text-primary" />
                     </div>
-                    <div className="absolute inset-x-5 bottom-5">
+                    <div className="absolute inset-x-5 bottom-5 text-white">
                       <p className="text-[10px] font-black uppercase tracking-[0.22em] text-white/60">{activeStep.eyebrow}</p>
                       <h3 className="mt-2 text-4xl font-black leading-none">{eventType}</h3>
-                      <p className="mt-2 text-xl font-black text-red-200">{protagonist}</p>
+                      <p className="mt-2 text-xl font-black text-primary-foreground">{protagonist}</p>
                       <div className="mt-5 grid grid-cols-2 gap-2">
-                        <div className="rounded-2xl bg-white/10 p-3 backdrop-blur">
-                          <Clock className="h-4 w-4 text-red-200" />
+                        <div className="rounded-xl bg-white/10 p-3 backdrop-blur">
+                          <Clock className="h-4 w-4 text-white" />
                           <p className="mt-2 text-xs font-black">{eventDate}</p>
                         </div>
-                        <div className="rounded-2xl bg-white/10 p-3 backdrop-blur">
-                          <Users className="h-4 w-4 text-red-200" />
+                        <div className="rounded-xl bg-white/10 p-3 backdrop-blur">
+                          <Users className="h-4 w-4 text-white" />
                           <p className="mt-2 text-xs font-black">{guestCount} invitados</p>
                         </div>
                       </div>
-                      <p className="mt-5 text-sm font-medium leading-6 text-white/70">{activeStep.description}</p>
+                      <p className="mt-5 text-sm font-medium leading-6 text-white/80">{activeStep.description}</p>
                     </div>
                   </div>
                 </motion.aside>
@@ -918,19 +916,19 @@ export function PortafolioLedClient() {
         </div>
       </section>
 
-      <section id="invitaciones" className="bg-slate-950 py-20 text-white sm:py-24">
+      <section id="invitaciones" className="bg-card border-t border-border py-20 text-foreground sm:py-24">
         <div className="mx-auto max-w-[1600px] px-4 sm:px-6 lg:px-10">
           <div className="mb-10 flex flex-col justify-between gap-5 lg:flex-row lg:items-end">
             <div>
-              <span className="inline-flex items-center gap-2 rounded-full border border-white/10 bg-white/10 px-4 py-2 text-[11px] font-black uppercase tracking-[0.22em] text-red-200">
+              <span className="inline-flex items-center gap-2 rounded-full border border-primary/20 bg-primary/10 px-4 py-2 text-[11px] font-black uppercase tracking-[0.22em] text-primary">
                 <ImagePlus className="h-3.5 w-3.5" />
                 Invitaciones con fotos de ejemplo
               </span>
-              <h2 className="mt-5 max-w-4xl text-3xl font-black tracking-tight sm:text-5xl">
+              <h2 className="mt-5 max-w-4xl text-3xl font-black tracking-tight text-foreground sm:text-5xl">
                 Plantillas listas para vender la idea y despues reemplazar las fotos.
               </h2>
             </div>
-            <p className="max-w-xl text-base font-medium leading-7 text-white/70">
+            <p className="max-w-xl text-base font-medium leading-7 text-muted-foreground">
               Cada modelo ya muestra estilo, portada, tono y experiencia. Cuando tengas fotos reales, se sustituyen sin cambiar la estructura.
             </p>
           </div>
@@ -943,25 +941,25 @@ export function PortafolioLedClient() {
                 whileInView={{ opacity: 1, y: 0 }}
                 viewport={{ once: true, amount: 0.2 }}
                 transition={{ duration: 0.4, delay: index * 0.06 }}
-                className="group overflow-hidden rounded-[2rem] border border-white/10 bg-white/10 shadow-2xl shadow-black/20"
+                className="group overflow-hidden rounded-xl border border-border bg-card shadow-sm"
               >
                 <div className="relative aspect-[4/5] overflow-hidden">
                   <ImagePanel src={template.imageUrl} alt={template.title} className="transition duration-700 group-hover:scale-105" />
                   <div className="absolute inset-0 bg-[linear-gradient(180deg,rgba(15,23,42,0.02)_0%,rgba(15,23,42,0.72)_100%)]" />
                   <div className="absolute left-4 right-4 top-4 flex items-center justify-between">
-                    <span className="rounded-full bg-white/20 px-3 py-1.5 text-[10px] font-black uppercase tracking-[0.18em] backdrop-blur">Demo</span>
+                    <span className="rounded-full bg-white/20 px-3 py-1.5 text-[10px] font-black uppercase tracking-[0.18em] backdrop-blur text-white">Demo</span>
                     <Star className="h-5 w-5" style={{ color: template.accent }} />
                   </div>
-                  <div className="absolute bottom-4 left-4 right-4">
+                  <div className="absolute bottom-4 left-4 right-4 text-white">
                     <h3 className="text-3xl font-black leading-none">{template.title}</h3>
                     <p className="mt-2 text-sm font-bold text-white/80">{template.mood}</p>
                   </div>
                 </div>
                 <div className="p-5">
-                  <p className="text-sm font-medium leading-6 text-white/70">{template.description}</p>
-                  <div className="mt-5 flex items-center justify-between rounded-2xl border border-white/10 bg-white/10 p-3">
-                    <span className="text-[10px] font-black uppercase tracking-[0.18em] text-white/50">Foto reemplazable</span>
-                    <Wand2 className="h-4 w-4 text-red-200" />
+                  <p className="text-sm font-medium leading-6 text-muted-foreground">{template.description}</p>
+                  <div className="mt-5 flex items-center justify-between rounded-xl border border-border bg-muted/20 p-3">
+                    <span className="text-[10px] font-black uppercase tracking-[0.18em] text-muted-foreground">Foto reemplazable</span>
+                    <Wand2 className="h-4 w-4 text-primary" />
                   </div>
                 </div>
               </motion.article>

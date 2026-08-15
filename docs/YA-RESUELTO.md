@@ -47,8 +47,12 @@ anotado, la próxima auditoría lo va a volver a encontrar.
 - **Rechazar exige motivo también en el servidor (15 de agosto de 2026).** La pantalla ya lo pedía, pero la acción aceptaba un motivo vacío si se la llamaba de otro lado. Quedaba un cambio rechazado sin explicación.
 - **Gestión de Promociones — Fechas Obligatorias (15 de agosto de 2026):**
   - **Validación estricta (`promos.ts` y `settings/promos`):** No se permite guardar ninguna promoción sin `fechaInicio` o sin `fechaFin`, ni con fecha de fin anterior a la de inicio. Previene que queden promociones activas con countdown roto o indefinido en la landing page.
-- **Colores del Tema y Escala Visual — Ajustes y Gestión:**
-  - Recorridas y adaptadas pantallas de Ajustes (`settings/promos`, `settings/catalogo-servicios`, `settings/feature-flags`, `settings/account`, `settings/cupones`) pasando colores hardcoded a tokens semánticos del tema (`text-foreground`, `text-primary`, `text-muted-foreground`, `bg-card`, `bg-muted/40`, `border-border`) y fijando la escala `rounded-xl` para tarjetas y `rounded-lg` para campos/botones.
+- **Colores del Tema y Escala Visual — Ajustes, Pantallas Principales y Alertas (15 de agosto de 2026):**
+  - Recorridas y adaptadas pantallas de Ajustes (`settings/promos`, `settings/catalogo-servicios`, `settings/feature-flags`, `settings/account`, `settings/cupones`), Centro de Alertas (`alertas/page.tsx`) y pantallas principales cliente/invitados (`simulador-de-presupuesto`, `portal/c/[accessKey]`, `portal-cliente/[id]`, `evento/buzon/[fiestaId]`, `presentacion-led/portafolio`, `portal-cliente/[id]/muro-social`, `simulador-ak`) pasando colores hardcoded a tokens semánticos del tema (`text-foreground`, `text-primary`, `text-muted-foreground`, `bg-card`, `bg-background`, `bg-muted/40`, `border-border`) y fijando la escala `rounded-xl` para tarjetas y `rounded-lg` para campos/botones.
+- **Refuerzos de Seguridad y Sincronización en Server Actions (15 de agosto de 2026):**
+  - `deleteAllVideoVidaPhotos` exige `requireAppSession()` antes de purgar archivos en Firebase Storage.
+  - `updateConfiguracion` utiliza `saveFiesta` para validar acceso de escritura (`requireFiestaWriteAccess`) y preservar secretos del evento.
+  - `updateAppointment` sincroniza automáticamente con Google Workspace ante modificaciones de fecha/hora o datos del cliente.
 - **En `src/app/actions/simulador-copilot.ts` el `z` se importa de `genkit`, no de `zod` (15 de agosto de 2026).** Vino cambiado a `zod` en una entrega, sin relación con lo que se había pedido, y se descartó al fusionar. Todo el resto del proyecto lo importa de `genkit`: ese `z` es el que espera `ai.definePrompt` para registrar el esquema, y el cambio compila igual pero puede fallar recién al usarlo. Si vuelve a aparecer, quedarse con la versión de `main`.
 
 - **Comida: números negativos y platos sin ingredientes (15 de agosto de 2026).** Cuatro cosas de la misma tanda:
