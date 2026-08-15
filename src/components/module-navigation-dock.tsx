@@ -34,7 +34,19 @@ export function ModuleNavigationDock() {
     <nav
       className={cn(
         'fixed left-3 z-40 flex items-center gap-2 rounded-full border border-slate-200 bg-white/92 p-1.5 shadow-lg shadow-slate-900/10 backdrop-blur print:hidden',
-        isPublicPath ? 'top-3' : 'bottom-4 sm:bottom-auto sm:top-20',
+        // Abajo, y en escritorio corrido para pasar la barra lateral.
+        //
+        // Arriba se montaba encima del contenido: en el celular tapaba el
+        // título de la pantalla, y en escritorio quedaba sobre el recuadro del
+        // logo. Bajarlo no alcanzaba: abajo a la izquierda tapaba "Alertas" en
+        // el menú. La barra lateral mide 16rem y aparece a partir de 768px
+        // (`md`), así que desde ahí el botón arranca en 17rem y queda dentro
+        // del área de contenido, sin pisar nada. El botón del asistente vive
+        // abajo a la derecha, así que tampoco se chocan.
+        //
+        // En las pantallas públicas no hay barra lateral y arriba funciona
+        // bien: ahí se deja como estaba.
+        isPublicPath ? 'top-3' : 'bottom-4 md:left-[17rem]',
       )}
       aria-label="Navegacion del modulo"
     >

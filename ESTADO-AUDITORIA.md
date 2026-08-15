@@ -463,3 +463,28 @@ Lo que dejó la app sin poder publicarse **no fue mala suerte**: se fusionó
 trabajo de varios asistentes sin que nadie compilara después. Un solo filtro
 —confirmar que `npm run build` pasa antes de fusionar— evita la mayoría de estos
 episodios.
+
+---
+
+## 16 de agosto de 2026 — Las once mejoras, y la estética mirada de verdad
+
+Se entregaron y fusionaron las once mejoras de la propuesta: la fotocabina, la
+galería y el muro ofrecen el presupuesto con la marca de la fiesta; pantalla de
+qué fiesta trajo clientes; álbum público; ranking de la noche; mensajes a futuro;
+pedidos de música; pedido por proveedor; posteos automáticos; y el párrafo que
+explica el presupuesto.
+
+**La estética se revisó fotografiando las 242 pantallas**, en escritorio y en
+celular, y mirándolas. Es la primera vez que se hace así: hasta ahora las pruebas
+controlaban que las pantallas funcionaran, no que se vieran bien. Salieron ocho
+arreglos. El pase de fotos quedó en `tests/e2e/fotos-de-la-app.spec.ts`, se corre
+con `AK_FOTOS=true`.
+
+**Tres cosas que se evitaron por verificar antes de pedir:** la atribución por
+fiesta ya existía, los avisos preventivos del evento ya existían (once reglas), y
+el pedido de reseña en Google ya andaba.
+
+**Lo que costó:** Gemini entregó en tres propuestas donde la orden pedía una, y
+dos de ellas arreglaron la galería vacía de maneras distintas: al juntarlas el
+archivo no compilaba. Es el caso exacto que la regla de una sola propuesta busca
+evitar, y quedó documentado en `docs/YA-RESUELTO.md`.

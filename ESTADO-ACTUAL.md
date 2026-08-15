@@ -7,81 +7,41 @@ Quien cierre una sesión reescribe este archivo. Se pisa, no se acumula.
 
 ---
 
-**Última actualización:** 15 de agosto de 2026, cierre.
+**Última actualización:** 16 de agosto de 2026, cierre.
 **Rama:** todo fusionado en `main`.
-**Estado:** compila, 1612 pruebas en verde, sin acentos rotos.
-**Propuestas abiertas:** ninguna.
-**Orden vigente para Gemini:** `docs/ordenes/ahora.md`, las ocho pantallas del
-cliente con más colores escritos a mano.
+**Estado:** compila, 1627 pruebas en verde, sin acentos rotos.
+**Propuestas abiertas:** ninguna. **Órdenes pendientes:** ninguna.
 
-## Lo hecho en esta tanda
+## Qué se hizo en esta tanda
 
-- **Pantallas de la noche:** impresión, presentación y tótem ya avisan de verdad
-  cuando se corta internet, en vez de mostrar información vieja como si nada.
-- **Tres pantallas escondidas ahora están en el menú:** incidentes, guías de
-  armado y cambios a aprobar. Funcionaban pero no había botón que llevara ahí.
-- **La seña ya no se asienta siempre como efectivo.** El cierre de contratación
-  pedía el monto pero no cómo había entrado la plata: una transferencia figuraba
-  como plata en mano, también en la factura. Ahora pregunta, y no deja cerrar sin
-  el dato.
-- **Una solicitud de cambio se decide una sola vez**, con turnos de guardado para
-  que dos personas no se pisen, y rechazar exige motivo.
-- **Promociones:** no se pueden guardar sin fecha de inicio y de fin.
-- **Colores del tema:** hechas las pantallas de Ajustes. Falta el resto.
+**Las once mejoras están andando.** La fotocabina, la galería y el muro le
+ofrecen el presupuesto al invitado con la marca de esa fiesta; hay pantalla de
+qué fiesta trajo clientes; álbum público que el cliente reparte; ranking de la
+noche; mensajes para abrir dentro de años; pedidos de música al DJ; pedido por
+proveedor listo para WhatsApp; posteos automáticos desde las fotos; y el párrafo
+que explica el presupuesto.
 
-## Probada en un navegador de verdad, entera
+**La estética se revisó mirando las 242 pantallas**, en computadora y en celular,
+no leyendo código. Salieron limpias las pantallas de la noche y las de
+configuración. Se arreglaron ocho cosas: el globo blanco del logo, el botón que
+tapaba el nombre de la empresa, "Faltan 0 días", la jerga de las estaciones, la
+frase repetida de la presentación, los avisos del ingreso, los asteriscos crudos
+del planificador y el botón flotante.
 
-**94 recorridos en Chrome contra el servidor compilado, en escritorio y en
-celular: todos pasan.** Desde la invitación pública y el simulador de
-presupuesto hasta las pantallas de la noche, el muro, el portal del cliente y
-las internas del equipo.
+## Lo que costó y no hay que repetir
 
-Tres habían fallado y **ninguna era culpa de la app**:
+- **Gemini mandó tres propuestas y la orden pedía una.** Al juntarlas, **dos
+  habían arreglado la galería vacía cada una por su lado** y el archivo quedó
+  roto. Por separado las dos pasaban los controles. Se reparó a mano.
+- **El botón flotante llevó tres intentos.** Arriba tapaba el título y el logo;
+  abajo a la izquierda tapaba "Alertas". Quedó abajo, corrido pasando la barra
+  lateral. **Verificado con foto, no por deducción.**
 
-- Dos pruebas se peleaban por la misma fecha: la de la noche crea una fiesta de
-  mentira a un año justo y la del simulador elegía ese mismo día. El simulador
-  la marcaba ocupada, que es lo correcto porque lo estaba. Se separaron.
-- La huella de las pantallas cambió porque el menú tiene tres botones nuevos y
-  uno repetido menos. Se actualizó la referencia.
+## Lo próximo, si nadie dice otra cosa
 
-**Ojo con cómo se corre:** `npm run test:e2e:production`, nunca `npx playwright
-test` a secas. El segundo levanta el servidor de desarrollo y da fallas falsas;
-ya pasó en esta sesión y costó una corrida entera.
+**Nada.** No hay errores conocidos ni trabajo abierto. Quedan cuatro funciones
+que nunca existieron, anotadas en `docs/ordenes/propuesta-de-mejoras.md`: son
+decisión comercial del dueño, no deudas.
 
-## Lo revisado en el cierre
-
-Se auditaron las pantallas del cliente e invitado, las internas del equipo y
-toda el área de comida. **Las del cliente salieron limpias.** De comida salieron
-cinco arreglos, ya hechos: no se guardan cantidades ni costos negativos, la
-lista de compras avisa si un plato contratado no tiene ingredientes cargados, y
-una cantidad en cero ya no compra una unidad igual.
-
-## Lo que falta
-
-**Nada.** El pasaje de colores al tema, que era lo último que quedaba, **se
-descartó**: la app no tiene modo oscuro —está preparada por dentro pero no hay
-interruptor y nunca se activa—, así que cambiar 354 archivos no se vería
-distinto en pantalla. Está explicado en `docs/YA-RESUELTO.md`.
-
-**No hay órdenes vigentes para Gemini.** `docs/ordenes/` quedó sin trabajo
-pendiente.
-Lo único abierto son **cuatro cosas que nunca existieron**, y es decisión
-comercial del dueño si valen la pena: armar presupuesto desde el chat del
-asistente, mails masivos, un formulario de contacto aparte del simulador, y
-traer reseñas de Google. No son deudas ni arreglos: son funciones nuevas.
-
-No hay errores conocidos sin resolver. Plata, cobros y permisos quedaron
-auditados sin hallazgos: no hace falta volver a mirar esa área.
-
-## Ojo con esto, ya pasó
-
-- Al fusionar una rama que toque `fotografia` o `catering`, **quedate siempre con
-  `verifyAccesoPersonalToken`**.
-- **Una rama hecha sobre una base vieja borra trabajo nuevo sin que se note.**
-  Compará contra `main` de hoy, no contra el de cuando se creó.
-- Un archivo `'use server'` **sólo puede exportar funciones asíncronas**. Hay una
-  prueba que lo controla y ya frenó dos entregas.
-- `public/firebase-messaging-sw.js` **no se commitea**: se genera al compilar.
-- **Revisá que la entrega no traiga cambios sueltos fuera de lo pedido.** En dos
-  entregas seguidas vinieron colados; el último tocaba el asistente del simulador
-  y compilaba igual, pero podía fallar recién al usarlo.
+**Regla que manda:** la app está terminada. No se lanzan auditorías "a ver qué
+aparece". Se toca lo que el dueño pide o lo que se rompe en una fiesta real.
