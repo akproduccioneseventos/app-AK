@@ -1,3 +1,30 @@
+# DESCARTADA — no se hace
+
+**Decisión del 15 de agosto de 2026.** Esta orden pedía pasar los colores
+escritos a mano a los colores del tema, en 354 archivos y unas 7.200 apariciones.
+
+**Se descartó al verificar que la aplicación no tiene modo oscuro.** Está
+preparada por dentro (`darkMode: ['class']` en la configuración y un bloque
+`.dark` en los estilos), pero **no hay ningún componente que encienda ese modo
+ni interruptor en ninguna pantalla**: la clase `dark` no se aplica nunca. De
+cientos de pantallas, sólo 7 tienen algo escrito para modo oscuro.
+
+Para eso servía el pasaje. Sin modo oscuro:
+
+- El cambio **no se ve distinto en pantalla**. Ni un pixel para el cliente.
+- Son 7.200 modificaciones a mano sobre pantallas que ya funcionan y ya se
+  revisaron a ojo.
+- Cada una puede romper algo que hoy está sano.
+
+**Si algún día se quiere modo oscuro de verdad**, el orden correcto es al revés:
+primero el interruptor y el proveedor de tema, después migrar sólo las pantallas
+que se vayan a usar en oscuro, y probando cada una. Migrar 354 archivos antes de
+tener el interruptor es pagar por trabajo que nadie ve.
+
+Lo que sigue es la orden original, guardada como referencia.
+
+---
+
 # Lo que hay que hacer ahora
 
 **Para:** Gemini (Antigravity)
