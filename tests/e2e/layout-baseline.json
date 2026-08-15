@@ -10,7 +10,7 @@
     "mainX": 257,
     "mainW": 1023,
     "botones": 16,
-    "enlaces": 51,
+    "enlaces": 53,
     "colores": 2034977308
   },
   "chromium-desktop /customers": {
@@ -24,7 +24,7 @@
     "mainX": 257,
     "mainW": 1023,
     "botones": 9,
-    "enlaces": 29,
+    "enlaces": 31,
     "colores": 2034977308
   },
   "chromium-desktop /presupuestos": {
@@ -38,7 +38,7 @@
     "mainX": 257,
     "mainW": 1023,
     "botones": 16,
-    "enlaces": 29,
+    "enlaces": 31,
     "colores": 2034977308
   },
   "chromium-desktop /": {
@@ -108,7 +108,7 @@
     "mainX": 257,
     "mainW": 1023,
     "botones": 8,
-    "enlaces": 25,
+    "enlaces": 27,
     "colores": 2034977308
   },
   "chromium-desktop /contabilidad/comercial-360": {
@@ -122,7 +122,7 @@
     "mainX": 257,
     "mainW": 1023,
     "botones": 8,
-    "enlaces": 30,
+    "enlaces": 32,
     "colores": 2034977308
   },
   "chromium-mobile /admin": {
