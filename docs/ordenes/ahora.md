@@ -74,6 +74,17 @@ fiesta y la bandeja del portal.
 - **No toques** los colores que elige el usuario (croquis, decoración, números de
   mesa, invitaciones) ni el fondo blanco de los documentos que se imprimen.
 
+# BLOQUE E — Las promociones se guardan sin fechas
+
+`src/app/(app)/settings/promos/page.tsx:111-127`
+
+Sólo se valida el título. Si se dejan vacías la fecha de inicio y la de fin, la
+promoción se guarda igual y **el contador de la web nunca arranca**: queda una
+promoción publicada que no cuenta nada.
+
+Que no se pueda guardar sin las dos fechas, y que la de fin no sea anterior a la
+de inicio.
+
 ---
 
 ## Lo que NO se toca nunca
