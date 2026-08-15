@@ -16,6 +16,32 @@ Cada idea dice **qué gana el negocio** y **cuánto cuesta hacerla**, en criollo
 
 ---
 
+## Estado: el dueño pidió TODO (15 de agosto de 2026)
+
+Se hace por tandas, no todo junto, porque una entrega gigante no se puede
+revisar. **La tanda 1 ya está escrita** en
+`docs/ordenes/mejoras-01-la-fiesta-vende-la-proxima.md`: son las ideas 1, 2 y 3
+de acá abajo, más el arreglo de la galería vacía.
+
+**Al escribirla se descubrió que la mitad ya estaba hecha por dentro**, y eso
+las abarató mucho: `src/lib/commercial/acquisition.ts` ya define de dónde viene
+cada interesado —con la fiesta y el invitado— y `public-lead-persistence.ts` ya
+lo guarda. La app **ya sabe de qué fiesta vino cada prospecto**: falta ofrecerlo
+en la fotocabina y tener la pantalla que lo muestre.
+
+Las tandas siguientes, en este orden, cuando la 1 esté fusionada:
+
+- **Tanda 2 — entretenimiento:** ideas 4, 5 y 6 (ranking en la pantalla gigante,
+  mensajes para abrir dentro de X años, pedidos de música al DJ).
+- **Tanda 3 — tiempo del equipo:** ideas 7 y 8 (pedido armado por proveedor,
+  avisos preventivos).
+- **Tanda 4 — contenido e inteligencia artificial:** ideas 10 y 11 (posteos
+  automáticos desde las fotos de la fiesta, presupuesto que se explica solo).
+- **Idea 9 (publicar automático en redes): no se hace por ahora.** Es la que más
+  trámite tiene con Meta y la que menos trae al lado de las primeras.
+
+---
+
 # LO QUE MÁS PLATA TRAE POR LO QUE CUESTA
 
 ## 1. La fiesta se vende sola: el invitado pide su presupuesto esa misma noche
@@ -36,7 +62,8 @@ Sólo falta el puente. **Cien invitados por fiesta, cincuenta fiestas por año.*
 
 ## 2. Saber de qué fiesta salió cada cliente nuevo
 
-**Cuánto cuesta: poco.**
+**Cuánto cuesta: poco** — y menos de lo que parecía: **el dato ya se guarda**,
+falta solamente la pantalla que lo muestre agrupado por fiesta.
 
 Hoy entra un prospecto por el simulador y nadie sabe si vino de Instagram, de la
 publicidad, o porque estuvo bailando en la fiesta de un primo. **Si no se sabe
