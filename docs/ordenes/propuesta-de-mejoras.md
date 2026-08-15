@@ -16,29 +16,33 @@ Cada idea dice **qué gana el negocio** y **cuánto cuesta hacerla**, en criollo
 
 ---
 
-## Estado: el dueño pidió TODO (15 de agosto de 2026)
+## Estado: TODO pedido en una sola orden (15 de agosto de 2026)
 
-Se hace por tandas, no todo junto, porque una entrega gigante no se puede
-revisar. **La tanda 1 ya está escrita** en
-`docs/ordenes/mejoras-01-la-fiesta-vende-la-proxima.md`: son las ideas 1, 2 y 3
-de acá abajo, más el arreglo de la galería vacía.
+El dueño pidió que vaya **todo junto y de una**. Está escrito en
+`docs/ordenes/ahora.md`, con los bloques ordenados por lo que más rinde y la
+instrucción de **entregar igual lo que llegue a hacer, avisando qué faltó**, para
+que un bloque trabado no frene el resto.
 
-**Al escribirla se descubrió que la mitad ya estaba hecha por dentro**, y eso
-las abarató mucho: `src/lib/commercial/acquisition.ts` ya define de dónde viene
-cada interesado —con la fiesta y el invitado— y `public-lead-persistence.ts` ya
-lo guarda. La app **ya sabe de qué fiesta vino cada prospecto**: falta ofrecerlo
-en la fotocabina y tener la pantalla que lo muestre.
+**Al escribir la orden se verificó el código y aparecieron TRES cosas que ya
+estaban hechas.** No se pidieron de nuevo:
 
-Las tandas siguientes, en este orden, cuando la 1 esté fusionada:
+1. **La app ya sabe de qué fiesta viene cada interesado.**
+   `src/lib/commercial/acquisition.ts` define la fiesta y el invitado de origen, y
+   `public-lead-persistence.ts` ya lo guarda. La idea 2 se abarató a **sólo la
+   pantalla que lo muestre**.
+2. **Los avisos preventivos del evento ya existen** (idea 8). Hay once reglas
+   andando en `src/lib/automatizaciones-engine.ts`: menú sin definir a 20 días,
+   invitados sin confirmar a 10, saldo pendiente a 7, y más. **No hay nada que
+   construir.**
+3. **El pedido de reseña en Google ya anda**, igual que el recontacto del que
+   pidió presupuesto y no señó.
 
-- **Tanda 2 — entretenimiento:** ideas 4, 5 y 6 (ranking en la pantalla gigante,
-  mensajes para abrir dentro de X años, pedidos de música al DJ).
-- **Tanda 3 — tiempo del equipo:** ideas 7 y 8 (pedido armado por proveedor,
-  avisos preventivos).
-- **Tanda 4 — contenido e inteligencia artificial:** ideas 10 y 11 (posteos
-  automáticos desde las fotos de la fiesta, presupuesto que se explica solo).
-- **Idea 9 (publicar automático en redes): no se hace por ahora.** Es la que más
-  trámite tiene con Meta y la que menos trae al lado de las primeras.
+Sin ese chequeo se habrían pedido tres trabajos que ya existen. Ya pasó una vez y
+se perdió el viaje entero.
+
+**Lo único que quedó afuera a propósito es la idea 9**, publicar automático en
+redes: es la que más trámite tiene con Meta y la que menos trae al lado del
+resto.
 
 ---
 
