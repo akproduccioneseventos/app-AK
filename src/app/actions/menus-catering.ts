@@ -56,7 +56,7 @@ function calculateIngredientCost(ing: Partial<Ingredient>, catalogItems: Servici
     if (isSmallRecipeUnit && !isSmallCatalogUnit) {
         factor = 1000;
     }
-    
+
     return (quantity / factor) * unitCost;
 }
 

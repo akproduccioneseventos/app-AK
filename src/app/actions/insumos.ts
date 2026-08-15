@@ -101,6 +101,17 @@ export async function saveInsumo(
     notas: (itemData as any).notas?.trim() || undefined,
   };
 
+  // El `min="0"` del formulario lo controla el navegador y se saltea mandando
+  // el pedido a mano. Una cantidad o un costo en negativo se arrastra a todos
+  // los presupuestos que usen ese insumo y el costo de la comida sale al reves.
+  if (Number(dataWithParsedNumbers.valorUnitarioEstimado) < 0) {
+    return { success: false, error: 'El costo del insumo no puede ser negativo.' };
+  }
+  if (dataWithParsedNumbers.cantidadDisponible !== undefined
+      && Number(dataWithParsedNumbers.cantidadDisponible) < 0) {
+    return { success: false, error: 'La cantidad disponible no puede ser negativa.' };
+  }
+
   if (!dataWithParsedNumbers.nombre || dataWithParsedNumbers.nombre.trim() === "") return { success: false, error: "El nombre del insumo es obligatorio." };
   if (!dataWithParsedNumbers.categoria) return { success: false, error: "La categoría es obligatoria." };
   if (!dataWithParsedNumbers.unidad) return { success: false, error: "La unidad es obligatoria para insumos." };

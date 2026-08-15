@@ -1251,6 +1251,48 @@ no se recupera sola; y el aviso del tótem es demasiado chico.
   guardado avisa cuando falla y los formularios no pierden lo cargado si se corta
   la conexión.
 
+## Ajustes y empresa, lo último sin auditar (13 de agosto de 2026)
+
+Con esto **queda auditada la aplicación entera**.
+
+### Arreglado
+
+- **Los datos de la empresa no se pueden dejar vacíos.** Se podía borrar el
+  nombre o el RUT y guardar: el contrato y la factura del cliente salían con el
+  renglón en blanco y nadie se enteraba hasta tenerlos sobre la mesa.
+- **Una cuenta bancaria a medias no se guarda.** Sin banco, titular o número, el
+  cliente no sabe adónde transferir y termina llamando para preguntar.
+- **Los insumos y los activos no aceptan cantidades ni costos negativos.** El
+  `min` del formulario lo controla el navegador y se saltea; un negativo se
+  arrastra al costo de la comida en todos los presupuestos.
+- **Se avisa cuando la receta y el catálogo usan unidades que no se pueden
+  convertir.** El cálculo sólo sabe pasar de gramos y mililitros a kilos y
+  litros. Si la receta pide "2 tazas" y el insumo está en gramos, multiplicaba
+  como si fueran lo mismo y el costo del plato salía mal, en silencio.
+  **Decisión: se avisa, no se inventa la conversión** — nadie puede saber cuánto
+  pesa una taza de ese ingrediente. Vive en `src/lib/catering/unidades.ts` con
+  seis pruebas.
+
+### Verificado y sano, no lo vuelvas a mirar
+
+- **Ajustes está bien**: la pantalla de presupuestos, el respaldo (con
+  confirmación al restaurar), el reinicio de datos, Google Workspace y las
+  sincronizaciones manejan bien los errores.
+- **Los borrados de empresa siguen protegidos**: no se puede borrar un
+  proveedor, insumo, menú, servicio ni activo que esté en uso.
+
+### Lo que quedó para Gemini
+
+Las promociones se pueden crear sin fechas y el contador de la web no arranca.
+Va en `docs/ordenes/ahora.md`.
+
+### Las órdenes de trabajo se ordenaron
+
+Había **quince archivos con 2700 líneas**, casi todos cumplidos, sin forma de
+saber cuál seguía vivo. Ahora hay **una sola vigente, `docs/ordenes/ahora.md`**,
+y el resto está en `docs/ordenes/hechas/` como historia. **Cuando una orden se
+termina, se mueve a `hechas/` en la misma propuesta.**
+
 ## Cómo agregar algo a esta lista
 
 **Se anota SIEMPRE, en la misma propuesta que toca el código.** Orden del dueño

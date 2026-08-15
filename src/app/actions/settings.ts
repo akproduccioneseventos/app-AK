@@ -3,6 +3,7 @@
 
 import { readData, writeData } from '@/lib/data-service';
 import type { BudgetDisplaySettings, InvoiceTemplateSettings, CompanyInfo, WhatsAppSettings, WhatsAppTemplates, ContractSettings, ContractTemplateItem, ContractType } from '@/types/settings';
+import type { CuentaBancaria } from '@/types/fiesta';
 import { defaultBudgetDisplaySettings, defaultInvoiceTemplateSettings, defaultCompanyInfo, defaultWhatsAppSettings, defaultWhatsAppTemplates, defaultContractSettings } from '@/types/settings';
 import { readdir } from 'node:fs/promises';
 import path from 'node:path';
@@ -202,6 +203,29 @@ export async function saveCompanyInfo(
     if (!auth.success) return { success: false, error: auth.error };
     const currentSettings = await getCompanyInfo();
     const settingsToSave = { ...currentSettings, ...settings };
+
+    // El nombre y el RUT salen impresos en los contratos y las facturas. Se
+    // podian borrar y guardar vacios: el documento del cliente salia con el
+    // renglon en blanco y nadie se enteraba hasta tenerlo sobre la mesa.
+    if (!settingsToSave.companyName?.trim()) {
+      return { success: false, error: 'El nombre de la empresa es obligatorio: sale en los contratos y las facturas.' };
+    }
+    if (!settingsToSave.companyTaxId?.trim()) {
+      return { success: false, error: 'El RUT es obligatorio: sale en los contratos y las facturas.' };
+    }
+
+    // Una cuenta bancaria a medias es peor que ninguna: el cliente no sabe
+    // adonde transferir y llama para preguntar.
+    const cuentaIncompleta = (settingsToSave.cuentasBancariasPortal ?? []).find(
+      (c: CuentaBancaria) => !c.banco?.trim() || !c.titular?.trim() || !c.numero?.trim(),
+    );
+    if (cuentaIncompleta) {
+      return {
+        success: false,
+        error: 'Hay una cuenta bancaria sin completar. Poné banco, titular y número, o borrala.',
+      };
+    }
+
     await writeData(COMPANY_INFO_FILE, settingsToSave);
     return { success: true, data: settingsToSave };
   } catch (error: any) {
