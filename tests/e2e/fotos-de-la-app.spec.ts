@@ -41,6 +41,26 @@ const PANTALLAS: Array<{ nombre: string; url: string }> = [
   { nombre: 'galeria-de-la-fiesta', url: `/evento/galeria/${ID}` },
   { nombre: 'confirmar-invitados', url: `/evento/actual/checkin?fiestaId=${ID}&guestId=${FIESTA.invitados?.[0]?.id ?? ''}` },
   { nombre: 'presentacion-led', url: '/presentacion-led' },
+
+  // Entretenimiento, estación por estación. Es lo que el invitado toca en la
+  // fiesta y lo que hace que se acuerde de AK.
+  { nombre: 'estacion-espejo-magico', url: `/evento/espejo-magico/${ID}` },
+  { nombre: 'estacion-plataforma-360', url: `/evento/plataforma-360/${ID}` },
+  { nombre: 'estacion-touchpix', url: `/evento/touchpix/${ID}` },
+  { nombre: 'estacion-video-vida', url: `/evento/video-vida/${ID}` },
+  { nombre: 'estacion-zona-digital', url: `/evento/zona-digital/${ID}` },
+  { nombre: 'estacion-mi-mesa', url: `/evento/mi-mesa/${ID}` },
+  { nombre: 'estacion-barra', url: `/evento/barra/${ID}` },
+  { nombre: 'estacion-dj', url: `/evento/dj/${ID}` },
+  { nombre: 'estacion-hub', url: `/evento/hub/${ID}` },
+  { nombre: 'estacion-accesos', url: `/evento/accesos/${ID}` },
+
+  // Pantalla gigante y las pantallas de la noche.
+  { nombre: 'pantalla-gigante-muro-en-vivo', url: `/evento/muro-en-vivo/${ID}` },
+  { nombre: 'pantalla-gigante-en-vivo', url: `/evento/en-vivo/${ID}` },
+  { nombre: 'estacion-impresion', url: `/evento/impresion/${ID}` },
+  { nombre: 'estacion-moderacion', url: `/evento/moderacion/${ID}` },
+  { nombre: 'estacion-logistica', url: `/evento/logistica/${ID}` },
 ];
 
 test.describe('fotos de la app', () => {
@@ -99,24 +119,40 @@ test.describe('fotos de la app', () => {
  * calendario, la lista de invitados. Una pantalla interna desprolija se ve igual
  * que una pública desprolija.
  */
-const PANTALLAS_DEL_EQUIPO: Array<{ nombre: string; url: string }> = [
-  { nombre: 'equipo-eventos', url: '/eventos' },
-  { nombre: 'equipo-calendario', url: '/calendario' },
-  { nombre: 'equipo-prospectos', url: '/contabilidad/crm' },
-  { nombre: 'equipo-presupuestos', url: '/presupuestos/nuevo' },
-  { nombre: 'equipo-clientes', url: '/customers' },
-  { nombre: 'equipo-panel-contable', url: '/empresa/contabilidad' },
-  { nombre: 'equipo-facturas', url: '/invoices' },
-  { nombre: 'equipo-pagos-rapidos', url: '/pagos-rapidos' },
-  { nombre: 'equipo-menus', url: '/empresa/menus' },
-  { nombre: 'equipo-empleados', url: '/empleados' },
-  { nombre: 'equipo-proveedores', url: '/proveedores' },
-  { nombre: 'equipo-alertas', url: '/alertas' },
-  { nombre: 'equipo-incidentes', url: '/incidentes' },
-  { nombre: 'equipo-aprobaciones', url: '/aprobaciones' },
-  { nombre: 'equipo-guias-de-armado', url: '/playbooks' },
-  { nombre: 'equipo-ajustes', url: '/settings' },
-];
+/**
+ * Todos los módulos, sacados del propio proyecto.
+ *
+ * Se listan a mano nunca: se recorren las carpetas y se arma la lista sola. Así
+ * cuando alguien agrega una pantalla nueva, entra en la próxima tanda de fotos
+ * sin que nadie se acuerde de anotarla.
+ */
+function rutasDelEquipo(): Array<{ nombre: string; url: string }> {
+  const raiz = path.join(process.cwd(), 'src/app/(app)');
+  const rutas: Array<{ nombre: string; url: string }> = [];
+
+  const recorrer = (dir: string, partes: string[]) => {
+    for (const entrada of fs.readdirSync(dir, { withFileTypes: true })) {
+      if (!entrada.isDirectory()) continue;
+      const nombre = entrada.name;
+      // Los grupos entre paréntesis no son parte de la dirección.
+      const siguientes = nombre.startsWith('(') ? partes : [...partes, nombre];
+      recorrer(path.join(dir, nombre), siguientes);
+    }
+    if (!fs.existsSync(path.join(dir, 'page.tsx'))) return;
+
+    // Las que atrapan cualquier dirección no se pueden fotografiar solas.
+    if (partes.some(p => p.startsWith('[...'))) return;
+
+    const url = '/' + partes.map(p => (p.startsWith('[') ? ID : p)).join('/');
+    const nombre = partes.length === 0 ? 'inicio' : partes.join('-').replace(/[[\]]/g, '');
+    rutas.push({ nombre: `equipo-${nombre}`, url });
+  };
+
+  recorrer(raiz, []);
+  return rutas.sort((a, b) => a.url.localeCompare(b.url));
+}
+
+const PANTALLAS_DEL_EQUIPO = rutasDelEquipo();
 
 test.describe('fotos de las pantallas del equipo', () => {
   test.skip(!ACTIVA, 'Se corre a pedido con AK_FOTOS=true');
@@ -140,6 +176,9 @@ test.describe('fotos de las pantallas del equipo', () => {
     test(`foto de ${pantalla.nombre}`, async ({ page }, testInfo) => {
       test.setTimeout(120_000);
       const dispositivo = testInfo.project.name.includes('mobile') ? 'celular' : 'escritorio';
+      // Son más de doscientas: en celular tardaría el doble y estas pantallas se
+      // usan sobre todo en la computadora. Las del cliente sí van en los dos.
+      test.skip(dispositivo === 'celular', 'Las del equipo se fotografían en escritorio');
       await page.goto(pantalla.url, { waitUntil: 'domcontentloaded' });
       await page.waitForTimeout(4000);
       await page.screenshot({
