@@ -2,57 +2,33 @@
 
 **Para:** Gemini (Antigravity)
 **Escribe:** Claude (auditoría y verificación)
-**Fecha:** 13 de agosto de 2026
+**Fecha:** 13 de agosto de 2026 · **actualizada el 15 de agosto de 2026**
 **Base:** `main` actualizado. Sincronizar antes de empezar.
 
-Ésta es la **única orden vigente**. Reemplaza a `pantallas-de-la-noche.md` y al
-bloque de colores de `pendiente-todo.md`. Lo que está en `hechas/` ya se hizo.
+Ésta es la **única orden vigente**. Lo que está en `hechas/` ya se hizo.
 
-**Los cuatro bloques van en UNA SOLA PROPUESTA.** Leé `LEEME.md` de esta carpeta
-para las reglas y los controles.
+**Los bloques que quedan van en UNA SOLA PROPUESTA.** Leé `LEEME.md` de esta
+carpeta para las reglas y los controles.
 
 ---
 
-# BLOQUE A — La pantalla de impresión miente cuando se corta internet
+## Bloques A, B y C: HECHOS y fusionados (15 de agosto de 2026)
 
-**El más importante de todos. Empezá por acá.**
+Las tres pantallas de la noche —impresión, presentación y tótem— ya quedaron
+resueltas y verificadas. **No se vuelven a tocar.** El detalle está en
+`docs/YA-RESUELTO.md`.
 
-`src/app/evento/impresion/[fiestaId]/page.tsx:59-78`
+Dos cosas para la próxima entrega, porque pasaron en ésta:
 
-Cuando falla la carga de fotos, muestra un cartel que desaparece a los dos
-segundos y **sigue mostrando las fotos viejas de la memoria**. El operador no
-tiene forma de saber que está viendo información vieja: sigue imprimiendo
-tranquilo mientras las fotos nuevas de los invitados no le llegan nunca. Y eso
-pasa en plena fiesta, sin margen para darse cuenta.
+- **No commitear `public/firebase-messaging-sw.js`.** Se genera solo en cada
+  compilación. Vino modificado y hubo que sacarlo a mano antes de fusionar. Es la
+  segunda vez.
+- **La prueba `src/__tests__/pantallas-de-la-noche.test.ts` controla el texto del
+  código fuente.** Al hacer el bloque D hay que revisarla: si se le cambian
+  clases de color a esas tres pantallas, la prueba avisa. Se ajusta la prueba en
+  la misma propuesta, no se borra.
 
-**Qué hacer:** copiar el patrón que ya usa la galería
-(`evento/galeria/[fiestaId]/page.tsx:30-38`), que mantiene el estado de error y
-lo muestra hasta que se recupera. Que el operador vea, de forma **permanente y
-visible**, que perdió la conexión y desde cuándo.
-
-# BLOQUE B — La presentación no se recupera sola
-
-`src/app/presentacion-led/page.tsx:173-206` y `641-650`
-
-Si se corta internet muestra "No pudimos cargar la presentación" y **se queda ahí
-hasta que alguien apriete Reintentar a mano**. Si el corte dura tres minutos y
-nadie está mirando, la pantalla queda muerta mucho más tiempo del necesario.
-
-Las demás pantallas de la noche ya reintentan solas: la pantalla gigante cada 20
-segundos, la galería cada 10, el tótem cada 2,5. **Hacé lo mismo acá**, dejando
-igual el botón manual.
-
-# BLOQUE C — El tótem avisa muy chiquito
-
-`src/app/evento/totem/[fiestaId]/[totemId]/page.tsx:291-299`
-
-Mientras espera el permiso del salón muestra "Conectando estación..." con una
-rueda semitransparente y chica, dentro del mismo botón que el código QR. El
-invitado ve el QR, lo escanea y no funciona, sin entender por qué.
-
-**Qué hacer:** que mientras no esté conectado el QR **no se vea como
-disponible**, y que el aviso se lea desde lejos. Es una pantalla que se mira
-parado y de paso.
+---
 
 # BLOQUE D — Terminar los colores
 
@@ -100,4 +76,5 @@ de inicio.
 ## Cuando termines
 
 Avisá el número de la propuesta, anotá lo hecho en `docs/YA-RESUELTO.md` y **mové
-este archivo a `hechas/` en la misma propuesta**.
+este archivo a `hechas/` en la misma propuesta**. Todo junto: los dos bloques que
+quedan, la anotación y el movimiento del archivo, en una sola entrega.

@@ -36,6 +36,8 @@ anotado, la próxima auditoría lo va a volver a encontrar.
   - **Estación de Impresión (`impresion/[fiestaId]`):** Mantiene el estado de error de forma persistente con `hasError`, timestamp de desconexión y `<ReconnectingIndicator />`. No oculta el fallo tras 2 segundos para que el operador no imprima desinformado.
   - **Presentación LED (`presentacion-led`):** Auto-reintenta la carga cada 10 segundos ante fallos de conexión sin necesidad de refrescar la página entera a mano (evita que la pantalla quede congelada en un salón con mala señal).
   - **Tótem (`totem/[fiestaId]/[totemId]`):** Mientras no haya conexión (`!qrUrl`), el QR no se muestra disponible y se presenta un aviso grande y visible desde lejos indicando que la estación está conectando, evitando intentos de escaneo fallidos.
+  - **`public/firebase-messaging-sw.js` no se edita a mano ni se commitea con la configuración adentro.** Lo genera `scripts/generate-firebase-messaging-sw.mjs` en cada compilación, y en la versión principal queda la variante que no hace nada. Vino modificado en la entrega y se descartó al fusionar. Si aparece cambiado en una rama, quedarse siempre con la versión de `main`: es la segunda vez que se cuela.
+  - **La prueba de estas tres pantallas controla el texto del código fuente, no el navegador.** Se dejó a propósito así (es barata y frena una regresión), pero **no se le agregan colores concretos**: el bloque de colores del tema está a medias y los rompería. Se controla tamaño y peso del texto.
 
 - **El ajuste anual del 15% va siempre.** Aparece en presupuestos y en el portal.
 - **El descuento del 50% del Salón Club Uruguay** y el descuento del presupuesto
