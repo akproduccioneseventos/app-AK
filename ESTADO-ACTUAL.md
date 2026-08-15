@@ -58,18 +58,17 @@ una cantidad en cero ya no compra una unidad igual.
 
 ## Lo que falta
 
-- **Terminar los colores del tema.** Queda grande: unos 354 archivos. La orden
-  vigente pide las ocho pantallas del cliente con más colores a mano, que es
-  donde más rinde. Va pantalla por pantalla, nunca buscar y reemplazar masivo, y
-  sin tocar los colores que elige el usuario.
-Las cuatro incomodidades de las pantallas internas **ya están resueltas**: el
-menú dejó de tener dos botones al mismo lugar, las citas del calendario se
-pueden reprogramar y cancelar, las alertas arrancan mostrando sólo las que
-faltan mirar, y el historial de un empleado va de lo más nuevo a lo más viejo
-con filtro por año.
-- **Nunca existieron** (decisión comercial del dueño si valen la pena): armar
-  presupuesto desde el chat del asistente, mails masivos, formulario de contacto
-  aparte del simulador, y traer reseñas de Google.
+**Nada.** El pasaje de colores al tema, que era lo último que quedaba, **se
+descartó**: la app no tiene modo oscuro —está preparada por dentro pero no hay
+interruptor y nunca se activa—, así que cambiar 354 archivos no se vería
+distinto en pantalla. Está explicado en `docs/YA-RESUELTO.md`.
+
+**No hay órdenes vigentes para Gemini.** `docs/ordenes/` quedó sin trabajo
+pendiente.
+Lo único abierto son **cuatro cosas que nunca existieron**, y es decisión
+comercial del dueño si valen la pena: armar presupuesto desde el chat del
+asistente, mails masivos, un formulario de contacto aparte del simulador, y
+traer reseñas de Google. No son deudas ni arreglos: son funciones nuevas.
 
 No hay errores conocidos sin resolver. Plata, cobros y permisos quedaron
 auditados sin hallazgos: no hace falta volver a mirar esa área.
