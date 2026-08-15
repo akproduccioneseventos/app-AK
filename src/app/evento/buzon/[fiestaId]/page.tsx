@@ -6,7 +6,7 @@ import { motion, AnimatePresence } from 'framer-motion';
 import {
   Mic, Video, Play, Pause, Trash2, Send, ArrowLeft, Loader2, CheckCircle2,
   Volume2, Sparkles, AlertCircle, RefreshCw, Upload, Phone, PhoneOff, Camera, VideoOff,
-  ChevronRight, Square
+  ChevronRight, Square, Clock
 } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { uploadBuzonMessage } from '@/app/actions/buzon';
@@ -15,6 +15,7 @@ import type { PublicEntertainmentEvent } from '@/lib/entertainment/station-confi
 import { KioskUnlockButton } from '@/components/kiosk/kiosk-unlock-button';
 import { VideoFrameOverlay } from '@/components/buzon/VideoFrameOverlay';
 import { cn } from '@/lib/utils';
+import { Switch } from '@/components/ui/switch';
 import { drawBuzonVideoFrame } from '@/lib/buzon/video-frame-canvas';
 import { renderUploadedVideoWithFrame } from '@/lib/buzon/video-frame-processor';
 import { normalizeFrameTemplateId } from '@/lib/buzon/video-frame-templates';
@@ -39,6 +40,9 @@ export default function GuestBuzonPage() {
   const [isLoading, setIsLoading] = useState(true);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [authorName, setAuthorName] = useState('');
+  const [isTimeCapsule, setIsTimeCapsule] = useState(false);
+  const [unlockYears, setUnlockYears] = useState<number>(10);
+  const [recipientNote, setRecipientNote] = useState('');
   const [showCelebration, setShowCelebration] = useState(false);
   const [selectedMode, setSelectedMode] = useState<'vhs_record' | 'vhs_upload' | 'audio_record' | 'audio_retro' | 'audio_upload' | null>(null);
   const [countdown, setCountdown] = useState<number | null>(null);
@@ -861,6 +865,12 @@ export default function GuestBuzonPage() {
     formData.append('authorName', trimmedName);
     if (accessToken) formData.append('accessToken', accessToken);
 
+    if (isTimeCapsule) {
+      formData.append('isTimeCapsule', 'true');
+      formData.append('unlockYears', unlockYears.toString());
+      if (recipientNote.trim()) formData.append('recipientNote', recipientNote.trim());
+    }
+
     if (activeTab === 'audio' && audioBlob) {
       const audioFileName = audioBlob instanceof File ? audioBlob.name : 'saludo_voz.webm';
       formData.append('file', audioBlob, audioFileName);
@@ -1425,6 +1435,64 @@ export default function GuestBuzonPage() {
                     maxLength={30}
                     className="w-full bg-muted/20 border border-border focus:border-primary rounded-lg px-4 py-3 text-sm font-semibold outline-none text-foreground transition"
                   />
+                </div>
+
+                {/* Bloque G: Cápsula del tiempo */}
+                <div className="rounded-xl border border-border/80 bg-card/60 p-3.5 space-y-3">
+                  <div className="flex items-center justify-between">
+                    <div className="flex items-center gap-2">
+                      <Clock className="w-4 h-4 text-amber-500" />
+                      <div>
+                        <p className="text-xs font-bold text-foreground">Cápsula del Tiempo</p>
+                        <p className="text-[10px] text-muted-foreground">Guardar este saludo para abrir en el futuro</p>
+                      </div>
+                    </div>
+                    <Switch checked={isTimeCapsule} onCheckedChange={setIsTimeCapsule} />
+                  </div>
+
+                  {isTimeCapsule && (
+                    <div className="space-y-3 pt-2 border-t border-border/60">
+                      <div>
+                        <label className="text-[10px] font-black uppercase text-muted-foreground tracking-wider block mb-1.5">
+                          ¿Dentro de cuántos años abrirlo?
+                        </label>
+                        <div className="grid grid-cols-3 sm:grid-cols-5 gap-1.5">
+                          {[
+                            { years: 1, label: '1 año' },
+                            { years: 3, label: '3 años' },
+                            { years: 5, label: '5 años' },
+                            { years: 10, label: '10 años' },
+                            { years: 15, label: '15 años' },
+                          ].map((opt) => (
+                            <button
+                              key={opt.years}
+                              type="button"
+                              onClick={() => setUnlockYears(opt.years)}
+                              className={`py-1.5 px-2 rounded-lg text-xs font-bold transition border ${
+                                unlockYears === opt.years
+                                  ? 'bg-primary text-primary-foreground border-primary'
+                                  : 'bg-muted/30 border-border text-foreground hover:bg-muted'
+                              }`}
+                            >
+                              {opt.label}
+                            </button>
+                          ))}
+                        </div>
+                      </div>
+                      <div>
+                        <label className="text-[10px] font-black uppercase text-muted-foreground tracking-wider block mb-1">
+                          Destinatario / Motivo (opcional)
+                        </label>
+                        <input
+                          type="text"
+                          value={recipientNote}
+                          onChange={(e) => setRecipientNote(e.target.value)}
+                          placeholder="Ej: Para los 15 de mi hija, o aniversario"
+                          className="w-full bg-muted/20 border border-border focus:border-primary rounded-lg px-3 py-2 text-xs font-medium outline-none text-foreground"
+                        />
+                      </div>
+                    </div>
+                  )}
                 </div>
 
                 <button

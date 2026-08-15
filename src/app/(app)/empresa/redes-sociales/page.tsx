@@ -5,16 +5,32 @@ import { useState, useEffect, useCallback, Suspense } from 'react';
 import Link from 'next/link';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription, CardFooter } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { ArrowLeft, Loader2, Sparkles, PlusCircle, AlertTriangle, List, Calendar, Filter, X, Wand2, Bot, Copy, ExternalLink, MessageSquare } from 'lucide-react';
+import { ArrowLeft, Loader2, Sparkles, PlusCircle, AlertTriangle, List, Calendar, Filter, X, Wand2, Bot, Copy, ExternalLink, MessageSquare, Camera } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import type { SocialPost, SocialPlatform } from '@/types/social-media';
-import { getSocialPosts, deleteSocialPost } from '@/app/actions/social-media';
+import { getSocialPosts, deleteSocialPost, generateDraftPostsFromPartyPhotos } from '@/app/actions/social-media';
 import { NewPostDialog } from '@/components/social-media/NewPostDialog';
 import { SocialPostCard } from '@/components/social-media/SocialPostCard';
 import { SocialMediaCalendar } from '@/components/social-media/SocialMediaCalendar';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import type { FiestaEnPlanificacion } from '@/types/fiesta';
 import { getFiestaActual, getHistorialFiestas } from '@/app/actions/fiesta-actual';
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+} from "@/components/ui/dialog";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -101,6 +117,37 @@ function SocialMediaPageContent() {
         }
     };
 
+    const [isPartyDraftsDialogOpen, setIsPartyDraftsDialogOpen] = useState(false);
+    const [selectedPartyIdForDrafts, setSelectedPartyIdForDrafts] = useState<string>('');
+    const [isGeneratingDrafts, setIsGeneratingDrafts] = useState(false);
+
+    const handleGenerateDraftsFromParty = async () => {
+        if (!selectedPartyIdForDrafts) return;
+        setIsGeneratingDrafts(true);
+        try {
+            const res = await generateDraftPostsFromPartyPhotos(selectedPartyIdForDrafts);
+            if (res.success) {
+                toast({
+                    title: "Borradores generados con éxito",
+                    description: `Se crearon ${res.createdCount} publicaciones en borrador listas para revisar y aprobar.`,
+                });
+                setIsPartyDraftsDialogOpen(false);
+                setSelectedPartyIdForDrafts('');
+                fetchData();
+            } else {
+                throw new Error(res.error || "No se pudieron generar los borradores.");
+            }
+        } catch (err: any) {
+            toast({
+                title: "No se pudieron generar borradores",
+                description: err.message,
+                variant: "destructive",
+            });
+        } finally {
+            setIsGeneratingDrafts(false);
+        }
+    };
+
     const buildCampaignUrl = (slug: string) => {
         if (typeof window === 'undefined') return `/landing/${slug}`;
         return `${window.location.origin}/landing/${slug}`;
@@ -123,9 +170,62 @@ function SocialMediaPageContent() {
                     <Sparkles className="w-8 h-8 text-primary" />
                     <h1 className="text-3xl font-bold tracking-tight font-headline">Planificador de Contenido</h1>
                 </div>
-                <div className="flex gap-2">
+                <div className="flex flex-wrap items-center gap-2">
+                    <Dialog open={isPartyDraftsDialogOpen} onOpenChange={setIsPartyDraftsDialogOpen}>
+                        <DialogTrigger asChild>
+                            <Button variant="outline" className="border-amber-200 bg-amber-50/50 hover:bg-amber-100 text-amber-900 font-semibold shadow-sm">
+                                <Camera className="w-4 h-4 mr-2 text-amber-600" />
+                                Generar desde fiesta
+                            </Button>
+                        </DialogTrigger>
+                        <DialogContent className="sm:max-w-md">
+                            <DialogHeader>
+                                <DialogTitle className="flex items-center gap-2">
+                                    <Camera className="w-5 h-5 text-amber-600" />
+                                    Generar posteos desde fotos de fiesta
+                                </DialogTitle>
+                                <DialogDescription>
+                                    La app seleccionará las mejores fotos aprobadas del evento y armará borradores con texto y etiquetas en el planificador para que los revises con un toque.
+                                </DialogDescription>
+                            </DialogHeader>
+                            <div className="py-4 space-y-4">
+                                <div className="space-y-2">
+                                    <label className="text-xs font-bold uppercase text-slate-500">Seleccionar evento</label>
+                                    <Select value={selectedPartyIdForDrafts} onValueChange={setSelectedPartyIdForDrafts}>
+                                        <SelectTrigger>
+                                            <SelectValue placeholder="Elegí una fiesta reciente..." />
+                                        </SelectTrigger>
+                                        <SelectContent>
+                                            {allEvents.map((evt) => (
+                                                <SelectItem key={evt.id} value={evt.id}>
+                                                    {evt.configuracion?.nombreEvento || evt.configuracion?.clienteNombre || `Fiesta #${evt.id}`} {evt.configuracion?.fechaEvento ? `(${evt.configuracion.fechaEvento})` : ''}
+                                                </SelectItem>
+                                            ))}
+                                        </SelectContent>
+                                    </Select>
+                                </div>
+                            </div>
+                            <DialogFooter>
+                                <Button variant="ghost" onClick={() => setIsPartyDraftsDialogOpen(false)}>Cancelar</Button>
+                                <Button
+                                    onClick={handleGenerateDraftsFromParty}
+                                    disabled={!selectedPartyIdForDrafts || isGeneratingDrafts}
+                                    className="bg-amber-600 hover:bg-amber-700 text-white font-bold"
+                                >
+                                    {isGeneratingDrafts ? (
+                                        <>
+                                            <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+                                            Generando borradores...
+                                        </>
+                                    ) : (
+                                        'Crear 4 borradores'
+                                    )}
+                                </Button>
+                            </DialogFooter>
+                        </DialogContent>
+                    </Dialog>
                     <NewPostDialog onPostCreated={fetchData} />
-                     <Button asChild variant="outline"><Link href="/empresa"><ArrowLeft className="w-4 h-4 mr-2" />Volver a Empresa</Link></Button>
+                    <Button asChild variant="outline"><Link href="/empresa"><ArrowLeft className="w-4 h-4 mr-2" />Volver a Empresa</Link></Button>
                 </div>
             </div>
             {postToDuplicate && (

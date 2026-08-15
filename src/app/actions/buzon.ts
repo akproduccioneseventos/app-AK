@@ -26,6 +26,11 @@ export interface BuzonMessage {
   durationSeconds: number;
   timestamp: string;
   storagePath: string;
+  // Bloque G: Cápsula del tiempo para abrir en el futuro
+  isTimeCapsule?: boolean;
+  unlockYears?: number; // ej. 1, 3, 5, 10, 15
+  unlockDate?: string; // Fecha calculada ISO para la apertura
+  recipientNote?: string;
 }
 
 /** Returns the Firestore Admin instance; throws if Firebase is not configured. */
@@ -130,6 +135,16 @@ export async function uploadBuzonMessage(
       true // make public so the client/host can reproduce it directly
     );
 
+    const isTimeCapsule = formData.get('isTimeCapsule') === 'true';
+    const unlockYears = Number(formData.get('unlockYears')) || (isTimeCapsule ? 10 : undefined);
+    let unlockDate: string | undefined;
+    if (isTimeCapsule && unlockYears && unlockYears > 0) {
+      const future = new Date();
+      future.setFullYear(future.getFullYear() + unlockYears);
+      unlockDate = future.toISOString();
+    }
+    const recipientNote = String(formData.get('recipientNote') || '').trim().slice(0, 120) || undefined;
+
     const newMessage: BuzonMessage = {
       id: messageId,
       fiestaId,
@@ -139,15 +154,18 @@ export async function uploadBuzonMessage(
       durationSeconds,
       timestamp: new Date().toISOString(),
       storagePath,
+      ...(isTimeCapsule ? { isTimeCapsule: true, unlockYears, unlockDate, recipientNote } : {}),
     };
 
     // Save metadata in Firestore
     await db.collection(BUZON_COLLECTION).doc(messageId).set(newMessage);
 
     // Notify the screen visually by adding a system chat message
-    const alertText = detectedMedia.mediaType === 'audio'
-      ? '🎙ï¸ Dejó un saludo de voz en el buzón'
-      : '📹 Subió un video al buzón';
+    const alertText = isTimeCapsule
+      ? `⏳ Dejó una cápsula del tiempo (abrir en ${unlockYears} años)`
+      : detectedMedia.mediaType === 'audio'
+        ? '🎙️ Dejó un saludo de voz en el buzón'
+        : '📹 Subió un video al buzón';
 
     await addChatMessage(fiestaId, alertText, authorName, {
       stationModuleId: 'capsulaTiempo',
