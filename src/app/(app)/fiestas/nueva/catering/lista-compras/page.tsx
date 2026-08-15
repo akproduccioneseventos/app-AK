@@ -80,6 +80,10 @@ function ListaDeComprasContent() {
   const [error, setError] = useState<string | null>(null);
   const [fiesta, setFiesta] = useState<FiestaEnPlanificacion | null>(null);
 
+  // Platos contratados que no aportan ni un ingrediente a la lista. Antes se
+  // salteaban en silencio: la cocina compraba sin saber que le faltaba un plato
+  // entero, y se enteraba el dia de la fiesta.
+  const [platosSinIngredientes, setPlatosSinIngredientes] = useState<string[]>([]);
   const [estadosCompra, setEstadosCompra] = useState<CompraProveedorEstado[]>([]);
   const [isSavingStatus, setIsSavingStatus] = useState<string | null>(null);
 
@@ -131,9 +135,17 @@ function ListaDeComprasContent() {
           );
 
           const allDishesInCatalog = allMenus.flatMap(m => m.items);
+          const sinIngredientes: string[] = [];
 
           budgetDishes.forEach(budgetItem => {
               const catalogDish = allDishesInCatalog.find(d => d.id === budgetItem.idServicioCatalogo);
+              if (!catalogDish) {
+                  sinIngredientes.push(`${budgetItem.nombreServicio} (ya no está en el menú)`);
+                  return;
+              }
+              if (!catalogDish.ingredients?.length) {
+                  sinIngredientes.push(catalogDish.name);
+              }
               if (catalogDish) {
                   const targetGuests = getTargetGuests(budgetItem);
                   catalogDish.ingredients.forEach(ing => {
@@ -155,10 +167,15 @@ function ListaDeComprasContent() {
               }
           });
 
+          setPlatosSinIngredientes(Array.from(new Set(sinIngredientes)));
+
           // 2. PROCESAR BEBIDAS (Todas las categorías activadas)
           if (fiestaData.bebidas?.categorias) {
               fiestaData.bebidas.categorias.filter(c => c.activada).forEach(cat => {
                   cat.items?.forEach(item => {
+                      // Si la cantidad quedó en cero es porque no se pide: antes se
+                      // compraba una unidad igual.
+                      if (Number(item.cantidadNecesaria) === 0) return;
                       const catalogInsumo = catalogoInsumos.find(ci => ci.id === item.origenId);
                       rawList.push({
                           nombre: item.nombre,
@@ -217,6 +234,8 @@ function ListaDeComprasContent() {
       if (fiestaData.reposteria?.categorias) {
           fiestaData.reposteria.categorias.filter(c => c.activada).forEach(cat => {
               cat.items.forEach(item => {
+                  // Igual que en bebidas: cantidad cero es "no se pide".
+                  if (Number(item.cantidad) === 0) return;
                   rawList.push({
                       nombre: item.nombre,
                       cantidadNecesaria: item.cantidad || 1,
@@ -401,6 +420,21 @@ function ListaDeComprasContent() {
           </div>
         </div>
         
+        {platosSinIngredientes.length > 0 && (
+          <div className="rounded-xl border border-amber-300 bg-amber-50 p-4">
+            <p className="font-bold text-amber-900">
+              Ojo: hay platos contratados que no aportan nada a esta lista
+            </p>
+            <p className="mt-1 text-sm text-amber-800">
+              No tienen ingredientes cargados, así que la cocina no va a saber qué comprar para
+              ellos. Cargá los ingredientes en el menú y volvé a actualizar.
+            </p>
+            <ul className="mt-2 list-disc pl-5 text-sm font-semibold text-amber-900">
+              {platosSinIngredientes.map(nombre => <li key={nombre}>{nombre}</li>)}
+            </ul>
+          </div>
+        )}
+
         <div className="grid grid-cols-1 gap-8">
             {Object.keys(groupedByProvider).map(providerId => {
                 const { providerName, items, total } = groupedByProvider[providerId];

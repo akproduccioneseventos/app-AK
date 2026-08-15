@@ -5,6 +5,7 @@ import type { ServicioEmpresa } from '@/types/empresa';
 import { readData, writeData } from '@/lib/data-service';
 import { getInsumos } from './insumos';
 import { requireAppSession } from '@/lib/auth/require-session';
+import { numerosDeMenuInvalidos } from '@/lib/catering/numeros-de-menu';
 
 const MENUS_CATERING_COLLECTION_JSON = 'menus-catering.json';
 
@@ -178,6 +179,13 @@ export async function saveMenu(
   // preparar.
   if (cleanItems.length === 0) {
     return { success: false, error: 'El menú tiene que tener al menos un plato.' };
+  }
+
+  // Cantidades y costos en menos: el costo negativo entra derecho al presupuesto
+  // y muestra una ganancia que no existe.
+  const numerosMal = numerosDeMenuInvalidos({ items: cleanItems });
+  if (numerosMal) {
+    return { success: false, error: numerosMal };
   }
 
   const sanitizedMenuInput = { ...menuDataInput, items: cleanItems } as FullMenu;

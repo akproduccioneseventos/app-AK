@@ -51,6 +51,12 @@ anotado, la próxima auditoría lo va a volver a encontrar.
   - Recorridas y adaptadas pantallas de Ajustes (`settings/promos`, `settings/catalogo-servicios`, `settings/feature-flags`, `settings/account`, `settings/cupones`) pasando colores hardcoded a tokens semánticos del tema (`text-foreground`, `text-primary`, `text-muted-foreground`, `bg-card`, `bg-muted/40`, `border-border`) y fijando la escala `rounded-xl` para tarjetas y `rounded-lg` para campos/botones.
 - **En `src/app/actions/simulador-copilot.ts` el `z` se importa de `genkit`, no de `zod` (15 de agosto de 2026).** Vino cambiado a `zod` en una entrega, sin relación con lo que se había pedido, y se descartó al fusionar. Todo el resto del proyecto lo importa de `genkit`: ese `z` es el que espera `ai.definePrompt` para registrar el esquema, y el cambio compila igual pero puede fallar recién al usarlo. Si vuelve a aparecer, quedarse con la versión de `main`.
 
+- **Comida: números negativos y platos sin ingredientes (15 de agosto de 2026).** Cuatro cosas de la misma tanda:
+  - **No se guarda un menú con cantidades por persona o costos negativos.** Un costo en menos hace que el plato parezca más barato que gratis, y ese número entra derecho al presupuesto del cliente y a la rentabilidad del evento: se veía una ganancia que no existía. El control vive en `src/lib/catering/numeros-de-menu.ts` (afuera del archivo `'use server'`). **El cero sí se permite**: hay ingredientes que todavía no se cargaron.
+  - **Bebidas y repostería tampoco aceptan cantidades ni costos negativos** en los campos de carga.
+  - **La lista de compras avisa cuando un plato contratado no aporta ningún ingrediente**, o cuando el plato ya no está en el menú. Antes se salteaba en silencio y la cocina compraba sin saber que le faltaba un plato entero: se enteraba el día de la fiesta.
+  - **Cantidad cero en bebidas o repostería quiere decir "no se pide".** Antes se compraba una unidad igual, porque el código usaba `|| 1`.
+- **La fecha del contrato firmado se muestra en formato uruguayo (15 de agosto de 2026).** Estaba en `es-ES` mientras el resto de esa pantalla usaba `es-UY`.
 - **El ajuste anual del 15% va siempre.** Aparece en presupuestos y en el portal.
 - **El descuento del 50% del Salón Club Uruguay** y el descuento del presupuesto
   son decisiones de marketing.

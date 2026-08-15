@@ -147,8 +147,8 @@ export default function ClientContractPage() {
                         <p className="font-black uppercase tracking-widest text-xs">Documento Firmado y Validado</p>
                         <p className="text-sm opacity-90">
                             {firma.method === 'digital' 
-                                ? `Firmado digitalmente el ${new Date(firma.signedAt!).toLocaleString('es-ES')} desde la IP ${firma.ip}`
-                                : `Contrato físico registrado el ${new Date(firma.signedAt!).toLocaleString('es-ES')}`
+                                ? `Firmado digitalmente el ${new Date(firma.signedAt!).toLocaleString('es-UY')} desde la IP ${firma.ip}`
+                                : `Contrato físico registrado el ${new Date(firma.signedAt!).toLocaleString('es-UY')}`
                             }
                         </p>
                     </div>
