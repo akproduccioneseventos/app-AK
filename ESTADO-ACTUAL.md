@@ -8,44 +8,46 @@ Quien cierre una sesión reescribe este archivo. Se pisa, no se acumula.
 ---
 
 **Última actualización:** 16 de agosto de 2026, cierre.
-**Rama:** `claude/repo-work-guidelines-l4u1tf`, con la orden nueva sin fusionar.
+**Rama:** `claude/repo-work-guidelines-l4u1tf`.
 **Estado:** compila, 1668 pruebas en verde, sin acentos rotos.
 **Propuestas abiertas:** ninguna. **Orden vigente:** `docs/ordenes/ahora.md`.
 
-## Qué se hizo en esta tanda
+## Lo que hay que saber para seguir
 
-- **Tres pantallas que quedaban en blanco**, arregladas: la pantalla grande del
-  salón se quedaba negra cada tanto, y dos carteles del invitado eran blancos
-  sobre blanco.
-- **El portal del cliente, con ojo de vendedor**: la fiesta pasó a ser la
-  protagonista en el celular, salieron dos notas internas que veía el cliente, y
-  la espera del muro dejó de ser una rueda pelada.
-- **Se fusionó la entrega de Gemini** de inteligencia artificial comercial y
-  post-evento, **y se le agregó lo que faltaba**: esas dos llamadas gastaban
-  plata sin anotarla en ningún lado. Ahora pasan por el mismo contador y tope
-  que el resto.
+**La orden vigente tiene catorce bloques en TRES entregas.** No van en una sola
+propuesta: la 1 se termina y se entrega antes de empezar la 2.
 
-## La orden que quedó escrita, sin fusionar
+- **Entrega 1** — trivia y misiones, el secretario que habla, quién llegó, y las
+  dos pantallas de la noche que quedaron claras. Casi todo es enchufar cosas ya
+  escritas.
+- **Entrega 2** — la reunión que se agenda sola desde el simulador (el bloque más
+  importante), el aviso de margen, la pregunta de los quince, y que no se pierda
+  nada sin internet.
+- **Entrega 3** — configurador, videos, termómetro de la fiesta, libro de la
+  fiesta, cada uno ve lo suyo, transmisión en vivo.
 
-`docs/ordenes/ahora.md` pide tres cosas nuevas que el dueño eligió: la trivia en
-la cena, el video vertical de la mañana siguiente y el configurador visual para
-la reunión de cierre.
+## Lo que apareció al verificar y evitó trabajo al pedo
 
-**El hallazgo que ahorra el trabajo más grande: la trivia ya está construida
-entera y no está enchufada.** Hay motor con respuesta correcta, puntajes y podio
-por mesa, pantalla del invitado y panel de preguntas, en `src/lib/games/` y
-`src/components/games/`. **Ninguna pantalla los usa.** El bloque A es plomería,
-no construcción.
+- **El secretario que habla está casi hecho.** El multiagente interno ya lee datos
+  reales y tiene doce herramientas, y el reconocimiento de voz en castellano
+  uruguayo ya está escrito en el grabador de reuniones. Falta el micrófono y que
+  hable.
+- **La trivia y las misiones secretas están construidas y sin enchufar**, en
+  `src/lib/games/` y `src/components/games/`.
+- **Las pantallas de la noche YA están casi todas oscuras** a propósito. Sólo
+  logística y accesos quedaron claras. Se corrigió la orden: era mucho más chico
+  de lo que parecía.
+- **La agenda ya crea citas y las sincroniza sola con Google Calendar.** Falta
+  sólo definir horarios de atención y la pantalla pública para elegir turno.
+- Para el termómetro: los corazones y los emoji **no guardan cuándo** se dieron.
+  Sirven fotos, pedidos de barra y canciones, que sí tienen hora.
 
-## Lo que costó y no hay que repetir
+## Decisiones del dueño en esta tanda
 
-- **Un ayudante buscó las piezas de la trivia y se perdió los cinco archivos que
-  ya la resolvían.** Los encontró el modelo principal al verificar. Si se mandaba
-  la orden tal cual, Gemini reescribía algo terminado.
-- **La foto de portada del portal y el logo de la barra pública** siguen sin
-  verse en las fotos de prueba. Tres intentos y se paró por regla.
+Descartó el **precio variable según la fecha** y **alquilarle la app a otros
+salones**. También descartó el "ensayo de la fiesta": el cronograma se llena
+después de cerrar, así que no innova nada. Tenía razón.
 
-## Lo próximo, si nadie dice otra cosa
+## Lo próximo
 
-Esperar la entrega de Gemini de los tres bloques, verificarla y fusionarla junto
-con esta orden.
+Esperar la entrega 1 de Gemini, verificarla y fusionarla.
