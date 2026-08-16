@@ -9,38 +9,36 @@ Quien cierre una sesión reescribe este archivo. Se pisa, no se acumula.
 
 **Última actualización:** 16 de agosto de 2026, cierre.
 **Rama:** `claude/repo-work-guidelines-l4u1tf`, con propuesta abierta.
-**Estado:** compila, 1640 pruebas en verde, sin acentos rotos.
-**Órdenes pendientes:** `docs/ordenes/ahora.md`, esperando la entrega de Gemini.
+**Estado:** compila, 1651 pruebas en verde, sin acentos rotos.
+**Propuestas abiertas de Gemini:** la #1004, sin revisar todavía.
 
 ## Qué se hizo en esta tanda
 
-**Se miraron las fotos de las pantallas en celular** y salieron tres lugares que
-no mostraban nada, sin dar ningún error:
+**Se arreglaron tres pantallas que quedaban en blanco:** la pantalla grande del
+salón se quedaba negra cada tanto (la rotación pasaba por una diapositiva
+apagada), y dos carteles del invitado eran blancos sobre blanco.
 
-- **La pantalla del salón se quedaba negra cada tanto.** El televisor rota entre
-  fotos, redes, juegos y dedicatorias, y el pedazo de dedicatorias está apagado
-  a propósito. Al pasar por ahí quedaba en blanco. Ahora muestra el cartel con
-  el nombre de la fiesta y el código para subir fotos.
-- **Si el muro está apagado para esa fiesta, ahora lo dice** en vez de no
-  dibujar nada.
-- **Dos carteles eran blancos sobre blanco** ("Zona digital" y "Mi mesa" con un
-  enlace vencido): el texto estaba, pero no se leía. Hay una prueba que impide
-  que vuelva a pasar.
+**Y se hizo el trabajo de que impresione**, que estaba en la orden para Gemini y
+no la entregó. Lo programó Claude:
 
-**La revisión de diseño de toda la app está hecha**, celular primero. Lo que
-faltaba para que impresione está escrito en la orden para Gemini, que ya la
-tiene: la foto grande en el portal del cliente, la fiesta como protagonista en
-el celular, la espera del muro y las pantallas vacías del invitado.
+- La fiesta del cliente es ahora la protagonista en el celular: una tarjeta
+  grande con la fecha, la hora y el salón, y la cuenta regresiva grande y con
+  color. Antes eran cuatro cajitas grises chicas.
+- Salieron dos notas internas de la pantalla del cliente; el aviso de qué falta
+  completar está ahora en la pantalla interna del equipo.
+- La espera del muro muestra la marca, una frase y el armazón de la galería en
+  vez de una rueda sola.
+- Las pantallas vacías del muro llevan al próximo paso.
+- La portada pública tiene un respaldo debajo del botón principal.
 
-## Lo que costó y no hay que repetir
+## Lo que quedó trabado, y por qué
 
-- **Los ayudantes se equivocan de diagnóstico, no sólo de hallazgo.** Avisaron
-  bien que la pantalla del salón estaba vacía, pero el motivo era otro del que
-  suponían. Hubo que abrirlo y mirarlo.
-- **Del informe de las pantallas del equipo no se tomó nada:** eran comentarios
-  estéticos sobre pantallas internas que funcionan y se ven bien.
+**La foto grande del portal del cliente y el logo de la barra pública no llegan
+a verse en las fotos de prueba.** Se intentó tres veces y se paró por la regla
+del muro. El código está puesto y el resto sí se verificó con fotos. Habría que
+mirarlo en el sitio de verdad antes de tocar más.
 
 ## Lo próximo, si nadie dice otra cosa
 
-**Esperar la entrega de Gemini** de la orden vigente, verificarla y fusionarla.
-Nada más. La app está terminada: no se lanzan auditorías "a ver qué aparece".
+Revisar la propuesta #1004 de Gemini (torre de control de tótems y textos con
+inteligencia artificial para seguimiento comercial y post-evento).
