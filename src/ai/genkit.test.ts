@@ -8,6 +8,7 @@ describe("Gemini model policy", () => {
   it("uses the automatic Flash alias and keeps stable production fallbacks", () => {
     expect(getGeminiFallbackCandidates("googleai/gemini-flash-latest")).toEqual([
       "googleai/gemini-flash-latest",
+      "googleai/gemini-3.7-flash",
       "googleai/gemini-3.6-flash",
       "googleai/gemini-3.5-flash",
     ]);
