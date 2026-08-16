@@ -1,23 +1,33 @@
-# Tres cosas nuevas: la trivia, el video de la mañana y el configurador
+# Siete bloques: tres cosas nuevas y cuatro agujeros reales
 
 **Para:** Gemini (Antigravity)
 **Escribe:** Claude
 **Fecha:** 16 de agosto de 2026
 **Base:** `main` actualizado. Sincronizar antes de empezar.
 
-Ésta es la **única orden vigente**. **Todo va en UNA SOLA PROPUESTA**, los tres
-bloques juntos. Si un bloque se traba, entregá los otros dos igual en la misma
-propuesta y decí cuál faltó y por qué.
+Ésta es la **única orden vigente**. **Todo va en UNA SOLA PROPUESTA.** Si un
+bloque se traba, entregá los demás igual en la misma propuesta y decí cuál faltó
+y por qué.
+
+**Son siete bloques y es mucho.** No pasa nada si no entrás con todos: entregá
+los que estén terminados de verdad y avisá. Lo que no se acepta es entregar
+cinco a medias. **El orden de importancia, si tenés que elegir:**
+
+> **E, D, A, C, F, B, G.**
+
+El E protege plata. El D evita un papelón en una fiesta de verdad. El A es el más
+barato porque ya está construido.
 
 ## Antes de escribir una línea
 
 **Nada de esto es un arreglo. La app está terminada y funciona.** Esto es
-crecimiento: tres cosas que el dueño pidió después de mirar qué se está usando en
-las fiestas grandes del mundo.
+crecimiento y tapar agujeros. Los bloques A, B y C son ideas que el dueño eligió
+después de mirar qué se usa en las fiestas grandes del mundo. Los bloques D a G
+salieron de auditar el código y encontrar cosas que faltan de verdad.
 
 Por eso la regla más importante de esta orden es al revés de lo habitual:
 
-> **No construyas nada nuevo sin buscar primero.** Los tres bloques se apoyan en
+> **No construyas nada nuevo sin buscar primero.** Varios bloques se apoyan en
 > motores que YA están en el repositorio. Uno de ellos **está entero y sin
 > enchufar**. Si te encontrás escribiendo un cálculo de precios, un sistema de
 > votación o un puntaje, **parate**: ya existe y lo estás duplicando.
@@ -30,7 +40,8 @@ trivia completo del bloque A, así que no te fíes de una sola búsqueda.
 
 # BLOQUE A — La trivia en la cena
 
-**Empezá por acá: es el más barato de los tres y el que más se ve en el salón.**
+**Es el más barato de todos y el que más se ve en el salón, porque ya está
+construido.**
 
 ## Qué tiene que pasar
 
@@ -153,7 +164,7 @@ por qué.** Eso es una respuesta válida y esperada.
 
 # BLOQUE C — El configurador visual para la reunión de cierre
 
-**Es el que más plata cierra y el más grande de los tres.**
+**Es el que más plata cierra y el más grande de todos.**
 
 ## Qué tiene que pasar
 
@@ -217,11 +228,160 @@ camino que ya existe, para no cargar todo a mano de nuevo.
 
 ---
 
+# SEGUNDA TANDA — Cuatro cosas que salieron de auditar, no de pedir
+
+Los bloques A, B y C son ideas nuevas. **Estos cuatro son otra cosa: salieron de
+mirar el código y encontrar agujeros reales.** Cada uno se verificó abriendo los
+archivos, no con una búsqueda rápida.
+
+**Si no llegás con los siete, entregá lo que tengas y decí qué faltó.** Pero
+respetá este orden de importancia: **E, D, F, G.** El bloque E protege plata y el
+D evita un papelón en una fiesta de verdad.
+
+---
+
+# BLOQUE D — Si se cae el internet en la fiesta, hoy no pasa nada
+
+**Es el más aburrido de los siete y el más importante de todos.**
+
+## Lo que se verificó
+
+No hay **nada**. Ni un reintento, ni una cola, ni un aviso. Se buscó
+`navigator.onLine`, escuchas de `offline` y colas de envío en todo
+`src/app/evento/` y no aparece ninguna. Lo único que hay es el service worker de
+`public/sw.js`, que guarda la app para que **abra** sin conexión, pero **ninguna
+acción sobrevive**.
+
+Traducido a la fiesta: el invitado sube una foto, se corta el wifi en ese
+segundo, **la foto se pierde y él no se entera**. Lo mismo con anotar la llegada
+de un invitado en la puerta y con un pedido a la barra.
+
+Y no es una hipótesis rebuscada: **un salón lleno, doscientos celulares en el
+mismo wifi.** El muro ya tarda hasta veinte segundos con buena conexión.
+
+## Qué hacer
+
+- **Que lo pendiente se guarde en el celular y se mande solo cuando vuelve la
+  señal.** No hace falta resolverlo para toda la app: empezá por las tres que
+  duelen en una fiesta —subir una foto al muro, anotar la llegada de un invitado
+  y el pedido de la barra—.
+- **Que la persona vea qué está pasando**: "se está guardando, no cierres" y
+  después "listo". Nunca un botón que parece que anduvo y no anduvo.
+- **Que no se duplique** si el envío sale dos veces. Una foto repetida en el muro
+  es feo; un pedido de trago repetido en la barra es un problema.
+
+**No inventes un sistema general de sincronización.** Tres acciones, bien
+resueltas, y listo.
+
+# BLOQUE E — Al cotizar, nada avisa si el margen no se va a cumplir
+
+**Éste es de plata. Leé la restricción antes de escribir una línea.**
+
+## Lo que se verificó
+
+El cotizador **nunca mira lo que costaron las fiestas anteriores**. Se buscó
+cualquier referencia a históricos dentro de `src/lib/simulator/`,
+`src/lib/budget/` y el simulador público: **no hay ninguna**.
+
+Los datos existen y están cargados: hay costos reales por fiesta
+(`src/app/actions/fiesta/costos.actions.ts`), la pantalla de gestión de costos y
+rentabilidad, y la comparativa de ganancias. **Pero eso vive aparte y no se cruza
+nunca con el presupuesto que se está armando.**
+
+Resultado: se puede cotizar unos quince en el Club Uruguay para 150 personas con
+un margen que **en las últimas tres fiestas iguales no se cumplió**, y nadie
+avisa hasta que la fiesta ya pasó.
+
+## Qué hacer
+
+Mientras se arma el presupuesto, **un renglón discreto** que compare contra
+fiestas parecidas —mismo tipo de evento, salón parecido, cantidad de invitados
+parecida— y diga algo como:
+
+> *En las últimas 3 fiestas parecidas, la comida costó un 12% más de lo
+> estimado.*
+
+- **Avisa, no frena.** El dueño decide igual. Nada de bloquear el presupuesto.
+- **Si no hay suficientes fiestas parecidas, no muestres nada.** Un promedio de
+  una sola fiesta no dice nada y confunde.
+- En criollo, no en jerga: "costó más de lo estimado", no "desvío de margen".
+
+## La restricción, que es lo importante
+
+> **Este bloque MUESTRA un aviso. NO toca el cálculo del precio.**
+
+El precio lo sigue calculando `calculateSimulatorPricing()` en
+`src/lib/simulator/pricing.ts`, exactamente igual que hoy. **No cambies un solo
+número, ni una regla, ni el ajuste anual, ni un descuento.** Lo tuyo es leer lo
+que pasó antes y ponerlo al lado, como un cartel. Nada más.
+
+Si te encontrás modificando cómo se calcula un total, **parate y avisá**: eso lo
+escribe Claude.
+
+# BLOQUE F — Cada fiesta deja 200 invitados y no queda ninguno
+
+## Lo que se verificó
+
+Un invitado entra a la lista de prospectos **sólo si él solo se pone a pedir un
+presupuesto**. Se confirmó en `src/lib/crm/public-lead-persistence.ts`: la
+atribución guarda de qué fiesta y de qué invitado vino, **pero sólo cuando la
+persona ya hizo la consulta por su cuenta**.
+
+Los otros ciento noventa y pico —que usaron la fotocabina, subieron fotos, votaron
+la música— se van y no queda nada de ellos.
+
+## Qué hacer
+
+**Pedirles permiso en el mejor momento posible**, que es cuando están
+descargando su foto y están contentos:
+
+- Un solo toque: *"¿Querés que te avisemos cuando armemos la tuya?"*
+- El que dice que sí entra a la lista **con el nombre de la fiesta que lo trajo**,
+  que es información que ya se guarda.
+- Con lo mínimo: un contacto y listo. Nada de formularios.
+
+## Lo que está prohibido
+
+> **No se le manda nada a nadie que no lo haya pedido con un toque explícito.**
+
+Nada de agarrar la lista de invitados de la fiesta y usarla. Nada de casillas ya
+marcadas. **Eso quema la marca y es exactamente lo contrario de lo que se busca.**
+Y como siempre: **no se manda nada solo**, se deja la lista para que el equipo
+decida.
+
+# BLOQUE G — El equipo trabaja de noche con pantallas blancas
+
+## Lo que se verificó
+
+La app **no tiene modo oscuro**. Existen los restos de la configuración pero no
+hay ni interruptor ni nada que lo active, y sólo siete archivos usan estilos
+oscuros.
+
+A las tres de la mañana, en un salón a oscuras, el encargado abre el celular para
+ver la lista de invitados y **se come una pantalla blanca en la cara**. Molesta, y
+se ve amateur al lado de un salón ambientado.
+
+## Qué hacer, y qué NO
+
+> **No pintes la app de oscuro.** Son cientos de pantallas y ya se descartó una
+> vez, con razón.
+
+**Sólo las pantallas que se usan durante la noche de la fiesta**, que son un
+puñado: la llegada de invitados en la puerta, el plan de la noche del equipo, la
+moderación del muro y la logística. Ésas y ninguna más.
+
+Y no es sólo el color: **botones grandes, letras grandes, mucho contraste.** Se
+usa de pie, con una mano, apurado y con poca luz.
+
+---
+
 ## Lo que NO se toca nunca
 
-- Plata, cobros, comida y permisos: eso lo escribe Claude. En esta orden, el
-  único punto que roza plata es el precio del bloque C, y la regla es clara:
-  **reusar, no recalcular**.
+- Plata, cobros, comida y permisos: eso lo escribe Claude. En esta orden hay
+  **dos puntos que rozan plata y los dos tienen la misma regla**: el precio del
+  bloque C y el aviso del bloque E. En los dos, **se reusa y se muestra; no se
+  recalcula nada**. Si te encontrás escribiendo cómo se arma un total, parate y
+  avisá.
 - La validación del token de proveedor en `fotografia` y `catering`.
 - Los tiempos de la fotocabina: 10 segundos la primera foto, 4 las demás.
 - Los topes del contrato: 10% de reducción, 30% de aumento.
