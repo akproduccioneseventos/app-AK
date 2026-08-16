@@ -410,6 +410,7 @@ describe('registerContractDeposit', () => {
       presupuesto,
       monto: 10000,
       referencia: 'Seña inicial',
+      metodoPago: 'Efectivo',
     });
 
     expect(pagoId).toMatch(/^pago_senia_/);
@@ -432,6 +433,7 @@ describe('registerContractDeposit', () => {
     const { updatedPresupuesto } = await registerContractDeposit({
       presupuesto,
       monto: 10000,
+      metodoPago: 'Efectivo',
     });
 
     expect(updatedPresupuesto.pagosCliente).toHaveLength(2);
@@ -449,19 +451,22 @@ describe('registerContractDeposit', () => {
 
     const presupuesto = makePresupuesto({ invoiceId: 'inv_test' });
 
-    await registerContractDeposit({ presupuesto, monto: 8000 });
+    await registerContractDeposit({ presupuesto, monto: 8000, metodoPago: 'Transferencia Bancaria' });
 
     expect(mockGetInvoiceById).toHaveBeenCalledWith('inv_test');
     expect(mockSaveInvoice).toHaveBeenCalledTimes(1);
     const savedInvoice = mockSaveInvoice.mock.calls[0][0] as any;
     expect(savedInvoice.payments).toHaveLength(1);
     expect(savedInvoice.payments[0].amount).toBe(8000);
+    // Antes el metodo se rellenaba con 'Efectivo' cuando no venia, y una
+    // transferencia quedaba asentada como plata en mano, tambien en la factura.
+    expect(savedInvoice.payments[0].method).toBe('Transferencia');
   });
 
   it('(10) does NOT call saveInvoice when no invoiceId is set', async () => {
     const presupuesto = makePresupuesto();
 
-    await registerContractDeposit({ presupuesto, monto: 5000 });
+    await registerContractDeposit({ presupuesto, monto: 5000, metodoPago: 'Efectivo' });
 
     expect(mockGetInvoiceById).not.toHaveBeenCalled();
     expect(mockSaveInvoice).not.toHaveBeenCalled();

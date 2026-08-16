@@ -112,6 +112,7 @@ export default function TouchpixPage() {
   const [showQrModal, setShowQrModal] = useState(false);
   const [session, setSession] = useState<EntertainmentSession | null>(null);
   const [consentAccepted, setConsentAccepted] = useState(false);
+  const [photoSessionId, setPhotoSessionId] = useState<string>(() => `sess_${Date.now()}_${Math.random().toString(36).substring(2, 7)}`);
 
   const eventName = fiesta?.eventName || 'este gran evento';
   
@@ -550,6 +551,7 @@ export default function TouchpixPage() {
       if (accessToken) formData.set('accessToken', accessToken);
       formData.set('consentAccepted', String(consentAccepted));
       formData.set('themeId', themeId);
+      formData.set('photoSessionId', photoSessionId);
       formData.set('file', await dataUrlToFile(rawCapturedImage, `touchpix-theme-${Date.now()}.jpg`));
       const result = await applyTouchpixTheme(formData);
 
@@ -572,7 +574,7 @@ export default function TouchpixPage() {
       setProcessingResult('fallback');
       setIsProcessing(false);
     });
-  }, [rawCapturedImage, applyFilterToCanvas, fiestaId, accessToken, consentAccepted]);
+  }, [rawCapturedImage, applyFilterToCanvas, fiestaId, accessToken, consentAccepted, photoSessionId]);
 
   /* ── Download ── */
   const handleDownload = useCallback(() => {
@@ -593,6 +595,7 @@ export default function TouchpixPage() {
     setProcessingResult(null);
     setWizardStep(0);
     setConsentAccepted(false);
+    setPhotoSessionId(`sess_${Date.now()}_${Math.random().toString(36).substring(2, 7)}`);
     void completeEntertainmentSessionCycle(fiestaId, 'espejoMagicoIA', accessToken);
     startCamera();
   }, [accessToken, fiestaId, startCamera]);
@@ -1196,7 +1199,7 @@ export default function TouchpixPage() {
             >
               <PartyPopper className="w-24 h-24 text-fuchsia-400 mb-4 animate-bounce" />
               <h2 className="text-3xl font-black text-white mb-2">¡Foto enviada!</h2>
-              <p className="text-lg text-zinc-300">Ya está en el muro de la fiesta 🎉</p>
+              <p className="text-lg text-zinc-300">{fiesta?.socialWallEnabled ? 'Ya está en el muro de la fiesta 🎉' : 'Ya está guardada 🎉'}</p>
             </motion.div>
           )}
         </AnimatePresence>
@@ -1229,7 +1232,7 @@ export default function TouchpixPage() {
                 <div className="w-[68px] h-[68px] rounded-full bg-gradient-to-r from-fuchsia-500 to-purple-600 shadow-[0_0_30px_rgba(217,70,239,0.4)] flex items-center justify-center">
                   {isUploading ? <Loader2 className="w-7 h-7 animate-spin" /> : <Send className="w-7 h-7 ml-0.5" />}
                 </div>
-                <span className="text-xs font-black uppercase tracking-wide">Publicar al muro</span>
+                <span className="text-xs font-black uppercase tracking-wide">{fiesta?.socialWallEnabled ? 'Publicar al muro' : 'Guardar foto'}</span>
               </button>
 
               <button onClick={handleDownload} className="flex flex-col items-center gap-1.5 text-zinc-400 hover:text-white transition">

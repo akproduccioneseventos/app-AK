@@ -1,6 +1,8 @@
 import type { AutomationTrigger, ScheduledMessage } from '@/types/whatsapp-automation';
 import { getWhatsAppSettings, getWhatsAppTemplates } from '@/app/actions/settings';
 import { saveScheduledMessage } from '@/app/actions/scheduled-messages';
+import { rellenarPlantilla } from '@/lib/whatsapp/plantilla-mensaje';
+import { WHATSAPP_AUTOMATION_INTERNAL_TOKEN } from '@/lib/whatsapp/internal-token';
 
 export interface AutomationContext {
   targetId: string;
@@ -34,12 +36,12 @@ function buildVariables(ctx: AutomationContext): TemplateVariables {
 }
 
 function renderTemplate(template: string, ctx: AutomationContext): string {
-  const vars = buildVariables(ctx);
-  const rendered = Object.entries(vars).reduce(
-    (text, [key, value]) => text.replace(new RegExp(`\\{\\{${key}\\}\\}`, 'g'), () => value),
-    template
-  );
-  return rendered.replace(/ {2,}/g, ' ').trim();
+  // `rellenarPlantilla` ademas de reemplazar borra los marcadores que quedaron
+  // sin valor y limpia la basura que dejan alrededor (comas y parentesis
+  // sueltos). Antes solo se reemplazaban los marcadores conocidos: si alguien
+  // escribia una plantilla propia con {{NUMERO_CLIENTE}}, el cliente recibia el
+  // mensaje con esas llaves adentro, tal cual.
+  return rellenarPlantilla(template, buildVariables(ctx));
 }
 
 /**
@@ -51,7 +53,8 @@ function renderTemplate(template: string, ctx: AutomationContext): string {
  */
 export async function triggerWhatsAppAutomation(
   trigger: AutomationTrigger,
-  ctx: AutomationContext
+  ctx: AutomationContext,
+  internalToken?: symbol,
 ): Promise<{ scheduled: number; errors: string[] }> {
   const errors: string[] = [];
   let scheduled = 0;
@@ -63,6 +66,10 @@ export async function triggerWhatsAppAutomation(
     ]);
 
     if (!settings.enabled) return { scheduled: 0, errors: [] };
+    if (!ctx.targetPhone?.trim()) {
+      errors.push(`Omite programacion para disparador ${trigger}: targetPhone esta vacio`);
+      return { scheduled: 0, errors };
+    }
 
     const rules = (settings.automationRules ?? []).filter(
       r => r.enabled && r.trigger === trigger
@@ -123,7 +130,10 @@ export async function triggerWhatsAppAutomation(
           automationRuleId: rule.id,
         };
 
-        const result = await saveScheduledMessage(newMsg);
+        const result = await saveScheduledMessage(
+          newMsg,
+          internalToken === WHATSAPP_AUTOMATION_INTERNAL_TOKEN ? internalToken : undefined,
+        );
         if (result.success) {
           scheduled++;
         } else {

@@ -358,9 +358,7 @@ function MuroSocialContent() {
     setIsSaving(true);
     const result = await updateSocialGallerySettingsFiestaActual(fiestaId, settings);
     setIsSaving(false);
-    if (result.success) {
-      toast({ title: 'Configuración guardada' });
-    } else {
+    if (!result.success) {
       toast({ title: 'Error al guardar', description: result.error, variant: 'destructive' });
     }
   };
@@ -376,7 +374,6 @@ function MuroSocialContent() {
     });
     setIsSavingLed(false);
     if (result.success) {
-      toast({ title: 'Cartel LED enviado ✓', description: 'El texto se actualizó en la pantalla en vivo.' });
       await loadData();
     } else {
       toast({ title: 'Error al enviar cartel LED', description: result.error, variant: 'destructive' });
@@ -400,9 +397,7 @@ function MuroSocialContent() {
       const updated = { ...settingsRef.current, mobileControlCoverUrl: res.asset.url };
       setSettings(updated);
       const result = await updateSocialGallerySettingsFiestaActual(fiestaId, updated);
-      if (result.success) {
-        toast({ title: 'Portada actualizada ✓' });
-      } else {
+      if (!result.success) {
         toast({ title: 'Error al guardar portada', description: result.error, variant: 'destructive' });
       }
     } catch (e: any) {
@@ -415,9 +410,7 @@ function MuroSocialContent() {
   const saveMarketingText = async () => {
     if (!fiestaId) return;
     const result = await updateSocialGallerySettingsFiestaActual(fiestaId, settings);
-    if (result.success) {
-      toast({ title: 'Texto de marketing actualizado ✓', description: 'El zócalo se actualizó en la pantalla en vivo.' });
-    } else {
+    if (!result.success) {
       toast({ title: 'Error al guardar', description: result.error, variant: 'destructive' });
     }
   };
@@ -582,7 +575,6 @@ function MuroSocialContent() {
     const result = await updateScreenBrand(fiestaId, akBrandSettings);
     setIsSavingBrand(false);
     if (result.success) {
-      toast({ title: 'Marca AK guardada ✓', description: 'El branding se actualizó en la pantalla en vivo.' });
       await loadData();
     } else {
       toast({ title: 'Error al guardar marca', description: result.error, variant: 'destructive' });
@@ -848,17 +840,27 @@ function MuroSocialContent() {
     }));
   };
 
-  const updateAudioRhythmSettings = (patch: Partial<NonNullable<SocialGallerySettings['audioRhythm']>>) => {
-    setSettings((prev) => {
-      const normalized = withScreenDefaults(prev);
-      return {
-        ...normalized,
-        audioRhythm: {
-          ...normalized.audioRhythm!,
-          ...patch,
-        },
-      };
-    });
+  const updateAudioRhythmSettings = async (patch: Partial<NonNullable<SocialGallerySettings['audioRhythm']>>) => {
+    if (!fiestaId) return;
+
+    const previous = settingsRef.current;
+
+    // Calcula el nuevo estado
+    const newSettings = withScreenDefaults(previous);
+    newSettings.audioRhythm = {
+      ...newSettings.audioRhythm!,
+      ...patch,
+    };
+
+    // Actualiza localmente (optimista)
+    setSettings(newSettings);
+
+    // Persiste en BD
+    const result = await updateSocialGallerySettingsFiestaActual(fiestaId, newSettings);
+    if (!result.success) {
+      setSettings(previous); // Rollback
+      toast({ title: 'Error al guardar configuración', description: result.error, variant: 'destructive' });
+    }
   };
 
   const handleAddCustomMomento = async () => {
@@ -876,7 +878,6 @@ function MuroSocialContent() {
     if (result.success) {
       setNewMomentoNombre('');
       setNewMomentoEmoji('✨');
-      toast({ title: 'Momento añadido ✓' });
     } else {
       toast({ title: 'Error al guardar momento', description: result.error, variant: 'destructive' });
       setSettings((prev) => ({ ...prev, customMomentos: (prev.customMomentos ?? []).filter((m) => m.id !== id) }));
@@ -1162,8 +1163,7 @@ function MuroSocialContent() {
                   onClick={async () => {
                     const updated = { ...settingsRef.current, accentColor: settings.accentColor };
                     const result = await updateSocialGallerySettingsFiestaActual(fiestaId!, updated);
-                    if (result.success) toast({ title: 'Color guardado ✓' });
-                    else toast({ title: 'Error al guardar', description: result.error, variant: 'destructive' });
+                    if (!result.success) toast({ title: 'Error al guardar', description: result.error, variant: 'destructive' });
                   }}
                 >
                   <Save className="w-3.5 h-3.5" />
@@ -1337,7 +1337,7 @@ function MuroSocialContent() {
                 </CardDescription>
               </div>
               <div className="flex items-center gap-2">
-                <span className="text-xs font-semibold text-indigo-700 bg-indigo-100/80 px-2.5 py-1 rounded-full animate-pulse">
+                <span className="text-xs font-semibold text-indigo-700 bg-indigo-100/80 px-2.5 py-1 rounded-full">
                   Premium Feature
                 </span>
               </div>

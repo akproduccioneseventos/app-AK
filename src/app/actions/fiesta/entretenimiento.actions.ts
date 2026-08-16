@@ -73,7 +73,7 @@ export async function getPublicEntertainmentEvent(
     const fiesta = await getFiestaById(fiestaId);
     if (!fiesta) return { success: false, error: 'Evento no encontrado.' };
     if (!(await hasEntertainmentGuestAccess(fiestaId, moduleId, accessToken))) {
-      return { success: false, error: 'Acceso de estacion no autorizado.' };
+      return { success: false, error: 'Esta estación todavía no está habilitada. Pedile al equipo de AK que la active desde el panel de la fiesta.' };
     }
     const station = getEntertainmentStationConfig(fiesta, moduleId);
     if (!station.enabled) {
@@ -167,7 +167,7 @@ export async function uploadEntretenimientoMedia(formData: FormData) {
 
   try {
     if (!(await hasEntertainmentGuestAccess(fiestaId, moduleId, accessToken))) {
-      return { success: false, error: 'Acceso de estacion no autorizado.' };
+      return { success: false, error: 'Esta estación todavía no está habilitada. Pedile al equipo de AK que la active desde el panel de la fiesta.' };
     }
     const fiesta = await getFiestaById(fiestaId);
     if (!fiesta) throw new Error('Fiesta no encontrada');

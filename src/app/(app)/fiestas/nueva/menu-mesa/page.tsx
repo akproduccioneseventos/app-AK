@@ -51,6 +51,7 @@ function MenuDeMesaContent() {
       setLogoUrl(settings.logoUrl ?? null);
       
       const mergedData = { ...defaultMenuMesaData, ...(fiestaData.menuMesa || {}) };
+      lastSavedDataRef.current = mergedData;
       setData(mergedData);
     } catch (e: any) {
       setError("No se pudo cargar la información del evento.");
@@ -104,18 +105,26 @@ function MenuDeMesaContent() {
     }
   };
 
+  const lastSavedDataRef = React.useRef<MenuMesaData>(data);
+
   const handleSave = async () => {
     if (!fiestaId) return;
     setIsSaving(true);
     try {
       const result = await updateMenuMesaAction(fiestaId, data);
       if (result.success) {
+        lastSavedDataRef.current = data;
         toast({ title: "¡Guardado!", description: "El menú de mesa ha sido actualizado." });
       } else {
-        throw new Error(result.error);
+        throw new Error(result.error || "No se pudo guardar la configuración.");
       }
     } catch (e: any) {
-       toast({ title: "Error", description: e.message, variant: "destructive" });
+      setData(lastSavedDataRef.current);
+      toast({
+        title: "No se pudo guardar la configuración",
+        description: `${e.message || 'Error de conexión'}. Se restauró la versión anterior.`,
+        variant: "destructive"
+      });
     } finally {
         setIsSaving(false);
     }
@@ -151,8 +160,8 @@ function MenuDeMesaContent() {
   }
   
   return (
-    <div className="bg-gray-100 print:bg-white">
-        <div className="py-2 px-4 print:hidden flex flex-col md:flex-row justify-between items-center gap-4 bg-white shadow-sm sticky top-0 z-50">
+    <div className="bg-background print:bg-white">
+        <div className="py-2 px-4 print:hidden flex flex-col md:flex-row justify-between items-center gap-4 bg-card border-b border-border shadow-sm sticky top-0 z-50">
             <h1 className="font-headline text-lg">Editor de Menú de Mesa</h1>
             <div className="flex flex-wrap gap-2 items-center">
                 <div className="space-y-1"><Label htmlFor="protagonista-foto" className="text-xs">Foto</Label><Input id="protagonista-foto" type="file" accept="image/*" onChange={handlePhotoUpload} className="text-xs w-48" disabled={isUploading}/></div>

@@ -15,6 +15,8 @@ import {
 import { CheckCircle, Loader2, PartyPopper, Calendar, MapPin, DollarSign, Archive, Printer, ArrowLeft, ArrowRight, FileText, User, Phone, CreditCard, Home, AlertCircle } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { confirmBookingWithContract } from '@/app/actions/crm';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import { ALL_METODOS_PAGO, type MetodoPago } from '@/types/presupuesto';
 import type { CrmLead } from '@/types/crm';
 import { Separator } from '@/components/ui/separator';
 import { Switch } from '@/components/ui/switch';
@@ -49,6 +51,9 @@ export function BookingConfirmationDialog({ isOpen, onOpenChange, lead, presupue
   const [isClubUruguay, setIsClubUruguay] = useState((initialSalon || '').toLowerCase().includes('uruguay'));
   const [fechaEvento, setFechaEvento] = useState(initialFechaEvento);
   const [montoSenia, setMontoSenia] = useState('');
+  // Cómo entró la seña. Antes no se preguntaba y toda seña quedaba asentada como
+  // efectivo, incluso una transferencia, y ese error se copiaba a la factura.
+  const [metodoSenia, setMetodoSenia] = useState<MetodoPago>('Efectivo');
   const [companyName, setCompanyName] = useState((lead as any).companyName || '');
   const [taxId, setTaxId] = useState((lead as any).taxId || '');
 
@@ -85,7 +90,10 @@ export function BookingConfirmationDialog({ isOpen, onOpenChange, lead, presupue
       formData.append('address', address);
       formData.append('salon', salon);
       formData.append('eventoFecha', fechaEvento);
-      if (montoSenia.trim() !== '') formData.append('montoSenia', montoSenia);
+      if (montoSenia.trim() !== '') {
+        formData.append('montoSenia', montoSenia);
+        formData.append('metodoPago', metodoSenia);
+      }
       if (companyName) formData.append('companyName', companyName);
       if (taxId) formData.append('taxId', taxId);
 
@@ -270,6 +278,27 @@ export function BookingConfirmationDialog({ isOpen, onOpenChange, lead, presupue
                   />
                 </div>
               </div>
+
+              {montoSenia.trim() !== '' && (
+                <div className="space-y-1">
+                  <Label className="text-xs font-bold uppercase tracking-widest text-slate-500">
+                    ¿Cómo entró la seña?
+                  </Label>
+                  <Select value={metodoSenia} onValueChange={value => setMetodoSenia(value as MetodoPago)}>
+                    <SelectTrigger>
+                      <SelectValue />
+                    </SelectTrigger>
+                    <SelectContent>
+                      {ALL_METODOS_PAGO.map(metodo => (
+                        <SelectItem key={metodo} value={metodo}>{metodo}</SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                  <p className="text-xs text-slate-500">
+                    Queda asentado así en la caja y en la factura.
+                  </p>
+                </div>
+              )}
             </div>
           </div>
         )}

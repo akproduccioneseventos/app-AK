@@ -1,11 +1,12 @@
 'use client';
 
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
+import { soloAprobados, esAprobadoParaMostrar } from '@/lib/social-fiesta/visibilidad';
 import { useParams } from 'next/navigation';
 import NextImage from 'next/image';
 import { QRCodeSVG } from 'qrcode.react';
 import { AnimatePresence, motion, useReducedMotion } from 'framer-motion';
-import { Maximize, QrCode, RefreshCw, Sparkles } from 'lucide-react';
+import { Loader2, Maximize, QrCode, RefreshCw, Sparkles } from 'lucide-react';
 import { getPublicSocialEvent, getPublicSocialPosts } from '@/app/actions/social-gallery';
 import { getEntertainmentLaunchToken } from '@/app/actions/fiesta/entretenimiento.actions';
 import type { TotemScreenSettings } from '@/types/fiesta';
@@ -91,7 +92,7 @@ export default function TotemPublicPage() {
       setTotem(selected);
       setPosts(
         socialPosts
-          .filter((post) => (post.moderationStatus ?? 'approved') === 'approved')
+          .filter(esAprobadoParaMostrar)
           .sort((a, b) => new Date(b.timestamp).getTime() - new Date(a.timestamp).getTime())
           .slice(0, 18)
       );
@@ -169,17 +170,30 @@ export default function TotemPublicPage() {
 
   useEffect(() => {
     let vigente = true;
-    getEntertainmentLaunchToken(fiestaId, 'totems')
-      .then((res) => {
-        if (vigente && res.success && res.guestToken) setPermisoDeSalon(res.guestToken);
-      })
-      .catch(() => {});
-    return () => { vigente = false; };
+    let timer: NodeJS.Timeout;
+    const fetchToken = () => {
+      getEntertainmentLaunchToken(fiestaId, 'totems')
+        .then((res) => {
+          if (vigente && res.success && res.guestToken) {
+            setPermisoDeSalon(res.guestToken);
+            if (timer) clearInterval(timer);
+          }
+        })
+        .catch(() => {});
+    };
+    
+    fetchToken();
+    timer = setInterval(fetchToken, 4000);
+    
+    return () => { 
+      vigente = false; 
+      clearInterval(timer); 
+    };
   }, [fiestaId]);
 
   const qrUrl = useMemo(() => {
     const base = totem?.qrUrl || (origin ? `${origin}/evento/social/${fiestaId}` : '');
-    if (!base || !permisoDeSalon) return base;
+    if (!base || !permisoDeSalon) return '';
     return `${base}${base.includes('?') ? '&' : '?'}estacion=totems&access=${encodeURIComponent(permisoDeSalon)}`;
   }, [fiestaId, origin, permisoDeSalon, totem?.qrUrl]);
 
@@ -274,10 +288,24 @@ export default function TotemPublicPage() {
                     Activar audio
                   </button>
                 )}
-                {totem.showQr && qrUrl && (
-                  <div className="rounded-lg border border-white/15 bg-white/10 px-5 py-3 text-sm font-black uppercase tracking-wider backdrop-blur">
-                    <QrCode className="mr-2 inline h-4 w-4" /> {totem.qrLabel || 'Escaneá y participá'}
-                  </div>
+                {totem.showQr && (
+                  qrUrl ? (
+                    <div className="rounded-lg border border-white/15 bg-white/10 px-5 py-3 text-sm font-black uppercase tracking-wider backdrop-blur flex items-center">
+                      <QrCode className="mr-2 inline h-4 w-4" /> {totem.qrLabel || 'Escaneá y participá'}
+                    </div>
+                  ) : (
+                    <div className="rounded-2xl border-2 border-amber-400/40 bg-amber-500/20 px-6 py-4 backdrop-blur-md flex items-center gap-4 shadow-xl">
+                      <Loader2 className="h-8 w-8 animate-spin text-amber-300 shrink-0" />
+                      <div>
+                        <p className="text-lg sm:text-xl font-black uppercase tracking-wider text-amber-200">
+                          Conectando estación...
+                        </p>
+                        <p className="text-xs font-semibold text-amber-300/80">
+                          Habilitando código de acceso
+                        </p>
+                      </div>
+                    </div>
+                  )
                 )}
               </div>
             </div>
@@ -344,13 +372,28 @@ export default function TotemPublicPage() {
                 ))}
               </motion.div>
             </div>
-            {totem.showQr && qrUrl && (
-              <div className="flex items-center gap-4 rounded-lg border border-white/12 bg-white/95 p-4 text-slate-950 shadow-2xl">
-                <QRCodeSVG value={qrUrl} size={132} includeMargin />
-                <div className="max-w-[180px]">
-                  <p className="text-xs font-black uppercase tracking-[0.2em]" style={{ color: accent }}>{totem.qrLabel || 'Participá'}</p>
-                  <p className="mt-1 text-sm font-bold text-slate-600">Escaneá desde tu celular y subí tu foto.</p>
-                </div>
+            {totem.showQr && (
+              <div className="flex shrink-0 items-center justify-end">
+                {qrUrl ? (
+                  <div className="flex flex-col items-end gap-3 rounded-xl bg-black/60 p-5 backdrop-blur-xl">
+                    <p className="max-w-[200px] text-right text-xs font-black uppercase leading-tight tracking-[0.25em] text-white">
+                      {totem.qrLabel || 'Escaneá para participar'}
+                    </p>
+                    <div className="rounded-lg bg-white p-3 shadow-2xl">
+                      <QRCodeSVG value={qrUrl} size={156} includeMargin={false} />
+                    </div>
+                  </div>
+                ) : (
+                  <div className="flex flex-col items-center justify-center gap-3 rounded-2xl bg-black/80 border-2 border-amber-400/30 p-6 backdrop-blur-xl text-center min-w-[200px] min-h-[200px]">
+                    <Loader2 className="h-10 w-10 animate-spin text-amber-400" />
+                    <p className="text-sm font-black uppercase tracking-wider text-amber-300">
+                      Conectando...
+                    </p>
+                    <p className="text-[11px] font-bold text-white/60 max-w-[150px] leading-snug">
+                      El código QR aparecerá al conectar
+                    </p>
+                  </div>
+                )}
               </div>
             )}
           </footer>

@@ -103,6 +103,7 @@ export interface Presupuesto {
   ajusteAnualActivo?: boolean; // NEW: Controls visibility of annual adjustment
   leadId?: string;
   source?: PresupuestoSource;
+  selectedMenuId?: string; // Menú maestro elegido; mantiene la referencia para edición y protección histórica.
   pagosCliente?: PagoCliente[]; // Detailed client payment records
   marketingMarkupPercent?: number; // Marketing: fictitious markup % over total real (e.g. 15 → Precio de Lista)
   modoDescuentoPromocional?: boolean; // When true the discount is a visual/promotional markdown (no real cost change)

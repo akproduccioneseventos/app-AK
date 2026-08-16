@@ -1,15 +1,17 @@
 'use client';
 
 import React from 'react';
-import { TriviaParticipant } from '@/lib/games/game-engine';
+import { TriviaParticipant, calculateLeaderboard } from '@/lib/games/game-engine';
 
 interface Props {
   participants: TriviaParticipant[];
 }
 
 export default function LeaderboardDisplay({ participants }: Props) {
-  const top3 = participants.slice(0, 3);
-  const others = participants.slice(3);
+  const leaderboard = calculateLeaderboard(participants);
+  const top3 = leaderboard.topThree;
+  const others = leaderboard.participants.slice(3);
+  const tableScores = leaderboard.tableLeaderboard || [];
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-900 via-purple-900 to-slate-900 text-white p-8 overflow-hidden">
@@ -66,6 +68,23 @@ export default function LeaderboardDisplay({ participants }: Props) {
           )}
         </div>
       </div>
+
+      {tableScores.length > 0 && (
+        <div className="max-w-2xl mx-auto bg-slate-800/50 backdrop-blur-md rounded-2xl p-6 shadow-xl mt-8">
+          <h2 className="text-2xl font-bold mb-4 border-b border-slate-700 pb-2">Ranking por Mesas</h2>
+          <div className="space-y-4 max-h-60 overflow-y-auto pr-2 custom-scrollbar">
+            {tableScores.map((t: any, i: number) => (
+              <div key={t.tableNumber} className="flex justify-between items-center bg-slate-800/80 p-4 rounded-lg">
+                <div className="flex items-center gap-4">
+                  <span className="text-slate-400 font-bold w-6">{i + 1}.</span>
+                  <span className="text-lg font-medium">Mesa {t.tableNumber}</span>
+                </div>
+                <span className="font-bold text-amber-400">{t.score} pts</span>
+              </div>
+            ))}
+          </div>
+        </div>
+      )}
     </div>
   );
 }

@@ -18,6 +18,16 @@ import type { Html5QrcodeScanner, QrcodeSuccessCallback } from 'html5-qrcode';
 import { Alert, AlertTitle, AlertDescription } from '@/components/ui/alert';
 
 
+/**
+ * En la puerta importa cuanta GENTE entro, no cuantas filas de la lista se
+ * marcaron. Cada invitado puede venir con acompanantes (`partySize`): si Maria
+ * viene con su familia de cinco y se escanea su QR, entraron cinco personas, no
+ * una. El cartel contaba filas, asi que en una fiesta de ciento cincuenta
+ * personas mostraba menos de la mitad y nadie sabia cuanta gente habia adentro.
+ */
+const personasDe = (invitados: Invitado[]) =>
+  invitados.reduce((suma, i) => suma + (Number(i.partySize) > 0 ? Number(i.partySize) : 1), 0);
+
 function CheckinScannerContent() {
   const { toast } = useToast();
   const searchParams = useSearchParams();
@@ -201,16 +211,6 @@ function CheckinScannerContent() {
   }, [allGuests, searchTerm]);
 
   const totalConfirmados = React.useMemo(() => allGuests.filter(i => i.rsvp === 'Confirmado').length, [allGuests]);
-
-  /**
-   * En la puerta importa cuanta GENTE entro, no cuantas filas de la lista se
-   * marcaron. Cada invitado puede venir con acompanantes (`partySize`): si Maria
-   * viene con su familia de cinco y se escanea su QR, entraron cinco personas, no
-   * una. El cartel contaba filas, asi que en una fiesta de ciento cincuenta
-   * personas mostraba menos de la mitad y nadie sabia cuanta gente habia adentro.
-   */
-  const personasDe = (invitados: typeof allGuests) =>
-    invitados.reduce((suma, i) => suma + (Number(i.partySize) > 0 ? Number(i.partySize) : 1), 0);
 
   const personasPresentes = React.useMemo(() => personasDe(checkedInGuests), [checkedInGuests]);
   const personasEsperadas = React.useMemo(

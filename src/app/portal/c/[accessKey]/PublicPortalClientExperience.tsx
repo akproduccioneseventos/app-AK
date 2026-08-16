@@ -32,6 +32,7 @@ import {
   Video,
   Wallet,
   X,
+  ExternalLink,
 } from 'lucide-react';
 import { addClientMusicSuggestion, initializePortalSession, submitClientMenuChangeRequest, submitClientPayment, submitClientServiceAddRequest, updateClientePortalExperience, checkDateAvailability, cancelServicesOrParty, changeEventDate } from '@/app/actions/fiesta/portal.actions';
 import { defaultFaq } from '@/lib/fiesta-defaults';
@@ -42,6 +43,7 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
 import { Label } from '@/components/ui/label';
+import { EmptyState } from '@/components/ui/empty-state';
 import {
   buildWhatsAppHref,
   estimateGuestIncrease,
@@ -52,6 +54,7 @@ import {
 import { calcularEstadoDeCuenta } from '@/lib/budget/saldo-con-ajuste';
 import { resolveClientPortalAccess } from '@/lib/client-portal/access-phases';
 import { buildGoogleCalendarUrl } from '@/lib/calendar-links';
+import { textoDeCuentaRegresiva } from '@/lib/portal/cuenta-regresiva';
 
 type PublicPortalClientExperienceProps = {
   fiesta: any;
@@ -59,6 +62,8 @@ type PublicPortalClientExperienceProps = {
   companyName: string;
   presupuesto?: any | null;
   catalogServices?: CatalogService[];
+  /** Ajuste anual configurado en ajustes. Si no llega, se usa el 15% historico. */
+  ajusteAnualPorcentaje?: number;
 };
 
 type DisplayIcon = ElementType<{ className?: string }>;
@@ -217,8 +222,15 @@ function StatTile({ label, value, icon: Icon, tone }: { label: string; value: st
   );
 }
 
-function EmptyLine({ text }: { text: string }) {
-  return <p className="ak-public-card-soft border-dashed p-3 text-sm text-slate-500">{text}</p>;
+function PortalEmptyState({ title, description }: { title: string; description: string }) {
+  return (
+    <EmptyState
+      icon={<ClipboardList className="h-7 w-7" />}
+      title={title}
+      description={description}
+      className="ak-public-card-soft py-6"
+    />
+  );
 }
 
 function NoticeBox({ notice }: { notice: Notice }) {
@@ -288,7 +300,7 @@ function PhaseRoadmap({ access, eventColor }: { access: ReturnType<typeof resolv
   );
 }
 
-export default function PublicPortalClientExperience({ fiesta, companyContact, companyName, presupuesto, catalogServices = [] }: PublicPortalClientExperienceProps) {
+export default function PublicPortalClientExperience({ fiesta, companyContact, companyName, presupuesto, catalogServices = [], ajusteAnualPorcentaje = 15 }: PublicPortalClientExperienceProps) {
   const config = fiesta?.configuracion ?? {};
   const settings = fiesta?.clientPortalSettings ?? {};
   const access = resolveClientPortalAccess(fiesta);
@@ -472,7 +484,9 @@ export default function PublicPortalClientExperience({ fiesta, companyContact, c
   // cuenta de AK. Antes el portal mostraba el total pelado, sin el ajuste anual,
   // asi que el cliente creia deber menos de lo que realmente debia y la
   // diferencia recien aparecia al ir a pagar la ultima cuota.
-  const estadoDeCuenta = calcularEstadoDeCuenta(presupuesto ?? null);
+  // El porcentaje viene de los ajustes: si no se pasa, el portal se queda
+  // clavado en 15% y el cliente ve un saldo distinto al de la pantalla interna.
+  const estadoDeCuenta = calcularEstadoDeCuenta(presupuesto ?? null, ajusteAnualPorcentaje);
   const totalPresupuesto = estadoDeCuenta.total || getTotalPresupuesto(presupuesto);
   const paymentSummary = getPortalPaymentSummary({
     total: totalPresupuesto,
@@ -549,15 +563,23 @@ export default function PublicPortalClientExperience({ fiesta, companyContact, c
     done: item.completado || item.completada || item.estado === 'listo' || item.estado === 'revisado',
   })).filter(task => task.text && !task.done);
 
-  const nextStep = (() => {
-    if (isDefaultLink) return { title: 'Falta personalizar el link', text: 'Antes de enviarlo, AK debe cambiar el link de prueba por uno real.' };
-    if (!presupuesto) return { title: 'Falta el presupuesto', text: 'Cuando AK lo cargue, vas a ver pagos, contrato y servicios.' };
-    if (paymentSummary.pendingReviewCount > 0) return { title: 'Pago en revisión', text: `Hay ${paymentSummary.pendingReviewCount} pago(s) esperando confirmación de AK.` };
-    if (paymentSummary.balance > 0) return { title: 'Saldo pendiente', text: `Saldo actual: ${formatPortalMoney(paymentSummary.balance)}.` };
-    if (pendingTasks.length > 0) return { title: 'Pendiente para revisar', text: pendingTasks[0].text };
-    if (guestStats.needsAction > 0) return { title: 'Invitados pendientes', text: `${guestStats.needsAction} invitado(s) todavía necesitan respuesta.` };
-    return { title: 'Todo encaminado', text: 'La información principal del evento está ordenada.' };
+  const nextStep: { title: string; text: string; action: 'contact' | 'payment' | 'contable' | 'organizacion' | 'invitados'; label: string } = (() => {
+    if (isDefaultLink) return { title: 'Falta personalizar el link', text: 'Antes de enviarlo, AK debe cambiar el link de prueba por uno real.', action: 'contact', label: 'Hablar con AK' };
+    if (!presupuesto) return { title: 'Falta el presupuesto', text: 'Cuando AK lo cargue, vas a ver pagos, contrato y servicios.', action: 'contact', label: 'Consultar con AK' };
+    if (paymentSummary.pendingReviewCount > 0) return { title: 'Pago en revisión', text: `Hay ${paymentSummary.pendingReviewCount} pago(s) esperando confirmación de AK.`, action: 'contable', label: 'Ver pagos' };
+    if (paymentSummary.balance > 0) return { title: 'Saldo pendiente', text: `Saldo actual: ${formatPortalMoney(paymentSummary.balance)}.`, action: 'payment', label: 'Hacer un pago' };
+    if (access.canSeeOrganization && pendingTasks.length > 0) return { title: 'Pendiente para revisar', text: pendingTasks[0].text, action: 'organizacion', label: 'Ver pendientes' };
+    if (access.canSeeOrganization && guestStats.needsAction > 0) return { title: 'Invitados pendientes', text: `${guestStats.needsAction} invitado(s) todavía necesitan respuesta.`, action: 'invitados', label: 'Ver invitados' };
+    return access.canSeeOrganization
+      ? { title: 'Todo encaminado', text: 'La información principal del evento está ordenada.', action: 'organizacion', label: 'Ver resumen' }
+      : { title: 'Todo encaminado', text: 'La información disponible del evento está ordenada.', action: 'contable', label: 'Ver resumen financiero' };
   })();
+
+  const goToPortalSection = (section: 'contable' | 'organizacion' | 'invitados') => {
+    const element = document.getElementById(`portal-${section}`);
+    element?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    element?.querySelector<HTMLButtonElement>('button')?.click();
+  };
 
   const serviceCards = [
     {
@@ -963,24 +985,6 @@ export default function PublicPortalClientExperience({ fiesta, companyContact, c
 
   return (
     <div className="ak-public-page">
-      <style dangerouslySetInnerHTML={{__html: `
-        @keyframes payPulse {
-          0%, 100% {
-            opacity: 1;
-            transform: scale(1);
-            box-shadow: 0 0 0 0 rgba(16, 185, 129, 0.7);
-          }
-          50% {
-            opacity: 0.95;
-            transform: scale(1.015);
-            box-shadow: 0 0 16px 6px rgba(16, 185, 129, 0.45);
-          }
-        }
-        .animate-pay-pulse {
-          animation: payPulse 1.8s infinite ease-in-out;
-        }
-      `}} />
-
       <section
         className="ak-public-hero text-white relative"
         style={{
@@ -995,8 +999,15 @@ export default function PublicPortalClientExperience({ fiesta, companyContact, c
             size="sm"
             className="border-white/25 bg-white/20 text-white backdrop-blur-sm hover:bg-white/30 rounded-full flex items-center gap-1.5"
             onClick={() => setCoverModalOpen(true)}
+            title="Personalizar portada"
+            aria-label="Personalizar portada"
           >
-            <Palette className="h-4 w-4" /> Personalizar portada
+            {/* En el celular queda sólo el ícono: el botón está flotando sobre
+                la esquina y con el texto completo tapaba el nombre de la
+                empresa, que es lo primero que ve el cliente al abrir su
+                portal. */}
+            <Palette className="h-4 w-4" />
+            <span className="hidden sm:inline">Personalizar portada</span>
           </Button>
         </div>
 
@@ -1032,7 +1043,7 @@ export default function PublicPortalClientExperience({ fiesta, companyContact, c
                   </span>
                 )
               ) : (
-                <span className="inline-flex items-center gap-2 rounded-lg bg-white/15 px-3 py-2"><PartyPopper className="h-4 w-4" />{days === null ? 'Fecha a confirmar' : `Faltan ${days} días`}</span>
+                <span className="inline-flex items-center gap-2 rounded-lg bg-white/15 px-3 py-2"><PartyPopper className="h-4 w-4" />{textoDeCuentaRegresiva(days)}</span>
               )}
             </div>
           </div>
@@ -1048,12 +1059,28 @@ export default function PublicPortalClientExperience({ fiesta, companyContact, c
             </div>
             
             <div className="space-y-2">
-              <Button 
-                className="w-full animate-pay-pulse bg-emerald-600 hover:bg-emerald-700 text-white font-extrabold shadow-lg rounded-xl h-11 transition-all"
-                onClick={() => setPaymentModalOpen(true)}
-              >
-                <CreditCard className="h-4 w-4" /> Hacer un pago
-              </Button>
+              {nextStep.action === 'payment' ? (
+                <Button className="h-11 w-full font-extrabold" onClick={() => setPaymentModalOpen(true)}>
+                  <CreditCard className="h-4 w-4" /> {nextStep.label}
+                </Button>
+              ) : nextStep.action === 'contact' ? (
+                <Button className="h-11 w-full font-extrabold" asChild>
+                  <a href={whatsappHref} target="_blank" rel="noopener noreferrer">
+                    <MessageCircle className="h-4 w-4" /> {nextStep.label}
+                  </a>
+                </Button>
+              ) : (
+                <Button
+                  className="h-11 w-full font-extrabold"
+                  onClick={() => {
+                    if (nextStep.action === 'contable' || nextStep.action === 'organizacion' || nextStep.action === 'invitados') {
+                      goToPortalSection(nextStep.action);
+                    }
+                  }}
+                >
+                  <ChevronRight className="h-4 w-4" /> {nextStep.label}
+                </Button>
+              )}
               
               <div className="grid grid-cols-2 gap-2">
                 <Button variant="outline" className="w-full text-slate-700 border-slate-300 rounded-xl h-10" asChild>
@@ -1106,26 +1133,100 @@ export default function PublicPortalClientExperience({ fiesta, companyContact, c
           </div>
         )}
 
-        <PhaseRoadmap access={access} eventColor={eventColor} />
-
-
-
-        {(access.organizationLocked || access.liveLocked) && (
-          <div className="mb-5 rounded-lg border bg-white p-4 text-sm text-slate-600 shadow-sm">
-            <p className="font-black text-slate-900">{access.label}</p>
-            {access.organizationLocked ? (
-              <p className="mt-1">Por ahora estan visibles presupuesto, pagos, contrato, servicios contratados y solicitudes economicas. La organizacion se abre despues de la reunion con AK.</p>
-            ) : (
-              <p className="mt-1">La organizacion ya esta abierta. La parte en vivo se habilita cuando falten {access.liveAccessDaysBefore} dias para la fiesta.</p>
-            )}
+        {/* Dashboard Superior Destacado */}
+        <div className="mb-8 grid gap-4 md:grid-cols-3">
+          {/* Tarjeta Pagos */}
+          <div 
+            className="ak-public-card p-5 relative overflow-hidden group cursor-pointer hover:shadow-lg transition-all bg-white border border-slate-200"
+            onClick={() => {
+              const el = document.getElementById('portal-contable');
+              if (el) {
+                el.scrollIntoView({ behavior: 'smooth' });
+                el.querySelector('button')?.click();
+              }
+            }}
+          >
+            <div className="absolute -top-10 -right-10 w-32 h-32 bg-emerald-50 rounded-full -z-10 transition-transform duration-500 group-hover:scale-150 opacity-70" />
+            <div className="flex items-center gap-4 mb-5">
+              <div className="bg-emerald-100 text-emerald-600 p-3 rounded-2xl shadow-sm">
+                <CircleDollarSign className="w-7 h-7" />
+              </div>
+              <div>
+                <h3 className="font-black text-xl text-slate-900 tracking-tight">Pagos</h3>
+                <p className="text-xs font-semibold text-emerald-600 uppercase tracking-wider">Estado de Cuenta</p>
+              </div>
+            </div>
+            <div className="flex justify-between items-end">
+              <div className="space-y-1">
+                <p className="text-sm text-slate-500 font-medium">Saldo pendiente</p>
+                <p className="text-3xl font-black text-slate-900 tracking-tight">{formatPortalMoney(paymentSummary.balance)}</p>
+              </div>
+              <div className="w-10 h-10 rounded-full bg-slate-50 flex items-center justify-center group-hover:bg-emerald-50 group-hover:text-emerald-600 transition-colors">
+                <ChevronRight className="w-5 h-5 text-slate-400 group-hover:text-emerald-500" />
+              </div>
+            </div>
           </div>
-        )}
 
-        <div className={`mb-5 grid gap-3 sm:grid-cols-2 lg:grid-cols-4 ${access.canSeeOrganization ? '' : '[&>div:nth-child(-n+2)]:hidden'}`}>
-          <StatTile label="Invitados confirmados" value={guestStats.confirmed} icon={CheckCircle2} tone="bg-emerald-50 text-emerald-700" />
-          <StatTile label="Invitados pendientes" value={guestStats.needsAction} icon={Users} tone="bg-amber-50 text-amber-700" />
-          <StatTile label="Pagado" value={formatPortalMoney(paymentSummary.paid)} icon={Receipt} tone="bg-sky-50 text-sky-700" />
-          <StatTile label="Saldo" value={formatPortalMoney(paymentSummary.balance)} icon={CircleDollarSign} tone="bg-rose-50 text-rose-700" />
+          {/* Tarjeta Menú */}
+          <div 
+            className="ak-public-card p-5 relative overflow-hidden group cursor-pointer hover:shadow-lg transition-all bg-white border border-slate-200"
+            onClick={() => {
+              const el = document.getElementById('portal-organizacion');
+              if (el) {
+                el.scrollIntoView({ behavior: 'smooth' });
+                el.querySelector('button')?.click();
+              }
+            }}
+          >
+            <div className="absolute -top-10 -right-10 w-32 h-32 bg-amber-50 rounded-full -z-10 transition-transform duration-500 group-hover:scale-150 opacity-70" />
+            <div className="flex items-center gap-4 mb-5">
+              <div className="bg-amber-100 text-amber-600 p-3 rounded-2xl shadow-sm">
+                <Utensils className="w-7 h-7" />
+              </div>
+              <div>
+                <h3 className="font-black text-xl text-slate-900 tracking-tight">Menú</h3>
+                <p className="text-xs font-semibold text-amber-600 uppercase tracking-wider">Opciones y Catering</p>
+              </div>
+            </div>
+            <div className="flex justify-between items-end">
+              <div className="space-y-1">
+                <p className="text-sm text-slate-500 font-medium">Plato principal</p>
+                <p className="text-lg font-bold text-slate-800 line-clamp-1">{fiesta?.menuSeleccionPortal?.principal || 'A definir'}</p>
+              </div>
+              <div className="w-10 h-10 rounded-full bg-slate-50 flex items-center justify-center group-hover:bg-amber-50 group-hover:text-amber-600 transition-colors">
+                <ChevronRight className="w-5 h-5 text-slate-400 group-hover:text-amber-500" />
+              </div>
+            </div>
+          </div>
+
+          {/* Tarjeta Link de Invitados */}
+          <div 
+            className="ak-public-card p-5 relative overflow-hidden group cursor-pointer hover:shadow-lg transition-all bg-white border border-slate-200"
+            onClick={() => {
+              const url = fiesta?.invitacionSlug ? `/i/${fiesta.invitacionSlug}` : `/invitacion/${fiesta.id}`;
+              window.open(url, '_blank');
+            }}
+          >
+            <div className="absolute -top-10 -right-10 w-32 h-32 bg-sky-50 rounded-full -z-10 transition-transform duration-500 group-hover:scale-150 opacity-70" />
+            <div className="flex items-center gap-4 mb-5">
+              <div className="bg-sky-100 text-sky-600 p-3 rounded-2xl shadow-sm">
+                <Users className="w-7 h-7" />
+              </div>
+              <div>
+                <h3 className="font-black text-xl text-slate-900 tracking-tight">Invitados</h3>
+                <p className="text-xs font-semibold text-sky-600 uppercase tracking-wider">Link y Confirmaciones</p>
+              </div>
+            </div>
+            <div className="flex justify-between items-end">
+              <div className="space-y-1">
+                <p className="text-sm text-slate-500 font-medium">Confirmados</p>
+                <p className="text-3xl font-black text-slate-900 tracking-tight">{guestStats.confirmed} <span className="text-sm font-semibold text-slate-400">/ {guestStats.total}</span></p>
+              </div>
+              <div className="w-10 h-10 rounded-full bg-slate-50 flex items-center justify-center group-hover:bg-sky-50 group-hover:text-sky-600 transition-colors">
+                <ExternalLink className="w-5 h-5 text-slate-400 group-hover:text-sky-500" />
+              </div>
+            </div>
+          </div>
         </div>
 
         <Accordion type="multiple" defaultValue={access.canSeeOrganization ? ["organizacion", "contable"] : ["contable"]} className="space-y-4">
@@ -1162,15 +1263,15 @@ export default function PublicPortalClientExperience({ fiesta, companyContact, c
                 <div className="grid gap-3 lg:grid-cols-3">
                   <div className="rounded-lg bg-slate-50 p-3">
                     <p className="mb-2 text-sm font-black">Imprescindibles</p>
-                    {musicMust.length === 0 ? <EmptyLine text="Sin canciones cargadas." /> : musicMust.slice(0, 6).map((song: string) => <p key={song} className="mb-2 rounded-md bg-white px-3 py-2 text-sm">{song}</p>)}
+                    {musicMust.length === 0 ? <PortalEmptyState title="Todavía no hay canciones imprescindibles" description="Podés agregarlas desde esta misma sección cuando tengas tus favoritas." /> : musicMust.slice(0, 6).map((song: string) => <p key={song} className="mb-2 rounded-md bg-white px-3 py-2 text-sm">{song}</p>)}
                   </div>
                   <div className="rounded-lg bg-slate-50 p-3">
                     <p className="mb-2 text-sm font-black">Si es posible</p>
-                    {musicMaybe.length === 0 ? <EmptyLine text="Sin sugerencias." /> : musicMaybe.slice(0, 6).map((song: string) => <p key={song} className="mb-2 rounded-md bg-white px-3 py-2 text-sm">{song}</p>)}
+                    {musicMaybe.length === 0 ? <PortalEmptyState title="Todavía no hay sugerencias" description="Usá el formulario de música para compartir canciones que te gustaría escuchar." /> : musicMaybe.slice(0, 6).map((song: string) => <p key={song} className="mb-2 rounded-md bg-white px-3 py-2 text-sm">{song}</p>)}
                   </div>
                   <div className="rounded-lg bg-slate-50 p-3">
                     <p className="mb-2 text-sm font-black">No reproducir</p>
-                    {musicNo.length === 0 ? <EmptyLine text="Sin canciones bloqueadas." /> : musicNo.slice(0, 6).map((song: string) => <p key={song} className="mb-2 rounded-md bg-white px-3 py-2 text-sm">{song}</p>)}
+                    {musicNo.length === 0 ? <PortalEmptyState title="No marcaste canciones para evitar" description="Si hay algún tema que no querés escuchar, podés indicarlo desde el formulario de música." /> : musicNo.slice(0, 6).map((song: string) => <p key={song} className="mb-2 rounded-md bg-white px-3 py-2 text-sm">{song}</p>)}
                   </div>
                 </div>
                 <div className="mt-3 grid gap-2 sm:grid-cols-[1fr_auto]">
@@ -1191,7 +1292,7 @@ export default function PublicPortalClientExperience({ fiesta, companyContact, c
                       <InfoBadge tone="action">Cliente participa</InfoBadge>
                     </div>
                   </div>
-                  {reuniones.length === 0 ? <EmptyLine text="No hay reuniones cargadas todavía." /> : reuniones.slice(0, 5).map((reunion: any) => (
+                  {reuniones.length === 0 ? <PortalEmptyState title="No hay reuniones agendadas" description="AK publicará acá la próxima reunión cuando haya una fecha coordinada." /> : reuniones.slice(0, 5).map((reunion: any) => (
                     <div key={reunion.id} className="mb-2 rounded-lg bg-slate-50 p-3">
                       <p className="font-semibold">{reunion.titulo || 'Reunión'}</p>
                       <p className="text-sm text-slate-600">{formatShortDate(reunion.fecha)}{reunion.notas ? ` · ${reunion.notas}` : ''}</p>
@@ -1219,7 +1320,7 @@ export default function PublicPortalClientExperience({ fiesta, companyContact, c
                       <Button variant="outline" asChild>
                         <a href={`/evento/social/${fiesta.id}`} target="_blank" rel="noopener noreferrer"><ImageIcon className="h-4 w-4" /> Abrir mural social</a>
                       </Button>
-                    ) : <EmptyLine text="El mural social todavía no está activo." />}
+                    ) : <PortalEmptyState title="El mural social todavía no está activo" description="AK lo habilitará cuando el servicio esté listo para tu evento." />}
                   </div>
                 </div>
               </div>
@@ -1241,7 +1342,7 @@ export default function PublicPortalClientExperience({ fiesta, companyContact, c
                       {fiesta.menuSeleccionPortal.bebidas && <p className="rounded-lg bg-slate-50 p-3"><strong>Bebidas:</strong> {fiesta.menuSeleccionPortal.bebidas}</p>}
                       {fiesta.menuSeleccionPortal.restriccionesAlimentarias && <p className="rounded-lg bg-amber-50 p-3 text-amber-900"><strong>Restricciones:</strong> {fiesta.menuSeleccionPortal.restriccionesAlimentarias}</p>}
                     </div>
-                  ) : <EmptyLine text="El menú todavía no está cargado." />}
+                  ) : <PortalEmptyState title="El menú todavía está en preparación" description="AK lo publicará cuando estén definidos los platos del evento." />}
                 </div>
 
                 <div className="rounded-lg border p-4">
@@ -1256,7 +1357,7 @@ export default function PublicPortalClientExperience({ fiesta, companyContact, c
                     <p className="rounded-lg bg-slate-50 p-3"><strong>Color principal:</strong> <span className="ml-2 inline-block h-3 w-8 rounded-full align-middle" style={{ background: eventColor }} /> {eventColor}</p>
                     {fiesta?.decoracion?.tema && <p className="rounded-lg bg-slate-50 p-3"><strong>Tema:</strong> {fiesta.decoracion.tema}</p>}
                     {fiesta?.decoracion?.generalNotesDecoracion && <p className="rounded-lg bg-slate-50 p-3">{fiesta.decoracion.generalNotesDecoracion}</p>}
-                    {!fiesta?.decoracion?.tema && !fiesta?.decoracion?.generalNotesDecoracion && <EmptyLine text="La decoración todavía no tiene notas visibles." />}
+                    {!fiesta?.decoracion?.tema && !fiesta?.decoracion?.generalNotesDecoracion && <PortalEmptyState title="La decoración todavía está en preparación" description="AK publicará acá el concepto y las referencias cuando estén definidos." />}
                   </div>
                 </div>
               </div>
@@ -1269,7 +1370,7 @@ export default function PublicPortalClientExperience({ fiesta, companyContact, c
                     <InfoBadge>Solo información</InfoBadge>
                   </div>
                 </div>
-                {timelineItems.length === 0 ? <EmptyLine text="El cronograma todavía no está cargado." /> : (
+                {timelineItems.length === 0 ? <PortalEmptyState title="El cronograma todavía está en preparación" description="AK lo publicará cuando estén confirmados los horarios principales." /> : (
                   <div className="space-y-2">
                     {timelineItems.map((item: any) => (
                       <div key={item.id} className="grid gap-2 rounded-lg bg-slate-50 p-3 sm:grid-cols-[120px_1fr]">
@@ -1346,7 +1447,7 @@ export default function PublicPortalClientExperience({ fiesta, companyContact, c
                         </Button>
                       ) : <p key={documento.id || getDocumentName(documento)} className="rounded-lg bg-slate-50 p-3 text-sm">{getDocumentName(documento)}</p>
                     ))}
-                    {documentos.length === 0 && <EmptyLine text="No hay documentos descargables cargados todavía." />}
+                    {documentos.length === 0 && <PortalEmptyState title="Todavía no hay documentos para descargar" description="AK los publicará acá cuando estén listos para revisar o firmar." />}
                   </div>
                 </div>
 
@@ -1393,7 +1494,7 @@ export default function PublicPortalClientExperience({ fiesta, companyContact, c
                   </div>
                 </div>
                 {lineItems.length === 0 ? (
-                  <EmptyLine text="No hay servicios cargados en el presupuesto." />
+                  <PortalEmptyState title="El presupuesto todavía no tiene servicios visibles" description="Consultá con AK para vincular o completar la propuesta de tu evento." />
                 ) : (
                   <Accordion type="single" collapsible className="w-full space-y-2">
                     {Object.entries(itemsPorCategoria).map(([categoria, items]: [string, any], catIdx) => (
@@ -1444,7 +1545,7 @@ export default function PublicPortalClientExperience({ fiesta, companyContact, c
 
               <div className="rounded-lg border p-4">
                 <div className="mb-3 flex items-center gap-3"><IconBlock icon={Plus} color={eventColor} /><div><p className="font-black">Agregar servicio del catalogo</p><InfoBadge tone="action">Requiere aprobacion de AK</InfoBadge></div></div>
-                {catalogServices.length === 0 ? <EmptyLine text="No hay servicios con precio cargados en el catalogo." /> : (
+                {catalogServices.length === 0 ? <PortalEmptyState title="El catálogo no está disponible por ahora" description="AK debe publicar los servicios antes de que puedas solicitar un adicional." /> : (
                   <>
                     <div className="grid gap-3 lg:grid-cols-[1.2fr_.5fr_1fr]">
                       <label className="space-y-1 text-sm font-semibold text-slate-700">
@@ -1505,7 +1606,7 @@ export default function PublicPortalClientExperience({ fiesta, companyContact, c
           <AccordionItem value="reglas" id="portal-reglas" className="ak-public-card px-4">
             <AccordionTrigger className="text-left text-lg font-black hover:no-underline"><span className="flex items-center gap-3"><IconBlock icon={ShieldCheck} color={eventColor} /> Reglas y preguntas</span></AccordionTrigger>
             <AccordionContent className="space-y-4 pb-5">
-              {faqItems.length === 0 ? <EmptyLine text="No hay reglas o preguntas frecuentes cargadas todavía." /> : faqItems.map((faq: any) => <div key={faq.id || faq.pregunta} className="rounded-lg border bg-slate-50 p-4"><p className="font-black text-slate-900">{faq.pregunta}</p><p className="mt-1 text-sm leading-6 text-slate-600">{faq.respuesta}</p></div>)}
+              {faqItems.length === 0 ? <PortalEmptyState title="Todavía no hay preguntas frecuentes" description="AK publicará acá la información importante para organizar tu evento." /> : faqItems.map((faq: any) => <div key={faq.id || faq.pregunta} className="rounded-lg border bg-slate-50 p-4"><p className="font-black text-slate-900">{faq.pregunta}</p><p className="mt-1 text-sm leading-6 text-slate-600">{faq.respuesta}</p></div>)}
             </AccordionContent>
           </AccordionItem>
         </Accordion>

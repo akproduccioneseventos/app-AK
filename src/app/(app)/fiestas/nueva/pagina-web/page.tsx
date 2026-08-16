@@ -15,6 +15,7 @@ import cloneDeep from 'lodash/cloneDeep';
 import merge from 'lodash/merge';
 import { InvitacionPublicaClient } from '@/app/invitacion/[fiestaId]/invitacion-publica-client';
 import { InvitacionConfigPanel } from '@/components/invitacion/InvitacionConfigPanel';
+import { EmptyStateModulo } from '@/components/ui/empty-state-modulo';
 import { getSocialConnections } from '@/app/actions/social-connections';
 import type { SocialConnection } from '@/types/settings';
 import { getInvitationTemplates, type InvitacionDigitalTemplate } from '@/app/actions/invitacion-digital-templates';
@@ -27,8 +28,10 @@ import { cn } from '@/lib/utils';
 import { useAutoSave } from '@/hooks/use-auto-save';
 import { AutoSaveIndicator } from '@/components/ui/auto-save-indicator';
 import { Sheet, SheetContent } from '@/components/ui/sheet';
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogFooter } from '@/components/ui/dialog';
 import { normalizeInvitationSlug } from '@/lib/invitacion-slug';
 import { getErrorMessage } from '@/lib/error-utils';
+import { getDatosMinimosFaltantesInvitacion } from '@/lib/invitacion/datos-minimos';
 
 type PreviewMode = 'mobile' | 'tablet' | 'desktop';
 type EditorMode = 'simple' | 'avanzado';
@@ -71,6 +74,9 @@ function PaginaWebPageContent() {
   const [templates, setTemplates] = useState<InvitacionDigitalTemplate[]>([]);
   const [slugInput, setSlugInput] = useState('');
   const [isSavingSlug, setIsSavingSlug] = useState(false);
+  const [missingDataDialogOpen, setMissingDataDialogOpen] = useState(false);
+  const [missingDataList, setMissingDataList] = useState<string[]>([]);
+  const [pendingAction, setPendingAction] = useState<(() => void) | null>(null);
   
   const [selectedSectionId, setSelectedSectionId] = useState<string | null>(null);
 
@@ -262,22 +268,38 @@ function PaginaWebPageContent() {
     }
   };
 
+  const checkMissingDataBeforeAction = (action: () => void) => {
+    const faltantes = getDatosMinimosFaltantesInvitacion(fiesta, invitacionData);
+
+    if (faltantes.length > 0) {
+      setMissingDataList(faltantes);
+      setPendingAction(() => action);
+      setMissingDataDialogOpen(true);
+    } else {
+      action();
+    }
+  };
+
   const handleCopyToClipboard = (url: string) => {
-    navigator.clipboard.writeText(url);
-    toast({ title: "Enlace Copiado" });
+    checkMissingDataBeforeAction(() => {
+      navigator.clipboard.writeText(url);
+      toast({ title: "Enlace Copiado" });
+    });
   };
   
   const downloadQR = (id: string, name: string) => {
-    const canvas = document.getElementById(id) as HTMLCanvasElement;
-    if (canvas) {
-        const pngUrl = canvas.toDataURL("image/png").replace("image/png", "image/octet-stream");
-        let downloadLink = document.createElement("a");
-        downloadLink.href = pngUrl;
-        downloadLink.download = `${name}.png`;
-        document.body.appendChild(downloadLink);
-        downloadLink.click();
-        document.body.removeChild(downloadLink);
-    }
+    checkMissingDataBeforeAction(() => {
+      const canvas = document.getElementById(id) as HTMLCanvasElement;
+      if (canvas) {
+          const pngUrl = canvas.toDataURL("image/png").replace("image/png", "image/octet-stream");
+          let downloadLink = document.createElement("a");
+          downloadLink.href = pngUrl;
+          downloadLink.download = `${name}.png`;
+          document.body.appendChild(downloadLink);
+          downloadLink.click();
+          document.body.removeChild(downloadLink);
+      }
+    });
   };
 
   const renderEditorPanel = () => (
@@ -390,6 +412,16 @@ function PaginaWebPageContent() {
     </div>
   );
   
+  if (fiesta && fiesta.modulosContratados && !fiesta.modulosContratados.paginaWeb) {
+    return (
+      <EmptyStateModulo
+        titulo="Página Web / Invitación Digital"
+        descripcion="El módulo de Página Web (Invitación Digital) no está contratado para este evento. Habilitalo desde la configuración o tienda."
+        fiestaId={fiestaId || ''}
+      />
+    );
+  }
+
   return (
     <div className="h-[calc(100vh-64px)] flex flex-col bg-slate-50">
       <header className="flex-shrink-0 flex items-center justify-between p-4 border-b bg-white shadow-sm z-50">
@@ -429,12 +461,23 @@ function PaginaWebPageContent() {
         </div>
 
         <div className="flex items-center gap-2">
-            <AutoSaveIndicator isSaving={isSaving} lastSaved={lastSaved} saveError={saveError} className="hidden sm:flex" />
+            <AutoSaveIndicator isSaving={isSaving} lastSaved={lastSaved} saveError={saveError} className="flex" />
             <Button variant="outline" className="rounded-xl font-bold h-9" onClick={() => setTemplateGalleryOpen(true)}>
               <Sparkles className="w-4 h-4 sm:mr-2" /> <span className="hidden sm:inline">Cambiar Plantilla</span>
             </Button>
             {fiestaId ? (
-              <Button asChild variant="outline" className="rounded-xl font-bold h-9"><Link href={slugUrl || getFullLink('/invitacion/[fiestaId]')} target="_blank" className="hidden xs:block"><Eye className="w-4 h-4 mr-2"/>Ver Real</Link></Button>
+              <Button
+                variant="outline"
+                className="rounded-xl font-bold h-9 hidden xs:inline-flex items-center"
+                onClick={() => {
+                  const realUrl = slugUrl || getFullLink('/invitacion/[fiestaId]');
+                  checkMissingDataBeforeAction(() => {
+                    window.open(realUrl, '_blank');
+                  });
+                }}
+              >
+                <Eye className="w-4 h-4 mr-2"/>Ver Real
+              </Button>
             ) : (
               <Button variant="outline" className="hidden h-9 rounded-xl font-bold xs:inline-flex" disabled title="Selecciona una fiesta para abrir su página">
                 <Eye className="mr-2 h-4 w-4"/>Ver Real
@@ -528,6 +571,47 @@ function PaginaWebPageContent() {
         .custom-scrollbar::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 10px; }
         .custom-scrollbar::-webkit-scrollbar-thumb:hover { background: #94a3b8; }
       `}</style>
+      <Dialog open={missingDataDialogOpen} onOpenChange={setMissingDataDialogOpen}>
+        <DialogContent className="sm:max-w-md rounded-2xl">
+          <DialogHeader>
+            <DialogTitle className="flex items-center gap-2 text-amber-600">
+              <AlertTriangle className="w-5 h-5 shrink-0" /> Faltan datos en la invitación
+            </DialogTitle>
+            <DialogDescription className="text-sm text-slate-600 pt-2">
+              Para que la invitación no salga al aire con huecos, te sugerimos completar los siguientes datos:
+            </DialogDescription>
+          </DialogHeader>
+          {/* La lista va fuera de la descripción: adentro queda metida dentro de un
+              párrafo y el navegador la desarma, con las viñetas desalineadas. */}
+          <ul className="list-disc space-y-1 pl-5 text-sm font-medium text-amber-800">
+            {missingDataList.map((item, idx) => (
+              <li key={idx}>{item}</li>
+            ))}
+          </ul>
+          <DialogFooter className="flex flex-col sm:flex-row gap-2 pt-4">
+            <Button
+              variant="outline"
+              className="rounded-xl font-bold"
+              onClick={() => {
+                setMissingDataDialogOpen(false);
+                setEditorMode('avanzado');
+                setSelectedSectionId('detallesEvento');
+              }}
+            >
+              Ir a completarlos
+            </Button>
+            <Button
+              className="rounded-xl font-bold bg-amber-600 hover:bg-amber-700 text-white"
+              onClick={() => {
+                setMissingDataDialogOpen(false);
+                if (pendingAction) pendingAction();
+              }}
+            >
+              Continuar igual
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }

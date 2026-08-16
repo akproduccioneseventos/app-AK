@@ -1,6 +1,7 @@
 'use client';
 
 import { useEffect, useState, useCallback, useRef, useMemo } from 'react';
+import { soloAprobados, esAprobadoParaMostrar } from '@/lib/social-fiesta/visibilidad';
 import { useParams } from 'next/navigation';
 import { getPublicSocialEvent, getPublicSocialPosts, getChatMessages } from '@/app/actions/social-gallery';
 import type { SocialGalleryPost, Dedication, SocialComment, ChatMessage } from '@/types/social-gallery';
@@ -18,6 +19,7 @@ import {
 } from '@/lib/public-experience/wait-for-initial-public-load';
 import type { SocialConnection } from '@/types/settings';
 import { Facebook, Instagram, MessageCircle, Music2, Maximize, Camera, QrCode } from 'lucide-react';
+import { ReconnectingIndicator } from '@/components/entretenimiento/ReconnectingIndicator';
 import { getSongRequests } from '@/app/actions/social-interactive';
 import type { SongRequest } from '@/types/social-gallery';
 
@@ -42,7 +44,7 @@ function isVideoUrl(url: string) {
 }
 
 function isPostApprovedForScreen(post: SocialGalleryPost) {
-  return (post.moderationStatus ?? 'approved') === 'approved';
+  return esAprobadoParaMostrar(post);
 }
 
 
@@ -106,6 +108,7 @@ export default function MuroEnVivoPage() {
   const [playlistTick, setPlaylistTick] = useState<number>(Date.now());
   const [qrUrl, setQrUrl] = useState<string>('');
   const [showCameraFlash, setShowCameraFlash] = useState(false);
+  const [isReconnecting, setIsReconnecting] = useState(false);
   const prevPostsCountRef = useRef(0);
   const pollingRef = useRef(false);
 
@@ -205,6 +208,8 @@ export default function MuroEnVivoPage() {
         getChatMessages(fiestaId).catch((err) => { console.warn('[MuroEnVivo] getChatMessages failed:', err); return []; }),
         getSongRequests(fiestaId).catch((err) => { console.warn('[MuroEnVivo] getSongRequests failed:', err); return []; }),
       ]));
+
+      setIsReconnecting(false);
 
       const sorted = [...fetchedPosts].filter(isPostApprovedForScreen).sort(
         (a, b) => new Date(b.timestamp).getTime() - new Date(a.timestamp).getTime()
@@ -353,7 +358,7 @@ export default function MuroEnVivoPage() {
       const globalFallbacks = connections.filter(c => c.isConnected && !coveredPlatforms.has(c.platform));
       setSocialConnections([...brandConnections, ...globalFallbacks]);
     } catch (_) {
-      // Silent fail for projection wall
+      setIsReconnecting(true);
     } finally {
       pollingRef.current = false;
       if (!isLoaded) setIsLoaded(true);
@@ -500,8 +505,32 @@ export default function MuroEnVivoPage() {
           )}
 
           {/* Empty state */}
-          {isLoaded && settings.privateDedicationsMode !== true && !['video', 'redes', 'juego', 'dedicaciones', 'chat', 'canciones', 'audioritmico', 'pauta'].includes(activeScreenItem?.type ?? '') && posts.length === 0 && settings.enabled !== false && (
+          {/* 'dedicaciones' NO va en esta lista: su bloque esta desactivado mas
+              abajo, asi que sin esto la pantalla del salon quedaba en blanco
+              cada vez que la rotacion llegaba a esa diapositiva. */}
+          {isLoaded && settings.privateDedicationsMode !== true && !['video', 'redes', 'juego', 'chat', 'canciones', 'audioritmico', 'pauta'].includes(activeScreenItem?.type ?? '') && posts.length === 0 && settings.enabled !== false && (
             <EmptyWallState eventName={eventName} qrUrl={qrUrl} />
+          )}
+
+          {/* Muro apagado para esta fiesta. Sin este cartel la pantalla del salon
+              quedaba completamente en blanco y nadie sabia por que. */}
+          {isLoaded && settings.enabled === false && settings.privateDedicationsMode !== true && (
+            <section
+              data-testid="live-wall-disabled"
+              className="absolute inset-0 grid place-items-center bg-slate-950 px-8 text-center text-white"
+              aria-live="polite"
+            >
+              <div className="max-w-2xl space-y-5">
+                <Camera className="mx-auto h-14 w-14 text-red-300" aria-hidden="true" />
+                <h1 className="text-4xl font-black leading-tight sm:text-5xl">
+                  {eventName || 'Muro social en vivo'}
+                </h1>
+                <p className="text-lg text-slate-300">
+                  El muro de fotos está apagado para esta fiesta. Se enciende desde el panel del
+                  muro, en la configuración del evento.
+                </p>
+              </div>
+            </section>
           )}
 
           {/* Private Greetings Mailbox Mode ("PALABRAS Y AUDIOS PARA SIEMPRE") */}
@@ -689,13 +718,17 @@ export default function MuroEnVivoPage() {
           )}
 
           {/* Live chat messages overlay — bottom-left, always shown when chat is enabled */}
+          {/* Esta esquina se proyecta en una pared y se mira desde diez metros, en
+              un salon a oscuras. Con letra de once pixeles y blanco al 40% no se
+              leia: el invitado veia que su mensaje "salio en la pantalla" y nadie
+              podia leerlo. Va mas grande y con mas contraste. */}
           {isLoaded && settings.privateDedicationsMode !== true && settings.chatEnabled !== false && recentChatMessages.length > 0 && !activePoll && (
-            <div className={`absolute left-6 bottom-6 z-10 space-y-1.5 ${hasSidePanel ? 'w-[28vw] max-w-xs' : 'w-[32vw] max-w-xs'}`}>
-              <p className="text-[10px] font-black uppercase tracking-[0.3em] text-white/40 mb-2">💬 Chat en Vivo</p>
+            <div className={`absolute left-6 bottom-6 z-10 space-y-2 ${hasSidePanel ? 'w-[28vw] max-w-sm' : 'w-[32vw] max-w-sm'}`}>
+              <p className="text-sm font-black uppercase tracking-[0.3em] text-white/70 mb-2">💬 Chat en Vivo</p>
               {recentChatMessages.map(msg => (
-                <div key={msg.id} className="rounded-xl border border-white/10 bg-black/60 px-3 py-2 shadow-md backdrop-blur-sm">
-                  <span className="text-[11px] font-black text-sky-300 mr-1.5">{msg.authorName}:</span>
-                  <span className="text-[12px] text-white/85 leading-snug">{msg.text}</span>
+                <div key={msg.id} className="rounded-xl border border-white/25 bg-black/70 px-4 py-2.5 shadow-md backdrop-blur-sm">
+                  <span className="text-base font-black text-sky-300 mr-1.5">{msg.authorName}:</span>
+                  <span className="text-base text-white leading-snug">{msg.text}</span>
                 </div>
               ))}
             </div>
@@ -703,12 +736,12 @@ export default function MuroEnVivoPage() {
 
           {/* Song requests overlay — bottom-right corner */}
           {isLoaded && settings.showSongRequests !== false && recentSongRequests.length > 0 && !activePoll && (
-            <div className="absolute right-6 bottom-6 z-10 w-[28vw] max-w-xs space-y-1.5">
-              <p className="text-[10px] font-black uppercase tracking-[0.3em] text-white/40 mb-2">🎵 Pedidos de Canciones</p>
+            <div className="absolute right-6 bottom-6 z-10 w-[28vw] max-w-sm space-y-2">
+              <p className="text-sm font-black uppercase tracking-[0.3em] text-white/70 mb-2">🎵 Pedidos de Canciones</p>
               {recentSongRequests.map(req => (
-                <div key={req.id} className="rounded-xl border border-green-400/20 bg-black/60 px-3 py-2 shadow-md backdrop-blur-sm">
-                  <span className="text-[12px] font-bold text-green-300 mr-1.5">{req.song}</span>
-                  <span className="text-[10px] text-white/50">— {req.requestedBy}</span>
+                <div key={req.id} className="rounded-xl border border-green-400/40 bg-black/70 px-4 py-2.5 shadow-md backdrop-blur-sm">
+                  <span className="text-base font-bold text-green-300 mr-1.5">{req.song}</span>
+                  <span className="text-sm text-white/75">— {req.requestedBy}</span>
                 </div>
               ))}
             </div>
@@ -1061,6 +1094,8 @@ export default function MuroEnVivoPage() {
           }
         }
       `}</style>
+
+      <ReconnectingIndicator isReconnecting={isReconnecting} />
     </div>
   );
 }
@@ -1488,18 +1523,108 @@ function SlideshowLayout({
     setCurrentIndex((prev) => (prev + 1) % posts.length);
   }, [posts.length]);
 
-  // Auto-advance slideshow (dinámico si es video o imagen)
+  const isMission = post?.momentTag?.toLowerCase().includes('misión') || post?.momentTag?.toLowerCase().includes('mision') || captionText?.toLowerCase().includes('misión') || captionText?.toLowerCase().includes('mision');
+
+  // Bloque F: Detección de la foto más querida de la noche y mesas destacadas
+  const topLikedPost = useMemo(() => {
+    const withLikes = posts.filter((p) => (p.likes || 0) > 0);
+    if (withLikes.length === 0) return null;
+    return [...withLikes].sort((a, b) => (b.likes || 0) - (a.likes || 0))[0];
+  }, [posts]);
+
+  // Mesas / Grupos más participativos (sin nombres propios ni perdedores)
+  const participatingGroups = useMemo(() => {
+    const tableCounts: Record<string, number> = {};
+    posts.forEach((p) => {
+      const text = `${p.caption || ''} ${p.dedication || ''} ${p.momentTag || ''}`;
+      const match = text.match(/mesa\s*([0-9]+|[a-zA-Záéíóúñ]+)/i);
+      const groupName = match ? `Mesa ${match[1].toUpperCase()}` : 'Mesa General';
+      tableCounts[groupName] = (tableCounts[groupName] || 0) + 1;
+    });
+    return Object.entries(tableCounts)
+      .sort((a, b) => b[1] - a[1])
+      .slice(0, 3)
+      .filter(([name]) => name !== 'Mesa General' || Object.keys(tableCounts).length === 1);
+  }, [posts]);
+
+  // Mostrar slide especial de ranking cada 6 publicaciones si hay una foto con corazones
+  const isRankingSlide = Boolean(
+    topLikedPost &&
+    posts.length >= 3 &&
+    currentIndex % 6 === 5
+  );
+
+  // Auto-advance slideshow (dinámico si es ranking, video o imagen)
   useEffect(() => {
     if (posts.length <= 1) return;
 
-    // Si es video, dejamos un tiempo de resguardo más largo (35s) para que avance si el video falla
-    const duration = isVideo ? 35000 : SLIDESHOW_DURATION_MS;
+    const duration = isRankingSlide
+      ? 8000
+      : isVideo
+        ? 35000
+        : SLIDESHOW_DURATION_MS;
 
     const timer = setTimeout(advance, duration);
     return () => clearTimeout(timer);
-  }, [posts.length, currentIndex, isVideo, advance]);
+  }, [posts.length, currentIndex, isVideo, isRankingSlide, advance]);
 
   if (posts.length === 0) return null;
+
+  if (isRankingSlide && topLikedPost) {
+    return (
+      <div className="absolute inset-0 flex items-center justify-center overflow-hidden bg-slate-950 p-6">
+        <div className="relative h-full w-full max-w-[min(100%,1500px)] overflow-hidden rounded-2xl bg-gradient-to-b from-amber-950/80 via-slate-900 to-black border-2 border-amber-400/60 shadow-[0_0_60px_rgba(251,191,36,0.25)] flex flex-col items-center justify-between p-6">
+          {/* Header */}
+          <div className="text-center space-y-1">
+            <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-amber-400/20 border border-amber-400/40 text-amber-300 text-xs font-black uppercase tracking-widest">
+              <span>⭐</span> MOMENTO ESTELAR DE LA NOCHE <span>⭐</span>
+            </div>
+            <h2 className="text-3xl md:text-5xl font-black tracking-tight text-white">
+              La Foto Más Querida de la Fiesta
+            </h2>
+          </div>
+
+          {/* Center: Top Image */}
+          <div className="relative flex-1 w-full max-w-2xl my-4 rounded-xl overflow-hidden shadow-2xl border border-amber-300/30 bg-black/50">
+            <NextImage
+              src={topLikedPost.imageUrl}
+              alt="Foto más querida"
+              fill
+              className="object-contain"
+              unoptimized
+              priority
+            />
+            <div className="absolute top-4 right-4 bg-red-600/95 text-white px-4 py-2 rounded-full font-black text-lg shadow-lg flex items-center gap-2 backdrop-blur-sm animate-pulse">
+              <span>❤️</span> {topLikedPost.likes} {topLikedPost.likes === 1 ? 'corazón' : 'corazones'}
+            </div>
+            <div className="absolute inset-x-0 bottom-0 bg-gradient-to-t from-black/90 via-black/60 to-transparent p-4 text-white text-center">
+              <p className="text-lg font-bold">
+                {topLikedPost.caption || topLikedPost.dedication || '¡El momento más votado por todos!'}
+              </p>
+            </div>
+          </div>
+
+          {/* Footer: Participación colectiva */}
+          <div className="w-full max-w-2xl flex flex-col sm:flex-row items-center justify-between gap-3 bg-white/5 border border-white/10 rounded-xl px-5 py-3 text-white">
+            <div className="text-left">
+              <p className="text-xs uppercase font-black text-amber-400 tracking-wider">
+                Mesas con más buena onda
+              </p>
+              <p className="text-sm font-semibold text-slate-300">
+                {participatingGroups.length > 0
+                  ? participatingGroups.map(([mesa, count]) => `${mesa} (${count} momentos)`).join(' • ')
+                  : '¡Gracias a todas las mesas por festejar con nosotros!'}
+              </p>
+            </div>
+            <div className="text-xs font-bold text-amber-300/80 shrink-0">
+              🎉 ¡Festejamos juntos!
+            </div>
+          </div>
+        </div>
+        {qrUrl && <QRFloatingCard qrUrl={qrUrl} settings={settings} />}
+      </div>
+    );
+  }
 
   return (
     <div className="absolute inset-0 flex items-center justify-center overflow-hidden bg-black p-5">
@@ -1508,13 +1633,18 @@ function SlideshowLayout({
           Cargando publicación...
         </div>
       )}
-      <div className="relative h-full w-full max-w-[min(100%,1500px)] overflow-hidden rounded-md bg-slate-900">
+      <div className={`relative h-full w-full max-w-[min(100%,1500px)] overflow-hidden rounded-md ${isMission ? 'bg-amber-900 ring-4 ring-amber-400/80 shadow-[0_0_40px_rgba(251,191,36,0.4)]' : 'bg-slate-900'}`}>
+        {isMission && (
+          <div className="absolute top-0 inset-x-0 bg-gradient-to-r from-amber-400 via-yellow-300 to-amber-400 text-amber-950 font-black text-center py-2 uppercase tracking-widest text-lg shadow-md z-10">
+            ⭐ Misión Secreta Cumplida ⭐
+          </div>
+        )}
         {isVideo ? (
           <video src={post.imageUrl} className="h-full w-full object-contain" autoPlay muted playsInline preload="auto" onPlay={() => setMediaLoaded(true)} onLoadedData={() => setMediaLoaded(true)} onEnded={advance} />
         ) : (
           <NextImage src={post.imageUrl} alt={post.authorName} fill className="object-contain" unoptimized priority onLoad={() => setMediaLoaded(true)} />
         )}
-        <div className="absolute inset-x-0 bottom-0 bg-black/80 px-6 py-4 text-white">
+        <div className="absolute inset-x-0 bottom-0 bg-black/80 px-6 py-4 text-white z-10">
           <p className="text-2xl font-bold leading-tight">{captionText || 'Momento compartido'}</p>
           <p className="mt-1 text-base text-white/70">{post.authorName}</p>
         </div>
@@ -1558,40 +1688,49 @@ function MasonryLayout({
 function MasonryCard({ post, index }: { post: SocialGalleryPost; index: number }) {
   const [imgError, setImgError] = useState(false);
   const isVideo = post.mediaType === 'video' || isVideoUrl(post.imageUrl);
+  const isMission = post.momentTag?.toLowerCase().includes('misión') || post.momentTag?.toLowerCase().includes('mision') || post.caption?.toLowerCase().includes('misión') || post.caption?.toLowerCase().includes('mision') || post.dedication?.toLowerCase().includes('misión') || post.dedication?.toLowerCase().includes('mision');
 
   return (
     <article
-      className="relative min-h-0 overflow-hidden rounded-md bg-slate-900"
+      className={`relative mb-4 break-inside-avoid overflow-hidden rounded-xl bg-slate-900 shadow-xl ${isMission ? 'ring-4 ring-amber-400 shadow-[0_0_20px_rgba(251,191,36,0.3)]' : ''}`}
       style={{
-        aspectRatio: index % 3 === 0 ? '4/5' : index % 3 === 1 ? '1/1' : '3/4',
+        animation: `fadeInUp 0.6s ease-out ${index * 0.1}s both`,
       }}
     >
-      {isVideo ? (
-        <video
-          src={post.imageUrl}
-          className="h-full w-full object-cover"
-          autoPlay
-          muted
-          loop
-          playsInline
-        />
-      ) : !imgError ? (
-        <NextImage
-          src={post.imageUrl}
-          alt={post.authorName}
-          fill
-          sizes="(max-width: 1920px) 33vw"
-          className="object-cover"
-          onError={() => setImgError(true)}
-          unoptimized
-        />
-      ) : (
-        <div className="absolute inset-0 flex items-center justify-center bg-slate-900">
-          <span className="text-4xl opacity-20">📷</span>
+      {isMission && (
+        <div className="absolute top-0 inset-x-0 bg-gradient-to-r from-amber-400 via-yellow-300 to-amber-400 text-amber-950 font-black text-center py-1 uppercase tracking-widest text-[10px] shadow-sm z-10">
+          ⭐ Misión Secreta ⭐
         </div>
       )}
+      <div className={`relative ${isMission ? 'pt-6' : ''}`}>
+        {post.mediaType === 'video' || isVideoUrl(post.imageUrl) ? (
+          <video
+            src={post.imageUrl}
+            autoPlay
+            muted
+            loop
+            playsInline
+            className="w-full"
+            onError={() => setImgError(true)}
+          />
+        ) : !imgError ? (
+          <NextImage
+            src={post.imageUrl}
+            alt={post.authorName}
+            fill
+            sizes="(max-width: 1920px) 33vw"
+            className="object-cover"
+            onError={() => setImgError(true)}
+            unoptimized
+          />
+        ) : (
+          <div className="absolute inset-0 flex items-center justify-center bg-slate-900">
+            <span className="text-4xl opacity-20">📷</span>
+          </div>
+        )}
+      </div>
 
-      <div className="absolute inset-x-0 bottom-0 bg-black/75 px-3 py-2">
+      <div className="absolute inset-x-0 bottom-0 bg-black/75 px-3 py-2 z-10">
         <p className="truncate text-sm font-semibold text-white">{post.authorName}</p>
       </div>
     </article>

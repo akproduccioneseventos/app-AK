@@ -22,19 +22,21 @@ export default function ClientMoodboardPage() {
   
   const [fiesta, setFiesta] = useState<FiestaEnPlanificacion | null>(null);
   const [isLoading, setIsLoading] = useState(true);
+  const [loadError, setLoadError] = useState(false);
   const [isProcessing, setIsProcessing] = useState(false);
 
   const loadData = useCallback(async () => {
     setIsLoading(true);
+    setLoadError(false);
     try {
       const data = await getFiestaById(fiestaId);
       setFiesta(data);
     } catch (e) {
-      toast({ title: "Error al cargar", variant: "destructive" });
+      setLoadError(true);
     } finally {
       setIsLoading(false);
     }
-  }, [fiestaId, toast]);
+  }, [fiestaId]);
 
   useEffect(() => {
     loadData();
@@ -89,7 +91,11 @@ export default function ClientMoodboardPage() {
   };
 
   if (isLoading) {
-    return <div className="flex items-center justify-center h-screen"><Loader2 className="w-12 h-12 animate-spin text-primary" /></div>;
+    return <div className="flex h-screen flex-col items-center justify-center gap-4" role="status" aria-live="polite"><Loader2 className="h-12 w-12 animate-spin text-primary" /><p className="text-sm font-medium text-slate-600">Estamos cargando tus ideas de decoración.</p></div>;
+  }
+
+  if (loadError) {
+    return <div className="flex min-h-screen items-center justify-center bg-slate-50 p-4"><Card className="max-w-md text-center"><CardHeader><CardTitle>No pudimos cargar tu mural</CardTitle><CardDescription>Intentá nuevamente. Si el problema continúa, contactá a tu organizador.</CardDescription></CardHeader><CardContent><Button onClick={loadData}>Reintentar</Button></CardContent></Card></div>;
   }
 
   const moodItems = fiesta?.decoracion?.moodboardItems || [];

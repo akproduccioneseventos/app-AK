@@ -98,6 +98,8 @@ function ContratoSalonContent() {
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [isClubU, setIsClubU] = useState(false);
+  const [isSaving, setIsSaving] = useState(false);
+  const [avisoGuardado, setAvisoGuardado] = useState<string | null>(null);
 
   const loadData = useCallback(async () => {
     if (!fiestaId) {
@@ -142,9 +144,20 @@ function ContratoSalonContent() {
           invitados: fiestaData.configuracion.invitadosEstimados || presupuestoData?.invitadosCantidad || 0,
           ciudadFecha,
         });
-        setContractText(draft);
-        setOriginalText(draft);
-        await updateContratoFiestaActual(fiestaId, draft, 'salon', 'default-salon');
+        // Si el equipo ya edito este contrato a mano, gana lo guardado: antes
+        // la pantalla regeneraba el borrador y pisaba las clausulas escritas.
+        const guardado = fiestaData.contratoSalonTexto;
+        const textoAMostrar = guardado && guardado.trim().length > 0 ? guardado : draft;
+        setContractText(textoAMostrar);
+        setOriginalText(textoAMostrar);
+
+        if (!guardado || guardado.trim().length === 0) {
+          const alta = await updateContratoFiestaActual(fiestaId, draft, 'salon', 'default-salon');
+          if (!alta?.success) {
+            // Los datos si cargaron: lo que fallo fue guardar el borrador.
+            setAvisoGuardado('El borrador se armo pero no se pudo guardar. Podes imprimirlo igual; si lo editas, guardalo de nuevo.');
+          }
+        }
       } else {
         setError('El evento debe tener un cliente asignado para generar este documento.');
       }
@@ -161,6 +174,28 @@ function ContratoSalonContent() {
   }, [loadData]);
 
   const handlePrint = () => window.print();
+
+  // Guardar de verdad. Antes "Finalizar" solo cerraba el modo edicion y lo que
+  // el equipo habia escrito se perdia al recargar la pantalla.
+  const handleGuardar = async () => {
+    if (!fiestaId) return;
+    setIsSaving(true);
+    setAvisoGuardado(null);
+    try {
+      const resultado = await updateContratoFiestaActual(fiestaId, contractText, 'salon', 'default-salon');
+      if (!resultado?.success) {
+        throw new Error(resultado?.error || 'No se pudo guardar el contrato.');
+      }
+      setOriginalText(contractText);
+      setIsEditing(false);
+      toast({ title: 'Contrato guardado', description: 'Los cambios quedaron guardados en el evento.' });
+    } catch (err: any) {
+      setAvisoGuardado(err.message || 'No se pudo guardar el contrato. Volve a intentar.');
+      toast({ title: 'No se pudo guardar', description: err.message, variant: 'destructive' });
+    } finally {
+      setIsSaving(false);
+    }
+  };
 
   const handleToggleEdit = () => {
     if (isEditing && contractText !== originalText) {
@@ -206,14 +241,35 @@ function ContratoSalonContent() {
           </div>
 
           <div className="flex gap-2">
-            <Button onClick={handleToggleEdit} variant={isEditing ? 'default' : 'outline'} size="sm">
-              {isEditing ? <><CheckCircle2 className="w-4 h-4 mr-2" /> Finalizar</> : <><Edit className="w-4 h-4 mr-2" /> Editar</>}
-            </Button>
+            {isEditing ? (
+              <>
+                <Button onClick={handleGuardar} size="sm" disabled={isSaving}>
+                  {isSaving
+                    ? <><Loader2 className="w-4 h-4 mr-2 animate-spin" /> Guardando…</>
+                    : <><Save className="w-4 h-4 mr-2" /> Guardar cambios</>}
+                </Button>
+                <Button onClick={handleToggleEdit} variant="outline" size="sm" disabled={isSaving}>
+                  <CheckCircle2 className="w-4 h-4 mr-2" /> Salir sin guardar
+                </Button>
+              </>
+            ) : (
+              <Button onClick={handleToggleEdit} variant="outline" size="sm">
+                <Edit className="w-4 h-4 mr-2" /> Editar
+              </Button>
+            )}
             <Button onClick={handlePrint} size="sm" variant="outline">
               <PrinterIcon className="w-4 h-4 mr-1.5" /> PDF
             </Button>
           </div>
         </div>
+
+        {avisoGuardado && (
+          <Alert variant="destructive" className="print:hidden">
+            <AlertTriangle className="h-4 w-4" />
+            <AlertTitle className="font-bold">No se pudo guardar</AlertTitle>
+            <AlertDescription className="text-xs">{avisoGuardado}</AlertDescription>
+          </Alert>
+        )}
 
         {!isClubU && (
           <Alert className="bg-amber-50 border-amber-200 print:hidden">
@@ -247,7 +303,7 @@ function ContratoSalonContent() {
                 <Info className="h-4 w-4 text-amber-600" />
                 <AlertTitle className="text-amber-800 font-bold">Modo Edición</AlertTitle>
                 <AlertDescription className="text-amber-700 text-xs">
-                  Estás editando el borrador del contrato del salón. Podés ajustar cláusulas, montos y condiciones antes de imprimir.
+                  Estás editando el borrador del contrato del salón. Podés ajustar cláusulas, montos y condiciones. Apretá <strong>Guardar cambios</strong> para que queden en el evento: si salís sin guardar, se pierden.
                 </AlertDescription>
               </Alert>
               <Textarea

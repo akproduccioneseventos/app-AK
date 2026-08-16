@@ -419,6 +419,10 @@ export default function EmpleadoHistorialPage() {
                   {filteredRows.map((row) => {
                     const editable = editableByFiesta[row.fiestaId];
                     const status = editable?.estado || 'pendiente';
+                    // Ya pagado o con el papel firmado: el monto y la fecha son
+                    // el comprobante de lo que se le pago. Se muestran cerrados
+                    // para que no se cambien por error.
+                    const reciboCerrado = status === 'pagado' || status === 'firmado_subido';
                     const fileUrl = editable?.archivoUrl;
                     const fileName = editable?.archivoNombre || 'Archivo';
                     const signedInputId = `signed-receipt-${row.fiestaId}`;
@@ -432,6 +436,8 @@ export default function EmpleadoHistorialPage() {
                           <Input
                             type="number"
                             min={0}
+                            disabled={reciboCerrado}
+                            title={reciboCerrado ? 'Recibo ya pagado: el monto no se puede cambiar.' : undefined}
                             value={editable?.monto ?? row.montoBase}
                             onChange={(e) => updateEditable(row.fiestaId, { monto: Number(e.target.value || 0) })}
                           />
@@ -439,6 +445,8 @@ export default function EmpleadoHistorialPage() {
                         <TableCell className="min-w-[130px]">
                           <Input
                             type="date"
+                            disabled={reciboCerrado}
+                            title={reciboCerrado ? 'Recibo ya pagado: la fecha no se puede cambiar.' : undefined}
                             value={editable?.fecha || ''}
                             onChange={(e) => updateEditable(row.fiestaId, { fecha: e.target.value })}
                           />
@@ -450,7 +458,7 @@ export default function EmpleadoHistorialPage() {
                           >
                             <SelectTrigger><SelectValue /></SelectTrigger>
                             <SelectContent>
-                              <SelectItem value="pendiente">Pendiente</SelectItem>
+                              <SelectItem value="pendiente" disabled={reciboCerrado}>Pendiente</SelectItem>
                               <SelectItem value="pagado">Pagado</SelectItem>
                               <SelectItem value="firmado_subido">Con recibo firmado</SelectItem>
                             </SelectContent>

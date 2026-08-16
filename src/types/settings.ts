@@ -19,10 +19,17 @@ export interface BudgetDisplaySettings {
   // Campos Estratégicos de Venta
   successMessage?: string; // El mensaje persuasivo después de "Presupuesto Listo"
   bookingTerms?: string; // El texto de la seña/reserva
+  /**
+   * Cuánta seña se le pide al cliente cuando el presupuesto no trae una acordada.
+   * Decisión del dueño: es un monto fijo, no un porcentaje. Se edita acá para no
+   * tener que tocar el código el día que suba.
+   */
+  bookingDepositAmount?: number;
   whatsappMessageTemplate?: string; // Lo que se envía por WA
   valuePropositions?: string[]; // Beneficios tipo "Por qué elegirnos"
   assistantWelcomeMessage?: string; // Mensaje inicial del asistente AK
   assistantFinalMessage?: string; // Mensaje final del asistente AK
+  virtualAssistantEnabled?: boolean; // Apagado de fábrica
   // Configuración de bienvenida y adicionales del simulador
   simulatorWelcomeTitle?: string;
   simulatorWelcomeSubtitle?: string;
@@ -40,9 +47,11 @@ export const defaultBudgetDisplaySettings: BudgetDisplaySettings = {
   promotionalDiscounts: [],
   successMessage: "Ahora podés coordinar una reunión con nuestro equipo para revisar todos los detalles, despejar dudas y asegurar tu fecha.",
   bookingTerms: "Para confirmar la promoción y reservar todos los servicios, se requiere una seña de $5.000. El presupuesto es válido por 30 días.",
+  bookingDepositAmount: 5000,
   whatsappMessageTemplate: "Hola, ya generé un presupuesto para mi evento y me gustaría coordinar una reunión para revisar detalles, despejar dudas y confirmar disponibilidad.",
   assistantWelcomeMessage: "¡Hola! Soy el Asistente AK 👋",
   assistantFinalMessage: "¿Hablamos? En una sola reunión resolvés todo y tu fiesta queda lista 🚀",
+  virtualAssistantEnabled: false,
   valuePropositions: [
     "Equipamiento profesional de alta gama",
     "Personal capacitado y con amplia experiencia",
@@ -119,6 +128,8 @@ export interface CompanyInfo {
     invoiceCustomFooter: string;
     signatureUrl?: string | null;
     cuentasBancariasPortal?: CuentaBancaria[];
+    googleReviewsLink?: string;
+    enableGoogleReviewsAutoRequest?: boolean;
 }
 
 export interface ContractClause {
@@ -248,4 +259,6 @@ export const defaultCompanyInfo: CompanyInfo = {
     invoiceCustomFooter: "Información de pago: Banco X, Cuenta Y, Titular Z.\nConsulte por otros métodos de pago.",
     signatureUrl: null,
     cuentasBancariasPortal: [],
+    googleReviewsLink: "",
+    enableGoogleReviewsAutoRequest: false,
 };

@@ -79,9 +79,48 @@ export async function saveProveedor(
   return { success: true, id: proveedorId, proveedor: finalProveedorData };
 }
 
+import { getInsumos } from './insumos';
+
 export async function deleteProveedor(id: string): Promise<{ success: boolean; error?: string }> {
   await requireAppSession();
+
+  // Borrarlo de una deja a sus insumos apuntando a un proveedor que ya no existe:
+  // en la lista de compras esos productos quedan sin a quien pedirselos, y nadie
+  // se entera hasta el dia que hay que comprar. Mismo criterio que al dar de baja
+  // a alguien del equipo: se avisa que hay que resolverlo antes.
   try {
+    const { getInsumos } = await import('./insumos');
+    const insumos = await getInsumos();
+    const enUso = insumos.filter((insumo: { proveedor?: string }) => insumo.proveedor === id);
+    if (enUso.length > 0) {
+      const nombres = enUso
+        .slice(0, 3)
+        .map((insumo: { nombre?: string }) => insumo.nombre)
+        .filter(Boolean)
+        .join(', ');
+      const resto = enUso.length > 3 ? ` y ${enUso.length - 3} más` : '';
+      return {
+        success: false,
+        error: `Este proveedor tiene ${enUso.length} insumo(s) asociado(s): ${nombres}${resto}. Cambiales el proveedor antes de eliminarlo.`,
+      };
+    }
+  } catch (lookupError: any) {
+    console.error('Error comprobando insumos del proveedor:', lookupError);
+    return { success: false, error: 'No se pudo comprobar si el proveedor tiene insumos asociados. Probá de nuevo.' };
+  }
+
+  try {
+    const proveedor = await getProveedorById(id);
+    const insumos = await getInsumos();
+    const insumosEnUso = insumos.filter(
+      (ins: any) => ins.proveedorId === id || ins.proveedor === id || (proveedor && (ins.proveedor === proveedor.nombreEmpresa || ins.proveedor === proveedor.nombre))
+    );
+    if (insumosEnUso.length > 0) {
+      return {
+        success: false,
+        error: `No se puede eliminar el proveedor porque tiene ${insumosEnUso.length} insumo(s) asociado(s).`
+      };
+    }
     const deleted = await deleteDataItem(PROVEEDORES_FILE, PROVEEDORES_COLLECTION, id);
     if (!deleted) return { success: false, error: `Proveedor con ID ${id} no encontrado para eliminar.` };
   } catch (writeError: any) {

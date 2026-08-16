@@ -88,6 +88,12 @@ export interface CrmLead {
   marketingConsentSource?: string;
   referrerEventName?: string;
   lastInboundAt?: string;
+  /**
+   * Cuándo se le mandó el mensaje automático de recontacto. Se anota para no
+   * escribirle nunca dos veces: un prospecto que recibe el mismo mensaje tres
+   * veces se va a la competencia.
+   */
+  recontactoAutomaticoAt?: string;
 }
 
 export type NewCrmLeadData = Omit<CrmLead, 'id' | 'createdAt' | 'updatedAt' | 'history' | 'presupuestoEstado' | 'invoiceId' >;

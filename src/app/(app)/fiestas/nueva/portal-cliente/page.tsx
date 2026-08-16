@@ -18,7 +18,9 @@ import {
   approveClientMenuChangeRequest,
   rejectClientMenuChangeRequest,
   approveClientServiceChangeRequest,
-  rejectClientServiceChangeRequest
+  rejectClientServiceChangeRequest,
+  approveClientGuestCountChangeRequest,
+  rejectClientGuestCountChangeRequest,
 } from '@/app/actions/fiesta/portal.actions';
 import { updateClienteDebeLlevar } from '@/app/actions/fiesta/fiesta.actions';
 import { getCompanyInfo } from '@/app/actions/settings';
@@ -135,6 +137,55 @@ function ClientPortalConfigContent() {
   const [isSavingLlevar, setIsSavingLlevar] = useState(false);
   const [newLlevarTexto, setNewLlevarTexto] = useState('');
   const [processingRequestId, setProcessingRequestId] = useState<string | null>(null);
+  const [rejectingGuestRequestId, setRejectingGuestRequestId] = useState<string | null>(null);
+  const [guestRejectReason, setGuestRejectReason] = useState('');
+
+  const handleApproveGuestCountRequest = async (requestId: string) => {
+    if (!fiestaId) return;
+    setProcessingRequestId(requestId);
+    try {
+      const res = await approveClientGuestCountChangeRequest(fiestaId, requestId);
+      if (res.success) {
+        toast({
+          title: 'Cambio de invitados aprobado',
+          description: 'La cantidad de invitados y el presupuesto quedaron actualizados.',
+        });
+        await loadData();
+      } else {
+        toast({ title: 'No se pudo aprobar', description: res.error || 'Probá nuevamente.', variant: 'destructive' });
+      }
+    } catch {
+      toast({ title: 'No se pudo aprobar', description: 'Probá nuevamente o revisá la conexión.', variant: 'destructive' });
+    } finally {
+      setProcessingRequestId(null);
+    }
+  };
+
+  const handleRejectGuestCountRequest = async (requestId: string) => {
+    if (!fiestaId) return;
+    const reason = guestRejectReason.trim();
+    if (!reason) {
+      toast({ title: 'Escribí el motivo', description: 'El cliente verá esta explicación en su portal.', variant: 'destructive' });
+      return;
+    }
+
+    setProcessingRequestId(requestId);
+    try {
+      const res = await rejectClientGuestCountChangeRequest(fiestaId, requestId, reason);
+      if (res.success) {
+        toast({ title: 'Solicitud rechazada', description: 'El motivo ya está disponible para el cliente.' });
+        setRejectingGuestRequestId(null);
+        setGuestRejectReason('');
+        await loadData();
+      } else {
+        toast({ title: 'No se pudo rechazar', description: res.error || 'Probá nuevamente.', variant: 'destructive' });
+      }
+    } catch {
+      toast({ title: 'No se pudo rechazar', description: 'Probá nuevamente o revisá la conexión.', variant: 'destructive' });
+    } finally {
+      setProcessingRequestId(null);
+    }
+  };
 
   const handleApproveMenuRequest = async (requestId: string) => {
     if (!fiestaId) return;
@@ -260,7 +311,6 @@ function ClientPortalConfigContent() {
       const result = await updatePortalSettingsFiestaActual(fiestaId, settingsToSave);
       if (result.success) {
         setPortalSettings(settingsToSave);
-        toast({ title: "Configuración Guardada", description: "Los ajustes del portal del cliente se han actualizado." });
       } else {
         throw new Error(result.error);
       }
@@ -276,9 +326,7 @@ function ClientPortalConfigContent() {
     setIsSavingFaq(true);
     try {
       const result = await updateFaqPortal(fiestaId, faqItems);
-      if (result.success) {
-        toast({ title: "FAQ Guardado", description: "Las preguntas frecuentes fueron actualizadas." });
-      } else {
+      if (!result.success) {
         throw new Error(result.error);
       }
     } catch (e: any) {
@@ -293,9 +341,7 @@ function ClientPortalConfigContent() {
     setIsSavingExperience(true);
     try {
       const result = await updateClientePortalExperienceFiestaActual(fiestaId, portalExperience);
-      if (result.success) {
-        toast({ title: "Personalización guardada", description: "El diseño del portal fue actualizado." });
-      } else {
+      if (!result.success) {
         throw new Error(result.error);
       }
     } catch (e: any) {
@@ -371,7 +417,6 @@ function ClientPortalConfigContent() {
       const result = await updatePortalSettingsFiestaActual(fiestaId, updatedSettings);
       if (result.success) {
         setPortalSettings(updatedSettings);
-        toast({ title: "Cuentas guardadas", description: "Los datos bancarios fueron actualizados en el portal." });
       } else {
         throw new Error(result.error);
       }
@@ -431,7 +476,6 @@ function ClientPortalConfigContent() {
       ]);
       if (settingsResult.success && llevarResult.success) {
         setPortalSettings(settingsToSave);
-        toast({ title: '✅ Guardado', description: 'La lista de bebidas y lo que debe traer el cliente fueron actualizados.' });
       } else {
         const errorMsg = (!settingsResult.success ? settingsResult.error : undefined)
           ?? (!llevarResult.success ? llevarResult.error : undefined)
@@ -529,7 +573,8 @@ function ClientPortalConfigContent() {
   };
   const pendingMenuRequests = fiestaData?.clientMenuChangeRequests?.filter(r => r.status === 'pendiente') || [];
   const pendingServiceRequests = fiestaData?.clientServiceChangeRequests?.filter(r => r.status === 'pendiente') || [];
-  const hasPendingRequests = pendingMenuRequests.length > 0 || pendingServiceRequests.length > 0;
+  const pendingGuestRequests = fiestaData?.clientGuestCountChangeRequests?.filter(r => r.status === 'pendiente') || [];
+  const hasPendingRequests = pendingMenuRequests.length > 0 || pendingServiceRequests.length > 0 || pendingGuestRequests.length > 0;
 
   if (isLoading) {
     return <div className="p-8 max-w-2xl mx-auto"><Loader2 className="w-8 h-8 animate-spin"/></div>
@@ -549,7 +594,7 @@ function ClientPortalConfigContent() {
         <Card className="shadow-lg border-amber-200 bg-amber-50/20 overflow-hidden animate-in fade-in-50 slide-in-from-top-4 duration-300">
           <CardHeader className="bg-amber-500/10 border-b border-amber-100 py-3">
             <div className="flex items-center gap-2">
-              <Clock className="w-5 h-5 text-amber-600 animate-pulse" />
+              <Clock className="w-5 h-5 text-amber-600" />
               <div>
                 <CardTitle className="font-headline text-lg text-amber-900">Solicitudes Pendientes del Cliente</CardTitle>
                 <CardDescription className="text-amber-700/80 text-xs">El cliente ha solicitado cambios económicos que requieren tu revisión.</CardDescription>
@@ -557,8 +602,94 @@ function ClientPortalConfigContent() {
             </div>
           </CardHeader>
           <CardContent className="p-4 space-y-4 divide-y divide-amber-200/50">
-            {pendingMenuRequests.map((req, index) => (
+            {pendingGuestRequests.map((req, index) => (
               <div key={req.id} className={`${index > 0 ? 'pt-4' : ''} space-y-3`}>
+                <div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
+                  <div className="space-y-2">
+                    <span className="inline-flex items-center gap-1.5 rounded-full bg-primary/10 px-2.5 py-1 text-xs font-semibold text-primary">
+                      <Users className="h-3.5 w-3.5" /> Cambio de invitados
+                    </span>
+                    <p className="text-sm text-foreground">
+                      Quiere pasar de <strong>{req.contratadosAlPedir}</strong> a <strong>{req.total}</strong> invitados.
+                    </p>
+                    <p className="text-xs text-muted-foreground">
+                      {req.adultos} adultos · {req.adolescentes} adolescentes · {req.ninos} niños
+                    </p>
+                    {req.notaCliente && (
+                      <p className="rounded-lg border border-border bg-background/80 p-3 text-xs italic text-muted-foreground">
+                        “{req.notaCliente}”
+                      </p>
+                    )}
+                  </div>
+                  <span className="shrink-0 text-xs text-muted-foreground">
+                    {new Date(req.createdAt).toLocaleDateString('es-UY')}
+                  </span>
+                </div>
+
+                {rejectingGuestRequestId === req.id ? (
+                  <div className="space-y-3 rounded-xl border border-destructive/25 bg-destructive/5 p-3">
+                    <div className="space-y-1.5">
+                      <Label htmlFor={`guest-reject-reason-${req.id}`}>Motivo para el cliente</Label>
+                      <Textarea
+                        id={`guest-reject-reason-${req.id}`}
+                        value={guestRejectReason}
+                        onChange={(event) => setGuestRejectReason(event.target.value)}
+                        placeholder="Explicá por qué no se puede aceptar este cambio"
+                        rows={3}
+                      />
+                      <p className="text-xs text-muted-foreground">Este texto se mostrará en el portal del cliente.</p>
+                    </div>
+                    <div className="flex flex-col-reverse gap-2 sm:flex-row sm:justify-end">
+                      <Button
+                        size="sm"
+                        variant="ghost"
+                        disabled={processingRequestId !== null}
+                        onClick={() => {
+                          setRejectingGuestRequestId(null);
+                          setGuestRejectReason('');
+                        }}
+                      >
+                        Cancelar
+                      </Button>
+                      <Button
+                        size="sm"
+                        variant="destructive"
+                        disabled={processingRequestId !== null || !guestRejectReason.trim()}
+                        onClick={() => handleRejectGuestCountRequest(req.id)}
+                      >
+                        {processingRequestId === req.id ? <Loader2 className="mr-1 h-3.5 w-3.5 animate-spin" /> : <X className="mr-1 h-3.5 w-3.5" />}
+                        Confirmar rechazo
+                      </Button>
+                    </div>
+                  </div>
+                ) : (
+                  <div className="flex flex-col-reverse gap-2 sm:flex-row sm:justify-end">
+                    <Button
+                      size="sm"
+                      variant="outline"
+                      disabled={processingRequestId !== null}
+                      onClick={() => {
+                        setRejectingGuestRequestId(req.id);
+                        setGuestRejectReason('');
+                      }}
+                    >
+                      <X className="mr-1 h-3.5 w-3.5" /> Rechazar
+                    </Button>
+                    <Button
+                      size="sm"
+                      disabled={processingRequestId !== null}
+                      onClick={() => handleApproveGuestCountRequest(req.id)}
+                    >
+                      {processingRequestId === req.id ? <Loader2 className="mr-1 h-3.5 w-3.5 animate-spin" /> : <Check className="mr-1 h-3.5 w-3.5" />}
+                      Aprobar y actualizar el presupuesto
+                    </Button>
+                  </div>
+                )}
+              </div>
+            ))}
+
+            {pendingMenuRequests.map((req, index) => (
+              <div key={req.id} className={`${pendingGuestRequests.length > 0 || index > 0 ? 'pt-4' : ''} space-y-3`}>
                 <div className="flex items-start justify-between gap-4">
                   <div className="space-y-1">
                     <span className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-xs font-semibold bg-blue-100 text-blue-800">
@@ -603,7 +734,7 @@ function ClientPortalConfigContent() {
             ))}
 
             {pendingServiceRequests.map((req, index) => (
-              <div key={req.id} className={`${pendingMenuRequests.length > 0 || index > 0 ? 'pt-4' : ''} space-y-3`}>
+              <div key={req.id} className={`${pendingGuestRequests.length > 0 || pendingMenuRequests.length > 0 || index > 0 ? 'pt-4' : ''} space-y-3`}>
                 <div className="flex items-start justify-between gap-4">
                   <div className="space-y-1">
                     <span className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-xs font-semibold bg-purple-100 text-purple-800">

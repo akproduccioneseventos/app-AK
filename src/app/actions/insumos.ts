@@ -101,6 +101,17 @@ export async function saveInsumo(
     notas: (itemData as any).notas?.trim() || undefined,
   };
 
+  // El `min="0"` del formulario lo controla el navegador y se saltea mandando
+  // el pedido a mano. Una cantidad o un costo en negativo se arrastra a todos
+  // los presupuestos que usen ese insumo y el costo de la comida sale al reves.
+  if (Number(dataWithParsedNumbers.valorUnitarioEstimado) < 0) {
+    return { success: false, error: 'El costo del insumo no puede ser negativo.' };
+  }
+  if (dataWithParsedNumbers.cantidadDisponible !== undefined
+      && Number(dataWithParsedNumbers.cantidadDisponible) < 0) {
+    return { success: false, error: 'La cantidad disponible no puede ser negativa.' };
+  }
+
   if (!dataWithParsedNumbers.nombre || dataWithParsedNumbers.nombre.trim() === "") return { success: false, error: "El nombre del insumo es obligatorio." };
   if (!dataWithParsedNumbers.categoria) return { success: false, error: "La categoría es obligatoria." };
   if (!dataWithParsedNumbers.unidad) return { success: false, error: "La unidad es obligatoria para insumos." };
@@ -136,6 +147,20 @@ export async function saveInsumo(
 
 export async function deleteInsumo(id: string): Promise<{ success: boolean; error?: string }> {
   await requireAppSession();
+  const { getMenus } = await import('./menus-catering');
+  const menus = await getMenus();
+  const menusEnUso = menus.filter(m =>
+    m.items?.some(item =>
+      item.ingredients?.some(ing => ing.origenId === id || (ing as any).insumoId === id)
+    )
+  );
+  if (menusEnUso.length > 0) {
+    return {
+      success: false,
+      error: `No se puede eliminar el insumo porque está siendo utilizado en ${menusEnUso.length} menú(s)/receta(s) de catering.`,
+    };
+  }
+
   invalidateInsumosCache();
   let inventario = await getInsumos();
   const initialLength = inventario.length;
@@ -153,7 +178,17 @@ export async function adjustAllInsumoCosts(
   if (isNaN(percentage) || percentage === 0) {
     return { success: false, error: "El porcentaje debe ser un número distinto de cero." };
   }
-  
+  // Los mismos dos topes que ya tenian los servicios. Sin ellos, un -200 daba
+  // vuelta el signo y todo el catalogo de insumos quedaba en negativo; y un 5000
+  // mal tipeado (en vez de 50) multiplicaba los costos por cincuenta y uno.
+  if (percentage <= -100) {
+    return { success: false, error: 'No se puede bajar los costos un 100% o más: quedarían en cero o en negativo.' };
+  }
+  if (percentage > 1000) {
+    return { success: false, error: 'El ajuste no puede superar el 1000%. Revisá el número que pusiste.' };
+  }
+
+
   try {
     invalidateInsumosCache();
     const inventario = await getInsumos();

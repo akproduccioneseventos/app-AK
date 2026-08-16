@@ -184,7 +184,7 @@ interface EntertainmentData {
 const STATUS_META: Record<StationStatus, { label: string; className: string }> = {
   preparando: { label: 'Preparando', className: 'bg-zinc-800/80 text-zinc-300 border-zinc-700/50' },
   listo: { label: 'Listo', className: 'bg-emerald-500/20 text-emerald-300 border-emerald-500/30' },
-  'en-vivo': { label: 'En vivo', className: 'bg-blue-500/20 text-blue-300 border-blue-500/30 animate-pulse' },
+  'en-vivo': { label: 'En vivo', className: 'bg-blue-500/20 text-blue-300 border-blue-500/30' },
   pausado: { label: 'Pausado', className: 'bg-amber-500/20 text-amber-300 border-amber-500/30' },
 };
 
@@ -846,7 +846,6 @@ function EntretenimientoContent() {
       return;
     }
     setData(mergeEntertainmentData(result.data, fiesta, origin));
-    toast({ title: 'Entretenimiento guardado', description: 'Los ajustes se sincronizaron con éxito.' });
   }, [data, fiesta, fiestaId, origin, toast]);
 
   const uploadMedia = useCallback(async (file: File, stationId: StationId) => {
@@ -870,7 +869,6 @@ function EntretenimientoContent() {
     }
 
     setData(mergeEntertainmentData(result.data, fiesta, origin));
-    toast({ title: 'Captura de prueba subida', description: 'Se guardó en la galería interna del módulo.' });
   }, [fiesta, fiestaId, origin, toast]);
 
   // Audio Welcome Controls for Cápsula del Tiempo
@@ -940,7 +938,6 @@ function EntretenimientoContent() {
     try {
       const res = await uploadWelcomeAudio(formData);
       if (res.success) {
-        toast({ title: 'Mensaje de Bienvenida guardado' });
         setAudioBlob(null);
         setAudioUrl(null);
         welcomeAudioRef.current = null;
@@ -966,7 +963,6 @@ function EntretenimientoContent() {
     try {
       const res = await deleteWelcomeAudio(fiestaId);
       if (res.success) {
-        toast({ title: 'Bienvenida eliminada' });
         welcomeAudioRef.current = null;
         setIsWelcomePlaying(false);
         // Refrescar fiesta
@@ -1710,7 +1706,7 @@ function EntretenimientoContent() {
                 <div className="space-y-8 animate-[fadeIn_0.2s_ease-out]">
                   <div className="border-b border-[#18181b] pb-4">
                     <h3 className="text-lg font-black text-white flex items-center gap-2">
-                      <RadioTower className="h-5 w-5 text-rose-500 animate-pulse" />
+                      <RadioTower className="h-5 w-5 text-rose-500" />
                       4. Lanzamiento y Control Técnico
                     </h3>
                     <p className="text-xs text-zinc-400 mt-1">Lanzá el servicio interactivo, probá la cámara y visualizá los mensajes grabados.</p>
@@ -1828,8 +1824,6 @@ function EntretenimientoContent() {
                                         const res = await uploadWelcomeAudio(formData);
                                         setIsWelcomeSaving(false);
                                         if (res.success) {
-                                          toast({ title: 'Audio cargado con éxito.' });
-                                          // Refrescar fiesta
                                           const result = await getEntretenimientoFiesta(fiestaId);
                                           if (result.success && result.fiesta) {
                                             setFiesta(result.fiesta);
@@ -2014,7 +2008,7 @@ function EntretenimientoContent() {
                             <p className="text-[10px] font-black uppercase tracking-widest text-zinc-500">QR de Acceso Invitados</p>
                             <p className="text-sm font-black text-rose-400">{data.eventHashtag}</p>
                           </div>
-                          <RadioTower className="h-5 w-5 text-rose-500 animate-pulse" />
+                          <RadioTower className="h-5 w-5 text-rose-500" />
                         </div>
 
                         <div className="rounded-3xl bg-white p-5 shadow-2xl shadow-rose-500/5 my-3">

@@ -8,6 +8,7 @@ import { getPresupuestoById, updatePresupuesto } from '@/app/actions/presupuesto
 import { saveFiesta, syncFiestaFromBudget, getFiestas } from '@/app/actions/fiesta/fiesta.actions';
 import { getInvoiceById, saveInvoice } from '@/app/actions/invoices';
 import { createNotification } from '@/lib/notifications/create-notification';
+import { idsDeEtapaGanadora, idsDeEtapaPerdida } from '@/lib/crm/etapas-finales';
 import type { FiestaEnPlanificacion } from '@/types/fiesta';
 import type { Presupuesto, PagoCliente, MetodoPago } from '@/types/presupuesto';
 import { initialFiestaActualData, defaultModulosContratados } from '@/lib/fiesta-defaults';
@@ -348,6 +349,23 @@ export async function deleteCrmLead(leadId: string): Promise<{ success: boolean;
     const auth = await verifySession();
     if (!auth.success) return { success: false, error: auth.error };
     if (auth.user?.role !== 'admin') return { success: false, error: 'Solo administradores pueden eliminar leads.' };
+
+    // Un prospecto que ya firmó no se borra. Su presupuesto quedaría sin dueño y
+    // se pierde de dónde vino esa venta: al buscar el origen de un cobro no
+    // aparece nada. Es fácil confundir un contrato viejo con un duplicado.
+    const lead = (await getCrmLeads()).find(l => l.id === leadId);
+    if (lead?.presupuestoId) {
+      const presupuestos = await readData<any[]>('presupuestos.json', []).catch(() => []);
+      const vinculado = (presupuestos || []).find(p => p?.id === lead.presupuestoId);
+      const contratado = vinculado?.estado === 'Aceptado' || vinculado?.estado === 'Facturado';
+      if (contratado) {
+        return {
+          success: false,
+          error: `No se puede borrar: este prospecto tiene el presupuesto ${vinculado?.numero ?? lead.presupuestoId} ya ${String(vinculado.estado).toLowerCase()}. Si es un duplicado, desvinculá primero el presupuesto.`,
+        };
+      }
+    }
+
     return await deleteCrmLeadDocument(leadId)
       ? { success: true }
       : { success: false, error: 'No encontrado' };
@@ -447,8 +465,15 @@ export async function registerContractDeposit(params: {
   presupuesto: Presupuesto;
   monto: number;
   referencia?: string;
-  // TODO(Fase 3): accept metodoPago from form when the booking flow collects it.
-  metodoPago?: MetodoPago;
+  /**
+   * Cómo entró la plata. Es obligatorio a propósito.
+   *
+   * Antes era opcional y, si no venía, se guardaba "Efectivo". Un cliente que
+   * transfería quedaba asentado como que pagó en mano, y ese método se copiaba
+   * después al pago de la factura. Adivinar cómo entró la plata desordena la
+   * caja y no se puede reconstruir después.
+   */
+  metodoPago: MetodoPago;
 }): Promise<{ updatedPresupuesto: Presupuesto; pagoId: string }> {
   const auth = await verifySession();
   if (!auth.success) throw new Error('No autorizado');
@@ -467,7 +492,7 @@ export async function registerContractDeposit(params: {
     id: pagoId,
     fecha: now,
     monto: normalizedAmount,
-    metodoPago: metodoPago ?? 'Efectivo',
+    metodoPago,
     referencia: referencia ?? 'Seña registrada al firmar contrato',
     estadoPago: 'confirmado',
   };
@@ -632,6 +657,12 @@ export async function confirmBookingWithContract(formData: FormData): Promise<{ 
     // 4. Register deposit via registerContractDeposit
     let finalPresupuesto = presupuestoWithFormData;
     if (formMontoSenia !== undefined && formMontoSenia > 0) {
+      // No se adivina cómo entró la plata: antes, si no venía el método, se
+      // asentaba "Efectivo" y una transferencia quedaba anotada como plata en
+      // mano, también en la factura.
+      if (!formMetodoPago) {
+        throw new Error('Falta indicar cómo entró la seña (efectivo, transferencia, etc.).');
+      }
       const { updatedPresupuesto } = await registerContractDeposit({
         presupuesto: presupuestoWithFormData,
         monto: formMontoSenia,
@@ -811,14 +842,26 @@ export async function confirmBooking(leadId: string, presupuestoId: string, arch
 export async function getCrmKpiData() {
     const auth = await verifySession();
     if (!auth.success) return { success: false, error: auth.error };
-    const [leads, presupuestos] = await Promise.all([getCrmLeads(), readData<any[]>('presupuestos.json', []).catch(() => [])]);
-    const activeLeads = leads.filter(l => l.currentStageId !== 's4' && l.currentStageId !== 's5');
+    const [leads, presupuestos, stages] = await Promise.all([
+        getCrmLeads(),
+        readData<any[]>('presupuestos.json', []).catch(() => []),
+        getCrmStages(),
+    ]);
+
+    // Las etapas ganadora y perdedora se deducen de la configuracion, no se
+    // escriben a mano: el embudo se puede personalizar y con codigos fijos los
+    // numeros salian mal sin avisar.
+    const ganadoras = idsDeEtapaGanadora(stages);
+    const perdedoras = idsDeEtapaPerdida(stages);
+    const terminadas = new Set([...ganadoras, ...perdedoras]);
+
+    const activeLeads = leads.filter(l => !terminadas.has(l.currentStageId ?? ''));
     const pipelineValue = (presupuestos || [])
         .filter(p => activeLeads.some(l => l.presupuestoId === p.id))
         .reduce((sum, p) => sum + (Number(p.totalConDescuento ?? p.costoTotalEstimado) || 0), 0);
 
-    const wonCount = leads.filter(l => l.currentStageId === 's4').length;
-    const lostCount = leads.filter(l => l.currentStageId === 's5').length;
+    const wonCount = leads.filter(l => ganadoras.has(l.currentStageId ?? '')).length;
+    const lostCount = leads.filter(l => perdedoras.has(l.currentStageId ?? '')).length;
     const totalFinished = wonCount + lostCount;
 
     return {
@@ -1058,3 +1101,177 @@ export async function saveLead(data: LandingLeadData): Promise<{ success: boolea
     return { success: false, error: error.message };
   }
 }
+
+export interface FiestaAtraccionItem {
+  fiestaId: string;
+  nombreFiesta: string;
+  fechaFiesta: string;
+  tipoEvento?: string;
+  prospectosCount: number;
+  presupuestosCount: number;
+  contratadosCount: number;
+  prospectos: Array<{
+    id: string;
+    name: string;
+    createdAt: string;
+    presupuestoId?: string;
+    presupuestoEstado?: string;
+    isContracted: boolean;
+    campaign?: string;
+    source?: string;
+  }>;
+}
+
+export interface FiestaAtraccionReportResponse {
+  success: boolean;
+  data?: FiestaAtraccionItem[];
+  totalProspectos: number;
+  totalPresupuestos: number;
+  totalContratados: number;
+  fiestasConAtraccion: number;
+  availableYears: number[];
+  error?: string;
+}
+
+export async function getAtraccionFiestasReport(
+  filterYear?: number
+): Promise<FiestaAtraccionReportResponse> {
+  try {
+    await requireAppSession();
+
+    const [allLeads, allFiestas, stages] = await Promise.all([
+      readData<CrmLead[]>(LEADS_FILE, []),
+      getFiestas(true).catch(() => []),
+      readData<CrmStage[]>(STAGES_FILE, DEFAULT_CRM_STAGES).catch(() => DEFAULT_CRM_STAGES),
+    ]);
+
+    const winningStages = idsDeEtapaGanadora(stages || DEFAULT_CRM_STAGES);
+
+    const fiestasMap = new Map<string, FiestaEnPlanificacion>();
+    const availableYearsSet = new Set<number>();
+    const currentYear = new Date().getFullYear();
+    availableYearsSet.add(currentYear);
+
+    for (const f of allFiestas) {
+      fiestasMap.set(f.id, f);
+      const fecha = f.configuracion?.fechaEvento;
+      if (fecha) {
+        const y = new Date(fecha).getFullYear();
+        if (!Number.isNaN(y)) availableYearsSet.add(y);
+      }
+    }
+
+    // Group leads by fiestaId (using acquisition.refFiestaId or fallback history)
+    const grouped = new Map<string, CrmLead[]>();
+
+    for (const lead of allLeads) {
+      if (lead.createdAt) {
+        const ly = new Date(lead.createdAt).getFullYear();
+        if (!Number.isNaN(ly)) availableYearsSet.add(ly);
+      }
+
+      const fiestaId = lead.acquisition?.refFiestaId
+        || lead.acquisitionHistory?.find((h) => h.refFiestaId)?.refFiestaId;
+
+      if (fiestaId) {
+        const existing = grouped.get(fiestaId) || [];
+        existing.push(lead);
+        grouped.set(fiestaId, existing);
+      }
+    }
+
+    const items: FiestaAtraccionItem[] = [];
+    let totalProspectos = 0;
+    let totalPresupuestos = 0;
+    let totalContratados = 0;
+
+    for (const [fiestaId, leads] of grouped.entries()) {
+      const fiesta = fiestasMap.get(fiestaId);
+      const nombreFiesta = fiesta?.configuracion?.nombreEvento
+        || fiesta?.configuracion?.clienteNombre
+        || leads[0]?.referrerEventName
+        || `Fiesta #${fiestaId}`;
+      const fechaFiesta = fiesta?.configuracion?.fechaEvento || '';
+      const tipoEvento = (fiesta?.configuracion?.tipoCelebracion as string) || leads[0]?.partyType;
+
+      // Filter by year if requested
+      if (filterYear) {
+        const fiestaYear = fechaFiesta ? new Date(fechaFiesta).getFullYear() : undefined;
+        const hasLeadInYear = leads.some((l) => l.createdAt && new Date(l.createdAt).getFullYear() === filterYear);
+        if (fiestaYear !== filterYear && !hasLeadInYear) {
+          continue;
+        }
+      }
+
+      const prospectosCount = leads.length;
+      let presupuestosCount = 0;
+      let contratadosCount = 0;
+
+      const prospectos = leads.map((l) => {
+        const hasBudget = Boolean(l.presupuestoId || l.presupuestoEstado);
+        const stageId = l.currentStageId || '';
+        const isContracted = winningStages.has(stageId)
+          || stageId === 'ganado'
+          || stageId === 's4'
+          || l.presupuestoEstado === 'Facturado'
+          || l.presupuestoEstado === 'Aceptado'
+          || Boolean(l.invoiceId);
+
+        if (hasBudget) presupuestosCount++;
+        if (isContracted) contratadosCount++;
+
+        return {
+          id: l.id,
+          name: l.name,
+          createdAt: l.createdAt,
+          presupuestoId: l.presupuestoId,
+          presupuestoEstado: l.presupuestoEstado,
+          isContracted,
+          campaign: l.acquisition?.campaign,
+          source: l.acquisition?.source,
+        };
+      });
+
+      totalProspectos += prospectosCount;
+      totalPresupuestos += presupuestosCount;
+      totalContratados += contratadosCount;
+
+      items.push({
+        fiestaId,
+        nombreFiesta,
+        fechaFiesta,
+        tipoEvento,
+        prospectosCount,
+        presupuestosCount,
+        contratadosCount,
+        prospectos,
+      });
+    }
+
+    // Sort descending by most prospects attracted, then most contracted
+    items.sort((a, b) => b.prospectosCount - a.prospectosCount || b.contratadosCount - a.contratadosCount);
+
+    const availableYears = Array.from(availableYearsSet).sort((a, b) => b - a);
+
+    return {
+      success: true,
+      data: items,
+      totalProspectos,
+      totalPresupuestos,
+      totalContratados,
+      fiestasConAtraccion: items.length,
+      availableYears,
+    };
+  } catch (error: any) {
+    return {
+      success: false,
+      error: error.message || 'Error al obtener reporte de atracción por fiesta',
+      totalProspectos: 0,
+      totalPresupuestos: 0,
+      totalContratados: 0,
+      fiestasConAtraccion: 0,
+      availableYears: [],
+    };
+  }
+}
+

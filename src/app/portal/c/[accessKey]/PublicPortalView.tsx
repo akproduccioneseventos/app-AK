@@ -65,14 +65,14 @@ import { Checkbox } from '@/components/ui/checkbox';
 import { Textarea } from '@/components/ui/textarea';
 import { Label } from '@/components/ui/label';
 import { Input } from '@/components/ui/input';
-import { updateClientChecklist, updateClientNotes, submitClientPayment, submitClientMenuChangeRequest, updatePortalGuestRsvp } from '@/app/actions/fiesta/portal.actions';
+import { updateClientChecklist, updateClientNotes, submitClientPayment, submitClientGuestCountChangeRequest, updatePortalGuestRsvp } from '@/app/actions/fiesta/portal.actions';
 import { updateClienteDebeLlevar } from '@/app/actions/fiesta/fiesta.actions';
 import { defaultBebidaItems } from '@/lib/fiesta-defaults';
 import { PublicFooter } from '@/components/public-footer';
 import { AK_WHATSAPP_NUMBER } from '@/lib/public-contact';
 import { calculateMenuSimulationTotals, resolveMenuUnitPrices, simulateGuestCostImpact } from '@/lib/portal-menu-simulator';
-import { CateringSimulator } from '@/components/portal/CateringSimulator';
 import { getBudgetPaymentSummary } from '@/lib/budget/financial-guardrails';
+import { validarCambioDeInvitados } from '@/lib/budget/cambio-de-invitados';
 
 interface PublicPortalViewProps {
   fiesta: FiestaEnPlanificacion;
@@ -280,9 +280,17 @@ export default function PublicPortalView({
   // Guest simulator state
   const [adultDelta, setAdultDelta] = useState(0);
   const [kidsDelta, setKidsDelta] = useState(0);
-  const [simRequestNote, setSimRequestNote] = useState('');
-  const [simRequestLoading, setSimRequestLoading] = useState(false);
-  const [simRequestSuccess, setSimRequestSuccess] = useState(false);
+  const invitadosContratadosIniciales = Number(config.invitadosEstimados) || 0;
+  const adolescentesIniciales = Number(presupuesto?.invitadosAdolescentes) || 0;
+  const ninosIniciales = Number(presupuesto?.invitadosNinos) || 0;
+  const adultosIniciales = Number(presupuesto?.invitadosAdultos) || Math.max(0, invitadosContratadosIniciales - adolescentesIniciales - ninosIniciales);
+  const [guestAdults, setGuestAdults] = useState(String(adultosIniciales));
+  const [guestTeens, setGuestTeens] = useState(String(adolescentesIniciales));
+  const [guestKids, setGuestKids] = useState(String(ninosIniciales));
+  const [guestRequestNote, setGuestRequestNote] = useState('');
+  const [guestRequestLoading, setGuestRequestLoading] = useState(false);
+  const [guestRequestFeedback, setGuestRequestFeedback] = useState<{ type: 'success' | 'warning' | 'error'; text: string } | null>(null);
+  const [submittedGuestRequest, setSubmittedGuestRequest] = useState<{ adultos: number; adolescentes: number; ninos: number; total: number } | null>(null);
 
   // Moodboard liked state
   const [likedItems, setLikedItems] = useState<Set<string>>(
@@ -465,7 +473,9 @@ export default function PublicPortalView({
   const whatsappHref = `https://wa.me/${hasValidPhone ? whatsappNumber : AK_WHATSAPP_NUMBER}?text=${whatsappMessage}`;
 
   // Payments data
-  const paymentSummary = getBudgetPaymentSummary(presupuesto);
+  const paymentSummary = getBudgetPaymentSummary(presupuesto, {
+    includeAnnualAdjustment: true,
+  });
   const totalCosto = paymentSummary.total;
   const pagos: PagoCliente[] = presupuesto?.pagosCliente ?? [];
   const totalPagado = paymentSummary.paid;
@@ -530,7 +540,7 @@ export default function PublicPortalView({
   // Effective limits: prefer admin-configured percentage, fall back to absolute MAX_GUEST_DELTA
   const effectiveMaxAdult = maxDeltaAdult || MAX_GUEST_DELTA;
   const effectiveMaxKids = maxDeltaKids || MAX_GUEST_DELTA;
-  // Legacy catering simulator totals (kept for the CateringSimulator component still in use)
+  // Legacy estimate kept as a preview; the formal request below uses the contract action.
   const simulationTotals = calculateMenuSimulationTotals({
     adultosDelta: adultDelta,
     ninosAdolescentesDelta: kidsDelta,
@@ -562,28 +572,51 @@ export default function PublicPortalView({
 
   // FAQ
   const faqItems: FaqItem[] = fiesta.faqPortal ?? [];
-  const menuChangeRequests = fiesta.clientMenuChangeRequests ?? [];
+  const guestCountRequests = fiesta.clientGuestCountChangeRequests ?? [];
+  const pendingGuestRequest = guestCountRequests.find((request) => request.status === 'pendiente');
+  const latestGuestRequest = guestCountRequests.length > 0
+    ? guestCountRequests[guestCountRequests.length - 1]
+    : undefined;
+  const guestAdultsNumber = Math.max(0, Math.round(Number(guestAdults) || 0));
+  const guestTeensNumber = Math.max(0, Math.round(Number(guestTeens) || 0));
+  const guestKidsNumber = Math.max(0, Math.round(Number(guestKids) || 0));
+  const guestRequestedTotal = guestAdultsNumber + guestTeensNumber + guestKidsNumber;
+  const guestChangeVerdict = validarCambioDeInvitados({
+    contratados: invitadosContratados,
+    nuevos: guestRequestedTotal,
+    fechaDelEvento: config.fechaEvento,
+  });
+  const visibleGuestRequest = pendingGuestRequest ?? submittedGuestRequest;
 
-  const handleSubmitMenuRequest = async () => {
-    if (!fiesta.id || (adultDelta <= 0 && kidsDelta <= 0)) return;
-    setSimRequestLoading(true);
+  const handleSubmitGuestCountRequest = async () => {
+    if (!fiesta.id) return;
+    setGuestRequestFeedback(null);
+    setGuestRequestLoading(true);
     try {
-      // Prefer real budget-synced impact; fall back to legacy estimate for events without items
-      const montoAdicional = guestSim ? guestSim.impacto : simulationTotals.aumentoTotal;
-      const nuevoTotalEstimado = guestSim ? guestSim.costoNuevo : simulationTotals.nuevoTotal;
-      await submitClientMenuChangeRequest(fiesta.id, {
-        adultosDelta: adultDelta,
-        ninosAdolescentesDelta: kidsDelta,
-        montoAdicional,
-        nuevoTotalEstimado,
-        notaCliente: simRequestNote,
+      const result = await submitClientGuestCountChangeRequest(fiesta.id, {
+        adultos: guestAdultsNumber,
+        adolescentes: guestTeensNumber,
+        ninos: guestKidsNumber,
+        notaCliente: guestRequestNote,
       });
-      setAdultDelta(0);
-      setKidsDelta(0);
-      setSimRequestNote('');
-      setSimRequestSuccess(true);
+      if (!result.success) {
+        setGuestRequestFeedback({ type: 'error', text: result.error || 'No pudimos enviar el pedido. Probá nuevamente.' });
+        return;
+      }
+      setSubmittedGuestRequest({
+        adultos: guestAdultsNumber,
+        adolescentes: guestTeensNumber,
+        ninos: guestKidsNumber,
+        total: guestRequestedTotal,
+      });
+      setGuestRequestFeedback({
+        type: result.aviso ? 'warning' : 'success',
+        text: result.aviso ? `Pedido enviado. ${result.aviso}` : 'Pedido enviado. AK lo revisará antes de actualizar el presupuesto.',
+      });
+    } catch {
+      setGuestRequestFeedback({ type: 'error', text: 'No pudimos enviar el pedido. Probá nuevamente.' });
     } finally {
-      setSimRequestLoading(false);
+      setGuestRequestLoading(false);
     }
   };
 
@@ -1501,11 +1534,94 @@ export default function PublicPortalView({
               <CardHeader className="pb-2" style={{ background: `linear-gradient(135deg, ${eventColor}18, ${eventColor}08)` }}>
                 <CardTitle className="text-base font-bold flex items-center gap-2">
                   <TrendingUp className="w-5 h-5" style={{ color: eventColor }} />
-                  ¿Querés agregar más invitados?
+                  Pedir un cambio de invitados
                 </CardTitle>
-                <p className="text-xs text-muted-foreground">Calculá el impacto en el costo si sumás más invitados.</p>
+                <p className="text-xs text-muted-foreground">Indicá cuántos adultos, adolescentes y niños van a asistir. AK revisará el pedido antes de cambiar el presupuesto.</p>
               </CardHeader>
               <CardContent className="pt-4 space-y-4">
+                <div className="rounded-xl border border-border bg-card p-4">
+                  <div className="mb-4 rounded-xl border border-primary/30 bg-primary/10 p-3 text-sm text-foreground">
+                    <p className="font-bold">
+                      {invitadosContratados > 0
+                        ? `Tu contrato permite entre ${guestChangeVerdict.minimoPermitido} y ${guestChangeVerdict.maximoPermitido} invitados.`
+                        : 'AK todavía no cargó la cantidad contratada para calcular el rango.'}
+                    </p>
+                    <p className="mt-1 text-muted-foreground">{guestChangeVerdict.mensaje}</p>
+                  </div>
+
+                  {!visibleGuestRequest && latestGuestRequest?.status === 'rechazada' && (
+                    <div className="mb-4 rounded-xl border border-destructive/30 bg-destructive/10 p-3 text-sm" role="status">
+                      <p className="font-bold text-destructive">El pedido anterior no pudo aprobarse</p>
+                      <p className="mt-1 text-foreground">
+                        {latestGuestRequest.motivoRechazo || 'Consultá con AK para conocer el motivo y evaluar otra cantidad.'}
+                      </p>
+                      <p className="mt-2 text-xs text-muted-foreground">Podés ajustar las cantidades y enviar un pedido nuevo.</p>
+                    </div>
+                  )}
+
+                  {visibleGuestRequest ? (
+                    <div className="rounded-xl border border-accent/30 bg-accent/10 p-4" aria-live="polite">
+                      <div className="flex items-start gap-3">
+                        <Clock className="mt-0.5 h-5 w-5 shrink-0 text-accent" />
+                        <div>
+                          <p className="font-bold text-foreground">Pedido pendiente de revisión</p>
+                          <p className="mt-1 text-sm text-muted-foreground">
+                            Pediste pasar de {invitadosContratados} a {visibleGuestRequest.total} invitados: {visibleGuestRequest.adultos} adultos, {visibleGuestRequest.adolescentes} adolescentes y {visibleGuestRequest.ninos} niños.
+                          </p>
+                          <p className="mt-2 text-xs text-muted-foreground">AK te avisará cuando confirme disponibilidad y actualice el presupuesto.</p>
+                          {guestRequestFeedback && (
+                            <p className={`mt-3 rounded-lg border p-2 text-sm ${guestRequestFeedback.type === 'warning' ? 'border-amber-300 bg-amber-50 text-amber-900 dark:border-amber-400/40 dark:bg-amber-400/10 dark:text-amber-100' : 'border-accent/30 bg-background/70 text-foreground'}`}>
+                              {guestRequestFeedback.text}
+                            </p>
+                          )}
+                        </div>
+                      </div>
+                    </div>
+                  ) : (
+                    <div className="space-y-4">
+                      <div className="grid gap-3 sm:grid-cols-3">
+                        <div className="space-y-2">
+                          <Label htmlFor="guest-count-adults">Adultos</Label>
+                          <Input id="guest-count-adults" type="number" min="0" inputMode="numeric" value={guestAdults} onChange={(event) => setGuestAdults(event.target.value)} />
+                        </div>
+                        <div className="space-y-2">
+                          <Label htmlFor="guest-count-teens">Adolescentes</Label>
+                          <Input id="guest-count-teens" type="number" min="0" inputMode="numeric" value={guestTeens} onChange={(event) => setGuestTeens(event.target.value)} />
+                        </div>
+                        <div className="space-y-2">
+                          <Label htmlFor="guest-count-kids">Niños</Label>
+                          <Input id="guest-count-kids" type="number" min="0" inputMode="numeric" value={guestKids} onChange={(event) => setGuestKids(event.target.value)} />
+                        </div>
+                      </div>
+
+                      <div className="flex items-center justify-between rounded-xl bg-muted p-3">
+                        <span className="text-sm font-semibold text-muted-foreground">Nuevo total solicitado</span>
+                        <span className="text-2xl font-black tabular-nums text-foreground">{guestRequestedTotal}</span>
+                      </div>
+
+                      <div className="space-y-2">
+                        <Label htmlFor="guest-count-note">Nota para AK (opcional)</Label>
+                        <Textarea id="guest-count-note" value={guestRequestNote} onChange={(event) => setGuestRequestNote(event.target.value)} placeholder="Contanos cualquier detalle que debamos considerar." rows={3} />
+                      </div>
+
+                      {guestRequestFeedback && (
+                        <div className={`rounded-xl border p-3 text-sm ${guestRequestFeedback.type === 'error' ? 'border-destructive/30 bg-destructive/10 text-destructive' : guestRequestFeedback.type === 'warning' ? 'border-amber-300 bg-amber-50 text-amber-900 dark:border-amber-400/40 dark:bg-amber-400/10 dark:text-amber-100' : 'border-accent/30 bg-accent/10 text-accent'}`} role="status" aria-live="polite">
+                          {guestRequestFeedback.text}
+                        </div>
+                      )}
+
+                      <Button className="w-full sm:w-auto" onClick={handleSubmitGuestCountRequest} disabled={guestRequestLoading || guestRequestedTotal <= 0 || guestChangeVerdict.nivel === 'fuera-de-contrato'}>
+                        {guestRequestLoading ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : <Send className="mr-2 h-4 w-4" />}
+                        Enviar pedido de cambio
+                      </Button>
+                    </div>
+                  )}
+                </div>
+
+                <div className="border-t border-border pt-4">
+                  <p className="font-bold text-foreground">Simular el costo de agregar invitados</p>
+                  <p className="text-sm text-muted-foreground">Esta estimación no envía ningún pedido ni modifica el presupuesto.</p>
+                </div>
                 {(!presupuesto || (presupuesto.itemsPresupuestados?.length ?? 0) === 0) ? (
                   <p className="text-sm text-muted-foreground text-center py-2">
                     Aún no hay presupuesto cargado para tu evento. Cuando esté listo, podrás simular el impacto de agregar más invitados acá.
@@ -1671,47 +1787,6 @@ export default function PublicPortalView({
                           </p>
                         )}
 
-                        {hasChanges && (
-                          <div className="space-y-2">
-                            <Textarea
-                              value={simRequestNote}
-                              onChange={(e) => setSimRequestNote(e.target.value)}
-                              placeholder="Nota opcional para el equipo (ej: son invitados de última hora de la mesa 5)."
-                              rows={2}
-                              className="rounded-xl text-sm"
-                            />
-                            <Button
-                              className="w-full rounded-xl font-bold"
-                              style={{ backgroundColor: eventColor, borderColor: eventColor }}
-                              onClick={handleSubmitMenuRequest}
-                              disabled={simRequestLoading}
-                            >
-                              {simRequestLoading ? <Loader2 className="w-4 h-4 mr-2 animate-spin" /> : <Send className="w-4 h-4 mr-2" />}
-                              Enviar solicitud al equipo AK
-                            </Button>
-                          </div>
-                        )}
-
-                        {menuChangeRequests.length > 0 && (
-                          <div className="space-y-2">
-                            <p className="text-[10px] font-black uppercase tracking-widest text-muted-foreground">Solicitudes recientes</p>
-                            {menuChangeRequests.slice(-3).reverse().map((request) => (
-                              <div key={request.id} className="rounded-xl border bg-muted/30 px-3 py-2 text-xs flex items-center justify-between gap-3">
-                                <div>
-                                  <p className="font-semibold">+{request.adultosDelta} adultos · +{request.ninosAdolescentesDelta} niños/adolescentes</p>
-                                  <p className="text-muted-foreground">{formatDate(request.createdAt)}</p>
-                                </div>
-                                <Badge variant="outline" className="uppercase text-[10px]">{request.status}</Badge>
-                              </div>
-                            ))}
-                          </div>
-                        )}
-
-                        {simRequestSuccess && (
-                          <div className="rounded-2xl border border-emerald-200 bg-emerald-50 px-4 py-3 text-emerald-800 text-sm font-medium text-center">
-                            ✅ ¡Solicitud enviada! El equipo AK la revisará pronto.
-                          </div>
-                        )}
                       </>
                     );
                   })()}

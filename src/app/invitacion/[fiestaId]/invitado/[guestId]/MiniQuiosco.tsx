@@ -45,6 +45,7 @@ export function MiniQuiosco({ fiestaId, guest, guestAccessToken, canShareToSocia
   const [dashboard, setDashboard] = useState<PublicBarTechnologyDashboard | null>(null);
   const [myOrders, setMyOrders] = useState<BarDrinkOrder[]>([]);
   const [isLoading, setIsLoading] = useState(true);
+  const [loadError, setLoadError] = useState(false);
   const [selectedDrink, setSelectedDrink] = useState<Trago | null>(null);
   const [drinkToChange, setDrinkToChange] = useState<BarDrinkOrder | null>(null);
   const [isOrdering, setIsOrdering] = useState(false);
@@ -52,15 +53,20 @@ export function MiniQuiosco({ fiestaId, guest, guestAccessToken, canShareToSocia
   const [isUploading, setIsUploading] = useState(false);
 
   const loadData = useCallback(async () => {
-    const [dashboardResult, ordersResult] = await Promise.all([
-      getPublicBarraTecnologicaDashboard(fiestaId),
-      getGuestBarOrders(fiestaId, guest.id, guestAccessToken),
-    ]);
-    if (dashboardResult.success && dashboardResult.data) {
+    setLoadError(false);
+    try {
+      const [dashboardResult, ordersResult] = await Promise.all([
+        getPublicBarraTecnologicaDashboard(fiestaId),
+        getGuestBarOrders(fiestaId, guest.id, guestAccessToken),
+      ]);
+      if (!dashboardResult.success || !dashboardResult.data || !ordersResult.success) throw new Error('No se pudo cargar el quiosco.');
       setDashboard(dashboardResult.data);
+      setMyOrders(ordersResult.orders || []);
+    } catch {
+      setLoadError(true);
+    } finally {
+      setIsLoading(false);
     }
-    setMyOrders(ordersResult.success ? ordersResult.orders || [] : []);
-    setIsLoading(false);
   }, [fiestaId, guest.id, guestAccessToken]);
 
   useEffect(() => {
@@ -86,7 +92,7 @@ export function MiniQuiosco({ fiestaId, guest, guestAccessToken, canShareToSocia
       setDrinkToChange(null);
       await loadData();
     } else {
-      toast({ title: 'No se pudo registrar', description: result.error, variant: 'destructive' });
+      toast({ title: 'No se pudo registrar', description: 'Intentá nuevamente. Si el problema continúa, avisá al equipo de la barra.', variant: 'destructive' });
     }
     setIsOrdering(false);
   };
@@ -98,7 +104,7 @@ export function MiniQuiosco({ fiestaId, guest, guestAccessToken, canShareToSocia
       toast({ title: 'Pedido cancelado', description: 'Tu pedido fue cancelado.' });
       await loadData();
     } else {
-      toast({ title: 'No se pudo cancelar', description: result.error || 'Intenta nuevamente.', variant: 'destructive' });
+      toast({ title: 'No se pudo cancelar', description: 'Intentá nuevamente. Si el problema continúa, avisá al equipo de la barra.', variant: 'destructive' });
     }
     setIsCanceling(null);
   };
@@ -118,7 +124,7 @@ export function MiniQuiosco({ fiestaId, guest, guestAccessToken, canShareToSocia
       const result = await uploadBarMagicPhoto(formData);
       toast(result.success
         ? { title: 'Recuerdo enviado', description: 'Tu foto aparecera en el muro social.' }
-        : { title: 'No se pudo subir', description: result.error, variant: 'destructive' });
+        : { title: 'No se pudo subir', description: 'Intentá nuevamente. Si el problema continúa, avisá al equipo de la barra.', variant: 'destructive' });
     } catch {
       toast({ title: 'No se pudo subir', description: 'Intenta nuevamente.', variant: 'destructive' });
     } finally {
@@ -135,7 +141,11 @@ export function MiniQuiosco({ fiestaId, guest, guestAccessToken, canShareToSocia
   };
 
   if (isLoading) {
-    return <div className="fixed inset-0 z-50 grid place-items-center bg-slate-950"><Loader2 className="h-10 w-10 animate-spin text-white" /></div>;
+    return <div className="fixed inset-0 z-50 grid place-items-center bg-slate-950 p-6 text-center text-white" role="status" aria-live="polite"><div><Loader2 className="mx-auto h-10 w-10 animate-spin" /><p className="mt-4 text-sm font-medium text-slate-200">Estamos preparando el quiosco de tragos.</p></div></div>;
+  }
+
+  if (loadError) {
+    return <div className="fixed inset-0 z-50 grid place-items-center bg-slate-950 p-6 text-center text-white"><div className="max-w-sm"><h2 className="text-xl font-black">No pudimos abrir el quiosco</h2><p className="mt-3 text-sm text-slate-300">Intentá nuevamente. Si el problema continúa, avisá al equipo de la barra.</p><div className="mt-5 flex justify-center gap-3"><Button variant="outline" onClick={onClose}>Cerrar</Button><Button onClick={() => { setIsLoading(true); loadData(); }} className="bg-white text-slate-950 hover:bg-slate-200">Reintentar</Button></div></div></div>;
   }
 
   return (

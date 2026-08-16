@@ -10,10 +10,14 @@ import * as logger from '@/lib/logger';
 import { uploadToStorage } from '@/lib/firebase/storage';
 import { verifySession } from '@/lib/auth/session-token';
 import { findMatchingClientPayment, parseCleanMoney } from '@/lib/budget/financial-guardrails';
-import { findExistingDepositReceipt } from '@/lib/commercial-flow/ledger-service';
+import { findExistingDepositReceipt, isDepositReceiptInvoice } from '@/lib/commercial-flow/ledger-service';
+import { calcularAvisosPendientes } from '@/lib/cobros/escaneo-recordatorios';
 import { triggerWhatsAppAutomation } from '@/lib/whatsapp-automation-engine';
 import { getScheduledMessages } from '@/app/actions/scheduled-messages';
 import { invoiceMoneyTolerance, roundInvoiceMoney } from '@/lib/invoice-money';
+import { requirePermiso } from '@/lib/auth/require-session';
+import { PERMISOS } from '@/lib/auth/perfiles';
+import { WHATSAPP_AUTOMATION_INTERNAL_TOKEN } from '@/lib/whatsapp/internal-token';
 import {
   buildDepositPaymentBreakdown,
   mapDepositMethodToBudgetMethod,
@@ -45,6 +49,31 @@ function getInvoicePaidAmount(invoice: Pick<Invoice, 'payments' | 'currency'>): 
 
 function getInvoiceBalance(invoice: Pick<Invoice, 'totalAmount' | 'payments' | 'currency'>): number {
   return Math.max(0, roundInvoiceMoney(invoice.totalAmount, invoice.currency) - getInvoicePaidAmount(invoice));
+}
+
+function hasSameInvoiceItems(
+  current: InvoiceItem[],
+  incoming: Array<InvoiceItem | Omit<InvoiceItem, 'id'>>,
+  currency: string,
+): boolean {
+  return current.length === incoming.length && current.every((item, index) => {
+    const candidate = incoming[index];
+    return item.description.trim() === candidate.description.trim()
+      && normalizeQuantity(item.quantity) === normalizeQuantity(candidate.quantity)
+      && roundInvoiceMoney(item.unitPrice, currency) === roundInvoiceMoney(candidate.unitPrice, currency);
+  });
+}
+
+function hasSamePayment(current: Payment, incoming: Payment, currency: string): boolean {
+  return current.id === incoming.id
+    && current.paymentDate === incoming.paymentDate
+    && roundInvoiceMoney(current.amount, currency) === roundInvoiceMoney(incoming.amount, currency)
+    && (current.method ?? '') === (incoming.method ?? '')
+    && (current.notes ?? '') === (incoming.notes ?? '')
+    && (current.transactionProofUrl ?? '') === (incoming.transactionProofUrl ?? '')
+    && Number(current.baseAmount ?? 0) === Number(incoming.baseAmount ?? 0)
+    && Number(current.surchargeAmount ?? 0) === Number(incoming.surchargeAmount ?? 0)
+    && Number(current.installments ?? 0) === Number(incoming.installments ?? 0);
 }
 
 export async function getInvoices(): Promise<Invoice[]> {
@@ -108,6 +137,20 @@ async function saveInvoiceInner(
     let finalInvoiceData: Invoice;
     let invoiceId: string;
 
+    // Dos facturas con el mismo numero rompen la busqueda y los reportes.
+    // Los recibos de sena quedan afuera a proposito: comparten el numero por
+    // evento cuando el cliente paga la sena en varias veces, y la duplicacion
+    // real ya la corta findExistingDepositReceipt.
+    const numeroPedido = invoiceDataInput.invoiceNumber?.trim();
+    const idPropio = 'id' in invoiceDataInput ? invoiceDataInput.id : undefined;
+    const esRecibaDeSena = numeroPedido
+      ? isDepositReceiptInvoice({ documentKind: invoiceDataInput.documentKind, invoiceNumber: numeroPedido })
+      : false;
+    if (numeroPedido && !esRecibaDeSena
+        && invoices.some(inv => inv.invoiceNumber?.trim() === numeroPedido && inv.id !== idPropio)) {
+      return { success: false, error: `Ya existe otra factura con el número ${numeroPedido}.` };
+    }
+
     if ('id' in invoiceDataInput && invoiceDataInput.id) {
       invoiceId = invoiceDataInput.id;
       const index = invoices.findIndex(inv => inv.id === invoiceId);
@@ -115,6 +158,63 @@ async function saveInvoiceInner(
         return { success: false, error: `Factura con ID ${invoiceId} no encontrada.` };
       }
       const { id, ...dataToUpdate } = invoiceDataInput;
+      const facturaActual = invoices[index];
+      const tienePagos = (facturaActual.payments ?? []).length > 0;
+
+      // Una factura ya cobrada es un comprobante: no se le cambia el numero, la
+      // moneda ni se la vuelve a poner en borrador. El cliente ya estaba
+      // protegido asi en la pantalla; faltaba el resto, y faltaba en el servidor.
+      if (tienePagos) {
+        if (dataToUpdate.invoiceNumber && dataToUpdate.invoiceNumber !== facturaActual.invoiceNumber) {
+          return { success: false, error: 'No se puede cambiar el número de una factura con pagos registrados.' };
+        }
+        if (dataToUpdate.currency && dataToUpdate.currency !== facturaActual.currency) {
+          return { success: false, error: 'No se puede cambiar la moneda de una factura con pagos registrados.' };
+        }
+        if (dataToUpdate.customer?.id !== facturaActual.customer?.id) {
+          return { success: false, error: 'No se puede cambiar el cliente de una factura con pagos registrados.' };
+        }
+        if (dataToUpdate.issueDate !== facturaActual.issueDate) {
+          return { success: false, error: 'No se puede cambiar la fecha de emisión de una factura con pagos registrados.' };
+        }
+        if (!hasSameInvoiceItems(facturaActual.items, dataToUpdate.items, facturaActual.currency)) {
+          return { success: false, error: 'No se pueden cambiar los ítems de una factura con pagos registrados.' };
+        }
+        if (normalizeTaxRate(dataToUpdate.taxRate) !== normalizeTaxRate(facturaActual.taxRate)) {
+          return { success: false, error: 'No se pueden cambiar los impuestos de una factura con pagos registrados.' };
+        }
+
+        const currentPayments = facturaActual.payments ?? [];
+        const incomingPayments = dataToUpdate.payments;
+        if (incomingPayments) {
+          const preservesExistingPayments = incomingPayments.length >= currentPayments.length
+            && currentPayments.every((payment, paymentIndex) => (
+              hasSamePayment(payment, incomingPayments[paymentIndex], facturaActual.currency)
+            ));
+          if (!preservesExistingPayments) {
+            return { success: false, error: 'Los pagos ya registrados no se pueden borrar ni modificar.' };
+          }
+
+          const appendedPayments = incomingPayments.slice(currentPayments.length);
+          const paymentIds = new Set(currentPayments.map(payment => payment.id));
+          for (const payment of appendedPayments) {
+            if (
+              !payment.id
+              || paymentIds.has(payment.id)
+              || roundInvoiceMoney(payment.amount, facturaActual.currency) <= 0
+              || !payment.paymentDate
+              || Number.isNaN(new Date(payment.paymentDate).getTime())
+            ) {
+              return { success: false, error: 'El pago nuevo no es válido o ya fue registrado.' };
+            }
+            paymentIds.add(payment.id);
+          }
+        }
+      }
+      if (facturaActual.status === 'Paid' && dataToUpdate.status && dataToUpdate.status !== 'Paid') {
+        return { success: false, error: 'Una factura pagada no puede volver a otro estado. Registrá una nota de crédito o un ajuste.' };
+      }
+
       const currency = dataToUpdate.currency || invoices[index].currency || 'UYU';
 
       const updatedItems = (dataToUpdate.items || invoices[index].items).map((item, idx) => {
@@ -380,6 +480,11 @@ async function deleteInvoiceInner(id: string, linkedFiestaId?: string): Promise<
   if (!auth.success) return { success: false, error: auth.error };
   if (auth.user?.role !== 'admin') return { success: false, error: 'Solo administradores pueden eliminar facturas.' };
   const originalInvoices = await getInvoices();
+  // Borrar una factura cobrada hace desaparecer el comprobante del cobro.
+  const aBorrar = originalInvoices.find(inv => inv.id === id);
+  if (aBorrar && ((aBorrar.payments ?? []).length > 0 || aBorrar.status === 'Paid')) {
+    return { success: false, error: 'No se puede eliminar una factura con pagos registrados. Es el comprobante del cobro.' };
+  }
   const initialLength = originalInvoices.length;
   const invoices = originalInvoices.filter(inv => inv.id !== id);
   if (invoices.length === initialLength) {
@@ -532,74 +637,54 @@ function parseDateStringLocal(dateStr: string): Date {
   return new Date(dateStr);
 }
 
-export async function scanAndTriggerPaymentReminders(): Promise<{ success: boolean; triggeredCount: number; errors: string[] }> {
-  const auth = await verifySession();
-  if (!auth.success) throw new Error('No autorizado');
-
+/**
+ * Arma y programa los recordatorios de pago. Lo usan dos caminos: el boton del
+ * equipo (con sesion) y la tarea programada (con su clave). La decision de a
+ * quien avisar vive en `escaneo-recordatorios.ts`, aparte, para poder probarla.
+ */
+export async function ejecutarEscaneoDeRecordatorios(
+  internalToken?: symbol,
+): Promise<{ success: boolean; triggeredCount: number; errors: string[] }> {
+  if (internalToken !== WHATSAPP_AUTOMATION_INTERNAL_TOKEN) {
+    const permiso = await requirePermiso(PERMISOS.CONTABILIDAD);
+    if (!permiso.ok) return { success: false, triggeredCount: 0, errors: [permiso.error] };
+  }
   const [invoices, scheduledMessages] = await Promise.all([
     getInvoices(),
-    getScheduledMessages().catch(() => [])
+    getScheduledMessages(internalToken).catch(() => [])
   ]);
 
-  const today = new Date();
-  today.setHours(0, 0, 0, 0);
+  const avisos = calcularAvisosPendientes(invoices, scheduledMessages, {
+    saldoDeFactura: getInvoiceBalance,
+    leerFecha: parseDateStringLocal,
+  });
 
   let triggeredCount = 0;
   const errors: string[] = [];
-  const oneDayAgo = new Date(Date.now() - 24 * 60 * 60 * 1000);
 
-  for (const inv of invoices) {
-    if (inv.status === 'Paid') continue;
-    const balance = getInvoiceBalance(inv);
-    if (balance <= 0) continue;
+  for (const { trigger, invoice: inv, balance } of avisos) {
+    const ctx = {
+      targetId: inv.customer.id,
+      targetName: inv.customer.name,
+      targetType: 'cliente' as const,
+      targetPhone: inv.customer.phone,
+      fiestaId: inv.sourceFiestaId,
+      nombre: inv.customer.name,
+      saldo: `${inv.currency || 'UYU'} ${balance}`,
+      fecha: inv.dueDate,
+      link: `${process.env.NEXT_PUBLIC_APP_URL || ''}/portal/${inv.sourceFiestaId || ''}`,
+    };
 
-    const due = parseDateStringLocal(inv.dueDate);
-    due.setHours(0, 0, 0, 0);
-
-    const diffTime = due.getTime() - today.getTime();
-    const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
-
-    // Determine trigger
-    let trigger: 'pago_vencido' | 'pago_por_vencer' | null = null;
-    if (diffDays < 0) {
-      trigger = 'pago_vencido';
-    } else if (diffDays >= 0 && diffDays <= 3) {
-      trigger = 'pago_por_vencer';
-    }
-
-    if (trigger) {
-      // Check for duplicate pending messages or recently sent ones to prevent spam
-      const hasRecentOrPending = scheduledMessages.some(m =>
-        m.targetId === inv.customer.id &&
-        m.templateType === trigger &&
-        (m.status === 'pendiente' || (m.status === 'enviado' && m.sentAt && new Date(m.sentAt) > oneDayAgo))
-      );
-
-      if (hasRecentOrPending) {
-        continue;
-      }
-
-      const ctx = {
-        targetId: inv.customer.id,
-        targetName: inv.customer.name,
-        targetType: 'cliente' as const,
-        targetPhone: inv.customer.phone,
-        fiestaId: inv.sourceFiestaId,
-        nombre: inv.customer.name,
-        saldo: `${inv.currency || 'UYU'} ${balance}`,
-        fecha: inv.dueDate,
-        link: `${process.env.NEXT_PUBLIC_APP_URL || ''}/portal/${inv.sourceFiestaId || ''}`,
-      };
-
-      const result = await triggerWhatsAppAutomation(trigger, ctx);
-      if (result.scheduled > 0) {
-        triggeredCount += result.scheduled;
-      }
-      if (result.errors.length > 0) {
-        errors.push(...result.errors);
-      }
-    }
+    const result = await triggerWhatsAppAutomation(trigger, ctx, internalToken);
+    if (result.scheduled > 0) triggeredCount += result.scheduled;
+    if (result.errors.length > 0) errors.push(...result.errors);
   }
 
   return { success: true, triggeredCount, errors };
+}
+
+export async function scanAndTriggerPaymentReminders(): Promise<{ success: boolean; triggeredCount: number; errors: string[] }> {
+  const auth = await verifySession();
+  if (!auth.success) throw new Error('No autorizado');
+  return ejecutarEscaneoDeRecordatorios();
 }

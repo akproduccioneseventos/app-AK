@@ -22,6 +22,7 @@ import { normalizePresupuestoFinancials, roundMoney, validatePaymentAgainstBudge
 import type { FiestaEnPlanificacion } from '@/types/fiesta';
 import { initialFiestaActualData, defaultModulosContratados } from '@/lib/fiesta-defaults';
 import { triggerWhatsAppAutomation } from '@/lib/whatsapp-automation-engine';
+import { normalizeUruguayPhone } from '@/lib/commercial/contact';
 import * as logger from '@/lib/logger';
 import { forceDeleteDocFromFirestore, forceDeleteCollectionFromFirestore } from '@/lib/firebase-sync';
 import { verifySession } from '@/lib/auth/session-token';
@@ -159,7 +160,7 @@ async function syncLinkedFiesta(presupuesto: Presupuesto) {
 export async function savePresupuesto(
   presupuestoData: Omit<Presupuesto, 'id'>,
   options?: { source?: PresupuestoSource, leadId?: string, preserveTotal?: boolean }
-): Promise<{ success: boolean, id?: string, error?: string, presupuesto?: Presupuesto, leadId?: string }> {
+): Promise<{ success: boolean, id?: string, error?: string, presupuesto?: Presupuesto, leadId?: string, avisoCrm?: string }> {
   const auth = await verifySession();
   if (!auth.success) return { success: false, error: auth.error };
 
@@ -211,11 +212,16 @@ export async function savePresupuesto(
     source: options?.source || 'manual',
   }, { preserveStoredTotal: options?.preserveTotal });
 
+  // El presupuesto se guarda igual aunque falle el CRM, pero el aviso vuelve a
+  // la pantalla: antes el equipo creia que el cliente habia quedado cargado en
+  // el seguimiento y no estaba.
+  let avisoCrm: string | undefined;
   try {
     const syncRes = await findLeadByBudgetOrCreate(nuevoPresupuesto);
     nuevoPresupuesto.leadId = syncRes.lead.id;
   } catch (crmError: any) {
     console.warn(`CRM Sync error during save: ${crmError.message}`);
+    avisoCrm = 'El presupuesto se guardó, pero el cliente no se pudo cargar en el seguimiento comercial. Revisalo a mano.';
   }
 
   presupuestos.push(nuevoPresupuesto);
@@ -240,10 +246,24 @@ export async function savePresupuesto(
     rolDestino: 'admin',
   }).catch(err => console.warn('Error creating budget notification:', err));
 
+  // Helper to resolve lead phone
+  const phone = await (async () => {
+    if ((nuevoPresupuesto as any).clienteTelefono) return normalizeUruguayPhone((nuevoPresupuesto as any).clienteTelefono);
+    if (nuevoPresupuesto.leadId) {
+      try {
+        const leads = await readData<any[]>('crm-leads.json', []);
+        const lead = leads.find((l) => l.id === nuevoPresupuesto.leadId);
+        if (lead?.telefono) return normalizeUruguayPhone(lead.telefono);
+      } catch {}
+    }
+    return '';
+  })();
+
   // Automation: fire presupuesto_generado rules (non-blocking)
   triggerWhatsAppAutomation('presupuesto_generado', {
     targetId: nuevoPresupuesto.leadId || presupuestoId,
     targetName: nuevoPresupuesto.clienteNombre,
+    targetPhone: phone,
     targetType: 'prospecto',
     leadId: nuevoPresupuesto.leadId,
     nombre: nuevoPresupuesto.clienteNombre,
@@ -251,7 +271,7 @@ export async function savePresupuesto(
     link: `/presupuestos/${presupuestoId}/ver`,
   }).catch(err => console.warn('Error firing presupuesto_generado automation:', err));
 
-  return { success: true, id: presupuestoId, presupuesto: nuevoPresupuesto, leadId: nuevoPresupuesto.leadId };
+  return { success: true, id: presupuestoId, presupuesto: nuevoPresupuesto, leadId: nuevoPresupuesto.leadId, avisoCrm };
   });
 }
 
@@ -292,7 +312,7 @@ function hasBudgetStructureChanged(oldBudget: Presupuesto, newBudget: Presupuest
 export async function updatePresupuesto(
   presupuestoData: Presupuesto,
   options: { preserveStoredTotal?: boolean } = {},
-): Promise<{ success: boolean; id?: string; presupuesto?: Presupuesto; error?: string }> {
+): Promise<{ success: boolean; id?: string; presupuesto?: Presupuesto; error?: string; avisoCrm?: string }> {
   return await presupuestosMutex.runExclusive(async () => {
     const auth = await verifySession();
     if (!auth.success) return { success: false, error: auth.error };
@@ -334,11 +354,13 @@ export async function updatePresupuesto(
           : Math.round(totalConDescuento)
     }, { preserveStoredTotal: options.preserveStoredTotal });
 
+    let avisoCrm: string | undefined;
     try {
         const syncRes = await findLeadByBudgetOrCreate(updated);
         updated.leadId = syncRes.lead.id;
     } catch (e) {
         console.warn("CRM Sync error during update", e);
+        avisoCrm = 'El presupuesto se guardó, pero no se pudo actualizar el seguimiento comercial del cliente.';
     }
 
     presupuestos[index] = updated;
@@ -837,9 +859,22 @@ export async function approvePresupuesto(
 
       // Automation: fire presupuesto_enviado rules (non-blocking)
       const p = presupuestos[index];
+      const sendPhone = await (async () => {
+        if ((p as any).clienteTelefono) return normalizeUruguayPhone((p as any).clienteTelefono);
+        if (p.leadId) {
+          try {
+            const leads = await readData<any[]>('crm-leads.json', []);
+            const lead = leads.find((l) => l.id === p.leadId);
+            if (lead?.telefono) return normalizeUruguayPhone(lead.telefono);
+          } catch {}
+        }
+        return '';
+      })();
+
       triggerWhatsAppAutomation('presupuesto_enviado', {
         targetId: p.leadId || presupuestoId,
         targetName: p.clienteNombre,
+        targetPhone: sendPhone,
         targetType: 'prospecto',
         leadId: p.leadId,
         nombre: p.clienteNombre,

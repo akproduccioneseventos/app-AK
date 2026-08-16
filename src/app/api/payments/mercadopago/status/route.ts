@@ -1,5 +1,4 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { generateBudgetToken } from '@/lib/auth/session-token';
 import { getMercadoPagoCheckoutSession } from '@/lib/payments/mercadopago-server';
 
 export const runtime = 'nodejs';
@@ -15,7 +14,6 @@ export async function GET(request: NextRequest) {
     if (!session) {
       return NextResponse.json({ error: 'Sesion de pago no encontrada.' }, { status: 404 });
     }
-    const token = await generateBudgetToken(session.presupuestoId);
     return NextResponse.json({
       status: session.status,
       amount: session.amount,
@@ -23,7 +21,6 @@ export async function GET(request: NextRequest) {
       surchargeAmount: session.surchargeAmount,
       purpose: session.purpose,
       requiresReview: Boolean(session.requiresReview),
-      budgetUrl: `/presupuestos/${encodeURIComponent(session.presupuestoId)}/ver?cliente=1&token=${encodeURIComponent(token)}`,
     }, {
       headers: { 'Cache-Control': 'no-store' },
     });

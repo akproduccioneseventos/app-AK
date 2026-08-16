@@ -1,3 +1,26 @@
+jest.mock('genkit', () => {
+  const { z } = require('zod');
+  return {
+    z,
+    genkit: jest.fn(() => ({
+      generate: jest.fn(),
+      defineFlow: jest.fn(),
+    })),
+  };
+});
+
+jest.mock('@/ai/genkit', () => ({
+  ai: {
+    generate: jest.fn().mockRejectedValue(new Error('AI fallback test mode')),
+    definePrompt: jest.fn(() => jest.fn().mockRejectedValue(new Error('AI fallback test mode'))),
+  },
+  generateWithGeminiFallback: jest.fn().mockRejectedValue(new Error('AI fallback test mode')),
+  getGeminiModelForAgent: jest.fn().mockReturnValue('mock-model'),
+  getGeminiGenerationConfigForAgent: jest.fn().mockReturnValue({}),
+  geminiFastModel: 'mock-fast-model',
+  geminiModel: 'mock-model',
+}));
+
 import { chatWithBudgetCopilot, type CopilotInput } from '@/app/actions/simulador-copilot';
 
 // Mock getArmadoRapidoConfig to prevent dependencies on Firestore in tests

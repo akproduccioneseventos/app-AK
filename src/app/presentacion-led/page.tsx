@@ -31,6 +31,7 @@ import { PortadaSlide } from './slides/portada-slide';
 import { BeneficiosSlide } from './slides/beneficios-slide';
 import { DatosEventoSlide } from './slides/datos-evento-slide';
 import { SalonSlide } from './slides/salon-slide';
+import { EquipoSlide } from './slides/equipo-slide';
 import { CategoriaServiciosSlide } from './slides/categoria-servicios-slide';
 import { EntradaSlide } from './slides/entradas-slide';
 import { MenuAdolescenteSlide } from './slides/menu-adolescente-slide';
@@ -45,6 +46,7 @@ import { GaleriaLightboxModal } from './components/galeria-lightbox-modal';
 
 // Types
 import type { PageData, ClientData, CategoriaServicio, ResourceSummary } from './lib/tipos';
+import { calcularTotalServicioLed } from './lib/calculos';
 
 
 // ---- Slide variants & transition ----
@@ -140,7 +142,7 @@ function isMenuCategory(categoria: CategoriaServicio): boolean {
 }
 
 // ---- Slide index constants ----
-const FIXED_SLIDES_START = 4; // portada, beneficios, datos evento, salon
+const FIXED_SLIDES_START = 5; // portada(0), beneficios(1), datos evento(2), salon(3), equipo(4)
 const FIXED_SLIDES_END = 4;   // regalos, presupuesto, plan de pagos, contratarnos
 
 // ---- Main Component ----
@@ -150,6 +152,7 @@ export default function PresentacionLedPage() {
   const [data, setData] = useState<PageData | null>(null);
   const [catalogoFotos, setCatalogoFotos] = useState<CatalogoFoto[]>([]);
   const [loading, setLoading] = useState(true);
+  const [loadError, setLoadError] = useState<string | null>(null);
   const [currentSlide, setCurrentSlide] = useState(0);
   const [direction, setDirection] = useState(1);
   const [selectedServices, setSelectedServices] = useState<string[]>([]);
@@ -167,34 +170,52 @@ export default function PresentacionLedPage() {
   const [showBudgetPanel, setShowBudgetPanel] = useState(false);
   const containerRef = useRef<HTMLDivElement>(null);
 
-  useEffect(() => {
-    async function load() {
-      try {
-        const [servicios, companyInfo, invoiceSettings, budgetSettings, menus, catalogoData, ledSettings] = await Promise.all([
-          getServiciosEmpresa(),
-          getCompanyInfo(),
-          getInvoiceTemplateSettings(),
-          getBudgetDisplaySettings(),
-          getMenus().catch(() => [] as FullMenu[]),
-          getCatalogoFotos().catch(() => [] as CatalogoFoto[]),
-          getPresentacionLedSettings(),
-        ]);
-        setData({
-          companyInfo,
-          logoUrl: invoiceSettings.logoUrl || null,
-          servicios: servicios.filter(s => s.tipoItem === 'Servicio' || !s.tipoItem),
-          valuePropositions: budgetSettings.valuePropositions || [],
-          mostrarPrecios: budgetSettings.showPriceBreakdown ?? true,
-          menus,
-        });
-        setCatalogoFotos(catalogoData);
-        setPresentacionSettings(ledSettings);
-      } finally {
-        setLoading(false);
-      }
+  const load = useCallback(async () => {
+    setLoading(true);
+    try {
+      const [servicios, companyInfo, invoiceSettings, budgetSettings, menus, catalogoData, ledSettings] = await Promise.all([
+        getServiciosEmpresa(),
+        getCompanyInfo(),
+        getInvoiceTemplateSettings(),
+        getBudgetDisplaySettings(),
+        getMenus().catch(() => [] as FullMenu[]),
+        getCatalogoFotos().catch(() => [] as CatalogoFoto[]),
+        getPresentacionLedSettings(),
+      ]);
+      setData({
+        companyInfo,
+        logoUrl: invoiceSettings.logoUrl || null,
+        servicios: servicios.filter(s => s.tipoItem === 'Servicio' || !s.tipoItem),
+        valuePropositions: budgetSettings.valuePropositions || [],
+        mostrarPrecios: budgetSettings.showPriceBreakdown ?? true,
+        menus,
+      });
+      setCatalogoFotos(catalogoData);
+      setPresentacionSettings(ledSettings);
+      setLoadError(null);
+    } catch (e) {
+      // Este catalogo se usa en el salon, con el cliente al lado y con la senal
+      // que haya. Sin este aviso, si una carga fallaba la pantalla quedaba en
+      // blanco para siempre y no habia forma de saber si esperar o reintentar.
+      console.error('[presentacion-led] no se pudo cargar la presentacion', e);
+      setLoadError('No pudimos cargar la presentacion. Revisa la senal y proba de nuevo.');
+    } finally {
+      setLoading(false);
     }
-    load();
   }, []);
+
+  useEffect(() => {
+    load();
+  }, [load]);
+
+  // Reintento automatico cada 10 segundos si falló la carga o no hay datos
+  useEffect(() => {
+    if (!loadError || data) return;
+    const interval = setInterval(() => {
+      load();
+    }, 10000);
+    return () => clearInterval(interval);
+  }, [loadError, data, load]);
 
   // Derive category groups from servicios
   const categorias = useMemo<CategoriaServicio[]>(() => {
@@ -205,9 +226,26 @@ export default function PresentacionLedPage() {
     return [...menuCategories, ...ordered];
   }, [data]);
 
+  const adultMenuOptions = useMemo<FullMenu[]>(() => {
+    if (!data) return [];
+    const seen = new Set<string>();
+    return data.menus.flatMap(menu => menu.items
+      .filter(item => item.type === 'Plato Principal' && !seen.has(item.id))
+      .map(item => {
+        seen.add(item.id);
+        return {
+          id: item.id,
+          name: item.name,
+          description: item.notes || menu.description,
+          imageUrl: item.imageUrl,
+          featured: item.isFeatured || menu.featured,
+          items: [item],
+        };
+      }));
+  }, [data]);
   const selectedMenu = useMemo(
-    () => data?.menus.find((m) => m.id === selectedMenuId) ?? null,
-    [data?.menus, selectedMenuId],
+    () => adultMenuOptions.find((menu) => menu.id === selectedMenuId) ?? null,
+    [adultMenuOptions, selectedMenuId],
   );
   const adolescentMenuOptions = useMemo(() => {
     if (!data) return [] as MenuItem[];
@@ -224,7 +262,78 @@ export default function PresentacionLedPage() {
     return result;
   }, [data]);
   const adolescentCount = Number(clientData.invitadosAdolescentes || '0');
+
+  // Collect entrada items from all menus before calculating the live total.
+  const todasLasEntradas = useMemo<MenuItem[]>(() => {
+    if (!data) return [];
+    const seen = new Set<string>();
+    const result: MenuItem[] = [];
+    for (const menu of data.menus) {
+      for (const item of menu.items) {
+        if (item.type === 'Entrada' && !seen.has(item.id)) {
+          seen.add(item.id);
+          result.push(item);
+        }
+      }
+    }
+    return result;
+  }, [data]);
+
+  /**
+   * Precio por persona de un menu: la suma de lo que sale cada plato.
+   *
+   * Se usa el precio de venta sugerido de cada plato. Si un plato no lo tiene
+   * cargado, se cae a su costo, que es preferible a contarlo como cero: un plato
+   * en cero baja el total y el numero que ve el cliente queda por debajo del real.
+   */
+  const precioPorPersonaDeMenu = (platos: MenuItem[] | undefined) =>
+    (platos ?? []).reduce(
+      (suma, plato) => suma + (Number(plato.suggestedSellingPrice) || Number(plato.totalDishCost) || 0),
+      0,
+    );
   const requireTeenMenu = adolescentCount > 0 && adolescentMenuOptions.length > 0;
+
+  /**
+   * El total que se le muestra al cliente en la tablet.
+   *
+   * Antes sumaba unicamente los servicios. El menu se elegia en pantalla, se veia
+   * elegido, y su precio no entraba nunca: el numero que leia el cliente quedaba
+   * por debajo del real y habia que corregirselo para arriba en la cara, que es la
+   * peor forma de perder una venta.
+   *
+   * Ahora suma los servicios con su metodo real, las entradas para todos los invitados,
+   * el menu de adultos por cada adulto y el menu adolescente por cada adolescente.
+   */
+  const totalEstimadoConMenu = useMemo(() => {
+    const adultos = Math.max(0, Number(clientData.invitadosAdultos || '0'));
+    const adolescentes = Math.max(0, Number(clientData.invitadosAdolescentes || '0'));
+    const servicios = selectedServices.reduce((acc, id) => {
+      const srv = data?.servicios.find(s => s.id === id);
+      return srv ? acc + calcularTotalServicioLed(srv, adultos, adolescentes) : acc;
+    }, 0);
+
+    const entradas = selectedEntradasIds.reduce((acc, id) => {
+      const entrada = todasLasEntradas.find(item => item.id === id);
+      return acc + precioPorPersonaDeMenu(entrada ? [entrada] : []) * (adultos + adolescentes);
+    }, 0);
+    const menuAdultos = precioPorPersonaDeMenu(selectedMenu?.items) * adultos;
+
+    const platoAdolescente = adolescentMenuOptions.find(opt => opt.id === selectedTeenMenuId);
+    const menuAdolescentes = precioPorPersonaDeMenu(platoAdolescente ? [platoAdolescente] : []) * adolescentCount;
+
+    return Math.round(servicios + entradas + menuAdultos + menuAdolescentes);
+  }, [
+    selectedServices,
+    data?.servicios,
+    selectedEntradasIds,
+    todasLasEntradas,
+    clientData.invitadosAdultos,
+    clientData.invitadosAdolescentes,
+    selectedMenu,
+    adolescentMenuOptions,
+    selectedTeenMenuId,
+    adolescentCount,
+  ]);
   useEffect(() => {
     if (!selectedTeenMenuId) return;
     const stillExists = adolescentMenuOptions.some((opt) => opt.id === selectedTeenMenuId);
@@ -292,6 +401,7 @@ export default function PresentacionLedPage() {
   const isBeneficiosSlide = currentSlide === 1;
   const isDatosEventoSlide = currentSlide === 2;
   const isSalonSlide = currentSlide === 3;
+  const isEquipoSlide = currentSlide === 4;
   const isDynamicSlide = currentSlide >= dynamicStartIndex && currentSlide < dynamicEndIndex;
   const dynamicIndex = isDynamicSlide ? currentSlide - dynamicStartIndex : -1;
   const currentDynamicSlide = isDynamicSlide ? dynamicSlides[dynamicIndex] : null;
@@ -329,38 +439,6 @@ export default function PresentacionLedPage() {
     return byCategory.length > 0 ? byCategory : catalogoFotos;
   }, [catalogoFotos, galleryCategoria]);
 
-  // Real-time budget total (services only, for the floating bar)
-  const budgetTotal = useMemo(() => {
-    if (!data) return 0;
-    const adultos = Math.max(0, Number(clientData.invitadosAdultos || '0'));
-    const ninos = Math.max(0, Number(clientData.invitadosAdolescentes || '0'));
-    const total = clientData.invitadosAdultos || 0;
-    return selectedServices.reduce((acc, id) => {
-      const srv = data.servicios.find((s) => s.id === id);
-      if (!srv) return acc;
-      if (srv.calculationMethod === 'porPersona' && srv.precioPorPersona) {
-        return acc + srv.precioPorPersona * (adultos + ninos);
-      }
-      return acc + (srv.precioVenta || 0);
-    }, 0);
-  }, [selectedServices, data, clientData.invitadosAdultos, clientData.invitadosAdolescentes]);
-
-  // Collect entrada items from all menus
-  const todasLasEntradas = useMemo<MenuItem[]>(() => {
-    if (!data) return [];
-    const seen = new Set<string>();
-    const result: MenuItem[] = [];
-    for (const menu of data.menus) {
-      for (const item of menu.items) {
-        if (item.type === 'Entrada' && !seen.has(item.id)) {
-          seen.add(item.id);
-          result.push(item);
-        }
-      }
-    }
-    return result;
-  }, [data]);
-
   const canAdvanceFromEntradas = todasLasEntradas.length === 0 || selectedEntradasIds.length >= requiredEntradasCount;
 
   const canAdvanceFromTeenMenu = !requireTeenMenu || !!selectedTeenMenuId;
@@ -371,6 +449,7 @@ export default function PresentacionLedPage() {
     if (isBeneficiosSlide) return '¿Por qué elegirnos?';
     if (isDatosEventoSlide) return 'Datos del Evento';
     if (isSalonSlide) return 'Nuestro Salón';
+    if (isEquipoSlide) return 'Hay Equipo';
     if (currentDynamicSlide?.type === 'entradas') return 'Entradas';
     if (currentDynamicSlide?.type === 'menu-adolescente') return 'Menú adolescente';
     if (currentDynamicSlide?.type === 'menu-adulto') return 'Menú adultos';
@@ -399,7 +478,7 @@ export default function PresentacionLedPage() {
     if (index === SALON_SLIDE_INDEX && clientData.tieneSalon === true) {
       return false;
     }
-    
+
     // Check if it's a dynamic slide
     if (index >= DYNAMIC_START && index < dynamicEndIndex) {
       const dynIndex = index - DYNAMIC_START;
@@ -408,7 +487,7 @@ export default function PresentacionLedPage() {
         return false;
       }
     }
-    
+
     return true;
   }, [clientData.tieneSalon, requireTeenMenu, dynamicSlides, dynamicEndIndex]);
 
@@ -548,7 +627,7 @@ export default function PresentacionLedPage() {
     return () => window.removeEventListener('keydown', handleKey);
   }, [goNext, goPrev, toggleFullscreen]);
 
-  if (loading) {
+  if (loading && !loadError) {
     return (
       <div className="flex items-center justify-center min-h-screen bg-slate-950">
         <div className="flex flex-col items-center gap-4">
@@ -559,9 +638,32 @@ export default function PresentacionLedPage() {
     );
   }
 
-  if (!data) return null;
+  // Antes esto devolvia una pantalla en blanco: el catalogo se usa delante del
+  // cliente y quedaba sin nada, sin explicacion y sin forma de reintentar.
+  if (!data) {
+    return (
+      <div className="flex items-center justify-center min-h-screen bg-slate-950 p-6">
+        <div className="flex max-w-md flex-col items-center gap-5 text-center">
+          <p className="text-xl font-bold text-white">
+            {loadError ?? 'No pudimos cargar la presentacion.'}
+          </p>
+          <p className="text-white/60">
+            Suele ser la senal del salon. Reintentando automaticamente cada 10 segundos...
+          </p>
+          <button
+            type="button"
+            onClick={load}
+            className="min-h-12 rounded-xl bg-indigo-500 px-8 text-base font-bold text-white flex items-center justify-center gap-2 hover:bg-indigo-600 transition"
+          >
+            {loading ? <Loader2 className="h-5 w-5 animate-spin" /> : null}
+            Reintentar ahora
+          </button>
+        </div>
+      </div>
+    );
+  }
 
-  const menuOptions = data.menus.map(m => ({ id: m.id, name: m.name }));
+  const menuOptions = adultMenuOptions.map(menu => ({ id: menu.id, name: menu.name }));
 
   return (
     <div
@@ -667,6 +769,12 @@ export default function PresentacionLedPage() {
               fotosPersonalizadas={presentacionSettings?.salon.fotos}
             />
           )}
+          {isEquipoSlide && (
+            <EquipoSlide
+              tipoFiesta={clientData.tipoFiesta}
+              equipoSettings={presentacionSettings?.equipo}
+            />
+          )}
           {currentDynamicSlide?.type === 'entradas' && (
             <EntradaSlide
               entradas={todasLasEntradas}
@@ -691,7 +799,7 @@ export default function PresentacionLedPage() {
           )}
           {currentDynamicSlide?.type === 'menu-adulto' && (
             <MenuAdultoSlide
-              menus={data.menus}
+              menus={adultMenuOptions}
               selectedMenuId={selectedMenuId}
               ledFotoMap={presentacionSettings?.ledFotosMenuItems || {}}
               mostrarPrecios={data.mostrarPrecios}
@@ -726,7 +834,7 @@ export default function PresentacionLedPage() {
             <TestimoniosSlide tipoFiesta={clientData.tipoFiesta} />
           )}
           {isEmpresasSlide && (
-            <EmpresasSlide />
+            <EmpresasSlide logos={presentacionSettings?.empresasColaboradoras} />
           )}
           {isCierreSlide && (
             <CierreSlide
@@ -738,6 +846,7 @@ export default function PresentacionLedPage() {
               tipoFiesta={clientData.tipoFiesta}
               clientData={clientData}
               selectedTeenMenuName={adolescentMenuOptions.find((o) => o.id === selectedTeenMenuId)?.name || null}
+              totalEstimado={totalEstimadoConMenu}
               resourceSummary={resourceSummary}
               onGenerateBudget={handleGenerateBudget}
               onPrint={handlePrint}
@@ -752,10 +861,7 @@ export default function PresentacionLedPage() {
               tipoFiesta={clientData.tipoFiesta}
               clienteNombre={clientData.nombre}
               fechaEvento={clientData.fechaEvento}
-              totalEstimado={selectedServices.reduce((acc, id) => {
-                const srv = data.servicios.find(s => s.id === id);
-                return acc + (srv?.precioVenta || 0);
-              }, 0)}
+              totalEstimado={totalEstimadoConMenu}
               mostrarPrecios={data.mostrarPrecios}
               imagenFondoUrl={presentacionSettings?.planPagosImagenUrl}
               onContrato={handleContrato}
@@ -773,20 +879,20 @@ export default function PresentacionLedPage() {
       </AnimatePresence>
 
       {/* Navigation buttons */}
-      <div className="absolute bottom-8 left-0 right-0 z-20 flex items-center justify-center gap-4">
+      <div className="absolute bottom-5 sm:bottom-6 left-0 right-0 z-20 flex items-center justify-center gap-3 sm:gap-4 px-4">
         <Button
           onClick={goPrev}
           disabled={currentSlide === 0}
           variant="ghost"
           size="lg"
-          className="h-14 px-8 rounded-2xl text-white/80 hover:text-white hover:bg-white/10 border border-white/20 disabled:opacity-30 disabled:cursor-not-allowed text-lg font-semibold"
+          className="h-12 sm:h-14 px-5 sm:px-8 rounded-2xl text-white/80 hover:text-white hover:bg-white/10 border border-white/20 disabled:opacity-30 disabled:cursor-not-allowed text-base sm:text-lg font-semibold"
         >
-          <ChevronLeft className="h-6 w-6 mr-2" />
+          <ChevronLeft className="h-5 w-5 sm:h-6 sm:w-6 mr-1.5 sm:mr-2" />
           Anterior
         </Button>
 
         {/* Dot indicators */}
-        <div className="flex items-center gap-1.5 mx-4">
+        <div className="flex items-center gap-1.5 mx-2 sm:mx-4">
           {Array.from({ length: Math.min(totalSlides, 9) }).map((_, i) => {
             const slideIdx = totalSlides <= 9 ? i : Math.round(i * (totalSlides - 1) / 8);
             return (
@@ -796,7 +902,7 @@ export default function PresentacionLedPage() {
                 className={cn(
                   'h-2 rounded-full transition-all duration-300',
                   currentSlide === slideIdx
-                    ? 'w-8 bg-white'
+                    ? 'w-6 sm:w-8 bg-white'
                     : 'w-2 bg-white/30 hover:bg-white/60',
                 )}
               />
@@ -809,7 +915,7 @@ export default function PresentacionLedPage() {
           disabled={!isContratarnosSlide && (nextDisabled || currentSlide >= totalSlides - 1)}
           size="lg"
           className={cn(
-            'h-14 px-8 rounded-2xl text-lg font-bold border-0',
+            'h-12 sm:h-14 px-5 sm:px-8 rounded-2xl text-base sm:text-lg font-bold border-0',
             isContratarnosSlide
               ? 'bg-gradient-to-r from-emerald-500 to-indigo-600 hover:from-emerald-600 hover:to-indigo-700 text-white shadow-lg'
               : 'bg-white/15 hover:bg-white/25 text-white border border-white/30 disabled:opacity-50 disabled:cursor-not-allowed',
@@ -820,7 +926,7 @@ export default function PresentacionLedPage() {
           ) : (
             <>
               Siguiente
-              <ChevronRight className="h-6 w-6 ml-2" />
+              <ChevronRight className="h-5 w-5 sm:h-6 sm:w-6 ml-1.5 sm:ml-2" />
             </>
           )}
         </Button>
@@ -846,7 +952,7 @@ export default function PresentacionLedPage() {
             </div>
             <div className="h-4 w-px bg-white/20" />
             <span className="text-lg font-black text-white">
-              ${budgetTotal.toLocaleString('es-UY')}
+              ${totalEstimadoConMenu.toLocaleString('es-UY')}
             </span>
             <div className="h-4 w-px bg-white/20" />
             <button

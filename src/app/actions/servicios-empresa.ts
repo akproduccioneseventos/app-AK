@@ -60,6 +60,25 @@ export async function saveServicioEmpresa(
   
   if (!dataWithParsedNumbers.nombre || dataWithParsedNumbers.nombre.trim() === "") return { success: false, error: "El nombre del servicio es obligatorio." };
   if (!dataWithParsedNumbers.categoria) return { success: false, error: "La categoría es obligatoria." };
+
+  // Un precio negativo en el catalogo se arrastra a todos los presupuestos que
+  // usen ese servicio, y ahi infla la ganancia sin que se note. El cero se
+  // permite a proposito: hay servicios de cortesia.
+  const preciosAControlar: Array<[string, number | undefined]> = [
+    ['el precio de venta', dataWithParsedNumbers.precioVenta],
+    ['el precio base', dataWithParsedNumbers.precioBase],
+    ['el precio por persona', dataWithParsedNumbers.precioPorPersona],
+    ['el costo estimado', dataWithParsedNumbers.valorUnitarioEstimado],
+  ];
+  for (const [nombreCampo, valor] of preciosAControlar) {
+    if (valor !== undefined && valor < 0) {
+      return { success: false, error: `No se puede guardar ${nombreCampo} en negativo.` };
+    }
+  }
+  const tramoEnNegativo = (dataWithParsedNumbers.tramosDePrecio || []).some(tramo => Number(tramo.precio) < 0);
+  if (tramoEnNegativo) {
+    return { success: false, error: 'Ningún tramo de precio puede quedar en negativo.' };
+  }
   
   if ('id' in dataWithParsedNumbers && dataWithParsedNumbers.id) {
     itemId = dataWithParsedNumbers.id;
@@ -83,6 +102,22 @@ export async function saveServicioEmpresa(
 export async function deleteServicioEmpresa(id: string): Promise<{ success: boolean; error?: string }> {
   await requireAppSession();
   let inventario = await getServiciosEmpresa();
+  const targetServicio = inventario.find(s => s.id === id);
+
+  const { getPresupuestos } = await import('./presupuestos');
+  const presupuestos = await getPresupuestos();
+  const presupuestosEnUso = presupuestos.filter(p =>
+    p.itemsPresupuestados?.some(item =>
+      item.idServicioCatalogo === id || (targetServicio && item.nombreServicio === targetServicio.nombre)
+    )
+  );
+  if (presupuestosEnUso.length > 0) {
+    return {
+      success: false,
+      error: `No se puede eliminar el servicio porque está siendo utilizado en ${presupuestosEnUso.length} presupuesto(s).`,
+    };
+  }
+
   const initialLength = inventario.length;
   inventario = inventario.filter(s => s.id !== id);
   if (inventario.length === initialLength) return { success: false, error: `Servicio con ID ${id} no encontrado para eliminar.` };

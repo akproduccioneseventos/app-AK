@@ -20,16 +20,16 @@ async function updateFiestaData(
   fiestaId: string, 
   updateFn: (data: FiestaEnPlanificacion) => FiestaEnPlanificacion
 ): Promise<{ success: boolean; updatedData?: FiestaEnPlanificacion; error?: string }> {
-  
-  const FIESTA_FILE_PATH = path.join(FIESTAS_DIR, `${fiestaId}.json`);
-
   try {
     const currentData = await getFiestaById(fiestaId);
     if (!currentData) {
       throw new Error(`No se encontró la fiesta con ID ${fiestaId}`);
     }
     const updatedData = updateFn(currentData);
-    await writeData(FIESTA_FILE_PATH, await preserveFiestaSecrets(fiestaId, updatedData));
+    const result = await saveFiesta(updatedData);
+    if (!result.success) {
+      return { success: false, error: result.error };
+    }
 
     // Sync changes to the customer file if a customer is linked
     if (updatedData.configuracion.clienteId) {

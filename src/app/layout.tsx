@@ -11,6 +11,7 @@ import './ak-budget-mobile-fixes.css';
 import { Toaster } from "@/components/ui/toaster";
 import { DeploymentRecovery } from '@/components/deployment-recovery';
 import { GoogleAnalytics } from '@/components/google-analytics';
+import { AsistenteVirtual } from '@/components/public/AsistenteVirtual';
 import localFont from 'next/font/local';
 
 const inter = localFont({
@@ -59,6 +60,7 @@ export const viewport: Viewport = {
 };
 
 export const metadata: Metadata = {
+  metadataBase: new URL('https://akproducciones.uy'),
   title: 'AK Producciones',
   description: 'Plataforma integral para la planificación y gestión de eventos de AK Producciones.',
   manifest: '/manifest.webmanifest',
@@ -91,6 +93,7 @@ export default function RootLayout({
         </Suspense>
         <DeploymentRecovery />
         {children}
+        <AsistenteVirtual />
         <Toaster />
       </body>
     </html>

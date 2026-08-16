@@ -21,6 +21,7 @@
  */
 
 import type { SocialGalleryPost, SocialComment, ChatMessage } from '@/types/social-gallery';
+import { soloAprobados, esAprobadoParaMostrar } from '@/lib/social-fiesta/visibilidad';
 import type { FiestaEnPlanificacion, SocialGallerySettings } from '@/types/fiesta';
 import { uploadToStorage, deleteFromStorage } from '@/lib/firebase/storage';
 import type { Firestore, QueryDocumentSnapshot, Transaction } from 'firebase-admin/firestore';
@@ -46,7 +47,20 @@ import { getFiestaByIdRaw } from '@/lib/fiesta/get-fiesta-raw';
 // Firestore collection names
 const GALLERY_COLLECTION = 'social_gallery_posts';
 const CHAT_COLLECTION = 'social_chat';
-const MAX_PHOTOS_PER_EVENT = 200;
+/**
+ * El tope va en lo que sube CADA invitado, no en lo que junta la fiesta.
+ *
+ * Antes el evento entero se cortaba a las 200 fotos. En una fiesta de 150
+ * personas con tres estaciones eso se alcanza a mitad de la noche, y a partir
+ * de ahi nadie mas puede subir nada: el que llega tarde se queda afuera y el
+ * cliente pierde la mitad de sus recuerdos. Es exactamente lo contrario de lo
+ * que se quiere.
+ *
+ * Ahora el limite del evento es una red de contencion contra un abuso masivo,
+ * no un tope de uso normal. Quien acota de verdad es el limite por persona,
+ * junto con el peso maximo por archivo y los 15 segundos de video.
+ */
+const MAX_PHOTOS_PER_EVENT = 5000;
 const MAX_PHOTOS_PER_PERSON = 10;
 const MAX_IMAGE_UPLOAD_SIZE = 10 * 1024 * 1024;
 const MAX_VIDEO_UPLOAD_SIZE = 60 * 1024 * 1024;
@@ -139,7 +153,7 @@ export async function getSocialPosts(fiestaId: string): Promise<SocialGalleryPos
       const posts = await getLocalSocialPosts(fiestaId);
       return canModerate
         ? posts
-        : posts.filter((post) => (post.moderationStatus ?? 'approved') === 'approved');
+        : soloAprobados(posts);
     }
 
     const db = await getDb();
@@ -157,7 +171,7 @@ export async function getSocialPosts(fiestaId: string): Promise<SocialGalleryPos
       .sort((a: SocialGalleryPost, b: SocialGalleryPost) => new Date(b.timestamp).getTime() - new Date(a.timestamp).getTime());
     return canModerate
       ? posts
-      : posts.filter((post) => (post.moderationStatus ?? 'approved') === 'approved');
+      : soloAprobados(posts);
   } catch (e) {
     logger.warn('[social-gallery] getSocialPosts failed:', e);
     return [];
@@ -170,7 +184,7 @@ export async function getSocialPosts(fiestaId: string): Promise<SocialGalleryPos
  */
 export async function getPublicSocialPosts(fiestaId: string): Promise<SocialGalleryPost[]> {
   const posts = await getSocialPosts(fiestaId);
-  return posts.filter((post) => (post.moderationStatus ?? 'approved') === 'approved');
+  return soloAprobados(posts);
 }
 
 export async function getPublicSocialPostCount(
@@ -184,7 +198,7 @@ export async function getPublicSocialPostCount(
 
     if (process.env.AK_USE_LOCAL_JSON_ONLY === 'true') {
       const posts = await getLocalSocialPosts(fiestaId);
-      return posts.filter((post) => (post.moderationStatus ?? 'approved') === 'approved').length;
+      return soloAprobados(posts).length;
     }
 
     const db = await getDb();
@@ -343,11 +357,14 @@ export async function uploadSocialPost(
       windowMs: 60_000,
     });
     const db = await getDb();
-    if (fiestaData.socialGallerySettings?.enabled === false) {
+    const wallEnabled = fiestaData.socialGallerySettings?.enabled !== false;
+    const wallActive = fiestaData.socialGallerySettings?.uploadsActive !== false;
+    const bypassWallCheck = source === 'entertainment';
+
+    if (!wallEnabled && !bypassWallCheck) {
       return { success: false, error: 'El muro social no está habilitado para este evento.' };
     }
-    const active = fiestaData.socialGallerySettings?.uploadsActive !== false;
-    if (!active) {
+    if (!wallActive && !bypassWallCheck) {
       return { success: false, error: 'Las cargas están pausadas para este evento.' };
     }
     const eventLimit = fiestaData?.socialGallerySettings?.maxPhotos ?? MAX_PHOTOS_PER_EVENT;
@@ -415,7 +432,7 @@ export async function uploadSocialPost(
       true
     );
 
-    const requireApproval = fiestaData?.socialGallerySettings?.requireApproval === true;
+    const requireApproval = fiestaData?.socialGallerySettings?.requireApproval !== false;
     // Los videos no los puede revisar el analisis automatico, que mira imagenes
     // fijas. Van siempre a aprobacion: es la unica forma de que no aparezca algo
     // indebido en la pantalla grande delante de toda la fiesta.
@@ -428,12 +445,17 @@ export async function uploadSocialPost(
       imageAiSafe: safetyResult.safe,
     });
     if (mediaReview.status === 'blocked') return { success: false, error: mediaReview.message };
+    const isWallRestricted = (!wallEnabled || !wallActive) && bypassWallCheck;
+    const finalModerationStatus = isWallRestricted
+      ? 'pending'
+      : (mediaReview.status === 'pending_review' ? 'pending' : 'approved');
+
     const newPost: SocialGalleryPost = {
       id: postId,
       fiestaId,
       imageUrl,
       mediaType: isVideo ? 'video' : 'image',
-      moderationStatus: mediaReview.status === 'pending_review' ? 'pending' : 'approved',
+      moderationStatus: finalModerationStatus,
       timestamp: new Date().toISOString(),
       authorName: sanitizeSocialText(authorName) || 'Anónimo',
       likes: 0,
@@ -491,7 +513,10 @@ async function persistSocialMediaPostFromUrl(
     // revisar solo: los videos, y las fotos cuando el analisis automatico no
     // estuvo disponible. En ese caso queda esperando el visto bueno en vez de
     // salir directo a la pantalla grande.
-    const esperaAprobacion = review.status === 'pending_review' || input.revisionManual === true;
+    const fiesta = await getFiestaById(input.fiestaId);
+    if (!fiesta) return { success: false, error: 'Fiesta no encontrada.' };
+    const requireApproval = fiesta.socialGallerySettings?.requireApproval !== false;
+    const esperaAprobacion = requireApproval || review.status === 'pending_review' || input.revisionManual === true;
     const newPost: SocialGalleryPost = {
       id: postId,
       fiestaId: input.fiestaId,

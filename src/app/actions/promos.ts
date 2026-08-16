@@ -24,6 +24,19 @@ export async function savePromo(
 ): Promise<{ success: boolean; error?: string; promo?: PromoActiva }> {
   await requireAppSession();
   try {
+    if (!data.titulo || !data.titulo.trim()) {
+      return { success: false, error: 'El título de la promoción es obligatorio.' };
+    }
+    if (!data.fechaInicio || !data.fechaInicio.trim()) {
+      return { success: false, error: 'La fecha de inicio de la promoción es obligatoria.' };
+    }
+    if (!data.fechaFin || !data.fechaFin.trim()) {
+      return { success: false, error: 'La fecha de fin de la promoción es obligatoria.' };
+    }
+    if (new Date(data.fechaInicio) > new Date(data.fechaFin)) {
+      return { success: false, error: 'La fecha de fin no puede ser anterior a la fecha de inicio.' };
+    }
+
     const promos = await getPromos();
     const now = new Date().toISOString();
 

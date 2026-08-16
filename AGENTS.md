@@ -1,3 +1,172 @@
+## ANTES DE AUDITAR: leé `docs/YA-RESUELTO.md`
+
+En este proyecto trabajan varias IA en paralelo, en cuentas distintas. Sin esa
+lista pasa esto: una auditoría nueva "encuentra" un problema que ya se arregló,
+alguien lo vuelve a tocar, y a veces lo deja peor. Ya paso: dos propuestas
+protegieron el mismo archivo de maneras distintas y al fusionarse dejaron la
+pantalla colgada para siempre.
+
+**Si algo que vas a reportar figura ahí, es falso positivo.**
+
+### Y ANOTAR SIEMPRE: cada cambio va a esa lista
+
+**Orden del dueño, 9 de agosto de 2026, y vale para las tres IA.** Cada vez que
+modificás algo, lo anotás en `docs/YA-RESUELTO.md` **en la misma propuesta**. No
+es opcional ni depende del tamaño del cambio.
+
+Los tres casos, todos se anotan:
+
+- **Arreglo** → qué estaba mal y qué se hizo, en una frase, en criollo.
+- **Mejora o funcionalidad nueva** → cómo funciona y **por qué se eligió así**.
+  Ese porqué es lo único que impide que otra IA lo deshaga el mes que viene
+  creyendo que mejora.
+- **Falso positivo verificado** → que quedó descartado y por qué. Si no se
+  anota, la próxima auditoría lo vuelve a reportar y se pierde el viaje.
+
+**Una propuesta que toca código y no toca esa lista está incompleta.** Con tres
+IA trabajando en paralelo sobre el mismo repositorio, esa lista es la única
+memoria compartida que hay.
+
+## SIEMPRE propuestas grandes, nunca muchas chicas
+
+**El dueño lo tuvo que repetir el 10 de agosto de 2026.** La regla vale también
+para **las órdenes de trabajo que una IA le escribe a otra**: si la orden tiene
+cinco bloques, se pide **una sola propuesta con los cinco**, no una por bloque.
+Ya se falló así: la regla estaba escrita y la orden pedía lo contrario.
+
+**Orden del dueño, 9 de agosto de 2026. Vale para las tres IA, sin excepción.**
+
+Cada fusión dispara un despliegue y eso se paga. **Se junta todo el trabajo de la
+tanda en UNA sola propuesta y se fusiona una vez, al final.**
+
+- **No abras una propuesta por hallazgo ni por archivo.** Arreglá todo lo de la
+  tanda, corré la verificación una vez sobre el conjunto y recién ahí fusionás.
+- **La documentación viaja con el código.** Anotar en `docs/YA-RESUELTO.md` no
+  justifica una propuesta aparte: va en la misma.
+- **Un cambio de documentación solo no se fusiona solo.** Dejalo commiteado en la
+  rama y juntalo con el próximo trabajo.
+- **Sólo se separa** si algo es urgente y no puede esperar, o si mezclarlo haría
+  imposible entender qué rompió qué.
+
+**Cuanto más grande la propuesta, más importa correr los cuatro controles sobre
+el conjunto entero antes de fusionar**, no sobre cada pedazo suelto. Dos arreglos
+que pasan por separado pueden romper juntos: ya pasó con el archivo de facturas,
+que quedó protegido dos veces y dejaba la pantalla colgada al guardar.
+
+## Traspaso entre chats (obligatorio, vale para Codex, Gemini y Claude)
+
+Este proyecto se programa entre tres IA sobre el mismo repositorio. Para no
+arrancar cada chat de cero y no pisarse entre ramas:
+
+1. **Al empezar cualquier sesión, leer `ESTADO-ACTUAL.md`.** Es corto a propósito
+   (máximo 40 líneas): dice en qué se está trabajando, en qué rama, qué quedó a
+   medias y qué sigue. Se lee entero, siempre.
+2. **Al terminar una tanda, reescribirlo.** Se pisa, no se acumula. Una sesión
+   que cierra sin dejar el traspaso obliga a la siguiente a redescubrir todo.
+3. `ESTADO-AUDITORIA.md` es el histórico largo. Se abre sólo para buscar algo
+   viejo, nunca de rutina: leerlo entero es caro.
+4. Cada tarea va en una rama nueva desde `main` actualizado. Nunca dos IA en la
+   misma rama, y nunca subir a una rama cuya propuesta ya fue cerrada o fusionada.
+5. Después de fusionar varias propuestas que tocan los mismos archivos, correr la
+   verificación completa de nuevo antes de dar nada por sano.
+
+## Errores ya cometidos (valen para Codex, Gemini y Claude)
+
+Lista corta de cosas que salieron mal **de verdad** en este proyecto. Cada una
+costó tiempo, plata o una propuesta entera a la basura. Releerla antes de una
+tanda grande.
+
+### 1. Acentos rotos: 902 de una sola vez
+
+Una propuesta reescribió 45 archivos con la codificación equivocada. Además de
+verse mal en pantalla (`Menú`, `Presentación`), **rompe comparaciones de texto
+en silencio**: el código que buscaba la palabra `niño` dejó de encontrarla y los
+platos de chicos pasaron a contarse como de adultos.
+
+**Guardá siempre en UTF-8** y corré `npm run check:acentos` antes de subir. Si
+salta, no subas.
+
+### 2. Comillas invertidas borradas
+
+En tres propuestas seguidas, la herramienta de edición se comió las comillas
+invertidas de los textos armados (`` `texto ${variable}` ``). El proyecto no
+compilaba, y en un caso se llevó puesta también la variable de adentro: la trivia
+perdió el color verde/rojo de las respuestas sin que se notara en el diff.
+
+**Si `npx tsc --noEmit` marca errores raros de sintaxis, es esto.**
+
+### 3. El revisor de tipos NO es el build
+
+`npx tsc --noEmit` pasaba y `npm run build` fallaba. La aplicación estuvo **seis
+días sin poder publicarse** y nadie lo vio.
+
+**Los cuatro controles antes de subir, siempre:**
+
+```
+npx tsc --noEmit
+npx jest --silent
+npm run check:acentos
+npm run build
+```
+
+### 4. Contar filas en vez de personas
+
+Un invitado puede venir con acompañantes (`partySize`). Contar `.length` de una
+lista de invitados cuenta **filas de tabla, no gente**. Ya pasó tres veces: el
+cartel de la puerta, la cuenta de celíacos y el reporte al catering. Una familia
+de cinco celíacos figuraba como **un** plato especial.
+
+**Cada vez que cuentes invitados, preguntate si querés filas o personas.** Casi
+siempre son personas.
+
+### 5. Guardar y avisar en el orden equivocado
+
+Una propuesta movió la sincronización con Google **antes** del guardado. Como esa
+sincronización vuelve a leer los datos de la base, mandaba los avisos con la
+asignación **vieja**: el mozo nuevo no se enteraba de que trabajaba y al que
+habían sacado le llegaba el correo igual.
+
+**Primero se guarda, después se avisa.** Siempre.
+
+### 6. Pantallas que dicen que algo salió bien cuando falló
+
+El patrón se repitió copiado en cuatro estaciones: al fallar la subida, la
+pantalla igual mostraba "listo, escaneá tu recuerdo" con una rueda girando para
+siempre. La gente se iba de la fiesta creyendo que tenía su foto.
+
+**Si un `catch` no le muestra nada al usuario, está mal.** Y ninguna pantalla
+puede afirmar que algo se guardó si no se guardó.
+
+### 7. Perder trabajo al cambiar de rama
+
+`git stash -u` seguido de `git checkout -- .` borró trabajo sin confirmar. Y
+`git checkout <rama> -- <archivo>` **pisa** una edición del árbol de trabajo en
+vez de traerla.
+
+**Confirmá los cambios antes de cambiar de rama.**
+
+### 8. Programar algo que ya existía
+
+Una orden de trabajo pidió construir el álbum del portal del cliente, que la
+aplicación ya tenía. Se perdió el viaje entero.
+
+**Antes de programar una tarea, verificá que no esté hecha.** Un `graphify query`
+y una mirada al archivo alcanzan.
+
+### 9. Afirmar que algo falta por una búsqueda mal hecha
+
+Se reportó que una pantalla no tenía guardado automático. Sí lo tenía: la
+búsqueda fue `autoSave` y la función se llamaba `handleAutoSaveSalary`. La
+diferencia era una mayúscula.
+
+**Buscá sin distinguir mayúsculas antes de decir que algo no está.**
+
+### 10. Propuestas gigantes
+
+Una propuesta de 45 archivos no la puede revisar nadie, y terminó cerrada sin
+fusionar aunque adentro tenía cosas buenas. **Una tarea o un bloque por
+propuesta.** Si una parte viene mal, no puede bloquear a las otras.
+
 ## graphify
 
 This project has a knowledge graph at graphify-out/ with god nodes, community structure, and cross-file relationships.
@@ -64,7 +233,7 @@ Rules:
 - **Prohibido Alucinar**: Queda estrictamente prohibido alucinar o inventar código, variables, APIs, archivos, rutas o dependencias que no existan. Si no tenés certeza absoluta sobre algo, debés investigarlo en el código o consultarlo. Todo lo programado debe ser 100% real y funcional.
 - **Uso Obligatorio de Graphify**: Antes de iniciar cualquier tarea o responder sobre la arquitectura del código, debés usar `graphify` para mapear el codebase y entender perfectamente las relaciones entre archivos para evitar roturas.
 - **Verificación de PR Abierta (OBLIGATORIO)**: Antes de empezar una tarea, crear una rama o subir commits, es obligatorio verificar en GitHub qué Pull Requests están abiertas y sus estados. Si la PR de la rama actual ya fue cerrada, archivada o fusionada, **está estrictamente prohibido seguir subiendo cambios a esa rama**. En su lugar, debés sincronizarte localmente con `main` actualizado, crear una rama nueva y limpia, y generar una nueva PR abierta para la tarea actual, asegurando así un despliegue limpio sin mezclar código viejo.
-- **Prohibido Fusionar PRs**: Las IA tienen estrictamente prohibido fusionar (mergear) Pull Requests por sí solas. Deben crear la PR en GitHub y dejarla abierta para que el usuario la revise y fusione a mano.
+- **Fusionar PRs (regla actualizada el 6 de agosto de 2026)**: el dueño autorizó a fusionar directamente, sin esperar que lo haga él a mano. **Pero sólo después de pasar todos los controles**: compila sin errores de tipos, las pruebas pasan, no hay acentos rotos (`npm run check:acentos`), no choca con las otras propuestas abiertas al fusionarlas juntas, y no hay cambios sospechosos en plata, cobros o permisos de acceso. Si algo de eso falla, no se fusiona: se le explica al dueño en criollo qué pasa. Después de fusionar, correr la verificación completa de nuevo sobre `main`.
 - **Honestidad Absoluta (0 Humo)**: El título y la descripción de las PRs y de los commits deben describir **únicamente los cambios reales y precisos** que hiciste. No prometas mejoras estéticas, rediseños premium ni optimizaciones que no estén implementadas concretamente. Cero promesas que no sean reales.
 ## Direccion multiagente obligatoria
 

@@ -40,6 +40,7 @@ import {
   calculatePricePerPerson,
   DEFAULT_BOOKING_DEPOSIT_AMOUNT,
 } from '@/lib/budget/formal-budget';
+import { montoDeSenia } from '@/lib/budget/monto-de-senia';
 import { calculateMercadoPagoCuotas } from '@/lib/payments/mercadopago-calculator';
 
 const formatCurrency = (amount?: number) => {
@@ -397,18 +398,30 @@ function VerPresupuestoContent({ params }: { params: { id: string } }) {
 
   const pagosSummary = useMemo(() => {
     if (!presupuesto) return { totalPagado: 0, saldoPendiente: 0, totalCosto: 0 };
-    const summary = getBudgetPaymentSummary(presupuesto);
+    const summary = getBudgetPaymentSummary(presupuesto, {
+      includeAnnualAdjustment: true,
+    });
     return { totalCosto: summary.total, totalPagado: summary.paid, saldoPendiente: summary.balance };
   }, [presupuesto]);
   const hasDepositPayment = useMemo(
     () => (presupuesto?.pagosCliente || []).some((p) => isConfirmedClientPayment(p) && p.monto > 0),
     [presupuesto]
   );
+  // La senia de ESTE presupuesto, no un valor fijo. Tiene que coincidir con lo
+  // que despues cobra el link de Mercado Pago: si el boton dice un numero y se
+  // cobra otro, el cliente pierde la confianza en el peor momento.
+  const seniaDelPresupuesto = useMemo(
+    () => montoDeSenia({
+      seniaAcordada: presupuesto?.senia,
+      porDefecto: displaySettings?.bookingDepositAmount ?? DEFAULT_BOOKING_DEPOSIT_AMOUNT,
+    }),
+    [presupuesto?.senia, displaySettings?.bookingDepositAmount],
+  );
   const mercadoPagoDepositTotal = useMemo(
     () => calculateMercadoPagoCuotas(
-      Math.min(DEFAULT_BOOKING_DEPOSIT_AMOUNT, pagosSummary.saldoPendiente),
+      Math.min(seniaDelPresupuesto, pagosSummary.saldoPendiente),
     ).totalWithSurcharge,
-    [pagosSummary.saldoPendiente],
+    [seniaDelPresupuesto, pagosSummary.saldoPendiente],
   );
   const mercadoPagoBalanceTotal = useMemo(
     () => calculateMercadoPagoCuotas(pagosSummary.saldoPendiente).totalWithSurcharge,
@@ -500,9 +513,12 @@ function VerPresupuestoContent({ params }: { params: { id: string } }) {
           purpose,
         }),
       });
-      const payload = await response.json() as { checkoutUrl?: string; error?: string };
+      const payload = await response.json() as { checkoutUrl?: string; sessionId?: string; error?: string };
       if (!response.ok || !payload.checkoutUrl) {
         throw new Error(payload.error || 'No se pudo iniciar el pago.');
+      }
+      if (payload.sessionId) {
+        sessionStorage.setItem(`ak-mp-return:${payload.sessionId}`, window.location.href);
       }
       window.location.assign(payload.checkoutUrl);
     } catch (checkoutError) {
@@ -908,7 +924,7 @@ function VerPresupuestoContent({ params }: { params: { id: string } }) {
                 <Card className="border-none shadow-2xl rounded-[2rem] sm:rounded-[2.5rem] overflow-hidden bg-white">
                     <CardContent className="p-6 sm:p-12 flex flex-col items-center text-center space-y-8">
                         <div className="p-4 bg-primary/10 rounded-full">
-                            <PartyPopper className="w-10 h-10 sm:w-12 sm:h-12 text-primary animate-bounce"/>
+                            <PartyPopper className="w-10 h-10 sm:w-12 sm:h-12 text-primary"/>
                         </div>
                         <div className="space-y-3">
                             <h2 className="text-2xl sm:text-4xl font-black font-headline tracking-tighter text-slate-900 uppercase">
@@ -1011,7 +1027,7 @@ function VerPresupuestoContent({ params }: { params: { id: string } }) {
                         </p>
                       </div>
                       <div className="flex w-full flex-col gap-2 sm:w-auto">
-                        {!hasDepositPayment && pagosSummary.saldoPendiente > DEFAULT_BOOKING_DEPOSIT_AMOUNT && (
+                        {!hasDepositPayment && pagosSummary.saldoPendiente > seniaDelPresupuesto && (
                           <Button
                             type="button"
                             variant="outline"

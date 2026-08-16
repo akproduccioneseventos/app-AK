@@ -475,7 +475,7 @@ export default function CuponesPage() {
       </Dialog>
 
       {/* Cupones List */}
-      <Card>
+      <Card className="rounded-xl">
         <CardHeader>
           <CardTitle className="flex flex-wrap items-center gap-2">
             <Ticket className="w-5 h-5" /> Cupones
@@ -490,12 +490,12 @@ export default function CuponesPage() {
             <div className="text-center py-12 space-y-3">
               <Ticket className="w-12 h-12 mx-auto text-muted-foreground/30" />
               <p className="text-muted-foreground text-sm">No hay cupones creados aún.</p>
-              <Button variant="outline" size="sm" onClick={handleNewCupon}><Plus className="w-4 h-4 mr-2" />Crear primer cupón</Button>
+              <Button variant="outline" size="sm" onClick={handleNewCupon} className="rounded-lg"><Plus className="w-4 h-4 mr-2" />Crear primer cupón</Button>
             </div>
           ) : (
             <div className="space-y-3">
               {cupones.map((cupon) => (
-                <div key={cupon.id} className={`p-4 border rounded-lg transition-all ${!cupon.activo ? 'bg-muted/50 opacity-60' : 'bg-card hover:shadow-sm'}`}>
+                <div key={cupon.id} className={`p-4 border rounded-xl transition-all ${!cupon.activo ? 'bg-muted/50 opacity-60' : 'bg-card hover:shadow-sm'}`}>
                   <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3">
                     <div className="flex-1 space-y-1">
                       <div className="flex items-center gap-2 flex-wrap">

@@ -147,13 +147,11 @@ const GraziaCabecera: React.FC<{ data: any, fiesta: FiestaEnPlanificacion, palet
 
     return (
         <section className="relative min-h-[60vh] sm:min-h-[70vh] md:min-h-screen flex flex-col items-center justify-center text-center overflow-hidden bg-slate-50">
-            {!isPreview && (
-              <EventParticles
-                tipoCelebracion={fiesta.configuracion.tipoCelebracion}
-                primaryColor={paleta.primary || '#8b5cf6'}
-                count={12}
-              />
-            )}
+            <EventParticles
+              tipoCelebracion={fiesta.configuracion.tipoCelebracion}
+              primaryColor={paleta.primary || '#8b5cf6'}
+              count={12}
+            />
             <motion.div 
                 initial={{ scale: 1.2, opacity: 0 }}
                 animate={{ scale: 1, opacity: 1 }}
@@ -579,7 +577,6 @@ export const GraziaTemplate: React.FC<TemplateProps> = ({ fiesta, invitacionData
                                     <NextImage src={item.imageUrl || 'https://picsum.photos/seed/gift/600/600'} alt={item.name} layout="fill" objectFit="cover" className="group-hover:scale-110 transition-transform duration-1000" />
                                     {item.isClaimed && <div className="absolute inset-0 bg-primary/70 backdrop-blur-sm flex flex-col items-center justify-center text-white p-4">
                                         <span className="font-black text-xl md:text-2xl uppercase tracking-widest text-center">YA ELEGIDO</span>
-                                        <span className="text-xs md:text-sm font-bold opacity-80 mt-1 md:mt-2">Por: {item.claimedBy}</span>
                                     </div>}
                                 </div>
                                 <CardContent className="p-6 md:p-8 text-center space-y-3 md:space-y-4">

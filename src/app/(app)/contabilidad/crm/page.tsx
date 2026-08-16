@@ -135,7 +135,7 @@ export default function CrmPage() {
         ? 'portal_led'
         : 'all';
   const [quickFilter, setQuickFilter] = useState<QuickFilter>(initialQuickFilter);
-  
+
   const isMobile = useIsMobile();
 
   // Filtered leads
@@ -176,8 +176,10 @@ export default function CrmPage() {
         const diffDays = (now.getTime() - lastActivity.getTime()) / (1000 * 60 * 60 * 24);
         if (diffDays < INACTIVITY_DAYS) return false;
       } else if (quickFilter === 'my_leads') {
-        // Filter by assignedTo matching current user — we don't have auth context so we use a simple "has assignedTo" filter
-        // In a real app this would compare to the logged-in user's name
+        // No filtra "los mios": filtra los que tienen responsable asignado, que
+        // es lo que dice la etiqueta en pantalla ("Con responsable"). La clave
+        // interna quedo con nombre viejo. No es una filtracion de datos: el
+        // equipo ve el CRM completo igual.
         if (!lead.assignedTo) return false;
       } else if (quickFilter === 'direct') {
         if (!isDirectCrmLead(lead)) return false;
@@ -254,7 +256,7 @@ export default function CrmPage() {
     setIsMeetingModalOpen(false);
     setLeadForMeeting(null);
   }, [leadForMeeting, moveLead, toast]);
-  
+
   const handleDragEnd = useCallback(async (event: DragEndEvent) => {
     const { active, over } = event;
     if (over && active.id !== over.id) {
@@ -274,7 +276,7 @@ export default function CrmPage() {
       }
       if (targetStage.isConversionStage) {
         handleHireClick(leadToMove);
-        return; 
+        return;
       }
 
       await moveLead(leadToMove.id, targetStage.id);
@@ -359,7 +361,13 @@ export default function CrmPage() {
             </div>
           </div>
           <div className="flex gap-2 flex-wrap w-full sm:w-auto">
-            <Button asChild variant="outline" className="w-full h-11"><Link href="/contabilidad/crm/agenda" className="flex-1 sm:flex-none"><Clock className="w-4 h-4 mr-2"/>Agenda</Link></Button>
+            <Button asChild variant="outline" className="h-11 border-amber-300 bg-amber-50/50 text-amber-900 hover:bg-amber-100 dark:border-amber-700 dark:bg-amber-950/40 dark:text-amber-300">
+              <Link href="/contabilidad/crm/atraccion-fiestas" className="flex-1 sm:flex-none">
+                <Sparkles className="w-4 h-4 mr-2 text-amber-600 dark:text-amber-400" />
+                Atracción por Fiesta
+              </Link>
+            </Button>
+            <Button asChild variant="outline" className="w-full sm:w-auto h-11"><Link href="/contabilidad/crm/agenda" className="flex-1 sm:flex-none"><Clock className="w-4 h-4 mr-2"/>Agenda</Link></Button>
             {stages.length > 0 ? (
               <AddLeadDialog stages={stages} onLeadAdded={() => fetchData(true)} defaultStageId={stages[0].id} />
             ) : (
@@ -393,7 +401,7 @@ export default function CrmPage() {
             <Button asChild variant="outline" className="w-full h-11"><Link href="/empresa/contabilidad" className="flex-1 sm:flex-none"><ArrowLeft className="w-4 h-4 mr-2" />Volver</Link></Button>
           </div>
         </div>
-        
+
         <div className="grid gap-4 grid-cols-1 sm:grid-cols-2 lg:grid-cols-5">
             <KpiCard title="Propuestas Activas" value={formatCurrency(kpiData?.pipelineValue)} icon={Wallet} isLoading={isLoading}/>
             <KpiCard title="Prospectos" value={kpiData?.activeLeads} icon={Users} isLoading={isLoading}/>
@@ -534,7 +542,7 @@ export default function CrmPage() {
             onDragEnd={handleDragEnd}
           />
         )}
-        
+
         {leadToBook && bookingPresupuestoInfo && (
           <BookingConfirmationDialog isOpen={isBookingModalOpen} onOpenChange={setIsBookingModalOpen} lead={leadToBook} presupuesto={bookingPresupuestoInfo} onConfirmed={handleBookingConfirmed} />
         )}

@@ -77,9 +77,10 @@ describe('API route authentication boundary', () => {
     expect(read('payments/mercadopago/checkout/route.ts')).toContain(
       'getPresupuestoById(presupuestoId, token)',
     );
-    expect(read('payments/mercadopago/status/route.ts')).toContain(
-      "/^[a-f0-9-]{36}$/i.test(sessionId)",
-    );
+    const statusRoute = read('payments/mercadopago/status/route.ts');
+    expect(statusRoute).toContain("/^[a-f0-9-]{36}$/i.test(sessionId)");
+    expect(statusRoute).not.toContain('generateBudgetToken');
+    expect(statusRoute).not.toContain('budgetUrl');
     expect(read('payments/mercadopago/webhook/route.ts')).toContain(
       'verifyMercadoPagoWebhookSignature({',
     );

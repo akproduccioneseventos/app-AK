@@ -217,7 +217,7 @@ export default function CatalogoServiciosSettingsPage() {
                 const packageTotal = detailedServices.reduce((sum, service) => sum + service.total, 0);
 
                 return (
-                  <Card key={paquete.id} className="border border-indigo-100 bg-indigo-50/40">
+                  <Card key={paquete.id} className="border border-border bg-muted/30 rounded-xl">
                     <CardHeader className="pb-3">
                       <CardTitle className="text-lg">{paquete.nombre}</CardTitle>
                       {paquete.descripcion && <CardDescription>{paquete.descripcion}</CardDescription>}
@@ -253,7 +253,7 @@ export default function CatalogoServiciosSettingsPage() {
             </CardContent>
           </Card>
 
-          <Card>
+          <Card className="rounded-xl">
             <CardHeader>
               <CardTitle>Todos los Servicios</CardTitle>
               <CardDescription>Catálogo completo agrupado por categoría.</CardDescription>
@@ -262,7 +262,7 @@ export default function CatalogoServiciosSettingsPage() {
                 <Input
                   value={searchTerm}
                   onChange={(event) => setSearchTerm(event.target.value)}
-                  className="pl-10 pr-10"
+                  className="pl-10 pr-10 rounded-lg"
                   placeholder="Buscar por nombre, categoría o subcategoría..."
                 />
                 {searchTerm && (
@@ -283,7 +283,7 @@ export default function CatalogoServiciosSettingsPage() {
               ) : (
                 <Accordion type="multiple" defaultValue={categories} className="space-y-3">
                   {categories.map((category) => (
-                    <AccordionItem key={category} value={category} className="border rounded-lg px-4">
+                    <AccordionItem key={category} value={category} className="border rounded-xl px-4">
                       <AccordionTrigger className="hover:no-underline">
                         <div className="flex items-center gap-2 text-left">
                           <span className="font-semibold">{category}</span>
@@ -295,7 +295,7 @@ export default function CatalogoServiciosSettingsPage() {
                           {groupedServicios[category]?.map((servicio) => {
                             const calc = getServicioCalculatedData(servicio, GUESTS_FOR_ESTIMATE);
                             return (
-                              <Card key={servicio.id} className="border bg-slate-50/40">
+                              <Card key={servicio.id} className="border border-border bg-muted/20 rounded-xl">
                                 <CardHeader className="pb-2">
                                   <CardTitle className="text-base">{servicio.nombre}</CardTitle>
                                   <div className="flex gap-2 flex-wrap">

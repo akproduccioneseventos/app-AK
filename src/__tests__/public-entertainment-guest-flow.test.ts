@@ -16,9 +16,32 @@ describe('public entertainment guest flows', () => {
 
     expect(source).toContain("localStatus === 'countdown'");
     expect(source).toContain('Preparar foto');
-    expect(source).toContain('Publicar y obtener enlace');
+    // El muro dejo de ser el camino principal: ahora la cabina imprime siempre
+    // y publicar es el extra, que solo aparece si el muro esta contratado.
+    expect(source).toContain('Publicar en el muro');
+    expect(source).toContain('hayMuro');
     expect(source).toContain('Repetir foto');
     expect(source).toContain('captura web');
+  });
+
+  it('runs the photo booth as a three-shot round that prints on its own', () => {
+    const source = readRoute('fotocabina');
+
+    // La tanda de tres y la impresion automatica son el mecanismo copiado de
+    // las cabinas del rubro. Si alguien las saca, esta prueba lo frena.
+    expect(source).toContain('FOTOS_POR_TANDA');
+    expect(source).toContain('SEGUNDOS_PRIMERA_FOTO');
+    expect(source).toContain('componerTiraDeFotos');
+    expect(source).toContain('Foto {fotoEnCurso} de {FOTOS_POR_TANDA}');
+    expect(source).toContain('handleImprimir(true)');
+    expect(source).toContain('Quiero otra copia');
+  });
+
+  it('lets the magic mirror print the memory, signature included', () => {
+    const mirror = readRoute('espejo-magico');
+
+    expect(mirror).toContain('imprimirRecuerdo');
+    expect(mirror).toContain('Imprimir mi foto');
   });
 
   it('labels 360 and Bogue output as web-camera capture instead of hardware control', () => {
@@ -30,7 +53,7 @@ describe('public entertainment guest flows', () => {
     expect(platform).toContain('Grabar otro video');
     expect(bogue).toContain('camara web');
     expect(bogue).toContain('No controla hardware externo.');
-    expect(bogue).toContain('Grabar otro loop');
+    expect(bogue).toContain('Grabar otra vez');
   });
 
   it('requires visible consent before an AI mirror or Touchpix capture', () => {

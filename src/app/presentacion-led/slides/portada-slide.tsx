@@ -4,7 +4,6 @@ import { motion } from 'framer-motion';
 import Image from 'next/image';
 import { ChevronRight, MonitorPlay, ShieldCheck, Sparkles } from 'lucide-react';
 import { SlideLayout } from '../components/slide-layout';
-import { ImagePlaceholder } from '../components/image-placeholder';
 import { getContenidoPorTipo } from '../lib/contenido-por-tipo';
 import type { CompanyInfo } from '@/types/settings';
 
@@ -39,9 +38,16 @@ export function PortadaSlide({
   const accent = colorAcento || contenido.colorAcento;
   const displayTitle = tituloPrincipal || companyInfo.companyName || 'AK Producciones';
 
+  const subtituloElegido = (subtitulo || contenido.subtitulo || '').trim();
+  const mismaFrase = (a: string, b: string) =>
+    a.toLowerCase().replace(/[.\s]+$/, '') === b.toLowerCase().replace(/[.\s]+$/, '');
+  const subtituloVisible = mismaFrase(subtituloElegido, (contenido.tagline || '').trim())
+    ? ''
+    : subtituloElegido;
+
   return (
     <SlideLayout className="text-center">
-      <div className="mx-auto grid w-full max-w-7xl grid-cols-1 items-center gap-10 lg:grid-cols-[0.95fr_1.05fr] 2xl:max-w-[1680px]">
+      <div className="mx-auto grid w-full max-w-7xl grid-cols-1 items-center gap-8 lg:grid-cols-[0.95fr_1.05fr] 2xl:max-w-[1680px] pb-12 sm:pb-0">
         <div className="text-left">
           <motion.div
             initial={{ opacity: 0, y: -22 }}
@@ -96,14 +102,19 @@ export function PortadaSlide({
             {contenido.tagline}
           </motion.p>
 
-          <motion.p
-            initial={{ opacity: 0, y: 18 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: 0.55, duration: 0.55 }}
-            className="mb-8 max-w-3xl text-lg font-medium leading-8 text-white/60 md:text-xl"
-          >
-            {subtitulo || contenido.subtitulo}
-          </motion.p>
+          {/* Si el subtítulo dice lo mismo que la frase de arriba, no se
+              muestra: quedaba la misma oración dos veces, una grande y otra
+              chica, en la presentación que se le muestra al cliente. */}
+          {subtituloVisible && (
+            <motion.p
+              initial={{ opacity: 0, y: 18 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: 0.55, duration: 0.55 }}
+              className="mb-8 max-w-3xl text-lg font-medium leading-8 text-white/60 md:text-xl"
+            >
+              {subtituloVisible}
+            </motion.p>
+          )}
 
           <motion.div
             initial={{ opacity: 0, y: 18 }}
@@ -132,7 +143,7 @@ export function PortadaSlide({
           className="relative hidden lg:block"
         >
           <div className="absolute -inset-4 rounded-[2rem] border border-white/10" />
-          <div className="relative overflow-hidden rounded-[2rem] border border-white/20 bg-white/10 shadow-2xl">
+          <div className="relative overflow-hidden rounded-[2rem] border border-white/20 bg-slate-950 shadow-2xl">
             {safeBackgroundUrl ? (
               <div className="relative h-[58vh] min-h-[460px] w-full overflow-hidden">
                 <Image
@@ -145,14 +156,23 @@ export function PortadaSlide({
                 />
               </div>
             ) : (
-              <ImagePlaceholder
-                id="hero-portada"
-                label={tipoFiesta ? `Visual de ${tipoFiesta}` : 'Visual principal del evento'}
-                aspectRatio="4/3"
-                className="min-h-[460px] shadow-2xl"
-              />
+              <div className="relative h-[58vh] min-h-[460px] w-full flex flex-col items-center justify-center p-8 overflow-hidden bg-gradient-to-br from-slate-900 via-zinc-950 to-slate-950">
+                {/* Glow de acento suave */}
+                <div className={`absolute -top-20 -right-20 h-72 w-72 rounded-full opacity-20 blur-3xl bg-gradient-to-r ${accent}`} />
+                <div className={`absolute -bottom-20 -left-20 h-72 w-72 rounded-full opacity-15 blur-3xl bg-gradient-to-r ${accent}`} />
+
+                <div className="relative z-10 flex flex-col items-center text-center space-y-4">
+                  <div className="flex h-20 w-20 items-center justify-center rounded-3xl border border-white/15 bg-white/5 backdrop-blur-md shadow-2xl">
+                    <Sparkles className="h-10 w-10 text-white/80" />
+                  </div>
+                  <div className="space-y-1">
+                    <p className="text-xl font-black tracking-wider uppercase text-white/90">{displayTitle}</p>
+                    <p className="text-xs font-semibold uppercase tracking-widest text-white/50">Experiencia Visual Exclusiva</p>
+                  </div>
+                </div>
+              </div>
             )}
-            <div className="absolute inset-x-0 bottom-0 bg-black/60 p-6 text-left backdrop-blur-sm">
+            <div className="absolute inset-x-0 bottom-0 bg-black/60 p-6 text-left backdrop-blur-sm z-20">
               <p className="text-xs font-black uppercase tracking-widest text-red-200">Experiencia AK</p>
               <p className="mt-1 text-2xl font-black text-white">Evento completo, claro y listo para decidir</p>
             </div>

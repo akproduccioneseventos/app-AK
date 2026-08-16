@@ -6,7 +6,7 @@ import { Card, CardContent, CardHeader, CardTitle, CardDescription, CardFooter }
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
-import { ArrowLeft, Loader2, AlertTriangle, Printer, ShoppingCart, Truck, RefreshCw, Info, Cake } from 'lucide-react';
+import { ArrowLeft, Loader2, AlertTriangle, Printer, ShoppingCart, Truck, RefreshCw, Info, Cake, MessageSquare, Copy, Check } from 'lucide-react';
 import { Skeleton } from '@/components/ui/skeleton';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow, TableFooter } from '@/components/ui/table';
 import { useToast } from '@/hooks/use-toast';
@@ -80,6 +80,10 @@ function ListaDeComprasContent() {
   const [error, setError] = useState<string | null>(null);
   const [fiesta, setFiesta] = useState<FiestaEnPlanificacion | null>(null);
 
+  // Platos contratados que no aportan ni un ingrediente a la lista. Antes se
+  // salteaban en silencio: la cocina compraba sin saber que le faltaba un plato
+  // entero, y se enteraba el dia de la fiesta.
+  const [platosSinIngredientes, setPlatosSinIngredientes] = useState<string[]>([]);
   const [estadosCompra, setEstadosCompra] = useState<CompraProveedorEstado[]>([]);
   const [isSavingStatus, setIsSavingStatus] = useState<string | null>(null);
 
@@ -131,9 +135,17 @@ function ListaDeComprasContent() {
           );
 
           const allDishesInCatalog = allMenus.flatMap(m => m.items);
+          const sinIngredientes: string[] = [];
 
           budgetDishes.forEach(budgetItem => {
               const catalogDish = allDishesInCatalog.find(d => d.id === budgetItem.idServicioCatalogo);
+              if (!catalogDish) {
+                  sinIngredientes.push(`${budgetItem.nombreServicio} (ya no está en el menú)`);
+                  return;
+              }
+              if (!catalogDish.ingredients?.length) {
+                  sinIngredientes.push(catalogDish.name);
+              }
               if (catalogDish) {
                   const targetGuests = getTargetGuests(budgetItem);
                   catalogDish.ingredients.forEach(ing => {
@@ -155,25 +167,66 @@ function ListaDeComprasContent() {
               }
           });
 
-          // 2. PROCESAR BARRA DE TRAGOS
-          const hasBarra = presupuestoData.itemsPresupuestados.some(item => 
-              item.nombreServicio.toLowerCase().includes('barra') || item.nombreServicio.toLowerCase().includes('licuado')
-          );
-          if (hasBarra) {
-              const barraTemplate = defaultBebidasData.categorias.find(c => c.id === 'barra_tragos');
-              barraTemplate?.items.forEach(item => {
-                  const totalNeeded = (item.cantidadNecesaria || 0) * totalInvitados;
-                  const catalogInsumo = catalogoInsumos.find(ci => ci.id === item.origenId);
-                  rawList.push({
-                      nombre: item.nombre,
-                      cantidadNecesaria: totalNeeded,
-                      unit: item.unidadCantidad || 'L',
-                      costoUnitario: catalogInsumo?.valorUnitarioEstimado || item.costoUnitario || 0,
-                      proveedor: catalogInsumo?.proveedor || 'Proveedor Bebidas',
-                      origen: 'Barra de Tragos',
-                      origenId: item.origenId,
+          setPlatosSinIngredientes(Array.from(new Set(sinIngredientes)));
+
+          // 2. PROCESAR BEBIDAS (Todas las categorías activadas)
+          if (fiestaData.bebidas?.categorias) {
+              fiestaData.bebidas.categorias.filter(c => c.activada).forEach(cat => {
+                  cat.items?.forEach(item => {
+                      // Si la cantidad quedó en cero es porque no se pide: antes se
+                      // compraba una unidad igual.
+                      if (Number(item.cantidadNecesaria) === 0) return;
+                      const catalogInsumo = catalogoInsumos.find(ci => ci.id === item.origenId);
+                      rawList.push({
+                          nombre: item.nombre,
+                          cantidadNecesaria: item.cantidadNecesaria || 1,
+                          unit: item.unidadCantidad || 'Unidad',
+                          costoUnitario: catalogInsumo?.valorUnitarioEstimado || item.costoUnitario || 0,
+                          proveedor: item.proveedorHabitual || catalogInsumo?.proveedor || 'Proveedor Bebidas',
+                          origen: `Bebidas: ${cat.nombreDisplay}`,
+                          origenId: item.origenId,
+                          isOrder: true
+                      });
+                  });
+                  cat.recetas?.forEach((receta: any) => {
+                      const factorEscala = totalInvitados / (receta.porcionesBase || 1);
+                      receta.ingredientes?.forEach((ing: any) => {
+                          const totalNeeded = (ing.cantidad || 0) * (isNaN(factorEscala) ? 1 : factorEscala);
+                          if (totalNeeded > 0) {
+                              const catalogInsumo = catalogoInsumos.find(ci => ci.id === ing.id);
+                              rawList.push({
+                                  nombre: ing.nombre,
+                                  cantidadNecesaria: totalNeeded,
+                                  unit: ing.unidad || 'Unidad',
+                                  costoUnitario: catalogInsumo?.valorUnitarioEstimado || ing.costoUnitario || 0,
+                                  proveedor: catalogInsumo?.proveedor || 'Proveedor Bebidas',
+                                  origen: `Bebidas (Receta): ${receta.nombre}`,
+                                  origenId: ing.id,
+                              });
+                          }
+                      });
                   });
               });
+          } else {
+              const hasBarra = presupuestoData.itemsPresupuestados.some(item => 
+                  item.nombreServicio.toLowerCase().includes('barra') || item.nombreServicio.toLowerCase().includes('licuado')
+              );
+              if (hasBarra) {
+                  const barraTemplate = defaultBebidasData.categorias.find(c => c.id === 'barra_tragos');
+                  barraTemplate?.items.forEach(item => {
+                      const totalNeeded = (item.cantidadNecesaria || 0) * totalInvitados;
+                      const catalogInsumo = catalogoInsumos.find(ci => ci.id === item.origenId);
+                      rawList.push({
+                          nombre: item.nombre,
+                          cantidadNecesaria: totalNeeded,
+                          unit: item.unidadCantidad || 'L',
+                          costoUnitario: catalogInsumo?.valorUnitarioEstimado || item.costoUnitario || 0,
+                          proveedor: catalogInsumo?.proveedor || 'Proveedor Bebidas',
+                          origen: 'Barra de Tragos',
+                          origenId: item.origenId,
+                      });
+                  });
+              }
           }
       }
 
@@ -181,6 +234,8 @@ function ListaDeComprasContent() {
       if (fiestaData.reposteria?.categorias) {
           fiestaData.reposteria.categorias.filter(c => c.activada).forEach(cat => {
               cat.items.forEach(item => {
+                  // Igual que en bebidas: cantidad cero es "no se pide".
+                  if (Number(item.cantidad) === 0) return;
                   rawList.push({
                       nombre: item.nombre,
                       cantidadNecesaria: item.cantidad || 1,
@@ -312,6 +367,43 @@ function ListaDeComprasContent() {
     }
   };
 
+  const [copiedProviderId, setCopiedProviderId] = useState<string | null>(null);
+
+  const buildProviderOrderMessage = (providerName: string, items: ShoppingListItem[]) => {
+    const nombreEvento = fiesta?.configuracion?.nombreEvento || fiesta?.configuracion?.clienteNombre || 'Evento AK Producciones';
+    const fechaEvento = fiesta?.configuracion?.fechaEvento || '';
+
+    let msg = `*Pedido de Insumos - AK Producciones*\n`;
+    msg += `🎉 *Evento:* ${nombreEvento}${fechaEvento ? ` (${fechaEvento})` : ''}\n`;
+    msg += `📦 *Proveedor:* ${providerName}\n\n`;
+    msg += `*Detalle del pedido:*\n`;
+    items.forEach((item) => {
+      const isInteger = item.unit.toLowerCase() === 'u' || item.unit.toLowerCase() === 'un' || item.unit.toLowerCase() === 'unidad' || item.unit.toLowerCase() === 'unidades';
+      const qty = isInteger ? Math.round(item.cantidadNecesaria) : Number(item.cantidadNecesaria || 0).toFixed(2);
+      msg += `• ${item.nombre}: ${qty} ${item.unit}\n`;
+    });
+    msg += `\nPor favor confirmar disponibilidad y fecha de entrega. ¡Muchas gracias!`;
+    return msg;
+  };
+
+  const handleSendWhatsAppOrder = (providerName: string, items: ShoppingListItem[]) => {
+    const msg = buildProviderOrderMessage(providerName, items);
+    const waUrl = `https://wa.me/?text=${encodeURIComponent(msg)}`;
+    window.open(waUrl, '_blank', 'noopener,noreferrer');
+  };
+
+  const handleCopyOrderText = async (providerId: string, providerName: string, items: ShoppingListItem[]) => {
+    const msg = buildProviderOrderMessage(providerName, items);
+    try {
+      await navigator.clipboard.writeText(msg);
+      setCopiedProviderId(providerId);
+      toast({ title: "Pedido copiado al portapapeles", description: `Listo para enviar a ${providerName}.` });
+      setTimeout(() => setCopiedProviderId(null), 2500);
+    } catch {
+      toast({ title: "No se pudo copiar", description: "Copiá el texto manualmente.", variant: "destructive" });
+    }
+  };
+
   if (isLoading) {
     return (
       <div className="max-w-5xl mx-auto space-y-6 pb-20 p-4">
@@ -365,6 +457,21 @@ function ListaDeComprasContent() {
           </div>
         </div>
         
+        {platosSinIngredientes.length > 0 && (
+          <div className="rounded-xl border border-amber-300 bg-amber-50 p-4">
+            <p className="font-bold text-amber-900">
+              Ojo: hay platos contratados que no aportan nada a esta lista
+            </p>
+            <p className="mt-1 text-sm text-amber-800">
+              No tienen ingredientes cargados, así que la cocina no va a saber qué comprar para
+              ellos. Cargá los ingredientes en el menú y volvé a actualizar.
+            </p>
+            <ul className="mt-2 list-disc pl-5 text-sm font-semibold text-amber-900">
+              {platosSinIngredientes.map(nombre => <li key={nombre}>{nombre}</li>)}
+            </ul>
+          </div>
+        )}
+
         <div className="grid grid-cols-1 gap-8">
             {Object.keys(groupedByProvider).map(providerId => {
                 const { providerName, items, total } = groupedByProvider[providerId];
@@ -414,6 +521,39 @@ function ListaDeComprasContent() {
                                     </div>
                                 )}
                                 {isSavingThis && <Loader2 className="w-4 h-4 animate-spin text-primary ml-auto"/>}
+
+                                <div className="h-6 w-px bg-slate-200 mx-1 hidden xl:block"></div>
+
+                                <div className="flex items-center gap-1.5 ml-auto">
+                                    <Button
+                                        size="sm"
+                                        variant="outline"
+                                        onClick={() => handleCopyOrderText(providerId, providerName, items)}
+                                        className="h-8 text-xs font-bold rounded-xl border-slate-200 hover:bg-slate-100"
+                                        title="Copiar texto del pedido"
+                                    >
+                                        {copiedProviderId === providerId ? (
+                                            <>
+                                                <Check className="w-3.5 h-3.5 mr-1 text-emerald-600" />
+                                                Copiado
+                                            </>
+                                        ) : (
+                                            <>
+                                                <Copy className="w-3.5 h-3.5 mr-1" />
+                                                Copiar
+                                            </>
+                                        )}
+                                    </Button>
+                                    <Button
+                                        size="sm"
+                                        onClick={() => handleSendWhatsAppOrder(providerName, items)}
+                                        className="h-8 text-xs font-bold rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white shadow-sm"
+                                        title="Enviar lista a WhatsApp"
+                                    >
+                                        <MessageSquare className="w-3.5 h-3.5 mr-1.5" />
+                                        WhatsApp
+                                    </Button>
+                                </div>
                             </div>
                         </CardHeader>
                         <CardContent className="p-0">

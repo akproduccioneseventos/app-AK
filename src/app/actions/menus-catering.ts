@@ -5,6 +5,7 @@ import type { ServicioEmpresa } from '@/types/empresa';
 import { readData, writeData } from '@/lib/data-service';
 import { getInsumos } from './insumos';
 import { requireAppSession } from '@/lib/auth/require-session';
+import { numerosDeMenuInvalidos } from '@/lib/catering/numeros-de-menu';
 
 const MENUS_CATERING_COLLECTION_JSON = 'menus-catering.json';
 
@@ -56,7 +57,7 @@ function calculateIngredientCost(ing: Partial<Ingredient>, catalogItems: Servici
     if (isSmallRecipeUnit && !isSmallCatalogUnit) {
         factor = 1000;
     }
-    
+
     return (quantity / factor) * unitCost;
 }
 
@@ -172,6 +173,21 @@ export async function saveMenu(
   let menuId: string;
 
   const cleanItems = (menuDataInput.items || []).filter(item => !item.id.endsWith('_virtual_buffet'));
+
+  // Un menu sin platos se podia guardar y despues aparecia para elegir en un
+  // presupuesto: el cliente contrataba un menu vacio y la cocina no tenia que
+  // preparar.
+  if (cleanItems.length === 0) {
+    return { success: false, error: 'El menú tiene que tener al menos un plato.' };
+  }
+
+  // Cantidades y costos en menos: el costo negativo entra derecho al presupuesto
+  // y muestra una ganancia que no existe.
+  const numerosMal = numerosDeMenuInvalidos({ items: cleanItems });
+  if (numerosMal) {
+    return { success: false, error: numerosMal };
+  }
+
   const sanitizedMenuInput = { ...menuDataInput, items: cleanItems } as FullMenu;
 
   const allDishes = menus.flatMap(m => m.items);
@@ -199,6 +215,27 @@ export async function saveMenu(
 
 export async function deleteMenu(id: string): Promise<{ success: boolean; error?: string }> {
   await requireAppSession();
+
+  const targetMenu = await getMenuById(id);
+  const menuItemIds = new Set(targetMenu?.items.map(item => item.id) || []);
+  const [{ getPresupuestos }, { getFiestas }] = await Promise.all([
+    import('./presupuestos'),
+    import('./fiesta/fiesta.actions'),
+  ]);
+  const [presupuestos, fiestas] = await Promise.all([getPresupuestos(), getFiestas(false)]);
+  const presupuestosEnUso = presupuestos.filter(p =>
+    p.selectedMenuId === id || p.itemsPresupuestados?.some(item =>
+      item.idServicioCatalogo === id || menuItemIds.has(item.idServicioCatalogo)
+    )
+  );
+  const fiestasEnUso = fiestas.filter(fiesta => fiesta.menuAsignadoId === id);
+  if (presupuestosEnUso.length > 0 || fiestasEnUso.length > 0) {
+    return {
+      success: false,
+      error: `No se puede eliminar el menú porque está en ${presupuestosEnUso.length} presupuesto(s) y ${fiestasEnUso.length} evento(s).`,
+    };
+  }
+
   invalidateMenusCache();
   let menus = await readMenusFile();
   const initialLength = menus.length;

@@ -15,7 +15,7 @@ import {
     ArrowLeft, Clock, FileSignature, FileText, Receipt, FileX, ChevronDown, Bell,
     Activity, ShieldCheck, Users2, Search, Music, Package, Truck, UserCheck,
     Monitor, Tv, Gamepad2, Sparkles, UtensilsCrossed, Wine, CreditCard,
-    BookOpen, Image, Hash, Lock, X, CheckCircle2, Mic, Smartphone
+    BookOpen, Image, Hash, Lock, X, CheckCircle2, Mic, Smartphone, ListVideo
 } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { getFiestaById, updateModulosContratadosFiestaActual } from '@/app/actions/fiesta-actual';
@@ -29,7 +29,9 @@ import { ALWAYS_VISIBLE_PLANNER_MODULE_IDS } from '@/lib/planner-modules';
 import { cn } from '@/lib/utils';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Badge } from '@/components/ui/badge';
+import { Progress } from '@/components/ui/progress';
 import { calcFiestaProgress } from '@/lib/fiesta-progress';
+import { calculateFiestaPreparationScore } from '@/lib/fiesta/preparation-score';
 
 const formatDate = (dateString?: string) => {
   if (!dateString) return "Fecha no definida";
@@ -97,8 +99,9 @@ const modules: ModuleDefinition[] = [
   { id: 'muroSocial', title: "Muro Social & Pantalla", href: "muro-social", icon: Gamepad2, description: "Mural de fotos, playlist de pantalla, juegos interactivos y configuración de la pantalla gigante.", category: 'PANTALLA GIGANTE AK', color: "bg-violet-100 text-violet-700", badge: 'Pantalla' },
   { id: 'zonaDigital', title: "Zona Digital AK", href: "zona-digital", icon: Sparkles, description: "Retos, juegos, emojis, fotos, redes y experiencias para adolescentes.", category: 'PANTALLA GIGANTE AK', color: "bg-red-50 text-red-700", badge: 'Invitado' },
   { id: 'pantallasTotem', title: "Pantallas Tótem", href: "pantallas-totem", icon: Tv, description: "Tótems personalizados con QR, fotos sincronizadas, fondos en movimiento y modo pista.", category: 'PANTALLA GIGANTE AK', color: "bg-cyan-100 text-cyan-700", badge: 'Pantalla' },
-  { id: 'readiness', title: "Readiness Score", href: "readiness", icon: ShieldCheck, description: "Semáforo de preparación del evento.", category: 'PANTALLA GIGANTE AK', color: "bg-emerald-100 text-emerald-700", badge: 'Interno' },
-  { id: 'fiestaLista', title: "Fiesta Lista 100%", href: "fiesta-lista", icon: ClipboardCheck, description: "Checklist simple de demo, plantillas y salida a la luz.", category: 'PANTALLA GIGANTE AK', color: "bg-red-600 text-white shadow-xl shadow-red-500/25", badge: 'Interno' },
+  { id: 'playlistPantalla', title: "Playlist Pantalla", href: "playlist-pantalla", icon: ListVideo, description: "Lista de reproducción en vivo para la pantalla del salón.", category: 'PANTALLA GIGANTE AK', color: "bg-blue-100 text-blue-700", badge: 'Pantalla' },
+  { id: 'readiness', title: "Control Operativo", href: "readiness", icon: ShieldCheck, description: "Semáforo de preparación y riesgo operativo del evento.", category: 'PANTALLA GIGANTE AK', color: "bg-emerald-100 text-emerald-700", badge: 'Interno' },
+  { id: 'fiestaLista', title: "Calidad de Experiencia", href: "fiesta-lista", icon: ClipboardCheck, description: "Auditoría premium, checklist de demo y salida a la luz.", category: 'PANTALLA GIGANTE AK', color: "bg-red-600 text-white shadow-xl shadow-red-500/25", badge: 'Interno' },
 
   // 7. DISEÑO, SALÓN Y AMBIENTACIÓN
   { id: 'decoracion', title: "Decoración", href: "decoracion", icon: Palette, description: "Estilo, moodboard y ambientación del salón.", category: 'DISEÑO, SALÓN Y AMBIENTACIÓN', color: "bg-pink-100 text-pink-600", badge: 'Interno' },
@@ -165,6 +168,115 @@ const quickModes: { id: QuickMode; label: string; icon: React.ElementType; color
   { id: 'tecnologia',  label: 'Tecnología AK',   icon: Monitor,   color: 'bg-indigo-600 text-white',          moduleIds: ['centroTotal', 'paginaWeb', 'moduloInvitado', 'redSocial', 'muroSocial', 'zonaDigital', 'pantallasTotem', 'entretenimiento', 'barraTecnologica', 'enVivo', 'checkin'] },
 ];
 
+function getModuleProgress(moduleId: string, fiesta: FiestaEnPlanificacion | null): { percentage: number; text: string } {
+  if (!fiesta) return { percentage: 0, text: 'Pendiente' };
+
+  const cfg = fiesta.configuracion || {};
+
+  switch (moduleId) {
+    case 'configuracion': {
+      let count = 0;
+      if (cfg.nombreEvento?.trim()) count++;
+      if (cfg.fechaEvento?.trim()) count++;
+      if (cfg.nombreLugar?.trim()) count++;
+      const pct = Math.round((count / 3) * 100);
+      return { percentage: pct, text: pct === 100 ? '100% completo' : `${pct}% completado` };
+    }
+
+    case 'invitados': {
+      const list = fiesta.invitados || [];
+      if (list.length > 0) {
+        const confirmados = list.filter((i) => i.rsvp === 'Confirmado').length;
+        const pct = Math.round((confirmados / list.length) * 100);
+        return { percentage: pct || 100, text: `${list.length} invitados (${confirmados} confirmados)` };
+      }
+      if (Number(cfg.invitadosEstimados || 0) > 0) {
+        return { percentage: 50, text: `${cfg.invitadosEstimados} estimados` };
+      }
+      return { percentage: 0, text: 'Sin invitados' };
+    }
+
+    case 'catering':
+    case 'listaCompras':
+    case 'alergias':
+    case 'cartaTragos': {
+      const hasMenu = Boolean(
+        fiesta.menuAsignadoId ||
+        fiesta.menuMesa?.platoPrincipal ||
+        fiesta.bebidas?.categorias?.some((c) => c.activada) ||
+        fiesta.reposteria?.categorias?.some((c) => c.activada)
+      );
+      return { percentage: hasMenu ? 100 : 0, text: hasMenu ? 'Gastronomía al día' : 'Pendiente' };
+    }
+
+    case 'decoracion': {
+      const hasDeco = Boolean(
+        fiesta.decoracion?.zonasDiseno?.length ||
+        fiesta.decoracion?.vistaDecorativa?.elementos?.length ||
+        fiesta.decoracion?.moodboardItems?.length ||
+        fiesta.decoracion?.paletaColores?.primary
+      );
+      return { percentage: hasDeco ? 100 : 0, text: hasDeco ? 'Decoración cargada' : 'Sin diseño' };
+    }
+
+    case 'musica': {
+      const hasMusic = Boolean(
+        fiesta.musica?.cancionVals ||
+        fiesta.musica?.cancionEntrada ||
+        fiesta.listaMusicaPortal?.imprescindibles?.length
+      );
+      return { percentage: hasMusic ? 100 : 0, text: hasMusic ? 'Música lista' : 'Pendiente' };
+    }
+
+    case 'personal':
+    case 'accesosPersonal': {
+      const staff = fiesta.personalAsignado || [];
+      const assigned = staff.filter((s) => Boolean(s.empleadoId)).length;
+      if (assigned > 0) {
+        return { percentage: 100, text: `${assigned} asignado(s)` };
+      }
+      return { percentage: 0, text: 'Sin equipo' };
+    }
+
+    case 'itinerario': {
+      const prog = fiesta.programa || [];
+      if (prog.length > 0) {
+        return { percentage: 100, text: `${prog.length} momentos` };
+      }
+      return { percentage: 0, text: 'Sin cronograma' };
+    }
+
+    case 'tareas': {
+      const tasks = fiesta.tareas || [];
+      if (tasks.length === 0) return { percentage: 0, text: 'Sin tareas' };
+      const completed = tasks.filter((t) => t.completada).length;
+      const pct = Math.round((completed / tasks.length) * 100);
+      return { percentage: pct, text: `${completed}/${tasks.length} completadas` };
+    }
+
+    case 'documentos':
+    case 'planPagos':
+    case 'costos': {
+      const hasDocs = Boolean(
+        fiesta.presupuestoId ||
+        fiesta.contratoGenerado ||
+        fiesta.invoiceIds?.length ||
+        fiesta.othersDocumentos?.length
+      );
+      return { percentage: hasDocs ? 100 : 0, text: hasDocs ? 'Documentación al día' : 'Pendiente' };
+    }
+
+    case 'portalCliente': {
+      const enabled = Boolean(fiesta.clientPortalSettings?.enabled);
+      return { percentage: enabled ? 100 : 0, text: enabled ? 'Portal activo' : 'Inactivo' };
+    }
+
+    default: {
+      return { percentage: 100, text: 'Listo' };
+    }
+  }
+}
+
 function PlannerDashboardContent() {
   const { toast } = useToast();
   const router = useRouter();
@@ -228,6 +340,7 @@ function PlannerDashboardContent() {
     return modules;
   }, [searchQuery, activeMode]);
   const progress = useMemo(() => fiesta ? calcFiestaProgress(fiesta) : null, [fiesta]);
+  const prepScore = useMemo(() => fiesta ? calculateFiestaPreparationScore(fiesta) : null, [fiesta]);
 
   if (isLoading) return <div className="flex justify-center items-center h-screen"><Loader2 className="w-12 h-12 animate-spin text-primary" /></div>;
   if (error || !fiesta) return <div className="text-center py-20 px-4"><AlertTriangle className="mx-auto text-destructive mb-4" /><p className="font-bold text-slate-800">{error || "Error al cargar."}</p></div>;
@@ -244,8 +357,8 @@ function PlannerDashboardContent() {
           <div className="p-4 sm:p-5 bg-primary rounded-[1.5rem] shadow-2xl text-white shrink-0"><PartyPopper className="w-8 h-8 sm:w-10 sm:h-10" /></div>
           <div className="min-w-0">
             <p className="text-[10px] font-black uppercase tracking-[0.25em] text-primary/70 mb-0.5">Centro de Producción Premium</p>
-            <h1 className="text-xl sm:text-4xl md:text-5xl font-black tracking-tighter text-slate-900 font-headline uppercase truncate">{fiesta.configuracion.nombreEvento}</h1>
-            <div className="text-slate-500 font-bold flex flex-wrap items-center gap-x-3 gap-y-1 mt-1 text-[10px] sm:text-base">
+            <h1 className="text-xl sm:text-4xl md:text-5xl font-black tracking-tighter text-foreground font-headline uppercase truncate">{fiesta.configuracion.nombreEvento}</h1>
+            <div className="text-muted-foreground font-bold flex flex-wrap items-center gap-x-3 gap-y-1 mt-1 text-[10px] sm:text-base">
                 <span className="flex items-center gap-1.5"><Calendar className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-primary shrink-0"/> {formatDate(fiesta.configuracion.fechaEvento)}</span>
                 <span className="flex items-center gap-1.5"><MapPin className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-primary shrink-0"/> {fiesta.configuracion.nombreLugar}</span>
             </div>
@@ -253,9 +366,9 @@ function PlannerDashboardContent() {
         </motion.div>
         <div className="flex gap-2 w-full sm:w-auto">
             <Button asChild className="rounded-2xl px-6 sm:px-8 h-12 bg-primary shadow-xl font-black tracking-widest w-full text-xs sm:text-sm"><Link href={`/fiestas/nueva/en-vivo?fiestaId=${fiestaId}`} className="flex-1 sm:flex-none">
-                    <Zap className="w-4 h-4 mr-2 sm:mr-3 animate-pulse"/> EN VIVO
+                    <Zap className="w-4 h-4 mr-2 sm:mr-3"/> EN VIVO
                 </Link></Button>
-            <Button asChild variant="outline" className="rounded-2xl px-6 sm:px-8 h-12 border-slate-200 font-bold hover:bg-slate-50 transition-all w-full text-xs sm:text-sm"><Link href="/eventos" className="flex-1 sm:flex-none">
+            <Button asChild variant="outline" className="rounded-2xl px-6 sm:px-8 h-12 border-border font-bold hover:bg-muted/40 transition-all w-full text-xs sm:text-sm"><Link href="/eventos" className="flex-1 sm:flex-none">
                     <ArrowLeft className="w-4 h-4 mr-2 sm:mr-3"/>Volver
                 </Link></Button>
         </div>
@@ -274,25 +387,56 @@ function PlannerDashboardContent() {
         <KpiCard title="Fecha" value={new Date(fiesta.configuracion.fechaEvento!).toLocaleDateString('es-ES', {month: 'short', day: 'numeric'})} icon={Calendar} />
       </div>
 
-      {progress && (
+      {prepScore && (
         <motion.section
           initial={{ opacity: 0, y: 10 }}
           animate={{ opacity: 1, y: 0 }}
-          className="rounded-2xl border border-slate-200 bg-white p-4 sm:p-5 premium-shadow"
+          className="rounded-2xl border border-border bg-card p-5 sm:p-6 shadow-md space-y-4"
           aria-labelledby="next-actions-title"
         >
-          <div className="flex flex-wrap items-center justify-between gap-3">
-            <div>
-              <p className="text-[10px] font-black uppercase tracking-widest text-primary">Guía diaria</p>
-              <h2 id="next-actions-title" className="text-lg font-black text-slate-900">Qué hacer ahora</h2>
+          {/* Métrica principal de Avance General */}
+          <div className="space-y-3">
+            <div className="flex flex-wrap items-center justify-between gap-3">
+              <div>
+                <p className="text-[10px] font-black uppercase tracking-widest text-primary">Avance General del Evento</p>
+                <h2 id="next-actions-title" className="text-xl font-black text-foreground">Estado de Preparación</h2>
+              </div>
+              <Badge
+                variant="outline"
+                className={cn(
+                  "px-3 py-1 text-xs font-black uppercase tracking-wider",
+                  prepScore.level === 'alta'
+                    ? 'border-emerald-300 bg-emerald-50 text-emerald-700'
+                    : prepScore.level === 'media'
+                    ? 'border-amber-300 bg-amber-50 text-amber-700'
+                    : 'border-rose-300 bg-rose-50 text-rose-700'
+                )}
+              >
+                {prepScore.label} ({prepScore.score}%)
+              </Badge>
             </div>
-            <Badge variant="outline" className="border-slate-200 bg-slate-50 px-3 py-1 text-xs font-black text-slate-700">
-              Preparación {progress.overallPercentage}%
-            </Badge>
+
+            <div className="space-y-1">
+              <Progress
+                value={prepScore.score}
+                className="h-3.5 bg-muted rounded-full"
+                indicatorClassName={cn(
+                  prepScore.level === 'alta'
+                    ? 'bg-emerald-500'
+                    : prepScore.level === 'media'
+                    ? 'bg-amber-500'
+                    : 'bg-primary'
+                )}
+              />
+              <p className="text-xs text-muted-foreground font-medium text-right">
+                {prepScore.checks.filter(c => c.completed).length} de {prepScore.checks.length} áreas completadas
+              </p>
+            </div>
           </div>
 
-          {progress.alertas.length > 0 ? (
-            <div className="mt-4 grid gap-2 lg:grid-cols-3">
+          {/* Alertas críticas o Próximo paso sugerido */}
+          {progress && progress.alertas.length > 0 ? (
+            <div className="grid gap-2 lg:grid-cols-3 pt-1">
               {progress.alertas.slice(0, 3).map((alerta) => {
                 const content = (
                   <>
@@ -300,30 +444,54 @@ function PlannerDashboardContent() {
                       'h-4 w-4 shrink-0',
                       alerta.tipo === 'urgente' ? 'text-rose-600' : 'text-amber-600'
                     )} />
-                    <span className="min-w-0 flex-1 text-sm font-bold text-slate-700">{alerta.mensaje}</span>
-                    {alerta.accionUrl && <ArrowRight className="h-4 w-4 shrink-0 text-slate-400" />}
+                    <span className="min-w-0 flex-1 text-sm font-bold text-foreground">{alerta.mensaje}</span>
+                    {alerta.accionUrl && <ArrowRight className="h-4 w-4 shrink-0 text-muted-foreground" />}
                   </>
                 );
 
                 return alerta.accionUrl ? (
-                      <Link
+                  <Link
                     key={alerta.id}
                     href={alerta.accionUrl}
-                    className="flex min-h-14 items-center gap-3 rounded-xl border border-slate-200 bg-slate-50 px-3 py-2 transition-colors hover:border-primary/40 hover:bg-primary/5"
+                    className="flex min-h-14 items-center gap-3 rounded-xl border border-border bg-muted/30 px-3 py-2 transition-colors hover:border-primary/40 hover:bg-primary/5"
                   >
                     {content}
                   </Link>
                 ) : (
-                  <div key={alerta.id} className="flex min-h-14 items-center gap-3 rounded-xl border border-slate-200 bg-slate-50 px-3 py-2">
+                  <div key={alerta.id} className="flex min-h-14 items-center gap-3 rounded-xl border border-border bg-muted/30 px-3 py-2">
                     {content}
                   </div>
                 );
               })}
             </div>
+          ) : prepScore.importantPending.length > 0 ? (
+            <div className="rounded-xl border border-amber-200 bg-amber-50/80 p-4 flex flex-col md:flex-row items-start md:items-center justify-between gap-4">
+              <div className="flex items-start gap-3">
+                <div className="p-2.5 bg-amber-500 text-white rounded-xl shrink-0 mt-0.5">
+                  <Sparkles className="w-5 h-5" />
+                </div>
+                <div>
+                  <div className="flex items-center gap-2">
+                    <span className="text-[10px] font-black uppercase tracking-wider px-2 py-0.5 rounded bg-amber-200 text-amber-900">
+                      Próximo paso sugerido
+                    </span>
+                    <h3 className="text-base font-bold text-amber-950">{prepScore.importantPending[0].label}</h3>
+                  </div>
+                  <p className="text-xs text-amber-800 font-medium mt-1">
+                    {prepScore.importantPending[0].detail}
+                  </p>
+                </div>
+              </div>
+              <Button asChild size="sm" className="bg-amber-600 hover:bg-amber-700 text-white font-bold rounded-xl shrink-0 gap-1.5 shadow-md">
+                <Link href={prepScore.importantPending[0].href || `#`}>
+                  Completar ahora <ArrowRight className="w-4 h-4" />
+                </Link>
+              </Button>
+            </div>
           ) : (
-            <div className="mt-4 flex items-center gap-3 rounded-xl border border-emerald-200 bg-emerald-50 px-4 py-3 text-emerald-800">
+            <div className="flex items-center gap-3 rounded-xl border border-emerald-200 bg-emerald-50 px-4 py-3 text-emerald-800">
               <CheckCircle2 className="h-5 w-5 shrink-0" />
-              <p className="text-sm font-bold">No hay bloqueos críticos. Podés continuar con la preparación habitual.</p>
+              <p className="text-sm font-bold">¡Excelente! Toda la preparación de la fiesta está al día y lista. 🎉</p>
             </div>
           )}
         </motion.section>
@@ -361,14 +529,14 @@ function PlannerDashboardContent() {
 
       {/* Generate Documents PDF – Quick Action Dropdown */}
       <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.1 }}>
-        <div className="flex items-center justify-between gap-4 p-4 sm:p-5 bg-white rounded-2xl premium-shadow border border-slate-100">
+        <div className="flex items-center justify-between gap-4 p-4 sm:p-5 bg-card rounded-2xl premium-shadow border border-border">
           <div className="flex items-center gap-4">
             <div className="p-3 bg-primary/10 rounded-xl shrink-0">
               <FileText className="w-5 h-5 text-primary" />
             </div>
             <div>
-              <p className="font-black text-slate-800 text-sm sm:text-base tracking-tight">Generar Documentos PDF</p>
-              <p className="text-[10px] sm:text-xs text-slate-400 font-bold uppercase tracking-widest">Recibo, Contrato y Cancelación — Diseño Premium</p>
+              <p className="font-black text-foreground text-sm sm:text-base tracking-tight">Generar Documentos PDF</p>
+              <p className="text-[10px] sm:text-xs text-muted-foreground font-bold uppercase tracking-widest">Recibo, Contrato y Cancelación — Diseño Premium</p>
             </div>
           </div>
           <DropdownMenu>
@@ -604,33 +772,49 @@ function PlannerDashboardContent() {
                             <CardContent className="flex-grow pt-0 px-5 sm:px-6 pb-4">
                               <p className="text-[10px] sm:text-xs text-slate-400 font-medium line-clamp-2">{module.description}</p>
                             </CardContent>
-                            <CardFooter className="bg-slate-50/50 p-3 flex justify-between items-center px-5 sm:px-6 border-t border-slate-50">
-                              {active ? (
-                                <span className="flex items-center gap-1.5 text-[9px] font-black uppercase tracking-widest text-emerald-600">
-                                  <span className="relative flex h-2 w-2">
-                                    <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75"></span>
-                                    <span className="relative inline-flex rounded-full h-2 w-2 bg-emerald-500"></span>
-                                  </span>
-                                  Activo
-                                </span>
-                              ) : (
-                                <span className="flex items-center gap-1.5 text-[9px] font-black uppercase tracking-widest text-slate-400">
-                                  <span className="h-2 w-2 rounded-full bg-slate-300"></span>
-                                  Inactivo
-                                </span>
-                              )}
-                              <Button
-                                variant="ghost"
-                                size="sm"
-                                className={cn(
-                                  "font-black text-[10px] uppercase tracking-[0.2em] rounded-xl px-3 h-7 transition-all",
-                                  active
-                                    ? "text-primary group-hover:bg-primary group-hover:text-white"
-                                    : "text-slate-400 group-hover:bg-slate-200 group-hover:text-slate-700"
-                                )}
-                              >
-                                {active ? "Abrir" : "Activar y Abrir"} <ArrowRight className="w-3 h-3 ml-1.5 group-hover:translate-x-1 transition-transform"/>
-                              </Button>
+                            <CardFooter className="bg-slate-50/50 p-3 flex-col items-stretch gap-2 px-5 sm:px-6 border-t border-slate-50">
+                              {(() => {
+                                const modProgress = getModuleProgress(module.id, fiesta);
+                                return (
+                                  <div className="space-y-1.5 w-full">
+                                    <div className="flex justify-between items-center text-[10px] font-bold">
+                                      {active ? (
+                                        <span className="flex items-center gap-1.5 uppercase tracking-widest text-emerald-600">
+                                          <span className="h-2 w-2 rounded-full bg-emerald-500"></span>
+                                          Activo
+                                        </span>
+                                      ) : (
+                                        <span className="flex items-center gap-1.5 uppercase tracking-widest text-slate-400">
+                                          <span className="h-2 w-2 rounded-full bg-slate-300"></span>
+                                          Inactivo
+                                        </span>
+                                      )}
+                                      <span className="text-slate-500 font-semibold">{modProgress.text}</span>
+                                    </div>
+                                    {active && (
+                                      <Progress
+                                        value={modProgress.percentage}
+                                        className="h-1.5 bg-slate-100 rounded-full"
+                                        indicatorClassName={modProgress.percentage === 100 ? "bg-emerald-500" : "bg-primary"}
+                                      />
+                                    )}
+                                  </div>
+                                );
+                              })()}
+                              <div className="flex justify-end pt-1">
+                                <Button
+                                  variant="ghost"
+                                  size="sm"
+                                  className={cn(
+                                    "font-black text-[10px] uppercase tracking-[0.2em] rounded-xl px-3 h-7 transition-all",
+                                    active
+                                      ? "text-primary group-hover:bg-primary group-hover:text-white"
+                                      : "text-slate-400 group-hover:bg-slate-200 group-hover:text-slate-700"
+                                  )}
+                                >
+                                  {active ? "Abrir" : "Activar y Abrir"} <ArrowRight className="w-3 h-3 ml-1.5 group-hover:translate-x-1 transition-transform"/>
+                                </Button>
+                              </div>
                             </CardFooter>
                           </Card>
                         </Link>

@@ -31,6 +31,7 @@ import {
   updateListaDeCargaOperativa,
   generateCargaFromActivos,
 } from '@/app/actions/fiesta/carga-operativa.actions';
+import { mergeGeneratedCargaWithManualItems } from '@/lib/logistics/carga-operativa';
 import type { CargaOperativaItemPatch } from '@/lib/logistics/carga-operativa';
 import { Alert, AlertTitle, AlertDescription } from '@/components/ui/alert';
 import { Badge } from '@/components/ui/badge';
@@ -83,7 +84,7 @@ function SortableCargaItem({ item, categoryId, onToggle, onToggleRetornado, onQu
                         <TooltipProvider>
                             <Tooltip>
                                 <TooltipTrigger asChild>
-                                    <div className="bg-rose-500 rounded-full p-0.5 text-white cursor-help animate-pulse">
+                                    <div className="bg-rose-500 rounded-full p-0.5 text-white cursor-help">
                                         <AlertTriangle className="w-3 h-3"/>
                                     </div>
                                 </TooltipTrigger>
@@ -308,6 +309,9 @@ function ListaDeCargaOperativaContent() {
 
   const handleSyncWithBudget = async () => {
     if (!fiestaId) return;
+    if (!window.confirm("⚠️ La sincronización reemplazará la lista automática calculada con el presupuesto para evitar duplicados. Las categorías e ítems agregados a mano por el equipo se conservarán. ¿Deseás continuar?")) {
+      return;
+    }
     setIsSyncing(true);
     try {
       const fiesta = await getFiestaById(fiestaId);
@@ -325,7 +329,6 @@ function ListaDeCargaOperativaContent() {
 
       const totalInvitados = (presupuesto.invitadosAdultos || 0) + (presupuesto.invitadosNinos || 0) + (presupuesto.invitadosAdolescentes || 0) || presupuesto.invitadosCantidad || 100;
       
-      // Inteligencia de Módulo 1: Mapeo de categorías del presupuesto a activos
       const targetAssetCategories = new Set<string>();
       presupuesto.itemsPresupuestados.forEach(item => {
           const cat = (item.categoriaServicio || '').toLowerCase();
@@ -342,7 +345,6 @@ function ListaDeCargaOperativaContent() {
         const matchingAssets = activos.filter(a => a.categoria === catName);
         if (matchingAssets.length > 0) {
           const itemsForCat = matchingAssets.map(asset => {
-              // Reglas de Cantidad Módulo 1
               let qty = '1';
               if (asset.categoria?.includes('Vajilla')) {
                   qty = String(totalInvitados);
@@ -350,12 +352,10 @@ function ListaDeCargaOperativaContent() {
                   qty = String(Math.ceil(totalInvitados / 8));
               } else if (asset.invitadosPorUnidad) {
                   qty = String(Math.ceil(totalInvitados / asset.invitadosPorUnidad));
-              } else if (asset.precioVenta && asset.precioVenta > 0) {
-                  qty = String(asset.precioVenta);
               }
 
               return {
-                id: `sync_${asset.id}_${Date.now()}_${Math.random().toString(36).substring(7)}`,
+                id: `gen_${asset.id}`,
                 nombre: asset.nombre,
                 cantidad: qty,
                 unidad: asset.unidad || 'Uds.',
@@ -364,24 +364,34 @@ function ListaDeCargaOperativaContent() {
               };
           });
 
-          // Chequear conflictos inmediatamente
           const itemsWithConflicts = await checkAssetConflicts(fiestaId, fiesta.configuracion.fechaEvento!, itemsForCat);
 
+          const categorySlug = catName
+            .normalize('NFD')
+            .replace(/[\u0300-\u036f]/g, '')
+            .toLowerCase()
+            .replace(/\s+/g, '_');
+
           newCategories.push({
-            id: `sync_${catName}_${Date.now()}`,
+            id: `cat_${categorySlug}`,
             nombre: catName,
             items: itemsWithConflicts
           });
         }
       }
 
-      setListaDeCarga(prev => ({
-        ...prev,
-        categorias: [...(prev.categorias || []), ...newCategories]
-      }));
+      const generatedLista: ListaDeCargaOperativa = {
+        id: listaDeCarga.id || 'lista_auto',
+        name: 'Lista de Carga (Presupuesto)',
+        categorias: newCategories,
+        notasGenerales: listaDeCarga.notasGenerales || '',
+      };
+
+      const mergedLista = mergeGeneratedCargaWithManualItems(generatedLista, listaDeCarga);
+      setListaDeCarga(mergedLista);
       setHasPendingStructure(true);
 
-      toast({ title: "Sincronización Inteligente", description: "Cantidades calculadas según invitados y tipo de servicios." });
+      toast({ title: "Sincronización Inteligente", description: "Lista actualizada con presupuesto sin duplicados. Se conservaron los ítems manuales." });
 
     } catch (e: any) {
       toast({ title: "Error de Sincronización", description: e.message, variant: "destructive" });
@@ -389,7 +399,7 @@ function ListaDeCargaOperativaContent() {
       setIsSyncing(false);
     }
   };
-  
+
   const handleRestoreFromTemplate = async () => {
     try {
       const masterTemplate = await getCargaOperativaMasterTemplate();
@@ -407,7 +417,7 @@ function ListaDeCargaOperativaContent() {
     } catch(e) {
       toast({ title: "Error", description: "No se pudo cargar la plantilla maestra.", variant: "destructive" });
     }
-  }
+  };
 
   const handleSaveListaDeCarga = async () => {
     if(!fiestaId) return;
@@ -438,6 +448,9 @@ function ListaDeCargaOperativaContent() {
 
   const handleSyncFromActivos = async () => {
     if (!fiestaId || !fiesta) return;
+    if (!window.confirm("⚠️ Al regenerar desde activos se actualizarán las cantidades automáticas. Las categorías e ítems agregados a mano por el equipo se conservarán. ¿Deseás continuar?")) {
+      return;
+    }
     setIsSyncing(true);
     try {
       let totalInvitados = Number(fiesta.configuracion.invitadosEstimados) || 0;

@@ -67,6 +67,7 @@ describe('RSVP deduplication', () => {
     expect(saved.invitados).toHaveLength(1);
     expect(saved.invitados?.[0].id).toBe('inv_1');
     expect(saved.invitados?.[0].partySize).toBe(2);
+    expect(saved.invitados?.[0].kidsCount).toBe(0);
   });
 
   it('does not count the previous party size twice when an RSVP is resubmitted', async () => {
@@ -121,6 +122,52 @@ describe('RSVP deduplication', () => {
     expect(saved.invitados).toHaveLength(1);
     expect(saved.invitados?.[0].guestAccessToken).toBe('token-original');
     expect(saved.invitados?.[0].rsvp).toBe('Confirmado');
+  });
+
+  it('persists the adult and child split for mixed families submitted by templates', async () => {
+    const fiesta = buildFiesta();
+    fiesta.configuracion.invitadosAdultos = 10;
+    fiesta.configuracion.invitadosNinos = 10;
+    mockedGetFiestaById.mockResolvedValue(fiesta);
+    mockedSaveFiesta.mockImplementation(async (updated) => ({ success: true, fiesta: updated }));
+
+    const result = await handleRsvpSubmission(fiesta.id, {
+      nombreCompleto: 'Familia Mixta',
+      confirmacion: 'Confirmado',
+      adultsCount: 2,
+      kidsCount: 3,
+      mensaje: '',
+      companionNames: [],
+    });
+
+    expect(result.success).toBe(true);
+    const saved = mockedSaveFiesta.mock.calls[0][0].invitados?.[0];
+    expect(saved).toMatchObject({ partySize: 5, kidsCount: 3, categoria: 'Adulto' });
+  });
+
+  it('clamps a preserved kids count when a public RSVP reduces the group size', async () => {
+    const fiesta = buildFiesta([{
+      id: 'inv_family',
+      nombre: 'Familia Pérez',
+      categoria: 'Adulto',
+      partySize: 5,
+      kidsCount: 4,
+      rsvp: 'Confirmado',
+    }]);
+    mockedGetFiestaById.mockResolvedValue(fiesta);
+    mockedWriteData.mockResolvedValue(undefined);
+
+    const result = await submitPublicRsvp(fiesta.id, {
+      nombre: 'Familia Perez',
+      asistencia: 'Confirmado',
+      partySize: 2,
+      dietaryRestriction: 'Ninguna',
+      cancionesDJ: [],
+    });
+
+    expect(result.success).toBe(true);
+    const saved = mockedWriteData.mock.calls[0][1] as any;
+    expect(saved.invitados[0]).toMatchObject({ partySize: 2, kidsCount: 2 });
   });
 
   it('serializes simultaneous updates for the same event', async () => {

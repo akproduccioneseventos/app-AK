@@ -1,7 +1,46 @@
 # Estado de la auditoría — qué está hecho y qué falta
 
 Documento vivo. Sirve para no repetir trabajo entre sesiones.
-Última actualización: 5 de agosto de 2026.
+Última actualización: 9 de agosto de 2026.
+
+---
+
+## TANDA DEL 9 DE AGOSTO — PRs de Claude/Gemini posteriores a Codex #769
+
+**Punto de corte verificado:** PR Codex #769, merge `056a5dd8`. Se auditaron sobre
+`main` `96e01a96` las 60 PRs posteriores con evidencia directa de Claude que sí
+fueron fusionadas. Las cerradas sin merge #805, #812 y #846 quedaron fuera. No
+hay una PR posterior atribuible con certeza a Gemini; #775, #776, #781, #799,
+#802, #804 y #832 sólo lo mencionan y no prueban autoría.
+
+**Método compartido:** tres agentes económicos `gpt-5.6-terra`/`low` hicieron
+inventario y primera lectura por áreas; el director Codex confirmó personalmente
+los P0/P1 antes de editar. La preferencia permanente sigue siendo Luna/low, pero
+esta sesión no la ofrecía. Graphify quedó actualizado y operativo sobre el SHA
+auditado; Serena se reinstaló, aunque su indexador no pudo arrancar hasta disponer
+de npm en la copia limpia.
+
+### Defectos confirmados y corregidos
+
+| Origen | Qué quedó corregido |
+|---|---|
+| #561 | La preparación LED ahora lee `screenPlaylist.items`; detecta pantalla y modo audiorrítmico reales. |
+| #850 | Cambiar la clave del portal invalida inmediatamente las cookies antiguas; la cookie guarda huella, no la clave. |
+| #836 | Canciones, dedicatorias, sorteos y audios tienen tope global por evento/IP además del tope por nombre, que el visitante podía cambiar. |
+| #897 | Una factura con pagos ya no permite cambiar cliente, fecha, ítems, impuestos ni borrar/modificar pagos existentes. Sí permite anexar un pago nuevo válido. |
+| #904 | `kidsCount` se guarda en ambos flujos RSVP, se recorta al tamaño del grupo y adultos/niños se cuentan por separado en invitados y mesas. |
+| #877 | Los fallos de cámara de fotocabina, Bogue, 360 y espejo se informan al operador mediante `lastError`. |
+
+### Evidencia de esta rama
+
+- 38 pruebas focalizadas en verde; luego 9/9 tras dos guardas finales.
+- Validación final del árbol definitivo: 200 archivos y 1333 pruebas en verde.
+- TypeScript: sin errores. Lint: sin errores nuevos; conserva 5 avisos previos en
+  archivos no tocados.
+- GitHub Actions no ejecutó ningún paso: los 4 jobs de #905 quedaron en rojo
+  porque GitHub informa que la cuenta está bloqueada por un problema de
+  facturación. Regularizar la cuenta y reejecutar CI; no es un fallo del código.
+- PR #905 abierta en borrador. No fusionar automáticamente.
 
 ---
 
@@ -195,7 +234,7 @@ saca la pantalla para no dar una sensación falsa de control.
 | 25 | En el portal del cliente, el botón para **avisar un pago** quedaba habilitado aunque el monto escrito no fuera un número. El cliente lo tocaba, no pasaba nada y no recibía ningún aviso: se quedaba creyendo que ya había informado el pago. | `portal/c/[accessKey]` | rama pruebas en vivo |
 | 26 | El Centro de Fiesta decía **"Arranca a las undefined"** en una fiesta a la que todavía no se le cargó la hora. | `fiestas/[id]/centro` | rama pruebas en vivo |
 | 27 | El **saldo del recibo y el del estado de cuenta no coincidían**: uno sumaba el ajuste anual y el otro no. Con una fiesta al año siguiente, el cliente veía un número en el papel y otro en la pantalla. | `lib/budget/saldo-con-ajuste.ts` | rama pruebas en vivo |
-| 28 | **29 platos con los acentos rotos** en el catálogo de menús que el cliente lee al armar su comida: "JamÃ³n", "ChampiÃ±on", "GUARNICIÃ“N". | `data/menus-catering.json` | rama pruebas en vivo |
+| 28 | **29 platos con los acentos rotos** en el catálogo de menús que el cliente lee al armar su comida: "Jamón", "Champiñon", "GUARNICIÃ“N". | `data/menus-catering.json` | rama pruebas en vivo |
 | 29 | **Lo que se comparte por WhatsApp llegaba pelado**: el catálogo y el simulador mostraban el título genérico de toda la app y ninguna imagen, y la invitación decía "Evento Especial" en vez del nombre real de la fiesta, también sin foto. | `catalogo`, `simulador`, `invitacion` | rama pruebas en vivo |
 | 30 | Sin señal (el WiFi saturado de un salón lleno), el invitado veía **"Failed to fetch"** en inglés al querer confirmar. Lo mismo en el control de entrada y en la carga de fotos del video de vida. | 3 pantallas | rama pruebas en vivo |
 
@@ -424,3 +463,28 @@ Lo que dejó la app sin poder publicarse **no fue mala suerte**: se fusionó
 trabajo de varios asistentes sin que nadie compilara después. Un solo filtro
 —confirmar que `npm run build` pasa antes de fusionar— evita la mayoría de estos
 episodios.
+
+---
+
+## 16 de agosto de 2026 — Las once mejoras, y la estética mirada de verdad
+
+Se entregaron y fusionaron las once mejoras de la propuesta: la fotocabina, la
+galería y el muro ofrecen el presupuesto con la marca de la fiesta; pantalla de
+qué fiesta trajo clientes; álbum público; ranking de la noche; mensajes a futuro;
+pedidos de música; pedido por proveedor; posteos automáticos; y el párrafo que
+explica el presupuesto.
+
+**La estética se revisó fotografiando las 242 pantallas**, en escritorio y en
+celular, y mirándolas. Es la primera vez que se hace así: hasta ahora las pruebas
+controlaban que las pantallas funcionaran, no que se vieran bien. Salieron ocho
+arreglos. El pase de fotos quedó en `tests/e2e/fotos-de-la-app.spec.ts`, se corre
+con `AK_FOTOS=true`.
+
+**Tres cosas que se evitaron por verificar antes de pedir:** la atribución por
+fiesta ya existía, los avisos preventivos del evento ya existían (once reglas), y
+el pedido de reseña en Google ya andaba.
+
+**Lo que costó:** Gemini entregó en tres propuestas donde la orden pedía una, y
+dos de ellas arreglaron la galería vacía de maneras distintas: al juntarlas el
+archivo no compilaba. Es el caso exacto que la regla de una sola propuesta busca
+evitar, y quedó documentado en `docs/YA-RESUELTO.md`.

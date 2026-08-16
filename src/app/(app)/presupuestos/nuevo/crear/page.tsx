@@ -18,7 +18,7 @@ import Paso2Servicios from '@/components/presupuestos/paso-2-servicios';
 import Paso3Resumen from '@/components/presupuestos/paso-3-resumen';
 import { Progress } from '@/components/ui/progress';
 import { getMenus } from '@/app/actions/menus-catering';
-import type { FullMenu } from '@/types/catering';
+import type { FullMenu, MenuItem } from '@/types/catering';
 import { getOcupiedDates } from '@/app/actions/agenda';
 import { getGuestCountForItem, recalcularCostoItem, calculateSuggestedQuantity } from '@/lib/calculations';
 import { getBudgetDisplaySettings } from '@/app/actions/settings';
@@ -125,6 +125,30 @@ function CrearPresupuestoContent() {
         invitadosPorUnidad: servicio.invitadosPorUnidad,
         tramosDePrecio: servicio.tramosDePrecio,
     }), []);
+
+    const mapMenuItemToSeleccion = useCallback((item: MenuItem, adultos: number, ninos: number) => {
+        const precio = Number(item.suggestedSellingPrice) || Number(item.totalDishCost) || 0;
+        const subcategoria = item.type || 'Catering';
+        const nombreServicio = item.name;
+        const cantidad = calculateSuggestedQuantity({
+            calculationMethod: 'porPersona',
+            nombreServicio,
+            categoriaServicio: 'Servicio de catering',
+            subcategoria,
+        }, adultos, ninos);
+        return {
+            cantidad,
+            precioUnitarioOriginal: precio,
+            precioUnitarioPresupuesto: precio,
+            nombreServicio,
+            unidad: 'personas',
+            categoriaServicio: 'Servicio de catering',
+            subcategoria,
+            esRegalo: false,
+            calculationMethod: 'porPersona' as const,
+            precioPorPersona: precio,
+        };
+    }, []);
 
     const fetchServicios = useCallback(async () => {
         try {
@@ -265,28 +289,30 @@ function CrearPresupuestoContent() {
 
                         const adultos = baseForm.invitadosAdultos || 0;
                         const ninos = (baseForm.invitadosNinos || 0) + (baseForm.invitadosAdolescentes || 0);
+                        const menuItems = menuData.flatMap(menu => menu.items || []);
+                        const addSelection = (id: string) => {
+                            const servicio = services.find(s => s.id === id);
+                            if (servicio) {
+                                baseForm.serviciosSeleccionados.set(id, mapServicioToSeleccion(servicio, adultos, ninos));
+                                return;
+                            }
+                            const menuItem = menuItems.find(item => item.id === id);
+                            if (menuItem) {
+                                baseForm.serviciosSeleccionados.set(id, mapMenuItemToSeleccion(menuItem, adultos, ninos));
+                            }
+                        };
 
                         if (serviciosParams.length > 0) {
                             serviciosParams
                                 .filter((id): id is string => typeof id === 'string' && id.trim().length > 0)
-                                .forEach((id) => {
-                                    const servicio = services.find(s => s.id === id);
-                                    if (servicio) {
-                                        baseForm.serviciosSeleccionados.set(id, mapServicioToSeleccion(servicio, adultos, ninos));
-                                    }
-                                });
+                                .forEach(addSelection);
                         } else if (serviciosParam) {
                             try {
                                 const parsed = JSON.parse(serviciosParam);
                                 const selectedIds = Array.isArray(parsed) ? parsed : [];
                                 selectedIds
                                     .filter((id): id is string => typeof id === 'string' && id.trim().length > 0)
-                                    .forEach((id) => {
-                                        const servicio = services.find(s => s.id === id);
-                                        if (servicio) {
-                                            baseForm.serviciosSeleccionados.set(id, mapServicioToSeleccion(servicio, adultos, ninos));
-                                        }
-                                    });
+                                    .forEach(addSelection);
                             } catch {
                                 // ignore malformed query param
                             }
@@ -294,8 +320,10 @@ function CrearPresupuestoContent() {
 
                         if (menuIdParam) {
                             baseForm.selectedMenuId = menuIdParam;
-                        } else if (teenMenuIdParam) {
-                            baseForm.selectedMenuId = teenMenuIdParam;
+                            addSelection(menuIdParam);
+                        }
+                        if (teenMenuIdParam) {
+                            addSelection(teenMenuIdParam);
                         }
 
                         setFormData(baseForm);
@@ -310,7 +338,7 @@ function CrearPresupuestoContent() {
             }
         };
         fetchInitialData();
-    }, [searchParams, toast, fetchServicios, mapServicioToSeleccion]);
+    }, [searchParams, toast, fetchServicios, mapServicioToSeleccion, mapMenuItemToSeleccion]);
 
     const handleNext = () => {
         if (paso === 1) {
@@ -379,6 +407,7 @@ function CrearPresupuestoContent() {
                 tramosDePrecio: serv.tramosDePrecio,
               };
             }),
+            selectedMenuId: formData.selectedMenuId || undefined,
             costoTotalEstimado: 0, 
             nombrePromocion: formData.nombrePromocion,
             descuentoTipo: formData.descuentoTipo,
@@ -406,15 +435,26 @@ function CrearPresupuestoContent() {
 
           if (result.success && result.id) {
             // Registrar uso de cupón si se aplicó uno
-            if (formData.cuponId && formData.cuponDescuento && !editingPresupuestoId) {
+            // Tambien al editar: antes se excluia la edicion y el uso del cupon
+            // nunca quedaba anotado. El servidor no lo cuenta dos veces por el
+            // mismo presupuesto.
+            if (formData.cuponId && formData.cuponDescuento) {
               try {
                 const { registrarUsoCupon } = await import('@/app/actions/cupones');
                 await registrarUsoCupon(formData.cuponId, result.id, formData.clienteNombre, formData.cuponDescuento, descuentoValorNum);
               } catch (e) {
                 console.warn('Error registrando uso de cupón:', e);
+                toast({
+                  title: 'El cupón no quedó registrado',
+                  description: 'El descuento se aplicó al presupuesto, pero el uso del cupón no se pudo anotar. Revisalo a mano.',
+                  variant: 'destructive',
+                });
               }
             }
             toast({ title: `Presupuesto ${editingPresupuestoId ? 'Actualizado' : 'Guardado'}` });
+            if (result.avisoCrm) {
+              toast({ title: 'Ojo con el seguimiento', description: result.avisoCrm, variant: 'destructive' });
+            }
             sessionStorage.removeItem(SESSION_STORAGE_KEY);
             router.push(`/presupuestos/${result.id}/ver`);
           } else { throw new Error(result.error || "Error al guardar"); }

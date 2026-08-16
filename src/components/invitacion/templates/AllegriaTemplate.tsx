@@ -212,13 +212,11 @@ export const AllegriaTemplate: React.FC<TemplateProps> = ({
                 onClick={() => onSectionClick?.('cabecera')}
                 className="relative min-h-[60vh] sm:min-h-[70vh] md:min-h-screen flex flex-col items-center justify-end pb-16 sm:pb-24 md:pb-32 overflow-hidden"
             >
-                {!isPreview && (
-                  <EventParticles
-                    tipoCelebracion={fiesta.configuracion.tipoCelebracion}
-                    primaryColor={primaryColor}
-                    count={12}
-                  />
-                )}
+                <EventParticles
+                  tipoCelebracion={fiesta.configuracion.tipoCelebracion}
+                  primaryColor={primaryColor}
+                  count={12}
+                />
                 <motion.div 
                     initial={{ scale: 1.2 }}
                     animate={{ scale: 1 }}
@@ -442,7 +440,6 @@ export const AllegriaTemplate: React.FC<TemplateProps> = ({
                                             <NextImage src={item.imageUrl || 'https://picsum.photos/seed/gift/600/600'} alt={item.name} layout="fill" objectFit="cover" className="group-hover:scale-110 transition-transform duration-1000" />
                                             {item.isClaimed && <div className="absolute inset-0 bg-primary/80 backdrop-blur-sm flex flex-col items-center justify-center text-white p-4">
                                                 <span className="font-black text-2xl uppercase tracking-widest">Ya Elegido</span>
-                                                <span className="text-sm font-bold opacity-80 mt-2">Por: {item.claimedBy}</span>
                                             </div>}
                                         </div>
                                         <CardContent className="p-8 text-center space-y-4">

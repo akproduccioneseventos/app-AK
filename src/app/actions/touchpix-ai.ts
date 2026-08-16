@@ -18,6 +18,7 @@ import { getFiestaById } from "@/app/actions/fiesta/fiesta.actions";
 import { hasEntertainmentGuestAccess } from "@/lib/auth/entertainment-token";
 import { getEntertainmentStationConfig } from "@/lib/entertainment/station-config";
 import { generateGeminiImage } from "@/lib/ai/gemini-image";
+import { enforcePublicRateLimit } from '@/lib/commercial/public-rate-limit';
 import * as logger from "@/lib/logger";
 
 // ──────────────────── Theme Definitions ────────────────────
@@ -390,6 +391,47 @@ export async function applyTouchpixTheme(
 
   try {
     await ensureTouchpixAccess(fiestaId, accessToken || undefined);
+
+    // Limitar a 3 generaciones por sesión/invitado.
+    // Se utiliza el file como identidad de la sesión de foto.
+    // Así se evita el bloqueo de estación y el invitado tiene su propio tope.
+    const photoSessionId = formData.get("photoSessionId") as string | null;
+    const guestIdentity = photoSessionId
+      ? `touchpix-${fiestaId}-${photoSessionId}`
+      : file
+      ? `${file.name}-${file.size}`
+      : `fiesta-${fiestaId}`;
+    try {
+      await enforcePublicRateLimit({
+        scope: "touchpix-ai",
+        identity: guestIdentity,
+        limit: 3,
+        windowMs: 15 * 60_000,
+      });
+
+      // Red de contencion por estacion.
+      //
+      // El tope de arriba cuenta por sesion de foto, y la sesion se renueva
+      // cuando el invitado se saca una foto nueva. Eso esta bien: el que
+      // vuelve a posar merece elegir de nuevo. Pero tambien deja la puerta
+      // abierta a que alguien se quede parado ahi repitiendo el ciclo toda la
+      // noche, y cada generacion se paga.
+      //
+      // Este segundo tope esta muy por encima del uso normal: una estacion no
+      // llega a atender ni cuarenta personas por hora, asi que 150 no molesta
+      // a nadie que este usandola de verdad. Solo corta el abuso.
+      await enforcePublicRateLimit({
+        scope: "touchpix-ai-estacion",
+        identity: `fiesta-${fiestaId}`,
+        limit: 150,
+        windowMs: 60 * 60_000,
+      });
+    } catch (error: any) {
+      if (error.message === "Rate limit exceeded") {
+        return { success: false, error: "Límite de 3 intentos alcanzado para esta foto. Por favor, toma una nueva foto." };
+      }
+      return { success: false, error: error.message || "Sesión no autorizada." };
+    }
   } catch (error: any) {
     return { success: false, error: error.message || "Sesion no autorizada." };
   }
@@ -421,6 +463,23 @@ export async function applyTouchpixTheme(
         cssFallbackHint: theme.cssFallbackHint,
       };
     }
+
+    // Tope de gasto del mes. Si ya se paso, se cae al mismo camino que cuando no
+    // hay servicio configurado: la foto sale igual, con el efecto simple. Nunca
+    // se le corta la foto al invitado por una cuestion de plata.
+    const { hayPresupuestoParaIA, registrarConsumoIA } = await import(
+      "@/lib/ai/consumo-servidor"
+    );
+    if (!(await hayPresupuestoParaIA())) {
+      logger.warn("[touchpix-ai] Tope de gasto mensual alcanzado — se devuelve la foto sin efecto.");
+      return {
+        success: true,
+        imageBase64: base64,
+        themeApplied: false,
+        cssFallbackHint: theme.cssFallbackHint,
+      };
+    }
+    await registrarConsumoIA("touchpix");
 
     const generatedImage = await generateGeminiImage({
       images: [{ base64, contentType }],

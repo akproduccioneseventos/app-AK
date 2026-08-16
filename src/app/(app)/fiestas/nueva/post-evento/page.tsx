@@ -179,11 +179,11 @@ function PostEventoContent() {
 
   const config = fiesta.configuracion;
   const invitados = fiesta.invitados ?? [];
-  const confirmados = invitados.filter(i => i.rsvp === 'Confirmado').length;
-  const vips = invitados.filter(i => i.perfil === 'VIP').length;
-  const familia = invitados.filter(i => i.perfil === 'Familia').length;
+  const confirmados = invitados.filter(i => i.rsvp === 'Confirmado').reduce((acc, i) => acc + (i.partySize || 1), 0);
+  const vips = invitados.filter(i => i.perfil === 'VIP').reduce((acc, i) => acc + (i.partySize || 1), 0);
+  const familia = invitados.filter(i => i.perfil === 'Familia').reduce((acc, i) => acc + (i.partySize || 1), 0);
   // Count guests with any allergy/dietary concern (legacy isCeliac + dietaryRestriction + free-text alergiasEspecificas)
-  const conAlergias = invitados.filter(hasAlergiaOrDietaryRestriction).length;
+  const conAlergias = invitados.filter(hasAlergiaOrDietaryRestriction).reduce((acc, i) => acc + (i.partySize || 1), 0);
   const cuotas = fiesta.planDePagos?.cuotas ?? [];
   const totalCobrado = cuotas.filter(c => c.estado === 'pagado').reduce((acc, c) => acc + c.monto, 0);
   const totalPresupuesto = config.presupuestoEstimado ?? 0;
@@ -245,9 +245,9 @@ function PostEventoContent() {
                 <p className="text-xs text-green-700 font-semibold">Total Cobrado</p>
                 <p className="text-xl font-black text-green-800">{formatCurrency(totalCobrado)}</p>
               </div>
-              <div className="p-3 rounded-xl bg-slate-50 border border-slate-200">
-                <p className="text-xs text-slate-600 font-semibold">Presupuesto Original</p>
-                <p className="text-xl font-black text-slate-800">{formatCurrency(totalPresupuesto)}</p>
+              <div className="p-3 rounded-xl bg-muted/30 border border-border">
+                <p className="text-xs text-muted-foreground font-semibold">Presupuesto Original</p>
+                <p className="text-xl font-black text-foreground">{formatCurrency(totalPresupuesto)}</p>
               </div>
             </div>
             {totalPresupuesto > 0 && (
@@ -291,7 +291,7 @@ function PostEventoContent() {
               <button
                 type="button"
                 onClick={() => setGaleriaEntregada(!galeriaEntregada)}
-                className={`w-10 h-6 rounded-full transition-colors ${galeriaEntregada ? 'bg-green-500' : 'bg-slate-300'}`}
+                className={`w-10 h-6 rounded-full transition-colors ${galeriaEntregada ? 'bg-green-500' : 'bg-muted'}`}
               >
                 <span className={`block w-4 h-4 bg-white rounded-full shadow transition-transform mx-1 ${galeriaEntregada ? 'translate-x-4' : 'translate-x-0'}`} />
               </button>
@@ -307,8 +307,8 @@ function PostEventoContent() {
               </div>
             )}
 
-            <div className="border-t border-slate-100 pt-4 mt-2">
-              <p className="text-xs text-slate-500 mb-2 leading-relaxed">
+            <div className="border-t border-border pt-4 mt-2">
+              <p className="text-xs text-muted-foreground mb-2 leading-relaxed">
                 Descarga todo el material de los invitados (fotos, videos de plataforma 360 y audios del buzón de voz) recopilados durante la fiesta en un solo archivo ZIP:
               </p>
               <Button

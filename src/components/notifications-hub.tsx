@@ -69,6 +69,7 @@ export function NotificationsHub() {
 
   // Memorizamos la lista segura para evitar re-renderizados innecesarios y errores de nulos
   const safeNotifications = useMemo(() => Array.isArray(notifications) ? notifications : [], [notifications]);
+  const unreadUrgentCount = useMemo(() => safeNotifications.filter(n => !n.leida && n.tipo === 'urgente').length, [safeNotifications]);
   const unreadCount = useMemo(() => safeNotifications.filter(n => !n.leida).length, [safeNotifications]);
 
   const handleMarkAllAsRead = async () => {
@@ -96,11 +97,13 @@ export function NotificationsHub() {
       <PopoverTrigger asChild>
         <Button type="button" variant="ghost" size="icon" className="relative" aria-label="Abrir notificaciones">
           <BellRing className="h-5 w-5" />
-          {unreadCount > 0 && (
+          {unreadUrgentCount > 0 ? (
             <Badge variant="destructive" className="absolute -top-1 -right-1 h-5 w-5 justify-center rounded-full p-0 text-xs">
-              {unreadCount}
+              {unreadUrgentCount > 99 ? "99+" : unreadUrgentCount}
             </Badge>
-          )}
+          ) : unreadCount > 0 ? (
+            <span className="absolute top-1.5 right-1.5 h-2 w-2 rounded-full bg-slate-400" />
+          ) : null}
           <span className="sr-only">Abrir notificaciones</span>
         </Button>
       </PopoverTrigger>

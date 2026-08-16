@@ -75,12 +75,19 @@ describe('release security boundaries', () => {
   it('protects both sides of the Google OAuth connection', () => {
     expect(readSource('src/app/api/google/oauth/start/route.ts')).toContain('await hasAppSession()');
     expect(readSource('src/app/api/google/oauth/callback/route.ts')).toContain('await hasAppSession()');
-    expect(readSource('src/app/actions/google-workspace.ts')).toContain('await requireAppSession()');
+    const actions = readSource('src/app/actions/google-workspace.ts');
+    expect(actions).toContain('const session = await verifySession()');
+    expect(actions).toContain('puede(session.user, PERMISOS.ADMINISTRACION)');
+    expect(actions).toContain('requireEventPermission(fiestaId, PERMISOS.ORGANIZACION)');
+    expect(actions).toContain('requirePermiso(PERMISOS.ADMINISTRACION)');
+    expect(actions).toContain('requirePermiso(PERMISOS.CRM)');
   });
 
   it.each([
     ['activos-fijos.ts', ['saveActivoFijo', 'deleteActivoFijo']],
-    ['empleados.ts', ['saveEmpleado', 'deleteEmpleado']],
+    // `deleteEmpleado` no esta aca: pide algo mas fuerte que tener sesion. Se
+    // verifica mas abajo, junto con el resto de lo que toca sueldos.
+    ['empleados.ts', ['saveEmpleado']],
     ['insumos.ts', ['saveInsumo', 'deleteInsumo', 'adjustAllInsumoCosts']],
     ['proveedores.ts', ['saveProveedor', 'deleteProveedor']],
     ['roles.ts', ['saveRol', 'deleteRol']],
@@ -137,7 +144,7 @@ describe('release security boundaries', () => {
       const nextExport = source.indexOf('export async function ', start + 1);
       const functionSource = source.slice(start, nextExport === -1 ? undefined : nextExport);
       expect(start).toBeGreaterThanOrEqual(0);
-      expect(functionSource).toContain('await requireAppSession()');
+      expect(functionSource).toMatch(/await require(?:AppSession|Permiso)\(/);
     }
   });
 
@@ -147,6 +154,57 @@ describe('release security boundaries', () => {
     // dos piden `requirePermiso(PERMISOS.SUELDOS)` en vez de `requireAppSession`.
     const source = readSource('src/app/actions/recibos-personal.ts');
     for (const functionName of ['getRecibosFirmados', 'saveReciboFirmado']) {
+      const start = source.indexOf(`export async function ${functionName}`);
+      const nextExport = source.indexOf('export async function ', start + 1);
+      const functionSource = source.slice(start, nextExport === -1 ? undefined : nextExport);
+      expect(start).toBeGreaterThanOrEqual(0);
+      expect(functionSource).toContain('requirePermiso(PERMISOS.SUELDOS)');
+    }
+  });
+
+  it('permite al personal ver solo su propio portal y reserva los demas sueldos', () => {
+    const source = readSource('src/app/actions/google-workspace.ts');
+    expect(source).toContain("perfilDe(session.user) === 'personal'");
+    expect(source).toContain('session.user.userId === empleadoId');
+    expect(source).toContain('employeeEmails.includes(sessionEmail)');
+    expect(source).toContain('puede(session.user, PERMISOS.SUELDOS)');
+    expect(source).toContain('Solo puedes consultar tu propio portal de trabajo.');
+  });
+
+  it('toma la identidad de aprobaciones y playbooks solo de la sesion firmada', () => {
+    for (const file of ['src/app/actions/approvals.ts', 'src/app/actions/playbooks.ts']) {
+      const source = readSource(file);
+      expect(source).toContain("session.user.email || session.user.userId || 'Usuario autenticado'");
+      expect(source).not.toMatch(/session\.user\?\.email \|\| \([^\n]*(aprobadoPor|rechazadoPor|userId)/);
+    }
+  });
+
+  it('conserva el menu elegido en el presupuesto y bloquea borrar referencias activas', () => {
+    const budgetType = readSource('src/types/presupuesto.ts');
+    const builder = readSource('src/app/(app)/presupuestos/nuevo/crear/page.tsx');
+    const menus = readSource('src/app/actions/menus-catering.ts');
+    expect(budgetType).toContain('selectedMenuId?: string');
+    expect(builder).toContain('selectedMenuId: formData.selectedMenuId || undefined');
+    expect(menus).toContain('p.selectedMenuId === id');
+    expect(menus).toContain('fiesta.menuAsignadoId === id');
+    expect(menus).toContain('menuItemIds.has(item.idServicioCatalogo)');
+  });
+
+  it('asignar personal a una fiesta y dar de baja a alguien tambien exigen el permiso de sueldos', () => {
+    // `updatePersonal` guarda `eventSalary`: cuanto cobra cada persona por esa
+    // fiesta. Es el mismo dato que los recibos, asi que va con el mismo permiso.
+    // Antes no comprobaba nada: con solo conocer el codigo de una fiesta se podian
+    // cambiar los sueldos desde afuera, y encima se disparaban los correos de
+    // asignacion al equipo.
+    //
+    // `deleteEmpleado` es la ficha de una persona, con su contrato adjunto: no
+    // alcanza con tener sesion.
+    const casos: Array<[string, string]> = [
+      ['fiesta/personal.actions.ts', 'updatePersonal'],
+      ['empleados.ts', 'deleteEmpleado'],
+    ];
+    for (const [archivo, functionName] of casos) {
+      const source = readSource(`src/app/actions/${archivo}`);
       const start = source.indexOf(`export async function ${functionName}`);
       const nextExport = source.indexOf('export async function ', start + 1);
       const functionSource = source.slice(start, nextExport === -1 ? undefined : nextExport);
@@ -214,7 +272,19 @@ describe('release security boundaries', () => {
   it('requires an app session before mutating agenda appointments', () => {
     const agenda = readSource('src/app/actions/agenda.ts');
     expect(agenda).toContain("import { requireAppSession } from '@/lib/auth/require-session'");
-    expect(agenda.match(/await requireAppSession\(\)/g)).toHaveLength(2);
+
+    // Antes esto contaba las llamadas a mano y esperaba un numero fijo: al
+    // agregar una accion nueva la prueba fallaba aunque el control estuviera
+    // puesto, y la salida no decia cual faltaba. Ahora se controla lo que
+    // importa: TODA funcion exportada que escriba en el archivo tiene que pedir
+    // la sesion antes.
+    const bloques = agenda.split(/^export async function /m).slice(1);
+    const sinControl = bloques
+      .filter(bloque => bloque.includes('writeData('))
+      .filter(bloque => !bloque.includes('await requireAppSession()'))
+      .map(bloque => bloque.slice(0, bloque.indexOf('(')));
+
+    expect(sinControl).toEqual([]);
   });
 
   it('limits destructive CRM reset to administrators', () => {

@@ -3,6 +3,8 @@ import 'server-only';
 import { randomUUID } from 'crypto';
 import type { Presupuesto } from '@/types/presupuesto';
 import { DEFAULT_BOOKING_DEPOSIT_AMOUNT } from '@/lib/budget/formal-budget';
+import { montoDeSenia } from '@/lib/budget/monto-de-senia';
+import { getBudgetDisplaySettings } from '@/app/actions/settings';
 import {
   getBudgetPaymentSummary,
   roundMoney,
@@ -140,11 +142,23 @@ export async function createMercadoPagoCheckout(input: {
   presupuesto: Presupuesto;
   purpose: MercadoPagoCheckoutPurpose;
 }): Promise<{ session: MercadoPagoCheckoutSession; checkoutUrl: string }> {
-  const summary = getBudgetPaymentSummary(input.presupuesto);
+  const summary = getBudgetPaymentSummary(input.presupuesto, {
+    includeAnnualAdjustment: true,
+  });
+  // La senia que le corresponde a ESTE cliente, no un valor fijo.
+  //
+  // Antes se cobraban siempre $5.000, que es el ultimo recurso. En un evento
+  // grande el cliente apretaba "Pagar senia", pagaba cinco mil, y la reserva
+  // quedaba senalada con una fraccion de lo acordado. La diferencia aparecia
+  // recien al ir a cobrar el resto.
   const serviceAmount = resolveMercadoPagoCheckoutAmount({
     balance: summary.balance,
     purpose: input.purpose,
-    depositAmount: DEFAULT_BOOKING_DEPOSIT_AMOUNT,
+    depositAmount: montoDeSenia({
+      seniaAcordada: input.presupuesto.senia,
+      porDefecto: (await getBudgetDisplaySettings().catch(() => null))?.bookingDepositAmount
+        ?? DEFAULT_BOOKING_DEPOSIT_AMOUNT,
+    }),
   });
   const financing = calculateMercadoPagoCuotas(serviceAmount);
   const now = new Date();

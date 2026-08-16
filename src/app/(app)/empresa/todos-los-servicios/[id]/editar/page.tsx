@@ -227,7 +227,7 @@ function SalonLayoutContent() {
 
   useEffect(() => {
     if (!fiestaId) {
-      toast({title: "Error", description: "No se ha especificado un ID de fiesta."});
+      toast({ title: "Elegí una fiesta", description: "Entrá desde el evento con el que querés trabajar." });
       router.replace('/eventos');
     } else {
         loadData();

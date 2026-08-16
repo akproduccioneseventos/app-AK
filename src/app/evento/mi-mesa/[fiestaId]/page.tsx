@@ -89,13 +89,14 @@ export default function MiMesaPage() {
   if (!fiesta) {
     return (
       <div className="ak-live-stage flex min-h-screen items-center justify-center p-4">
-        <Card className="ak-live-panel max-w-sm text-center text-white">
+        {/* Fondo explicito: .ak-live-panel pierde contra el blanco propio de Card. */}
+        <Card className="max-w-sm border border-white/15 bg-slate-900 text-center text-white shadow-2xl">
           <CardHeader>
             <AlertTriangle className="w-12 h-12 mx-auto text-red-400" />
-            <CardTitle className="text-red-300">Evento no encontrado</CardTitle>
+            <CardTitle className="text-red-300">Este enlace no está disponible</CardTitle>
           </CardHeader>
           <CardContent>
-            <p className="text-slate-400">Este enlace no corresponde a ningún evento activo.</p>
+            <p className="text-white/70">Pedile el enlace nuevo a quien te invitó.</p>
           </CardContent>
         </Card>
       </div>

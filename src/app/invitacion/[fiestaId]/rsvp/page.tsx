@@ -154,10 +154,21 @@ function RsvpFormContent() {
   }
 
   if (error || !fiesta) {
+    /**
+     * Esto lo ve el invitado, no el equipo.
+     *
+     * Antes decía "Evento no encontrado." y nada más: la persona abría el enlace
+     * de la invitación, algo fallaba, y quedaba sin saber si el enlace venció, si
+     * tenía que insistir o a quién preguntarle.
+     */
     return (
       <div className="ak-public-page flex min-h-screen flex-col items-center justify-center p-6 text-center">
-        <AlertTriangle className="w-12 h-12 text-destructive mb-4" />
-        <p className="text-xl font-semibold">{error || 'Evento no encontrado.'}</p>
+        <AlertTriangle className="w-12 h-12 text-amber-500 mb-4" />
+        <p className="text-xl font-semibold">Este enlace no está disponible</p>
+        <p className="mt-2 max-w-sm text-slate-500">
+          Puede que la invitación haya cambiado o que el enlace ya no sirva.
+          Pedile el enlace nuevo a quien te invitó y probá otra vez.
+        </p>
       </div>
     );
   }

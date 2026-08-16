@@ -10,9 +10,10 @@ import { Label } from '@/components/ui/label';
 import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
 import { Switch } from '@/components/ui/switch';
-import { ArrowLeft, Camera, Download, Loader2, AlertTriangle, Music2, Type, CheckCircle, Link as LinkIcon, Save, Trash2, Info } from 'lucide-react';
+import { ArrowLeft, Camera, Download, Loader2, AlertTriangle, Music2, Type, CheckCircle, Link as LinkIcon, Save, Trash2, Info, ExternalLink } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import type { FiestaEnPlanificacion, VideoVidaData } from '@/types/fiesta';
+import { EmptyStateModulo } from '@/components/ui/empty-state-modulo';
 import { getFiestaActual, updateVideoVidaSettingsFiestaActual as updateVideoVidaSettings } from '@/app/actions/fiesta-actual';
 import { getLifeStoryVideoPhotos, saveLifeStoryVideoPhoto, deleteAllVideoVidaPhotos } from '@/app/actions/fiesta/video-vida.actions';
 import { Separator } from '@/components/ui/separator';
@@ -84,7 +85,7 @@ const PhotoUploadSlot: React.FC<{
         ) : (
           !isUploading && (
             <div className="flex flex-col items-center">
-              <Camera className="w-5 h-5 mb-1 text-gray-400 group-hover:text-primary transition-colors" />
+              <Camera className="w-5 h-5 mb-1 text-muted-foreground group-hover:text-primary transition-colors" />
               <span className="text-xs font-medium">Subir foto</span>
             </div>
           )
@@ -248,6 +249,16 @@ export default function VideoVidaAdminPage() {
     return <div className="text-center text-destructive p-4"><AlertTriangle className="mx-auto w-10 h-10 mb-2"/>{error}</div>;
   }
   if (!fiesta || !videoVidaData) return null;
+
+  if (fiesta.modulosContratados && !fiesta.modulosContratados.videoVida) {
+    return (
+      <EmptyStateModulo
+        titulo="Video de Vida"
+        descripcion="El módulo de Video de Vida no está contratado para este evento. Habilitalo desde la configuración o tienda."
+        fiestaId={fiesta.id}
+      />
+    );
+  }
   
   const photosUploadedCount = photoSlots.filter(s => s.imageUrl).length;
 
@@ -256,9 +267,19 @@ export default function VideoVidaAdminPage() {
       <div className="flex items-center justify-between">
         <div className="flex items-center gap-3">
           <Camera className="w-8 h-8 text-primary" />
-          <h1 className="text-3xl font-bold tracking-tight font-headline">Video de Vida</h1>
+          <h1 className="text-3xl font-bold tracking-tight font-headline">Recopilación de Fotos - Video de Vida</h1>
         </div>
-        <Button asChild variant="outline"><Link href={`/fiestas/nueva?fiestaId=${fiesta.id}`}><ArrowLeft className="w-4 h-4 mr-2" />Volver al Planificador</Link></Button>
+        <div className="flex items-center gap-2">
+          <Button asChild variant="outline" className="hidden sm:flex bg-white hover:bg-slate-50 text-slate-700">
+            <Link href={`/evento/video-vida/${fiesta.id}`} target="_blank">
+              <ExternalLink className="h-4 w-4 mr-2 text-primary" />
+              Previsualizar
+            </Link>
+          </Button>
+          <Button asChild variant="outline" disabled={isSaving || isDownloading || isDeleting}>
+            <Link href={`/fiestas/nueva?fiestaId=${fiesta.id}`}><ArrowLeft className="w-4 h-4 mr-2" />Volver al Planificador</Link>
+          </Button>
+        </div>
       </div>
 
       <Card>

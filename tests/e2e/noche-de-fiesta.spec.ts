@@ -26,9 +26,16 @@ const ID = fiesta.id;
  * casualidad y ninguna prueba lo veía. Con esta señuelo por delante, cualquier
  * pantalla que vuelva a caer en la trampa falla enseguida.
  */
+/**
+ * 400 días y no 365, a propósito: la prueba del simulador avanza doce meses en
+ * el calendario y elige el día 15, que a un año justo caía exactamente en esta
+ * señuelo. El simulador la veía como fecha ocupada —bien, porque lo estaba— y
+ * no dejaba pasar de paso. Dos pruebas peleando por la misma fecha, sin que
+ * ninguna estuviera mal. Con 400 días quedan en meses distintos.
+ */
 const SENUELO = crearFiestaDeEstaNoche({
   id: `${ID}_senuelo`,
-  fechaEvento: new Date(Date.now() + 365 * 24 * 60 * 60 * 1000).toISOString().split('T')[0],
+  fechaEvento: new Date(Date.now() + 400 * 24 * 60 * 60 * 1000).toISOString().split('T')[0],
 });
 
 test.afterAll(() => {

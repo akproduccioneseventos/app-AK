@@ -11,6 +11,7 @@ import { Label } from '@/components/ui/label';
 import { Separator } from '@/components/ui/separator';
 import { Switch } from '@/components/ui/switch';
 import { Church, Building, PartyPopper } from 'lucide-react';
+import { parseEventDate } from '@/lib/public-experience/event-date';
 import React from 'react';
 import { UploadButton } from './UploadButton';
 
@@ -36,7 +37,15 @@ const DetalleEditor: React.FC<{
   };
   
   const handleDateChange = (date?: Date) => {
-    handleFieldChange('fecha', date?.toISOString());
+    // Se guarda el día suelto, igual que la fecha del evento. Guardarlo con hora
+    // universal hacía que el invitado viera el día anterior al de la ceremonia.
+    if (!date) {
+      handleFieldChange('fecha', undefined);
+      return;
+    }
+    const mes = String(date.getMonth() + 1).padStart(2, '0');
+    const dia = String(date.getDate()).padStart(2, '0');
+    handleFieldChange('fecha', `${date.getFullYear()}-${mes}-${dia}`);
   };
 
   return (
@@ -59,7 +68,7 @@ const DetalleEditor: React.FC<{
                     <div className="space-y-4 pt-4">
                         <div className="space-y-1"><Label>Título</Label><Input value={detalle.titulo || ''} onChange={e => handleFieldChange('titulo', e.target.value)} /></div>
                         <div className="grid grid-cols-2 gap-3">
-                            <div className="space-y-1"><Label>Fecha</Label><DatePickerDemo selectedDate={detalle.fecha ? new Date(detalle.fecha) : undefined} onDateChange={handleDateChange} /></div>
+                            <div className="space-y-1"><Label>Fecha</Label><DatePickerDemo selectedDate={parseEventDate(detalle.fecha) ?? undefined} onDateChange={handleDateChange} /></div>
                             <div className="space-y-1"><Label>Hora</Label><Input type="time" value={detalle.hora || ''} onChange={e => handleFieldChange('hora', e.target.value)} /></div>
                         </div>
                         <div className="space-y-1"><Label>Nombre del Lugar</Label><Input value={detalle.nombreLugar || ''} onChange={e => handleFieldChange('nombreLugar', e.target.value)} /></div>

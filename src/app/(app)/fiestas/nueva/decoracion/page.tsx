@@ -157,6 +157,7 @@ function DecoracionYDisenoEventoContent() {
   const [canvasHasChanges, setCanvasHasChanges] = useState(false);
   const [isSavingCanvas, setIsSavingCanvas] = useState(false);
   const [isAutoSaving, setIsAutoSaving] = useState(false);
+  const [autoSaveError, setAutoSaveError] = useState<string | null>(null);
   const [plantillaNombre, setPlantillaNombre] = useState('');
   const [isPlantillaModalOpen, setIsPlantillaModalOpen] = useState(false);
   const [isLoadPlantillaModalOpen, setIsLoadPlantillaModalOpen] = useState(false);
@@ -271,7 +272,6 @@ function DecoracionYDisenoEventoContent() {
   
   const handleSelectPalette = (palette: ColorPalette) => {
     setDecoracionData(prev => ({ ...prev, paletaColores: palette }));
-    toast({ title: 'Paleta Aplicada' });
   };
 
   const handleSelectEstilo = (estiloId: string) => {
@@ -284,7 +284,6 @@ function DecoracionYDisenoEventoContent() {
       colorPalette: estilo.colors,
       tema: prev.tema || estilo.label,
     }));
-    toast({ title: `Estilo aplicado: ${estilo.label}` });
   };
 
   const handleUpdateDecoItemEstado = (itemId: string, estado: DecoItem['estado']) => {
@@ -335,14 +334,22 @@ function DecoracionYDisenoEventoContent() {
   const handleAddMoodboardPhoto = async (url: string) => {
     if (!fiestaId) return;
     const res = await addMoodboardItem(fiestaId, url);
-    if (res.success) { toast({ title: "Foto de inspiración añadida" }); loadDecoracionData(false); }
-    else toast({ title: "Error", description: res.error, variant: "destructive" });
+    if (res.success) { loadDecoracionData(false); }
+    else toast({ title: "Error al añadir foto", description: res.error || "No se pudo agregar la foto de inspiración. Reintentá nuevamente.", variant: "destructive" });
   };
 
   const handleDeleteMoodboardPhoto = async (itemId: string) => {
     if (!fiestaId) return;
     const res = await deleteMoodboardItem(fiestaId, itemId);
-    if (res.success) { toast({ title: "Foto eliminada" }); loadDecoracionData(false); }
+    if (res.success) {
+      loadDecoracionData(false);
+    } else {
+      toast({
+        title: "Error al eliminar foto",
+        description: res.error || "No se pudo eliminar la foto de inspiración. Reintentá nuevamente.",
+        variant: "destructive"
+      });
+    }
   };
 
   const saveDecoracion = useCallback(async (data: DecoracionData) => {
@@ -351,7 +358,6 @@ function DecoracionYDisenoEventoContent() {
     try {
       const result = await updateDecoracionFiestaActual(fiestaId, data);
       if (result.success && result.updatedData) {
-        toast({ title: "¡Guardado!" });
         loadDecoracionData(false);
       } else {
         throw new Error(result.error || "Error desconocido al guardar.");
@@ -379,7 +385,6 @@ function DecoracionYDisenoEventoContent() {
     setSelectedZonaId(newZona.id);
     setNuevaZonaNombre('');
     setIsNuevaZonaOpen(false);
-    toast({ title: `Zona "${newZona.nombre}" creada` });
   };
 
   const handleDeleteZona = (zonaId: string) => {
@@ -420,7 +425,6 @@ function DecoracionYDisenoEventoContent() {
       itemsDecoracion: [...(prev.itemsDecoracion || []), newItem],
     }));
     setIsDecoItemModalOpen(false);
-    toast({ title: `"${newDecoItemName}" agregado` });
   };
 
   const handleSyncGastos = async () => {
@@ -575,8 +579,7 @@ function DecoracionYDisenoEventoContent() {
     setCanvasElementos([]);
     setSelectedCanvasId(null);
     setCanvasHasChanges(true);
-    toast({ title: 'Canvas limpio' });
-  }, [toast]);
+  }, []);
 
   const handleZoneToggle = useCallback((zonaId: string) => {
     setCanvasHiddenZones(prev => prev.includes(zonaId) ? prev.filter(z => z !== zonaId) : [...prev, zonaId]);
@@ -655,10 +658,14 @@ function DecoracionYDisenoEventoContent() {
       const result = await updateDecoracionFiestaActual(fiestaId, updatedDecoracion);
       if (result.success) {
         setCanvasHasChanges(false);
-        if (!silent) toast({ title: '¡Canvas guardado! ✓' });
-      } else throw new Error(result.error);
+        setAutoSaveError(null);
+      } else throw new Error(result.error || 'Error al guardar el canvas');
     } catch (err: any) {
-      if (!silent) toast({ title: 'Error al guardar', description: err.message, variant: 'destructive' });
+      if (silent) {
+        setAutoSaveError('No se pudo guardar automáticamente — reintentando...');
+      } else {
+        toast({ title: 'Error al guardar', description: err.message || 'No se pudo guardar el canvas', variant: 'destructive' });
+      }
     } finally {
       if (!silent) setIsSavingCanvas(false);
       else setIsAutoSaving(false);
@@ -685,7 +692,6 @@ function DecoracionYDisenoEventoContent() {
         return;
       }
       setDecoracionData(updatedDecoracion);
-      toast({ title: `Plantilla "${plantillaNombre}" guardada ✓` });
     }
     setPlantillaNombre('');
     setIsPlantillaModalOpen(false);
@@ -697,8 +703,7 @@ function DecoracionYDisenoEventoContent() {
     setSelectedCanvasId(null);
     setIsLoadPlantillaModalOpen(false);
     setIsMobilePropertiesOpen(false);
-    toast({ title: 'Plantilla cargada ✓' });
-  }, [toast]);
+  }, []);
 
   const handleLoadMuestrario = useCallback((elementos: ElementoDecorativo[]) => {
     setCanvasElementos(elementos);
@@ -707,8 +712,7 @@ function DecoracionYDisenoEventoContent() {
     setIsMuestrarioOpen(false);
     setIsMobileLibraryOpen(false);
     setIsMobilePropertiesOpen(false);
-    toast({ title: 'Decoración cargada ✓', description: 'Podés cambiar los colores y posiciones.' });
-  }, [toast]);
+  }, []);
 
   const handleOpenMuestrarioFromMobile = useCallback(() => {
     setIsMuestrarioOpen(true);
@@ -717,13 +721,13 @@ function DecoracionYDisenoEventoContent() {
 
   // Auto-save 2 seconds after the last canvas change
   useEffect(() => {
-    if (!canvasHasChanges) return;
+    if (!canvasHasChanges && !autoSaveError) return;
     if (autoSaveTimerRef.current) clearTimeout(autoSaveTimerRef.current);
     autoSaveTimerRef.current = setTimeout(() => {
       saveCanvas(true);
     }, 2000);
     return () => { if (autoSaveTimerRef.current) clearTimeout(autoSaveTimerRef.current); };
-  }, [canvasHasChanges, saveCanvas]);
+  }, [canvasHasChanges, autoSaveError, saveCanvas]);
 
   if (isLoading) {
     return <div className="flex items-center justify-center min-h-[400px]"><Loader2 className="w-12 h-12 animate-spin text-primary" /><p className="ml-3 text-lg">Cargando decoración...</p></div>;
@@ -1544,8 +1548,15 @@ function DecoracionYDisenoEventoContent() {
                   )}
                 </div>
                 <div className="ml-auto flex flex-wrap items-center justify-end gap-2">
-                  {isAutoSaving && <span className="text-[10px] text-slate-400 animate-pulse">Guardando...</span>}
-                  {canvasHasChanges && !isAutoSaving && <span className="text-[10px] text-amber-500">● Sin guardar</span>}
+                  {autoSaveError ? (
+                    <span className="text-[10px] text-rose-500 font-medium border border-rose-200 bg-rose-50 px-1.5 py-0.5 rounded">
+                      ⚠️ {autoSaveError}
+                    </span>
+                  ) : isAutoSaving ? (
+                    <span className="text-[10px] text-slate-400 animate-pulse">Guardando...</span>
+                  ) : canvasHasChanges ? (
+                    <span className="text-[10px] text-amber-500">⚡ Sin guardar</span>
+                  ) : null}
                   <Badge variant="secondary" className="rounded-full h-6 text-[10px] px-2.5">
                     {canvasElementos.length} elementos
                   </Badge>
@@ -1611,8 +1622,15 @@ function DecoracionYDisenoEventoContent() {
                   <div className="flex items-center justify-between mb-2 flex-shrink-0">
                     <div className="flex items-center gap-2">
                       <span className="text-sm font-bold text-slate-700">Modo Pantalla Completa</span>
-                      {isAutoSaving && <span className="text-[10px] text-slate-400 animate-pulse">Guardando...</span>}
-                      {canvasHasChanges && !isAutoSaving && <span className="text-[10px] text-amber-500">● Sin guardar</span>}
+                      {autoSaveError ? (
+                        <span className="text-[10px] text-rose-500 font-medium border border-rose-200 bg-rose-50 px-1.5 py-0.5 rounded">
+                          ⚠️ {autoSaveError}
+                        </span>
+                      ) : isAutoSaving ? (
+                        <span className="text-[10px] text-slate-400 animate-pulse">Guardando...</span>
+                      ) : canvasHasChanges ? (
+                        <span className="text-[10px] text-amber-500">⚡ Sin guardar</span>
+                      ) : null}
                     </div>
                     <div className="flex items-center gap-2">
                       <Button

@@ -21,7 +21,8 @@ import {
   Radio,
   Zap,
 } from 'lucide-react';
-import { QRCodeSVG } from 'qrcode.react';
+import { QrRecuerdo } from '@/components/entretenimiento/QrRecuerdo';
+import { AvisoDeFallaEnEstacion } from '@/components/entretenimiento/AvisoDeFallaEnEstacion';
 import {
   getPublicEntertainmentEvent,
   uploadEntretenimientoMedia,
@@ -39,6 +40,8 @@ import { KioskUnlockButton } from '@/components/kiosk/kiosk-unlock-button';
 import { isVideoFrameReady } from '@/lib/entertainment/camera-readiness';
 import { withPublicRequestTimeout } from '@/lib/public-experience/wait-for-initial-public-load';
 import { parseEventDate } from '@/lib/public-experience/event-date';
+import { imprimirRecuerdo } from '@/lib/entretenimiento/imprimir-recuerdo';
+import { componerTiraDeFotos } from '@/lib/entretenimiento/tira-fotocabina';
 
 const BOGUE_FRAMES = [
   { id: 'none', label: 'Sin Marco', border: 'transparent' },
@@ -73,6 +76,8 @@ export default function BoguePage() {
   const [capturedFrames, setCapturedFrames] = useState<HTMLCanvasElement[]>([]);
   const [recordingProgress, setRecordingProgress] = useState(0); // 0 to 100
   const [finalVideoUrl, setFinalVideoUrl] = useState<string | null>(null);
+  const [finalStripUrl, setFinalStripUrl] = useState<string | null>(null);
+  const [isPrinting, setIsPrinting] = useState(false);
   const [uploadedPostUrl, setUploadedPostUrl] = useState<string | null>(null);
   const [qrCodeUrl, setQrCodeUrl] = useState<string>('');
 
@@ -84,6 +89,10 @@ export default function BoguePage() {
   const [isEventLoading, setIsEventLoading] = useState(true);
   const [loadAttempt, setLoadAttempt] = useState(0);
   const [cameraError, setCameraError] = useState<string | null>(null);
+  // Se separa del mensaje de progreso para que la pantalla final sepa si el
+  // video llego al muro o no. Antes no habia forma de distinguirlo y el cuadro
+  // del QR quedaba girando como si todavia estuviera subiendo.
+  const [uploadError, setUploadError] = useState<string | null>(null);
 
   // Audio effect context for high-quality beeps
   const audioCtxRef = useRef<AudioContext | null>(null);
@@ -151,9 +160,17 @@ export default function BoguePage() {
       }
     } catch (err) {
       console.error('Error al acceder a la cámara:', err);
-      setCameraError('No pudimos abrir la cámara. Revisa el permiso del navegador y vuelve a intentar.');
+      const cameraError = 'No pudimos abrir la cámara. Revisa el permiso del navegador y vuelve a intentar.';
+      setCameraError(cameraError);
+      void updateEntertainmentSessionStatus(
+        fiestaId,
+        'bogue',
+        'idle',
+        { lastError: cameraError },
+        accessToken,
+      ).catch((statusError) => console.error('No se pudo avisar la falla de cámara al operador:', statusError));
     }
-  }, [facingMode, stopCamera]);
+  }, [accessToken, facingMode, fiestaId, stopCamera]);
 
   // 1. Initial load
   useEffect(() => {
@@ -239,6 +256,7 @@ export default function BoguePage() {
     setCapturedFrames([]);
     setRecordingProgress(0);
     setFinalVideoUrl(null);
+    setFinalStripUrl(null);
     setUploadedPostUrl(null);
     setIsUploading(false);
     setProgressMsg('');
@@ -340,10 +358,38 @@ export default function BoguePage() {
   const processBoomerangVideo = async (frames: HTMLCanvasElement[]) => {
     setLocalStatus('processing');
     await updateEntertainmentSessionStatus(fiestaId, 'bogue', 'processing', {}, accessToken);
-    setProgressMsg('Creando el loop de ida y vuelta...');
-    speak("Procesando Boomerang");
+    setProgressMsg('Procesando la tanda de fotos...');
+    speak("Procesando fotos");
 
-    // Construct loop frames: 0 -> N-1 -> 0
+    if (frames.length === 0) {
+      setProgressMsg('No se capturaron fotos. Intenta nuevamente.');
+      setLocalStatus('idle');
+      return;
+    }
+
+    // 1. Armar y guardar la tira de fotos (para imprimir)
+    let stripUrl: string | null = null;
+    try {
+      const fotosBase64 = frames.map(f => f.toDataURL('image/jpeg', 0.9));
+      const eventName = fiesta?.eventName || 'Bogue';
+      const eventDate = fiesta?.eventDate || '';
+      const colorDeAcento = fiesta?.station.accentColor || '#ec4899';
+      
+      stripUrl = await componerTiraDeFotos({
+        fotos: fotosBase64,
+        nombreDelEvento: eventName,
+        fechaDelEvento: eventDate,
+        colorDeAcento,
+        textoDeMarca: 'BOGUE LIVE'
+      });
+      setFinalStripUrl(stripUrl);
+    } catch (e) {
+      console.error('Error composing photos strip:', e);
+    }
+
+    setProgressMsg('Creando el loop de ida y vuelta...');
+
+    // 2. Construct loop frames: 0 -> N-1 -> 0
     const loop: HTMLCanvasElement[] = [...frames];
     for (let i = frames.length - 2; i > 0; i--) {
       loop.push(frames[i]);
@@ -388,7 +434,7 @@ export default function BoguePage() {
         setFinalVideoUrl(videoUrl);
         
         // Auto Upload
-        await handleAutoUpload(videoBlob);
+        await handleAutoUpload(videoBlob, stripUrl || undefined);
       };
 
       mediaRecorder.start();
@@ -517,11 +563,29 @@ export default function BoguePage() {
     }
   };
 
-  const handleAutoUpload = async (blob: Blob) => {
+  const handleAutoUpload = async (blob: Blob, stripBase64?: string) => {
     setIsUploading(true);
+    setUploadError(null);
     setProgressMsg('Subiendo al muro social de la fiesta...');
-    
+
     try {
+      if (stripBase64) {
+        try {
+          const resStrip = await fetch(stripBase64);
+          const blobStrip = await resStrip.blob();
+          const fileStrip = new File([blobStrip], `bogue-tira-${Date.now()}.jpg`, { type: 'image/jpeg' });
+          const formDataStrip = new FormData();
+          formDataStrip.append('fiestaId', fiestaId);
+          formDataStrip.append('file', fileStrip);
+          formDataStrip.append('authorName', 'Bogue Fotos');
+          formDataStrip.append('moduleId', 'bogue');
+          if (accessToken) formDataStrip.append('accessToken', accessToken);
+          await uploadEntretenimientoMedia(formDataStrip);
+        } catch (e) {
+          console.error('Error subiendo tira de fotos:', e);
+        }
+      }
+
       const file = new File([blob], `bogue-${Date.now()}.mp4`, { type: blob.type });
       const formData = new FormData();
       formData.append('fiestaId', fiestaId);
@@ -541,7 +605,7 @@ export default function BoguePage() {
           fiestaId,
           'bogue',
           'done',
-          { mediaUrl },
+          { mediaUrl, lastError: null },
           accessToken
         );
         speak("¡Listo! Tu Boomerang ya está subido.");
@@ -556,9 +620,16 @@ export default function BoguePage() {
     } catch (err) {
       console.error(err);
       setProgressMsg('No se pudo subir al muro. Conservamos el video para reintentar.');
+      setUploadError((err as Error).message || 'No se pudo subir el video al muro.');
       setQrCodeUrl('');
       setLocalStatus('done');
-      await updateEntertainmentSessionStatus(fiestaId, 'bogue', 'done', {}, accessToken);
+      await updateEntertainmentSessionStatus(
+        fiestaId,
+        'bogue',
+        'done',
+        { lastError: 'No se pudo subir el video del invitado al muro.' },
+        accessToken,
+      );
     } finally {
       setIsUploading(false);
     }
@@ -620,6 +691,7 @@ export default function BoguePage() {
     return (
       <div className="min-h-screen bg-zinc-950 p-4 text-white sm:p-6">
         <div className="mx-auto max-w-md space-y-5">
+          <AvisoDeFallaEnEstacion mensaje={session?.lastError} cuando={session?.lastErrorAt} />
           <div className="flex items-center justify-between border-b border-white/10 pb-4">
             <button onClick={() => router.back()} aria-label="Volver" title="Volver" className="rounded-lg p-2 transition hover:bg-white/10">
               <ArrowLeft className="w-5 h-5" />
@@ -875,12 +947,41 @@ export default function BoguePage() {
           </div>
         )}
 
-        {/* State: Done (Boomerang Preview + QR Download) */}
+        {/* State: Done (Boomerang Preview + Photo Strip + QR Download) */}
         {localStatus === 'done' && (
           <div className="absolute inset-0 z-40 flex flex-col items-center justify-start gap-6 overflow-y-auto bg-zinc-950 px-4 pb-8 pt-20 md:flex-row md:justify-center md:gap-8 md:p-6">
             
-            {/* Left/Top: Loop Video preview */}
-            <div className="relative h-[52dvh] max-h-[32rem] w-auto max-w-full shrink-0 aspect-[9/16] overflow-hidden rounded-lg border border-white/10 bg-zinc-900 shadow-2xl md:h-[80dvh] md:max-h-[48rem]">
+            {/* Strip Display */}
+            {finalStripUrl && (
+              <div className="flex flex-col items-center gap-4 bg-zinc-900/60 p-6 rounded-2xl border border-white/5 shadow-2xl">
+                {/* La tira es un blob/data URL generado en el navegador y se imprime tal cual. */}
+                {/* eslint-disable-next-line @next/next/no-img-element */}
+                <img 
+                  src={finalStripUrl} 
+                  alt="Tira de recuerdo" 
+                  className="h-80 md:h-[450px] object-contain rounded-md shadow-xl"
+                />
+                <button
+                  onClick={() => {
+                    if (isPrinting) return;
+                    setIsPrinting(true);
+                    const res = imprimirRecuerdo(finalStripUrl);
+                    if (!res.ok) {
+                      setUploadError(res.aviso || 'Error al imprimir');
+                    }
+                    setTimeout(() => setIsPrinting(false), 2000);
+                  }}
+                  disabled={isPrinting}
+                  className="w-full flex items-center justify-center gap-2 py-3 px-6 rounded-xl bg-pink-600 hover:bg-pink-500 font-bold text-white transition-all shadow-[0_0_20px_rgba(236,72,153,0.3)] disabled:opacity-50"
+                >
+                  {isPrinting ? <Loader2 className="w-5 h-5 animate-spin" /> : <Flame className="w-5 h-5" />}
+                  {isPrinting ? 'Imprimiendo...' : 'Imprimir Recuerdo'}
+                </button>
+              </div>
+            )}
+
+            {/* Loop Video preview */}
+            <div className="relative h-[40dvh] max-h-[24rem] w-auto max-w-full shrink-0 aspect-[9/16] overflow-hidden rounded-lg border border-white/10 bg-zinc-900 shadow-2xl md:h-[60dvh] md:max-h-[36rem]">
               {finalVideoUrl && (
                 <video
                   src={finalVideoUrl}
@@ -892,40 +993,49 @@ export default function BoguePage() {
                 />
               )}
               <div className="absolute left-4 top-4 flex items-center gap-1 rounded-lg bg-rose-500 px-3 py-1 text-[10px] font-black uppercase tracking-wide text-white">
-                <Sparkles className="w-3 h-3" /> Previsualizacion lista
+                <Sparkles className="w-3 h-3" /> Loop listo
               </div>
             </div>
 
-            {/* Right/Bottom: QR code and sharing options */}
+            {/* QR code and sharing options */}
             <div className="flex flex-col items-center text-center space-y-6 max-w-xs">
               <div className="space-y-2">
-                <h3 className="text-2xl font-black text-white">Guarda o comparte tu loop</h3>
-                <p className="text-sm text-zinc-400">Escanea el QR desde tu celular para abrir el enlace de esta captura web.</p>
+                <h3 className="text-2xl font-black text-white">Llevate el recuerdo</h3>
+                <p className="text-sm text-zinc-400">Escaneá el QR desde tu celular para descargar el loop animado.</p>
               </div>
 
               {/* QR Code Container */}
               <div className="bg-white p-4 rounded-3xl shadow-2xl relative">
                 {qrCodeUrl ? (
-                  <QRCodeSVG value={qrCodeUrl} size={180} level="Q" includeMargin={false} />
+                  <QrRecuerdo qrCodeUrl={qrCodeUrl} />
+                ) : uploadError ? (
+                  <div className="w-40 h-40 flex flex-col items-center justify-center gap-2 text-rose-500 bg-rose-50/10 rounded-lg">
+                    <Zap className="w-8 h-8 opacity-50" />
+                    <span className="text-xs font-semibold px-4 text-center">Fallo conexión</span>
+                  </div>
                 ) : (
-                  <div className="w-44 h-44 flex items-center justify-center">
-                    <Loader2 className="w-8 h-8 animate-spin text-zinc-900" />
+                  <div className="w-40 h-40 flex items-center justify-center">
+                    <Loader2 className="w-8 h-8 animate-spin text-zinc-400" />
                   </div>
                 )}
               </div>
+              {uploadError && (
+                <p className="text-xs text-rose-400 text-center font-medium bg-rose-500/10 p-2 rounded-md">
+                  {uploadError}
+                </p>
+              )}
 
-              <div className="space-y-3 w-full">
+              <div className="space-y-3 w-full mt-4">
                 {fiesta?.station.allowGuestRetake && fiesta.station.maxRetakes > 0 && (
                   <button
                     onClick={completeGuestCycle}
                     className="w-full h-12 rounded-xl bg-white/5 hover:bg-white/10 text-white font-bold text-sm border border-white/10 transition flex items-center justify-center gap-2"
                   >
-                    <RefreshCw className="w-4 h-4" /> Grabar otro loop
+                    <RefreshCw className="w-4 h-4" /> Grabar otra vez
                   </button>
                 )}
               </div>
             </div>
-
           </div>
         )}
 

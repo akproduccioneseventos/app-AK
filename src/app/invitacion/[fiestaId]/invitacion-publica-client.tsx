@@ -142,8 +142,9 @@ function Countdown({ fechaEvento }: { fechaEvento: string }) {
 function RsvpSection({ fiestaId, texto, typography, onSuccess }: { fiestaId: string; texto?: string; typography?: InvitacionTypographyConfig; onSuccess?: () => void }) {
   const [nombre, setNombre] = useState('');
   const [contacto, setContacto] = useState('');
-  const [asistencia, setAsistencia] = useState<'Confirmado' | 'Rechazado' | 'Tal vez'>('Confirmado');
+  const [asistencia, setAsistencia] = useState<'Confirmado' | 'Rechazado'>('Confirmado');
   const [personas, setPersonas] = useState('1');
+  const [ninos, setNinos] = useState('0');
   const [acompanantes, setAcompanantes] = useState('');
   const [dietaryRestriction, setDietaryRestriction] = useState<DietaryRestriction>('Ninguna');
   const [alergiasEspecificas, setAlergiasEspecificas] = useState('');
@@ -174,6 +175,7 @@ function RsvpSection({ fiestaId, texto, typography, onSuccess }: { fiestaId: str
         contacto: contacto.trim() || undefined,
         asistencia,
         partySize: isNoAsiste ? 1 : parseInt(personas, 10) || 1,
+        kidsCount: isNoAsiste ? undefined : (parseInt(ninos, 10) || 0),
         companionNames: isNoAsiste ? undefined : (companionNames.length > 0 ? companionNames : undefined),
         dietaryRestriction: isNoAsiste ? 'Ninguna' : dietaryRestriction,
         alergiasEspecificas: isNoAsiste ? undefined : (alergiasEspecificas.trim() || undefined),
@@ -221,16 +223,20 @@ function RsvpSection({ fiestaId, texto, typography, onSuccess }: { fiestaId: str
     }
   };
 
-  const asistenciaOptions: { value: 'Confirmado' | 'Rechazado' | 'Tal vez'; label: string; emoji: string }[] = [
+  const asistenciaOptions: { value: 'Confirmado' | 'Rechazado'; label: string; emoji: string }[] = [
     { value: 'Confirmado', label: 'Asistiré', emoji: '✅' },
-    { value: 'Tal vez', label: 'Tal vez', emoji: '🤔' },
     { value: 'Rechazado', label: 'No puedo', emoji: '❌' },
   ];
+
+  const handleRespondAgain = () => {
+    setSent(false);
+    setStep(1);
+    setError('');
+  };
 
   if (sent) {
     const confirmLabels: Record<string, string> = {
       Confirmado: '¡Hasta pronto!',
-      'Tal vez': '¡Gracias por avisarnos!',
       Rechazado: 'Te vamos a extrañar.',
     };
     return (
@@ -245,6 +251,15 @@ function RsvpSection({ fiestaId, texto, typography, onSuccess }: { fiestaId: str
         <h3 className="text-2xl font-bold text-gray-800">¡Confirmación recibida!</h3>
         <p className="text-gray-500 font-medium">{confirmLabels[asistencia] ?? 'Gracias por responder.'}</p>
         <p className="text-sm text-gray-400">Hemos guardado tu confirmación para el evento.</p>
+        <p className="text-sm text-gray-500">¿Te cambian los planes? Volvé a entrar con este mismo enlace y tu mismo nombre para actualizar tu respuesta.</p>
+        <Button
+          type="button"
+          onClick={handleRespondAgain}
+          className="rounded-xl px-5 font-bold text-white shadow-md transition-all active:scale-95"
+          style={{ backgroundColor: 'var(--inv-primary)' }}
+        >
+          Responder de nuevo
+        </Button>
       </motion.div>
     );
   }
@@ -305,7 +320,12 @@ function RsvpSection({ fiestaId, texto, typography, onSuccess }: { fiestaId: str
 
                 <div>
                   <label className="mb-2 block text-xs font-semibold text-gray-600">¿Asistirás al evento?</label>
-                  <div className="grid grid-cols-3 gap-2">
+                  {/* Las columnas se acomodan solas y nunca bajan de 7rem: es
+                      el boton con el que el invitado confirma si viene, y con
+                      tres columnas fijas quedaba de 120px, dificil de tocar.
+                      Asi tambien funciona si quedan dos opciones en vez de
+                      tres. */}
+                  <div className="grid gap-2 grid-cols-[repeat(auto-fit,minmax(7rem,1fr))]">
                     {asistenciaOptions.map(opt => (
                       <button
                         key={opt.value}
@@ -314,7 +334,7 @@ function RsvpSection({ fiestaId, texto, typography, onSuccess }: { fiestaId: str
                           setAsistencia(opt.value);
                         }}
                         className={cn(
-                          'flex flex-col items-center justify-center rounded-lg border-2 px-1 py-2 text-xs font-bold transition-all duration-300 hover:scale-[1.03]',
+                          'flex min-h-[4.5rem] flex-col items-center justify-center rounded-lg border-2 px-2 py-3 text-sm font-bold transition-all duration-300 hover:scale-[1.03]',
                           asistencia === opt.value
                             ? 'border-transparent text-white shadow-md'
                             : 'border-gray-200 text-gray-600 bg-white hover:bg-gray-50'
@@ -349,6 +369,26 @@ function RsvpSection({ fiestaId, texto, typography, onSuccess }: { fiestaId: str
                     onChange={e => setPersonas(e.target.value)}
                     className="h-11 rounded-lg border-gray-200"
                   />
+                </div>
+
+                {/* El menú de un chico no es el de un adulto. Sin este dato el
+                    equipo no sabe cuántos menús infantiles preparar ni a qué
+                    lugar de la mesa llevarlos. */}
+                <div>
+                  <label className="mb-1.5 block text-xs font-semibold text-gray-600">
+                    ¿Cuántos de ellos son niños o adolescentes?
+                  </label>
+                  <Input
+                    type="number"
+                    min="0"
+                    max={parseInt(personas, 10) || 1}
+                    value={ninos}
+                    onChange={e => setNinos(e.target.value)}
+                    className="h-11 rounded-lg border-gray-200"
+                  />
+                  <p className="mt-1 text-[11px] text-gray-400">
+                    Poné 0 si vienen todos adultos. Nos sirve para el menú.
+                  </p>
                 </div>
 
                 {parseInt(personas, 10) > 1 && (

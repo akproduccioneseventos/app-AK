@@ -176,10 +176,10 @@ export default function ConfirmarInvitadosPortalPage() {
         {/* Summary cards */}
         <div className="grid grid-cols-2 gap-3 sm:grid-cols-4">
           {[
-            { label: 'Confirmados', count: confirmadosPersonas, invitations: confirmados.length, cls: 'text-green-700 bg-green-50 border-green-200', icon: CheckCircle2 },
-            { label: 'Pendientes', count: pendientesPersonas, invitations: pendientes.length, cls: 'text-slate-700 bg-slate-50 border-slate-200', icon: HelpCircle },
-            { label: 'Rechazados', count: rechazadosPersonas, invitations: rechazados.length, cls: 'text-red-700 bg-red-50 border-red-200', icon: XCircle },
-            { label: 'Tal vez', count: talVezPersonas, invitations: talVez.length, cls: 'text-amber-700 bg-amber-50 border-amber-200', icon: HelpCircle },
+            { label: 'Confirmados', count: confirmadosPersonas, invitations: confirmados.length, cls: 'border-accent/30 bg-accent/10 text-accent', icon: CheckCircle2 },
+            { label: 'Pendientes', count: pendientesPersonas, invitations: pendientes.length, cls: 'border-border bg-muted/50 text-muted-foreground', icon: HelpCircle },
+            { label: 'Rechazados', count: rechazadosPersonas, invitations: rechazados.length, cls: 'border-destructive/30 bg-destructive/10 text-destructive', icon: XCircle },
+            { label: 'Tal vez', count: talVezPersonas, invitations: talVez.length, cls: 'border-border bg-secondary text-secondary-foreground', icon: HelpCircle },
           ].map((item) => {
             const Icon = item.icon;
             return (
@@ -187,33 +187,34 @@ export default function ConfirmarInvitadosPortalPage() {
                 key={item.label}
                 onClick={() => setFiltro(labelToFilter(item.label))}
                 aria-label={`Filtrar por ${item.label.toLowerCase()}`}
-                className={`rounded-2xl border p-3 text-center transition-all hover:scale-105 ${item.cls}`}
+                className={`rounded-xl border p-3 text-center transition-all hover:scale-[1.02] ${item.cls}`}
               >
                 <Icon className="w-5 h-5 mx-auto mb-1 opacity-70" />
                 <p className="text-2xl font-black">{item.count}</p>
                 <p className="text-xs font-semibold">{item.label}</p>
-                <p className="mt-1 text-[10px] opacity-70">{item.invitations} invitaciones</p>
+                <p className="mt-1 text-xs opacity-80">{item.invitations} invitaciones</p>
               </button>
             );
           })}
         </div>
 
-        {/* Extra stats */}
-        <div className="grid grid-cols-3 gap-3">
-          <div className="rounded-xl border border-slate-200 bg-white p-3 text-center">
-            <Users className="w-4 h-4 mx-auto text-slate-400 mb-1" />
-            <p className="text-xl font-black text-slate-800">{totalPersonas}</p>
-            <p className="text-xs text-slate-500">personas totales</p>
+        {/* Extra stats. En celular van de a una: con tres columnas quedaban de
+            120px y el numero grande no entraba. */}
+        <div className="grid grid-cols-1 gap-3 sm:grid-cols-3">
+          <div className="rounded-xl border border-border bg-card p-3 text-center">
+            <Users className="mx-auto mb-1 h-4 w-4 text-muted-foreground" />
+            <p className="text-xl font-black text-foreground">{totalPersonas}</p>
+            <p className="text-xs text-muted-foreground">personas totales</p>
           </div>
-          <div className="rounded-xl border border-orange-200 bg-orange-50 p-3 text-center">
-            <Utensils className="w-4 h-4 mx-auto text-orange-400 mb-1" />
-            <p className="text-xl font-black text-orange-800">{conDieta.length}</p>
-            <p className="text-xs text-orange-600">restricciones</p>
+          <div className="rounded-xl border border-primary/30 bg-primary/10 p-3 text-center">
+            <Utensils className="mx-auto mb-1 h-4 w-4 text-primary" />
+            <p className="text-xl font-black text-primary">{conDieta.length}</p>
+            <p className="text-xs text-primary">restricciones</p>
           </div>
-          <div className="rounded-xl border border-green-200 bg-green-50 p-3 text-center">
-            <CheckCircle2 className="w-4 h-4 mx-auto text-green-500 mb-1" />
-            <p className="text-xl font-black text-green-800">{checkedIn.length}</p>
-            <p className="text-xs text-green-600">check-in</p>
+          <div className="rounded-xl border border-accent/30 bg-accent/10 p-3 text-center">
+            <CheckCircle2 className="mx-auto mb-1 h-4 w-4 text-accent" />
+            <p className="text-xl font-black text-accent">{checkedIn.length}</p>
+            <p className="text-xs text-accent">check-in</p>
           </div>
         </div>
 
@@ -330,7 +331,7 @@ export default function ConfirmarInvitadosPortalPage() {
 
                       {/* Message preview */}
                       {hasMensaje && (
-                        <p className="text-xs text-slate-400 mt-1 italic truncate">💬 &ldquo;{inv.mensaje}&rdquo;</p>
+                        <p className="mt-1 whitespace-pre-wrap break-words text-xs italic text-muted-foreground">💬 &ldquo;{inv.mensaje}&rdquo;</p>
                       )}
                     </div>
 

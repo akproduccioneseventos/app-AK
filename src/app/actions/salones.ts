@@ -20,6 +20,12 @@ export async function saveSalon(
   if (!salonData.nombre.trim()) {
     return { success: false, error: 'El nombre del salón es obligatorio.' };
   }
+  // Un salon para cero personas no sirve para nada y despues aparece para
+  // elegir al armar un presupuesto.
+  const capacidad = Number((salonData as Salon).capacidad ?? 0);
+  if (!Number.isFinite(capacidad) || capacidad <= 0) {
+    return { success: false, error: 'Poné para cuántas personas es el salón.' };
+  }
 
   const salones = await getSalones();
   let savedSalon: Salon;

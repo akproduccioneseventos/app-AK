@@ -27,6 +27,7 @@ export function FloatingActions({
         setIsVisible(false);
       }
     };
+    toggleVisibility();
     window.addEventListener('scroll', toggleVisibility, { passive: true });
     return () => window.removeEventListener('scroll', toggleVisibility);
   }, []);
@@ -42,10 +43,12 @@ export function FloatingActions({
 
   return (
     <motion.div
-      drag
-      dragMomentum={false}
-      dragElastic={0.1}
-      className="fixed bottom-6 right-6 z-50 flex flex-col items-center gap-3 cursor-grab active:cursor-grabbing select-none"
+      data-testid="public-floating-actions"
+      /* En el celular son dos botones redondos apilados en la esquina, no una
+         barra cruzando la pantalla: la barra cortaba el pie en todas las
+         pantallas publicas mientras la persona miraba las fotos. En pantalla
+         grande hay lugar de sobra, asi que el de cotizar conserva su texto. */
+      className="fixed bottom-4 right-4 z-50 flex select-none flex-col items-end gap-2 sm:bottom-6 sm:right-6 sm:gap-3"
     >
       <AnimatePresence>
         {isVisible && (
@@ -57,7 +60,7 @@ export function FloatingActions({
               exit={{ opacity: 0, scale: 0.8, y: 10 }}
               transition={{ duration: 0.2 }}
               onClick={scrollToTop}
-              className="p-3 bg-zinc-900/90 text-white rounded-full border border-white/10 hover:bg-zinc-800 hover:text-white transition-all shadow-xl backdrop-blur-md"
+              className="hidden rounded-full border border-white/10 bg-zinc-900/90 p-3 text-white shadow-xl backdrop-blur-md transition-all hover:bg-zinc-800 hover:text-white sm:block"
               aria-label="Subir al inicio"
             >
               <ChevronUp className="w-5 h-5" />
@@ -71,12 +74,13 @@ export function FloatingActions({
               exit={{ opacity: 0, scale: 0.8, y: 10 }}
               transition={{ duration: 0.2, delay: 0.05 }}
               className={cn(
-                "flex items-center gap-2 px-4 py-3 rounded-2xl font-black text-xs uppercase tracking-widest text-white shadow-2xl backdrop-blur-md transition-all",
-                "bg-gradient-to-r from-violet-600 to-indigo-600 hover:from-violet-500 hover:to-indigo-500 border border-violet-500/30"
+                "flex h-12 w-12 items-center justify-center gap-2 rounded-full border border-red-600 bg-red-700 text-xs font-black uppercase tracking-widest text-white shadow-xl transition-all hover:bg-red-600",
+                "sm:h-auto sm:w-auto sm:rounded-lg sm:px-4 sm:py-3"
               )}
+              aria-label="Cotizá tu fiesta"
             >
-              <Calculator className="w-4 h-4 shrink-0" />
-              <span>Cotizá tu Fiesta</span>
+              <Calculator className="w-5 h-5 shrink-0 sm:w-4 sm:h-4" />
+              <span className="hidden sm:inline">Cotizá tu Fiesta</span>
             </motion.a>
 
             {/* Direct WhatsApp Button */}
@@ -89,7 +93,7 @@ export function FloatingActions({
               exit={{ opacity: 0, scale: 0.8, y: 10 }}
               transition={{ duration: 0.2, delay: 0.1 }}
               className={cn(
-                "relative p-4 rounded-full text-white shadow-2xl transition-all",
+                "relative flex h-12 w-12 shrink-0 items-center justify-center rounded-full p-3 text-white shadow-xl transition-all sm:h-auto sm:w-auto sm:p-4",
                 "bg-emerald-500 hover:bg-emerald-400 border border-emerald-400/20"
               )}
               aria-label="Escribinos por WhatsApp"

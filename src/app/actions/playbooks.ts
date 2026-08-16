@@ -6,6 +6,7 @@ import type { Tarea } from '@/types/fiesta';
 import { readData, writeData } from '@/lib/data-service';
 import { getFiestaById, saveFiesta } from '@/app/actions/fiesta/fiesta.actions';
 import { requireAppSession } from '@/lib/auth/require-session';
+import { verifySession } from '@/lib/auth/session-token';
 
 const PLAYBOOKS_FILE = 'playbooks.json';
 const APLICACIONES_FILE = 'playbook-aplicaciones.json';
@@ -78,9 +79,14 @@ export async function deletePlaybook(id: string): Promise<{ success: boolean; er
 export async function applyPlaybookToFiesta(
   playbookId: string,
   fiestaId: string,
-  userId: string
+  _userId?: string
 ): Promise<{ success: boolean; tareasGeneradas: number; documentosGenerados: number; error?: string }> {
   await requireAppSession();
+  const session = await verifySession();
+  if (!session.success || !session.user) {
+    return { success: false, tareasGeneradas: 0, documentosGenerados: 0, error: session.error || 'Sesion no autorizada.' };
+  }
+  const usuarioReal = session.user.email || session.user.userId || 'Usuario autenticado';
   try {
     const [playbook, fiesta] = await Promise.all([
       getPlaybookById(playbookId),
@@ -129,7 +135,7 @@ export async function applyPlaybookToFiesta(
       playbookId,
       fiestaId,
       aplicadoEn: new Date().toISOString(),
-      aplicadoPor: userId,
+      aplicadoPor: usuarioReal,
       tareasGeneradas: nuevasTareas.length,
       documentosGenerados: playbook.documentos.length,
     };

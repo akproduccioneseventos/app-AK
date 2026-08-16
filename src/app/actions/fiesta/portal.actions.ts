@@ -2,7 +2,8 @@
 
 'use server';
 
-import type { FiestaEnPlanificacion, ClientTarea, ClientPortalSettings, ClientPaymentNotification, TimelineHito, MenuSeleccionPortal, ListaMusicaPortal, SocialGallerySettings } from '@/types/fiesta';
+import type { FiestaEnPlanificacion, ClientTarea, ClientPortalSettings, ClientPaymentNotification, TimelineHito, MenuSeleccionPortal, ListaMusicaPortal, SocialGallerySettings, ClientGuestCountChangeRequest } from '@/types/fiesta';
+import { validarCambioDeInvitados } from '@/lib/budget/cambio-de-invitados';
 import { getFiestaById, saveFiesta, getFiestas } from './fiesta.actions';
 import { addPagoToPresupuesto, getPresupuestoById, updatePresupuesto } from '../presupuestos';
 import { createNotification } from '@/lib/notifications/create-notification';
@@ -234,6 +235,35 @@ export async function getFiestaByAccessKey(accessKey: string): Promise<FiestaEnP
   }
 }
 
+/**
+ * El correo donde el cliente quiere recibir su clave si se la olvida.
+ *
+ * Lo puede cargar el propio cliente desde adentro del portal, o AK desde la ficha
+ * del evento. Se pide sesion del portal a proposito: si cualquiera pudiera
+ * escribir este correo desde la pantalla de ingreso, le bastaria con poner el suyo
+ * y pedir la clave para entrar al portal ajeno.
+ */
+export async function guardarCorreoDeRecuperacion(
+  fiestaId: string,
+  correo: string,
+): Promise<{ success: boolean; error?: string }> {
+  if (!(await verifyPortalSession(fiestaId))) return { success: false, error: 'Sesión no autorizada.' };
+
+  const limpio = String(correo ?? '').trim().toLowerCase();
+  if (!limpio) return { success: false, error: 'Escribí tu correo.' };
+  if (!/^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/.test(limpio)) {
+    return { success: false, error: 'Ese correo no parece válido. Revisalo y probá de nuevo.' };
+  }
+
+  return updateFiestaData(fiestaId, data => ({
+    ...data,
+    clientePortalExperience: {
+      ...(data.clientePortalExperience ?? {}),
+      clienteEmail: limpio,
+    },
+  }));
+}
+
 export async function submitClientPayment(
   fiestaId: string,
   monto: number,
@@ -247,6 +277,22 @@ export async function submitClientPayment(
 
     const fiesta = await getFiestaById(fiestaId);
     if (!fiesta) return { success: false, error: 'Evento no encontrado' };
+
+    // El mismo pago informado dos veces enreda la cuenta: AK ve dos avisos por una
+    // sola transferencia y no sabe si el cliente pago una vez o dos. Pasa solo:
+    // el cliente toca el boton, tarda, y vuelve a tocar. Si ya hay un aviso
+    // pendiente por el mismo monto de hace menos de diez minutos, se toma como el
+    // mismo y se devuelve el que ya estaba.
+    const HACE_DIEZ_MINUTOS = Date.now() - 10 * 60 * 1000;
+    const yaInformado = (fiesta.clientPaymentNotifications ?? []).find((aviso) => {
+      if (aviso.estado !== 'pendiente') return false;
+      if (normalizeClientPaymentAmount(aviso.monto) !== safeMonto) return false;
+      const cuando = new Date(aviso.timestamp ?? 0).getTime();
+      return Number.isFinite(cuando) && cuando >= HACE_DIEZ_MINUTOS;
+    });
+    if (yaInformado) {
+      return { success: true, notificationId: yaInformado.id };
+    }
 
     let comprobanteUrl = undefined;
     if (comprobanteBase64) {
@@ -668,6 +714,177 @@ export async function rejectClientMenuChangeRequest(fiestaId: string, requestId:
   }
 }
 
+/**
+ * El cliente pide cambiar la cantidad de invitados desde su portal.
+ *
+ * El contrato deja bajar hasta 10% y subir hasta 30%. El pedido NO se aplica
+ * solo: queda pendiente y lo resuelve AK, porque subir invitados mueve el precio
+ * y hay que confirmar disponibilidad con el salón.
+ */
+export async function submitClientGuestCountChangeRequest(
+  fiestaId: string,
+  payload: {
+    adultos: number;
+    adolescentes: number;
+    ninos: number;
+    notaCliente?: string;
+  }
+): Promise<{ success: boolean; requestId?: string; error?: string; aviso?: string }> {
+  if (!(await verifyPortalSession(fiestaId))) return { success: false, error: 'Sesión no autorizada.' };
+  try {
+    const adultos = Math.max(0, Math.round(Number(payload.adultos) || 0));
+    const adolescentes = Math.max(0, Math.round(Number(payload.adolescentes) || 0));
+    const ninos = Math.max(0, Math.round(Number(payload.ninos) || 0));
+    const total = adultos + adolescentes + ninos;
+
+    if (total <= 0) {
+      return { success: false, error: 'Poné cuántas personas van a venir en total.' };
+    }
+
+    const fiesta = await getFiestaById(fiestaId);
+    if (!fiesta) return { success: false, error: 'Evento no encontrado' };
+
+    const contratados = Number(fiesta.configuracion?.invitadosEstimados) || 0;
+    const veredicto = validarCambioDeInvitados({
+      contratados,
+      nuevos: total,
+      fechaDelEvento: fiesta.configuracion?.fechaEvento,
+    });
+
+    // Fuera de los límites del contrato no se toma el pedido: se le explica al
+    // cliente cuál es el rango y que hable con AK. Tomarlo y rechazarlo después
+    // le hace perder el viaje.
+    if (veredicto.nivel === 'fuera-de-contrato') {
+      return { success: false, error: veredicto.mensaje };
+    }
+
+    // Un pedido pendiente por vez: si no, se acumulan tres y no se sabe cuál vale.
+    const pedidosPrevios = fiesta.clientGuestCountChangeRequests ?? [];
+    if (pedidosPrevios.some(p => p.status === 'pendiente')) {
+      return {
+        success: false,
+        error: 'Ya tenés un pedido de cambio de invitados esperando respuesta. Te contestamos a la brevedad.',
+      };
+    }
+
+    const requestId = createRequestId('guest_count_request');
+    const nextRequest: ClientGuestCountChangeRequest = {
+      id: requestId,
+      createdAt: new Date().toISOString(),
+      status: 'pendiente',
+      contratadosAlPedir: contratados,
+      adultos,
+      adolescentes,
+      ninos,
+      total,
+      tipo: total >= contratados ? 'aumento' : 'reduccion',
+      notaCliente: payload.notaCliente?.trim() || undefined,
+    };
+
+    await saveFiesta({
+      ...fiesta,
+      clientGuestCountChangeRequests: [...pedidosPrevios, nextRequest],
+    });
+
+    await createNotification({
+      mensaje:
+        `El cliente de "${fiesta.configuracion.nombreEvento}" pide pasar de ${contratados} a ${total} invitados ` +
+        `(${adultos} adultos, ${adolescentes} adolescentes, ${ninos} niños).`,
+      href: `/fiestas/nueva?fiestaId=${fiestaId}&tab=portal-cliente`,
+      icono: 'Users',
+    });
+
+    return { success: true, requestId, aviso: veredicto.nivel === 'atencion' ? veredicto.mensaje : undefined };
+  } catch (e: any) {
+    return { success: false, error: sanitizeActionError(e) };
+  }
+}
+
+/**
+ * AK acepta el cambio: se actualiza el desglose de la fiesta y el presupuesto,
+ * que es de donde sale el conteo para cocinar.
+ */
+export async function approveClientGuestCountChangeRequest(
+  fiestaId: string,
+  requestId: string,
+): Promise<{ success: boolean; error?: string }> {
+  await requireAppSession();
+  try {
+    const fiesta = await getFiestaById(fiestaId);
+    if (!fiesta) return { success: false, error: 'Evento no encontrado' };
+
+    const requests = fiesta.clientGuestCountChangeRequests ?? [];
+    const index = requests.findIndex(r => r.id === requestId);
+    if (index === -1) return { success: false, error: 'Solicitud no encontrada' };
+
+    const request = requests[index];
+    if (request.status !== 'pendiente') return { success: false, error: 'La solicitud ya fue procesada.' };
+
+    requests[index] = { ...request, status: 'aprobada', resueltoAt: new Date().toISOString() };
+
+    // El presupuesto manda: de ahí sale lo que se compra y se cocina. Se
+    // actualiza primero y despues la fiesta se sincroniza sola desde el
+    // presupuesto, que es el orden que ya usa el resto del sistema.
+    if (fiesta.presupuestoId) {
+      const presupuesto = await getPresupuestoById(fiesta.presupuestoId);
+      if (presupuesto) {
+        await updatePresupuesto({
+          ...presupuesto,
+          invitadosCantidad: request.total,
+          invitadosAdultos: request.adultos,
+          invitadosAdolescentes: request.adolescentes,
+          invitadosNinos: request.ninos,
+        });
+      }
+    }
+
+    await saveFiesta({
+      ...fiesta,
+      clientGuestCountChangeRequests: requests,
+      configuracion: {
+        ...fiesta.configuracion,
+        invitadosEstimados: request.total,
+        invitadosAdultos: request.adultos,
+        invitadosAdolescentes: request.adolescentes,
+        invitadosNinos: request.ninos,
+      },
+    });
+
+    return { success: true };
+  } catch (err: any) {
+    return { success: false, error: sanitizeActionError(err) };
+  }
+}
+
+export async function rejectClientGuestCountChangeRequest(
+  fiestaId: string,
+  requestId: string,
+  motivo?: string,
+): Promise<{ success: boolean; error?: string }> {
+  await requireAppSession();
+  try {
+    const fiesta = await getFiestaById(fiestaId);
+    if (!fiesta) return { success: false, error: 'Evento no encontrado' };
+
+    const requests = fiesta.clientGuestCountChangeRequests ?? [];
+    const index = requests.findIndex(r => r.id === requestId);
+    if (index === -1) return { success: false, error: 'Solicitud no encontrada' };
+    if (requests[index].status !== 'pendiente') return { success: false, error: 'La solicitud ya fue procesada.' };
+
+    requests[index] = {
+      ...requests[index],
+      status: 'rechazada',
+      motivoRechazo: motivo?.trim() || undefined,
+      resueltoAt: new Date().toISOString(),
+    };
+
+    await saveFiesta({ ...fiesta, clientGuestCountChangeRequests: requests });
+    return { success: true };
+  } catch (err: any) {
+    return { success: false, error: sanitizeActionError(err) };
+  }
+}
+
 export async function approveClientServiceChangeRequest(fiestaId: string, requestId: string): Promise<{ success: boolean; error?: string }> {
   await requireAppSession();
   try {
@@ -818,7 +1035,9 @@ export async function cancelServicesOrParty(
     if (budgetIndex === -1) return { success: false, error: 'Presupuesto no encontrado.' };
 
     const presupuesto = budgets[budgetIndex];
-    const paymentSummary = getBudgetPaymentSummary(presupuesto);
+    const paymentSummary = getBudgetPaymentSummary(presupuesto, {
+      includeAnnualAdjustment: false,
+    });
     const totalOriginal = paymentSummary.total;
     const totalPagado = paymentSummary.paid;
 
@@ -1093,7 +1312,9 @@ export async function changeEventDate(
     if (budgetIndex === -1) return { success: false, error: 'Presupuesto no encontrado.' };
 
     const presupuesto = budgets[budgetIndex];
-    const paymentSummary = getBudgetPaymentSummary(presupuesto);
+    const paymentSummary = getBudgetPaymentSummary(presupuesto, {
+      includeAnnualAdjustment: false,
+    });
     const totalOriginal = paymentSummary.total;
     const totalPagado = paymentSummary.paid;
 

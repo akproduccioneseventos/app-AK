@@ -32,6 +32,7 @@ import {
   validateDedicationAudioFile,
 } from '@/lib/social-fiesta/guardrails';
 import { enforcePublicRateLimit } from '@/lib/commercial/public-rate-limit';
+import { enforceSocialInteractionRateLimit } from '@/lib/commercial/social-interaction-rate-limit';
 
 // Firestore collection names
 const POLLS_COLLECTION = 'social_polls';
@@ -203,10 +204,12 @@ export async function addSongRequest(
   requestedBy: string
 ): Promise<{ success: boolean; request?: SongRequest; error?: string }> {
   try {
-    await enforcePublicRateLimit({
+    await enforceSocialInteractionRateLimit({
       scope: 'social-song-request',
-      identity: `${fiestaId}|${(requestedBy || 'invitado').trim().toLowerCase()}`,
-      limit: 12,
+      fiestaId,
+      participantIdentity: requestedBy,
+      participantLimit: 12,
+      eventLimit: 60,
       windowMs: 60_000,
     });
     const review = reviewSocialContent({ type: 'text', text: song, authorName: requestedBy, moderationMode: 'automatico' });
@@ -325,10 +328,12 @@ export async function addDedication(
   audioUrl?: string
 ): Promise<{ success: boolean; dedication?: Dedication; error?: string }> {
   try {
-    await enforcePublicRateLimit({
+    await enforceSocialInteractionRateLimit({
       scope: 'social-dedication',
-      identity: `${fiestaId}|${(authorName || 'invitado').trim().toLowerCase()}`,
-      limit: 12,
+      fiestaId,
+      participantIdentity: authorName,
+      participantLimit: 12,
+      eventLimit: 60,
       windowMs: 60_000,
     });
     const fiesta = await getFiestaById(fiestaId);
@@ -382,10 +387,12 @@ export async function addSorteoParticipanteRedes(
   try {
     // Sin tope, cualquiera podia anotarse infinitas veces cambiando el nombre, y
     // cada intento reescribia la ficha entera de la fiesta.
-    await enforcePublicRateLimit({
+    await enforceSocialInteractionRateLimit({
       scope: 'social-sorteo',
-      identity: `${fiestaId}|${String(nombre || 'invitado').trim().toLowerCase()}`,
-      limit: 5,
+      fiestaId,
+      participantIdentity: nombre,
+      participantLimit: 5,
+      eventLimit: 30,
       windowMs: 60_000,
     });
     const review = reviewSocialContent({ type: 'text', text: nombre, authorName: nombre, moderationMode: 'automatico' });
@@ -455,13 +462,15 @@ export async function uploadDedicationAudio(
   formData: FormData
 ): Promise<{ success: boolean; audioUrl?: string; error?: string }> {
   try {
-    // El tope se aplica por persona, no por evento: en un salon todos comparten
-    // el WiFi, asi que un tope por fiesta dejaba mudos a los demas invitados.
+    // El tope por persona evita repeticiones normales y el tope global impide
+    // evadirlo cambiando el nombre en cada subida.
     const autorDelAudio = String(formData.get('autor') || formData.get('authorName') || 'invitado');
-    await enforcePublicRateLimit({
+    await enforceSocialInteractionRateLimit({
       scope: 'social-dedication-audio',
-      identity: `${fiestaId}|${autorDelAudio.trim().toLowerCase()}`,
-      limit: 8,
+      fiestaId,
+      participantIdentity: autorDelAudio,
+      participantLimit: 8,
+      eventLimit: 24,
       windowMs: 60_000,
     });
     const file = formData.get('file') as File | null;

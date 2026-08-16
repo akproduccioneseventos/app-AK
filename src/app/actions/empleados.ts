@@ -5,7 +5,15 @@ import type { Empleado, NuevoEmpleadoFormData } from '@/types/empleado';
 import { createDataItem, deleteDataItem, readData, updateDataItem } from '@/lib/data-service';
 import { randomUUID } from 'crypto';
 import { uploadToStorage, deleteFromStorage } from '@/lib/firebase/storage';
-import { requireAppSession } from '@/lib/auth/require-session';
+import { requireAppSession, requirePermiso } from '@/lib/auth/require-session';
+import { PERMISOS } from '@/lib/auth/perfiles';
+import { readActiveFiestasForStaffAgenda } from '@/lib/staff-agenda-data';
+import { evaluarAgendaEmpleado, getFiestaTimeRange } from '@/lib/staff-agenda-conflicts';
+import type {
+  ConflictoAgendaEmpleado,
+  FiestaTimeRange,
+  ResultadoAgendaEmpleado,
+} from '@/lib/staff-agenda-conflicts';
 
 const EMPLEADOS_FILE = 'empleados.json';
 const EMPLEADOS_COLLECTION = 'empleados';
@@ -139,12 +147,103 @@ export async function saveEmpleado(
   return { success: true, id: empleadoId, empleado: empleadoToSave as Empleado };
 }
 
+/**
+ * Nombres de las fiestas que todavia no pasaron y tienen a este empleado asignado.
+ * Las fiestas ya realizadas no cuentan: ahi el trabajo ya se hizo y lo que importa
+ * es el historial de pagos, que se guarda aparte.
+ */
+async function fiestasFuturasConEsteEmpleado(empleadoId: string): Promise<string[]> {
+  try {
+    const { getAllFiestas } = await import('./fiesta/fiesta.actions');
+    const fiestas = await getAllFiestas();
+    const hoy = new Date().toISOString().slice(0, 10);
+
+    return fiestas
+      .filter((fiesta: any) => {
+        const fecha = String(fiesta?.configuracion?.fechaEvento ?? '').slice(0, 10);
+        if (!fecha || fecha < hoy) return false;
+        return (fiesta?.personalAsignado ?? []).some((p: any) => p?.empleadoId === empleadoId);
+      })
+      .map((fiesta: any) => String(fiesta?.configuracion?.nombreEvento || 'una fiesta sin nombre'));
+  } catch {
+    // Si no se puede leer la agenda, no se inventa una respuesta: se deja pasar
+    // el borrado como antes en vez de bloquearlo por un problema de lectura.
+    return [];
+  }
+}
+
+export async function verificarAgendaEmpleado(
+  empleadoId: string,
+  fechaEvento: string,
+  exceptoFiestaId?: string,
+  horaInicioTarget?: string,
+  horaFinTarget?: string,
+): Promise<ResultadoAgendaEmpleado> {
+  const permiso = await requirePermiso(PERMISOS.SUELDOS);
+  if (!permiso.ok) throw new Error(permiso.error);
+  const dia = String(fechaEvento ?? '').slice(0, 10);
+  if (!empleadoId || !dia) {
+    return { mismoDiaNoSolapado: [], solapadas: [], horarioSinConfirmar: [] };
+  }
+
+  const { getFiestas } = await import('./fiesta/fiesta.actions');
+  const fiestas = await readActiveFiestasForStaffAgenda(() => getFiestas(false));
+  return evaluarAgendaEmpleado(
+    fiestas,
+    empleadoId,
+    {
+      configuracion: {
+        fechaEvento: dia,
+        horaInicio: horaInicioTarget || '',
+        horaFin: horaFinTarget || '',
+      },
+    },
+    exceptoFiestaId,
+  );
+}
+
+/**
+ * Otras fiestas del MISMO DIA que ya tienen a este empleado asignado.
+ *
+ * Sirve para avisar al asignarlo: una persona no puede estar en dos salones a la
+ * vez, y si pasa con el DJ hay dos eventos y un solo DJ. Se avisa, no se bloquea:
+ * a veces son dos eventos en horarios distintos y el equipo sabe lo que hace.
+ */
+export async function fiestasDelMismoDiaConEmpleado(
+  empleadoId: string,
+  fechaEvento: string,
+  exceptoFiestaId?: string,
+): Promise<string[]> {
+  const agenda = await verificarAgendaEmpleado(empleadoId, fechaEvento, exceptoFiestaId);
+  return [...agenda.solapadas, ...agenda.mismoDiaNoSolapado, ...agenda.horarioSinConfirmar]
+    .map(conflicto => conflicto.nombreEvento);
+}
+
 export async function deleteEmpleado(id: string): Promise<{ success: boolean; error?: string }> {
-  await requireAppSession();
+  // Dar de baja a alguien del equipo va con el mismo permiso que ver lo que cobra:
+  // es la ficha de una persona, con su contrato adjunto. Antes alcanzaba con tener
+  // sesion, asi que cualquiera del equipo podia borrar a un companero de la lista.
+  const permiso = await requirePermiso(PERMISOS.SUELDOS);
+  if (!permiso.ok) return { success: false, error: permiso.error };
+
   let empleados = await getEmpleados();
   const empleadoToDelete = empleados.find(e => e.id === id);
   if (!empleadoToDelete) {
     return { success: false, error: `Empleado con ID ${id} no encontrado para eliminar.` };
+  }
+
+  // Borrar a alguien que esta asignado a una fiesta que todavia no paso deja esa
+  // fiesta sin esa persona y sin que nadie se entere: la noche del evento falta
+  // un mozo y en la lista figura un asignado que ya no existe. En vez de sacarlo
+  // en silencio, se avisa cual es la fiesta para que se resuelva el reemplazo.
+  const comprometido = await fiestasFuturasConEsteEmpleado(id);
+  if (comprometido.length > 0) {
+    const listado = comprometido.slice(0, 3).join(', ');
+    const resto = comprometido.length > 3 ? ` y ${comprometido.length - 3} más` : '';
+    return {
+      success: false,
+      error: `${empleadoToDelete.nombre} está asignado a ${listado}${resto}. Sacalo de esas fiestas (o asigná un reemplazo) antes de eliminarlo.`,
+    };
   }
 
   const deleted = await deleteDataItem(EMPLEADOS_FILE, EMPLEADOS_COLLECTION, id);

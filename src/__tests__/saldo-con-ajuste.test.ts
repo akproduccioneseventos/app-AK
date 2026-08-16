@@ -63,6 +63,20 @@ describe('estado de cuenta del cliente', () => {
     expect(cuenta.saldo).toBe(0);
   });
 
+  it('usa el porcentaje configurado cuando el presupuesto no trae uno propio', () => {
+    // El porcentaje del ajuste se puede cambiar en ajustes. Si una pantalla no
+    // lo pasa, se queda clavada en 15% y el cliente ve un saldo distinto al
+    // que ve AK. Por eso el recibo y el portal ahora lo pasan siempre.
+    const sinPropio = presupuestoDePrueba({ ajusteAnualPorcentaje: undefined } as Partial<Presupuesto>);
+    expect(calcularEstadoDeCuenta(sinPropio, 20).total).toBe(120_000);
+    expect(calcularEstadoDeCuenta(sinPropio).total).toBe(115_000);
+  });
+
+  it('el porcentaje propio del presupuesto le gana al configurado', () => {
+    const cuenta = calcularEstadoDeCuenta(presupuestoDePrueba({ ajusteAnualPorcentaje: 10 }), 25);
+    expect(cuenta.total).toBe(110_000);
+  });
+
   it('no se rompe sin presupuesto', () => {
     const cuenta = calcularEstadoDeCuenta(null);
     expect(cuenta.total).toBe(0);

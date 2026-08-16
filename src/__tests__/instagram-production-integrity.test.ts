@@ -4,7 +4,7 @@ jest.mock('@/lib/data-service', () => ({
 }));
 
 jest.mock('@/lib/auth/require-session', () => ({
-  requireAppSession: jest.fn(),
+  requirePermiso: jest.fn().mockResolvedValue({ ok: true }),
 }));
 
 jest.mock('fs/promises', () => ({
@@ -17,13 +17,13 @@ jest.mock('fs/promises', () => ({
 }));
 
 import { readData, writeData } from '@/lib/data-service';
-import { requireAppSession } from '@/lib/auth/require-session';
+import { requirePermiso } from '@/lib/auth/require-session';
 import { syncInstagramPosts } from '@/app/actions/social-media';
 import { MARKETING_AUTOMATION_INTERNAL_TOKEN } from '@/lib/marketing/internal-token';
 
 const mockReadData = readData as jest.MockedFunction<typeof readData>;
 const mockWriteData = writeData as jest.MockedFunction<typeof writeData>;
-const mockRequireAppSession = requireAppSession as jest.MockedFunction<typeof requireAppSession>;
+const mockRequirePermiso = requirePermiso as jest.MockedFunction<typeof requirePermiso>;
 
 describe('sincronizacion real de Instagram', () => {
   const originalEnv = process.env;
@@ -52,14 +52,19 @@ describe('sincronizacion real de Instagram', () => {
       videosCount: 0,
       plannerCount: 0,
     });
-    expect(result.error).toMatch(/Graph API/i);
+    // Lo que importa es que avise que Instagram no esta conectado y no guarde
+    // nada. Antes se exigia que el texto dijera "Graph API": eso es jerga que el
+    // usuario no entiende, y atar la prueba a esa palabra impedia mejorar el
+    // mensaje sin romperla.
+    expect(result.error).toMatch(/instagram/i);
+    expect(result.error).toMatch(/no esta conectado|no está conectado/i);
     expect(mockWriteData).not.toHaveBeenCalled();
-    expect(mockRequireAppSession).not.toHaveBeenCalled();
+    expect(mockRequirePermiso).not.toHaveBeenCalled();
   });
 
   it('mantiene la sincronizacion manual protegida por sesion', async () => {
     await syncInstagramPosts();
 
-    expect(mockRequireAppSession).toHaveBeenCalledTimes(1);
+    expect(mockRequirePermiso).toHaveBeenCalledTimes(1);
   });
 });

@@ -822,8 +822,10 @@ function SimuladorContent() {
         if (step === 2) {
             const errors: { nombre?: boolean; contacto?: boolean; adultos?: boolean; fecha?: boolean; salon?: boolean } = {};
             if (clienteNombre.trim().length < 2) errors.nombre = true;
-            const cleanPhone = clienteContacto.replace(/\D/g, '');
-            if (cleanPhone.length < 7) errors.contacto = true;
+            // El cartel promete "un WhatsApp uruguayo valido", pero se aceptaba
+            // cualquier cosa de 7 digitos. Un telefono incompleto es un cliente
+            // interesado al que despues no se le puede contestar.
+            if (!isValidUruguayMobile(clienteContacto)) errors.contacto = true;
             if (adultos <= 0) errors.adultos = true;
             if (!eventoFecha) errors.fecha = true;
             if (!salonChoice) errors.salon = true;
@@ -1476,7 +1478,7 @@ function SimuladorContent() {
                     <div className="absolute inset-0 bg-black/65" />
                     <div className="relative mx-auto flex min-h-[78vh] max-w-6xl flex-col justify-end px-5 pb-12 pt-24 sm:px-8 lg:px-12">
                         <div className="max-w-3xl">
-                            <CompanyLogo size="md" src={logoUrl || undefined} className="mb-8 brightness-0 invert" />
+                            <CompanyLogo size="md" src={logoUrl || undefined} blanco className="mb-8" />
                             <h1 className="text-4xl font-black leading-tight sm:text-6xl">
                                 Presupuesto para tu evento
                             </h1>

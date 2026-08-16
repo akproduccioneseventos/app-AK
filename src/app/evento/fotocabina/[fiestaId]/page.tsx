@@ -18,8 +18,11 @@ import {
   Radio,
   Zap,
   Check,
+  Printer,
 } from 'lucide-react';
 import { QRCodeSVG } from 'qrcode.react';
+import { QrRecuerdo } from '@/components/entretenimiento/QrRecuerdo';
+import { AvisoDeFallaEnEstacion } from '@/components/entretenimiento/AvisoDeFallaEnEstacion';
 import {
   getPublicEntertainmentEvent,
   uploadEntretenimientoMedia,
@@ -36,6 +39,14 @@ import type { PublicEntertainmentEvent } from '@/lib/entertainment/station-confi
 import { PublicEntertainmentEventStatus } from '@/components/entertainment/public-entertainment-event-status';
 import { KioskUnlockButton } from '@/components/kiosk/kiosk-unlock-button';
 import { isVideoFrameReady } from '@/lib/entertainment/camera-readiness';
+import { appendCommercialAttribution } from '@/lib/commercial/acquisition';
+import {
+  componerTiraDeFotos,
+  FOTOS_POR_TANDA,
+  SEGUNDOS_PRIMERA_FOTO,
+  GUIA_POR_FOTO,
+} from '@/lib/entretenimiento/tira-fotocabina';
+import { imprimirRecuerdo } from '@/lib/entretenimiento/imprimir-recuerdo';
 import { waitForInitialPublicLoad } from '@/lib/public-experience/wait-for-initial-public-load';
 import { parseEventDate } from '@/lib/public-experience/event-date';
 
@@ -54,7 +65,7 @@ export default function FotocabinaPage() {
   const fiestaId = params.fiestaId as string;
   const role = searchParams.get('role') || 'display'; // 'display' | 'operator'
   const accessToken = searchParams.get('access') || undefined;
-  
+
   const videoRef = useRef<HTMLVideoElement>(null);
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const streamRef = useRef<MediaStream | null>(null);
@@ -66,22 +77,36 @@ export default function FotocabinaPage() {
   const [isEventLoading, setIsEventLoading] = useState(true);
   const [facingMode, setFacingMode] = useState<'user' | 'environment'>('user');
   const [selectedFrame, setSelectedFrame] = useState('none');
-  
+
   // Sync
   const [session, setSession] = useState<EntertainmentSession | null>(null);
   const [localStatus, setLocalStatus] = useState<'idle' | 'countdown' | 'recording' | 'processing' | 'done'>('idle');
   const [countdown, setCountdown] = useState<number | null>(null);
   const [flash, setFlash] = useState(false);
   const [capturedImage, setCapturedImage] = useState<string | null>(null);
-  
+
   const [isUploading, setIsUploading] = useState(false);
   const [showSuccess, setShowSuccess] = useState(false);
   const [errorMsg, setErrorMsg] = useState<string | null>(null);
 
   const [voiceEnabled, setVoiceEnabled] = useState(true);
   const [watermarkEnabled, setWatermarkEnabled] = useState(true);
-  
+
   const [qrCodeUrl, setQrCodeUrl] = useState<string>('');
+
+  // Tanda de fotos, como las cabinas clasicas: se sacan varias seguidas y
+  // recien al final se arma el recuerdo con todas juntas.
+  const [fotosDeLaTanda, setFotosDeLaTanda] = useState<string[]>([]);
+  const [fotoEnCurso, setFotoEnCurso] = useState(0);
+  const fotosDeLaTandaRef = useRef<string[]>([]);
+  const [isPrinting, setIsPrinting] = useState(false);
+  // Marca que la copia automatica ya salio, para que no se dispare dos veces
+  // al volver a dibujarse la pantalla y para poder ofrecer "otra copia".
+  const [yaSeImprimio, setYaSeImprimio] = useState(false);
+
+  // Si el cliente no contrato el muro, el recuerdo no tiene a donde subir: la
+  // cabina lo imprime ahi mismo en vez de dejar al invitado con las manos vacias.
+  const hayMuro = fiesta?.socialWallEnabled !== false;
 
   const speak = (text: string) => {
     if (!voiceEnabled) return;
@@ -129,9 +154,17 @@ export default function FotocabinaPage() {
         videoRef.current.srcObject = mediaStream;
       }
     } catch (err) {
-      setErrorMsg('No se pudo acceder a la cámara. Por favor, revisa los permisos del navegador.');
+      const cameraError = 'No se pudo acceder a la cámara. Por favor, revisa los permisos del navegador.';
+      setErrorMsg(cameraError);
+      void updateEntertainmentSessionStatus(
+        fiestaId,
+        'fotocabina',
+        'idle',
+        { lastError: cameraError },
+        accessToken,
+      ).catch((statusError) => console.error('No se pudo avisar la falla de cámara al operador:', statusError));
     }
-  }, [facingMode, stopCamera]);
+  }, [accessToken, facingMode, fiestaId, stopCamera]);
 
   // 1. Load details
   useEffect(() => {
@@ -213,23 +246,38 @@ export default function FotocabinaPage() {
   };
 
   // 3. Capture workflow
+  // Arranca la tanda desde cero. Cada disparo encadena el siguiente hasta
+  // completar las tres fotos, y recien ahi se arma el recuerdo.
   const takePhoto = async () => {
+    fotosDeLaTandaRef.current = [];
+    setFotosDeLaTanda([]);
+    setFotoEnCurso(1);
+    await correrCuentaRegresiva(1);
+  };
+
+  const correrCuentaRegresiva = async (numeroDeFoto = 1) => {
     setLocalStatus('countdown');
     if (role === 'display') {
       await updateEntertainmentSessionStatus(fiestaId, 'fotocabina', 'countdown', {}, accessToken);
     }
-    
-    let currentCount = fiesta?.station.countdownSeconds || 4;
+
+    // La primera cuenta es larga para que se acomoden; despues se acorta para
+    // no hacer cola.
+    let currentCount = numeroDeFoto === 1
+      ? SEGUNDOS_PRIMERA_FOTO
+      : (fiesta?.station.countdownSeconds || 4);
     setCountdown(currentCount);
     playBeep();
-    speak(String(currentCount));
-    
+    speak(GUIA_POR_FOTO[numeroDeFoto - 1] || '¡Preparate!');
+
     const interval = setInterval(async () => {
       currentCount -= 1;
       if (currentCount > 0) {
         setCountdown(currentCount);
         playBeep();
-        speak(String(currentCount));
+        // Solo se cantan los ultimos cinco numeros: contar en voz alta desde
+        // diez es cansador y tapa la musica del salon.
+        if (currentCount <= 5) speak(String(currentCount));
       } else {
         clearInterval(interval);
         setCountdown(null);
@@ -247,7 +295,7 @@ export default function FotocabinaPage() {
       setLocalStatus('idle');
       return;
     }
-    
+
     setLocalStatus('recording');
     await updateEntertainmentSessionStatus(fiestaId, 'fotocabina', 'recording', {}, accessToken);
 
@@ -269,13 +317,48 @@ export default function FotocabinaPage() {
     ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
     ctx.setTransform(1, 0, 0, 1, 0, 0);
 
-    // Overlay frame and watermark
+    // El marco va en cada foto; el nombre del evento no, porque en el recuerdo
+    // final va una sola vez abajo y repetirlo tres veces queda cargado.
     drawFrameOverlay(ctx, canvas.width, canvas.height);
-    drawWatermark(ctx, canvas.width, canvas.height);
 
     const dataUrl = canvas.toDataURL('image/jpeg', 0.9);
-    setCapturedImage(dataUrl);
+    const tanda = [...fotosDeLaTandaRef.current, dataUrl];
+    fotosDeLaTandaRef.current = tanda;
+    setFotosDeLaTanda(tanda);
+
+    if (tanda.length < FOTOS_POR_TANDA) {
+      // Todavia faltan fotos: se muestra la que salio un instante y sigue la
+      // tanda sola, sin que el invitado tenga que tocar nada.
+      const siguiente = tanda.length + 1;
+      setFotoEnCurso(siguiente);
+      // Se queda en 'countdown' sin numero: sigue viendose la camara y la guia
+      // de "foto 2 de 3" mientras el invitado cambia la pose. Si se pasa a otro
+      // estado, la pantalla queda en negro entre foto y foto.
+      setLocalStatus('countdown');
+      setCountdown(null);
+      setTimeout(() => { void correrCuentaRegresiva(siguiente); }, 1800);
+      return;
+    }
+
     stopCamera();
+    setLocalStatus('processing');
+    await updateEntertainmentSessionStatus(fiestaId, 'fotocabina', 'processing', {}, accessToken);
+
+    try {
+      const recuerdo = await componerTiraDeFotos({
+        fotos: tanda,
+        nombreDelEvento: fiesta?.eventName || 'Evento AK',
+        fechaDelEvento: fiesta?.eventDate || '',
+        colorDeAcento: fiesta?.station.accentColor || '#d97706',
+        textoDeMarca: watermarkEnabled ? (fiesta?.station.brandText || 'AK Producciones') : undefined,
+      });
+      setCapturedImage(recuerdo);
+    } catch (err) {
+      // Si el armado falla, al menos queda la ultima foto: peor es dejar al
+      // invitado sin nada despues de haberse sacado las tres.
+      setCapturedImage(dataUrl);
+      setErrorMsg('No se pudo armar la tira con las tres fotos. Queda la última.');
+    }
 
     setLocalStatus('done');
     await updateEntertainmentSessionStatus(
@@ -287,11 +370,43 @@ export default function FotocabinaPage() {
     );
   };
 
+  /**
+   * Sin muro contratado no hay a donde subir: se imprime en la cabina. Se abre
+   * una ventana con la hoja sola para no arrastrar la pantalla del kiosco a la
+   * impresora.
+   */
+  const handleImprimir = (esAutomatica = false) => {
+    if (!capturedImage) return;
+    setIsPrinting(true);
+    setYaSeImprimio(true);
+    try {
+      const resultado = imprimirRecuerdo(capturedImage);
+      if (!resultado.ok) {
+        setErrorMsg(resultado.aviso || 'No se pudo mandar a imprimir.');
+        return;
+      }
+      speak('Tu recuerdo se esta imprimiendo');
+      // Solo la copia automatica reinicia la cabina. Si el invitado pide otra
+      // copia, la pantalla se queda donde esta para que pueda pedir mas.
+      if (esAutomatica) {
+        setShowSuccess(true);
+        setTimeout(() => {
+          setShowSuccess(false);
+          retake();
+        }, (fiesta?.station.reviewSeconds || 20) * 1000);
+      }
+    } catch (err) {
+      setErrorMsg('No se pudo mandar a imprimir. Avisá al operador.');
+    } finally {
+      setIsPrinting(false);
+    }
+  };
+
   const drawFrameOverlay = (ctx: CanvasRenderingContext2D, w: number, h: number) => {
     if (selectedFrame === 'none') return;
-    
+
     ctx.lineWidth = 0;
-    
+
     if (selectedFrame === 'golden') {
       ctx.strokeStyle = 'rgba(251, 191, 36, 0.8)';
       ctx.lineWidth = 40;
@@ -323,7 +438,7 @@ export default function FotocabinaPage() {
 
   const drawWatermark = (ctx: CanvasRenderingContext2D, w: number, h: number) => {
     if (!watermarkEnabled) return;
-    
+
     const eventName = fiesta?.eventName || 'Nuestra Fiesta';
     const rawDate = fiesta?.eventDate;
     let eventDateStr = '';
@@ -341,18 +456,18 @@ export default function FotocabinaPage() {
     grad.addColorStop(0, 'rgba(0, 0, 0, 0)');
     grad.addColorStop(0.3, 'rgba(0, 0, 0, 0.6)');
     grad.addColorStop(1, 'rgba(0, 0, 0, 0.85)');
-    
+
     ctx.fillStyle = grad;
     ctx.fillRect(0, h - bannerHeight, w, bannerHeight);
 
     ctx.fillStyle = '#ffffff';
     ctx.textAlign = 'center';
     ctx.textBaseline = 'middle';
-    
+
     if (eventDateStr) {
       ctx.font = `bold ${Math.max(16, h * 0.022)}px sans-serif`;
       ctx.fillText(eventName, w / 2, h - bannerHeight * 0.58);
-      
+
       ctx.fillStyle = 'rgba(255, 255, 255, 0.8)';
       ctx.font = `${Math.max(12, h * 0.016)}px sans-serif`;
       ctx.fillText(eventDateStr, w / 2, h - bannerHeight * 0.28);
@@ -378,7 +493,7 @@ export default function FotocabinaPage() {
     try {
       const blob = await new Promise<Blob | null>(resolve => canvasRef.current!.toBlob(resolve, 'image/jpeg', 0.9));
       if (!blob) throw new Error('Error al generar la imagen');
-      
+
       const file = new File([blob], `fotocabina-${Date.now()}.jpg`, { type: 'image/jpeg' });
       const formData = new FormData();
       formData.append('fiestaId', fiestaId);
@@ -386,7 +501,7 @@ export default function FotocabinaPage() {
       formData.append('authorName', 'Fotocabina AK');
       formData.append('moduleId', 'fotocabina');
       if (accessToken) formData.append('accessToken', accessToken);
-      
+
       const res = await uploadEntretenimientoMedia(formData);
       if (res.success) {
         const mediaUrl = res.media?.url || '';
@@ -396,12 +511,12 @@ export default function FotocabinaPage() {
           fiestaId,
           'fotocabina',
           'done',
-          { mediaUrl, reviewPending: false },
+          { mediaUrl, reviewPending: false, lastError: null },
           accessToken
         );
         speak("¡Excelente! Tu foto ya está lista.");
         setShowSuccess(true);
-        
+
         // Auto reset after 12 seconds
         setTimeout(() => {
           setShowSuccess(false);
@@ -419,7 +534,7 @@ export default function FotocabinaPage() {
         fiestaId,
         'fotocabina',
         'done',
-        {},
+        { lastError: 'No se pudo subir la foto del invitado al muro.' },
         accessToken
       );
       speak("No se pudo subir al muro, pero puedes guardarla");
@@ -443,6 +558,12 @@ export default function FotocabinaPage() {
     setQrCodeUrl('');
     setLocalStatus('idle');
     setShowSuccess(false);
+    // La tanda se rehace entera: si se dejan las fotos viejas, la proxima
+    // vuelve con cuatro o cinco pegadas.
+    fotosDeLaTandaRef.current = [];
+    setFotosDeLaTanda([]);
+    setFotoEnCurso(0);
+    setYaSeImprimio(false);
     void completeEntertainmentSessionCycle(fiestaId, 'fotocabina', accessToken);
     if (role === 'display') {
       startCamera();
@@ -453,6 +574,20 @@ export default function FotocabinaPage() {
     takePhotoRef.current = () => { void takePhoto(); };
     retakeRef.current = retake;
   });
+
+  // Impresion automatica: apenas el recuerdo esta armado sale la copia, sin
+  // que el invitado tenga que apretar nada. Asi funcionan las cabinas del
+  // rubro. Solo corre en la pantalla del invitado, nunca en la del operador,
+  // que si no imprimiria dos veces la misma tanda.
+  useEffect(() => {
+    if (role !== 'display') return;
+    if (localStatus !== 'done') return;
+    if (!capturedImage || yaSeImprimio) return;
+    if (fotosDeLaTanda.length < FOTOS_POR_TANDA) return;
+    handleImprimir(true);
+    // handleImprimir se recrea en cada dibujo; alcanza con mirar el recuerdo.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [capturedImage, localStatus, role, yaSeImprimio, fotosDeLaTanda.length]);
 
   const handleOperatorStart = async () => {
     setErrorMsg(null);
@@ -484,6 +619,7 @@ export default function FotocabinaPage() {
     return (
       <div className="min-h-screen bg-zinc-950 p-4 text-white sm:p-6">
         <div className="mx-auto max-w-md space-y-5">
+          <AvisoDeFallaEnEstacion mensaje={session?.lastError} cuando={session?.lastErrorAt} />
           <div className="flex items-center justify-between border-b border-white/10 pb-4">
             <button onClick={() => router.back()} aria-label="Volver" title="Volver" className="rounded-lg p-2 transition hover:bg-white/10">
               <ArrowLeft className="w-5 h-5" />
@@ -554,7 +690,7 @@ export default function FotocabinaPage() {
   return (
     <div className="fixed inset-0 bg-zinc-950 text-white flex flex-col overflow-hidden select-none">
       <canvas ref={canvasRef} className="hidden" />
-      
+
       {/* FLASH SCREEN */}
       {flash && <div className="absolute inset-0 bg-white z-50 animate-pulse" />}
 
@@ -572,7 +708,7 @@ export default function FotocabinaPage() {
             <>
               <button
                 type="button"
-                onClick={() => setVoiceEnabled(v => !v)} 
+                onClick={() => setVoiceEnabled(v => !v)}
                 aria-label={voiceEnabled ? 'Desactivar voz' : 'Activar voz'}
                 title={voiceEnabled ? 'Desactivar voz' : 'Activar voz'}
                 className={`flex h-11 w-11 items-center justify-center rounded-full backdrop-blur-md transition ${voiceEnabled ? 'bg-amber-400/20 text-amber-400 border border-amber-400/30' : 'bg-white/10 text-white'}`}
@@ -581,7 +717,7 @@ export default function FotocabinaPage() {
               </button>
               <button
                 type="button"
-                onClick={() => setWatermarkEnabled(w => !w)} 
+                onClick={() => setWatermarkEnabled(w => !w)}
                 aria-label={watermarkEnabled ? 'Quitar marca del evento' : 'Agregar marca del evento'}
                 title={watermarkEnabled ? 'Quitar marca del evento' : 'Agregar marca del evento'}
                 className={`flex h-11 w-11 items-center justify-center rounded-full backdrop-blur-md transition ${watermarkEnabled ? 'bg-amber-400/20 text-amber-400 border border-amber-400/30' : 'bg-white/10 text-white'}`}
@@ -598,7 +734,7 @@ export default function FotocabinaPage() {
 
       {/* VIEWPORT AREA */}
       <div className="flex-1 relative w-full h-full flex items-center justify-center overflow-hidden bg-black">
-        
+
         {errorMsg && (
           <div className="p-6 text-center text-red-400 font-medium z-10">
             <p className="text-5xl mb-4">📷🚫</p>
@@ -609,14 +745,14 @@ export default function FotocabinaPage() {
         {/* State: Idle / Welcome */}
         {localStatus === 'idle' && !capturedImage && !errorMsg && (
           <div className="relative w-full h-full">
-            <video 
-              ref={videoRef} 
-              autoPlay 
-              playsInline 
-              muted 
-              className={`absolute inset-0 w-full h-full object-cover opacity-40 ${facingMode === 'user' ? 'scale-x-[-1]' : ''}`} 
+            <video
+              ref={videoRef}
+              autoPlay
+              playsInline
+              muted
+              className={`absolute inset-0 w-full h-full object-cover opacity-40 ${facingMode === 'user' ? 'scale-x-[-1]' : ''}`}
             />
-            
+
             <div className="absolute inset-0 flex flex-col items-center justify-center text-center p-6 bg-gradient-to-t from-zinc-950 via-zinc-950/40 to-zinc-950/80">
               <div className="relative z-10 space-y-6 max-w-sm">
                 <div
@@ -652,14 +788,42 @@ export default function FotocabinaPage() {
         {/* State: Countdown */}
         {localStatus === 'countdown' && !capturedImage && (
           <div className="relative w-full h-full flex items-center justify-center">
-            <video 
-              ref={videoRef} 
-              autoPlay 
-              playsInline 
-              muted 
-              className={`absolute inset-0 w-full h-full object-cover ${facingMode === 'user' ? 'scale-x-[-1]' : ''}`} 
+            <video
+              ref={videoRef}
+              autoPlay
+              playsInline
+              muted
+              className={`absolute inset-0 w-full h-full object-cover ${facingMode === 'user' ? 'scale-x-[-1]' : ''}`}
             />
             <div className="absolute inset-0 bg-black/45" />
+
+            {/* Guia al invitado: cual va y que hacer. Sin esto se queda mirando
+                el numero sin saber que despues vienen dos mas. */}
+            {fotoEnCurso > 0 && (
+              <div className="absolute inset-x-0 top-24 z-10 flex flex-col items-center gap-3 px-6 text-center">
+                <div className="flex items-center gap-2">
+                  {Array.from({ length: FOTOS_POR_TANDA }).map((_, indice) => (
+                    <span
+                      key={indice}
+                      className={`h-2.5 rounded-full transition-all ${
+                        indice < fotoEnCurso - 1
+                          ? 'w-8 bg-emerald-400'
+                          : indice === fotoEnCurso - 1
+                            ? 'w-8 bg-amber-400'
+                            : 'w-2.5 bg-white/30'
+                      }`}
+                    />
+                  ))}
+                </div>
+                <p className="text-sm font-black uppercase tracking-widest text-amber-300">
+                  Foto {fotoEnCurso} de {FOTOS_POR_TANDA}
+                </p>
+                <p className="max-w-md text-lg font-bold text-white drop-shadow-lg sm:text-xl">
+                  {GUIA_POR_FOTO[fotoEnCurso - 1]}
+                </p>
+              </div>
+            )}
+
             <AnimatePresence>
               {countdown !== null && (
                 <motion.div
@@ -689,27 +853,53 @@ export default function FotocabinaPage() {
         {/* State: Done (Photo Preview + QR Download) */}
         {localStatus === 'done' && capturedImage && (
           <div className="absolute inset-0 z-40 flex flex-col items-center justify-start gap-6 overflow-y-auto overscroll-contain bg-zinc-950 px-4 pb-8 pt-20 md:flex-row md:justify-center md:gap-8 md:p-6">
-            
+
             {/* Captured Image Preview */}
             <div className="relative h-[52dvh] max-h-[32rem] w-auto max-w-full shrink-0 aspect-[9/16] overflow-hidden rounded-lg border border-white/10 bg-black shadow-2xl md:h-[80dvh] md:max-h-[48rem]">
               {/* eslint-disable-next-line @next/next/no-img-element -- Canvas output is generated only in this browser. */}
               <img src={capturedImage} className="w-full h-full object-contain" alt="Captura Final" />
               <div className="absolute left-4 top-4 rounded-lg bg-amber-400 px-3 py-1 text-[10px] font-black uppercase tracking-wide text-zinc-950">
-                Previsualizacion
+                Asi se imprime
               </div>
             </div>
 
+            {/* Las tres fotos por separado. El recuerdo armado se ve chico en
+                la pantalla de la cabina, y el invitado quiere revisar una por
+                una antes de mandar a imprimir. */}
+            {fotosDeLaTanda.length > 1 && (
+              <div className="flex shrink-0 flex-row gap-2 md:flex-col">
+                {fotosDeLaTanda.map((foto, indice) => (
+                  <div key={indice} className="relative h-24 w-16 overflow-hidden rounded-md border border-white/10 bg-black md:h-32 md:w-24">
+                    {/* eslint-disable-next-line @next/next/no-img-element -- Sale del canvas de este mismo navegador. */}
+                    <img src={foto} className="h-full w-full object-cover" alt={`Foto ${indice + 1} de la tanda`} />
+                    <span className="absolute bottom-0 right-0 bg-black/70 px-1.5 text-[9px] font-black text-white">
+                      {indice + 1}
+                    </span>
+                  </div>
+                ))}
+              </div>
+            )}
+
             {/* QR sharing code */}
             <div className="flex flex-col items-center text-center space-y-6 max-w-xs">
+              {/* Sin enlace y con error, la subida fallo: hay que decirlo aca.
+                  El aviso de errorMsg vive en otra capa, tapada por esta
+                  pantalla final, asi que el invitado se iba creyendo que su
+                  foto habia quedado publicada. */}
               <div className="space-y-2">
                 <h3 className="text-2xl font-black text-white">
-                  {qrCodeUrl ? 'Tu foto esta lista' : 'Revisa tu foto'}
+                  {qrCodeUrl ? 'Tu recuerdo esta listo' : errorMsg ? 'No se pudo publicar' : 'Tus tres fotos'}
                 </h3>
                 <p className="text-sm text-zinc-400">
                   {qrCodeUrl
                     ? fiesta?.station.qrCallout
-                    : 'Repetila o publicala para recibir un enlace y guardarla.'}
+                    : errorMsg
+                      ? 'Tu foto no llego al muro. Podes imprimirla o volver a intentar.'
+                      : 'Imprimila para llevartela, o repetí la tanda si alguna no te gustó.'}
                 </p>
+                {!qrCodeUrl && errorMsg && (
+                  <p className="text-xs font-bold text-rose-400" role="alert">{errorMsg}</p>
+                )}
               </div>
 
               {qrCodeUrl && (
@@ -719,25 +909,36 @@ export default function FotocabinaPage() {
               )}
 
               <div className="flex flex-col gap-2 w-full">
+                {/* Imprimir va primero y siempre: es lo que el invitado se
+                    lleva en la mano. El muro es el extra, y sin muro
+                    contratado este es el unico camino. */}
+                <button
+                  onClick={() => handleImprimir(false)}
+                  disabled={isPrinting}
+                  className="w-full h-14 rounded-xl text-white font-black text-base uppercase tracking-wider transition-all flex items-center justify-center gap-2 disabled:opacity-50"
+                  style={{ backgroundColor: fiesta?.station.accentColor || '#d97706' }}
+                >
+                  {isPrinting ? <Loader2 className="w-5 h-5 animate-spin" /> : <Printer className="w-5 h-5" />}
+                  {yaSeImprimio ? 'Quiero otra copia' : 'Imprimir mi recuerdo'}
+                </button>
+
                 {qrCodeUrl ? (
                   <button
                     onClick={handleDownload}
-                    className="w-full h-12 rounded-xl text-white font-black text-sm uppercase tracking-wider transition-all flex items-center justify-center gap-2"
-                    style={{ backgroundColor: fiesta?.station.accentColor || '#d97706' }}
+                    className="w-full h-12 rounded-xl bg-white/5 hover:bg-white/10 text-white font-bold text-sm border border-white/10 transition flex items-center justify-center gap-2"
                   >
-                    <Download className="w-4 h-4" /> Guardar Foto
+                    <Download className="w-4 h-4" /> Guardar en el celular
                   </button>
-                ) : (
+                ) : hayMuro ? (
                   <button
                     onClick={handleAcceptAndPublish}
                     disabled={isUploading}
-                    className="w-full h-12 rounded-xl text-white font-black text-sm uppercase tracking-wider transition-all flex items-center justify-center gap-2 disabled:opacity-50"
-                    style={{ backgroundColor: fiesta?.station.accentColor || '#d97706' }}
+                    className="w-full h-12 rounded-xl bg-white/5 hover:bg-white/10 text-white font-bold text-sm border border-white/10 transition flex items-center justify-center gap-2 disabled:opacity-50"
                   >
                     {isUploading ? <Loader2 className="w-4 h-4 animate-spin" /> : <Send className="w-4 h-4" />}
-                    Publicar y obtener enlace
+                    Publicar en el muro
                   </button>
-                )}
+                ) : null}
                 {fiesta?.station.allowGuestRetake && fiesta.station.maxRetakes > 0 && (
                   <button
                     onClick={retake}
@@ -745,6 +946,24 @@ export default function FotocabinaPage() {
                   >
                     <RefreshCw className="w-4 h-4" /> Repetir foto
                   </button>
+                )}
+
+                {role !== 'operator' && (
+                  <div className="pt-2 text-center">
+                    <a
+                      href={appendCommercialAttribution('/simulador-de-presupuesto', {
+                        source: 'guest_portal',
+                        campaign: 'fotocabina',
+                        refFiestaId: fiestaId,
+                      })}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="inline-flex items-center gap-1.5 text-xs text-zinc-400 hover:text-amber-300 transition-colors py-1"
+                    >
+                      <span>¿Te toca festejar el año que viene? Mirá cuánto sale tu fiesta</span>
+                      <span aria-hidden="true">&rarr;</span>
+                    </a>
+                  </div>
                 )}
               </div>
             </div>

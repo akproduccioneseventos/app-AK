@@ -3,6 +3,7 @@
 import React, { useEffect, useState, useCallback, type FormEvent } from 'react';
 import { useParams } from 'next/navigation';
 import { CompanyLogo } from '@/components/company-logo';
+import { cn } from '@/lib/utils';
 import {
   Loader2,
   AlertTriangle,
@@ -45,10 +46,12 @@ import {
   getFiestaForPortalSession,
   initializePortalSession,
   recuperarClavePortal,
+  guardarCorreoDeRecuperacion,
   updateClientGuestTable,
   updateClientPackingList,
 } from '@/app/actions/fiesta/portal.actions';
 import { construirClavePorDefecto } from '@/lib/client-portal/clave-portal';
+import { AK_WHATSAPP_NUMBER } from '@/lib/public-contact';
 import { useToast } from '@/hooks/use-toast';
 import { EventProgressBar } from '@/components/portal/EventProgressBar';
 import { calcFiestaProgress } from '@/lib/fiesta-progress';
@@ -59,10 +62,10 @@ import { parseEventDate } from '@/lib/public-experience/event-date';
 const SESSION_KEY_PREFIX = 'portal_auth_';
 
 const ESTADO_CONFIG: Record<string, { label: string; color: string; bg: string }> = {
-  pendiente: { label: 'Pendiente', color: 'text-amber-700', bg: 'bg-amber-50 border-amber-200' },
-  enviado:   { label: 'Enviado',   color: 'text-blue-700',  bg: 'bg-blue-50 border-blue-200'   },
-  revisado:  { label: 'En revisión', color: 'text-purple-700', bg: 'bg-purple-50 border-purple-200' },
-  listo:     { label: 'Listo ✓',   color: 'text-green-700', bg: 'bg-green-50 border-green-200' },
+  pendiente: { label: 'Pendiente', color: 'text-amber-700 dark:text-amber-400', bg: 'bg-amber-500/10 border-amber-500/20' },
+  enviado:   { label: 'Enviado',   color: 'text-blue-700 dark:text-blue-400',   bg: 'bg-blue-500/10 border-blue-500/20'   },
+  revisado:  { label: 'En revisión', color: 'text-purple-700 dark:text-purple-400', bg: 'bg-purple-500/10 border-purple-500/20' },
+  listo:     { label: 'Listo ✓',   color: 'text-emerald-700 dark:text-emerald-400', bg: 'bg-emerald-500/10 border-emerald-500/20' },
 };
 
 // ──────────────────────────────────────────────────────────────
@@ -79,10 +82,10 @@ function formatDate(iso?: string) {
 
 function cuotaStatusColor(estado: CuotaPlanPago['estado']) {
   switch (estado) {
-    case 'pagado': return 'bg-green-100 text-green-700 border-green-200';
-    case 'parcial': return 'bg-yellow-100 text-yellow-700 border-yellow-200';
-    case 'vencido': return 'bg-red-100 text-red-700 border-red-200';
-    default:        return 'bg-slate-100 text-slate-600 border-slate-200';
+    case 'pagado': return 'bg-emerald-500/10 text-emerald-700 dark:text-emerald-400 border-emerald-500/20';
+    case 'parcial': return 'bg-amber-500/10 text-amber-700 dark:text-amber-400 border-amber-500/20';
+    case 'vencido': return 'bg-destructive/10 text-destructive border-destructive/20';
+    default:        return 'bg-muted text-muted-foreground border-border';
   }
 }
 
@@ -121,6 +124,7 @@ export default function PortalClientePage() {
 
   // Cambio obligatorio de clave la primera vez y recuperacion por correo.
   const [debeCambiarClave, setDebeCambiarClave] = useState(false);
+  const [correoRecuperacion, setCorreoRecuperacion] = useState('');
   const [claveUsada, setClaveUsada]             = useState('');
   const [claveNueva, setClaveNueva]             = useState('');
   const [claveRepetida, setClaveRepetida]       = useState('');
@@ -262,6 +266,22 @@ export default function PortalClientePage() {
         return;
       }
       sessionStorage.setItem(sessionKey, claveNueva.trim());
+
+      // Si dejo su correo, se guarda ahora que ya esta adentro del portal. Es el
+      // unico momento por el que pasa seguro, y es lo que le va a permitir
+      // recuperar la clave sola si se la olvida. Si falla no se le corta el paso:
+      // la clave nueva ya quedo guardada, que es lo que vino a hacer.
+      const correo = correoRecuperacion.trim();
+      if (correo) {
+        const guardado = await guardarCorreoDeRecuperacion(fiestaId, correo).catch(() => null);
+        if (guardado && !guardado.success) {
+          toast({
+            title: 'Guardamos tu clave, pero no el correo',
+            description: guardado.error || 'Podés cargarlo más tarde o pedirnos la clave por WhatsApp.',
+          });
+        }
+      }
+
       setDebeCambiarClave(false);
       setClaveNueva('');
       setClaveRepetida('');
@@ -322,7 +342,7 @@ export default function PortalClientePage() {
   if (isLoading) {
     return (
       <div className="flex items-center justify-center min-h-screen">
-        <Loader2 className="w-12 h-12 animate-spin text-purple-600" />
+        <Loader2 className="w-12 h-12 animate-spin text-primary" />
       </div>
     );
   }
@@ -331,13 +351,13 @@ export default function PortalClientePage() {
   if (pageError) {
     return (
       <div className="flex items-center justify-center min-h-screen p-4">
-        <Card className="max-w-md text-center border-red-200 bg-red-50">
+        <Card className="max-w-md text-center rounded-xl border-destructive/30 bg-destructive/10">
           <CardHeader>
-            <AlertTriangle className="w-12 h-12 mx-auto text-red-500" />
-            <CardTitle className="text-red-700">Acceso no disponible</CardTitle>
+            <AlertTriangle className="w-12 h-12 mx-auto text-destructive" />
+            <CardTitle className="text-destructive font-bold">Acceso no disponible</CardTitle>
           </CardHeader>
           <CardContent>
-            <p className="text-slate-600">{pageError}</p>
+            <p className="text-muted-foreground">{pageError}</p>
           </CardContent>
         </Card>
       </div>
@@ -348,14 +368,14 @@ export default function PortalClientePage() {
   if (!isAuthenticated) {
     return (
       <div className="ak-public-page flex min-h-screen items-center justify-center p-4">
-        <Card className="w-full max-w-sm rounded-lg border-slate-200 shadow-xl">
+        <Card className="w-full max-w-sm rounded-xl border-border bg-card shadow-xl">
           <CardHeader className="text-center space-y-3">
             <div className="relative w-14 h-14 mx-auto opacity-80">
               <CompanyLogo size="md" className="mx-auto" />
             </div>
-            <KeyRound className="w-10 h-10 mx-auto text-red-700" />
-            <CardTitle className="text-xl font-black">Portal del Cliente</CardTitle>
-            <CardDescription>Ingresá la contraseña que te dio tu organizador.</CardDescription>
+            <KeyRound className="w-10 h-10 mx-auto text-primary" />
+            <CardTitle className="text-xl font-black text-foreground">Portal del Cliente</CardTitle>
+            <CardDescription className="text-muted-foreground">Ingresá la contraseña que te dio tu organizador.</CardDescription>
           </CardHeader>
           <form onSubmit={handleLogin}>
             <CardContent className="space-y-4">
@@ -368,25 +388,42 @@ export default function PortalClientePage() {
                   onChange={e => setPassword(e.target.value)}
                   autoFocus
                   placeholder="••••••••"
+                  className="rounded-lg"
                 />
               </div>
-              {authError && <p className="text-sm text-red-600 text-center">{authError}</p>}
-              {avisoRecuperacion && <p className="text-sm text-emerald-700 text-center font-semibold">{avisoRecuperacion}</p>}
+              {authError && <p className="text-sm text-destructive text-center">{authError}</p>}
+              {avisoRecuperacion && <p className="text-sm text-emerald-600 dark:text-emerald-400 text-center font-semibold">{avisoRecuperacion}</p>}
             </CardContent>
             <CardFooter className="flex-col gap-3">
-              <Button type="submit" className="w-full bg-red-700 hover:bg-red-800" disabled={isAuthenticating || !password.trim()}>
+              <Button type="submit" className="w-full rounded-lg" disabled={isAuthenticating || !password.trim()}>
                 {isAuthenticating ? <Loader2 className="w-4 h-4 mr-2 animate-spin" /> : <LogIn className="w-4 h-4 mr-2" />} Ingresar
               </Button>
               {/* La salida para el cliente que se la olvido: la clave se le manda
                   al correo que tenemos registrado, no aparece en pantalla. */}
-              <button
-                type="button"
-                onClick={handleOlvideMiClave}
-                disabled={enviandoRecuperacion}
-                className="text-xs font-semibold text-slate-500 underline underline-offset-4 disabled:opacity-60"
-              >
-                {enviandoRecuperacion ? 'Enviando…' : 'Olvidé mi clave'}
-              </button>
+              <div className="flex flex-col items-center gap-2">
+                <button
+                  type="button"
+                  onClick={handleOlvideMiClave}
+                  disabled={enviandoRecuperacion}
+                  className="text-xs font-semibold text-muted-foreground underline underline-offset-4 disabled:opacity-60 hover:text-foreground"
+                >
+                  {enviandoRecuperacion ? 'Enviando…' : 'Olvidé mi clave (por correo)'}
+                </button>
+                {/* La segunda salida, para el que no usa correo: le escribe a AK
+                    por WhatsApp. Es mas seguro que mandarsela a un correo que
+                    escriba cualquiera en esta pantalla, porque del otro lado AK
+                    sabe con quien esta hablando antes de darle nada. */}
+                <a
+                  href={`https://wa.me/${AK_WHATSAPP_NUMBER}?text=${encodeURIComponent(
+                    'Hola AK, me olvidé la clave de mi portal y no tengo correo a mano. ¿Me ayudan a recuperarla?',
+                  )}`}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="text-xs font-semibold text-emerald-600 dark:text-emerald-400 underline underline-offset-4"
+                >
+                  No uso correo: pedirla por WhatsApp
+                </a>
+              </div>
             </CardFooter>
           </form>
         </Card>
@@ -401,11 +438,11 @@ export default function PortalClientePage() {
   if (debeCambiarClave) {
     return (
       <div className="ak-public-page flex min-h-screen items-center justify-center p-4">
-        <Card className="w-full max-w-sm rounded-lg border-slate-200 shadow-xl">
+        <Card className="w-full max-w-sm rounded-xl border-border bg-card shadow-xl">
           <CardHeader className="text-center space-y-3">
-            <KeyRound className="w-10 h-10 mx-auto text-red-700" />
-            <CardTitle className="text-xl font-black">Elegí tu clave</CardTitle>
-            <CardDescription>
+            <KeyRound className="w-10 h-10 mx-auto text-primary" />
+            <CardTitle className="text-xl font-black text-foreground">Elegí tu clave</CardTitle>
+            <CardDescription className="text-muted-foreground">
               Estás usando la clave que te dimos al principio. Como se arma con tu nombre,
               cualquiera podría adivinarla. Elegí una tuya para entrar.
             </CardDescription>
@@ -413,29 +450,45 @@ export default function PortalClientePage() {
           <form onSubmit={handleCambiarClave}>
             <CardContent className="space-y-4">
               <div className="space-y-1">
-                <Label htmlFor="clave-nueva">Tu clave nueva</Label>
+                <Label htmlFor="clave-nueva">Nueva clave</Label>
                 <Input
                   id="clave-nueva"
                   type="password"
                   value={claveNueva}
                   onChange={e => setClaveNueva(e.target.value)}
                   autoFocus
-                  placeholder="Al menos 6 caracteres"
+                  placeholder="elegí una que recuerdes"
+                  className="rounded-lg"
                 />
               </div>
               <div className="space-y-1">
-                <Label htmlFor="clave-repetida">Repetila</Label>
+                <Label htmlFor="clave-repetida">Repetir nueva clave</Label>
                 <Input
                   id="clave-repetida"
                   type="password"
                   value={claveRepetida}
                   onChange={e => setClaveRepetida(e.target.value)}
-                  placeholder="La misma de arriba"
+                  placeholder="escribila otra vez"
+                  className="rounded-lg"
                 />
               </div>
-              {errorClave && <p className="text-sm text-red-600 text-center">{errorClave}</p>}
-              <p className="text-xs text-slate-500 text-center">
-                Anotala donde la tengas a mano. Si te la olvidás, te la mandamos por correo.
+              <div className="space-y-1">
+                <Label htmlFor="correo-recuperacion">Tu correo (opcional)</Label>
+                <Input
+                  id="correo-recuperacion"
+                  type="email"
+                  value={correoRecuperacion}
+                  onChange={e => setCorreoRecuperacion(e.target.value)}
+                  placeholder="para recuperar la clave si te la olvidás"
+                  className="rounded-lg"
+                />
+                <p className="text-xs text-muted-foreground">
+                  Si no usás correo, dejalo vacío: nos escribís por WhatsApp y te la pasamos.
+                </p>
+              </div>
+              {errorClave && <p className="text-sm text-destructive text-center">{errorClave}</p>}
+              <p className="text-xs text-muted-foreground text-center">
+                Anotala donde la tengas a mano.
               </p>
             </CardContent>
             <CardFooter>
@@ -513,16 +566,16 @@ export default function PortalClientePage() {
   return (
     <div className="ak-public-page">
       {/* Header */}
-      <header className="bg-white border-b border-slate-100 shadow-sm sticky top-0 z-40">
+      <header className="bg-card border-b border-border shadow-sm sticky top-0 z-40">
         <div className="max-w-4xl mx-auto px-4 h-14 flex items-center gap-3">
           <div className="relative w-8 h-8 shrink-0">
             <CompanyLogo size="sm" />
           </div>
           <div className="flex-1 min-w-0">
-            <p className="text-sm font-black text-slate-900 truncate">{config.nombreEvento}</p>
-            <p className="text-xs text-slate-500">{config.tipoCelebracion} · {formatDate(config.fechaEvento)}</p>
+            <p className="text-sm font-black text-foreground truncate">{config.nombreEvento}</p>
+            <p className="text-xs text-muted-foreground">{config.tipoCelebracion} · {formatDate(config.fechaEvento)}</p>
           </div>
-          <Badge variant="outline" className="shrink-0 border-red-200 bg-red-50 text-red-700">
+          <Badge variant="outline" className="shrink-0 border-primary/20 bg-primary/10 text-primary">
             Portal VIP
           </Badge>
         </div>
@@ -562,36 +615,36 @@ export default function PortalClientePage() {
 
         {/* ── Mensaje de Bienvenida personalizado ──────── */}
         {welcomeMsg && (
-          <div className="rounded-lg border border-red-100 bg-red-50 p-4 text-center">
-            <p className="text-sm font-semibold text-red-800">{welcomeMsg}</p>
+          <div className="rounded-xl border border-primary/20 bg-primary/10 p-4 text-center">
+            <p className="text-sm font-semibold text-primary">{welcomeMsg}</p>
           </div>
         )}
 
         {/* ── Mensaje del Organizador ───────────────────── */}
         {organizerMsg && (
-          <div className="flex items-start gap-3 rounded-lg border border-amber-100 bg-amber-50 p-4">
+          <div className="flex items-start gap-3 rounded-xl border border-amber-500/20 bg-amber-500/10 p-4">
             <span className="text-2xl shrink-0">💬</span>
             <div>
-              <p className="text-xs font-black uppercase tracking-widest text-amber-700 mb-1">Mensaje de tu Organizador</p>
-              <p className="text-sm text-amber-900">{organizerMsg}</p>
+              <p className="text-xs font-black uppercase tracking-widest text-amber-700 dark:text-amber-400 mb-1">Mensaje de tu Organizador</p>
+              <p className="text-sm text-foreground">{organizerMsg}</p>
             </div>
           </div>
         )}
 
         {isEventPast && (
-          <div className="flex flex-col items-center justify-between gap-4 rounded-lg border border-emerald-100 bg-emerald-50 p-5 shadow-sm sm:flex-row">
+          <div className="flex flex-col items-center justify-between gap-4 rounded-xl border border-emerald-500/20 bg-emerald-500/10 p-5 shadow-sm sm:flex-row">
             <div className="flex gap-3.5 items-start">
               <span className="text-3xl shrink-0">✨</span>
               <div className="text-left">
-                <p className="text-xs font-black uppercase tracking-widest text-indigo-700 mb-1">¡Evento Concluido!</p>
-                <h3 className="text-base font-black text-slate-800">Muro de Recuerdos & Descargas</h3>
-                <p className="text-xs text-slate-500 mt-1 leading-relaxed">
+                <p className="text-xs font-black uppercase tracking-widest text-emerald-700 dark:text-emerald-400 mb-1">¡Evento Concluido!</p>
+                <h3 className="text-base font-black text-foreground">Muro de Recuerdos & Descargas</h3>
+                <p className="text-xs text-muted-foreground mt-1 leading-relaxed">
                   Ya podés acceder a todas las fotos y videos compartidos por tus invitados, así como a las dedicatorias y audios.
                 </p>
               </div>
             </div>
             <Link href={`/portal-cliente/${fiestaId}/fotos-video`} className="w-full sm:w-auto shrink-0">
-              <Button className="h-11 w-full rounded-lg bg-emerald-700 px-5 font-bold text-white hover:bg-emerald-800 sm:w-auto">
+              <Button className="h-11 w-full rounded-lg px-5 font-bold sm:w-auto">
                 Acceder a Recuerdos
               </Button>
             </Link>
@@ -613,10 +666,10 @@ export default function PortalClientePage() {
             { label: 'Preguntas Frecuentes', emoji: '❓', href: `/portal-cliente/${fiestaId}/faq`, desc: 'Dudas & Consultas' },
           ].map((item, i) => (
             <Link key={i} href={item.href} className="block group">
-              <div className="space-y-1.5 rounded-2xl border border-slate-200 bg-white p-4 text-center transition-all duration-300 group-hover:border-red-300 group-hover:shadow-lg group-hover:-translate-y-1">
+              <div className="space-y-1.5 rounded-xl border border-border bg-card p-4 text-center transition-all duration-300 group-hover:border-primary/40 group-hover:shadow-lg group-hover:-translate-y-1">
                 <span className="text-3xl block transition-transform duration-300 group-hover:scale-110">{item.emoji}</span>
-                <p className="font-black text-sm text-slate-800 group-hover:text-red-700 transition-colors">{item.label}</p>
-                <p className="text-[11px] text-slate-400 font-medium">{item.desc}</p>
+                <p className="font-black text-sm text-foreground group-hover:text-primary transition-colors">{item.label}</p>
+                <p className="text-[11px] text-muted-foreground font-medium">{item.desc}</p>
               </div>
             </Link>
           ))}
@@ -637,12 +690,12 @@ export default function PortalClientePage() {
           const label = isBoda ? 'Ver Catálogo Completo de Bodas' : isXV ? 'Ver Catálogo Completo de XV Años' : 'Ver Catálogo Completo de Fiestas';
           return (
             <Link href={catalogoPath} className="block">
-              <div className="flex cursor-pointer items-center justify-between rounded-lg border border-red-100 bg-red-50 p-4 transition-colors hover:bg-red-100">
+              <div className="flex cursor-pointer items-center justify-between rounded-xl border border-primary/20 bg-primary/10 p-4 transition-colors hover:bg-primary/15">
                 <div className="flex items-center gap-3">
                   <span className="text-2xl">{emoji}</span>
                   <div>
-                    <p className="font-black text-sm text-slate-800">{label}</p>
-                    <p className="text-xs text-slate-500">Conocé todos los servicios disponibles</p>
+                    <p className="font-black text-sm text-foreground">{label}</p>
+                    <p className="text-xs text-muted-foreground">Conocé todos los servicios disponibles</p>
                   </div>
                 </div>
                 <ChevronRight className="w-5 h-5 text-primary shrink-0" />
@@ -653,14 +706,14 @@ export default function PortalClientePage() {
 
         {/* ── Llegadas en Vivo / Resumen post-evento ─────────── */}
         {(isEventToday || isEventPast) && (
-          <Card className={isEventToday ? 'border-green-200 bg-green-50/50' : ''}>
+          <Card className={cn('rounded-xl border-border bg-card', isEventToday && 'border-emerald-500/30 bg-emerald-500/5')}>
             <CardHeader>
-              <CardTitle className="flex items-center gap-2 text-base font-black">
-                <Activity className="w-5 h-5 text-green-600" />
+              <CardTitle className="flex items-center gap-2 text-base font-black text-foreground">
+                <Activity className="w-5 h-5 text-emerald-600 dark:text-emerald-400" />
                 {isEventToday ? 'Llegadas en Vivo' : 'Resumen de Asistencia'}
                 {isEventToday && (
-                  <span className="ml-2 flex items-center gap-1.5 text-xs font-bold text-green-600 bg-green-100 px-2 py-0.5 rounded-full">
-                    <span className="w-2 h-2 rounded-full bg-green-500 animate-pulse inline-block" />
+                  <span className="ml-2 flex items-center gap-1.5 text-xs font-bold text-emerald-700 dark:text-emerald-400 bg-emerald-500/10 px-2 py-0.5 rounded-full border border-emerald-500/20">
+                    <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse inline-block" />
                     EN VIVO
                   </span>
                 )}
@@ -669,19 +722,19 @@ export default function PortalClientePage() {
             <CardContent className="space-y-4">
               {/* Big counter */}
               <div className="flex items-end gap-2">
-                <span className="text-4xl font-black text-slate-900">{checkedIn.length}</span>
-                <span className="text-lg text-slate-400 font-semibold mb-1">/ {confirmed.length} invitados llegaron</span>
+                <span className="text-4xl font-black text-foreground">{checkedIn.length}</span>
+                <span className="text-lg text-muted-foreground font-semibold mb-1">/ {confirmed.length} invitados llegaron</span>
               </div>
               {/* Progress bar */}
               {confirmed.length > 0 && (
                 <div>
-                  <div className="flex justify-between text-xs text-slate-500 mb-1">
+                  <div className="flex justify-between text-xs text-muted-foreground mb-1">
                     <span>Presencia</span>
                     <span>{Math.round((checkedIn.length / confirmed.length) * 100)}% presentes</span>
                   </div>
-                  <div className="h-3 rounded-full bg-slate-100 overflow-hidden">
+                  <div className="h-3 rounded-full bg-muted overflow-hidden">
                     <div
-                      className="h-full rounded-full bg-green-500 transition-all"
+                      className="h-full rounded-full bg-emerald-500 transition-all"
                       style={{ width: `${Math.min(100, (checkedIn.length / confirmed.length) * 100)}%` }}
                     />
                   </div>
@@ -689,39 +742,39 @@ export default function PortalClientePage() {
               )}
               {/* Stats row */}
               <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 pt-1">
-                <div className="text-center p-3 bg-blue-50 rounded-xl">
-                  <p className="text-2xl font-black text-blue-700">{confirmed.length}</p>
-                  <p className="text-xs text-blue-500 font-semibold mt-0.5">Confirmados</p>
+                <div className="text-center p-3 bg-blue-500/10 rounded-xl border border-blue-500/20">
+                  <p className="text-2xl font-black text-blue-700 dark:text-blue-400">{confirmed.length}</p>
+                  <p className="text-xs text-muted-foreground font-semibold mt-0.5">Confirmados</p>
                 </div>
-                <div className="text-center p-3 bg-green-50 rounded-xl">
-                  <p className="text-2xl font-black text-green-700">{checkedIn.length}</p>
-                  <p className="text-xs text-green-500 font-semibold mt-0.5">Presentes</p>
+                <div className="text-center p-3 bg-emerald-500/10 rounded-xl border border-emerald-500/20">
+                  <p className="text-2xl font-black text-emerald-700 dark:text-emerald-400">{checkedIn.length}</p>
+                  <p className="text-xs text-muted-foreground font-semibold mt-0.5">Presentes</p>
                 </div>
-                <div className="text-center p-3 bg-amber-50 rounded-xl">
-                  <p className="text-2xl font-black text-amber-700">{confirmed.length - checkedIn.length}</p>
-                  <p className="text-xs text-amber-500 font-semibold mt-0.5">Pendientes</p>
+                <div className="text-center p-3 bg-amber-500/10 rounded-xl border border-amber-500/20">
+                  <p className="text-2xl font-black text-amber-700 dark:text-amber-400">{confirmed.length - checkedIn.length}</p>
+                  <p className="text-xs text-muted-foreground font-semibold mt-0.5">Pendientes</p>
                 </div>
-                <div className="text-center p-3 bg-red-50 rounded-xl">
-                  <p className="text-2xl font-black text-red-700">{declined.length}</p>
-                  <p className="text-xs text-red-500 font-semibold mt-0.5">No vienen</p>
+                <div className="text-center p-3 bg-destructive/10 rounded-xl border border-destructive/20">
+                  <p className="text-2xl font-black text-destructive">{declined.length}</p>
+                  <p className="text-xs text-muted-foreground font-semibold mt-0.5">No vienen</p>
                 </div>
               </div>
               {/* Recent arrivals list */}
               {recentArrivals.length > 0 && (
                 <div>
-                  <p className="text-xs font-black uppercase tracking-wider text-slate-500 mb-2">
+                  <p className="text-xs font-black uppercase tracking-wider text-muted-foreground mb-2">
                     {isEventToday ? 'Últimas llegadas' : 'Asistentes'}
                   </p>
                   <div className="space-y-1.5 max-h-52 overflow-y-auto pr-1">
                     {recentArrivals.map(inv => (
-                      <div key={inv.id} className="flex items-center gap-2 p-2 bg-white rounded-lg border border-slate-100 text-sm">
-                        <span className="w-2 h-2 rounded-full bg-green-400 shrink-0" />
-                        <span className="flex-1 font-medium text-slate-800 truncate">{inv.nombre}</span>
+                      <div key={inv.id} className="flex items-center gap-2 p-2 bg-muted/30 rounded-lg border border-border text-sm">
+                        <span className="w-2 h-2 rounded-full bg-emerald-500 shrink-0" />
+                        <span className="flex-1 font-medium text-foreground truncate">{inv.nombre}</span>
                         {inv.tableNumber && (
-                          <span className="text-xs text-slate-400 shrink-0">Mesa {inv.tableNumber}</span>
+                          <span className="text-xs text-muted-foreground shrink-0">Mesa {inv.tableNumber}</span>
                         )}
                         {inv.checkInTimestamp && (
-                          <span className="text-xs text-slate-400 shrink-0">
+                          <span className="text-xs text-muted-foreground shrink-0">
                             {new Date(inv.checkInTimestamp).toLocaleTimeString('es-UY', { hour: '2-digit', minute: '2-digit' })}
                           </span>
                         )}
@@ -733,15 +786,15 @@ export default function PortalClientePage() {
               {/* Post-event: who didn't show */}
               {isEventPast && (
                 <div>
-                  <p className="text-xs font-black uppercase tracking-wider text-slate-500 mb-2">Confirmados que no asistieron</p>
+                  <p className="text-xs font-black uppercase tracking-wider text-muted-foreground mb-2">Confirmados que no asistieron</p>
                   {confirmed.filter(i => !i.checkedIn).length === 0 ? (
-                    <p className="text-sm text-green-600 font-semibold">🎉 ¡Todos los confirmados asistieron!</p>
+                    <p className="text-sm text-emerald-600 dark:text-emerald-400 font-semibold">🎉 ¡Todos los confirmados asistieron!</p>
                   ) : (
                     <div className="space-y-1.5 max-h-40 overflow-y-auto pr-1">
                       {confirmed.filter(i => !i.checkedIn).map(inv => (
-                        <div key={inv.id} className="flex items-center gap-2 p-2 bg-slate-50 rounded-lg border border-slate-100 text-sm">
-                          <XCircle className="w-3.5 h-3.5 text-red-400 shrink-0" />
-                          <span className="flex-1 font-medium text-slate-600 truncate">{inv.nombre}</span>
+                        <div key={inv.id} className="flex items-center gap-2 p-2 bg-muted/30 rounded-lg border border-border text-sm">
+                          <XCircle className="w-3.5 h-3.5 text-destructive shrink-0" />
+                          <span className="flex-1 font-medium text-muted-foreground truncate">{inv.nombre}</span>
                         </div>
                       ))}
                     </div>
@@ -790,12 +843,12 @@ export default function PortalClientePage() {
           };
 
           return (
-            <Card className="border-amber-100 bg-gradient-to-br from-amber-50/80 to-orange-50/60">
+            <Card className="rounded-xl border border-amber-500/20 bg-amber-500/10">
               <CardHeader className="pb-2">
-                <CardTitle className="flex items-center gap-2 text-base font-black text-amber-800">
+                <CardTitle className="flex items-center gap-2 text-base font-black text-amber-700 dark:text-amber-400">
                   <Zap className="w-5 h-5 text-amber-500" /> Cosas pendientes
                 </CardTitle>
-                <CardDescription className="text-amber-600 text-xs">
+                <CardDescription className="text-muted-foreground text-xs">
                   Completá estos pasos para que tu evento esté 100% listo.
                 </CardDescription>
               </CardHeader>
@@ -805,12 +858,12 @@ export default function PortalClientePage() {
                     <button
                       key={idx}
                       type="button"
-                      className="w-full flex items-center gap-3 p-3 bg-white/70 rounded-xl border border-amber-100 text-sm cursor-pointer hover:bg-white transition-colors text-left"
+                      className="w-full flex items-center gap-3 p-3 bg-card rounded-xl border border-border text-sm cursor-pointer hover:bg-muted/40 transition-colors text-left"
                       onClick={() => item.href && handlePendienteClick(item.href)}
                     >
                       <span className="text-xl shrink-0">{item.emoji}</span>
-                      <span className="flex-1 font-semibold text-slate-700">{item.texto}</span>
-                      <ChevronRight className="w-4 h-4 text-amber-400 shrink-0" />
+                      <span className="flex-1 font-semibold text-foreground">{item.texto}</span>
+                      <ChevronRight className="w-4 h-4 text-muted-foreground shrink-0" />
                     </button>
                   ))}
                 </div>
@@ -830,10 +883,10 @@ export default function PortalClientePage() {
           <TabsContent value="progreso" className="mt-0">
         <Accordion type="multiple" value={openSections} onValueChange={setOpenSections} className="space-y-3">
           {/* ── Resumen del Evento ──────────────────────── */}
-          <AccordionItem value="resumen" id="resumen" className="border rounded-2xl overflow-hidden bg-white shadow-sm">
-            <AccordionTrigger className="px-5 py-4 hover:no-underline hover:bg-slate-50">
-              <span className="flex items-center gap-2 text-base font-black">
-                <CalendarDays className="w-5 h-5 text-purple-600" /> Resumen del Evento
+          <AccordionItem value="resumen" id="resumen" className="border border-border rounded-xl overflow-hidden bg-card shadow-sm">
+            <AccordionTrigger className="px-5 py-4 hover:no-underline hover:bg-muted/40">
+              <span className="flex items-center gap-2 text-base font-black text-foreground">
+                <CalendarDays className="w-5 h-5 text-primary" /> Resumen del Evento
               </span>
             </AccordionTrigger>
             <AccordionContent className="px-5 pb-5">
@@ -846,12 +899,12 @@ export default function PortalClientePage() {
                 </div>
                 <div className="space-y-3">
                   {config.nombreLugar && (
-                    <InfoRow label="Salón" value={config.nombreLugar} icon={<MapPin className="w-3.5 h-3.5 text-slate-400" />} />
+                    <InfoRow label="Salón" value={config.nombreLugar} icon={<MapPin className="w-3.5 h-3.5 text-muted-foreground" />} />
                   )}
                   {config.direccionLugar && (
                     <InfoRow label="Dirección" value={config.direccionLugar} />
                   )}
-                  <InfoRow label="Invitados" value={`${config.invitadosEstimados} personas`} icon={<Users className="w-3.5 h-3.5 text-slate-400" />} />
+                  <InfoRow label="Invitados" value={`${config.invitadosEstimados} personas`} icon={<Users className="w-3.5 h-3.5 text-muted-foreground" />} />
                   {(config.protagonista1Nombre || config.protagonista2Nombre) && (
                     <InfoRow
                       label="Protagonistas"
@@ -861,8 +914,8 @@ export default function PortalClientePage() {
                 </div>
               </div>
               {config.notesAdicionales && (
-                <div className="mt-4 p-3 bg-slate-50 rounded-xl text-xs text-slate-600 border border-slate-100">
-                  <span className="font-semibold text-slate-700">Notas: </span>
+                <div className="mt-4 p-3 bg-muted/30 rounded-xl text-xs text-muted-foreground border border-border">
+                  <span className="font-semibold text-foreground">Notas: </span>
                   {config.notesAdicionales}
                 </div>
               )}
@@ -870,12 +923,12 @@ export default function PortalClientePage() {
           </AccordionItem>
 
           {/* ── Lo que tenés que llevar ───────────── */}
-          <AccordionItem value="llevar" id="llevar" className="border-2 border-teal-100 rounded-2xl overflow-hidden bg-white shadow-sm">
-            <AccordionTrigger className="px-5 py-4 hover:no-underline hover:bg-teal-50/30">
-              <span className="flex items-center gap-2 text-base font-black">
-                <PackageCheck className="w-5 h-5 text-teal-600" /> Lo que tenés que llevar
+          <AccordionItem value="llevar" id="llevar" className="border border-border rounded-xl overflow-hidden bg-card shadow-sm">
+            <AccordionTrigger className="px-5 py-4 hover:no-underline hover:bg-muted/40">
+              <span className="flex items-center gap-2 text-base font-black text-foreground">
+                <PackageCheck className="w-5 h-5 text-primary" /> Lo que tenés que llevar
                 {debeLlevarItems.filter(i => i.completado).length > 0 && (
-                  <Badge className="ml-1 bg-teal-100 text-teal-700 border-0 text-xs">
+                  <Badge className="ml-1 bg-primary/10 text-primary border-0 text-xs">
                     {debeLlevarItems.filter(i => i.completado).length}/{debeLlevarItems.length}
                   </Badge>
                 )}
@@ -883,7 +936,7 @@ export default function PortalClientePage() {
             </AccordionTrigger>
             <AccordionContent className="px-5 pb-5">
               <div className="space-y-2.5">
-                <p className="text-xs text-slate-500 pb-1">Marcá los elementos a medida que los tenés listos para enviarnos.</p>
+                <p className="text-xs text-muted-foreground pb-1">Marcá los elementos a medida que los tenés listos para enviarnos.</p>
                 {debeLlevarItems.map(item => {
                   const estadoCfg = ESTADO_CONFIG[item.estado ?? (item.completado ? 'enviado' : 'pendiente')];
                   return (
@@ -892,23 +945,23 @@ export default function PortalClientePage() {
                       type="button"
                       disabled={isSavingLlevar}
                       onClick={() => handleToggleLlevar(item.id)}
-                      className={`w-full flex items-center gap-3 p-3.5 rounded-xl border-2 text-left transition-all
+                      className={`w-full flex items-center gap-3 p-3.5 rounded-xl border text-left transition-all
                         ${item.completado
-                          ? 'border-teal-200 bg-teal-50'
-                          : 'border-slate-100 bg-slate-50 hover:border-teal-200 hover:bg-teal-50/40'
+                          ? 'border-emerald-500/30 bg-emerald-500/5'
+                          : 'border-border bg-muted/20 hover:border-primary/40 hover:bg-muted/40'
                         }`}
                     >
                       <div className={`w-6 h-6 rounded-full border-2 flex items-center justify-center shrink-0 transition-all
-                        ${item.completado ? 'bg-teal-500 border-teal-500' : 'border-slate-300'}`}>
+                        ${item.completado ? 'bg-emerald-500 border-emerald-500' : 'border-muted-foreground/40'}`}>
                         {item.completado && <CheckCircle2 className="w-4 h-4 text-white" />}
                       </div>
                       <div className="flex-1 min-w-0">
-                        <p className={`text-sm font-semibold ${item.completado ? 'text-teal-800 line-through opacity-70' : 'text-slate-800'}`}>
+                        <p className={`text-sm font-semibold ${item.completado ? 'text-muted-foreground line-through opacity-70' : 'text-foreground'}`}>
                           {item.texto}
-                          {item.obligatorio && <span className="ml-1 text-red-500 text-xs">*</span>}
+                          {item.obligatorio && <span className="ml-1 text-destructive text-xs">*</span>}
                         </p>
-                        {item.notas && <p className="text-xs text-slate-500 mt-0.5">{item.notas}</p>}
-                        {item.fechaLimite && <p className="text-xs text-amber-600 mt-0.5">⏰ Antes del {formatDate(item.fechaLimite)}</p>}
+                        {item.notas && <p className="text-xs text-muted-foreground mt-0.5">{item.notas}</p>}
+                        {item.fechaLimite && <p className="text-xs text-amber-700 dark:text-amber-400 mt-0.5">⏰ Antes del {formatDate(item.fechaLimite)}</p>}
                       </div>
                       <span className={`text-xs font-semibold px-2 py-1 rounded-lg border shrink-0 ${estadoCfg.bg} ${estadoCfg.color}`}>
                         {estadoCfg.label}
@@ -916,7 +969,7 @@ export default function PortalClientePage() {
                     </button>
                   );
                 })}
-                <p className="text-xs text-slate-400 pt-1">
+                <p className="text-xs text-muted-foreground pt-1">
                   * Obligatorio · Tu organizador puede actualizar esta lista con elementos específicos para tu evento.
                 </p>
               </div>
@@ -925,50 +978,50 @@ export default function PortalClientePage() {
 
           {/* ── Menú y Cronograma ────────────────────────── */}
           {(showCatering || showTimeline) && (
-            <AccordionItem value="catering" id="catering" className="border rounded-2xl overflow-hidden bg-white shadow-sm">
-              <AccordionTrigger className="px-5 py-4 hover:no-underline hover:bg-slate-50">
-                <span className="flex items-center gap-2 text-base font-black">
-                  <UtensilsCrossed className="w-5 h-5 text-amber-600" /> Menú e Itinerario
+            <AccordionItem value="catering" id="catering" className="border border-border rounded-xl overflow-hidden bg-card shadow-sm">
+              <AccordionTrigger className="px-5 py-4 hover:no-underline hover:bg-muted/40">
+                <span className="flex items-center gap-2 text-base font-black text-foreground">
+                  <UtensilsCrossed className="w-5 h-5 text-amber-500" /> Menú e Itinerario
                 </span>
               </AccordionTrigger>
               <AccordionContent className="px-5 pb-5">
                 <div className="grid sm:grid-cols-2 gap-6">
                   {showCatering && (
-                    <div id="menu" className="space-y-2 text-sm text-slate-600">
-                      <p className="text-xs font-black uppercase tracking-wider text-slate-500 flex items-center gap-1.5">
+                    <div id="menu" className="space-y-2 text-sm text-muted-foreground">
+                      <p className="text-xs font-black uppercase tracking-wider text-muted-foreground flex items-center gap-1.5">
                         <UtensilsCrossed className="w-3.5 h-3.5 text-amber-500" /> Catering
                       </p>
                       {fiesta.modulosContratados?.catering ? (
                         <>
-                          <p className="flex gap-2"><CheckCircle2 className="w-4 h-4 text-green-500 shrink-0 mt-0.5" /> Servicio de catering incluido</p>
-                          <p className="text-xs text-slate-400 mt-1">Tu menú personalizado fue coordinado con el equipo de AK Producciones.</p>
+                          <p className="flex gap-2 text-foreground"><CheckCircle2 className="w-4 h-4 text-emerald-500 shrink-0 mt-0.5" /> Servicio de catering incluido</p>
+                          <p className="text-xs text-muted-foreground mt-1">Tu menú personalizado fue coordinado con el equipo de AK Producciones.</p>
                         </>
                       ) : (
-                        <p className="text-slate-400">Catering no contratado en este paquete.</p>
+                        <p className="text-muted-foreground">Catering no contratado en este paquete.</p>
                       )}
                     </div>
                   )}
                   {showTimeline && (
                     <div id="itinerario" className="space-y-2 text-sm">
-                      <p className="text-xs font-black uppercase tracking-wider text-slate-500 flex items-center gap-1.5">
-                        <Clock className="w-3.5 h-3.5 text-purple-500" /> Cronograma
+                      <p className="text-xs font-black uppercase tracking-wider text-muted-foreground flex items-center gap-1.5">
+                        <Clock className="w-3.5 h-3.5 text-primary" /> Cronograma
                       </p>
                       {(fiesta.programa ?? []).filter(item => item.visibleParaCliente !== false).length > 0 ? (
                         <div className="space-y-2 max-h-48 overflow-y-auto">
                           {(fiesta.programa ?? []).filter(item => item.visibleParaCliente !== false).map((item, i) => (
                             <div key={i} className="flex gap-3 items-start">
-                              <span className="text-xs font-black text-purple-600 shrink-0 pt-0.5">{item.hora}</span>
+                              <span className="text-xs font-black text-primary shrink-0 pt-0.5">{item.hora}</span>
                               <div>
-                                <span className="text-slate-700">{item.titulo}</span>
+                                <span className="text-foreground">{item.titulo}</span>
                                 {item.descripcionCliente && (
-                                  <p className="text-xs text-slate-400 mt-0.5">{item.descripcionCliente}</p>
+                                   <p className="text-xs text-muted-foreground mt-0.5">{item.descripcionCliente}</p>
                                 )}
                               </div>
                             </div>
                           ))}
                         </div>
                       ) : (
-                        <p className="text-slate-400">El cronograma aún no está cargado.</p>
+                        <p className="text-muted-foreground">El cronograma aún no está cargado.</p>
                       )}
                     </div>
                   )}
@@ -982,36 +1035,36 @@ export default function PortalClientePage() {
             data-testid="portal-video-vida"
             value="video-vida"
             id="video-vida"
-            className="border rounded-2xl overflow-hidden bg-white shadow-sm"
+            className="border border-border rounded-xl overflow-hidden bg-card shadow-sm"
           >
-            <AccordionTrigger className="px-5 py-4 hover:no-underline hover:bg-slate-50">
-              <span className="flex items-center gap-2 text-base font-black">
+            <AccordionTrigger className="px-5 py-4 hover:no-underline hover:bg-muted/40">
+              <span className="flex items-center gap-2 text-base font-black text-foreground">
                 <span className="text-xl">🎬</span> Video de Vida
                 {fiesta.videoVida?.photosUploaded
-                  ? <Badge className="ml-1 bg-green-100 text-green-700 border-0 text-xs">Fotos enviadas ✓</Badge>
-                  : <Badge className="ml-1 bg-amber-100 text-amber-700 border-0 text-xs">Pendiente</Badge>
+                  ? <Badge className="ml-1 bg-emerald-500/10 text-emerald-700 dark:text-emerald-400 border-0 text-xs">Fotos enviadas ✓</Badge>
+                  : <Badge className="ml-1 bg-amber-500/10 text-amber-700 dark:text-amber-400 border-0 text-xs">Pendiente</Badge>
                 }
               </span>
             </AccordionTrigger>
             <AccordionContent className="px-5 pb-5 space-y-3">
-              <p className="text-sm text-slate-600">
+              <p className="text-sm text-muted-foreground">
                 El video de vida es uno de los momentos más especiales de tu fiesta.
                 Necesitamos tus fotos y canciones favoritas para crearlo.
               </p>
               {fiesta.videoVida?.photosUploaded ? (
-                <div className="flex items-center gap-2 p-3 bg-green-50 rounded-xl border border-green-100 text-sm text-green-700">
-                  <CheckCircle2 className="w-4 h-4 text-green-500 shrink-0" />
+                <div className="flex items-center gap-2 p-3 bg-emerald-500/10 rounded-xl border border-emerald-500/20 text-sm text-emerald-700 dark:text-emerald-400">
+                  <CheckCircle2 className="w-4 h-4 text-emerald-500 shrink-0" />
                   <span className="font-semibold">¡Fotos recibidas! Tu organizador está trabajando en el video.</span>
                 </div>
               ) : null}
               {!fiesta.videoVida?.photosUploaded && (
                 <Link
                   href={`/portal-cliente/${fiestaId}/fotos-video`}
-                  className="flex items-center justify-between p-3.5 rounded-xl border-2 border-amber-200 bg-amber-50 text-sm hover:bg-amber-100 transition-colors"
+                  className="flex items-center justify-between p-3.5 rounded-xl border border-amber-500/20 bg-amber-500/10 text-sm hover:bg-amber-500/15 transition-colors"
                 >
                   <div className="flex items-center gap-2">
                     <span className="text-xl">📷</span>
-                    <span className="font-semibold text-amber-800">Subir fotos para video de vida</span>
+                    <span className="font-semibold text-amber-700 dark:text-amber-400">Subir fotos para video de vida</span>
                   </div>
                   <ChevronRight className="w-4 h-4 text-amber-500 shrink-0" />
                 </Link>
@@ -1019,11 +1072,11 @@ export default function PortalClientePage() {
               {!fiesta.musica?.sugerenciasInvitados && !fiesta.musica?.playlistFiesta && (
                 <Link
                   href={`/portal-cliente/${fiestaId}/musica`}
-                  className="flex items-center justify-between p-3.5 rounded-xl border-2 border-blue-200 bg-blue-50 text-sm hover:bg-blue-100 transition-colors"
+                  className="flex items-center justify-between p-3.5 rounded-xl border border-blue-500/20 bg-blue-500/10 text-sm hover:bg-blue-500/15 transition-colors"
                 >
                   <div className="flex items-center gap-2">
                     <span className="text-xl">🎵</span>
-                    <span className="font-semibold text-blue-800">Cargar lista de canciones</span>
+                    <span className="font-semibold text-blue-700 dark:text-blue-400">Cargar lista de canciones</span>
                   </div>
                   <ChevronRight className="w-4 h-4 text-blue-500 shrink-0" />
                 </Link>
@@ -1033,24 +1086,24 @@ export default function PortalClientePage() {
 
           {/* ── Decoración ───────────────────────────────── */}
           {showDecoration && (
-            <AccordionItem value="decoracion" id="decoracion" className="border rounded-2xl overflow-hidden bg-white shadow-sm">
-              <AccordionTrigger className="px-5 py-4 hover:no-underline hover:bg-slate-50">
-                <span className="flex items-center gap-2 text-base font-black">
+            <AccordionItem value="decoracion" id="decoracion" className="border border-border rounded-xl overflow-hidden bg-card shadow-sm">
+              <AccordionTrigger className="px-5 py-4 hover:no-underline hover:bg-muted/40">
+                <span className="flex items-center gap-2 text-base font-black text-foreground">
                   <Palette className="w-5 h-5 text-pink-500" /> Diseño y Decoración
                   {fiesta.decoracion?.tema && (
-                    <span className="ml-1 text-xs font-normal text-slate-500">Tema: {fiesta.decoracion.tema}</span>
+                    <span className="ml-1 text-xs font-normal text-muted-foreground">Tema: {fiesta.decoracion.tema}</span>
                   )}
                 </span>
               </AccordionTrigger>
               <AccordionContent className="px-5 pb-5 space-y-4">
                 {fiesta.decoracion?.paletaColores && (
                   <div className="space-y-2">
-                    <p className="text-xs font-black uppercase tracking-wider text-slate-500">Paleta de Colores</p>
+                    <p className="text-xs font-black uppercase tracking-wider text-muted-foreground">Paleta de Colores</p>
                     <div className="flex gap-3 items-center">
                       {Object.entries(fiesta.decoracion.paletaColores).map(([key, color]) => (
                         <div key={key} className="flex flex-col items-center gap-1">
-                          <div className="w-10 h-10 rounded-2xl border-2 border-white shadow-lg" style={{ backgroundColor: color as string }} />
-                          <span className="text-[10px] font-bold text-slate-400 uppercase">{key === 'primary' ? 'Principal' : key === 'secondary' ? 'Secundario' : 'Acento'}</span>
+                          <div className="w-10 h-10 rounded-2xl border-2 border-background shadow-lg" style={{ backgroundColor: color as string }} />
+                          <span className="text-[10px] font-bold text-muted-foreground uppercase">{key === 'primary' ? 'Principal' : key === 'secondary' ? 'Secundario' : 'Acento'}</span>
                         </div>
                       ))}
                     </div>
@@ -1058,8 +1111,8 @@ export default function PortalClientePage() {
                 )}
                 {fiesta.decoracion?.salonPreview3dUrl && (
                   <div className="space-y-2">
-                    <p className="text-xs font-black uppercase tracking-wider text-slate-500">Vista del Salón</p>
-                    <div className="relative rounded-2xl overflow-hidden border border-slate-100 shadow-sm" style={{ aspectRatio: '16/9' }}>
+                    <p className="text-xs font-black uppercase tracking-wider text-muted-foreground">Vista del Salón</p>
+                    <div className="relative rounded-2xl overflow-hidden border border-border shadow-sm" style={{ aspectRatio: '16/9' }}>
                       <NextImage
                         src={fiesta.decoracion.salonPreview3dUrl}
                         alt="Vista 3D del salón"
@@ -1071,12 +1124,12 @@ export default function PortalClientePage() {
                 )}
                 {fiesta.decoracion?.moodboardItems && fiesta.decoracion.moodboardItems.length > 0 && (
                   <div className="space-y-2">
-                    <p className="text-xs font-black uppercase tracking-wider text-slate-500 flex items-center gap-1.5">
+                    <p className="text-xs font-black uppercase tracking-wider text-muted-foreground flex items-center gap-1.5">
                       <Heart className="w-3.5 h-3.5 text-rose-500" /> Inspiración / Moodboard
                     </p>
                     <div className="grid grid-cols-3 sm:grid-cols-4 gap-2">
                       {fiesta.decoracion.moodboardItems.slice(0, 8).map(item => (
-                        <div key={item.id} className="relative aspect-square rounded-xl overflow-hidden border border-slate-100 shadow-sm bg-slate-50">
+                        <div key={item.id} className="relative aspect-square rounded-xl overflow-hidden border border-border shadow-sm bg-muted/30">
                           <NextImage src={item.url} alt="inspiración" fill className="object-cover" />
                           {item.likedByClient && (
                             <div className="absolute top-1 right-1 bg-rose-500 text-white p-0.5 rounded-full shadow">
@@ -1097,11 +1150,11 @@ export default function PortalClientePage() {
           <TabsContent value="invitados" className="mt-0">
           {/* ── Invitados ────────────────────────────────── */}
           {showInvitados && (
-            <section id="invitados" className="border rounded-2xl overflow-hidden bg-white shadow-sm">
-              <div className="px-5 py-4 border-b border-slate-100">
-                <span className="flex items-center gap-2 text-base font-black">
-                  <Users className="w-5 h-5 text-blue-600" /> Invitados
-                  <span className="ml-1 text-xs font-normal text-slate-500">
+            <section id="invitados" className="border border-border rounded-xl overflow-hidden bg-card shadow-sm">
+              <div className="px-5 py-4 border-b border-border">
+                <span className="flex items-center gap-2 text-base font-black text-foreground">
+                  <Users className="w-5 h-5 text-primary" /> Invitados
+                  <span className="ml-1 text-xs font-normal text-muted-foreground">
                     {confirmed.length} confirmados · {pending.length} pendientes
                   </span>
                 </span>
@@ -1109,17 +1162,17 @@ export default function PortalClientePage() {
               <div className="px-5 py-5 space-y-5">
                 {/* RSVP Tracker */}
                 <div>
-                  <p className="text-xs font-black uppercase tracking-wider text-slate-500 mb-2">
+                  <p className="text-xs font-black uppercase tracking-wider text-muted-foreground mb-2">
                     Estado RSVP — Confirmados: {confirmed.length} · No asisten: {declined.length} · Pendientes: {pending.length}
                   </p>
                   {invitados.length === 0 ? (
-                    <p className="text-sm text-slate-400 text-center py-4">Todavía no hay invitados cargados.</p>
+                    <p className="text-sm text-muted-foreground text-center py-4">Todavía no hay invitados cargados.</p>
                   ) : (
                     <div className="space-y-2 max-h-72 overflow-y-auto pr-1">
                       {[...confirmed, ...declined, ...pending].map(inv => (
-                        <div key={inv.id} className="flex items-center gap-2 p-2.5 bg-slate-50 rounded-xl border border-slate-100 text-sm">
+                        <div key={inv.id} className="flex items-center gap-2 p-2.5 bg-muted/30 rounded-xl border border-border text-sm">
                           {rsvpIcon(inv.rsvp)}
-                          <span className="flex-1 font-medium text-slate-800 truncate">{inv.nombre}</span>
+                          <span className="flex-1 font-medium text-foreground truncate">{inv.nombre}</span>
                           {inv.categoria && (
                             <Badge variant="outline" className="text-xs shrink-0">{inv.categoria}</Badge>
                           )}
@@ -1132,34 +1185,34 @@ export default function PortalClientePage() {
                 {/* Seating Plan */}
                 {confirmed.length > 0 && (
                   <div>
-                    <p className="text-xs font-black uppercase tracking-wider text-slate-500 mb-2 flex items-center gap-1.5">
+                    <p className="text-xs font-black uppercase tracking-wider text-muted-foreground mb-2 flex items-center gap-1.5">
                       <MapPin className="w-3.5 h-3.5 text-orange-500" /> Plan de Mesas
                     </p>
                     <div className="space-y-2">
                       {confirmed.map(inv => (
-                        <div key={inv.id} className="flex items-center gap-3 p-3 bg-slate-50 rounded-xl border border-slate-100 text-sm">
-                          <span className="flex-1 font-medium text-slate-800 truncate">{inv.nombre}</span>
+                        <div key={inv.id} className="flex items-center gap-3 p-3 bg-muted/30 rounded-xl border border-border text-sm">
+                          <span className="flex-1 font-medium text-foreground truncate">{inv.nombre}</span>
                           {editingId === inv.id ? (
                             <div className="flex items-center gap-2 shrink-0">
                               <Input
-                                className="h-7 w-20 text-xs"
+                                className="h-7 w-20 text-xs rounded-lg"
                                 placeholder="N° mesa"
                                 value={editingTable}
                                 onChange={e => setEditingTable(e.target.value)}
                                 autoFocus
                                 onKeyDown={e => { if (e.key === 'Enter') handleSaveTable(inv); if (e.key === 'Escape') setEditingId(null); }}
                               />
-                              <Button size="sm" className="h-7 px-2 text-xs" onClick={() => handleSaveTable(inv)} disabled={isSavingSeat}>
+                              <Button size="sm" className="h-7 px-2 text-xs rounded-lg" onClick={() => handleSaveTable(inv)} disabled={isSavingSeat}>
                                 {isSavingSeat ? <Loader2 className="w-3 h-3 animate-spin" /> : '✓'}
                               </Button>
-                              <Button size="sm" variant="ghost" className="h-7 px-2 text-xs" onClick={() => setEditingId(null)}>✕</Button>
+                              <Button size="sm" variant="ghost" className="h-7 px-2 text-xs rounded-lg" onClick={() => setEditingId(null)}>✕</Button>
                             </div>
                           ) : (
                             <button
                               onClick={() => { setEditingId(inv.id); setEditingTable(inv.tableNumber ?? ''); }}
-                              className="flex items-center gap-1 text-xs text-purple-600 hover:text-purple-800 font-semibold shrink-0"
+                              className="flex items-center gap-1 text-xs text-primary hover:underline font-semibold shrink-0"
                             >
-                              {inv.tableNumber ? `Mesa ${inv.tableNumber}` : <span className="text-slate-400">Sin mesa</span>}
+                              {inv.tableNumber ? `Mesa ${inv.tableNumber}` : <span className="text-muted-foreground">Sin mesa</span>}
                               <ChevronRight className="w-3 h-3" />
                             </button>
                           )}
@@ -1177,27 +1230,27 @@ export default function PortalClientePage() {
           <TabsContent value="pagos" className="mt-0">
           {/* ── Estado Financiero / Pagos ────────────────── */}
           {showFinancials && (
-            <section id="pagos" className="border rounded-2xl overflow-hidden bg-white shadow-sm">
-              <div className="px-5 py-4 border-b border-slate-100">
-                <span className="flex items-center gap-2 text-base font-black">
-                  <DollarSign className="w-5 h-5 text-green-600" /> Estado Financiero
+            <section id="pagos" className="border border-border rounded-xl overflow-hidden bg-card shadow-sm">
+              <div className="px-5 py-4 border-b border-border">
+                <span className="flex items-center gap-2 text-base font-black text-foreground">
+                  <DollarSign className="w-5 h-5 text-emerald-600 dark:text-emerald-400" /> Estado Financiero
                 </span>
               </div>
               <div className="px-5 py-5 space-y-6">
                 <div className="grid grid-cols-3 gap-3">
-                  <FinancialStat label="Total"    value={formatCurrency(totalCost)}  color="text-slate-900" />
-                  <FinancialStat label="Pagado"   value={formatCurrency(totalPaid)}  color="text-green-700" />
-                  <FinancialStat label="Saldo"    value={formatCurrency(balance)}    color={balance > 0 ? 'text-red-600' : 'text-green-700'} />
+                  <FinancialStat label="Total"    value={formatCurrency(totalCost)}  color="text-foreground" />
+                  <FinancialStat label="Pagado"   value={formatCurrency(totalPaid)}  color="text-emerald-700 dark:text-emerald-400" />
+                  <FinancialStat label="Saldo"    value={formatCurrency(balance)}    color={balance > 0 ? 'text-destructive' : 'text-emerald-700 dark:text-emerald-400'} />
                 </div>
                 {totalCost > 0 && (
                   <div>
-                    <div className="flex justify-between text-xs text-slate-500 mb-1">
+                    <div className="flex justify-between text-xs text-muted-foreground mb-1">
                       <span>Progreso de pagos</span>
                       <span>{Math.round((totalPaid / totalCost) * 100)}%</span>
                     </div>
-                    <div className="h-2 rounded-full bg-slate-100 overflow-hidden">
+                    <div className="h-2 rounded-full bg-muted overflow-hidden">
                       <div
-                        className="h-full rounded-full bg-green-500 transition-all"
+                        className="h-full rounded-full bg-emerald-500 transition-all"
                         style={{ width: `${Math.min(100, (totalPaid / totalCost) * 100)}%` }}
                       />
                     </div>
@@ -1205,15 +1258,15 @@ export default function PortalClientePage() {
                 )}
                 {cuotas.length > 0 ? (
                   <div className="space-y-2">
-                    <p className="text-xs font-black uppercase tracking-wider text-slate-500">Detalle de cuotas</p>
+                    <p className="text-xs font-black uppercase tracking-wider text-muted-foreground">Detalle de cuotas</p>
                     {cuotas.map(cuota => (
-                      <div key={cuota.id} className="flex items-center justify-between gap-3 p-3 bg-slate-50 rounded-xl border border-slate-100 text-sm">
+                      <div key={cuota.id} className="flex items-center justify-between gap-3 p-3 bg-muted/30 rounded-xl border border-border text-sm">
                         <div className="flex-1 min-w-0">
-                          <p className="font-semibold text-slate-800 truncate">{cuota.descripcion}</p>
-                          <p className="text-xs text-slate-500">Vence: {formatDate(cuota.fechaVencimiento)}</p>
+                          <p className="font-semibold text-foreground truncate">{cuota.descripcion}</p>
+                          <p className="text-xs text-muted-foreground">Vence: {formatDate(cuota.fechaVencimiento)}</p>
                         </div>
                         <div className="text-right shrink-0">
-                          <p className="font-black text-slate-900">{formatCurrency(cuota.monto)}</p>
+                          <p className="font-black text-foreground">{formatCurrency(cuota.monto)}</p>
                           <span className={`text-xs px-2 py-0.5 rounded-full border font-semibold ${cuotaStatusColor(cuota.estado)}`}>
                             {cuotaStatusLabel(cuota.estado)}
                           </span>
@@ -1222,7 +1275,7 @@ export default function PortalClientePage() {
                     ))}
                   </div>
                 ) : (
-                  <p className="text-sm text-slate-400 text-center py-4">No hay plan de pagos cargado aún.</p>
+                  <p className="text-sm text-muted-foreground text-center py-4">No hay plan de pagos cargado aún.</p>
                 )}
               </div>
             </section>
@@ -1234,7 +1287,7 @@ export default function PortalClientePage() {
       </main>
 
       {/* Footer */}
-      <footer className="mt-12 py-6 text-center text-xs text-slate-400 border-t border-slate-100">
+      <footer className="mt-12 py-6 text-center text-xs text-muted-foreground border-t border-border">
         <p>AK Producciones Eventos · Salto, Uruguay · 098 355 530</p>
       </footer>
 
@@ -1248,7 +1301,7 @@ export default function PortalClientePage() {
             target="_blank"
             rel="noopener noreferrer"
             data-testid="necesito-ayuda-btn"
-            className="fixed bottom-6 right-4 z-50 flex items-center gap-2 px-5 py-3 rounded-full bg-green-500 hover:bg-green-600 text-white font-black shadow-2xl text-sm transition-all active:scale-95"
+            className="fixed bottom-6 right-4 z-50 flex items-center gap-2 px-5 py-3 rounded-full bg-emerald-600 hover:bg-emerald-700 text-white font-black shadow-2xl text-sm transition-all active:scale-95"
             aria-label="Contactar al organizador por WhatsApp"
           >
             <MessageCircle className="w-5 h-5 shrink-0" />
@@ -1268,8 +1321,8 @@ function InfoRow({ label, value, icon }: { label: string; value: string; icon?: 
     <div className="flex gap-2 items-start">
       {icon && <span className="mt-0.5">{icon}</span>}
       <div>
-        <p className="text-xs text-slate-400 font-semibold uppercase tracking-wide">{label}</p>
-        <p className="text-slate-800 font-medium">{value}</p>
+        <p className="text-xs text-muted-foreground font-semibold uppercase tracking-wide">{label}</p>
+        <p className="text-foreground font-medium">{value}</p>
       </div>
     </div>
   );
@@ -1277,8 +1330,8 @@ function InfoRow({ label, value, icon }: { label: string; value: string; icon?: 
 
 function FinancialStat({ label, value, color }: { label: string; value: string; color: string }) {
   return (
-    <div className="text-center p-3 bg-slate-50 rounded-2xl border border-slate-100">
-      <p className="text-xs text-slate-400 font-semibold uppercase tracking-wide mb-1">{label}</p>
+    <div className="text-center p-3 bg-muted/30 rounded-xl border border-border">
+      <p className="text-xs text-muted-foreground font-semibold uppercase tracking-wide mb-1">{label}</p>
       <p className={`text-lg font-black ${color}`}>{value}</p>
     </div>
   );

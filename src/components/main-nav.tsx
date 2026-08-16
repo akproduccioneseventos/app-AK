@@ -37,6 +37,9 @@ import {
   ShieldCheck,
   Building2,
   Camera,
+  AlertTriangle,
+  ClipboardList,
+  CheckSquare,
 } from "lucide-react";
 import AppLogo from "./app-logo";
 import { cn } from "@/lib/utils";
@@ -68,8 +71,11 @@ const navGroups: NavGroup[] = [
     emoji: "💼",
     items: [
       { title: "Prospectos", href: "/contabilidad/crm", icon: KanbanSquare, active: (pathname) => isPathActive(pathname, "/contabilidad/crm") && !isPathActive(pathname, "/contabilidad/crm/outbox") },
-      { title: "Nuevo Presupuesto", href: "/presupuestos/nuevo", icon: PlusCircle, highlight: true },
-      { title: "Presupuestos", href: "/presupuestos", icon: FileText, active: (pathname) => isPathActive(pathname, "/presupuestos") && !isPathActive(pathname, "/presupuestos/nuevo") },
+      // Había dos entradas —"Nuevo Presupuesto" y "Presupuestos"— y las dos caían
+      // en la misma pantalla, porque /presupuestos redirige a /presupuestos/nuevo,
+      // que es la Central de Presupuestos y ya trae el listado y el botón de
+      // crear adentro. Queda una sola.
+      { title: "Presupuestos", href: "/presupuestos/nuevo", icon: FileText, highlight: true, active: (pathname) => isPathActive(pathname, "/presupuestos") },
       { title: "Clientes", href: "/customers", icon: Users },
       { title: "Simulador IA", href: "/simulador-ak", icon: Wand2 },
       { title: "WhatsApp del Día", href: "/contabilidad/crm/outbox", icon: Send, highlight: true },
@@ -82,6 +88,11 @@ const navGroups: NavGroup[] = [
       { title: "Eventos Activos", href: "/eventos", icon: PartyPopper, active: (pathname) => isPathActive(pathname, "/eventos") || isPathActive(pathname, "/fiestas") },
       { title: "Calendario", href: "/calendario", icon: CalendarDays },
       { title: "Muro Social", href: "/empresa/red-social-eventos", icon: Camera },
+      // Estas dos existian y funcionaban, pero no las enlazaba nadie: habia que
+      // saberse la direccion de memoria para llegar. Van en Fiestas porque se
+      // usan durante el evento y al armarlo.
+      { title: "Incidentes", href: "/incidentes", icon: AlertTriangle },
+      { title: "Guias de Armado", href: "/playbooks", icon: ClipboardList },
     ],
   },
   {
@@ -91,6 +102,9 @@ const navGroups: NavGroup[] = [
       { title: "Pagos Rápidos", href: "/pagos-rapidos", icon: Wallet, highlight: true },
       { title: "Panel Contable", href: "/empresa/contabilidad", icon: BarChart3 },
       { title: "Facturas", href: "/invoices", icon: FileText },
+      // Va en Contabilidad y no en Fiestas porque cada solicitud lleva un
+      // impacto en pesos y la decision la toma quien maneja la plata.
+      { title: "Cambios a Aprobar", href: "/aprobaciones", icon: CheckSquare },
     ],
   },
   {
@@ -117,25 +131,28 @@ const navGroups: NavGroup[] = [
 
 export function MainNav() {
   const pathname = usePathname();
-  const [alertCount, setAlertCount] = useState(0);
+  const [urgentAlertCount, setUrgentAlertCount] = useState(0);
+  const [totalUnreadCount, setTotalUnreadCount] = useState(0);
   const prevPathname = React.useRef("");
 
   const refreshAlertCount = React.useCallback(() => {
     getAlertasGlobalesConLeidas()
-      .then((alertas) => setAlertCount(alertas.filter((a) => !a.leida).length))
+      .then((alertas) => {
+        const unread = alertas.filter((a) => !a.leida);
+        setTotalUnreadCount(unread.length);
+        setUrgentAlertCount(unread.filter((a) => a.tipo === "urgente").length);
+      })
       .catch(() => {});
   }, []);
 
   useEffect(() => {
     const wasOnAlertas = prevPathname.current === "/alertas";
     prevPathname.current = pathname;
-    // Refresh when leaving /alertas or on any navigation
     if (wasOnAlertas || pathname !== "/alertas") {
       refreshAlertCount();
     }
   }, [pathname, refreshAlertCount]);
 
-  // Polling every 5 minutes + refresh when tab becomes visible
   useEffect(() => {
     const interval = setInterval(refreshAlertCount, 5 * 60 * 1000);
     const handleVisibility = () => {
@@ -166,32 +183,32 @@ export function MainNav() {
           <SidebarMenuItem>
             <SidebarMenuButton
               asChild
-              isActive={isExactly("/admin")}
-              tooltip="Inicio"
+              isActive={isExactly("/")}
+              tooltip="Centro de Control"
               className={cn(
                 "h-11 rounded-xl transition-all duration-300 font-black uppercase text-[10px] tracking-[0.2em]",
-                isExactly("/admin")
-                  ? "bg-gradient-to-r from-indigo-600 to-purple-600 text-white shadow-lg shadow-indigo-500/30"
-                  : "hover:bg-indigo-50 text-slate-500 hover:text-indigo-600"
+                isExactly("/") ? "bg-slate-900 text-white shadow-lg shadow-slate-900/10" : "text-slate-600 hover:bg-slate-100/80"
               )}
             >
-              <Link href="/admin">
-                <LayoutDashboard className="w-4 h-4" />
-                <span className="ml-2">Inicio</span>
+              <Link href="/">
+                <LayoutDashboard className="w-4 h-4 text-indigo-500" />
+                <span className="ml-2">Centro de Control</span>
               </Link>
             </SidebarMenuButton>
           </SidebarMenuItem>
         </SidebarMenu>
 
         {navGroups.map((group) => (
-          <SidebarGroup key={group.label}>
-            <SidebarGroupLabel className="px-2 text-[9px] font-black uppercase tracking-[0.3em] text-indigo-300 mb-3">
-              {group.emoji} {group.label}
+          <SidebarGroup key={group.label} className="p-0 space-y-2">
+            <SidebarGroupLabel className="text-[10px] font-black uppercase tracking-[0.25em] text-slate-400 px-3 flex items-center justify-between">
+              <span>{group.label}</span>
+              <span className="text-xs opacity-70">{group.emoji}</span>
             </SidebarGroupLabel>
             <SidebarGroupContent>
-              <SidebarMenu className="gap-1.5">
+              <SidebarMenu className="space-y-1">
                 {group.items.map((item) => {
                   const active = isActive(item);
+                  const Icon = item.icon;
                   return (
                     <SidebarMenuItem key={item.href}>
                       <SidebarMenuButton
@@ -199,14 +216,17 @@ export function MainNav() {
                         isActive={active}
                         tooltip={item.title}
                         className={cn(
-                          "h-10 rounded-xl transition-all duration-300 font-bold text-xs",
-                          item.highlight && !active && "bg-indigo-50 text-indigo-700 hover:bg-indigo-100",
-                          active ? "bg-indigo-600 text-white shadow-md shadow-indigo-400/30" : "text-slate-500 hover:bg-indigo-50/60 hover:text-indigo-600"
+                          "h-10 rounded-xl transition-all duration-200 font-bold text-xs tracking-tight",
+                          active
+                            ? "bg-indigo-600 text-white shadow-md shadow-indigo-600/20 font-black"
+                            : item.highlight
+                            ? "text-indigo-950 font-black bg-indigo-50/50 hover:bg-indigo-100/60"
+                            : "text-slate-600 hover:bg-slate-100/70 hover:text-slate-900"
                         )}
                       >
                         <Link href={item.href}>
-                          <item.icon className="w-4 h-4" />
-                          <span className="ml-2">{item.title}</span>
+                          <Icon className={cn("w-4 h-4 mr-2", active ? "text-white" : item.highlight ? "text-indigo-600" : "text-slate-400")} />
+                          <span>{item.title}</span>
                         </Link>
                       </SidebarMenuButton>
                     </SidebarMenuItem>
@@ -233,11 +253,13 @@ export function MainNav() {
               <Link href="/alertas">
                 <Bell className="w-4 h-4" />
                 <span className="ml-2">Alertas</span>
-                {alertCount > 0 && (
+                {urgentAlertCount > 0 ? (
                   <span className="absolute right-3 top-2 min-w-[18px] h-[18px] bg-red-500 text-white text-[9px] font-black rounded-full flex items-center justify-center px-1 shadow">
-                    {alertCount > 99 ? "99+" : alertCount}
+                    {urgentAlertCount > 99 ? "99+" : urgentAlertCount}
                   </span>
-                )}
+                ) : totalUnreadCount > 0 ? (
+                  <span className="absolute right-3 top-3.5 w-2 h-2 bg-slate-400 rounded-full" />
+                ) : null}
               </Link>
             </SidebarMenuButton>
           </SidebarMenuItem>

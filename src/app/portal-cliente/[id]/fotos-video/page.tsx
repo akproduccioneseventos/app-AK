@@ -11,10 +11,10 @@ import type { SocialGalleryPost, Dedication } from '@/types/social-gallery';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
-import { 
-  Loader2, 
-  ArrowLeft, 
-  AlertTriangle, 
+import {
+  Loader2,
+  ArrowLeft,
+  AlertTriangle,
   ExternalLink,
   Camera,
   Play,
@@ -49,28 +49,28 @@ export default function FotosVideoPortalPage() {
   const [fiesta, setFiesta] = useState<FiestaEnPlanificacion | null>(null);
   const [posts, setPosts] = useState<SocialGalleryPost[]>([]);
   const [dedications, setDedications] = useState<Dedication[]>([]);
-  
+
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
     const accessKey = sessionStorage.getItem(SESSION_KEY_PREFIX + fiestaId);
-    if (!accessKey) { 
-      sessionStorage.removeItem(SESSION_KEY_PREFIX + fiestaId); 
-      router.replace(`/portal-cliente/${fiestaId}`); 
-      return; 
+    if (!accessKey) {
+      sessionStorage.removeItem(SESSION_KEY_PREFIX + fiestaId);
+      router.replace(`/portal-cliente/${fiestaId}`);
+      return;
     }
-    
+
     Promise.all([
       initializePortalSession(fiestaId, accessKey).then(session => session.success ? getFiestaForPortalSession(fiestaId) : null),
       getSocialPosts(fiestaId).catch(() => []),
       getDedications(fiestaId).catch(() => [])
     ])
       .then(([fiestaData, postsData, dedsData]) => {
-        if (!fiestaData) { 
+        if (!fiestaData) {
           sessionStorage.removeItem(SESSION_KEY_PREFIX + fiestaId);
           setError('La sesión del portal venció o no corresponde a este evento.');
-          return; 
+          return;
         }
         setFiesta(fiestaData);
         setPosts(postsData || []);
@@ -108,7 +108,7 @@ export default function FotosVideoPortalPage() {
   const totalFotocabina = posts.filter(p => p.sourceModule === 'fotocabina').length;
   const audioDeds = dedications.filter(d => !!d.audioUrl);
 
-  const customAlbumUrl = fiesta.galeriaUrl || 'https://wfolio.com/my/disk';
+  const customAlbumUrl = fiesta.galeriaUrl || `/evento/album/${fiestaId}`;
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-purple-50 via-white to-pink-50">
@@ -138,16 +138,24 @@ export default function FotosVideoPortalPage() {
               <div>
                 <h3 className="font-black text-sm text-slate-900">Álbum Digital Oficial</h3>
                 <p className="text-xs text-slate-500 mt-1 leading-relaxed">
-                  Para optimizar la calidad de descarga en alta resolución sin compresión, todo el material fotográfico de tu fiesta está disponible en tu galería digital oficial.
+                  Todo el material fotográfico y recuerdos aprobados de tu fiesta listos para ver y compartir con tu familia por WhatsApp.
                 </p>
               </div>
             </div>
-            <a href={customAlbumUrl} target="_blank" rel="noopener noreferrer" className="block">
-              <Button className="w-full bg-purple-600 hover:bg-purple-700 text-white rounded-xl font-bold h-11 shadow-md">
-                <ExternalLink className="w-4 h-4 mr-2" />
-                Acceder al Álbum Digital Oficial
-              </Button>
-            </a>
+            <div className="grid gap-2 sm:grid-cols-2">
+              <a href={customAlbumUrl} target="_blank" rel="noopener noreferrer" className="block">
+                <Button className="w-full bg-purple-600 hover:bg-purple-700 text-white rounded-xl font-bold h-11 shadow-md">
+                  <ExternalLink className="w-4 h-4 mr-2" />
+                  Ver Álbum Oficial
+                </Button>
+              </a>
+              <a href={`/evento/album/${fiestaId}`} target="_blank" rel="noopener noreferrer" className="block">
+                <Button variant="outline" className="w-full border-purple-200 text-purple-700 hover:bg-purple-100/60 rounded-xl font-bold h-11">
+                  <PartyPopper className="w-4 h-4 mr-2 text-purple-600" />
+                  Compartir con Invitados
+                </Button>
+              </a>
+            </div>
           </CardContent>
         </Card>
 

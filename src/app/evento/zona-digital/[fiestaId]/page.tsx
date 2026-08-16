@@ -154,7 +154,9 @@ export default function ZonaDigitalPublicPage() {
   if (!fiesta || !settings.enabled) {
     return (
       <main className="ak-live-stage flex min-h-screen items-center justify-center p-6 text-white">
-        <Card className="ak-live-panel max-w-md text-white">
+        {/* Fondo y borde explicitos: la clase .ak-live-panel pierde contra el
+            blanco propio de Card, y con texto blanco el cartel quedaba invisible. */}
+        <Card className="max-w-md border border-white/15 bg-slate-900 text-white shadow-2xl">
           <CardContent className="space-y-4 p-6 text-center">
             <ShieldCheck className="mx-auto h-10 w-10 text-red-400" />
             <h1 className="text-2xl font-black">Zona digital no activa</h1>
@@ -286,15 +288,21 @@ export default function ZonaDigitalPublicPage() {
             if (item.id === 'ranking') href = `/evento/zona-digital/${fiestaId}?guestId=${encodeURIComponent(guestId)}&token=${encodeURIComponent(guestAccessToken)}`;
             if (item.id === 'recap') href = `/evento/galeria/${fiestaId}`;
 
+            const isPersonalHardware = ['fotocabina', 'plataforma360', 'bogue', 'espejo_magico'].includes(item.id);
+            if (isPersonalHardware && !href) return null;
+
             const featureCard = (
-                <Card className="h-full border-white/10 bg-white/95 text-slate-950 shadow-xl transition group-hover:-translate-y-1 group-hover:shadow-2xl group-hover:border-red-500/50">
+                <Card className={cn("h-full border-white/10 bg-white/95 text-slate-950 shadow-xl transition", href ? "group-hover:-translate-y-1 group-hover:shadow-2xl group-hover:border-red-500/50" : "opacity-80 grayscale-[0.2]")}>
                   <CardContent className="space-y-3 p-5">
-                    <div className="flex h-12 w-12 items-center justify-center rounded-lg bg-red-50 text-red-600 transition group-hover:scale-105 group-hover:bg-red-600 group-hover:text-white">
+                    <div className={cn("flex h-12 w-12 items-center justify-center rounded-lg transition", href ? "bg-red-50 text-red-600 group-hover:scale-105 group-hover:bg-red-600 group-hover:text-white" : "bg-slate-100 text-slate-500")}>
                       <Icon className="h-6 w-6" />
                     </div>
                     <h3 className="font-black">{item.label}</h3>
                     <p className="text-sm text-slate-500">{item.description}</p>
-                    {item.requiresHardware && <Badge variant="outline">estacion fisica</Badge>}
+                    <div className="flex flex-wrap gap-2 mt-2">
+                      {item.requiresHardware && <Badge variant="outline">Estación física</Badge>}
+                      {!href && <Badge variant="secondary" className="bg-slate-200 text-slate-600 border-none">Solo presencial</Badge>}
+                    </div>
                   </CardContent>
                 </Card>
             );
@@ -304,7 +312,7 @@ export default function ZonaDigitalPublicPage() {
                 {featureCard}
               </Link>
             ) : (
-              <div key={item.id} className="group opacity-70" title="Abrí esta estación desde tu portal personal">
+              <div key={item.id} className="block">
                 {featureCard}
               </div>
             );

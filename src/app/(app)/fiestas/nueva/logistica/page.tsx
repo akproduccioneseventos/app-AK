@@ -58,7 +58,7 @@ function LogisticaContent() {
 
   if (isLoading) return (
     <div className="flex items-center justify-center min-h-[60vh]">
-      <Loader2 className="w-10 h-10 animate-spin text-indigo-600" />
+      <Loader2 className="w-10 h-10 animate-spin text-primary" />
     </div>
   );
 
@@ -73,11 +73,11 @@ function LogisticaContent() {
             </Link>
           </Button>
           <div>
-            <h1 className="text-xl font-black text-slate-900 flex items-center gap-2">
-              <Navigation className="w-5 h-5 text-indigo-600" />
+            <h1 className="text-xl font-black text-foreground flex items-center gap-2">
+              <Navigation className="w-5 h-5 text-primary" />
               Logística &amp; Accesibilidad
             </h1>
-            <p className="text-sm text-slate-500">{nombreEvento} · Información para invitados</p>
+            <p className="text-sm text-muted-foreground">{nombreEvento} · Información para invitados</p>
           </div>
         </div>
         <AutoSaveIndicator isSaving={isSaving} lastSaved={lastSaved} saveError={saveError} />

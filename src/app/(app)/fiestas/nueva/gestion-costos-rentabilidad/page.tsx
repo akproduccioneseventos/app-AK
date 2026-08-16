@@ -1,5 +1,6 @@
 'use client';
 
+import { calcularGananciaDeEvento } from '@/lib/costos/ganancia-evento';
 import React, { useState, useEffect, useCallback, useMemo, type FormEvent, Suspense } from 'react';
 import Link from 'next/link';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription, CardFooter } from '@/components/ui/card';
@@ -100,11 +101,17 @@ function GestionCostosRentabilidadContent() {
   const handleAddCostoItem = (e: FormEvent) => {
     e.preventDefault();
     if (!newCostoNombre.trim() || !newCostoMontoEstimado.trim()) return;
+    // Un monto negativo o invalido descuadra el margen sin que se note.
+    const monto = parseFloat(newCostoMontoEstimado);
+    if (!Number.isFinite(monto) || monto < 0) {
+      toast({ title: 'Monto invalido', description: 'Poné un importe mayor o igual a cero.', variant: 'destructive' });
+      return;
+    }
     const newItem: CostoItem = {
       id: `costo_man_${Date.now()}`,
       nombre: newCostoNombre.trim(),
       category: newCostoCategoria,
-      montoEstimado: parseFloat(newCostoMontoEstimado),
+      montoEstimado: monto,
     };
     setGestionCostos(prev => ({ ...prev, costosItems: [...(prev.costosItems || []), newItem] }));
     setNewCostoNombre(''); setNewCostoMontoEstimado('');
@@ -113,11 +120,16 @@ function GestionCostosRentabilidadContent() {
   const handleAddPago = async (e: FormEvent) => {
     e.preventDefault();
     if (!newPagoCostoId || !newPagoMonto || !newPagoFecha || !fiestaId) return;
+    const montoPago = parseFloat(newPagoMonto);
+    if (!Number.isFinite(montoPago) || montoPago < 0) {
+      toast({ title: 'Monto invalido', description: 'Poné un importe mayor o igual a cero.', variant: 'destructive' });
+      return;
+    }
     const newPago: PagoProveedor = {
         id: `pago_${Date.now()}`,
         costoAsociadoId: newPagoCostoId,
         fecha: newPagoFecha.toISOString(),
-        monto: parseFloat(newPagoMonto)
+        monto: montoPago
     };
     const updated = [...pagosProveedores, newPago];
     setIsSaving(true);
@@ -135,18 +147,23 @@ function GestionCostosRentabilidadContent() {
   };
 
   const stats = useMemo(() => {
-    const projectedCost = (gestionCostos.costosItems || []).reduce((s, i) => s + i.montoEstimado, 0) + 
-                         (gestionCostos.others?.totalCateringCost || 0) + 
-                         (gestionCostos.others?.totalBebidasCost || 0) + 
-                         (gestionCostos.others?.totalReposteriaCost || 0) + 
-                         (gestionCostos.others?.totalPersonalCost || 0);
-
-    const realExpenses = pagosProveedores.reduce((s, p) => s + (p.monto || 0), 0);
-    const income = gestionCostos.ingresosTotalesEstimados || 0;
-    const projectedProfit = income - projectedCost;
-    const projectedMargin = income > 0 ? (projectedProfit / income) * 100 : 0;
-
-    return { projectedCost, realExpenses, projectedProfit, projectedMargin };
+    // La cuenta vive en `@/lib/costos/ganancia-evento`, un solo lugar para toda la
+    // aplicacion. Antes cada pantalla la rehacia y dos mostraban numeros distintos
+    // de la misma fiesta, porque una se olvidaba de descontar la merma de bebidas
+    // que viene contada dos veces. Alla adentro estan explicadas esas trampas.
+    //
+    // Ademas ahora la ganancia se muestra contra lo que se gasto DE VERDAD donde
+    // hay pagos cargados. Antes se mostraba siempre contra lo estimado: si el
+    // evento se iba de gasto, el numero seguia viendose lindo.
+    const g = calcularGananciaDeEvento(gestionCostos, pagosProveedores);
+    return {
+      projectedCost: g.costoReal,
+      costoEstimado: g.costoEstimado,
+      realExpenses: g.pagadoAProveedores,
+      projectedProfit: g.gananciaReal,
+      projectedMargin: g.margenReal,
+      hayGastoCargado: g.hayGastoCargado,
+    };
   }, [gestionCostos, pagosProveedores]);
 
   const costItemsForSelect = useMemo(() => {
@@ -199,12 +216,20 @@ function GestionCostosRentabilidadContent() {
               </CardContent>
           </Card>
           <Card className="bg-emerald-600 text-white border-none shadow-xl rounded-[2rem] overflow-hidden">
-              <CardHeader className="pb-2"><CardTitle className="text-[10px] font-black uppercase tracking-widest opacity-60">Ganancia Neta Est.</CardTitle></CardHeader>
+              <CardHeader className="pb-2"><CardTitle className="text-[10px] font-black uppercase tracking-widest opacity-60">{stats.hayGastoCargado ? 'Ganancia con lo pagado' : 'Ganancia estimada'}</CardTitle></CardHeader>
               <CardContent>
                   <p className="text-4xl font-black">{formatCurrency(stats.projectedProfit)}</p>
                   <Badge className="mt-2 bg-white/20 text-white border-none font-black text-[10px] tracking-widest uppercase">
                       {stats.projectedMargin.toFixed(1)}% MARGEN
                   </Badge>
+                  {/* Que el numero diga contra que se compara. Antes decia siempre
+                      "estimada" y usaba el costo estimado, asi que un evento que se
+                      iba de gasto seguia viendose bien. */}
+                  <p className="mt-2 text-[11px] font-medium leading-snug text-white/80">
+                    {stats.hayGastoCargado
+                      ? 'Calculada con los pagos que ya cargaste. Lo que todavia no tiene pago va por lo estimado.'
+                      : 'Todavia no cargaste ningun pago: este numero usa lo que se estima gastar.'}
+                  </p>
               </CardContent>
           </Card>
       </div>

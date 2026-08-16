@@ -94,7 +94,10 @@ export function calcPagosStatus(fiesta: FiestaEnPlanificacion): AreaStatus {
 export function calcInvitadosStatus(fiesta: FiestaEnPlanificacion): AreaStatus {
   const invitados = fiesta.invitados ?? [];
   const estimados = fiesta.configuracion?.invitadosEstimados ?? 0;
-  const confirmados = invitados.filter(i => i.rsvp === 'Confirmado').length;
+  // PERSONAS, no filas: se compara contra estimados, que son personas.
+  const confirmados = invitados
+    .filter(i => i.rsvp === 'Confirmado')
+    .reduce((total, invitado) => total + (invitado.partySize || 1), 0);
   const dias = diasHastaEvento(fiesta);
 
   if (invitados.length === 0) {
@@ -350,7 +353,10 @@ export function generateAlertas(fiesta: FiestaEnPlanificacion): AlertaFiesta[] {
   // Pocos invitados confirmados a menos de 10 días
   const invitados = fiesta.invitados ?? [];
   const estimados = fiesta.configuracion?.invitadosEstimados ?? 0;
-  const confirmados = invitados.filter(i => i.rsvp === 'Confirmado').length;
+  // PERSONAS, no filas: se compara contra estimados, que son personas.
+  const confirmados = invitados
+    .filter(i => i.rsvp === 'Confirmado')
+    .reduce((total, invitado) => total + (invitado.partySize || 1), 0);
   const pctConf = estimados > 0 ? confirmados / estimados : 1;
   if (pctConf < 0.5 && invitados.length > 0 && dias !== null && dias <= 10 && dias >= 0) {
     alertas.push({

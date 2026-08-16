@@ -1,3 +1,4 @@
+const path = require('path');
 const withPWA = require('@ducanh2912/next-pwa').default({
   dest: 'public',
   cacheOnFrontEndNav: false,
@@ -94,7 +95,7 @@ const nextConfig = {
       },
     ],
   },
-  webpack: (config) => {
+  webpack: (config, { webpack }) => {
     config.ignoreWarnings = [
       ...(config.ignoreWarnings || []),
       (warning) => {
@@ -109,9 +110,23 @@ const nextConfig = {
 
     config.resolve.alias = {
       ...config.resolve.alias,
+      '@firebase/auth': path.resolve(__dirname, 'node_modules/firebase/node_modules/@firebase/auth/dist/node/index.js'),
+      '@opentelemetry/exporter-jaeger': false,
+      '@opentelemetry/sdk-node': false,
       'canvg': false,
       'dompurify': false,
     };
+
+    config.plugins.push(
+      new webpack.NormalModuleReplacementPlugin(
+        /SemanticAttributes/,
+        path.resolve(__dirname, 'src/lib/empty-mock.js')
+      ),
+      new webpack.NormalModuleReplacementPlugin(
+        /SemanticResourceAttributes/,
+        path.resolve(__dirname, 'src/lib/empty-mock.js')
+      )
+    );
 
     return config;
   },

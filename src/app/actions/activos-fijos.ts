@@ -54,6 +54,15 @@ export async function saveActivoFijo(
 
   if (!dataWithParsedNumbers.nombre || dataWithParsedNumbers.nombre.trim() === "") return { success: false, error: "El nombre del activo es obligatorio." };
   if (!dataWithParsedNumbers.categoria) return { success: false, error: "La categoría es obligatoria." };
+  // El `min` del formulario lo controla el navegador y se saltea. Un activo con
+  // cantidad negativa descuadra la lista de carga del salon.
+  if (dataWithParsedNumbers.cantidadDisponible !== undefined
+      && Number(dataWithParsedNumbers.cantidadDisponible) < 0) {
+    return { success: false, error: 'La cantidad no puede ser negativa.' };
+  }
+  if (Number(dataWithParsedNumbers.valorUnitarioEstimado) < 0) {
+    return { success: false, error: 'El valor del activo no puede ser negativo.' };
+  }
   if (!dataWithParsedNumbers.unidad) return { success: false, error: "La unidad es obligatoria para activos." };
 
   if ('id' in dataWithParsedNumbers && dataWithParsedNumbers.id) {
@@ -87,6 +96,21 @@ export async function saveActivoFijo(
 
 export async function deleteActivoFijo(id: string): Promise<{ success: boolean; error?: string }> {
   await requireAppSession();
+  const activo = await getActivoFijoById(id);
+  const { getFiestas } = await import('./fiesta/fiesta.actions');
+  const fiestas = await getFiestas(false);
+  const fiestasEnUso = fiestas.filter(f =>
+    f.listaDeCargaOperativa?.categorias?.some(cat =>
+      cat.items?.some(item => item.id === id || (item as any).activoId === id || (activo && item.nombre === activo.nombre))
+    )
+  );
+  if (fiestasEnUso.length > 0) {
+    return {
+      success: false,
+      error: `No se puede eliminar el activo fijo porque está asignado en la lista de carga de ${fiestasEnUso.length} evento(s).`,
+    };
+  }
+
   const deleted = await deleteDataItem(ACTIVOS_FIJOS_FILE, ACTIVOS_FIJOS_COLLECTION, id);
   if (!deleted) return { success: false, error: `Activo Fijo con ID ${id} no encontrado para eliminar.` };
   return { success: true };

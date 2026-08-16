@@ -3,7 +3,8 @@ import type { NextRequest } from 'next/server';
 import { BUDGET_VIEW_REGEX, PUBLIC_EXACT_PATHS, isPublicPathPrefix } from '@/lib/auth/public-paths';
 import { SESSION_COOKIE_NAME } from '@/lib/auth/session-constants';
 
-function isPublicPath(pathname: string): boolean {
+function isPublicPath(request: NextRequest): boolean {
+  const { pathname, searchParams } = request.nextUrl;
   if (PUBLIC_EXACT_PATHS.has(pathname)) return true;
   if (isPublicPathPrefix(pathname)) return true;
 
@@ -13,6 +14,9 @@ function isPublicPath(pathname: string): boolean {
   // Printable shared documents validate their token inside the page.
   if (pathname.endsWith('/pdf') || pathname.endsWith('/resumen-imprimible')) return true;
 
+  // Provider shared views validate their token inside the page.
+  if ((pathname.endsWith('/fotografia') || pathname.endsWith('/catering')) && searchParams.has('token')) return true;
+
   return false;
 }
 
@@ -21,7 +25,7 @@ export async function middleware(request: NextRequest) {
 
   const requestId = crypto.randomUUID().substring(0, 8);
 
-  if (isPublicPath(pathname)) {
+  if (isPublicPath(request)) {
     const response = NextResponse.next();
     response.headers.set('x-request-id', requestId);
     return response;

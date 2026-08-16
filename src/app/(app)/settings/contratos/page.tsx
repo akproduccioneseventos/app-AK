@@ -7,6 +7,7 @@ import { Button } from '@/components/ui/button';
 import { Textarea } from '@/components/ui/textarea';
 import { ArrowLeft, Save, Loader2, FileSignature, Info, Trash2, Plus } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
+import { marcadoresDesconocidos } from '@/lib/contratos/marcadores';
 import { getContractTemplates, saveContractTemplate, deleteContractTemplate } from '@/app/actions/settings';
 import type { ContractTemplateItem, ContractType } from '@/types/settings';
 import { Badge } from '@/components/ui/badge';
@@ -88,8 +89,21 @@ export default function ContratosSettingsPage() {
     setEditorText(template.template);
   };
 
+  const desconocidos = marcadoresDesconocidos(editorText);
+
   const handleSave = async () => {
     if (!selected) return;
+
+    // Validar marcadores {{ALGO}} para evitar que queden marcadores no reconocidos en los contratos del cliente
+    if (desconocidos.length > 0) {
+      toast({
+        title: '⚠️ Marcador no reconocido',
+        description: `Corregi estos marcadores antes de guardar: ${desconocidos.join(', ')}.`,
+        variant: 'destructive',
+      });
+      return;
+    }
+
     setIsSaving(true);
     try {
       const result = await saveContractTemplate({ ...selected, template: editorText });

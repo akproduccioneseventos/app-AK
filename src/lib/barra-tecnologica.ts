@@ -28,6 +28,11 @@ export function shouldDiscountBarStock(
   return nextStatus === 'entregado' && previousStatus !== 'entregado';
 }
 
+export function calculateActualStockMovement(available: number, requested: number): number {
+  if (!Number.isFinite(available) || !Number.isFinite(requested)) return 0;
+  return Math.min(Math.max(0, available), Math.max(0, requested));
+}
+
 export function getDrinkDescription(drink: DrinkMarketingFields): string {
   const customDescription = (drink.descripcion || drink.description || '').trim();
   if (customDescription) return customDescription;

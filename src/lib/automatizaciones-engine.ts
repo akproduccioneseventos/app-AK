@@ -128,8 +128,17 @@ function getDiasRestantes(fiesta: FiestaEnPlanificacion): number | null {
   return Math.ceil((fecha.getTime() - hoy.getTime()) / (1000 * 60 * 60 * 24));
 }
 
-function mapRuleToAlertType(regla: AutomatizacionRule): AlertaAutomatica['tipo'] {
-  if (regla.accion.tipo === 'alerta_interna') return 'urgente';
+// Solo las cuatro de plata y contrato son urgentes; el resto no dispara urgencia ni globito rojo.
+export const REGLAS_URGENTES_IDS = new Set([
+  'falta-sena',
+  'cuota-vencida',
+  'saldo-pendiente-evento-cercano',
+  'contrato-sin-firmar',
+]);
+
+export function mapRuleToAlertType(regla: AutomatizacionRule): AlertaAutomatica['tipo'] {
+  if (REGLAS_URGENTES_IDS.has(regla.id)) return 'urgente';
+  if (regla.accion.tipo === 'alerta_interna') return 'atencion';
   if (regla.accion.tipo === 'recordatorio_cliente') return 'recordatorio';
   return 'info';
 }
@@ -170,7 +179,10 @@ function evaluarCondicion(condicion: string, fiesta: FiestaEnPlanificacion): boo
   const cuotas = fiesta.planDePagos?.cuotas ?? [];
   const invitados = fiesta.invitados ?? [];
   const estimados = fiesta.configuracion?.invitadosEstimados ?? 0;
-  const confirmados = invitados.filter(i => i.rsvp === 'Confirmado').length;
+  // PERSONAS, no filas: se compara contra estimados, que son personas.
+  const confirmados = invitados
+    .filter(i => i.rsvp === 'Confirmado')
+    .reduce((total, invitado) => total + (invitado.partySize || 1), 0);
 
   switch (condicion) {
     case 'sin_primer_pago':

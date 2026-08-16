@@ -68,6 +68,12 @@ const PROTECTED_EVENT_ROUTES = [
   /^\/evento\/dj\/[^/]+\/?$/,
   /^\/evento\/video-vida\/[^/]+\/?$/,
   /^\/evento\/en-vivo\/[^/]+\/organizador\/?$/,
+  // La distribucion de mesas es una herramienta del equipo, enlazada desde el
+  // planificador (`fiestas/nueva/invitados`). Vive bajo `/portal`, que es
+  // publico por el portal del invitado, asi que sin esta linea cualquiera que
+  // pusiera `/portal/mesas?fiestaId=...` veia la lista entera de invitados de
+  // esa fiesta, con sus datos, sin estar logueado.
+  /^\/portal\/mesas\/?$/,
 ] as const;
 
 export function isPublicPathPrefix(pathname: string) {
