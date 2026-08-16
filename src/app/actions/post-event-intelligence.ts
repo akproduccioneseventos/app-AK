@@ -4,6 +4,7 @@ import { getAllFiestas, getFiestaById } from '@/app/actions/fiesta/fiesta.action
 import { createNotification } from '@/lib/notifications/create-notification';
 import { saveAgentLearning } from '@/lib/multiagent/memory-store';
 import { calculateFiestaPreparationScore } from '@/lib/fiesta/preparation-score';
+import { generateWithGeminiFallback, getGeminiModelForAgent } from '@/ai/genkit';
 
 export interface PostEventItem {
   fiestaId: string;
@@ -148,3 +149,62 @@ export async function createPostEventPackage(fiestaId: string, notes?: string) {
 
   return { success: true, summary, ...messages };
 }
+
+export async function generateAiPostEventMaterial(params: {
+  clientName: string;
+  eventName: string;
+  eventType?: string;
+  score?: number;
+  pendingTasks?: number;
+}): Promise<{
+  success: boolean;
+  testimonyMessage: string;
+  photoMessage: string;
+  socialPostIdea: string;
+}> {
+  try {
+    const model = getGeminiModelForAgent('marketing');
+    const prompt = `Sos el Agente de Marketing de AK Producciones (Salto, Uruguay).
+Generá material post-evento 100% personalizado con IA para:
+- Cliente: ${params.clientName}
+- Fiesta: ${params.eventName}
+- Tipo de evento: ${params.eventType || 'Fiesta'}
+
+Devolvé ÚNICAMENTE un objeto JSON válido con estas tres claves:
+1. "testimonyMessage": Mensaje emotivo y cálido de WhatsApp agradeciéndoles por la fiesta y pidiéndoles un testimonio/reseña corto.
+2. "photoMessage": Mensaje respetuoso pidiendo permiso para compartir fotos/videos en redes sociales de AK Producciones.
+3. "socialPostIdea": Copy completo y atractivo para un post de Instagram/Facebook sobre el evento (con emojis y hashtags relevantes).
+
+JSON:`;
+
+    const result = await generateWithGeminiFallback({
+      model,
+      prompt,
+    });
+
+    const jsonMatch = result.text.match(/\{[\s\S]*\}/);
+    if (jsonMatch) {
+      const parsed = JSON.parse(jsonMatch[0]);
+      return {
+        success: true,
+        testimonyMessage: parsed.testimonyMessage || '',
+        photoMessage: parsed.photoMessage || '',
+        socialPostIdea: parsed.socialPostIdea || '',
+      };
+    }
+
+    throw new Error('Respuesta inválida de Gemini');
+  } catch (error: any) {
+    console.error('Error generando post-evento con IA:', error);
+    const defaults = buildMessages(
+      { configuracion: { clienteNombre: params.clientName, nombreEvento: params.eventName, tipoEvento: params.eventType } },
+      params.score || 100,
+      params.pendingTasks || 0,
+    );
+    return {
+      success: false,
+      ...defaults,
+    };
+  }
+}
+

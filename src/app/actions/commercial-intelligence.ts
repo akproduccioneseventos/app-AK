@@ -5,6 +5,7 @@ import { getPresupuestos } from '@/app/actions/presupuestos';
 import { getNotifications } from '@/app/actions/notifications';
 import { createNotification } from '@/lib/notifications/create-notification';
 import { saveAgentLearning } from '@/lib/multiagent/memory-store';
+import { generateWithGeminiFallback, getGeminiModelForAgent } from '@/ai/genkit';
 import type { Notificacion } from '@/types/fiesta';
 
 export interface CommercialFollowupItem {
@@ -174,3 +175,45 @@ export async function createCommercialFollowupAlerts() {
 
   return { success: true, created, skipped, total: result.data.length };
 }
+
+export async function generateAiCommercialFollowup(params: {
+  name: string;
+  source: 'crm' | 'presupuesto';
+  reason: string;
+  eventType?: string;
+}): Promise<{ success: boolean; message: string }> {
+  try {
+    const model = getGeminiModelForAgent('comercial');
+    const prompt = `Sos el Agente Vendedor de AK Producciones (Salto, Uruguay).
+Escribí un mensaje de WhatsApp para seguimiento comercial 100% personalizado y persuasivo para:
+- Cliente / Prospecto: ${params.name}
+- Tipo de contacto: ${params.source === 'crm' ? 'Lead / Consulta CRM' : 'Presupuesto enviado'}
+- Tipo de evento: ${params.eventType || 'Evento / Fiesta'}
+- Situación: ${params.reason}
+
+Reglas:
+- Español rioplatense (uruguayo: vos, che, mirá, etc.), cálido y profesional.
+- Aplicá neuroventas: no presiones, mostrá interés genuino en ayudarlos a que su fiesta sea perfecta y reducirles el estrés.
+- Incluí un llamado a la acción claro para coordinar una llamada o reunión sin costo.
+- Formato: Solo el texto final para WhatsApp (con 1 o 2 emojis pertinentes), sin saludos robóticos ni comillas.`;
+
+    const result = await generateWithGeminiFallback({
+      model,
+      prompt,
+    });
+
+    return {
+      success: true,
+      message: result.text.trim(),
+    };
+  } catch (error: any) {
+    console.error('Error generando mensaje con IA:', error);
+    return {
+      success: false,
+      message: params.source === 'crm'
+        ? messageForLead(params.name, params.reason)
+        : messageForBudget(params.name, params.eventType),
+    };
+  }
+}
+
