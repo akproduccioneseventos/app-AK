@@ -1456,6 +1456,33 @@ No eran errores: la app funcionaba bien. Es la diferencia entre "está bien" y
 el logo de la barra pública no llegan a verse. Se intentó tres veces y se paró
 por regla. El resto de los cambios sí se verificó con fotos.
 
+## Textos con inteligencia artificial para vender y para después de la fiesta (16 de agosto de 2026)
+
+Entrega de Gemini, revisada y completada. En Comercial y en Post-fiesta hay ahora
+un botón que escribe el mensaje de WhatsApp personalizado para cada cliente: el
+seguimiento del que no contestó, el pedido de testimonio, el permiso para usar
+las fotos y el texto para publicar en redes.
+
+**Nadie manda nada solo.** El botón escribe, la persona lee y recién ahí copia o
+guarda. Si la inteligencia artificial no responde, queda el mensaje de siempre.
+
+**Lo que faltaba y se agregó acá:** estas dos llamadas **no anotaban lo que
+gastan**. Todas las demás de la app sí. Ahora pasan por el mismo contador y el
+mismo tope mensual: si se llegó al tope, el botón no gasta y deja el texto de
+siempre, igual que hace la fotocabina. Sin esto el gasto aparecía recién en la
+factura.
+
+**Otras dos cosas que se corrigieron de la entrega:** el listado de páginas que
+se le da a Google había perdido la fecha de actualización, y quedó un archivo de
+notas suelto en la raíz del proyecto.
+
+**Lo que sí estaba bien hecho y se deja como está:** pide sesión antes de
+generar, limita el largo de lo que se le manda, trata los datos del cliente como
+texto no confiable —para que nadie pueda meter órdenes escondidas en el nombre de
+un evento— y le prohíbe inventar promociones, descuentos, cupos o fechas
+disponibles. Eso último importa: un descuento inventado por una máquina es plata
+de verdad.
+
 ## Cómo agregar algo a esta lista
 
 **Se anota SIEMPRE, en la misma propuesta que toca el código.** Orden del dueño

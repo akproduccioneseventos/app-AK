@@ -6,6 +6,7 @@ import { saveAgentLearning } from '@/lib/multiagent/memory-store';
 import { calculateFiestaPreparationScore } from '@/lib/fiesta/preparation-score';
 import { generateWithGeminiFallback, getGeminiModelForAgent } from '@/ai/genkit';
 import { requireAppSession } from '@/lib/auth/require-session';
+import { hayPresupuestoParaIA, registrarConsumoIA } from '@/lib/ai/consumo-servidor';
 import {
   postEventInputSchema,
   postEventMaterialSchema,
@@ -191,6 +192,21 @@ export async function generateAiPostEventMaterial(params: unknown): Promise<{
   }
 
   const input = parsedInput.data;
+
+  // Mismo control de gasto que el resto de la IA que se paga.
+  if (!(await hayPresupuestoParaIA())) {
+    const respaldo = buildMessages(
+      { configuracion: { clienteNombre: input.clientName, nombreEvento: input.eventName, tipoEvento: input.eventType } },
+      input.score ?? 100,
+      input.pendingTasks ?? 0,
+    );
+    return {
+      success: false,
+      ...respaldo,
+      error: 'Se llego al tope de gasto de inteligencia artificial del mes. Quedan los textos de siempre.',
+    };
+  }
+
   try {
     const model = getGeminiModelForAgent('marketing');
     const prompt = `Sos el Agente de Marketing de AK Producciones (Salto, Uruguay).
@@ -213,6 +229,8 @@ No inventes nombres, resultados, promociones ni autorizaciones.`;
 
     const material = postEventMaterialSchema.safeParse(result.output);
     if (!material.success) throw new Error('Respuesta estructurada invalida de Gemini.');
+
+    await registrarConsumoIA('material-post-evento');
 
     return { success: true, ...material.data };
   } catch (error: unknown) {
