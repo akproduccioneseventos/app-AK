@@ -7,11 +7,12 @@ import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Textarea } from '@/components/ui/textarea';
-import { createPostEventPackage, getPostEventOpportunities, type PostEventItem } from '@/app/actions/post-event-intelligence';
+import { createPostEventPackage, generateAiPostEventMaterial, getPostEventOpportunities, type PostEventItem } from '@/app/actions/post-event-intelligence';
 
 export default function PostEventPage() {
   const [loading, setLoading] = useState(true);
   const [savingId, setSavingId] = useState<string | null>(null);
+  const [generatingId, setGeneratingId] = useState<string | null>(null);
   const [copied, setCopied] = useState<string | null>(null);
   const [items, setItems] = useState<PostEventItem[]>([]);
   const [notes, setNotes] = useState<Record<string, string>>({});
@@ -44,6 +45,37 @@ export default function PostEventPage() {
       else setStatus(result.error || 'No se pudo guardar el paquete.');
     } finally {
       setSavingId(null);
+    }
+  }
+
+  async function personalizeMaterial(item: PostEventItem) {
+    setGeneratingId(item.fiestaId);
+    setStatus('');
+    try {
+      const result = await generateAiPostEventMaterial({
+        clientName: item.clientName,
+        eventName: item.nombreEvento,
+        eventType: item.eventType,
+        score: item.preparationScore,
+        pendingTasks: item.pendingTasks,
+      });
+      if (result.testimonyMessage && result.photoMessage && result.socialPostIdea) {
+        setItems(current => current.map(candidate => (
+          candidate.fiestaId === item.fiestaId
+            ? {
+                ...candidate,
+                testimonyMessage: result.testimonyMessage,
+                photoMessage: result.photoMessage,
+                socialPostIdea: result.socialPostIdea,
+              }
+            : candidate
+        )));
+      }
+      setStatus(result.success
+        ? `Textos personalizados para ${item.nombreEvento}. Revisalos antes de usarlos.`
+        : (result.error || 'No se pudieron personalizar los textos.'));
+    } finally {
+      setGeneratingId(null);
     }
   }
 
@@ -100,6 +132,9 @@ export default function PostEventPage() {
               <Textarea value={notes[item.fiestaId] || ''} onChange={e => setNotes(prev => ({ ...prev, [item.fiestaId]: e.target.value }))} placeholder="Notas internas: qué salió bien, qué mejorar, detalles para recordar..." className="min-h-[90px] rounded-2xl" />
 
               <div className="flex flex-col gap-2 sm:flex-row">
+                <Button onClick={() => personalizeMaterial(item)} disabled={generatingId === item.fiestaId} className="rounded-2xl bg-slate-900 font-bold hover:bg-slate-800">
+                  {generatingId === item.fiestaId ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : <Sparkles className="mr-2 h-4 w-4" />} Personalizar con IA
+                </Button>
                 <Button onClick={() => savePackage(item)} disabled={savingId === item.fiestaId} className="rounded-2xl bg-red-600 font-bold hover:bg-red-700">
                   {savingId === item.fiestaId ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : <Save className="mr-2 h-4 w-4" />} Guardar cierre
                 </Button>
