@@ -312,75 +312,154 @@ export default function AlertasPage() {
         </Card>
       ) : (
         <div className="space-y-4">
-          {Array.from(agrupadas.entries()).map(([fiestaId, items]) => (
-            <Card key={fiestaId} className="overflow-hidden border-border bg-card rounded-xl shadow-sm">
-              <CardHeader className="pb-2 pt-4 px-5 bg-muted/40 border-b border-border">
-                <CardTitle className="text-sm font-black text-foreground flex items-center gap-2">
-                  <span className="w-2 h-2 rounded-full bg-primary shrink-0" />
-                  {items[0].fiestaName}
-                  <Badge className="ml-auto bg-muted text-muted-foreground border-border text-[10px]">
-                    {items.length} alerta{items.length !== 1 ? 's' : ''}
-                  </Badge>
-                </CardTitle>
-              </CardHeader>
-              <CardContent className="p-0">
-                <div className="divide-y divide-border">
-                  {items.map(alerta => (
-                    <div
-                      key={alerta.id}
-                      className={cn(
-                        'flex items-start gap-3 px-5 py-4 transition-colors',
-                        alerta.leida ? 'opacity-50' : 'hover:bg-muted/30',
+          {Array.from(agrupadas.entries()).map(([fiestaId, items]) => {
+            const tieneUrgente = items.some(a => a.tipo === 'urgente' && !a.leida);
+            const urgentesFiesta = items.filter(a => a.tipo === 'urgente');
+            const noUrgentesFiesta = items.filter(a => a.tipo !== 'urgente');
+
+            return (
+              <Card
+                key={fiestaId}
+                className={cn(
+                  'overflow-hidden bg-card rounded-xl shadow-sm transition-all',
+                  tieneUrgente ? 'border-red-200 shadow-red-500/5' : 'border-border'
+                )}
+              >
+                <CardHeader className={cn(
+                  'pb-3 pt-4 px-5 border-b border-border',
+                  tieneUrgente ? 'bg-red-50/60 dark:bg-red-950/20' : 'bg-muted/40'
+                )}>
+                  <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2">
+                    <CardTitle className="text-sm font-black text-foreground flex items-center gap-2">
+                      <span className={cn('w-2.5 h-2.5 rounded-full shrink-0', tieneUrgente ? 'bg-red-500' : 'bg-slate-400')} />
+                      <span>{items[0].fiestaName}</span>
+                    </CardTitle>
+                    <div className="flex items-center gap-2">
+                      {tieneUrgente && (
+                        <Badge className="bg-red-500 text-white text-[10px] font-black uppercase tracking-wider">
+                          Urgente
+                        </Badge>
                       )}
-                    >
-                      {tipoIcon(alerta.tipo)}
-                      <div className="flex-1 min-w-0">
-                        <div className="flex items-center gap-2 flex-wrap mb-0.5">
-                          {tipoBadge(alerta.tipo)}
-                          <span className="text-xs text-muted-foreground">{formatFecha(alerta.fechaGenerada)}</span>
-                        </div>
-                        <p className={cn('text-sm font-semibold', alerta.leida ? 'line-through text-muted-foreground' : 'text-foreground')}>
-                          {alerta.mensaje}
-                        </p>
-                      </div>
-                      <div className="flex flex-wrap items-center gap-2">
-                        {alerta.accionUrl && (
-                          <Button asChild size="sm" variant="outline" className="h-7 px-2 text-xs rounded-lg border-border">
-                            <Link href={alerta.accionUrl}>
-                              <ExternalLink className="w-3 h-3 mr-1" />
-                              {alerta.accionLabel ?? 'Ver'}
-                            </Link>
-                          </Button>
+                      <Badge variant="outline" className="bg-background text-muted-foreground border-border text-[10px]">
+                        {items.length} {items.length === 1 ? 'aviso' : 'avisos'}
+                      </Badge>
+                    </div>
+                  </div>
+                </CardHeader>
+                <CardContent className="p-0">
+                  <div className="divide-y divide-border">
+                    {/* Urgentes primero */}
+                    {urgentesFiesta.map(alerta => (
+                      <div
+                        key={alerta.id}
+                        className={cn(
+                          'flex items-start gap-3 px-5 py-4 transition-colors bg-red-50/20 dark:bg-red-950/10',
+                          alerta.leida ? 'opacity-50' : 'hover:bg-red-50/40 dark:hover:bg-red-950/20',
                         )}
-                        {!alerta.leida && (
+                      >
+                        {tipoIcon(alerta.tipo)}
+                        <div className="flex-1 min-w-0">
+                          <div className="flex items-center gap-2 flex-wrap mb-0.5">
+                            {tipoBadge(alerta.tipo)}
+                            <span className="text-xs text-muted-foreground">{formatFecha(alerta.fechaGenerada)}</span>
+                          </div>
+                          <p className={cn('text-sm font-semibold', alerta.leida ? 'line-through text-muted-foreground' : 'text-foreground')}>
+                            {alerta.mensaje}
+                          </p>
+                        </div>
+                        <div className="flex flex-wrap items-center gap-2">
+                          {alerta.accionUrl && (
+                            <Button asChild size="sm" variant="outline" className="h-7 px-2 text-xs rounded-lg border-border">
+                              <Link href={alerta.accionUrl}>
+                                <ExternalLink className="w-3 h-3 mr-1" />
+                                {alerta.accionLabel ?? 'Ver'}
+                              </Link>
+                            </Button>
+                          )}
+                          {!alerta.leida && (
+                            <Button
+                              size="sm"
+                              variant="ghost"
+                              className="h-7 px-2 text-xs text-muted-foreground hover:text-emerald-500 rounded-lg"
+                              onClick={() => handleMarcarLeida(alerta.id)}
+                              aria-label={`Marcar alerta como leída: ${alerta.mensaje}`}
+                            >
+                              <CheckCircle2 className="w-4 h-4 mr-1" />
+                              Marcar como leída
+                            </Button>
+                          )}
                           <Button
                             size="sm"
                             variant="ghost"
-                            className="h-7 px-2 text-xs text-muted-foreground hover:text-emerald-500 rounded-lg"
-                            onClick={() => handleMarcarLeida(alerta.id)}
-                            aria-label={`Marcar alerta como leída: ${alerta.mensaje}`}
+                            className="h-7 px-2 text-xs text-muted-foreground hover:text-destructive rounded-lg"
+                            onClick={() => handleDescartar(alerta.id)}
+                            aria-label={`Eliminar alerta: ${alerta.mensaje}`}
+                            title="Eliminar alerta"
                           >
-                            <CheckCircle2 className="w-4 h-4 mr-1" />
-                            Marcar como leída
+                            <Trash2 className="w-4 h-4" />
                           </Button>
-                        )}
-                        <Button
-                          size="sm"
-                          variant="ghost"
-                          className="h-7 px-2 text-xs text-muted-foreground hover:text-destructive rounded-lg"
-                          onClick={() => handleDescartar(alerta.id)}
-                          aria-label={`Eliminar alerta: ${alerta.mensaje}`}
-                          title="Eliminar alerta"
-                        >
-                          <Trash2 className="w-4 h-4" />
-                        </Button>
+                        </div>
                       </div>
-                    </div>
-                  ))}
-                </div>
-              </CardContent>
-            </Card>
-          ))}
+                    ))}
+
+                    {/* No urgentes */}
+                    {noUrgentesFiesta.map(alerta => (
+                      <div
+                        key={alerta.id}
+                        className={cn(
+                          'flex items-start gap-3 px-5 py-3.5 transition-colors',
+                          alerta.leida ? 'opacity-50' : 'hover:bg-muted/30',
+                        )}
+                      >
+                        {tipoIcon(alerta.tipo)}
+                        <div className="flex-1 min-w-0">
+                          <div className="flex items-center gap-2 flex-wrap mb-0.5">
+                            {tipoBadge(alerta.tipo)}
+                            <span className="text-xs text-muted-foreground">{formatFecha(alerta.fechaGenerada)}</span>
+                          </div>
+                          <p className={cn('text-sm font-medium', alerta.leida ? 'line-through text-muted-foreground' : 'text-foreground/90')}>
+                            {alerta.mensaje}
+                          </p>
+                        </div>
+                        <div className="flex flex-wrap items-center gap-2">
+                          {alerta.accionUrl && (
+                            <Button asChild size="sm" variant="outline" className="h-7 px-2 text-xs rounded-lg border-border">
+                              <Link href={alerta.accionUrl}>
+                                <ExternalLink className="w-3 h-3 mr-1" />
+                                {alerta.accionLabel ?? 'Ver'}
+                              </Link>
+                            </Button>
+                          )}
+                          {!alerta.leida && (
+                            <Button
+                              size="sm"
+                              variant="ghost"
+                              className="h-7 px-2 text-xs text-muted-foreground hover:text-emerald-500 rounded-lg"
+                              onClick={() => handleMarcarLeida(alerta.id)}
+                              aria-label={`Marcar alerta como leída: ${alerta.mensaje}`}
+                            >
+                              <CheckCircle2 className="w-4 h-4 mr-1" />
+                              Marcar como leída
+                            </Button>
+                          )}
+                          <Button
+                            size="sm"
+                            variant="ghost"
+                            className="h-7 px-2 text-xs text-muted-foreground hover:text-destructive rounded-lg"
+                            onClick={() => handleDescartar(alerta.id)}
+                            aria-label={`Eliminar alerta: ${alerta.mensaje}`}
+                            title="Eliminar alerta"
+                          >
+                            <Trash2 className="w-4 h-4" />
+                          </Button>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                </CardContent>
+              </Card>
+            );
+          })}
         </div>
       )}
     </div>

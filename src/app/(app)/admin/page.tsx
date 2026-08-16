@@ -226,7 +226,7 @@ export default function MainDashboardPage() {
             Panel de Control <span className="inline-block pr-[0.12em] bg-gradient-to-r from-indigo-600 via-purple-600 to-indigo-700 bg-clip-text text-transparent italic">General</span>
           </h1>
           <p className="text-slate-600 font-medium text-xs sm:text-sm leading-normal flex items-center gap-2 max-w-2xl">
-            <span className="w-2.5 h-2.5 rounded-full bg-emerald-500 shadow-[0_0_10px_rgba(16,185,129,0.5)] animate-pulse shrink-0" />
+            <span className="w-2.5 h-2.5 rounded-full bg-emerald-500 shrink-0" />
             <span>Gestión operativa, comercial y financiera en tiempo real.</span>
           </p>
         </motion.div>
