@@ -14,10 +14,10 @@
 - Se elimino la nueva Torre de Control porque duplicaba el Centro de Fiesta y
   abria estaciones sin los tokens requeridos. El Centro de Fiesta y el lanzador
   de entretenimiento existentes siguen siendo las fuentes oficiales.
-- El `robots.txt` agregado por la rama se elimino porque habilitaba portales con
-  claves. Se conserva `src/app/robots.ts` y la lista segura central de
-  `src/lib/seo/paginas-publicas.ts`. El sitemap suma articulos reales del blog,
-  sin duplicados y sin publicar rutas privadas.
+- El `robots.txt` y el sitemap alternativo agregados por la rama se descartaron
+  porque duplicaban el SEO seguro de `main` y habilitaban portales con claves. Se
+  conservan `src/app/robots.ts`, `src/app/sitemap.ts` y la lista cerrada central de
+  `src/lib/seo/paginas-publicas.ts`.
 - Prueba focalizada de guardrails: 4 comprobaciones en verde. TypeScript fue
   revisado por agente en el mismo diff; la validacion amplia final queda
   registrada en la descripcion de la PR.
