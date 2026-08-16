@@ -52,7 +52,12 @@ describe('sincronizacion real de Instagram', () => {
       videosCount: 0,
       plannerCount: 0,
     });
-    expect(result.error).toMatch(/Graph API/i);
+    // Lo que importa es que avise que Instagram no esta conectado y no guarde
+    // nada. Antes se exigia que el texto dijera "Graph API": eso es jerga que el
+    // usuario no entiende, y atar la prueba a esa palabra impedia mejorar el
+    // mensaje sin romperla.
+    expect(result.error).toMatch(/instagram/i);
+    expect(result.error).toMatch(/no esta conectado|no está conectado/i);
     expect(mockWriteData).not.toHaveBeenCalled();
     expect(mockRequirePermiso).not.toHaveBeenCalled();
   });

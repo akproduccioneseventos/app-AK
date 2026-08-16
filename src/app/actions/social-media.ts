@@ -218,7 +218,7 @@ export async function syncInstagramPosts(
         photosCount: 0,
         videosCount: 0,
         plannerCount: 0,
-        error: 'Instagram no esta conectado a Graph API. Configura el token y la cuenta comercial para sincronizar contenido real.',
+        error: 'Instagram todavia no esta conectado. Se conecta desde Ajustes, en Redes sociales.',
       };
     }
 
