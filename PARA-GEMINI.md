@@ -1,5 +1,27 @@
 # Traspaso para Gemini, Claude y otros agentes
 
+## Auditoria PR 1004 - Gemini e inteligencia comercial (16 de agosto de 2026)
+
+- Gemini 3.7 no figura como modelo oficial disponible. La rama conserva
+  `gemini-3.6-flash` y los fallbacks configurados; no volver a cambiar los IDs sin
+  verificar primero la documentacion oficial de Google.
+- Los generadores de seguimiento comercial y postevento ahora exigen sesion,
+  validan y limitan entradas, tratan los datos del cliente como no confiables y
+  usan salida estructurada para postevento. Un puntaje valido de `0` ya no se
+  convierte en `100` durante el fallback.
+- Los generadores quedaron conectados a botones visibles en Comercial y
+  Post-fiesta. El organizador debe revisar el texto antes de copiarlo o guardarlo.
+- Se elimino la nueva Torre de Control porque duplicaba el Centro de Fiesta y
+  abria estaciones sin los tokens requeridos. El Centro de Fiesta y el lanzador
+  de entretenimiento existentes siguen siendo las fuentes oficiales.
+- El `robots.txt` y el sitemap alternativo agregados por la rama se descartaron
+  porque duplicaban el SEO seguro de `main` y habilitaban portales con claves. Se
+  conservan `src/app/robots.ts`, `src/app/sitemap.ts` y la lista cerrada central de
+  `src/lib/seo/paginas-publicas.ts`.
+- Prueba focalizada de guardrails: 4 comprobaciones en verde. TypeScript fue
+  revisado por agente en el mismo diff; la validacion amplia final queda
+  registrada en la descripcion de la PR.
+
 Última revisión: 11 de agosto de 2026.
 
 Trabajar sobre `main`. No hay propuestas abiertas. Antes de investigar, leer:

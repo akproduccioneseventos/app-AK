@@ -6,7 +6,7 @@ import { ArrowLeft, CheckCircle2, ClipboardCopy, Loader2, PhoneCall, Sparkles } 
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
-import { createCommercialFollowupAlerts, getCommercialFollowups, type CommercialFollowupItem } from '@/app/actions/commercial-intelligence';
+import { createCommercialFollowupAlerts, generateAiCommercialFollowup, getCommercialFollowups, type CommercialFollowupItem } from '@/app/actions/commercial-intelligence';
 
 const priorityStyles = {
   alta: 'border-red-200 bg-red-50 text-red-700',
@@ -17,6 +17,7 @@ const priorityStyles = {
 export default function CommercialFollowupsPage() {
   const [loading, setLoading] = useState(true);
   const [creating, setCreating] = useState(false);
+  const [generatingId, setGeneratingId] = useState<string | null>(null);
   const [copiedId, setCopiedId] = useState<string | null>(null);
   const [items, setItems] = useState<CommercialFollowupItem[]>([]);
   const [status, setStatus] = useState('');
@@ -47,6 +48,29 @@ export default function CommercialFollowupsPage() {
       setStatus(`Avisos creados: ${result.created}. Seguimientos detectados: ${result.total}.`);
     } finally {
       setCreating(false);
+    }
+  }
+
+  async function personalizeMessage(item: CommercialFollowupItem) {
+    setGeneratingId(item.id);
+    setStatus('');
+    try {
+      const result = await generateAiCommercialFollowup({
+        name: item.name,
+        source: item.source,
+        reason: item.reason,
+        eventType: item.eventType,
+      });
+      if (result.message) {
+        setItems(current => current.map(candidate => (
+          candidate.id === item.id ? { ...candidate, suggestedMessage: result.message } : candidate
+        )));
+      }
+      setStatus(result.success
+        ? `Mensaje personalizado para ${item.name}. Revisalo antes de enviarlo.`
+        : (result.error || 'No se pudo personalizar el mensaje.'));
+    } finally {
+      setGeneratingId(null);
     }
   }
 
@@ -99,6 +123,9 @@ export default function CommercialFollowupsPage() {
               <p className="text-sm leading-6 text-slate-600">{item.reason}</p>
               <div className="rounded-2xl bg-slate-50 p-4 text-sm leading-6 text-slate-700">{item.suggestedMessage}</div>
               <div className="flex flex-col gap-2 sm:flex-row">
+                <Button onClick={() => personalizeMessage(item)} disabled={generatingId === item.id} className="rounded-2xl bg-slate-900 font-bold hover:bg-slate-800">
+                  {generatingId === item.id ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : <Sparkles className="mr-2 h-4 w-4" />} Personalizar con IA
+                </Button>
                 <Button onClick={() => copyMessage(item)} variant="outline" className="rounded-2xl font-bold"><ClipboardCopy className="mr-2 h-4 w-4" /> {copiedId === item.id ? 'Copiado' : 'Copiar WhatsApp'}</Button>
                 <Button asChild className="rounded-2xl bg-red-600 font-bold hover:bg-red-700"><Link href={item.href}>Abrir</Link></Button>
               </div>
