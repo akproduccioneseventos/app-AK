@@ -1,4 +1,19 @@
-# Indica a todos los bots y crawlers que no indexen ninguna página del sitio.
-# Esto es útil para aplicaciones privadas para reducir el tráfico de bots y los errores 404.
+# Robots.txt para AK Producciones (Salto, Uruguay)
 User-agent: *
-Disallow: /
+Allow: /
+Allow: /simulador-de-presupuesto
+Allow: /simulador
+Allow: /public/blog
+Allow: /public/blog/*
+Allow: /portal/c/*
+
+# Bloquear paneles internos y datos privados de clientes
+Disallow: /admin/
+Disallow: /fiestas/
+Disallow: /empresa/
+Disallow: /contabilidad/
+Disallow: /settings/
+Disallow: /invoices/
+Disallow: /portal-cliente/
+
+Sitemap: https://akproducciones.uy/sitemap.xml
