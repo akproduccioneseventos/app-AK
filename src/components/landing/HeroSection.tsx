@@ -154,6 +154,30 @@ export function HeroSection({
               {ctaLabel}
             </a>
           </motion.div>
+
+          {/* Respaldo debajo del boton principal: es el lugar donde el visitante
+              decide si sigue leyendo, y las plataformas con las que competimos
+              muestran numeros ahi. AK tiene con que llenarlo. */}
+          <motion.dl
+            {...reveal}
+            transition={reduceMotion ? undefined : { duration: 0.6, delay: 0.32, ease: [0.22, 1, 0.36, 1] }}
+            className="mt-8 grid max-w-lg grid-cols-3 gap-4 border-t border-white/25 pt-6"
+          >
+            {/* Sin numeros inventados: los tres datos se leen de lo que la
+                empresa ya ofrece. Si algun dia se quieren poner cantidades
+                reales de fiestas o años, tienen que salir de la ficha de la
+                empresa, no escritos a mano aca. */}
+            {[
+              { valor: 'Salto', detalle: 'y toda la zona' },
+              { valor: 'Un equipo', detalle: 'para toda la fiesta' },
+              { valor: 'Sin costo', detalle: 'presupuesto al toque' },
+            ].map(dato => (
+              <div key={dato.detalle}>
+                <dt className="text-2xl font-black leading-none text-white sm:text-3xl">{dato.valor}</dt>
+                <dd className="mt-1 text-xs leading-snug text-stone-200 sm:text-sm">{dato.detalle}</dd>
+              </div>
+            ))}
+          </motion.dl>
         </div>
       </div>
 

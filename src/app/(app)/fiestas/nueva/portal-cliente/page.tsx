@@ -9,7 +9,7 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Switch } from '@/components/ui/switch';
 import { Textarea } from '@/components/ui/textarea';
-import { ArrowLeft, Loader2, KeyRound, ClipboardCopy, Share2, MessageCircle, Plus, Trash2, GlassWater, HelpCircle, Edit2, Building2, CreditCard, Eye, EyeOff, RefreshCw, PackageCheck, CheckCircle2, Palette, Upload, Check, X, Clock, Coins, Users } from 'lucide-react';
+import { ArrowLeft, Loader2, KeyRound, ClipboardCopy, Share2, MessageCircle, Plus, Trash2, GlassWater, HelpCircle, Edit2, Building2, CreditCard, Eye, EyeOff, RefreshCw, PackageCheck, CheckCircle2, Palette, Upload, Check, X, Clock, Coins, Users, AlertTriangle } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import type { FiestaEnPlanificacion, ClientPortalSettings, BebidaCalculable, FaqItem, CuentaBancaria, ClienteDebeLlevarItem, ClientePortalExperience } from '@/types/fiesta';
 import { getFiestaById, updatePortalSettingsFiestaActual, updateClientePortalExperienceFiestaActual } from '@/app/actions/fiesta-actual';
@@ -27,6 +27,7 @@ import { getCompanyInfo } from '@/app/actions/settings';
 import { Separator } from '@/components/ui/separator';
 import { useSearchParams } from 'next/navigation';
 import { defaultClientPortalSettings, defaultBebidaItems, defaultFaq, defaultClienteDebeLlevar } from '@/lib/fiesta-defaults';
+import { datosQueFaltanEnElPortal } from '@/lib/portal/datos-que-faltan';
 
 /** Create URL-friendly slug segments for portal access keys. */
 function createSlugFromText(value: string): string {
@@ -574,6 +575,13 @@ function ClientPortalConfigContent() {
   const pendingMenuRequests = fiestaData?.clientMenuChangeRequests?.filter(r => r.status === 'pendiente') || [];
   const pendingServiceRequests = fiestaData?.clientServiceChangeRequests?.filter(r => r.status === 'pendiente') || [];
   const pendingGuestRequests = fiestaData?.clientGuestCountChangeRequests?.filter(r => r.status === 'pendiente') || [];
+  const datosFaltantesDelPortal = datosQueFaltanEnElPortal({
+    nombreEvento: fiestaData?.configuracion?.nombreEvento,
+    accessKey: portalSettings?.accessKey,
+    fechaEvento: fiestaData?.configuracion?.fechaEvento,
+    tienePresupuesto: Boolean(fiestaData?.presupuestoId),
+  });
+
   const hasPendingRequests = pendingMenuRequests.length > 0 || pendingServiceRequests.length > 0 || pendingGuestRequests.length > 0;
 
   if (isLoading) {
@@ -589,6 +597,25 @@ function ClientPortalConfigContent() {
         </div>
         <Button asChild variant="outline"><Link href={`/fiestas/nueva?fiestaId=${fiestaId}`}><ArrowLeft className="w-4 h-4 mr-2" />Volver al Planificador</Link></Button>
       </div>
+
+      {/* Este aviso estaba DENTRO del portal del cliente y le hablaba al equipo
+          en la pantalla del propio cliente. Va aca, que es donde se completan
+          los datos que faltan. */}
+      {datosFaltantesDelPortal.length > 0 && (
+        <Card className="border-amber-200 bg-amber-50/40">
+          <CardContent className="flex gap-3 p-4 text-amber-900">
+            <AlertTriangle className="mt-0.5 h-5 w-5 shrink-0" />
+            <div>
+              <p className="font-bold">Antes de mandarle el portal al cliente, completá esto:</p>
+              <ul className="mt-2 list-disc space-y-1 pl-5 text-sm">
+                {datosFaltantesDelPortal.map(item => (
+                  <li key={item}>{item}</li>
+                ))}
+              </ul>
+            </div>
+          </CardContent>
+        </Card>
+      )}
 
       {hasPendingRequests && (
         <Card className="shadow-lg border-amber-200 bg-amber-50/20 overflow-hidden animate-in fade-in-50 slide-in-from-top-4 duration-300">

@@ -62,7 +62,10 @@ export function LandingNav(_props: LandingNavProps = {}) {
 
           {/* Logo */}
           <Link href="/" className="flex items-center gap-3 shrink-0 rounded-lg focus:outline-none focus:ring-2 focus:ring-red-500/50">
-            <CompanyLogo size="sm" />
+            {/* Sin fondo blanco la barra es transparente y el logo queda oscuro
+                sobre la foto: en el celular no se veia nada arriba a la
+                izquierda, solo las rayitas del menu. */}
+            <CompanyLogo size="sm" blanco={!isScrolled} />
             <span className={cn(
               "hidden font-headline text-lg font-black tracking-tight sm:block",
               isScrolled ? "text-slate-950" : "text-white",
