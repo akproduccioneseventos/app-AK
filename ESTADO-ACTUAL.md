@@ -8,40 +8,39 @@ Quien cierre una sesión reescribe este archivo. Se pisa, no se acumula.
 ---
 
 **Última actualización:** 16 de agosto de 2026, cierre.
-**Rama:** todo fusionado en `main`.
-**Estado:** compila, 1627 pruebas en verde, sin acentos rotos.
-**Propuestas abiertas:** ninguna. **Órdenes pendientes:** ninguna.
+**Rama:** `claude/repo-work-guidelines-l4u1tf`, con propuesta abierta.
+**Estado:** compila, 1640 pruebas en verde, sin acentos rotos.
+**Órdenes pendientes:** `docs/ordenes/ahora.md`, esperando la entrega de Gemini.
 
 ## Qué se hizo en esta tanda
 
-**Las once mejoras están andando.** La fotocabina, la galería y el muro le
-ofrecen el presupuesto al invitado con la marca de esa fiesta; hay pantalla de
-qué fiesta trajo clientes; álbum público que el cliente reparte; ranking de la
-noche; mensajes para abrir dentro de años; pedidos de música al DJ; pedido por
-proveedor listo para WhatsApp; posteos automáticos desde las fotos; y el párrafo
-que explica el presupuesto.
+**Se miraron las fotos de las pantallas en celular** y salieron tres lugares que
+no mostraban nada, sin dar ningún error:
 
-**La estética se revisó mirando las 242 pantallas**, en computadora y en celular,
-no leyendo código. Salieron limpias las pantallas de la noche y las de
-configuración. Se arreglaron ocho cosas: el globo blanco del logo, el botón que
-tapaba el nombre de la empresa, "Faltan 0 días", la jerga de las estaciones, la
-frase repetida de la presentación, los avisos del ingreso, los asteriscos crudos
-del planificador y el botón flotante.
+- **La pantalla del salón se quedaba negra cada tanto.** El televisor rota entre
+  fotos, redes, juegos y dedicatorias, y el pedazo de dedicatorias está apagado
+  a propósito. Al pasar por ahí quedaba en blanco. Ahora muestra el cartel con
+  el nombre de la fiesta y el código para subir fotos.
+- **Si el muro está apagado para esa fiesta, ahora lo dice** en vez de no
+  dibujar nada.
+- **Dos carteles eran blancos sobre blanco** ("Zona digital" y "Mi mesa" con un
+  enlace vencido): el texto estaba, pero no se leía. Hay una prueba que impide
+  que vuelva a pasar.
+
+**La revisión de diseño de toda la app está hecha**, celular primero. Lo que
+faltaba para que impresione está escrito en la orden para Gemini, que ya la
+tiene: la foto grande en el portal del cliente, la fiesta como protagonista en
+el celular, la espera del muro y las pantallas vacías del invitado.
 
 ## Lo que costó y no hay que repetir
 
-- **Gemini mandó tres propuestas y la orden pedía una.** Al juntarlas, **dos
-  habían arreglado la galería vacía cada una por su lado** y el archivo quedó
-  roto. Por separado las dos pasaban los controles. Se reparó a mano.
-- **El botón flotante llevó tres intentos.** Arriba tapaba el título y el logo;
-  abajo a la izquierda tapaba "Alertas". Quedó abajo, corrido pasando la barra
-  lateral. **Verificado con foto, no por deducción.**
+- **Los ayudantes se equivocan de diagnóstico, no sólo de hallazgo.** Avisaron
+  bien que la pantalla del salón estaba vacía, pero el motivo era otro del que
+  suponían. Hubo que abrirlo y mirarlo.
+- **Del informe de las pantallas del equipo no se tomó nada:** eran comentarios
+  estéticos sobre pantallas internas que funcionan y se ven bien.
 
 ## Lo próximo, si nadie dice otra cosa
 
-**Nada.** No hay errores conocidos ni trabajo abierto. Quedan cuatro funciones
-que nunca existieron, anotadas en `docs/ordenes/propuesta-de-mejoras.md`: son
-decisión comercial del dueño, no deudas.
-
-**Regla que manda:** la app está terminada. No se lanzan auditorías "a ver qué
-aparece". Se toca lo que el dueño pide o lo que se rompe en una fiesta real.
+**Esperar la entrega de Gemini** de la orden vigente, verificarla y fusionarla.
+Nada más. La app está terminada: no se lanzan auditorías "a ver qué aparece".

@@ -505,8 +505,32 @@ export default function MuroEnVivoPage() {
           )}
 
           {/* Empty state */}
-          {isLoaded && settings.privateDedicationsMode !== true && !['video', 'redes', 'juego', 'dedicaciones', 'chat', 'canciones', 'audioritmico', 'pauta'].includes(activeScreenItem?.type ?? '') && posts.length === 0 && settings.enabled !== false && (
+          {/* 'dedicaciones' NO va en esta lista: su bloque esta desactivado mas
+              abajo, asi que sin esto la pantalla del salon quedaba en blanco
+              cada vez que la rotacion llegaba a esa diapositiva. */}
+          {isLoaded && settings.privateDedicationsMode !== true && !['video', 'redes', 'juego', 'chat', 'canciones', 'audioritmico', 'pauta'].includes(activeScreenItem?.type ?? '') && posts.length === 0 && settings.enabled !== false && (
             <EmptyWallState eventName={eventName} qrUrl={qrUrl} />
+          )}
+
+          {/* Muro apagado para esta fiesta. Sin este cartel la pantalla del salon
+              quedaba completamente en blanco y nadie sabia por que. */}
+          {isLoaded && settings.enabled === false && settings.privateDedicationsMode !== true && (
+            <section
+              data-testid="live-wall-disabled"
+              className="absolute inset-0 grid place-items-center bg-slate-950 px-8 text-center text-white"
+              aria-live="polite"
+            >
+              <div className="max-w-2xl space-y-5">
+                <Camera className="mx-auto h-14 w-14 text-red-300" aria-hidden="true" />
+                <h1 className="text-4xl font-black leading-tight sm:text-5xl">
+                  {eventName || 'Muro social en vivo'}
+                </h1>
+                <p className="text-lg text-slate-300">
+                  El muro de fotos está apagado para esta fiesta. Se enciende desde el panel del
+                  muro, en la configuración del evento.
+                </p>
+              </div>
+            </section>
           )}
 
           {/* Private Greetings Mailbox Mode ("PALABRAS Y AUDIOS PARA SIEMPRE") */}
