@@ -272,7 +272,6 @@ function DecoracionYDisenoEventoContent() {
   
   const handleSelectPalette = (palette: ColorPalette) => {
     setDecoracionData(prev => ({ ...prev, paletaColores: palette }));
-    toast({ title: 'Paleta Aplicada' });
   };
 
   const handleSelectEstilo = (estiloId: string) => {
@@ -285,7 +284,6 @@ function DecoracionYDisenoEventoContent() {
       colorPalette: estilo.colors,
       tema: prev.tema || estilo.label,
     }));
-    toast({ title: `Estilo aplicado: ${estilo.label}` });
   };
 
   const handleUpdateDecoItemEstado = (itemId: string, estado: DecoItem['estado']) => {
@@ -336,7 +334,7 @@ function DecoracionYDisenoEventoContent() {
   const handleAddMoodboardPhoto = async (url: string) => {
     if (!fiestaId) return;
     const res = await addMoodboardItem(fiestaId, url);
-    if (res.success) { toast({ title: "Foto de inspiración añadida" }); loadDecoracionData(false); }
+    if (res.success) { loadDecoracionData(false); }
     else toast({ title: "Error al añadir foto", description: res.error || "No se pudo agregar la foto de inspiración. Reintentá nuevamente.", variant: "destructive" });
   };
 
@@ -344,7 +342,6 @@ function DecoracionYDisenoEventoContent() {
     if (!fiestaId) return;
     const res = await deleteMoodboardItem(fiestaId, itemId);
     if (res.success) {
-      toast({ title: "Foto eliminada" });
       loadDecoracionData(false);
     } else {
       toast({
@@ -361,7 +358,6 @@ function DecoracionYDisenoEventoContent() {
     try {
       const result = await updateDecoracionFiestaActual(fiestaId, data);
       if (result.success && result.updatedData) {
-        toast({ title: "¡Guardado!" });
         loadDecoracionData(false);
       } else {
         throw new Error(result.error || "Error desconocido al guardar.");
@@ -389,7 +385,6 @@ function DecoracionYDisenoEventoContent() {
     setSelectedZonaId(newZona.id);
     setNuevaZonaNombre('');
     setIsNuevaZonaOpen(false);
-    toast({ title: `Zona "${newZona.nombre}" creada` });
   };
 
   const handleDeleteZona = (zonaId: string) => {
@@ -430,7 +425,6 @@ function DecoracionYDisenoEventoContent() {
       itemsDecoracion: [...(prev.itemsDecoracion || []), newItem],
     }));
     setIsDecoItemModalOpen(false);
-    toast({ title: `"${newDecoItemName}" agregado` });
   };
 
   const handleSyncGastos = async () => {
@@ -585,8 +579,7 @@ function DecoracionYDisenoEventoContent() {
     setCanvasElementos([]);
     setSelectedCanvasId(null);
     setCanvasHasChanges(true);
-    toast({ title: 'Canvas limpio' });
-  }, [toast]);
+  }, []);
 
   const handleZoneToggle = useCallback((zonaId: string) => {
     setCanvasHiddenZones(prev => prev.includes(zonaId) ? prev.filter(z => z !== zonaId) : [...prev, zonaId]);
@@ -666,7 +659,6 @@ function DecoracionYDisenoEventoContent() {
       if (result.success) {
         setCanvasHasChanges(false);
         setAutoSaveError(null);
-        if (!silent) toast({ title: '¡Canvas guardado! ✓' });
       } else throw new Error(result.error || 'Error al guardar el canvas');
     } catch (err: any) {
       if (silent) {
@@ -700,7 +692,6 @@ function DecoracionYDisenoEventoContent() {
         return;
       }
       setDecoracionData(updatedDecoracion);
-      toast({ title: `Plantilla "${plantillaNombre}" guardada ✓` });
     }
     setPlantillaNombre('');
     setIsPlantillaModalOpen(false);
@@ -712,8 +703,7 @@ function DecoracionYDisenoEventoContent() {
     setSelectedCanvasId(null);
     setIsLoadPlantillaModalOpen(false);
     setIsMobilePropertiesOpen(false);
-    toast({ title: 'Plantilla cargada ✓' });
-  }, [toast]);
+  }, []);
 
   const handleLoadMuestrario = useCallback((elementos: ElementoDecorativo[]) => {
     setCanvasElementos(elementos);
@@ -722,8 +712,7 @@ function DecoracionYDisenoEventoContent() {
     setIsMuestrarioOpen(false);
     setIsMobileLibraryOpen(false);
     setIsMobilePropertiesOpen(false);
-    toast({ title: 'Decoración cargada ✓', description: 'Podés cambiar los colores y posiciones.' });
-  }, [toast]);
+  }, []);
 
   const handleOpenMuestrarioFromMobile = useCallback(() => {
     setIsMuestrarioOpen(true);
@@ -1560,7 +1549,7 @@ function DecoracionYDisenoEventoContent() {
                 </div>
                 <div className="ml-auto flex flex-wrap items-center justify-end gap-2">
                   {autoSaveError ? (
-                    <span className="text-[10px] text-rose-500 font-medium animate-pulse border border-rose-200 bg-rose-50 px-1.5 py-0.5 rounded">
+                    <span className="text-[10px] text-rose-500 font-medium border border-rose-200 bg-rose-50 px-1.5 py-0.5 rounded">
                       ⚠️ {autoSaveError}
                     </span>
                   ) : isAutoSaving ? (
@@ -1634,7 +1623,7 @@ function DecoracionYDisenoEventoContent() {
                     <div className="flex items-center gap-2">
                       <span className="text-sm font-bold text-slate-700">Modo Pantalla Completa</span>
                       {autoSaveError ? (
-                        <span className="text-[10px] text-rose-500 font-medium animate-pulse border border-rose-200 bg-rose-50 px-1.5 py-0.5 rounded">
+                        <span className="text-[10px] text-rose-500 font-medium border border-rose-200 bg-rose-50 px-1.5 py-0.5 rounded">
                           ⚠️ {autoSaveError}
                         </span>
                       ) : isAutoSaving ? (

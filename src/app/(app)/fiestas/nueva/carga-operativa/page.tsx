@@ -84,7 +84,7 @@ function SortableCargaItem({ item, categoryId, onToggle, onToggleRetornado, onQu
                         <TooltipProvider>
                             <Tooltip>
                                 <TooltipTrigger asChild>
-                                    <div className="bg-rose-500 rounded-full p-0.5 text-white cursor-help animate-pulse">
+                                    <div className="bg-rose-500 rounded-full p-0.5 text-white cursor-help">
                                         <AlertTriangle className="w-3 h-3"/>
                                     </div>
                                 </TooltipTrigger>

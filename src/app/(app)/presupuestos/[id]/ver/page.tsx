@@ -924,7 +924,7 @@ function VerPresupuestoContent({ params }: { params: { id: string } }) {
                 <Card className="border-none shadow-2xl rounded-[2rem] sm:rounded-[2.5rem] overflow-hidden bg-white">
                     <CardContent className="p-6 sm:p-12 flex flex-col items-center text-center space-y-8">
                         <div className="p-4 bg-primary/10 rounded-full">
-                            <PartyPopper className="w-10 h-10 sm:w-12 sm:h-12 text-primary animate-bounce"/>
+                            <PartyPopper className="w-10 h-10 sm:w-12 sm:h-12 text-primary"/>
                         </div>
                         <div className="space-y-3">
                             <h2 className="text-2xl sm:text-4xl font-black font-headline tracking-tighter text-slate-900 uppercase">
