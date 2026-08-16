@@ -261,7 +261,6 @@ export default function GaleriaAdminPage() {
         source: 'galeria',
         createdAt: new Date().toISOString(),
       });
-      toast({ title: '✅ Foto agregada', description: 'La foto se guardó en la galería.' });
       setFotoUrl('');
       setFotoTitulo('');
       setFotoDescripcion('');
@@ -467,7 +466,6 @@ export default function GaleriaAdminPage() {
         createdAt: new Date().toISOString(),
       };
       await addGaleriaVideo(video);
-      toast({ title: '✅ Video agregado', description: 'El video se guardó en la galería.' });
       setVideoUrl('');
       setVideoTitulo('');
       setVideoDescripcion('');
@@ -517,7 +515,6 @@ export default function GaleriaAdminPage() {
         createdAt: new Date().toISOString(),
       };
       await addGaleriaVideo(video);
-      toast({ title: '✅ Video subido', description: 'El video se cargó y quedó disponible en la galería.' });
       setVideoUrl('');
       setVideoTitulo('');
       setVideoDescripcion('');
@@ -535,7 +532,6 @@ export default function GaleriaAdminPage() {
   const handleDelete = async (id: string) => {
     try {
       await deleteGaleriaItem(id);
-      toast({ title: 'Eliminado', description: 'El item fue eliminado.' });
       await fetchData();
     } catch {
       toast({ title: 'Error', description: 'No se pudo eliminar.', variant: 'destructive' });
@@ -567,7 +563,6 @@ export default function GaleriaAdminPage() {
       toast({ title: 'Error', description: result.error || 'No se pudo actualizar la foto.', variant: 'destructive' });
       return;
     }
-    toast({ title: '✅ Foto actualizada', description: 'Los cambios se guardaron correctamente.' });
     setEditFotoDialog({ open: false, foto: null });
     await fetchData();
   };

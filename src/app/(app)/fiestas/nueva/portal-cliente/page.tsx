@@ -311,7 +311,6 @@ function ClientPortalConfigContent() {
       const result = await updatePortalSettingsFiestaActual(fiestaId, settingsToSave);
       if (result.success) {
         setPortalSettings(settingsToSave);
-        toast({ title: "Configuración Guardada", description: "Los ajustes del portal del cliente se han actualizado." });
       } else {
         throw new Error(result.error);
       }
@@ -327,9 +326,7 @@ function ClientPortalConfigContent() {
     setIsSavingFaq(true);
     try {
       const result = await updateFaqPortal(fiestaId, faqItems);
-      if (result.success) {
-        toast({ title: "FAQ Guardado", description: "Las preguntas frecuentes fueron actualizadas." });
-      } else {
+      if (!result.success) {
         throw new Error(result.error);
       }
     } catch (e: any) {
@@ -344,9 +341,7 @@ function ClientPortalConfigContent() {
     setIsSavingExperience(true);
     try {
       const result = await updateClientePortalExperienceFiestaActual(fiestaId, portalExperience);
-      if (result.success) {
-        toast({ title: "Personalización guardada", description: "El diseño del portal fue actualizado." });
-      } else {
+      if (!result.success) {
         throw new Error(result.error);
       }
     } catch (e: any) {
@@ -422,7 +417,6 @@ function ClientPortalConfigContent() {
       const result = await updatePortalSettingsFiestaActual(fiestaId, updatedSettings);
       if (result.success) {
         setPortalSettings(updatedSettings);
-        toast({ title: "Cuentas guardadas", description: "Los datos bancarios fueron actualizados en el portal." });
       } else {
         throw new Error(result.error);
       }
@@ -482,7 +476,6 @@ function ClientPortalConfigContent() {
       ]);
       if (settingsResult.success && llevarResult.success) {
         setPortalSettings(settingsToSave);
-        toast({ title: '✅ Guardado', description: 'La lista de bebidas y lo que debe traer el cliente fueron actualizados.' });
       } else {
         const errorMsg = (!settingsResult.success ? settingsResult.error : undefined)
           ?? (!llevarResult.success ? llevarResult.error : undefined)
@@ -601,7 +594,7 @@ function ClientPortalConfigContent() {
         <Card className="shadow-lg border-amber-200 bg-amber-50/20 overflow-hidden animate-in fade-in-50 slide-in-from-top-4 duration-300">
           <CardHeader className="bg-amber-500/10 border-b border-amber-100 py-3">
             <div className="flex items-center gap-2">
-              <Clock className="w-5 h-5 text-amber-600 animate-pulse" />
+              <Clock className="w-5 h-5 text-amber-600" />
               <div>
                 <CardTitle className="font-headline text-lg text-amber-900">Solicitudes Pendientes del Cliente</CardTitle>
                 <CardDescription className="text-amber-700/80 text-xs">El cliente ha solicitado cambios económicos que requieren tu revisión.</CardDescription>

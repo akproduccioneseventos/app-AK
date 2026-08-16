@@ -44,7 +44,7 @@ function getHitoStatus(hito: TimelineHito, hoy: Date): 'completado' | 'actual' |
 
 const statusConfig = {
   completado: { dot: 'bg-green-500 border-green-600', text: 'text-slate-700', badge: 'bg-green-100 text-green-700' },
-  actual: { dot: 'bg-blue-500 border-blue-600 animate-pulse', text: 'text-blue-800 font-semibold', badge: 'bg-blue-100 text-blue-700' },
+  actual: { dot: 'bg-blue-500 border-blue-600', text: 'text-blue-800 font-semibold', badge: 'bg-blue-100 text-blue-700' },
   vencido: { dot: 'bg-red-400 border-red-500', text: 'text-red-700', badge: 'bg-red-100 text-red-700' },
   futuro: { dot: 'bg-slate-300 border-slate-400', text: 'text-slate-600', badge: 'bg-slate-100 text-slate-600' },
 };
