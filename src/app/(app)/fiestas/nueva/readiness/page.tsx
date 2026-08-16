@@ -140,7 +140,13 @@ function ReadinessContent() {
         <Card>
           <CardContent className="flex flex-col items-center justify-center py-12 text-muted-foreground">
             <AlertTriangle className="h-10 w-10 mb-3 opacity-40" />
-            <p>No se especificó un evento. Usá el parámetro <code>?fiestaId=...</code> en la URL.</p>
+            {/* Antes acá se le mostraba al usuario la dirección web con su
+                parámetro, escrita como código. No le decía nada a nadie. */}
+            <p className="font-semibold text-foreground">Todavía no elegiste una fiesta</p>
+            <p className="mt-1 text-sm">Entrá desde el evento del que querés ver el estado.</p>
+            <Button asChild size="sm" className="mt-4">
+              <Link href="/eventos">Ver eventos activos</Link>
+            </Button>
           </CardContent>
         </Card>
       </div>

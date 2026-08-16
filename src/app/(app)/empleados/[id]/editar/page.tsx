@@ -76,7 +76,8 @@ export default function EditarEmpleadoPage() {
         setPhotoUrl(loadedEmpleado.photoUrl || '');
       } else {
         setNotFound(true);
-        toast({ title: 'Error', description: `No se encontró el empleado con ID ${params.id}.`, variant: 'destructive' });
+        // El identificador interno no le dice nada a nadie: se lo saca del aviso.
+        toast({ title: 'No encontramos a esa persona', description: 'Puede que la hayan borrado. Volvé a la lista de empleados y buscala de nuevo.', variant: 'destructive' });
       }
     } catch (error) {
       console.error("Error al cargar datos del empleado o roles:", error);
