@@ -140,6 +140,37 @@ una por una. Lo encontrado:
 **Los arreglos visibles se comprobaron con una foto nueva después de compilar.**
 No se dan por hechos.
 
+### Hasta dónde llegó la mirada, dicho con números
+
+**Se miraron las 243 pantallas de la aplicación**, en escritorio, una por una:
+las que ve el cliente y el invitado, las estaciones de la noche, las que el
+equipo usa todos los días, las de configuración, los formularios de alta y
+edición, y las pantallas de reporte. Se repartió entre seis ayudantes por lotes
+de veinte a treinta, y **cada hallazgo se verificó en el código antes de darlo
+por bueno**.
+
+| | Cuántas |
+|---|---|
+| Pantallas fotografiadas | **243** |
+| Pantallas miradas | **243** |
+| Hallazgos que resistieron la verificación | **13** |
+
+**La mayoría de las pantallas están bien.** De las 243 salieron trece cosas, y
+ninguna rompía nada: son textos, tapados y un logo que no cargaba.
+
+**El patrón que apareció:** cuando una pantalla se abre sin el dato que necesita
+—sin fiesta elegida, con un enlace vencido—, la app **habla como programador**:
+muestra identificadores internos, nombres de parámetros y hasta `?fiestaId=...`
+tal cual. Son cinco pantallas y están pedidas en la orden vigente.
+
+**En celular la cobertura es menor** que en escritorio: se miraron las del
+cliente, las estaciones y algunas del equipo, no las 243.
+
+**Cómo se repite, cuando haga falta:** sacar las fotos con `AK_FOTOS=true` y
+repartirlas entre ayudantes en tandas de veinte, con las cuatro preguntas de la
+habilidad `vende`. Toda la corrida, incluida la revisión, lleva alrededor de una
+hora.
+
 ---
 
 ## Lo que NO está probado, dicho de frente
