@@ -55,6 +55,7 @@ import { calcularEstadoDeCuenta } from '@/lib/budget/saldo-con-ajuste';
 import { resolveClientPortalAccess } from '@/lib/client-portal/access-phases';
 import { buildGoogleCalendarUrl } from '@/lib/calendar-links';
 import { textoDeCuentaRegresiva } from '@/lib/portal/cuenta-regresiva';
+import { elegirFotoDePortada } from '@/lib/portal/foto-de-portada';
 
 type PublicPortalClientExperienceProps = {
   fiesta: any;
@@ -457,15 +458,19 @@ export default function PublicPortalClientExperience({ fiesta, companyContact, c
     || fiesta?.invitacionDigital?.cabecera?.paletaColores?.primary
     || fiesta?.decoracion?.paletaColores?.primary
     || '#0f766e';
-  const heroImage = portalExperience.heroImageUrl
-    || portalExperience.protagonistImageUrl
-    || config.protagonistaFotoUrl
-    || fiesta?.invitacionConfig?.fotoPortada
-    || fiesta?.invitacionDigital?.cabecera?.imagenFondoUrl
-    || '';
+  // El portal nunca abre con un degradado gris pelado: si la fiesta no tiene
+  // foto propia, se usa una del catalogo segun el tipo de evento.
+  const heroImage = elegirFotoDePortada(
+    [
+      portalExperience.heroImageUrl,
+      portalExperience.protagonistImageUrl,
+      config.protagonistaFotoUrl,
+      fiesta?.invitacionConfig?.fotoPortada,
+      fiesta?.invitacionDigital?.cabecera?.imagenFondoUrl,
+    ],
+    config.tipoCelebracion
+  );
 
-  const isDefaultLink = settings?.accessKey === 'CLIENTE1';
-  const isUnconfigured = isDefaultEventName || isDefaultLink || !config.fechaEvento || !presupuesto;
   const eventDate = formatDate(config.fechaEvento);
   const days = daysUntilEvent(config.fechaEvento);
   const whatsappHref = buildWhatsAppHref(companyContact, eventName);
@@ -564,7 +569,9 @@ export default function PublicPortalClientExperience({ fiesta, companyContact, c
   })).filter(task => task.text && !task.done);
 
   const nextStep: { title: string; text: string; action: 'contact' | 'payment' | 'contable' | 'organizacion' | 'invitados'; label: string } = (() => {
-    if (isDefaultLink) return { title: 'Falta personalizar el link', text: 'Antes de enviarlo, AK debe cambiar el link de prueba por uno real.', action: 'contact', label: 'Hablar con AK' };
+    // Aca habia otra nota interna en la pantalla del cliente: "AK debe cambiar
+    // el link de prueba por uno real". Eso lo tiene que ver el equipo, no el
+    // cliente, y ahora aparece en la pantalla interna del portal.
     if (!presupuesto) return { title: 'Falta el presupuesto', text: 'Cuando AK lo cargue, vas a ver pagos, contrato y servicios.', action: 'contact', label: 'Consultar con AK' };
     if (paymentSummary.pendingReviewCount > 0) return { title: 'Pago en revisión', text: `Hay ${paymentSummary.pendingReviewCount} pago(s) esperando confirmación de AK.`, action: 'contable', label: 'Ver pagos' };
     if (paymentSummary.balance > 0) return { title: 'Saldo pendiente', text: `Saldo actual: ${formatPortalMoney(paymentSummary.balance)}.`, action: 'payment', label: 'Hacer un pago' };
@@ -986,11 +993,12 @@ export default function PublicPortalClientExperience({ fiesta, companyContact, c
   return (
     <div className="ak-public-page">
       <section
-        className="ak-public-hero text-white relative"
+        className="ak-public-hero ak-public-hero--con-foto text-white relative"
         style={{
-          background: heroImage
-            ? `linear-gradient(180deg, rgba(15, 23, 42, 0.75) 0%, ${eventColor}55 100%), url(${heroImage}) center/cover`
-            : `linear-gradient(135deg, ${eventColor}, #111827)`,
+          // Velo oscuro arriba y color del evento abajo, apenas lo justo para
+          // que el texto se lea: la foto tiene que verse, es lo que hace que el
+          // portal se sienta la fiesta del cliente y no una planilla.
+          background: `linear-gradient(180deg, rgba(2, 6, 23, 0.55) 0%, rgba(2, 6, 23, 0.35) 45%, ${eventColor}cc 100%), url(${heroImage}) center/cover`,
         }}
       >
         <div className="absolute right-4 top-4 z-10 flex gap-2">
@@ -1011,12 +1019,19 @@ export default function PublicPortalClientExperience({ fiesta, companyContact, c
           </Button>
         </div>
 
-        <div className="ak-public-shell grid gap-6 py-6 sm:py-8 lg:grid-cols-[1.5fr_.75fr] lg:items-end">
+        {/* pt-16 en escritorio: el boton "Personalizar portada" flota en la
+            esquina y se montaba encima de la tarjeta de "Proximo paso", que
+            ademas quedaba cortada por arriba. Con aire arriba, la tarjeta entra
+            entera y nada se pisa. */}
+        <div className="ak-public-shell grid gap-6 py-6 sm:py-8 lg:grid-cols-[1.5fr_.75fr] lg:items-end lg:pt-16">
           <div className="space-y-5">
-            <div className="flex flex-wrap items-center gap-2">
-              <Badge className="border-white/20 bg-white/20 text-white font-bold uppercase tracking-wider">Portal VIP</Badge>
-              <Badge className="border-0 bg-white text-slate-950">{companyName}</Badge>
-              {isUnconfigured && <Badge className="border-0 bg-amber-400 text-slate-950">Faltan datos</Badge>}
+            {/* Las etiquetas van chicas y discretas: el cliente entra a ver su
+                fiesta, no el nombre de la empresa. El aviso de "faltan datos"
+                no va mas aca, es del equipo (se ve en la pantalla interna). */}
+            <div className="flex flex-wrap items-center gap-2 text-[11px] font-bold uppercase tracking-widest text-white/70">
+              <span>Portal VIP</span>
+              <span aria-hidden="true">·</span>
+              <span>{companyName}</span>
             </div>
 
             <div className="space-y-3">
@@ -1027,24 +1042,51 @@ export default function PublicPortalClientExperience({ fiesta, companyContact, c
               </p>
             </div>
 
-            <div className="grid gap-2 text-sm sm:grid-cols-2 lg:grid-cols-4">
-              <span className="inline-flex items-center gap-2 rounded-lg bg-white/15 px-3 py-2"><Calendar className="h-4 w-4" />{eventDate}</span>
-              <span className="inline-flex items-center gap-2 rounded-lg bg-white/15 px-3 py-2"><Clock className="h-4 w-4" />{config.horaInicio || 'Hora a confirmar'}</span>
-              <span className="inline-flex items-center gap-2 rounded-lg bg-white/15 px-3 py-2"><MapPin className="h-4 w-4" />{config.nombreLugar && config.nombreLugar !== 'Salón a definir' ? config.nombreLugar : 'Lugar a confirmar'}</span>
-              {timeLeft ? (
-                timeLeft.isOver ? (
-                  <span className="inline-flex items-center gap-2 rounded-lg bg-white/15 px-3 py-2 font-semibold">
-                    <PartyPopper className="h-4 w-4 text-emerald-400" /> ¡Llegó el gran día!
-                  </span>
-                ) : (
-                  <span className="inline-flex items-center gap-2 rounded-lg bg-white/15 px-3 py-2 font-mono">
-                    <Clock className="h-4 w-4 animate-pulse text-emerald-400" />
-                    {timeLeft.days}d {timeLeft.hours}h {timeLeft.minutes}m {timeLeft.seconds}s
-                  </span>
-                )
-              ) : (
-                <span className="inline-flex items-center gap-2 rounded-lg bg-white/15 px-3 py-2"><PartyPopper className="h-4 w-4" />{textoDeCuentaRegresiva(days)}</span>
-              )}
+            {/* Una sola tarjeta grande con la fecha, la hora y el salon. Antes
+                eran cuatro cajitas grises chicas, una debajo de la otra, y en
+                el celular lo mas emocionante de la fiesta parecia un dato de
+                sistema. */}
+            <div className="rounded-2xl border border-white/20 bg-slate-950/40 p-5 backdrop-blur-md sm:p-6">
+              <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
+                <div className="space-y-1">
+                  <p className="text-xs font-black uppercase tracking-widest text-white/60">Tu fiesta</p>
+                  <p className="text-2xl font-black leading-tight sm:text-3xl">{eventDate}</p>
+                  <p className="text-base font-semibold text-white/85">
+                    {config.horaInicio ? `A las ${config.horaInicio}` : 'Hora a confirmar'}
+                  </p>
+                  <p className="flex items-center gap-2 text-base text-white/85">
+                    <MapPin className="h-4 w-4 shrink-0" />
+                    {config.nombreLugar && config.nombreLugar !== 'Salón a definir' ? config.nombreLugar : 'Lugar a confirmar'}
+                  </p>
+                </div>
+
+                {/* La cuenta regresiva grita, en el buen sentido: es la emocion
+                    del cliente cada vez que abre el portal. */}
+                <div
+                  className="shrink-0 rounded-xl px-5 py-4 text-center text-white sm:min-w-[10rem]"
+                  style={{ backgroundColor: eventColor }}
+                >
+                  {timeLeft ? (
+                    timeLeft.isOver ? (
+                      <p className="flex items-center justify-center gap-2 text-xl font-black text-white sm:text-2xl">
+                        <PartyPopper className="h-6 w-6" /> ¡Llegó el gran día!
+                      </p>
+                    ) : (
+                      <>
+                        <p className="text-3xl font-black leading-none sm:text-4xl">{timeLeft.days}</p>
+                        <p className="mt-1 text-xs font-bold uppercase tracking-widest text-white/70">
+                          {timeLeft.days === 1 ? 'día' : 'días'}
+                        </p>
+                        <p className="mt-2 font-mono text-sm text-white/80">
+                          {timeLeft.hours}h {timeLeft.minutes}m {timeLeft.seconds}s
+                        </p>
+                      </>
+                    )
+                  ) : (
+                    <p className="text-xl font-black leading-tight sm:text-2xl">{textoDeCuentaRegresiva(days)}</p>
+                  )}
+                </div>
+              </div>
             </div>
           </div>
 
@@ -1121,17 +1163,11 @@ export default function PublicPortalClientExperience({ fiesta, companyContact, c
       </section>
 
       <main className="ak-public-shell py-5 sm:py-7">
-        {isUnconfigured && (
-          <div className="mb-5 rounded-lg border border-amber-200 bg-amber-50 p-4 text-amber-900">
-            <div className="flex gap-3">
-              <AlertTriangle className="mt-0.5 h-5 w-5 shrink-0" />
-              <div>
-                <p className="font-black">Este portal todavía necesita datos reales.</p>
-                <p className="mt-1 text-sm leading-6">Falta completar nombre, link, fecha o presupuesto antes de enviarlo al cliente final.</p>
-              </div>
-            </div>
-          </div>
-        )}
+        {/* Aca iba un cartel que le hablaba al equipo -"antes de enviarlo al
+            cliente final"- en la pantalla del propio cliente. Es ropa sucia de
+            la casa colgada en la puerta: el aviso vive ahora en la pantalla
+            interna del portal, donde lo ve quien puede completar los datos. Al
+            cliente se le muestra lo que si esta. */}
 
         {/* Dashboard Superior Destacado */}
         <div className="mb-8 grid gap-4 md:grid-cols-3">

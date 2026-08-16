@@ -1414,6 +1414,48 @@ avisó que el gráfico vacío de contabilidad y las listas vacías de facturas y
 clientes "se ven frías". Funcionan y se leen bien; son pantallas internas que no
 ve el cliente. **No se tocan.**
 
+## El portal del cliente y la portada, con ojo de vendedor (16 de agosto de 2026)
+
+No eran errores: la app funcionaba bien. Es la diferencia entre "está bien" y
+"qué bueno esto".
+
+- **La fiesta del cliente pasó a ser la protagonista.** En el celular, la fecha,
+  la hora y el salón estaban en cuatro cajitas grises chicas, una debajo de la
+  otra, como una lista de datos de sistema. Ahora son una sola tarjeta grande, y
+  la cuenta regresiva —"¡Es hoy!", "Faltan 12 días"— va grande y con el color del
+  evento. **Por qué así:** es lo que el cliente siente cada vez que abre el
+  portal, y estaba en letra chica.
+- **Las etiquetas de arriba se achicaron.** "PORTAL VIP" y el nombre de la
+  empresa competían con el nombre de la fiesta. Van discretas.
+- **El portal abre con una foto.** Si la fiesta no tiene foto cargada se usa una
+  del catálogo propio según el tipo de evento. **Por qué archivos propios y no
+  enlaces a otro sitio:** una foto de afuera puede tardar, fallar o desaparecer,
+  y la portada quedaría gris justo en la pantalla que más importa. **Ojo:** el
+  tipo "XV" no lo reconocía y caía siempre en la foto genérica.
+- **El botón de personalizar portada ya no se monta sobre la tarjeta** de
+  "Próximo paso", que además quedaba cortada por arriba.
+- **Salieron dos notas internas de la pantalla del cliente.** Una decía "antes de
+  enviarlo al cliente final" y la otra "AK debe cambiar el link de prueba". Las
+  dos le hablaban al equipo en la pantalla del propio cliente. Ahora el aviso
+  está en la pantalla interna del portal, con la lista de qué falta completar.
+- **La espera del muro dejó de ser una rueda pelada.** El invitado escanea el QR
+  parado en la fiesta y puede esperar hasta veinte segundos. Ahora ve la marca de
+  AK desde el primer instante, la frase "Buscando las fotos de la fiesta…" y el
+  armazón de la galería en gris. Los mismos segundos se sienten la mitad.
+- **Las pantallas vacías del muro llevan al próximo paso.** Se copió el modelo de
+  la galería: dibujo grande, frase clara, botón que lleva a la acción y una línea
+  de ayuda. La del muro dice además que lo que subas aparece en la pantalla
+  grande del salón.
+- **La portada pública tiene un respaldo debajo del botón principal.** Tres datos
+  cortos donde el visitante decide si sigue leyendo. **Por qué no dice cuántas
+  fiestas ni cuántos años:** no se inventan números en la web pública. Si algún
+  día se quieren poner cantidades reales, tienen que salir de la ficha de la
+  empresa.
+
+**Lo que no salió:** en las fotos de prueba, la imagen de la portada del portal y
+el logo de la barra pública no llegan a verse. Se intentó tres veces y se paró
+por regla. El resto de los cambios sí se verificó con fotos.
+
 ## Cómo agregar algo a esta lista
 
 **Se anota SIEMPRE, en la misma propuesta que toca el código.** Orden del dueño

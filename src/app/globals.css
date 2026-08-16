@@ -280,6 +280,13 @@
     background: rgba(2,6,23,.72);
   }
 
+  /* Cuando la portada abre con una foto, este velo se suma al degradado que ya
+     trae la portada y entre los dos la tapan casi por completo. Con el velo
+     suave la foto se ve y el texto sigue leyendose. */
+  .ak-public-hero--con-foto::before {
+    background: rgba(2,6,23,.22);
+  }
+
   .ak-public-shell {
     width: min(1120px, calc(100% - 2rem));
     margin-inline: auto;
