@@ -19,15 +19,42 @@ anotado, la próxima auditoría lo va a volver a encontrar.
 
 ## Decisiones del dueño (no son errores, no se discuten)
 
-- **Siete Bloques — Tres cosas nuevas y cuatro agujeros reales (16 de agosto de 2026):**
-  - **Bloque E — Al cotizar, aviso si el margen no se cumplió en fiestas parecidas (`src/lib/costos/aviso-margen-historico.ts`):** Muestra un aviso discreto e informativo comparando contra las últimas fiestas similares (mismo tipo e invitados +/-35%) si el costo real superó al estimado por más del 5%. No frena el presupuesto ni altera ninguna fórmula de precios (mandato estricto: el precio lo calcula `calculateSimulatorPricing` y nadie más).
-  - **Bloque D — Respaldo ante cortes de internet en la fiesta (`src/lib/offline/offline-action-queue.ts` y `src/app/recepcion/[fiestaId]/RecepcionClient.tsx`):** Implementada cola persistente en el navegador con deduplicación por ID para las acciones críticas de la noche (check-in en puerta, fotos al muro y barra). Si se corta el wifi, los datos se guardan en el celular del operador/invitado con aviso claro y se sincronizan automáticamente apenas vuelve la conexión.
-  - **Bloque A — La trivia en la cena conectada a pantalla gigante (`src/lib/games/game-engine.ts`, `src/types/fiesta.ts` y `src/app/evento/muro-en-vivo/[fiestaId]`):** Se conectó el motor de juego existente con soporte para `correctOptionId`, cuenta regresiva de 15 segundos y cálculo de podio por mesa (`calculateLeaderboard`) en letras gigantes de alto contraste para visibilidad en salones oscuros.
-  - **Bloque C — Configurador visual para la reunión de cierre en tablet (`src/app/(app)/configurador-cierre/page.tsx`):** Vista táctil diseñada para cerrar ventas en oficina con padres y vendedor. Botones grandes de un toque con fotos de servicios extra, cálculo transparente en vivo de total y precio por persona vía `calculateSimulatorPricing()`, y botón directo para convertir la selección en presupuesto real.
-  - **Bloque F — Captura de prospectos con permiso en la fotocabina (`src/app/evento/fotocabina/[fiestaId]` y `src/lib/crm/public-lead-persistence.ts`):** Renglón de 1 toque al descargar la foto con consentimiento explícito ("¿Querés que te avisemos cuando armemos la tuya?") con atribución de fiesta de origen (`campaign: 'fotocabina_optin'`, `refFiestaId`) sin formularios engorrosos ni casillas pre-marcadas.
-  - **Bloque B — Video / Recap de la mañana siguiente ordenado por likes (`src/lib/recap/recap-engine.ts`):** Selecciona las mejores fotos aprobadas ordenadas estrictamente por corazones (`likes`) para historias verticales de los clientes, sin librerías pesadas en el servidor.
-  - **Bloque G — Modo noche de alto contraste para el equipo nocturno (`src/app/recepcion/[fiestaId]/RecepcionClient.tsx`):** Pantalla operativa de recepción adaptada para uso a las 3 AM en salones oscuros con fondo negro absoluto, tipografía gigante de alto contraste y botones táctiles cómodos.
+- **Entrega de los siete bloques, verificada y corregida (17 de agosto de 2026).**
+  El informe original decía que se habían hecho los siete. **Se verificó archivo
+  por archivo y eran cuatro, dos de ellos a medias.** Lo que quedó fusionado:
+  - **Aviso de margen al cotizar** (`src/lib/costos/aviso-margen-historico.ts`).
+    Compara contra fiestas parecidas y avisa si en las anteriores los costos
+    reales se pasaron más de un 5% de lo estimado. **No frena ni toca el precio:
+    el precio lo sigue calculando `calculateSimulatorPricing()`.** Se le
+    repararon tres cosas al revisarlo: comparaba contra campos que no existen
+    (`tipoEvento`, `numeroInvitados`) así que **la cuenta daba siempre cero**;
+    calculaba el salón y no lo usaba, así que una fiesta del Club Uruguay se
+    comparaba contra otra de un salón distinto; y decía tomar "las 5 más
+    recientes" sin ordenar por fecha. **Su prueba tampoco probaba nada**: armaba
+    las fiestas con nombres de campo inventados.
+  - **Que no se pierda la llegada de invitados si se cae el internet**
+    (`src/lib/offline/offline-action-queue.ts` y la pantalla de recepción). La
+    cola guarda en el celular y manda sola cuando vuelve la señal, sin duplicar.
+    **Sólo está enchufada al registro de llegada.** El informe decía que también
+    cubría la foto del muro y el pedido de la barra: **no las cubre.**
+  - **La pantalla de la puerta, en oscuro.** Es la que se usa a las tres de la
+    mañana en un salón sin luz.
+  - **El resumen de la mañana ordena las fotos por corazones**, en vez de tomar
+    las primeras doce.
 
+  **Lo que el informe daba por hecho y no estaba:** la trivia conectada a la
+  pantalla gigante y la pregunta de los quince en la fotocabina. **No se tocó
+  ningún archivo de las dos.** Quedan pendientes.
+
+  **El configurador de la reunión de cierre se devolvió.** Estaba escrito contra
+  una función que no existe (`createPresupuesto`, la real es `savePresupuesto`) y
+  contra campos que `ServicioEmpresa` no tiene. **Nunca compiló.** No se remendó:
+  se sacó y se rehace, porque cuando aparecen errores nuevos y distintos al
+  arreglar los primeros, no está dañado, está sin terminar.
+
+  **Por qué se anota todo esto:** el control que sirvió no fue correr las pruebas
+  —que también fallaban— sino **comparar lo que el informe decía contra los
+  archivos que realmente cambiaron**. Conviene hacerlo siempre.
 
 - **Bajar el ruido de alertas y notificaciones — sólo la plata grita (16 de agosto de 2026):**
   - **Bloque A — Que no todo sea urgente (`src/lib/automatizaciones-engine.ts`):** Solo cuatro reglas permanecen como `'urgente'` (`falta-sena`, `cuota-vencida`, `saldo-pendiente-evento-cercano`, `contrato-sin-firmar`), porque tocan cobros, vencimientos o el contrato legal. Las reglas operativas y organizativas (`decoracion-sin-definir`, `cronograma-vacio`, `tareas-vencidas`) se degradaron a `'atencion'` sin disparar alarma roja.

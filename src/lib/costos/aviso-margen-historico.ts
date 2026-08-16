@@ -35,7 +35,6 @@ export function calcularAvisoMargenHistorico(
   params: ParametrosComparativa,
 ): AvisoMargenHistorico | null {
   const tipoBuscado = normalizarTexto(params.tipoEvento);
-  const salonBuscado = normalizarTexto(params.salon);
   const invitadosBuscados = Number(params.invitados) || 0;
 
   if (!tipoBuscado && invitadosBuscados <= 0) return null;
@@ -47,25 +46,28 @@ export function calcularAvisoMargenHistorico(
 
     // Coincidencia de tipo si se especificó
     if (tipoBuscado) {
-      const tipoFiesta = normalizarTexto(
-        fiesta.configuracion?.tipoCelebracion ||
-        fiesta.configuracion?.tipoEvento ||
-        fiesta.configuracion?.tipoFiesta ||
-        fiesta.tipo
-      );
+      // El unico campo que existe de verdad es tipoCelebracion. Los otros tres
+      // que se probaban aca no estan en el tipo y no compilaban.
+      const tipoFiesta = normalizarTexto(fiesta.configuracion?.tipoCelebracion);
       if (tipoFiesta && !tipoFiesta.includes(tipoBuscado) && !tipoBuscado.includes(tipoFiesta)) {
+        return false;
+      }
+    }
+
+    // Coincidencia de salon si se especifico. Antes se calculaba y no se usaba,
+    // asi que una fiesta del Club Uruguay se comparaba contra otra de un salon
+    // distinto, con costos que no tienen nada que ver.
+    if (params.salon) {
+      const salonBuscado = normalizarTexto(params.salon);
+      const salonFiesta = normalizarTexto(fiesta.configuracion?.nombreLugar);
+      if (salonBuscado && salonFiesta && !salonFiesta.includes(salonBuscado) && !salonBuscado.includes(salonFiesta)) {
         return false;
       }
     }
 
     // Coincidencia de invitados (+/- 35%) si se especificó
     if (invitadosBuscados > 0) {
-      const cantInvitados = Number(
-        fiesta.configuracion?.invitadosEstimados ||
-        fiesta.configuracion?.numeroInvitados ||
-        fiesta.invitadosCount ||
-        0
-      );
+      const cantInvitados = Number(fiesta.configuracion?.invitadosEstimados || 0);
       if (cantInvitados > 0) {
         const min = invitadosBuscados * 0.65;
         const max = invitadosBuscados * 1.35;
@@ -79,8 +81,11 @@ export function calcularAvisoMargenHistorico(
   // Si hay menos de 2 fiestas parecidas con gastos cargados, no se emite aviso
   if (parecidas.length < 2) return null;
 
-  // Tomar hasta las 5 más recientes
-  const muestra = parecidas.slice(0, 5);
+  // Las 5 mas recientes DE VERDAD: antes se tomaban las primeras 5 del arreglo,
+  // en el orden en que venian, y el comentario decia "las mas recientes".
+  const muestra = [...parecidas]
+    .sort((a, b) => String(b.configuracion?.fechaEvento || '').localeCompare(String(a.configuracion?.fechaEvento || '')))
+    .slice(0, 5);
 
   let sumaEstimada = 0;
   let sumaReal = 0;

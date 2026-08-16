@@ -6,9 +6,13 @@ describe('Bloque E — Aviso de margen histórico al cotizar', () => {
     id: `fiesta_${Math.random()}`,
     nombre: 'Fiesta Test',
     tipo,
+    // Los nombres tienen que ser los de verdad. Antes decian tipoEvento,
+    // costoEstimado y costoItemId, que no existen, asi que la cuenta daba cero
+    // y la prueba no probaba nada.
     configuracion: {
-      tipoEvento: tipo,
+      tipoCelebracion: tipo,
       invitadosEstimados: invitados,
+      fechaEvento: '2026-08-01',
     },
     gestionCostos: {
       costosItems: [
@@ -16,15 +20,14 @@ describe('Bloque E — Aviso de margen histórico al cotizar', () => {
           id: 'item_1',
           categoria: 'Gastronomía',
           descripcion: 'Catering',
-          costoEstimado,
-          costoReal: 0,
+          montoEstimado: costoEstimado,
         },
       ],
     },
     pagosProveedores: [
       {
         id: 'pago_1',
-        costoItemId: 'item_1',
+        costoAsociadoId: 'item_1',
         monto: costoReal,
         fecha: '2026-08-01',
         medioPago: 'transferencia',
