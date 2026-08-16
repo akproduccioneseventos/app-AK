@@ -154,7 +154,9 @@ export default function ZonaDigitalPublicPage() {
   if (!fiesta || !settings.enabled) {
     return (
       <main className="ak-live-stage flex min-h-screen items-center justify-center p-6 text-white">
-        <Card className="ak-live-panel max-w-md text-white">
+        {/* Fondo y borde explicitos: la clase .ak-live-panel pierde contra el
+            blanco propio de Card, y con texto blanco el cartel quedaba invisible. */}
+        <Card className="max-w-md border border-white/15 bg-slate-900 text-white shadow-2xl">
           <CardContent className="space-y-4 p-6 text-center">
             <ShieldCheck className="mx-auto h-10 w-10 text-red-400" />
             <h1 className="text-2xl font-black">Zona digital no activa</h1>

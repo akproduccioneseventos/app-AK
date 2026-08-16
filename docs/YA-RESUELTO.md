@@ -1386,6 +1386,34 @@ saber cuál seguía vivo. Ahora hay **una sola vigente, `docs/ordenes/ahora.md`*
 y el resto está en `docs/ordenes/hechas/` como historia. **Cuando una orden se
 termina, se mueve a `hechas/` en la misma propuesta.**
 
+## Tres pantallas que quedaban en blanco (16 de agosto de 2026)
+
+Salieron de mirar las fotos de las pantallas en celular, no de leer código. Las
+tres cargaban bien y no daban ningún error: simplemente no mostraban nada.
+
+- **La pantalla del salón se quedaba negra cada tanto.** El televisor va rotando
+  entre fotos, redes, juegos y dedicatorias. El pedazo que dibuja las
+  dedicatorias está apagado a propósito (los saludos van en el buzón privado),
+  pero la rotación seguía pasando por ahí y el televisor quedaba en blanco hasta
+  que le tocaba el turno a la siguiente. Ahora, cuando llega a esa vuelta,
+  muestra el cartel de siempre con el nombre de la fiesta y el código para subir
+  fotos.
+- **Y si el muro está apagado para esa fiesta, ahora lo dice.** Antes no se
+  dibujaba nada en ninguna parte y nadie sabía si estaba roto o apagado. Ahora
+  aparece el nombre de la fiesta y una línea que explica dónde se enciende.
+- **Dos carteles eran blancos sobre blanco.** En "Zona digital" y en "Mi mesa",
+  cuando el enlace no servía, el invitado veía una tarjeta blanca vacía con un
+  dibujito y nada más. El texto estaba escrito, pero era blanco sobre fondo
+  blanco. **Por qué pasaba:** el fondo oscuro se pedía con una clase de la hoja
+  de estilos y el blanco propio de la tarjeta le ganaba. Se le puso el fondo
+  oscuro directo en la tarjeta. Hay una prueba que impide volver a combinar esas
+  dos cosas.
+
+**Falso positivo descartado:** el ayudante que miró las pantallas del equipo
+avisó que el gráfico vacío de contabilidad y las listas vacías de facturas y
+clientes "se ven frías". Funcionan y se leen bien; son pantallas internas que no
+ve el cliente. **No se tocan.**
+
 ## Cómo agregar algo a esta lista
 
 **Se anota SIEMPRE, en la misma propuesta que toca el código.** Orden del dueño
