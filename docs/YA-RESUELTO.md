@@ -19,6 +19,43 @@ anotado, la próxima auditoría lo va a volver a encontrar.
 
 ## Decisiones del dueño (no son errores, no se discuten)
 
+- **Entrega de los siete bloques, verificada y corregida (17 de agosto de 2026).**
+  El informe original decía que se habían hecho los siete. **Se verificó archivo
+  por archivo y eran cuatro, dos de ellos a medias.** Lo que quedó fusionado:
+  - **Aviso de margen al cotizar** (`src/lib/costos/aviso-margen-historico.ts`).
+    Compara contra fiestas parecidas y avisa si en las anteriores los costos
+    reales se pasaron más de un 5% de lo estimado. **No frena ni toca el precio:
+    el precio lo sigue calculando `calculateSimulatorPricing()`.** Se le
+    repararon tres cosas al revisarlo: comparaba contra campos que no existen
+    (`tipoEvento`, `numeroInvitados`) así que **la cuenta daba siempre cero**;
+    calculaba el salón y no lo usaba, así que una fiesta del Club Uruguay se
+    comparaba contra otra de un salón distinto; y decía tomar "las 5 más
+    recientes" sin ordenar por fecha. **Su prueba tampoco probaba nada**: armaba
+    las fiestas con nombres de campo inventados.
+  - **Que no se pierda la llegada de invitados si se cae el internet**
+    (`src/lib/offline/offline-action-queue.ts` y la pantalla de recepción). La
+    cola guarda en el celular y manda sola cuando vuelve la señal, sin duplicar.
+    **Sólo está enchufada al registro de llegada.** El informe decía que también
+    cubría la foto del muro y el pedido de la barra: **no las cubre.**
+  - **La pantalla de la puerta, en oscuro.** Es la que se usa a las tres de la
+    mañana en un salón sin luz.
+  - **El resumen de la mañana ordena las fotos por corazones**, en vez de tomar
+    las primeras doce.
+
+  **Lo que el informe daba por hecho y no estaba:** la trivia conectada a la
+  pantalla gigante y la pregunta de los quince en la fotocabina. **No se tocó
+  ningún archivo de las dos.** Quedan pendientes.
+
+  **El configurador de la reunión de cierre se devolvió.** Estaba escrito contra
+  una función que no existe (`createPresupuesto`, la real es `savePresupuesto`) y
+  contra campos que `ServicioEmpresa` no tiene. **Nunca compiló.** No se remendó:
+  se sacó y se rehace, porque cuando aparecen errores nuevos y distintos al
+  arreglar los primeros, no está dañado, está sin terminar.
+
+  **Por qué se anota todo esto:** el control que sirvió no fue correr las pruebas
+  —que también fallaban— sino **comparar lo que el informe decía contra los
+  archivos que realmente cambiaron**. Conviene hacerlo siempre.
+
 - **Bajar el ruido de alertas y notificaciones — sólo la plata grita (16 de agosto de 2026):**
   - **Bloque A — Que no todo sea urgente (`src/lib/automatizaciones-engine.ts`):** Solo cuatro reglas permanecen como `'urgente'` (`falta-sena`, `cuota-vencida`, `saldo-pendiente-evento-cercano`, `contrato-sin-firmar`), porque tocan cobros, vencimientos o el contrato legal. Las reglas operativas y organizativas (`decoracion-sin-definir`, `cronograma-vacio`, `tareas-vencidas`) se degradaron a `'atencion'` sin disparar alarma roja.
   - **Bloque B — El globito rojo cuenta sólo lo urgente (`src/components/main-nav.tsx` y `src/components/notifications-hub.tsx`):** El contador rojo de la barra lateral y de la campana solo se enciende si hay alertas urgentes pendientes. Si hay únicamente avisos tranquilos (`atencion`, `info`), se muestra un punto gris discreto sin número que no genera estrés.

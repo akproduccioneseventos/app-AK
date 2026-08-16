@@ -7,41 +7,6 @@
 
 Ésta es la **única orden vigente**. Reemplaza a la anterior.
 
-## Estado al 17 de agosto de 2026 — lo que ya entregó Gemini
-
-Gemini trabajó sobre la orden **anterior**, de siete bloques, que era la que
-existía cuando empezó. Parte de eso ya está fusionado. **Lo que quedó hecho, con
-la numeración de este plan:**
-
-- **Bloque F (aviso de margen) — HECHO.** Anda y respeta la regla: no toca el
-  precio. Se le repararon tres cosas al revisarlo.
-- **Bloque H (sin internet) — A MEDIAS.** La cola quedó construida y enchufada a
-  **la llegada de invitados** nada más. **Faltan la foto al muro y el pedido de
-  la barra.**
-- **Bloque D (pantallas de noche) — A MEDIAS.** Se oscureció la pantalla de
-  recepción, que es la de la puerta y la más importante. **Faltan logística y
-  accesos.**
-- **Bloque J (videos) — apenas empezado.** Sólo se corrigió que el resumen de la
-  mañana ordene las fotos por corazones. Falta todo el video.
-- **Bloque A (trivia y misiones) — NO SE HIZO.** El informe decía que sí; no se
-  tocó ningún archivo.
-- **Bloque G (la pregunta de los quince) — NO SE HIZO.** Igual.
-- **Bloque I (configurador) — SE DEVOLVIÓ.** Ver abajo, dice por qué.
-
-### Lo que hay que saber antes de rehacer el configurador
-
-Se escribió contra funciones y campos **que no existen**, así que nunca compiló.
-Los nombres de verdad son:
-
-- Para guardar un presupuesto es **`savePresupuesto()`**, no `createPresupuesto`.
-- `ServicioEmpresa` **no tiene** `descripcion`, ni `activo`, ni `esRecomendado`.
-  Mirá el tipo real en `src/types/empresa.ts` antes de usar un campo.
-- `calculateSimulatorPricing()` no recibe `selectedServiceIds`. Mirá su tipo de
-  entrada.
-
-**Antes de usar un campo o una función, abrila y confirmá que existe.** Fue lo
-que trabó esta entrega entera.
-
 ## Cómo se entrega esto
 
 **Son catorce bloques. NO van en una sola propuesta: van en TRES.**
