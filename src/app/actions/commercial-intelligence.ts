@@ -7,6 +7,7 @@ import { createNotification } from '@/lib/notifications/create-notification';
 import { saveAgentLearning } from '@/lib/multiagent/memory-store';
 import { generateWithGeminiFallback, getGeminiModelForAgent } from '@/ai/genkit';
 import { requireAppSession } from '@/lib/auth/require-session';
+import { hayPresupuestoParaIA, registrarConsumoIA } from '@/lib/ai/consumo-servidor';
 import {
   commercialFollowupInputSchema,
   serializeUntrustedPromptData,
@@ -200,6 +201,17 @@ export async function generateAiCommercialFollowup(
   }
 
   const input = parsedInput.data;
+
+  // Toda llamada de IA que se paga pasa por el contador del mes. Sin esto, el
+  // gasto de estos botones no aparecia en ningun lado hasta la factura.
+  if (!(await hayPresupuestoParaIA())) {
+    return {
+      success: false,
+      message: messageForLead(input.name, input.reason),
+      error: 'Se llego al tope de gasto de inteligencia artificial del mes. Queda el mensaje de siempre.',
+    };
+  }
+
   try {
     const model = getGeminiModelForAgent('comercial');
     const prompt = `Sos el Agente Vendedor de AK Producciones (Salto, Uruguay).
@@ -221,6 +233,8 @@ Reglas:
 
     const message = result.text.trim();
     if (!message) throw new Error('Gemini devolvio un mensaje vacio.');
+
+    await registrarConsumoIA('seguimiento-comercial');
 
     return {
       success: true,

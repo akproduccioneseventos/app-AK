@@ -11,7 +11,13 @@
  */
 
 /** Las funciones que consumen plata de verdad: las que generan imágenes. */
-export type FuncionConCosto = 'touchpix' | 'espejo-magico' | 'remarketing' | 'vendedor-virtual';
+export type FuncionConCosto =
+  | 'touchpix'
+  | 'espejo-magico'
+  | 'remarketing'
+  | 'vendedor-virtual'
+  | 'seguimiento-comercial'
+  | 'material-post-evento';
 
 
 /**
@@ -25,6 +31,10 @@ export const COSTO_ESTIMADO_UYU: Record<FuncionConCosto, number> = {
   'espejo-magico': 6,
   remarketing: 2,
   'vendedor-virtual': 4,
+  // Solo texto y a pedido del equipo, apretando un boton: sale mucho menos que
+  // una foto con efecto. El de post-evento devuelve tres textos de una.
+  'seguimiento-comercial': 1,
+  'material-post-evento': 2,
 };
 
 /** Cuánto se avisa antes de llegar al tope. */
