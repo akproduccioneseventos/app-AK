@@ -5,6 +5,7 @@ import { readData, writeData } from '@/lib/data-service';
 import { requirePermiso } from '@/lib/auth/require-session';
 import { PERMISOS } from '@/lib/auth/perfiles';
 import { assertHistoryPlatform, parseHistoricalSocialArchive } from '@/lib/social-media/history-import';
+import { fetchAllYouTubeHistory } from '@/lib/social-media/youtube-history';
 
 const POSTS_FILE = 'social-posts.json';
 
@@ -31,6 +32,44 @@ function sameHistoricalPost(a: SocialPost, b: SocialPost): boolean {
   if (a.sourceId && b.sourceId && a.platform === b.platform && a.sourceId === b.sourceId) return true;
   if (a.sourceUrl && b.sourceUrl && a.platform === b.platform && a.sourceUrl === b.sourceUrl) return true;
   return false;
+}
+
+async function persistNewHistoricalPosts(candidates: SocialPost[]): Promise<{ imported: SocialPost[]; skipped: number }> {
+  const existing = await readData<SocialPost[]>(POSTS_FILE, []);
+  const accepted: SocialPost[] = [];
+  let skipped = 0;
+
+  for (const candidate of candidates) {
+    const duplicate = existing.some((post) => sameHistoricalPost(post, candidate))
+      || accepted.some((post) => sameHistoricalPost(post, candidate));
+    if (duplicate) {
+      skipped += 1;
+      continue;
+    }
+    accepted.push(candidate);
+  }
+
+  if (accepted.length) {
+    await writeData(
+      POSTS_FILE,
+      [...existing, ...accepted],
+      (a, b) => new Date(b.publishDate).getTime() - new Date(a.publishDate).getTime(),
+    );
+  }
+  return { imported: accepted, skipped };
+}
+
+function responseFromPosts(imported: SocialPost[], skipped: number, scannedFiles: number, warnings?: string[]): SocialHistoryImportResponse {
+  const dates = imported.map((post) => post.publishDate).sort();
+  return {
+    success: true,
+    imported: imported.length,
+    skipped,
+    scannedFiles,
+    oldestDate: dates[0],
+    newestDate: dates[dates.length - 1],
+    warnings,
+  };
 }
 
 export async function importSocialHistory(formData: FormData): Promise<SocialHistoryImportResponse> {
@@ -60,38 +99,8 @@ export async function importSocialHistory(formData: FormData): Promise<SocialHis
       };
     }
 
-    const existing = await readData<SocialPost[]>(POSTS_FILE, []);
-    const accepted: SocialPost[] = [];
-    let skipped = 0;
-
-    for (const candidate of parsed.posts) {
-      const duplicate = existing.some((post) => sameHistoricalPost(post, candidate))
-        || accepted.some((post) => sameHistoricalPost(post, candidate));
-      if (duplicate) {
-        skipped += 1;
-        continue;
-      }
-      accepted.push(candidate);
-    }
-
-    if (accepted.length) {
-      await writeData(
-        POSTS_FILE,
-        [...existing, ...accepted],
-        (a, b) => new Date(b.publishDate).getTime() - new Date(a.publishDate).getTime(),
-      );
-    }
-
-    const dates = accepted.map((post) => post.publishDate).sort();
-    return {
-      success: true,
-      imported: accepted.length,
-      skipped,
-      scannedFiles: parsed.scannedFiles,
-      oldestDate: dates[0],
-      newestDate: dates[dates.length - 1],
-      warnings: parsed.warnings,
-    };
+    const saved = await persistNewHistoricalPosts(parsed.posts);
+    return responseFromPosts(saved.imported, saved.skipped, parsed.scannedFiles, parsed.warnings);
   } catch (error) {
     return {
       success: false,
@@ -99,6 +108,27 @@ export async function importSocialHistory(formData: FormData): Promise<SocialHis
       skipped: 0,
       scannedFiles: 0,
       error: error instanceof Error ? error.message : 'No se pudo importar el historial.',
+    };
+  }
+}
+
+export async function syncYouTubeHistory(): Promise<SocialHistoryImportResponse> {
+  const permiso = await requirePermiso(PERMISOS.CRM);
+  if (!permiso.ok) {
+    return { success: false, imported: 0, skipped: 0, scannedFiles: 0, error: permiso.error };
+  }
+
+  try {
+    const posts = await fetchAllYouTubeHistory();
+    const saved = await persistNewHistoricalPosts(posts);
+    return responseFromPosts(saved.imported, saved.skipped, 1);
+  } catch (error) {
+    return {
+      success: false,
+      imported: 0,
+      skipped: 0,
+      scannedFiles: 0,
+      error: error instanceof Error ? error.message : 'No se pudo sincronizar YouTube.',
     };
   }
 }
