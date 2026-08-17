@@ -1845,6 +1845,33 @@ arreglado.
   dedicatorias, pedidos de canciones y la encuesta de opinión. Todas tienen tope
   de uso, que es lo que corresponde para algo que usa el invitado sin cuenta.
 
+## Cuatro pantallas internas entraban con una cookie inventada (17 de agosto de 2026)
+
+**El agujero más grande que apareció en toda la auditoría.** `/admin/finanzas`,
+`/admin/ventas`, `/admin/carga-historicos` y `/admin/asistente-ak` quedaron
+**fuera** del grupo `(app)`, que es donde vive la guardia de sesión. Sin ella:
+
+- El middleware protege todo lo que no esté en la lista pública, pero **sólo
+  comprueba que exista la cookie, no que sea válida** — no puede leer el secreto
+  para verificar la firma. Está documentado y es a propósito.
+- Quien valida de verdad es `AuthGuard`, en el navegador. Esas cuatro no lo
+  tenían.
+- Las funciones que traen las fiestas **no piden sesión a propósito**, porque las
+  usan también las pantallas del invitado.
+
+Resultado: cualquiera que se inventara una cookie con ese nombre abría
+`/admin/finanzas` y veía **la plata de todas las fiestas** —totales, cobros y
+saldos—, o `/admin/ventas` y **movía el embudo de ventas**.
+
+**Arreglado con un `layout.tsx` propio en `/admin` que las pone detrás de la
+guardia.** Va sólo la guardia, sin el marco de navegación: esas pantallas ya
+venían sin él y se veían bien así.
+
+**Por qué el candado va ahí y no en las funciones de fiestas:** pedirles sesión
+rompería el portal del invitado, el muro y las estaciones, que las usan sin
+cuenta. Hay una prueba que cuida que ninguna pantalla interna quede sin guardia y
+que `/admin` no se agregue a la lista de rutas públicas.
+
 ## Cómo agregar algo a esta lista
 
 **Se anota SIEMPRE, en la misma propuesta que toca el código.** Orden del dueño
