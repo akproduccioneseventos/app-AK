@@ -1,0 +1,6 @@
+[
+  {"platform":"Facebook","date":"2024-10-05","confidence":"day_from_previous_audit","label":"Instituto Nacional de Colonización","eventName":"Instituto Nacional de Colonización","category":"empresarial","source":"previous_public_index_audit"},
+  {"platform":"Facebook","date":"2024-11-09","confidence":"day_from_previous_audit","label":"XV años / paquete Club Uruguay","category":"xv","source":"previous_public_index_audit"},
+  {"platform":"Instagram","date":"2024-11-21T15:47:49.694Z","confidence":"estimated_from_instagram_shortcode","label":"18 años de Sofía","eventName":"Sofía","category":"cumpleanos","sourceUrl":"https://www.instagram.com/p/DCo5TWyxqtw/","source":"previous_public_index_audit"},
+  {"platform":"Facebook","date":"2024-11-26","confidence":"day_from_previous_audit","label":"Tu Boda Perfecta en Salto","category":"boda","source":"previous_public_index_audit"}
+]
