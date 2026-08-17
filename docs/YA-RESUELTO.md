@@ -1808,6 +1808,43 @@ junto.
 - **Una prueba llamaba a una función que no existe.** Se sacó: lo que probaba ya
   está cubierto contra la función de verdad.
 
+## Auditoría de Ajustes, Empresa y permisos (17 de agosto de 2026)
+
+Era lo último que quedaba sin revisar. Se encontró poco, y lo poco ya está
+arreglado.
+
+### Arreglado
+
+- **Un cupón se podía guardar terminando antes de empezar.** Quedaba guardado y
+  no servía un solo día; nadie se enteraba hasta que un cliente lo intentaba usar
+  en la caja. Las promos ya lo controlaban, los cupones no.
+- **Anotar un aparato para recibir avisos no pedía sesión, y dejaba elegir a
+  nombre de quién quedaba anotado.** Hoy nada manda avisos desde esa lista, así
+  que no había nada filtrándose; el día que se enchufen, un extraño habría
+  recibido los del equipo. Ahora pide sesión y el dueño del aparato sale de la
+  sesión, no de lo que manda el navegador. La pantalla que la usa es la del panel
+  interno, que ya pedía sesión: no le cambia nada a nadie.
+- **Anotarse en el sorteo de redes no tenía ningún freno.** El control de
+  repetidos mira nombre + red, así que con nombres inventados se cargaba la lista
+  entera y el premio se lo llevaba cualquiera. Se le puso el mismo freno que usan
+  las otras interacciones del muro, cuyo primer tope cuenta por fiesta y **no
+  depende del nombre**, así que cambiarlo no lo esquiva. Ninguna pantalla la
+  llama hoy, pero queda expuesta igual por ser acción de servidor.
+
+### Falsas alarmas verificadas (no volver a reportarlas)
+
+- **"El título de Cupones se desborda en el celular."** Ya tiene el ajuste de
+  ancho puesto. Mirado línea por línea.
+- **"Los campos del formulario de cupones no tienen explicación."** La tienen:
+  usos máximos aclara que cero es ilimitado, tipo de evento aclara que vacío
+  aplica a todos, y monto mínimo dice "sin mínimo".
+- **Empresa está sana.** Todas sus acciones de escritura piden sesión o permiso,
+  no hay plata ni datos de clientes a la vista de quien no corresponde, y los
+  borrados están bloqueados cuando la cosa está en uso.
+- **Las demás acciones públicas sin sesión están bien**: muro, encuestas,
+  dedicatorias, pedidos de canciones y la encuesta de opinión. Todas tienen tope
+  de uso, que es lo que corresponde para algo que usa el invitado sin cuenta.
+
 ## Cómo agregar algo a esta lista
 
 **Se anota SIEMPRE, en la misma propuesta que toca el código.** Orden del dueño

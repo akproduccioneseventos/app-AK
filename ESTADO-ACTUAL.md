@@ -20,6 +20,13 @@ primero completadas con las más queridas de la noche, se lo puede bajar como vi
 vertical para las historias —armado en su propio celular, sin gastar— y se manda
 el enlace a sí mismo por WhatsApp. La app no le escribe a nadie.
 
+**Y no queda nada sin auditar.** Ajustes y Empresa eran lo último; se revisaron el
+17 de agosto junto con un barrido de permisos por toda la app. Salió poco y está
+todo arreglado: un cupón que se guardaba con las fechas cruzadas, la lista de
+aparatos para avisos que no pedía sesión, y el sorteo de redes que se podía
+cargar con nombres inventados. El detalle está en `docs/YA-RESUELTO.md`, con las
+falsas alarmas anotadas para que nadie las vuelva a reportar.
+
 ## Lo que hay que saber de esa última tanda
 
 - **De quién es cada foto se guarda con candado.** Sólo si la persona probó tener
