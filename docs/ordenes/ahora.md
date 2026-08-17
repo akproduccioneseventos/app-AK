@@ -61,18 +61,23 @@ Se escribió contra funciones y campos **que no existen**, así que nunca compil
 
 ## Cómo se entrega esto
 
-**Son catorce bloques. NO van en una sola propuesta: van en TRES.**
+**El dueño pidió que hagas TODO lo que falta de una sola vez, en UNA propuesta.**
+Las entregas 2 y 3 juntas.
 
-La regla del proyecto es "una sola propuesta por tanda", no "una sola propuesta
-para todo el año". Catorce bloques juntos serían imposibles de revisar y una sola
-cosa rota trabaría las trece que andan.
+**El orden en que conviene hacerlo, si tenés que priorizar:**
 
-> **ENTREGA 1** — bloques A, B, C, D → una propuesta
-> **ENTREGA 2** — bloques E, F, G, H, I → una propuesta
-> **ENTREGA 3** — bloques J, K, L, M, N → una propuesta
+> **E** (la reunión que se agenda sola) → **G** (la pregunta de los quince) →
+> lo que falta de **H** (foto al muro y pedido de barra) → las misiones del
+> **A** → **I** (configurador) → **M** (cada uno ve lo suyo) → **K**
+> (termómetro) → **L** (libro) → **J** (videos) → **N** (transmisión).
 
-**Terminá y entregá la 1 antes de empezar la 2.** Dentro de cada entrega, si un
-bloque se traba, entregá los otros igual y decí cuál faltó y por qué.
+**Si no llegás con todo, entregá igual lo que esté terminado de verdad y decí
+qué faltó.** Eso es una respuesta válida. Lo que no sirve es entregar ocho cosas
+a medias: una sola rota traba a todas las demás en la revisión.
+
+**Y algo que importa con una propuesta grande:** corré los cuatro controles
+**sobre el conjunto entero**, no bloque por bloque. Dos cosas que pasan por
+separado pueden romper juntas; ya pasó con el archivo de facturas.
 
 ## La regla que más plata ahorra en esta orden
 
