@@ -17,6 +17,8 @@ import type { AuditResult } from '@/lib/commercial-flow/budget-audit';
 import { ALL_METODOS_PAGO } from '@/types/presupuesto';
 import { getPresupuestoById, getPresupuestoShareToken, addPagoToPresupuesto, deletePagoFromPresupuesto, createFiestaFromPresupuesto, approvePresupuesto, addPagoClienteFromPortal } from '@/app/actions/presupuestos';
 import { getFiestas } from '@/app/actions/fiesta/fiesta.actions';
+import { getAvisoMargenParaPresupuesto } from '@/app/actions/aviso-margen';
+import type { AvisoMargenHistorico } from '@/lib/costos/aviso-margen-historico';
 import { getCustomerById } from '@/app/actions/customers';
 import { getSocialConnections } from '@/app/actions/social-connections';
 import type { Customer } from '@/types/customer';
@@ -195,6 +197,26 @@ function VerPresupuestoContent({ params }: { params: { id: string } }) {
   }, [presupuestoId, publicToken]);
 
   useEffect(() => { fetchPresupuestoAndSettings(); }, [fetchPresupuestoAndSettings]);
+  // Aviso de margen: solo para el equipo. La pantalla tambien se comparte con el
+  // cliente por enlace publico, y cuanto se paso el costo de lo estimado no es
+  // algo que el cliente tenga que ver.
+  const [avisoMargen, setAvisoMargen] = useState<AvisoMargenHistorico | null>(null);
+
+  useEffect(() => {
+    if (publicToken || !presupuesto) return;
+    let vigente = true;
+    getAvisoMargenParaPresupuesto({
+      tipoEvento: presupuesto.eventoTipo,
+      salon: presupuesto.salonFiestas,
+      invitados: (presupuesto.invitadosAdultos || 0)
+        + (presupuesto.invitadosAdolescentes || 0)
+        + (presupuesto.invitadosNinos || 0),
+    })
+      .then((resultado) => { if (vigente) setAvisoMargen(resultado); })
+      .catch(() => { /* si falla, simplemente no se muestra el aviso */ });
+    return () => { vigente = false; };
+  }, [presupuesto, publicToken]);
+
   useEffect(() => {
     if (searchParams.get('imprimir') === '1') {
       const printTimer = setTimeout(() => window.print(), 800);
@@ -672,6 +694,18 @@ function VerPresupuestoContent({ params }: { params: { id: string } }) {
   return (
     <div className="bg-gray-100 min-h-screen py-6 print:bg-white print:py-0 print:min-h-0 font-sans">
         {/* ── QUICK ACTION BAR ────────────────────────────────── */}
+        {isOperatorBudgetAccess && avisoMargen && (
+          <div className="print:hidden max-w-3xl mx-auto px-4 mb-4">
+            <div className="flex items-start gap-2.5 rounded-xl border border-amber-200 bg-amber-50 px-4 py-3 text-sm text-amber-900">
+              <TrendingUp className="mt-0.5 h-4 w-4 shrink-0" aria-hidden="true" />
+              <p>
+                {avisoMargen.mensaje}{' '}
+                <span className="text-amber-700">Es sólo un dato para tenerlo en cuenta: el presupuesto no cambia.</span>
+              </p>
+            </div>
+          </div>
+        )}
+
         {isOperatorBudgetAccess && (
         <>
         <div className="print:hidden max-w-3xl mx-auto px-4 mb-4">

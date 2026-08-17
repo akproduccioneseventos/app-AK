@@ -400,6 +400,50 @@ lo diga al vendedor**: *"vos estuviste en los quince de Sofía, en el Club Urugu
 Empezar así no se parece en nada a empezar de cero. La atribución ya guarda ese
 dato: falta mostrarlo en el momento de la venta.
 
+## Ampliación pedida por el dueño el 17 de agosto de 2026
+
+**La pregunta no va sólo en la fotocabina. La app tiene que vender en todos
+lados, sin invadir.** Va también en la galería, en el muro, en "mi mesa" y en la
+invitación: en cualquier pantalla donde el invitado esté contento y ya haya
+terminado lo suyo. **Nunca antes de que consiga lo que vino a buscar.**
+
+### Y sobre a quién se le muestra: hay un paso previo
+
+El dueño propuso usar la categoría del invitado para mostrarla sólo a quien
+corresponde. **Es la idea correcta, pero hoy no se puede: la categoría es
+`'Adulto' | 'Niño/Adolescente'`** (`src/types/invitado.ts`), o sea que **junta a
+un nene de seis con una chica de quince**.
+
+Entonces, en este orden:
+
+1. **Separar la categoría en tres: adulto, niño y adolescente.** En la invitación,
+   donde hoy se elige entre dos.
+2. **Mostrar la pregunta de los quince sólo a los adolescentes.** Al adulto y al
+   nene no se les muestra nada.
+
+### La regla dura de este cambio, y es de plata y de comida
+
+> **Separar la etiqueta NO puede cambiar ni lo que se cocina ni lo que se cobra.**
+
+El dueño lo marcó y tiene razón: **el menú de niños y adolescentes es el mismo.**
+
+La buena noticia es que el sistema **ya los suma juntos**: en
+`src/lib/simulator/pricing.ts`, `getGuestCountForItem()` hace
+`ninosYAdolescentes = ninos + adolescentes` para los servicios de menores. Así
+que separar la etiqueta en la lista de invitados **no toca el precio ni la lista
+de compras**, siempre que se siga sumando igual.
+
+**Verificalo con una prueba**: mismo presupuesto, mismos invitados, y que el
+total y la cantidad de platos den exactamente igual antes y después del cambio.
+Si da distinto, algo se rompió.
+
+### Lo que NO hay que hacer
+
+- **No adivines el género por el nombre.** Falla, y cuando falla queda mal. **No
+  hace falta:** si se le muestra a todos los adolescentes, el varón toca "no es lo
+  mío" y listo. La pregunta filtra sola, sin equivocarse con nadie.
+- **No cambies el menú ni los precios.** Ver arriba.
+
 ## Lo que está prohibido
 
 > **No se le manda nada a nadie que no haya apretado el botón.**
