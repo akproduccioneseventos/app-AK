@@ -76,7 +76,7 @@ export async function buildDigitalPresenceDailyReview(params: {
   };
 
   try {
-    const presupuestoDisponible = await hayPresupuestoParaIA('revision-diaria');
+    const presupuestoDisponible = await hayPresupuestoParaIA();
 
     if (presupuestoDisponible) {
       // Registrar consumo de IA para la revisión diaria

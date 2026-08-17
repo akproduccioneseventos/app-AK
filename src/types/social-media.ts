@@ -1,5 +1,7 @@
 
-export type SocialPlatform = 'Facebook' | 'Instagram' | 'TikTok' | 'WhatsApp';
+// YouTube entra aca porque las tablas de colores e iconos del calendario ya lo
+// tienen: sin sumarlo al tipo, las dos propuestas juntas no compilaban.
+export type SocialPlatform = 'Facebook' | 'Instagram' | 'TikTok' | 'WhatsApp' | 'YouTube' | 'Threads' | 'X';
 export type PostStatus = 'Programado' | 'Publicado' | 'Importado de IG' | 'Borrador';
 
 export interface PostPerformance {

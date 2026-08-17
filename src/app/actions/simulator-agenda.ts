@@ -47,7 +47,9 @@ export async function bookAppointmentFromSimulator(data: {
 }> {
   await enforcePublicRateLimit({
     scope: 'agenda_simulator',
-    identity: data.clienteContacto || 'simulator_booking',
+    // SIN identity a proposito: la clave se arma con el origen de la conexion.
+    // Si se cuenta por el contacto que escribe el visitante, cambia el telefono
+    // y arranca de cero, asi que el freno no frena nada.
     limit: 5,
     windowMs: 60 * 60 * 1000,
   });
