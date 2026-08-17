@@ -21,6 +21,7 @@ import { formatEventDate } from '@/lib/public-experience/event-date';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
 import { AhoraEnVivo, type PuntoDelPrograma } from './ahora-en-vivo';
+import { EquipoCheckIn } from '@/components/centro/EquipoCheckIn';
 
 /**
  * Centro de Fiesta: la única pantalla para dirigir la noche.
@@ -120,8 +121,10 @@ export default async function CentroDeFiestaPage(props: PageProps) {
   // Quién trabaja esta noche, con nombre y rol: en la fiesta se necesita saber a
   // quién buscar, no una lista de códigos internos.
   const equipo = (fiesta.personalAsignado ?? []).map((asignado) => ({
+    empleadoId: asignado.empleadoId,
     nombre: empleados.find((e: any) => e.id === asignado.empleadoId)?.nombre ?? 'Sin asignar',
     rol: roles.find((r: any) => r.id === asignado.rolId)?.nombre ?? 'Sin rol',
+    llegada: asignado.checkInTimestamp,
   }));
 
   const pendientes = (fiesta.tareas ?? []).filter((t) => !t.completada);
@@ -176,16 +179,7 @@ export default async function CentroDeFiestaPage(props: PageProps) {
         </section>
 
         {equipo.length > 0 && (
-          <section className="rounded-[1.5rem] border border-white/10 bg-white/5 p-5">
-            <h2 className="text-sm font-black uppercase tracking-widest text-slate-400">Quién trabaja esta noche</h2>
-            <div className="mt-3 flex flex-wrap gap-2">
-              {equipo.map((persona, i) => (
-                <span key={`${persona.nombre}-${i}`} className="rounded-full border border-white/15 bg-white/5 px-3 py-1.5 text-sm font-bold">
-                  {persona.nombre} <span className="font-semibold text-slate-400">· {persona.rol}</span>
-                </span>
-              ))}
-            </div>
-          </section>
+          <EquipoCheckIn fiestaId={params.id} equipo={equipo} />
         )}
 
         {pendientes.length > 0 && (

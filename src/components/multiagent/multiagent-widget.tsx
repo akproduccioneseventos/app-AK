@@ -16,6 +16,9 @@ import {
   Send,
   Sparkles,
   Trash2,
+  Volume2,
+  VolumeX,
+  Mic,
   X,
 } from 'lucide-react';
 import type { LucideIcon } from 'lucide-react';
@@ -223,6 +226,58 @@ export function MultiAgentWidget({ defaultOpen = false }: { defaultOpen?: boolea
   const [messages, setMessages] = useState<ChatMessage[]>(
     () => readStorage<ChatMessage[]>(HISTORY_STORAGE_KEY, [])
   );
+  const [isRecordingVoice, setIsRecordingVoice] = useState(false);
+  const [isVoiceMuted, setIsVoiceMuted] = useState(false);
+  const recognitionRef = useRef<any>(null);
+
+  useEffect(() => {
+    return () => {
+      if (typeof window !== 'undefined' && 'speechSynthesis' in window) {
+        window.speechSynthesis.cancel();
+      }
+      try {
+        recognitionRef.current?.stop?.();
+      } catch {}
+    };
+  }, []);
+
+  const toggleVoiceRecording = () => {
+    if (isRecordingVoice) {
+      try { recognitionRef.current?.stop?.(); } catch {}
+      setIsRecordingVoice(false);
+      return;
+    }
+    const SpeechRecognition = (window as any).SpeechRecognition || (window as any).webkitSpeechRecognition;
+    if (!SpeechRecognition) {
+      setToast({ message: 'Tu navegador no soporta dictado por voz.', type: 'warning' });
+      return;
+    }
+    try {
+      const recognition = new SpeechRecognition();
+      recognition.lang = 'es-UY';
+      recognition.continuous = false;
+      recognition.interimResults = true;
+      recognition.onresult = (e: any) => {
+        let final = '';
+        for (let i = e.resultIndex; i < e.results.length; i++) {
+          const text = e.results[i][0]?.transcript || '';
+          if (e.results[i].isFinal) final += text + ' ';
+        }
+        if (final) {
+          setInput(prev => (prev ? prev + ' ' : '') + final.trim());
+          setIsRecordingVoice(false);
+          recognition.stop();
+        }
+      };
+      recognition.onerror = () => setIsRecordingVoice(false);
+      recognition.onend = () => setIsRecordingVoice(false);
+      recognitionRef.current = recognition;
+      recognition.start();
+      setIsRecordingVoice(true);
+    } catch (e) {
+      setIsRecordingVoice(false);
+    }
+  };
 
   // Solo mostrar el widget si hay sesión activa (usuario autenticado)
   useEffect(() => {
@@ -395,6 +450,13 @@ export function MultiAgentWidget({ defaultOpen = false }: { defaultOpen?: boolea
         }
       }
 
+      if (!isVoiceMuted && typeof window !== 'undefined' && 'speechSynthesis' in window) {
+        window.speechSynthesis.cancel();
+        const utterance = new SpeechSynthesisUtterance(result.response);
+        utterance.lang = 'es-UY';
+        window.speechSynthesis.speak(utterance);
+      }
+
       setMessages(prev => [
         ...prev,
         {
@@ -463,6 +525,14 @@ export function MultiAgentWidget({ defaultOpen = false }: { defaultOpen?: boolea
                   className="flex h-8 w-8 items-center justify-center rounded-full text-white/70 transition hover:bg-white/15 hover:text-white"
                 >
                   <ArrowLeftRight className="h-4 w-4" />
+                </button>
+                <button
+                  type="button"
+                  onClick={() => setIsVoiceMuted(!isVoiceMuted)}
+                  title={isVoiceMuted ? 'Activar voz' : 'Silenciar voz'}
+                  className="flex h-8 w-8 items-center justify-center rounded-full text-white/70 transition hover:bg-white/15 hover:text-white"
+                >
+                  {isVoiceMuted ? <VolumeX className="h-4 w-4" /> : <Volume2 className="h-4 w-4" />}
                 </button>
                 <button
                   type="button"
@@ -603,6 +673,15 @@ export function MultiAgentWidget({ defaultOpen = false }: { defaultOpen?: boolea
                     }
                   }}
                 />
+                <Button
+                  variant="outline"
+                  onClick={toggleVoiceRecording}
+                  disabled={isSending}
+                  className={cn("h-auto shrink-0 rounded-xl px-3 border-slate-200 transition-all", isRecordingVoice && "bg-red-50 text-red-600 border-red-200 animate-pulse hover:bg-red-100 hover:text-red-700")}
+                  title={isRecordingVoice ? 'Detener dictado' : 'Dictar por voz'}
+                >
+                  <Mic className="h-4 w-4" />
+                </Button>
                 <Button
                   onClick={() => handleSend()}
                   disabled={isSending || !input.trim()}

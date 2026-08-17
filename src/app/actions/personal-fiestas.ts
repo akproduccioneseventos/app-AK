@@ -55,3 +55,21 @@ export async function getFiestasByEmpleado(empleadoId: string): Promise<FiestaEn
       new Date(a.configuracion.fechaEvento || '1970-01-01').getTime()
   );
 }
+
+export async function marcarLlegadaPersonal(fiestaId: string, empleadoId: string): Promise<boolean> {
+  const file = path.join(process.cwd(), 'src', 'data', FIESTAS_DIR, `${fiestaId}.json`);
+  try {
+    const raw = await fs.readFile(file, 'utf8');
+    const fiesta: FiestaEnPlanificacion = JSON.parse(raw);
+    if (!fiesta.personalAsignado) return false;
+    
+    const idx = fiesta.personalAsignado.findIndex(p => p.empleadoId === empleadoId);
+    if (idx === -1) return false;
+    
+    fiesta.personalAsignado[idx].checkInTimestamp = new Date().toISOString();
+    await fs.writeFile(file, JSON.stringify(fiesta, null, 2));
+    return true;
+  } catch {
+    return false;
+  }
+}

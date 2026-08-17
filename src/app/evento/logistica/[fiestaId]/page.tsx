@@ -39,11 +39,11 @@ export default function LogisticaPage() {
   );
 
   if (error || !fiesta) return (
-    <div className="flex items-center justify-center min-h-screen p-4">
-      <Card className="max-w-md text-center border-red-200 bg-red-50">
+    <div className="flex items-center justify-center min-h-screen p-4 bg-slate-950">
+      <Card className="max-w-md text-center border-red-900 bg-red-950/30">
         <CardContent className="pt-6">
           <AlertTriangle className="w-10 h-10 mx-auto text-red-500 mb-2" />
-          <p className="text-red-700 font-semibold">{error ?? 'No se encontró la información del evento.'}</p>
+          <p className="text-red-400 font-semibold">{error ?? 'No se encontró la información del evento.'}</p>
         </CardContent>
       </Card>
     </div>
@@ -53,24 +53,24 @@ export default function LogisticaPage() {
   const fechaEvento = parseEventDate(config?.fechaEvento);
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-blue-50 via-white to-indigo-50">
+    <div className="min-h-screen bg-slate-950 text-slate-200">
       {/* Header */}
-      <header className="bg-white border-b border-slate-100 shadow-sm">
+      <header className="bg-slate-900 border-b border-slate-800 shadow-sm">
         <div className="max-w-lg mx-auto px-4 h-14 flex items-center gap-3">
-          <Navigation className="w-5 h-5 text-indigo-600 shrink-0" />
+          <Navigation className="w-5 h-5 text-indigo-400 shrink-0" />
           <div className="flex-1 min-w-0">
-            <p className="text-sm font-black text-slate-900 truncate">{config?.nombreEvento ?? 'Evento'}</p>
-            <p className="text-xs text-slate-500">Información de Logística y Accesos</p>
+            <p className="text-sm font-black text-white truncate">{config?.nombreEvento ?? 'Evento'}</p>
+            <p className="text-xs text-slate-400">Información de Logística y Accesos</p>
           </div>
         </div>
       </header>
 
       <main className="max-w-lg mx-auto px-4 py-8 space-y-5">
         {/* Event Summary */}
-        <Card className="overflow-hidden">
+        <Card className="overflow-hidden border-slate-800 bg-slate-900">
           <div className="h-1.5 bg-gradient-to-r from-indigo-500 to-purple-500" />
           <CardContent className="pt-4 pb-4">
-            <div className="flex flex-wrap gap-3 text-sm text-slate-600">
+            <div className="flex flex-wrap gap-3 text-sm text-slate-300">
               {fechaEvento && (
                 <div className="flex items-center gap-1.5">
                   <Clock className="w-4 h-4 text-indigo-500" />
@@ -92,25 +92,25 @@ export default function LogisticaPage() {
 
         {/* How to get there */}
         {(config?.direccionLugar || config?.googleMapsUrl || config?.instruccionesLlegada) && (
-          <Card>
+          <Card className="border-slate-800 bg-slate-900">
             <CardHeader className="pb-2">
-              <CardTitle className="text-base font-black flex items-center gap-2">
-                <Navigation className="w-5 h-5 text-indigo-500" />
+              <CardTitle className="text-base font-black flex items-center gap-2 text-white">
+                <Navigation className="w-5 h-5 text-indigo-400" />
                 Cómo llegar
               </CardTitle>
             </CardHeader>
             <CardContent className="space-y-3">
               {config?.direccionLugar && (
-                <p className="text-sm text-slate-700">{config.direccionLugar}</p>
+                <p className="text-sm text-slate-300">{config.direccionLugar}</p>
               )}
               {config?.instruccionesLlegada && (
-                <p className="text-sm text-slate-600 leading-relaxed">{config.instruccionesLlegada}</p>
+                <p className="text-sm text-slate-300 leading-relaxed">{config.instruccionesLlegada}</p>
               )}
               {config?.googleMapsUrl && (
                 <Button
                   variant="outline"
                   size="sm"
-                  className="w-full border-indigo-200 text-indigo-700 hover:bg-indigo-50"
+                  className="w-full border-indigo-500/30 text-indigo-300 hover:bg-indigo-500/20"
                   asChild
                 >
                   <a href={config.googleMapsUrl} target="_blank" rel="noopener noreferrer">
@@ -125,56 +125,56 @@ export default function LogisticaPage() {
 
         {/* Parking */}
         {config?.infoEstacionamiento && (
-          <Card>
+          <Card className="border-slate-800 bg-slate-900">
             <CardHeader className="pb-2">
-              <CardTitle className="text-base font-black flex items-center gap-2">
-                <ParkingCircle className="w-5 h-5 text-blue-500" />
+              <CardTitle className="text-base font-black flex items-center gap-2 text-white">
+                <ParkingCircle className="w-5 h-5 text-blue-400" />
                 Estacionamiento
               </CardTitle>
             </CardHeader>
             <CardContent>
-              <p className="text-sm text-slate-700 leading-relaxed">{config.infoEstacionamiento}</p>
+              <p className="text-sm text-slate-300 leading-relaxed">{config.infoEstacionamiento}</p>
             </CardContent>
           </Card>
         )}
 
         {/* Accessibility */}
         {config?.rutaAccesibilidad && (
-          <Card>
+          <Card className="border-slate-800 bg-slate-900">
             <CardHeader className="pb-2">
-              <CardTitle className="text-base font-black flex items-center gap-2">
-                <Accessibility className="w-5 h-5 text-green-500" />
+              <CardTitle className="text-base font-black flex items-center gap-2 text-white">
+                <Accessibility className="w-5 h-5 text-emerald-400" />
                 Accesibilidad
               </CardTitle>
             </CardHeader>
             <CardContent>
-              <p className="text-sm text-slate-700 leading-relaxed">{config.rutaAccesibilidad}</p>
+              <p className="text-sm text-slate-300 leading-relaxed">{config.rutaAccesibilidad}</p>
             </CardContent>
           </Card>
         )}
 
         {/* Rain Protocol */}
         {config?.protocoloLluvia && (
-          <Card className="border-blue-200 bg-blue-50">
+          <Card className="border-blue-900 bg-blue-950/30">
             <CardHeader className="pb-2">
-              <CardTitle className="text-base font-black flex items-center gap-2 text-blue-800">
-                <CloudRain className="w-5 h-5 text-blue-600" />
+              <CardTitle className="text-base font-black flex items-center gap-2 text-blue-300">
+                <CloudRain className="w-5 h-5 text-blue-400" />
                 Protocolo de Lluvia
-                <Badge className="bg-blue-200 text-blue-800 text-xs">Contingencia</Badge>
+                <Badge className="bg-blue-900 text-blue-200 text-xs">Contingencia</Badge>
               </CardTitle>
             </CardHeader>
             <CardContent>
-              <p className="text-sm text-blue-900 leading-relaxed">{config.protocoloLluvia}</p>
+              <p className="text-sm text-blue-200/80 leading-relaxed">{config.protocoloLluvia}</p>
             </CardContent>
           </Card>
         )}
 
         {/* Hall Map */}
         {config?.mapaDelSalonUrl && (
-          <Card>
+          <Card className="border-slate-800 bg-slate-900">
             <CardHeader className="pb-2">
-              <CardTitle className="text-base font-black flex items-center gap-2">
-                <MapPin className="w-5 h-5 text-purple-500" />
+              <CardTitle className="text-base font-black flex items-center gap-2 text-white">
+                <MapPin className="w-5 h-5 text-purple-400" />
                 Mapa del Salón
               </CardTitle>
             </CardHeader>
@@ -182,7 +182,7 @@ export default function LogisticaPage() {
               <Button
                 variant="outline"
                 size="sm"
-                className="w-full border-purple-200 text-purple-700 hover:bg-purple-50"
+                className="w-full border-purple-500/30 text-purple-300 hover:bg-purple-500/20"
                 asChild
               >
                 <a href={config.mapaDelSalonUrl} target="_blank" rel="noopener noreferrer">
@@ -196,10 +196,10 @@ export default function LogisticaPage() {
 
         {/* Emergency Contact */}
         {config?.telefonoAsistencia && (
-          <Card className="border-rose-200 bg-rose-50">
+          <Card className="border-rose-900 bg-rose-950/30">
             <CardHeader className="pb-2">
-              <CardTitle className="text-base font-black flex items-center gap-2 text-rose-800">
-                <Phone className="w-5 h-5 text-rose-600" />
+              <CardTitle className="text-base font-black flex items-center gap-2 text-rose-300">
+                <Phone className="w-5 h-5 text-rose-500" />
                 Contacto de Asistencia
               </CardTitle>
             </CardHeader>
@@ -221,10 +221,10 @@ export default function LogisticaPage() {
         {/* Fallback if no logistics info configured */}
         {!config?.direccionLugar && !config?.infoEstacionamiento && !config?.rutaAccesibilidad &&
          !config?.protocoloLluvia && !config?.mapaDelSalonUrl && !config?.telefonoAsistencia && (
-          <Card className="border-slate-200">
+          <Card className="border-slate-800 bg-slate-900">
             <CardContent className="pt-6 text-center space-y-2">
-              <Info className="w-8 h-8 mx-auto text-slate-400" />
-              <p className="text-sm text-slate-500">
+              <Info className="w-8 h-8 mx-auto text-slate-500" />
+              <p className="text-sm text-slate-400">
                 AK todavia no cargo instrucciones especiales para este evento. Usa el nombre del salon, la fecha y el contacto principal de la invitacion.
               </p>
             </CardContent>

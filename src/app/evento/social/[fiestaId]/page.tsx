@@ -25,7 +25,10 @@ import {
   UserRound,
   Video,
   X,
+  Sparkles,
 } from 'lucide-react';
+import TriviaGameScreen from '@/components/games/TriviaGameScreen';
+import PhotoMissionScreen from '@/components/games/PhotoMissionScreen';
 import {
   addChatMessage,
   addCommentToPost,
@@ -68,7 +71,7 @@ import { PaparazziOverlay } from '@/components/social-wall/PaparazziOverlay';
 import { SpotifySongSearch } from '@/components/invitacion/SpotifySongSearch';
 import { appendCommercialAttribution } from '@/lib/commercial/acquisition';
 
-type SocialSection = 'feed' | 'songs' | 'dedications' | 'chat' | 'poll' | 'game';
+type SocialSection = 'feed' | 'songs' | 'dedications' | 'chat' | 'poll' | 'game' | 'missions';
 
 /**
  * Tope de duracion para los videos que sube un invitado.
@@ -372,7 +375,7 @@ export default function SocialEventPage() {
     setVotedPollId(localStorage.getItem(`votedPoll_${fiestaId}`));
     setVotedGameId(localStorage.getItem(`votedGame_${fiestaId}`));
     const requestedSection = new URLSearchParams(window.location.search).get('section');
-    if (requestedSection && ['feed', 'songs', 'dedications', 'chat', 'poll', 'game'].includes(requestedSection)) {
+    if (requestedSection && ['feed', 'songs', 'dedications', 'chat', 'poll', 'game', 'missions'].includes(requestedSection)) {
       setSection(requestedSection as SocialSection);
     }
   }, [fiestaId, guestId, guestAccessToken]);
@@ -441,6 +444,7 @@ export default function SocialEventPage() {
 
   const availableSections = useMemo(() => [
     { id: 'feed' as const, label: 'Inicio', icon: MessageCircle },
+    { id: 'missions' as const, label: 'Misiones', icon: Sparkles },
     ...(settings.showSongRequests !== false ? [{ id: 'songs' as const, label: 'Canciones', icon: Music2 }] : []),
     ...(settings.showDedications !== false ? [{ id: 'dedications' as const, label: 'Mensajes', icon: Heart }] : []),
     ...(settings.chatEnabled !== false ? [{ id: 'chat' as const, label: 'Chat', icon: Send }] : []),
@@ -980,7 +984,27 @@ export default function SocialEventPage() {
 
           {section === 'poll' && <SectionShell key="poll" title={poll?.question || 'Encuesta'} text="Elegí una opción. Cada invitado puede votar una vez.">{poll ? <VoteOptions options={poll.options} voted={votedPollId === poll.id} accentColor={accentColor} onVote={submitPollVote} /> : <EmptyState icon={BarChart3} title="No hay encuesta activa" text="Cuando el equipo publique una, aparecerá acá." />}</SectionShell>}
 
-          {section === 'game' && <SectionShell key="game" title={activeGame?.title || 'Juego'} text={activeGame?.subtitle || 'Participá desde tu celular.'}>{activeGame?.options?.length ? <VoteOptions options={activeGame.options.map((option) => ({ ...option, votes: option.votes || 0 }))} voted={votedGameId === activeGame.launchedAt} accentColor={accentColor} onVote={submitGameVote} /> : <EmptyState icon={Gamepad2} title="Esperando el próximo desafío" text="Mirá la pantalla principal y seguí las indicaciones." />}</SectionShell>}
+          {section === 'game' && activeGame?.type === 'trivia' && (
+             <TriviaGameScreen
+               fiestaId={fiestaId}
+               guestName={authorName || 'Invitado'}
+               guestId={guestId}
+               guestAccessToken={guestAccessToken}
+             />
+          )}
+
+          {section === 'game' && activeGame?.type !== 'trivia' && (
+             <SectionShell key="game" title={activeGame?.title || 'Juego'} text={activeGame?.subtitle || 'Participá desde tu celular.'}>
+               {activeGame?.options?.length ? <VoteOptions options={activeGame.options.map((option) => ({ ...option, votes: option.votes || 0 }))} voted={votedGameId === activeGame.launchedAt} accentColor={accentColor} onVote={submitGameVote} /> : <EmptyState icon={Gamepad2} title="Esperando el próximo desafío" text="Mirá la pantalla principal y seguí las indicaciones." />}
+             </SectionShell>
+          )}
+
+          {section === 'missions' && (
+             <PhotoMissionScreen
+               fiestaId={fiestaId}
+               guestName={authorName || 'Invitado'}
+             />
+          )}
 
           <div className="py-8 text-center">
             <a
