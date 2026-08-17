@@ -17,7 +17,8 @@ export type FuncionConCosto =
   | 'remarketing'
   | 'vendedor-virtual'
   | 'seguimiento-comercial'
-  | 'material-post-evento';
+  | 'material-post-evento'
+  | 'revision-diaria';
 
 
 /**
@@ -35,6 +36,7 @@ export const COSTO_ESTIMADO_UYU: Record<FuncionConCosto, number> = {
   // una foto con efecto. El de post-evento devuelve tres textos de una.
   'seguimiento-comercial': 1,
   'material-post-evento': 2,
+  'revision-diaria': 2,
 };
 
 /** Cuánto se avisa antes de llegar al tope. */
