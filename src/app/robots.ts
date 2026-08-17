@@ -2,15 +2,9 @@ import type { MetadataRoute } from 'next';
 import { PAGINAS_PARA_GOOGLE, SITE_URL } from '@/lib/seo/paginas-publicas';
 
 /**
- * Lo que Google tiene permitido mirar.
- *
- * Antes acá había un archivo suelto que decía "no indexes nada", de cuando la
- * aplicación era sólo interna. Con eso puesto, ninguna de las páginas de venta
- * podía aparecer en una búsqueda, por más bien escritas que estuvieran.
- *
- * Ahora sigue cerrado por defecto y se abre página por página, para que el portal
- * del cliente, las invitaciones con la lista de invitados y las pantallas del
- * equipo queden afuera. La lista está en `@/lib/seo/paginas-publicas`.
+ * Reglas de rastreo e indexación para Google y buscadores.
+ * Permite la indexación completa de todas las páginas de venta y catálogo,
+ * mientras protege las rutas internas, paneles administrativos y portales privados de clientes.
  */
 export default function robots(): MetadataRoute.Robots {
   return {
@@ -18,7 +12,26 @@ export default function robots(): MetadataRoute.Robots {
       {
         userAgent: '*',
         allow: [...PAGINAS_PARA_GOOGLE],
-        disallow: '/',
+        disallow: [
+          '/admin/',
+          '/api/',
+          '/portal/',
+          '/portal-cliente/',
+          '/portal-invitado/',
+          '/evento/',
+          '/presupuestos/',
+          '/compras/',
+          '/login/',
+          '/acceso-personal/',
+          '/secretaria-ak/',
+          '/control-tower/',
+          '/recursos-multi-evento/',
+          '/recepcion/',
+          '/galeria-led/',
+          '/post-fiesta/',
+          '/video-vida/',
+          '/signup/',
+        ],
       },
     ],
     sitemap: `${SITE_URL}/sitemap.xml`,
