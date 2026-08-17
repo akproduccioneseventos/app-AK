@@ -2,6 +2,7 @@ import 'server-only';
 
 import { readData } from '@/lib/data-service';
 import type { SocialPlatform, SocialPost } from '@/types/social-media';
+import { getPublicRecoveredHistory } from '@/lib/social-media/public-recovered-history';
 
 const POSTS_FILE = 'social-posts.json';
 const MAX_EXAMPLES = 12;
@@ -46,12 +47,24 @@ function matchesEventType(post: SocialPost, eventType?: string): boolean {
   return false;
 }
 
+function dedupePosts(posts: SocialPost[]): SocialPost[] {
+  const seen = new Set<string>();
+  return posts.filter((post) => {
+    const key = post.sourceUrl || `${post.platform}|${post.publishDate}|${post.text}`;
+    if (seen.has(key)) return false;
+    seen.add(key);
+    return true;
+  });
+}
+
 export async function buildSocialHistoryMarketingContext(input?: {
   platform?: string;
   eventType?: string;
 }): Promise<string> {
   try {
-    const posts = await readData<SocialPost[]>(POSTS_FILE, []);
+    const storedPosts = await readData<SocialPost[]>(POSTS_FILE, []);
+    const recoveredPosts = getPublicRecoveredHistory();
+    const posts = dedupePosts([...storedPosts, ...recoveredPosts]);
     const usable = posts
       .filter((post) => post.status === 'Publicado' || post.status === 'Importado de IG' || post.status === 'Importado historial')
       .filter((post) => Boolean(post.text?.trim()))
@@ -88,11 +101,13 @@ export async function buildSocialHistoryMarketingContext(input?: {
     const exampleLines = examples.map((post) => `- ${post.publishDate.slice(0, 10)} · ${post.platform}: ${clip(post.text)}`).join('\n');
 
     return [
-      '## MEMORIA HISTÓRICA REAL DE REDES DE AK',
+      '## MEMORIA HISTÓRICA REAL DE REDES DE AK PRODUCCIONES EVENTOS',
       `Publicaciones disponibles: ${usable.length}. Período: ${dates[0]?.slice(0, 10) || 'sin fecha'} a ${dates[dates.length - 1]?.slice(0, 10) || 'sin fecha'}.`,
       `Por red: ${platformSummary || 'sin desglose'}.`,
       `Temas detectados: ${categorySummary}.`,
       `Piezas detectadas como la misma publicación distribuida en varias redes: ${repeatedAcrossNetworks}.`,
+      'Esta memoria mezcla publicaciones importadas de las cuentas con publicaciones públicas recuperadas manualmente del archivo indexado.',
+      'AK Producciones Estudio y contenido musical/estudio quedan excluidos.',
       'Usá esta memoria para NO repetir copys recientes, detectar temas sobrepublicados y recuperar ideas que hace tiempo no se trabajan.',
       'No inventes métricas ni resultados que no estén en estos datos.',
       input?.platform || input?.eventType ? `Muestra más relevante para esta solicitud (${input?.platform || 'todas las redes'} / ${input?.eventType || 'todos los eventos'}):` : 'Publicaciones recientes:',
