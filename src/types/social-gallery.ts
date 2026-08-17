@@ -16,6 +16,15 @@ export interface SocialGalleryPost {
   moderatedAt?: string;
   moderatedBy?: string;
   authorName: string;
+  /**
+   * De quién es la foto. Se guarda SÓLO cuando la persona probó tener el enlace
+   * personal de ese invitado: si no, cualquiera podría mandar el identificador
+   * de otro y adueñarse de sus fotos. Va opcional a propósito — el invitado que
+   * no abrió su enlace sube igual, y su foto queda sin dueño.
+   *
+   * Sirve de acá en adelante: las fiestas viejas no tienen este dato.
+   */
+  guestId?: string;
   timestamp: string; // ISO Date String
   likes: number;
   comments: SocialComment[];

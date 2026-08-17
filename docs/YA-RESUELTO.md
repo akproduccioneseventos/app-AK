@@ -1747,6 +1747,33 @@ como la tarea.
 
 No guarda dos veces el mismo día.
 
+## De quién es cada foto, y la invitada sin teléfono (17 de agosto de 2026)
+
+Las dos partes del recuerdo del invitado que tocaban permisos y datos
+comerciales. El resto de esa orden es de Gemini.
+
+- **La foto del muro ahora guarda de quién es.** El dato llegaba al subirla, se
+  usaba sólo para comprobar el permiso y después se tiraba. Sin eso no se puede
+  armar "tus fotos de la fiesta" para nadie.
+- **Por qué se guarda con candado y no a secas.** El dueño se anota **sólo si la
+  persona probó tener el enlace personal de ese invitado**. Si el identificador
+  viene suelto, no se guarda: si no, cualquiera manda el de otro y se queda con
+  sus fotos. La foto se sube igual, sin dueño. Esa misma regla vale para las
+  estaciones cuando Gemini las enganche, y está escrita en la orden.
+- **Sirve de acá en adelante.** Las fiestas ya pasadas no tienen el dato y no se
+  puede recuperar. No es un error: no hay de dónde sacarlo.
+- **Se dejó de inventar un teléfono.** Cuando una invitada contestaba la pregunta
+  de los quince sin dejar contacto, se la guardaba con `099000000`. Alguien del
+  equipo iba a perder el viaje llamando a un número que no existe. Ahora se
+  guarda sin teléfono y la ficha lo aclara.
+- **Por qué no se aflojó el control en general.** El simulador **sigue exigiendo
+  un celular uruguayo**: ahí sin teléfono no hay a dónde mandar el presupuesto.
+  El permiso de guardar sin contacto es sólo para la pregunta que se le hace al
+  invitado en la fiesta, donde el dato vale igual.
+- **Dos invitadas que se llaman igual no se juntan en una ficha.** Sin teléfono
+  se las distingue por de qué fiesta y de qué invitación vinieron. Antes el
+  número inventado las habría pegado a todas en una sola.
+
 ## Cómo agregar algo a esta lista
 
 **Se anota SIEMPRE, en la misma propuesta que toca el código.** Orden del dueño

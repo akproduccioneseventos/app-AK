@@ -458,6 +458,12 @@ export async function uploadSocialPost(
       moderationStatus: finalModerationStatus,
       timestamp: new Date().toISOString(),
       authorName: sanitizeSocialText(authorName) || 'Anónimo',
+      // Se guarda de quien es la foto, pero solo si probo tener el enlace
+      // personal de ese invitado. `guestAuthorized` ya comparo el token contra
+      // el que tiene guardado la fiesta: sin eso, cualquiera podria mandar el
+      // identificador de otro y quedarse con sus fotos. Si vino suelto, la foto
+      // se guarda igual pero sin dueno.
+      ...(guestAuthorized && guestId ? { guestId } : {}),
       likes: 0,
       comments: [],
       source,

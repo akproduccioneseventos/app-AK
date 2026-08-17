@@ -44,12 +44,35 @@ espere que funcione con lo viejo.
 
 # BLOQUE 1 — Guardar de quién es cada foto
 
-- Que `SocialGalleryPost` guarde el `guestId` de quien la subió.
-- Que lo guarden **el muro y todas las estaciones** que ya reciben el enlace
-  personal: fotocabina, espejo mágico, plataforma 360.
-- **Si la foto vino sin enlace personal, se guarda igual sin dueño.** No se
-  inventa uno ni se bloquea la subida: el invitado que no abrió su enlace tiene
-  que poder subir su foto igual.
+## La mitad ya está hecha: **el muro**. NO la rehagas.
+
+Claude lo hizo el 17 de agosto porque toca quién ve qué. Ya está en `main`:
+
+- `SocialGalleryPost` tiene el campo `guestId`.
+- La subida al muro (`createSocialMediaPost` en
+  `src/app/actions/social-gallery.ts`) lo guarda.
+- **La regla que hace que sea seguro, y que vale también para lo que falta:** el
+  dueño se guarda **sólo si `guestAuthorized` es verdadero**, o sea si la persona
+  probó tener el enlace personal de ese invitado. Un `guestId` suelto **no se
+  guarda nunca**: sin eso, cualquiera manda el identificador de otro y se queda
+  con sus fotos.
+- Si vino sin enlace personal, la foto se guarda igual **sin dueño**. Nadie
+  queda bloqueado.
+- Hay pruebas en `src/__tests__/dueno-de-la-foto-y-prospecto-sin-telefono.test.ts`.
+
+## Lo que falta y te toca: **las estaciones**
+
+Fotocabina, espejo mágico y plataforma 360 suben por otro camino
+(`createSocialMediaPostFromUrlForStation`, en
+`src/app/actions/fiesta/entretenimiento.actions.ts` cerca de la línea 211), y
+**hoy ese camino ni siquiera recibe el enlace personal del invitado**. Hay que:
+
+1. Hacer que las pantallas de esas estaciones manden el `guestId` y el
+   `guestAccessToken` cuando los tengan.
+2. Validarlos en el servidor con `hasPublicGuestAccess` —**la misma función que
+   usa el muro**— y recién ahí guardar el dueño.
+3. **No confíes en el `guestId` que llega solo.** Si no valida, se guarda la foto
+   sin dueño y listo.
 
 **Esto solo ya sirve**, aunque no se haga nada más: permite saber cuántas fotos
 sacó cada uno y quién participó más.
@@ -145,17 +168,17 @@ invitados, nada de envíos masivos. Eso quema la marca en Salto en una semana.
 
 # BLOQUE 5 — El teléfono inventado en la lista de prospectos
 
-**Chico, pero ensucia datos comerciales.**
+## YA ESTÁ HECHO. No lo toques.
 
-Cuando una invitada contesta la pregunta de los quince **sin dejar teléfono**, se
-la guarda con el número **`099000000`**, que es inventado
-(`src/app/actions/commercial-intelligence.ts`, cerca de la línea 293).
+Claude lo hizo el 17 de agosto porque son datos comerciales. Ya está en `main`:
+si no deja contacto se guarda **sin teléfono**, y la ficha dice "No dejó
+teléfono: no hay a dónde llamarla". El número inventado `099000000` no se escribe
+más.
 
-Eso deja prospectos falsos en la lista: alguien va a intentar llamar a ese número.
-
-**Qué hacer:** si no dejó contacto, **se guarda sin contacto** y la ficha lo dice
-—"respondió que cumple quince el año que viene, no dejó teléfono"—. Vale igual
-como dato, pero nadie pierde el tiempo llamando a un número que no existe.
+Dos detalles por si te cruzás con eso: el control que exige un celular uruguayo
+**sigue puesto para el simulador** (ahí sin teléfono no hay a dónde mandar el
+presupuesto), y a dos invitadas que se llaman igual y no dejaron teléfono **no se
+las junta en una sola ficha**: se las distingue por de qué fiesta vinieron.
 
 ---
 

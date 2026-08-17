@@ -288,9 +288,17 @@ export async function registerQuinceaneraPartyLead(data: {
     const { upsertPublicCommercialLead } = await import('@/lib/crm/public-lead-persistence');
     const anioFiesta = data.respuestaQuince === 'Este año' ? new Date().getFullYear() : new Date().getFullYear() + 1;
 
+    const contacto = data.contacto?.trim() || '';
+
     const result = await upsertPublicCommercialLead({
       name: nombre,
-      phone: data.contacto || '099000000',
+      // Antes iba `099000000` cuando no dejaba contacto, para pasar el control
+      // que exige un celular uruguayo. Eso dejaba prospectos falsos y alguien
+      // del equipo perdia el viaje llamando a un numero que no existe. Ahora se
+      // guarda sin telefono y la ficha lo aclara.
+      phone: contacto,
+      permitirSinTelefono: true,
+      claveSinTelefono: `${data.fiestaId}|${data.invitadoId || ''}`,
       partyType: '15 Años',
       acquisition: {
         source: 'guest_portal',
@@ -298,7 +306,10 @@ export async function registerQuinceaneraPartyLead(data: {
         refFiestaId: data.fiestaId,
         refGuestId: data.invitadoId,
       },
-      notes: `Interesada en fiesta de 15 (${data.respuestaQuince}). Captada desde ${data.origen} en fiesta ${data.nombreFiesta || data.fiestaId}. Año previsto: ${anioFiesta}.`,
+      notes: [
+        `Interesada en fiesta de 15 (${data.respuestaQuince}). Captada desde ${data.origen} en fiesta ${data.nombreFiesta || data.fiestaId}. Año previsto: ${anioFiesta}.`,
+        contacto ? '' : 'No dejó teléfono: no hay a dónde llamarla.',
+      ].filter(Boolean).join(' '),
     });
 
     return {
