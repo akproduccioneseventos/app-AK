@@ -1,6 +1,6 @@
 'use server';
 
-import { updateFiestaData, getFiestaData } from '@/lib/data-service';
+import { getFiestaById, updateFiestaPartial } from '@/app/actions/fiesta/fiesta.actions';
 import { requireAppSession } from '@/lib/auth/require-session';
 import type { FiestaEnPlanificacion } from '@/types/fiesta';
 
@@ -14,14 +14,16 @@ export async function updateFiestaLiveStream(
 ): Promise<{ success: boolean; error?: string }> {
   await requireAppSession();
 
-  const result = await updateFiestaData(fiestaId, (fiesta) => {
-    return {
-      ...fiesta,
-      configuracion: {
-        ...fiesta.configuracion,
-        transmisionEnVivo: streamData,
-      },
-    };
+  const fiesta = await getFiestaById(fiestaId);
+  if (!fiesta) {
+    return { success: false, error: 'Fiesta no encontrada' };
+  }
+
+  const result = await updateFiestaPartial(fiestaId, {
+    configuracion: {
+      ...fiesta.configuracion,
+      transmisionEnVivo: streamData,
+    },
   });
 
   return { success: result.success, error: result.error };
@@ -35,7 +37,7 @@ export async function getFiestaLiveStreamStatus(fiestaId: string): Promise<{
   tituloMomento?: string;
   error?: string;
 }> {
-  const fiesta = await getFiestaData(fiestaId);
+  const fiesta = await getFiestaById(fiestaId);
   if (!fiesta) {
     return { success: false, activa: false, error: 'Fiesta no encontrada.' };
   }
