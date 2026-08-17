@@ -38,7 +38,7 @@ import {
 } from '@/app/actions/fiesta/barra-tecnologica.actions';
 import { getDrinkDescription, getDrinkTags } from '@/lib/barra-tecnologica';
 import { withPublicRequestTimeout } from '@/lib/public-experience/wait-for-initial-public-load';
-import { enqueueOfflineAction } from '@/lib/offline/offline-action-queue';
+import { enqueueOfflineAction, flushOfflineQueue } from '@/lib/offline/offline-action-queue';
 
 type ScreenState = 'HOME' | 'MENU' | 'PHOTO' | 'VIDEO';
 
@@ -565,6 +565,25 @@ export default function BarraTecnologicaTouchPage() {
     }
     setCurrentScreen(screen);
   };
+
+  // Los pedidos guardados sin señal se mandaban... nunca: nadie vaciaba la cola.
+  // El invitado veia "se envia solo" y el trago no llegaba jamas a la barra.
+  useEffect(() => {
+    const alVolverLaSenal = () => {
+      void flushOfflineQueue(async (action) => {
+        if (action.type !== 'barra_pedido') return { success: true };
+        const res = await createBarDrinkOrder({
+          fiestaId,
+          drinkId: action.payload.drinkId,
+          guestName: action.payload.guestName,
+          tableNumber: action.payload.tableNumber,
+        });
+        return { success: res.success, error: res.error };
+      }, { fiestaId });
+    };
+    window.addEventListener('online', alVolverLaSenal);
+    return () => window.removeEventListener('online', alVolverLaSenal);
+  }, [fiestaId]);
 
   const submitOrder = async () => {
     if (!selectedDrink || !guestName.trim()) {

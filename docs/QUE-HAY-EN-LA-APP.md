@@ -41,9 +41,10 @@ muestre**. Esa distinción es la que más veces falló.
 | Transmisión en vivo | Sí | Pantalla de la fiesta en vivo |
 | Centro de presencia digital | Sí | Empresa → Presencia digital |
 
-**Lo único a medias:** si se cae el internet en la fiesta, **se salva la llegada
-de invitados pero no la foto al muro ni el pedido de la barra**. Esas dos siguen
-perdiéndose.
+**Si se cae el internet en la fiesta:** se salva la llegada de invitados y el
+pedido de la barra, que se reenvían solos al volver la señal. **La foto del muro
+no se puede guardar** —pesa demasiado para el celular—, así que la pantalla lo
+dice y la vuelve a ofrecer mientras siga abierta.
 
 **Duplicado que no se usa a propósito:** hay un segundo panel para cargar
 preguntas de trivia (`TriviaAdminPanel`) que ninguna pantalla muestra. **Se deja

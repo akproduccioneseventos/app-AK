@@ -1675,6 +1675,30 @@ preguntas de trivia (`TriviaAdminPanel`) que ninguna pantalla usa. **No se
 enchufa a propósito.** El panel del muro social ya permite escribir las preguntas,
 y tener dos formas de hacer lo mismo es peor que tener una.
 
+## Lo que se guardaba sin señal no se mandaba nunca (17 de agosto de 2026)
+
+Las tres pantallas de la fiesta guardaban lo pendiente en el celular y le decían
+al invitado *"se envía solo"*. **Pero nadie vaciaba la cola.** El pedido de trago
+no llegaba nunca a la barra y la foto no se publicaba nunca.
+
+**Es peor que fallar de frente**: la persona se queda tranquila esperando algo que
+no va a pasar. Sólo la pantalla de la puerta reintentaba.
+
+- **La barra** ahora reenvía los pedidos guardados apenas vuelve la señal.
+- **El muro** vacía la cola y, si quedó una foto sin subir, la vuelve a ofrecer.
+
+**Y algo que había que decir con la verdad:** la cola del celular **no puede
+guardar la foto**. Una foto de celular pesa varios megas y ahí no entra. Lo que se
+guardaba era sólo el nombre y el texto, así que la promesa *"tu foto se publicará
+automáticamente"* era falsa: la foto ya no estaba.
+
+Ahora el cartel dice lo que de verdad pasa: *"Sin señal por ahora. No cierres esta
+pantalla: lo subimos solos apenas vuelva la señal."* La foto queda en memoria
+mientras la pantalla esté abierta, y al volver la señal se le ofrece publicarla.
+
+**La regla que queda:** una pantalla nunca promete algo que no puede cumplir. Si
+no se puede guardar, se dice.
+
 ## Cómo agregar algo a esta lista
 
 **Se anota SIEMPRE, en la misma propuesta que toca el código.** Orden del dueño
