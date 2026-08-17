@@ -6,6 +6,7 @@ import { getFiestaById, getFiestas, saveFiesta } from './fiesta.actions';
 import type { ActiveGameData, ScreenMediaAsset, ScreenModeSettings, SocialGalleryBrand, SocialGallerySettings } from '@/types/fiesta';
 import admin from 'firebase-admin';
 import { enforcePublicRateLimit } from '@/lib/commercial/public-rate-limit';
+import { enforceSocialInteractionRateLimit } from '@/lib/commercial/social-interaction-rate-limit';
 import { requirePermiso } from '@/lib/auth/require-session';
 import { PERMISOS } from '@/lib/auth/perfiles';
 import { requireEventPermission } from '@/lib/auth/event-access';
@@ -450,6 +451,19 @@ export async function trackSocialFollowClick(
     return { success: true }; // Silently ignore anonymous users
   }
   try {
+    // Esta lista es la que despues entra al sorteo. Sin freno, alguien de afuera
+    // podia cargarla con nombres inventados y quedarse con el premio: el control
+    // de repetidos mira nombre + red, asi que cambiando el nombre pasaba igual.
+    // El primer tope de este ayudante cuenta por fiesta y no depende del nombre,
+    // asi que cambiarlo no lo esquiva.
+    await enforceSocialInteractionRateLimit({
+      scope: 'social-follow-click',
+      fiestaId,
+      participantIdentity: authorName,
+      participantLimit: 3,
+      eventLimit: 300,
+      windowMs: 60 * 60 * 1000,
+    });
     const fiesta = await getFiestaById(fiestaId);
     if (!fiesta) return { success: false, error: 'Fiesta no encontrada.' };
     const settings = normalizeSocialSettings(fiesta.socialGallerySettings);

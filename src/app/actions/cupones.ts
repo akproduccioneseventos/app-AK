@@ -47,6 +47,12 @@ export async function saveCupon(
       if (data.tipo === 'porcentaje' && valor > 100) {
         return { success: false, error: 'El porcentaje no puede ser mayor a 100%.' };
       }
+      // Con las fechas cruzadas el cupon se guarda pero no sirve un solo dia, y
+      // nadie se entera hasta que un cliente lo intenta usar y no anda. Las
+      // promos ya lo controlaban; los cupones no.
+      if (data.fechaInicio && data.fechaFin && new Date(data.fechaInicio) > new Date(data.fechaFin)) {
+        return { success: false, error: 'La fecha de fin no puede ser anterior a la de inicio.' };
+      }
 
       const codigoNorm = data.codigo.trim().toUpperCase();
 

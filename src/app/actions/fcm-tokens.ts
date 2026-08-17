@@ -13,6 +13,7 @@
 
 import { dbAdmin } from '@/lib/firebase/server';
 import admin from 'firebase-admin';
+import { verifySession } from '@/lib/auth/session-token';
 
 export interface SaveFcmTokenResult {
   success: boolean;
@@ -30,6 +31,17 @@ export async function saveFcmToken(
   userId?: string,
   userAgent?: string
 ): Promise<SaveFcmTokenResult> {
+  // Sin sesion cualquiera podia anotar un aparato en esta lista, y peor: elegir
+  // a nombre de QUIEN quedaba anotado, porque el `userId` venia del navegador.
+  // Hoy nada manda avisos desde esta lista, asi que no hay nada filtrandose;
+  // pero el dia que se enchufen los avisos, un extrano habria recibido los del
+  // equipo. La pantalla que la usa es la del panel interno, que ya pide sesion:
+  // pedirla aca no le cambia nada a nadie.
+  const sesion = await verifySession();
+  if (!sesion.success) {
+    return { success: false, error: 'Sesion no autorizada.' };
+  }
+
   if (!token || typeof token !== 'string' || token.trim() === '') {
     return { success: false, error: 'Token inválido.' };
   }
@@ -44,7 +56,9 @@ export async function saveFcmToken(
     await dbAdmin.collection('fcm_tokens').doc(token).set(
       {
         token,
-        userId: userId ?? null,
+        // Manda quien inicio sesion, no lo que dice el navegador: si no,
+        // alguien podria anotar su propio aparato a nombre del dueno.
+        userId: sesion.user?.userId ?? userId ?? null,
         userAgent: userAgent ?? null,
         updatedAt: admin.firestore.FieldValue.serverTimestamp(),
       },
