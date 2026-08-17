@@ -22,7 +22,7 @@ export interface Notificacion {
 
 // --- INVITADOS ---
 export type RsvpStatus = 'Pendiente' | 'Confirmado' | 'Rechazado' | 'Tal vez';
-export type CategoriaInvitado = 'Adulto' | 'Niño/Adolescente';
+export type CategoriaInvitado = 'Adulto' | 'Niño' | 'Adolescente' | 'Niño/Adolescente';
 
 export type DietaryRestriction = 'Ninguna' | 'Celiaco' | 'Vegetariano' | 'Vegano' | 'Sin Gluten' | 'Sin Lactosa' | 'Alergia Mariscos' | 'Alergia Frutos Secos' | 'Otro';
 
@@ -380,6 +380,8 @@ export interface ProgramaEventoItem {
   visibleParaCliente?: boolean;
   icono?: string;
   completado?: boolean;
+  rolAsignado?: 'DJ' | 'Mozo' | 'Fotógrafo' | 'Animador' | 'Coordinador' | 'Catering' | 'Todos' | string;
+  responsableNombre?: string;
 }
 
 export interface TextStyle {

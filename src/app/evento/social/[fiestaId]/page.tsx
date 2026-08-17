@@ -57,6 +57,8 @@ import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
 import { useToast } from '@/hooks/use-toast';
 import { isEventInActiveWindow } from '@/lib/experience-ak/post-event-utils';
+import { enqueueOfflineAction, processOfflineQueue, getPendingOfflineActions } from '@/lib/offline/offline-action-queue';
+import { QuinceaneraLeadPrompt } from '@/components/public/QuinceaneraLeadPrompt';
 import {
   waitForInitialPublicLoad,
   withPublicRequestTimeout,
@@ -556,17 +558,40 @@ export default function SocialEventPage() {
       const digest = await crypto.subtle.digest('SHA-256', await uploadFile.arrayBuffer());
       formData.append('imageHash', Array.from(new Uint8Array(digest)).map((byte) => byte.toString(16).padStart(2, '0')).join(''));
     }
-    const result = await uploadSocialPost(formData);
-    if (result.success) {
+    try {
+      if (typeof navigator !== 'undefined' && !navigator.onLine) {
+        throw new Error('Sin conexión');
+      }
+      const result = await uploadSocialPost(formData);
+      if (result.success) {
+        toast({
+          title: settings.requireApproval ? 'Momento enviado' : 'Momento publicado',
+          description: settings.requireApproval ? 'El equipo lo revisará antes de mostrarlo.' : 'Ya aparece en la red social.',
+        });
+        clearUpload();
+        setUploadOpen(false);
+        await loadCore();
+      } else {
+        toast({ title: 'No se pudo publicar', description: result.error, variant: 'destructive' });
+      }
+    } catch {
+      // Guardar en cola offline del celular
+      enqueueOfflineAction({
+        type: 'muro_foto',
+        fiestaId,
+        payload: {
+          authorName: authorName || 'Invitado',
+          dedication: uploadCaption.trim(),
+          guestId,
+          guestAccessToken,
+        },
+      });
       toast({
-        title: settings.requireApproval ? 'Momento enviado' : 'Momento publicado',
-        description: settings.requireApproval ? 'El equipo lo revisará antes de mostrarlo.' : 'Ya aparece en la red social.',
+        title: 'Guardado sin conexión',
+        description: 'Tu foto se publicará automáticamente en cuanto vuelva la señal.',
       });
       clearUpload();
       setUploadOpen(false);
-      await loadCore();
-    } else {
-      toast({ title: 'No se pudo publicar', description: result.error, variant: 'destructive' });
     }
     setUploading(false);
   };
@@ -880,6 +905,12 @@ export default function SocialEventPage() {
           {section === 'feed' && (
             <div className="space-y-4">
               <FaceGalleryStrip posts={posts} onFilterChange={setFilteredPosts} />
+              <QuinceaneraLeadPrompt
+                fiestaId={fiestaId}
+                nombreFiesta={event?.configuracion.nombreEvento}
+                invitadoNombre={authorName}
+                origen="muro_social"
+              />
               <section className="border-y border-slate-200 bg-white p-4 sm:rounded-md sm:border">
                 <div className="flex items-center gap-3"><div className="grid h-11 w-11 shrink-0 place-items-center rounded-full text-xs font-black text-white" style={{ backgroundColor: accentColor }}>{initials(authorName)}</div><button type="button" onClick={() => setUploadOpen(true)} disabled={!settings.uploadsActive || !canUpload} className="min-h-11 flex-1 rounded-md bg-slate-100 px-4 text-left text-sm font-semibold text-slate-600 transition hover:bg-slate-200 disabled:opacity-50">{!canUpload ? 'Abrí tu enlace personal para publicar' : settings.uploadsActive ? '¿Qué querés compartir?' : 'Las publicaciones están pausadas'}</button></div>
                 <div className="mt-3 grid grid-cols-2 border-t border-slate-100 pt-2"><button type="button" onClick={() => setUploadOpen(true)} disabled={!settings.uploadsActive || !canUpload} className="flex min-h-10 items-center justify-center gap-2 rounded-md text-sm font-bold text-slate-600 hover:bg-slate-100 disabled:opacity-50"><Camera className="h-5 w-5 text-emerald-600" />Foto</button><button type="button" onClick={() => setUploadOpen(true)} disabled={!settings.uploadsActive || !canUpload} className="flex min-h-10 items-center justify-center gap-2 rounded-md text-sm font-bold text-slate-600 hover:bg-slate-100 disabled:opacity-50"><Video className="h-5 w-5 text-red-600" />Video</button></div>

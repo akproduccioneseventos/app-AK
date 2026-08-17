@@ -11,6 +11,7 @@ import { es } from 'date-fns/locale';
 import { CheckCircle2, Circle, Music, RefreshCw, ThumbsUp, Volume2, VolumeX, ChevronUp } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { cn } from '@/lib/utils';
+import { FiestaThermometer } from '@/components/fiesta/FiestaThermometer';
 
 const REFRESH_INTERVAL_MS = 5000;
 
@@ -124,6 +125,11 @@ export default function DJPage() {
         <span className="text-zinc-600">
           Actualizado {formatDistanceToNow(lastUpdated, { addSuffix: true, locale: es })}
         </span>
+      </div>
+
+      {/* Termómetro de la Fiesta en Tiempo Real */}
+      <div className="max-w-2xl mx-auto px-4 mb-4">
+        <FiestaThermometer requests={requests} />
       </div>
 
       {/* Info banner */}

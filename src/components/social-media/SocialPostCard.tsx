@@ -1,12 +1,12 @@
 
 'use client';
 
-import type { SocialPost } from '@/types/social-media';
+import type { SocialPost, SocialPlatform } from '@/types/social-media';
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { NewPostDialog } from './NewPostDialog';
-import { Trash2, Edit, Loader2, Link as LinkIcon, Facebook, Instagram, Music, Copy, MessageSquare } from 'lucide-react';
+import { Trash2, Edit, Loader2, Link as LinkIcon, Facebook, Instagram, Music, Copy, MessageSquare, Youtube, AtSign, Twitter } from 'lucide-react';
 import NextImage from 'next/image';
 import {
   AlertDialog,
@@ -39,11 +39,16 @@ const formatDateTime = (dateString: string) => {
   }
 };
 
-const platformIcons = {
+// Tipado explicito: si manana se suma una plataforma al tipo y falta aca, el
+// compilador lo avisa en vez de romper en pantalla.
+const platformIcons: Record<SocialPlatform, React.ReactNode> = {
     Facebook: <Facebook className="w-5 h-5 text-blue-600" />,
     Instagram: <Instagram className="w-5 h-5 text-pink-500" />,
     TikTok: <Music className="w-5 h-5 text-black dark:text-white" />,
     WhatsApp: <MessageSquare className="w-5 h-5 text-green-500" />,
+    YouTube: <Youtube className="w-5 h-5 text-red-600" />,
+    Threads: <AtSign className="w-5 h-5 text-slate-800" />,
+    X: <Twitter className="w-5 h-5 text-slate-800" />,
 };
 
 export function SocialPostCard({ post, onDelete, isDeleting, onUpdate, onDuplicate }: SocialPostCardProps) {

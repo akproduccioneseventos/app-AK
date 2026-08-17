@@ -48,6 +48,7 @@ import { getPublicSimulatorBootstrap } from '@/app/actions/public-simulator-boot
 import type { BudgetDisplaySettings } from '@/types/settings';
 import { defaultBudgetDisplaySettings } from '@/types/settings';
 import type { ArmadoRapidoConfig, PaqueteArmadoRapido } from '@/types/armado-rapido';
+import { SimulatorMeetingScheduler } from '@/components/simulator/SimulatorMeetingScheduler';
 import { isPackageApplicableToEventType } from '@/types/armado-rapido';
 import type { ServicioEmpresa } from '@/types/empresa';
 import { Progress } from '@/components/ui/progress';
@@ -1583,34 +1584,32 @@ function SimuladorContent() {
                                  </div>
                              </div>
 
-                            <div className="mx-auto w-full max-w-lg space-y-4 rounded-2xl border-2 border-red-500/40 bg-gradient-to-br from-red-50 via-white to-amber-50 p-6 text-left shadow-lg relative overflow-hidden animate-pulse">
-                                <div className="flex items-center justify-between border-b border-red-200 pb-3">
-                                    <h3 className="text-xs font-black uppercase text-red-700 flex items-center gap-2">
-                                        <Timer className="w-4 h-4 text-red-600 animate-spin" />
-                                        Asegurá tu promoción antes de que termine el tiempo
-                                    </h3>
-                                    <span className="rounded-xl bg-red-700 px-3 py-1 font-mono text-sm font-black text-white shadow-md">
-                                        {commercialTimerSeconds > 0 ? formatCountdown(commercialTimerSeconds) : '15:00'}
-                                    </span>
-                                </div>
-                                <div className="space-y-2 text-xs leading-relaxed text-slate-700">
-                                    <p className="font-bold text-slate-900">
-                                        ⏳ Aprovechá estos <strong>15 minutos</strong> para mantener la promoción y los descuentos incluidos en tu presupuesto.
-                                    </p>
-                                    <p className="text-slate-600">
-                                        Coordiná una entrevista sin costo con AK Producciones, contanos cómo imaginás tu fiesta y recibí asesoramiento para elegir la fecha, los servicios y la mejor opción para tu presupuesto.
-                                    </p>
-                                    <p className="font-black text-red-700">
-                                        📲 Comunicate ahora y empezá a organizar tu fiesta completa con todo resuelto en un solo lugar.
-                                    </p>
-                                </div>
-                                <Button
-                                    onClick={handleShareBudgetWhatsApp}
-                                    className="flex h-12 w-full items-center justify-center gap-2 rounded-xl bg-red-700 text-sm font-black uppercase tracking-wider text-white shadow-md hover:bg-red-800 transition"
-                                >
-                                    <MessageSquare className="h-4 w-4" /> Consultar disponibilidad por WhatsApp
-                                </Button>
-                            </div>
+                             {/* Agendamiento Autónomo de Reuniones en la Oficina de AK */}
+                             <div className="w-full max-w-2xl mx-auto">
+                                 <SimulatorMeetingScheduler
+                                     presupuestoId={generatedPresupuestoId || undefined}
+                                     clienteNombre={clienteNombre}
+                                     clienteContacto={clienteContacto}
+                                     onWhatsAppFallback={handleShareBudgetWhatsApp}
+                                 />
+                             </div>
+
+                             <div className="mx-auto w-full max-w-2xl space-y-3 rounded-2xl border border-red-200 bg-gradient-to-br from-red-50/50 via-white to-amber-50/50 p-5 text-left shadow-sm">
+                                 <div className="flex items-center justify-between border-b border-red-100 pb-2.5">
+                                     <h3 className="text-xs font-black uppercase text-red-700 flex items-center gap-2">
+                                         <Timer className="w-4 h-4 text-red-600 animate-spin" />
+                                         Garantía de tarifa y bonificaciones del presupuesto
+                                     </h3>
+                                     <span className="rounded-xl bg-red-700 px-3 py-1 font-mono text-xs font-black text-white shadow-sm">
+                                         {commercialTimerSeconds > 0 ? formatCountdown(commercialTimerSeconds) : '15:00'}
+                                     </span>
+                                 </div>
+                                 <div className="text-xs leading-relaxed text-slate-600">
+                                     <p>
+                                         Al agendar tu reunión o comunicarte con AK, congelamos las tarifas, promociones y disponibilidad de salones de tu presupuesto para la entrevista.
+                                     </p>
+                                 </div>
+                             </div>
 
                             <div className="w-full grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3">
                                 <Button

@@ -224,6 +224,12 @@ function SocialMediaPageContent() {
                             </DialogFooter>
                         </DialogContent>
                     </Dialog>
+                    <Button asChild variant="default" className="bg-amber-600 hover:bg-amber-700 text-white font-bold shadow-md shadow-amber-600/20">
+                        <Link href="/empresa/presencia-digital">
+                            <Sparkles className="w-4 h-4 mr-2 text-amber-200" />
+                            Centro de Presencia Digital
+                        </Link>
+                    </Button>
                     <NewPostDialog onPostCreated={fetchData} />
                     <Button asChild variant="outline"><Link href="/empresa"><ArrowLeft className="w-4 h-4 mr-2" />Volver a Empresa</Link></Button>
                 </div>

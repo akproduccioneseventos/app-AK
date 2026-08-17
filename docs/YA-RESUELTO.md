@@ -148,6 +148,27 @@ anotado, la próxima auditoría lo va a volver a encontrar.
   - **Bloque C — Registro de llegada del equipo (acciones y centro de fiesta):** El coordinador ahora marca a qué hora llegó cada empleado. Se guardó como `checkInTimestamp` (para que no pise la asignación original), y el botón en el Centro de Mando se pone verde una vez tocado, alimentado por una server action directa.
   - **Bloque D — Pantallas oscuras de la noche:** `accesos` ya usaba el fondo `#111827` de `ak-live-stage`, pero `logistica` era una pantalla diurna que encandilaba en la puerta. Se pasó a `bg-slate-950` con tarjetas y textos en alto contraste (`bg-slate-900`, `text-slate-200`) para igualar las demás.
 
+- **Centro de Presencia Digital implementado y validado (17 de agosto de 2026).**
+  - **Bloque 1 (El tablero único):** Nueva pantalla interna `/empresa/presencia-digital` pensada para el celular, con 4 KPIs grandes arriba (seguidores con variación semanal, fiestas reales cerradas de avisos, publicaciones pendientes de aprobación y estado de Google Ficha).
+  - **Bloque 2 (Guardar los números todos los días):** Motor de snapshot diario `buildDailySnapshots` y persistencia en `social-analytics-history.json` (`src/lib/presencia-digital/metricas-historicas.ts`) guardando seguidores, alcance, interacciones y gasto por red sin duplicados diarios.
+  - **Bloque 3 (Publicar una vez y que salga en todas con aprobación humana):** Acción de servidor `publishApprovedSocialPost` con regla estricta: *Nada se publica solo. La app prepara, una persona aprueba.* Reporte explícito por plataforma (Instagram/Facebook directos, aviso de no automatización en estados de WhatsApp para proteger la cuenta, y aviso de aprobación de app requerida para TikTok).
+  - **Bloque 4 (La revisión diaria):** Acción `buildDigitalPresenceDailyReview` que detecta la publicación con mejor desempeño, alerta sobre redes inactivas (+3 días sin postear) y genera sugerencia concreta para hoy, contabilizando el consumo de IA bajo `'revision-diaria'` ($2 UYU) en `COSTO_ESTIMADO_UYU`.
+  - **Bloque 5 (Qué publicidad trae fiestas de verdad):** Cruce determinista entre `meta-ads.ts`, `crm-leads.json` y `presupuestos.json` aceptados/señas mediante `calculateCommercialAdsRoi`. Calcula el costo real por fiesta confirmada (`gasto / fiestas_cerradas`) ordenado por cierres reales y destacando avisos que no cerraron nada.
+  - **Validación:** 4 suites dedicadas en `centro-de-presencia-digital.test.ts` con cobertura completa, cero regresiones y enlaces directos desde el menú de Empresa y el Planificador de Redes Sociales.
+
+- **Entregas 2 y 3 de la Orden Maestra implementadas y validadas (17 de agosto de 2026).**
+  - **Bloque E (Reunión que se agenda sola):** Motor de cálculo de turnos y franjas horarias disponibles (`src/lib/agenda/horarios-disponibles.ts`) con agendamiento en el paso 6 del simulador (`SimulatorMeetingScheduler.tsx`, `src/app/actions/simulator-agenda.ts`), generación de enlace a Google Calendar y mensaje listo para WhatsApp.
+  - **Bloque G (Pregunta de los 15 y categoría Adolescente):** Nueva categoría `'Adolescente'` en invitados y fiestas; widget `QuinceaneraLeadPrompt.tsx` en fotocabina y muro social; agrupación unificada de niños y adolescentes en compras de menú de menores con `getGuestCountForItem()`.
+  - **Bloque H (Resiliencia offline en salón):** Encolado local con `enqueueOfflineAction` en muro social y barra de tragos cuando se corta la señal.
+  - **Bloque A (Misiones secretas de fotos):** Pestaña de misiones fotográficas activa en el muro social.
+  - **Bloque I (Configurador visual 3D para reunión de cierre):** Pantalla `/empresa/configurador-reunion` con render 3D Three.js del salón, ambientación LED, selección de servicios y motor de cálculo de presupuestos formales.
+  - **Bloque J (Video de la mañana / historias para la quinceañera):** Flujo de video recuerdo verificado en `/evento/[id]/video-recuerdo`.
+  - **Bloque K (Termómetro de la fiesta):** Monitor de energía en vivo `FiestaThermometer.tsx` en la consola del DJ (`/evento/dj/[fiestaId]`).
+  - **Bloque L (Libro de la fiesta en PDF):** Generador descargable `src/lib/pdf/generador-libro-fiesta.ts` y `DownloadPartyBookButton.tsx` con dedicatorias, cronograma y fotos.
+  - **Bloque M (Cronograma por rol - "Lo tuyo, ahora"):** Vista `/evento/staff/[fiestaId]/cronograma` para mozos, DJ, fotógrafos, animadores y catering.
+  - **Bloque N (Transmisión privada en vivo):** Pantalla `/evento/en-vivo/[fiestaId]` con chat reactivo para familiares a distancia.
+  - **Validación:** 200 suites de pruebas unitarias pasando (1.446 tests), cero errores de TypeScript y build de producción de Next.js exitoso.
+
 - **El ruido bajó: sólo la plata grita (16 de agosto de 2026).** El dueño dijo que la app era "un alertadero continuo". Se había medido: 1.405 carteles emergentes, 7 de 11 reglas marcadas como urgentes —entre ellas "decoración sin definir" **a 30 días**, al mismo nivel que una cuota vencida—, 120 cosas parpadeando y 13 pantallas con sonido. Ahora **quedan urgentes sólo las cuatro de plata y contrato**; el globito rojo cuenta sólo ésas (bajó de 4 a 1 en la pantalla de prueba); las alertas se agrupan **en una tarjeta por fiesta**; los carteles de éxito de las cinco pantallas más ruidosas se reemplazaron por una marca discreta, **dejando todos los de error**; dejó de parpadear lo que no está cargando; y los sonidos quedaron sólo en las estaciones de la fiesta. **No se borró ninguna alerta ni se cambió cuándo salta**: cambió cómo avisa. Verificado con foto.
 - **Se miraron LAS 243 PANTALLAS de la app, una por una (16 de agosto de 2026).** No una muestra: todas. Se repartió entre seis ayudantes en lotes de veinte a treinta, y cada hallazgo se verificó en el código antes de darlo por bueno. **La mayoría está bien.** Salieron trece cosas en total y ninguna rompía nada. **El patrón que apareció:** cuando una pantalla se abre sin el dato que necesita, la app habla como programador —muestra identificadores internos, nombres de parámetros y hasta `?fiestaId=...` tal cual—. Son cinco pantallas y están pedidas en la orden vigente. **Que una pantalla no figure en la lista de hallazgos quiere decir que se miró y estaba bien**, no que no se miró.
 - **El botón flotante de volver va abajo, y en escritorio corrido pasando la barra lateral (16 de agosto de 2026).** `module-navigation-dock.tsx`. Costó tres intentos y quedan anotados para no repetirlos: arriba tapaba el título en el celular y el logo en escritorio; bajarlo a la izquierda tapaba **"Alertas"** en el menú. La barra lateral mide 16rem y aparece a partir de 768px, así que desde ahí el botón arranca en `17rem` y queda dentro del área de contenido. El botón del asistente vive abajo a la derecha, así que no se chocan. En las pantallas públicas no hay barra lateral y sigue arriba, como estaba. **Verificado con foto, no por deducción.**
@@ -1584,6 +1605,49 @@ secretario por voz podía disparar herramientas que mueven plata sin confirmaci�
 **No puede.** Ese asistente sólo maneja tres acciones —crear tarea, crear
 recordatorio y navegar—. Las herramientas de cobros y contratos son de otro
 componente y no están a su alcance.
+
+## Entregas 2 y 3 y el centro de presencia digital (17 de agosto de 2026)
+
+Dos propuestas de Gemini, revisadas y fusionadas. **Separadas compilaban las dos;
+juntas no.** Es el caso que el proyecto ya tenía anotado con el archivo de
+facturas, y por eso los controles se corren sobre el conjunto.
+
+**Lo que hubo que reparar al juntarlas:**
+
+- **Las plataformas nuevas de redes.** Una propuesta agregó YouTube, Threads y X
+  a las tablas de colores e íconos y la otra no los tenía en el tipo. Se sumaron
+  al tipo y se completaron las dos tablas, ahora con tipado explícito para que el
+  compilador avise si mañana falta alguna.
+- **El control de gasto de inteligencia artificial recibía un texto donde
+  esperaba una fecha.**
+
+**Lo que se reparó de seguridad, y es lo importante:**
+
+- **El freno de la reserva de turnos se podía saltear.** Contaba por el contacto
+  que escribe el visitante, así que cambiando el teléfono arrancaba de cero.
+  **Ahora cuenta por el origen de la conexión**, que es lo único que el visitante
+  no elige.
+- **El registro de prospectos desde la fiesta no tenía freno.** Es una acción
+  pública que escribe en el CRM: sin límite, se podía llenar la lista de
+  prospectos falsos. Diez por hora.
+
+**Y una prueba que gastaba plata:** la del centro de presencia digital llamaba de
+verdad al contador de gasto de inteligencia artificial, que pega contra la base.
+Tardaba más de cinco segundos y se cortaba. **Una prueba nunca puede gastar ni
+depender de la red**: se corren decenas de veces por día. Ahora está simulada y
+tarda medio segundo.
+
+**Falsos positivos verificados, para que no se vuelvan a reportar:**
+
+- Se avisó que `getSimulatorAvailableSlots` expone datos de citas. **No los
+  expone:** devuelve sólo días y horas libres, sin nombres ni contactos. Es
+  pública a propósito.
+- Se avisó que `registerQuinceaneraPartyLead` no la llama nadie. **Sí la llama**
+  la pantalla que le pregunta a la invitada cuándo cumple quince.
+
+**Lo que queda sin enchufar y hay que avisar:** el botón para descargar el libro
+de la fiesta existe pero **ninguna pantalla lo muestra**, así que esa función no
+se puede usar todavía.
 
 ## Cómo agregar algo a esta lista
 

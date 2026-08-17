@@ -40,6 +40,7 @@ import { PublicEntertainmentEventStatus } from '@/components/entertainment/publi
 import { KioskUnlockButton } from '@/components/kiosk/kiosk-unlock-button';
 import { isVideoFrameReady } from '@/lib/entertainment/camera-readiness';
 import { appendCommercialAttribution } from '@/lib/commercial/acquisition';
+import { QuinceaneraLeadPrompt } from '@/components/public/QuinceaneraLeadPrompt';
 import {
   componerTiraDeFotos,
   FOTOS_POR_TANDA,
@@ -949,7 +950,13 @@ export default function FotocabinaPage() {
                 )}
 
                 {role !== 'operator' && (
-                  <div className="pt-2 text-center">
+                  <div className="pt-3 text-center space-y-3 w-full">
+                    <QuinceaneraLeadPrompt
+                      fiestaId={fiestaId}
+                      nombreFiesta={fiesta?.eventName}
+                      origen="fotocabina"
+                      className="text-left"
+                    />
                     <a
                       href={appendCommercialAttribution('/simulador-de-presupuesto', {
                         source: 'guest_portal',
