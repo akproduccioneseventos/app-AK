@@ -206,6 +206,7 @@ export async function uploadEntretenimientoMedia(formData: FormData) {
       if (seguridad.reason === 'error') revisionManual = true;
     }
 
+    const guestId = (formData.get('guestId') as string) || undefined;
     const url = await uploadToStorage(buffer, storagePath, file.type, true);
 
     const socialPostResult = await createSocialMediaPostFromUrlForStation({
@@ -214,6 +215,7 @@ export async function uploadEntretenimientoMedia(formData: FormData) {
       revisionManual,
       mediaType: esVideo ? 'video' : 'image',
       authorName,
+      guestId,
       caption,
       source: 'entertainment',
       sourceModule: moduleId,
@@ -228,6 +230,7 @@ export async function uploadEntretenimientoMedia(formData: FormData) {
       type: file.type.startsWith('video/') ? 'video' : 'image',
       caption,
       authorName,
+      guestId,
       uploadedAt: new Date().toISOString(),
       publishTarget: 'muro-social',
       socialPostId: socialPostResult.post?.id,

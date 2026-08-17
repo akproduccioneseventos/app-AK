@@ -458,6 +458,7 @@ export async function uploadSocialPost(
       moderationStatus: finalModerationStatus,
       timestamp: new Date().toISOString(),
       authorName: sanitizeSocialText(authorName) || 'Anónimo',
+      ...(guestId ? { guestId } : {}),
       likes: 0,
       comments: [],
       source,
@@ -482,6 +483,7 @@ interface CreateSocialMediaPostFromUrlInput {
   mediaUrl: string;
   mediaType?: 'image' | 'video';
   authorName?: string;
+  guestId?: string;
   caption?: string;
   momentTag?: string;
   source?: string;
@@ -525,11 +527,12 @@ async function persistSocialMediaPostFromUrl(
       moderationStatus: esperaAprobacion ? 'pending' : 'approved',
       timestamp: new Date().toISOString(),
       authorName: sanitizeSocialText(input.authorName || 'AK Producciones') || 'AK Producciones',
+      ...(input.guestId ? { guestId: input.guestId } : {}),
       likes: 0,
       comments: [],
       source: input.source || 'entertainment',
       ...(input.sourceModule ? { sourceModule: input.sourceModule } : {}),
-      ...(input.caption ? { caption: sanitizeSocialText(input.caption), dedication: sanitizeSocialText(input.caption) } : {}),
+      ...(input.caption ? { dedication: sanitizeSocialText(input.caption) } : {}),
       ...(input.momentTag ? { momentTag: input.momentTag } : {}),
       ...(input.drinkId ? { drinkId: input.drinkId } : {}),
       ...(input.drinkName ? { drinkName: input.drinkName } : {}),

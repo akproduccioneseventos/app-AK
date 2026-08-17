@@ -16,6 +16,7 @@ export interface SocialGalleryPost {
   moderatedAt?: string;
   moderatedBy?: string;
   authorName: string;
+  guestId?: string;
   timestamp: string; // ISO Date String
   likes: number;
   comments: SocialComment[];

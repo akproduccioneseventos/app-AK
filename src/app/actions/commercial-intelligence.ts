@@ -285,26 +285,57 @@ export async function registerQuinceaneraPartyLead(data: {
       return { success: true };
     }
 
-    const { upsertPublicCommercialLead } = await import('@/lib/crm/public-lead-persistence');
+    const contacto = data.contacto?.trim() || '';
     const anioFiesta = data.respuestaQuince === 'Este año' ? new Date().getFullYear() : new Date().getFullYear() + 1;
+    const notaBase = `Respondió que cumple quince ${data.respuestaQuince.toLowerCase()}${!contacto ? ', no dejó teléfono' : ''}. Captada desde ${data.origen} en fiesta ${data.nombreFiesta || data.fiestaId}. Año previsto: ${anioFiesta}.`;
 
-    const result = await upsertPublicCommercialLead({
-      name: nombre,
-      phone: data.contacto || '099000000',
-      partyType: '15 Años',
-      acquisition: {
-        source: 'guest_portal',
-        campaign: `quinceanera_${data.respuestaQuince === 'Este año' ? 'este_anio' : 'proximo_anio'}`,
-        refFiestaId: data.fiestaId,
-        refGuestId: data.invitadoId,
-      },
-      notes: `Interesada en fiesta de 15 (${data.respuestaQuince}). Captada desde ${data.origen} en fiesta ${data.nombreFiesta || data.fiestaId}. Año previsto: ${anioFiesta}.`,
-    });
+    if (contacto && /^09\d{7}$/.test(contacto.replace(/\D/g, ''))) {
+      const { upsertPublicCommercialLead } = await import('@/lib/crm/public-lead-persistence');
+      const result = await upsertPublicCommercialLead({
+        name: nombre,
+        phone: contacto,
+        partyType: '15 Años',
+        acquisition: {
+          source: 'guest_portal',
+          campaign: `quinceanera_${data.respuestaQuince === 'Este año' ? 'este_anio' : 'proximo_anio'}`,
+          refFiestaId: data.fiestaId,
+          refGuestId: data.invitadoId,
+        },
+        notes: notaBase,
+      });
 
-    return {
-      success: true,
-      leadId: result.lead?.id,
-    };
+      return {
+        success: true,
+        leadId: result.lead?.id,
+      };
+    } else {
+      // Si no dejó teléfono, se guarda sin contacto y con nota explicativa (sin inventar '099000000')
+      const { readData, writeData } = await import('@/lib/data-service');
+      const leads = await readData<any[]>('crm-leads.json', []);
+      const newLead = {
+        id: `lead_quince_${Date.now()}_${Math.random().toString(36).slice(2, 7)}`,
+        name: nombre,
+        phone: '',
+        partyType: '15 Años',
+        acquisition: {
+          source: 'guest_portal',
+          campaign: `quinceanera_${data.respuestaQuince === 'Este año' ? 'este_anio' : 'proximo_anio'}`,
+          refFiestaId: data.fiestaId,
+          refGuestId: data.invitadoId,
+        },
+        notes: notaBase,
+        crmTags: ['quinceanera-sin-telefono', 'invitado-interesado'],
+        createdAt: new Date().toISOString(),
+        updatedAt: new Date().toISOString(),
+      };
+      leads.push(newLead);
+      await writeData('crm-leads.json', leads);
+
+      return {
+        success: true,
+        leadId: newLead.id,
+      };
+    }
   } catch (error: any) {
     console.error('Error registrando lead de quinceañera:', error);
     return { success: false, error: error?.message || 'No se pudo registrar la consulta' };
