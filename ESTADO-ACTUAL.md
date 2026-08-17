@@ -8,46 +8,45 @@ Quien cierre una sesión reescribe este archivo. Se pisa, no se acumula.
 ---
 
 **Última actualización:** 17 de agosto de 2026.
-**Estado:** compila, 1681 pruebas en verde, sin acentos rotos.
+**Estado de la app:** sana. Compila, 1694 pruebas en verde, sin acentos rotos.
 **Propuestas abiertas:** ninguna. **Orden vigente:** `docs/ordenes/ahora.md`.
 
-## Dónde va el plan de catorce bloques
+## Lo que se terminó
 
-**Entrega 1: HECHA y fusionada.** Trivia con podio por mesa, secretario que
-habla, llegada del equipo y logística en oscuro.
+**Las quince mejoras del plan grande están andando**, cada una con su pantalla
+anotada en `docs/QUE-HAY-EN-LA-APP.md`: trivia con podio por mesa, misiones
+secretas, secretario que habla, llegada del equipo, la reunión que se agenda sola,
+aviso de margen, la pregunta de los quince, configurador de cierre, termómetro,
+libro de la fiesta, "lo tuyo ahora", video del recuerdo, transmisión en vivo,
+pantallas de noche en oscuro y el centro de presencia digital.
 
-**Entrega 2: pendiente.** La reunión que se agenda sola desde el simulador (la
-más importante), la pregunta de los quince a las invitadas, que no se pierda la
-foto ni el pedido de la barra sin internet, y las misiones secretas.
+## Lo que falta, y está pedido en la orden
 
-**Entrega 3: pendiente.** Configurador de cierre, videos, termómetro de la
-fiesta, libro de la fiesta, cada uno ve lo suyo, transmisión en vivo.
+1. **Publicar de verdad en las redes.** El botón del centro de presencia digital
+   marca el posteo como publicado **y no manda nada a Facebook ni Instagram**.
+   Es la mitad que le falta a ese módulo.
+2. **El importador de historial de redes**, que no lee ni su propio archivo de
+   prueba.
+3. **Los datos de Google**: subir sólo los 3 archivos de posicionamiento, sin las
+   32 copias viejas que borraban un arreglo de seguridad.
+4. **Probarla en una fiesta de verdad.** Eso no lo hace ninguna IA.
 
 ## Lo que costó y no hay que repetir
 
-- **El informe de una entrega dijo siete bloques y eran cuatro.** El control que
-  sirvió no fue correr las pruebas —que también fallaban— sino **comparar lo que
-  el informe decía contra los archivos que realmente cambiaron**. Hacerlo siempre.
-- **Una funcionalidad puede compilar, pasar las pruebas y no existir para el
-  usuario.** Pasó con el aviso de margen: el cálculo estaba y no lo mostraba
-  ninguna pantalla. Preguntar siempre "¿desde qué pantalla se ve esto?".
-- **La llegada del equipo escribía el archivo del proyecto a mano.** En producción
-  los datos viven en la base: no se hubiera guardado nada. Todo lo que escribe usa
-  `updateDataPartial`/`writeData` y pide `requireAppSession()`.
-- **Una orden que Gemini no puede leer no sirve.** Se dejó una en una rama sin
-  fusionar y Gemini trabajó sobre una orden vieja ya cumplida. **Las órdenes van
-  derecho a `main`.**
-- **Se gastó de más esperando compilaciones.** El build va a los ayudantes desde
-  el principio; el modelo principal no lo corre.
+- **Código escrito contra funciones y campos que no existen.** Rompió tres
+  entregas seguidas. Lo agarra `npx tsc --noEmit` en un minuto.
+- **Pantallas escritas que no se pueden abrir.** Cuatro en una sola tanda. Los
+  cuatro controles no lo detectan: hay que preguntar "¿desde qué pantalla se ve?".
+- **Informes que declaran más de lo que hicieron.** Comparar el informe contra los
+  archivos que realmente cambiaron.
+- **Prometer lo que no se puede cumplir.** La app decía que guardaba la foto sin
+  señal y no la guardaba.
+- **Frenos que no frenan.** Contar por un dato que el visitante escribe es lo
+  mismo que no tener freno.
+- **Las órdenes van derecho a `main`**, o Gemini trabaja sobre una vieja.
+- **El build va a los ayudantes.** El modelo principal no lo corre.
 
 ## Decisiones del dueño
 
-Descartó el precio variable por fecha, alquilarle la app a otros salones y el
-"ensayo de la fiesta". Pidió que la captación de prospectos **no sea sólo en la
-fotocabina** sino en toda pantalla donde el invitado ya consiguió lo suyo, y
-avisó que **el menú de niños y adolescentes es el mismo**: separar la etiqueta no
-puede cambiar comida ni precio (verificado: no lo cambia).
-
-## Lo próximo
-
-Esperar la entrega 2 de Gemini, verificarla y fusionarla.
+Descartó el precio variable por fecha, alquilar la app a otros salones y el
+"ensayo de la fiesta". `TriviaAdminPanel` queda sin enchufar a propósito.
