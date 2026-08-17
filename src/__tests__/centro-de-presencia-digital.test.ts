@@ -1,3 +1,11 @@
+// Sin esto la prueba llama de verdad al contador de gasto de inteligencia
+// artificial, que pega contra la base y tarda. Una prueba nunca puede gastar
+// plata ni depender de la red: se corren decenas de veces por dia.
+jest.mock('@/lib/ai/consumo-servidor', () => ({
+  hayPresupuestoParaIA: jest.fn().mockResolvedValue(true),
+  registrarConsumoIA: jest.fn().mockResolvedValue(undefined),
+}));
+
 import {
   buildDailySnapshots,
   calculateCommercialAdsRoi,

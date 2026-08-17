@@ -1606,6 +1606,49 @@ secretario por voz podía disparar herramientas que mueven plata sin confirmaci�
 recordatorio y navegar—. Las herramientas de cobros y contratos son de otro
 componente y no están a su alcance.
 
+## Entregas 2 y 3 y el centro de presencia digital (17 de agosto de 2026)
+
+Dos propuestas de Gemini, revisadas y fusionadas. **Separadas compilaban las dos;
+juntas no.** Es el caso que el proyecto ya tenía anotado con el archivo de
+facturas, y por eso los controles se corren sobre el conjunto.
+
+**Lo que hubo que reparar al juntarlas:**
+
+- **Las plataformas nuevas de redes.** Una propuesta agregó YouTube, Threads y X
+  a las tablas de colores e íconos y la otra no los tenía en el tipo. Se sumaron
+  al tipo y se completaron las dos tablas, ahora con tipado explícito para que el
+  compilador avise si mañana falta alguna.
+- **El control de gasto de inteligencia artificial recibía un texto donde
+  esperaba una fecha.**
+
+**Lo que se reparó de seguridad, y es lo importante:**
+
+- **El freno de la reserva de turnos se podía saltear.** Contaba por el contacto
+  que escribe el visitante, así que cambiando el teléfono arrancaba de cero.
+  **Ahora cuenta por el origen de la conexión**, que es lo único que el visitante
+  no elige.
+- **El registro de prospectos desde la fiesta no tenía freno.** Es una acción
+  pública que escribe en el CRM: sin límite, se podía llenar la lista de
+  prospectos falsos. Diez por hora.
+
+**Y una prueba que gastaba plata:** la del centro de presencia digital llamaba de
+verdad al contador de gasto de inteligencia artificial, que pega contra la base.
+Tardaba más de cinco segundos y se cortaba. **Una prueba nunca puede gastar ni
+depender de la red**: se corren decenas de veces por día. Ahora está simulada y
+tarda medio segundo.
+
+**Falsos positivos verificados, para que no se vuelvan a reportar:**
+
+- Se avisó que `getSimulatorAvailableSlots` expone datos de citas. **No los
+  expone:** devuelve sólo días y horas libres, sin nombres ni contactos. Es
+  pública a propósito.
+- Se avisó que `registerQuinceaneraPartyLead` no la llama nadie. **Sí la llama**
+  la pantalla que le pregunta a la invitada cuándo cumple quince.
+
+**Lo que queda sin enchufar y hay que avisar:** el botón para descargar el libro
+de la fiesta existe pero **ninguna pantalla lo muestra**, así que esa función no
+se puede usar todavía.
+
 ## Cómo agregar algo a esta lista
 
 **Se anota SIEMPRE, en la misma propuesta que toca el código.** Orden del dueño

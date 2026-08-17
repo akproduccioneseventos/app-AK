@@ -265,6 +265,15 @@ export async function registerQuinceaneraPartyLead(data: {
   origen: 'fotocabina' | 'galeria' | 'muro_social' | 'mi_mesa' | 'invitacion';
   invitadoId?: string;
 }): Promise<{ success: boolean; leadId?: string; error?: string }> {
+  // Escribe un prospecto en el CRM y la llama cualquiera desde la fiesta, sin
+  // sesion. Sin freno, se puede llenar la lista de prospectos con datos falsos.
+  try {
+    const { enforcePublicRateLimit } = await import('@/lib/commercial/public-rate-limit');
+    await enforcePublicRateLimit({ scope: 'quince-lead', limit: 10, windowMs: 60 * 60 * 1000 });
+  } catch {
+    return { success: false, error: 'Probá de nuevo en un rato.' };
+  }
+
   try {
     const nombre = data.nombre?.trim();
     if (!nombre) {
