@@ -19,6 +19,7 @@ import {
   Zap,
   Check,
   Printer,
+  Share2,
 } from 'lucide-react';
 import { QRCodeSVG } from 'qrcode.react';
 import { QrRecuerdo } from '@/components/entretenimiento/QrRecuerdo';
@@ -924,12 +925,24 @@ export default function FotocabinaPage() {
                 </button>
 
                 {qrCodeUrl ? (
-                  <button
-                    onClick={handleDownload}
-                    className="w-full h-12 rounded-xl bg-white/5 hover:bg-white/10 text-white font-bold text-sm border border-white/10 transition flex items-center justify-center gap-2"
-                  >
-                    <Download className="w-4 h-4" /> Guardar en el celular
-                  </button>
+                  <>
+                    <button
+                      onClick={handleDownload}
+                      className="w-full h-12 rounded-xl bg-white/5 hover:bg-white/10 text-white font-bold text-sm border border-white/10 transition flex items-center justify-center gap-2"
+                    >
+                      <Download className="w-4 h-4" /> Guardar en el celular
+                    </button>
+                    <a
+                      href={`https://wa.me/?text=${encodeURIComponent(
+                        `¡Hola! Guardá este enlace para ver tus fotos y el video recuerdo de la fiesta mañana: ${qrCodeUrl}`
+                      )}`}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="w-full h-12 rounded-xl bg-emerald-600 hover:bg-emerald-500 text-white font-bold text-sm transition flex items-center justify-center gap-2"
+                    >
+                      <Share2 className="w-4 h-4" /> Mandarme el enlace por WhatsApp
+                    </a>
+                  </>
                 ) : hayMuro ? (
                   <button
                     onClick={handleAcceptAndPublish}

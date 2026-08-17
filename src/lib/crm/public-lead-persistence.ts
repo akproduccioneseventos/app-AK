@@ -33,6 +33,22 @@ export interface PublicLeadPersistenceInput {
   marketingConsent?: boolean;
   marketingConsentSource?: string;
   referrerEventName?: string;
+  /**
+   * Deja guardar el prospecto aunque no haya dejado teléfono. Lo usa sólo la
+   * pregunta de los quince que se le hace al invitado en la fiesta: ahí el dato
+   * vale igual aunque no deje contacto. El simulador NO lo usa, porque sin
+   * teléfono no se le puede pasar un presupuesto.
+   *
+   * Antes se guardaba con el número inventado `099000000` para pasar el
+   * control, y alguien del equipo perdía el viaje llamando a un número que no
+   * existe.
+   */
+  permitirSinTelefono?: boolean;
+  /**
+   * Con qué distinguir a esta persona de otra cuando no hay teléfono. Sin esto,
+   * dos invitadas que se llamen igual quedarían pegadas en una sola ficha.
+   */
+  claveSinTelefono?: string;
 }
 
 function normalizeName(name: string): string {
@@ -200,14 +216,24 @@ export async function upsertPublicCommercialLead(
   const now = new Date().toISOString();
   const phone = normalizeUruguayPhone(input.phone);
   const name = normalizeName(input.name);
-  if (!/^09\d{7}$/.test(phone)) throw new Error('Ingresa un celular uruguayo valido.');
+  const sinTelefono = input.permitirSinTelefono === true && !phone;
+  if (!sinTelefono && !/^09\d{7}$/.test(phone)) throw new Error('Ingresa un celular uruguayo valido.');
   if (name.length < 3 || name.length > 120) throw new Error('Ingresa un nombre valido.');
 
-  const identityKey = buildPublicIdentityKey(phone, name);
+  // Sin telefono se distingue por de donde vino (que fiesta y que invitado). Si
+  // ni eso hay, se usa el nombre solo: peor que nada, pero mejor que juntar a
+  // dos personas distintas en una misma ficha.
+  const identityKey = buildPublicIdentityKey(
+    sinTelefono ? `sin-telefono|${input.claveSinTelefono || ''}` : phone,
+    name,
+  );
   const existingIndex = leads.findIndex((lead) =>
     lead.publicIdentityKey === identityKey
     || (
-      normalizeUruguayPhone(lead.phone) === phone
+      // Sin telefono no se puede juntar por telefono: dos fichas vacias no son
+      // la misma persona.
+      Boolean(phone)
+      && normalizeUruguayPhone(lead.phone) === phone
       && comparableName(lead.name) === comparableName(name)
     )
   );

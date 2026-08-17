@@ -38,6 +38,7 @@ muestre**. Esa distinción es la que más veces falló.
 | Libro de la fiesta en PDF | Sí | Centro de la fiesta |
 | Cada uno ve lo suyo | Sí | Centro de la fiesta → "Lo tuyo, ahora" |
 | Video del recuerdo | Sí | Centro de la fiesta |
+| Recuerdo de cada invitado (video vertical para historias) | Sí | Enlace personal del invitado / Recap de la mañana |
 | Transmisión en vivo | Sí | Pantalla de la fiesta en vivo |
 | Centro de presencia digital | Sí | Empresa → Presencia digital |
 | Publicación real en Facebook e Instagram | Sí | Empresa → Presencia digital (al aprobar) |
@@ -261,6 +262,8 @@ de lo que el equipo todavía tiene que publicar a mano.
 - **Pedidos de música para el DJ y vista DJ ordenada — ANDA.** Pantalla para invitados con tope de 3 temas por persona y panel en tiempo real para el DJ en `/evento/dj/[fiestaId]` ordenado por votos con estados sonada/pendiente.
 - **Pedido a proveedores por WhatsApp en lista de compras — ANDA.** Botones en `/fiestas/nueva/catering/lista-compras` para enviar o copiar el pedido de insumos formateado a cada proveedor sin alterar fórmulas de costos.
 - **Generador de borradores para redes sociales desde fiesta — ANDA.** Acción `generateDraftPostsFromPartyPhotos` y botón en `/empresa/redes-sociales` que crea 4 borradores con copy y hashtags listos para que el equipo los revise.
+- **De quién es cada foto del muro — ANDA a medias (17 de agosto de 2026).** La foto que sube un invitado al muro queda guardada con su dueño, pero **sólo si abrió su enlace personal**: un identificador suelto no se guarda nunca, así nadie se adueña de las fotos de otro. Si no hay enlace personal, la foto se sube igual y queda sin dueño. **Falta que lo hagan las estaciones** (fotocabina, espejo mágico, plataforma 360), que hoy ni siquiera reciben ese enlace: está pedido en `docs/ordenes/ahora.md`. **Sirve de acá en adelante**: las fiestas ya pasadas no tienen el dato.
+- **La invitada que no deja teléfono — ANDA (17 de agosto de 2026).** Antes se la guardaba con el número inventado `099000000` y alguien perdía el viaje llamando. Ahora se guarda sin teléfono, la ficha lo aclara, y dos invitadas que se llaman igual no quedan pegadas en una sola ficha. El simulador **sigue exigiendo** celular, porque ahí sin teléfono no hay a dónde mandar el presupuesto.
 - **Explicación narrativa del presupuesto — ANDA.** Resumen descriptivo fiel en `BudgetDocument.tsx` y visor de presupuestos que explica los servicios contratados sin inventar números ni precios.
 
 ## Aparecer en Google (posicionamiento) — revisado el 12 de agosto de 2026

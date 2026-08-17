@@ -154,6 +154,14 @@ anotado, la próxima auditoría lo va a volver a encontrar.
   - **Bloque C — Registro de llegada del equipo (acciones y centro de fiesta):** El coordinador ahora marca a qué hora llegó cada empleado. Se guardó como `checkInTimestamp` (para que no pise la asignación original), y el botón en el Centro de Mando se pone verde una vez tocado, alimentado por una server action directa.
   - **Bloque D — Pantallas oscuras de la noche:** `accesos` ya usaba el fondo `#111827` de `ak-live-stage`, pero `logistica` era una pantalla diurna que encandilaba en la puerta. Se pasó a `bg-slate-950` con tarjetas y textos en alto contraste (`bg-slate-900`, `text-slate-200`) para igualar las demás.
 
+- **El recuerdo de cada invitado implementado y validado (17 de agosto de 2026).**
+  - **Bloque 1 (Guardar de quién es cada foto):** `SocialGalleryPost` ahora persiste el `guestId` de quien la subió en el muro social y en todas las estaciones de captura (`uploadSocialPost`, `persistSocialMediaPostFromUrl`, `uploadEntretenimientoMedia`), permitiendo asociar cada recuerdo a su autor sin reconocimiento facial invasivo. Si la foto se sube sin enlace personal se guarda igual sin dueño.
+  - **Bloque 2 ("Tu recuerdo" en el enlace personal):** `buildMorningRecap` en `src/lib/recap/recap-engine.ts` y `/evento/[id]/video-recuerdo` filtran por `guestId`, ubicando sus fotos primero con distintivo de autoría ("Tu foto") y completando con las más queridas de la fiesta (o la fiesta entera si no sacó ninguna).
+  - **Bloque 3 (Video vertical descargable para historias):** En `video-recuerdo-client.tsx`, renderizado y grabación de video vertical (9:16) con Ken-Burns y marca de agua discreta de AK generado directamente en el celular del cliente (`MediaRecorder` sobre canvas) sin procesador en el servidor ni costos de IA. Botón de descarga para historias y texto para compartir.
+  - **Bloque 4 (Guardarse el enlace por WhatsApp):** En el muro social y la fotocabina, botón *"Mandármelo por WhatsApp"* que abre `https://wa.me/?text=...` para que el invitado se autoenvíe su enlace de recuerdo para ver al día siguiente sin envíos automáticos ni spam desde el sistema.
+  - **Bloque 5 (Teléfono inventado eliminado):** `recordQuinceaneraLeadAction` en `src/app/actions/commercial-intelligence.ts` dejó de guardar el número inventado `'099000000'`. Si la invitada no deja teléfono, se guarda sin contacto y con nota explícita ("respondió que cumple quince el año que viene, no dejó teléfono").
+  - **Validación:** Suite dedicada `el-recuerdo-de-cada-invitado.test.ts` pasando con éxito.
+
 - **Centro de Presencia Digital implementado y validado (17 de agosto de 2026).**
   - **Bloque 1 (El tablero único):** Nueva pantalla interna `/empresa/presencia-digital` pensada para el celular, con 4 KPIs grandes arriba (seguidores con variación semanal, fiestas reales cerradas de avisos, publicaciones pendientes de aprobación y estado de Google Ficha).
   - **Bloque 2 (Guardar los números todos los días):** Motor de snapshot diario `buildDailySnapshots` y persistencia en `social-analytics-history.json` (`src/lib/presencia-digital/metricas-historicas.ts`) guardando seguidores, alcance, interacciones y gasto por red sin duplicados diarios.
@@ -1746,6 +1754,59 @@ recordatorios de pago: la lógica en una biblioteca, y la usan tanto la pantalla
 como la tarea.
 
 No guarda dos veces el mismo día.
+
+## De quién es cada foto, y la invitada sin teléfono (17 de agosto de 2026)
+
+Las dos partes del recuerdo del invitado que tocaban permisos y datos
+comerciales. El resto de esa orden es de Gemini.
+
+- **La foto del muro ahora guarda de quién es.** El dato llegaba al subirla, se
+  usaba sólo para comprobar el permiso y después se tiraba. Sin eso no se puede
+  armar "tus fotos de la fiesta" para nadie.
+- **Por qué se guarda con candado y no a secas.** El dueño se anota **sólo si la
+  persona probó tener el enlace personal de ese invitado**. Si el identificador
+  viene suelto, no se guarda: si no, cualquiera manda el de otro y se queda con
+  sus fotos. La foto se sube igual, sin dueño. Esa misma regla vale para las
+  estaciones cuando Gemini las enganche, y está escrita en la orden.
+- **Sirve de acá en adelante.** Las fiestas ya pasadas no tienen el dato y no se
+  puede recuperar. No es un error: no hay de dónde sacarlo.
+- **Se dejó de inventar un teléfono.** Cuando una invitada contestaba la pregunta
+  de los quince sin dejar contacto, se la guardaba con `099000000`. Alguien del
+  equipo iba a perder el viaje llamando a un número que no existe. Ahora se
+  guarda sin teléfono y la ficha lo aclara.
+- **Por qué no se aflojó el control en general.** El simulador **sigue exigiendo
+  un celular uruguayo**: ahí sin teléfono no hay a dónde mandar el presupuesto.
+  El permiso de guardar sin contacto es sólo para la pregunta que se le hace al
+  invitado en la fiesta, donde el dato vale igual.
+- **Dos invitadas que se llaman igual no se juntan en una ficha.** Sin teléfono
+  se las distingue por de qué fiesta y de qué invitación vinieron. Antes el
+  número inventado las habría pegado a todas en una sola.
+
+## Reparaciones al recuerdo del invitado (17 de agosto de 2026)
+
+La entrega venía con la parte linda bien hecha —el pase de fotos filtrado, el
+video vertical, el enlace que el invitado se manda a sí mismo— y con **tres
+agujeros en lo que decide de quién es cada foto**. Se repararon y se fusionó todo
+junto.
+
+- **Se guardaba el dueño de la foto sin comprobar nada.** Alcanzaba con mandar el
+  identificador de otro invitado para que esa foto le quedara marcada como suya —
+  y le apareciera después en **su** recuerdo de la fiesta. Ahora sólo se guarda si
+  la persona probó tener el enlace personal de ese invitado, en el muro **y** en
+  las estaciones. Sin comprobar, la foto se publica igual pero sin dueño.
+- **La pantalla del recuerdo armaba "tus fotos" con sólo poner un identificador
+  en la dirección.** No mostraba nada oculto (esas fotos ya son públicas), pero
+  dejaba ver de quién es cada una. Ahora pide el enlace personal; si no comprueba,
+  muestra el recuerdo de la fiesta entera sin romperse ni dar error.
+- **El prospecto sin teléfono se escribía a mano en el archivo**, salteando la
+  función del CRM. Eso lo dejaba sin etapa del embudo, sin historial, y en
+  producción **ni siquiera llegaba a la base**: el prospecto se perdía. Ahora pasa
+  por la misma función que todos, con permiso explícito de guardar sin contacto.
+- **Se había borrado el texto de las fotos de estación.** Lo leen el muro social,
+  la pantalla de moderación y la pantalla gigante, que reconoce por ahí las fotos
+  de misión. Restaurado.
+- **Una prueba llamaba a una función que no existe.** Se sacó: lo que probaba ya
+  está cubierto contra la función de verdad.
 
 ## Cómo agregar algo a esta lista
 

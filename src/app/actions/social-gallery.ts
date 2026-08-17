@@ -458,6 +458,13 @@ export async function uploadSocialPost(
       moderationStatus: finalModerationStatus,
       timestamp: new Date().toISOString(),
       authorName: sanitizeSocialText(authorName) || 'Anónimo',
+      // Se guarda de quien es la foto, pero solo si probo tener el enlace
+      // personal de ese invitado. `guestAuthorized` ya comparo el token contra
+      // el que tiene guardado la fiesta: sin eso, cualquiera podria mandar el
+      // identificador de otro y quedarse con sus fotos, y esas fotos le
+      // apareceran despues en SU recuerdo de la fiesta. Si vino suelto, la foto
+      // se guarda igual pero sin dueno.
+      ...(guestAuthorized && guestId ? { guestId } : {}),
       likes: 0,
       comments: [],
       source,
@@ -482,6 +489,14 @@ interface CreateSocialMediaPostFromUrlInput {
   mediaUrl: string;
   mediaType?: 'image' | 'video';
   authorName?: string;
+  /**
+   * De quien es la foto que sube la estacion. Va con su token para poder
+   * comprobarlo: el identificador solo NO alcanza, porque cualquiera podria
+   * mandar el de otro invitado y sus fotos le apareceran despues a esa persona
+   * en su recuerdo de la fiesta.
+   */
+  guestId?: string;
+  guestAccessToken?: string;
   caption?: string;
   momentTag?: string;
   source?: string;
@@ -517,6 +532,15 @@ async function persistSocialMediaPostFromUrl(
     if (!fiesta) return { success: false, error: 'Fiesta no encontrada.' };
     const requireApproval = fiesta.socialGallerySettings?.requireApproval !== false;
     const esperaAprobacion = requireApproval || review.status === 'pending_review' || input.revisionManual === true;
+    // Mismo candado que el muro: el dueno se guarda solo si la estacion mando el
+    // enlace personal de ese invitado y coincide con el que tiene la fiesta. Si
+    // no, la foto se publica igual pero sin dueno.
+    const invitadoDeLaFoto = fiesta.invitados?.find((item) => item.id === input.guestId);
+    const dueñoComprobado = hasPublicGuestAccess(
+      invitadoDeLaFoto,
+      input.guestId || '',
+      input.guestAccessToken || '',
+    );
     const newPost: SocialGalleryPost = {
       id: postId,
       fiestaId: input.fiestaId,
@@ -525,10 +549,14 @@ async function persistSocialMediaPostFromUrl(
       moderationStatus: esperaAprobacion ? 'pending' : 'approved',
       timestamp: new Date().toISOString(),
       authorName: sanitizeSocialText(input.authorName || 'AK Producciones') || 'AK Producciones',
+      ...(dueñoComprobado && input.guestId ? { guestId: input.guestId } : {}),
       likes: 0,
       comments: [],
       source: input.source || 'entertainment',
       ...(input.sourceModule ? { sourceModule: input.sourceModule } : {}),
+      // El `caption` se sigue guardando ademas de la dedicatoria: lo leen el muro
+      // social, la pantalla de moderacion y la pantalla gigante, y ahi es como se
+      // reconoce una foto de mision.
       ...(input.caption ? { caption: sanitizeSocialText(input.caption), dedication: sanitizeSocialText(input.caption) } : {}),
       ...(input.momentTag ? { momentTag: input.momentTag } : {}),
       ...(input.drinkId ? { drinkId: input.drinkId } : {}),

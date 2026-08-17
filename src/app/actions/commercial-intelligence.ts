@@ -285,12 +285,26 @@ export async function registerQuinceaneraPartyLead(data: {
       return { success: true };
     }
 
-    const { upsertPublicCommercialLead } = await import('@/lib/crm/public-lead-persistence');
+    const contacto = data.contacto?.trim() || '';
     const anioFiesta = data.respuestaQuince === 'Este año' ? new Date().getFullYear() : new Date().getFullYear() + 1;
+    const notaBase = `Respondió que cumple quince ${data.respuestaQuince.toLowerCase()}${!contacto ? ', no dejó teléfono' : ''}. Captada desde ${data.origen} en fiesta ${data.nombreFiesta || data.fiestaId}. Año previsto: ${anioFiesta}.`;
 
+    const { upsertPublicCommercialLead } = await import('@/lib/crm/public-lead-persistence');
+
+    // Antes iba `099000000` cuando no dejaba contacto, para pasar el control que
+    // exige un celular uruguayo. Eso dejaba prospectos falsos y alguien del
+    // equipo perdia el viaje llamando a un numero que no existe. Ahora se guarda
+    // sin telefono y la ficha lo aclara.
+    //
+    // Sigue pasando por `upsertPublicCommercialLead` a proposito: es lo que le
+    // pone la etapa del embudo, la clave de identidad y el historial, y lo que la
+    // guarda en la base de verdad. Escribir la ficha a mano en el archivo la deja
+    // fuera del CRM y nadie la ve.
     const result = await upsertPublicCommercialLead({
       name: nombre,
-      phone: data.contacto || '099000000',
+      phone: contacto,
+      permitirSinTelefono: true,
+      claveSinTelefono: `${data.fiestaId}|${data.invitadoId || ''}`,
       partyType: '15 Años',
       acquisition: {
         source: 'guest_portal',
@@ -298,13 +312,14 @@ export async function registerQuinceaneraPartyLead(data: {
         refFiestaId: data.fiestaId,
         refGuestId: data.invitadoId,
       },
-      notes: `Interesada en fiesta de 15 (${data.respuestaQuince}). Captada desde ${data.origen} en fiesta ${data.nombreFiesta || data.fiestaId}. Año previsto: ${anioFiesta}.`,
+      notes: notaBase,
     });
 
     return {
       success: true,
       leadId: result.lead?.id,
     };
+  
   } catch (error: any) {
     console.error('Error registrando lead de quinceañera:', error);
     return { success: false, error: error?.message || 'No se pudo registrar la consulta' };
