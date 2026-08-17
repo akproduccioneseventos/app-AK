@@ -1520,6 +1520,28 @@ un evento— y le prohíbe inventar promociones, descuentos, cupos o fechas
 disponibles. Eso último importa: un descuento inventado por una máquina es plata
 de verdad.
 
+## El aviso de margen, ahora sí visible (17 de agosto de 2026)
+
+Se había fusionado el cálculo pero **no estaba enchufado a ninguna pantalla**: el
+archivo existía, la prueba pasaba, y en la app **no lo veía nadie**. Ahora aparece
+en la pantalla del presupuesto.
+
+- **Sólo lo ve el equipo.** Esa pantalla también se comparte con el cliente por
+  enlace público, y cuánto se pasó el costo de lo estimado no es algo que el
+  cliente tenga que ver. El aviso está dentro del bloque de operador y la acción
+  del servidor pide sesión.
+- **Compara por tipo de evento, salón y cantidad de invitados**, y sólo habla si
+  hay al menos dos fiestas parecidas con gastos cargados y el desvío supera el 5%.
+- **No toca el precio**, y lo dice en pantalla: "es sólo un dato para tenerlo en
+  cuenta, el presupuesto no cambia".
+- **Falla en silencio:** si no se puede calcular, no se muestra nada. Un
+  presupuesto no se traba por un aviso informativo.
+
+**La lección, anotada para no repetirla:** una funcionalidad puede tener el
+cálculo bien, la prueba en verde y los cuatro controles pasando, **y no existir
+para el usuario**. Al revisar una entrega hay que preguntar además *"¿desde qué
+pantalla se ve esto?"*.
+
 ## Cómo agregar algo a esta lista
 
 **Se anota SIEMPRE, en la misma propuesta que toca el código.** Orden del dueño
