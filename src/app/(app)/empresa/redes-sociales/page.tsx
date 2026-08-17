@@ -11,6 +11,7 @@ import type { SocialPost, SocialPlatform } from '@/types/social-media';
 import { getSocialPosts, deleteSocialPost, generateDraftPostsFromPartyPhotos } from '@/app/actions/social-media';
 import { NewPostDialog } from '@/components/social-media/NewPostDialog';
 import { SocialPostCard } from '@/components/social-media/SocialPostCard';
+import { SocialHistoryImportDialog } from '@/components/social-media/SocialHistoryImportDialog';
 import { SocialMediaCalendar } from '@/components/social-media/SocialMediaCalendar';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import type { FiestaEnPlanificacion } from '@/types/fiesta';
@@ -230,6 +231,7 @@ function SocialMediaPageContent() {
                             Centro de Presencia Digital
                         </Link>
                     </Button>
+                    <SocialHistoryImportDialog onImported={fetchData} />
                     <NewPostDialog onPostCreated={fetchData} />
                     <Button asChild variant="outline"><Link href="/empresa"><ArrowLeft className="w-4 h-4 mr-2" />Volver a Empresa</Link></Button>
                 </div>

@@ -117,6 +117,11 @@ export interface SocialConnection {
   logoUrl?: string;
   connectedAt?: string;
   phoneNumber?: string;
+  /** Permisos de publicación de Meta / Facebook / Instagram */
+  pageId?: string;
+  pageAccessToken?: string;
+  instagramAccountId?: string;
+  tokenExpiresAt?: string;
 }
 
 export interface CompanyInfo {

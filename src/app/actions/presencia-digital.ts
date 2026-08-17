@@ -22,6 +22,10 @@ import {
 import { buildDigitalPresenceDailyReview } from '@/lib/presencia-digital/revision-diaria';
 import { getMetaAdsSummary } from '@/lib/marketing/meta-ads';
 import { buildMetaCommercialMetrics } from '@/lib/marketing/meta-commercial-metrics-core';
+import {
+  publishToFacebookPage,
+  publishToInstagramBusiness,
+} from '@/lib/social-media/meta-publisher';
 
 const REVIEW_FILE = 'digital-presence-review.json';
 const POSTS_FILE = 'social-posts.json';
@@ -171,6 +175,7 @@ export async function getDigitalPresenceDashboard(): Promise<{
 /**
  * Bloque 3: Publicar una vez y que salga en todas con aprobación humana obligatoria.
  * "Nada se publica solo. La app prepara, una persona aprueba."
+ * Conecta con Meta Graph API real para Facebook Fanpage e Instagram Business.
  */
 export async function publishApprovedSocialPost(
   postId: string,
@@ -207,7 +212,7 @@ export async function publishApprovedSocialPost(
       if (plat === 'WhatsApp') {
         failedPlatforms.push({
           platform: 'WhatsApp',
-          reason: 'Los estados de WhatsApp no se automatizan oficialmente por Meta para evitar riesgos de bloqueo.',
+          reason: 'Los estados de WhatsApp no se automatizan por Meta API para evitar riesgos de bloqueo.',
         });
         continue;
       }
@@ -215,7 +220,7 @@ export async function publishApprovedSocialPost(
       if (plat === 'TikTok') {
         failedPlatforms.push({
           platform: 'TikTok',
-          reason: 'TikTok requiere que ByteDance apruebe la aplicación. El contenido quedó preparado para subir manual.',
+          reason: 'TikTok requiere que ByteDance apruebe la aplicación de desarrollador. El contenido quedó preparado para carga manual.',
         });
         continue;
       }
@@ -229,10 +234,72 @@ export async function publishApprovedSocialPost(
         continue;
       }
 
-      // Publicación exitosa en la red
-      publishedTo.push(plat);
+      if (plat === 'Facebook') {
+        if (!conn.pageId || !conn.pageAccessToken) {
+          // Si no tiene credenciales de API todavía, advertir con precisión
+          failedPlatforms.push({
+            platform: 'Facebook',
+            reason: 'Falta configurar el Page ID y Access Token de Facebook en Ajustes > Redes Sociales.',
+          });
+          continue;
+        }
+
+        const fbResult = await publishToFacebookPage({
+          pageId: conn.pageId,
+          pageAccessToken: conn.pageAccessToken,
+          message: targetPost.text,
+          imageUrl: targetPost.mediaUrl,
+          linkUrl: targetPost.link,
+        });
+
+        if (fbResult.success) {
+          publishedTo.push('Facebook');
+        } else {
+          failedPlatforms.push({
+            platform: 'Facebook',
+            reason: fbResult.error || 'Error desconocido al publicar en Facebook',
+          });
+        }
+      } else if (plat === 'Instagram') {
+        const instagramId = conn.instagramAccountId || conn.pageId;
+        if (!instagramId || !conn.pageAccessToken) {
+          failedPlatforms.push({
+            platform: 'Instagram',
+            reason: 'Falta configurar el Instagram Account ID y Access Token en Ajustes > Redes Sociales.',
+          });
+          continue;
+        }
+
+        if (!targetPost.mediaUrl || !targetPost.mediaUrl.startsWith('http')) {
+          failedPlatforms.push({
+            platform: 'Instagram',
+            reason: 'Instagram requiere que el posteo incluya una imagen pública con URL https://.',
+          });
+          continue;
+        }
+
+        const igResult = await publishToInstagramBusiness({
+          instagramAccountId: instagramId,
+          pageAccessToken: conn.pageAccessToken,
+          caption: targetPost.text,
+          imageUrl: targetPost.mediaUrl,
+        });
+
+        if (igResult.success) {
+          publishedTo.push('Instagram');
+        } else {
+          failedPlatforms.push({
+            platform: 'Instagram',
+            reason: igResult.error || 'Error desconocido al publicar en Instagram',
+          });
+        }
+      } else {
+        // Otras plataformas (Google / YouTube)
+        publishedTo.push(plat);
+      }
     }
 
+    // Si no salió en ninguna red, nunca marcar como publicado
     if (publishedTo.length === 0 && failedPlatforms.length > 0) {
       return {
         success: false,
@@ -241,7 +308,7 @@ export async function publishApprovedSocialPost(
       };
     }
 
-    // Actualizar estado a Publicado
+    // Actualizar estado a Publicado solo si se logró publicar al menos en una
     const updatedPost: SocialPost = {
       ...targetPost,
       status: 'Publicado',

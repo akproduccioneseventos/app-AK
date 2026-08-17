@@ -2,12 +2,15 @@
 // YouTube entra aca porque las tablas de colores e iconos del calendario ya lo
 // tienen: sin sumarlo al tipo, las dos propuestas juntas no compilaban.
 export type SocialPlatform = 'Facebook' | 'Instagram' | 'TikTok' | 'WhatsApp' | 'YouTube' | 'Threads' | 'X';
-export type PostStatus = 'Programado' | 'Publicado' | 'Importado de IG' | 'Borrador';
+export type PostStatus = 'Programado' | 'Publicado' | 'Importado de IG' | 'Importado historial' | 'Borrador';
 
 export interface PostPerformance {
     likes?: number;
     views?: number;
     interactions?: number;
+    comments?: number;
+    shares?: number;
+    saves?: number;
 }
 
 export interface SocialPost {
@@ -26,8 +29,18 @@ export interface SocialPost {
     performance?: PostPerformance;
     createdAt: string;
     updatedAt: string;
+    // Campos opcionales para memoria histórica y desduplicación
+    sourceId?: string;
+    sourceUrl?: string;
+    sourceFile?: string;
+    importBatchId?: string;
+    contentHash?: string;
+    crossPlatformGroupId?: string;
+    archiveMediaPath?: string;
+    importedAt?: string;
 }
 
 export type NewSocialPostData = Omit<SocialPost, 'id' | 'createdAt' | 'updatedAt' | 'mediaUrl' | 'mediaType'> & {
     mediaFile?: File; // For handling upload
 };
+

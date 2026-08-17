@@ -12,6 +12,7 @@ import { Toaster } from "@/components/ui/toaster";
 import { DeploymentRecovery } from '@/components/deployment-recovery';
 import { GoogleAnalytics } from '@/components/google-analytics';
 import { AsistenteVirtual } from '@/components/public/AsistenteVirtual';
+import { LocalBusinessSchema } from '@/components/public/LocalBusinessSchema';
 import localFont from 'next/font/local';
 
 const inter = localFont({
@@ -61,9 +62,43 @@ export const viewport: Viewport = {
 
 export const metadata: Metadata = {
   metadataBase: new URL('https://akproducciones.uy'),
-  title: 'AK Producciones',
-  description: 'Plataforma integral para la planificación y gestión de eventos de AK Producciones.',
+  title: {
+    default: 'AK Producciones | Organización Integral de Fiestas y Eventos en Salto',
+    template: '%s | AK Producciones',
+  },
+  description: 'Organización completa de bodas, fiestas de 15 años y eventos empresariales en Salto, Uruguay. Discoteca, gastronomía gourmet, fotografía y salones de fiesta con tecnología interactiva.',
+  keywords: [
+    'fiestas de 15 salto',
+    'organización de eventos salto uruguay',
+    'bodas salto',
+    'discoteca salto',
+    'catering salto',
+    'salon club uruguay salto',
+    'ak producciones',
+  ],
   manifest: '/manifest.webmanifest',
+  openGraph: {
+    title: 'AK Producciones | Fiestas y Eventos en Salto',
+    description: 'Producción integral de 15 años, bodas y eventos en Salto, Uruguay. Viví tu fiesta como un invitado más.',
+    url: 'https://akproducciones.uy',
+    siteName: 'AK Producciones',
+    locale: 'es_UY',
+    type: 'website',
+    images: [
+      {
+        url: '/media/catalogo-servicios/quinceanera_hero.png',
+        width: 1200,
+        height: 630,
+        alt: 'AK Producciones Eventos Salto',
+      },
+    ],
+  },
+  twitter: {
+    card: 'summary_large_image',
+    title: 'AK Producciones | Fiestas y Eventos en Salto',
+    description: 'Producción integral de 15 años, bodas y eventos en Salto, Uruguay.',
+    images: ['/media/catalogo-servicios/quinceanera_hero.png'],
+  },
   appleWebApp: {
     capable: true,
     statusBarStyle: 'black-translucent',
@@ -86,6 +121,7 @@ export default function RootLayout({
   return (
     <html lang="es" suppressHydrationWarning className={`${inter.variable} ${belleza.variable} ${playfairDisplay.variable} ${dancingScript.variable}`}>
       <head>
+        <LocalBusinessSchema />
       </head>
       <body className="ak-motion-system font-body antialiased">
         <Suspense fallback={null}>
