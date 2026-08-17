@@ -1,4 +1,5 @@
 import type { FiestaEnPlanificacion } from '@/types/fiesta';
+import { calculateLeaderboard } from '@/lib/games/game-engine';
 
 export type PublicSocialEvent = Pick<
   FiestaEnPlanificacion,
@@ -14,19 +15,24 @@ export type PublicSocialEvent = Pick<
   clientAccessGranted: boolean;
 };
 
-import { calculateLeaderboard } from '@/lib/games/game-engine';
-
 export function toPublicSocialEvent(
   fiesta: FiestaEnPlanificacion,
   clientAccessGranted = false,
 ): PublicSocialEvent {
-  const settings = { ...fiesta.socialGallerySettings };
-  if (settings.activeGame?.type === 'trivia' && fiesta.triviaGame) {
-    settings.activeGame = {
-      ...settings.activeGame,
-      tableLeaderboard: calculateLeaderboard(fiesta.triviaGame.participants || []).tableLeaderboard
-    };
-  }
+  // El podio por mesa se calcula al vuelo desde los participantes. Se tipa igual
+  // que el original: esparcirlo suelto hacia que 'enabled' pudiera quedar sin
+  // valor y la pantalla del muro no compilaba.
+  const settings: FiestaEnPlanificacion['socialGallerySettings'] = fiesta.socialGallerySettings
+    && fiesta.socialGallerySettings.activeGame?.type === 'trivia'
+    && fiesta.triviaGame
+    ? {
+        ...fiesta.socialGallerySettings,
+        activeGame: {
+          ...fiesta.socialGallerySettings.activeGame,
+          tableLeaderboard: calculateLeaderboard(fiesta.triviaGame.participants || []).tableLeaderboard,
+        },
+      }
+    : fiesta.socialGallerySettings;
 
   return {
     id: fiesta.id,

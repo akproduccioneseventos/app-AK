@@ -1,73 +1,60 @@
 'use server';
 
 import path from 'path';
-import fs from 'fs/promises';
-import { readData } from '@/lib/data-service';
+import { updateDataPartial } from '@/lib/data-service';
+import { requireAppSession } from '@/lib/auth/require-session';
+import { getFiestas, getFiestaById } from '@/app/actions/fiesta/fiesta.actions';
 import type { FiestaEnPlanificacion } from '@/types/fiesta';
 
 const FIESTAS_DIR = 'fiestas';
-const ARCHIVE_DIR = 'archive';
 
+/**
+ * Las fiestas en las que trabaja una persona del equipo.
+ *
+ * Pide sesion: dice donde trabaja cada empleado, y eso es de adentro.
+ */
 export async function getFiestasByEmpleado(empleadoId: string): Promise<FiestaEnPlanificacion[]> {
-  const results: FiestaEnPlanificacion[] = [];
+  await requireAppSession();
 
-  // Read active fiestas
-  try {
-    const activeDir = path.join(process.cwd(), 'src', 'data', FIESTAS_DIR);
-    const activeFiles = await fs.readdir(activeDir);
-    const activeFiestas = await Promise.all(
-      activeFiles
-        .filter(f => f.endsWith('.json'))
-        .map(f => readData<FiestaEnPlanificacion | null>(path.join(FIESTAS_DIR, f), null))
+  // Con archivadas: el historial de una persona incluye las fiestas viejas.
+  const fiestas = await getFiestas(true);
+  return fiestas
+    .filter(fiesta => fiesta.personalAsignado?.some(persona => persona.empleadoId === empleadoId))
+    .sort((a, b) =>
+      new Date(b.configuracion?.fechaEvento || '1970-01-01').getTime() -
+      new Date(a.configuracion?.fechaEvento || '1970-01-01').getTime()
     );
-    for (const fiesta of activeFiestas) {
-      if (fiesta && fiesta.personalAsignado?.some(p => p.empleadoId === empleadoId)) {
-        results.push(fiesta);
-      }
-    }
-  } catch {
-    // Directory may not exist yet
-  }
-
-  // Read archived fiestas
-  try {
-    const archiveDir = path.join(process.cwd(), 'src', 'data', ARCHIVE_DIR);
-    const archiveFiles = await fs.readdir(archiveDir);
-    const archivedFiestas = await Promise.all(
-      archiveFiles
-        .filter(f => f.endsWith('.json'))
-        .map(f => readData<FiestaEnPlanificacion | null>(path.join(ARCHIVE_DIR, f), null))
-    );
-    for (const fiesta of archivedFiestas) {
-      if (fiesta && fiesta.personalAsignado?.some(p => p.empleadoId === empleadoId)) {
-        results.push(fiesta);
-      }
-    }
-  } catch {
-    // Archive directory may not exist yet
-  }
-
-  // Deduplicate by id and sort by date descending
-  const unique = Array.from(new Map(results.map(f => [f.id, f])).values());
-  return unique.sort(
-    (a, b) =>
-      new Date(b.configuracion.fechaEvento || '1970-01-01').getTime() -
-      new Date(a.configuracion.fechaEvento || '1970-01-01').getTime()
-  );
 }
 
+/**
+ * Marca que una persona del equipo llego a la fiesta.
+ *
+ * Se guarda con `updateDataPartial`, igual que el resto de la app. Escribir el
+ * archivo a mano con `fs` no sirve: en produccion los datos viven en la base, no
+ * en los archivos del proyecto, asi que el "llegue" no se guardaria en ningun
+ * lado y la pantalla seguiria mostrando a la persona en rojo.
+ */
 export async function marcarLlegadaPersonal(fiestaId: string, empleadoId: string): Promise<boolean> {
-  const file = path.join(process.cwd(), 'src', 'data', FIESTAS_DIR, `${fiestaId}.json`);
+  await requireAppSession();
+
+  const fiesta = await getFiestaById(fiestaId);
+  if (!fiesta?.personalAsignado?.length) return false;
+
+  const indice = fiesta.personalAsignado.findIndex(persona => persona.empleadoId === empleadoId);
+  if (indice === -1) return false;
+
+  // Ya estaba marcado: no se pisa la hora original.
+  if (fiesta.personalAsignado[indice].checkInTimestamp) return true;
+
+  const personalAsignado = fiesta.personalAsignado.map((persona, i) =>
+    i === indice ? { ...persona, checkInTimestamp: new Date().toISOString() } : persona
+  );
+
   try {
-    const raw = await fs.readFile(file, 'utf8');
-    const fiesta: FiestaEnPlanificacion = JSON.parse(raw);
-    if (!fiesta.personalAsignado) return false;
-    
-    const idx = fiesta.personalAsignado.findIndex(p => p.empleadoId === empleadoId);
-    if (idx === -1) return false;
-    
-    fiesta.personalAsignado[idx].checkInTimestamp = new Date().toISOString();
-    await fs.writeFile(file, JSON.stringify(fiesta, null, 2));
+    await updateDataPartial<FiestaEnPlanificacion>(
+      path.join(FIESTAS_DIR, `${fiestaId}.json`),
+      { personalAsignado } as Partial<FiestaEnPlanificacion>
+    );
     return true;
   } catch {
     return false;

@@ -1548,6 +1548,43 @@ cálculo bien, la prueba en verde y los cuatro controles pasando, **y no existir
 para el usuario**. Al revisar una entrega hay que preguntar además *"¿desde qué
 pantalla se ve esto?"*.
 
+## La entrega 1: trivia, secretario que habla y llegada del equipo (17 de agosto de 2026)
+
+Entrega de Gemini, revisada y reparada. **Esta vez los archivos coincidían con lo
+pedido**, a diferencia de la anterior.
+
+**Lo que quedó andando:**
+
+- **La trivia de la cena está enchufada.** El invitado responde desde el celular,
+  la pantalla gigante marca la respuesta correcta en verde y muestra el **podio
+  por mesa**, que es el que enciende el salón porque las mesas compiten.
+- **El secretario que habla.** Botón de micrófono en el asistente interno, en
+  castellano uruguayo, y contesta en voz con opción de silenciarlo.
+- **La llegada del equipo.** Cada uno marca "llegué" desde el celular y en el
+  centro de la fiesta se ve quién falta.
+- **La pantalla de logística, en oscuro**, para usarla de noche.
+
+**Lo que hubo que reparar, y es importante:**
+
+- **El "llegué" no se hubiera guardado en ningún lado.** Escribía el archivo del
+  proyecto a mano en vez de usar el guardado común de la app. En producción los
+  datos viven en la base, no en esos archivos: la persona tocaba el botón y la
+  pantalla la seguía mostrando en rojo. Ahora usa `updateDataPartial`, como todo
+  lo demás.
+- **Esas dos acciones no pedían sesión.** Cualquiera podía marcar que llegó
+  cualquiera, y leer en qué fiestas trabaja cada empleado. Ahora piden sesión,
+  como el resto de la app. **Hay una prueba nueva que cuida las dos cosas.**
+- **Un error de tipos rompía la compilación** del muro social, por armar la
+  configuración con un esparcido suelto.
+- **Marcar dos veces la llegada pisaba la hora original.** Ahora se conserva la
+  primera, que es la que sirve para saber si alguien llegó tarde.
+
+**Falso positivo verificado, para que no se vuelva a reportar:** se revisó si el
+secretario por voz podía disparar herramientas que mueven plata sin confirmación.
+**No puede.** Ese asistente sólo maneja tres acciones —crear tarea, crear
+recordatorio y navegar—. Las herramientas de cobros y contratos son de otro
+componente y no están a su alcance.
+
 ## Cómo agregar algo a esta lista
 
 **Se anota SIEMPRE, en la misma propuesta que toca el código.** Orden del dueño
