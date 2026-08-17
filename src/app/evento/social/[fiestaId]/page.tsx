@@ -274,6 +274,9 @@ export default function SocialEventPage() {
   const [nameDialogOpen, setNameDialogOpen] = useState(false);
   const [uploadOpen, setUploadOpen] = useState(false);
   const [uploadFile, setUploadFile] = useState<File | null>(null);
+  // Lo que quedo sin subir por falta de señal. Vive en memoria, no en el disco
+  // del celular: la foto es demasiado grande para guardarla ahi.
+  const [envioPendiente, setEnvioPendiente] = useState<{ archivo: File; texto: string } | null>(null);
   const [uploadPreview, setUploadPreview] = useState<string | null>(null);
   const [uploadCaption, setUploadCaption] = useState('');
   const [uploading, setUploading] = useState(false);
@@ -536,6 +539,24 @@ export default function SocialEventPage() {
     setUploadCaption('');
   };
 
+  // Cuando vuelve la señal: se manda lo que quedo pendiente y se vacia la cola
+  // del celular (los pedidos de barra y demas que se guardaron sin conexion).
+  useEffect(() => {
+    const alVolverLaSenal = () => {
+      void processOfflineQueue(async () => ({ success: true }), { fiestaId });
+      setEnvioPendiente((pendiente) => {
+        if (!pendiente) return null;
+        setUploadFile(pendiente.archivo);
+        setUploadCaption(pendiente.texto);
+        setUploadOpen(true);
+        toast({ title: 'Volvió la señal', description: 'Tocá publicar para subir tu foto.' });
+        return null;
+      });
+    };
+    window.addEventListener('online', alVolverLaSenal);
+    return () => window.removeEventListener('online', alVolverLaSenal);
+  }, [fiestaId, toast]);
+
   const submitUpload = async (eventForm: FormEvent) => {
     eventForm.preventDefault();
     if (!uploadFile || uploading) return;
@@ -575,22 +596,16 @@ export default function SocialEventPage() {
         toast({ title: 'No se pudo publicar', description: result.error, variant: 'destructive' });
       }
     } catch {
-      // Guardar en cola offline del celular
-      enqueueOfflineAction({
-        type: 'muro_foto',
-        fiestaId,
-        payload: {
-          authorName: authorName || 'Invitado',
-          dedication: uploadCaption.trim(),
-          guestId,
-          guestAccessToken,
-        },
-      });
+      // La cola del celular no puede guardar la foto: una foto de celular pesa
+      // varios megas y ahi no entra. Antes se encolaba solo el nombre y el
+      // texto, y se le prometia al invitado que su foto se iba a publicar sola:
+      // la foto ya no estaba. Ahora se le dice la verdad y se reintenta solo
+      // mientras tenga la pantalla abierta.
+      setEnvioPendiente({ archivo: uploadFile, texto: uploadCaption.trim() });
       toast({
-        title: 'Guardado sin conexión',
-        description: 'Tu foto se publicará automáticamente en cuanto vuelva la señal.',
+        title: 'Sin señal por ahora',
+        description: 'No cierres esta pantalla: lo subimos solos apenas vuelva la señal.',
       });
-      clearUpload();
       setUploadOpen(false);
     }
     setUploading(false);
