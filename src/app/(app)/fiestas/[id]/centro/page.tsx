@@ -12,6 +12,8 @@ import {
   ShieldCheck,
   UserCheck,
   Users,
+  ListChecks,
+  Clapperboard,
 } from 'lucide-react';
 import { getFiestaById } from '@/app/actions/fiesta-actual';
 import { getEmpleados } from '@/app/actions/empleados';
@@ -22,6 +24,7 @@ import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
 import { AhoraEnVivo, type PuntoDelPrograma } from './ahora-en-vivo';
 import { EquipoCheckIn } from '@/components/centro/EquipoCheckIn';
+import { DownloadPartyBookButton } from '@/components/fiesta/DownloadPartyBookButton';
 
 /**
  * Centro de Fiesta: la única pantalla para dirigir la noche.
@@ -53,6 +56,10 @@ function construirBloques(fiestaId: string): Bloque[] {
         { titulo: 'Moderar fotos', detalle: 'Aprobar antes de que salgan al muro', ruta: e('moderacion'), icono: ShieldCheck, aparato: 'Tu celular' },
         { titulo: 'DJ', detalle: 'Pedidos de canciones', ruta: e('dj'), icono: Music4, aparato: 'Notebook del DJ' },
         { titulo: 'Buscador de mesas', detalle: 'Dónde se sienta cada invitado', ruta: e('mi-mesa'), icono: Search, aparato: 'Tu celular' },
+        // Estas dos existian y no se podia llegar a ninguna: no las enlazaba
+        // ninguna pantalla.
+        { titulo: 'Lo tuyo, ahora', detalle: 'Lo que le toca a cada uno del equipo', ruta: `/evento/staff/${encodeURIComponent(fiestaId)}/cronograma`, icono: ListChecks, aparato: 'Celular de cada uno' },
+        { titulo: 'Video del recuerdo', detalle: 'Lo mejor de la noche para el cliente', ruta: `/evento/${encodeURIComponent(fiestaId)}/video-recuerdo`, icono: Clapperboard, aparato: 'Tu celular' },
       ],
     },
     {
@@ -181,6 +188,22 @@ export default async function CentroDeFiestaPage(props: PageProps) {
         {equipo.length > 0 && (
           <EquipoCheckIn fiestaId={params.id} equipo={equipo} />
         )}
+
+        {/* El libro se armaba y no habia forma de bajarlo: el boton existia y no
+            lo mostraba ninguna pantalla. Va aca, que es donde se maneja la
+            fiesta y donde se entra al dia siguiente a cerrarla. */}
+        <section className="rounded-[1.5rem] border border-white/10 bg-white/5 p-5">
+          <h2 className="text-sm font-black uppercase tracking-widest text-slate-400">
+            El libro de la fiesta
+          </h2>
+          <p className="mt-1 text-sm text-slate-300">
+            Las mejores fotos, los mensajes de los invitados y la noche hora por hora, en un
+            solo archivo para entregarle al cliente.
+          </p>
+          <div className="mt-3">
+            <DownloadPartyBookButton fiestaId={params.id} />
+          </div>
+        </section>
 
         {pendientes.length > 0 && (
           <section className="rounded-[1.5rem] border border-amber-400/25 bg-amber-400/10 p-5">
