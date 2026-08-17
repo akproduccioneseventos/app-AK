@@ -7,7 +7,7 @@ import { es } from 'date-fns/locale';
 import type { SocialPost, SocialPlatform } from '@/types/social-media';
 import { Badge } from '@/components/ui/badge';
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
-import { Facebook, Instagram, Music, MessageSquare } from 'lucide-react';
+import { Facebook, Instagram, Music, MessageSquare, Youtube, AtSign, Twitter } from 'lucide-react';
 
 interface SocialMediaCalendarProps {
     posts: SocialPost[];
@@ -18,6 +18,11 @@ const platformStyles: Record<SocialPlatform, string> = {
     Instagram: 'bg-pink-100 text-pink-800 border-pink-300 hover:bg-pink-200',
     TikTok: 'bg-gray-200 text-gray-900 border-gray-400 hover:bg-gray-300',
     WhatsApp: 'bg-green-100 text-green-800 border-green-300 hover:bg-green-200',
+    // Las tres nuevas: al sumarlas al tipo, estas tablas quedaron incompletas y
+    // el calendario de publicaciones no compilaba.
+    YouTube: 'bg-red-100 text-red-800 border-red-300 hover:bg-red-200',
+    Threads: 'bg-slate-200 text-slate-900 border-slate-400 hover:bg-slate-300',
+    X: 'bg-slate-200 text-slate-900 border-slate-400 hover:bg-slate-300',
 };
 
 const platformIcons: Record<SocialPlatform, React.ElementType> = {
@@ -25,6 +30,9 @@ const platformIcons: Record<SocialPlatform, React.ElementType> = {
     Instagram: Instagram,
     TikTok: Music,
     WhatsApp: MessageSquare,
+    YouTube: Youtube,
+    Threads: AtSign,
+    X: Twitter,
 };
 
 export function SocialMediaCalendar({ posts }: SocialMediaCalendarProps) {
