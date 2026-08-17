@@ -40,6 +40,9 @@ muestre**. Esa distinción es la que más veces falló.
 | Video del recuerdo | Sí | Centro de la fiesta |
 | Transmisión en vivo | Sí | Pantalla de la fiesta en vivo |
 | Centro de presencia digital | Sí | Empresa → Presencia digital |
+| Publicación real en Facebook e Instagram | Sí | Empresa → Presencia digital (al aprobar) |
+| Importador de historial social | Sí | Empresa → Redes sociales → Importar historial |
+| Schema.org LocalBusiness y OpenGraph | Sí | En la cabecera (head) de la web pública |
 
 **Si se cae el internet en la fiesta:** se salva la llegada de invitados y el
 pedido de la barra, que se reenvían solos al volver la señal. **La foto del muro

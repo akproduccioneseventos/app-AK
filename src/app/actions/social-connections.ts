@@ -91,3 +91,68 @@ export async function disconnectSocialPlatform(platform: SocialPlatformName): Pr
   await writeData(CONNECTIONS_FILE, connections);
   return { success: true };
 }
+
+/**
+ * Guarda credenciales y permisos oficiales de publicación de Meta (Facebook e Instagram).
+ * Requiere sesión autenticada interna.
+ */
+export async function saveMetaPublishingCredentials(params: {
+  pageId: string;
+  pageAccessToken: string;
+  instagramAccountId?: string;
+  pageName?: string;
+}): Promise<{ success: boolean; error?: string }> {
+  await requireAppSession();
+
+  const { pageId, pageAccessToken, instagramAccountId, pageName } = params;
+
+  if (!pageId || !pageAccessToken) {
+    return { success: false, error: 'Se requiere el Page ID y el Page Access Token de Meta.' };
+  }
+
+  const connections = await getSocialConnections();
+  const now = new Date().toISOString();
+
+  // 1. Conexión de Facebook
+  const fbIndex = connections.findIndex((c) => c.platform === 'Facebook');
+  const fbConn: SocialConnection = {
+    platform: 'Facebook',
+    isConnected: true,
+    username: pageName || 'Página de Facebook AK Producciones',
+    profileUrl: `https://facebook.com/${pageId}`,
+    pageId,
+    pageAccessToken,
+    connectedAt: now,
+  };
+
+  if (fbIndex > -1) {
+    connections[fbIndex] = { ...connections[fbIndex], ...fbConn };
+  } else {
+    connections.push(fbConn);
+  }
+
+  // 2. Conexión de Instagram (si viene vinculada la cuenta de IG Business)
+  if (instagramAccountId) {
+    const igIndex = connections.findIndex((c) => c.platform === 'Instagram');
+    const igConn: SocialConnection = {
+      platform: 'Instagram',
+      isConnected: true,
+      username: '@akproduccioneseventos',
+      profileUrl: 'https://instagram.com/akproduccioneseventos',
+      pageId,
+      pageAccessToken,
+      instagramAccountId,
+      connectedAt: now,
+    };
+
+    if (igIndex > -1) {
+      connections[igIndex] = { ...connections[igIndex], ...igConn };
+    } else {
+      connections.push(igConn);
+    }
+  }
+
+  await writeData(CONNECTIONS_FILE, connections);
+  return { success: true };
+}
+
