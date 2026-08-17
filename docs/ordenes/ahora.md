@@ -7,55 +7,77 @@
 
 Ésta es la **única orden vigente**. Reemplaza a la anterior.
 
-## Estado al 17 de agosto de 2026 — lo que ya entregó Gemini
+## Estado al 17 de agosto de 2026 — leé esto antes que nada
 
-Gemini trabajó sobre la orden **anterior**, de siete bloques, que era la que
-existía cuando empezó. Parte de eso ya está fusionado. **Lo que quedó hecho, con
-la numeración de este plan:**
+**La ENTREGA 1 está HECHA y fusionada. No la rehagas.**
 
-- **Bloque F (aviso de margen) — HECHO.** Anda y respeta la regla: no toca el
-  precio. Se le repararon tres cosas al revisarlo.
-- **Bloque H (sin internet) — A MEDIAS.** La cola quedó construida y enchufada a
-  **la llegada de invitados** nada más. **Faltan la foto al muro y el pedido de
-  la barra.**
-- **Bloque D (pantallas de noche) — A MEDIAS.** Se oscureció la pantalla de
-  recepción, que es la de la puerta y la más importante. **Faltan logística y
-  accesos.**
-- **Bloque J (videos) — apenas empezado.** Sólo se corrigió que el resumen de la
-  mañana ordene las fotos por corazones. Falta todo el video.
-- **Bloque A (trivia y misiones) — NO SE HIZO.** El informe decía que sí; no se
-  tocó ningún archivo.
-- **Bloque G (la pregunta de los quince) — NO SE HIZO.** Igual.
-- **Bloque I (configurador) — SE DEVOLVIÓ.** Ver abajo, dice por qué.
+- **Bloque A (trivia) — HECHO.** El invitado responde del celular, la pantalla
+  gigante marca la correcta en verde y muestra el podio por mesa. **Falta sólo la
+  parte de las misiones secretas**, que quedó sin enchufar.
+- **Bloque B (secretario que habla) — HECHO.** Micrófono en el asistente interno,
+  en castellano uruguayo, contesta en voz y se puede silenciar.
+- **Bloque C (quién llegó) — HECHO.** Se reparó al fusionarlo: escribía el archivo
+  del proyecto a mano y no pedía sesión.
+- **Bloque D (pantallas de noche) — HECHO.** Logística y recepción en oscuro.
 
-### Lo que hay que saber antes de rehacer el configurador
+**De la orden anterior también quedó hecho:**
 
-Se escribió contra funciones y campos **que no existen**, así que nunca compiló.
-Los nombres de verdad son:
+- **Bloque F (aviso de margen) — HECHO y visible** en la pantalla del presupuesto,
+  sólo del lado del equipo.
+- **Bloque H (sin internet) — A MEDIAS.** La cola anda y está enchufada a **la
+  llegada de invitados** nada más. **Faltan la foto al muro y el pedido de la
+  barra.**
+- **Bloque J (videos) — apenas empezado.** Sólo el resumen de la mañana ordena por
+  corazones. Falta todo el video.
+- **Bloque I (configurador) — SE DEVOLVIÓ.** Ver abajo por qué.
+
+### LO QUE FALTA, que es tu trabajo ahora
+
+**ENTREGA 2:** bloque E (la reunión que se agenda sola — **el más importante**),
+bloque G (la pregunta de los quince), lo que falta del bloque H (foto al muro y
+pedido de barra) y las misiones secretas del bloque A.
+
+**ENTREGA 3:** bloques I, J, K, L, M, N.
+
+### Antes de rehacer el configurador (bloque I)
+
+Se escribió contra funciones y campos **que no existen**, así que nunca compiló:
 
 - Para guardar un presupuesto es **`savePresupuesto()`**, no `createPresupuesto`.
 - `ServicioEmpresa` **no tiene** `descripcion`, ni `activo`, ni `esRecomendado`.
-  Mirá el tipo real en `src/types/empresa.ts` antes de usar un campo.
-- `calculateSimulatorPricing()` no recibe `selectedServiceIds`. Mirá su tipo de
-  entrada.
+- `calculateSimulatorPricing()` no recibe `selectedServiceIds`.
 
-**Antes de usar un campo o una función, abrila y confirmá que existe.** Fue lo
-que trabó esta entrega entera.
+**Antes de usar un campo o una función, abrila y confirmá que existe.**
+
+### Tres cosas que trabaron las entregas anteriores
+
+1. **Anotá en `docs/YA-RESUELTO.md` sólo lo que hiciste de verdad.** Un informe
+   dijo siete bloques y eran cuatro.
+2. **Todo lo que escribe datos usa `updateDataPartial`/`writeData` y pide
+   `requireAppSession()`.** Escribir el archivo del proyecto con `fs` no sirve: en
+   producción los datos viven en la base y no se guarda nada.
+3. **Decí desde qué pantalla se ve cada cosa nueva.** Un cálculo que no está
+   enchufado no existe para el usuario, aunque compile y pase las pruebas.
 
 ## Cómo se entrega esto
 
-**Son catorce bloques. NO van en una sola propuesta: van en TRES.**
+**El dueño pidió que hagas TODO lo que falta de una sola vez, en UNA propuesta.**
+Las entregas 2 y 3 juntas.
 
-La regla del proyecto es "una sola propuesta por tanda", no "una sola propuesta
-para todo el año". Catorce bloques juntos serían imposibles de revisar y una sola
-cosa rota trabaría las trece que andan.
+**El orden en que conviene hacerlo, si tenés que priorizar:**
 
-> **ENTREGA 1** — bloques A, B, C, D → una propuesta
-> **ENTREGA 2** — bloques E, F, G, H, I → una propuesta
-> **ENTREGA 3** — bloques J, K, L, M, N → una propuesta
+> **E** (la reunión que se agenda sola) → **G** (la pregunta de los quince) →
+> lo que falta de **H** (foto al muro y pedido de barra) → las misiones del
+> **A** → **I** (configurador) → **M** (cada uno ve lo suyo) → **K**
+> (termómetro) → **L** (libro) → **J** (videos) → **N** (transmisión).
 
-**Terminá y entregá la 1 antes de empezar la 2.** Dentro de cada entrega, si un
-bloque se traba, entregá los otros igual y decí cuál faltó y por qué.
+**Si no llegás con todo, entregá igual lo que esté terminado de verdad y decí
+qué faltó.** Eso es una respuesta válida. Lo que no sirve es entregar ocho cosas
+a medias: una sola rota traba a todas las demás en la revisión.
+
+**Y algo que importa con una propuesta grande:** corré los cuatro controles
+**sobre el conjunto entero**, no bloque por bloque. Dos cosas que pasan por
+separado pueden romper juntas; ya pasó con el archivo de facturas.
 
 ## La regla que más plata ahorra en esta orden
 

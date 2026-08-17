@@ -7,47 +7,47 @@ Quien cierre una sesión reescribe este archivo. Se pisa, no se acumula.
 
 ---
 
-**Última actualización:** 16 de agosto de 2026, cierre.
-**Rama:** `claude/repo-work-guidelines-l4u1tf`.
-**Estado:** compila, 1668 pruebas en verde, sin acentos rotos.
+**Última actualización:** 17 de agosto de 2026.
+**Estado:** compila, 1681 pruebas en verde, sin acentos rotos.
 **Propuestas abiertas:** ninguna. **Orden vigente:** `docs/ordenes/ahora.md`.
 
-## Lo que hay que saber para seguir
+## Dónde va el plan de catorce bloques
 
-**La orden vigente tiene catorce bloques en TRES entregas.** No van en una sola
-propuesta: la 1 se termina y se entrega antes de empezar la 2.
+**Entrega 1: HECHA y fusionada.** Trivia con podio por mesa, secretario que
+habla, llegada del equipo y logística en oscuro.
 
-- **Entrega 1** — trivia y misiones, el secretario que habla, quién llegó, y las
-  dos pantallas de la noche que quedaron claras. Casi todo es enchufar cosas ya
-  escritas.
-- **Entrega 2** — la reunión que se agenda sola desde el simulador (el bloque más
-  importante), el aviso de margen, la pregunta de los quince, y que no se pierda
-  nada sin internet.
-- **Entrega 3** — configurador, videos, termómetro de la fiesta, libro de la
-  fiesta, cada uno ve lo suyo, transmisión en vivo.
+**Entrega 2: pendiente.** La reunión que se agenda sola desde el simulador (la
+más importante), la pregunta de los quince a las invitadas, que no se pierda la
+foto ni el pedido de la barra sin internet, y las misiones secretas.
 
-## Lo que apareció al verificar y evitó trabajo al pedo
+**Entrega 3: pendiente.** Configurador de cierre, videos, termómetro de la
+fiesta, libro de la fiesta, cada uno ve lo suyo, transmisión en vivo.
 
-- **El secretario que habla está casi hecho.** El multiagente interno ya lee datos
-  reales y tiene doce herramientas, y el reconocimiento de voz en castellano
-  uruguayo ya está escrito en el grabador de reuniones. Falta el micrófono y que
-  hable.
-- **La trivia y las misiones secretas están construidas y sin enchufar**, en
-  `src/lib/games/` y `src/components/games/`.
-- **Las pantallas de la noche YA están casi todas oscuras** a propósito. Sólo
-  logística y accesos quedaron claras. Se corrigió la orden: era mucho más chico
-  de lo que parecía.
-- **La agenda ya crea citas y las sincroniza sola con Google Calendar.** Falta
-  sólo definir horarios de atención y la pantalla pública para elegir turno.
-- Para el termómetro: los corazones y los emoji **no guardan cuándo** se dieron.
-  Sirven fotos, pedidos de barra y canciones, que sí tienen hora.
+## Lo que costó y no hay que repetir
 
-## Decisiones del dueño en esta tanda
+- **El informe de una entrega dijo siete bloques y eran cuatro.** El control que
+  sirvió no fue correr las pruebas —que también fallaban— sino **comparar lo que
+  el informe decía contra los archivos que realmente cambiaron**. Hacerlo siempre.
+- **Una funcionalidad puede compilar, pasar las pruebas y no existir para el
+  usuario.** Pasó con el aviso de margen: el cálculo estaba y no lo mostraba
+  ninguna pantalla. Preguntar siempre "¿desde qué pantalla se ve esto?".
+- **La llegada del equipo escribía el archivo del proyecto a mano.** En producción
+  los datos viven en la base: no se hubiera guardado nada. Todo lo que escribe usa
+  `updateDataPartial`/`writeData` y pide `requireAppSession()`.
+- **Una orden que Gemini no puede leer no sirve.** Se dejó una en una rama sin
+  fusionar y Gemini trabajó sobre una orden vieja ya cumplida. **Las órdenes van
+  derecho a `main`.**
+- **Se gastó de más esperando compilaciones.** El build va a los ayudantes desde
+  el principio; el modelo principal no lo corre.
 
-Descartó el **precio variable según la fecha** y **alquilarle la app a otros
-salones**. También descartó el "ensayo de la fiesta": el cronograma se llena
-después de cerrar, así que no innova nada. Tenía razón.
+## Decisiones del dueño
+
+Descartó el precio variable por fecha, alquilarle la app a otros salones y el
+"ensayo de la fiesta". Pidió que la captación de prospectos **no sea sólo en la
+fotocabina** sino en toda pantalla donde el invitado ya consiguió lo suyo, y
+avisó que **el menú de niños y adolescentes es el mismo**: separar la etiqueta no
+puede cambiar comida ni precio (verificado: no lo cambia).
 
 ## Lo próximo
 
-Esperar la entrega 1 de Gemini, verificarla y fusionarla.
+Esperar la entrega 2 de Gemini, verificarla y fusionarla.
