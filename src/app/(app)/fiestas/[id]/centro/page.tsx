@@ -12,6 +12,8 @@ import {
   ShieldCheck,
   UserCheck,
   Users,
+  ListChecks,
+  Clapperboard,
 } from 'lucide-react';
 import { getFiestaById } from '@/app/actions/fiesta-actual';
 import { getEmpleados } from '@/app/actions/empleados';
@@ -54,6 +56,10 @@ function construirBloques(fiestaId: string): Bloque[] {
         { titulo: 'Moderar fotos', detalle: 'Aprobar antes de que salgan al muro', ruta: e('moderacion'), icono: ShieldCheck, aparato: 'Tu celular' },
         { titulo: 'DJ', detalle: 'Pedidos de canciones', ruta: e('dj'), icono: Music4, aparato: 'Notebook del DJ' },
         { titulo: 'Buscador de mesas', detalle: 'Dónde se sienta cada invitado', ruta: e('mi-mesa'), icono: Search, aparato: 'Tu celular' },
+        // Estas dos existian y no se podia llegar a ninguna: no las enlazaba
+        // ninguna pantalla.
+        { titulo: 'Lo tuyo, ahora', detalle: 'Lo que le toca a cada uno del equipo', ruta: `/evento/staff/${encodeURIComponent(fiestaId)}/cronograma`, icono: ListChecks, aparato: 'Celular de cada uno' },
+        { titulo: 'Video del recuerdo', detalle: 'Lo mejor de la noche para el cliente', ruta: `/evento/${encodeURIComponent(fiestaId)}/video-recuerdo`, icono: Clapperboard, aparato: 'Tu celular' },
       ],
     },
     {

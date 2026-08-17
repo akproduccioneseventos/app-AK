@@ -165,6 +165,10 @@ function PresupuestoDashboardContent() {
                   <ListChecks className="w-8 h-8 text-primary"/> Central de Presupuestos
                 </h1>
                 <div className="flex gap-2 flex-wrap">
+                  {/* El configurador existia y no lo enlazaba ninguna pantalla:
+                      el vendedor no tenia como llegar. Va aca, que es donde
+                      arma el presupuesto antes de la reunion. */}
+                  <Button asChild variant="secondary"><Link href="/empresa/configurador-reunion">Configurador para la reunión</Link></Button>
                   <Button asChild variant="secondary"><Link href="/presupuestos/reporte">Reporte</Link></Button>
                   <Button asChild variant="outline" data-testid="btn-importar-presupuesto"><Link href="/presupuestos/importar"><ClipboardPaste className="w-4 h-4 mr-2"/>Importar desde Texto</Link></Button>
                   <Button asChild><Link href="/presupuestos/nuevo/crear"><PlusCircle className="w-4 h-4 mr-2"/>Nuevo Presupuesto</Link></Button>

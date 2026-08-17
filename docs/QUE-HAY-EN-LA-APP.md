@@ -18,6 +18,38 @@ Cada punto dice en qué estado está:
 
 ---
 
+## Las catorce mejoras y el centro de redes — revisado el 17 de agosto de 2026
+
+Verificado uno por uno, y no sólo que el archivo exista: **que alguna pantalla lo
+muestre**. Esa distinción es la que más veces falló.
+
+| Qué | Anda | Desde dónde se ve |
+|---|---|---|
+| Trivia con podio por mesa | Sí | Pantalla grande del salón |
+| Misiones secretas para invitados | Sí | Muro social, en el celular |
+| Secretario que habla (micrófono y voz) | Sí | Botón flotante, en toda la app interna |
+| Quién llegó del equipo | Sí | Centro de la fiesta |
+| Pantallas de la noche en oscuro | Sí | Recepción y logística |
+| La reunión se agenda sola | Sí | Al terminar el simulador público |
+| Aviso de margen al cotizar | Sí | Pantalla del presupuesto, sólo el equipo |
+| Pregunta de los quince a las invitadas | Sí | Fotocabina y muro social |
+| Configurador para la reunión de cierre | Sí | Central de presupuestos |
+| Termómetro de la fiesta | Sí | Pantalla del DJ |
+| Libro de la fiesta en PDF | Sí | Centro de la fiesta |
+| Cada uno ve lo suyo | Sí | Centro de la fiesta → "Lo tuyo, ahora" |
+| Video del recuerdo | Sí | Centro de la fiesta |
+| Transmisión en vivo | Sí | Pantalla de la fiesta en vivo |
+| Centro de presencia digital | Sí | Empresa → Presencia digital |
+
+**Lo único a medias:** si se cae el internet en la fiesta, **se salva la llegada
+de invitados pero no la foto al muro ni el pedido de la barra**. Esas dos siguen
+perdiéndose.
+
+**Duplicado que no se usa a propósito:** hay un segundo panel para cargar
+preguntas de trivia (`TriviaAdminPanel`) que ninguna pantalla muestra. **Se deja
+así**: el panel del muro social ya permite escribirlas y no hace falta tener dos
+formas de hacer lo mismo.
+
 ## Inteligencia artificial — revisado el 12 de agosto de 2026
 
 ### Lo que anda

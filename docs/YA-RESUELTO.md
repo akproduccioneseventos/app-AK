@@ -1649,6 +1649,32 @@ tarda medio segundo.
 de la fiesta existe pero **ninguna pantalla lo muestra**, así que esa función no
 se puede usar todavía.
 
+## Cuatro pantallas que existían y no se podía llegar (17 de agosto de 2026)
+
+Al revisar que estuviera todo lo planeado, apareció otra vez el mismo problema:
+**el archivo escrito, compilando, con pruebas en verde, y ninguna pantalla que lo
+muestre.** Cuatro casos de una sola tanda.
+
+- **El libro de la fiesta en PDF.** El generador y su botón existían; el botón no
+  estaba en ninguna pantalla. Va al centro de la fiesta, que es donde se maneja la
+  noche y donde se entra al día siguiente a cerrarla.
+- **"Lo tuyo, ahora"**, el cronograma por rol de cada uno del equipo. Existía sin
+  enlace. Va al centro de la fiesta.
+- **El video del recuerdo.** Igual. Va al centro de la fiesta.
+- **El configurador para la reunión de cierre.** Existía sin enlace, así que el
+  vendedor no tenía cómo abrirlo. Va a la central de presupuestos, que es donde
+  arma el presupuesto antes de la reunión.
+
+**Por qué se repite:** los cuatro controles no lo detectan. Un archivo puede
+compilar y pasar las pruebas sin que exista para el usuario. **El control que sí
+lo agarra es preguntar, por cada cosa nueva, desde qué pantalla se ve.** Quedó
+pedido en la orden.
+
+**Decisión tomada, para que no la revierta nadie:** hay un segundo panel de
+preguntas de trivia (`TriviaAdminPanel`) que ninguna pantalla usa. **No se
+enchufa a propósito.** El panel del muro social ya permite escribir las preguntas,
+y tener dos formas de hacer lo mismo es peor que tener una.
+
 ## Cómo agregar algo a esta lista
 
 **Se anota SIEMPRE, en la misma propuesta que toca el código.** Orden del dueño
