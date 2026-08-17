@@ -39,7 +39,7 @@ export interface Invitado {
   requiereAccesibilidad?: boolean; // Requiere acceso adaptado para movilidad reducida
   readinessScore?: number;
   /** Lead generation for teens: When they turn 15 */
-  cumple15?: string;
+  cumple15?: 'ya_festejado' | 'este_anio' | 'proximo_anio' | 'no_interesa';
 }
 
 // Para el formulario de añadir nuevo invitado, antes de tener ID

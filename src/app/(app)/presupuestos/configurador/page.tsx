@@ -32,7 +32,7 @@ import {
 
 // Dynamic import for 3D canvas to avoid SSR errors
 const SalonScene = dynamic(
-  () => import('@/components/salon-3d/SalonScene').then((mod) => mod.SalonScene),
+  () => import('@/components/salon-3d/SalonScene'),
   {
     ssr: false,
     loading: () => (

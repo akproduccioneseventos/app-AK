@@ -6,7 +6,7 @@ import { Card, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { useToast } from '@/hooks/use-toast';
-import { getPublicGuestPortalData } from '@/app/actions/public-guest-portal';
+import { getFiestaById } from '@/app/actions/fiesta/fiesta.actions';
 import type { ProgramaEventoItem } from '@/types/fiesta';
 import {
   Clock,
@@ -57,10 +57,10 @@ export default function LoTuyoPage() {
   const loadData = async () => {
     try {
       setLoading(true);
-      const res = await getPublicGuestPortalData(fiestaId);
-      if (res.success && res.data) {
-        setEventName(res.data.nombreEvento || 'La Fiesta');
-        setCronograma(res.data.cronograma || []);
+      const fiesta = await getFiestaById(fiestaId);
+      if (fiesta) {
+        setEventName(fiesta.configuracion.nombreEvento || 'La Fiesta');
+        setCronograma(fiesta.cronograma || []);
       }
     } catch {
       toast({ title: 'Error al cargar cronograma', description: 'Revisá la conexión.', variant: 'destructive' });

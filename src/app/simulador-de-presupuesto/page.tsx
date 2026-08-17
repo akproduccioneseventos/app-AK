@@ -46,7 +46,10 @@ import { captureSimulatorLeadProgress, generateBudgetAndLeadFromSimulator, getPu
 import { checkDateAvailability } from '@/app/actions/simulador-v2';
 import { getPublicSimulatorBootstrap } from '@/app/actions/public-simulator-bootstrap';
 import { getAvailableAppointmentSlots, createPublicAppointment } from '@/app/actions/agenda';
-import type { AvailableSlot } from '@/types/settings';
+interface AvailableSlot {
+  date: string;
+  slots: string[];
+}
 import type { BudgetDisplaySettings } from '@/types/settings';
 import { defaultBudgetDisplaySettings } from '@/types/settings';
 import type { ArmadoRapidoConfig, PaqueteArmadoRapido } from '@/types/armado-rapido';
@@ -1093,7 +1096,21 @@ function SimuladorContent() {
     const handleOpenMeetingDialog = async () => {
         setIsMeetingDialogOpen(true);
         try {
-            const slots = await getAvailableAppointmentSlots();
+            const res = await getAvailableAppointmentSlots();
+            const flatSlots = res.slots || [];
+            
+            // Group by date
+            const grouped: Record<string, string[]> = {};
+            for (const s of flatSlots) {
+                if (!grouped[s.date]) grouped[s.date] = [];
+                grouped[s.date].push(s.time);
+            }
+            
+            const slots: AvailableSlot[] = Object.keys(grouped).map(date => ({
+                date,
+                slots: grouped[date]
+            }));
+            
             setAvailableSlots(slots);
             if (slots.length > 0) {
                 setSelectedSlotDate(slots[0].date);

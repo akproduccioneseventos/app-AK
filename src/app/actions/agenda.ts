@@ -3,6 +3,7 @@
 import { getFiestas, getHistorialFiestas, saveFiesta } from './fiesta/fiesta.actions';
 import { syncFiestaToGoogleWorkspace } from './google-workspace';
 import { requireAppSession } from '@/lib/auth/require-session';
+import { enforcePublicRateLimit } from '@/lib/commercial/public-rate-limit';
 import type { FiestaEnPlanificacion } from '@/types/fiesta';
 
 export interface CalendarEvent {
@@ -204,9 +205,53 @@ export async function createPublicAppointment(data: Omit<CrmAppointment, 'id' | 
   error?: string;
 }> {
   try {
+    // 1. Freno de tasa pública: máx 5 por hora
+    await enforcePublicRateLimit({
+      scope: 'public_create_appointment',
+      identity: data.clienteContacto || data.clienteEmail || undefined,
+      limit: 5,
+      windowMs: 60 * 60 * 1000,
+    });
+
+    // 2. Validación de datos obligatorios
+    const nombre = data.clienteNombre?.trim();
+    if (!nombre || nombre.length < 2 || nombre.length > 100) {
+      return { success: false, error: 'Por favor ingresá un nombre válido (entre 2 y 100 caracteres).' };
+    }
+    const contacto = (data.clienteContacto || data.clienteEmail || '')?.trim();
+    if (!contacto || contacto.length < 6 || contacto.length > 100) {
+      return { success: false, error: 'Por favor ingresá un medio de contacto o teléfono válido.' };
+    }
+
+    // 3. Verificación de horario en servidor contra los slots disponibles
+    if (!data.fechaHora) {
+      return { success: false, error: 'Por favor seleccioná una fecha y hora.' };
+    }
+    const requestedTime = new Date(data.fechaHora).getTime();
+    if (Number.isNaN(requestedTime) || requestedTime <= Date.now()) {
+      return { success: false, error: 'El horario seleccionado no es válido o ya pasó.' };
+    }
+
+    const availableRes = await getAvailableAppointmentSlots();
+    if (!availableRes.success || !availableRes.slots) {
+      return { success: false, error: availableRes.error || 'No hay horarios disponibles en este momento.' };
+    }
+
+    const requestedIso = new Date(data.fechaHora).toISOString();
+    const isAvailable = availableRes.slots.some((s) => {
+      const slotIso = new Date(s.datetime).toISOString();
+      return slotIso === requestedIso || s.datetime === data.fechaHora;
+    });
+
+    if (!isAvailable) {
+      return { success: false, error: 'El horario seleccionado ya no está disponible. Por favor seleccioná otro.' };
+    }
+
     const appointments = await getAppointments();
     const newAppointment: CrmAppointment = {
       ...data,
+      clienteNombre: nombre,
+      clienteContacto: contacto,
       id: `cita_${Date.now()}_${Math.random().toString(36).substring(7)}`,
       estado: 'Agendada',
       creadoEn: new Date().toISOString(),
@@ -215,7 +260,7 @@ export async function createPublicAppointment(data: Omit<CrmAppointment, 'id' | 
     appointments.push(newAppointment);
     await writeData(APPOINTMENTS_FILE, appointments);
 
-    // Sincronizacion automatica con Google Workspace
+    // Sincronización automática con Google Workspace
     const { syncAppointmentToGoogleWorkspace } = await import('@/app/actions/google-workspace');
     syncAppointmentToGoogleWorkspace(newAppointment).catch((err) => {
       console.warn('[agenda] Google Workspace appointment sync failed:', err);

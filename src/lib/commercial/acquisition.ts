@@ -10,7 +10,8 @@ export type CommercialSource =
   | 'facebook'
   | 'youtube'
   | 'whatsapp'
-  | 'portal_led';
+  | 'portal_led'
+  | 'social_guest';
 
 export type CommercialSimulatorMode = 'assistant' | 'visual';
 
@@ -42,6 +43,7 @@ const VALID_SOURCES = new Set<CommercialSource>([
   'youtube',
   'whatsapp',
   'portal_led',
+  'social_guest',
 ]);
 
 function cleanValue(value: string | null | undefined, maxLength: number): string | undefined {
