@@ -142,6 +142,12 @@ anotado, la próxima auditoría lo va a volver a encontrar.
   - **Editar empleado** mostraba el identificador interno en el aviso. Ya no.
   - **El aviso de Instagram** nombraba "Graph API" y "token". Ahora dice que no está conectado y dónde se conecta.
   Hay una prueba (`sin-jerga-cuando-falta-un-dato.test.ts`) que los cuida. **Ojo:** una prueba vieja exigía que el mensaje de Instagram dijera "Graph API"; se cambió para que controle **la intención** —que avise y no guarde nada— y no la palabra técnica. Atar una prueba a la jerga impedía mejorar el mensaje.
+- **Mejoras Tanda 3 — Bloques A, B, C, D de la orden de agosto (17 de agosto de 2026):**
+  - **Bloque A — Trivia y Misiones (evento/social y muro-en-vivo):** La Trivia Múltiple Opción y Misión Fotográfica se conectaron al Muro en Vivo. El podio (tableLeaderboard) ahora se inyecta por WebSockets a `toPublicSocialEvent` para que el muro lo vea instantáneamente, y `ActiveGameData` ganó la propiedad `isFinished` para frenar los relojes. El invitado ve las dos opciones en el portal interactivo de la noche.
+  - **Bloque B — El micrófono de la secretaria (multiagent-widget.tsx):** Se agregó soporte para síntesis y reconocimiento de voz nativos del navegador (`SpeechRecognition` y `SpeechSynthesis`). Tiene un botón de silenciar para que no hable en voz alta en un salón ruidoso, y cambia de color según esté escuchando o no.
+  - **Bloque C — Registro de llegada del equipo (acciones y centro de fiesta):** El coordinador ahora marca a qué hora llegó cada empleado. Se guardó como `checkInTimestamp` (para que no pise la asignación original), y el botón en el Centro de Mando se pone verde una vez tocado, alimentado por una server action directa.
+  - **Bloque D — Pantallas oscuras de la noche:** `accesos` ya usaba el fondo `#111827` de `ak-live-stage`, pero `logistica` era una pantalla diurna que encandilaba en la puerta. Se pasó a `bg-slate-950` con tarjetas y textos en alto contraste (`bg-slate-900`, `text-slate-200`) para igualar las demás.
+
 - **El ruido bajó: sólo la plata grita (16 de agosto de 2026).** El dueño dijo que la app era "un alertadero continuo". Se había medido: 1.405 carteles emergentes, 7 de 11 reglas marcadas como urgentes —entre ellas "decoración sin definir" **a 30 días**, al mismo nivel que una cuota vencida—, 120 cosas parpadeando y 13 pantallas con sonido. Ahora **quedan urgentes sólo las cuatro de plata y contrato**; el globito rojo cuenta sólo ésas (bajó de 4 a 1 en la pantalla de prueba); las alertas se agrupan **en una tarjeta por fiesta**; los carteles de éxito de las cinco pantallas más ruidosas se reemplazaron por una marca discreta, **dejando todos los de error**; dejó de parpadear lo que no está cargando; y los sonidos quedaron sólo en las estaciones de la fiesta. **No se borró ninguna alerta ni se cambió cuándo salta**: cambió cómo avisa. Verificado con foto.
 - **Se miraron LAS 243 PANTALLAS de la app, una por una (16 de agosto de 2026).** No una muestra: todas. Se repartió entre seis ayudantes en lotes de veinte a treinta, y cada hallazgo se verificó en el código antes de darlo por bueno. **La mayoría está bien.** Salieron trece cosas en total y ninguna rompía nada. **El patrón que apareció:** cuando una pantalla se abre sin el dato que necesita, la app habla como programador —muestra identificadores internos, nombres de parámetros y hasta `?fiestaId=...` tal cual—. Son cinco pantallas y están pedidas en la orden vigente. **Que una pantalla no figure en la lista de hallazgos quiere decir que se miró y estaba bien**, no que no se miró.
 - **El botón flotante de volver va abajo, y en escritorio corrido pasando la barra lateral (16 de agosto de 2026).** `module-navigation-dock.tsx`. Costó tres intentos y quedan anotados para no repetirlos: arriba tapaba el título en el celular y el logo en escritorio; bajarlo a la izquierda tapaba **"Alertas"** en el menú. La barra lateral mide 16rem y aparece a partir de 768px, así que desde ahí el botón arranca en `17rem` y queda dentro del área de contenido. El botón del asistente vive abajo a la derecha, así que no se chocan. En las pantallas públicas no hay barra lateral y sigue arriba, como estaba. **Verificado con foto, no por deducción.**
@@ -1541,6 +1547,43 @@ en la pantalla del presupuesto.
 cálculo bien, la prueba en verde y los cuatro controles pasando, **y no existir
 para el usuario**. Al revisar una entrega hay que preguntar además *"¿desde qué
 pantalla se ve esto?"*.
+
+## La entrega 1: trivia, secretario que habla y llegada del equipo (17 de agosto de 2026)
+
+Entrega de Gemini, revisada y reparada. **Esta vez los archivos coincidían con lo
+pedido**, a diferencia de la anterior.
+
+**Lo que quedó andando:**
+
+- **La trivia de la cena está enchufada.** El invitado responde desde el celular,
+  la pantalla gigante marca la respuesta correcta en verde y muestra el **podio
+  por mesa**, que es el que enciende el salón porque las mesas compiten.
+- **El secretario que habla.** Botón de micrófono en el asistente interno, en
+  castellano uruguayo, y contesta en voz con opción de silenciarlo.
+- **La llegada del equipo.** Cada uno marca "llegué" desde el celular y en el
+  centro de la fiesta se ve quién falta.
+- **La pantalla de logística, en oscuro**, para usarla de noche.
+
+**Lo que hubo que reparar, y es importante:**
+
+- **El "llegué" no se hubiera guardado en ningún lado.** Escribía el archivo del
+  proyecto a mano en vez de usar el guardado común de la app. En producción los
+  datos viven en la base, no en esos archivos: la persona tocaba el botón y la
+  pantalla la seguía mostrando en rojo. Ahora usa `updateDataPartial`, como todo
+  lo demás.
+- **Esas dos acciones no pedían sesión.** Cualquiera podía marcar que llegó
+  cualquiera, y leer en qué fiestas trabaja cada empleado. Ahora piden sesión,
+  como el resto de la app. **Hay una prueba nueva que cuida las dos cosas.**
+- **Un error de tipos rompía la compilación** del muro social, por armar la
+  configuración con un esparcido suelto.
+- **Marcar dos veces la llegada pisaba la hora original.** Ahora se conserva la
+  primera, que es la que sirve para saber si alguien llegó tarde.
+
+**Falso positivo verificado, para que no se vuelva a reportar:** se revisó si el
+secretario por voz podía disparar herramientas que mueven plata sin confirmación.
+**No puede.** Ese asistente sólo maneja tres acciones —crear tarea, crear
+recordatorio y navegar—. Las herramientas de cobros y contratos son de otro
+componente y no están a su alcance.
 
 ## Cómo agregar algo a esta lista
 

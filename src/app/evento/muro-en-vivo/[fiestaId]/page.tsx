@@ -1764,6 +1764,42 @@ function GameSlide({
 }) {
   const meta = GAME_TYPE_META[game.type] ?? { emoji: '🎮', label: 'Juego', bg: 'from-slate-900 to-slate-800' };
 
+  const [timeLeft, setTimeLeft] = useState(15);
+  useEffect(() => {
+    if (game.type !== 'trivia' || !game.launchedAt || game.isFinished) return;
+    const interval = setInterval(() => {
+      const elapsed = Math.floor((Date.now() - new Date(game.launchedAt).getTime()) / 1000);
+      setTimeLeft(Math.max(0, 15 - elapsed));
+    }, 1000);
+    return () => clearInterval(interval);
+  }, [game.type, game.launchedAt, game.isFinished]);
+
+  if (game.type === 'trivia' && game.tableLeaderboard && game.isFinished) {
+    return (
+      <div className={`absolute inset-0 flex items-center justify-center bg-gradient-to-br ${meta.bg}`}>
+        <div className="w-full max-w-5xl px-12 text-center">
+          <motion.h1 className="text-[6vw] font-black leading-tight text-white mb-12 drop-shadow-lg">
+            Podio por Mesa 🏆
+          </motion.h1>
+          <div className="flex flex-col gap-4 max-w-3xl mx-auto">
+            {game.tableLeaderboard.slice(0, 5).map((t, idx) => (
+              <motion.div
+                key={t.tableNumber}
+                initial={{ opacity: 0, x: -50 }}
+                animate={{ opacity: 1, x: 0 }}
+                transition={{ delay: idx * 0.2 }}
+                className={`rounded-3xl border-2 flex items-center justify-between px-8 py-5 backdrop-blur-sm ${idx === 0 ? 'bg-amber-400/20 border-amber-400/50 shadow-[0_0_30px_rgba(251,191,36,0.3)]' : idx === 1 ? 'bg-slate-300/20 border-slate-300/50' : idx === 2 ? 'bg-amber-700/20 border-amber-700/50' : 'bg-white/5 border-white/20'}`}
+              >
+                <span className="text-[3vw] font-black text-white drop-shadow-md">Mesa {t.tableNumber}</span>
+                <span className="text-[3vw] font-black text-yellow-300 drop-shadow-md">{t.score} pts</span>
+              </motion.div>
+            ))}
+          </div>
+        </div>
+      </div>
+    );
+  }
+
   // baileLibre: show a fun full-screen dance overlay with photo wall behind
   if (game.type === 'baileLibre') {
     return (
@@ -1845,18 +1881,25 @@ function GameSlide({
         {game.subtitle && (
           <p className="text-[2.5vw] text-white/70 font-semibold mb-10">{game.subtitle}</p>
         )}
+        {game.type === 'trivia' && !game.correctOptionId && !game.isFinished && (
+           <div className="absolute top-10 right-10 flex items-center justify-center w-32 h-32 rounded-full border-4 border-yellow-300/50 bg-black/40 backdrop-blur-md shadow-2xl">
+             <span className={`text-6xl font-black ${timeLeft <= 5 ? 'text-red-500 animate-pulse' : 'text-yellow-300'}`}>{timeLeft}</span>
+           </div>
+        )}
         {game.options && game.options.length > 0 && (
           <div className="grid gap-4" style={{ gridTemplateColumns: `repeat(${Math.min(game.options.length, MAX_GAME_OPTIONS_PER_ROW)}, 1fr)` }}>
             {game.options.map((option, idx) => {
               const totalVotes = (game.options ?? []).reduce((s, o) => s + (o.votes ?? 0), 0);
               const pct = totalVotes > 0 ? Math.round(((option.votes ?? 0) / totalVotes) * 100) : 0;
+              const isCorrect = option.id === game.correctOptionId;
+              const isWrong = game.correctOptionId && option.id !== game.correctOptionId;
               return (
                 <motion.div
                   key={option.id}
                   initial={{ opacity: 0, x: idx % 2 === 0 ? -30 : 30 }}
                   animate={{ opacity: 1, x: 0 }}
                   transition={{ delay: 0.2 + idx * 0.1 }}
-                  className="rounded-3xl border-2 border-white/30 bg-white/10 px-8 py-5 backdrop-blur-sm overflow-hidden relative"
+                  className={`rounded-3xl border-2 ${isCorrect ? 'border-emerald-500/80 bg-emerald-500/20 shadow-[0_0_40px_rgba(16,185,129,0.3)]' : isWrong ? 'border-rose-500/30 bg-rose-500/10 opacity-50' : 'border-white/30 bg-white/10'} px-8 py-5 backdrop-blur-sm overflow-hidden relative`}
                 >
                   {/* Progress bar background */}
                   <div

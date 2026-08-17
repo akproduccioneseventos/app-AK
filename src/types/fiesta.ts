@@ -176,6 +176,7 @@ export interface PersonalAsignadoDetalleStorage {
   empleadoId: string;
   rolId: string;
   eventSalary: number;
+  checkInTimestamp?: string;
 }
 
 export interface ReunionChecklistItem {
@@ -748,6 +749,8 @@ export interface ActiveGameData {
   launchedAt: string;
   /** Reference to a linked poll ID (for type 'encuesta') */
   pollId?: string;
+  tableLeaderboard?: { tableNumber: string, score: number }[];
+  isFinished?: boolean;
 }
 
 export interface SocialGallerySettings {
