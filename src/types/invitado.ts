@@ -1,5 +1,5 @@
 export type RsvpStatus = 'Pendiente' | 'Confirmado' | 'Rechazado' | 'Tal vez';
-export type CategoriaInvitado = 'Adulto' | 'Niño/Adolescente';
+export type CategoriaInvitado = 'Adulto' | 'Niño' | 'Adolescente';
 export type DietaryRestriction = 'Ninguna' | 'Celiaco' | 'Vegetariano' | 'Vegano' | 'Sin Gluten' | 'Sin Lactosa' | 'Alergia Mariscos' | 'Alergia Frutos Secos' | 'Otro';
 
 // Phase 3.9: Personalized Guest Experience - Guest profile segments
@@ -37,8 +37,9 @@ export interface Invitado {
   mensaje?: string; // Mensaje enviado por el invitado a los festejados
   fotosSubidas?: string[];
   requiereAccesibilidad?: boolean; // Requiere acceso adaptado para movilidad reducida
-  /** 0-100 readiness score reflecting how complete the guest's event preparation data is */
   readinessScore?: number;
+  /** Lead generation for teens: When they turn 15 */
+  cumple15?: string;
 }
 
 // Para el formulario de añadir nuevo invitado, antes de tener ID

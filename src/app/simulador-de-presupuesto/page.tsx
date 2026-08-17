@@ -45,6 +45,8 @@ import { useToast } from '@/hooks/use-toast';
 import { captureSimulatorLeadProgress, generateBudgetAndLeadFromSimulator, getPublicBudgetsByPhone } from '@/app/actions/armado-rapido';
 import { checkDateAvailability } from '@/app/actions/simulador-v2';
 import { getPublicSimulatorBootstrap } from '@/app/actions/public-simulator-bootstrap';
+import { getAvailableAppointmentSlots, createPublicAppointment } from '@/app/actions/agenda';
+import type { AvailableSlot } from '@/types/settings';
 import type { BudgetDisplaySettings } from '@/types/settings';
 import { defaultBudgetDisplaySettings } from '@/types/settings';
 import type { ArmadoRapidoConfig, PaqueteArmadoRapido } from '@/types/armado-rapido';
@@ -304,6 +306,14 @@ function SimuladorContent() {
     }>({});
 
     const [isLoading, setIsLoading] = useState(true);
+    // --- States for meeting scheduling ---
+    const [isMeetingDialogOpen, setIsMeetingDialogOpen] = useState(false);
+    const [availableSlots, setAvailableSlots] = useState<AvailableSlot[]>([]);
+    const [selectedSlotDate, setSelectedSlotDate] = useState<string>('');
+    const [selectedSlotTime, setSelectedSlotTime] = useState<string>('');
+    const [isSchedulingMeeting, setIsSchedulingMeeting] = useState(false);
+
+    // Fetch initial configuration
     const [errorLoading, setErrorLoading] = useState(false);
     const [isGenerating, setIsGenerating] = useState(false);
     const [isSavingProgress, setIsSavingProgress] = useState(false);
@@ -1080,6 +1090,59 @@ function SimuladorContent() {
         window.open(`https://wa.me/${destination}?text=${encodeURIComponent(texto)}`, '_blank');
     };
 
+    const handleOpenMeetingDialog = async () => {
+        setIsMeetingDialogOpen(true);
+        try {
+            const slots = await getAvailableAppointmentSlots();
+            setAvailableSlots(slots);
+            if (slots.length > 0) {
+                setSelectedSlotDate(slots[0].date);
+                setSelectedSlotTime(slots[0].slots[0] || '');
+            }
+        } catch (error) {
+            console.error("Error fetching slots", error);
+            toast({
+                title: "Error",
+                description: "No pudimos cargar los horarios disponibles. Escribinos por WhatsApp.",
+                variant: "destructive",
+            });
+        }
+    };
+
+    const handleScheduleMeeting = async () => {
+        if (!selectedSlotDate || !selectedSlotTime) {
+            toast({ title: "Faltan datos", description: "Seleccioná fecha y hora.", variant: "destructive" });
+            return;
+        }
+        setIsSchedulingMeeting(true);
+        try {
+            const res = await createPublicAppointment({
+                clienteNombre,
+                clienteContacto,
+                fechaHora: `${selectedSlotDate}T${selectedSlotTime}:00.000Z`, // ISO format or localized?
+                lugar: "Videollamada",
+                notas: `Presupuesto simulador: ${generatedPresupuestoId}`,
+            });
+            if (res.success) {
+                setIsMeetingDialogOpen(false);
+                toast({
+                    title: "Reunión agendada",
+                    description: `Te esperamos el ${selectedSlotDate} a las ${selectedSlotTime}.`,
+                });
+                // Optional: send to WA
+                const destination = toWhatsAppNumber(whatsappNumber);
+                const texto = `¡Hola AK Producciones! Soy ${clienteNombre}. Agendé una videollamada para el ${selectedSlotDate} a las ${selectedSlotTime} para revisar mi presupuesto (${generatedPresupuestoId}).`;
+                window.open(`https://wa.me/${destination}?text=${encodeURIComponent(texto)}`, '_blank');
+            } else {
+                throw new Error(res.error);
+            }
+        } catch (error: any) {
+            toast({ title: "Error", description: error.message || "No pudimos agendar. Escribinos por WhatsApp.", variant: "destructive" });
+        } finally {
+            setIsSchedulingMeeting(false);
+        }
+    };
+
     const handleShareBudgetWhatsApp = () => {
         if (!generatedPresupuestoId) return;
         const url = `${window.location.origin}/presupuestos/${generatedPresupuestoId}/ver?cliente=1&token=${generatedToken || ''}`;
@@ -1621,7 +1684,7 @@ function SimuladorContent() {
                                 </Button>
                                 <Button
                                     variant="outline"
-                                    onClick={handleWhatsAppQuickConsult}
+                                    onClick={handleOpenMeetingDialog}
                                     className="flex h-12 w-full items-center justify-center gap-1.5 rounded-xl border-slate-300 px-3 text-xs font-bold text-slate-700 hover:bg-slate-50 shadow-sm"
                                 >
                                     <MessageSquare className="w-4 h-4 shrink-0"/> <span className="truncate">Coordinar Reunión</span>
@@ -2994,6 +3057,69 @@ function SimuladorContent() {
                             className="w-full text-slate-400 hover:text-white font-bold text-xs"
                         >
                             Mantener mi selección actual
+                        </Button>
+                    </DialogFooter>
+                </DialogContent>
+            </Dialog>
+
+            <Dialog open={isMeetingDialogOpen} onOpenChange={setIsMeetingDialogOpen}>
+                <DialogContent className="sm:max-w-md rounded-2xl">
+                    <DialogHeader>
+                        <DialogTitle className="text-slate-900 font-black uppercase text-base flex items-center gap-2">
+                            <Clock className="w-5 h-5 text-indigo-600" /> Agendar Reunión
+                        </DialogTitle>
+                        <DialogDescription className="text-slate-600 text-sm font-semibold">
+                            Elegí un horario para coordinar una videollamada sin costo y revisar tu presupuesto.
+                        </DialogDescription>
+                    </DialogHeader>
+                    
+                    <div className="space-y-4 py-4">
+                        <div className="space-y-2">
+                            <Label className="text-xs font-bold uppercase text-slate-500">Fecha</Label>
+                            <Select value={selectedSlotDate} onValueChange={(val) => {
+                                setSelectedSlotDate(val);
+                                const daySlots = availableSlots.find(s => s.date === val)?.slots || [];
+                                setSelectedSlotTime(daySlots[0] || '');
+                            }}>
+                                <SelectTrigger className="w-full">
+                                    <SelectValue placeholder="Seleccioná un día" />
+                                </SelectTrigger>
+                                <SelectContent>
+                                    {availableSlots.map(slot => (
+                                        <SelectItem key={slot.date} value={slot.date}>
+                                            {slot.date} ({slot.slots.length} horarios)
+                                        </SelectItem>
+                                    ))}
+                                </SelectContent>
+                            </Select>
+                        </div>
+                        
+                        {selectedSlotDate && (
+                            <div className="space-y-2">
+                                <Label className="text-xs font-bold uppercase text-slate-500">Horario</Label>
+                                <Select value={selectedSlotTime} onValueChange={setSelectedSlotTime}>
+                                    <SelectTrigger className="w-full">
+                                        <SelectValue placeholder="Seleccioná una hora" />
+                                    </SelectTrigger>
+                                    <SelectContent>
+                                        {(availableSlots.find(s => s.date === selectedSlotDate)?.slots || []).map(time => (
+                                            <SelectItem key={time} value={time}>
+                                                {time}
+                                            </SelectItem>
+                                        ))}
+                                    </SelectContent>
+                                </Select>
+                            </div>
+                        )}
+                    </div>
+                    
+                    <DialogFooter className="flex gap-2 justify-end">
+                        <Button variant="outline" onClick={() => setIsMeetingDialogOpen(false)} className="rounded-xl font-bold">
+                            Cancelar
+                        </Button>
+                        <Button onClick={handleScheduleMeeting} disabled={isSchedulingMeeting || !selectedSlotTime} className="bg-indigo-600 hover:bg-indigo-700 text-white rounded-xl font-bold">
+                            {isSchedulingMeeting ? <Loader2 className="w-4 h-4 animate-spin mr-2" /> : null}
+                            Confirmar
                         </Button>
                     </DialogFooter>
                 </DialogContent>

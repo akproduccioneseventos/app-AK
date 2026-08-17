@@ -13,6 +13,7 @@ import {
   type PublicGuestTableMatch,
 } from '@/app/actions/public-guest-portal';
 import type { PublicGuestEvent } from '@/lib/guest-portal-public-data';
+import { QuinceLeadPrompt } from '@/components/leads/QuinceLeadPrompt';
 
 // Contact phone for WhatsApp fallback (WhatsApp format: country code + number)
 const CONTACT_WHATSAPP = '59898355530';
@@ -132,6 +133,7 @@ export default function MiMesaPage() {
             Buscar otro nombre
           </button>
         </div>
+        <QuinceLeadPrompt fiestaId={fiestaId} guestId={selected.id} guestAccessToken={selected.guestAccessToken} />
       </div>
     );
   }

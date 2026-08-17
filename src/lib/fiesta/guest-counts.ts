@@ -16,7 +16,7 @@ export function getGuestKidsCount(guest: GuestCountInput): number {
   if (guest.kidsCount !== undefined && Number.isFinite(parsed)) {
     return Math.max(0, Math.min(partySize, Math.round(parsed)));
   }
-  return guest.categoria === 'Niño/Adolescente' ? partySize : 0;
+  return (guest.categoria === 'Niño' || guest.categoria === 'Adolescente' || guest.categoria === 'Niño/Adolescente') ? partySize : 0;
 }
 
 export function getGuestAdultsCount(guest: GuestCountInput): number {

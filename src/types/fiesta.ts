@@ -22,7 +22,7 @@ export interface Notificacion {
 
 // --- INVITADOS ---
 export type RsvpStatus = 'Pendiente' | 'Confirmado' | 'Rechazado' | 'Tal vez';
-export type CategoriaInvitado = 'Adulto' | 'Niño/Adolescente';
+export type CategoriaInvitado = 'Adulto' | 'Niño' | 'Adolescente';
 
 export type DietaryRestriction = 'Ninguna' | 'Celiaco' | 'Vegetariano' | 'Vegano' | 'Sin Gluten' | 'Sin Lactosa' | 'Alergia Mariscos' | 'Alergia Frutos Secos' | 'Otro';
 

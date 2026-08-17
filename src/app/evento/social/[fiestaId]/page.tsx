@@ -68,6 +68,7 @@ import type { SocialGallerySettings } from '@/types/fiesta';
 import PostEventMemoryHub from '@/components/social-wall/PostEventMemoryHub';
 import { FaceGalleryStrip } from '@/components/entertainment/FaceGalleryStrip';
 import { PaparazziOverlay } from '@/components/social-wall/PaparazziOverlay';
+import { QuinceLeadPrompt } from '@/components/leads/QuinceLeadPrompt';
 import { SpotifySongSearch } from '@/components/invitacion/SpotifySongSearch';
 import { appendCommercialAttribution } from '@/lib/commercial/acquisition';
 
@@ -802,8 +803,8 @@ export default function SocialEventPage() {
         onUpload={() => { setIsPaparazziOpen(false); setUploadOpen(true); }}
         onClose={() => setIsPaparazziOpen(false)}
       />
-
-
+      {/* Core Dialogs */}
+      <QuinceLeadPrompt fiestaId={fiestaId} guestId={guestId} guestAccessToken={guestAccessToken} />
 
       <Dialog open={nameDialogOpen} onOpenChange={(open) => authorName && setNameDialogOpen(open)}>
         <DialogContent hideCloseButton className="max-w-sm rounded-md border-0 bg-white p-6">

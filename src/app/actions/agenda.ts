@@ -198,6 +198,45 @@ export async function createAppointment(data: Omit<CrmAppointment, 'id' | 'cread
   }
 }
 
+export async function createPublicAppointment(data: Omit<CrmAppointment, 'id' | 'creadoEn' | 'estado'>): Promise<{
+  success: boolean;
+  appointment?: CrmAppointment;
+  error?: string;
+}> {
+  try {
+    const appointments = await getAppointments();
+    const newAppointment: CrmAppointment = {
+      ...data,
+      id: `cita_${Date.now()}_${Math.random().toString(36).substring(7)}`,
+      estado: 'Agendada',
+      creadoEn: new Date().toISOString(),
+    };
+
+    appointments.push(newAppointment);
+    await writeData(APPOINTMENTS_FILE, appointments);
+
+    // Sincronizacion automatica con Google Workspace
+    const { syncAppointmentToGoogleWorkspace } = await import('@/app/actions/google-workspace');
+    syncAppointmentToGoogleWorkspace(newAppointment).catch((err) => {
+      console.warn('[agenda] Google Workspace appointment sync failed:', err);
+    });
+
+    if (newAppointment.leadId) {
+      const { scheduleCrmMeeting } = await import('@/app/actions/crm');
+      scheduleCrmMeeting(newAppointment.leadId, newAppointment.fechaHora, `Cita Comercial (${newAppointment.lugar || 'Oficina AK'})`).catch((err) => {
+        console.warn('[agenda] CRM meeting schedule failed:', err);
+      });
+    }
+
+    return {
+      success: true,
+      appointment: newAppointment,
+    };
+  } catch (e: any) {
+    return { success: false, error: e.message || 'No se pudo agendar la cita' };
+  }
+}
+
 export async function updateAppointmentStatus(
   id: string,
   estado: CrmAppointment['estado']
@@ -269,5 +308,75 @@ export async function cancelAppointment(id: string): Promise<{ success: boolean;
   return updateAppointmentStatus(id, 'Cancelada');
 }
 
+export async function getAvailableAppointmentSlots(): Promise<{
+  success: boolean;
+  slots?: { date: string; time: string; datetime: string }[];
+  error?: string;
+}> {
+  try {
+    const { getCompanyInfo } = await import('@/app/actions/settings');
+    const companyInfo = await getCompanyInfo();
+    const appointments = await getAppointments();
+    
+    // We only care about pending/confirmed appointments to block time
+    const occupiedTimes = new Set(
+      appointments
+        .filter(a => a.estado !== 'Cancelada')
+        .map(a => a.fechaHora)
+    );
 
+    const businessHours = companyInfo.businessHours || [];
+    if (businessHours.length === 0) {
+       return { success: false, error: 'Horarios de atención no configurados' };
+    }
 
+    const slots: { date: string; time: string; datetime: string }[] = [];
+    
+    // Empezamos a buscar a partir de "mañana" (o al menos un rato adelante, pero es mas seguro el dia siguiente)
+    // Para simplificar, buscamos desde mañana.
+    const candidate = new Date();
+    candidate.setDate(candidate.getDate() + 1);
+    
+    // Iteramos por max 30 días para no quedar en un loop si no hay turnos
+    for (let i = 0; i < 30; i++) {
+      if (slots.length >= 8) break; // Con 8 opciones estamos bien
+      
+      const dayOfWeek = candidate.getDay(); // 0 = Domingo
+      const daySettings = businessHours.filter(bh => bh.dayOfWeek === dayOfWeek);
+      
+      // ISO date for Uruguay
+      const dateStr = new Date(candidate.getTime() - (candidate.getTimezoneOffset() * 60000)).toISOString().split('T')[0];
+      
+      for (const bh of daySettings) {
+        if (slots.length >= 8) break;
+        const [startHour, startMin] = bh.startTime.split(':').map(Number);
+        const [endHour, endMin] = bh.endTime.split(':').map(Number);
+        
+        let currentHour = startHour;
+        let currentMin = startMin;
+        
+        // slots de 1 hora
+        while (currentHour < endHour || (currentHour === endHour && currentMin < endMin)) {
+           if (slots.length >= 8) break;
+           const timeStr = `${currentHour.toString().padStart(2, '0')}:${currentMin.toString().padStart(2, '0')}`;
+           // Assuming UYT timezone UTC-3
+           const datetime = `${dateStr}T${timeStr}:00.000-03:00`;
+           // Guardamos la ISO formateada por Date
+           const datetimeIso = new Date(datetime).toISOString();
+           
+           if (!occupiedTimes.has(datetimeIso)) {
+              slots.push({ date: dateStr, time: timeStr, datetime: datetimeIso });
+           }
+           
+           currentHour += 1; 
+        }
+      }
+      
+      candidate.setDate(candidate.getDate() + 1);
+    }
+
+    return { success: true, slots };
+  } catch (e: any) {
+    return { success: false, error: e.message };
+  }
+}

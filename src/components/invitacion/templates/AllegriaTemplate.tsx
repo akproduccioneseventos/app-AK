@@ -61,7 +61,7 @@ export const AllegriaTemplate: React.FC<TemplateProps> = ({
     // RSVP form state
     const [rsvpName, setRsvpName] = useState('');
     const [rsvpGuests, setRsvpGuests] = useState(1);
-    const [rsvpCategory, setRsvpCategory] = useState<'Adulto' | 'Niño/Adolescente'>('Adulto');
+    const [rsvpCategory, setRsvpCategory] = useState<'Adulto' | 'Niño' | 'Adolescente'>('Adulto');
     const [isCeliac, setIsCeliac] = useState(false);
     const [rsvpTag, setRsvpTag] = useState('');
     const [companionNames, setCompanionNames] = useState<string[]>([]);
@@ -606,7 +606,8 @@ export const AllegriaTemplate: React.FC<TemplateProps> = ({
                                     </SelectTrigger>
                                     <SelectContent>
                                         <SelectItem value="Adulto">Adulto</SelectItem>
-                                        <SelectItem value="Niño/Adolescente">Niño / Adol.</SelectItem>
+                                        <SelectItem value="Niño">Niño</SelectItem>
+                                        <SelectItem value="Adolescente">Adolescente</SelectItem>
                                     </SelectContent>
                                 </Select>
                             </div>

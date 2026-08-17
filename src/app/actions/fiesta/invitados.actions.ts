@@ -4,6 +4,7 @@ import { randomUUID } from 'crypto';
 import type { FiestaEnPlanificacion, Invitado, RsvpStatus, CategoriaInvitado, DietaryRestriction } from '@/types/fiesta';
 import { getFiestaById, saveFiesta } from './fiesta.actions';
 import { writeData } from '@/lib/data-service';
+import { upsertPublicCommercialLead } from '@/lib/crm/public-lead-persistence';
 import { preserveFiestaSecrets } from '@/lib/fiesta/get-fiesta-raw';
 import { enforcePublicRateLimit } from '@/lib/commercial/public-rate-limit';
 import { hasPublicGuestAccess } from '@/lib/guest-portal-public-data';
@@ -253,7 +254,7 @@ export async function handleRsvpSubmission(
       .join('\n---\n');
 
     const mainCategory: CategoriaInvitado =
-      totalNew > 0 && submission.kidsCount >= totalNew ? 'Niño/Adolescente' : 'Adulto';
+      totalNew > 0 && submission.kidsCount >= totalNew ? 'Niño' : 'Adulto';
 
     if (invitadoExistenteIndex > -1) {
       updatedInvitado = {
@@ -371,6 +372,45 @@ export async function checkInGuest(
   return { ...result, invitado: invitadoActualizado };
 }
 
+export async function updateGuestQuinceDate(
+  fiestaId: string,
+  guestId: string,
+  guestAccessToken: string,
+  cumple15Date: string
+): Promise<{ success: boolean; error?: string }> {
+  let updatedInv: Invitado | undefined;
+  const result = await updateFiestaData(fiestaId, data => {
+    const invitados = (data.invitados || []).map(inv => {
+      if (inv.id === guestId && inv.guestAccessToken === guestAccessToken) {
+        updatedInv = { ...inv, cumple15: cumple15Date };
+        return updatedInv;
+      }
+      return inv;
+    });
+    return { ...data, invitados };
+  });
+
+  if (result.success && updatedInv) {
+    try {
+      await upsertPublicCommercialLead({
+        name: updatedInv.nombre,
+        phone: updatedInv.contacto || '000000000', // CRM requires phone, we use fallback if missing
+        partyType: 'XV Años',
+        birthdayMonthDay: cumple15Date.substring(5), // YYYY-MM-DD -> MM-DD
+        acquisition: {
+          source: 'social_guest',
+          refFiestaId: fiestaId,
+          refGuestId: guestId,
+        }
+      });
+    } catch (e) {
+      console.warn('Could not create CRM lead for guest birthday', e);
+    }
+  }
+
+  return { success: result.success, error: result.error };
+}
+
 // ─── Public RSVP (invitation page) ───────────────────────────────────────────
 
 export async function submitPublicRsvp(
@@ -454,7 +494,7 @@ export async function submitPublicRsvp(
         contacto: contacto ?? existing.contacto,
         partySize: effectivePartySize,
         kidsCount: effectiveKidsCount,
-        categoria: effectiveKidsCount >= effectivePartySize ? 'Niño/Adolescente' : 'Adulto',
+        categoria: effectiveKidsCount >= effectivePartySize ? 'Niño' : 'Adulto',
         companionNames: companionNames ?? existing.companionNames,
         dietaryRestriction: dietary,
         alergiasEspecificas: alergiasEspecificas ?? existing.alergiasEspecificas,
@@ -474,7 +514,7 @@ export async function submitPublicRsvp(
         rsvp: rsvpStatus,
         // Antes entraban todos como adulto, aunque fueran chicos: el menú y el
         // costo por cubierto salían mal desde el momento de la confirmación.
-        categoria: newKidsCount >= submittedPartySize ? 'Niño/Adolescente' : 'Adulto',
+        categoria: newKidsCount >= submittedPartySize ? 'Niño' : 'Adulto',
         contacto,
         partySize: submittedPartySize,
         kidsCount: newKidsCount,

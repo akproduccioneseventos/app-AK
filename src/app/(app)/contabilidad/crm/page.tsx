@@ -410,6 +410,24 @@ export default function CrmPage() {
             <KpiCard title="Reuniones Hoy" value={leads.filter(l => l.followUpDate && new Date(l.followUpDate).toDateString() === new Date().toDateString()).length} icon={CalendarDays} isLoading={isLoading}/>
         </div>
 
+        {/* XV Años Alert */}
+        {leads.filter(l => l.partyType === 'XV Años' && daysUntilBirthday(l.birthdayMonthDay, new Date()) != null && daysUntilBirthday(l.birthdayMonthDay, new Date())! <= 90).length > 0 && (
+          <div className="bg-gradient-to-r from-amber-500/10 to-amber-500/5 border border-amber-500/20 rounded-xl p-4 flex items-center justify-between">
+            <div className="flex items-center gap-3">
+              <div className="bg-amber-500/20 p-2 rounded-lg">
+                <Sparkles className="w-5 h-5 text-amber-500" />
+              </div>
+              <div>
+                <p className="font-bold text-amber-600">¡Tenés prospectos de XV Años que cumplen pronto!</p>
+                <p className="text-sm text-amber-600/80">Revisá la lista y contactalos para ofrecerles tu servicio.</p>
+              </div>
+            </div>
+            <Button onClick={() => setQuickFilter('birthday_90')} variant="outline" className="text-amber-600 border-amber-500/30 hover:bg-amber-500/10">
+              Ver lista
+            </Button>
+          </div>
+        )}
+
         {/* Search + Filter bar */}
         <div className="flex flex-col gap-2">
           <div className="relative max-w-sm">

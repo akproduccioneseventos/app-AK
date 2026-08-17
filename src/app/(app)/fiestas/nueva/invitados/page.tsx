@@ -253,7 +253,8 @@ function InvitadosEventoContent() {
                   <SelectTrigger><SelectValue /></SelectTrigger>
                   <SelectContent>
                     <SelectItem value="Adulto">Adulto</SelectItem>
-                    <SelectItem value="Niño/Adolescente">Niño/Adol.</SelectItem>
+                    <SelectItem value="Niño">Niño</SelectItem>
+                    <SelectItem value="Adolescente">Adolescente</SelectItem>
                   </SelectContent>
                 </Select>
               </div>
@@ -375,7 +376,8 @@ function InvitadosEventoContent() {
                     <SelectTrigger><SelectValue /></SelectTrigger>
                     <SelectContent>
                       <SelectItem value="Adulto">Adulto</SelectItem>
-                      <SelectItem value="Niño/Adolescente">Niño/Adolescente</SelectItem>
+                      <SelectItem value="Niño">Niño</SelectItem>
+                      <SelectItem value="Adolescente">Adolescente</SelectItem>
                     </SelectContent>
                   </Select>
                 </div>

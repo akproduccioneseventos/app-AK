@@ -23,6 +23,7 @@ import {
 import { QRCodeSVG } from 'qrcode.react';
 import { QrRecuerdo } from '@/components/entretenimiento/QrRecuerdo';
 import { AvisoDeFallaEnEstacion } from '@/components/entretenimiento/AvisoDeFallaEnEstacion';
+import { QuinceLeadPrompt } from '@/components/leads/QuinceLeadPrompt';
 import {
   getPublicEntertainmentEvent,
   uploadEntretenimientoMedia,
@@ -973,6 +974,7 @@ export default function FotocabinaPage() {
 
       </div>
 
+      <QuinceLeadPrompt fiestaId={fiestaId} guestId={searchParams.get('guestId') || undefined} guestAccessToken={searchParams.get('token') || undefined} />
       <KioskUnlockButton />
     </div>
   );

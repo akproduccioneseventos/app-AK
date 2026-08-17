@@ -130,6 +130,11 @@ export interface CompanyInfo {
     cuentasBancariasPortal?: CuentaBancaria[];
     googleReviewsLink?: string;
     enableGoogleReviewsAutoRequest?: boolean;
+    businessHours?: {
+      dayOfWeek: number; // 0 = Domingo, 1 = Lunes, etc.
+      startTime: string; // HH:mm
+      endTime: string;   // HH:mm
+    }[];
 }
 
 export interface ContractClause {
@@ -261,4 +266,14 @@ export const defaultCompanyInfo: CompanyInfo = {
     cuentasBancariasPortal: [],
     googleReviewsLink: "",
     enableGoogleReviewsAutoRequest: false,
+    businessHours: [
+      { dayOfWeek: 2, startTime: "10:00", endTime: "12:00" },
+      { dayOfWeek: 2, startTime: "16:00", endTime: "19:00" },
+      { dayOfWeek: 3, startTime: "10:00", endTime: "12:00" },
+      { dayOfWeek: 3, startTime: "16:00", endTime: "19:00" },
+      { dayOfWeek: 4, startTime: "10:00", endTime: "12:00" },
+      { dayOfWeek: 4, startTime: "16:00", endTime: "19:00" },
+      { dayOfWeek: 5, startTime: "10:00", endTime: "12:00" },
+      { dayOfWeek: 5, startTime: "16:00", endTime: "19:00" }
+    ],
 };
