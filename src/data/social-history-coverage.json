@@ -1,0 +1,45 @@
+{
+  "asOf": "2026-08-17",
+  "scope": "AK Producciones Eventos only",
+  "excluded": ["AK Producciones Estudio", "contenido musical o de estudio"],
+  "businessStart": "2019-09",
+  "businessStartEvidence": "Diario El Pueblo, 2019-09-01: en septiembre comenzaría el servicio integral de fiestas de AK Producciones",
+  "status": "partial-public-reconstruction",
+  "recoveredRecords": 34,
+  "recoveredByPlatform": {
+    "Facebook": 27,
+    "Instagram": 3,
+    "YouTube": 3,
+    "Threads": 1,
+    "TikTok": 0,
+    "X": 0
+  },
+  "recoveredByYear": {
+    "2019": 0,
+    "2020": 6,
+    "2021": 2,
+    "2022": 3,
+    "2023": 6,
+    "2024": 4,
+    "2025": 6,
+    "2026": 7
+  },
+  "knownPublicAccountCounts": {
+    "Instagram": {
+      "count": 678,
+      "unit": "posts",
+      "observedAtAudit": "2026-08-02",
+      "note": "cantidad visible en el perfil indexado durante la auditoría"
+    },
+    "TikTok": {
+      "count": 134,
+      "unit": "videos",
+      "note": "cantidad mostrada por un índice público de terceros; usar como referencia, no como garantía de actualidad"
+    }
+  },
+  "limitations": [
+    "Meta no expone desde este entorno una paginación pública completa del archivo histórico.",
+    "TikTok no expone desde este entorno una paginación pública completa del archivo histórico.",
+    "No se inventan publicaciones, fechas, textos ni métricas que no hayan sido recuperados o verificados."
+  ]
+}
