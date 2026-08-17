@@ -1727,6 +1727,26 @@ dos pasos que pide Instagram. Sigue aprobando una persona: nada sale solo.
 **La regla que queda:** cualquier dato que sirva para entrar o publicar en una
 cuenta de la empresa **nunca se guarda en un archivo versionado**.
 
+## Los números de las redes se guardan solos, todos los días (17 de agosto de 2026)
+
+El guardado del historial **corría únicamente cuando alguien abría la pantalla de
+presencia digital**. Como las plataformas **no entregan los números viejos hacia
+atrás**, una semana sin entrar era una semana de historia perdida para siempre. Y
+era justo el bloque más importante del pedido: empezar a acumular desde hoy.
+
+Ahora hay una tarea diaria en `/api/cron/metricas-de-redes`, protegida con la
+misma clave que las otras dos que ya existían. **Sin esa clave no corre**, a
+propósito.
+
+**Por qué el guardado vive en `src/lib/presencia-digital/guardado-diario.ts` y no
+en una acción:** una tarea programada no tiene sesión, y una acción exportada que
+escribe sin control rompe el guardián del proyecto —que efectivamente la agarró al
+primer intento—. Es el mismo camino que ya se había usado para el escaneo de
+recordatorios de pago: la lógica en una biblioteca, y la usan tanto la pantalla
+como la tarea.
+
+No guarda dos veces el mismo día.
+
 ## Cómo agregar algo a esta lista
 
 **Se anota SIEMPRE, en la misma propuesta que toca el código.** Orden del dueño
