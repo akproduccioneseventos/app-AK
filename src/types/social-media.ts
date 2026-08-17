@@ -29,7 +29,11 @@ export interface SocialPost {
     isGeneralCampaign: boolean; // true for general, false for event-specific
     eventId?: string; // Link to a FiestaEnPlanificacion ID
     eventName?: string; // Denormalized for easy display
-    publishDate: string; // ISO Date String
+    publishDate: string; // ISO Date String used for sorting
+    /** Precision of a recovered date: exact/day/month/year/unknown. */
+    dateConfidence?: string;
+    /** Human-readable original date value when a public source only exposed partial timing. */
+    sourceDateLabel?: string;
     text: string;
     link?: string; // Optional link for the post
     mediaUrl?: string; // Path or public URL to the uploaded image/video
