@@ -1872,6 +1872,33 @@ rompería el portal del invitado, el muro y las estaciones, que las usan sin
 cuenta. Hay una prueba que cuida que ninguna pantalla interna quede sin guardia y
 que `/admin` no se agregue a la lista de rutas públicas.
 
+## Cuatro páginas de venta estaban tapadas por el login (17 de agosto de 2026)
+
+**Lo más caro que apareció en toda la auditoría, y no se veía por ningún lado.**
+
+`/bodas`, `/quinceaneras`, `/cumpleanos` y `/experiencia-ak` son las cuatro
+páginas de venta del negocio. La app **se las ofrece a Google** y les arma título
+y descripción propios, pero **no estaban declaradas como abiertas**, así que el
+middleware mandaba al visitante a la pantalla de ingreso.
+
+Qué significaba en la práctica: el prospecto que llegaba desde Google o desde un
+enlace compartido por WhatsApp **veía un formulario de contraseña en vez de la
+página de bodas**. Y Google tampoco podía leerlas, así que todo el trabajo de
+posicionamiento sobre esas cuatro no servía de nada.
+
+**Es la tercera vez que pasa lo mismo.** Ya había pasado con `/catalogo` y con
+`/galeria-led`, y las dos veces se arregló a mano sin dejar nada que lo evitara.
+
+**Ahora hay una prueba que ata las dos listas**
+(`src/__tests__/paginas-de-venta-abiertas.test.ts`): si alguien agrega una página
+al listado que ve Google y se olvida de abrirla, la prueba falla y dice cuál. La
+misma prueba comprueba que abrirlas no haya abierto de paso nada del equipo
+—contabilidad, presupuestos, empleados, finanzas y la distribución de mesas
+siguen pidiendo cuenta—.
+
+**Cómo se verificó:** corriendo las funciones de verdad del middleware contra el
+listado de Google, no leyendo el código a ojo.
+
 ## Cómo agregar algo a esta lista
 
 **Se anota SIEMPRE, en la misma propuesta que toca el código.** Orden del dueño

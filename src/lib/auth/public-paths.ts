@@ -35,6 +35,17 @@ export const PUBLIC_PATH_PREFIXES = [
   // `Catering`) para que vea fotos. Sin declararla, el prospecto tocaba "ver
   // fotos" y caia en la pantalla de ingreso.
   '/galeria-led',
+  // Las cuatro paginas de venta del negocio. `src/lib/seo/paginas-publicas.ts`
+  // se las ofrece a Google y les arma titulo y descripcion, pero faltaba
+  // declararlas aca: el prospecto que llegaba desde Google o desde un enlace de
+  // WhatsApp chocaba con la pantalla de ingreso, y Google tampoco podia leerlas.
+  // Es la tercera vez que pasa lo mismo (ya habia pasado con `/catalogo` y con
+  // `/galeria-led`), por eso ahora hay una prueba que mantiene las dos listas
+  // atadas: `src/__tests__/paginas-de-venta-abiertas.test.ts`.
+  '/bodas',
+  '/quinceaneras',
+  '/cumpleanos',
+  '/experiencia-ak',
   '/evento/mi-mesa',
   '/evento/en-vivo',
   '/evento/galeria',
