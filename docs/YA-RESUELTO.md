@@ -1945,6 +1945,43 @@ declaradas como abiertas siguen pasando: `AuthGuard` las deja pasar.
 - **`/evento` no está "sin declarar"**: sus pantallas se declaran una por una, y
   eso es a propósito, porque algunas son del equipo.
 
+## Los accesos "generales" del colaborador no llevan a ningún lado (17 de agosto de 2026)
+
+**Encontrado, no arreglado: conviene que lo decida el dueño.**
+
+Al crear un acceso para un colaborador se pueden marcar nueve permisos
+"generales": prospectos, presupuestos, clientes, facturación, personal,
+proveedores, empresa, contabilidad y calendario.
+
+**Ninguno de los nueve funciona.** El colaborador entra con su enlace, ve los
+botones en su portal, los toca y **cae en la pantalla de ingreso**. La razón: los
+módulos del evento (música, itinerario, carga, decoración, repostería,
+fotografía) se enlazan con `&token=` y el sistema los deja pasar comprobando ese
+token; los nueve generales se enlazan **sin token**, apuntan a pantallas internas,
+y abrir el enlace del colaborador **no le da ninguna sesión**.
+
+**Por qué no se arregló solo:** las dos salidas cambian el negocio y ninguna es
+de una línea. O se les agrega soporte de token a esas nueve pantallas —que son
+justo las de plata y datos de clientes—, o se sacan de la lista de permisos que
+se ofrecen. La primera abre la contabilidad a gente de afuera; la segunda le
+quita al dueño una opción que hoy cree tener.
+
+## El control de acentos también mira los documentos, y hay una prueba que lo cuida (17 de agosto de 2026)
+
+`docs/YA-RESUELTO.md` es lo que todos leen antes de auditar, y ya juntó 427
+acentos rotos una vez sin que nadie lo viera, porque la revisión completa sólo
+miraba el código. Se arregló agregando `*.md` al barrido.
+
+**Ahora hay una prueba que cuida esa línea** (`src/__tests__/acentos-en-docs.test.ts`):
+si alguien vuelve a sacar los documentos del barrido, falla. La misma prueba
+comprueba que la documentación esté limpia.
+
+**Ojo al arreglar acentos:** `AGENTS.md` y `ESTADO-AUDITORIA.md` escriben los
+ejemplos rotos **a propósito** para explicar el problema —ahí se ve cómo queda un
+menú o un plato con el acento partido—. Arreglarlos les saca el sentido a esas
+frases, así que están excluidos del control y de la prueba. Ya pasó una vez:
+alguien los "reparó" y dejó dos explicaciones sin ejemplo.
+
 ## Cómo agregar algo a esta lista
 
 **Se anota SIEMPRE, en la misma propuesta que toca el código.** Orden del dueño
