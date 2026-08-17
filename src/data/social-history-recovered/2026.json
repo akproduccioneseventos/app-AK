@@ -1,0 +1,9 @@
+[
+  {"platform":"Instagram","date":"2026-06-11T16:29:07.131Z","confidence":"estimated_from_instagram_shortcode","label":"Promoción salón desde $8.500","category":"promocion","sourceUrl":"https://www.instagram.com/reel/DZc8v5xO11W/","source":"previous_public_index_audit"},
+  {"platform":"Facebook","date":"2026-06-12","confidence":"day_from_previous_audit","label":"Promoción salón desde $8.500 - variante Facebook","category":"promocion","source":"previous_public_index_audit"},
+  {"platform":"Facebook","date":"2026","confidence":"year_from_previous_audit","label":"XV de Alfonsina - organización y coordinación AK","eventName":"Alfonsina","category":"xv","sourceUrl":"https://www.facebook.com/akproduccionessalto/videos/3667286210078032/","source":"previous_public_index_audit"},
+  {"platform":"Instagram","date":"2026","confidence":"year_from_previous_audit","label":"Samira XV - exteriores y contenido de fiesta","eventName":"Samira","category":"xv","source":"previous_public_index_audit"},
+  {"platform":"Threads","date":"2026-07-17","confidence":"day_from_previous_audit","label":"Antel / Motorola - coffee break para actividad","eventName":"Antel / Motorola","category":"empresarial","sourceUrl":"https://www.threads.com/@akproduccionesfiestasyeventos/post/Da5OPQKIJUs/","source":"previous_public_index_audit"},
+  {"platform":"Facebook","date":"2026","confidence":"year_from_previous_audit","label":"Consejo sobre mesas mixtas / distribución de invitados","category":"educacion","source":"previous_public_index_audit"},
+  {"platform":"Facebook","date":"2026","confidence":"year_from_previous_audit","label":"Boda en Salto con opción de fiesta completa","category":"boda","source":"previous_public_index_audit"}
+]
