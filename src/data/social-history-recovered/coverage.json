@@ -1,0 +1,89 @@
+{
+  "business": "AK Producciones Eventos",
+  "scope": "Solo fiestas y eventos. AK Producciones Estudio, música, festivales y estudio quedan excluidos.",
+  "businessLaunch": {
+    "value": "2019-09",
+    "confidence": "confirmed_external_article",
+    "note": "Diario EL PUEBLO del 1/9/2019 informa el inicio independiente del servicio integral de fiestas de AK Producciones en septiembre de 2019."
+  },
+  "lastUpdated": "2026-08-17",
+  "recoveredTotal": 43,
+  "recoveredByPlatform": {
+    "Facebook": 27,
+    "Instagram": 3,
+    "YouTube": 12,
+    "Threads": 1,
+    "TikTok": 0,
+    "X": 0
+  },
+  "recentAudit2024To2026": {
+    "recoveredRecords": 17,
+    "byYear": {
+      "2024": 4,
+      "2025": 6,
+      "2026": 7
+    },
+    "byPlatform": {
+      "Facebook": 13,
+      "Instagram": 3,
+      "Threads": 1,
+      "YouTubeWithRecoverableDateInPeriod": 0,
+      "TikTok": 0,
+      "X": 0
+    },
+    "permalinksRecovered": 8,
+    "auditFile": "audit-recent-2024-2026.json",
+    "status": "public_recovered_sample_audited",
+    "warning": "Las cifras representan evidencia pública recuperada, no el total real publicado por las cuentas."
+  },
+  "knownPublicAccountTotals": {
+    "Instagram": {
+      "value": 678,
+      "unit": "posts",
+      "asOf": "2026-08-03",
+      "source": "Auditoria Digital Integral 2026 - perfil indexado"
+    },
+    "TikTok": {
+      "value": 134,
+      "unit": "videos",
+      "asOf": "2026-08-17",
+      "source": "TikBuddy public profile index"
+    }
+  },
+  "dataAvailability": {
+    "publicIndexedRecovery": "audited_sample",
+    "officialAccountArchive": false,
+    "privatePerformanceMetrics": false,
+    "crmAttribution": false
+  },
+  "completion": {
+    "publicRecoveryAudit": true,
+    "recent2024To2026RecoveredRecordsAudit": true,
+    "FacebookFullAccountArchive": false,
+    "InstagramFullAccountArchive": false,
+    "YouTubeFullAccountArchive": false,
+    "ThreadsFullAccountArchive": false,
+    "TikTokFullAccountArchive": false,
+    "XFullAccountArchive": false,
+    "allNetworksFullArchive": false,
+    "performanceAudit": false
+  },
+  "requiredOfficialExports": [
+    "Meta Business Suite: Facebook e Instagram + insights disponibles",
+    "TikTok Analytics / descarga de datos",
+    "YouTube Studio: contenido + Analytics",
+    "Threads / Centro de cuentas: historial exportable disponible",
+    "X: archivo de publicaciones",
+    "CRM AK: consultas, presupuestos y reservas por origen"
+  ],
+  "importTemplate": "official-export-import-template.csv",
+  "rules": [
+    "No inventar fechas, textos, enlaces ni métricas.",
+    "Una publicación confirmada sin fecha se conserva como fecha no recuperada.",
+    "No contar como publicación social un evento conocido si no existe evidencia de que fue publicado.",
+    "Excluir cualquier contenido de AK Producciones Estudio o producción musical/festivales.",
+    "El historial importado desde archivos oficiales o API tiene prioridad sobre la recuperación indexada manual.",
+    "No presentar la muestra pública recuperada como si fuera el archivo total de una cuenta.",
+    "Los campos ausentes en una fuente deben permanecer nulos hasta contar con evidencia."
+  ]
+}

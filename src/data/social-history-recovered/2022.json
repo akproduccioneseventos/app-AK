@@ -1,0 +1,5 @@
+[
+  {"platform":"Facebook","date":"2022-08-02","confidence":"day_from_previous_audit","label":"Boda Antonella y Nicolás","eventName":"Antonella y Nicolás","category":"boda","source":"previous_public_index_audit"},
+  {"platform":"Facebook","date":"2022-09","confidence":"month_from_previous_audit","label":"Fotografía de exteriores de XV años","category":"xv","source":"previous_public_index_audit"},
+  {"platform":"Facebook","date":"2022-11-25","confidence":"day_from_previous_audit","label":"Aniversario Correo Uruguay","eventName":"Correo Uruguay","category":"empresarial","source":"previous_public_index_audit"}
+]

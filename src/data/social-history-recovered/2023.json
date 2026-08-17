@@ -1,0 +1,8 @@
+[
+  {"platform":"Facebook","date":"2023","confidence":"year_from_previous_audit","label":"Servicio de barra","category":"servicio","source":"previous_public_index_audit"},
+  {"platform":"Facebook","date":"2023","confidence":"year_from_previous_audit","label":"Servicio de comida para fiestas","category":"servicio","source":"previous_public_index_audit"},
+  {"platform":"Facebook","date":"2023","confidence":"year_from_previous_audit","label":"Show de pizzas","category":"servicio","source":"previous_public_index_audit"},
+  {"platform":"YouTube","date":"2023","confidence":"year_from_previous_audit","label":"¿Te gustaría ahorrar en tu próxima boda? 10 tips","category":"educacion","source":"previous_public_index_audit"},
+  {"platform":"YouTube","date":"2023","confidence":"year_from_previous_audit","label":"¿Es importante contratar un fotógrafo profesional para tu fiesta?","category":"educacion","source":"previous_public_index_audit"},
+  {"platform":"YouTube","date":"2023","confidence":"year_from_previous_audit","label":"¿Qué música pasar en mi fiesta?","category":"educacion","source":"previous_public_index_audit"}
+]

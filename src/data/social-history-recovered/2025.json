@@ -1,0 +1,8 @@
+[
+  {"platform":"Facebook","date":"2025","confidence":"year_from_previous_audit","label":"Exteriores de Jessica","eventName":"Jessica","category":"portfolio","sourceUrl":"https://m.facebook.com/akproduccionessalto/videos/710819808191629/","source":"previous_public_index_audit"},
+  {"platform":"Facebook","date":"2025","confidence":"year_from_previous_audit","label":"XV de Lucía en Club Uruguay","eventName":"Lucía","category":"xv","sourceUrl":"https://m.facebook.com/akproduccionessalto/videos/2077201842756288/","source":"previous_public_index_audit"},
+  {"platform":"Facebook","date":"2025-08","confidence":"month_from_previous_audit","label":"Por qué cada vez más personas eligen un organizador profesional para sus fiestas","category":"educacion","sourceUrl":"https://www.facebook.com/akproduccionessalto/posts/1299953875467809/","source":"previous_public_index_audit"},
+  {"platform":"Facebook","date":"2025-10-20","confidence":"day_from_previous_audit","label":"Noche de Natasha - parte 1","eventName":"Natasha","category":"xv","source":"previous_public_index_audit"},
+  {"platform":"Facebook","date":"2025-10-20","confidence":"day_from_previous_audit","label":"Noche de Natasha - parte 3","eventName":"Natasha","category":"xv","sourceUrl":"https://www.facebook.com/akproduccionessalto/videos/1276350387598734/","source":"previous_public_index_audit"},
+  {"platform":"Facebook","date":"2025-12","confidence":"month_from_previous_audit","label":"Kimberly","eventName":"Kimberly","category":"caso_real","source":"previous_public_index_audit"}
+]

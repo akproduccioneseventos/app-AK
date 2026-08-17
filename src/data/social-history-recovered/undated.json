@@ -1,0 +1,11 @@
+[
+  {"platform":"YouTube","date":null,"confidence":"unknown","label":"XV años Valentino - Servicio para 15 años - Ak producciones","text":"XV años Valentino - Servicio para 15 años - Ak producciones","category":"xv","eventName":"XV años Valentino","source":"youtube_public_index_audit"},
+  {"platform":"YouTube","date":null,"confidence":"unknown","label":"1 Año Antonella","text":"1 Año Antonella","category":"cumpleanos","eventName":"1 Año Antonella","source":"youtube_public_index_audit"},
+  {"platform":"YouTube","date":null,"confidence":"unknown","label":"Aniversario 15 años EMPRESA ABRA","text":"Aniversario 15 años EMPRESA ABRA","category":"empresarial","eventName":"Aniversario 15 años EMPRESA ABRA","source":"youtube_public_index_audit"},
+  {"platform":"YouTube","date":null,"confidence":"unknown","label":"XV años de KIARA - Paseo Alemán Salto","text":"XV años de KIARA - Paseo Alemán Salto","category":"xv","eventName":"XV años de Kiara","source":"youtube_public_index_audit"},
+  {"platform":"YouTube","date":null,"confidence":"unknown","label":"Fotos de Xv años Belén Club Uruguay","text":"Fotos de Xv años Belén Club Uruguay","category":"xv","eventName":"XV años Belén","source":"youtube_public_index_audit"},
+  {"platform":"YouTube","date":null,"confidence":"unknown","label":"Xv años Ana Belén Club Uruguay","text":"Xv años Ana Belén Club Uruguay","category":"xv","eventName":"XV años Ana Belén","source":"youtube_public_index_audit"},
+  {"platform":"YouTube","date":null,"confidence":"unknown","label":"XV AÑOS ARIANA","text":"XV AÑOS ARIANA","category":"xv","eventName":"XV años Ariana","source":"youtube_public_index_audit"},
+  {"platform":"YouTube","date":"2023","confidence":"year_from_title","label":"Fiestas 2023","text":"Fiestas 2023","category":"resumen","source":"youtube_public_index_audit"},
+  {"platform":"YouTube","date":"2023","confidence":"year_from_title","label":"Resumen de fiestas 2023","text":"Resumen de fiestas 2023","category":"resumen","source":"youtube_public_index_audit"}
+]

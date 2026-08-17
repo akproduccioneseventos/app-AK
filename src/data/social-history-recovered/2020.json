@@ -1,0 +1,8 @@
+[
+  {"platform":"Facebook","date":"2020-03-14","confidence":"day_from_previous_audit","label":"Publicación de fotografía profesional / Wfolio","category":"fotografia","source":"previous_public_index_audit"},
+  {"platform":"Facebook","date":"2020-04-20","confidence":"day_from_previous_audit","label":"Nuevo e innovador servicio: Guardería móvil para eventos","text":"Nuevo e innovador servicio!!! Guardería móvil para eventos. Somos los primeros en Salto…","category":"servicio","source":"previous_public_index_audit"},
+  {"platform":"Facebook","date":"2020-07-28","confidence":"day_from_previous_audit","label":"Guardería móvil / propuesta para niños","category":"servicio","source":"previous_public_index_audit"},
+  {"platform":"Facebook","date":"2020-12-01","confidence":"day_from_previous_audit","label":"DESCUENTAZO 15% OFF PARA TU FIESTA","text":"DESCUENTAZO 15% OFF PARA TU FIESTA…","category":"promocion","source":"previous_public_index_audit"},
+  {"platform":"Facebook","date":"2020-12-04","confidence":"day_from_previous_audit","label":"Exteriores Sofía / San Antonio","eventName":"Sofía","category":"portfolio","source":"previous_public_index_audit"},
+  {"platform":"Facebook","date":"2020-12-30","confidence":"day_from_previous_audit","label":"Publicación de fin de año","category":"marca","source":"previous_public_index_audit"}
+]

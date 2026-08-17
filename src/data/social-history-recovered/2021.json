@@ -1,0 +1,4 @@
+[
+  {"platform":"Facebook","date":"2021-08-06","confidence":"day_from_previous_audit","label":"Bodas: organización integral y lista de servicios","category":"boda","source":"previous_public_index_audit"},
+  {"platform":"Facebook","date":"2021-12-20","confidence":"day_from_previous_audit","label":"Despedida Sindicato Médico de Salto","eventName":"Sindicato Médico de Salto","category":"empresarial","source":"previous_public_index_audit"}
+]
