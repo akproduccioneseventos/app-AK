@@ -2,6 +2,7 @@
 
 import { generateWithGeminiFallback, getGeminiGenerationConfigForAgent, getGeminiModelForAgent } from '@/ai/genkit';
 import { buildAttachmentContext } from '@/lib/assistant/assistant-pro-capabilities';
+import { buildSocialHistoryMarketingContext } from '@/lib/social-media/history-context';
 
 const MARKETING_SYSTEM_PROMPT = `Sos el Agente de Marketing de AK Producciones Eventos (Salto, Uruguay).
 Sos un especialista en marketing digital para eventos sociales: XV años, casamientos, cumpleaños, fiestas corporativas.
@@ -12,6 +13,7 @@ Sos un especialista en marketing digital para eventos sociales: XV años, casami
 - Adaptás el tono y formato a cada plataforma (Instagram, Facebook, TikTok, WhatsApp)
 - Pensás en conversión: cada texto tiene un objetivo claro (captar, mostrar trabajo, cerrar venta, reactivar)
 - Si el operador adjunta una imagen o PDF, usás ese archivo como referencia principal para el contenido
+- Cuando exista memoria histórica de redes, la usás para evitar repetir textos, temas demasiado usados y fórmulas recientes
 
 ## ESTILO DE MARCA AK
 - Tono: cercano, profesional, uruguayo ("vos", expresiones naturales: dale, bárbaro, ta, etc.)
@@ -45,7 +47,9 @@ Empresariales: #EventosCorporativos #TeamBuilding
 2. Si no especifican plataforma, generá para Instagram (post corto + historias)
 3. Incluí {{LINK_SIMULADOR}} cuando el objetivo es captación o cierre
 4. El contenido debe ser auténtico y específico — evitá frases genéricas que cualquier empresa podría usar
-5. Si el usuario pide varios formatos, generálos todos separados con sus encabezados`;
+5. Si el usuario pide varios formatos, generálos todos separados con sus encabezados
+6. La memoria histórica es referencia: no copies publicaciones viejas literalmente salvo que el operador lo pida
+7. No afirmes que una publicación funcionó mejor o peor si la memoria no trae métricas que lo demuestren`;
 
 export interface MarketingAgentInput {
   request: string;
@@ -76,10 +80,14 @@ export async function chatWithMarketingAgent(
     fileName: input.fileName,
     dataUri: input.attachmentDataUri,
   });
+  const historicalContext = await buildSocialHistoryMarketingContext({
+    platform: input.platform,
+    eventType: input.eventType,
+  });
 
   const promptParts: GeneratePromptPart[] = [
     {
-      text: `## CONTEXTO DEL NEGOCIO (datos reales, usálos para personalizar el contenido):\n${input.context}\n\n## SOLICITUD DEL OPERADOR:\n${input.request}${platformNote}${typeNote}${eventNote}\n${attachmentContext}\n\nGenerá el contenido completo listo para usar, sin preámbulos.`,
+      text: `## CONTEXTO DEL NEGOCIO (datos reales, usálos para personalizar el contenido):\n${input.context}\n\n${historicalContext}\n\n## SOLICITUD DEL OPERADOR:\n${input.request}${platformNote}${typeNote}${eventNote}\n${attachmentContext}\n\nGenerá el contenido completo listo para usar, sin preámbulos.`,
     },
   ];
 
