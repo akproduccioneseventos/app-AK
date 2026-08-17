@@ -54,6 +54,11 @@ src/data/contracts/*.pdf
 # price adjustment history (generated at runtime)
 price-adjustments-history.json
 
+# conexiones de redes: guarda el permiso de publicacion de Facebook e Instagram.
+# Ese permiso deja publicar en las cuentas de la empresa, asi que el archivo no
+# puede viajar al repositorio.
+src/data/social-connections.json
+
 # backup files
 src/data/last-auto-backup.txt
 
