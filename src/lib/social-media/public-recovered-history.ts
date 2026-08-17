@@ -9,10 +9,11 @@ import history2023 from '@/data/social-history-recovered/2023.json';
 import history2024 from '@/data/social-history-recovered/2024.json';
 import history2025 from '@/data/social-history-recovered/2025.json';
 import history2026 from '@/data/social-history-recovered/2026.json';
+import undatedHistory from '@/data/social-history-recovered/undated.json';
 
 type PublicRecoveredRecord = {
   platform: string;
-  date: string;
+  date?: string | null;
   confidence: string;
   label: string;
   text?: string;
@@ -31,9 +32,11 @@ const RAW_PUBLIC_HISTORY: PublicRecoveredRecord[] = [
   ...history2024,
   ...history2025,
   ...history2026,
+  ...undatedHistory,
 ];
 
-function normalizePublicDate(value: string): string {
+function normalizePublicDate(value?: string | null): string {
+  if (!value) return '1970-01-01T00:00:00.000Z';
   if (/^\d{4}$/.test(value)) return `${value}-01-01T12:00:00.000Z`;
   if (/^\d{4}-\d{2}$/.test(value)) return `${value}-01T12:00:00.000Z`;
   if (/^\d{4}-\d{2}-\d{2}$/.test(value)) return `${value}T12:00:00.000Z`;
@@ -49,7 +52,7 @@ export function getPublicRecoveredHistory(): SocialPost[] {
   return RAW_PUBLIC_HISTORY.flatMap((record, index): SocialPost[] => {
     if (!isSocialPlatform(record.platform)) return [];
     const publishDate = normalizePublicDate(record.date);
-    const sourceId = `public_recovered_${publishDate.slice(0, 10)}_${index}`;
+    const sourceId = `public_recovered_${record.date || 'undated'}_${index}`;
     const text = record.text?.trim() || record.label;
     return [{
       id: sourceId,
@@ -57,12 +60,14 @@ export function getPublicRecoveredHistory(): SocialPost[] {
       isGeneralCampaign: !record.eventName,
       eventName: record.eventName,
       publishDate,
+      dateConfidence: record.confidence,
+      sourceDateLabel: record.date || undefined,
       text,
       link: record.sourceUrl,
       sourceUrl: record.sourceUrl,
       sourceId,
       sourceFile: `public-index:${record.source || 'manual-recovery'}`,
-      importBatchId: `public-recovery-${publishDate.slice(0, 4)}`,
+      importBatchId: `public-recovery-${record.date?.slice(0, 4) || 'undated'}`,
       contentHash: sourceId,
       status: 'Importado historial',
       createdAt: publishDate,
