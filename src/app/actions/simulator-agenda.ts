@@ -48,15 +48,21 @@ export async function bookAppointmentFromSimulator(data: {
   await enforcePublicRateLimit({
     scope: 'agenda_simulator',
     identity: data.clienteContacto || 'simulator_booking',
-    limit: 10,
+    limit: 5,
     windowMs: 60 * 60 * 1000,
   });
 
   try {
     const nombre = data.clienteNombre?.trim();
-    if (!nombre) {
-      return { success: false, error: 'Por favor ingresá tu nombre para reservar la entrevista.' };
+    if (!nombre || nombre.length < 3 || nombre.length > 100) {
+      return { success: false, error: 'Por favor ingresá un nombre válido (entre 3 y 100 caracteres).' };
     }
+    
+    const contacto = data.clienteContacto?.trim();
+    if (!contacto || contacto.length < 6 || contacto.length > 100) {
+      return { success: false, error: 'Por favor ingresá un contacto válido (teléfono o email, mínimo 6 caracteres).' };
+    }
+
     if (!data.fechaHora) {
       return { success: false, error: 'Por favor seleccioná un día y horario.' };
     }
@@ -68,17 +74,23 @@ export async function bookAppointmentFromSimulator(data: {
 
     const appointments = await readData<CrmAppointment[]>(APPOINTMENTS_FILE, []);
 
-    // Validar que no haya otra cita en ese mismo rango (45 min)
-    const slotBusy = appointments.some((apt) => {
-      if (apt.estado === 'Cancelada') return false;
-      const aptTime = new Date(apt.fechaHora).getTime();
-      return Math.abs(aptTime - requestedDate.getTime()) < 45 * 60 * 1000;
-    });
+    // Volver a verificar el horario contra calcularHorariosDisponibles() en el servidor
+    const days = calcularHorariosDisponibles(appointments, 14);
+    let slotIsValid = false;
+    for (const day of days) {
+      for (const slot of day.slots) {
+        if (new Date(slot.datetimeIso).getTime() === requestedDate.getTime()) {
+          slotIsValid = true;
+          break;
+        }
+      }
+      if (slotIsValid) break;
+    }
 
-    if (slotBusy) {
+    if (!slotIsValid) {
       return {
         success: false,
-        error: 'Ese horario acaba de ser ocupado. Por favor elegí otro horario disponible.',
+        error: 'Ese horario ya no está disponible. Por favor elegí otro horario.',
       };
     }
 
