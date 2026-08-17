@@ -1,11 +1,26 @@
+export type SocialPlatform =
+    | 'Facebook'
+    | 'Instagram'
+    | 'Threads'
+    | 'TikTok'
+    | 'YouTube'
+    | 'X'
+    | 'WhatsApp';
 
-export type SocialPlatform = 'Facebook' | 'Instagram' | 'TikTok' | 'WhatsApp';
-export type PostStatus = 'Programado' | 'Publicado' | 'Importado de IG' | 'Borrador';
+export type PostStatus =
+    | 'Programado'
+    | 'Publicado'
+    | 'Importado de IG'
+    | 'Importado historial'
+    | 'Borrador';
 
 export interface PostPerformance {
     likes?: number;
     views?: number;
     interactions?: number;
+    comments?: number;
+    shares?: number;
+    saves?: number;
 }
 
 export interface SocialPost {
@@ -17,11 +32,26 @@ export interface SocialPost {
     publishDate: string; // ISO Date String
     text: string;
     link?: string; // Optional link for the post
-    mediaUrl?: string; // Path to the uploaded image/video
+    mediaUrl?: string; // Path or public URL to the uploaded image/video
     mediaType?: 'image' | 'video'; // To know how to render the media
     status: PostStatus;
     promotionCost?: number;
     performance?: PostPerformance;
+    /** Stable identifier supplied by the original social network/export. */
+    sourceId?: string;
+    /** Original permalink when the archive provides one. */
+    sourceUrl?: string;
+    /** Relative media path inside an official export when the asset itself is not persisted. */
+    archiveMediaPath?: string;
+    /** File in the official export that produced this record. */
+    sourceFile?: string;
+    /** Import batch used to audit or undo a historical load. */
+    importBatchId?: string;
+    /** Hash used to avoid importing the same publication twice. */
+    contentHash?: string;
+    /** Groups the same creative/copy published across more than one platform. */
+    crossPlatformGroupId?: string;
+    importedAt?: string;
     createdAt: string;
     updatedAt: string;
 }
