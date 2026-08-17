@@ -59,6 +59,63 @@ Se escribió contra funciones y campos **que no existen**, así que nunca compil
 3. **Decí desde qué pantalla se ve cada cosa nueva.** Un cálculo que no está
    enchufado no existe para el usuario, aunque compile y pase las pruebas.
 
+## DEVOLUCIÓN del 17 de agosto — las tres ramas están sin terminar
+
+Se revisaron `feat/entrega-2-final`, `feat/entrega-3-bloques-finales` y
+`agent/historial-redes-sociales`. **No se fusionó ninguna: no compilan.** Casi
+treinta errores de tipo en ocho archivos, y el mismo patrón de siempre: código
+escrito contra funciones y campos **que no existen**.
+
+**No es para desanimarse: el trabajo está bien encaminado.** Lo que falta es
+abrir cada archivo antes de usarlo. Acá van los nombres de verdad, uno por uno.
+
+### Los nombres correctos, verificados a mano
+
+- **`SalonScene` se exporta por defecto**, no con nombre. El import correcto es
+  `() => import('@/components/salon-3d/SalonScene')`, sin `.then(mod => mod.SalonScene)`.
+- **`updateFiestaData` y `getFiestaData` NO existen en `@/lib/data-service`.**
+  `streaming.actions.ts` los importa de ahí y por eso no compila. Mirá cómo lo
+  hace `src/app/actions/fiesta/fiesta.actions.ts`, que usa `readData`,
+  `writeData` y `updateDataPartial`.
+- **`cumple15` no existe en el tipo `Invitado`** (`src/types/invitado.ts`). Si el
+  campo hace falta, **primero se agrega al tipo**.
+- **`'social_guest'` no es un origen válido** en `CommercialSource`
+  (`src/lib/commercial/acquisition.ts`). Usá uno de los que ya están o agregalo
+  ahí primero.
+- **`getAvailableAppointmentSlots()` devuelve un objeto**, no un arreglo: hay que
+  leer `.slots`. En el simulador se lo trata como arreglo y se le pide `[0]`.
+- **La pantalla `lo-tuyo` llama una función con un argumento y espera tres.**
+  Nueve errores salen de ese archivo: es el que está más lejos de andar.
+- **`SocialMediaCalendar` quedó incompleto** al agregar YouTube, Threads y X al
+  tipo: las dos tablas de colores e íconos necesitan las tres entradas nuevas.
+
+### El importador de historial no lee ni su propio archivo de prueba
+
+`parseHistoricalSocialArchive` falla con *"El archivo no tiene un formato JSON/JS
+válido de exportación"* **contra el ejemplo que trae su propia prueba**. O sea que
+la función principal de ese bloque no funciona. Hay que hacerla andar contra los
+archivos de verdad que exportan Instagram, Facebook y X.
+
+### Y algo de seguridad que hay que agregar sí o sí
+
+**`createPublicAppointment` no tiene ningún freno.** Es una acción pública, sin
+sesión: cualquiera puede llamarla en un bucle y **llenar la agenda entera de citas
+falsas**, y cada una dispara además una invitación de Google y una reunión en el
+CRM. Hace falta:
+
+1. **Límite de uso**, con `enforcePublicRateLimit` de
+   `src/lib/commercial/public-rate-limit.ts`, que ya existe y usa el asistente.
+   Cinco por hora alcanza.
+2. **Validar nombre y contacto** (largo mínimo y máximo).
+3. **Volver a verificar el horario contra `getAvailableAppointmentSlots()` en el
+   servidor.** La lista que vio la persona en pantalla pudo quedar vieja, y sin
+   esa verificación se puede agendar dos veces la misma hora o en el pasado.
+
+### Cómo entregar de nuevo
+
+**Una sola rama con todo**, y **los cuatro controles en verde antes de subir**.
+Si `npx tsc --noEmit` da un solo error, no se sube.
+
 ## Cómo se entrega esto
 
 **El dueño pidió que hagas TODO lo que falta de una sola vez, en UNA propuesta.**
