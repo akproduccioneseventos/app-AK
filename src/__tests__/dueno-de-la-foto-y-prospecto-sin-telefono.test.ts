@@ -8,6 +8,8 @@
  *    inventado. Antes iba `099000000` y alguien del equipo perdia el viaje
  *    llamando a un numero que no existe.
  */
+import { readFileSync } from 'fs';
+import { join } from 'path';
 import { hasPublicGuestAccess } from '@/lib/guest-portal-public-data';
 
 describe('De quien es cada foto del muro', () => {
@@ -34,6 +36,37 @@ describe('De quien es cada foto del muro', () => {
     expect(conDueno(false, 'inv_1')).toEqual({});
     // Y el invitado que nunca abrio su enlace tampoco queda bloqueado.
     expect(conDueno(false, '')).toEqual({});
+  });
+});
+
+describe('Los tres lugares donde se decide de quién es una foto', () => {
+  // Guarda contra reabrir el agujero: ya paso una vez que una entrega guardaba
+  // el identificador del invitado sin comprobar su enlace. Con eso, cualquiera
+  // manda el de otro y esas fotos le aparecen a esa persona como suyas.
+  const leer = (ruta: string) => readFileSync(join(process.cwd(), ruta), 'utf-8');
+
+  it('el muro sólo guarda el dueño si el enlace personal comprobó', () => {
+    const fuente = leer('src/app/actions/social-gallery.ts');
+    expect(fuente).toContain('guestAuthorized && guestId ? { guestId }');
+    expect(fuente).not.toMatch(/\.\.\.\(guestId \? \{ guestId \} : \{\}\)/);
+  });
+
+  it('las estaciones también comprueban antes de guardar el dueño', () => {
+    const fuente = leer('src/app/actions/social-gallery.ts');
+    expect(fuente).toContain('hasPublicGuestAccess(');
+    expect(fuente).toContain('input.guestId ? { guestId: input.guestId }');
+    expect(fuente).not.toMatch(/\.\.\.\(input\.guestId \? \{ guestId: input\.guestId \} : \{\}\)/);
+  });
+
+  it('la pantalla del recuerdo no arma "tus fotos" sin el enlace personal', () => {
+    const fuente = leer('src/app/evento/[id]/video-recuerdo/page.tsx');
+    expect(fuente).toContain('hasPublicGuestAccess');
+  });
+
+  it('la foto de estación sigue guardando su texto, no sólo la dedicatoria', () => {
+    // Lo leen el muro social, la moderacion y la pantalla gigante.
+    const fuente = leer('src/app/actions/social-gallery.ts');
+    expect(fuente).toContain('caption: sanitizeSocialText(input.caption)');
   });
 });
 

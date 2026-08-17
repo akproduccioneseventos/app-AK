@@ -206,6 +206,12 @@ export async function uploadEntretenimientoMedia(formData: FormData) {
       if (seguridad.reason === 'error') revisionManual = true;
     }
 
+    // De quien es la foto. Va con su enlace personal porque el identificador
+    // solo no prueba nada: sin el token, cualquiera podria mandar el de otro
+    // invitado y esas fotos le apareceran a esa persona en su recuerdo. Quien
+    // comprueba es el muro, no esta pantalla.
+    const guestId = (formData.get('guestId') as string) || undefined;
+    const guestAccessToken = (formData.get('guestAccessToken') as string) || undefined;
     const url = await uploadToStorage(buffer, storagePath, file.type, true);
 
     const socialPostResult = await createSocialMediaPostFromUrlForStation({
@@ -214,6 +220,8 @@ export async function uploadEntretenimientoMedia(formData: FormData) {
       revisionManual,
       mediaType: esVideo ? 'video' : 'image',
       authorName,
+      guestId,
+      guestAccessToken,
       caption,
       source: 'entertainment',
       sourceModule: moduleId,
@@ -228,6 +236,7 @@ export async function uploadEntretenimientoMedia(formData: FormData) {
       type: file.type.startsWith('video/') ? 'video' : 'image',
       caption,
       authorName,
+      guestId,
       uploadedAt: new Date().toISOString(),
       publishTarget: 'muro-social',
       socialPostId: socialPostResult.post?.id,

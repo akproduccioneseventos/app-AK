@@ -7,12 +7,17 @@ interface RecapEventLike {
   programa?: PublicGuestEvent['programa'];
 }
 
+export interface RecapPhotoItem extends SocialGalleryPost {
+  esTuFoto?: boolean;
+}
+
 export interface MorningRecap {
   eventName: string;
   eventDate: string;
   venueName: string;
   photoCount: number;
-  photos: SocialGalleryPost[];
+  guestPhotoCount: number;
+  photos: RecapPhotoItem[];
   programHighlights: string[];
 }
 
@@ -36,24 +41,60 @@ export function isRecapAvailable(fiesta: RecapEventLike, now = new Date()): bool
   return Boolean(availableAt && now >= availableAt);
 }
 
+/**
+ * Arma el resumen de la mañana (Morning Recap).
+ * Si se especifica guestId, prioriza las fotos tomadas por el invitado y completa con las mejores de la fiesta.
+ */
 export function buildMorningRecap(
   fiesta: RecapEventLike,
   posts: SocialGalleryPost[],
+  guestId?: string,
 ): MorningRecap {
   const approvedPosts = posts.filter(
     (post) => (post.moderationStatus ?? 'approved') === 'approved',
   );
   const imagePosts = approvedPosts.filter((post) => post.mediaType !== 'video');
-  const sortedByLikes = [...imagePosts].sort((a, b) => (b.likes ?? 0) - (a.likes ?? 0));
+
+  let selectedPhotos: RecapPhotoItem[] = [];
+  let guestPhotoCount = 0;
+
+  if (guestId) {
+    // 1. Fotos del propio invitado
+    const userPhotos = imagePosts
+      .filter((p) => p.guestId === guestId)
+      .map((p) => ({ ...p, esTuFoto: true }));
+
+    guestPhotoCount = userPhotos.length;
+
+    // 2. Si tiene fotos, van primero
+    selectedPhotos.push(...userPhotos);
+
+    // 3. Si tiene pocas fotos (menos de 8), completamos con las más votadas de la noche
+    if (selectedPhotos.length < 8) {
+      const userPhotoIds = new Set(userPhotos.map((p) => p.id));
+      const generalPhotos = imagePosts
+        .filter((p) => !userPhotoIds.has(p.id))
+        .sort((a, b) => (b.likes ?? 0) - (a.likes ?? 0))
+        .map((p) => ({ ...p, esTuFoto: false }));
+
+      const needed = 8 - selectedPhotos.length;
+      selectedPhotos.push(...generalPhotos.slice(0, needed));
+    }
+  } else {
+    // Sin guestId: mostrar las más votadas de la fiesta
+    selectedPhotos = [...imagePosts]
+      .sort((a, b) => (b.likes ?? 0) - (a.likes ?? 0))
+      .slice(0, 8)
+      .map((p) => ({ ...p, esTuFoto: false }));
+  }
 
   return {
     eventName: fiesta.configuracion?.nombreEvento || 'Evento AK',
     eventDate: fiesta.configuracion?.fechaEvento || '',
     venueName: fiesta.configuracion?.nombreLugar || '',
     photoCount: imagePosts.length,
-    photos: sortedByLikes.slice(0, 8),
+    guestPhotoCount,
+    photos: selectedPhotos,
     programHighlights: (fiesta.programa || []).map((item) => item.titulo).filter(Boolean).slice(0, 6),
   };
 }
-
-

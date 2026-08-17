@@ -38,6 +38,7 @@ muestre**. Esa distinción es la que más veces falló.
 | Libro de la fiesta en PDF | Sí | Centro de la fiesta |
 | Cada uno ve lo suyo | Sí | Centro de la fiesta → "Lo tuyo, ahora" |
 | Video del recuerdo | Sí | Centro de la fiesta |
+| Recuerdo de cada invitado (video vertical para historias) | Sí | Enlace personal del invitado / Recap de la mañana |
 | Transmisión en vivo | Sí | Pantalla de la fiesta en vivo |
 | Centro de presencia digital | Sí | Empresa → Presencia digital |
 | Publicación real en Facebook e Instagram | Sí | Empresa → Presencia digital (al aprobar) |

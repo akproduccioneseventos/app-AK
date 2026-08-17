@@ -26,6 +26,7 @@ import {
   Video,
   X,
   Sparkles,
+  Share2,
 } from 'lucide-react';
 import TriviaGameScreen from '@/components/games/TriviaGameScreen';
 import PhotoMissionScreen from '@/components/games/PhotoMissionScreen';
@@ -566,8 +567,10 @@ export default function SocialEventPage() {
     formData.append('file', uploadFile);
     formData.append('authorName', authorName || 'Invitado');
     formData.append('dedication', uploadCaption.trim());
-    if (guestId && guestAccessToken) {
+    if (guestId) {
       formData.append('guestId', guestId);
+    }
+    if (guestAccessToken) {
       formData.append('guestAccessToken', guestAccessToken);
     }
     if (stationModuleId && stationAccessToken) {
@@ -926,6 +929,29 @@ export default function SocialEventPage() {
                 invitadoNombre={authorName}
                 origen="muro_social"
               />
+              {guestId && (
+                <div className="p-3.5 bg-white border border-slate-200 rounded-xl flex flex-col sm:flex-row sm:items-center justify-between gap-2.5 shadow-sm">
+                  <div className="text-xs text-slate-700">
+                    <span className="font-bold text-slate-900 block sm:inline">¿Querés guardar el enlace de tus fotos?</span>{' '}
+                    Para volver a ver tu recuerdo y video mañana.
+                  </div>
+                  <a
+                    href={`https://wa.me/?text=${encodeURIComponent(
+                      `¡Hola! Guardá este enlace para ver tus fotos y el video recuerdo de la fiesta mañana: ${
+                        typeof window !== 'undefined' ? window.location.origin : ''
+                      }/invitacion/${fiestaId}/recap?guestId=${encodeURIComponent(guestId)}${
+                        guestAccessToken ? `&token=${encodeURIComponent(guestAccessToken)}` : ''
+                      }`
+                    )}`}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="inline-flex items-center justify-center gap-1.5 px-3.5 py-2 bg-emerald-600 hover:bg-emerald-700 text-white font-bold text-xs rounded-lg transition shrink-0"
+                  >
+                    <Share2 className="w-3.5 h-3.5" />
+                    Mandármelo por WhatsApp
+                  </a>
+                </div>
+              )}
               <section className="border-y border-slate-200 bg-white p-4 sm:rounded-md sm:border">
                 <div className="flex items-center gap-3"><div className="grid h-11 w-11 shrink-0 place-items-center rounded-full text-xs font-black text-white" style={{ backgroundColor: accentColor }}>{initials(authorName)}</div><button type="button" onClick={() => setUploadOpen(true)} disabled={!settings.uploadsActive || !canUpload} className="min-h-11 flex-1 rounded-md bg-slate-100 px-4 text-left text-sm font-semibold text-slate-600 transition hover:bg-slate-200 disabled:opacity-50">{!canUpload ? 'Abrí tu enlace personal para publicar' : settings.uploadsActive ? '¿Qué querés compartir?' : 'Las publicaciones están pausadas'}</button></div>
                 <div className="mt-3 grid grid-cols-2 border-t border-slate-100 pt-2"><button type="button" onClick={() => setUploadOpen(true)} disabled={!settings.uploadsActive || !canUpload} className="flex min-h-10 items-center justify-center gap-2 rounded-md text-sm font-bold text-slate-600 hover:bg-slate-100 disabled:opacity-50"><Camera className="h-5 w-5 text-emerald-600" />Foto</button><button type="button" onClick={() => setUploadOpen(true)} disabled={!settings.uploadsActive || !canUpload} className="flex min-h-10 items-center justify-center gap-2 rounded-md text-sm font-bold text-slate-600 hover:bg-slate-100 disabled:opacity-50"><Video className="h-5 w-5 text-red-600" />Video</button></div>
