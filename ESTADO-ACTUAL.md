@@ -23,8 +23,13 @@ que corre sola** (antes sólo se guardaban si alguien abría la pantalla).
 
 ## Lo que falta: el recuerdo de cada invitado
 
-Es la última, y está pedida en la orden. **La idea original no se puede hacer y la
-orden explica por qué:**
+Es la última, y está pedida en la orden. **Dos partes ya están hechas** (propuesta
+1034, la de plata y permisos que le toca a Claude): la foto del muro ya guarda de
+quién es —con candado, sólo si la persona probó tener su enlace personal— y se
+dejó de inventar el teléfono `099000000`. La orden está actualizada para que
+Gemini no lo rehaga.
+
+**La idea original no se puede hacer y la orden explica por qué:**
 
 - **La app no sabe quién aparece en cada foto.** No hay etiquetas ni
   reconocimiento de caras, y no se va a agregar: caro, se equivoca, y con caras de
