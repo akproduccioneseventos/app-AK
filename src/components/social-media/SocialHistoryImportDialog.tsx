@@ -1,7 +1,7 @@
 'use client';
 
 import { useMemo, useState } from 'react';
-import { ArchiveRestore, Loader2, Upload } from 'lucide-react';
+import { ArchiveRestore, Loader2, Upload, Youtube } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import {
   Dialog,
@@ -21,7 +21,7 @@ import {
 } from '@/components/ui/select';
 import { useToast } from '@/hooks/use-toast';
 import type { SocialPlatform } from '@/types/social-media';
-import { importSocialHistory } from '@/app/actions/social-history';
+import { importSocialHistory, syncYouTubeHistory } from '@/app/actions/social-history';
 
 const HISTORY_PLATFORMS: SocialPlatform[] = [
   'Facebook',
@@ -49,6 +49,20 @@ export function SocialHistoryImportDialog({ onImported }: SocialHistoryImportDia
     return `${archive.name} · ${mb < 1 ? '<1' : mb.toFixed(1)} MB`;
   }, [archive]);
 
+  const finishResult = (result: Awaited<ReturnType<typeof importSocialHistory>>) => {
+    if (!result.success) throw new Error(result.error || 'No se pudo importar el historial.');
+    const range = result.oldestDate && result.newestDate
+      ? ` Desde ${new Date(result.oldestDate).toLocaleDateString('es-UY')} hasta ${new Date(result.newestDate).toLocaleDateString('es-UY')}.`
+      : '';
+    toast({
+      title: `${result.imported} publicaciones agregadas`,
+      description: `${result.skipped} duplicadas se dejaron afuera.${range}`,
+    });
+    setArchive(null);
+    setOpen(false);
+    onImported();
+  };
+
   const handleImport = async () => {
     if (!archive) return;
     setIsImporting(true);
@@ -56,23 +70,26 @@ export function SocialHistoryImportDialog({ onImported }: SocialHistoryImportDia
       const formData = new FormData();
       formData.set('platform', platform);
       formData.set('archive', archive);
-      const result = await importSocialHistory(formData);
-      if (!result.success) throw new Error(result.error || 'No se pudo importar el historial.');
-
-      const range = result.oldestDate && result.newestDate
-        ? ` Desde ${new Date(result.oldestDate).toLocaleDateString('es-UY')} hasta ${new Date(result.newestDate).toLocaleDateString('es-UY')}.`
-        : '';
-      toast({
-        title: `${result.imported} publicaciones agregadas`,
-        description: `${result.skipped} duplicadas se dejaron afuera.${range}`,
-      });
-      setArchive(null);
-      setOpen(false);
-      onImported();
+      finishResult(await importSocialHistory(formData));
     } catch (error) {
       toast({
         title: 'No se pudo importar',
         description: error instanceof Error ? error.message : 'Revisá el archivo y probá nuevamente.',
+        variant: 'destructive',
+      });
+    } finally {
+      setIsImporting(false);
+    }
+  };
+
+  const handleYouTubeSync = async () => {
+    setIsImporting(true);
+    try {
+      finishResult(await syncYouTubeHistory());
+    } catch (error) {
+      toast({
+        title: 'No se pudo sincronizar YouTube',
+        description: error instanceof Error ? error.message : 'Revisá la configuración del canal.',
         variant: 'destructive',
       });
     } finally {
@@ -99,7 +116,7 @@ export function SocialHistoryImportDialog({ onImported }: SocialHistoryImportDia
         <div className="space-y-5 py-3">
           <div className="space-y-2">
             <label className="text-xs font-bold uppercase tracking-wide text-slate-500">Red social</label>
-            <Select value={platform} onValueChange={(value) => setPlatform(value as SocialPlatform)}>
+            <Select value={platform} onValueChange={(value) => { setPlatform(value as SocialPlatform); setArchive(null); }}>
               <SelectTrigger><SelectValue /></SelectTrigger>
               <SelectContent>
                 {HISTORY_PLATFORMS.map((item) => <SelectItem key={item} value={item}>{item}</SelectItem>)}
@@ -107,8 +124,23 @@ export function SocialHistoryImportDialog({ onImported }: SocialHistoryImportDia
             </Select>
           </div>
 
+          {platform === 'YouTube' && (
+            <div className="rounded-xl border border-red-100 bg-red-50 p-4">
+              <div className="flex items-start gap-3">
+                <Youtube className="mt-0.5 h-5 w-5 text-red-600" />
+                <div className="flex-1">
+                  <p className="text-sm font-bold text-slate-900">YouTube se puede traer automáticamente</p>
+                  <p className="mt-1 text-xs leading-5 text-slate-600">Si el canal ya está configurado en el servidor, este botón recorre todos los videos y conserva fecha, título, descripción y métricas disponibles.</p>
+                  <Button className="mt-3 bg-red-600 hover:bg-red-700" onClick={handleYouTubeSync} disabled={isImporting}>
+                    {isImporting ? <><Loader2 className="mr-2 h-4 w-4 animate-spin" />Sincronizando...</> : 'Traer todo YouTube'}
+                  </Button>
+                </div>
+              </div>
+            </div>
+          )}
+
           <div className="space-y-2">
-            <label className="text-xs font-bold uppercase tracking-wide text-slate-500">Archivo oficial</label>
+            <label className="text-xs font-bold uppercase tracking-wide text-slate-500">Archivo oficial {platform === 'YouTube' ? '(alternativa)' : ''}</label>
             <label className="flex min-h-28 cursor-pointer flex-col items-center justify-center rounded-xl border-2 border-dashed border-slate-200 bg-slate-50 px-4 text-center hover:bg-slate-100">
               <Upload className="mb-2 h-6 w-6 text-slate-500" />
               <span className="text-sm font-semibold text-slate-800">{archiveLabel}</span>
@@ -130,7 +162,7 @@ export function SocialHistoryImportDialog({ onImported }: SocialHistoryImportDia
         <DialogFooter>
           <Button variant="ghost" onClick={() => setOpen(false)} disabled={isImporting}>Cancelar</Button>
           <Button onClick={handleImport} disabled={!archive || isImporting}>
-            {isImporting ? <><Loader2 className="mr-2 h-4 w-4 animate-spin" />Importando...</> : 'Importar historial'}
+            {isImporting ? <><Loader2 className="mr-2 h-4 w-4 animate-spin" />Importando...</> : 'Importar archivo'}
           </Button>
         </DialogFooter>
       </DialogContent>
