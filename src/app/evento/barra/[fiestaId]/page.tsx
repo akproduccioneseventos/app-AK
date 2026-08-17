@@ -38,6 +38,7 @@ import {
 } from '@/app/actions/fiesta/barra-tecnologica.actions';
 import { getDrinkDescription, getDrinkTags } from '@/lib/barra-tecnologica';
 import { withPublicRequestTimeout } from '@/lib/public-experience/wait-for-initial-public-load';
+import { enqueueOfflineAction, setupAutoOfflineSync } from '@/lib/offline/offline-action-queue';
 
 type ScreenState = 'HOME' | 'MENU' | 'PHOTO' | 'VIDEO';
 
@@ -405,8 +406,27 @@ export default function BarraTecnologicaTouchPage() {
     if (savedName) setGuestName(savedName);
 
     const interval = setInterval(loadData, 5000);
-    return () => clearInterval(interval);
-  }, [loadData, fiestaId]);
+
+    const cleanupOffline = setupAutoOfflineSync(
+      fiestaId,
+      'barra_pedido',
+      async (action) => {
+        return await createBarDrinkOrder(action.payload);
+      },
+      (count) => {
+        toast({
+          title: '¡Pedidos sincronizados! 🍸',
+          description: `Se enviaron ${count} pedido(s) a la barra al reconectar.`,
+        });
+        void loadData();
+      }
+    );
+
+    return () => {
+      clearInterval(interval);
+      cleanupOffline();
+    };
+  }, [loadData, fiestaId, toast]);
 
   const stopCamera = useCallback(() => {
     streamRef.current?.getTracks().forEach(t => t.stop());
@@ -571,18 +591,53 @@ export default function BarraTecnologicaTouchPage() {
       return;
     }
     setIsOrdering(true);
-    const result = await createBarDrinkOrder({
+
+    const clientOrderId = `bar_${Date.now()}_${Math.random().toString(36).slice(2, 8)}`;
+    const orderPayload = {
       fiestaId,
       drinkId: selectedDrink.id,
       guestName,
       tableNumber: 'Totem Táctil',
-    });
-    if (result.success && result.order) {
-      setLastOrder(result.order);
+      orderId: clientOrderId,
+    };
+
+    if (typeof navigator !== 'undefined' && !navigator.onLine) {
+      enqueueOfflineAction({
+        id: clientOrderId,
+        type: 'barra_pedido',
+        fiestaId,
+        payload: orderPayload,
+      });
       setSelectedDrink(null);
-      toast({ title: '¡Trago Pedido!', description: 'Acercate a la barra en unos minutos.' });
-    } else {
-      toast({ title: 'Error', description: result.error, variant: 'destructive' });
+      toast({
+        title: 'Pedido guardado sin conexión 🍹',
+        description: 'No hay internet en este momento. Tu pedido se enviará al barman apenas vuelva la señal.',
+      });
+      setIsOrdering(false);
+      return;
+    }
+
+    try {
+      const result = await createBarDrinkOrder(orderPayload);
+      if (result.success && result.order) {
+        setLastOrder(result.order);
+        setSelectedDrink(null);
+        toast({ title: '¡Trago Pedido!', description: 'Acercate a la barra en unos minutos.' });
+      } else {
+        toast({ title: 'Error', description: result.error, variant: 'destructive' });
+      }
+    } catch {
+      enqueueOfflineAction({
+        id: clientOrderId,
+        type: 'barra_pedido',
+        fiestaId,
+        payload: orderPayload,
+      });
+      setSelectedDrink(null);
+      toast({
+        title: 'Guardado offline 🍹',
+        description: 'La conexión falló. Tu pedido se enviará automáticamente cuando vuelva internet.',
+      });
     }
     setIsOrdering(false);
   };

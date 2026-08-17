@@ -101,11 +101,12 @@ export function getPendingOfflineActions(fiestaId?: string, type?: OfflineAction
  */
 export async function flushOfflineQueue(
   executor: (action: OfflineAction) => Promise<{ success: boolean; error?: string }>,
-  options?: { fiestaId?: string }
+  options?: { fiestaId?: string; type?: OfflineActionType }
 ): Promise<{ processed: number; failed: number; remaining: number }> {
   const queue = loadOfflineQueue();
   const toProcess = queue.filter((action) => {
     if (options?.fiestaId && action.fiestaId !== options.fiestaId) return false;
+    if (options?.type && action.type !== options.type) return false;
     return true;
   });
 
@@ -144,5 +145,34 @@ export async function flushOfflineQueue(
     processed,
     failed,
     remaining: loadOfflineQueue().length,
+  };
+}
+
+/**
+ * Registra listeners para vaciar la cola automáticamente al recuperar conexión.
+ */
+export function setupAutoOfflineSync(
+  fiestaId: string,
+  type: OfflineActionType,
+  executor: (action: OfflineAction) => Promise<{ success: boolean; error?: string }>,
+  onSuccessFlush?: (count: number) => void
+): () => void {
+  if (typeof window === 'undefined') return () => undefined;
+
+  const runFlush = async () => {
+    if (navigator.onLine) {
+      const res = await flushOfflineQueue(executor, { fiestaId, type });
+      if (res.processed > 0 && onSuccessFlush) {
+        onSuccessFlush(res.processed);
+      }
+    }
+  };
+
+  window.addEventListener('online', runFlush);
+  // Intentar sincronizar al montar si ya estamos online
+  void runFlush();
+
+  return () => {
+    window.removeEventListener('online', runFlush);
   };
 }

@@ -46,21 +46,23 @@ function construirBloques(fiestaId: string): Bloque[] {
   const e = (tool: string) => `/evento/${tool}/${encodeURIComponent(fiestaId)}`;
   return [
     {
-      titulo: 'Lo que manejás vos',
-      bajada: 'Esto queda en tu celular durante toda la noche.',
+      titulo: 'Lo que manejás vos y el equipo',
+      bajada: 'Esto queda en el celular del personal durante toda la noche.',
       herramientas: [
+        { titulo: 'Lo tuyo (Equipo)', detalle: 'Cronograma y tareas según tu rol', ruta: e('lo-tuyo'), icono: UserCheck, aparato: 'Celular de cada uno' },
         { titulo: 'Accesos', detalle: 'Escanear el QR de los invitados', ruta: e('accesos'), icono: QrCode, aparato: 'Tu celular' },
         { titulo: 'Moderar fotos', detalle: 'Aprobar antes de que salgan al muro', ruta: e('moderacion'), icono: ShieldCheck, aparato: 'Tu celular' },
-        { titulo: 'DJ', detalle: 'Pedidos de canciones', ruta: e('dj'), icono: Music4, aparato: 'Notebook del DJ' },
+        { titulo: 'DJ', detalle: 'Pedidos de canciones y termómetro', ruta: e('dj'), icono: Music4, aparato: 'Notebook del DJ' },
         { titulo: 'Buscador de mesas', detalle: 'Dónde se sienta cada invitado', ruta: e('mi-mesa'), icono: Search, aparato: 'Tu celular' },
       ],
     },
     {
-      titulo: 'En las pantallas del salón',
-      bajada: 'Lo que ve todo el mundo. Abrilo en la pantalla o el proyector.',
+      titulo: 'En las pantallas y transmisión',
+      bajada: 'Lo que ve todo el mundo en el salón o los familiares a distancia.',
       herramientas: [
         { titulo: 'Muro en vivo', detalle: 'Las fotos de los invitados, en vivo', ruta: e('muro-en-vivo'), icono: MonitorPlay, aparato: 'Pantalla grande' },
         { titulo: 'Galería', detalle: 'Repaso de todas las fotos del evento', ruta: e('galeria'), icono: Images, aparato: 'Pantalla grande' },
+        { titulo: 'Transmisión En Vivo', detalle: 'Streaming privado para la familia afuera', ruta: e('en-vivo'), icono: MonitorPlay, aparato: 'Familia / Celulares' },
       ],
     },
     {

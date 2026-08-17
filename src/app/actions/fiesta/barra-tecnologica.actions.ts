@@ -401,9 +401,19 @@ export async function createBarDrinkOrder(input: CreateBarDrinkOrderInput): Prom
       return { success: false, error: 'Ingresa tu nombre para pedir el trago.' };
     }
 
+    const orderId = input.orderId || `bar_${Date.now()}_${Math.random().toString(36).slice(2, 8)}`;
+    const db = await getDb();
+    if (db) {
+      const existingDoc = await db.collection(BAR_ORDERS_COLLECTION).doc(orderId).get().catch(() => null);
+      if (existingDoc && existingDoc.exists) {
+        const existingOrder = existingDoc.data() as BarDrinkOrder;
+        return { success: true, order: existingOrder };
+      }
+    }
+
     const now = new Date().toISOString();
     const order: BarDrinkOrder = {
-      id: `bar_${Date.now()}_${Math.random().toString(36).slice(2, 8)}`,
+      id: orderId,
       fiestaId: input.fiestaId,
       drinkId: drink.id,
       drinkName: drink.nombre,
@@ -419,7 +429,6 @@ export async function createBarDrinkOrder(input: CreateBarDrinkOrderInput): Prom
 
     order.stockMovements = await descontarStock(drink);
 
-    const db = await getDb();
     if (db) {
       try {
         await db.collection(BAR_ORDERS_COLLECTION).doc(order.id).set(order);

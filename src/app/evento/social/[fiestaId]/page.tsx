@@ -69,6 +69,7 @@ import PostEventMemoryHub from '@/components/social-wall/PostEventMemoryHub';
 import { FaceGalleryStrip } from '@/components/entertainment/FaceGalleryStrip';
 import { PaparazziOverlay } from '@/components/social-wall/PaparazziOverlay';
 import { QuinceLeadPrompt } from '@/components/leads/QuinceLeadPrompt';
+import { enqueueOfflineAction, setupAutoOfflineSync } from '@/lib/offline/offline-action-queue';
 import { SpotifySongSearch } from '@/components/invitacion/SpotifySongSearch';
 import { appendCommercialAttribution } from '@/lib/commercial/acquisition';
 
@@ -420,10 +421,46 @@ export default function SocialEventPage() {
     const timer = setInterval(() => {
       void refreshPublicData();
     }, 7000);
+
+    const cleanupOfflineSync = setupAutoOfflineSync(
+      fiestaId,
+      'muro_foto',
+      async (action) => {
+        const { base64, fileName, fileType, authorName, dedication, guestId, guestAccessToken, stationModuleId, stationAccessToken, imageHash } = action.payload;
+        const res = await fetch(base64);
+        const blob = await res.blob();
+        const file = new File([blob], fileName || 'foto.jpg', { type: fileType || 'image/jpeg' });
+        const formData = new FormData();
+        formData.append('fiestaId', fiestaId);
+        formData.append('file', file);
+        formData.append('authorName', authorName || 'Invitado');
+        formData.append('dedication', dedication || '');
+        if (guestId && guestAccessToken) {
+          formData.append('guestId', guestId);
+          formData.append('guestAccessToken', guestAccessToken);
+        }
+        if (stationModuleId && stationAccessToken) {
+          formData.append('moduleId', stationModuleId);
+          formData.append('sourceModule', stationModuleId);
+          formData.append('accessToken', stationAccessToken);
+        }
+        if (imageHash) formData.append('imageHash', imageHash);
+        return await uploadSocialPost(formData);
+      },
+      (count) => {
+        toast({
+          title: '¡Fotos sincronizadas! 🚀',
+          description: `Se publicaron ${count} foto(s) pendiente(s) al volver internet.`,
+        });
+        void loadCore();
+      }
+    );
+
     return () => {
       active = false;
       clearInterval(timer);
       document.removeEventListener('visibilitychange', handleVisibilityChange);
+      cleanupOfflineSync();
     };
   }, [fiestaId, loadCore, loadSection, section]);
 
@@ -539,35 +576,106 @@ export default function SocialEventPage() {
     eventForm.preventDefault();
     if (!uploadFile || uploading) return;
     setUploading(true);
-    const formData = new FormData();
-    formData.append('fiestaId', fiestaId);
-    formData.append('file', uploadFile);
-    formData.append('authorName', authorName || 'Invitado');
-    formData.append('dedication', uploadCaption.trim());
-    if (guestId && guestAccessToken) {
-      formData.append('guestId', guestId);
-      formData.append('guestAccessToken', guestAccessToken);
-    }
-    if (stationModuleId && stationAccessToken) {
-      formData.append('moduleId', stationModuleId);
-      formData.append('sourceModule', stationModuleId);
-      formData.append('accessToken', stationAccessToken);
-    }
-    if (uploadFile.type.startsWith('image/') && crypto.subtle) {
-      const digest = await crypto.subtle.digest('SHA-256', await uploadFile.arrayBuffer());
-      formData.append('imageHash', Array.from(new Uint8Array(digest)).map((byte) => byte.toString(16).padStart(2, '0')).join(''));
-    }
-    const result = await uploadSocialPost(formData);
-    if (result.success) {
-      toast({
-        title: settings.requireApproval ? 'Momento enviado' : 'Momento publicado',
-        description: settings.requireApproval ? 'El equipo lo revisará antes de mostrarlo.' : 'Ya aparece en la red social.',
+
+    const helperToBase64 = (f: File): Promise<string> =>
+      new Promise((resolve, reject) => {
+        const r = new FileReader();
+        r.onload = () => resolve(r.result as string);
+        r.onerror = reject;
+        r.readAsDataURL(f);
       });
-      clearUpload();
-      setUploadOpen(false);
-      await loadCore();
-    } else {
-      toast({ title: 'No se pudo publicar', description: result.error, variant: 'destructive' });
+
+    // Si no hay conexión o falla la red, guardamos en la cola local
+    if (typeof navigator !== 'undefined' && !navigator.onLine) {
+      try {
+        const base64 = await helperToBase64(uploadFile);
+        enqueueOfflineAction({
+          type: 'muro_foto',
+          fiestaId,
+          payload: {
+            base64,
+            fileName: uploadFile.name,
+            fileType: uploadFile.type,
+            authorName: authorName || 'Invitado',
+            dedication: uploadCaption.trim(),
+            guestId,
+            guestAccessToken,
+            stationModuleId,
+            stationAccessToken,
+          },
+        });
+        toast({
+          title: 'Guardado sin conexión 💾',
+          description: 'No hay internet ahora. Tu foto quedó guardada y se publicará sola cuando vuelva la señal.',
+        });
+        clearUpload();
+        setUploadOpen(false);
+      } catch (err) {
+        toast({ title: 'Error local', description: 'No se pudo guardar la foto offline.', variant: 'destructive' });
+      }
+      setUploading(false);
+      return;
+    }
+
+    try {
+      const formData = new FormData();
+      formData.append('fiestaId', fiestaId);
+      formData.append('file', uploadFile);
+      formData.append('authorName', authorName || 'Invitado');
+      formData.append('dedication', uploadCaption.trim());
+      if (guestId && guestAccessToken) {
+        formData.append('guestId', guestId);
+        formData.append('guestAccessToken', guestAccessToken);
+      }
+      if (stationModuleId && stationAccessToken) {
+        formData.append('moduleId', stationModuleId);
+        formData.append('sourceModule', stationModuleId);
+        formData.append('accessToken', stationAccessToken);
+      }
+      if (uploadFile.type.startsWith('image/') && crypto.subtle) {
+        const digest = await crypto.subtle.digest('SHA-256', await uploadFile.arrayBuffer());
+        formData.append('imageHash', Array.from(new Uint8Array(digest)).map((byte) => byte.toString(16).padStart(2, '0')).join(''));
+      }
+      const result = await uploadSocialPost(formData);
+      if (result.success) {
+        toast({
+          title: settings.requireApproval ? 'Momento enviado' : 'Momento publicado',
+          description: settings.requireApproval ? 'El equipo lo revisará antes de mostrarlo.' : 'Ya aparece en la red social.',
+        });
+        clearUpload();
+        setUploadOpen(false);
+        await loadCore();
+      } else {
+        toast({ title: 'No se pudo publicar', description: result.error, variant: 'destructive' });
+      }
+    } catch (networkErr) {
+      // Fallback offline ante caída intempestiva de conexión durante el fetch
+      try {
+        const base64 = await helperToBase64(uploadFile);
+        enqueueOfflineAction({
+          type: 'muro_foto',
+          fiestaId,
+          payload: {
+            base64,
+            fileName: uploadFile.name,
+            fileType: uploadFile.type,
+            authorName: authorName || 'Invitado',
+            dedication: uploadCaption.trim(),
+            guestId,
+            guestAccessToken,
+            stationModuleId,
+            stationAccessToken,
+          },
+        });
+        toast({
+          title: 'Conexión interrumpida 💾',
+          description: 'Tu foto se guardó localmente y se subirá automáticamente en cuanto vuelva internet.',
+        });
+        clearUpload();
+        setUploadOpen(false);
+      } catch {
+        toast({ title: 'Error de conexión', description: 'Revisá tu conexión a internet.', variant: 'destructive' });
+      }
     }
     setUploading(false);
   };
@@ -1004,6 +1112,10 @@ export default function SocialEventPage() {
              <PhotoMissionScreen
                fiestaId={fiestaId}
                guestName={authorName || 'Invitado'}
+               onLaunchUpload={(prefix) => {
+                 setUploadCaption(prefix);
+                 setUploadOpen(true);
+               }}
              />
           )}
 

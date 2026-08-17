@@ -8,9 +8,15 @@ import type { SongRequest } from '@/types/social-gallery';
 import type { FiestaEnPlanificacion } from '@/types/fiesta';
 import { formatDistanceToNow } from 'date-fns';
 import { es } from 'date-fns/locale';
-import { CheckCircle2, Circle, Music, RefreshCw, ThumbsUp, Volume2, VolumeX, ChevronUp } from 'lucide-react';
+import { CheckCircle2, Circle, Music, RefreshCw, ThumbsUp, Volume2, VolumeX, ChevronUp, Flame, AlertTriangle, X } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { cn } from '@/lib/utils';
+import { getPublicSocialPosts } from '@/app/actions/social-gallery';
+import {
+  calculatePartyActivityThermometer,
+  recordThermometerAlertAcknowledged,
+  type ActivityThermometerResult,
+} from '@/lib/fiesta/termometro-actividad';
 
 const REFRESH_INTERVAL_MS = 5000;
 
@@ -23,13 +29,16 @@ export default function DJPage() {
   const [showPlayed, setShowPlayed] = useState(false);
   const [lastUpdated, setLastUpdated] = useState<Date>(new Date());
   const [actionLoading, setActionLoading] = useState<string | null>(null);
+  const [thermometer, setThermometer] = useState<ActivityThermometerResult | null>(null);
+  const [dismissedAlert, setDismissedAlert] = useState(false);
 
   const fetchData = useCallback(async (showLoader = false) => {
     if (showLoader) setIsLoading(true);
     try {
-      const [songs, fiestaData] = await Promise.all([
+      const [songs, fiestaData, posts] = await Promise.all([
         getSongRequests(params.fiestaId),
         getFiestaById(params.fiestaId),
+        getPublicSocialPosts(params.fiestaId).catch(() => []),
       ]);
       // Sort: unplayed first (by votes), then played (by votes)
       const sorted = [...songs].sort((a, b) => {
@@ -38,6 +47,15 @@ export default function DJPage() {
       });
       setRequests(sorted);
       setFiesta(fiestaData);
+
+      // Calcular termómetro de la fiesta
+      const thermo = calculatePartyActivityThermometer(params.fiestaId, {
+        posts: Array.isArray(posts) ? posts : [],
+        songRequests: songs,
+        invitados: fiestaData?.invitados || [],
+      });
+      setThermometer(thermo);
+
       setLastUpdated(new Date());
       setLoadError(false);
     } catch (err) {
@@ -125,6 +143,33 @@ export default function DJPage() {
           Actualizado {formatDistanceToNow(lastUpdated, { addSuffix: true, locale: es })}
         </span>
       </div>
+
+      {/* Termómetro de la fiesta - Aviso discreto de actividad */}
+      {thermometer?.shouldShowAlert && !dismissedAlert && (
+        <div className="max-w-2xl mx-auto px-4 mb-3">
+          <div className="rounded-2xl border border-amber-500/30 bg-gradient-to-r from-amber-500/15 via-rose-500/10 to-amber-500/5 p-3.5 flex items-center justify-between gap-3 text-white shadow-lg animate-in fade-in">
+            <div className="flex items-center gap-3">
+              <div className="p-2 rounded-xl bg-amber-500/20 text-amber-300">
+                <Flame className="w-5 h-5" />
+              </div>
+              <div>
+                <p className="text-xs font-black text-amber-300 uppercase tracking-wide">Pulso de la Fiesta</p>
+                <p className="text-sm font-bold text-white mt-0.5">{thermometer.alertMessage}</p>
+              </div>
+            </div>
+            <button
+              onClick={() => {
+                setDismissedAlert(true);
+                recordThermometerAlertAcknowledged(params.fiestaId);
+              }}
+              className="p-1.5 rounded-lg bg-white/10 hover:bg-white/20 text-slate-300 transition-colors"
+              aria-label="Cerrar aviso"
+            >
+              <X className="w-4 h-4" />
+            </button>
+          </div>
+        </div>
+      )}
 
       {/* Info banner */}
       <div className="max-w-2xl mx-auto px-4 mb-3">

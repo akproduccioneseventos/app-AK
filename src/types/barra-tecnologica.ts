@@ -85,4 +85,5 @@ export interface CreateBarDrinkOrderInput {
   guestId?: string;
   tableNumber?: string;
   note?: string;
+  orderId?: string;
 }

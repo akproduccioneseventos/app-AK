@@ -7,6 +7,7 @@ import { getPublicSocialPosts } from '@/app/actions/social-gallery';
 import { buildPublicGuestPortalData } from '@/lib/guest-portal-public-data';
 import { withGuestAccess } from '@/lib/guest-portal/public-event-navigation';
 import { buildMorningRecap, isRecapAvailable } from '@/lib/recap/recap-engine';
+import { StoryVideoPlayer } from '@/components/recap/StoryVideoPlayer';
 
 interface MorningRecapPageProps {
   params: Promise<{ fiestaId: string }>;
@@ -75,6 +76,13 @@ export default async function MorningRecapPage({ params, searchParams }: Morning
             <span className="inline-flex items-center gap-1"><Camera className="h-4 w-4" />{recap.photoCount} fotos publicadas</span>
           </div>
         </header>
+
+        {/* Video Recap Story Player */}
+        {recap.photos.length > 0 && (
+          <section className="py-6">
+            <StoryVideoPlayer eventName={recap.eventName} photos={recap.photos} />
+          </section>
+        )}
 
         {recap.programHighlights.length > 0 && (
           <section className="border-b border-stone-300 py-7">

@@ -19,6 +19,18 @@ anotado, la próxima auditoría lo va a volver a encontrar.
 
 ## Decisiones del dueño (no son errores, no se discuten)
 
+- **Entrega integral de bloques restantes (17 de agosto de 2026):**
+  - **Bloque E (Reunión que se agenda sola):** Configuración de horarios en `src/types/settings.ts`, validación de slots libres vs ocupados en `src/app/actions/agenda.ts`, selector táctil de citas en paso final del simulador y confirmación automática con fallback a WhatsApp.
+  - **Bloque G (Pregunta de los quince y categorías):** Desdoblada categoría `Niño` / `Adolescente` en tipos y vistas. El pricing mantiene la suma unificada `ninosYAdolescentes = ninos + adolescentes` para que el costo y los platos queden idénticos. Inyectado `QuinceLeadPrompt` en Fotocabina, Muro Social y Mi Mesa; captura de leads con atribución en CRM y banner de aviso de XV años en dashboard contable.
+  - **Bloque H (Sync Offline):** Perfeccionada cola `src/lib/offline/offline-action-queue.ts` con listener de reconexión `setupAutoOfflineSync`. Las fotos de invitados se guardan localmente en base64 y se envían solas al reconectar. Los pedidos de barra generan ID único (`orderId`) en cliente evitando duplicados y doble consumo de stock.
+  - **Bloque A (Misiones Fotográficas):** Integrada la misión secreta individual del invitado (`getSecretMissionForGuest`) y misiones grupales en la UI del celular (`PhotoMissionScreen.tsx`) con trigger de subida y persistencia.
+  - **Bloque I (Configurador Visual 3D):** Creada pantalla tablet para reuniones de cierre en `src/app/(app)/presupuestos/configurador/page.tsx` conectada a `SalonScene` y calculando el precio en vivo estrictamente con `calculateSimulatorPricing()`.
+  - **Bloque M (Roles en Cronograma):** Añadido `rolId` a `ProgramaEventoItem` en `src/types/fiesta.ts` y creada vista "Lo tuyo, ahora" (`src/app/evento/lo-tuyo/[fiestaId]/page.tsx`) con filtro por función y checklist en vivo.
+  - **Bloque K (Termómetro de la fiesta):** Cálculo de ritmo en tiempo real (`src/lib/fiesta/termometro-actividad.ts`) sumando fotos, pedidos de barra, canciones y check-ins con cooldown estricto de 20 minutos e integrado en el panel del DJ (`src/app/evento/dj/[fiestaId]/page.tsx`).
+  - **Bloque L (Libro de la Fiesta):** Generador PDF nativo (`src/lib/fiesta/libro-fiesta-pdf.ts`) usando `jspdf` con portada, dedicatorias, canciones y momentos de la noche.
+  - **Bloque J (Videos de la fiesta):** Story video player vertical (`src/components/recap/StoryVideoPlayer.tsx`) con animación Ken Burns de fotos con más likes integrado en el recap.
+  - **Bloque N (Transmisión en vivo):** Vista privada de streaming familiar en `src/app/evento/en-vivo/[fiestaId]/page.tsx` con acciones de servidor (`src/app/actions/fiesta/streaming.actions.ts`) y toggle en el centro de fiesta.
+
 - **Entrega de los siete bloques, verificada y corregida (17 de agosto de 2026).**
   El informe original decía que se habían hecho los siete. **Se verificó archivo
   por archivo y eran cuatro, dos de ellos a medias.** Lo que quedó fusionado:

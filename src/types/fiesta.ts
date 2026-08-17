@@ -170,6 +170,11 @@ export interface ConfigEventoDataStorage {
   protocoloLluvia?: string;
   mapaDelSalonUrl?: string;
   instruccionesLlegada?: string;
+  transmisionEnVivo?: {
+    activa: boolean;
+    youtubeUrl?: string;
+    tituloMomento?: string;
+  };
 }
 
 export interface PersonalAsignadoDetalleStorage {
@@ -380,6 +385,8 @@ export interface ProgramaEventoItem {
   visibleParaCliente?: boolean;
   icono?: string;
   completado?: boolean;
+  rolId?: string;
+  rolNombre?: string;
 }
 
 export interface TextStyle {
