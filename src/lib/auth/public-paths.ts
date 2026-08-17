@@ -46,6 +46,16 @@ export const PUBLIC_PATH_PREFIXES = [
   '/quinceaneras',
   '/cumpleanos',
   '/experiencia-ak',
+  // El QR inteligente que se pega en la fiesta. La pantalla dice "Elegi como
+  // queres entrar" y el primer boton es "Entrar como invitado": la escanea el
+  // invitado con su celular, sin cuenta. Estaba tapada, asi que el que escaneaba
+  // caia en la pantalla de ingreso en plena fiesta.
+  '/q',
+  // La demostracion de tecnologia que se le muestra al prospecto: la enlaza la
+  // presentacion LED, que es publica, desde su propia lamina. El prospecto la
+  // tocaba delante del vendedor y caia en el login. El resto de `/marketing` es
+  // del equipo y queda pidiendo cuenta.
+  '/marketing/demo-tecnologia',
   '/evento/mi-mesa',
   '/evento/en-vivo',
   '/evento/galeria',
