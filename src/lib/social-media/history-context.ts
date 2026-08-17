@@ -50,11 +50,16 @@ function matchesEventType(post: SocialPost, eventType?: string): boolean {
 function dedupePosts(posts: SocialPost[]): SocialPost[] {
   const seen = new Set<string>();
   return posts.filter((post) => {
-    const key = post.sourceUrl || `${post.platform}|${post.publishDate}|${post.text}`;
+    const key = post.sourceUrl || `${post.platform}|${post.sourceDateLabel || post.publishDate}|${post.text}`;
     if (seen.has(key)) return false;
     seen.add(key);
     return true;
   });
+}
+
+function displayDate(post: SocialPost): string {
+  if (post.dateConfidence === 'unknown') return 'fecha no recuperada';
+  return post.sourceDateLabel || post.publishDate.slice(0, 10);
 }
 
 export async function buildSocialHistoryMarketingContext(input?: {
@@ -68,7 +73,11 @@ export async function buildSocialHistoryMarketingContext(input?: {
     const usable = posts
       .filter((post) => post.status === 'Publicado' || post.status === 'Importado de IG' || post.status === 'Importado historial')
       .filter((post) => Boolean(post.text?.trim()))
-      .sort((a, b) => new Date(b.publishDate).getTime() - new Date(a.publishDate).getTime());
+      .sort((a, b) => {
+        if (a.dateConfidence === 'unknown' && b.dateConfidence !== 'unknown') return 1;
+        if (b.dateConfidence === 'unknown' && a.dateConfidence !== 'unknown') return -1;
+        return new Date(b.publishDate).getTime() - new Date(a.publishDate).getTime();
+      });
 
     if (!usable.length) return 'HISTORIAL DIGITAL: todavía no hay publicaciones históricas cargadas.';
 
@@ -95,21 +104,23 @@ export async function buildSocialHistoryMarketingContext(input?: {
     }
     const repeatedAcrossNetworks = [...groupedCopies.values()].filter((group) => new Set(group.map((post) => post.platform)).size > 1).length;
 
-    const dates = usable.map((post) => post.publishDate).filter(Boolean).sort();
+    const dated = usable.filter((post) => post.dateConfidence !== 'unknown');
+    const dates = dated.map((post) => post.publishDate).filter(Boolean).sort();
+    const undatedCount = usable.length - dated.length;
     const platformSummary = Object.entries(byPlatform).map(([name, count]) => `${name}: ${count}`).join(', ');
     const categorySummary = categoryCounts.map(({ label, count }) => `${label}: ${count}`).join(', ');
-    const exampleLines = examples.map((post) => `- ${post.publishDate.slice(0, 10)} · ${post.platform}: ${clip(post.text)}`).join('\n');
+    const exampleLines = examples.map((post) => `- ${displayDate(post)} · ${post.platform}: ${clip(post.text)}`).join('\n');
 
     return [
       '## MEMORIA HISTÓRICA REAL DE REDES DE AK PRODUCCIONES EVENTOS',
-      `Publicaciones disponibles: ${usable.length}. Período: ${dates[0]?.slice(0, 10) || 'sin fecha'} a ${dates[dates.length - 1]?.slice(0, 10) || 'sin fecha'}.`,
+      `Publicaciones disponibles: ${usable.length}. Período fechado: ${dates[0]?.slice(0, 10) || 'sin fecha'} a ${dates[dates.length - 1]?.slice(0, 10) || 'sin fecha'}. Registros confirmados sin fecha recuperable: ${undatedCount}.`,
       `Por red: ${platformSummary || 'sin desglose'}.`,
       `Temas detectados: ${categorySummary}.`,
       `Piezas detectadas como la misma publicación distribuida en varias redes: ${repeatedAcrossNetworks}.`,
       'Esta memoria mezcla publicaciones importadas de las cuentas con publicaciones públicas recuperadas manualmente del archivo indexado.',
       'AK Producciones Estudio y contenido musical/estudio quedan excluidos.',
       'Usá esta memoria para NO repetir copys recientes, detectar temas sobrepublicados y recuperar ideas que hace tiempo no se trabajan.',
-      'No inventes métricas ni resultados que no estén en estos datos.',
+      'No inventes fechas, métricas ni resultados que no estén en estos datos.',
       input?.platform || input?.eventType ? `Muestra más relevante para esta solicitud (${input?.platform || 'todas las redes'} / ${input?.eventType || 'todos los eventos'}):` : 'Publicaciones recientes:',
       exampleLines,
     ].join('\n');
