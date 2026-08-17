@@ -1705,6 +1705,28 @@ mientras la pantalla esté abierta, y al volver la señal se le ofrece publicarl
 **La regla que queda:** una pantalla nunca promete algo que no puede cumplir. Si
 no se puede guardar, se dice.
 
+## Publicar de verdad en las redes (17 de agosto de 2026)
+
+Antes el botón de publicar **marcaba el posteo como publicado y no mandaba nada a
+ninguna red**. Ahora publica de verdad en Facebook e Instagram, con el camino de
+dos pasos que pide Instagram. Sigue aprobando una persona: nada sale solo.
+
+**Dos cosas que hubo que corregir al revisarlo:**
+
+- **El permiso para publicar se guardaba en un archivo que se sube al
+  repositorio.** Ese permiso deja publicar en las cuentas de la empresa. La
+  primera vez que se conectara la página, hubiera viajado ahí. Se sacó del control
+  de versiones y se ignora, igual que los contratos y los respaldos. **Hay una
+  prueba que falla si alguien lo vuelve a versionar.**
+- **El importador de historial duplicaba todo.** Recorría el archivo entrando
+  también dentro de cada publicación, así que la foto adjunta —que trae su propio
+  título— se contaba como un posteo aparte. Ahora, cuando un registro ya es una
+  publicación, no se sigue bajando adentro: lo que cuelga de ella es parte de
+  ella.
+
+**La regla que queda:** cualquier dato que sirva para entrar o publicar en una
+cuenta de la empresa **nunca se guarda en un archivo versionado**.
+
 ## Cómo agregar algo a esta lista
 
 **Se anota SIEMPRE, en la misma propuesta que toca el código.** Orden del dueño

@@ -299,7 +299,16 @@ function normalizeRecord(record: UnknownRecord, platform: SocialPlatform, source
   };
 }
 
-function walkRecords(value: unknown, visit: (record: UnknownRecord) => void): void {
+/**
+ * Recorre el archivo buscando publicaciones.
+ *
+ * `visit` devuelve true cuando ese registro ya es una publicacion. En ese caso
+ * **no se sigue bajando adentro de el**: lo que cuelga de una publicacion —la
+ * foto adjunta, su titulo— es parte de esa publicacion, no otra distinta.
+ * Bajando igual, una foto con titulo se contaba como un posteo aparte y la
+ * importacion duplicaba todo.
+ */
+function walkRecords(value: unknown, visit: (record: UnknownRecord) => boolean): void {
   if (!value) return;
   if (Array.isArray(value)) {
     for (const item of value) walkRecords(item, visit);
@@ -308,7 +317,8 @@ function walkRecords(value: unknown, visit: (record: UnknownRecord) => void): vo
   if (typeof value !== 'object') return;
 
   const record = value as UnknownRecord;
-  visit(record);
+  if (visit(record)) return;
+
   for (const child of Object.values(record)) {
     if (child && (Array.isArray(child) || typeof child === 'object')) walkRecords(child, visit);
   }
@@ -341,11 +351,14 @@ function collectFromStructuredData(parsed: unknown, platform: SocialPlatform, so
   const seen = new Set<string>();
 
   walkRecords(parsed, (record) => {
-    if (posts.length >= MAX_RECORDS) return;
+    if (posts.length >= MAX_RECORDS) return true;
     const normalized = normalizeRecord(record, platform, sourceFile, batchId);
-    if (!normalized || !normalized.contentHash || seen.has(normalized.contentHash)) return;
+    if (!normalized || !normalized.contentHash) return false;
+    // Ya vista: igual se corta, porque lo de adentro tambien es de ella.
+    if (seen.has(normalized.contentHash)) return true;
     seen.add(normalized.contentHash);
     posts.push(normalized);
+    return true;
   });
 
   return posts;
