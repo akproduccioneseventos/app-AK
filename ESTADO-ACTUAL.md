@@ -9,45 +9,59 @@ Quien cierre una sesión reescribe este archivo. Se pisa, no se acumula.
 
 **Última actualización:** 17 de agosto de 2026, cierre.
 **Estado de la app:** sana. Verificada sobre `main` **después** de fusionar:
-acentos limpios, tipos en cero, 1717 pruebas, compila, 20 de seguridad de la base.
+acentos limpios, tipos en cero, 1740 pruebas, compila, 20 de seguridad de la base.
 **Propuestas abiertas:** ninguna. **Órdenes pendientes:** ninguna.
 
-## Está todo hecho
+## Está todo hecho y todo auditado
 
-**Las diecisiete mejoras que eligió el dueño.** La última era el recuerdo de cada
-invitado, y quedó terminada: abre su enlace al día siguiente, ve **sus** fotos
-primero completadas con las más queridas de la noche, se lo puede bajar como video
-vertical para las historias —armado en su propio celular, sin gastar— y se manda
-el enlace a sí mismo por WhatsApp. La app no le escribe a nadie.
+Las diecisiete mejoras del plan, y **por primera vez toda la app revisada**: se
+barrieron las carpetas de pantallas una por una, no sólo los módulos grandes.
 
-**Y no queda nada sin auditar.** Ajustes y Empresa eran lo último; se revisaron el
-17 de agosto junto con un barrido de permisos por toda la app. Salió poco y está
-todo arreglado: un cupón que se guardaba con las fechas cruzadas, la lista de
-aparatos para avisos que no pedía sesión, y el sorteo de redes que se podía
-cargar con nombres inventados. El detalle está en `docs/YA-RESUELTO.md`, con las
-falsas alarmas anotadas para que nadie las vuelva a reportar.
+## Lo que apareció en ese barrido (todo arreglado)
 
-## Lo que hay que saber de esa última tanda
+- **Cuatro páginas de venta no las podía abrir nadie.** Bodas, quince,
+  cumpleaños y la experiencia AK: se le ofrecen a Google, pero el sistema mandaba
+  al visitante a la pantalla de contraseña. El prospecto que llegaba desde Google
+  o desde un enlace de WhatsApp veía un formulario de ingreso.
+- **El QR de la fiesta tampoco funcionaba**: el invitado lo escaneaba y caía en
+  el login. Igual la demostración de tecnología que enlaza la presentación LED.
+- **Doce pantallas del equipo entraban con una cookie inventada**, entre ellas
+  finanzas, ventas, la lista de invitados de la puerta y los números del negocio.
 
-- **De quién es cada foto se guarda con candado.** Sólo si la persona probó tener
-  su enlace personal, en el muro y en las estaciones. Un identificador suelto no
-  se guarda nunca: sin eso, cualquiera mandaba el de otro y esas fotos le
-  aparecían a esa persona como suyas. **Sirve de acá en adelante**: las fiestas
-  viejas no tienen el dato y no se puede recuperar.
-- **No se inventan teléfonos.** La invitada que no deja contacto se guarda sin
-  teléfono y la ficha lo aclara. El simulador **sigue exigiendo** celular.
+## Lo que falta, y es del dueño
+
+- Pegar el enlace de reseñas de Google en Ajustes → Empresa y prender el
+  interruptor. Sin eso las reseñas están hechas pero no sale ninguna.
+- Dar el aviso a Google desde su panel.
+- Prender el recontacto automático y el asistente de ventas: vienen apagados.
+- Poner el tope de gasto mensual, si quiere uno.
+
+## Una decisión pendiente para el dueño
+
+**Los nueve permisos "generales" de los accesos de colaborador no funcionan**
+(prospectos, presupuestos, clientes, facturación, personal, proveedores, empresa,
+contabilidad y calendario). El colaborador ve los botones y cae en el login. Las
+dos salidas cambian el negocio: o se abren esas pantallas a gente de afuera, o se
+saca la opción. Está explicado en `docs/YA-RESUELTO.md`.
 
 ## Lo que costó y no hay que repetir
 
-- **Escribir una ficha del CRM a mano en el archivo.** Una entrega lo hizo para
-  saltear una validación: quedaba sin etapa del embudo ni historial y **en
-  producción ni llegaba a la base**. Siempre por la función del CRM.
-- **Guardar de quién es algo sin comprobar el permiso.** Pasó en tres lugares en
-  una misma entrega. Si el dato identifica a una persona, se comprueba.
-- **Código contra funciones y campos que no existen.** Lo agarra `npx tsc
-  --noEmit` en un minuto, y las pruebas NO lo agarran.
-- **Sacar un campo "que no se usa" sin buscar quién lo lee.**
-- **Dos builds a la vez en la misma carpeta** se pisan y dan una falla inventada.
+- **El contenedor se reinicia y deja el árbol en una versión vieja.** Pasó al
+  cierre de esta sesión: una rama nueva salió de un commit de hace días, las
+  pruebas bajaron de 1742 a 1507, y el control de acentos "encontró" 425
+  problemas que ya estaban arreglados. **Antes de creerle a cualquier control que
+  falla de golpe, comparar contra `origin/main` de ahora.** Fusionar eso habría
+  borrado cinco propuestas ya fusionadas.
+- **Guardar de quién es algo sin comprobar el permiso**, y **pantallas del equipo
+  fuera del grupo protegido**: el middleware sólo mira que la cookie exista, no
+  que sea válida.
+- **Escribir una ficha del CRM a mano en el archivo** para saltear una
+  validación: queda sin etapa ni historial y en producción ni llega a la base.
+- **Código contra funciones y campos que no existen**: lo agarra el revisor de
+  tipos, no las pruebas.
+- **Los ayudantes se equivocan seguido.** En esta tanda, de cada tres avisos uno
+  era falsa alarma; uno decía que había que ponerle llave a una página de venta.
+- **Dos compilaciones a la vez en la misma carpeta** se pisan y dan falla falsa.
 
 ## Decisiones del dueño
 
