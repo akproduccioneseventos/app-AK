@@ -38,6 +38,7 @@ import {
 } from '@/app/actions/fiesta/barra-tecnologica.actions';
 import { getDrinkDescription, getDrinkTags } from '@/lib/barra-tecnologica';
 import { withPublicRequestTimeout } from '@/lib/public-experience/wait-for-initial-public-load';
+import { enqueueOfflineAction } from '@/lib/offline/offline-action-queue';
 
 type ScreenState = 'HOME' | 'MENU' | 'PHOTO' | 'VIDEO';
 
@@ -571,20 +572,42 @@ export default function BarraTecnologicaTouchPage() {
       return;
     }
     setIsOrdering(true);
-    const result = await createBarDrinkOrder({
-      fiestaId,
-      drinkId: selectedDrink.id,
-      guestName,
-      tableNumber: 'Totem Táctil',
-    });
-    if (result.success && result.order) {
-      setLastOrder(result.order);
+    try {
+      if (typeof navigator !== 'undefined' && !navigator.onLine) {
+        throw new Error('Sin conexión');
+      }
+      const result = await createBarDrinkOrder({
+        fiestaId,
+        drinkId: selectedDrink.id,
+        guestName,
+        tableNumber: 'Totem Táctil',
+      });
+      if (result.success && result.order) {
+        setLastOrder(result.order);
+        setSelectedDrink(null);
+        toast({ title: '¡Trago Pedido!', description: 'Acercate a la barra en unos minutos.' });
+      } else {
+        toast({ title: 'Error', description: result.error, variant: 'destructive' });
+      }
+    } catch {
+      enqueueOfflineAction({
+        type: 'barra_pedido',
+        fiestaId,
+        payload: {
+          drinkId: selectedDrink.id,
+          drinkName: selectedDrink.nombre,
+          guestName,
+          tableNumber: 'Totem Táctil',
+        },
+      });
       setSelectedDrink(null);
-      toast({ title: '¡Trago Pedido!', description: 'Acercate a la barra en unos minutos.' });
-    } else {
-      toast({ title: 'Error', description: result.error, variant: 'destructive' });
+      toast({
+        title: 'Pedido guardado sin conexión',
+        description: 'Tu pedido se enviará a la barra automáticamente cuando vuelva la señal.',
+      });
+    } finally {
+      setIsOrdering(false);
     }
-    setIsOrdering(false);
   };
 
   // Botón "Sugerir Trago Al Azar 🎲" animado

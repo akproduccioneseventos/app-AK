@@ -1,5 +1,5 @@
 export type RsvpStatus = 'Pendiente' | 'Confirmado' | 'Rechazado' | 'Tal vez';
-export type CategoriaInvitado = 'Adulto' | 'Niño/Adolescente';
+export type CategoriaInvitado = 'Adulto' | 'Niño' | 'Adolescente' | 'Niño/Adolescente';
 export type DietaryRestriction = 'Ninguna' | 'Celiaco' | 'Vegetariano' | 'Vegano' | 'Sin Gluten' | 'Sin Lactosa' | 'Alergia Mariscos' | 'Alergia Frutos Secos' | 'Otro';
 
 // Phase 3.9: Personalized Guest Experience - Guest profile segments

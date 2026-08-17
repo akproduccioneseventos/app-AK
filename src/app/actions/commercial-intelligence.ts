@@ -251,3 +251,54 @@ Reglas:
     };
   }
 }
+
+/**
+ * Registra la respuesta a la pregunta de los 15 ("¿Cuándo cumplís tus quince?")
+ * creando un prospecto calificado en el CRM con su fiesta e invitado de origen.
+ */
+export async function registerQuinceaneraPartyLead(data: {
+  fiestaId: string;
+  nombreFiesta?: string;
+  nombre: string;
+  contacto?: string;
+  respuestaQuince: 'Ya los festejé' | 'Este año' | 'El año que viene' | 'No es lo mío';
+  origen: 'fotocabina' | 'galeria' | 'muro_social' | 'mi_mesa' | 'invitacion';
+  invitadoId?: string;
+}): Promise<{ success: boolean; leadId?: string; error?: string }> {
+  try {
+    const nombre = data.nombre?.trim();
+    if (!nombre) {
+      return { success: false, error: 'Por favor completá tu nombre.' };
+    }
+
+    // Si la respuesta no es de interés de fiesta, solo devolvemos éxito sin crear prospecto comercial invasivo
+    if (data.respuestaQuince !== 'El año que viene' && data.respuestaQuince !== 'Este año') {
+      return { success: true };
+    }
+
+    const { upsertPublicCommercialLead } = await import('@/lib/crm/public-lead-persistence');
+    const anioFiesta = data.respuestaQuince === 'Este año' ? new Date().getFullYear() : new Date().getFullYear() + 1;
+
+    const result = await upsertPublicCommercialLead({
+      name: nombre,
+      phone: data.contacto || '099000000',
+      partyType: '15 Años',
+      acquisition: {
+        source: 'guest_portal',
+        campaign: `quinceanera_${data.respuestaQuince === 'Este año' ? 'este_anio' : 'proximo_anio'}`,
+        refFiestaId: data.fiestaId,
+        refGuestId: data.invitadoId,
+      },
+      notes: `Interesada en fiesta de 15 (${data.respuestaQuince}). Captada desde ${data.origen} en fiesta ${data.nombreFiesta || data.fiestaId}. Año previsto: ${anioFiesta}.`,
+    });
+
+    return {
+      success: true,
+      leadId: result.lead?.id,
+    };
+  } catch (error: any) {
+    console.error('Error registrando lead de quinceañera:', error);
+    return { success: false, error: error?.message || 'No se pudo registrar la consulta' };
+  }
+}
+
