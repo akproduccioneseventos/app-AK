@@ -38,15 +38,38 @@ describe('Las pantallas internas están detrás de la guardia', () => {
     expect(PUBLIC_EXACT_PATHS.has('/admin')).toBe(false);
   });
 
-  it('no aparecieron pantallas internas nuevas sin guardia', () => {
-    // Carpetas de primer nivel que tienen pantallas y NO son publicas: cada una
-    // tiene que estar cubierta por su propio layout con guardia.
-    const sinGuardia = readdirSync(APP_DIR, { withFileTypes: true })
-      .filter((d) => d.isDirectory())
-      .map((d) => d.name)
-      .filter((nombre) => nombre === 'admin' || nombre === '(app)')
-      .filter((nombre) => !tieneGuardia(nombre));
+  // Todas las pantallas del equipo que viven fuera del grupo `(app)` y por eso
+  // necesitan su propia guardia. Si se agrega una nueva, va a esta lista.
+  const PANTALLAS_DEL_EQUIPO_FUERA_DEL_GRUPO = [
+    'admin',
+    'analytics',
+    'compras',
+    'control-tower',
+    'marketing',
+    'post-fiesta',
+    'recepcion',
+    'recursos-multi-evento',
+    'secretaria-ak',
+  ];
 
-    expect(sinGuardia).toEqual([]);
+  it.each(PANTALLAS_DEL_EQUIPO_FUERA_DEL_GRUPO)('/%s tiene su guardia', (carpeta) => {
+    expect(tieneGuardia(carpeta)).toBe(true);
+  });
+
+  it('ninguna de ellas quedó declarada como pública por error', () => {
+    // Si alguna se agregara a la lista publica, el middleware la dejaria pasar
+    // sin cookie y la guardia ni llegaria a correr.
+    const publicadasPorError = PANTALLAS_DEL_EQUIPO_FUERA_DEL_GRUPO
+      .filter((carpeta) => isPublicPathPrefix(`/${carpeta}`));
+
+    expect(publicadasPorError).toEqual([]);
+  });
+
+  it('las carpetas de esa lista existen de verdad', () => {
+    // Cuida que la lista no se quede hablando de pantallas que ya no estan.
+    const inexistentes = PANTALLAS_DEL_EQUIPO_FUERA_DEL_GRUPO
+      .filter((carpeta) => !existsSync(join(APP_DIR, carpeta)));
+
+    expect(inexistentes).toEqual([]);
   });
 });

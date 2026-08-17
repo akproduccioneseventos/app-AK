@@ -1872,6 +1872,79 @@ rompería el portal del invitado, el muro y las estaciones, que las usan sin
 cuenta. Hay una prueba que cuida que ninguna pantalla interna quede sin guardia y
 que `/admin` no se agregue a la lista de rutas públicas.
 
+## Cuatro páginas de venta estaban tapadas por el login (17 de agosto de 2026)
+
+**Lo más caro que apareció en toda la auditoría, y no se veía por ningún lado.**
+
+`/bodas`, `/quinceaneras`, `/cumpleanos` y `/experiencia-ak` son las cuatro
+páginas de venta del negocio. La app **se las ofrece a Google** y les arma título
+y descripción propios, pero **no estaban declaradas como abiertas**, así que el
+middleware mandaba al visitante a la pantalla de ingreso.
+
+Qué significaba en la práctica: el prospecto que llegaba desde Google o desde un
+enlace compartido por WhatsApp **veía un formulario de contraseña en vez de la
+página de bodas**. Y Google tampoco podía leerlas, así que todo el trabajo de
+posicionamiento sobre esas cuatro no servía de nada.
+
+**Es la tercera vez que pasa lo mismo.** Ya había pasado con `/catalogo` y con
+`/galeria-led`, y las dos veces se arregló a mano sin dejar nada que lo evitara.
+
+**Ahora hay una prueba que ata las dos listas**
+(`src/__tests__/paginas-de-venta-abiertas.test.ts`): si alguien agrega una página
+al listado que ve Google y se olvida de abrirla, la prueba falla y dice cuál. La
+misma prueba comprueba que abrirlas no haya abierto de paso nada del equipo
+—contabilidad, presupuestos, empleados, finanzas y la distribución de mesas
+siguen pidiendo cuenta—.
+
+**Cómo se verificó:** corriendo las funciones de verdad del middleware contra el
+listado de Google, no leyendo el código a ojo.
+
+## El barrido completo de puertas (17 de agosto de 2026)
+
+Después de encontrar dos casos sueltos, se revisaron **todas** las carpetas de
+pantallas, una por una, cruzando dos preguntas: ¿está declarada como abierta? y
+¿tiene la guardia de sesión? Lo que no tenga ninguna de las dos entra con una
+cookie inventada; lo que debería ser abierta y no lo está, no la puede abrir el
+cliente.
+
+### Se abrieron dos que estaban tapadas
+
+- **El QR inteligente de la fiesta (`/q`).** Dice "Elegí cómo querés entrar" y su
+  primer botón es "Entrar como invitado": lo escanea el invitado con su celular,
+  sin cuenta. Estaba tapado, así que **el que escaneaba el QR en plena fiesta
+  caía en la pantalla de ingreso**.
+- **La demostración de tecnología (`/marketing/demo-tecnologia`).** La enlaza la
+  presentación LED, que es pública, desde una de sus láminas. El prospecto la
+  tocaba delante del vendedor y caía en el login. El resto de `/marketing` es del
+  equipo y sigue pidiendo cuenta.
+
+### Se les puso guardia a ocho del equipo
+
+`analytics`, `compras`, `control-tower`, `marketing`, `post-fiesta`, `recepcion`,
+`recursos-multi-evento` y `secretaria-ak`. Todas viven fuera del grupo `(app)`,
+que es donde está la guardia, y ninguna la tenía propia.
+
+**Por qué no alcanzaba con el middleware:** sólo comprueba que la cookie exista,
+no que sea válida. Es a propósito y está documentado. Con una cookie inventada se
+veía la lista de invitados de la puerta, las dedicatorias con datos personales, y
+los números del negocio.
+
+**Poner la guardia no le cambia nada a quien ya entra bien**, y las rutas
+declaradas como abiertas siguen pasando: `AuthGuard` las deja pasar.
+
+### Falsas alarmas verificadas (no volver a reportarlas)
+
+- **`/personal/[empleadoId]` muestra sueldo y teléfono pero NO filtra nada.** La
+  función que trae los datos pide sesión y sin ella devuelve vacío. Está bien
+  como está.
+- **`/album` no necesita nada**: sólo redirige a `/evento/album`, que ya es
+  abierta.
+- **`/prospectos` tampoco**: comprueba la sesión por su cuenta antes de mandar al
+  CRM.
+- **`/signup` está obsoleto**: sólo redirige al login, y así queda a propósito.
+- **`/evento` no está "sin declarar"**: sus pantallas se declaran una por una, y
+  eso es a propósito, porque algunas son del equipo.
+
 ## Cómo agregar algo a esta lista
 
 **Se anota SIEMPRE, en la misma propuesta que toca el código.** Orden del dueño
