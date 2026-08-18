@@ -5,6 +5,11 @@
 **Fecha:** 18 de agosto de 2026
 **Base:** `main` actualizado. Sincronizar antes de empezar.
 
+> **Después de ésta hay otra en la fila:**
+> `docs/ordenes/2-despues-de-los-comentarios.md` (la reseña de Google y el panel
+> que trabaja solo). **No la mezcles con ésta:** son dos propuestas separadas, una
+> atrás de la otra.
+
 ## Cómo se entrega
 
 **UNA SOLA PROPUESTA con los cuatro bloques.** No una por bloque. Si uno se
