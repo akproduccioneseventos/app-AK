@@ -6,6 +6,7 @@ import { HeroSection } from "@/components/landing/HeroSection";
 import { ServicesSection } from "@/components/landing/ServicesSection";
 import TechnologyExperienceSection from "@/components/landing/TechnologyExperienceSection";
 import { AkTeamStorySection } from "@/components/landing/AkTeamStorySection";
+import { AkDifferenceSection } from "@/components/landing/AkDifferenceSection";
 import { VideoSection } from "@/components/landing/VideoSection";
 import { GallerySection } from "@/components/landing/GallerySection";
 import { TestimonialsSection } from "@/components/landing/TestimonialsSection";
@@ -494,7 +495,7 @@ export default async function HomePage() {
           </div>
         }
         stats={null}
-        difference={null}
+        difference={<AkDifferenceSection />}
         services={
           <ServicesSection
             whatsappNumber={whatsapp}

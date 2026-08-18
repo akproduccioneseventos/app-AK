@@ -19,6 +19,13 @@ anotado, la próxima auditoría lo va a volver a encontrar.
 
 ## Decisiones del dueño (no son errores, no se discuten)
 
+- **La Reseña de Google y el Panel que Trabaja Solo (18 de agosto de 2026):**
+  - **Bloque 1 — Pedido de reseña de Google al final de la encuesta (`src/app/feedback/[fiestaId]/page.tsx`):** Al finalizar la encuesta pública de satisfacción, se ofrece dejar la reseña en Google con un botón directo a todos los clientes sin gatekeeping (cumpliendo con la directiva anti-sanción de Google). Los clientes con bajas calificaciones reciben un mensaje empático previo asegurando contacto de soporte, pero conservando el botón público.
+  - **Bloque 2 — Seguimiento de reseñas de los últimos 30 días (`src/lib/presencia-digital/resenas-seguimiento.ts`, `src/app/(app)/empresa/presencia-digital/presencia-digital-client.tsx`):** Lista en la solapa Ficha de Google con todas las fiestas finalizadas en los últimos 30 días, estado de solicitud y botón de WhatsApp con mensaje personalizado en criollo y enlace a `/feedback/[fiestaId]`. Acción `marcarResenaSolicitada` para evitar solicitudes repetidas.
+  - **Bloque 3 — Alerta de puntaje en Google menor a 4.0 (`src/app/(app)/empresa/presencia-digital/presencia-digital-client.tsx`):** Banner destacado que avisa de inmediato si el puntaje real medido de Google baja de 4.0 estrellas, con botón de acceso rápido para solicitar reseñas a las fiestas del mes.
+  - **Bloque 4 — El tablero de 16 altas en directorios (`src/types/directorio-altas.ts`, `src/lib/presencia-digital/directorio-altas.ts`, `src/app/(app)/empresa/presencia-digital/presencia-digital-client.tsx`):** Solapa "Tablero de altas (16)" con los 16 directorios oficiales de Salto y Uruguay (10 gratuitos y 6 con cuota/pago), barra de progreso porcentual, enlaces oficiales y checkboxes de completado manual guardados en `directorio-altas.json`.
+  - **Bloque 5 — Autogeneración semanal desatendida del calendario (`src/lib/presencia-digital/autogenerador-semanal.ts`, `src/app/(app)/empresa/presencia-digital/presencia-digital-client.tsx`):** Generador que llena la semana con fotos de fiestas recientes o, en semanas tranquilas, con propuestas de preguntas frecuentes sobre servicios, salones y reservas. Pasa por el control de presupuesto de IA con fallback seguro. Todos los posteos quedan en estado `Borrador` para aprobación humana.
+
 - **Comentarios de las Redes Sociales y Testimonios con Capturas (18 de agosto de 2026):**
   - **Bloque 1 y Bloque 2 — Lectura de comentarios e historial (`src/lib/social-media/comments-backfill.ts`, `src/app/api/cron/metricas-de-redes/route.ts`):** Lectura de comentarios desde Facebook, Instagram y YouTube. Paginación y corte sin inventar datos ni duplicar (`social-comments.json`, `social-comments-backfill-state.json`). La tarea diaria en el cron `/api/cron/metricas-de-redes` sincroniza comentarios nuevos de forma automática y desatendida.
   - **Bloque 3 — Clasificación con IA y guardrails uruguayos (`src/lib/social-media/clasificador-comentarios.ts`, `src/lib/ai/consumo.ts`):** Clasificación con IA contemplando modismos de Salto/Uruguay ("está de más", "divino todo" -> positivo). Quejas legítimas de clientes NUNCA se ocultan automáticamente (se avisa al dueño). Insultos graves, spam evidente o exposición de menores se ocultan de forma reversible con aviso permanente. Pasa por `hayPresupuestoParaIA()` y `registrarConsumoIA('clasificacion-comentarios')`; si no hay presupuesto queda sin clasificar sin romper la app.
@@ -2253,6 +2260,115 @@ páginas de venta **son reales**, transcritos de comentarios que el dueño tení
 guardados. Una auditoría los tomó por relleno y los borró; se repusieron. **No se
 vuelven a borrar.** Lo que sí falta es la captura de cada uno, que es lo que los
 hace verificables, y para eso ya existe la pantalla para subirlas.
+
+## El enlace de reseñas escrito a mano en la encuesta (18 de agosto de 2026)
+
+La pantalla de gracias de la encuesta traía la dirección de la ficha de Google
+**escrita a mano en el código**, en vez de leer la que el dueño carga en Ajustes.
+
+Dos problemas en pantalla: si el dueño cambia el enlace en Ajustes, el botón sigue
+mandando al viejo; y si nunca lo cargó, el cliente igual ve el botón y termina en
+una ficha que puede no ser la suya.
+
+**Cómo quedó:** el enlace se pide con `getEnlaceDeResenaPublico()`
+(`src/app/actions/feedback.ts`), que devuelve **sólo** esa dirección — que de por sí
+es pública — y nada más de la ficha de la empresa. Si está vacía, el bloque entero
+no se muestra. La prueba ahora exige eso y **prohíbe** que vuelva a aparecer una
+dirección de Google escrita a mano en esa pantalla.
+
+**Es la tercera vez que pasa lo mismo** con identificadores de Google escritos a
+mano. Por eso la prueba, y no sólo la corrección.
+
+## La entrega de reseñas venía con la anterior adentro (18 de agosto de 2026)
+
+La rama del panel automático estaba hecha sobre una versión principal vieja y
+**volvía a traer entera la entrega de comentarios de redes**, en su forma original:
+sin el tope de gasto de inteligencia artificial, sin las cinco pruebas y sin los
+testimonios repuestos. Fusionarla de una habría borrado las tres cosas sin que se
+notara.
+
+**Cómo se reparó:** se fusionó contra la versión principal de ahora resolviendo
+seis choques, quedándose con lo nuevo de la entrega y con lo ya corregido de la
+anterior. Quedaba además el panel de presencia digital con **la solapa de
+comentarios duplicada** — dos copias del mismo bloque en el mismo archivo, que no
+compilaba. Se sacó la copia vieja.
+
+**La regla que esto confirma:** una rama se compara siempre contra la versión
+principal de ahora, no contra la que tenía cuando se creó.
+
+## Buscar la mesa por el nombre es a propósito (18 de agosto de 2026)
+
+**Falso positivo verificado. No se toca.**
+
+En `/evento/mi-mesa` cualquiera que tenga el identificador de la fiesta puede
+escribir tres letras y ver hasta seis nombres de invitados con su número de mesa,
+sin cuenta y sin enlace personal (`searchPublicGuestTable` en
+`src/app/actions/public-guest-portal.ts`).
+
+**Está bien así**: la pantalla es para que el invitado que llega a la fiesta y
+escanea el código encuentre su mesa. Pedirle un enlace personal dejaría afuera
+justo a los que no lo recibieron, que son los que más la necesitan. Devuelve
+**sólo nombre y número de mesa** — nunca teléfonos, ni platos especiales, ni notas
+—, exige tres letras como mínimo y está limitada a dieciocho búsquedas por minuto.
+
+Si se vuelve a reportar como filtración, es falso positivo.
+
+## El asistente de ventas SÍ funciona: había un archivo muerto que confundía (18 de agosto de 2026)
+
+**Falso positivo, y casi se reporta como problema.** Una auditoría encontró
+`src/components/asistente-ak/AkAssistant.tsx` sin usar y se concluyó que el
+asistente de ventas estaba desenchufado. **No es así.**
+
+Ese archivo eran seis líneas que devolvían nada, con un comentario que decía
+"desactivado temporalmente". El asistente de verdad es
+`src/components/public/AsistenteVirtual.tsx`, se monta en el armazón general, viene
+apagado de fábrica y sólo aparece en las páginas de venta. Funciona.
+
+El archivo muerto se borró, que es lo que hizo falta: mientras existía, cualquiera
+que lo abriera concluía lo mismo.
+
+**La lección:** un componente que nadie importa no significa que la función falte.
+Antes de decir que algo no está, hay que buscar la función, no el archivo.
+
+## Los cinco componentes que nadie mostraba (18 de agosto de 2026)
+
+Se revisó uno por uno y se resolvió cada caso:
+
+- **`AkDifferenceSection`** (los tres motivos para elegir AK: "disfrutá que
+  nosotros nos encargamos", "cero intermediarios", "presupuesto sin sorpresas").
+  **Enchufada a la portada.** El armazón ya tenía el hueco reservado y alguien lo
+  había dejado vacío. Es buen material de venta y no costaba nada ponerlo.
+
+- **`ConfigFormItem`** (un campo de formulario de ajustes). **Borrado**, no lo
+  usaba nadie y no aporta.
+
+- **`CommercialJourneySection`** (el recorrido comercial). **Queda como está, a
+  propósito.** El hueco existe en la portada, pero la sección necesita saber de
+  dónde vino cada visitante, y ese dato no está disponible cuando la página se
+  arma en el servidor. Enchufarla mal mostraría un recorrido equivocado.
+
+- **`CateringSimulator`** y su archivo de acciones `catering-change.actions.ts`.
+  **Borrados: eran un duplicado abandonado de algo que ya funciona.** El pedido de
+  cambio de cantidad de invitados y el de menú ya están hechos y enchufados, con
+  sesión del portal, pantalla del cliente y pantalla del equipo para aceptar o
+  rechazar (`submitClientGuestCountChangeRequest` y compañía, en
+  `src/app/actions/fiesta/portal.actions.ts`).
+
+  **Y el duplicado era además un agujero:** sus tres funciones eran públicas y
+  **ninguna pedía sesión**. `resolveCateringChangeRequest` dejaba que cualquiera de
+  afuera aprobara o rechazara pedidos de cambio de cualquier fiesta. No había hecho
+  daño porque ninguna pantalla lo usaba, pero el punto de entrada estaba vivo.
+
+  Encima calculaba el menú de los chicos al 70% del de adultos, escrito a mano, sin
+  relación con cómo se cotiza de verdad.
+
+- **`ConvertToClientDialog`**. **Borrado: también existía ya.** Pasar un prospecto a
+  cliente se hace en Contabilidad → CRM con el botón de confirmar reserva
+  (`BookingConfirmationDialog` → `confirmBookingWithContract`), que además toma el
+  contrato y la seña, y el alta de prospectos ya controla teléfonos repetidos.
+
+**La lección, otra vez:** dos de los seis parecían funciones que faltaban y las dos
+existían con otro nombre. Antes de construir, buscar la función, no el archivo.
 
 ## Cómo agregar algo a esta lista
 

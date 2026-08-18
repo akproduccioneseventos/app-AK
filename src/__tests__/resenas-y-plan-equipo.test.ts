@@ -54,7 +54,7 @@ describe('Reseñas de Google Automáticas', () => {
   // tener telefono, o habersela pedido ya por esa fiesta.
   it('la nota baja NO frena el pedido: se le pide igual', async () => {
     mockReadData.mockResolvedValue([
-      { id: 'fb_1', npsScore: 8, clientName: 'Juan', fiestaId: 'f_1' }
+      { id: 'fb_1', npsScore: 3, clientName: 'Juan', fiestaId: 'f_1' }
     ]);
     mockGetCompanyInfo.mockResolvedValue({ googleReviewsLink: 'https://g.page/review' });
 
@@ -183,14 +183,45 @@ describe('Reseñas automáticas al contestar la encuesta (sin sesión)', () => {
     expect(mockSendWhatsApp).not.toHaveBeenCalled();
   });
 
-  it('con nota 8 tambien se le manda: no se filtra por puntaje', async () => {
+  it('con nota baja tambien se le manda, pero haciendose cargo primero', async () => {
     prepararTodoListo([]);
 
     await saveFeedback({
       fiestaId: 'f_1',
       fiestaNombre: 'Boda de Ana y Juan',
       clientName: 'Ana',
-      npsScore: 8,
+      npsScore: 4,
+    } as any);
+
+    expect(mockSendWhatsApp).toHaveBeenCalled();
+    const enviado = mockSendWhatsApp.mock.calls[0][0].text as string;
+    expect(enviado).toMatch(/no estuvieron a la altura/);
+    expect(enviado).toMatch(/te vamos a llamar/);
+    // El enlace va igual: no se le esconde a nadie.
+    expect(enviado).toContain('https://g.page/r/abc/review');
+  });
+
+  it('con nota alta manda el mensaje de agradecimiento, con el mismo enlace', async () => {
+    prepararTodoListo([]);
+
+    await saveFeedback({
+      fiestaId: 'f_1',
+      fiestaNombre: 'Boda de Ana y Juan',
+      clientName: 'Ana',
+      npsScore: 10,
+    } as any);
+
+    expect(mockSendWhatsApp).toHaveBeenCalled();
+    const enviado = mockSendWhatsApp.mock.calls[0][0].text as string;
+    expect(enviado).toMatch(/Muchas gracias por tus comentarios/);
+    expect(enviado).toContain('https://g.page/r/abc/review');
+    prepararTodoListo([]);
+
+    await saveFeedback({
+      fiestaId: 'f_1',
+      fiestaNombre: 'Boda de Ana y Juan',
+      clientName: 'Ana',
+      npsScore: 4,
     } as any);
 
     expect(mockSendWhatsApp).toHaveBeenCalled();

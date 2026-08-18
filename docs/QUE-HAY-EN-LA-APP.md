@@ -41,9 +41,18 @@ muestre**. Esa distinción es la que más veces falló.
 | Recuerdo de cada invitado (video vertical para historias) | Sí | Enlace personal del invitado / Recap de la mañana |
 | Transmisión en vivo | Sí | Pantalla de la fiesta en vivo |
 | Centro de presencia digital | Sí | Empresa → Presencia digital |
+| Reseña de Google al terminar encuesta | Sí | Encuesta pública `/feedback/[fiestaId]` |
+| Seguimiento de reseñas por fiesta | Sí | Empresa → Presencia digital → solapa "Ficha de Google" |
+| Alerta puntaje de Google < 4.0 | Sí | Empresa → Presencia digital → banner de alerta |
+| Tablero de 16 altas en directorios | Sí | Empresa → Presencia digital → solapa "Tablero de altas (16)" |
+| Autogenerador semanal de calendario | Sí | Empresa → Presencia digital → solapa "Revisión Diaria" |
 | Comentarios de redes e IA | Sí | Empresa → Presencia digital → solapa "Comentarios de redes" |
 | Moderación de comentarios y quejas | Sí | Empresa → Presencia digital → solapa "Comentarios de redes" |
 | Capturas de pantalla en testimonios | Sí | Ajustes → Feedback & Testimonios y carrusel público |
+| Sección "por qué AK" en la portada | Sí | Portada, debajo de la presentación |
+| Pedido de cambio de cantidad de invitados por el cliente | Sí | Portal del cliente, y el equipo lo acepta o rechaza en Fiestas → Portal del cliente |
+| Pedido de cambio de menú por el cliente | Sí | Portal del cliente |
+| Pasar un prospecto a cliente (con contrato y seña) | Sí | Contabilidad → CRM, botón de confirmar reserva |
 | Testimonios del catálogo impreso en las páginas de venta | Sí, son reales (falta subirles la captura) | `/bodas`, `/quinceaneras`, `/cumpleanos`, `/fiestas`, `/corporativos`, `/aniversarios` |
 | Tope de gasto al traer el historial de comentarios | Sí, cien por corrida | Empresa → Presencia digital → "Historial completo" |
 | Tu página web (Google Analytics 4) | Sí | Empresa → Presencia digital → solapa "Tu página web" |
@@ -247,7 +256,8 @@ de lo que el equipo todavía tiene que publicar a mano.
 - **Asistente de ventas en las páginas públicas**: contesta con el catálogo real,
   no inventa precios ni fechas, y guarda al interesado en el CRM. **Apagado de
   fábrica**; se prende en Ajustes. Sólo aparece en las páginas de venta, nunca
-  encima de una invitación, del portal del cliente ni de la fiesta.
+  encima de una invitación, del portal del cliente ni de la fiesta. Vive en
+  `src/components/public/AsistenteVirtual.tsx` y se monta en el armazón general.
 - **El mensaje de recontacto se escribe a medida** de cada persona. Si el servicio
   falla o se llegó al tope de gasto, manda el de siempre.
 - **Video del recuerdo** por evento, armado con las fotos aprobadas del muro.

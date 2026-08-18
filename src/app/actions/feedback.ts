@@ -153,6 +153,24 @@ export async function deleteTestimonial(testimonialId: string): Promise<{ succes
   return { success: true };
 }
 
+/**
+ * Devuelve el enlace de resenas de Google que el dueno cargo en Ajustes, para la
+ * pantalla de gracias de la encuesta.
+ *
+ * Es publica a proposito: la contesta el cliente sin cuenta. Solo devuelve ese
+ * enlace, que de por si es publico, y nada mas de la ficha de la empresa. Si el
+ * dueno no lo cargo, devuelve vacio y la pantalla esconde el bloque: nunca se
+ * escribe una direccion de Google a mano, ya paso dos veces y hubo que sacarla.
+ */
+export async function getEnlaceDeResenaPublico(): Promise<string> {
+  try {
+    const company = await getCompanyInfo();
+    return company.googleReviewsLink?.trim() || '';
+  } catch {
+    return '';
+  }
+}
+
 async function enviarPedidoDeResena(feedback: FeedbackSubmission, company: CompanyInfo): Promise<{ success: boolean; error?: string }> {
   if (!company.googleReviewsLink) {
     return { success: false, error: "El enlace de Google no está configurado." };
