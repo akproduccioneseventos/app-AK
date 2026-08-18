@@ -222,7 +222,7 @@ export default function CompanySettingsPage() {
                     Reseñas de Google Automáticas
                   </Label>
                   <CardDescription className="text-xs">
-                    Configurá el enlace directo a las reseñas de tu negocio en Google. Cuando un cliente deje una calificación de 9 o 10 en la encuesta post-evento, se le pedirá automáticamente (por WhatsApp) que deje una reseña pública.
+                    Configurá el enlace directo a las reseñas de tu negocio en Google. Cuando un cliente completa la encuesta post-evento, se le pide por WhatsApp que deje su reseña. Se le pide a todos por igual, sin mirar la nota: filtrar por puntaje hace que Google borre todas las reseñas del negocio.
                   </CardDescription>
                   <div className="space-y-3">
                     <div className="space-y-2">
@@ -231,7 +231,7 @@ export default function CompanySettingsPage() {
                     </div>
                     <div className="flex items-center space-x-2 pt-2">
                       <Switch id="google-reviews-auto" checked={!!companyInfo.enableGoogleReviewsAutoRequest} onCheckedChange={(checked) => handleInfoChange('enableGoogleReviewsAutoRequest', checked)} disabled={isSaving || !companyInfo.googleReviewsLink?.trim()} />
-                      <Label htmlFor="google-reviews-auto" className={!companyInfo.googleReviewsLink?.trim() ? "text-muted-foreground" : ""}>Activar solicitud automática a promotores (NPS 9-10)</Label>
+                      <Label htmlFor="google-reviews-auto" className={!companyInfo.googleReviewsLink?.trim() ? "text-muted-foreground" : ""}>Pedir la reseña a todos los clientes, al terminar la encuesta</Label>
                     </div>
                     {!companyInfo.googleReviewsLink?.trim() && (
                       <p className="text-xs text-amber-600">Debes ingresar el enlace de Google para poder activar el envío automático.</p>

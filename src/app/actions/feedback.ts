@@ -49,10 +49,18 @@ export async function saveFeedback(submission: Omit<FeedbackSubmission, 'id' | '
     timestamp: new Date().toISOString(),
   };
 
-  // Pedido automatico de resena en Google. Va a TODOS los que contestan la
-  // encuesta, sin mirar la nota: pedirsela solo a los contentos es filtrar
-  // resenas, y Google lo castiga borrandolas. Lo que cambia segun la nota es el
-  // texto del mensaje, no a quien se le manda.
+  /**
+   * Pedido de resena en Google: **se le pide a TODOS los clientes, sin mirar la
+   * nota**.
+   *
+   * Antes se pedia solo a los que ponian 9 o 10. Eso se llama filtrar resenas y
+   * Google lo sanciona **borrando todas las resenas del negocio**, no solo las
+   * filtradas, aunque el pedido sea amable y no se ofrezca nada a cambio. En una
+   * ciudad chica eso es la diferencia entre aparecer y desaparecer.
+   *
+   * Al que puso nota baja se le manda el mismo enlace, con un texto distinto que
+   * primero se hace cargo. No se le esconde.
+   */
   if (!yaSeLePidioPorEstaFiesta(allFeedback, newFeedback.fiestaId)) {
     try {
       const company = await getCompanyInfo();
@@ -167,7 +175,6 @@ async function enviarPedidoDeResena(feedback: FeedbackSubmission, company: Compa
   if (!company.googleReviewsLink) {
     return { success: false, error: "El enlace de Google no está configurado." };
   }
-
   // Get phone number from fiesta -> cliente
   const fiesta = await getFiestaById(feedback.fiestaId);
   if (!fiesta || !fiesta.configuracion.clienteId) {
@@ -183,18 +190,12 @@ async function enviarPedidoDeResena(feedback: FeedbackSubmission, company: Compa
     return { success: false, error: "WhatsApp no está configurado o está deshabilitado." };
   }
 
-  // El pedido va SIEMPRE, sin mirar la nota. Mandarselo solo a los contentos se
-  // llama filtrar resenas: Google lo prohibe y castiga borrandolas. Ademas, un
-  // negocio con puro cinco perfecto parece arreglado y vende menos que uno con
-  // alguna de cuatro y respuestas prolijas abajo.
-  //
-  // Lo unico que cambia segun la nota es el texto: al que quedo disconforme
-  // primero se le pide disculpas y se le avisa que el equipo lo va a contactar.
-  // El enlace va igual, abajo.
-  const esDetractor = (feedback.npsScore ?? 0) < 7;
-  const messageText = esDetractor
-    ? `¡Hola ${feedback.clientName}! Muchas gracias por tus comentarios sobre la fiesta "${feedback.fiestaNombre}".\n\nLamentamos no haber alcanzado tus expectativas al 100%. Nuestro equipo se va a contactar con vos a la brevedad para conversar sobre lo ocurrido y buscar una solución.\n\nSi igualmente querés dejar tu reseña en Google, podés hacerlo con total libertad acá:\n\n${company.googleReviewsLink}\n\n¡Muchas gracias!`
-    : `¡Hola ${feedback.clientName}! Muchas gracias por tus comentarios sobre la fiesta "${feedback.fiestaNombre}".\n\nNos alegra mucho que hayas disfrutado la experiencia. ¿Te animarías a compartir tu opinión en Google? Nos ayudaría muchísimo:\n\n${company.googleReviewsLink}\n\n¡Un abrazo grande de parte de todo el equipo!`;
+  // El mismo enlace para todos; cambia el tono segun lo que puso el cliente.
+  const quedoConforme = (feedback.npsScore ?? 0) >= 7;
+
+  const messageText = quedoConforme
+    ? `¡Hola ${feedback.clientName}! Muchas gracias por tus comentarios sobre la fiesta "${feedback.fiestaNombre}".\n\nNos alegra mucho que hayas disfrutado la experiencia. ¿Te animarías a compartir tu opinión en Google? Nos ayudaría muchísimo:\n\n${company.googleReviewsLink}\n\n¡Un abrazo grande de parte de todo el equipo!`
+    : `¡Hola ${feedback.clientName}! Gracias por tomarte el tiempo de contarnos cómo viviste la fiesta "${feedback.fiestaNombre}".\n\nHay cosas que no estuvieron a la altura y las queremos resolver: te vamos a llamar para escucharte bien.\n\nY si querés dejar tu opinión en Google, este es el enlace. Nos sirve tal cual la sientas:\n\n${company.googleReviewsLink}\n\nGracias de verdad.`;
 
   const delivery = await sendMetaWhatsAppMessage({
     to: telefono,
@@ -223,7 +224,6 @@ export async function requestGoogleReviewManual(feedbackId: string): Promise<{ s
   if (yaSeLePidioPorEstaFiesta(allFeedback, feedback.fiestaId)) {
     return { success: false, error: "Ya se le pidió la reseña a este cliente." };
   }
-
   const company = await getCompanyInfo();
   if (!company.googleReviewsLink) {
     return { success: false, error: "El enlace de Google no está configurado en Ajustes de Empresa." };

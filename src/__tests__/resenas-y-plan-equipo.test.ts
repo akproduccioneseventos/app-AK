@@ -48,16 +48,19 @@ describe('Reseñas de Google Automáticas', () => {
     jest.clearAllMocks();
   });
 
-  it('pide la resena igual aunque la nota sea baja: filtrar esta prohibido', async () => {
+  // Antes esta prueba exigia lo contrario: que con nota menor a 9 no se pidiera.
+  // Filtrar por puntaje hace que Google borre TODAS las resenas del negocio, asi
+  // que la nota ya no frena el pedido. Lo unico que frena es no tener enlace, no
+  // tener telefono, o habersela pedido ya por esa fiesta.
+  it('la nota baja NO frena el pedido: se le pide igual', async () => {
     mockReadData.mockResolvedValue([
       { id: 'fb_1', npsScore: 3, clientName: 'Juan', fiestaId: 'f_1' }
     ]);
     mockGetCompanyInfo.mockResolvedValue({ googleReviewsLink: 'https://g.page/review' });
 
     const result = await requestGoogleReviewManual('fb_1');
-    // Lo que importa: no se frena por la nota. Que despues llegue o no depende
-    // del telefono del cliente y de WhatsApp, que en esta prueba no se arman.
-    expect(result.error || '').not.toMatch(/nota|calificaci/i);
+
+    expect(result.error).not.toMatch(/menor a 9/);
   });
 
   it('debe rechazar la solicitud si el enlace de Google no está configurado', async () => {
@@ -180,7 +183,7 @@ describe('Reseñas automáticas al contestar la encuesta (sin sesión)', () => {
     expect(mockSendWhatsApp).not.toHaveBeenCalled();
   });
 
-  it('con nota baja manda el pedido igual, pero pidiendo disculpas primero', async () => {
+  it('con nota baja tambien se le manda, pero haciendose cargo primero', async () => {
     prepararTodoListo([]);
 
     await saveFeedback({
@@ -192,13 +195,13 @@ describe('Reseñas automáticas al contestar la encuesta (sin sesión)', () => {
 
     expect(mockSendWhatsApp).toHaveBeenCalled();
     const enviado = mockSendWhatsApp.mock.calls[0][0].text as string;
-    expect(enviado).toMatch(/Lamentamos/);
-    expect(enviado).toMatch(/se va a contactar con vos/);
+    expect(enviado).toMatch(/no estuvieron a la altura/);
+    expect(enviado).toMatch(/te vamos a llamar/);
     // El enlace va igual: no se le esconde a nadie.
     expect(enviado).toContain('https://g.page/r/abc/review');
   });
 
-  it('con nota alta manda el mensaje de agradecimiento', async () => {
+  it('con nota alta manda el mensaje de agradecimiento, con el mismo enlace', async () => {
     prepararTodoListo([]);
 
     await saveFeedback({
@@ -212,6 +215,16 @@ describe('Reseñas automáticas al contestar la encuesta (sin sesión)', () => {
     const enviado = mockSendWhatsApp.mock.calls[0][0].text as string;
     expect(enviado).toMatch(/Muchas gracias por tus comentarios/);
     expect(enviado).toContain('https://g.page/r/abc/review');
+    prepararTodoListo([]);
+
+    await saveFeedback({
+      fiestaId: 'f_1',
+      fiestaNombre: 'Boda de Ana y Juan',
+      clientName: 'Ana',
+      npsScore: 4,
+    } as any);
+
+    expect(mockSendWhatsApp).toHaveBeenCalled();
   });
 });
 

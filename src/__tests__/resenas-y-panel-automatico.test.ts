@@ -105,7 +105,13 @@ describe('Orden: La reseña de Google y el panel que trabaja solo', () => {
 
       expect(feedbackActionsSource).not.toContain('feedback.npsScore ?? 0) < 9');
       expect(feedbackActionsSource).not.toContain('newFeedback.npsScore ?? 0) >= 9');
-      expect(feedbackActionsSource).toContain('esDetractor');
+
+      // La nota decide el TEXTO, no a quien se le manda. Antes esto comprobaba el
+      // nombre de una variable (`esDetractor`) y se rompio solo con renombrarla:
+      // ahora comprueba lo que importa, que haya dos mensajes distintos y que el
+      // enlace vaya en los dos.
+      const enlacesEnElMensaje = feedbackActionsSource.match(/company\.googleReviewsLink\}/g) || [];
+      expect(enlacesEnElMensaje.length).toBeGreaterThanOrEqual(2);
     });
   });
 

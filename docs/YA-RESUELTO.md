@@ -2224,30 +2224,42 @@ legítima **no se oculte sola**, que correr dos veces no duplique nada, que si f
 la inteligencia artificial el comentario quede **sin clasificar** en vez de mal
 clasificado, y que una red sin configurar no rompa la traída de las otras.
 
-## Se sacó el filtro de reseñas de Google (18 de agosto de 2026)
+## El título de la portada en Google (18 de agosto de 2026)
 
-**El pedido de reseña por WhatsApp salía sólo a los clientes que puntuaban 9 o
-10.** Estaba en tres lugares de `src/app/actions/feedback.ts`: en el envío, en el
-guardado de la encuesta y en el pedido manual.
+El sitio estaba indexado como **"Inicio - AK Producciones"**. Ese renglón es lo
+único que ve la persona antes de entrar, y no decía ni que es un salón de fiestas
+ni que está en Salto. Salía de un campo de Ajustes con una palabra genérica
+cargada.
 
-Eso se llama filtrar reseñas y **Google lo prohíbe**: la sanción es borrar las
-reseñas del negocio. En una ciudad chica, quedarse sin reseñas es peor que tener
-alguna mala. Todavía no había hecho daño porque el envío automático viene apagado
-de fábrica y el enlace de Google venía vacío.
+Ahora, si en Ajustes queda una palabra que no dice nada —inicio, home, portada,
+página principal, index—, **se ignora y se usa el nombre de la empresa**. El
+control vive en `src/lib/seo/titulo-de-la-portada.ts`, con prueba.
 
-**Cómo quedó:** el pedido sale para todos los que contestan la encuesta, con el
-mismo enlace. Lo único que cambia según la nota es el texto del mensaje: con nota
-6 o menos se pide disculpas primero y se avisa que el equipo va a llamar, y el
-enlace va igual abajo. Con nota alta, el agradecimiento de siempre.
+**Verificado en la misma tanda, y no son pendientes:** los datos estructurados del
+negocio ya declaran el teléfono y la ciudad; los accesos de Google Analytics van
+por configuración del servidor.
 
-**Por qué conviene además del cumplimiento:** un promedio de cinco perfecto parece
-arreglado. Vende más un 4,5 con alguna de cuatro estrellas y respuestas prolijas
-abajo. Y cuantas más reseñas hay, menos pesa cada una mala.
+## El pedido de reseña filtraba por nota (18 de agosto de 2026)
 
-**Ojo si aparece de nuevo:** las pruebas de
-`src/__tests__/resenas-y-plan-equipo.test.ts` ahora exigen lo contrario de lo que
-exigían antes — que con nota baja el pedido se mande igual. Si alguien las ve
-fallar, la respuesta no es volver a poner el filtro.
+**La app ya pedía la reseña de Google al cliente** —está en
+`src/app/actions/feedback.ts`, con su enlace y su interruptor en Ajustes →
+Empresa—. **Eso no era un pendiente: se reportó mal una vez y se llegó a pedir que
+se construyera de nuevo. Verificar antes de pedir.**
+
+Pero **se la pedía sólo a los clientes que ponían 9 o 10**. Eso se llama filtrar
+reseñas y **Google lo sanciona borrando todas las reseñas del negocio**, no sólo
+las filtradas, aunque el pedido sea amable y no se ofrezca nada a cambio.
+
+Ahora se le pide **a todos**, con el mismo enlace. Al que quedó disconforme se le
+manda un texto distinto, que primero se hace cargo y avisa que lo van a llamar.
+Sigue sin pedirse dos veces por la misma fiesta. Hay una prueba que impide que el
+filtro vuelva.
+
+**Y queda anotado el falso positivo que lo desencadenó:** los testimonios de las
+páginas de venta **son reales**, transcritos de comentarios que el dueño tenía
+guardados. Una auditoría los tomó por relleno y los borró; se repusieron. **No se
+vuelven a borrar.** Lo que sí falta es la captura de cada uno, que es lo que los
+hace verificables, y para eso ya existe la pantalla para subirlas.
 
 ## El enlace de reseñas escrito a mano en la encuesta (18 de agosto de 2026)
 
