@@ -2370,6 +2370,48 @@ Se revisó uno por uno y se resolvió cada caso:
 **La lección, otra vez:** dos de los seis parecían funciones que faltaban y las dos
 existían con otro nombre. Antes de construir, buscar la función, no el archivo.
 
+## Revisión a fondo con la app andando (18 de agosto de 2026)
+
+Se recorrieron las pantallas públicas en un navegador de verdad, en celular y en
+escritorio, además de cuatro auditorías del código por viaje de usuario. **De diez
+avisos, siete eran falsa alarma.** Quedan anotados para no volver a gastarlos:
+
+- **`/q` da 404.** Falsa alarma: el código QR real de la fiesta es `/q/<id>`, que
+  responde bien. La dirección pelada nunca se usa.
+- **La barra fija del celular tapa el formulario** en las páginas de venta. Falsa
+  alarma: se midió con el navegador y **ningún campo queda tapado**; el celular
+  sube el campo por encima de la barra al tocarlo.
+- **"Faltan -1 días" en el planificador.** Falsa alarma: el aviso no se muestra si
+  faltan menos de cero días, y 0 y 1 dicen "¡HOY ES EL EVENTO!" y "¡MAÑANA ES EL
+  EVENTO!".
+- **La fecha del historial de precios no muestra la hora.** Falsa alarma: se probó
+  y muestra "18 ago 2026, 15:30".
+- **El cliente no puede pedir cambios ni pagar desde su portal.** Falsa alarma, y
+  al revés: el enlace que el equipo le manda al cliente es `/portal/c/<clave>`, que
+  sí tiene todo. `/portal-cliente/<id>` es la pantalla de demostración que se le
+  muestra al prospecto.
+- **Nada roto ni feo en el viaje del invitado ni en el del cliente.** Dos
+  auditorías completas sin hallazgos.
+
+### Lo que sí era de verdad
+
+- **El botón de las páginas de venta decía "Verificar Disponibilidad" y no
+  verificaba nada:** guardaba la consulta y abría WhatsApp. Prometerle al que
+  recién llega una respuesta que la pantalla no da es la forma más rápida de perder
+  su confianza. Ahora dice **"Consultar por WhatsApp"**, que es lo que pasa.
+
+- **Entrar por el atajo `/blog` deja un error interno.** `/blog` redirige a
+  `/public/blog`; entrando derecho no pasa nada, y por el atajo la pantalla **se ve
+  igual y completa**, con los siete artículos. No se toca: cambiarlo es más riesgo
+  que beneficio, y no hay nada que el visitante note.
+
+### Una decisión que le queda al dueño, no es un error
+
+**El simulador pide nombre y celular antes de mostrar un solo precio.** Es a
+propósito: sin teléfono no se puede contestar. Pero el que entra curioso a "ver
+cuánto sale" se va sin ver nada. Es una decisión de venta —capturar más contactos
+contra dejar mirar— y la toma el dueño, no una auditoría.
+
 ## Cómo agregar algo a esta lista
 
 **Se anota SIEMPRE, en la misma propuesta que toca el código.** Orden del dueño

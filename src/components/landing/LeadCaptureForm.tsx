@@ -289,10 +289,14 @@ export function LeadCaptureForm({
             'disabled:opacity-60 disabled:cursor-not-allowed disabled:scale-100'
           )}
         >
+          {/* El boton decia "Verificar Disponibilidad" y no verificaba nada: guarda
+              la consulta y abre WhatsApp. Prometer una respuesta que la pantalla no
+              da es la forma mas rapida de perder la confianza del que recien llega.
+              Ahora dice lo que realmente pasa al tocarlo. */}
           {loading ? (
-            <><Loader2 className="w-5 h-5 animate-spin" />Verificando...</>
+            <><Loader2 className="w-5 h-5 animate-spin" />Enviando...</>
           ) : (
-            <><Send className="w-5 h-5" />Verificar Disponibilidad</>
+            <><Send className="w-5 h-5" />Consultar por WhatsApp</>
           )}
         </button>
 
