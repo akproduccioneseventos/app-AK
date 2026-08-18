@@ -327,7 +327,7 @@ export async function getNetworkAttributionReport(
         const budget = budgets.find((b) =>
           b.id === lead.presupuestoId ||
           (b.clienteNombre && lead.name && b.clienteNombre.toLowerCase() === lead.name.toLowerCase()) ||
-          (b.clienteTelefono && lead.phone && b.clienteTelefono.replace(/\D/g, '') === lead.phone.replace(/\D/g, ''))
+          (b.clienteContacto && lead.phone && b.clienteContacto.replace(/\D/g, '') === lead.phone.replace(/\D/g, ''))
         );
 
         const hasBudget = Boolean(lead.presupuestoId || lead.presupuestoEstado || budget);
