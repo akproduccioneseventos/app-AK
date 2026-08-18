@@ -16,6 +16,18 @@ const STATE_FILE = 'social-comments-backfill-state.json';
 
 const DEFAULT_EARLIEST_DATE = '2019-09-01T00:00:00.000Z';
 
+/**
+ * Cuantos comentarios se mandan a la inteligencia artificial en una sola
+ * corrida.
+ *
+ * Cada revision cuesta plata y se descuenta del tope mensual del dueno. Sin este
+ * limite, un solo toque en "Historial completo" —que trae anos de comentarios de
+ * una— podia gastarle el presupuesto entero del mes de una sentada, sin avisarle
+ * nada. Los que sobran quedan guardados sin revisar y los toma la corrida
+ * siguiente, empezando por los mas nuevos.
+ */
+const MAX_REVISIONES_POR_CORRIDA = 100;
+
 function graphVersion(): string {
   return process.env.META_GRAPH_API_VERSION
     || process.env.INSTAGRAM_GRAPH_API_VERSION
@@ -318,39 +330,61 @@ export async function syncCommentsFromNetworks(options?: { full?: boolean }): Pr
   let totalNew = 0;
   let totalAutoHidden = 0;
 
-  // 2. Procesar comentarios nuevos y clasificar con IA
+  // 2. Guardar los comentarios nuevos. Se guardan siempre, aunque despues no
+  //    alcance el presupuesto para revisarlos: perder el comentario es peor.
   for (const inc of allIncoming) {
     if (!existingMap.has(inc.id)) {
       totalNew++;
-      
-      // Clasificación con IA (respetando presupuesto de tokens)
-      const clasif = await clasificarComentario(inc.text, inc.authorName);
-      if (clasif.classified) {
-        inc.sentiment = clasif.sentiment;
-        inc.sentimentReason = clasif.sentimentReason;
-        inc.isInsultOrSpam = clasif.isInsultOrSpam;
-        inc.isLegitimateComplaint = clasif.isLegitimateComplaint;
-        inc.classifiedAt = new Date().toISOString();
-
-        // Si es insulto o spam flagrante, ocultamiento automático reversible
-        if (clasif.autoHideRecommended) {
-          inc.isAutoHidden = true;
-          inc.autoHiddenReason = clasif.sentimentReason || 'Ocultado automáticamente por insulto o spam';
-          inc.autoHiddenAt = new Date().toISOString();
-          totalAutoHidden++;
-
-          // Ejecutar ocultamiento en Meta si es de Facebook / Instagram
-          if (inc.network === 'Facebook' && fbConn.pageAccessToken) {
-            await hideCommentOnMeta(inc.networkCommentId, fbConn.pageAccessToken);
-          } else if (inc.network === 'Instagram' && igConn.pageAccessToken) {
-            await hideCommentOnMeta(inc.networkCommentId, igConn.pageAccessToken);
-          }
-        }
-      }
-
       existingMap.set(inc.id, inc);
     }
   }
+
+  // 3. Revisar con inteligencia artificial, hasta el tope de la corrida.
+  //    Entran tambien los que quedaron sin revisar de corridas anteriores, del
+  //    mas nuevo al mas viejo: lo de ayer importa mas que lo de 2019.
+  const sinRevisar = Array.from(existingMap.values())
+    .filter((c) => !c.classifiedAt && !c.isDeleted)
+    .sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime());
+
+  let totalClasificados = 0;
+  let fallosSeguidos = 0;
+  for (const inc of sinRevisar.slice(0, MAX_REVISIONES_POR_CORRIDA)) {
+    const clasif = await clasificarComentario(inc.text, inc.authorName);
+
+    if (!clasif.classified) {
+      // Sin presupuesto, o la inteligencia artificial no responde. Se corta la
+      // corrida en vez de seguir golpeando: los que faltan quedan guardados sin
+      // revisar y los toma la corrida siguiente.
+      fallosSeguidos++;
+      if (fallosSeguidos >= 3) break;
+      continue;
+    }
+
+    fallosSeguidos = 0;
+    totalClasificados++;
+    inc.sentiment = clasif.sentiment;
+    inc.sentimentReason = clasif.sentimentReason;
+    inc.isInsultOrSpam = clasif.isInsultOrSpam;
+    inc.isLegitimateComplaint = clasif.isLegitimateComplaint;
+    inc.classifiedAt = new Date().toISOString();
+
+    // Si es insulto o spam flagrante, ocultamiento automático reversible
+    if (clasif.autoHideRecommended) {
+      inc.isAutoHidden = true;
+      inc.autoHiddenReason = clasif.sentimentReason || 'Ocultado automáticamente por insulto o spam';
+      inc.autoHiddenAt = new Date().toISOString();
+      totalAutoHidden++;
+
+      // Ejecutar ocultamiento en Meta si es de Facebook / Instagram
+      if (inc.network === 'Facebook' && fbConn.pageAccessToken) {
+        await hideCommentOnMeta(inc.networkCommentId, fbConn.pageAccessToken);
+      } else if (inc.network === 'Instagram' && igConn.pageAccessToken) {
+        await hideCommentOnMeta(inc.networkCommentId, igConn.pageAccessToken);
+      }
+    }
+  }
+
+  const pendientesDeClasificar = Math.max(0, sinRevisar.length - totalClasificados);
 
   const updatedComments = Array.from(existingMap.values());
   await writeData(COMMENTS_FILE, updatedComments);
@@ -368,6 +402,8 @@ export async function syncCommentsFromNetworks(options?: { full?: boolean }): Pr
     totalFetched: allIncoming.length,
     totalNew,
     totalAutoHidden,
+    totalClasificados,
+    pendientesDeClasificar,
     platforms: newStates,
     syncedAt: new Date().toISOString(),
   };

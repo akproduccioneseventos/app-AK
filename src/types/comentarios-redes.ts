@@ -55,6 +55,14 @@ export interface CommentsSyncSummary {
   totalFetched: number;
   totalNew: number;
   totalAutoHidden: number;
+  /** Cuantos se mandaron a la inteligencia artificial en esta corrida. */
+  totalClasificados: number;
+  /**
+   * Cuantos quedaron guardados pero sin revisar, porque se llego al tope de la
+   * corrida o porque se acabo el presupuesto de inteligencia artificial. Se
+   * toman en la corrida siguiente.
+   */
+  pendientesDeClasificar: number;
   platforms: Record<CommentNetwork, NetworkCommentsBackfillState>;
   syncedAt: string;
 }

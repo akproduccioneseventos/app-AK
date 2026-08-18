@@ -104,9 +104,12 @@ export function PresenciaDigitalClient({ initialData, initialPosts }: Props) {
     try {
       const res = await triggerCommentsSyncAction(full);
       if (res.success) {
+        const pendientes = res.result?.pendientesDeClasificar || 0;
         setPublishFeedback({
           success: true,
-          message: `¡Comentarios sincronizados con éxito! ${res.result?.totalNew || 0} nuevos encontrados.`,
+          message: pendientes > 0
+            ? `Se trajeron ${res.result?.totalNew || 0} comentarios nuevos y se revisaron ${res.result?.totalClasificados || 0}. Quedan ${pendientes} sin revisar para no gastar de más: se revisan solos mañana, o tocá de nuevo para seguir ahora.`
+            : `Listo: ${res.result?.totalNew || 0} comentarios nuevos, todos revisados.`,
         });
         await loadComments();
       } else {

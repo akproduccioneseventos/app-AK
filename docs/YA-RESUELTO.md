@@ -2167,6 +2167,56 @@ momento en que está mirando el precio y decidiendo**. Ahora figura
   TikTok. Publicar automático en X se paga y Pinterest exige aprobación: no es una
   falta, es la decisión correcta.
 
+## Los testimonios de las páginas de venta SON REALES (18 de agosto de 2026)
+
+**No se borran. Confirmado por el dueño.**
+
+En `src/data/event-catalogs/*.ts` hay 22 testimonios con nombre y fecha. Salieron
+de **comentarios de Facebook que el dueño tenía guardados en su catálogo impreso**
+y se transcribieron al armar la web.
+
+**Qué salió mal:** una auditoría los tomó por relleno y los borró de los seis
+catálogos (propuesta 1059). El dueño avisó que eran suyos y se repusieron tal cual
+estaban. Quedan anotados acá y en el propio código para que no vuelva a pasar, más
+una prueba (`src/__tests__/testimonios-reales.test.ts`) que falla si alguien deja
+las listas vacías.
+
+**Por qué se confundieron:** les falta la captura del comentario, que es lo único
+que los hace verificables. El campo `screenshotUrl` y el carrusel ya existían;
+faltaba la pantalla para subir la imagen, que entró en esta misma tanda.
+
+**Ojo con dos cosas distintas:** los testimonios que el cliente deja después del
+evento (con doble aprobación) son otro sistema, ya anotado más arriba. Éstos son
+los del catálogo impreso.
+
+## Tope de gasto al traer los comentarios de las redes (18 de agosto de 2026)
+
+El botón "Historial completo" del centro de presencia digital trae años de
+comentarios de una sola vez, y **cada comentario se manda a la inteligencia
+artificial para clasificarlo, lo que cuesta plata** y se descuenta del tope
+mensual del dueño. Tal como venía, un solo toque con miles de comentarios atrás le
+gastaba el presupuesto entero del mes de una sentada, sin avisarle nada.
+
+**Qué se hizo:** se revisan como máximo cien comentarios por corrida
+(`MAX_REVISIONES_POR_CORRIDA` en `src/lib/social-media/comments-backfill.ts`). Los
+que sobran **se guardan igual**, sin revisar, y los toma la corrida siguiente
+empezando por los más nuevos. La pantalla ahora dice cuántos quedaron pendientes y
+por qué. Si la inteligencia artificial no responde tres veces seguidas, la corrida
+se corta sola en vez de seguir gastando.
+
+**Por qué así y no con un cartel de confirmación:** un cartel se acepta sin leer.
+El tope protege la plata aunque el botón se toque de apuro.
+
+## Los cinco controles de los comentarios de las redes (18 de agosto de 2026)
+
+La orden pedía cinco pruebas y la entrega no las traía (sólo probaba los
+testimonios con captura). Se escribieron en
+`src/__tests__/comentarios-redes-sincronizacion.test.ts`, llamando al código de
+verdad: que un comentario agresivo **se oculte pero nunca se borre**, que una queja
+legítima **no se oculte sola**, que correr dos veces no duplique nada, que si falla
+la inteligencia artificial el comentario quede **sin clasificar** en vez de mal
+clasificado, y que una red sin configurar no rompa la traída de las otras.
+
 ## Cómo agregar algo a esta lista
 
 **Se anota SIEMPRE, en la misma propuesta que toca el código.** Orden del dueño

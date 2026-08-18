@@ -1,13 +1,3 @@
-// Los testimonios de relleno se sacaron el 18 de agosto de 2026.
-//
-// Tenian nombre y apellido, fecha y de que red salian, pero **no eran reales** y
-// les faltaba lo unico que los hacia creibles: la captura del comentario
-// (`screenshotUrl`). Un visitante no tenia forma de saber que eran de mentira.
-//
-// La lista queda vacia a proposito: el carrusel se esconde solo cuando no hay
-// nada, asi que no deja hueco. Cuando entren los comentarios de verdad de las
-// redes, se muestran esos.
-
 import type { EventCatalogData } from '@/types/public-landing';
 import {
   sharedServices,
@@ -44,7 +34,25 @@ const aniversariosData: EventCatalogData = {
         }
       : s
   ),
-  testimonials: [],
+  // Testimonios REALES, transcriptos de comentarios de Facebook del catalogo
+  // impreso del dueno. No se borran: ya se borraron una vez por error el 18 de
+  // agosto de 2026. Detalle completo en `shared.ts`.
+  testimonials: [
+    {
+      id: 't1',
+      authorName: 'Roberto y Marta',
+      source: 'instagram',
+      text: 'Nuestras Bodas de Oro fueron más hermosas que nuestra boda original. Gracias AK por este regalo tan especial. 💛',
+      date: 'Julio 2024',
+    },
+    {
+      id: 't2',
+      authorName: 'Familia González',
+      source: 'whatsapp',
+      text: 'Organizamos una sorpresa de aniversario de 25 años para mis padres y lloramos de emoción. AK capturó todo perfectamente.',
+      date: 'Marzo 2024',
+    },
+  ],
   promotion: {
     ...sharedPromotion,
     sectionTitle: '🎁 Detalles especiales para aniversarios',

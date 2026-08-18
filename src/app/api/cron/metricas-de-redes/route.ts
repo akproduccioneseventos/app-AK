@@ -76,6 +76,8 @@ async function correrTarea(request: Request) {
       totalFetched: 0,
       totalNew: 0,
       totalAutoHidden: 0,
+      totalClasificados: 0,
+      pendientesDeClasificar: 0,
       platforms: {} as any,
       syncedAt: new Date().toISOString(),
       error: error instanceof Error ? error.message : 'No se pudieron sincronizar los comentarios diarios.',
