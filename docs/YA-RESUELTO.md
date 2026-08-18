@@ -2071,6 +2071,28 @@ Google del dueño. Mientras no estén, **vacío es la respuesta correcta**.
   (`material-post-evento`) y, sin presupuesto, cae solo a las plantillas
   escritas a mano. Verificado, no es un pendiente.
 
+## Una entrega duplicada que NO se fusiona (18 de agosto de 2026)
+
+La rama `feat/panel-presencia-digital-usable` es **la misma orden del panel de
+presencia digital hecha por segunda vez**, por otro camino. Lo que pedía ya entró
+por `feat/panel-presencia-digital-completo` (propuesta #1053), verificado y con el
+publicador cerrado.
+
+**No se fusiona, y el motivo importa:**
+
+- **Duplica todo con otros nombres:** otra tarea programada, otra biblioteca de
+  atribución por red, otros tipos. Fusionarla deja dos de cada cosa.
+- **Borra la prueba** `panel-presencia-digital-cuatro-bloques.test.ts` y los tipos
+  de atribución que ya están en la versión principal.
+- **Saca el aviso de inactividad** de la pantalla, que es uno de los cuatro
+  bloques que pedía la orden.
+- **Trae otra vez la configuración de Firebase escrita adentro de**
+  `public/firebase-messaging-sw.js`. **Es la tercera vez que se cuela.** Ese
+  archivo lo genera el compilador y en la versión principal queda el que no hace
+  nada.
+
+Si alguien vuelve a encontrar esa rama abierta: se descarta, no se rescata.
+
 ## Cómo agregar algo a esta lista
 
 **Se anota SIEMPRE, en la misma propuesta que toca el código.** Orden del dueño
