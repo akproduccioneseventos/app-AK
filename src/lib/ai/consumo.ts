@@ -18,7 +18,8 @@ export type FuncionConCosto =
   | 'vendedor-virtual'
   | 'seguimiento-comercial'
   | 'material-post-evento'
-  | 'revision-diaria';
+  | 'revision-diaria'
+  | 'generador-textos-marketing';
 
 
 /**
@@ -37,6 +38,7 @@ export const COSTO_ESTIMADO_UYU: Record<FuncionConCosto, number> = {
   'seguimiento-comercial': 1,
   'material-post-evento': 2,
   'revision-diaria': 2,
+  'generador-textos-marketing': 2,
 };
 
 /** Cuánto se avisa antes de llegar al tope. */

@@ -101,4 +101,20 @@ export interface DigitalPresenceDashboardData {
     canAutoPublish: boolean;
     publishNote?: string;
   }>;
+  sourceAttribution?: {
+    periodoDias: number;
+    fechaDesdeIso: string;
+    totalConsultas: number;
+    totalContratos: number;
+    totalMontoUYU: number;
+    redes: Array<{
+      red: string;
+      consultasCount: number;
+      contratosCount: number;
+      montoTotalUYU: number;
+      tasaConversionPct: number;
+      mensajeSinConsultas?: string;
+      hasData: boolean;
+    }>;
+  };
 }

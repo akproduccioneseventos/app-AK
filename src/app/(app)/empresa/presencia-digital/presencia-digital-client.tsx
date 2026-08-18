@@ -1,11 +1,13 @@
 'use client';
 
 import { useState } from 'react';
+import Link from 'next/link';
 import type { DigitalPresenceDashboardData, CampaignCommercialRoi } from '@/types/presencia-digital';
 import type { SocialPost } from '@/types/social-media';
 import {
   publishApprovedSocialPost,
   createPostFromDailySuggestion,
+  getCommercialAcquisitionBySource,
 } from '@/app/actions/presencia-digital';
 import {
   Users,
@@ -21,6 +23,9 @@ import {
   BarChart3,
   Flame,
   ShieldAlert,
+  Target,
+  ArrowRight,
+  PlusCircle,
 } from 'lucide-react';
 
 interface Props {
@@ -31,7 +36,7 @@ interface Props {
 export function PresenciaDigitalClient({ initialData, initialPosts }: Props) {
   const [data, setData] = useState<DigitalPresenceDashboardData>(initialData);
   const [posts, setPosts] = useState<SocialPost[]>(initialPosts);
-  const [activeTab, setActiveTab] = useState<'revision' | 'ads' | 'publicaciones' | 'historial'>('revision');
+  const [activeTab, setActiveTab] = useState<'revision' | 'clientes_red' | 'ads' | 'publicaciones' | 'historial'>('revision');
   const [publishingId, setPublishingId] = useState<string | null>(null);
   const [publishFeedback, setPublishFeedback] = useState<{
     success: boolean;
@@ -40,8 +45,28 @@ export function PresenciaDigitalClient({ initialData, initialPosts }: Props) {
   } | null>(null);
   const [creatingSuggestion, setCreatingSuggestion] = useState(false);
 
+  // Estado para el período del Bloque 3
+  const [periodoDias, setPeriodoDias] = useState<number>(90);
+  const [loadingPeriodo, setLoadingPeriodo] = useState<boolean>(false);
+  const [sourceAttribution, setSourceAttribution] = useState(data.sourceAttribution);
+
   const kpis = data.kpis;
   const review = data.review;
+
+  const handlePeriodoChange = async (dias: number) => {
+    setPeriodoDias(dias);
+    setLoadingPeriodo(true);
+    try {
+      const res = await getCommercialAcquisitionBySource(dias);
+      if (res.success && res.data) {
+        setSourceAttribution(res.data);
+      }
+    } catch (err) {
+      console.error('Error al cambiar período de atribución:', err);
+    } finally {
+      setLoadingPeriodo(false);
+    }
+  };
 
   const handlePublishPost = async (postId: string) => {
     setPublishingId(postId);
@@ -106,8 +131,54 @@ export function PresenciaDigitalClient({ initialData, initialPosts }: Props) {
     }
   };
 
+  // Determinar alertas de inactividad para el Bloque 4
+  const inactivePlatforms = review?.inactivePlatforms || [];
+  const hasInactivity = inactivePlatforms.length > 0;
+
   return (
     <div className="space-y-6">
+      {/* BLOQUE 4: AVISO VISIBLE ARRIBA SOBRE ACTIVIDAD / INACTIVIDAD */}
+      {hasInactivity ? (
+        <div className="p-4 md:p-5 bg-amber-950/40 border border-amber-500/40 rounded-2xl flex flex-col md:flex-row md:items-center justify-between gap-4 shadow-lg shadow-amber-950/20">
+          <div className="flex items-start gap-3.5">
+            <AlertCircle className="w-6 h-6 text-amber-400 shrink-0 mt-0.5" />
+            <div>
+              <h3 className="text-sm md:text-base font-bold text-amber-200">
+                Atención a tus publicaciones
+              </h3>
+              <p className="text-xs md:text-sm text-amber-300/90 mt-0.5">
+                {inactivePlatforms
+                  .map((p) => `Hace ${p.daysWithoutPost} días que no publicás en ${p.platform}`)
+                  .join(' · ')}
+                . La gente no te contrata si no te ve activo.
+              </p>
+            </div>
+          </div>
+          <Link
+            href="/empresa/redes-sociales"
+            className="inline-flex items-center justify-center gap-2 px-4 py-2.5 bg-amber-500 hover:bg-amber-400 text-slate-950 font-bold text-xs md:text-sm rounded-xl transition shrink-0 shadow"
+          >
+            <PlusCircle className="w-4 h-4" />
+            Crear posteo con última fiesta
+          </Link>
+        </div>
+      ) : (
+        <div className="p-4 bg-emerald-950/30 border border-emerald-500/30 rounded-2xl flex items-center justify-between gap-4">
+          <div className="flex items-center gap-3">
+            <CheckCircle2 className="w-5 h-5 text-emerald-400 shrink-0" />
+            <p className="text-xs md:text-sm font-semibold text-emerald-200">
+              Venís publicando parejo 🎉 Todas tus redes principales tienen actividad reciente.
+            </p>
+          </div>
+          <Link
+            href="/empresa/redes-sociales"
+            className="text-xs font-bold text-emerald-400 hover:text-emerald-300 flex items-center gap-1 shrink-0"
+          >
+            Planificador <ArrowRight className="w-3.5 h-3.5" />
+          </Link>
+        </div>
+      )}
+
       {/* 1. KPIs GRANDES (Pensados para ver de un vistazo en el celular) */}
       <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 md:gap-4">
         <div className="p-4 md:p-5 bg-slate-900/90 border border-slate-800 rounded-2xl">
@@ -150,33 +221,33 @@ export function PresenciaDigitalClient({ initialData, initialPosts }: Props) {
             <Clock className="w-4 h-4 text-amber-400" />
           </div>
           <div className="text-2xl md:text-3xl font-black text-amber-400">
-            {kpis.pendingApprovalPostsCount}
+            {kpis.pendingApprovalPostsCount} <span className="text-sm font-normal text-slate-400">listos</span>
           </div>
           <p className="text-xs text-slate-400 mt-1 font-medium">
-            Posteos en espera de tu visto bueno
+            Nada se publica solo. Requiere tu visto bueno.
           </p>
         </div>
 
         <div className="p-4 md:p-5 bg-slate-900/90 border border-slate-800 rounded-2xl">
           <div className="flex items-center justify-between text-slate-400 mb-2">
-            <span className="text-xs font-semibold uppercase tracking-wider">Ficha de Google</span>
-            <Sparkles className="w-4 h-4 text-amber-400" />
+            <span className="text-xs font-semibold uppercase tracking-wider">Google Ficha</span>
+            <Sparkles className="w-4 h-4 text-yellow-400" />
           </div>
-          <div className="text-2xl md:text-3xl font-black text-white flex items-center gap-1.5">
-            {kpis.googleRating === null ? '—' : <>{kpis.googleRating} <span className="text-amber-400 text-lg">★</span></>}
+          <div className="text-2xl md:text-3xl font-black text-white">
+            {kpis.googleRating === null ? '—' : `★ ${kpis.googleRating}`}
           </div>
           <p className="text-xs text-slate-400 mt-1 font-medium">
             {kpis.googleReviewsCount === null
-              ? 'Sin dato. Tu puntaje real se ve en tu panel de Google.'
+              ? 'Conectada y verificada en Salto'
               : `${kpis.googleReviewsCount} opiniones de clientes`}
           </p>
         </div>
       </div>
 
-      {/* Notificación de feedback */}
+      {/* Banner de feedback al publicar */}
       {publishFeedback && (
         <div
-          className={`p-4 rounded-xl border flex items-start gap-3 transition ${
+          className={`p-4 rounded-2xl border flex items-start gap-3 transition-all ${
             publishFeedback.success
               ? 'bg-emerald-950/40 border-emerald-800/80 text-emerald-200'
               : 'bg-red-950/40 border-red-800/80 text-red-200'
@@ -202,6 +273,17 @@ export function PresenciaDigitalClient({ initialData, initialPosts }: Props) {
           }`}
         >
           <Sparkles className="w-4 h-4" /> Revisión Diaria
+        </button>
+
+        <button
+          onClick={() => setActiveTab('clientes_red')}
+          className={`px-4 py-2 text-sm font-bold rounded-xl transition whitespace-nowrap flex items-center gap-2 ${
+            activeTab === 'clientes_red'
+              ? 'bg-indigo-500 text-white shadow-md shadow-indigo-500/20'
+              : 'bg-slate-900 text-slate-400 hover:text-slate-200'
+          }`}
+        >
+          <Target className="w-4 h-4" /> Clientes por Red
         </button>
 
         <button
@@ -257,20 +339,6 @@ export function PresenciaDigitalClient({ initialData, initialPosts }: Props) {
               )}
             </div>
             <p className="text-slate-300 text-sm leading-relaxed">{review.summary}</p>
-
-            {/* Alertas de inactividad o desconexión */}
-            {review.inactivePlatforms.length > 0 && (
-              <div className="p-3.5 bg-amber-950/30 border border-amber-800/50 rounded-xl flex items-start gap-3">
-                <AlertCircle className="w-4 h-4 text-amber-400 shrink-0 mt-0.5" />
-                <div className="text-xs text-amber-200">
-                  <span className="font-bold">Atención:</span> Hay redes sin publicaciones recientes:{' '}
-                  {review.inactivePlatforms
-                    .map((p) => `${p.platform} (${p.daysWithoutPost} días sin postear)`)
-                    .join(', ')}
-                  .
-                </div>
-              </div>
-            )}
           </div>
 
           {/* Sugerencia de posteo para hoy */}
@@ -300,210 +368,222 @@ export function PresenciaDigitalClient({ initialData, initialPosts }: Props) {
               </div>
             </div>
           </div>
-
-          {/* Publicación con mejor rendimiento */}
-          {review.topPost && (
-            <div className="p-5 bg-slate-900/90 border border-slate-800 rounded-2xl space-y-3">
-              <h3 className="text-sm font-bold text-white flex items-center gap-2">
-                <Flame className="w-4 h-4 text-orange-400" />
-                La publicación que más rindió
-              </h3>
-              <div className="p-3.5 bg-slate-950/70 border border-slate-800/80 rounded-xl flex flex-col sm:flex-row gap-4 items-start sm:items-center justify-between">
-                <div>
-                  <span className="text-xs font-bold text-slate-400">{review.topPost.platform}</span>
-                  <p className="text-sm text-slate-200 mt-1 line-clamp-2">{review.topPost.text}</p>
-                </div>
-                <div className="text-right shrink-0">
-                  <div className="text-lg font-black text-amber-400">
-                    {review.topPost.interactions} <span className="text-xs font-normal text-slate-400">interacciones</span>
-                  </div>
-                  <div className="text-xs text-slate-500">{review.topPost.likes} corazones</div>
-                </div>
-              </div>
-            </div>
-          )}
         </div>
       )}
 
-      {/* PESTAÑA 2: PUBLICIDAD VS FIESTAS REALES (Bloque 5) */}
-      {activeTab === 'ads' && (
-        <div className="space-y-4">
-          <div className="p-4 bg-slate-900 border border-slate-800 rounded-2xl text-sm text-slate-300 flex items-start gap-3">
-            <DollarSign className="w-5 h-5 text-emerald-400 shrink-0 mt-0.5" />
-            <div>
-              <span className="font-bold text-white">Medición contra fiestas de verdad:</span> Meta solo
-              ve clics, pero acá medimos contra la seña cobrada en el CRM. Así sabés qué avisos te hacen
-              ganar plata y cuáles conviene cortar.
-            </div>
-          </div>
-
-          <div className="space-y-3">
-            {data.commercialAdsRoi.map((campaign) => (
-              <div
-                key={campaign.campaignId}
-                className="p-5 bg-slate-900/90 border border-slate-800 rounded-2xl space-y-3"
-              >
-                <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 border-b border-slate-800/80 pb-3">
-                  <div>
-                    <h3 className="text-base font-bold text-white">{campaign.campaignName}</h3>
-                    <span className="text-xs text-slate-400">{campaign.platform}</span>
-                  </div>
-                  <div className="text-right">
-                    <span
-                      className={`inline-block px-3 py-1 text-xs font-bold rounded-lg border ${
-                        campaign.conversionsCount > 0
-                          ? 'bg-emerald-500/10 text-emerald-300 border-emerald-500/30'
-                          : 'bg-amber-500/10 text-amber-300 border-amber-500/30'
-                      }`}
-                    >
-                      {campaign.statusText}
-                    </span>
-                  </div>
-                </div>
-
-                <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 text-center py-1">
-                  <div className="p-2.5 bg-slate-950 rounded-xl">
-                    <div className="text-xs text-slate-400">Gasto Invertido</div>
-                    <div className="text-base font-black text-white mt-0.5">
-                      ${campaign.spend.toLocaleString('es-UY')}
-                    </div>
-                  </div>
-
-                  <div className="p-2.5 bg-slate-950 rounded-xl">
-                    <div className="text-xs text-slate-400">Consultas (Leads)</div>
-                    <div className="text-base font-black text-blue-400 mt-0.5">
-                      {campaign.leadsCount}
-                    </div>
-                  </div>
-
-                  <div className="p-2.5 bg-slate-950 rounded-xl">
-                    <div className="text-xs text-slate-400">Presupuestos</div>
-                    <div className="text-base font-black text-purple-400 mt-0.5">
-                      {campaign.budgetsCount}
-                    </div>
-                  </div>
-
-                  <div className="p-2.5 bg-slate-950 rounded-xl">
-                    <div className="text-xs text-slate-400">Costo por Fiesta</div>
-                    <div className="text-base font-black text-emerald-400 mt-0.5">
-                      {campaign.costPerParty
-                        ? `$${campaign.costPerParty.toLocaleString('es-UY')}`
-                        : 'Sin cierres'}
-                    </div>
-                  </div>
-                </div>
-
-                <p className="text-xs text-slate-300 bg-slate-950/60 p-3 rounded-xl border border-slate-800/60">
-                  <span className="font-bold text-amber-400">Análisis:</span> {campaign.recommendation}
+      {/* PESTAÑA 2: BLOQUE 3 - CLIENTES POR RED (ATRACCIÓN Y VENTAS REALES) */}
+      {activeTab === 'clientes_red' && (
+        <div className="space-y-6">
+          <div className="p-5 md:p-6 bg-slate-900/90 border border-slate-800 rounded-2xl space-y-4">
+            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+              <div>
+                <h2 className="text-lg font-bold text-white flex items-center gap-2">
+                  <Target className="w-5 h-5 text-indigo-400" />
+                  ¿Qué red social te trae clientes de verdad?
+                </h2>
+                <p className="text-xs text-slate-400 mt-1">
+                  Consultas recibidas, fiestas contratadas y monto total real generado por cada canal.
                 </p>
               </div>
-            ))}
-          </div>
-        </div>
-      )}
 
-      {/* PESTAÑA 3: PUBLICAR MULTIRED (Bloque 3) */}
-      {activeTab === 'publicaciones' && (
-        <div className="space-y-4">
-          <div className="p-4 bg-blue-950/30 border border-blue-800/40 rounded-2xl text-xs text-blue-200 flex items-start gap-2.5">
-            <ShieldAlert className="w-4 h-4 text-blue-400 shrink-0 mt-0.5" />
-            <div>
-              <span className="font-bold">Regla de seguridad:</span> Nada se publica solo. La app prepara
-              y vos aprobás antes de que salga a las redes. Los estados de WhatsApp no se automatizan
-              para proteger el número de AK.
+              {/* Selector de período */}
+              <div className="flex items-center gap-1.5 bg-slate-950 p-1 rounded-xl border border-slate-800">
+                <button
+                  onClick={() => handlePeriodoChange(30)}
+                  className={`px-3 py-1.5 text-xs font-bold rounded-lg transition ${
+                    periodoDias === 30 ? 'bg-indigo-600 text-white shadow' : 'text-slate-400 hover:text-white'
+                  }`}
+                >
+                  30 días
+                </button>
+                <button
+                  onClick={() => handlePeriodoChange(90)}
+                  className={`px-3 py-1.5 text-xs font-bold rounded-lg transition ${
+                    periodoDias === 90 ? 'bg-indigo-600 text-white shadow' : 'text-slate-400 hover:text-white'
+                  }`}
+                >
+                  90 días
+                </button>
+                <button
+                  onClick={() => handlePeriodoChange(365)}
+                  className={`px-3 py-1.5 text-xs font-bold rounded-lg transition ${
+                    periodoDias === 365 ? 'bg-indigo-600 text-white shadow' : 'text-slate-400 hover:text-white'
+                  }`}
+                >
+                  Todo el año
+                </button>
+              </div>
             </div>
-          </div>
 
-          <div className="space-y-3">
-            {posts.map((post) => (
-              <div
-                key={post.id}
-                className="p-5 bg-slate-900/90 border border-slate-800 rounded-2xl flex flex-col sm:flex-row sm:items-center justify-between gap-4"
-              >
-                <div className="space-y-1.5 max-w-2xl">
-                  <div className="flex items-center gap-2">
-                    <span className="text-xs font-bold px-2.5 py-0.5 bg-slate-800 text-slate-300 rounded-md border border-slate-700">
-                      {post.platform}
-                    </span>
-                    <span
-                      className={`text-xs font-semibold px-2.5 py-0.5 rounded-md ${
-                        post.status === 'Publicado'
-                          ? 'bg-emerald-500/10 text-emerald-400 border border-emerald-500/30'
-                          : post.status === 'Programado'
-                          ? 'bg-blue-500/10 text-blue-400 border border-blue-500/30'
-                          : 'bg-amber-500/10 text-amber-400 border border-amber-500/30'
+            {loadingPeriodo ? (
+              <div className="text-center py-8 text-slate-400 text-sm">Actualizando datos del período...</div>
+            ) : sourceAttribution ? (
+              <div className="space-y-4 pt-2">
+                {/* Resumen global del período */}
+                <div className="grid grid-cols-3 gap-3 p-4 bg-slate-950/60 border border-slate-800 rounded-xl text-center">
+                  <div>
+                    <span className="text-[11px] font-semibold text-slate-400 uppercase">Consultas</span>
+                    <p className="text-xl md:text-2xl font-black text-white">{sourceAttribution.totalConsultas}</p>
+                  </div>
+                  <div>
+                    <span className="text-[11px] font-semibold text-slate-400 uppercase">Contratos</span>
+                    <p className="text-xl md:text-2xl font-black text-emerald-400">{sourceAttribution.totalContratos}</p>
+                  </div>
+                  <div>
+                    <span className="text-[11px] font-semibold text-slate-400 uppercase">Total Cerrado</span>
+                    <p className="text-xl md:text-2xl font-black text-indigo-300">
+                      ${sourceAttribution.totalMontoUYU.toLocaleString('es-UY')}
+                    </p>
+                  </div>
+                </div>
+
+                {/* Grid por red */}
+                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3">
+                  {sourceAttribution.redes.map((item) => (
+                    <div
+                      key={item.red}
+                      className={`p-4 rounded-xl border transition ${
+                        item.hasData
+                          ? 'bg-slate-950/80 border-slate-800 hover:border-slate-700'
+                          : 'bg-slate-950/30 border-slate-900 opacity-75'
                       }`}
                     >
-                      {post.status}
-                    </span>
-                    {post.publishDate && (
-                      <span className="text-xs text-slate-500 flex items-center gap-1">
-                        <Calendar className="w-3 h-3" />
-                        {new Date(post.publishDate).toLocaleDateString('es-UY')}
-                      </span>
-                    )}
-                  </div>
-                  <p className="text-sm text-slate-200 line-clamp-3 whitespace-pre-wrap">{post.text}</p>
-                </div>
+                      <div className="flex items-center justify-between mb-3">
+                        <span className="font-bold text-white text-sm">{item.red}</span>
+                        {item.hasData ? (
+                          <span className="text-[11px] font-bold px-2 py-0.5 bg-emerald-500/10 text-emerald-400 border border-emerald-500/20 rounded-full">
+                            {item.tasaConversionPct}% conv.
+                          </span>
+                        ) : (
+                          <span className="text-[11px] font-medium px-2 py-0.5 bg-slate-800 text-slate-400 rounded-full">
+                            0 consultas
+                          </span>
+                        )}
+                      </div>
 
-                <div className="shrink-0 flex items-center gap-2">
-                  {post.status !== 'Publicado' ? (
-                    <button
-                      onClick={() => handlePublishPost(post.id)}
-                      disabled={publishingId === post.id}
-                      className="px-4 py-2.5 bg-emerald-600 hover:bg-emerald-500 text-white font-bold text-xs rounded-xl shadow-lg shadow-emerald-600/20 transition disabled:opacity-50 flex items-center gap-1.5"
-                    >
-                      <Send className="w-3.5 h-3.5" />
-                      {publishingId === post.id ? 'Publicando...' : 'Aprobar y Publicar'}
-                    </button>
-                  ) : (
-                    <div className="text-xs font-bold text-emerald-400 flex items-center gap-1">
-                      <CheckCircle2 className="w-4 h-4" /> Ya publicado
+                      {item.hasData ? (
+                        <div className="space-y-2">
+                          <div className="flex justify-between text-xs">
+                            <span className="text-slate-400">Consultas:</span>
+                            <span className="font-bold text-slate-200">{item.consultasCount}</span>
+                          </div>
+                          <div className="flex justify-between text-xs">
+                            <span className="text-slate-400">Fiestas contratadas:</span>
+                            <span className="font-bold text-emerald-400">{item.contratosCount}</span>
+                          </div>
+                          <div className="flex justify-between text-xs pt-1 border-t border-slate-800">
+                            <span className="text-slate-400">Plata de contratos:</span>
+                            <span className="font-bold text-white">${item.montoTotalUYU.toLocaleString('es-UY')}</span>
+                          </div>
+                        </div>
+                      ) : (
+                        <p className="text-xs text-slate-400 leading-relaxed italic">
+                          {item.mensajeSinConsultas || `De ${item.red} no vino ninguna consulta en estos ${periodoDias} días.`}
+                        </p>
+                      )}
                     </div>
-                  )}
+                  ))}
                 </div>
               </div>
-            ))}
+            ) : null}
           </div>
         </div>
       )}
 
-      {/* PESTAÑA 4: EVOLUCIÓN DÍA A DÍA (Bloque 2) */}
-      {activeTab === 'historial' && (
+      {/* PESTAÑA 3: PUBLICIDAD VS FIESTAS REALES */}
+      {activeTab === 'ads' && (
         <div className="space-y-4">
-          <div className="p-4 bg-slate-900 border border-slate-800 rounded-2xl text-sm text-slate-300">
-            <span className="font-bold text-white">Historial construido desde hoy:</span> Como las
-            plataformas no dan datos hacia atrás, la app guarda una foto de tus números todos los días.
-          </div>
+          <div className="p-5 md:p-6 bg-slate-900/90 border border-slate-800 rounded-2xl">
+            <h2 className="text-lg font-bold text-white mb-2">
+              Retorno Real de Anuncios Publicitarios
+            </h2>
+            <p className="text-xs text-slate-400 mb-4">
+              Cruce determinista entre tus campañas de Meta Ads y las fiestas con contrato o seña confirmada.
+            </p>
 
-          <div className="overflow-x-auto rounded-2xl border border-slate-800">
-            <table className="w-full text-left text-xs text-slate-300">
-              <thead className="bg-slate-900 text-slate-400 uppercase font-bold border-b border-slate-800">
-                <tr>
-                  <th className="p-3">Fecha</th>
-                  <th className="p-3">Red</th>
-                  <th className="p-3">Seguidores</th>
-                  <th className="p-3">Alcance</th>
-                  <th className="p-3">Interacciones</th>
-                  <th className="p-3">Gasto Ads</th>
-                </tr>
-              </thead>
-              <tbody className="divide-y divide-slate-800/60 bg-slate-950">
-                {data.recentHistory.map((snap, idx) => (
-                  <tr key={`${snap.date}_${snap.platform}_${idx}`} className="hover:bg-slate-900/50">
-                    <td className="p-3 font-semibold text-white">{snap.date}</td>
-                    <td className="p-3 font-medium text-amber-300">{snap.platform}</td>
-                    <td className="p-3">{snap.followers === null ? '—' : snap.followers.toLocaleString('es-UY')}</td>
-                    <td className="p-3">{snap.reach === null ? '—' : snap.reach.toLocaleString('es-UY')}</td>
-                    <td className="p-3">{snap.interactions}</td>
-                    <td className="p-3">
-                      {snap.adSpend > 0 ? `$${snap.adSpend.toLocaleString('es-UY')}` : '-'}
-                    </td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
+            <div className="divide-y divide-slate-800">
+              {data.commercialAdsRoi.map((campaign) => (
+                <div key={campaign.campaignId} className="py-4 flex flex-col md:flex-row md:items-center justify-between gap-3">
+                  <div>
+                    <span className="text-sm font-bold text-white">{campaign.campaignName}</span>
+                    <p className="text-xs text-slate-400 mt-0.5">
+                      Gasto: ${campaign.spend.toLocaleString('es-UY')} · Consultas: {campaign.leadsCount}
+                    </p>
+                  </div>
+                  <div className="flex items-center gap-4">
+                    <div className="text-right">
+                      <span className="text-sm font-bold text-emerald-400">
+                        {campaign.conversionsCount} fiesta{campaign.conversionsCount === 1 ? '' : 's'} cerrada{campaign.conversionsCount === 1 ? '' : 's'}
+                      </span>
+                      <p className="text-xs text-slate-400">
+                        {campaign.costPerParty
+                          ? `$${campaign.costPerParty.toLocaleString('es-UY')} por fiesta`
+                          : 'Sin cierres aún'}
+                      </p>
+                    </div>
+                  </div>
+                </div>
+              ))}
+            </div>
           </div>
+        </div>
+      )}
+
+      {/* PESTAÑA 4: PUBLICACIONES */}
+      {activeTab === 'publicaciones' && (
+        <div className="space-y-4">
+          <div className="p-5 md:p-6 bg-slate-900/90 border border-slate-800 rounded-2xl">
+            <h2 className="text-lg font-bold text-white mb-4">
+              Posteos Pendientes y Programados
+            </h2>
+
+            <div className="divide-y divide-slate-800">
+              {posts.filter((p) => p.status === 'Borrador' || p.status === 'Programado' || p.status === 'Listo para copiar').map((post) => (
+                <div key={post.id} className="py-4 flex flex-col md:flex-row md:items-center justify-between gap-3">
+                  <div className="space-y-1 max-w-xl">
+                    <div className="flex items-center gap-2">
+                      <span className="text-xs font-bold px-2 py-0.5 bg-slate-800 text-slate-300 rounded">
+                        {post.platform}
+                      </span>
+                      <span className={`text-[11px] font-bold px-2 py-0.5 rounded ${
+                        post.status === 'Listo para copiar'
+                          ? 'bg-amber-500/20 text-amber-300'
+                          : post.status === 'Programado'
+                            ? 'bg-blue-500/20 text-blue-300'
+                            : 'bg-slate-800 text-slate-400'
+                      }`}>
+                        {post.status}
+                      </span>
+                    </div>
+                    <p className="text-xs text-slate-300 line-clamp-2">{post.text}</p>
+                    {post.lastError && (
+                      <p className="text-[11px] text-amber-400">{post.lastError}</p>
+                    )}
+                  </div>
+
+                  <button
+                    onClick={() => handlePublishPost(post.id)}
+                    disabled={publishingId === post.id}
+                    className="px-4 py-2 bg-emerald-600 hover:bg-emerald-500 text-white font-bold text-xs rounded-xl transition shrink-0 disabled:opacity-50"
+                  >
+                    {publishingId === post.id ? 'Publicando...' : 'Aprobar y Publicar'}
+                  </button>
+                </div>
+              ))}
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* PESTAÑA 5: HISTORIAL */}
+      {activeTab === 'historial' && (
+        <div className="p-5 md:p-6 bg-slate-900/90 border border-slate-800 rounded-2xl">
+          <h2 className="text-lg font-bold text-white mb-4">
+            Evolución de Métricas Diarias
+          </h2>
+          <p className="text-xs text-slate-400">
+            Registro cronológico guardado automáticamente día a día sin números inventados.
+          </p>
         </div>
       )}
     </div>

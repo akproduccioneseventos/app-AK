@@ -390,7 +390,7 @@ export async function generateDraftPostsFromPartyPhotos(
     const existingPlannerPosts = await readData<SocialPost[]>(POSTS_FILE, []);
     const now = new Date();
 
-    const postTemplates = [
+    const fallbackTemplates = [
       {
         platform: 'Instagram' as const,
         text: `¡Así se vivió la fiesta de ${nombreEvento}! 📸✨\n\nUna noche llena de emoción, risas y momentos únicos junto a familia y amigos en Salto. ¡Gracias por confiar en el equipo de AK Producciones para hacerla realidad! 🎉\n\n#AKProducciones #EventosSalto #FiestasUruguay #${tipoHashtag} #MomentosInolvidables`,
@@ -409,10 +409,54 @@ export async function generateDraftPostsFromPartyPhotos(
       },
     ];
 
+    // Bloque 2: Generación con Agente de Marketing e IA pasando por el contador de gasto
+    let marketingTexts: Array<{ platform: 'Instagram' | 'Facebook'; text: string }> = [];
+
+    try {
+      const { hayPresupuestoParaIA, registrarConsumoIA } = await import('@/lib/ai/consumo-servidor');
+      const puedeGastar = await hayPresupuestoParaIA();
+
+      if (puedeGastar) {
+        const { chatWithMarketingAgent } = await import('@/ai/flows/marketing-agent-flow');
+        const lugar = fiesta.configuracion?.nombreLugar || 'Salto, Uruguay';
+        const invitados = fiesta.configuracion?.invitadosEstimados;
+
+        const resAI = await chatWithMarketingAgent({
+          request: `Escribí 4 textos distintos para publicaciones de redes sociales (3 para Instagram y 1 para Facebook) para compartir las fotos de la fiesta recién realizada. Cada texto debe tener un enfoque único: 1) Emoción central del festejo, 2) Luces/Pista de baile/Discoteca, 3) Recuerdos/Fotocabina/Momentos espontáneos, 4) Agradecimiento y ambientación. Tono uruguayo rioplatense cálido. No inventes datos que no figuren en el contexto. Separá cada texto exactamente con la etiqueta '===POST==='.`,
+          context: `Evento: ${nombreEvento}\nTipo de celebración: ${tipoEvento}\nLugar/Salón: ${lugar}${invitados ? `\nCantidad de invitados aproximada: ${invitados}` : ''}\nDetalles de fotos: ${selectedPhotos.map((p, i) => `Foto ${i + 1}: ${p.dedication || p.authorName || 'Momento de la fiesta'}`).join(' | ')}`,
+          eventType: tipoEvento,
+        });
+
+        if (resAI?.content) {
+          const partes = resAI.content
+            .split('===POST===')
+            .map((t) => t.trim())
+            .filter((t) => t.length > 20);
+
+          if (partes.length >= 4) {
+            marketingTexts = [
+              { platform: 'Instagram', text: partes[0] },
+              { platform: 'Instagram', text: partes[1] },
+              { platform: 'Facebook', text: partes[2] },
+              { platform: 'Instagram', text: partes[3] },
+            ];
+            await registrarConsumoIA('generador-textos-marketing');
+          }
+        }
+      }
+    } catch (error) {
+      console.warn('[social-media] No se pudo usar el agente de IA para textos de marketing, usando plantillas:', error);
+    }
+
+    // Si la IA no corrió o no devolvió 4 textos completos, usar fallback
+    if (marketingTexts.length < 4) {
+      marketingTexts = fallbackTemplates;
+    }
+
     const generatedPosts: SocialPost[] = [];
 
     selectedPhotos.forEach((photo, idx) => {
-      const template = postTemplates[idx % postTemplates.length];
+      const template = marketingTexts[idx % marketingTexts.length];
       const scheduledDate = new Date(now.getTime() + (idx + 1) * 86400000); // 1 día por post sugerido
 
       const newPost: SocialPost = {

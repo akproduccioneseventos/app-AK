@@ -148,19 +148,21 @@ export async function getDigitalPresenceDashboard(): Promise<{
       },
     ];
 
+    // 6. Atribución comercial por red social (Bloque 3)
+    const { calcularAtribucionComercialPorRed } = await import('@/lib/presencia-digital/atribucion-redes');
+    const stages = await readData<any[]>('crm-stages.json', []);
+    const sourceAttribution = calcularAtribucionComercialPorRed({
+      leads,
+      budgets,
+      stages,
+      periodoDias: 90,
+    });
+
     return {
       success: true,
       data: {
         kpis: {
           totalFollowers,
-          // Estos cuatro venian con numeros escritos a mano y se mostraban como
-          // si estuvieran medidos: 48 seguidores nuevos por semana, 5240 de
-          // alcance, 14,2% de crecimiento, 4,9 de puntaje con 38 opiniones. El
-          // dueno miraba su panel y decidia sobre datos inventados, y hasta
-          // podia repetirle a un cliente un puntaje de Google que no existe.
-          //
-          // Van en `null` y la pantalla dice "sin dato" con lo que hay que
-          // conectar para tenerlo.
           followersWeeklyChange: null,
           weeklyReach: null,
           reachWeeklyChangePct: null,
@@ -175,11 +177,47 @@ export async function getDigitalPresenceDashboard(): Promise<{
         review,
         recentHistory: updatedHistory.slice(-30),
         platformsStatus,
+        sourceAttribution,
       },
     };
   } catch (error: any) {
     console.error('[presencia-digital] Error obteniendo dashboard:', error);
     return { success: false, error: error.message || 'Error al cargar el centro de presencia digital.' };
+  }
+}
+
+/**
+ * Server Action para consultar la atribución comercial por red con filtro de período dinámico (30, 90, 365 días).
+ */
+export async function getCommercialAcquisitionBySource(periodoDias = 90) {
+  try {
+    const permiso = await requirePermiso(PERMISOS.CRM);
+    if (!permiso.ok) return { success: false, error: permiso.error };
+
+    const [leads, budgets, stages] = await Promise.all([
+      readData<CrmLead[]>(LEADS_FILE, []),
+      readData<Presupuesto[]>(BUDGETS_FILE, []),
+      readData<any[]>('crm-stages.json', []),
+    ]);
+
+    const { calcularAtribucionComercialPorRed } = await import('@/lib/presencia-digital/atribucion-redes');
+    const result = calcularAtribucionComercialPorRed({
+      leads,
+      budgets,
+      stages,
+      periodoDias,
+    });
+
+    return {
+      success: true,
+      data: result,
+    };
+  } catch (error: any) {
+    console.error('[presencia-digital] Error obteniendo atribución comercial por red:', error);
+    return {
+      success: false,
+      error: error.message || 'Error al obtener la atribución por red.',
+    };
   }
 }
 

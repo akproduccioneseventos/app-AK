@@ -42,6 +42,10 @@ muestre**. Esa distinción es la que más veces falló.
 | Transmisión en vivo | Sí | Pantalla de la fiesta en vivo |
 | Centro de presencia digital | Sí | Empresa → Presencia digital |
 | Publicación real en Facebook e Instagram | Sí | Empresa → Presencia digital (al aprobar) |
+| Posteos programados automáticos con tope y reintentos | Sí | Tarea programada cron / Presencia digital |
+| Generador de textos de marketing con IA y control de gasto | Sí | Planificador de redes / Presencia digital |
+| Reporte de clientes y dinero real por red (30/90/365 días) | Sí | Empresa → Presencia digital (Clientes por Red) |
+| Aviso visible de inactividad con acceso directo | Sí | Empresa → Presencia digital (Arriba del panel) |
 | Importador de historial social | Sí | Empresa → Redes sociales → Importar historial |
 | Schema.org LocalBusiness y OpenGraph | Sí | En la cabecera (head) de la web pública |
 

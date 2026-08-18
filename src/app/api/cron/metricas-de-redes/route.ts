@@ -1,5 +1,6 @@
 import { NextResponse } from 'next/server';
 import { guardarMetricasDelDia } from '@/lib/presencia-digital/guardado-diario';
+import { procesarPosteosProgramados } from '@/lib/presencia-digital/programador-posteos';
 import { syncMetaPublicHistory } from '@/lib/social-media/meta-history-backfill';
 import { syncYouTubePublicHistory } from '@/lib/social-media/youtube-history-backfill';
 import { syncOtherPublicHistory } from '@/lib/social-media/other-public-history-backfill';
@@ -45,6 +46,15 @@ async function correrTarea(request: Request) {
     }
 
     const resultado = await guardarMetricasDelDia();
+    const resultadoProgramados = await procesarPosteosProgramados().catch((error: unknown) => ({
+      procesados: 0,
+      publicados: 0,
+      pasadosAListoParaCopiar: 0,
+      fallidos: 0,
+      omitidosPorTope: 0,
+      error: error instanceof Error ? error.message : 'Error al procesar posteos programados',
+      detalles: [],
+    }));
     const historialMeta = await syncMetaPublicHistory().catch((error: unknown) => ({
       success: false,
       earliestDate: '2019-09-01T00:00:00.000Z',
@@ -75,6 +85,7 @@ async function correrTarea(request: Request) {
       ok: true,
       guardado: resultado.guardado,
       fecha: resultado.fecha,
+      posteosProgramados: resultadoProgramados,
       historialPublico: {
         meta: historialMeta,
         youtube: historialYouTube,
