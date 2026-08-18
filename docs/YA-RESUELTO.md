@@ -2217,6 +2217,21 @@ legítima **no se oculte sola**, que correr dos veces no duplique nada, que si f
 la inteligencia artificial el comentario quede **sin clasificar** en vez de mal
 clasificado, y que una red sin configurar no rompa la traída de las otras.
 
+## El título de la portada en Google (18 de agosto de 2026)
+
+El sitio estaba indexado como **"Inicio - AK Producciones"**. Ese renglón es lo
+único que ve la persona antes de entrar, y no decía ni que es un salón de fiestas
+ni que está en Salto. Salía de un campo de Ajustes con una palabra genérica
+cargada.
+
+Ahora, si en Ajustes queda una palabra que no dice nada —inicio, home, portada,
+página principal, index—, **se ignora y se usa el nombre de la empresa**. El
+control vive en `src/lib/seo/titulo-de-la-portada.ts`, con prueba.
+
+**Verificado en la misma tanda, y no son pendientes:** los datos estructurados del
+negocio ya declaran el teléfono y la ciudad; los accesos de Google Analytics van
+por configuración del servidor.
+
 ## Cómo agregar algo a esta lista
 
 **Se anota SIEMPRE, en la misma propuesta que toca el código.** Orden del dueño

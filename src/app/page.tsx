@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import { tituloQueSirve } from '@/lib/seo/titulo-de-la-portada';
 import { cache } from "react";
 import { LandingNav } from "@/components/landing/LandingNav";
 import { HeroSection } from "@/components/landing/HeroSection";
@@ -45,6 +46,8 @@ const DEFAULT_DYNAMIC_SERVICE_SUBTITLE = "Servicio AK";
 const DEFAULT_INSTAGRAM_URL =
   "https://www.instagram.com/akproduccionesfiestasyeventos/";
 const SITE_URL = "https://akproducciones.uy";
+
+
 const DEFAULT_SEO_TITLE = "AK Producciones Eventos";
 const DEFAULT_SEO_DESCRIPTION =
   "Organización completa de bodas, fiestas de 15 años y eventos empresariales en Salto, Uruguay. Discoteca, comida premium, fotografía, decoración y salones de fiesta en un solo lugar con tecnología interactiva.";
@@ -256,7 +259,7 @@ export async function generateMetadata(): Promise<Metadata> {
     defaultLandingSettings,
     2_500,
   );
-  const title = `${settings.seo.title || DEFAULT_SEO_TITLE} | Organización Integral de Eventos en Salto`;
+  const title = `${tituloQueSirve(settings.seo.title)} | Organización Integral de Eventos en Salto`;
   const description = settings.seo.description || DEFAULT_SEO_DESCRIPTION;
   const ogImage = settings.seo.ogImageUrl || DEFAULT_OG_IMAGE;
   return {
