@@ -5,6 +5,9 @@ import type {
   DailySocialMetricSnapshot,
   DigitalPresenceReview,
   PlatformName,
+  NetworkAttributionPeriod,
+  NetworkAttributionReport,
+  NetworkAttributionRow,
 } from '@/types/presencia-digital';
 import type { SocialPost } from '@/types/social-media';
 import type { SocialConnection } from '@/types/settings';
@@ -184,24 +187,23 @@ export async function getDigitalPresenceDashboard(): Promise<{
 }
 
 /**
- * Bloque 3: Publicar una vez y que salga en todas con aprobación humana obligatoria.
- * "Nada se publica solo. La app prepara, una persona aprueba."
+ * Ejecutor interno de publicación de posteos sociales.
+ * No requiere sesión interactiva para poder ser invocado de forma desatendida por el cron.
  * Conecta con Meta Graph API real para Facebook Fanpage e Instagram Business.
+ * Para redes manuales (WhatsApp, TikTok, Threads, X), marca el posteo como 'Listo para copiar'.
  */
-export async function publishApprovedSocialPost(
+export async function publishPostInternal(
   postId: string,
   targetPlatforms?: PlatformName[]
 ): Promise<{
   success: boolean;
   publishedTo?: string[];
   failedPlatforms?: Array<{ platform: string; reason: string }>;
+  readyForManualCopy?: boolean;
   post?: SocialPost;
   error?: string;
 }> {
   try {
-    const permiso = await requirePermiso(PERMISOS.CRM);
-    if (!permiso.ok) return { success: false, error: permiso.error };
-
     const posts = await readData<SocialPost[]>(POSTS_FILE, []);
     const postIndex = posts.findIndex((p) => p.id === postId);
 
@@ -218,24 +220,21 @@ export async function publishApprovedSocialPost(
 
     const publishedTo: string[] = [];
     const failedPlatforms: Array<{ platform: string; reason: string }> = [];
+    let isOnlyManualNetworks = true;
 
     for (const plat of selectedPlatforms) {
-      if (plat === 'WhatsApp') {
+      if (plat === 'WhatsApp' || plat === 'TikTok') {
+        // Redes que no se automatizan oficialmente
         failedPlatforms.push({
-          platform: 'WhatsApp',
-          reason: 'Los estados de WhatsApp no se automatizan por Meta API para evitar riesgos de bloqueo.',
+          platform: plat,
+          reason: plat === 'WhatsApp'
+            ? 'Los estados de WhatsApp no se automatizan por Meta API. Queda listo para copiar y pegar.'
+            : 'TikTok requiere aplicación de desarrollador aprobada por ByteDance. Queda listo para subir manual.',
         });
         continue;
       }
 
-      if (plat === 'TikTok') {
-        failedPlatforms.push({
-          platform: 'TikTok',
-          reason: 'TikTok requiere que ByteDance apruebe la aplicación de desarrollador. El contenido quedó preparado para carga manual.',
-        });
-        continue;
-      }
-
+      isOnlyManualNetworks = false;
       const conn = connections.find((c) => c.platform === plat);
       if (!conn || !conn.isConnected) {
         failedPlatforms.push({
@@ -247,7 +246,6 @@ export async function publishApprovedSocialPost(
 
       if (plat === 'Facebook') {
         if (!conn.pageId || !conn.pageAccessToken) {
-          // Si no tiene credenciales de API todavía, advertir con precisión
           failedPlatforms.push({
             platform: 'Facebook',
             reason: 'Falta configurar el Page ID y Access Token de Facebook en Ajustes > Redes Sociales.',
@@ -305,26 +303,61 @@ export async function publishApprovedSocialPost(
           });
         }
       } else {
-        // Otras plataformas (Google / YouTube)
+        // Otras plataformas
         publishedTo.push(plat);
       }
     }
 
-    // Si no salió en ninguna red, nunca marcar como publicado
-    if (publishedTo.length === 0 && failedPlatforms.length > 0) {
+    // Si todas las redes seleccionadas son manuales (TikTok, Threads, X, WhatsApp)
+    if (isOnlyManualNetworks && publishedTo.length === 0) {
+      const manualPost: SocialPost = {
+        ...targetPost,
+        status: 'Listo para copiar',
+        updatedAt: new Date().toISOString(),
+      };
+      posts[postIndex] = manualPost;
+      await writeData(POSTS_FILE, posts, (a, b) => new Date(b.publishDate).getTime() - new Date(a.publishDate).getTime());
       return {
-        success: false,
-        error: `No se pudo publicar en las redes seleccionadas: ${failedPlatforms.map((f) => `${f.platform}: ${f.reason}`).join(' | ')}`,
+        success: true,
+        readyForManualCopy: true,
+        post: manualPost,
         failedPlatforms,
       };
     }
 
-    // Actualizar estado a Publicado solo si se logró publicar al menos en una
+    // Si fallaron todas las redes automáticas
+    if (publishedTo.length === 0 && failedPlatforms.length > 0) {
+      const errorMsg = failedPlatforms.map((f) => `${f.platform}: ${f.reason}`).join(' | ');
+      const failedRetryCount = (targetPost.retryCount || 0) + 1;
+      const willMarkFailed = failedRetryCount >= 3;
+
+      const updatedFailedPost: SocialPost = {
+        ...targetPost,
+        retryCount: failedRetryCount,
+        lastError: errorMsg,
+        lastAttemptAt: new Date().toISOString(),
+        status: willMarkFailed ? 'Falló' : targetPost.status,
+        updatedAt: new Date().toISOString(),
+      };
+
+      posts[postIndex] = updatedFailedPost;
+      await writeData(POSTS_FILE, posts, (a, b) => new Date(b.publishDate).getTime() - new Date(a.publishDate).getTime());
+
+      return {
+        success: false,
+        error: `No se pudo publicar en las redes seleccionadas: ${errorMsg}`,
+        failedPlatforms,
+        post: updatedFailedPost,
+      };
+    }
+
+    // Actualizar estado a Publicado solo si se logró publicar al menos en una red
     const updatedPost: SocialPost = {
       ...targetPost,
       status: 'Publicado',
       publishDate: new Date().toISOString(),
       updatedAt: new Date().toISOString(),
+      lastError: undefined,
     };
 
     posts[postIndex] = updatedPost;
@@ -339,6 +372,26 @@ export async function publishApprovedSocialPost(
   } catch (error: any) {
     return { success: false, error: error.message || 'Error al procesar la publicación.' };
   }
+}
+
+/**
+ * Bloque 3: Publicar una vez y que salga en todas con aprobación humana obligatoria.
+ * "Nada se publica solo. La app prepara, una persona aprueba."
+ */
+export async function publishApprovedSocialPost(
+  postId: string,
+  targetPlatforms?: PlatformName[]
+): Promise<{
+  success: boolean;
+  publishedTo?: string[];
+  failedPlatforms?: Array<{ platform: string; reason: string }>;
+  post?: SocialPost;
+  error?: string;
+}> {
+  const permiso = await requirePermiso(PERMISOS.CRM);
+  if (!permiso.ok) return { success: false, error: permiso.error };
+
+  return publishPostInternal(postId, targetPlatforms);
 }
 
 /**
@@ -372,3 +425,156 @@ export async function createPostFromDailySuggestion(
     return { success: false, error: error.message || 'Error al crear la publicación sugerida.' };
   }
 }
+
+/**
+ * BLOQUE 3 (Orden del 18 de agosto): Reporte de atribución por red social.
+ * Muestra qué red trae clientes de verdad (consultas, presupuestos, contratos y facturación).
+ * NO inventa números: si de una red no vino nadie, muestra 0 y el cartel explícito.
+ */
+export async function getNetworkAttributionReport(
+  period: NetworkAttributionPeriod = '90d'
+): Promise<{ success: boolean; data?: NetworkAttributionReport; error?: string }> {
+  try {
+    const permiso = await requirePermiso(PERMISOS.CRM);
+    if (!permiso.ok) return { success: false, error: permiso.error };
+
+    const [leads, budgets] = await Promise.all([
+      readData<CrmLead[]>(LEADS_FILE, []),
+      readData<Presupuesto[]>(BUDGETS_FILE, []),
+    ]);
+
+    // Determinar fecha de corte según el período
+    const now = Date.now();
+    let cutoffDate: Date;
+    let periodDaysText = 'estos 90 días';
+    let periodLabel = 'Últimos 90 días';
+
+    if (period === '30d') {
+      cutoffDate = new Date(now - 30 * 24 * 60 * 60 * 1000);
+      periodDaysText = 'estos 30 días';
+      periodLabel = 'Últimos 30 días';
+    } else if (period === 'year') {
+      const currentYear = new Date().getFullYear();
+      cutoffDate = new Date(currentYear, 0, 1);
+      periodDaysText = `este año ${currentYear}`;
+      periodLabel = `Año ${currentYear}`;
+    } else if (period === 'all') {
+      cutoffDate = new Date(0);
+      periodDaysText = 'todo el historial';
+      periodLabel = 'Historial completo';
+    } else {
+      cutoffDate = new Date(now - 90 * 24 * 60 * 60 * 1000);
+      periodDaysText = 'estos 90 días';
+      periodLabel = 'Últimos 90 días';
+    }
+
+    // Filtrar leads dentro del período
+    const periodLeads = leads.filter((lead) => {
+      if (!lead.createdAt) return true;
+      const leadDate = new Date(lead.createdAt);
+      return leadDate >= cutoffDate;
+    });
+
+    // Definición de las redes auditadas obligatorias
+    const networksConfig = [
+      { key: 'instagram', name: 'Instagram', match: (s: string) => s === 'instagram' },
+      { key: 'facebook', name: 'Facebook', match: (s: string) => s === 'facebook' },
+      { key: 'tiktok', name: 'TikTok', match: (s: string) => s === 'tiktok' },
+      { key: 'youtube', name: 'YouTube', match: (s: string) => s === 'youtube' },
+      { key: 'whatsapp', name: 'WhatsApp', match: (s: string) => s === 'whatsapp' },
+      {
+        key: 'web_directo',
+        name: 'Web / Directo',
+        match: (s: string) =>
+          ['direct', 'landing', 'landing_bodas', 'landing_xv', 'landing_eventos', 'portal_led', 'campaign', 'guest_portal'].includes(s),
+      },
+      {
+        key: 'otros',
+        name: 'Otras fuentes',
+        match: (s: string) =>
+          !['instagram', 'facebook', 'tiktok', 'youtube', 'whatsapp', 'direct', 'landing', 'landing_bodas', 'landing_xv', 'landing_eventos', 'portal_led', 'campaign', 'guest_portal'].includes(s),
+      },
+    ];
+
+    const rows: NetworkAttributionRow[] = [];
+    let totalConsultas = 0;
+    let totalPresupuestos = 0;
+    let totalContratados = 0;
+    let totalRevenueUYU = 0;
+
+    for (const net of networksConfig) {
+      const netLeads = periodLeads.filter((l) => {
+        const src = (l.acquisition?.source || 'direct').toLowerCase();
+        return net.match(src);
+      });
+
+      const consultasCount = netLeads.length;
+      let presupuestosCount = 0;
+      let contratadosCount = 0;
+      let netRevenue = 0;
+
+      for (const lead of netLeads) {
+        // Buscar presupuesto vinculado
+        const budget = budgets.find((b) =>
+          b.id === lead.presupuestoId ||
+          (b.clienteNombre && lead.name && b.clienteNombre.toLowerCase() === lead.name.toLowerCase()) ||
+          (b.clienteTelefono && lead.phone && b.clienteTelefono.replace(/\D/g, '') === lead.phone.replace(/\D/g, ''))
+        );
+
+        const hasBudget = Boolean(lead.presupuestoId || lead.presupuestoEstado || budget);
+        if (hasBudget) {
+          presupuestosCount += 1;
+        }
+
+        const isContracted =
+          lead.presupuestoEstado === 'Aceptado' ||
+          lead.presupuestoEstado === 'Facturado' ||
+          Boolean(lead.invoiceId) ||
+          (budget && (budget.estado === 'Aceptado' || budget.estado === 'Facturado' || Boolean(budget.fechaFirmaContrato)));
+
+        if (isContracted) {
+          contratadosCount += 1;
+          const monto = budget?.totalPresupuesto || budget?.totalServiciosUYU || 0;
+          netRevenue += monto;
+        }
+      }
+
+      totalConsultas += consultasCount;
+      totalPresupuestos += presupuestosCount;
+      totalContratados += contratadosCount;
+      totalRevenueUYU += netRevenue;
+
+      let inactivityNote: string | undefined;
+      if (consultasCount === 0) {
+        inactivityNote = `De ${net.name} no vino ninguna consulta en ${periodDaysText}.`;
+      }
+
+      rows.push({
+        network: net.name,
+        sourceKey: net.key,
+        consultasCount,
+        presupuestosCount,
+        contratadosCount,
+        totalRevenueUYU: netRevenue,
+        inactivityNote,
+      });
+    }
+
+    return {
+      success: true,
+      data: {
+        period,
+        periodLabel,
+        rows,
+        totalConsultas,
+        totalPresupuestos,
+        totalContratados,
+        totalRevenueUYU,
+      },
+    };
+  } catch (error: any) {
+    console.error('[presencia-digital] Error generando reporte de atribución:', error);
+    return { success: false, error: error.message || 'Error al generar reporte de atribución.' };
+  }
+}
+

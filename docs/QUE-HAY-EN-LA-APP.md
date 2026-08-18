@@ -42,6 +42,10 @@ muestre**. Esa distinción es la que más veces falló.
 | Transmisión en vivo | Sí | Pantalla de la fiesta en vivo |
 | Centro de presencia digital | Sí | Empresa → Presencia digital |
 | Publicación real en Facebook e Instagram | Sí | Empresa → Presencia digital (al aprobar) |
+| Publicación programada con cron y límites | Sí | Automático (cron `/api/cron/publicar-programados`) y visible en Empresa → Redes sociales |
+| Textos con IA desde fotos de fiesta | Sí | Empresa → Redes sociales → "Generar desde fiesta" |
+| Atribución de clientes por red ("¿De dónde vienen?") | Sí | Empresa → Presencia digital → pestaña "¿De dónde vienen?" |
+| Alerta de redes inactivas | Sí | Empresa → Presencia digital → banner arriba de las pestañas |
 | Importador de historial social | Sí | Empresa → Redes sociales → Importar historial |
 | Schema.org LocalBusiness y OpenGraph | Sí | En la cabecera (head) de la web pública |
 

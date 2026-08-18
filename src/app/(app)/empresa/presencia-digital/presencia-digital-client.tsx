@@ -1,11 +1,18 @@
 'use client';
 
-import { useState } from 'react';
-import type { DigitalPresenceDashboardData, CampaignCommercialRoi } from '@/types/presencia-digital';
+import { useState, useEffect, useCallback } from 'react';
+import Link from 'next/link';
+import type {
+  DigitalPresenceDashboardData,
+  CampaignCommercialRoi,
+  NetworkAttributionPeriod,
+  NetworkAttributionReport,
+} from '@/types/presencia-digital';
 import type { SocialPost } from '@/types/social-media';
 import {
   publishApprovedSocialPost,
   createPostFromDailySuggestion,
+  getNetworkAttributionReport,
 } from '@/app/actions/presencia-digital';
 import {
   Users,
@@ -21,6 +28,8 @@ import {
   BarChart3,
   Flame,
   ShieldAlert,
+  Target,
+  ArrowRight,
 } from 'lucide-react';
 
 interface Props {
@@ -31,14 +40,42 @@ interface Props {
 export function PresenciaDigitalClient({ initialData, initialPosts }: Props) {
   const [data, setData] = useState<DigitalPresenceDashboardData>(initialData);
   const [posts, setPosts] = useState<SocialPost[]>(initialPosts);
-  const [activeTab, setActiveTab] = useState<'revision' | 'ads' | 'publicaciones' | 'historial'>('revision');
+  const [activeTab, setActiveTab] = useState<'revision' | 'ads' | 'atribucion' | 'publicaciones' | 'historial'>('revision');
   const [publishingId, setPublishingId] = useState<string | null>(null);
   const [publishFeedback, setPublishFeedback] = useState<{
     success: boolean;
     message: string;
     details?: string[];
   } | null>(null);
+  const [attributionPeriod, setAttributionPeriod] = useState<NetworkAttributionPeriod>('90d');
+  const [attributionReport, setAttributionReport] = useState<NetworkAttributionReport | null>(null);
+  const [loadingAttribution, setLoadingAttribution] = useState(false);
   const [creatingSuggestion, setCreatingSuggestion] = useState(false);
+
+  const loadAttribution = useCallback(async (period: NetworkAttributionPeriod) => {
+    setLoadingAttribution(true);
+    try {
+      const res = await getNetworkAttributionReport(period);
+      if (res.success && res.data) {
+        setAttributionReport(res.data);
+      }
+    } catch {
+      // Manejo silencioso de error
+    } finally {
+      setLoadingAttribution(false);
+    }
+  }, []);
+
+  useEffect(() => {
+    if (activeTab === 'atribucion' && !attributionReport) {
+      loadAttribution(attributionPeriod);
+    }
+  }, [activeTab, attributionPeriod, attributionReport, loadAttribution]);
+
+  const handlePeriodChange = (period: NetworkAttributionPeriod) => {
+    setAttributionPeriod(period);
+    loadAttribution(period);
+  };
 
   const kpis = data.kpis;
   const review = data.review;
@@ -52,25 +89,22 @@ export function PresenciaDigitalClient({ initialData, initialPosts }: Props) {
         setPosts((prev) =>
           prev.map((p) => (p.id === postId ? { ...p, status: 'Publicado' } : p))
         );
-        const redExitosa = res.publishedTo?.join(', ') || 'las redes conectadas';
-        let detailMsg = `Publicado con éxito en: ${redExitosa}.`;
-        if (res.failedPlatforms && res.failedPlatforms.length > 0) {
-          detailMsg += ` (Aviso: ${res.failedPlatforms.map((f) => `${f.platform}: ${f.reason}`).join(' - ')})`;
-        }
+        const details = res.publishedTo?.map((plat) => `Publicado en ${plat}`) || [];
         setPublishFeedback({
           success: true,
-          message: detailMsg,
+          message: '¡Publicación enviada con éxito!',
+          details,
         });
       } else {
         setPublishFeedback({
           success: false,
-          message: res.error || 'No se pudo publicar el posteo.',
+          message: res.error || 'No se pudo completar la publicación en las redes.',
         });
       }
     } catch (err: any) {
       setPublishFeedback({
         success: false,
-        message: err.message || 'Error de comunicación al publicar.',
+        message: err.message || 'Error inesperado al publicar.',
       });
     } finally {
       setPublishingId(null);
@@ -80,9 +114,12 @@ export function PresenciaDigitalClient({ initialData, initialPosts }: Props) {
   const handleCreateFromSuggestion = async () => {
     if (!review?.dailyPostSuggestion) return;
     setCreatingSuggestion(true);
+    setPublishFeedback(null);
     try {
-      const fullText = `${review.dailyPostSuggestion.text}\n\n${review.dailyPostSuggestion.hashtags.join(' ')}`;
-      const res = await createPostFromDailySuggestion(fullText, 'Instagram');
+      const res = await createPostFromDailySuggestion(
+        review.dailyPostSuggestion.text,
+        review.dailyPostSuggestion.recommendedPlatform === 'Facebook' ? 'Facebook' : 'Instagram'
+      );
       if (res.success && res.post) {
         setPosts((prev) => [res.post!, ...prev]);
         setPublishFeedback({
@@ -173,6 +210,46 @@ export function PresenciaDigitalClient({ initialData, initialPosts }: Props) {
         </div>
       </div>
 
+      {/* BLOQUE 4: ALERTA DE INACTIVIDAD / ESTADO DE PUBLICACIÓN */}
+      {review?.inactivePlatforms && review.inactivePlatforms.length > 0 ? (
+        <div className="p-4 md:p-5 bg-amber-950/40 border border-amber-800/60 rounded-2xl space-y-3">
+          <div className="flex items-center gap-2 text-amber-400 font-bold text-sm">
+            <AlertCircle className="w-5 h-5" />
+            <span>Alerta de presencia digital: se están enfriando tus redes</span>
+          </div>
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
+            {review.inactivePlatforms.map((p) => (
+              <div
+                key={p.platform}
+                className="p-3.5 bg-slate-950/80 border border-amber-900/40 rounded-xl flex items-center justify-between gap-3"
+              >
+                <div>
+                  <div className="text-xs font-bold text-amber-300">
+                    Hace {p.daysWithoutPost} días que no publicás en {p.platform}
+                  </div>
+                  <div className="text-[11px] text-slate-400 mt-0.5">
+                    Tus seguidores no te ven
+                  </div>
+                </div>
+                <Link
+                  href="/empresa/redes-sociales"
+                  className="px-3 py-1.5 bg-amber-500/10 hover:bg-amber-500 hover:text-slate-950 text-amber-200 border border-amber-500/30 rounded-lg text-xs font-bold shrink-0 transition flex items-center gap-1"
+                >
+                  Armar posteo <ArrowRight className="w-3 h-3" />
+                </Link>
+              </div>
+            ))}
+          </div>
+        </div>
+      ) : (
+        <div className="p-4 bg-emerald-950/30 border border-emerald-800/50 rounded-2xl flex items-center gap-3 text-emerald-200 text-sm">
+          <CheckCircle2 className="w-5 h-5 text-emerald-400 shrink-0" />
+          <div>
+            <span className="font-bold">Venís publicando parejo 👏</span> Todas tus redes principales tienen publicaciones recientes y te mantienen visible ante clientes.
+          </div>
+        </div>
+      )}
+
       {/* Notificación de feedback */}
       {publishFeedback && (
         <div
@@ -202,6 +279,17 @@ export function PresenciaDigitalClient({ initialData, initialPosts }: Props) {
           }`}
         >
           <Sparkles className="w-4 h-4" /> Revisión Diaria
+        </button>
+
+        <button
+          onClick={() => setActiveTab('atribucion')}
+          className={`px-4 py-2 text-sm font-bold rounded-xl transition whitespace-nowrap flex items-center gap-2 ${
+            activeTab === 'atribucion'
+              ? 'bg-emerald-500 text-slate-950 shadow-md shadow-emerald-500/20'
+              : 'bg-slate-900 text-slate-400 hover:text-slate-200'
+          }`}
+        >
+          <Target className="w-4 h-4" /> ¿De dónde vienen?
         </button>
 
         <button
@@ -325,7 +413,127 @@ export function PresenciaDigitalClient({ initialData, initialPosts }: Props) {
         </div>
       )}
 
-      {/* PESTAÑA 2: PUBLICIDAD VS FIESTAS REALES (Bloque 5) */}
+      {/* PESTAÑA 2: ATRIBUCIÓN REAL: ¿QUÉ RED TRAE CLIENTES? (Bloque 3) */}
+      {activeTab === 'atribucion' && (
+        <div className="space-y-6">
+          {/* Header con selector de período */}
+          <div className="p-5 bg-slate-900/90 border border-slate-800 rounded-2xl flex flex-col md:flex-row md:items-center justify-between gap-4">
+            <div>
+              <h2 className="text-base font-bold text-white flex items-center gap-2">
+                <Target className="w-5 h-5 text-emerald-400" />
+                Clientes y Contratos por Red Social
+              </h2>
+              <p className="text-xs text-slate-400 mt-1">
+                De dónde vinieron los que pidieron presupuesto y cuántos contrataron de verdad. Sin números inventados.
+              </p>
+            </div>
+
+            {/* Selector de período */}
+            <div className="flex items-center gap-1.5 bg-slate-950 p-1 rounded-xl border border-slate-800">
+              {(['30d', '90d', 'year', 'all'] as const).map((p) => (
+                <button
+                  key={p}
+                  onClick={() => handlePeriodChange(p)}
+                  className={`px-3 py-1.5 text-xs font-bold rounded-lg transition ${
+                    attributionPeriod === p
+                      ? 'bg-emerald-500 text-slate-950 shadow-sm'
+                      : 'text-slate-400 hover:text-white'
+                  }`}
+                >
+                  {p === '30d' ? '30 días' : p === '90d' ? '90 días' : p === 'year' ? 'Este año' : 'Todo'}
+                </button>
+              ))}
+            </div>
+          </div>
+
+          {loadingAttribution ? (
+            <div className="p-12 text-center text-slate-400 text-sm">
+              Cargando atribución por red social...
+            </div>
+          ) : attributionReport ? (
+            <>
+              {/* Tarjetas resumen del período */}
+              <div className="grid grid-cols-2 lg:grid-cols-4 gap-3">
+                <div className="p-4 bg-slate-900 border border-slate-800 rounded-2xl">
+                  <div className="text-xs font-semibold text-slate-400 uppercase">Consultas ({attributionReport.periodLabel})</div>
+                  <div className="text-2xl font-black text-white mt-1">
+                    {attributionReport.totalConsultas}
+                  </div>
+                </div>
+                <div className="p-4 bg-slate-900 border border-slate-800 rounded-2xl">
+                  <div className="text-xs font-semibold text-slate-400 uppercase">Presupuestos Emitidos</div>
+                  <div className="text-2xl font-black text-purple-400 mt-1">
+                    {attributionReport.totalPresupuestos}
+                  </div>
+                </div>
+                <div className="p-4 bg-slate-900 border border-slate-800 rounded-2xl">
+                  <div className="text-xs font-semibold text-slate-400 uppercase">Contratos Cerrados</div>
+                  <div className="text-2xl font-black text-emerald-400 mt-1">
+                    {attributionReport.totalContratados}
+                  </div>
+                </div>
+                <div className="p-4 bg-slate-900 border border-slate-800 rounded-2xl">
+                  <div className="text-xs font-semibold text-slate-400 uppercase">Facturación Contratada</div>
+                  <div className="text-2xl font-black text-amber-400 mt-1">
+                    ${attributionReport.totalRevenueUYU.toLocaleString('es-UY')}
+                  </div>
+                </div>
+              </div>
+
+              {/* Tabla de desglose por red */}
+              <div className="overflow-x-auto rounded-2xl border border-slate-800 bg-slate-900/90">
+                <table className="w-full text-left text-xs text-slate-300">
+                  <thead className="bg-slate-900 text-slate-400 uppercase font-bold border-b border-slate-800">
+                    <tr>
+                      <th className="p-3.5">Red Social / Canal</th>
+                      <th className="p-3.5 text-center">Consultas</th>
+                      <th className="p-3.5 text-center">Presupuestos</th>
+                      <th className="p-3.5 text-center">Contratados</th>
+                      <th className="p-3.5 text-right">Plata Contratada</th>
+                      <th className="p-3.5">Diagnóstico</th>
+                    </tr>
+                  </thead>
+                  <tbody className="divide-y divide-slate-800/60 bg-slate-950">
+                    {attributionReport.rows.map((row) => (
+                      <tr key={row.sourceKey} className="hover:bg-slate-900/50">
+                        <td className="p-3.5 font-bold text-white flex items-center gap-2">
+                          <span className="w-2 h-2 rounded-full bg-emerald-400" />
+                          {row.network}
+                        </td>
+                        <td className="p-3.5 text-center font-semibold text-slate-200">
+                          {row.consultasCount}
+                        </td>
+                        <td className="p-3.5 text-center font-semibold text-purple-300">
+                          {row.presupuestosCount}
+                        </td>
+                        <td className="p-3.5 text-center font-bold text-emerald-400">
+                          {row.contratadosCount}
+                        </td>
+                        <td className="p-3.5 text-right font-black text-amber-400">
+                          {row.totalRevenueUYU > 0 ? `$${row.totalRevenueUYU.toLocaleString('es-UY')}` : '$0'}
+                        </td>
+                        <td className="p-3.5">
+                          {row.inactivityNote ? (
+                            <span className="text-amber-400/90 italic font-medium">
+                              {row.inactivityNote}
+                            </span>
+                          ) : (
+                            <span className="text-emerald-400 font-semibold">
+                              Canal activo ({row.consultasCount} {row.consultasCount === 1 ? 'consulta' : 'consultas'})
+                            </span>
+                          )}
+                        </td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+            </>
+          ) : null}
+        </div>
+      )}
+
+      {/* PESTAÑA 3: PUBLICIDAD VS FIESTAS REALES (Bloque 5) */}
       {activeTab === 'ads' && (
         <div className="space-y-4">
           <div className="p-4 bg-slate-900 border border-slate-800 rounded-2xl text-sm text-slate-300 flex items-start gap-3">

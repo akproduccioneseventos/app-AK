@@ -10,6 +10,8 @@ import { PERMISOS } from '@/lib/auth/perfiles';
 import { MARKETING_AUTOMATION_INTERNAL_TOKEN } from '@/lib/marketing/internal-token';
 import { getPublicInstagramFeed } from '@/lib/instagram/public-feed';
 import { classifyGalleryCategories } from '@/components/landing/gallery-media-utils';
+import { hayPresupuestoParaIA, registrarConsumoIA } from '@/lib/ai/consumo-servidor';
+import { chatWithMarketingAgent } from '@/ai/flows/marketing-agent-flow';
 
 const POSTS_FILE = 'social-posts.json';
 const DATA_DIR = path.join(process.cwd(), 'src', 'data');
@@ -56,7 +58,7 @@ export async function saveSocialPost(
       const filePath = path.join(assetsDirectoryPath, newFilename);
       const bytes = await mediaFile.arrayBuffer();
       await fs.writeFile(filePath, Buffer.from(bytes));
-      
+
       mediaUrl = `/api/social-media-assets/${newFilename}`;
       mediaType = mediaFile.type.startsWith('image/') ? 'image' : 'video';
     } catch (fileError: any) {
@@ -93,7 +95,7 @@ export async function saveSocialPost(
     finalPost = { ...postData, id: postId, createdAt: new Date().toISOString(), updatedAt: new Date().toISOString() };
     posts.push(finalPost);
   }
-  
+
   await writeData(POSTS_FILE, posts, (a, b) => new Date(b.publishDate).getTime() - new Date(a.publishDate).getTime());
   return { success: true, post: finalPost };
 }
@@ -116,7 +118,7 @@ export async function deleteSocialPost(postId: string): Promise<{ success: boole
       console.warn(`Could not delete media file for post ${postId}: ${fileError.message}`);
     }
   }
-  
+
   const updatedPosts = posts.filter(p => p.id !== postId);
   await writeData(POSTS_FILE, updatedPosts);
   return { success: true };
@@ -141,7 +143,7 @@ export async function syncInstagramPosts(
     // 1. Obtener la conexión de Instagram si está configurada (fallback a posts por defecto)
     const connections = await readData<any[]>('social-connections.json', []);
     const instagramConn = connections.find(c => c.platform === 'Instagram' && c.isConnected);
-    
+
     // 2. Definir publicaciones representativas de Instagram del feed real
     const fallbackInstagramFeed: InstagramFeedPost[] = [
       {
@@ -390,7 +392,14 @@ export async function generateDraftPostsFromPartyPhotos(
     const existingPlannerPosts = await readData<SocialPost[]>(POSTS_FILE, []);
     const now = new Date();
 
-    const postTemplates = [
+    const salon = fiesta.configuracion?.lugarEvento || 'Salto, Uruguay';
+    const fecha = fiesta.configuracion?.fechaEvento || '';
+    const invitadosCount = fiesta.invitados?.length;
+
+    // Contexto verificado de la fiesta sin inventar datos
+    const partyContext = `Fiesta: ${nombreEvento}. Tipo: ${tipoEvento}. Salón: ${salon}.${fecha ? ` Fecha: ${fecha}.` : ''}${invitadosCount ? ` Invitados: ${invitadosCount}.` : ''}`;
+
+    const fallbackTemplates = [
       {
         platform: 'Instagram' as const,
         text: `¡Así se vivió la fiesta de ${nombreEvento}! 📸✨\n\nUna noche llena de emoción, risas y momentos únicos junto a familia y amigos en Salto. ¡Gracias por confiar en el equipo de AK Producciones para hacerla realidad! 🎉\n\n#AKProducciones #EventosSalto #FiestasUruguay #${tipoHashtag} #MomentosInolvidables`,
@@ -409,20 +418,82 @@ export async function generateDraftPostsFromPartyPhotos(
       },
     ];
 
+    const aiPrompts = [
+      {
+        platform: 'Instagram' as const,
+        angle: 'Emoción y agradecimiento general',
+        request: `Escribí un posteo corto y emocionante para Instagram sobre la fiesta de ${nombreEvento}. Tono rioplatense (uruguayo, vos). Agradecé por elegir a AK Producciones en Salto. Incluí emojis y hashtags apropiados. No inventes detalles no provistos.`,
+      },
+      {
+        platform: 'Instagram' as const,
+        angle: 'Ambientación y puesta en escena',
+        request: `Escribí un posteo para Instagram destacando la ambientación, las luces y la puesta en escena de ${nombreEvento} en ${salon}. Tono rioplatense cercano y profesional. Hashtags de diseño y eventos.`,
+      },
+      {
+        platform: 'Facebook' as const,
+        angle: 'Pista de baile y música',
+        request: `Escribí un posteo para Facebook sobre la fiesta y la discoteca de ${nombreEvento}. Destacá la energía de la pista de baile, la música y la diversión de los invitados. Tono festivo y rioplatense.`,
+      },
+      {
+        platform: 'Instagram' as const,
+        angle: 'Fotocabina y recuerdos de invitados',
+        request: `Escribí un posteo interactivo para Instagram sobre las fotos y recuerdos que se llevaron los invitados en la cabina de ${nombreEvento}. Invitalos a comentar o etiquetarse. Tono canchero y divertido.`,
+      },
+    ];
+
+    const canUseAI = await hayPresupuestoParaIA().catch(() => false);
+    const finalPostsData: Array<{ platform: 'Instagram' | 'Facebook'; text: string }> = [];
+    let aiUsedCount = 0;
+
+    if (canUseAI) {
+      for (let i = 0; i < selectedPhotos.length; i++) {
+        const item = aiPrompts[i % aiPrompts.length];
+        try {
+          const aiResponse = await chatWithMarketingAgent({
+            request: item.request,
+            context: partyContext,
+            platform: item.platform,
+            eventType: tipoEvento,
+          });
+
+          if (aiResponse && aiResponse.content && aiResponse.content.trim().length > 20) {
+            finalPostsData.push({
+              platform: item.platform,
+              text: aiResponse.content.trim(),
+            });
+            aiUsedCount += 1;
+            continue;
+          }
+        } catch {
+          // Fallback silencioso al template en caso de error del servicio de IA
+        }
+        finalPostsData.push(fallbackTemplates[i % fallbackTemplates.length]);
+      }
+
+      if (aiUsedCount > 0) {
+        await registrarConsumoIA('material-post-evento', aiUsedCount).catch(() => {});
+      }
+    } else {
+      // Sin presupuesto de IA o fallback: usar templates
+      selectedPhotos.forEach((_, idx) => {
+        finalPostsData.push(fallbackTemplates[idx % fallbackTemplates.length]);
+      });
+    }
+
     const generatedPosts: SocialPost[] = [];
 
     selectedPhotos.forEach((photo, idx) => {
-      const template = postTemplates[idx % postTemplates.length];
+      const postData = finalPostsData[idx] || fallbackTemplates[idx % fallbackTemplates.length];
       const scheduledDate = new Date(now.getTime() + (idx + 1) * 86400000); // 1 día por post sugerido
 
       const newPost: SocialPost = {
         id: `draft_${fiestaId}_${Date.now()}_${idx}`,
-        platform: template.platform,
+        platform: postData.platform,
         isGeneralCampaign: false,
         eventId: fiestaId,
         eventName: nombreEvento,
         publishDate: scheduledDate.toISOString(),
-        text: template.text,
+        text: postData.text,
         mediaUrl: photo.imageUrl,
         mediaType: 'image',
         status: 'Borrador',
