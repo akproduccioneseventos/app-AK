@@ -107,7 +107,7 @@ export const defaultWhatsAppTemplates: WhatsAppTemplates = {
   eventConfirmationTemplate: 'Hola {{NOMBRE}}, te confirmamos la reserva de tu evento para el {{FECHA_EVENTO}} en {{SALON}}. ¡Muchas gracias por elegirnos!',
 };
 
-export type SocialPlatformName = 'Facebook' | 'Instagram' | 'TikTok' | 'WhatsApp';
+export type SocialPlatformName = 'Facebook' | 'Instagram' | 'TikTok' | 'WhatsApp' | 'YouTube' | 'Threads' | 'X' | 'Pinterest';
 
 export interface SocialConnection {
   platform: SocialPlatformName;

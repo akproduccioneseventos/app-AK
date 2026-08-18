@@ -1,8 +1,8 @@
 
-// YouTube entra aca porque las tablas de colores e iconos del calendario ya lo
-// tienen: sin sumarlo al tipo, las dos propuestas juntas no compilaban.
-export type SocialPlatform = 'Facebook' | 'Instagram' | 'TikTok' | 'WhatsApp' | 'YouTube' | 'Threads' | 'X';
-export type PostStatus = 'Programado' | 'Publicado' | 'Importado de IG' | 'Importado historial' | 'Borrador' | 'Falló' | 'Listo para copiar';
+// YouTube, Threads, X y Pinterest entran acá porque las tablas de colores e iconos del calendario
+// y el centro de redes los tienen: sin sumarlos al tipo, no compila.
+export type SocialPlatform = 'Facebook' | 'Instagram' | 'TikTok' | 'WhatsApp' | 'YouTube' | 'Threads' | 'X' | 'Pinterest';
+export type PostStatus = 'Programado' | 'Publicado' | 'Importado de IG' | 'Importado historial' | 'Borrador' | 'Falló' | 'Listo para copiar' | 'Error';
 
 export interface PostPerformance {
     likes?: number;

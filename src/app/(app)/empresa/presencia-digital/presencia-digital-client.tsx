@@ -8,12 +8,15 @@ import type {
   NetworkAttributionPeriod,
   NetworkAttributionReport,
 } from '@/types/presencia-digital';
+import type { GoogleAnalyticsDashboardData } from '@/lib/presencia-digital/google-analytics';
 import type { SocialPost } from '@/types/social-media';
 import {
   publishApprovedSocialPost,
   createPostFromDailySuggestion,
   getNetworkAttributionReport,
+  getWebsiteAnalyticsData,
 } from '@/app/actions/presencia-digital';
+import { GoogleBusinessProfileWidget } from '@/components/google-business-profile';
 import {
   Users,
   TrendingUp,
@@ -30,6 +33,10 @@ import {
   ShieldAlert,
   Target,
   ArrowRight,
+  Globe,
+  MapPin,
+  ExternalLink,
+  HelpCircle,
 } from 'lucide-react';
 
 interface Props {
@@ -40,7 +47,7 @@ interface Props {
 export function PresenciaDigitalClient({ initialData, initialPosts }: Props) {
   const [data, setData] = useState<DigitalPresenceDashboardData>(initialData);
   const [posts, setPosts] = useState<SocialPost[]>(initialPosts);
-  const [activeTab, setActiveTab] = useState<'revision' | 'ads' | 'atribucion' | 'publicaciones' | 'historial'>('revision');
+  const [activeTab, setActiveTab] = useState<'revision' | 'web' | 'atribucion' | 'ads' | 'google_ficha' | 'publicaciones' | 'historial'>('revision');
   const [publishingId, setPublishingId] = useState<string | null>(null);
   const [publishFeedback, setPublishFeedback] = useState<{
     success: boolean;
@@ -51,6 +58,26 @@ export function PresenciaDigitalClient({ initialData, initialPosts }: Props) {
   const [attributionReport, setAttributionReport] = useState<NetworkAttributionReport | null>(null);
   const [loadingAttribution, setLoadingAttribution] = useState(false);
   const [creatingSuggestion, setCreatingSuggestion] = useState(false);
+
+  // Estado para la solapa "Tu página web" (Bloque 1)
+  const [webPeriodo, setWebPeriodo] = useState<number>(30);
+  const [loadingWeb, setLoadingWeb] = useState<boolean>(false);
+  const [websiteAnalytics, setWebsiteAnalytics] = useState<GoogleAnalyticsDashboardData | undefined>(data.websiteAnalytics);
+
+  const handleWebPeriodoChange = async (dias: number) => {
+    setWebPeriodo(dias);
+    setLoadingWeb(true);
+    try {
+      const res = await getWebsiteAnalyticsData(dias);
+      if (res.success && res.data) {
+        setWebsiteAnalytics(res.data);
+      }
+    } catch {
+      //
+    } finally {
+      setLoadingWeb(false);
+    }
+  };
 
   const loadAttribution = useCallback(async (period: NetworkAttributionPeriod) => {
     setLoadingAttribution(true);
@@ -282,6 +309,28 @@ export function PresenciaDigitalClient({ initialData, initialPosts }: Props) {
         </button>
 
         <button
+          onClick={() => setActiveTab('web')}
+          className={`px-4 py-2 text-sm font-bold rounded-xl transition whitespace-nowrap flex items-center gap-2 ${
+            activeTab === 'web'
+              ? 'bg-sky-500 text-white shadow-md shadow-sky-500/20'
+              : 'bg-slate-900 text-slate-400 hover:text-slate-200'
+          }`}
+        >
+          <Globe className="w-4 h-4" /> Tu página web
+        </button>
+
+        <button
+          onClick={() => setActiveTab('google_ficha')}
+          className={`px-4 py-2 text-sm font-bold rounded-xl transition whitespace-nowrap flex items-center gap-2 ${
+            activeTab === 'google_ficha'
+              ? 'bg-yellow-500 text-slate-950 shadow-md shadow-yellow-500/20'
+              : 'bg-slate-900 text-slate-400 hover:text-slate-200'
+          }`}
+        >
+          <MapPin className="w-4 h-4" /> Ficha de Google
+        </button>
+
+        <button
           onClick={() => setActiveTab('atribucion')}
           className={`px-4 py-2 text-sm font-bold rounded-xl transition whitespace-nowrap flex items-center gap-2 ${
             activeTab === 'atribucion'
@@ -388,7 +437,6 @@ export function PresenciaDigitalClient({ initialData, initialPosts }: Props) {
               </div>
             </div>
           </div>
-
           {/* Publicación con mejor rendimiento */}
           {review.topPost && (
             <div className="p-5 bg-slate-900/90 border border-slate-800 rounded-2xl space-y-3">
@@ -410,6 +458,150 @@ export function PresenciaDigitalClient({ initialData, initialPosts }: Props) {
               </div>
             </div>
           )}
+        </div>
+      )}
+
+      {/* PESTAÑA: TU PÁGINA WEB (Bloque 1 - Google Analytics 4) */}
+      {activeTab === 'web' && (
+        <div className="space-y-6">
+          <div className="p-5 md:p-6 bg-slate-900/90 border border-slate-800 rounded-2xl space-y-5">
+            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+              <div>
+                <h2 className="text-lg font-bold text-white flex items-center gap-2">
+                  <Globe className="w-5 h-5 text-sky-400" />
+                  Tu Página Web (Google Analytics 4)
+                </h2>
+                <p className="text-xs text-slate-400 mt-1">
+                  Visitas reales, fuentes de tráfico, páginas más leídas y cuántos completan el simulador.
+                </p>
+              </div>
+
+              {/* Selector de período */}
+              <div className="flex items-center gap-1.5 bg-slate-950 p-1 rounded-xl border border-slate-800 self-start sm:self-auto">
+                <button
+                  onClick={() => handleWebPeriodoChange(7)}
+                  className={`px-3 py-1.5 text-xs font-bold rounded-lg transition ${
+                    webPeriodo === 7 ? 'bg-sky-600 text-white shadow' : 'text-slate-400 hover:text-white'
+                  }`}
+                >
+                  7 días
+                </button>
+                <button
+                  onClick={() => handleWebPeriodoChange(30)}
+                  className={`px-3 py-1.5 text-xs font-bold rounded-lg transition ${
+                    webPeriodo === 30 ? 'bg-sky-600 text-white shadow' : 'text-slate-400 hover:text-white'
+                  }`}
+                >
+                  30 días
+                </button>
+                <button
+                  onClick={() => handleWebPeriodoChange(90)}
+                  className={`px-3 py-1.5 text-xs font-bold rounded-lg transition ${
+                    webPeriodo === 90 ? 'bg-sky-600 text-white shadow' : 'text-slate-400 hover:text-white'
+                  }`}
+                >
+                  90 días
+                </button>
+              </div>
+            </div>
+
+            {loadingWeb ? (
+              <div className="text-center py-12 text-slate-400 text-sm">Cargando métricas de Google Analytics...</div>
+            ) : websiteAnalytics?.hasCredentials && websiteAnalytics.totalVisitors !== null ? (
+              <div className="space-y-6">
+                {/* Métricas Principales */}
+                <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+                  <div className="p-4 bg-slate-950/80 border border-slate-800 rounded-xl">
+                    <span className="text-xs font-semibold text-slate-400 uppercase">Visitas Únicas</span>
+                    <p className="text-2xl md:text-3xl font-black text-white mt-1">
+                      {websiteAnalytics.totalVisitors.toLocaleString('es-UY')}
+                    </p>
+                    <p className="text-xs text-slate-400 mt-1">en los últimos {webPeriodo} días</p>
+                  </div>
+
+                  <div className="p-4 bg-slate-950/80 border border-slate-800 rounded-xl">
+                    <span className="text-xs font-semibold text-slate-400 uppercase">Empezaron Simulador</span>
+                    <p className="text-2xl md:text-3xl font-black text-amber-400 mt-1">
+                      {websiteAnalytics.simulatorFunnel.started}
+                    </p>
+                    <p className="text-xs text-slate-400 mt-1">visitaron la calculadora</p>
+                  </div>
+
+                  <div className="p-4 bg-slate-950/80 border border-slate-800 rounded-xl">
+                    <span className="text-xs font-semibold text-slate-400 uppercase">Terminaron Simulador</span>
+                    <p className="text-2xl md:text-3xl font-black text-emerald-400 mt-1">
+                      {websiteAnalytics.simulatorFunnel.completed}
+                    </p>
+                    <p className="text-xs text-emerald-400/90 mt-1 font-medium">
+                      {websiteAnalytics.simulatorFunnel.completionRatePct}% de conversión
+                    </p>
+                  </div>
+                </div>
+
+                {/* Fuentes de Tráfico y Páginas Más Vistas */}
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  {/* De dónde llegaron */}
+                  <div className="p-4 bg-slate-950/80 border border-slate-800 rounded-xl space-y-3">
+                    <h3 className="text-sm font-bold text-white flex items-center gap-2">
+                      <Target className="w-4 h-4 text-sky-400" />
+                      ¿De dónde llegaron a la web?
+                    </h3>
+                    <div className="space-y-2.5">
+                      {websiteAnalytics.sources.map((src) => (
+                        <div key={src.source} className="space-y-1">
+                          <div className="flex justify-between text-xs font-medium">
+                            <span className="text-slate-300">{src.source}</span>
+                            <span className="text-white font-bold">{src.visitors} ({src.percentage}%)</span>
+                          </div>
+                          <div className="h-2 bg-slate-800 rounded-full overflow-hidden">
+                            <div
+                              className="h-full bg-sky-500 rounded-full"
+                              style={{ width: `${Math.min(100, Math.max(5, src.percentage))}%` }}
+                            />
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+
+                  {/* Páginas más vistas en criollo */}
+                  <div className="p-4 bg-slate-950/80 border border-slate-800 rounded-xl space-y-3">
+                    <h3 className="text-sm font-bold text-white flex items-center gap-2">
+                      <BarChart3 className="w-4 h-4 text-emerald-400" />
+                      Páginas más miradas
+                    </h3>
+                    <div className="space-y-2">
+                      {websiteAnalytics.topPages.map((page, idx) => (
+                        <div key={idx} className="flex items-center justify-between text-xs p-2.5 rounded-lg bg-slate-900/60 border border-slate-800/40">
+                          <span className="text-slate-200 font-medium">{page.label}</span>
+                          <span className="text-slate-400 font-bold">{page.views} vistas</span>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                </div>
+              </div>
+            ) : (
+              <div className="p-6 bg-slate-950/60 border border-slate-800 rounded-xl text-center space-y-3">
+                <HelpCircle className="w-8 h-8 text-sky-400 mx-auto" />
+                <h3 className="text-base font-bold text-white">Sin dato configurado</h3>
+                <p className="text-xs text-slate-400 max-w-md mx-auto leading-relaxed">
+                  {websiteAnalytics?.missingCredentialsNote ||
+                    'Falta configurar la variable GA4_PROPERTY_ID y credenciales de Google en el servidor para ver el tráfico en vivo.'}
+                </p>
+              </div>
+            )}
+          </div>
+        </div>
+      )}
+
+      {/* PESTAÑA: FICHA DE GOOGLE (Bloque 3) */}
+      {activeTab === 'google_ficha' && (
+        <div className="space-y-6">
+          <GoogleBusinessProfileWidget
+            rating={kpis.googleRating}
+            reviewsCount={kpis.googleReviewsCount}
+          />
         </div>
       )}
 

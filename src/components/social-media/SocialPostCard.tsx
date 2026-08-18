@@ -6,7 +6,7 @@ import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle }
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { NewPostDialog } from './NewPostDialog';
-import { Trash2, Edit, Loader2, Link as LinkIcon, Facebook, Instagram, Music, Copy, MessageSquare, Youtube, AtSign, Twitter } from 'lucide-react';
+import { Trash2, Edit, Loader2, Link as LinkIcon, Facebook, Instagram, Music, Copy, MessageSquare, Youtube, AtSign, Twitter, Pin } from 'lucide-react';
 import NextImage from 'next/image';
 import {
   AlertDialog,
@@ -49,6 +49,7 @@ const platformIcons: Record<SocialPlatform, React.ReactNode> = {
     YouTube: <Youtube className="w-5 h-5 text-red-600" />,
     Threads: <AtSign className="w-5 h-5 text-slate-800" />,
     X: <Twitter className="w-5 h-5 text-slate-800" />,
+    Pinterest: <Pin className="w-5 h-5 text-red-600" />,
 };
 
 export function SocialPostCard({ post, onDelete, isDeleting, onUpdate, onDuplicate }: SocialPostCardProps) {

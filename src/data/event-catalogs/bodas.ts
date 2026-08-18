@@ -1,3 +1,13 @@
+// Los testimonios de relleno se sacaron el 18 de agosto de 2026.
+//
+// Tenian nombre y apellido, fecha y de que red salian, pero **no eran reales** y
+// les faltaba lo unico que los hacia creibles: la captura del comentario
+// (`screenshotUrl`). Un visitante no tenia forma de saber que eran de mentira.
+//
+// La lista queda vacia a proposito: el carrusel se esconde solo cuando no hay
+// nada, asi que no deja hueco. Cuando entren los comentarios de verdad de las
+// redes, se muestran esos.
+
 import type { EventCatalogData } from '@/types/public-landing';
 import {
   sharedServices,
@@ -35,29 +45,7 @@ const bodasData: EventCatalogData = {
         }
       : s
   ),
-  testimonials: [
-    {
-      id: 't1',
-      authorName: 'Valentina y Rodrigo',
-      source: 'instagram',
-      text: '¡AK Producciones hizo nuestra boda un sueño! Cada detalle fue perfecto, desde las flores hasta la torta. Eternamente agradecidos. 💕',
-      date: 'Marzo 2024',
-    },
-    {
-      id: 't2',
-      authorName: 'Carolina M.',
-      source: 'whatsapp',
-      text: 'No puedo creer lo hermoso que quedó todo. El equipo estuvo presente en todo momento y nosotros solo tuvimos que disfrutar. ¡100% recomendados!',
-      date: 'Diciembre 2023',
-    },
-    {
-      id: 't3',
-      authorName: 'Florencia & Matías',
-      source: 'google',
-      text: 'Llevamos años pensando en nuestra boda y AK superó todas nuestras expectativas. Profesionales, cálidos y creativos.',
-      date: 'Octubre 2023',
-    },
-  ],
+  testimonials: [],
   promotion: {
     ...sharedPromotion,
     gifts: [

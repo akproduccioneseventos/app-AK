@@ -1,194 +1,211 @@
-# Que la gente me encuentre: la web, Google y dos redes más
+# Leer los comentarios de las redes, desde el principio y todos los días
 
 **Para:** Gemini (Antigravity)
 **Escribe:** Claude
 **Fecha:** 18 de agosto de 2026
 **Base:** `main` actualizado. Sincronizar antes de empezar.
 
-Ésta es la **única orden vigente**.
+## Cómo se entrega
 
-> **Se entrega UNA SOLA propuesta con los cuatro bloques adentro.** Cada fusión
-> dispara un despliegue y eso se paga. Si un bloque se traba, **entregá los otros
-> tres igual, en la misma propuesta**, y decí cuál faltó y por qué.
+**UNA SOLA PROPUESTA con los cuatro bloques.** No una por bloque. Si uno se
+traba, entregá los otros tres en la misma propuesta y avisá cuál faltó y por qué.
 
-## Lo que YA existe (verificado, NO lo rehagas)
+Antes de subir, los cuatro controles **sobre el conjunto entero**:
+`npx tsc --noEmit`, `npx jest --silent`, `npm run check:acentos`, `npm run build`.
+**Si el revisor de tipos da un solo error, no subas.** Guardá en UTF-8.
 
-Esto se comprobó archivo por archivo antes de escribir la orden:
-
-- **Google Analytics 4 ya está instalado y enchufado** en la web pública:
-  `src/components/google-analytics.tsx`, montado en `src/app/layout.tsx:128`, con
-  la variable `NEXT_PUBLIC_GA_MEASUREMENT_ID`. **No lo instales de nuevo.**
-- **La verificación de Google Search Console ya está**:
-  `src/lib/google-search-console.ts`.
-- **`sitemap.xml` y `robots.txt` ya se generan solos**: `src/app/sitemap.ts` y
-  `src/app/robots.ts`, desde la lista `PAGINAS_PARA_GOOGLE`.
-- **Las páginas públicas ya tienen título y descripción propios** (bodas,
-  quinceañeras, cumpleaños, blog, catálogo, landings de campaña).
-- **Ya hay datos estructurados de negocio local** (`LocalBusinessSchema`).
-- **El centro de presencia digital ya tiene cinco solapas** y ya guarda los
-  números todos los días con una tarea que corre sola.
-
-Lo que falta es otra cosa: **mostrar lo que Google Analytics ya está midiendo**, y
-sumar las redes y las fichas que no están.
+Anotá lo hecho en `docs/YA-RESUELTO.md` y actualizá `docs/QUE-HAY-EN-LA-APP.md`
+en esta misma propuesta, y mové este archivo a `hechas/` al terminar.
 
 ---
 
-# BLOQUE 1 — La web, adentro del panel
+## Para qué es esto
 
-Hoy Analytics mide todo y **el dueño tiene que entrar al panel de Google para
-verlo**. La idea del centro de presencia digital es que no tenga que ir a ningún
-lado.
+El dueño quiere que la aplicación **lea los comentarios de sus redes, los buenos
+los tenga listos para mostrar como testimonio, y los malos se los avise**.
 
-**Qué hacer:** una solapa nueva, **"Tu página web"**, en
-`src/app/(app)/empresa/presencia-digital/presencia-digital-client.tsx`, al lado de
-las cinco que ya están.
+Hoy las páginas de venta muestran testimonios sin la captura del comentario, y
+por eso no se distinguen de un texto de relleno. Esto los reemplaza por
+comentarios de verdad, con su enlace al original.
 
-Qué muestra, leyendo la API de datos de Google Analytics 4:
+## Lo que SÍ se puede y lo que NO
 
-- **Cuánta gente entró** en los últimos 7, 30 y 90 días, y si sube o baja contra
-  el período anterior.
-- **De dónde llegaron**: buscando en Google, desde Instagram, desde Facebook,
-  escribiendo la dirección, desde un enlace de campaña.
-- **Qué páginas miraron más**, con el nombre en criollo ("Quinceañeras",
-  "Simulador de presupuesto"), no la dirección técnica.
-- **Cuántos llegaron al simulador y cuántos lo terminaron.** Ése es el número que
-  vale plata: es dónde se cae la gente.
+**Verificado antes de escribir esta orden. No prometas lo que no se puede.**
 
-## Lo que no se negocia en este bloque
+| Red | ¿Se pueden leer los comentarios? | ¿Se pueden ocultar o borrar? |
+|---|---|---|
+| Facebook | **Sí**, con el permiso de la página | **Sí**, ocultar y borrar |
+| Instagram | **Sí**, cuenta de empresa | **Sí**, ocultar y borrar |
+| YouTube | **Sí**, con la clave de la API | Sí, moderar |
+| TikTok | **No** | No |
+| X | **No** sin plan pago | No |
+| Threads | **No** | No |
 
-- **Los accesos NO van en un archivo del repositorio.** Van por variables de
-  entorno. Ya se coló dos veces y no puede volver a pasar.
-- **Si no hay accesos configurados, la solapa dice "sin dato" y explica en una
-  línea qué falta.** Nunca un número inventado: ya pasó en este mismo panel y hubo
-  que arreglarlo.
-- **Guardá el número de cada día**, igual que se hace con las redes, enganchado a
-  la tarea que ya existe (`src/app/api/cron/metricas-de-redes/route.ts`).
-  Analytics guarda hacia atrás, pero tener el histórico propio junto al de las
-  redes es lo que permite comparar.
+Las tres primeras son donde el dueño tiene el movimiento. **En la pantalla tiene
+que decir con todas las letras cuáles se leen y cuáles no, y por qué** —para que
+no espere comentarios de TikTok que nunca van a llegar—.
 
-# BLOQUE 2 — Pinterest, X y Threads en el panel
+## Reglas que valen para los cuatro bloques
 
-Hoy el panel conoce seis redes (`PlatformName` en
-`src/types/presencia-digital.ts`) y el planificador conoce siete
-(`SocialPlatform` en `src/types/social-media.ts`, que ya incluye Threads y X).
-**Pinterest no está en ninguno de los dos.**
+**1. Se OCULTA solo lo agresivo. No se BORRA nada solo. No se PUBLICA nada solo.**
 
-**Qué hacer:**
+El dueño pidió que actúe sola, y con razón: *"a veces comentan y no te enterás"*.
+Un insulto colgado tres días en su página le hace daño real. Pero un programa que
+decide se va a equivocar, así que la acción automática tiene que ser **la que se
+puede deshacer**:
 
-- Sumar **Pinterest** a las dos listas, y emparejar `PlatformName` con las que ya
-  están en `SocialPlatform` (**Threads** y **X**).
-- Que las tres aparezcan en todas las solapas del panel y en la pantalla de Redes
-  Sociales, con su ícono y su color.
-- **Publicar en ellas: modo "Listo para copiar"**, igual que TikTok hoy. La app
-  arma el texto y la imagen, y la persona los sube. Publicar automático en X se
-  paga y en Pinterest hace falta que aprueben la aplicación: **no lo intentes**.
-- **Pinterest es la que más rinde de las tres para este negocio** —las madres de
-  quinceañeras buscan ideas de decoración ahí y las fotos siguen apareciendo años
-  después—, así que cuando el panel sugiera contenido, que la tenga en cuenta con
-  fotos de decoración, mesas y ambientación, no con videos de la pista.
+- **Insultos, agresiones, spam o datos personales de terceros → se ocultan solas,
+  en el momento, y se le avisa.** Ocultar en Facebook e Instagram deja el
+  comentario visible sólo para quien lo escribió: corta el daño al instante y **se
+  puede volver atrás con un toque** si la máquina se equivocó.
+- **Una queja legítima de un cliente NO se oculta sola.** Se le avisa y decide él.
+  Tapar un reclamo real es lo que termina en una captura de pantalla dando vueltas
+  por Salto; tapar un insulto es simplemente moderar.
+- **Borrar nunca es automático.** No tiene vuelta atrás, así que lo aprieta él.
+- **Publicar un testimonio en la web nunca es automático.** Ahí va el nombre de
+  una persona en material de venta.
 
-**Ojo con esto, que ya rompió una fusión:** cuando agregues una red, agregala
-**también en los dos mapas de íconos** de las tablas. `platformIcons` está tipado
-como `Record<SocialPlatform, ...>` justamente para que falte uno rompa la
-compilación y no la pantalla.
+Si la máquina duda entre insulto y queja, **trata como queja**: avisa y no oculta.
 
-# BLOQUE 3 — La ficha de Google, que existe y no la abre nadie
+**3. Todo lo que gaste en inteligencia artificial pasa por el contador.**
+`hayPresupuestoParaIA()` antes —si devuelve `false` no se llama al servicio—, y
+`registrarConsumoIA()` después. Sumá la función nueva a `FuncionConCosto` y a
+`COSTO_ESTIMADO_UYU` en `src/lib/ai/consumo.ts`.
 
-`src/components/google-business-profile.tsx` **está escrito y no lo importa
-ningún archivo**. Es una pantalla que nadie puede ver.
+**4. No se inventan números ni comentarios.** Si una red no está conectada, la
+pantalla lo dice; no muestra un cero disfrazado de dato ni ejemplos de relleno.
 
-Es la cuarta vez que aparece algo así, y **la ficha de Google es lo que más pesa
-para que lo encuentren**: la gente busca "salón de fiestas Salto" y decide ahí,
-antes de entrar a la web.
-
-**Qué hacer:**
-
-- Enchufarlo como una sección adentro del centro de presencia digital, con las
-  reseñas, el puntaje y cuánta gente lo encontró por Google.
-- **Si no hay accesos, muestra vacío y dice qué falta.** No inventes reseñas.
-- **Decí en la entrega desde qué botón se llega.** Una pantalla a la que no lleva
-  ningún enlace es trabajo tirado.
-
-# BLOQUE 4 — Que Google entienda mejor lo que vende
-
-Ya hay datos de negocio local. Faltan los que hacen que Google muestre el
-resultado **más grande y con estrellas**, que es lo que hace que le hagan clic.
-
-**Qué hacer:**
-
-- **Preguntas frecuentes** (`FAQPage`) en las páginas de bodas, quinceañeras y
-  cumpleaños. Las preguntas salen de las que el equipo ya contesta todos los
-  días: cuánta gente entra, qué incluye, cómo se reserva, si se puede pagar en
-  cuotas. **Si la respuesta no está escrita en ningún lado de la app, no la
-  inventes:** dejá la pregunta afuera y decilo en la entrega.
-- **Reseñas** (`Review` / `AggregateRating`) **sólo si hay reseñas reales
-  guardadas.** Si no las hay, este punto no se hace: inventar estrellas es
-  motivo de sanción de Google y te saca del mapa.
-- **Migas de pan** (`BreadcrumbList`) en las páginas públicas.
-- **Revisá que el `sitemap.xml` incluya todo lo público de hoy**: las notas del
-  blog, el catálogo de servicios y las landings de campaña. Si alguna no está,
-  Google no la conoce.
-
-# BLOQUE 5 — Las cuentas oficiales, escritas una sola vez
-
-La cuenta de Pinterest es **`https://es.pinterest.com/akproduccionessalto/`** y ya
-quedó declarada en las dos fichas que lee Google, junto con la etiqueta que le
-confirma a Pinterest que el sitio es de la empresa.
-
-**El problema de fondo sigue:** las direcciones de las redes están escritas a mano
-en por lo menos seis archivos distintos (`public-footer.tsx`,
-`LocalBusinessSchema.tsx`, `LocalBusinessJsonLd.tsx`, `CTASection.tsx`,
-`GallerySection.tsx`, `WinSechWidgets.tsx`) y **no coinciden entre sí**: hay tres
-direcciones de Instagram diferentes dando vueltas. Una ya se corrigió porque le
-decía a Google otra identidad; las de los botones siguen sin revisar.
-
-**Qué hacer:**
-
-1. **Una sola lista**, en `src/lib/public-contact.ts`, con la dirección oficial de
-   cada red. Todos los archivos de arriba la usan; ninguno escribe la dirección a
-   mano.
-2. **Revisá una por una las direcciones de Instagram que quedan** en los botones
-   de las páginas de venta. Si alguna no coincide con
-   `akproduccionesfiestasyeventos`, **preguntá antes de cambiarla**: puede ser una
-   cuenta vieja que todavía existe, y un botón que lleva a la nada pierde una
-   venta.
-3. **Sumá el botón de Pinterest** al pie de la web pública, con los otros.
-
-Hay una prueba (`las-cuentas-que-le-decimos-a-google.test.ts`) que controla que
-las dos fichas declaren las mismas siete cuentas. Si agregás una red, va también
-ahí.
+**5. Plata, cobros, comida y permisos los escribe Claude.** Si te cruzás con eso,
+avisá y seguí.
 
 ---
 
-## Lo que NO se toca
+# BLOQUE 1 — Traer todos los comentarios, desde el principio
 
-- **Plata, cobros, comida y permisos: eso lo escribe Claude.**
-- **No toques `public/firebase-messaging-sw.js`.** Lo genera el compilador y en la
-  versión principal queda el que no hace nada. **Es la tercera vez que se cuela
-  con la configuración escrita adentro.**
-- **No rehagas** el centro de presencia digital, la tarea que guarda los números,
-  el sitemap ni Analytics: están y funcionan.
-- **No pongas ningún acceso ni clave dentro de un archivo del repositorio.**
+**Una sola vez, hacia atrás.** El dueño quiere el historial completo, desde que
+abrió sus redes hasta hoy.
 
-## Los controles antes de entregar
+- Recorré **todas las publicaciones** de la página de Facebook, de la cuenta de
+  Instagram y del canal de YouTube, y de cada una traé **sus comentarios**.
+- Paginá hasta agotar lo que la red entregue. **Si la red corta antes de llegar
+  al principio, decilo en la pantalla**: "Facebook entregó hasta marzo de 2021".
+  Nunca lo marques como historial completo si no lo es.
+- Guardá de cada comentario: quién lo escribió, el texto, la fecha, la red, el
+  enlace al comentario original y a qué publicación pertenece.
+- **Que se pueda cortar y retomar.** Son miles: si se corta a la mitad, la
+  próxima corrida sigue donde quedó, no arranca de nuevo.
+- **Sin duplicar.** Un comentario que ya está no se guarda dos veces.
+- Reusá lo que ya existe para hablar con Meta: mirá
+  `src/lib/social-media/meta-history-backfill.ts`, que ya trae el historial de
+  publicaciones y resuelve la paginación y las credenciales.
 
-1. `npx tsc --noEmit`
-2. `npx jest --silent`
-3. `npm run check:acentos`
-4. `npm run build`
+# BLOQUE 2 — Todos los días, lo nuevo
 
-Sobre el conjunto entero. **Si el revisor de tipos da un solo error, no subas.**
-Las tres cosas que trabaron entregas anteriores:
+- Una tarea diaria que traiga **sólo lo que entró desde la última vez**.
+- Colgala de la tarea que ya corre (`src/app/api/cron/metricas-de-redes/route.ts`)
+  o hacé una al lado, con la misma clave de seguridad.
+- **Si una red falla, las otras siguen.** Y si una no está configurada, se saltea
+  sin romper nada.
 
-1. **Antes de usar una función o un campo, abrí el archivo y confirmá que existe.**
-   La última entrega usó cuatro nombres de campo que no existían.
-2. **Decí desde qué pantalla se ve cada cosa nueva.**
-3. **Que las pruebas nuevas prueben lo que la pantalla usa de verdad.** Las
-   últimas reemplazaban funciones que la pantalla no llama, así que pasaban en
-   verde midiendo otra cosa.
+# BLOQUE 3 — Separar los buenos de los malos
+
+- Que la inteligencia artificial lea cada comentario nuevo y lo marque como
+  **bueno, neutro o malo**, con una razón corta en criollo.
+- **Cuidado con la ironía y el modismo uruguayo.** "Está de más" es bueno; "y
+  bueno..." no lo es. Cuando dude, que lo marque **neutro**, no bueno: un
+  testimonio irónico publicado en la web es peor que uno de menos.
+- **Nunca marca bueno un comentario con insultos, datos personales de terceros,
+  o el nombre de un menor.**
+- Si no hay presupuesto de inteligencia artificial, que quede sin clasificar y la
+  pantalla lo diga. **No inventes una clasificación por palabras sueltas**: "no
+  puedo creer lo que fue esa fiesta" tiene un "no" y es un elogio.
+
+# BLOQUE 4 — Qué hace el dueño con eso, en un toque
+
+Una pantalla en el centro de presencia digital, con dos listas:
+
+**Los buenos → listos para mostrar**
+- Cada uno con su texto, quién lo escribió, la fecha y **el enlace al comentario
+  original**, para que el dueño pueda comprobarlo.
+- Botón **"Mostrar en la web"**: lo publica como testimonio en las páginas de
+  venta, usando el sistema que ya existe (`src/lib/testimonios/para-mostrar.ts`,
+  que ya filtra por aprobado).
+- **Si el comentario tiene imagen o se puede guardar la captura, guardala**: el
+  carrusel ya sabe mostrarla (`screenshotUrl` en `src/types/public-landing.ts`) y
+  es lo que hace creíble a un testimonio. Hoy los que hay no la tienen.
+
+**Lo que se ocultó solo → queda avisado y se puede revertir**
+
+Palabras del dueño: *"en el portal de la app queda la notificación y si no estoy
+de acuerdo revierto"*. Entonces:
+
+- Cada comentario ocultado automáticamente **deja un aviso que se queda en el
+  panel** hasta que el dueño lo mire. No un cartel que pasa y se va: tiene que
+  seguir ahí al otro día si no entró.
+- El aviso muestra **el texto completo del comentario, quién lo escribió, la
+  fecha, la red y el enlace al original**, para que pueda juzgar sin salir de la
+  aplicación.
+- Botón **"Volver a mostrarlo"**, de un toque, que lo devuelve a la vista en la
+  red. Sin confirmaciones ni vueltas: si la máquina se equivocó, corregirlo tiene
+  que ser más fácil que el error.
+- Que se vea **por qué lo ocultó** ("insulto", "spam", "datos de otra persona"),
+  para que el dueño aprenda a confiar o a desconfiar de la máquina.
+
+**Los malos que NO se ocultan (quejas legítimas) → avisar, no tocar**
+- Que aparezcan juntos, con el enlace al original y la fecha.
+- **Un aviso al dueño cuando entra uno nuevo**, con el mismo sistema de avisos que
+  ya usa la aplicación. Que se entere el día que pasa, no un mes después.
+- Botones: **"Ocultar en la red"** (reversible, es el principal) y **"Borrar"**
+  (con confirmación que aclare que no tiene vuelta atrás).
+- **Ninguno de los dos se ejecuta solo, nunca.**
+
+# BLOQUE 5 — Que el dueño pueda subir las capturas que ya tiene
+
+**Chico y desbloquea todo lo demás.**
+
+El dueño tiene capturas de comentarios de sus redes en su catálogo impreso. La
+aplicación **no tiene dónde subirlas**: se buscó en todo el proyecto y no hay
+ninguna pantalla que lo permita, ni una sola imagen de ese tipo guardada. Por eso
+los testimonios de las páginas de venta quedaron como texto suelto, sin la
+captura que el propio diseño espera (`screenshotUrl`).
+
+**Qué hacer:** en la pantalla de testimonios (Ajustes → Opiniones), poder
+**adjuntar la imagen del comentario** a un testimonio, con la misma subida de
+archivos que ya usa el resto de la aplicación. Y que el carrusel la muestre,
+cosa que ya sabe hacer.
+
+Con eso, los testimonios que el dueño ya tiene en papel pasan a la web **con la
+prueba a la vista**, que es lo que los hace creíbles.
+
+---
+
+## Cómo se comprueba
+
+Además de los cuatro controles, pruebas que llamen al código de verdad:
+
+1. **Que nada se publique ni se borre sin aprobación**: con un comentario malo
+   nuevo, la tarea diaria **no** lo borra; sólo lo deja avisado.
+2. **Que el historial no se marque completo si la red cortó antes.**
+3. **Que no se guarde dos veces** el mismo comentario al correr dos veces.
+4. **Que si falla la inteligencia artificial**, los comentarios quedan sin
+   clasificar y la pantalla lo dice, en vez de clasificar mal.
+5. **Que una red no configurada no rompa** la traída de las otras.
+
+**Que las pruebas llamen al código real.** Ya pasó tres veces que una prueba
+armaba una lista adentro y la filtraba ahí mismo, o que ni siquiera arrancaba:
+en los tres casos la entrega vino "en verde" sin probar nada.
+
+## Las tres cosas que trabaron entregas anteriores
+
+1. **Antes de usar una función o un campo, abrí el archivo y confirmá que
+   existe.** En la última entrega había cinco campos inventados y no compilaba.
+2. **La lógica no va adentro del archivo de una tarea de internet.** Ponela en
+   `src/lib/...` y dejá la tarea como una cáscara: si no, las pruebas no pueden
+   cargarla y no prueban nada. Ya pasó.
+3. **Nada que escriba o borre se exporta desde un archivo `'use server'` sin
+   pedir permiso.** Todo lo exportado ahí queda abierto a internet.
 
 ## Cuando termines
 
-Anotá en `docs/YA-RESUELTO.md` sólo lo que hiciste de verdad, actualizá
-`docs/QUE-HAY-EN-LA-APP.md`, avisá el número de la propuesta y mové este archivo
-a `hechas/` **en la misma propuesta**.
+Avisá el número de la propuesta y decí, por cada red, si quedó andando o no y por
+qué.

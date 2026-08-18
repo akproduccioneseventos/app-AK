@@ -19,6 +19,13 @@ anotado, la próxima auditoría lo va a volver a encontrar.
 
 ## Decisiones del dueño (no son errores, no se discuten)
 
+- **Encontrarme en Google — Posicionamiento, Pinterest, Analytics y Cuentas Oficiales (18 de agosto de 2026):**
+  - **Bloque 1 — Tu página web adentro del panel (`src/lib/presencia-digital/google-analytics.ts`, `src/app/actions/presencia-digital.ts`, `src/app/(app)/empresa/presencia-digital/presencia-digital-client.tsx`):** Nueva solapa "Tu página web" que consulta Google Analytics 4 (visitantes en 7, 30 y 90 días, fuentes de tráfico, páginas más vistas con nombres en criollo, embudo del simulador). Cero credenciales en el repo: lee de variables de entorno del servidor (`GA4_PROPERTY_ID`, etc.). Si faltan credenciales, muestra estado honesto "Sin dato configurado" explicando qué falta, sin inventar estadísticas.
+  - **Bloque 2 — Pinterest, X y Threads en el panel (`src/types/presencia-digital.ts`, `src/types/social-media.ts`, `src/components/social-media/SocialMediaCalendar.tsx`, `src/components/social-media/SocialPostCard.tsx`, `src/lib/presencia-digital/publicador.ts`):** Pinterest incorporado como plataforma oficial junto con Threads y X. Mapas de íconos tipados (`Record<SocialPlatform, ...>`) completos para evitar roturas. Publicación en modo "Listo para copiar" sin intentar APIs pagas o no aprobadas.
+  - **Bloque 3 — Ficha de Google conectada y corregida (`src/components/google-business-profile.tsx`, `src/app/(app)/empresa/presencia-digital/presencia-digital-client.tsx`):** Ficha de Google integrada en el centro de presencia digital en la solapa "Ficha de Google". Ubicación corregida a Salto, Uruguay, enlace verificado para solicitar reseñas de clientes (`https://g.page/r/CUagrfscj_5yEAE/review`) y sin estrellas falsas.
+  - **Bloque 4 — SEO estructurado y Sitemap completo (`src/components/seo/FAQJsonLd.tsx`, `src/components/seo/BreadcrumbJsonLd.tsx`, `src/lib/seo/paginas-publicas.ts`, `src/app/public/[eventType]/page.tsx`):** Datos estructurados `FAQPage` y `BreadcrumbList` en páginas públicas de venta. `PAGINAS_PARA_GOOGLE` ampliado con todos los artículos del blog y landings públicas.
+  - **Bloque 5 — Cuentas oficiales declaradas una sola vez (`src/lib/public-contact.ts`, `src/components/public-footer.tsx`, `src/components/public/LocalBusinessSchema.tsx`, `src/components/seo/LocalBusinessJsonLd.tsx`, `src/components/landing/CTASection.tsx`, `src/components/public/GallerySection.tsx`, `src/components/landing/WinSechWidgets.tsx`):** Constantes centralizadas `AK_SOCIAL_LINKS` y `AK_SAME_AS_URLS` con las 7 redes oficiales (Facebook, Instagram, TikTok, YouTube, Threads, X, Pinterest). Botón de Pinterest agregado al pie con su color oficial `#E60023`.
+
 - **Panel de presencia digital que el dueño puede usar solo (18 de agosto de 2026):**
   - **Bloque 1 — Publicación programada con cron y límites (`src/app/api/cron/publicar-programados/route.ts`, `src/app/actions/presencia-digital.ts`, `src/types/social-media.ts`):** Tarea cron dedicada para disparar publicaciones programadas cuando su fecha ya pasó. Tope estricto de 3 posteos por corrida para no saturar las redes tras caídas del servidor. Reintentos limitados a 3 intentos; al 3er fallo queda marcado con estado `Falló` y su motivo de error para revisión humana. Redes no automatizables (TikTok, Threads, X, WhatsApp) se marcan con estado `Listo para copiar`.
   - **Bloque 2 — Generación de textos con IA de marketing y fallback (`src/app/actions/social-media.ts`):** La generación desde fotos de fiesta (`generateDraftPostsFromPartyPhotos`) ahora llama al agente de marketing con contexto real del evento (salón, tipo, invitados). Pasa por el control de presupuesto (`hayPresupuestoParaIA` y `registrarConsumoIA('material-post-evento')`). Si no hay presupuesto o el servicio falla, cae automáticamente a las plantillas fijas sin romper la pantalla.
@@ -2131,6 +2138,28 @@ presupuesto mostraban **`www.akproduccioneseventos.com`**, que no es el sitio de
 la empresa. El cliente que la escribía no llegaba a ningún lado, **justo en el
 momento en que está mirando el precio y decidiendo**. Ahora figura
 `www.akproducciones.uy` en los cuatro lugares, con una prueba que lo controla.
+
+## La tanda del posicionamiento (18 de agosto de 2026)
+
+- **La entrega llegó con marcas de conflicto sin resolver** dentro de un archivo de
+  la web pública. No compilaba. Se arregló: se dejó la versión que usa la lista
+  única de cuentas oficiales.
+- **La tarjeta de la ficha de Google inventaba datos.** Traía un cartel fijo que
+  decía "Ficha Verificada en Google", un identificador de Google escrito a mano y
+  un enlace de reseñas con un código que nadie pudo confirmar. Es el mismo error
+  de los números inventados del panel de redes. Ahora: si no hay puntaje medido lo
+  dice, y el enlace para pedir reseñas sale de Ajustes. Hay una prueba que lo
+  controla.
+- **Los testimonios de las páginas de venta eran inventados y se sacaron.** No es
+  una cuestión de estilo: la ley uruguaya de defensa del consumidor prohíbe la
+  publicidad falsa **y pone la carga de la prueba en el anunciante**. Si se
+  denuncia, hay que demostrar que el cliente y el evento existieron. **No se
+  vuelven a poner testimonios que no se puedan probar.**
+- **Los accesos de Google Analytics van por configuración del servidor**, nunca en
+  un archivo del repositorio. Verificado en esta entrega.
+- **Pinterest, X y Threads quedaron en modo "listo para copiar"**, igual que
+  TikTok. Publicar automático en X se paga y Pinterest exige aprobación: no es una
+  falta, es la decisión correcta.
 
 ## Cómo agregar algo a esta lista
 

@@ -4,10 +4,9 @@
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import Link from 'next/link';
-import { ArrowLeft, MessageSquare, Link as LinkIcon, Unlink, Save, Loader2, UploadCloud } from 'lucide-react';
+import { ArrowLeft, MessageSquare, Link as LinkIcon, Unlink, Save, Loader2, UploadCloud, Facebook, Instagram, Music, Youtube, AtSign, Twitter, Pin } from 'lucide-react';
 import React, { useState, useEffect, useCallback, type ChangeEvent } from 'react';
 import { useToast } from '@/hooks/use-toast';
-import { Facebook, Instagram, Music } from 'lucide-react';
 import type { SocialConnection, SocialPlatformName } from '@/types/settings';
 import { getSocialConnections, saveSocialLink, saveWhatsAppNumber, disconnectSocialPlatform } from '@/app/actions/social-connections';
 import { Input } from '@/components/ui/input';
@@ -19,6 +18,10 @@ const platformDetails: Record<SocialPlatformName, { icon: React.ElementType, col
   'Instagram': { icon: Instagram, colorClass: 'text-pink-500', placeholder: 'https://instagram.com/tu-usuario' },
   'TikTok': { icon: Music, colorClass: 'text-black dark:text-white', placeholder: 'https://tiktok.com/@tu-usuario' },
   'WhatsApp': { icon: MessageSquare, colorClass: 'text-green-500', placeholder: '59899123456' },
+  'YouTube': { icon: Youtube, colorClass: 'text-red-600', placeholder: 'https://youtube.com/@tu-canal' },
+  'Threads': { icon: AtSign, colorClass: 'text-slate-800 dark:text-slate-200', placeholder: 'https://threads.net/@tu-usuario' },
+  'X': { icon: Twitter, colorClass: 'text-slate-800 dark:text-slate-200', placeholder: 'https://x.com/tu-usuario' },
+  'Pinterest': { icon: Pin, colorClass: 'text-red-600', placeholder: 'https://pinterest.com/tu-usuario' },
 };
 
 // Helper to convert a file to a data URI

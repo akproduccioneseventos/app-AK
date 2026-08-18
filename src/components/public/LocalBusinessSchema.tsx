@@ -1,3 +1,5 @@
+import { AK_SAME_AS_URLS } from '@/lib/public-contact';
+
 export function LocalBusinessSchema() {
   const schemaData = {
     "@context": "https://schema.org",
@@ -25,15 +27,7 @@ export function LocalBusinessSchema() {
       "sameAs": "https://es.wikipedia.org/wiki/Salto_(Uruguay)"
     },
     "description": "Organización completa y producción integral de fiestas de 15 años, bodas y eventos en Salto, Uruguay. Cobertura en todos los salones de fiestas con discoteca, gastronomía gourmet, salones de gala y tecnología interactiva.",
-    "sameAs": [
-      "https://www.facebook.com/akproduccionessalto/",
-      "https://www.instagram.com/akproduccionesfiestasyeventos/",
-      "https://www.tiktok.com/@akproduccioneseve",
-      "https://www.youtube.com/channel/UClq6YnypA9PFuBgunzk306A",
-      "https://www.threads.com/@akproduccionesfiestasyeventos",
-      "https://x.com/AkSalto",
-      "https://es.pinterest.com/akproduccionessalto/"
-    ]
+    "sameAs": AK_SAME_AS_URLS
   };
 
   return (

@@ -146,21 +146,41 @@ export async function getDigitalPresenceDashboard(): Promise<{
         canAutoPublish: false,
         publishNote: 'Los estados no se automatizan para proteger el número de la empresa.',
       },
+      {
+        platform: 'Pinterest',
+        isConnected: connections.some((c) => c.platform === 'Pinterest' && c.isConnected),
+        followers: null,
+        daysWithoutPost: 0,
+        canAutoPublish: false,
+        publishNote: 'Listo para copiar. Ideal para tableros de decoración, centros de mesa y 15 años.',
+      },
+      {
+        platform: 'Threads',
+        isConnected: connections.some((c) => c.platform === 'Threads' && c.isConnected),
+        followers: null,
+        daysWithoutPost: 0,
+        canAutoPublish: false,
+        publishNote: 'Listo para copiar.',
+      },
+      {
+        platform: 'X',
+        isConnected: connections.some((c) => c.platform === 'X' && c.isConnected),
+        followers: null,
+        daysWithoutPost: 0,
+        canAutoPublish: false,
+        publishNote: 'Listo para copiar.',
+      },
     ];
+
+    // Cargar métricas de la web desde Google Analytics 4
+    const { getGoogleAnalyticsMetrics } = await import('@/lib/presencia-digital/google-analytics');
+    const websiteAnalytics = await getGoogleAnalyticsMetrics(30);
 
     return {
       success: true,
       data: {
         kpis: {
           totalFollowers,
-          // Estos cuatro venian con numeros escritos a mano y se mostraban como
-          // si estuvieran medidos: 48 seguidores nuevos por semana, 5240 de
-          // alcance, 14,2% de crecimiento, 4,9 de puntaje con 38 opiniones. El
-          // dueno miraba su panel y decidia sobre datos inventados, y hasta
-          // podia repetirle a un cliente un puntaje de Google que no existe.
-          //
-          // Van en `null` y la pantalla dice "sin dato" con lo que hay que
-          // conectar para tenerlo.
           followersWeeklyChange: null,
           weeklyReach: null,
           reachWeeklyChangePct: null,
@@ -175,11 +195,36 @@ export async function getDigitalPresenceDashboard(): Promise<{
         review,
         recentHistory: updatedHistory.slice(-30),
         platformsStatus,
+        websiteAnalytics,
       },
     };
   } catch (error: any) {
     console.error('[presencia-digital] Error obteniendo dashboard:', error);
     return { success: false, error: error.message || 'Error al cargar el centro de presencia digital.' };
+  }
+}
+
+/**
+ * Server Action para consultar Google Analytics 4 con filtro de período dinámico (7, 30, 90 días).
+ */
+export async function getWebsiteAnalyticsData(periodoDias: number = 30) {
+  try {
+    const permiso = await requirePermiso(PERMISOS.CRM);
+    if (!permiso.ok) return { success: false, error: permiso.error };
+
+    const { getGoogleAnalyticsMetrics } = await import('@/lib/presencia-digital/google-analytics');
+    const data = await getGoogleAnalyticsMetrics(periodoDias);
+
+    return {
+      success: true,
+      data,
+    };
+  } catch (error: any) {
+    console.error('[presencia-digital] Error obteniendo analítica web:', error);
+    return {
+      success: false,
+      error: error.message || 'Error al consultar Google Analytics.',
+    };
   }
 }
 

@@ -1,5 +1,6 @@
 import fs from 'fs';
 import path from 'path';
+import { AK_SAME_AS_URLS } from '@/lib/public-contact';
 
 /**
  * Las dos fichas de negocio le tienen que declarar a Google LAS MISMAS cuentas.
@@ -29,18 +30,23 @@ const CUENTAS = [
 describe('las cuentas oficiales que ve Google', () => {
   const principal = leer('src/components/public/LocalBusinessSchema.tsx');
   const landings = leer('src/components/seo/LocalBusinessJsonLd.tsx');
+  const publicContact = leer('src/lib/public-contact.ts');
 
-  it.each(CUENTAS)('la ficha principal declara %s', (cuenta) => {
-    expect(principal).toContain(cuenta);
+  it.each(CUENTAS)('la lista oficial centralizada declara %s', (cuenta) => {
+    expect(publicContact).toContain(cuenta);
+    const matchEnArray = AK_SAME_AS_URLS.some((url) => url.includes(cuenta));
+    expect(matchEnArray).toBe(true);
   });
 
-  it.each(CUENTAS)('la ficha de las paginas de venta declara %s', (cuenta) => {
-    expect(landings).toContain(cuenta);
+  it('las dos fichas usan la lista oficial centralizada AK_SAME_AS_URLS', () => {
+    expect(principal).toContain('AK_SAME_AS_URLS');
+    expect(landings).toContain('AK_SAME_AS_URLS');
   });
 
-  it('ninguna de las dos nombra la cuenta vieja de Instagram', () => {
+  it('ninguna de las fichas ni la lista oficial nombra la cuenta vieja de Instagram', () => {
     expect(principal).not.toContain('ak_producciones_eventos');
     expect(landings).not.toContain('ak_producciones_eventos');
+    expect(publicContact).not.toContain('ak_producciones_eventos');
   });
 });
 

@@ -41,13 +41,17 @@ muestre**. Esa distinción es la que más veces falló.
 | Recuerdo de cada invitado (video vertical para historias) | Sí | Enlace personal del invitado / Recap de la mañana |
 | Transmisión en vivo | Sí | Pantalla de la fiesta en vivo |
 | Centro de presencia digital | Sí | Empresa → Presencia digital |
+| Tu página web (Google Analytics 4) | Sí | Empresa → Presencia digital → solapa "Tu página web" |
+| Ficha de Google conectada y verificada | Sí | Empresa → Presencia digital → solapa "Ficha de Google" |
+| Soporte Pinterest, Threads y X | Sí | Empresa → Presencia digital y Ajustes → Redes sociales |
 | Publicación real en Facebook e Instagram | Sí | Empresa → Presencia digital (al aprobar) |
 | Publicación programada con cron y límites | Sí | Automático (cron `/api/cron/publicar-programados`) y visible en Empresa → Redes sociales |
 | Textos con IA desde fotos de fiesta | Sí | Empresa → Redes sociales → "Generar desde fiesta" |
 | Atribución de clientes por red ("¿De dónde vienen?") | Sí | Empresa → Presencia digital → pestaña "¿De dónde vienen?" |
 | Alerta de redes inactivas | Sí | Empresa → Presencia digital → banner arriba de las pestañas |
 | Importador de historial social | Sí | Empresa → Redes sociales → Importar historial |
-| Schema.org LocalBusiness y OpenGraph | Sí | En la cabecera (head) de la web pública |
+| Schema.org LocalBusiness, FAQPage, Breadcrumb | Sí | En la cabecera (head) y body de las páginas públicas |
+| Cuentas oficiales centralizadas y botón Pinterest | Sí | Pie de página web pública y `src/lib/public-contact.ts` |
 
 **Si se cae el internet en la fiesta:** se salva la llegada de invitados y el
 pedido de la barra, que se reenvían solos al volver la señal. **La foto del muro
