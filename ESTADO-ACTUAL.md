@@ -8,37 +8,40 @@ Quien cierre una sesión reescribe este archivo. Se pisa, no se acumula.
 ---
 
 **Última actualización:** 18 de agosto de 2026.
-**Estado de la app:** sana. Compila, 1787 pruebas en verde, sin acentos rotos.
-**Propuestas abiertas:** ninguna. **Orden vigente:** ninguna.
+**Estado de la app:** sana. Compila, 1819 pruebas en verde, sin acentos rotos.
+**Propuestas abiertas:** ninguna.
+**Orden vigente:** `docs/ordenes/ahora.md` — leer los comentarios de las redes.
 
-## Lo que se cerró en esta tanda
+## Lo que se cerró hoy
 
-**El centro de presencia digital quedó completo y verificado.** Entró la entrega
-de Gemini con los cuatro bloques —publicación programada, textos sugeridos con
-inteligencia artificial, reporte de qué red trajo cada cliente y aviso de
-inactividad— más las correcciones que necesitaba para poder fusionarse.
+- **El centro de presencia digital**, completo y verificado.
+- **El posicionamiento en Google**: visitas de la web dentro del panel, Pinterest
+  y X en el tablero, la ficha de Google enchufada, preguntas frecuentes y migas
+  de pan, y una sola lista de cuentas oficiales en `src/lib/public-contact.ts`.
+- **Pinterest ya reconoce el sitio** como de la empresa.
+- **Los testimonios inventados salieron** de las seis páginas de venta. **No se
+  vuelven a poner:** la ley uruguaya pone la carga de la prueba en el anunciante.
 
-**Las diecisiete mejoras que eligió el dueño están terminadas**, cada una anotada
-en `docs/QUE-HAY-EN-LA-APP.md`.
+## Lo que se encontró en las entregas y no hay que repetir
 
-## Lo que había que corregir de esa entrega, y por qué importa
+- **Datos inventados con cara de medidos.** La tarjeta de la ficha de Google traía
+  un cartel fijo de "verificada" y un identificador escrito a mano. Ya había
+  pasado con los números del panel de redes. Hay prueba que lo frena.
+- **Marcas de conflicto sin resolver** en una entrega: no compilaba.
+- **La misma orden entregada dos veces por caminos distintos.** Comparar siempre
+  contra la versión principal de ahora, no contra la de cuando se creó la rama.
+- **Campos escritos contra nombres que no existen.** Lo agarra el revisor de tipos.
 
-- **Publicar en las redes de la empresa estaba abierto al público.** El ejecutor
-  que manda el posteo no pide permiso a propósito (la tarea programada no tiene
-  sesión), pero estaba exportado desde un archivo de acciones. Ahora vive en
-  `src/lib/presencia-digital/publicador.ts`. **No moverlo de vuelta.**
-- **Tres campos escritos contra nombres que no existen.** Uno de ellos hacía que
-  el monto atribuido a cada red diera siempre cero.
-- **Las pruebas nuevas medían otra cosa:** no reemplazaban las funciones que la
-  pantalla usa de verdad, así que nunca hubieran avisado de una rotura.
+## Lo que depende del dueño (no lo puede hacer ninguna IA)
 
-## Regla nueva, ya escrita en `CLAUDE.md`
+1. **Reclamar la ficha de Google** y elegir bien la categoría. Es el 32% del
+   posicionamiento local, casi el doble que la web.
+2. **Pedir una reseña por fiesta**, a todos por igual y sin premio.
+3. **Darse de alta** en las diez opciones gratis del plan.
 
-Cuando algo se traba, **se para y se pregunta en dos líneas**. El modelo principal
-no corre compilaciones ni pruebas: van a los ayudantes desde el primer minuto. Una
-entrega que no compila se devuelve, no se repara.
+Está todo en la página de plan que se le pasó el 18 de agosto.
 
-## Lo que sigue
+## Decisiones del dueño
 
-Lo que pida el dueño, o lo que muestre una fiesta de verdad. **La app está
-terminada: no se lanzan auditorías generales.**
+Descartó el precio variable por fecha, alquilar la app a otros salones y el
+"ensayo de la fiesta". `TriviaAdminPanel` queda sin enchufar a propósito.

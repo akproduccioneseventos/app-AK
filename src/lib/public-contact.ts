@@ -18,7 +18,6 @@ export const AK_SOCIAL_LINKS = {
   youtube: 'https://www.youtube.com/channel/UClq6YnypA9PFuBgunzk306A',
   threads: 'https://www.threads.com/@akproduccionesfiestasyeventos',
   x: 'https://x.com/AkSalto',
-  pinterest: 'https://es.pinterest.com/akproduccionessalto/',
   googleReviews: 'https://g.page/r/CUagrfscj_5yEAE/review',
   googleMaps: 'https://maps.google.com/?q=AK+Producciones+Eventos+Salto+Uruguay',
 } as const;
