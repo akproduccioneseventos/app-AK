@@ -343,7 +343,7 @@ export async function getNetworkAttributionReport(
 
         if (isContracted) {
           contratadosCount += 1;
-          const monto = budget?.totalPresupuesto || budget?.totalServiciosUYU || 0;
+          const monto = budget?.totalConDescuento ?? budget?.costoTotalEstimado ?? 0;
           netRevenue += monto;
         }
       }

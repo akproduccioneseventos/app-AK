@@ -392,7 +392,7 @@ export async function generateDraftPostsFromPartyPhotos(
     const existingPlannerPosts = await readData<SocialPost[]>(POSTS_FILE, []);
     const now = new Date();
 
-    const salon = fiesta.configuracion?.lugarEvento || 'Salto, Uruguay';
+    const salon = fiesta.configuracion?.nombreLugar || 'Salto, Uruguay';
     const fecha = fiesta.configuracion?.fechaEvento || '';
     const invitadosCount = fiesta.invitados?.length;
 

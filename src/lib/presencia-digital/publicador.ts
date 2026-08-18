@@ -20,6 +20,7 @@ import {
 
 const POSTS_FILE = 'social-posts.json';
 const CONNECTIONS_FILE = 'social-connections.json';
+const MAX_POR_CORRIDA_DEFAULT = 3;
 
 /**
  * Ejecutor interno de publicación de posteos sociales.

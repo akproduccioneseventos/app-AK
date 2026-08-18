@@ -20,6 +20,9 @@ import type { CrmLead } from '@/types/crm';
 import type { Presupuesto } from '@/types/presupuesto';
 
 jest.mock('@/lib/data-service');
+// Sin esto los modulos quedan de solo lectura y `jest.spyOn` no los puede cambiar.
+jest.mock('@/lib/ai/consumo-servidor');
+jest.mock('@/ai/flows/marketing-agent-flow');
 jest.mock('@/lib/auth/require-session', () => ({
   requirePermiso: jest.fn().mockResolvedValue({ ok: true }),
   requireSession: jest.fn().mockResolvedValue({ ok: true, user: { id: 'u1', email: 'test@ak.uy' } }),
