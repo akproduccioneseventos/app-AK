@@ -41,6 +41,11 @@ muestre**. Esa distinción es la que más veces falló.
 | Recuerdo de cada invitado (video vertical para historias) | Sí | Enlace personal del invitado / Recap de la mañana |
 | Transmisión en vivo | Sí | Pantalla de la fiesta en vivo |
 | Centro de presencia digital | Sí | Empresa → Presencia digital |
+| Reseña de Google al terminar encuesta | Sí | Encuesta pública `/feedback/[fiestaId]` |
+| Seguimiento de reseñas por fiesta | Sí | Empresa → Presencia digital → solapa "Ficha de Google" |
+| Alerta puntaje de Google < 4.0 | Sí | Empresa → Presencia digital → banner de alerta |
+| Tablero de 16 altas en directorios | Sí | Empresa → Presencia digital → solapa "Tablero de altas (16)" |
+| Autogenerador semanal de calendario | Sí | Empresa → Presencia digital → solapa "Revisión Diaria" |
 | Comentarios de redes e IA | Sí | Empresa → Presencia digital → solapa "Comentarios de redes" |
 | Moderación de comentarios y quejas | Sí | Empresa → Presencia digital → solapa "Comentarios de redes" |
 | Capturas de pantalla en testimonios | Sí | Ajustes → Feedback & Testimonios y carrusel público |
