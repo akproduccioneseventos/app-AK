@@ -26,7 +26,6 @@ import {
   publishCommentAsTestimonialAction,
   type CommentsDashboardResponse,
 } from '@/app/actions/comentarios-redes';
-import { GoogleBusinessProfileWidget } from '@/components/google-business-profile';
 import {
   Users,
   TrendingUp,

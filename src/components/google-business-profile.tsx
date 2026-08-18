@@ -78,7 +78,7 @@ export function GoogleBusinessProfileWidget({
               </>
             ) : (
               <div className="text-xs text-slate-300">
-                <span className="font-bold text-white block">Todavía no vemos tu puntaje</span>
+                <span className="font-bold text-white block">Todavia no vemos tu puntaje</span>
                 Es lo que más pesa para aparecer primero en Salto. Se ve acá cuando
                 conectes la cuenta de Google en Ajustes.
               </div>
