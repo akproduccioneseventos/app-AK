@@ -36,13 +36,16 @@ barrieron las carpetas de pantallas una por una, no sólo los módulos grandes.
 - Prender el recontacto automático y el asistente de ventas: vienen apagados.
 - Poner el tope de gasto mensual, si quiere uno.
 
-## Una decisión pendiente para el dueño
+## Los permisos de colaborador quedaron resueltos
 
-**Los nueve permisos "generales" de los accesos de colaborador no funcionan**
-(prospectos, presupuestos, clientes, facturación, personal, proveedores, empresa,
-contabilidad y calendario). El colaborador ve los botones y cae en el login. Las
-dos salidas cambian el negocio: o se abren esas pantallas a gente de afuera, o se
-saca la opción. Está explicado en `docs/YA-RESUELTO.md`.
+**Se sacaron los nueve que no funcionaban** (prospectos, presupuestos, clientes,
+facturación, personal, proveedores, empresa, contabilidad y calendario). El dueño
+lo dejó a criterio de Claude: se eligió sacarlos y no abrirlos, porque abrirlos
+significaba dejar entrar con un enlace, y sin cuenta, a la contabilidad y a la
+base de clientes.
+
+Quedan los seis del evento, que son los que el fotógrafo, el DJ y el catering
+necesitan, y ésos sí llevan la llave.
 
 ## Lo que costó y no hay que repetir
 

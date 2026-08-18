@@ -26,22 +26,26 @@ import {
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import type { FiestaEnPlanificacion } from '@/types/fiesta';
 
-const MODULOS_PERMITIDOS: { id: ModuloPermiso, label: string, icon: React.ElementType, type: 'general' | 'evento' }[] = [
-    { id: 'crm', label: 'Gestión de Prospectos (CRM)', icon: KanbanSquare, type: 'general' },
-    { id: 'presupuestos', label: 'Presupuestos', icon: FileText, type: 'general' },
-    { id: 'clientes', label: 'Base de Clientes', icon: Users2, type: 'general' },
-    { id: 'facturas', label: 'Facturación', icon: Receipt, type: 'general' },
-    { id: 'empleados', label: 'Gestión de Personal', icon: UserCog, type: 'general' },
-    { id: 'proveedores', label: 'Proveedores', icon: Truck, type: 'general' },
-    { id: 'empresa', label: 'Módulo Empresa (Galería, Servicios, etc.)', icon: Building, type: 'general' },
-    { id: 'contabilidad', label: 'Contabilidad y Finanzas', icon: Calculator, type: 'general' },
-    { id: 'calendario', label: 'Calendario de Eventos', icon: CalendarCheck, type: 'general' },
-    { id: 'musica', label: 'Música de la Fiesta', icon: Music2, type: 'evento' },
-    { id: 'itinerario', label: 'Itinerario del Evento', icon: Clock, type: 'evento' },
-    { id: 'carga-operativa', label: 'Lista de Carga Operativa', icon: PackageSearch, type: 'evento' },
-    { id: 'decoracion', label: 'Plan de Decoración', icon: Palette, type: 'evento' },
-    { id: 'reposteria', label: 'Gestión de Repostería (Proveedor)', icon: Cake, type: 'evento' },
-    { id: 'fotografia', label: 'Gestión de Foto/Video (Proveedor)', icon: Camera, type: 'evento' },
+/**
+ * Solo los modulos del evento: son los unicos que funcionan por enlace.
+ *
+ * Antes se ofrecian nueve mas -prospectos, presupuestos, clientes, facturacion,
+ * personal, proveedores, empresa, contabilidad y calendario- y **ninguno
+ * andaba**: el colaborador tocaba el boton y caia en la pantalla de ingreso,
+ * porque son pantallas internas y el enlace no da sesion. Abrirlas hubiera
+ * significado dejar entrar a la contabilidad y a la base de clientes con un
+ * enlace que se reenvia por WhatsApp sin pensar.
+ *
+ * La lista de verdad vive en `src/lib/auth/permisos-por-enlace.ts`, con una
+ * prueba que cuida que estas dos no se separen.
+ */
+const MODULOS_PERMITIDOS: { id: ModuloPermiso, label: string, icon: React.ElementType }[] = [
+    { id: 'musica', label: 'Musica de la Fiesta', icon: Music2 },
+    { id: 'itinerario', label: 'Itinerario del Evento', icon: Clock },
+    { id: 'carga-operativa', label: 'Lista de Carga Operativa', icon: PackageSearch },
+    { id: 'decoracion', label: 'Plan de Decoracion', icon: Palette },
+    { id: 'reposteria', label: 'Reposteria (Proveedor)', icon: Cake },
+    { id: 'fotografia', label: 'Foto y Video (Proveedor)', icon: Camera },
 ];
 
 export default function AccesosPersonalPage() {
@@ -55,7 +59,6 @@ export default function AccesosPersonalPage() {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [nombreAcceso, setNombreAcceso] = useState('');
   const [permisos, setPermisos] = useState<Set<ModuloPermiso>>(new Set());
-  const [tipoAcceso, setTipoAcceso] = useState<'general' | 'evento'>('evento');
   // Sin persona elegida el acceso sigue funcionando igual: es lo normal para
   // quien viene de afuera. Elegirla es lo que le muestra su rol en el plan de
   // la noche.
@@ -93,7 +96,7 @@ export default function AccesosPersonalPage() {
     setIsProcessing(true);
     const result = await createAccesoPersonal({
       nombreAcceso,
-      fiestaId: tipoAcceso === 'evento' ? fiestaActual?.id : undefined,
+      fiestaId: fiestaActual?.id,
       empleadoId: empleadoId || undefined,
       permisos: Array.from(permisos)
     });
@@ -141,15 +144,10 @@ export default function AccesosPersonalPage() {
           <DialogHeader><DialogTitle>Crear Nuevo Acceso para Colaborador</DialogTitle><DialogDescription>Define un nombre y selecciona los módulos a los que tendrá acceso.</DialogDescription></DialogHeader>
           <form onSubmit={handleCreateAcceso} className="space-y-4 py-2">
             <div className="space-y-1"><Label htmlFor="nombre-acceso">Nombre del Acceso *</Label><Input id="nombre-acceso" value={nombreAcceso} onChange={e => setNombreAcceso(e.target.value)} placeholder="Ej: Acceso DJ, Acceso Fotógrafo" required /></div>
-            <div className="space-y-1"><Label htmlFor="tipo-acceso">Tipo de Acceso</Label>
-                <Select value={tipoAcceso} onValueChange={(v) => {setTipoAcceso(v as 'general' | 'evento'); setPermisos(new Set())}}>
-                    <SelectTrigger><SelectValue/></SelectTrigger>
-                    <SelectContent>
-                        <SelectItem value="general">General (CRM, etc.)</SelectItem>
-                        <SelectItem value="evento">Para el Evento Actual</SelectItem>
-                    </SelectContent>
-                </Select>
-            </div>
+            <p className="text-xs text-muted-foreground">
+              El acceso es para <strong>la fiesta actual</strong>. La persona entra con el enlace,
+              sin cuenta y sin contrasena, y solo ve lo que le marques aca abajo.
+            </p>
             <div className="space-y-1"><Label htmlFor="empleado-acceso">¿Es alguien del equipo?</Label>
                 <Select value={empleadoId || 'ninguno'} onValueChange={(v) => setEmpleadoId(v === 'ninguno' ? '' : v)}>
                     <SelectTrigger><SelectValue/></SelectTrigger>
@@ -164,7 +162,7 @@ export default function AccesosPersonalPage() {
             </div>
             <div className="space-y-2"><Label>Permisos *</Label>
               <div className="space-y-2 p-3 border rounded-md">
-                {MODULOS_PERMITIDOS.filter(m => m.type === tipoAcceso).map(modulo => (
+                {MODULOS_PERMITIDOS.map(modulo => (
                   <div key={modulo.id} className="flex flex-wrap items-center gap-3">
                     <Checkbox
                       id={`permiso-${modulo.id}`}

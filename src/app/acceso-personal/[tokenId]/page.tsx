@@ -9,6 +9,7 @@ import { Loader2, AlertTriangle, KeyRound, ArrowRight, Music2, Clock, PackageSea
 import { useToast } from '@/hooks/use-toast';
 import { type AccesoPersonal, type ModuloPermiso } from '@/app/actions/accesos-personal';
 import { getAccesoPersonalPortalView } from '@/app/actions/accesos-personal-view';
+import { andaPorEnlace } from '@/lib/auth/permisos-por-enlace';
 import { CompanyLogo } from '@/components/company-logo';
 import { PublicFooter } from '@/components/public-footer';
 
@@ -84,6 +85,13 @@ export default function PortalPersonalPage() {
   }
 
   const portalTitle = fiesta ? `Portal para: ${fiesta.nombreEvento}` : "Portal de Colaborador";
+
+  // Solo se muestran los modulos que este enlace puede abrir de verdad. Los
+  // nueve generales -contabilidad, clientes, facturas y demas- se ofrecian y
+  // llevaban a la pantalla de ingreso, porque son internas y el enlace no da
+  // sesion. Ya no se pueden dar, pero un acceso viejo puede tenerlos guardados:
+  // por eso se filtran aca tambien, y no solo en la pantalla que los crea.
+  const modulosQueAndan = acceso.permisos.filter(andaPorEnlace);
 
   return (
     <div className="min-h-screen bg-muted/40 flex flex-col">
@@ -179,18 +187,22 @@ export default function PortalPersonalPage() {
                     <CardDescription>Haz clic en un módulo para ver los detalles relevantes para tu rol.</CardDescription>
                 </CardHeader>
                 <CardContent className="space-y-3">
-                    {acceso.permisos.map(permisoId => {
+                    {modulosQueAndan.length === 0 && (
+                      <p className="text-sm text-muted-foreground">
+                        Este enlace todavía no tiene nada para ver. Pedile a AK Producciones que le
+                        agregue los módulos de la fiesta.
+                      </p>
+                    )}
+                    {modulosQueAndan.map(permisoId => {
                         const modulo = MODULO_DETAILS[permisoId];
                         if (!modulo) return null;
                         const Icon = modulo.icon;
-                        const isEventSpecific = ['musica', 'itinerario', 'carga-operativa', 'decoracion', 'reposteria', 'fotografia'].includes(permisoId);
-                        
-                        if (isEventSpecific && !fiesta) return null;
 
-                        const baseHref = isEventSpecific ? `${modulo.href}?fiestaId=${fiesta!.id}` : modulo.href;
-                        const linkHref = isEventSpecific
-                          ? `${baseHref}&token=${encodeURIComponent(acceso.id)}&operatorName=${encodeURIComponent(acceso.nombreAcceso)}`
-                          : baseHref;
+                        if (!fiesta) return null;
+
+                        // Todos los que quedan son del evento y llevan la llave:
+                        // el servidor la comprueba contra esta fiesta.
+                        const linkHref = `${modulo.href}?fiestaId=${fiesta.id}&token=${encodeURIComponent(acceso.id)}&operatorName=${encodeURIComponent(acceso.nombreAcceso)}`;
 
                         return (
                             <Button key={permisoId} asChild variant="outline" className="w-full h-auto justify-start p-4 text-left">
