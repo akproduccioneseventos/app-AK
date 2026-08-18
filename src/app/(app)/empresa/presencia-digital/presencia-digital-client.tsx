@@ -47,15 +47,12 @@ import {
   MapPin,
   ExternalLink,
   HelpCircle,
-<<<<<<< HEAD
   MessageSquare,
   ThumbsUp,
   EyeOff,
   ShieldCheck,
   RefreshCw,
   MessageCircle,
-=======
->>>>>>> origin/main
 } from 'lucide-react';
 
 interface Props {
@@ -66,11 +63,7 @@ interface Props {
 export function PresenciaDigitalClient({ initialData, initialPosts }: Props) {
   const [data, setData] = useState<DigitalPresenceDashboardData>(initialData);
   const [posts, setPosts] = useState<SocialPost[]>(initialPosts);
-<<<<<<< HEAD
   const [activeTab, setActiveTab] = useState<'revision' | 'comentarios' | 'web' | 'atribucion' | 'ads' | 'google_ficha' | 'publicaciones' | 'historial'>('revision');
-=======
-  const [activeTab, setActiveTab] = useState<'revision' | 'web' | 'atribucion' | 'ads' | 'google_ficha' | 'publicaciones' | 'historial'>('revision');
->>>>>>> origin/main
   const [publishingId, setPublishingId] = useState<string | null>(null);
   const [publishFeedback, setPublishFeedback] = useState<{
     success: boolean;
@@ -82,7 +75,6 @@ export function PresenciaDigitalClient({ initialData, initialPosts }: Props) {
   const [loadingAttribution, setLoadingAttribution] = useState(false);
   const [creatingSuggestion, setCreatingSuggestion] = useState(false);
 
-<<<<<<< HEAD
   // Estado para la solapa "Comentarios de redes" (Bloque 4)
   const [commentsData, setCommentsData] = useState<CommentsDashboardResponse['data'] | null>(null);
   const [loadingComments, setLoadingComments] = useState<boolean>(false);
@@ -203,8 +195,6 @@ export function PresenciaDigitalClient({ initialData, initialPosts }: Props) {
     }
   };
 
-=======
->>>>>>> origin/main
   // Estado para la solapa "Tu página web" (Bloque 1)
   const [webPeriodo, setWebPeriodo] = useState<number>(30);
   const [loadingWeb, setLoadingWeb] = useState<boolean>(false);
@@ -455,7 +445,6 @@ export function PresenciaDigitalClient({ initialData, initialPosts }: Props) {
         </button>
 
         <button
-<<<<<<< HEAD
           onClick={() => setActiveTab('comentarios')}
           className={`px-4 py-2 text-sm font-bold rounded-xl transition whitespace-nowrap flex items-center gap-2 ${
             activeTab === 'comentarios'
@@ -467,8 +456,6 @@ export function PresenciaDigitalClient({ initialData, initialPosts }: Props) {
         </button>
 
         <button
-=======
->>>>>>> origin/main
           onClick={() => setActiveTab('web')}
           className={`px-4 py-2 text-sm font-bold rounded-xl transition whitespace-nowrap flex items-center gap-2 ${
             activeTab === 'web'
