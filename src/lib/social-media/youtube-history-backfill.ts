@@ -46,16 +46,18 @@ interface ChannelsResponse {
   error?: { message?: string };
 }
 
+interface PlaylistSnippet {
+  publishedAt?: string;
+  title?: string;
+  description?: string;
+  resourceId?: { videoId?: string };
+  thumbnails?: Record<string, { url?: string }>;
+}
+
 interface PlaylistItemsResponse {
   nextPageToken?: string;
   items?: Array<{
-    snippet?: {
-      publishedAt?: string;
-      title?: string;
-      description?: string;
-      resourceId?: { videoId?: string };
-      thumbnails?: Record<string, { url?: string }>;
-    };
+    snippet?: PlaylistSnippet;
     contentDetails?: { videoId?: string; videoPublishedAt?: string };
   }>;
   error?: { message?: string };
@@ -87,8 +89,8 @@ function dateRange(posts: SocialPost[]): { oldestDate?: string; newestDate?: str
   return { oldestDate: dates[0], newestDate: dates[dates.length - 1] };
 }
 
-function thumbnailFromSnippet(snippet?: PlaylistItemsResponse['items'] extends Array<infer T> ? T extends { snippet?: infer S } ? S : never : never): string | undefined {
-  const thumbs = (snippet as any)?.thumbnails as Record<string, { url?: string }> | undefined;
+function thumbnailFromSnippet(snippet?: PlaylistSnippet): string | undefined {
+  const thumbs = snippet?.thumbnails;
   return thumbs?.maxres?.url || thumbs?.standard?.url || thumbs?.high?.url || thumbs?.medium?.url || thumbs?.default?.url;
 }
 
