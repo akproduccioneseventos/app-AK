@@ -10,14 +10,14 @@ import { AK_WHATSAPP_NUMBER } from '@/lib/public-contact';
 const FALLBACK_SOCIAL = [
   {
     platform: 'Instagram',
-    profileUrl: 'https://instagram.com/akproduccioneseventos',
+    profileUrl: 'https://www.instagram.com/akproduccionesfiestasyeventos/',
     icon: Instagram,
     bgClass: 'bg-gradient-to-br from-purple-500 via-pink-500 to-orange-400',
     shadowClass: 'hover:shadow-pink-400/60',
   },
   {
     platform: 'Facebook',
-    profileUrl: 'https://facebook.com/akproduccioneseventos',
+    profileUrl: 'https://www.facebook.com/akproduccionessalto/',
     icon: Facebook,
     bgClass: 'bg-[#1877F2]',
     shadowClass: 'hover:shadow-blue-500/60',
@@ -31,7 +31,7 @@ const FALLBACK_SOCIAL = [
   },
   {
     platform: 'TikTok',
-    profileUrl: 'https://tiktok.com/@akproduccioneseventos',
+    profileUrl: 'https://www.tiktok.com/@akproduccioneseve',
     icon: Music,
     bgClass: 'bg-black',
     shadowClass: 'hover:shadow-slate-700/60',
