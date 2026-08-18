@@ -1945,6 +1945,30 @@ declaradas como abiertas siguen pasando: `AuthGuard` las deja pasar.
 - **`/evento` no está "sin declarar"**: sus pantallas se declaran una por una, y
   eso es a propósito, porque algunas son del equipo.
 
+## Los accesos "generales" del colaborador: RESUELTO el 18 de agosto de 2026
+
+**Se sacaron los nueve.** El dueño lo dejó a criterio de Claude y se eligió
+sacarlos, no abrirlos: abrirlos de verdad significaba dejar entrar con un
+enlace, y sin cuenta, a la contabilidad, las facturas y la base de clientes. Un
+enlace se reenvía por WhatsApp sin pensar.
+
+Quedan los seis del evento —música, itinerario, carga, decoración, repostería y
+foto/video—, que son los que el fotógrafo, el DJ y el catering necesitan de
+verdad, y ésos sí llevan la llave, que se comprueba contra esa fiesta.
+
+Dos detalles de cómo quedó:
+
+- **El portal filtra por su cuenta**, no sólo la pantalla que los crea. Un acceso
+  creado antes puede tener los nueve guardados; ahora no muestra botones muertos.
+  Si le quedan cero módulos, lo dice en criollo en vez de mostrar una lista vacía.
+- **La lista de lo que anda vive en un solo lugar**
+  (`src/lib/auth/permisos-por-enlace.ts`) y hay una prueba que impide que las dos
+  pantallas se separen. Si algún día se quiere abrir alguno de los nueve, no
+  alcanza con volver a ponerlo en la lista: hay que hacer que esa pantalla acepte
+  y compruebe la llave, como ya hacen las del evento.
+
+Abajo queda el diagnóstico original, por si hace falta entender el porqué.
+
 ## Los accesos "generales" del colaborador no llevan a ningún lado (17 de agosto de 2026)
 
 **Encontrado, no arreglado: conviene que lo decida el dueño.**
