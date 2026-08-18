@@ -19,6 +19,12 @@ anotado, la próxima auditoría lo va a volver a encontrar.
 
 ## Decisiones del dueño (no son errores, no se discuten)
 
+- **Panel de presencia digital que el dueño puede usar solo (18 de agosto de 2026):**
+  - **Bloque 1 — Publicación programada con cron y límites (`src/app/api/cron/publicar-programados/route.ts`, `src/app/actions/presencia-digital.ts`, `src/types/social-media.ts`):** Tarea cron dedicada para disparar publicaciones programadas cuando su fecha ya pasó. Tope estricto de 3 posteos por corrida para no saturar las redes tras caídas del servidor. Reintentos limitados a 3 intentos; al 3er fallo queda marcado con estado `Falló` y su motivo de error para revisión humana. Redes no automatizables (TikTok, Threads, X, WhatsApp) se marcan con estado `Listo para copiar`.
+  - **Bloque 2 — Generación de textos con IA de marketing y fallback (`src/app/actions/social-media.ts`):** La generación desde fotos de fiesta (`generateDraftPostsFromPartyPhotos`) ahora llama al agente de marketing con contexto real del evento (salón, tipo, invitados). Pasa por el control de presupuesto (`hayPresupuestoParaIA` y `registrarConsumoIA('material-post-evento')`). Si no hay presupuesto o el servicio falla, cae automáticamente a las plantillas fijas sin romper la pantalla.
+  - **Bloque 3 — Atribución de clientes por red social (`src/app/actions/presencia-digital.ts`, `src/app/(app)/empresa/presencia-digital/presencia-digital-client.tsx`, `src/types/presencia-digital.ts`):** Nueva pestaña "¿De dónde vienen?" en el centro de presencia digital con desglose de consultas, presupuestos emitidos, contratos cerrados y facturación por canal (Instagram, Facebook, TikTok, YouTube, WhatsApp, Web/Directo). No inventa números: si de una red no vino nadie, muestra cero y el mensaje explícito "De [Red] no vino ninguna consulta en estos [X] días." Selector de período de 30 días, 90 días, este año o todo.
+  - **Bloque 4 — Alerta de inactividad visible en el panel (`src/app/(app)/empresa/presencia-digital/presencia-digital-client.tsx`):** Banner superior destacado que alerta si hay redes sin publicaciones recientes ("Hace X días que no publicás en Instagram") con botón directo "Armar posteo" que lleva a la creación. Si todas las redes tienen actividad reciente, muestra mensaje positivo de confirmación ("Venís publicando parejo 👏").
+
 - **Entrega de los cuatro bloques consolidados (17 de agosto de 2026):**
   - **Publicación real en Facebook e Instagram (`src/lib/social-media/meta-publisher.ts`, `src/app/actions/presencia-digital.ts`):** `publishApprovedSocialPost` ahora conecta con Meta Graph API real (`/{page-id}/photos`, `/{page-id}/feed` y `/{ig-user-id}/media_publish`). Si faltan credenciales o una red falla, lo reporta con claridad y nunca marca como publicado lo que no salió. Nada se publica solo: requiere aprobación humana.
   - **Importador de historial social verificado (`src/lib/social-media/history-import.ts`, `src/app/actions/social-history.ts`):** Compatible con exportaciones oficiales en JSON/JS de Instagram (`posts_1.json`), Facebook (`your_posts_1.json`) y X/Twitter (`tweets.js` con `window.YTD`). Maneja lectura segura multi-entorno y mensajes amigables en español.
@@ -2042,6 +2048,28 @@ nueva que impide que los siete números vuelvan.
 Seguidores y alcance reales salen de las estadísticas de Meta, con las
 credenciales comerciales cargadas. El puntaje de Google se ve en el panel de
 Google del dueño. Mientras no estén, **vacío es la respuesta correcta**.
+
+## Presencia digital: la revisión del panel del 18 de agosto de 2026
+
+- **Publicar en las redes de la empresa estaba abierto al público.** El ejecutor
+  que manda el posteo a Facebook e Instagram no pide permiso —a propósito, porque
+  la tarea programada no tiene sesión—, pero estaba exportado desde un archivo de
+  acciones, y **todo lo que se exporta desde ahí queda accesible desde afuera**.
+  Se mudó a `src/lib/presencia-digital/publicador.ts`, junto con la cola de
+  posteos programados. Ahora lo usan sólo la acción que sí pide permiso y la
+  tarea programada. **Por eso vive en `lib` y no en `actions`: no moverlo de
+  vuelta.**
+- **El monto contratado que se le atribuía a cada red daba siempre cero.** Se
+  buscaba el total del presupuesto por un nombre que no existe. El total real es
+  el que quedó con descuento y, si no hay, el estimado.
+- **El nombre del salón en los textos sugeridos** se buscaba por un campo que no
+  existe: quedaba siempre "Salto, Uruguay".
+- **La publicación programada no publica sola nada que nadie haya decidido:**
+  saca únicamente los posteos que una persona dejó programados con su texto, con
+  tope de tres por corrida para que un servidor caído no vacíe la cola de golpe.
+- **El gasto de inteligencia artificial de los textos sugeridos está contado**
+  (`material-post-evento`) y, sin presupuesto, cae solo a las plantillas
+  escritas a mano. Verificado, no es un pendiente.
 
 ## Cómo agregar algo a esta lista
 

@@ -5,6 +5,9 @@ import type {
   DailySocialMetricSnapshot,
   DigitalPresenceReview,
   PlatformName,
+  NetworkAttributionPeriod,
+  NetworkAttributionReport,
+  NetworkAttributionRow,
 } from '@/types/presencia-digital';
 import type { SocialPost } from '@/types/social-media';
 import type { SocialConnection } from '@/types/settings';
@@ -22,10 +25,7 @@ import {
 import { buildDigitalPresenceDailyReview } from '@/lib/presencia-digital/revision-diaria';
 import { getMetaAdsSummary } from '@/lib/marketing/meta-ads';
 import { buildMetaCommercialMetrics } from '@/lib/marketing/meta-commercial-metrics-core';
-import {
-  publishToFacebookPage,
-  publishToInstagramBusiness,
-} from '@/lib/social-media/meta-publisher';
+import { publishPostInternal } from '@/lib/presencia-digital/publicador';
 
 const REVIEW_FILE = 'digital-presence-review.json';
 const POSTS_FILE = 'social-posts.json';
@@ -186,7 +186,6 @@ export async function getDigitalPresenceDashboard(): Promise<{
 /**
  * Bloque 3: Publicar una vez y que salga en todas con aprobación humana obligatoria.
  * "Nada se publica solo. La app prepara, una persona aprueba."
- * Conecta con Meta Graph API real para Facebook Fanpage e Instagram Business.
  */
 export async function publishApprovedSocialPost(
   postId: string,
@@ -198,147 +197,10 @@ export async function publishApprovedSocialPost(
   post?: SocialPost;
   error?: string;
 }> {
-  try {
-    const permiso = await requirePermiso(PERMISOS.CRM);
-    if (!permiso.ok) return { success: false, error: permiso.error };
+  const permiso = await requirePermiso(PERMISOS.CRM);
+  if (!permiso.ok) return { success: false, error: permiso.error };
 
-    const posts = await readData<SocialPost[]>(POSTS_FILE, []);
-    const postIndex = posts.findIndex((p) => p.id === postId);
-
-    if (postIndex === -1) {
-      return { success: false, error: 'Publicación no encontrada.' };
-    }
-
-    const targetPost = posts[postIndex];
-    const connections = await readData<SocialConnection[]>(CONNECTIONS_FILE, []);
-
-    const selectedPlatforms: PlatformName[] = targetPlatforms && targetPlatforms.length > 0
-      ? targetPlatforms
-      : [targetPost.platform as PlatformName];
-
-    const publishedTo: string[] = [];
-    const failedPlatforms: Array<{ platform: string; reason: string }> = [];
-
-    for (const plat of selectedPlatforms) {
-      if (plat === 'WhatsApp') {
-        failedPlatforms.push({
-          platform: 'WhatsApp',
-          reason: 'Los estados de WhatsApp no se automatizan por Meta API para evitar riesgos de bloqueo.',
-        });
-        continue;
-      }
-
-      if (plat === 'TikTok') {
-        failedPlatforms.push({
-          platform: 'TikTok',
-          reason: 'TikTok requiere que ByteDance apruebe la aplicación de desarrollador. El contenido quedó preparado para carga manual.',
-        });
-        continue;
-      }
-
-      const conn = connections.find((c) => c.platform === plat);
-      if (!conn || !conn.isConnected) {
-        failedPlatforms.push({
-          platform: plat,
-          reason: `La cuenta de ${plat} no está conectada en Ajustes > Redes Sociales.`,
-        });
-        continue;
-      }
-
-      if (plat === 'Facebook') {
-        if (!conn.pageId || !conn.pageAccessToken) {
-          // Si no tiene credenciales de API todavía, advertir con precisión
-          failedPlatforms.push({
-            platform: 'Facebook',
-            reason: 'Falta configurar el Page ID y Access Token de Facebook en Ajustes > Redes Sociales.',
-          });
-          continue;
-        }
-
-        const fbResult = await publishToFacebookPage({
-          pageId: conn.pageId,
-          pageAccessToken: conn.pageAccessToken,
-          message: targetPost.text,
-          imageUrl: targetPost.mediaUrl,
-          linkUrl: targetPost.link,
-        });
-
-        if (fbResult.success) {
-          publishedTo.push('Facebook');
-        } else {
-          failedPlatforms.push({
-            platform: 'Facebook',
-            reason: fbResult.error || 'Error desconocido al publicar en Facebook',
-          });
-        }
-      } else if (plat === 'Instagram') {
-        const instagramId = conn.instagramAccountId || conn.pageId;
-        if (!instagramId || !conn.pageAccessToken) {
-          failedPlatforms.push({
-            platform: 'Instagram',
-            reason: 'Falta configurar el Instagram Account ID y Access Token en Ajustes > Redes Sociales.',
-          });
-          continue;
-        }
-
-        if (!targetPost.mediaUrl || !targetPost.mediaUrl.startsWith('http')) {
-          failedPlatforms.push({
-            platform: 'Instagram',
-            reason: 'Instagram requiere que el posteo incluya una imagen pública con URL https://.',
-          });
-          continue;
-        }
-
-        const igResult = await publishToInstagramBusiness({
-          instagramAccountId: instagramId,
-          pageAccessToken: conn.pageAccessToken,
-          caption: targetPost.text,
-          imageUrl: targetPost.mediaUrl,
-        });
-
-        if (igResult.success) {
-          publishedTo.push('Instagram');
-        } else {
-          failedPlatforms.push({
-            platform: 'Instagram',
-            reason: igResult.error || 'Error desconocido al publicar en Instagram',
-          });
-        }
-      } else {
-        // Otras plataformas (Google / YouTube)
-        publishedTo.push(plat);
-      }
-    }
-
-    // Si no salió en ninguna red, nunca marcar como publicado
-    if (publishedTo.length === 0 && failedPlatforms.length > 0) {
-      return {
-        success: false,
-        error: `No se pudo publicar en las redes seleccionadas: ${failedPlatforms.map((f) => `${f.platform}: ${f.reason}`).join(' | ')}`,
-        failedPlatforms,
-      };
-    }
-
-    // Actualizar estado a Publicado solo si se logró publicar al menos en una
-    const updatedPost: SocialPost = {
-      ...targetPost,
-      status: 'Publicado',
-      publishDate: new Date().toISOString(),
-      updatedAt: new Date().toISOString(),
-    };
-
-    posts[postIndex] = updatedPost;
-    await writeData(POSTS_FILE, posts, (a, b) => new Date(b.publishDate).getTime() - new Date(a.publishDate).getTime());
-
-    return {
-      success: true,
-      publishedTo,
-      failedPlatforms,
-      post: updatedPost,
-    };
-  } catch (error: any) {
-    return { success: false, error: error.message || 'Error al procesar la publicación.' };
-  }
+  return publishPostInternal(postId, targetPlatforms);
 }
 
 /**
@@ -372,3 +234,156 @@ export async function createPostFromDailySuggestion(
     return { success: false, error: error.message || 'Error al crear la publicación sugerida.' };
   }
 }
+
+/**
+ * BLOQUE 3 (Orden del 18 de agosto): Reporte de atribución por red social.
+ * Muestra qué red trae clientes de verdad (consultas, presupuestos, contratos y facturación).
+ * NO inventa números: si de una red no vino nadie, muestra 0 y el cartel explícito.
+ */
+export async function getNetworkAttributionReport(
+  period: NetworkAttributionPeriod = '90d'
+): Promise<{ success: boolean; data?: NetworkAttributionReport; error?: string }> {
+  try {
+    const permiso = await requirePermiso(PERMISOS.CRM);
+    if (!permiso.ok) return { success: false, error: permiso.error };
+
+    const [leads, budgets] = await Promise.all([
+      readData<CrmLead[]>(LEADS_FILE, []),
+      readData<Presupuesto[]>(BUDGETS_FILE, []),
+    ]);
+
+    // Determinar fecha de corte según el período
+    const now = Date.now();
+    let cutoffDate: Date;
+    let periodDaysText = 'estos 90 días';
+    let periodLabel = 'Últimos 90 días';
+
+    if (period === '30d') {
+      cutoffDate = new Date(now - 30 * 24 * 60 * 60 * 1000);
+      periodDaysText = 'estos 30 días';
+      periodLabel = 'Últimos 30 días';
+    } else if (period === 'year') {
+      const currentYear = new Date().getFullYear();
+      cutoffDate = new Date(currentYear, 0, 1);
+      periodDaysText = `este año ${currentYear}`;
+      periodLabel = `Año ${currentYear}`;
+    } else if (period === 'all') {
+      cutoffDate = new Date(0);
+      periodDaysText = 'todo el historial';
+      periodLabel = 'Historial completo';
+    } else {
+      cutoffDate = new Date(now - 90 * 24 * 60 * 60 * 1000);
+      periodDaysText = 'estos 90 días';
+      periodLabel = 'Últimos 90 días';
+    }
+
+    // Filtrar leads dentro del período
+    const periodLeads = leads.filter((lead) => {
+      if (!lead.createdAt) return true;
+      const leadDate = new Date(lead.createdAt);
+      return leadDate >= cutoffDate;
+    });
+
+    // Definición de las redes auditadas obligatorias
+    const networksConfig = [
+      { key: 'instagram', name: 'Instagram', match: (s: string) => s === 'instagram' },
+      { key: 'facebook', name: 'Facebook', match: (s: string) => s === 'facebook' },
+      { key: 'tiktok', name: 'TikTok', match: (s: string) => s === 'tiktok' },
+      { key: 'youtube', name: 'YouTube', match: (s: string) => s === 'youtube' },
+      { key: 'whatsapp', name: 'WhatsApp', match: (s: string) => s === 'whatsapp' },
+      {
+        key: 'web_directo',
+        name: 'Web / Directo',
+        match: (s: string) =>
+          ['direct', 'landing', 'landing_bodas', 'landing_xv', 'landing_eventos', 'portal_led', 'campaign', 'guest_portal'].includes(s),
+      },
+      {
+        key: 'otros',
+        name: 'Otras fuentes',
+        match: (s: string) =>
+          !['instagram', 'facebook', 'tiktok', 'youtube', 'whatsapp', 'direct', 'landing', 'landing_bodas', 'landing_xv', 'landing_eventos', 'portal_led', 'campaign', 'guest_portal'].includes(s),
+      },
+    ];
+
+    const rows: NetworkAttributionRow[] = [];
+    let totalConsultas = 0;
+    let totalPresupuestos = 0;
+    let totalContratados = 0;
+    let totalRevenueUYU = 0;
+
+    for (const net of networksConfig) {
+      const netLeads = periodLeads.filter((l) => {
+        const src = (l.acquisition?.source || 'direct').toLowerCase();
+        return net.match(src);
+      });
+
+      const consultasCount = netLeads.length;
+      let presupuestosCount = 0;
+      let contratadosCount = 0;
+      let netRevenue = 0;
+
+      for (const lead of netLeads) {
+        // Buscar presupuesto vinculado
+        const budget = budgets.find((b) =>
+          b.id === lead.presupuestoId ||
+          (b.clienteNombre && lead.name && b.clienteNombre.toLowerCase() === lead.name.toLowerCase()) ||
+          (b.clienteContacto && lead.phone && b.clienteContacto.replace(/\D/g, '') === lead.phone.replace(/\D/g, ''))
+        );
+
+        const hasBudget = Boolean(lead.presupuestoId || lead.presupuestoEstado || budget);
+        if (hasBudget) {
+          presupuestosCount += 1;
+        }
+
+        const isContracted =
+          lead.presupuestoEstado === 'Aceptado' ||
+          lead.presupuestoEstado === 'Facturado' ||
+          Boolean(lead.invoiceId) ||
+          (budget && (budget.estado === 'Aceptado' || budget.estado === 'Facturado' || Boolean(budget.fechaFirmaContrato)));
+
+        if (isContracted) {
+          contratadosCount += 1;
+          const monto = budget?.totalConDescuento ?? budget?.costoTotalEstimado ?? 0;
+          netRevenue += monto;
+        }
+      }
+
+      totalConsultas += consultasCount;
+      totalPresupuestos += presupuestosCount;
+      totalContratados += contratadosCount;
+      totalRevenueUYU += netRevenue;
+
+      let inactivityNote: string | undefined;
+      if (consultasCount === 0) {
+        inactivityNote = `De ${net.name} no vino ninguna consulta en ${periodDaysText}.`;
+      }
+
+      rows.push({
+        network: net.name,
+        sourceKey: net.key,
+        consultasCount,
+        presupuestosCount,
+        contratadosCount,
+        totalRevenueUYU: netRevenue,
+        inactivityNote,
+      });
+    }
+
+    return {
+      success: true,
+      data: {
+        period,
+        periodLabel,
+        rows,
+        totalConsultas,
+        totalPresupuestos,
+        totalContratados,
+        totalRevenueUYU,
+      },
+    };
+  } catch (error: any) {
+    console.error('[presencia-digital] Error generando reporte de atribución:', error);
+    return { success: false, error: error.message || 'Error al generar reporte de atribución.' };
+  }
+}
+

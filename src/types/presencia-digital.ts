@@ -102,3 +102,26 @@ export interface DigitalPresenceDashboardData {
     publishNote?: string;
   }>;
 }
+
+export type NetworkAttributionPeriod = '30d' | '90d' | 'year' | 'all';
+
+export interface NetworkAttributionRow {
+  network: string; // 'Instagram' | 'Facebook' | 'TikTok' | 'YouTube' | 'WhatsApp' | 'Web / Directo' | 'Otros'
+  sourceKey: string;
+  consultasCount: number;
+  presupuestosCount: number;
+  contratadosCount: number;
+  totalRevenueUYU: number;
+  inactivityNote?: string;
+}
+
+export interface NetworkAttributionReport {
+  period: NetworkAttributionPeriod;
+  periodLabel: string;
+  rows: NetworkAttributionRow[];
+  totalConsultas: number;
+  totalPresupuestos: number;
+  totalContratados: number;
+  totalRevenueUYU: number;
+}
+
