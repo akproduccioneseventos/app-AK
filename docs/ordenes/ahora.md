@@ -72,6 +72,32 @@ diciendo "una reseña honesta": el incentivo por sí solo alcanza para la sanci�
 arriba: primero que el equipo lo va a contactar para resolverlo. **No se le
 esconde el botón.**
 
+### Y hay que sacar el filtro que YA ESTÁ EN EL CÓDIGO
+
+No alcanza con hacer bien la pantalla nueva: el filtro prohibido ya existe por
+otro camino y hay que borrarlo en esta misma entrega.
+
+En `enviarPedidoDeResena`, dentro de `src/app/actions/feedback.ts`, está esto:
+
+```
+if ((feedback.npsScore ?? 0) < 9) {
+   return { success: false, error: "No se debe pedir reseña pública si la calificación es menor a 9." };
+}
+```
+
+Eso hace que el pedido de reseña por WhatsApp **se le mande sólo a los que
+pusieron 9 o 10**. Es exactamente el filtrado que Google prohíbe, y hoy no se nota
+porque el envío automático viene apagado de fábrica y el enlace viene vacío. El
+día que el dueño lo prenda, empieza a filtrar sin que nadie se entere.
+
+**Qué hacer:** sacar esa condición. El pedido se manda igual, con el mismo enlace,
+sin mirar el puntaje. Lo que sí cambia según el puntaje es **el texto del
+mensaje**: al que puntuó bajo, primero se le pide disculpas y se le avisa que lo
+van a llamar; el enlace va igual, abajo.
+
+**Y una prueba que lo cuide:** que con un puntaje bajo el pedido se mande lo
+mismo. Si alguien vuelve a poner el filtro, que falle.
+
 # BLOQUE 2 — Que el equipo sepa a quién le falta pedirle
 
 Sirve de poco si nadie manda la encuesta.
