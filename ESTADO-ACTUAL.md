@@ -8,40 +8,47 @@ Quien cierre una sesión reescribe este archivo. Se pisa, no se acumula.
 ---
 
 **Última actualización:** 18 de agosto de 2026.
-**Estado de la app:** sana. Compila, 1819 pruebas en verde, sin acentos rotos.
+**Estado de la app:** sana. Los cinco controles pasaron sobre la versión principal
+de ahora: acentos limpios, tipos en cero, 1830 pruebas, compila, 20 de seguridad.
 **Propuestas abiertas:** ninguna.
-**Orden vigente:** `docs/ordenes/ahora.md` — leer los comentarios de las redes.
+**Orden vigente:** `docs/ordenes/ahora.md` — la reseña de Google y el panel que
+trabaja solo.
+
+## CORRECCIÓN IMPORTANTE: los testimonios de las páginas de venta SON REALES
+
+La hoja anterior decía que eran inventados y que no se volvían a poner. **Estaba
+mal.** Salieron de comentarios de Facebook que el dueño tenía en su catálogo
+impreso. Ya se repusieron los 22, en los seis catálogos.
+
+**No se borran.** Hay una prueba que falla si alguien deja las listas vacías, y el
+motivo está anotado en el propio código y en `docs/YA-RESUELTO.md`. Lo único que
+les falta es la captura del comentario; la pantalla para subirla ya existe.
 
 ## Lo que se cerró hoy
 
-- **El centro de presencia digital**, completo y verificado.
-- **El posicionamiento en Google**: visitas de la web dentro del panel, Pinterest
-  y X en el tablero, la ficha de Google enchufada, preguntas frecuentes y migas
-  de pan, y una sola lista de cuentas oficiales en `src/lib/public-contact.ts`.
-- **Pinterest ya reconoce el sitio** como de la empresa.
-- **Los testimonios inventados salieron** de las seis páginas de venta. **No se
-  vuelven a poner:** la ley uruguaya pone la carga de la prueba en el anunciante.
-
-## Lo que se encontró en las entregas y no hay que repetir
-
-- **Datos inventados con cara de medidos.** La tarjeta de la ficha de Google traía
-  un cartel fijo de "verificada" y un identificador escrito a mano. Ya había
-  pasado con los números del panel de redes. Hay prueba que lo frena.
-- **Marcas de conflicto sin resolver** en una entrega: no compilaba.
-- **La misma orden entregada dos veces por caminos distintos.** Comparar siempre
-  contra la versión principal de ahora, no contra la de cuando se creó la rama.
-- **Campos escritos contra nombres que no existen.** Lo agarra el revisor de tipos.
+- **Los comentarios de las redes** (entrega de Gemini, propuesta 1062): se traen
+  de Facebook, Instagram y YouTube, la inteligencia artificial los separa en
+  buenos, neutros y quejas, lo agresivo se oculta solo —y se puede volver a
+  mostrar con un toque— y lo bueno pasa a testimonio de la web.
+- **Tope de gasto**: traer el historial completo revisa cien comentarios por
+  corrida. Antes, un solo toque podía gastar el presupuesto de inteligencia
+  artificial de todo el mes.
+- **Los cinco controles que pedía la orden** y la entrega no traía.
+- **Se cerró la propuesta 1057**, que borraba los testimonios.
 
 ## Lo que depende del dueño (no lo puede hacer ninguna IA)
 
 1. **Reclamar la ficha de Google** y elegir bien la categoría. Es el 32% del
-   posicionamiento local, casi el doble que la web.
-2. **Pedir una reseña por fiesta**, a todos por igual y sin premio.
-3. **Darse de alta** en las diez opciones gratis del plan.
-
-Está todo en la página de plan que se le pasó el 18 de agosto.
+   posicionamiento local, casi el doble que la web. Ojo: no tiene local físico,
+   va como negocio que atiende a domicilio, con la dirección escondida.
+2. **Confirmar que el enlace para pedir reseñas es el suyo.** Está puesto en la
+   app pero no se pudo comprobar desde acá.
+3. **Pedir una reseña por fiesta**, a todos por igual y sin premio.
+4. **Darse de alta** en las diez opciones gratis del plan (TuFiesta.com.uy entre
+   ellas).
 
 ## Decisiones del dueño
 
 Descartó el precio variable por fecha, alquilar la app a otros salones y el
 "ensayo de la fiesta". `TriviaAdminPanel` queda sin enchufar a propósito.
+No tiene salón propio: trabaja en el salón que lo contrate.
