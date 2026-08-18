@@ -2,6 +2,7 @@ import { NextResponse } from 'next/server';
 import { guardarMetricasDelDia } from '@/lib/presencia-digital/guardado-diario';
 import { syncMetaPublicHistory } from '@/lib/social-media/meta-history-backfill';
 import { syncYouTubePublicHistory } from '@/lib/social-media/youtube-history-backfill';
+import { syncOtherPublicHistory } from '@/lib/social-media/other-public-history-backfill';
 
 /**
  * Guarda los numeros de las redes, una vez por dia.
@@ -12,10 +13,10 @@ import { syncYouTubePublicHistory } from '@/lib/social-media/youtube-history-bac
  * semana de historia que no se recuperaba nunca.
  *
  * Ademas, la misma tarea reconstruye el historial publico de las cuentas de
- * Facebook e Instagram conectadas y del canal oficial de YouTube. Meta hace un
- * barrido paginado completo desde septiembre de 2019 y despues revisa lo nuevo.
- * YouTube usa la Data API cuando YOUTUBE_API_KEY esta disponible y, mientras
- * tanto, mantiene al menos el feed publico reciente sin inventar publicaciones.
+ * Facebook, Instagram, YouTube, TikTok, Threads y X. Cada proveedor se pagina
+ * hasta agotar lo disponible desde septiembre de 2019 y nunca se marca como
+ * completo si la API impone un tope antes de llegar al inicio del historial.
+ * Las redes sin autorización configurada se omiten sin bloquear las demás.
  *
  * Se protege con la misma clave que el resto de las tareas programadas.
  */
@@ -63,6 +64,12 @@ async function correrTarea(request: Request) {
       complete: false,
       error: error instanceof Error ? error.message : 'No se pudo completar el historial publico de YouTube.',
     }));
+    const historialOtrasRedes = await syncOtherPublicHistory().catch((error: unknown) => ({
+      success: false,
+      earliestDate: '2019-09-01T00:00:00.000Z',
+      platforms: [],
+      error: error instanceof Error ? error.message : 'No se pudo completar el historial de TikTok, Threads y X.',
+    }));
 
     return NextResponse.json({
       ok: true,
@@ -71,6 +78,7 @@ async function correrTarea(request: Request) {
       historialPublico: {
         meta: historialMeta,
         youtube: historialYouTube,
+        otrasRedes: historialOtrasRedes,
       },
     });
   } catch (error: any) {
