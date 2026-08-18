@@ -2124,6 +2124,14 @@ viene por defecto y el nombre de la marca que se muestra en el muro de la fiesta
 pierde sin que nadie se entere, y no se nota mirando la pantalla. Hay una prueba
 que controla que ninguna de las dos direcciones viejas vuelva a aparecer.
 
+## La web que figura en el presupuesto (18 de agosto de 2026)
+
+El presupuesto impreso, el PDF que se le manda al cliente y la pantalla del
+presupuesto mostraban **`www.akproduccioneseventos.com`**, que no es el sitio de
+la empresa. El cliente que la escribía no llegaba a ningún lado, **justo en el
+momento en que está mirando el precio y decidiendo**. Ahora figura
+`www.akproducciones.uy` en los cuatro lugares, con una prueba que lo controla.
+
 ## Cómo agregar algo a esta lista
 
 **Se anota SIEMPRE, en la misma propuesta que toca el código.** Orden del dueño

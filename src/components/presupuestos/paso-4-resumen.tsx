@@ -20,7 +20,7 @@ const COMPANY_CONTACT_PERSON = "SR. Alexander Knuth";
 const COMPANY_ADDRESS_LINE1_PDF = "Salto";
 const COMPANY_ADDRESS_LINE2_PDF = "50000 Salto";
 const COMPANY_CONTACT_EMAIL_PDF = "akproduccionessalto@gmail.com";
-const COMPANY_WEBSITE_PDF = "www.akproduccioneseventos.com";
+const COMPANY_WEBSITE_PDF = "www.akproducciones.uy";
 const BUDGET_VALIDITY_DAYS_PDF = 30;
 const BUDGET_VALIDITY_NOTE_PDF = "El presupuesto es válido por 30 días. Para asegurar el presupuesto debe abonar el 20% del total como seña.";
 
