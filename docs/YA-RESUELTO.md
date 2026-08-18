@@ -2217,6 +2217,31 @@ legítima **no se oculte sola**, que correr dos veces no duplique nada, que si f
 la inteligencia artificial el comentario quede **sin clasificar** en vez de mal
 clasificado, y que una red sin configurar no rompa la traída de las otras.
 
+## Se sacó el filtro de reseñas de Google (18 de agosto de 2026)
+
+**El pedido de reseña por WhatsApp salía sólo a los clientes que puntuaban 9 o
+10.** Estaba en tres lugares de `src/app/actions/feedback.ts`: en el envío, en el
+guardado de la encuesta y en el pedido manual.
+
+Eso se llama filtrar reseñas y **Google lo prohíbe**: la sanción es borrar las
+reseñas del negocio. En una ciudad chica, quedarse sin reseñas es peor que tener
+alguna mala. Todavía no había hecho daño porque el envío automático viene apagado
+de fábrica y el enlace de Google venía vacío.
+
+**Cómo quedó:** el pedido sale para todos los que contestan la encuesta, con el
+mismo enlace. Lo único que cambia según la nota es el texto del mensaje: con nota
+6 o menos se pide disculpas primero y se avisa que el equipo va a llamar, y el
+enlace va igual abajo. Con nota alta, el agradecimiento de siempre.
+
+**Por qué conviene además del cumplimiento:** un promedio de cinco perfecto parece
+arreglado. Vende más un 4,5 con alguna de cuatro estrellas y respuestas prolijas
+abajo. Y cuantas más reseñas hay, menos pesa cada una mala.
+
+**Ojo si aparece de nuevo:** las pruebas de
+`src/__tests__/resenas-y-plan-equipo.test.ts` ahora exigen lo contrario de lo que
+exigían antes — que con nota baja el pedido se mande igual. Si alguien las ve
+fallar, la respuesta no es volver a poner el filtro.
+
 ## Cómo agregar algo a esta lista
 
 **Se anota SIEMPRE, en la misma propuesta que toca el código.** Orden del dueño

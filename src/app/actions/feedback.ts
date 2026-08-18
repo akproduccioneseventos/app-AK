@@ -49,8 +49,11 @@ export async function saveFeedback(submission: Omit<FeedbackSubmission, 'id' | '
     timestamp: new Date().toISOString(),
   };
 
-  // Pedido automatico de resena en Google, solo a promotores (nota 9 o 10).
-  if ((newFeedback.npsScore ?? 0) >= 9 && !yaSeLePidioPorEstaFiesta(allFeedback, newFeedback.fiestaId)) {
+  // Pedido automatico de resena en Google. Va a TODOS los que contestan la
+  // encuesta, sin mirar la nota: pedirsela solo a los contentos es filtrar
+  // resenas, y Google lo castiga borrandolas. Lo que cambia segun la nota es el
+  // texto del mensaje, no a quien se le manda.
+  if (!yaSeLePidioPorEstaFiesta(allFeedback, newFeedback.fiestaId)) {
     try {
       const company = await getCompanyInfo();
       if (company.enableGoogleReviewsAutoRequest && company.googleReviewsLink) {
@@ -146,9 +149,6 @@ async function enviarPedidoDeResena(feedback: FeedbackSubmission, company: Compa
   if (!company.googleReviewsLink) {
     return { success: false, error: "El enlace de Google no está configurado." };
   }
-  if ((feedback.npsScore ?? 0) < 9) {
-     return { success: false, error: "No se debe pedir reseña pública si la calificación es menor a 9." };
-  }
 
   // Get phone number from fiesta -> cliente
   const fiesta = await getFiestaById(feedback.fiestaId);
@@ -165,7 +165,19 @@ async function enviarPedidoDeResena(feedback: FeedbackSubmission, company: Compa
     return { success: false, error: "WhatsApp no está configurado o está deshabilitado." };
   }
 
-  const messageText = `¡Hola ${feedback.clientName}! Muchas gracias por tus comentarios sobre la fiesta "${feedback.fiestaNombre}".\n\nNos alegra mucho que hayas disfrutado la experiencia. ¿Te animarías a compartir tu opinión en Google? Nos ayudaría muchísimo:\n\n${company.googleReviewsLink}\n\n¡Un abrazo grande de parte de todo el equipo!`;
+  // El pedido va SIEMPRE, sin mirar la nota. Mandarselo solo a los contentos se
+  // llama filtrar resenas: Google lo prohibe y castiga borrandolas. Ademas, un
+  // negocio con puro cinco perfecto parece arreglado y vende menos que uno con
+  // alguna de cuatro y respuestas prolijas abajo.
+  //
+  // Lo unico que cambia segun la nota es el texto: al que quedo disconforme
+  // primero se le pide disculpas y se le avisa que lo van a llamar. El enlace va
+  // igual, abajo.
+  const quedoDisconforme = (feedback.npsScore ?? 10) <= 6;
+
+  const messageText = quedoDisconforme
+    ? `¡Hola ${feedback.clientName}! Gracias por tomarte el rato de contarnos como viviste "${feedback.fiestaNombre}".\n\nLamentamos que no haya salido como esperabas. Alguien del equipo te va a llamar en estos dias para escucharte bien y ver como lo resolvemos.\n\nSi ademas queres dejar tu opinion en Google, es por aca:\n\n${company.googleReviewsLink}\n\nGracias por la sinceridad, nos sirve para mejorar.`
+    : `¡Hola ${feedback.clientName}! Muchas gracias por tus comentarios sobre la fiesta "${feedback.fiestaNombre}".\n\nNos alegra mucho que hayas disfrutado la experiencia. ¿Te animarías a compartir tu opinión en Google? Nos ayudaría muchísimo:\n\n${company.googleReviewsLink}\n\n¡Un abrazo grande de parte de todo el equipo!`;
 
   const delivery = await sendMetaWhatsAppMessage({
     to: telefono,
@@ -193,9 +205,6 @@ export async function requestGoogleReviewManual(feedbackId: string): Promise<{ s
   const feedback = allFeedback[index];
   if (yaSeLePidioPorEstaFiesta(allFeedback, feedback.fiestaId)) {
     return { success: false, error: "Ya se le pidió la reseña a este cliente." };
-  }
-  if ((feedback.npsScore ?? 0) < 9) {
-    return { success: false, error: "No se puede pedir reseña pública si la nota es menor a 9." };
   }
 
   const company = await getCompanyInfo();
