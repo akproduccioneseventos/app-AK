@@ -43,7 +43,7 @@ import { getBlogPosts } from "@/app/actions/blog";
 export const revalidate = 300;
 const DEFAULT_DYNAMIC_SERVICE_SUBTITLE = "Servicio AK";
 const DEFAULT_INSTAGRAM_URL =
-  "https://www.instagram.com/akproduccioneseventos/";
+  "https://www.instagram.com/akproduccionesfiestasyeventos/";
 const SITE_URL = "https://akproducciones.uy";
 const DEFAULT_SEO_TITLE = "AK Producciones Eventos";
 const DEFAULT_SEO_DESCRIPTION =

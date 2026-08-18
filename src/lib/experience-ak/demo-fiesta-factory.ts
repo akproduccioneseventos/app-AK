@@ -252,7 +252,7 @@ export function buildAkDemoFiesta(kind: AkDemoFiestaKind): FiestaEnPlanificacion
       },
       brand: {
         companyName: 'AK Producciones',
-        instagramHandle: '@akproduccioneseventos',
+        instagramHandle: '@akproduccionesfiestasyeventos',
         whatsappNumber: '59898355530',
         landingUrl: 'https://akproducciones.uy/',
         ctaText: 'Tecnologia para fiestas memorables',

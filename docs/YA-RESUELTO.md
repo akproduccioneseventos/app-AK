@@ -2109,6 +2109,21 @@ Si alguien vuelve a encontrar esa rama abierta: se descarta, no se rescata.
   pendiente: lo que falta es mostrar esos números adentro del panel, y está pedido
   en la orden. Verificado, no lo vuelvan a reportar como que falta.
 
+## Una sola cuenta de Instagram en toda la app (18 de agosto de 2026)
+
+Había **tres direcciones distintas** de Instagram escritas a mano en la app. El
+dueño confirmó que la que usa es **`akproduccionesfiestasyeventos`**; las otras
+dos (`akproduccioneseventos` y `ak_producciones_eventos`) quedaron de cuentas
+viejas.
+
+Se emparejaron todos los botones y textos que ve el público: la galería de la
+web, los avisos de las páginas de venta, la portada, el pie, la conexión que
+viene por defecto y el nombre de la marca que se muestra en el muro de la fiesta.
+
+**Por qué importa:** un botón que lleva a una cuenta vieja es una venta que se
+pierde sin que nadie se entere, y no se nota mirando la pantalla. Hay una prueba
+que controla que ninguna de las dos direcciones viejas vuelva a aparecer.
+
 ## Cómo agregar algo a esta lista
 
 **Se anota SIEMPRE, en la misma propuesta que toca el código.** Orden del dueño
