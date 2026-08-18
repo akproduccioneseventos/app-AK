@@ -2335,16 +2335,28 @@ Se revisó uno por uno y se resolvió cada caso:
   dónde vino cada visitante, y ese dato no está disponible cuando la página se
   arma en el servidor. Enchufarla mal mostraría un recorrido equivocado.
 
-- **`CateringSimulator`** (que el cliente pida cambiar la cantidad de comida y vea
-  la diferencia de precio). **NO se enchufa todavía, y el motivo es plata.** Estima
-  el menú de los chicos al 70% del de adultos, un número escrito a mano que no sale
-  de cómo la aplicación cotiza de verdad: el cliente vería un precio y le llegaría
-  otro. Las acciones del servidor ya existen (pedir, resolver, listar) pero **no hay
-  ninguna pantalla**, ni la del cliente ni la del equipo para aceptar o rechazar.
+- **`CateringSimulator`** y su archivo de acciones `catering-change.actions.ts`.
+  **Borrados: eran un duplicado abandonado de algo que ya funciona.** El pedido de
+  cambio de cantidad de invitados y el de menú ya están hechos y enchufados, con
+  sesión del portal, pantalla del cliente y pantalla del equipo para aceptar o
+  rechazar (`submitClientGuestCountChangeRequest` y compañía, en
+  `src/app/actions/fiesta/portal.actions.ts`).
 
-- **`ConvertToClientDialog`** (pasar un prospecto a cliente). **Queda pendiente de
-  verdad:** no existe ninguna otra forma de hacerlo en el CRM, y falta la acción del
-  servidor. Es una función que falta, no un archivo sobrante.
+  **Y el duplicado era además un agujero:** sus tres funciones eran públicas y
+  **ninguna pedía sesión**. `resolveCateringChangeRequest` dejaba que cualquiera de
+  afuera aprobara o rechazara pedidos de cambio de cualquier fiesta. No había hecho
+  daño porque ninguna pantalla lo usaba, pero el punto de entrada estaba vivo.
+
+  Encima calculaba el menú de los chicos al 70% del de adultos, escrito a mano, sin
+  relación con cómo se cotiza de verdad.
+
+- **`ConvertToClientDialog`**. **Borrado: también existía ya.** Pasar un prospecto a
+  cliente se hace en Contabilidad → CRM con el botón de confirmar reserva
+  (`BookingConfirmationDialog` → `confirmBookingWithContract`), que además toma el
+  contrato y la seña, y el alta de prospectos ya controla teléfonos repetidos.
+
+**La lección, otra vez:** dos de los seis parecían funciones que faltaban y las dos
+existían con otro nombre. Antes de construir, buscar la función, no el archivo.
 
 ## Cómo agregar algo a esta lista
 

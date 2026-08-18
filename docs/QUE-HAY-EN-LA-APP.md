@@ -50,8 +50,9 @@ muestre**. Esa distinción es la que más veces falló.
 | Moderación de comentarios y quejas | Sí | Empresa → Presencia digital → solapa "Comentarios de redes" |
 | Capturas de pantalla en testimonios | Sí | Ajustes → Feedback & Testimonios y carrusel público |
 | Sección "por qué AK" en la portada | Sí | Portada, debajo de la presentación |
-| Pedido de cambio de cantidad de comida por el cliente | NO, falta la pantalla | — |
-| Pasar un prospecto a cliente desde el CRM | NO, falta la pantalla y la acción | — |
+| Pedido de cambio de cantidad de invitados por el cliente | Sí | Portal del cliente, y el equipo lo acepta o rechaza en Fiestas → Portal del cliente |
+| Pedido de cambio de menú por el cliente | Sí | Portal del cliente |
+| Pasar un prospecto a cliente (con contrato y seña) | Sí | Contabilidad → CRM, botón de confirmar reserva |
 | Testimonios del catálogo impreso en las páginas de venta | Sí, son reales (falta subirles la captura) | `/bodas`, `/quinceaneras`, `/cumpleanos`, `/fiestas`, `/corporativos`, `/aniversarios` |
 | Tope de gasto al traer el historial de comentarios | Sí, cien por corrida | Empresa → Presencia digital → "Historial completo" |
 | Tu página web (Google Analytics 4) | Sí | Empresa → Presencia digital → solapa "Tu página web" |

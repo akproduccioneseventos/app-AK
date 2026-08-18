@@ -1466,7 +1466,6 @@ export interface FiestaEnPlanificacion {
   googleReviewRequestedAt?: string; // Fecha en que se solicitó la reseña
   screenPlaylist?: ScreenPlaylist;
   mediaLibrary?: MediaLibraryItem[];
-  cateringChangeRequests?: CateringChangeRequest[];
   socialScreenConfig?: SocialScreenConfig;
   guestPortalSettings?: GuestPortalSettings;
   zonaDigitalAdolescentes?: ZonaDigitalAdolescentesSettings;
@@ -1781,24 +1780,6 @@ export interface MediaLibraryItem {
 }
 
 // --- CATERING CHANGE REQUESTS ---
-export type CateringChangeStatus = 'pendiente' | 'aprobada' | 'rechazada';
-
-export interface CateringChangeRequest {
-  id: string;
-  timestamp: string;
-  clientName?: string;
-  adultosMenuId?: string;
-  adultosMenuNombre?: string;
-  adultosCount?: number;
-  ninosMenuId?: string;
-  ninosMenuNombre?: string;
-  ninosCount?: number;
-  estimatedCostDelta: number;
-  newTotal?: number;
-  status: CateringChangeStatus;
-  adminNotes?: string;
-  resolvedAt?: string;
-}
 
 // --- SOCIAL SCREEN TEMPLATES ---
 export type SocialScreenTemplate = 'minimal' | 'gradient' | 'dark-luxury';
