@@ -31,7 +31,8 @@ export function LocalBusinessSchema() {
       "https://www.tiktok.com/@akproduccioneseve",
       "https://www.youtube.com/channel/UClq6YnypA9PFuBgunzk306A",
       "https://www.threads.com/@akproduccionesfiestasyeventos",
-      "https://x.com/AkSalto"
+      "https://x.com/AkSalto",
+      "https://es.pinterest.com/akproduccionessalto/"
     ]
   };
 

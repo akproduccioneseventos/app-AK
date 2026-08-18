@@ -129,6 +129,35 @@ resultado **más grande y con estrellas**, que es lo que hace que le hagan clic.
   blog, el catálogo de servicios y las landings de campaña. Si alguna no está,
   Google no la conoce.
 
+# BLOQUE 5 — Las cuentas oficiales, escritas una sola vez
+
+La cuenta de Pinterest es **`https://es.pinterest.com/akproduccionessalto/`** y ya
+quedó declarada en las dos fichas que lee Google, junto con la etiqueta que le
+confirma a Pinterest que el sitio es de la empresa.
+
+**El problema de fondo sigue:** las direcciones de las redes están escritas a mano
+en por lo menos seis archivos distintos (`public-footer.tsx`,
+`LocalBusinessSchema.tsx`, `LocalBusinessJsonLd.tsx`, `CTASection.tsx`,
+`GallerySection.tsx`, `WinSechWidgets.tsx`) y **no coinciden entre sí**: hay tres
+direcciones de Instagram diferentes dando vueltas. Una ya se corrigió porque le
+decía a Google otra identidad; las de los botones siguen sin revisar.
+
+**Qué hacer:**
+
+1. **Una sola lista**, en `src/lib/public-contact.ts`, con la dirección oficial de
+   cada red. Todos los archivos de arriba la usan; ninguno escribe la dirección a
+   mano.
+2. **Revisá una por una las direcciones de Instagram que quedan** en los botones
+   de las páginas de venta. Si alguna no coincide con
+   `akproduccionesfiestasyeventos`, **preguntá antes de cambiarla**: puede ser una
+   cuenta vieja que todavía existe, y un botón que lleva a la nada pierde una
+   venta.
+3. **Sumá el botón de Pinterest** al pie de la web pública, con los otros.
+
+Hay una prueba (`las-cuentas-que-le-decimos-a-google.test.ts`) que controla que
+las dos fichas declaren las mismas siete cuentas. Si agregás una red, va también
+ahí.
+
 ---
 
 ## Lo que NO se toca
