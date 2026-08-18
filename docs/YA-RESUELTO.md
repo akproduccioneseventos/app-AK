@@ -2006,6 +2006,43 @@ menú o un plato con el acento partido—. Arreglarlos les saca el sentido a esa
 frases, así que están excluidos del control y de la prueba. Ya pasó una vez:
 alguien los "reparó" y dejó dos explicaciones sin ejemplo.
 
+## El panel de redes mostraba números inventados (18 de agosto de 2026)
+
+**Lo más peligroso encontrado hasta ahora, porque no se veía: los números
+mentían con la misma cara que los de verdad.**
+
+El centro de presencia digital mostraba 1420 seguidores en Instagram y 2850 en
+Facebook, 48 seguidores nuevos por semana, 5240 de alcance, 14,2% de crecimiento,
+y una ficha de Google con **4,9 de puntaje y 38 opiniones**. Ninguno existía:
+estaban escritos a mano en el código.
+
+Peor todavía: **la tarea que corre todos los días guardaba esos mismos números**,
+más un alcance calculado a ojo (`interacciones * 4 + 350`), así que el historial
+de crecimiento que se iba armando era falso de punta a punta — y parecía real
+justamente porque se movía día a día.
+
+El dueño podía tomar decisiones de plata sobre eso, y hasta repetirle a un
+cliente un puntaje de Google que no existe.
+
+**Ahora:** lo que no se midió va vacío y la pantalla dice "sin dato" con lo que
+hay que conectar para tenerlo. Lo que sí es real se mantiene tal cual: gasto de
+publicidad, fiestas cerradas por avisos, costo por fiesta cerrada, posteos
+esperando aprobación, e interacciones y cantidad de posteos, que salen de los
+posteos de verdad.
+
+**El reparto del gasto de publicidad entre redes también era inventado** (un
+60/40 puesto a ojo). Ahora el total va donde se mide y no se reparte adivinando.
+
+**Una prueba vieja estaba del lado equivocado:** exigía `followers > 0`, o sea
+comprobaba que el número inventado siguiera ahí. Se dio vuelta. Hay una prueba
+nueva que impide que los siete números vuelvan.
+
+### Lo que falta para tener los datos de verdad
+
+Seguidores y alcance reales salen de las estadísticas de Meta, con las
+credenciales comerciales cargadas. El puntaje de Google se ve en el panel de
+Google del dueño. Mientras no estén, **vacío es la respuesta correcta**.
+
 ## Cómo agregar algo a esta lista
 
 **Se anota SIEMPRE, en la misma propuesta que toca el código.** Orden del dueño

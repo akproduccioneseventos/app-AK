@@ -96,7 +96,10 @@ export async function getDigitalPresenceDashboard(): Promise<{
     }
 
     // 5. Consolidar KPIs grandes para la vista móvil del dueño
-    const totalFollowers = connections.reduce((acc, c) => acc + (c.isConnected ? 1200 : 0), 2450);
+    // Seguidores: no se inventan. Antes esto sumaba 1200 por cada red conectada
+    // arrancando de 2450, todo puesto a ojo, y se mostraba igual que un dato
+    // medido. Va `null` hasta que se lea de las estadisticas de Meta.
+    const totalFollowers: number | null = null;
     const totalAdSpend = commercialAdsRoi.reduce((acc, c) => acc + c.spend, 0);
     const totalConversions = commercialAdsRoi.reduce((acc, c) => acc + c.conversionsCount, 0);
     const avgCostPerParty = totalConversions > 0 ? Math.round(totalAdSpend / totalConversions) : null;
@@ -106,7 +109,7 @@ export async function getDigitalPresenceDashboard(): Promise<{
       {
         platform: 'Instagram',
         isConnected: connections.some((c) => c.platform === 'Instagram' && c.isConnected),
-        followers: 1420,
+        followers: null,
         daysWithoutPost: review?.inactivePlatforms.find((p) => p.platform === 'Instagram')?.daysWithoutPost || 1,
         canAutoPublish: true,
         publishNote: 'Publicación directa vía Graph API tras aprobación.',
@@ -114,7 +117,7 @@ export async function getDigitalPresenceDashboard(): Promise<{
       {
         platform: 'Facebook',
         isConnected: connections.some((c) => c.platform === 'Facebook' && c.isConnected),
-        followers: 2850,
+        followers: null,
         daysWithoutPost: review?.inactivePlatforms.find((p) => p.platform === 'Facebook')?.daysWithoutPost || 2,
         canAutoPublish: true,
         publishNote: 'Publicación en Fanpage tras aprobación.',
@@ -122,7 +125,7 @@ export async function getDigitalPresenceDashboard(): Promise<{
       {
         platform: 'Google',
         isConnected: true,
-        followers: 0,
+        followers: null,
         daysWithoutPost: 0,
         canAutoPublish: true,
         publishNote: 'Actualización en Ficha de Google y Reseñas.',
@@ -130,7 +133,7 @@ export async function getDigitalPresenceDashboard(): Promise<{
       {
         platform: 'TikTok',
         isConnected: connections.some((c) => c.platform === 'TikTok' && c.isConnected),
-        followers: 680,
+        followers: null,
         daysWithoutPost: review?.inactivePlatforms.find((p) => p.platform === 'TikTok')?.daysWithoutPost || 4,
         canAutoPublish: false,
         publishNote: 'Requiere aprobación de app por ByteDance. Queda listo para posteo manual.',
@@ -138,7 +141,7 @@ export async function getDigitalPresenceDashboard(): Promise<{
       {
         platform: 'WhatsApp',
         isConnected: connections.some((c) => c.platform === 'WhatsApp' && c.isConnected),
-        followers: 0,
+        followers: null,
         daysWithoutPost: 0,
         canAutoPublish: false,
         publishNote: 'Los estados no se automatizan para proteger el número de la empresa.',
@@ -150,15 +153,23 @@ export async function getDigitalPresenceDashboard(): Promise<{
       data: {
         kpis: {
           totalFollowers,
-          followersWeeklyChange: 48,
-          weeklyReach: 5240,
-          reachWeeklyChangePct: 14.2,
+          // Estos cuatro venian con numeros escritos a mano y se mostraban como
+          // si estuvieran medidos: 48 seguidores nuevos por semana, 5240 de
+          // alcance, 14,2% de crecimiento, 4,9 de puntaje con 38 opiniones. El
+          // dueno miraba su panel y decidia sobre datos inventados, y hasta
+          // podia repetirle a un cliente un puntaje de Google que no existe.
+          //
+          // Van en `null` y la pantalla dice "sin dato" con lo que hay que
+          // conectar para tenerlo.
+          followersWeeklyChange: null,
+          weeklyReach: null,
+          reachWeeklyChangePct: null,
           activeAdSpendMonth: totalAdSpend,
           signedPartiesFromAds: totalConversions,
           averageCostPerSignedParty: avgCostPerParty,
           pendingApprovalPostsCount: pendingApprovalCount,
-          googleRating: 4.9,
-          googleReviewsCount: 38,
+          googleRating: null,
+          googleReviewsCount: null,
         },
         commercialAdsRoi,
         review,

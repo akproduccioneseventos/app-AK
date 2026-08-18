@@ -68,7 +68,11 @@ describe('Centro de Presencia Digital de AK Producciones', () => {
       const ig = snapshots.find((s) => s.platform === 'Instagram');
       expect(ig).toBeDefined();
       expect(ig?.date).toBe(today);
-      expect(ig?.followers).toBeGreaterThan(0);
+      // Antes esta prueba exigia `followers > 0`, y lo que estaba comprobando
+      // era que el numero inventado siguiera ahi: Instagram devolvia 1420 fijo.
+      // Ahora se exige lo contrario, que no se invente nada.
+      expect(ig?.followers).toBeNull();
+      // Las interacciones si son de verdad: salen de los posteos reales.
       expect(ig?.interactions).toBe(420);
     });
   });

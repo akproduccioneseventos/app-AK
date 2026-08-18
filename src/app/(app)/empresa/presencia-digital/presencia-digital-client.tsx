@@ -116,11 +116,17 @@ export function PresenciaDigitalClient({ initialData, initialPosts }: Props) {
             <Users className="w-4 h-4 text-blue-400" />
           </div>
           <div className="text-2xl md:text-3xl font-black text-white">
-            {kpis.totalFollowers.toLocaleString('es-UY')}
+            {kpis.totalFollowers === null ? '—' : kpis.totalFollowers.toLocaleString('es-UY')}
           </div>
-          <p className="text-xs text-emerald-400 mt-1 flex items-center gap-1 font-medium">
-            <TrendingUp className="w-3 h-3" /> +{kpis.followersWeeklyChange} esta semana
-          </p>
+          {kpis.totalFollowers === null ? (
+            <p className="text-xs text-slate-400 mt-1 font-medium">
+              Sin dato. Se ve cuando conectes Instagram y Facebook en Ajustes.
+            </p>
+          ) : (
+            <p className="text-xs text-emerald-400 mt-1 flex items-center gap-1 font-medium">
+              <TrendingUp className="w-3 h-3" /> +{kpis.followersWeeklyChange ?? 0} esta semana
+            </p>
+          )}
         </div>
 
         <div className="p-4 md:p-5 bg-slate-900/90 border border-slate-800 rounded-2xl">
@@ -157,10 +163,12 @@ export function PresenciaDigitalClient({ initialData, initialPosts }: Props) {
             <Sparkles className="w-4 h-4 text-amber-400" />
           </div>
           <div className="text-2xl md:text-3xl font-black text-white flex items-center gap-1.5">
-            {kpis.googleRating} <span className="text-amber-400 text-lg">★</span>
+            {kpis.googleRating === null ? '—' : <>{kpis.googleRating} <span className="text-amber-400 text-lg">★</span></>}
           </div>
           <p className="text-xs text-slate-400 mt-1 font-medium">
-            {kpis.googleReviewsCount} opiniones de clientes
+            {kpis.googleReviewsCount === null
+              ? 'Sin dato. Tu puntaje real se ve en tu panel de Google.'
+              : `${kpis.googleReviewsCount} opiniones de clientes`}
           </p>
         </div>
       </div>
@@ -485,8 +493,8 @@ export function PresenciaDigitalClient({ initialData, initialPosts }: Props) {
                   <tr key={`${snap.date}_${snap.platform}_${idx}`} className="hover:bg-slate-900/50">
                     <td className="p-3 font-semibold text-white">{snap.date}</td>
                     <td className="p-3 font-medium text-amber-300">{snap.platform}</td>
-                    <td className="p-3">{snap.followers.toLocaleString('es-UY')}</td>
-                    <td className="p-3">{snap.reach.toLocaleString('es-UY')}</td>
+                    <td className="p-3">{snap.followers === null ? '—' : snap.followers.toLocaleString('es-UY')}</td>
+                    <td className="p-3">{snap.reach === null ? '—' : snap.reach.toLocaleString('es-UY')}</td>
                     <td className="p-3">{snap.interactions}</td>
                     <td className="p-3">
                       {snap.adSpend > 0 ? `$${snap.adSpend.toLocaleString('es-UY')}` : '-'}
