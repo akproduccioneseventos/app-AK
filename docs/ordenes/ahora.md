@@ -1,4 +1,4 @@
-# Enchufar lo que quedó construido y sin usar
+# Dos pantallas que faltan: cambio de comida y pasar prospecto a cliente
 
 **Para:** Gemini (Antigravity)
 **Escrita:** 18 de agosto de 2026.
@@ -10,80 +10,92 @@ cada fusión dispara un despliegue y eso se paga. Si un bloque se traba, entreg�
 resto igual, en la misma propuesta, y avisá cuál faltó y por qué.
 
 **Arrancá desde la versión principal de ahora**, no desde una rama vieja. Las dos
-últimas entregas llegaron hechas sobre una base vieja y una de ellas traía adentro
-la anterior entera: habría borrado tres correcciones sin que se notara.
+últimas entregas llegaron hechas sobre una base vieja y una traía adentro la
+anterior entera: habría borrado tres correcciones sin que se notara.
 
 Antes de tocar nada, leé `docs/YA-RESUELTO.md` y `docs/QUE-HAY-EN-LA-APP.md`.
 
-## Para qué es esto
+## Lo que YA ESTÁ HECHO — no lo rehagas
 
-Hay seis pantallas que alguien programó, que están terminadas, y que **ningún lado
-muestra**. No están rotas: están desconectadas. Es trabajo ya pago que no rinde.
+Se revisaron seis componentes que nadie mostraba. Cuatro ya están resueltos:
 
----
+- El asistente de ventas **funciona** (`src/components/public/AsistenteVirtual.tsx`).
+  Había un archivo muerto con nombre parecido; se borró.
+- La sección "por qué AK" **ya se enchufó** a la portada.
+- `ConfigFormItem` **se borró**.
+- `CommercialJourneySection` **queda como está a propósito**: necesita saber de
+  dónde vino el visitante y ese dato no existe cuando la página se arma.
 
-# BLOQUE 1 — El asistente de ventas, en las páginas de venta y en ninguna otra
-
-**Es el importante. Empezá por acá.**
-
-`src/components/asistente-ak/AkAssistant.tsx` está hecho: contesta con el catálogo
-real, no inventa precios ni fechas y guarda al interesado en el CRM. **Ninguna
-pantalla lo muestra.**
-
-Qué pasó: aparecía en toda la aplicación —el globito de ventas salía encima de la
-invitación de un casamiento, del portal de un cliente que ya contrató y de la
-presentación proyectada en el salón—. Al corregirlo se lo sacó de todos lados y
-**nunca se lo volvió a poner donde correspondía**.
-
-Hoy el dueño prende el interruptor en Ajustes y no pasa nada.
-
-## Qué hacer
-
-Mostrarlo **únicamente** en las páginas de venta: `/bodas`, `/quinceaneras`,
-`/cumpleanos`, `/fiestas`, `/corporativos`, `/aniversarios`, `/experiencia-ak` y
-`/catalogo`.
-
-**Lo que está prohibido, y no es opinable:**
-
-> No puede aparecer sobre la invitación de un evento, el portal del cliente, el
-> portal del invitado, las estaciones de la fiesta, la presentación del salón ni
-> ninguna pantalla del equipo.
-
-- **Se engancha por lista de permitidas, no por lista de prohibidas.** La lista de
-  prohibidas fue exactamente lo que falló la vez pasada: siempre falta una.
-  Ponerlo en las páginas de venta y en ninguna otra; si mañana nace una pantalla
-  nueva, que el asistente NO aparezca solo.
-- **Sigue apagado de fábrica.** Se prende en Ajustes. Si el interruptor está
-  apagado, no se muestra ni se carga.
-- **Y que el interruptor se note.** Hoy prenderlo no cambia nada visible; cuando
-  esto funcione, que al prenderlo el dueño vea dónde va a aparecer.
-
-## Cómo se comprueba
-
-Una prueba que recorra las pantallas y verifique las dos puntas: que el asistente
-**aparece** en las ocho páginas de venta con el interruptor prendido, y que **no
-aparece** en la invitación, el portal del cliente, el portal del invitado ni las
-pantallas del equipo. Y otra que confirme que con el interruptor apagado no
-aparece en ninguna.
+Quedan los dos de abajo, que son pantallas que faltan de verdad.
 
 ---
 
-# BLOQUE 2 — Los otros cinco: enchufar o borrar
+# BLOQUE 1 — Que el cliente pueda pedir cambiar la cantidad de comida
 
-Cinco componentes más que nadie importa. Para cada uno, **decidí vos** y contá qué
-decidiste:
+**Esto es lo más útil de los dos.** Hoy, si al cliente le confirman diez invitados
+más, tiene que llamar por teléfono.
 
-| Componente | Qué es | Sugerencia |
-|---|---|---|
-| `CommercialJourneySection` | Sección de portada | Mirala: si suma a la venta, enchufala en la portada. Si no, borrala. |
-| `AkDifferenceSection` | Sección de portada ("por qué AK") | Igual que la anterior. |
-| `ConvertToClientDialog` | Pasar un prospecto a cliente | Si el CRM ya hace esa conversión por otro lado, borralo. Si no, enchufalo en la ficha del prospecto. |
-| `CateringSimulator` | Simulador de comida en el portal del cliente | Ojo: si toca precios o cantidades de comida, **no lo enchufes**, avisá y dejalo. Eso lo revisa Claude. |
-| `ConfigFormItem` | Campo de formulario de ajustes | Es de uso interno; si no lo usa nadie, borralo. |
+## Lo que ya existe (verificado, no lo rehagas)
 
-**Regla para borrar:** sólo si estás seguro de que nada lo usa. Confirmá con una
-búsqueda sin distinguir mayúsculas antes de borrar: ya se declaró que algo no
-existía por buscar `autoSave` cuando la función se llamaba `handleAutoSaveSalary`.
+- Las acciones del servidor están hechas y andan:
+  `submitCateringChangeRequest`, `resolveCateringChangeRequest` y
+  `getCateringChangeRequests`, en
+  `src/app/actions/fiesta/catering-change.actions.ts`.
+- Hay un componente empezado, `src/components/portal/CateringSimulator.tsx`, que
+  **no se muestra en ningún lado**. Sirve de base, pero **hay que corregirle una
+  cosa antes** (ver abajo).
+
+## Qué falta
+
+1. **La pantalla del cliente**, dentro del portal del cliente: que vea cuántos
+   adultos y chicos tiene contratados, pueda pedir otra cantidad, escriba el motivo
+   y mande el pedido. Que vea el estado de lo que ya pidió (esperando, aceptado,
+   rechazado).
+2. **La pantalla del equipo**, para aceptar o rechazar cada pedido. Hoy los pedidos
+   se guardarían y nadie los vería nunca.
+
+## LO QUE NO PODÉS HACER, Y NO ES OPINABLE
+
+> **No muestres un precio estimado del cambio.**
+
+El componente que está empezado calcula el menú de los chicos al 70% del de
+adultos, un número escrito a mano que **no sale de cómo la aplicación cotiza de
+verdad**. Si lo dejás, el cliente ve un precio en pantalla y después le llega otro
+en la factura. Eso es lo peor que puede pasar en una venta.
+
+**Sacá ese cálculo.** La pantalla pide el cambio y dice: *"Te vamos a pasar el
+presupuesto actualizado."* El número lo hace el equipo con las cuentas reales, al
+aceptar el pedido.
+
+Si te parece que el precio en pantalla hace falta igual, **no lo inventes: dejalo
+anotado y avisá.** Eso lo decide Claude, que es quien toca plata y comida.
+
+---
+
+# BLOQUE 2 — Pasar un prospecto a cliente, desde el CRM
+
+Hoy **no se puede**: cuando un prospecto cierra, alguien tiene que cargarlo otra
+vez a mano como cliente, con los mismos datos. Se carga dos veces lo mismo y a
+veces queda distinto.
+
+## Lo que ya existe
+
+`src/components/crm/ConvertToClientDialog.tsx`, un cuadro de diálogo terminado que
+**nadie muestra** y que espera un `onSubmit` que no existe.
+
+## Qué falta
+
+1. **La acción del servidor** que crea el cliente a partir del prospecto: se lleva
+   nombre, teléfono, correo y lo que haya, y deja el prospecto marcado como
+   convertido con el identificador del cliente nuevo, para no perder de dónde vino.
+2. **El botón** que abre ese cuadro, en la ficha del prospecto.
+3. **Que no se pueda convertir dos veces.** Si el prospecto ya tiene cliente, el
+   botón dice "Ya es cliente" y lleva a su ficha.
+4. **Que no se dupliquen clientes.** Si ya existe un cliente con ese teléfono,
+   avisar y ofrecer enlazarlo en vez de crear otro.
+
+**Ojo:** la acción es del equipo, no pública. Tiene que pedir sesión con
+`requireAppSession()` en la primera línea, como el resto.
 
 ---
 
@@ -97,8 +109,11 @@ existía por buscar `autoSave` cuando la función se llamaba `handleAutoSaveSala
 **El build es obligatorio, no un extra.** Ya pasó que el revisor de tipos pasaba y
 el build fallaba, y la aplicación estuvo seis días sin poder publicarse.
 
+**Que las pruebas llamen al código de verdad.** Ya pasó tres veces que una prueba
+armaba una lista adentro y la filtraba ahí mismo: la entrega venía "en verde" sin
+haber probado nada.
+
 ## Cuando termines
 
-Anotá en `docs/YA-RESUELTO.md` qué hiciste con cada uno de los seis, y actualizá
-`docs/QUE-HAY-EN-LA-APP.md`: hoy el asistente figura como "a medias, no enchufado".
-**Va en la misma propuesta**, no en una aparte.
+Anotá en `docs/YA-RESUELTO.md` qué hiciste y actualizá `docs/QUE-HAY-EN-LA-APP.md`:
+las dos cosas figuran hoy como que faltan. **Va en la misma propuesta**, no aparte.

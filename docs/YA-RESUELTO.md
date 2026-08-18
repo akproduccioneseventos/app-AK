@@ -2301,28 +2301,50 @@ justo a los que no lo recibieron, que son los que más la necesitan. Devuelve
 
 Si se vuelve a reportar como filtración, es falso positivo.
 
-## El asistente de ventas quedó desenchufado (18 de agosto de 2026)
+## El asistente de ventas SÍ funciona: había un archivo muerto que confundía (18 de agosto de 2026)
 
-El componente `src/components/asistente-ak/AkAssistant.tsx` existe y está
-terminado, pero **ninguna pantalla lo muestra**. Se desconectó al corregir que
-aparecía en toda la aplicación —salía encima de la invitación de un casamiento y
-del portal del cliente— y nunca se lo volvió a enganchar sólo a las páginas de
-venta, que era el objetivo.
+**Falso positivo, y casi se reporta como problema.** Una auditoría encontró
+`src/components/asistente-ak/AkAssistant.tsx` sin usar y se concluyó que el
+asistente de ventas estaba desenchufado. **No es así.**
 
-En pantalla: el dueño prende el interruptor en Ajustes y no pasa nada. El
-inventario decía que andaba; quedó corregido. Reconectarlo está pedido en la orden
-vigente.
+Ese archivo eran seis líneas que devolvían nada, con un comentario que decía
+"desactivado temporalmente". El asistente de verdad es
+`src/components/public/AsistenteVirtual.tsx`, se monta en el armazón general, viene
+apagado de fábrica y sólo aparece en las páginas de venta. Funciona.
 
-## Componentes construidos que nadie muestra (18 de agosto de 2026)
+El archivo muerto se borró, que es lo que hizo falta: mientras existía, cualquiera
+que lo abriera concluía lo mismo.
 
-Además del asistente, hay cinco archivos de componente que ningún otro archivo
-importa: `CommercialJourneySection`, `AkDifferenceSection` (secciones de portada),
-`ConvertToClientDialog` (pasar un prospecto a cliente), `CateringSimulator` (portal
-del cliente) y `ConfigFormItem` (ajustes).
+**La lección:** un componente que nadie importa no significa que la función falte.
+Antes de decir que algo no está, hay que buscar la función, no el archivo.
 
-**No molestan a nadie** —no se ven porque no se muestran— pero cada uno es una
-pantalla pensada y no terminada. Queda anotado para no volver a descubrirlos en
-cada auditoría. Qué hacer con ellos está en la orden vigente.
+## Los cinco componentes que nadie mostraba (18 de agosto de 2026)
+
+Se revisó uno por uno y se resolvió cada caso:
+
+- **`AkDifferenceSection`** (los tres motivos para elegir AK: "disfrutá que
+  nosotros nos encargamos", "cero intermediarios", "presupuesto sin sorpresas").
+  **Enchufada a la portada.** El armazón ya tenía el hueco reservado y alguien lo
+  había dejado vacío. Es buen material de venta y no costaba nada ponerlo.
+
+- **`ConfigFormItem`** (un campo de formulario de ajustes). **Borrado**, no lo
+  usaba nadie y no aporta.
+
+- **`CommercialJourneySection`** (el recorrido comercial). **Queda como está, a
+  propósito.** El hueco existe en la portada, pero la sección necesita saber de
+  dónde vino cada visitante, y ese dato no está disponible cuando la página se
+  arma en el servidor. Enchufarla mal mostraría un recorrido equivocado.
+
+- **`CateringSimulator`** (que el cliente pida cambiar la cantidad de comida y vea
+  la diferencia de precio). **NO se enchufa todavía, y el motivo es plata.** Estima
+  el menú de los chicos al 70% del de adultos, un número escrito a mano que no sale
+  de cómo la aplicación cotiza de verdad: el cliente vería un precio y le llegaría
+  otro. Las acciones del servidor ya existen (pedir, resolver, listar) pero **no hay
+  ninguna pantalla**, ni la del cliente ni la del equipo para aceptar o rechazar.
+
+- **`ConvertToClientDialog`** (pasar un prospecto a cliente). **Queda pendiente de
+  verdad:** no existe ninguna otra forma de hacerlo en el CRM, y falta la acción del
+  servidor. Es una función que falta, no un archivo sobrante.
 
 ## Cómo agregar algo a esta lista
 

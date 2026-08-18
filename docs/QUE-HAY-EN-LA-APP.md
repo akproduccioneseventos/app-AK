@@ -49,6 +49,9 @@ muestre**. Esa distinción es la que más veces falló.
 | Comentarios de redes e IA | Sí | Empresa → Presencia digital → solapa "Comentarios de redes" |
 | Moderación de comentarios y quejas | Sí | Empresa → Presencia digital → solapa "Comentarios de redes" |
 | Capturas de pantalla en testimonios | Sí | Ajustes → Feedback & Testimonios y carrusel público |
+| Sección "por qué AK" en la portada | Sí | Portada, debajo de la presentación |
+| Pedido de cambio de cantidad de comida por el cliente | NO, falta la pantalla | — |
+| Pasar un prospecto a cliente desde el CRM | NO, falta la pantalla y la acción | — |
 | Testimonios del catálogo impreso en las páginas de venta | Sí, son reales (falta subirles la captura) | `/bodas`, `/quinceaneras`, `/cumpleanos`, `/fiestas`, `/corporativos`, `/aniversarios` |
 | Tope de gasto al traer el historial de comentarios | Sí, cien por corrida | Empresa → Presencia digital → "Historial completo" |
 | Tu página web (Google Analytics 4) | Sí | Empresa → Presencia digital → solapa "Tu página web" |
@@ -249,16 +252,11 @@ de lo que el equipo todavía tiene que publicar a mano.
   permiso de marketing, nunca a quien ya contrató ni a quien está en una etapa
   terminada del embudo.
 
-- **Asistente de ventas en las páginas públicas**: **A MEDIAS — está construido
-  pero NO está enchufado.** El componente existe (`src/components/asistente-ak/
-  AkAssistant.tsx`) y contesta con el catálogo real sin inventar precios ni fechas,
-  pero **ninguna pantalla lo muestra**: se desconectó al corregir que aparecía en
-  toda la aplicación y nunca se lo volvió a poner en las páginas de venta. Si el
-  dueño prende el interruptor de Ajustes hoy, no pasa nada. Pedido en la orden
-  vigente.
-
-  Ojo, son cosas distintas: **Sofía, la que cotiza** (`/simulador-ak`), sí funciona,
-  y el **asistente de marketing interno** (Ajustes → Asistente) también.
+- **Asistente de ventas en las páginas públicas**: contesta con el catálogo real,
+  no inventa precios ni fechas, y guarda al interesado en el CRM. **Apagado de
+  fábrica**; se prende en Ajustes. Sólo aparece en las páginas de venta, nunca
+  encima de una invitación, del portal del cliente ni de la fiesta. Vive en
+  `src/components/public/AsistenteVirtual.tsx` y se monta en el armazón general.
 - **El mensaje de recontacto se escribe a medida** de cada persona. Si el servicio
   falla o se llegó al tope de gasto, manda el de siempre.
 - **Video del recuerdo** por evento, armado con las fotos aprobadas del muro.
