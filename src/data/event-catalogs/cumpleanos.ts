@@ -1,3 +1,13 @@
+// Los testimonios de relleno se sacaron el 18 de agosto de 2026.
+//
+// Tenian nombre y apellido, fecha y de que red salian, pero **no eran reales** y
+// les faltaba lo unico que los hacia creibles: la captura del comentario
+// (`screenshotUrl`). Un visitante no tenia forma de saber que eran de mentira.
+//
+// La lista queda vacia a proposito: el carrusel se esconde solo cuando no hay
+// nada, asi que no deja hueco. Cuando entren los comentarios de verdad de las
+// redes, se muestran esos.
+
 import type { EventCatalogData } from '@/types/public-landing';
 import {
   sharedServices,
@@ -33,29 +43,7 @@ const cumpleanosData: EventCatalogData = {
         }
       : s
   ),
-  testimonials: [
-    {
-      id: 't1',
-      authorName: 'Familia Pérez',
-      source: 'instagram',
-      text: '¡El cumple de Valentina fue una maravilla! Globos, decoración, torta y todo a juego. El equipo de AK es increíble. 🎂🎈',
-      date: 'Agosto 2024',
-    },
-    {
-      id: 't2',
-      authorName: 'José M.',
-      source: 'whatsapp',
-      text: 'Organizamos el cumple de 40 de mi esposa y quedó espectacular. Todos los invitados me preguntaron quién fue el organizador. ¡Mil gracias!',
-      date: 'Abril 2024',
-    },
-    {
-      id: 't3',
-      authorName: 'Andrea L.',
-      source: 'google',
-      text: 'Tercer año seguido contratando a AK para el cumpleaños de mis hijos. Cada año lo superan. Confiabilidad y creatividad de primera.',
-      date: 'Julio 2023',
-    },
-  ],
+  testimonials: [],
   promotion: {
     ...sharedPromotion,
     sectionTitle: '🎁 Regalos incluidos en tus paquetes de cumpleaños',

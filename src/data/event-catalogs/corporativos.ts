@@ -1,3 +1,13 @@
+// Los testimonios de relleno se sacaron el 18 de agosto de 2026.
+//
+// Tenian nombre y apellido, fecha y de que red salian, pero **no eran reales** y
+// les faltaba lo unico que los hacia creibles: la captura del comentario
+// (`screenshotUrl`). Un visitante no tenia forma de saber que eran de mentira.
+//
+// La lista queda vacia a proposito: el carrusel se esconde solo cuando no hay
+// nada, asi que no deja hueco. Cuando entren los comentarios de verdad de las
+// redes, se muestran esos.
+
 import type { EventCatalogData } from '@/types/public-landing';
 import {
   sharedFAQs,
@@ -62,22 +72,7 @@ const corporativosData: EventCatalogData = {
       price: 'Consultar',
     },
   ],
-  testimonials: [
-    {
-      id: 't1',
-      authorName: 'Empresa Tech S.A.',
-      source: 'google',
-      text: 'Organizamos nuestra cena anual de fin de año con AK y fue un éxito rotundo. Muy profesionales, puntuales y con excelente atención al detalle.',
-      date: 'Diciembre 2023',
-    },
-    {
-      id: 't2',
-      authorName: 'Recursos Humanos - Grupo Norte',
-      source: 'whatsapp',
-      text: 'El team building que organizaron superó todas las expectativas. El equipo quedó encantado y nuestro CEO no paraba de elogiarlos.',
-      date: 'Octubre 2023',
-    },
-  ],
+  testimonials: [],
   promotion: {
     ...sharedPromotion,
     sectionTitle: '🏆 Beneficios especiales para empresas',

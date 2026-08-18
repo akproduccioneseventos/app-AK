@@ -1,3 +1,13 @@
+// Los testimonios de relleno se sacaron el 18 de agosto de 2026.
+//
+// Tenian nombre y apellido, fecha y de que red salian, pero **no eran reales** y
+// les faltaba lo unico que los hacia creibles: la captura del comentario
+// (`screenshotUrl`). Un visitante no tenia forma de saber que eran de mentira.
+//
+// La lista queda vacia a proposito: el carrusel se esconde solo cuando no hay
+// nada, asi que no deja hueco. Cuando entren los comentarios de verdad de las
+// redes, se muestran esos.
+
 // Shared catalog content reused across all event types.
 // Each event-specific file imports these and overrides only what differs.
 
@@ -195,50 +205,7 @@ export const sharedProcess: ProcessStep[] = [
   },
 ];
 
-export const sharedTestimonials: Testimonial[] = [
-  {
-    id: 'ts1',
-    authorName: 'Familia García',
-    source: 'google',
-    text: 'AK Producciones transformó nuestra fiesta en algo increíble. Cada detalle estuvo cuidado al máximo. El equipo es muy profesional y siempre dispuesto a ayudar.',
-    date: 'Marzo 2025',
-  },
-  {
-    id: 'ts2',
-    authorName: 'Laura M.',
-    source: 'instagram',
-    text: '¡Simplemente perfectos! Desde la primera reunión hasta el último momento de la fiesta, todo fluyó sin estrés. Los recomiendo con los ojos cerrados. 🙌',
-    date: 'Diciembre 2024',
-  },
-  {
-    id: 'ts3',
-    authorName: 'Sebastián R.',
-    source: 'whatsapp',
-    text: 'Contratamos a AK para nuestro evento corporativo y superaron todas las expectativas. Puntualidad, calidad y atención al cliente de primer nivel.',
-    date: 'Octubre 2024',
-  },
-  {
-    id: 'ts4',
-    authorName: 'Valeria y Matías',
-    source: 'google',
-    text: 'Organizaron nuestra boda y fue un sueño. Cada invitado nos preguntaba quién era la organización. ¡Gracias por hacer nuestro día tan especial! 💍',
-    date: 'Agosto 2024',
-  },
-  {
-    id: 'ts5',
-    authorName: 'Claudia P.',
-    source: 'instagram',
-    text: 'La fiesta de 15 de mi hija quedó espectacular. Todo el salón hermoso, el servicio excelente y los chicos re contentos. ¡Mejor no podría haber sido!',
-    date: 'Junio 2024',
-  },
-  {
-    id: 'ts6',
-    authorName: 'Roberto A.',
-    source: 'whatsapp',
-    text: 'Muy buena relación calidad-precio. Cumplieron con todo lo prometido y más. Sin dudas volveríamos a contratarlos para nuestra próxima celebración.',
-    date: 'Febrero 2024',
-  },
-];
+export const sharedTestimonials: Testimonial[] = [];
 
 export const sharedPromotion: PromotionData = {
   sectionTitle: '🎁 Regalos incluidos en todos los paquetes',
