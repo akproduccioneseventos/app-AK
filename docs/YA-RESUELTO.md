@@ -2093,6 +2093,22 @@ publicador cerrado.
 
 Si alguien vuelve a encontrar esa rama abierta: se descarta, no se rescata.
 
+## Que la encuentren en Google (18 de agosto de 2026)
+
+- **Pinterest ya reconoce el sitio como de la empresa.** La etiqueta de
+  confirmación va en la portada (`src/app/layout.tsx`). **Es pública a propósito**:
+  aparece en el código de la página, no es una clave y no da acceso a nada. Con
+  eso, cada foto que se sube a Pinterest lleva el enlace al sitio y se ven las
+  estadísticas.
+- **Las dos fichas de negocio le declaraban a Google cuentas distintas.** La de
+  las páginas de venta nombraba una dirección de Instagram que no coincidía con la
+  del resto del sitio. Con dos identidades distintas Google no confirma ninguna y
+  el resultado de búsqueda sale más chico. Ahora las dos declaran las mismas siete
+  cuentas, y hay una prueba que lo controla.
+- **Google Analytics ya estaba instalado y midiendo desde antes.** No es un
+  pendiente: lo que falta es mostrar esos números adentro del panel, y está pedido
+  en la orden. Verificado, no lo vuelvan a reportar como que falta.
+
 ## Cómo agregar algo a esta lista
 
 **Se anota SIEMPRE, en la misma propuesta que toca el código.** Orden del dueño

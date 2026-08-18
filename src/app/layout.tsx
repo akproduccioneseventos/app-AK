@@ -11,6 +11,7 @@ import './ak-budget-mobile-fixes.css';
 import { Toaster } from "@/components/ui/toaster";
 import { DeploymentRecovery } from '@/components/deployment-recovery';
 import { GoogleAnalytics } from '@/components/google-analytics';
+import { getSearchConsoleVerification } from '@/lib/google-search-console';
 import { AsistenteVirtual } from '@/components/public/AsistenteVirtual';
 import { LocalBusinessSchema } from '@/components/public/LocalBusinessSchema';
 import localFont from 'next/font/local';
@@ -109,6 +110,17 @@ export const metadata: Metadata = {
   },
   icons: {
     apple: '/icons/icon-192x192.png',
+  },
+  /**
+   * Verificaciones de dominio. Son etiquetas publicas a proposito: aparecen en
+   * el codigo de la pagina para que Google y Pinterest confirmen que el sitio es
+   * de la empresa. No son claves y no dan acceso a nada.
+   */
+  verification: {
+    ...getSearchConsoleVerification(),
+    other: {
+      'p:domain_verify': '63a807fc1e918f1541a865a1794e7852',
+    },
   },
 };
 
