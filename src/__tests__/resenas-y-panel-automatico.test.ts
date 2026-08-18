@@ -24,7 +24,7 @@ const mockFiestas = [
       telefonoAsistencia: '098123456',
       nombreLugar: 'Club Uruguay',
     },
-    invitacionDigital: {
+    invitacionConfig: {
       galeriaFotos: ['https://example.com/foto1.jpg', 'https://example.com/foto2.jpg'],
     },
     googleReviewRequested: false,
@@ -88,6 +88,17 @@ describe('Orden: La reseña de Google y el panel que trabaja solo', () => {
 
       expect(feedbackPageSource).toContain('Lamentamos no haber alcanzado tus expectativas al 100%');
       expect(feedbackPageSource).toContain('Nuestro equipo se va a contactar con vos');
+    });
+
+    it('enviarPedidoDeResena y saveFeedback no filtran por calificación (sin gatekeeping en el servidor)', () => {
+      const feedbackActionsSource = fs.readFileSync(
+        path.join(process.cwd(), 'src/app/actions/feedback.ts'),
+        'utf8'
+      );
+
+      expect(feedbackActionsSource).not.toContain('feedback.npsScore ?? 0) < 9');
+      expect(feedbackActionsSource).not.toContain('newFeedback.npsScore ?? 0) >= 9');
+      expect(feedbackActionsSource).toContain('esDetractor');
     });
   });
 
