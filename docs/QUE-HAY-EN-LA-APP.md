@@ -41,6 +41,9 @@ muestre**. Esa distinción es la que más veces falló.
 | Recuerdo de cada invitado (video vertical para historias) | Sí | Enlace personal del invitado / Recap de la mañana |
 | Transmisión en vivo | Sí | Pantalla de la fiesta en vivo |
 | Centro de presencia digital | Sí | Empresa → Presencia digital |
+| Comentarios de redes e IA | Sí | Empresa → Presencia digital → solapa "Comentarios de redes" |
+| Moderación de comentarios y quejas | Sí | Empresa → Presencia digital → solapa "Comentarios de redes" |
+| Capturas de pantalla en testimonios | Sí | Ajustes → Feedback & Testimonios y carrusel público |
 | Tu página web (Google Analytics 4) | Sí | Empresa → Presencia digital → solapa "Tu página web" |
 | Ficha de Google conectada y verificada | Sí | Empresa → Presencia digital → solapa "Ficha de Google" |
 | Soporte Pinterest, Threads y X | Sí | Empresa → Presencia digital y Ajustes → Redes sociales |

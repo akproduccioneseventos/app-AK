@@ -31,5 +31,6 @@ export interface Testimonial {
   clientName: string;
   testimonialText: string;
   isApproved: boolean;
+  screenshotUrl?: string;
   createdAt: string; // ISO Date String
 }

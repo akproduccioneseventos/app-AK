@@ -23,6 +23,7 @@ export interface TestimonioParaMostrar {
   source: string;
   text: string;
   date?: string;
+  screenshotUrl?: string;
 }
 
 function formatearMes(fechaIso?: string): string | undefined {
@@ -56,6 +57,7 @@ export function testimoniosParaMostrar(
     authorName: testimonio.clientName?.trim() || 'Cliente de AK',
     source: 'text',
     text: testimonio.testimonialText.trim(),
+    screenshotUrl: testimonio.screenshotUrl,
     date: formatearMes(testimonio.createdAt),
   }));
 }

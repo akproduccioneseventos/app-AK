@@ -18,8 +18,8 @@ export type FuncionConCosto =
   | 'vendedor-virtual'
   | 'seguimiento-comercial'
   | 'material-post-evento'
-  | 'revision-diaria';
-
+  | 'revision-diaria'
+  | 'clasificacion-comentarios';
 
 /**
  * Costo estimado por generación, en pesos uruguayos.
@@ -37,6 +37,7 @@ export const COSTO_ESTIMADO_UYU: Record<FuncionConCosto, number> = {
   'seguimiento-comercial': 1,
   'material-post-evento': 2,
   'revision-diaria': 2,
+  'clasificacion-comentarios': 1,
 };
 
 /** Cuánto se avisa antes de llegar al tope. */

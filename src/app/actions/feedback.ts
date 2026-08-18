@@ -118,6 +118,18 @@ export async function updateTestimonialApproval(testimonialId: string, isApprove
   return { success: true };
 }
 
+export async function updateTestimonialScreenshot(testimonialId: string, screenshotUrl: string): Promise<{ success: boolean, error?: string }> {
+  await requireAppSession();
+  const allTestimonials = await getTestimonialsInternal();
+  const index = allTestimonials.findIndex(t => t.id === testimonialId);
+  if (index === -1) {
+    return { success: false, error: "Testimonio no encontrado." };
+  }
+  allTestimonials[index].screenshotUrl = screenshotUrl;
+  await writeData(TESTIMONIALS_FILE, allTestimonials, sortFn);
+  return { success: true };
+}
+
 export async function deleteTestimonial(testimonialId: string): Promise<{ success: boolean, error?: string }> {
   await requireAppSession();
   let allTestimonials = await getTestimonialsInternal();
