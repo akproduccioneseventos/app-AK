@@ -49,8 +49,19 @@ export async function saveFeedback(submission: Omit<FeedbackSubmission, 'id' | '
     timestamp: new Date().toISOString(),
   };
 
-  // Pedido automatico de resena en Google, solo a promotores (nota 9 o 10).
-  if ((newFeedback.npsScore ?? 0) >= 9 && !yaSeLePidioPorEstaFiesta(allFeedback, newFeedback.fiestaId)) {
+  /**
+   * Pedido de resena en Google: **se le pide a TODOS los clientes, sin mirar la
+   * nota**.
+   *
+   * Antes se pedia solo a los que ponian 9 o 10. Eso se llama filtrar resenas y
+   * Google lo sanciona **borrando todas las resenas del negocio**, no solo las
+   * filtradas, aunque el pedido sea amable y no se ofrezca nada a cambio. En una
+   * ciudad chica eso es la diferencia entre aparecer y desaparecer.
+   *
+   * Al que puso nota baja se le manda el mismo enlace, con un texto distinto que
+   * primero se hace cargo. No se le esconde.
+   */
+  if (!yaSeLePidioPorEstaFiesta(allFeedback, newFeedback.fiestaId)) {
     try {
       const company = await getCompanyInfo();
       if (company.enableGoogleReviewsAutoRequest && company.googleReviewsLink) {
@@ -146,10 +157,6 @@ async function enviarPedidoDeResena(feedback: FeedbackSubmission, company: Compa
   if (!company.googleReviewsLink) {
     return { success: false, error: "El enlace de Google no está configurado." };
   }
-  if ((feedback.npsScore ?? 0) < 9) {
-     return { success: false, error: "No se debe pedir reseña pública si la calificación es menor a 9." };
-  }
-
   // Get phone number from fiesta -> cliente
   const fiesta = await getFiestaById(feedback.fiestaId);
   if (!fiesta || !fiesta.configuracion.clienteId) {
@@ -165,7 +172,12 @@ async function enviarPedidoDeResena(feedback: FeedbackSubmission, company: Compa
     return { success: false, error: "WhatsApp no está configurado o está deshabilitado." };
   }
 
-  const messageText = `¡Hola ${feedback.clientName}! Muchas gracias por tus comentarios sobre la fiesta "${feedback.fiestaNombre}".\n\nNos alegra mucho que hayas disfrutado la experiencia. ¿Te animarías a compartir tu opinión en Google? Nos ayudaría muchísimo:\n\n${company.googleReviewsLink}\n\n¡Un abrazo grande de parte de todo el equipo!`;
+  // El mismo enlace para todos; cambia el tono segun lo que puso el cliente.
+  const quedoConforme = (feedback.npsScore ?? 0) >= 7;
+
+  const messageText = quedoConforme
+    ? `¡Hola ${feedback.clientName}! Muchas gracias por tus comentarios sobre la fiesta "${feedback.fiestaNombre}".\n\nNos alegra mucho que hayas disfrutado la experiencia. ¿Te animarías a compartir tu opinión en Google? Nos ayudaría muchísimo:\n\n${company.googleReviewsLink}\n\n¡Un abrazo grande de parte de todo el equipo!`
+    : `¡Hola ${feedback.clientName}! Gracias por tomarte el tiempo de contarnos cómo viviste la fiesta "${feedback.fiestaNombre}".\n\nHay cosas que no estuvieron a la altura y las queremos resolver: te vamos a llamar para escucharte bien.\n\nY si querés dejar tu opinión en Google, este es el enlace. Nos sirve tal cual la sientas:\n\n${company.googleReviewsLink}\n\nGracias de verdad.`;
 
   const delivery = await sendMetaWhatsAppMessage({
     to: telefono,
@@ -194,10 +206,6 @@ export async function requestGoogleReviewManual(feedbackId: string): Promise<{ s
   if (yaSeLePidioPorEstaFiesta(allFeedback, feedback.fiestaId)) {
     return { success: false, error: "Ya se le pidió la reseña a este cliente." };
   }
-  if ((feedback.npsScore ?? 0) < 9) {
-    return { success: false, error: "No se puede pedir reseña pública si la nota es menor a 9." };
-  }
-
   const company = await getCompanyInfo();
   if (!company.googleReviewsLink) {
     return { success: false, error: "El enlace de Google no está configurado en Ajustes de Empresa." };
