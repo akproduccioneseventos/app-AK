@@ -1,1 +1,12 @@
-{}
+{
+  "companyName": "AK Producciones",
+  "companyAddress": "Gaboto 3390, Salto, Uruguay",
+  "companyTaxId": "RUT 220372680019",
+  "companyContact": "akproduccionessalto@gmail.com",
+  "defaultDocumentNotes": "El presupuesto es válido por 30 días. Para asegurar el presupuesto debe abonar la seña acordada.",
+  "invoiceCustomFooter": "Información de pago: BROU Caja de Ahorro en Pesos / Santander.\nConsulte por otros métodos de pago.",
+  "signatureUrl": null,
+  "cuentasBancariasPortal": [],
+  "googleReviewsLink": "",
+  "enableGoogleReviewsAutoRequest": true
+}
