@@ -137,8 +137,8 @@ export async function saveMetaPublishingCredentials(params: {
     const igConn: SocialConnection = {
       platform: 'Instagram',
       isConnected: true,
-      username: '@akproduccioneseventos',
-      profileUrl: 'https://instagram.com/akproduccioneseventos',
+      username: '@akproduccionesfiestasyeventos',
+      profileUrl: 'https://www.instagram.com/akproduccionesfiestasyeventos/',
       pageId,
       pageAccessToken,
       instagramAccountId,

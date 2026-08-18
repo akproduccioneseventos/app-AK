@@ -56,7 +56,11 @@ interface WinSechWidgetsProps {
 }
 
 export function WinSechWidgets({
+<<<<<<< HEAD
   instagramUrl = AK_SOCIAL_LINKS.instagram,
+=======
+  instagramUrl = 'https://www.instagram.com/akproduccionesfiestasyeventos/',
+>>>>>>> origin/main
   instagramHandle = '@akproduccionesfiestasyeventos',
 }: WinSechWidgetsProps) {
   const [currentIdx, setCurrentIdx] = useState(0);

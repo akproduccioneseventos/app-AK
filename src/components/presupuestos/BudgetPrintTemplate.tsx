@@ -21,7 +21,7 @@ const COMPANY_CONTACT_PERSON = 'SR. Alexander Knuth';
 const COMPANY_ADDRESS_LINE1 = 'Salto';
 const COMPANY_ADDRESS_LINE2 = '50000 Salto';
 const COMPANY_EMAIL = 'akproduccionessalto@gmail.com';
-const COMPANY_WEBSITE = 'www.akproduccioneseventos.com';
+const COMPANY_WEBSITE = 'www.akproducciones.uy';
 const BUDGET_VALIDITY_DAYS = 30;
 const FORMAL_BOOKING_NOTE =
   'El presupuesto es valido por 30 dias. Durante este mes podes reservar la fecha con una sena de $ 5.000; la contratacion final se confirma con el contrato correspondiente.';
