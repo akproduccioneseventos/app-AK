@@ -244,6 +244,26 @@ El dueño trabaja con plan Pro y necesita que el consumo rinda. Administrar siem
 - Filtrar la salida de comandos largos (`| tail -15`) en vez de volcarla completa.
 - Respuestas al usuario: directas y sin relleno.
 
+### PARAR Y PREGUNTAR (orden del dueño, 17 de agosto de 2026)
+
+**Cuando te trabás, PARÁS Y PREGUNTÁS.** No seguís probando. El dueño lo pidió
+después de una sesión de tres horas donde el tiempo se fue en esperar
+compilaciones y reparar entregas rotas.
+
+Trabado quiere decir: algo falló dos veces, o llevás más de quince minutos en el
+mismo punto, o hay que elegir entre dos caminos y ninguno es obvio.
+
+En esos casos, **dos líneas al dueño y esperás**. Nada de "una prueba más".
+
+**Y dos cosas que se hacen siempre, sin excepción:**
+
+- **El modelo principal NO corre compilaciones ni pruebas.** Van a los ayudantes
+  económicos desde el primer minuto, en paralelo. Esperar un build sentado es la
+  forma más cara de perder el tiempo.
+- **Una entrega que no compila se devuelve enseguida**, con el detalle de qué
+  está mal. No se repara, salvo que sea una línea. Reparar el trabajo de otra IA
+  lo paga el dueño dos veces.
+
 ### PARAR ANTE UN MURO (regla dura)
 
 Pasó una vez: hora y media y todos los tokens del día quemados persiguiendo un
