@@ -6,8 +6,11 @@
  * 4. Alerta de inactividad cuando hace días que no se publica.
  */
 
-import { procesarPosteosProgramados } from '@/app/api/cron/publicar-programados/route';
-import { getNetworkAttributionReport, publishPostInternal } from '@/app/actions/presencia-digital';
+import {
+  procesarPosteosProgramados,
+  publishPostInternal,
+} from '@/lib/presencia-digital/publicador';
+import { getNetworkAttributionReport } from '@/app/actions/presencia-digital';
 import * as dataService from '@/lib/data-service';
 import * as aiConsumo from '@/lib/ai/consumo-servidor';
 import * as marketingAgent from '@/ai/flows/marketing-agent-flow';
