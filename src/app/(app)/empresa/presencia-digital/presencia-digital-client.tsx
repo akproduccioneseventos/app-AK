@@ -27,6 +27,18 @@ import {
   type CommentsDashboardResponse,
 } from '@/app/actions/comentarios-redes';
 import {
+  getDirectoriosAltasAction,
+  toggleDirectorioItemAction,
+  getFiestasSeguimientoResenasAction,
+  marcarResenaSolicitadaAction,
+  triggerAutoGeneracionSemanalAction,
+} from '@/app/actions/presencia-digital-auto';
+import type { DirectorioItem, DirectorioAltasResumen } from '@/types/directorio-altas';
+import type {
+  FiestaSeguimientoResena,
+  ResenasSeguimientoResumen,
+} from '@/lib/presencia-digital/resenas-seguimiento';
+import {
   Users,
   TrendingUp,
   DollarSign,
@@ -52,6 +64,12 @@ import {
   ShieldCheck,
   RefreshCw,
   MessageCircle,
+  Building2,
+  CheckSquare,
+  Square,
+  Star,
+  MessageSquarePlus,
+  Wand2,
 } from 'lucide-react';
 
 interface Props {
@@ -62,7 +80,7 @@ interface Props {
 export function PresenciaDigitalClient({ initialData, initialPosts }: Props) {
   const [data, setData] = useState<DigitalPresenceDashboardData>(initialData);
   const [posts, setPosts] = useState<SocialPost[]>(initialPosts);
-  const [activeTab, setActiveTab] = useState<'revision' | 'comentarios' | 'web' | 'atribucion' | 'ads' | 'google_ficha' | 'publicaciones' | 'historial'>('revision');
+  const [activeTab, setActiveTab] = useState<'revision' | 'comentarios' | 'web' | 'directorios' | 'atribucion' | 'ads' | 'google_ficha' | 'publicaciones' | 'historial'>('revision');
   const [publishingId, setPublishingId] = useState<string | null>(null);
   const [publishFeedback, setPublishFeedback] = useState<{
     success: boolean;
@@ -73,6 +91,16 @@ export function PresenciaDigitalClient({ initialData, initialPosts }: Props) {
   const [attributionReport, setAttributionReport] = useState<NetworkAttributionReport | null>(null);
   const [loadingAttribution, setLoadingAttribution] = useState(false);
   const [creatingSuggestion, setCreatingSuggestion] = useState(false);
+  const [generatingWeekly, setGeneratingWeekly] = useState(false);
+
+  // Estado para el Tablero de Altas (16 directorios)
+  const [directoriosData, setDirectoriosData] = useState<DirectorioAltasResumen | null>(null);
+  const [loadingDirectorios, setLoadingDirectorios] = useState<boolean>(false);
+  const [filtroTipoDirectorio, setFiltroTipoDirectorio] = useState<'todos' | 'gratis' | 'pago'>('todos');
+
+  // Estado para Seguimiento de Reseñas por Fiesta (últimos 30 días)
+  const [resenasData, setResenasData] = useState<ResenasSeguimientoResumen | null>(null);
+  const [loadingResenas, setLoadingResenas] = useState<boolean>(false);
 
   // Estado para la solapa "Comentarios de redes" (Bloque 4)
   const [commentsData, setCommentsData] = useState<CommentsDashboardResponse['data'] | null>(null);
@@ -237,6 +265,115 @@ export function PresenciaDigitalClient({ initialData, initialPosts }: Props) {
   const handlePeriodChange = (period: NetworkAttributionPeriod) => {
     setAttributionPeriod(period);
     loadAttribution(period);
+  };
+
+  // Carga de Directorios (Tablero de Altas)
+  const loadDirectorios = useCallback(async () => {
+    setLoadingDirectorios(true);
+    try {
+      const res = await getDirectoriosAltasAction();
+      if (res.success && res.data) {
+        setDirectoriosData(res.data);
+      }
+    } catch {
+      //
+    } finally {
+      setLoadingDirectorios(false);
+    }
+  }, []);
+
+  useEffect(() => {
+    if (activeTab === 'directorios' && !directoriosData) {
+      loadDirectorios();
+    }
+  }, [activeTab, directoriosData, loadDirectorios]);
+
+  const handleToggleDirectorio = async (id: string, completado: boolean) => {
+    try {
+      const res = await toggleDirectorioItemAction(id, completado);
+      if (res.success && res.data) {
+        setDirectoriosData(res.data);
+      }
+    } catch {
+      //
+    }
+  };
+
+  // Carga de Seguimiento de Reseñas por Fiesta (últimos 30 días)
+  const loadResenas = useCallback(async () => {
+    setLoadingResenas(true);
+    try {
+      const res = await getFiestasSeguimientoResenasAction();
+      if (res.success && res.data) {
+        setResenasData(res.data);
+      }
+    } catch {
+      //
+    } finally {
+      setLoadingResenas(false);
+    }
+  }, []);
+
+  useEffect(() => {
+    if (activeTab === 'google_ficha' && !resenasData) {
+      loadResenas();
+    }
+  }, [activeTab, resenasData, loadResenas]);
+
+  const handleMarcarResenaSolicitada = async (fiestaId: string, whatsappUrl?: string) => {
+    if (whatsappUrl) {
+      window.open(whatsappUrl, '_blank');
+    }
+    try {
+      await marcarResenaSolicitadaAction(fiestaId);
+      setResenasData((prev) => {
+        if (!prev) return prev;
+        return {
+          ...prev,
+          fiestas: prev.fiestas.map((f) =>
+            f.id === fiestaId ? { ...f, reviewRequested: true, reviewRequestedAt: new Date().toISOString() } : f
+          ),
+          pedidas: prev.pedidas + 1,
+          pendientes: Math.max(0, prev.pendientes - 1),
+        };
+      });
+    } catch {
+      //
+    }
+  };
+
+  // Autogenerador Semanal de Redes
+  const handleAutoGenerarSemanal = async () => {
+    setGeneratingWeekly(true);
+    try {
+      const res = await triggerAutoGeneracionSemanalAction();
+      if (res.success && res.data) {
+        if (res.data.createdCount > 0) {
+          setPosts((prev) => [...(res.data?.posts || []), ...prev]);
+          setPublishFeedback({
+            success: true,
+            message: `¡Se crearon ${res.data.createdCount} propuestas en borrador para la semana! (${res.data.tipoOrigen === 'fiesta_reciente' ? 'Fotos de fiesta reciente' : 'Preguntas frecuentes'})`,
+          });
+        } else {
+          setPublishFeedback({
+            success: false,
+            message: res.data.motivo || 'No se encontraron fotos en las fiestas para armar posteos.',
+          });
+        }
+      } else {
+        setPublishFeedback({
+          success: false,
+          message: res.error || 'Error al generar publicaciones automáticas.',
+        });
+      }
+    } catch (err: any) {
+      setPublishFeedback({
+        success: false,
+        message: err.message || 'Error al generar publicaciones.',
+      });
+    } finally {
+      setGeneratingWeekly(false);
+    }
   };
 
   const kpis = data.kpis;
@@ -412,6 +549,31 @@ export function PresenciaDigitalClient({ initialData, initialPosts }: Props) {
         </div>
       )}
 
+      {/* BLOQUE 3: ALERTA DE PUNTAJE DE GOOGLE MENOR A 4.0 */}
+      {kpis.googleRating !== null && kpis.googleRating < 4.0 && (
+        <div className="p-4 md:p-5 bg-rose-950/60 border border-rose-800/80 rounded-2xl flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
+          <div className="flex items-center gap-3 text-rose-200 text-sm">
+            <div className="p-2 bg-rose-500/20 rounded-xl text-rose-400 shrink-0">
+              <ShieldAlert className="w-6 h-6" />
+            </div>
+            <div>
+              <p className="font-bold text-white text-base">
+                ⚠️ Alerta: Tu puntaje en Google bajó a {kpis.googleRating.toFixed(1)} estrellas
+              </p>
+              <p className="text-xs text-rose-300/90 mt-0.5">
+                El 87% de las familias no contacta a empresas con menos de 4 estrellas. Pedir una reseña por fiesta a los clientes de este mes es la forma más rápida y honesta de recuperarlo.
+              </p>
+            </div>
+          </div>
+          <button
+            onClick={() => setActiveTab('google_ficha')}
+            className="px-4 py-2 bg-rose-500 hover:bg-rose-400 text-slate-950 font-bold text-xs rounded-xl shadow transition shrink-0"
+          >
+            Ver a quién pedirle
+          </button>
+        </div>
+      )}
+
       {/* Notificación de feedback */}
       {publishFeedback && (
         <div
@@ -474,6 +636,17 @@ export function PresenciaDigitalClient({ initialData, initialPosts }: Props) {
           }`}
         >
           <MapPin className="w-4 h-4" /> Ficha de Google
+        </button>
+
+        <button
+          onClick={() => setActiveTab('directorios')}
+          className={`px-4 py-2 text-sm font-bold rounded-xl transition whitespace-nowrap flex items-center gap-2 ${
+            activeTab === 'directorios'
+              ? 'bg-blue-500 text-white shadow-md shadow-blue-500/20'
+              : 'bg-slate-900 text-slate-400 hover:text-slate-200'
+          }`}
+        >
+          <Building2 className="w-4 h-4" /> Tablero de altas (16)
         </button>
 
         <button
@@ -583,6 +756,29 @@ export function PresenciaDigitalClient({ initialData, initialPosts }: Props) {
               </div>
             </div>
           </div>
+
+          {/* Bloque 5: Llenar el calendario de la semana automáticamente */}
+          <div className="p-5 md:p-6 bg-slate-900/90 border border-slate-800 rounded-2xl flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
+            <div className="space-y-1">
+              <h3 className="text-sm font-bold text-white flex items-center gap-2">
+                <Wand2 className="w-4 h-4 text-purple-400" />
+                Llenar la semana de publicaciones automáticamente
+              </h3>
+              <p className="text-xs text-slate-400 max-w-xl leading-relaxed">
+                Si hubo fiestas recientes toma las fotos del evento. En semanas tranquilas prepara propuestas educativas con preguntas frecuentes (precios, salones, reservas). Todo queda en borrador para tu visto bueno.
+              </p>
+            </div>
+
+            <button
+              onClick={handleAutoGenerarSemanal}
+              disabled={generatingWeekly}
+              className="px-4 py-2.5 bg-purple-600 hover:bg-purple-500 text-white font-bold text-xs rounded-xl shadow-lg shadow-purple-500/20 transition flex items-center gap-2 shrink-0 disabled:opacity-50"
+            >
+              <Wand2 className={`w-3.5 h-3.5 ${generatingWeekly ? 'animate-spin' : ''}`} />
+              {generatingWeekly ? 'Generando propuestas...' : 'Armar borradores de la semana'}
+            </button>
+          </div>
+
           {/* Publicación con mejor rendimiento */}
           {review.topPost && (
             <div className="p-5 bg-slate-900/90 border border-slate-800 rounded-2xl space-y-3">
@@ -974,13 +1170,240 @@ export function PresenciaDigitalClient({ initialData, initialPosts }: Props) {
         </div>
       )}
 
-      {/* PESTAÑA: FICHA DE GOOGLE (Bloque 3) */}
+      {/* PESTAÑA: FICHA DE GOOGLE Y PEDIDO DE RESEÑAS (Bloque 1, 2 y 3) */}
       {activeTab === 'google_ficha' && (
         <div className="space-y-6">
           <GoogleBusinessProfileWidget
             rating={kpis.googleRating}
             reviewsCount={kpis.googleReviewsCount}
           />
+
+          {/* Bloque 2: Fiestas de los últimos 30 días para pedir reseña */}
+          <div className="p-5 md:p-6 bg-slate-900/90 border border-slate-800 rounded-2xl space-y-5">
+            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+              <div>
+                <h2 className="text-base font-bold text-white flex items-center gap-2">
+                  <Star className="w-5 h-5 text-amber-400 fill-amber-400" />
+                  Pedir una reseña por fiesta (Últimos 30 días)
+                </h2>
+                <p className="text-xs text-slate-400 mt-1">
+                  Regla de oro: una reseña por fiesta terminada, a todos los clientes por igual y sin premio ni sorteo.
+                </p>
+              </div>
+
+              {resenasData && (
+                <div className="flex items-center gap-2 text-xs font-bold">
+                  <span className="px-2.5 py-1 bg-amber-500/10 text-amber-300 border border-amber-500/20 rounded-lg">
+                    {resenasData.pedidas} pedidas
+                  </span>
+                  <span className="px-2.5 py-1 bg-slate-800 text-slate-300 rounded-lg">
+                    {resenasData.pendientes} pendientes
+                  </span>
+                </div>
+              )}
+            </div>
+
+            {loadingResenas ? (
+              <div className="p-8 text-center text-slate-400 text-xs">
+                Cargando fiestas recientes...
+              </div>
+            ) : resenasData && resenasData.fiestas.length > 0 ? (
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-3.5">
+                {resenasData.fiestas.map((f) => (
+                  <div
+                    key={f.id}
+                    className="p-4 bg-slate-950/70 border border-slate-800 rounded-xl space-y-3 flex flex-col justify-between"
+                  >
+                    <div className="space-y-1.5">
+                      <div className="flex items-center justify-between gap-2">
+                        <span className="text-xs font-bold text-white truncate">
+                          {f.nombreEvento}
+                        </span>
+                        <span className="text-[11px] text-slate-400 shrink-0">
+                          Hace {f.diasDesdeEvento} {f.diasDesdeEvento === 1 ? 'día' : 'días'}
+                        </span>
+                      </div>
+                      <div className="text-xs text-slate-400">
+                        Cliente: <span className="text-slate-200 font-medium">{f.clienteNombre}</span>
+                        {f.clienteTelefono && (
+                          <span className="text-slate-500 ml-1.5 font-mono">({f.clienteTelefono})</span>
+                        )}
+                      </div>
+                    </div>
+
+                    <div className="pt-2 border-t border-slate-800/80 flex items-center justify-between gap-2">
+                      <div className="text-[11px]">
+                        {f.feedbackCompleted ? (
+                          <span className="text-emerald-400 font-bold flex items-center gap-1">
+                            <CheckCircle2 className="w-3.5 h-3.5" /> Opinión enviada {f.npsScore ? `(NPS ${f.npsScore})` : ''}
+                          </span>
+                        ) : f.reviewRequested ? (
+                          <span className="text-amber-400/90 font-medium flex items-center gap-1">
+                            ✓ Solicitud enviada
+                          </span>
+                        ) : (
+                          <span className="text-slate-400 font-medium">
+                            Pendiente de pedir
+                          </span>
+                        )}
+                      </div>
+
+                      <button
+                        onClick={() => handleMarcarResenaSolicitada(f.id, f.whatsappUrl)}
+                        className={`px-3 py-1.5 text-xs font-bold rounded-lg transition flex items-center gap-1.5 shadow ${
+                          f.reviewRequested
+                            ? 'bg-slate-800 hover:bg-slate-700 text-slate-300'
+                            : 'bg-emerald-600 hover:bg-emerald-500 text-white'
+                        }`}
+                      >
+                        <MessageSquarePlus className="w-3.5 h-3.5" />
+                        {f.reviewRequested ? 'Reenviar WhatsApp' : 'Pedir por WhatsApp'}
+                      </button>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            ) : (
+              <div className="p-6 bg-slate-950/60 border border-slate-800 rounded-xl text-center space-y-2">
+                <p className="text-xs text-slate-400">
+                  No hay fiestas finalizadas registradas en los últimos 30 días.
+                </p>
+              </div>
+            )}
+          </div>
+        </div>
+      )}
+
+      {/* PESTAÑA: TABLERO DE ALTAS EN DIRECTORIOS (Bloque 4) */}
+      {activeTab === 'directorios' && (
+        <div className="space-y-6">
+          <div className="p-5 md:p-6 bg-slate-900/90 border border-slate-800 rounded-2xl space-y-5">
+            <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
+              <div>
+                <h2 className="text-base font-bold text-white flex items-center gap-2">
+                  <Building2 className="w-5 h-5 text-blue-400" />
+                  Tablero de Altas en 16 Directorios
+                </h2>
+                <p className="text-xs text-slate-400 mt-1">
+                  Lugares clave de Salto y Uruguay para registrar a AK Producciones y asegurar presencia comercial sólida.
+                </p>
+              </div>
+
+              {directoriosData && (
+                <div className="flex items-center gap-3 bg-slate-950 p-3 rounded-xl border border-slate-800 shrink-0">
+                  <div className="text-right">
+                    <div className="text-xs text-slate-400">Progreso</div>
+                    <div className="text-sm font-black text-blue-400">
+                      {directoriosData.completados} de {directoriosData.total} ({directoriosData.porcentaje}%)
+                    </div>
+                  </div>
+                  <div className="w-20 h-2 bg-slate-800 rounded-full overflow-hidden">
+                    <div
+                      className="h-full bg-blue-500 transition-all duration-300"
+                      style={{ width: `${directoriosData.porcentaje}%` }}
+                    />
+                  </div>
+                </div>
+              )}
+            </div>
+
+            {/* Filtros */}
+            <div className="flex items-center gap-2 border-b border-slate-800 pb-3">
+              {(['todos', 'gratis', 'pago'] as const).map((tipo) => (
+                <button
+                  key={tipo}
+                  onClick={() => setFiltroTipoDirectorio(tipo)}
+                  className={`px-3 py-1.5 text-xs font-bold rounded-lg transition ${
+                    filtroTipoDirectorio === tipo
+                      ? 'bg-blue-600 text-white shadow'
+                      : 'text-slate-400 hover:text-slate-200'
+                  }`}
+                >
+                  {tipo === 'todos'
+                    ? 'Todos (16)'
+                    : tipo === 'gratis'
+                    ? 'Gratuitos (10)'
+                    : 'Con costo / Cuota (6)'}
+                </button>
+              ))}
+            </div>
+
+            {loadingDirectorios ? (
+              <div className="p-8 text-center text-slate-400 text-xs">
+                Cargando directorios...
+              </div>
+            ) : directoriosData ? (
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-3.5">
+                {directoriosData.items
+                  .filter((item) => filtroTipoDirectorio === 'todos' || item.tipo === filtroTipoDirectorio)
+                  .map((dir) => (
+                    <div
+                      key={dir.id}
+                      className={`p-4 rounded-xl border transition flex flex-col justify-between space-y-3 ${
+                        dir.completado
+                          ? 'bg-slate-950/40 border-emerald-500/30'
+                          : 'bg-slate-950/80 border-slate-800'
+                      }`}
+                    >
+                      <div className="space-y-2">
+                        <div className="flex items-start justify-between gap-3">
+                          <button
+                            onClick={() => handleToggleDirectorio(dir.id, !dir.completado)}
+                            className="flex items-center gap-2.5 text-left group"
+                          >
+                            {dir.completado ? (
+                              <CheckSquare className="w-5 h-5 text-emerald-400 shrink-0" />
+                            ) : (
+                              <Square className="w-5 h-5 text-slate-500 group-hover:text-slate-300 shrink-0" />
+                            )}
+                            <span
+                              className={`text-sm font-bold transition ${
+                                dir.completado
+                                  ? 'text-emerald-300 line-through opacity-80'
+                                  : 'text-white'
+                              }`}
+                            >
+                              {dir.nombre}
+                            </span>
+                          </button>
+
+                          <span
+                            className={`px-2 py-0.5 rounded text-[10px] font-bold uppercase tracking-wider shrink-0 ${
+                              dir.tipo === 'gratis'
+                                ? 'bg-emerald-500/10 text-emerald-300 border border-emerald-500/20'
+                                : 'bg-purple-500/10 text-purple-300 border border-purple-500/20'
+                            }`}
+                          >
+                            {dir.tipo === 'gratis' ? 'Gratis' : 'Cuota / Pago'}
+                          </span>
+                        </div>
+
+                        <p className="text-xs text-slate-400 leading-relaxed pl-7">
+                          {dir.descripcion}
+                        </p>
+                      </div>
+
+                      <div className="pt-2 border-t border-slate-800/60 flex items-center justify-between pl-7">
+                        <span className="text-[11px] text-slate-500">
+                          {dir.completado && dir.completadoAt
+                            ? `Completado: ${new Date(dir.completadoAt).toLocaleDateString('es-UY')}`
+                            : 'Pendiente de registrar'}
+                        </span>
+
+                        <a
+                          href={dir.url}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className="text-xs text-blue-400 hover:text-blue-300 font-bold flex items-center gap-1"
+                        >
+                          Ir al sitio <ExternalLink className="w-3 h-3" />
+                        </a>
+                      </div>
+                    </div>
+                  ))}
+              </div>
+            ) : null}
+          </div>
         </div>
       )}
 

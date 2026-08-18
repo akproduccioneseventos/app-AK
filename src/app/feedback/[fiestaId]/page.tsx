@@ -151,18 +151,54 @@ function FeedbackContent({ fiestaId }: { fiestaId: string | null }) {
   }
   
   if (isSubmitted) {
-    const npsLabel = npsScore !== undefined
-      ? npsScore >= 9 ? '🏆 ¡Promotor! Gracias por tu apoyo.'
-      : npsScore >= 7 ? '😊 Gracias por tu opinión.'
-      : '🙏 Gracias. Trabajaremos para mejorar.'
-      : '';
+    const isDetractor = npsScore !== undefined && npsScore < 7;
+    const googleReviewsUrl = 'https://g.page/r/CUagrfscj_5yEAE/review';
+
     return (
-      <div className="flex items-center justify-center min-h-screen bg-green-50">
-        <Card className="w-full max-w-lg text-center shadow-2xl p-8">
-          <CheckCircle className="w-20 h-20 mx-auto text-green-500 mb-4" />
-          <CardTitle className="text-3xl font-bold font-headline text-green-700">¡Gracias por tus Comentarios!</CardTitle>
-          <CardDescription className="text-lg mt-2 text-muted-foreground">Tu opinión es muy valiosa para nosotros y nos ayuda a mejorar.</CardDescription>
-          {npsLabel && <p className="text-sm text-green-600 mt-4 font-semibold">{npsLabel}</p>}
+      <div className="flex flex-col items-center justify-center min-h-screen bg-gradient-to-b from-slate-50 to-amber-50/40 p-4">
+        <Card className="w-full max-w-lg text-center shadow-2xl p-6 sm:p-8 border-slate-200">
+          <CheckCircle className="w-16 h-16 mx-auto text-emerald-500 mb-3" />
+          <CardTitle className="text-2xl sm:text-3xl font-bold font-headline text-slate-900">
+            ¡Gracias por tus comentarios!
+          </CardTitle>
+          <CardDescription className="text-base mt-2 text-slate-600">
+            Tu opinión es muy valiosa para nosotros y nos ayuda a cuidar cada detalle en Salto.
+          </CardDescription>
+
+          {isDetractor && (
+            <div className="mt-4 p-3.5 bg-amber-50 border border-amber-200 rounded-xl text-xs text-amber-900 text-left">
+              <p className="font-bold">Lamentamos no haber alcanzado tus expectativas al 100%.</p>
+              <p className="mt-1 text-slate-600">
+                Nuestro equipo se va a contactar con vos para revisar lo ocurrido y resolver cualquier punto pendiente.
+              </p>
+            </div>
+          )}
+
+          {/* Bloque de reseña de Google: visible para TODOS */}
+          <div className="mt-6 pt-6 border-t border-slate-200 text-center space-y-3">
+            <div className="flex items-center justify-center gap-1.5 text-amber-500 mb-1">
+              {[...Array(5)].map((_, i) => (
+                <Star key={i} className="w-5 h-5 fill-amber-400 text-amber-400" />
+              ))}
+            </div>
+            <h3 className="font-bold text-slate-900 text-base sm:text-lg">
+              ¿Nos ayudás con una reseña en Google?
+            </h3>
+            <p className="text-xs sm:text-sm text-slate-600 max-w-sm mx-auto">
+              Es un minuto y es lo que más nos ayuda a que otras familias de Salto nos encuentren.
+            </p>
+            <div className="pt-2">
+              <a
+                href={googleReviewsUrl}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="inline-flex items-center justify-center gap-2 w-full py-3.5 px-6 bg-amber-500 hover:bg-amber-400 text-slate-950 font-bold text-sm rounded-xl shadow-lg shadow-amber-500/20 transition"
+              >
+                <Star className="w-4 h-4 fill-slate-950" />
+                Dejar mi reseña en Google
+              </a>
+            </div>
+          </div>
         </Card>
       </div>
     );

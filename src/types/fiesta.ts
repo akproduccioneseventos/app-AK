@@ -1462,6 +1462,8 @@ export interface FiestaEnPlanificacion {
   galeriaEntregada?: boolean;     // Whether photo gallery was delivered to client
   galeriaUrl?: string;            // URL to delivered gallery
   postEventoCompletado?: boolean; // Post-event process completed flag
+  googleReviewRequested?: boolean;   // Si ya se envió la solicitud de reseña/opinión por WhatsApp
+  googleReviewRequestedAt?: string; // Fecha en que se solicitó la reseña
   screenPlaylist?: ScreenPlaylist;
   mediaLibrary?: MediaLibraryItem[];
   cateringChangeRequests?: CateringChangeRequest[];
