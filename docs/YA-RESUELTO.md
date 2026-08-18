@@ -2139,6 +2139,28 @@ la empresa. El cliente que la escribía no llegaba a ningún lado, **justo en el
 momento en que está mirando el precio y decidiendo**. Ahora figura
 `www.akproducciones.uy` en los cuatro lugares, con una prueba que lo controla.
 
+## La tanda del posicionamiento (18 de agosto de 2026)
+
+- **La entrega llegó con marcas de conflicto sin resolver** dentro de un archivo de
+  la web pública. No compilaba. Se arregló: se dejó la versión que usa la lista
+  única de cuentas oficiales.
+- **La tarjeta de la ficha de Google inventaba datos.** Traía un cartel fijo que
+  decía "Ficha Verificada en Google", un identificador de Google escrito a mano y
+  un enlace de reseñas con un código que nadie pudo confirmar. Es el mismo error
+  de los números inventados del panel de redes. Ahora: si no hay puntaje medido lo
+  dice, y el enlace para pedir reseñas sale de Ajustes. Hay una prueba que lo
+  controla.
+- **Los testimonios de las páginas de venta eran inventados y se sacaron.** No es
+  una cuestión de estilo: la ley uruguaya de defensa del consumidor prohíbe la
+  publicidad falsa **y pone la carga de la prueba en el anunciante**. Si se
+  denuncia, hay que demostrar que el cliente y el evento existieron. **No se
+  vuelven a poner testimonios que no se puedan probar.**
+- **Los accesos de Google Analytics van por configuración del servidor**, nunca en
+  un archivo del repositorio. Verificado en esta entrega.
+- **Pinterest, X y Threads quedaron en modo "listo para copiar"**, igual que
+  TikTok. Publicar automático en X se paga y Pinterest exige aprobación: no es una
+  falta, es la decisión correcta.
+
 ## Cómo agregar algo a esta lista
 
 **Se anota SIEMPRE, en la misma propuesta que toca el código.** Orden del dueño
