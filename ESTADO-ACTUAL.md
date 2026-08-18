@@ -7,66 +7,76 @@ Quien cierre una sesión reescribe este archivo. Se pisa, no se acumula.
 
 ---
 
-**Última actualización:** 17 de agosto de 2026, cierre.
-**Estado de la app:** sana. Verificada sobre `main` **después** de fusionar:
-acentos limpios, tipos en cero, 1740 pruebas, compila, 20 de seguridad de la base.
-**Propuestas abiertas:** ninguna. **Órdenes pendientes:** ninguna.
+**Última actualización:** 18 de agosto de 2026.
+**Estado de la app:** sana. Verificada sobre `main` después de fusionar: acentos
+limpios, tipos en cero, 1780 pruebas, compila, 20 de seguridad de la base.
+**Propuestas abiertas:** ninguna.
+**Orden vigente para Gemini:** `docs/ordenes/ahora.md` — el panel de presencia
+digital, cuatro bloques, **una sola propuesta**.
 
-## Está todo hecho y todo auditado
+## Lo que sigue, por orden
 
-Las diecisiete mejoras del plan, y **por primera vez toda la app revisada**: se
-barrieron las carpetas de pantallas una por una, no sólo los módulos grandes.
+1. **Gemini tiene que hacer la orden de `docs/ordenes/ahora.md`.** Ya está
+   escrita, con la lista de lo que existe y no debe rehacer.
+2. **Cuando entregue, revisarla** con la habilidad `revisar-pr`. Ojo especial:
+   que nada se publique sin que el dueño haya aprobado ese posteo.
+3. **Lo del dueño** (no lo puede hacer una IA, es en su aplicación andando):
+   pegar el enlace de reseñas de Google en Ajustes → Empresa y prenderlo, dar el
+   aviso a Google desde su panel, prender el recontacto y el asistente de ventas,
+   y poner el tope de gasto mensual si quiere.
 
-## Lo que apareció en ese barrido (todo arreglado)
+## Lo hecho el 18 de agosto
 
-- **Cuatro páginas de venta no las podía abrir nadie.** Bodas, quince,
-  cumpleaños y la experiencia AK: se le ofrecen a Google, pero el sistema mandaba
-  al visitante a la pantalla de contraseña. El prospecto que llegaba desde Google
-  o desde un enlace de WhatsApp veía un formulario de ingreso.
-- **El QR de la fiesta tampoco funcionaba**: el invitado lo escaneaba y caía en
-  el login. Igual la demostración de tecnología que enlaza la presentación LED.
-- **Doce pantallas del equipo entraban con una cookie inventada**, entre ellas
-  finanzas, ventas, la lista de invitados de la puerta y los números del negocio.
+- **El panel de redes mostraba números inventados.** 1420 seguidores, 5240 de
+  alcance, 4,9 de puntaje en Google con 38 opiniones: todos escritos a mano, y la
+  tarea diaria los guardaba como si fueran medidos. Ahora lo que no se midió va
+  vacío y dice "sin dato".
+- **Los nueve permisos "generales" de los accesos de colaborador se sacaron.** No
+  funcionaban: el colaborador tocaba el botón y caía en el login. Se eligió
+  sacarlos y no abrirlos, porque abrirlos era dejar entrar con un enlace, sin
+  cuenta, a la contabilidad y a la base de clientes.
+- **Se verificaron las diez integraciones del informe 360.** Cuatro andan, dos
+  esperan una clave, cuatro y media no existen. Está en
+  `docs/QUE-HAY-EN-LA-APP.md`.
 
-## Lo que falta, y es del dueño
+## Lo que se descubrió y NO está resuelto
 
-- Pegar el enlace de reseñas de Google en Ajustes → Empresa y prender el
-  interruptor. Sin eso las reseñas están hechas pero no sale ninguna.
-- Dar el aviso a Google desde su panel.
-- Prender el recontacto automático y el asistente de ventas: vienen apagados.
-- Poner el tope de gasto mensual, si quiere uno.
-
-## Los permisos de colaborador quedaron resueltos
-
-**Se sacaron los nueve que no funcionaban** (prospectos, presupuestos, clientes,
-facturación, personal, proveedores, empresa, contabilidad y calendario). El dueño
-lo dejó a criterio de Claude: se eligió sacarlos y no abrirlos, porque abrirlos
-significaba dejar entrar con un enlace, y sin cuenta, a la contabilidad y a la
-base de clientes.
-
-Quedan los seis del evento, que son los que el fotógrafo, el DJ y el catering
-necesitan, y ésos sí llevan la llave.
+- **La aplicación no manda ningún mail.** Ni confirmación de asistencia, ni nada.
+  No hay Resend ni ningún otro. Si alguien promete correos, hoy no salen.
+- **El buscador de canciones de Spotify aparece en la invitación y da error.** Al
+  invitado le parece roto. O se cargan las credenciales o conviene esconderlo.
+- **Programar una publicación no hace nada.** Está en el bloque 1 de la orden.
+- **El botón "generar desde fiesta" no usa inteligencia artificial**: son cuatro
+  textos fijos donde sólo cambia el nombre del evento. Bloque 2 de la orden.
+- **El informe 360 sobrevende.** Dice "implementado" de cosas que no existen. No
+  tomarlo como inventario: el inventario verificado es
+  `docs/QUE-HAY-EN-LA-APP.md`.
 
 ## Lo que costó y no hay que repetir
 
-- **El contenedor se reinicia y deja el árbol en una versión vieja.** Pasó al
-  cierre de esta sesión: una rama nueva salió de un commit de hace días, las
-  pruebas bajaron de 1742 a 1507, y el control de acentos "encontró" 425
-  problemas que ya estaban arreglados. **Antes de creerle a cualquier control que
-  falla de golpe, comparar contra `origin/main` de ahora.** Fusionar eso habría
-  borrado cinco propuestas ya fusionadas.
-- **Guardar de quién es algo sin comprobar el permiso**, y **pantallas del equipo
-  fuera del grupo protegido**: el middleware sólo mira que la cookie exista, no
-  que sea válida.
-- **Escribir una ficha del CRM a mano en el archivo** para saltear una
-  validación: queda sin etapa ni historial y en producción ni llega a la base.
-- **Código contra funciones y campos que no existen**: lo agarra el revisor de
-  tipos, no las pruebas.
-- **Los ayudantes se equivocan seguido.** En esta tanda, de cada tres avisos uno
-  era falsa alarma; uno decía que había que ponerle llave a una página de venta.
-- **Dos compilaciones a la vez en la misma carpeta** se pisan y dan falla falsa.
+- **El contenedor se reinicia y deja el árbol en una versión vieja.** Pasó dos
+  veces el 17 y 18 de agosto. Una rama nueva salió de un commit de días atrás,
+  las pruebas bajaron de 1742 a 1507 y un control "encontró" problemas ya
+  arreglados. **Fusionar eso habría borrado cinco propuestas ya fusionadas.**
+  Ante un control que falla de golpe, lo primero es comparar contra `origin/main`
+  de ahora. Y conviene subir el trabajo apenas compila, no al final.
+- **Que exista un archivo no quiere decir que funcione.** Lo que decide es si
+  alguna pantalla lo llama. Con eso aparecieron: pantallas del equipo sin
+  guardia, páginas de venta que nadie podía abrir, y cinco integraciones
+  inexistentes dadas por hechas.
+- **Los números inventados son el peor defecto**, porque no se ven y se toman
+  decisiones con ellos.
+- **Los ayudantes se equivocan seguido.** Uno dijo que había que ponerle llave a
+  una página de venta; otro dio por hecha una integración con IA que eran
+  plantillas. Verificar cada hallazgo antes de tocar nada.
+- **Escribir una ficha del CRM a mano en el archivo** para saltear una validación:
+  queda sin etapa ni historial y en producción ni llega a la base.
 
 ## Decisiones del dueño
 
-Descartó el precio variable por fecha, alquilar la app a otros salones y el
-"ensayo de la fiesta". `TriviaAdminPanel` queda sin enchufar a propósito.
+- Las redes son: Instagram `akproduccionesfiestasyeventos`, Facebook
+  `akproduccionessalto`, TikTok `@akproduccioneseve`, X `@AkSalto`, más YouTube y
+  Threads. **Confirmadas por él el 18 de agosto**, no se cambian.
+- El sitio es `akproducciones.uy`.
+- Descartó el precio variable por fecha, alquilar la app a otros salones y el
+  "ensayo de la fiesta". `TriviaAdminPanel` queda sin enchufar a propósito.

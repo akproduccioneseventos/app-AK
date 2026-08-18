@@ -114,6 +114,51 @@ andando. No se rompe nada delante del invitado.
 
 ---
 
+## Las diez integraciones del informe 360 — verificadas el 18 de agosto de 2026
+
+El informe `public/docs/Auditoria_Unificada_360_AK_Producciones.html` da diez
+integraciones por "Implementado" o "100% Operativo". **Se verificaron una por
+una, mirando si alguna pantalla las llama.** Que exista un archivo no alcanza.
+
+### Andan hoy, sin configurar nada (4)
+
+- **Sofía, la asistente que cotiza** — `/simulador-ak`. Funciona.
+- **Mapa en las invitaciones** — el botón "cómo llegar" siempre anda. **Es Google
+  Maps, no OpenStreetMap** como dice el informe. Da igual en la práctica.
+- **Mercado Pago** — cobra la **seña acordada con ese cliente**, y si no hay, la
+  general de Ajustes, y recién después los $5.000 por defecto. **Valida la firma**
+  de los avisos que llegan del banco y rechaza los que no coinciden. Necesita las
+  credenciales cargadas para cobrar de verdad, pero el código está sano.
+- **Meta CAPI** (rastreo de conversiones) — se dispara al guardar un prospecto
+  desde la landing y desde el portafolio LED. Sin credenciales falla en silencio
+  y **no rompe el formulario**, que es lo correcto.
+
+### Están hechas pero sin la clave no sirven (2)
+
+- **Google Contacts** — el prospecto se guarda igual en la app; lo que no pasa es
+  que aparezca en la agenda de Google.
+- **Spotify** — el campo de buscar canciones **aparece en la invitación** y
+  devuelve error al escribir. Al invitado le parece roto. Conviene esconderlo
+  hasta que estén las credenciales.
+
+### NO EXISTEN, aunque el informe las da por implementadas (4 y media)
+
+- **Cloudinary** — cero apariciones en el código. Las fotos van a Firebase
+  Storage, que funciona bien, pero no es lo que dice el papel.
+- **Resend** — cero apariciones. Y más importante: **la aplicación no manda
+  ningún mail, por ningún medio.** No hay confirmación de asistencia por correo.
+- **Notion** — cero apariciones.
+- **Microsoft Clarity** (mapas de calor) — sólo el nombre de una variable en el
+  archivo de ejemplo. Ninguna pantalla carga nada.
+- **TikTok Pixel** — igual que Clarity: sólo el nombre de la variable. Lo que sí
+  existe de ese punto es Meta CAPI, que es la otra mitad.
+
+### La lección, para la próxima vez que llegue un informe
+
+**"Implementado" no quiere decir "funciona para el dueño hoy".** De diez, cuatro
+andan, dos esperan una clave y cuatro y media no existen. Antes de creerle a un
+informe, se comprueba si alguna pantalla llama a eso.
+
 ## Redes sociales — revisado el 12 de agosto de 2026
 
 ### Lo que anda
