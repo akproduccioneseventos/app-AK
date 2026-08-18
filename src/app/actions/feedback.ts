@@ -49,7 +49,10 @@ export async function saveFeedback(submission: Omit<FeedbackSubmission, 'id' | '
     timestamp: new Date().toISOString(),
   };
 
-  // Pedido automatico de resena en Google a todos los que terminan la encuesta (sin gatekeeping prohibido por Google).
+  // Pedido automatico de resena en Google. Va a TODOS los que contestan la
+  // encuesta, sin mirar la nota: pedirsela solo a los contentos es filtrar
+  // resenas, y Google lo castiga borrandolas. Lo que cambia segun la nota es el
+  // texto del mensaje, no a quien se le manda.
   if (!yaSeLePidioPorEstaFiesta(allFeedback, newFeedback.fiestaId)) {
     try {
       const company = await getCompanyInfo();
@@ -180,6 +183,14 @@ async function enviarPedidoDeResena(feedback: FeedbackSubmission, company: Compa
     return { success: false, error: "WhatsApp no está configurado o está deshabilitado." };
   }
 
+  // El pedido va SIEMPRE, sin mirar la nota. Mandarselo solo a los contentos se
+  // llama filtrar resenas: Google lo prohibe y castiga borrandolas. Ademas, un
+  // negocio con puro cinco perfecto parece arreglado y vende menos que uno con
+  // alguna de cuatro y respuestas prolijas abajo.
+  //
+  // Lo unico que cambia segun la nota es el texto: al que quedo disconforme
+  // primero se le pide disculpas y se le avisa que el equipo lo va a contactar.
+  // El enlace va igual, abajo.
   const esDetractor = (feedback.npsScore ?? 0) < 7;
   const messageText = esDetractor
     ? `¡Hola ${feedback.clientName}! Muchas gracias por tus comentarios sobre la fiesta "${feedback.fiestaNombre}".\n\nLamentamos no haber alcanzado tus expectativas al 100%. Nuestro equipo se va a contactar con vos a la brevedad para conversar sobre lo ocurrido y buscar una solución.\n\nSi igualmente querés dejar tu reseña en Google, podés hacerlo con total libertad acá:\n\n${company.googleReviewsLink}\n\n¡Muchas gracias!`

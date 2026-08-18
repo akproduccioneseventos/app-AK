@@ -2224,6 +2224,66 @@ legítima **no se oculte sola**, que correr dos veces no duplique nada, que si f
 la inteligencia artificial el comentario quede **sin clasificar** en vez de mal
 clasificado, y que una red sin configurar no rompa la traída de las otras.
 
+## Se sacó el filtro de reseñas de Google (18 de agosto de 2026)
+
+**El pedido de reseña por WhatsApp salía sólo a los clientes que puntuaban 9 o
+10.** Estaba en tres lugares de `src/app/actions/feedback.ts`: en el envío, en el
+guardado de la encuesta y en el pedido manual.
+
+Eso se llama filtrar reseñas y **Google lo prohíbe**: la sanción es borrar las
+reseñas del negocio. En una ciudad chica, quedarse sin reseñas es peor que tener
+alguna mala. Todavía no había hecho daño porque el envío automático viene apagado
+de fábrica y el enlace de Google venía vacío.
+
+**Cómo quedó:** el pedido sale para todos los que contestan la encuesta, con el
+mismo enlace. Lo único que cambia según la nota es el texto del mensaje: con nota
+6 o menos se pide disculpas primero y se avisa que el equipo va a llamar, y el
+enlace va igual abajo. Con nota alta, el agradecimiento de siempre.
+
+**Por qué conviene además del cumplimiento:** un promedio de cinco perfecto parece
+arreglado. Vende más un 4,5 con alguna de cuatro estrellas y respuestas prolijas
+abajo. Y cuantas más reseñas hay, menos pesa cada una mala.
+
+**Ojo si aparece de nuevo:** las pruebas de
+`src/__tests__/resenas-y-plan-equipo.test.ts` ahora exigen lo contrario de lo que
+exigían antes — que con nota baja el pedido se mande igual. Si alguien las ve
+fallar, la respuesta no es volver a poner el filtro.
+
+## El enlace de reseñas escrito a mano en la encuesta (18 de agosto de 2026)
+
+La pantalla de gracias de la encuesta traía la dirección de la ficha de Google
+**escrita a mano en el código**, en vez de leer la que el dueño carga en Ajustes.
+
+Dos problemas en pantalla: si el dueño cambia el enlace en Ajustes, el botón sigue
+mandando al viejo; y si nunca lo cargó, el cliente igual ve el botón y termina en
+una ficha que puede no ser la suya.
+
+**Cómo quedó:** el enlace se pide con `getEnlaceDeResenaPublico()`
+(`src/app/actions/feedback.ts`), que devuelve **sólo** esa dirección — que de por sí
+es pública — y nada más de la ficha de la empresa. Si está vacía, el bloque entero
+no se muestra. La prueba ahora exige eso y **prohíbe** que vuelva a aparecer una
+dirección de Google escrita a mano en esa pantalla.
+
+**Es la tercera vez que pasa lo mismo** con identificadores de Google escritos a
+mano. Por eso la prueba, y no sólo la corrección.
+
+## La entrega de reseñas venía con la anterior adentro (18 de agosto de 2026)
+
+La rama del panel automático estaba hecha sobre una versión principal vieja y
+**volvía a traer entera la entrega de comentarios de redes**, en su forma original:
+sin el tope de gasto de inteligencia artificial, sin las cinco pruebas y sin los
+testimonios repuestos. Fusionarla de una habría borrado las tres cosas sin que se
+notara.
+
+**Cómo se reparó:** se fusionó contra la versión principal de ahora resolviendo
+seis choques, quedándose con lo nuevo de la entrega y con lo ya corregido de la
+anterior. Quedaba además el panel de presencia digital con **la solapa de
+comentarios duplicada** — dos copias del mismo bloque en el mismo archivo, que no
+compilaba. Se sacó la copia vieja.
+
+**La regla que esto confirma:** una rama se compara siempre contra la versión
+principal de ahora, no contra la que tenía cuando se creó.
+
 ## Cómo agregar algo a esta lista
 
 **Se anota SIEMPRE, en la misma propuesta que toca el código.** Orden del dueño

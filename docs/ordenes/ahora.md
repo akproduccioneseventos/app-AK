@@ -72,6 +72,16 @@ diciendo "una reseña honesta": el incentivo por sí solo alcanza para la sanci�
 arriba: primero que el equipo lo va a contactar para resolverlo. **No se le
 esconde el botón.**
 
+### El filtro del envío por WhatsApp ya se sacó (no lo rehagas)
+
+El mismo filtrado prohibido existía por otro camino: el pedido por WhatsApp salía
+sólo si el cliente había puntuado 9 o 10, en tres lugares distintos del código.
+**Ya está corregido.** Ahora el pedido sale para todos, y lo que cambia según la
+nota es el texto: al que quedó disconforme se le pide disculpas y se le avisa que
+lo van a llamar, con el enlace igual abajo. Hay pruebas que lo cuidan.
+
+Lo que falta es sólo el botón en la pantalla de gracias, que es lo de arriba.
+
 # BLOQUE 2 — Que el equipo sepa a quién le falta pedirle
 
 Sirve de poco si nadie manda la encuesta.

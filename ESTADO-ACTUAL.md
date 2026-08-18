@@ -8,32 +8,56 @@ Quien cierre una sesión reescribe este archivo. Se pisa, no se acumula.
 ---
 
 **Última actualización:** 18 de agosto de 2026.
-**Estado de la app:** sana. Compila (`next build`), types en cero (`tsc --noEmit`), pruebas unitarias en verde, sin acentos rotos.
-**Propuestas abiertas:**
-- `feat/comentarios-de-las-redes` (PR lista para revisión del dueño).
-- `feat/resenas-y-panel-automatico` (PR lista para revisión del dueño).
-**Orden completada:** `docs/ordenes/ahora.md` — la reseña de Google y el panel que trabaja solo.
+**Estado de la app:** sana. Los cinco controles pasaron sobre la versión principal
+de ahora: acentos limpios, tipos en cero, 1830 pruebas, compila, 20 de seguridad.
+**Propuestas abiertas:** ninguna.
+**Orden vigente:** `docs/ordenes/ahora.md` — la reseña de Google y el panel que
+trabaja solo.
 
 ## CORRECCIÓN IMPORTANTE: los testimonios de las páginas de venta SON REALES
 
-Salieron de comentarios de Facebook que el dueño tenía en su catálogo impreso. Se conservan los 22 en los seis catálogos. La pantalla para adjuntar captura de pantalla real a testimonios ya existe en Ajustes -> Feedback.
+La hoja anterior decía que eran inventados y que no se volvían a poner. **Estaba
+mal.** Salieron de comentarios de Facebook que el dueño tenía en su catálogo
+impreso. Ya se repusieron los 22, en los seis catálogos.
 
-## Lo que se cerró en esta tanda
+**No se borran.** Hay una prueba que falla si alguien deja las listas vacías, y el
+motivo está anotado en el propio código y en `docs/YA-RESUELTO.md`. Lo único que
+les falta es la captura del comentario; la pantalla para subirla ya existe.
 
-- **La reseña de Google al final de la encuesta:** Botón directo a Google Reviews para todos los clientes que terminan la encuesta en `/feedback/[fiestaId]`. Anti-gatekeeping estricto: los clientes con calificación baja ven primero un mensaje empático de soporte pero el botón público sigue visible.
-- **Filtro de WhatsApp eliminado:** Se eliminó el filtro `< 9` de `enviarPedidoDeResena`, `saveFeedback` y `requestGoogleReviewManual` en `src/app/actions/feedback.ts` para no incurrir en gatekeeping sancionable por Google.
-- **Seguimiento de reseñas de los últimos 30 días:** Lista de eventos en la solapa Ficha de Google con estado (pedida, pendiente, completada) y botón de WhatsApp con mensaje personalizado en criollo.
-- **Alerta de puntaje de Google menor a 4.0:** Banner superior en Presencia Digital que avisa si la nota baja de 4 estrellas y lleva directo al seguimiento de reseñas del mes.
-- **Tablero de 16 altas en directorios:** Solapa con los 16 directorios oficiales de Salto y Uruguay (10 gratis y 6 de cuota/pago), barra de progreso y checkboxes persistidos.
-- **Autogenerador semanal de calendario:** Botón para armar borradores de la semana con fotos de fiestas recientes o preguntas frecuentes educativas en semanas tranquilas, respetando presupuesto de IA.
+## Lo que se cerró hoy
+
+- **La reseña de Google y el panel que trabaja solo** (entrega de Gemini): botón
+  de reseña al terminar la encuesta —a todos, sin filtrar—, seguimiento de a
+  quién falta pedirle, aviso si el puntaje baja de cuatro estrellas, tablero de
+  dieciséis altas en directorios y autogenerador semanal del calendario.
+- **Se sacó el filtro de reseñas**, que estaba en tres lugares y mandaba el pedido
+  sólo a los que puntuaban 9 o 10.
+- **El enlace de reseñas ya no está escrito a mano**: sale del que el dueño carga
+  en Ajustes, y si no lo cargó, el bloque no aparece.
+
+- **Los comentarios de las redes** (entrega de Gemini, propuesta 1062): se traen
+  de Facebook, Instagram y YouTube, la inteligencia artificial los separa en
+  buenos, neutros y quejas, lo agresivo se oculta solo —y se puede volver a
+  mostrar con un toque— y lo bueno pasa a testimonio de la web.
+- **Tope de gasto**: traer el historial completo revisa cien comentarios por
+  corrida. Antes, un solo toque podía gastar el presupuesto de inteligencia
+  artificial de todo el mes.
+- **Los cinco controles que pedía la orden** y la entrega no traía.
+- **Se cerró la propuesta 1057**, que borraba los testimonios.
 
 ## Lo que depende del dueño (no lo puede hacer ninguna IA)
 
-1. **Reclamar la ficha de Google** y elegir bien la categoría. Va como negocio que atiende a domicilio, con dirección protegida.
-2. **Confirmar que el enlace para pedir reseñas es el suyo.** Está configurado `https://g.page/r/CUagrfscj_5yEAE/review`.
-3. **Pedir una reseña por fiesta**, a todos por igual y sin sorteos.
-4. **Darse de alta** en las opciones de directorios del tablero.
+1. **Reclamar la ficha de Google** y elegir bien la categoría. Es el 32% del
+   posicionamiento local, casi el doble que la web. Ojo: no tiene local físico,
+   va como negocio que atiende a domicilio, con la dirección escondida.
+2. **Confirmar que el enlace para pedir reseñas es el suyo.** Está puesto en la
+   app pero no se pudo comprobar desde acá.
+3. **Pedir una reseña por fiesta**, a todos por igual y sin premio.
+4. **Darse de alta** en las diez opciones gratis del plan (TuFiesta.com.uy entre
+   ellas).
 
 ## Decisiones del dueño
 
-Descartó el precio variable por fecha, alquilar la app a otros salones y el "ensayo de la fiesta". `TriviaAdminPanel` queda sin enchufar a propósito. No tiene salón propio: trabaja en el salón que lo contrate.
+Descartó el precio variable por fecha, alquilar la app a otros salones y el
+"ensayo de la fiesta". `TriviaAdminPanel` queda sin enchufar a propósito.
+No tiene salón propio: trabaja en el salón que lo contrate.

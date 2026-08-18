@@ -48,15 +48,16 @@ describe('Reseñas de Google Automáticas', () => {
     jest.clearAllMocks();
   });
 
-  it('debe rechazar la solicitud si el NPS es menor a 9', async () => {
+  it('pide la resena igual aunque la nota sea baja: filtrar esta prohibido', async () => {
     mockReadData.mockResolvedValue([
-      { id: 'fb_1', npsScore: 8, clientName: 'Juan', fiestaId: 'f_1' }
+      { id: 'fb_1', npsScore: 3, clientName: 'Juan', fiestaId: 'f_1' }
     ]);
     mockGetCompanyInfo.mockResolvedValue({ googleReviewsLink: 'https://g.page/review' });
 
     const result = await requestGoogleReviewManual('fb_1');
-    expect(result.success).toBe(false);
-    expect(result.error).toMatch(/menor a 9/);
+    // Lo que importa: no se frena por la nota. Que despues llegue o no depende
+    // del telefono del cliente y de WhatsApp, que en esta prueba no se arman.
+    expect(result.error || '').not.toMatch(/nota|calificaci/i);
   });
 
   it('debe rechazar la solicitud si el enlace de Google no está configurado', async () => {
@@ -179,17 +180,38 @@ describe('Reseñas automáticas al contestar la encuesta (sin sesión)', () => {
     expect(mockSendWhatsApp).not.toHaveBeenCalled();
   });
 
-  it('no manda nada si la nota es 8', async () => {
+  it('con nota baja manda el pedido igual, pero pidiendo disculpas primero', async () => {
     prepararTodoListo([]);
 
     await saveFeedback({
       fiestaId: 'f_1',
       fiestaNombre: 'Boda de Ana y Juan',
       clientName: 'Ana',
-      npsScore: 8,
+      npsScore: 4,
     } as any);
 
-    expect(mockSendWhatsApp).not.toHaveBeenCalled();
+    expect(mockSendWhatsApp).toHaveBeenCalled();
+    const enviado = mockSendWhatsApp.mock.calls[0][0].text as string;
+    expect(enviado).toMatch(/Lamentamos/);
+    expect(enviado).toMatch(/se va a contactar con vos/);
+    // El enlace va igual: no se le esconde a nadie.
+    expect(enviado).toContain('https://g.page/r/abc/review');
+  });
+
+  it('con nota alta manda el mensaje de agradecimiento', async () => {
+    prepararTodoListo([]);
+
+    await saveFeedback({
+      fiestaId: 'f_1',
+      fiestaNombre: 'Boda de Ana y Juan',
+      clientName: 'Ana',
+      npsScore: 10,
+    } as any);
+
+    expect(mockSendWhatsApp).toHaveBeenCalled();
+    const enviado = mockSendWhatsApp.mock.calls[0][0].text as string;
+    expect(enviado).toMatch(/Muchas gracias por tus comentarios/);
+    expect(enviado).toContain('https://g.page/r/abc/review');
   });
 });
 
