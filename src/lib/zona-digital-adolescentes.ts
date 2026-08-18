@@ -60,9 +60,9 @@ export const defaultZonaDigitalGames: ZonaDigitalGame[] = [
 ];
 
 export const defaultZonaDigitalSocialNetworks: ZonaDigitalSocialNetwork[] = [
-  { id: 'instagram', label: 'Instagram', handle: '@akproduccioneseventos', url: 'https://www.instagram.com/akproduccioneseventos', enabled: true, requireBeforeDownload: true },
-  { id: 'tiktok', label: 'TikTok', handle: '@akproduccioneseventos', url: 'https://tiktok.com/@akproduccioneseventos', enabled: true, requireBeforeDownload: false },
-  { id: 'facebook', label: 'Facebook', handle: 'AK Producciones Eventos', url: 'https://www.facebook.com/akproduccioneseventos', enabled: false },
+  { id: 'instagram', label: 'Instagram', handle: '@akproduccionesfiestasyeventos', url: 'https://www.instagram.com/akproduccionesfiestasyeventos/', enabled: true, requireBeforeDownload: true },
+  { id: 'tiktok', label: 'TikTok', handle: '@akproduccioneseve', url: 'https://www.tiktok.com/@akproduccioneseve', enabled: true, requireBeforeDownload: false },
+  { id: 'facebook', label: 'Facebook', handle: 'AK Producciones Eventos', url: 'https://www.facebook.com/akproduccionessalto/', enabled: false },
   { id: 'whatsapp', label: 'WhatsApp', handle: 'AK Producciones', url: 'https://wa.me/59898355530', enabled: true },
 ];
 
