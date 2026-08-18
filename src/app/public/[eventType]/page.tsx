@@ -13,6 +13,8 @@ import { WhyChooseUs } from '@/components/public/WhyChooseUs';
 import { EventProcess } from '@/components/public/EventProcess';
 import { GallerySection } from '@/components/public/GallerySection';
 import { PublicFooter } from '@/components/public-footer';
+import { FAQJsonLd } from '@/components/seo/FAQJsonLd';
+import { BreadcrumbJsonLd } from '@/components/seo/BreadcrumbJsonLd';
 
 interface Props {
   params: Promise<{ eventType: string }>;
@@ -44,6 +46,15 @@ export default async function EventTypePage({ params }: Props) {
 
   return (
     <div className="min-h-screen font-body">
+      {/* Schemas estructurados para Google */}
+      <BreadcrumbJsonLd
+        items={[
+          { name: 'Inicio', url: '/' },
+          { name: catalog.name, url: `/public/${eventType}` },
+        ]}
+      />
+      {catalog.faqs && catalog.faqs.length > 0 && <FAQJsonLd items={catalog.faqs} />}
+
       {/* Sticky navbar */}
       <PublicNavbar
         whatsappNumber={catalog.whatsappNumber}

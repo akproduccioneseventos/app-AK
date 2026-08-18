@@ -59,13 +59,17 @@ export async function publishPostInternal(
     let isOnlyManualNetworks = true;
 
     for (const plat of selectedPlatforms) {
-      if (plat === 'WhatsApp' || plat === 'TikTok') {
-        // Redes que no se automatizan oficialmente
+      if (plat === 'WhatsApp' || plat === 'TikTok' || plat === 'Pinterest' || plat === 'Threads' || plat === 'X') {
+        // Redes que se gestionan en modo "Listo para copiar" (no automatizables por API directa)
         failedPlatforms.push({
           platform: plat,
           reason: plat === 'WhatsApp'
             ? 'Los estados de WhatsApp no se automatizan por Meta API. Queda listo para copiar y pegar.'
-            : 'TikTok requiere aplicación de desarrollador aprobada por ByteDance. Queda listo para subir manual.',
+            : plat === 'TikTok'
+              ? 'TikTok requiere aplicación de desarrollador aprobada por ByteDance. Queda listo para subir manual.'
+              : plat === 'Pinterest'
+                ? 'Pinterest requiere aprobación de app para publicar por API. Queda listo para copiar tu foto y descripción.'
+                : `${plat} requiere publicación manual. Queda listo para copiar y subir.`,
         });
         continue;
       }

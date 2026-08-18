@@ -2,7 +2,7 @@
 
 import { MessageSquare, Phone, Instagram, Facebook, Music, Sparkles } from 'lucide-react';
 import { cn } from '@/lib/utils';
-import { AK_WHATSAPP_NUMBER } from '@/lib/public-contact';
+import { AK_WHATSAPP_NUMBER, AK_SOCIAL_LINKS } from '@/lib/public-contact';
 
 interface CTASectionProps {
   whatsappNumber?: string;
@@ -19,7 +19,7 @@ export function CTASection({
   subheadline = 'Escribinos hoy y recibí una propuesta personalizada sin costo. Estamos listos para hacer realidad tu celebración.',
   ctaLabel = '¡Cotizá tu evento!',
   whatsappMessage = 'Hola AK Producciones, me gustaría cotizar mi evento.',
-  instagramUrl = 'https://www.instagram.com/akproduccionesfiestasyeventos/',
+  instagramUrl = AK_SOCIAL_LINKS.instagram,
 }: CTASectionProps) {
   const waHref = `https://wa.me/${whatsappNumber}?text=${encodeURIComponent(whatsappMessage)}`;
   const socialLinks = [
@@ -31,13 +31,13 @@ export function CTASection({
     },
     {
       platform: 'Facebook',
-      href: 'https://www.facebook.com/akproduccionessalto/',
+      href: AK_SOCIAL_LINKS.facebook,
       icon: Facebook,
       bgClass: 'bg-[#1877F2] hover:shadow-blue-500/60',
     },
     {
       platform: 'TikTok',
-      href: 'https://www.tiktok.com/@akproduccioneseve',
+      href: AK_SOCIAL_LINKS.tiktok,
       icon: Music,
       bgClass: 'bg-black hover:shadow-slate-700/60',
     },

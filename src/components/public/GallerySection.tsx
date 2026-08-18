@@ -2,6 +2,7 @@
 
 import Image from 'next/image';
 import { cn } from '@/lib/utils';
+import { AK_SOCIAL_LINKS } from '@/lib/public-contact';
 import type { GalleryImage } from '@/types/public-landing';
 
 interface GallerySectionProps {
@@ -78,12 +79,12 @@ export function GallerySection({
         <p className="text-center mt-8 text-sm text-slate-400">
           📸 Seguinos en{' '}
           <a
-            href="https://instagram.com/akproduccioneseventos"
+            href={AK_SOCIAL_LINKS.instagram}
             target="_blank"
             rel="noopener noreferrer"
             className="text-purple-500 font-bold hover:underline"
           >
-            @akproduccioneseventos
+            @akproduccionesfiestasyeventos
           </a>{' '}
           para ver más.
         </p>

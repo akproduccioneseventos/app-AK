@@ -22,14 +22,18 @@ describe('historial público de YouTube e identidad oficial de AK', () => {
   });
 
   it('Google recibe los perfiles públicos oficiales de AK Producciones Eventos', () => {
-    const source = leer('src/components/public/LocalBusinessSchema.tsx');
-    expect(source).toContain('facebook.com/akproduccionessalto/');
-    expect(source).toContain('instagram.com/akproduccionesfiestasyeventos/');
-    expect(source).toContain('tiktok.com/@akproduccioneseve');
-    expect(source).toContain('youtube.com/channel/UClq6YnypA9PFuBgunzk306A');
-    expect(source).toContain('threads.com/@akproduccionesfiestasyeventos');
-    expect(source).toContain('x.com/AkSalto');
-    expect(source).not.toContain('tiktok.com/@akproduccioneseventos');
+    const sourceSchema = leer('src/components/public/LocalBusinessSchema.tsx');
+    expect(sourceSchema).toContain('AK_SAME_AS_URLS');
+
+    const sourceContact = leer('src/lib/public-contact.ts');
+    expect(sourceContact).toContain('facebook.com/akproduccionessalto/');
+    expect(sourceContact).toContain('instagram.com/akproduccionesfiestasyeventos/');
+    expect(sourceContact).toContain('tiktok.com/@akproduccioneseve');
+    expect(sourceContact).toContain('youtube.com/channel/UClq6YnypA9PFuBgunzk306A');
+    expect(sourceContact).toContain('threads.com/@akproduccionesfiestasyeventos');
+    expect(sourceContact).toContain('x.com/AkSalto');
+    expect(sourceContact).toContain('pinterest.com/akproduccionessalto/');
+    expect(sourceContact).not.toContain('tiktok.com/@akproduccioneseventos');
   });
 
   it('la tarea diaria intenta actualizar YouTube junto con Meta', () => {

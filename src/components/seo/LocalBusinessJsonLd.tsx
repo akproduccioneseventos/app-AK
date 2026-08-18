@@ -1,4 +1,5 @@
 import React from 'react';
+import { AK_SAME_AS_URLS } from '@/lib/public-contact';
 
 export interface LocalBusinessJsonLdProps {
   url: string;
@@ -33,19 +34,7 @@ export function LocalBusinessJsonLd({
       longitude: -57.9592, // Coordenadas de Salto, Uruguay
     },
     url,
-    // Tienen que ser las MISMAS cuentas que declara `LocalBusinessSchema`. Si dos
-    // paginas le dicen a Google cuentas distintas, no puede confirmar que sean el
-    // mismo negocio y pierde fuerza el resultado de busqueda. Aca habia una
-    // direccion de Instagram que no coincidia con la del resto del sitio.
-    sameAs: [
-      'https://www.facebook.com/akproduccionessalto/',
-      'https://www.instagram.com/akproduccionesfiestasyeventos/',
-      'https://www.tiktok.com/@akproduccioneseve',
-      'https://www.youtube.com/channel/UClq6YnypA9PFuBgunzk306A',
-      'https://www.threads.com/@akproduccionesfiestasyeventos',
-      'https://x.com/AkSalto',
-      'https://es.pinterest.com/akproduccionessalto/',
-    ],
+    sameAs: AK_SAME_AS_URLS,
     description,
   };
 

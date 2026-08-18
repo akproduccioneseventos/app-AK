@@ -1,4 +1,4 @@
-export type PlatformName = 'Instagram' | 'Facebook' | 'TikTok' | 'Google' | 'YouTube' | 'WhatsApp';
+export type PlatformName = 'Instagram' | 'Facebook' | 'TikTok' | 'Google' | 'YouTube' | 'WhatsApp' | 'Pinterest' | 'Threads' | 'X';
 
 export interface DailySocialMetricSnapshot {
   date: string; // YYYY-MM-DD
@@ -101,6 +101,7 @@ export interface DigitalPresenceDashboardData {
     canAutoPublish: boolean;
     publishNote?: string;
   }>;
+  websiteAnalytics?: import('@/lib/presencia-digital/google-analytics').GoogleAnalyticsDashboardData;
 }
 
 export type NetworkAttributionPeriod = '30d' | '90d' | 'year' | 'all';

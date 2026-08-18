@@ -4,6 +4,7 @@ import { useState, useEffect } from 'react';
 import { motion, AnimatePresence, useReducedMotion } from 'framer-motion';
 import { X, Sparkles, Instagram, Flame, Gift, type LucideIcon } from 'lucide-react';
 import Link from 'next/link';
+import { AK_SOCIAL_LINKS } from '@/lib/public-contact';
 
 interface OfferWidget {
   id: number;
@@ -19,9 +20,9 @@ interface OfferWidget {
 const OFFERS: OfferWidget[] = [
   {
     id: 1,
-    icon: Flame,
-    title: 'Promo de salón',
-    description: 'Asegurá tu fecha tentativa y calculá tu presupuesto con Salón Club Uruguay al 50% OFF.',
+    icon: Sparkles,
+    title: 'Cotizá en minutos',
+    description: 'Armá el presupuesto de tu fiesta con precios transparentes y sin sorpresas.',
     ctaText: 'Simular Presupuesto',
     ctaUrl: '/simulador-de-presupuesto?salon=club',
     iconColor: 'text-amber-400',
@@ -31,9 +32,9 @@ const OFFERS: OfferWidget[] = [
     id: 2,
     icon: Instagram,
     title: 'Seguinos en Instagram',
-    description: 'Sumate a @akproduccioneseventos. Compartimos fotos y videos reales de todas las fiestas en Salto.',
+    description: 'Sumate a @akproduccionesfiestasyeventos. Compartimos fotos y videos reales de todas las fiestas en Salto.',
     ctaText: 'Ver Perfil',
-    ctaUrl: 'https://instagram.com/akproduccioneseventos',
+    ctaUrl: AK_SOCIAL_LINKS.instagram,
     iconColor: 'text-pink-400',
     bgGlow: 'bg-pink-500/10 border-pink-500/20',
   },
@@ -55,8 +56,8 @@ interface WinSechWidgetsProps {
 }
 
 export function WinSechWidgets({
-  instagramUrl = 'https://instagram.com/akproduccioneseventos',
-  instagramHandle = '@akproduccioneseventos',
+  instagramUrl = AK_SOCIAL_LINKS.instagram,
+  instagramHandle = '@akproduccionesfiestasyeventos',
 }: WinSechWidgetsProps) {
   const [currentIdx, setCurrentIdx] = useState(0);
   const [isVisible, setIsVisible] = useState(false);
