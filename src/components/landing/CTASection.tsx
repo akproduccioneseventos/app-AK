@@ -19,7 +19,7 @@ export function CTASection({
   subheadline = 'Escribinos hoy y recibí una propuesta personalizada sin costo. Estamos listos para hacer realidad tu celebración.',
   ctaLabel = '¡Cotizá tu evento!',
   whatsappMessage = 'Hola AK Producciones, me gustaría cotizar mi evento.',
-  instagramUrl = 'https://instagram.com/akproduccioneseventos',
+  instagramUrl = 'https://www.instagram.com/akproduccionesfiestasyeventos/',
 }: CTASectionProps) {
   const waHref = `https://wa.me/${whatsappNumber}?text=${encodeURIComponent(whatsappMessage)}`;
   const socialLinks = [
@@ -31,13 +31,13 @@ export function CTASection({
     },
     {
       platform: 'Facebook',
-      href: 'https://facebook.com/akproduccioneseventos',
+      href: 'https://www.facebook.com/akproduccionessalto/',
       icon: Facebook,
       bgClass: 'bg-[#1877F2] hover:shadow-blue-500/60',
     },
     {
       platform: 'TikTok',
-      href: 'https://tiktok.com/@akproduccioneseventos',
+      href: 'https://www.tiktok.com/@akproduccioneseve',
       icon: Music,
       bgClass: 'bg-black hover:shadow-slate-700/60',
     },

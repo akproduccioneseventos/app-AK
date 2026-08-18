@@ -1,6 +1,7 @@
 import { NextResponse } from 'next/server';
 import { guardarMetricasDelDia } from '@/lib/presencia-digital/guardado-diario';
 import { syncMetaPublicHistory } from '@/lib/social-media/meta-history-backfill';
+import { syncYouTubePublicHistory } from '@/lib/social-media/youtube-history-backfill';
 
 /**
  * Guarda los numeros de las redes, una vez por dia.
@@ -11,9 +12,10 @@ import { syncMetaPublicHistory } from '@/lib/social-media/meta-history-backfill'
  * semana de historia que no se recuperaba nunca.
  *
  * Ademas, la misma tarea reconstruye el historial publico de las cuentas de
- * Facebook e Instagram conectadas. La primera ejecucion recorre todas las
- * paginas disponibles desde septiembre de 2019; despues revisa las paginas
- * recientes para incorporar posteos hechos fuera de la app sin repetir datos.
+ * Facebook e Instagram conectadas y del canal oficial de YouTube. Meta hace un
+ * barrido paginado completo desde septiembre de 2019 y despues revisa lo nuevo.
+ * YouTube usa la Data API cuando YOUTUBE_API_KEY esta disponible y, mientras
+ * tanto, mantiene al menos el feed publico reciente sin inventar publicaciones.
  *
  * Se protege con la misma clave que el resto de las tareas programadas.
  */
@@ -42,21 +44,34 @@ async function correrTarea(request: Request) {
     }
 
     const resultado = await guardarMetricasDelDia();
-    const historialPublico = await syncMetaPublicHistory().catch((error: unknown) => ({
+    const historialMeta = await syncMetaPublicHistory().catch((error: unknown) => ({
       success: false,
       earliestDate: '2019-09-01T00:00:00.000Z',
       fetched: 0,
       imported: 0,
       updated: 0,
       platforms: [],
-      error: error instanceof Error ? error.message : 'No se pudo completar el historial publico.',
+      error: error instanceof Error ? error.message : 'No se pudo completar el historial publico de Meta.',
+    }));
+    const historialYouTube = await syncYouTubePublicHistory().catch((error: unknown) => ({
+      success: false,
+      mode: 'rss' as const,
+      channelId: 'UClq6YnypA9PFuBgunzk306A',
+      fetched: 0,
+      imported: 0,
+      updated: 0,
+      complete: false,
+      error: error instanceof Error ? error.message : 'No se pudo completar el historial publico de YouTube.',
     }));
 
     return NextResponse.json({
       ok: true,
       guardado: resultado.guardado,
       fecha: resultado.fecha,
-      historialPublico,
+      historialPublico: {
+        meta: historialMeta,
+        youtube: historialYouTube,
+      },
     });
   } catch (error: any) {
     console.error('[cron-metricas-redes] No se pudieron guardar los numeros del dia:', error);

@@ -26,9 +26,12 @@ export function LocalBusinessSchema() {
     },
     "description": "Organización completa y producción integral de fiestas de 15 años, bodas y eventos en Salto, Uruguay. Cobertura en todos los salones de fiestas con discoteca, gastronomía gourmet, salones de gala y tecnología interactiva.",
     "sameAs": [
-      "https://www.instagram.com/akproduccioneseventos/",
-      "https://www.facebook.com/akproduccioneseventos/",
-      "https://www.tiktok.com/@akproduccioneseventos"
+      "https://www.facebook.com/akproduccionessalto/",
+      "https://www.instagram.com/akproduccionesfiestasyeventos/",
+      "https://www.tiktok.com/@akproduccioneseve",
+      "https://www.youtube.com/channel/UClq6YnypA9PFuBgunzk306A",
+      "https://www.threads.com/@akproduccionesfiestasyeventos",
+      "https://x.com/AkSalto"
     ]
   };
 
