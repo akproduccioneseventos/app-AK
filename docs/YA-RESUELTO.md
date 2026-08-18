@@ -2232,6 +2232,28 @@ control vive en `src/lib/seo/titulo-de-la-portada.ts`, con prueba.
 negocio ya declaran el teléfono y la ciudad; los accesos de Google Analytics van
 por configuración del servidor.
 
+## El pedido de reseña filtraba por nota (18 de agosto de 2026)
+
+**La app ya pedía la reseña de Google al cliente** —está en
+`src/app/actions/feedback.ts`, con su enlace y su interruptor en Ajustes →
+Empresa—. **Eso no era un pendiente: se reportó mal una vez y se llegó a pedir que
+se construyera de nuevo. Verificar antes de pedir.**
+
+Pero **se la pedía sólo a los clientes que ponían 9 o 10**. Eso se llama filtrar
+reseñas y **Google lo sanciona borrando todas las reseñas del negocio**, no sólo
+las filtradas, aunque el pedido sea amable y no se ofrezca nada a cambio.
+
+Ahora se le pide **a todos**, con el mismo enlace. Al que quedó disconforme se le
+manda un texto distinto, que primero se hace cargo y avisa que lo van a llamar.
+Sigue sin pedirse dos veces por la misma fiesta. Hay una prueba que impide que el
+filtro vuelva.
+
+**Y queda anotado el falso positivo que lo desencadenó:** los testimonios de las
+páginas de venta **son reales**, transcritos de comentarios que el dueño tenía
+guardados. Una auditoría los tomó por relleno y los borró; se repusieron. **No se
+vuelven a borrar.** Lo que sí falta es la captura de cada uno, que es lo que los
+hace verificables, y para eso ya existe la pantalla para subirlas.
+
 ## Cómo agregar algo a esta lista
 
 **Se anota SIEMPRE, en la misma propuesta que toca el código.** Orden del dueño

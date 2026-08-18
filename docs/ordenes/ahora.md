@@ -27,50 +27,39 @@ La empresa hoy no tiene reseñas visibles. Un competidor tiene ciento veinticinc
 
 ---
 
-# BLOQUE 1 — La reseña de Google al final de la encuesta
+# BLOQUE 1 — El botón de la reseña en la pantalla de gracias
 
-**Es el bloque más importante de la orden. Empezá por acá.**
+> **CORREGIDO EL 18 DE AGOSTO.** La versión anterior de esta orden pedía construir
+> el pedido de reseña entero. **Estaba mal: ya existe.** El dueño lo hizo notar.
+> Lo que sigue es sólo lo que falta de verdad.
 
-## Lo que ya existe (verificado, no lo rehagas)
+## Lo que YA existe (verificado, NO lo rehagas)
 
-- **La encuesta al cliente ya está hecha:** `src/app/feedback/[fiestaId]/page.tsx`.
-  Dice "Valorá tu experiencia", toma el puntaje y los comentarios, y termina con
-  una pantalla de "Gracias por tus comentarios".
-- **Esa opinión se queda adentro del sistema y no va nunca a Google.** Ahí está la
-  pérdida: es la persona más contenta, en el momento más contento, y no se le
-  ofrece nada.
-- **El enlace para pedir reseñas ya tiene su lugar en Ajustes**
-  (`googleReviewsLink` en `src/types/settings.ts`). Hoy viene vacío.
+- **El pedido de reseña por WhatsApp ya está hecho:** `src/app/actions/feedback.ts`.
+  Cuando el cliente completa la encuesta, la app le manda el enlace de Google.
+- **El enlace y el interruptor ya están en Ajustes → Empresa**
+  (`googleReviewsLink`, `enableGoogleReviewsAutoRequest`).
+- **Ya controla que no se le pida dos veces** por la misma fiesta.
+- **Ya se corrigió el filtro por nota.** Pedía la reseña sólo a los que ponían 9 o
+  10; eso hace que Google borre **todas** las reseñas del negocio. Ahora se le
+  pide a todos, con un texto distinto para el que quedó disconforme. **Hay una
+  prueba que lo frena** (`la-resena-se-le-pide-a-todos.test.ts`): **no la borres y
+  no vuelvas a poner el filtro.**
 
-## Qué hacer
+## Lo único que falta
 
-En la pantalla de agradecimiento, después de enviar la encuesta, ofrecerle dejar
-la reseña en Google con un toque:
+El pedido sale por WhatsApp, y **el WhatsApp puede no estar configurado o el
+cliente puede no tener teléfono guardado**. En esos casos hoy no se le ofrece
+nada.
 
-> **¿Nos ayudás con una reseña en Google?**
-> Es un minuto y es lo que más nos ayuda a que otras familias nos encuentren.
-> **[Dejar mi reseña]**
-
-- El botón abre el enlace guardado en Ajustes. **Si el dueño todavía no lo cargó,
-  el bloque no se muestra.** Nada de inventar una dirección de Google: ya pasó una
-  vez y hubo que sacarlo.
-- Que funcione bien en el celular, que es donde se contesta.
-
-## LO QUE ESTÁ PROHIBIDO, Y NO ES OPINABLE
-
-> **El botón se le muestra a TODOS los que terminan la encuesta, sin importar qué
-> puntaje pusieron.**
-
-Mostrárselo sólo a los que puntuaron alto se llama "filtrar reseñas" y **Google lo
-castiga borrando TODAS las reseñas del negocio**, no sólo las filtradas. En una
-ciudad chica eso es la diferencia entre aparecer y desaparecer.
-
-Tampoco se ofrece ningún premio, descuento ni sorteo a cambio. Ni siquiera
-diciendo "una reseña honesta": el incentivo por sí solo alcanza para la sanción.
-
-**Al que puntuó bajo** se le muestra el mismo botón, pero con un texto distinto
-arriba: primero que el equipo lo va a contactar para resolverlo. **No se le
-esconde el botón.**
+- En la pantalla de gracias de `src/app/feedback/[fiestaId]/page.tsx`, después de
+  enviar la encuesta, **mostrar también el botón de dejar la reseña**, con el
+  enlace guardado en Ajustes.
+- **Si el enlace no está cargado, el bloque no se muestra.** Nada de inventar una
+  dirección de Google.
+- **Se le muestra a todos los que terminan, sin importar la nota.** Al que puso
+  nota baja se le muestra el mismo botón, con una línea arriba diciendo que el
+  equipo lo va a contactar. **No se le esconde.**
 
 # BLOQUE 2 — Que el equipo sepa a quién le falta pedirle
 

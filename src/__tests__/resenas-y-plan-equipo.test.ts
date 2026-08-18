@@ -48,15 +48,19 @@ describe('Reseñas de Google Automáticas', () => {
     jest.clearAllMocks();
   });
 
-  it('debe rechazar la solicitud si el NPS es menor a 9', async () => {
+  // Antes esta prueba exigia lo contrario: que con nota menor a 9 no se pidiera.
+  // Filtrar por puntaje hace que Google borre TODAS las resenas del negocio, asi
+  // que la nota ya no frena el pedido. Lo unico que frena es no tener enlace, no
+  // tener telefono, o habersela pedido ya por esa fiesta.
+  it('la nota baja NO frena el pedido: se le pide igual', async () => {
     mockReadData.mockResolvedValue([
       { id: 'fb_1', npsScore: 8, clientName: 'Juan', fiestaId: 'f_1' }
     ]);
     mockGetCompanyInfo.mockResolvedValue({ googleReviewsLink: 'https://g.page/review' });
 
     const result = await requestGoogleReviewManual('fb_1');
-    expect(result.success).toBe(false);
-    expect(result.error).toMatch(/menor a 9/);
+
+    expect(result.error).not.toMatch(/menor a 9/);
   });
 
   it('debe rechazar la solicitud si el enlace de Google no está configurado', async () => {
@@ -179,7 +183,7 @@ describe('Reseñas automáticas al contestar la encuesta (sin sesión)', () => {
     expect(mockSendWhatsApp).not.toHaveBeenCalled();
   });
 
-  it('no manda nada si la nota es 8', async () => {
+  it('con nota 8 tambien se le manda: no se filtra por puntaje', async () => {
     prepararTodoListo([]);
 
     await saveFeedback({
@@ -189,7 +193,7 @@ describe('Reseñas automáticas al contestar la encuesta (sin sesión)', () => {
       npsScore: 8,
     } as any);
 
-    expect(mockSendWhatsApp).not.toHaveBeenCalled();
+    expect(mockSendWhatsApp).toHaveBeenCalled();
   });
 });
 
