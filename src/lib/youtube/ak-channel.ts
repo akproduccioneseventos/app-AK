@@ -155,7 +155,7 @@ export async function getAkYoutubeVideos(): Promise<GaleriaVideo[]> {
     return [
       ...curated,
       ...feedVideos.filter((video) => !seen.has(video.youtubeId)),
-    ].slice(0, 12);
+    ];
   } catch {
     return curated;
   }
