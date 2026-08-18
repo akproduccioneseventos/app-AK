@@ -249,10 +249,16 @@ de lo que el equipo todavía tiene que publicar a mano.
   permiso de marketing, nunca a quien ya contrató ni a quien está en una etapa
   terminada del embudo.
 
-- **Asistente de ventas en las páginas públicas**: contesta con el catálogo real,
-  no inventa precios ni fechas, y guarda al interesado en el CRM. **Apagado de
-  fábrica**; se prende en Ajustes. Sólo aparece en las páginas de venta, nunca
-  encima de una invitación, del portal del cliente ni de la fiesta.
+- **Asistente de ventas en las páginas públicas**: **A MEDIAS — está construido
+  pero NO está enchufado.** El componente existe (`src/components/asistente-ak/
+  AkAssistant.tsx`) y contesta con el catálogo real sin inventar precios ni fechas,
+  pero **ninguna pantalla lo muestra**: se desconectó al corregir que aparecía en
+  toda la aplicación y nunca se lo volvió a poner en las páginas de venta. Si el
+  dueño prende el interruptor de Ajustes hoy, no pasa nada. Pedido en la orden
+  vigente.
+
+  Ojo, son cosas distintas: **Sofía, la que cotiza** (`/simulador-ak`), sí funciona,
+  y el **asistente de marketing interno** (Ajustes → Asistente) también.
 - **El mensaje de recontacto se escribe a medida** de cada persona. Si el servicio
   falla o se llegó al tope de gasto, manda el de siempre.
 - **Video del recuerdo** por evento, armado con las fotos aprobadas del muro.

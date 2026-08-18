@@ -2284,6 +2284,46 @@ compilaba. Se sacó la copia vieja.
 **La regla que esto confirma:** una rama se compara siempre contra la versión
 principal de ahora, no contra la que tenía cuando se creó.
 
+## Buscar la mesa por el nombre es a propósito (18 de agosto de 2026)
+
+**Falso positivo verificado. No se toca.**
+
+En `/evento/mi-mesa` cualquiera que tenga el identificador de la fiesta puede
+escribir tres letras y ver hasta seis nombres de invitados con su número de mesa,
+sin cuenta y sin enlace personal (`searchPublicGuestTable` en
+`src/app/actions/public-guest-portal.ts`).
+
+**Está bien así**: la pantalla es para que el invitado que llega a la fiesta y
+escanea el código encuentre su mesa. Pedirle un enlace personal dejaría afuera
+justo a los que no lo recibieron, que son los que más la necesitan. Devuelve
+**sólo nombre y número de mesa** — nunca teléfonos, ni platos especiales, ni notas
+—, exige tres letras como mínimo y está limitada a dieciocho búsquedas por minuto.
+
+Si se vuelve a reportar como filtración, es falso positivo.
+
+## El asistente de ventas quedó desenchufado (18 de agosto de 2026)
+
+El componente `src/components/asistente-ak/AkAssistant.tsx` existe y está
+terminado, pero **ninguna pantalla lo muestra**. Se desconectó al corregir que
+aparecía en toda la aplicación —salía encima de la invitación de un casamiento y
+del portal del cliente— y nunca se lo volvió a enganchar sólo a las páginas de
+venta, que era el objetivo.
+
+En pantalla: el dueño prende el interruptor en Ajustes y no pasa nada. El
+inventario decía que andaba; quedó corregido. Reconectarlo está pedido en la orden
+vigente.
+
+## Componentes construidos que nadie muestra (18 de agosto de 2026)
+
+Además del asistente, hay cinco archivos de componente que ningún otro archivo
+importa: `CommercialJourneySection`, `AkDifferenceSection` (secciones de portada),
+`ConvertToClientDialog` (pasar un prospecto a cliente), `CateringSimulator` (portal
+del cliente) y `ConfigFormItem` (ajustes).
+
+**No molestan a nadie** —no se ven porque no se muestran— pero cada uno es una
+pantalla pensada y no terminada. Queda anotado para no volver a descubrirlos en
+cada auditoría. Qué hacer con ellos está en la orden vigente.
+
 ## Cómo agregar algo a esta lista
 
 **Se anota SIEMPRE, en la misma propuesta que toca el código.** Orden del dueño
