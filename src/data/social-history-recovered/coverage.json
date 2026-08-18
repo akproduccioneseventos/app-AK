@@ -42,7 +42,7 @@
     "permalinksRecovered": 8,
     "auditFile": "audit-recent-2024-2026.json",
     "status": "public_recovered_sample_audited",
-    "warning": "Las cifras representan evidencia pública recuperada, no el total real publicado por las cuentas."
+    "warning": "Las cifras representan evidencia pública recuperada antes de ejecutar los backfills de API; no son el total real publicado por las cuentas."
   },
   "knownPublicAccountTotals": {
     "Instagram": {
@@ -77,24 +77,39 @@
       "method": "YouTube Data API paginada con fallback RSS público",
       "cutoff": "2019-09-01",
       "runtimeCompletionPending": true,
+      "authorization": "YOUTUBE_API_KEY",
       "note": "Solo se considera archivo completo cuando la Data API logra paginar toda la lista de subidas; RSS por sí solo no se marca completo."
     },
     "TikTok": {
-      "implemented": false,
-      "method": "Sin acceso programático aprobado para enumerar los 134 videos públicos",
-      "publicTotalVerified": 134
+      "implemented": true,
+      "method": "TikTok Display API video.list paginada de 20 en 20",
+      "cutoff": "2019-09-01",
+      "runtimeCompletionPending": true,
+      "authorization": "TIKTOK_ACCESS_TOKEN con scope video.list",
+      "publicTotalVerified": 134,
+      "note": "Se pagina hasta has_more=false o hasta atravesar el corte temporal; no se inventan URLs que la API no devuelva."
     },
     "Threads": {
-      "implemented": false,
-      "method": "Sin conexión/API de cuenta disponible en la app"
+      "implemented": true,
+      "method": "Threads API /threads paginada de 50 en 50",
+      "cutoff": "2019-09-01",
+      "runtimeCompletionPending": true,
+      "authorization": "THREADS_ACCESS_TOKEN; THREADS_USER_ID opcional"
     },
     "X": {
-      "implemented": false,
-      "method": "Sin conexión/API de cuenta disponible en la app"
+      "implemented": true,
+      "method": "X API v2 users/:id/tweets paginada de 100 en 100",
+      "cutoff": "2019-09-01",
+      "runtimeCompletionPending": true,
+      "authorization": "X_BEARER_TOKEN",
+      "apiLimit": "máximo 3.200 posts recientes en la cronología de usuario",
+      "note": "Si se alcanza el tope de 3.200 antes del corte, el archivo queda marcado explícitamente como incompleto."
     }
   },
   "dataAvailability": {
     "publicIndexedRecovery": "audited_sample",
+    "publicApiBackfillsImplemented": true,
+    "publicApiBackfillsExecutedAndVerified": false,
     "officialAccountArchive": false,
     "privatePerformanceMetrics": false,
     "crmAttribution": false
@@ -111,12 +126,17 @@
     "allNetworksFullArchive": false,
     "performanceAudit": false
   },
-  "requiredOfficialExports": [
-    "Meta Business Suite: Facebook e Instagram + insights disponibles",
-    "TikTok Analytics / descarga de datos",
-    "YouTube Studio: contenido + Analytics",
-    "Threads / Centro de cuentas: historial exportable disponible",
-    "X: archivo de publicaciones",
+  "authorizationNeededToExecuteApiBackfills": [
+    "Meta: conexiones de Facebook e Instagram ya soportadas por la app",
+    "YouTube: YOUTUBE_API_KEY",
+    "TikTok: TIKTOK_ACCESS_TOKEN con video.list",
+    "Threads: THREADS_ACCESS_TOKEN",
+    "X: X_BEARER_TOKEN"
+  ],
+  "officialExportsOnlyNeededForDataOutsidePublicApiCoverage": [
+    "Métricas privadas o históricas que la API ya no entregue",
+    "Contenido que una plataforma haya borrado o deje fuera de su ventana API",
+    "X si existieran más de 3.200 posts dentro del período requerido",
     "CRM AK: consultas, presupuestos y reservas por origen"
   ],
   "importTemplate": "official-export-import-template.csv",
@@ -125,8 +145,9 @@
     "Una publicación confirmada sin fecha se conserva como fecha no recuperada.",
     "No contar como publicación social un evento conocido si no existe evidencia de que fue publicado.",
     "Excluir cualquier contenido de AK Producciones Estudio o producción musical/festivales.",
-    "El historial importado desde archivos oficiales o API tiene prioridad sobre la recuperación indexada manual.",
+    "El historial importado desde API o archivos oficiales tiene prioridad sobre la recuperación indexada manual.",
     "No presentar la muestra pública recuperada como si fuera el archivo total de una cuenta.",
+    "No marcar una red como completa hasta que el runtime termine la paginación sin topes pendientes.",
     "Los campos ausentes en una fuente deben permanecer nulos hasta contar con evidencia."
   ]
 }
