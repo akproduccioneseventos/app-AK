@@ -3,6 +3,7 @@ import { guardarMetricasDelDia } from '@/lib/presencia-digital/guardado-diario';
 import { syncMetaPublicHistory } from '@/lib/social-media/meta-history-backfill';
 import { syncYouTubePublicHistory } from '@/lib/social-media/youtube-history-backfill';
 import { syncOtherPublicHistory } from '@/lib/social-media/other-public-history-backfill';
+import { syncCommentsFromNetworks } from '@/lib/social-media/comments-backfill';
 
 /**
  * Guarda los numeros de las redes, una vez por dia.
@@ -70,6 +71,17 @@ async function correrTarea(request: Request) {
       platforms: [],
       error: error instanceof Error ? error.message : 'No se pudo completar el historial de TikTok, Threads y X.',
     }));
+    const comentariosSincronizados = await syncCommentsFromNetworks({ full: false }).catch((error: unknown) => ({
+      success: false,
+      totalFetched: 0,
+      totalNew: 0,
+      totalAutoHidden: 0,
+      totalClasificados: 0,
+      pendientesDeClasificar: 0,
+      platforms: {} as any,
+      syncedAt: new Date().toISOString(),
+      error: error instanceof Error ? error.message : 'No se pudieron sincronizar los comentarios diarios.',
+    }));
 
     return NextResponse.json({
       ok: true,
@@ -80,6 +92,7 @@ async function correrTarea(request: Request) {
         youtube: historialYouTube,
         otrasRedes: historialOtrasRedes,
       },
+      comentarios: comentariosSincronizados,
     });
   } catch (error: any) {
     console.error('[cron-metricas-redes] No se pudieron guardar los numeros del dia:', error);

@@ -7,20 +7,20 @@ import { AK_SOCIAL_LINKS } from '@/lib/public-contact';
 /**
  * La ficha de Google de la empresa, adentro del panel.
  *
- * **Nada de datos inventados.** Este bloque llego escrito con un identificador de
- * Google y un cartel de "ficha verificada" puestos a mano, sin nada detras que lo
+ * **Nada de datos inventados.** Este bloque llegó escrito con un identificador de
+ * Google y un cartel de "ficha verificada" puestos a mano, sin nada detrás que lo
  * respalde. Un cartel que dice "verificada" cuando no se sabe es peor que no
- * mostrar nada: el dueno deja de revisar algo que en realidad esta sin hacer.
+ * mostrar nada: el dueño deja de revisar algo que en realidad está sin hacer.
  *
- * Regla: **el puntaje y las opiniones se muestran solo si llegan medidos**. Si no
+ * Regla: **el puntaje y las opiniones se muestran sólo si llegan medidos**. Si no
  * llegan, la tarjeta dice que falta conectar la cuenta y ofrece el enlace para
- * buscar la ficha. El enlace para pedir resenas sale de Ajustes; si el dueno
- * todavia no lo cargo, se cae a una busqueda de Google, que siempre funciona.
+ * buscar la ficha. El enlace para pedir reseñas sale de Ajustes; si el dueño
+ * todavía no lo cargó, se cae a una búsqueda de Google, que siempre funciona.
  */
 interface GoogleBusinessProfileProps {
   rating?: number | null;
   reviewsCount?: number | null;
-  /** Enlace corto para pedir resenas, el que da Google en la ficha. Viene de Ajustes. */
+  /** Enlace corto para pedir reseñas, el que da Google en la ficha. Viene de Ajustes. */
   reviewsUrl?: string;
 }
 
@@ -57,7 +57,7 @@ export function GoogleBusinessProfileWidget({
                 : 'bg-white/5 text-slate-300 border-white/10'
             }`}
           >
-            {hayMedicion ? 'Ficha conectada' : 'Sin conectar todavia'}
+            {hayMedicion ? 'Ficha conectada' : 'Sin conectar todavía'}
           </span>
         </div>
 
@@ -79,7 +79,7 @@ export function GoogleBusinessProfileWidget({
             ) : (
               <div className="text-xs text-slate-300">
                 <span className="font-bold text-white block">Todavia no vemos tu puntaje</span>
-                Es lo que mas pesa para aparecer primero en Salto. Se ve aca cuando
+                Es lo que más pesa para aparecer primero en Salto. Se ve acá cuando
                 conectes la cuenta de Google en Ajustes.
               </div>
             )}
@@ -92,12 +92,12 @@ export function GoogleBusinessProfileWidget({
             className="inline-flex items-center gap-2 px-3.5 py-2 bg-amber-500 hover:bg-amber-400 text-slate-950 text-xs font-bold rounded-lg transition shrink-0"
           >
             <MessageSquarePlus className="w-3.5 h-3.5" />
-            Pedir resena a un cliente
+            Pedir reseña a un cliente
           </a>
         </div>
 
         <div className="pt-2 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-2 text-xs border-t border-white/10 text-slate-400">
-          <span>Una resena por fiesta, siempre a todos por igual y sin premio.</span>
+          <span>Una reseña por fiesta, siempre a todos por igual y sin premio.</span>
           <a
             href={mapsUrl}
             target="_blank"

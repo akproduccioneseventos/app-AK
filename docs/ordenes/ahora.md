@@ -1,216 +1,190 @@
-# Leer los comentarios de las redes, desde el principio y todos los días
+# La reseña de Google y el panel que trabaja solo
 
 **Para:** Gemini (Antigravity)
 **Escribe:** Claude
 **Fecha:** 18 de agosto de 2026
 **Base:** `main` actualizado. Sincronizar antes de empezar.
 
-> **Después de ésta hay otra en la fila:**
-> `docs/ordenes/2-despues-de-los-comentarios.md` (la reseña de Google y el panel
-> que trabaja solo). **No la mezcles con ésta:** son dos propuestas separadas, una
-> atrás de la otra.
+> **Ésta es la segunda orden en la fila.** Primero se termina y se entrega
+> `docs/ordenes/ahora.md` (leer los comentarios de las redes). Recién después se
+> arranca ésta. **No se mezclan las dos en la misma propuesta:** si algo se rompe,
+> con diez bloques juntos no se sabe cuál fue.
+>
+> **Cuando le toque el turno: los cinco bloques de acá van en UNA sola propuesta.**
+> Cada fusión dispara un despliegue y eso se paga. Si un bloque se traba, entregá
+> los otros cuatro igual, en la misma propuesta, y decí cuál faltó y por qué.
 
-## Cómo se entrega
+## Por qué esto ahora
 
-**UNA SOLA PROPUESTA con los cuatro bloques.** No una por bloque. Si uno se
-traba, entregá los otros tres en la misma propuesta y avisá cuál faltó y por qué.
+Se investigó cómo se gana el primer puesto en las búsquedas de Salto. El
+resultado, en corto: **la ficha de Google pesa cerca del 32% y las reseñas otro
+16%** — juntas, más que el sitio web entero. Y cuando alguien le pregunta a Google
+o a un asistente de inteligencia artificial quién organiza fiestas en Salto, la
+respuesta nombra **uno a tres negocios**, casi nunca los que están por debajo de
+cuatro estrellas.
 
-Antes de subir, los cuatro controles **sobre el conjunto entero**:
-`npx tsc --noEmit`, `npx jest --silent`, `npm run check:acentos`, `npm run build`.
-**Si el revisor de tipos da un solo error, no subas.** Guardá en UTF-8.
-
-Anotá lo hecho en `docs/YA-RESUELTO.md` y actualizá `docs/QUE-HAY-EN-LA-APP.md`
-en esta misma propuesta, y mové este archivo a `hechas/` al terminar.
-
----
-
-## Para qué es esto
-
-El dueño quiere que la aplicación **lea los comentarios de sus redes, los buenos
-los tenga listos para mostrar como testimonio, y los malos se los avise**.
-
-Hoy las páginas de venta muestran testimonios sin la captura del comentario, y
-por eso no se distinguen de un texto de relleno. Esto los reemplaza por
-comentarios de verdad, con su enlace al original.
-
-## Lo que SÍ se puede y lo que NO
-
-**Verificado antes de escribir esta orden. No prometas lo que no se puede.**
-
-| Red | ¿Se pueden leer los comentarios? | ¿Se pueden ocultar o borrar? |
-|---|---|---|
-| Facebook | **Sí**, con el permiso de la página | **Sí**, ocultar y borrar |
-| Instagram | **Sí**, cuenta de empresa | **Sí**, ocultar y borrar |
-| YouTube | **Sí**, con la clave de la API | Sí, moderar |
-| TikTok | **No** | No |
-| X | **No** sin plan pago | No |
-| Threads | **No** | No |
-
-Las tres primeras son donde el dueño tiene el movimiento. **En la pantalla tiene
-que decir con todas las letras cuáles se leen y cuáles no, y por qué** —para que
-no espere comentarios de TikTok que nunca van a llegar—.
-
-## Reglas que valen para los cuatro bloques
-
-**1. Se OCULTA solo lo agresivo. No se BORRA nada solo. No se PUBLICA nada solo.**
-
-El dueño pidió que actúe sola, y con razón: *"a veces comentan y no te enterás"*.
-Un insulto colgado tres días en su página le hace daño real. Pero un programa que
-decide se va a equivocar, así que la acción automática tiene que ser **la que se
-puede deshacer**:
-
-- **Insultos, agresiones, spam o datos personales de terceros → se ocultan solas,
-  en el momento, y se le avisa.** Ocultar en Facebook e Instagram deja el
-  comentario visible sólo para quien lo escribió: corta el daño al instante y **se
-  puede volver atrás con un toque** si la máquina se equivocó.
-- **Una queja legítima de un cliente NO se oculta sola.** Se le avisa y decide él.
-  Tapar un reclamo real es lo que termina en una captura de pantalla dando vueltas
-  por Salto; tapar un insulto es simplemente moderar.
-- **Borrar nunca es automático.** No tiene vuelta atrás, así que lo aprieta él.
-- **Publicar un testimonio en la web nunca es automático.** Ahí va el nombre de
-  una persona en material de venta.
-
-Si la máquina duda entre insulto y queja, **trata como queja**: avisa y no oculta.
-
-**3. Todo lo que gaste en inteligencia artificial pasa por el contador.**
-`hayPresupuestoParaIA()` antes —si devuelve `false` no se llama al servicio—, y
-`registrarConsumoIA()` después. Sumá la función nueva a `FuncionConCosto` y a
-`COSTO_ESTIMADO_UYU` en `src/lib/ai/consumo.ts`.
-
-**4. No se inventan números ni comentarios.** Si una red no está conectada, la
-pantalla lo dice; no muestra un cero disfrazado de dato ni ejemplos de relleno.
-
-**5. Plata, cobros, comida y permisos los escribe Claude.** Si te cruzás con eso,
-avisá y seguí.
+La empresa hoy no tiene reseñas visibles. Un competidor tiene ciento veinticinco.
 
 ---
 
-# BLOQUE 1 — Traer todos los comentarios, desde el principio
+# BLOQUE 1 — La reseña de Google al final de la encuesta
 
-**Una sola vez, hacia atrás.** El dueño quiere el historial completo, desde que
-abrió sus redes hasta hoy.
+**Es el bloque más importante de la orden. Empezá por acá.**
 
-- Recorré **todas las publicaciones** de la página de Facebook, de la cuenta de
-  Instagram y del canal de YouTube, y de cada una traé **sus comentarios**.
-- Paginá hasta agotar lo que la red entregue. **Si la red corta antes de llegar
-  al principio, decilo en la pantalla**: "Facebook entregó hasta marzo de 2021".
-  Nunca lo marques como historial completo si no lo es.
-- Guardá de cada comentario: quién lo escribió, el texto, la fecha, la red, el
-  enlace al comentario original y a qué publicación pertenece.
-- **Que se pueda cortar y retomar.** Son miles: si se corta a la mitad, la
-  próxima corrida sigue donde quedó, no arranca de nuevo.
-- **Sin duplicar.** Un comentario que ya está no se guarda dos veces.
-- Reusá lo que ya existe para hablar con Meta: mirá
-  `src/lib/social-media/meta-history-backfill.ts`, que ya trae el historial de
-  publicaciones y resuelve la paginación y las credenciales.
+## Lo que ya existe (verificado, no lo rehagas)
 
-# BLOQUE 2 — Todos los días, lo nuevo
+- **La encuesta al cliente ya está hecha:** `src/app/feedback/[fiestaId]/page.tsx`.
+  Dice "Valorá tu experiencia", toma el puntaje y los comentarios, y termina con
+  una pantalla de "Gracias por tus comentarios".
+- **Esa opinión se queda adentro del sistema y no va nunca a Google.** Ahí está la
+  pérdida: es la persona más contenta, en el momento más contento, y no se le
+  ofrece nada.
+- **El enlace para pedir reseñas ya tiene su lugar en Ajustes**
+  (`googleReviewsLink` en `src/types/settings.ts`). Hoy viene vacío.
 
-- Una tarea diaria que traiga **sólo lo que entró desde la última vez**.
-- Colgala de la tarea que ya corre (`src/app/api/cron/metricas-de-redes/route.ts`)
-  o hacé una al lado, con la misma clave de seguridad.
-- **Si una red falla, las otras siguen.** Y si una no está configurada, se saltea
-  sin romper nada.
+## Qué hacer
 
-# BLOQUE 3 — Separar los buenos de los malos
+En la pantalla de agradecimiento, después de enviar la encuesta, ofrecerle dejar
+la reseña en Google con un toque:
 
-- Que la inteligencia artificial lea cada comentario nuevo y lo marque como
-  **bueno, neutro o malo**, con una razón corta en criollo.
-- **Cuidado con la ironía y el modismo uruguayo.** "Está de más" es bueno; "y
-  bueno..." no lo es. Cuando dude, que lo marque **neutro**, no bueno: un
-  testimonio irónico publicado en la web es peor que uno de menos.
-- **Nunca marca bueno un comentario con insultos, datos personales de terceros,
-  o el nombre de un menor.**
-- Si no hay presupuesto de inteligencia artificial, que quede sin clasificar y la
-  pantalla lo diga. **No inventes una clasificación por palabras sueltas**: "no
-  puedo creer lo que fue esa fiesta" tiene un "no" y es un elogio.
+> **¿Nos ayudás con una reseña en Google?**
+> Es un minuto y es lo que más nos ayuda a que otras familias nos encuentren.
+> **[Dejar mi reseña]**
 
-# BLOQUE 4 — Qué hace el dueño con eso, en un toque
+- El botón abre el enlace guardado en Ajustes. **Si el dueño todavía no lo cargó,
+  el bloque no se muestra.** Nada de inventar una dirección de Google: ya pasó una
+  vez y hubo que sacarlo.
+- Que funcione bien en el celular, que es donde se contesta.
 
-Una pantalla en el centro de presencia digital, con dos listas:
+## LO QUE ESTÁ PROHIBIDO, Y NO ES OPINABLE
 
-**Los buenos → listos para mostrar**
-- Cada uno con su texto, quién lo escribió, la fecha y **el enlace al comentario
-  original**, para que el dueño pueda comprobarlo.
-- Botón **"Mostrar en la web"**: lo publica como testimonio en las páginas de
-  venta, usando el sistema que ya existe (`src/lib/testimonios/para-mostrar.ts`,
-  que ya filtra por aprobado).
-- **Si el comentario tiene imagen o se puede guardar la captura, guardala**: el
-  carrusel ya sabe mostrarla (`screenshotUrl` en `src/types/public-landing.ts`) y
-  es lo que hace creíble a un testimonio. Hoy los que hay no la tienen.
+> **El botón se le muestra a TODOS los que terminan la encuesta, sin importar qué
+> puntaje pusieron.**
 
-**Lo que se ocultó solo → queda avisado y se puede revertir**
+Mostrárselo sólo a los que puntuaron alto se llama "filtrar reseñas" y **Google lo
+castiga borrando TODAS las reseñas del negocio**, no sólo las filtradas. En una
+ciudad chica eso es la diferencia entre aparecer y desaparecer.
 
-Palabras del dueño: *"en el portal de la app queda la notificación y si no estoy
-de acuerdo revierto"*. Entonces:
+Tampoco se ofrece ningún premio, descuento ni sorteo a cambio. Ni siquiera
+diciendo "una reseña honesta": el incentivo por sí solo alcanza para la sanción.
 
-- Cada comentario ocultado automáticamente **deja un aviso que se queda en el
-  panel** hasta que el dueño lo mire. No un cartel que pasa y se va: tiene que
-  seguir ahí al otro día si no entró.
-- El aviso muestra **el texto completo del comentario, quién lo escribió, la
-  fecha, la red y el enlace al original**, para que pueda juzgar sin salir de la
-  aplicación.
-- Botón **"Volver a mostrarlo"**, de un toque, que lo devuelve a la vista en la
-  red. Sin confirmaciones ni vueltas: si la máquina se equivocó, corregirlo tiene
-  que ser más fácil que el error.
-- Que se vea **por qué lo ocultó** ("insulto", "spam", "datos de otra persona"),
-  para que el dueño aprenda a confiar o a desconfiar de la máquina.
+**Al que puntuó bajo** se le muestra el mismo botón, pero con un texto distinto
+arriba: primero que el equipo lo va a contactar para resolverlo. **No se le
+esconde el botón.**
 
-**Los malos que NO se ocultan (quejas legítimas) → avisar, no tocar**
-- Que aparezcan juntos, con el enlace al original y la fecha.
-- **Un aviso al dueño cuando entra uno nuevo**, con el mismo sistema de avisos que
-  ya usa la aplicación. Que se entere el día que pasa, no un mes después.
-- Botones: **"Ocultar en la red"** (reversible, es el principal) y **"Borrar"**
-  (con confirmación que aclare que no tiene vuelta atrás).
-- **Ninguno de los dos se ejecuta solo, nunca.**
+# BLOQUE 2 — Que el equipo sepa a quién le falta pedirle
 
-# BLOQUE 5 — Que el dueño pueda subir las capturas que ya tiene
+Sirve de poco si nadie manda la encuesta.
 
-**Chico y desbloquea todo lo demás.**
+- Una lista, adentro del centro de presencia digital: **fiestas terminadas en los
+  últimos treinta días y si ya se le pidió la opinión al cliente o no.**
+- Un botón por fiesta que abre el WhatsApp del cliente con el mensaje escrito y el
+  enlace de la encuesta. **Lo manda la persona, no el sistema.**
+- Que quede registrado a quién se le pidió y cuándo, para que no se le pida dos
+  veces.
+- **La regla que ordena todo esto: una reseña por fiesta, todos los meses.** Lo
+  que más pesa no es el total acumulado sino que sigan llegando.
 
-El dueño tiene capturas de comentarios de sus redes en su catálogo impreso. La
-aplicación **no tiene dónde subirlas**: se buscó en todo el proyecto y no hay
-ninguna pantalla que lo permita, ni una sola imagen de ese tipo guardada. Por eso
-los testimonios de las páginas de venta quedaron como texto suelto, sin la
-captura que el propio diseño espera (`screenshotUrl`).
+# BLOQUE 3 — Aviso cuando el puntaje baja de cuatro estrellas
 
-**Qué hacer:** en la pantalla de testimonios (Ajustes → Opiniones), poder
-**adjuntar la imagen del comentario** a un testimonio, con la misma subida de
-archivos que ya usa el resto de la aplicación. Y que el carrusel la muestre,
-cosa que ya sabe hacer.
+Debajo de cuatro estrellas el negocio casi desaparece de las respuestas que arman
+los buscadores con inteligencia artificial, aunque siga saliendo en la búsqueda
+común.
 
-Con eso, los testimonios que el dueño ya tiene en papel pasan a la web **con la
-prueba a la vista**, que es lo que los hace creíbles.
+- Si el promedio de Google baja de 4,0, **avisar el mismo día**, arriba de todo en
+  el panel, con el texto en criollo: qué pasó y por qué importa.
+- **Sólo si hay puntaje medido de verdad.** Sin dato, no hay aviso: no se inventa
+  un promedio para poder mostrar la alerta.
+- Engancharlo a la tarea que ya corre todos los días
+  (`src/app/api/cron/metricas-de-redes/route.ts`), no a una tarea nueva.
+
+# BLOQUE 4 — El tablero de altas
+
+El dueño tiene que darse de alta en unos dieciséis lugares. Hoy esa lista vive
+afuera de la app y se pierde.
+
+- Una sección en el centro de presencia digital: **cada lugar con su nombre, si es
+  gratis o pago, el enlace, y un tilde de hecho o pendiente** que el dueño marca a
+  mano.
+- Arriba, cuántos lleva de cuántos.
+- Los lugares, en este orden: Google Perfil de Empresa, Casamiento.com.uy,
+  Gallito, Mercado Libre Servicios, WhatsApp Business con catálogo, Waze,
+  Foursquare, Guía Comercial UY, Evisos Salto, Yelu Uruguay (gratis); Centro
+  Comercial e Industrial de Salto, Cámara de Eventos del Uruguay, TuFiesta, Guía
+  Móvil 1122, Revista Bodas Uruguay, Salto Al Mundo (pagos o con cuota).
+- **Es una lista para marcar, no una integración.** No intentes darlo de alta
+  automáticamente en ningún lado: todos piden confirmar un correo o un teléfono
+  del dueño.
+
+# BLOQUE 5 — Que el calendario se llene solo, también en las semanas flojas
+
+## Lo que ya existe (no lo rehagas)
+
+- **Generar publicaciones desde las fotos de una fiesta ya está hecho:**
+  `generateDraftPostsFromPartyPhotos()` en `src/app/actions/social-media.ts`. Usa
+  inteligencia artificial con vuelta a plantillas si no hay presupuesto, y ya pasa
+  por el contador de gasto.
+- **El aviso de inactividad ya está** en el panel.
+
+Lo que falta es que **no dependa de que el dueño se acuerde de apretar el botón**.
+
+## Qué hacer
+
+1. **Después de cada fiesta**, que el panel deje sola la semana de publicaciones
+   armada, en borrador, con las fotos aprobadas de esa fiesta. El dueño entra,
+   mira y aprueba. **Nada se publica sin que una persona apruebe.**
+2. **En las semanas sin fiestas**, que arme igual la propuesta, con dos fuentes:
+   fotos de fiestas anteriores que anduvieron bien, y **las preguntas que más se
+   repiten** (cuánto sale, qué incluye, cómo se reserva, cuántas personas entran).
+   Los huecos largos sin publicar son lo que hace perder posición.
+3. **Sin fiestas nuevas y sin fotos viejas aprobadas, no inventes nada:** el panel
+   dice que no hay material y ofrece subirlo.
+
+## Sobre la plata
+
+Esto usa la misma generación que ya existe, así que **pasa por el contador que ya
+está**: `hayPresupuestoParaIA()` antes, `registrarConsumoIA()` después. **No
+agregues llamadas nuevas de inteligencia artificial por fuera del contador.** Si
+no hay presupuesto, las plantillas escritas a mano alcanzan.
 
 ---
 
-## Cómo se comprueba
+## Lo que NO se toca
 
-Además de los cuatro controles, pruebas que llamen al código de verdad:
+- **Plata, cobros, comida y permisos: eso lo escribe Claude.**
+- **No muestres ningún dato que no esté medido.** La tarjeta de la ficha de Google
+  ya llegó una vez con un cartel de "verificada" y un identificador escrito a
+  mano, y hubo que sacarlo. Hay una prueba que lo frena
+  (`la-ficha-de-google-no-inventa-nada.test.ts`): no la borres.
+- **No pongas ningún acceso ni clave dentro de un archivo del repositorio.**
+- **No toques `public/firebase-messaging-sw.js`.** Lo genera el compilador.
+- **Nada se publica ni se manda solo.** La app prepara y ofrece; la persona
+  decide y aprieta.
+- **No rehagas** la generación de publicaciones, el aviso de inactividad, la
+  encuesta al cliente ni la tarea diaria: están y funcionan.
 
-1. **Que nada se publique ni se borre sin aprobación**: con un comentario malo
-   nuevo, la tarea diaria **no** lo borra; sólo lo deja avisado.
-2. **Que el historial no se marque completo si la red cortó antes.**
-3. **Que no se guarde dos veces** el mismo comentario al correr dos veces.
-4. **Que si falla la inteligencia artificial**, los comentarios quedan sin
-   clasificar y la pantalla lo dice, en vez de clasificar mal.
-5. **Que una red no configurada no rompa** la traída de las otras.
+## Los controles antes de entregar
 
-**Que las pruebas llamen al código real.** Ya pasó tres veces que una prueba
-armaba una lista adentro y la filtraba ahí mismo, o que ni siquiera arrancaba:
-en los tres casos la entrega vino "en verde" sin probar nada.
+1. `npx tsc --noEmit`
+2. `npx jest --silent`
+3. `npm run check:acentos`
+4. `npm run build`
 
-## Las tres cosas que trabaron entregas anteriores
+Sobre el conjunto entero. **Si el revisor de tipos da un solo error, no subas.**
 
-1. **Antes de usar una función o un campo, abrí el archivo y confirmá que
-   existe.** En la última entrega había cinco campos inventados y no compilaba.
-2. **La lógica no va adentro del archivo de una tarea de internet.** Ponela en
-   `src/lib/...` y dejá la tarea como una cáscara: si no, las pruebas no pueden
-   cargarla y no prueban nada. Ya pasó.
-3. **Nada que escriba o borre se exporta desde un archivo `'use server'` sin
-   pedir permiso.** Todo lo exportado ahí queda abierto a internet.
+## Las cuatro cosas que trabaron entregas anteriores
+
+1. **Antes de usar una función o un campo, abrí el archivo y confirmá que existe.**
+   Una entrega usó cuatro nombres de campo que no existían.
+2. **Resolvé los conflictos antes de subir.** Llegó una entrega con marcas de
+   conflicto adentro de un archivo: no compilaba.
+3. **Decí desde qué pantalla se ve cada cosa nueva.**
+4. **Que las pruebas nuevas prueben lo que la pantalla usa de verdad.** Hubo
+   pruebas que reemplazaban funciones que la pantalla no llama: pasaban en verde
+   sin medir nada.
 
 ## Cuando termines
 
-Avisá el número de la propuesta y decí, por cada red, si quedó andando o no y por
-qué.
+Anotá en `docs/YA-RESUELTO.md` sólo lo que hiciste de verdad, actualizá
+`docs/QUE-HAY-EN-LA-APP.md`, avisá el número de la propuesta y mové este archivo
+a `hechas/` **en la misma propuesta**.

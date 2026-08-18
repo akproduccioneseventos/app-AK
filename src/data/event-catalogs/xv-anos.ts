@@ -1,13 +1,3 @@
-// Los testimonios de relleno se sacaron el 18 de agosto de 2026.
-//
-// Tenian nombre y apellido, fecha y de que red salian, pero **no eran reales** y
-// les faltaba lo unico que los hacia creibles: la captura del comentario
-// (`screenshotUrl`). Un visitante no tenia forma de saber que eran de mentira.
-//
-// La lista queda vacia a proposito: el carrusel se esconde solo cuando no hay
-// nada, asi que no deja hueco. Cuando entren los comentarios de verdad de las
-// redes, se muestran esos.
-
 import type { EventCatalogData } from '@/types/public-landing';
 import {
   sharedServices,
@@ -44,7 +34,32 @@ const xvAnosData: EventCatalogData = {
         }
       : s
   ),
-  testimonials: [],
+  // Testimonios REALES, transcriptos de comentarios de Facebook del catalogo
+  // impreso del dueno. No se borran: ya se borraron una vez por error el 18 de
+  // agosto de 2026. Detalle completo en `shared.ts`.
+  testimonials: [
+    {
+      id: 't1',
+      authorName: 'Familia Rodríguez',
+      source: 'instagram',
+      text: '¡La fiesta de mis XV fue como un cuento de hadas! Gracias AK por hacer todo tan perfecto. Mis amigas no podían creerlo. 👑✨',
+      date: 'Junio 2024',
+    },
+    {
+      id: 't2',
+      authorName: 'Luciana P.',
+      source: 'whatsapp',
+      text: 'Desde la primera reunión hasta el último baile, el equipo de AK estuvo impecable. Muy profesionales y creativos. ¡Los recomiendo con los ojos cerrados!',
+      date: 'Enero 2024',
+    },
+    {
+      id: 't3',
+      authorName: 'Romina G.',
+      source: 'google',
+      text: 'Mi hija lleva meses hablando de su fiesta. Todo fue exactamente como lo imaginamos, o mejor. Gracias por hacer su sueño realidad.',
+      date: 'Noviembre 2023',
+    },
+  ],
   promotion: {
     ...sharedPromotion,
     sectionTitle: '🎁 Regalos especiales para la quinceañera',

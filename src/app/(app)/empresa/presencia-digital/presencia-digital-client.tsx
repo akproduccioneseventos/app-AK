@@ -10,6 +10,7 @@ import type {
 } from '@/types/presencia-digital';
 import type { GoogleAnalyticsDashboardData } from '@/lib/presencia-digital/google-analytics';
 import type { SocialPost } from '@/types/social-media';
+import type { SocialComment, NetworkCommentsBackfillState, CommentNetwork } from '@/types/comentarios-redes';
 import {
   publishApprovedSocialPost,
   createPostFromDailySuggestion,
@@ -17,6 +18,14 @@ import {
   getWebsiteAnalyticsData,
 } from '@/app/actions/presencia-digital';
 import { GoogleBusinessProfileWidget } from '@/components/google-business-profile';
+import {
+  getSocialCommentsDashboardAction,
+  triggerCommentsSyncAction,
+  restoreHiddenCommentAction,
+  hideCommentAction,
+  publishCommentAsTestimonialAction,
+  type CommentsDashboardResponse,
+} from '@/app/actions/comentarios-redes';
 import {
   Users,
   TrendingUp,
@@ -37,6 +46,12 @@ import {
   MapPin,
   ExternalLink,
   HelpCircle,
+  MessageSquare,
+  ThumbsUp,
+  EyeOff,
+  ShieldCheck,
+  RefreshCw,
+  MessageCircle,
 } from 'lucide-react';
 
 interface Props {
@@ -47,7 +62,7 @@ interface Props {
 export function PresenciaDigitalClient({ initialData, initialPosts }: Props) {
   const [data, setData] = useState<DigitalPresenceDashboardData>(initialData);
   const [posts, setPosts] = useState<SocialPost[]>(initialPosts);
-  const [activeTab, setActiveTab] = useState<'revision' | 'web' | 'atribucion' | 'ads' | 'google_ficha' | 'publicaciones' | 'historial'>('revision');
+  const [activeTab, setActiveTab] = useState<'revision' | 'comentarios' | 'web' | 'atribucion' | 'ads' | 'google_ficha' | 'publicaciones' | 'historial'>('revision');
   const [publishingId, setPublishingId] = useState<string | null>(null);
   const [publishFeedback, setPublishFeedback] = useState<{
     success: boolean;
@@ -58,6 +73,129 @@ export function PresenciaDigitalClient({ initialData, initialPosts }: Props) {
   const [attributionReport, setAttributionReport] = useState<NetworkAttributionReport | null>(null);
   const [loadingAttribution, setLoadingAttribution] = useState(false);
   const [creatingSuggestion, setCreatingSuggestion] = useState(false);
+
+  // Estado para la solapa "Comentarios de redes" (Bloque 4)
+  const [commentsData, setCommentsData] = useState<CommentsDashboardResponse['data'] | null>(null);
+  const [loadingComments, setLoadingComments] = useState<boolean>(false);
+  const [syncingComments, setSyncingComments] = useState<boolean>(false);
+
+  const loadComments = useCallback(async () => {
+    setLoadingComments(true);
+    try {
+      const res = await getSocialCommentsDashboardAction();
+      if (res.success && res.data) {
+        setCommentsData(res.data);
+      }
+    } catch {
+      //
+    } finally {
+      setLoadingComments(false);
+    }
+  }, []);
+
+  useEffect(() => {
+    if (activeTab === 'comentarios' && !commentsData) {
+      loadComments();
+    }
+  }, [activeTab, commentsData, loadComments]);
+
+  const handleSyncComments = async (full: boolean = false) => {
+    setSyncingComments(true);
+    try {
+      const res = await triggerCommentsSyncAction(full);
+      if (res.success) {
+        const pendientes = res.result?.pendientesDeClasificar || 0;
+        setPublishFeedback({
+          success: true,
+          message: pendientes > 0
+            ? `Se trajeron ${res.result?.totalNew || 0} comentarios nuevos y se revisaron ${res.result?.totalClasificados || 0}. Quedan ${pendientes} sin revisar para no gastar de más: se revisan solos mañana, o tocá de nuevo para seguir ahora.`
+            : `Listo: ${res.result?.totalNew || 0} comentarios nuevos, todos revisados.`,
+        });
+        await loadComments();
+      } else {
+        setPublishFeedback({
+          success: false,
+          message: res.error || 'No se pudo sincronizar los comentarios.',
+        });
+      }
+    } catch (err: any) {
+      setPublishFeedback({
+        success: false,
+        message: err.message || 'Error al sincronizar comentarios.',
+      });
+    } finally {
+      setSyncingComments(false);
+    }
+  };
+
+  const handleRestoreComment = async (commentId: string) => {
+    try {
+      const res = await restoreHiddenCommentAction(commentId);
+      if (res.success) {
+        setPublishFeedback({
+          success: true,
+          message: '¡Comentario devuelto a la vista en la red social con éxito!',
+        });
+        await loadComments();
+      } else {
+        setPublishFeedback({
+          success: false,
+          message: res.error || 'No se pudo restaurar el comentario.',
+        });
+      }
+    } catch (err: any) {
+      setPublishFeedback({
+        success: false,
+        message: err.message || 'Error al restaurar comentario.',
+      });
+    }
+  };
+
+  const handleHideComment = async (commentId: string) => {
+    try {
+      const res = await hideCommentAction(commentId);
+      if (res.success) {
+        setPublishFeedback({
+          success: true,
+          message: 'Comentario ocultado en la red social.',
+        });
+        await loadComments();
+      } else {
+        setPublishFeedback({
+          success: false,
+          message: res.error || 'No se pudo ocultar el comentario.',
+        });
+      }
+    } catch (err: any) {
+      setPublishFeedback({
+        success: false,
+        message: err.message || 'Error al ocultar comentario.',
+      });
+    }
+  };
+
+  const handlePublishAsTestimonial = async (commentId: string) => {
+    try {
+      const res = await publishCommentAsTestimonialAction(commentId);
+      if (res.success) {
+        setPublishFeedback({
+          success: true,
+          message: '¡Testimonio publicado en la web con éxito!',
+        });
+        await loadComments();
+      } else {
+        setPublishFeedback({
+          success: false,
+          message: res.error || 'No se pudo publicar como testimonio.',
+        });
+      }
+    } catch (err: any) {
+      setPublishFeedback({
+        success: false,
+        message: err.message || 'Error al publicar testimonio.',
+      });
+    }
+  };
 
   // Estado para la solapa "Tu página web" (Bloque 1)
   const [webPeriodo, setWebPeriodo] = useState<number>(30);
@@ -309,6 +447,17 @@ export function PresenciaDigitalClient({ initialData, initialPosts }: Props) {
         </button>
 
         <button
+          onClick={() => setActiveTab('comentarios')}
+          className={`px-4 py-2 text-sm font-bold rounded-xl transition whitespace-nowrap flex items-center gap-2 ${
+            activeTab === 'comentarios'
+              ? 'bg-rose-500 text-white shadow-md shadow-rose-500/20'
+              : 'bg-slate-900 text-slate-400 hover:text-slate-200'
+          }`}
+        >
+          <MessageSquare className="w-4 h-4" /> Comentarios de redes
+        </button>
+
+        <button
           onClick={() => setActiveTab('web')}
           className={`px-4 py-2 text-sm font-bold rounded-xl transition whitespace-nowrap flex items-center gap-2 ${
             activeTab === 'web'
@@ -456,6 +605,239 @@ export function PresenciaDigitalClient({ initialData, initialPosts }: Props) {
                   <div className="text-xs text-slate-500">{review.topPost.likes} corazones</div>
                 </div>
               </div>
+            </div>
+          )}
+        </div>
+      )}
+
+      {/* PESTAÑA: COMENTARIOS DE REDES (Orden Comentarios de las Redes) */}
+      {activeTab === 'comentarios' && (
+        <div className="space-y-6">
+          {/* Header con botón de sincronización */}
+          <div className="p-5 md:p-6 bg-slate-900/90 border border-slate-800 rounded-2xl flex flex-col md:flex-row md:items-center justify-between gap-4">
+            <div>
+              <h2 className="text-lg font-bold text-white flex items-center gap-2">
+                <MessageSquare className="w-5 h-5 text-rose-400" />
+                Comentarios de Facebook, Instagram y YouTube
+              </h2>
+              <p className="text-xs text-slate-400 mt-1">
+                Moderación automática de insultos, rescate de testimonios para la web y atención de quejas legítimas.
+              </p>
+            </div>
+
+            <div className="flex items-center gap-2">
+              <button
+                onClick={() => handleSyncComments(false)}
+                disabled={syncingComments}
+                className="px-3.5 py-2 bg-slate-800 hover:bg-slate-700 text-slate-200 text-xs font-bold rounded-xl border border-slate-700 transition flex items-center gap-1.5 disabled:opacity-50"
+              >
+                <RefreshCw className={`w-3.5 h-3.5 ${syncingComments ? 'animate-spin' : ''}`} />
+                {syncingComments ? 'Buscando...' : 'Traer lo nuevo'}
+              </button>
+              <button
+                onClick={() => handleSyncComments(true)}
+                disabled={syncingComments}
+                className="px-3.5 py-2 bg-rose-600 hover:bg-rose-500 text-white text-xs font-bold rounded-xl shadow transition flex items-center gap-1.5 disabled:opacity-50"
+              >
+                <Sparkles className="w-3.5 h-3.5" />
+                Historial completo
+              </button>
+            </div>
+          </div>
+
+          {loadingComments ? (
+            <div className="text-center py-12 text-slate-400 text-sm">Cargando comentarios de tus redes...</div>
+          ) : commentsData ? (
+            <div className="space-y-6">
+              {/* Tarjetas resumen */}
+              <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
+                <div className="p-4 bg-slate-900 border border-slate-800 rounded-xl">
+                  <span className="text-xs font-semibold text-slate-400 uppercase">Comentarios Leídos</span>
+                  <p className="text-2xl font-black text-white mt-1">{commentsData.summaryCounts.total}</p>
+                </div>
+                <div className="p-4 bg-slate-900 border border-slate-800 rounded-xl">
+                  <span className="text-xs font-semibold text-emerald-400 uppercase">Buenos / Elogios</span>
+                  <p className="text-2xl font-black text-emerald-400 mt-1">{commentsData.summaryCounts.positive}</p>
+                </div>
+                <div className="p-4 bg-slate-900 border border-slate-800 rounded-xl">
+                  <span className="text-xs font-semibold text-amber-400 uppercase">Ocultados Solos</span>
+                  <p className="text-2xl font-black text-amber-400 mt-1">{commentsData.summaryCounts.autoHidden}</p>
+                </div>
+                <div className="p-4 bg-slate-900 border border-slate-800 rounded-xl">
+                  <span className="text-xs font-semibold text-rose-400 uppercase">Quejas para Atender</span>
+                  <p className="text-2xl font-black text-rose-400 mt-1">{commentsData.summaryCounts.complaints}</p>
+                </div>
+              </div>
+
+              {/* SECCIÓN 2: OCULTADOS AUTOMÁTICAMENTE (AVISO PERMANENTE REVERSIBLE) */}
+              {commentsData.autoHiddenComments.length > 0 && (
+                <div className="p-5 bg-amber-950/40 border border-amber-800/80 rounded-2xl space-y-4">
+                  <div className="flex items-center gap-2 text-amber-300 font-bold text-sm">
+                    <ShieldAlert className="w-5 h-5 text-amber-400" />
+                    <span>Comentarios ocultados automáticamente ({commentsData.autoHiddenComments.length})</span>
+                  </div>
+                  <p className="text-xs text-slate-300">
+                    Se ocultaron en la red por insultos, spam o datos personales. Nadie más los ve, pero si la máquina se equivocó podés devolverlos con un toque.
+                  </p>
+                  <div className="space-y-3">
+                    {commentsData.autoHiddenComments.map((c) => (
+                      <div key={c.id} className="p-4 bg-slate-950/90 border border-amber-900/50 rounded-xl flex flex-col md:flex-row md:items-center justify-between gap-3">
+                        <div className="space-y-1 max-w-2xl">
+                          <div className="flex items-center gap-2 text-xs">
+                            <span className="font-bold text-amber-300">{c.authorName}</span>
+                            <span className="text-slate-500">• {c.network}</span>
+                            <span className="text-slate-500">• {new Date(c.createdAt).toLocaleDateString('es-UY')}</span>
+                            <span className="px-2 py-0.5 bg-amber-500/20 text-amber-300 rounded text-[10px] font-semibold border border-amber-500/30">
+                              {c.autoHiddenReason || 'Ocultado por seguridad'}
+                            </span>
+                          </div>
+                          <p className="text-sm text-slate-200 whitespace-pre-wrap">"{c.text}"</p>
+                        </div>
+                        <div className="shrink-0 flex items-center gap-2">
+                          {c.permalink && (
+                            <a
+                              href={c.permalink}
+                              target="_blank"
+                              rel="noopener noreferrer"
+                              className="px-3 py-1.5 bg-slate-800 hover:bg-slate-700 text-slate-300 text-xs font-semibold rounded-lg border border-slate-700 flex items-center gap-1"
+                            >
+                              Ver original <ExternalLink className="w-3 h-3" />
+                            </a>
+                          )}
+                          <button
+                            onClick={() => handleRestoreComment(c.id)}
+                            className="px-3.5 py-1.5 bg-amber-500 hover:bg-amber-400 text-slate-950 text-xs font-bold rounded-lg transition"
+                          >
+                            Volver a mostrarlo
+                          </button>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              )}
+
+              {/* SECCIÓN 3: QUEJAS LEGÍTIMAS (AVISAR, NO TOCAR AUTOMÁTICAMENTE) */}
+              {commentsData.legitimateComplaints.length > 0 && (
+                <div className="p-5 bg-rose-950/40 border border-rose-800/80 rounded-2xl space-y-4">
+                  <div className="flex items-center gap-2 text-rose-300 font-bold text-sm">
+                    <AlertCircle className="w-5 h-5 text-rose-400" />
+                    <span>Quejas legítimas de clientes ({commentsData.legitimateComplaints.length})</span>
+                  </div>
+                  <p className="text-xs text-slate-300">
+                    Reclamos o inquietudes de clientes reales. NO se ocultaron solos para que vos decidas cómo responder y moderar.
+                  </p>
+                  <div className="space-y-3">
+                    {commentsData.legitimateComplaints.map((c) => (
+                      <div key={c.id} className="p-4 bg-slate-950/90 border border-rose-900/50 rounded-xl flex flex-col md:flex-row md:items-center justify-between gap-3">
+                        <div className="space-y-1 max-w-2xl">
+                          <div className="flex items-center gap-2 text-xs">
+                            <span className="font-bold text-rose-300">{c.authorName}</span>
+                            <span className="text-slate-500">• {c.network}</span>
+                            <span className="text-slate-500">• {new Date(c.createdAt).toLocaleDateString('es-UY')}</span>
+                          </div>
+                          <p className="text-sm text-slate-200 whitespace-pre-wrap">"{c.text}"</p>
+                        </div>
+                        <div className="shrink-0 flex items-center gap-2">
+                          {c.permalink && (
+                            <a
+                              href={c.permalink}
+                              target="_blank"
+                              rel="noopener noreferrer"
+                              className="px-3 py-1.5 bg-slate-800 hover:bg-slate-700 text-slate-300 text-xs font-semibold rounded-lg border border-slate-700 flex items-center gap-1"
+                            >
+                              Ver original <ExternalLink className="w-3 h-3" />
+                            </a>
+                          )}
+                          <button
+                            onClick={() => handleHideComment(c.id)}
+                            className="px-3 py-1.5 bg-slate-800 hover:bg-slate-700 text-slate-200 text-xs font-bold rounded-lg border border-slate-700 transition"
+                          >
+                            Ocultar en la red
+                          </button>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              )}
+
+              {/* SECCIÓN 1: BUENOS / TESTIMONIOS LISTOS PARA MOSTRAR */}
+              <div className="p-5 bg-slate-900/90 border border-slate-800 rounded-2xl space-y-4">
+                <div className="flex items-center justify-between">
+                  <div className="flex items-center gap-2 text-emerald-400 font-bold text-base">
+                    <ThumbsUp className="w-5 h-5" />
+                    <span>Elogios y comentarios positivos listos para la web</span>
+                  </div>
+                  <span className="text-xs text-slate-400">
+                    {commentsData.positiveComments.length} comentarios
+                  </span>
+                </div>
+
+                {commentsData.positiveComments.length === 0 ? (
+                  <p className="text-xs text-slate-400 py-4 text-center">
+                    Aún no hay comentarios clasificados como positivos. Hacé clic en "Traer lo nuevo" para sincronizar.
+                  </p>
+                ) : (
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    {commentsData.positiveComments.map((c) => (
+                      <div
+                        key={c.id}
+                        className="p-4 bg-slate-950/80 border border-slate-800 rounded-xl flex flex-col justify-between gap-3"
+                      >
+                        <div className="space-y-2">
+                          <div className="flex items-center justify-between text-xs">
+                            <span className="font-bold text-white">{c.authorName}</span>
+                            <span className="text-xs text-slate-400 font-medium">{c.network}</span>
+                          </div>
+                          <p className="text-xs text-slate-300 leading-relaxed italic">
+                            "{c.text}"
+                          </p>
+                          {c.sentimentReason && (
+                            <p className="text-[11px] text-emerald-400/90">
+                              ✓ {c.sentimentReason}
+                            </p>
+                          )}
+                        </div>
+
+                        <div className="pt-2 border-t border-slate-800/80 flex items-center justify-between gap-2">
+                          {c.permalink ? (
+                            <a
+                              href={c.permalink}
+                              target="_blank"
+                              rel="noopener noreferrer"
+                              className="text-[11px] text-slate-400 hover:text-slate-200 flex items-center gap-1 font-medium"
+                            >
+                              Ver original <ExternalLink className="w-3 h-3" />
+                            </a>
+                          ) : <span />}
+
+                          {c.isTestimonialApproved ? (
+                            <span className="inline-flex items-center gap-1 text-[11px] font-bold text-emerald-400 bg-emerald-500/10 px-2.5 py-1 rounded-lg border border-emerald-500/20">
+                              <CheckCircle2 className="w-3.5 h-3.5" /> En la web
+                            </span>
+                          ) : (
+                            <button
+                              onClick={() => handlePublishAsTestimonial(c.id)}
+                              className="px-3 py-1.5 bg-emerald-600 hover:bg-emerald-500 text-white text-xs font-bold rounded-lg shadow transition flex items-center gap-1"
+                            >
+                              <Sparkles className="w-3.5 h-3.5" /> Mostrar en la web
+                            </button>
+                          )}
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                )}
+              </div>
+            </div>
+          ) : (
+            <div className="p-8 bg-slate-950/60 border border-slate-800 rounded-xl text-center space-y-3">
+              <MessageCircle className="w-8 h-8 text-rose-400 mx-auto" />
+              <h3 className="text-base font-bold text-white">Comentarios de redes sociales</h3>
+              <p className="text-xs text-slate-400 max-w-md mx-auto">
+                Conectá tus cuentas de Facebook, Instagram y YouTube en Ajustes y hacé clic en "Traer lo nuevo" para leer todos los comentarios.
+              </p>
             </div>
           )}
         </div>

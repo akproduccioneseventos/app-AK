@@ -9,10 +9,10 @@ import { Textarea } from '@/components/ui/textarea';
 import { Label } from '@/components/ui/label';
 import { Switch } from '@/components/ui/switch';
 import { Separator } from '@/components/ui/separator';
-import { ArrowLeft, Loader2, AlertTriangle, Star, Wand2, Trash2, ClipboardCopy, CheckCircle, Info, Link as LinkIcon, Send } from 'lucide-react';
+import { ArrowLeft, Loader2, AlertTriangle, Star, Wand2, Trash2, ClipboardCopy, CheckCircle, Info, Link as LinkIcon, Send, Image as ImageIcon, UploadCloud } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import type { FeedbackSubmission, Testimonial } from '@/types/feedback';
-import { getFeedback, getAllTestimonials, saveTestimonial, updateTestimonialApproval, deleteTestimonial, requestGoogleReviewManual } from '@/app/actions/feedback';
+import { getFeedback, getAllTestimonials, saveTestimonial, updateTestimonialApproval, updateTestimonialScreenshot, deleteTestimonial, requestGoogleReviewManual } from '@/app/actions/feedback';
 import {
   Dialog,
   DialogContent,
@@ -309,7 +309,39 @@ export default function FeedbackPage() {
             <Card key={t.id} className="bg-muted/40">
               <CardContent className="p-4 space-y-3">
                 <blockquote className="border-l-4 pl-4 italic">"{t.testimonialText}"</blockquote>
-                <p className="text-sm font-medium text-right">- {t.clientName}, {t.fiestaNombre}</p>
+                <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2">
+                  <p className="text-sm font-medium text-muted-foreground">- {t.clientName}, {t.fiestaNombre}</p>
+                  {t.screenshotUrl && (
+                    <a
+                      href={t.screenshotUrl}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="text-xs text-amber-500 hover:underline flex items-center gap-1 font-semibold"
+                    >
+                      <ImageIcon className="w-3.5 h-3.5" /> Ver captura adjunta
+                    </a>
+                  )}
+                </div>
+
+                {/* Subida o edición de captura */}
+                <div className="flex items-center gap-2 pt-1">
+                  <Input
+                    placeholder="URL de captura del comentario (ej: /media/comentarios/captura-1.png)"
+                    defaultValue={t.screenshotUrl || ''}
+                    onBlur={async (e) => {
+                      const newUrl = e.target.value.trim();
+                      if (newUrl !== (t.screenshotUrl || '')) {
+                        const res = await updateTestimonialScreenshot(t.id, newUrl);
+                        if (res.success) {
+                          toast({ title: 'Captura actualizada' });
+                          await loadData();
+                        }
+                      }
+                    }}
+                    className="text-xs h-8"
+                  />
+                </div>
+
                 <Separator/>
                 <div className="flex justify-between items-center">
                     <div className="flex flex-wrap items-center gap-2">
