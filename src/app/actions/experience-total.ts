@@ -79,7 +79,7 @@ function mergeSocialSettings(fiesta: FiestaEnPlanificacion): SocialGallerySettin
     screenDarkMode: current.screenDarkMode ?? true,
     brand: {
       companyName: 'AK Producciones',
-      instagramHandle: '@akproduccioneseventos',
+      instagramHandle: '@akproduccionesfiestasyeventos',
       facebookHandle: 'AK Producciones Eventos',
       landingUrl: 'https://akproducciones.uy',
       ctaText: 'Escanea, participa y comparti tu recuerdo.',

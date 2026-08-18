@@ -22,7 +22,7 @@ const COMPANY_CONTACT_PERSON = 'SR. Alexander Knuth';
 const COMPANY_ADDRESS_LINE1 = 'Salto';
 const COMPANY_ADDRESS_LINE2 = '50000 Salto';
 const COMPANY_EMAIL = 'akproduccionessalto@gmail.com';
-const COMPANY_WEBSITE = 'www.akproduccioneseventos.com';
+const COMPANY_WEBSITE = 'www.akproducciones.uy';
 // ── Helpers ───────────────────────────────────────────────────────────────────
 function formatCurrency(amount?: number): string {
   if (amount === undefined || isNaN(amount)) return 'N/A';

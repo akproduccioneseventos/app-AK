@@ -43,3 +43,25 @@ describe('las cuentas oficiales que ve Google', () => {
     expect(landings).not.toContain('ak_producciones_eventos');
   });
 });
+
+describe('los botones de Instagram apuntan todos a la misma cuenta', () => {
+  // Habia tres direcciones distintas dando vueltas. Un boton que lleva a una
+  // cuenta vieja es una venta que se pierde sin que nadie se entere.
+  const ARCHIVOS = [
+    'src/components/public/GallerySection.tsx',
+    'src/components/landing/WinSechWidgets.tsx',
+    'src/components/landing/CTASection.tsx',
+    'src/components/public-footer.tsx',
+    'src/app/page.tsx',
+    'src/app/actions/social-connections.ts',
+    'src/app/actions/experience-total.ts',
+    'src/lib/experience-ak/demo-fiesta-factory.ts',
+  ];
+
+  it.each(ARCHIVOS)('%s no nombra ninguna cuenta vieja', (archivo) => {
+    const fuente = leer(archivo);
+
+    expect(fuente).not.toContain('akproduccioneseventos');
+    expect(fuente).not.toContain('ak_producciones_eventos');
+  });
+});

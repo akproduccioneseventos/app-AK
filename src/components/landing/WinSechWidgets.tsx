@@ -31,9 +31,9 @@ const OFFERS: OfferWidget[] = [
     id: 2,
     icon: Instagram,
     title: 'Seguinos en Instagram',
-    description: 'Sumate a @akproduccioneseventos. Compartimos fotos y videos reales de todas las fiestas en Salto.',
+    description: 'Sumate a @akproduccionesfiestasyeventos. Compartimos fotos y videos reales de todas las fiestas en Salto.',
     ctaText: 'Ver Perfil',
-    ctaUrl: 'https://instagram.com/akproduccioneseventos',
+    ctaUrl: 'https://www.instagram.com/akproduccionesfiestasyeventos/',
     iconColor: 'text-pink-400',
     bgGlow: 'bg-pink-500/10 border-pink-500/20',
   },
@@ -55,8 +55,8 @@ interface WinSechWidgetsProps {
 }
 
 export function WinSechWidgets({
-  instagramUrl = 'https://instagram.com/akproduccioneseventos',
-  instagramHandle = '@akproduccioneseventos',
+  instagramUrl = 'https://www.instagram.com/akproduccionesfiestasyeventos/',
+  instagramHandle = '@akproduccionesfiestasyeventos',
 }: WinSechWidgetsProps) {
   const [currentIdx, setCurrentIdx] = useState(0);
   const [isVisible, setIsVisible] = useState(false);
