@@ -9,7 +9,7 @@ Quien cierre una sesión reescribe este archivo. Se pisa, no se acumula.
 
 **Última actualización:** 17 de agosto de 2026, cierre.
 **Estado de la app:** sana. Verificada sobre `main` **después** de fusionar:
-acentos limpios, tipos en cero, 1740 pruebas, compila, 20 de seguridad de la base.
+acentos limpios, tipos en cero, 1742 pruebas, compila, 20 de seguridad de la base.
 **Propuestas abiertas:** ninguna. **Órdenes pendientes:** ninguna.
 
 ## Está todo hecho y todo auditado

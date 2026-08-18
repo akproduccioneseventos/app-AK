@@ -266,7 +266,19 @@ de lo que el equipo todavía tiene que publicar a mano.
 - **La invitada que no deja teléfono — ANDA (17 de agosto de 2026).** Antes se la guardaba con el número inventado `099000000` y alguien perdía el viaje llamando. Ahora se guarda sin teléfono, la ficha lo aclara, y dos invitadas que se llaman igual no quedan pegadas en una sola ficha. El simulador **sigue exigiendo** celular, porque ahí sin teléfono no hay a dónde mandar el presupuesto.
 - **Explicación narrativa del presupuesto — ANDA.** Resumen descriptivo fiel en `BudgetDocument.tsx` y visor de presupuestos que explica los servicios contratados sin inventar números ni precios.
 
-## Aparecer en Google (posicionamiento) — revisado el 12 de agosto de 2026
+## Aparecer en Google (posicionamiento) — revisado el 17 de agosto de 2026
+
+### El segundo problema, encontrado el 17 de agosto
+
+**Tener título y descripción no sirve de nada si la página no se puede abrir.**
+Bodas, quince años, cumpleaños y la experiencia AK figuraban acá como listas para
+Google, y estaban bien armadas, pero **el sistema mandaba al visitante a la
+pantalla de contraseña**: faltaba declararlas como abiertas. El prospecto que
+llegaba desde Google o desde un enlace de WhatsApp veía un formulario de ingreso.
+
+Corregido, con una prueba que ata las dos listas para que no vuelva a pasar. Al
+revisar esta sección hay que mirar **las dos cosas**: que la página tenga su
+título y que se pueda abrir sin cuenta.
 
 ### El problema principal
 
