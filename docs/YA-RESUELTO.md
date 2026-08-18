@@ -2049,6 +2049,28 @@ Seguidores y alcance reales salen de las estadísticas de Meta, con las
 credenciales comerciales cargadas. El puntaje de Google se ve en el panel de
 Google del dueño. Mientras no estén, **vacío es la respuesta correcta**.
 
+## Presencia digital: la revisión del panel del 18 de agosto de 2026
+
+- **Publicar en las redes de la empresa estaba abierto al público.** El ejecutor
+  que manda el posteo a Facebook e Instagram no pide permiso —a propósito, porque
+  la tarea programada no tiene sesión—, pero estaba exportado desde un archivo de
+  acciones, y **todo lo que se exporta desde ahí queda accesible desde afuera**.
+  Se mudó a `src/lib/presencia-digital/publicador.ts`, junto con la cola de
+  posteos programados. Ahora lo usan sólo la acción que sí pide permiso y la
+  tarea programada. **Por eso vive en `lib` y no en `actions`: no moverlo de
+  vuelta.**
+- **El monto contratado que se le atribuía a cada red daba siempre cero.** Se
+  buscaba el total del presupuesto por un nombre que no existe. El total real es
+  el que quedó con descuento y, si no hay, el estimado.
+- **El nombre del salón en los textos sugeridos** se buscaba por un campo que no
+  existe: quedaba siempre "Salto, Uruguay".
+- **La publicación programada no publica sola nada que nadie haya decidido:**
+  saca únicamente los posteos que una persona dejó programados con su texto, con
+  tope de tres por corrida para que un servidor caído no vacíe la cola de golpe.
+- **El gasto de inteligencia artificial de los textos sugeridos está contado**
+  (`material-post-evento`) y, sin presupuesto, cae solo a las plantillas
+  escritas a mano. Verificado, no es un pendiente.
+
 ## Cómo agregar algo a esta lista
 
 **Se anota SIEMPRE, en la misma propuesta que toca el código.** Orden del dueño

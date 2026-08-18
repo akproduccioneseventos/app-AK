@@ -14,6 +14,8 @@ import { getNetworkAttributionReport } from '@/app/actions/presencia-digital';
 import * as dataService from '@/lib/data-service';
 import * as aiConsumo from '@/lib/ai/consumo-servidor';
 import * as marketingAgent from '@/ai/flows/marketing-agent-flow';
+import * as fiestaActions from '@/app/actions/fiesta/fiesta.actions';
+import * as socialGallery from '@/app/actions/social-gallery';
 import { generateDraftPostsFromPartyPhotos } from '@/app/actions/social-media';
 import type { SocialPost } from '@/types/social-media';
 import type { CrmLead } from '@/types/crm';
@@ -23,6 +25,14 @@ jest.mock('@/lib/data-service');
 // Sin esto los modulos quedan de solo lectura y `jest.spyOn` no los puede cambiar.
 jest.mock('@/lib/ai/consumo-servidor');
 jest.mock('@/ai/flows/marketing-agent-flow');
+// La generacion de borradores no lee los archivos directo: pide la fiesta y las
+// fotos por estas dos funciones. Si no se las reemplaza, la prueba mide otra cosa.
+jest.mock('@/app/actions/fiesta/fiesta.actions', () => ({
+  getFiestaById: jest.fn(),
+}));
+jest.mock('@/app/actions/social-gallery', () => ({
+  getPublicSocialPosts: jest.fn(),
+}));
 jest.mock('@/lib/auth/require-session', () => ({
   requirePermiso: jest.fn().mockResolvedValue({ ok: true }),
   requireSession: jest.fn().mockResolvedValue({ ok: true, user: { id: 'u1', email: 'test@ak.uy' } }),
@@ -183,14 +193,14 @@ describe('BLOQUE 2: Generación con IA y fallback a plantillas', () => {
       configuracion: {
         nombreEvento: 'XV de Sofía',
         tipoCelebracion: '15 años',
-        lugarEvento: 'Salón Trianon',
+        nombreLugar: 'Salón Trianon',
       },
       invitados: [{ id: 'i1' }, { id: 'i2' }],
     };
 
     const mockPostsSocialGallery = [
-      { id: 'p1', imageUrl: 'https://images.ak.uy/foto1.jpg', likes: 10, estadoAprobacion: 'Aprobado' },
-      { id: 'p2', imageUrl: 'https://images.ak.uy/foto2.jpg', likes: 5, estadoAprobacion: 'Aprobado' },
+      { id: 'p1', imageUrl: 'https://images.ak.uy/foto1.jpg', likes: 10, moderationStatus: 'approved' },
+      { id: 'p2', imageUrl: 'https://images.ak.uy/foto2.jpg', likes: 5, moderationStatus: 'approved' },
     ];
 
     readDataMock.mockImplementation((file: string, fallback: any) => {
@@ -199,6 +209,9 @@ describe('BLOQUE 2: Generación con IA y fallback a plantillas', () => {
       if (file === 'social-posts.json') return Promise.resolve([]);
       return Promise.resolve(fallback);
     });
+
+    (fiestaActions.getFiestaById as jest.Mock).mockResolvedValue(mockFiesta);
+    (socialGallery.getPublicSocialPosts as jest.Mock).mockResolvedValue(mockPostsSocialGallery);
 
     const res = await generateDraftPostsFromPartyPhotos('f1');
 
@@ -227,7 +240,7 @@ describe('BLOQUE 2: Generación con IA y fallback a plantillas', () => {
     };
 
     const mockPostsSocialGallery = [
-      { id: 'p1', imageUrl: 'https://images.ak.uy/foto1.jpg', likes: 10, estadoAprobacion: 'Aprobado' },
+      { id: 'p1', imageUrl: 'https://images.ak.uy/foto1.jpg', likes: 10, moderationStatus: 'approved' },
     ];
 
     readDataMock.mockImplementation((file: string, fallback: any) => {
@@ -236,6 +249,9 @@ describe('BLOQUE 2: Generación con IA y fallback a plantillas', () => {
       if (file === 'social-posts.json') return Promise.resolve([]);
       return Promise.resolve(fallback);
     });
+
+    (fiestaActions.getFiestaById as jest.Mock).mockResolvedValue(mockFiesta);
+    (socialGallery.getPublicSocialPosts as jest.Mock).mockResolvedValue(mockPostsSocialGallery);
 
     const res = await generateDraftPostsFromPartyPhotos('f1');
 
@@ -277,7 +293,7 @@ describe('BLOQUE 3: Reporte de atribución por red social', () => {
         id: 'b1',
         clienteNombre: 'Camila Rodriguez',
         estado: 'Aceptado',
-        totalPresupuesto: 65000,
+        costoTotalEstimado: 65000,
         createdAt: new Date().toISOString(),
       } as any,
     ];
