@@ -7,6 +7,14 @@
     "note": "Diario EL PUEBLO del 1/9/2019 informa el inicio independiente del servicio integral de fiestas de AK Producciones en septiembre de 2019."
   },
   "lastUpdated": "2026-08-17",
+  "officialPublicAccounts": {
+    "Facebook": "https://www.facebook.com/akproduccionessalto/",
+    "Instagram": "https://www.instagram.com/akproduccionesfiestasyeventos/",
+    "TikTok": "https://www.tiktok.com/@akproduccioneseve",
+    "YouTube": "https://www.youtube.com/channel/UClq6YnypA9PFuBgunzk306A",
+    "Threads": "https://www.threads.com/@akproduccionesfiestasyeventos",
+    "X": "https://x.com/AkSalto"
+  },
   "recoveredTotal": 43,
   "recoveredByPlatform": {
     "Facebook": 27,
@@ -47,7 +55,42 @@
       "value": 134,
       "unit": "videos",
       "asOf": "2026-08-17",
-      "source": "TikBuddy public profile index"
+      "source": "TikBuddy public profile index",
+      "accountId": "akproduccioneseve"
+    }
+  },
+  "automatedPublicBackfill": {
+    "Facebook": {
+      "implemented": true,
+      "method": "Meta Graph API published_posts paginado",
+      "cutoff": "2019-09-01",
+      "runtimeCompletionPending": true
+    },
+    "Instagram": {
+      "implemented": true,
+      "method": "Meta Graph API media paginado",
+      "cutoff": "2019-09-01",
+      "runtimeCompletionPending": true
+    },
+    "YouTube": {
+      "implemented": true,
+      "method": "YouTube Data API paginada con fallback RSS público",
+      "cutoff": "2019-09-01",
+      "runtimeCompletionPending": true,
+      "note": "Solo se considera archivo completo cuando la Data API logra paginar toda la lista de subidas; RSS por sí solo no se marca completo."
+    },
+    "TikTok": {
+      "implemented": false,
+      "method": "Sin acceso programático aprobado para enumerar los 134 videos públicos",
+      "publicTotalVerified": 134
+    },
+    "Threads": {
+      "implemented": false,
+      "method": "Sin conexión/API de cuenta disponible en la app"
+    },
+    "X": {
+      "implemented": false,
+      "method": "Sin conexión/API de cuenta disponible en la app"
     }
   },
   "dataAvailability": {
