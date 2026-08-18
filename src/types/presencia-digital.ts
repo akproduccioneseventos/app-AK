@@ -3,8 +3,13 @@ export type PlatformName = 'Instagram' | 'Facebook' | 'TikTok' | 'Google' | 'You
 export interface DailySocialMetricSnapshot {
   date: string; // YYYY-MM-DD
   platform: PlatformName;
-  followers: number;
-  reach: number;
+  /**
+   * Seguidores y alcance van en `null` mientras no haya de dónde leerlos.
+   * Antes se guardaban todos los días con números inventados y una cuenta hecha
+   * a ojo, así que el historial de crecimiento que se armaba era falso entero.
+   */
+  followers: number | null;
+  reach: number | null;
   interactions: number;
   postsCount: number;
   adSpend: number;
@@ -61,18 +66,27 @@ export interface DigitalPresenceReview {
   aiUsed: boolean;
 }
 
+/**
+ * Los que pueden venir en `null` es porque **todavía no hay de dónde sacarlos**.
+ * Antes venían con un número escrito a mano —1420 seguidores, 4,9 de puntaje,
+ * 38 opiniones— que se mostraba igual que los de verdad. El dueño miraba su
+ * panel y tomaba decisiones sobre datos inventados.
+ *
+ * Regla: si no se midió, va `null` y la pantalla dice "sin dato". Un número
+ * inventado es peor que un casillero vacío.
+ */
 export interface DigitalPresenceDashboardData {
   kpis: {
-    totalFollowers: number;
-    followersWeeklyChange: number;
-    weeklyReach: number;
-    reachWeeklyChangePct: number;
+    totalFollowers: number | null;
+    followersWeeklyChange: number | null;
+    weeklyReach: number | null;
+    reachWeeklyChangePct: number | null;
     activeAdSpendMonth: number;
     signedPartiesFromAds: number;
     averageCostPerSignedParty: number | null;
     pendingApprovalPostsCount: number;
-    googleRating: number;
-    googleReviewsCount: number;
+    googleRating: number | null;
+    googleReviewsCount: number | null;
   };
   commercialAdsRoi: CampaignCommercialRoi[];
   review: DigitalPresenceReview | null;
@@ -81,7 +95,8 @@ export interface DigitalPresenceDashboardData {
     platform: PlatformName;
     isConnected: boolean;
     username?: string;
-    followers: number;
+    /** `null` mientras no haya de dónde leerlo de verdad. */
+    followers: number | null;
     daysWithoutPost: number;
     canAutoPublish: boolean;
     publishNote?: string;

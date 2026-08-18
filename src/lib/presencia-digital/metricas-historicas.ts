@@ -47,31 +47,24 @@ export function buildDailySnapshots(params: {
     const conn = params.connections.find((c) => c.platform === platform);
     const postStats = postsByPlatform.get(platform) || { count: 0, interactions: 0 };
     
-    // Obtener métricas base según conexión y campañas
-    let followers = 0;
-    let reach = 0;
-    let adSpend = 0;
+    // Seguidores y alcance: NO se inventan.
+    //
+    // Antes esto ponia 1420 seguidores en Instagram, 2850 en Facebook, y el
+    // alcance salia de una cuenta hecha a ojo (`interacciones * 4 + 350`). Se
+    // guardaba todos los dias, asi que el historial de crecimiento que veia el
+    // dueno era falso de punta a punta, y encima parecia real porque se movia.
+    //
+    // Van en `null` hasta que haya de donde leerlos: para Instagram y Facebook,
+    // las estadisticas de Meta con las credenciales cargadas.
+    const followers: number | null = null;
+    const reach: number | null = null;
 
-    if (platform === 'Instagram') {
-      followers = conn?.isConnected ? 1420 : 0;
-      reach = postStats.interactions * 4 + 350;
-      adSpend = (params.adsSummary?.totalSpend || 0) * 0.6; // Proporción estimada Meta
-    } else if (platform === 'Facebook') {
-      followers = conn?.isConnected ? 2850 : 0;
-      reach = postStats.interactions * 3 + 420;
-      adSpend = (params.adsSummary?.totalSpend || 0) * 0.4;
-    } else if (platform === 'TikTok') {
-      followers = conn?.isConnected ? 680 : 0;
-      reach = postStats.interactions * 8 + 150;
-      adSpend = 0;
-    } else if (platform === 'Google') {
-      followers = 0; // Ficha de negocio no usa seguidores tradicionales
-      reach = 980; // Búsquedas y visualizaciones en Maps
-      adSpend = 0;
-    } else if (platform === 'YouTube') {
-      followers = 210;
-      reach = postStats.interactions * 10;
-      adSpend = 0;
+    // El gasto de publicidad si es real, pero el reparto entre redes no: venia
+    // de un 60/40 puesto a ojo. Se deja el total en la red que lo trae y no se
+    // reparte inventando.
+    let adSpend = 0;
+    if (platform === 'Facebook') {
+      adSpend = params.adsSummary?.totalSpend || 0;
     }
 
     newSnapshots.push({
