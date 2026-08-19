@@ -649,9 +649,14 @@ function BackgroundMusicPlayer({ src, splashDone }: { src?: string; splashDone: 
   const [playing, setPlaying] = useState(false);
   const audioRef = useRef<HTMLAudioElement | null>(null);
 
-  // Fallback royalty-free beautiful piano track
-  const defaultMusicUrl = 'https://www.soundhelix.com/examples/mp3/SoundHelix-Song-1.mp3';
-  const musicSrc = src || defaultMusicUrl;
+  // Sin musica cargada NO suena nada, y el boton ni se muestra.
+  //
+  // Antes caia en una cancion de prueba de un sitio de demostracion ajeno
+  // (soundhelix.com). El invitado de una fiesta tocaba el botoncito de musica y
+  // escuchaba un piano generico que el anfitrion nunca eligio, traido de una
+  // pagina que no es nuestra: si ese sitio se cae o bloquea el archivo, deja de
+  // sonar en las invitaciones de todos.
+  const musicSrc = src?.trim() || '';
 
   useEffect(() => {
     audioRef.current = new Audio(musicSrc);
@@ -1379,29 +1384,29 @@ export function InvitacionPublicaClient({ config, fiestaId, socialConnections = 
     { pregunta: '¿Hay estacionamiento en el salón?', respuesta: 'Sí, el salón cuenta con estacionamiento privado y personal de seguridad.' }
   ];
 
-  const defaultHitos = config.tipoEvento === 'boda' ? [
-    { fecha: '2021', titulo: 'El Primer Encuentro', descripcion: 'Una mirada, una sonrisa y el comienzo de una linda amistad.' },
-    { fecha: '2023', titulo: 'El Noviazgo', descripcion: 'Comenzamos a escribir juntos nuestra propia historia de aventuras.' },
-    { fecha: '2025', titulo: 'La Propuesta', descripcion: 'Bajo las estrellas y con una gran emoción, dijimos que sí para siempre.' }
-  ] : [
-    { fecha: '2011', titulo: 'El Nacimiento', descripcion: 'Llegué para llenar de luz y alegría el hogar de mi hermosa familia.' },
-    { fecha: '2018', titulo: 'Mi Infancia', descripcion: 'Años llenos de risas, juegos de escuela y los primeros grandes amigos.' },
-    { fecha: '2026', titulo: 'Mis 15 Años', descripcion: 'El momento tan esperado, celebrando la vida con la gente que más quiero.' }
-  ];
-
-  const defaultHospedajes = [
-    { nombre: 'Hotel Premium Plaza', direccion: 'Av. Libertador 1234, Centro', linkBooking: 'https://booking.com', telefono: '+54 11 4567 8900' },
-    { nombre: 'Grand Palace Hotel', direccion: 'Calle de las Rosas 567, Palermo', linkBooking: 'https://booking.com', telefono: '+54 11 9876 5432' }
-  ];
+  // La historia y los hospedajes salen de lo que cargo el anfitrion. Si no cargo
+  // nada, **la seccion no se muestra**.
+  //
+  // Hasta el 19 de agosto de 2026 estas dos secciones salian en TODAS las
+  // invitaciones con contenido escrito a mano: una historia de vida inventada
+  // ("El Nacimiento - 2011", "Mi Infancia - 2018") y dos hoteles que no existen,
+  // con direcciones de Buenos Aires ("Palermo") y telefonos argentinos (+54 11).
+  // Los invitados de una fiesta en Salto leian la vida de otra persona y una
+  // recomendacion de hotel a 500 kilometros. El anfitrion no podia cambiarlo
+  // porque no habia donde cargarlo.
+  //
+  // Vacio es mejor que inventado: una seccion que no aparece no molesta a nadie.
+  const hitosDelAnfitrion = config.hitos ?? [];
+  const hospedajesDelAnfitrion = config.hospedajes ?? [];
 
   // SECTION INJECTIONS
-  addSectionEntry('historia', true, (
+  addSectionEntry('historia', hitosDelAnfitrion.length > 0, (
     <Section key="historia" className="text-center" id="historia" typography={config.typography}>
       <Heart className="w-8 h-8 mx-auto mb-4 animate-pulse" style={{ color: 'var(--inv-primary)' }} />
       <h2 className={cn(getSectionTitleClass(config.typography), 'mb-8', styles.fontHeading)} style={{ color: 'var(--inv-primary)' }}>
         Nuestra Historia
       </h2>
-      <StoryTimeline hitos={defaultHitos} colorPrincipal="var(--inv-primary)" colorSecundario="var(--inv-secondary)" />
+      <StoryTimeline hitos={hitosDelAnfitrion} colorPrincipal="var(--inv-primary)" colorSecundario="var(--inv-secondary)" />
     </Section>
   ));
 
@@ -1415,13 +1420,13 @@ export function InvitacionPublicaClient({ config, fiestaId, socialConnections = 
     </Section>
   ));
 
-  addSectionEntry('logistica', true, (
+  addSectionEntry('logistica', hospedajesDelAnfitrion.length > 0, (
     <Section key="logistica" className="text-center" id="logistica" typography={config.typography}>
       <Hotel className="w-8 h-8 mx-auto mb-4" style={{ color: 'var(--inv-primary)' }} />
       <h2 className={cn(getSectionTitleClass(config.typography), 'mb-8', styles.fontHeading)} style={{ color: 'var(--inv-primary)' }}>
         Hospedaje Recomendado
       </h2>
-      <LogisticaCards hospedajes={defaultHospedajes} colorPrincipal="var(--inv-primary)" colorSecundario="var(--inv-secondary)" />
+      <LogisticaCards hospedajes={hospedajesDelAnfitrion} colorPrincipal="var(--inv-primary)" colorSecundario="var(--inv-secondary)" />
     </Section>
   ));
 
@@ -1624,7 +1629,7 @@ export function InvitacionPublicaClient({ config, fiestaId, socialConnections = 
       )}
 
       {/* ============= BACKGROUND MUSIC PLAYER ============= */}
-      <BackgroundMusicPlayer src={config.musicaFondoUrl} splashDone={splashDone} />
+      {config.musicaFondoUrl?.trim() ? <BackgroundMusicPlayer src={config.musicaFondoUrl} splashDone={splashDone} /> : null}
 
       {/* ============= XV ULTRA-LUXURY THEME EFFECTS ============= */}
       <XVThemeEffects plantillaId={config.plantillaId} />

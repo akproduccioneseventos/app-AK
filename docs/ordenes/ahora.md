@@ -188,6 +188,50 @@ social: copiá ese mismo criterio, no inventes uno nuevo.
 **Y si no hay enlace personal, la foto se sube igual** y queda sin dueño, como
 hasta ahora. Nadie se queda sin sacarse la foto por no tener el enlace.
 
+---
+
+# BLOQUE 6 — Que el anfitrión pueda cargar su historia y sus hoteles
+
+**Contexto:** hasta el 19 de agosto de 2026, toda invitación mostraba una historia
+de vida inventada y dos hoteles de Buenos Aires con teléfono argentino, que el
+anfitrión no podía cambiar. **Ya se sacaron**: hoy esas dos secciones sólo salen si
+hay contenido cargado, y como no hay dónde cargarlo, no salen nunca.
+
+**Los campos ya existen:** `hitos` y `hospedajes` en `InvitacionDigitalConfig`
+(`src/types/fiesta.ts`), con sus tipos `HitoInvitacion` y `HospedajeInvitacion`.
+Sólo falta la pantalla.
+
+## Qué hacer
+
+En el editor de la página web de la fiesta (`src/app/(app)/fiestas/nueva/pagina-web/`),
+agregar dos bloques para cargar:
+
+- **La historia**: una lista de hitos, cada uno con año, título y una descripción
+  corta. Poder agregar, borrar y reordenar. Para una boda son "cómo se conocieron",
+  para unos quince son los años de la chica.
+- **Los hospedajes**: una lista con nombre, dirección, y opcionalmente teléfono y
+  enlace para reservar. Es para los invitados que vienen de otra ciudad.
+
+## Cuidados
+
+- **Las dos secciones son opcionales.** Si el anfitrión no carga nada, la sección no
+  aparece en la invitación. **Eso ya funciona así, no lo cambies.**
+- **Nada de ejemplos precargados.** Ni hitos de muestra, ni un hotel de ejemplo. Si
+  hace falta guiar, va como texto gris de ayuda dentro del campo vacío, nunca como
+  un dato cargado que después queda publicado sin que nadie lo note. **Esto ya pasó
+  cuatro veces en este proyecto.**
+- **Los hoteles son de Salto**, o de donde sea la fiesta. Nada de direcciones ni
+  teléfonos de otros países.
+- Que se vea en la vista previa del editor al cargarlo.
+
+## Cómo se comprueba
+
+1. Que sin cargar nada, las dos secciones no aparecen en la invitación.
+2. Que al cargar un hito, la sección de historia aparece con ese hito y ninguno más.
+3. Lo mismo con un hospedaje.
+4. Que se pueden borrar todos y la sección vuelve a desaparecer.
+5. Que no queda ningún dato de ejemplo cargado por defecto.
+
 ## Cómo se comprueba
 
 1. Que una foto sacada en la fotocabina con el enlace personal queda con dueño.

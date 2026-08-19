@@ -2515,6 +2515,49 @@ orden, buscá en `docs/QUE-HAY-EN-LA-APP.md` qué apunta a ella.
 Mejor todavía: no escribir "está pedido en la orden vigente" sino **describir qué
 falta**, así el pedido se puede reponer aunque la orden cambie.
 
+## La invitacion mostraba una vida inventada y hoteles de Buenos Aires (19 de agosto de 2026)
+
+**Es la cuarta vez que aparece contenido inventado con cara de real.** Esta fue la
+peor, porque la veian los invitados de todas las fiestas.
+
+Toda invitación digital mostraba dos secciones con contenido escrito a mano en el
+código, que **el anfitrión no podía cambiar porque no había dónde cargarlo**:
+
+- **Una historia de vida inventada.** "El Nacimiento — 2011", "Mi Infancia — 2018",
+  "Mis 15 Años — 2026". Para una boda, un noviazgo inventado con fechas. Los
+  invitados leían la vida de otra persona.
+- **Dos hoteles que no existen**, con direcciones de Buenos Aires ("Av. Libertador
+  1234", "Calle de las Rosas 567, Palermo") y teléfonos argentinos (+54 11). Un
+  invitado de una fiesta en Salto recibía una recomendación de hotel a 500
+  kilómetros, en otro país.
+- **Y música de prueba.** Sin música cargada, el botoncito de música sonaba una
+  canción de piano de un sitio de demostración ajeno (`soundhelix.com`). El
+  anfitrión nunca la eligió, y si ese sitio se cae deja de sonar en las
+  invitaciones de todos.
+
+**Cómo quedó:** las dos secciones ahora salen **sólo si el anfitrión cargó lo
+suyo**, y si no cargó nada no se muestran. Se agregaron los campos `hitos` y
+`hospedajes` a la configuración de la invitación para que se puedan cargar. El
+reproductor de música **no se muestra** si no hay música propia.
+
+**Vacío es mejor que inventado:** una sección que no aparece no molesta a nadie; una
+que miente, sí.
+
+**Falta la pantalla para cargarlos**, que quedó pedida. Hasta entonces las dos
+secciones simplemente no salen, que es lo correcto.
+
+## Los textos de venta con números NO son un error (19 de agosto de 2026)
+
+Una auditoría reportó como "datos inventados" los textos "+10 años de experiencia",
+"Atención 100% personalizada" y "Respuesta en 24 hs" de la portada y los catálogos.
+
+**No son inventados: son los textos de venta del dueño**, y él sabe si son ciertos.
+No se tocan sin que lo pida.
+
+Lo único cierto del aviso es que **están escritos en el código**: si el dueño quiere
+decir "15 años" en vez de "10", hoy hay que tocar código. Queda anotado como cosa a
+mejorar, no como error.
+
 ## Cómo agregar algo a esta lista
 
 **Se anota SIEMPRE, en la misma propuesta que toca el código.** Orden del dueño
