@@ -2633,6 +2633,31 @@ lugares se enlaza cada una. Dos tenían cero:
 cada pantalla encuentra en un minuto lo que una auditoría de código no ve, porque el
 código está bien — lo que falta es la puerta.
 
+## Los impresos de las mesas salían con el nombre y la fecha de mentira (19 de agosto de 2026)
+
+**Éste llegaba impreso a la mesa, delante de los invitados.**
+
+Los números de mesa, el menú de mesa y la carta de tragos arrancaban con
+`protagonistaNombre: "La Agasajada"`, `fechaEvento: "01/01/2025"` y una foto de
+fondo traída al azar de internet.
+
+El código para poner el nombre y la fecha **reales** de la fiesta existía y estaba
+bien escrito: `if (!mergedData.protagonistaNombre) mergedData.protagonistaNombre =
+fiestaData.configuracion.protagonista1Nombre`. Pero **nunca se ejecutaba**, porque
+el campo jamás estaba vacío: el ejemplo ya ocupaba el lugar.
+
+Resultado: se imprimían con "La Agasajada" y "01/01/2025" salvo que alguien los
+escribiera a mano.
+
+**Cómo quedó:** los tres arrancan **vacíos**, y así el relleno con los datos de la
+fiesta funciona como estaba pensado. Con prueba
+(`src/__tests__/impresos-con-los-datos-reales.test.ts`).
+
+**La lección, que vale para toda la app:** un valor de ejemplo puesto como defecto
+**desactiva el código que pondría el dato real**, porque ese código casi siempre
+pregunta "¿está vacío?". Un defecto de relleno no es sólo feo: rompe en silencio el
+mecanismo que lo iba a reemplazar.
+
 ## Cómo agregar algo a esta lista
 
 **Se anota SIEMPRE, en la misma propuesta que toca el código.** Orden del dueño

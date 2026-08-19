@@ -199,10 +199,22 @@ export const defaultInvitacionDigitalData: InvitacionDigitalData = {
   footer: { visible: true, titulo: { text: '¡Te esperamos!', style: defaultTextStyle }, nombreEmpresa: { text: 'AK Producciones', style: defaultTextStyle } }
 };
 
+/**
+ * Los impresos que se ponen en las mesas arrancan **vacios**, no con un ejemplo.
+ *
+ * Antes traian "La Agasajada", "01/01/2025" y una foto cualquiera de internet. El
+ * codigo que ponia el nombre y la fecha REALES de la fiesta miraba si el campo
+ * estaba vacio... y nunca lo estaba, porque el ejemplo ya ocupaba el lugar. Asi que
+ * los numeros de mesa se imprimian con el nombre y la fecha de mentira salvo que
+ * alguien los escribiera a mano, y en una mesa de una fiesta de verdad eso se ve.
+ *
+ * Vacios, el relleno del nombre y la fecha de la fiesta funciona como estaba
+ * pensado.
+ */
 export const defaultNumerosMesaData: NumerosMesaData = {
-  protagonistaNombre: "La Agasajada",
-  fechaEvento: "01/01/2025",
-  backgroundImageUrl: "https://picsum.photos/seed/floral-background/800/400",
+  protagonistaNombre: "",
+  fechaEvento: "",
+  backgroundImageUrl: "",
   colorPrincipal: "#9333ea",
   colorSecundario: "#363636",
   fontFamily: 'Playfair Display',
@@ -210,7 +222,8 @@ export const defaultNumerosMesaData: NumerosMesaData = {
 
 export const defaultMenuMesaData: MenuMesaData = {
     titulo: 'MENÚ',
-    protagonistaNombre: 'La Agasajada',
+    // Vacio a proposito: lo llena el nombre real de la fiesta. Ver arriba.
+    protagonistaNombre: '',
     fontFamily: 'Playfair Display',
     paletaColores: { primary: '#8b5cf6', secondary: '#4b5563', accent: '#3b82f6', background: '#ffffff' },
     entrada: '', platoPrincipal: '', adolescentes: '', postres: '', bebidas: '',
@@ -234,7 +247,8 @@ export const defaultGiftItems: GiftItem[] = [
 
 export const defaultCartaTragosData: CartaTragosData = {
   titulo: 'CARTA DE TRAGOS',
-  protagonistaNombre: 'La Agasajada',
+  // Vacio a proposito: lo llena el nombre real de la fiesta. Ver arriba.
+  protagonistaNombre: '',
   numeroPrincipal: 'Mis XV',
   fontFamily: 'Playfair Display',
   titleSize: 'medium',
