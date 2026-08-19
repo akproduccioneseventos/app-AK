@@ -27,6 +27,9 @@ function getFiestaStatus(fiesta: FiestaEnPlanificacion, isArchived: boolean): Ca
 }
 
 export async function getCalendarEvents(): Promise<CalendarEvent[]> {
+  // Devuelve el calendario entero: todas las fiestas con su fecha y su cliente.
+  // Estaba abierta, y la usa solo la pantalla del calendario, que ya pide cuenta.
+  await requireAppSession();
   try {
     const [activeFiestas, archivedFiestas] = await Promise.all([
       getFiestas(false),
@@ -68,6 +71,10 @@ export async function updateFiestaDate(
   newDate: string // ISO date string YYYY-MM-DD
 ): Promise<{ success: boolean; error?: string }> {
   try {
+    // Cambia la fecha de una fiesta. Estaba abierta a internet: cualquiera que
+    // supiera el numero de una fiesta podia moverle la fecha, sin cuenta. La usa
+    // solo el calendario del equipo, al arrastrar el evento a otro dia.
+    await requireAppSession();
     const fiestas = await getFiestas(false);
     const fiesta = fiestas.find(f => f.id === fiestaId);
     if (!fiesta) return { success: false, error: 'Evento no encontrado' };
@@ -104,6 +111,8 @@ export async function updateFiestaDate(
 }
 
 export async function getOcupiedDates(): Promise<string[]> {
+  // Que dias ya estan tomados. La usa solo la pantalla de crear presupuesto.
+  await requireAppSession();
   try {
     const fiestas = await getFiestas();
     const occupiedDates: string[] = [];
@@ -132,6 +141,8 @@ import type { CrmAppointment } from '@/types/crm';
 const APPOINTMENTS_FILE = 'crm-appointments.json';
 
 export async function getAppointments(): Promise<CrmAppointment[]> {
+  // Las reuniones agendadas con los clientes, con sus datos. Estaba abierta.
+  await requireAppSession();
   try {
     const items = await readData<CrmAppointment[]>(APPOINTMENTS_FILE, []);
     return Array.isArray(items) ? items : [];

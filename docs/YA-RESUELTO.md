@@ -2669,6 +2669,55 @@ mecanismo que lo iba a reemplazar.
 búsqueda de `if (!merged` y se compara cada campo contra su valor por defecto en
 `src/lib/fiesta-defaults.ts`. Si el defecto no está vacío, el relleno está muerto.
 
+## Tres controles automáticos que hacen la auditoría sola (19 de agosto de 2026)
+
+**Los dos hallazgos reales del día no salieron de leer código: salieron de contar.**
+Los ayudantes opinando dieron 70% de falsas alarmas; las cuentas mecánicas dieron
+100% de aciertos. Así que las cuentas quedaron convertidas en pruebas.
+
+1. **`auditoria-defectos-tapados.test.ts`** — junta todos los campos que alguna
+   pantalla intenta rellenar con el dato real de la fiesta (`if (!algo.campo)`) y
+   verifica que el valor por defecto esté vacío. Si alguien pone un ejemplo, falla
+   acá y no en una mesa impresa. **Probado a propósito:** se le volvió a meter
+   `numeroPrincipal: 'Mis XV'` y lo agarró al instante, nombrándolo.
+
+   Ojo con la distinción que lo hace útil: los rellenos con valor fijo
+   (`fontFamily = 'Playfair Display'`) son inofensivos y no se cuentan; sólo importan
+   los que van a buscar el dato a la fiesta.
+
+2. **`auditoria-pantallas-sin-puerta.test.ts`** — cuenta desde cuántos lugares se
+   enlaza cada pantalla del evento. Encuentra lo que ninguna auditoría de código ve,
+   porque el código está bien: lo que falta es el enlace. Ya aparecieron cuatro así.
+   Las que se abren por QR o por enlace del equipo van declaradas con su motivo.
+
+3. **`auditoria-puertas-abiertas.test.ts`** — lista las funciones de servidor que no
+   comprueban quién las llama. **Encontró una real:** `updateFiestaDate` estaba
+   abierta, así que cualquiera que supiera el número de una fiesta podía cambiarle
+   la fecha sin tener cuenta. Se cerró, junto con las tres lecturas de la agenda,
+   que exponían el calendario entero y las reuniones con clientes.
+
+### Cómo funciona el tercero, que es distinto
+
+Quedan **255 funciones en 99 archivos sin revisar una por una**, congeladas en
+`src/__tests__/puertas-pendientes-de-revisar.json`. No significa que estén mal: la
+mayoría son de leer y varias se protegen de formas que el control no reconoce.
+Significa que nadie las miró con esta lupa.
+
+**Desde hoy, cualquier función NUEVA que quede abierta hace fallar la prueba.** La
+lista vieja se vacía de a poco y **no se agranda nunca**. Cuando se revisa una y se
+protege, se saca del archivo y se baja el número del tope.
+
+**Lo que NO hay que hacer si falla:** agregarla al archivo de pendientes. Ese archivo
+sólo se achica.
+
+### Falsas alarmas del control, ya contempladas
+
+- **Los atajos que sólo delegan** (`export async function X() { return Modulo.X(); }`)
+  no se cuentan: la comprobación está en la función de destino. Así se protege
+  `deleteAllFiestas`, que sí pide sesión de administrador.
+- **El cambio de contraseña** se protege pidiendo la contraseña actual, no una
+  sesión. Vale igual.
+
 ## Cómo agregar algo a esta lista
 
 **Se anota SIEMPRE, en la misma propuesta que toca el código.** Orden del dueño
