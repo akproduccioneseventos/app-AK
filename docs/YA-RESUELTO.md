@@ -2606,6 +2606,27 @@ no aparece.
 —que corta a los 15 segundos, y está bien así porque es un saludo, no un brindis— y
 grabar audio. Queda pedido.
 
+## Pantallas hechas a las que no se llegaba (19 de agosto de 2026)
+
+Se revisaron **las veinticinco pantallas de la fiesta** contando desde cuántos
+lugares se enlaza cada una. Dos tenían cero:
+
+- **El moderador móvil** (`/evento/moderacion/<fiesta>`): la pantalla para aprobar
+  o esconder fotos **desde el celular, caminando por la fiesta**. Estaba hecha
+  entera y había que escribir la dirección a mano para entrar. **Ya está enchufada**
+  en la pantalla del muro del equipo, como "Moderar desde el celular", al lado de
+  "Pantalla en vivo". (Aprobar desde el panel de escritorio ya se podía, así que
+  ninguna foto quedaba trabada: lo que faltaba era hacerlo desde el celular.)
+
+- **La estación de impresión** (`/evento/impresion/<fiesta>`): pantalla para
+  imprimir fotos en la fiesta. **No se enchufó**, a propósito: el dueño dijo que la
+  barra es como la fotocabina **pero sin impresión**, así que hay que preguntarle si
+  esta estación se usa antes de ponerle un acceso. Queda anotada, no perdida.
+
+**El método sirve y conviene repetirlo:** contar desde cuántos lugares se enlaza
+cada pantalla encuentra en un minuto lo que una auditoría de código no ve, porque el
+código está bien — lo que falta es la puerta.
+
 ## Cómo agregar algo a esta lista
 
 **Se anota SIEMPRE, en la misma propuesta que toca el código.** Orden del dueño
