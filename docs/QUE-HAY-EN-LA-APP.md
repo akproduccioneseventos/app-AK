@@ -17,6 +17,28 @@ verificado a mano. **Más de 230 funciones**, con archivo y línea como prueba.
 | Invitado y noche de fiesta (invitación, portal, 25 pantallas del evento) | 40 pantallas | Todas andan |
 | Planificación de la fiesta (invitados, mesas, comida, personal, impresos) | 56 | Todas andan |
 
+### Cómo está la seguridad de las puertas de entrada (19 de agosto de 2026)
+
+En un archivo de servidor, **cada función exportada es una dirección que cualquiera
+de internet puede llamar**. Hay un control que las lista y frena las nuevas
+(`src/__tests__/auditoria-puertas-abiertas.test.ts`).
+
+| Estado | Cantidad |
+|---|---|
+| Cerradas en esta revisión | 15 |
+| Declaradas públicas a propósito, con motivo escrito | 12 archivos |
+| **Pendientes de revisar una por una** | **247 en 98 archivos** |
+
+**Las pendientes no están todas mal:** la mayoría son de leer, y varias se protegen
+de formas que el control no reconoce. Significa que nadie las miró con esta lupa.
+Están congeladas en `src/__tests__/puertas-pendientes-de-revisar.json`: **la lista
+sólo se achica, nunca crece**, y cualquier función nueva que quede abierta hace
+fallar la aplicación.
+
+Revisarlas está pedido en el bloque 7 de `docs/ordenes/ahora.md`.
+
+---
+
 ### Lo único que no está completo
 
 1. **Google Workspace** — la pantalla existe y funciona, falta cargar la credencial.
