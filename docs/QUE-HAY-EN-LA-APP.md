@@ -49,6 +49,16 @@ muestre**. Esa distinción es la que más veces falló.
 | Comentarios de redes e IA | Sí | Empresa → Presencia digital → solapa "Comentarios de redes" |
 | Moderación de comentarios y quejas | Sí | Empresa → Presencia digital → solapa "Comentarios de redes" |
 | Capturas de pantalla en testimonios | Sí | Ajustes → Feedback & Testimonios y carrusel público |
+| Carta de tragos en carrusel (pantalla grande del salón) | Sí | `/evento/barra/<fiesta>` |
+| El invitado pide su trago desde el celular | Sí | Enlace personal del invitado |
+| Pantalla del barman con los pedidos | Sí | `/evento/barra/<fiesta>/barman` |
+| Carta de tragos en carrusel en el celular del invitado | Sí | Enlace personal del invitado |
+| Buzón de saludos: grabar video (15 seg) y audio | Sí | `/evento/buzon/<fiesta>` |
+| Buzón de saludos: sacarse una foto | NO, faltan | — |
+| Llegar al buzón desde el portal del invitado | NO, sólo por enlace que abre el equipo | — |
+| Foto y video (8 segundos) con el trago en el tótem, sin impresión | Sí | `/evento/barra/<fiesta>` |
+| Que el invitado se lleve su foto del tótem al celular | NO, queda sólo en la pantalla del salón | — |
+| Exigir seguir las redes antes de subir la foto | El interruptor existe pero el tótem no lo respeta | Ajustes de la barra |
 | Sección "por qué AK" en la portada | Sí | Portada, debajo de la presentación |
 | Pedido de cambio de cantidad de invitados por el cliente | Sí | Portal del cliente, y el equipo lo acepta o rechaza en Fiestas → Portal del cliente |
 | Pedido de cambio de menú por el cliente | Sí | Portal del cliente |

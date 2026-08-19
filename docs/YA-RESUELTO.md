@@ -2370,6 +2370,131 @@ Se revisó uno por uno y se resolvió cada caso:
 **La lección, otra vez:** dos de los seis parecían funciones que faltaban y las dos
 existían con otro nombre. Antes de construir, buscar la función, no el archivo.
 
+## Revisión a fondo con la app andando (18 de agosto de 2026)
+
+Se recorrieron las pantallas públicas en un navegador de verdad, en celular y en
+escritorio, además de cuatro auditorías del código por viaje de usuario. **De diez
+avisos, siete eran falsa alarma.** Quedan anotados para no volver a gastarlos:
+
+- **`/q` da 404.** Falsa alarma: el código QR real de la fiesta es `/q/<id>`, que
+  responde bien. La dirección pelada nunca se usa.
+- **La barra fija del celular tapa el formulario** en las páginas de venta. Falsa
+  alarma: se midió con el navegador y **ningún campo queda tapado**; el celular
+  sube el campo por encima de la barra al tocarlo.
+- **"Faltan -1 días" en el planificador.** Falsa alarma: el aviso no se muestra si
+  faltan menos de cero días, y 0 y 1 dicen "¡HOY ES EL EVENTO!" y "¡MAÑANA ES EL
+  EVENTO!".
+- **La fecha del historial de precios no muestra la hora.** Falsa alarma: se probó
+  y muestra "18 ago 2026, 15:30".
+- **El cliente no puede pedir cambios ni pagar desde su portal.** Falsa alarma, y
+  al revés: el enlace que el equipo le manda al cliente es `/portal/c/<clave>`, que
+  sí tiene todo. `/portal-cliente/<id>` es la pantalla de demostración que se le
+  muestra al prospecto.
+- **Nada roto ni feo en el viaje del invitado ni en el del cliente.** Dos
+  auditorías completas sin hallazgos.
+
+### Lo que sí era de verdad
+
+- **El botón de las páginas de venta decía "Verificar Disponibilidad" y no
+  verificaba nada:** guardaba la consulta y abría WhatsApp. Prometerle al que
+  recién llega una respuesta que la pantalla no da es la forma más rápida de perder
+  su confianza. Ahora dice **"Consultar por WhatsApp"**, que es lo que pasa.
+
+- **Entrar por el atajo `/blog` deja un error interno.** `/blog` redirige a
+  `/public/blog`; entrando derecho no pasa nada, y por el atajo la pantalla **se ve
+  igual y completa**, con los siete artículos. No se toca: cambiarlo es más riesgo
+  que beneficio, y no hay nada que el visitante note.
+
+### Una decisión que le queda al dueño, no es un error
+
+**El simulador pide nombre y celular antes de mostrar un solo precio.** Es a
+propósito: sin teléfono no se puede contestar. Pero el que entra curioso a "ver
+cuánto sale" se va sin ver nada. Es una decisión de venta —capturar más contactos
+contra dejar mirar— y la toma el dueño, no una auditoría.
+
+## El simulador pide el contacto antes del precio: decisión tomada (18 de agosto de 2026)
+
+**Decisión del dueño. No se vuelve a proponer.**
+
+El simulador de presupuesto exige nombre y celular en el paso 2, antes de mostrar
+un solo número. Se le planteó cambiarlo por un precio aproximado primero y el
+contacto después, y **dijo que no**: quedarse con el contacto es el objetivo del
+simulador.
+
+Si una auditoría lo marca como "el prospecto se va sin ver nada", es falso
+positivo.
+
+## Qué hay de la barra de tragos, verificado (18 de agosto de 2026)
+
+Inventario hecho pantalla por pantalla, para no volver a averiguarlo:
+
+- **La pantalla grande de la barra** (`/evento/barra/<fiesta>`) es la que se pone
+  en el salón y se toca. La carta **ya se muestra como carrusel**: las tarjetas se
+  pasan de costado con el dedo y se acomodan solas al soltar
+  (`snap-x snap-mandatory`), con animación al tocarlas. Tiene además solapas por
+  categoría, sacar foto con cuenta regresiva de 3, y "sugerirme uno" que hace pasar
+  los tragos rápido como una tragamonedas antes de frenar en uno.
+- **La pantalla del barman** (`/evento/barra/<fiesta>/barman`) recibe los pedidos y
+  los va marcando. **Las estadísticas** están en `/evento/barra/<fiesta>/stats`.
+- **El invitado SÍ puede pedir el trago desde su celular**, con su enlace personal
+  de invitado. Elige de la carta, confirma, y ve en qué estado está su pedido
+  (pedido, preparándose, listo). Puede cancelarlo o cambiar de trago mientras no
+  esté listo.
+- **El "tótem"** (`/evento/totem/...`) **no tiene nada que ver con los tragos**: es
+  la pantalla que pasa las fotos del muro con efectos que siguen la música. Son dos
+  cosas distintas.
+
+**El tótem hace las tres cosas que tiene que hacer:** pedir el trago, sacarse foto y
+grabar video con él. Verificado en el código: la carta en carrusel, la cuenta
+regresiva de tres, la grabación en video con tope de 60 MB, las plantillas de marco
+y el envío a la pantalla gigante.
+
+**Lo que se le escapa, y quedó pedido:**
+
+1. **El invitado se va sin su foto.** Sube, sale el cartel "se envió a la pantalla
+   gigante", y la pantalla vuelve al inicio. La persona que acaba de posar con su
+   trago no se lleva nada. Y el dato ya está: la subida **devuelve la dirección de la
+   foto y un texto listo para compartir** con el hashtag y el Instagram de AK, y la
+   pantalla lo tira. Con un código en pantalla, esa foto termina en las redes del
+   invitado. Es publicidad gratis que hoy muere en el salón.
+2. **La foto no guarda con qué trago se sacó.** La función acepta el trago y arma
+   sola el texto "Disfrutando de un Mojito en la barra interactiva", pero el tótem no
+   se lo manda.
+3. **El interruptor de "confirmá que seguís las redes de AK antes de subir" no
+   funciona en el tótem:** la pantalla manda siempre que sí, sin preguntar. El dueño
+   lo prende y no pasa nada.
+
+**Y en el celular del invitado la carta es una grilla quieta** de dos columnas, con
+la foto del trago del tamaño de una estampilla. La pantalla del salón se ve mejor que
+la que el invitado tiene en la mano, siendo la que más mira en toda la noche.
+
+## La barra de tragos, terminada de este lado (19 de agosto de 2026)
+
+Dos cosas hechas acá, y tres que quedaron pedidas.
+
+**El video del tótem bajó de 15 a 8 segundos.** Es un saludo con el trago en la
+mano, no un video: a los quince segundos la persona ya no sabe qué decir, y el que
+lo ve pasar en la pantalla del salón se aburre. La duración vive en una constante
+con nombre (`DURACION_VIDEO_SEGUNDOS`) para que no haya que buscar un número suelto.
+
+**La carta de tragos del celular del invitado pasó a ser un carrusel.** Antes era
+una grilla quieta de dos columnas con la foto del tamaño de una estampilla: el trago
+se leía, no se veía. Ahora son tarjetas grandes con la foto de protagonista, que se
+pasan de costado con el dedo y se acomodan solas al soltar, igual que en la pantalla
+del salón. Las tarjetas ocupan el 78% del ancho **a propósito**, para que asome la
+siguiente: si ocupan todo, el invitado cree que hay un solo trago. El botón de pedir
+va abajo y ocupa el ancho entero, para alcanzarlo con el pulgar sin apuntar.
+
+Un trago sin foto cargada **no deja un hueco gris**: se arma una tarjeta con el
+color de la fiesta y el ícono grande.
+
+**No se tocó nada de cómo se pide:** confirmar, cancelar, cambiar de trago y el
+estado del pedido quedaron igual.
+
+**Decisión del dueño, anotada para no volver a preguntarla:** el tótem de la barra
+es **como la fotocabina pero sin impresión**. Lo que se saca va a la pantalla
+gigante y queda guardado; nunca se imprime.
+
 ## Cómo agregar algo a esta lista
 
 **Se anota SIEMPRE, en la misma propuesta que toca el código.** Orden del dueño
