@@ -2653,10 +2653,21 @@ escribiera a mano.
 fiesta funciona como estaba pensado. Con prueba
 (`src/__tests__/impresos-con-los-datos-reales.test.ts`).
 
+**Y había un cuarto caso, encontrado en el inventario del 19 de agosto:**
+`numeroPrincipal: 'Mis XV'` en la carta de tragos. En una **boda**, la carta impresa
+decía **"Mis XV"**: el código que pone "Nuestra Boda" según el tipo de fiesta
+preguntaba si el campo estaba vacío, y nunca lo estaba. Corregido igual, y la prueba
+ahora lo cubre.
+
 **La lección, que vale para toda la app:** un valor de ejemplo puesto como defecto
 **desactiva el código que pondría el dato real**, porque ese código casi siempre
 pregunta "¿está vacío?". Un defecto de relleno no es sólo feo: rompe en silencio el
 mecanismo que lo iba a reemplazar.
+
+**Dónde más mirar si aparece de nuevo:** todos los rellenos de este tipo viven como
+`if (!mergedX.campo)` en las pantallas de `fiestas/nueva/`. Se listan con una
+búsqueda de `if (!merged` y se compara cada campo contra su valor por defecto en
+`src/lib/fiesta-defaults.ts`. Si el defecto no está vacío, el relleno está muerto.
 
 ## Cómo agregar algo a esta lista
 

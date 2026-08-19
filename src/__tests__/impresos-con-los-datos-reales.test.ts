@@ -26,6 +26,16 @@ describe('Impresos de las mesas', () => {
     expect(defaultCartaTragosData.protagonistaNombre).toBe('');
   });
 
+  it('la carta de tragos no dice "Mis XV" en una boda', () => {
+    // Con 'Mis XV' escrito en el defecto, la carta de una BODA se imprimía
+    // diciendo "Mis XV": el código que pone "Nuestra Boda" según el tipo de fiesta
+    // preguntaba si el campo estaba vacío, y nunca lo estaba.
+    expect(defaultCartaTragosData.numeroPrincipal).toBe('');
+
+    const enUnaBoda = defaultCartaTragosData.numeroPrincipal || 'Nuestra Boda';
+    expect(enUnaBoda).toBe('Nuestra Boda');
+  });
+
   it('con los campos vacíos, el nombre de la fiesta sí se usa', () => {
     // Es la misma mezcla que hace la pantalla: por defecto primero, lo guardado
     // encima. Con el defecto vacío, el relleno con los datos reales funciona.

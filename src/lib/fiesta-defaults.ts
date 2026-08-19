@@ -249,7 +249,10 @@ export const defaultCartaTragosData: CartaTragosData = {
   titulo: 'CARTA DE TRAGOS',
   // Vacio a proposito: lo llena el nombre real de la fiesta. Ver arriba.
   protagonistaNombre: '',
-  numeroPrincipal: 'Mis XV',
+  // Vacio a proposito, como el nombre. Con 'Mis XV' escrito aca, la carta de tragos
+  // de una BODA se imprimia diciendo "Mis XV": el codigo que pone "Nuestra Boda"
+  // segun el tipo de fiesta preguntaba si el campo estaba vacio, y nunca lo estaba.
+  numeroPrincipal: '',
   fontFamily: 'Playfair Display',
   titleSize: 'medium',
   protagonistaFotoUrl: '',
