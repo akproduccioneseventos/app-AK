@@ -2495,6 +2495,26 @@ estado del pedido quedaron igual.
 es **como la fotocabina pero sin impresión**. Lo que se saca va a la pantalla
 gigante y queda guardado; nunca se imprime.
 
+## Un pedido se perdió al rotar la orden (19 de agosto de 2026)
+
+**Pasó de verdad y hay que cuidarlo.**
+
+El inventario decía que faltaba que las estaciones (fotocabina, espejo mágico,
+plataforma 360) guardaran de quién es cada foto, y que eso estaba "pedido en la
+orden vigente". Pero la orden **se reescribió tres veces desde entonces** y el
+pedido quedó afuera. Nadie lo iba a hacer nunca, y el inventario seguía diciendo
+que estaba pedido.
+
+Se verificó que sigue sin hacerse —en las tres pantallas el identificador del
+invitado no aparece— y se repuso en la orden.
+
+**La lección:** cuando el inventario dice "está pedido en la orden vigente" y la
+orden se rota, **hay que llevarse el pedido a la orden nueva**. Antes de rotar una
+orden, buscá en `docs/QUE-HAY-EN-LA-APP.md` qué apunta a ella.
+
+Mejor todavía: no escribir "está pedido en la orden vigente" sino **describir qué
+falta**, así el pedido se puede reponer aunque la orden cambie.
+
 ## Cómo agregar algo a esta lista
 
 **Se anota SIEMPRE, en la misma propuesta que toca el código.** Orden del dueño

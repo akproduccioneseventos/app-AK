@@ -146,6 +146,57 @@ se muestra. Que no aparezca un botón que lleva a una pantalla apagada.
 4. Que la foto se puede repetir antes de mandarla.
 5. Que con el buzón apagado, la opción no aparece en el portal del invitado.
 
+---
+
+# BLOQUE 5 — Que las fotos de las estaciones tengan dueño
+
+**Este pedido se había perdido.** Estaba anotado en el inventario como "pedido en la
+orden vigente", pero la orden se reescribió y quedó afuera. Verificado hoy: sigue
+sin hacerse.
+
+## El problema
+
+Cuando un invitado sube una foto al muro **desde su enlace personal**, la foto queda
+guardada con su nombre: después él puede volver a verla y bajarse las suyas.
+
+Pero **la fotocabina, el espejo mágico y la plataforma 360 no reciben ese enlace**.
+Verificado: en las tres pantallas el identificador del invitado no aparece por
+ningún lado. Entonces toda foto sacada en una estación **queda sin dueño**.
+
+En pantalla: el invitado se saca la foto en la fotocabina, después entra a buscar
+sus recuerdos y **no está**. Las fotos de las estaciones —que suelen ser las mejores
+de la noche— son justamente las que se pierden.
+
+## Qué hacer
+
+Que las tres estaciones reciban el enlace personal del invitado cuando exista, y lo
+manden junto con la foto, igual que ya lo hace el muro social.
+
+**Cómo llega el enlace:** que la estación lo acepte como parámetro en su dirección
+web, para que el invitado llegue desde su portal con su enlace ya puesto, o
+escaneando un código que se lo agregue.
+
+## LO QUE NO SE PUEDE HACER, Y NO ES OPINABLE
+
+> **Un identificador suelto no se guarda nunca.**
+
+Sólo se guarda el dueño **si la persona probó tener el enlace personal de ese
+invitado**. Si se guardara cualquier identificador que llegue, cualquiera podría
+mandar el de otro y adueñarse de sus fotos. Eso ya está resuelto así en el muro
+social: copiá ese mismo criterio, no inventes uno nuevo.
+
+**Y si no hay enlace personal, la foto se sube igual** y queda sin dueño, como
+hasta ahora. Nadie se queda sin sacarse la foto por no tener el enlace.
+
+## Cómo se comprueba
+
+1. Que una foto sacada en la fotocabina con el enlace personal queda con dueño.
+2. Que la misma foto aparece después cuando el invitado busca sus recuerdos.
+3. Que sin enlace personal la foto se sube igual, sin dueño y sin error.
+4. Que mandando el identificador de OTRO invitado, sin su enlace, **no** se guarda
+   como dueño.
+5. Lo mismo para el espejo mágico y la plataforma 360.
+
 ## Cómo se comprueba
 
 Además de los cuatro controles, probá en pantalla de verdad:
