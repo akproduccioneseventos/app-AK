@@ -1,4 +1,4 @@
-﻿export type BuzonMediaType = 'audio' | 'video' | 'photo';
+export type BuzonMediaType = 'audio' | 'video' | 'photo';
 
 export interface DetectedBuzonMedia {
   mediaType: BuzonMediaType;
