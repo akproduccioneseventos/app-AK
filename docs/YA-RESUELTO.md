@@ -2764,6 +2764,38 @@ el resto era protección que el control no sabía reconocer.
 
 **Quedan 247 pendientes de revisar** (eran 255). La lista sólo se achica.
 
+## Cómo es el impreso de verdad de AK (19 de agosto de 2026)
+
+**Dato del dueño, con foto del impreso real.** Sirve para no volver a averiguarlo:
+
+- Papel de **10 x 15 cm**, vertical.
+- **Tres fotos**: una grande arriba a lo ancho, y dos chicas abajo lado a lado.
+- Abajo, el **nombre del homenajeado en letra manuscrita grande** y el motivo más
+  chico ("mis 15 años").
+- **Logo de AK abajo a la izquierda**, sobre **fondo decorado** que combina con la
+  fiesta, no sobre blanco.
+**Cuántas fotos lleva cada estación** (corregido por el dueño el 19 de agosto,
+después de una primera versión equivocada):
+
+- **La fotocabina: TRES fotos** — una grande arriba y dos chicas abajo lado a lado.
+- **El espejo mágico: UNA sola foto.** Mismo papel de 10x15 y misma
+  personalización, pero una sola.
+- **El 360 con inteligencia artificial: UNA sola foto**, igual que el espejo.
+- **La plataforma 360** también imprime.
+- **La barra NO imprime**: ahí la foto va a la pantalla grande y el invitado se la
+  lleva en el celular.
+
+**Qué coincide y qué no con lo que arma la aplicación hoy:**
+
+- **El tamaño está bien**: `src/lib/entretenimiento/tira-fotocabina.ts` arma
+  1200x1800, que es exactamente 10x15. **No se toca.**
+- **El reparto no**: hoy apila tres fotos iguales sobre fondo blanco, con el nombre
+  del evento y la fecha en letra común.
+- **El espejo mágico saca una sola foto** y la manda a imprimir directo, no arma la
+  hoja de tres.
+
+Queda pedido en el bloque 8 de la orden vigente.
+
 ## Cómo agregar algo a esta lista
 
 **Se anota SIEMPRE, en la misma propuesta que toca el código.** Orden del dueño
