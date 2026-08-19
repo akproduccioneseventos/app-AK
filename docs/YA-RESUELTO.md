@@ -2558,6 +2558,39 @@ Lo único cierto del aviso es que **están escritos en el código**: si el dueñ
 decir "15 años" en vez de "10", hoy hay que tocar código. Queda anotado como cosa a
 mejorar, no como error.
 
+## Ahora la app no deja entrar contenido inventado (19 de agosto de 2026)
+
+**Cinco veces pasó lo mismo**, así que se dejó de auditar y se puso un control.
+
+`src/__tests__/nada-inventado-en-pantalla.test.ts` recorre todas las pantallas que
+ve un cliente, un prospecto o un invitado, y **falla** si encuentra: fotos traídas
+al azar de internet, audio o video de sitios de prueba, direcciones de mentira,
+lugares o teléfonos de otros países, o texto de relleno.
+
+**Encontró seis que no se habían visto:** las dos plantillas de invitación caían en
+`picsum.photos` —una foto CUALQUIERA de internet— cuando no había foto cargada. El
+equipo veía una imagen linda y creía que la invitación ya tenía foto. Ahora usan un
+degradé suave hecho en el propio archivo, sin pedirle nada a ningún sitio de afuera.
+
+**Si esta prueba falla, la solución NO es sacar el patrón de la lista.** Es dejar el
+dato afuera del código: que salga de lo que carga el equipo, y si no hay dato, que
+la sección no se muestre.
+
+## Publicar con los datos del ejemplo ya no se puede (19 de agosto de 2026)
+
+El control que corre antes de compartir la invitación miraba que los campos
+**estuvieran llenos**, no que fueran de verdad. Así que "Catedral de San Juan,
+Calle Falsa 123, Ciudad" —la boda de ejemplo con la que arranca el editor— pasaba
+sin problema, y la invitación podía salir con una calle que no existe.
+
+Ahora también revisa que el salón, la dirección y el lugar de la ceremonia **no
+sean los del ejemplo**, y si lo son avisa cuál quedó sin cambiar
+(`src/lib/invitacion/datos-minimos.ts`).
+
+La boda de ejemplo del editor ("María y Juan", `#BodaJuanYMaria`, Salón El Paraíso)
+**se deja como está**: es el punto de partida para que el equipo no arranque de una
+pantalla en blanco. Lo que se arregló es que no pueda llegar publicada.
+
 ## Cómo agregar algo a esta lista
 
 **Se anota SIEMPRE, en la misma propuesta que toca el código.** Orden del dueño

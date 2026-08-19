@@ -19,6 +19,38 @@ function primero(...valores: (string | undefined)[]): string {
   return valores.find((valor) => Boolean(valor && valor.trim()))?.trim() ?? '';
 }
 
+/**
+ * Los datos de la boda de ejemplo con la que arranca el editor.
+ *
+ * El control de abajo miraba sólo que los campos **estuvieran llenos**, no que
+ * fueran de verdad. Asi que "Catedral de San Juan, Calle Falsa 123, Ciudad"
+ * pasaba sin problema, y una invitación podía salir con la dirección de mentira
+ * del ejemplo. El invitado la abría y leía una calle que no existe.
+ *
+ * Es la quinta vez en este proyecto que un dato de relleno llega a una pantalla
+ * que ve un cliente o un invitado. Por eso ahora se frena antes de compartir.
+ */
+const DATOS_DE_EJEMPLO = [
+  'calle falsa',
+  'catedral de san juan',
+  'salon el paraiso',
+  'salón el paraíso',
+  'bodajuanymaria',
+  'picsum.photos',
+  'soundhelix',
+  'lorem ipsum',
+];
+
+function pareceDeEjemplo(valor: string): boolean {
+  const limpio = valor
+    .toLowerCase()
+    .normalize('NFD')
+    .replace(/[\u0300-\u036f]/g, '');
+  return DATOS_DE_EJEMPLO.some((muestra) => limpio.includes(
+    muestra.normalize('NFD').replace(/[\u0300-\u036f]/g, ''),
+  ));
+}
+
 export function getDatosMinimosFaltantesInvitacion(
   fiesta: FiestaEnPlanificacion | null,
   invitacionData: InvitacionDigitalData,
@@ -54,6 +86,20 @@ export function getDatosMinimosFaltantesInvitacion(
   );
   if (!direccion) {
     faltantes.push('Falta la dirección de la celebración. Sin eso el invitado no sabe adónde ir.');
+  }
+
+  // Que el campo esté lleno no alcanza: puede seguir teniendo el dato del
+  // ejemplo con el que arranca el editor.
+  const aRevisar: [string, string][] = [
+    [salon, 'el nombre del salón'],
+    [direccion, 'la dirección'],
+    [ceremonia?.nombreLugar ?? '', 'el lugar de la ceremonia'],
+    [ceremonia?.direccionLugar ?? '', 'la dirección de la ceremonia'],
+  ];
+  for (const [valor, queEs] of aRevisar) {
+    if (valor && pareceDeEjemplo(valor)) {
+      faltantes.push(`Quedó ${queEs} de la invitación de ejemplo ("${valor}"). Cambialo por el de verdad.`);
+    }
   }
 
   return faltantes;

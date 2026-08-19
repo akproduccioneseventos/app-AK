@@ -29,6 +29,26 @@ import { EventParticles } from '@/components/invitacion/EventParticles';
 import { EventLocationMap } from '@/components/invitacion/EventLocationMap';
 import { parseEventDate } from '@/lib/public-experience/event-date';
 
+/**
+ * Fondo neutro para cuando todavia no se cargo una foto.
+ *
+ * Antes se caia en `picsum.photos`, que devuelve una foto CUALQUIERA de internet:
+ * el equipo veia una imagen linda y creia que la invitacion ya tenia foto, cuando
+ * en realidad no habia cargado ninguna. Y era una foto ajena, traida de un sitio
+ * que no es nuestro.
+ *
+ * Es un degrade suave hecho acá mismo, sin pedirle nada a nadie.
+ */
+const FONDO_SIN_FOTO =
+  'data:image/svg+xml;utf8,' +
+  encodeURIComponent(
+    '<svg xmlns="http://www.w3.org/2000/svg" width="24" height="32">' +
+      '<defs><linearGradient id="g" x1="0" y1="0" x2="1" y2="1">' +
+      '<stop offset="0%" stop-color="#e9e4dc"/><stop offset="100%" stop-color="#cfc7bb"/>' +
+      '</linearGradient></defs><rect width="24" height="32" fill="url(%23g)"/></svg>'
+  );
+
+
 interface TemplateProps {
   fiesta: FiestaEnPlanificacion;
   invitacionData: InvitacionDigitalData;
@@ -229,7 +249,7 @@ export const AllegriaTemplate: React.FC<TemplateProps> = ({
                         </video>
                     ) : (
                         <NextImage 
-                            src={invitacionData.cabecera.imagenFondoUrl || 'https://picsum.photos/seed/celebration/1200/1600'} 
+                            src={invitacionData.cabecera.imagenFondoUrl || FONDO_SIN_FOTO} 
                             alt="" layout="fill" objectFit="cover" 
                         />
                     )}
@@ -300,7 +320,7 @@ export const AllegriaTemplate: React.FC<TemplateProps> = ({
                             className={cn("flex flex-col gap-8 sm:gap-10 md:gap-12", i === 1 && "md:flex-col-reverse")}
                         >
                             <div className="relative aspect-[4/5] rounded-[3.5rem] overflow-hidden shadow-3xl shadow-slate-200">
-                                <NextImage src={detalle.imagenUrl || 'https://picsum.photos/seed/location/1200/1600'} alt="" layout="fill" objectFit="cover" />
+                                <NextImage src={detalle.imagenUrl || FONDO_SIN_FOTO} alt="" layout="fill" objectFit="cover" />
                                 <div className="absolute top-10 right-10 w-20 h-20 bg-white/90 backdrop-blur-2xl rounded-[2rem] flex items-center justify-center shadow-2xl">
                                     {i === 0 ? <Church className="w-10 h-10 text-primary" style={{ color: primaryColor }} /> : <PartyPopper className="w-10 h-10 text-primary" style={{ color: primaryColor }} />}
                                 </div>
@@ -437,7 +457,7 @@ export const AllegriaTemplate: React.FC<TemplateProps> = ({
                                         )}
                                     >
                                         <div className="relative aspect-square">
-                                            <NextImage src={item.imageUrl || 'https://picsum.photos/seed/gift/600/600'} alt={item.name} layout="fill" objectFit="cover" className="group-hover:scale-110 transition-transform duration-1000" />
+                                            <NextImage src={item.imageUrl || FONDO_SIN_FOTO} alt={item.name} layout="fill" objectFit="cover" className="group-hover:scale-110 transition-transform duration-1000" />
                                             {item.isClaimed && <div className="absolute inset-0 bg-primary/80 backdrop-blur-sm flex flex-col items-center justify-center text-white p-4">
                                                 <span className="font-black text-2xl uppercase tracking-widest">Ya Elegido</span>
                                             </div>}
