@@ -1,6 +1,6 @@
 import type { PublicGuestEvent } from "@/lib/guest-portal-public-data";
 
-export type PublicEventToolId = "social" | "gallery" | "songs" | "bar" | "games";
+export type PublicEventToolId = "social" | "gallery" | "songs" | "bar" | "games" | "buzon";
 
 export interface PublicEventTool {
   id: PublicEventToolId;
@@ -108,6 +108,19 @@ export function buildPublicEventTools({
       label: "Juegos",
       description: "Trivia y misiones de fotos durante la fiesta.",
       href: accessiblePath("zona-digital"),
+    });
+  }
+
+  // Buzón de saludos: dejar mensaje, foto, video o audio a los anfitriones
+  const buzonEnabled = portal?.showBuzon !== false
+    && event.buzonConfig?.enabled !== false
+    && (modules ? modules.buzon === true : event.buzonConfig?.enabled === true);
+  if (buzonEnabled) {
+    tools.push({
+      id: "buzon",
+      label: "Buzón de saludos",
+      description: "Dejale un saludo, foto, video o audio a los dueños de la fiesta.",
+      href: accessiblePath("buzon"),
     });
   }
 

@@ -55,6 +55,7 @@ const TOOL_ICONS: Record<PublicEventToolId, typeof Camera> = {
   songs: Music2,
   bar: Martini,
   games: Gamepad2,
+  buzon: Mic2,
 };
 
 function formatEventDate(value?: string): string | null {

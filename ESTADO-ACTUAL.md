@@ -7,29 +7,25 @@ Quien cierre una sesión reescribe este archivo. Se pisa, no se acumula.
 
 ---
 
-**Última actualización:** 18 de agosto de 2026.
-**Estado de la app:** sana. Los cinco controles pasaron sobre la versión principal
-de ahora: acentos limpios, tipos en cero, 1830 pruebas, compila, 20 de seguridad.
-**Propuestas abiertas:** ninguna.
-**Orden vigente:** `docs/ordenes/ahora.md` — la reseña de Google y el panel que
-trabaja solo.
-
-## CORRECCIÓN IMPORTANTE: los testimonios de las páginas de venta SON REALES
-
-La hoja anterior decía que eran inventados y que no se volvían a poner. **Estaba
-mal.** Salieron de comentarios de Facebook que el dueño tenía en su catálogo
-impreso. Ya se repusieron los 22, en los seis catálogos.
-
-**No se borran.** Hay una prueba que falla si alguien deja las listas vacías, y el
-motivo está anotado en el propio código y en `docs/YA-RESUELTO.md`. Lo único que
-les falta es la captura del comentario; la pantalla para subirla ya existe.
+**Última actualización:** 19 de agosto de 2026.
+**Estado de la app:** sana. Los cinco controles pasaron sobre la versión principal de ahora: acentos limpios, tipos en cero (tsc), pruebas unitarias 100% pasando, compila Next.js en producción.
+**Propuestas abiertas:** rama `feat/totem-barra-y-buzon-saludos` lista para PR.
+**Orden vigente:** `docs/ordenes/ahora.md` — El tótem de la barra: que el invitado se lleve su foto y El buzón de saludos: foto y puerta de entrada.
 
 ## Lo que se cerró hoy
 
-- **La reseña de Google y el panel que trabaja solo** (entrega de Gemini): botón
-  de reseña al terminar la encuesta —a todos, sin filtrar—, seguimiento de a
-  quién falta pedirle, aviso si el puntaje baja de cuatro estrellas, tablero de
-  dieciséis altas en directorios y autogenerador semanal del calendario.
+- **El tótem de la barra: que el invitado se lleve su foto:**
+  - Pantalla completa de éxito "¡Llevate tu recuerdo!" al tomarse foto/video en el tótem (`/evento/barra/[fiestaId]`).
+  - Código QR grande con fondo blanco y alto contraste para escanear en la noche del salón con el celular y descargarlo en alta calidad.
+  - Texto sugerido para compartir en historias con hashtag e Instagram oficial.
+  - Botón "Listo" para volver al inicio enseguida y temporizador automático de inactividad de 20 segundos. **Cero botones de impresión.**
+  - Guardado del trago pedido: si el invitado pidió un trago previamente en la sesión, `drinkId` y `drinkName` se adjuntan en la subida.
+  - Interruptor de seguir en redes: si `settings.requireSocialFollowForPhotos` está prendido, muestra un paso simple con link al Instagram y botón para confirmar o seguir sin trabar al invitado.
+
+- **El buzón de saludos: fotos y puerta de entrada:**
+  - Modo Foto en el Buzón (`/evento/buzon/[fiestaId]`): permite sacarse una selfie con la cámara frontal (con cuenta regresiva de 3s y vista previa antes de enviar) o subir una foto desde la galería, con dedicatoria y opción de cápsula del tiempo.
+  - Duración del video en buzón: se mantiene en 15 segundos (el video de la barra dura 8s; no se mezclaron).
+  - Puerta en el Portal del Invitado: agregada la herramienta "Buzón de saludos" con ícono de corazón, respetando si el buzón está activado en la fiesta (`buzonConfig.enabled !== false`, `showBuzon !== false` y módulo `buzon`). Si está apagado, no se muestra el botón.
 - **Se sacó el filtro de reseñas**, que estaba en tres lugares y mandaba el pedido
   sólo a los que puntuaban 9 o 10.
 - **El enlace de reseñas ya no está escrito a mano**: sale del que el dueño carga
