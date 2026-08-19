@@ -1,4 +1,4 @@
-import type {
+﻿import type {
   ConfigEventoDataStorage,
   FiestaEnPlanificacion,
   GuestExperienceSettings,
@@ -65,6 +65,7 @@ export interface PublicGuestEvent {
   >;
   zonaDigitalAdolescentes?: ZonaDigitalAdolescentesSettings;
   modulosContratados?: ModulosContratados;
+  buzonConfig?: FiestaEnPlanificacion['buzonConfig'];
   galeriaUrl?: string;
 }
 
@@ -127,6 +128,7 @@ export function buildPublicGuestEvent(
     },
     guestExperienceSettings: fiesta.guestExperienceSettings,
     guestPortalSettings: fiesta.guestPortalSettings,
+    buzonConfig: fiesta.buzonConfig,
     invitacionConfig: invitation
       ? {
           dressCode: invitation.dressCode,
