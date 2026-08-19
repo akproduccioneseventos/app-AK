@@ -124,6 +124,8 @@ muestre**. Esa distinción es la que más veces falló.
 | Llegar al buzón desde el portal del invitado | Sí, botón "Dejar un saludo" | Enlace personal del invitado |
 | Moderar el muro desde el celular en la fiesta | Sí | Fiestas → Muro social → "Moderar desde el celular" |
 | Cola de impresión de fotos | Sí, en fotocabina, plataforma 360 y 360 con IA | Fiestas → Entretenimiento → "Cola de Impresión" |
+| Hoja de 10x15 con tres fotos (fotocabina) | Sí el tamaño; el reparto NO coincide con el impreso real | `/evento/fotocabina/<fiesta>` |
+| Hoja de tres fotos en el espejo mágico | NO, imprime una sola foto | `/evento/espejo-magico/<fiesta>` |
 | Foto y video (8 segundos) con el trago en el tótem, sin impresión | Sí | `/evento/barra/<fiesta>` |
 | Que el invitado se lleve su foto del tótem al celular | NO, queda sólo en la pantalla del salón | — |
 | Exigir seguir las redes antes de subir la foto | El interruptor existe pero el tótem no lo respeta | Ajustes de la barra |

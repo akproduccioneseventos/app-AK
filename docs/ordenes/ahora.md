@@ -1,11 +1,11 @@
-# Siete bloques: la barra, el buzón, la invitación y las puertas abiertas
+# Ocho bloques: lo impreso, la invitación y las puertas abiertas
 
 **Para:** Gemini (Antigravity)
 **Escrita:** 19 de agosto de 2026.
 
 ## Cómo se entrega
 
-**UNA SOLA propuesta de cambios con los SIETE bloques adentro.** Cada fusión dispara
+**UNA SOLA propuesta de cambios con los OCHO bloques adentro.** Cada fusión dispara
 un despliegue y eso se paga. Si un bloque se traba, entregá el resto igual, en la
 misma propuesta, avisando cuál faltó y por qué.
 
@@ -287,6 +287,69 @@ Es preferible que entregues treinta bien revisadas a que entregues doscientas ma
 **Ojo:** no las cierres todas de golpe sin mirar. Poner `requireAppSession()` a
 ciegas en una función que un invitado necesita **rompe la fiesta en vivo**, y eso es
 peor que la puerta abierta.
+
+---
+
+# BLOQUE 8 — Que lo impreso salga como sale de verdad
+
+**El dueño mandó una foto del impreso real el 19 de agosto de 2026.** Lo que arma la
+aplicación no es igual a lo que él entrega.
+
+## Cómo es el impreso de verdad
+
+Papel de **10 x 15 cm**, vertical, con **tres fotos**:
+
+- **Una grande arriba**, a lo ancho, que ocupa como un tercio de la hoja.
+- **Dos chicas abajo**, una al lado de la otra, del mismo alto entre sí.
+- Debajo, un espacio grande con **el nombre del homenajeado en letra manuscrita
+  grande** (por ejemplo "Areli") y abajo, más chico, **el motivo** ("mis 15 años").
+- **El logo de AK abajo a la izquierda.**
+- **Todo sobre un fondo decorado** que combina con la fiesta (en el ejemplo, lila con
+  mariposas), no sobre blanco.
+
+## Lo que hay hoy
+
+**El tamaño ya está bien:** `src/lib/entretenimiento/tira-fotocabina.ts` arma
+1200x1800, que es exactamente 10x15. **Eso no se toca.**
+
+Lo que no coincide es el reparto: hoy apila **tres fotos iguales**, una arriba de
+otra, a todo el ancho, sobre fondo blanco, y abajo una franja de color con el nombre
+del evento y la fecha en letra común.
+
+## Qué hacer
+
+### 8.1 — La fotocabina, con el reparto de verdad
+
+Cambiar el armado para que quede como el impreso real: una foto grande arriba y dos
+abajo lado a lado, el nombre en letra manuscrita grande, el motivo debajo, el logo
+abajo a la izquierda, y fondo decorado.
+
+- **El fondo tiene que poder cambiarse por fiesta.** Que salga del color o de la
+  imagen que ya tiene cargada la fiesta, no escrito en el código. Si no hay nada
+  cargado, un fondo liso suave, **nunca una imagen traída de internet**.
+- **El nombre y el motivo salen de la fiesta**, no escritos a mano. Si falta el
+  nombre, se deja el espacio vacío: no poner "La Agasajada" ni nada por el estilo.
+  (Ya pasó cuatro veces y hay una prueba que lo frena.)
+- El logo de AK, del archivo que ya usa la aplicación.
+
+### 8.2 — El espejo mágico también imprime de a tres
+
+Hoy el espejo saca **una sola foto** y la manda a imprimir directo
+(`imprimirRecuerdo`). Según el dueño, el espejo entrega el mismo impreso de tres
+fotos que la fotocabina.
+
+Que el espejo saque tres fotos con su cuenta regresiva, como la fotocabina, y arme
+la misma hoja. **Reusá `tira-fotocabina.ts`**, no escribas otro armado: si mañana
+cambia el diseño, tiene que cambiar en un solo lugar.
+
+## Cómo se comprueba
+
+1. Que la hoja siga midiendo 1200x1800.
+2. Que la foto grande vaya arriba y las dos chicas abajo, lado a lado.
+3. Que el nombre y el motivo sean los de la fiesta de verdad.
+4. Que sin nombre cargado no aparezca ningún texto de relleno.
+5. Que el espejo mágico arme la misma hoja de tres fotos que la fotocabina.
+6. Que el fondo salga de lo que tiene cargado la fiesta.
 
 ## Cómo se comprueba
 
