@@ -1,4 +1,4 @@
-# La carta de tragos en el celular del invitado, como se merece
+# La barra de tragos: que el invitado se lleve su foto y vea bien la carta
 
 **Para:** Gemini (Antigravity)
 **Escrita:** 18 de agosto de 2026.
@@ -79,6 +79,69 @@ ancho) y confirmá:
 3. Que el botón de pedir se alcanza sin mover la mano.
 4. Que un trago sin foto se ve bien igual.
 5. Que pedir, cancelar y cambiar de trago siguen funcionando exactamente como antes.
+
+Y del tótem:
+
+6. Que después de subir la foto aparece el código para llevársela, y que se puede
+   volver al inicio sin esperar.
+7. Que la foto sacada después de pedir un trago queda guardada con ese trago.
+8. Que con el interruptor de las redes prendido el tótem lo pide, y apagado no
+   molesta.
+
+---
+
+# BLOQUE 2 — El tótem de la barra: tres cosas que se pierden
+
+El tótem (`src/app/evento/barra/[fiestaId]/page.tsx`) es la pantalla táctil que va
+en el salón: se pide el trago, y te sacás una foto o un video con él. **Funciona
+bien.** Pero se le escapan tres cosas, y las tres están a un paso de estar hechas.
+
+## 2.1 — El invitado se saca la foto y se va sin nada
+
+Hoy sube la foto, aparece un cartel que dice "se envió a la pantalla gigante", y la
+pantalla vuelve al inicio. **La persona que acaba de posar con su trago se va con
+las manos vacías.**
+
+Lo peor es que el dato ya está: `uploadBarMagicPhoto` **ya devuelve la dirección de
+la foto y un texto listo para compartir** con el hashtag y el Instagram de AK. La
+pantalla lo recibe y **lo tira**.
+
+**Qué hacer:** después de subir, mostrar la foto o el video con un **código QR
+grande** para que la persona lo escanee y se lo lleve al celular. Que la pantalla
+espere unos segundos —con un botón de "listo" para volver antes— y recién ahí
+vuelva al inicio.
+
+**Por qué importa más de lo que parece:** el invitado que se lleva su foto la sube a
+sus redes con el hashtag de AK. Es publicidad gratis de la fiesta, hecha por el
+invitado. Hoy esa foto muere en la pantalla del salón.
+
+## 2.2 — La foto no guarda con qué trago se sacó
+
+El sistema **ya sabe** guardar el trago junto a la foto: la función acepta el trago
+y arma sola el texto *"Disfrutando de un Mojito en la barra interactiva"*. Pero el
+tótem **no le manda cuál trago era**, así que ese texto nunca sale y queda el
+genérico.
+
+**Qué hacer:** cuando la persona pidió un trago y después se saca la foto, mandar
+también el trago elegido. Es pasar dos datos que ya están en la pantalla.
+
+## 2.3 — El interruptor de "seguime en las redes" no funciona en el tótem
+
+En los ajustes de la barra hay una opción para **exigir que la persona confirme que
+sigue las redes de AK antes de subir su foto**. En el tótem no sirve: la pantalla
+manda siempre que sí, sin preguntar. El dueño lo prende y no pasa nada.
+
+**Qué hacer:** que el tótem respete el interruptor. Si está prendido, antes de subir
+muestra un paso simple —"Seguinos y tocá acá"— con el botón que abre el Instagram de
+AK y un "ya te sigo" para seguir. Si está apagado, no molesta a nadie.
+
+**Ojo:** que no se convierta en una traba. Un solo toque, texto corto, y que se pueda
+saltar si la persona insiste. Nadie quiere pelearse con una pantalla en una fiesta.
+
+## Lo que NO se toca del tótem
+
+Pedir el trago, la cuenta regresiva de tres para la foto, la grabación de video, las
+plantillas de marco, y el envío a la pantalla gigante. Todo eso anda.
 
 ## Los cuatro controles, antes de entregar
 

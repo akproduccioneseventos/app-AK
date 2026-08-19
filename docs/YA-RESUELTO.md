@@ -2444,9 +2444,29 @@ Inventario hecho pantalla por pantalla, para no volver a averiguarlo:
   la pantalla que pasa las fotos del muro con efectos que siguen la música. Son dos
   cosas distintas.
 
-**Lo único flojo:** en el celular del invitado la carta es una grilla quieta de dos
-columnas, con la foto del trago del tamaño de una estampilla. La pantalla grande se
-ve mucho mejor que la que tiene el invitado en la mano. Queda pedido.
+**El tótem hace las tres cosas que tiene que hacer:** pedir el trago, sacarse foto y
+grabar video con él. Verificado en el código: la carta en carrusel, la cuenta
+regresiva de tres, la grabación en video con tope de 60 MB, las plantillas de marco
+y el envío a la pantalla gigante.
+
+**Lo que se le escapa, y quedó pedido:**
+
+1. **El invitado se va sin su foto.** Sube, sale el cartel "se envió a la pantalla
+   gigante", y la pantalla vuelve al inicio. La persona que acaba de posar con su
+   trago no se lleva nada. Y el dato ya está: la subida **devuelve la dirección de la
+   foto y un texto listo para compartir** con el hashtag y el Instagram de AK, y la
+   pantalla lo tira. Con un código en pantalla, esa foto termina en las redes del
+   invitado. Es publicidad gratis que hoy muere en el salón.
+2. **La foto no guarda con qué trago se sacó.** La función acepta el trago y arma
+   sola el texto "Disfrutando de un Mojito en la barra interactiva", pero el tótem no
+   se lo manda.
+3. **El interruptor de "confirmá que seguís las redes de AK antes de subir" no
+   funciona en el tótem:** la pantalla manda siempre que sí, sin preguntar. El dueño
+   lo prende y no pasa nada.
+
+**Y en el celular del invitado la carta es una grilla quieta** de dos columnas, con
+la foto del trago del tamaño de una estampilla. La pantalla del salón se ve mejor que
+la que el invitado tiene en la mano, siendo la que más mira en toda la noche.
 
 ## Cómo agregar algo a esta lista
 

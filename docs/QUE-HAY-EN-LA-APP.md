@@ -53,6 +53,9 @@ muestre**. Esa distinción es la que más veces falló.
 | El invitado pide su trago desde el celular | Sí | Enlace personal del invitado |
 | Pantalla del barman con los pedidos | Sí | `/evento/barra/<fiesta>/barman` |
 | Carta de tragos en carrusel en el celular del invitado | NO, es una grilla quieta con foto chica | — |
+| Foto y video con el trago en el tótem | Sí | `/evento/barra/<fiesta>` |
+| Que el invitado se lleve su foto del tótem al celular | NO, queda sólo en la pantalla del salón | — |
+| Exigir seguir las redes antes de subir la foto | El interruptor existe pero el tótem no lo respeta | Ajustes de la barra |
 | Sección "por qué AK" en la portada | Sí | Portada, debajo de la presentación |
 | Pedido de cambio de cantidad de invitados por el cliente | Sí | Portal del cliente, y el equipo lo acepta o rechaza en Fiestas → Portal del cliente |
 | Pedido de cambio de menú por el cliente | Sí | Portal del cliente |
