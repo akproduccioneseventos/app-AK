@@ -245,15 +245,29 @@ abajo a la izquierda, y fondo decorado.
   (Ya pasó cuatro veces y hay una prueba que lo frena.)
 - El logo de AK, del archivo que ya usa la aplicación.
 
-### 8.2 — El espejo mágico también imprime de a tres
+### 8.2 — El espejo mágico y el 360 con IA: UNA sola foto, pero personalizada
 
-Hoy el espejo saca **una sola foto** y la manda a imprimir directo
-(`imprimirRecuerdo`). Según el dueño, el espejo entrega el mismo impreso de tres
-fotos que la fotocabina.
+**Ojo con esto, que se corrigió el 19 de agosto:** el espejo mágico y el 360 con
+inteligencia artificial **imprimen UNA SOLA foto**, no tres. Las tres son sólo de la
+fotocabina.
 
-Que el espejo saque tres fotos con su cuenta regresiva, como la fotocabina, y arme
-la misma hoja. **Reusá `tira-fotocabina.ts`**, no escribas otro armado: si mañana
-cambia el diseño, tiene que cambiar en un solo lugar.
+**Lo que ya está bien:** el espejo saca una foto y la manda a imprimir. Esa parte no
+se toca.
+
+**Lo que falta:** esa foto sale **pelada**, tal como se sacó. Tiene que salir en el
+**mismo papel de 10 x 15 y con la misma personalización** que la de la fotocabina:
+
+- La foto grande, ocupando la parte de arriba.
+- Abajo, **el nombre del homenajeado en letra manuscrita grande** y el motivo más
+  chico.
+- **El logo de AK abajo a la izquierda**, sobre el mismo fondo decorado de la fiesta.
+
+**Cómo hacerlo sin duplicar trabajo:** que la función que arma la hoja
+(`src/lib/entretenimiento/tira-fotocabina.ts`) acepte **una o tres fotos**. Con tres,
+arma el reparto de la fotocabina; con una, la pone grande arriba. El nombre, el
+motivo, el logo y el fondo son los mismos en los dos casos.
+
+Así, el día que cambie el diseño, cambia en un solo lugar para las tres estaciones.
 
 ## Cómo se comprueba
 
@@ -261,7 +275,8 @@ cambia el diseño, tiene que cambiar en un solo lugar.
 2. Que la foto grande vaya arriba y las dos chicas abajo, lado a lado.
 3. Que el nombre y el motivo sean los de la fiesta de verdad.
 4. Que sin nombre cargado no aparezca ningún texto de relleno.
-5. Que el espejo mágico arme la misma hoja de tres fotos que la fotocabina.
+5. Que el espejo mágico y el 360 con IA impriman **una sola foto**, en la misma hoja
+   de 10x15 y con la misma personalización (nombre, motivo, logo y fondo).
 6. Que el fondo salga de lo que tiene cargado la fiesta.
 
 ## Cómo se comprueba

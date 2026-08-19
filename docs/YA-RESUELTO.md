@@ -2766,8 +2766,16 @@ el resto era protección que el control no sabía reconocer.
   chico ("mis 15 años").
 - **Logo de AK abajo a la izquierda**, sobre **fondo decorado** que combina con la
   fiesta, no sobre blanco.
-- **Imprimen la fotocabina, la plataforma 360 y el 360 con inteligencia artificial.**
-  El espejo mágico también entrega este impreso. La barra NO imprime.
+**Cuántas fotos lleva cada estación** (corregido por el dueño el 19 de agosto,
+después de una primera versión equivocada):
+
+- **La fotocabina: TRES fotos** — una grande arriba y dos chicas abajo lado a lado.
+- **El espejo mágico: UNA sola foto.** Mismo papel de 10x15 y misma
+  personalización, pero una sola.
+- **El 360 con inteligencia artificial: UNA sola foto**, igual que el espejo.
+- **La plataforma 360** también imprime.
+- **La barra NO imprime**: ahí la foto va a la pantalla grande y el invitado se la
+  lleva en el celular.
 
 **Qué coincide y qué no con lo que arma la aplicación hoy:**
 
