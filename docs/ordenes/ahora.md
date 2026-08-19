@@ -1,11 +1,11 @@
-# El tótem de la barra: que el invitado se lleve su foto
+# Siete bloques: la barra, el buzón, la invitación y las puertas abiertas
 
 **Para:** Gemini (Antigravity)
 **Escrita:** 19 de agosto de 2026.
 
 ## Cómo se entrega
 
-**UNA SOLA propuesta de cambios con los tres bloques adentro.** Cada fusión dispara
+**UNA SOLA propuesta de cambios con los SIETE bloques adentro.** Cada fusión dispara
 un despliegue y eso se paga. Si un bloque se traba, entregá el resto igual, en la
 misma propuesta, avisando cuál faltó y por qué.
 
@@ -216,6 +216,83 @@ agregar dos bloques para cargar:
 - **Los hoteles son de Salto**, o de donde sea la fiesta. Nada de direcciones ni
   teléfonos de otros países.
 - Que se vea en la vista previa del editor al cargarlo.
+
+---
+
+# BLOQUE 7 — Revisar las 247 puertas que quedan (el más largo, y se puede cortar)
+
+**Esto es trabajo de paciencia, no de ingenio.** Es perfecto para hacerlo de a
+tandas y entregarlo aunque esté a medias.
+
+## El problema, explicado
+
+En un archivo que empieza con `'use server'`, **cada función exportada es una
+dirección que cualquiera de internet puede llamar**. No hace falta estar logueado ni
+tener el enlace: alcanza con saber que existe.
+
+El 19 de agosto se puso un control que las lista, y **se encontraron cinco reales**:
+cambiar la fecha de una fiesta sin cuenta, ver el calendario entero con todos los
+clientes, borrar el contrato de una fiesta, nueve funciones de multiagente, y el
+simulador sin freno contra robots.
+
+Quedan **247 funciones en 98 archivos sin revisar una por una**, congeladas en
+`src/__tests__/puertas-pendientes-de-revisar.json`.
+
+## Qué hacer
+
+Tomá los archivos del JSON **en el orden que quieras** y revisá función por función.
+Para cada una, decidí:
+
+1. **Si es del equipo** → poner `await requireAppSession();` en la primera línea.
+   Si toca sueldos, contabilidad o permisos, usar `requirePermiso(...)` con el
+   permiso que corresponda, como ya hacen otras.
+2. **Si es pública a propósito** (la contesta un invitado, un cliente sin cuenta, el
+   simulador, un webhook) → declararla en `PUBLICAS_A_PROPOSITO` dentro de
+   `src/__tests__/auditoria-puertas-abiertas.test.ts`, **con el motivo escrito**.
+   Y si guarda algo, ponerle freno con `enforcePublicRateLimit`, como el simulador.
+3. **Si ya estaba protegida** de una forma que el control no reconoce → agregá esa
+   forma a la lista de comprobaciones válidas del control.
+
+**En los tres casos, sacá la función del JSON de pendientes y bajá el número del
+tope** en la última prueba del archivo.
+
+## LO QUE NO SE HACE, Y NO ES OPINABLE
+
+> **Nunca agregues una función al JSON de pendientes.**
+
+Ese archivo **sólo se achica**. Es la foto de cómo estaba el día que se puso el
+control: si crece, el control deja de servir.
+
+Y **no aflojes el control** para que pase. Si falla, es porque encontró algo.
+
+## Cuidados, con ejemplos que ya pasaron
+
+- **Mirá si delega antes de decidir.** `deleteAllFiestas` parecía abierta y en
+  realidad llama a una que pide sesión de administrador. Si el cuerpo es una sola
+  línea que llama a otra función, la protección está allá.
+- **Mirá el ORDEN de lo que hace.** `deleteDocumento` parecía protegida porque el
+  guardado del final pide permiso, pero **borraba el archivo antes**. Si una función
+  hace algo irreversible antes de la comprobación, la comprobación no sirve.
+- **Cerrar sesión y cambiar la contraseña son públicas por necesidad.** La primera
+  borra tu propia cookie; la segunda se protege pidiendo la contraseña actual.
+- **No rompas lo que anda.** Si al poner la comprobación una pantalla deja de
+  funcionar, es que esa función se llamaba desde algún lado público: averiguá desde
+  dónde antes de cambiarla.
+
+## Cómo se entrega este bloque
+
+**Se puede entregar a medias y está bien.** Decí cuántas revisaste y cuántas quedan.
+Es preferible que entregues treinta bien revisadas a que entregues doscientas mal.
+
+**Ojo:** no las cierres todas de golpe sin mirar. Poner `requireAppSession()` a
+ciegas en una función que un invitado necesita **rompe la fiesta en vivo**, y eso es
+peor que la puerta abierta.
+
+## Cómo se comprueba
+
+1. `npx jest --silent src/__tests__/auditoria-puertas-abiertas.test.ts` en verde.
+2. El número del tope bajó, nunca subió.
+3. Las pruebas de siempre siguen pasando: si rompiste algo público, se nota ahí.
 
 ## Cómo se comprueba
 

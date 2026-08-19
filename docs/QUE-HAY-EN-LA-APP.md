@@ -1,4 +1,68 @@
-# Qué hay en la app (inventario verificado)
+# Qué hay en la app
+
+> **Se lee ANTES de salir a inventariar.** Si el dato está acá, se responde de acá,
+> sin mandar agentes a buscar de nuevo. Y **se actualiza en la misma propuesta que
+> toca el código**: un inventario desactualizado es peor que no tenerlo.
+
+## Inventario completo por módulo (19 de agosto de 2026)
+
+Recorrido módulo por módulo con cinco ayudantes en paralelo, cada hallazgo
+verificado a mano. **Más de 230 funciones**, con archivo y línea como prueba.
+
+| Área | Funciones | Estado |
+|---|---|---|
+| Comercial y venta (CRM, presupuestos, simulador, páginas de venta) | 31 | Todas andan |
+| Plata y cobros (facturas, seña, Mercado Pago, rentabilidad) | 55 | Todas andan |
+| Empresa y marketing (presencia digital, redes, blog, posicionamiento) | ~50 | Andan; 2 esperan credenciales |
+| Invitado y noche de fiesta (invitación, portal, 25 pantallas del evento) | 40 pantallas | Todas andan |
+| Planificación de la fiesta (invitados, mesas, comida, personal, impresos) | 56 | Todas andan |
+
+### Cómo está la seguridad de las puertas de entrada (19 de agosto de 2026)
+
+En un archivo de servidor, **cada función exportada es una dirección que cualquiera
+de internet puede llamar**. Hay un control que las lista y frena las nuevas
+(`src/__tests__/auditoria-puertas-abiertas.test.ts`).
+
+| Estado | Cantidad |
+|---|---|
+| Cerradas en esta revisión | 15 |
+| Declaradas públicas a propósito, con motivo escrito | 12 archivos |
+| **Pendientes de revisar una por una** | **247 en 98 archivos** |
+
+**Las pendientes no están todas mal:** la mayoría son de leer, y varias se protegen
+de formas que el control no reconoce. Significa que nadie las miró con esta lupa.
+Están congeladas en `src/__tests__/puertas-pendientes-de-revisar.json`: **la lista
+sólo se achica, nunca crece**, y cualquier función nueva que quede abierta hace
+fallar la aplicación.
+
+Revisarlas está pedido en el bloque 7 de `docs/ordenes/ahora.md`.
+
+---
+
+### Lo único que no está completo
+
+1. **Google Workspace** — la pantalla existe y funciona, falta cargar la credencial.
+   No está rota: está esperando la llave.
+2. **Buscar canciones en Spotify** desde la invitación — igual, falta la credencial.
+3. **El aviso de puntaje de Google menor a 4 estrellas** — armado, no se puede
+   encender hasta que se pueda leer el puntaje real de la ficha.
+
+### Lo que se encontró en este inventario y ya se corrigió
+
+- **La carta de tragos de una boda se imprimía diciendo "Mis XV".** Cuarto caso del
+  mismo defecto de los impresos de mesa.
+- **El planificador gastronómico no figuraba en ningún menú**: había que escribir la
+  dirección a mano. Es la cuarta pantalla terminada sin puerta que apareció.
+
+### Dato estructural que conviene recordar
+
+**Hay dos sistemas de invitación y no se tocan.** El editor avanzado trabaja con una
+boda de ejemplo ("María y Juan", Salón El Paraíso); la invitación que abre el
+invitado se arma desde otra configuración, que tiene **todos los campos vacíos** y se
+llena con los datos reales de la fiesta. Los datos de ejemplo **no tienen camino
+hacia una invitación publicada**.
+
+---
 
 **Para qué sirve este archivo.** El dueño pregunta seguido "¿esto está?" y auditar
 de nuevo cada vez cuesta tiempo y plata. Acá queda anotado lo que ya se revisó,

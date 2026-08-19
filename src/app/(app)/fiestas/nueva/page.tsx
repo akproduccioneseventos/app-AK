@@ -111,6 +111,10 @@ const modules: ModuleDefinition[] = [
   { id: 'listaCompras', title: "Lista de Compras", href: "catering/lista-compras", icon: ShoppingCart, description: "Insumos necesarios para el catering.", category: 'GASTRONOMÍA Y SERVICIO', color: "bg-slate-100 text-slate-600", badge: 'Operativo' },
   { id: 'alergias', title: "Gestión Alimentaria", href: "alergias", icon: Users2, description: "Celíacos, alergias y dietas especiales.", category: 'GASTRONOMÍA Y SERVICIO', color: "bg-orange-100 text-orange-600", badge: 'Operativo' },
   { id: 'cartaTragos', title: "Carta de Tragos", href: "carta-tragos", icon: Wine, description: "Carta de bebidas para el evento.", category: 'GASTRONOMÍA Y SERVICIO', color: "bg-fuchsia-100 text-fuchsia-700", badge: 'Impresión' },
+  // El planificador gastronomico estaba hecho y no figuraba en ningun menu: habia
+  // que escribir la direccion a mano para entrar. Es la cuarta pantalla terminada
+  // sin puerta que aparece.
+  { id: 'plannerCostoFiesta', title: "Planificador Gastronómico", href: "planner-costo-fiesta", icon: Calculator, description: "Gastos por categoría y armado de mesas.", category: 'GASTRONOMÍA Y SERVICIO', color: "bg-orange-100 text-orange-600", badge: 'Interno' },
   { id: 'barraTecnologica', title: "Barra Tecnológica", href: "barra-tecnologica", icon: Wine, description: "Pantalla tactil de tragos, pantalla barman y fotos sociales con hashtag.", category: 'GASTRONOMÍA Y SERVICIO', color: "bg-rose-100 text-rose-700", badge: 'Invitado' },
 
   // 9. CARTELERÍA Y MATERIAL IMPRESO
@@ -163,7 +167,7 @@ type QuickMode = 'dia-evento' | 'preparacion' | 'cliente' | 'tecnologia' | null;
 
 const quickModes: { id: QuickMode; label: string; icon: React.ElementType; color: string; moduleIds: string[] }[] = [
   { id: 'dia-evento',  label: 'Día del Evento',  icon: Zap,       color: 'bg-primary text-white',             moduleIds: ['centroTotal', 'enVivo', 'missionControl', 'itinerario', 'checkin', 'cargaOperativa', 'readiness', 'fiestaLista', 'muroSocial', 'zonaDigital', 'pantallasTotem', 'entretenimiento', 'barraTecnologica'] },
-  { id: 'preparacion', label: 'Preparación',     icon: ListChecks, color: 'bg-teal-600 text-white',           moduleIds: ['centroTotal', 'fiestaLista', 'tareas', 'portalCliente', 'invitados', 'decoracion', 'catering', 'carteleria'] },
+  { id: 'preparacion', label: 'Preparación',     icon: ListChecks, color: 'bg-teal-600 text-white',           moduleIds: ['centroTotal', 'fiestaLista', 'tareas', 'portalCliente', 'invitados', 'decoracion', 'catering', 'plannerCostoFiesta', 'carteleria'] },
   { id: 'cliente',     label: 'Vista Cliente',   icon: KeyRound,  color: 'bg-amber-500 text-white',           moduleIds: ['portalCliente', 'itinerario', 'videoVida', 'invitados', 'musica', 'planPagos'] },
   { id: 'tecnologia',  label: 'Tecnología AK',   icon: Monitor,   color: 'bg-indigo-600 text-white',          moduleIds: ['centroTotal', 'paginaWeb', 'moduloInvitado', 'redSocial', 'muroSocial', 'zonaDigital', 'pantallasTotem', 'entretenimiento', 'barraTecnologica', 'enVivo', 'checkin'] },
 ];

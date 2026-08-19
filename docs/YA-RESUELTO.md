@@ -2633,6 +2633,129 @@ lugares se enlaza cada una. Dos tenían cero:
 cada pantalla encuentra en un minuto lo que una auditoría de código no ve, porque el
 código está bien — lo que falta es la puerta.
 
+## Los impresos de las mesas salían con el nombre y la fecha de mentira (19 de agosto de 2026)
+
+**Éste llegaba impreso a la mesa, delante de los invitados.**
+
+Los números de mesa, el menú de mesa y la carta de tragos arrancaban con
+`protagonistaNombre: "La Agasajada"`, `fechaEvento: "01/01/2025"` y una foto de
+fondo traída al azar de internet.
+
+El código para poner el nombre y la fecha **reales** de la fiesta existía y estaba
+bien escrito: `if (!mergedData.protagonistaNombre) mergedData.protagonistaNombre =
+fiestaData.configuracion.protagonista1Nombre`. Pero **nunca se ejecutaba**, porque
+el campo jamás estaba vacío: el ejemplo ya ocupaba el lugar.
+
+Resultado: se imprimían con "La Agasajada" y "01/01/2025" salvo que alguien los
+escribiera a mano.
+
+**Cómo quedó:** los tres arrancan **vacíos**, y así el relleno con los datos de la
+fiesta funciona como estaba pensado. Con prueba
+(`src/__tests__/impresos-con-los-datos-reales.test.ts`).
+
+**Y había un cuarto caso, encontrado en el inventario del 19 de agosto:**
+`numeroPrincipal: 'Mis XV'` en la carta de tragos. En una **boda**, la carta impresa
+decía **"Mis XV"**: el código que pone "Nuestra Boda" según el tipo de fiesta
+preguntaba si el campo estaba vacío, y nunca lo estaba. Corregido igual, y la prueba
+ahora lo cubre.
+
+**La lección, que vale para toda la app:** un valor de ejemplo puesto como defecto
+**desactiva el código que pondría el dato real**, porque ese código casi siempre
+pregunta "¿está vacío?". Un defecto de relleno no es sólo feo: rompe en silencio el
+mecanismo que lo iba a reemplazar.
+
+**Dónde más mirar si aparece de nuevo:** todos los rellenos de este tipo viven como
+`if (!mergedX.campo)` en las pantallas de `fiestas/nueva/`. Se listan con una
+búsqueda de `if (!merged` y se compara cada campo contra su valor por defecto en
+`src/lib/fiesta-defaults.ts`. Si el defecto no está vacío, el relleno está muerto.
+
+## Tres controles automáticos que hacen la auditoría sola (19 de agosto de 2026)
+
+**Los dos hallazgos reales del día no salieron de leer código: salieron de contar.**
+Los ayudantes opinando dieron 70% de falsas alarmas; las cuentas mecánicas dieron
+100% de aciertos. Así que las cuentas quedaron convertidas en pruebas.
+
+1. **`auditoria-defectos-tapados.test.ts`** — junta todos los campos que alguna
+   pantalla intenta rellenar con el dato real de la fiesta (`if (!algo.campo)`) y
+   verifica que el valor por defecto esté vacío. Si alguien pone un ejemplo, falla
+   acá y no en una mesa impresa. **Probado a propósito:** se le volvió a meter
+   `numeroPrincipal: 'Mis XV'` y lo agarró al instante, nombrándolo.
+
+   Ojo con la distinción que lo hace útil: los rellenos con valor fijo
+   (`fontFamily = 'Playfair Display'`) son inofensivos y no se cuentan; sólo importan
+   los que van a buscar el dato a la fiesta.
+
+2. **`auditoria-pantallas-sin-puerta.test.ts`** — cuenta desde cuántos lugares se
+   enlaza cada pantalla del evento. Encuentra lo que ninguna auditoría de código ve,
+   porque el código está bien: lo que falta es el enlace. Ya aparecieron cuatro así.
+   Las que se abren por QR o por enlace del equipo van declaradas con su motivo.
+
+3. **`auditoria-puertas-abiertas.test.ts`** — lista las funciones de servidor que no
+   comprueban quién las llama. **Encontró una real:** `updateFiestaDate` estaba
+   abierta, así que cualquiera que supiera el número de una fiesta podía cambiarle
+   la fecha sin tener cuenta. Se cerró, junto con las tres lecturas de la agenda,
+   que exponían el calendario entero y las reuniones con clientes.
+
+### Cómo funciona el tercero, que es distinto
+
+Quedan **255 funciones en 99 archivos sin revisar una por una**, congeladas en
+`src/__tests__/puertas-pendientes-de-revisar.json`. No significa que estén mal: la
+mayoría son de leer y varias se protegen de formas que el control no reconoce.
+Significa que nadie las miró con esta lupa.
+
+**Desde hoy, cualquier función NUEVA que quede abierta hace fallar la prueba.** La
+lista vieja se vacía de a poco y **no se agranda nunca**. Cuando se revisa una y se
+protege, se saca del archivo y se baja el número del tope.
+
+**Lo que NO hay que hacer si falla:** agregarla al archivo de pendientes. Ese archivo
+sólo se achica.
+
+### Falsas alarmas del control, ya contempladas
+
+- **Los atajos que sólo delegan** (`export async function X() { return Modulo.X(); }`)
+  no se cuentan: la comprobación está en la función de destino. Así se protege
+  `deleteAllFiestas`, que sí pide sesión de administrador.
+- **El cambio de contraseña** se protege pidiendo la contraseña actual, no una
+  sesión. Vale igual.
+
+## Triaje de las puertas abiertas: once cerradas (19 de agosto de 2026)
+
+Tres ayudantes revisaron las 255 funciones congeladas, un tercio cada uno. **De todo
+lo que reportaron, verificado a mano una por una, resultaron reales cuatro cosas** —
+el resto era protección que el control no sabía reconocer.
+
+### Lo que se cerró
+
+- **`updateFiestaDate`** — cambiar la fecha de una fiesta no pedía cuenta. Cualquiera
+  que supiera el número de una fiesta podía moverle la fecha desde afuera.
+- **`getCalendarEvents`, `getAppointments`, `getOcupiedDates`** — dejaban ver el
+  calendario entero, con todas las fiestas y las reuniones con los clientes.
+- **`deleteDocumento`** — el caso más sutil del día. Parecía protegida porque el
+  guardado final sí pide permiso. Pero **el archivo se borra del almacenamiento
+  ANTES de ese guardado**: un desconocido borraba el contrato o la factura de verdad,
+  el guardado le fallaba después, y quedaba la ficha apuntando a un archivo que ya no
+  existe. Subir un documento sí pedía permiso; borrarlo, no.
+- **Nueve funciones de multiagente** — escribían aprendizaje, tareas y avisos sin
+  comprobar nada, aunque sus pantallas están detrás del ingreso.
+- **`saveSimuladorV2Lead`** — pública a propósito, pero **sin freno**: un robot podía
+  llenar el CRM de presupuestos falsos hasta volverlo inservible. Ahora tiene el
+  mismo freno que el formulario de la portada: cuatro por hora y por teléfono.
+
+### Las falsas alarmas, para no volver a gastarlas
+
+- **`deleteAllFiestas` y `resetAllActiveFiestas`** parecían abiertas: delegan en
+  funciones que sí piden sesión de administrador.
+- **`clearSessionCookie`** borra **tu propia** cookie: es el "cerrar sesión". No
+  puede afectar a nadie más.
+- **`addPagoClienteFromPortal`** está bien diseñada: el cliente **informa** un pago,
+  no lo da por cobrado —queda pendiente de confirmación— y valida que no supere el
+  total.
+- **El cambio de contraseña** se protege pidiendo la contraseña actual.
+
+**El tramo de los primeros 33 archivos no tenía ninguna para cerrar.**
+
+**Quedan 247 pendientes de revisar** (eran 255). La lista sólo se achica.
+
 ## Cómo agregar algo a esta lista
 
 **Se anota SIEMPRE, en la misma propuesta que toca el código.** Orden del dueño
