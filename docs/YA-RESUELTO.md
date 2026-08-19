@@ -2468,6 +2468,33 @@ y el envío a la pantalla gigante.
 la foto del trago del tamaño de una estampilla. La pantalla del salón se ve mejor que
 la que el invitado tiene en la mano, siendo la que más mira en toda la noche.
 
+## La barra de tragos, terminada de este lado (19 de agosto de 2026)
+
+Dos cosas hechas acá, y tres que quedaron pedidas.
+
+**El video del tótem bajó de 15 a 8 segundos.** Es un saludo con el trago en la
+mano, no un video: a los quince segundos la persona ya no sabe qué decir, y el que
+lo ve pasar en la pantalla del salón se aburre. La duración vive en una constante
+con nombre (`DURACION_VIDEO_SEGUNDOS`) para que no haya que buscar un número suelto.
+
+**La carta de tragos del celular del invitado pasó a ser un carrusel.** Antes era
+una grilla quieta de dos columnas con la foto del tamaño de una estampilla: el trago
+se leía, no se veía. Ahora son tarjetas grandes con la foto de protagonista, que se
+pasan de costado con el dedo y se acomodan solas al soltar, igual que en la pantalla
+del salón. Las tarjetas ocupan el 78% del ancho **a propósito**, para que asome la
+siguiente: si ocupan todo, el invitado cree que hay un solo trago. El botón de pedir
+va abajo y ocupa el ancho entero, para alcanzarlo con el pulgar sin apuntar.
+
+Un trago sin foto cargada **no deja un hueco gris**: se arma una tarjeta con el
+color de la fiesta y el ícono grande.
+
+**No se tocó nada de cómo se pide:** confirmar, cancelar, cambiar de trago y el
+estado del pedido quedaron igual.
+
+**Decisión del dueño, anotada para no volver a preguntarla:** el tótem de la barra
+es **como la fotocabina pero sin impresión**. Lo que se saca va a la pantalla
+gigante y queda guardado; nunca se imprime.
+
 ## Cómo agregar algo a esta lista
 
 **Se anota SIEMPRE, en la misma propuesta que toca el código.** Orden del dueño

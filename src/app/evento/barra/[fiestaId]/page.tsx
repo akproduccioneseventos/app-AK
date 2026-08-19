@@ -50,6 +50,15 @@ interface FrameTemplate {
   draw: (ctx: CanvasRenderingContext2D, w: number, h: number, eventName: string, hashtag: string) => void;
 }
 
+/**
+ * Cuanto dura el video del totem de la barra.
+ *
+ * Es un saludo rapido con el trago en la mano: ocho segundos. Antes eran quince y
+ * quedaba largo para lo que es, tanto para el que graba como para el que lo ve
+ * pasar en la pantalla del salon.
+ */
+const DURACION_VIDEO_SEGUNDOS = 8;
+
 export default function BarraTecnologicaTouchPage() {
   const params = useParams();
   const fiestaId = params.fiestaId as string;
@@ -533,7 +542,10 @@ export default function BarraTecnologicaTouchPage() {
 
     mediaRecorder.start();
     setIsRecording(true);
-    setRecordingTime(15);
+    // Ocho segundos, no quince. Es un saludo con el trago en la mano, no un video:
+    // a los quince segundos la persona ya no sabe que decir y el que mira en la
+    // pantalla del salon se aburre. Ocho alcanzan y sobran.
+    setRecordingTime(DURACION_VIDEO_SEGUNDOS);
 
     const timer = setInterval(() => {
       setRecordingTime((prev) => {
