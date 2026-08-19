@@ -59,7 +59,7 @@ muestre**. Esa distinción es la que más veces falló.
 | Buzón de saludos: sacarse una foto | NO, faltan | — |
 | Llegar al buzón desde el portal del invitado | Sí, botón "Dejar un saludo" | Enlace personal del invitado |
 | Moderar el muro desde el celular en la fiesta | Sí | Fiestas → Muro social → "Moderar desde el celular" |
-| Estación de impresión de fotos | Existe la pantalla, sin acceso: falta confirmar si se usa | — |
+| Cola de impresión de fotos | Sí, en fotocabina, plataforma 360 y 360 con IA | Fiestas → Entretenimiento → "Cola de Impresión" |
 | Foto y video (8 segundos) con el trago en el tótem, sin impresión | Sí | `/evento/barra/<fiesta>` |
 | Que el invitado se lleve su foto del tótem al celular | NO, queda sólo en la pantalla del salón | — |
 | Exigir seguir las redes antes de subir la foto | El interruptor existe pero el tótem no lo respeta | Ajustes de la barra |

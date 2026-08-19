@@ -2618,10 +2618,16 @@ lugares se enlaza cada una. Dos tenían cero:
   "Pantalla en vivo". (Aprobar desde el panel de escritorio ya se podía, así que
   ninguna foto quedaba trabada: lo que faltaba era hacerlo desde el celular.)
 
-- **La estación de impresión** (`/evento/impresion/<fiesta>`): pantalla para
-  imprimir fotos en la fiesta. **No se enchufó**, a propósito: el dueño dijo que la
-  barra es como la fotocabina **pero sin impresión**, así que hay que preguntarle si
-  esta estación se usa antes de ponerle un acceso. Queda anotada, no perdida.
+- **La estación de impresión** (`/evento/impresion/<fiesta>`): la pantalla donde el
+  que maneja la impresora ve las fotos aprobadas y va marcando cuál salió. **Ya está
+  enchufada.** El dueño confirmó dónde se imprime: **en la fotocabina, en la
+  plataforma 360 y en el 360 con inteligencia artificial**. La barra no imprime —
+  ahí la foto va a la pantalla grande y el invitado se la lleva en el celular.
+
+  El botón "Cola de Impresión" aparece en Fiestas → Entretenimiento, al lado de
+  "Consola Operador", **sólo en esas tres estaciones**. Hay prueba que lo cuida
+  (`src/__tests__/cola-de-impresion.test.ts`): si mañana alguien agrega una estación
+  que imprime, se agrega a la lista y la prueba lo confirma.
 
 **El método sirve y conviene repetirlo:** contar desde cuántos lugares se enlaza
 cada pantalla encuentra en un minuto lo que una auditoría de código no ve, porque el
