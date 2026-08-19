@@ -1,4 +1,4 @@
-export type BuzonMediaType = 'audio' | 'video';
+﻿export type BuzonMediaType = 'audio' | 'video' | 'photo';
 
 export interface DetectedBuzonMedia {
   mediaType: BuzonMediaType;
@@ -19,8 +19,21 @@ export function detectBuzonMedia(
   declaredMediaType: unknown,
   declaredMimeType: unknown,
 ): DetectedBuzonMedia | null {
-  if (declaredMediaType !== 'audio' && declaredMediaType !== 'video') return null;
+  if (declaredMediaType !== 'audio' && declaredMediaType !== 'video' && declaredMediaType !== 'photo') return null;
   const mimeType = String(declaredMimeType ?? '').toLowerCase();
+
+  const isJpeg = startsWith(bytes, [0xff, 0xd8, 0xff]);
+  const isPng = startsWith(bytes, [0x89, 0x50, 0x4e, 0x47]);
+  const isWebp = asciiAt(bytes, 0, 4) === 'RIFF' && asciiAt(bytes, 8, 4) === 'WEBP';
+
+  if (declaredMediaType === 'photo') {
+    if (isJpeg) return { mediaType: 'photo', extension: '.jpg', contentType: 'image/jpeg' };
+    if (isPng) return { mediaType: 'photo', extension: '.png', contentType: 'image/png' };
+    if (isWebp) return { mediaType: 'photo', extension: '.webp', contentType: 'image/webp' };
+    if (mimeType.startsWith('image/')) return { mediaType: 'photo', extension: '.jpg', contentType: mimeType };
+    return null;
+  }
+
   if (!mimeType.startsWith(`${declaredMediaType}/`)) return null;
 
   const isWebm = startsWith(bytes, [0x1a, 0x45, 0xdf, 0xa3]);

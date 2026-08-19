@@ -92,6 +92,7 @@ const PUBLIC_TOOL_ICONS: Record<PublicEventTool['id'], LucideIcon> = {
   songs: Music,
   bar: Wine,
   games: Gamepad2,
+  buzon: Heart,
 };
 
 type PortalAction = {
