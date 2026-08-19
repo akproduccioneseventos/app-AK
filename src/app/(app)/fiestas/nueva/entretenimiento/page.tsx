@@ -38,6 +38,7 @@ import {
   Trash2,
   FileAudio,
   Settings,
+  Printer,
   ListTodo,
   ExternalLink,
   ChevronRight,
@@ -65,6 +66,7 @@ import {
 import {
   getEntertainmentGuestPath,
   getEntertainmentOperatorPath,
+  getEntertainmentPrintPath,
 } from '@/lib/entertainment/station-config';
 import {
   getBuzonMessages,
@@ -1023,6 +1025,12 @@ function EntretenimientoContent() {
 
   const getOperatorLaunchLink = (stationId: StationId) =>
     getEntertainmentOperatorPath(fiestaId || '', stationId, launchTokens[stationId]?.operator);
+
+  // La cola de impresion: solo en las estaciones que imprimen (fotocabina,
+  // plataforma 360 y 360 con inteligencia artificial). La pantalla existia y no se
+  // llegaba desde ningun lado: habia que escribir la direccion a mano.
+  const getPrintLaunchLink = (stationId: StationId) =>
+    getEntertainmentPrintPath(fiestaId || '', stationId, launchTokens[stationId]?.operator);
 
   if (isLoading) {
     return (
@@ -2061,6 +2069,18 @@ function EntretenimientoContent() {
                                 >
                                   <Settings className="mr-2 h-4 w-4" />
                                   Consola Operador
+                                </a>
+                              </Button>
+                            )}
+                            {getPrintLaunchLink(activeStationId) && (
+                              <Button asChild variant="outline" className="w-full rounded-xl border-amber-700/60 bg-amber-950/40 text-amber-100 font-black text-xs uppercase tracking-wider">
+                                <a
+                                  href={getPrintLaunchLink(activeStationId)!}
+                                  target="_blank"
+                                  rel="noopener noreferrer"
+                                >
+                                  <Printer className="mr-2 h-4 w-4" />
+                                  Cola de Impresión
                                 </a>
                               </Button>
                             )}
