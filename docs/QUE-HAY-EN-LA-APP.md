@@ -57,7 +57,7 @@ muestre**. Esa distinción es la que más veces falló.
 | Carta de tragos en carrusel en el celular del invitado | Sí | Enlace personal del invitado |
 | Buzón de saludos: grabar video (15 seg) y audio | Sí | `/evento/buzon/<fiesta>` |
 | Buzón de saludos: sacarse una foto | NO, faltan | — |
-| Llegar al buzón desde el portal del invitado | NO, sólo por enlace que abre el equipo | — |
+| Llegar al buzón desde el portal del invitado | Sí, botón "Dejar un saludo" | Enlace personal del invitado |
 | Foto y video (8 segundos) con el trago en el tótem, sin impresión | Sí | `/evento/barra/<fiesta>` |
 | Que el invitado se lleve su foto del tótem al celular | NO, queda sólo en la pantalla del salón | — |
 | Exigir seguir las redes antes de subir la foto | El interruptor existe pero el tótem no lo respeta | Ajustes de la barra |

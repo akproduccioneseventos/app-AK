@@ -2591,6 +2591,21 @@ La boda de ejemplo del editor ("María y Juan", `#BodaJuanYMaria`, Salón El Par
 **se deja como está**: es el punto de partida para que el equipo no arranque de una
 pantalla en blanco. Lo que se arregló es que no pueda llegar publicada.
 
+## El buzón de saludos ya tiene puerta (19 de agosto de 2026)
+
+El buzón donde el invitado le deja un saludo grabado a los dueños de la fiesta
+existía y funcionaba, pero **al invitado no había por dónde llegar**: sólo se
+entraba por un enlace que abría el equipo desde su propia pantalla. Un buzón sin
+puerta es un buzón que nadie usa.
+
+Ahora está en el portal del invitado, al lado del muro y la galería, como **"Dejar
+un saludo"**. Respeta el interruptor: si la fiesta no contrató el buzón, la opción
+no aparece.
+
+**Falta todavía** que se pueda dejar el saludo con una foto: hoy están grabar video
+—que corta a los 15 segundos, y está bien así porque es un saludo, no un brindis— y
+grabar audio. Queda pedido.
+
 ## Cómo agregar algo a esta lista
 
 **Se anota SIEMPRE, en la misma propuesta que toca el código.** Orden del dueño

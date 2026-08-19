@@ -102,5 +102,24 @@ export function getDatosMinimosFaltantesInvitacion(
     }
   }
 
+  // Y una última pasada por TODA la invitación, no campo por campo.
+  //
+  // El editor arranca de una boda de ejemplo con fotos traídas al azar de
+  // internet. Revisar campo por campo obliga a acordarse de cada uno, y siempre
+  // falta alguno: acá se mira el contenido entero de una sola vez, así que
+  // también entran las fotos, el hashtag y los nombres del ejemplo.
+  if (fotosDeEjemplo(invitacionData)) {
+    faltantes.push('Quedaron fotos de la invitación de ejemplo. Subí las de la fiesta antes de compartirla.');
+  }
+
   return faltantes;
+}
+
+/** Busca fotos de relleno en cualquier parte de la invitación, sin enumerar campos. */
+function fotosDeEjemplo(invitacionData: InvitacionDigitalData): boolean {
+  try {
+    return /picsum\.photos|placeholder\.com|dummyimage/i.test(JSON.stringify(invitacionData ?? {}));
+  } catch {
+    return false;
+  }
 }

@@ -125,18 +125,11 @@ se pueda escribir una dedicatoria corta debajo, igual que en los otros modos.
 Aprovechá los marcos que ya existen para el video (`video-frame-templates`) si
 aplican también a la foto; si no encajan, dejala simple y limpia antes que forzarlo.
 
-## 4.2 — Al buzón no se llega desde el portal del invitado
+## 4.2 — El acceso al buzón YA SE HIZO, no lo rehagas
 
-Hoy al buzón sólo se entra por un enlace que abre el equipo desde su pantalla. **El
-invitado, con su enlace personal, no tiene por dónde llegar.**
-
-**Qué hacer:** poner el acceso al buzón en el portal del invitado
-(`src/app/invitacion/[fiestaId]/invitado/[guestId]/page.tsx`), al lado de las otras
-opciones que ya están ahí (el quiosco de tragos, el muro, la galería). Con un texto
-claro de qué es: dejarle un saludo a los dueños de la fiesta.
-
-**Respetá el interruptor:** si el buzón está apagado para esa fiesta, la opción no
-se muestra. Que no aparezca un botón que lleva a una pantalla apagada.
+El buzón ya está en el portal del invitado como **"Dejar un saludo"**, al lado del
+muro y la galería, y respeta el interruptor de la fiesta. Sólo falta lo de arriba:
+poder dejar el saludo con una foto.
 
 ## Cómo se comprueba este bloque
 
