@@ -200,6 +200,39 @@ export function getEntertainmentGuestPath(
   }
 }
 
+/**
+ * Estaciones donde la foto se imprime.
+ *
+ * El dueno lo confirmo el 19 de agosto de 2026: se imprime en la fotocabina, en la
+ * plataforma 360 y en el 360 con inteligencia artificial. La barra NO imprime: ahi
+ * la foto va a la pantalla grande y el invitado se la lleva en el celular.
+ */
+const ESTACIONES_QUE_IMPRIMEN: EntertainmentModuleId[] = [
+  'fotocabina',
+  'plataforma360',
+  'espejoMagicoIA',
+];
+
+export function estacionImprime(moduleId: EntertainmentModuleId): boolean {
+  return ESTACIONES_QUE_IMPRIMEN.includes(moduleId);
+}
+
+/**
+ * La cola de impresion: la pantalla donde el que maneja la impresora ve las fotos
+ * aprobadas y va marcando cual salio.
+ *
+ * Estaba hecha y no se llegaba desde ningun lado: habia que escribir la direccion a
+ * mano.
+ */
+export function getEntertainmentPrintPath(
+  fiestaId: string,
+  moduleId: EntertainmentModuleId,
+  accessToken?: string
+): string | null {
+  if (!estacionImprime(moduleId)) return null;
+  return withQuery(`/evento/impresion/${fiestaId}`, { access: accessToken });
+}
+
 export function getEntertainmentOperatorPath(
   fiestaId: string,
   moduleId: EntertainmentModuleId,

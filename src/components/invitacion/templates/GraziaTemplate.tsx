@@ -53,6 +53,26 @@ import { EventParticles } from '@/components/invitacion/EventParticles';
 import { EventLocationMap } from '@/components/invitacion/EventLocationMap';
 import { parseEventDate } from '@/lib/public-experience/event-date';
 
+/**
+ * Fondo neutro para cuando todavia no se cargo una foto.
+ *
+ * Antes se caia en `picsum.photos`, que devuelve una foto CUALQUIERA de internet:
+ * el equipo veia una imagen linda y creia que la invitacion ya tenia foto, cuando
+ * en realidad no habia cargado ninguna. Y era una foto ajena, traida de un sitio
+ * que no es nuestro.
+ *
+ * Es un degrade suave hecho acá mismo, sin pedirle nada a nadie.
+ */
+const FONDO_SIN_FOTO =
+  'data:image/svg+xml;utf8,' +
+  encodeURIComponent(
+    '<svg xmlns="http://www.w3.org/2000/svg" width="24" height="32">' +
+      '<defs><linearGradient id="g" x1="0" y1="0" x2="1" y2="1">' +
+      '<stop offset="0%" stop-color="#e9e4dc"/><stop offset="100%" stop-color="#cfc7bb"/>' +
+      '</linearGradient></defs><rect width="24" height="32" fill="url(%23g)"/></svg>'
+  );
+
+
 interface TemplateProps {
   fiesta: FiestaEnPlanificacion;
   invitacionData: InvitacionDigitalData;
@@ -163,7 +183,7 @@ const GraziaCabecera: React.FC<{ data: any, fiesta: FiestaEnPlanificacion, palet
                         <source src={data.videoFondoUrl} type="video/mp4" />
                     </video>
                 ) : (
-                    <NextImage src={data.imagenFondoUrl || 'https://picsum.photos/seed/bg/1200/1600'} alt="" layout="fill" objectFit="cover" />
+                    <NextImage src={data.imagenFondoUrl || FONDO_SIN_FOTO} alt="" layout="fill" objectFit="cover" />
                 )}
                 <div className="absolute inset-0 bg-white/20 backdrop-blur-[2px]"></div>
                 <div className="absolute inset-0 bg-gradient-to-b from-black/10 via-transparent to-white/90"></div>
@@ -419,7 +439,7 @@ export const GraziaTemplate: React.FC<TemplateProps> = ({ fiesta, invitacionData
                     className="space-y-6 md:space-y-8"
                 >
                   <div className="relative aspect-[3/4] rounded-[2rem] md:rounded-[3rem] overflow-hidden shadow-2xl md:shadow-3xl shadow-slate-200 group">
-                    <NextImage src={detalle.imagenUrl || 'https://picsum.photos/seed/event/800/1200'} alt="" layout="fill" objectFit="cover" className="group-hover:scale-110 transition-transform duration-1000" />
+                    <NextImage src={detalle.imagenUrl || FONDO_SIN_FOTO} alt="" layout="fill" objectFit="cover" className="group-hover:scale-110 transition-transform duration-1000" />
                     <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-black/20 to-transparent"></div>
                     <div className="absolute bottom-6 left-6 right-6 md:bottom-8 md:left-8 md:right-8 text-white text-left">
                       <div className="w-10 h-10 md:w-12 md:h-12 bg-white/20 backdrop-blur-xl rounded-xl md:rounded-2xl flex items-center justify-center mb-3 md:mb-4">
@@ -574,7 +594,7 @@ export const GraziaTemplate: React.FC<TemplateProps> = ({ fiesta, invitacionData
                                 )}
                             >
                                 <div className="relative aspect-square">
-                                    <NextImage src={item.imageUrl || 'https://picsum.photos/seed/gift/600/600'} alt={item.name} layout="fill" objectFit="cover" className="group-hover:scale-110 transition-transform duration-1000" />
+                                    <NextImage src={item.imageUrl || FONDO_SIN_FOTO} alt={item.name} layout="fill" objectFit="cover" className="group-hover:scale-110 transition-transform duration-1000" />
                                     {item.isClaimed && <div className="absolute inset-0 bg-primary/70 backdrop-blur-sm flex flex-col items-center justify-center text-white p-4">
                                         <span className="font-black text-xl md:text-2xl uppercase tracking-widest text-center">YA ELEGIDO</span>
                                     </div>}

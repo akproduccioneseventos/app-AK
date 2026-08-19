@@ -4,7 +4,7 @@
 import React, { Suspense, useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import Link from 'next/link';
 import { useRouter, useSearchParams } from 'next/navigation';
-import { ArrowLeft, Building2, Camera, Download, Eye, Gamepad2, GripVertical, Loader2, MinusCircle, MonitorPlay, Pause, Play, Plus, PlusCircle, QrCode, RotateCcw, Save, Send, Settings2, SkipBack, SkipForward, Sparkles, Square, Trash2, Trophy, Upload, X, Zap, Maximize2, Image as ImageIcon } from 'lucide-react';
+import { ArrowLeft, Building2, Camera, Download, Eye, Gamepad2, GripVertical, Loader2, MinusCircle, MonitorPlay, Pause, Play, Plus, PlusCircle, QrCode, RotateCcw, Save, Send, Settings2, ShieldCheck, SkipBack, SkipForward, Sparkles, Square, Trash2, Trophy, Upload, X, Zap, Maximize2, Image as ImageIcon } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
@@ -1006,6 +1006,15 @@ function MuroSocialContent() {
               <Link href={`/evento/muro-en-vivo/${fiestaId}`} target="_blank">
                 <MonitorPlay className="mr-2 h-4 w-4" />
                 Pantalla en vivo
+              </Link>
+            </Button>
+            {/* El moderador movil estaba hecho y no se llegaba desde ningun lado:
+                habia que escribir la direccion a mano. Es la pantalla para aprobar
+                o esconder fotos desde el celular, caminando por la fiesta. */}
+            <Button asChild variant="outline">
+              <Link href={`/evento/moderacion/${fiestaId}`} target="_blank">
+                <ShieldCheck className="mr-2 h-4 w-4" />
+                Moderar desde el celular
               </Link>
             </Button>
             <Button

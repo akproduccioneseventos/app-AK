@@ -21,6 +21,7 @@ import {
   Heart,
   Home,
   Images,
+  Mic,
   Instagram,
   Loader2,
   MapPin,
@@ -263,6 +264,10 @@ function GuestPortalContent() {
   const regalosConfig = fiesta.regalos;
   const socialEnabled = gps.showMural !== false && (!modules || (modules.redSocial ?? modules.muroSocial) !== false);
   const photosEnabled = gps.showFotos !== false && (!modules || modules.fotografia !== false);
+  // El buzón de saludos existía y andaba, pero al invitado no había por dónde
+  // llegar: sólo se entraba por un enlace que abría el equipo desde su pantalla.
+  // Un buzón sin puerta es un buzón que nadie usa.
+  const buzonEnabled = !modules || modules.buzon !== false;
   const tableEnabled = gps.showMesaAsignada !== false && (!modules || modules.numerosMesa !== false);
   const checkinEnabled = gps.showCheckin !== false && (!modules || modules.checkin !== false);
   const menuEnabled = guestExp?.showMenu !== false && (!modules || modules.menuMesa !== false);
@@ -278,6 +283,7 @@ function GuestPortalContent() {
   const hubHref = guestPath(`/evento/hub/${fiestaId}`);
   const socialHref = guestPath(`/evento/social/${fiestaId}`);
   const galleryHref = guestPath(`/evento/galeria/${fiestaId}`);
+  const buzonHref = guestPath(`/evento/buzon/${fiestaId}`);
   const rsvpHref = guestPath(`/invitacion/${fiestaId}/rsvp`);
   const baseUrl = typeof window !== 'undefined' ? window.location.origin : 'https://app-ak.vercel.app';
   const qrValue = `${baseUrl}/evento/accesos/${fiestaId}?fiestaId=${fiestaId}&token=${encodeURIComponent(guestAccessToken)}&guestId=${encodeURIComponent(guest.id)}`;
@@ -601,6 +607,11 @@ function GuestPortalContent() {
                 {photosEnabled && (
                   <a href={galleryHref} className="inline-flex min-h-11 items-center gap-2 rounded-lg border border-slate-300 bg-white px-4 text-sm font-bold text-slate-950 transition-colors hover:bg-slate-100">
                     <Images className="h-4 w-4 text-sky-700" />Galería
+                  </a>
+                )}
+                {buzonEnabled && (
+                  <a href={buzonHref} className="inline-flex min-h-11 items-center gap-2 rounded-lg border border-slate-300 bg-white px-4 text-sm font-bold text-slate-950 transition-colors hover:bg-slate-100">
+                    <Mic className="h-4 w-4 text-violet-700" />Dejar un saludo
                   </a>
                 )}
               </div>

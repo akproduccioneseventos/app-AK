@@ -49,13 +49,17 @@ muestre**. Esa distinción es la que más veces falló.
 | Comentarios de redes e IA | Sí | Empresa → Presencia digital → solapa "Comentarios de redes" |
 | Moderación de comentarios y quejas | Sí | Empresa → Presencia digital → solapa "Comentarios de redes" |
 | Capturas de pantalla en testimonios | Sí | Ajustes → Feedback & Testimonios y carrusel público |
+| Historia y hospedajes en la invitación | Sólo si el anfitrión los carga; falta la pantalla para cargarlos | Invitación digital |
+| Música de fondo en la invitación | Sólo si el anfitrión sube la suya | Invitación digital |
 | Carta de tragos en carrusel (pantalla grande del salón) | Sí | `/evento/barra/<fiesta>` |
 | El invitado pide su trago desde el celular | Sí | Enlace personal del invitado |
 | Pantalla del barman con los pedidos | Sí | `/evento/barra/<fiesta>/barman` |
 | Carta de tragos en carrusel en el celular del invitado | Sí | Enlace personal del invitado |
 | Buzón de saludos: grabar video (15 seg) y audio | Sí | `/evento/buzon/<fiesta>` |
 | Buzón de saludos: sacarse una foto | NO, faltan | — |
-| Llegar al buzón desde el portal del invitado | NO, sólo por enlace que abre el equipo | — |
+| Llegar al buzón desde el portal del invitado | Sí, botón "Dejar un saludo" | Enlace personal del invitado |
+| Moderar el muro desde el celular en la fiesta | Sí | Fiestas → Muro social → "Moderar desde el celular" |
+| Cola de impresión de fotos | Sí, en fotocabina, plataforma 360 y 360 con IA | Fiestas → Entretenimiento → "Cola de Impresión" |
 | Foto y video (8 segundos) con el trago en el tótem, sin impresión | Sí | `/evento/barra/<fiesta>` |
 | Que el invitado se lleve su foto del tótem al celular | NO, queda sólo en la pantalla del salón | — |
 | Exigir seguir las redes antes de subir la foto | El interruptor existe pero el tótem no lo respeta | Ajustes de la barra |
@@ -340,7 +344,7 @@ de lo que el equipo todavía tiene que publicar a mano.
 - **Pedidos de música para el DJ y vista DJ ordenada — ANDA.** Pantalla para invitados con tope de 3 temas por persona y panel en tiempo real para el DJ en `/evento/dj/[fiestaId]` ordenado por votos con estados sonada/pendiente.
 - **Pedido a proveedores por WhatsApp en lista de compras — ANDA.** Botones en `/fiestas/nueva/catering/lista-compras` para enviar o copiar el pedido de insumos formateado a cada proveedor sin alterar fórmulas de costos.
 - **Generador de borradores para redes sociales desde fiesta — ANDA.** Acción `generateDraftPostsFromPartyPhotos` y botón en `/empresa/redes-sociales` que crea 4 borradores con copy y hashtags listos para que el equipo los revise.
-- **De quién es cada foto del muro — ANDA a medias (17 de agosto de 2026).** La foto que sube un invitado al muro queda guardada con su dueño, pero **sólo si abrió su enlace personal**: un identificador suelto no se guarda nunca, así nadie se adueña de las fotos de otro. Si no hay enlace personal, la foto se sube igual y queda sin dueño. **Falta que lo hagan las estaciones** (fotocabina, espejo mágico, plataforma 360), que hoy ni siquiera reciben ese enlace: está pedido en `docs/ordenes/ahora.md`. **Sirve de acá en adelante**: las fiestas ya pasadas no tienen el dato.
+- **De quién es cada foto del muro — ANDA a medias (17 de agosto de 2026).** La foto que sube un invitado al muro queda guardada con su dueño, pero **sólo si abrió su enlace personal**: un identificador suelto no se guarda nunca, así nadie se adueña de las fotos de otro. Si no hay enlace personal, la foto se sube igual y queda sin dueño. **Falta que lo hagan las estaciones** (fotocabina, espejo mágico, plataforma 360), que hoy ni siquiera reciben ese enlace. Verificado de nuevo el 19 de agosto de 2026: sigue sin hacerse. **Este pedido se perdió una vez** al rotar la orden y hubo que reponerlo; está en el bloque 5 de `docs/ordenes/ahora.md`. **Sirve de acá en adelante**: las fiestas ya pasadas no tienen el dato.
 - **La invitada que no deja teléfono — ANDA (17 de agosto de 2026).** Antes se la guardaba con el número inventado `099000000` y alguien perdía el viaje llamando. Ahora se guarda sin teléfono, la ficha lo aclara, y dos invitadas que se llaman igual no quedan pegadas en una sola ficha. El simulador **sigue exigiendo** celular, porque ahí sin teléfono no hay a dónde mandar el presupuesto.
 - **Explicación narrativa del presupuesto — ANDA.** Resumen descriptivo fiel en `BudgetDocument.tsx` y visor de presupuestos que explica los servicios contratados sin inventar números ni precios.
 
