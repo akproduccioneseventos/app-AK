@@ -2718,6 +2718,44 @@ sólo se achica.
 - **El cambio de contraseña** se protege pidiendo la contraseña actual, no una
   sesión. Vale igual.
 
+## Triaje de las puertas abiertas: once cerradas (19 de agosto de 2026)
+
+Tres ayudantes revisaron las 255 funciones congeladas, un tercio cada uno. **De todo
+lo que reportaron, verificado a mano una por una, resultaron reales cuatro cosas** —
+el resto era protección que el control no sabía reconocer.
+
+### Lo que se cerró
+
+- **`updateFiestaDate`** — cambiar la fecha de una fiesta no pedía cuenta. Cualquiera
+  que supiera el número de una fiesta podía moverle la fecha desde afuera.
+- **`getCalendarEvents`, `getAppointments`, `getOcupiedDates`** — dejaban ver el
+  calendario entero, con todas las fiestas y las reuniones con los clientes.
+- **`deleteDocumento`** — el caso más sutil del día. Parecía protegida porque el
+  guardado final sí pide permiso. Pero **el archivo se borra del almacenamiento
+  ANTES de ese guardado**: un desconocido borraba el contrato o la factura de verdad,
+  el guardado le fallaba después, y quedaba la ficha apuntando a un archivo que ya no
+  existe. Subir un documento sí pedía permiso; borrarlo, no.
+- **Nueve funciones de multiagente** — escribían aprendizaje, tareas y avisos sin
+  comprobar nada, aunque sus pantallas están detrás del ingreso.
+- **`saveSimuladorV2Lead`** — pública a propósito, pero **sin freno**: un robot podía
+  llenar el CRM de presupuestos falsos hasta volverlo inservible. Ahora tiene el
+  mismo freno que el formulario de la portada: cuatro por hora y por teléfono.
+
+### Las falsas alarmas, para no volver a gastarlas
+
+- **`deleteAllFiestas` y `resetAllActiveFiestas`** parecían abiertas: delegan en
+  funciones que sí piden sesión de administrador.
+- **`clearSessionCookie`** borra **tu propia** cookie: es el "cerrar sesión". No
+  puede afectar a nadie más.
+- **`addPagoClienteFromPortal`** está bien diseñada: el cliente **informa** un pago,
+  no lo da por cobrado —queda pendiente de confirmación— y valida que no supere el
+  total.
+- **El cambio de contraseña** se protege pidiendo la contraseña actual.
+
+**El tramo de los primeros 33 archivos no tenía ninguna para cerrar.**
+
+**Quedan 247 pendientes de revisar** (eran 255). La lista sólo se achica.
+
 ## Cómo agregar algo a esta lista
 
 **Se anota SIEMPRE, en la misma propuesta que toca el código.** Orden del dueño

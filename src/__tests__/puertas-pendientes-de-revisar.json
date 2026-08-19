@@ -133,9 +133,6 @@
     "toggleLikeMoodboardItem",
     "updateDecoracion"
   ],
-  "src/app/actions/fiesta/documentos.actions.ts": [
-    "deleteDocumento"
-  ],
   "src/app/actions/fiesta/fiesta.actions.ts": [
     "addInvoiceId",
     "createDemoFiesta",
@@ -312,12 +309,6 @@
     "invalidateMenusCache"
   ],
   "src/app/actions/multiagent.ts": [
-    "cerrarFiestaConRetroalimentacion",
-    "crearRecordatorioDesdeMultiagente",
-    "crearTareaDesdeMultiagente",
-    "enviarAprendizajeAFiestasGeneral",
-    "getMultiAgentTeamBriefing",
-    "runMultiAgentTeamReview",
     "sendPersistentMultiAgentMessage"
   ],
   "src/app/actions/payment-plans.ts": [
@@ -424,8 +415,7 @@
   ],
   "src/app/actions/simulador-v2.ts": [
     "checkDateAvailability",
-    "checkDuplicateClient",
-    "saveSimuladorV2Lead"
+    "checkDuplicateClient"
   ],
   "src/app/actions/simulator-agenda.ts": [
     "getSimulatorAvailableSlots"

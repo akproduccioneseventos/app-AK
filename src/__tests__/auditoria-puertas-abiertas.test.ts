@@ -96,7 +96,7 @@ function funcionesSinControl(archivo: string): string[] {
 /**
  * La foto de cómo estaba el día que se puso este control.
  *
- * Son 255 funciones repartidas en 99 archivos que todavía **no se revisaron una
+ * Son 247 funciones repartidas en 98 archivos que todavía **no se revisaron una
  * por una**. No significa que estén todas mal: la mayoría son de leer, y varias se
  * protegen de formas que este control no reconoce. Significa que **nadie las miró
  * con esta lupa todavía**.
@@ -145,6 +145,6 @@ describe('Ninguna puerta abierta a internet sin querer', () => {
     const conocidas = pendientes as Record<string, string[]>;
     const total = Object.values(conocidas).flat().length;
     // Si revisaste y protegiste alguna, bajá este numero. Nunca lo subas.
-    expect(total).toBeLessThanOrEqual(255);
+    expect(total).toBeLessThanOrEqual(247);
   });
 });

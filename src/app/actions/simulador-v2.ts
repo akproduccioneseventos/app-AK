@@ -6,6 +6,7 @@ import { generateBudgetAndLeadFromSimulator, getArmadoRapidoConfig } from '@/app
 import type { SimV2DuplicateCheck, SimV2DateCheck, SimV2State } from '@/types/simulador-v2';
 import type { Presupuesto } from '@/types/presupuesto';
 import type { CrmLead } from '@/types/crm';
+import { enforcePublicRateLimit } from '@/lib/commercial/public-rate-limit';
 
 const PRESUPUESTOS_FILE = 'presupuestos.json';
 const CRM_LEADS_FILE = 'crm-leads.json';
@@ -117,6 +118,29 @@ export async function saveSimuladorV2Lead(state: SimV2State): Promise<{
   presupuestoId?: string;
   error?: string;
 }> {
+  // Es publica a proposito: la usa el simulador que contesta un desconocido desde
+  // la web, sin cuenta. Pero guarda un prospecto Y un presupuesto, y no tenia
+  // freno: un robot podia llenar el CRM de presupuestos falsos hasta volverlo
+  // inservible. El formulario de la portada si tenia freno; este no.
+  //
+  // Cuatro por hora y por telefono, igual que el otro.
+  const telefonoDelFreno = String((state as { telefono?: string })?.telefono || '').trim();
+  if (telefonoDelFreno) {
+    try {
+      await enforcePublicRateLimit({
+        scope: 'simulador-v2-lead',
+        identity: telefonoDelFreno,
+        limit: 4,
+        windowMs: 60 * 60 * 1000,
+      });
+    } catch (error: unknown) {
+      return {
+        success: false,
+        error: error instanceof Error ? error.message : 'Espera un momento antes de volver a enviar.',
+      };
+    }
+  }
+
   try {
     const tipoEvento = state.tipoEvento || 'Cumpleaños';
     const paquete = state.paquete || 'Intermedio';
