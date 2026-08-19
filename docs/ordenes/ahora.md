@@ -125,18 +125,11 @@ se pueda escribir una dedicatoria corta debajo, igual que en los otros modos.
 Aprovechá los marcos que ya existen para el video (`video-frame-templates`) si
 aplican también a la foto; si no encajan, dejala simple y limpia antes que forzarlo.
 
-## 4.2 — Al buzón no se llega desde el portal del invitado
+## 4.2 — El acceso al buzón YA SE HIZO, no lo rehagas
 
-Hoy al buzón sólo se entra por un enlace que abre el equipo desde su pantalla. **El
-invitado, con su enlace personal, no tiene por dónde llegar.**
-
-**Qué hacer:** poner el acceso al buzón en el portal del invitado
-(`src/app/invitacion/[fiestaId]/invitado/[guestId]/page.tsx`), al lado de las otras
-opciones que ya están ahí (el quiosco de tragos, el muro, la galería). Con un texto
-claro de qué es: dejarle un saludo a los dueños de la fiesta.
-
-**Respetá el interruptor:** si el buzón está apagado para esa fiesta, la opción no
-se muestra. Que no aparezca un botón que lleva a una pantalla apagada.
+El buzón ya está en el portal del invitado como **"Dejar un saludo"**, al lado del
+muro y la galería, y respeta el interruptor de la fiesta. Sólo falta lo de arriba:
+poder dejar el saludo con una foto.
 
 ## Cómo se comprueba este bloque
 
@@ -145,6 +138,101 @@ se muestra. Que no aparezca un botón que lleva a una pantalla apagada.
 3. Que el video sigue cortando a los 15 segundos.
 4. Que la foto se puede repetir antes de mandarla.
 5. Que con el buzón apagado, la opción no aparece en el portal del invitado.
+
+---
+
+# BLOQUE 5 — Que las fotos de las estaciones tengan dueño
+
+**Este pedido se había perdido.** Estaba anotado en el inventario como "pedido en la
+orden vigente", pero la orden se reescribió y quedó afuera. Verificado hoy: sigue
+sin hacerse.
+
+## El problema
+
+Cuando un invitado sube una foto al muro **desde su enlace personal**, la foto queda
+guardada con su nombre: después él puede volver a verla y bajarse las suyas.
+
+Pero **la fotocabina, el espejo mágico y la plataforma 360 no reciben ese enlace**.
+Verificado: en las tres pantallas el identificador del invitado no aparece por
+ningún lado. Entonces toda foto sacada en una estación **queda sin dueño**.
+
+En pantalla: el invitado se saca la foto en la fotocabina, después entra a buscar
+sus recuerdos y **no está**. Las fotos de las estaciones —que suelen ser las mejores
+de la noche— son justamente las que se pierden.
+
+## Qué hacer
+
+Que las tres estaciones reciban el enlace personal del invitado cuando exista, y lo
+manden junto con la foto, igual que ya lo hace el muro social.
+
+**Cómo llega el enlace:** que la estación lo acepte como parámetro en su dirección
+web, para que el invitado llegue desde su portal con su enlace ya puesto, o
+escaneando un código que se lo agregue.
+
+## LO QUE NO SE PUEDE HACER, Y NO ES OPINABLE
+
+> **Un identificador suelto no se guarda nunca.**
+
+Sólo se guarda el dueño **si la persona probó tener el enlace personal de ese
+invitado**. Si se guardara cualquier identificador que llegue, cualquiera podría
+mandar el de otro y adueñarse de sus fotos. Eso ya está resuelto así en el muro
+social: copiá ese mismo criterio, no inventes uno nuevo.
+
+**Y si no hay enlace personal, la foto se sube igual** y queda sin dueño, como
+hasta ahora. Nadie se queda sin sacarse la foto por no tener el enlace.
+
+---
+
+# BLOQUE 6 — Que el anfitrión pueda cargar su historia y sus hoteles
+
+**Contexto:** hasta el 19 de agosto de 2026, toda invitación mostraba una historia
+de vida inventada y dos hoteles de Buenos Aires con teléfono argentino, que el
+anfitrión no podía cambiar. **Ya se sacaron**: hoy esas dos secciones sólo salen si
+hay contenido cargado, y como no hay dónde cargarlo, no salen nunca.
+
+**Los campos ya existen:** `hitos` y `hospedajes` en `InvitacionDigitalConfig`
+(`src/types/fiesta.ts`), con sus tipos `HitoInvitacion` y `HospedajeInvitacion`.
+Sólo falta la pantalla.
+
+## Qué hacer
+
+En el editor de la página web de la fiesta (`src/app/(app)/fiestas/nueva/pagina-web/`),
+agregar dos bloques para cargar:
+
+- **La historia**: una lista de hitos, cada uno con año, título y una descripción
+  corta. Poder agregar, borrar y reordenar. Para una boda son "cómo se conocieron",
+  para unos quince son los años de la chica.
+- **Los hospedajes**: una lista con nombre, dirección, y opcionalmente teléfono y
+  enlace para reservar. Es para los invitados que vienen de otra ciudad.
+
+## Cuidados
+
+- **Las dos secciones son opcionales.** Si el anfitrión no carga nada, la sección no
+  aparece en la invitación. **Eso ya funciona así, no lo cambies.**
+- **Nada de ejemplos precargados.** Ni hitos de muestra, ni un hotel de ejemplo. Si
+  hace falta guiar, va como texto gris de ayuda dentro del campo vacío, nunca como
+  un dato cargado que después queda publicado sin que nadie lo note. **Esto ya pasó
+  cuatro veces en este proyecto.**
+- **Los hoteles son de Salto**, o de donde sea la fiesta. Nada de direcciones ni
+  teléfonos de otros países.
+- Que se vea en la vista previa del editor al cargarlo.
+
+## Cómo se comprueba
+
+1. Que sin cargar nada, las dos secciones no aparecen en la invitación.
+2. Que al cargar un hito, la sección de historia aparece con ese hito y ninguno más.
+3. Lo mismo con un hospedaje.
+4. Que se pueden borrar todos y la sección vuelve a desaparecer.
+5. Que no queda ningún dato de ejemplo cargado por defecto.
+
+## Cómo se comprueba
+
+1. Que una foto sacada en la fotocabina con el enlace personal queda con dueño.
+2. Que la misma foto aparece después cuando el invitado busca sus recuerdos.
+3. Que sin enlace personal la foto se sube igual, sin dueño y sin error.
+4. Que mandando el identificador de OTRO invitado, sin su enlace, **no** se guarda
+   como dueño.
+5. Lo mismo para el espejo mágico y la plataforma 360.
 
 ## Cómo se comprueba
 

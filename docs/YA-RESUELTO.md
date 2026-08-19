@@ -2495,6 +2495,138 @@ estado del pedido quedaron igual.
 es **como la fotocabina pero sin impresión**. Lo que se saca va a la pantalla
 gigante y queda guardado; nunca se imprime.
 
+## Un pedido se perdió al rotar la orden (19 de agosto de 2026)
+
+**Pasó de verdad y hay que cuidarlo.**
+
+El inventario decía que faltaba que las estaciones (fotocabina, espejo mágico,
+plataforma 360) guardaran de quién es cada foto, y que eso estaba "pedido en la
+orden vigente". Pero la orden **se reescribió tres veces desde entonces** y el
+pedido quedó afuera. Nadie lo iba a hacer nunca, y el inventario seguía diciendo
+que estaba pedido.
+
+Se verificó que sigue sin hacerse —en las tres pantallas el identificador del
+invitado no aparece— y se repuso en la orden.
+
+**La lección:** cuando el inventario dice "está pedido en la orden vigente" y la
+orden se rota, **hay que llevarse el pedido a la orden nueva**. Antes de rotar una
+orden, buscá en `docs/QUE-HAY-EN-LA-APP.md` qué apunta a ella.
+
+Mejor todavía: no escribir "está pedido en la orden vigente" sino **describir qué
+falta**, así el pedido se puede reponer aunque la orden cambie.
+
+## La invitacion mostraba una vida inventada y hoteles de Buenos Aires (19 de agosto de 2026)
+
+**Es la cuarta vez que aparece contenido inventado con cara de real.** Esta fue la
+peor, porque la veian los invitados de todas las fiestas.
+
+Toda invitación digital mostraba dos secciones con contenido escrito a mano en el
+código, que **el anfitrión no podía cambiar porque no había dónde cargarlo**:
+
+- **Una historia de vida inventada.** "El Nacimiento — 2011", "Mi Infancia — 2018",
+  "Mis 15 Años — 2026". Para una boda, un noviazgo inventado con fechas. Los
+  invitados leían la vida de otra persona.
+- **Dos hoteles que no existen**, con direcciones de Buenos Aires ("Av. Libertador
+  1234", "Calle de las Rosas 567, Palermo") y teléfonos argentinos (+54 11). Un
+  invitado de una fiesta en Salto recibía una recomendación de hotel a 500
+  kilómetros, en otro país.
+- **Y música de prueba.** Sin música cargada, el botoncito de música sonaba una
+  canción de piano de un sitio de demostración ajeno (`soundhelix.com`). El
+  anfitrión nunca la eligió, y si ese sitio se cae deja de sonar en las
+  invitaciones de todos.
+
+**Cómo quedó:** las dos secciones ahora salen **sólo si el anfitrión cargó lo
+suyo**, y si no cargó nada no se muestran. Se agregaron los campos `hitos` y
+`hospedajes` a la configuración de la invitación para que se puedan cargar. El
+reproductor de música **no se muestra** si no hay música propia.
+
+**Vacío es mejor que inventado:** una sección que no aparece no molesta a nadie; una
+que miente, sí.
+
+**Falta la pantalla para cargarlos**, que quedó pedida. Hasta entonces las dos
+secciones simplemente no salen, que es lo correcto.
+
+## Los textos de venta con números NO son un error (19 de agosto de 2026)
+
+Una auditoría reportó como "datos inventados" los textos "+10 años de experiencia",
+"Atención 100% personalizada" y "Respuesta en 24 hs" de la portada y los catálogos.
+
+**No son inventados: son los textos de venta del dueño**, y él sabe si son ciertos.
+No se tocan sin que lo pida.
+
+Lo único cierto del aviso es que **están escritos en el código**: si el dueño quiere
+decir "15 años" en vez de "10", hoy hay que tocar código. Queda anotado como cosa a
+mejorar, no como error.
+
+## Ahora la app no deja entrar contenido inventado (19 de agosto de 2026)
+
+**Cinco veces pasó lo mismo**, así que se dejó de auditar y se puso un control.
+
+`src/__tests__/nada-inventado-en-pantalla.test.ts` recorre todas las pantallas que
+ve un cliente, un prospecto o un invitado, y **falla** si encuentra: fotos traídas
+al azar de internet, audio o video de sitios de prueba, direcciones de mentira,
+lugares o teléfonos de otros países, o texto de relleno.
+
+**Encontró seis que no se habían visto:** las dos plantillas de invitación caían en
+`picsum.photos` —una foto CUALQUIERA de internet— cuando no había foto cargada. El
+equipo veía una imagen linda y creía que la invitación ya tenía foto. Ahora usan un
+degradé suave hecho en el propio archivo, sin pedirle nada a ningún sitio de afuera.
+
+**Si esta prueba falla, la solución NO es sacar el patrón de la lista.** Es dejar el
+dato afuera del código: que salga de lo que carga el equipo, y si no hay dato, que
+la sección no se muestre.
+
+## Publicar con los datos del ejemplo ya no se puede (19 de agosto de 2026)
+
+El control que corre antes de compartir la invitación miraba que los campos
+**estuvieran llenos**, no que fueran de verdad. Así que "Catedral de San Juan,
+Calle Falsa 123, Ciudad" —la boda de ejemplo con la que arranca el editor— pasaba
+sin problema, y la invitación podía salir con una calle que no existe.
+
+Ahora también revisa que el salón, la dirección y el lugar de la ceremonia **no
+sean los del ejemplo**, y si lo son avisa cuál quedó sin cambiar
+(`src/lib/invitacion/datos-minimos.ts`).
+
+La boda de ejemplo del editor ("María y Juan", `#BodaJuanYMaria`, Salón El Paraíso)
+**se deja como está**: es el punto de partida para que el equipo no arranque de una
+pantalla en blanco. Lo que se arregló es que no pueda llegar publicada.
+
+## El buzón de saludos ya tiene puerta (19 de agosto de 2026)
+
+El buzón donde el invitado le deja un saludo grabado a los dueños de la fiesta
+existía y funcionaba, pero **al invitado no había por dónde llegar**: sólo se
+entraba por un enlace que abría el equipo desde su propia pantalla. Un buzón sin
+puerta es un buzón que nadie usa.
+
+Ahora está en el portal del invitado, al lado del muro y la galería, como **"Dejar
+un saludo"**. Respeta el interruptor: si la fiesta no contrató el buzón, la opción
+no aparece.
+
+**Falta todavía** que se pueda dejar el saludo con una foto: hoy están grabar video
+—que corta a los 15 segundos, y está bien así porque es un saludo, no un brindis— y
+grabar audio. Queda pedido.
+
+## Pantallas hechas a las que no se llegaba (19 de agosto de 2026)
+
+Se revisaron **las veinticinco pantallas de la fiesta** contando desde cuántos
+lugares se enlaza cada una. Dos tenían cero:
+
+- **El moderador móvil** (`/evento/moderacion/<fiesta>`): la pantalla para aprobar
+  o esconder fotos **desde el celular, caminando por la fiesta**. Estaba hecha
+  entera y había que escribir la dirección a mano para entrar. **Ya está enchufada**
+  en la pantalla del muro del equipo, como "Moderar desde el celular", al lado de
+  "Pantalla en vivo". (Aprobar desde el panel de escritorio ya se podía, así que
+  ninguna foto quedaba trabada: lo que faltaba era hacerlo desde el celular.)
+
+- **La estación de impresión** (`/evento/impresion/<fiesta>`): pantalla para
+  imprimir fotos en la fiesta. **No se enchufó**, a propósito: el dueño dijo que la
+  barra es como la fotocabina **pero sin impresión**, así que hay que preguntarle si
+  esta estación se usa antes de ponerle un acceso. Queda anotada, no perdida.
+
+**El método sirve y conviene repetirlo:** contar desde cuántos lugares se enlaza
+cada pantalla encuentra en un minuto lo que una auditoría de código no ve, porque el
+código está bien — lo que falta es la puerta.
+
 ## Cómo agregar algo a esta lista
 
 **Se anota SIEMPRE, en la misma propuesta que toca el código.** Orden del dueño

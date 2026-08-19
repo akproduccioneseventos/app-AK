@@ -483,6 +483,21 @@ export interface InvitacionSectionConfig {
   order: number;
 }
 
+/** Un hito de la historia que el anfitrion quiera contar en su invitacion. */
+export interface HitoInvitacion {
+  fecha: string;
+  titulo: string;
+  descripcion: string;
+}
+
+/** Un hospedaje que el anfitrion recomienda a los invitados de afuera. */
+export interface HospedajeInvitacion {
+  nombre: string;
+  direccion: string;
+  linkBooking?: string;
+  telefono?: string;
+}
+
 export interface InvitacionDigitalConfig {
   // Basic data
   nombreHomenajeada: string;
@@ -495,6 +510,18 @@ export interface InvitacionDigitalConfig {
   colorSecundario: string;
   colorAcento: string;
   colorSugeridoInvitados?: string;
+
+  /**
+   * La historia que cuenta el anfitrion y los hospedajes que recomienda.
+   *
+   * Van vacios a proposito: **la seccion no se muestra si no hay nada cargado**.
+   * Hasta el 19 de agosto de 2026 estas dos secciones salian en TODAS las
+   * invitaciones con contenido escrito a mano —una vida inventada ("El
+   * Nacimiento, 2011") y dos hoteles de Buenos Aires con telefono argentino—,
+   * que el anfitrion no podia cambiar porque no habia donde cargarlo.
+   */
+  hitos?: HitoInvitacion[];
+  hospedajes?: HospedajeInvitacion[];
 
   // Location
   nombreSalon: string;
