@@ -49,6 +49,10 @@ muestre**. Esa distinción es la que más veces falló.
 | Comentarios de redes e IA | Sí | Empresa → Presencia digital → solapa "Comentarios de redes" |
 | Moderación de comentarios y quejas | Sí | Empresa → Presencia digital → solapa "Comentarios de redes" |
 | Capturas de pantalla en testimonios | Sí | Ajustes → Feedback & Testimonios y carrusel público |
+| Carta de tragos en carrusel (pantalla grande del salón) | Sí | `/evento/barra/<fiesta>` |
+| El invitado pide su trago desde el celular | Sí | Enlace personal del invitado |
+| Pantalla del barman con los pedidos | Sí | `/evento/barra/<fiesta>/barman` |
+| Carta de tragos en carrusel en el celular del invitado | NO, es una grilla quieta con foto chica | — |
 | Sección "por qué AK" en la portada | Sí | Portada, debajo de la presentación |
 | Pedido de cambio de cantidad de invitados por el cliente | Sí | Portal del cliente, y el equipo lo acepta o rechaza en Fiestas → Portal del cliente |
 | Pedido de cambio de menú por el cliente | Sí | Portal del cliente |

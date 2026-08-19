@@ -2412,6 +2412,42 @@ propósito: sin teléfono no se puede contestar. Pero el que entra curioso a "ve
 cuánto sale" se va sin ver nada. Es una decisión de venta —capturar más contactos
 contra dejar mirar— y la toma el dueño, no una auditoría.
 
+## El simulador pide el contacto antes del precio: decisión tomada (18 de agosto de 2026)
+
+**Decisión del dueño. No se vuelve a proponer.**
+
+El simulador de presupuesto exige nombre y celular en el paso 2, antes de mostrar
+un solo número. Se le planteó cambiarlo por un precio aproximado primero y el
+contacto después, y **dijo que no**: quedarse con el contacto es el objetivo del
+simulador.
+
+Si una auditoría lo marca como "el prospecto se va sin ver nada", es falso
+positivo.
+
+## Qué hay de la barra de tragos, verificado (18 de agosto de 2026)
+
+Inventario hecho pantalla por pantalla, para no volver a averiguarlo:
+
+- **La pantalla grande de la barra** (`/evento/barra/<fiesta>`) es la que se pone
+  en el salón y se toca. La carta **ya se muestra como carrusel**: las tarjetas se
+  pasan de costado con el dedo y se acomodan solas al soltar
+  (`snap-x snap-mandatory`), con animación al tocarlas. Tiene además solapas por
+  categoría, sacar foto con cuenta regresiva de 3, y "sugerirme uno" que hace pasar
+  los tragos rápido como una tragamonedas antes de frenar en uno.
+- **La pantalla del barman** (`/evento/barra/<fiesta>/barman`) recibe los pedidos y
+  los va marcando. **Las estadísticas** están en `/evento/barra/<fiesta>/stats`.
+- **El invitado SÍ puede pedir el trago desde su celular**, con su enlace personal
+  de invitado. Elige de la carta, confirma, y ve en qué estado está su pedido
+  (pedido, preparándose, listo). Puede cancelarlo o cambiar de trago mientras no
+  esté listo.
+- **El "tótem"** (`/evento/totem/...`) **no tiene nada que ver con los tragos**: es
+  la pantalla que pasa las fotos del muro con efectos que siguen la música. Son dos
+  cosas distintas.
+
+**Lo único flojo:** en el celular del invitado la carta es una grilla quieta de dos
+columnas, con la foto del trago del tamaño de una estampilla. La pantalla grande se
+ve mucho mejor que la que tiene el invitado en la mano. Queda pedido.
+
 ## Cómo agregar algo a esta lista
 
 **Se anota SIEMPRE, en la misma propuesta que toca el código.** Orden del dueño
