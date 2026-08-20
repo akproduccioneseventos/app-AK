@@ -113,7 +113,7 @@ muestre**. Esa distinción es la que más veces falló.
 | Comentarios de redes e IA | Sí | Empresa → Presencia digital → solapa "Comentarios de redes" |
 | Moderación de comentarios y quejas | Sí | Empresa → Presencia digital → solapa "Comentarios de redes" |
 | Capturas de pantalla en testimonios | Sí | Ajustes → Feedback & Testimonios y carrusel público |
-| Historia y hospedajes en la invitación | Sólo si el anfitrión los carga; falta la pantalla para cargarlos | Invitación digital |
+| Historia y hospedajes en la invitación | Sí, con su pantalla para cargarlos | Fiestas → Página web → Invitación |
 | Música de fondo en la invitación | Sólo si el anfitrión sube la suya | Invitación digital |
 | Carta de tragos en carrusel (pantalla grande del salón) | Sí | `/evento/barra/<fiesta>` |
 | El invitado pide su trago desde el celular | Sí | Enlace personal del invitado |
