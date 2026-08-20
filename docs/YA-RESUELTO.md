@@ -2832,6 +2832,21 @@ campo vacío** ("Hotel Salto", "25 de Agosto 5" — direcciones de Salto), nunca
 dato cargado, y las filas nuevas nacen vacías. Si el anfitrión no carga nada, la
 sección no aparece en la invitación.
 
+## La ficha de Google ya está verificada (20 de agosto de 2026)
+
+**Confirmado por el dueño.** La cuenta de la ficha de Google está verificada y el
+enlace de reseñas lo pasó él.
+
+**No se le vuelve a pedir** que la reclame ni que confirme el enlace. Si alguna
+auditoría o alguna hoja vieja lo lista como pendiente, está desactualizada.
+
+**Lo que esto NO resuelve todavía:** que la aplicación pueda **leer** el puntaje y la
+cantidad de reseñas para mostrarlos en el panel y encender el aviso de menos de 4
+estrellas. Tener la ficha verificada es el paso previo, pero leer esos números
+necesita además acceso a los datos de Google Business Profile, igual que las visitas
+de la web necesitan las credenciales de Analytics. Hasta que eso exista, el puntaje
+queda sin dato y el aviso apagado, que es lo correcto: **nunca inventar un número**.
+
 ## El enlace de reseñas de Google es el correcto (20 de agosto de 2026)
 
 **Confirmado por el dueño: lo pasó él.** No se vuelve a preguntar ni a pedir que lo

@@ -136,7 +136,7 @@ muestre**. Esa distinción es la que más veces falló.
 | Testimonios del catálogo impreso en las páginas de venta | Sí, son reales (falta subirles la captura) | `/bodas`, `/quinceaneras`, `/cumpleanos`, `/fiestas`, `/corporativos`, `/aniversarios` |
 | Tope de gasto al traer el historial de comentarios | Sí, cien por corrida | Empresa → Presencia digital → "Historial completo" |
 | Tu página web (Google Analytics 4) | Sí | Empresa → Presencia digital → solapa "Tu página web" |
-| Ficha de Google conectada y verificada | Sí | Empresa → Presencia digital → solapa "Ficha de Google" |
+| Ficha de Google conectada y verificada (cuenta verificada por el dueño el 20/8) | Sí | Empresa → Presencia digital → solapa "Ficha de Google" |
 | Soporte Pinterest, Threads y X | Sí | Empresa → Presencia digital y Ajustes → Redes sociales |
 | Publicación real en Facebook e Instagram | Sí | Empresa → Presencia digital (al aprobar) |
 | Publicación programada con cron y límites | Sí | Automático (cron `/api/cron/publicar-programados`) y visible en Empresa → Redes sociales |
