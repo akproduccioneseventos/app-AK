@@ -3342,6 +3342,30 @@ Hay una prueba que controla que **las dos cuentas den exactamente la misma plata
 Si alguien cambia una y no la otra, el cliente ve un número en el presupuesto y le
 cobran otro.
 
+## La llave de cobros no viaja en el repositorio (20 de agosto de 2026)
+
+**Una llave de cobros de producción de Mercado Pago llegó escrita adentro de
+`src/data/settings.json`.** Esa llave mueve plata de verdad: quien la tenga puede
+cobrar y devolver en nombre de la empresa. Y si entra al repositorio **queda en el
+historial para siempre**, aunque después se borre el archivo.
+
+Se agarró antes de que se subiera. Dos cosas quedaron hechas:
+
+- **`src/data/settings.json` fuera del repositorio**, igual que
+  `social-connections.json`, con el motivo escrito al lado.
+- **Una prueba que recorre todos los archivos versionados** y falla si aparece una
+  llave de cobros, una clave privada o un permiso de Meta.
+
+**Es la segunda vez que pasa** —la primera fue el permiso para publicar en el
+Facebook y el Instagram de AK—. La segunda vez no se arregla pidiendo cuidado: se
+arregla con una prueba.
+
+**Detalle del control que importa:** la primera versión de la prueba marcaba tres
+archivos que estaban perfectos —un texto de ayuda y dos imágenes guardadas como
+texto—. Se ajustó para que sólo marque el formato real de cada llave. **Un control
+que grita cuando no pasa nada lo apaga cualquiera el primer día**, y entonces no
+frena nada el día que sí pasa.
+
 ## Cómo agregar algo a esta lista
 
 **Se anota SIEMPRE, en la misma propuesta que toca el código.** Orden del dueño
