@@ -8,6 +8,7 @@ import path from 'path';
 import { getFiestaById, saveFiesta } from './fiesta.actions';
 import { addTareaToFiestaActual } from '../fiesta-actual';
 
+import { requireAppSession } from '@/lib/auth/require-session';
 const FIESTAS_DIR = 'fiestas';
 
 export async function updateMenuAsignado(fiestaId: string, menuId?: string) {
@@ -20,6 +21,7 @@ export async function updateMenuAsignado(fiestaId: string, menuId?: string) {
 }
 
 export async function updateShoppingListStatus(fiestaId: string, estados: CompraProveedorEstado[]): Promise<{ success: boolean, error?: string }> {
+  await requireAppSession();
     if (!fiestaId) return { success: false, error: "ID de Fiesta no proporcionado." };
 
     try {

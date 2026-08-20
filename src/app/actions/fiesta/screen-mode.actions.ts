@@ -11,6 +11,7 @@ import { requirePermiso } from '@/lib/auth/require-session';
 import { PERMISOS } from '@/lib/auth/perfiles';
 import { requireEventPermission } from '@/lib/auth/event-access';
 
+import { requireAppSession } from '@/lib/auth/require-session';
 /** Maximum allowed video upload size (bytes) — leaves headroom below the 20 MB Next.js bodySizeLimit */
 const MAX_VIDEO_UPLOAD_BYTES = 18 * 1024 * 1024;
 /** Maximum allowed image upload size (bytes) */
@@ -83,16 +84,19 @@ async function patchScreenMode(
 
 /** Inicia la reproducción de la playlist en la pantalla gigante */
 export async function playScreenPlaylist(fiestaId: string): Promise<{ success: boolean; error?: string }> {
+  await requireAppSession();
   return patchScreenMode(fiestaId, { isPlaying: true, startedAt: new Date().toISOString() });
 }
 
 /** Pausa la reproducción de la playlist en la pantalla gigante */
 export async function pauseScreenPlaylist(fiestaId: string): Promise<{ success: boolean; error?: string }> {
+  await requireAppSession();
   return patchScreenMode(fiestaId, { isPlaying: false });
 }
 
 /** Avanza al siguiente ítem de la playlist */
 export async function nextScreenItem(fiestaId: string): Promise<{ success: boolean; error?: string }> {
+  await requireAppSession();
   try {
     const fiesta = await requireEventPermission(fiestaId, PERMISOS.NOCHE);
     const mode = fiesta.socialGallerySettings?.screenMode;
@@ -108,6 +112,7 @@ export async function nextScreenItem(fiestaId: string): Promise<{ success: boole
 
 /** Retrocede al ítem anterior de la playlist */
 export async function prevScreenItem(fiestaId: string): Promise<{ success: boolean; error?: string }> {
+  await requireAppSession();
   try {
     const fiesta = await requireEventPermission(fiestaId, PERMISOS.NOCHE);
     const mode = fiesta.socialGallerySettings?.screenMode;
@@ -123,6 +128,7 @@ export async function prevScreenItem(fiestaId: string): Promise<{ success: boole
 
 /** Activa o desactiva el modo loop de la playlist */
 export async function setScreenLoop(fiestaId: string, loop: boolean): Promise<{ success: boolean; error?: string }> {
+  await requireAppSession();
   return patchScreenMode(fiestaId, { loop });
 }
 
@@ -131,6 +137,7 @@ export async function updateLedMessage(
   fiestaId: string,
   text: string
 ): Promise<{ success: boolean; error?: string }> {
+  await requireAppSession();
   try {
     const fiesta = await requireEventPermission(fiestaId, PERMISOS.NOCHE);
     await saveFiesta({
@@ -151,6 +158,7 @@ export async function triggerLiveMoment(
   fiestaId: string,
   moment: { id: string; nombre: string; emoji: string }
 ): Promise<{ success: boolean; error?: string }> {
+  await requireAppSession();
   try {
     const fiesta = await requireEventPermission(fiestaId, PERMISOS.NOCHE);
     const existing = fiesta.socialGallerySettings?.momentosActivos ?? [];
@@ -173,6 +181,7 @@ export async function updateScreenBrand(
   fiestaId: string,
   brand: SocialGalleryBrand
 ): Promise<{ success: boolean; error?: string }> {
+  await requireAppSession();
   try {
     const fiesta = await requireEventPermission(fiestaId, PERMISOS.NOCHE);
     await saveFiesta({
@@ -191,6 +200,7 @@ export async function updateScreenBrand(
 export async function uploadScreenMediaAsset(
   formData: FormData
 ): Promise<{ success: boolean; asset?: ScreenMediaAsset; error?: string }> {
+  await requireAppSession();
   try {
     const fiestaId = formData.get('fiestaId') as string | null;
     const file = formData.get('file') as File | null;
@@ -255,6 +265,7 @@ export async function launchGame(
   fiestaId: string,
   game: Omit<ActiveGameData, 'launchedAt'>
 ): Promise<{ success: boolean; error?: string }> {
+  await requireAppSession();
   try {
     const fiesta = await requireEventPermission(fiestaId, PERMISOS.NOCHE);
     const activeGame: ActiveGameData = { ...game, launchedAt: new Date().toISOString() };
@@ -275,6 +286,7 @@ export async function launchGame(
 export async function clearActiveGame(
   fiestaId: string
 ): Promise<{ success: boolean; error?: string }> {
+  await requireAppSession();
   try {
     await requireEventPermission(fiestaId, PERMISOS.NOCHE);
     // Use a direct Firestore update with FieldValue.delete() to explicitly remove the
@@ -307,6 +319,7 @@ export async function triggerSorteoWinner(
   winner: string,
   premio?: string
 ): Promise<{ success: boolean; error?: string }> {
+  await requireAppSession();
   const MAX_SORTEO_HISTORY = 50;
   try {
     const fiesta = await requireEventPermission(fiestaId, PERMISOS.NOCHE);
@@ -334,6 +347,7 @@ export async function triggerSorteoWinner(
 export async function startSorteoSpinOnScreen(
   fiestaId: string
 ): Promise<{ success: boolean; error?: string }> {
+  await requireAppSession();
   try {
     const fiesta = await requireEventPermission(fiestaId, PERMISOS.NOCHE);
     const settings = normalizeSocialSettings(fiesta.socialGallerySettings);
@@ -356,6 +370,7 @@ export async function startSorteoSpinOnScreen(
 export async function transferSorteoToScreen(
   fiestaId: string
 ): Promise<{ success: boolean; error?: string }> {
+  await requireAppSession();
   try {
     const fiesta = await requireEventPermission(fiestaId, PERMISOS.NOCHE);
     const settings = normalizeSocialSettings(fiesta.socialGallerySettings);
@@ -418,6 +433,7 @@ export async function updateLedConfig(
   fiestaId: string,
   config: { text?: string; enabled?: boolean; color?: string; bgColor?: string }
 ): Promise<{ success: boolean; error?: string }> {
+  await requireAppSession();
   try {
     const fiesta = await requireEventPermission(fiestaId, PERMISOS.NOCHE);
     const settings = normalizeSocialSettings(fiesta.socialGallerySettings);
@@ -447,6 +463,7 @@ export async function trackSocialFollowClick(
   authorName: string,
   platform: 'instagram' | 'facebook' | 'tiktok'
 ): Promise<{ success: boolean; error?: string }> {
+  await requireAppSession();
   if (!authorName || authorName.toLowerCase() === 'anónimo') {
     return { success: true }; // Silently ignore anonymous users
   }
@@ -494,6 +511,7 @@ export async function trackSocialFollowClick(
 export async function getMuroParticipantesForSorteo(
   fiestaId: string
 ): Promise<{ success: boolean; participantes?: string[]; error?: string }> {
+  await requireAppSession();
   try {
     await requireEventPermission(fiestaId, PERMISOS.NOCHE);
     // Import social actions lazily to avoid circular dependencies

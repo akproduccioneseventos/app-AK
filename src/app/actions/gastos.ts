@@ -10,6 +10,7 @@ const GASTOS_FILE = 'gastos-generales.json';
 const gastosMutex = new AsyncMutex();
 
 export async function getGastosGenerales(): Promise<GastoGeneral[]> {
+  await requireAppSession();
   const gastos = await readData<GastoGeneral[]>(GASTOS_FILE, []);
   return gastos.sort((a, b) => new Date(b.fecha).getTime() - new Date(a.fecha).getTime());
 }

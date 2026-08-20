@@ -5,6 +5,7 @@ import { getFiestaById, saveFiesta } from './fiesta/fiesta.actions';
 import { notifyClientPaymentApproved } from './google-workspace-extended';
 import { roundMoney } from '@/lib/budget/financial-guardrails';
 
+import { requireAppSession } from '@/lib/auth/require-session';
 function buildMontevideoPaymentTimestamp(fechaPago?: string) {
   if (!fechaPago) return new Date().toISOString();
   if (/^\d{4}-\d{2}-\d{2}$/.test(fechaPago)) {
@@ -39,6 +40,7 @@ function normalizeCuotaPlanPago(cuota: CuotaPlanPago): CuotaPlanPago {
 export async function getPlanDePagos(
   fiestaId: string
 ): Promise<PlanDePagos | null> {
+  await requireAppSession();
   const fiesta = await getFiestaById(fiestaId);
   if (!fiesta) return null;
   return fiesta.planDePagos ?? null;
@@ -48,6 +50,7 @@ export async function savePlanDePagos(
   fiestaId: string,
   plan: Omit<PlanDePagos, 'id' | 'fiestaId' | 'createdAt' | 'updatedAt'>
 ): Promise<{ success: boolean; plan?: PlanDePagos; error?: string }> {
+  await requireAppSession();
   try {
     const fiesta = await getFiestaById(fiestaId);
     if (!fiesta) return { success: false, error: 'Fiesta no encontrada' };
@@ -77,6 +80,7 @@ export async function updateCuotaEstado(
   cuotaId: string,
   updates: Partial<Pick<CuotaPlanPago, 'estado' | 'montoPagado' | 'fechaPago' | 'metodoPago' | 'notas'>>
 ): Promise<{ success: boolean; error?: string }> {
+  await requireAppSession();
   try {
     const fiesta = await getFiestaById(fiestaId);
     if (!fiesta || !fiesta.planDePagos) return { success: false, error: 'Plan de pagos no encontrado' };

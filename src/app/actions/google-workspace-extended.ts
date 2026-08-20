@@ -16,6 +16,7 @@ import type { ClientPaymentNotification, FiestaEnPlanificacion, Invitado, Reunio
 import type { PagoCliente } from '@/types/presupuesto';
 import type { GoogleWorkspaceAccount, GoogleWorkspaceSyncRecord } from '@/types/google-workspace';
 
+import { requireAppSession } from '@/lib/auth/require-session';
 const ACCOUNTS_FILE = '_google-workspace-accounts.json';
 const SYNC_FILE = '_google-workspace-sync.json';
 const MONTEVIDEO_TZ = 'America/Montevideo';
@@ -320,6 +321,7 @@ function buildGuestInvitationEmailHtml(input: { fiesta: FiestaEnPlanificacion; i
 }
 
 export async function getFiestaCalendarShareLinks(fiestaId: string) {
+  await requireAppSession();
   const fiesta = await getFiestaById(fiestaId);
   if (!fiesta) return { success: false, error: 'Evento no encontrado.' };
 
@@ -400,6 +402,7 @@ export async function syncReunionToGoogleWorkspace(
 }
 
 export async function notifyGuestsWithCalendarLinks(fiestaId: string, options: { forceEmail?: boolean } = {}) {
+  await requireAppSession();
   const [fiesta, records] = await Promise.all([getFiestaById(fiestaId), readSyncRecords()]);
   if (!fiesta) return { success: false, error: 'Evento no encontrado.' };
 
@@ -505,6 +508,7 @@ export async function notifyContractSignedToClient(
   fiestaId: string,
   input: { signerName?: string; method: 'digital' | 'physical' }
 ) {
+  await requireAppSession();
   const fiesta = await getFiestaById(fiestaId);
   if (!fiesta) return { success: false, error: 'Evento no encontrado.' };
 
@@ -524,6 +528,7 @@ export async function notifyContractSignedToClient(
 }
 
 export async function notifyPresupuestoPaymentRegistered(presupuestoId: string, pago: PagoCliente) {
+  await requireAppSession();
   const presupuesto = await getPresupuestoById(presupuestoId);
   if (!presupuesto) return { success: false, error: 'Presupuesto no encontrado.' };
 

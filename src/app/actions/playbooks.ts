@@ -12,15 +12,18 @@ const PLAYBOOKS_FILE = 'playbooks.json';
 const APLICACIONES_FILE = 'playbook-aplicaciones.json';
 
 export async function getPlaybooks(): Promise<Playbook[]> {
+  await requireAppSession();
   return readData<Playbook[]>(PLAYBOOKS_FILE, []);
 }
 
 export async function getPlaybookById(id: string): Promise<Playbook | null> {
+  await requireAppSession();
   const playbooks = await getPlaybooks();
   return playbooks.find(p => p.id === id) ?? null;
 }
 
 export async function getPlaybookByTipoEvento(tipoEvento: TipoEvento | 'Otro'): Promise<Playbook | null> {
+  await requireAppSession();
   const playbooks = await getPlaybooks();
   return playbooks.find(p => p.tipoEvento === tipoEvento && p.esPlantillaDefault) ?? null;
 }
@@ -149,5 +152,6 @@ export async function applyPlaybookToFiesta(
 }
 
 export async function getPlaybookAplicaciones(): Promise<PlaybookAplicacion[]> {
+  await requireAppSession();
   return readData<PlaybookAplicacion[]>(APLICACIONES_FILE, []);
 }

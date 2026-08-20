@@ -41,6 +41,7 @@ export async function getEventoEnVivoData(fiestaId: string): Promise<PublicEvent
 }
 
 export async function getFotosEnVivo(fiestaId: string): Promise<FotoEnVivo[]> {
+  await requireAppSession();
   const data = await getEventoEnVivoData(fiestaId);
   return data.fotos;
 }
@@ -189,6 +190,7 @@ export async function addFotoEnVivo(
 }
 
 export async function getSolicitudesCanciones(fiestaId: string): Promise<SolicitudCancion[]> {
+  await requireAppSession();
   const data = await getEventoEnVivoData(fiestaId);
   return data.solicitudesCanciones;
 }
@@ -238,6 +240,7 @@ export async function marcarCancionReproducida(
 }
 
 export async function getMensajesEnVivo(fiestaId: string): Promise<MensajeEnVivo[]> {
+  await requireAppSession();
   const data = await getEventoEnVivoData(fiestaId);
   return data.mensajes;
 }
@@ -287,6 +290,7 @@ export async function toggleMensajeDestacado(
 }
 
 export async function getVotaciones(fiestaId: string): Promise<VotacionEnVivo[]> {
+  await requireAppSession();
   const data = await getEventoEnVivoData(fiestaId);
   return data.votaciones;
 }

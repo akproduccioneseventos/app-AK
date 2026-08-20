@@ -7,6 +7,7 @@ import { requirePermiso } from '@/lib/auth/require-session';
 import { PERMISOS } from '@/lib/auth/perfiles';
 import { readActiveFiestasForStaffAgenda } from '@/lib/staff-agenda-data';
 
+import { requireAppSession } from '@/lib/auth/require-session';
 export async function updatePersonal(
   fiestaId: string,
   personal: PersonalAsignadoDetalleStorage[]
@@ -135,6 +136,7 @@ export async function updatePersonal(
 export async function retryPersonalGoogleSync(
   fiestaId: string
 ): Promise<{ success: boolean; warning?: string; error?: string }> {
+  await requireAppSession();
   try {
     const currentData = await getFiestaById(fiestaId);
     if (!currentData) throw new Error("Fiesta no encontrada");

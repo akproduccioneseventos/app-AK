@@ -2,6 +2,7 @@
 
 import { generateSalesPitchFlow } from '@/ai/flows/generate-sales-pitch-flow';
 
+import { requireAppSession } from '@/lib/auth/require-session';
 export async function generateSalesPitchAction(
   clienteNombre: string,
   eventoTipo: string,
@@ -9,6 +10,7 @@ export async function generateSalesPitchAction(
   precioTotal: number,
   servicios: string[]
 ): Promise<{ success: boolean; data?: string; error?: string }> {
+  await requireAppSession();
   try {
     const message = await generateSalesPitchFlow({
       clienteNombre,

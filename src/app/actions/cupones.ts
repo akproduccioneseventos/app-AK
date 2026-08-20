@@ -12,10 +12,12 @@ const CUPONES_USAGE_FILE = 'cupones-usage.json';
 // ===== CRUD =====
 
 export async function getCupones(): Promise<Coupon[]> {
+  await requireAppSession();
   return readData<Coupon[]>(CUPONES_FILE, []);
 }
 
 export async function getCuponById(id: string): Promise<Coupon | null> {
+  await requireAppSession();
   try {
     const cupones = await getCupones();
     return cupones.find(c => c.id === id) || null;
@@ -156,6 +158,7 @@ export async function deleteCupon(id: string): Promise<{ success: boolean; error
 }
 
 export async function getCuponesRegaloActivos(): Promise<Coupon[]> {
+  await requireAppSession();
   try {
     const cupones = await getCupones();
     const ahora = new Date();
@@ -178,6 +181,7 @@ export async function validarCupon(
   montoPresupuesto: number,
   tipoEvento?: string
 ): Promise<CouponValidationResult> {
+  await requireAppSession();
   try {
     if (!codigo || codigo.trim() === '') {
       return { valid: false, error: 'Ingresa un código de cupón.' };
@@ -326,6 +330,7 @@ export async function getCuponStats(couponId: string): Promise<{
   totalDescuento: number;
   usos: CouponUsage[];
 }> {
+  await requireAppSession();
   const usages = await readData<CouponUsage[]>(CUPONES_USAGE_FILE, []);
   const cuponUsages = usages.filter(u => u.couponId === couponId);
 
@@ -337,5 +342,6 @@ export async function getCuponStats(couponId: string): Promise<{
 }
 
 export async function getAllCuponUsages(): Promise<CouponUsage[]> {
+  await requireAppSession();
   return readData<CouponUsage[]>(CUPONES_USAGE_FILE, []);
 }

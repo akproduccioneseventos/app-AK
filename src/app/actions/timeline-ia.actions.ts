@@ -3,12 +3,14 @@
 import { generateTimelineFlow } from '@/ai/flows/generate-timeline-flow';
 import type { ProgramaEventoItem } from '@/types/fiesta';
 
+import { requireAppSession } from '@/lib/auth/require-session';
 export async function generateTimelineAction(
   eventoTipo: string,
   horaInicio: string,
   duracionHoras: number,
   serviciosContratados: string[]
 ): Promise<{ success: boolean; data?: ProgramaEventoItem[]; error?: string }> {
+  await requireAppSession();
   try {
     const items = await generateTimelineFlow({
       eventoTipo,

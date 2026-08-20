@@ -10,6 +10,7 @@ import path from 'node:path';
 import { verifySession } from '@/lib/auth/session-token';
 import { findInvalidWhatsAppTemplateMarkers } from '@/lib/whatsapp-template-markers';
 
+import { requireAppSession } from '@/lib/auth/require-session';
 const BUDGET_SETTINGS_FILE = 'budget-display-settings.json';
 const INVOICE_SETTINGS_FILE = 'invoice-template-settings.json';
 const COMPANY_INFO_FILE = 'company-info.json';
@@ -187,6 +188,14 @@ Firma cliente: __________________________`,
 
 // --- Company Info ---
 export async function getCompanyInfo(): Promise<CompanyInfo> {
+  // Guarda las cuentas bancarias de la empresa. La version que usan las pantallas
+  // abiertas es `getCompanyInfoPublica`, que no las trae.
+  await requireAppSession();
+  return leerCompanyInfo();
+}
+
+/** Sin comprobar sesion: uso interno de este archivo y de la version publica. */
+async function leerCompanyInfo(): Promise<CompanyInfo> {
   try {
     const data = await readData<Partial<CompanyInfo>>(COMPANY_INFO_FILE, {});
     return { ...defaultCompanyInfo, ...data };
@@ -195,13 +204,23 @@ export async function getCompanyInfo(): Promise<CompanyInfo> {
   }
 }
 
+/**
+ * Los datos de la empresa para las pantallas que se abren sin cuenta: nombre,
+ * logo, contacto, textos. **Sin las cuentas bancarias**, que son las de cobro de
+ * AK y no las necesita ninguna pantalla publica.
+ */
+export async function getCompanyInfoPublica(): Promise<CompanyInfo> {
+  const info = await leerCompanyInfo();
+  return { ...info, cuentasBancariasPortal: [] };
+}
+
 export async function saveCompanyInfo(
   settings: Partial<CompanyInfo>
 ): Promise<{ success: boolean; data?: CompanyInfo; error?: string }> {
   try {
     const auth = await verifySession();
     if (!auth.success) return { success: false, error: auth.error };
-    const currentSettings = await getCompanyInfo();
+    const currentSettings = await leerCompanyInfo();
     const settingsToSave = { ...currentSettings, ...settings };
 
     // El nombre y el RUT salen impresos en los contratos y las facturas. Se
@@ -269,6 +288,7 @@ function mergeContractTemplates(saved: ContractTemplateItem[], fallbackServicios
 }
 
 export async function getContractTemplates(): Promise<ContractTemplateItem[]> {
+  await requireAppSession();
   try {
     const [savedTemplates, legacyServiciosTemplate] = await Promise.all([
       readData<ContractTemplateItem[]>(CONTRACT_TEMPLATES_FILE, []),
@@ -281,6 +301,7 @@ export async function getContractTemplates(): Promise<ContractTemplateItem[]> {
 }
 
 export async function getContractTemplate(): Promise<string> {
+  await requireAppSession();
   try {
     const templates = await getContractTemplates();
     const servicios = templates.find(t => t.type === 'servicios') || DEFAULT_CONTRACT_TEMPLATES[0];
@@ -364,6 +385,7 @@ export async function deleteContractTemplate(id: string): Promise<{ success: boo
 }
 
 export async function getContractTemplateByType(type: ContractType): Promise<ContractTemplateItem> {
+  await requireAppSession();
   const templates = await getContractTemplates();
   const found = templates.find(t => t.type === type);
   if (found) return found;
@@ -459,6 +481,7 @@ export async function saveWhatsAppSettings(
 
 // --- Contract Settings ---
 export async function getContractSettings(): Promise<ContractSettings> {
+  await requireAppSession();
   try {
     const data = await readData<Partial<ContractSettings>>(CONTRACT_SETTINGS_FILE, {});
     return { ...defaultContractSettings, ...data, clauses: data.clauses?.length ? data.clauses : defaultContractSettings.clauses };
@@ -549,6 +572,7 @@ const defaultAiAssistantSettings: AiAssistantSettings = {
 };
 
 export async function getAiAssistantSettings(): Promise<AiAssistantSettings> {
+  await requireAppSession();
   const data = await readData<Partial<AiAssistantSettings>>(AI_ASSISTANT_SETTINGS_FILE, {});
   return { ...defaultAiAssistantSettings, ...data };
 }
@@ -637,6 +661,7 @@ async function collectPageRoutes(dir: string, appDir: string, routes: string[]):
 }
 
 export async function scanAiAssistantAppContext(): Promise<{ success: boolean; context?: string; error?: string }> {
+  await requireAppSession();
   try {
     const appDir = path.join(process.cwd(), 'src', 'app');
     const routes: string[] = [];
@@ -669,6 +694,7 @@ const GEMINI_CONNECTION_MODELS = [
 ] as const;
 
 export async function testGeminiConnection(): Promise<{ ok: boolean; error?: string }> {
+  await requireAppSession();
   const apiKey = process.env.GOOGLE_API_KEY || process.env.GEMINI_API_KEY;
   if (!apiKey) {
     return {

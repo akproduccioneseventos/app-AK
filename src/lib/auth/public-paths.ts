@@ -95,6 +95,11 @@ const PROTECTED_EVENT_ROUTES = [
   // pusiera `/portal/mesas?fiestaId=...` veia la lista entera de invitados de
   // esa fiesta, con sus datos, sin estar logueado.
   /^\/portal\/mesas\/?$/,
+  // El indice de Video de Vida es del equipo: lista las proximas fiestas con el
+  // nombre del homenajeado y la fecha, y enlaza a pantallas internas. Estaba
+  // abierto porque `/video-vida` es publico para que el CLIENTE suba sus fotos,
+  // pero eso pasa en `/video-vida/<id>`, que sigue abierto igual que antes.
+  /^\/video-vida\/?$/,
 ] as const;
 
 export function isPublicPathPrefix(pathname: string) {

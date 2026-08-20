@@ -24,7 +24,7 @@ import { getPromoActiva } from "@/app/actions/promos";
 import { getLandingSettings } from "@/app/actions/landing-editor";
 import { getCatalogoFotos } from "@/app/actions/catalogo-fotos";
 import { getGaleriaItems } from "@/app/actions/galeria";
-import { getSalones } from "@/app/actions/salones";
+import { getSalonesPublicos } from "@/app/actions/salones";
 import { getTestimonials } from "@/app/actions/feedback";
 import type { GaleriaFoto } from "@/types/galeria";
 import type { GaleriaVideo } from "@/types/galeria";
@@ -37,7 +37,7 @@ import { PromoWidget } from "@/components/promo/PromoWidget";
 import { AK_WHATSAPP_NUMBER } from "@/lib/public-contact";
 import { LandingSpaContainer } from "@/components/landing/LandingSpaContainer";
 import { getPublicEventTypeImage } from "@/components/landing/event-type-images";
-import { getSocialConnections } from "@/app/actions/social-connections";
+import { getSocialConnectionsPublicas } from "@/app/actions/social-connections";
 import { getPublicInstagramFeed } from "@/lib/instagram/public-feed";
 import { isClubUruguay } from "@/lib/club-uruguay";
 import { getDynamicSalonPhotos, type SalonPhoto } from "@/lib/salon-helper";
@@ -311,10 +311,10 @@ export default async function HomePage() {
     withPublicFallback(getCatalogoFotos(), []),
     getAkYoutubeVideos(),
     withPublicFallback(getTestimonials(), []),
-    withPublicFallback(getSocialConnections(), []),
+    withPublicFallback(getSocialConnectionsPublicas(), []),
     withPublicFallback(getGaleriaItems(), { fotos: [], videos: [] }),
     withPublicFallback(getPublicInstagramFeed(), [], 4_500),
-    withPublicFallback(getSalones(), []),
+    withPublicFallback(getSalonesPublicos(), []),
     withPublicFallback(getBlogPosts(), []),
   ]);
   const fotos = defaultGaleriaPublica.fotos as GaleriaFoto[];

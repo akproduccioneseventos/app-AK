@@ -9,8 +9,8 @@ import { motion, AnimatePresence } from 'framer-motion';
 import NextImage from 'next/image';
 import { QRCodeSVG } from 'qrcode.react';
 import { getActivePoll, getDedications } from '@/app/actions/social-interactive';
-import { getCompanyInfo, getInvoiceTemplateSettings } from '@/app/actions/settings';
-import { getSocialConnections } from '@/app/actions/social-connections';
+import { getCompanyInfoPublica, getInvoiceTemplateSettings } from '@/app/actions/settings';
+import { getSocialConnectionsPublicas } from '@/app/actions/social-connections';
 import type { ActiveGameData, AudioRhythmSettings, ScreenPlaylistItem, ScreenPlaylistItemType, SocialGallerySettings, SocialGalleryBrand } from '@/types/fiesta';
 import { DEFAULT_MARKETING_TICKER_TEXT } from '@/lib/social-wall-defaults';
 import {
@@ -64,9 +64,9 @@ export default function MuroEnVivoPage() {
     async function loadStaticBranding() {
       try {
         const [info, template, conns] = await Promise.all([
-          getCompanyInfo(),
+          getCompanyInfoPublica(),
           getInvoiceTemplateSettings(),
-          getSocialConnections(),
+          getSocialConnectionsPublicas(),
         ]);
         setStaticBranding({
           companyInfo: info,

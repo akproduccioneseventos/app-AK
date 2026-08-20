@@ -3,6 +3,11 @@ const mockWriteData = jest.fn();
 const mockSendGoogleGmailMessage = jest.fn();
 const mockGetFiestaById = jest.fn();
 
+jest.mock('@/lib/auth/require-session', () => ({
+  ...jest.requireActual('@/lib/auth/require-session'),
+  requireAppSession: jest.fn(async () => undefined),
+}));
+
 jest.mock('@/lib/data-service', () => ({
   readData: (...args: unknown[]) => mockReadData(...args),
   writeData: (...args: unknown[]) => mockWriteData(...args),

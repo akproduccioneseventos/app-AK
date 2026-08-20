@@ -31,6 +31,7 @@ function isSafeKey(key: string): boolean {
 }
 
 export async function getFeatureFlags(): Promise<GlobalFeatureFlags> {
+  await requireAppSession();
   return readData<GlobalFeatureFlags>(FLAGS_FILE, DEFAULT_FLAGS);
 }
 
@@ -162,6 +163,7 @@ export async function isModuleEnabled(
   module: FeatureModule,
   fiestaId?: string
 ): Promise<boolean> {
+  await requireAppSession();
   if (!VALID_MODULES.has(module)) return false;
   const flags = await getFeatureFlags();
 
@@ -187,6 +189,7 @@ export async function isModuleEnabled(
 }
 
 export async function getEnabledModulesForEvent(fiestaId: string): Promise<FeatureModule[]> {
+  await requireAppSession();
   if (!isSafeKey(fiestaId)) return [];
   const flags = await getFeatureFlags();
   const eventConfig = flags.tierOverrides[fiestaId];

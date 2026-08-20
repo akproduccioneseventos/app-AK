@@ -8,7 +8,7 @@ jest.mock('@/lib/data-service', () => ({
 }));
 
 jest.mock('@/app/actions/settings', () => ({
-  getCompanyInfo: jest.fn(),
+  getCompanyInfoPublica: jest.fn(),
 }));
 
 jest.mock('@/app/actions/fiesta/fiesta.actions', () => ({
@@ -36,13 +36,13 @@ jest.mock('@/app/actions/accesos-personal', () => ({
 }));
 
 jest.mock('@/app/actions/roles', () => ({
-  getRoles: jest.fn(),
+  getRolesPublicos: jest.fn(),
 }));
 
 
 describe('Reseñas de Google Automáticas', () => {
   const mockReadData = require('@/lib/data-service').readData;
-  const mockGetCompanyInfo = require('@/app/actions/settings').getCompanyInfo;
+  const mockGetCompanyInfo = require('@/app/actions/settings').getCompanyInfoPublica;
 
   beforeEach(() => {
     jest.clearAllMocks();
@@ -88,7 +88,7 @@ describe('Reseñas de Google Automáticas', () => {
 
 describe('Reseñas automáticas al contestar la encuesta (sin sesión)', () => {
   const mockReadData = require('@/lib/data-service').readData;
-  const mockGetCompanyInfo = require('@/app/actions/settings').getCompanyInfo;
+  const mockGetCompanyInfo = require('@/app/actions/settings').getCompanyInfoPublica;
   const mockGetFiestaById = require('@/app/actions/fiesta/fiesta.actions').getFiestaById;
   const mockGetWhatsAppConfig = require('@/app/actions/whatsapp').getWhatsAppConfig;
   const mockSendWhatsApp = require('@/lib/whatsapp/meta-sender').sendMetaWhatsAppMessage;
@@ -231,7 +231,7 @@ describe('Reseñas automáticas al contestar la encuesta (sin sesión)', () => {
 describe('Plan de la Noche del Equipo (Portal de Acceso Personal)', () => {
   const mockGetAccesoById = require('@/app/actions/accesos-personal').getAccesoById;
   const mockGetFiestaById = require('@/app/actions/fiesta/fiesta.actions').getFiestaById;
-  const mockGetRoles = require('@/app/actions/roles').getRoles;
+  const mockGetRoles = require('@/app/actions/roles').getRolesPublicos;
 
   beforeEach(() => {
     jest.clearAllMocks();

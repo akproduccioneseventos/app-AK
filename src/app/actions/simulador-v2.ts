@@ -1,6 +1,7 @@
 'use server';
 
 import { readData } from '@/lib/data-service';
+import { leerFiestasCrudas } from '@/lib/fiesta/leer-fiestas';
 import { getFiestas } from '@/app/actions/fiesta/fiesta.actions';
 import { generateBudgetAndLeadFromSimulator, getArmadoRapidoConfig } from '@/app/actions/armado-rapido';
 import type { SimV2DuplicateCheck, SimV2DateCheck, SimV2State } from '@/types/simulador-v2';
@@ -8,6 +9,7 @@ import type { Presupuesto } from '@/types/presupuesto';
 import type { CrmLead } from '@/types/crm';
 import { enforcePublicRateLimit } from '@/lib/commercial/public-rate-limit';
 
+import { requireAppSession } from '@/lib/auth/require-session';
 const PRESUPUESTOS_FILE = 'presupuestos.json';
 const CRM_LEADS_FILE = 'crm-leads.json';
 
@@ -25,6 +27,7 @@ export async function checkDuplicateClient(
   apellido: string,
   telefono: string
 ): Promise<SimV2DuplicateCheck> {
+  await requireAppSession();
   try {
     const fullName = normalizeName(`${nombre} ${apellido}`);
     const normalizedPhone = normalizePhone(telefono);
@@ -77,7 +80,7 @@ export async function checkDateAvailability(fechaISO: string): Promise<SimV2Date
     const requestedDate = new Date(fechaISO);
     const requestedDateStr = requestedDate.toISOString().split('T')[0];
 
-    const fiestas = await getFiestas(false);
+    const fiestas = await leerFiestasCrudas(false);
     const occupiedDates = new Set(
       fiestas
         .map(f => f.configuracion?.fechaEvento)

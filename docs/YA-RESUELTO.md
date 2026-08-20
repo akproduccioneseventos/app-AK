@@ -2885,6 +2885,83 @@ cambia más.
 
 Vive en el mismo archivo de cuentas oficiales.
 
+## Se cerraron las puertas abiertas a internet (20 de agosto de 2026)
+
+De las 247 funciones de servidor que estaban sin revisar una por una, **quedan 84**.
+Cómo se hizo, para que no se repita el trabajo: se calculó, siguiendo el código, qué
+funciones puede llegar a tocar una pantalla que se abre **sin cuenta**. Las 150 que
+ninguna pantalla pública alcanza se cerraron de una vez. Las que sí, se miraron a
+mano.
+
+### Lo que estaba de verdad mal
+
+- **El permiso para publicar en Facebook e Instagram viajaba a cada invitado.** La
+  pantalla de la invitación, el muro en vivo y la página del evento pedían "las redes
+  de AK" para mostrar los botones de seguir, y esa lista venía con el permiso de
+  publicación adentro. Como esas pantallas son públicas, el permiso quedaba a la
+  vista en el código de la página, en el celular de cada invitado de cada fiesta. Con
+  eso, cualquiera podía publicar en las cuentas de la empresa. Ahora esas pantallas
+  usan una versión que trae sólo el nombre, el enlace y el logo.
+- **La lista completa de fiestas se podía pedir sin cuenta.** Con el cliente, su
+  teléfono, el presupuesto y los invitados de cada una. Ahora pide cuenta. Las
+  pantallas que un desconocido sí tiene que poder abrir y que necesitan mirar las
+  fiestas —el simulador, para decir si una fecha está libre, y el portal del cliente,
+  que entra con su clave— usan una lectura interna que **no es una dirección de
+  internet**.
+- **La página de Video de Vida listaba las próximas fiestas a cualquiera.** El índice
+  mostraba nombre del homenajeado y fecha, y enlazaba a pantallas internas. Estaba
+  abierto de rebote, porque `/video-vida` tiene que ser público para que el cliente
+  suba sus fotos. **Eso no se tocó**: la subida del cliente sigue igual que siempre.
+  Lo que se cerró es sólo el índice.
+- **Salían datos del negocio en pantallas de venta.** Los menús iban con la receta de
+  cada plato, lo que cuesta cada ingrediente y el margen de ganancia; los servicios,
+  con el costo y el proveedor; los salones, con el WhatsApp y el correo del gerente;
+  los roles, con el sueldo por evento; los empleados, con cédula y teléfono. Ahora
+  cada una de esas pantallas recibe **sólo lo que se ve**: nombre, foto y precio de
+  venta. La versión completa pide cuenta.
+- **El asistente multiagente se podía usar de costado.** La pantalla pedía sesión,
+  pero la función de atrás no: se la podía llamar directo y gastarnos la inteligencia
+  artificial pedido tras pedido.
+
+### Dos cosas que NO se tocaron, a propósito
+
+- **El arranque del primer administrador no puede pedir cuenta**, porque lo llama el
+  propio ingreso cuando todavía no existe ninguna. Quedó declarado como público a
+  propósito, con el motivo escrito.
+- **`saveFiesta` ya estaba protegida** de una forma que el control no reconocía: deja
+  pasar al equipo o al cliente con la clave de su propia fiesta. Casi todas las
+  escrituras de una fiesta pasan por ahí. Se le enseñó al control a reconocerla, en
+  vez de agregar una comprobación encima.
+
+### El error que casi se cuela, y cómo se agarró
+
+Cerrar 150 puertas de una vez tuvo un efecto de rebote: **algunas funciones públicas
+llamaban a otras del mismo archivo que quedaron cerradas**. El cálculo de "quién
+llega hasta acá" miraba los otros archivos y salteaba el propio, así que esas no se
+vieron.
+
+Lo que se rompía, y quedó arreglado:
+
+- **La promo de la portada desaparecía.** La portada pide la promo activa, y esa
+  función leía la lista de promociones, que había quedado cerrada.
+- **El enlace corto de la invitación y la pantalla de mesas de la fiesta en curso**
+  dejaban de encontrar la fiesta.
+- **El cliente no podía avisar desde su portal que iba en camino.**
+- **El copiloto del simulador se quedaba sin sus textos** y contestaba con los de
+  fábrica.
+
+Cómo se agarró: comparando la portada compilada contra la versión principal. Antes
+se armaba una sola vez y quedaba guardada; después de los cambios se rearmaba en
+cada visita, que es la señal de que algo adentro estaba pidiendo la sesión. Vale la
+pena recordarlo: **si una pantalla pública pasa de "armada una vez" a "armada en
+cada visita", casi siempre es que le metieron un control de sesión sin querer.**
+
+### Por qué el control ahora acepta declarar una función suelta
+
+Antes sólo se podía declarar "todo este archivo es público". Eso obligaba a abrir de
+más: en el archivo de ingreso hay funciones del equipo y también el arranque del
+primer administrador. Ahora se puede declarar **una sola función**, con su motivo.
+
 ## Cómo agregar algo a esta lista
 
 **Se anota SIEMPRE, en la misma propuesta que toca el código.** Orden del dueño

@@ -12,6 +12,7 @@ const REPOSTERIA_TEMPLATE_FILE = 'reposteria-template.json';
  * Obtiene la plantilla maestra de repostería.
  */
 export async function getReposteriaMasterTemplate(): Promise<ReposteriaData> {
+  await requireAppSession();
   const data = await readData<ReposteriaData>(REPOSTERIA_TEMPLATE_FILE, defaultReposteriaData);
   // Ensure we have all categories
   const essentialCategories = ['mesa_postres', 'candy_bar', 'fuente_chocolate'];

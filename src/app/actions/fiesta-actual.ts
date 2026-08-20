@@ -25,6 +25,7 @@ import * as CateringModule from './fiesta/catering.actions';
 import * as VideoModule from './fiesta/video-vida.actions';
 import * as RegalosModule from './fiesta/regalos.actions';
 import * as ZonaDigitalModule from './fiesta/zona-digital.actions';
+import { requireAppSession } from '@/lib/auth/require-session';
 import type { 
   FiestaEnPlanificacion, 
   ModulosContratados, 
@@ -144,6 +145,7 @@ export async function updateMenuMesa(fiestaId: string, menuData: MenuMesaData) {
 export async function updateNumerosMesa(fiestaId: string, data: NumerosMesaData) { return await FiestaModule.updateNumerosMesa(fiestaId, data); }
 export async function updateGuestPortalSettings(fiestaId: string, settings: GuestPortalSettings) { return await FiestaModule.updateGuestPortalSettings(fiestaId, settings); }
 export async function updateContratoFiestaActual(fiestaId: string, text: string, tipo: string = 'servicios', plantillaId: string = 'default-servicios') {
+  await requireAppSession();
     const fiesta = await FiestaModule.getFiestaById(fiestaId);
     if (fiesta?.contratoFirmaInfo?.isSigned) {
       return { success: false, error: 'No se puede modificar el contrato una vez firmado.' };
@@ -165,6 +167,7 @@ export async function savePlanPagosContrato(
   fiestaId: string,
   planPagos: import('@/types/fiesta').PlanPagos,
 ): Promise<{ success: boolean; error?: string }> {
+  await requireAppSession();
   try {
     const fiesta = await FiestaModule.getFiestaById(fiestaId);
     if (!fiesta) throw new Error('Fiesta no encontrada');

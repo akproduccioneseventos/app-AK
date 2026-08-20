@@ -1,9 +1,9 @@
 
 import { notFound } from 'next/navigation';
 import { getFiestaByAccessKey } from '@/app/actions/fiesta/portal.actions';
-import { getCompanyInfo, getBudgetDisplaySettings } from '@/app/actions/settings';
+import { getCompanyInfoPublica, getBudgetDisplaySettings } from '@/app/actions/settings';
 import { getPresupuestoById } from '@/app/actions/presupuestos';
-import { getServiciosEmpresa } from '@/app/actions/servicios-empresa';
+import { getServiciosEmpresaPublicos } from '@/app/actions/servicios-empresa';
 import type { Presupuesto } from '@/types/presupuesto';
 import { toPublicGuestStatsInput } from '@/lib/client-portal/public-guest-stats';
 import PublicPortalClientExperience from './PublicPortalClientExperience';
@@ -152,7 +152,7 @@ export default async function PublicPortalPage(props: PageProps) {
 
   const [fiesta, companyInfo, budgetSettings] = await Promise.all([
     getFiestaByAccessKey(accessKey),
-    getCompanyInfo(),
+    getCompanyInfoPublica(),
     getBudgetDisplaySettings(),
   ]);
 
@@ -163,7 +163,7 @@ export default async function PublicPortalPage(props: PageProps) {
   const budgetToken = fiesta.presupuestoId ? await generateBudgetToken(fiesta.presupuestoId) : undefined;
   const [presupuesto, catalogServices] = await Promise.all([
     fiesta.presupuestoId ? getPresupuestoById(fiesta.presupuestoId, budgetToken) : Promise.resolve(null as Presupuesto | null),
-    getServiciosEmpresa().then(servicios => servicios
+    getServiciosEmpresaPublicos().then(servicios => servicios
       .filter(servicio => Number(servicio.precioVenta ?? servicio.precioBase ?? servicio.precioPorPersona ?? 0) > 0)
       .slice(0, 80)
       .map(servicio => ({

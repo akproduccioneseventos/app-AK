@@ -8,6 +8,15 @@ import { requireAppSession } from '@/lib/auth/require-session';
 const SERVICIOS_EMPRESA_FILE = 'servicios-empresa.json';
 
 export async function getServiciosEmpresa(): Promise<ServicioEmpresa[]> {
+    // Cada servicio guarda lo que le CUESTA a la empresa y quien es el proveedor.
+    // Sin esto, cualquiera pedia la lista y sacaba el margen de ganancia de cada
+    // cosa que vende AK.
+    await requireAppSession();
+    return leerServiciosEmpresa();
+}
+
+/** Sin comprobar sesion: uso interno de este archivo. */
+async function leerServiciosEmpresa(): Promise<ServicioEmpresa[]> {
     const items = await readData<any[]>(SERVICIOS_EMPRESA_FILE, []);
     return (Array.isArray(items) ? items : []).map(item => ({
       id: item.id,
@@ -30,8 +39,23 @@ export async function getServiciosEmpresa(): Promise<ServicioEmpresa[]> {
     }));
 }
 
+/**
+ * Los servicios como se muestran al prospecto y al cliente: nombre, categoria,
+ * foto y **precio de venta**. Sin el costo, sin el margen y sin el proveedor.
+ */
+export async function getServiciosEmpresaPublicos(): Promise<ServicioEmpresa[]> {
+  const servicios = await leerServiciosEmpresa();
+  return servicios.map((s) => ({
+    ...s,
+    valorUnitarioEstimado: 0,
+    proveedor: undefined,
+    notas: undefined,
+  }));
+}
+
 export async function getServicioEmpresaById(id: string): Promise<ServicioEmpresa | null> {
-  const servicios = await getServiciosEmpresa();
+  await requireAppSession();
+  const servicios = await leerServiciosEmpresa();
   return servicios.find(s => s.id === id) || null;
 }
 
@@ -39,7 +63,7 @@ export async function saveServicioEmpresa(
   itemData: Omit<ServicioEmpresa, 'id'> | ServicioEmpresa
 ): Promise<{ success: boolean; id?: string; servicio?: ServicioEmpresa; error?: string }> {
   await requireAppSession();
-  let inventario = await getServiciosEmpresa();
+  let inventario = await leerServiciosEmpresa();
   let finalItemData: Partial<ServicioEmpresa>;
   let itemId: string;
   
@@ -101,7 +125,7 @@ export async function saveServicioEmpresa(
 
 export async function deleteServicioEmpresa(id: string): Promise<{ success: boolean; error?: string }> {
   await requireAppSession();
-  let inventario = await getServiciosEmpresa();
+  let inventario = await leerServiciosEmpresa();
   const targetServicio = inventario.find(s => s.id === id);
 
   const { getPresupuestos } = await import('./presupuestos');
@@ -129,7 +153,7 @@ export async function duplicateServicioEmpresa(
   servicioId: string
 ): Promise<{ success: boolean; servicio?: ServicioEmpresa; error?: string }> {
   await requireAppSession();
-  const inventario = await getServiciosEmpresa();
+  const inventario = await leerServiciosEmpresa();
   const servicioToDuplicate = inventario.find(s => s.id === servicioId);
 
   if (!servicioToDuplicate) {
@@ -155,7 +179,7 @@ export async function adjustAllServicePrices(
   }
   
   try {
-    const inventario = await getServiciosEmpresa();
+    const inventario = await leerServiciosEmpresa();
     if (inventario.length === 0) {
       return { success: false, error: "No hay servicios en el catálogo para ajustar." };
     }
@@ -202,7 +226,7 @@ export async function adjustAllServiceCosts(
   }
   
   try {
-    const inventario = await getServiciosEmpresa();
+    const inventario = await leerServiciosEmpresa();
     if (inventario.length === 0) {
       return { success: false, error: "No hay servicios en el catálogo para ajustar." };
     }

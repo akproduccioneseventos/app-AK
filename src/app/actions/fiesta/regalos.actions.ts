@@ -5,6 +5,7 @@ import { initialFiestaActualData } from '@/lib/fiesta-defaults';
 import type { FiestaEnPlanificacion, GiftItem } from '@/types/fiesta';
 import { getFiestaById, saveFiesta } from './fiesta.actions';
 
+import { requireAppSession } from '@/lib/auth/require-session';
 async function updateFiestaData(
     fiestaId: string, 
     updateFn: (data: FiestaEnPlanificacion) => FiestaEnPlanificacion
@@ -23,6 +24,7 @@ async function updateFiestaData(
 }
 
 export async function updateGiftRegistry(fiestaId: string, giftList: GiftItem[]) {
+  await requireAppSession();
     return updateFiestaData(fiestaId, data => {
         // Ensure invitacionDigital and regalos exist
         const invitacionDigital = data.invitacionDigital || initialFiestaActualData.invitacionDigital!;

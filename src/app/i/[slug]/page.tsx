@@ -1,6 +1,6 @@
 import { Metadata } from 'next';
 import { getFiestaBySlug } from '@/app/actions/fiesta/fiesta.actions';
-import { getSocialConnections } from '@/app/actions/social-connections';
+import { getSocialConnectionsPublicas } from '@/app/actions/social-connections';
 import { buildInvitacionConfigFromFiesta, TIPO_EVENTO_LABELS } from '@/lib/invitacion-config-defaults';
 import { InvitacionPublicaClient } from '@/app/invitacion/[fiestaId]/invitacion-publica-client';
 import { notFound } from 'next/navigation';
@@ -48,7 +48,7 @@ export default async function InvitacionSlugPage(props: PageProps) {
   const params = await props.params;
   const [fiesta, socialConnections] = await Promise.all([
     getFiestaBySlug(params.slug),
-    getSocialConnections().catch(() => [] as import('@/types/settings').SocialConnection[]),
+    getSocialConnectionsPublicas().catch(() => [] as import('@/types/settings').SocialConnection[]),
   ]);
 
   if (!fiesta) {

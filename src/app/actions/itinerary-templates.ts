@@ -8,6 +8,7 @@ import { requireAppSession } from '@/lib/auth/require-session';
 const TEMPLATES_FILE = 'itinerary-templates.json';
 
 export async function getItineraryTemplates(): Promise<ItineraryTemplate[]> {
+  await requireAppSession();
   return readData<ItineraryTemplate[]>(TEMPLATES_FILE, []);
 }
 

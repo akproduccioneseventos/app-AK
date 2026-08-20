@@ -3,8 +3,8 @@
 import { ai, geminiModel } from '@/ai/genkit';
 import { z } from 'genkit';
 import { getArmadoRapidoConfig } from '@/app/actions/armado-rapido';
-import { getServiciosEmpresa } from '@/app/actions/servicios-empresa';
-import { getMenus } from '@/app/actions/menus-catering';
+import { getServiciosEmpresaPublicos } from '@/app/actions/servicios-empresa';
+import { getMenusPublicos } from '@/app/actions/menus-catering';
 import { checkDateAvailability } from '@/app/actions/simulador-v2';
 import * as logger from '@/lib/logger';
 import type { ArmadoRapidoConfig } from '@/types/armado-rapido';
@@ -17,6 +17,12 @@ import { requireAppSession } from '@/lib/auth/require-session';
 const COPILOT_CONFIG_FILE = 'copilot-config.json';
 
 export async function getCopilotConfig(): Promise<CopilotConfig> {
+  await requireAppSession();
+  return leerCopilotConfig();
+}
+
+/** Sin comprobar sesion: son los textos con los que le contesta al prospecto. */
+async function leerCopilotConfig(): Promise<CopilotConfig> {
   const config = await readData<CopilotConfig>(COPILOT_CONFIG_FILE, DEFAULT_COPILOT_CONFIG);
   return {
     promptPersonalidad: config?.promptPersonalidad || DEFAULT_COPILOT_CONFIG.promptPersonalidad,
@@ -222,9 +228,9 @@ export async function chatWithBudgetCopilot(
 
   const [config, services, menus, copilotConfig] = await Promise.all([
     getArmadoRapidoConfig().catch(() => null),
-    getServiciosEmpresa().catch(() => []),
-    getMenus().catch(() => []),
-    getCopilotConfig().catch(() => DEFAULT_COPILOT_CONFIG),
+    getServiciosEmpresaPublicos().catch(() => []),
+    getMenusPublicos().catch(() => []),
+    leerCopilotConfig().catch(() => DEFAULT_COPILOT_CONFIG),
   ]);
   const apiKey = process.env.GOOGLE_API_KEY || process.env.GEMINI_API_KEY;
 

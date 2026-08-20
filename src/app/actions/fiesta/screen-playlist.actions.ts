@@ -3,13 +3,16 @@
 import type { ScreenPlaylist, PlaylistItem } from '@/types/fiesta';
 import { getFiestaById, saveFiesta } from './fiesta.actions';
 
+import { requireAppSession } from '@/lib/auth/require-session';
 export async function getScreenPlaylist(fiestaId: string): Promise<ScreenPlaylist | null> {
+  await requireAppSession();
   const fiesta = await getFiestaById(fiestaId);
   if (!fiesta) return null;
   return fiesta.screenPlaylist ?? null;
 }
 
 export async function saveScreenPlaylist(fiestaId: string, playlist: ScreenPlaylist): Promise<{ success: boolean; error?: string }> {
+  await requireAppSession();
   try {
     const fiesta = await getFiestaById(fiestaId);
     if (!fiesta) return { success: false, error: 'Fiesta no encontrada' };
@@ -22,6 +25,7 @@ export async function saveScreenPlaylist(fiestaId: string, playlist: ScreenPlayl
 }
 
 export async function updatePlaylistItem(fiestaId: string, itemId: string, updates: Partial<PlaylistItem>): Promise<{ success: boolean; error?: string }> {
+  await requireAppSession();
   try {
     const fiesta = await getFiestaById(fiestaId);
     if (!fiesta) return { success: false, error: 'Fiesta no encontrada' };

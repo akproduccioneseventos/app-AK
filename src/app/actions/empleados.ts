@@ -19,11 +19,15 @@ const EMPLEADOS_FILE = 'empleados.json';
 const EMPLEADOS_COLLECTION = 'empleados';
 
 export async function getEmpleados(): Promise<Empleado[]> {
+  // La ficha de cada empleado trae cedula, telefono, correo y fecha de nacimiento.
+  // Es dato personal del equipo: no puede salir sin cuenta.
+  await requireAppSession();
   const empleados = await readData<Empleado[]>(EMPLEADOS_FILE, []);
   return [...empleados].sort((a, b) => (a.nombre || '').localeCompare(b.nombre || ''));
 }
 
 export async function getEmpleadoById(id: string): Promise<Empleado | null> {
+  await requireAppSession();
   const empleados = await getEmpleados();
   return empleados.find(e => e.id === id) || null;
 }
@@ -214,6 +218,7 @@ export async function fiestasDelMismoDiaConEmpleado(
   fechaEvento: string,
   exceptoFiestaId?: string,
 ): Promise<string[]> {
+  await requireAppSession();
   const agenda = await verificarAgendaEmpleado(empleadoId, fechaEvento, exceptoFiestaId);
   return [...agenda.solapadas, ...agenda.mismoDiaNoSolapado, ...agenda.horarioSinConfirmar]
     .map(conflicto => conflicto.nombreEvento);

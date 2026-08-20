@@ -30,6 +30,7 @@ const defaultTemplate: MeetingMasterTemplate = {
 };
 
 export async function getMeetingMasterTemplate(): Promise<MeetingMasterTemplate> {
+  await requireAppSession();
   return readData<MeetingMasterTemplate>(TEMPLATE_FILE, defaultTemplate);
 }
 

@@ -68,6 +68,7 @@ const defaultSocialGlobalSettings: SocialGlobalSettings = {
 };
 
 export async function getSocialGlobalSettings(): Promise<SocialGlobalSettings> {
+  await requireAppSession();
   try {
     const data = await readData<Partial<SocialGlobalSettings>>(SOCIAL_GLOBAL_SETTINGS_FILE, {});
     return {

@@ -4,30 +4,23 @@ import type { ServicioEmpresa } from '@/types/empresa';
 import { readData, writeData } from '@/lib/data-service';
 import { getMenus, saveMenu } from './menus-catering';
 import { requireAppSession } from '@/lib/auth/require-session';
+import { leerInsumosCrudos, limpiarCacheInsumos } from '@/lib/insumos/leer-insumos';
 
 const INSUMOS_FILE = 'insumos.json';
 
-let cachedInsumos: ServicioEmpresa[] | null = null;
-
 export async function invalidateInsumosCache() {
-  cachedInsumos = null;
+  limpiarCacheInsumos();
 }
 
 export async function getInsumos(): Promise<ServicioEmpresa[]> {
-    if (cachedInsumos) return cachedInsumos;
-    const items = await readData<any[]>(INSUMOS_FILE, []);
-    const mapped = (Array.isArray(items) ? items : []).map(item => ({
-      ...item,
-      tipoItem: item.tipoItem || 'Insumo/Ingrediente',
-      valorUnitarioEstimado: item.valorUnitarioEstimado !== undefined && !isNaN(Number(item.valorUnitarioEstimado)) ? Number(item.valorUnitarioEstimado) : 0,
-      cantidadDisponible: item.cantidadDisponible !== undefined && !isNaN(Number(item.cantidadDisponible)) ? Number(item.cantidadDisponible) : undefined,
-    }));
-    cachedInsumos = mapped;
-    return mapped;
+    // Cada insumo trae lo que cuesta y cuanto queda en deposito. Es del equipo.
+    await requireAppSession();
+    return leerInsumosCrudos();
 }
 
 export async function getInsumoById(id: string): Promise<ServicioEmpresa | null> {
-  const insumos = await getInsumos();
+  await requireAppSession();
+  const insumos = await leerInsumosCrudos();
   return insumos.find(s => s.id === id) || null;
 }
 
@@ -87,8 +80,8 @@ export async function saveInsumo(
   itemData: Omit<ServicioEmpresa, 'id'> | ServicioEmpresa
 ): Promise<{ success: boolean; id?: string; servicio?: ServicioEmpresa; error?: string }> {
   await requireAppSession();
-  invalidateInsumosCache();
-  let inventario = await getInsumos();
+  limpiarCacheInsumos();
+  let inventario = await leerInsumosCrudos();
   let finalItemData: Partial<ServicioEmpresa>;
   let itemId: string;
 
@@ -138,7 +131,7 @@ export async function saveInsumo(
   }
   
   await writeData(INSUMOS_FILE, inventario, (a, b) => (a.categoria || '').localeCompare(b.categoria || '') || (a.nombre || '').localeCompare(b.nombre || ''));
-  invalidateInsumosCache();
+  limpiarCacheInsumos();
   
   await propagateInsumoChangesToMenus(finalItemData as ServicioEmpresa);
 
@@ -161,13 +154,13 @@ export async function deleteInsumo(id: string): Promise<{ success: boolean; erro
     };
   }
 
-  invalidateInsumosCache();
-  let inventario = await getInsumos();
+  limpiarCacheInsumos();
+  let inventario = await leerInsumosCrudos();
   const initialLength = inventario.length;
   inventario = inventario.filter(s => s.id !== id);
   if (inventario.length === initialLength) return { success: false, error: `Insumo con ID ${id} no encontrado para eliminar.` };
   await writeData(INSUMOS_FILE, inventario);
-  invalidateInsumosCache();
+  limpiarCacheInsumos();
   return { success: true };
 }
 
@@ -190,8 +183,8 @@ export async function adjustAllInsumoCosts(
 
 
   try {
-    invalidateInsumosCache();
-    const inventario = await getInsumos();
+    limpiarCacheInsumos();
+    const inventario = await leerInsumosCrudos();
     if (inventario.length === 0) {
       return { success: false, error: "No hay insumos en el catálogo para ajustar." };
     }
@@ -209,7 +202,7 @@ export async function adjustAllInsumoCosts(
     });
 
     await writeData(INSUMOS_FILE, updatedInventario, (a, b) => (a.categoria || '').localeCompare(b.categoria || '') || (a.nombre || '').localeCompare(b.nombre || ''));
-    invalidateInsumosCache();
+    limpiarCacheInsumos();
 
     for (const insumo of updatedInventario) {
         await propagateInsumoChangesToMenus(insumo);

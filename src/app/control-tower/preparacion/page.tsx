@@ -6,6 +6,11 @@ import { Button } from '@/components/ui/button';
 import { Progress } from '@/components/ui/progress';
 import { getAllFiestasPreparationScores } from '@/app/actions/preparation-score';
 
+// Se arma en el momento, no al publicar. Es una pantalla del equipo con datos que
+// cambian todos los dias: armada al publicar mostraria la foto del dia del
+// despliegue, y ademas ahora pide cuenta, que al publicar no existe.
+export const dynamic = 'force-dynamic';
+
 const levelStyles = {
   alta: 'border-green-200 bg-green-50 text-green-700',
   media: 'border-amber-200 bg-amber-50 text-amber-700',

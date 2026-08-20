@@ -5,7 +5,7 @@ import type { FeedbackSubmission, Testimonial } from '@/types/feedback';
 import { readData, writeData } from '@/lib/data-service';
 import { requireAppSession } from '@/lib/auth/require-session';
 import { enforcePublicRateLimit } from '@/lib/commercial/public-rate-limit';
-import { getCompanyInfo } from '@/app/actions/settings';
+import { getCompanyInfoPublica } from '@/app/actions/settings';
 import { getFiestaById } from '@/app/actions/fiesta/fiesta.actions';
 import { getWhatsAppConfig } from '@/app/actions/whatsapp';
 import { sendMetaWhatsAppMessage } from '@/lib/whatsapp/meta-sender';
@@ -63,7 +63,7 @@ export async function saveFeedback(submission: Omit<FeedbackSubmission, 'id' | '
    */
   if (!yaSeLePidioPorEstaFiesta(allFeedback, newFeedback.fiestaId)) {
     try {
-      const company = await getCompanyInfo();
+      const company = await getCompanyInfoPublica();
       if (company.enableGoogleReviewsAutoRequest && company.googleReviewsLink) {
         const result = await enviarPedidoDeResena(newFeedback, company);
         if (result.success) {
@@ -164,7 +164,7 @@ export async function deleteTestimonial(testimonialId: string): Promise<{ succes
  */
 export async function getEnlaceDeResenaPublico(): Promise<string> {
   try {
-    const company = await getCompanyInfo();
+    const company = await getCompanyInfoPublica();
     return company.googleReviewsLink?.trim() || '';
   } catch {
     return '';
@@ -224,7 +224,7 @@ export async function requestGoogleReviewManual(feedbackId: string): Promise<{ s
   if (yaSeLePidioPorEstaFiesta(allFeedback, feedback.fiestaId)) {
     return { success: false, error: "Ya se le pidió la reseña a este cliente." };
   }
-  const company = await getCompanyInfo();
+  const company = await getCompanyInfoPublica();
   if (!company.googleReviewsLink) {
     return { success: false, error: "El enlace de Google no está configurado en Ajustes de Empresa." };
   }

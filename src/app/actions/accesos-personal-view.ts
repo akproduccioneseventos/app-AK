@@ -2,7 +2,7 @@
 
 import { getAccesoById, type AccesoPersonal } from '@/app/actions/accesos-personal';
 import { getFiestaById } from '@/app/actions/fiesta/fiesta.actions';
-import { getRoles } from '@/app/actions/roles';
+import { getRolesPublicos } from '@/app/actions/roles';
 import type { ProgramaEventoItem } from '@/types/fiesta';
 
 export type AccesoPersonalPortalView = {
@@ -32,7 +32,7 @@ export async function getAccesoPersonalPortalView(
   let rolAsignado = 'Colaborador';
   const asignacion = fiesta.personalAsignado?.find(p => p.empleadoId === acceso.empleadoId);
   if (asignacion) {
-    const roles = await getRoles();
+    const roles = await getRolesPublicos();
     const rol = roles.find(r => r.id === asignacion.rolId);
     if (rol) {
       rolAsignado = rol.nombre;
