@@ -14,8 +14,8 @@ import { AK_SOCIAL_LINKS } from '@/lib/public-contact';
  *
  * Regla: **el puntaje y las opiniones se muestran sólo si llegan medidos**. Si no
  * llegan, la tarjeta dice que falta conectar la cuenta y ofrece el enlace para
- * buscar la ficha. El enlace para pedir reseñas sale de Ajustes; si el dueño
- * todavía no lo cargó, se cae a una búsqueda de Google, que siempre funciona.
+ * abrir la ficha. El enlace para pedir reseñas sale de Ajustes; si el dueño
+ * todavía no lo cargó, se cae al enlace de la ficha verificada.
  */
 interface GoogleBusinessProfileProps {
   rating?: number | null;
@@ -104,7 +104,7 @@ export function GoogleBusinessProfileWidget({
             rel="noopener noreferrer"
             className="inline-flex items-center gap-1.5 text-amber-300 font-bold hover:underline"
           >
-            Abrir en Google Maps <ExternalLink className="w-3.5 h-3.5" />
+            Ver mi ficha en Google <ExternalLink className="w-3.5 h-3.5" />
           </a>
         </div>
       </CardContent>

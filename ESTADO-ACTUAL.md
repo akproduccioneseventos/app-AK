@@ -7,53 +7,79 @@ Quien cierre una sesión reescribe este archivo. Se pisa, no se acumula.
 
 ---
 
-**Última actualización:** 19 de agosto de 2026.
-**Estado de la app:** sana. Los controles pasaron: acentos limpios, TypeScript en 0 errores, pruebas unitarias en verde, build de Next.js de producción OK.
-**Propuestas abiertas:** PR #1071 (Tótem de la barra y Buzón de saludos) y nueva PR (Fotos con dueño en estaciones, Editor de historia y hospedajes, Referencia 360).
-**Orden vigente:** `docs/ordenes/ahora.md` — Bloques 1 a 6 completados al 100%. Referencia de videos 360 (ARELI 360 AK).
+**Última actualización:** 20 de agosto de 2026.
+**Estado de la app:** sana. Acentos limpios, tipos en cero, 1888 pruebas, compila.
+**Propuestas abiertas:** ninguna.
+**Orden vigente:** `docs/ordenes/ahora.md` — quedan los bloques 7 y 8.
 
-## Lo que se cerró hoy
+## Lo más importante: la app se audita sola
 
-- **El tótem de la barra: que el invitado se lleve su foto:**
-  - Pantalla completa de éxito "¡Llevate tu recuerdo!" al tomarse foto/video en el tótem (`/evento/barra/[fiestaId]`).
-  - Código QR grande con fondo blanco y alto contraste para escanear en la noche del salón con el celular y descargarlo en alta calidad.
-  - Texto sugerido para compartir en historias con hashtag e Instagram oficial.
-  - Botón "Listo" para volver al inicio enseguida y temporizador automático de inactividad de 20 segundos. **Cero botones de impresión.**
-  - Guardado del trago pedido: si el invitado pidió un trago previamente en la sesión, `drinkId` y `drinkName` se adjuntan en la subida.
-  - Interruptor de seguir en redes: si `settings.requireSocialFollowForPhotos` está prendido, muestra un paso simple con link al Instagram y botón para confirmar o seguir sin trabar al invitado.
+Los hallazgos reales **no salieron de leer código: salieron de contar**. Los
+ayudantes opinando dieron 70% de falsas alarmas; las cuentas mecánicas, 100% de
+aciertos. Quedaron como cuatro pruebas que corren solas:
 
-- **El buzón de saludos: fotos y puerta de entrada:**
-  - Modo Foto en el Buzón (`/evento/buzon/[fiestaId]`): permite sacarse una selfie con la cámara frontal (con cuenta regresiva de 3s y vista previa antes de enviar) o subir una foto desde la galería, con dedicatoria y opción de cápsula del tiempo.
-  - Duración del video en buzón: se mantiene en 15 segundos (el video de la barra dura 8s; no se mezclaron).
-  - Puerta en el Portal del Invitado: agregada la herramienta "Buzón de saludos" con ícono de corazón, respetando si el buzón está activado en la fiesta (`buzonConfig.enabled !== false`, `showBuzon !== false` y módulo `buzon`). Si está apagado, no se muestra el botón.
-- **Se sacó el filtro de reseñas**, que estaba en tres lugares y mandaba el pedido
-  sólo a los que puntuaban 9 o 10.
-- **El enlace de reseñas ya no está escrito a mano**: sale del que el dueño carga
-  en Ajustes, y si no lo cargó, el bloque no aparece.
+1. **Un valor de ejemplo no puede tapar el dato real.** Los impresos de mesa salían
+   con "La Agasajada" y "01/01/2025", y la carta de tragos de una boda decía
+   "Mis XV": el ejemplo ocupaba el lugar y el código que ponía el dato real
+   preguntaba "¿está vacío?". Cuatro casos.
+2. **Ninguna pantalla del evento sin puerta.** Aparecieron cinco terminadas y sin
+   forma de llegar.
+3. **Ninguna función de servidor abierta a internet.** Encontró que cambiar la fecha
+   de una fiesta no pedía cuenta.
+4. **Nada inventado en pantallas públicas.** Encontró seis fotos traídas al azar de
+   internet.
 
-- **Los comentarios de las redes** (entrega de Gemini, propuesta 1062): se traen
-  de Facebook, Instagram y YouTube, la inteligencia artificial los separa en
-  buenos, neutros y quejas, lo agresivo se oculta solo —y se puede volver a
-  mostrar con un toque— y lo bueno pasa a testimonio de la web.
-- **Tope de gasto**: traer el historial completo revisa cien comentarios por
-  corrida. Antes, un solo toque podía gastar el presupuesto de inteligencia
-  artificial de todo el mes.
-- **Los cinco controles que pedía la orden** y la entrega no traía.
-- **Se cerró la propuesta 1057**, que borraba los testimonios.
+**Si una de esas cuatro falla, la solución NO es aflojar el control.**
 
-## Lo que depende del dueño (no lo puede hacer ninguna IA)
+## Cómo está la seguridad, con números
 
-1. **Reclamar la ficha de Google** y elegir bien la categoría. Es el 32% del
-   posicionamiento local, casi el doble que la web. Ojo: no tiene local físico,
-   va como negocio que atiende a domicilio, con la dirección escondida.
-2. **Confirmar que el enlace para pedir reseñas es el suyo.** Está puesto en la
-   app pero no se pudo comprobar desde acá.
-3. **Pedir una reseña por fiesta**, a todos por igual y sin premio.
-4. **Darse de alta** en las diez opciones gratis del plan (TuFiesta.com.uy entre
-   ellas).
+De 247 funciones sin revisar una por una: **179 sólo leen**, **66 escriben pero
+pasan por una función que sí pide permiso**, y **dos escribían directo** (ya
+revisadas). **Del lado de hacer daño no queda nada abierto**; lo pendiente es del
+lado de mirar, y está en el bloque 7.
 
-## Decisiones del dueño
+## Lo último que se tocó (20 de agosto)
 
-Descartó el precio variable por fecha, alquilar la app a otros salones y el
-"ensayo de la fiesta". `TriviaAdminPanel` queda sin enchufar a propósito.
-No tiene salón propio: trabaja en el salón que lo contrate.
+El botón de la solapa "Ficha de Google" decía "Abrir en Google Maps" y **no llevaba
+a la ficha de AK**: llevaba a una búsqueda de Google, donde puede aparecer
+cualquiera. Y ese mismo enlace se usaba de respaldo para pedir reseñas cuando no
+hay ninguno cargado, así que un cliente podía dejarle la reseña a otro. El dueño
+pasó el enlace real de su ficha y quedó cargado; el botón ahora dice
+"Ver mi ficha en Google".
+
+## Lo que quedó pedido a Gemini
+
+**Bloque 7:** revisar las 179 funciones de leer. **Bloque 8:** el formato del
+impreso. Los bloques 1 a 6 ya se entregaron y fusionaron.
+
+## Datos del dueño que NO hay que volver a preguntar
+
+- **La ficha de Google está verificada**, el **enlace de reseñas es el correcto**
+  (`https://g.page/r/CUagrfscj_5yEAE/review`) y el **enlace de la ficha también**
+  (`https://share.google/isy4SniannZd1Fdv5`). Ya no se le pide que los confirme.
+  Que el panel muestre el puntaje necesita además acceso a los datos de Google
+  Business Profile; hasta entonces queda sin dato y el aviso apagado.
+- **El impreso es 10x15.** La **fotocabina imprime TRES fotos**; el **espejo mágico
+  y el 360 con IA, UNA sola**. La **barra NO imprime**.
+- **El video de vida no lo toca la app.** El cliente sube las fotos antes de la
+  fiesta y el dueño edita el video por fuera. **No se modifica esa subida.**
+- Cada estación tiene su configuración propia en Fiestas → Entretenimiento.
+- El simulador pide el contacto **antes** del precio, a propósito.
+- Los testimonios de las páginas de venta **son reales**.
+- No tiene local físico: trabaja en el salón que lo contrate.
+
+## Lo que le queda al dueño
+
+Pedir una reseña por fiesta, a todos por igual y sin premio, y darse de alta en los
+directorios gratis. Nada más.
+
+## Lo que espera una credencial
+
+Google Workspace, la búsqueda de canciones de Spotify, y el puntaje de Google.
+
+## Dos métodos que valen para la próxima
+
+1. **Buscá la FUNCIÓN, no el archivo.** Tres veces se declaró que faltaba algo que
+   existía con otro nombre.
+2. **Contá.** Desde cuántos lugares se enlaza cada pantalla, o qué valor por defecto
+   tapa a cuál. Encuentra lo que leer código no ve.
