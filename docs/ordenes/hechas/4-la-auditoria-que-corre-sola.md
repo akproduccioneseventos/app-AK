@@ -22,6 +22,38 @@ en un comando que corra solo y devuelva números.**
 
 **Leé `docs/COMO-AUDITAR.md` antes de empezar. Esta orden lo hace ejecutable.**
 
+## Lo que YA EXISTE. No lo rehagas, usalo
+
+**Esto cambió el 20 de agosto después de escribir la orden. Sincronizá con `main` y
+mirá esto antes de arrancar, o vas a construir dos veces lo mismo.**
+
+Ya hay **siete pruebas que cuentan** y corren con `npx jest`. Son de otra especie que
+lo que pide esta orden —esas **frenan** la entrega si algo se rompe; el informe que
+pedimos acá **no frena nada**— pero varias ya resolvieron el problema difícil de cada
+pasada, y ahí está el código que conviene reusar:
+
+- **`auditoria-pantallas-sin-puerta.test.ts`** — ya cuenta cuántos archivos enlazan a
+  cada pantalla de `/evento`, y ya resuelve el enredo de las direcciones armadas por
+  pedazos. **Es media pasada 2 hecha.** Sacá de ahí la forma de contar y ampliala al
+  resto de `src/app`, en vez de empezar de cero.
+- **`auditoria-puertas-abiertas.test.ts`** con `puertas-pendientes-de-revisar.json` —
+  ya recorre todas las funciones exportadas de `src/app/actions` y sabe cuáles delegan
+  en otra. Para la pasada 2 te sirve el recorrido; el conteo de quién las importa lo
+  tenés que agregar vos.
+- **`nada-inventado-en-pantalla.test.ts`** y **`auditoria-defectos-tapados.test.ts`** —
+  la pasada 3 tiene que **complementarlas, no repetirlas**. Ya cubren las fotos
+  traídas al azar de internet y el caso del valor de ejemplo que tapa el dato real.
+  Lo que falta y sí es tuyo: los `catch` que devuelven un número inventado en vez de
+  avisar.
+- **`lo-automatico-no-sale-dos-veces.test.ts`** y **`los-frenos-contra-robots.test.ts`**
+  — no los toques. Congelan arreglos de esta semana.
+
+**Y una pregunta más para la pasada 4, que hoy encontró cuatro fallas que los cinco
+controles no veían:** cuando algo pasa de correr en un solo lugar a correr en el
+navegador de cada uno del equipo, no alcanza con "¿funciona?". Es **"¿qué pasa si dos
+lo hacen a la vez?"**. Si podés contarlo mecánicamente —una tarea que escribe sin
+mirar antes si otro ya la hizo—, agregalo. Si necesita criterio, dejalo afuera.
+
 ## La regla que ordena todo
 
 > **Cada control cuenta. Ninguno opina.**

@@ -65,7 +65,7 @@ Windows. Nada más.
 
 ---
 
-# BLOQUE 7 — Revisar las 247 puertas que quedan (el más largo, y se puede cortar)
+# BLOQUE 7 — Revisar las 84 puertas que quedan (el más largo, y se puede cortar)
 
 **Esto es trabajo de paciencia, no de ingenio.** Es perfecto para hacerlo de a
 tandas y entregarlo aunque esté a medias.
@@ -81,8 +81,22 @@ cambiar la fecha de una fiesta sin cuenta, ver el calendario entero con todos lo
 clientes, borrar el contrato de una fiesta, nueve funciones de multiagente, y el
 simulador sin freno contra robots.
 
-Quedan **247 funciones en 98 archivos sin revisar una por una**, congeladas en
+Quedan **84 funciones en 44 archivos sin revisar una por una**, congeladas en
 `src/__tests__/puertas-pendientes-de-revisar.json`.
+
+**Empezaron siendo 247 en 98 archivos.** El 20 de agosto se cerraron 163 de una vez.
+**Mirá el JSON, no este número**, que es el que se queda viejo.
+
+Cómo se cerraron las primeras 150, por si sirve para las que faltan: se calculó,
+siguiendo los imports desde cada ruta declarada pública en `public-paths.ts`, cuáles
+**ninguna pantalla abierta alcanza**. Esas se cerraron todas juntas sin riesgo. **Las
+84 que quedan no se pueden cerrar así**: todas las alcanza alguna pantalla que se abre
+sin cuenta, y hay que mirarlas de a una.
+
+**Y ojo con el rebote que eso tuvo, porque va a volver a pasar:** cerrar muchas de
+golpe rompió cuatro pantallas públicas que llamaban a otra función **del mismo
+archivo** que había quedado cerrada. Después de cada tanda, revisá que ninguna función
+pública del archivo que tocaste llame a una que acabás de cerrar.
 
 ## Qué hacer
 
