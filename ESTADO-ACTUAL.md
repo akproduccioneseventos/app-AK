@@ -33,24 +33,31 @@ aciertos. Quedaron como cuatro pruebas que corren solas:
 
 ## Cómo está la seguridad, con números
 
-De 247 funciones sin revisar una por una: **179 sólo leen**, **66 escriben pero
-pasan por una función que sí pide permiso**, y **dos escribían directo** (ya
-revisadas). **Del lado de hacer daño no queda nada abierto**; lo pendiente es del
-lado de mirar, y está en el bloque 7.
+**De las 247 funciones abiertas quedan 84.** El 20 de agosto se cerraron las demás.
+Al hacerlo aparecieron fugas de verdad, todas tapadas:
 
-## Lo último que se tocó (20 de agosto)
+- El **permiso para publicar en el Facebook y el Instagram de AK** viajaba dentro de
+  la lista de redes que piden la invitación, el muro en vivo y la página del evento.
+  Quedaba a la vista en el celular de cada invitado de cada fiesta.
+- La **lista completa de fiestas** se podía pedir sin cuenta, con el cliente, su
+  teléfono, lo que pagó y sus invitados.
+- La **página de Video de Vida** listaba las próximas fiestas a cualquiera. Se cerró
+  sólo el índice: la subida de fotos del cliente no se tocó.
+- En el simulador y la presentación salían **la receta de cada plato, el margen de
+  ganancia, el costo y el proveedor de cada servicio, el contacto del gerente de cada
+  salón, el sueldo de cada puesto y la cédula de cada empleado**.
+- El **asistente** se podía llamar de costado y gastar la inteligencia artificial.
 
-El botón de la solapa "Ficha de Google" decía "Abrir en Google Maps" y **no llevaba
-a la ficha de AK**: llevaba a una búsqueda de Google, donde puede aparecer
-cualquiera. Y ese mismo enlace se usaba de respaldo para pedir reseñas cuando no
-hay ninguno cargado, así que un cliente podía dejarle la reseña a otro. El dueño
-pasó el enlace real de su ficha y quedó cargado; el botón ahora dice
-"Ver mi ficha en Google".
+**Lo que hay que recordar de esto:** cerrar muchas puertas de golpe rompe por rebote
+las funciones públicas que llamaban a otras del mismo archivo. Se agarró comparando
+la portada compilada contra la versión principal: había pasado de armarse una vez a
+armarse en cada visita. **Si una pantalla pública cambia de "armada una vez" a
+"armada en cada visita", casi seguro le metieron un control de sesión sin querer.**
 
 ## Lo que quedó pedido a Gemini
 
-**Bloque 7:** revisar las 179 funciones de leer. **Bloque 8:** el formato del
-impreso. Los bloques 1 a 6 ya se entregaron y fusionaron.
+**Bloque 7:** quedan 84 funciones por revisar (eran 247). **Bloque 8:** el formato
+del impreso. Los bloques 1 a 6 ya se entregaron y fusionaron.
 
 ## Datos del dueño que NO hay que volver a preguntar
 
