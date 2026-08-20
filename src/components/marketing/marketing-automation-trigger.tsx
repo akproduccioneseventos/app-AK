@@ -40,14 +40,12 @@ export function MarketingAutomationTrigger() {
           console.warn('[tareas-automaticas] No se pudieron ejecutar tareas en segundo plano:', err);
         });
 
-      // 2. Revisión de marketing / blog
-      void fetch('/api/marketing/automation', { method: 'POST' })
-        .then((response) => {
-          if (!response.ok) throw new Error(`HTTP ${response.status}`);
-        })
-        .catch((error) => {
-          console.warn('[marketing-automation] No se pudo completar la revision en segundo plano.', error);
-        });
+      // Antes aca habia un SEGUNDO llamado, a /api/marketing/automation, que
+      // terminaba en la misma automatizacion de marketing que ya dispara la linea
+      // de arriba. Los dos salian en el mismo instante, y el control de "esto ya
+      // corrio recien" lo leen los dos ANTES de que ninguno lo escriba: no frenaba
+      // nada. Resultado: la nota del blog se generaba dos veces y se pagaba dos
+      // veces la inteligencia artificial. Un solo camino alcanza.
     };
 
     const timeoutId = window.setTimeout(runWhenIdle, 6_000);

@@ -6,6 +6,9 @@ import * as path from 'path';
 
 // Mock de sesiones
 jest.mock('@/lib/auth/require-session', () => ({
+  // El disparo de fondo pide cuenta de ADMINISTRADOR, no cualquiera del equipo:
+  // publica en las redes de la empresa y gasta inteligencia artificial.
+  requireAdminSession: jest.fn().mockResolvedValue({ ok: true }),
   requireAppSession: jest.fn().mockResolvedValue({
     id: 'user-123',
     email: 'admin@akproducciones.com',

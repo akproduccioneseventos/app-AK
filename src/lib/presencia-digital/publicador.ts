@@ -48,6 +48,21 @@ export async function publishPostInternal(
     }
 
     const targetPost = posts[postIndex];
+
+    // Un posteo que ya salio no vuelve a salir.
+    //
+    // Antes esto lo cuidaba el hecho de que los posteos programados los mandaba un
+    // solo disparador. Ahora los manda el navegador del equipo, asi que dos
+    // pestanas abiertas a la vez pueden pedir el mismo posteo y publicarlo dos
+    // veces en el Instagram y el Facebook de la empresa.
+    //
+    // La comprobacion se saltea cuando se piden redes puntuales (`targetPlatforms`),
+    // que es el caso de publicar a mano en una red que quedo afuera de la primera
+    // vuelta: ahi si es a proposito.
+    if ((!targetPlatforms || targetPlatforms.length === 0) && targetPost.status === 'Publicado') {
+      return { success: true, publishedTo: [], post: targetPost };
+    }
+
     const connections = await readData<SocialConnection[]>(CONNECTIONS_FILE, []);
 
     const selectedPlatforms: PlatformName[] = targetPlatforms && targetPlatforms.length > 0
@@ -263,6 +278,14 @@ export async function procesarPosteosProgramados(
   const fallados: Array<{ id: string; error: string }> = [];
 
   for (const post of aProcesar) {
+    // Se vuelve a leer justo antes de publicar. La lista de arriba se armo al
+    // empezar la vuelta, y para cuando llega el turno de este posteo otra pestana
+    // del equipo pudo haberlo publicado ya. Sin esto, el mismo posteo sale dos
+    // veces en las redes de la empresa.
+    const frescos = await readData<SocialPost[]>(POSTS_FILE, []);
+    const alDia = frescos.find((p) => p.id === post.id);
+    if (!alDia || alDia.status !== 'Programado') continue;
+
     const res = await publishPostInternal(post.id);
 
     if (res.success) {

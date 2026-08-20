@@ -1,6 +1,6 @@
 'use server';
 
-import { requireAppSession } from '@/lib/auth/require-session';
+import { requireAdminSession, requireAppSession } from '@/lib/auth/require-session';
 import { estadoDeLasTareas, type EstadoDeTarea } from '@/lib/automatico/tareas-automaticas';
 import { runMarketingAutomation } from '@/lib/marketing-automation';
 import { procesarPosteosProgramados } from '@/lib/presencia-digital/publicador';
@@ -24,7 +24,14 @@ export async function dispararTareasVencidasDeFondo(): Promise<{
   ejecutadas: string[];
   errores: string[];
 }> {
-  await requireAppSession();
+  // Pide cuenta de ADMINISTRADOR, no cualquier cuenta del equipo. Esto publica en
+  // el Instagram y el Facebook de la empresa y gasta inteligencia artificial: no
+  // puede dispararse porque alguien de recepcion abrio la aplicacion. Antes de este
+  // cambio lo mismo lo hacia una direccion que si pedia administrador, asi que
+  // dejarlo abierto al equipo entero era ampliar el permiso sin querer.
+  const admin = await requireAdminSession();
+  if (!admin.ok) return { ejecutadas: [], errores: [] };
+
   const estados = await estadoDeLasTareas();
   const ejecutadas: string[] = [];
   const errores: string[] = [];
@@ -35,7 +42,12 @@ export async function dispararTareasVencidasDeFondo(): Promise<{
     // Solo tareas que NO contactan a clientes
     if (tarea.id === 'generate-blog-post') {
       try {
-        await runMarketingAutomation();
+        // `includeRecontacto: false` NO es un detalle: sin esto, esta misma llamada
+        // le manda el mensaje de recontacto al prospecto que no seno, que es
+        // justo lo que dice arriba que nunca pasa solo. Hoy no se nota porque ese
+        // recontacto viene apagado; el dia que el dueno lo prenda, saldrian
+        // mensajes con solo abrir la aplicacion.
+        await runMarketingAutomation({ includeRecontacto: false });
         ejecutadas.push(tarea.id);
       } catch (err: any) {
         errores.push(`${tarea.id}: ${err.message}`);
@@ -73,7 +85,10 @@ export async function ejecutarTareaManual(id: string): Promise<{ success: boolea
 
   try {
     if (id === 'generate-blog-post') {
-      await runMarketingAutomation();
+      // El boton dice "nota del blog" y hace la nota del blog. Sin esto tambien
+      // saldrian los mensajes de recontacto a los prospectos, que no es lo que el
+      // operador aprieta ni lo que la pantalla le anuncia.
+      await runMarketingAutomation({ includeRecontacto: false });
       return { success: true };
     }
 
