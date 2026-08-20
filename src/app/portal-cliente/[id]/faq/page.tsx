@@ -17,7 +17,7 @@ const CLIENT_PRELOADED_FAQS = [
   {
     id: 'c_faq_2',
     question: '¿Cómo funciona la entrega de la música para el DJ?',
-    answer: 'En el módulo "Música" de tu portal podés agregar las canciones infaltables y las que preferís que no suenen. Tu lista se sincroniza en tiempo real con el DJ del evento.',
+    answer: 'En el módulo "Música" de tu portal podés agregar las canciones infaltables y las que preferís que no suenen. El equipo la recibe y se la pasa al DJ antes de la fiesta.',
   },
   {
     id: 'c_faq_3',

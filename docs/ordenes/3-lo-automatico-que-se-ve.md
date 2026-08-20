@@ -65,8 +65,15 @@ pantalla.
 
 # BLOQUE 3 — Que la app se dispare sola cuando alguien la usa
 
-Las cuatro tareas necesitan que algo las llame. Mientras eso no esté prendido por
-fuera, **que al menos corran cuando el equipo entra a la app**.
+**Dato corregido:** de las cuatro tareas, **el blog ya tiene disparador** —
+`MarketingAutomationTrigger` en `src/components/app-shell.tsx` llama a
+`/api/marketing/automation` cuando un administrador abre la app—. **Las otras tres
+no tienen nada**: los números de las redes, los posteos programados y los
+recordatorios de cuota.
+
+Este bloque es para esas tres. Mientras el disparador de verdad no esté prendido
+por fuera, **que al menos corran cuando el equipo entra a la app**, con el mismo
+mecanismo que ya funciona para el blog. **No lo rehagas: copiá el que está.**
 
 - Al abrir la pantalla del punto 1, si hay una tarea vencida, **que se dispare en
   segundo plano**, sin trabar la pantalla.
@@ -89,6 +96,28 @@ El disparador de verdad se prende una sola vez y **no es código**.
 - Las frecuencias que corresponden: las notas del blog una vez por semana; los
   números de las redes una vez por día; los posteos programados cada quince
   minutos; los recordatorios de cuota una vez por día, de mañana.
+
+# BLOQUE 5 — Que el DJ vea la lista del cliente
+
+**Sale del primer barrido con el método nuevo, y es de fiesta.**
+
+El cliente carga en su portal las canciones infaltables y las que no quiere que
+suenen. **Se guardan bien** (`listaMusicaPortal`, en `src/app/actions/fiesta/portal.actions.ts`)
+**y la pantalla del DJ nunca las lee**: sólo mira los pedidos que hacen los
+invitados esa noche (`getSongRequests`).
+
+El portal le prometía al cliente que su lista *"se sincroniza en tiempo real con
+el DJ"*. **Ya se corrigió el texto** para que no prometa lo que no pasa. Falta lo
+otro: que pase.
+
+**Qué hacer:** en la pantalla del DJ (`src/app/evento/dj/[fiestaId]/page.tsx`),
+un bloque fijo arriba con **las infaltables** y, bien separadas, **las que no
+tienen que sonar**. Que se lean de un vistazo en la oscuridad de la cabina: pocas,
+grandes, sin scroll para las infaltables.
+
+**Por qué importa:** en un casamiento, que no suene la canción que los novios
+pidieron es de las pocas cosas que arruinan la noche y no se pueden arreglar
+después.
 
 ---
 

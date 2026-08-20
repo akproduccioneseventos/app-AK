@@ -3081,6 +3081,85 @@ de trabajos, con un texto alternativo que describe lo que se ve. Una foto real d
 la barra montada en Salto muestra algo que se puede contratar; una imagen generada
 no muestra nada, y era la parte cara de la nota.
 
+## La cola sin señal se borraba entre pantallas (20 de agosto de 2026)
+
+Primer hallazgo del método nuevo, y es de los caros.
+
+**La cola del celular es una sola y la comparten tres pantallas**: la barra, la
+recepción y el muro. **Cada una la vaciaba entera**, y para lo que no sabía mandar
+devolvía "enviado". Como el éxito borra el elemento, **una pantalla borraba los
+pedidos de otra sin mandarlos**. El muro era el peor: su enviador no enviaba nada
+y daba todo por enviado.
+
+En una fiesta con mala señal eso era: el invitado pide un trago, lee "se envía
+solo", abre el muro para ver las fotos, y **el pedido desaparece**. No se entera
+nadie, ni el invitado ni la barra.
+
+Ahora `flushOfflineQueue` recibe `types` y cada pantalla toca únicamente lo suyo.
+El muro no encola nada, así que dejó de vaciar la cola. Hay una prueba que
+controla las tres pantallas y que ninguna vuelva a dar por enviado lo que no sabe
+mandar.
+
+**Y una promesa que no se cumplía:** el portal del cliente decía que su lista de
+música *"se sincroniza en tiempo real con el DJ"*. La lista se guarda pero **la
+pantalla del DJ nunca la lee**. Se corrigió el texto a lo que pasa de verdad, y
+que el DJ la vea quedó pedido en la orden. **No se deja una promesa en pantalla
+sin alguien que la cumpla.**
+
+## Cuáles tareas se disparan y cuáles no: el dato exacto (20 de agosto de 2026)
+
+**Corrección de un dato que se dijo mal y hay que dejar claro.** Se afirmó que las
+cuatro tareas automáticas no las dispara nadie. **Son tres, no cuatro.**
+
+- **El blog, la sincronización de Instagram y el recontacto SÍ tienen disparador.**
+  `MarketingAutomationTrigger`, montado en `src/components/app-shell.tsx`, llama a
+  `/api/marketing/automation` a los ocho segundos de que alguien abre la app
+  interna, como mucho una vez cada media hora por navegador. **Con dos
+  condiciones:** que quien entre tenga perfil de administrador, y que el equipo
+  entre. Si nadie abre la app en toda la semana, no corre.
+- **Las otras tres no tienen absolutamente nada que las llame:** los números de las
+  redes, la publicación de posteos programados y los recordatorios de cuota
+  vencida. Ninguna referencia en el código, ni configuración de tareas programadas
+  en ningún archivo.
+
+**Lo que hay que recordar:** que una tarea dependa de que una persona abra una
+pantalla **no es lo mismo que estar automatizada**, pero tampoco es lo mismo que
+no correr nunca. Al inventariar, la respuesta correcta tiene tres estados: *la
+dispara algo*, *sólo si alguien abre la app*, *nadie*.
+
+**Y el número que ordena todo:** hay **24 cosas pensadas para pasar solas**. Tres
+sin disparador, siete que viajan con la automatización de marketing, y catorce que
+son refrescos de pantalla y sólo corren con la pantalla abierta, que es lo
+correcto.
+
+## El chat de la fiesta le inventaba datos al invitado (20 de agosto de 2026)
+
+Hallazgo de la pasada "¿muestra datos inventados?", y es de fiesta.
+
+Cuando la fiesta no tenía un dato cargado, **el chat lo completaba solo y lo decía
+con total seguridad**, al invitado, la misma noche:
+
+- Sin hora cargada: *"empezamos puntual a las 21:00 hs"*.
+- Sin salón cargado: *"te esperamos en el Salón Principal"*.
+- Sin código de vestimenta: *"Elegante Sport"*.
+
+**Y estaba en los dos caminos**: en la respuesta de reserva y también en lo que se
+le cuenta a la inteligencia artificial, que es peor, porque el modelo lo repite
+con más seguridad todavía.
+
+Un invitado que llega a las 21:00 a una fiesta que empieza a las 22:00 se come una
+hora en la puerta. El que se viste elegante sport en una de etiqueta pasa
+vergüenza. Y el que va al salón equivocado no llega.
+
+Ahora, si el dato no está, **se dice que no está** y se manda a mirar la
+invitación o a preguntarle al anfitrión. A la inteligencia artificial se le pasa
+"NO CARGADO" y la instrucción de no inventarlo. Hay una prueba que controla los
+dos caminos.
+
+**Falso positivo verificado en la misma pasada:** los testimonios de las páginas de
+venta volvieron a reportarse como inventados. **Son reales**, el dueño ya lo
+confirmó. No se vuelven a tocar.
+
 ## Cómo agregar algo a esta lista
 
 **Se anota SIEMPRE, en la misma propuesta que toca el código.** Orden del dueño

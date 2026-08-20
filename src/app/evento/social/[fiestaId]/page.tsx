@@ -58,7 +58,7 @@ import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
 import { useToast } from '@/hooks/use-toast';
 import { isEventInActiveWindow } from '@/lib/experience-ak/post-event-utils';
-import { enqueueOfflineAction, processOfflineQueue, getPendingOfflineActions } from '@/lib/offline/offline-action-queue';
+import { enqueueOfflineAction, getPendingOfflineActions } from '@/lib/offline/offline-action-queue';
 import { QuinceaneraLeadPrompt } from '@/components/public/QuinceaneraLeadPrompt';
 import {
   waitForInitialPublicLoad,
@@ -540,11 +540,19 @@ export default function SocialEventPage() {
     setUploadCaption('');
   };
 
-  // Cuando vuelve la señal: se manda lo que quedo pendiente y se vacia la cola
-  // del celular (los pedidos de barra y demas que se guardaron sin conexion).
+  /**
+   * Cuando vuelve la señal, esta pantalla se ocupa **solo de su foto pendiente**.
+   *
+   * Antes tambien vaciaba la cola del celular con un enviador que no enviaba nada
+   * y devolvia exito: como el exito borra el elemento, **el muro borraba los
+   * pedidos de barra y los check-in de recepcion sin mandarlos**. El invitado leia
+   * "se sincroniza solo", el trago desaparecia y nunca llegaba a la barra.
+   *
+   * El muro no encola nada, asi que no tiene nada que vaciar. Cada pantalla vacia
+   * lo suyo, con el filtro `types`.
+   */
   useEffect(() => {
     const alVolverLaSenal = () => {
-      void processOfflineQueue(async () => ({ success: true }), { fiestaId });
       setEnvioPendiente((pendiente) => {
         if (!pendiente) return null;
         setUploadFile(pendiente.archivo);

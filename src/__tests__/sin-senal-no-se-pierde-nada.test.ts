@@ -15,10 +15,18 @@ function leer(relativo: string): string {
   return fs.readFileSync(path.join(process.cwd(), relativo), 'utf8');
 }
 
+/**
+ * El muro salio de esta lista a proposito, el 20 de agosto de 2026.
+ *
+ * Esta prueba exigia que las tres pantallas vaciaran la cola, y esa exigencia era
+ * justamente el problema: la cola es una sola y compartida, asi que cada pantalla
+ * agarraba lo de las otras y, para lo que no sabia mandar, devolvia "enviado".
+ * Como el exito borra el elemento, el muro borraba los pedidos de barra sin
+ * mandarlos. **El muro no encola nada: no tiene nada que vaciar.**
+ */
 const PANTALLAS_QUE_ENCOLAN = [
   ['src/app/recepcion/[fiestaId]/RecepcionClient.tsx', 'la llegada de invitados'],
   ['src/app/evento/barra/[fiestaId]/page.tsx', 'el pedido de la barra'],
-  ['src/app/evento/social/[fiestaId]/page.tsx', 'la foto al muro'],
 ] as const;
 
 describe('lo que se guarda sin señal se manda al volver', () => {
@@ -27,6 +35,13 @@ describe('lo que se guarda sin señal se manda al volver', () => {
 
     expect(fuente).toContain("addEventListener('online'");
     expect(fuente).toMatch(/flushOfflineQueue|processOfflineQueue/);
+  });
+
+  it('el muro igual reacciona cuando vuelve la señal, con su foto pendiente', () => {
+    const fuente = leer('src/app/evento/social/[fiestaId]/page.tsx');
+
+    expect(fuente).toContain("addEventListener('online'");
+    expect(fuente).toContain('setEnvioPendiente');
   });
 
   it('la foto del muro no se promete guardada, porque no entra en el celular', () => {

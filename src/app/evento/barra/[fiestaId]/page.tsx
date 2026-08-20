@@ -598,8 +598,9 @@ export default function BarraTecnologicaTouchPage() {
   // El invitado veia "se envia solo" y el trago no llegaba jamas a la barra.
   useEffect(() => {
     const alVolverLaSenal = () => {
+      // Solo los pedidos de barra: antes agarraba todo lo pendiente y lo que no
+      // sabia mandar lo daba por enviado, borrando los check-in de recepcion.
       void flushOfflineQueue(async (action) => {
-        if (action.type !== 'barra_pedido') return { success: true };
         const res = await createBarDrinkOrder({
           fiestaId,
           drinkId: action.payload.drinkId,
@@ -607,7 +608,7 @@ export default function BarraTecnologicaTouchPage() {
           tableNumber: action.payload.tableNumber,
         });
         return { success: res.success, error: res.error };
-      }, { fiestaId });
+      }, { fiestaId, types: ['barra_pedido'] });
     };
     window.addEventListener('online', alVolverLaSenal);
     return () => window.removeEventListener('online', alVolverLaSenal);
