@@ -1057,7 +1057,7 @@ function VerPresupuestoContent({ params }: { params: { id: string } }) {
                           <h3 className="text-lg font-black text-slate-900">Pagar con Mercado Pago</h3>
                         </div>
                         <p className="mt-2 text-sm leading-6 text-slate-600">
-                          Pago protegido. El total incluye el 10% de recargo financiero informado en el presupuesto.
+                          Pago protegido. El total es el precio de lista informado en el presupuesto; el descuento por pago contado aplica a transferencia y efectivo.
                         </p>
                       </div>
                       <div className="flex w-full flex-col gap-2 sm:w-auto">
