@@ -3009,6 +3009,28 @@ investigan.** Cualquier sitio en internet recibe programas automáticos buscando
 la puerta abierta todo el día; que aparezcan esos errores es la señal de que los
 está rechazando. Lo que sí importa es que nada de lo que se paga quede sin freno.
 
+## Las páginas que venden no nombraban Salto (20 de agosto de 2026)
+
+El dueño avisó que la web **no aparece** en las búsquedas. Dos causas concretas,
+las dos arregladas:
+
+- **Casamientos, quince y cumpleaños decían "Uruguay" y nunca "Salto"**, ni en el
+  título ni en la descripción. Eso es lo único que ve la persona en el buscador y
+  lo que define si aparecemos cuando alguien busca desde Salto. El negocio trabaja
+  en una sola ciudad: no nombrarla es regalar la búsqueda. Los tres títulos ahora
+  la llevan, y la descripción arranca por lo que se ofrece, no por adjetivos.
+- **De las seis notas del blog, Google conocía tres.** La lista se escribía a mano
+  y se desincronizó. Faltaba, entre otras, **la única que habla de Salto**. Ahora
+  la lista sale de `src/data/blog-posts.ts`, así que agregar una nota la publica
+  sola.
+
+Hay una prueba (`las-paginas-que-venden-dicen-salto.test.ts`) que controla que los
+tres títulos nombren Salto, que entren en el largo que muestra Google, y que
+ninguna nota del blog quede afuera.
+
+**Verificado en el mismo pase, y no son pendientes:** no hay ningún `noindex` en
+la app, y la lista de páginas permitidas está bien armada (cerrada por defecto).
+
 ## Cómo agregar algo a esta lista
 
 **Se anota SIEMPRE, en la misma propuesta que toca el código.** Orden del dueño
