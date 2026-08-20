@@ -2801,6 +2801,69 @@ después de una primera versión equivocada):
 
 Queda pedido en el bloque 8 de la orden vigente.
 
+## Las fotos de las estaciones ya tienen dueño (20 de agosto de 2026)
+
+Este pedido **se había perdido una vez** al rotar la orden y hubo que reponerlo. Ya
+está hecho.
+
+La fotocabina, el espejo mágico, la plataforma 360 y el 360 con inteligencia
+artificial reciben el enlace personal del invitado y lo mandan junto con la foto.
+Antes, el invitado se sacaba la foto en la fotocabina, después entraba a buscar sus
+recuerdos y no estaba: las mejores fotos de la noche eran justo las que se perdían.
+
+**La regla se respetó, verificada línea por línea:** el identificador solo no prueba
+nada. El dueño se guarda **únicamente si el comprobante del invitado es válido**
+(`hasPublicGuestAccess`); si no lo es, la foto se sube igual pero sin dueño. Así
+nadie puede mandar el identificador de otro y adueñarse de sus fotos.
+
+**Una punta suelta que se ató al fusionar:** la lista interna de la estación guardaba
+el identificador tal como llegó, sin comprobar, mientras el muro guardaba el
+comprobado. No era grave —el recuerdo del invitado sale del muro— pero el mismo dato
+quedaba comprobado en un lado y sin comprobar en el otro, que es como empiezan los
+errores raros. Ahora los dos toman el valor comprobado.
+
+## El anfitrión ya carga su historia y sus hoteles (20 de agosto de 2026)
+
+Cierra lo que había quedado abierto cuando se sacaron la historia de vida inventada y
+los hoteles de Buenos Aires: ahora hay dónde cargar los propios.
+
+**Con el cuidado que pedía la orden:** los ejemplos van como **texto gris dentro del
+campo vacío** ("Hotel Salto", "25 de Agosto 5" — direcciones de Salto), nunca como
+dato cargado, y las filas nuevas nacen vacías. Si el anfitrión no carga nada, la
+sección no aparece en la invitación.
+
+## La ficha de Google ya está verificada (20 de agosto de 2026)
+
+**Confirmado por el dueño.** La cuenta de la ficha de Google está verificada y el
+enlace de reseñas lo pasó él.
+
+**No se le vuelve a pedir** que la reclame ni que confirme el enlace. Si alguna
+auditoría o alguna hoja vieja lo lista como pendiente, está desactualizada.
+
+**Lo que esto NO resuelve todavía:** que la aplicación pueda **leer** el puntaje y la
+cantidad de reseñas para mostrarlos en el panel y encender el aviso de menos de 4
+estrellas. Tener la ficha verificada es el paso previo, pero leer esos números
+necesita además acceso a los datos de Google Business Profile, igual que las visitas
+de la web necesitan las credenciales de Analytics. Hasta que eso exista, el puntaje
+queda sin dato y el aviso apagado, que es lo correcto: **nunca inventar un número**.
+
+## El enlace de reseñas de Google es el correcto (20 de agosto de 2026)
+
+**Confirmado por el dueño: lo pasó él.** No se vuelve a preguntar ni a pedir que lo
+verifique.
+
+**El enlace es `https://g.page/r/CUagrfscj_5yEAE/review`.** El dueño lo volvió a
+pasar el 20 de agosto y coincide exactamente con el que está cargado.
+
+Se había pedido confirmarlo porque **desde el contenedor no se puede abrir una
+dirección de Google** (la conexión las bloquea), no porque hubiera algo mal. Esa
+comprobación sólo la puede hacer él, y ya está hecha.
+
+Como su ficha está verificada, **ese enlace no cambia**: queda para siempre.
+
+Vive en `src/lib/public-contact.ts`, que es donde el proyecto guarda las cuentas
+oficiales, y la pantalla de la encuesta lo lee de Ajustes.
+
 ## Cómo agregar algo a esta lista
 
 **Se anota SIEMPRE, en la misma propuesta que toca el código.** Orden del dueño
