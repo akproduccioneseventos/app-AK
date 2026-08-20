@@ -71,6 +71,7 @@ export async function saveMarketingChecklist(
 export async function exportMarketingData(): Promise<{ success: boolean; data?: MarketingData; error?: string }> {
   await requireAppSession();
   try {
+    await requireAppSession();
     const [templates, checklist] = await Promise.all([
       getMarketingTemplates(),
       getMarketingChecklist(),

@@ -9,8 +9,8 @@ import { subMonths, format, startOfToday, differenceInDays } from 'date-fns';
 import { es } from 'date-fns/locale';
 import { isFirmSalesInvoice } from '@/lib/commercial-flow/ledger-service';
 import { isSimulatorBudget } from '@/lib/budget/formal-budget';
-
 import { requireAppSession } from '@/lib/auth/require-session';
+
 function isAcceptedBudget(status?: string) {
   return status === 'Aceptado' || status === 'Facturado';
 }
@@ -94,6 +94,7 @@ export interface AnalyticsData {
 export async function getAnalyticsData(): Promise<{ success: boolean; data?: AnalyticsData; error?: string }> {
   await requireAppSession();
   try {
+    await requireAppSession();
     const [presupuestosData, invoicesData, fiestasData, rolesData, empleadosData] = await Promise.all([
       getPresupuestos(),
       getInvoices(),

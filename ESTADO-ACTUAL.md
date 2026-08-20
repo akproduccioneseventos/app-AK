@@ -8,7 +8,7 @@ Quien cierre una sesión reescribe este archivo. Se pisa, no se acumula.
 ---
 
 **Última actualización:** 20 de agosto de 2026.
-**Estado de la app:** sana. Controles en verde: acentos limpios (0 rotos), TypeScript en 0 errores, pruebas unitarias 100% en verde, build de producción Next.js OK.
+**Estado de la app:** sana. Controles en verde: acentos limpios (0 rotos), TypeScript en 0 errores, 301 test suites en verde (1923 tests pasados), build de producción Next.js OK.
 **Orden completada:** `docs/ordenes/hechas/3-lo-automatico-que-se-ve.md` — Bloques 1 a 5 completados.
 **Siguiente orden en la fila:** `docs/ordenes/4-la-auditoria-que-corre-sola.md`.
 

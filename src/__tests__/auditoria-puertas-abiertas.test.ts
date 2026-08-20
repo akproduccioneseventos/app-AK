@@ -83,7 +83,7 @@ function archivosDeServidor(): string[] {
       if (e.isDirectory()) recorrer(r);
       else if (/\.ts$/.test(e.name) && !/\.test\.ts$/.test(e.name)) {
         const texto = fs.readFileSync(path.join(RAIZ, r), 'utf8');
-        if (/^\s*['"]use server['"]/m.test(texto.slice(0, 400))) salida.push(r);
+        if (/^\s*['"]use server['"]/m.test(texto.slice(0, 400))) salida.push(r.replace(/\\/g, '/'));
       }
     }
   };
