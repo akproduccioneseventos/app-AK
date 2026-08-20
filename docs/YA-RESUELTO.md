@@ -3106,6 +3106,32 @@ pantalla del DJ nunca la lee**. Se corrigió el texto a lo que pasa de verdad, y
 que el DJ la vea quedó pedido en la orden. **No se deja una promesa en pantalla
 sin alguien que la cumpla.**
 
+## Cuáles tareas se disparan y cuáles no: el dato exacto (20 de agosto de 2026)
+
+**Corrección de un dato que se dijo mal y hay que dejar claro.** Se afirmó que las
+cuatro tareas automáticas no las dispara nadie. **Son tres, no cuatro.**
+
+- **El blog, la sincronización de Instagram y el recontacto SÍ tienen disparador.**
+  `MarketingAutomationTrigger`, montado en `src/components/app-shell.tsx`, llama a
+  `/api/marketing/automation` a los ocho segundos de que alguien abre la app
+  interna, como mucho una vez cada media hora por navegador. **Con dos
+  condiciones:** que quien entre tenga perfil de administrador, y que el equipo
+  entre. Si nadie abre la app en toda la semana, no corre.
+- **Las otras tres no tienen absolutamente nada que las llame:** los números de las
+  redes, la publicación de posteos programados y los recordatorios de cuota
+  vencida. Ninguna referencia en el código, ni configuración de tareas programadas
+  en ningún archivo.
+
+**Lo que hay que recordar:** que una tarea dependa de que una persona abra una
+pantalla **no es lo mismo que estar automatizada**, pero tampoco es lo mismo que
+no correr nunca. Al inventariar, la respuesta correcta tiene tres estados: *la
+dispara algo*, *sólo si alguien abre la app*, *nadie*.
+
+**Y el número que ordena todo:** hay **24 cosas pensadas para pasar solas**. Tres
+sin disparador, siete que viajan con la automatización de marketing, y catorce que
+son refrescos de pantalla y sólo corren con la pantalla abierta, que es lo
+correcto.
+
 ## Cómo agregar algo a esta lista
 
 **Se anota SIEMPRE, en la misma propuesta que toca el código.** Orden del dueño

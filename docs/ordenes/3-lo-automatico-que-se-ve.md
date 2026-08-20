@@ -65,8 +65,15 @@ pantalla.
 
 # BLOQUE 3 — Que la app se dispare sola cuando alguien la usa
 
-Las cuatro tareas necesitan que algo las llame. Mientras eso no esté prendido por
-fuera, **que al menos corran cuando el equipo entra a la app**.
+**Dato corregido:** de las cuatro tareas, **el blog ya tiene disparador** —
+`MarketingAutomationTrigger` en `src/components/app-shell.tsx` llama a
+`/api/marketing/automation` cuando un administrador abre la app—. **Las otras tres
+no tienen nada**: los números de las redes, los posteos programados y los
+recordatorios de cuota.
+
+Este bloque es para esas tres. Mientras el disparador de verdad no esté prendido
+por fuera, **que al menos corran cuando el equipo entra a la app**, con el mismo
+mecanismo que ya funciona para el blog. **No lo rehagas: copiá el que está.**
 
 - Al abrir la pantalla del punto 1, si hay una tarea vencida, **que se dispare en
   segundo plano**, sin trabar la pantalla.
