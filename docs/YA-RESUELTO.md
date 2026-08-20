@@ -3166,6 +3166,52 @@ dos caminos.
 venta volvieron a reportarse como inventados. **Son reales**, el dueño ya lo
 confirmó. No se vuelven a tocar.
 
+## Los robots se cortan en la puerta (20 de agosto de 2026)
+
+Todo el día llegan programas automáticos probando direcciones de otros sistemas:
+`/wp-admin`, `/phpmyadmin`, `/.env`, `/backup.sql`. **Ninguna existe en esta
+aplicación**, pero cada intento entraba igual, terminaba en la pantalla de ingreso y
+quedaba anotado como error. Eso tapaba los errores de verdad: entre cien avisos de
+robots, el aviso que importaba no se veía.
+
+Ahora se les contesta "no existe" antes de hacer nada. La lista vive en
+`src/lib/auth/rutas-de-robots.ts`.
+
+**El riesgo de esta lista es bloquear de más**, y eso sería peor que el robot: dejaría
+al cliente o al invitado mirando un "no existe" en plena fiesta. Por eso hay una
+prueba que revisa las dos puntas: que los pedidos de robot se corten, y que **ninguna
+pantalla real quede afuera** — se comprueba contra la lista oficial de pantallas
+públicas, así que si mañana se agrega una, la prueba avisa sola.
+
+**Lo que NO hace, para no prometer de más:** medido en la versión compilada, cortar
+al robot en la puerta no hace que la aplicación ande más rápido — un pedido de robot
+costaba cuatro milésimas de segundo y sigue costando lo mismo. Lo que se gana es que
+el registro de errores queda limpio y que la pantalla de ingreso deja de quedar
+expuesta a quien la anda buscando.
+
+## Cuánto tarda la aplicación de verdad (20 de agosto de 2026)
+
+Medido sobre la versión compilada, no sobre la de desarrollo. Cada pantalla, con el
+servidor ya despierto:
+
+| Pantalla | Tarda |
+|---|---|
+| Portada | 13 milésimas |
+| Bodas / Quince | 8 a 9 milésimas |
+| Simulador de presupuesto | 5 milésimas |
+| Presentación LED | 5 milésimas |
+| Catálogo por tipo de fiesta | 25 milésimas |
+| Ingreso | 6 milésimas |
+
+**La aplicación no es lenta.** Si se la nota lenta en vivo, no es el código.
+
+**Dónde está la causa probable:** en `apphosting.yaml`, `minInstances: 0`. Eso
+significa que **cuando pasa un rato sin visitas el servidor se apaga entero**, y el
+primero que entra tiene que esperar a que arranque de nuevo una aplicación con más de
+250 pantallas. Los que entran después lo ven rápido. Ponerlo en `1` lo deja siempre
+despierto, y **eso se paga todos los meses**: es decisión del dueño, no se cambia por
+las nuestras.
+
 ## Cómo agregar algo a esta lista
 
 **Se anota SIEMPRE, en la misma propuesta que toca el código.** Orden del dueño
