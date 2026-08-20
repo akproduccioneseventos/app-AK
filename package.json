@@ -22,6 +22,7 @@
     "test:e2e:debug": "playwright test --debug",
     "test:rules": "firebase emulators:exec --only firestore --project demo-ak-producciones \"jest --runInBand --config jest.rules.config.js\"",
     "check:acentos": "bash scripts/check-acentos.sh",
+    "auditoria": "node scripts/auditoria.mjs",
     "audit:dead-code": "knip --production",
     "graphify:update": "uv tool run --from graphifyy graphify extract . && uv tool run --from graphifyy graphify cluster-only .",
     "smoke:browser": "node scripts/ak-browser-smoke.mjs",

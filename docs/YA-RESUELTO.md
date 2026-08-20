@@ -19,6 +19,13 @@ anotado, la próxima auditoría lo va a volver a encontrar.
 
 ## Decisiones del dueño (no son errores, no se discuten)
 
+- **La auditoría que corre sola (20 de agosto de 2026):**
+  - **Bloque 1 — Comando de auditoría (`scripts/auditoria.mjs`, `package.json`):** Nuevo comando `npm run auditoria` que ejecuta las 4 pasadas de conteo mecánico exacto sin IA, genera el informe con fecha y hora en `auditoria-out/informe.md`, reporta cada hallazgo con archivo y línea, y concluye con el resumen de 4 números. No rompe la compilación ni frena nada.
+  - **Bloque 2 — Pasada 1 (Tareas automáticas):** Compara `src/app/api/cron/` con `src/lib/automatico/tareas-automaticas.ts`, reporta tareas que no llaman a `marcarCorrida()`, tareas no declaradas y estado de última corrida.
+  - **Bloque 3 — Pasada 2 (Huérfanos / solo tests):** Identifica componentes (sin `ui/`), acciones de servidor y pantallas `page.tsx` sin uso o que sólo se llaman en tests.
+  - **Bloque 4 — Pasada 3 (Datos simulados):** Detecta mocks, dummies o fallbacks en UI que no aclaren que son de ejemplo.
+  - **Bloque 5 — Pasada 4 (Promesas al cliente):** Rastrea frases en pantalla ("se envía solo", "automáticamente", "todos los días", "en tiempo real", "al instante", "te avisamos", "se sincroniza") y lista archivo y línea para contrastar su cumplimiento.
+
 - **Que se vea qué está funcionando de verdad (20 de agosto de 2026):**
   - **Bloque 1 — Pantalla "¿Qué está funcionando?" (`src/app/(app)/settings/tareas-automaticas/page.tsx`, `src/app/actions/tareas-automaticas.actions.ts`):** Muestra de un vistazo las 4 tareas automáticas del sistema (notas del blog, métricas de redes, posteos programados, avisos de cuota) con su nombre en criollo, estado real ("Al día" en verde, "Atrasada" o "Nunca corrió" en rojo), última vez que corrió y qué se pierde si no corre. Botón para poner al día tareas atrasadas y botón de ejecución manual. Enlace visible desde el menú principal de navegación (`MainNav`) en Configuración y desde la central de Ajustes.
   - **Bloque 2 — Pantalla "¿Qué está conectado?" (`src/app/(app)/settings/sincronizaciones/page.tsx`, `src/app/actions/conexiones-estado.actions.ts`):** Monitoreo honesto de las 13 plataformas externas (Google Analytics, Google Business, Google Calendar, WhatsApp, Instagram, Facebook, YouTube, TikTok, Threads, X, Spotify, Mercado Pago, Meta Ads). 3 estados exclusivos: "Conectada", "Falta configurarla" y "No se usa". Para las que faltan, explica en criollo qué se pierde sin jerga ni datos simulados.
