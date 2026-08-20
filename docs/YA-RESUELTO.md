@@ -3215,9 +3215,34 @@ servidor ya despierto:
 **Dónde está la causa probable:** en `apphosting.yaml`, `minInstances: 0`. Eso
 significa que **cuando pasa un rato sin visitas el servidor se apaga entero**, y el
 primero que entra tiene que esperar a que arranque de nuevo una aplicación con más de
-250 pantallas. Los que entran después lo ven rápido. Ponerlo en `1` lo deja siempre
-despierto, y **eso se paga todos los meses**: es decisión del dueño, no se cambia por
-las nuestras.
+250 pantallas. Los que entran después lo ven rápido.
+
+### DECISIÓN TOMADA: se queda dormido. No volver a proponerlo.
+
+**El dueño decidió el 20 de agosto de 2026 que NO se toca la configuración del
+servidor**, porque ponerlo siempre despierto se paga todos los meses. Se llegó a
+cambiar `minInstances` a `1` y `memoryMiB` a `1024`, y **se dejó todo como estaba**.
+
+Si una auditoría futura marca `minInstances: 0` como problema, **es un falso
+positivo**: está así a propósito.
+
+### Y la buena noticia, que hace que la decisión sea barata
+
+Mirando cómo se sirve cada pantalla, resulta que **el que espera no es el cliente
+nuevo**:
+
+- **La portada y todas las páginas de venta** (bodas, quince, cumpleaños, Club
+  Uruguay, el simulador, la presentación LED) **ya salen armadas de antes**. No
+  esperan al servidor: el prospecto que llega desde Google o desde un enlace de
+  WhatsApp entra al instante aunque el servidor esté dormido.
+- **Las que sí esperan** son las que dependen de una fiesta concreta: la invitación
+  del invitado, el portal del cliente, las pantallas del evento y las del equipo. Esas
+  no se pueden armar de antes porque los datos cambian en cada fiesta.
+
+O sea, la espera cae en el peor momento posible sólo si nadie tocó la aplicación en
+todo el día. **Lo que se le dijo al dueño:** el día de la fiesta, abrir la aplicación
+cinco minutos antes de mandarle el enlace a los invitados deja el servidor despierto y
+el primer invitado no espera. Eso no cuesta nada.
 
 ## Lo que corre solo podía correr de más (20 de agosto de 2026)
 

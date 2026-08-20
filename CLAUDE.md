@@ -494,6 +494,14 @@ Cerradas. Si un análisis las marca como problema, es un falso positivo:
   no aplican.
 - **Los controles rojos de GitHub son por facturación bloqueada.** No investigarlos
   ni reportarlos. Lo que vale es lo que se verifica localmente.
+- **El servidor se queda dormido, y está bien así (20 de agosto de 2026).** En
+  `apphosting.yaml`, `minInstances: 0` y `memoryMiB: 512` **no se tocan**: dejarlo
+  siempre despierto se paga todos los meses y el dueño dijo que no. Si una auditoría
+  lo marca como problema de velocidad, es falso positivo. La app en sí no es lenta
+  (cada pantalla contesta entre 5 y 25 milésimas) y las páginas de venta salen
+  armadas de antes, así que el prospecto que llega desde Google no espera.
+- **Nada que aumente lo que cobra Firebase se cambia sin preguntar.** Vale para
+  memoria, instancias mínimas, CPU y cualquier cosa que se pague por mes.
 
 ## Cómo se verifica que la app está sana
 
