@@ -351,9 +351,11 @@ export default function FotocabinaPage() {
     try {
       const recuerdo = await componerTiraDeFotos({
         fotos: tanda,
-        nombreDelEvento: fiesta?.eventName || 'Evento AK',
+        nombreDelEvento: fiesta?.eventName || '',
+        nombreHomenajeado: fiesta?.nombreAgasajado || '',
+        motivoDelEvento: fiesta?.tipoCelebracion || '',
         fechaDelEvento: fiesta?.eventDate || '',
-        colorDeAcento: fiesta?.station.accentColor || '#d97706',
+        colorDeAcento: fiesta?.primaryColor || fiesta?.station.accentColor || '#d97706',
         textoDeMarca: watermarkEnabled ? (fiesta?.station.brandText || 'AK Producciones') : undefined,
       });
       setCapturedImage(recuerdo);

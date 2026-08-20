@@ -22,6 +22,7 @@ import {
 } from 'lucide-react';
 import { QrRecuerdo } from '@/components/entretenimiento/QrRecuerdo';
 import { imprimirRecuerdo } from '@/lib/entretenimiento/imprimir-recuerdo';
+import { componerTiraDeFotos } from '@/lib/entretenimiento/tira-fotocabina';
 import { AvisoDeFallaEnEstacion } from '@/components/entretenimiento/AvisoDeFallaEnEstacion';
 import {
   getPublicEntertainmentEvent,
@@ -762,15 +763,31 @@ export default function EspejoMagicoPage() {
    * lo lleva. Se imprime lo que esta en el lienzo, asi la firma y los stickers
    * salen en la hoja.
    */
-  const handleImprimir = () => {
+  const handleImprimir = async () => {
     if (!capturedImage || !canvasRef.current) return;
     if (mode !== 'foto') {
       mergeDrawing();
     }
     const dataUrl = canvasRef.current.toDataURL('image/jpeg', 0.92);
-    const resultado = imprimirRecuerdo(dataUrl);
-    if (!resultado.ok) {
-      setErrorMsg(resultado.aviso || 'No se pudo mandar a imprimir.');
+    try {
+      const tiraPersonalizada = await componerTiraDeFotos({
+        fotos: [dataUrl],
+        nombreDelEvento: fiesta?.eventName || '',
+        nombreHomenajeado: fiesta?.nombreAgasajado || '',
+        motivoDelEvento: fiesta?.tipoCelebracion || '',
+        fechaDelEvento: fiesta?.eventDate || '',
+        colorDeAcento: fiesta?.primaryColor || fiesta?.station.accentColor || '#d4a574',
+        textoDeMarca: 'AK Producciones',
+      });
+      const resultado = imprimirRecuerdo(tiraPersonalizada);
+      if (!resultado.ok) {
+        setErrorMsg(resultado.aviso || 'No se pudo mandar a imprimir.');
+      }
+    } catch {
+      const resultado = imprimirRecuerdo(dataUrl);
+      if (!resultado.ok) {
+        setErrorMsg(resultado.aviso || 'No se pudo mandar a imprimir.');
+      }
     }
   };
 
