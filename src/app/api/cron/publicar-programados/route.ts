@@ -1,5 +1,6 @@
 import { NextResponse } from 'next/server';
 import { procesarPosteosProgramados } from '@/lib/presencia-digital/publicador';
+import { marcarCorrida } from '@/lib/automatico/tareas-automaticas';
 
 /**
  * Saca los posteos que el dueno dejo programados y ya les llego la hora.
@@ -32,6 +33,10 @@ async function correrTarea(request: Request) {
     }
 
     const resultado = await procesarPosteosProgramados();
+    // Deja constancia de que corrio de verdad. Sin esto no hay forma de saber si
+    // una tarea automatica esta funcionando o solo esta escrita.
+    await marcarCorrida('publicar-programados');
+
     return NextResponse.json(resultado);
   } catch (error: any) {
     console.error('[cron-publicar-programados] Error ejecutando tarea:', error);

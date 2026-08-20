@@ -3048,6 +3048,39 @@ aparece:
   lista era fija y las notas generadas se guardan en la base. Ahora el mapa junta
   las dos fuentes y el permiso abre `/public/blog/` entero.
 
+## Cuatro tareas automáticas que nunca corrieron (20 de agosto de 2026)
+
+**El hallazgo más importante de la sesión, y el que explica el resto.** La app
+tiene cuatro tareas que promete hacer sola, y **ninguna tenía quién la disparara**:
+el blog, el guardado diario de los números de las redes, la publicación de los
+posteos programados y los recordatorios de cuota vencida. Las cuatro compilaban,
+tenían pruebas en verde, y no habían corrido nunca. No hay `vercel.json`, ni
+programación en `apphosting.yaml`, ni GitHub Actions, ni Cloud Scheduler.
+
+**Por qué las auditorías no lo agarraron, que es lo que hay que corregir:**
+preguntaban **"¿está programado?"** y la respuesta era sí. Nunca preguntaron
+**"¿esto pasó alguna vez?"**. Las pruebas prueban el código, no el resultado: una
+tarea que nadie dispara pasa todas las pruebas del mundo.
+
+**Lo que se hizo:** `src/lib/automatico/tareas-automaticas.ts` declara las cuatro,
+con el nombre en criollo y qué se pierde si no corre. Cada una deja su marca al
+terminar bien, y `estadoDeLasTareas()` responde "nunca", "atrasada" o "al día".
+Una prueba recorre `src/app/api/cron/` y **falla si aparece una tarea que no esté
+declarada o que no deje constancia**.
+
+**Lo que el código no puede resolver solo:** que se disparen. Eso se prende una vez
+por fuera. Mientras no esté, la lista va a decir "nunca corrió", que es la
+respuesta honesta.
+
+**El generador de notas, además:** estaba puesto para **una nota cada siete días**,
+cuando lo pedido eran tres por semana. Ahora genera las tres juntas y pasa por el
+contador de gasto, que tampoco tenía.
+
+**Y las fotos de las notas ya no se inventan.** Se elige una foto real del catálogo
+de trabajos, con un texto alternativo que describe lo que se ve. Una foto real de
+la barra montada en Salto muestra algo que se puede contratar; una imagen generada
+no muestra nada, y era la parte cara de la nota.
+
 ## Cómo agregar algo a esta lista
 
 **Se anota SIEMPRE, en la misma propuesta que toca el código.** Orden del dueño

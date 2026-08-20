@@ -1,6 +1,7 @@
 import { NextResponse } from 'next/server';
 import { ejecutarEscaneoDeRecordatorios } from '@/app/actions/invoices';
 import { WHATSAPP_AUTOMATION_INTERNAL_TOKEN } from '@/lib/whatsapp/internal-token';
+import { marcarCorrida } from '@/lib/automatico/tareas-automaticas';
 
 /**
  * Dispara los recordatorios de pago vencido y por vencer.
@@ -38,6 +39,10 @@ async function correrTarea(request: Request) {
     }
 
     const resultado = await ejecutarEscaneoDeRecordatorios(WHATSAPP_AUTOMATION_INTERNAL_TOKEN);
+
+    // Deja constancia de que corrio de verdad. Sin esto no hay forma de saber si
+    // una tarea automatica esta funcionando o solo esta escrita.
+    await marcarCorrida('recordatorios-de-pago');
 
     return NextResponse.json({
       ok: resultado.success,
