@@ -2832,6 +2832,15 @@ campo vacío** ("Hotel Salto", "25 de Agosto 5" — direcciones de Salto), nunca
 dato cargado, y las filas nuevas nacen vacías. Si el anfitrión no carga nada, la
 sección no aparece en la invitación.
 
+## El enlace de reseñas de Google es el correcto (20 de agosto de 2026)
+
+**Confirmado por el dueño: lo pasó él.** No se vuelve a preguntar ni a pedir que lo
+verifique.
+
+Está cargado en Ajustes y sale de ahí, no escrito en el código. Se había pedido
+confirmarlo porque desde el contenedor no se puede abrir una dirección de Google, no
+porque hubiera algo mal.
+
 ## Cómo agregar algo a esta lista
 
 **Se anota SIEMPRE, en la misma propuesta que toca el código.** Orden del dueño
