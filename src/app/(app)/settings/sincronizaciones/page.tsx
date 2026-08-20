@@ -1,236 +1,260 @@
 'use client';
 
+import React, { useEffect, useState } from 'react';
 import Link from 'next/link';
-import { motion } from 'framer-motion';
 import {
   ArrowLeft,
   CheckCircle2,
-  Calendar,
-  MessageCircle,
-  Share2,
+  AlertCircle,
+  MinusCircle,
   ExternalLink,
   Zap,
-  AlertCircle,
+  RefreshCw,
+  Share2,
+  Calendar,
+  MessageCircle,
+  CreditCard,
+  Music,
+  Video,
+  Globe,
+  TrendingUp,
+  Sliders,
 } from 'lucide-react';
-
-const cardVariants = {
-  hidden: { opacity: 0, y: 20 },
-  visible: (i: number) => ({
-    opacity: 1,
-    y: 0,
-    transition: {
-      delay: i * 0.15,
-      duration: 0.5,
-      ease: 'easeOut',
-    },
-  }),
-};
-
-interface FeatureItem {
-  text: string;
-}
-
-interface IntegrationCardProps {
-  index: number;
-  icon: React.ReactNode;
-  title: string;
-  subtitle: string;
-  features: FeatureItem[];
-  badgeLabel: string;
-  badgeColor: 'amber' | 'blue';
-  buttonLabel: string;
-  buttonHref: string;
-  note: string;
-}
-
-function IntegrationCard({
-  index,
-  icon,
-  title,
-  subtitle,
-  features,
-  badgeLabel,
-  badgeColor,
-  buttonLabel,
-  buttonHref,
-  note,
-}: IntegrationCardProps) {
-  const badgeClasses =
-    badgeColor === 'amber'
-      ? 'bg-amber-500/20 text-amber-300 border border-amber-500/30'
-      : 'bg-blue-500/20 text-blue-300 border border-blue-500/30';
-
-  const buttonClasses =
-    badgeColor === 'amber'
-      ? 'bg-indigo-600 hover:bg-indigo-500 focus-visible:ring-indigo-500'
-      : 'bg-blue-600 hover:bg-blue-500 focus-visible:ring-blue-500';
-
-  return (
-    <motion.div
-      custom={index}
-      variants={cardVariants}
-      initial="hidden"
-      animate="visible"
-      className="relative rounded-2xl border border-white/10 bg-white/5 backdrop-blur-md p-8 flex flex-col gap-6 shadow-xl"
-    >
-      {/* Card header */}
-      <div className="flex items-start justify-between gap-4 flex-wrap">
-        <div className="flex items-center gap-4">
-          <div className="flex h-14 w-14 items-center justify-center rounded-xl bg-white/10 border border-white/10 shadow-inner shrink-0">
-            {icon}
-          </div>
-          <div>
-            <h2 className="text-xl font-bold text-white">{title}</h2>
-            <p className="text-sm text-slate-400 mt-0.5">{subtitle}</p>
-          </div>
-        </div>
-        {/* Status badge */}
-        <span
-          className={`inline-flex items-center gap-1.5 rounded-full px-3 py-1.5 text-xs font-semibold whitespace-nowrap ${badgeClasses}`}
-        >
-          <AlertCircle className="h-3.5 w-3.5" />
-          {badgeLabel}
-        </span>
-      </div>
-
-      {/* Divider */}
-      <div className="h-px w-full bg-white/10" />
-
-      {/* Feature list */}
-      <ul className="flex flex-col gap-3">
-        {features.map((f, idx) => (
-          <li key={idx} className="flex items-start gap-3">
-            <CheckCircle2 className="mt-0.5 h-4 w-4 shrink-0 text-emerald-400" />
-            <span className="text-sm text-slate-300">{f.text}</span>
-          </li>
-        ))}
-      </ul>
-
-      {/* Action button */}
-      <div className="mt-auto flex flex-col gap-3">
-        <Link
-          href={buttonHref}
-          className={`inline-flex items-center justify-center gap-2 rounded-xl px-5 py-3 text-sm font-semibold text-white transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-offset-slate-950 ${buttonClasses}`}
-        >
-          <ExternalLink className="h-4 w-4" />
-          {buttonLabel}
-        </Link>
-        <p className="text-center text-xs text-slate-500">{note}</p>
-      </div>
-    </motion.div>
-  );
-}
+import { Button } from '@/components/ui/button';
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import { Badge } from '@/components/ui/badge';
+import { getEstadoConexiones, type ResumenConexion } from '@/app/actions/conexiones-estado.actions';
 
 export default function SincronizacionesPage() {
+  const [conexiones, setConexiones] = useState<ResumenConexion[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [filtro, setFiltro] = useState<'todas' | 'conectada' | 'falta-configurarla' | 'no-se-usa'>('todas');
+
+  const cargarDatos = async () => {
+    try {
+      setLoading(true);
+      const data = await getEstadoConexiones();
+      setConexiones(data);
+    } catch (err) {
+      console.error('Error al cargar conexiones:', err);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  useEffect(() => {
+    cargarDatos();
+  }, []);
+
+  const total = conexiones.length;
+  const conectadas = conexiones.filter((c) => c.estado === 'conectada').length;
+  const faltantes = conexiones.filter((c) => c.estado === 'falta-configurarla').length;
+  const noUsa = conexiones.filter((c) => c.estado === 'no-se-usa').length;
+
+  const filtradas = conexiones.filter((c) => {
+    if (filtro === 'todas') return true;
+    return c.estado === filtro;
+  });
+
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-950 via-indigo-950 to-slate-900 text-white">
-      <div className="mx-auto max-w-5xl px-4 py-12 sm:px-6 lg:px-8">
-
-        {/* Back link */}
-        <motion.div
-          initial={{ opacity: 0, x: -10 }}
-          animate={{ opacity: 1, x: 0 }}
-          transition={{ duration: 0.35 }}
-          className="mb-10"
-        >
-          <Link
-            href="/settings"
-            className="inline-flex items-center gap-2 text-sm text-slate-400 hover:text-white transition-colors"
-          >
-            <ArrowLeft className="h-4 w-4" />
-            Volver a Configuración
+    <div className="container max-w-6xl mx-auto p-4 sm:p-6 space-y-6">
+      {/* Header */}
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-slate-200 pb-5">
+        <div className="flex items-center gap-3">
+          <Link href="/settings">
+            <Button variant="ghost" size="icon" className="h-9 w-9 text-slate-500 hover:text-slate-800">
+              <ArrowLeft className="h-5 w-5" />
+            </Button>
           </Link>
-        </motion.div>
-
-        {/* Page header */}
-        <motion.div
-          initial={{ opacity: 0, y: -16 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.5 }}
-          className="mb-12 text-center"
-        >
-          <div className="mb-4 inline-flex items-center gap-2 rounded-full border border-indigo-500/30 bg-indigo-500/10 px-4 py-1.5 text-xs font-semibold text-indigo-300 tracking-wide uppercase">
-            <Zap className="h-3.5 w-3.5" />
-            Integraciones &amp; Automatizaciones
+          <div>
+            <div className="flex items-center gap-2">
+              <Zap className="h-6 w-6 text-indigo-600" />
+              <h1 className="text-2xl font-bold text-slate-900 tracking-tight">¿Qué está conectado?</h1>
+            </div>
+            <p className="text-sm text-slate-500 mt-0.5">
+              Estado real y transparente de las 13 integraciones y plataformas externas.
+            </p>
           </div>
-          <h1 className="text-4xl font-extrabold tracking-tight text-white sm:text-5xl">
-            Centro de Activación de Integraciones
-          </h1>
-          <p className="mt-4 max-w-2xl mx-auto text-lg text-slate-400">
-            Conectá tus servicios externos para automatizar flujos de trabajo,
-            notificaciones y comunicación con clientes y equipo.
-          </p>
-        </motion.div>
-
-        {/* Integration cards */}
-        <div className="flex flex-col gap-8">
-
-          {/* Card 1: Google Workspace */}
-          <IntegrationCard
-            index={0}
-            icon={<Calendar className="h-7 w-7 text-indigo-300" />}
-            title="Google Calendar & Gmail"
-            subtitle="Sincronización de eventos y correos de recuperación"
-            features={[
-              { text: 'Las fiestas se agendan automáticamente en Google Calendar' },
-              { text: 'El personal recibe el evento en su calendario personal' },
-              { text: 'Se pueden enviar correos de recuperación de contraseña' },
-              { text: 'Notificaciones de evento por email al equipo asignado' },
-            ]}
-            badgeLabel="Requiere configuración"
-            badgeColor="amber"
-            buttonLabel="Conectar Google Account"
-            buttonHref="/settings/google-workspace"
-            note="Necesitás iniciar sesión con la cuenta Google de AK Producciones"
-          />
-
-          {/* Card 2: WhatsApp Business */}
-          <IntegrationCard
-            index={1}
-            icon={<MessageCircle className="h-7 w-7 text-emerald-300" />}
-            title="WhatsApp Business Bot"
-            subtitle="Bot automático, CRM y atención 24/7"
-            features={[
-              { text: 'Responde automáticamente consultas de presupuesto y disponibilidad' },
-              { text: 'Crea prospectos en el CRM cuando alguien escribe por primera vez' },
-              { text: 'Notifica al equipo cuando una consulta necesita atención humana' },
-              { text: 'Envía recordatorios programados de pagos y reuniones' },
-            ]}
-            badgeLabel="Requiere API Key de Meta"
-            badgeColor="amber"
-            buttonLabel="Configurar WhatsApp Business"
-            buttonHref="/settings/whatsapp-business"
-            note="Necesitás una cuenta Meta for Developers con el número habilitado"
-          />
-
-          {/* Card 3: Instagram & TikTok */}
-          <IntegrationCard
-            index={2}
-            icon={<Share2 className="h-7 w-7 text-sky-300" />}
-            title="Instagram & TikTok"
-            subtitle="Redirecciones a perfiles de la productora"
-            features={[
-              { text: 'Los invitados pueden acceder a tu perfil desde el portal del evento' },
-              { text: 'Los clientes ven el enlace en su portal de cliente' },
-            ]}
-            badgeLabel="Activo — Solo redirección"
-            badgeColor="blue"
-            buttonLabel="Configurar redes sociales"
-            buttonHref="/settings/social-connections"
-            note="No requiere API. Solo configura las URLs de tus perfiles."
-          />
         </div>
 
-        {/* Footer note */}
-        <motion.p
-          initial={{ opacity: 0 }}
-          animate={{ opacity: 1 }}
-          transition={{ delay: 0.7, duration: 0.5 }}
-          className="mt-14 text-center text-xs text-slate-600"
-        >
-          Las integraciones se guardan de forma segura y pueden desconectarse en cualquier momento desde esta página.
-        </motion.p>
+        <div className="flex items-center gap-2">
+          <Button
+            variant="outline"
+            size="sm"
+            onClick={cargarDatos}
+            disabled={loading}
+            className="gap-2 text-slate-700 hover:bg-slate-50"
+          >
+            <RefreshCw className={`h-4 w-4 ${loading ? 'animate-spin' : ''}`} />
+            Actualizar
+          </Button>
+          <Link href="/settings/tareas-automaticas">
+            <Button size="sm" variant="outline" className="gap-2 text-amber-700 border-amber-300 hover:bg-amber-50">
+              <Zap className="h-4 w-4" />
+              Tareas automáticas
+            </Button>
+          </Link>
+        </div>
       </div>
+
+      {/* Resumen de contadores */}
+      <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 sm:gap-4">
+        <Card
+          onClick={() => setFiltro('todas')}
+          className={`cursor-pointer transition-all border-slate-200 shadow-sm ${
+            filtro === 'todas' ? 'ring-2 ring-indigo-500 bg-indigo-50/20' : 'hover:bg-slate-50'
+          }`}
+        >
+          <CardHeader className="p-4 pb-1">
+            <CardDescription className="text-xs font-semibold text-slate-500">TOTAL PLATAFORMAS</CardDescription>
+            <CardTitle className="text-2xl font-bold text-slate-800">{total}</CardTitle>
+          </CardHeader>
+          <CardContent className="p-4 pt-0 text-xs text-slate-400">Servicios soportados</CardContent>
+        </Card>
+
+        <Card
+          onClick={() => setFiltro('conectada')}
+          className={`cursor-pointer transition-all border-emerald-200 bg-emerald-50/40 shadow-sm ${
+            filtro === 'conectada' ? 'ring-2 ring-emerald-500' : 'hover:bg-emerald-50/70'
+          }`}
+        >
+          <CardHeader className="p-4 pb-1">
+            <CardDescription className="text-xs font-semibold text-emerald-700">CONECTADAS</CardDescription>
+            <CardTitle className="text-2xl font-bold text-emerald-700 flex items-center gap-2">
+              <CheckCircle2 className="h-5 w-5 text-emerald-600" />
+              {conectadas}
+            </CardTitle>
+          </CardHeader>
+          <CardContent className="p-4 pt-0 text-xs text-emerald-600 font-medium">Funcionando activas</CardContent>
+        </Card>
+
+        <Card
+          onClick={() => setFiltro('falta-configurarla')}
+          className={`cursor-pointer transition-all border-amber-200 bg-amber-50/40 shadow-sm ${
+            filtro === 'falta-configurarla' ? 'ring-2 ring-amber-500' : 'hover:bg-amber-50/70'
+          }`}
+        >
+          <CardHeader className="p-4 pb-1">
+            <CardDescription className="text-xs font-semibold text-amber-700">FALTA CONFIGURAR</CardDescription>
+            <CardTitle className="text-2xl font-bold text-amber-700 flex items-center gap-2">
+              <AlertCircle className="h-5 w-5 text-amber-600" />
+              {faltantes}
+            </CardTitle>
+          </CardHeader>
+          <CardContent className="p-4 pt-0 text-xs text-amber-600 font-medium">Requieren datos o cuenta</CardContent>
+        </Card>
+
+        <Card
+          onClick={() => setFiltro('no-se-usa')}
+          className={`cursor-pointer transition-all border-slate-200 bg-slate-50/60 shadow-sm ${
+            filtro === 'no-se-usa' ? 'ring-2 ring-slate-400' : 'hover:bg-slate-100/60'
+          }`}
+        >
+          <CardHeader className="p-4 pb-1">
+            <CardDescription className="text-xs font-semibold text-slate-600">NO SE USA</CardDescription>
+            <CardTitle className="text-2xl font-bold text-slate-600 flex items-center gap-2">
+              <MinusCircle className="h-5 w-5 text-slate-500" />
+              {noUsa}
+            </CardTitle>
+          </CardHeader>
+          <CardContent className="p-4 pt-0 text-xs text-slate-500 font-medium">Opcionales desactivadas</CardContent>
+        </Card>
+      </div>
+
+      {/* Lista de Conexiones */}
+      <Card className="border-slate-200 shadow-sm overflow-hidden bg-white">
+        <CardHeader className="bg-slate-50/70 border-b border-slate-200 py-4 px-6">
+          <div className="flex items-center justify-between">
+            <div>
+              <CardTitle className="text-base font-bold text-slate-800">
+                Plataformas e Integraciones Externas ({filtradas.length})
+              </CardTitle>
+              <CardDescription className="text-xs text-slate-500">
+                La pantalla nunca simula datos: si una conexión no tiene credenciales, lo declara con honestidad.
+              </CardDescription>
+            </div>
+          </div>
+        </CardHeader>
+
+        <CardContent className="p-0 divide-y divide-slate-100">
+          {filtradas.map((c) => {
+            const esConectada = c.estado === 'conectada';
+            const esFaltante = c.estado === 'falta-configurarla';
+            const esNoUsa = c.estado === 'no-se-usa';
+
+            return (
+              <div
+                key={c.id}
+                className={`p-5 sm:p-6 transition-colors flex flex-col md:flex-row md:items-center justify-between gap-4 ${
+                  esFaltante ? 'bg-amber-50/15' : esNoUsa ? 'bg-slate-50/30 opacity-80' : 'hover:bg-slate-50/40'
+                }`}
+              >
+                <div className="space-y-2 max-w-2xl">
+                  <div className="flex flex-wrap items-center gap-2 sm:gap-3">
+                    <span className="font-bold text-base text-slate-900">{c.nombre}</span>
+                    <span className="text-xs text-slate-400 bg-slate-100 px-2 py-0.5 rounded-md">
+                      {c.categoria}
+                    </span>
+
+                    {esConectada && (
+                      <Badge className="bg-emerald-100 text-emerald-800 border-emerald-200 hover:bg-emerald-100 gap-1 font-semibold text-xs">
+                        <CheckCircle2 className="h-3 w-3 text-emerald-600" />
+                        Conectada
+                      </Badge>
+                    )}
+                    {esFaltante && (
+                      <Badge className="bg-amber-100 text-amber-900 border-amber-300 hover:bg-amber-100 gap-1 font-bold text-xs">
+                        <AlertCircle className="h-3 w-3 text-amber-600" />
+                        Falta configurarla
+                      </Badge>
+                    )}
+                    {esNoUsa && (
+                      <Badge className="bg-slate-100 text-slate-700 border-slate-200 hover:bg-slate-100 gap-1 font-medium text-xs">
+                        <MinusCircle className="h-3 w-3 text-slate-400" />
+                        No se usa
+                      </Badge>
+                    )}
+                  </div>
+
+                  {/* Detalle actual */}
+                  <p className="text-xs text-slate-500 font-medium">
+                    <strong className="text-slate-700">Estado actual: </strong>
+                    {c.detalle}
+                  </p>
+
+                  {/* Qué se pierde si falta */}
+                  {(esFaltante || esNoUsa) && (
+                    <p className="text-sm text-slate-600 leading-relaxed">
+                      <strong className="text-amber-800 font-semibold">Qué se pierde: </strong>
+                      {c.queSePierdeSiFalta}
+                    </p>
+                  )}
+                </div>
+
+                {/* Botón de configurar */}
+                <div className="flex items-center gap-2 shrink-0 pt-2 md:pt-0">
+                  {c.enlaceConfiguracion && (
+                    <Link href={c.enlaceConfiguracion}>
+                      <Button
+                        size="sm"
+                        variant={esFaltante ? 'default' : 'outline'}
+                        className={`gap-2 font-medium ${
+                          esFaltante
+                            ? 'bg-indigo-600 hover:bg-indigo-700 text-white'
+                            : 'text-slate-700 border-slate-300 hover:bg-slate-100'
+                        }`}
+                      >
+                        <ExternalLink className="h-3.5 w-3.5" />
+                        {esConectada ? 'Administrar' : 'Configurar'}
+                      </Button>
+                    </Link>
+                  )}
+                </div>
+              </div>
+            );
+          })}
+        </CardContent>
+      </Card>
     </div>
   );
 }
