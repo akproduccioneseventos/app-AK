@@ -169,12 +169,14 @@ Detalles de la fiesta:
 - Nombre del agasajado/a: ${fiesta.configuracion?.nombreAgasajado || 'No especificado'}
 - Tipo de fiesta: ${fiesta.eventoTipo || 'No especificado'}
 - Fecha: ${fiesta.fecha || 'No especificado'}
-- Hora de inicio: ${fiesta.configuracion?.horaInicio || '21:00 hs'}
-- Ubicación / Salón: ${fiesta.configuracion?.salonNombre || 'Salón Principal'}
-- Código de vestimenta (Dresscode): ${fiesta.configuracion?.dressCode || 'Elegante Sport'}
+- Hora de inicio: ${fiesta.configuracion?.horaInicio || 'NO CARGADO'}
+- Ubicación / Salón: ${fiesta.configuracion?.salonNombre || 'NO CARGADO'}
+- Código de vestimenta (Dresscode): ${fiesta.configuracion?.dressCode || 'NO CARGADO'}
 - Detalles adicionales: ${fiesta.configuracion?.notasAdicionales || '¡Traer buena onda y ganas de bailar!'}
 
-Responde de manera concisa (máximo 2 párrafos cortos). Si te preguntan algo que no sabés, deciles que le consulten al anfitrión o a los organizadores.`,
+Responde de manera concisa (máximo 2 párrafos cortos). Si te preguntan algo que no sabés, deciles que le consulten al anfitrión o a los organizadores.
+
+REGLA QUE NO SE ROMPE: si un dato de arriba dice NO CARGADO, **no lo inventes ni lo estimes**. Decí que ese dato todavía no está y que lo consulten en la invitación o con el anfitrión. Un invitado que llega a la hora equivocada porque la inventaste se queda afuera.`,
       prompt: [historyText ? `Conversacion previa:\n${historyText}` : '', `Mensaje del invitado:\n${message}`].filter(Boolean).join('\n\n'),
     });
 
@@ -187,15 +189,53 @@ Responde de manera concisa (máximo 2 párrafos cortos). Si te preguntan algo qu
   }
 }
 
+/**
+ * La respuesta del chat cuando no hay inteligencia artificial disponible.
+ *
+ * **Nunca completa un dato que no esta cargado.** Antes, si la fiesta no tenia
+ * hora, contestaba "empezamos puntual a las 21:00 hs"; si no tenia salon, "el
+ * Salon Principal"; si no tenia codigo de vestimenta, "Elegante Sport". Eran datos
+ * inventados, dichos con total seguridad, **al invitado, la noche de la fiesta**.
+ * Un invitado que llega a las 21:00 a una fiesta que empieza a las 22:00 se queda
+ * una hora en la puerta, y el que se viste elegante sport en una de etiqueta pasa
+ * verguenza.
+ *
+ * Regla: si el dato no esta, se dice que no esta y se manda a preguntarle al
+ * anfitrion. Es la respuesta correcta y no cuesta nada.
+ */
 function getMockBotResponse(message: string, fiesta: any): string {
-  let botResponse = "¡Hola! Te esperamos con muchas ganas en la fiesta. Si tienes alguna duda, consúltale directamente al anfitrión.";
   const lower = message.toLowerCase();
-  if (lower.includes('hora') || lower.includes('cuando') || lower.includes('cuándo')) {
-    botResponse = `La fiesta de ${fiesta.configuracion?.nombreAgasajado || 'nuestro anfitrión'} es el ${fiesta.fecha || 'pronto'}, empezaremos puntual a las ${fiesta.configuracion?.horaInicio || '21:00 hs'}. ¡No llegues tarde!`;
-  } else if (lower.includes('ropa') || lower.includes('vestimenta') || lower.includes('ponerme') || lower.includes('vestir')) {
-    botResponse = `El código de vestimenta es: ${fiesta.configuracion?.dressCode || 'Elegante Sport'}. ¡Vení cómodo para bailar!`;
-  } else if (lower.includes('donde') || lower.includes('dónde') || lower.includes('lugar') || lower.includes('salon') || lower.includes('salón')) {
-    botResponse = `Te esperamos en: ${fiesta.configuracion?.salonNombre || 'el Salón Principal'}. ¡Busca la ubicación en la invitación!`;
+  const config = fiesta?.configuracion;
+  const anfitrion = config?.nombreAgasajado;
+
+  const preguntaPorHora = lower.includes('hora') || lower.includes('cuando') || lower.includes('cuándo');
+  const preguntaPorRopa = lower.includes('ropa') || lower.includes('vestimenta')
+    || lower.includes('ponerme') || lower.includes('vestir');
+  const preguntaPorLugar = lower.includes('donde') || lower.includes('dónde')
+    || lower.includes('lugar') || lower.includes('salon') || lower.includes('salón');
+
+  if (preguntaPorHora) {
+    if (config?.horaInicio) {
+      const deQuien = anfitrion ? `La fiesta de ${anfitrion}` : 'La fiesta';
+      const cuando = fiesta?.fecha ? ` es el ${fiesta.fecha} y` : '';
+      return `${deQuien}${cuando} empieza a las ${config.horaInicio}. ¡No llegues tarde!`;
+    }
+    return 'La hora todavía no está cargada acá. Fijate en la invitación o preguntale al anfitrión, así no te arriesgás.';
   }
-  return botResponse;
+
+  if (preguntaPorRopa) {
+    if (config?.dressCode) {
+      return `El código de vestimenta es: ${config.dressCode}. ¡Vení cómodo para bailar!`;
+    }
+    return 'El código de vestimenta no está cargado acá. Mejor preguntale al anfitrión antes de elegir.';
+  }
+
+  if (preguntaPorLugar) {
+    if (config?.salonNombre) {
+      return `Te esperamos en: ${config.salonNombre}. Buscá la ubicación en la invitación.`;
+    }
+    return 'El lugar no está cargado acá. Está en la invitación, o preguntale al anfitrión.';
+  }
+
+  return '¡Hola! Te esperamos con muchas ganas en la fiesta. Cualquier duda, consultale al anfitrión.';
 }

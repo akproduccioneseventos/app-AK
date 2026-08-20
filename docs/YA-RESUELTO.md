@@ -3132,6 +3132,34 @@ sin disparador, siete que viajan con la automatización de marketing, y catorce 
 son refrescos de pantalla y sólo corren con la pantalla abierta, que es lo
 correcto.
 
+## El chat de la fiesta le inventaba datos al invitado (20 de agosto de 2026)
+
+Hallazgo de la pasada "¿muestra datos inventados?", y es de fiesta.
+
+Cuando la fiesta no tenía un dato cargado, **el chat lo completaba solo y lo decía
+con total seguridad**, al invitado, la misma noche:
+
+- Sin hora cargada: *"empezamos puntual a las 21:00 hs"*.
+- Sin salón cargado: *"te esperamos en el Salón Principal"*.
+- Sin código de vestimenta: *"Elegante Sport"*.
+
+**Y estaba en los dos caminos**: en la respuesta de reserva y también en lo que se
+le cuenta a la inteligencia artificial, que es peor, porque el modelo lo repite
+con más seguridad todavía.
+
+Un invitado que llega a las 21:00 a una fiesta que empieza a las 22:00 se come una
+hora en la puerta. El que se viste elegante sport en una de etiqueta pasa
+vergüenza. Y el que va al salón equivocado no llega.
+
+Ahora, si el dato no está, **se dice que no está** y se manda a mirar la
+invitación o a preguntarle al anfitrión. A la inteligencia artificial se le pasa
+"NO CARGADO" y la instrucción de no inventarlo. Hay una prueba que controla los
+dos caminos.
+
+**Falso positivo verificado en la misma pasada:** los testimonios de las páginas de
+venta volvieron a reportarse como inventados. **Son reales**, el dueño ya lo
+confirmó. No se vuelven a tocar.
+
 ## Cómo agregar algo a esta lista
 
 **Se anota SIEMPRE, en la misma propuesta que toca el código.** Orden del dueño
