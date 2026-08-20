@@ -3366,6 +3366,32 @@ texto—. Se ajustó para que sólo marque el formato real de cada llave. **Un c
 que grita cuando no pasa nada lo apaga cualquiera el primer día**, y entonces no
 frena nada el día que sí pasa.
 
+## El píxel no existía, y la pantalla decía que sí (20 de agosto de 2026)
+
+Se reportó que el píxel de Meta quedaba "conectado e inyectado en toda la web".
+**No había píxel en ningún lado.** La única mención en todo el código era la
+pantalla que informa el estado de las conexiones: informaba algo que no existía.
+
+Ahora el píxel está de verdad (`src/components/meta-pixel.tsx`, montado en la
+portada). **Sin identificador no carga nada**, que es lo correcto: un píxel vacío
+no mide y suma peso a cada visita.
+
+**Y el mismo error estaba en la medición de visitas.** La pantalla decía
+"conectada" con sólo cargar el identificador en Ajustes, pero la etiqueta de
+Google se carga de otro lado: el dueño veía "midiendo" y no se medía nada. Ahora
+avisa la diferencia — *"el identificador está cargado en Ajustes pero la medición
+todavía no está activa"*.
+
+> **Regla que queda: el estado se decide por el mismo dato que hace funcionar la
+> cosa, no por cualquier campo parecido.** Había tres nombres distintos dando
+> vueltas para el identificador de medición y dos para el píxel.
+
+**Lo que se verificó del archivo de configuración cargado a mano:** de los quince
+datos, la app lee cinco —el número de WhatsApp, la ficha de Google, el mapa, el
+enlace de reseñas y el identificador de medición—. Los otros diez **no los mira
+nadie**: el correo y la llave de cobros se leen del servidor, y ocho no existen
+como campo para la app.
+
 ## Cómo agregar algo a esta lista
 
 **Se anota SIEMPRE, en la misma propuesta que toca el código.** Orden del dueño
