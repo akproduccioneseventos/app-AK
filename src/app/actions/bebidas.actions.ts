@@ -42,6 +42,7 @@ import { getFiestaById, saveFiesta } from './fiesta/fiesta.actions';
 
 export async function updateBebidas(fiestaId: string, bebidas: BebidasData): Promise<{ success: boolean; updatedData?: BebidasData; error?: string }> {
   try {
+    await requireAppSession();
     const fiesta = await getFiestaById(fiestaId);
     if (!fiesta) throw new Error("Fiesta no encontrada");
     const updatedFiesta = { ...fiesta, bebidas };

@@ -9,6 +9,7 @@ import { leerInsumosCrudos, limpiarCacheInsumos } from '@/lib/insumos/leer-insum
 const INSUMOS_FILE = 'insumos.json';
 
 export async function invalidateInsumosCache() {
+  await requireAppSession();
   limpiarCacheInsumos();
 }
 
