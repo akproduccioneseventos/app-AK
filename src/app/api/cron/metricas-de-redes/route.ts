@@ -4,6 +4,7 @@ import { syncMetaPublicHistory } from '@/lib/social-media/meta-history-backfill'
 import { syncYouTubePublicHistory } from '@/lib/social-media/youtube-history-backfill';
 import { syncOtherPublicHistory } from '@/lib/social-media/other-public-history-backfill';
 import { syncCommentsFromNetworks } from '@/lib/social-media/comments-backfill';
+import { marcarCorrida } from '@/lib/automatico/tareas-automaticas';
 
 /**
  * Guarda los numeros de las redes, una vez por dia.
@@ -82,6 +83,10 @@ async function correrTarea(request: Request) {
       syncedAt: new Date().toISOString(),
       error: error instanceof Error ? error.message : 'No se pudieron sincronizar los comentarios diarios.',
     }));
+
+    // Deja constancia de que corrio de verdad. Sin esto no hay forma de saber si
+    // una tarea automatica esta funcionando o solo esta escrita.
+    await marcarCorrida('metricas-de-redes');
 
     return NextResponse.json({
       ok: true,

@@ -6,8 +6,8 @@ import { LocalBusinessJsonLd } from '@/components/seo/LocalBusinessJsonLd';
 
 export const metadata: Metadata = createEventLandingMetadata({
   slug: 'cumpleanos',
-  title: 'Cumpleaños & Fiestas Sociales | AK Producciones Eventos',
-  description: 'Organización integral de cumpleaños de adultos y eventos sociales: discoteca, tragos, catering y diversión garantizada sin complicaciones.',
+  title: 'Cumpleaños y fiestas en Salto, Uruguay | AK Producciones',
+  description: 'Organizamos cumpleaños y fiestas sociales en Salto: salón, catering, barra de tragos, discoteca y fotografía, con un solo equipo a cargo. Presupuesto cerrado y sin compromiso.',
   image: '/media/catalogo-servicios/social_persuasivo.png',
   imageAlt: 'Cumpleaños producido por AK Producciones',
 });

@@ -48,10 +48,13 @@ describe('blog-ai-generator', () => {
     const blogWrite = (writeData as jest.Mock).mock.calls.find(([file]) => file === 'blog-posts.json');
     expect(blogWrite).toBeDefined();
     const post = blogWrite[1][0];
+    // Las fotos de las notas ya no se inventan: se elige una foto real del
+    // catalogo de trabajos. Muestra algo que se puede contratar, le sirve mas a
+    // Google que una imagen dibujada, y era la parte cara de cada nota.
     expect(post.image).toEqual({
-      url: 'https://storage.googleapis.com/ak/blog-cover.png',
-      alt: 'Mesa de catering preparada para un evento',
-      source: 'gemini',
+      url: '/media/catalogo-servicios/catering-mesa-ak-01.jpeg',
+      alt: 'Mesa servida por el catering de AK Producciones en una fiesta en Salto',
+      source: 'catalog',
     });
     expect(post.cta).toEqual({
       label: 'Simular mi catering',
@@ -59,7 +62,8 @@ describe('blog-ai-generator', () => {
       message: 'Arma una propuesta inicial con AK Producciones.',
     });
     expect(post.topicKey).toBeTruthy();
-    expect(generateGeminiImage).toHaveBeenCalledWith(expect.objectContaining({ aspectRatio: '16:9' }));
-    expect(uploadToStorage).toHaveBeenCalledWith(expect.any(Buffer), expect.stringMatching(/^public\/blog\//), 'image/png', true);
+    // Ya no se genera ni se sube ninguna imagen: la foto sale del catalogo.
+    expect(generateGeminiImage).not.toHaveBeenCalled();
+    expect(uploadToStorage).not.toHaveBeenCalled();
   });
 });

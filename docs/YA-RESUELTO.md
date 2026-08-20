@@ -3009,6 +3009,78 @@ investigan.** Cualquier sitio en internet recibe programas automáticos buscando
 la puerta abierta todo el día; que aparezcan esos errores es la señal de que los
 está rechazando. Lo que sí importa es que nada de lo que se paga quede sin freno.
 
+## Las páginas que venden no nombraban Salto (20 de agosto de 2026)
+
+El dueño avisó que la web **no aparece** en las búsquedas. Dos causas concretas,
+las dos arregladas:
+
+- **Casamientos, quince y cumpleaños decían "Uruguay" y nunca "Salto"**, ni en el
+  título ni en la descripción. Eso es lo único que ve la persona en el buscador y
+  lo que define si aparecemos cuando alguien busca desde Salto. El negocio trabaja
+  en una sola ciudad: no nombrarla es regalar la búsqueda. Los tres títulos ahora
+  la llevan, y la descripción arranca por lo que se ofrece, no por adjetivos.
+- **De las seis notas del blog, Google conocía tres.** La lista se escribía a mano
+  y se desincronizó. Faltaba, entre otras, **la única que habla de Salto**. Ahora
+  la lista sale de `src/data/blog-posts.ts`, así que agregar una nota la publica
+  sola.
+
+Hay una prueba (`las-paginas-que-venden-dicen-salto.test.ts`) que controla que los
+tres títulos nombren Salto, que entren en el largo que muestra Google, y que
+ninguna nota del blog quede afuera.
+
+**Verificado en el mismo pase, y no son pendientes:** no hay ningún `noindex` en
+la app, y la lista de páginas permitidas está bien armada (cerrada por defecto).
+
+## Las notas del blog no se abrian, y el mapa no las conocia (20 de agosto de 2026)
+
+Tres cosas rotas alrededor del blog, encontradas al revisar por que la web no
+aparece:
+
+- **El archivo con las notas guardadas estaba mal escrito** y no se podia leer:
+  faltaban las comillas en una clave (`data/blog-posts.json`). Con eso, en local
+  no habia blog.
+- **Abrir una nota escrita a mano daba "no encontrada".** El listado mostraba las
+  dos fuentes —las que escribe la inteligencia artificial, que van a la base, y
+  las seis del codigo— pero abrir una sola miraba unicamente la base. En cuanto la
+  base tuvo una nota adentro, las seis del codigo quedaron rotas, con sus
+  direcciones ya publicadas y en el mapa que lee Google. Ahora busca en las dos.
+- **El mapa para Google no incluia ninguna nota nueva** y el permiso tampoco: la
+  lista era fija y las notas generadas se guardan en la base. Ahora el mapa junta
+  las dos fuentes y el permiso abre `/public/blog/` entero.
+
+## Cuatro tareas automáticas que nunca corrieron (20 de agosto de 2026)
+
+**El hallazgo más importante de la sesión, y el que explica el resto.** La app
+tiene cuatro tareas que promete hacer sola, y **ninguna tenía quién la disparara**:
+el blog, el guardado diario de los números de las redes, la publicación de los
+posteos programados y los recordatorios de cuota vencida. Las cuatro compilaban,
+tenían pruebas en verde, y no habían corrido nunca. No hay `vercel.json`, ni
+programación en `apphosting.yaml`, ni GitHub Actions, ni Cloud Scheduler.
+
+**Por qué las auditorías no lo agarraron, que es lo que hay que corregir:**
+preguntaban **"¿está programado?"** y la respuesta era sí. Nunca preguntaron
+**"¿esto pasó alguna vez?"**. Las pruebas prueban el código, no el resultado: una
+tarea que nadie dispara pasa todas las pruebas del mundo.
+
+**Lo que se hizo:** `src/lib/automatico/tareas-automaticas.ts` declara las cuatro,
+con el nombre en criollo y qué se pierde si no corre. Cada una deja su marca al
+terminar bien, y `estadoDeLasTareas()` responde "nunca", "atrasada" o "al día".
+Una prueba recorre `src/app/api/cron/` y **falla si aparece una tarea que no esté
+declarada o que no deje constancia**.
+
+**Lo que el código no puede resolver solo:** que se disparen. Eso se prende una vez
+por fuera. Mientras no esté, la lista va a decir "nunca corrió", que es la
+respuesta honesta.
+
+**El generador de notas, además:** estaba puesto para **una nota cada siete días**,
+cuando lo pedido eran tres por semana. Ahora genera las tres juntas y pasa por el
+contador de gasto, que tampoco tenía.
+
+**Y las fotos de las notas ya no se inventan.** Se elige una foto real del catálogo
+de trabajos, con un texto alternativo que describe lo que se ve. Una foto real de
+la barra montada en Salto muestra algo que se puede contratar; una imagen generada
+no muestra nada, y era la parte cara de la nota.
+
 ## Cómo agregar algo a esta lista
 
 **Se anota SIEMPRE, en la misma propuesta que toca el código.** Orden del dueño

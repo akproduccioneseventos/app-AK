@@ -6,8 +6,8 @@ import { LocalBusinessJsonLd } from '@/components/seo/LocalBusinessJsonLd';
 
 export const metadata: Metadata = createEventLandingMetadata({
   slug: 'bodas',
-  title: 'Bodas & Casamientos | AK Producciones Eventos',
-  description: 'Producción integral de bodas en Uruguay: catering de gala, ambientación distinguida, discoteca con sonido profesional y coordinación perfecta.',
+  title: 'Casamientos en Salto, Uruguay | AK Producciones',
+  description: 'Organizamos tu casamiento en Salto de principio a fin: salón, catering de gala, ambientación, discoteca y fotografía, con un solo equipo a cargo. Presupuesto cerrado y sin compromiso.',
   image: '/media/catalogo-servicios/boda_persuasiva.png',
   imageAlt: 'Boda producida por AK Producciones',
 });

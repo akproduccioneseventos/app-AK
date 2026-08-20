@@ -19,6 +19,8 @@
  * error barato. Al revés sería el caro.
  */
 
+import { blogPosts } from '@/data/blog-posts';
+
 export const SITE_URL = 'https://akproducciones.uy';
 
 /** Páginas de venta que Google puede mostrar. */
@@ -36,9 +38,11 @@ export const PAGINAS_PARA_GOOGLE = [
   '/public/xv-anos',
   '/public/fiestas',
   '/public/blog',
-  '/public/blog/como-empezar-a-organizar-una-fiesta-sin-estres',
-  '/public/blog/presupuesto-de-fiesta-que-debe-incluir',
-  '/public/blog/como-elegir-el-menu-para-un-evento',
+  // Las notas del blog salen de `src/data/blog-posts.ts`, no escritas a mano.
+  // Estaban tres de las seis: las otras tres existian y Google no las conocia,
+  // **incluida la unica que habla de Salto**, que es la que mas rinde. Escritas a
+  // mano se vuelven a desincronizar la proxima vez que se agregue una nota.
+  ...blogPosts.map((post) => `/public/blog/${post.slug}` as const),
   '/landing/bodas',
   '/landing/xv-anos',
   '/landing/eventos',
