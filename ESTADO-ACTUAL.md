@@ -8,7 +8,7 @@ Quien cierre una sesión reescribe este archivo. Se pisa, no se acumula.
 ---
 
 **Última actualización:** 20 de agosto de 2026.
-**Estado de la app:** sana. Acentos limpios, tipos en cero, 1888 pruebas, compila.
+**Estado de la app:** sana. Acentos limpios, tipos en cero, 1895 pruebas, compila.
 **Propuestas abiertas:** ninguna.
 **Orden vigente:** `docs/ordenes/ahora.md` — quedan los bloques 7 y 8.
 
@@ -53,6 +53,30 @@ las funciones públicas que llamaban a otras del mismo archivo. Se agarró compa
 la portada compilada contra la versión principal: había pasado de armarse una vez a
 armarse en cada visita. **Si una pantalla pública cambia de "armada una vez" a
 "armada en cada visita", casi seguro le metieron un control de sesión sin querer.**
+
+## Lo último que se cerró: los frenos contra robots
+
+Los dos chats de inteligencia artificial que usa gente de afuera —el del simulador
+y el de la fiesta— **estaban abiertos sin tope y sin contador**. Ya tienen freno
+por llamante, techo por fiesta, y pasan por el contador de gasto.
+
+**Tres errores corregidos en ese mismo pase, para no repetirlos:**
+
+1. **Un freno que contaba por un dato que escribe el visitante no frena nada.** El
+   del simulador contaba por el nombre del prospecto: cambiándolo en cada pedido
+   se pasaba por arriba del tope.
+2. **Un "techo por fiesta" que incluye la dirección de quien llama no es un techo
+   por fiesta.** Para eso está `ignoreClientAddress` en el freno público.
+3. **Todo lo que se paga pasa por el contador.** Los dos chats gastaban sin
+   aparecer en ningún lado y el tope mensual no los frenaba.
+
+**Medición de la lentitud reportada:** 209 rutas estáticas y 67 dinámicas. Las
+ocho páginas públicas —portada, bodas, quinceañeras, cumpleaños, catálogo, Club
+Uruguay, blog y simulador— **quedaron todas estáticas**. La app no es el problema;
+lo más probable es el servidor despertándose tras un rato sin visitas.
+
+**Los errores de robots que muestra Firebase son normales y no se investigan.** Es
+la señal de que los está rechazando.
 
 ## Lo que quedó pedido a Gemini
 
