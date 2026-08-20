@@ -3,6 +3,7 @@
 import type { Invitado, LayoutElement } from '@/types/fiesta';
 
 import { requireAppSession } from '@/lib/auth/require-session';
+import { enforcePublicRateLimit } from '@/lib/commercial/public-rate-limit';
 export async function autoAssignTables(
   invitados: Invitado[],
   tables: LayoutElement[]
@@ -104,9 +105,50 @@ export async function chatWithGuestBot(
   message: string,
   history: Array<{ role: 'bot' | 'user'; text: string }>
 ): Promise<{ success: boolean; response: string }> {
+  /**
+   * Freno contra robots: este chat le pregunta a la inteligencia artificial y eso
+   * se paga por pedido.
+   *
+   * Van dos frenos, y hacen falta los dos:
+   *
+   * - **Por celular** (25 cada cuarto de hora): frena a un robot solo insistiendo.
+   * - **Por fiesta** (120 cada cuarto de hora, sin mirar de que celular viene):
+   *   es el techo de gasto de la noche. Sin este, cien direcciones distintas
+   *   pidiendo una vez cada una gastan lo mismo que una pidiendo cien veces.
+   *
+   * El de la fiesta va alto a proposito: en un evento hay muchos invitados
+   * preguntando a la vez y no puede cortarse en el medio.
+   */
+  try {
+    await enforcePublicRateLimit({
+      scope: 'guest-bot',
+      limit: 25,
+      windowMs: 15 * 60_000,
+    });
+    await enforcePublicRateLimit({
+      scope: 'guest-bot-techo',
+      identity: `fiesta-${fiesta?.id || 'sin-fiesta'}`,
+      limit: 120,
+      windowMs: 15 * 60_000,
+      ignoreClientAddress: true,
+    });
+  } catch {
+    return {
+      success: true,
+      response: 'Uy, me estan preguntando muchas cosas a la vez. Dame un minutito y volve a intentar.',
+    };
+  }
+
   try {
     const apiKey = process.env.GOOGLE_API_KEY || process.env.GEMINI_API_KEY;
     if (!apiKey) {
+      return { success: true, response: getMockBotResponse(message, fiesta) };
+    }
+
+    // Lo que se paga pasa por el contador, siempre. Sin esto el gasto de este chat
+    // no aparecia en ningun lado y el tope mensual no lo frenaba.
+    const { hayPresupuestoParaIA, registrarConsumoIA } = await import('@/lib/ai/consumo-servidor');
+    if (!(await hayPresupuestoParaIA())) {
       return { success: true, response: getMockBotResponse(message, fiesta) };
     }
 
@@ -135,6 +177,8 @@ Detalles de la fiesta:
 Responde de manera concisa (máximo 2 párrafos cortos). Si te preguntan algo que no sabés, deciles que le consulten al anfitrión o a los organizadores.`,
       prompt: [historyText ? `Conversacion previa:\n${historyText}` : '', `Mensaje del invitado:\n${message}`].filter(Boolean).join('\n\n'),
     });
+
+    await registrarConsumoIA('chat-de-la-fiesta');
 
     return { success: true, response: response.text };
   } catch (error: any) {

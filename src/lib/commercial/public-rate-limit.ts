@@ -8,6 +8,17 @@ type RateLimitInput = {
   identity?: string;
   limit: number;
   windowMs: number;
+  /**
+   * Cuenta SIN la direccion de quien llama, para poner un techo compartido.
+   *
+   * Por defecto la cuenta es por direccion: eso frena a un robot solo. Pero para
+   * lo que se paga por pedido —los chats de inteligencia artificial— tambien hace
+   * falta un techo por fiesta, porque cien direcciones distintas pidiendo una vez
+   * cada una gastan lo mismo que una pidiendo cien veces.
+   *
+   * Se usa junto con la cuenta por direccion, nunca en lugar de ella.
+   */
+  ignoreClientAddress?: boolean;
 };
 
 type LocalRateLimit = {
@@ -30,9 +41,14 @@ async function getClientAddress(): Promise<string> {
   }
 }
 
-async function buildKey(scope: string, identity?: string): Promise<string> {
+async function buildKey(
+  scope: string,
+  identity?: string,
+  ignoreClientAddress?: boolean,
+): Promise<string> {
+  const direccion = ignoreClientAddress ? 'todas' : await getClientAddress();
   return createHash('sha256')
-    .update(`${scope}|${await getClientAddress()}|${identity || 'anonymous'}`)
+    .update(`${scope}|${direccion}|${identity || 'anonymous'}`)
     .digest('hex');
 }
 
@@ -51,7 +67,7 @@ function enforceLocalLimit(key: string, input: RateLimitInput): void {
 }
 
 export async function enforcePublicRateLimit(input: RateLimitInput): Promise<void> {
-  const key = await buildKey(input.scope, input.identity);
+  const key = await buildKey(input.scope, input.identity, input.ignoreClientAddress);
   const now = Date.now();
 
   if (process.env.AK_USE_LOCAL_JSON_ONLY === 'true') {
