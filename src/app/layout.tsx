@@ -11,6 +11,7 @@ import './ak-budget-mobile-fixes.css';
 import { Toaster } from "@/components/ui/toaster";
 import { DeploymentRecovery } from '@/components/deployment-recovery';
 import { GoogleAnalytics } from '@/components/google-analytics';
+import { MetaPixel } from '@/components/meta-pixel';
 import { getSearchConsoleVerification } from '@/lib/google-search-console';
 import { AsistenteVirtual } from '@/components/public/AsistenteVirtual';
 import { LocalBusinessSchema } from '@/components/public/LocalBusinessSchema';
@@ -138,6 +139,7 @@ export default function RootLayout({
       <body className="ak-motion-system font-body antialiased">
         <Suspense fallback={null}>
           <GoogleAnalytics />
+          <MetaPixel />
         </Suspense>
         <DeploymentRecovery />
         {children}
