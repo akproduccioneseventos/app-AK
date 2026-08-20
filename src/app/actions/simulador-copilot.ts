@@ -227,18 +227,28 @@ export async function chatWithBudgetCopilot(
     };
   }
 
-  // Freno contra robots. Este chat le pregunta a la inteligencia artificial, y eso
-  // se paga por pedido: sin tope, un programa automatico puede dejar la cuenta
-  // vacia en una noche. Se cuenta por contacto del prospecto, y si todavia no lo
-  // dejo, por la fiesta que esta armando.
+  /**
+   * Freno contra robots. Este chat le pregunta a la inteligencia artificial y eso
+   * se paga por pedido: sin tope, un programa automatico deja la cuenta vacia en
+   * una noche.
+   *
+   * **La cuenta NO puede ir por un dato que escribe el visitante.** La primera
+   * version contaba por el nombre o el contacto del prospecto: cambiando el
+   * nombre en cada pedido, el freno no frenaba nada. Se cuenta por la direccion
+   * de quien llama, que el visitante no elige, mas un techo compartido para toda
+   * la pantalla.
+   */
   try {
     await enforcePublicRateLimit({
       scope: 'simulador-copilot',
-      identity: normalizedInput.currentState?.clienteContacto?.trim()
-        || normalizedInput.currentState?.clienteNombre?.trim()
-        || 'anonimo',
       limit: 30,
       windowMs: 15 * 60_000,
+    });
+    await enforcePublicRateLimit({
+      scope: 'simulador-copilot-techo',
+      limit: 400,
+      windowMs: 15 * 60_000,
+      ignoreClientAddress: true,
     });
   } catch {
     return {
@@ -297,6 +307,14 @@ export async function chatWithBudgetCopilot(
 
     const currentStateJson = JSON.stringify(normalizedInput.currentState);
 
+    // Lo que se paga pasa por el contador, siempre. Sin esto el gasto de este chat
+    // no aparecia en ningun lado y el tope mensual no lo frenaba. Si no hay
+    // presupuesto, contesta igual con las respuestas escritas a mano.
+    const { hayPresupuestoParaIA, registrarConsumoIA } = await import('@/lib/ai/consumo-servidor');
+    if (!(await hayPresupuestoParaIA())) {
+      return sanitizeCopilotOutput(getStaticFallbackResponse(normalizedInput, config), config, services, menus);
+    }
+
     // 2. Call Gemini
     const { output } = await copilotPrompt({
       message: normalizedInput.message,
@@ -307,6 +325,8 @@ export async function chatWithBudgetCopilot(
       copilotSystemPrompt: copilotConfig.promptPersonalidad,
       faqsJson: JSON.stringify(copilotConfig.faqs)
     } as any);
+
+    await registrarConsumoIA('copiloto-presupuesto');
 
     if (!output) {
       throw new Error('Gemini no retornó una respuesta válida.');

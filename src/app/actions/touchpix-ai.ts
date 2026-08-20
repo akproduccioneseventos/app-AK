@@ -424,6 +424,9 @@ export async function applyTouchpixTheme(
       await enforcePublicRateLimit({
         scope: "touchpix-ai-estacion",
         identity: `fiesta-${fiestaId}`,
+        // Techo de la fiesta entera: cuenta sin la direccion, si no cien celulares
+        // distintos pidiendo una vez cada uno se saltean el tope.
+        ignoreClientAddress: true,
         limit: 150,
         windowMs: 60 * 60_000,
       });

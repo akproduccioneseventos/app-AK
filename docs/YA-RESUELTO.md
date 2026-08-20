@@ -2981,6 +2981,34 @@ asistente virtual:
 Por qué se cuenta así y no por persona: desde el celular de un invitado no hay nada
 que lo identifique, así que lo único que se puede contar es la fiesta.
 
+## Los frenos contra robots, y la plata de los chats (20 de agosto de 2026)
+
+Los dos chats de inteligencia artificial que usa gente de afuera —el del
+simulador y el de la fiesta— **estaban abiertos sin tope y sin contador**. Cada
+pregunta se paga: un programa automático los podía dejar preguntando toda la
+noche. Ahora:
+
+- **Freno por celular** en los dos, y **techo por fiesta** en el de la fiesta.
+- **Los dos pasan por el contador de gasto.** Si no hay presupuesto contestan
+  igual, con las respuestas escritas a mano.
+
+**Dos errores que se corrigieron en el mismo pase, y que ya habían pasado antes:**
+
+- **El freno del simulador contaba por el nombre o el contacto que escribía el
+  prospecto.** Un robot cambia el nombre en cada pedido y el freno no frenaba
+  nada. **Nunca contar por un dato que escribe el visitante.**
+- **Los techos "por fiesta" del espejo mágico y del 360 no eran por fiesta:** la
+  cuenta incluía la dirección de quien llamaba, así que cien celulares distintos
+  pidiendo una vez cada uno pasaban igual. Se agregó `ignoreClientAddress` al
+  freno para poder poner un techo compartido de verdad.
+
+Hay una prueba (`los-frenos-contra-robots.test.ts`) que controla las tres cosas.
+
+**Sobre los errores de robots que muestra Firebase: son normales y no se
+investigan.** Cualquier sitio en internet recibe programas automáticos buscando
+la puerta abierta todo el día; que aparezcan esos errores es la señal de que los
+está rechazando. Lo que sí importa es que nada de lo que se paga quede sin freno.
+
 ## Cómo agregar algo a esta lista
 
 **Se anota SIEMPRE, en la misma propuesta que toca el código.** Orden del dueño
