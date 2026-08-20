@@ -10,7 +10,16 @@ import {
 } from '@/lib/marketing/recontacto-automatico';
 
 const AUTOMATION_STATE_FILE = 'marketing-automation-state.json';
+/**
+ * Cada cuanto se generan notas, y cuantas por vez.
+ *
+ * El dueno pidio **tres notas por semana**. Estaba puesto una cada siete dias:
+ * doce veces menos de lo pedido. Se corre una vez por semana y se generan las
+ * tres juntas, que gasta lo mismo y no depende de que la tarea se dispare tres
+ * veces.
+ */
 const SEO_INTERVAL_MS = 7 * 24 * 60 * 60 * 1000;
+const NOTAS_POR_SEMANA = 3;
 const INSTAGRAM_INTERVAL_MS = 6 * 60 * 60 * 1000;
 const RECONTACTO_INTERVAL_MS = 6 * 60 * 60 * 1000;
 
@@ -153,8 +162,24 @@ export async function runMarketingAutomation(options?: {
 
   if (seoDue) {
     if (hasUsableAiKey()) {
-      blogResult = await generateBlogPostAndSocialDraft();
-      nextState.lastSeoRunAt = now.toISOString();
+      // Lo que se paga pasa por el contador. Antes generaba sin mirar el tope
+      // mensual: era la unica funcion de inteligencia artificial que gastaba sin
+      // aparecer en ningun lado.
+      const { hayPresupuestoParaIA, registrarConsumoIA } = await import('@/lib/ai/consumo-servidor');
+
+      if (!(await hayPresupuestoParaIA())) {
+        seoError = 'SEO automatico en pausa: se llego al tope de gasto de inteligencia artificial del mes.';
+      } else {
+        for (let i = 0; i < NOTAS_POR_SEMANA; i += 1) {
+          // Si el tope se alcanza en el medio de la tanda, se corta y se queda con
+          // las que ya salieron. Mejor dos notas que ninguna.
+          if (i > 0 && !(await hayPresupuestoParaIA())) break;
+
+          blogResult = await generateBlogPostAndSocialDraft();
+          await registrarConsumoIA('nota-del-blog');
+        }
+        nextState.lastSeoRunAt = now.toISOString();
+      }
     } else {
       seoError = 'SEO automatico pendiente: falta una clave valida de Gemini.';
     }

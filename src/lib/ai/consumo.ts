@@ -21,7 +21,8 @@ export type FuncionConCosto =
   | 'revision-diaria'
   | 'clasificacion-comentarios'
   | 'copiloto-presupuesto'
-  | 'chat-de-la-fiesta';
+  | 'chat-de-la-fiesta'
+  | 'nota-del-blog';
 
 /**
  * Costo estimado por generación, en pesos uruguayos.
@@ -44,6 +45,8 @@ export const COSTO_ESTIMADO_UYU: Record<FuncionConCosto, number> = {
   // sin freno pueden preguntar toda la noche: por eso se cuentan igual.
   'copiloto-presupuesto': 1,
   'chat-de-la-fiesta': 1,
+  // Una nota de blog es texto largo mas una imagen generada: sale mas que un chat.
+  'nota-del-blog': 5,
 };
 
 /** Cuánto se avisa antes de llegar al tope. */
