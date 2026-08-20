@@ -236,7 +236,15 @@ export async function uploadEntretenimientoMedia(formData: FormData) {
       type: file.type.startsWith('video/') ? 'video' : 'image',
       caption,
       authorName,
-      guestId,
+      // El dueño se toma de lo que GUARDO el muro, no de lo que llego en el
+      // formulario: el muro es el que comprueba el comprobante del invitado. Si el
+      // comprobante no valia, el muro no guarda dueño y aca tampoco.
+      //
+      // Antes se guardaba el identificador tal como llego, sin comprobar. No era
+      // grave —el recuerdo del invitado sale del muro, no de aca— pero el mismo
+      // dato quedaba comprobado en un lado y sin comprobar en el otro, que es como
+      // empiezan los errores raros.
+      guestId: socialPostResult.post?.guestId,
       uploadedAt: new Date().toISOString(),
       publishTarget: 'muro-social',
       socialPostId: socialPostResult.post?.id,

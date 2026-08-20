@@ -8,9 +8,9 @@ Quien cierre una sesión reescribe este archivo. Se pisa, no se acumula.
 ---
 
 **Última actualización:** 19 de agosto de 2026.
-**Estado de la app:** sana. Los cinco controles pasaron sobre la versión principal de ahora: acentos limpios, tipos en cero (tsc), pruebas unitarias 100% pasando, compila Next.js en producción.
-**Propuestas abiertas:** rama `feat/totem-barra-y-buzon-saludos` lista para PR.
-**Orden vigente:** `docs/ordenes/ahora.md` — El tótem de la barra: que el invitado se lleve su foto y El buzón de saludos: foto y puerta de entrada.
+**Estado de la app:** sana. Los controles pasaron: acentos limpios, TypeScript en 0 errores, pruebas unitarias en verde, build de Next.js de producción OK.
+**Propuestas abiertas:** PR #1071 (Tótem de la barra y Buzón de saludos) y nueva PR (Fotos con dueño en estaciones, Editor de historia y hospedajes, Referencia 360).
+**Orden vigente:** `docs/ordenes/ahora.md` — Bloques 1 a 6 completados al 100%. Referencia de videos 360 (ARELI 360 AK).
 
 ## Lo que se cerró hoy
 

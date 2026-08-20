@@ -104,6 +104,8 @@ export default function EspejoMagicoPage() {
   const modeCopy = MODE_COPY[mode];
   const role = searchParams.get('role') || 'display'; // 'display' | 'operator'
   const accessToken = searchParams.get('access') || undefined;
+  const guestId = searchParams.get('guestId') || undefined;
+  const guestAccessToken = searchParams.get('guestAccessToken') || searchParams.get('token') || undefined;
   const showKioskUnlock = searchParams.get('kiosk') === '1';
 
   // Choose Firestore module Id based on mode
@@ -794,6 +796,8 @@ export default function EspejoMagicoPage() {
       formData.append('authorName', modeCopy.author);
       formData.append('moduleId', moduleId);
       if (accessToken) formData.append('accessToken', accessToken);
+      if (guestId) formData.append('guestId', guestId);
+      if (guestAccessToken) formData.append('guestAccessToken', guestAccessToken);
 
       const res = await uploadEntretenimientoMedia(formData);
       if (res.success) {
