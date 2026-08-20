@@ -77,6 +77,8 @@ export default function TouchpixPage() {
   const fiestaId = params.fiestaId as string;
   const role = searchParams.get('role') || 'display';
   const accessToken = searchParams.get('access') || undefined;
+  const guestId = searchParams.get('guestId') || undefined;
+  const guestAccessToken = searchParams.get('guestAccessToken') || searchParams.get('token') || undefined;
 
   const videoRef = useRef<HTMLVideoElement>(null);
   const canvasRef = useRef<HTMLCanvasElement>(null);
@@ -609,6 +611,8 @@ export default function TouchpixPage() {
       const formData = new FormData();
       formData.append('fiestaId', fiestaId);
       if (accessToken) formData.append('accessToken', accessToken);
+      if (guestId) formData.append('guestId', guestId);
+      if (guestAccessToken) formData.append('guestAccessToken', guestAccessToken);
       formData.append('file', file);
       formData.append('authorName', 'Cabina Touchpix');
       if (activeTab === 'ai_themes') {

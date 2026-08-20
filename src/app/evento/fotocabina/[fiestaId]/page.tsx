@@ -67,6 +67,8 @@ export default function FotocabinaPage() {
   const fiestaId = params.fiestaId as string;
   const role = searchParams.get('role') || 'display'; // 'display' | 'operator'
   const accessToken = searchParams.get('access') || undefined;
+  const guestId = searchParams.get('guestId') || undefined;
+  const guestAccessToken = searchParams.get('guestAccessToken') || searchParams.get('token') || undefined;
 
   const videoRef = useRef<HTMLVideoElement>(null);
   const canvasRef = useRef<HTMLCanvasElement>(null);
@@ -503,6 +505,8 @@ export default function FotocabinaPage() {
       formData.append('authorName', 'Fotocabina AK');
       formData.append('moduleId', 'fotocabina');
       if (accessToken) formData.append('accessToken', accessToken);
+      if (guestId) formData.append('guestId', guestId);
+      if (guestAccessToken) formData.append('guestAccessToken', guestAccessToken);
 
       const res = await uploadEntretenimientoMedia(formData);
       if (res.success) {

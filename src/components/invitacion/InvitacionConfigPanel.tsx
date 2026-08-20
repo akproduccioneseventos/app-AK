@@ -11,7 +11,7 @@ import { Switch } from '@/components/ui/switch';
 import { Textarea } from '@/components/ui/textarea';
 import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
-import { Palette, MapPin, Shirt, Gift, Users, Clock, Camera, MessageCircle, CalendarDays, Sparkles, LayoutTemplate, Type, Check, Plus, Trash2, Upload, Loader2, Link2, Layers, AlertCircle, ArrowUp, ArrowDown, Share2 } from 'lucide-react';
+import { Palette, MapPin, Shirt, Gift, Users, Clock, Camera, MessageCircle, CalendarDays, Sparkles, LayoutTemplate, Type, Check, Plus, Trash2, Upload, Loader2, Link2, Layers, AlertCircle, ArrowUp, ArrowDown, Share2, BookOpen, Hotel } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { useToast } from '@/hooks/use-toast';
 import { uploadPublicPageAsset } from '@/app/actions/fiesta/assets.actions';
@@ -559,6 +559,211 @@ export function InvitacionConfigPanel({ config, onChange, fiestaId }: Props) {
           </AccordionContent>
         </AccordionItem>
 
+        {/* ===== NUESTRA HISTORIA ===== */}
+        <AccordionItem value="historia">
+          <AccordionTrigger className="text-sm font-bold"><BookOpen className="w-4 h-4 mr-2" />Nuestra Historia</AccordionTrigger>
+          <AccordionContent className="space-y-3 pt-2">
+            <p className="text-[10px] text-muted-foreground">Agregá hitos o momentos especiales (ej: cómo se conocieron o los años de vida).</p>
+            {(config.hitos || []).map((hito, index) => (
+              <div key={index} className="flex items-start gap-2 border rounded-lg p-2.5 bg-muted/10">
+                <div className="flex flex-col gap-1 flex-shrink-0 pt-0.5">
+                  <Button
+                    variant="ghost"
+                    size="icon"
+                    className="h-6 w-6"
+                    disabled={index === 0}
+                    onClick={() => {
+                      const updated = [...(config.hitos || [])];
+                      [updated[index - 1], updated[index]] = [updated[index], updated[index - 1]];
+                      update('hitos', updated);
+                    }}
+                  >
+                    <ArrowUp className="h-3 w-3" />
+                  </Button>
+                  <Button
+                    variant="ghost"
+                    size="icon"
+                    className="h-6 w-6"
+                    disabled={index === (config.hitos || []).length - 1}
+                    onClick={() => {
+                      const updated = [...(config.hitos || [])];
+                      [updated[index], updated[index + 1]] = [updated[index + 1], updated[index]];
+                      update('hitos', updated);
+                    }}
+                  >
+                    <ArrowDown className="h-3 w-3" />
+                  </Button>
+                </div>
+                <div className="flex-1 space-y-1.5">
+                  <div className="grid grid-cols-3 gap-2">
+                    <Input
+                      value={hito.fecha}
+                      onChange={e => {
+                        const updated = [...(config.hitos || [])];
+                        updated[index] = { ...updated[index], fecha: e.target.value };
+                        update('hitos', updated);
+                      }}
+                      placeholder="Año o fecha (ej: 2020)"
+                      className="h-8 text-xs col-span-1"
+                    />
+                    <Input
+                      value={hito.titulo}
+                      onChange={e => {
+                        const updated = [...(config.hitos || [])];
+                        updated[index] = { ...updated[index], titulo: e.target.value };
+                        update('hitos', updated);
+                      }}
+                      placeholder="Título del hito (ej: Nos conocimos)"
+                      className="h-8 text-xs col-span-2"
+                    />
+                  </div>
+                  <Textarea
+                    value={hito.descripcion}
+                    onChange={e => {
+                      const updated = [...(config.hitos || [])];
+                      updated[index] = { ...updated[index], descripcion: e.target.value };
+                      update('hitos', updated);
+                    }}
+                    placeholder="Descripción corta de este momento..."
+                    rows={2}
+                    className="text-xs resize-none"
+                  />
+                </div>
+                <Button
+                  variant="ghost"
+                  size="icon"
+                  className="h-8 w-8 text-red-500 hover:text-red-700 hover:bg-red-50 flex-shrink-0"
+                  onClick={() => {
+                    const updated = (config.hitos || []).filter((_, i) => i !== index);
+                    update('hitos', updated);
+                  }}
+                >
+                  <Trash2 className="h-3.5 w-3.5" />
+                </Button>
+              </div>
+            ))}
+            <Button
+              variant="outline"
+              size="sm"
+              className="w-full text-xs"
+              onClick={() => {
+                const updated = [...(config.hitos || []), { fecha: '', titulo: '', descripcion: '' }];
+                update('hitos', updated);
+              }}
+            >
+              <Plus className="h-3.5 w-3.5 mr-1.5" /> Agregar hito a la historia
+            </Button>
+          </AccordionContent>
+        </AccordionItem>
+
+        {/* ===== HOSPEDAJES RECOMENDADOS ===== */}
+        <AccordionItem value="hospedajes">
+          <AccordionTrigger className="text-sm font-bold"><Hotel className="w-4 h-4 mr-2" />Hospedajes Recomendados</AccordionTrigger>
+          <AccordionContent className="space-y-3 pt-2">
+            <p className="text-[10px] text-muted-foreground">Opciones de alojamiento recomendadas para invitados que viajan desde otras ciudades.</p>
+            {(config.hospedajes || []).map((hotel, index) => (
+              <div key={index} className="flex items-start gap-2 border rounded-lg p-2.5 bg-muted/10">
+                <div className="flex flex-col gap-1 flex-shrink-0 pt-0.5">
+                  <Button
+                    variant="ghost"
+                    size="icon"
+                    className="h-6 w-6"
+                    disabled={index === 0}
+                    onClick={() => {
+                      const updated = [...(config.hospedajes || [])];
+                      [updated[index - 1], updated[index]] = [updated[index], updated[index - 1]];
+                      update('hospedajes', updated);
+                    }}
+                  >
+                    <ArrowUp className="h-3 w-3" />
+                  </Button>
+                  <Button
+                    variant="ghost"
+                    size="icon"
+                    className="h-6 w-6"
+                    disabled={index === (config.hospedajes || []).length - 1}
+                    onClick={() => {
+                      const updated = [...(config.hospedajes || [])];
+                      [updated[index], updated[index + 1]] = [updated[index + 1], updated[index]];
+                      update('hospedajes', updated);
+                    }}
+                  >
+                    <ArrowDown className="h-3 w-3" />
+                  </Button>
+                </div>
+                <div className="flex-1 space-y-1.5">
+                  <div className="grid grid-cols-2 gap-2">
+                    <Input
+                      value={hotel.nombre}
+                      onChange={e => {
+                        const updated = [...(config.hospedajes || [])];
+                        updated[index] = { ...updated[index], nombre: e.target.value };
+                        update('hospedajes', updated);
+                      }}
+                      placeholder="Nombre del hotel (ej: Hotel Salto)"
+                      className="h-8 text-xs"
+                    />
+                    <Input
+                      value={hotel.direccion}
+                      onChange={e => {
+                        const updated = [...(config.hospedajes || [])];
+                        updated[index] = { ...updated[index], direccion: e.target.value };
+                        update('hospedajes', updated);
+                      }}
+                      placeholder="Dirección (ej: 25 de Agosto 5)"
+                      className="h-8 text-xs"
+                    />
+                  </div>
+                  <div className="grid grid-cols-2 gap-2">
+                    <Input
+                      value={hotel.telefono || ''}
+                      onChange={e => {
+                        const updated = [...(config.hospedajes || [])];
+                        updated[index] = { ...updated[index], telefono: e.target.value };
+                        update('hospedajes', updated);
+                      }}
+                      placeholder="Teléfono (opcional)"
+                      className="h-8 text-xs"
+                    />
+                    <Input
+                      value={hotel.linkBooking || ''}
+                      onChange={e => {
+                        const updated = [...(config.hospedajes || [])];
+                        updated[index] = { ...updated[index], linkBooking: e.target.value };
+                        update('hospedajes', updated);
+                      }}
+                      placeholder="Link de reserva / web (opcional)"
+                      className="h-8 text-xs"
+                    />
+                  </div>
+                </div>
+                <Button
+                  variant="ghost"
+                  size="icon"
+                  className="h-8 w-8 text-red-500 hover:text-red-700 hover:bg-red-50 flex-shrink-0"
+                  onClick={() => {
+                    const updated = (config.hospedajes || []).filter((_, i) => i !== index);
+                    update('hospedajes', updated);
+                  }}
+                >
+                  <Trash2 className="h-3.5 w-3.5" />
+                </Button>
+              </div>
+            ))}
+            <Button
+              variant="outline"
+              size="sm"
+              className="w-full text-xs"
+              onClick={() => {
+                const updated = [...(config.hospedajes || []), { nombre: '', direccion: '', telefono: '', linkBooking: '' }];
+                update('hospedajes', updated);
+              }}
+            >
+              <Plus className="h-3.5 w-3.5 mr-1.5" /> Agregar hospedaje recomendado
+            </Button>
+          </AccordionContent>
+        </AccordionItem>
+
         {/* ===== DISEÑO Y TIPOGRAFÍA ===== */}
         <AccordionItem value="typography">
           <AccordionTrigger className="text-sm font-bold"><Type className="w-4 h-4 mr-2" />Diseño y tipografía</AccordionTrigger>
@@ -725,9 +930,9 @@ export function InvitacionConfigPanel({ config, onChange, fiestaId }: Props) {
                 muroSocial: !!config.portalSocialActivo,
                 ctaAk: true,
                 footer: true,
-                historia: true,
+                historia: !!(config.hitos && config.hitos.length > 0),
                 faq: true,
-                logistica: true,
+                logistica: !!(config.hospedajes && config.hospedajes.length > 0),
               };
 
               return activeSections.map((sec, idx) => {

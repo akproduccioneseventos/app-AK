@@ -47,6 +47,8 @@ const GUEST_ENTERTAINMENT_MODULES: Array<{ id: EntertainmentModuleId; label: str
 
 function buildGuestEntertainmentLinks(
   fiesta: FiestaEnPlanificacion,
+  guestId?: string,
+  guestAccessToken?: string,
 ): PublicGuestEntertainmentLink[] {
   return GUEST_ENTERTAINMENT_MODULES.flatMap(({ id, label }) => {
     if (!isGuestEntertainmentAvailable(fiesta, id)) return [];
@@ -55,7 +57,11 @@ function buildGuestEntertainmentLinks(
     if (!station.enabled) return [];
 
     const token = createEntertainmentAccessToken(fiesta.id, id, 'guest');
-    const href = getEntertainmentGuestPath(fiesta.id, id, token);
+    let href = getEntertainmentGuestPath(fiesta.id, id, token);
+    if (href && guestId && guestAccessToken) {
+      const separator = href.includes('?') ? '&' : '?';
+      href = `${href}${separator}guestId=${encodeURIComponent(guestId)}&guestAccessToken=${encodeURIComponent(guestAccessToken)}`;
+    }
     return href ? [{ id, label, href }] : [];
   });
 }
@@ -78,7 +84,7 @@ export async function getPublicGuestPortalData(
 
   const portalData = buildPublicGuestPortalData(fiesta, guestId, guestAccessToken);
   return portalData
-    ? { ...portalData, entertainmentLinks: buildGuestEntertainmentLinks(fiesta) }
+    ? { ...portalData, entertainmentLinks: buildGuestEntertainmentLinks(fiesta, guestId, guestAccessToken) }
     : null;
 }
 
@@ -104,7 +110,7 @@ export async function getPublicGuestEntertainmentLinks(
 ): Promise<PublicGuestEntertainmentLink[]> {
   const fiesta = await getFiestaById(fiestaId);
   if (!fiesta || !buildPublicGuestPortalData(fiesta, guestId, guestAccessToken)) return [];
-  return buildGuestEntertainmentLinks(fiesta);
+  return buildGuestEntertainmentLinks(fiesta, guestId, guestAccessToken);
 }
 
 function normalizeGuestLookup(value: string): string {

@@ -51,6 +51,8 @@ export default function Plataforma360Page() {
   const fiestaId = params.fiestaId as string;
   const role = searchParams.get('role') || 'display'; // 'display' | 'operator'
   const accessToken = searchParams.get('access') || undefined;
+  const guestId = searchParams.get('guestId') || undefined;
+  const guestAccessToken = searchParams.get('guestAccessToken') || searchParams.get('token') || undefined;
 
   const videoRef = useRef<HTMLVideoElement>(null);
   const mediaRecorderRef = useRef<MediaRecorder | null>(null);
@@ -528,6 +530,8 @@ export default function Plataforma360Page() {
       formData.append('authorName', 'Plataforma 360');
       formData.append('moduleId', 'plataforma360');
       if (accessToken) formData.append('accessToken', accessToken);
+      if (guestId) formData.append('guestId', guestId);
+      if (guestAccessToken) formData.append('guestAccessToken', guestAccessToken);
 
       const res = await uploadEntretenimientoMedia(formData);
       

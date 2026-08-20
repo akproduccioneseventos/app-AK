@@ -727,6 +727,10 @@ export async function uploadTouchpixPhoto(
     socialFormData.set("source", "entertainment");
     socialFormData.set("sourceModule", "espejoMagicoIA");
     socialFormData.set("moduleId", "espejoMagicoIA");
+    const guestId = (formData.get("guestId") as string) || undefined;
+    const guestAccessToken = (formData.get("guestAccessToken") as string) || undefined;
+    if (guestId) socialFormData.set("guestId", guestId);
+    if (guestAccessToken) socialFormData.set("guestAccessToken", guestAccessToken);
     if (accessToken) socialFormData.set("accessToken", accessToken);
 
     // Compose a dedication describing the transformation.

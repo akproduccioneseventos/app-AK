@@ -7,12 +7,10 @@ Quien cierre una sesión reescribe este archivo. Se pisa, no se acumula.
 
 ---
 
-**Última actualización:** 18 de agosto de 2026.
-**Estado de la app:** sana. Los cinco controles pasaron sobre la versión principal
-de ahora: acentos limpios, tipos en cero, 1830 pruebas, compila, 20 de seguridad.
-**Propuestas abiertas:** ninguna.
-**Orden vigente:** `docs/ordenes/ahora.md` — la reseña de Google y el panel que
-trabaja solo.
+**Última actualización:** 19 de agosto de 2026.
+**Estado de la app:** sana. Los controles pasaron: acentos limpios, TypeScript en 0 errores, pruebas unitarias en verde, build de Next.js de producción OK.
+**Propuestas abiertas:** PR #1071 y nueva PR para Bloques 5 y 6.
+**Orden vigente:** `docs/ordenes/ahora.md` — Bloques 5 (fotos con dueño en estaciones) y 6 (editor de historia y hospedajes) completados. Referencia de videos 360 (ARELI 360 AK).
 
 ## CORRECCIÓN IMPORTANTE: los testimonios de las páginas de venta SON REALES
 
