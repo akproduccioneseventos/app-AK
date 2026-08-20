@@ -14,6 +14,7 @@ import { readData, writeData } from '@/lib/data-service';
 import { CopilotConfig, DEFAULT_COPILOT_CONFIG } from '@/types/copilot';
 import { requireAppSession } from '@/lib/auth/require-session';
 
+import { enforcePublicRateLimit } from '@/lib/commercial/public-rate-limit';
 const COPILOT_CONFIG_FILE = 'copilot-config.json';
 
 export async function getCopilotConfig(): Promise<CopilotConfig> {
@@ -222,6 +223,26 @@ export async function chatWithBudgetCopilot(
   if (!normalizedInput?.message) {
     return {
       response: 'Contame brevemente qué tipo de fiesta querés organizar y te ayudo a armarla.',
+      action: { type: 'none' },
+    };
+  }
+
+  // Freno contra robots. Este chat le pregunta a la inteligencia artificial, y eso
+  // se paga por pedido: sin tope, un programa automatico puede dejar la cuenta
+  // vacia en una noche. Se cuenta por contacto del prospecto, y si todavia no lo
+  // dejo, por la fiesta que esta armando.
+  try {
+    await enforcePublicRateLimit({
+      scope: 'simulador-copilot',
+      identity: normalizedInput.currentState?.clienteContacto?.trim()
+        || normalizedInput.currentState?.clienteNombre?.trim()
+        || 'anonimo',
+      limit: 30,
+      windowMs: 15 * 60_000,
+    });
+  } catch {
+    return {
+      response: 'Estas yendo muy rapido. Espera un momentito y segui la charla, o escribinos por WhatsApp y te atendemos al toque.',
       action: { type: 'none' },
     };
   }

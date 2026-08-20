@@ -3,6 +3,7 @@
 import type { Invitado, LayoutElement } from '@/types/fiesta';
 
 import { requireAppSession } from '@/lib/auth/require-session';
+import { enforcePublicRateLimit } from '@/lib/commercial/public-rate-limit';
 export async function autoAssignTables(
   invitados: Invitado[],
   tables: LayoutElement[]
@@ -104,6 +105,23 @@ export async function chatWithGuestBot(
   message: string,
   history: Array<{ role: 'bot' | 'user'; text: string }>
 ): Promise<{ success: boolean; response: string }> {
+  // Freno contra robots: este chat le pregunta a la inteligencia artificial y eso
+  // se paga por pedido. Se cuenta por fiesta, que es lo unico que identifica a
+  // quien pregunta desde el celular del invitado.
+  try {
+    await enforcePublicRateLimit({
+      scope: 'guest-bot',
+      identity: `fiesta-${fiesta?.id || 'sin-fiesta'}`,
+      limit: 120,
+      windowMs: 15 * 60_000,
+    });
+  } catch {
+    return {
+      success: true,
+      response: 'Uy, me estan preguntando muchas cosas a la vez. Dame un minutito y volve a intentar.',
+    };
+  }
+
   try {
     const apiKey = process.env.GOOGLE_API_KEY || process.env.GEMINI_API_KEY;
     if (!apiKey) {

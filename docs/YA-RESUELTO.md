@@ -2962,6 +2962,25 @@ Antes sólo se podía declarar "todo este archivo es público". Eso obligaba a a
 más: en el archivo de ingreso hay funciones del equipo y también el arranque del
 primer administrador. Ahora se puede declarar **una sola función**, con su motivo.
 
+## Los dos chats de inteligencia artificial no tenían freno (20 de agosto de 2026)
+
+**Es plata.** El chat del simulador (el que le arma el presupuesto al prospecto) y el
+asistente del invitado en la fiesta le preguntan a la inteligencia artificial, y eso
+**se paga por pedido**. Los dos estaban abiertos a internet sin ningún tope: un
+programa automático podía dejarlos preguntando toda la noche y vaciar la cuenta.
+
+Ahora tienen freno, como ya lo tenían la fotocabina con IA, el espejo mágico y el
+asistente virtual:
+
+- **Simulador:** 30 mensajes cada 15 minutos, contados por el contacto que dejó el
+  prospecto. Si se pasa, le dice que vaya más despacio y le ofrece el WhatsApp.
+- **Asistente del invitado:** 120 mensajes cada 15 minutos por fiesta. El número es
+  alto a propósito, porque en una fiesta hay muchos invitados preguntando a la vez y
+  **no puede cortarse en el medio de un evento**.
+
+Por qué se cuenta así y no por persona: desde el celular de un invitado no hay nada
+que lo identifique, así que lo único que se puede contar es la fiesta.
+
 ## Cómo agregar algo a esta lista
 
 **Se anota SIEMPRE, en la misma propuesta que toca el código.** Orden del dueño
