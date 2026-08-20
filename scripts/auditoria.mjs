@@ -211,19 +211,38 @@ function correrPasada2() {
 
     // Buscar fragmentos clave de la ruta
     const baseSegment = urlRoute.split('/')[1] || urlRoute;
-    const cleanRoute = urlRoute.replace(/\[[^\]]+\]/g, '');
+    const esDinamica = urlRoute.includes('[');
+
+    // Las pantallas con parametro NO se enlazan con la direccion entera: se arman por
+    // pedazos, `href={`/empresa/menus/${menu.id}/editar`}`. Hay que buscar los TRAMOS
+    // FIJOS, no la direccion completa.
+    //
+    // Sacar el `[param]` y dejar las barras pegadas daba `/empresa/menus//editar`, que
+    // no existe en ningun lado: por eso 44 pantallas que si tienen su boton salian
+    // reportadas como huerfanas. Un informe con falsas alarmas no lo lee nadie dos
+    // veces, asi que ante la duda NO se reporta.
+    const tramosFijos = urlRoute
+      .split(/\[[^\]]+\]/)
+      .map(t => t.replace(/\/+$/, ''))
+      .filter(t => t.length > 1);
 
     let enlacesProd = 0;
     let enlacesTest = 0;
 
     for (const f of fuentes) {
       if (f.relativa === relPath) continue;
-      if (f.contenido.includes(`'${urlRoute}'`) ||
-          f.contenido.includes(`"${urlRoute}"`) ||
-          f.contenido.includes(`\`${cleanRoute}`) ||
-          f.contenido.includes(`href="${urlRoute}"`) ||
-          f.contenido.includes(`href='${urlRoute}'`) ||
-          (cleanRoute.length > 3 && f.contenido.includes(cleanRoute))) {
+
+      const enlaza = esDinamica
+        // Con parametro: el archivo tiene que traer TODOS los tramos fijos.
+        ? tramosFijos.length > 0 && tramosFijos.every(t => f.contenido.includes(t))
+        // Sin parametro: la direccion entera, entre comillas o en un texto armado.
+        : (f.contenido.includes(`'${urlRoute}'`) ||
+           f.contenido.includes(`"${urlRoute}"`) ||
+           f.contenido.includes(`\`${urlRoute}`) ||
+           f.contenido.includes(`${urlRoute}/`) ||
+           f.contenido.includes(`${urlRoute}?`));
+
+      if (enlaza) {
         if (f.esTest) enlacesTest++;
         else enlacesProd++;
       }

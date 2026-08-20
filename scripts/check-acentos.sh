@@ -33,7 +33,12 @@ fi
 
 # Archivos que hablan del problema a proposito y por eso contienen los ejemplos
 # rotos. No son errores: son la prueba y la pantalla que los arregla.
-PERMITIDOS='src/__tests__/acentos-rotos.test.ts|src/app/\(app\)/settings/datos/page.tsx|scripts/check-acentos.sh'
+#
+# `auditoria-out/informe.md` no se escribe a mano: lo genera `npm run auditoria`
+# copiando textos del codigo. Uno de esos textos es el de la pantalla que repara
+# acentos rotos, que muestra el ejemplo roto a proposito. Sin esta linea, correr la
+# auditoria dejaba en rojo el control de acentos, que es de los cinco de salud.
+PERMITIDOS='src/__tests__/acentos-rotos.test.ts|src/app/\(app\)/settings/datos/page.tsx|scripts/check-acentos.sh|auditoria-out/informe.md'
 ARCHIVOS=$(echo "$ARCHIVOS" | grep -Ev "^($PERMITIDOS)$" || true)
 [ -z "$ARCHIVOS" ] && { echo "Acentos: bien, nada que revisar ($AMBITO)."; exit 0; }
 

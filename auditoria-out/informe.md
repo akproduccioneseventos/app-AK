@@ -1,6 +1,6 @@
 # Informe de Auditoría Mecánica Continua
 
-**Fecha de ejecución:** jueves, 20 de agosto de 2026, 3:19:06 p. m. (2026-08-20T18:19:06.828Z)
+**Fecha de ejecución:** jueves, 20 de agosto de 2026, 3:54:13 p. m. (2026-08-20T18:54:13.978Z)
 **Método:** Conteo mecánico exacto sobre archivos de código (sin IA, cero opiniones).
 
 ---
@@ -8,7 +8,7 @@
 ## Resumen de Resultados (4 Números)
 
 - **1. Tareas automáticas sin rastro:** 4 hallazgos
-- **2. Elementos huérfanos o solo en tests:** 201 hallazgos
+- **2. Elementos huérfanos o solo en tests:** 159 hallazgos
 - **3. Datos simulados o inventados en UI:** 1 hallazgos
 - **4. Promesas automáticas en pantalla:** 120 frases a contrastar
 
@@ -23,7 +23,7 @@
 | `src/app/api/cron/publicar-programados/route.ts` | 1 | Tarea cron "publicar-programados": figura como "NUNCA CORRIÓ" (sin marca registrada en el servidor). |
 | `src/app/api/cron/recordatorios-de-pago/route.ts` | 1 | Tarea cron "recordatorios-de-pago": figura como "NUNCA CORRIÓ" (sin marca registrada en el servidor). |
 
-### Pasada 2: ¿Alguien lo llama? (Elementos huérfanos o solo en tests) (201)
+### Pasada 2: ¿Alguien lo llama? (Elementos huérfanos o solo en tests) (159)
 
 | Archivo | Línea | Detalle del hallazgo |
 | :--- | :--- | :--- |
@@ -156,19 +156,15 @@
 | `src/app/actions/touchpix-ai.ts` | 772 | Acción "getTouchpixThemes" huérfana (0 imports o llamadas en todo el código). |
 | `src/app/actions/touchpix-ai.ts` | 786 | Acción "getTouchpixCharacters" huérfana (0 imports o llamadas en todo el código). |
 | `src/app/(app)/contabilidad/crm/marketing-ads/page.tsx` | 1 | Pantalla "/contabilidad/crm/marketing-ads" huérfana (no existe ningún enlace o botón que lleve a ella). |
-| `src/app/(app)/customers/[id]/edit/page.tsx` | 1 | Pantalla "/customers/[id]/edit" huérfana (no existe ningún enlace o botón que lleve a ella). |
-| `src/app/(app)/empleados/[id]/editar/page.tsx` | 1 | Pantalla "/empleados/[id]/editar" huérfana (no existe ningún enlace o botón que lleve a ella). |
-| `src/app/(app)/empleados/[id]/historial/page.tsx` | 1 | Pantalla "/empleados/[id]/historial" huérfana (no existe ningún enlace o botón que lleve a ella). |
-| `src/app/(app)/empresa/activos-fijos/editar/[id]/page.tsx` | 1 | Pantalla "/empresa/activos-fijos/editar/[id]" huérfana (no existe ningún enlace o botón que lleve a ella). |
-| `src/app/(app)/empresa/activos-fijos/[id]/editar/page.tsx` | 1 | Pantalla "/empresa/activos-fijos/[id]/editar" huérfana (no existe ningún enlace o botón que lleve a ella). |
 | `src/app/(app)/empresa/dashboard/page.tsx` | 1 | Pantalla "/empresa/dashboard" solo tiene enlaces en tests (2 tests), no está enlazada en el menú. |
-| `src/app/(app)/empresa/insumos/[id]/editar/page.tsx` | 1 | Pantalla "/empresa/insumos/[id]/editar" huérfana (no existe ningún enlace o botón que lleve a ella). |
-| `src/app/(app)/empresa/menus/[menuId]/editar/page.tsx` | 1 | Pantalla "/empresa/menus/[menuId]/editar" huérfana (no existe ningún enlace o botón que lleve a ella). |
 | `src/app/(app)/empresa/personal/[empleadoId]/historial/page.tsx` | 1 | Pantalla "/empresa/personal/[empleadoId]/historial" huérfana (no existe ningún enlace o botón que lleve a ella). |
 | `src/app/(app)/empresa/presentacion-led/configuracion/page.tsx` | 1 | Pantalla "/empresa/presentacion-led/configuracion" huérfana (no existe ningún enlace o botón que lleve a ella). |
-| `src/app/(app)/empresa/salones/[id]/croquis/page.tsx` | 1 | Pantalla "/empresa/salones/[id]/croquis" huérfana (no existe ningún enlace o botón que lleve a ella). |
-| `src/app/(app)/empresa/salones/[id]/diseno/page.tsx` | 1 | Pantalla "/empresa/salones/[id]/diseno" huérfana (no existe ningún enlace o botón que lleve a ella). |
-| `src/app/(app)/empresa/todos-los-servicios/[id]/editar/page.tsx` | 1 | Pantalla "/empresa/todos-los-servicios/[id]/editar" huérfana (no existe ningún enlace o botón que lleve a ella). |
+| `src/app/(app)/empresa/todos-los-servicios/[id]/editar/page.tsx` | 1 | Pantalla "/empresa/todos-los-servicios/[id]/editar" solo tiene enlaces en tests (1 tests), no está enlazada en el menú. |
+| `src/app/(app)/fiestas/[id]/centro-de-mando/page.tsx` | 1 | Pantalla "/fiestas/[id]/centro-de-mando" huérfana (no existe ningún enlace o botón que lleve a ella). |
+| `src/app/(app)/fiestas/[id]/centro-experiencia/page.tsx` | 1 | Pantalla "/fiestas/[id]/centro-experiencia" solo tiene enlaces en tests (1 tests), no está enlazada en el menú. |
+| `src/app/(app)/fiestas/[id]/cierre-mundial/page.tsx` | 1 | Pantalla "/fiestas/[id]/cierre-mundial" solo tiene enlaces en tests (1 tests), no está enlazada en el menú. |
+| `src/app/(app)/fiestas/[id]/experiencia-tecnologica-ak/page.tsx` | 1 | Pantalla "/fiestas/[id]/experiencia-tecnologica-ak" huérfana (no existe ningún enlace o botón que lleve a ella). |
+| `src/app/(app)/fiestas/[id]/show-control/page.tsx` | 1 | Pantalla "/fiestas/[id]/show-control" huérfana (no existe ningún enlace o botón que lleve a ella). |
 | `src/app/(app)/fiestas/nueva/accesos-personal/page.tsx` | 1 | Pantalla "/fiestas/nueva/accesos-personal" huérfana (no existe ningún enlace o botón que lleve a ella). |
 | `src/app/(app)/fiestas/nueva/alergias/page.tsx` | 1 | Pantalla "/fiestas/nueva/alergias" huérfana (no existe ningún enlace o botón que lleve a ella). |
 | `src/app/(app)/fiestas/nueva/buzon/page.tsx` | 1 | Pantalla "/fiestas/nueva/buzon" huérfana (no existe ningún enlace o botón que lleve a ella). |
@@ -179,54 +175,16 @@
 | `src/app/(app)/fiestas/nueva/playlist-pantalla/page.tsx` | 1 | Pantalla "/fiestas/nueva/playlist-pantalla" huérfana (no existe ningún enlace o botón que lleve a ella). |
 | `src/app/(app)/fiestas/nueva/proveedores-portal/page.tsx` | 1 | Pantalla "/fiestas/nueva/proveedores-portal" solo tiene enlaces en tests (1 tests), no está enlazada en el menú. |
 | `src/app/(app)/fiestas/nueva/reuniones/imprimir/page.tsx` | 1 | Pantalla "/fiestas/nueva/reuniones/imprimir" solo tiene enlaces en tests (1 tests), no está enlazada en el menú. |
-| `src/app/(app)/fiestas/[id]/ak-100/page.tsx` | 1 | Pantalla "/fiestas/[id]/ak-100" huérfana (no existe ningún enlace o botón que lleve a ella). |
-| `src/app/(app)/fiestas/[id]/centro/page.tsx` | 1 | Pantalla "/fiestas/[id]/centro" huérfana (no existe ningún enlace o botón que lleve a ella). |
-| `src/app/(app)/fiestas/[id]/centro-de-mando/page.tsx` | 1 | Pantalla "/fiestas/[id]/centro-de-mando" huérfana (no existe ningún enlace o botón que lleve a ella). |
-| `src/app/(app)/fiestas/[id]/centro-experiencia/page.tsx` | 1 | Pantalla "/fiestas/[id]/centro-experiencia" huérfana (no existe ningún enlace o botón que lleve a ella). |
-| `src/app/(app)/fiestas/[id]/cierre-mundial/page.tsx` | 1 | Pantalla "/fiestas/[id]/cierre-mundial" huérfana (no existe ningún enlace o botón que lleve a ella). |
-| `src/app/(app)/fiestas/[id]/comando-total/page.tsx` | 1 | Pantalla "/fiestas/[id]/comando-total" huérfana (no existe ningún enlace o botón que lleve a ella). |
-| `src/app/(app)/fiestas/[id]/experiencia-tecnologica-ak/page.tsx` | 1 | Pantalla "/fiestas/[id]/experiencia-tecnologica-ak" huérfana (no existe ningún enlace o botón que lleve a ella). |
-| `src/app/(app)/fiestas/[id]/show-control/page.tsx` | 1 | Pantalla "/fiestas/[id]/show-control" huérfana (no existe ningún enlace o botón que lleve a ella). |
-| `src/app/(app)/fiestas/[id]/timeline/page.tsx` | 1 | Pantalla "/fiestas/[id]/timeline" huérfana (no existe ningún enlace o botón que lleve a ella). |
-| `src/app/(app)/invoices/[id]/edit/page.tsx` | 1 | Pantalla "/invoices/[id]/edit" huérfana (no existe ningún enlace o botón que lleve a ella). |
-| `src/app/(app)/presupuestos/[id]/edit/page.tsx` | 1 | Pantalla "/presupuestos/[id]/edit" huérfana (no existe ningún enlace o botón que lleve a ella). |
-| `src/app/(app)/presupuestos/[id]/editar/page.tsx` | 1 | Pantalla "/presupuestos/[id]/editar" huérfana (no existe ningún enlace o botón que lleve a ella). |
-| `src/app/(app)/presupuestos/[id]/estado-de-cuenta/page.tsx` | 1 | Pantalla "/presupuestos/[id]/estado-de-cuenta" huérfana (no existe ningún enlace o botón que lleve a ella). |
-| `src/app/(app)/presupuestos/[id]/recibo-contrato/page.tsx` | 1 | Pantalla "/presupuestos/[id]/recibo-contrato" huérfana (no existe ningún enlace o botón que lleve a ella). |
-| `src/app/(app)/presupuestos/[id]/ver/page.tsx` | 1 | Pantalla "/presupuestos/[id]/ver" huérfana (no existe ningún enlace o botón que lleve a ella). |
-| `src/app/(app)/proveedores/[id]/edit/page.tsx` | 1 | Pantalla "/proveedores/[id]/edit" huérfana (no existe ningún enlace o botón que lleve a ella). |
 | `src/app/(app)/repaso-diario/page.tsx` | 1 | Pantalla "/repaso-diario" solo tiene enlaces en tests (1 tests), no está enlazada en el menú. |
+| `src/app/(app)/settings/ai-assistant/page.tsx` | 1 | Pantalla "/settings/ai-assistant" huérfana (no existe ningún enlace o botón que lleve a ella). |
 | `src/app/(app)/settings/contratos/clausulas/page.tsx` | 1 | Pantalla "/settings/contratos/clausulas" huérfana (no existe ningún enlace o botón que lleve a ella). |
 | `src/app/(app)/settings/mapa-tecnologico-ak/page.tsx` | 1 | Pantalla "/settings/mapa-tecnologico-ak" huérfana (no existe ningún enlace o botón que lleve a ella). |
 | `src/app/(app)/settings/promos/page.tsx` | 1 | Pantalla "/settings/promos" huérfana (no existe ningún enlace o botón que lleve a ella). |
 | `src/app/compras/page.tsx` | 1 | Pantalla "/compras" solo tiene enlaces en tests (2 tests), no está enlazada en el menú. |
-| `src/app/evento/barra/[fiestaId]/barman/page.tsx` | 1 | Pantalla "/evento/barra/[fiestaId]/barman" huérfana (no existe ningún enlace o botón que lleve a ella). |
-| `src/app/evento/barra/[fiestaId]/stats/page.tsx` | 1 | Pantalla "/evento/barra/[fiestaId]/stats" huérfana (no existe ningún enlace o botón que lleve a ella). |
-| `src/app/evento/en-vivo/[fiestaId]/invitados/page.tsx` | 1 | Pantalla "/evento/en-vivo/[fiestaId]/invitados" huérfana (no existe ningún enlace o botón que lleve a ella). |
-| `src/app/evento/en-vivo/[fiestaId]/organizador/page.tsx` | 1 | Pantalla "/evento/en-vivo/[fiestaId]/organizador" huérfana (no existe ningún enlace o botón que lleve a ella). |
-| `src/app/evento/en-vivo/[fiestaId]/pantalla/page.tsx` | 1 | Pantalla "/evento/en-vivo/[fiestaId]/pantalla" huérfana (no existe ningún enlace o botón que lleve a ella). |
-| `src/app/evento/staff/[fiestaId]/cronograma/page.tsx` | 1 | Pantalla "/evento/staff/[fiestaId]/cronograma" huérfana (no existe ningún enlace o botón que lleve a ella). |
-| `src/app/evento/totem/[fiestaId]/[totemId]/page.tsx` | 1 | Pantalla "/evento/totem/[fiestaId]/[totemId]" huérfana (no existe ningún enlace o botón que lleve a ella). |
-| `src/app/evento/[id]/video-recuerdo/page.tsx` | 1 | Pantalla "/evento/[id]/video-recuerdo" huérfana (no existe ningún enlace o botón que lleve a ella). |
-| `src/app/invitacion/[fiestaId]/invitado/[guestId]/page.tsx` | 1 | Pantalla "/invitacion/[fiestaId]/invitado/[guestId]" huérfana (no existe ningún enlace o botón que lleve a ella). |
-| `src/app/invitacion/[fiestaId]/recap/page.tsx` | 1 | Pantalla "/invitacion/[fiestaId]/recap" huérfana (no existe ningún enlace o botón que lleve a ella). |
-| `src/app/invitacion/[fiestaId]/rsvp/page.tsx` | 1 | Pantalla "/invitacion/[fiestaId]/rsvp" huérfana (no existe ningún enlace o botón que lleve a ella). |
-| `src/app/invitado/[fiestaId]/[invitadoId]/page.tsx` | 1 | Pantalla "/invitado/[fiestaId]/[invitadoId]" huérfana (no existe ningún enlace o botón que lleve a ella). |
 | `src/app/marketing/checklist/page.tsx` | 1 | Pantalla "/marketing/checklist" huérfana (no existe ningún enlace o botón que lleve a ella). |
 | `src/app/marketing/plantillas/page.tsx` | 1 | Pantalla "/marketing/plantillas" huérfana (no existe ningún enlace o botón que lleve a ella). |
-| `src/app/portal/[fiestaId]/contrato/page.tsx` | 1 | Pantalla "/portal/[fiestaId]/contrato" huérfana (no existe ningún enlace o botón que lleve a ella). |
-| `src/app/portal/[fiestaId]/moodboard/page.tsx` | 1 | Pantalla "/portal/[fiestaId]/moodboard" huérfana (no existe ningún enlace o botón que lleve a ella). |
-| `src/app/portal/[fiestaId]/[module]/page.tsx` | 1 | Pantalla "/portal/[fiestaId]/[module]" huérfana (no existe ningún enlace o botón que lleve a ella). |
-| `src/app/portal-cliente/[id]/confirmar-invitados/page.tsx` | 1 | Pantalla "/portal-cliente/[id]/confirmar-invitados" huérfana (no existe ningún enlace o botón que lleve a ella). |
-| `src/app/portal-cliente/[id]/faq/page.tsx` | 1 | Pantalla "/portal-cliente/[id]/faq" huérfana (no existe ningún enlace o botón que lleve a ella). |
-| `src/app/portal-cliente/[id]/fotos-video/page.tsx` | 1 | Pantalla "/portal-cliente/[id]/fotos-video" huérfana (no existe ningún enlace o botón que lleve a ella). |
-| `src/app/portal-cliente/[id]/menu/page.tsx` | 1 | Pantalla "/portal-cliente/[id]/menu" huérfana (no existe ningún enlace o botón que lleve a ella). |
-| `src/app/portal-cliente/[id]/muro-social/page.tsx` | 1 | Pantalla "/portal-cliente/[id]/muro-social" huérfana (no existe ningún enlace o botón que lleve a ella). |
-| `src/app/portal-cliente/[id]/musica/page.tsx` | 1 | Pantalla "/portal-cliente/[id]/musica" huérfana (no existe ningún enlace o botón que lleve a ella). |
-| `src/app/portal-invitado/[fiestaId]/[guestId]/page.tsx` | 1 | Pantalla "/portal-invitado/[fiestaId]/[guestId]" huérfana (no existe ningún enlace o botón que lleve a ella). |
+| `src/app/prospectos/[prospectId]/page.tsx` | 1 | Pantalla "/prospectos/[prospectId]" solo tiene enlaces en tests (2 tests), no está enlazada en el menú. |
 | `src/app/prospectos/page.tsx` | 1 | Pantalla "/prospectos" solo tiene enlaces en tests (2 tests), no está enlazada en el menú. |
-| `src/app/prospectos/[prospectId]/page.tsx` | 1 | Pantalla "/prospectos/[prospectId]" huérfana (no existe ningún enlace o botón que lleve a ella). |
-| `src/app/recepcion/[fiestaId]/page.tsx` | 1 | Pantalla "/recepcion/[fiestaId]" solo tiene enlaces en tests (2 tests), no está enlazada en el menú. |
 | `src/app/recursos-multi-evento/page.tsx` | 1 | Pantalla "/recursos-multi-evento" huérfana (no existe ningún enlace o botón que lleve a ella). |
 
 ### Pasada 3: ¿Muestra datos inventados? (Simulaciones y fallbacks engañosos) (1)
@@ -354,8 +312,8 @@
 | `src/components/crm/BookingConfirmationDialog.tsx` | 104 | Promesa en pantalla ("automáticamente"): "description: "Se ha creado el cliente y activado el evento automáticamente."," |
 | `src/components/crm/BookingConfirmationDialog.tsx` | 407 | Promesa en pantalla ("automáticamente"): "<p>● Se creará automáticamente la ficha del cliente.</p>" |
 | `src/components/gastronomia/GestionBebidas.tsx` | 203 | Promesa en pantalla ("automáticamente"): "Activa y configura las bebidas para el evento. Los cambios se guardan automáticamente." |
+| `src/components/invitacion/InvitacionConfigPanel.tsx` | 325 | Promesa en pantalla ("automáticamente"): "<p className="text-[10px] text-muted-foreground">Cambiá el color principal y TODA la invit" |
 | `src/components/invitacion/edit/SeccionConfirmacion.tsx` | 51 | Promesa en pantalla ("automáticamente"): "Nota: El sistema detecta automáticamente si el evento es una Boda para adaptar las opcione" |
 | `src/components/invitacion/edit/SeccionItinerario.tsx` | 41 | Promesa en pantalla ("automáticamente"): "El itinerario se toma automáticamente del módulo de "Cronograma" del planificador." |
-| `src/components/invitacion/InvitacionConfigPanel.tsx` | 325 | Promesa en pantalla ("automáticamente"): "<p className="text-[10px] text-muted-foreground">Cambiá el color principal y TODA la invit" |
 | `src/components/payments/mercadopago-result-client.tsx` | 94 | Promesa en pantalla ("automáticamente"): ": 'Mercado Pago aprobo el cobro y el saldo del presupuesto se actualizo automaticamente.'," |
 | `src/components/presupuestos/paso-2-servicios.tsx` | 125 | Promesa en pantalla ("automáticamente"): "title: "Servicio añadido automáticamente"," |

@@ -3290,6 +3290,47 @@ pasa si dos lo hacen a la vez?"**. Ninguno de los cuatro era un error de program
 Quedaron cuatro pruebas que los congelan, en
 `src/__tests__/lo-automatico-no-sale-dos-veces.test.ts`.
 
+## La auditoría que corre sola, y las 44 falsas alarmas que traía (20 de agosto de 2026)
+
+Ahora existe `npm run auditoria`: corre las cuatro preguntas del método sobre los
+archivos, no usa inteligencia artificial, tarda segundos y escribe un informe en
+`auditoria-out/informe.md`. **No frena la compilación**, a propósito: un control que
+frena entregas lo apaga alguien el primer día apurado.
+
+### Lo que traía mal, y por qué importa tanto
+
+**De 66 pantallas reportadas como "sin puerta", 44 sí tenían su botón.** El defecto era
+de una línea: para buscar quién enlaza a `/empresa/menus/[menuId]/editar`, sacaba el
+parámetro pero **dejaba las dos barras pegadas** y buscaba `/empresa/menus//editar`,
+que no existe en ningún lado. Toda pantalla con parámetro en la dirección salía
+reportada como huérfana.
+
+Ahora busca los **tramos fijos** por separado —`/empresa/menus/` y `/editar`— y pide
+que estén los dos en el mismo archivo, que es como se escriben de verdad:
+``href={`/empresa/menus/${menu.id}/editar`}``.
+
+**Por qué esto no era un detalle:** la orden lo decía en negrita. Un informe con
+falsas alarmas no lo lee nadie dos veces, y el valor entero de la herramienta es que
+uno pueda confiar en el número. Quedaron **31 pantallas sin puerta, y son reales**:
+se verificaron a mano cinco al azar y ninguna tiene enlace.
+
+### El choque entre dos controles
+
+El informe copia textos del código, y uno de ellos es el de la pantalla que **repara
+acentos rotos**, que muestra el ejemplo roto a propósito. Eso hacía que correr la
+auditoría dejara en rojo el control de acentos, que es uno de los cinco de salud.
+El informe queda declarado como generado en las dos puntas —el script y la prueba—,
+igual que ya estaban la prueba de acentos y esa misma pantalla.
+
+### Lo que el primer informe encontró de verdad
+
+- **31 pantallas sin ninguna forma de llegar** y una buena cantidad de componentes que
+  no usa nadie. Son para decidir de a uno: no se toca nada todavía.
+- **Las cuatro tareas automáticas figuran como "nunca corrió"**, que era cierto hasta
+  que el dueño prendió los despertadores.
+- **Un solo dato inventado en pantalla**, que es una buena noticia: era el hallazgo más
+  temido y quedó casi limpio.
+
 ## Cómo agregar algo a esta lista
 
 **Se anota SIEMPRE, en la misma propuesta que toca el código.** Orden del dueño
