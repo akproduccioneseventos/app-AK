@@ -4,8 +4,7 @@ import { z } from 'zod';
 import { generateWithGeminiFallback, geminiProModel } from '@/ai/genkit';
 import { readData, writeData } from '@/lib/data-service';
 import { uploadToStorage } from '@/lib/firebase/storage';
-import { generateGeminiImage } from '@/lib/ai/gemini-image';
-import { getPostImage } from '@/data/blog-posts';
+import { fotoDeLaNota } from '@/lib/blog/foto-de-la-nota';
 import type { BlogPost } from '@/types/blog';
 import type { SocialPost } from '@/types/social-media';
 
@@ -76,6 +75,16 @@ function safeSlug(value: string) {
   return normalizeTopic(value).slice(0, 90) || `consejos-ak-${Date.now()}`;
 }
 
+/**
+ * La foto de la nota: siempre una foto real de una fiesta de AK.
+ *
+ * Antes se pedia una imagen inventada y el catalogo era solo el plan B. Se dio
+ * vuelta a proposito: una foto real de la barra montada en Salto muestra el
+ * producto que se puede contratar, y una imagen generada no muestra nada. Ademas
+ * generar una imagen por nota era la parte cara de la nota entera.
+ *
+ * El detalle del criterio, en `src/lib/blog/foto-de-la-nota.ts`.
+ */
 async function createBlogImage(options: {
   slug: string;
   title: string;
@@ -83,29 +92,17 @@ async function createBlogImage(options: {
   prompt: string;
   alt: string;
 }): Promise<NonNullable<BlogPost['image']>> {
-  try {
-    const base64 = await generateGeminiImage({
-      prompt: `${options.prompt}. Fotografia editorial realista para AK Producciones, Salto Uruguay. Formato horizontal 16:9. Sin letras, sin marcas, sin collage.`,
-      aspectRatio: '16:9',
-      imageSize: '1K',
-    });
-
-    if (base64) {
-      const imageUrl = await uploadToStorage(
-        Buffer.from(base64, 'base64'),
-        `public/blog/${options.slug}-${Date.now()}.png`,
-        'image/png',
-        true,
-      );
-      return { url: imageUrl, alt: options.alt, source: 'gemini' };
-    }
-  } catch (error) {
-    console.warn('[blog-ai-generator] Gemini image unavailable; using catalog fallback.', error);
-  }
+  const foto = fotoDeLaNota({
+    slug: options.slug,
+    title: options.title,
+    category: options.category,
+  });
 
   return {
-    url: getPostImage(options.slug, options.title, options.category),
-    alt: options.alt || options.title,
+    url: foto.url,
+    // El texto alternativo describe lo que se ve, no repite el titulo: es lo que
+    // lee Google y lo que escucha quien no puede ver la pantalla.
+    alt: foto.alt,
     source: 'catalog',
   };
 }
