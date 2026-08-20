@@ -28,6 +28,17 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/u
 import { useAutoSave } from '@/hooks/use-auto-save';
 import { AutoSaveIndicator } from '@/components/ui/auto-save-indicator';
 
+/** Fondo neutro mientras no se cargo una foto. Antes se traia una al azar de internet. */
+const FONDO_SIN_FOTO =
+  'data:image/svg+xml;utf8,' +
+  encodeURIComponent(
+    '<svg xmlns="http://www.w3.org/2000/svg" width="8" height="4">' +
+      '<defs><linearGradient id="g" x1="0" y1="0" x2="1" y2="1">' +
+      '<stop offset="0%" stop-color="#f3efe9"/><stop offset="100%" stop-color="#ddd5c8"/>' +
+      '</linearGradient></defs><rect width="8" height="4" fill="url(%23g)"/></svg>'
+  );
+
+
 /** Escape user-supplied text before embedding in raw HTML strings. */
 function escapeHtml(str: string): string {
   return str
@@ -120,7 +131,7 @@ const TableCardFace: React.FC<{
       {!data.cardBgColor && (
         <div className="absolute inset-0 opacity-100 -z-10">
           <NextImage
-            src="https://picsum.photos/seed/lilies-frame/800/600"
+            src={data.backgroundImageUrl || FONDO_SIN_FOTO}
             layout="fill"
             objectFit="cover"
             alt=""

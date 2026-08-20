@@ -24,6 +24,14 @@ anotado, la próxima auditoría lo va a volver a encontrar.
   - **Bloque 6 — Que el anfitrión pueda cargar su historia y sus hoteles (`src/components/invitacion/InvitacionConfigPanel.tsx`):** Nuevos acordeones en el editor de página web de la fiesta para "Nuestra Historia" (hitos con fecha, título, descripción, subida/bajada de orden y borrado) y "Hospedajes Recomendados" (hoteles con nombre, dirección, teléfono, enlace de reserva, reordenamiento y borrado). Sin datos de muestra ni ejemplos precargados (listas vacías por defecto). Se ocultan automáticamente si no tienen contenido.
   - **Referencia de videos de Plataforma 360 (`ARELI 360 AK`):** Los videos de la plataforma 360 se generan y entregan con la calidad y efectos de producción de referencia: formato vertical, transiciones de velocidad (cámara lenta en el clímax del giro), audio sincronizado, overlay/marco gráfico del evento y entrega instantánea por código QR al celular del invitado.
 
+- **El Tótem de la Barra y el Buzón de Saludos (19 de agosto de 2026):**
+  - **Bloque 1 — El tótem de la barra: que el invitado se lleve su foto (`src/app/evento/barra/[fiestaId]/page.tsx`):** Al sacarse foto o video en el tótem de la barra, la respuesta de `uploadBarMagicPhoto` se aprovecha para mostrar una pantalla completa de éxito "¡Llevate tu recuerdo!". Incluye la foto/video en grande, un código QR grande con fondo blanco y alto contraste para escanear en el salón de noche con el celular y descargarlo, el texto sugerido para compartir en historias con hashtags, botón "Listo" para volver enseguida al inicio y auto-retorno automático tras 20 segundos de inactividad. **Cero botones de impresión.**
+  - **Bloque 2 — Foto guardada con el trago pedido (`src/app/evento/barra/[fiestaId]/page.tsx`, `src/app/actions/fiesta/barra-tecnologica.actions.ts`):** Si el invitado pidió un trago en el kiosco antes de sacarse la foto, se envían automáticamente `drinkId` y `drinkName` en el FormData de la subida para registrar con qué trago se sacó el recuerdo. Si no pidió trago, se sube como recuerdo general.
+  - **Bloque 3 — Interruptor de seguir en redes sociales (`src/app/evento/barra/[fiestaId]/page.tsx`):** Si `settings.requireSocialFollowForPhotos` está prendido, antes de subir se muestra un paso simple con enlace al Instagram oficial de AK (`https://www.instagram.com/akproduccioneseventos/`), botón "¡Ya los sigo!" y botón "Continuar sin seguir" para no trabar al invitado. Si está apagado, se sube directamente sin pasos extra.
+  - **Bloque 4 — El buzón de saludos: foto de recuerdo y puerta de entrada (`src/app/evento/buzon/[fiestaId]/page.tsx`, `src/app/actions/buzon.ts`, `src/lib/buzon/media-upload.ts`, `src/lib/guest-portal/public-event-navigation.ts`, `src/app/invitacion/[fiestaId]/invitado/[guestId]/page.tsx`):**
+    - *4.1 Foto en el Buzón:* Se agregó el modo para sacarse una foto con cámara frontal (con cuenta regresiva y vista previa antes de enviar) o subir una foto desde la galería, con dedicatoria corta y opción de cápsula del tiempo. El video del buzón mantiene su duración de 15 segundos (mientras que el de la barra dura 8s; no se mezclan).
+    - *4.2 Puerta en el Portal del Invitado:* Se agregó la herramienta "Buzón de saludos" en el portal del invitado (`buildPublicEventTools`) con ícono de corazón, condicionado a que la fiesta tenga el buzón habilitado (`buzonConfig.enabled !== false`, `showBuzon !== false` y módulo `buzon`). Si está apagado, no se muestra el botón.
+
 - **La Reseña de Google y el Panel que Trabaja Solo (18 de agosto de 2026):**
   - **Bloque 1 — Pedido de reseña de Google al final de la encuesta (`src/app/feedback/[fiestaId]/page.tsx`):** Al finalizar la encuesta pública de satisfacción, se ofrece dejar la reseña en Google con un botón directo a todos los clientes sin gatekeeping (cumpliendo con la directiva anti-sanción de Google). Los clientes con bajas calificaciones reciben un mensaje empático previo asegurando contacto de soporte, pero conservando el botón público.
   - **Bloque 2 — Seguimiento de reseñas de los últimos 30 días (`src/lib/presencia-digital/resenas-seguimiento.ts`, `src/app/(app)/empresa/presencia-digital/presencia-digital-client.tsx`):** Lista en la solapa Ficha de Google con todas las fiestas finalizadas en los últimos 30 días, estado de solicitud y botón de WhatsApp con mensaje personalizado en criollo y enlace a `/feedback/[fiestaId]`. Acción `marcarResenaSolicitada` para evitar solicitudes repetidas.
@@ -2637,6 +2645,161 @@ lugares se enlaza cada una. Dos tenían cero:
 **El método sirve y conviene repetirlo:** contar desde cuántos lugares se enlaza
 cada pantalla encuentra en un minuto lo que una auditoría de código no ve, porque el
 código está bien — lo que falta es la puerta.
+
+## Los impresos de las mesas salían con el nombre y la fecha de mentira (19 de agosto de 2026)
+
+**Éste llegaba impreso a la mesa, delante de los invitados.**
+
+Los números de mesa, el menú de mesa y la carta de tragos arrancaban con
+`protagonistaNombre: "La Agasajada"`, `fechaEvento: "01/01/2025"` y una foto de
+fondo traída al azar de internet.
+
+El código para poner el nombre y la fecha **reales** de la fiesta existía y estaba
+bien escrito: `if (!mergedData.protagonistaNombre) mergedData.protagonistaNombre =
+fiestaData.configuracion.protagonista1Nombre`. Pero **nunca se ejecutaba**, porque
+el campo jamás estaba vacío: el ejemplo ya ocupaba el lugar.
+
+Resultado: se imprimían con "La Agasajada" y "01/01/2025" salvo que alguien los
+escribiera a mano.
+
+**Cómo quedó:** los tres arrancan **vacíos**, y así el relleno con los datos de la
+fiesta funciona como estaba pensado. Con prueba
+(`src/__tests__/impresos-con-los-datos-reales.test.ts`).
+
+**Y había un cuarto caso, encontrado en el inventario del 19 de agosto:**
+`numeroPrincipal: 'Mis XV'` en la carta de tragos. En una **boda**, la carta impresa
+decía **"Mis XV"**: el código que pone "Nuestra Boda" según el tipo de fiesta
+preguntaba si el campo estaba vacío, y nunca lo estaba. Corregido igual, y la prueba
+ahora lo cubre.
+
+**La lección, que vale para toda la app:** un valor de ejemplo puesto como defecto
+**desactiva el código que pondría el dato real**, porque ese código casi siempre
+pregunta "¿está vacío?". Un defecto de relleno no es sólo feo: rompe en silencio el
+mecanismo que lo iba a reemplazar.
+
+**Dónde más mirar si aparece de nuevo:** todos los rellenos de este tipo viven como
+`if (!mergedX.campo)` en las pantallas de `fiestas/nueva/`. Se listan con una
+búsqueda de `if (!merged` y se compara cada campo contra su valor por defecto en
+`src/lib/fiesta-defaults.ts`. Si el defecto no está vacío, el relleno está muerto.
+
+## Tres controles automáticos que hacen la auditoría sola (19 de agosto de 2026)
+
+**Los dos hallazgos reales del día no salieron de leer código: salieron de contar.**
+Los ayudantes opinando dieron 70% de falsas alarmas; las cuentas mecánicas dieron
+100% de aciertos. Así que las cuentas quedaron convertidas en pruebas.
+
+1. **`auditoria-defectos-tapados.test.ts`** — junta todos los campos que alguna
+   pantalla intenta rellenar con el dato real de la fiesta (`if (!algo.campo)`) y
+   verifica que el valor por defecto esté vacío. Si alguien pone un ejemplo, falla
+   acá y no en una mesa impresa. **Probado a propósito:** se le volvió a meter
+   `numeroPrincipal: 'Mis XV'` y lo agarró al instante, nombrándolo.
+
+   Ojo con la distinción que lo hace útil: los rellenos con valor fijo
+   (`fontFamily = 'Playfair Display'`) son inofensivos y no se cuentan; sólo importan
+   los que van a buscar el dato a la fiesta.
+
+2. **`auditoria-pantallas-sin-puerta.test.ts`** — cuenta desde cuántos lugares se
+   enlaza cada pantalla del evento. Encuentra lo que ninguna auditoría de código ve,
+   porque el código está bien: lo que falta es el enlace. Ya aparecieron cuatro así.
+   Las que se abren por QR o por enlace del equipo van declaradas con su motivo.
+
+3. **`auditoria-puertas-abiertas.test.ts`** — lista las funciones de servidor que no
+   comprueban quién las llama. **Encontró una real:** `updateFiestaDate` estaba
+   abierta, así que cualquiera que supiera el número de una fiesta podía cambiarle
+   la fecha sin tener cuenta. Se cerró, junto con las tres lecturas de la agenda,
+   que exponían el calendario entero y las reuniones con clientes.
+
+### Cómo funciona el tercero, que es distinto
+
+Quedan **255 funciones en 99 archivos sin revisar una por una**, congeladas en
+`src/__tests__/puertas-pendientes-de-revisar.json`. No significa que estén mal: la
+mayoría son de leer y varias se protegen de formas que el control no reconoce.
+Significa que nadie las miró con esta lupa.
+
+**Desde hoy, cualquier función NUEVA que quede abierta hace fallar la prueba.** La
+lista vieja se vacía de a poco y **no se agranda nunca**. Cuando se revisa una y se
+protege, se saca del archivo y se baja el número del tope.
+
+**Lo que NO hay que hacer si falla:** agregarla al archivo de pendientes. Ese archivo
+sólo se achica.
+
+### Falsas alarmas del control, ya contempladas
+
+- **Los atajos que sólo delegan** (`export async function X() { return Modulo.X(); }`)
+  no se cuentan: la comprobación está en la función de destino. Así se protege
+  `deleteAllFiestas`, que sí pide sesión de administrador.
+- **El cambio de contraseña** se protege pidiendo la contraseña actual, no una
+  sesión. Vale igual.
+
+## Triaje de las puertas abiertas: once cerradas (19 de agosto de 2026)
+
+Tres ayudantes revisaron las 255 funciones congeladas, un tercio cada uno. **De todo
+lo que reportaron, verificado a mano una por una, resultaron reales cuatro cosas** —
+el resto era protección que el control no sabía reconocer.
+
+### Lo que se cerró
+
+- **`updateFiestaDate`** — cambiar la fecha de una fiesta no pedía cuenta. Cualquiera
+  que supiera el número de una fiesta podía moverle la fecha desde afuera.
+- **`getCalendarEvents`, `getAppointments`, `getOcupiedDates`** — dejaban ver el
+  calendario entero, con todas las fiestas y las reuniones con los clientes.
+- **`deleteDocumento`** — el caso más sutil del día. Parecía protegida porque el
+  guardado final sí pide permiso. Pero **el archivo se borra del almacenamiento
+  ANTES de ese guardado**: un desconocido borraba el contrato o la factura de verdad,
+  el guardado le fallaba después, y quedaba la ficha apuntando a un archivo que ya no
+  existe. Subir un documento sí pedía permiso; borrarlo, no.
+- **Nueve funciones de multiagente** — escribían aprendizaje, tareas y avisos sin
+  comprobar nada, aunque sus pantallas están detrás del ingreso.
+- **`saveSimuladorV2Lead`** — pública a propósito, pero **sin freno**: un robot podía
+  llenar el CRM de presupuestos falsos hasta volverlo inservible. Ahora tiene el
+  mismo freno que el formulario de la portada: cuatro por hora y por teléfono.
+
+### Las falsas alarmas, para no volver a gastarlas
+
+- **`deleteAllFiestas` y `resetAllActiveFiestas`** parecían abiertas: delegan en
+  funciones que sí piden sesión de administrador.
+- **`clearSessionCookie`** borra **tu propia** cookie: es el "cerrar sesión". No
+  puede afectar a nadie más.
+- **`addPagoClienteFromPortal`** está bien diseñada: el cliente **informa** un pago,
+  no lo da por cobrado —queda pendiente de confirmación— y valida que no supere el
+  total.
+- **El cambio de contraseña** se protege pidiendo la contraseña actual.
+
+**El tramo de los primeros 33 archivos no tenía ninguna para cerrar.**
+
+**Quedan 247 pendientes de revisar** (eran 255). La lista sólo se achica.
+
+## Cómo es el impreso de verdad de AK (19 de agosto de 2026)
+
+**Dato del dueño, con foto del impreso real.** Sirve para no volver a averiguarlo:
+
+- Papel de **10 x 15 cm**, vertical.
+- **Tres fotos**: una grande arriba a lo ancho, y dos chicas abajo lado a lado.
+- Abajo, el **nombre del homenajeado en letra manuscrita grande** y el motivo más
+  chico ("mis 15 años").
+- **Logo de AK abajo a la izquierda**, sobre **fondo decorado** que combina con la
+  fiesta, no sobre blanco.
+**Cuántas fotos lleva cada estación** (corregido por el dueño el 19 de agosto,
+después de una primera versión equivocada):
+
+- **La fotocabina: TRES fotos** — una grande arriba y dos chicas abajo lado a lado.
+- **El espejo mágico: UNA sola foto.** Mismo papel de 10x15 y misma
+  personalización, pero una sola.
+- **El 360 con inteligencia artificial: UNA sola foto**, igual que el espejo.
+- **La plataforma 360** también imprime.
+- **La barra NO imprime**: ahí la foto va a la pantalla grande y el invitado se la
+  lleva en el celular.
+
+**Qué coincide y qué no con lo que arma la aplicación hoy:**
+
+- **El tamaño está bien**: `src/lib/entretenimiento/tira-fotocabina.ts` arma
+  1200x1800, que es exactamente 10x15. **No se toca.**
+- **El reparto no**: hoy apila tres fotos iguales sobre fondo blanco, con el nombre
+  del evento y la fecha en letra común.
+- **El espejo mágico saca una sola foto** y la manda a imprimir directo, no arma la
+  hoja de tres.
+
+Queda pedido en el bloque 8 de la orden vigente.
 
 ## Cómo agregar algo a esta lista
 

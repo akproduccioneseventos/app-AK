@@ -159,6 +159,16 @@ export async function uploadDocumento(formData: FormData): Promise<{ success: bo
 }
 
 export async function deleteDocumento(fiestaId: string, docId: string): Promise<{ success: boolean; error?: string }> {
+    // El control tiene que estar ACA ARRIBA, no mas abajo.
+    //
+    // Antes no habia ninguno: el guardado del final (`saveFiesta`) si pide permiso,
+    // asi que parecia protegida. Pero el archivo se borra del almacenamiento ANTES
+    // de ese guardado. Un desconocido con el numero de la fiesta y del documento
+    // borraba el contrato o la factura de verdad, el guardado le fallaba despues, y
+    // quedaba la ficha apuntando a un archivo que ya no existe.
+    //
+    // Subir un documento si pedia permiso; borrarlo, no.
+    await requireAppSession();
     try {
         const fiesta = await getFiestaById(fiestaId);
         if (!fiesta) throw new Error("Fiesta no encontrada");

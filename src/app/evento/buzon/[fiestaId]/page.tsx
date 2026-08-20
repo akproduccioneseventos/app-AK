@@ -36,7 +36,7 @@ export default function GuestBuzonPage() {
    * equipo, que la app esta rota. Ahora dice lo que realmente pasa.
    */
   const [motivoSinBuzon, setMotivoSinBuzon] = useState<string | null>(null);
-  const [activeTab, setActiveTab] = useState<'audio' | 'video'>('audio');
+  const [activeTab, setActiveTab] = useState<'audio' | 'video' | 'photo'>('audio');
   const [isLoading, setIsLoading] = useState(true);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [authorName, setAuthorName] = useState('');
@@ -44,12 +44,16 @@ export default function GuestBuzonPage() {
   const [unlockYears, setUnlockYears] = useState<number>(10);
   const [recipientNote, setRecipientNote] = useState('');
   const [showCelebration, setShowCelebration] = useState(false);
-  const [selectedMode, setSelectedMode] = useState<'vhs_record' | 'vhs_upload' | 'audio_record' | 'audio_retro' | 'audio_upload' | null>(null);
+  const [selectedMode, setSelectedMode] = useState<
+    'photo_record' | 'photo_upload' | 'vhs_record' | 'vhs_upload' | 'audio_record' | 'audio_retro' | 'audio_upload' | null
+  >(null);
   const [countdown, setCountdown] = useState<number | null>(null);
 
   const handleSelectMode = (mode: typeof selectedMode) => {
     setSelectedMode(mode);
-    if (mode && mode.startsWith('vhs')) {
+    if (mode && mode.startsWith('photo')) {
+      setActiveTab('photo');
+    } else if (mode && mode.startsWith('vhs')) {
       setActiveTab('video');
     } else if (mode && mode.startsWith('audio')) {
       setActiveTab('audio');
@@ -94,12 +98,19 @@ export default function GuestBuzonPage() {
     setStream(null);
     resetAudioRecording();
     resetVideoUpload();
+    resetPhotoUpload();
     setSelectedMode(null);
   };
 
   // Welcome Audio State
   const [isWelcomePlaying, setIsWelcomePlaying] = useState(false);
   const welcomeAudioRef = useRef<HTMLAudioElement | null>(null);
+
+  // Photo State
+  const [photoFile, setPhotoFile] = useState<File | null>(null);
+  const [photoUrl, setPhotoUrl] = useState<string | null>(null);
+  const [photoState, setPhotoState] = useState<'idle' | 'capturing' | 'review'>('idle');
+  const photoInputRef = useRef<HTMLInputElement | null>(null);
 
   // Audio Phone Cabin State
   const [phoneState, setPhoneState] = useState<'hung_up' | 'off_hook' | 'beeping' | 'recording' | 'review'>('hung_up');
@@ -315,6 +326,10 @@ export default function GuestBuzonPage() {
   useEffect(() => () => {
     if (videoUrl) URL.revokeObjectURL(videoUrl);
   }, [videoUrl]);
+
+  useEffect(() => () => {
+    if (photoUrl) URL.revokeObjectURL(photoUrl);
+  }, [photoUrl]);
 
   // Welcome Audio Control
   const toggleWelcomeAudio = () => {
@@ -847,6 +862,114 @@ export default function GuestBuzonPage() {
     startCamera();
   };
 
+  // PHOTO HANDLING (CAPTURE & UPLOAD)
+  const handlePhotoFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    if (!file.type.startsWith('image/')) {
+      toast({
+        title: 'Archivo Inválido',
+        description: 'Por favor selecciona una foto o imagen.',
+        variant: 'destructive',
+      });
+      return;
+    }
+
+    if (file.size > 15 * 1024 * 1024) {
+      toast({
+        title: 'Foto demasiado grande',
+        description: 'La foto no debe superar los 15MB.',
+        variant: 'destructive',
+      });
+      return;
+    }
+
+    if (photoUrl) URL.revokeObjectURL(photoUrl);
+    setPhotoFile(file);
+    setPhotoUrl(URL.createObjectURL(file));
+    setPhotoState('review');
+  };
+
+  const startPhotoCamera = async () => {
+    try {
+      const mediaStream = await navigator.mediaDevices.getUserMedia({
+        video: { facingMode: 'user', width: { ideal: 1280 }, height: { ideal: 960 } },
+        audio: false,
+      });
+      setStream(mediaStream);
+      streamRef.current = mediaStream;
+      if (videoRef.current) {
+        videoRef.current.srcObject = mediaStream;
+      }
+      setPhotoState('capturing');
+    } catch (err) {
+      console.error(err);
+      toast({
+        title: 'Cámara no disponible',
+        description: 'No se pudo acceder a la cámara para sacar la foto.',
+        variant: 'destructive',
+      });
+    }
+  };
+
+  const capturePhotoWithCountdown = () => {
+    if (countdown !== null) return;
+    let count = 3;
+    setCountdown(count);
+
+    const interval = setInterval(() => {
+      count -= 1;
+      if (count > 0) {
+        setCountdown(count);
+      } else {
+        clearInterval(interval);
+        setCountdown(null);
+        takePhotoSnapshot();
+      }
+    }, 1000);
+  };
+
+  const takePhotoSnapshot = () => {
+    const video = videoRef.current;
+    if (!video) return;
+
+    const canvas = document.createElement('canvas');
+    canvas.width = video.videoWidth || 640;
+    canvas.height = video.videoHeight || 480;
+    const ctx = canvas.getContext('2d');
+    if (!ctx) return;
+
+    // Invertir horizontalmente para efecto espejo natural en selfie
+    ctx.translate(canvas.width, 0);
+    ctx.scale(-1, 1);
+    ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
+
+    canvas.toBlob((blob) => {
+      if (!blob) return;
+      const file = new File([blob], `buzon-foto-${Date.now()}.jpg`, { type: 'image/jpeg' });
+      if (photoUrl) URL.revokeObjectURL(photoUrl);
+      setPhotoFile(file);
+      setPhotoUrl(URL.createObjectURL(blob));
+      setPhotoState('review');
+      stopCamera();
+    }, 'image/jpeg', 0.92);
+  };
+
+  const resetPhotoUpload = () => {
+    if (photoUrl) URL.revokeObjectURL(photoUrl);
+    setPhotoFile(null);
+    setPhotoUrl(null);
+    setPhotoState('idle');
+    stopCamera();
+    if (photoInputRef.current) photoInputRef.current.value = '';
+  };
+
+  const handleReTakePhoto = () => {
+    resetPhotoUpload();
+    startPhotoCamera();
+  };
+
   // Submit Handler
   const handleSubmit = async () => {
     const trimmedName = authorName.trim();
@@ -871,7 +994,11 @@ export default function GuestBuzonPage() {
       if (recipientNote.trim()) formData.append('recipientNote', recipientNote.trim());
     }
 
-    if (activeTab === 'audio' && audioBlob) {
+    if (activeTab === 'photo' && photoFile) {
+      formData.append('file', photoFile, photoFile.name);
+      formData.append('mediaType', 'photo');
+      formData.append('durationSeconds', '0');
+    } else if (activeTab === 'audio' && audioBlob) {
       const audioFileName = audioBlob instanceof File ? audioBlob.name : 'saludo_voz.webm';
       formData.append('file', audioBlob, audioFileName);
       formData.append('mediaType', 'audio');
@@ -896,6 +1023,7 @@ export default function GuestBuzonPage() {
         setShowCelebration(true);
         resetAudioRecording();
         resetVideoUpload();
+        resetPhotoUpload();
         toast({
           title: '¡Mensaje guardado!',
           description: 'Tu saludo se ha guardado en el Buzón de Recuerdos.',
@@ -1027,7 +1155,31 @@ export default function GuestBuzonPage() {
             </div>
 
             <div className="flex flex-col gap-4 mt-2">
-              {/* Opción 1: Grabar Video */}
+              {/* Opción 1: Sacar Foto */}
+              <motion.button
+                whileHover={{ scale: 1.02, y: -2 }}
+                whileTap={{ scale: 0.98 }}
+                onClick={() => { handleSelectMode('photo_record'); startPhotoCamera(); }}
+                className="group relative w-full overflow-hidden rounded-xl border border-border bg-card p-5 text-left shadow-sm transition-all duration-300 hover:border-primary/40 hover:bg-muted/20"
+              >
+                <div className="relative flex items-center gap-4">
+                  <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-xl bg-amber-500/10 text-amber-500 border border-amber-500/20 transition-transform group-hover:scale-110">
+                    <Camera className="h-6 w-6" />
+                  </div>
+                  <div className="flex-1">
+                    <div className="flex items-center gap-2">
+                      <p className="text-sm font-black text-foreground uppercase tracking-wider">Sacar Foto</p>
+                      <span className="inline-flex items-center px-2 py-0.5 rounded-full text-[10px] font-black tracking-widest bg-amber-500 text-black font-mono">
+                        FOTO
+                      </span>
+                    </div>
+                    <p className="mt-1 text-xs text-muted-foreground font-medium">Sacate una selfie de recuerdo con tu dedicatoria.</p>
+                  </div>
+                  <ChevronRight className="h-5 w-5 text-muted-foreground transition-transform group-hover:translate-x-1 group-hover:text-foreground" />
+                </div>
+              </motion.button>
+
+              {/* Opción 2: Grabar Video */}
               <motion.button
                 whileHover={{ scale: 1.02, y: -2 }}
                 whileTap={{ scale: 0.98 }}
@@ -1042,7 +1194,7 @@ export default function GuestBuzonPage() {
                     <div className="flex items-center gap-2">
                       <p className="text-sm font-black text-foreground uppercase tracking-wider">Grabar Video</p>
                       <span className="inline-flex items-center px-2 py-0.5 rounded-full text-[10px] font-black tracking-widest bg-rose-500 text-white animate-pulse">
-                        REC
+                        REC 15s
                       </span>
                     </div>
                     <p className="mt-1 text-xs text-muted-foreground font-medium">Dejá un recuerdo inolvidable en video (15s).</p>
@@ -1051,7 +1203,7 @@ export default function GuestBuzonPage() {
                 </div>
               </motion.button>
 
-              {/* Opción 2: Grabar Audio Directo */}
+              {/* Opción 3: Grabar Audio Directo */}
               <motion.button
                 whileHover={{ scale: 1.02, y: -2 }}
                 whileTap={{ scale: 0.98 }}
@@ -1070,26 +1222,34 @@ export default function GuestBuzonPage() {
                 </div>
               </motion.button>
 
-              <div className="grid grid-cols-2 gap-3">
+              <div className="grid grid-cols-3 gap-2 sm:gap-3">
+                <button
+                  onClick={() => { handleSelectMode('photo_upload'); setTimeout(() => photoInputRef.current?.click(), 100); }}
+                  className="min-h-24 rounded-xl border border-border bg-card px-2.5 py-4 text-left hover:border-primary/40 hover:bg-muted/20 transition shadow-sm"
+                >
+                  <Upload className="w-5 h-5 text-amber-500 mb-2" />
+                  <span className="block text-xs font-black text-foreground uppercase">Subir foto</span>
+                  <span className="block text-[11px] text-muted-foreground mt-0.5">Galería</span>
+                </button>
                 <button
                   onClick={() => handleSelectMode('vhs_upload')}
-                  className="min-h-24 rounded-xl border border-border bg-card px-3 py-4 text-left hover:border-primary/40 hover:bg-muted/20 transition shadow-sm"
+                  className="min-h-24 rounded-xl border border-border bg-card px-2.5 py-4 text-left hover:border-primary/40 hover:bg-muted/20 transition shadow-sm"
                 >
                   <Upload className="w-5 h-5 text-primary mb-2" />
                   <span className="block text-xs font-black text-foreground uppercase">Subir video</span>
-                  <span className="block text-xs text-muted-foreground mt-1">Desde la galería</span>
+                  <span className="block text-[11px] text-muted-foreground mt-0.5">Galería</span>
                 </button>
                 <button
                   onClick={() => handleSelectMode('audio_upload')}
-                  className="min-h-24 rounded-xl border border-border bg-card px-3 py-4 text-left hover:border-primary/40 hover:bg-muted/20 transition shadow-sm"
+                  className="min-h-24 rounded-xl border border-border bg-card px-2.5 py-4 text-left hover:border-primary/40 hover:bg-muted/20 transition shadow-sm"
                 >
                   <Upload className="w-5 h-5 text-primary mb-2" />
                   <span className="block text-xs font-black text-foreground uppercase">Subir audio</span>
-                  <span className="block text-xs text-muted-foreground mt-1">Archivo grabado</span>
+                  <span className="block text-[11px] text-muted-foreground mt-0.5">Archivo</span>
                 </button>
                 <button
                   onClick={() => handleSelectMode('audio_retro')}
-                  className="col-span-2 min-h-16 rounded-xl border border-border bg-card px-4 py-3 flex items-center gap-3 text-left hover:border-amber-500/40 hover:bg-muted/20 transition shadow-sm"
+                  className="col-span-3 min-h-16 rounded-xl border border-border bg-card px-4 py-3 flex items-center gap-3 text-left hover:border-amber-500/40 hover:bg-muted/20 transition shadow-sm"
                 >
                   <Phone className="w-5 h-5 text-amber-500 shrink-0" />
                   <span>
@@ -1116,6 +1276,8 @@ export default function GuestBuzonPage() {
               {/* Title Header for Active Mode */}
               <div className="text-center space-y-1">
                 <h3 className="text-lg font-black uppercase tracking-wider text-foreground">
+                  {selectedMode === 'photo_record' && 'Sacar Foto'}
+                  {selectedMode === 'photo_upload' && 'Subir Foto'}
                   {selectedMode === 'vhs_record' && 'Grabar Video'}
                   {selectedMode === 'vhs_upload' && 'Subir Video'}
                   {selectedMode === 'audio_record' && 'Grabar Audio Directo'}
@@ -1123,6 +1285,8 @@ export default function GuestBuzonPage() {
                   {selectedMode === 'audio_upload' && 'Subir Archivo de Audio'}
                 </h3>
                 <p className="text-xs text-muted-foreground font-semibold uppercase tracking-widest">
+                  {selectedMode === 'photo_record' && 'Sacate una selfie con la cámara frontal'}
+                  {selectedMode === 'photo_upload' && 'Seleccioná una foto de tu galería'}
                   {selectedMode === 'vhs_record' && 'Graba con tu cámara frontal'}
                   {selectedMode === 'vhs_upload' && 'Selecciona un video de tu galería'}
                   {selectedMode === 'audio_record' && 'Graba un saludo de voz directo'}
@@ -1130,6 +1294,115 @@ export default function GuestBuzonPage() {
                   {selectedMode === 'audio_upload' && 'Selecciona un archivo de audio'}
                 </p>
               </div>
+
+              {/* 📸 MODE: PHOTO RECORD 📸 */}
+              {selectedMode === 'photo_record' && (
+                <div className="w-full">
+                  {photoState === 'idle' && (
+                    <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} className="flex flex-col items-center text-center space-y-6 w-full">
+                      <div className="relative w-40 h-40 flex items-center justify-center">
+                        <div className="absolute inset-0 bg-amber-500/20 rounded-full animate-ping opacity-75" style={{ animationDuration: '3s' }} />
+                        <div className="absolute inset-4 bg-amber-500/20 rounded-full animate-pulse" />
+                        <div className="relative z-10 w-24 h-24 bg-amber-500 text-black rounded-full flex items-center justify-center shadow-lg border border-amber-400/50">
+                          <Camera className="w-10 h-10 drop-shadow-md" />
+                        </div>
+                      </div>
+                      <div className="space-y-2">
+                        <p className="text-sm font-bold text-foreground uppercase tracking-widest">Preparado para la foto</p>
+                        <p className="text-xs text-muted-foreground max-w-[240px] leading-relaxed mx-auto">Acomodate frente a la cámara y sonreí.</p>
+                      </div>
+                      <button
+                        onClick={startPhotoCamera}
+                        className="w-full py-3.5 bg-amber-500 hover:bg-amber-400 text-black rounded-lg font-black text-sm uppercase tracking-wider transition-all flex items-center justify-center gap-2 shadow-sm active:scale-95"
+                      >
+                        <Camera className="w-5 h-5" /> Activar Cámara
+                      </button>
+                    </motion.div>
+                  )}
+
+                  {photoState === 'capturing' && (
+                    <motion.div initial={{ opacity: 0, scale: 0.95 }} animate={{ opacity: 1, scale: 1 }} className="relative w-full flex flex-col items-center space-y-4">
+                      <div className="w-full aspect-[4/3] rounded-xl overflow-hidden border border-border bg-black relative shadow-lg">
+                        <video ref={videoRef} autoPlay playsInline muted className="w-full h-full object-cover transform -scale-x-100" />
+                        {countdown !== null && (
+                          <div className="absolute inset-0 z-20 flex items-center justify-center bg-black/60 backdrop-blur-sm">
+                            <motion.span
+                              key={countdown}
+                              initial={{ scale: 0.5, opacity: 0 }}
+                              animate={{ scale: 1.5, opacity: 1 }}
+                              exit={{ scale: 2, opacity: 0 }}
+                              className="text-8xl font-black text-white drop-shadow-[0_0_30px_rgba(255,255,255,0.8)]"
+                            >
+                              {countdown}
+                            </motion.span>
+                          </div>
+                        )}
+                      </div>
+
+                      <button
+                        onClick={capturePhotoWithCountdown}
+                        disabled={countdown !== null}
+                        className="w-full py-3.5 bg-amber-500 hover:bg-amber-400 text-black rounded-lg font-black text-sm uppercase tracking-wider flex items-center justify-center gap-2 transition-transform active:scale-95 disabled:opacity-50"
+                      >
+                        <Camera className="w-5 h-5" /> {countdown !== null ? '¡Sonreí!' : '📸 Sacar Foto'}
+                      </button>
+                    </motion.div>
+                  )}
+
+                  {photoState === 'review' && photoUrl && (
+                    <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} className="w-full flex flex-col items-center gap-4 text-center">
+                      <div className="w-full aspect-[4/3] rounded-xl overflow-hidden bg-black border border-border relative shadow-lg">
+                        {/* eslint-disable-next-line @next/next/no-img-element */}
+                        <img src={photoUrl} alt="Foto capturada" className="w-full h-full object-cover" />
+                      </div>
+                      <div className="flex items-center justify-between w-full px-2">
+                        <div className="text-left">
+                          <p className="text-xs font-black text-foreground uppercase tracking-wider">Foto Lista</p>
+                          <p className="text-xs text-muted-foreground font-bold mt-0.5">Completá tus datos abajo para enviarla.</p>
+                        </div>
+                        <button onClick={handleReTakePhoto} className="flex items-center gap-1.5 px-3 py-2 bg-destructive/10 hover:bg-destructive/20 border border-destructive/20 text-destructive rounded-lg text-xs font-black uppercase tracking-wider transition">
+                          <RefreshCw className="w-3.5 h-3.5" /> Sacar de nuevo
+                        </button>
+                      </div>
+                    </motion.div>
+                  )}
+                </div>
+              )}
+
+              {/* 📸 MODE: PHOTO UPLOAD 📸 */}
+              {selectedMode === 'photo_upload' && (
+                <div className="w-full">
+                  <input type="file" accept="image/*" onChange={handlePhotoFileChange} ref={photoInputRef} className="hidden" />
+                  {photoState === 'idle' || !photoUrl ? (
+                    <button
+                      onClick={() => photoInputRef.current?.click()}
+                      className="w-full p-8 rounded-xl border-2 border-dashed border-border bg-muted/20 hover:bg-muted/40 transition-all flex flex-col items-center justify-center gap-3.5"
+                    >
+                      <Upload className="w-8 h-8 text-amber-500" />
+                      <div className="space-y-1">
+                        <p className="text-xs font-black text-foreground uppercase tracking-wider">Subir Foto de Galería</p>
+                        <p className="text-xs text-muted-foreground font-bold uppercase tracking-widest">JPG, PNG o WEBP (máx. 15MB)</p>
+                      </div>
+                    </button>
+                  ) : (
+                    <div className="w-full flex flex-col items-center gap-4 text-center">
+                      <div className="w-full aspect-[4/3] rounded-xl overflow-hidden bg-black border border-border relative shadow-lg">
+                        {/* eslint-disable-next-line @next/next/no-img-element */}
+                        <img src={photoUrl} alt="Foto cargada" className="w-full h-full object-cover" />
+                      </div>
+                      <div className="flex items-center justify-between w-full px-2">
+                        <div className="text-left">
+                          <p className="text-xs font-black text-foreground uppercase tracking-wider">Foto Cargada</p>
+                          <p className="text-xs text-muted-foreground font-bold mt-0.5">Completá tus datos abajo para enviarla.</p>
+                        </div>
+                        <button onClick={resetPhotoUpload} className="flex items-center gap-1.5 px-3 py-2 bg-destructive/10 hover:bg-destructive/20 border border-destructive/20 text-destructive rounded-lg text-xs font-black uppercase tracking-wider transition">
+                          <RefreshCw className="w-3.5 h-3.5" /> Elegir otra
+                        </button>
+                      </div>
+                    </div>
+                  )}
+                </div>
+              )}
 
               {/* 🔴 MODE: VHS RECORD 🔴 */}
               {selectedMode === 'vhs_record' && (
@@ -1422,8 +1695,8 @@ export default function GuestBuzonPage() {
 
             </div>
 
-            {/* SUBMISSION FORM (Only shown when recording exists) */}
-            {((activeTab === 'audio' && audioUrl && phoneState === 'review') || (activeTab === 'video' && videoUrl && videoState === 'review')) && (
+            {/* SUBMISSION FORM (Only shown when recording/photo exists) */}
+            {((activeTab === 'photo' && photoUrl && photoState === 'review') || (activeTab === 'audio' && audioUrl && phoneState === 'review') || (activeTab === 'video' && videoUrl && videoState === 'review')) && (
               <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} className="mt-6 space-y-4 w-full">
                 <div className="space-y-1.5">
                   <label className="text-xs text-foreground font-black uppercase tracking-wider pl-1">Tu Nombre y Apellido</label>

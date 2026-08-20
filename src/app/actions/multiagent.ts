@@ -185,6 +185,9 @@ export async function getChatsMultiagente(input?: {
   fiestaId?: string;
   limit?: number;
 }): Promise<AkAgentChatSession[]> {
+  // Las pantallas de multiagente son del equipo y estan detras del ingreso, pero la
+  // funcion en si estaba abierta: se podia llamar desde afuera sin cuenta.
+  await verifySession();
   return listMultiAgentChatSessions(input);
 }
 
@@ -196,6 +199,9 @@ export async function guardarAprendizajeAgente(input: {
   module?: string;
   tags?: string[];
 }) {
+  // Las pantallas de multiagente son del equipo y estan detras del ingreso, pero la
+  // funcion en si estaba abierta: se podia llamar desde afuera sin cuenta.
+  await verifySession();
   return saveAgentLearning({
     agentType: input.agentType,
     title: input.title,
@@ -209,10 +215,16 @@ export async function guardarAprendizajeAgente(input: {
 }
 
 export async function getMemoriasMultiagente() {
+  // Las pantallas de multiagente son del equipo y estan detras del ingreso, pero la
+  // funcion en si estaba abierta: se podia llamar desde afuera sin cuenta.
+  await verifySession();
   return listAgentMemoryProfiles();
 }
 
 export async function getMultiAgentTeamBriefing() {
+  // Las pantallas de multiagente son del equipo y estan detras del ingreso, pero la
+  // funcion en si estaba abierta: se podia llamar desde afuera sin cuenta.
+  await verifySession();
   const briefing = await buildMultiAgentTeamBriefing();
   return { success: true, data: briefing };
 }
@@ -227,6 +239,9 @@ async function persistAgentLearning(input: Parameters<typeof saveAgentLearning>[
 }
 
 export async function runMultiAgentTeamReview() {
+  // Las pantallas de multiagente son del equipo y estan detras del ingreso, pero la
+  // funcion en si estaba abierta: se podia llamar desde afuera sin cuenta.
+  await verifySession();
   const briefing = await buildMultiAgentTeamBriefing();
   const agentsToPersist: AkAgentType[] = ['secretaria', 'fiestas_general', 'contable', 'marketing', 'comercial'];
   let saved = 0;
@@ -284,6 +299,9 @@ export async function crearTareaDesdeMultiagente(input: {
   fechaLimite?: string;
   asignadaA?: 'Cliente' | 'Organizador';
 }) {
+  // Las pantallas de multiagente son del equipo y estan detras del ingreso, pero la
+  // funcion en si estaba abierta: se podia llamar desde afuera sin cuenta.
+  await verifySession();
   const fiesta = await getFiestaById(input.fiestaId);
   if (!fiesta) return { success: false, error: 'No encontré la fiesta.' };
 
@@ -337,6 +355,9 @@ export async function crearRecordatorioDesdeMultiagente(input: {
   fiestaId?: string;
   tipo?: 'info' | 'aviso' | 'urgente' | 'exito';
 }) {
+  // Las pantallas de multiagente son del equipo y estan detras del ingreso, pero la
+  // funcion en si estaba abierta: se podia llamar desde afuera sin cuenta.
+  await verifySession();
   if (!input.mensaje.trim()) return { success: false, error: 'El recordatorio necesita mensaje.' };
 
   const result = await createNotification({
@@ -368,6 +389,9 @@ export async function enviarAprendizajeAFiestasGeneral(input: {
   title: string;
   content: string;
 }) {
+  // Las pantallas de multiagente son del equipo y estan detras del ingreso, pero la
+  // funcion en si estaba abierta: se podia llamar desde afuera sin cuenta.
+  await verifySession();
   const title = input.title.trim();
   const content = input.content.trim();
   if (!title || !content) return { success: false, error: 'Falta título o contenido.' };
@@ -401,6 +425,9 @@ export async function cerrarFiestaConRetroalimentacion(input: {
   fiestaId: string;
   notasFinales?: string;
 }) {
+  // Las pantallas de multiagente son del equipo y estan detras del ingreso, pero la
+  // funcion en si estaba abierta: se podia llamar desde afuera sin cuenta.
+  await verifySession();
   const fiesta = await getFiestaById(input.fiestaId);
   if (!fiesta) return { success: false, error: 'No encontré la fiesta.' };
 

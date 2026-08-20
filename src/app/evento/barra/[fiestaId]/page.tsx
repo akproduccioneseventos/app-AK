@@ -22,7 +22,10 @@ import {
   User,
   Palette,
   RefreshCw,
+  Instagram,
+  QrCode,
 } from 'lucide-react';
+import { QRCodeSVG } from 'qrcode.react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { useToast } from '@/hooks/use-toast';
@@ -76,10 +79,23 @@ export default function BarraTecnologicaTouchPage() {
 
   // Ordering State
   const [selectedDrink, setSelectedDrink] = useState<PublicBarDrink | null>(null);
+  const [lastOrderedDrink, setLastOrderedDrink] = useState<PublicBarDrink | null>(null);
   const [isOrdering, setIsOrdering] = useState(false);
   const [lastOrder, setLastOrder] = useState<BarDrinkOrder | null>(null);
   const [isShuffling, setIsShuffling] = useState(false);
   const [activeCategory, setActiveCategory] = useState('Todos');
+
+  // Social Follow Modal State
+  const [showFollowModal, setShowFollowModal] = useState(false);
+
+  // Success QR Screen State
+  const [uploadSuccessData, setUploadSuccessData] = useState<{
+    mediaUrl: string;
+    shareText?: string;
+    isVideo: boolean;
+    previewUrl?: string;
+  } | null>(null);
+  const [successCountdown, setSuccessCountdown] = useState<number>(20);
 
   // Camera & Recording State
   const [capturedDataUrl, setCapturedDataUrl] = useState<string | null>(null);
@@ -597,11 +613,37 @@ export default function BarraTecnologicaTouchPage() {
     return () => window.removeEventListener('online', alVolverLaSenal);
   }, [fiestaId]);
 
+  // Timer automático de 20 segundos para la pantalla de éxito (llevarse la foto)
+  useEffect(() => {
+    if (!uploadSuccessData) return;
+    const timer = setInterval(() => {
+      setSuccessCountdown((prev) => {
+        if (prev <= 1) {
+          clearInterval(timer);
+          setUploadSuccessData(null);
+          setCapturedDataUrl(null);
+          setCurrentScreen('HOME');
+          return 0;
+        }
+        return prev - 1;
+      });
+    }, 1000);
+    return () => clearInterval(timer);
+  }, [uploadSuccessData]);
+
+  const handleFinishSuccess = () => {
+    setUploadSuccessData(null);
+    setCapturedDataUrl(null);
+    setCurrentScreen('HOME');
+    setShowFollowModal(false);
+  };
+
   const submitOrder = async () => {
     if (!selectedDrink || !guestName.trim()) {
       toast({ title: 'Falta tu nombre', description: 'Por favor, ingresá tu nombre.', variant: 'destructive' });
       return;
     }
+    const currentDrink = selectedDrink;
     setIsOrdering(true);
     try {
       if (typeof navigator !== 'undefined' && !navigator.onLine) {
@@ -609,12 +651,13 @@ export default function BarraTecnologicaTouchPage() {
       }
       const result = await createBarDrinkOrder({
         fiestaId,
-        drinkId: selectedDrink.id,
+        drinkId: currentDrink.id,
         guestName,
         tableNumber: 'Totem Táctil',
       });
       if (result.success && result.order) {
         setLastOrder(result.order);
+        setLastOrderedDrink(currentDrink);
         setSelectedDrink(null);
         toast({ title: '¡Trago Pedido!', description: 'Acercate a la barra en unos minutos.' });
       } else {
@@ -625,12 +668,13 @@ export default function BarraTecnologicaTouchPage() {
         type: 'barra_pedido',
         fiestaId,
         payload: {
-          drinkId: selectedDrink.id,
-          drinkName: selectedDrink.nombre,
+          drinkId: currentDrink.id,
+          drinkName: currentDrink.nombre,
           guestName,
           tableNumber: 'Totem Táctil',
         },
       });
+      setLastOrderedDrink(currentDrink);
       setSelectedDrink(null);
       toast({
         title: 'Pedido guardado sin conexión',
@@ -666,8 +710,15 @@ export default function BarraTecnologicaTouchPage() {
     }, 90);
   };
 
-  const uploadMedia = async () => {
+  const uploadMedia = async (followConfirmedDirectly = false) => {
     if (!capturedDataUrl) return;
+
+    // Bloque 3: Si se requiere seguir en redes y no se ha confirmado aún
+    if (settings?.requireSocialFollowForPhotos && !followConfirmedDirectly && !showFollowModal) {
+      setShowFollowModal(true);
+      return;
+    }
+
     setIsUploadingMedia(true);
 
     try {
@@ -677,7 +728,8 @@ export default function BarraTecnologicaTouchPage() {
       const bytes = new Uint8Array(binary.length);
       for (let i = 0; i < binary.length; i++) bytes[i] = binary.charCodeAt(i);
 
-      const fileExt = mime.includes('video') ? (mime.includes('mp4') ? 'mp4' : 'webm') : 'jpg';
+      const isVideo = mime.includes('video');
+      const fileExt = isVideo ? (mime.includes('mp4') ? 'mp4' : 'webm') : 'jpg';
       const file = new File([bytes], `totem-${Date.now()}.${fileExt}`, { type: mime });
 
       const formData = new FormData();
@@ -688,11 +740,24 @@ export default function BarraTecnologicaTouchPage() {
       formData.append('file', file);
       formData.append('source', 'kiosco');
 
+      // Bloque 2: Guardar con qué trago se sacó la foto si pidió uno previamente
+      if (lastOrderedDrink) {
+        formData.append('drinkId', lastOrderedDrink.id);
+        formData.append('drinkName', lastOrderedDrink.nombre);
+      }
+
       const result = await uploadBarMagicPhoto(formData);
-      if (result.success) {
+      if (result.success && result.url) {
         toast({ title: '¡Subido con éxito!', description: 'El archivo se envió a la pantalla gigante.' });
+        setShowFollowModal(false);
+        setUploadSuccessData({
+          mediaUrl: result.url,
+          shareText: result.shareText || `${settings?.hashtag || '#AKProducciones'} ${settings?.instagramHandle || '@akproduccioneseventos'}`,
+          isVideo,
+          previewUrl: capturedDataUrl,
+        });
+        setSuccessCountdown(20);
         stopCamera();
-        setCurrentScreen('HOME');
       } else {
         toast({ title: 'Error al subir', description: result.error, variant: 'destructive' });
       }
@@ -1272,7 +1337,7 @@ export default function BarraTecnologicaTouchPage() {
                     <X className="w-6 h-6 mr-2 text-rose-500" /> Reintentar
                   </Button>
                   <Button
-                    onClick={uploadMedia}
+                    onClick={() => { void uploadMedia(); }}
                     disabled={isUploadingMedia}
                     className="h-[72px] flex-1 rounded-lg border-0 bg-emerald-600 text-xl font-black text-white shadow-xl hover:bg-emerald-500 hover:scale-[1.02]"
                   >
@@ -1364,6 +1429,150 @@ export default function BarraTecnologicaTouchPage() {
                 </Button>
               </div>
             </motion.div>
+          </motion.div>
+        )}
+      </AnimatePresence>
+
+      {/* BLOQUE 3: MODAL DE CONFIRMACIÓN DE REDES SOCIALES (INTERRUPTOR) */}
+      <AnimatePresence>
+        {showFollowModal && (
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            className="fixed inset-0 z-50 flex items-center justify-center bg-black/95 p-4 backdrop-blur-2xl"
+          >
+            <motion.div
+              initial={{ scale: 0.9, y: 20 }}
+              animate={{ scale: 1, y: 0 }}
+              exit={{ scale: 0.9, y: 20 }}
+              className="flex w-full max-w-lg flex-col items-center rounded-2xl border border-white/15 bg-slate-900 p-6 text-center shadow-2xl md:p-8"
+            >
+              <div className="mb-4 flex h-16 w-16 items-center justify-center rounded-2xl border border-pink-500/30 bg-gradient-to-tr from-pink-500/20 to-purple-500/20 text-pink-400">
+                <Instagram className="h-8 w-8" />
+              </div>
+
+              <h2 className="text-2xl font-black text-white md:text-3xl">¡Seguinos en Instagram!</h2>
+              <p className="mt-2 text-sm text-slate-300">
+                Para que tu foto aparezca en la pantalla gigante y no te pierdas nada de la fiesta, seguinos en nuestro Instagram oficial.
+              </p>
+
+              <div className="mt-6 flex w-full flex-col gap-3">
+                <a
+                  href="https://www.instagram.com/akproduccioneseventos/"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="flex h-14 w-full items-center justify-center gap-2 rounded-xl bg-gradient-to-r from-pink-600 via-rose-600 to-purple-600 text-base font-black text-white shadow-lg transition-transform active:scale-95 hover:opacity-95"
+                >
+                  <Instagram className="h-5 w-5" /> Abrir Instagram @akproduccioneseventos
+                </a>
+
+                <Button
+                  onClick={() => uploadMedia(true)}
+                  className="h-14 w-full rounded-xl bg-emerald-600 text-base font-black text-white hover:bg-emerald-500 active:scale-95 shadow-md"
+                >
+                  <CheckCircle2 className="mr-2 h-5 w-5" /> ¡Ya los sigo! Subir mi foto
+                </Button>
+
+                <button
+                  type="button"
+                  onClick={() => uploadMedia(true)}
+                  className="text-xs font-bold text-slate-400 hover:text-slate-200 mt-1 py-1"
+                >
+                  Continuar sin seguir
+                </button>
+              </div>
+            </motion.div>
+          </motion.div>
+        )}
+      </AnimatePresence>
+
+      {/* BLOQUE 1: PANTALLA DE ÉXITO — QUE EL INVITADO SE LLEVE SU FOTO (QR + FOTO GRANDE) */}
+      <AnimatePresence>
+        {uploadSuccessData && (
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            className="fixed inset-0 z-50 flex flex-col items-center justify-between bg-black/95 p-4 md:p-8 backdrop-blur-2xl overflow-y-auto"
+          >
+            {/* Header del modal */}
+            <div className="text-center space-y-1 mt-2">
+              <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-emerald-500/10 text-emerald-400 border border-emerald-500/20 text-xs font-black uppercase tracking-wider mb-1">
+                <CheckCircle2 className="w-4 h-4" /> Enviada a la pantalla gigante
+              </div>
+              <h2 className="text-3xl md:text-5xl font-black text-white tracking-tight">
+                ¡Llevate tu recuerdo!
+              </h2>
+              <p className="text-xs md:text-sm text-slate-300 font-medium max-w-md mx-auto">
+                Escaneá el código con la cámara de tu celular para guardarla o compartirla en tus historias.
+              </p>
+            </div>
+
+            {/* Contenido: Previsualización + QR en 2 columnas */}
+            <div className="my-4 grid grid-cols-1 md:grid-cols-2 gap-6 items-center max-w-4xl w-full">
+              {/* Lado izquierdo: Previsualización de la foto/video */}
+              <div className="relative aspect-[3/4] max-h-[380px] w-full mx-auto rounded-2xl overflow-hidden border-2 border-white/10 bg-zinc-950 shadow-2xl flex items-center justify-center">
+                {uploadSuccessData.isVideo ? (
+                  <video
+                    src={uploadSuccessData.previewUrl || uploadSuccessData.mediaUrl}
+                    autoPlay
+                    loop
+                    playsInline
+                    className="w-full h-full object-cover"
+                  />
+                ) : (
+                  // eslint-disable-next-line @next/next/no-img-element
+                  <img
+                    src={uploadSuccessData.previewUrl || uploadSuccessData.mediaUrl}
+                    alt="Recuerdo con trago"
+                    className="w-full h-full object-cover"
+                  />
+                )}
+                <div className="absolute top-3 left-3 bg-black/75 backdrop-blur-sm px-3 py-1 rounded-lg text-[11px] font-bold text-white">
+                  {templates[selectedFrameIdx]?.name || 'AK Producciones'}
+                </div>
+              </div>
+
+              {/* Lado derecho: Código QR Grande con fondo blanco */}
+              <div className="flex flex-col items-center justify-center bg-slate-900/90 border border-white/10 rounded-2xl p-6 shadow-2xl space-y-4 text-center">
+                <div className="bg-white p-4 rounded-2xl shadow-xl border-4 border-slate-100 flex flex-col items-center">
+                  <QRCodeSVG
+                    value={uploadSuccessData.mediaUrl}
+                    size={200}
+                    bgColor="#ffffff"
+                    fgColor="#000000"
+                    level="M"
+                    includeMargin
+                  />
+                  <p className="text-black text-[11px] font-black uppercase tracking-wider mt-2 flex items-center gap-1.5">
+                    <QrCode className="w-3.5 h-3.5" /> Escaneá para descargar
+                  </p>
+                </div>
+
+                <div className="space-y-1 max-w-xs">
+                  <p className="text-xs text-slate-400 font-medium">
+                    Texto sugerido para tus historias:
+                  </p>
+                  <p className="text-xs font-bold text-amber-300 bg-black/40 px-3 py-2 rounded-lg border border-white/5 font-mono">
+                    {uploadSuccessData.shareText}
+                  </p>
+                </div>
+              </div>
+            </div>
+
+            {/* Footer con Botón Listo y cuenta regresiva de auto-cierre */}
+            <div className="flex flex-col items-center gap-2 w-full max-w-md pb-4">
+              <Button
+                onClick={handleFinishSuccess}
+                className="h-16 w-full rounded-2xl bg-white text-slate-950 hover:bg-slate-200 text-xl font-black shadow-2xl active:scale-95 transition"
+              >
+                ¡Listo! Volver al inicio
+              </Button>
+              <p className="text-[11px] text-slate-500 font-bold">
+                Volviendo automáticamente al inicio en {successCountdown} segundos...
+              </p>
+            </div>
           </motion.div>
         )}
       </AnimatePresence>

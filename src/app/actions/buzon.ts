@@ -16,13 +16,14 @@ import { isFrameTemplateId } from '@/lib/buzon/video-frame-templates';
 const BUZON_COLLECTION = 'buzon_messages';
 const MAX_AUDIO_SIZE = 15 * 1024 * 1024; // 15MB
 const MAX_VIDEO_SIZE = 40 * 1024 * 1024; // 40MB
+const MAX_PHOTO_SIZE = 15 * 1024 * 1024; // 15MB
 
 export interface BuzonMessage {
   id: string;
   fiestaId: string;
   authorName: string;
   mediaUrl: string;
-  mediaType: 'audio' | 'video';
+  mediaType: 'audio' | 'video' | 'photo';
   durationSeconds: number;
   timestamp: string;
   storagePath: string;
@@ -63,7 +64,7 @@ export async function getBuzonMessages(fiestaId: string): Promise<BuzonMessage[]
 }
 
 /**
- * Uploads a guest's audio or video mailbox entry.
+ * Uploads a guest's audio, video or photo mailbox entry.
  */
 export async function uploadBuzonMessage(
   formData: FormData
@@ -72,21 +73,21 @@ export async function uploadBuzonMessage(
   const file = formData.get('file') as File;
   const accessToken = String(formData.get('accessToken') || '');
   const authorName = String(formData.get('authorName') || '').trim().slice(0, 80) || 'Anónimo';
-  const mediaType = formData.get('mediaType') as 'audio' | 'video';
+  const mediaType = formData.get('mediaType') as 'audio' | 'video' | 'photo';
 
   if (!fiestaId || !file || file.size <= 0) {
     return { success: false, error: 'Faltan datos obligatorios (fiestaId o archivo).' };
   }
 
-  if (mediaType !== 'audio' && mediaType !== 'video') {
-    return { success: false, error: 'Formato de archivo no soportado (solo audio o video).' };
+  if (mediaType !== 'audio' && mediaType !== 'video' && mediaType !== 'photo') {
+    return { success: false, error: 'Formato de archivo no soportado (solo audio, video o foto).' };
   }
 
-  const limitSize = mediaType === 'audio' ? MAX_AUDIO_SIZE : MAX_VIDEO_SIZE;
+  const limitSize = mediaType === 'audio' ? MAX_AUDIO_SIZE : mediaType === 'photo' ? MAX_PHOTO_SIZE : MAX_VIDEO_SIZE;
   if (file.size > limitSize) {
     return {
       success: false,
-      error: `El archivo supera el límite permitido (${mediaType === 'audio' ? '15MB' : '40MB'}).`,
+      error: `El archivo supera el límite permitido (${mediaType === 'audio' ? '15MB' : mediaType === 'photo' ? '15MB' : '40MB'}).`,
     };
   }
 
@@ -115,14 +116,14 @@ export async function uploadBuzonMessage(
     const bytes = new Uint8Array(await file.arrayBuffer());
     const detectedMedia = detectBuzonMedia(bytes, mediaType, file.type);
     if (!detectedMedia) {
-      return { success: false, error: 'El contenido del archivo no coincide con un audio o video válido.' };
+      return { success: false, error: 'El contenido del archivo no coincide con un audio, video o foto válido.' };
     }
 
     const db = await getDb();
     const messageId = `msg_${Date.now()}_${Math.random().toString(36).substring(2, 9)}`;
     const storagePath = `fiestas/${fiestaId}/buzon/${messageId}${detectedMedia.extension}`;
-    const durationLimit = detectedMedia.mediaType === 'audio' ? 60 : 15;
-    const durationSeconds = Math.min(
+    const durationLimit = detectedMedia.mediaType === 'audio' ? 60 : detectedMedia.mediaType === 'video' ? 15 : 0;
+    const durationSeconds = detectedMedia.mediaType === 'photo' ? 0 : Math.min(
       durationLimit,
       Math.max(0, Math.round(Number(formData.get('durationSeconds')) || 0)),
     );
@@ -165,7 +166,9 @@ export async function uploadBuzonMessage(
       ? `⏳ Dejó una cápsula del tiempo (abrir en ${unlockYears} años)`
       : detectedMedia.mediaType === 'audio'
         ? '🎙️ Dejó un saludo de voz en el buzón'
-        : '📹 Subió un video al buzón';
+        : detectedMedia.mediaType === 'photo'
+          ? '📸 Subió una foto al buzón'
+          : '📹 Subió un video al buzón';
 
     await addChatMessage(fiestaId, alertText, authorName, {
       stationModuleId: 'capsulaTiempo',
