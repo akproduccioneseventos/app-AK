@@ -3031,6 +3031,23 @@ ninguna nota del blog quede afuera.
 **Verificado en el mismo pase, y no son pendientes:** no hay ningún `noindex` en
 la app, y la lista de páginas permitidas está bien armada (cerrada por defecto).
 
+## Las notas del blog no se abrian, y el mapa no las conocia (20 de agosto de 2026)
+
+Tres cosas rotas alrededor del blog, encontradas al revisar por que la web no
+aparece:
+
+- **El archivo con las notas guardadas estaba mal escrito** y no se podia leer:
+  faltaban las comillas en una clave (`data/blog-posts.json`). Con eso, en local
+  no habia blog.
+- **Abrir una nota escrita a mano daba "no encontrada".** El listado mostraba las
+  dos fuentes —las que escribe la inteligencia artificial, que van a la base, y
+  las seis del codigo— pero abrir una sola miraba unicamente la base. En cuanto la
+  base tuvo una nota adentro, las seis del codigo quedaron rotas, con sus
+  direcciones ya publicadas y en el mapa que lee Google. Ahora busca en las dos.
+- **El mapa para Google no incluia ninguna nota nueva** y el permiso tampoco: la
+  lista era fija y las notas generadas se guardan en la base. Ahora el mapa junta
+  las dos fuentes y el permiso abre `/public/blog/` entero.
+
 ## Cómo agregar algo a esta lista
 
 **Se anota SIEMPRE, en la misma propuesta que toca el código.** Orden del dueño

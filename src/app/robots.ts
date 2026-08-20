@@ -17,7 +17,10 @@ export default function robots(): MetadataRoute.Robots {
     rules: [
       {
         userAgent: '*',
-        allow: [...PAGINAS_PARA_GOOGLE],
+        // El blog entero, no nota por nota: las que escribe la inteligencia
+        // artificial se guardan en la base y no estan en la lista fija, asi que
+        // sin esto quedaban prohibidas justo las nuevas.
+        allow: [...PAGINAS_PARA_GOOGLE, '/public/blog/'],
         disallow: '/',
       },
     ],

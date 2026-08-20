@@ -3,6 +3,7 @@
 import { readData, writeData } from '@/lib/data-service';
 import { requireAppSession } from '@/lib/auth/require-session';
 import type { BlogPost } from '@/types/blog';
+import { blogPosts as defaultBlogPosts } from '@/data/blog-posts';
 
 const BLOG_FILE = 'blog-posts.json';
 
@@ -57,9 +58,22 @@ export async function deleteBlogPost(
   }
 }
 
+/**
+ * Una nota concreta, por su direccion.
+ *
+ * **Busca en las dos fuentes, y ese es el punto.** Las notas que escribe la
+ * inteligencia artificial se guardan en la base; las seis escritas a mano viven en
+ * el codigo. La pantalla del listado ya mostraba las dos, pero abrir una nota solo
+ * miraba la base: las escritas a mano daban "no encontrada" en cuanto la base
+ * tenia una sola nota adentro. Las direcciones estaban publicadas y en el mapa que
+ * lee Google, asi que eran seis paginas rotas.
+ */
 export async function getBlogPostBySlug(slug: string): Promise<BlogPost | null> {
   const posts = await getBlogPosts();
-  return posts.find(p => p.slug === slug) || null;
+  const deLaBase = posts.find(p => p.slug === slug);
+  if (deLaBase) return deLaBase;
+
+  return defaultBlogPosts.find(p => p.slug === slug) || null;
 }
 
 export async function getRelatedPosts(post: BlogPost): Promise<BlogPost[]> {
