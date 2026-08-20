@@ -13,6 +13,7 @@ import { construirClavePorDefecto } from '@/lib/client-portal/clave-portal';
 import { defaultZonaDigitalAdolescentesSettings } from '@/lib/zona-digital-adolescentes';
 import { buildUltimateEventSystem } from '@/lib/experience-ak/ultimate-event-system';
 
+import { requireAppSession } from '@/lib/auth/require-session';
 function id(prefix: string) {
   if (typeof crypto !== 'undefined' && 'randomUUID' in crypto) return `${prefix}_${crypto.randomUUID()}`;
   return `${prefix}_${Date.now()}_${Math.random().toString(36).slice(2)}`;
@@ -146,12 +147,14 @@ function mergeTasks(existing: Tarea[] | undefined): Tarea[] {
 }
 
 export async function getExperienceTotalReport(fiestaId: string) {
+  await requireAppSession();
   const fiesta = await getFiestaById(fiestaId);
   if (!fiesta) return { success: false, error: 'Fiesta no encontrada.' };
   return { success: true, report: buildUltimateEventSystem(fiesta), fiesta };
 }
 
 export async function activateUltimateEventSystem(fiestaId: string) {
+  await requireAppSession();
   const fiesta = await getFiestaById(fiestaId);
   if (!fiesta) return { success: false, error: 'Fiesta no encontrada.' };
 

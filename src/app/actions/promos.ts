@@ -7,6 +7,7 @@ import { requireAppSession } from '@/lib/auth/require-session';
 const PROMOS_FILE = 'promos.json';
 
 export async function getPromos(): Promise<PromoActiva[]> {
+  await requireAppSession();
   return readData<PromoActiva[]>(PROMOS_FILE, []);
 }
 

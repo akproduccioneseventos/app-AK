@@ -22,6 +22,7 @@ export async function getActivosFijos(): Promise<ServicioEmpresa[]> {
 }
 
 export async function getActivoFijoById(id: string): Promise<ServicioEmpresa | null> {
+  await requireAppSession();
   const activos = await getActivosFijos();
   return activos.find(s => s.id === id) || null;
 }

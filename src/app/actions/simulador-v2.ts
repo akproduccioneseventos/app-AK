@@ -8,6 +8,7 @@ import type { Presupuesto } from '@/types/presupuesto';
 import type { CrmLead } from '@/types/crm';
 import { enforcePublicRateLimit } from '@/lib/commercial/public-rate-limit';
 
+import { requireAppSession } from '@/lib/auth/require-session';
 const PRESUPUESTOS_FILE = 'presupuestos.json';
 const CRM_LEADS_FILE = 'crm-leads.json';
 
@@ -25,6 +26,7 @@ export async function checkDuplicateClient(
   apellido: string,
   telefono: string
 ): Promise<SimV2DuplicateCheck> {
+  await requireAppSession();
   try {
     const fullName = normalizeName(`${nombre} ${apellido}`);
     const normalizedPhone = normalizePhone(telefono);

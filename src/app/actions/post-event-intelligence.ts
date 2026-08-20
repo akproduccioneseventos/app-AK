@@ -65,6 +65,7 @@ function buildMessages(fiesta: any, score: number, pendingTasks: number) {
 }
 
 export async function getPostEventOpportunities(): Promise<{ success: boolean; data: PostEventItem[] }> {
+  await requireAppSession();
   const fiestas = await getAllFiestas().catch(() => []);
 
   const data = (fiestas as any[])
@@ -100,6 +101,7 @@ export async function getPostEventOpportunities(): Promise<{ success: boolean; d
 }
 
 export async function createPostEventPackage(fiestaId: string, notes?: string) {
+  await requireAppSession();
   const fiesta = await getFiestaById(fiestaId);
   if (!fiesta) return { success: false, error: 'No encontré la fiesta.' };
 

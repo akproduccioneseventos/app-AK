@@ -4,7 +4,9 @@ import { getAllFiestas, getFiestaById } from '@/app/actions/fiesta/fiesta.action
 import { calculateFiestaPreparationScore } from '@/lib/fiesta/preparation-score';
 import { saveAgentLearning } from '@/lib/multiagent/memory-store';
 
+import { requireAppSession } from '@/lib/auth/require-session';
 export async function getFiestaPreparationScore(fiestaId: string) {
+  await requireAppSession();
   const fiesta = await getFiestaById(fiestaId);
   if (!fiesta) return { success: false, error: 'No encontré la fiesta.' };
   return {
@@ -19,6 +21,7 @@ export async function getFiestaPreparationScore(fiestaId: string) {
 }
 
 export async function getAllFiestasPreparationScores() {
+  await requireAppSession();
   const fiestas = await getAllFiestas().catch(() => []);
   const data = fiestas.map((fiesta: any) => ({
     fiestaId: fiesta.id,
@@ -34,6 +37,7 @@ export async function getAllFiestasPreparationScores() {
 }
 
 export async function guardarPreparacionComoAprendizaje(fiestaId: string) {
+  await requireAppSession();
   const fiesta = await getFiestaById(fiestaId);
   if (!fiesta) return { success: false, error: 'No encontré la fiesta.' };
 

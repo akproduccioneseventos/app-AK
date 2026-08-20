@@ -7,6 +7,7 @@ import { requirePermiso } from '@/lib/auth/require-session';
 import { PERMISOS } from '@/lib/auth/perfiles';
 import { AsyncMutex } from '@/lib/mutex';
 
+import { requireAppSession } from '@/lib/auth/require-session';
 const RECIBOS_PERSONAL_FILE = 'personal-recibos.json';
 const recibosMutex = new AsyncMutex();
 
@@ -60,6 +61,7 @@ export async function getRecibosFirmados(): Promise<ReciboFirmado[]> {
 }
 
 export async function getRecibosFirmadosByEmpleado(empleadoId: string): Promise<ReciboFirmado[]> {
+  await requireAppSession();
   const all = await getRecibosFirmados();
   return all.filter((item) => item.empleadoId === empleadoId);
 }

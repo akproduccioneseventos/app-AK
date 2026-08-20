@@ -21,6 +21,7 @@ import { generateGeminiImage } from "@/lib/ai/gemini-image";
 import { enforcePublicRateLimit } from '@/lib/commercial/public-rate-limit';
 import * as logger from "@/lib/logger";
 
+import { requireAppSession } from '@/lib/auth/require-session';
 // ──────────────────── Theme Definitions ────────────────────
 
 export type TouchpixThemeId =
@@ -768,6 +769,7 @@ export async function uploadTouchpixPhoto(
 export async function getTouchpixThemes(): Promise<
   Array<{ id: TouchpixThemeId; label: string; cssFallbackHint: string }>
 > {
+  await requireAppSession();
   return (
     Object.entries(THEME_DEFINITIONS) as [TouchpixThemeId, ThemeDefinition][]
   ).map(([id, def]) => ({
@@ -781,6 +783,7 @@ export async function getTouchpixThemes(): Promise<
 export async function getTouchpixCharacters(): Promise<
   Array<{ id: TouchpixCharacterId; label: string }>
 > {
+  await requireAppSession();
   return (
     Object.entries(CHARACTER_DEFINITIONS) as [
       TouchpixCharacterId,

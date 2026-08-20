@@ -14,6 +14,7 @@ export interface TaskTemplate {
 const TEMPLATES_FILE = 'task-templates.json';
 
 export async function getTaskTemplates(): Promise<TaskTemplate[]> {
+  await requireAppSession();
   return readData<TaskTemplate[]>(TEMPLATES_FILE, []);
 }
 

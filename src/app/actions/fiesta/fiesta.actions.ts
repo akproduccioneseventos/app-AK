@@ -260,6 +260,7 @@ export async function getFiestaBySlug(slug: string): Promise<FiestaEnPlanificaci
 }
 
 export async function updateInvitacionSlug(fiestaId: string, slug: string): Promise<{ success: boolean; slug?: string; error?: string }> {
+  await requireAppSession();
   const fiesta = await getFiestaById(fiestaId);
   if (!fiesta) return { success: false, error: 'Evento no encontrado.' };
 
@@ -1113,6 +1114,7 @@ export async function updateNumerosMesa(fiestaId: string, data: NumerosMesaData)
 }
 
 export async function updateCartaTragos(fiestaId: string, data: CartaTragosData) {
+  await requireAppSession();
   const f = await getFiestaById(fiestaId);
   if (!f) return { success: false };
   return await saveFiesta({ ...f, cartaTragos: data });
@@ -1132,6 +1134,7 @@ export async function updateFiestaPostEvento(
     postEventoCompletado?: boolean;
   }
 ): Promise<{ success: boolean; error?: string }> {
+  await requireAppSession();
   const f = await getFiestaById(fiestaId);
   if (!f) return { success: false, error: 'Evento no encontrado.' };
   return await saveFiesta({ ...f, ...data });
@@ -1171,6 +1174,7 @@ export async function updateGuestPortalSettings(fiestaId: string, settings: Gues
 }
 
 export async function updateGuestExperienceSettings(fiestaId: string, settings: GuestExperienceSettings) {
+  await requireAppSession();
   const f = await getFiestaById(fiestaId);
   if (!f) return { success: false, error: 'Evento no encontrado.' };
   return await saveFiesta({ ...f, guestExperienceSettings: settings });
@@ -1187,6 +1191,7 @@ export async function updateGuestExperienceStats(
   invitadoId: string,
   stats: Partial<GuestExperienceStats>
 ) {
+  await requireAppSession();
   const f = await getFiestaById(fiestaId);
   if (!f) return { success: false, error: 'Evento no encontrado.' };
   const invitados = (f.invitados ?? []).map((inv: Invitado) =>

@@ -10,6 +10,7 @@ import path from 'node:path';
 import { verifySession } from '@/lib/auth/session-token';
 import { findInvalidWhatsAppTemplateMarkers } from '@/lib/whatsapp-template-markers';
 
+import { requireAppSession } from '@/lib/auth/require-session';
 const BUDGET_SETTINGS_FILE = 'budget-display-settings.json';
 const INVOICE_SETTINGS_FILE = 'invoice-template-settings.json';
 const COMPANY_INFO_FILE = 'company-info.json';
@@ -269,6 +270,7 @@ function mergeContractTemplates(saved: ContractTemplateItem[], fallbackServicios
 }
 
 export async function getContractTemplates(): Promise<ContractTemplateItem[]> {
+  await requireAppSession();
   try {
     const [savedTemplates, legacyServiciosTemplate] = await Promise.all([
       readData<ContractTemplateItem[]>(CONTRACT_TEMPLATES_FILE, []),
@@ -281,6 +283,7 @@ export async function getContractTemplates(): Promise<ContractTemplateItem[]> {
 }
 
 export async function getContractTemplate(): Promise<string> {
+  await requireAppSession();
   try {
     const templates = await getContractTemplates();
     const servicios = templates.find(t => t.type === 'servicios') || DEFAULT_CONTRACT_TEMPLATES[0];
@@ -364,6 +367,7 @@ export async function deleteContractTemplate(id: string): Promise<{ success: boo
 }
 
 export async function getContractTemplateByType(type: ContractType): Promise<ContractTemplateItem> {
+  await requireAppSession();
   const templates = await getContractTemplates();
   const found = templates.find(t => t.type === type);
   if (found) return found;
@@ -459,6 +463,7 @@ export async function saveWhatsAppSettings(
 
 // --- Contract Settings ---
 export async function getContractSettings(): Promise<ContractSettings> {
+  await requireAppSession();
   try {
     const data = await readData<Partial<ContractSettings>>(CONTRACT_SETTINGS_FILE, {});
     return { ...defaultContractSettings, ...data, clauses: data.clauses?.length ? data.clauses : defaultContractSettings.clauses };
@@ -549,6 +554,7 @@ const defaultAiAssistantSettings: AiAssistantSettings = {
 };
 
 export async function getAiAssistantSettings(): Promise<AiAssistantSettings> {
+  await requireAppSession();
   const data = await readData<Partial<AiAssistantSettings>>(AI_ASSISTANT_SETTINGS_FILE, {});
   return { ...defaultAiAssistantSettings, ...data };
 }
@@ -637,6 +643,7 @@ async function collectPageRoutes(dir: string, appDir: string, routes: string[]):
 }
 
 export async function scanAiAssistantAppContext(): Promise<{ success: boolean; context?: string; error?: string }> {
+  await requireAppSession();
   try {
     const appDir = path.join(process.cwd(), 'src', 'app');
     const routes: string[] = [];
@@ -669,6 +676,7 @@ const GEMINI_CONNECTION_MODELS = [
 ] as const;
 
 export async function testGeminiConnection(): Promise<{ ok: boolean; error?: string }> {
+  await requireAppSession();
   const apiKey = process.env.GOOGLE_API_KEY || process.env.GEMINI_API_KEY;
   if (!apiKey) {
     return {

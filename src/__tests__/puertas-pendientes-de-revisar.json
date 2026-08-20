@@ -3,42 +3,13 @@
     "getAccesoPersonalPortalView"
   ],
   "src/app/actions/activos-fijos.ts": [
-    "getActivoFijoById",
     "getActivosFijos"
-  ],
-  "src/app/actions/agenda.ts": [
-    "cancelAppointment"
-  ],
-  "src/app/actions/ak-100.ts": [
-    "createAk100ClosureTasks",
-    "getAk100Readiness"
-  ],
-  "src/app/actions/alertas.actions.ts": [
-    "getAlertasGlobales",
-    "getAlertasNoLeidas",
-    "getAlertasPorFiesta",
-    "getPrioridadesDescartadas"
-  ],
-  "src/app/actions/analytics.ts": [
-    "getAnalyticsData"
-  ],
-  "src/app/actions/approvals.ts": [
-    "getAprobacionById"
   ],
   "src/app/actions/armado-rapido.ts": [
     "generateBudgetAndLeadFromSimulator",
     "getArmadoRapidoConfig"
   ],
-  "src/app/actions/assistant-operational-status.ts": [
-    "getAssistantOperationalStatus"
-  ],
-  "src/app/actions/auth.ts": [
-    "getSecurityQuestions",
-    "getUserSecurityQuestionsForEdit",
-    "initializeAdminIfNeeded"
-  ],
   "src/app/actions/bebidas.actions.ts": [
-    "getBebidasMasterTemplate",
     "updateBebidas"
   ],
   "src/app/actions/blog.ts": [
@@ -51,86 +22,35 @@
   ],
   "src/app/actions/catalogo-fotos.ts": [
     "getCatalogoFotos",
-    "getCatalogoFotosByCategoria",
     "getCatalogoFotosByTipoFiesta"
-  ],
-  "src/app/actions/commercial-intelligence.ts": [
-    "createCommercialFollowupAlerts",
-    "getCommercialFollowups"
-  ],
-  "src/app/actions/commercial-lifecycle.ts": [
-    "getCommercialLifecycleDashboard"
   ],
   "src/app/actions/contenido-publico.ts": [
     "getCatalogoSettings",
     "getPresentacionLedSettings"
   ],
-  "src/app/actions/cupones.ts": [
-    "getAllCuponUsages",
-    "getCuponById",
-    "getCuponStats",
-    "getCupones",
-    "getCuponesRegaloActivos",
-    "validarCupon"
-  ],
-  "src/app/actions/dashboard.ts": [
-    "getCashFlowProjection"
-  ],
-  "src/app/actions/deco-canvas-templates.ts": [
-    "getDecoCanvasTemplates"
-  ],
-  "src/app/actions/dj-ia.actions.ts": [
-    "generateDjProfileAction"
-  ],
   "src/app/actions/empleados.ts": [
-    "fiestasDelMismoDiaConEmpleado",
-    "getEmpleadoById",
     "getEmpleados"
   ],
   "src/app/actions/espejo-magico-ai.ts": [
     "isEspejoIaDisponible"
   ],
   "src/app/actions/evento-en-vivo.ts": [
-    "getEventoEnVivoData",
-    "getFotosEnVivo",
-    "getMensajesEnVivo",
-    "getSolicitudesCanciones",
-    "getVotaciones"
-  ],
-  "src/app/actions/experience-total.ts": [
-    "activateUltimateEventSystem",
-    "getExperienceTotalReport"
-  ],
-  "src/app/actions/feature-flags.ts": [
-    "getEnabledModulesForEvent",
-    "getFeatureFlags",
-    "isModuleEnabled"
+    "getEventoEnVivoData"
   ],
   "src/app/actions/fiesta/bebidas.actions.ts": [
     "updateBebidas"
   ],
-  "src/app/actions/fiesta/carga-operativa.actions.ts": [
-    "checkAssetConflicts",
-    "generateCargaFromActivos",
-    "getCargaOperativaMasterTemplate"
-  ],
   "src/app/actions/fiesta/catering.actions.ts": [
-    "updateMenuAsignado",
-    "updateShoppingListStatus"
+    "updateMenuAsignado"
   ],
   "src/app/actions/fiesta/configuracion.actions.ts": [
     "getFiestaActual"
   ],
   "src/app/actions/fiesta/costos.actions.ts": [
-    "syncAllEventCosts",
     "syncLaundryCosts",
     "updateGestionCostos"
   ],
   "src/app/actions/fiesta/decoracion.actions.ts": [
-    "addMoodboardItem",
-    "deleteMoodboardItem",
-    "syncDecoGastosToModule",
-    "toggleLikeMoodboardItem",
     "updateDecoracion"
   ],
   "src/app/actions/fiesta/fiesta.actions.ts": [
@@ -148,14 +68,9 @@
     "resetFiestaActual",
     "saveFiesta",
     "syncFiestaFromBudget",
-    "updateCartaTragos",
     "updateClienteDebeLlevar",
-    "updateFiestaPostEvento",
     "updateFiestaPresupuestoId",
-    "updateGuestExperienceSettings",
-    "updateGuestExperienceStats",
     "updateGuestPortalSettings",
-    "updateInvitacionSlug",
     "updateMenuMesa",
     "updateNumerosMesa"
   ],
@@ -163,15 +78,7 @@
     "updatePrograma"
   ],
   "src/app/actions/fiesta/live.actions.ts": [
-    "addIncidente",
-    "confirmProtagonistArrival",
-    "notifyClientArrival",
-    "resetArrivalRadar",
-    "resolveIncidente",
-    "setStaffCheckIn",
-    "toggleArrival",
-    "toggleReturnItem",
-    "updateLiveState"
+    "notifyClientArrival"
   ],
   "src/app/actions/fiesta/musica.actions.ts": [
     "saveSugerenciaMusical"
@@ -179,13 +86,9 @@
   "src/app/actions/fiesta/pagos.actions.ts": [
     "updatePagosProveedores"
   ],
-  "src/app/actions/fiesta/personal.actions.ts": [
-    "retryPersonalGoogleSync"
-  ],
   "src/app/actions/fiesta/regalos.actions.ts": [
     "addGiftToRegistry",
-    "claimGift",
-    "updateGiftRegistry"
+    "claimGift"
   ],
   "src/app/actions/fiesta/reposteria.actions.ts": [
     "updateReposteria"
@@ -193,34 +96,6 @@
   "src/app/actions/fiesta/reuniones.actions.ts": [
     "addReunion",
     "updateReunion"
-  ],
-  "src/app/actions/fiesta/screen-mode.actions.ts": [
-    "clearActiveGame",
-    "getMuroParticipantesForSorteo",
-    "launchGame",
-    "nextScreenItem",
-    "pauseScreenPlaylist",
-    "playScreenPlaylist",
-    "prevScreenItem",
-    "setScreenLoop",
-    "startSorteoSpinOnScreen",
-    "trackSocialFollowClick",
-    "transferSorteoToScreen",
-    "triggerLiveMoment",
-    "triggerSorteoWinner",
-    "updateLedConfig",
-    "updateLedMessage",
-    "updateScreenBrand",
-    "uploadScreenMediaAsset"
-  ],
-  "src/app/actions/fiesta/screen-playlist.actions.ts": [
-    "getScreenPlaylist",
-    "saveScreenPlaylist",
-    "updatePlaylistItem"
-  ],
-  "src/app/actions/fiesta/social-screen.actions.ts": [
-    "getSocialScreenConfig",
-    "saveSocialScreenConfig"
   ],
   "src/app/actions/fiesta/tareas.actions.ts": [
     "addTarea",
@@ -236,13 +111,7 @@
     "updateZonaDigitalSettings"
   ],
   "src/app/actions/fiesta-actual.ts": [
-    "getFiestaActivaDeHoy",
-    "savePlanPagosContrato",
-    "updateContratoFiestaActual"
-  ],
-  "src/app/actions/fiestas-historicas.ts": [
-    "calcularAjusteHistorico",
-    "getFiestasHistoricas"
+    "getFiestaActivaDeHoy"
   ],
   "src/app/actions/fotos-presentacion.ts": [
     "getFotosDePresentacion"
@@ -250,101 +119,31 @@
   "src/app/actions/galeria.ts": [
     "getGaleriaItems"
   ],
-  "src/app/actions/games.actions.ts": [
-    "getPhotoMissions",
-    "getTriviaGame"
-  ],
-  "src/app/actions/gastos.ts": [
-    "getGastosGenerales"
-  ],
   "src/app/actions/google-workspace-extended.ts": [
-    "getFiestaCalendarShareLinks",
     "notifyClientPaymentApproved",
     "notifyClientPaymentRejected",
     "notifyClientPaymentSubmitted",
     "notifyClientPortalKeyRecovery",
-    "notifyContractSignedToClient",
-    "notifyGuestsWithCalendarLinks",
-    "notifyPresupuestoPaymentRegistered",
     "syncReunionToGoogleWorkspace"
   ],
   "src/app/actions/google-workspace.ts": [
     "syncFiestaToGoogleWorkspace"
   ],
-  "src/app/actions/incidents.ts": [
-    "getIncidentes"
-  ],
   "src/app/actions/insumos.ts": [
-    "getInsumoById",
     "getInsumos",
     "invalidateInsumosCache"
-  ],
-  "src/app/actions/invitacion-config.ts": [
-    "getAllInvitacionConfigs",
-    "getInvitacionConfig"
-  ],
-  "src/app/actions/invitacion-digital-templates.ts": [
-    "getInvitationTemplates"
-  ],
-  "src/app/actions/itinerary-templates.ts": [
-    "getItineraryTemplates"
   ],
   "src/app/actions/landing-editor.ts": [
     "getLandingSettings"
   ],
-  "src/app/actions/marketing.ts": [
-    "exportMarketingData",
-    "getMarketingChecklist",
-    "getMarketingTemplates"
-  ],
-  "src/app/actions/meeting-checklist.ts": [
-    "getMeetingMasterTemplate"
-  ],
-  "src/app/actions/meeting-intelligence.ts": [
-    "processReunionIntelligence"
-  ],
   "src/app/actions/menus-catering.ts": [
-    "getMenuById",
-    "getMenus",
-    "invalidateMenusCache"
+    "getMenus"
   ],
   "src/app/actions/multiagent.ts": [
     "sendPersistentMultiAgentMessage"
   ],
-  "src/app/actions/payment-plans.ts": [
-    "getPlanDePagos",
-    "savePlanDePagos",
-    "updateCuotaEstado"
-  ],
-  "src/app/actions/playbooks.ts": [
-    "getPlaybookAplicaciones",
-    "getPlaybookById",
-    "getPlaybookByTipoEvento",
-    "getPlaybooks"
-  ],
-  "src/app/actions/post-event-intelligence.ts": [
-    "createPostEventPackage",
-    "getPostEventOpportunities"
-  ],
-  "src/app/actions/preparation-score.ts": [
-    "getAllFiestasPreparationScores",
-    "getFiestaPreparationScore",
-    "guardarPreparacionComoAprendizaje"
-  ],
-  "src/app/actions/presupuestos.ts": [
-    "addPagoClienteFromPortal"
-  ],
-  "src/app/actions/price-adjustments.ts": [
-    "getPriceAdjustmentHistory",
-    "previewPriceAdjustment"
-  ],
   "src/app/actions/promos.ts": [
-    "getPromoActiva",
-    "getPromos"
-  ],
-  "src/app/actions/proveedores.ts": [
-    "getProveedorById",
-    "getProveedores"
+    "getPromoActiva"
   ],
   "src/app/actions/provider-portal.ts": [
     "addNotaProveedor",
@@ -357,87 +156,46 @@
   "src/app/actions/public-simulator-bootstrap.ts": [
     "getPublicSimulatorBootstrap"
   ],
-  "src/app/actions/recibos-personal.ts": [
-    "getRecibosFirmadosByEmpleado"
-  ],
   "src/app/actions/reposteria.actions.ts": [
-    "getReposteriaMasterTemplate",
     "updateReposteria"
   ],
   "src/app/actions/roles.ts": [
-    "getRolById",
     "getRoles"
   ],
-  "src/app/actions/sales-pitch-ia.actions.ts": [
-    "generateSalesPitchAction"
-  ],
   "src/app/actions/salon-ia.actions.ts": [
-    "autoAssignTables",
     "chatWithGuestBot"
-  ],
-  "src/app/actions/salon-layout-templates.ts": [
-    "getSalonLayoutTemplates"
   ],
   "src/app/actions/salones.ts": [
     "getSalones"
   ],
-  "src/app/actions/scheduled-messages.ts": [
-    "generateWhatsAppClickUrl"
-  ],
   "src/app/actions/servicios-empresa.ts": [
-    "getServicioEmpresaById",
     "getServiciosEmpresa"
   ],
   "src/app/actions/session.ts": [
     "clearSessionCookie"
   ],
   "src/app/actions/settings.ts": [
-    "getAiAssistantSettings",
     "getBudgetDisplaySettings",
     "getCompanyInfo",
-    "getContractSettings",
-    "getContractTemplate",
-    "getContractTemplateByType",
-    "getContractTemplates",
     "getInvoiceTemplateSettings",
     "getWhatsAppSettings",
-    "getWhatsAppTemplates",
-    "scanAiAssistantAppContext",
-    "testGeminiConnection"
+    "getWhatsAppTemplates"
   ],
   "src/app/actions/simple-auth.ts": [
     "getPublicSecurityRecoveryStatus",
     "requestPasswordResetEmail"
   ],
   "src/app/actions/simulador-copilot.ts": [
-    "chatWithBudgetCopilot",
-    "getCopilotConfig"
+    "chatWithBudgetCopilot"
   ],
   "src/app/actions/simulador-v2.ts": [
-    "checkDateAvailability",
-    "checkDuplicateClient"
+    "checkDateAvailability"
   ],
   "src/app/actions/simulator-agenda.ts": [
     "getSimulatorAvailableSlots"
   ],
-  "src/app/actions/smart-automations.ts": [
-    "runSmartAutomations"
-  ],
-  "src/app/actions/social-admin.ts": [
-    "getSocialGlobalSettings"
-  ],
   "src/app/actions/social-connections.ts": [
     "getSocialConnections"
-  ],
-  "src/app/actions/task-templates.ts": [
-    "getTaskTemplates"
-  ],
-  "src/app/actions/timeline-ia.actions.ts": [
-    "generateTimelineAction"
-  ],
-  "src/app/actions/touchpix-ai.ts": [
-    "getTouchpixCharacters",
-    "getTouchpixThemes"
   ],
   "src/app/actions/whatsapp.ts": [
     "getPublicWhatsAppNumber"

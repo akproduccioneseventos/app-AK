@@ -41,6 +41,20 @@ const PUBLICAS_A_PROPOSITO: Record<string, string> = {
   'accesos-personal.ts': 'el proveedor entra con el enlace que le manda el equipo',
 };
 
+/**
+ * Funciones sueltas que son públicas a propósito, y por qué.
+ *
+ * Es más fino que declarar el archivo entero: `auth.ts` tiene funciones del equipo
+ * y también el arranque del primer administrador, que **corre antes de que exista
+ * nadie logueado**. Marcar todo el archivo taparía las otras.
+ */
+const FUNCIONES_PUBLICAS_A_PROPOSITO: Record<string, string> = {
+  'auth.ts:initializeAdminIfNeeded':
+    'crea la primera cuenta de administrador y la llama el propio ingreso, antes de ' +
+    'que exista sesión. No hace nada si ya hay usuarios, y necesita la contraseña ' +
+    'inicial del entorno para crearla.',
+};
+
 function archivosDeServidor(): string[] {
   const salida: string[] = [];
   const recorrer = (carpeta: string) => {
@@ -96,8 +110,9 @@ function funcionesSinControl(archivo: string): string[] {
 /**
  * La foto de cómo estaba el día que se puso este control.
  *
- * Son 247 funciones repartidas en 98 archivos que todavía **no se revisaron una
- * por una**. No significa que estén todas mal: la mayoría son de leer, y varias se
+ * Quedan 97 funciones repartidas en 52 archivos que todavía **no se revisaron una
+ * por una**. Empezaron siendo 247 en 98 archivos: el 20 de agosto se cerraron 150
+ * de una vez, todas las que ninguna pantalla pública alcanza. No significa que estén todas mal: la mayoría son de leer, y varias se
  * protegen de formas que este control no reconoce. Significa que **nadie las miró
  * con esta lupa todavía**.
  *
@@ -126,6 +141,7 @@ describe('Ninguna puerta abierta a internet sin querer', () => {
       if (PUBLICAS_A_PROPOSITO[base]) continue;
       const yaConocidas = new Set(conocidas[archivo] ?? []);
       for (const fn of funcionesSinControl(archivo)) {
+        if (FUNCIONES_PUBLICAS_A_PROPOSITO[`${base}:${fn}`]) continue;
         if (!yaConocidas.has(fn)) nuevas.push(`${archivo} -> ${fn}`);
       }
     }
@@ -145,6 +161,6 @@ describe('Ninguna puerta abierta a internet sin querer', () => {
     const conocidas = pendientes as Record<string, string[]>;
     const total = Object.values(conocidas).flat().length;
     // Si revisaste y protegiste alguna, bajá este numero. Nunca lo subas.
-    expect(total).toBeLessThanOrEqual(247);
+    expect(total).toBeLessThanOrEqual(97);
   });
 });

@@ -17,6 +17,7 @@ import { requireAppSession } from '@/lib/auth/require-session';
 const COPILOT_CONFIG_FILE = 'copilot-config.json';
 
 export async function getCopilotConfig(): Promise<CopilotConfig> {
+  await requireAppSession();
   const config = await readData<CopilotConfig>(COPILOT_CONFIG_FILE, DEFAULT_COPILOT_CONFIG);
   return {
     promptPersonalidad: config?.promptPersonalidad || DEFAULT_COPILOT_CONFIG.promptPersonalidad,

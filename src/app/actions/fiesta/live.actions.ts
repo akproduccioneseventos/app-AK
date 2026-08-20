@@ -4,6 +4,7 @@
 import type { LiveEventState, CargaOperativaItem } from '@/types/fiesta';
 import { getFiestaById, saveFiesta } from './fiesta.actions';
 
+import { requireAppSession } from '@/lib/auth/require-session';
 const initialLiveState: LiveEventState = {
     llegadaProtagonistas: {
         enCamino: false,
@@ -19,6 +20,7 @@ const initialLiveState: LiveEventState = {
 };
 
 export async function updateLiveState(fiestaId: string, updateFn: (state: LiveEventState) => LiveEventState): Promise<{ success: boolean; error?: string }> {
+  await requireAppSession();
     try {
         const fiesta = await getFiestaById(fiestaId);
         if (!fiesta) throw new Error("Fiesta no encontrada");
@@ -34,6 +36,7 @@ export async function updateLiveState(fiestaId: string, updateFn: (state: LiveEv
 }
 
 export async function toggleArrival(fiestaId: string, deliveryId: string): Promise<{ success: boolean; error?: string }> {
+  await requireAppSession();
     return updateLiveState(fiestaId, state => ({
         ...state,
         entregas: state.entregas.map(e => 
@@ -43,6 +46,7 @@ export async function toggleArrival(fiestaId: string, deliveryId: string): Promi
 }
 
 export async function setStaffCheckIn(fiestaId: string, empleadoId: string, arrived: boolean): Promise<{ success: boolean; error?: string }> {
+  await requireAppSession();
     return updateLiveState(fiestaId, state => ({
         ...state,
         staffCheckIn: {
@@ -64,6 +68,7 @@ export async function notifyClientArrival(fiestaId: string): Promise<{ success: 
 }
 
 export async function confirmProtagonistArrival(fiestaId: string): Promise<{ success: boolean; error?: string }> {
+  await requireAppSession();
     return updateLiveState(fiestaId, state => ({
         ...state,
         llegadaProtagonistas: {
@@ -75,6 +80,7 @@ export async function confirmProtagonistArrival(fiestaId: string): Promise<{ suc
 }
 
 export async function resetArrivalRadar(fiestaId: string): Promise<{ success: boolean; error?: string }> {
+  await requireAppSession();
     return updateLiveState(fiestaId, state => ({
         ...state,
         llegadaProtagonistas: {
@@ -85,6 +91,7 @@ export async function resetArrivalRadar(fiestaId: string): Promise<{ success: bo
 }
 
 export async function addIncidente(fiestaId: string, descripcion: string): Promise<{ success: boolean; error?: string }> {
+  await requireAppSession();
     return updateLiveState(fiestaId, state => ({
         ...state,
         incidentes: [
@@ -95,6 +102,7 @@ export async function addIncidente(fiestaId: string, descripcion: string): Promi
 }
 
 export async function resolveIncidente(fiestaId: string, incidenteId: string): Promise<{ success: boolean; error?: string }> {
+  await requireAppSession();
     return updateLiveState(fiestaId, state => ({
         ...state,
         incidentes: (state.incidentes || []).map(i => i.id === incidenteId ? { ...i, resuelto: true } : i)
@@ -104,6 +112,7 @@ export async function resolveIncidente(fiestaId: string, incidenteId: string): P
 // --- TOQUE DE ORO 3: LOGÍSTICA INVERSA ---
 
 export async function toggleReturnItem(fiestaId: string, categoryId: string, itemId: string): Promise<{ success: boolean; error?: string }> {
+  await requireAppSession();
     try {
         const fiesta = await getFiestaById(fiestaId);
         if (!fiesta || !fiesta.listaDeCargaOperativa) throw new Error("Datos logísticos no encontrados.");

@@ -12,6 +12,7 @@ const MENUS_CATERING_COLLECTION_JSON = 'menus-catering.json';
 let cachedMenus: FullMenu[] | null = null;
 
 export async function invalidateMenusCache() {
+  await requireAppSession();
   cachedMenus = null;
 }
 
@@ -146,6 +147,7 @@ export async function getMenus(): Promise<FullMenu[]> {
 }
 
 export async function getMenuById(id: string): Promise<FullMenu | null> {
+  await requireAppSession();
   const allMenus = await getMenus();
   const menu = allMenus.find(m => m.id === id);
   return menu || null;

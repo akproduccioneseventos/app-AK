@@ -7,6 +7,7 @@ import { requireAppSession } from '@/lib/auth/require-session';
 const INCIDENTES_FILE = 'incidentes.json';
 
 export async function getIncidentes(fiestaId?: string): Promise<Incidente[]> {
+  await requireAppSession();
   const all = await readData<Incidente[]>(INCIDENTES_FILE, []);
   if (fiestaId) return all.filter(i => i.fiestaId === fiestaId);
   return all;

@@ -2,10 +2,12 @@
 
 import type { Invitado, LayoutElement } from '@/types/fiesta';
 
+import { requireAppSession } from '@/lib/auth/require-session';
 export async function autoAssignTables(
   invitados: Invitado[],
   tables: LayoutElement[]
 ): Promise<{ success: boolean; updatedInvitados: Invitado[]; logs: string[] }> {
+  await requireAppSession();
   try {
     const logs: string[] = [];
     logs.push(`Iniciando IA Auto-Acomodador: ${invitados.length} invitados, ${tables.length} mesas.`);

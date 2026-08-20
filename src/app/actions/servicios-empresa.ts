@@ -31,6 +31,7 @@ export async function getServiciosEmpresa(): Promise<ServicioEmpresa[]> {
 }
 
 export async function getServicioEmpresaById(id: string): Promise<ServicioEmpresa | null> {
+  await requireAppSession();
   const servicios = await getServiciosEmpresa();
   return servicios.find(s => s.id === id) || null;
 }

@@ -15,6 +15,7 @@ async function getUserDecoCanvasTemplates(): Promise<DecoCanvasTemplate[]> {
 }
 
 export async function getDecoCanvasTemplates(): Promise<DecoCanvasTemplate[]> {
+  await requireAppSession();
   const userTemplates = await getUserDecoCanvasTemplates();
   return [...DECO_PREBUILT_TEMPLATES, ...userTemplates];
 }

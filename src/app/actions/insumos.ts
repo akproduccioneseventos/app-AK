@@ -27,6 +27,7 @@ export async function getInsumos(): Promise<ServicioEmpresa[]> {
 }
 
 export async function getInsumoById(id: string): Promise<ServicioEmpresa | null> {
+  await requireAppSession();
   const insumos = await getInsumos();
   return insumos.find(s => s.id === id) || null;
 }

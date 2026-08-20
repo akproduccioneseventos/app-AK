@@ -70,6 +70,7 @@ function isRecentDuplicate(notifications: Notificacion[], item: CommercialFollow
 }
 
 export async function getCommercialFollowups(): Promise<{ success: boolean; data: CommercialFollowupItem[] }> {
+  await requireAppSession();
   const [leads, presupuestos] = await Promise.all([
     getCrmLeads().catch(() => []),
     getPresupuestos().catch(() => []),
@@ -147,6 +148,7 @@ export async function getCommercialFollowups(): Promise<{ success: boolean; data
 }
 
 export async function createCommercialFollowupAlerts() {
+  await requireAppSession();
   const result = await getCommercialFollowups();
   const existing: Notificacion[] = await getNotifications().catch((): Notificacion[] => []);
   let created = 0;

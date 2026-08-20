@@ -3,13 +3,16 @@
 import type { SocialScreenConfig } from '@/types/fiesta';
 import { getFiestaById, saveFiesta } from './fiesta.actions';
 
+import { requireAppSession } from '@/lib/auth/require-session';
 export async function getSocialScreenConfig(fiestaId: string): Promise<SocialScreenConfig | null> {
+  await requireAppSession();
   const fiesta = await getFiestaById(fiestaId);
   if (!fiesta) return null;
   return fiesta.socialScreenConfig ?? null;
 }
 
 export async function saveSocialScreenConfig(fiestaId: string, config: SocialScreenConfig): Promise<{ success: boolean; error?: string }> {
+  await requireAppSession();
   try {
     const fiesta = await getFiestaById(fiestaId);
     if (!fiesta) return { success: false, error: 'Fiesta no encontrada' };

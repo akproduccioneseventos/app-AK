@@ -5,6 +5,7 @@ import type { FiestaEnPlanificacion, DecoracionData, MoodboardItem, DecoItem, Co
 import { getFiestaById, saveFiesta } from './fiesta.actions';
 import { updateGestionCostos } from './costos.actions';
 
+import { requireAppSession } from '@/lib/auth/require-session';
 export async function updateDecoracion(fiestaId: string, decoracion: DecoracionData): Promise<{ success: boolean; updatedData?: DecoracionData; error?: string }> {
   try {
     const currentData = await getFiestaById(fiestaId);
@@ -19,6 +20,7 @@ export async function updateDecoracion(fiestaId: string, decoracion: DecoracionD
 }
 
 export async function addMoodboardItem(fiestaId: string, url: string, description?: string): Promise<{ success: boolean; error?: string }> {
+  await requireAppSession();
     try {
         const fiesta = await getFiestaById(fiestaId);
         if (!fiesta) throw new Error("Fiesta no encontrada");
@@ -44,6 +46,7 @@ export async function addMoodboardItem(fiestaId: string, url: string, descriptio
 }
 
 export async function deleteMoodboardItem(fiestaId: string, itemId: string): Promise<{ success: boolean; error?: string }> {
+  await requireAppSession();
     try {
         const fiesta = await getFiestaById(fiestaId);
         if (!fiesta) throw new Error("Fiesta no encontrada");
@@ -60,6 +63,7 @@ export async function deleteMoodboardItem(fiestaId: string, itemId: string): Pro
 }
 
 export async function toggleLikeMoodboardItem(fiestaId: string, itemId: string): Promise<{ success: boolean; error?: string }> {
+  await requireAppSession();
     try {
         const fiesta = await getFiestaById(fiestaId);
         if (!fiesta) throw new Error("Fiesta no encontrada");
@@ -86,6 +90,7 @@ export async function syncDecoGastosToModule(
   fiestaId: string,
   itemsDecoracion: DecoItem[]
 ): Promise<{ success: boolean; error?: string }> {
+  await requireAppSession();
   try {
     const fiesta = await getFiestaById(fiestaId);
     if (!fiesta) throw new Error("Fiesta no encontrada");

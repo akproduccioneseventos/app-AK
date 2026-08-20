@@ -12,6 +12,7 @@ export async function getRoles(): Promise<Rol[]> {
 }
 
 export async function getRolById(id: string): Promise<Rol | null> {
+  await requireAppSession();
   const roles = await getRoles();
   return roles.find(r => r.id === id) || null;
 }

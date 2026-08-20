@@ -10,6 +10,7 @@ import { dbAdmin } from '@/lib/firebase/server';
 import { verifySession, writeSessionCookie } from '@/lib/auth/session-token';
 import { esPerfilValido, perfilDesdeRolViejo, type Perfil } from '@/lib/auth/perfiles';
 
+import { requireAppSession } from '@/lib/auth/require-session';
 // ── Constants ──────────────────────────────────────────────────────────────
 
 const SCRYPT_SALT_LEN = 16;
@@ -96,6 +97,9 @@ export interface PublicUserRecord {
  * Creates the default admin account if no users exist yet in Firestore.
  * Called on every login attempt so it triggers automatically on first use.
  */
+// PUBLICA A PROPOSITO: la llama el propio ingreso, antes de que exista sesion.
+// No pide cuenta porque todavia no hay ninguna: si ya hay usuarios se va enseguida,
+// y para crear el primer administrador necesita la contrasena inicial del entorno.
 export async function initializeAdminIfNeeded(): Promise<void> {
   if (!dbAdmin) return;
 
@@ -208,6 +212,7 @@ export interface SecurityQuestionsResult {
 export async function getSecurityQuestions(
   email: string
 ): Promise<SecurityQuestionsResult> {
+  await requireAppSession();
   if (!dbAdmin) return { success: false, error: 'Base de datos no disponible.' };
 
   try {
@@ -406,6 +411,7 @@ export async function getUserSecurityQuestionsForEdit(
   data?: { q1: string; q2: string; q3: string };
   error?: string;
 }> {
+  await requireAppSession();
   if (!dbAdmin) return { success: false, error: 'Base de datos no disponible.' };
 
   try {

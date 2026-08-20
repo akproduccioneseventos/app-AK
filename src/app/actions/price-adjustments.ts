@@ -28,6 +28,7 @@ export interface PreviewItem {
 const ADJUSTMENTS_FILE = 'price-adjustments-history.json';
 
 export async function getPriceAdjustmentHistory(): Promise<PriceAdjustmentRecord[]> {
+  await requireAppSession();
   return readData<PriceAdjustmentRecord[]>(ADJUSTMENTS_FILE, []);
 }
 
@@ -35,6 +36,7 @@ export async function previewPriceAdjustment(
   percentage: number,
   type: 'precios' | 'costos' | 'ambos'
 ): Promise<{ success: boolean; preview?: PreviewItem[]; error?: string }> {
+  await requireAppSession();
   if (isNaN(percentage) || percentage === 0) {
     return { success: false, error: 'El porcentaje debe ser un número distinto de cero.' };
   }

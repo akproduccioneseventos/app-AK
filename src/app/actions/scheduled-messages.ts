@@ -6,6 +6,7 @@ import { requirePermiso } from '@/lib/auth/require-session';
 import { PERMISOS } from '@/lib/auth/perfiles';
 import { WHATSAPP_AUTOMATION_INTERNAL_TOKEN } from '@/lib/whatsapp/internal-token';
 
+import { requireAppSession } from '@/lib/auth/require-session';
 const SCHEDULED_MESSAGES_FILE = 'scheduled-messages.json';
 
 export async function getScheduledMessages(internalToken?: symbol): Promise<ScheduledMessage[]> {
@@ -123,6 +124,7 @@ export async function generateWhatsAppClickUrl(
   messageText: string,
   targetPhone?: string
 ): Promise<string> {
+  await requireAppSession();
   const phone = (targetPhone || '').replace(/[^\d]/g, '');
   const cleanPhone = phone.startsWith('598') ? phone : `598${phone.replace(/^0/, '')}`;
   return `https://wa.me/${cleanPhone || '59898355530'}?text=${encodeURIComponent(messageText)}`;
