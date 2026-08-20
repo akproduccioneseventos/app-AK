@@ -20,7 +20,7 @@ import { getFiestas } from '@/app/actions/fiesta/fiesta.actions';
 import { getAvisoMargenParaPresupuesto } from '@/app/actions/aviso-margen';
 import type { AvisoMargenHistorico } from '@/lib/costos/aviso-margen-historico';
 import { getCustomerById } from '@/app/actions/customers';
-import { getSocialConnections } from '@/app/actions/social-connections';
+import { getSocialConnectionsPublicas } from '@/app/actions/social-connections';
 import type { Customer } from '@/types/customer';
 import type { BudgetDisplaySettings, CompanyInfo } from '@/types/settings';
 import { getBudgetDisplaySettings, getInvoiceTemplateSettings, getCompanyInfo } from '@/app/actions/settings';
@@ -164,7 +164,7 @@ function VerPresupuestoContent({ params }: { params: { id: string } }) {
         getPresupuestoById(presupuestoId, publicToken),
         getBudgetDisplaySettings(),
         getInvoiceTemplateSettings(),
-        getSocialConnections(),
+        getSocialConnectionsPublicas(),
         getCompanyInfo()
       ]);
       setDisplaySettings(fetchedSettings);

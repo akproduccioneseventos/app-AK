@@ -38,6 +38,7 @@ import {
     defaultGestionCostos,
 } from '@/lib/fiesta-defaults';
 import { deriveBudgetModulesForSync, mergeClientPortalSettingsForSync, normalizeBudgetItemsForSync } from '@/lib/fiesta-sync-utils';
+import { leerFiestasCrudas, leerHistorialCrudo } from '@/lib/fiesta/leer-fiestas';
 import { readData, writeData, updateDataPartial } from '@/lib/data-service';
 import path from 'path';
 import fs from 'fs/promises';
@@ -88,58 +89,20 @@ async function requireFiestaWriteAccess(fiestaId: string) {
 }
 
 export async function getHistorialFiestas(): Promise<FiestaEnPlanificacion[]> {
-  const isProduction = process.env.NODE_ENV === 'production' || !!process.env.VERCEL;
-  let historiales: FiestaEnPlanificacion[] = [];
-  let firestoreSucceeded = false;
-
-  if (!shouldUseLocalJsonOnly()) {
-    try {
-      const { isFirebaseAvailable } = await import('@/lib/firebase');
-      if (isProduction || isFirebaseAvailable()) {
-        const { listCollectionFromFirestore } = await import('@/lib/firebase-sync');
-        historiales = (await listCollectionFromFirestore(ARCHIVE_DIR)) as FiestaEnPlanificacion[];
-        firestoreSucceeded = true;
-      }
-    } catch (e) {
-      // fall through to filesystem fallback
-    }
-  }
-
-  if (!firestoreSucceeded) {
-    historiales = await readLocalFiestaDirectory(ARCHIVE_DIR);
-  }
-
-  return Array.from(new Map(historiales.map(f => [f.id, f])).values())
-    .sort((a, b) => new Date(b.configuracion.fechaEvento || 0).getTime() - new Date(a.configuracion.fechaEvento || 0).getTime());
+  // Devuelve TODAS las fiestas archivadas, con el cliente, lo que pago y sus
+  // invitados. Es una direccion de internet: sin esto, cualquiera pedia la lista
+  // entera de clientes del negocio sin tener cuenta.
+  await requireAppSession();
+  return leerHistorialCrudo();
 }
 
 export async function getFiestas(includeArchived = true): Promise<FiestaEnPlanificacion[]> {
-    const isProduction = process.env.NODE_ENV === 'production' || !!process.env.VERCEL;
-    let activas: FiestaEnPlanificacion[] = [];
-    let firestoreSucceeded = false;
-
-    if (!shouldUseLocalJsonOnly()) {
-        try {
-            const { isFirebaseAvailable } = await import('@/lib/firebase');
-            if (isProduction || isFirebaseAvailable()) {
-                const { listCollectionFromFirestore } = await import('@/lib/firebase-sync');
-                activas = (await listCollectionFromFirestore(FIESTAS_DIR)) as FiestaEnPlanificacion[];
-                firestoreSucceeded = true;
-            }
-        } catch (e) {
-            // fall through to filesystem fallback
-        }
-    }
-
-    if (!firestoreSucceeded) {
-        activas = await readLocalFiestaDirectory(FIESTAS_DIR);
-    }
-
-    const archivadas = includeArchived ? await getHistorialFiestas() : [];
-    // Filter out any 'Archivado' entries that may have ended up in the active collection
-    const activasFiltradas = activas.filter(f => f.estado !== 'Archivado');
-    const allFiestas = [...activasFiltradas, ...archivadas];
-    return Array.from(new Map(allFiestas.map(item => [item.id, item])).values());
+  // Mismo caso que el historial: la lista completa de fiestas es del equipo.
+  // Las pantallas que abre un desconocido y que igual necesitan mirar las fiestas
+  // (el simulador para ver si una fecha esta libre, el portal del cliente con su
+  // clave) usan `leerFiestasCrudas`, que no es una direccion de internet.
+  await requireAppSession();
+  return leerFiestasCrudas(includeArchived);
 }
 
 export async function getAllFiestas() {

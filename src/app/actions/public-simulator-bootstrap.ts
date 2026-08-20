@@ -1,13 +1,13 @@
 "use server";
 
 import { getArmadoRapidoConfig } from "@/app/actions/armado-rapido";
-import { getMenus } from "@/app/actions/menus-catering";
-import { getServiciosEmpresa } from "@/app/actions/servicios-empresa";
+import { getMenusPublicos } from "@/app/actions/menus-catering";
+import { getServiciosEmpresaPublicos } from "@/app/actions/servicios-empresa";
 import {
   getBudgetDisplaySettings,
   getInvoiceTemplateSettings,
 } from "@/app/actions/settings";
-import { getSocialConnections } from "@/app/actions/social-connections";
+import { getSocialConnectionsPublicas } from "@/app/actions/social-connections";
 import type { ArmadoRapidoConfig } from "@/types/armado-rapido";
 import { defaultClubUruguayConfig } from "@/types/armado-rapido";
 import type { FullMenu } from "@/types/catering";
@@ -70,10 +70,10 @@ export async function getPublicSimulatorBootstrap(): Promise<PublicSimulatorBoot
   ] = await Promise.all([
     withBootstrapFallback(getArmadoRapidoConfig(), FALLBACK_CONFIG),
     withBootstrapFallback(getBudgetDisplaySettings(), defaultBudgetDisplaySettings),
-    withBootstrapFallback(getServiciosEmpresa(), FALLBACK_SERVICES),
-    withBootstrapFallback(getSocialConnections(), []),
+    withBootstrapFallback(getServiciosEmpresaPublicos(), FALLBACK_SERVICES),
+    withBootstrapFallback(getSocialConnectionsPublicas(), []),
     withBootstrapFallback(getInvoiceTemplateSettings(), null),
-    withBootstrapFallback(getMenus(), FALLBACK_MENUS),
+    withBootstrapFallback(getMenusPublicos(), FALLBACK_MENUS),
   ]);
 
   const resolvedConfig = config || FALLBACK_CONFIG;

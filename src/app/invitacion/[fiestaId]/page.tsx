@@ -1,6 +1,6 @@
 import { Metadata } from 'next';
 import { getFiestaById } from '@/app/actions/fiesta/fiesta.actions';
-import { getSocialConnections } from '@/app/actions/social-connections';
+import { getSocialConnectionsPublicas } from '@/app/actions/social-connections';
 import { buildInvitacionConfigFromFiesta, TIPO_EVENTO_LABELS } from '@/lib/invitacion-config-defaults';
 import { InvitacionPublicaClient } from './invitacion-publica-client';
 
@@ -56,7 +56,7 @@ export default async function InvitacionPublicaPage(props: PageProps) {
   const params = await props.params;
   const [fiesta, socialConnections] = await Promise.all([
     getFiestaById(params.fiestaId),
-    getSocialConnections().catch((err) => {
+    getSocialConnectionsPublicas().catch((err) => {
       console.error('[InvitacionPublicaPage] Failed to fetch social connections:', err);
       return [] as import('@/types/settings').SocialConnection[];
     }),

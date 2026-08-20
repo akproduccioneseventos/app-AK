@@ -1,26 +1,26 @@
 import { getArmadoRapidoConfig } from "@/app/actions/armado-rapido";
-import { getMenus } from "@/app/actions/menus-catering";
+import { getMenusPublicos } from "@/app/actions/menus-catering";
 import { getPublicSimulatorBootstrap } from "@/app/actions/public-simulator-bootstrap";
-import { getServiciosEmpresa } from "@/app/actions/servicios-empresa";
+import { getServiciosEmpresaPublicos } from "@/app/actions/servicios-empresa";
 import {
   getBudgetDisplaySettings,
   getInvoiceTemplateSettings,
 } from "@/app/actions/settings";
-import { getSocialConnections } from "@/app/actions/social-connections";
+import { getSocialConnectionsPublicas } from "@/app/actions/social-connections";
 
 jest.mock("@/app/actions/armado-rapido", () => ({
   getArmadoRapidoConfig: jest.fn(),
 }));
-jest.mock("@/app/actions/menus-catering", () => ({ getMenus: jest.fn() }));
+jest.mock("@/app/actions/menus-catering", () => ({ getMenusPublicos: jest.fn() }));
 jest.mock("@/app/actions/servicios-empresa", () => ({
-  getServiciosEmpresa: jest.fn(),
+  getServiciosEmpresaPublicos: jest.fn(),
 }));
 jest.mock("@/app/actions/settings", () => ({
   getBudgetDisplaySettings: jest.fn(),
   getInvoiceTemplateSettings: jest.fn(),
 }));
 jest.mock("@/app/actions/social-connections", () => ({
-  getSocialConnections: jest.fn(),
+  getSocialConnectionsPublicas: jest.fn(),
 }));
 
 describe("getPublicSimulatorBootstrap", () => {
@@ -31,11 +31,11 @@ describe("getPublicSimulatorBootstrap", () => {
     jest
       .mocked(getBudgetDisplaySettings)
       .mockResolvedValue({ successMessage: "Listo" } as never);
-    jest.mocked(getServiciosEmpresa).mockResolvedValue([
+    jest.mocked(getServiciosEmpresaPublicos).mockResolvedValue([
       { id: "service-1", nombre: "Discoteca", tipoItem: "Servicio" },
       { id: "supply-1", nombre: "Vaso", tipoItem: "Insumo" },
     ] as never);
-    jest.mocked(getSocialConnections).mockResolvedValue([
+    jest.mocked(getSocialConnectionsPublicas).mockResolvedValue([
       {
         platform: "WhatsApp",
         isConnected: true,
@@ -46,7 +46,7 @@ describe("getPublicSimulatorBootstrap", () => {
       .mocked(getInvoiceTemplateSettings)
       .mockResolvedValue({ logoUrl: "/logo.png" } as never);
     jest
-      .mocked(getMenus)
+      .mocked(getMenusPublicos)
       .mockResolvedValue([{ id: "menu-1", name: "Menú AK" }] as never);
 
     const result = await getPublicSimulatorBootstrap();

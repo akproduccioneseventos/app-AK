@@ -8,7 +8,30 @@ import { requireAppSession } from '@/lib/auth/require-session';
 const CONNECTIONS_FILE = 'social-connections.json';
 
 export async function getSocialConnections(): Promise<SocialConnection[]> {
+  await requireAppSession();
   return readData<SocialConnection[]>(CONNECTIONS_FILE, []);
+}
+
+/** Sin comprobar sesion: solo para uso interno de este archivo y de las publicas. */
+async function leerConexiones(): Promise<SocialConnection[]> {
+  return readData<SocialConnection[]>(CONNECTIONS_FILE, []);
+}
+
+/**
+ * Las redes de AK para mostrarle los botones "seguinos" al invitado.
+ *
+ * **Devuelve solo lo que se ve en pantalla.** La version completa guarda ademas el
+ * permiso de publicacion de Facebook e Instagram, y estas pantallas son publicas:
+ * se abrian sin cuenta y el permiso viajaba hasta el navegador de cada invitado,
+ * donde queda a la vista en el codigo de la pagina. Con ese permiso, cualquiera
+ * podia publicar en las cuentas de la empresa.
+ */
+export async function getSocialConnectionsPublicas(): Promise<SocialConnection[]> {
+  const conexiones = await leerConexiones();
+  return conexiones.map(({ pageId, pageAccessToken, instagramAccountId, tokenExpiresAt, ...visible }) => {
+    void pageId; void pageAccessToken; void instagramAccountId; void tokenExpiresAt;
+    return visible;
+  });
 }
 
 export async function saveWhatsAppNumber(
@@ -20,7 +43,7 @@ export async function saveWhatsAppNumber(
     return { success: false, error: "Por favor, ingresa un número de teléfono válido (solo dígitos)." };
   }
   
-  const connections = await getSocialConnections();
+  const connections = await leerConexiones();
   const cleanPhoneNumber = phoneNumber.replace(/\s/g, '');
 
   const newConnection: SocialConnection = {
@@ -57,7 +80,7 @@ export async function saveSocialLink(
     return { success: false, error: "Por favor, ingresa una URL válida." };
   }
 
-  const connections = await getSocialConnections();
+  const connections = await leerConexiones();
   const newConnection: SocialConnection = {
     platform,
     isConnected: true,
@@ -80,7 +103,7 @@ export async function saveSocialLink(
 
 export async function disconnectSocialPlatform(platform: SocialPlatformName): Promise<{ success: boolean; error?: string }> {
   await requireAppSession();
-  let connections = await getSocialConnections();
+  let connections = await leerConexiones();
   const initialLength = connections.length;
   connections = connections.filter(c => c.platform !== platform);
   
@@ -110,7 +133,7 @@ export async function saveMetaPublishingCredentials(params: {
     return { success: false, error: 'Se requiere el Page ID y el Page Access Token de Meta.' };
   }
 
-  const connections = await getSocialConnections();
+  const connections = await leerConexiones();
   const now = new Date().toISOString();
 
   // 1. Conexión de Facebook

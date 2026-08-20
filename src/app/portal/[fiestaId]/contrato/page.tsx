@@ -9,7 +9,7 @@ import { Loader2, ArrowLeft, FileSignature, CheckCircle2, ShieldCheck, Info, Ale
 import { useToast } from '@/hooks/use-toast';
 import { signContractDigitally, getContractSigningSummary } from '@/app/actions/fiesta-actual';
 import { getFiestaForPortalSession } from '@/app/actions/fiesta/portal.actions';
-import { getCompanyInfo } from '@/app/actions/settings';
+import { getCompanyInfoPublica } from '@/app/actions/settings';
 import type { FiestaEnPlanificacion } from '@/types/fiesta';
 import type { CompanyInfo } from '@/types/settings';
 import { Separator } from '@/components/ui/separator';
@@ -55,7 +55,7 @@ export default function ClientContractPage() {
     try {
       const [data, companyData, summaryData] = await Promise.all([
           getFiestaForPortalSession(fiestaId),
-          getCompanyInfo(),
+          getCompanyInfoPublica(),
           getContractSigningSummary(fiestaId),
       ]);
       if (!data) throw new Error("Evento no encontrado");

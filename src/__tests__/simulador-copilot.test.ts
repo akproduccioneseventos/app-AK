@@ -41,11 +41,11 @@ jest.mock('@/app/actions/armado-rapido', () => ({
 }));
 
 jest.mock('@/app/actions/servicios-empresa', () => ({
-  getServiciosEmpresa: jest.fn().mockResolvedValue([])
+  getServiciosEmpresaPublicos: jest.fn().mockResolvedValue([])
 }));
 
 jest.mock('@/app/actions/menus-catering', () => ({
-  getMenus: jest.fn().mockResolvedValue([])
+  getMenusPublicos: jest.fn().mockResolvedValue([])
 }));
 
 jest.mock('@/app/actions/settings', () => ({

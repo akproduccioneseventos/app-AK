@@ -4,7 +4,7 @@ import Link from 'next/link';
 import { Building2, CalendarDays, Check, MapPin, MessageCircle, Users } from 'lucide-react';
 import { LandingNav } from '@/components/landing/LandingNav';
 import { PublicFooter } from '@/components/public-footer';
-import { getSalones } from '@/app/actions/salones';
+import { getSalonesPublicos } from '@/app/actions/salones';
 import { isClubUruguay } from '@/lib/club-uruguay';
 import { canUseNextImage } from '@/lib/next-image-url';
 import { getDynamicSalonPhotos, type SalonPhoto } from '@/lib/salon-helper';
@@ -52,8 +52,8 @@ async function getSalonesWithoutBlockingSale() {
   let timeout: ReturnType<typeof setTimeout> | undefined;
   try {
     return await Promise.race([
-      getSalones(),
-      new Promise<Awaited<ReturnType<typeof getSalones>>>((resolve) => {
+      getSalonesPublicos(),
+      new Promise<Awaited<ReturnType<typeof getSalonesPublicos>>>((resolve) => {
         timeout = setTimeout(() => resolve([]), 2_500);
       }),
     ]);

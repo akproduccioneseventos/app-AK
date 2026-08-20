@@ -188,6 +188,14 @@ Firma cliente: __________________________`,
 
 // --- Company Info ---
 export async function getCompanyInfo(): Promise<CompanyInfo> {
+  // Guarda las cuentas bancarias de la empresa. La version que usan las pantallas
+  // abiertas es `getCompanyInfoPublica`, que no las trae.
+  await requireAppSession();
+  return leerCompanyInfo();
+}
+
+/** Sin comprobar sesion: uso interno de este archivo y de la version publica. */
+async function leerCompanyInfo(): Promise<CompanyInfo> {
   try {
     const data = await readData<Partial<CompanyInfo>>(COMPANY_INFO_FILE, {});
     return { ...defaultCompanyInfo, ...data };
@@ -196,13 +204,23 @@ export async function getCompanyInfo(): Promise<CompanyInfo> {
   }
 }
 
+/**
+ * Los datos de la empresa para las pantallas que se abren sin cuenta: nombre,
+ * logo, contacto, textos. **Sin las cuentas bancarias**, que son las de cobro de
+ * AK y no las necesita ninguna pantalla publica.
+ */
+export async function getCompanyInfoPublica(): Promise<CompanyInfo> {
+  const info = await leerCompanyInfo();
+  return { ...info, cuentasBancariasPortal: [] };
+}
+
 export async function saveCompanyInfo(
   settings: Partial<CompanyInfo>
 ): Promise<{ success: boolean; data?: CompanyInfo; error?: string }> {
   try {
     const auth = await verifySession();
     if (!auth.success) return { success: false, error: auth.error };
-    const currentSettings = await getCompanyInfo();
+    const currentSettings = await leerCompanyInfo();
     const settingsToSave = { ...currentSettings, ...settings };
 
     // El nombre y el RUT salen impresos en los contratos y las facturas. Se

@@ -16,9 +16,9 @@ import {
   SlidersHorizontal,
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
-import { getServiciosEmpresa } from '@/app/actions/servicios-empresa';
-import { getCompanyInfo, getInvoiceTemplateSettings, getBudgetDisplaySettings } from '@/app/actions/settings';
-import { getMenus } from '@/app/actions/menus-catering';
+import { getServiciosEmpresaPublicos } from '@/app/actions/servicios-empresa';
+import { getCompanyInfoPublica, getInvoiceTemplateSettings, getBudgetDisplaySettings } from '@/app/actions/settings';
+import { getMenusPublicos } from '@/app/actions/menus-catering';
 import { getCatalogoFotos } from '@/app/actions/catalogo-fotos';
 import { getPresentacionLedSettings } from '@/app/actions/contenido-publico';
 import type { FullMenu, MenuItem } from '@/types/catering';
@@ -174,11 +174,11 @@ export default function PresentacionLedPage() {
     setLoading(true);
     try {
       const [servicios, companyInfo, invoiceSettings, budgetSettings, menus, catalogoData, ledSettings] = await Promise.all([
-        getServiciosEmpresa(),
-        getCompanyInfo(),
+        getServiciosEmpresaPublicos(),
+        getCompanyInfoPublica(),
         getInvoiceTemplateSettings(),
         getBudgetDisplaySettings(),
-        getMenus().catch(() => [] as FullMenu[]),
+        getMenusPublicos().catch(() => [] as FullMenu[]),
         getCatalogoFotos().catch(() => [] as CatalogoFoto[]),
         getPresentacionLedSettings(),
       ]);

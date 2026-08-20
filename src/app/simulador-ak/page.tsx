@@ -16,8 +16,8 @@ import { useToast } from '@/hooks/use-toast';
 import { generateBudgetAndLeadFromSimulator, getArmadoRapidoConfig } from '@/app/actions/armado-rapido';
 import { getBudgetDisplaySettings } from '@/app/actions/settings';
 import { checkDateAvailability } from '@/app/actions/simulador-v2';
-import { getServiciosEmpresa } from '@/app/actions/servicios-empresa';
-import { getMenus } from '@/app/actions/menus-catering';
+import { getServiciosEmpresaPublicos } from '@/app/actions/servicios-empresa';
+import { getMenusPublicos } from '@/app/actions/menus-catering';
 import { getPublicWhatsAppNumber } from '@/app/actions/whatsapp';
 import { CompanyLogo } from '@/components/company-logo';
 import { FloatingWhatsApp } from '@/components/ui/floating-whatsapp';
@@ -191,7 +191,7 @@ function SimuladorAKContent() {
       })
       .catch(() => {});
 
-    const servicesRequest = getServiciosEmpresa()
+    const servicesRequest = getServiciosEmpresaPublicos()
       .then((servicios) => {
         if (active && Array.isArray(servicios)) {
           setServiciosCatalogo(servicios.filter((service) => service.tipoItem === 'Servicio'));
@@ -199,7 +199,7 @@ function SimuladorAKContent() {
       })
       .catch(() => {});
 
-    const menusRequest = getMenus()
+    const menusRequest = getMenusPublicos()
       .then((menus) => {
         if (active && Array.isArray(menus)) setAvailableMenus(menus);
       })

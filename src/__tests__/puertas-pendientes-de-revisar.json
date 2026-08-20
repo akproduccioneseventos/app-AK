@@ -2,9 +2,6 @@
   "src/app/actions/accesos-personal-view.ts": [
     "getAccesoPersonalPortalView"
   ],
-  "src/app/actions/activos-fijos.ts": [
-    "getActivosFijos"
-  ],
   "src/app/actions/armado-rapido.ts": [
     "generateBudgetAndLeadFromSimulator",
     "getArmadoRapidoConfig"
@@ -27,9 +24,6 @@
   "src/app/actions/contenido-publico.ts": [
     "getCatalogoSettings",
     "getPresentacionLedSettings"
-  ],
-  "src/app/actions/empleados.ts": [
-    "getEmpleados"
   ],
   "src/app/actions/espejo-magico-ai.ts": [
     "isEspejoIaDisponible"
@@ -61,12 +55,9 @@
     "duplicateFiesta",
     "getFiestaActual",
     "getFiestaBySlug",
-    "getFiestas",
-    "getHistorialFiestas",
     "removeInvoiceId",
     "resetAllActiveFiestas",
     "resetFiestaActual",
-    "saveFiesta",
     "syncFiestaFromBudget",
     "updateClienteDebeLlevar",
     "updateFiestaPresupuestoId",
@@ -130,17 +121,10 @@
     "syncFiestaToGoogleWorkspace"
   ],
   "src/app/actions/insumos.ts": [
-    "getInsumos",
     "invalidateInsumosCache"
   ],
   "src/app/actions/landing-editor.ts": [
     "getLandingSettings"
-  ],
-  "src/app/actions/menus-catering.ts": [
-    "getMenus"
-  ],
-  "src/app/actions/multiagent.ts": [
-    "sendPersistentMultiAgentMessage"
   ],
   "src/app/actions/promos.ts": [
     "getPromoActiva"
@@ -159,24 +143,14 @@
   "src/app/actions/reposteria.actions.ts": [
     "updateReposteria"
   ],
-  "src/app/actions/roles.ts": [
-    "getRoles"
-  ],
   "src/app/actions/salon-ia.actions.ts": [
     "chatWithGuestBot"
-  ],
-  "src/app/actions/salones.ts": [
-    "getSalones"
-  ],
-  "src/app/actions/servicios-empresa.ts": [
-    "getServiciosEmpresa"
   ],
   "src/app/actions/session.ts": [
     "clearSessionCookie"
   ],
   "src/app/actions/settings.ts": [
     "getBudgetDisplaySettings",
-    "getCompanyInfo",
     "getInvoiceTemplateSettings",
     "getWhatsAppSettings",
     "getWhatsAppTemplates"
@@ -193,9 +167,6 @@
   ],
   "src/app/actions/simulator-agenda.ts": [
     "getSimulatorAvailableSlots"
-  ],
-  "src/app/actions/social-connections.ts": [
-    "getSocialConnections"
   ],
   "src/app/actions/whatsapp.ts": [
     "getPublicWhatsAppNumber"

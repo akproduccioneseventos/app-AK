@@ -3,8 +3,8 @@
 import { ai, geminiModel } from '@/ai/genkit';
 import { z } from 'genkit';
 import { getArmadoRapidoConfig } from '@/app/actions/armado-rapido';
-import { getServiciosEmpresa } from '@/app/actions/servicios-empresa';
-import { getMenus } from '@/app/actions/menus-catering';
+import { getServiciosEmpresaPublicos } from '@/app/actions/servicios-empresa';
+import { getMenusPublicos } from '@/app/actions/menus-catering';
 import { checkDateAvailability } from '@/app/actions/simulador-v2';
 import * as logger from '@/lib/logger';
 import type { ArmadoRapidoConfig } from '@/types/armado-rapido';
@@ -223,8 +223,8 @@ export async function chatWithBudgetCopilot(
 
   const [config, services, menus, copilotConfig] = await Promise.all([
     getArmadoRapidoConfig().catch(() => null),
-    getServiciosEmpresa().catch(() => []),
-    getMenus().catch(() => []),
+    getServiciosEmpresaPublicos().catch(() => []),
+    getMenusPublicos().catch(() => []),
     getCopilotConfig().catch(() => DEFAULT_COPILOT_CONFIG),
   ]);
   const apiKey = process.env.GOOGLE_API_KEY || process.env.GEMINI_API_KEY;

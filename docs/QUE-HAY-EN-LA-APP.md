@@ -138,6 +138,9 @@ muestre**. Esa distinción es la que más veces falló.
 | Tu página web (Google Analytics 4) | Sí | Empresa → Presencia digital → solapa "Tu página web" |
 | Ficha de Google conectada y verificada (cuenta verificada por el dueño el 20/8) | Sí | Empresa → Presencia digital → solapa "Ficha de Google" |
 | Botón que abre la ficha real de Google (antes abría una búsqueda) | Sí, enlace pasado por el dueño el 20/8 | Empresa → Presencia digital → solapa "Ficha de Google" |
+| Redes de AK en las pantallas del invitado sin el permiso de publicación | Sí | Invitación, muro en vivo, página del evento |
+| Lista completa de fiestas cerrada a quien no tiene cuenta | Sí | Todas las pantallas del equipo |
+| Menús, servicios y salones en pantallas de venta sin costos ni contactos internos | Sí | Simulador, presentación LED, páginas de venta |
 | Soporte Pinterest, Threads y X | Sí | Empresa → Presencia digital y Ajustes → Redes sociales |
 | Publicación real en Facebook e Instagram | Sí | Empresa → Presencia digital (al aprobar) |
 | Publicación programada con cron y límites | Sí | Automático (cron `/api/cron/publicar-programados`) y visible en Empresa → Redes sociales |
