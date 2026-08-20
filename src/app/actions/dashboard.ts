@@ -14,7 +14,6 @@ import { getBudgetPaymentSummary } from '@/lib/budget/financial-guardrails';
 import { verifySession } from '@/lib/auth/session-token';
 import { requireAppSession } from '@/lib/auth/require-session';
 
-import { requireAppSession } from '@/lib/auth/require-session';
 export interface MonthlyChartData {
   month: string;
   ventas: number;

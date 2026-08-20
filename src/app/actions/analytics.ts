@@ -11,7 +11,6 @@ import { isFirmSalesInvoice } from '@/lib/commercial-flow/ledger-service';
 import { isSimulatorBudget } from '@/lib/budget/formal-budget';
 import { requireAppSession } from '@/lib/auth/require-session';
 
-import { requireAppSession } from '@/lib/auth/require-session';
 function isAcceptedBudget(status?: string) {
   return status === 'Aceptado' || status === 'Facturado';
 }

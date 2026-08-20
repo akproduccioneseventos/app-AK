@@ -7,7 +7,6 @@ import { buildAk100Readiness } from '@/lib/ak-100/ak-100-readiness';
 import { requireAppSession } from '@/lib/auth/require-session';
 import type { Tarea } from '@/types/fiesta';
 
-import { requireAppSession } from '@/lib/auth/require-session';
 export async function getAk100Readiness(fiestaId: string) {
   await requireAppSession();
   const fiesta = await getFiestaById(fiestaId);
