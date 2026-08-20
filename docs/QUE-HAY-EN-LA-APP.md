@@ -155,6 +155,10 @@ muestre**. Esa distinción es la que más veces falló.
 | Importador de historial social | Sí | Empresa → Redes sociales → Importar historial |
 | Schema.org LocalBusiness, FAQPage, Breadcrumb | Sí | En la cabecera (head) y body de las páginas públicas |
 | Cuentas oficiales centralizadas y botón Pinterest | Sí | Pie de página web pública y `src/lib/public-contact.ts` |
+| Pantalla de tareas automáticas: qué está al día y qué atrasado | Sí | Ajustes → Tareas Automáticas |
+| Botón para correr a mano cada tarea automática | Sí | Ajustes → Tareas Automáticas |
+| Las tareas de fondo sólo las dispara un administrador | Sí | Automático, al abrir la app |
+| Un posteo no puede salir dos veces en las redes | Sí | Automático, al publicar programados |
 
 **Si se cae el internet en la fiesta:** se salva la llegada de invitados y el
 pedido de la barra, que se reenvían solos al volver la señal. **La foto del muro
