@@ -145,6 +145,7 @@ muestre**. Esa distinción es la que más veces falló.
 | Lista completa de fiestas cerrada a quien no tiene cuenta | Sí | Todas las pantallas del equipo |
 | Menús, servicios y salones en pantallas de venta sin costos ni contactos internos | Sí | Simulador, presentación LED, páginas de venta |
 | Freno contra robots en el chat del simulador y el asistente del invitado | Sí | Simulador y portal del invitado |
+| Pedidos de robots (WordPress, phpMyAdmin, archivos de contraseñas) cortados en la puerta | Sí | Automático, en toda la app |
 | Soporte Pinterest, Threads y X | Sí | Empresa → Presencia digital y Ajustes → Redes sociales |
 | Publicación real en Facebook e Instagram | Sí | Empresa → Presencia digital (al aprobar) |
 | Publicación programada con cron y límites | Sí | Automático (cron `/api/cron/publicar-programados`) y visible en Empresa → Redes sociales |
