@@ -27,13 +27,12 @@ export default function RecepcionClient({
   useEffect(() => {
     const handleOnline = () => {
       setIsOffline(false);
+      // Solo los check-in: antes agarraba tambien los pedidos de barra pendientes
+      // y los daba por enviados sin mandarlos, o sea los borraba.
       void flushOfflineQueue(async (action) => {
-        if (action.type === 'recepcion_checkin') {
-          const res = await checkInGuest(action.fiestaId, action.payload.guestId);
-          return { success: res.success, error: res.error };
-        }
-        return { success: true };
-      }, { fiestaId });
+        const res = await checkInGuest(action.fiestaId, action.payload.guestId);
+        return { success: res.success, error: res.error };
+      }, { fiestaId, types: ['recepcion_checkin'] });
     };
     const handleOffline = () => setIsOffline(true);
 

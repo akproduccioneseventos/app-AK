@@ -3081,6 +3081,31 @@ de trabajos, con un texto alternativo que describe lo que se ve. Una foto real d
 la barra montada en Salto muestra algo que se puede contratar; una imagen generada
 no muestra nada, y era la parte cara de la nota.
 
+## La cola sin señal se borraba entre pantallas (20 de agosto de 2026)
+
+Primer hallazgo del método nuevo, y es de los caros.
+
+**La cola del celular es una sola y la comparten tres pantallas**: la barra, la
+recepción y el muro. **Cada una la vaciaba entera**, y para lo que no sabía mandar
+devolvía "enviado". Como el éxito borra el elemento, **una pantalla borraba los
+pedidos de otra sin mandarlos**. El muro era el peor: su enviador no enviaba nada
+y daba todo por enviado.
+
+En una fiesta con mala señal eso era: el invitado pide un trago, lee "se envía
+solo", abre el muro para ver las fotos, y **el pedido desaparece**. No se entera
+nadie, ni el invitado ni la barra.
+
+Ahora `flushOfflineQueue` recibe `types` y cada pantalla toca únicamente lo suyo.
+El muro no encola nada, así que dejó de vaciar la cola. Hay una prueba que
+controla las tres pantallas y que ninguna vuelva a dar por enviado lo que no sabe
+mandar.
+
+**Y una promesa que no se cumplía:** el portal del cliente decía que su lista de
+música *"se sincroniza en tiempo real con el DJ"*. La lista se guarda pero **la
+pantalla del DJ nunca la lee**. Se corrigió el texto a lo que pasa de verdad, y
+que el DJ la vea quedó pedido en la orden. **No se deja una promesa en pantalla
+sin alguien que la cumpla.**
+
 ## Cómo agregar algo a esta lista
 
 **Se anota SIEMPRE, en la misma propuesta que toca el código.** Orden del dueño

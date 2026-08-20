@@ -99,13 +99,28 @@ export function getPendingOfflineActions(fiestaId?: string, type?: OfflineAction
 /**
  * Procesa la cola pendiente ejecutando la función de envío para cada elemento.
  */
+/**
+ * Vacia la cola ejecutando el envio de cada elemento.
+ *
+ * **`types` no es opcional en la practica: pasalo siempre.**
+ *
+ * La cola es una sola y la comparten tres pantallas: la barra, la recepcion y el
+ * muro. Sin filtrar, cada pantalla agarraba TODO lo pendiente y, para lo que no
+ * sabia mandar, devolvia `success: true`. Como el exito borra el elemento, **una
+ * pantalla borraba los pedidos de otra sin mandarlos**: el invitado veia "se envia
+ * solo", el trago desaparecia de la cola y nunca llegaba a la barra. Se cobra un
+ * trago que nadie sirve, o peor, no se cobra nada.
+ *
+ * Con `types`, cada pantalla toca unicamente lo suyo.
+ */
 export async function flushOfflineQueue(
   executor: (action: OfflineAction) => Promise<{ success: boolean; error?: string }>,
-  options?: { fiestaId?: string }
+  options?: { fiestaId?: string; types?: OfflineActionType[] }
 ): Promise<{ processed: number; failed: number; remaining: number }> {
   const queue = loadOfflineQueue();
   const toProcess = queue.filter((action) => {
     if (options?.fiestaId && action.fiestaId !== options.fiestaId) return false;
+    if (options?.types && !options.types.includes(action.type)) return false;
     return true;
   });
 
