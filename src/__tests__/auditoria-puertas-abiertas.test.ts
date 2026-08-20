@@ -160,12 +160,13 @@ describe('Ninguna puerta abierta a internet sin querer', () => {
     const nuevas: string[] = [];
 
     for (const archivo of archivos) {
+      const normalizado = archivo.replace(/\\/g, '/');
       const base = path.basename(archivo);
       if (PUBLICAS_A_PROPOSITO[base]) continue;
-      const yaConocidas = new Set(conocidas[archivo] ?? []);
+      const yaConocidas = new Set(conocidas[normalizado] ?? conocidas[archivo] ?? []);
       for (const fn of funcionesSinControl(archivo)) {
         if (FUNCIONES_PUBLICAS_A_PROPOSITO[`${base}:${fn}`]) continue;
-        if (!yaConocidas.has(fn)) nuevas.push(`${archivo} -> ${fn}`);
+        if (!yaConocidas.has(fn)) nuevas.push(`${normalizado} -> ${fn}`);
       }
     }
 

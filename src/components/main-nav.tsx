@@ -40,6 +40,8 @@ import {
   AlertTriangle,
   ClipboardList,
   CheckSquare,
+  Zap,
+  Link as LinkIcon,
 } from "lucide-react";
 import AppLogo from "./app-logo";
 import { cn } from "@/lib/utils";
@@ -123,6 +125,8 @@ const navGroups: NavGroup[] = [
     emoji: "⚙️",
     items: [
       { title: "Ajustes Generales", href: "/settings", icon: Settings, active: (pathname) => pathname === "/settings" },
+      { title: "Tareas Automáticas", href: "/settings/tareas-automaticas", icon: Zap },
+      { title: "Conexiones", href: "/settings/sincronizaciones", icon: LinkIcon },
       { title: "WhatsApp", href: "/settings/whatsapp", icon: MessageCircle },
       { title: "Seguridad", href: "/settings/account", icon: ShieldCheck },
     ],

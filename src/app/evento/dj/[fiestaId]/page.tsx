@@ -127,6 +127,73 @@ export default function DJPage() {
         </span>
       </div>
 
+      {/* BLOQUE FIJO: Lista de Música del Cliente (Infaltables vs Prohibidas) */}
+      <div className="max-w-2xl mx-auto px-4 mb-4 space-y-3">
+        {/* 1. Infaltables / Imprescindibles */}
+        {fiesta?.listaMusicaPortal?.imprescindibles && fiesta.listaMusicaPortal.imprescindibles.length > 0 ? (
+          <div className="rounded-2xl border-2 border-amber-500/70 bg-gradient-to-r from-amber-950/70 via-zinc-900 to-amber-950/70 p-4 shadow-xl shadow-amber-950/30">
+            <div className="flex items-center justify-between gap-2 mb-2 pb-2 border-b border-amber-500/30">
+              <div className="flex items-center gap-2">
+                <span className="text-xl">⭐</span>
+                <h2 className="text-base sm:text-lg font-black text-amber-300 tracking-tight">
+                  INFALTABLES DEL CLIENTE
+                </h2>
+              </div>
+              <span className="text-xs font-bold bg-amber-500/20 text-amber-300 border border-amber-500/40 px-2 py-0.5 rounded-full">
+                {fiesta.listaMusicaPortal.imprescindibles.length} obligatorias
+              </span>
+            </div>
+
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
+              {fiesta.listaMusicaPortal.imprescindibles.map((cancion, idx) => (
+                <div
+                  key={idx}
+                  className="flex items-center gap-2.5 p-2.5 rounded-xl bg-black/40 border border-amber-500/30 hover:border-amber-400 transition-colors"
+                >
+                  <span className="flex-shrink-0 w-6 h-6 rounded-full bg-amber-500 text-black flex items-center justify-center text-xs font-black">
+                    {idx + 1}
+                  </span>
+                  <span className="font-extrabold text-sm sm:text-base text-amber-100 leading-snug break-words">
+                    {cancion}
+                  </span>
+                </div>
+              ))}
+            </div>
+          </div>
+        ) : null}
+
+        {/* 2. Prohibidas / No Deben Sonar */}
+        {fiesta?.listaMusicaPortal?.noQuiero && fiesta.listaMusicaPortal.noQuiero.length > 0 ? (
+          <div className="rounded-2xl border-2 border-rose-600/80 bg-gradient-to-r from-rose-950/80 via-zinc-900 to-rose-950/80 p-4 shadow-xl shadow-rose-950/30">
+            <div className="flex items-center justify-between gap-2 mb-2 pb-2 border-b border-rose-500/30">
+              <div className="flex items-center gap-2">
+                <span className="text-xl">🚫</span>
+                <h2 className="text-base sm:text-lg font-black text-rose-300 tracking-tight">
+                  PROHIBIDAS — NO REPRODUCIR
+                </h2>
+              </div>
+              <span className="text-xs font-bold bg-rose-500/20 text-rose-300 border border-rose-500/40 px-2 py-0.5 rounded-full">
+                {fiesta.listaMusicaPortal.noQuiero.length} vetadas
+              </span>
+            </div>
+
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
+              {fiesta.listaMusicaPortal.noQuiero.map((cancion, idx) => (
+                <div
+                  key={idx}
+                  className="flex items-center gap-2.5 p-2.5 rounded-xl bg-black/50 border border-rose-500/30 hover:border-rose-400 transition-colors"
+                >
+                  <span className="flex-shrink-0 text-rose-500 font-bold text-sm">✕</span>
+                  <span className="font-bold text-sm sm:text-base text-rose-200 line-through leading-snug break-words opacity-90">
+                    {cancion}
+                  </span>
+                </div>
+              ))}
+            </div>
+          </div>
+        ) : null}
+      </div>
+
       {/* Termómetro de la Fiesta en Tiempo Real */}
       <div className="max-w-2xl mx-auto px-4 mb-4">
         <FiestaThermometer requests={requests} />

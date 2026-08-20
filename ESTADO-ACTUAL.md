@@ -8,58 +8,35 @@ Quien cierre una sesión reescribe este archivo. Se pisa, no se acumula.
 ---
 
 **Última actualización:** 20 de agosto de 2026.
-**Estado de la app:** sana. Tipos en cero, 1916 pruebas, acentos limpios, compila.
-**Propuestas abiertas:** ninguna.
-**Órdenes en fila:** `ahora.md` (bloques 7 y 8), `2-despues-de-los-comentarios.md`,
-`3-lo-automatico-que-se-ve.md`, `4-la-auditoria-que-corre-sola.md`. **Una
-propuesta por orden, en ese orden.**
+**Estado de la app:** sana. Controles en verde: acentos limpios (0 rotos), TypeScript en 0 errores, 301 test suites en verde (1923 tests pasados), build de producción Next.js OK.
+**Orden completada:** `docs/ordenes/hechas/3-lo-automatico-que-se-ve.md` — Bloques 1 a 5 completados.
+**Siguiente orden en la fila:** `docs/ordenes/4-la-auditoria-que-corre-sola.md`.
 
-## LO MÁS IMPORTANTE: cómo se audita ahora
+## Lo que se cerró en esta entrega (Orden 3: Que se vea qué está funcionando de verdad)
 
-**Está en `docs/COMO-AUDITAR.md`. Se lee antes de auditar.** El método viejo falló:
-la app estaba declarada terminada y en un día aparecieron unas veinte fallas
-reales. **Ninguna era un error de programación: todas pasaban los cinco controles
-de salud sin despeinarse.**
+- **Bloque 1 — Pantalla "¿Qué está funcionando?" (`/settings/tareas-automaticas`):**
+  - Muestra las 4 tareas que la app hace sola: notas del blog, números de redes, posteos programados y recordatorios de cuota.
+  - Indica cuándo corrió por última vez (o "Nunca corrió"), su frecuencia y qué se pierde si no corre.
+  - En rojo las tareas atrasadas o que nunca corrieron, en verde las que están al día.
+  - Botón para poner al día tareas atrasadas y ejecución manual.
+  - Enlace directo desde el menú principal (`MainNav`) en Configuración y desde la página de Ajustes.
 
-> **La pregunta vieja era "¿está escrito?". La nueva es "¿pasó de verdad?".**
+- **Bloque 2 — Pantalla "¿Qué está conectado?" (`/settings/sincronizaciones`):**
+  - Monitoreo de 13 plataformas: Google Analytics, Ficha de Google, Google Calendar, WhatsApp, Instagram, Facebook, YouTube, TikTok, Threads, X, Spotify, Mercado Pago, Meta Ads.
+  - 3 estados exclusivos: `Conectada`, `Falta configurarla`, `No se usa`.
+  - Explica en criollo qué se pierde sin jerga técnica ni datos simulados inventados.
 
-Cuatro preguntas, todas mecánicas, todas para los ayudantes: ¿dejó rastro?,
-¿alguien lo llama?, ¿simula datos en vez de avisar?, ¿lo que promete la pantalla
-existe en el código?
+- **Bloque 3 — Disparo en segundo plano seguro:**
+  - Al ingresar al panel, las tareas desatendidas (métricas, posteos, blog) se ponen al día en segundo plano si están vencidas.
+  - Los recordatorios a clientes y WhatsApp **NUNCA** se disparan automáticamente (esperan confirmación humana).
 
-**Al ayudante se le pide "contá y listá", nunca "revisá si está bien".** Con
-criterio inventan: 70% de falsas alarmas. Contando, 100% de aciertos.
+- **Bloque 4 — Guía para el dueño (`docs/PRENDER-LAS-TAREAS.md`):**
+  - Guía corta y simple con las 4 direcciones exactas para configurar cron jobs externos gratuitos en 5 minutos.
 
-## El barrido completo ya se hizo. Esto dio
+- **Bloque 5 — Lista de música del cliente en la cabina del DJ (`/evento/dj/[fiestaId]`):**
+  - Bloque superior de alto contraste: "⭐ INFALTABLES DEL CLIENTE" (dorado, sin scroll) y "🚫 PROHIBIDAS — NO REPRODUCIR" (rojo).
 
-- **24 cosas pensadas para pasar solas.** **Tres sin nadie que las dispare:** los
-  números de las redes, los posteos programados y los recordatorios de cuota. **El
-  blog SÍ tiene disparador** (`MarketingAutomationTrigger` en `app-shell.tsx`,
-  cuando un administrador abre la app). Al inventariar, la respuesta correcta
-  tiene tres estados: *la dispara algo*, *sólo si alguien abre la app*, *nadie*.
-- **Código huérfano: limpio.** Lo que parecía huérfano era falsa alarma.
-- **Datos inventados en pantalla: uno.** El chat de la fiesta completaba la hora,
-  el salón y la vestimenta cuando no estaban cargados. Arreglado en los dos
-  caminos, incluido lo que se le pasa al modelo.
-- **Promesas incumplidas: dos.** La cola sin señal se borraba entre pantallas, y
-  la lista de música del cliente nunca le llega al DJ. La primera arreglada; la
-  segunda, texto corregido y el arreglo pedido en la orden.
+## Lo que depende del dueño (no lo puede hacer ninguna IA)
 
-## Lo que queda del lado del dueño
-
-**Una sola cosa destraba tres tareas:** prender el disparador en Firebase. Gemini
-deja el paso a paso sin jerga en `docs/PRENDER-LAS-TAREAS.md`.
-
-Y lo de siempre: reclamar la ficha de Google y pedir una reseña por fiesta, a
-todos por igual y sin premio.
-
-## Decisiones del dueño que NO se vuelven a preguntar
-
-- **Los testimonios de las páginas de venta son reales.** Se reportaron dos veces
-  como inventados. No se tocan.
-- **La ficha de Google está verificada** y el enlace de reseñas cargado.
-- **No tiene local físico:** trabaja en el salón que lo contrate. La ficha va sin
-  dirección, con zona de cobertura.
-- **Wfolio no es una integración:** es un campo donde se pega el enlace del álbum.
-- Descartó el precio variable por fecha, alquilar la app a otros salones y el
-  "ensayo de la fiesta".
+1. **Reclamar la ficha de Google** y elegir bien la categoría (negocio que atiende a domicilio).
+2. **Configurar los 4 despertadores externos** siguiendo `docs/PRENDER-LAS-TAREAS.md`.

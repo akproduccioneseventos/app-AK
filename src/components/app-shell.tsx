@@ -125,6 +125,8 @@ const getPageTitle = (pathname: string): string => {
 
 
   if (pathname === '/settings') return 'Configuración General';
+  if (pathname === '/settings/tareas-automaticas') return 'Tareas Automáticas';
+  if (pathname === '/settings/sincronizaciones') return 'Conexiones Externas';
   if (pathname === '/settings/templates') return 'Personalizar Plantillas';
   if (pathname === '/settings/budget-display') return 'Configuración del Simulador';
   if (pathname === '/settings/company') return 'Información de la Empresa';

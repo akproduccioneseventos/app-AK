@@ -1,4 +1,3 @@
-
 const nextJest = require('next/jest')
 
 const createJestConfig = nextJest({
@@ -9,16 +8,18 @@ const customJestConfig = {
   setupFilesAfterEnv: ['<rootDir>/jest.setup.js'],
   testEnvironment: 'jest-environment-jsdom',
   preset: 'ts-jest',
-  modulePathIgnorePatterns: ['<rootDir>/.next/'],
   testMatch: [
     '**/src/**/__tests__/**/*.[jt]s?(x)',
     '**/src/**/?(*.)+(spec|test).[jt]s?(x)',
   ],
+  modulePathIgnorePatterns: ['<rootDir>/.next/'],
   testPathIgnorePatterns: [
-    '<rootDir>/\\.next/',
+    '<rootDir>/.next/',
     '<rootDir>/node_modules/',
     '/tests/e2e/',
+    '\\\\tests\\\\e2e\\\\',
     '/tests/firebase/',
+    '\\\\tests\\\\firebase\\\\',
   ],
   moduleNameMapper: {
     '^@/(.*)$': '<rootDir>/src/$1',

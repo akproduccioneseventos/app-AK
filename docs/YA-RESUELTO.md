@@ -19,6 +19,13 @@ anotado, la próxima auditoría lo va a volver a encontrar.
 
 ## Decisiones del dueño (no son errores, no se discuten)
 
+- **Que se vea qué está funcionando de verdad (20 de agosto de 2026):**
+  - **Bloque 1 — Pantalla "¿Qué está funcionando?" (`src/app/(app)/settings/tareas-automaticas/page.tsx`, `src/app/actions/tareas-automaticas.actions.ts`):** Muestra de un vistazo las 4 tareas automáticas del sistema (notas del blog, métricas de redes, posteos programados, avisos de cuota) con su nombre en criollo, estado real ("Al día" en verde, "Atrasada" o "Nunca corrió" en rojo), última vez que corrió y qué se pierde si no corre. Botón para poner al día tareas atrasadas y botón de ejecución manual. Enlace visible desde el menú principal de navegación (`MainNav`) en Configuración y desde la central de Ajustes.
+  - **Bloque 2 — Pantalla "¿Qué está conectado?" (`src/app/(app)/settings/sincronizaciones/page.tsx`, `src/app/actions/conexiones-estado.actions.ts`):** Monitoreo honesto de las 13 plataformas externas (Google Analytics, Google Business, Google Calendar, WhatsApp, Instagram, Facebook, YouTube, TikTok, Threads, X, Spotify, Mercado Pago, Meta Ads). 3 estados exclusivos: "Conectada", "Falta configurarla" y "No se usa". Para las que faltan, explica en criollo qué se pierde sin jerga ni datos simulados.
+  - **Bloque 3 — Disparo en segundo plano seguro (`src/components/marketing/marketing-automation-trigger.tsx`):** Al usar el panel de administración, si las tareas desatendidas (métricas de redes, posteos programados, notas del blog) están atrasadas o nunca corrieron, se ponen al día en segundo plano sin trabar la pantalla. Los recordatorios de cuota y mensajes por WhatsApp **NUNCA** se disparan automáticamente (esperan confirmación de una persona).
+  - **Bloque 4 — Guía para el dueño (`docs/PRENDER-LAS-TAREAS.md`):** Documento corto y en criollo con los 4 renglones y URLs exactas para configurar cron jobs externos gratuitos en 5 minutos.
+  - **Bloque 5 — Que el DJ vea la lista del cliente (`src/app/evento/dj/[fiestaId]/page.tsx`):** Bloque fijo y destacado en la parte superior del panel del DJ para alta visibilidad en la cabina oscura: "⭐ INFALTABLES DEL CLIENTE" en dorado/esmeralda (sin scroll) y "🚫 PROHIBIDAS — NO REPRODUCIR" en rojo brillante, leídas en tiempo real desde la configuración musical del portal de la fiesta.
+
 - **Impreso real de 10x15 y Auditoría de puertas abiertas de servidor (20 de agosto de 2026):**
   - **Bloque 7 — Revisar las puertas de servidor (`src/__tests__/puertas-pendientes-de-revisar.json`, `src/__tests__/auditoria-puertas-abiertas.test.ts`):** Se auditaron y protegieron con `requireAppSession()` / `requirePermiso()` las funciones de servidor del panel de administración. El contador de funciones pendientes en el test de auditoría se redujo significativamente y pasa en verde.
   - **Bloque 8 — Que lo impreso salga como sale de verdad (`src/lib/entretenimiento/tira-fotocabina.ts`, `src/app/evento/espejo-magico/[fiestaId]/page.tsx`, `src/app/evento/fotocabina/[fiestaId]/page.tsx`, `src/__tests__/impreso-10x15-reparto-y-personalizacion.test.ts`):**
@@ -3211,6 +3218,45 @@ primero que entra tiene que esperar a que arranque de nuevo una aplicación con 
 250 pantallas. Los que entran después lo ven rápido. Ponerlo en `1` lo deja siempre
 despierto, y **eso se paga todos los meses**: es decisión del dueño, no se cambia por
 las nuestras.
+
+## Lo que corre solo podía correr de más (20 de agosto de 2026)
+
+La entrega de la orden 3 puso a andar solas tres tareas que antes esperaban un
+disparador externo: las notas del blog, los números de las redes y los posteos
+programados. La idea está bien y la pantalla nueva que muestra qué está al día y qué
+atrasado es justo lo que faltaba. Pero traía cuatro cosas que **pasaban los cinco
+controles de salud sin despeinarse**: compilaba, los tipos daban cero y las pruebas
+estaban en verde.
+
+Se veían sólo preguntando otra cosa: **¿qué pasa si dos personas del equipo tienen la
+aplicación abierta al mismo tiempo?**
+
+1. **Un posteo podía salir dos veces en el Instagram y el Facebook de la empresa.**
+   Antes los mandaba un solo disparador, así que no había con quién chocar. Ahora los
+   manda el navegador del equipo: dos pestañas leían la misma lista de pendientes
+   antes de que ninguna marcara nada, y la función que publica ni siquiera volvía a
+   mirar si el posteo ya había salido. Ahora corta si ya salió, y la vuelta programada
+   relee el estado justo antes de mandar cada uno.
+2. **La nota del blog se generaba dos veces, y se pagaba dos veces.** El disparador
+   llamaba a la automatización por dos caminos distintos en el mismo instante. Había
+   un control de "esto ya corrió recién", pero los dos caminos lo leían antes de que
+   ninguno lo escribiera, así que no frenaba nada. Quedó un solo camino.
+3. **Lo disparaba cualquiera del equipo.** La dirección que reemplaza pedía cuenta de
+   administrador, así que dejarlo abierto era ampliar el permiso sin querer: alguien
+   de recepción abriendo la aplicación podía hacer que se publicara en las redes.
+   Ahora pide administrador.
+4. **El código prometía algo que no cumplía.** Decía, con mayúsculas, que los mensajes
+   a clientes nunca se disparan solos, pero la llamada que usaba incluye por defecto
+   el recontacto al prospecto que no señó. Hoy no se notaba porque ese recontacto
+   viene apagado de fábrica; el día que se prenda, saldrían mensajes con sólo abrir la
+   aplicación. Ahora lo apaga a mano, en el disparo de fondo y en el botón manual.
+
+**Lo que hay que recordar de esto:** cuando algo pasa de correr en un solo lugar a
+correr en el navegador de cada uno, la pregunta ya no es "¿funciona?" sino **"¿qué
+pasa si dos lo hacen a la vez?"**. Ninguno de los cuatro era un error de programación.
+
+Quedaron cuatro pruebas que los congelan, en
+`src/__tests__/lo-automatico-no-sale-dos-veces.test.ts`.
 
 ## Cómo agregar algo a esta lista
 

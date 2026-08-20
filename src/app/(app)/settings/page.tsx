@@ -157,8 +157,14 @@ const SECTIONS: SettingSection[] = [
     bgColor: 'bg-indigo-50 border-indigo-200',
     items: [
       {
-        title: 'Centro de Integraciones',
-        description: 'Activar Google Calendar, Gmail corporativo y WhatsApp Business API.',
+        title: 'Tareas Automáticas',
+        description: 'Estado real de las 4 tareas que corren solas (blog, redes, posteos, cuotas).',
+        href: '/settings/tareas-automaticas',
+        icon: Zap,
+      },
+      {
+        title: 'Centro de Integraciones y Conexiones',
+        description: 'Estado de conexión con Google, WhatsApp, Meta, Mercado Pago y redes.',
         href: '/settings/sincronizaciones',
         icon: Zap,
       },
