@@ -2852,9 +2852,17 @@ queda sin dato y el aviso apagado, que es lo correcto: **nunca inventar un núme
 **Confirmado por el dueño: lo pasó él.** No se vuelve a preguntar ni a pedir que lo
 verifique.
 
-Está cargado en Ajustes y sale de ahí, no escrito en el código. Se había pedido
-confirmarlo porque desde el contenedor no se puede abrir una dirección de Google, no
-porque hubiera algo mal.
+**El enlace es `https://g.page/r/CUagrfscj_5yEAE/review`.** El dueño lo volvió a
+pasar el 20 de agosto y coincide exactamente con el que está cargado.
+
+Se había pedido confirmarlo porque **desde el contenedor no se puede abrir una
+dirección de Google** (la conexión las bloquea), no porque hubiera algo mal. Esa
+comprobación sólo la puede hacer él, y ya está hecha.
+
+Como su ficha está verificada, **ese enlace no cambia**: queda para siempre.
+
+Vive en `src/lib/public-contact.ts`, que es donde el proyecto guarda las cuentas
+oficiales, y la pantalla de la encuesta lo lee de Ajustes.
 
 ## Cómo agregar algo a esta lista
 
