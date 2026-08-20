@@ -12,6 +12,7 @@ import { calculateFinancialLedger, getReconciledSalePayments, isFirmSalesInvoice
 import { getPrioridadesDescartadas } from './alertas.actions';
 import { getBudgetPaymentSummary } from '@/lib/budget/financial-guardrails';
 import { verifySession } from '@/lib/auth/session-token';
+import { requireAppSession } from '@/lib/auth/require-session';
 
 export interface MonthlyChartData {
   month: string;
@@ -277,6 +278,7 @@ export async function getDashboardKpiData() {
 
 export async function getCashFlowProjection() {
   try {
+    await requireAppSession();
     const [fiestas, invoices, roles, presupuestos] = await Promise.all([
       getAllFiestas().catch(err => { console.error('CashFlow getAllFiestas failed:', err); return []; }),
       getInvoices().catch(err => { console.error('CashFlow getInvoices failed:', err); return []; }),

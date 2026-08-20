@@ -12,6 +12,7 @@ const ALERTAS_DESCARTADAS_FILE = 'alertas-descartadas.json';
 const PRIORIDADES_DESCARTADAS_FILE = 'prioridades-descartadas.json';
 
 export async function getAlertasGlobales(): Promise<AlertaAutomatica[]> {
+  await requireAppSession();
   try {
     const fiestas = await getAllFiestas();
     // Only active (non-archived) fiestas
@@ -23,6 +24,7 @@ export async function getAlertasGlobales(): Promise<AlertaAutomatica[]> {
 }
 
 export async function getAlertasPorFiesta(fiestaId: string): Promise<AlertaAutomatica[]> {
+  await requireAppSession();
   try {
     const fiestas = await getAllFiestas();
     const fiesta = fiestas.find(f => f.id === fiestaId);
@@ -95,6 +97,7 @@ export async function resetAlertasLeidas(): Promise<{ success: boolean }> {
 }
 
 export async function getAlertasNoLeidas(): Promise<AlertaAutomatica[]> {
+  await requireAppSession();
   const todas = await getAlertasGlobalesConLeidas();
   return todas.filter(a => !a.leida);
 }
@@ -141,6 +144,7 @@ export async function descartarPrioridad(alertaId: string): Promise<{ success: b
 
 /** Returns the set of dismissed GlobalAlert IDs. */
 export async function getPrioridadesDescartadas(): Promise<Set<string>> {
+  await requireAppSession();
   const ids = await readData<string[]>(PRIORIDADES_DESCARTADAS_FILE, []);
   return new Set(ids);
 }

@@ -10,11 +10,15 @@ const customJestConfig = {
   testEnvironment: 'jest-environment-jsdom',
   preset: 'ts-jest',
   modulePathIgnorePatterns: ['<rootDir>/.next/'],
+  testMatch: [
+    '**/src/**/__tests__/**/*.[jt]s?(x)',
+    '**/src/**/?(*.)+(spec|test).[jt]s?(x)',
+  ],
   testPathIgnorePatterns: [
-    '<rootDir>/.next/',
+    '<rootDir>/\\.next/',
     '<rootDir>/node_modules/',
-    '<rootDir>/tests/e2e/',
-    '<rootDir>/tests/firebase/',
+    '/tests/e2e/',
+    '/tests/firebase/',
   ],
   moduleNameMapper: {
     '^@/(.*)$': '<rootDir>/src/$1',

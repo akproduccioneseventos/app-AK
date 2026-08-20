@@ -8,6 +8,13 @@ jest.mock('@/app/actions/fiesta/fiesta.actions', () => ({ getAllFiestas: () => m
 jest.mock('@/app/actions/roles', () => ({ getRoles: jest.fn(async () => [{ id: 'rol-1', porcentajeAportesPatronales: 0 }]) }));
 jest.mock('@/app/actions/empleados', () => ({ getEmpleados: jest.fn(async () => [{ id: 'emp-1', nombre: 'Operador' }]) }));
 
+jest.mock('@/lib/auth/require-session', () => ({
+  requireAppSession: jest.fn(async () => ({
+    authenticated: true,
+    user: { id: 'u-1', email: 'test@ak.com', role: 'admin', permissions: [] },
+  })),
+}));
+
 import { getAnalyticsData } from '@/app/actions/analytics';
 
 describe('firm sales analytics', () => {

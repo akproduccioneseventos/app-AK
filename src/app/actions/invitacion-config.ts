@@ -44,5 +44,6 @@ export async function saveInvitacionConfig(
  * Get all invitation configs (for listing/admin purposes).
  */
 export async function getAllInvitacionConfigs(): Promise<InvitacionConfigStore> {
+  await requireAppSession();
   return readData<InvitacionConfigStore>(INVITACION_CONFIG_FILE, {});
 }

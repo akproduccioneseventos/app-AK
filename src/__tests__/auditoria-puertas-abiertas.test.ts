@@ -49,7 +49,7 @@ function archivosDeServidor(): string[] {
       if (e.isDirectory()) recorrer(r);
       else if (/\.ts$/.test(e.name) && !/\.test\.ts$/.test(e.name)) {
         const texto = fs.readFileSync(path.join(RAIZ, r), 'utf8');
-        if (/^\s*['"]use server['"]/m.test(texto.slice(0, 400))) salida.push(r);
+        if (/^\s*['"]use server['"]/m.test(texto.slice(0, 400))) salida.push(r.replace(/\\/g, '/'));
       }
     }
   };
@@ -145,6 +145,6 @@ describe('Ninguna puerta abierta a internet sin querer', () => {
     const conocidas = pendientes as Record<string, string[]>;
     const total = Object.values(conocidas).flat().length;
     // Si revisaste y protegiste alguna, bajá este numero. Nunca lo subas.
-    expect(total).toBeLessThanOrEqual(247);
+    expect(total).toBeLessThanOrEqual(216);
   });
 });

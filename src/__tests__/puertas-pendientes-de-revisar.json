@@ -2,28 +2,8 @@
   "src/app/actions/accesos-personal-view.ts": [
     "getAccesoPersonalPortalView"
   ],
-  "src/app/actions/activos-fijos.ts": [
-    "getActivoFijoById",
-    "getActivosFijos"
-  ],
   "src/app/actions/agenda.ts": [
     "cancelAppointment"
-  ],
-  "src/app/actions/ak-100.ts": [
-    "createAk100ClosureTasks",
-    "getAk100Readiness"
-  ],
-  "src/app/actions/alertas.actions.ts": [
-    "getAlertasGlobales",
-    "getAlertasNoLeidas",
-    "getAlertasPorFiesta",
-    "getPrioridadesDescartadas"
-  ],
-  "src/app/actions/analytics.ts": [
-    "getAnalyticsData"
-  ],
-  "src/app/actions/approvals.ts": [
-    "getAprobacionById"
   ],
   "src/app/actions/armado-rapido.ts": [
     "generateBudgetAndLeadFromSimulator",
@@ -37,29 +17,15 @@
     "getUserSecurityQuestionsForEdit",
     "initializeAdminIfNeeded"
   ],
-  "src/app/actions/bebidas.actions.ts": [
-    "getBebidasMasterTemplate",
-    "updateBebidas"
-  ],
   "src/app/actions/blog.ts": [
     "getBlogPostBySlug",
     "getBlogPosts",
     "getRelatedPosts"
   ],
-  "src/app/actions/carta-tragos-master.actions.ts": [
-    "getCartaTragosMaster"
-  ],
   "src/app/actions/catalogo-fotos.ts": [
     "getCatalogoFotos",
     "getCatalogoFotosByCategoria",
     "getCatalogoFotosByTipoFiesta"
-  ],
-  "src/app/actions/commercial-intelligence.ts": [
-    "createCommercialFollowupAlerts",
-    "getCommercialFollowups"
-  ],
-  "src/app/actions/commercial-lifecycle.ts": [
-    "getCommercialLifecycleDashboard"
   ],
   "src/app/actions/contenido-publico.ts": [
     "getCatalogoSettings",
@@ -73,19 +39,8 @@
     "getCuponesRegaloActivos",
     "validarCupon"
   ],
-  "src/app/actions/dashboard.ts": [
-    "getCashFlowProjection"
-  ],
-  "src/app/actions/deco-canvas-templates.ts": [
-    "getDecoCanvasTemplates"
-  ],
   "src/app/actions/dj-ia.actions.ts": [
     "generateDjProfileAction"
-  ],
-  "src/app/actions/empleados.ts": [
-    "fiestasDelMismoDiaConEmpleado",
-    "getEmpleadoById",
-    "getEmpleados"
   ],
   "src/app/actions/espejo-magico-ai.ts": [
     "isEspejoIaDisponible"
@@ -254,9 +209,6 @@
     "getPhotoMissions",
     "getTriviaGame"
   ],
-  "src/app/actions/gastos.ts": [
-    "getGastosGenerales"
-  ],
   "src/app/actions/google-workspace-extended.ts": [
     "getFiestaCalendarShareLinks",
     "notifyClientPaymentApproved",
@@ -271,31 +223,14 @@
   "src/app/actions/google-workspace.ts": [
     "syncFiestaToGoogleWorkspace"
   ],
-  "src/app/actions/incidents.ts": [
-    "getIncidentes"
-  ],
-  "src/app/actions/insumos.ts": [
-    "getInsumoById",
-    "getInsumos",
-    "invalidateInsumosCache"
-  ],
   "src/app/actions/invitacion-config.ts": [
-    "getAllInvitacionConfigs",
     "getInvitacionConfig"
   ],
   "src/app/actions/invitacion-digital-templates.ts": [
     "getInvitationTemplates"
   ],
-  "src/app/actions/itinerary-templates.ts": [
-    "getItineraryTemplates"
-  ],
   "src/app/actions/landing-editor.ts": [
     "getLandingSettings"
-  ],
-  "src/app/actions/marketing.ts": [
-    "exportMarketingData",
-    "getMarketingChecklist",
-    "getMarketingTemplates"
   ],
   "src/app/actions/meeting-checklist.ts": [
     "getMeetingMasterTemplate"

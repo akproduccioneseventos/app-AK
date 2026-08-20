@@ -10,6 +10,7 @@ const CHECKLIST_FILE = 'marketing-checklist.json';
 // --- Templates ---
 
 export async function getMarketingTemplates(): Promise<MarketingTemplate[]> {
+  await requireAppSession();
   return readData<MarketingTemplate[]>(TEMPLATES_FILE, []);
 }
 
@@ -49,6 +50,7 @@ export async function deleteMarketingTemplate(
 // --- Checklist ---
 
 export async function getMarketingChecklist(): Promise<ChecklistItem[]> {
+  await requireAppSession();
   return readData<ChecklistItem[]>(CHECKLIST_FILE, []);
 }
 
@@ -68,6 +70,7 @@ export async function saveMarketingChecklist(
 
 export async function exportMarketingData(): Promise<{ success: boolean; data?: MarketingData; error?: string }> {
   try {
+    await requireAppSession();
     const [templates, checklist] = await Promise.all([
       getMarketingTemplates(),
       getMarketingChecklist(),

@@ -50,6 +50,9 @@ export interface PublicEntertainmentEvent {
   id: string;
   eventName: string;
   eventDate: string;
+  nombreAgasajado?: string;
+  tipoCelebracion?: string;
+  primaryColor?: string;
   coverImageUrl: string;
   showBuzon: boolean;
   socialWallEnabled: boolean;
@@ -150,6 +153,9 @@ export function getPublicEntertainmentEvent(
     id: fiesta.id,
     eventName: fiesta.configuracion?.nombreEvento || 'Evento AK',
     eventDate: fiesta.configuracion?.fechaEvento || '',
+    nombreAgasajado: fiesta.configuracion?.nombreAgasajado || '',
+    tipoCelebracion: fiesta.configuracion?.tipoCelebracion || '',
+    primaryColor: fiesta.configuracion?.primaryColor || '',
     coverImageUrl:
       fiesta.invitacionConfig?.fotoPortada ||
       fiesta.guestPortalSettings?.coverImageUrl ||

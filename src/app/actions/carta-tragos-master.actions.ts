@@ -20,6 +20,7 @@ const normalizeMasterItems = (items: Trago[]): Trago[] => {
 };
 
 export async function getCartaTragosMaster(): Promise<Trago[]> {
+  await requireAppSession();
   const fallback = normalizeMasterItems(defaultCartaTragosData.items);
   const data = await readData<Trago[]>(CARTA_TRAGOS_MASTER_FILE, fallback);
   return normalizeMasterItems(Array.isArray(data) ? data : fallback);

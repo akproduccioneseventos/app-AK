@@ -12,6 +12,7 @@ const BEBIDAS_TEMPLATE_FILE = 'bebidas-template.json';
  * Obtiene la plantilla maestra de bebidas.
  */
 export async function getBebidasMasterTemplate(): Promise<BebidasData> {
+  await requireAppSession();
   const data = await readData<BebidasData>(BEBIDAS_TEMPLATE_FILE, defaultBebidasData);
   // Ensure we have the barra_tragos category
   if (!data.categorias.find(c => c.id === 'barra_tragos')) {
@@ -41,6 +42,7 @@ import { getFiestaById, saveFiesta } from './fiesta/fiesta.actions';
 
 export async function updateBebidas(fiestaId: string, bebidas: BebidasData): Promise<{ success: boolean; updatedData?: BebidasData; error?: string }> {
   try {
+    await requireAppSession();
     const fiesta = await getFiestaById(fiestaId);
     if (!fiesta) throw new Error("Fiesta no encontrada");
     const updatedFiesta = { ...fiesta, bebidas };

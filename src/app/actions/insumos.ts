@@ -10,10 +10,12 @@ const INSUMOS_FILE = 'insumos.json';
 let cachedInsumos: ServicioEmpresa[] | null = null;
 
 export async function invalidateInsumosCache() {
+  await requireAppSession();
   cachedInsumos = null;
 }
 
 export async function getInsumos(): Promise<ServicioEmpresa[]> {
+    await requireAppSession();
     if (cachedInsumos) return cachedInsumos;
     const items = await readData<any[]>(INSUMOS_FILE, []);
     const mapped = (Array.isArray(items) ? items : []).map(item => ({
@@ -27,6 +29,7 @@ export async function getInsumos(): Promise<ServicioEmpresa[]> {
 }
 
 export async function getInsumoById(id: string): Promise<ServicioEmpresa | null> {
+  await requireAppSession();
   const insumos = await getInsumos();
   return insumos.find(s => s.id === id) || null;
 }

@@ -4,9 +4,11 @@ import { revalidatePath } from 'next/cache';
 import { getFiestaById, saveFiesta } from '@/app/actions/fiesta/fiesta.actions';
 import { createNotification } from '@/lib/notifications/create-notification';
 import { buildAk100Readiness } from '@/lib/ak-100/ak-100-readiness';
+import { requireAppSession } from '@/lib/auth/require-session';
 import type { Tarea } from '@/types/fiesta';
 
 export async function getAk100Readiness(fiestaId: string) {
+  await requireAppSession();
   const fiesta = await getFiestaById(fiestaId);
   if (!fiesta) return null;
   return buildAk100Readiness(fiesta);
@@ -32,6 +34,7 @@ export async function createAk100ClosureTasks(fiestaId: string): Promise<{
   error?: string;
 }> {
   try {
+    await requireAppSession();
     const fiesta = await getFiestaById(fiestaId);
     if (!fiesta) return { success: false, created: 0, error: 'No encontre la fiesta.' };
 

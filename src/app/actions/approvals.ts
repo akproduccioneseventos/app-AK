@@ -27,6 +27,8 @@ export async function getAprobaciones(fiestaId?: string): Promise<AprobacionRequ
 }
 
 export async function getAprobacionById(id: string): Promise<AprobacionRequest | null> {
+  const permiso = await requirePermiso(PERMISOS.ORGANIZACION);
+  if (!permiso.ok) return null;
   const all = await getAprobaciones();
   return all.find(a => a.id === id) ?? null;
 }

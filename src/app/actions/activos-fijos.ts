@@ -9,6 +9,7 @@ const ACTIVOS_FIJOS_FILE = 'activos-fijos.json';
 const ACTIVOS_FIJOS_COLLECTION = 'activos_fijos';
 
 export async function getActivosFijos(): Promise<ServicioEmpresa[]> {
+    await requireAppSession();
     const items = await readData<any[]>(ACTIVOS_FIJOS_FILE, []);
     return (Array.isArray(items) ? items : []).map(item => ({
       ...item,
@@ -22,6 +23,7 @@ export async function getActivosFijos(): Promise<ServicioEmpresa[]> {
 }
 
 export async function getActivoFijoById(id: string): Promise<ServicioEmpresa | null> {
+  await requireAppSession();
   const activos = await getActivosFijos();
   return activos.find(s => s.id === id) || null;
 }
