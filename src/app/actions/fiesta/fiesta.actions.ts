@@ -38,6 +38,7 @@ import {
     defaultGestionCostos,
 } from '@/lib/fiesta-defaults';
 import { deriveBudgetModulesForSync, mergeClientPortalSettingsForSync, normalizeBudgetItemsForSync } from '@/lib/fiesta-sync-utils';
+import { leerFiestasCrudas, leerHistorialCrudo } from '@/lib/fiesta/leer-fiestas';
 import { readData, writeData, updateDataPartial } from '@/lib/data-service';
 import path from 'path';
 import fs from 'fs/promises';
@@ -88,58 +89,20 @@ async function requireFiestaWriteAccess(fiestaId: string) {
 }
 
 export async function getHistorialFiestas(): Promise<FiestaEnPlanificacion[]> {
-  const isProduction = process.env.NODE_ENV === 'production' || !!process.env.VERCEL;
-  let historiales: FiestaEnPlanificacion[] = [];
-  let firestoreSucceeded = false;
-
-  if (!shouldUseLocalJsonOnly()) {
-    try {
-      const { isFirebaseAvailable } = await import('@/lib/firebase');
-      if (isProduction || isFirebaseAvailable()) {
-        const { listCollectionFromFirestore } = await import('@/lib/firebase-sync');
-        historiales = (await listCollectionFromFirestore(ARCHIVE_DIR)) as FiestaEnPlanificacion[];
-        firestoreSucceeded = true;
-      }
-    } catch (e) {
-      // fall through to filesystem fallback
-    }
-  }
-
-  if (!firestoreSucceeded) {
-    historiales = await readLocalFiestaDirectory(ARCHIVE_DIR);
-  }
-
-  return Array.from(new Map(historiales.map(f => [f.id, f])).values())
-    .sort((a, b) => new Date(b.configuracion.fechaEvento || 0).getTime() - new Date(a.configuracion.fechaEvento || 0).getTime());
+  // Devuelve TODAS las fiestas archivadas, con el cliente, lo que pago y sus
+  // invitados. Es una direccion de internet: sin esto, cualquiera pedia la lista
+  // entera de clientes del negocio sin tener cuenta.
+  await requireAppSession();
+  return leerHistorialCrudo();
 }
 
 export async function getFiestas(includeArchived = true): Promise<FiestaEnPlanificacion[]> {
-    const isProduction = process.env.NODE_ENV === 'production' || !!process.env.VERCEL;
-    let activas: FiestaEnPlanificacion[] = [];
-    let firestoreSucceeded = false;
-
-    if (!shouldUseLocalJsonOnly()) {
-        try {
-            const { isFirebaseAvailable } = await import('@/lib/firebase');
-            if (isProduction || isFirebaseAvailable()) {
-                const { listCollectionFromFirestore } = await import('@/lib/firebase-sync');
-                activas = (await listCollectionFromFirestore(FIESTAS_DIR)) as FiestaEnPlanificacion[];
-                firestoreSucceeded = true;
-            }
-        } catch (e) {
-            // fall through to filesystem fallback
-        }
-    }
-
-    if (!firestoreSucceeded) {
-        activas = await readLocalFiestaDirectory(FIESTAS_DIR);
-    }
-
-    const archivadas = includeArchived ? await getHistorialFiestas() : [];
-    // Filter out any 'Archivado' entries that may have ended up in the active collection
-    const activasFiltradas = activas.filter(f => f.estado !== 'Archivado');
-    const allFiestas = [...activasFiltradas, ...archivadas];
-    return Array.from(new Map(allFiestas.map(item => [item.id, item])).values());
+  // Mismo caso que el historial: la lista completa de fiestas es del equipo.
+  // Las pantallas que abre un desconocido y que igual necesitan mirar las fiestas
+  // (el simulador para ver si una fecha esta libre, el portal del cliente con su
+  // clave) usan `leerFiestasCrudas`, que no es una direccion de internet.
+  await requireAppSession();
+  return leerFiestasCrudas(includeArchived);
 }
 
 export async function getAllFiestas() {
@@ -147,7 +110,9 @@ export async function getAllFiestas() {
 }
 
 export async function getFiestaActual(): Promise<FiestaEnPlanificacion> {
-    const all = await getFiestas(false);
+    // Publica a proposito: la usa la pantalla de mesas de la fiesta en curso, que
+    // se abre sin cuenta. Por eso lee por dentro y no por la puerta con sesion.
+    const all = await leerFiestasCrudas(false);
     if (all.length === 0) {
         return { ...initialFiestaActualData, id: `fiesta_${Date.now()}_${Math.random().toString(36).substring(2, 9)}`};
     }
@@ -255,11 +220,13 @@ export async function getFiestaById(fiestaId: string): Promise<FiestaEnPlanifica
 export async function getFiestaBySlug(slug: string): Promise<FiestaEnPlanificacion | null> {
   const normalized = normalizeInvitationSlug(slug);
   if (!normalized) return null;
-  const fiestas = await getFiestas(true);
+  // Publica a proposito: es el enlace corto de la invitacion, que abre el invitado.
+  const fiestas = await leerFiestasCrudas(true);
   return fiestas.find(f => f.invitacionSlug === normalized) || null;
 }
 
 export async function updateInvitacionSlug(fiestaId: string, slug: string): Promise<{ success: boolean; slug?: string; error?: string }> {
+  await requireAppSession();
   const fiesta = await getFiestaById(fiestaId);
   if (!fiesta) return { success: false, error: 'Evento no encontrado.' };
 
@@ -1113,6 +1080,7 @@ export async function updateNumerosMesa(fiestaId: string, data: NumerosMesaData)
 }
 
 export async function updateCartaTragos(fiestaId: string, data: CartaTragosData) {
+  await requireAppSession();
   const f = await getFiestaById(fiestaId);
   if (!f) return { success: false };
   return await saveFiesta({ ...f, cartaTragos: data });
@@ -1132,6 +1100,7 @@ export async function updateFiestaPostEvento(
     postEventoCompletado?: boolean;
   }
 ): Promise<{ success: boolean; error?: string }> {
+  await requireAppSession();
   const f = await getFiestaById(fiestaId);
   if (!f) return { success: false, error: 'Evento no encontrado.' };
   return await saveFiesta({ ...f, ...data });
@@ -1171,6 +1140,7 @@ export async function updateGuestPortalSettings(fiestaId: string, settings: Gues
 }
 
 export async function updateGuestExperienceSettings(fiestaId: string, settings: GuestExperienceSettings) {
+  await requireAppSession();
   const f = await getFiestaById(fiestaId);
   if (!f) return { success: false, error: 'Evento no encontrado.' };
   return await saveFiesta({ ...f, guestExperienceSettings: settings });
@@ -1187,6 +1157,7 @@ export async function updateGuestExperienceStats(
   invitadoId: string,
   stats: Partial<GuestExperienceStats>
 ) {
+  await requireAppSession();
   const f = await getFiestaById(fiestaId);
   if (!f) return { success: false, error: 'Evento no encontrado.' };
   const invitados = (f.invitados ?? []).map((inv: Invitado) =>

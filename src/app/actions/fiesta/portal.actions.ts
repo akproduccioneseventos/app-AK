@@ -3,6 +3,7 @@
 'use server';
 
 import type { FiestaEnPlanificacion, ClientTarea, ClientPortalSettings, ClientPaymentNotification, TimelineHito, MenuSeleccionPortal, ListaMusicaPortal, SocialGallerySettings, ClientGuestCountChangeRequest } from '@/types/fiesta';
+import { leerFiestasCrudas } from '@/lib/fiesta/leer-fiestas';
 import { validarCambioDeInvitados } from '@/lib/budget/cambio-de-invitados';
 import { getFiestaById, saveFiesta, getFiestas } from './fiesta.actions';
 import { addPagoToPresupuesto, getPresupuestoById, updatePresupuesto } from '../presupuestos';
@@ -223,7 +224,7 @@ export async function getFiestaByAccessKey(accessKey: string): Promise<FiestaEnP
   }
 
   try {
-    const fiestas = await getFiestas(false);
+    const fiestas = await leerFiestasCrudas(false);
     const fiesta = fiestas.find(
       f =>
         f.clientPortalSettings?.enabled === true &&
@@ -968,7 +969,7 @@ export async function checkDateAvailability(
   const { verifyPortalSession } = await import('@/lib/security/portal-session');
   if (!(await verifyPortalSession(fiestaId))) return { success: false, available: false, error: 'Sesión no autorizada.' };
   try {
-    const allFiestas = await getFiestas(false);
+    const allFiestas = await leerFiestasCrudas(false);
     const targetDate = new Date(targetDateStr).toISOString().split('T')[0];
     const isBusy = allFiestas.some(f => 
       f.id !== fiestaId && 

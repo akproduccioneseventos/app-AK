@@ -62,6 +62,10 @@ jest.mock('@/app/actions/servicios-empresa', () => ({
     { id: 'svc_dj', nombre: 'DJ', precioVenta: 50000, categoria: 'Sonido' },
     { id: 'svc_catering', nombre: 'Catering', precioVenta: 500, categoria: 'Gastronomía' },
   ]),
+  getServiciosEmpresaPublicos: jest.fn().mockResolvedValue([
+    { id: 'svc_dj', nombre: 'DJ', precioVenta: 50000, categoria: 'Sonido' },
+    { id: 'svc_catering', nombre: 'Catering', precioVenta: 500, categoria: 'Gastronomía' },
+  ]),
   saveServicioEmpresa: jest.fn(),
 }));
 

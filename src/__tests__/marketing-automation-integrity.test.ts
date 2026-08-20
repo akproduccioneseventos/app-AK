@@ -51,7 +51,10 @@ describe('automatizacion de marketing', () => {
     const result = await runMarketingAutomation({ force: true, source: 'cron' });
 
     expect(mockSyncInstagram).toHaveBeenCalledWith(MARKETING_AUTOMATION_INTERNAL_TOKEN);
-    expect(mockGenerateBlog).toHaveBeenCalledTimes(1);
+    // El dueno pidio tres notas por semana. Estaba puesto una cada siete dias.
+    // Se generan las tres en la misma corrida: gasta lo mismo y no depende de que
+    // la tarea se dispare tres veces.
+    expect(mockGenerateBlog).toHaveBeenCalledTimes(3);
     expect(result).toMatchObject({
       success: true,
       ranSeo: true,

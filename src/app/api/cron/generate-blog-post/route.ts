@@ -1,5 +1,6 @@
 import { NextResponse } from 'next/server';
 import { runMarketingAutomation } from '@/lib/marketing-automation';
+import { marcarCorrida } from '@/lib/automatico/tareas-automaticas';
 
 export async function GET(request: Request) {
   return handleCron(request);
@@ -30,6 +31,10 @@ async function handleCron(request: Request) {
       source: 'cron',
       force: searchParams.get('force') === '1',
     });
+
+    // Deja constancia de que corrio de verdad. Sin esto no hay forma de saber si
+    // una tarea automatica esta funcionando o solo esta escrita.
+    await marcarCorrida('generate-blog-post');
 
     return NextResponse.json(result);
   } catch (error: any) {

@@ -8,6 +8,7 @@ import { PERMISOS } from '@/lib/auth/perfiles';
 import { AsyncMutex } from '@/lib/mutex';
 import { yaFueDecidida } from '@/lib/aprobaciones/decision';
 
+import { requireAppSession } from '@/lib/auth/require-session';
 const APROBACIONES_FILE = 'aprobaciones.json';
 
 /**
@@ -27,8 +28,7 @@ export async function getAprobaciones(fiestaId?: string): Promise<AprobacionRequ
 }
 
 export async function getAprobacionById(id: string): Promise<AprobacionRequest | null> {
-  const permiso = await requirePermiso(PERMISOS.ORGANIZACION);
-  if (!permiso.ok) return null;
+  await requireAppSession();
   const all = await getAprobaciones();
   return all.find(a => a.id === id) ?? null;
 }

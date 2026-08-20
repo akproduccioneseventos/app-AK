@@ -14,6 +14,7 @@ import { requireAppSession } from '@/lib/auth/require-session';
 const FIESTAS_HISTORICAS_FILE = 'fiestas-historicas.json';
 
 export async function getFiestasHistoricas(): Promise<FiestaHistorica[]> {
+  await requireAppSession();
   return readData<FiestaHistorica[]>(FIESTAS_HISTORICAS_FILE, []);
 }
 
@@ -60,6 +61,7 @@ export async function calcularAjusteHistorico(
   anioOriginal: number,
   anioNuevo: number
 ): Promise<ProyeccionHistorica> {
+  await requireAppSession();
   const años = Math.max(0, anioNuevo - anioOriginal);
   const factor = Math.pow(1.15, años);
   const montoAjustado = Math.round((montoOriginal * factor) * 100) / 100;

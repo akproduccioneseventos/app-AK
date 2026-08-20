@@ -13,6 +13,7 @@ import {
   getAccesosGenerales,
 } from '@/app/actions/accesos-personal';
 import { getInvoiceTemplateSettings } from '@/app/actions/settings';
+import { requireAppSession } from '@/lib/auth/require-session';
 import {
   applyCargaOperativaItemPatch,
   mergeGeneratedCargaWithManualItems,
@@ -193,6 +194,7 @@ export async function updateCargaOperativaItemState(input: {
  * Escanea todos los eventos activos en una fecha específica para detectar conflictos de stock.
  */
 export async function checkAssetConflicts(fiestaId: string, date: string, items: CargaOperativaItem[]): Promise<CargaOperativaItem[]> {
+  await requireAppSession();
     const allFiestas = await getFiestas(false); // Solo activas
     const assetsCatalog = await getActivosFijos();
     const otherFiestasSameDay = allFiestas.filter(f => f.id !== fiestaId && f.configuracion.fechaEvento && f.configuracion.fechaEvento === date);
@@ -235,6 +237,7 @@ export async function checkAssetConflicts(fiestaId: string, date: string, items:
  * Obtiene la plantilla maestra de Carga Operativa.
  */
 export async function getCargaOperativaMasterTemplate(): Promise<ListaDeCargaOperativa> {
+  await requireAppSession();
   return readData<ListaDeCargaOperativa>(MASTER_TEMPLATE_FILE, defaultMasterTemplate);
 }
 
@@ -331,6 +334,7 @@ export async function generateCargaFromActivos(
   fiestaId: string,
   totalInvitados: number
 ): Promise<{ success: boolean; updatedData?: ListaDeCargaOperativa; error?: string }> {
+  await requireAppSession();
   try {
     const [fiesta, activos] = await Promise.all([
       getFiestaById(fiestaId),

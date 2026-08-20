@@ -10,7 +10,25 @@ const SALONES_FILE = 'salones.json';
 const SALONES_STORAGE_PREFIX = 'salones';
 
 export async function getSalones(): Promise<Salon[]> {
+  // La ficha del salon guarda el contacto del gerente (su WhatsApp y su correo).
+  // Eso es del equipo: sin comprobar sesion, cualquiera se llevaba la agenda de
+  // contactos de todos los salones con los que trabaja AK.
+  await requireAppSession();
+  return leerSalones();
+}
+
+/** Sin comprobar sesion: uso interno de este archivo. */
+async function leerSalones(): Promise<Salon[]> {
   return readData<Salon[]>(SALONES_FILE, []);
+}
+
+/** Los salones como se muestran en las paginas de venta, sin el contacto del gerente. */
+export async function getSalonesPublicos(): Promise<Salon[]> {
+  const salones = await leerSalones();
+  return salones.map(({ gerente, ...visible }) => {
+    void gerente;
+    return visible as Salon;
+  });
 }
 
 export async function saveSalon(
@@ -27,7 +45,7 @@ export async function saveSalon(
     return { success: false, error: 'Poné para cuántas personas es el salón.' };
   }
 
-  const salones = await getSalones();
+  const salones = await leerSalones();
   let savedSalon: Salon;
 
   if ('id' in salonData && salonData.id) {
@@ -50,7 +68,7 @@ export async function deleteSalon(
   id: string
 ): Promise<{ success: boolean; error?: string }> {
   await requireAppSession();
-  const salones = await getSalones();
+  const salones = await leerSalones();
   const idx = salones.findIndex((s) => s.id === id);
   if (idx === -1) {
     return { success: false, error: 'Salón no encontrado.' };
@@ -86,7 +104,7 @@ export async function uploadSalonFoto(
     const bytes = await file.arrayBuffer();
     const url = await uploadToStorage(Buffer.from(bytes), storagePath, file.type, true);
 
-    const salones = await getSalones();
+    const salones = await leerSalones();
     const idx = salones.findIndex((s) => s.id === salonId);
     if (idx === -1) return { success: false, error: 'Salón no encontrado.' };
 
@@ -111,7 +129,7 @@ export async function deleteSalonFoto(
 ): Promise<{ success: boolean; error?: string }> {
   await requireAppSession();
   try {
-    const salones = await getSalones();
+    const salones = await leerSalones();
     const idx = salones.findIndex((s) => s.id === salonId);
     if (idx === -1) return { success: false, error: 'Salón no encontrado.' };
 
@@ -157,7 +175,7 @@ export async function addSalonPago(
 ): Promise<{ success: boolean; pago?: SalonPago; error?: string }> {
   await requireAppSession();
   try {
-    const salones = await getSalones();
+    const salones = await leerSalones();
     const idx = salones.findIndex((s) => s.id === salonId);
     if (idx === -1) return { success: false, error: 'Salón no encontrado.' };
 
@@ -186,7 +204,7 @@ export async function deleteSalonPago(
 ): Promise<{ success: boolean; error?: string }> {
   await requireAppSession();
   try {
-    const salones = await getSalones();
+    const salones = await leerSalones();
     const idx = salones.findIndex((s) => s.id === salonId);
     if (idx === -1) return { success: false, error: 'Salón no encontrado.' };
 

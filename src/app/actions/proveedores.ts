@@ -9,6 +9,7 @@ const PROVEEDORES_FILE = 'proveedores.json';
 const PROVEEDORES_COLLECTION = 'proveedores';
 
 export async function getProveedores(): Promise<Proveedor[]> {
+  await requireAppSession();
   const proveedores = await readData<Proveedor[]>(PROVEEDORES_FILE, []);
   return [...proveedores].sort((a, b) =>
     (a.nombreEmpresa || a.nombre || '').localeCompare(b.nombreEmpresa || b.nombre || '')
@@ -16,6 +17,7 @@ export async function getProveedores(): Promise<Proveedor[]> {
 }
 
 export async function getProveedorById(id: string): Promise<Proveedor | null> {
+  await requireAppSession();
   const proveedores = await getProveedores();
   return proveedores.find(p => p.id === id) || null;
 }

@@ -19,6 +19,8 @@ const EMPLEADOS_FILE = 'empleados.json';
 const EMPLEADOS_COLLECTION = 'empleados';
 
 export async function getEmpleados(): Promise<Empleado[]> {
+  // La ficha de cada empleado trae cedula, telefono, correo y fecha de nacimiento.
+  // Es dato personal del equipo: no puede salir sin cuenta.
   await requireAppSession();
   const empleados = await readData<Empleado[]>(EMPLEADOS_FILE, []);
   return [...empleados].sort((a, b) => (a.nombre || '').localeCompare(b.nombre || ''));

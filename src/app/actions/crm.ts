@@ -2,6 +2,7 @@
 'use server';
 
 import type { CrmLead, CrmStage, NewCrmLeadData, CrmTimelineItem } from '@/types/crm';
+import { leerFiestasCrudas } from '@/lib/fiesta/leer-fiestas';
 import { readData, writeData } from '@/lib/data-service';
 import { saveCustomer, getCustomers } from '@/app/actions/customers';
 import { getPresupuestoById, updatePresupuesto } from '@/app/actions/presupuestos';
@@ -153,7 +154,7 @@ export async function getCrmLeads(page?: number, limit = 50): Promise<CrmLead[]>
   const allLeads = await readData<CrmLead[]>(LEADS_FILE, []);
   const decoratedLeads = await (async () => {
     try {
-      const fiestas = await getFiestas(true);
+      const fiestas = await leerFiestasCrudas(true);
       const latestContractByPresupuesto = new Map<string, { tipo?: string; fecha?: string; plantillaId?: string }>();
       for (const fiesta of fiestas) {
         if (!fiesta.presupuestoId || !fiesta.contratoGenerado?.tipo) continue;
@@ -572,7 +573,7 @@ export async function confirmBookingWithContract(formData: FormData): Promise<{ 
       getPresupuestoById(presupuestoId),
       getCrmStages(),
       getCustomers(),
-      getFiestas(true)
+      leerFiestasCrudas(true)
     ]);
 
     const lead = leads.find(l => l.id === leadId);
@@ -756,7 +757,7 @@ export async function confirmBooking(leadId: string, presupuestoId: string, arch
       getPresupuestoById(presupuestoId),
       getCrmStages(),
       getCustomers(),
-      getFiestas(true)
+      leerFiestasCrudas(true)
     ]);
 
     const lead = leads.find(l => l.id === leadId);

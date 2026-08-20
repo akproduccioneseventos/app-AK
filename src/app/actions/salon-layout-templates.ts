@@ -15,6 +15,7 @@ export interface SalonLayoutTemplate {
 const TEMPLATES_FILE = 'salon-layout-templates.json';
 
 export async function getSalonLayoutTemplates(): Promise<SalonLayoutTemplate[]> {
+  await requireAppSession();
   const templates = await readData<SalonLayoutTemplate[]>(TEMPLATES_FILE, []);
   return templates.sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime());
 }

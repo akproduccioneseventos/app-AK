@@ -8,11 +8,29 @@ import { requireAppSession } from '@/lib/auth/require-session';
 const ROLES_FILE = 'roles.json';
 
 export async function getRoles(): Promise<Rol[]> {
+  // Cada rol trae el sueldo por evento. Sin esta comprobacion, cualquiera de
+  // internet pedia la lista y se enteraba de cuanto cobra cada puesto.
+  await requireAppSession();
+  return leerRoles();
+}
+
+/** Sin comprobar sesion: uso interno de este archivo. */
+async function leerRoles(): Promise<Rol[]> {
   return readData<Rol[]>(ROLES_FILE, []);
 }
 
+/**
+ * Los roles como los ve el personal desde su enlace, sin cuenta: solo el nombre.
+ * El sueldo no sale de la empresa.
+ */
+export async function getRolesPublicos(): Promise<Array<Pick<Rol, 'id' | 'nombre'>>> {
+  const roles = await leerRoles();
+  return roles.map((r) => ({ id: r.id, nombre: r.nombre }));
+}
+
 export async function getRolById(id: string): Promise<Rol | null> {
-  const roles = await getRoles();
+  await requireAppSession();
+  const roles = await leerRoles();
   return roles.find(r => r.id === id) || null;
 }
 
@@ -31,7 +49,7 @@ export async function saveRol(
     return { success: false, error: "El sueldo por evento debe ser un número positivo." };
   }
   
-  const roles = await getRoles();
+  const roles = await leerRoles();
   let savedRol: Rol;
 
   const costoAportes = (sueldoNum * (Number(rolData.porcentajeAportesPatronales) || 0)) / 100;
@@ -67,7 +85,7 @@ export async function saveRol(
 
 export async function deleteRol(id: string): Promise<{ success: boolean; error?: string }> {
   await requireAppSession();
-  let roles = await getRoles();
+  let roles = await leerRoles();
   const initialLength = roles.length;
   roles = roles.filter(r => r.id !== id);
 

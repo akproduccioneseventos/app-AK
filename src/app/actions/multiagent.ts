@@ -74,6 +74,20 @@ export async function sendPersistentMultiAgentMessage(input: {
   imageDataUri?: string;
   sessionId?: string;
 }): Promise<AkPersistentMultiAgentOutput> {
+  // La ruta /api/multiagent/message ya pide sesion, pero esta funcion tambien es
+  // una direccion de internet por su cuenta: sin esto, cualquiera la llama de
+  // costado y nos gasta la inteligencia artificial en cada pedido.
+  const sesion = await verifySession();
+  if (!sesion.success) {
+    return {
+      success: false,
+      response: 'Sesion no autorizada.',
+      agentType: input.agentType ?? 'central',
+      agentName: 'AK',
+      error: 'Sesion no autorizada.',
+    };
+  }
+
   const result = await sendMultiAgentMessage(input.message, input.history ?? [], {
     pathname: input.pathname,
     fiestaId: input.fiestaId,

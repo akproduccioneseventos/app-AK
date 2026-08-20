@@ -1,5 +1,7 @@
 'use server';
 
+
+import { requireAppSession } from '@/lib/auth/require-session';
 export interface AssistantOperationalStatus {
   writeActionsEnabled: boolean;
   toolCount: number;
@@ -7,6 +9,7 @@ export interface AssistantOperationalStatus {
 }
 
 export async function getAssistantOperationalStatus(): Promise<AssistantOperationalStatus> {
+  await requireAppSession();
   const { TOOL_REGISTRY } = await import('@/lib/assistant/tool-registry');
 
   return {

@@ -29,6 +29,7 @@ import { verifySession } from '@/lib/auth/session-token';
 import { migrateVerifiedBudgetDates } from '@/lib/budget/verified-budget-date-migration';
 import { AsyncMutex } from '@/lib/mutex';
 
+import { requireAppSession } from '@/lib/auth/require-session';
 const presupuestosMutex = new AsyncMutex();
 const PRESUPUESTOS_FILE = 'presupuestos.json';
 
@@ -896,6 +897,7 @@ export async function addPagoClienteFromPortal(
   pago: Omit<PagoCliente, 'id' | 'estadoPago'>,
   token?: string
 ): Promise<{ success: boolean; presupuesto?: Presupuesto; error?: string }> {
+  await requireAppSession();
   const presupuesto = await getPresupuestoById(presupuestoId, token);
   if (!presupuesto) return { success: false, error: 'Presupuesto no encontrado' };
   const validation = validatePaymentAgainstBudget(presupuesto, pago.monto, { includePendingForLimit: true });

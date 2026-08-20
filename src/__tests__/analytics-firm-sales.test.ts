@@ -2,6 +2,11 @@ const mockGetPresupuestos = jest.fn();
 const mockGetInvoices = jest.fn();
 const mockGetAllFiestas = jest.fn();
 
+jest.mock('@/lib/auth/require-session', () => ({
+  ...jest.requireActual('@/lib/auth/require-session'),
+  requireAppSession: jest.fn(async () => undefined),
+}));
+
 jest.mock('@/app/actions/presupuestos', () => ({ getPresupuestos: () => mockGetPresupuestos() }));
 jest.mock('@/app/actions/invoices', () => ({ getInvoices: () => mockGetInvoices() }));
 jest.mock('@/app/actions/fiesta/fiesta.actions', () => ({ getAllFiestas: () => mockGetAllFiestas() }));

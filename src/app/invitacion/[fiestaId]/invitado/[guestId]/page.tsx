@@ -40,7 +40,7 @@ import {
   getPublicGuestPortalData,
   type PublicGuestEntertainmentLink,
 } from '@/app/actions/public-guest-portal';
-import { getSocialConnections } from '@/app/actions/social-connections';
+import { getSocialConnectionsPublicas } from '@/app/actions/social-connections';
 import { trackGuestCtaClick } from '@/app/actions/fiesta/invitados.actions';
 import { Button } from '@/components/ui/button';
 import { appendCommercialAttribution } from '@/lib/commercial/acquisition';
@@ -218,7 +218,7 @@ function GuestPortalContent() {
     try {
       const [data, connections] = await Promise.all([
         getPublicGuestPortalData(fiestaId, guestId, guestAccessToken),
-        getSocialConnections().catch(() => [] as SocialConnection[]),
+        getSocialConnectionsPublicas().catch(() => [] as SocialConnection[]),
       ]);
       if (!data) throw new Error('Evento o invitado no encontrado.');
       setFiesta(data.fiesta);

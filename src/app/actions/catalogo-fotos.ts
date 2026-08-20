@@ -45,6 +45,7 @@ export async function toggleCatalogoFotoDestacada(id: string): Promise<void> {
 }
 
 export async function getCatalogoFotosByCategoria(categoria: string): Promise<CatalogoFoto[]> {
+  await requireAppSession();
   const fotos = await getCatalogoFotos();
   const lower = categoria.toLowerCase();
   return fotos.filter(f => f.categoriaServicio.toLowerCase() === lower);

@@ -7,6 +7,7 @@ import { getNotifications } from '@/app/actions/notifications';
 import { createNotification } from '@/lib/notifications/create-notification';
 import { saveAgentLearning } from '@/lib/multiagent/memory-store';
 
+import { requireAppSession } from '@/lib/auth/require-session';
 export interface SmartAutomationResult {
   id: string;
   title: string;
@@ -127,6 +128,7 @@ async function notifyOnce(input: {
 }
 
 export async function runSmartAutomations(): Promise<{ success: boolean; results: SmartAutomationResult[]; created: number }> {
+  await requireAppSession();
   const [fiestas, presupuestos, leads] = await Promise.all([
     getAllFiestas().catch(() => []),
     getPresupuestos().catch(() => []),

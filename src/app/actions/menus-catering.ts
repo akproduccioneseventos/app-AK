@@ -7,11 +7,13 @@ import { getInsumos } from './insumos';
 import { requireAppSession } from '@/lib/auth/require-session';
 import { numerosDeMenuInvalidos } from '@/lib/catering/numeros-de-menu';
 
+import { leerInsumosCrudos } from '@/lib/insumos/leer-insumos';
 const MENUS_CATERING_COLLECTION_JSON = 'menus-catering.json';
 
 let cachedMenus: FullMenu[] | null = null;
 
 export async function invalidateMenusCache() {
+  await requireAppSession();
   cachedMenus = null;
 }
 
@@ -110,8 +112,16 @@ function recalculateMenu(menu: FullMenu, catalogItems: ServicioEmpresa[], allDis
 }
 
 export async function getMenus(): Promise<FullMenu[]> {
+  // Trae la receta de cada plato con lo que sale cada ingrediente y el margen de
+  // ganancia. Eso es del equipo.
+  await requireAppSession();
+  return armarMenus();
+}
+
+/** Sin comprobar sesion: uso interno de este archivo. */
+async function armarMenus(): Promise<FullMenu[]> {
   if (cachedMenus) return cachedMenus;
-  const [menus, catalog] = await Promise.all([readMenusFile(), getInsumos()]);
+  const [menus, catalog] = await Promise.all([readMenusFile(), leerInsumosCrudos()]);
   
   const mainMenu = menus.find(m => m.id === 'menu_principales_maestro');
   if (mainMenu) {
@@ -145,8 +155,30 @@ export async function getMenus(): Promise<FullMenu[]> {
   return result;
 }
 
+/**
+ * Los menus como se le muestran al prospecto y en la presentacion, **sin la receta
+ * ni el margen**. Estas pantallas se abren sin cuenta: la lista de ingredientes con
+ * lo que sale cada uno, y el porcentaje de ganancia de cada plato, son justo lo que
+ * la competencia querria ver.
+ *
+ * Se deja el costo total del plato porque el simulador lo usa para armar el
+ * presupuesto del prospecto; sacarlo dejaria ese presupuesto con el costo en cero y
+ * despues las cuentas de ganancia darian mal.
+ */
+export async function getMenusPublicos(): Promise<FullMenu[]> {
+  const menus = await armarMenus();
+  return menus.map((menu) => ({
+    ...menu,
+    items: menu.items.map(({ ingredients, profitMargin, ...visible }) => {
+      void ingredients; void profitMargin;
+      return { ...visible, ingredients: [] } as typeof menu.items[number];
+    }),
+  }));
+}
+
 export async function getMenuById(id: string): Promise<FullMenu | null> {
-  const allMenus = await getMenus();
+  await requireAppSession();
+  const allMenus = await armarMenus();
   const menu = allMenus.find(m => m.id === id);
   return menu || null;
 }
@@ -169,7 +201,7 @@ export async function saveMenu(
 ): Promise<{ success: boolean; id?: string; error?: string; menu?: FullMenu }> {
   await requireAppSession();
   invalidateMenusCache();
-  const [menus, catalog] = await Promise.all([readMenusFile(), getInsumos()]);
+  const [menus, catalog] = await Promise.all([readMenusFile(), leerInsumosCrudos()]);
   let menuId: string;
 
   const cleanItems = (menuDataInput.items || []).filter(item => !item.id.endsWith('_virtual_buffet'));
@@ -262,7 +294,7 @@ export async function adjustAllDishMargins(percentage: number): Promise<{ succes
   await requireAppSession();
   try {
     invalidateMenusCache();
-    const menus = await getMenus();
+    const menus = await armarMenus();
     for (const menu of menus) {
         menu.items = menu.items.map(item => {
             const newProfitMargin = (item.profitMargin ?? 100) + percentage;

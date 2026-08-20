@@ -19,7 +19,10 @@ export type FuncionConCosto =
   | 'seguimiento-comercial'
   | 'material-post-evento'
   | 'revision-diaria'
-  | 'clasificacion-comentarios';
+  | 'clasificacion-comentarios'
+  | 'copiloto-presupuesto'
+  | 'chat-de-la-fiesta'
+  | 'nota-del-blog';
 
 /**
  * Costo estimado por generación, en pesos uruguayos.
@@ -38,6 +41,12 @@ export const COSTO_ESTIMADO_UYU: Record<FuncionConCosto, number> = {
   'material-post-evento': 2,
   'revision-diaria': 2,
   'clasificacion-comentarios': 1,
+  // Los dos chats. Son texto y contestan corto, pero los usa gente de afuera y
+  // sin freno pueden preguntar toda la noche: por eso se cuentan igual.
+  'copiloto-presupuesto': 1,
+  'chat-de-la-fiesta': 1,
+  // Una nota de blog es texto largo mas una imagen generada: sale mas que un chat.
+  'nota-del-blog': 5,
 };
 
 /** Cuánto se avisa antes de llegar al tope. */

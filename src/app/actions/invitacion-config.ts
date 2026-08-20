@@ -16,6 +16,7 @@ type InvitacionConfigStore = Record<string, EventoInvitacionConfig>;
 export async function getInvitacionConfig(
   fiestaId: string
 ): Promise<EventoInvitacionConfig> {
+  await requireAppSession();
   const store = await readData<InvitacionConfigStore>(INVITACION_CONFIG_FILE, {});
   return store[fiestaId] || { ...defaultEventoInvitacionConfig };
 }

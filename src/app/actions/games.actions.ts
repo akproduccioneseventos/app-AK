@@ -23,6 +23,7 @@ export async function saveTriviaGame(fiestaId: string, game: TriviaGame): Promis
 }
 
 export async function getTriviaGame(fiestaId: string): Promise<TriviaGame | null> {
+  await requireAppSession();
   const fiesta = await getFiestaById(fiestaId);
   return fiesta?.triviaGame || null;
 }
@@ -40,6 +41,7 @@ export async function savePhotoMissions(fiestaId: string, missions: PhotoMission
 }
 
 export async function getPhotoMissions(fiestaId: string): Promise<PhotoMission[] | null> {
+  await requireAppSession();
   const fiesta = await getFiestaById(fiestaId);
   return fiesta?.photoMissions || null;
 }

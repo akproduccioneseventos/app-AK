@@ -111,6 +111,7 @@ const builtInTemplates: InvitacionDigitalTemplate[] = [
 ];
 
 export async function getInvitationTemplates(): Promise<InvitacionDigitalTemplate[]> {
+  await requireAppSession();
   const savedTemplates = await readData<InvitacionDigitalTemplate[]>(TEMPLATES_FILE, []);
   const savedIds = new Set(savedTemplates.map(t => t.id));
 

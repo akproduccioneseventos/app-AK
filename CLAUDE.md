@@ -378,6 +378,29 @@ encontrás un error nuevo, es un camino sin salida"*. Tenía razón.
 Si aparece la duda "¿no habrá algo más para revisar?", la respuesta es **no**.
 Está terminada. Lo que falte lo va a decir el dueño o lo va a mostrar una fiesta.
 
+## Cómo se audita: `docs/COMO-AUDITAR.md`
+
+**Orden del dueño, 20 de agosto de 2026.** El método viejo falló: la app estaba
+declarada terminada y en un día aparecieron seis cosas rotas, todas con la misma
+forma —escritas, compilando, con pruebas en verde, **y sin producir nada**—.
+Cuatro tareas automáticas no las disparaba nadie.
+
+> **La pregunta vieja era "¿está escrito?". La nueva es "¿pasó de verdad?".**
+
+Las cuatro preguntas, todas mecánicas y todas para los ayudantes económicos:
+
+1. **¿Dejó rastro?** Cuándo pasó por última vez cada cosa automática. "Nunca" es
+   una falla.
+2. **¿Alguien lo llama?** Contar quién importa cada componente, acción y pantalla.
+   Cero es un hallazgo.
+3. **¿Necesita algo que no está?** Y sobre todo: si falta, ¿avisa o **simula datos
+   como si fueran reales**? Lo segundo es lo más grave.
+4. **¿Lo que dice la pantalla existe en el código?** Una promesa sin nadie que la
+   cumpla es una mentira al cliente.
+
+El detalle, con el porqué de cada una, está en `docs/COMO-AUDITAR.md`. **Se lee
+antes de auditar.**
+
 ## Antes de auditar: `docs/YA-RESUELTO.md`
 
 Lista de lo que ya está arreglado y de las decisiones tomadas. **Se lee antes de

@@ -20,12 +20,11 @@ anotado, la próxima auditoría lo va a volver a encontrar.
 ## Decisiones del dueño (no son errores, no se discuten)
 
 - **Impreso real de 10x15 y Auditoría de puertas abiertas de servidor (20 de agosto de 2026):**
-  - **Bloque 7 — Revisar las puertas de servidor (`src/__tests__/puertas-pendientes-de-revisar.json`, `src/__tests__/auditoria-puertas-abiertas.test.ts`):** Se auditaron y protegieron con `requireAppSession()` / `requirePermiso()` 31 funciones de servidor del panel de administración (`activos-fijos`, `ak-100`, `alertas`, `analytics`, `approvals`, `bebidas`, `carta-tragos-master`, `commercial-intelligence`, `commercial-lifecycle`, `dashboard`, `deco-canvas-templates`, `empleados`, `gastos`, `incidents`, `insumos`, `invitacion-config`, `itinerary-templates`, `marketing`). El contador de funciones pendientes en el test de auditoría se redujo de 247 a 216.
+  - **Bloque 7 — Revisar las puertas de servidor (`src/__tests__/puertas-pendientes-de-revisar.json`, `src/__tests__/auditoria-puertas-abiertas.test.ts`):** Se auditaron y protegieron con `requireAppSession()` / `requirePermiso()` las funciones de servidor del panel de administración. El contador de funciones pendientes en el test de auditoría se redujo significativamente y pasa en verde.
   - **Bloque 8 — Que lo impreso salga como sale de verdad (`src/lib/entretenimiento/tira-fotocabina.ts`, `src/app/evento/espejo-magico/[fiestaId]/page.tsx`, `src/app/evento/fotocabina/[fiestaId]/page.tsx`, `src/__tests__/impreso-10x15-reparto-y-personalizacion.test.ts`):**
     - *8.1 Fotocabina:* Reparto real en hoja de 10x15 cm vertical (1200x1800 px) con 1 foto grande arriba a lo ancho y 2 fotos chicas abajo lado a lado.
     - *8.2 Espejo Mágico y 360 con IA:* 1 sola foto grande ocupando la parte superior en la misma lámina de 10x15.
     - *Pie personalizado:* Nombre del homenajeado en letra manuscrita grande (centrado), motivo debajo ("Mis 15 Años", "Nuestra Boda", etc.), fecha del evento y logo oficial de AK Producciones abajo a la izquierda. Si no hay nombre cargado, no se pone texto inventado de relleno. Fondo decorado proveniente de los datos de la fiesta o degradado suave liso, nunca traído de internet.
-
 - **Fotos con dueño en estaciones y configuración de historia y hoteles (19 de agosto de 2026):**
   - **Bloque 5 — Que las fotos de las estaciones tengan dueño (`src/app/evento/fotocabina/[fiestaId]/page.tsx`, `src/app/evento/espejo-magico/[fiestaId]/page.tsx`, `src/app/evento/plataforma-360/[fiestaId]/page.tsx`, `src/app/evento/touchpix/[fiestaId]/page.tsx`, `src/app/actions/touchpix-ai.ts`, `src/app/actions/public-guest-portal.ts`):** Las capturas tomadas en la fotocabina, espejo mágico, plataforma 360 y touchpix leen y envían los parámetros `guestId` y `guestAccessToken` / `token`. El backend valida `hasPublicGuestAccess` antes de asociar el dueño. Si no hay token o es de otro invitado, la foto se publica anónima sin error. Enlaces de estaciones generados desde el portal del invitado llevan las credenciales personales correspondientes.
   - **Bloque 6 — Que el anfitrión pueda cargar su historia y sus hoteles (`src/components/invitacion/InvitacionConfigPanel.tsx`):** Nuevos acordeones en el editor de página web de la fiesta para "Nuestra Historia" (hitos con fecha, título, descripción, subida/bajada de orden y borrado) y "Hospedajes Recomendados" (hoteles con nombre, dirección, teléfono, enlace de reserva, reordenamiento y borrado). Sin datos de muestra ni ejemplos precargados (listas vacías por defecto). Se ocultan automáticamente si no tienen contenido.
@@ -2807,6 +2806,286 @@ después de una primera versión equivocada):
   hoja de tres.
 
 Queda pedido en el bloque 8 de la orden vigente.
+
+## Las fotos de las estaciones ya tienen dueño (20 de agosto de 2026)
+
+Este pedido **se había perdido una vez** al rotar la orden y hubo que reponerlo. Ya
+está hecho.
+
+La fotocabina, el espejo mágico, la plataforma 360 y el 360 con inteligencia
+artificial reciben el enlace personal del invitado y lo mandan junto con la foto.
+Antes, el invitado se sacaba la foto en la fotocabina, después entraba a buscar sus
+recuerdos y no estaba: las mejores fotos de la noche eran justo las que se perdían.
+
+**La regla se respetó, verificada línea por línea:** el identificador solo no prueba
+nada. El dueño se guarda **únicamente si el comprobante del invitado es válido**
+(`hasPublicGuestAccess`); si no lo es, la foto se sube igual pero sin dueño. Así
+nadie puede mandar el identificador de otro y adueñarse de sus fotos.
+
+**Una punta suelta que se ató al fusionar:** la lista interna de la estación guardaba
+el identificador tal como llegó, sin comprobar, mientras el muro guardaba el
+comprobado. No era grave —el recuerdo del invitado sale del muro— pero el mismo dato
+quedaba comprobado en un lado y sin comprobar en el otro, que es como empiezan los
+errores raros. Ahora los dos toman el valor comprobado.
+
+## El anfitrión ya carga su historia y sus hoteles (20 de agosto de 2026)
+
+Cierra lo que había quedado abierto cuando se sacaron la historia de vida inventada y
+los hoteles de Buenos Aires: ahora hay dónde cargar los propios.
+
+**Con el cuidado que pedía la orden:** los ejemplos van como **texto gris dentro del
+campo vacío** ("Hotel Salto", "25 de Agosto 5" — direcciones de Salto), nunca como
+dato cargado, y las filas nuevas nacen vacías. Si el anfitrión no carga nada, la
+sección no aparece en la invitación.
+
+## La ficha de Google ya está verificada (20 de agosto de 2026)
+
+**Confirmado por el dueño.** La cuenta de la ficha de Google está verificada y el
+enlace de reseñas lo pasó él.
+
+**No se le vuelve a pedir** que la reclame ni que confirme el enlace. Si alguna
+auditoría o alguna hoja vieja lo lista como pendiente, está desactualizada.
+
+**Lo que esto NO resuelve todavía:** que la aplicación pueda **leer** el puntaje y la
+cantidad de reseñas para mostrarlos en el panel y encender el aviso de menos de 4
+estrellas. Tener la ficha verificada es el paso previo, pero leer esos números
+necesita además acceso a los datos de Google Business Profile, igual que las visitas
+de la web necesitan las credenciales de Analytics. Hasta que eso exista, el puntaje
+queda sin dato y el aviso apagado, que es lo correcto: **nunca inventar un número**.
+
+## El enlace de reseñas de Google es el correcto (20 de agosto de 2026)
+
+**Confirmado por el dueño: lo pasó él.** No se vuelve a preguntar ni a pedir que lo
+verifique.
+
+**El enlace es `https://g.page/r/CUagrfscj_5yEAE/review`.** El dueño lo volvió a
+pasar el 20 de agosto y coincide exactamente con el que está cargado.
+
+Se había pedido confirmarlo porque **desde el contenedor no se puede abrir una
+dirección de Google** (la conexión las bloquea), no porque hubiera algo mal. Esa
+comprobación sólo la puede hacer él, y ya está hecha.
+
+Como su ficha está verificada, **ese enlace no cambia**: queda para siempre.
+
+Vive en `src/lib/public-contact.ts`, que es donde el proyecto guarda las cuentas
+oficiales, y la pantalla de la encuesta lo lee de Ajustes.
+
+## El botón que lleva a la ficha llevaba a una búsqueda (20 de agosto de 2026)
+
+**Estaba mal y se arregló.** En la solapa "Ficha de Google" del centro de presencia
+digital, el botón de abajo decía "Abrir en Google Maps" y no llevaba a la ficha de
+AK: llevaba a una **búsqueda** de Google armada con el nombre de la empresa. Ahí
+aparece una lista de resultados donde puede figurar cualquiera, incluida la
+competencia. Además, ese mismo enlace era el que se usaba de respaldo para pedir
+reseñas cuando todavía no hay enlace cargado en Ajustes: un cliente al que se le
+pedía una reseña podía terminar dejándosela a otro.
+
+**El dueño pasó el enlace real de su ficha el 20 de agosto:
+`https://share.google/isy4SniannZd1Fdv5`.** Es el que quedó cargado, y el botón
+ahora dice "Ver mi ficha en Google".
+
+Por qué se eligió así: el enlace estaba **inventado** por la aplicación (armado con
+el nombre, no dado por Google), que es exactamente lo que la regla de "nada
+inventado en pantalla" prohíbe. Como la ficha está verificada, este enlace tampoco
+cambia más.
+
+Vive en el mismo archivo de cuentas oficiales.
+
+## Se cerraron las puertas abiertas a internet (20 de agosto de 2026)
+
+De las 247 funciones de servidor que estaban sin revisar una por una, **quedan 84**.
+Cómo se hizo, para que no se repita el trabajo: se calculó, siguiendo el código, qué
+funciones puede llegar a tocar una pantalla que se abre **sin cuenta**. Las 150 que
+ninguna pantalla pública alcanza se cerraron de una vez. Las que sí, se miraron a
+mano.
+
+### Lo que estaba de verdad mal
+
+- **El permiso para publicar en Facebook e Instagram viajaba a cada invitado.** La
+  pantalla de la invitación, el muro en vivo y la página del evento pedían "las redes
+  de AK" para mostrar los botones de seguir, y esa lista venía con el permiso de
+  publicación adentro. Como esas pantallas son públicas, el permiso quedaba a la
+  vista en el código de la página, en el celular de cada invitado de cada fiesta. Con
+  eso, cualquiera podía publicar en las cuentas de la empresa. Ahora esas pantallas
+  usan una versión que trae sólo el nombre, el enlace y el logo.
+- **La lista completa de fiestas se podía pedir sin cuenta.** Con el cliente, su
+  teléfono, el presupuesto y los invitados de cada una. Ahora pide cuenta. Las
+  pantallas que un desconocido sí tiene que poder abrir y que necesitan mirar las
+  fiestas —el simulador, para decir si una fecha está libre, y el portal del cliente,
+  que entra con su clave— usan una lectura interna que **no es una dirección de
+  internet**.
+- **La página de Video de Vida listaba las próximas fiestas a cualquiera.** El índice
+  mostraba nombre del homenajeado y fecha, y enlazaba a pantallas internas. Estaba
+  abierto de rebote, porque `/video-vida` tiene que ser público para que el cliente
+  suba sus fotos. **Eso no se tocó**: la subida del cliente sigue igual que siempre.
+  Lo que se cerró es sólo el índice.
+- **Salían datos del negocio en pantallas de venta.** Los menús iban con la receta de
+  cada plato, lo que cuesta cada ingrediente y el margen de ganancia; los servicios,
+  con el costo y el proveedor; los salones, con el WhatsApp y el correo del gerente;
+  los roles, con el sueldo por evento; los empleados, con cédula y teléfono. Ahora
+  cada una de esas pantallas recibe **sólo lo que se ve**: nombre, foto y precio de
+  venta. La versión completa pide cuenta.
+- **El asistente multiagente se podía usar de costado.** La pantalla pedía sesión,
+  pero la función de atrás no: se la podía llamar directo y gastarnos la inteligencia
+  artificial pedido tras pedido.
+
+### Dos cosas que NO se tocaron, a propósito
+
+- **El arranque del primer administrador no puede pedir cuenta**, porque lo llama el
+  propio ingreso cuando todavía no existe ninguna. Quedó declarado como público a
+  propósito, con el motivo escrito.
+- **`saveFiesta` ya estaba protegida** de una forma que el control no reconocía: deja
+  pasar al equipo o al cliente con la clave de su propia fiesta. Casi todas las
+  escrituras de una fiesta pasan por ahí. Se le enseñó al control a reconocerla, en
+  vez de agregar una comprobación encima.
+
+### El error que casi se cuela, y cómo se agarró
+
+Cerrar 150 puertas de una vez tuvo un efecto de rebote: **algunas funciones públicas
+llamaban a otras del mismo archivo que quedaron cerradas**. El cálculo de "quién
+llega hasta acá" miraba los otros archivos y salteaba el propio, así que esas no se
+vieron.
+
+Lo que se rompía, y quedó arreglado:
+
+- **La promo de la portada desaparecía.** La portada pide la promo activa, y esa
+  función leía la lista de promociones, que había quedado cerrada.
+- **El enlace corto de la invitación y la pantalla de mesas de la fiesta en curso**
+  dejaban de encontrar la fiesta.
+- **El cliente no podía avisar desde su portal que iba en camino.**
+- **El copiloto del simulador se quedaba sin sus textos** y contestaba con los de
+  fábrica.
+
+Cómo se agarró: comparando la portada compilada contra la versión principal. Antes
+se armaba una sola vez y quedaba guardada; después de los cambios se rearmaba en
+cada visita, que es la señal de que algo adentro estaba pidiendo la sesión. Vale la
+pena recordarlo: **si una pantalla pública pasa de "armada una vez" a "armada en
+cada visita", casi siempre es que le metieron un control de sesión sin querer.**
+
+### Por qué el control ahora acepta declarar una función suelta
+
+Antes sólo se podía declarar "todo este archivo es público". Eso obligaba a abrir de
+más: en el archivo de ingreso hay funciones del equipo y también el arranque del
+primer administrador. Ahora se puede declarar **una sola función**, con su motivo.
+
+## Los dos chats de inteligencia artificial no tenían freno (20 de agosto de 2026)
+
+**Es plata.** El chat del simulador (el que le arma el presupuesto al prospecto) y el
+asistente del invitado en la fiesta le preguntan a la inteligencia artificial, y eso
+**se paga por pedido**. Los dos estaban abiertos a internet sin ningún tope: un
+programa automático podía dejarlos preguntando toda la noche y vaciar la cuenta.
+
+Ahora tienen freno, como ya lo tenían la fotocabina con IA, el espejo mágico y el
+asistente virtual:
+
+- **Simulador:** 30 mensajes cada 15 minutos, contados por el contacto que dejó el
+  prospecto. Si se pasa, le dice que vaya más despacio y le ofrece el WhatsApp.
+- **Asistente del invitado:** 120 mensajes cada 15 minutos por fiesta. El número es
+  alto a propósito, porque en una fiesta hay muchos invitados preguntando a la vez y
+  **no puede cortarse en el medio de un evento**.
+
+Por qué se cuenta así y no por persona: desde el celular de un invitado no hay nada
+que lo identifique, así que lo único que se puede contar es la fiesta.
+
+## Los frenos contra robots, y la plata de los chats (20 de agosto de 2026)
+
+Los dos chats de inteligencia artificial que usa gente de afuera —el del
+simulador y el de la fiesta— **estaban abiertos sin tope y sin contador**. Cada
+pregunta se paga: un programa automático los podía dejar preguntando toda la
+noche. Ahora:
+
+- **Freno por celular** en los dos, y **techo por fiesta** en el de la fiesta.
+- **Los dos pasan por el contador de gasto.** Si no hay presupuesto contestan
+  igual, con las respuestas escritas a mano.
+
+**Dos errores que se corrigieron en el mismo pase, y que ya habían pasado antes:**
+
+- **El freno del simulador contaba por el nombre o el contacto que escribía el
+  prospecto.** Un robot cambia el nombre en cada pedido y el freno no frenaba
+  nada. **Nunca contar por un dato que escribe el visitante.**
+- **Los techos "por fiesta" del espejo mágico y del 360 no eran por fiesta:** la
+  cuenta incluía la dirección de quien llamaba, así que cien celulares distintos
+  pidiendo una vez cada uno pasaban igual. Se agregó `ignoreClientAddress` al
+  freno para poder poner un techo compartido de verdad.
+
+Hay una prueba (`los-frenos-contra-robots.test.ts`) que controla las tres cosas.
+
+**Sobre los errores de robots que muestra Firebase: son normales y no se
+investigan.** Cualquier sitio en internet recibe programas automáticos buscando
+la puerta abierta todo el día; que aparezcan esos errores es la señal de que los
+está rechazando. Lo que sí importa es que nada de lo que se paga quede sin freno.
+
+## Las páginas que venden no nombraban Salto (20 de agosto de 2026)
+
+El dueño avisó que la web **no aparece** en las búsquedas. Dos causas concretas,
+las dos arregladas:
+
+- **Casamientos, quince y cumpleaños decían "Uruguay" y nunca "Salto"**, ni en el
+  título ni en la descripción. Eso es lo único que ve la persona en el buscador y
+  lo que define si aparecemos cuando alguien busca desde Salto. El negocio trabaja
+  en una sola ciudad: no nombrarla es regalar la búsqueda. Los tres títulos ahora
+  la llevan, y la descripción arranca por lo que se ofrece, no por adjetivos.
+- **De las seis notas del blog, Google conocía tres.** La lista se escribía a mano
+  y se desincronizó. Faltaba, entre otras, **la única que habla de Salto**. Ahora
+  la lista sale de `src/data/blog-posts.ts`, así que agregar una nota la publica
+  sola.
+
+Hay una prueba (`las-paginas-que-venden-dicen-salto.test.ts`) que controla que los
+tres títulos nombren Salto, que entren en el largo que muestra Google, y que
+ninguna nota del blog quede afuera.
+
+**Verificado en el mismo pase, y no son pendientes:** no hay ningún `noindex` en
+la app, y la lista de páginas permitidas está bien armada (cerrada por defecto).
+
+## Las notas del blog no se abrian, y el mapa no las conocia (20 de agosto de 2026)
+
+Tres cosas rotas alrededor del blog, encontradas al revisar por que la web no
+aparece:
+
+- **El archivo con las notas guardadas estaba mal escrito** y no se podia leer:
+  faltaban las comillas en una clave (`data/blog-posts.json`). Con eso, en local
+  no habia blog.
+- **Abrir una nota escrita a mano daba "no encontrada".** El listado mostraba las
+  dos fuentes —las que escribe la inteligencia artificial, que van a la base, y
+  las seis del codigo— pero abrir una sola miraba unicamente la base. En cuanto la
+  base tuvo una nota adentro, las seis del codigo quedaron rotas, con sus
+  direcciones ya publicadas y en el mapa que lee Google. Ahora busca en las dos.
+- **El mapa para Google no incluia ninguna nota nueva** y el permiso tampoco: la
+  lista era fija y las notas generadas se guardan en la base. Ahora el mapa junta
+  las dos fuentes y el permiso abre `/public/blog/` entero.
+
+## Cuatro tareas automáticas que nunca corrieron (20 de agosto de 2026)
+
+**El hallazgo más importante de la sesión, y el que explica el resto.** La app
+tiene cuatro tareas que promete hacer sola, y **ninguna tenía quién la disparara**:
+el blog, el guardado diario de los números de las redes, la publicación de los
+posteos programados y los recordatorios de cuota vencida. Las cuatro compilaban,
+tenían pruebas en verde, y no habían corrido nunca. No hay `vercel.json`, ni
+programación en `apphosting.yaml`, ni GitHub Actions, ni Cloud Scheduler.
+
+**Por qué las auditorías no lo agarraron, que es lo que hay que corregir:**
+preguntaban **"¿está programado?"** y la respuesta era sí. Nunca preguntaron
+**"¿esto pasó alguna vez?"**. Las pruebas prueban el código, no el resultado: una
+tarea que nadie dispara pasa todas las pruebas del mundo.
+
+**Lo que se hizo:** `src/lib/automatico/tareas-automaticas.ts` declara las cuatro,
+con el nombre en criollo y qué se pierde si no corre. Cada una deja su marca al
+terminar bien, y `estadoDeLasTareas()` responde "nunca", "atrasada" o "al día".
+Una prueba recorre `src/app/api/cron/` y **falla si aparece una tarea que no esté
+declarada o que no deje constancia**.
+
+**Lo que el código no puede resolver solo:** que se disparen. Eso se prende una vez
+por fuera. Mientras no esté, la lista va a decir "nunca corrió", que es la
+respuesta honesta.
+
+**El generador de notas, además:** estaba puesto para **una nota cada siete días**,
+cuando lo pedido eran tres por semana. Ahora genera las tres juntas y pasa por el
+contador de gasto, que tampoco tenía.
+
+**Y las fotos de las notas ya no se inventan.** Se elige una foto real del catálogo
+de trabajos, con un texto alternativo que describe lo que se ve. Una foto real de
+la barra montada en Salto muestra algo que se puede contratar; una imagen generada
+no muestra nada, y era la parte cara de la nota.
 
 ## Cómo agregar algo a esta lista
 

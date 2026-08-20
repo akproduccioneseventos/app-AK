@@ -6,6 +6,7 @@ import type { FaqItem, FiestaEnPlanificacion, Reunion, Tarea } from '@/types/fie
 import { getFiestaById, saveFiesta } from './fiesta/fiesta.actions';
 import { syncReunionToGoogleWorkspace } from './google-workspace-extended';
 
+import { requireAppSession } from '@/lib/auth/require-session';
 const MAX_AUDIO_UPLOAD_BYTES = 45 * 1024 * 1024;
 const MAX_AUDIO_AI_BYTES = 12 * 1024 * 1024;
 
@@ -249,6 +250,7 @@ function mergeFaqs(existing: FaqItem[] | undefined, learned: LearnedFaq[]): FaqI
 }
 
 export async function processReunionIntelligence(formData: FormData) {
+  await requireAppSession();
   try {
     const fiestaId = cleanText(formData.get('fiestaId'));
     const reunionId = cleanText(formData.get('reunionId'));

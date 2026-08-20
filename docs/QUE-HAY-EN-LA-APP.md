@@ -113,7 +113,7 @@ muestre**. Esa distinción es la que más veces falló.
 | Comentarios de redes e IA | Sí | Empresa → Presencia digital → solapa "Comentarios de redes" |
 | Moderación de comentarios y quejas | Sí | Empresa → Presencia digital → solapa "Comentarios de redes" |
 | Capturas de pantalla en testimonios | Sí | Ajustes → Feedback & Testimonios y carrusel público |
-| Historia y hospedajes en la invitación | Sólo si el anfitrión los carga; falta la pantalla para cargarlos | Invitación digital |
+| Historia y hospedajes en la invitación | Sí, con su pantalla para cargarlos | Fiestas → Página web → Invitación |
 | Música de fondo en la invitación | Sólo si el anfitrión sube la suya | Invitación digital |
 | Carta de tragos en carrusel (pantalla grande del salón) | Sí | `/evento/barra/<fiesta>` |
 | El invitado pide su trago desde el celular | Sí | Enlace personal del invitado |
@@ -136,7 +136,12 @@ muestre**. Esa distinción es la que más veces falló.
 | Testimonios del catálogo impreso en las páginas de venta | Sí, son reales (falta subirles la captura) | `/bodas`, `/quinceaneras`, `/cumpleanos`, `/fiestas`, `/corporativos`, `/aniversarios` |
 | Tope de gasto al traer el historial de comentarios | Sí, cien por corrida | Empresa → Presencia digital → "Historial completo" |
 | Tu página web (Google Analytics 4) | Sí | Empresa → Presencia digital → solapa "Tu página web" |
-| Ficha de Google conectada y verificada | Sí | Empresa → Presencia digital → solapa "Ficha de Google" |
+| Ficha de Google conectada y verificada (cuenta verificada por el dueño el 20/8) | Sí | Empresa → Presencia digital → solapa "Ficha de Google" |
+| Botón que abre la ficha real de Google (antes abría una búsqueda) | Sí, enlace pasado por el dueño el 20/8 | Empresa → Presencia digital → solapa "Ficha de Google" |
+| Redes de AK en las pantallas del invitado sin el permiso de publicación | Sí | Invitación, muro en vivo, página del evento |
+| Lista completa de fiestas cerrada a quien no tiene cuenta | Sí | Todas las pantallas del equipo |
+| Menús, servicios y salones en pantallas de venta sin costos ni contactos internos | Sí | Simulador, presentación LED, páginas de venta |
+| Freno contra robots en el chat del simulador y el asistente del invitado | Sí | Simulador y portal del invitado |
 | Soporte Pinterest, Threads y X | Sí | Empresa → Presencia digital y Ajustes → Redes sociales |
 | Publicación real en Facebook e Instagram | Sí | Empresa → Presencia digital (al aprobar) |
 | Publicación programada con cron y límites | Sí | Automático (cron `/api/cron/publicar-programados`) y visible en Empresa → Redes sociales |

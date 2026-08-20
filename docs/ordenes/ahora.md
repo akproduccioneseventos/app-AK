@@ -1,11 +1,11 @@
-# Lo que queda: el impreso, la invitación, las estaciones y las puertas
+# Lo que queda: el impreso y las puertas de entrada
 
 **Para:** Gemini (Antigravity)
 **Escrita:** 19 de agosto de 2026.
 
 ## Cómo se entrega
 
-**UNA SOLA propuesta de cambios con los CUATRO bloques que quedan adentro** (el 5, 6, 7 y 8). Cada fusión dispara
+**UNA SOLA propuesta de cambios con los DOS bloques que quedan adentro** (el 7 y el 8). Cada fusión dispara
 un despliegue y eso se paga. Si un bloque se traba, entregá el resto igual, en la
 misma propuesta, avisando cuál faltó y por qué.
 
@@ -54,81 +54,14 @@ Windows. Nada más.
 
 ---
 
-# BLOQUE 5 — Que las fotos de las estaciones tengan dueño
+## Y los bloques 5 y 6 también, el 20 de agosto
 
-**Este pedido se había perdido.** Estaba anotado en el inventario como "pedido en la
-orden vigente", pero la orden se reescribió y quedó afuera. Verificado hoy: sigue
-sin hacerse.
-
-## El problema
-
-Cuando un invitado sube una foto al muro **desde su enlace personal**, la foto queda
-guardada con su nombre: después él puede volver a verla y bajarse las suyas.
-
-Pero **la fotocabina, el espejo mágico y la plataforma 360 no reciben ese enlace**.
-Verificado: en las tres pantallas el identificador del invitado no aparece por
-ningún lado. Entonces toda foto sacada en una estación **queda sin dueño**.
-
-En pantalla: el invitado se saca la foto en la fotocabina, después entra a buscar
-sus recuerdos y **no está**. Las fotos de las estaciones —que suelen ser las mejores
-de la noche— son justamente las que se pierden.
-
-## Qué hacer
-
-Que las tres estaciones reciban el enlace personal del invitado cuando exista, y lo
-manden junto con la foto, igual que ya lo hace el muro social.
-
-**Cómo llega el enlace:** que la estación lo acepte como parámetro en su dirección
-web, para que el invitado llegue desde su portal con su enlace ya puesto, o
-escaneando un código que se lo agregue.
-
-## LO QUE NO SE PUEDE HACER, Y NO ES OPINABLE
-
-> **Un identificador suelto no se guarda nunca.**
-
-Sólo se guarda el dueño **si la persona probó tener el enlace personal de ese
-invitado**. Si se guardara cualquier identificador que llegue, cualquiera podría
-mandar el de otro y adueñarse de sus fotos. Eso ya está resuelto así en el muro
-social: copiá ese mismo criterio, no inventes uno nuevo.
-
-**Y si no hay enlace personal, la foto se sube igual** y queda sin dueño, como
-hasta ahora. Nadie se queda sin sacarse la foto por no tener el enlace.
-
----
-
-# BLOQUE 6 — Que el anfitrión pueda cargar su historia y sus hoteles
-
-**Contexto:** hasta el 19 de agosto de 2026, toda invitación mostraba una historia
-de vida inventada y dos hoteles de Buenos Aires con teléfono argentino, que el
-anfitrión no podía cambiar. **Ya se sacaron**: hoy esas dos secciones sólo salen si
-hay contenido cargado, y como no hay dónde cargarlo, no salen nunca.
-
-**Los campos ya existen:** `hitos` y `hospedajes` en `InvitacionDigitalConfig`
-(`src/types/fiesta.ts`), con sus tipos `HitoInvitacion` y `HospedajeInvitacion`.
-Sólo falta la pantalla.
-
-## Qué hacer
-
-En el editor de la página web de la fiesta (`src/app/(app)/fiestas/nueva/pagina-web/`),
-agregar dos bloques para cargar:
-
-- **La historia**: una lista de hitos, cada uno con año, título y una descripción
-  corta. Poder agregar, borrar y reordenar. Para una boda son "cómo se conocieron",
-  para unos quince son los años de la chica.
-- **Los hospedajes**: una lista con nombre, dirección, y opcionalmente teléfono y
-  enlace para reservar. Es para los invitados que vienen de otra ciudad.
-
-## Cuidados
-
-- **Las dos secciones son opcionales.** Si el anfitrión no carga nada, la sección no
-  aparece en la invitación. **Eso ya funciona así, no lo cambies.**
-- **Nada de ejemplos precargados.** Ni hitos de muestra, ni un hotel de ejemplo. Si
-  hace falta guiar, va como texto gris de ayuda dentro del campo vacío, nunca como
-  un dato cargado que después queda publicado sin que nadie lo note. **Esto ya pasó
-  cuatro veces en este proyecto.**
-- **Los hoteles son de Salto**, o de donde sea la fiesta. Nada de direcciones ni
-  teléfonos de otros países.
-- Que se vea en la vista previa del editor al cargarlo.
+- **Las fotos de las estaciones ya tienen dueño.** La fotocabina, el espejo mágico,
+  la plataforma 360 y el 360 con inteligencia artificial reciben el enlace personal
+  del invitado. Respetó la regla: **el dueño se guarda sólo si el comprobante es
+  válido**; sin comprobante la foto se sube igual, sin dueño.
+- **El anfitrión ya puede cargar su historia y sus hospedajes** en la invitación, con
+  los ejemplos como texto gris dentro del campo vacío y las filas nuevas vacías.
 
 ---
 

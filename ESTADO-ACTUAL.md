@@ -8,7 +8,7 @@ Quien cierre una sesión reescribe este archivo. Se pisa, no se acumula.
 ---
 
 **Última actualización:** 20 de agosto de 2026.
-**Estado de la app:** sana. Los cuatro controles pasaron: acentos limpios (0 rotos), TypeScript en 0 errores, pruebas unitarias 100% en verde (296 suites, 1893 tests), build de producción Next.js OK.
+**Estado de la app:** sana. Los cuatro controles pasaron: acentos limpios (0 rotos), TypeScript en 0 errores, pruebas unitarias 100% en verde, build de producción Next.js OK.
 **Orden vigente:** `docs/ordenes/ahora.md` — Bloques 1 a 8 completados.
 
 ## Lo que se cerró en esta tanda
@@ -23,9 +23,8 @@ Quien cierre una sesión reescribe este archivo. Se pisa, no se acumula.
   - Suite de pruebas unitarias `src/__tests__/impreso-10x15-reparto-y-personalizacion.test.ts` (5 tests en verde).
 
 - **Bloque 7 — Revisión y protección de puertas de servidor:**
-  - Se auditaron y protegieron con `requireAppSession()` / `requirePermiso()` 31 funciones de servidor del panel administrativo (`activos-fijos`, `ak-100`, `alertas`, `analytics`, `approvals`, `bebidas`, `carta-tragos-master`, `commercial-intelligence`, `commercial-lifecycle`, `dashboard`, `deco-canvas-templates`, `empleados`, `gastos`, `incidents`, `insumos`, `invitacion-config`, `itinerary-templates`, `marketing`).
-  - Se eliminaron las 31 funciones de `src/__tests__/puertas-pendientes-de-revisar.json`.
-  - El test `src/__tests__/auditoria-puertas-abiertas.test.ts` bajó su tope de 247 a 216 pendientes y pasa en verde.
+  - Se auditaron y protegieron con `requireAppSession()` / `requirePermiso()` funciones de servidor del panel administrativo.
+  - Se actualizaron las funciones pendientes y el test `src/__tests__/auditoria-puertas-abiertas.test.ts` pasa en verde.
 
 - **Bloques 1 a 6:**
   - Tótem de la barra con pantalla de éxito, QR grande para descarga, trago pedido y switch de redes.

@@ -277,6 +277,7 @@ export async function updateAppointment(
 
 /** Cancelar una cita. No se borra: queda el registro de que existió. */
 export async function cancelAppointment(id: string): Promise<{ success: boolean; error?: string }> {
+  await requireAppSession();
   return updateAppointmentStatus(id, 'Cancelada');
 }
 
