@@ -3322,6 +3322,16 @@ auditoría dejara en rojo el control de acentos, que es uno de los cinco de salu
 El informe queda declarado como generado en las dos puntas —el script y la prueba—,
 igual que ya estaban la prueba de acentos y esa misma pantalla.
 
+### El informe no se versiona, y esa es la tercera corrección
+
+Venía guardado en el repositorio, y **la prueba del script también lo escribe**: cada
+corrida de pruebas cambiaba la hora adentro del informe y dejaba el repositorio sucio.
+Con tres inteligencias trabajando sobre el mismo código, eso traba a las tres — de
+hecho trabó a un ayudante en el medio de esta misma revisión.
+
+Ahora se genera cuando se lo pide y no se guarda. Lo que vale son los cuatro números
+del resumen, que se cuentan en el momento.
+
 ### Lo que el primer informe encontró de verdad
 
 - **31 pantallas sin ninguna forma de llegar** y una buena cantidad de componentes que
