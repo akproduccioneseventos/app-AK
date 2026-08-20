@@ -91,3 +91,52 @@ export function calculateMercadoPagoCuotas(baseAmount: number): MercadoPagoCalcu
     options,
   };
 }
+
+
+/**
+ * El mismo dinero, contado como descuento por pagar al contado.
+ *
+ * **Por que existe.** La cuenta es identica a la de arriba: el que paga en cuotas
+ * termina pagando un 10% mas. Lo que cambia es como se lo cuenta al cliente.
+ *
+ * - Antes: "precio X, y si pagas en cuotas te recargamos un 10%". El recargo se
+ *   lee como un castigo y aparece justo cuando la persona esta por decidir.
+ * - Ahora: "precio de lista Y, y si pagas contado o por transferencia te hacemos
+ *   un 10% de descuento". Es la misma plata y **es cierto**: el precio de lista es
+ *   el precio de lista, y el descuento por pago contado es una practica comercial
+ *   normal en cualquier rubro.
+ *
+ * No se inventa nada ni se esconde nada: el que paga en cuotas ve exactamente lo
+ * que va a pagar, y el que paga contado ve cuanto se ahorra.
+ *
+ * **Adentro de la empresa se sigue viendo como recargo**, que es lo que es para la
+ * contabilidad: la pantalla donde el equipo registra una seña muestra el recargo
+ * financiero aparte. Esto es solo para lo que ve el cliente.
+ */
+export interface MercadoPagoPresentacionComercial {
+  /** Lo que paga el que abona contado o por transferencia. */
+  precioContado: number;
+  /** Lo que paga el que financia. Es el precio de lista. */
+  precioLista: number;
+  /** Cuanto se ahorra el que paga contado, en pesos. */
+  ahorroContado: number;
+  /** Cuanto se ahorra el que paga contado, en porcentaje sobre el precio de lista. */
+  descuentoContadoPercent: number;
+}
+
+export function presentacionComercialMercadoPago(
+  baseAmount: number,
+): MercadoPagoPresentacionComercial {
+  const { baseAmount: precioContado, totalWithSurcharge: precioLista } =
+    calculateMercadoPagoCuotas(baseAmount);
+
+  const ahorroContado = precioLista - precioContado;
+
+  // El porcentaje se calcula sobre el precio de lista, no sobre el contado: un
+  // recargo del 10% es un descuento del 9%, y decir 10% seria inflarlo.
+  const descuentoContadoPercent = precioLista > 0
+    ? Math.round((ahorroContado / precioLista) * 100)
+    : 0;
+
+  return { precioContado, precioLista, ahorroContado, descuentoContadoPercent };
+}

@@ -3317,6 +3317,31 @@ en grande **"Bot activado - el bot está respondiendo mensajes"**, y no podía m
 ni uno. Abajo había un aviso que lo desmentía, pero el renglón grande es el que se
 lee. Ahora dice "Activado, pero todavía no puede responder". Hay una prueba.
 
+## El recargo de Mercado Pago se muestra como descuento por pago contado (20 de agosto de 2026)
+
+**Decisión comercial del dueño. No es un error y no se revierte.**
+
+Es la misma plata, contada al revés:
+
+- **Antes:** "precio X, y si pagás en cuotas te recargamos un 10%". El recargo se
+  lee como un castigo, y aparece justo cuando la persona está por decidir.
+- **Ahora:** "precio de lista Y, y pagando contado o por transferencia te hacemos
+  un descuento". Misma cuenta, y **es cierto**: el descuento por pago contado es
+  una práctica comercial normal en cualquier rubro.
+
+Dos detalles que importan:
+
+- **El porcentaje se calcula sobre el precio de lista, no sobre el contado.** Un
+  recargo del 10% es un descuento del 9%. Decir 10% sería inflarlo y el número no
+  cerraría con los pesos que figuran al lado.
+- **Adentro de la empresa se sigue viendo como recargo**, que es lo que es para la
+  contabilidad: la pantalla donde el equipo registra una seña muestra el recargo
+  financiero aparte. El cambio es sólo en lo que ve el cliente.
+
+Hay una prueba que controla que **las dos cuentas den exactamente la misma plata**.
+Si alguien cambia una y no la otra, el cliente ve un número en el presupuesto y le
+cobran otro.
+
 ## Cómo agregar algo a esta lista
 
 **Se anota SIEMPRE, en la misma propuesta que toca el código.** Orden del dueño
