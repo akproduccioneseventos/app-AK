@@ -8,12 +8,17 @@ const PROMOS_FILE = 'promos.json';
 
 export async function getPromos(): Promise<PromoActiva[]> {
   await requireAppSession();
+  return leerPromos();
+}
+
+/** Sin comprobar sesion: la promo de la portada la ve cualquiera. */
+async function leerPromos(): Promise<PromoActiva[]> {
   return readData<PromoActiva[]>(PROMOS_FILE, []);
 }
 
 export async function getPromoActiva(): Promise<PromoActiva | null> {
   try {
-    const promos = await getPromos();
+    const promos = await leerPromos();
     return promos.find((p) => p.activa && p.mostrarEnLanding) ?? null;
   } catch {
     return null;
@@ -38,7 +43,7 @@ export async function savePromo(
       return { success: false, error: 'La fecha de fin no puede ser anterior a la fecha de inicio.' };
     }
 
-    const promos = await getPromos();
+    const promos = await leerPromos();
     const now = new Date().toISOString();
 
     if (data.id) {
@@ -66,7 +71,7 @@ export async function savePromo(
 export async function deletePromo(id: string): Promise<{ success: boolean; error?: string }> {
   await requireAppSession();
   try {
-    const promos = await getPromos();
+    const promos = await leerPromos();
     const filtered = promos.filter((p) => p.id !== id);
     if (filtered.length === promos.length) return { success: false, error: 'Promo no encontrada.' };
     await writeData(PROMOS_FILE, filtered);
@@ -79,7 +84,7 @@ export async function deletePromo(id: string): Promise<{ success: boolean; error
 export async function togglePromo(id: string): Promise<{ success: boolean; error?: string }> {
   await requireAppSession();
   try {
-    const promos = await getPromos();
+    const promos = await leerPromos();
     const idx = promos.findIndex((p) => p.id === id);
     if (idx === -1) return { success: false, error: 'Promo no encontrada.' };
     promos[idx].activa = !promos[idx].activa;

@@ -2933,6 +2933,29 @@ mano.
   escrituras de una fiesta pasan por ahí. Se le enseñó al control a reconocerla, en
   vez de agregar una comprobación encima.
 
+### El error que casi se cuela, y cómo se agarró
+
+Cerrar 150 puertas de una vez tuvo un efecto de rebote: **algunas funciones públicas
+llamaban a otras del mismo archivo que quedaron cerradas**. El cálculo de "quién
+llega hasta acá" miraba los otros archivos y salteaba el propio, así que esas no se
+vieron.
+
+Lo que se rompía, y quedó arreglado:
+
+- **La promo de la portada desaparecía.** La portada pide la promo activa, y esa
+  función leía la lista de promociones, que había quedado cerrada.
+- **El enlace corto de la invitación y la pantalla de mesas de la fiesta en curso**
+  dejaban de encontrar la fiesta.
+- **El cliente no podía avisar desde su portal que iba en camino.**
+- **El copiloto del simulador se quedaba sin sus textos** y contestaba con los de
+  fábrica.
+
+Cómo se agarró: comparando la portada compilada contra la versión principal. Antes
+se armaba una sola vez y quedaba guardada; después de los cambios se rearmaba en
+cada visita, que es la señal de que algo adentro estaba pidiendo la sesión. Vale la
+pena recordarlo: **si una pantalla pública pasa de "armada una vez" a "armada en
+cada visita", casi siempre es que le metieron un control de sesión sin querer.**
+
 ### Por qué el control ahora acepta declarar una función suelta
 
 Antes sólo se podía declarar "todo este archivo es público". Eso obligaba a abrir de

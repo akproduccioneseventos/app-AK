@@ -18,6 +18,11 @@ const COPILOT_CONFIG_FILE = 'copilot-config.json';
 
 export async function getCopilotConfig(): Promise<CopilotConfig> {
   await requireAppSession();
+  return leerCopilotConfig();
+}
+
+/** Sin comprobar sesion: son los textos con los que le contesta al prospecto. */
+async function leerCopilotConfig(): Promise<CopilotConfig> {
   const config = await readData<CopilotConfig>(COPILOT_CONFIG_FILE, DEFAULT_COPILOT_CONFIG);
   return {
     promptPersonalidad: config?.promptPersonalidad || DEFAULT_COPILOT_CONFIG.promptPersonalidad,
@@ -225,7 +230,7 @@ export async function chatWithBudgetCopilot(
     getArmadoRapidoConfig().catch(() => null),
     getServiciosEmpresaPublicos().catch(() => []),
     getMenusPublicos().catch(() => []),
-    getCopilotConfig().catch(() => DEFAULT_COPILOT_CONFIG),
+    leerCopilotConfig().catch(() => DEFAULT_COPILOT_CONFIG),
   ]);
   const apiKey = process.env.GOOGLE_API_KEY || process.env.GEMINI_API_KEY;
 

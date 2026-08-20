@@ -21,6 +21,11 @@ const initialLiveState: LiveEventState = {
 
 export async function updateLiveState(fiestaId: string, updateFn: (state: LiveEventState) => LiveEventState): Promise<{ success: boolean; error?: string }> {
   await requireAppSession();
+  return aplicarEstadoEnVivo(fiestaId, updateFn);
+}
+
+/** Sin comprobar sesion: uso interno. Igual el guardado de abajo pide permiso. */
+async function aplicarEstadoEnVivo(fiestaId: string, updateFn: (state: LiveEventState) => LiveEventState): Promise<{ success: boolean; error?: string }> {
     try {
         const fiesta = await getFiestaById(fiestaId);
         if (!fiesta) throw new Error("Fiesta no encontrada");
@@ -57,7 +62,9 @@ export async function setStaffCheckIn(fiestaId: string, empleadoId: string, arri
 }
 
 export async function notifyClientArrival(fiestaId: string): Promise<{ success: boolean; error?: string }> {
-    return updateLiveState(fiestaId, state => ({
+    // Publica a proposito: la toca el CLIENTE desde su portal para avisar que va en
+    // camino. El guardado de la fiesta que hay debajo si comprueba permiso.
+    return aplicarEstadoEnVivo(fiestaId, state => ({
         ...state,
         llegadaProtagonistas: {
             ...state.llegadaProtagonistas,

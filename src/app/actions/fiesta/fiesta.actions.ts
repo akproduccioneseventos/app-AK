@@ -110,7 +110,9 @@ export async function getAllFiestas() {
 }
 
 export async function getFiestaActual(): Promise<FiestaEnPlanificacion> {
-    const all = await getFiestas(false);
+    // Publica a proposito: la usa la pantalla de mesas de la fiesta en curso, que
+    // se abre sin cuenta. Por eso lee por dentro y no por la puerta con sesion.
+    const all = await leerFiestasCrudas(false);
     if (all.length === 0) {
         return { ...initialFiestaActualData, id: `fiesta_${Date.now()}_${Math.random().toString(36).substring(2, 9)}`};
     }
@@ -218,7 +220,8 @@ export async function getFiestaById(fiestaId: string): Promise<FiestaEnPlanifica
 export async function getFiestaBySlug(slug: string): Promise<FiestaEnPlanificacion | null> {
   const normalized = normalizeInvitationSlug(slug);
   if (!normalized) return null;
-  const fiestas = await getFiestas(true);
+  // Publica a proposito: es el enlace corto de la invitacion, que abre el invitado.
+  const fiestas = await leerFiestasCrudas(true);
   return fiestas.find(f => f.invitacionSlug === normalized) || null;
 }
 
