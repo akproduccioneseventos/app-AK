@@ -20,7 +20,10 @@ export const AK_SOCIAL_LINKS = {
   x: 'https://x.com/AkSalto',
   pinterest: 'https://es.pinterest.com/akproduccionessalto/',
   googleReviews: 'https://g.page/r/CUagrfscj_5yEAE/review',
-  googleMaps: 'https://maps.google.com/?q=AK+Producciones+Eventos+Salto+Uruguay',
+  // Ficha de Google verificada del dueno. Antes aca habia una BUSQUEDA de Google
+  // armada con el nombre de la empresa: eso no lleva a la ficha, lleva a una lista
+  // de resultados donde puede aparecer cualquiera. El dueno paso el enlace real.
+  googleMaps: 'https://share.google/isy4SniannZd1Fdv5',
 } as const;
 
 /**

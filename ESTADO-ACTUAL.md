@@ -38,6 +38,15 @@ pasan por una función que sí pide permiso**, y **dos escribían directo** (ya
 revisadas). **Del lado de hacer daño no queda nada abierto**; lo pendiente es del
 lado de mirar, y está en el bloque 7.
 
+## Lo último que se tocó (20 de agosto)
+
+El botón de la solapa "Ficha de Google" decía "Abrir en Google Maps" y **no llevaba
+a la ficha de AK**: llevaba a una búsqueda de Google, donde puede aparecer
+cualquiera. Y ese mismo enlace se usaba de respaldo para pedir reseñas cuando no
+hay ninguno cargado, así que un cliente podía dejarle la reseña a otro. El dueño
+pasó el enlace real de su ficha y quedó cargado; el botón ahora dice
+"Ver mi ficha en Google".
+
 ## Lo que quedó pedido a Gemini
 
 **Bloque 7:** revisar las 179 funciones de leer. **Bloque 8:** el formato del
@@ -45,8 +54,9 @@ impreso. Los bloques 1 a 6 ya se entregaron y fusionaron.
 
 ## Datos del dueño que NO hay que volver a preguntar
 
-- **La ficha de Google está verificada** y el **enlace de reseñas es el correcto**
-  (`https://g.page/r/CUagrfscj_5yEAE/review`). Ya no se le pide que los confirme.
+- **La ficha de Google está verificada**, el **enlace de reseñas es el correcto**
+  (`https://g.page/r/CUagrfscj_5yEAE/review`) y el **enlace de la ficha también**
+  (`https://share.google/isy4SniannZd1Fdv5`). Ya no se le pide que los confirme.
   Que el panel muestre el puntaje necesita además acceso a los datos de Google
   Business Profile; hasta entonces queda sin dato y el aviso apagado.
 - **El impreso es 10x15.** La **fotocabina imprime TRES fotos**; el **espejo mágico

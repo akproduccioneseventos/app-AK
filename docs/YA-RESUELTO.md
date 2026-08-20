@@ -2864,6 +2864,27 @@ Como su ficha está verificada, **ese enlace no cambia**: queda para siempre.
 Vive en `src/lib/public-contact.ts`, que es donde el proyecto guarda las cuentas
 oficiales, y la pantalla de la encuesta lo lee de Ajustes.
 
+## El botón que lleva a la ficha llevaba a una búsqueda (20 de agosto de 2026)
+
+**Estaba mal y se arregló.** En la solapa "Ficha de Google" del centro de presencia
+digital, el botón de abajo decía "Abrir en Google Maps" y no llevaba a la ficha de
+AK: llevaba a una **búsqueda** de Google armada con el nombre de la empresa. Ahí
+aparece una lista de resultados donde puede figurar cualquiera, incluida la
+competencia. Además, ese mismo enlace era el que se usaba de respaldo para pedir
+reseñas cuando todavía no hay enlace cargado en Ajustes: un cliente al que se le
+pedía una reseña podía terminar dejándosela a otro.
+
+**El dueño pasó el enlace real de su ficha el 20 de agosto:
+`https://share.google/isy4SniannZd1Fdv5`.** Es el que quedó cargado, y el botón
+ahora dice "Ver mi ficha en Google".
+
+Por qué se eligió así: el enlace estaba **inventado** por la aplicación (armado con
+el nombre, no dado por Google), que es exactamente lo que la regla de "nada
+inventado en pantalla" prohíbe. Como la ficha está verificada, este enlace tampoco
+cambia más.
+
+Vive en el mismo archivo de cuentas oficiales.
+
 ## Cómo agregar algo a esta lista
 
 **Se anota SIEMPRE, en la misma propuesta que toca el código.** Orden del dueño
