@@ -110,6 +110,9 @@ muestre**. Esa distinción es la que más veces falló.
 | Alerta puntaje de Google < 4.0 | Sí | Empresa → Presencia digital → banner de alerta |
 | Tablero de 16 altas en directorios | Sí | Empresa → Presencia digital → solapa "Tablero de altas (16)" |
 | Autogenerador semanal de calendario | Sí | Empresa → Presencia digital → solapa "Revisión Diaria" |
+| Notas del blog, 3 por semana | Sí | Se generan solas; salen en borrador para aprobar |
+| Foto de cada nota: real, del catálogo | Sí | Nunca se genera con inteligencia artificial |
+| Estado de lo que corre solo | Parcial | Registrado en `src/lib/automatico/tareas-automaticas.ts`; falta la pantalla |
 | Comentarios de redes e IA | Sí | Empresa → Presencia digital → solapa "Comentarios de redes" |
 | Moderación de comentarios y quejas | Sí | Empresa → Presencia digital → solapa "Comentarios de redes" |
 | Capturas de pantalla en testimonios | Sí | Ajustes → Feedback & Testimonios y carrusel público |
