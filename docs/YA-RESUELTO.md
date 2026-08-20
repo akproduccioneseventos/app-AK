@@ -3283,6 +3283,40 @@ pasa si dos lo hacen a la vez?"**. Ninguno de los cuatro era un error de program
 Quedaron cuatro pruebas que los congelan, en
 `src/__tests__/lo-automatico-no-sale-dos-veces.test.ts`.
 
+## Qué está conectado de verdad y qué es sólo un enlace (20 de agosto de 2026)
+
+**Se reportó que quedaba "todo vinculado y 100% operativo". No es así, y la
+diferencia importa.**
+
+**Tienen permiso para funcionar:** Firebase, la inteligencia artificial, y Google
+Calendario/Contactos/Gmail. Nada más.
+
+**Están sólo como enlace escrito:** Instagram, Facebook, YouTube, TikTok, Threads,
+X, Pinterest, Spotify, el WhatsApp oficial, la ficha de Google y el enlace de
+reseñas. **Los botones llevan bien y eso sirve** —es lo que hace que Google
+entienda que son la misma empresa—, pero la app no puede leer ni escribir en
+ninguna.
+
+**Lo que hoy no va a funcionar, y no es un error de programación:** publicar en
+Facebook o Instagram desde el panel, traer los números de las redes, el buscador
+de canciones para el DJ, las visitas de la web, los recordatorios por WhatsApp y
+el cobro por Mercado Pago. **Todas muestran vacío y avisan, que es la respuesta
+correcta.**
+
+**Y una que importa:** las cuatro tareas programadas tampoco están habilitadas.
+Prender el disparador sin habilitarlas primero no cambia nada: contestan que no
+están disponibles.
+
+**Regla que queda:** *tener el enlace cargado no es lo mismo que estar conectado*.
+Un inventario de conexiones tiene que distinguir las dos cosas o no sirve.
+
+### El cartel de WhatsApp decía que el bot respondía
+
+Con la llave prendida y la conexión con Meta sin completar, la pantalla mostraba
+en grande **"Bot activado - el bot está respondiendo mensajes"**, y no podía mandar
+ni uno. Abajo había un aviso que lo desmentía, pero el renglón grande es el que se
+lee. Ahora dice "Activado, pero todavía no puede responder". Hay una prueba.
+
 ## Cómo agregar algo a esta lista
 
 **Se anota SIEMPRE, en la misma propuesta que toca el código.** Orden del dueño

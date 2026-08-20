@@ -190,13 +190,26 @@ export default function WhatsAppBusinessPage() {
           <CardContent>
             <div className="flex items-center justify-between p-4 border rounded-lg bg-white">
               <Label htmlFor="bot-enabled" className="flex flex-col gap-1 cursor-pointer">
+                {/*
+                  El cartel dice lo que pasa de verdad, no lo que dice la llave.
+                  Con la llave prendida y los datos de Meta sin completar, esto
+                  decia "el bot esta respondiendo mensajes" y el bot no podia
+                  mandar ni uno. El aviso de abajo lo desmentia, pero el renglon
+                  grande es el que se lee.
+                */}
                 <span className="text-base font-semibold">
-                  {config.enabled ? '🟢 Bot activado' : '⚫ Bot desactivado'}
+                  {!config.enabled
+                    ? '⚫ Bot desactivado'
+                    : missingMetaCredentials
+                      ? '🟡 Activado, pero todavía no puede responder'
+                      : '🟢 Bot activado'}
                 </span>
                 <span className="font-normal text-muted-foreground text-sm">
-                  {config.enabled
-                    ? 'El bot está respondiendo mensajes de WhatsApp.'
-                    : 'Cuando contrates un servicio de WhatsApp API (Twilio, Meta, etc.), configurá tu API key acá y activá el bot.'}
+                  {!config.enabled
+                    ? 'Cuando contrates un servicio de WhatsApp API (Twilio, Meta, etc.), configurá tu API key acá y activá el bot.'
+                    : missingMetaCredentials
+                      ? 'Le falta la conexión con Meta: por ahora no manda ni recibe nada.'
+                      : 'El bot está respondiendo mensajes de WhatsApp.'}
                 </span>
               </Label>
               <Switch
