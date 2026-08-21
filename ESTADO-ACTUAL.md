@@ -62,7 +62,12 @@ Están todas en `CLAUDE.md`. Las más recientes:
 
 ## Lo que depende del dueño
 
-1. **Pedir una reseña por fiesta**, a todos por igual y sin premio.
-2. Anotarse en los directorios gratis.
-3. Tres cosas están armadas y esperando conectar una cuenta: Google Workspace,
+1. Tres cosas están armadas y esperando conectar una cuenta: Google Workspace,
    búsqueda de canciones en Spotify y el puntaje de Google en el panel.
+
+**Lo de anotarse en directorios gratis lo sacó el dueño de la lista el 21 de agosto.
+No volver a proponerlo.**
+
+Lo de pedir una reseña por fiesta dejó de depender de él: pidió que lo haga la
+aplicación, también del lado del invitado. Queda en
+`docs/ordenes/6-la-resena-desde-el-invitado.md`.
