@@ -3917,6 +3917,51 @@ Las siete están declaradas con su motivo en
 `src/__tests__/auditoria-puertas-abiertas.test.ts`, para que no se vuelvan a cerrar
 de apuro.
 
+## Las pruebas de navegador: el control que faltaba (21 de agosto de 2026)
+
+El dueño preguntó por qué, con tanta auditoría, siempre salta algo. **La respuesta
+no era el código.**
+
+La app tiene **596 pruebas que abren la aplicación en un navegador de verdad** y
+usan las pantallas como las usa una persona. **Nunca se corrieron**, y los cinco
+controles de salud no las incluían. Todo lo que se nos escapó a las tres
+inteligencias es de esa clase: **sólo se ve abriendo la aplicación**.
+
+**Por qué nunca terminaban, y los dos arreglos:**
+
+- Arrancaban en **modo lento**, recompilando cada pantalla al visitarla. Ahora
+  `npm run test:e2e` usa la versión compilada; el modo lento quedó como
+  `test:e2e:lento`.
+- **La tanda entera no termina en este contenedor.** Se corre en tandas de 3 o 4
+  archivos, compilando una sola vez antes.
+
+**Resultado del primer barrido: 89 pasaron, 3 fallaron, y las tres eran pruebas
+viejas.** Buscaban un texto renombrado, una promesa que se sacó a propósito, y una
+referencia de maquetación que cambió porque se enchufaron las pantallas sin puerta.
+Corregidas las tres.
+
+### Cómo distinguir una falla real de una del entorno
+
+Esto ahorró descartar 10 falsas alarmas de 15:
+
+- **Una falla real tarda 45 a 60 segundos** (espera y vence el tiempo). **Una falsa
+  falla en menos de medio segundo**, porque el servidor de prueba se degradó.
+- **Un servidor viejo en el puerto 3100** hace probar contra una versión anterior.
+  Dio una falla que parecía gravísima —el prospecto llegaba al final del simulador
+  y no tenía cómo cerrar la compra— y era sólo eso.
+- **Un error que menciona un archivo dentro de `.next/` o memoria** es el entorno.
+
+## La hoja de traspaso había quedado rota (21 de agosto de 2026)
+
+`ESTADO-ACTUAL.md` estaba en la versión principal **con marcas de conflicto sin
+resolver adentro**: dos fusiones se pisaron y nadie lo miró. El archivo que existe
+justamente para que el próximo chat no arranque a ciegas estaba ilegible.
+
+Reescrito entero, juntando la información de las dos versiones. **Al fusionar, mirar
+que ningún archivo quede con marcas de conflicto**, y vale también para los archivos
+de documentación, no sólo para el código: el código lo agarra el compilador, la
+documentación no la agarra nadie.
+
 ## Cómo agregar algo a esta lista
 
 **Se anota SIEMPRE, en la misma propuesta que toca el código.** Orden del dueño
