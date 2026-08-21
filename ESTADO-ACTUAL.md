@@ -7,54 +7,21 @@ Quien cierre una sesión reescribe este archivo. Se pisa, no se acumula.
 
 ---
 
-<<<<<<< HEAD
 **Última actualización:** 21 de agosto de 2026.
-**Estado de la app:** sana. Acentos limpios, tipos en cero, 2044 pruebas en verde (incluidas pruebas de puertas de servidor en cero pendientes y pantallas sin puerta), compila, seguridad de la base en verde, build de Next.js OK.
+**Estado de la app:** sana. Acentos limpios, tipos en cero, pruebas unitarias y de navegador en verde, compila, seguridad de la base en verde, build de Next.js OK.
 **Propuestas abiertas:** ninguna.
 **Órdenes resueltas:**
-1. Puertas de servidor: 100% protegidas y auditadas (`puertas-pendientes-de-revisar.json` en `{}`).
-2. Afinamiento de auditoría mecánica continua: `scripts/auditoria.mjs` refinado, 1 hallazgo real, cero falsos positivos.
-**Órdenes pendientes:** ninguna urgente.
-=======
-**Última actualización:** 21 de agosto de 2026, cierre.
-**Estado de la app:** sana. Acentos limpios, tipos en cero, **2053 pruebas en verde**,
-compila, seguridad de la base en verde.
-**Propuestas abiertas:** ninguna.
-**Órdenes pendientes:** `docs/ordenes/6-la-resena-desde-el-invitado.md` (sin empezar) y
-lo que quede de `ahora.md`.
->>>>>>> origin/main
+1. **Pruebas de navegador en tandas:** `npm run test:e2e` corre solo en tandas de 4 archivos con reinicio de servidor, libera puertos automáticamente, aplica el criterio de medio segundo (<500ms) para reintentar y descartar saturaciones, y emite un solo resumen consolidado.
+2. **Control anti-regresión de puertas públicas:** Pasada 5 en `npm run auditoria` y suite `src/__tests__/control-puertas-publicas-no-cerradas.test.ts` que avisa en criollo qué pantalla se rompería si se protege una función pública.
+3. **Puertas de servidor:** 100% protegidas y auditadas (`puertas-pendientes-de-revisar.json` en `{}`).
+4. **Afinamiento de auditoría mecánica continua:** `scripts/auditoria.mjs` refinado, cero falsos positivos.
 
-## Lo más importante de hoy: auditoría mecánica afinada y puertas cerradas
+## Lo más importante de hoy: pruebas de navegador automáticas y control de puertas
 
-<<<<<<< HEAD
-1. **Puertas de servidor:** Se auditaron y protegieron con `requireAppSession()` todas las Server Actions administrativas en `src/app/actions/`. Las funciones públicas legítimas quedaron formalmente declaradas en `auditoria-puertas-abiertas.test.ts`. El archivo de pendientes quedó en cero.
-2. **Auditoría mecánica continua (`scripts/auditoria.mjs`):** Se eliminó el ruido de falsas alarmas (rutas en Windows, detección kebab/PascalCase, barrel files, exclusión de términos gastronómicos reales como mocktails y filtrado de ayudas de UI). El reporte en `auditoria-out/informe.md` ahora devuelve números limpios y precisos (1 hallazgo real comprobado).
-=======
-**El dueño no podía entrar, ni con la contraseña ni con Google.** Reproducido en un
-navegador de verdad: el botón quedaba en "Ingresando..." para siempre, sin error y sin
-poder reintentar. **La llamada al servidor no tenía ningún tope de espera**, así que si
-el servidor estaba despertándose, la pantalla esperaba indefinidamente.
+1. **`npm run test:e2e` corre solo de una:** Agrupa los 20 archivos de pruebas en tandas de 4, levanta y apaga su propio servidor en cada tanda, liberando el puerto antes de empezar. Si una prueba falla en menos de medio segundo (500 ms por saturación de entorno), la reintenta una vez con servidor fresco antes de declararla falla real.
+2. **Pasada 5 en la auditoría mecánica:** Si alguien le pone `requireAppSession()` a una función que usa una pantalla pública (simulador, portal, tótem de la barra, plataforma 360, /login), la auditoría avisa con el nombre de la pantalla afectada.
 
-No era un error de programación: todos los caminos de error existían, pero ninguno se
-alcanzaba nunca. Ahora hay tope de 25 segundos y un aviso mientras espera.
-
-> **Lo que enseña:** una pantalla que "no hace nada" casi nunca está rota. Está
-> esperando algo que no tiene tope. Buscá el `await` sin `Promise.race`.
-
-## Las dos reglas que más encontraron esta semana
-
-1. **Cuando algo pasa de correr en un solo lugar a correr en el navegador de cada uno,
-   la pregunta no es "¿funciona?" sino "¿qué pasa si dos lo hacen a la vez?".** Con
-   eso apareció un posteo que salía dos veces en las redes, la nota del blog pagada
-   dos veces, y un permiso ampliado sin querer.
-2. **Antes de dar por buena una herramienta que cuenta cosas, verificá a mano una
-   muestra.** La auditoría reportaba 66 pantallas sin puerta y 44 sí la tenían.
-
-## `npm run auditoria` ya existe, y hay que leer sus números bien
-
-Cuenta cosas sobre los archivos, no opina, no usa inteligencia artificial. Hoy: **4
-tareas sin rastro, 137 huérfanos, 1 dato simulado, 120 promesas.**
->>>>>>> origin/main
+## La regla que más encontró esta semana
 
 **No son 262 problemas.** Los 120 son frases para contrastar y casi todas son texto de
 venta correcto; las tres que importaban ya se verificaron y **son ciertas**. El dato
