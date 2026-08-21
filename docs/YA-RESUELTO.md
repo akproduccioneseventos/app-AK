@@ -3482,6 +3482,51 @@ error y se olvida, la prueba avisa.
 quedaba trabado igual, porque un `return` de error no habilita el botón. No es así:
 esa función tiene una red de seguridad al final que lo habilita siempre.
 
+## Cuatro pantallas terminadas que no tenían puerta (21 de agosto de 2026)
+
+La auditoría encontró **31 pantallas a las que no llevaba ningún botón**. Verificadas
+una por una:
+
+- **11 son redirecciones a propósito** y quedan como están: existen para que un enlace
+  viejo no muera y mandan a la pantalla que las reemplazó. **No son un problema.**
+- **20 son pantallas de verdad**, terminadas, que leen datos reales, y a las que había
+  que llegar escribiendo la dirección de memoria.
+
+De esas 20, se enlazaron las cuatro que tocan comida, plata y accesos:
+
+| Pantalla | Dónde quedó | Por qué importa |
+|---|---|---|
+| Lista de Compras | Insumos | Es donde se decide qué se compra |
+| Alergias y Dietas | Fiestas | Si no se ven, se cocina algo que un invitado no puede comer |
+| Portal de Proveedores | Fiestas | Da acceso desde afuera; tiene que verlo quien lo reparte |
+| Cláusulas de Contrato | Configuración | Toca lo que firma el cliente |
+
+Las otras 16 quedaron pedidas en `docs/ordenes/5-las-pantallas-sin-puerta.md`, porque
+son pantallas y menús, que no los programa Claude.
+
+**Falso positivo descartado:** las 11 redirecciones seguirán apareciendo en el informe
+como "sin puerta" y **está bien que aparezcan así**: no se les pone enlace. Quedan
+declaradas en la prueba que las cuenta.
+
+## Las cuentas bancarias no se sincronizaban, aunque la pantalla lo decía (21 de agosto de 2026)
+
+En Ajustes → Empresa, arriba de las cuentas bancarias decía: *"Estas cuentas se
+sincronizan en la configuración del Portal del Cliente para cada fiesta."*
+
+**Es falso, y con la plata no se puede mentir.** Lo que pasa de verdad: las cuentas de
+la empresa se copian a una fiesta **sólo si esa fiesta todavía no tiene ninguna
+cargada**, y sólo cuando alguien abre esa pantalla. No hay ninguna sincronización.
+
+La consecuencia: si el dueño cambia su número de cuenta, **las fiestas que ya tenían
+la suya siguen mostrándole al cliente la cuenta vieja**, y el cliente transfiere ahí.
+
+Se cambió el texto por lo que realmente hace, y se agregó un aviso en amarillo que
+dice qué hacer con las fiestas que ya tienen cuenta cargada.
+
+**Por qué no se cambió el comportamiento:** que cada fiesta pueda tener su propia
+cuenta es útil y está bien. El problema era el cartel, no la lógica. Cambiar la lógica
+para que pise las cuentas de cada fiesta habría sido peor.
+
 ## Cómo agregar algo a esta lista
 
 **Se anota SIEMPRE, en la misma propuesta que toca el código.** Orden del dueño

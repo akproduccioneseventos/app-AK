@@ -161,6 +161,10 @@ muestre**. Esa distinción es la que más veces falló.
 | Un posteo no puede salir dos veces en las redes | Sí | Automático, al publicar programados |
 | Auditoría mecánica que corre sola y escribe informe | Sí | `npm run auditoria`, informe en `auditoria-out/informe.md` |
 | El ingreso avisa mientras espera y nunca se queda colgado | Sí | Pantalla de ingreso |
+| Lista de compras enlazada en el menú | Sí | Insumos → Lista de Compras |
+| Alergias y dietas enlazado en el menú | Sí | Fiestas → Alergias y Dietas |
+| Portal de proveedores enlazado en el menú | Sí | Fiestas → Portal de Proveedores |
+| Cláusulas de contrato enlazado en el menú | Sí | Configuración → Cláusulas de Contrato |
 
 **Si se cae el internet en la fiesta:** se salva la llegada de invitados y el
 pedido de la barra, que se reenvían solos al volver la señal. **La foto del muro

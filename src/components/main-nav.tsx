@@ -42,6 +42,10 @@ import {
   CheckSquare,
   Zap,
   Link as LinkIcon,
+  ShoppingCart,
+  Wheat,
+  Scale,
+  HardHat,
 } from "lucide-react";
 import AppLogo from "./app-logo";
 import { cn } from "@/lib/utils";
@@ -95,6 +99,12 @@ const navGroups: NavGroup[] = [
       // usan durante el evento y al armarlo.
       { title: "Incidentes", href: "/incidentes", icon: AlertTriangle },
       { title: "Guias de Armado", href: "/playbooks", icon: ClipboardList },
+      // Otras dos terminadas y sin puerta. Las alergias son de comida y no pueden
+      // depender de que alguien recuerde la direccion: si no se ven, se cocina algo
+      // que un invitado no puede comer. El portal del proveedor da acceso desde
+      // afuera, asi que tiene que estar a la vista de quien lo reparte.
+      { title: "Alergias y Dietas", href: "/fiestas/nueva/alergias", icon: Wheat },
+      { title: "Portal de Proveedores", href: "/fiestas/nueva/proveedores-portal", icon: HardHat },
     ],
   },
   {
@@ -114,6 +124,10 @@ const navGroups: NavGroup[] = [
     emoji: "📦",
     items: [
       { title: "Comida / Menús", href: "/empresa/menus", icon: ChefHat },
+      // La lista de compras estaba terminada y andando, pero no la enlazaba nadie:
+      // habia que saberse la direccion de memoria. Va en Insumos, que es donde se
+      // decide que se compra.
+      { title: "Lista de Compras", href: "/compras", icon: ShoppingCart },
       { title: "Salones", href: "/empresa/salones", icon: DoorOpen },
       { title: "Catálogo de Servicios", href: "/empresa/servicios", icon: Package },
       { title: "Proveedores", href: "/proveedores", icon: Building2 },
@@ -128,6 +142,7 @@ const navGroups: NavGroup[] = [
       { title: "Tareas Automáticas", href: "/settings/tareas-automaticas", icon: Zap },
       { title: "Conexiones", href: "/settings/sincronizaciones", icon: LinkIcon },
       { title: "WhatsApp", href: "/settings/whatsapp", icon: MessageCircle },
+      { title: "Cláusulas de Contrato", href: "/settings/contratos/clausulas", icon: Scale },
       { title: "Seguridad", href: "/settings/account", icon: ShieldCheck },
     ],
   },
