@@ -518,6 +518,11 @@ Cerradas. Si un análisis las marca como problema, es un falso positivo:
   lo marca como problema de velocidad, es falso positivo. La app en sí no es lenta
   (cada pantalla contesta entre 5 y 25 milésimas) y las páginas de venta salen
   armadas de antes, así que el prospecto que llega desde Google no espera.
+- **Anotarse en directorios gratis: descartado (21 de agosto de 2026).** El dueño lo
+  sacó de su lista. No volver a proponerlo ni listarlo como pendiente.
+- **La reseña se pide desde la aplicación, también al invitado.** A todos por igual,
+  sin premio y sin pedir una cantidad de estrellas. Es un botón que no molesta, y si
+  no hay enlace cargado no aparece.
 - **Nada que aumente lo que cobra Firebase se cambia sin preguntar.** Vale para
   memoria, instancias mínimas, CPU y cualquier cosa que se pague por mes.
 - **El WhatsApp del dueño es su número personal (20 de agosto de 2026).** El bot

@@ -49,11 +49,16 @@ de avisar?, ¿lo que promete la pantalla existe en el código?
 
 ## Lo que depende del dueño
 
-**Nada urgente.** Pedir una reseña por fiesta, a todos por igual y sin premio, y
-darse de alta en los directorios gratis del plan.
+**Nada urgente.** Sólo conectar tres cuentas cuando quiera: Google Workspace,
+búsqueda de canciones en Spotify y el puntaje de Google en el panel.
 
 ## Decisiones cerradas que NO se vuelven a preguntar
 
+- **Anotarse en directorios gratis: descartado (21 de agosto).** Lo sacó de su lista.
+  No volver a proponerlo ni listarlo como pendiente.
+- **La reseña la pide la aplicación, también al invitado (21 de agosto).** Dejó de
+  depender de él. Falta sólo el botón del lado del invitado, en
+  `docs/ordenes/6-la-resena-desde-el-invitado.md`.
 - **La llave de cobros no se cambia.** Se le propuso dos veces; dijo que no.
 - **El WhatsApp es su número personal.** Ningún bot general, nunca.
 - Los testimonios de las páginas de venta **son reales**.
