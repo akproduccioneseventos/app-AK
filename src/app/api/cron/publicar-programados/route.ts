@@ -1,4 +1,5 @@
 import { NextResponse } from 'next/server';
+import { abrirPuertaDeLaTarea } from '@/lib/automatico/puerta-de-las-tareas';
 import { procesarPosteosProgramados } from '@/lib/presencia-digital/publicador';
 import { marcarCorrida } from '@/lib/automatico/tareas-automaticas';
 
@@ -18,18 +19,9 @@ export async function POST(request: Request) {
 
 async function correrTarea(request: Request) {
   try {
-    const clave = request.headers.get('Authorization')?.replace(/^Bearer\s+/i, '');
-    const claveEsperada = process.env.CRON_SECRET;
-
-    if (!claveEsperada) {
-      return NextResponse.json(
-        { error: 'CRON_SECRET no esta configurado: la tarea de publicacion programada no corre.' },
-        { status: 503 }
-      );
-    }
-
-    if (clave !== claveEsperada) {
-      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+    const puerta = await abrirPuertaDeLaTarea(request, 'publicar-programados');
+    if (!puerta.permitido) {
+      return NextResponse.json({ error: puerta.mensaje }, { status: puerta.estado ?? 401 });
     }
 
     const resultado = await procesarPosteosProgramados();
