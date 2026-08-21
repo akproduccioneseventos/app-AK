@@ -24,6 +24,9 @@ import {
   sendGoogleGmailMessage,
   upsertGoogleCalendarEvent,
   findExistingGoogleCalendarEvent,
+  hasServiceAccountKey,
+  getServiceAccountAccessToken,
+  GOOGLE_WORKSPACE_SCOPES,
   type GoogleWorkspaceEventInput,
 } from '@/lib/google-workspace';
 import type { Empleado } from '@/types/empleado';
@@ -191,7 +194,23 @@ export async function getGoogleWorkspaceDashboard(): Promise<GoogleWorkspaceDash
     getEmpleados(),
     getFiestas(false),
   ]);
-  const company = accounts.find((account) => account.kind === 'company');
+  let company = accounts.find((account) => account.kind === 'company');
+  if (!company && hasServiceAccountKey()) {
+    const saToken = await getServiceAccountAccessToken();
+    company = {
+      id: 'company',
+      kind: 'company',
+      email: 'akproduccionessalto@gmail.com',
+      calendarId: process.env.GOOGLE_WORKSPACE_CALENDAR_ID || 'primary',
+      accessToken: saToken || '',
+      scope: GOOGLE_WORKSPACE_SCOPES.join(' '),
+      tokenType: 'Bearer',
+      expiresAt: new Date(Date.now() + 3600 * 1000).toISOString(),
+      connectedAt: new Date().toISOString(),
+      updatedAt: new Date().toISOString(),
+      status: saToken ? 'connected' : 'needs_reconnect',
+    };
+  }
   const connectedEmployees = accounts.filter((account) => account.kind === 'employee');
   const datedFiestas = fiestas.filter((fiesta) => Boolean(fiesta.configuracion?.fechaEvento));
   const syncedIds = new Set(records.filter((record) => Boolean(record.lastSyncedAt)).map((record) => record.fiestaId));
@@ -227,7 +246,7 @@ export async function syncFiestaToGoogleWorkspace(
     return { success: false, error: error instanceof Error ? error.message : 'No puedes sincronizar este evento.' };
   }
   const missingConfig = getMissingGoogleConfig(process.env.NEXT_PUBLIC_APP_URL);
-  if (missingConfig.length > 0) {
+  if (missingConfig.length > 0 && !hasServiceAccountKey()) {
     return { success: true, warnings: [`Google Workspace no esta configurado: ${missingConfig.join(', ')}`] };
   }
 
@@ -247,7 +266,23 @@ export async function syncFiestaToGoogleWorkspace(
   const warnings: string[] = [];
   const assignments = getAssignmentRows(fiesta, empleados, roles);
   const now = new Date().toISOString();
-  const companyAccount = accounts.find((account) => account.kind === 'company');
+  let companyAccount = accounts.find((account) => account.kind === 'company');
+  if (!companyAccount && hasServiceAccountKey()) {
+    const saToken = await getServiceAccountAccessToken();
+    companyAccount = {
+      id: 'company',
+      kind: 'company',
+      email: 'akproduccionessalto@gmail.com',
+      calendarId: process.env.GOOGLE_WORKSPACE_CALENDAR_ID || 'primary',
+      accessToken: saToken || '',
+      scope: GOOGLE_WORKSPACE_SCOPES.join(' '),
+      tokenType: 'Bearer',
+      expiresAt: new Date(Date.now() + 3600 * 1000).toISOString(),
+      connectedAt: new Date().toISOString(),
+      updatedAt: new Date().toISOString(),
+      status: saToken ? 'connected' : 'needs_reconnect',
+    };
+  }
   const freshCompany = await freshConnectedAccount(companyAccount);
 
   if (freshCompany) {

@@ -58,6 +58,8 @@ price-adjustments-history.json
 # Ese permiso deja publicar en las cuentas de la empresa, asi que el archivo no
 # puede viajar al repositorio.
 src/data/social-connections.json
+src/data/google_service_account.json
+src/data/*service-account*.json
 
 # La configuracion con las llaves de la empresa NO se versiona.
 #

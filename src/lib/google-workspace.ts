@@ -112,6 +112,84 @@ export function getGoogleRedirectUri(origin?: string) {
   return `${configuredOrigin}${path.startsWith('/') ? path : `/${path}`}`;
 }
 
+import crypto from 'crypto';
+import fs from 'fs';
+import path from 'path';
+
+export async function getServiceAccountAccessToken(
+  scopes: string[] = [
+    'https://www.googleapis.com/auth/calendar',
+    'https://www.googleapis.com/auth/calendar.events',
+  ]
+): Promise<string | null> {
+  const email =
+    process.env.GOOGLE_WORKSPACE_CLIENT_EMAIL ||
+    'ak-calendar@presupuestador-ak-producciones.iam.gserviceaccount.com';
+  let privateKey = process.env.GOOGLE_WORKSPACE_PRIVATE_KEY;
+
+  if (!privateKey) {
+    try {
+      const keyPath = path.join(process.cwd(), 'src/data/google_service_account.json');
+      if (fs.existsSync(keyPath)) {
+        const raw = JSON.parse(fs.readFileSync(keyPath, 'utf8'));
+        privateKey = raw.private_key;
+      }
+    } catch {}
+  }
+
+  if (!privateKey || !email) return null;
+
+  try {
+    const now = Math.floor(Date.now() / 1000);
+    const header = { alg: 'RS256', typ: 'JWT' };
+    const claimSet = {
+      iss: email,
+      scope: scopes.join(' '),
+      aud: 'https://oauth2.googleapis.com/token',
+      exp: now + 3600,
+      iat: now,
+    };
+
+    const encHeader = Buffer.from(JSON.stringify(header)).toString('base64url');
+    const encClaims = Buffer.from(JSON.stringify(claimSet)).toString('base64url');
+    const sigInput = `${encHeader}.${encClaims}`;
+    const signer = crypto.createSign('RSA-SHA256');
+    signer.update(sigInput);
+    const sig = signer.sign(privateKey.replace(/\\n/g, '\n'), 'base64url');
+    const jwt = `${sigInput}.${sig}`;
+
+    const response = await fetch(GOOGLE_TOKEN_URL, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+      body: new URLSearchParams({
+        grant_type: 'urn:ietf:params:oauth:grant-type:jwt-bearer',
+        assertion: jwt,
+      }),
+    });
+
+    if (!response.ok) {
+      console.error('[GoogleWorkspace] Service account token failed:', await response.text());
+      return null;
+    }
+
+    const data = (await response.json()) as { access_token: string };
+    return data.access_token;
+  } catch (err) {
+    console.error('[GoogleWorkspace] Error generating service account token:', err);
+    return null;
+  }
+}
+
+export function hasServiceAccountKey(): boolean {
+  if (process.env.GOOGLE_WORKSPACE_PRIVATE_KEY) return true;
+  try {
+    const keyPath = path.join(process.cwd(), 'src/data/google_service_account.json');
+    return fs.existsSync(keyPath);
+  } catch {
+    return false;
+  }
+}
+
 export function getMissingGoogleConfig(origin?: string) {
   const missing: string[] = [];
   if (!process.env.GOOGLE_CLIENT_ID) missing.push('GOOGLE_CLIENT_ID');
@@ -166,6 +244,19 @@ export async function exchangeGoogleCode(code: string, origin?: string): Promise
 
 export async function refreshGoogleAccount(account: GoogleWorkspaceAccount): Promise<GoogleWorkspaceAccount> {
   if (!account.refreshToken) {
+    if (account.kind === 'company' && hasServiceAccountKey()) {
+      const saToken = await getServiceAccountAccessToken();
+      if (saToken) {
+        return {
+          ...account,
+          accessToken: saToken,
+          status: 'connected',
+          expiresAt: new Date(Date.now() + 3500 * 1000).toISOString(),
+          updatedAt: new Date().toISOString(),
+          lastError: undefined,
+        };
+      }
+    }
     return { ...account, status: 'needs_reconnect', lastError: 'Google pide volver a conectar esta cuenta.' };
   }
 
@@ -181,6 +272,19 @@ export async function refreshGoogleAccount(account: GoogleWorkspaceAccount): Pro
   });
 
   if (!response.ok) {
+    if (account.kind === 'company' && hasServiceAccountKey()) {
+      const saToken = await getServiceAccountAccessToken();
+      if (saToken) {
+        return {
+          ...account,
+          accessToken: saToken,
+          status: 'connected',
+          expiresAt: new Date(Date.now() + 3500 * 1000).toISOString(),
+          updatedAt: new Date().toISOString(),
+          lastError: undefined,
+        };
+      }
+    }
     return {
       ...account,
       status: 'needs_reconnect',
@@ -241,7 +345,7 @@ export function accountFromToken(
 
 export async function ensureFreshGoogleAccount(account: GoogleWorkspaceAccount) {
   const expiresAt = account.expiresAt ? new Date(account.expiresAt).getTime() : 0;
-  if (expiresAt && expiresAt > Date.now() + 120000) {
+  if (expiresAt && expiresAt > Date.now() + 120000 && account.accessToken) {
     return account;
   }
   return refreshGoogleAccount(account);
