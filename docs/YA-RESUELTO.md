@@ -3449,6 +3449,29 @@ enlace de reseñas y el identificador de medición—. Los otros diez **no los m
 nadie**: el correo y la llave de cobros se leen del servidor, y ocho no existen
 como campo para la app.
 
+## Las tareas se ponen al día solas cuando el equipo entra (20 de agosto de 2026)
+
+El dueño no puede configurar despertadores externos, y sin eso **los números de
+las redes no se guardaban nunca y los posteos programados no salían nunca**,
+aunque el código estuviera perfecto.
+
+El blog ya se ponía al día así desde hacía tiempo —cuando un administrador abre la
+app— y funciona. Se extendió el mismo camino a esas dos
+(`src/lib/automatico/al-entrar-a-la-app.ts`).
+
+**No reemplaza al despertador de afuera y no pretende hacerlo:** si nadie abre la
+app en tres días, no corren en tres días. Pero es la diferencia entre *cada vez
+que el equipo trabaja* y *nunca*.
+
+**Los recordatorios de cuota vencida quedan afuera a propósito.** Le escriben al
+cliente por WhatsApp, y un mensaje a una persona **no puede salir de rebote porque
+alguien abrió una pantalla**: eso lo aprieta alguien sabiendo que lo aprieta. Hay
+una prueba que lo impide.
+
+Las dos que sí entran son seguras de repetir: el guardado no guarda dos veces el
+mismo día, y los posteos sacan sólo los vencidos con tope de tres por corrida.
+Arriba de eso hay un control propio de "¿me toca?" para no reintentar en cada clic.
+
 ## Cómo agregar algo a esta lista
 
 **Se anota SIEMPRE, en la misma propuesta que toca el código.** Orden del dueño
