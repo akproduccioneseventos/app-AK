@@ -264,6 +264,24 @@ En esos casos, **dos líneas al dueño y esperás**. Nada de "una prueba más".
   está mal. No se repara, salvo que sea una línea. Reparar el trabajo de otra IA
   lo paga el dueño dos veces.
 
+### Cuando un ayudante dice "no compila", mirá el error antes de creerle
+
+**Costó una hora el 20 de agosto de 2026.** Tres informes seguidos dijeron que la
+rama no compilaba. La rama estaba perfecta: **los ayudantes corren con un tope de
+memoria más chico** y la compilación se ahogaba antes de terminar.
+
+Dos señales de que es el entorno y no el código, y ninguna necesita leer el código:
+
+- El error habla de **memoria** (`heap out of memory`) o de un archivo dentro de
+  `.next/`. Eso es el entorno.
+- **Varias compilaciones a la vez en la misma carpeta se matan entre ellas.** Antes
+  de creer un informe, `ps aux | grep "next build"`: si hay más de una, el
+  resultado no vale.
+
+Ya está arreglado en `scripts/build-next-with-memory.mjs`: si el entorno trae un
+tope más chico del necesario, lo sube solo. Pero la costumbre queda: **un error de
+compilación que no nombra un archivo del código no es un error del código.**
+
 ### PARAR ANTE UN MURO (regla dura)
 
 Pasó una vez: hora y media y todos los tokens del día quemados persiguiendo un
