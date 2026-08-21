@@ -19,6 +19,13 @@ anotado, la próxima auditoría lo va a volver a encontrar.
 
 ## Decisiones del dueño (no son errores, no se discuten)
 
+- **La auditoría que corre sola (20 de agosto de 2026):**
+  - **Bloque 1 — Comando de auditoría (`scripts/auditoria.mjs`, `package.json`):** Nuevo comando `npm run auditoria` que ejecuta las 4 pasadas de conteo mecánico exacto sin IA, genera el informe con fecha y hora en `auditoria-out/informe.md`, reporta cada hallazgo con archivo y línea, y concluye con el resumen de 4 números. No rompe la compilación ni frena nada.
+  - **Bloque 2 — Pasada 1 (Tareas automáticas):** Compara `src/app/api/cron/` con `src/lib/automatico/tareas-automaticas.ts`, reporta tareas que no llaman a `marcarCorrida()`, tareas no declaradas y estado de última corrida.
+  - **Bloque 3 — Pasada 2 (Huérfanos / solo tests):** Identifica componentes (sin `ui/`), acciones de servidor y pantallas `page.tsx` sin uso o que sólo se llaman en tests.
+  - **Bloque 4 — Pasada 3 (Datos simulados):** Detecta mocks, dummies o fallbacks en UI que no aclaren que son de ejemplo.
+  - **Bloque 5 — Pasada 4 (Promesas al cliente):** Rastrea frases en pantalla ("se envía solo", "automáticamente", "todos los días", "en tiempo real", "al instante", "te avisamos", "se sincroniza") y lista archivo y línea para contrastar su cumplimiento.
+
 - **Que se vea qué está funcionando de verdad (20 de agosto de 2026):**
   - **Bloque 1 — Pantalla "¿Qué está funcionando?" (`src/app/(app)/settings/tareas-automaticas/page.tsx`, `src/app/actions/tareas-automaticas.actions.ts`):** Muestra de un vistazo las 4 tareas automáticas del sistema (notas del blog, métricas de redes, posteos programados, avisos de cuota) con su nombre en criollo, estado real ("Al día" en verde, "Atrasada" o "Nunca corrió" en rojo), última vez que corrió y qué se pierde si no corre. Botón para poner al día tareas atrasadas y botón de ejecución manual. Enlace visible desde el menú principal de navegación (`MainNav`) en Configuración y desde la central de Ajustes.
   - **Bloque 2 — Pantalla "¿Qué está conectado?" (`src/app/(app)/settings/sincronizaciones/page.tsx`, `src/app/actions/conexiones-estado.actions.ts`):** Monitoreo honesto de las 13 plataformas externas (Google Analytics, Google Business, Google Calendar, WhatsApp, Instagram, Facebook, YouTube, TikTok, Threads, X, Spotify, Mercado Pago, Meta Ads). 3 estados exclusivos: "Conectada", "Falta configurarla" y "No se usa". Para las que faltan, explica en criollo qué se pierde sin jerga ni datos simulados.
@@ -3283,6 +3290,56 @@ pasa si dos lo hacen a la vez?"**. Ninguno de los cuatro era un error de program
 Quedaron cuatro pruebas que los congelan, en
 `src/__tests__/lo-automatico-no-sale-dos-veces.test.ts`.
 
+## La auditoría que corre sola, y las 44 falsas alarmas que traía (20 de agosto de 2026)
+
+Ahora existe `npm run auditoria`: corre las cuatro preguntas del método sobre los
+archivos, no usa inteligencia artificial, tarda segundos y escribe un informe en
+`auditoria-out/informe.md`. **No frena la compilación**, a propósito: un control que
+frena entregas lo apaga alguien el primer día apurado.
+
+### Lo que traía mal, y por qué importa tanto
+
+**De 66 pantallas reportadas como "sin puerta", 44 sí tenían su botón.** El defecto era
+de una línea: para buscar quién enlaza a `/empresa/menus/[menuId]/editar`, sacaba el
+parámetro pero **dejaba las dos barras pegadas** y buscaba `/empresa/menus//editar`,
+que no existe en ningún lado. Toda pantalla con parámetro en la dirección salía
+reportada como huérfana.
+
+Ahora busca los **tramos fijos** por separado —`/empresa/menus/` y `/editar`— y pide
+que estén los dos en el mismo archivo, que es como se escriben de verdad:
+``href={`/empresa/menus/${menu.id}/editar`}``.
+
+**Por qué esto no era un detalle:** la orden lo decía en negrita. Un informe con
+falsas alarmas no lo lee nadie dos veces, y el valor entero de la herramienta es que
+uno pueda confiar en el número. Quedaron **31 pantallas sin puerta, y son reales**:
+se verificaron a mano cinco al azar y ninguna tiene enlace.
+
+### El choque entre dos controles
+
+El informe copia textos del código, y uno de ellos es el de la pantalla que **repara
+acentos rotos**, que muestra el ejemplo roto a propósito. Eso hacía que correr la
+auditoría dejara en rojo el control de acentos, que es uno de los cinco de salud.
+El informe queda declarado como generado en las dos puntas —el script y la prueba—,
+igual que ya estaban la prueba de acentos y esa misma pantalla.
+
+### El informe no se versiona, y esa es la tercera corrección
+
+Venía guardado en el repositorio, y **la prueba del script también lo escribe**: cada
+corrida de pruebas cambiaba la hora adentro del informe y dejaba el repositorio sucio.
+Con tres inteligencias trabajando sobre el mismo código, eso traba a las tres — de
+hecho trabó a un ayudante en el medio de esta misma revisión.
+
+Ahora se genera cuando se lo pide y no se guarda. Lo que vale son los cuatro números
+del resumen, que se cuentan en el momento.
+
+### Lo que el primer informe encontró de verdad
+
+- **31 pantallas sin ninguna forma de llegar** y una buena cantidad de componentes que
+  no usa nadie. Son para decidir de a uno: no se toca nada todavía.
+- **Las cuatro tareas automáticas figuran como "nunca corrió"**, que era cierto hasta
+  que el dueño prendió los despertadores.
+- **Un solo dato inventado en pantalla**, que es una buena noticia: era el hallazgo más
+  temido y quedó casi limpio.
 ## Qué está conectado de verdad y qué es sólo un enlace (20 de agosto de 2026)
 
 **Se reportó que quedaba "todo vinculado y 100% operativo". No es así, y la

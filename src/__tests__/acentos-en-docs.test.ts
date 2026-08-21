@@ -42,7 +42,14 @@ describe('El control de acentos rotos', () => {
       // Estos escriben los ejemplos rotos a proposito para explicar el problema:
       // muestran como queda un menu o un plato con el acento partido.
       // Arreglarlos les saca el sentido a esas frases.
-      .filter((ruta) => !['AGENTS.md', 'ESTADO-AUDITORIA.md'].includes(ruta));
+      //
+      // `auditoria-out/informe.md` no se escribe a mano: lo genera
+      // `npm run auditoria` copiando textos del codigo, y uno de ellos es el de la
+      // pantalla que repara acentos rotos, que muestra el ejemplo roto a proposito.
+      .filter(
+        (ruta) =>
+          !['AGENTS.md', 'ESTADO-AUDITORIA.md', 'auditoria-out/informe.md'].includes(ruta),
+      );
 
     const sucios = documentos.filter((ruta) =>
       rotos.test(readFileSync(join(RAIZ, ruta), 'utf-8')),
