@@ -7,27 +7,63 @@ Quien cierre una sesión reescribe este archivo. Se pisa, no se acumula.
 
 ---
 
-**Última actualización:** 20 de agosto de 2026.
-**Estado de la app:** sana. Acentos limpios (0 rotos), tipos en 0 errores, pruebas unitarias 100% en verde, build de producción Next.js OK.
-**Orden completada:** `docs/ordenes/hechas/4-la-auditoria-que-corre-sola.md`.
-**Siguiente orden en la fila:** Consultar próximas órdenes en `docs/ordenes/` (`ahora.md` / `propuesta-de-mejoras.md`).
+**Última actualización:** 21 de agosto de 2026.
+**Estado de la app:** sana. Acentos limpios, tipos en cero, 2027 pruebas en verde,
+compila, seguridad de la base en verde.
+**Propuestas abiertas:** ninguna.
+**Órdenes pendientes:** `docs/ordenes/5-las-pantallas-sin-puerta.md` (Gemini, sin
+empezar) y lo que quede de `ahora.md`.
 
-## Lo que se cerró en esta entrega (Orden 4: La auditoría que corre sola)
+## Lo más importante de hoy: el ingreso se colgaba
 
-- **Comando `npm run auditoria`:**
-  - Corre las 4 pasadas de conteo mecánico exacto sin IA en pocos segundos.
-  - Escribe el informe completo con fecha en `auditoria-out/informe.md`.
-  - Cada hallazgo lleva archivo y línea exacta.
-  - Termina con el resumen de 4 números.
-  - No falla la compilación ni frena nada.
+**El dueño no podía entrar, ni con la contraseña ni con Google.** Reproducido en un
+navegador de verdad: el botón quedaba en "Ingresando..." para siempre, sin error, sin
+poder reintentar. **La llamada al servidor no tenía ningún tope de espera**, así que
+si el servidor estaba despertándose, la pantalla esperaba indefinidamente.
 
-### Resumen de la última corrida de `npm run auditoria`:
-- **1. Tareas automáticas sin rastro:** 4 hallazgos
-- **2. Elementos huérfanos o solo en tests:** 201 hallazgos
-- **3. Datos simulados o inventados en UI:** 1 hallazgo
-- **4. Promesas automáticas en pantalla:** 120 frases a contrastar
+No era un error de programación: todos los caminos de error existían, pero ninguno se
+alcanzaba nunca. Ahora hay tope de 25 segundos y un aviso mientras espera.
+
+> **Lo que enseña:** una pantalla que "no hace nada" casi nunca está rota. Está
+> esperando algo que no tiene tope. Buscá el `await` sin `Promise.race`.
+
+## Ya existe `npm run auditoria`
+
+Cuenta cosas sobre los archivos, no opina, no usa inteligencia artificial y tarda
+segundos. Números de hoy: **4 tareas sin rastro, 155 huérfanos, 1 dato simulado, 120
+promesas a contrastar.**
+
+**Ojo con los números:** no son 280 problemas. Los 120 son frases para contrastar y
+casi todas son texto de venta correcto. Las tres que importaban ya se verificaron y
+son ciertas, y están anotadas como descartadas en `docs/YA-RESUELTO.md`. **Leelas
+antes de volver a revisarlas.**
+
+De las 31 pantallas sin puerta: **11 son redirecciones a propósito** (existen para que
+un enlace viejo no muera, no se tocan), **4 ya tienen puerta** (compras, alergias,
+portal de proveedores, cláusulas de contrato) y **16 están pedidas en la orden 5**.
+
+## La regla que más encontró esta semana
+
+> **Cuando algo pasa de correr en un solo lugar a correr en el navegador de cada uno,
+> la pregunta no es "¿funciona?" sino "¿qué pasa si dos lo hacen a la vez?".**
+
+Con esa pregunta aparecieron: un posteo que salía dos veces en las redes, la nota del
+blog pagada dos veces, y un permiso que se había ampliado sin querer.
+
+## Decisiones del dueño que NO se vuelven a preguntar
+
+Están todas en `CLAUDE.md`. Las más recientes:
+
+- **No se toca nada que aumente lo que cobra Firebase.** El servidor se queda dormido
+  a propósito. Si una auditoría lo marca como problema de velocidad, es falso
+  positivo: la app contesta entre 5 y 25 milésimas y las páginas de venta salen
+  armadas de antes.
+- **El video de vida no lo toca la app.**
+- **La ficha de Google está verificada** y los dos enlaces son los correctos.
 
 ## Lo que depende del dueño
 
-1. **Prender los 4 despertadores externos**, siguiendo `docs/PRENDER-LAS-TAREAS.md`.
-2. **Pedir una reseña por fiesta**, a todos los clientes por igual.
+1. **Pedir una reseña por fiesta**, a todos por igual y sin premio.
+2. Anotarse en los directorios gratis.
+3. Tres cosas están armadas y esperando conectar una cuenta: Google Workspace,
+   búsqueda de canciones en Spotify y el puntaje de Google en el panel.
