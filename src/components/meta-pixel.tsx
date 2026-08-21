@@ -1,6 +1,7 @@
 'use client';
 
 import Script from 'next/script';
+import { idDelPixelMeta } from '@/lib/medicion/identificadores';
 
 /**
  * El pixel de Meta: lo que mide si tus anuncios de Facebook e Instagram traen gente.
@@ -17,7 +18,8 @@ import Script from 'next/script';
  * el de Google Analytics— y por eso va como variable del navegador, no como
  * secreto.
  */
-export const META_PIXEL_ID = process.env.NEXT_PUBLIC_META_PIXEL_ID || '';
+/** Con que pixel se miden los anuncios. El porque, en `identificadores.ts`. */
+export const META_PIXEL_ID = idDelPixelMeta();
 
 export function MetaPixel() {
   if (!META_PIXEL_ID) return null;

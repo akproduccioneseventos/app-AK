@@ -41,15 +41,36 @@ describe('la pantalla de conexiones', () => {
   const fuente = leer('src/app/actions/conexiones-estado.actions.ts');
 
   it('juzga el pixel por el mismo dato que lo carga', () => {
-    expect(fuente).toContain('NEXT_PUBLIC_META_PIXEL_ID');
+    expect(fuente).toContain('idDelPixelMeta()');
     expect(fuente).not.toContain('FACEBOOK_PIXEL_ID');
   });
 
   it('juzga la medicion de visitas por el mismo dato que carga la etiqueta', () => {
     const componente = leer('src/lib/analytics-ga.ts');
 
-    expect(componente).toContain('NEXT_PUBLIC_GA_MEASUREMENT_ID');
-    expect(fuente).toContain('NEXT_PUBLIC_GA_MEASUREMENT_ID');
+    expect(componente).toContain('idDeMedicionGoogle()');
+    expect(fuente).toContain('idDeMedicionGoogle()');
     expect(fuente).not.toContain('NEXT_PUBLIC_GA_ID');
+  });
+});
+
+describe('los identificadores de medicion', () => {
+  const fuente = leer('src/lib/medicion/identificadores.ts');
+
+  it('estan cargados, asi la medicion anda sin tocar ninguna consola', () => {
+    // Estaban solo como variable del servidor y por eso no se midio nunca: el
+    // dueno no programa y no podia cargarlas.
+    expect(fuente).toMatch(/ID_DE_MEDICION_GOOGLE = 'G-[A-Z0-9]+'/);
+    expect(fuente).toMatch(/ID_DEL_PIXEL_META = '\d{10,}'/);
+  });
+
+  it('la variable del servidor sigue mandando si esta puesta', () => {
+    expect(fuente).toContain('process.env.NEXT_PUBLIC_GA_MEASUREMENT_ID');
+    expect(fuente).toContain('process.env.NEXT_PUBLIC_META_PIXEL_ID');
+  });
+
+  it('no guarda nada que de acceso a algo', () => {
+    // Son identificadores publicos, no llaves. Una llave ya se colo una vez.
+    expect(fuente).not.toMatch(/APP_USR-|BEGIN PRIVATE KEY|access_?token/i);
   });
 });

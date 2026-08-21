@@ -2,6 +2,7 @@
 
 import { requireAppSession } from '@/lib/auth/require-session';
 import { readData } from '@/lib/data-service';
+import { idDeMedicionGoogle, idDelPixelMeta } from '@/lib/medicion/identificadores';
 import type { SocialConnection } from '@/types/settings';
 
 export type EstadoConexion = 'conectada' | 'falta-configurarla' | 'no-se-usa';
@@ -56,8 +57,8 @@ export async function getEstadoConexiones(): Promise<ResumenConexion[]> {
        * etiqueta de Google no se cargaba igual: la pantalla afirmaba que se
        * estaba midiendo cuando no se medía nada.
        */
-      estado: process.env.NEXT_PUBLIC_GA_MEASUREMENT_ID ? 'conectada' : 'falta-configurarla',
-      detalle: process.env.NEXT_PUBLIC_GA_MEASUREMENT_ID
+      estado: idDeMedicionGoogle() ? 'conectada' : 'falta-configurarla',
+      detalle: idDeMedicionGoogle()
         ? 'Medición de visitas activada'
         : settings?.googleAnalyticsId
           ? 'El identificador está cargado en Ajustes pero la medición todavía no está activa: hay que cargarlo en el servidor.'
@@ -175,8 +176,8 @@ export async function getEstadoConexiones(): Promise<ResumenConexion[]> {
        * **no había pixel en toda la app**: la pantalla informaba algo que no
        * existía.
        */
-      estado: process.env.NEXT_PUBLIC_META_PIXEL_ID ? 'conectada' : 'falta-configurarla',
-      detalle: process.env.NEXT_PUBLIC_META_PIXEL_ID
+      estado: idDelPixelMeta() ? 'conectada' : 'falta-configurarla',
+      detalle: idDelPixelMeta()
         ? 'El pixel está midiendo las visitas que llegan de tus anuncios.'
         : 'Falta el identificador del pixel para medir los anuncios.',
       queSePierdeSiFalta: 'No podés medir qué anuncios de Instagram o Facebook te traen ventas reales ni recontactar a quienes vieron la web.',
