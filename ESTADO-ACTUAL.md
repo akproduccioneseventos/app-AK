@@ -7,7 +7,6 @@ Quien cierre una sesión reescribe este archivo. Se pisa, no se acumula.
 
 ---
 
-<<<<<<< HEAD
 **Última actualización:** 21 de agosto de 2026.
 **Estado de la app:** sana. Acentos limpios, tipos en cero, 2044 pruebas en verde (incluidas pruebas de puertas de servidor en cero pendientes y pantallas sin puerta), compila, seguridad de la base en verde, build de Next.js OK.
 **Propuestas abiertas:** ninguna.
@@ -15,21 +14,17 @@ Quien cierre una sesión reescribe este archivo. Se pisa, no se acumula.
 1. Puertas de servidor: 100% protegidas y auditadas (`puertas-pendientes-de-revisar.json` en `{}`).
 2. Afinamiento de auditoría mecánica continua: `scripts/auditoria.mjs` refinado, 1 hallazgo real, cero falsos positivos.
 **Órdenes pendientes:** ninguna urgente.
-=======
 **Última actualización:** 21 de agosto de 2026, cierre.
 **Estado de la app:** sana. Acentos limpios, tipos en cero, **2053 pruebas en verde**,
 compila, seguridad de la base en verde.
 **Propuestas abiertas:** ninguna.
 **Órdenes pendientes:** `docs/ordenes/6-la-resena-desde-el-invitado.md` (sin empezar) y
 lo que quede de `ahora.md`.
->>>>>>> origin/main
 
 ## Lo más importante de hoy: auditoría mecánica afinada y puertas cerradas
 
-<<<<<<< HEAD
 1. **Puertas de servidor:** Se auditaron y protegieron con `requireAppSession()` todas las Server Actions administrativas en `src/app/actions/`. Las funciones públicas legítimas quedaron formalmente declaradas en `auditoria-puertas-abiertas.test.ts`. El archivo de pendientes quedó en cero.
 2. **Auditoría mecánica continua (`scripts/auditoria.mjs`):** Se eliminó el ruido de falsas alarmas (rutas en Windows, detección kebab/PascalCase, barrel files, exclusión de términos gastronómicos reales como mocktails y filtrado de ayudas de UI). El reporte en `auditoria-out/informe.md` ahora devuelve números limpios y precisos (1 hallazgo real comprobado).
-=======
 **El dueño no podía entrar, ni con la contraseña ni con Google.** Reproducido en un
 navegador de verdad: el botón quedaba en "Ingresando..." para siempre, sin error y sin
 poder reintentar. **La llamada al servidor no tenía ningún tope de espera**, así que si
@@ -54,7 +49,6 @@ alcanzaba nunca. Ahora hay tope de 25 segundos y un aviso mientras espera.
 
 Cuenta cosas sobre los archivos, no opina, no usa inteligencia artificial. Hoy: **4
 tareas sin rastro, 137 huérfanos, 1 dato simulado, 120 promesas.**
->>>>>>> origin/main
 
 **No son 262 problemas.** Los 120 son frases para contrastar y casi todas son texto de
 venta correcto; las tres que importaban ya se verificaron y **son ciertas**. El dato
