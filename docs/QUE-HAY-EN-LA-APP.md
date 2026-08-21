@@ -161,6 +161,13 @@ muestre**. Esa distinción es la que más veces falló.
 | Un posteo no puede salir dos veces en las redes | Sí | Automático, al publicar programados |
 | Auditoría mecánica que corre sola y escribe informe | Sí | `npm run auditoria`, informe en `auditoria-out/informe.md` |
 | El ingreso avisa mientras espera y nunca se queda colgado | Sí | Pantalla de ingreso |
+| Los avisos de pago al cliente sólo los dispara quien corresponde | Sí | Automático, al aprobar o rechazar un pago |
+| Recuperar la clave del portal, con freno contra robots | Sí, 3 por hora | Portal del cliente |
+| Repaso de la mañana enlazado | Sí | Menú principal |
+| Aviso de personal en dos fiestas el mismo día | Sí | Menú principal → Personal en dos fiestas |
+| Métricas del negocio y rendimiento de publicidad | Sí | Menú principal |
+| Promociones, asistente y mapa tecnológico | Sí | Menú → Configuración |
+| Pantallas del día de la fiesta agrupadas por tema | Sí | Dentro de cada fiesta |
 | Lista de compras enlazada en el menú | Sí | Insumos → Lista de Compras |
 | Alergias y dietas enlazado en el menú | Sí | Fiestas → Alergias y Dietas |
 | Portal de proveedores enlazado en el menú | Sí | Fiestas → Portal de Proveedores |

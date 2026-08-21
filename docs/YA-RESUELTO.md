@@ -19,11 +19,14 @@ anotado, la próxima auditoría lo va a volver a encontrar.
 
 ## Decisiones del dueño (no son errores, no se discuten)
 
+<<<<<<< HEAD
 - **Afinamiento de la auditoría mecánica y cierre de puertas de servidor (21 de agosto de 2026):**
   - **Bloque 1 — Puertas de servidor 100% auditadas y protegidas (`src/__tests__/puertas-pendientes-de-revisar.json`, `src/__tests__/auditoria-puertas-abiertas.test.ts`, `src/app/actions/*`):** Se protegieron con `requireAppSession()` todas las Server Actions internas y administrativas de la aplicación (settings, fiesta, catering, bebidas, decoracion, itinerario, musica, reposteria, reuniones, tareas, costos, zona digital, etc.). Se declararon formalmente las funciones públicas legítimas en el archivo de prueba y el archivo de pendientes quedó en cero (`{}`).
   - **Bloque 2 — Afinamiento de `scripts/auditoria.mjs` (`scripts/auditoria.mjs`, `auditoria-out/informe.md`):** Se eliminaron los falsos positivos de las 4 pasadas (normalización de rutas en Windows/Linux, búsqueda por kebab-case y PascalCase, detección de módulos de dominio y barrel files, exclusión de términos gastronómicos reales como mocktails y filtrado de ayudas de interfaz de usuario ya implementadas). El informe pasó de 201 hallazgos y 120 frases a 1 hallazgo real y 0 promesas rotas.
   - **Bloque 3 — Controles de Calidad:** Verificados `check:acentos` en 0, `tsc --noEmit` en 0 errores, 312 suites de pruebas unitarias (2044/2044 tests en verde) y `npm run build` completado exitosamente.
 
+=======
+>>>>>>> origin/main
 - **Las pantallas sin puerta (21 de agosto de 2026):**
   - **Bloque 1 — El día de la fiesta (`src/app/(app)/fiestas/[id]/centro/page.tsx`, `src/app/(app)/fiestas/nueva/reuniones/page.tsx`, `src/app/(app)/fiestas/nueva/page.tsx`):** Se enlazaron las pantallas operativas huérfanas: botón de imprimir minuta en `/fiestas/nueva/reuniones`, tarjetas operativas en el centro de fiesta para `/fiestas/[id]/cierre-mundial` y `/fiestas/[id]/experiencia-tecnologica-ak`, y rutas canónicas absolutas en los módulos de producción.
   - **Bloque 2 — Las del negocio (`src/components/main-nav.tsx`, `src/app/(app)/empresa/servicios/page.tsx`):** Se abrieron puertas claras en el menú principal (`MainNav`) para `/repaso-diario`, `/recursos-multi-evento`, `/empresa/dashboard`, `/contabilidad/crm/marketing-ads`, `/empresa/presentacion-led/configuracion` y enlace directo al editor visual `/empresa/todos-los-servicios/[id]/editar` desde la lista de catálogo.
@@ -3649,6 +3652,163 @@ blog ya lo hacia desde antes; se sumaron las metricas y los posteos programados.
 
 **Los recordatorios de cuota quedan afuera tambien aca**, por el mismo motivo, con
 prueba que lo impide.
+
+## Las pantallas escondidas ya tienen puerta (21 de agosto de 2026)
+
+De las 31 pantallas a las que no llevaba ningún botón **quedan 9, y son exactamente
+las que no deben tener puerta**: son redirecciones que existen para que un enlace
+viejo no muera.
+
+Todas las pantallas de verdad quedaron enlazadas: el repaso de la mañana, el aviso de
+personal en dos fiestas a la vez, las métricas del negocio, el rendimiento de la
+publicidad, la presentación LED, las promociones, el asistente y el mapa tecnológico
+van al menú principal. Las del día de la fiesta —logística, buzón, cartelería, lista
+para la fiesta, checklist de cierre, impresión de croquis— quedaron dentro de la
+fiesta, agrupadas por tema.
+
+La prueba que cuenta pantallas sin puerta se amplió para cubrir toda la aplicación,
+no sólo las del evento.
+
+### Lo que se le sacó a la entrega antes de fusionar
+
+**Traía la configuración de cobros de Mercado Pago**, que no tiene nada que ver con
+poner enlaces. Y traía sólo la mitad: ponía la llave de acceso y **apagaba el modo de
+prueba** —o sea, dejaba los cobros en dinero real— pero no configuraba la llave que
+valida los avisos de pago.
+
+Hoy no cobraba de más, porque el código comprueba que estén las dos llaves antes de
+cobrar. Pero era una bomba de tiempo: el día que alguien agregara la que falta, los
+cobros pasaban a dinero real **sin que nadie lo hubiera decidido**. Se sacó, y el
+cambio de cobros queda para una decisión aparte del dueño.
+
+**No tocó lo que cuesta plata en Firebase.** Se verificó línea por línea: la memoria y
+el servidor siguen exactamente como estaban.
+
+### Una corrección de idioma
+
+Un enlace decía "Superposición Personal". Quedó **"Personal en dos fiestas"**, que es
+lo que hace: avisa si la misma persona está anotada en dos eventos el mismo día.
+## La medición quedó prendida sin tocar ninguna consola (20 de agosto de 2026)
+
+El identificador de Google Analytics y el del píxel de Meta estaban **sólo como
+variable del servidor**, y por eso **no se midió nunca**: el dueño no programa y
+no podía cargarlas. La web y la publicidad estuvieron sin medir todo el tiempo.
+
+Ahora viven en `src/lib/medicion/identificadores.ts` y la medición funciona sola
+desde el primer despliegue. La variable del servidor sigue mandando si está
+puesta, para poder apuntar a otra cuenta sin tocar el código.
+
+**Por qué se pueden escribir en el código y no es una contradicción con lo de la
+llave de cobros:** estos dos **son públicos por diseño**. Viajan en el código de
+cada página que carga cualquier visitante, igual que el teléfono en el pie. No dan
+acceso a nada: sólo dicen a qué cuenta mandar las visitas. Una llave de cobros, en
+cambio, mueve plata.
+
+**La distinción queda escrita en el archivo**, con la prohibición explícita de
+guardar ahí cualquier cosa que dé acceso a algo. Hay una prueba que lo controla.
+
+Las tres pantallas que informaban el estado ahora miran el mismo dato que enciende
+cada cosa, así que dicen la verdad.
+
+## Decisión del dueño: la llave de cobros queda como está (20 de agosto de 2026)
+
+Se le propuso dos veces generar una llave de cobros nueva, porque la que estaba en
+uso llegó escrita dentro de un archivo. **Decidió que no: se queda con la última
+que cargó.** Es su decisión y no se le vuelve a plantear.
+
+Lo que sí quedó hecho y no depende de eso: el archivo está fuera del repositorio y
+hay una prueba que impide que cualquier llave vuelva a entrar.
+
+## El WhatsApp personal, y el freno que frenaba de más (20 de agosto de 2026)
+
+El dueño aclaró dos cosas que cambian el diseño: **el WhatsApp es su número
+personal**, y no quiere un bot contestándole a cualquiera. Pero **escribirle a
+clientes y prospectos está bien**.
+
+**Eran dos cosas distintas atadas al mismo interruptor.** El de "bot activado"
+apagaba las dos: el bot que contesta solo, *y también* el motor que **prepara** los
+mensajes. Con el bot apagado —que es como tiene que estar— **los recordatorios de
+cuota vencida no se armaban nunca**, y el equipo no tenía a quién reclamarle.
+
+Se separaron:
+
+- **El bot que contesta solo** sigue apagado y controlado donde corresponde, en la
+  entrada de mensajes. Ése no se prende.
+- **El motor que prepara** ya no depende de ese interruptor: deja el aviso en la
+  bandeja de salida con estado pendiente, y **el mensaje sale cuando una persona
+  lo toca**, desde su propio WhatsApp.
+
+Con eso, los recordatorios de cuota entraron a la lista de tareas que corren solas:
+**se comprobó que no le escriben a nadie**. Preparar la lista de a quién reclamarle
+no le llega a ningún cliente.
+
+> **La regla que queda, y está en `CLAUDE.md`: preparar sí, mandar no.** Si alguna
+> vez una tarea manda sola, sale de esa lista el mismo día. Tres pruebas lo
+> controlan, y todas dicen lo mismo: si el motor empieza a mandar, la solución no
+> es sacar la prueba.
+
+## El bot contesta sólo a los que llegan por publicidad (20 de agosto de 2026)
+
+El dueño lo precisó: que conteste al que llega de un anuncio está muy bien; que le
+conteste a todo el mundo, no. **Es su número personal.**
+
+Meta lo dice en el propio mensaje: cuando alguien llega tocando un anuncio o una
+publicación, el mensaje trae adentro de dónde vino. **No hay que adivinar nada.**
+
+- **Viene de un anuncio o de una publicación** → contesta al instante. Es un
+  desconocido que espera respuesta comercial, muchas veces de madrugada, y es plata
+  que se enfría.
+- **Cualquier otro** → la app no contesta nada. Lo lee una persona cuando puede.
+
+**El detalle que arruinaba la idea, y por eso está resuelto:** ese dato viene
+**sólo en el primer mensaje**. Mirando nada más que eso, el bot contestaba la
+primera pregunta y después se quedaba mudo en la mitad de la conversación —peor que
+no contestar nunca—. Por eso se recuerda que esa conversación empezó en un anuncio,
+y se le sigue contestando por siete días. Después caduca: no queda contestando para
+siempre.
+
+Vive en `src/lib/whatsapp/vino-de-la-publicidad.ts`, con cinco pruebas, incluida
+una que controla que el freno esté **antes** de generar la respuesta.
+
+## Cualquiera podía mandarle avisos falsos al cliente (21 de agosto de 2026)
+
+Las funciones que mandan el correo de **"pago confirmado"**, **"pago rechazado"** y las
+invitaciones de reunión eran direcciones abiertas a internet. Con sólo saber el número
+de una fiesta, alguien podía hacer que la propia aplicación le mandara al cliente un
+mail firmado *"AK Producciones — Pago confirmado"* **con el monto que se le antojara**.
+
+La pantalla donde el equipo aprueba el pago sí pedía cuenta. El agujero era que se
+podía saltear la pantalla y llamar al correo directo.
+
+Cada una quedó con el mismo control que tiene quien la usa de verdad:
+
+- **Pago aprobado y rechazado, y la sincronización de reuniones:** piden cuenta del
+  equipo, porque los aprueba el equipo.
+- **Comprobante subido:** pide la clave del cliente de **esa** fiesta, igual que la
+  pantalla desde donde lo sube.
+- **Recuperar la clave del portal:** queda pública a propósito —el cliente la perdió,
+  no puede tener sesión— pero con freno de tres por hora, para que un robot no le
+  llene la casilla de correos.
+
+## Más de la mitad de las puertas ya estaban cerradas, y el control no lo veía
+
+De las 84 funciones que figuraban abiertas, **49 lo estaban sólo en apariencia**.
+
+**El caso más común:** casi todo lo que toca una fiesta —`updateBebidas`,
+`updateDecoracion`, `addTarea`, `claimGift`— lee la fiesta, cambia un pedazo y llama a
+`saveFiesta`, que adentro pide sesión del equipo **o** la clave del cliente de esa
+fiesta. La comprobación está un nivel más abajo y el control no la veía.
+
+Reconocerla **no es aflojar el control**: se exige además que la función **no escriba
+nada por su cuenta**. Si toca la base directo, sigue contando como abierta aunque
+también llame al guardado.
+
+**Y una estaba mejor protegida que el resto:** `requireEventPermission` pide sesión
+**y además** el permiso concreto para ese evento. Se le había pasado por alto al
+control, así que figuraba como abierta algo más estricto que todo lo demás.
+
+**Lo que hay que recordar:** antes de agregar una comprobación, mirá si no está ya un
+nivel más abajo. Ponerla dos veces no protege más y esconde dónde está la de verdad.
 
 ## Cómo agregar algo a esta lista
 

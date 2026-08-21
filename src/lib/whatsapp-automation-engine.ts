@@ -65,7 +65,26 @@ export async function triggerWhatsAppAutomation(
       getWhatsAppTemplates(),
     ]);
 
-    if (!settings.enabled) return { scheduled: 0, errors: [] };
+    /**
+     * **Preparar un mensaje no es mandarlo, y por eso este freno se saco.**
+     *
+     * Este motor no le escribe a nadie: deja el mensaje en la bandeja de salida
+     * con estado `pendiente`, y desde ahi una persona lo manda con un toque, con
+     * su propio WhatsApp.
+     *
+     * El interruptor `settings.enabled` es el del bot que **contesta solo** a
+     * cualquiera que escriba. El dueno usa su WhatsApp personal y ese bot tiene
+     * que quedar apagado siempre. Pero mientras estuvo apagado, **este motor
+     * tampoco preparaba nada**: los recordatorios de cuota vencida no se armaban,
+     * y el equipo no tenia a quien reclamarle.
+     *
+     * Eran dos cosas distintas atadas al mismo interruptor. El que corresponde
+     * —el del bot que contesta solo— sigue controlando la entrada, en
+     * `src/app/api/whatsapp/webhook/route.ts`.
+     */
+    const reglasHabilitadas = settings.automationRules?.some((r) => r.enabled) ?? false;
+    if (!reglasHabilitadas) return { scheduled: 0, errors: [] };
+
     if (!ctx.targetPhone?.trim()) {
       errors.push(`Omite programacion para disparador ${trigger}: targetPhone esta vacio`);
       return { scheduled: 0, errors };

@@ -9,10 +9,11 @@ import path from 'path';
  * no se guardaban nunca y los posteos programados no salian nunca, aunque el
  * codigo estuviera perfecto.
  *
- * **Y la parte que no se toca:** los recordatorios de cuota vencida NO entran acá.
- * Le escriben al cliente por WhatsApp, y un mensaje a una persona no puede salir
- * de rebote porque alguien del equipo abrio una pantalla. Eso lo aprieta alguien,
- * sabiendo que lo aprieta.
+ * **Y la regla que no se toca: preparar si, mandar no.** Los recordatorios de
+ * cuota si entran, porque **no le escriben a nadie**: dejan el aviso en la bandeja
+ * de salida y el mensaje sale cuando una persona lo toca, desde su propio
+ * WhatsApp. El dueno usa su WhatsApp personal y ningun bot escribe ni contesta
+ * solo. Si alguna vez una de estas tareas manda sola, sale de aca el mismo dia.
  */
 function leer(relativo: string): string {
   return fs.readFileSync(path.join(process.cwd(), relativo), 'utf8');
@@ -28,10 +29,17 @@ describe('poner al dia las tareas al entrar', () => {
     expect(fuente).toContain('procesarPosteosProgramados');
   });
 
-  it('NO dispara nada que le escriba al cliente', () => {
-    expect(fuente).not.toContain('ejecutarEscaneoDeRecordatorios');
-    expect(fuente).not.toContain('recordatorios-de-pago');
+  it('prepara los recordatorios de cuota, que no le escriben a nadie', () => {
+    expect(fuente).toContain('ejecutarEscaneoDeRecordatorios');
+  });
+
+  it('NO manda ningun mensaje por su cuenta', () => {
+    // Esta es la linea que no se cruza: preparar si, mandar no.
     expect(fuente).not.toContain('sendMetaWhatsAppMessage');
+
+    const motor = leer('src/lib/whatsapp-automation-engine.ts');
+    expect(motor).not.toContain('sendMetaWhatsAppMessage');
+    expect(motor).toContain("status: 'pendiente'");
   });
 
   it('no reintenta en cada clic: tiene su propio control de cuando le toca', () => {
