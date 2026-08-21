@@ -3449,6 +3449,105 @@ enlace de reseñas y el identificador de medición—. Los otros diez **no los m
 nadie**: el correo y la llave de cobros se leen del servidor, y ocho no existen
 como campo para la app.
 
+## El ingreso se colgaba sin decir nada (21 de agosto de 2026)
+
+**Reportado por el dueño: no podía entrar, ni con la contraseña ni con Google.
+Apretaba el botón y no pasaba nada.**
+
+Reproducido en un navegador de verdad, con la aplicación compilada: el botón se
+quedaba en "Ingresando..." y ahí se moría. Sin error, sin aviso, y sin poder
+reintentar porque el botón queda apagado mientras cree que está trabajando.
+
+**La causa:** la llamada al servidor **no tenía ningún tope de espera**. Si el
+servidor estaba despertándose —que es lo que pasa en la primera entrada del día,
+porque está puesto para apagarse solo— o la base tardaba en contestar, la pantalla
+esperaba para siempre.
+
+No era un error de programación: el código estaba bien escrito y todos los caminos
+de error estaban contemplados. Simplemente ninguno se alcanzaba nunca.
+
+**Dos cosas lo arreglan:**
+
+1. **Tope de espera de 25 segundos.** Largo a propósito: cortar antes dejaría afuera
+   un ingreso que iba a funcionar, porque el arranque del servidor tarda. Si se pasa,
+   dice qué hacer en criollo en vez de dejar el botón muerto.
+2. **Un aviso mientras espera:** "La primera entrada del día puede demorar unos
+   segundos. Ya está andando." Sin eso, la espera parece que la aplicación no anda.
+
+Congelado en `src/__tests__/el-ingreso-nunca-se-cuelga.test.ts`, que además cuenta que
+cada salida por error vuelva a habilitar el botón. Si alguien agrega un camino de
+error y se olvida, la prueba avisa.
+
+**Falso positivo descartado en el camino:** se sospechó que el ingreso con Google
+quedaba trabado igual, porque un `return` de error no habilita el botón. No es así:
+esa función tiene una red de seguridad al final que lo habilita siempre.
+
+## Cuatro pantallas terminadas que no tenían puerta (21 de agosto de 2026)
+
+La auditoría encontró **31 pantallas a las que no llevaba ningún botón**. Verificadas
+una por una:
+
+- **11 son redirecciones a propósito** y quedan como están: existen para que un enlace
+  viejo no muera y mandan a la pantalla que las reemplazó. **No son un problema.**
+- **20 son pantallas de verdad**, terminadas, que leen datos reales, y a las que había
+  que llegar escribiendo la dirección de memoria.
+
+De esas 20, se enlazaron las cuatro que tocan comida, plata y accesos:
+
+| Pantalla | Dónde quedó | Por qué importa |
+|---|---|---|
+| Lista de Compras | Insumos | Es donde se decide qué se compra |
+| Alergias y Dietas | Fiestas | Si no se ven, se cocina algo que un invitado no puede comer |
+| Portal de Proveedores | Fiestas | Da acceso desde afuera; tiene que verlo quien lo reparte |
+| Cláusulas de Contrato | Configuración | Toca lo que firma el cliente |
+
+Las otras 16 quedaron pedidas en `docs/ordenes/5-las-pantallas-sin-puerta.md`, porque
+son pantallas y menús, que no los programa Claude.
+
+**Falso positivo descartado:** las 11 redirecciones seguirán apareciendo en el informe
+como "sin puerta" y **está bien que aparezcan así**: no se les pone enlace. Quedan
+declaradas en la prueba que las cuenta.
+
+## Las cuentas bancarias no se sincronizaban, aunque la pantalla lo decía (21 de agosto de 2026)
+
+En Ajustes → Empresa, arriba de las cuentas bancarias decía: *"Estas cuentas se
+sincronizan en la configuración del Portal del Cliente para cada fiesta."*
+
+**Es falso, y con la plata no se puede mentir.** Lo que pasa de verdad: las cuentas de
+la empresa se copian a una fiesta **sólo si esa fiesta todavía no tiene ninguna
+cargada**, y sólo cuando alguien abre esa pantalla. No hay ninguna sincronización.
+
+La consecuencia: si el dueño cambia su número de cuenta, **las fiestas que ya tenían
+la suya siguen mostrándole al cliente la cuenta vieja**, y el cliente transfiere ahí.
+
+Se cambió el texto por lo que realmente hace, y se agregó un aviso en amarillo que
+dice qué hacer con las fiestas que ya tienen cuenta cargada.
+
+**Por qué no se cambió el comportamiento:** que cada fiesta pueda tener su propia
+cuenta es útil y está bien. El problema era el cartel, no la lógica. Cambiar la lógica
+para que pise las cuentas de cada fiesta habría sido peor.
+
+## Promesas de pantalla verificadas: falsos positivos (21 de agosto de 2026)
+
+La pasada 4 de la auditoría lista **120 frases** donde una pantalla promete algo
+automático. **No son hallazgos: son frases para contrastar.** La mayoría es texto de
+venta ("subida de fotos en tiempo real"), que describe bien lo que hace la aplicación.
+
+Se verificaron a mano las que tienen consecuencia de verdad. **Las tres son ciertas y
+quedan descartadas:**
+
+1. **"Los cambios se guardan automáticamente al modificar menús, bebidas o
+   repostería"** (Fiestas → Catering). **Es cierto.** Cada cambio dispara el guardado
+   en el momento, no hay botón que haya que apretar.
+2. **"Los ingredientes se sumarán a la lista de compras automáticamente"** (Fiestas →
+   Catering). **Es cierto.** La lista de compras abre los platos del menú y suma los
+   ingredientes de cada uno.
+3. **Las preguntas frecuentes del blog** aparecían en la pasada 3 como "dato simulado
+   sin advertencia". **Falso positivo:** son textos de venta escritos a mano, no un
+   número inventado haciéndose pasar por medido.
+
+**Por qué se anota:** sin esto, la próxima auditoría los vuelve a listar y alguien
+gasta el viaje de nuevo. Las tres están verificadas leyendo el código, no suponiendo.
 ## Las tareas se ponen al día solas cuando el equipo entra (20 de agosto de 2026)
 
 El dueño no puede configurar despertadores externos, y sin eso **los números de

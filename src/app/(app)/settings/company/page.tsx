@@ -246,9 +246,22 @@ export default function CompanySettingsPage() {
                     <Building2 className="w-4 h-4 text-primary" />
                     Cuentas bancarias para Portal del Cliente
                   </Label>
+                  {/*
+                    Antes decía que estas cuentas "se sincronizan" con cada fiesta.
+                    Es falso y con la plata no se puede mentir: sólo se copian a una
+                    fiesta que TODAVÍA no tiene ninguna cargada, y sólo cuando alguien
+                    abre esa pantalla. Si acá se cambia el número de cuenta, las
+                    fiestas que ya tenían la suya siguen mostrándole al cliente la
+                    vieja, y el cliente transfiere ahí.
+                  */}
                   <CardDescription className="text-xs">
-                    Estas cuentas se sincronizan en la configuración del Portal del Cliente para cada fiesta.
+                    Se usan como punto de partida para las fiestas nuevas.
                   </CardDescription>
+                  <p className="text-xs rounded-lg border border-amber-300 bg-amber-50 p-3 text-amber-900">
+                    <strong>Ojo:</strong> si cambiás una cuenta acá, las fiestas que ya
+                    tienen la suya cargada <strong>siguen con la anterior</strong>. Para
+                    esas, hay que cambiarla en Fiestas → Portal del Cliente.
+                  </p>
                   {(companyInfo.cuentasBancariasPortal ?? []).length === 0 && (
                     <p className="text-xs text-muted-foreground border border-dashed rounded-lg p-3">
                       No hay cuentas configuradas.
