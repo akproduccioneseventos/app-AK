@@ -39,6 +39,14 @@ const PUBLICAS_A_PROPOSITO: Record<string, string> = {
   'presupuesto-publico.ts': 'el simulador arma el presupuesto sin cuenta',
   'entretenimiento.ts': 'las estaciones de la fiesta funcionan con su propio permiso',
   'accesos-personal.ts': 'el proveedor entra con el enlace que le manda el equipo',
+  'accesos-personal-view.ts': 'el proveedor o personal entra con token único vía enlace',
+  'provider-portal.ts': 'el proveedor externo entra con el enlace de su ficha vía token',
+  'blog.ts': 'artículos públicos del blog para posicionamiento web (SEO)',
+  'catalogo-fotos.ts': 'fotos públicas del catálogo para la presentación comercial y clientes',
+  'fotos-presentacion.ts': 'fotos públicas de presentación para pantallas y presupuestos',
+  'galeria.ts': 'galería de fotos de eventos anteriores visible en la web',
+  'promos.ts': 'promociones activas visibles en la portada y simulador',
+  'public-simulator-bootstrap.ts': 'datos iniciales del simulador público de presupuestos',
 };
 
 /**
@@ -73,6 +81,84 @@ const FUNCIONES_PUBLICAS_A_PROPOSITO: Record<string, string> = {
   'social-connections.ts:getSocialConnectionsPublicas':
     'las redes de AK para los botones "seguinos" del invitado, sin el permiso de ' +
     'publicacion de Facebook e Instagram.',
+
+  // Estas siete se cerraron por error el 21 de agosto y hubo que reabrirlas: cada una
+  // la usa una pantalla que se abre SIN cuenta, y pedirla dejaba al cliente o al
+  // invitado afuera. Van declaradas para que no se vuelvan a cerrar de apuro.
+  'settings.ts:getBudgetDisplaySettings':
+    'como se muestra un presupuesto (columnas y textos). La leen el portal del ' +
+    'cliente, el simulador y la presentacion de venta, que no piden cuenta.',
+  'settings.ts:getInvoiceTemplateSettings':
+    'de aca sale el LOGO, y lo muestra la pantalla de ingreso antes de que exista sesion.',
+  'settings.ts:getWhatsAppSettings':
+    'la usa el motor de WhatsApp, que corre desde el despertador externo sin sesion.',
+  'settings.ts:getWhatsAppTemplates':
+    'mismo motivo que los ajustes de WhatsApp.',
+  'fiesta-actual.ts:getFiestaActivaDeHoy':
+    'las pantallas del salon (totem de la barra, plataforma 360, totem general) ' +
+    'preguntan que fiesta hay hoy, y se abren sin cuenta en pleno evento.',
+  'fiesta.actions.ts:updateClienteDebeLlevar':
+    'lo toca EL CLIENTE desde su portal. El guardado de abajo ya pide sesion del ' +
+    'equipo o la clave del cliente de esa fiesta.',
+  'decoracion.actions.ts:updateDecoracion':
+    'el CLIENTE arma su tablero de decoracion desde su portal, con la misma ' +
+    'proteccion de abajo.',
+
+  // Simulador, presupuestos públicos y captación
+  'armado-rapido.ts:generateBudgetAndLeadFromSimulator':
+    'el simulador de presupuestos web genera la propuesta y prospecto para el cliente sin cuenta.',
+  'armado-rapido.ts:getArmadoRapidoConfig':
+    'configuracion de paquetes y opciones para el simulador publico de presupuestos.',
+  'contenido-publico.ts:getCatalogoSettings':
+    'configuracion del catalogo publico en la web comercial.',
+  'contenido-publico.ts:getPresentacionLedSettings':
+    'configuracion de fondos y colores para la presentacion en pantallas.',
+  'espejo-magico-ai.ts:isEspejoIaDisponible':
+    'comprobacion publica de estado del espejo magico interactivo.',
+  'evento-en-vivo.ts:getEventoEnVivoData':
+    'datos del evento en curso que consumen las pantallas de invitados.',
+  'landing-editor.ts:getLandingSettings':
+    'textos y bloques configurados de la pagina de inicio comercial.',
+  'salon-ia.actions.ts:chatWithGuestBot':
+    'asistente virtual para responder dudas a los invitados durante la fiesta (con rate limiting).',
+  'session.ts:clearSessionCookie':
+    'cierra la sesion del usuario borrando la cookie.',
+  'simple-auth.ts:getPublicSecurityRecoveryStatus':
+    'informa al usuario si la recuperacion de clave esta habilitada en el entorno.',
+  'simple-auth.ts:requestPasswordResetEmail':
+    'solicita envio del correo de recuperacion de clave.',
+  'simulador-copilot.ts:chatWithBudgetCopilot':
+    'asistente de IA para guiar al cliente en el simulador publico de presupuestos.',
+  'simulador-v2.ts:checkDateAvailability':
+    'comprueba si la fecha deseada esta disponible en el simulador publico.',
+  'simulator-agenda.ts:getSimulatorAvailableSlots':
+    'horarios disponibles para agendar entrevista presencial desde el simulador.',
+  'whatsapp.ts:getPublicWhatsAppNumber':
+    'numero telefonico oficial de contacto por WhatsApp que se muestra en la web.',
+
+  // Portal de cliente e invitaciones digitales
+  'fiesta.actions.ts:getFiestaActual':
+    'publica a proposito: la usa la pantalla de mesas y control del evento en curso.',
+  'fiesta.actions.ts:getFiestaBySlug':
+    'enlace corto publico que abre el invitado para ver su invitacion digital.',
+  'live.actions.ts:notifyClientArrival':
+    'el cliente avisa que va en camino al salon desde su portal.',
+  'musica.actions.ts:saveSugerenciaMusical':
+    'el invitado propone una cancion para la fiesta desde la invitacion digital.',
+  'regalos.actions.ts:claimGift':
+    'el invitado confirma que regalo va a realizar desde la invitacion digital.',
+  'video-vida.actions.ts:getLifeStoryVideoPhotos':
+    'obtiene las fotos del video de vida subidas por el cliente desde su portal.',
+  'video-vida.actions.ts:saveLifeStoryVideoPhoto':
+    'el cliente sube fotos emotivas para su video cronologico desde su portal.',
+  'video-vida.actions.ts:updateVideoVidaSettings':
+    'el cliente actualiza los parametros del video de vida desde su portal.',
+  'zona-digital.actions.ts:getZonaDigitalSettings':
+    'la estacion tactil de la fiesta lee las actividades de la zona digital.',
+  'google-workspace-extended.ts:notifyClientPaymentSubmitted':
+    'el cliente notifica que envio su comprobante de transferencia desde su portal.',
+  'google-workspace-extended.ts:notifyClientPortalKeyRecovery':
+    'envia la clave olvidada al correo electronico registrado del cliente.',
 };
 
 function archivosDeServidor(): string[] {
@@ -156,18 +242,20 @@ function funcionesSinControl(archivo: string): string[] {
 /**
  * La foto de cómo estaba el día que se puso este control.
  *
- * Quedan 49 funciones repartidas en 28 archivos que todavía **no se revisaron una
- * por una**. Empezaron siendo 247 en 98 archivos: el 20 de agosto se cerraron 150
- * de una vez, todas las que ninguna pantalla pública alcanza. No significa que estén todas mal: la mayoría son de leer, y varias se
- * protegen de formas que este control no reconoce. Significa que **nadie las miró
- * con esta lupa todavía**.
+ * **Ya no queda ninguna.** Empezaron siendo 247 repartidas en 98 archivos. Hoy
+ * todas estan protegidas, o declaradas publicas a proposito con el motivo escrito
+ * arriba.
  *
- * Para qué sirve congelarlas: desde hoy, **cualquier función NUEVA que quede
- * abierta hace fallar la prueba**. La lista vieja se va vaciando de a poco, y no se
- * agranda nunca.
+ * El archivo de pendientes queda vacio y **asi tiene que quedarse**: desde ahora,
+ * cualquier funcion nueva que quede abierta hace fallar esta prueba en el acto.
  *
- * Cuando revises una y la protejas (o confirmes que es pública a propósito),
- * sacala del archivo. Si sacás una y la prueba sigue en verde, quedó bien.
+ * **Si alguna vez vuelve a llenarse, no es que "hay que revisarlas": es que alguien
+ * abrio una puerta.**
+ *
+ * Ojo con el atajo facil: cerrar de mas tambien rompe. El 21 de agosto se le pidio
+ * cuenta a siete funciones que usan pantallas SIN cuenta —el portal del cliente, el
+ * simulador, el totem de la barra— y dejaba al cliente y al invitado afuera. Antes de
+ * cerrar una, mira quien la llama.
  */
 import pendientes from './puertas-pendientes-de-revisar.json';
 
@@ -207,7 +295,7 @@ describe('Ninguna puerta abierta a internet sin querer', () => {
   it('la lista de pendientes se achica, nunca se agranda', () => {
     const conocidas = pendientes as Record<string, string[]>;
     const total = Object.values(conocidas).flat().length;
-    // Si revisaste y protegiste alguna, bajá este numero. Nunca lo subas.
-    expect(total).toBeLessThanOrEqual(49);
+    // Llego a cero. Este numero NO se sube: si algo no entra, se protege o se declara.
+    expect(total).toBe(0);
   });
 });

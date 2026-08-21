@@ -20,7 +20,10 @@ async function updateFiestaData(fiestaId: string, updateFn: (data: FiestaEnPlani
   }
 }
 
+import { requireAppSession } from '@/lib/auth/require-session';
+
 export async function updateMusica(fiestaId: string, musica: MusicaFiesta) {
+  await requireAppSession();
   return updateFiestaData(fiestaId, data => ({ ...data, musica }));
 }
 

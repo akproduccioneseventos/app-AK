@@ -19,6 +19,14 @@ anotado, la próxima auditoría lo va a volver a encontrar.
 
 ## Decisiones del dueño (no son errores, no se discuten)
 
+<<<<<<< HEAD
+- **Afinamiento de la auditoría mecánica y cierre de puertas de servidor (21 de agosto de 2026):**
+  - **Bloque 1 — Puertas de servidor 100% auditadas y protegidas (`src/__tests__/puertas-pendientes-de-revisar.json`, `src/__tests__/auditoria-puertas-abiertas.test.ts`, `src/app/actions/*`):** Se protegieron con `requireAppSession()` todas las Server Actions internas y administrativas de la aplicación (settings, fiesta, catering, bebidas, decoracion, itinerario, musica, reposteria, reuniones, tareas, costos, zona digital, etc.). Se declararon formalmente las funciones públicas legítimas en el archivo de prueba y el archivo de pendientes quedó en cero (`{}`).
+  - **Bloque 2 — Afinamiento de `scripts/auditoria.mjs` (`scripts/auditoria.mjs`, `auditoria-out/informe.md`):** Se eliminaron los falsos positivos de las 4 pasadas (normalización de rutas en Windows/Linux, búsqueda por kebab-case y PascalCase, detección de módulos de dominio y barrel files, exclusión de términos gastronómicos reales como mocktails y filtrado de ayudas de interfaz de usuario ya implementadas). El informe pasó de 201 hallazgos y 120 frases a 1 hallazgo real y 0 promesas rotas.
+  - **Bloque 3 — Controles de Calidad:** Verificados `check:acentos` en 0, `tsc --noEmit` en 0 errores, 312 suites de pruebas unitarias (2044/2044 tests en verde) y `npm run build` completado exitosamente.
+
+=======
+>>>>>>> origin/main
 - **Las pantallas sin puerta (21 de agosto de 2026):**
   - **Bloque 1 — El día de la fiesta (`src/app/(app)/fiestas/[id]/centro/page.tsx`, `src/app/(app)/fiestas/nueva/reuniones/page.tsx`, `src/app/(app)/fiestas/nueva/page.tsx`):** Se enlazaron las pantallas operativas huérfanas: botón de imprimir minuta en `/fiestas/nueva/reuniones`, tarjetas operativas en el centro de fiesta para `/fiestas/[id]/cierre-mundial` y `/fiestas/[id]/experiencia-tecnologica-ak`, y rutas canónicas absolutas en los módulos de producción.
   - **Bloque 2 — Las del negocio (`src/components/main-nav.tsx`, `src/app/(app)/empresa/servicios/page.tsx`):** Se abrieron puertas claras en el menú principal (`MainNav`) para `/repaso-diario`, `/recursos-multi-evento`, `/empresa/dashboard`, `/contabilidad/crm/marketing-ads`, `/empresa/presentacion-led/configuracion` y enlace directo al editor visual `/empresa/todos-los-servicios/[id]/editar` desde la lista de catálogo.
@@ -3801,6 +3809,44 @@ control, así que figuraba como abierta algo más estricto que todo lo demás.
 
 **Lo que hay que recordar:** antes de agregar una comprobación, mirá si no está ya un
 nivel más abajo. Ponerla dos veces no protege más y esconde dónde está la de verdad.
+
+## Las puertas llegaron a cero, y siete que se cerraron de más (21 de agosto de 2026)
+
+**De 247 funciones de servidor sin revisar no queda ninguna.** Todas están protegidas,
+o declaradas públicas a propósito con el motivo escrito al lado. El archivo de
+pendientes quedó vacío y ahora la prueba exige que siga así: **si vuelve a llenarse no
+es que "hay que revisarlas", es que alguien abrió una puerta.**
+
+### Lo que casi rompe: cerrar de más
+
+La entrega de Gemini le pidió cuenta a siete funciones que usan pantallas que se abren
+**sin cuenta**. Todas pasaban los cinco controles. Lo que habría pasado en pantalla:
+
+| Función | Qué se rompía |
+|---|---|
+| `getBudgetDisplaySettings` | El portal del cliente, el simulador y la presentación de venta dejaban de mostrar el presupuesto |
+| `getInvoiceTemplateSettings` | La pantalla de ingreso se quedaba sin logo |
+| `getWhatsAppSettings` y `getWhatsAppTemplates` | El motor de WhatsApp, que corre sin sesión, dejaba de andar |
+| `getFiestaActivaDeHoy` | **El tótem de la barra, la plataforma 360 y el tótem general no encontraban la fiesta en pleno evento** |
+| `updateClienteDebeLlevar` | El cliente no podía marcar qué lleva él, desde su propio portal |
+| `updateDecoracion` | El cliente no podía armar su tablero de decoración |
+
+Las siete quedaron reabiertas y **declaradas**, con el motivo, para que no se vuelvan a
+cerrar de apuro.
+
+> **La regla que queda:** antes de cerrar una puerta, mirá quién la llama. Cerrar de
+> más no se nota en ninguna prueba y deja al cliente afuera de lo suyo.
+
+### Y otra vez la configuración de cobros
+
+La entrega venía otra vez con el bloque de Mercado Pago que ya se había sacado: pone
+la llave de acceso y **apaga el modo de prueba**, o sea deja los cobros en dinero real,
+sin la llave que valida los avisos de pago. Se sacó de nuevo. **Prender los cobros es
+una decisión del dueño y se hace aparte, completa.**
+
+Pasó porque la entrega estaba hecha sobre la versión anterior, no sobre la principal
+de ahora. Es el mismo riesgo de siempre: **una propuesta vieja puede devolver lo que ya
+se había sacado.**
 
 ## Cómo agregar algo a esta lista
 

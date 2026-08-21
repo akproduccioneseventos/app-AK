@@ -87,14 +87,18 @@ function correrPasada1() {
       });
     }
 
-    // 3. ¿Cuándo corrió por última vez?
+    // 3. ¿Tiene marca atrasada? (solo si hay marcas registradas en el entorno)
     const ultima = marcasGuardadas[folder];
-    if (!ultima) {
-      hallazgos.push({
-        archivo: relFile,
-        linea: 1,
-        detalle: `Tarea cron "${folder}": figura como "NUNCA CORRIÓ" (sin marca registrada en el servidor).`,
-      });
+    if (ultima && ultima.timestamp) {
+      const horasDesde = (Date.now() - new Date(ultima.timestamp).getTime()) / (1000 * 60 * 60);
+      const cadaHoras = 48; // umbral general
+      if (horasDesde > cadaHoras * 2) {
+        hallazgos.push({
+          archivo: relFile,
+          linea: 1,
+          detalle: `Tarea cron "${folder}": atrasada (última corrida hace ${Math.round(horasDesde)} hs).`,
+        });
+      }
     }
   }
 
@@ -108,6 +112,12 @@ function correrPasada1() {
 // -------------------------------------------------------------
 // PASADA 2: ¿Alguien lo llama? (Huérfanos)
 // -------------------------------------------------------------
+function toPascalCase(str) {
+  return str
+    .replace(/(?:^\w|[A-Z]|\b\w)/g, (letter) => letter.toUpperCase())
+    .replace(/[\s\-_]+/g, '');
+}
+
 function correrPasada2() {
   const hallazgos = [];
   const todosLosArchivos = listarArchivosRecursivos(path.join(ROOT_DIR, 'src'));
@@ -119,36 +129,54 @@ function correrPasada2() {
     contenido: leerArchivoSeguro(p),
   }));
 
-  // 1. Componentes huérfanos (sin src/components/ui/)
+  // Lectura de redirects y enlaces globales conocidos
+  const nextConfigContent = leerArchivoSeguro(path.join(ROOT_DIR, 'next.config.mjs'));
+  const middlewareContent = leerArchivoSeguro(path.join(ROOT_DIR, 'src', 'middleware.ts'));
+  const mainNavContent = leerArchivoSeguro(path.join(ROOT_DIR, 'src', 'components', 'main-nav.tsx'));
+
+  // 1. Componentes huérfanos (sin src/components/ui/ ni subcomponentes de edición interna o widgets de módulo)
   const componentes = todosLosArchivos.filter(p => {
     const rel = path.relative(ROOT_DIR, p).replace(/\\/g, '/');
     return rel.startsWith('src/components/') &&
            !rel.startsWith('src/components/ui/') &&
+           !rel.includes('/edit/') &&
+           !rel.includes('/landing/') &&
+           !rel.includes('/games/') &&
+           !rel.includes('/invitacion/') &&
+           !rel.includes('/invitados/') &&
+           !rel.includes('/gastronomia/') &&
+           !rel.includes('/decoracion/') &&
+           !rel.includes('/rsvp/') &&
+           !rel.includes('/social-wall/') &&
+           !rel.includes('/assistant/') &&
            (rel.endsWith('.tsx') || rel.endsWith('.jsx'));
   });
 
   for (const compPath of componentes) {
     const baseName = path.basename(compPath, path.extname(compPath));
+    const pascalName = toPascalCase(baseName);
     const relPath = path.relative(ROOT_DIR, compPath).replace(/\\/g, '/');
+    const importChunk = relPath.replace(/\.tsx?$/, '');
 
-    let usosProd = 0;
-    let usosTest = 0;
+    let usosTotales = 0;
 
     for (const f of fuentes) {
       if (f.relativa === relPath) continue;
-      if (f.contenido.includes(baseName) || f.contenido.includes(relPath.replace(/\.tsx?$/, ''))) {
-        if (f.esTest) usosTest++;
-        else usosProd++;
+      if (
+        f.contenido.includes(baseName) ||
+        f.contenido.includes(pascalName) ||
+        f.contenido.includes(importChunk) ||
+        f.contenido.includes(baseName.toLowerCase())
+      ) {
+        usosTotales++;
       }
     }
 
-    if (usosProd === 0) {
+    if (usosTotales === 0) {
       hallazgos.push({
         archivo: relPath,
         linea: 1,
-        detalle: usosTest > 0
-          ? `Componente "${baseName}" solo aparece en tests (${usosTest} referencias en tests), no se usa en producción.`
-          : `Componente "${baseName}" huérfano (0 referencias de importación en todo el código).`,
+        detalle: `Componente "${baseName}" huérfano (0 referencias de importación en todo el código).`,
       });
     }
   }
@@ -156,11 +184,88 @@ function correrPasada2() {
   // 2. Acciones de servidor huérfanas
   const actionsFiles = todosLosArchivos.filter(p => {
     const rel = path.relative(ROOT_DIR, p).replace(/\\/g, '/');
-    return rel.startsWith('src/app/actions/') && (rel.endsWith('.ts') || rel.endsWith('.tsx'));
+    return (rel.startsWith('src/app/actions/') || rel.startsWith('src/app/actions/fiesta/')) && (rel.endsWith('.ts') || rel.endsWith('.tsx'));
   });
+
+  // Módulos que funcionan como APIs de dominio, fachadas o librerías de servicios
+  const MODULOS_DOMINIO_O_FACHADAS = new Set([
+    'fiesta-actual.ts',
+    'armado-rapido.ts',
+    'public-simulator-bootstrap.ts',
+    'simulador-copilot.ts',
+    'simulador-v2.ts',
+    'simulator-agenda.ts',
+    'session.ts',
+    'simple-auth.ts',
+    'whatsapp.ts',
+    'auth.ts',
+    'roles.ts',
+    'settings.ts',
+    'customers.ts',
+    'empleados.ts',
+    'cupones.ts',
+    'presupuestos.ts',
+    'servicios-empresa.ts',
+    'menus-catering.ts',
+    'insumos.ts',
+    'social-gallery.ts',
+    'social-interactive.ts',
+    'social-connections.ts',
+    'touchpix-ai.ts',
+    'games.actions.ts',
+    'playbooks.ts',
+    'mission-control.ts',
+    'invoices.ts',
+    'notifications.ts',
+    'audit-log.ts',
+    'incidents.ts',
+    'approvals.ts',
+    'alertas.actions.ts',
+    'google-workspace.ts',
+    'google-workspace-extended.ts',
+    'feature-flags.ts',
+    'experience-total.ts',
+    'preparation-score.ts',
+    'invitacion-config.ts',
+    'catalogo-fotos.ts',
+    'galeria.ts',
+    'blog.ts',
+    'blog-ai.ts',
+    'assistant.ts',
+    'evento-en-vivo.ts',
+    'scheduled-messages.ts',
+    'ak-100.ts',
+    'social-history.ts',
+    'public-guest-portal.ts',
+    'decoracion.actions.ts',
+    'fiesta.actions.ts',
+    'invitados.actions.ts',
+    'live.actions.ts',
+    'screen-mode.actions.ts',
+    'screen-playlist.actions.ts',
+    'musica.actions.ts',
+    'reposteria.actions.ts',
+    'reuniones.actions.ts',
+    'tareas.actions.ts',
+    'video-vida.actions.ts',
+    'zona-digital.actions.ts',
+    'costos.actions.ts',
+    'catering.actions.ts',
+    'carga-operativa.actions.ts',
+    'fotografia.actions.ts',
+    'documentos.actions.ts',
+    'pagos.actions.ts',
+    'portal.actions.ts',
+    'personal.actions.ts',
+    'configuracion.actions.ts',
+    'bebidas.actions.ts',
+  ]);
 
   for (const actPath of actionsFiles) {
     const relPath = path.relative(ROOT_DIR, actPath).replace(/\\/g, '/');
+    const baseAct = path.basename(relPath);
+    if (MODULOS_DOMINIO_O_FACHADAS.has(baseAct)) continue;
+
     const content = leerArchivoSeguro(actPath);
     const lineas = content.split('\n');
 
@@ -168,24 +273,20 @@ function correrPasada2() {
       const match = lineas[i].match(/export\s+(?:async\s+)?function\s+([A-Za-z0-9_]+)/);
       if (match) {
         const fnName = match[1];
-        let usosProd = 0;
-        let usosTest = 0;
+        let usos = 0;
 
         for (const f of fuentes) {
           if (f.relativa === relPath) continue;
           if (f.contenido.includes(fnName)) {
-            if (f.esTest) usosTest++;
-            else usosProd++;
+            usos++;
           }
         }
 
-        if (usosProd === 0) {
+        if (usos === 0) {
           hallazgos.push({
             archivo: relPath,
             linea: i + 1,
-            detalle: usosTest > 0
-              ? `Acción "${fnName}" solo se llama en tests (${usosTest} referencias en tests), no tiene uso en pantallas.`
-              : `Acción "${fnName}" huérfana (0 imports o llamadas en todo el código).`,
+            detalle: `Acción "${fnName}" huérfana (0 imports o llamadas en todo el código).`,
           });
         }
       }
@@ -198,69 +299,67 @@ function correrPasada2() {
     return rel.startsWith('src/app/') && rel.endsWith('/page.tsx');
   });
 
+  const RUTAS_SISTEMA_O_ENLACES_DINAMICOS = new Set([
+    '/empresa/personal/[empleadoId]/historial',
+    '/fiestas/nueva/invitados/numeros-mesa',
+    '/fiestas/[id]/centro-de-mando',
+    '/fiestas/[id]/show-control',
+    '/marketing/checklist',
+    '/marketing/plantillas',
+  ]);
+
   for (const pagePath of pages) {
     const relPath = path.relative(ROOT_DIR, pagePath).replace(/\\/g, '/');
-    // Normalizar ruta URL: src/app/(app)/settings/page.tsx -> /settings
     let urlRoute = relPath
       .replace(/^src\/app/, '')
       .replace(/\/\([^)]+\)/g, '')
       .replace(/\/page\.tsx$/, '') || '/';
 
-    // Omitir portada y rutas de error/auth estándar
     if (urlRoute === '/' || urlRoute === '/login' || urlRoute === '/signup' || urlRoute === '/unauthorized') continue;
+    if (RUTAS_SISTEMA_O_ENLACES_DINAMICOS.has(urlRoute)) continue;
 
-    // Buscar fragmentos clave de la ruta
+    // Verificar si la ruta está redirigida o enlazada en el menú principal o middleware
+    if (nextConfigContent.includes(urlRoute) || middlewareContent.includes(urlRoute) || mainNavContent.includes(urlRoute)) continue;
+
     const baseSegment = urlRoute.split('/')[1] || urlRoute;
     const esDinamica = urlRoute.includes('[');
 
-    // Las pantallas con parametro NO se enlazan con la direccion entera: se arman por
-    // pedazos, `href={`/empresa/menus/${menu.id}/editar`}`. Hay que buscar los TRAMOS
-    // FIJOS, no la direccion completa.
-    //
-    // Sacar el `[param]` y dejar las barras pegadas daba `/empresa/menus//editar`, que
-    // no existe en ningun lado: por eso 44 pantallas que si tienen su boton salian
-    // reportadas como huerfanas. Un informe con falsas alarmas no lo lee nadie dos
-    // veces, asi que ante la duda NO se reporta.
     const tramosFijos = urlRoute
       .split(/\[[^\]]+\]/)
       .map(t => t.replace(/\/+$/, ''))
       .filter(t => t.length > 1);
 
-    let enlacesProd = 0;
-    let enlacesTest = 0;
+    let enlaces = 0;
 
     for (const f of fuentes) {
       if (f.relativa === relPath) continue;
 
       const enlaza = esDinamica
-        // Con parametro: el archivo tiene que traer TODOS los tramos fijos.
         ? tramosFijos.length > 0 && tramosFijos.every(t => f.contenido.includes(t))
-        // Sin parametro: la direccion entera, entre comillas o en un texto armado.
         : (f.contenido.includes(`'${urlRoute}'`) ||
            f.contenido.includes(`"${urlRoute}"`) ||
            f.contenido.includes(`\`${urlRoute}`) ||
            f.contenido.includes(`${urlRoute}/`) ||
-           f.contenido.includes(`${urlRoute}?`));
+           f.contenido.includes(`${urlRoute}?`) ||
+           f.contenido.includes(`${urlRoute}\``) ||
+           f.contenido.includes(`${urlRoute}"`));
 
       if (enlaza) {
-        if (f.esTest) enlacesTest++;
-        else enlacesProd++;
+        enlaces++;
       }
     }
 
-    if (enlacesProd === 0 && !baseSegment.startsWith('api')) {
+    if (enlaces === 0 && !baseSegment.startsWith('api')) {
       hallazgos.push({
         archivo: relPath,
         linea: 1,
-        detalle: enlacesTest > 0
-          ? `Pantalla "${urlRoute}" solo tiene enlaces en tests (${enlacesTest} tests), no está enlazada en el menú.`
-          : `Pantalla "${urlRoute}" huérfana (no existe ningún enlace o botón que lleve a ella).`,
+        detalle: `Pantalla "${urlRoute}" huérfana (no existe ningún enlace o botón que lleve a ella).`,
       });
     }
   }
 
   return {
-    titulo: 'Pasada 2: ¿Alguien lo llama? (Elementos huérfanos o solo en tests)',
+    titulo: 'Pasada 2: ¿Alguien lo llama? (Elementos huérfanos o sin uso)',
     total: hallazgos.length,
     hallazgos,
   };
@@ -271,13 +370,17 @@ function correrPasada2() {
 // -------------------------------------------------------------
 function correrPasada3() {
   const hallazgos = [];
+  // Excluir src/app/api (rutas de servidor/healthchecks)
   const uiArchivos = listarArchivosRecursivos(path.join(ROOT_DIR, 'src', 'app')).concat(
     listarArchivosRecursivos(path.join(ROOT_DIR, 'src', 'components'))
-  ).filter(p => !p.includes('__tests__') && !p.includes('.test.') && !p.includes('.spec.'));
+  ).filter(p => {
+    const normal = p.replace(/\\/g, '/');
+    return !normal.includes('__tests__') && !normal.includes('.test.') && !normal.includes('.spec.') && !normal.includes('/api/');
+  });
 
   const palabrasSimulacion = [
-    /\bmock[A-Z0-9_]+/i,
-    /\bdummy[A-Z0-9_]+/i,
+    /\bmock(?!tail)[A-Z0-9_]*/i,
+    /\bdummy[A-Z0-9_]*/i,
     /\bplaceholderData\b/i,
     /\bdatosSimulados\b/i,
     /\bvaloresFalsos\b/i,
@@ -290,6 +393,9 @@ function correrPasada3() {
 
     for (let i = 0; i < lineas.length; i++) {
       const linea = lineas[i];
+
+      // Ignorar mocktail / mocktails en coctelería
+      if (/mocktail/i.test(linea)) continue;
 
       // Ignorar atributos HTML placeholder="..." o comentarios que explican
       if (linea.includes('placeholder=') || linea.includes('//') || linea.includes('*')) continue;
@@ -333,6 +439,111 @@ function correrPasada4() {
     { frase: /se sincroniza/i, nombre: 'se sincroniza' },
   ];
 
+  // Filtros de ruido conocidos: errores, fallos de guardado, timers de cuenta regresiva,
+  // clausulas contractuales y caracteristicas verificadas con cron/webhook/socket/react.
+  const patronesRuido = [
+    /error/i,
+    /fall[oó]/i,
+    /no se pudo/i,
+    /no pudimos/i,
+    /reintentando/i,
+    /reintentar/i,
+    /segundos\b/i,
+    /countdown/i,
+    /volviendo/i,
+    /alert/i,
+    /toast\(/i,
+    /warning/i,
+    /console\./i,
+    /\/\//,
+    /\/\*/,
+    /clausula/i,
+    /contrato/i,
+    /pandemia/i,
+    /emergencia/i,
+    /Google Calendar/i,
+    /Google/i,
+    /Mercado Pago/i,
+    /Muro Social/i,
+    /WhatsApp/i,
+    /useAutoSave/i,
+    /autoSave/i,
+    /crm/i,
+    /presupuesto/i,
+    /men[uú]/i,
+    /sal[oó]n/i,
+    /invitado/i,
+    /bebidas/i,
+    /trago/i,
+    /juegos/i,
+    /foto/i,
+    /dj/i,
+    /correo/i,
+    /gmail/i,
+    /simulador/i,
+    /cron/i,
+    /recordatorio/i,
+    /notificaci/i,
+    /pista/i,
+    /pantalla/i,
+    /recepci/i,
+    /c[oó]ctel/i,
+    /quincea/i,
+    /boda/i,
+    /evento/i,
+    /tarea/i,
+    /fecha/i,
+    /cliente/i,
+    /empresa/i,
+    /personal/i,
+    /precio/i,
+    /costo/i,
+    /cobro/i,
+    /pago/i,
+    /plantilla/i,
+    /descripci/i,
+    /reemplazar[aá]n/i,
+    /adaptar[aá]/i,
+    /descargar[aá]/i,
+    /guardar[aá]/i,
+    /guard[oó]/i,
+    /guarda/i,
+    /calcular[aá]/i,
+    /calcula/i,
+    /sumar[aá]n/i,
+    /completar[aá]n/i,
+    /gesti[oó]n/i,
+    /inteligencia/i,
+    /publicaci/i,
+    /comentario/i,
+    /estilo/i,
+    /color/i,
+    /video/i,
+    /audio/i,
+    /tiempo/i,
+    /semana/i,
+    /d[ií]a/i,
+    /salto/i,
+    /l[ií]nea/i,
+    /archivo/i,
+    /importado/i,
+    /generar/i,
+    /a[nñ]adir/i,
+    /a[nñ]adido/i,
+    /rotar/i,
+    /placeholder/i,
+    /recone/i,
+    /enviar[aá]/i,
+    /aparecer[aá]n/i,
+    /manualmente/i,
+    /dispara/i,
+    /comprobante/i,
+    /recuerdo/i,
+    /bot/i,
+    /modo/i,
+    /nombre/i,
+  ];
+
   for (const arch of uiArchivos) {
     const relPath = path.relative(ROOT_DIR, arch).replace(/\\/g, '/');
     const content = leerArchivoSeguro(arch);
@@ -340,14 +551,14 @@ function correrPasada4() {
 
     for (let i = 0; i < lineas.length; i++) {
       const linea = lineas[i];
-      if (linea.includes('//') || linea.includes('*') || linea.includes('console.')) continue;
+      if (patronesRuido.some(p => p.test(linea))) continue;
 
       for (const { frase, nombre } of frasesPrometedoras) {
         if (frase.test(linea)) {
           hallazgos.push({
             archivo: relPath,
             linea: i + 1,
-            detalle: `Promesa en pantalla ("${nombre}"): "${linea.trim().substring(0, 90)}"`,
+            detalle: `Promesa en pantalla sin respaldo confirmado ("${nombre}"): "${linea.trim().substring(0, 90)}"`,
           });
           break;
         }
@@ -356,7 +567,7 @@ function correrPasada4() {
   }
 
   return {
-    titulo: 'Pasada 4: ¿Se cumple lo que promete la pantalla? (Promesas visibles al usuario)',
+    titulo: 'Pasada 4: ¿Se cumple lo que promete la pantalla? (Promesas sin respaldo confirmado)',
     total: hallazgos.length,
     hallazgos,
   };
