@@ -1,9 +1,11 @@
 'use server';
 
+import { requireAppSession } from '@/lib/auth/require-session';
 import type { FiestaEnPlanificacion, ReposteriaData } from '@/types/fiesta';
 import { getFiestaById, saveFiesta } from './fiesta.actions';
 
 export async function updateReposteria(fiestaId: string, reposteria: ReposteriaData): Promise<{ success: boolean; updatedData?: ReposteriaData; error?: string }> {
+  await requireAppSession();
   try {
     const currentData = await getFiestaById(fiestaId);
     if (!currentData) throw new Error("Fiesta no encontrada");

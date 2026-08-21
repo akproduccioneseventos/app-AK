@@ -44,6 +44,7 @@ export async function updateGiftRegistry(fiestaId: string, giftList: GiftItem[])
 
 
 export async function addGiftToRegistry(fiestaId: string, newGiftData: Omit<GiftItem, 'id' | 'isClaimed'>): Promise<{ success: boolean; error?: string }> {
+    await requireAppSession();
     return updateFiestaData(fiestaId, data => {
         const newGift: GiftItem = {
             ...newGiftData,

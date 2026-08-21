@@ -45,6 +45,7 @@ export async function saveReposteriaMasterTemplate(
 import { getFiestaById, saveFiesta } from './fiesta/fiesta.actions';
 
 export async function updateReposteria(fiestaId: string, reposteria: ReposteriaData): Promise<{ success: boolean; updatedData?: ReposteriaData; error?: string }> {
+  await requireAppSession();
   try {
     const fiesta = await getFiestaById(fiestaId);
     if (!fiesta) throw new Error("Fiesta no encontrada");

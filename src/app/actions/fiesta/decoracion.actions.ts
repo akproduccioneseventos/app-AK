@@ -7,6 +7,7 @@ import { updateGestionCostos } from './costos.actions';
 
 import { requireAppSession } from '@/lib/auth/require-session';
 export async function updateDecoracion(fiestaId: string, decoracion: DecoracionData): Promise<{ success: boolean; updatedData?: DecoracionData; error?: string }> {
+  await requireAppSession();
   try {
     const currentData = await getFiestaById(fiestaId);
     if (!currentData) throw new Error("Fiesta no encontrada");

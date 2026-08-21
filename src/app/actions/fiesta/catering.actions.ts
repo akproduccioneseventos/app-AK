@@ -12,6 +12,7 @@ import { requireAppSession } from '@/lib/auth/require-session';
 const FIESTAS_DIR = 'fiestas';
 
 export async function updateMenuAsignado(fiestaId: string, menuId?: string) {
+  await requireAppSession();
   const fiesta = await getFiestaById(fiestaId);
   if (!fiesta) {
       throw new Error("Fiesta no encontrada");

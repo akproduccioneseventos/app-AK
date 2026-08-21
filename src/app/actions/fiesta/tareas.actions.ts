@@ -21,11 +21,15 @@ async function updateFiestaData(
   }
 }
 
+import { requireAppSession } from '@/lib/auth/require-session';
+
 export async function updateTareas(fiestaId: string, tareas: Tarea[]) {
+  await requireAppSession();
   return updateFiestaData(fiestaId, data => ({ ...data, tareas }));
 }
 
 export async function addTarea(fiestaId: string, tareaData: Omit<Tarea, 'id' | 'completada'>): Promise<{ success: boolean; tarea?: Tarea; error?: string }> {
+    await requireAppSession();
     let newTarea: Tarea | undefined = undefined;
     const result = await updateFiestaData(fiestaId, data => {
         newTarea = { ...tareaData, id: `task_${Date.now()}`, completada: false };
@@ -36,6 +40,7 @@ export async function addTarea(fiestaId: string, tareaData: Omit<Tarea, 'id' | '
 }
 
 export async function deleteTarea(fiestaId: string, tareaId: string) {
+    await requireAppSession();
     return updateFiestaData(fiestaId, data => {
         const tareas = (data.tareas || []).filter(t => t.id !== tareaId);
         return { ...data, tareas };
