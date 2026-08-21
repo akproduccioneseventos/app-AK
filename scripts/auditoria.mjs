@@ -573,6 +573,186 @@ function correrPasada4() {
   };
 }
 
+function extraerCuerpoFuncion(codigo, startPos) {
+  const openBrace = codigo.indexOf('{', startPos);
+  if (openBrace === -1) return '';
+  let depth = 1;
+  let inString = false;
+  let stringChar = '';
+  let inComment = false;
+
+  for (let i = openBrace + 1; i < codigo.length; i++) {
+    const char = codigo[i];
+    const prev = codigo[i - 1];
+
+    if (!inString && !inComment) {
+      if (char === '"' || char === "'" || char === '`') {
+        inString = true;
+        stringChar = char;
+      } else if (char === '/' && codigo[i + 1] === '/') {
+        inComment = 'line';
+      } else if (char === '/' && codigo[i + 1] === '*') {
+        inComment = 'block';
+      } else if (char === '{') {
+        depth++;
+      } else if (char === '}') {
+        depth--;
+        if (depth === 0) {
+          return codigo.substring(openBrace, i + 1);
+        }
+      }
+    } else if (inString) {
+      if (char === stringChar && prev !== '\\') {
+        inString = false;
+      }
+    } else if (inComment === 'line') {
+      if (char === '\n') {
+        inComment = false;
+      }
+    } else if (inComment === 'block') {
+      if (char === '/' && prev === '*') {
+        inComment = false;
+      }
+    }
+  }
+  return codigo.substring(openBrace);
+}
+
+// -------------------------------------------------------------
+// PASADA 5: ¿Se cerró de más una puerta pública? (Control anti-regresión)
+// -------------------------------------------------------------
+function correrPasada5() {
+  const hallazgos = [];
+
+  // 1. Verificación explícita de las 7 funciones públicas críticas conocidas
+  const CRITICAS_PUBLICAS = [
+    {
+      fn: 'getBudgetDisplaySettings',
+      archivo: 'src/app/actions/settings.ts',
+      pantalla: 'el portal del cliente, el simulador y la presentación de venta (/simulador-de-presupuesto, /portal/c/...)',
+    },
+    {
+      fn: 'getInvoiceTemplateSettings',
+      archivo: 'src/app/actions/settings.ts',
+      pantalla: 'la pantalla de ingreso /login (para cargar el logo de la empresa antes de iniciar sesión)',
+    },
+    {
+      fn: 'getWhatsAppSettings',
+      archivo: 'src/app/actions/settings.ts',
+      pantalla: 'el motor automático de WhatsApp y webhooks públicos',
+    },
+    {
+      fn: 'getWhatsAppTemplates',
+      archivo: 'src/app/actions/settings.ts',
+      pantalla: 'las plantillas del motor automático de WhatsApp',
+    },
+    {
+      fn: 'getFiestaActivaDeHoy',
+      archivo: 'src/app/actions/fiesta-actual.ts',
+      pantalla: 'el tótem de la barra, la plataforma 360 y el tótem general (/evento/barra, /evento/totem...)',
+    },
+    {
+      fn: 'updateClienteDebeLlevar',
+      archivo: 'src/app/actions/fiesta/fiesta.actions.ts',
+      pantalla: 'el portal del cliente (/portal/c/...) para marcar los elementos que lleva a la fiesta',
+    },
+    {
+      fn: 'updateDecoracion',
+      archivo: 'src/app/actions/fiesta/decoracion.actions.ts',
+      pantalla: 'el portal del cliente (/portal/c/...) para armar el tablero de decoración',
+    },
+  ];
+
+  for (const crit of CRITICAS_PUBLICAS) {
+    const fullPath = path.join(ROOT_DIR, crit.archivo);
+    const content = leerArchivoSeguro(fullPath);
+    if (!content) continue;
+
+    const fnIndex = content.indexOf(`function ${crit.fn}`);
+    if (fnIndex !== -1) {
+      const cuerpo = extraerCuerpoFuncion(content, fnIndex);
+      if (cuerpo.includes('requireAppSession()')) {
+        const lineas = content.substring(0, fnIndex).split('\n');
+        hallazgos.push({
+          archivo: crit.archivo,
+          linea: lineas.length,
+          detalle: `"${crit.fn}" tiene control de sesión ('requireAppSession') pero la usa ${crit.pantalla}, que se abre sin cuenta. Esto rompería esa pantalla en producción.`,
+        });
+      }
+    }
+  }
+
+  // 2. Rastreo dinámico: detectar cualquier Server Action con requireAppSession importada desde rutas públicas
+  const rutasPublicas = [
+    path.join(ROOT_DIR, 'src', 'app', 'evento'),
+    path.join(ROOT_DIR, 'src', 'app', 'portal'),
+    path.join(ROOT_DIR, 'src', 'app', 'feedback'),
+    path.join(ROOT_DIR, 'src', 'app', 'simulador-de-presupuesto'),
+    path.join(ROOT_DIR, 'src', 'app', 'login'),
+    path.join(ROOT_DIR, 'src', 'app', 'public'),
+    path.join(ROOT_DIR, 'src', 'app', '(public)'),
+  ];
+
+  const archivosPublicos = [];
+  for (const r of rutasPublicas) {
+    if (fs.existsSync(r)) {
+      archivosPublicos.push(...listarArchivosRecursivos(r, ['.ts', '.tsx', '.js', '.jsx']));
+    }
+  }
+
+  const actionsDir = path.join(ROOT_DIR, 'src', 'app', 'actions');
+  const actionFiles = listarArchivosRecursivos(actionsDir, ['.ts', '.js']);
+  const accionesProtegidas = new Map();
+
+  for (const af of actionFiles) {
+    const content = leerArchivoSeguro(af);
+    if (!content.includes("'use server'") && !content.includes('"use server"')) continue;
+    const relFile = path.relative(ROOT_DIR, af).replace(/\\/g, '/');
+
+    const fnExportRegex = /export\s+(?:async\s+)?function\s+([a-zA-Z0-9_$]+)\s*\(/g;
+    let match;
+    while ((match = fnExportRegex.exec(content)) !== null) {
+      const fnName = match[1];
+      if (fnName === 'getEntertainmentLaunchToken') continue;
+      const startIndex = match.index;
+      const cuerpo = extraerCuerpoFuncion(content, startIndex);
+      if (cuerpo.includes('requireAppSession()')) {
+        const lineNum = content.substring(0, startIndex).split('\n').length;
+        accionesProtegidas.set(fnName, {
+          file: af,
+          relFile,
+          line: lineNum,
+        });
+      }
+    }
+  }
+
+  for (const pubFile of archivosPublicos) {
+    const pubRel = path.relative(ROOT_DIR, pubFile).replace(/\\/g, '/');
+    const content = leerArchivoSeguro(pubFile);
+
+    for (const [fnName, meta] of accionesProtegidas.entries()) {
+      const importRegex = new RegExp(`\\bimport\\b[^{]*\\{[^}]*\\b${fnName}\\b[^}]*\\}\\s*from`, 'm');
+      if (importRegex.test(content) && content.includes(fnName + '(')) {
+        const yaExiste = hallazgos.some(h => h.archivo === meta.relFile && h.detalle.includes(`"${fnName}"`));
+        if (!yaExiste) {
+          hallazgos.push({
+            archivo: meta.relFile,
+            linea: meta.line,
+            detalle: `"${fnName}" tiene control de sesión ('requireAppSession') pero la usa la pantalla pública "${pubRel}", que se abre sin cuenta. Esto rompería esa pantalla en producción.`,
+          });
+        }
+      }
+    }
+  }
+
+  return {
+    titulo: 'Pasada 5: ¿Se cerró de más una puerta pública? (Funciones con sesión usadas por pantallas públicas)',
+    total: hallazgos.length,
+    hallazgos,
+  };
+}
+
 // -------------------------------------------------------------
 // EJECUCIÓN PRINCIPAL Y REPORTE
 // -------------------------------------------------------------
@@ -590,6 +770,7 @@ export function ejecutarAuditoria() {
   const p2 = correrPasada2();
   const p3 = correrPasada3();
   const p4 = correrPasada4();
+  const p5 = correrPasada5();
 
   const lineasMd = [];
   lineasMd.push('# Informe de Auditoría Mecánica Continua');
@@ -599,17 +780,18 @@ export function ejecutarAuditoria() {
   lineasMd.push('');
   lineasMd.push('---');
   lineasMd.push('');
-  lineasMd.push('## Resumen de Resultados (4 Números)');
+  lineasMd.push('## Resumen de Resultados (5 Números)');
   lineasMd.push('');
   lineasMd.push(`- **1. Tareas automáticas sin rastro:** ${p1.total} hallazgos`);
   lineasMd.push(`- **2. Elementos huérfanos o solo en tests:** ${p2.total} hallazgos`);
   lineasMd.push(`- **3. Datos simulados o inventados en UI:** ${p3.total} hallazgos`);
   lineasMd.push(`- **4. Promesas automáticas en pantalla:** ${p4.total} frases a contrastar`);
+  lineasMd.push(`- **5. Puertas públicas cerradas de más:** ${p5.total} hallazgos`);
   lineasMd.push('');
   lineasMd.push('---');
   lineasMd.push('');
 
-  const pasadas = [p1, p2, p3, p4];
+  const pasadas = [p1, p2, p3, p4, p5];
   for (let idx = 0; idx < pasadas.length; idx++) {
     const p = pasadas[idx];
     lineasMd.push(`### ${p.titulo} (${p.total})`);
@@ -638,6 +820,7 @@ export function ejecutarAuditoria() {
   console.log(`  - Pasada 2 (Huérfanos / solo tests): ${p2.total}`);
   console.log(`  - Pasada 3 (Datos simulados en UI): ${p3.total}`);
   console.log(`  - Pasada 4 (Promesas en pantalla): ${p4.total}`);
+  console.log(`  - Pasada 5 (Puertas públicas cerradas de más): ${p5.total}`);
   console.log(`======================================================\n`);
 
   return {
@@ -646,9 +829,11 @@ export function ejecutarAuditoria() {
     pasada2: p2.total,
     pasada3: p3.total,
     pasada4: p4.total,
+    pasada5: p5.total,
   };
 }
 
 if (process.argv[1] && process.argv[1].endsWith('auditoria.mjs')) {
   ejecutarAuditoria();
 }
+

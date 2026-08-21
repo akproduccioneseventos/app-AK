@@ -88,7 +88,12 @@ test('prospect completes the simulator and downloads a formal future-year PDF', 
   await openSummary.click();
 
   await expect(page.getByRole('heading', { name: /Tu presupuesto est[aá] listo/i })).toBeVisible({ timeout: 60_000 });
-  await expect(page.getByText(/15 minutos/i).first()).toBeVisible();
+  // Antes la pantalla prometia una respuesta "en 15 minutos" y esa promesa se
+  // saco: el negocio no la puede garantizar, y una promesa que no se cumple es
+  // peor que no hacerla. Lo que si tiene que estar es la forma de cerrar, que es
+  // lo que se verifica en las lineas de abajo: guardar el PDF y escribir por
+  // WhatsApp.
+  await expect(page.getByText(/congelar la tarifa|WhatsApp/i).first()).toBeVisible();
 
   const downloadPromise = page.waitForEvent('download');
   await page.getByRole('button', { name: /Guardar PDF/i }).click();

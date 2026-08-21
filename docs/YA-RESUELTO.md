@@ -19,6 +19,10 @@ anotado, la próxima auditoría lo va a volver a encontrar.
 
 ## Decisiones del dueño (no son errores, no se discuten)
 
+- **Pruebas de navegador en tandas y control de puertas públicas — 21 de agosto de 2026:**
+  - **Bloque 1 — Ejecución de pruebas E2E en tandas automáticas (`scripts/run-playwright-production.mjs`, `package.json`):** `npm run test:e2e` ejecuta los 20 archivos de prueba en tandas de 4 archivos contra la versión compilada de producción (`next start`). Levanta y apaga su propio servidor en cada tanda, liberando el puerto antes de empezar. Aplica el criterio de medio segundo: fallas en <500ms (saturación de entorno) se reintentan automáticamente con servidor fresco. Al finalizar, genera un informe consolidado con total ejecutadas, pasadas, fallas reales y descartadas por entorno.
+  - **Bloque 2 — Control de puertas públicas en la auditoría (`scripts/auditoria.mjs`, `src/__tests__/control-puertas-publicas-no-cerradas.test.ts`, `src/__tests__/script-auditoria-mecanica.test.ts`):** Nueva Pasada 5 en `npm run auditoria` que detecta y alerta en criollo cuando una función requerida por pantallas públicas (simulador, portal, tótem de barra, plataforma 360, /login) es cerrada por error con `requireAppSession()`, detallando exactamente qué pantalla rompería en producción. Protege explícitamente las 7 funciones públicas críticas (`getFiestaActivaDeHoy`, `getInvoiceTemplateSettings`, `getBudgetDisplaySettings`, `getWhatsAppSettings`, `getWhatsAppTemplates`, `updateClienteDebeLlevar`, `updateDecoracion`).
+
 - **La reseña, también desde el invitado — Orden 6 (21 de agosto de 2026):**
   - **Bloque 1 — Hub del invitado (`src/app/evento/hub/[fiestaId]/page.tsx`):** Botón discreto y opcional en el hub del evento ("¿La estás pasando bien? Contalo en Google") que consume `getEnlaceDeResenaPublico()`. Solo se dibuja si el enlace de Google está configurado en Ajustes. Abre en pestaña nueva de forma segura (`target="_blank"` con `rel="noopener noreferrer"`).
   - **Bloque 2 — Álbum de fotos (`src/app/evento/album/[fiestaId]/page.tsx`):** Botón opcional al pie del álbum de fotos ("¿Te gustaron las fotos? Contanos cómo la pasaste en Google"). Sin enlace no se dibuja. No condiciona ni pide 5 estrellas (cumple políticas anti-penalización de Google).
@@ -3852,6 +3856,78 @@ una decisión del dueño y se hace aparte, completa.**
 Pasó porque la entrega estaba hecha sobre la versión anterior, no sobre la principal
 de ahora. Es el mismo riesgo de siempre: **una propuesta vieja puede devolver lo que ya
 se había sacado.**
+
+## Los datos que escribe la app al correr no se commitean (21 de agosto de 2026)
+
+Al correr las pruebas de navegador en local, la app **escribió sus propios datos**:
+el contador de gasto de inteligencia artificial del mes, el historial de números de
+redes del día, y la revisión diaria. Aparecieron como archivos nuevos listos para
+subir.
+
+**Commitearlos habría pisado en producción el contador de gasto real y el historial
+de las redes** con lo que quedó de una corrida de prueba. Quedaron ignorados, con
+el motivo escrito al lado, junto con los otros dos que la app genera sola.
+
+**Regla:** un archivo de datos que aparece solo después de correr algo **no es
+configuración, es estado**. No se sube.
+
+## El control que faltaba: las pruebas de navegador (21 de agosto de 2026)
+
+El dueño preguntó por qué, con tanta auditoría, siempre salta algo nuevo. **La
+respuesta era concreta y no era el código.**
+
+La app tiene **596 pruebas que abren la aplicación en un navegador de verdad** y
+usan las pantallas como las usa una persona. **Nunca se corrieron.** Los cinco
+controles de salud no las incluían, y son las únicas que ven lo que ve el usuario.
+
+Todo lo que se nos escapó a las tres inteligencias —el píxel que no existía, los
+carteles de "conectado" sin nada detrás, las tareas que no corrían— es de esa
+clase: **sólo se ve abriendo la aplicación**.
+
+**Por qué nunca terminaban, con los dos motivos y los dos arreglos:**
+
+- **Arrancaban en modo lento**, recompilando cada pantalla al visitarla: se
+  trababan y nadie llegaba al final. Ahora `npm run test:e2e` usa la versión
+  compilada; el modo lento quedó como `test:e2e:lento`.
+- **Varias corridas a la vez se pisan**, y un servidor de prueba viejo ocupando el
+  puerto hace que se pruebe contra una versión anterior.
+
+**Resultado del primer barrido de las pantallas públicas: 30 de 30 en verde.**
+Portada, catálogo, galería y el recorrido completo del prospecto en el simulador,
+en computadora y en celular.
+
+**Y una falsa alarma que vale documentar:** una prueba dijo que el prospecto
+llegaba al final del simulador y **no tenía cómo cerrar la compra**. Era el
+servidor viejo del puerto 3100. Reiniciado, pasa. **Antes de creerle a una falla
+de navegador, reiniciar el servidor y repetir sólo esa prueba.**
+
+Queda como sexto control obligatorio en `CLAUDE.md`.
+
+## Cerrar de más también rompe: cuatro puertas que hay que dejar abiertas (21 de agosto de 2026)
+
+Una entrega volvió a ponerle control de sesión a **siete funciones que son
+públicas a propósito**, y que ya se habían reabierto el mismo día por el mismo
+motivo. Se detectó al fusionar, antes de que entrara.
+
+Lo que habría roto, en concreto:
+
+- **El logo de la pantalla de ingreso**, que se muestra antes de que exista sesión.
+- **El simulador y la presentación de venta**, que abre el prospecto sin cuenta.
+- **El tótem de la barra, la plataforma 360 y el tótem general**: preguntan qué
+  fiesta hay hoy y se abren **sin cuenta, en pleno evento**. Se habrían quedado
+  sin encontrar la fiesta.
+- **El motor de WhatsApp**, que corre desde el despertador externo y no tiene
+  sesión de nadie.
+- **El portal del cliente**, donde el cliente arma su tablero de decoración y su
+  lista de cosas a llevar.
+
+> **La regla, que ya estaba escrita y hay que respetar: antes de cerrar una puerta,
+> mirá quién la llama.** El atajo de cerrar todo deja al cliente y al invitado
+> afuera, y no se nota hasta la noche de la fiesta.
+
+Las siete están declaradas con su motivo en
+`src/__tests__/auditoria-puertas-abiertas.test.ts`, para que no se vuelvan a cerrar
+de apuro.
 
 ## Cómo agregar algo a esta lista
 

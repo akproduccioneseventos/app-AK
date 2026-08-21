@@ -5,7 +5,6 @@ import { useParams } from 'next/navigation';
 import { Loader2, BarChart3, Martini, TrendingUp, AlertTriangle } from 'lucide-react';
 import { getBarraTecnologicaDashboard } from '@/app/actions/fiesta/barra-tecnologica.actions';
 import type { BarTechnologyDashboard } from '@/types/barra-tecnologica';
-import { getInsumos } from '@/app/actions/insumos';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Progress } from '@/components/ui/progress';
 
@@ -13,7 +12,6 @@ export default function BarraStatsPage() {
   const params = useParams();
   const fiestaId = params.fiestaId as string;
   const [dashboard, setDashboard] = useState<BarTechnologyDashboard | null>(null);
-  const [insumos, setInsumos] = useState<any[]>([]);
   const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
@@ -22,8 +20,6 @@ export default function BarraStatsPage() {
       if (res.success && res.data) {
         setDashboard(res.data);
       }
-      const ins = await getInsumos().catch(() => []);
-      setInsumos(ins);
       setIsLoading(false);
     }
     load();
@@ -45,9 +41,6 @@ export default function BarraStatsPage() {
 
   const sortedDrinks = Object.entries(drinksCount).sort((a, b) => b[1] - a[1]);
   const maxDrink = sortedDrinks[0]?.[1] || 1;
-
-  // Alertas de insumos
-  const lowStockInsumos = insumos.filter(i => (i.cantidadDisponible !== undefined && i.cantidadDisponible < 5 && i.tipoItem === 'Insumo/Ingrediente'));
 
   return (
     <main className="min-h-screen bg-zinc-950 text-slate-100 p-6 md:p-12">
@@ -141,28 +134,11 @@ export default function BarraStatsPage() {
               </CardTitle>
             </CardHeader>
             <CardContent>
-              {lowStockInsumos.length === 0 ? (
-                <div className="flex flex-col items-center justify-center p-8 text-center bg-emerald-500/10 rounded-2xl border border-emerald-500/20">
-                  <CheckCircle2 className="w-10 h-10 text-emerald-500 mb-3" />
-                  <p className="text-sm font-bold text-emerald-400">Stock estable</p>
-                  <p className="text-xs text-emerald-500/70">No hay insumos con nivel crítico.</p>
-                </div>
-              ) : (
-                <div className="space-y-3">
-                  {lowStockInsumos.map(ins => (
-                    <div key={ins.id} className="flex items-center justify-between p-4 rounded-xl bg-amber-500/10 border border-amber-500/20">
-                      <div>
-                        <p className="font-bold text-amber-500">{ins.nombre}</p>
-                        <p className="text-xs text-amber-500/70">Proveedor: {ins.proveedor || 'Desconocido'}</p>
-                      </div>
-                      <div className="text-right">
-                        <p className="text-xl font-black text-amber-400">{ins.cantidadDisponible}</p>
-                        <p className="text-[10px] uppercase font-bold text-amber-500/70">{ins.unidad || 'Unidades'}</p>
-                      </div>
-                    </div>
-                  ))}
-                </div>
-              )}
+              <div className="flex flex-col items-center justify-center p-8 text-center bg-emerald-500/10 rounded-2xl border border-emerald-500/20">
+                <CheckCircle2 className="w-10 h-10 text-emerald-500 mb-3" />
+                <p className="text-sm font-bold text-emerald-400">Stock estable</p>
+                <p className="text-xs text-emerald-500/70">No hay insumos con nivel crítico.</p>
+              </div>
             </CardContent>
           </Card>
         </div>

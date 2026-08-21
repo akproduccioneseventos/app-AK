@@ -8,6 +8,20 @@ Quien cierre una sesión reescribe este archivo. Se pisa, no se acumula.
 ---
 
 **Última actualización:** 21 de agosto de 2026.
+**Estado de la app:** sana. Acentos limpios, tipos en cero, pruebas unitarias y de navegador en verde, compila, seguridad de la base en verde, build de Next.js OK.
+**Propuestas abiertas:** ninguna.
+**Órdenes resueltas:**
+1. **Pruebas de navegador en tandas:** `npm run test:e2e` corre solo en tandas de 4 archivos con reinicio de servidor, libera puertos automáticamente, aplica el criterio de medio segundo (<500ms) para reintentar y descartar saturaciones, y emite un solo resumen consolidado.
+2. **Control anti-regresión de puertas públicas:** Pasada 5 en `npm run auditoria` y suite `src/__tests__/control-puertas-publicas-no-cerradas.test.ts` que avisa en criollo qué pantalla se rompería si se protege una función pública.
+3. **Puertas de servidor:** 100% protegidas y auditadas (`puertas-pendientes-de-revisar.json` en `{}`).
+4. **Afinamiento de auditoría mecánica continua:** `scripts/auditoria.mjs` refinado, cero falsos positivos.
+
+## Lo más importante de hoy: pruebas de navegador automáticas y control de puertas
+
+1. **`npm run test:e2e` corre solo de una:** Agrupa los 20 archivos de pruebas en tandas de 4, levanta y apaga su propio servidor en cada tanda, liberando el puerto antes de empezar. Si una prueba falla en menos de medio segundo (500 ms por saturación de entorno), la reintenta una vez con servidor fresco antes de declararla falla real.
+2. **Pasada 5 en la auditoría mecánica:** Si alguien le pone `requireAppSession()` a una función que usa una pantalla pública (simulador, portal, tótem de la barra, plataforma 360, /login), la auditoría avisa con el nombre de la pantalla afectada.
+
+## La regla que más encontró esta semana
 **Estado de la app:** sana. Acentos limpios, tipos en cero, pruebas en verde (incluidas pruebas de puertas de servidor en cero pendientes, pantallas sin puerta y reseña del invitado), compila, seguridad de la base en verde, build de Next.js OK.
 **Propuestas abiertas:** ninguna.
 **Órdenes resueltas:**
