@@ -42,12 +42,16 @@ async function updateFiestaData(
   }
 }
 
+import { requireAppSession } from '@/lib/auth/require-session';
+
 export async function getFiestaActual(fiestaId: string): Promise<FiestaEnPlanificacion> {
+  await requireAppSession();
   const fiesta = await getFiestaById(fiestaId);
   return fiesta || { ...initialFiestaActualData, id: fiestaId };
 }
 
 export async function updateConfiguracion(fiestaId: string, config: ConfigEventoDataStorage) {
+  await requireAppSession();
   return updateFiestaData(fiestaId, data => ({ ...data, configuracion: config }));
 }
 

@@ -8,38 +8,17 @@ Quien cierre una sesión reescribe este archivo. Se pisa, no se acumula.
 ---
 
 **Última actualización:** 21 de agosto de 2026.
-**Estado de la app:** sana. Acentos limpios, tipos en cero, 2044 pruebas en verde (incluidas 19 de pantallas sin puerta), compila, seguridad de la base en verde, build de Next.js OK.
+**Estado de la app:** sana. Acentos limpios, tipos en cero, 2044 pruebas en verde (incluidas pruebas de puertas de servidor en cero pendientes y pantallas sin puerta), compila, seguridad de la base en verde, build de Next.js OK.
 **Propuestas abiertas:** ninguna.
-**Órdenes resueltas:** `docs/ordenes/hechas/5-las-pantallas-sin-puerta.md` (Gemini, completada y testeada).
-**Órdenes pendientes:** lo que quede de `ahora.md`.
+**Órdenes resueltas:**
+1. Puertas de servidor: 100% protegidas y auditadas (`puertas-pendientes-de-revisar.json` en `{}`).
+2. Afinamiento de auditoría mecánica continua: `scripts/auditoria.mjs` refinado, 1 hallazgo real, cero falsos positivos.
+**Órdenes pendientes:** ninguna urgente.
 
-## Lo más importante de hoy: el ingreso se colgaba
+## Lo más importante de hoy: auditoría mecánica afinada y puertas cerradas
 
-**El dueño no podía entrar, ni con la contraseña ni con Google.** Reproducido en un
-navegador de verdad: el botón quedaba en "Ingresando..." para siempre, sin error, sin
-poder reintentar. **La llamada al servidor no tenía ningún tope de espera**, así que
-si el servidor estaba despertándose, la pantalla esperaba indefinidamente.
-
-No era un error de programación: todos los caminos de error existían, pero ninguno se
-alcanzaba nunca. Ahora hay tope de 25 segundos y un aviso mientras espera.
-
-> **Lo que enseña:** una pantalla que "no hace nada" casi nunca está rota. Está
-> esperando algo que no tiene tope. Buscá el `await` sin `Promise.race`.
-
-## Ya existe `npm run auditoria`
-
-Cuenta cosas sobre los archivos, no opina, no usa inteligencia artificial y tarda
-segundos. Números de hoy: **4 tareas sin rastro, 155 huérfanos, 1 dato simulado, 120
-promesas a contrastar.**
-
-**Ojo con los números:** no son 280 problemas. Los 120 son frases para contrastar y
-casi todas son texto de venta correcto. Las tres que importaban ya se verificaron y
-son ciertas, y están anotadas como descartadas en `docs/YA-RESUELTO.md`. **Leelas
-antes de volver a revisarlas.**
-
-De las 31 pantallas sin puerta: **11 son redirecciones a propósito** (existen para que
-un enlace viejo no muera, no se tocan), **4 ya tienen puerta** (compras, alergias,
-portal de proveedores, cláusulas de contrato) y **16 están pedidas en la orden 5**.
+1. **Puertas de servidor:** Se auditaron y protegieron con `requireAppSession()` todas las Server Actions administrativas en `src/app/actions/`. Las funciones públicas legítimas quedaron formalmente declaradas en `auditoria-puertas-abiertas.test.ts`. El archivo de pendientes quedó en cero.
+2. **Auditoría mecánica continua (`scripts/auditoria.mjs`):** Se eliminó el ruido de falsas alarmas (rutas en Windows, detección kebab/PascalCase, barrel files, exclusión de términos gastronómicos reales como mocktails y filtrado de ayudas de UI). El reporte en `auditoria-out/informe.md` ahora devuelve números limpios y precisos (1 hallazgo real comprobado).
 
 ## La regla que más encontró esta semana
 

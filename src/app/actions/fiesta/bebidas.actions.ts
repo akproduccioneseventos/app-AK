@@ -1,9 +1,11 @@
 'use server';
 
+import { requireAppSession } from '@/lib/auth/require-session';
 import type { FiestaEnPlanificacion, BebidasData } from '@/types/fiesta';
 import { getFiestaById, saveFiesta } from './fiesta.actions';
 
 export async function updateBebidas(fiestaId: string, bebidas: BebidasData): Promise<{ success: boolean; error?: string }> {
+  await requireAppSession();
   try {
     const fiesta = await getFiestaById(fiestaId);
     if (!fiesta) throw new Error("Fiesta no encontrada");

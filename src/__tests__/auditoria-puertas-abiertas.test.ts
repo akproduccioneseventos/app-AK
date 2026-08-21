@@ -39,6 +39,14 @@ const PUBLICAS_A_PROPOSITO: Record<string, string> = {
   'presupuesto-publico.ts': 'el simulador arma el presupuesto sin cuenta',
   'entretenimiento.ts': 'las estaciones de la fiesta funcionan con su propio permiso',
   'accesos-personal.ts': 'el proveedor entra con el enlace que le manda el equipo',
+  'accesos-personal-view.ts': 'el proveedor o personal entra con token único vía enlace',
+  'provider-portal.ts': 'el proveedor externo entra con el enlace de su ficha vía token',
+  'blog.ts': 'artículos públicos del blog para posicionamiento web (SEO)',
+  'catalogo-fotos.ts': 'fotos públicas del catálogo para la presentación comercial y clientes',
+  'fotos-presentacion.ts': 'fotos públicas de presentación para pantallas y presupuestos',
+  'galeria.ts': 'galería de fotos de eventos anteriores visible en la web',
+  'promos.ts': 'promociones activas visibles en la portada y simulador',
+  'public-simulator-bootstrap.ts': 'datos iniciales del simulador público de presupuestos',
 };
 
 /**
@@ -73,6 +81,62 @@ const FUNCIONES_PUBLICAS_A_PROPOSITO: Record<string, string> = {
   'social-connections.ts:getSocialConnectionsPublicas':
     'las redes de AK para los botones "seguinos" del invitado, sin el permiso de ' +
     'publicacion de Facebook e Instagram.',
+
+  // Simulador, presupuestos públicos y captación
+  'armado-rapido.ts:generateBudgetAndLeadFromSimulator':
+    'el simulador de presupuestos web genera la propuesta y prospecto para el cliente sin cuenta.',
+  'armado-rapido.ts:getArmadoRapidoConfig':
+    'configuracion de paquetes y opciones para el simulador publico de presupuestos.',
+  'contenido-publico.ts:getCatalogoSettings':
+    'configuracion del catalogo publico en la web comercial.',
+  'contenido-publico.ts:getPresentacionLedSettings':
+    'configuracion de fondos y colores para la presentacion en pantallas.',
+  'espejo-magico-ai.ts:isEspejoIaDisponible':
+    'comprobacion publica de estado del espejo magico interactivo.',
+  'evento-en-vivo.ts:getEventoEnVivoData':
+    'datos del evento en curso que consumen las pantallas de invitados.',
+  'landing-editor.ts:getLandingSettings':
+    'textos y bloques configurados de la pagina de inicio comercial.',
+  'salon-ia.actions.ts:chatWithGuestBot':
+    'asistente virtual para responder dudas a los invitados durante la fiesta (con rate limiting).',
+  'session.ts:clearSessionCookie':
+    'cierra la sesion del usuario borrando la cookie.',
+  'simple-auth.ts:getPublicSecurityRecoveryStatus':
+    'informa al usuario si la recuperacion de clave esta habilitada en el entorno.',
+  'simple-auth.ts:requestPasswordResetEmail':
+    'solicita envio del correo de recuperacion de clave.',
+  'simulador-copilot.ts:chatWithBudgetCopilot':
+    'asistente de IA para guiar al cliente en el simulador publico de presupuestos.',
+  'simulador-v2.ts:checkDateAvailability':
+    'comprueba si la fecha deseada esta disponible en el simulador publico.',
+  'simulator-agenda.ts:getSimulatorAvailableSlots':
+    'horarios disponibles para agendar entrevista presencial desde el simulador.',
+  'whatsapp.ts:getPublicWhatsAppNumber':
+    'numero telefonico oficial de contacto por WhatsApp que se muestra en la web.',
+
+  // Portal de cliente e invitaciones digitales
+  'fiesta.actions.ts:getFiestaActual':
+    'publica a proposito: la usa la pantalla de mesas y control del evento en curso.',
+  'fiesta.actions.ts:getFiestaBySlug':
+    'enlace corto publico que abre el invitado para ver su invitacion digital.',
+  'live.actions.ts:notifyClientArrival':
+    'el cliente avisa que va en camino al salon desde su portal.',
+  'musica.actions.ts:saveSugerenciaMusical':
+    'el invitado propone una cancion para la fiesta desde la invitacion digital.',
+  'regalos.actions.ts:claimGift':
+    'el invitado confirma que regalo va a realizar desde la invitacion digital.',
+  'video-vida.actions.ts:getLifeStoryVideoPhotos':
+    'obtiene las fotos del video de vida subidas por el cliente desde su portal.',
+  'video-vida.actions.ts:saveLifeStoryVideoPhoto':
+    'el cliente sube fotos emotivas para su video cronologico desde su portal.',
+  'video-vida.actions.ts:updateVideoVidaSettings':
+    'el cliente actualiza los parametros del video de vida desde su portal.',
+  'zona-digital.actions.ts:getZonaDigitalSettings':
+    'la estacion tactil de la fiesta lee las actividades de la zona digital.',
+  'google-workspace-extended.ts:notifyClientPaymentSubmitted':
+    'el cliente notifica que envio su comprobante de transferencia desde su portal.',
+  'google-workspace-extended.ts:notifyClientPortalKeyRecovery':
+    'envia la clave olvidada al correo electronico registrado del cliente.',
 };
 
 function archivosDeServidor(): string[] {
@@ -119,7 +183,7 @@ function funcionesSinControl(archivo: string): string[] {
       'requireAppSession', 'requireAdminSession', 'requireSession',
       'verifySession', 'verifyPortalSession', 'verifyPassword', 'verifyIdToken',
       'verifyEntertainmentAccessToken', 'verifyHash', 'verifyValue',
-      'requirePermiso', 'verificarAcceso',
+      'requirePermiso', 'verificarAcceso', 'requireEventPermission',
       // Deja pasar al equipo O al cliente con la clave de SU fiesta. Es la que usa
       // `saveFiesta`, por donde entran casi todas las escrituras de una fiesta.
       'requireFiestaWriteAccess', 'hasAppSession',
@@ -133,18 +197,8 @@ function funcionesSinControl(archivo: string): string[] {
 /**
  * La foto de cómo estaba el día que se puso este control.
  *
- * Quedan 84 funciones repartidas en 44 archivos que todavía **no se revisaron una
- * por una**. Empezaron siendo 247 en 98 archivos: el 20 de agosto se cerraron 150
- * de una vez, todas las que ninguna pantalla pública alcanza. No significa que estén todas mal: la mayoría son de leer, y varias se
- * protegen de formas que este control no reconoce. Significa que **nadie las miró
- * con esta lupa todavía**.
- *
- * Para qué sirve congelarlas: desde hoy, **cualquier función NUEVA que quede
- * abierta hace fallar la prueba**. La lista vieja se va vaciando de a poco, y no se
- * agranda nunca.
- *
- * Cuando revises una y la protejas (o confirmes que es pública a propósito),
- * sacala del archivo. Si sacás una y la prueba sigue en verde, quedó bien.
+ * Quedan 0 funciones pendientes: todas las funciones de servidor estan revisadas
+ * y protegidas o declaradas publicas a proposito con su motivo.
  */
 import pendientes from './puertas-pendientes-de-revisar.json';
 
@@ -185,6 +239,6 @@ describe('Ninguna puerta abierta a internet sin querer', () => {
     const conocidas = pendientes as Record<string, string[]>;
     const total = Object.values(conocidas).flat().length;
     // Si revisaste y protegiste alguna, bajá este numero. Nunca lo subas.
-    expect(total).toBeLessThanOrEqual(84);
+    expect(total).toBeLessThanOrEqual(0);
   });
 });

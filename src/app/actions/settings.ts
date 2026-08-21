@@ -394,6 +394,7 @@ export async function getContractTemplateByType(type: ContractType): Promise<Con
 
 // --- Budget Display Settings ---
 export async function getBudgetDisplaySettings(): Promise<BudgetDisplaySettings> {
+  await requireAppSession();
   try {
     const data = await readData<Partial<BudgetDisplaySettings>>(BUDGET_SETTINGS_FILE, {});
     return { ...defaultBudgetDisplaySettings, ...data };
@@ -428,6 +429,7 @@ export async function saveBudgetDisplaySettings(
 
 // --- Invoice Template Settings ---
 export async function getInvoiceTemplateSettings(): Promise<InvoiceTemplateSettings> {
+  await requireAppSession();
   try {
     const data = await readData<Partial<InvoiceTemplateSettings>>(INVOICE_SETTINGS_FILE, {});
     return { ...defaultInvoiceTemplateSettings, ...data };
@@ -456,6 +458,7 @@ export async function saveInvoiceTemplateSettings(
 
 // --- WhatsApp Settings ---
 export async function getWhatsAppSettings(): Promise<WhatsAppSettings> {
+  await requireAppSession();
   try {
     const data = await readData<Partial<WhatsAppSettings>>(WHATSAPP_SETTINGS_FILE, {});
     return { ...defaultWhatsAppSettings, ...data };
@@ -503,6 +506,7 @@ export async function saveContractSettings(settings: ContractSettings): Promise<
 
 // --- WhatsApp Templates ---
 export async function getWhatsAppTemplates(): Promise<WhatsAppTemplates> {
+  await requireAppSession();
   try {
     const data = await readData<Partial<WhatsAppTemplates>>(WHATSAPP_TEMPLATES_FILE, {});
     return { ...defaultWhatsAppTemplates, ...data };

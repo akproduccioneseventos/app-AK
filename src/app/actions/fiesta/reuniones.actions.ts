@@ -27,7 +27,10 @@ function syncReunionInBackground(fiestaId: string, reunion: Reunion, sendEmails 
     .catch((error) => console.warn('[Google Workspace] No se pudo sincronizar reunion:', error));
 }
 
+import { requireAppSession } from '@/lib/auth/require-session';
+
 export async function addReunion(reunionData: Omit<Reunion, 'id'>) {
+  await requireAppSession();
   if (!reunionData.fiestaId) return { success: false, error: 'Fiesta ID es requerido.' };
 
   let newReunion: Reunion | null = null;
@@ -45,6 +48,7 @@ export async function addReunion(reunionData: Omit<Reunion, 'id'>) {
 }
 
 export async function updateReunion(updatedReunion: Reunion) {
+  await requireAppSession();
   if (!updatedReunion.fiestaId) return { success: false, error: 'Fiesta ID es requerido.' };
   const result = await updateFiestaData(updatedReunion.fiestaId, data => ({
     ...data,
@@ -59,6 +63,7 @@ export async function updateReunion(updatedReunion: Reunion) {
 }
 
 export async function deleteReunion(fiestaId: string, reunionId: string) {
+  await requireAppSession();
   return updateFiestaData(fiestaId, data => ({
     ...data,
     reuniones: (data.reuniones || []).filter(r => r.id !== reunionId),

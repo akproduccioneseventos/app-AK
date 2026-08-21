@@ -677,6 +677,7 @@ function generateCartaTragosSugerida(eventoTipo: string, clienteNombre: string):
  * Dispara la configuración operativa de la fiesta basándose en el presupuesto aceptado.
  */
 export async function syncFiestaFromBudget(fiestaId: string) {
+    await requireAppSession();
     const fiesta = await getFiestaById(fiestaId);
     if (!fiesta || !fiesta.presupuestoId) return { success: false, error: "Fiesta o presupuesto no encontrado" };
 
@@ -920,6 +921,7 @@ export async function deleteFiestaArchivada(fiestaId: string): Promise<{ success
  * In production (Firestore), each active fiesta is archived; in local dev the files are moved.
  */
 export async function resetAllActiveFiestas(): Promise<{ success: boolean; archivedCount?: number; errors?: string[]; error?: string }> {
+  await requireAppSession();
   try {
     const activas = await getFiestas(false);
     const errors: string[] = [];
@@ -982,6 +984,7 @@ export async function createFiestaVacia(
   clienteId?: string,
   clienteNombre?: string
 ): Promise<{ success: boolean; newFiestaId?: string; error?: string }> {
+    await requireAppSession();
     try {
         const newFiesta = {
             ...initialFiestaActualData,
@@ -1010,6 +1013,7 @@ export async function createFiestaVacia(
 export async function createDemoFiesta(
   kind: AkDemoFiestaKind
 ): Promise<{ success: boolean; newFiestaId?: string; error?: string }> {
+  await requireAppSession();
   try {
     const demoFiesta = buildAkDemoFiesta(kind);
     const result = await saveFiesta(demoFiesta);
@@ -1024,6 +1028,7 @@ export async function createDemoFiesta(
 }
 
 export async function updateFiestaPresupuestoId(fiestaId: string, presupuestoId: string | null): Promise<{ success: boolean; error?: string }> {
+    await requireAppSession();
     try {
         const fiesta = await getFiestaById(fiestaId);
         if (!fiesta) throw new Error("Evento no encontrado.");
@@ -1035,9 +1040,11 @@ export async function updateFiestaPresupuestoId(fiestaId: string, presupuestoId:
 }
 
 export async function resetFiestaActual(): Promise<{ success: boolean; error?: string }> {
+    await requireAppSession();
     return { success: false, error: "Función deshabilitada por seguridad" };
 }
 export async function duplicateFiesta(fiestaId: string): Promise<{ success: boolean; newFiestaId?: string; error?: string }> {
+  await requireAppSession();
   try {
     const original = await getFiestaById(fiestaId);
     if (!original) throw new Error('Evento no encontrado.');
@@ -1055,6 +1062,7 @@ export async function duplicateFiesta(fiestaId: string): Promise<{ success: bool
 }
 
 export async function addInvoiceId(fiestaId: string, invoiceId: string) {
+  await requireAppSession();
   const f = await getFiestaById(fiestaId);
   if (!f) return { success: false };
   if ((f.invoiceIds || []).includes(invoiceId)) return { success: true };
@@ -1062,18 +1070,21 @@ export async function addInvoiceId(fiestaId: string, invoiceId: string) {
 }
 
 export async function removeInvoiceId(fiestaId: string, invoiceId: string) {
+  await requireAppSession();
   const f = await getFiestaById(fiestaId);
   if (!f) return { success: false };
   return await saveFiesta({ ...f, invoiceIds: (f.invoiceIds || []).filter(id => id !== invoiceId) });
 }
 
 export async function updateMenuMesa(fiestaId: string, menuData: MenuMesaData) {
+  await requireAppSession();
   const f = await getFiestaById(fiestaId);
   if (!f) return { success: false };
   return await saveFiesta({ ...f, menuMesa: menuData });
 }
 
 export async function updateNumerosMesa(fiestaId: string, data: NumerosMesaData) {
+  await requireAppSession();
   const f = await getFiestaById(fiestaId);
   if (!f) return { success: false };
   return await saveFiesta({ ...f, numerosMesa: data });
@@ -1111,6 +1122,7 @@ export async function updateFiestaPostEvento(
  * Se usa cuando se crea un cliente directamente (no desde el CRM).
  */
 export async function createNewFiestaForCustomer(customer: { id: string; name: string; partyDate?: string; partyType?: string; venueName?: string; guestCount?: number; }): Promise<{ success: boolean; fiestaId?: string; error?: string }> {
+  await requireAppSession();
   try {
     const newFiesta: FiestaEnPlanificacion = {
       ...initialFiestaActualData,
@@ -1134,6 +1146,7 @@ export async function createNewFiestaForCustomer(customer: { id: string; name: s
 }
 
 export async function updateGuestPortalSettings(fiestaId: string, settings: GuestPortalSettings) {
+  await requireAppSession();
   const f = await getFiestaById(fiestaId);
   if (!f) return { success: false, error: 'Evento no encontrado.' };
   return await saveFiesta({ ...f, guestPortalSettings: settings });
@@ -1147,6 +1160,7 @@ export async function updateGuestExperienceSettings(fiestaId: string, settings: 
 }
 
 export async function updateClienteDebeLlevar(fiestaId: string, items: ClienteDebeLlevarItem[]) {
+  await requireAppSession();
   const f = await getFiestaById(fiestaId);
   if (!f) return { success: false, error: 'Evento no encontrado.' };
   return await saveFiesta({ ...f, clienteDebeLlevar: items });

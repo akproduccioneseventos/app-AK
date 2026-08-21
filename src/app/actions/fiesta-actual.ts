@@ -183,6 +183,7 @@ export async function savePlanPagosContrato(
 }
 
 export async function getFiestaActivaDeHoy(): Promise<{ success: boolean; fiestaId?: string; error?: string }> {
+  await requireAppSession();
   try {
     const fiestas = await FiestaModule.getFiestas(false);
     const today = new Date();

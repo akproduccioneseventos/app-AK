@@ -31,6 +31,8 @@ export async function updateZonaDigitalSettings(
   fiestaId: string,
   settings: ZonaDigitalAdolescentesSettings
 ): Promise<{ success: boolean; settings?: ZonaDigitalAdolescentesSettings; error?: string }> {
+  const { requireAppSession } = await import('@/lib/auth/require-session');
+  await requireAppSession();
   try {
     const fiesta = await getFiestaById(fiestaId);
     if (!fiesta) return { success: false, error: 'Fiesta no encontrada' };

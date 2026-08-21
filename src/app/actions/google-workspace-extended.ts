@@ -338,6 +338,7 @@ export async function syncReunionToGoogleWorkspace(
   reunion: Reunion,
   options: { sendEmails?: boolean; forceEmail?: boolean } = {}
 ) {
+  await requireAppSession();
   const [fiesta, records] = await Promise.all([
     getFiestaById(fiestaId),
     readSyncRecords(),
@@ -481,6 +482,7 @@ export async function notifyClientPaymentSubmitted(fiestaId: string, payment: Cl
 }
 
 export async function notifyClientPaymentApproved(fiestaId: string, payment: ClientPaymentNotification) {
+  await requireAppSession();
   const fiesta = await getFiestaById(fiestaId);
   if (!fiesta) return { success: false, error: 'Evento no encontrado.' };
 
@@ -493,6 +495,7 @@ export async function notifyClientPaymentApproved(fiestaId: string, payment: Cli
 }
 
 export async function notifyClientPaymentRejected(fiestaId: string, payment: ClientPaymentNotification) {
+  await requireAppSession();
   const fiesta = await getFiestaById(fiestaId);
   if (!fiesta) return { success: false, error: 'Evento no encontrado.' };
 
