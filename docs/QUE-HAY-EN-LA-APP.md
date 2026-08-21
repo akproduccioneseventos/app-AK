@@ -236,6 +236,14 @@ avisa, y al llegar al tope los efectos se apagan solos. La fotocabina y el espej
 - Dos funciones escritas y nunca conectadas a ninguna pantalla: generación de
   testimonios y asignación automática de invitados a mesas. Ninguna es crítica.
 
+### Guardado a propósito, sin enlazar (21 de agosto de 2026)
+- **Leer un comprobante con una foto.** Está escrito y anda: se le saca una foto a un
+  comprobante y la app lee el monto, la fecha y el número. **No está enlazado desde
+  ninguna pantalla, y es a propósito:** tal como está muestra los datos y no los guarda
+  en ningún pago, así que enlazarlo haría gastar inteligencia artificial en cada foto
+  sin dejar nada anotado. Para que sirva hay que engancharlo a la carga de pagos.
+  **No cuenta como pendiente**; está declarado con su motivo dentro de la auditoría.
+
 ### Si la inteligencia artificial falla
 
 Está bien resuelto: si no hay configuración, si se cuelga o si el servicio rechaza

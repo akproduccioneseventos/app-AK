@@ -3929,6 +3929,86 @@ Las siete están declaradas con su motivo en
 `src/__tests__/auditoria-puertas-abiertas.test.ts`, para que no se vuelvan a cerrar
 de apuro.
 
+## Ninguna marca de conflicto sin resolver, en ningún archivo (21 de agosto de 2026)
+
+**Qué pasó:** cuando dos ramas tocan el mismo renglón, hay que elegir a mano con qué
+se queda. Es fácil borrar el texto sobrante y olvidarse de las tres líneas de marca
+que quedan puestas. Pasó tres veces en un mismo día, y la peor fue en
+`apphosting.yaml`, que es la configuración del servidor: **con las marcas adentro el
+próximo despliegue no iba a arrancar**, y nada lo avisaba. Compilaba, los tipos daban
+cero y las 2053 pruebas pasaban en verde.
+
+**Qué se hizo:** `src/__tests__/sin-conflictos-sin-resolver.test.ts` recorre **todo lo
+versionado**, no una lista elegida a dedo, y falla si aparece una marca. Además
+comprueba aparte que la configuración del servidor se pueda leer entera.
+
+**Por qué así:** el error no lo detectaba ninguno de los cinco controles porque no es
+un error de código. Es un archivo de texto que quedó mal cerrado. Por eso el control
+mira archivos, no código.
+
+## La foto al comprobante queda guardada, sin enlazar (21 de agosto de 2026)
+
+`src/components/receipt-processor.tsx` es una función entera y andando: se le saca una
+foto a un comprobante y la app lee el monto, la fecha y el número. **No la importa
+nadie**, y por eso la auditoría la reportaba como huérfana.
+
+**Decisión: queda como está, guardada y sin enlazar.** El motivo es concreto: tal como
+está, muestra los datos en pantalla y **no los guarda en ningún pago**. Enlazarla así
+haría gastar inteligencia artificial en cada foto sin que quede nada anotado. Para que
+sirva de verdad hay que engancharla a la carga de pagos, y eso el dueño no lo pidió.
+
+Quedó **declarada con su motivo** en `scripts/auditoria.mjs`
+(`COMPONENTES_GUARDADOS_A_PROPOSITO`), así que la auditoría ya no la reporta.
+**No es un pendiente ni un hallazgo.** Si alguna vez se quiere usar, el trabajo es
+engancharla a la pantalla de pagos, no escribirla de nuevo.
+
+## Un comentario del código no es un cartel en pantalla (21 de agosto de 2026)
+
+La auditoría reportaba como "promesa al cliente sin respaldo" la explicación de la
+regla de WhatsApp escrita **adentro del código**, en `src/app/api/whatsapp/webhook/route.ts`.
+Es un texto que lee el programador, no el cliente: nunca aparece en ninguna pantalla.
+
+**Falso positivo, y ya no vuelve.** El control que busca promesas descartaba los
+comentarios que empiezan con `//` y la primera línea de los comentarios largos, pero no
+los renglones del medio, que empiezan con asterisco. Se agregó ese caso.
+
+**Por qué se arregló el control en vez de borrar el comentario:** el comentario explica
+una decisión del dueño que costó plata entender —a quién le contesta el bot y a quién
+no— y es justo lo que evita que alguien lo "arregle" al revés más adelante.
+
+## Encontrar errores no significa que haya que salir a buscarlos (21 de agosto de 2026)
+
+**El dueño lo dijo así:** *"estoy cansado que nunca queda pronta la app, cada vez que
+pregunto me decís se arregló esto o esto"*. Y después, cuando se le contestó que no se
+iba a salir a buscar más: *"si salís y encontrás errores, quiere decir que tiene
+errores"*.
+
+**Tiene razón en las dos cosas, y no se contradicen.** Lo que se encontró el 21 de
+agosto era real: se le podía mandar al cliente un correo firmado por AK diciendo "pago
+confirmado" con cualquier monto, el permiso para publicar en el Instagram de la empresa
+viajaba al celular de cada invitado, y el botón de ingreso se colgaba para siempre. Eso
+no era ruido: eran errores de verdad y estuvo bien arreglarlos.
+
+**Lo que estaba mal era el método, no el hallazgo.** El problema es que cada vez que él
+preguntaba "¿cómo está?", se salía a auditar de nuevo, y una auditoría siempre devuelve
+algo. Mezclado con lo real venía lo que no lo era: un color escrito a mano en una
+pantalla que anda, un comentario dentro del código, una función guardada a propósito.
+Todo eso llegaba como una lista de pendientes, y para él la app nunca terminaba.
+
+**La regla que queda:**
+
+- **Lo que está roto de verdad se arregla siempre**, aparezca como aparezca. Roto de
+  verdad es: falla en una fiesta, una cuenta da mal, plata que se mueve mal, alguien ve
+  lo que no tiene que ver, o una pantalla que el usuario no puede usar.
+- **No se sale a auditar porque sí**, ni al abrir sesión, ni "para ponerse al día", ni
+  porque él pregunte cómo está la app. A esa pregunta se contesta con el estado, no con
+  una lista nueva.
+- **Lo que no está roto no se reporta como pendiente.** Si se mira algo y está bien, se
+  anota acá como falso positivo verificado y se cierra. No vuelve.
+- **Cuando algo queda mirado y decidido, se declara en el código** —como se hizo con las
+  puertas públicas y con la foto al comprobante— para que la próxima auditoría no lo
+  vuelva a levantar.
+
 ## Cómo agregar algo a esta lista
 
 **Se anota SIEMPRE, en la misma propuesta que toca el código.** Orden del dueño

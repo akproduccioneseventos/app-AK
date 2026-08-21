@@ -118,6 +118,23 @@ function toPascalCase(str) {
     .replace(/[\s\-_]+/g, '');
 }
 
+// Componentes que estan guardados a proposito y NO son un hallazgo.
+//
+// Por que existe esta lista: la pasada 2 avisa cuando un componente no lo importa
+// nadie, y eso casi siempre es basura o trabajo a medio enganchar. Pero hay casos
+// en los que el dueno decidio dejarlo guardado sin enlazar. Sin esta lista, cada
+// auditoria lo vuelve a reportar y alguien vuelve a gastar el viaje mirandolo.
+//
+// Para agregar uno hay que escribir el motivo. Sin motivo, no va.
+const COMPONENTES_GUARDADOS_A_PROPOSITO = {
+  'src/components/receipt-processor.tsx':
+    'Sacarle una foto a un comprobante y que la app lea el monto, la fecha y el '
+    + 'numero. Anda, pero solo muestra los datos en pantalla: no los guarda en ningun '
+    + 'pago. Enlazarlo asi haria gastar inteligencia artificial por cada foto sin que '
+    + 'quede nada anotado. Decision del 21 de agosto de 2026: queda guardado, sin '
+    + 'enlazar, hasta que el dueno pida engancharlo a la carga de pagos.',
+};
+
 function correrPasada2() {
   const hallazgos = [];
   const todosLosArchivos = listarArchivosRecursivos(path.join(ROOT_DIR, 'src'));
@@ -156,6 +173,7 @@ function correrPasada2() {
     const baseName = path.basename(compPath, path.extname(compPath));
     const pascalName = toPascalCase(baseName);
     const relPath = path.relative(ROOT_DIR, compPath).replace(/\\/g, '/');
+    if (COMPONENTES_GUARDADOS_A_PROPOSITO[relPath]) continue;
     const importChunk = relPath.replace(/\.tsx?$/, '');
 
     let usosTotales = 0;
@@ -457,6 +475,11 @@ function correrPasada4() {
     /console\./i,
     /\/\//,
     /\/\*/,
+    // Renglon del medio de un comentario largo (empieza con asterisco). Un comentario
+    // NUNCA es texto en pantalla: lo lee el programador, no el cliente. Sin esto, la
+    // explicacion de la regla de WhatsApp escrita adentro del codigo se reportaba como
+    // si fuera una promesa hecha al usuario.
+    /^\s*\*/,
     /clausula/i,
     /contrato/i,
     /pandemia/i,
