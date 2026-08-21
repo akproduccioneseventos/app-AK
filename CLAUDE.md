@@ -502,6 +502,11 @@ Cerradas. Si un análisis las marca como problema, es un falso positivo:
   armadas de antes, así que el prospecto que llega desde Google no espera.
 - **Nada que aumente lo que cobra Firebase se cambia sin preguntar.** Vale para
   memoria, instancias mínimas, CPU y cualquier cosa que se pague por mes.
+- **La llave de cobros no se cambia (20 de agosto de 2026).** Estuvo escrita
+  dentro de un archivo y se le propuso dos veces generar una nueva. **Decidió que
+  no: se queda con la última que cargó.** No se le vuelve a plantear. El archivo
+  ya está fuera del repositorio y hay una prueba que impide que vuelva a entrar;
+  eso es lo que sí queda.
 
 ## Cómo se verifica que la app está sana
 

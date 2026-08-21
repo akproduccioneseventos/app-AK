@@ -3562,6 +3562,15 @@ guardar ahí cualquier cosa que dé acceso a algo. Hay una prueba que lo control
 Las tres pantallas que informaban el estado ahora miran el mismo dato que enciende
 cada cosa, así que dicen la verdad.
 
+## Decisión del dueño: la llave de cobros queda como está (20 de agosto de 2026)
+
+Se le propuso dos veces generar una llave de cobros nueva, porque la que estaba en
+uso llegó escrita dentro de un archivo. **Decidió que no: se queda con la última
+que cargó.** Es su decisión y no se le vuelve a plantear.
+
+Lo que sí quedó hecho y no depende de eso: el archivo está fuera del repositorio y
+hay una prueba que impide que cualquier llave vuelva a entrar.
+
 ## Cómo agregar algo a esta lista
 
 **Se anota SIEMPRE, en la misma propuesta que toca el código.** Orden del dueño
