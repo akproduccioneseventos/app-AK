@@ -125,3 +125,9 @@ capturas/
 # de pruebas dejaba el repositorio sucio y trababa a las tres IA que trabajan acá.
 # Se genera cuando se necesita; lo que vale son los cuatro numeros del resumen.
 auditoria-out/
+
+# Lo genera `npm run build` a partir de las credenciales del entorno. Versionarlo
+# confunde: una compilacion local sin credenciales lo deja vacio y, commiteado asi,
+# parece que los avisos al celular estan apagados. En produccion siempre se
+# regenera bien, asi que el que este guardado aca no cambia nada.
+public/firebase-messaging-sw.js

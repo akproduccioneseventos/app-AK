@@ -18,8 +18,10 @@ import {
   Check,
   PartyPopper,
   ExternalLink,
+  Star,
 } from 'lucide-react';
 import { getPublicSocialEvent, getPublicSocialPosts } from '@/app/actions/social-gallery';
+import { getEnlaceDeResenaPublico } from '@/app/actions/feedback';
 import type { PublicSocialEvent } from '@/lib/social-fiesta/public-event';
 import type { SocialGalleryPost } from '@/types/social-gallery';
 import { appendCommercialAttribution } from '@/lib/commercial/acquisition';
@@ -38,6 +40,7 @@ export default function PublicAlbumPage() {
 
   const [fiesta, setFiesta] = useState<PublicSocialEvent | null>(null);
   const [posts, setPosts] = useState<SocialGalleryPost[]>([]);
+  const [enlaceResena, setEnlaceResena] = useState<string>('');
   const [activeTab, setActiveTab] = useState<FilterTab>('todas');
   const [isLoading, setIsLoading] = useState(true);
   const [hasError, setHasError] = useState(false);
@@ -47,6 +50,7 @@ export default function PublicAlbumPage() {
 
   useEffect(() => {
     getPublicSocialEvent(fiestaId).then(setFiesta).catch(() => {});
+    getEnlaceDeResenaPublico().then(setEnlaceResena).catch(() => {});
   }, [fiestaId]);
 
   const loadPosts = useCallback(async () => {
@@ -288,6 +292,29 @@ export default function PublicAlbumPage() {
             })}
           </div>
         )}
+
+        {/* Botón de Reseña de Google para Invitado (Orden 6) */}
+        {enlaceResena ? (
+          <div className="mt-14 max-w-md mx-auto px-4">
+            <a
+              href={enlaceResena}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="flex items-center justify-between gap-4 p-4 rounded-2xl bg-zinc-900/90 border border-zinc-800 hover:border-amber-500/50 transition group"
+            >
+              <div className="flex items-center gap-3 text-left">
+                <span className="grid h-10 w-10 flex-none place-items-center rounded-xl bg-amber-500/10 text-amber-400">
+                  <Star className="h-5 w-5 fill-current" />
+                </span>
+                <div>
+                  <p className="font-bold text-white text-sm">¿Te gustaron las fotos?</p>
+                  <p className="text-xs text-zinc-400">Contanos cómo la pasaste en Google</p>
+                </div>
+              </div>
+              <ExternalLink className="h-4 w-4 flex-none text-zinc-500 transition group-hover:translate-x-0.5 group-hover:text-amber-400" />
+            </a>
+          </div>
+        ) : null}
 
         {/* Footer Comercial Discreto */}
         <footer className="mt-20 pt-10 pb-8 text-center border-t border-white/10 space-y-4">

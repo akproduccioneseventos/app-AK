@@ -8,6 +8,7 @@ import {
   ArrowRight,
   CalendarDays,
   Camera,
+  ExternalLink,
   Gamepad2,
   GalleryHorizontal,
   Home,
@@ -20,6 +21,7 @@ import {
   Orbit,
   ScanFace,
   Sparkles,
+  Star,
   TicketCheck,
 } from 'lucide-react';
 import {
@@ -27,6 +29,7 @@ import {
   type PublicGuestEntertainmentLink,
 } from '@/app/actions/public-guest-portal';
 import { getPublicSocialPostCount } from '@/app/actions/social-gallery';
+import { getEnlaceDeResenaPublico } from '@/app/actions/feedback';
 import { CompanyLogo } from '@/components/company-logo';
 import type { PublicGuestPortalData } from '@/lib/guest-portal-public-data';
 import {
@@ -79,20 +82,23 @@ export default function EventoHubPage() {
   const [portal, setPortal] = useState<PublicGuestPortalData | null>(null);
   const [stations, setStations] = useState<PublicGuestEntertainmentLink[]>([]);
   const [photoCount, setPhotoCount] = useState(0);
+  const [enlaceResena, setEnlaceResena] = useState<string>('');
   const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
     let active = true;
     async function load() {
       setIsLoading(true);
-      const [portalData, approvedPostCount] = await Promise.all([
+      const [portalData, approvedPostCount, reviewUrl] = await Promise.all([
         getPublicGuestPortalData(fiestaId, guestId, guestAccessToken),
         getPublicSocialPostCount(fiestaId, guestId, guestAccessToken).catch(() => 0),
+        getEnlaceDeResenaPublico().catch(() => ''),
       ]);
       if (!active) return;
       setPortal(portalData);
       setStations(portalData?.entertainmentLinks ?? []);
       setPhotoCount(approvedPostCount);
+      setEnlaceResena(reviewUrl || '');
       setIsLoading(false);
     }
     void load();
@@ -263,6 +269,28 @@ export default function EventoHubPage() {
               El organizador todavía no habilitó actividades públicas para esta fiesta.
             </p>
           )}
+
+          {enlaceResena ? (
+            <div className="mt-8">
+              <a
+                href={enlaceResena}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="ak-public-card group flex min-h-20 items-center justify-between gap-4 p-4 transition hover:-translate-y-0.5 hover:border-[var(--event-accent)]"
+              >
+                <div className="flex items-center gap-3">
+                  <span className="grid h-11 w-11 flex-none place-items-center rounded-lg bg-amber-500/10 text-amber-500">
+                    <Star className="h-5 w-5 fill-current" />
+                  </span>
+                  <div>
+                    <p className="font-black text-slate-950">¿La estás pasando bien?</p>
+                    <p className="text-xs text-slate-500">Contalo en Google</p>
+                  </div>
+                </div>
+                <ExternalLink className="h-4 w-4 flex-none text-slate-400 transition group-hover:translate-x-0.5 group-hover:text-[var(--event-accent)]" />
+              </a>
+            </div>
+          ) : null}
         </section>
 
         <div className="mt-10 border-t border-slate-200 pt-7">
