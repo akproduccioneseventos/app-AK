@@ -6,16 +6,10 @@
     "generateBudgetAndLeadFromSimulator",
     "getArmadoRapidoConfig"
   ],
-  "src/app/actions/bebidas.actions.ts": [
-    "updateBebidas"
-  ],
   "src/app/actions/blog.ts": [
     "getBlogPostBySlug",
     "getBlogPosts",
     "getRelatedPosts"
-  ],
-  "src/app/actions/carta-tragos-master.actions.ts": [
-    "getCartaTragosMaster"
   ],
   "src/app/actions/catalogo-fotos.ts": [
     "getCatalogoFotos",
@@ -31,75 +25,26 @@
   "src/app/actions/evento-en-vivo.ts": [
     "getEventoEnVivoData"
   ],
-  "src/app/actions/fiesta/bebidas.actions.ts": [
-    "updateBebidas"
-  ],
-  "src/app/actions/fiesta/catering.actions.ts": [
-    "updateMenuAsignado"
-  ],
   "src/app/actions/fiesta/configuracion.actions.ts": [
     "getFiestaActual"
   ],
   "src/app/actions/fiesta/costos.actions.ts": [
-    "syncLaundryCosts",
-    "updateGestionCostos"
-  ],
-  "src/app/actions/fiesta/decoracion.actions.ts": [
-    "updateDecoracion"
+    "syncLaundryCosts"
   ],
   "src/app/actions/fiesta/fiesta.actions.ts": [
-    "addInvoiceId",
-    "createDemoFiesta",
-    "createFiestaVacia",
-    "createNewFiestaForCustomer",
-    "duplicateFiesta",
     "getFiestaActual",
     "getFiestaBySlug",
-    "removeInvoiceId",
-    "resetAllActiveFiestas",
-    "resetFiestaActual",
-    "syncFiestaFromBudget",
-    "updateClienteDebeLlevar",
-    "updateFiestaPresupuestoId",
-    "updateGuestPortalSettings",
-    "updateMenuMesa",
-    "updateNumerosMesa"
-  ],
-  "src/app/actions/fiesta/itinerario.actions.ts": [
-    "updatePrograma"
+    "resetFiestaActual"
   ],
   "src/app/actions/fiesta/live.actions.ts": [
     "notifyClientArrival"
   ],
-  "src/app/actions/fiesta/musica.actions.ts": [
-    "saveSugerenciaMusical"
-  ],
-  "src/app/actions/fiesta/pagos.actions.ts": [
-    "updatePagosProveedores"
-  ],
-  "src/app/actions/fiesta/regalos.actions.ts": [
-    "addGiftToRegistry",
-    "claimGift"
-  ],
-  "src/app/actions/fiesta/reposteria.actions.ts": [
-    "updateReposteria"
-  ],
-  "src/app/actions/fiesta/reuniones.actions.ts": [
-    "addReunion",
-    "updateReunion"
-  ],
-  "src/app/actions/fiesta/tareas.actions.ts": [
-    "addTarea",
-    "deleteTarea"
-  ],
   "src/app/actions/fiesta/video-vida.actions.ts": [
     "getLifeStoryVideoPhotos",
-    "saveLifeStoryVideoPhoto",
-    "updateVideoVidaSettings"
+    "saveLifeStoryVideoPhoto"
   ],
   "src/app/actions/fiesta/zona-digital.actions.ts": [
-    "getZonaDigitalSettings",
-    "updateZonaDigitalSettings"
+    "getZonaDigitalSettings"
   ],
   "src/app/actions/fiesta-actual.ts": [
     "getFiestaActivaDeHoy"
@@ -120,9 +65,6 @@
   "src/app/actions/google-workspace.ts": [
     "syncFiestaToGoogleWorkspace"
   ],
-  "src/app/actions/insumos.ts": [
-    "invalidateInsumosCache"
-  ],
   "src/app/actions/landing-editor.ts": [
     "getLandingSettings"
   ],
@@ -140,12 +82,6 @@
   "src/app/actions/public-simulator-bootstrap.ts": [
     "getPublicSimulatorBootstrap"
   ],
-  "src/app/actions/reposteria.actions.ts": [
-    "updateReposteria"
-  ],
-  "src/app/actions/salon-ia.actions.ts": [
-    "chatWithGuestBot"
-  ],
   "src/app/actions/session.ts": [
     "clearSessionCookie"
   ],
@@ -158,9 +94,6 @@
   "src/app/actions/simple-auth.ts": [
     "getPublicSecurityRecoveryStatus",
     "requestPasswordResetEmail"
-  ],
-  "src/app/actions/simulador-copilot.ts": [
-    "chatWithBudgetCopilot"
   ],
   "src/app/actions/simulador-v2.ts": [
     "checkDateAvailability"
