@@ -33,10 +33,13 @@ import { enforcePublicRateLimit } from '@/lib/commercial/public-rate-limit';
  *
  * ## Lo que NO se abre nunca
  *
- * **Los recordatorios de cuota le escriben al cliente por WhatsApp.** Esa tarea
- * exige contrasena siempre, este o no configurada: si no hay contrasena, no corre.
- * Un mensaje que le llega a una persona no puede depender de que nadie encuentre
- * una direccion.
+ * **Lo que sigue sin abrirse nunca: mandar.** Ninguna de estas tareas le escribe a
+ * un cliente. Los recordatorios de cuota **preparan** la lista de a quien
+ * reclamarle y la dejan en la bandeja de salida; el mensaje sale cuando una
+ * persona lo toca, desde su propio WhatsApp.
+ *
+ * Si algun dia alguien hace que una tarea mande sola, **sale de esta lista el
+ * mismo dia**. La linea es esa: preparar si, mandar no.
  */
 
 export type NombreDeTareaProgramada =
@@ -53,6 +56,11 @@ const TAREAS_QUE_NO_HACEN_DANO: ReadonlySet<NombreDeTareaProgramada> = new Set([
   'metricas-de-redes',
   'publicar-programados',
   'generate-blog-post',
+  // Los recordatorios entraron el 20 de agosto, despues de comprobar que **no le
+  // escriben a nadie**: dejan el mensaje en la bandeja de salida con estado
+  // pendiente, y una persona lo manda con un toque desde su propio WhatsApp.
+  // Preparar la lista de a quien reclamarle no le llega a ningun cliente.
+  'recordatorios-de-pago',
 ]);
 
 export interface ResultadoDeLaPuerta {

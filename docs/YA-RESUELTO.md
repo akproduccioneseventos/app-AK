@@ -3571,6 +3571,34 @@ que cargó.** Es su decisión y no se le vuelve a plantear.
 Lo que sí quedó hecho y no depende de eso: el archivo está fuera del repositorio y
 hay una prueba que impide que cualquier llave vuelva a entrar.
 
+## El WhatsApp personal, y el freno que frenaba de más (20 de agosto de 2026)
+
+El dueño aclaró dos cosas que cambian el diseño: **el WhatsApp es su número
+personal**, y no quiere un bot contestándole a cualquiera. Pero **escribirle a
+clientes y prospectos está bien**.
+
+**Eran dos cosas distintas atadas al mismo interruptor.** El de "bot activado"
+apagaba las dos: el bot que contesta solo, *y también* el motor que **prepara** los
+mensajes. Con el bot apagado —que es como tiene que estar— **los recordatorios de
+cuota vencida no se armaban nunca**, y el equipo no tenía a quién reclamarle.
+
+Se separaron:
+
+- **El bot que contesta solo** sigue apagado y controlado donde corresponde, en la
+  entrada de mensajes. Ése no se prende.
+- **El motor que prepara** ya no depende de ese interruptor: deja el aviso en la
+  bandeja de salida con estado pendiente, y **el mensaje sale cuando una persona
+  lo toca**, desde su propio WhatsApp.
+
+Con eso, los recordatorios de cuota entraron a la lista de tareas que corren solas:
+**se comprobó que no le escriben a nadie**. Preparar la lista de a quién reclamarle
+no le llega a ningún cliente.
+
+> **La regla que queda, y está en `CLAUDE.md`: preparar sí, mandar no.** Si alguna
+> vez una tarea manda sola, sale de esa lista el mismo día. Tres pruebas lo
+> controlan, y todas dicen lo mismo: si el motor empieza a mandar, la solución no
+> es sacar la prueba.
+
 ## Cómo agregar algo a esta lista
 
 **Se anota SIEMPRE, en la misma propuesta que toca el código.** Orden del dueño

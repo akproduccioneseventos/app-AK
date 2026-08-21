@@ -19,10 +19,14 @@ import { readData, writeData } from '@/lib/data-service';
  *
  * ## Lo que NO entra aca, y es a proposito
  *
- * **Los recordatorios de cuota vencida no se disparan asi.** Le escriben al
- * cliente por WhatsApp. Una tarea que le manda un mensaje a una persona no puede
- * salir de rebote porque alguien del equipo abrio una pantalla: tiene que
- * apretarla alguien, sabiendo que la esta apretando.
+ * **Nada de esto le manda un mensaje a nadie.** Los recordatorios de cuota
+ * **preparan** la lista de a quien reclamarle y la dejan en la bandeja de salida;
+ * el mensaje sale cuando una persona lo toca, desde su propio WhatsApp. El dueno
+ * usa su WhatsApp personal: **ningun bot contesta ni escribe solo**, y eso no
+ * cambia.
+ *
+ * La linea es esa: **preparar si, mandar no.** Si alguna vez una de estas tareas
+ * manda sola, sale de aca el mismo dia.
  *
  * ## Por que es seguro repetirlas
  *
@@ -42,6 +46,7 @@ const ESTADO_FILE = 'tareas-al-entrar-estado.json';
 const CADA_CUANTO = {
   metricas: 12 * 60 * 60 * 1000,
   posteos: 15 * 60 * 1000,
+  recordatorios: 12 * 60 * 60 * 1000,
 } as const;
 
 type NombreDeTarea = keyof typeof CADA_CUANTO;
@@ -90,6 +95,14 @@ export async function ponerAlDiaAlEntrar(ahora: Date = new Date()): Promise<Resu
       correr: async () => {
         const { procesarPosteosProgramados } = await import('@/lib/presencia-digital/publicador');
         return procesarPosteosProgramados();
+      },
+    },
+    {
+      nombre: 'recordatorios',
+      correr: async () => {
+        // Deja los avisos de cuota vencida en la bandeja de salida. No manda nada.
+        const { ejecutarEscaneoDeRecordatorios } = await import('@/app/actions/invoices');
+        return ejecutarEscaneoDeRecordatorios();
       },
     },
   ];

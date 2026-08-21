@@ -502,6 +502,12 @@ Cerradas. Si un análisis las marca como problema, es un falso positivo:
   armadas de antes, así que el prospecto que llega desde Google no espera.
 - **Nada que aumente lo que cobra Firebase se cambia sin preguntar.** Vale para
   memoria, instancias mínimas, CPU y cualquier cosa que se pague por mes.
+- **El WhatsApp del dueño es su número personal (20 de agosto de 2026).** No se le
+  conecta ningún bot que conteste solo, nunca. La app **prepara** los mensajes
+  —recordatorios de cuota, seguimiento de prospectos— y los deja en la bandeja de
+  salida; **el mensaje sale cuando una persona lo toca**, desde su propio WhatsApp.
+  Escribirle a clientes y prospectos está bien; contestarle a cualquiera que
+  escriba, no. **La línea es: preparar sí, mandar no.**
 - **La llave de cobros no se cambia (20 de agosto de 2026).** Estuvo escrita
   dentro de un archivo y se le propuso dos veces generar una nueva. **Decidió que
   no: se queda con la última que cargó.** No se le vuelve a plantear. El archivo
