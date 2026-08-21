@@ -106,6 +106,7 @@ muestre**. Esa distinción es la que más veces falló.
 | Transmisión en vivo | Sí | Pantalla de la fiesta en vivo |
 | Centro de presencia digital | Sí | Empresa → Presencia digital |
 | Reseña de Google al terminar encuesta | Sí | Encuesta pública `/feedback/[fiestaId]` |
+| Reseña de Google para el invitado | Sí | Hub del evento `/evento/hub/[fiestaId]` y Álbum `/evento/album/[fiestaId]` |
 | Seguimiento de reseñas por fiesta | Sí | Empresa → Presencia digital → solapa "Ficha de Google" |
 | Alerta puntaje de Google < 4.0 | Sí | Empresa → Presencia digital → banner de alerta |
 | Tablero de 16 altas en directorios | Sí | Empresa → Presencia digital → solapa "Tablero de altas (16)" |
