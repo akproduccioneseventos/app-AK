@@ -644,7 +644,11 @@ export default function TouchpixPage() {
     } finally {
       setIsUploading(false);
     }
-  }, [accessToken, activeTab, capturedImage, fiestaId, retake, selectedAiTheme, selectedCharacter]);
+    // `guestId` y `guestAccessToken` van en la lista a proposito: salen de la
+    // direccion, y sin ellos la subida se quedaba con el valor viejo. En una
+    // fotocabina eso significa que la foto se guarda sin dueno o con el dueno
+    // equivocado, que es justo lo que rompe "tu recuerdo de la fiesta".
+  }, [accessToken, activeTab, capturedImage, fiestaId, guestAccessToken, guestId, retake, selectedAiTheme, selectedCharacter]);
 
   /* ── Get current CSS filter for live preview ── */
   const getLiveFilter = (): string => {

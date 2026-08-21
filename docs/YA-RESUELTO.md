@@ -3472,6 +3472,30 @@ Las dos que sí entran son seguras de repetir: el guardado no guarda dos veces e
 mismo día, y los posteos sacan sólo los vencidos con tope de tres por corrida.
 Arriba de eso hay un control propio de "¿me toca?" para no reintentar en cada clic.
 
+## La foto de la fotocabina podía guardarse sin dueño (20 de agosto de 2026)
+
+Una advertencia de compilación que **no era un detalle de estilo**: la subida de la
+foto usaba el identificador del invitado y su enlace personal, pero esos dos no
+estaban en la lista de datos que la función vuelve a mirar cuando cambian.
+
+Salen de la dirección del navegador. Si el invitado abría su enlace personal
+después de que la pantalla ya estaba cargada, la subida se quedaba con el valor
+viejo: **la foto se guardaba sin dueño, o con el dueño equivocado**. Es
+exactamente lo que rompe "tu recuerdo de la fiesta", que se acaba de construir.
+
+Corregido agregándolos a la lista, con el motivo escrito al lado para que nadie
+los saque por prolijidad.
+
+**Lo que hay que recordar:** las advertencias de dependencias faltantes en una
+pantalla que lee datos de la dirección **no son cosméticas**. Ahí es donde
+aparecen los valores viejos.
+
+### Falsa alarma del mismo día
+
+Una compilación falló con un archivo temporal faltante. **No era la app: eran dos
+compilaciones corriendo a la vez en la misma carpeta.** Ya está anotado en las
+reglas que no se compila mientras corre otra: vale también entre dos ayudantes.
+
 ## Cómo agregar algo a esta lista
 
 **Se anota SIEMPRE, en la misma propuesta que toca el código.** Orden del dueño
