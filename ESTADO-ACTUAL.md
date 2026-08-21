@@ -49,6 +49,26 @@ simulado es un falso positivo verificado. Todo eso está anotado en
 De las 31 pantallas sin puerta quedan **9, y son exactamente las que no deben tener
 enlace**: son redirecciones para que un enlace viejo no muera.
 
+## Las puertas: de 84 a 49, y una fuga seria
+
+**Cualquiera podía mandarle avisos falsos al cliente.** Las funciones que mandan el
+correo de "pago confirmado" y "pago rechazado" eran direcciones abiertas: con sólo
+saber el número de una fiesta se podía hacer que la aplicación le mandara al cliente
+un mail firmado por AK con el monto que se quisiera. La pantalla donde el equipo
+aprueba sí pedía cuenta; el agujero era que se podía saltear la pantalla. Cerrado.
+
+**De las 84 que figuraban abiertas, 49 lo estaban sólo en apariencia.** Casi todo lo
+que toca una fiesta escribe a través de `saveFiesta`, que adentro pide sesión del
+equipo o la clave del cliente de esa fiesta: la comprobación estaba un nivel más abajo
+y el control no la veía. Ahora la reconoce, **exigiendo además que la función no
+escriba nada por su cuenta**, así que no se aflojó nada.
+
+> **Lo que enseña:** antes de agregar una comprobación, mirá si no está ya un nivel más
+> abajo. Ponerla dos veces no protege más y esconde dónde está la de verdad.
+
+Quedan **49**, y son casi todas de leer contenido público: blog, catálogo, promos,
+galería, simulador, portal del proveedor con su token.
+
 ## Lo otro que se cerró hoy
 
 - **El cartel de las cuentas bancarias mentía.** Decía que se sincronizaban con cada
