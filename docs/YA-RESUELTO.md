@@ -19,14 +19,11 @@ anotado, la próxima auditoría lo va a volver a encontrar.
 
 ## Decisiones del dueño (no son errores, no se discuten)
 
-<<<<<<< HEAD
 - **Afinamiento de la auditoría mecánica y cierre de puertas de servidor (21 de agosto de 2026):**
   - **Bloque 1 — Puertas de servidor 100% auditadas y protegidas (`src/__tests__/puertas-pendientes-de-revisar.json`, `src/__tests__/auditoria-puertas-abiertas.test.ts`, `src/app/actions/*`):** Se protegieron con `requireAppSession()` todas las Server Actions internas y administrativas de la aplicación (settings, fiesta, catering, bebidas, decoracion, itinerario, musica, reposteria, reuniones, tareas, costos, zona digital, etc.). Se declararon formalmente las funciones públicas legítimas en el archivo de prueba y el archivo de pendientes quedó en cero (`{}`).
   - **Bloque 2 — Afinamiento de `scripts/auditoria.mjs` (`scripts/auditoria.mjs`, `auditoria-out/informe.md`):** Se eliminaron los falsos positivos de las 4 pasadas (normalización de rutas en Windows/Linux, búsqueda por kebab-case y PascalCase, detección de módulos de dominio y barrel files, exclusión de términos gastronómicos reales como mocktails y filtrado de ayudas de interfaz de usuario ya implementadas). El informe pasó de 201 hallazgos y 120 frases a 1 hallazgo real y 0 promesas rotas.
   - **Bloque 3 — Controles de Calidad:** Verificados `check:acentos` en 0, `tsc --noEmit` en 0 errores, 312 suites de pruebas unitarias (2044/2044 tests en verde) y `npm run build` completado exitosamente.
 
-=======
->>>>>>> origin/main
 - **Las pantallas sin puerta (21 de agosto de 2026):**
   - **Bloque 1 — El día de la fiesta (`src/app/(app)/fiestas/[id]/centro/page.tsx`, `src/app/(app)/fiestas/nueva/reuniones/page.tsx`, `src/app/(app)/fiestas/nueva/page.tsx`):** Se enlazaron las pantallas operativas huérfanas: botón de imprimir minuta en `/fiestas/nueva/reuniones`, tarjetas operativas en el centro de fiesta para `/fiestas/[id]/cierre-mundial` y `/fiestas/[id]/experiencia-tecnologica-ak`, y rutas canónicas absolutas en los módulos de producción.
   - **Bloque 2 — Las del negocio (`src/components/main-nav.tsx`, `src/app/(app)/empresa/servicios/page.tsx`):** Se abrieron puertas claras en el menú principal (`MainNav`) para `/repaso-diario`, `/recursos-multi-evento`, `/empresa/dashboard`, `/contabilidad/crm/marketing-ads`, `/empresa/presentacion-led/configuracion` y enlace directo al editor visual `/empresa/todos-los-servicios/[id]/editar` desde la lista de catálogo.
@@ -3893,6 +3890,32 @@ servidor viejo del puerto 3100. Reiniciado, pasa. **Antes de creerle a una falla
 de navegador, reiniciar el servidor y repetir sólo esa prueba.**
 
 Queda como sexto control obligatorio en `CLAUDE.md`.
+
+## Cerrar de más también rompe: cuatro puertas que hay que dejar abiertas (21 de agosto de 2026)
+
+Una entrega volvió a ponerle control de sesión a **siete funciones que son
+públicas a propósito**, y que ya se habían reabierto el mismo día por el mismo
+motivo. Se detectó al fusionar, antes de que entrara.
+
+Lo que habría roto, en concreto:
+
+- **El logo de la pantalla de ingreso**, que se muestra antes de que exista sesión.
+- **El simulador y la presentación de venta**, que abre el prospecto sin cuenta.
+- **El tótem de la barra, la plataforma 360 y el tótem general**: preguntan qué
+  fiesta hay hoy y se abren **sin cuenta, en pleno evento**. Se habrían quedado
+  sin encontrar la fiesta.
+- **El motor de WhatsApp**, que corre desde el despertador externo y no tiene
+  sesión de nadie.
+- **El portal del cliente**, donde el cliente arma su tablero de decoración y su
+  lista de cosas a llevar.
+
+> **La regla, que ya estaba escrita y hay que respetar: antes de cerrar una puerta,
+> mirá quién la llama.** El atajo de cerrar todo deja al cliente y al invitado
+> afuera, y no se nota hasta la noche de la fiesta.
+
+Las siete están declaradas con su motivo en
+`src/__tests__/auditoria-puertas-abiertas.test.ts`, para que no se vuelvan a cerrar
+de apuro.
 
 ## Cómo agregar algo a esta lista
 

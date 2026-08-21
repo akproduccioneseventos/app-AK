@@ -165,6 +165,14 @@ env:
       - BUILD
       - RUNTIME
 
-<<<<<<< HEAD
-=======
->>>>>>> origin/main
+  # Cobros con Mercado Pago. La llave NO va escrita aca: `secret:` apunta al
+  # guardado de secretos del servidor, que es lo correcto. Con
+  # MERCADO_PAGO_USE_SANDBOX en "false" los cobros son reales.
+  - variable: MERCADO_PAGO_ACCESS_TOKEN
+    secret: mercadopago-access-token
+    availability:
+      - RUNTIME
+  - variable: MERCADO_PAGO_USE_SANDBOX
+    value: "false"
+    availability:
+      - RUNTIME

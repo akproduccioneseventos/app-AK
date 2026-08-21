@@ -116,6 +116,8 @@ const navGroups: NavGroup[] = [
       { title: "Alergias y Dietas", href: "/fiestas/nueva/alergias", icon: Wheat },
       { title: "Portal de Proveedores", href: "/fiestas/nueva/proveedores-portal", icon: HardHat },
       // Avisa si el mismo mozo, fotografo o DJ fue asignado a dos fiestas el mismo dia.
+      // Se deja el nombre en criollo: "Superposicion Personal" no lo entiende
+      // nadie que no programe, y el menu lo usa el equipo de la fiesta.
       { title: "Personal en dos fiestas", href: "/recursos-multi-evento", icon: Users2 },
     ],
   },
