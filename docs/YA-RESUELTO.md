@@ -3762,6 +3762,46 @@ siempre.
 Vive en `src/lib/whatsapp/vino-de-la-publicidad.ts`, con cinco pruebas, incluida
 una que controla que el freno esté **antes** de generar la respuesta.
 
+## Cualquiera podía mandarle avisos falsos al cliente (21 de agosto de 2026)
+
+Las funciones que mandan el correo de **"pago confirmado"**, **"pago rechazado"** y las
+invitaciones de reunión eran direcciones abiertas a internet. Con sólo saber el número
+de una fiesta, alguien podía hacer que la propia aplicación le mandara al cliente un
+mail firmado *"AK Producciones — Pago confirmado"* **con el monto que se le antojara**.
+
+La pantalla donde el equipo aprueba el pago sí pedía cuenta. El agujero era que se
+podía saltear la pantalla y llamar al correo directo.
+
+Cada una quedó con el mismo control que tiene quien la usa de verdad:
+
+- **Pago aprobado y rechazado, y la sincronización de reuniones:** piden cuenta del
+  equipo, porque los aprueba el equipo.
+- **Comprobante subido:** pide la clave del cliente de **esa** fiesta, igual que la
+  pantalla desde donde lo sube.
+- **Recuperar la clave del portal:** queda pública a propósito —el cliente la perdió,
+  no puede tener sesión— pero con freno de tres por hora, para que un robot no le
+  llene la casilla de correos.
+
+## Más de la mitad de las puertas ya estaban cerradas, y el control no lo veía
+
+De las 84 funciones que figuraban abiertas, **49 lo estaban sólo en apariencia**.
+
+**El caso más común:** casi todo lo que toca una fiesta —`updateBebidas`,
+`updateDecoracion`, `addTarea`, `claimGift`— lee la fiesta, cambia un pedazo y llama a
+`saveFiesta`, que adentro pide sesión del equipo **o** la clave del cliente de esa
+fiesta. La comprobación está un nivel más abajo y el control no la veía.
+
+Reconocerla **no es aflojar el control**: se exige además que la función **no escriba
+nada por su cuenta**. Si toca la base directo, sigue contando como abierta aunque
+también llame al guardado.
+
+**Y una estaba mejor protegida que el resto:** `requireEventPermission` pide sesión
+**y además** el permiso concreto para ese evento. Se le había pasado por alto al
+control, así que figuraba como abierta algo más estricto que todo lo demás.
+
+**Lo que hay que recordar:** antes de agregar una comprobación, mirá si no está ya un
+nivel más abajo. Ponerla dos veces no protege más y esconde dónde está la de verdad.
+
 ## Cómo agregar algo a esta lista
 
 **Se anota SIEMPRE, en la misma propuesta que toca el código.** Orden del dueño

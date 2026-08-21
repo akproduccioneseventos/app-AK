@@ -17,6 +17,8 @@ import type { PagoCliente } from '@/types/presupuesto';
 import type { GoogleWorkspaceAccount, GoogleWorkspaceSyncRecord } from '@/types/google-workspace';
 
 import { requireAppSession } from '@/lib/auth/require-session';
+import { verifyPortalSession } from '@/lib/security/portal-session';
+import { enforcePublicRateLimit } from '@/lib/commercial/public-rate-limit';
 const ACCOUNTS_FILE = '_google-workspace-accounts.json';
 const SYNC_FILE = '_google-workspace-sync.json';
 const MONTEVIDEO_TZ = 'America/Montevideo';
@@ -338,6 +340,10 @@ export async function syncReunionToGoogleWorkspace(
   reunion: Reunion,
   options: { sendEmails?: boolean; forceEmail?: boolean } = {}
 ) {
+  // Manda correos e invitaciones de calendario. Es una direccion de internet por su
+  // cuenta: sin esto cualquiera podia disparar avisos a nombre de la empresa.
+  await requireAppSession();
+
   const [fiesta, records] = await Promise.all([
     getFiestaById(fiestaId),
     readSyncRecords(),
@@ -452,6 +458,12 @@ export async function notifyGuestsWithCalendarLinks(fiestaId: string, options: {
 }
 
 export async function notifyClientPaymentSubmitted(fiestaId: string, payment: ClientPaymentNotification) {
+  // La dispara el CLIENTE al subir su comprobante, asi que no puede pedir cuenta del
+  // equipo: pide la clave de SU fiesta, igual que `submitClientPayment`.
+  if (!(await verifyPortalSession(fiestaId))) {
+    return { success: false, error: 'Sesion no autorizada.' };
+  }
+
   const fiesta = await getFiestaById(fiestaId);
   if (!fiesta) return { success: false, error: 'Evento no encontrado.' };
 
@@ -481,6 +493,12 @@ export async function notifyClientPaymentSubmitted(fiestaId: string, payment: Cl
 }
 
 export async function notifyClientPaymentApproved(fiestaId: string, payment: ClientPaymentNotification) {
+  // Manda un correo AL CLIENTE. Es una direccion de internet por su cuenta: sin esto,
+  // cualquiera que supiera el id de una fiesta podia hacer que la aplicacion le
+  // mandara al cliente un aviso de pago con el monto que se le antojara. Quien la
+  // llama de verdad ya pide sesion del equipo; se repite aca porque la puerta es esta.
+  await requireAppSession();
+
   const fiesta = await getFiestaById(fiestaId);
   if (!fiesta) return { success: false, error: 'Evento no encontrado.' };
 
@@ -493,6 +511,12 @@ export async function notifyClientPaymentApproved(fiestaId: string, payment: Cli
 }
 
 export async function notifyClientPaymentRejected(fiestaId: string, payment: ClientPaymentNotification) {
+  // Manda un correo AL CLIENTE. Es una direccion de internet por su cuenta: sin esto,
+  // cualquiera que supiera el id de una fiesta podia hacer que la aplicacion le
+  // mandara al cliente un aviso de pago con el monto que se le antojara. Quien la
+  // llama de verdad ya pide sesion del equipo; se repite aca porque la puerta es esta.
+  await requireAppSession();
+
   const fiesta = await getFiestaById(fiestaId);
   if (!fiesta) return { success: false, error: 'Evento no encontrado.' };
 
@@ -570,6 +594,15 @@ export async function notifyPresupuestoPaymentRegistered(presupuestoId: string, 
  * cliente y en pantalla queda apenas una pista de a donde se mando.
  */
 export async function notifyClientPortalKeyRecovery(fiestaId: string) {
+  // PUBLICA A PROPOSITO: la usa el cliente que perdio su clave, antes de poder
+  // entrar. Lleva freno para que un robot no le llene la casilla de correos.
+  await enforcePublicRateLimit({
+    scope: 'recuperar-clave-portal',
+    identity: fiestaId,
+    limit: 3,
+    windowMs: 60 * 60_000,
+  });
+
   const fiesta = await getFiestaById(fiestaId);
   if (!fiesta) return { success: false as const, error: 'Evento no encontrado.' };
 

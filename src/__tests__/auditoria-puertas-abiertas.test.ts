@@ -115,11 +115,34 @@ function funcionesSinControl(archivo: string): string[] {
     const soloDelega = /\)\s*(?::[^{]*)?\{\s*return\s+(await\s+)?[A-Za-z0-9_.]+\([^;]*\);?\s*\}/.test(cuerpo);
     if (soloDelega) continue;
 
+    // Escribe, pero SOLO a traves de un guardado que si comprueba permiso.
+    //
+    // Es el caso de casi todas las funciones que tocan una fiesta
+    // (`updateBebidas`, `updateDecoracion`, `addTarea`...): leen la fiesta, cambian
+    // un pedazo y llaman a `saveFiesta`, que adentro pide `requireFiestaWriteAccess`
+    // — o sea, sesion del equipo O la clave del cliente de ESA fiesta. Un desconocido
+    // no puede escribir en una fiesta ajena.
+    //
+    // La comprobacion esta un nivel mas abajo y este control no la veia, asi que las
+    // reportaba como abiertas. Reconocerla NO es aflojar el control: se exige ademas
+    // que la funcion **no escriba nada por su cuenta**. Si toca la base directo,
+    // sigue contando como abierta aunque tambien llame al guardado.
+    const escribeDirecto = /\b(writeData|writeLocalData|uploadToStorage|deleteFromStorage)\s*\(|\.(set|update|add|delete)\s*\(/.test(cuerpo);
+    // `updateFiestaData` y `updateFiestaPartial` son los dos caminos por los que se
+    // toca una fiesta: el primero termina en `saveFiesta`, el segundo pide sesion
+    // del equipo el mismo. Verificado archivo por archivo el 21 de agosto.
+    const guardadoProtegido = /\b(saveFiesta|archiveFiesta|updateFiestaData|updateFiestaPartial)\s*\(/.test(cuerpo);
+    if (guardadoProtegido && !escribeDirecto) continue;
+
     const comprueba = new RegExp([
       'requireAppSession', 'requireAdminSession', 'requireSession',
       'verifySession', 'verifyPortalSession', 'verifyPassword', 'verifyIdToken',
       'verifyEntertainmentAccessToken', 'verifyHash', 'verifyValue',
       'requirePermiso', 'verificarAcceso',
+      // Pide sesion Y ademas el permiso concreto para ese evento. Es mas estricta
+      // que `requireAppSession`, no menos: se le paso por alto y hacia figurar como
+      // abiertas funciones que estaban mejor protegidas que el resto.
+      'requireEventPermission',
       // Deja pasar al equipo O al cliente con la clave de SU fiesta. Es la que usa
       // `saveFiesta`, por donde entran casi todas las escrituras de una fiesta.
       'requireFiestaWriteAccess', 'hasAppSession',
@@ -133,7 +156,7 @@ function funcionesSinControl(archivo: string): string[] {
 /**
  * La foto de cómo estaba el día que se puso este control.
  *
- * Quedan 84 funciones repartidas en 44 archivos que todavía **no se revisaron una
+ * Quedan 49 funciones repartidas en 28 archivos que todavía **no se revisaron una
  * por una**. Empezaron siendo 247 en 98 archivos: el 20 de agosto se cerraron 150
  * de una vez, todas las que ninguna pantalla pública alcanza. No significa que estén todas mal: la mayoría son de leer, y varias se
  * protegen de formas que este control no reconoce. Significa que **nadie las miró
@@ -185,6 +208,6 @@ describe('Ninguna puerta abierta a internet sin querer', () => {
     const conocidas = pendientes as Record<string, string[]>;
     const total = Object.values(conocidas).flat().length;
     // Si revisaste y protegiste alguna, bajá este numero. Nunca lo subas.
-    expect(total).toBeLessThanOrEqual(84);
+    expect(total).toBeLessThanOrEqual(49);
   });
 });
