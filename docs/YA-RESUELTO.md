@@ -3449,6 +3449,39 @@ enlace de reseñas y el identificador de medición—. Los otros diez **no los m
 nadie**: el correo y la llave de cobros se leen del servidor, y ocho no existen
 como campo para la app.
 
+## El ingreso se colgaba sin decir nada (21 de agosto de 2026)
+
+**Reportado por el dueño: no podía entrar, ni con la contraseña ni con Google.
+Apretaba el botón y no pasaba nada.**
+
+Reproducido en un navegador de verdad, con la aplicación compilada: el botón se
+quedaba en "Ingresando..." y ahí se moría. Sin error, sin aviso, y sin poder
+reintentar porque el botón queda apagado mientras cree que está trabajando.
+
+**La causa:** la llamada al servidor **no tenía ningún tope de espera**. Si el
+servidor estaba despertándose —que es lo que pasa en la primera entrada del día,
+porque está puesto para apagarse solo— o la base tardaba en contestar, la pantalla
+esperaba para siempre.
+
+No era un error de programación: el código estaba bien escrito y todos los caminos
+de error estaban contemplados. Simplemente ninguno se alcanzaba nunca.
+
+**Dos cosas lo arreglan:**
+
+1. **Tope de espera de 25 segundos.** Largo a propósito: cortar antes dejaría afuera
+   un ingreso que iba a funcionar, porque el arranque del servidor tarda. Si se pasa,
+   dice qué hacer en criollo en vez de dejar el botón muerto.
+2. **Un aviso mientras espera:** "La primera entrada del día puede demorar unos
+   segundos. Ya está andando." Sin eso, la espera parece que la aplicación no anda.
+
+Congelado en `src/__tests__/el-ingreso-nunca-se-cuelga.test.ts`, que además cuenta que
+cada salida por error vuelva a habilitar el botón. Si alguien agrega un camino de
+error y se olvida, la prueba avisa.
+
+**Falso positivo descartado en el camino:** se sospechó que el ingreso con Google
+quedaba trabado igual, porque un `return` de error no habilita el botón. No es así:
+esa función tiene una red de seguridad al final que lo habilita siempre.
+
 ## Cómo agregar algo a esta lista
 
 **Se anota SIEMPRE, en la misma propuesta que toca el código.** Orden del dueño

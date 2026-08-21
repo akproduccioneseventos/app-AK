@@ -160,6 +160,7 @@ muestre**. Esa distinción es la que más veces falló.
 | Las tareas de fondo sólo las dispara un administrador | Sí | Automático, al abrir la app |
 | Un posteo no puede salir dos veces en las redes | Sí | Automático, al publicar programados |
 | Auditoría mecánica que corre sola y escribe informe | Sí | `npm run auditoria`, informe en `auditoria-out/informe.md` |
+| El ingreso avisa mientras espera y nunca se queda colgado | Sí | Pantalla de ingreso |
 
 **Si se cae el internet en la fiesta:** se salva la llegada de invitados y el
 pedido de la barra, que se reenvían solos al volver la señal. **La foto del muro

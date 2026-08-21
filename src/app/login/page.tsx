@@ -42,6 +42,16 @@ const RECOVERY_STATUS_FALLBACK: RecoveryStatus = {
   recoveryEmailHint: PUBLIC_RECOVERY_EMAIL_HINT,
 };
 
+/**
+ * Cuanto se espera al servidor antes de avisar en pantalla.
+ *
+ * Son 25 segundos a proposito, no 3: el servidor esta puesto para apagarse solo
+ * cuando pasa un rato sin visitas (decision del dueno, porque dejarlo despierto se
+ * paga), asi que la primera entrada del dia paga el arranque. Cortar antes dejaria
+ * afuera un ingreso que iba a funcionar.
+ */
+const ESPERA_MAXIMA_MS = 25000;
+
 function withTimeout<T>(promise: Promise<T>, fallback: T, timeoutMs = 3500): Promise<T> {
   return Promise.race([
     promise,
@@ -168,9 +178,31 @@ export default function LoginPage() {
 
     try {
       const normalizedEmail = email.trim().toLowerCase();
-      const result = normalizedEmail
-        ? await loginUser(normalizedEmail, password)
-        : await loginWithPassword(password);
+
+      // TOPE DE ESPERA. Antes esta llamada no tenia ninguno: si el servidor tardaba
+      // en despertarse o la base no contestaba, el boton se quedaba en
+      // "Ingresando..." para siempre, sin error y sin poder reintentar. Es lo que
+      // reporto el dueno: "aprieto el boton y nada".
+      const respuesta = await Promise.race([
+        (normalizedEmail
+          ? loginUser(normalizedEmail, password)
+          : loginWithPassword(password)
+        ).then((r) => ({ llego: true as const, r })),
+        new Promise<{ llego: false }>((resolve) =>
+          window.setTimeout(() => resolve({ llego: false }), ESPERA_MAXIMA_MS),
+        ),
+      ]);
+
+      if (!respuesta.llego) {
+        setError(
+          'El servidor está tardando en contestar. Suele pasar la primera vez del día: '
+          + 'esperá unos segundos y volvé a intentar.',
+        );
+        setIsSubmitting(false);
+        return;
+      }
+
+      const result = respuesta.r;
       if (!result.success) {
         setError(result.error || 'Correo o contraseña incorrectos.');
         setIsSubmitting(false);
@@ -447,6 +479,17 @@ export default function LoginPage() {
                 {isSubmitting ? <Loader2 className="w-5 h-5 mr-2 animate-spin" /> : <LogIn className="w-5 h-5 mr-2" />}
                 {isSubmitting ? 'Ingresando...' : 'Ingresar'}
               </Button>
+              {/*
+                El aviso de la espera. Sin esto, la primera entrada del dia deja el
+                boton diciendo "Ingresando..." varios segundos sin nada mas en
+                pantalla, y parece que la aplicacion no anda: el dueno reporto
+                exactamente eso, que apretaba y no pasaba nada.
+              */}
+              {isSubmitting && (
+                <p className="text-xs text-center text-muted-foreground">
+                  La primera entrada del día puede demorar unos segundos. Ya está andando.
+                </p>
+              )}
 
               <div className="relative flex py-2 items-center w-full">
                 <div className="flex-grow border-t border-muted"></div>
