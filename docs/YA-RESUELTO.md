@@ -3527,6 +3527,28 @@ dice qué hacer con las fiestas que ya tienen cuenta cargada.
 cuenta es útil y está bien. El problema era el cartel, no la lógica. Cambiar la lógica
 para que pise las cuentas de cada fiesta habría sido peor.
 
+## Promesas de pantalla verificadas: falsos positivos (21 de agosto de 2026)
+
+La pasada 4 de la auditoría lista **120 frases** donde una pantalla promete algo
+automático. **No son hallazgos: son frases para contrastar.** La mayoría es texto de
+venta ("subida de fotos en tiempo real"), que describe bien lo que hace la aplicación.
+
+Se verificaron a mano las que tienen consecuencia de verdad. **Las tres son ciertas y
+quedan descartadas:**
+
+1. **"Los cambios se guardan automáticamente al modificar menús, bebidas o
+   repostería"** (Fiestas → Catering). **Es cierto.** Cada cambio dispara el guardado
+   en el momento, no hay botón que haya que apretar.
+2. **"Los ingredientes se sumarán a la lista de compras automáticamente"** (Fiestas →
+   Catering). **Es cierto.** La lista de compras abre los platos del menú y suma los
+   ingredientes de cada uno.
+3. **Las preguntas frecuentes del blog** aparecían en la pasada 3 como "dato simulado
+   sin advertencia". **Falso positivo:** son textos de venta escritos a mano, no un
+   número inventado haciéndose pasar por medido.
+
+**Por qué se anota:** sin esto, la próxima auditoría los vuelve a listar y alguien
+gasta el viaje de nuevo. Las tres están verificadas leyendo el código, no suponiendo.
+
 ## Cómo agregar algo a esta lista
 
 **Se anota SIEMPRE, en la misma propuesta que toca el código.** Orden del dueño
