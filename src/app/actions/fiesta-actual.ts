@@ -183,7 +183,10 @@ export async function savePlanPagosContrato(
 }
 
 export async function getFiestaActivaDeHoy(): Promise<{ success: boolean; fiestaId?: string; error?: string }> {
-  await requireAppSession();
+  // PUBLICA A PROPOSITO: la usan las pantallas del salon que se abren SIN cuenta
+  // (el totem de la barra, la plataforma 360 y el totem general) para saber que
+  // fiesta hay hoy. Pedir cuenta aca dejaba esas tres sin encontrar la fiesta en
+  // pleno evento.
   try {
     const fiestas = await FiestaModule.getFiestas(false);
     const today = new Date();

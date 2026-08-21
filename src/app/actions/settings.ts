@@ -394,7 +394,9 @@ export async function getContractTemplateByType(type: ContractType): Promise<Con
 
 // --- Budget Display Settings ---
 export async function getBudgetDisplaySettings(): Promise<BudgetDisplaySettings> {
-  await requireAppSession();
+  // PUBLICA A PROPOSITO: la leen el portal del cliente, el simulador y la
+  // presentacion de venta, que se abren SIN cuenta. Son ajustes de como se muestra
+  // un presupuesto (que columnas, que textos), no datos del negocio.
   try {
     const data = await readData<Partial<BudgetDisplaySettings>>(BUDGET_SETTINGS_FILE, {});
     return { ...defaultBudgetDisplaySettings, ...data };
@@ -429,7 +431,8 @@ export async function saveBudgetDisplaySettings(
 
 // --- Invoice Template Settings ---
 export async function getInvoiceTemplateSettings(): Promise<InvoiceTemplateSettings> {
-  await requireAppSession();
+  // PUBLICA A PROPOSITO: de aca sale el LOGO, y lo muestran la pantalla de ingreso
+  // (antes de que exista sesion), el muro en vivo y la presentacion de venta.
   try {
     const data = await readData<Partial<InvoiceTemplateSettings>>(INVOICE_SETTINGS_FILE, {});
     return { ...defaultInvoiceTemplateSettings, ...data };
@@ -458,7 +461,8 @@ export async function saveInvoiceTemplateSettings(
 
 // --- WhatsApp Settings ---
 export async function getWhatsAppSettings(): Promise<WhatsAppSettings> {
-  await requireAppSession();
+  // PUBLICA A PROPOSITO: la usa el motor de automatizacion de WhatsApp, que corre
+  // desde el despertador externo y no tiene sesion de nadie.
   try {
     const data = await readData<Partial<WhatsAppSettings>>(WHATSAPP_SETTINGS_FILE, {});
     return { ...defaultWhatsAppSettings, ...data };
@@ -506,7 +510,7 @@ export async function saveContractSettings(settings: ContractSettings): Promise<
 
 // --- WhatsApp Templates ---
 export async function getWhatsAppTemplates(): Promise<WhatsAppTemplates> {
-  await requireAppSession();
+  // PUBLICA A PROPOSITO: mismo motivo que los ajustes de WhatsApp.
   try {
     const data = await readData<Partial<WhatsAppTemplates>>(WHATSAPP_TEMPLATES_FILE, {});
     return { ...defaultWhatsAppTemplates, ...data };

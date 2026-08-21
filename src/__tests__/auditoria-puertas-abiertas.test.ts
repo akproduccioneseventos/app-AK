@@ -82,6 +82,28 @@ const FUNCIONES_PUBLICAS_A_PROPOSITO: Record<string, string> = {
     'las redes de AK para los botones "seguinos" del invitado, sin el permiso de ' +
     'publicacion de Facebook e Instagram.',
 
+  // Estas siete se cerraron por error el 21 de agosto y hubo que reabrirlas: cada una
+  // la usa una pantalla que se abre SIN cuenta, y pedirla dejaba al cliente o al
+  // invitado afuera. Van declaradas para que no se vuelvan a cerrar de apuro.
+  'settings.ts:getBudgetDisplaySettings':
+    'como se muestra un presupuesto (columnas y textos). La leen el portal del ' +
+    'cliente, el simulador y la presentacion de venta, que no piden cuenta.',
+  'settings.ts:getInvoiceTemplateSettings':
+    'de aca sale el LOGO, y lo muestra la pantalla de ingreso antes de que exista sesion.',
+  'settings.ts:getWhatsAppSettings':
+    'la usa el motor de WhatsApp, que corre desde el despertador externo sin sesion.',
+  'settings.ts:getWhatsAppTemplates':
+    'mismo motivo que los ajustes de WhatsApp.',
+  'fiesta-actual.ts:getFiestaActivaDeHoy':
+    'las pantallas del salon (totem de la barra, plataforma 360, totem general) ' +
+    'preguntan que fiesta hay hoy, y se abren sin cuenta en pleno evento.',
+  'fiesta.actions.ts:updateClienteDebeLlevar':
+    'lo toca EL CLIENTE desde su portal. El guardado de abajo ya pide sesion del ' +
+    'equipo o la clave del cliente de esa fiesta.',
+  'decoracion.actions.ts:updateDecoracion':
+    'el CLIENTE arma su tablero de decoracion desde su portal, con la misma ' +
+    'proteccion de abajo.',
+
   // Simulador, presupuestos públicos y captación
   'armado-rapido.ts:generateBudgetAndLeadFromSimulator':
     'el simulador de presupuestos web genera la propuesta y prospecto para el cliente sin cuenta.',
@@ -202,15 +224,11 @@ function funcionesSinControl(archivo: string): string[] {
       'requireAppSession', 'requireAdminSession', 'requireSession',
       'verifySession', 'verifyPortalSession', 'verifyPassword', 'verifyIdToken',
       'verifyEntertainmentAccessToken', 'verifyHash', 'verifyValue',
-<<<<<<< HEAD
-      'requirePermiso', 'verificarAcceso', 'requireEventPermission',
-=======
       'requirePermiso', 'verificarAcceso',
       // Pide sesion Y ademas el permiso concreto para ese evento. Es mas estricta
       // que `requireAppSession`, no menos: se le paso por alto y hacia figurar como
       // abiertas funciones que estaban mejor protegidas que el resto.
       'requireEventPermission',
->>>>>>> origin/main
       // Deja pasar al equipo O al cliente con la clave de SU fiesta. Es la que usa
       // `saveFiesta`, por donde entran casi todas las escrituras de una fiesta.
       'requireFiestaWriteAccess', 'hasAppSession',
@@ -224,23 +242,20 @@ function funcionesSinControl(archivo: string): string[] {
 /**
  * La foto de cómo estaba el día que se puso este control.
  *
-<<<<<<< HEAD
- * Quedan 0 funciones pendientes: todas las funciones de servidor estan revisadas
- * y protegidas o declaradas publicas a proposito con su motivo.
-=======
- * Quedan 49 funciones repartidas en 28 archivos que todavía **no se revisaron una
- * por una**. Empezaron siendo 247 en 98 archivos: el 20 de agosto se cerraron 150
- * de una vez, todas las que ninguna pantalla pública alcanza. No significa que estén todas mal: la mayoría son de leer, y varias se
- * protegen de formas que este control no reconoce. Significa que **nadie las miró
- * con esta lupa todavía**.
+ * **Ya no queda ninguna.** Empezaron siendo 247 repartidas en 98 archivos. Hoy
+ * todas estan protegidas, o declaradas publicas a proposito con el motivo escrito
+ * arriba.
  *
- * Para qué sirve congelarlas: desde hoy, **cualquier función NUEVA que quede
- * abierta hace fallar la prueba**. La lista vieja se va vaciando de a poco, y no se
- * agranda nunca.
+ * El archivo de pendientes queda vacio y **asi tiene que quedarse**: desde ahora,
+ * cualquier funcion nueva que quede abierta hace fallar esta prueba en el acto.
  *
- * Cuando revises una y la protejas (o confirmes que es pública a propósito),
- * sacala del archivo. Si sacás una y la prueba sigue en verde, quedó bien.
->>>>>>> origin/main
+ * **Si alguna vez vuelve a llenarse, no es que "hay que revisarlas": es que alguien
+ * abrio una puerta.**
+ *
+ * Ojo con el atajo facil: cerrar de mas tambien rompe. El 21 de agosto se le pidio
+ * cuenta a siete funciones que usan pantallas SIN cuenta —el portal del cliente, el
+ * simulador, el totem de la barra— y dejaba al cliente y al invitado afuera. Antes de
+ * cerrar una, mira quien la llama.
  */
 import pendientes from './puertas-pendientes-de-revisar.json';
 
@@ -280,11 +295,7 @@ describe('Ninguna puerta abierta a internet sin querer', () => {
   it('la lista de pendientes se achica, nunca se agranda', () => {
     const conocidas = pendientes as Record<string, string[]>;
     const total = Object.values(conocidas).flat().length;
-    // Si revisaste y protegiste alguna, bajá este numero. Nunca lo subas.
-<<<<<<< HEAD
-    expect(total).toBeLessThanOrEqual(0);
-=======
-    expect(total).toBeLessThanOrEqual(49);
->>>>>>> origin/main
+    // Llego a cero. Este numero NO se sube: si algo no entra, se protege o se declara.
+    expect(total).toBe(0);
   });
 });

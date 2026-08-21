@@ -1160,7 +1160,10 @@ export async function updateGuestExperienceSettings(fiestaId: string, settings: 
 }
 
 export async function updateClienteDebeLlevar(fiestaId: string, items: ClienteDebeLlevarItem[]) {
-  await requireAppSession();
+  // SIN cuenta del equipo a proposito: esto lo toca EL CLIENTE desde su portal.
+  // El guardado de abajo (`saveFiesta`) ya pide sesion del equipo O la clave del
+  // cliente de esta fiesta. Pedir cuenta aca dejaba al cliente afuera de su propio
+  // portal.
   const f = await getFiestaById(fiestaId);
   if (!f) return { success: false, error: 'Evento no encontrado.' };
   return await saveFiesta({ ...f, clienteDebeLlevar: items });

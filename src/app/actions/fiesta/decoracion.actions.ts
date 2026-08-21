@@ -7,7 +7,9 @@ import { updateGestionCostos } from './costos.actions';
 
 import { requireAppSession } from '@/lib/auth/require-session';
 export async function updateDecoracion(fiestaId: string, decoracion: DecoracionData): Promise<{ success: boolean; updatedData?: DecoracionData; error?: string }> {
-  await requireAppSession();
+  // SIN cuenta del equipo a proposito: el CLIENTE arma su tablero de decoracion
+  // desde su portal. El guardado de abajo ya pide sesion del equipo O la clave del
+  // cliente de esta fiesta.
   try {
     const currentData = await getFiestaById(fiestaId);
     if (!currentData) throw new Error("Fiesta no encontrada");

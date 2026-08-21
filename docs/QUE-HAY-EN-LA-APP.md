@@ -163,6 +163,7 @@ muestre**. Esa distinción es la que más veces falló.
 | El ingreso avisa mientras espera y nunca se queda colgado | Sí | Pantalla de ingreso |
 | Los avisos de pago al cliente sólo los dispara quien corresponde | Sí | Automático, al aprobar o rechazar un pago |
 | Recuperar la clave del portal, con freno contra robots | Sí, 3 por hora | Portal del cliente |
+| Ninguna función de servidor abierta sin querer | Sí, llegó a cero de 247 | Automático, prueba que lo cuida |
 | Repaso de la mañana enlazado | Sí | Menú principal |
 | Aviso de personal en dos fiestas el mismo día | Sí | Menú principal → Personal en dos fiestas |
 | Métricas del negocio y rendimiento de publicidad | Sí | Menú principal |

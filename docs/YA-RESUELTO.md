@@ -3810,6 +3810,44 @@ control, así que figuraba como abierta algo más estricto que todo lo demás.
 **Lo que hay que recordar:** antes de agregar una comprobación, mirá si no está ya un
 nivel más abajo. Ponerla dos veces no protege más y esconde dónde está la de verdad.
 
+## Las puertas llegaron a cero, y siete que se cerraron de más (21 de agosto de 2026)
+
+**De 247 funciones de servidor sin revisar no queda ninguna.** Todas están protegidas,
+o declaradas públicas a propósito con el motivo escrito al lado. El archivo de
+pendientes quedó vacío y ahora la prueba exige que siga así: **si vuelve a llenarse no
+es que "hay que revisarlas", es que alguien abrió una puerta.**
+
+### Lo que casi rompe: cerrar de más
+
+La entrega de Gemini le pidió cuenta a siete funciones que usan pantallas que se abren
+**sin cuenta**. Todas pasaban los cinco controles. Lo que habría pasado en pantalla:
+
+| Función | Qué se rompía |
+|---|---|
+| `getBudgetDisplaySettings` | El portal del cliente, el simulador y la presentación de venta dejaban de mostrar el presupuesto |
+| `getInvoiceTemplateSettings` | La pantalla de ingreso se quedaba sin logo |
+| `getWhatsAppSettings` y `getWhatsAppTemplates` | El motor de WhatsApp, que corre sin sesión, dejaba de andar |
+| `getFiestaActivaDeHoy` | **El tótem de la barra, la plataforma 360 y el tótem general no encontraban la fiesta en pleno evento** |
+| `updateClienteDebeLlevar` | El cliente no podía marcar qué lleva él, desde su propio portal |
+| `updateDecoracion` | El cliente no podía armar su tablero de decoración |
+
+Las siete quedaron reabiertas y **declaradas**, con el motivo, para que no se vuelvan a
+cerrar de apuro.
+
+> **La regla que queda:** antes de cerrar una puerta, mirá quién la llama. Cerrar de
+> más no se nota en ninguna prueba y deja al cliente afuera de lo suyo.
+
+### Y otra vez la configuración de cobros
+
+La entrega venía otra vez con el bloque de Mercado Pago que ya se había sacado: pone
+la llave de acceso y **apaga el modo de prueba**, o sea deja los cobros en dinero real,
+sin la llave que valida los avisos de pago. Se sacó de nuevo. **Prender los cobros es
+una decisión del dueño y se hace aparte, completa.**
+
+Pasó porque la entrega estaba hecha sobre la versión anterior, no sobre la principal
+de ahora. Es el mismo riesgo de siempre: **una propuesta vieja puede devolver lo que ya
+se había sacado.**
+
 ## Cómo agregar algo a esta lista
 
 **Se anota SIEMPRE, en la misma propuesta que toca el código.** Orden del dueño
