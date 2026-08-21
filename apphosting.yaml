@@ -140,3 +140,28 @@ env:
     value: "all"
     availability:
       - RUNTIME
+
+  # Google Analytics 4 (GA4)
+  - variable: NEXT_PUBLIC_GA_MEASUREMENT_ID
+    value: "G-KBNKPZ02N9"
+    availability:
+      - BUILD
+      - RUNTIME
+  - variable: NEXT_PUBLIC_GA_ID
+    value: "G-KBNKPZ02N9"
+    availability:
+      - BUILD
+      - RUNTIME
+
+  # Meta / Facebook Ads Pixel
+  - variable: NEXT_PUBLIC_FACEBOOK_PIXEL_ID
+    value: "898109993002064"
+    availability:
+      - BUILD
+      - RUNTIME
+  - variable: FACEBOOK_PIXEL_ID
+    value: "898109993002064"
+    availability:
+      - BUILD
+      - RUNTIME
+

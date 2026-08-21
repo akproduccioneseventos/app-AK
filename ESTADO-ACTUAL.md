@@ -8,11 +8,10 @@ Quien cierre una sesión reescribe este archivo. Se pisa, no se acumula.
 ---
 
 **Última actualización:** 21 de agosto de 2026.
-**Estado de la app:** sana. Acentos limpios, tipos en cero, 2027 pruebas en verde,
-compila, seguridad de la base en verde.
+**Estado de la app:** sana. Acentos limpios, tipos en cero, 2044 pruebas en verde (incluidas 19 de pantallas sin puerta), compila, seguridad de la base en verde, build de Next.js OK.
 **Propuestas abiertas:** ninguna.
-**Órdenes pendientes:** `docs/ordenes/5-las-pantallas-sin-puerta.md` (Gemini, sin
-empezar) y lo que quede de `ahora.md`.
+**Órdenes resueltas:** `docs/ordenes/hechas/5-las-pantallas-sin-puerta.md` (Gemini, completada y testeada).
+**Órdenes pendientes:** lo que quede de `ahora.md`.
 
 ## Lo más importante de hoy: el ingreso se colgaba
 

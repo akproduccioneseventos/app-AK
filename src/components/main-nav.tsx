@@ -46,6 +46,14 @@ import {
   Wheat,
   Scale,
   HardHat,
+  SunMedium,
+  Users2,
+  TrendingUp,
+  Target,
+  Tv,
+  Tag,
+  Bot,
+  Cpu,
 } from "lucide-react";
 import AppLogo from "./app-logo";
 import { cn } from "@/lib/utils";
@@ -85,6 +93,8 @@ const navGroups: NavGroup[] = [
       { title: "Clientes", href: "/customers", icon: Users },
       { title: "Simulador IA", href: "/simulador-ak", icon: Wand2 },
       { title: "WhatsApp del Día", href: "/contabilidad/crm/outbox", icon: Send, highlight: true },
+      // Repaso de la mañana: qué eventos, citas y tareas tocan hoy.
+      { title: "Repaso Diario", href: "/repaso-diario", icon: SunMedium },
     ],
   },
   {
@@ -105,6 +115,8 @@ const navGroups: NavGroup[] = [
       // afuera, asi que tiene que estar a la vista de quien lo reparte.
       { title: "Alergias y Dietas", href: "/fiestas/nueva/alergias", icon: Wheat },
       { title: "Portal de Proveedores", href: "/fiestas/nueva/proveedores-portal", icon: HardHat },
+      // Avisa si el mismo mozo, fotografo o DJ fue asignado a dos fiestas el mismo dia.
+      { title: "Personal en dos fiestas", href: "/recursos-multi-evento", icon: Users2 },
     ],
   },
   {
@@ -117,6 +129,10 @@ const navGroups: NavGroup[] = [
       // Va en Contabilidad y no en Fiestas porque cada solicitud lleva un
       // impacto en pesos y la decision la toma quien maneja la plata.
       { title: "Cambios a Aprobar", href: "/aprobaciones", icon: CheckSquare },
+      // Panel gerencial de números consolidados y facturación del negocio.
+      { title: "Métricas del Negocio", href: "/empresa/dashboard", icon: TrendingUp },
+      // Rendimiento de la plata invertida en anuncios de Meta y Google.
+      { title: "Rendimiento Anuncios", href: "/contabilidad/crm/marketing-ads", icon: Target },
     ],
   },
   {
@@ -132,6 +148,8 @@ const navGroups: NavGroup[] = [
       { title: "Catálogo de Servicios", href: "/empresa/servicios", icon: Package },
       { title: "Proveedores", href: "/proveedores", icon: Building2 },
       { title: "Empleados", href: "/empleados", icon: Briefcase },
+      // Configuración de fotos, textos y menús para la pantalla LED comercial.
+      { title: "Presentación LED", href: "/empresa/presentacion-led/configuracion", icon: Tv },
     ],
   },
   {
@@ -144,6 +162,12 @@ const navGroups: NavGroup[] = [
       { title: "WhatsApp", href: "/settings/whatsapp", icon: MessageCircle },
       { title: "Cláusulas de Contrato", href: "/settings/contratos/clausulas", icon: Scale },
       { title: "Seguridad", href: "/settings/account", icon: ShieldCheck },
+      // Promociones activas y ofertas por tiempo limitado.
+      { title: "Promociones", href: "/settings/promos", icon: Tag },
+      // Parámetros y tono del copiloto de inteligencia artificial.
+      { title: "Asistente IA", href: "/settings/ai-assistant", icon: Bot },
+      // Catálogo de tecnología e innovaciones disponibles en AK.
+      { title: "Mapa Tecnológico", href: "/settings/mapa-tecnologico-ak", icon: Cpu },
     ],
   },
 ];

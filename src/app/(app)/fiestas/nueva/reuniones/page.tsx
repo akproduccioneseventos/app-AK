@@ -308,6 +308,9 @@ function GestionReunionesContent() {
           <h1 className="text-3xl font-bold tracking-tight font-headline">Reuniones con Cliente</h1>
         </div>
         <div className="flex flex-wrap gap-2">
+            <Button asChild variant="outline" size="sm"><Link href={`/fiestas/nueva/reuniones/imprimir?fiestaId=${fiestaId}`}>
+                    <Printer className="w-4 h-4 mr-2"/> Imprimir Minuta
+                </Link></Button>
             <Button asChild variant="secondary" size="sm"><Link href={`/fiestas/nueva/resumen-planificacion?fiestaId=${fiestaId}`}>
                     <ClipboardCheck className="w-4 h-4 mr-2"/> Ver Planificacion Actual
                 </Link></Button>

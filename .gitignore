@@ -67,6 +67,7 @@ src/data/social-connections.json
 #
 # Va en la consola del servidor, no en un archivo del proyecto.
 src/data/settings.json
+src/data/google-workspace.json
 
 # backup files
 src/data/last-auto-backup.txt

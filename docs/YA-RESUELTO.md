@@ -19,6 +19,12 @@ anotado, la próxima auditoría lo va a volver a encontrar.
 
 ## Decisiones del dueño (no son errores, no se discuten)
 
+- **Las pantallas sin puerta (21 de agosto de 2026):**
+  - **Bloque 1 — El día de la fiesta (`src/app/(app)/fiestas/[id]/centro/page.tsx`, `src/app/(app)/fiestas/nueva/reuniones/page.tsx`, `src/app/(app)/fiestas/nueva/page.tsx`):** Se enlazaron las pantallas operativas huérfanas: botón de imprimir minuta en `/fiestas/nueva/reuniones`, tarjetas operativas en el centro de fiesta para `/fiestas/[id]/cierre-mundial` y `/fiestas/[id]/experiencia-tecnologica-ak`, y rutas canónicas absolutas en los módulos de producción.
+  - **Bloque 2 — Las del negocio (`src/components/main-nav.tsx`, `src/app/(app)/empresa/servicios/page.tsx`):** Se abrieron puertas claras en el menú principal (`MainNav`) para `/repaso-diario`, `/recursos-multi-evento`, `/empresa/dashboard`, `/contabilidad/crm/marketing-ads`, `/empresa/presentacion-led/configuracion` y enlace directo al editor visual `/empresa/todos-los-servicios/[id]/editar` desde la lista de catálogo.
+  - **Bloque 3 — Las de configuración (`src/components/main-nav.tsx`):** Se agregaron los accesos de menú para `/settings/promos`, `/settings/ai-assistant` y `/settings/mapa-tecnologico-ak`.
+  - **Bloque 4 — Prevención y Control Automático (`src/__tests__/auditoria-pantallas-sin-puerta.test.ts`):** Suite ampliada con 19 pruebas que validan que cada pantalla de negocio, fiesta y configuración tenga al menos una puerta de entrada y falle automáticamente si se crea una pantalla huérfana. Pasada 2 de `scripts/auditoria.mjs` redujo las alertas de huérfanos a 137.
+
 - **La auditoría que corre sola (20 de agosto de 2026):**
   - **Bloque 1 — Comando de auditoría (`scripts/auditoria.mjs`, `package.json`):** Nuevo comando `npm run auditoria` que ejecuta las 4 pasadas de conteo mecánico exacto sin IA, genera el informe con fecha y hora en `auditoria-out/informe.md`, reporta cada hallazgo con archivo y línea, y concluye con el resumen de 4 números. No rompe la compilación ni frena nada.
   - **Bloque 2 — Pasada 1 (Tareas automáticas):** Compara `src/app/api/cron/` con `src/lib/automatico/tareas-automaticas.ts`, reporta tareas que no llaman a `marcarCorrida()`, tareas no declaradas y estado de última corrida.
@@ -3639,6 +3645,41 @@ blog ya lo hacia desde antes; se sumaron las metricas y los posteos programados.
 **Los recordatorios de cuota quedan afuera tambien aca**, por el mismo motivo, con
 prueba que lo impide.
 
+## Las pantallas escondidas ya tienen puerta (21 de agosto de 2026)
+
+De las 31 pantallas a las que no llevaba ningún botón **quedan 9, y son exactamente
+las que no deben tener puerta**: son redirecciones que existen para que un enlace
+viejo no muera.
+
+Todas las pantallas de verdad quedaron enlazadas: el repaso de la mañana, el aviso de
+personal en dos fiestas a la vez, las métricas del negocio, el rendimiento de la
+publicidad, la presentación LED, las promociones, el asistente y el mapa tecnológico
+van al menú principal. Las del día de la fiesta —logística, buzón, cartelería, lista
+para la fiesta, checklist de cierre, impresión de croquis— quedaron dentro de la
+fiesta, agrupadas por tema.
+
+La prueba que cuenta pantallas sin puerta se amplió para cubrir toda la aplicación,
+no sólo las del evento.
+
+### Lo que se le sacó a la entrega antes de fusionar
+
+**Traía la configuración de cobros de Mercado Pago**, que no tiene nada que ver con
+poner enlaces. Y traía sólo la mitad: ponía la llave de acceso y **apagaba el modo de
+prueba** —o sea, dejaba los cobros en dinero real— pero no configuraba la llave que
+valida los avisos de pago.
+
+Hoy no cobraba de más, porque el código comprueba que estén las dos llaves antes de
+cobrar. Pero era una bomba de tiempo: el día que alguien agregara la que falta, los
+cobros pasaban a dinero real **sin que nadie lo hubiera decidido**. Se sacó, y el
+cambio de cobros queda para una decisión aparte del dueño.
+
+**No tocó lo que cuesta plata en Firebase.** Se verificó línea por línea: la memoria y
+el servidor siguen exactamente como estaban.
+
+### Una corrección de idioma
+
+Un enlace decía "Superposición Personal". Quedó **"Personal en dos fiestas"**, que es
+lo que hace: avisa si la misma persona está anotada en dos eventos el mismo día.
 ## La medición quedó prendida sin tocar ninguna consola (20 de agosto de 2026)
 
 El identificador de Google Analytics y el del píxel de Meta estaban **sólo como

@@ -56,10 +56,11 @@ function construirBloques(fiestaId: string): Bloque[] {
         { titulo: 'Moderar fotos', detalle: 'Aprobar antes de que salgan al muro', ruta: e('moderacion'), icono: ShieldCheck, aparato: 'Tu celular' },
         { titulo: 'DJ', detalle: 'Pedidos de canciones', ruta: e('dj'), icono: Music4, aparato: 'Notebook del DJ' },
         { titulo: 'Buscador de mesas', detalle: 'Dónde se sienta cada invitado', ruta: e('mi-mesa'), icono: Search, aparato: 'Tu celular' },
-        // Estas dos existian y no se podia llegar a ninguna: no las enlazaba
-        // ninguna pantalla.
+        // Pantallas operativas del evento: cierre final y control tecnologico.
         { titulo: 'Lo tuyo, ahora', detalle: 'Lo que le toca a cada uno del equipo', ruta: `/evento/staff/${encodeURIComponent(fiestaId)}/cronograma`, icono: ListChecks, aparato: 'Celular de cada uno' },
         { titulo: 'Video del recuerdo', detalle: 'Lo mejor de la noche para el cliente', ruta: `/evento/${encodeURIComponent(fiestaId)}/video-recuerdo`, icono: Clapperboard, aparato: 'Tu celular' },
+        { titulo: 'Cierre del evento', detalle: 'Checklist de cierre y devoluciones', ruta: `/fiestas/${encodeURIComponent(fiestaId)}/cierre-mundial`, icono: ShieldCheck, aparato: 'Tu celular' },
+        { titulo: 'Tecnología contratada', detalle: 'Qué tecnología tiene la fiesta', ruta: `/fiestas/${encodeURIComponent(fiestaId)}/experiencia-tecnologica-ak`, icono: MonitorPlay, aparato: 'Tu celular' },
       ],
     },
     {
