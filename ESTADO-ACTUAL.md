@@ -8,11 +8,12 @@ Quien cierre una sesión reescribe este archivo. Se pisa, no se acumula.
 ---
 
 **Última actualización:** 21 de agosto de 2026.
-**Estado de la app:** sana. Acentos limpios, tipos en cero, 2044 pruebas en verde (incluidas pruebas de puertas de servidor en cero pendientes y pantallas sin puerta), compila, seguridad de la base en verde, build de Next.js OK.
+**Estado de la app:** sana. Acentos limpios, tipos en cero, pruebas en verde (incluidas pruebas de puertas de servidor en cero pendientes, pantallas sin puerta y reseña del invitado), compila, seguridad de la base en verde, build de Next.js OK.
 **Propuestas abiertas:** ninguna.
 **Órdenes resueltas:**
-1. Puertas de servidor: 100% protegidas y auditadas (`puertas-pendientes-de-revisar.json` en `{}`).
-2. Afinamiento de auditoría mecánica continua: `scripts/auditoria.mjs` refinado, 1 hallazgo real, cero falsos positivos.
+1. **Orden 6: La reseña, también desde el invitado** (`docs/ordenes/hechas/6-la-resena-desde-el-invitado.md`, completada y testeada con 8 pruebas).
+2. **Puertas de servidor:** 100% protegidas y auditadas (`puertas-pendientes-de-revisar.json` en `{}`).
+3. **Afinamiento de auditoría mecánica continua:** `scripts/auditoria.mjs` refinado, 1 hallazgo real, cero falsos positivos.
 **Órdenes pendientes:** ninguna urgente.
 **Última actualización:** 21 de agosto de 2026, cierre.
 **Estado de la app:** sana. Acentos limpios, tipos en cero, **2053 pruebas en verde**,
@@ -21,8 +22,13 @@ compila, seguridad de la base en verde.
 **Órdenes pendientes:** `docs/ordenes/6-la-resena-desde-el-invitado.md` (sin empezar) y
 lo que quede de `ahora.md`.
 
-## Lo más importante de hoy: auditoría mecánica afinada y puertas cerradas
+## Lo más importante de hoy: reseña del invitado y seguridad cerrada
 
+1. **Botón de reseña de Google para el invitado (Orden 6):** Se incorporó el botón discreto y opcional en el hub del evento (`/evento/hub/[fiestaId]`) y al pie del álbum de fotos (`/evento/album/[fiestaId]`), utilizando `getEnlaceDeResenaPublico()`. Solo se muestra si el enlace de Google está cargado en Ajustes. No condiciona ni pide estrellas fijas para cumplir las políticas de Google.
+2. **Puertas de servidor:** Se auditaron y protegieron con `requireAppSession()` todas las Server Actions administrativas en `src/app/actions/`. Las funciones públicas legítimas quedaron formalmente declaradas en `auditoria-puertas-abiertas.test.ts`. El archivo de pendientes quedó en cero.
+3. **Auditoría mecánica continua (`scripts/auditoria.mjs`):** Se eliminó el ruido de falsas alarmas (rutas en Windows, detección kebab/PascalCase, barrel files, exclusión de términos gastronómicos reales como mocktails y filtrado de ayudas de UI). El reporte en `auditoria-out/informe.md` ahora devuelve números limpios y precisos (1 hallazgo real comprobado).
+
+## La regla que más encontró esta semana
 1. **Puertas de servidor:** Se auditaron y protegieron con `requireAppSession()` todas las Server Actions administrativas en `src/app/actions/`. Las funciones públicas legítimas quedaron formalmente declaradas en `auditoria-puertas-abiertas.test.ts`. El archivo de pendientes quedó en cero.
 2. **Auditoría mecánica continua (`scripts/auditoria.mjs`):** Se eliminó el ruido de falsas alarmas (rutas en Windows, detección kebab/PascalCase, barrel files, exclusión de términos gastronómicos reales como mocktails y filtrado de ayudas de UI). El reporte en `auditoria-out/informe.md` ahora devuelve números limpios y precisos (1 hallazgo real comprobado).
 **El dueño no podía entrar, ni con la contraseña ni con Google.** Reproducido en un
