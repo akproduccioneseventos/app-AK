@@ -3645,6 +3645,42 @@ blog ya lo hacia desde antes; se sumaron las metricas y los posteos programados.
 **Los recordatorios de cuota quedan afuera tambien aca**, por el mismo motivo, con
 prueba que lo impide.
 
+## Las pantallas escondidas ya tienen puerta (21 de agosto de 2026)
+
+De las 31 pantallas a las que no llevaba ningún botón **quedan 9, y son exactamente
+las que no deben tener puerta**: son redirecciones que existen para que un enlace
+viejo no muera.
+
+Todas las pantallas de verdad quedaron enlazadas: el repaso de la mañana, el aviso de
+personal en dos fiestas a la vez, las métricas del negocio, el rendimiento de la
+publicidad, la presentación LED, las promociones, el asistente y el mapa tecnológico
+van al menú principal. Las del día de la fiesta —logística, buzón, cartelería, lista
+para la fiesta, checklist de cierre, impresión de croquis— quedaron dentro de la
+fiesta, agrupadas por tema.
+
+La prueba que cuenta pantallas sin puerta se amplió para cubrir toda la aplicación,
+no sólo las del evento.
+
+### Lo que se le sacó a la entrega antes de fusionar
+
+**Traía la configuración de cobros de Mercado Pago**, que no tiene nada que ver con
+poner enlaces. Y traía sólo la mitad: ponía la llave de acceso y **apagaba el modo de
+prueba** —o sea, dejaba los cobros en dinero real— pero no configuraba la llave que
+valida los avisos de pago.
+
+Hoy no cobraba de más, porque el código comprueba que estén las dos llaves antes de
+cobrar. Pero era una bomba de tiempo: el día que alguien agregara la que falta, los
+cobros pasaban a dinero real **sin que nadie lo hubiera decidido**. Se sacó, y el
+cambio de cobros queda para una decisión aparte del dueño.
+
+**No tocó lo que cuesta plata en Firebase.** Se verificó línea por línea: la memoria y
+el servidor siguen exactamente como estaban.
+
+### Una corrección de idioma
+
+Un enlace decía "Superposición Personal". Quedó **"Personal en dos fiestas"**, que es
+lo que hace: avisa si la misma persona está anotada en dos eventos el mismo día.
+
 ## Cómo agregar algo a esta lista
 
 **Se anota SIEMPRE, en la misma propuesta que toca el código.** Orden del dueño

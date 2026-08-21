@@ -165,13 +165,3 @@ env:
       - BUILD
       - RUNTIME
 
-  # Mercado Pago Checkout Pro
-  - variable: MERCADO_PAGO_ACCESS_TOKEN
-    secret: mercadopago-access-token
-    availability:
-      - RUNTIME
-  - variable: MERCADO_PAGO_USE_SANDBOX
-    value: "false"
-    availability:
-      - RUNTIME
-
