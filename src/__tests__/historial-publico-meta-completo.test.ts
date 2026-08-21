@@ -47,7 +47,8 @@ describe('el historial público de Meta se reconstruye completo', () => {
     const tarea = leer(TAREA);
 
     expect(tarea).toContain('syncMetaPublicHistory');
-    expect(tarea).toContain('CRON_SECRET');
+    // El control paso de la ruta a la puerta unica de las tareas programadas.
+    expect(tarea).toContain('abrirPuertaDeLaTarea');
     expect(backfill).toContain('findExistingIndex');
     expect(backfill).toContain('post.sourceId');
     expect(backfill).toContain('post.sourceUrl');

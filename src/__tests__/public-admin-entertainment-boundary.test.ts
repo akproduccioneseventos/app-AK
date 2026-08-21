@@ -62,7 +62,9 @@ describe('public and operator boundaries', () => {
 
     expect(defaults).toContain('requireApproval: true');
     expect(gallery).toContain('socialGallerySettings?.requireApproval !== false');
-    expect(cron).toContain("request.headers.get('Authorization')");
+    // La ruta ya no decide el acceso: lo decide `puerta-de-las-tareas.ts`, en un
+    // solo lugar para las cuatro tareas.
+    expect(cron).toContain('abrirPuertaDeLaTarea');
     expect(cron).not.toContain("searchParams.get('secret')");
   });
 
@@ -74,8 +76,24 @@ describe('public and operator boundaries', () => {
     expect(messages).toContain('internalToken !== WHATSAPP_AUTOMATION_INTERNAL_TOKEN');
     expect(invoices).toContain('requirePermiso(PERMISOS.CONTABILIDAD)');
     expect(cron).toContain('WHATSAPP_AUTOMATION_INTERNAL_TOKEN');
-    expect(cron).toContain("request.headers.get('Authorization')");
+    expect(cron).toContain('abrirPuertaDeLaTarea');
     expect(cron).not.toContain("searchParams.get('secret')");
+
+    /**
+     * **Esta es la que no se afloja nunca.** Las otras tres tareas pueden correr
+     * sin clave configurada, porque repetirlas no le hace nada a nadie. Ésta le
+     * escribe al cliente por WhatsApp: sin clave **no corre**, y contesta 503.
+     *
+     * Si alguien la agrega a `TAREAS_QUE_NO_HACEN_DANO`, esta prueba se pone en
+     * rojo. La solución no es sacar la prueba.
+     */
+    const puerta = read('src/lib/automatico/puerta-de-las-tareas.ts');
+    const listaAbierta = puerta.slice(
+      puerta.indexOf('TAREAS_QUE_NO_HACEN_DANO'),
+      puerta.indexOf(']);', puerta.indexOf('TAREAS_QUE_NO_HACEN_DANO')),
+    );
+
+    expect(listaAbierta).not.toContain('recordatorios-de-pago');
   });
 
   it('builds the printed annual projection from the current total, not the adjusted total', () => {
