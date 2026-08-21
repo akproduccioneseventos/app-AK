@@ -547,14 +547,41 @@ El orden que funciona, y que ya detectó fallas reales:
 1. `npx tsc --noEmit` — cero errores.
 2. `npx jest --silent` — todas en verde.
 3. `npm run build` — tiene que terminar bien.
-4. Servidor compilado en el puerto 3100 y después las pruebas de navegador.
-   Nunca al revés, y nunca recompilar mientras corren.
-5. `npm run test:rules` para la seguridad de la base.
+4. `npm run check:acentos` — sin acentos rotos.
+5. `npm run test:rules` — la seguridad de la base.
+6. **`npm run test:e2e` — las pruebas de navegador.** Es el único control que ve
+   lo que ve el usuario, y **estuvo escrito y sin correr durante meses**. Todo lo
+   que se nos escapó —el píxel que no existía, los carteles que decían
+   "conectado" sin estarlo, las tareas que no corrían— es de la clase que **sólo
+   se ve abriendo la aplicación**.
 
-**Después de fusionar varias propuestas que tocan los mismos archivos, correr esto
-de nuevo.** Pasó de verdad: dos propuestas protegieron el archivo de facturas de
-maneras distintas, al fusionarse quedaron las dos aplicadas encima, y además de no
-compilar habría dejado la pantalla colgada para siempre al guardar una factura.
+### Por qué nadie las corría, y cómo se corren ahora
+
+Eran 596 pruebas y **la tanda entera no terminaba nunca**, por dos motivos que ya
+están arreglados:
+
+- **Arrancaba en modo lento**, recompilando cada pantalla al visitarla. Ahora
+  `npm run test:e2e` usa la versión compilada. El modo lento quedó como
+  `test:e2e:lento`, para depurar.
+- **El navegador que espera Playwright puede no coincidir** con el instalado. Se
+  ubica con `find /opt/pw-browsers -maxdepth 3 -name chrome` y se pasa en
+  `PLAYWRIGHT_CHROMIUM_EXECUTABLE_PATH`. **Nunca `playwright install`.**
+
+### Las dos trampas que dan fallas inventadas
+
+1. **Un servidor de prueba viejo ocupando el puerto 3100.** Da `EADDRINUSE` y las
+   pruebas corren contra una versión anterior. Pasó: una falla que parecía que el
+   prospecto no podía cerrar la compra, y era eso. **Antes de creerle a una falla,
+   reiniciar el servidor y repetir sólo esa prueba.**
+2. **Correr la tanda mientras algo más compila.** Se borran los archivos entre
+   ellas.
+
+### Lo que la corrida deja escrito y NO se commitea
+
+Al correr, la app escribe datos: el contador de gasto de inteligencia artificial,
+el historial de redes del día, y **un prospecto de prueba en la lista de
+contactos**. Están ignorados, pero **mirá `git status` antes de subir**: si aparece
+un dato que no escribiste vos, es de la corrida.
 
 ## Continuidad entre chats (leer esto primero, siempre)
 

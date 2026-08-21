@@ -3862,6 +3862,38 @@ el motivo escrito al lado, junto con los otros dos que la app genera sola.
 **Regla:** un archivo de datos que aparece solo después de correr algo **no es
 configuración, es estado**. No se sube.
 
+## El control que faltaba: las pruebas de navegador (21 de agosto de 2026)
+
+El dueño preguntó por qué, con tanta auditoría, siempre salta algo nuevo. **La
+respuesta era concreta y no era el código.**
+
+La app tiene **596 pruebas que abren la aplicación en un navegador de verdad** y
+usan las pantallas como las usa una persona. **Nunca se corrieron.** Los cinco
+controles de salud no las incluían, y son las únicas que ven lo que ve el usuario.
+
+Todo lo que se nos escapó a las tres inteligencias —el píxel que no existía, los
+carteles de "conectado" sin nada detrás, las tareas que no corrían— es de esa
+clase: **sólo se ve abriendo la aplicación**.
+
+**Por qué nunca terminaban, con los dos motivos y los dos arreglos:**
+
+- **Arrancaban en modo lento**, recompilando cada pantalla al visitarla: se
+  trababan y nadie llegaba al final. Ahora `npm run test:e2e` usa la versión
+  compilada; el modo lento quedó como `test:e2e:lento`.
+- **Varias corridas a la vez se pisan**, y un servidor de prueba viejo ocupando el
+  puerto hace que se pruebe contra una versión anterior.
+
+**Resultado del primer barrido de las pantallas públicas: 30 de 30 en verde.**
+Portada, catálogo, galería y el recorrido completo del prospecto en el simulador,
+en computadora y en celular.
+
+**Y una falsa alarma que vale documentar:** una prueba dijo que el prospecto
+llegaba al final del simulador y **no tenía cómo cerrar la compra**. Era el
+servidor viejo del puerto 3100. Reiniciado, pasa. **Antes de creerle a una falla
+de navegador, reiniciar el servidor y repetir sólo esa prueba.**
+
+Queda como sexto control obligatorio en `CLAUDE.md`.
+
 ## Cómo agregar algo a esta lista
 
 **Se anota SIEMPRE, en la misma propuesta que toca el código.** Orden del dueño
