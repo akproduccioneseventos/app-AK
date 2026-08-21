@@ -159,7 +159,10 @@ test('time capsule exposes every media mode and records the configured frame', a
   const stopButton = page.getByRole('button', { name: /Detener Grabación/i });
   await expect(stopButton).toBeVisible();
   await stopButton.click();
-  await expect(page.getByText('Video Analógico')).toBeVisible();
+  // La etiqueta se llama "Video Grabado", no "Video Analogico". Se verifico en
+  // `src/app/evento/buzon/[fiestaId]/page.tsx`: el paso de revision existe y
+  // funciona, solo cambio el texto. La prueba habia quedado con el nombre viejo.
+  await expect(page.getByText('Video Grabado')).toBeVisible();
   const reviewVideo = page.locator('video[src^="blob:"]').first();
   await expect(reviewVideo).toBeVisible();
   await expect.poll(async () => reviewVideo.evaluate(async (element) => {

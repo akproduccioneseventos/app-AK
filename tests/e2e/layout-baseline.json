@@ -10,7 +10,7 @@
     "mainX": 257,
     "mainW": 1023,
     "botones": 16,
-    "enlaces": 53,
+    "enlaces": 68,
     "colores": 2034977308
   },
   "chromium-desktop /customers": {
@@ -24,7 +24,7 @@
     "mainX": 257,
     "mainW": 1023,
     "botones": 9,
-    "enlaces": 31,
+    "enlaces": 45,
     "colores": 2034977308
   },
   "chromium-desktop /presupuestos": {
@@ -38,7 +38,7 @@
     "mainX": 257,
     "mainW": 1023,
     "botones": 16,
-    "enlaces": 31,
+    "enlaces": 46,
     "colores": 2034977308
   },
   "chromium-desktop /": {
@@ -52,7 +52,7 @@
     "mainX": -1,
     "mainW": -1,
     "botones": 46,
-    "enlaces": 50,
+    "enlaces": 51,
     "colores": -883377086
   },
   "chromium-desktop /simulador-de-presupuesto": {
@@ -87,8 +87,8 @@
     "anchoDocumento": 1280,
     "desborde": 0,
     "h1X": 64,
-    "h1Y": 239,
-    "h1W": 528,
+    "h1Y": 201,
+    "h1W": 532,
     "headerY": -1,
     "headerH": -1,
     "mainX": -1,
@@ -108,7 +108,7 @@
     "mainX": 257,
     "mainW": 1023,
     "botones": 8,
-    "enlaces": 27,
+    "enlaces": 41,
     "colores": 2034977308
   },
   "chromium-desktop /contabilidad/comercial-360": {
@@ -122,7 +122,7 @@
     "mainX": 257,
     "mainW": 1023,
     "botones": 8,
-    "enlaces": 32,
+    "enlaces": 46,
     "colores": 2034977308
   },
   "chromium-mobile /admin": {
@@ -136,7 +136,7 @@
     "mainX": 0,
     "mainW": 412,
     "botones": 16,
-    "enlaces": 28,
+    "enlaces": 29,
     "colores": 1566381053
   },
   "chromium-mobile /customers": {
@@ -164,21 +164,21 @@
     "mainX": 0,
     "mainW": 412,
     "botones": 16,
-    "enlaces": 6,
+    "enlaces": 7,
     "colores": 1566381053
   },
   "chromium-mobile /": {
     "anchoDocumento": 412,
     "desborde": 0,
     "h1X": 16,
-    "h1Y": 183,
+    "h1Y": 148,
     "h1W": 380,
     "headerY": 0,
     "headerH": 64,
     "mainX": -1,
     "mainW": -1,
     "botones": 46,
-    "enlaces": 50,
+    "enlaces": 51,
     "colores": -883377086
   },
   "chromium-mobile /simulador-de-presupuesto": {
@@ -213,7 +213,7 @@
     "anchoDocumento": 412,
     "desborde": 0,
     "h1X": 20,
-    "h1Y": 339,
+    "h1Y": 283,
     "h1W": 372,
     "headerY": -1,
     "headerH": -1,
