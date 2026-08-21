@@ -15,6 +15,12 @@ Quien cierre una sesión reescribe este archivo. Se pisa, no se acumula.
 2. **Puertas de servidor:** 100% protegidas y auditadas (`puertas-pendientes-de-revisar.json` en `{}`).
 3. **Afinamiento de auditoría mecánica continua:** `scripts/auditoria.mjs` refinado, 1 hallazgo real, cero falsos positivos.
 **Órdenes pendientes:** ninguna urgente.
+**Última actualización:** 21 de agosto de 2026, cierre.
+**Estado de la app:** sana. Acentos limpios, tipos en cero, **2053 pruebas en verde**,
+compila, seguridad de la base en verde.
+**Propuestas abiertas:** ninguna.
+**Órdenes pendientes:** `docs/ordenes/6-la-resena-desde-el-invitado.md` (sin empezar) y
+lo que quede de `ahora.md`.
 
 ## Lo más importante de hoy: reseña del invitado y seguridad cerrada
 
@@ -23,6 +29,32 @@ Quien cierre una sesión reescribe este archivo. Se pisa, no se acumula.
 3. **Auditoría mecánica continua (`scripts/auditoria.mjs`):** Se eliminó el ruido de falsas alarmas (rutas en Windows, detección kebab/PascalCase, barrel files, exclusión de términos gastronómicos reales como mocktails y filtrado de ayudas de UI). El reporte en `auditoria-out/informe.md` ahora devuelve números limpios y precisos (1 hallazgo real comprobado).
 
 ## La regla que más encontró esta semana
+1. **Puertas de servidor:** Se auditaron y protegieron con `requireAppSession()` todas las Server Actions administrativas en `src/app/actions/`. Las funciones públicas legítimas quedaron formalmente declaradas en `auditoria-puertas-abiertas.test.ts`. El archivo de pendientes quedó en cero.
+2. **Auditoría mecánica continua (`scripts/auditoria.mjs`):** Se eliminó el ruido de falsas alarmas (rutas en Windows, detección kebab/PascalCase, barrel files, exclusión de términos gastronómicos reales como mocktails y filtrado de ayudas de UI). El reporte en `auditoria-out/informe.md` ahora devuelve números limpios y precisos (1 hallazgo real comprobado).
+**El dueño no podía entrar, ni con la contraseña ni con Google.** Reproducido en un
+navegador de verdad: el botón quedaba en "Ingresando..." para siempre, sin error y sin
+poder reintentar. **La llamada al servidor no tenía ningún tope de espera**, así que si
+el servidor estaba despertándose, la pantalla esperaba indefinidamente.
+
+No era un error de programación: todos los caminos de error existían, pero ninguno se
+alcanzaba nunca. Ahora hay tope de 25 segundos y un aviso mientras espera.
+
+> **Lo que enseña:** una pantalla que "no hace nada" casi nunca está rota. Está
+> esperando algo que no tiene tope. Buscá el `await` sin `Promise.race`.
+
+## Las dos reglas que más encontraron esta semana
+
+1. **Cuando algo pasa de correr en un solo lugar a correr en el navegador de cada uno,
+   la pregunta no es "¿funciona?" sino "¿qué pasa si dos lo hacen a la vez?".** Con
+   eso apareció un posteo que salía dos veces en las redes, la nota del blog pagada
+   dos veces, y un permiso ampliado sin querer.
+2. **Antes de dar por buena una herramienta que cuenta cosas, verificá a mano una
+   muestra.** La auditoría reportaba 66 pantallas sin puerta y 44 sí la tenían.
+
+## `npm run auditoria` ya existe, y hay que leer sus números bien
+
+Cuenta cosas sobre los archivos, no opina, no usa inteligencia artificial. Hoy: **4
+tareas sin rastro, 137 huérfanos, 1 dato simulado, 120 promesas.**
 
 **No son 262 problemas.** Los 120 son frases para contrastar y casi todas son texto de
 venta correcto; las tres que importaban ya se verificaron y **son ciertas**. El dato
