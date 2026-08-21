@@ -3848,6 +3848,20 @@ Pasó porque la entrega estaba hecha sobre la versión anterior, no sobre la pri
 de ahora. Es el mismo riesgo de siempre: **una propuesta vieja puede devolver lo que ya
 se había sacado.**
 
+## Los datos que escribe la app al correr no se commitean (21 de agosto de 2026)
+
+Al correr las pruebas de navegador en local, la app **escribió sus propios datos**:
+el contador de gasto de inteligencia artificial del mes, el historial de números de
+redes del día, y la revisión diaria. Aparecieron como archivos nuevos listos para
+subir.
+
+**Commitearlos habría pisado en producción el contador de gasto real y el historial
+de las redes** con lo que quedó de una corrida de prueba. Quedaron ignorados, con
+el motivo escrito al lado, junto con los otros dos que la app genera sola.
+
+**Regla:** un archivo de datos que aparece solo después de correr algo **no es
+configuración, es estado**. No se sube.
+
 ## Cómo agregar algo a esta lista
 
 **Se anota SIEMPRE, en la misma propuesta que toca el código.** Orden del dueño

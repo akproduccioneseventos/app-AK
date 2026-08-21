@@ -72,6 +72,21 @@ src/data/google-workspace.json
 # backup files
 src/data/last-auto-backup.txt
 
+# Datos que ESCRIBE la app al correr, no configuracion. Aparecen solos al probar
+# en local y **no se commitean nunca**: commitearlos pisaria en produccion el
+# contador de gasto de inteligencia artificial y el historial de numeros de redes
+# con lo que quedo de una corrida de prueba.
+data/ai-consumo.json
+src/data/ai-consumo.json
+data/digital-presence-review.json
+src/data/digital-presence-review.json
+data/social-analytics-history.json
+src/data/social-analytics-history.json
+data/tareas-al-entrar-estado.json
+src/data/tareas-al-entrar-estado.json
+data/whatsapp-conversaciones-de-publicidad.json
+src/data/whatsapp-conversaciones-de-publicidad.json
+
 # abacus
 .abacus.donotdeletepackage-lock.json
 
