@@ -1,4 +1,5 @@
 import { NextResponse } from 'next/server';
+import { abrirPuertaDeLaTarea } from '@/lib/automatico/puerta-de-las-tareas';
 import { runMarketingAutomation } from '@/lib/marketing-automation';
 import { marcarCorrida } from '@/lib/automatico/tareas-automaticas';
 
@@ -13,18 +14,9 @@ export async function POST(request: Request) {
 async function handleCron(request: Request) {
   try {
     const { searchParams } = new URL(request.url);
-    const secret = request.headers.get('Authorization')?.replace(/^Bearer\s+/i, '');
-    const expectedSecret = process.env.CRON_SECRET;
-
-    if (!expectedSecret) {
-      return NextResponse.json(
-        { error: 'CRON_SECRET no esta configurado para el cron publico.' },
-        { status: 503 }
-      );
-    }
-
-    if (secret !== expectedSecret) {
-      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+    const puerta = await abrirPuertaDeLaTarea(request, 'generate-blog-post');
+    if (!puerta.permitido) {
+      return NextResponse.json({ error: puerta.mensaje }, { status: puerta.estado ?? 401 });
     }
 
     const result = await runMarketingAutomation({

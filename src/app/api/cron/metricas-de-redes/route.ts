@@ -1,4 +1,5 @@
 import { NextResponse } from 'next/server';
+import { abrirPuertaDeLaTarea } from '@/lib/automatico/puerta-de-las-tareas';
 import { guardarMetricasDelDia } from '@/lib/presencia-digital/guardado-diario';
 import { syncMetaPublicHistory } from '@/lib/social-media/meta-history-backfill';
 import { syncYouTubePublicHistory } from '@/lib/social-media/youtube-history-backfill';
@@ -32,18 +33,9 @@ export async function POST(request: Request) {
 
 async function correrTarea(request: Request) {
   try {
-    const clave = request.headers.get('Authorization')?.replace(/^Bearer\s+/i, '');
-    const claveEsperada = process.env.CRON_SECRET;
-
-    if (!claveEsperada) {
-      return NextResponse.json(
-        { error: 'CRON_SECRET no esta configurado: la tarea no corre.' },
-        { status: 503 },
-      );
-    }
-
-    if (clave !== claveEsperada) {
-      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+    const puerta = await abrirPuertaDeLaTarea(request, 'metricas-de-redes');
+    if (!puerta.permitido) {
+      return NextResponse.json({ error: puerta.mensaje }, { status: puerta.estado ?? 401 });
     }
 
     const resultado = await guardarMetricasDelDia();

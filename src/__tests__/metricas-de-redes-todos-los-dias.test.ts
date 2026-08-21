@@ -23,14 +23,30 @@ describe('los numeros de las redes se guardan solos', () => {
     expect(fuente).toContain('guardarMetricasDelDia');
   });
 
-  it('la tarea esta protegida con la clave de las tareas programadas', () => {
+  it('la tarea pasa por la puerta unica de las tareas programadas', () => {
     const fuente = leer(TAREA);
 
-    expect(fuente).toContain('CRON_SECRET');
-    // Sin clave configurada no corre, a proposito: es preferible que no guarde a
-    // que cualquiera pueda dispararla desde afuera.
-    expect(fuente).toContain('no corre');
-    expect(fuente).toContain('Unauthorized');
+    // El control se movio de la ruta a `puerta-de-las-tareas.ts`, y se hizo mas
+    // estricto, no menos: ahora decide en un solo lugar para las cuatro tareas.
+    expect(fuente).toContain('abrirPuertaDeLaTarea');
+    expect(fuente).toContain('puerta.permitido');
+  });
+
+  it('la puerta exige la clave cuando esta configurada', () => {
+    const puerta = leer('src/lib/automatico/puerta-de-las-tareas.ts');
+
+    expect(puerta).toContain('process.env.CRON_SECRET');
+    expect(puerta).toContain("mensaje: 'Unauthorized'");
+  });
+
+  it('guardar los numeros no hace dano si se repite, por eso puede correr sin clave', () => {
+    const puerta = leer('src/lib/automatico/puerta-de-las-tareas.ts');
+    const biblioteca = leer('src/lib/presencia-digital/guardado-diario.ts');
+
+    // Lo que la habilita a correr sin clave es su propio freno: no guarda dos
+    // veces el mismo dia. Si eso se saca, hay que sacarla de la lista.
+    expect(biblioteca).toContain("history.some((h) => h.date === hoy)");
+    expect(puerta).toContain("'metricas-de-redes'");
   });
 
   it('el guardado vive aparte de la pantalla, para que la tarea pueda usarlo', () => {

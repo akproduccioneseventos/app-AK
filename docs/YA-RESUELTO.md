@@ -3449,6 +3449,97 @@ enlace de reseñas y el identificador de medición—. Los otros diez **no los m
 nadie**: el correo y la llave de cobros se leen del servidor, y ocho no existen
 como campo para la app.
 
+## Las tareas se ponen al día solas cuando el equipo entra (20 de agosto de 2026)
+
+El dueño no puede configurar despertadores externos, y sin eso **los números de
+las redes no se guardaban nunca y los posteos programados no salían nunca**,
+aunque el código estuviera perfecto.
+
+El blog ya se ponía al día así desde hacía tiempo —cuando un administrador abre la
+app— y funciona. Se extendió el mismo camino a esas dos
+(`src/lib/automatico/al-entrar-a-la-app.ts`).
+
+**No reemplaza al despertador de afuera y no pretende hacerlo:** si nadie abre la
+app en tres días, no corren en tres días. Pero es la diferencia entre *cada vez
+que el equipo trabaja* y *nunca*.
+
+**Los recordatorios de cuota vencida quedan afuera a propósito.** Le escriben al
+cliente por WhatsApp, y un mensaje a una persona **no puede salir de rebote porque
+alguien abrió una pantalla**: eso lo aprieta alguien sabiendo que lo aprieta. Hay
+una prueba que lo impide.
+
+Las dos que sí entran son seguras de repetir: el guardado no guarda dos veces el
+mismo día, y los posteos sacan sólo los vencidos con tope de tres por corrida.
+Arriba de eso hay un control propio de "¿me toca?" para no reintentar en cada clic.
+
+## La foto de la fotocabina podía guardarse sin dueño (20 de agosto de 2026)
+
+Una advertencia de compilación que **no era un detalle de estilo**: la subida de la
+foto usaba el identificador del invitado y su enlace personal, pero esos dos no
+estaban en la lista de datos que la función vuelve a mirar cuando cambian.
+
+Salen de la dirección del navegador. Si el invitado abría su enlace personal
+después de que la pantalla ya estaba cargada, la subida se quedaba con el valor
+viejo: **la foto se guardaba sin dueño, o con el dueño equivocado**. Es
+exactamente lo que rompe "tu recuerdo de la fiesta", que se acaba de construir.
+
+Corregido agregándolos a la lista, con el motivo escrito al lado para que nadie
+los saque por prolijidad.
+
+**Lo que hay que recordar:** las advertencias de dependencias faltantes en una
+pantalla que lee datos de la dirección **no son cosméticas**. Ahí es donde
+aparecen los valores viejos.
+
+### Falsa alarma del mismo día
+
+Una compilación falló con un archivo temporal faltante. **No era la app: eran dos
+compilaciones corriendo a la vez en la misma carpeta.** Ya está anotado en las
+reglas que no se compila mientras corre otra: vale también entre dos ayudantes.
+
+## Las tareas ya no dependen de una contrasena que nadie podia configurar (20 de agosto de 2026)
+
+Las cuatro tareas exigian una clave en la cabecera del pedido. **El dueno no
+programa**: no podia configurarla ni en el servicio que las llama ni en el
+servidor. Resultado real: **no corrieron nunca**, con el codigo impecable.
+
+**La decision, y el porque:** el control que importa **ya vive adentro de cada
+tarea**, no en la puerta.
+
+- Guardar los numeros de las redes no guarda dos veces el mismo dia.
+- Los posteos programados sacan solo los que una persona dejo programados y ya
+  vencieron, con tope de tres por corrida.
+- Las notas del blog corren una vez por semana y pasan por el contador de gasto.
+
+Llamarlas mil veces hace exactamente lo mismo que llamarlas una: adelantar algo
+que igual iba a pasar. Por eso, **si no hay clave configurada, esas tres corren
+igual**, con freno por si alguien encuentra la direccion. Si algun dia se
+configura una clave, se exige como antes.
+
+**Los recordatorios de cuota NO se abren nunca.** Le escriben al cliente por
+WhatsApp: sin clave, esa tarea no corre y contesta 503. Un mensaje que le llega a
+una persona no puede depender de que nadie encuentre una direccion.
+
+**Cuatro pruebas viejas exigian el contrato anterior** —que cada ruta leyera la
+clave por su cuenta— y se pusieron en rojo. **No se aflojaron: se movieron.** Ahora
+comprueban que cada tarea pase por la puerta unica, que la puerta exija la clave
+cuando esta configurada, y que **los recordatorios nunca esten en la lista de las
+que pueden correr sin ella**. Si alguien los agrega, la prueba salta.
+
+**El cambio que si es una concesion, y queda dicho:** la puerta acepta la clave
+tambien por la direccion, no solo por la cabecera. Una direccion puede quedar
+escrita en registros del servidor, asi que es algo mas debil. Se eligio igual
+porque la alternativa real no era una cabecera bien configurada: era que las tareas
+no corrieran nunca.
+
+## Las tareas se ponen al dia solas cuando el equipo entra (20 de agosto de 2026)
+
+Ademas de lo anterior, y como segunda red: al abrir la app un administrador, se
+ponen al dia las tareas vencidas (`src/lib/automatico/al-entrar-a-la-app.ts`). El
+blog ya lo hacia desde antes; se sumaron las metricas y los posteos programados.
+
+**Los recordatorios de cuota quedan afuera tambien aca**, por el mismo motivo, con
+prueba que lo impide.
+
 ## Cómo agregar algo a esta lista
 
 **Se anota SIEMPRE, en la misma propuesta que toca el código.** Orden del dueño

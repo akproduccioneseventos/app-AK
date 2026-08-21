@@ -41,7 +41,12 @@ describe('API route authentication boundary', () => {
       // marketing) no usan la sesion del navegador: validan una clave
       // compartida contra su variable de entorno y responden 401. Se listan por
       // nombre a proposito, para que una ruta nueva sin proteccion siga fallando.
-      return !/requireAppSession|hasAppSession|verifySession|CRON_SECRET|LOOKER_STUDIO_TOKEN|MARKETING_API_SECRET_KEY/.test(
+      //
+      // Las tareas programadas usan `abrirPuertaDeLaTarea`, que decide en un solo
+      // lugar: exige la clave si esta configurada, y si no lo esta deja pasar
+      // unicamente las tareas que se pueden repetir sin hacer dano, con freno. La
+      // que le escribe al cliente por WhatsApp no pasa nunca sin clave.
+      return !/requireAppSession|hasAppSession|verifySession|CRON_SECRET|abrirPuertaDeLaTarea|LOOKER_STUDIO_TOKEN|MARKETING_API_SECRET_KEY/.test(
         read(route),
       );
     });
