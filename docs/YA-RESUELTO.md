@@ -3540,6 +3540,28 @@ blog ya lo hacia desde antes; se sumaron las metricas y los posteos programados.
 **Los recordatorios de cuota quedan afuera tambien aca**, por el mismo motivo, con
 prueba que lo impide.
 
+## La medición quedó prendida sin tocar ninguna consola (20 de agosto de 2026)
+
+El identificador de Google Analytics y el del píxel de Meta estaban **sólo como
+variable del servidor**, y por eso **no se midió nunca**: el dueño no programa y
+no podía cargarlas. La web y la publicidad estuvieron sin medir todo el tiempo.
+
+Ahora viven en `src/lib/medicion/identificadores.ts` y la medición funciona sola
+desde el primer despliegue. La variable del servidor sigue mandando si está
+puesta, para poder apuntar a otra cuenta sin tocar el código.
+
+**Por qué se pueden escribir en el código y no es una contradicción con lo de la
+llave de cobros:** estos dos **son públicos por diseño**. Viajan en el código de
+cada página que carga cualquier visitante, igual que el teléfono en el pie. No dan
+acceso a nada: sólo dicen a qué cuenta mandar las visitas. Una llave de cobros, en
+cambio, mueve plata.
+
+**La distinción queda escrita en el archivo**, con la prohibición explícita de
+guardar ahí cualquier cosa que dé acceso a algo. Hay una prueba que lo controla.
+
+Las tres pantallas que informaban el estado ahora miran el mismo dato que enciende
+cada cosa, así que dicen la verdad.
+
 ## Cómo agregar algo a esta lista
 
 **Se anota SIEMPRE, en la misma propuesta que toca el código.** Orden del dueño
