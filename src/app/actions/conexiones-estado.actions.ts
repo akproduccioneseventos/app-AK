@@ -152,7 +152,7 @@ export async function getEstadoConexiones(): Promise<ResumenConexion[]> {
       nombre: 'Spotify',
       categoria: 'Música y DJs',
       estado: spConn || process.env.SPOTIFY_CLIENT_ID ? 'conectada' : 'no-se-usa',
-      detalle: spConn ? 'Lista o perfil vinculado' : 'Sin credenciales de Spotify',
+      detalle: spConn ? 'Lista o perfil vinculado' : (process.env.SPOTIFY_CLIENT_ID ? 'API de Spotify vinculada' : 'Sin credenciales de Spotify'),
       queSePierdeSiFalta: 'El DJ no puede previsualizar listas de Spotify creadas por los clientes.',
       enlaceConfiguracion: '/settings/social-connections',
     },

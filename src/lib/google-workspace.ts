@@ -112,34 +112,23 @@ export function getGoogleRedirectUri(origin?: string) {
   return `${configuredOrigin}${path.startsWith('/') ? path : `/${path}`}`;
 }
 
-import crypto from 'crypto';
-import fs from 'fs';
-import path from 'path';
-
 export async function getServiceAccountAccessToken(
   scopes: string[] = [
     'https://www.googleapis.com/auth/calendar',
     'https://www.googleapis.com/auth/calendar.events',
   ]
 ): Promise<string | null> {
+  if (typeof window !== 'undefined') return null;
+
   const email =
     process.env.GOOGLE_WORKSPACE_CLIENT_EMAIL ||
     'ak-calendar@presupuestador-ak-producciones.iam.gserviceaccount.com';
-  let privateKey = process.env.GOOGLE_WORKSPACE_PRIVATE_KEY;
-
-  if (!privateKey) {
-    try {
-      const keyPath = path.join(process.cwd(), 'src/data/google_service_account.json');
-      if (fs.existsSync(keyPath)) {
-        const raw = JSON.parse(fs.readFileSync(keyPath, 'utf8'));
-        privateKey = raw.private_key;
-      }
-    } catch {}
-  }
+  const privateKey = process.env.GOOGLE_WORKSPACE_PRIVATE_KEY;
 
   if (!privateKey || !email) return null;
 
   try {
+    const crypto = await import('crypto');
     const now = Math.floor(Date.now() / 1000);
     const header = { alg: 'RS256', typ: 'JWT' };
     const claimSet = {
@@ -181,13 +170,8 @@ export async function getServiceAccountAccessToken(
 }
 
 export function hasServiceAccountKey(): boolean {
-  if (process.env.GOOGLE_WORKSPACE_PRIVATE_KEY) return true;
-  try {
-    const keyPath = path.join(process.cwd(), 'src/data/google_service_account.json');
-    return fs.existsSync(keyPath);
-  } catch {
-    return false;
-  }
+  if (typeof window !== 'undefined') return false;
+  return Boolean(process.env.GOOGLE_WORKSPACE_PRIVATE_KEY);
 }
 
 export function getMissingGoogleConfig(origin?: string) {

@@ -9,7 +9,11 @@ import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
 import { extractReceiptData, type ExtractReceiptDataOutput } from '@/ai/flows/extract-receipt-data';
 import { Loader2, CheckCircle, AlertTriangle } from 'lucide-react';
 
-export function ReceiptProcessor() {
+export interface ReceiptProcessorProps {
+  onDataExtracted?: (data: ExtractReceiptDataOutput) => void;
+}
+
+export function ReceiptProcessor({ onDataExtracted }: ReceiptProcessorProps = {}) {
   const [file, setFile] = useState<File | null>(null);
   const [extractedData, setExtractedData] = useState<ExtractReceiptDataOutput | null>(null);
   const [isLoading, setIsLoading] = useState(false);
@@ -65,6 +69,7 @@ export function ReceiptProcessor() {
         try {
           const result = await extractReceiptData({ receiptDataUri: base64data });
           setExtractedData(result);
+          onDataExtracted?.(result);
         } catch (e: any) {
           console.error('Error extracting receipt data:', e);
           setError(e.message || 'Ocurrió un error inesperado durante la extracción.');

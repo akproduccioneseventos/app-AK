@@ -8,7 +8,8 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
-import { ArrowLeft, PlusCircle, Trash2, Loader2, AlertTriangle, Calculator, DollarSign } from 'lucide-react';
+import { ArrowLeft, PlusCircle, Trash2, Loader2, AlertTriangle, Calculator, DollarSign, Sparkles } from 'lucide-react';
+import { ReceiptProcessor } from '@/components/receipt-processor';
 import { useToast } from '@/hooks/use-toast';
 import { getGastosGenerales, saveGastoGeneral, deleteGastoGeneral } from '@/app/actions/gastos';
 import type { GastoGeneral, CategoriaGasto } from '@/types/gastos';
@@ -36,6 +37,7 @@ export default function GastosGeneralesPage() {
   const [isLoading, setIsLoading] = useState(true);
   const [isSaving, setIsSaving] = useState(false);
   const [deletingId, setDeletingId] = useState<string | null>(null);
+  const [showAiScanner, setShowAiScanner] = useState(false);
 
   // Form state
   const [fecha, setFecha] = useState<Date | undefined>(new Date());
@@ -109,12 +111,45 @@ export default function GastosGeneralesPage() {
       </div>
 
       <Card>
-        <CardHeader>
-          <CardTitle>Registrar Nuevo Gasto</CardTitle>
-          <CardDescription>Añade aquí los gastos operativos de tu empresa que no están ligados a un evento específico.</CardDescription>
+        <CardHeader className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
+          <div>
+            <CardTitle>Registrar Nuevo Gasto</CardTitle>
+            <CardDescription>Añade aquí los gastos operativos de tu empresa que no están ligados a un evento específico.</CardDescription>
+          </div>
+          <Button
+            type="button"
+            variant="outline"
+            size="sm"
+            onClick={() => setShowAiScanner((prev) => !prev)}
+            className="text-indigo-600 border-indigo-200 hover:bg-indigo-50 shrink-0"
+          >
+            <Sparkles className="w-4 h-4 mr-1 text-indigo-500" />
+            {showAiScanner ? 'Ocultar Escáner IA' : 'Escanear Recibo con IA'}
+          </Button>
         </CardHeader>
         <form onSubmit={handleSubmit}>
           <CardContent className="space-y-4">
+            {showAiScanner && (
+              <div className="p-4 bg-indigo-50/50 rounded-xl border border-indigo-100 space-y-3">
+                <p className="text-xs text-indigo-700 font-medium">
+                  Subí una foto o captura del comprobante/factura y la inteligencia artificial completará los campos automáticamente:
+                </p>
+                <ReceiptProcessor
+                  onDataExtracted={(data) => {
+                    if (data.vendor) setConcepto(data.vendor);
+                    if (data.amount) setMonto(data.amount.toString());
+                    if (data.date) {
+                      const parsed = new Date(data.date);
+                      if (!isNaN(parsed.getTime())) setFecha(parsed);
+                    }
+                    toast({
+                      title: "¡Datos extraídos con éxito!",
+                      description: `Se completaron los datos del comprobante (${data.vendor || 'Proveedor'}).`,
+                    });
+                  }}
+                />
+              </div>
+            )}
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div className="space-y-1"><Label htmlFor="gasto-fecha">Fecha*</Label><DatePickerDemo selectedDate={fecha} onDateChange={setFecha}/></div>
                 <div className="space-y-1"><Label htmlFor="gasto-monto">Monto (UYU)*</Label><Input id="gasto-monto" type="number" value={monto} onChange={e => setMonto(e.target.value)} placeholder="0.00" min="0.01" step="any" required/></div>
