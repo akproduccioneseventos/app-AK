@@ -3340,6 +3340,114 @@ del resumen, que se cuentan en el momento.
   que el dueño prendió los despertadores.
 - **Un solo dato inventado en pantalla**, que es una buena noticia: era el hallazgo más
   temido y quedó casi limpio.
+## Qué está conectado de verdad y qué es sólo un enlace (20 de agosto de 2026)
+
+**Se reportó que quedaba "todo vinculado y 100% operativo". No es así, y la
+diferencia importa.**
+
+**Tienen permiso para funcionar:** Firebase, la inteligencia artificial, y Google
+Calendario/Contactos/Gmail. Nada más.
+
+**Están sólo como enlace escrito:** Instagram, Facebook, YouTube, TikTok, Threads,
+X, Pinterest, Spotify, el WhatsApp oficial, la ficha de Google y el enlace de
+reseñas. **Los botones llevan bien y eso sirve** —es lo que hace que Google
+entienda que son la misma empresa—, pero la app no puede leer ni escribir en
+ninguna.
+
+**Lo que hoy no va a funcionar, y no es un error de programación:** publicar en
+Facebook o Instagram desde el panel, traer los números de las redes, el buscador
+de canciones para el DJ, las visitas de la web, los recordatorios por WhatsApp y
+el cobro por Mercado Pago. **Todas muestran vacío y avisan, que es la respuesta
+correcta.**
+
+**Y una que importa:** las cuatro tareas programadas tampoco están habilitadas.
+Prender el disparador sin habilitarlas primero no cambia nada: contestan que no
+están disponibles.
+
+**Regla que queda:** *tener el enlace cargado no es lo mismo que estar conectado*.
+Un inventario de conexiones tiene que distinguir las dos cosas o no sirve.
+
+### El cartel de WhatsApp decía que el bot respondía
+
+Con la llave prendida y la conexión con Meta sin completar, la pantalla mostraba
+en grande **"Bot activado - el bot está respondiendo mensajes"**, y no podía mandar
+ni uno. Abajo había un aviso que lo desmentía, pero el renglón grande es el que se
+lee. Ahora dice "Activado, pero todavía no puede responder". Hay una prueba.
+
+## El recargo de Mercado Pago se muestra como descuento por pago contado (20 de agosto de 2026)
+
+**Decisión comercial del dueño. No es un error y no se revierte.**
+
+Es la misma plata, contada al revés:
+
+- **Antes:** "precio X, y si pagás en cuotas te recargamos un 10%". El recargo se
+  lee como un castigo, y aparece justo cuando la persona está por decidir.
+- **Ahora:** "precio de lista Y, y pagando contado o por transferencia te hacemos
+  un descuento". Misma cuenta, y **es cierto**: el descuento por pago contado es
+  una práctica comercial normal en cualquier rubro.
+
+Dos detalles que importan:
+
+- **El porcentaje se calcula sobre el precio de lista, no sobre el contado.** Un
+  recargo del 10% es un descuento del 9%. Decir 10% sería inflarlo y el número no
+  cerraría con los pesos que figuran al lado.
+- **Adentro de la empresa se sigue viendo como recargo**, que es lo que es para la
+  contabilidad: la pantalla donde el equipo registra una seña muestra el recargo
+  financiero aparte. El cambio es sólo en lo que ve el cliente.
+
+Hay una prueba que controla que **las dos cuentas den exactamente la misma plata**.
+Si alguien cambia una y no la otra, el cliente ve un número en el presupuesto y le
+cobran otro.
+
+## La llave de cobros no viaja en el repositorio (20 de agosto de 2026)
+
+**Una llave de cobros de producción de Mercado Pago llegó escrita adentro de
+`src/data/settings.json`.** Esa llave mueve plata de verdad: quien la tenga puede
+cobrar y devolver en nombre de la empresa. Y si entra al repositorio **queda en el
+historial para siempre**, aunque después se borre el archivo.
+
+Se agarró antes de que se subiera. Dos cosas quedaron hechas:
+
+- **`src/data/settings.json` fuera del repositorio**, igual que
+  `social-connections.json`, con el motivo escrito al lado.
+- **Una prueba que recorre todos los archivos versionados** y falla si aparece una
+  llave de cobros, una clave privada o un permiso de Meta.
+
+**Es la segunda vez que pasa** —la primera fue el permiso para publicar en el
+Facebook y el Instagram de AK—. La segunda vez no se arregla pidiendo cuidado: se
+arregla con una prueba.
+
+**Detalle del control que importa:** la primera versión de la prueba marcaba tres
+archivos que estaban perfectos —un texto de ayuda y dos imágenes guardadas como
+texto—. Se ajustó para que sólo marque el formato real de cada llave. **Un control
+que grita cuando no pasa nada lo apaga cualquiera el primer día**, y entonces no
+frena nada el día que sí pasa.
+
+## El píxel no existía, y la pantalla decía que sí (20 de agosto de 2026)
+
+Se reportó que el píxel de Meta quedaba "conectado e inyectado en toda la web".
+**No había píxel en ningún lado.** La única mención en todo el código era la
+pantalla que informa el estado de las conexiones: informaba algo que no existía.
+
+Ahora el píxel está de verdad (`src/components/meta-pixel.tsx`, montado en la
+portada). **Sin identificador no carga nada**, que es lo correcto: un píxel vacío
+no mide y suma peso a cada visita.
+
+**Y el mismo error estaba en la medición de visitas.** La pantalla decía
+"conectada" con sólo cargar el identificador en Ajustes, pero la etiqueta de
+Google se carga de otro lado: el dueño veía "midiendo" y no se medía nada. Ahora
+avisa la diferencia — *"el identificador está cargado en Ajustes pero la medición
+todavía no está activa"*.
+
+> **Regla que queda: el estado se decide por el mismo dato que hace funcionar la
+> cosa, no por cualquier campo parecido.** Había tres nombres distintos dando
+> vueltas para el identificador de medición y dos para el píxel.
+
+**Lo que se verificó del archivo de configuración cargado a mano:** de los quince
+datos, la app lee cinco —el número de WhatsApp, la ficha de Google, el mapa, el
+enlace de reseñas y el identificador de medición—. Los otros diez **no los mira
+nadie**: el correo y la llave de cobros se leen del servidor, y ocho no existen
+como campo para la app.
 
 ## Cómo agregar algo a esta lista
 

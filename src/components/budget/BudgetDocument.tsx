@@ -13,7 +13,7 @@ import {
   buildFormalBudgetBookingNote,
   DEFAULT_BOOKING_DEPOSIT_AMOUNT,
 } from '@/lib/budget/formal-budget';
-import { calculateMercadoPagoCuotas } from '@/lib/payments/mercadopago-calculator';
+import { presentacionComercialMercadoPago, calculateMercadoPagoCuotas } from '@/lib/payments/mercadopago-calculator';
 import { buildPresupuestoNarrative } from '@/lib/budget/budget-narrative';
 
 // ── Company constants ─────────────────────────────────────────────────────────
@@ -145,6 +145,9 @@ export default function BudgetDocument({
   const subtotalBruto = subtotalBrutoOverride ?? presupuesto.costoTotalEstimado;
   const totalFinal = totalFinalOverride ?? presupuesto.totalConDescuento ?? presupuesto.costoTotalEstimado;
   const mercadoPagoCalculation = calculateMercadoPagoCuotas(totalFinal);
+  // Al cliente se le cuenta como descuento por pago contado, no como recargo por
+  // cuotas. Es la misma plata: ver `presentacionComercialMercadoPago`.
+  const presentacionMercadoPago = presentacionComercialMercadoPago(totalFinal);
   const mercadoPagoTwelveInstallments = mercadoPagoCalculation.options.find(
     (option) => option.installments === 12,
   );
@@ -560,19 +563,28 @@ export default function BudgetDocument({
             <div className="bg-white p-2.5 rounded-xl border border-emerald-200 shadow-sm">
               <p className="font-extrabold text-slate-900 flex items-center justify-between">
                 <span>1. Contado / Transferencia Bancaria</span>
-                <span className="text-[9px] bg-emerald-100 text-emerald-800 px-1.5 py-0.5 rounded">Precio Base Neto</span>
+                <span className="text-[9px] bg-emerald-100 text-emerald-800 px-1.5 py-0.5 rounded">
+                  {presentacionMercadoPago.descuentoContadoPercent}% de descuento
+                </span>
               </p>
-              <p className="text-emerald-700 font-black text-sm mt-1">{formatCurrency(totalFinal)}</p>
-              <p className="text-[10px] text-slate-500 mt-1">Sin costos de intermediación financiera. AK Producciones recibe el 100% neto.</p>
+              <p className="text-emerald-700 font-black text-sm mt-1">
+                {formatCurrency(presentacionMercadoPago.precioContado)}
+                <span className="ml-2 text-[10px] font-semibold text-slate-400 line-through">
+                  {formatCurrency(presentacionMercadoPago.precioLista)}
+                </span>
+              </p>
+              <p className="text-[10px] text-slate-500 mt-1">
+                Te ahorrás {formatCurrency(presentacionMercadoPago.ahorroContado)} pagando al contado o por transferencia.
+              </p>
             </div>
 
             <div className="bg-white p-2.5 rounded-xl border border-amber-200 shadow-sm">
               <p className="font-extrabold text-slate-900 flex items-center justify-between">
                 <span>2. Mercado Pago / Tarjetas (Hasta 12 Cuotas)</span>
-                <span className="text-[9px] bg-amber-100 text-amber-900 px-1.5 py-0.5 rounded">+10% Recargo MP</span>
+                <span className="text-[9px] bg-amber-100 text-amber-900 px-1.5 py-0.5 rounded">Precio de lista</span>
               </p>
               <p className="text-amber-900 font-black text-sm mt-1">
-                {formatCurrency(mercadoPagoCalculation.totalWithSurcharge)}
+                {formatCurrency(presentacionMercadoPago.precioLista)}
               </p>
               <p className="text-[10px] text-slate-500 mt-1 leading-snug">
                 {mercadoPagoTwelveInstallments?.label}.
@@ -582,7 +594,7 @@ export default function BudgetDocument({
 
           <div className="mt-2.5 pt-2 border-t border-amber-200/60 text-[10px] text-amber-900 leading-tight">
             <p className="font-medium">
-              ℹ️ <strong>Nota de Transparencia Financiera</strong>: El importe del servicio contratado para AK Producciones es exactamente el mismo en ambas opciones ({formatCurrency(totalFinal)}). El recargo adicional del 10% corresponde a la tasa de comisión y servicio de financiación cobrado por la plataforma Mercado Pago / emisor de la tarjeta. AK Producciones recibe el importe neto.
+              ℹ️ <strong>Formas de pago</strong>: el precio de lista es {formatCurrency(presentacionMercadoPago.precioLista)} y se puede abonar hasta en 12 cuotas con tarjeta. Pagando al contado o por transferencia bancaria se aplica un descuento de {formatCurrency(presentacionMercadoPago.ahorroContado)}.
             </p>
           </div>
         </section>

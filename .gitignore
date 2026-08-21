@@ -59,6 +59,15 @@ price-adjustments-history.json
 # puede viajar al repositorio.
 src/data/social-connections.json
 
+# La configuracion con las llaves de la empresa NO se versiona.
+#
+# Aca adentro terminan la llave de cobros de Mercado Pago, la de medicion y la de
+# los anuncios. La de cobros mueve plata de verdad: si viaja en el repositorio,
+# queda en el historial para siempre aunque despues se borre el archivo.
+#
+# Va en la consola del servidor, no en un archivo del proyecto.
+src/data/settings.json
+
 # backup files
 src/data/last-auto-backup.txt
 

@@ -48,8 +48,20 @@ export async function getEstadoConexiones(): Promise<ResumenConexion[]> {
       id: 'google-analytics',
       nombre: 'Google Analytics (GA4)',
       categoria: 'Métricas web',
-      estado: process.env.NEXT_PUBLIC_GA_ID || process.env.GA4_PROPERTY_ID || settings?.googleAnalyticsId ? 'conectada' : 'falta-configurarla',
-      detalle: process.env.NEXT_PUBLIC_GA_ID || settings?.googleAnalyticsId ? 'Medición de visitas activada' : 'Falta ID de medición (G-XXXXX)',
+      /**
+       * El estado se decide por lo que hace funcionar la medición, no por lo que
+       * haya escrito en Ajustes.
+       *
+       * Decía "conectada" con sólo cargar el identificador en Ajustes, y la
+       * etiqueta de Google no se cargaba igual: la pantalla afirmaba que se
+       * estaba midiendo cuando no se medía nada.
+       */
+      estado: process.env.NEXT_PUBLIC_GA_MEASUREMENT_ID ? 'conectada' : 'falta-configurarla',
+      detalle: process.env.NEXT_PUBLIC_GA_MEASUREMENT_ID
+        ? 'Medición de visitas activada'
+        : settings?.googleAnalyticsId
+          ? 'El identificador está cargado en Ajustes pero la medición todavía no está activa: hay que cargarlo en el servidor.'
+          : 'Falta ID de medición (G-XXXXX)',
       queSePierdeSiFalta: 'No sabés cuánta gente entra a la web, qué páginas miran ni de dónde vienen los pedidos de presupuesto.',
       enlaceConfiguracion: '/settings/company',
     },
@@ -156,8 +168,17 @@ export async function getEstadoConexiones(): Promise<ResumenConexion[]> {
       id: 'meta-ads',
       nombre: 'Meta Ads (Publicidad)',
       categoria: 'Anuncios',
-      estado: (process.env.META_ADS_TOKEN || process.env.FACEBOOK_PIXEL_ID) ? 'conectada' : 'falta-configurarla',
-      detalle: (process.env.META_ADS_TOKEN || process.env.FACEBOOK_PIXEL_ID) ? 'Pixel y API de conversiones activos' : 'Falta token de anuncios / Pixel ID',
+      /**
+       * El pixel se da por activo sólo si es el mismo dato que carga el pixel de
+       * verdad (`NEXT_PUBLIC_META_PIXEL_ID`, el que usa `MetaPixel`). Decía
+       * "Pixel activo" mirando un nombre que no lee nadie, y durante un tiempo
+       * **no había pixel en toda la app**: la pantalla informaba algo que no
+       * existía.
+       */
+      estado: process.env.NEXT_PUBLIC_META_PIXEL_ID ? 'conectada' : 'falta-configurarla',
+      detalle: process.env.NEXT_PUBLIC_META_PIXEL_ID
+        ? 'El pixel está midiendo las visitas que llegan de tus anuncios.'
+        : 'Falta el identificador del pixel para medir los anuncios.',
       queSePierdeSiFalta: 'No podés medir qué anuncios de Instagram o Facebook te traen ventas reales ni recontactar a quienes vieron la web.',
       enlaceConfiguracion: '/settings/sincronizaciones',
     },
