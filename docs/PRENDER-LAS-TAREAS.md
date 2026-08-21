@@ -17,10 +17,10 @@ Se hace **una sola vez en 5 minutos**.
 
 Creá una tarea por cada uno de estos 4 renglones:
 
-### 1. Las notas del blog (1 vez por semana)
+### 1. Las notas del blog (3 veces por semana: Lunes, Miércoles y Viernes)
 - **Título / Name:** `AK - Escribir notas del blog`
-- **Dirección / URL:** `https://TU-DOMINIO.com/api/cron/generate-blog-post`
-- **Cada cuánto / Schedule:** Elegir `Every 1 week` (cada 1 semana, por ejemplo los lunes a las 09:00 hs).
+- **Dirección / URL:** `https://akproducciones.uy/api/cron/generate-blog-post`
+- **Cada cuánto / Schedule:** `Lunes, Miércoles y Viernes a las 10:00 hs` (Crontab: `0 10 * * 1,3,5`).
 - **Encabezado / Header (opcional si usás clave):** `Authorization: Bearer TU_CRON_SECRET`
 
 ---

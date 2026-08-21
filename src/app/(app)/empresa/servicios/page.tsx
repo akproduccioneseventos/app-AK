@@ -6,7 +6,7 @@ import Link from 'next/link';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription, CardFooter } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
-import { ArrowLeft, Sparkles, PackagePlus, Edit, Trash2, Loader2, AlertTriangle, Search, DollarSign, Printer, Copy, Percent, Package, Truck, UserCheck, Save } from 'lucide-react';
+import { ArrowLeft, Sparkles, PackagePlus, Edit, Trash2, Loader2, AlertTriangle, Search, DollarSign, Printer, Copy, Percent, Package, Truck, UserCheck, Save, LayoutDashboard } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import type { ServicioEmpresa } from '@/types/empresa';
 import { getServiciosEmpresa, deleteServicioEmpresa, duplicateServicioEmpresa, adjustAllServicePrices, adjustAllServiceCosts } from '@/app/actions/servicios-empresa';
@@ -309,7 +309,8 @@ export default function CatalogoServiciosPage() {
                                   <Button variant="ghost" size="icon" className="h-8 w-8 rounded-lg hover:bg-white" onClick={() => handleDuplicate(item.id, item.nombre)} disabled={!!deletingId || !!duplicatingId} title="Duplicar">
                                       {duplicatingId === item.id ? <Loader2 className="w-3.5 h-3.5 animate-spin"/> : <Copy className="w-3.5 h-3.5"/>}
                                   </Button>
-                                  <Button asChild variant="ghost" size="icon" className="h-8 w-8 rounded-lg hover:bg-white text-primary"><Link href={`/empresa/servicios/editar/${item.id}`}><Edit className="w-3.5 h-3.5"/></Link></Button>
+                                  <Button asChild variant="ghost" size="icon" className="h-8 w-8 rounded-lg hover:bg-white text-indigo-600" title="Diseño visual"><Link href={`/empresa/todos-los-servicios/${item.id}/editar`}><LayoutDashboard className="w-3.5 h-3.5"/></Link></Button>
+                                  <Button asChild variant="ghost" size="icon" className="h-8 w-8 rounded-lg hover:bg-white text-primary" title="Editar servicio"><Link href={`/empresa/servicios/editar/${item.id}`}><Edit className="w-3.5 h-3.5"/></Link></Button>
                                   <AlertDialog>
                                     <AlertDialogTrigger asChild>
                                       <Button variant="ghost" size="icon" className="h-8 w-8 rounded-lg hover:bg-red-50 text-destructive" disabled={!!deletingId || !!duplicatingId}><Trash2 className="w-3.5 h-3.5" /></Button>

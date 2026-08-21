@@ -19,6 +19,12 @@ anotado, la próxima auditoría lo va a volver a encontrar.
 
 ## Decisiones del dueño (no son errores, no se discuten)
 
+- **Las pantallas sin puerta (21 de agosto de 2026):**
+  - **Bloque 1 — El día de la fiesta (`src/app/(app)/fiestas/[id]/centro/page.tsx`, `src/app/(app)/fiestas/nueva/reuniones/page.tsx`, `src/app/(app)/fiestas/nueva/page.tsx`):** Se enlazaron las pantallas operativas huérfanas: botón de imprimir minuta en `/fiestas/nueva/reuniones`, tarjetas operativas en el centro de fiesta para `/fiestas/[id]/cierre-mundial` y `/fiestas/[id]/experiencia-tecnologica-ak`, y rutas canónicas absolutas en los módulos de producción.
+  - **Bloque 2 — Las del negocio (`src/components/main-nav.tsx`, `src/app/(app)/empresa/servicios/page.tsx`):** Se abrieron puertas claras en el menú principal (`MainNav`) para `/repaso-diario`, `/recursos-multi-evento`, `/empresa/dashboard`, `/contabilidad/crm/marketing-ads`, `/empresa/presentacion-led/configuracion` y enlace directo al editor visual `/empresa/todos-los-servicios/[id]/editar` desde la lista de catálogo.
+  - **Bloque 3 — Las de configuración (`src/components/main-nav.tsx`):** Se agregaron los accesos de menú para `/settings/promos`, `/settings/ai-assistant` y `/settings/mapa-tecnologico-ak`.
+  - **Bloque 4 — Prevención y Control Automático (`src/__tests__/auditoria-pantallas-sin-puerta.test.ts`):** Suite ampliada con 19 pruebas que validan que cada pantalla de negocio, fiesta y configuración tenga al menos una puerta de entrada y falle automáticamente si se crea una pantalla huérfana. Pasada 2 de `scripts/auditoria.mjs` redujo las alertas de huérfanos a 137.
+
 - **La auditoría que corre sola (20 de agosto de 2026):**
   - **Bloque 1 — Comando de auditoría (`scripts/auditoria.mjs`, `package.json`):** Nuevo comando `npm run auditoria` que ejecuta las 4 pasadas de conteo mecánico exacto sin IA, genera el informe con fecha y hora en `auditoria-out/informe.md`, reporta cada hallazgo con archivo y línea, y concluye con el resumen de 4 números. No rompe la compilación ni frena nada.
   - **Bloque 2 — Pasada 1 (Tareas automáticas):** Compara `src/app/api/cron/` con `src/lib/automatico/tareas-automaticas.ts`, reporta tareas que no llaman a `marcarCorrida()`, tareas no declaradas y estado de última corrida.
