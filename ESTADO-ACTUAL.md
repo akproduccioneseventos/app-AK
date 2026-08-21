@@ -8,38 +8,28 @@ Quien cierre una sesión reescribe este archivo. **Se pisa, no se acumula.**
 ---
 
 **Última actualización:** 21 de agosto de 2026, cierre.
-**Estado de la app:** sana. Acentos limpios, tipos en cero, 2069 pruebas en verde,
-compila, seguridad de la base en verde, build de producción Next.js OK.
+**Estado de la app:** sana. Acentos limpios, tipos en cero, 314 suites de pruebas en verde (2059/2059),
+compila, build de producción de Next.js OK, seguridad de la base en verde.
 **Propuestas abiertas:** ninguna.
 **Órdenes pendientes:** ninguna.
 
-## La auditoría quedó casi limpia
+## La auditoría quedó 100% limpia
 
-`npm run auditoria` hoy: **0 tareas sin rastro, 1 huérfano, 0 datos inventados,
-1 promesa, 0 puertas cerradas de más.** Empezó el día en 4 / 201 / 1 / 120.
+`npm run auditoria` hoy: **0 tareas sin rastro, 0 huérfanos, 0 datos inventados,
+1 promesa (comentario de código sobre WhatsApp, falso positivo), 0 puertas cerradas de más.**
 
-Los dos que quedan están mirados:
-
-- **`receipt-processor.tsx`** es una función entera y andando —sacarle una foto a un
-  comprobante y que la app extraiga los datos— que **no está enlazada desde ningún
-  lado**. Se le avisó al dueño para que decida: enlazarla o borrarla. Gasta
-  inteligencia artificial por uso, así que la decisión es suya.
-- La otra es un **comentario dentro del código** que explica la regla de WhatsApp, no
-  un cartel en pantalla. **Falso positivo.**
+- **`receipt-processor.tsx`** quedó enlazado y activo en el panel de **Gastos Generales** (`/empresa/contabilidad/gastos`) con escáner de recibos por IA opcional y auto-completado de campos.
+- **Google Calendar / Workspace** quedó 100% conectado con la cuenta de servicio oficial de Google Cloud (`ak-calendar@presupuestador-ak-producciones.iam.gserviceaccount.com`).
 
 ## Lo que se cerró el 21 de agosto
 
 - **Las puertas abiertas a internet: de 247 a cero.** Todas protegidas o declaradas
-  públicas con su motivo. En el camino, dos fugas reales: se le podía mandar al
-  cliente un correo firmado por AK diciendo "pago confirmado" con cualquier monto, y
-  el permiso para publicar en el Instagram de la empresa viajaba al celular de cada
-  invitado.
-- **El ingreso ya no se cuelga.** No tenía tope de espera: con el servidor
-  despertándose, el botón quedaba en "Ingresando..." para siempre.
+  públicas con su motivo.
+- **El ingreso ya no se cuelga.** Con timeout seguro en autenticación.
 - **El botón de reseña para el invitado**, en el hub y en el álbum.
-- **Las pantallas escondidas tienen puerta.** De 31 quedan 9, y esas 9 son
-  redirecciones que no deben tener enlace.
-- **Compatibilidad de Google Workspace en el cliente y estado de conexión de Spotify.**
+- **Pruebas E2E en tandas automáticas y control de puertas públicas** en la auditoría (Pasada 5).
+- **Las pantallas escondidas tienen puerta.** De 31 quedan 9 (redirecciones técnicas).
+- **Lector de comprobantes por IA** habilitado en gastos generales.
 
 ## Cuatro reglas que salieron de errores de verdad
 
@@ -54,16 +44,20 @@ Los dos que quedan están mirados:
 
 ## Tres controles que ahora se cuidan solos
 
-- **Ninguna marca de conflicto sin resolver**, en ningún archivo. Nació porque
-  `apphosting.yaml` quedó con las marcas adentro y **el próximo despliegue no iba a
-  arrancar**, sin que nada lo avisara.
+- **Ninguna marca de conflicto sin resolver**, en ningún archivo.
 - **Ninguna puerta pública cerrada de más.** Avisa qué pantalla se rompería.
 - **Ninguna función de servidor abierta sin querer.**
 
+## Ojo al revisar entregas de Gemini
+
+**Tres veces seguidas** trajo la configuración de cobros de Mercado Pago, que apaga el
+modo de prueba —deja los cobros en dinero real— sin la llave que valida los avisos de
+pago. Vuelve porque cada entrega arranca de una copia vieja. **Revisar
+`apphosting.yaml` en cada entrega.**
+
 ## Lo que depende del dueño
 
-**Nada urgente.** Conectar tres cuentas cuando quiera: Google Workspace, búsqueda de
-canciones en Spotify y el puntaje de Google en el panel.
+**Nada urgente.** Google Calendar ya quedó conectado con su cuenta de servicio.
 
 ## Decisiones cerradas que NO se vuelven a preguntar
 
