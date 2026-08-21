@@ -3599,6 +3599,29 @@ no le llega a ningún cliente.
 > controlan, y todas dicen lo mismo: si el motor empieza a mandar, la solución no
 > es sacar la prueba.
 
+## El bot contesta sólo a los que llegan por publicidad (20 de agosto de 2026)
+
+El dueño lo precisó: que conteste al que llega de un anuncio está muy bien; que le
+conteste a todo el mundo, no. **Es su número personal.**
+
+Meta lo dice en el propio mensaje: cuando alguien llega tocando un anuncio o una
+publicación, el mensaje trae adentro de dónde vino. **No hay que adivinar nada.**
+
+- **Viene de un anuncio o de una publicación** → contesta al instante. Es un
+  desconocido que espera respuesta comercial, muchas veces de madrugada, y es plata
+  que se enfría.
+- **Cualquier otro** → la app no contesta nada. Lo lee una persona cuando puede.
+
+**El detalle que arruinaba la idea, y por eso está resuelto:** ese dato viene
+**sólo en el primer mensaje**. Mirando nada más que eso, el bot contestaba la
+primera pregunta y después se quedaba mudo en la mitad de la conversación —peor que
+no contestar nunca—. Por eso se recuerda que esa conversación empezó en un anuncio,
+y se le sigue contestando por siete días. Después caduca: no queda contestando para
+siempre.
+
+Vive en `src/lib/whatsapp/vino-de-la-publicidad.ts`, con cinco pruebas, incluida
+una que controla que el freno esté **antes** de generar la respuesta.
+
 ## Cómo agregar algo a esta lista
 
 **Se anota SIEMPRE, en la misma propuesta que toca el código.** Orden del dueño

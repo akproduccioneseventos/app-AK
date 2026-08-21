@@ -502,8 +502,11 @@ Cerradas. Si un análisis las marca como problema, es un falso positivo:
   armadas de antes, así que el prospecto que llega desde Google no espera.
 - **Nada que aumente lo que cobra Firebase se cambia sin preguntar.** Vale para
   memoria, instancias mínimas, CPU y cualquier cosa que se pague por mes.
-- **El WhatsApp del dueño es su número personal (20 de agosto de 2026).** No se le
-  conecta ningún bot que conteste solo, nunca. La app **prepara** los mensajes
+- **El WhatsApp del dueño es su número personal (20 de agosto de 2026).** El bot
+  **contesta únicamente a quien llega tocando un anuncio o una publicación de la
+  empresa** —eso lo avisa Meta en el mensaje, no se adivina—. A la familia, a los
+  proveedores y a los amigos **no les contesta nadie**: el mensaje lo lee una
+  persona cuando puede. La app **prepara** los mensajes
   —recordatorios de cuota, seguimiento de prospectos— y los deja en la bandeja de
   salida; **el mensaje sale cuando una persona lo toca**, desde su propio WhatsApp.
   Escribirle a clientes y prospectos está bien; contestarle a cualquiera que

@@ -6,6 +6,10 @@ import {
   verifyTwilioWebhookSignature,
 } from '@/lib/whatsapp/webhook-security';
 import { WHATSAPP_WEBHOOK_INTERNAL_TOKEN } from '@/lib/whatsapp/internal-token';
+import {
+  correspondeContestarSolo,
+  type ReferenciaDeOrigen,
+} from '@/lib/whatsapp/vino-de-la-publicidad';
 
 export const runtime = 'nodejs';
 export const dynamic = 'force-dynamic';
@@ -75,6 +79,8 @@ export async function POST(request: NextRequest) {
     let clientName: string | undefined;
 
     // Parse Meta (WhatsApp Business API) format
+    let referencia: ReferenciaDeOrigen | null = null;
+
     if (body.object === 'whatsapp_business_account' || body.entry) {
       // Strictly validate Meta Signature in production
       const metaSignature = request.headers.get('x-hub-signature-256');
@@ -98,6 +104,9 @@ export async function POST(request: NextRequest) {
           messageText = messageData.text?.body ?? messageData.type ?? '';
           const contact = value?.contacts?.[0];
           clientName = contact?.profile?.name;
+          // Meta avisa aca cuando la persona llego tocando un anuncio. Viene solo
+          // en el primer mensaje de la conversacion.
+          referencia = messageData.referral ?? null;
         }
       } catch {
         // Ignore parse errors — may be a different event type (status update, etc.)
@@ -139,6 +148,24 @@ export async function POST(request: NextRequest) {
     if (!phone || !messageText) {
       // Not an incoming message event — acknowledge silently
       return NextResponse.json({ status: 'ok' }, { status: 200 });
+    }
+
+    /**
+     * **El numero es el personal del dueno: no se le contesta a cualquiera.**
+     *
+     * Solo se responde automaticamente a quien llego tocando un anuncio o una
+     * publicacion de la empresa. Esa persona es un desconocido que espera una
+     * respuesta comercial, muchas veces de madrugada, y es plata que se enfria.
+     *
+     * A la familia, a los proveedores y a los amigos **no les contesta nadie**: el
+     * mensaje se ignora y lo lee una persona cuando puede.
+     */
+    if (!(await correspondeContestarSolo(phone, referencia))) {
+      return NextResponse.json({
+        received: true,
+        respondido: false,
+        motivo: 'No viene de la publicidad: contesta una persona.',
+      });
     }
 
     const result = await processIncomingMessage(phone, messageText, clientName, WHATSAPP_WEBHOOK_INTERNAL_TOKEN);
