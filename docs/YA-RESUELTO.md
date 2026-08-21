@@ -3948,3 +3948,43 @@ Sumá una línea en el módulo que corresponda. Con esto alcanza:
 - **Dónde**, si sirve para ubicarlo.
 - **Si la decisión tiene un porqué que no se ve en el código, escribilo.** Ese es
   el dato que evita que otro lo "arregle" al revés.
+
+---
+
+## Manual de la app y mapa de pantallas (21 de agosto de 2026)
+
+- **Se escribió `docs/MANUAL-DE-LA-APP.md`**, uno solo con dos capas: arriba el
+  mapa en criollo, que es lo que lee la asistente de la app para llevar al equipo
+  a la pantalla que busca; abajo el índice técnico, con dónde vive cada cosa y
+  **qué NO existe**, que es lo que evita que alguien vuelva a construir algo que
+  ya está o prometa algo que la app no hace.
+  **Por qué uno solo y no dos:** dos manuales separados se despegan en un mes, y
+  el que queda viejo hace más daño que no tener ninguno.
+
+- **El mapa de pantallas se arma solo.** `npm run mapa:generar` lee la aplicación
+  y escribe `src/lib/multiagent/mapa-app.generado.ts`: 341 pantallas y 39
+  opciones de menú, con la familia de cada una. **No escribir listas de rutas a
+  mano en ningún otro lado**: se desactualizan el mismo día.
+
+- **El candado**: `src/__tests__/mapa-de-la-app-al-dia.test.ts` vuelve a armar el
+  mapa y compara. Si alguien agrega o saca una pantalla y no regenera, se pone en
+  rojo. Además revisa que cada opción del menú lleve a una pantalla que existe,
+  que la asistente no pueda mandar a nadie a una pantalla inventada, y que cada
+  ruta que nombra el manual siga estando.
+  **Por qué así:** prometer "me acuerdo de actualizarlo" ya sabemos cómo termina.
+
+- **Arreglado: la asistente mandaba a dos pantallas que no existen.** De las 10
+  rutas que tenía escritas a mano, el plan de pagos y las reuniones estaban mal:
+  quien le pedía ir ahí llegaba a una pantalla en blanco. Ahora apuntan a
+  `/fiestas/nueva/plan-pagos` y `/settings/templates/reuniones`.
+
+- **Verificado y corregido en el traspaso: las notas del blog NO salen en
+  borrador.** Se publican directo, con la fecha del día, y entran solas al mapa
+  del sitio. En un chat anterior se dijo que salían en borrador para aprobar; era
+  falso. Se deja publicando directo a propósito, para que el posicionamiento no
+  dependa de que alguien apruebe.
+
+- **Falso positivo verificado:** un ayudante reportó que había una compilación
+  corriendo y que no se podía verificar. No había ninguna: contó su propio
+  comando de búsqueda. **Para saber si hay una compilación, `ps aux | grep "next
+  build" | grep -v grep`**, sin `-c`.
