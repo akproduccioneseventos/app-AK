@@ -3639,6 +3639,88 @@ blog ya lo hacia desde antes; se sumaron las metricas y los posteos programados.
 **Los recordatorios de cuota quedan afuera tambien aca**, por el mismo motivo, con
 prueba que lo impide.
 
+## La medición quedó prendida sin tocar ninguna consola (20 de agosto de 2026)
+
+El identificador de Google Analytics y el del píxel de Meta estaban **sólo como
+variable del servidor**, y por eso **no se midió nunca**: el dueño no programa y
+no podía cargarlas. La web y la publicidad estuvieron sin medir todo el tiempo.
+
+Ahora viven en `src/lib/medicion/identificadores.ts` y la medición funciona sola
+desde el primer despliegue. La variable del servidor sigue mandando si está
+puesta, para poder apuntar a otra cuenta sin tocar el código.
+
+**Por qué se pueden escribir en el código y no es una contradicción con lo de la
+llave de cobros:** estos dos **son públicos por diseño**. Viajan en el código de
+cada página que carga cualquier visitante, igual que el teléfono en el pie. No dan
+acceso a nada: sólo dicen a qué cuenta mandar las visitas. Una llave de cobros, en
+cambio, mueve plata.
+
+**La distinción queda escrita en el archivo**, con la prohibición explícita de
+guardar ahí cualquier cosa que dé acceso a algo. Hay una prueba que lo controla.
+
+Las tres pantallas que informaban el estado ahora miran el mismo dato que enciende
+cada cosa, así que dicen la verdad.
+
+## Decisión del dueño: la llave de cobros queda como está (20 de agosto de 2026)
+
+Se le propuso dos veces generar una llave de cobros nueva, porque la que estaba en
+uso llegó escrita dentro de un archivo. **Decidió que no: se queda con la última
+que cargó.** Es su decisión y no se le vuelve a plantear.
+
+Lo que sí quedó hecho y no depende de eso: el archivo está fuera del repositorio y
+hay una prueba que impide que cualquier llave vuelva a entrar.
+
+## El WhatsApp personal, y el freno que frenaba de más (20 de agosto de 2026)
+
+El dueño aclaró dos cosas que cambian el diseño: **el WhatsApp es su número
+personal**, y no quiere un bot contestándole a cualquiera. Pero **escribirle a
+clientes y prospectos está bien**.
+
+**Eran dos cosas distintas atadas al mismo interruptor.** El de "bot activado"
+apagaba las dos: el bot que contesta solo, *y también* el motor que **prepara** los
+mensajes. Con el bot apagado —que es como tiene que estar— **los recordatorios de
+cuota vencida no se armaban nunca**, y el equipo no tenía a quién reclamarle.
+
+Se separaron:
+
+- **El bot que contesta solo** sigue apagado y controlado donde corresponde, en la
+  entrada de mensajes. Ése no se prende.
+- **El motor que prepara** ya no depende de ese interruptor: deja el aviso en la
+  bandeja de salida con estado pendiente, y **el mensaje sale cuando una persona
+  lo toca**, desde su propio WhatsApp.
+
+Con eso, los recordatorios de cuota entraron a la lista de tareas que corren solas:
+**se comprobó que no le escriben a nadie**. Preparar la lista de a quién reclamarle
+no le llega a ningún cliente.
+
+> **La regla que queda, y está en `CLAUDE.md`: preparar sí, mandar no.** Si alguna
+> vez una tarea manda sola, sale de esa lista el mismo día. Tres pruebas lo
+> controlan, y todas dicen lo mismo: si el motor empieza a mandar, la solución no
+> es sacar la prueba.
+
+## El bot contesta sólo a los que llegan por publicidad (20 de agosto de 2026)
+
+El dueño lo precisó: que conteste al que llega de un anuncio está muy bien; que le
+conteste a todo el mundo, no. **Es su número personal.**
+
+Meta lo dice en el propio mensaje: cuando alguien llega tocando un anuncio o una
+publicación, el mensaje trae adentro de dónde vino. **No hay que adivinar nada.**
+
+- **Viene de un anuncio o de una publicación** → contesta al instante. Es un
+  desconocido que espera respuesta comercial, muchas veces de madrugada, y es plata
+  que se enfría.
+- **Cualquier otro** → la app no contesta nada. Lo lee una persona cuando puede.
+
+**El detalle que arruinaba la idea, y por eso está resuelto:** ese dato viene
+**sólo en el primer mensaje**. Mirando nada más que eso, el bot contestaba la
+primera pregunta y después se quedaba mudo en la mitad de la conversación —peor que
+no contestar nunca—. Por eso se recuerda que esa conversación empezó en un anuncio,
+y se le sigue contestando por siete días. Después caduca: no queda contestando para
+siempre.
+
+Vive en `src/lib/whatsapp/vino-de-la-publicidad.ts`, con cinco pruebas, incluida
+una que controla que el freno esté **antes** de generar la respuesta.
+
 ## Cómo agregar algo a esta lista
 
 **Se anota SIEMPRE, en la misma propuesta que toca el código.** Orden del dueño

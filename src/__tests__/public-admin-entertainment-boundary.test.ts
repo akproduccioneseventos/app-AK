@@ -80,20 +80,20 @@ describe('public and operator boundaries', () => {
     expect(cron).not.toContain("searchParams.get('secret')");
 
     /**
-     * **Esta es la que no se afloja nunca.** Las otras tres tareas pueden correr
-     * sin clave configurada, porque repetirlas no le hace nada a nadie. Ésta le
-     * escribe al cliente por WhatsApp: sin clave **no corre**, y contesta 503.
+     * **La linea que no se cruza: preparar si, mandar no.**
      *
-     * Si alguien la agrega a `TAREAS_QUE_NO_HACEN_DANO`, esta prueba se pone en
-     * rojo. La solución no es sacar la prueba.
+     * Los recordatorios de cuota corren sin clave porque **no le escriben a
+     * nadie**: dejan el aviso en la bandeja de salida y el mensaje sale cuando una
+     * persona lo toca, desde su propio WhatsApp.
+     *
+     * Lo que esta prueba cuida es que eso siga siendo cierto. Si el motor empieza
+     * a mandar solo, se pone en rojo. **La solucion no es sacar la prueba: es
+     * sacar el envio.**
      */
-    const puerta = read('src/lib/automatico/puerta-de-las-tareas.ts');
-    const listaAbierta = puerta.slice(
-      puerta.indexOf('TAREAS_QUE_NO_HACEN_DANO'),
-      puerta.indexOf(']);', puerta.indexOf('TAREAS_QUE_NO_HACEN_DANO')),
-    );
+    const motor = read('src/lib/whatsapp-automation-engine.ts');
 
-    expect(listaAbierta).not.toContain('recordatorios-de-pago');
+    expect(motor).not.toContain('sendMetaWhatsAppMessage');
+    expect(motor).toContain("status: 'pendiente'");
   });
 
   it('builds the printed annual projection from the current total, not the adjusted total', () => {

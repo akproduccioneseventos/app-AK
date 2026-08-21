@@ -1,4 +1,7 @@
-export const GA_MEASUREMENT_ID = process.env.NEXT_PUBLIC_GA_MEASUREMENT_ID || '';
+import { idDeMedicionGoogle } from '@/lib/medicion/identificadores';
+
+/** A que cuenta se mandan las visitas. El porque, en `identificadores.ts`. */
+export const GA_MEASUREMENT_ID = idDeMedicionGoogle();
 
 declare global {
   interface Window {
