@@ -3496,6 +3496,50 @@ Una compilación falló con un archivo temporal faltante. **No era la app: eran 
 compilaciones corriendo a la vez en la misma carpeta.** Ya está anotado en las
 reglas que no se compila mientras corre otra: vale también entre dos ayudantes.
 
+## Las tareas ya no dependen de una contrasena que nadie podia configurar (20 de agosto de 2026)
+
+Las cuatro tareas exigian una clave en la cabecera del pedido. **El dueno no
+programa**: no podia configurarla ni en el servicio que las llama ni en el
+servidor. Resultado real: **no corrieron nunca**, con el codigo impecable.
+
+**La decision, y el porque:** el control que importa **ya vive adentro de cada
+tarea**, no en la puerta.
+
+- Guardar los numeros de las redes no guarda dos veces el mismo dia.
+- Los posteos programados sacan solo los que una persona dejo programados y ya
+  vencieron, con tope de tres por corrida.
+- Las notas del blog corren una vez por semana y pasan por el contador de gasto.
+
+Llamarlas mil veces hace exactamente lo mismo que llamarlas una: adelantar algo
+que igual iba a pasar. Por eso, **si no hay clave configurada, esas tres corren
+igual**, con freno por si alguien encuentra la direccion. Si algun dia se
+configura una clave, se exige como antes.
+
+**Los recordatorios de cuota NO se abren nunca.** Le escriben al cliente por
+WhatsApp: sin clave, esa tarea no corre y contesta 503. Un mensaje que le llega a
+una persona no puede depender de que nadie encuentre una direccion.
+
+**Cuatro pruebas viejas exigian el contrato anterior** —que cada ruta leyera la
+clave por su cuenta— y se pusieron en rojo. **No se aflojaron: se movieron.** Ahora
+comprueban que cada tarea pase por la puerta unica, que la puerta exija la clave
+cuando esta configurada, y que **los recordatorios nunca esten en la lista de las
+que pueden correr sin ella**. Si alguien los agrega, la prueba salta.
+
+**El cambio que si es una concesion, y queda dicho:** la puerta acepta la clave
+tambien por la direccion, no solo por la cabecera. Una direccion puede quedar
+escrita en registros del servidor, asi que es algo mas debil. Se eligio igual
+porque la alternativa real no era una cabecera bien configurada: era que las tareas
+no corrieran nunca.
+
+## Las tareas se ponen al dia solas cuando el equipo entra (20 de agosto de 2026)
+
+Ademas de lo anterior, y como segunda red: al abrir la app un administrador, se
+ponen al dia las tareas vencidas (`src/lib/automatico/al-entrar-a-la-app.ts`). El
+blog ya lo hacia desde antes; se sumaron las metricas y los posteos programados.
+
+**Los recordatorios de cuota quedan afuera tambien aca**, por el mismo motivo, con
+prueba que lo impide.
+
 ## Cómo agregar algo a esta lista
 
 **Se anota SIEMPRE, en la misma propuesta que toca el código.** Orden del dueño
